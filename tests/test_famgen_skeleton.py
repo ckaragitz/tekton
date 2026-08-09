@@ -443,7 +443,147 @@ def test_units_and_type_id_helpers():
     assert abs(fs.voltamps(180.0) - 1937.50387500775) < 1e-6
     tid = fs.param_type_id("12e67102-126a-4a5e-bdd2-ba0daf715462", 4208)
     assert tid == "revit.local.family:12e67102126a4a5ebdd2ba0daf71546200001070-1.0.0"
+    assert fs.shared_param_type_id("D2CCE9EE-8e62-44ff-b5ab-12ead03922b8") == \
+        "revit.local.shared:d2cce9ee8e6244ffb5ab12ead03922b8-1.0.0"
     assert fs.REF_NAME["center_fb"] == 4 and fs.REF_NAME["center_lr"] == 1
+
+
+# ---------------------------------------------------------------------------
+# 2b. parameter IDENTITY: deterministic local guids, SHARED parameters (#165)
+# ---------------------------------------------------------------------------
+
+PANELNAME_GUID = "d2cce9ee-8e62-44ff-b5ab-12ead03922b8"      # OUR file's PanelName row
+
+
+def test_local_param_guid_is_deterministic_and_ours():
+    """Local identities: uuid5 in OUR namespace over family name + caption --
+    the same inputs give the same GUID, different captions differ, and the
+    namespace constant is the documented one."""
+    a = fs.local_param_guid("Panel", "Width")
+    ns = uuid.uuid5(uuid.NAMESPACE_DNS, "rvt-writer.gen.family.parameters")   # the documented namespace
+    assert a == str(uuid.uuid5(ns, "Panel|Width")) == fs.our_guid(fs.LOCAL_PARAM_PURPOSE, "Panel", "Width")
+    assert a == fs.local_param_guid("Panel", "Width")
+    assert a != fs.local_param_guid("Panel", "Height") != fs.local_param_guid("Other", "Height")
+    assert uuid.UUID(a).version == 5
+    # new_family_parameter's default identity IS that guid (+ the elem-id suffix law)
+    pe = fs.new_family_parameter(4208, 17, "Width", family_name="Panel")
+    tid = pe.obj["m_pParamDef"]["value"]["m_typeId"]["m_typeId"]
+    assert tid == fs.param_type_id(a, 4208) and tid.endswith("00001070-1.0.0")
+    # an explicit family_guid still wins (the one-session-GUID form)
+    pe2 = fs.new_family_parameter(4208, 17, "Width", family_guid=PANELNAME_GUID, family_name="Panel")
+    assert pe2.obj["m_pParamDef"]["value"]["m_typeId"]["m_typeId"] == fs.param_type_id(PANELNAME_GUID, 4208)
+
+
+@needs_schema
+def test_new_shared_parameter_is_a_param_elem_external_keyed_by_the_guid():
+    """The SHARED constructor: ParamElemExternal, GUID verbatim in
+    m_externalParamKey AND the revit.local.shared typeId token, the
+    residue_b [VERIFIED project-side] layout + the two family conventions
+    (m_famId = self family, design option -4), header like a family param."""
+    el = fs.new_shared_parameter(1025, 1000, "PanelName", PANELNAME_GUID.upper(),
+                                 spec_type_id=fs.SPEC_TEXT, group_type_id=fs.PGROUP_IDENTITY,
+                                 description="Panel schedule name")
+    assert el.class_name == "ParamElemExternal" and el.kind == "shared_param"
+    o = el.obj
+    assert o["m_externalParamKey"] == {"m_guidValue": PANELNAME_GUID}
+    assert o["m_famId"] == 1000 and o["m_designOptionId"] == fs.FAMILY_DESIGN_OPTION
+    assert o["m_bindingIds"] == [] and o["m_userModifiable"] is True
+    assert o["m_hideWhenNoValue"] is False and o["m_description"] == "Panel schedule name"
+    assert "m_instanceParam" not in o                        # not a ParamElemFamily field
+    pd = o["m_pParamDef"]
+    assert pd["ptr_class"] == fs.SHARED_PARAM_DEFAULT_KIND == "ParamDefValue"
+    v = pd["value"]
+    assert v["m_typeId"]["m_typeId"] == fs.shared_param_type_id(PANELNAME_GUID)
+    assert v["m_caption"] == "PanelName" and v["m_paramElemId"] == 1025
+    assert v["m_specTypeId"]["m_typeId"] == fs.SPEC_TEXT
+    assert v["m_groupTypeId"]["m_typeId"] == fs.PGROUP_IDENTITY
+    assert (v["m_restriction"], v["m_boundless"], v["m_readOnly"], v["m_userVisible"]) == (1, False, False, True)
+    h = el.header
+    assert h["m_classDef"]["m_ref"]["classref"] == "ParamElemExternal"
+    assert h["m_familyId"] == 1000 and h["m_parents"]["value"]["m_deletion"] == [1000, 1025]
+    assert (h["m_abFlags4Bytes"], h["m_viewRules"]["m_nVisibleViewFlags"]) == (8218, -32768)
+    assert el.refs["guid"] == PANELNAME_GUID and el.refs["caption"] == "PanelName"
+    # the storage-kind alternative is selectable and drops the measurable block
+    s = fs.new_shared_parameter(1026, 1000, "PanelName", PANELNAME_GUID, spec_type_id=fs.SPEC_TEXT,
+                                group_type_id=fs.PGROUP_IDENTITY, kind="ParamDefString")
+    assert s.obj["m_pParamDef"]["ptr_class"] == "ParamDefString"
+    assert "m_specTypeId" not in s.obj["m_pParamDef"]["value"]
+
+
+@needs_schema
+def test_add_shared_parameter_keys_type_values_like_a_local_one():
+    """FamilyDoc.add_shared_parameter registers under its caption; type rows,
+    the current-type set, the order cell and every element gate treat it
+    exactly like a local parameter; the document round-trips."""
+    doc = fs.new_family_document("electrical_equipment", "Shared Panel",
+                                 part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
+    w = doc.add_family_parameter("Width", fs.SPEC_LENGTH, fs.PGROUP_DIMENSIONS)
+    pn = doc.add_shared_parameter("PanelName", PANELNAME_GUID, fs.SPEC_TEXT, fs.PGROUP_IDENTITY)
+    doc.add_type("T1", {"Width": fs.mm(500), "PanelName": "LP-1"})
+    doc.finalize()
+    assert doc.params["PanelName"] is pn and pn.class_name == "ParamElemExternal"
+    assert w.class_name == "ParamElemFamily"
+    # local identity = deterministic per family name + caption (no uuid4)
+    wt = w.obj["m_pParamDef"]["value"]["m_typeId"]["m_typeId"]
+    assert wt == fs.param_type_id(fs.local_param_guid("Shared Panel", "Width"), w.elem_id)
+    fam = doc.self_family.obj
+    row = fam["m_pFamilyTypes"]["value"]["m_pairs"][0]
+    assert row["name"] == "T1"
+    by_id = {e["m_paramId"]: e for e in row["params"]["m_params"]}
+    assert by_id[pn.elem_id]["m_str"] == "LP-1"                 # keyed by the shared elem id
+    assert by_id[w.elem_id]["m_value"] == pytest.approx(fs.mm(500))
+    cur = {e["m_paramId"]: e for e in fam["m_familyParams"]["value"]["m_params"]}
+    assert cur[pn.elem_id]["m_str"] == "LP-1"
+    order = fam["m_cellList"]["value"]["m_cells"][0]["value"]["m_sortedParams"]
+    assert {g["m_groupTypeId"]["m_typeId"]: g["m_paramIds"] for g in order}[fs.PGROUP_IDENTITY] \
+        == [pn.elem_id]
+    assert doc.roundtrip()["failed"] == 0
+
+
+@needs_schema
+def test_document_shared_params_route_add_family_parameter():
+    """new_family_document(shared_params=rows): add_family_parameter authors
+    a caption the file names SHARED at its GUID (datatype must agree, else
+    ValueError), any other caption local -- every caller gets the policy."""
+    rows = {"PanelName": fs.SharedParamDef(guid=PANELNAME_GUID, name="PanelName", datatype="TEXT",
+                                           description="Panel schedule name")}
+    doc = fs.new_family_document("electrical_equipment", "Routed", shared_params=rows)
+    assert doc.shared_params == rows
+    pn = doc.add_family_parameter("PanelName", fs.SPEC_TEXT, fs.PGROUP_IDENTITY)
+    w = doc.add_family_parameter("Width", fs.SPEC_LENGTH, fs.PGROUP_DIMENSIONS)
+    assert (pn.class_name, w.class_name) == ("ParamElemExternal", "ParamElemFamily")
+    assert pn.obj["m_externalParamKey"]["m_guidValue"] == PANELNAME_GUID
+    assert pn.obj["m_description"] == "Panel schedule name"
+    clash = fs.new_family_document("electrical_equipment", "Clash", shared_params=rows)
+    with pytest.raises(ValueError, match="DATATYPE"):
+        clash.add_family_parameter("PanelName", fs.SPEC_VOLTAGE, fs.PGROUP_ELECTRICAL)
+    with pytest.raises(ValueError, match="instance"):
+        clash.add_family_parameter("PanelName", fs.SPEC_TEXT, fs.PGROUP_IDENTITY, is_instance=True)
+    assert fs.shared_datatype_matches("INTEGER", "autodesk.spec:spec.int64-1.0.0")
+    assert fs.shared_datatype_matches("number", "autodesk.spec.aec:number-1.0.1")   # version-agnostic
+    assert not fs.shared_datatype_matches("TEXT", fs.SPEC_LENGTH)
+    assert fs.shared_param_table(None) == {} and fs.shared_param_table(rows) == rows
+
+
+def test_retarget_param_twin_rehomes_local_identity_keeps_shared():
+    """The loaders' twin rewrite: id / paramElemId / famId re-pointed; a
+    revit.local.family identity re-homed to the host session + id; a
+    revit.local.shared identity (and its GUID key) kept verbatim."""
+    session = "0f" * 16
+    local = {"m_id": 5, "m_famId": 1, "m_pParamDef": {"value": {
+        "m_paramElemId": 5, "m_typeId": {"m_typeId": fs.param_type_id(PANELNAME_GUID, 5)}}}}
+    out = fs.retarget_param_twin(local, 900, 800, session)
+    assert (out["m_id"], out["m_famId"], out["m_pParamDef"]["value"]["m_paramElemId"]) == (900, 800, 900)
+    assert out["m_pParamDef"]["value"]["m_typeId"]["m_typeId"] == \
+        f"revit.local.family:{session}{900:08x}-1.0.0"
+    shared = {"m_id": 6, "m_famId": 1, "m_externalParamKey": {"m_guidValue": PANELNAME_GUID},
+              "m_pParamDef": {"value": {"m_paramElemId": 6, "m_typeId": {
+                  "m_typeId": fs.shared_param_type_id(PANELNAME_GUID)}}}}
+    out = fs.retarget_param_twin(shared, 901, 800, session)
+    assert (out["m_id"], out["m_pParamDef"]["value"]["m_paramElemId"]) == (901, 901)
+    assert out["m_pParamDef"]["value"]["m_typeId"]["m_typeId"] == fs.shared_param_type_id(PANELNAME_GUID)
+    assert out["m_externalParamKey"]["m_guidValue"] == PANELNAME_GUID
+    assert fs.PARAM_TWIN_CLASSES == ("ParamElemFamily", "ParamElemExternal")
 
 
 # ---------------------------------------------------------------------------

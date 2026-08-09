@@ -203,6 +203,18 @@ class FactoryError(ValueError):
 
 
 # ---------------------------------------------------------------------------
+# OUR shared-parameter file -- the GUID identities a firm's schedules / tags
+# bind by (parsed and applied by rvt.famgen.skeleton: a parameter whose
+# caption AND datatype match a row is authored SHARED at the row's GUID,
+# verbatim; every other parameter stays local -- reference §1.3).
+# ---------------------------------------------------------------------------
+
+#: the tracked shared-parameter file of the tagging contract (OURS)
+DEFAULT_SHARED_PARAMS = os.path.join(_ROOT, "usecases", "eaton-panelboard",
+                                     "panelboard-shared-parameters.txt")
+
+
+# ---------------------------------------------------------------------------
 # small helpers
 # ---------------------------------------------------------------------------
 
@@ -909,6 +921,11 @@ class FamilyProduct:
     def unverified(self) -> List[str]:
         return sorted({k for s in self._sheets() for k in s.unverified()})
 
+    def shared_parameters(self) -> Dict[str, str]:
+        """{caption: GUID} of the parameters authored SHARED (file GUIDs)."""
+        return {n: pe.refs["guid"] for n, pe in sorted(self.doc.params.items())
+                if pe.class_name == "ParamElemExternal"}
+
     def summary(self) -> Dict[str, Any]:
         pes = self.doc.params
         summ = {
@@ -918,6 +935,7 @@ class FamilyProduct:
             "elements": len(self.doc.elements),
             "types": [n for n, _v in self.doc.types],
             "parameters": sorted(pes),
+            "shared_parameters": self.shared_parameters(),
             "forms": [{"kind": f.kind, **{k: v for k, v in f.params.items()
                                           if k in ("width_ft", "depth_ft", "height_ft",
                                                    "base_z_ft", "rep")}}
@@ -1138,7 +1156,8 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                     neutral_rating: str = "100%",
                     solid: bool = True, name: Optional[str] = None,
                     start_id: int = 1000,
-                    types: Optional[Sequence[Any]] = None) -> FamilyProduct:
+                    types: Optional[Sequence[Any]] = None,
+                    shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
     """Compose a PANELBOARD family from catalog facts.
 
     Geometry: the enclosure box at TRUE catalog dimensions (width x height
@@ -1161,6 +1180,11 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     becomes one type-table row carrying ITS dims / ratings / Model; the
     first is the primary type (the solid is built at its box).  ``None`` =
     the single type ``mains_a``/``spaces``/``mcb`` describe.
+
+    ``shared_params`` = OUR shared-parameter file (path or parsed rows):
+    every parameter it names is authored SHARED at the file's GUID (the
+    eleven contract parameters for :data:`DEFAULT_SHARED_PARAMS`), the rest
+    stay local; ``None`` = every parameter local (the historical shape).
     """
     jobs = _type_jobs(types, {"mains_a": mains_a, "spaces": spaces, "mcb": mcb,
                               "sccr_ka": sccr_ka, "neutral_rating": neutral_rating},
@@ -1186,13 +1210,15 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     doc = SK.new_family_document("electrical_equipment", fam_name,
                                  part_type=SK.PART_TYPE["panelboard"],
                                  work_plane_based=True, start_id=start_id,
-                                 plane_length_ft=max(6.0, H * 1.5))
+                                 plane_length_ft=max(6.0, H * 1.5),
+                                 shared_params=shared_params)
     doc.notes.append("panelboard: work-plane-based (face-hosted like every rme "
                      "panelboard); enclosure box in the family XY = the host face")
     # -- parameters: dimensions ------------------------------------------
     for dim in ("Width", "Height", "Depth"):
         _num(doc, dim, "length", "dimensions")
-    # -- parameters: the tagging contract (same NAMES -> schedules bind) ---
+    # -- parameters: the tagging contract (same NAMES -> schedules bind; the
+    #    same GUIDs too under ``shared_params``) ------------------------------
     for pname, spec_k, group_k in PANEL_CONTRACT_PARAMS:
         doc.add_family_parameter(pname, SPEC[spec_k], GROUP[group_k])
     # -- the type(s): facts as parameter VALUES ------------------------------
@@ -1256,12 +1282,20 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
 
 
 def _multi_type_notes(prod: FamilyProduct, label: str = "UNVERIFIED (assumed): ") -> None:
-    """Surface the assumed fields (of every type) under ``label`` and, for a
+    """Surface the assumed fields (of every type) under ``label``; for a
     multi-type family, say out loud that the ONE solid sits at the primary
-    type's dimensions while the other rows carry theirs as parameter VALUES."""
+    type's dimensions while the other rows carry theirs as parameter VALUES;
+    and name the parameters authored SHARED (file GUIDs) if any."""
     assumed = prod.assumed()
     if assumed:
         prod.notes.append(label + ", ".join(assumed))
+    shared = prod.shared_parameters()
+    if shared:
+        prod.notes.append(
+            f"{len(shared)} SHARED parameters (ParamElemExternal, GUIDs verbatim from OUR "
+            f"shared-parameter file): {', '.join(shared)} -- a schedule / tag keyed on "
+            f"those GUIDs binds after load; every other parameter is local "
+            f"[family-side shared definitions are UNCERTIFIED: no loads claim]")
     if len(prod.types) > 1:
         prod.notes.append(
             f"{len(prod.types)} types {[t.name for t in prod.types]}: ONE family, one "
@@ -1279,7 +1313,8 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                      primary_v: Any = 480, secondary_v: Any = "208Y/120",
                      solid: bool = True, name: Optional[str] = None,
                      start_id: int = 1000,
-                     types: Optional[Sequence[Any]] = None) -> FamilyProduct:
+                     types: Optional[Sequence[Any]] = None,
+                     shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
     """Compose a DRY-TYPE TRANSFORMER family from catalog facts: the
     enclosure box at the catalog W x D footprint x H tall standing on the
     Reference Level (free-standing, floor-mounted), with TWO 3-pole power
@@ -1289,7 +1324,9 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
 
     ``types`` = kVA points (``[30, 45, 75]`` / ``'45kVA'`` / ``{'kva': 45}``)
     for a MULTI-TYPE family: one row per rating with its own frame / dims /
-    weight / Model; the first is the primary type (the solid is its box)."""
+    weight / Model; the first is the primary type (the solid is its box).
+    ``shared_params`` as :func:`make_panelboard` (caption + datatype match a
+    file row -> SHARED at the file's GUID; else local)."""
     jobs = _type_jobs(types, {"kva": kva}, scalar_key="kva")
     sheets = [resolve_transformer_facts(float(j["kva"]), vendor=vendor, primary_v=primary_v,
                                         secondary_v=secondary_v) for j in jobs]
@@ -1306,7 +1343,8 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     doc = SK.new_family_document("electrical_equipment", fam_name,
                                  part_type=SK.PART_TYPE["electrical_equipment"],
                                  work_plane_based=False, start_id=start_id,
-                                 plane_length_ft=max(6.0, W * 2.0))
+                                 plane_length_ft=max(6.0, W * 2.0),
+                                 shared_params=shared_params)
     doc.notes.append("transformer: free-standing (floor); part type 15 = the rme "
                      "dry-type transformer's own part type [V value]")
     for dim in ("Width", "Height", "Depth"):
@@ -1388,7 +1426,8 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                    aperture_in: Optional[float] = None,
                    solid: bool = True, name: Optional[str] = None,
                    start_id: int = 1000,
-                   types: Optional[Sequence[Any]] = None) -> FamilyProduct:
+                   types: Optional[Sequence[Any]] = None,
+                   shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
     """Compose a LUMINAIRE family: a recessed TROFFER (rectangular housing at
     the catalog dimensions) or a recessed DOWNLIGHT (OUR parametric can --
     the flagship record's housing dims are not sourced).  One single-phase
@@ -1400,7 +1439,8 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
     ``types`` = wattage / lumen packages for a MULTI-TYPE family: watts
     (``[30, 38, 48]`` / ``'38W'``) or dicts over ``wattage, lumens, cct,
     size, aperture_in``; one row per package, the first = the primary type
-    (the housing solid is built at its dimensions)."""
+    (the housing solid is built at its dimensions).  ``shared_params`` as
+    :func:`make_panelboard`."""
     jobs = _type_jobs(types, {"wattage": wattage, "lumens": lumens, "cct": cct,
                               "size": size, "aperture_in": aperture_in},
                       scalar_key="wattage")
@@ -1422,7 +1462,7 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
     doc = SK.new_family_document("lighting_fixture", fam_name,
                                  part_type=SK.PART_TYPE["normal"],
                                  work_plane_based=True, start_id=start_id,
-                                 plane_length_ft=6.0)
+                                 plane_length_ft=6.0, shared_params=shared_params)
     doc.notes.append("luminaire: work-plane-based (ceiling face); NO ImposterLight "
                      "light-source element (skeleton exposes no constructor) -- "
                      "photometrics ride as parameters; IES = URL reference only")

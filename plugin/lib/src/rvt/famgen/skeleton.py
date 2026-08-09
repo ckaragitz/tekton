@@ -26,6 +26,8 @@ UNKNOWN per claim):
 * the family PARAMETER machinery: ``ParamElemFamily`` elements (user
   parameters: Length/Width/Depth/...), their ``ParamDefValue`` captions,
   spec type ids and the ``revit.local.family:<guid><elemid>`` identity;
+  and SHARED family parameters (``ParamElemExternal``, GUID copied verbatim
+  from OUR shared-parameter file, ``revit.local.shared:<guid>`` identity);
 * the family's own units registry and the plan-view constellation the
   reference planes are drawn in (reused verbatim from ``rvt.genesis.skeleton``
   -- the same DBViewPlan / Viewer / DBDrawing / Viewport / ExtentElem /
@@ -68,7 +70,7 @@ from ..genesis.skeleton import (            # noqa: F401  (re-exported building 
     SkelElement, IdSource, _alloc, class_id, DUMMY_STAMP,
     element_base, symbol_base, element_header, element_parents,
     param_set_int, param_set_elemid, param_set_astring, param_set_double,
-    plane, EMPTY_ENVELOPE, _ptr, _weak,
+    plane, EMPTY_ENVELOPE, _ptr, _weak, our_guid,
     new_units_elem, DEFAULT_UNIT_FORMATS, format_options,
     minimal_globals, encode_minimal_globals,
     REVIT_2026_FORMAT_VERSION, REVIT_2026_BUILD,
@@ -504,18 +506,68 @@ def new_center_reference_planes(ids, self_family_id: int, *, gen_view_id: int = 
 # FAMILY PARAMETERS  (ParamElemFamily + the type-table value shape)
 # ---------------------------------------------------------------------------
 
+#: the :func:`our_guid` purpose of LOCAL family-parameter identities (the
+#: GUID policy of skills/tekton-ifc/references/shared-parameters-mapping.md
+#: §1.3): a local ``revit.local.family:`` parameter's 32-hex session part is
+#: ``our_guid(LOCAL_PARAM_PURPOSE, family_name, caption)`` = uuid5 under
+#: 'rvt-writer.gen.family.parameters' over '<family name>|<caption>' -- the
+#: same family + caption always yields the same identity (two builds agree
+#: byte for byte) and no Autodesk-minted GUID is ever reused.  SHARED
+#: parameters never come from here (:func:`new_shared_parameter`).
+LOCAL_PARAM_PURPOSE = "family.parameters"
+
+
+def local_param_guid(family_name: str, caption: str) -> str:
+    """The deterministic session GUID of a LOCAL family parameter."""
+    return our_guid(LOCAL_PARAM_PURPOSE, family_name, caption)
+
+
 def param_type_id(family_guid: str, param_elem_id: int) -> str:
     """The ``m_typeId`` identity of a family parameter:
     ``revit.local.family:<32 hex guid><8 hex elem id>-1.0.0`` [VERIFIED
-    format; the guid is a per-creation-session GUID -- OURS is a fresh uuid4]."""
+    format; the guid is a per-creation-session GUID -- OURS is
+    :func:`local_param_guid` unless the caller passes one]."""
     g = uuid.UUID(str(family_guid)).hex
     return f"revit.local.family:{g}{int(param_elem_id) & 0xFFFFFFFF:08x}-1.0.0"
+
+
+def shared_param_type_id(guid: str) -> str:
+    """The ``m_typeId`` identity of a SHARED parameter:
+    ``revit.local.shared:<32 hex guid>-1.0.0`` -- the GUID token IS the
+    shared parameter's GUID [VERIFIED 466/466 project-side,
+    ``rvt.genesis.residue_b.shared_parameter``]."""
+    return f"revit.local.shared:{uuid.UUID(str(guid)).hex}-1.0.0"
+
+
+#: the family-parameter definition classes a project-side loader TWINS
+PARAM_TWIN_CLASSES = ("ParamElemFamily", "ParamElemExternal")
+
+
+def retarget_param_twin(obj: dict, twin_id: int, host_family_id: int,
+                        session_guid_hex: str) -> dict:
+    """The object rewrites of a host-side parameter TWIN (both loaders):
+    ``m_id`` / ``m_pParamDef.m_paramElemId`` -> the host id, ``m_famId`` ->
+    the host Family [VERIFIED 455334 vs 786844], and the identity re-homed
+    by SCHEME: a session-scoped ``revit.local.family:`` identity takes the
+    host session GUID + host id; a global ``revit.local.shared:<guid>``
+    identity (and its ``m_externalParamKey``) is the shared parameter and is
+    kept verbatim.  Mutates and returns ``obj``."""
+    obj["m_id"] = int(twin_id)
+    obj["m_famId"] = int(host_family_id)
+    pd = ((obj.get("m_pParamDef") or {}).get("value") or {})
+    pd["m_paramElemId"] = int(twin_id)
+    tt = pd.get("m_typeId")
+    cur = (tt or {}).get("m_typeId") if isinstance(tt, dict) else None
+    if not str(cur or "").startswith("revit.local.shared:"):
+        pd["m_typeId"] = {"m_typeId": param_type_id(session_guid_hex, twin_id)}
+    return obj
 
 
 def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
                          spec_type_id: str = SPEC_LENGTH,
                          group_type_id: str = PGROUP_DIMENSIONS,
                          family_guid: Optional[str] = None,
+                         family_name: str = "",
                          is_instance: bool = False, description: str = "",
                          read_only: bool = False, user_visible: bool = True,
                          restriction: int = 1, flags: int = 8218) -> SkelElement:
@@ -526,10 +578,11 @@ def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
     [VERIFIED byte-exact vs the .rfa's Height / Width / Length parameters]
     ``spec_type_id`` = the measurable spec (:data:`SPEC_LENGTH`, voltage...);
     ``group_type_id`` = the properties-palette group; ``family_guid`` seeds
-    the ``revit.local.family`` identity (default: a fresh uuid4).
+    the ``revit.local.family`` identity (default: the deterministic
+    :func:`local_param_guid` of ``family_name`` + ``name``).
     ``restriction`` 1 [VERIFIED on all specimen params; meaning UNKNOWN].
     """
-    fam_guid = family_guid or str(uuid.uuid4())
+    fam_guid = family_guid or local_param_guid(family_name, name)
     o = element_base(elem_id, cell_list=False, design_option=FAMILY_DESIGN_OPTION)
     o["m_famId"] = int(self_family_id)
     o["m_description"] = str(description)
@@ -554,6 +607,150 @@ def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
     return SkelElement(elem_id, "ParamElemFamily", hdr, o, None, kind="family_param",
                        refs={"family": self_family_id, "caption": name,
                              "spec": spec_type_id, "group": group_type_id})
+
+
+#: the ParamDef storage class of a shared FAMILY parameter.  ``ParamDefValue``
+#: keeps the definition block byte-for-byte the shape our LOCAL family
+#: parameters carry (spec id + restriction 1 + boundless F, the certified
+#: .rfa lineage), so the shared variant differs from the local one in the
+#: element class + GUID identity ONLY.  The project-side census
+#: (``residue_b.PARAM_DEF_CLASSES``: text -> ParamDefString, integer ->
+#: ParamDefInt ...) is the other candidate; pass ``kind=`` to select it.
+SHARED_PARAM_DEFAULT_KIND = "ParamDefValue"
+
+
+def new_shared_parameter(elem_id: int, self_family_id: int, name: str, guid: str, *,
+                         spec_type_id: str = SPEC_LENGTH,
+                         group_type_id: str = PGROUP_DIMENSIONS,
+                         kind: str = SHARED_PARAM_DEFAULT_KIND,
+                         description: str = "", user_visible: bool = True,
+                         hide_when_no_value: bool = False,
+                         flags: int = 8218) -> SkelElement:
+    """A ``ParamElemExternal`` = one SHARED family parameter: the definition
+    a project schedule / tag binds BY GUID.
+
+    ``guid`` is the shared parameter's identity, copied VERBATIM from OUR
+    shared-parameter file (never regenerated): it lands in
+    ``m_externalParamKey.m_guidValue`` AND in the ``m_typeId`` token
+    (:func:`shared_param_type_id`).  The object layout is the [VERIFIED
+    project-side] ``rvt.genesis.residue_b.shared_parameter`` constructor's,
+    overlaid with the two family-document conventions every element of ours
+    carries (``m_famId`` = the self-Family, ``m_designOptionId`` -4); the
+    header mirrors :func:`new_family_parameter`'s.  Its per-type VALUES are
+    keyed by this element id exactly like a local parameter's.  [UNVERIFIED
+    family-side: no specimen family of the corpus carries a shared
+    parameter -- a certification-batch candidate, not a loads claim.]
+    """
+    from ..genesis import residue_b as _RB
+    rec = _RB.shared_parameter(str(name), str(guid), kind=kind, spec=str(spec_type_id),
+                               group=str(group_type_id), description=description,
+                               user_visible=user_visible,
+                               hide_when_no_value=hide_when_no_value, elem_id=int(elem_id))
+    o = rec.obj
+    o["m_famId"] = int(self_family_id)
+    o["m_designOptionId"] = FAMILY_DESIGN_OPTION
+    hdr = element_header("ParamElemExternal", category=-1,
+                         deletion=[self_family_id, elem_id],
+                         flags=flags, visible_view_flags=-32768,
+                         family_id=self_family_id)
+    return SkelElement(int(elem_id), "ParamElemExternal", hdr, o, None, kind="shared_param",
+                       refs={"family": self_family_id, "caption": name,
+                             "spec": spec_type_id, "group": group_type_id,
+                             "guid": rec.refs["guid"], "kind": kind})
+
+
+# -- OUR shared-parameter file (the GUID identities a schedule / tag binds by)
+
+@dataclass
+class SharedParamDef:
+    """One ``PARAM`` row of a Revit shared-parameter file."""
+    guid: str
+    name: str
+    datatype: str
+    group: str = ""
+    description: str = ""
+    visible: bool = True
+
+
+#: shared-parameter-file DATATYPE token -> the spec ids (version-less) a
+#: family parameter of that caption may carry: a schedule bound to the
+#: file's definition would reject a value of any other type
+SHARED_DATATYPE_SPECS = {
+    "TEXT": ("autodesk.spec:spec.string",),
+    "INTEGER": ("autodesk.spec:spec.int64", "autodesk.spec.aec:integer"),
+    "NUMBER": ("autodesk.spec.aec:number",),
+    "LENGTH": ("autodesk.spec.aec:length",),
+    "AREA": ("autodesk.spec.aec:area",),
+    "VOLUME": ("autodesk.spec.aec:volume",),
+    "ANGLE": ("autodesk.spec.aec:angle",),
+    "ELECTRICAL_POTENTIAL": ("autodesk.spec.aec.electrical:potential",),
+    "ELECTRICAL_CURRENT": ("autodesk.spec.aec.electrical:current",),
+    "ELECTRICAL_APPARENT_POWER": ("autodesk.spec.aec.electrical:apparentPower",),
+    "ELECTRICAL_WATTAGE": ("autodesk.spec.aec.electrical:wattage",),
+    "ELECTRICAL_LUMINOUS_FLUX": ("autodesk.spec.aec.electrical:luminousFlux",),
+    "ELECTRICAL_EFFICACY": ("autodesk.spec.aec.electrical:efficacy",),
+    "COLOR_TEMPERATURE": ("autodesk.spec.aec.electrical:colorTemperature",),
+}
+
+
+def shared_datatype_matches(datatype: str, spec_type_id: str) -> bool:
+    """True when a file row's DATATYPE and a family parameter's spec agree."""
+    return str(spec_type_id).rsplit("-", 1)[0] in SHARED_DATATYPE_SPECS.get(str(datatype).upper(), ())
+
+
+def read_shared_parameter_file(path: str) -> Dict[str, SharedParamDef]:
+    """Parse a Revit shared-parameter TXT (the documented tab-separated
+    grammar: ``#`` comments, ``*KIND<TAB>col...`` header rows naming the
+    columns of the ``KIND<TAB>value...`` rows that follow -- META / GROUP /
+    PARAM) into ``{name: SharedParamDef}``.  UTF-8 or UTF-16 (Revit writes
+    UTF-16 LE with a BOM; ours is UTF-8).  Duplicate names, a malformed GUID
+    or a PARAM row before its ``*PARAM`` header -> ``ValueError``."""
+    with open(path, "rb") as fh:
+        raw = fh.read()
+    enc = "utf-16" if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8-sig"
+    headers: Dict[str, List[str]] = {}
+    groups: Dict[str, str] = {}
+    out: Dict[str, SharedParamDef] = {}
+    for ln, line in enumerate(raw.decode(enc).splitlines(), 1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        kind, *rest = line.split("\t")
+        if kind.startswith("*"):
+            headers[kind[1:]] = rest
+            continue
+        cols = headers.get(kind)
+        if cols is None:
+            raise ValueError(f"{path}:{ln}: {kind} row before its *{kind} header")
+        row = dict(zip(cols, rest))                   # short rows: .get(col, "") below
+        if kind == "GROUP":
+            groups[row.get("ID", "")] = row.get("NAME", "")
+        elif kind == "PARAM":
+            name = row.get("NAME", "")
+            try:
+                guid = str(uuid.UUID(row.get("GUID", "")))
+            except ValueError:
+                raise ValueError(f"{path}:{ln}: PARAM {name!r} has no valid GUID") from None
+            if name in out:
+                raise ValueError(f"{path}:{ln}: duplicate PARAM name {name!r}")
+            out[name] = SharedParamDef(
+                guid=guid, name=name, datatype=row.get("DATATYPE", ""),
+                group=groups.get(row.get("GROUP", ""), row.get("GROUP", "")),
+                description=row.get("DESCRIPTION", ""),
+                visible=row.get("VISIBLE", "1").strip() != "0")
+    return out
+
+
+#: ``shared_params=``: a shared-parameter file path, or its parsed rows
+SharedParamsArg = Union[None, str, Dict[str, SharedParamDef]]
+
+
+def shared_param_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamDef]:
+    """Normalise ``shared_params=`` (None | path | parsed rows) to rows."""
+    if not shared_params:
+        return {}
+    if isinstance(shared_params, str):
+        return read_shared_parameter_file(shared_params)
+    return dict(shared_params)
 
 
 def family_param_value(param_id: int, value: Any = 0.0, *,
@@ -1124,13 +1321,14 @@ class FamilyDoc:
     origin: Tuple[float, float, float] = (0.0, 0.0, 0.0)
     elements: List[SkelElement] = dc_field(default_factory=list)
     ids: Any = None
-    family_guid: str = ""
+    family_guid: Optional[str] = None     # None = per-parameter local_param_guid; a GUID = one session GUID for all
     document_guid: str = ""
+    shared_params: Dict[str, SharedParamDef] = dc_field(default_factory=dict)   # caption -> OUR file's row
     self_family: Optional[SkelElement] = None
     ref_level: Optional[SkelElement] = None
     level_type: Optional[SkelElement] = None
     refplanes: List[SkelElement] = dc_field(default_factory=list)
-    params: Dict[str, SkelElement] = dc_field(default_factory=dict)   # caption -> ParamElemFamily
+    params: Dict[str, SkelElement] = dc_field(default_factory=dict)   # caption -> ParamElemFamily / ParamElemExternal
     types: List[Tuple[str, Dict[Any, Any]]] = dc_field(default_factory=list)
     current_type: int = 0
     connectors: List[SkelElement] = dc_field(default_factory=list)
@@ -1180,8 +1378,13 @@ class FamilyDoc:
                              is_instance: bool = False,
                              formula: Optional[str] = None,
                              default: Any = 0.0) -> SkelElement:
-        """Add a user FAMILY PARAMETER (``ParamElemFamily``) and register its
-        default value on every type row and the current-type value set.
+        """Add a user FAMILY PARAMETER and register its default value on
+        every type row and the current-type value set: a LOCAL
+        ``ParamElemFamily`` -- or, when ``name`` is a row of the document's
+        ``shared_params`` (OUR shared-parameter file), the SHARED
+        ``ParamElemExternal`` at that row's GUID (:meth:`add_shared_parameter`;
+        the row's DATATYPE must agree with ``spec_type_id`` -- a schedule
+        bound to the file's definition would reject any other -> ValueError).
 
         ``spec_type_id`` = the measurable spec (:data:`SPEC_LENGTH`,
         :data:`SPEC_VOLTAGE`, ...); ``group_type_id`` = the palette group;
@@ -1190,13 +1393,41 @@ class FamilyDoc:
         live in the ``FamDimConstrMgrImpl`` expression tables which this
         skeleton leaves empty -- carried in ``refs`` for the spec only].
         """
+        row = self.shared_params.get(name)
+        if row is not None:
+            if not shared_datatype_matches(row.datatype, spec_type_id):
+                raise ValueError(f"shared parameter {name!r}: OUR file declares DATATYPE "
+                                 f"{row.datatype!r} but the family authors it as "
+                                 f"{spec_type_id!r} -- fix the file row or the family's "
+                                 f"spec, never both GUIDs")
+            if is_instance or formula:
+                raise ValueError(f"shared parameter {name!r}: instance / formula-driven "
+                                 f"shared parameters are not built")
+            return self.add_shared_parameter(name, row.guid, spec_type_id, group_type_id,
+                                             description=row.description, default=default)
         pe = new_family_parameter(_alloc(self.ids), self.self_family.elem_id, name,
                                   spec_type_id=spec_type_id, group_type_id=group_type_id,
-                                  family_guid=self.family_guid,
+                                  family_guid=self.family_guid, family_name=self.name,
                                   is_instance=is_instance)
         if formula:
             pe.refs["formula"] = str(formula)
             pe.notes.append("formula NOT serialized (dimension-expression tables empty)")
+        return self._register_param(name, pe, default)
+
+    def add_shared_parameter(self, name: str, guid: str, spec_type_id: str = SPEC_LENGTH,
+                             group_type_id: str = PGROUP_DIMENSIONS, *,
+                             kind: str = SHARED_PARAM_DEFAULT_KIND,
+                             description: str = "", default: Any = 0.0) -> SkelElement:
+        """Add a SHARED family parameter (``ParamElemExternal``, see
+        :func:`new_shared_parameter`): ``guid`` = its identity from OUR
+        shared-parameter file, verbatim.  Type-table values key on its
+        element id exactly like :meth:`add_family_parameter`'s."""
+        pe = new_shared_parameter(_alloc(self.ids), self.self_family.elem_id, name, guid,
+                                  spec_type_id=spec_type_id, group_type_id=group_type_id,
+                                  kind=kind, description=description)
+        return self._register_param(name, pe, default)
+
+    def _register_param(self, name: str, pe: SkelElement, default: Any) -> SkelElement:
         self.params[name] = pe
         self.add(pe)
         # value entry on every type + current-type set
@@ -1472,7 +1703,8 @@ def new_family_document(category, name: str, *, host: str = "none",
                         part_type: Optional[int] = None,
                         work_plane_based: bool = False,
                         datum_length_ft: float = 30.0,
-                        plane_length_ft: float = 10.0) -> FamilyDoc:
+                        plane_length_ft: float = 10.0,
+                        shared_params: SharedParamsArg = None) -> FamilyDoc:
     """Build the FAMILY-DOCUMENT SKELETON: the self-Family, the Reference
     Level + its LevelAttributes, the two origin reference planes, the units
     registry and (``with_views``) the plan-view constellation the reference
@@ -1484,20 +1716,26 @@ def new_family_document(category, name: str, *, host: str = "none",
     host placeholder + host-face geometry ref which this skeleton records in
     the spec only -- ``host != 'none'`` is UNKNOWN territory, see the field
     map §host); ``origin`` = the insertion point (model coords, feet) the
-    origin planes intersect at.  Returns an un-finalised :class:`FamilyDoc`
+    origin planes intersect at; ``family_guid`` = ONE session GUID every local
+    parameter identity shares (default: each takes its deterministic
+    :func:`local_param_guid`); ``shared_params`` = OUR shared-parameter file
+    (path or parsed rows): every ``add_family_parameter`` caption it names is
+    authored SHARED at the file's GUID, the rest local (default: all
+    local).  Returns an un-finalised :class:`FamilyDoc`
     ready for ``add_type`` / ``add_family_parameter`` /
-    ``add_reference_plane`` / ``add_electrical_connector``.
+    ``add_shared_parameter`` / ``add_reference_plane`` /
+    ``add_electrical_connector``.
     """
     cat = _resolve_category(category)
     ids = IdSource(start_id)
-    fam_guid = family_guid or str(uuid.uuid4())
     doc_guid = document_guid or str(uuid.uuid4())
     ptype = int(part_type) if part_type is not None else (
         PART_TYPE["panelboard"] if cat == OST_ELECTRICAL_EQUIPMENT and "panel" in name.lower()
         else PART_TYPE["normal"])
     doc = FamilyDoc(category_id=cat, name=str(name), host=str(host),
                     origin=tuple(float(c) for c in origin), ids=ids,
-                    family_guid=fam_guid, document_guid=doc_guid,
+                    family_guid=family_guid, document_guid=doc_guid,
+                    shared_params=shared_param_table(shared_params),
                     part_type=ptype, work_plane_based=bool(work_plane_based))
     if host not in ("none", None, ""):
         doc.notes.append(f"host={host!r}: hosted-family scaffolding (host placeholder + "

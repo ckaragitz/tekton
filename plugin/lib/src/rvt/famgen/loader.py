@@ -13,7 +13,9 @@ What "loading" a family means in the file, decoded from the rme specimen
 + its embedded document unit 243, ``docs/writer/asset-factory.md`` sec.6):
 
     HOST ELEMENTS (partition save-unit 0, ``Global/ElemTable`` rows)
-      * one ``ParamElemFamily`` TWIN per top-level family user parameter --
+      * one ``ParamElemFamily`` TWIN per top-level family user parameter
+        (a SHARED ``ParamElemExternal`` parameter twins as itself, keeping
+        its ``revit.local.shared:<guid>`` identity + GUID key verbatim) --
         the embedded parameter object with 4 rewrites (id, owner family,
         the ``revit.local.family:`` type id), ElemRec owner = the host
         Family                                                      [VERIFIED]
@@ -98,6 +100,7 @@ HDR_FLAGS = {
     "Family": (26, -32768),
     "FamilySymbol": (2488, -32768),
     "ParamElemFamily": (8218, -32768),
+    "ParamElemExternal": (8218, -32768),
     "FamilySurrogate": (26, -32640),
     "FamSymSurrogate": (26, -32640),
     "FamilyInstance": (10, -32768),
@@ -350,9 +353,10 @@ def plan_load(product, host: HostContext, *, place: bool) -> LoadPlan:
     def alloc() -> int:
         nxt[0] += 1
         return nxt[0]
+    from .skeleton import PARAM_TWIN_CLASSES
     plan.host_family_id = alloc()
     for e in doc.elements:
-        if e.class_name == "ParamElemFamily":
+        if e.class_name in PARAM_TWIN_CLASSES:
             plan.twin_of[e.elem_id] = alloc()
     plan.surrogate_id = alloc()
     plan.symbol_id = alloc()
@@ -416,35 +420,29 @@ def _header(class_name: str, *, category: int = -1, family_id: int = -1,
 
 
 def author_param_twins(product, plan: LoadPlan) -> List:
-    """One host ``ParamElemFamily`` TWIN per top-level family user
-    parameter: the family document's own parameter object with exactly four
-    rewrites [VERIFIED 455334 vs 786844 diff]:
-    ``m_id`` / ``m_pParamDef.m_paramElemId`` -> the host id,
-    ``m_famId`` -> the host Family, ``m_typeId`` ->
-    ``revit.local.family:<32hex session guid><%08x host id>-1.0.0``.
-    Header ``m_familyId`` = the host Family, deletion = [host Family, self].
-    ElemRec owner = the host Family.
+    """One host TWIN per top-level family user parameter: the family
+    document's own parameter object with exactly four rewrites [VERIFIED
+    455334 vs 786844 diff] -- ``skeleton.retarget_param_twin``: ``m_id`` /
+    ``m_pParamDef.m_paramElemId`` -> the host id, ``m_famId`` -> the host
+    Family, a local ``m_typeId`` ->
+    ``revit.local.family:<32hex session guid><%08x host id>-1.0.0`` (a SHARED
+    ``ParamElemExternal`` twins as itself and KEEPS its
+    ``revit.local.shared:<guid>`` identity + GUID key verbatim [UNVERIFIED
+    host-side: registering the GUID in the host's ``ExternalParamTracking`` /
+    reusing a host definition of the same GUID is the open follow-up -- no
+    loads claim]).  Header ``m_familyId`` = the host Family, deletion =
+    [host Family, self].  ElemRec owner = the host Family.
     """
+    from .skeleton import PARAM_TWIN_CLASSES, retarget_param_twin
     out = []
     hf = plan.host_family_id
     for e in product.doc.elements:
-        if e.class_name != "ParamElemFamily":
+        if e.class_name not in PARAM_TWIN_CLASSES:
             continue
         tid = plan.twin_of[e.elem_id]
-        obj = _dc(e.obj)
-        obj["m_id"] = tid
-        obj["m_famId"] = hf
-        pd = ((obj.get("m_pParamDef") or {}).get("value") or {})
-        pd["m_paramElemId"] = tid
-        tt = pd.get("m_typeId")
-        local_id = f"revit.local.family:{plan.session_guid_hex}{tid & 0xFFFFFFFF:08x}-1.0.0"
-        if isinstance(tt, dict):
-            tt["m_typeId"] = local_id
-        else:
-            pd["m_typeId"] = {"m_typeId": local_id}
-        hdr = _header("ParamElemFamily", category=-1, family_id=hf,
-                      deletion=[hf, tid])
-        out.append(_skel(tid, "ParamElemFamily", hdr, obj, None,
+        obj = retarget_param_twin(_dc(e.obj), tid, hf, plan.session_guid_hex)
+        hdr = _header(e.class_name, category=-1, family_id=hf, deletion=[hf, tid])
+        out.append(_skel(tid, e.class_name, hdr, obj, None,
                          owner_id=hf, kind="param_twin"))
     return out
 

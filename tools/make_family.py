@@ -38,6 +38,19 @@ the report's ``family.type_facts``); the first is the primary type whose box
 the solid is built at.  ``--type-catalog`` also writes OUR Revit type
 catalog ``<stem>.txt`` beside the .rfa from the same facts.
 
+SHARED parameters (schedules / tags bind by GUID -- issue #165)::
+
+    python tools/make_family.py panelboard --mains 400 --spaces 42 --mcb \
+        --shared-params usecases/eaton-panelboard/panelboard-shared-parameters.txt \
+        -o out/prl2x_shared.rfa
+
+``--shared-params FILE`` = OUR Revit shared-parameter TXT: every family
+parameter whose caption + datatype match a ``PARAM`` row is authored SHARED
+(``ParamElemExternal``) at the row's GUID, copied verbatim -- the eleven
+tagging-contract parameters for the panelboard; every other parameter stays
+local.  The report's ``family.shared_parameters`` lists caption -> GUID.
+Without the flag every parameter is local (the historical file shape).
+
 Exit code 0 = the file emitted, verified, validated (0 errors, family mode)
 and provenance-clean.  ``--json`` prints the machine-readable report; the
 report is always also written beside the output as ``<stem>.json``.
@@ -85,6 +98,10 @@ def _types_flags(p, axis: str) -> None:
                         "type-table row each (first = primary type / the solid's box)")
     p.add_argument("--type-catalog", action="store_true",
                    help="also write OUR Revit type catalog <stem>.txt beside the .rfa")
+    p.add_argument("--shared-params", default=None, metavar="FILE",
+                   help="OUR shared-parameter TXT: parameters it names are authored "
+                        "SHARED at its GUIDs (schedules/tags bind by GUID); default "
+                        "= every parameter local")
 
 
 def _emit(prod, ns) -> dict:
@@ -114,6 +131,9 @@ def _print_report(rep: dict, as_json: bool) -> None:
               f"({len(fam['type_catalog'].get('columns') or [])} columns)")
     print(f"parameters  : {len(fam.get('parameters') or [])} "
           f"({', '.join((fam.get('parameters') or [])[:8])}...)")
+    shared = fam.get("shared_parameters") or {}
+    if shared:
+        print(f"shared      : {len(shared)} at OUR file's GUIDs ({', '.join(sorted(shared))})")
     forms = fam.get("forms") or []
     if forms:
         f0 = forms[0]
@@ -147,14 +167,15 @@ def cmd_panelboard(ns) -> int:
                              spaces=ns.spaces, voltage=ns.voltage, mcb=ns.mcb,
                              mounting=ns.mounting, panel_name=ns.name,
                              sccr_ka=ns.sccr, neutral_rating=ns.neutral,
-                             solid=not ns.dummy, types=_types_arg(ns.types))
+                             solid=not ns.dummy, types=_types_arg(ns.types),
+                             shared_params=ns.shared_params)
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
 def cmd_transformer(ns) -> int:
     prod = F.make_transformer(kva=ns.kva, vendor=ns.vendor, primary_v=ns.primary,
                               secondary_v=ns.secondary, solid=not ns.dummy,
-                              types=_types_arg(ns.types))
+                              types=_types_arg(ns.types), shared_params=ns.shared_params)
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
@@ -162,7 +183,7 @@ def cmd_luminaire(ns) -> int:
     prod = F.make_luminaire(kind=ns.kind, size=ns.size, wattage=ns.wattage,
                             lumens=ns.lumens, cct=ns.cct, voltage=ns.voltage,
                             aperture_in=ns.aperture, solid=not ns.dummy,
-                            types=_types_arg(ns.types))
+                            types=_types_arg(ns.types), shared_params=ns.shared_params)
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
@@ -297,7 +318,7 @@ def main(argv=None) -> int:
     try:
         _ensure_standalone()
         return int(ns.func(ns) or 0)
-    except F.FactoryError as e:
+    except (ValueError, OSError) as e:         # FactoryError, the skeleton's refusals, unreadable inputs
         print(f"factory refused the job: {e}", file=sys.stderr)
         return 2
 
