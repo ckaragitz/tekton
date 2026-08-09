@@ -240,9 +240,16 @@ OST_LevelsInternal = -2000240               # Level category
 OST_ElevMarkers = -2000195                  # [INFERRED] interior elevation marker head
 OST_Callouts = -2000538                     # callout heads
 OST_Constraints = -2000262                  # the LinearDimString's category (locked EQ dim)
-#: LeaderStyle (arrowhead) parameters [ids verified 2048/1024 corpus arrowheads]
-BIP_ARROW_ANGLE = -1006414                  # arrowhead angle (radians; RANGE 0..pi/2)
-BIP_ARROW_SIZE = -1006426                   # tick / arrow size (feet)
+#: LeaderStyle (arrowhead) parameters [ids verified 2048/1024 corpus arrowheads;
+#: id -> MEANING pinned from the corpus (#343, tools/dev/arrow_param_ids.py table):
+#: every Revit-born arrowhead in the tracked tree carries its radians value
+#: (15/20/30/60 deg, RANGE 0..pi/2) under -1006426 and its feet value
+#: (1/64"..1/4", 1..3.125 mm) under -1006414 -- the birth template's own
+#: 'Diagonal 1/8"' is (-1006426, 60 deg) + (-1006414, 1/8").  These two names
+#: were the other way round until #343; arrowhead_type() still WRITES the old
+#: crossing byte-for-byte (see there) because the certified bases carry it.]
+BIP_ARROW_SIZE = -1006414                   # tick / arrow size (feet)
+BIP_ARROW_ANGLE = -1006426                  # arrowhead angle (radians; RANGE 0..pi/2)
 BIP_ARROW_WIDTH_PEN = -1006447              # arrow width pen (int, 1 on 961/1024)
 #: dimension-style double parameters (the 11-entry set of every LINEAR style;
 #: ids verified on all 120 corpus DimensionStyles).  Meanings [INFERRED from the
@@ -1007,11 +1014,19 @@ def arrowhead_type(name: str, *, category_id: int, tick_type: int = 8,
     ``category_id`` = the arrowhead's own internal line-style CategoryElem
     (every arrowhead owns one -- 1,024/1,024); ``cells`` = the slot's cell
     apparatus (the SECRET internal arrowheads carry a SecretStyleMembership
-    cell naming their dimension group -- machinery, kept)."""
+    cell naming their dimension group -- machinery, kept).
+
+    KNOWN-CROSSED, kept byte-identical (#343): every certified base was
+    composed while the two parameter NAMES were swapped, so its arrowheads
+    carry OUR angle (radians) under the SIZE id -1006414 and OUR size (feet)
+    under the ANGLE id -1006426, in that order -- the reverse of every
+    Revit-born arrowhead.  Autodesk's reader certified those bytes; putting
+    each value under its own id is a VALUE change on certified records and
+    therefore its own single-variable viewer round (#362), never a drive-by."""
     obj = blank_object("LeaderStyle")
     element_defaults(obj, int(elem_id), design_option=design_option,
-                     double_params={BIP_ARROW_ANGLE: math.radians(float(angle_deg)),
-                                    BIP_ARROW_SIZE: mm(float(size_mm))},
+                     double_params={BIP_ARROW_SIZE: math.radians(float(angle_deg)),   # crossed, see docstring
+                                    BIP_ARROW_ANGLE: mm(float(size_mm))},            # crossed, see docstring
                      int_params=({BIP_ARROW_WIDTH_PEN: int(width_pen)}
                                  if width_pen is not None else None))
     symbol_defaults(obj, str(name))
@@ -1023,8 +1038,9 @@ def arrowhead_type(name: str, *, category_id: int, tick_type: int = 8,
     obj["m_cellList"] = _deep(cells) if cells is not None else None
     return Obj("LeaderStyle", class_id("LeaderStyle"), obj,
                ours=["m_symbolInfo.value.m_name", "m_tickType", "m_arrowFilled", "m_arrowClosed",
-                     "m_arrowCentered", f"param {BIP_ARROW_ANGLE} (angle)",
-                     f"param {BIP_ARROW_SIZE} (size)", f"param {BIP_ARROW_WIDTH_PEN} (width pen)"],
+                     "m_arrowCentered", f"param {BIP_ARROW_SIZE} (size id, carries our angle #343)",
+                     f"param {BIP_ARROW_ANGLE} (angle id, carries our size #343)",
+                     f"param {BIP_ARROW_WIDTH_PEN} (width pen)"],
                notes=[f"our arrowhead {name!r}: tick {tick_type}, filled {filled}, angle {angle_deg} deg, "
                       f"size {size_mm} mm; category {category_id} + cells = wiring"])
 
