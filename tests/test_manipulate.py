@@ -239,9 +239,9 @@ def test_move_and_retype_instance(tmp_path):
 PINNED_2026 = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
 
 
-def _astring_rows(doc, eid):
-    h = (doc.value(eid) or {}).get("m_pParamValueSetAString") or {}
-    return list(((h.get("value") or {}).get("m_paramSet")) or [])
+def _rows(doc, eid, holder="m_pParamValueSetAString"):
+    from rvt.manipulate import _param_rows
+    return _param_rows(doc.value(eid) or {}, holder)
 
 
 @pytest.fixture(scope="module")
@@ -251,91 +251,102 @@ def prompt_room(tmp_path_factory):
     if not os.path.isfile(PINNED_2026):
         pytest.skip("bundled genesis base missing")
     import rvt.frontdoor as FD
+    from rvt.manipulate import PARAM_HOLDERS
+    from rvt.mutate import Document
     out = str(tmp_path_factory.mktemp("p186") / "job")
     r = FD.author(prompt="an electrical room with a 400A distribution panel",
                   out=out, no_handoff=True)
     assert r.ok, (r.status, r.errors)
     path = r.manifest["build"]["files"]["combined"]["path"]
-    from rvt.mutate import Document
     doc = Document.from_file(path)
     (panel,) = doc.ids_of_class("FamilyInstance")
-    v = doc.value(panel)
-    assert all(v.get(h) is None for h in ("m_pParamValueSetAString", "m_pParamValueSetDouble",
-                                          "m_pParamValueSetInt", "m_pParamValueSetElementId"))
+    assert all(doc.value(panel).get(h) is None for h in PARAM_HOLDERS)
     return {"path": path, "panel": panel}
 
 
-def test_set_param_inserts_absent_astring_rows_authoring_the_holder(prompt_room, tmp_path):
+@pytest.fixture(scope="module")
+def renamed_room(prompt_room, tmp_path_factory):
+    """prompt_room after rename + set-mark in ONE session: the AString holder
+    is authored by the first insert, the second row appended to it."""
+    from rvt import manipulate as M
+    from rvt.mutate import Document
+    doc = Document.from_file(prompt_room["path"])
+    eid = prompt_room["panel"]
+    plans = [M.rename_panel(doc, eid, "DPX"), M.set_mark(doc, eid, "M-7")]
+    out = str(tmp_path_factory.mktemp("p186r") / "renamed.rvt")
+    M.commit_session(doc, out)
+    return {"path": out, "panel": eid, "plans": plans}
+
+
+def test_set_param_inserts_absent_astring_rows_authoring_the_holder(renamed_room):
     from rvt import inventory as INV
     from rvt import manipulate as M
     from rvt.mutate import Document
-    src, eid = prompt_room["path"], prompt_room["panel"]
-    doc = Document.from_file(src)
-    p1 = M.rename_panel(doc, eid, "DPX")
-    p2 = M.set_mark(doc, eid, "M-7")
+    out, eid = renamed_room["path"], renamed_room["panel"]
+    p1, p2 = renamed_room["plans"]
     assert p1.changes[0].path == "m_pParamValueSetAString" and p1.changes[0].before is None
     assert p1.changes[0].after["ptr_class"] == "ParamValueSetAString"
+    assert len(p1.changes[0].after["value"]["m_paramSet"]) == 1     # no aliasing of p2's row
     assert any("authored ParamValueSetAString holder" in n for n in p1.notes)
     assert p2.changes[0].path == "m_pParamValueSetAString.value.m_paramSet"
     assert any("into existing" in n for n in p2.notes)
-    out = str(tmp_path / "renamed.rvt")
-    M.commit_session(doc, out)
     _healthy(M.verify_manipulated(out, edited_ids=[eid]), expect_edited=[eid])
     d2 = Document.from_file(out)
-    assert _astring_rows(d2, eid) == [
-        {"m_paramId": M.BIP_RBS_ELEC_PANEL_NAME, "m_value": "DPX"},
-        {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-7"}]
+    assert _rows(d2, eid) == [{"m_paramId": M.BIP_RBS_ELEC_PANEL_NAME, "m_value": "DPX"},
+                              {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-7"}]
     assert INV.element_name(d2, eid) == "DPX"
     o = d2.decode(eid, 102)
     assert o.clean and o.consumed == o.total
 
 
-def test_set_param_inserts_absent_double_row(prompt_room, tmp_path):
+def test_set_param_inserts_absent_double_and_elementid_rows(prompt_room, tmp_path):
     from rvt import manipulate as M
     from rvt.mutate import Document
     src, eid = prompt_room["path"], prompt_room["panel"]
     doc = Document.from_file(src)
-    pid = -1001200                                   # any absent double built-in
-    plan = M.set_param(doc, eid, pid, 2.5)
+    dbl, eidp = -1001200, -1002050                   # any absent built-ins
+    plan = M.set_param(doc, eid, dbl, 2.5)
     assert plan.changes[0].path == "m_pParamValueSetDouble" and plan.changes[0].before is None
+    M.set_param(doc, eid, eidp, -1, holder="m_pParamValueSetElementId")
     out = str(tmp_path / "dbl.rvt")
     M.commit_session(doc, out)
     _healthy(M.verify_manipulated(out, edited_ids=[eid]), expect_edited=[eid])
-    h = Document.from_file(out).value(eid)["m_pParamValueSetDouble"]
+    d2 = Document.from_file(out)
+    h = d2.value(eid)["m_pParamValueSetDouble"]
     assert h["ptr_class"] == "ParamValueSetDouble" and h["pid"] == -1
-    assert h["value"]["m_paramSet"] == [{"m_paramId": pid, "m_value": 2.5}]
+    assert h["value"]["m_paramSet"] == [{"m_paramId": dbl, "m_value": 2.5}]
+    assert _rows(d2, eid, "m_pParamValueSetElementId") == [{"m_paramId": eidp, "m_value": -1}]
+    assert _rows(d2, eid, "m_pParamValueSetInt") is None           # untouched holders stay null
 
 
-def test_set_param_modifies_present_row_without_duplicating(prompt_room, tmp_path):
+def test_set_param_modifies_present_row_without_duplicating(renamed_room, tmp_path):
     """A file whose rows already exist behaves exactly as before: the row is
     changed in place, never appended a second time."""
     from rvt import manipulate as M
     from rvt.mutate import Document
-    src, eid = prompt_room["path"], prompt_room["panel"]
-    doc = Document.from_file(src)
-    M.rename_panel(doc, eid, "DPX")
-    M.set_mark(doc, eid, "M-7")
-    once = str(tmp_path / "once.rvt")
-    M.commit_session(doc, once)
-    doc2 = Document.from_file(once)
-    p = M.rename_panel(doc2, eid, "DPY")
+    eid = renamed_room["panel"]
+    doc = Document.from_file(renamed_room["path"])
+    p = M.rename_panel(doc, eid, "DPY")
     assert p.changes[0].path.endswith("].m_value") and p.changes[0].before == "DPX"
     assert not p.notes                               # plain modify, nothing authored
-    M.set_mark(doc2, eid, "M-8")
+    M.set_mark(doc, eid, 8)                          # a known text built-in stays text
     twice = str(tmp_path / "twice.rvt")
-    M.commit_session(doc2, twice)
+    M.commit_session(doc, twice)
     _healthy(M.verify_manipulated(twice, edited_ids=[eid]), expect_edited=[eid])
-    assert _astring_rows(Document.from_file(twice), eid) == [
+    assert _rows(Document.from_file(twice), eid) == [
         {"m_paramId": M.BIP_RBS_ELEC_PANEL_NAME, "m_value": "DPY"},
-        {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-8"}]
+        {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "8"}]
 
 
 def test_param_holder_for():
     from rvt import manipulate as M
     assert M.param_holder_for(M.BIP_ALL_MODEL_MARK, 7) == "m_pParamValueSetAString"
+    assert M.param_holder_for(M.BIP_ROOM_NUMBER, 101) == "m_pParamValueSetAString"
     assert M.param_holder_for(-1001200, "x") == "m_pParamValueSetAString"
     assert M.param_holder_for(-1001200, 2.5) == "m_pParamValueSetDouble"
     assert M.param_holder_for(-1001200, True) == "m_pParamValueSetInt"
     assert M.param_holder_for(-1001200, 3) == "m_pParamValueSetInt"
-    assert set(M.PARAM_HOLDERS.values()) == {"ParamValueSetDouble", "ParamValueSetInt",
-                                             "ParamValueSetAString", "ParamValueSetElementId"}
+    with pytest.raises(M.ManipulationError):
+        M.param_row_edit({"m_pParamValueSetInt": None}, -1001200, 3, holder="m_pBogus")
+    with pytest.raises(M.ManipulationError):        # not an Element object
+        M.param_row_edit({"m_name": "x"}, M.BIP_ALL_MODEL_MARK, "M")

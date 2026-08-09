@@ -808,7 +808,6 @@ def test_e2e_rename_and_set_mark_on_our_own_output(identity_job, tmp_path):
     """Issue #186: the two most natural follow-up edits -- rename the panel,
     set its Mark -- succeed on a prompt-built project whose placed instance
     carries no param rows at all (set_param upserts the AString rows)."""
-    from rvt import inventory as INV
     from rvt import manipulate as M
     from rvt.mutate import Document
     r = identity_job
@@ -826,4 +825,3 @@ def test_e2e_rename_and_set_mark_on_our_own_output(identity_job, tmp_path):
     rows = edited.value(panel["id"])["m_pParamValueSetAString"]["value"]["m_paramSet"]
     assert rows == [{"m_paramId": M.BIP_RBS_ELEC_PANEL_NAME, "m_value": "DPX"},
                     {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-7"}]
-    assert INV.element_name(edited, panel["id"]) == "DPX"

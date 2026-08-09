@@ -95,6 +95,8 @@ BIP_ALL_MODEL_MARK = -1001203        # 'Mark' (AString) on instances
 BIP_RBS_ELEC_PANEL_NAME = -1140078   # 'Panel Name' (AString) on panelboards
 BIP_DOOR_NUMBER = -1005108            # 'Mark'-like door number
 BIP_ALL_MODEL_TYPE_NAME = -1002001
+BIP_ROOM_NAME = -1006900              # room / space name (AString)
+BIP_ROOM_NUMBER = -1006901            # room / space number (AString)
 
 # keys whose small integers are geometry topology tags / indices, never
 # ElementIds (mirrors rvt.mutate._NOT_ELEMENT_ID)
@@ -880,30 +882,63 @@ PARAM_HOLDERS = {"m_pParamValueSetDouble": "ParamValueSetDouble",
                  "m_pParamValueSetAString": "ParamValueSetAString",
                  "m_pParamValueSetElementId": "ParamValueSetElementId"}
 
-#: built-in parameters whose holder is known regardless of the python type
-#: of the value handed in (a Mark of "7" is still text)
-_ASTRING_PARAMS = {BIP_ALL_MODEL_MARK, BIP_RBS_ELEC_PANEL_NAME, BIP_DOOR_NUMBER,
-                   BIP_ALL_MODEL_TYPE_NAME}
+#: python coercion of ``m_value`` per holder (ElementId / Int rows are ints)
+_HOLDER_VALUE_TYPE = {"m_pParamValueSetAString": str, "m_pParamValueSetDouble": float}
+
+#: built-in parameters whose holder is known whatever python type the value
+#: arrives as (a Mark or room number of 7 is still text): id -> holder
+KNOWN_PARAM_HOLDERS = {pid: "m_pParamValueSetAString" for pid in (
+    BIP_ALL_MODEL_MARK, BIP_RBS_ELEC_PANEL_NAME, BIP_DOOR_NUMBER,
+    BIP_ALL_MODEL_TYPE_NAME, BIP_ROOM_NAME, BIP_ROOM_NUMBER)}
 
 
 def param_holder_for(param_id: int, value) -> str:
     """Which ParamValueSet holder a NEW row for ``param_id`` = ``value``
-    belongs to: known text built-ins are AString; otherwise by value type
+    belongs to: :data:`KNOWN_PARAM_HOLDERS` first, otherwise by value type
     (str -> AString, float -> Double, bool/int -> Int; pass an ElementId
     row explicitly with ``holder=`` -- a bare int is indistinguishable)."""
-    if param_id in _ASTRING_PARAMS or isinstance(value, str):
+    known = KNOWN_PARAM_HOLDERS.get(param_id)
+    if known:
+        return known
+    if isinstance(value, str):
         return "m_pParamValueSetAString"
     if isinstance(value, float):
         return "m_pParamValueSetDouble"
     return "m_pParamValueSetInt"
 
 
-def _coerce_param_value(holder: str, value):
-    if holder == "m_pParamValueSetAString":
-        return str(value)
-    if holder == "m_pParamValueSetDouble":
-        return float(value)
-    return int(value)
+def _param_rows(val: dict, holder: str) -> Optional[list]:
+    """The ``m_paramSet`` row list of ``val[holder]``, or None if the holder
+    pointer is null / absent."""
+    h = val.get(holder)
+    rows = ((h.get("value") or {}).get("m_paramSet")) if isinstance(h, dict) else None
+    return rows if isinstance(rows, list) else None
+
+
+def param_row_edit(val: dict, param_id: int, value, *,
+                   holder: Optional[str] = None) -> Tuple[str, Any, str]:
+    """The ONE edit that inserts an absent ``{m_paramId, m_value}`` row into
+    an Element object ``val``: ``(json_path, new_value, note)`` -- either the
+    holder's row list with the row appended, or, when the holder pointer is
+    null, the whole authored holder object (:data:`PARAM_HOLDERS` shape).
+    Pure: apply it with :func:`set_path` (raw dicts at create time) or
+    :func:`modify_element` (committed elements)."""
+    holder = holder or param_holder_for(param_id, value)
+    if holder not in PARAM_HOLDERS:
+        raise ManipulationError(f"unknown param holder {holder!r} "
+                                f"(expected one of {sorted(PARAM_HOLDERS)})")
+    if holder not in val:
+        raise ManipulationError(f"parameter {param_id} not present and the object "
+                                f"has no {holder} field to insert it into")
+    row = {"m_paramId": param_id,
+           "m_value": _HOLDER_VALUE_TYPE.get(holder, int)(value)}
+    rows = _param_rows(val, holder)
+    if rows is not None:
+        return (f"{holder}.value.m_paramSet", rows + [row],
+                f"inserted parameter {param_id} row into existing {holder}")
+    return (holder, {"ptr_class": PARAM_HOLDERS[holder], "pid": -1,
+                     "value": {"m_paramSet": [row]}},
+            f"authored {PARAM_HOLDERS[holder]} holder for absent parameter {param_id}")
 
 
 def find_param(val: dict, param_id: int) -> List[Tuple[str, int]]:
@@ -912,12 +947,9 @@ def find_param(val: dict, param_id: int) -> List[Tuple[str, int]]:
     Element param-value sets and FamilyInstance ``m_pInstParams``."""
     hits = []
     for holder in PARAM_HOLDERS:
-        h = val.get(holder)
-        pset = ((h or {}).get("value") or {}).get("m_paramSet") if isinstance(h, dict) else None
-        if isinstance(pset, list):
-            for i, p in enumerate(pset):
-                if isinstance(p, dict) and p.get("m_paramId") == param_id:
-                    hits.append((f"{holder}.value.m_paramSet", i))
+        for i, p in enumerate(_param_rows(val, holder) or ()):
+            if isinstance(p, dict) and p.get("m_paramId") == param_id:
+                hits.append((f"{holder}.value.m_paramSet", i))
     h = val.get("m_pInstParams")
     params = ((h or {}).get("value") or {}).get("m_params") if isinstance(h, dict) else None
     if isinstance(params, list):
@@ -948,11 +980,17 @@ def set_param(doc, eid: int, param_id: int, value, *, seq: int = 102,
     val = sess.value(eid, seq)
     hits = find_param(val, param_id)
     if not hits:
-        return _insert_param(doc, eid, val, param_id, value, seq=seq, holder=holder)
+        try:
+            path, new, note = param_row_edit(val, param_id, value, holder=holder)
+        except ManipulationError as e:
+            raise ManipulationError(f"element {eid} ({doc.class_of(eid, seq)}): {e}") from None
+        plan = modify_element(doc, eid, {path: new}, seq=seq, kind="set-param",
+                              reason=f"insert parameter {param_id} = {value!r}")
+        plan.notes.append(note)
+        return plan
     changes = {}
     for cont, idx in hits:
         if cont == "m_pInstParams.value.m_params":
-            entry = get_path(val, f"{cont}[{idx}]")
             if isinstance(value, str):
                 changes[f"{cont}[{idx}].m_str"] = value
             elif isinstance(value, bool) or isinstance(value, int):
@@ -961,43 +999,11 @@ def set_param(doc, eid: int, param_id: int, value, *, seq: int = 102,
                 changes[f"{cont}[{idx}].m_value"] = float(value)
             else:
                 changes[f"{cont}[{idx}].m_elemId"] = value
-            _ = entry
         else:
-            changes[f"{cont}[{idx}].m_value"] = value
-    plan = modify_element(doc, eid, changes, seq=seq, kind="set-param",
+            coerce = _HOLDER_VALUE_TYPE.get(cont.split(".", 1)[0])   # by holder field
+            changes[f"{cont}[{idx}].m_value"] = coerce(value) if coerce else value
+    return modify_element(doc, eid, changes, seq=seq, kind="set-param",
                           reason=f"set parameter {param_id} = {value!r}")
-    return plan
-
-
-def _insert_param(doc, eid: int, val: dict, param_id: int, value, *, seq: int,
-                  holder: Optional[str] = None) -> ModifyPlan:
-    """Append an absent ``{m_paramId, m_value}`` row to the element's
-    param-value holder, creating the holder object when the pointer is
-    null.  Only Element-derived objects (which declare the four holder
-    fields) qualify; anything else stays a loud error."""
-    holder = holder or param_holder_for(param_id, value)
-    if holder not in PARAM_HOLDERS:
-        raise ManipulationError(f"unknown param holder {holder!r} "
-                                f"(expected one of {sorted(PARAM_HOLDERS)})")
-    if holder not in val:
-        raise ManipulationError(
-            f"element {eid} ({doc.class_of(eid, seq)}): parameter {param_id} not "
-            f"present and the object has no {holder} field to insert it into")
-    row = {"m_paramId": int(param_id), "m_value": _coerce_param_value(holder, value)}
-    cur = val.get(holder)
-    pset = ((cur or {}).get("value") or {}).get("m_paramSet") if isinstance(cur, dict) else None
-    if isinstance(pset, list):
-        path, new = f"{holder}.value.m_paramSet", pset + [row]
-        note = f"inserted parameter {param_id} row into existing {holder}"
-    else:
-        path = holder
-        new = {"ptr_class": PARAM_HOLDERS[holder], "pid": -1,
-               "value": {"m_paramSet": [row]}}
-        note = f"authored {PARAM_HOLDERS[holder]} holder for absent parameter {param_id}"
-    plan = modify_element(doc, eid, {path: new}, seq=seq, kind="set-param",
-                          reason=f"insert parameter {param_id} = {row['m_value']!r}")
-    plan.notes.append(note)
-    return plan
 
 
 def rename_panel(doc, eid: int, name: str) -> ModifyPlan:
