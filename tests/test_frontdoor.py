@@ -802,3 +802,28 @@ def test_e2e_prompt_output_carries_the_job_identity(identity_job):
     assert build["validation"]["combined"]["validate"]["n_errors"] == 0
     with open(r.manifest_paths["md"], encoding="utf-8") as fh:
         assert "project information (ProjectInfo" in fh.read()
+
+
+def test_e2e_rename_and_set_mark_on_our_own_output(identity_job, tmp_path):
+    """Issue #186: the two most natural follow-up edits -- rename the panel,
+    set its Mark -- succeed on a prompt-built project whose placed instance
+    carries no param rows at all (set_param upserts the AString rows)."""
+    from rvt import inventory as INV
+    from rvt import manipulate as M
+    from rvt.mutate import Document
+    r = identity_job
+    assert r.ok, (r.status, r.errors)
+    combined = r.manifest["build"]["files"]["combined"]["path"]
+    (panel,) = E.editables(Document.from_file(combined))["instances"]
+    ref = panel["name"]
+    r2 = FD.author(rvt=combined, edit=f"rename panel {ref} to DPX; set mark of {ref} to M-7",
+                   out=str(tmp_path / "edit"))
+    assert r2.route == "rvt" and r2.ok, (r2.status, r2.errors)
+    assert [o["op"] for o in r2.manifest["edit"]["spec"]["ops"]] == ["rename", "set-mark"]
+    assert r2.manifest["edit"]["hard_gates_passed"] is True
+    edited = Document.from_file(r2.files["edited"])
+    assert E.editables(edited)["instances"] == [dict(panel, name="DPX")]
+    rows = edited.value(panel["id"])["m_pParamValueSetAString"]["value"]["m_paramSet"]
+    assert rows == [{"m_paramId": M.BIP_RBS_ELEC_PANEL_NAME, "m_value": "DPX"},
+                    {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-7"}]
+    assert INV.element_name(edited, panel["id"]) == "DPX"
