@@ -200,6 +200,30 @@ ADocuments in the emitted `.rfa`s; full suite 1067 passed / 0 failed.
 verification** — the owner re-tests in Revit 2026 (minutes, journal on
 failure); issue #52 stays open until that verdict.
 
+## Iteration 4 — desktop round 2: the archive-numbering law
+
+Round-2 desktop verdict on the constructive candidate (owner, Revit 2026):
+**no more termination** — a clean, SPECIFIC refusal:
+`TaskDialog_Bad_Load_Reference` / `CArchiveException code=119: unresolved
+pointer references` / `ModelState: CorruptElemStream`.
+
+**Measured cause:** in a HOST ``Global/Latest`` stream the ADocument is
+archive object 1 and every self-reference points there — the
+load-surviving file carries **196/196 weakrefs == 1**.  The constructive
+tree had kept the EMBEDDED form's numbering (self = object 2, host = 1):
+12 pointers at a nonexistent object → "many unresolved pointer
+references".  Fix: ``constructive_family_host_tree`` renumbers every
+weakref to 1.  Candidate B: 13/13 weakrefs == 1, famdoc shape kept
+(239/0 slots), all instruments green.
+
+Law for KNOWLEDGE.md once #52 closes: **the ADocument archive-object
+numbering is CONTEXT-DEPENDENT** — host Latest stream: self = 1;
+embedded ContentDocuments entry: host = 1, self = 2.  A tree lifted from
+one context into the other must be renumbered; our instruments cannot
+catch it (the pointers decode fine — they just point at an object the
+TARGET context does not carry).  Desktop Revit's load-time reference
+check is the only oracle, and its dialog names it.
+
 ## BRANCH STATE
 
 * Branch `claude/rfa-revit-api-compat-izqaum`; all work committed and
