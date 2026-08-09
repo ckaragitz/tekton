@@ -20,8 +20,12 @@ filesystem. The `go` verb below runs the readiness check inline and reports
 it as `go.ready` / `go.preflight_line`. If `go.ready` is ever `false`, relay
 `preflight_line` verbatim (it names the one thing wrong) and point at
 `/tekton-doctor` — the one-time, off-the-hot-path environment check
-(`doctor --install` adds only the *optional* IFC extras). `family-donor
-missing` in the line is normal: everything builds from the bundled bases.
+(`doctor --install` adds only the *optional* IFC extras — `numpy`, which the
+`--ifc` input route needs if the sandbox's Python lacks it, and `ifcopenshell`
+for IFC authoring; the prompt and edit routes need neither). `family-donor
+missing` in the line is normal: everything builds from the bundled bases. If
+an `--ifc` call stops with the one-line "numpy is required here" error, relay
+it, run the doctor's `--install` once, and re-run — never fake the build.
 Never read, probe, list or request access to any Autodesk installation
 directory — every input is this plugin's assets or a file the user supplied.
 

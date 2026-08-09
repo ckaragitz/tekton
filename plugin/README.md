@@ -106,7 +106,8 @@ certified bases by itself and answers `tekton: READY | …` in well under a
 second. Run
 `/tekton-doctor` once if you want the full environment report;
 `/tekton-doctor --install` adds only the *optional* IFC extras
-(`ifcopenshell`, `numpy`) used for IFC authoring/validation.
+(`numpy` for the `--ifc` input route if your Python lacks it; `ifcopenshell`
+for IFC authoring/validation).
 
 ## Install — Cowork
 
@@ -119,15 +120,18 @@ engine and the certified bases (it looks for them next to the skills). The
 `.mcpb`/connector route is not needed — these skills run their own scripts
 in Cowork's built-in code sandbox.
 
-Creating, editing and validating `.rvt`/`.rfa` files and *reading* IFC
-(`go author --ifc`, product facts → family) need **no pip install at all** —
-when `ifcopenshell` is absent the engine serves IFC reads through the bundled
-pure-python steplite fallback (`lib/src/rvt/ifc/steplite.py`, proven
-byte-identical on the reference models). Only IFC *authoring / validation /
-hardening* (the `tekton-ifc` scripts) wants the optional extras: say *"run
-the tekton doctor with --install"* once, or let the `tekton-ifc` skill run
-`pip install -r skills/tekton-ifc/scripts/requirements.txt` in the sandbox
-(ifcopenshell ships a ready-made Linux wheel, so no compiler is needed).
+Creating from a prompt, editing and validating `.rvt`/`.rfa` files need **no
+pip install at all** on any Python 3.11+. The IFC *input* route (`go author
+--ifc`, product facts → family) never needs `ifcopenshell` — the engine
+reads IFC through the bundled pure-python steplite fallback
+(`lib/src/rvt/ifc/steplite.py`) — but its placement/geometry resolution does
+need `numpy`: if the sandbox's Python lacks it, the call stops in under a
+second with ONE clear line saying so, and `/tekton-doctor --install` adds it
+once (tracked to remove: repo issue #127). IFC *authoring / validation /
+hardening* (the `tekton-ifc` scripts) wants the optional extras
+(`ifcopenshell` + `numpy`): the same `--install`, or let the `tekton-ifc`
+skill run `pip install -r skills/tekton-ifc/scripts/requirements.txt` in the
+sandbox (ifcopenshell ships a ready-made Linux wheel, so no compiler is needed).
 
 ## Install — claude.ai chat
 

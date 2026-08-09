@@ -409,11 +409,14 @@ def check_stale_claims() -> None:
         fail(h)
     if not hits:
         ok(f"stale-claim guard: {len(STALE_CLAIMS)} retired phrases absent from "
-           f"agents/, commands/, README.md, docs/HONEST-STATUS.md")
+           + ", ".join(STALE_CLAIM_DOCS))
 
 
 # ---------------------------------------------------------------- main
 def main() -> int:
+    global ROOT
+    if len(sys.argv) > 1:
+        ROOT = os.path.abspath(sys.argv[1])
     print(f"== validate_plugin: {ROOT} ==")
     check_plugin_json()
     check_marketplace_json()

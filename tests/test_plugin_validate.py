@@ -41,9 +41,8 @@ def test_underscore_dirs_are_not_treated_as_skills(tmp_path):
 
 def _plugin_front_matter(root, agent_body="Route creation through go author.\n"):
     """Smallest agents/commands/README/docs tree the stale-claim guard scans."""
-    (root / "agents").mkdir(parents=True)
-    (root / "commands").mkdir()
-    (root / "docs").mkdir()
+    for d in ("agents", "commands", "docs", "skills"):
+        (root / d).mkdir(parents=True)
     (root / "agents" / "x-agent.md").write_text(
         "---\nname: x-agent\ndescription: builds .rvt files\n---\n" + agent_body,
         encoding="utf-8")
@@ -80,23 +79,22 @@ def test_stale_claim_guard_catches_each_retired_phrase(tmp_path):
         encoding="utf-8")
     hits = mod.stale_claim_hits(str(tmp_path))
     text = "\n".join(hits)
-    for phrase in ("not yet available", "route to IFC", "pip install ./lib",
-                   "in-progress and not deliverable", "deliver Tier-1 IFC instead",
-                   "creation of new elements in `.rvt` is not", "still in progress"):
-        assert phrase in text, (phrase, text)
+    for _rx, why in mod.STALE_CLAIMS:            # every retired claim fired
+        assert why in text, (why, text)
     # every hit names file:line and the reason, so the fix is obvious
     assert all(re.match(r"^(agents/x-agent\.md|README\.md|docs[/\\]HONEST-STATUS\.md):\d+: "
                         r"stale claim '.+' -- .+", h) for h in hits), hits
     assert not any(h.startswith("commands/") for h in hits)   # the clean file stays clean
 
+    # and it is wired into the CLI: the validator goes red on that tree
+    r = subprocess.run([sys.executable, VALIDATOR, str(tmp_path)],
+                       capture_output=True, text=True, cwd=ROOT)
+    assert r.returncode == 1
+    assert "stale claim 'not yet available'" in r.stdout, r.stdout
 
-def test_stale_claim_guard_runs_in_the_validator(tmp_path):
-    """The guard is wired into main(): a retired phrase in the shipped tree
-    would turn the validator (and therefore CI / sync_plugin) red."""
-    mod = _load()
-    assert mod.stale_claim_hits(os.path.join(ROOT, "plugin")) == []
-    src = open(VALIDATOR, encoding="utf-8").read()
-    assert "check_stale_claims()" in src.split("def main()", 1)[1]
+
+def test_shipped_plugin_carries_no_stale_claim():
+    assert _load().stale_claim_hits(os.path.join(ROOT, "plugin")) == []
 
 
 def test_shared_bootstrap_stays_a_plain_package():

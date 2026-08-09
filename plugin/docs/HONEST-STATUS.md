@@ -55,7 +55,7 @@ Status legend (two tiers that are never merged):
 | Open any 2023–2026 `.rvt`/`.rfa`, detect its release, decode every element against the file's own schema; audits, panel schedules, seed audits | **validated** (version-agnostic by design) | `tests/test_versions.py`, `tests/test_rvt_analyze.py`; the validator's three layers (`skills/tekton-inspect/SKILL.md`) |
 | The layered validator (`rvt_validate.py`: structure / consistency / semantic; corpus laws E1–E3; the 0x0f3f footer-blob law) = our shipping gate | **validated** — necessary, never sufficient: Autodesk's reader is the arbiter | `tests/test_validate_release.py`, `tests/test_validate_footer_blob.py`; silent on the three pinned bases |
 | IFC authoring in Claude Design (v2 exporter), validate → score/tier, harden to Tier 1, spec → IFC, psets → shared parameters | **validated** (Tier 1 by construction; deterministic) | `skills/tekton-ifc/tests/`; worked `examples/chicago-plenum-electrical-room/`, `examples/eaton-panelboard/` with their delivery reports |
-| IFC **reading** without any pip install (stdlib steplite fallback when ifcopenshell is absent) | **validated** (byte-identical outputs on both reference IFCs) | `tests/test_steplite.py` |
+| IFC **reading** without ifcopenshell (stdlib steplite fallback) | **validated** (byte-identical outputs on both reference IFCs); the `--ifc` route's placement resolution still needs `numpy` — a Python without it gets one clear line and `/tekton-doctor --install` (repo issue #127 to remove) | `tests/test_steplite.py`; `tools/surface_bench.py` author-ifc row |
 
 **What Tier 1 is (IFC):** correctly-categorized, correctly-placed Revit
 elements (DirectShape in the right category) with your schedule data as
