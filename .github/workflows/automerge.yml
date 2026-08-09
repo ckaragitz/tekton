@@ -15,10 +15,13 @@ name: automerge
 #   PR changes .github/workflows/** -> GitHub forbids GITHUB_TOKEN to merge it: merged with the
 #     optional AUTOMERGE_TOKEN secret (a fine-grained PAT of the owner with contents+pull-requests+
 #     workflows write) if present, else `session-merge` = the next CODING SESSION squash-merges it
-#     with its own (human-identity) credentials after checking CI + verdict (steer #61: sessions do
-#     what bots cannot; nothing waits on the owner). Same label for a PR that edits the reviewer
-#     itself (no verdict possible: the session reads the diff). `needs-human` is left only for a
-#     merge GitHub itself refused.
+#     with its own (human-identity) credentials (steer #61: sessions do what bots cannot; nothing
+#     waits on the owner) — but ONLY on the approved path: a ✅/🟡 verdict for the exact head SHA and
+#     green CI are prerequisites for the label, workflow files being what runs with the repo's
+#     secrets (#88). A PR that edits the reviewer itself gets its verdict from a review dispatched on
+#     the DEFAULT branch's copy of claude-review.yml (the pull_request-run refuses a modified copy);
+#     if no independent verdict can be produced for a workflow-file PR within the re-request window,
+#     it falls back to `needs-human`: a collaborator other than the author applies merge-when-green.
 #   red CI or verdict `changes` -> a live coding session fixes it first; only when
 #     now - max(head commit, red-CI completion, `changes` verdict, last fix attempt) >= pipeline.fix_grace_minutes
 #     (default 15) do we dispatch ONE bot fix pass (claude-review.yml mode=fix, from the default
@@ -119,7 +122,7 @@ jobs:
           }
 
           # The repo's own bot jobs are not CI (see header). Keep in step with BOT_CHECK_NAMES in tools/dev/techlead.py.
-          IGNORED_CHECKS='"automerge","claude-review","fix","ci-autofix","claude","render","claim","single-holder","issue-intake","pr-check","sweep","gate","plan","pick","implement","file-issues"'
+          IGNORED_CHECKS='"automerge","claude-review","fix","ci-autofix","claude","render","refresh-board","claim","single-holder","issue-intake","pr-check","sweep","gate","plan","pick","implement","file-issues"'
           merged_any=0
 
           DEFAULT=$(gh api "repos/$REPO" --jq .default_branch)
@@ -216,12 +219,10 @@ jobs:
 
             if [ -z "$approved_by" ]; then
               if [ "$verdict" = "changes" ]; then maybe_dispatch_fix "review requested changes"; continue; fi
-              # No verdict for this SHA.
-              if [ "$touches_reviewer" != "0" ]; then
-                add_label session-merge 1d76db
-                comment_once "reviewer-edit-$sha" "🧑‍💻 **For a coding session to merge** (\`session-merge\`). This PR changes \`.github/workflows/claude-review.yml\` itself; the review action refuses to run a copy that differs from \`$DEFAULT\`, so no AI verdict can ever exist for it, and the Actions token may not merge workflow changes anyway. **Next coding session (anyone's): read the diff, check the CI checks are green, then squash-merge it with your own credentials** — \`gh pr merge $pr --squash\` or the GitHub MCP \`merge_pull_request\` tool. No human is needed for this (steer #61); the SessionStart banner and the board flag it until it is done. Keep reviewer edits in tiny dedicated PRs."
-                say "#$pr edits the reviewer — session merge"; continue
-              fi
+              # No verdict for this SHA (a PR that edits claude-review.yml never gets one from its own
+              # pull_request run — the action refuses a modified copy — but the DEFAULT branch's reviewer,
+              # dispatched below, judges it like any other diff: an independent verdict is required
+              # before anyone may merge a workflow-file PR, #88).
               # If no review is running or recent for it, re-request once.
               [ -n "$runs" ] || runs=$(gh run list --repo "$REPO" --workflow claude-review.yml --limit 40 --json headSha,status,createdAt,event 2>/dev/null || echo '[]')
               live=$(jq --arg s "$sha" --arg c "$(date -u -d "$REVIEW_WAIT_MIN minutes ago" +%Y-%m-%dT%H:%M:%SZ)" \
@@ -229,7 +230,8 @@ jobs:
               if [ "$live" != "0" ]; then say "#$pr: review running/recent for ${sha:0:7} — waiting"; continue; fi
               if ! has_marker "review-dispatch-$sha"; then
                 if gh workflow run claude-review.yml --repo "$REPO" --ref "$DEFAULT" -f pr="$pr" -f mode=review >/dev/null 2>rr.err; then
-                  comment_once "review-dispatch-$sha" "🔎 No review verdict exists for \`${sha:0:7}\` and no review is running, so I re-requested **claude-review** for it. I merge as soon as the verdict and CI agree."
+                  extra=""; [ "$touches_reviewer" != "0" ] && extra=" (this PR edits the reviewer, so the review runs from \`$DEFAULT\`'s copy of it — an independent verdict is required before any session may merge a workflow-file PR)"
+                  comment_once "review-dispatch-$sha" "🔎 No review verdict exists for \`${sha:0:7}\` and no review is running, so I re-requested **claude-review** for it${extra}. I continue as soon as the verdict and CI agree."
                   say "#$pr: re-requested review for ${sha:0:7}"
                 else
                   comment_once "review-dispatch-$sha" "🔎 No review verdict for \`${sha:0:7}\`, and re-requesting the review failed (\`$(tr '\n' ' ' <rr.err | cut -c1-160)\`). Push any commit and the review runs on the new head."
@@ -237,9 +239,16 @@ jobs:
                 fi
               else
                 ts=$(grep -F -- "<!-- automerge:review-dispatch-$sha -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1)
-                if [ "$(age_min "$ts")" -ge "$STUCK_AFTER_MIN" ] && ! has_label bot-stuck; then
-                  add_label bot-stuck b60205
-                  comment_once "review-stuck-$sha" "🤖 Still no review verdict for \`${sha:0:7}\` hours after re-requesting it. Labelled \`bot-stuck\`; the board's sweep re-queues the linked issue for a fresh holder if nothing moves. A push of any commit re-arms the whole pipeline; a collaborator other than the author may also apply \`merge-when-green\`."
+                if [ "$(age_min "$ts")" -ge "$STUCK_AFTER_MIN" ]; then
+                  if [ "$touches_wf" != "0" ]; then
+                    if ! has_label needs-human; then
+                      add_label needs-human b60205
+                      comment_once "review-stuck-$sha" "🧑 **Needs a human approval.** No independent review verdict could be produced for \`${sha:0:7}\` after re-requesting it, and this PR changes \`.github/workflows/**\` — the files that run with the repository's secrets — so it will not be merged on a session's say-so alone. **A collaborator other than the author** reads the diff and applies \`merge-when-green\` (or the owner squash-merges); after that a session may perform the merge. Pushing any commit re-arms the automatic review."
+                    fi
+                  elif ! has_label bot-stuck; then
+                    add_label bot-stuck b60205
+                    comment_once "review-stuck-$sha" "🤖 Still no review verdict for \`${sha:0:7}\` hours after re-requesting it. Labelled \`bot-stuck\`; the board's sweep re-queues the linked issue for a fresh holder if nothing moves. A push of any commit re-arms the whole pipeline; a collaborator other than the author may also apply \`merge-when-green\`."
+                  fi
                 fi
                 say "#$pr: no review verdict for ${sha:0:7} yet (already re-requested)"
               fi
@@ -268,7 +277,7 @@ jobs:
                 use_token="$MERGE_TOKEN"; say "#$pr touches workflows — merging with AUTOMERGE_TOKEN"
               else
                 add_label session-merge 1d76db
-                comment_once "wf-$sha" "🧑‍💻 **For a coding session to merge** (\`session-merge\`). Approved ($approved_by) and green, but this PR changes \`.github/workflows/**\` and GitHub does not let the Actions token merge workflow changes. **Next coding session (anyone's): confirm CI is still green and the verdict above stands, then squash-merge it with your own credentials** — \`gh pr merge $pr --squash\` or the GitHub MCP \`merge_pull_request\` tool. No human is needed (steer #61). To make even this automatic, the owner may add a fine-grained personal access token (contents + pull requests + workflows: write on this repo) as the Actions secret \`AUTOMERGE_TOKEN\`."
+                comment_once "wf-$sha" "🧑‍💻 **For a coding session to merge** (\`session-merge\`). Approved ($approved_by) for exactly \`${sha:0:7}\` and green, but this PR changes \`.github/workflows/**\` and GitHub does not let the Actions token merge workflow changes. **Next coding session — preferably not the one that authored it: re-check that the head is still \`${sha:0:7}\`, CI is green and the verdict above is for that SHA, read the workflow diff once more (these files run with the repo's secrets), then squash-merge with your own credentials** — \`gh pr merge $pr --squash --match-head-commit $sha\` or the GitHub MCP \`merge_pull_request\` tool. Never merge a workflow-file PR that lacks a verdict for its head (steer #61, hardened in #88). To make this hands-free, the owner may add a fine-grained personal access token (contents + pull requests + workflows: write on this repo) as the Actions secret \`AUTOMERGE_TOKEN\`."
                 say "#$pr touches workflows — session merge"; continue
               fi
             fi

@@ -193,7 +193,8 @@ def test_pr_status_lanes_mirror_automerge_order():
     assert lane(checks=[{"name": "py3.11", "status": "queued", "conclusion": None}]) == "ci"
     assert lane(checks=RED) == "red"
     assert lane(comments=[]) == "review"
-    assert lane(comments=[], touches_reviewer=True) == "session"                      # the reviewer cannot review its own edit -> a session merges
+    assert lane(comments=[], touches_reviewer=True) == "review"                       # reviewer edit: independent verdict from main required first (#88)
+    assert "independent verdict" in text(comments=[], touches_reviewer=True)
     assert lane(comments=[], labels=["merge-when-green"]) == "merging"                # human approval substitutes for the verdict
     assert lane(comments=["🛑\n<!-- claude-review: changes sha=1234567 -->"]) == "changes"
     assert lane(touches=True) == "session"                     # green + approved + workflows -> the next session merges it
@@ -292,6 +293,23 @@ def test_fix_pass_is_dispatched_after_a_grace_window_never_inline():
     assert tl.is_bot_check("fix")
 
 
+def test_workflow_file_prs_need_a_verdict_before_session_merge():
+    """#88: automerge applies `session-merge` only on the approved path; a reviewer edit gets its
+    verdict from a review dispatched on the default branch; no verdict obtainable -> needs-human."""
+    am = _wf("automerge.yml")
+    no_verdict = am.split("if [ -z \"$approved_by\" ]; then", 1)[1].split("if [ \"$draft\" = \"true\" ]; then", 1)[0]
+    assert "add_label session-merge" not in no_verdict, "session-merge must never be offered before a verdict exists"
+    assert "-f mode=review" in no_verdict and "add_label needs-human" in no_verdict and "other than the author" in no_verdict
+    approved = am.split("if [ \"$touches_wf\" != \"0\" ]; then", 1)[1].split("if [ \"$mergeable\" = \"CONFLICTING\" ]", 1)[0]
+    assert "add_label session-merge" in approved and "--match-head-commit" in approved
+    for wf_name in ("worker.yml", "techlead.yml"):
+        text = _wf(wf_name)
+        top = "\n".join(ln.split("#", 1)[0] for ln in text.split("\njobs:\n", 1)[0].splitlines())   # permission keys, not comments
+        assert "actions: read" in top and "actions: write" not in top, f"{wf_name}: the model job must not hold actions: write"
+        assert "\n  refresh-board:\n" in text and "actions: write" in text.split("\n  refresh-board:\n", 1)[1]
+    assert tl.is_bot_check("refresh-board")
+
+
 def test_board_triggers_stay_bounded():
     """#64: no workflow_run fan-out and no label/assignment triggers on the board (30 runs in 3 min on day one)."""
     on_block = _wf("board.yml").split("\non:\n", 1)[1].split("\npermissions:", 1)[0]
@@ -311,12 +329,15 @@ def test_classify_sections():
     assert [e["number"] for e in m["next_up"]] == [5, 3, 7, 11, 24]                # P0 first, then P1 by age; #14/#37/#9 in review, #60 leased
     assert {e["number"] for e in m["waiting"]} == {16, 22}                          # gated; #23 is tracking -> not listed
     assert [e["number"] for e in m["others"]] == [52]                               # not ready, not gated: backlog remainder
-    assert m["waiting_prs"] == [] and [r["number"] for r in m["session_prs"]] == [57]  # reviewer-touching PR: a session merges it, no human
+    assert m["waiting_prs"] == [] and m["session_prs"] == []                        # reviewer-touching PR without a verdict: still in review (#88), nobody may merge yet
     h = m["health"]
-    assert (h["ready_unassigned"], h["in_review"], h["steers_untriaged"], h["stuck_prs"], h["bot_prs_open"], h["session_merge"]) == (5, 4, 1, 1, 1, 1)
+    assert (h["ready_unassigned"], h["in_review"], h["steers_untriaged"], h["stuck_prs"], h["bot_prs_open"], h["session_merge"]) == (5, 4, 1, 1, 1, 0)
     assert h["paused"] is False and h["board_issue"] == 56
     assert any("untriaged steer" in w for w in h["warnings"]) and any("fix budget" in w for w in h["warnings"])
-    assert any("waiting for ANY coding session" in w and "#57" in w for w in h["warnings"])
+    labelled = snapshot()
+    labelled["prs"][1]["labels"] = ["session-merge"]                                # once automerge offered it (verdict + green), the board flags it for a session
+    m2 = tl.classify(labelled, CFG, NOW)
+    assert [r["number"] for r in m2["session_prs"]] == [57] and any("waiting for ANY coding session" in w and "#57" in w for w in m2["health"]["warnings"])
     assert not any("below floor" in w for w in h["warnings"])                       # 5 >= floor 4
 
 
@@ -334,8 +355,8 @@ def test_board_render_is_complete_marked_and_stable_across_renders():
     assert body.startswith(tl.BOARD_BEGIN) and body.rstrip().endswith(tl.BOARD_END)
     for heading in ("## 🧭 Steers from humans", "## 🔨 In progress", "## 🔍 In review", "## ⏭️ Next up", "## 🧑 Waiting on a human", "## ✅ Done in the last 7 days", "## 🩺 Health"):
         assert heading in body, heading
-    assert "| #54 |" in body and "refuses to run modified" in body and "rebase job dispatched" in body
-    assert "1 for a session to merge" in body
+    assert "| #54 |" in body and "independent verdict" in body and "rebase job dispatched" in body
+    assert "0 for a session to merge" in body
     assert "#10-what-still-needs-a-human-and-why" in body                           # anchor exists in docs/process/AUTONOMY.md
     with open(os.path.join(ROOT, "docs", "process", "AUTONOMY.md"), encoding="utf-8") as fh:
         assert "## 10. What still needs a human, and why" in fh.read()

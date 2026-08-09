@@ -319,8 +319,9 @@ first, the engineer second:**
 ```bash
 git switch main && git pull --ff-only          # start from current trunk
 python3 tools/dev/techlead.py brief            # or /board: steers, queue vs floor, PR blockers, waiting-on-human
-gh pr list --author @me --state open           # 1. service your own PRs first (below) — and squash-merge any PR labelled
-                                               #    `session-merge` (bots may not; you can): green CI + verdict, or read the diff
+gh pr list --author @me --state open           # 1. service your own PRs first (below) — and squash-merge any PR labelled `session-merge`
+                                               #    (bots may not; a session can) IF it has a ✅/🟡 verdict for its exact head + green CI;
+                                               #    prefer one you did not author; no verdict -> never merge a workflow-file PR
 #  2. your human said something directional this session? -> /steer "<their words>"  (before acting on it)
 #  3. untriaged steers, or ready&unassigned below the floor? -> /techlead  (≤10 min, charter-bounded)
 gh issue list --assignee @me --state open      # 4. resume yours, or take the head of the queue:
@@ -478,12 +479,18 @@ you to do unless the bot asks for a human."
    push a change; label `bots-paused` on the board issue idles planner + worker.
    PRs touching `.github/workflows/**` cannot be merged by the Actions token
    (GitHub restriction), and a PR that edits `claude-review.yml` cannot even be
-   bot-reviewed → automerge labels them **`session-merge`: the next coding
-   session — anyone's, at session start — checks CI + verdict (or reads the diff)
-   and squash-merges with its own credentials** (`gh pr merge <n> --squash` or MCP
+   bot-reviewed *by their own run* → automerge re-requests the review from
+   `main`'s reviewer (an independent verdict for the exact head is **required** for
+   any workflow-file PR — these files run with the repo's secrets, #88) and, once
+   ✅/🟡 + green, labels them **`session-merge`: the next coding session —
+   preferably not the authoring one — re-checks head SHA, CI and verdict, reads the
+   workflow diff once more, and squash-merges with its own credentials**
+   (`gh pr merge <n> --squash --match-head-commit <sha>` or MCP
    `merge_pull_request`); a session runs under a human's GitHub identity, so
-   GitHub allows it (steer #61, S-2026-08-09-d). Nothing waits on the owner for
-   that; the optional `AUTOMERGE_TOKEN` secret only makes it hands-free
+   GitHub allows it (steer #61, S-2026-08-09-d). If no independent verdict can be
+   produced, the PR becomes `needs-human`: a collaborator other than the author
+   applies `merge-when-green` — the human gate as last resort, not the default.
+   The optional `AUTOMERGE_TOKEN` secret makes the approved path hands-free
    (docs/process/AUTONOMY.md §10). `needs-decision` questions, viewer uploads,
    desktop-Revit checks, owner-machine work and a merge GitHub itself refused
    (`needs-human`) are the **complete** list of things that wait for a person,

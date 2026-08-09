@@ -24,12 +24,12 @@ on:
         required: false
         default: "manual"
 
-permissions:
+permissions:            # least privilege for the jobs that run a model; `refresh-board` alone gets actions: write
   contents: write
   issues: write
   pull-requests: write
   id-token: write
-  actions: write        # refresh the board at the end of a pass
+  actions: read
   checks: read
 
 concurrency:
@@ -123,9 +123,17 @@ jobs:
           claude_args: |
             --max-turns ${{ steps.brief.outputs.max_turns }}
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(gh issue:*),Bash(gh label:*),Bash(gh search:*),Bash(gh pr list:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(gh pr close:*),Bash(gh pr edit:*),Bash(gh api:*),Bash(git log:*),Bash(git diff:*),Bash(git show:*),Bash(git status:*),Bash(git switch:*),Bash(git checkout:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(python3 tools/dev/techlead.py:*),Bash(python3 tools/dev/coord.py:*),Bash(ls:*),Bash(cat:*)"
-      - name: Refresh the board
-        if: always()
-        env:
+
+  refresh-board:
+    # Separate job so the model-running job above never holds `actions: write` (#88).
+    needs: plan
+    if: always() && needs.plan.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      actions: write
+    steps:
+      - env:
           GH_TOKEN: ${{ github.token }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
         run: gh workflow run board.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" >/dev/null 2>&1 || true
