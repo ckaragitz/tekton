@@ -1512,16 +1512,40 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
     per-seq sentinels last; adler32 stamps of every unit-0 seq-102/103
     record; deleted ids absent from unit 0 (all seqs) and from the
     ElemTable; edited ids present, decoding cleanly, in all their seqs.
+
+    The file is judged under its OWN release, whoever calls this and from
+    whatever context: its own framing ordinals (+ id width) are put in
+    force for the duration (:func:`rvt.validate.enter_own_release`; nest-
+    safe inside a caller's ``rvt.versions.reading``, restored on exit) and
+    the edited records are decoded against the schema the file itself
+    carries in ``Formats/Latest`` -- never the built-in latest-release one.
+    ``rep["fallbacks"]`` is empty when both came from the file; otherwise it
+    names each rung that was used instead and why (a label, never a raise).
     """
+    from contextlib import ExitStack
+
     from .objects import ObjectDecoder
+    from .validate import enter_own_release
+    from .versions import schema_of
     rep: Dict[str, Any] = {"crc_failures": 0, "ecc_mismatches": 0,
                            "walker_errors": 0, "isize_identity_mismatches": 0,
                            "elemtable_count": None, "header_count": None,
                            "sentinel_last": {}, "stamps_ok": True,
                            "deleted_still_present": {}, "deleted_in_elemtable": [],
                            "edited": {}, "elemtable_ids_sorted": None,
-                           "unit0_ids_equal_elemtable": None}
-    with open_rvt(path) as d:
+                           "unit0_ids_equal_elemtable": None, "fallbacks": []}
+    with ExitStack() as stack:
+        framing_fallback = enter_own_release(stack, path)
+        if framing_fallback:
+            rep["fallbacks"].append(framing_fallback)
+        d = stack.enter_context(open_rvt(path))
+        try:
+            dec = ObjectDecoder(schema_of(d))              # the FILE'S schema
+        except Exception as e:                             # noqa: BLE001
+            dec = ObjectDecoder()
+            rep["fallbacks"].append(
+                f"own schema unreadable ({type(e).__name__}: {e}); edited "
+                "records decoded against the built-in latest-release schema")
         pname = _primary_partition(d, None)
         rep["crc_failures"] = sum(0 if m.crc_ok else 1
                                    for s in d.streams() for m in d.members(s.name))
@@ -1545,7 +1569,6 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
         rep["walker_errors"] = len(w.errors)
         rep["isize_identity_mismatches"] = sum(
             1 for b in w.blocks if b.data is not None and b.intended_len != len(b.data))
-        dec = ObjectDecoder()
         u0_102_ids = None
         for seq in (101, 102, 103):
             seg = b"".join(b.data for b in sorted(w.blocks, key=lambda x: x.hdr_offset)
@@ -1564,8 +1587,11 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                         "class": (o.class_name if o else None),
                         "clean": (bool(o.clean or o.stub) if o else None)}
                 if seq != 101 and r.elem_id >= 0 and r.body_size >= 2:
-                    body = seg[r.seg_offset + 16: r.seg_offset + 16 + r.body_size]
-                    if (zlib.adler32(body) & 0xFFFFFFFF) != r.stamp:
+                    # stamp = adler32(u16 class + object bytes); rebuilt from
+                    # the parsed record so no header width is baked in
+                    stamp = zlib.adler32(r.payload,
+                                         zlib.adler32(struct.pack("<H", r.class_id)))
+                    if (stamp & 0xFFFFFFFF) != r.stamp:
                         rep["stamps_ok"] = False
             if seq == 102:
                 u0_102_ids = ids_here
