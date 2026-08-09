@@ -52,12 +52,15 @@ loader's per-type symbols were missing.
 * **`tools/make_family.py --types 225,400,600 [--type-catalog]`** on
   `panelboard` / `transformer` / `luminaire`; the human print lists each type's
   assumed fields; `--type-catalog` writes OUR Revit type catalog `<stem>.txt`
-  beside the `.rfa` (`FamilyProduct.write_type_catalog`, `factory.type_catalog_text`):
+  beside the `.rfa` (`FamilyProduct.write_type_catalog(rfa_path)` before `write()`, so the report's
+  `family.type_catalog` records it; `factory.type_catalog_text` / `write_type_catalog`):
   header `,<param>##<SPEC>##<UNITS>,…` (LENGTH/INCHES, ELECTRICAL_POTENTIAL/VOLTS,
   ELECTRICAL_CURRENT/AMPERES, ELECTRICAL_APPARENT_POWER/VOLT_AMPERES,
   ELECTRICAL_WATTAGE/WATTS, ELECTRICAL_LUMINOUS_FLUX/LUMENS,
   COLOR_TEMPERATURE/KELVIN, text & counts as OTHER), one row per type from the
-  same facts the type table carries, comma-bearing cells quoted, pure ASCII,
+  same facts the type table carries (ONE `(caption, SPEC, value)` entry list per
+  type feeds both the type-table row — converted to internal units — and the
+  catalog row, so the two cannot drift), stdlib `csv` quoting, pure ASCII,
   CRLF. Authored by us — zero third-party bytes.
 * **`rvt.famgen.loader` — one host FamilySymbol + FamSymSurrogate per
   real-named type** (§3). `rvt.famload` already did; both now agree.
@@ -104,9 +107,9 @@ one-selector build (`test_default_single_type_structure_unchanged`).
 
 | file | types | family name | validate (family mode) | provenance | catalog |
 |---|---|---|---|---|---|
-| `prl_mlo_3.rfa` `--types 225,400,600 --spaces 42 --voltage 480Y/277` | `225A/400A/600A MLO 42ckt` — Height 48/60/72 in (sizing table), MainsRating 225/400/600, Model PRL2X; assumed per type `[height_in, sccr_ka]` | Panelboard 480Y/277 MLO 42ckt Surface | **VALID 0 errors 0 warnings** (45/45 decode) | ok (v2: 11/11 checks; v1 scan ok) | 604 B, 15 columns |
+| `prl_mlo_3.rfa` `--types 225,400,600 --spaces 42 --voltage 480Y/277` | `225A/400A/600A MLO 42ckt` — Height 48/60/72 in (sizing table), MainsRating 225/400/600, Model PRL2X; assumed per type `[height_in, sccr_ka]` | Panelboard 480Y/277 MLO 42ckt Surface | **VALID 0 errors 0 warnings** (45/45 decode) | ok (v2: 11/11 checks; v1 scan ok) | 641 B, 16 columns |
 | `dt3_3.rfa` `--types 30,45,75` | `30/45/75 kVA 480-208Y/120` — frames FR940/FR940/FR942, W 24.88/24.88/30.5 in, weight 409/416/570 lb, Model V48M28T3016/…4516/…7516 | Dry Type Transformer 480-208Y/120 | **VALID 0 errors** (43/43) | ok | 644 B, 13 columns |
-| `blt_3.rfa` `--kind recessed-troffer --types 30,38,48 --cct 4000` | `2x4 30W/38W/48W 4000K` | Recessed Troffer 2x4 | **VALID 0 errors** (39/39) | ok | 547 B, 9 columns |
+| `blt_3.rfa` `--kind recessed-troffer --types 30,38,48 --cct 4000` | `2x4 30W/38W/48W 4000K` | Recessed Troffer 2x4 | **VALID 0 errors** (39/39) | ok | 944 B, 10 columns (incl. the IES URL) |
 
 `tools/rvt_validate.py --family` on each: `error 0 / warning 0 / info 2`;
 `tools/make_family.py provenance` on each: `ok True` (all four checks).
@@ -115,10 +118,10 @@ in order for every kind (test-pinned for panelboard / transformer / troffer /
 downlight). Sample catalog (ours):
 
 ```
-,Width##LENGTH##INCHES,Height##LENGTH##INCHES,Depth##LENGTH##INCHES,Voltage##ELECTRICAL_POTENTIAL##VOLTS,…,MainsRating##ELECTRICAL_CURRENT##AMPERES,…,Manufacturer##OTHER##,Model##OTHER##
-225A MLO 42ckt,20,48,5.75,480,…,225,…,Eaton,PRL2X
-400A MLO 42ckt,20,60,5.75,480,…,400,…,Eaton,PRL2X
-600A MLO 42ckt,20,72,5.75,480,…,600,…,Eaton,PRL2X
+,Width##LENGTH##INCHES,Height##LENGTH##INCHES,Depth##LENGTH##INCHES,PanelName##OTHER##,Voltage##ELECTRICAL_POTENTIAL##VOLTS,…,MainsRating##ELECTRICAL_CURRENT##AMPERES,…,Manufacturer##OTHER##,Model##OTHER##
+225A MLO 42ckt,20,48,5.75,PANEL,480,…,225,…,Eaton,PRL2X
+400A MLO 42ckt,20,60,5.75,PANEL,480,…,400,…,Eaton,PRL2X
+600A MLO 42ckt,20,72,5.75,PANEL,480,…,600,…,Eaton,PRL2X
 ```
 
 **Scoped edit** — `python -m rvt.convert.edit_family prl_mlo_3.rfa -o e --set
@@ -144,32 +147,49 @@ still yield zero blank pairs in both loaders.
 
 **Tests** (stream-local, this clone):
 * `tests/test_famgen_factory.py tests/test_hostsym_product.py tests/test_famgen_catalog.py`
-  → **93 passed, 5 skipped** (the 5 = rme/rst `samples/` absent, pre-existing);
-  before this change the same three files were 68 passed / 5 skipped — +18
-  factory tests (selectors, one row per selection ×4 kinds, per-type facts,
-  naming, duplicate refusal, default-unchanged, catalog text, valid+provenance+
-  inventory ×4 kinds, scoped edit, CLI flags) and +7 hostsym tests (famgen
-  loader ×5, famload ×2).
+  → **92 passed, 5 skipped** (factory 41 passed / 5 skipped — the 5 = rme/rst
+  `samples/` absent, pre-existing; hostsym 23; catalog 28); `main`'s copies of
+  the first two files collect 45 tests, ours 69: +19 factory tests (selectors,
+  one row per selection ×4 kinds, per-type facts, naming, duplicate refusal,
+  default-unchanged, catalog text + csv quoting, catalog sidecar in the report,
+  valid+provenance+inventory ×4 kinds, scoped edit, CLI flags) and +7 hostsym
+  tests (famgen loader ×5, famload ×2).
 * Adjacent suites `test_famgen_loader test_famload test_famload_batch
   test_birthright test_species test_convert test_convert_combo test_rfa_load`
-  (`RVT_SKIP_LARGE=1`) → all green (149 passed / 49 skipped for the famgen set;
-  48 passed for famload_batch + hostsym + rfa_load). One existing pin
+  (`RVT_SKIP_LARGE=1`) together with the gate + plugin suites → **201 passed,
+  54 skipped** on the final head. One existing pin
   (`test_famload_batch` asserting the exact key set of the verify's `adocument`
   dict) caught an extra key I had added; folded into `symbol_tracked` instead.
-* CI shard (`tests/ci_shard.txt`, 38 files) → **778 passed, 44 skipped, 1
-  xfailed** after `sync_plugin` (the pre-sync run showed only the expected
+* CI shard (`tests/ci_shard.txt`, 38 files) → **779 passed, 44 skipped, 1
+  xfailed** on the final head after `sync_plugin` (an earlier pre-sync run showed only the expected
   `test_plugin_is_in_sync_with_source` + the pin above).
 * Plugin gates: `tools/sync_plugin.py` → synced 3 files, deny-audit clean,
   validation passed, zip rebuilt (5,090 KB); `--check` → in sync;
   `plugin/scripts/validate_plugin.py` → PASS (24 assertions);
-  `check_portable_paths` → ok (2761); `test_plugin_sync test_bootstrap
+  `check_portable_paths` → ok (2762); `test_plugin_sync test_bootstrap
   test_coldstart test_surface_perf` → 26 passed, 5 skipped.
 * **Bare unzip, system Python 3.11, no repo on the path:**
   `skills/tekton-author/scripts/_bootstrap.py go author --prompt "an electrical
-  room with 6 panels"` → preflight `tekton: READY … 0.054s`, exit 0, **4.67 s**
+  room with 6 panels"` → preflight `tekton: READY … 0.056s`, exit 0, **4.63 s**
   total (under the 8 s ROOM6 ceiling), `prompt_room.rvt` + 6 `.rfa` delivered,
   combined VALID 0 errors / 1 warning, PROOF-ONLY stamped (the default
   single-type lane — unchanged bytes — is what the front door still uses).
+
+* `/verify` (the repo's build-and-drive recipe) ran on the final head: the
+  three `--types … --type-catalog` builds, `rvt_validate --family` (0/0/2 each),
+  `make_family.py provenance` (ok, 0 findings), `inventory_family` type names,
+  the scoped `edit_family --type`, honest one-line refusals for `--types 400,400`
+  / `--types 75,500` (unsourced dims) / `--types big`, and the bare-unzip `go
+  author` READY above. `/simplify` ran (4 review angles): applied — primary-first
+  symbol lists by construction in `plan_load` (no sort trick / dead fallbacks),
+  ONE entry list per type as the single source of row + catalog, stdlib `csv`
+  quoting, catalog recorded via the product (no report re-write in the CLI),
+  module-level CLI flag helper; skipped with reason — reusing
+  `famload._type_rows_by_name` (would import the heavier famload into the
+  component loader's hot path or edit read-only famload.py) and converting
+  famgen's `LoadPlan` scalars into famload-style properties (changes the
+  serialized `plan` JSON and every geometry helper's inputs — larger than the
+  "minimal" brief; noted for the follow-up that unifies the two plans).
 
 ## 5. Findings / follow-ups (filed as issues, not done here)
 
@@ -178,7 +198,7 @@ still yield zero blank pairs in both loaders.
   the pay-off of this PR for the 6-panel room (#124's per-family cost ×1
   instead of ×6). Needs `frontdoor/build.py` + the famgen loader's placement to
   bind each instance to the right `symbol_ids[i]`; out of territory here (a
-  frontdoor PR is in flight). Filed.
+  frontdoor PR is in flight). **Filed as #307.**
 * **Label-driven geometry** (limit #4's open half): a placed non-primary type
   displays the primary's box until `FamDimConstrMgr` expressions bind
   Width/Height/Depth to the extrusion — the geometry stream's recipe §5.
