@@ -22,10 +22,13 @@ CERTIFIED machinery:
 
 THE VALUE CARRIERS (verified on our generated families): a family
 parameter's live value sits in ``m_value`` (doubles, in Revit internal
-units), ``m_int`` (int64 specs) or ``m_str`` (string specs) of the
-type-table row -- so ratings, counts AND names/strings are all editable.
-Unit conversion is SPEC-DRIVEN (the ``m_specTypeId`` on the parameter's own
-definition): amperes as-is, volts x 1/0.3048^2, lengths to feet (an
+units), ``m_int`` (integers) or ``m_str`` (text) of the type-table row --
+so ratings, counts AND names/strings are all editable.  The carrier follows
+the parameter definition's STORAGE CLASS first (the pointer class the file's
+own schema names: ``ParamDefString`` -> ``m_str``, ``ParamDefInt`` ->
+``m_int``; those two carry no ``m_specTypeId`` at all, #333/#336) and the
+``m_specTypeId`` of a ``ParamDefValue`` otherwise.  Unit conversion is
+SPEC-DRIVEN: amperes as-is, volts x 1/0.3048^2, lengths to feet (an
 explicit unit is REQUIRED for lengths -- never guessed), kVA x 1000 x
 1/0.3048^2.
 
@@ -83,7 +86,7 @@ class FamilyInventory:
     family_id: int
     family_name: str                     # PartAtom title (the display name)
     type_names: List[str]
-    params: List[dict]                   # {caption, param_id, spec, carrier, current}
+    params: List[dict]                   # {caption, param_id, def_class, spec, kind, carrier, current}
     release: Optional[int] = None
     quarantined: bool = False
     doc: Any = None                      # rvt.mutate.Document
@@ -106,17 +109,27 @@ class FamilyInventory:
         return {"path": _relp(self.path), "family_id": self.family_id,
                 "family_name": self.family_name, "type_names": self.type_names,
                 "release": self.release, "quarantined": self.quarantined,
-                "params": [{k: p[k] for k in ("caption", "param_id", "spec",
-                                              "carrier", "current")}
+                "params": [{k: p.get(k) for k in ("caption", "param_id", "def_class",
+                                                  "spec", "kind", "carrier", "current")}
                            for p in self.params],
                 "notes": list(self.notes)}
 
 
-def _carrier_for_spec(spec: str) -> str:
+#: carrier -> the human word for what it stores (``--inventory``'s ``kind``)
+_KIND_OF_CARRIER = {"m_str": "text", "m_int": "integer", "m_value": "number"}
+
+
+def _carrier_for_param(def_class: str, spec: str) -> str:
+    """The value carrier of one family parameter: its definition's STORAGE
+    CLASS decides first (``ParamDefString`` / ``ParamDefInt`` carry no spec
+    at all under the #333 storage-class law), the spec of a ``ParamDefValue``
+    otherwise.  ``def_class`` is the pointer class NAME the file's own schema
+    resolved -- never a class id."""
+    cls = str(def_class or "")
     s = str(spec or "")
-    if "spec.string" in s:
+    if cls.endswith("ParamDefString") or "spec.string" in s:
         return "m_str"
-    if "spec.int64" in s:
+    if cls.endswith("ParamDefInt") or "spec.int64" in s:
         return "m_int"
     return "m_value"
 
@@ -157,14 +170,18 @@ def inventory_family(path: str) -> FamilyInventory:
     params: List[dict] = []
     for eid in doc.ids_of_class("ParamElemFamily"):
         pv = doc.value(eid) or {}
-        d = ((pv.get("m_pParamDef") or {}).get("value") or {})
+        pd = pv.get("m_pParamDef") or {}
+        d = pd.get("value") or {}
         cap = str(d.get("m_caption") or "").strip()
         if not cap:
             continue
-        spec = str(((d.get("m_specTypeId") or {}) or {}).get("m_typeId") or "")
-        carrier = _carrier_for_spec(spec)
+        def_class = str(pd.get("ptr_class") or "")
+        spec = str((d.get("m_specTypeId") or {}).get("m_typeId") or "")
+        carrier = _carrier_for_param(def_class, spec)
         row = cur_rows.get(int(eid), {})
-        params.append({"caption": cap, "param_id": int(eid), "spec": spec,
+        params.append({"caption": cap, "param_id": int(eid),
+                       "def_class": def_class, "spec": spec,
+                       "kind": _KIND_OF_CARRIER[carrier],
                        "carrier": carrier, "current": row.get(carrier)})
     inv = FamilyInventory(
         path=os.path.abspath(path), family_id=fam,
