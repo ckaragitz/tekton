@@ -9,14 +9,20 @@ name: coord
 #
 #   claim         "/claim" comment = assign the commenter (for surfaces that cannot assign, e.g. a
 #                 cloud session's MCP tools without write, or a phone), or say who holds it;
-#                 "/release" unassigns; "/next" on ANY issue = assign the commenter the
-#                 highest-priority (P0 > P1 > rest), oldest, unassigned `ready` issue —
-#                 a session's "what should I work on" with zero human routing. Serialized per issue.
+#                 "/release" unassigns; "/next" on ANY issue = assign the commenter the head of
+#                 the ready queue (tools/dev/coord.py queue: P0 > P1 > rest, oldest first,
+#                 skipping gated / in-review / worker-held issues) — a session's "what should I
+#                 work on" with zero human routing; "/steer <text>" on ANY issue or PR = log the
+#                 text verbatim as a `steer` issue for the tech leads to triage (the one-line way
+#                 for a human to steer from a phone). Serialized per issue.
 #   single-holder however an assignment happens (UI, gh, MCP, /claim), a SECOND assignee is
 #                 removed again and told who holds the issue — unless a current holder added
 #                 them (pairing). This is the invariant; /claim is sugar.
-#   issue-dedup   a newly opened issue gets a "possible duplicates" hint ranked by title
-#                 similarity (tools/dev/coord.py) against open + recently closed issues.
+#   issue-intake  a newly opened issue gets a "possible duplicates" hint ranked by title
+#                 similarity (tools/dev/coord.py) against open + recently closed issues; and a
+#                 human-filed issue with no DONE section is labelled `intake` so the tech-lead
+#                 planner (techlead.yml, or any session) turns it into task-shaped work instead
+#                 of it sitting unread — humans steer, sessions write the tickets.
 #   pr-check      on open / body-or-base edit: base not the default branch -> `stacked` warning;
 #                 no `Closes/Refs #N` -> `needs-issue`; linked issue unclaimed -> assigned to the
 #                 PR author; linked issue held by someone else, or another open PR closing the
@@ -53,6 +59,7 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  actions: write        # /steer and intake wake the planner (workflow_dispatch of techlead.yml)
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -77,6 +84,7 @@ env:
         overlap)     color=d93f0b desc="another open PR or another assignee targets the same issue";;
         stacked)     color=fbca04 desc="base is another PR's branch, not the default branch";;
         tracking)    color=5319e7;;
+        intake)      color=0e8a16 desc="Free-form issue filed by a human; triaged by the tech leads like a steer";;
       esac
       gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null 2>&1 || true
       gh api -X POST "repos/$REPO/issues/$n/labels" -f "labels[]=$name" >/dev/null 2>&1 || true
@@ -86,21 +94,27 @@ env:
 jobs:
   claim:
     if: >-
-      github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
-      (startsWith(github.event.comment.body, '/claim') || startsWith(github.event.comment.body, '/release') ||
-       startsWith(github.event.comment.body, '/next'))
+      github.event_name == 'issue_comment' && github.event.comment.user.type != 'Bot' &&
+      ((!github.event.issue.pull_request &&
+        (startsWith(github.event.comment.body, '/claim') || startsWith(github.event.comment.body, '/release') ||
+         startsWith(github.event.comment.body, '/next'))) ||
+       startsWith(github.event.comment.body, '/steer'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
       group: issue-${{ github.event.issue.number }}
       cancel-in-progress: false
     steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: tools/dev
       - name: Claim or release the issue for the commenter
         env:
           N: ${{ github.event.issue.number }}
           WHO: ${{ github.event.comment.user.login }}
           BODY: ${{ github.event.comment.body }}
           COMMENT_ID: ${{ github.event.comment.id }}
+          COMMENT_URL: ${{ github.event.comment.html_url }}
         shell: bash
         run: |
           set -euo pipefail
@@ -111,26 +125,46 @@ jobs:
           # the concurrency group, so the second one sees the first one's assignment.
           held=$(holders "$N")
           case "$BODY" in
+            /steer*)
+              # A human steers from anywhere: everything after "/steer" is logged verbatim as a
+              # `steer` issue; the tech-lead planner run this triggers turns it into requirements.
+              text=$(sed -E '1s#^/steer[[:space:]]*##' <<<"$BODY")
+              if [ -z "$(tr -d '[:space:]' <<<"$text")" ]; then
+                react "confused"; reply "🧭 @$WHO — \`/steer\` needs the steer itself after it, e.g. \`/steer prioritise the Windows fixes over new features this week\`."
+                exit 0
+              fi
+              gh label create steer --repo "$REPO" --color 0e8a16 >/dev/null 2>&1 || true   # vocabulary owned by tools/dev/techlead.py LABELS
+              url=$(python3 tools/dev/techlead.py steer "$text" --by "$WHO" --source "comment on #$N ($COMMENT_URL)")
+              # Issues this token files trigger no workflows, so wake the planner explicitly.
+              gh workflow run techlead.yml --repo "$REPO" -f reason="steer via comment on #$N" >/dev/null 2>&1 || true
+              react "+1"
+              reply "🧭 Logged as ${url} — verbatim, attributed to @$WHO. The tech leads take it from here: the planner (dispatched just now; otherwise its next scheduled run) or the next coding session triages it into requirement/task issues linked back to it, and it stays on the board until then. Nothing else is needed from you."
+              say "/steer by $WHO on #$N -> $url"
+              ;;
             /release*)
               gh issue edit "$N" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true
               react "+1"; say "#$N released by $WHO"
               ;;
             /next*)
-              # Hand the commenter the top of the queue: highest priority (P0 > P1 > rest),
-              # oldest first, `ready`, unassigned. Two /next on different issues can race on
+              # Hand the commenter the head of the queue (tools/dev/coord.py queue): `ready`,
+              # unassigned, not gated, not already answered by an open PR, not held by the
+              # worker; P0 > P1 > rest, oldest first. Two /next on different issues can race on
               # the same pick; single-holder removes the loser, who just comments /next again.
-              pick=$(gh issue list --repo "$REPO" --state open --label ready --limit 200 --json number,labels,assignees \
-                | jq -r '[.[]|select((.assignees|length)==0)
-                          |{n:.number, p:(if any(.labels[];.name=="P0") then 0 elif any(.labels[];.name=="P1") then 1 else 2 end)}]
-                         |sort_by(.p,.n)|.[0].n // empty')
+              gh issue list --repo "$REPO" --state open --limit 200 --json number,title,state,labels,assignees > issues.json
+              gh pr list --repo "$REPO" --state open --limit 100 --json number,author,body > prs.json
+              pick=$(python3 tools/dev/coord.py queue --issues issues.json --prs prs.json | head -1)
               if [ -z "$pick" ]; then
                 react "confused"
-                reply "📭 @$WHO — no unassigned \`ready\` issues right now. Open one (title = the checkable DONE) and \`/claim\` it, or check the \`blocked\`/\`needs-viewer\` queues with your human."
+                reply "📭 @$WHO — the ready queue is empty right now (everything \`ready\` is held, in review, or gated on a human). The tech-lead planner refills it from docs/PROGRAM.md within hours — or run a planning pass yourself now (\`/techlead\` in your session; charter: .github/prompts/techlead.md) and then \`/next\` again."
                 say "/next by $WHO: queue empty"
               elif gh issue edit "$pick" --repo "$REPO" --add-assignee "$WHO" >/dev/null 2>&1; then
                 react "+1"
-                [ "$pick" != "$N" ] && reply "🎯 @$WHO → you now hold #$pick (top of the \`ready\` queue). Details there."
-                gh issue comment "$pick" --repo "$REPO" --body "🔒 @$WHO holds #$pick (assigned via \`/next\`). Branch \`<you>/$pick-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$pick\`** after the first commit. \`/release\` if you drop it." >/dev/null
+                retry=""
+                if jq -e --argjson n "$pick" '.[]|select(.number==$n)|.labels|map(.name)|index("retry")' issues.json >/dev/null; then
+                  retry=" **This is re-queued work (\`retry\`): continue on the existing branch/PR named in the last ♻️ comment there instead of starting over.**"
+                fi
+                [ "$pick" != "$N" ] && reply "🎯 @$WHO → you now hold #$pick (head of the ready queue). Details there.$retry"
+                gh issue comment "$pick" --repo "$REPO" --body "🔒 @$WHO holds #$pick (assigned via \`/next\`). Branch \`<you>/$pick-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$pick\`** after the first commit — the bots review, fix, mark ready and merge it even if your session ends. \`/release\` if you drop it.$retry" >/dev/null
                 say "/next: #$pick -> $WHO"
               else
                 react "confused"
@@ -190,7 +224,7 @@ jobs:
           gh issue comment "$N" --repo "$REPO" --body "⛔ @$NEW — #$N is already held by @$first, so your assignment was removed. Pick another \`ready\` issue with no assignee, or ask here: @$first can add you to pair, or \`/release\` it. Two people quietly working one issue is how this repo got duplicate PRs." >/dev/null
           say "#$N: removed second assignee $NEW (holder: $first)"
 
-  issue-dedup:
+  issue-intake:
     if: github.event_name == 'issues' && github.event.action == 'opened' && github.event.issue.user.type != 'Bot'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -198,6 +232,26 @@ jobs:
       - uses: actions/checkout@v6
         with:
           sparse-checkout: tools/dev
+      - name: Free-form human issue -> `intake` for the tech leads to triage
+        env:
+          N: ${{ github.event.issue.number }}
+          WHO: ${{ github.event.issue.user.login }}
+          BODY: ${{ github.event.issue.body }}
+          LABELS: ${{ join(github.event.issue.labels.*.name, ',') }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          eval "$COORD_LIB"
+          # Deliberately shaped issues are left alone: task-shaped (has a DONE section), or already
+          # carrying a label that says what they are. Everything else a human types — a bug seen in
+          # Revit, a wish, an opinion — is intake: logged, shown on the board, and turned into
+          # task-shaped issues by the planner (humans steer; sessions write the tickets).
+          case ",$LABELS," in *,steer,*|*,intake,*|*,ready,*|*,tracking,*|*,board,*|*,epic,*|*,blocked,*) say "#$N: labelled on purpose ($LABELS) — no intake"; exit 0;; esac
+          if python3 tools/dev/coord.py taskshape <<<"$BODY"; then say "#$N: task-shaped — no intake"; exit 0; fi
+          label "$N" +intake
+          comment_once "$N" "intake" "🧭 Thanks @$WHO — logged as **intake**. You do not need to turn this into a ticket: the tech leads (the planner run just dispatched, or the next coding session) will restate it, file the task-shaped issue(s) it implies with a checkable DONE — linked back here — and it stays on the board until then. Add detail or corrections as comments any time; they are read as steers too."
+          gh workflow run techlead.yml --repo "$REPO" -f reason="intake #$N" >/dev/null 2>&1 || true
+          say "#$N: labelled intake, planner dispatched"
       - name: Point out likely duplicates of the new issue
         env:
           N: ${{ github.event.issue.number }}

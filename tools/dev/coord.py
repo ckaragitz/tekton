@@ -25,7 +25,21 @@ The parts of the workflow that bash + jq do badly:
            the first `# ` heading, then to the prettified filename.
              python tools/dev/coord.py reqfile --path docs/requirements/foo.md  -> JSON
 
-issues.json / prs.json are `gh issue list --json number,title,state,assignees` and
+  queue    The work queue in pick order — `ready`, unassigned, not gated (blocked /
+           needs-viewer / needs-revit-desktop / owner-machine / needs-decision), not a
+           steer / tracking / board / epic issue, not held by the unattended worker
+           (`bot-working`), and not already answered by an open PR that closes it
+           (unless re-queued with `retry` because that PR got stuck) —
+           sorted P0 > P1 > rest, oldest first. `/next` takes the head of this list;
+           the worker (tools/dev/techlead.py) filters it further.
+             python tools/dev/coord.py queue --issues issues.json --prs prs.json  -> numbers
+
+  taskshape  Exit 0 if the issue body on stdin is shaped like a task (has a DONE
+           section), 1 if it reads like free-form human input — coord labels the latter
+           `intake` so the tech-lead planner triages it instead of it sitting unread.
+             python tools/dev/coord.py taskshape < body.txt
+
+issues.json / prs.json are `gh issue list --json number,title,state,assignees,labels` and
 `gh pr list --json number,author,body` output.
 """
 import argparse, json, math, re, sys
@@ -147,6 +161,49 @@ def reqfile(text: str, path: str = "") -> dict:
     return {"title": title.strip(), "labels": labels, "auto": auto, "body": body.strip()}
 
 
+# Labels that mean "a person / a machine / a login is required": the queue skips these.
+GATED = ("blocked", "needs-viewer", "needs-revit-desktop", "owner-machine", "needs-decision", "needs-human")
+# Labels that mean "not a unit of work at all".
+NOT_WORK = ("tracking", "board", "steer", "intake", "epic", "duplicate")
+# Held without an assignee: the unattended worker's lease (GitHub cannot assign a bot).
+HELD = ("bot-working",)
+PRIORITY = {"P0": 0, "P1": 1, "P2": 2}
+TASK_SHAPE = re.compile(r"(?im)^[\s>*_#-]*(?:\*\*|__)?\s*done\b(?:\*\*|__)?\s*(?:[=:(—-]|$)|^#{1,4}\s+.*\bdone\b")
+
+
+def label_names(issue: dict) -> list:
+    return [(l.get("name") if isinstance(l, dict) else str(l)) for l in (issue.get("labels") or [])]
+
+
+def priority(issue: dict) -> int:
+    return min([PRIORITY[n] for n in label_names(issue) if n in PRIORITY] or [3])
+
+
+def queue(issues: list, prs: list, *, held_labels=("bot-working",)) -> list:
+    """Open issues in pick order: ready, unassigned, workable now, nobody on it, no PR yet."""
+    in_review = set()
+    for p in prs or []:
+        in_review.update(refs(p.get("body") or "")["closing"])
+    out = []
+    for i in issues or []:
+        if str(i.get("state", "open")).lower() != "open" or i.get("pull_request"):
+            continue
+        names = set(label_names(i))
+        if "ready" not in names or i.get("assignees"):
+            continue
+        if names & (set(GATED) | set(NOT_WORK) | set(held_labels)):
+            continue
+        if int(i["number"]) in in_review and "retry" not in names:
+            continue          # answered by an open PR — unless that PR got stuck and the issue was re-queued
+        out.append(i)
+    return sorted(out, key=lambda i: (priority(i), int(i["number"])))
+
+
+def is_task_shaped(body: str) -> bool:
+    """True if an issue body carries a checkable DONE (## DONE, **DONE =**, DONE: ...)."""
+    return bool(TASK_SHAPE.search(re.sub(r"<!--.*?-->", " ", body or "", flags=re.S)))
+
+
 def _fmt_hit(score, issue, shared) -> str:
     who = ", ".join("@" + a["login"] for a in (issue.get("assignees") or []) if a.get("login"))
     state = str(issue.get("state", "")).lower() or "?"
@@ -169,13 +226,27 @@ def main(argv=None) -> int:
     r.add_argument("--prs", required=True, help="JSON file: gh pr list --json number,author,body")
     q = sub.add_parser("reqfile", help="parse a docs/requirements/*.md file, print JSON {title, labels, auto, body}")
     q.add_argument("--path", required=True)
+    u = sub.add_parser("queue", help="print the ready queue in pick order (issue numbers, one per line)")
+    u.add_argument("--issues", required=True, help="JSON file: gh issue list --json number,title,state,assignees,labels")
+    u.add_argument("--prs", required=True, help="JSON file: gh pr list --json number,author,body")
+    sub.add_parser("taskshape", help="exit 0 if the issue body on stdin has a DONE section, else 1")
     a = ap.parse_args(argv)
     if a.cmd == "refs":
         print(json.dumps(refs(sys.stdin.read())))
         return 0
+    if a.cmd == "taskshape":
+        return 0 if is_task_shaped(sys.stdin.read()) else 1
     if a.cmd == "reqfile":
         with open(a.path, encoding="utf-8") as fh:
             print(json.dumps(reqfile(fh.read(), a.path)))
+        return 0
+    if a.cmd == "queue":
+        with open(a.issues, encoding="utf-8") as fh:
+            issues = json.load(fh)
+        with open(a.prs, encoding="utf-8") as fh:
+            prs = json.load(fh)
+        for i in queue(issues, prs):
+            print(i["number"])
         return 0
     with open(a.issues if a.cmd == "similar" else a.prs, encoding="utf-8") as fh:
         data = json.load(fh)

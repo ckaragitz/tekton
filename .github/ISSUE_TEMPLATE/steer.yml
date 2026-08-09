@@ -1,0 +1,36 @@
+name: "🧭 Steer the tech leads"
+description: "Say what you want, in your own words — a requirement, an opinion, a priority call, a correction. One box. The coding sessions (the tech leads here) turn it into requirements and tasks; you never have to write a ticket."
+title: "Steer: "
+labels: ["steer"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **How this works:** what you write below is logged verbatim and shows on the 📋 board immediately. Within hours the tech-lead planner (or the next coding session anyone starts) restates it, files the task-shaped issues it implies — linked back here — records it in `docs/STEERING.md` if it is standing guidance, and reports back in a comment. If they misread you, reply on the issue; replies are steers too. Finish the title above with a few words so it is findable.
+  - type: textarea
+    id: steer
+    attributes:
+      label: The steer
+      description: "Plain language is perfect. Examples: “Windows support matters more than new features this month.” · “Stop spending effort on 2023 files.” · “I showed the demo to a client; they need panel schedules on the sheet.” · “I disagree with how X was done — do Y instead.”"
+      placeholder: What do you want to be true, and (optionally) why / by when?
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of steer is it? (optional — the tech leads will work it out otherwise)
+      options:
+        - "Something to build / fix / investigate"
+        - "A standing rule or preference (always / never / prefer)"
+        - "A priority call (do this before that)"
+        - "A question or a decision you want made"
+        - "Feedback on something that was built"
+    validations:
+      required: false
+  - type: input
+    id: deadline
+    attributes:
+      label: Any date or event this is tied to? (optional)
+      placeholder: e.g. "demo on Friday", "before we show the brothers", "no rush"
+    validations:
+      required: false

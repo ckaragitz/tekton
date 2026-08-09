@@ -1,15 +1,32 @@
 name: automerge
 
-# The merge machine. No human step on the happy path:
-#   PR (not draft) + CI green on the exact head SHA + claude-review verdict approve/nits for
-#   that same SHA  ->  squash-merge, delete branch, linked issue closes.
+# The merge machine. No human step on the happy path — and no silent dead-ends off it:
+#   PR + CI green on the exact head SHA + claude-review verdict approve/nits for that SHA
+#     -> squash-merge, delete branch, close the linked issues ourselves (a bot merge does not
+#        always fire GitHub's closing-keyword linker; #50 stayed open after #51 merged).
+#   draft that is green + approved and QUIET (no commits for pipeline.quiet_minutes, default 90;
+#     the session that owned it is gone or done) -> marked ready automatically, then merged.
+#     Label `wip` (or `do-not-merge`) holds a draft indefinitely.
+#   no verdict for the head SHA and no review running -> re-request the review once per SHA
+#     (claude-review.yml workflow_dispatch); still nothing hours later -> `bot-stuck`.
+#     Exception: a PR that edits claude-review.yml itself can never be bot-reviewed (the review
+#     action refuses to run a modified copy) -> `needs-human` at once, owner reviews + merges.
+#   approved + green but CONFLICTING -> dispatch the worker's rebase mode once per SHA.
+#   PR changes .github/workflows/** -> GitHub forbids GITHUB_TOKEN to merge it: merged with the
+#     optional AUTOMERGE_TOKEN secret (a fine-grained PAT of the owner with contents+pull-requests+
+#     workflows write) if present, else `needs-human` = the owner squash-merges by hand.
 # Escape hatches: label `do-not-merge` holds a PR; label `merge-when-green` applied by a
 # collaborator other than the author (or by the repo owner) substitutes for the AI verdict
-# (use it when the review bot is down or wrong). It never "skips green": zero CI checks,
-# red checks, or no verdict for the head SHA = refuse and say why. Duplicate PRs for the
-# same issue: the OLDEST open PR wins; newer ones get `needs-human`.
+# (use it when the review bot is down or wrong). It never "skips green": zero CI checks are
+# dispatched, red checks or no verdict = refuse and say why. Duplicate PRs for the same issue:
+# the OLDEST open PR wins; newer ones get `duplicate-pr` and the tech-lead planner closes one.
 #
-# Sweeps on: review/CI workflows finishing, labels, ready-for-review, every 30 min, manual.
+# This is bash on the built-in token BY DESIGN: it checks out nothing, so a broken tools/dev/*.py
+# on main can never halt merging. tools/dev/techlead.py `pr_status()` mirrors this decision order
+# for the board and tests/test_techlead.py pins the shared vocabulary (labels, markers, the
+# closing-keyword grammar, the config defaults) — change both sides together.
+# Knobs: .github/autonomy.json on the default branch. Sweeps on: review/CI workflows finishing,
+# labels, ready-for-review, every 30 min, manual.
 
 on:
   pull_request_target:
@@ -26,7 +43,7 @@ permissions:
   pull-requests: write
   issues: write
   checks: read
-  actions: write   # dispatch CI on PR heads that have zero check runs
+  actions: write   # dispatch CI / claude-review / worker on PR heads that need them
 
 concurrency:
   group: automerge
@@ -35,58 +52,86 @@ concurrency:
 jobs:
   automerge:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Sweep open PRs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_TOKEN: ${{ secrets.AUTOMERGE_TOKEN }}
           REPO: ${{ github.repository }}
           OWNER: ${{ github.repository_owner }}
+          # coord.py's closing-keyword grammar (CLOSING there): keyword, optional colon, whitespace,
+          # #N; HTML comments do not count. One grammar for coord, the board and the merge machine.
+          CLOSES_PY: |
+            import re, sys
+            b = re.sub(r"<!--.*?-->", " ", sys.stdin.read(), flags=re.S)
+            nums = {int(n) for n in re.findall(r"(?<![\w-])(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+#(\d+)", b, re.I)}
+            print("\n".join(str(n) for n in sorted(nums)))
         shell: bash
         run: |
           set -euo pipefail
           say() { echo "::notice::$*"; }
-          comment_once() {  # $1=pr $2=marker $3=body — one comment per (pr, marker)
-            local pr="$1" marker="<!-- automerge:$2 -->" body="$3"
-            if gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[].body' | grep -qF "$marker"; then return 0; fi
-            gh pr comment "$pr" --repo "$REPO" --body "$body"$'\n\n'"$marker" >/dev/null
+          closes_of() { python3 -c "$CLOSES_PY"; }          # PR body on stdin -> issue numbers it closes
+          # Per-PR comment cache: fetched once ($cbodies), consulted by has_marker, extended by comment_once.
+          has_marker() { grep -qF -- "<!-- automerge:$1 -->" <<<"$cbodies"; }
+          comment_once() {  # $1=marker $2=body — one comment per (pr, marker)
+            has_marker "$1" && return 0
+            gh pr comment "$pr" --repo "$REPO" --body "$2"$'\n\n'"<!-- automerge:$1 -->" >/dev/null
+            cbodies+=$'\n'"<!-- automerge:$1 -->"
           }
-          add_label() { gh label create "$2" --repo "$REPO" --force --color "${3:-cfd3d7}" >/dev/null 2>&1 || true; gh pr edit "$1" --repo "$REPO" --add-label "$2" >/dev/null || true; }
+          has_label() { [[ "$labels" == *",$1,"* ]]; }
+          add_label() { has_label "$1" && return 0; gh label create "$1" --repo "$REPO" --color "${2:-cfd3d7}" >/dev/null 2>&1 || true; gh pr edit "$pr" --repo "$REPO" --add-label "$1" >/dev/null || true; labels+="$1,"; }
+          drop_label() { has_label "$1" || return 0; gh api -X DELETE "repos/$REPO/issues/$pr/labels/$1" >/dev/null 2>&1 || true; }
+          age_min() {  # minutes since an ISO timestamp (0 for empty)
+            [ -n "${1:-}" ] || { echo 0; return; }
+            echo $(( ( $(date -u +%s) - $(date -u -d "$1" +%s) ) / 60 ))
+          }
 
-          all=$(gh pr list --repo "$REPO" --state open --limit 100 --json number,body,createdAt)
+          DEFAULT=$(gh api "repos/$REPO" --jq .default_branch)
+          CFG=$(gh api "repos/$REPO/contents/.github/autonomy.json?ref=$DEFAULT" --jq .content 2>/dev/null | base64 -d 2>/dev/null || echo '{}')
+          QUIET_MIN=$(jq -r '.pipeline.quiet_minutes // 90' <<<"$CFG")
+          REVIEW_WAIT_MIN=$(jq -r '.pipeline.review_wait_minutes // 20' <<<"$CFG")     # give a running/queued review this long
+          STUCK_AFTER_MIN=$(jq -r '.pipeline.review_stuck_minutes // 240' <<<"$CFG")   # re-requested and still nothing -> bot-stuck
+
+          all=$(gh pr list --repo "$REPO" --state open --limit 100 \
+                  --json number,title,author,isDraft,mergeable,headRefOid,headRefName,labels,body,files,createdAt)
           prs=$(jq -r 'sort_by(.number)|.[].number' <<<"$all")
           [ -z "$prs" ] && { say "no open PRs"; exit 0; }
+          runs=""   # claude-review runs, fetched lazily (only the no-verdict path needs them)
 
           # issue -> oldest open PR that closes it (duplicate rule)
           declare -A first_for_issue=()
-          while read -r n body; do
-            for iss in $(grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?) #[0-9]+' <<<"$body" | grep -oE '[0-9]+$' | sort -u); do
+          for n in $prs; do
+            for iss in $(jq -r --argjson n "$n" '.[]|select(.number==$n)|.body' <<<"$all" | closes_of); do
               [ -z "${first_for_issue[$iss]:-}" ] && first_for_issue[$iss]=$n
             done
-          done < <(jq -r 'sort_by(.number)|.[]|"\(.number) \(.body|gsub("[\r\n]";" "))"' <<<"$all")
+          done
 
           for pr in $prs; do
             echo "── PR #$pr"
-            j=$(gh pr view "$pr" --repo "$REPO" --json title,author,isDraft,mergeable,headRefOid,headRefName,labels,body,files)
+            j=$(jq --argjson n "$pr" '.[]|select(.number==$n)' <<<"$all")
             title=$(jq -r .title <<<"$j"); author=$(jq -r .author.login <<<"$j"); sha=$(jq -r .headRefOid <<<"$j")
-            draft=$(jq -r .isDraft <<<"$j"); mergeable=$(jq -r .mergeable <<<"$j")
+            draft=$(jq -r .isDraft <<<"$j"); mergeable=$(jq -r .mergeable <<<"$j"); branch=$(jq -r .headRefName <<<"$j")
             labels=",$(jq -r '[.labels[].name]|join(",")' <<<"$j"),"
             touches_wf=$(jq -r '[.files[].path|select(startswith(".github/workflows/"))]|length' <<<"$j")
-            body=$(jq -r .body <<<"$j")
+            touches_reviewer=$(jq -r '[.files[].path|select(.==".github/workflows/claude-review.yml")]|length' <<<"$j")
+            closes=$(jq -r .body <<<"$j" | closes_of)
+            cbodies=$(gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[]|(.created_at + " " + (.body|gsub("[\r\n]";" ")))')
 
-            [[ "$labels" == *",do-not-merge,"* ]] && { say "#$pr held by do-not-merge"; continue; }
-            [[ "$labels" == *",needs-human,"* ]] && { say "#$pr waiting on a human"; continue; }
+            has_label do-not-merge && { say "#$pr held by do-not-merge"; continue; }
+            has_label needs-human && { say "#$pr waiting on a human"; continue; }
 
-            # Duplicate rule: an older open PR closes the same issue -> this one needs a human.
+            # Duplicate rule: an older open PR closes the same issue -> park this one for the planner.
             dup=""
-            for iss in $(grep -oiE '(close[sd]?|fix(e[sd])?|resolve[sd]?) #[0-9]+' <<<"$body" | grep -oE '[0-9]+$' | sort -u); do
+            for iss in $closes; do
               f=${first_for_issue[$iss]:-}; if [ -n "$f" ] && [ "$f" != "$pr" ]; then dup="#$f (issue #$iss)"; fi
             done
             if [ -n "$dup" ]; then
-              add_label "$pr" needs-human b60205
-              comment_once "$pr" "dup-$sha" "👯 This PR and $dup both close the same issue; the older PR wins by rule. Owner/orchestrator: keep the better one and close the other. (Next time: assign yourself to the issue *before* starting so two sessions don't build the same thing.)"
+              add_label duplicate-pr d93f0b
+              comment_once "dup-$sha" "👯 This PR and $dup both close the same issue; the **older PR wins** by rule, so this one is parked (\`duplicate-pr\`). The tech-lead planner closes whichever is worse on its next run; a human may decide sooner by closing one. (Claim the issue *before* starting — \`/claim\` or \`/next\` — and this cannot happen.)"
               say "#$pr duplicate of $dup"; continue
             fi
+            drop_label duplicate-pr
 
             # CI gate on the exact head SHA (ignore automerge itself and the claude* review checks).
             checks=$(gh api "repos/$REPO/commits/$sha/check-runs?per_page=100" \
@@ -95,63 +140,129 @@ jobs:
             bad=$(jq -r '[.[]|select(.status=="completed" and (.conclusion|IN("success","neutral","skipped")|not))|.name]|join(", ")' <<<"$checks")
             ok=$(jq '[.[]|select(.conclusion=="success")]|length' <<<"$checks")
 
-            if [ "$draft" = "true" ]; then
-              if [ "$total" != "0" ] && [ "$pending" = "0" ] && [ -z "$bad" ] && [ "$ok" != "0" ]; then
-                comment_once "$pr" "draft-green-$sha" "🟢 CI is green on \`${sha:0:7}\` but this PR is still a **draft**, so I won't merge it. If the work is finished, mark it **Ready for review** (or tell your coding session: \`gh pr ready $pr\`); review + merge then happen automatically."
-              fi
-              say "#$pr is a draft"; continue
-            fi
-
             # Zero checks on the head (pushes via API/app tokens don't always trigger CI):
             # dispatch CI on the branch ourselves, once per head SHA, instead of stalling.
             if [ "$total" = "0" ]; then
-              branch=$(jq -r .headRefName <<<"$j")
-              if gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[].body' | grep -qF "<!-- automerge:ci-dispatch-$sha -->"; then
+              if has_marker "ci-dispatch-$sha"; then
                 say "#$pr: CI already dispatched for ${sha:0:7}; waiting for its checks"
               elif [ "$(gh api "repos/$REPO/branches/$branch" --jq .commit.sha 2>/dev/null)" = "$sha" ] \
                    && gh workflow run CI --repo "$REPO" --ref "$branch" >/dev/null 2>&1; then
-                comment_once "$pr" "ci-dispatch-$sha" "🚀 No CI checks existed for \`${sha:0:7}\`, so I dispatched **CI** on \`$branch\`. Once it's green (and the review verdict is in) I merge automatically."
+                comment_once "ci-dispatch-$sha" "🚀 No CI checks existed for \`${sha:0:7}\`, so I dispatched **CI** on \`$branch\`. Once it's green (and the review verdict is in) I merge automatically."
                 say "#$pr: dispatched CI on $branch"
               else
-                comment_once "$pr" "no-checks-$sha" "🟥 No CI checks exist for \`${sha:0:7}\` and I could not dispatch **CI** for it (branch moved, or Actions may not run workflows here). Push a commit (or re-run **CI**) and I'll continue automatically."
+                comment_once "no-checks-$sha" "🟥 No CI checks exist for \`${sha:0:7}\` and I could not dispatch **CI** for it (branch moved, or Actions may not run workflows here). Push a commit (or re-run **CI**) and I'll continue automatically."
                 say "#$pr zero checks, dispatch failed"
               fi
               continue
             fi
             if [ "$pending" != "0" ]; then say "#$pr: $pending check(s) running"; continue; fi
-            if [ -n "$bad" ]; then comment_once "$pr" "red-$sha" "🟥 CI is red on \`${sha:0:7}\` (failed: $bad). The review bot will usually push a fix; otherwise ask your session to fix and push — I re-check every new commit."; say "#$pr red"; continue; fi
+            if [ -n "$bad" ]; then comment_once "red-$sha" "🟥 CI is red on \`${sha:0:7}\` (failed: $bad). The auto-fix bot usually pushes a fix within minutes; otherwise your session (or, after the fix budget, a fresh holder via the queue) takes it — I re-check every new commit."; say "#$pr red"; continue; fi
             if [ "$ok" = "0" ]; then say "#$pr: no successful checks"; continue; fi
 
             # Approval: AI verdict for THIS sha, or a human label from someone other than the author.
-            comments=$(gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[].body')
-            verdict=$(grep -oE "<!-- claude-review: (approve|nits|changes) sha=$sha -->" <<<"$comments" | tail -1 | sed -E 's/.*: (approve|nits|changes) .*/\1/' || true)
+            verdict=$(grep -oE "<!-- claude-review: (approve|nits|changes) sha=$sha -->" <<<"$cbodies" | tail -1 | sed -E 's/.*: (approve|nits|changes) .*/\1/' || true)
             approved_by=""
             case "$verdict" in approve|nits) approved_by="claude-review ($verdict)";; esac
-            if [ -z "$approved_by" ] && [[ "$labels" == *",merge-when-green,"* ]]; then
+            if [ -z "$approved_by" ] && has_label merge-when-green; then
               labeler=$(gh api "repos/$REPO/issues/$pr/events" --paginate --jq '[.[]|select(.event=="labeled" and .label.name=="merge-when-green")]|last|.actor.login // ""')
               if [ "$labeler" != "$author" ] || [ "$author" = "$OWNER" ]; then approved_by="label by @$labeler"
               else gh pr edit "$pr" --repo "$REPO" --remove-label merge-when-green >/dev/null || true
-                   comment_once "$pr" "self-label-$sha" "🔁 \`merge-when-green\` must come from someone other than the author (it substitutes for review). Removed."; fi
+                   comment_once "self-label-$sha" "🔁 \`merge-when-green\` must come from someone other than the author (it substitutes for review). Removed."; fi
             fi
+
             if [ -z "$approved_by" ]; then
-              if [ "$verdict" = "changes" ]; then say "#$pr: review requested changes at ${sha:0:7} (auto-fix ladder / human)"; else say "#$pr: no review verdict for ${sha:0:7} yet"; fi
+              if [ "$verdict" = "changes" ]; then say "#$pr: review requested changes at ${sha:0:7} (auto-fix ladder / re-queue)"; continue; fi
+              # No verdict for this SHA.
+              if [ "$touches_reviewer" != "0" ]; then
+                add_label needs-human b60205
+                comment_once "reviewer-edit-$sha" "🧑 **Needs a human.** This PR changes \`.github/workflows/claude-review.yml\` itself; the review action refuses to run a copy that differs from \`$DEFAULT\`, so no AI verdict can ever be produced for it (and workflow changes need the owner to merge anyway). **Owner: review by eye and squash-merge by hand** — judge it on the CI checks and the record. Keep reviewer edits in tiny dedicated PRs."
+                say "#$pr edits the reviewer — human"; continue
+              fi
+              # If no review is running or recent for it, re-request once.
+              [ -n "$runs" ] || runs=$(gh run list --repo "$REPO" --workflow claude-review.yml --limit 40 --json headSha,status,createdAt 2>/dev/null || echo '[]')
+              live=$(jq --arg s "$sha" --arg c "$(date -u -d "$REVIEW_WAIT_MIN minutes ago" +%Y-%m-%dT%H:%M:%SZ)" \
+                       '[.[]|select(.headSha==$s and (.status!="completed" or .createdAt > $c))]|length' <<<"$runs")
+              if [ "$live" != "0" ]; then say "#$pr: review running/recent for ${sha:0:7} — waiting"; continue; fi
+              if ! has_marker "review-dispatch-$sha"; then
+                if gh workflow run claude-review.yml --repo "$REPO" --ref "$branch" -f pr="$pr" >/dev/null 2>rr.err; then
+                  comment_once "review-dispatch-$sha" "🔎 No review verdict exists for \`${sha:0:7}\` and no review is running, so I re-requested **claude-review** for it. I merge as soon as the verdict and CI agree."
+                  say "#$pr: re-requested review for ${sha:0:7}"
+                else
+                  comment_once "review-dispatch-$sha" "🔎 No review verdict for \`${sha:0:7}\`, and re-requesting the review failed (\`$(tr '\n' ' ' <rr.err | cut -c1-160)\`) — usually the branch predates the dispatchable reviewer or carries an older copy of it; merge \`$DEFAULT\` into the branch (or push any commit) and the review runs on the new head."
+                  say "#$pr: review dispatch failed"
+                fi
+              else
+                ts=$(grep -F -- "<!-- automerge:review-dispatch-$sha -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1)
+                if [ "$(age_min "$ts")" -ge "$STUCK_AFTER_MIN" ] && ! has_label bot-stuck; then
+                  add_label bot-stuck b60205
+                  comment_once "review-stuck-$sha" "🤖 Still no review verdict for \`${sha:0:7}\` hours after re-requesting it. Labelled \`bot-stuck\`; the board's sweep re-queues the linked issue for a fresh holder if nothing moves. A push of any commit re-arms the whole pipeline; a collaborator other than the author may also apply \`merge-when-green\`."
+                fi
+                say "#$pr: no review verdict for ${sha:0:7} yet (already re-requested)"
+              fi
               continue
             fi
 
-            if [ "$touches_wf" != "0" ]; then
-              add_label "$pr" needs-human b60205
-              comment_once "$pr" "wf-$sha" "🛑 Approved ($approved_by) and green, but this PR changes \`.github/workflows/**\`; GitHub does not let the Actions token merge workflow changes. **Owner: squash-merge by hand.**"
-              say "#$pr touches workflows — human merge"; continue
+            if [ "$draft" = "true" ]; then
+              has_label wip && { say "#$pr: draft held by wip"; continue; }
+              pushed=$(gh api "repos/$REPO/commits/$sha" --jq .commit.committer.date 2>/dev/null || echo "")
+              quiet=$(age_min "$pushed")
+              if [ "$quiet" -ge "$QUIET_MIN" ]; then
+                if gh pr ready "$pr" --repo "$REPO" >/dev/null 2>rd.err; then
+                  comment_once "auto-ready-$sha" "🟢 Green, approved ($approved_by) and quiet for ${quiet} min (≥ ${QUIET_MIN}), so I marked this draft **ready** — the session that opened it is done or gone, and finished work should not wait for a click. Merging next. (To keep a draft parked, label it \`wip\`.)"
+                  say "#$pr: auto-marked ready after ${quiet} quiet min"; draft=false
+                else
+                  echo "::warning::#$pr: gh pr ready failed: $(tr '\n' ' ' <rd.err | cut -c1-200)"; continue
+                fi
+              else
+                comment_once "draft-green-$sha" "🟢 CI is green and the review says **$verdict** on \`${sha:0:7}\`, but this PR is still a **draft**. If you are done, mark it **Ready for review** (\`gh pr ready $pr\`) and it merges within minutes. If you just walk away, that is fine too: after ${QUIET_MIN} minutes without new commits I mark it ready and merge it myself. Label \`wip\` to keep it parked."
+                say "#$pr: draft, quiet ${quiet}/${QUIET_MIN} min"; continue
+              fi
             fi
-            if [ "$mergeable" = "CONFLICTING" ]; then comment_once "$pr" "conflict-$sha" "⚠️ Approved and green, but it conflicts with \`main\`. Ask your session to \`git fetch && git rebase origin/main\`, resolve, and \`git push --force-with-lease\`; I'll merge the new head automatically."; say "#$pr conflicts"; continue; fi
+
+            use_token="$GH_TOKEN"
+            if [ "$touches_wf" != "0" ]; then
+              if [ -n "${MERGE_TOKEN:-}" ]; then
+                use_token="$MERGE_TOKEN"; say "#$pr touches workflows — merging with AUTOMERGE_TOKEN"
+              else
+                add_label needs-human b60205
+                comment_once "wf-$sha" "🛑 Approved ($approved_by) and green, but this PR changes \`.github/workflows/**\` and GitHub does not let the Actions token merge workflow changes. **Owner: squash-merge by hand** — or, to make even this automatic, add a fine-grained personal access token (contents + pull requests + workflows: write on this repo) as the Actions secret \`AUTOMERGE_TOKEN\`."
+                say "#$pr touches workflows — human merge"; continue
+              fi
+            fi
+            if [ "$mergeable" = "CONFLICTING" ]; then
+              add_label needs-rebase d93f0b
+              if ! has_marker "rebase-dispatch-$sha"; then
+                if gh workflow run worker.yml --repo "$REPO" --ref "$DEFAULT" -f mode=rebase -f pr="$pr" >/dev/null 2>rb.err; then
+                  comment_once "rebase-dispatch-$sha" "⚠️ Approved and green, but \`${sha:0:7}\` conflicts with \`$DEFAULT\`. I dispatched the **worker (rebase mode)** to merge \`$DEFAULT\` in and resolve the conflicts on this branch; I merge the result once it is green and reviewed. (Your own session may do it first: \`git fetch && git merge origin/$DEFAULT\`, resolve, push.)"
+                  say "#$pr: conflicts — rebase job dispatched"
+                else
+                  comment_once "conflict-$sha" "⚠️ Approved and green, but it conflicts with \`$DEFAULT\` and I could not dispatch the rebase job (\`$(tr '\n' ' ' <rb.err | cut -c1-160)\`). Ask a session to \`git fetch && git merge origin/$DEFAULT\`, resolve, and push; I'll merge the new head automatically."
+                  say "#$pr conflicts, dispatch failed"
+                fi
+              else
+                say "#$pr: conflicts — rebase already dispatched for ${sha:0:7}"
+              fi
+              continue
+            fi
+            drop_label needs-rebase
             if [ "$mergeable" != "MERGEABLE" ]; then say "#$pr mergeable=$mergeable (computing) — retry next sweep"; continue; fi
 
             echo "merging #$pr at ${sha:0:7} — $approved_by, $ok green check(s)"
-            if gh pr merge "$pr" --repo "$REPO" --squash --delete-branch --match-head-commit "$sha" --subject "$title (#$pr)" >/tmp/m.log 2>&1; then
+            if GH_TOKEN="$use_token" gh pr merge "$pr" --repo "$REPO" --squash --delete-branch --match-head-commit "$sha" --subject "$title (#$pr)" >/tmp/m.log 2>&1; then
               say "#$pr merged ($approved_by)"
+              # Close the linked issues ourselves: merges by the Actions token do not reliably fire
+              # GitHub's closing-keyword linker, and an issue left open falls back into the queue.
+              for iss in $closes; do
+                st=$(gh api "repos/$REPO/issues/$iss" --jq '.state + " " + (.pull_request|type)' 2>/dev/null || echo "")
+                [ "${st%% *}" = "open" ] || continue
+                [[ "$st" == *object* ]] && continue      # a PR, not an issue
+                gh issue close "$iss" --repo "$REPO" --reason completed --comment "✅ Closed by #$pr (squash-merged by automerge at \`${sha:0:7}\`)." >/dev/null 2>&1 \
+                  && say "#$pr: closed linked issue #$iss" || echo "::warning::#$pr: could not close #$iss"
+                for l in bot-working retry; do gh api -X DELETE "repos/$REPO/issues/$iss/labels/$l" >/dev/null 2>&1 || true; done
+              done
             else
-              err=$(tr '\n' ' ' </tmp/m.log | cut -c1-400); add_label "$pr" needs-human b60205
-              comment_once "$pr" "merge-failed-$sha" "🛑 Squash-merge at \`${sha:0:7}\` refused by GitHub: \`$err\`. Owner: merge by hand."
+              err=$(tr '\n' ' ' </tmp/m.log | cut -c1-400); add_label needs-human b60205
+              comment_once "merge-failed-$sha" "🛑 Squash-merge at \`${sha:0:7}\` refused by GitHub: \`$err\`. Owner: merge by hand (or fix the cause and remove \`needs-human\`)."
               echo "::warning::#$pr merge failed: $err"
             fi
           done

@@ -5,7 +5,15 @@ creates, edits, validates, and converts Autodesk Revit `.rvt` / `.rfa`
 containers **without a Revit install, an Autodesk seat, or APS**. Revit is
 the last-mile *deliverable* format — a licensed engineer opens our output
 for QA. Read this file fully before touching anything; then read
-`KNOWLEDGE.md` (institutional memory) and `TRACKER.md` (the work queue).
+`KNOWLEDGE.md` (institutional memory) and `TRACKER.md` (the curated roadmap).
+
+**You are a tech lead here, not a ticket-taker** (§4): the coding sessions own
+the task list, requirements and stories and derive them from the program goals;
+the humans steer, and every steer is logged before it is acted on. The two files
+you plan from are imported right here so they are always in context:
+
+@docs/PROGRAM.md
+@docs/STEERING.md
 
 ---
 
@@ -111,9 +119,13 @@ Cloud sessions clone this repo into a fresh VM, so they behave like a fresh
 clone: no `samples/`, no viewer login → pick `ready` issues. Point the cloud
 environment's **Setup script** at `bash scripts/cloud-setup.sh` (creates
 `.venv`, installs the engine + test extras, sets `pull.rebase`, checks plugin
-drift + portable paths). This file and `.claude/agents/` load automatically.
-Work on a branch, push, and open the PR from the session UI (or `gh pr create
---draft`) exactly as in section 4.
+drift + portable paths). This file, its two `@` imports, and `.claude/`
+(a SessionStart banner with live queue counts, and the project commands
+`/steer`, `/techlead`, `/board`, `/fanout`) load automatically. Cloud sessions have no
+`gh`: use the GitHub MCP tools for the same moves (§4). Work on a branch,
+push, and open the PR from the session UI (or `gh pr create --draft`) exactly
+as in section 4 — and if the session ends before the PR is finished, the
+repo's bots finish or re-queue it; nothing depends on the session staying up.
 
 ## 3. Map
 
@@ -183,7 +195,10 @@ directly under `plugin/`.
 
 **Two hygiene notes so a dev session doesn't confuse itself with an
 end-user session:** the repo intentionally has **no `.claude/skills/`** (the
-product skills aren't auto-loaded into the session that is editing them),
+product skills aren't auto-loaded into the session that is editing them —
+`.claude/` holds only the *process* pieces: the SessionStart banner and the
+`/steer` `/techlead` `/board` `/fanout` commands, none of which are product
+skills),
 and interactive dogfooding of the skills is best done in a *separate*
 scratch session with the built plugin loaded (`claude --plugin-dir
 /path/to/tekton/plugin` or the installed zip) — so "the skill I'm editing"
@@ -211,13 +226,48 @@ clarity, not a ban.
 ## 4. How work is done here (process) — multiple humans, multiple sessions
 
 Several people work here at once, each driving one or more coding
-sessions. Coordination is **GitHub Issues + trunk-based git**, with this
-repo's record conventions riding on top. A session never freelances on
-`main` and never "claims" work by editing a markdown file.
+sessions that start fresh at random times on laptops that get switched off.
+Coordination is **GitHub Issues + trunk-based git**, with this repo's record
+conventions riding on top; the full operating system — roles, board, bots,
+labels, what still needs a human and why — is `docs/process/AUTONOMY.md`.
+A session never freelances on `main` and never "claims" work by editing a
+markdown file.
 
-**The queue is GitHub Issues.** One issue per task/stream, labelled by area
-(`engine`, `frontdoor`, `famgen`, `plugin`, `genesis`, `docs`, …) and state
-(`ready`, `hot-file`, `needs-viewer`, `blocked`). **Claiming = being the
+**The model (steer #54, standing steers S-2026-08-09-a/b): coding sessions
+are the tech leads; humans steer.** You — this session, every other session,
+and the scheduled `techlead` planner, all following one charter
+(`.github/prompts/techlead.md`) — own the backlog: you log what the humans
+say, turn it into requirements and task issues, keep the `ready` queue
+stocked and ordered from `docs/PROGRAM.md`, retire what is obsolete, and
+decide what the unattended `worker` may take — **and you build**: a tech lead
+here sets direction *and* writes code in the same session (steer #58,
+S-2026-08-09-c), and may delegate — subagents as hands inside the session,
+or extra cloud (CCR) engineer sessions it starts and coordinates, one issue
+each under this same protocol (`/fanout`). Humans never have to write a
+ticket, assign, review, merge or close anything, and you never tell them to.
+**Any time your human volunteers a requirement, an opinion, a priority call
+or a correction, log it FIRST — `/steer <their words>`** (project command;
+= `python3 tools/dev/techlead.py steer "…" --by <login>`, or in a cloud
+session an MCP `issue_write` with label `steer`) — then obey it. Standing
+guidance ("always/never/prefer") additionally gets a row in
+`docs/STEERING.md`; new work it implies becomes task issues with
+`Refs #<steer>` + `from-steer`. Everything you decide lives on GitHub, never
+only in the conversation: this session may end mid-sentence and a stranger's
+session must be able to continue. The always-current picture is the pinned
+**📋 board** issue ([#56](https://github.com/ckaragitz/tekton/issues/56),
+label `board`, re-rendered hourly and on every event): in progress, in
+review with the exact merge blocker per PR, next up, waiting on a human,
+untriaged steers.
+
+**The queue is GitHub Issues.** One issue per task/stream, labelled by
+priority (`P0`/`P1`/`P2`), area (`area:engine`, `area:frontdoor`,
+`area:famgen`, `area:plugin`, `area:genesis`, `area:docs`, `area:process`, …)
+and state (`ready`, or a gate: `blocked`, `needs-viewer`,
+`needs-revit-desktop`, `owner-machine`, `needs-decision`), plus provenance
+(`from-steer`, `planned`, `from-requirement`) and `hot-file` /
+`good-first-pick` / `auto` (cleared for the unattended worker) as fitting.
+Title = the checkable DONE; body = Why / DONE / Territory / Evidence /
+Context (the *Task* issue form has the shape). **Claiming = being the
 issue's assignee.** Assign yourself however your surface allows — `gh issue
 edit <n> --add-assignee @me`, the GitHub MCP `issue_write` tool (cloud
 sessions have no `gh`), the web UI — or comment `/claim` and the `coord` bot
@@ -236,40 +286,53 @@ on every new issue, but by then you have already written it. If the work you
 want isn't an issue yet, open one (title = the checkable DONE, body =
 territory + record path) and assign yourself in the same call.
 
-**Don't know what to work on? That's expected.** Read the pinned issue
-**"START HERE"** ([#25](https://github.com/ckaragitz/tekton/issues/25)):
-it explains the labels and how to choose. Rule of thumb: if you are not
-on the owner's machine, pick `ready` issues (doable from a fresh clone —
-no `samples/`, no viewer login), `P0` before `P1`, and `good-first-pick`
-for your first PR here. Or skip choosing entirely: comment **`/next`** on
-any issue and the `coord` bot assigns you the highest-priority, oldest,
-unassigned `ready` issue and tells you where to start.
+**Picking work needs no human.** Comment **`/next`** on any issue and the
+`coord` bot assigns you the head of the queue (`tools/dev/coord.py queue`:
+`ready`, unassigned, not gated, not already answered by an open PR, not
+held by the worker; `P0` > `P1` > rest, oldest first) and tells you where
+to start — if it says the pick is `retry` work, continue the branch/PR it
+names instead of starting over. Choosing by hand is fine too (the board's
+*Next up*, or the pinned **"START HERE"** [#25](https://github.com/ckaragitz/tekton/issues/25)
+label legend): not on the owner's machine → `ready` only; `P0` before `P1`;
+`good-first-pick` for your first PR here.
 
-**Where new work comes from — the requirements drop-box.** New requirements
-enter as one markdown file each under `docs/requirements/` (see its README
-and TEMPLATE; front matter carries labels, `auto: claude` makes the bot
-implement it end-to-end). When the file merges to `main`, the
-`requirements` workflow files a `ready` + `from-requirement` issue for it,
-deduped forever by a body marker — writing the file is the only human step
-between "we need X" and an issue a session can `/claim`. Discussion after
-filing lives on the issue, not in the file. Claims also self-heal: the
-hourly sweep unassigns any issue held 72 h+ with no open PR closing it and
-no activity (hardware-gated labels exempt), so an abandoned claim returns
-to the queue without anyone noticing it first.
+**Where new work comes from: the tech leads write it.** Inputs, in order of
+authority: human steers (logged as `steer` issues — from a session's
+`/steer`, the *🧭 Steer* issue form, a `/steer <text>` comment on any
+issue/PR, or any free-form issue a human files, which `coord` labels
+`intake`), then `docs/PROGRAM.md`, `TRACKER.md`, records' open questions,
+red tests. The scheduled planner (`.github/workflows/techlead.yml`, every
+6 h and immediately when a steer lands) and any session running
+**`/techlead`** turn those into task issues per the charter — bounded
+(≤ 5 new issues per pass, queue kept between the floor and ceiling in
+`.github/autonomy.json`), search-before-file, one planning note per pass on
+the board issue. The unattended **worker** (`worker.yml`, every 2 h, WIP ≤ 2,
+≤ 4 runs/day) implements `ready` + `auto` issues exactly as a session
+would and opens the PR; the legacy `docs/requirements/` drop-box still files
+one issue per merged file. Claims self-heal: the hourly sweep unassigns any
+issue held 72 h+ with no open PR and no activity (hardware-gated labels
+exempt); a PR the bots cannot finish is not a dead end either — its issue
+comes back `ready` + `retry` pointing at the branch.
 
-**Session start protocol (every session, every time):**
+**Session start protocol (every session, every time) — act as the tech lead
+first, the engineer second:**
 ```bash
 git switch main && git pull --ff-only          # start from current trunk
-gh issue list --assignee @me --state open      # resume yours, or:
-gh issue list --label ready --search "no:assignee"   # pick one, then claim it:
-gh issue edit <n> --add-assignee @me           # (or: gh issue comment <n> -b /claim)
+python3 tools/dev/techlead.py brief            # or /board: steers, queue vs floor, PR blockers, waiting-on-human
+gh pr list --author @me --state open           # 1. service your own PRs first (below)
+#  2. your human said something directional this session? -> /steer "<their words>"  (before acting on it)
+#  3. untriaged steers, or ready&unassigned below the floor? -> /techlead  (≤10 min, charter-bounded)
+gh issue list --assignee @me --state open      # 4. resume yours, or take the head of the queue:
+gh issue comment <any> -b /next                #    (or claim by hand: gh issue edit <n> --add-assignee @me)
 git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR, always from main
+#  5. more independent ready issues than you can hold? -> /fanout (engineer sessions / subagents), keep building yours
 ```
 Cloud sessions (no `gh` CLI) do the same through the GitHub MCP tools:
-`list_issues`/`search_issues` to pick, `issue_write` (assignees) or
-`add_issue_comment` with body `/claim` to claim. Either way, glance at the
-issue a minute later (`gh issue view <n>` / `issue_read`): a ⛔ from the bot
-means someone beat you to it — stop and pick another.
+`issue_read` on the board issue for the picture, `issue_write` with label
+`steer` to log a steer, `add_issue_comment` with body `/next` or `/claim`
+to take work, `issue_write` (assignees) to claim by hand. Either way, glance
+at the issue a minute later (`gh issue view <n>` / `issue_read`): a ⛔ from
+the bot means someone beat you to it — stop and pick another.
 **Before picking new work, service your own open PRs** — this is how a
 session "gets notified": it looks.
 ```bash
@@ -277,13 +340,17 @@ gh pr list --author @me --state open --json number,title,isDraft,labels,statusCh
   --jq '.[]|"#\(.number) \(.title) draft=\(.isDraft) labels=\([.labels[].name]|join(",")) checks=\([.statusCheckRollup[]?|.conclusion//"…"]|join("/"))"'
 gh pr view <n> --comments        # read the review summary, inline notes, automerge/needs-human comments
 ```
-If a PR of yours is red, has `🛑 Changes requested`, or carries `needs-human`:
-fix that first (address each blocking bullet, run your gates, push to the same
-branch — the bots re-run on the new commit; remove `needs-human` with
+If a PR of yours is red, has `🛑 Changes requested`, or carries `bot-stuck` /
+`needs-human`: fix that first (address each blocking bullet, run your gates,
+push to the same branch — the bots re-run on the new commit and the labels
+clear themselves; remove `needs-human` with
 `gh pr edit <n> --remove-label needs-human` once you've pushed a real fix).
 Cloud sessions (claude.ai/code) can instead turn on **Auto-fix** in the PR's CI
 bar (or run `/autofix-pr` in a terminal session) so the session itself watches
-CI failures and review comments and pushes fixes.
+CI failures and review comments and pushes fixes. A PR you simply walk away
+from is fine: the bots review it, push bounded fixes, mark a green + approved
+draft ready after 90 quiet minutes, merge it, and close the issue — or, if
+they cannot, re-queue the issue `ready` + `retry` with your branch named.
 
 Then read the issue, `KNOWLEDGE.md`, and any `docs/inbox/` records it cites
 before writing code.
@@ -373,48 +440,66 @@ you to do unless the bot asks for a human."
    `validate_plugin.py`, the fast no-samples shard (`tests/ci_shard.txt`).
    If CI finishes **red**, `claude-review`'s `ci-autofix` job reads the failed log,
    makes the smallest in-territory fix, re-runs the CI commands locally, and pushes
-   (same 2-attempt budget; exhausted → `needs-human`).
+   (same fix budget as below).
 2. **`claude-review`** reviews every push against this file's rules and the linked
    issue's DONE, posts inline comments + one summary whose first line is the
    verdict (✅ Approve / 🟡 Nits only / 🛑 Changes requested) and whose last line is a
-   machine-readable marker for that exact head SHA. On 🛑 it runs a **bounded
-   auto-fix pass** (max 2 attempts per PR): edits, runs the gates, pushes to your
-   branch, which re-triggers CI + review. Still 🛑 after 2 → label `needs-human`.
-3. **`automerge`** squash-merges as soon as: not draft **and** CI green on the head
-   SHA **and** the review verdict for that SHA is Approve/Nits. It deletes the
-   branch; `Closes #N` closes the issue. It refuses (and comments why) on zero/red
-   checks, conflicts, or a missing verdict, and re-checks on every new commit and
-   every 30 minutes. A head with **zero** checks (API/app pushes don't always
-   trigger CI) isn't a dead end: automerge dispatches CI on the branch itself,
-   once per head SHA, and continues when it finishes. **Duplicate rule:** if two open PRs close the same issue, the
-   older PR wins and the newer gets `needs-human` — so *`/claim` the issue before
-   you start*; `coord` will already have flagged the pair with `overlap` when the
+   machine-readable marker for that exact head SHA (a short rescue pass posts it if
+   the review ran out of turns; `automerge` re-requests a review whose verdict is
+   still missing). On 🛑 it runs a **bounded auto-fix pass** — budget 3 attempts per
+   PR since the last budget reset (`.github/autonomy.json`): edits, runs the gates,
+   pushes to your branch, which re-triggers CI + review. Budget exhausted → label
+   `bot-stuck`, which is **not** a human dead-end: after a quiet day the `board`
+   sweep re-queues the issue `ready` + `retry`, unassigned, naming the branch, and
+   `/next` or the worker continues it with a fresh budget.
+3. **`automerge`** squash-merges as soon as: CI green on the head SHA **and** the
+   review verdict for that SHA is Approve/Nits **and** the PR is ready — or is a
+   **draft that has been quiet (no commits) for 90 min**, which it then marks ready
+   itself (label `wip` holds a draft). It deletes the branch and **closes the linked
+   issues itself** (bot merges do not reliably fire GitHub's `Closes #N` linker —
+   #50 stayed open after #51). It refuses (and comments why) on red checks or a
+   missing verdict and re-checks on every new commit and every 30 minutes; zero
+   checks → it dispatches CI; missing verdict → it re-requests the review;
+   conflicts → it dispatches the worker's rebase mode. **Duplicate rule:** if two
+   open PRs close the same issue, the older PR wins and the newer gets
+   `duplicate-pr` for the planner to settle — so *`/claim` the issue before you
+   start*; `coord` will already have flagged the pair with `overlap` when the
    second PR opened.
-4. Escape hatches (humans only): `do-not-merge` holds a PR; `merge-when-green`
-   applied by someone other than the author (or by the owner) substitutes for the
-   AI verdict when the review bot is down or wrong; `@claude <instruction>` in any
-   comment makes the bot answer or push a change. PRs touching
-   `.github/workflows/**` can never be bot-merged (GitHub restriction) → owner
-   merges those by hand.
+4. Escape hatches (humans only): `do-not-merge` holds a PR; `wip` keeps a draft
+   from being auto-readied; `merge-when-green` applied by someone other than the
+   author (or by the owner) substitutes for the AI verdict when the review bot is
+   down or wrong; `@claude <instruction>` in any comment makes the bot answer or
+   push a change; label `bots-paused` on the board issue idles planner + worker.
+   PRs touching `.github/workflows/**` cannot be merged by the Actions token
+   (GitHub restriction) → `needs-human`, owner merges by hand — unless the owner
+   has added the optional `AUTOMERGE_TOKEN` secret (docs/process/AUTONOMY.md §10).
+   That, `needs-decision` questions, viewer uploads, desktop-Revit checks and
+   owner-machine work are the **complete** list of things that wait for a person,
+   and the board's *Waiting on a human* section shows them with the reason.
 5. So a session's PR checklist is: link the issue (`Closes #N`), include the record,
    run your stream-local gates, push, open the PR **ready** (not draft) when done —
-   or draft early and `gh pr ready <n>` when finished. **Then turn on Auto-fix for
+   or draft early and `gh pr ready <n>` when finished (or just leave: a green,
+   approved, quiet draft is readied and merged for you). **Then turn on Auto-fix for
    that PR, every time** — cloud session (claude.ai/code or Desktop-in-cloud): the
    PR's CI status bar → **Auto-fix**, or just say "auto-fix this PR: watch CI
    failures and review comments"; terminal session on the PR branch: `/autofix-pr`.
    That makes *your own session* wake on red CI / review comments and push fixes
-   (needs the Claude GitHub App on the repo; uses your plan, no repo secret). Tell
-   your human you did it. Then stop; read the bot's comments if it pings.
+   while it is alive (needs the Claude GitHub App on the repo; uses your plan, no
+   repo secret); the repo's bots cover for it after it is gone. Tell your human you
+   did it. Then stop; read the bot's comments if it pings.
 6. One-time setup this depends on (repo admin): Claude GitHub App installed on the
-   repo, and an Actions secret `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`)
-   or `ANTHROPIC_API_KEY`. Without it `claude-review` fails red on purpose and only
-   the `merge-when-green` label path can merge. **`coord` and `CI` need no secret**
-   and keep working either way. Two token-free repo checkboxes do most of
-   `coord`'s sweep work structurally: *Settings → General → Automatically delete
-   head branches* (GitHub deletes merged branches itself and retargets stacked
-   children instead of closing them) and *Settings → Actions → General → Allow
-   GitHub Actions to create and approve pull requests* (the orphan-branch sweep
-   can open the draft PR itself instead of listing branches on a tracking issue).
+   repo, and an Actions secret `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`
+   on the owner's *personal* plan — standing steer S-2026-08-08-a) or
+   `ANTHROPIC_API_KEY`. Without it `claude-review`, `techlead` and `worker` are red
+   or skipped on purpose (the board's Health line shows it), only the
+   `merge-when-green` label path can merge, and sessions do the planning at session
+   start. **`coord`, `board`, `CI` and `automerge` need no secret** and keep working
+   either way. Two token-free repo checkboxes do most of `coord`'s sweep work
+   structurally: *Settings → General → Automatically delete head branches* (GitHub
+   deletes merged branches itself and retargets stacked children instead of closing
+   them) and *Settings → Actions → General → Allow GitHub Actions to create and
+   approve pull requests* (the orphan-branch sweep can open the draft PR itself
+   instead of listing branches on a tracking issue).
 
 **Hot files — serialize, don't stack.** `tools/frontdoor.py`,
 `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`,
@@ -424,19 +509,26 @@ day. Everything else: prefer **new modules in your territory** and deliver
 edits to shared files as a patch in your record if someone else holds them.
 `experiments/<stream>/**` is namespaced per stream, so probes never collide.
 
-**Roles.** The *orchestrator* is a rotating human role, not a bot: they
-triage issues, keep `TRACKER.md` current **via PR** (it is the curated
-roadmap/summary, not the live claim board), fold `docs/inbox/learned-*.md`
-notes into `KNOWLEDGE.md`, and run/record viewer certification rounds.
-Contributors STAGE viewer batches on their branch (`probe_batch.py stage`)
-and stop at READY; whoever uploads records verdicts in
-`docs/coverage/viewer-certified.json` + `docs/inbox/genesis-audit.md` via a
-`hot-file` PR.
+**Roles.** There is no human orchestrator any more: *orchestration is the
+tech-lead loop* — the scheduled planner plus every session at session start,
+one charter (`.github/prompts/techlead.md`). That loop triages steers, keeps
+the queue and its labels healthy, keeps `TRACKER.md` / `docs/PROGRAM.md`
+current **via small PRs** (curated roadmap and goals — never the live claim
+board; Issues + the 📋 board are), and folds `docs/inbox/learned-*.md` notes
+into `KNOWLEDGE.md`. Humans keep exactly the physical and reserved things
+(docs/process/AUTONOMY.md §10): answering `needs-decision` issues, uploading
+STAGED viewer batches and recording verdicts (`docs/coverage/viewer-certified.json`
++ `docs/inbox/genesis-audit.md`, `hot-file` PR — a session prepares the PR,
+the human supplies the verdicts), desktop-Revit checks, owner-machine runs,
+merging workflow-file PRs, and keeping the token/billing alive. Contributors'
+sessions STAGE viewer batches on their branch (`probe_batch.py stage`) and
+stop at READY, as before.
 
 - **Streams.** Substantial work is still chartered as a stream with a
   *territory* (files it may touch), a checkable *DONE*, and a *record* — the
-  issue is the charter. Streams propose follow-ups by opening issues (or in
-  the PR description), never by editing `TRACKER.md` themselves.
+  issue is the charter. Streams file their own follow-ups as task issues
+  (task-shaped, `Refs #<parent>`) — that is tech-lead work, not scope creep —
+  and never by editing `TRACKER.md` in passing.
 - **Every stream writes `docs/inbox/<stream>.md`**: what was built, the
   evidence (numbers, not adjectives), findings, open questions, and a
   closing **`BRANCH STATE`** block (files written, gates, what's staged vs

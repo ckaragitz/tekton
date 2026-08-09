@@ -1,14 +1,19 @@
-# Requirements drop-box
+# Requirements drop-box (one intake channel among several)
 
-This directory is the **automated intake** for new work. Drop one markdown file
-per requirement here (via the normal PR flow); the moment it merges to `main`,
-the `requirements` workflow files **one GitHub issue per file**, labelled
-`ready` + `from-requirement` + whatever the file's front matter names. From
-there the existing machinery takes over: engineers' sessions pull work with
-`/claim` or `/next`, the `coord` bot enforces one holder per issue, and the
-review → auto-fix → automerge pipeline lands the PR.
+> **Humans do not need this directory.** The primary way to introduce work is
+> to *steer* — tell your session, use the *🧭 Steer* issue form, or comment
+> `/steer <text>` anywhere — and the coding sessions (the tech leads here)
+> write the requirements and tasks themselves (docs/process/AUTONOMY.md).
+> This drop-box remains for the case where a requirement already exists as a
+> document — a spec written elsewhere, a session's own decomposition of an
+> epic — and should become an issue verbatim on merge.
 
-Nobody routes work by hand: **writing the requirement is the only human step.**
+Drop one markdown file per requirement here (via the normal PR flow); the
+moment it merges to `main`, the `requirements` workflow files **one GitHub
+issue per file**, labelled `ready` + `from-requirement` + whatever the file's
+front matter names. From there the existing machinery takes over: sessions
+pull work with `/claim` or `/next`, the `coord` bot enforces one holder per
+issue, and the review → auto-fix → automerge pipeline lands the PR.
 
 ## File format
 
