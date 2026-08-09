@@ -120,6 +120,51 @@ def test_explicit_non_sample_base_accepted_unpinned(tmp_path):
     assert rb.warnings and "user's authority" in rb.warnings[0]
 
 
+# --- --target-version when $RVT_GENESIS_BASE / --base IS our pinned default (#123, #24)
+BUNDLED = os.path.join(ROOT, "plugin", "assets", "genesis")
+needs_bundled_bases = pytest.mark.skipif(
+    not all(os.path.isfile(os.path.join(BUNDLED, n))
+            for n in ("G_ABPD.rvt", "G_ABPD_2025.rvt", "G_ABPD_2024.rvt")),
+    reason="bundled per-release genesis bases absent")
+
+
+@needs_bundled_bases
+@pytest.mark.parametrize("year,name", [(2025, "G_ABPD_2025.rvt"), (2024, "G_ABPD_2024.rvt")])
+def test_default_base_via_env_still_builds_natively_for_a_certified_target(monkeypatch, year, name):
+    """The plugin bootstrap / legacy `--env` lines export RVT_GENESIS_BASE =
+    the bundled DEFAULT (2026) base.  That is our own file arriving via a
+    path, not a user override: a certified target must resolve ITS slot,
+    never degrade to a 2026 file + a false 'pending certification' line."""
+    monkeypatch.setenv("RVT_GENESIS_BASE", os.path.join(BUNDLED, "G_ABPD.rvt"))
+    base, vb, errors = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", target_version=year))
+    assert not errors, errors
+    assert vb["status"] == "match" and vb["output_release"] == year, vb
+    assert base is not None and os.path.basename(base.path) == name and base.certified
+    assert os.environ.get("RVT_GENESIS_BASE", "").endswith("G_ABPD.rvt")   # env restored
+
+
+@needs_bundled_bases
+def test_default_base_via_env_with_an_uncertified_target_still_falls_back(monkeypatch):
+    monkeypatch.setenv("RVT_GENESIS_BASE", os.path.join(BUNDLED, "G_ABPD.rvt"))
+    base, vb, errors = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", target_version=2023))       # known, not certified
+    assert vb["status"] == "fallback" and vb["output_release"] == 2026, vb
+    assert "your Revit 2023 cannot open it" in vb["line"]
+    assert vb["target_support"] == "known-not-certified" and vb["nearest_supported"] == 2024
+    assert base is not None and os.path.basename(base.path) == "G_ABPD.rvt"
+
+
+@needs_bundled_bases
+def test_foreign_wrong_release_base_is_still_refused():
+    """A --base that is NOT our default pin (here: the 2025 base) combined
+    with a different target stays REFUSED -- never a wrong-release build."""
+    base, vb, errors = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", target_version=2024,
+                         base=os.path.join(BUNDLED, "G_ABPD_2025.rvt")))
+    assert base is None and vb["status"] == "refused" and errors
+
+
 # ===========================================================================
 # 2. prompt fallback: parser, layout, intent, coverage
 # ===========================================================================

@@ -25,6 +25,40 @@
    "question": "does the FULL 2025 author output load? (carries the open instance-audit residual by construction)",
    "expected": "UNKNOWN -- the 2026 twin of this shape is the OPEN residual (SX_f6i6 FAILED on the sample base); a FAIL here is the residual, NOT a 2025-specific regression, unless the walls-only probe also fails",
    "if_fail": "read against ROOM2025_walls: walls PASS + full FAIL reproduces the 2026 instance residual on 2025 (code-path discriminator confirmed); walls FAIL too => 2025 build-path problem, bisect from the control"
+  },
+  {
+   "name": "FL25_head",
+   "file": "experiments/frontdoor2025/famload_lane/FL25_head.rvt",
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "stream": "famload-2025-lane (issue #14)",
+   "built_by": "rvt.famload.load_family_document called BARE on the 2025 base (host release context entered by the loader itself)",
+   "contents": "ONE constructor-built annotation family (RW Section Head - Open) loaded four-registry; NO instance",
+   "question": "does the 2025 four-registry WRITE (ContentDocuments tokens 0x391/0x390, unit separator, 0x0eee footer, ContentTable/FamilyMgr rows under the 2025 schema) satisfy Autodesk's 2025 reader?",
+   "expected": "PASS (the no-instance famload shape is viewer-PASSED on 2026: L1a / L_v2; base certified)",
+   "if_fail": "a 2025-SPECIFIC four-registry write defect (the tokens/rows differ from what the 2025 reader wants) -- and batch 35's ROOM2025_full FAIL must be re-read; bisect against the control (the loaded unit + 5 host rows are the ONLY delta)"
+  },
+  {
+   "name": "L25_panel_noinst",
+   "file": "experiments/frontdoor2025/famload_lane/L25_panel_noinst.rvt",
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "stream": "famload-2025-lane (issue #14)",
+   "built_by": "rvt.famgen.loader.load_family_into_project(place=False) called BARE on the 2025 base",
+   "contents": "ONE generated Eaton 400 A panelboard family (famgen) loaded four-registry; NO instance",
+   "question": "does a generated (famgen) famdoc load WITHOUT an instance hold on 2025 as it does on 2026?",
+   "expected": "PASS (BX_f2 / H10 precedent: uninstanced generated famdocs pass -- nothing walks the unit)",
+   "if_fail": "read against FL25_head: head PASS + panel FAIL => the famgen famdoc/host-symbol write differs on 2025 (port layer / GeomTable adapt); both FAIL => the 2025 registration write itself"
+  },
+  {
+   "name": "ATP25_lp1",
+   "file": "experiments/frontdoor2025/famload_lane/ATP25_lp1.rvt",
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "stream": "famload-2025-lane (issue #14)",
+   "built_by": "rvt.convert.add_to_project('add a 100 A lighting panel', G_ABPD_2025) called BARE -- the field workflow (prompt + the user's Revit-2025 project)",
+   "contents": "ONE generated 100 A lighting panelboard family loaded four-registry + ONE placed instance (constructed-specimen scaffolding, free-standing)",
+   "question": "the OPEN cell's variable on 2025: does a placed instance of OUR generated family on OUR composed 2025 base load?",
+   "expected": "UNKNOWN, leaning FAIL -- this is exactly the open instance-audit cell (verdicts #31-#48), release-independent; ROOM2025_full (batch 35) FAILED the same way",
+   "if_fail": "with FL25_head + L25_panel_noinst PASS: the release-independent instance residual, NOT a 2025 lane defect (the lane is DONE = working + staged, not certification); with either load FAIL: fix that first"
   }
- ]
+ ],
+ "famload_lane": "famload-2025-lane (issue #14): the load/place/edit lanes on an EXISTING 2025 file (rvt.famload, rvt.famgen.loader, rvt.convert.add_to_project, --rvt --edit) enter rvt.frontdoor.release_ctx.host_release_context themselves; probes built + five-gate checked by experiments/frontdoor2025/famload_lane.py, report famload_lane_report.json"
 }

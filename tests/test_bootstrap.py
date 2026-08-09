@@ -201,7 +201,9 @@ def test_legacy_env_exports_still_printed(plugin_copy, workdir):
     assert r.returncode == 0
     assert 'export PYTHONPATH="' in r.stdout
     assert 'export RVT_PLUGIN_ROOT="' in r.stdout
-    assert 'export RVT_GENESIS_BASE="' in r.stdout
+    # RVT_GENESIS_BASE is the USER's override; exporting the bundled default
+    # would pin --target-version jobs to 2026 (#92, tests/test_go_target_version.py)
+    assert "RVT_GENESIS_BASE" not in r.stdout
 
 
 # ---------------------------------------------------------------------------

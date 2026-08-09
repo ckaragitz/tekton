@@ -1,0 +1,6 @@
+# per-run build noise of famload_lane.py (the .rvt/.rfa binaries are already
+# ignored repo-wide; the tracked evidence is the two *.load.json reports, the
+# ATP25_lp1 convert manifest + family facts report, and ../famload_lane_report.json)
+ATP25_lp1/_stages/
+ATP25_lp1/MANIFEST.md
+ATP25_lp1/intent.json

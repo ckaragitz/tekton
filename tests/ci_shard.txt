@@ -20,6 +20,7 @@ tests/test_plugin_sync.py
 tests/test_plugin_validate.py
 tests/test_bootstrap.py
 tests/test_coldstart.py
+tests/test_go_target_version.py
 tests/test_coord.py
 tests/test_validate_release.py
 tests/test_validate_footer_blob.py
@@ -28,4 +29,7 @@ tests/test_techlead.py
 tests/test_geo_site_determinism.py
 tests/test_verify_manipulated_release.py
 tests/test_hostsym_product.py
+tests/test_target2025.py
+tests/test_famload_2025.py
+tests/test_target_version_first.py
 tests/test_bare_family_validate.py

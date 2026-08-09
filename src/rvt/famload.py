@@ -214,8 +214,23 @@ def four_registry_census(path: str) -> Dict[str, Any]:
     COHERENT = ``save_units - 1 == contentdocs_entries ==
     contenttable_records == len(familymgr_guids)`` AND the four GUID sets are
     equal (R9 / K1 / rstbasic are coherent; the viewer-FAILED R9b / R10b and
-    the audited G0 were not).  Read-only.
+    the audited G0 were not).  Read-only, and read under the file's OWN
+    release (``rvt.global_framing.enter_own_release``): partition framing,
+    the ContentDocuments tokens and the ADocument decoder all follow the
+    file, so a 2025/2024 project's registries are counted, not mis-parsed
+    as 0 (a fallback rung, if taken, is reported as ``release_note``).
     """
+    from contextlib import ExitStack
+    from .global_framing import enter_own_release
+    with ExitStack() as stack:
+        note = enter_own_release(stack, path)
+        rep = _four_registry_census(path)
+        if note:
+            rep["release_note"] = note
+        return rep
+
+
+def _four_registry_census(path: str) -> Dict[str, Any]:
     from .container import open_rvt
     from .partitions import StreamWalker
     from . import adocument as A
@@ -1109,7 +1124,22 @@ def load_family_documents(host_rvt: str, families: Sequence[FamilyLoad],
     coherent by construction), plus its host Family / FamilySymbol(s) /
     surrogates / ParamElemFamily twins in save-unit 0 + ElemTable rows.
     ``out_rvt=None`` = dry run (everything authored + gated, no file).
+
+    Runs under the HOST's own release (``rvt.frontdoor.release_ctx.
+    host_release_context`` -- issue #14); a native host enters no context.
     """
+    from .frontdoor.release_ctx import host_release_context
+    with host_release_context(host_rvt):
+        return _load_family_documents(host_rvt, families, out_rvt,
+                                      repoints=repoints, validate=validate,
+                                      report_path=report_path, identity=identity)
+
+
+def _load_family_documents(host_rvt: str, families: Sequence[FamilyLoad],
+                           out_rvt: Optional[str], *,
+                           repoints: Sequence[UsageRepoint], validate: bool,
+                           report_path: Optional[str],
+                           identity: Optional[dict]) -> LoadResult:
     from .famgen import factory as F
     from .encode import encode_record
     from .commit import commit_new_elements

@@ -1457,6 +1457,17 @@ class Validator:
                      f"relevant-params floor (11..21 rows in 228/228 corpus cells). {ex}")
 
         # ---- E1 + E2: the four registries + ContentTable order -----------------
+        # Read under the FILE's release: the ContentDocuments tokens and the
+        # ADocument decoder are class ordinals / the file's own schema exactly
+        # like the partition framing already in force here (rvt.global_framing;
+        # left at the native tokens a 2025 file reads "units N / CD 0" -- a
+        # false E1, docs/inbox/famload-2025-lane.md).
+        from . import global_framing
+        with global_framing.bound(schema=dec.schema):
+            self._check_four_registries()
+
+    def _check_four_registries(self) -> None:
+        rep = self.rep
         try:
             from .famgen.factory import parse_content_documents
             cd_payload = self._payload("Global/ContentDocuments")
@@ -1719,22 +1730,13 @@ def enter_own_release(stack: ExitStack, path: str) -> Optional[str]:
     still judged as what it is)  ->  nothing (the built-in latest-release
     constants).  Returns None when the schema resolved it, else one sentence
     naming the rung used and why -- callers report it, never raise.
+
+    The ladder itself lives in :mod:`rvt.global_framing` (it also binds the
+    Global-stream tokens + ADocument decoder every instrument needs); this
+    name stays the validator's public entry.
     """
-    from .versions import detect_release, reading
-    from .versions.records32 import reading32
-    try:
-        stack.enter_context(reading32(path))
-        return None
-    except Exception as e:                           # corrupt / schema-less input
-        cause = f"{type(e).__name__}: {e}"
-    try:
-        year = detect_release(path)
-        stack.enter_context(reading(year=year))      # UnknownRelease if None/unpinned
-    except Exception:                                # noqa: BLE001
-        return (f"own-release framing not resolved ({cause}); checked against "
-                f"the built-in latest-release constants")
-    return (f"own schema unreadable ({cause}); checked against the pinned "
-            f"Revit {year} framing table (the release BasicFileInfo declares)")
+    from . import global_framing
+    return global_framing.enter_own_release(stack, path)
 
 
 def validate_file(path: str, layers: Iterable[str] = ALL_LAYERS,
