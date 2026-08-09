@@ -281,3 +281,122 @@ unbuilt to avoid colliding with the packaging stream's zip work mid-flight.
   ~2x author-prompt slowdown under the new landings (quantify on a quiet
   machine; one command, above); (3) the genesis_assemble ladder failure
   belongs to the genesis streams.
+
+## FLAGSHIP-PERF-GATE (issue #184, 2026-08-09) — the 6-panel `go author` job gets a ceiling
+
+Stream: FLAGSHIP-PERF-GATE, issue #184 (Refs #108 / epic #110; steer
+S-2026-08-09-g: latency claims carry measured numbers from a bare surface).
+Territory: `tools/surface_bench.py`, `tests/test_surface_perf.py`, this
+section. `tests/ci_shard.txt` / `_bare_python()` are #136's and were left
+alone (below, DONE 3).
+
+**What was already on `main` (DONE 1).** `tools/surface_bench.py` already
+carries the `go-author-6panels` job (`ROOM6_PROMPT = "an electrical room
+with 6 panels"`, ONE `_bootstrap.py go author` call; landed with the #124 /
+#183 latency work): it is in `JOB_ORDER`, so the cowork / codeexec / local
+tables and `--json` report it with wall `seconds` and the `go` envelope's
+`breakdown.job_seconds` (+ per-stage seconds). This stream only added it to
+the module docstring's job list; no behaviour change.
+
+**What this stream built (DONE 2).** `tests/test_surface_perf.py` gains
+`test_bare_go_author_6panels_under_ceiling`: the fixture now runs
+`preflight, author-prompt, go-edit, go-author-6panels` on the bench's cowork
+surface (plugin working tree, bare interpreter, cleared env, dead proxies)
+and asserts the flagship job PASS in ONE shell call, `go.job_seconds`
+reported, all 6 families loaded (manifest L stage `n_loaded == n_planned ==
+6` — fast-by-loading-nothing is not a pass), and wall **< `ROOM6_CEILING =
+8.0 s`**. The call-budget test now sums the named canonical trio
+(`CANONICAL_SESSION`, budget 3) so the extra author job does not count as a
+choreography regression. Ceiling rationale is in the test file next to the
+constant (date, VM, every measured value); summary below.
+
+### Baseline (this cloud VM, `main@dc0980f` = #292 schema memo merged; 4 vCPU Intel Xeon @ 2.10 GHz, Linux 6.18, system python 3.11.15)
+
+By hand, bare unzip of `tekton-plugin.zip` (built by `tools/sync_plugin.py`
+at that commit), `env -i PATH=/usr/bin:/bin`, numpy absent —
+`python3 skills/tekton-author/scripts/_bootstrap.py go author --prompt "an electrical room with 6 panels" --out out/jN --json`:
+
+| run | wall | `go.job_seconds` | preflight | build stages P · F · L · W · E · V |
+|---|---|---|---|---|
+| 1 (cold pyc) | 3.61 s | 3.479 | 0.044 | 0.15 · 1.14 · 0.87 · 0.16 · 0.10 · 0.73 |
+| 2 | 3.18 s | 3.081 | 0.022 | 0.12 · 1.02 · 0.84 · 0.15 · 0.10 · 0.69 |
+| 3 | 3.19 s | 3.084 | 0.025 | 0.14 · 1.01 · 0.85 · 0.15 · 0.10 · 0.68 |
+| **median** | **3.19 s** | **3.08 s** | | |
+
+Every run exit 0, `result.ok` true, status `PROOF-ONLY (self-checks PASS
+…)`, combined 643,072 B, manifest verdict VALID 0 errors / 1 warning (the
+known DataStorage ES-blob decoder gap); `tools/rvt_validate.py` on run 2's
+`prompt_room.rvt`: 0 errors / 1 warning / 2 info. Validator green ≠
+certified (rule 4) — nothing here claims a Revit load; no output byte path
+changed, so nothing to STAGE.
+
+`tools/surface_bench.py --zip tekton-plugin.zip --json out/bench-184.json`
+(all three simulated surfaces, same VM, numpy absent on the two bare ones):
+
+| job | calls | cowork | codeexec (stateless) | local |
+|---|---|---|---|---|
+| preflight | 1 | 0.1 s | 0.1 s (+0.1 s extract) | 0.1 s |
+| author-prompt | 1 | 2.2 s | 2.2 s (+0.2 s) | 2.2 s |
+| go-author-prompt | 1 | 1.8 s | 2.3 s (+0.1 s) | 1.7 s |
+| **go-author-6panels** | **1** | **3.1 s** (job 3.0) | **3.7 s** (job 3.6, +0.1 s) | **3.2 s** (job 3.1) |
+| author-ifc | 1 | 0.3 s FAIL¹ | 0.4 s FAIL¹ | 4.7 s |
+| edit-roundtrip | 3 | 1.2 s | 1.6 s (+0.4 s) | 1.1 s |
+| go-edit | 1 | 0.8 s | 1.1 s (+0.2 s) | 0.7 s |
+| validate | 1 | 0.6 s | 0.9 s (+0.1 s) | 0.6 s |
+| **session total** | 10 | **10.1 s** | **12.3 s** (+1.4 s extract) | **14.3 s** |
+
+go-author-6panels stages (cowork): `job 3.0s = P 0.1 · F 1.0 · L 0.8 (1
+pass, 6/6) · specimens 0.0 · W 0.2 · E 0.1 · V 0.7`. ¹ pre-existing: the IFC
+route needs numpy and the simulated bare VM has none (#127); unrelated.
+
+The gate's own fixture (cowork surface, `plugin/` tree, `/usr/bin/python3`
+with numpy in the user site — see DONE 3), 3 runs: go-author-6panels wall
+3.48 / 3.44 / 3.31 s (job_seconds 3.37 / 3.32 / 3.20), author-prompt 2.36 /
+2.28 / 2.26 s, go-edit 0.76 / 0.80 / 0.72 s, preflight 0.10 / 0.09 / 0.08 s;
+`pytest tests/test_surface_perf.py -q --durations=0` → **5 passed in 6.86 /
+6.80 / 7.01 s** (one module-scoped fixture ≈ 6.8 s carries all five tests).
+
+**Ceiling choice.** `ROOM6_CEILING = 8.0 s` ≈ 2.3–2.5× the medians above and
+≈ 2.2× the slowest observed run (codeexec 3.7 s). Runner calibration: the
+same day, GitHub's ubuntu-latest py3.11 job timed
+`test_coldstart.py::test_prompt_fallback_build_runs_without_numpy` at 2.26 s
+(PR #292's CI run) vs 2.24 s on this VM — the runner is on par, so the
+headroom is for variance, not for a slower machine. Both earlier states of
+`main` fail it (pre-#292 8.1–8.9 s, pre-#237 27–28.6 s), which is the point.
+
+**DONE 3 — does it execute in CI? Not yet, and that is #136's, deliberately
+not duplicated.** `grep surface_perf tests/ci_shard.txt` → no match on
+`main@dc0980f`, and `_bare_python()` still requires `import numpy` in
+`/usr/bin/python3`, which neither this cloud VM nor ubuntu-latest has — so
+as-is the module reports `5 skipped` here exactly as it would on CI. #136
+(open, unassigned, whole DONE = shard line + numpy-free `_bare_python()` +
+the test_target2025/2024 base resolution) owns both levers; it was read and
+left alone because its DONE is a second stream, not a two-line rider. To
+execute the gate on this VM without touching that precondition, the system
+interpreter was given numpy in the user site (`python3 -m pip install --user
+numpy`, the setup the gate's `bare_env` comment describes) — after which the
+five tests ran (numbers above). When #136 lands, the CI cost of this file is
+one ~7 s fixture; the shard measured 118.9 s / 674 passed (py3.11, PR #292)
+today, so the < 10 min target is untouched.
+
+**Gates run.** `tests/test_surface_perf.py tests/test_bootstrap.py
+tests/test_coldstart.py -q` (counts in the PR); `tools/sync_plugin.py` then
+`--check` → in sync (surface_bench.py is not mirrored into the plugin);
+`plugin/scripts/validate_plugin.py` PASS; `tools/dev/check_portable_paths.py`
+ok. Full suite not run (SUITE-COORDINATION).
+
+### BRANCH STATE (FLAGSHIP-PERF-GATE, #184)
+
+* Branch `cam/184-flagship-perf-gate` from `main@dc0980f`. Files:
+  `tests/test_surface_perf.py` (new test + `ROOM6_CEILING` / `ROOM6_FAMILIES`
+  / `CANONICAL_SESSION`, docstring), `tools/surface_bench.py` (docstring job
+  list only), `docs/inbox/perf-surfaces.md` (this section).
+  `tests/ci_shard.txt` untouched (#136). No hot file, no engine code, no
+  `plugin/lib/**`.
+* Shipped: nothing beyond the PR; `tekton-plugin.zip` rebuilt locally for
+  the measurements only (git-ignored). Bench artifacts `out/bench-184.json|md`
+  are session-local; their numbers are transcribed above.
+* Open, handed to #136: shard inclusion + numpy-free `_bare_python()`; the
+  first CI run after that should restate the runner-measured 6-panel number
+  next to `ROOM6_CEILING` (widen with the number if runner variance demands
+  it — never delete).

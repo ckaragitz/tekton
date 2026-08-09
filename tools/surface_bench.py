@@ -27,6 +27,13 @@ counting BOTH costs:
 Canonical jobs (the documented one-command skill flows, in session order):
   preflight        skills/tekton-author/scripts/_bootstrap.py --json
   author-prompt    _bootstrap.py run frontdoor.py author --prompt <panel> --json
+  go-author-prompt _bootstrap.py go author --prompt <panel> --json (ONE call:
+                   inline readiness + the job + one combined JSON)
+  go-author-6panels  the same ONE call with the README/CLAUDE.md flagship
+                   prompt "an electrical room with 6 panels" (six generated
+                   families loaded + placed); its wall seconds and the `go`
+                   envelope's job_seconds are what the latency epic (#110)
+                   and the tests/test_surface_perf.py ceiling (#184) track
   author-ifc       _bootstrap.py run frontdoor.py author --ifc electrical-room-2500a.ifc --json
   edit-roundtrip   rvt_edit.py info -> set-level -> rvt_validate.py (3 calls,
                    the pre-#111 tekton-edit flow incl. the mandatory gate; kept
