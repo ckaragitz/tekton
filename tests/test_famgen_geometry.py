@@ -25,31 +25,17 @@ import os
 
 import pytest
 
+# element bundles round-trip against the schema alone; ``ctx`` falls back to
+# the from-scratch FamilyDocContext defaults when the sample .rfa is absent
+from conftest import needs_schema
 from rvt.famgen import geometry as G
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RFA_2026 = G.SAMPLE_RFA
 RME = os.path.join(ROOT, "samples", "rmebasicsampleproject.rvt")
 
-
-def _have_schema() -> bool:
-    """A class schema loads: the extracted corpus blob or, on a fresh clone /
-    CI, the sha-pinned bundled base's embedded copy (load_schema's fallback)."""
-    try:
-        from rvt.schema import load_schema
-        load_schema()
-        return True
-    except Exception:                                        # noqa: BLE001
-        return False
-
-
-HAVE_SCHEMA = _have_schema()
 needs_rfa = pytest.mark.skipif(not os.path.exists(RFA_2026), reason="rfa sample missing")
 needs_rme = pytest.mark.skipif(not os.path.exists(RME), reason="rme sample missing")
-# element bundles round-trip against the schema alone; ``ctx`` falls back to
-# the from-scratch FamilyDocContext defaults when the sample .rfa is absent
-needs_schema = pytest.mark.skipif(
-    not HAVE_SCHEMA, reason="no class schema (extracted corpus and bundled base both absent)")
 
 
 class _Ids:

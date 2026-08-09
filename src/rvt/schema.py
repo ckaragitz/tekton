@@ -554,6 +554,22 @@ def parse(data: bytes, source: str = "") -> Schema:
                     lambda: parse_uncached(data, source))
 
 
+def schema_available() -> bool:
+    """Whether the no-arg :func:`load_schema` has a source on this machine:
+    the research corpus blob (``DEFAULT_PATH``), else the pinned genesis
+    base in one of its bundled locations.  Existence only -- nothing is
+    opened, hashed or parsed -- so ``True`` followed by a load that raises
+    is a genuine error (pin mismatch, corrupt stream), never 'absent'."""
+    if os.path.isfile(DEFAULT_PATH):
+        return True
+    from .frontdoor.standalone import StandaloneError, bundled_base_path
+    try:
+        bundled_base_path(verify=False)
+    except StandaloneError:                # the resolver's "not found anywhere"
+        return False
+    return True
+
+
 def load_schema(path: str = DEFAULT_PATH) -> Schema:
     """Load and fully parse the canonical Revit 2026 schema.
 
@@ -561,13 +577,12 @@ def load_schema(path: str = DEFAULT_PATH) -> Schema:
     session) the default-path call falls back to the sha-pinned bundled
     genesis base's own embedded ``Formats/Latest`` -- the same bytes (the
     per-release schema constant), resolved the way the shipped plugin
-    resolves them.  An explicit ``path`` is always honoured verbatim."""
-    if path == DEFAULT_PATH and not os.path.isfile(path):
-        try:
-            from .frontdoor.standalone import bundled_schema
-            return bundled_schema()
-        except Exception:                                    # noqa: BLE001
-            pass          # fall through to the original error naming the path
+    resolves them; a fallback that exists but fails to load (pin mismatch,
+    parse error) raises as itself rather than masquerading as a missing
+    corpus path.  An explicit ``path`` is always honoured verbatim."""
+    if path == DEFAULT_PATH and not os.path.isfile(path) and schema_available():
+        from .frontdoor.standalone import bundled_schema
+        return bundled_schema()
     with open(path, "rb") as fh:
         data = fh.read()
     return parse(data, source=path)

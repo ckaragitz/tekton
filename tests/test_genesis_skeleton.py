@@ -13,7 +13,8 @@ Three tiers of evidence:
    ``rvt.stream_encoders`` and decode back to themselves; the cross-stream
    save invariants of KNOWLEDGE.md hold by construction.
 
-Corpus-dependent tests skip when ``extracted/`` (or the schema) is absent.
+Corpus-dependent tests skip when ``extracted/`` is absent; schema-only tests
+run wherever a schema loads (shared ``needs_schema`` gate, tests/conftest.py).
 """
 from __future__ import annotations
 
@@ -23,12 +24,12 @@ import zlib
 
 import pytest
 
+from conftest import needs_schema
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EXTRACTED = os.path.join(ROOT, "extracted")
 SAMPLE = "rstbasicsampleproject"
 HAVE_CORPUS = os.path.isdir(os.path.join(EXTRACTED, SAMPLE))
-HAVE_SCHEMA = os.path.exists(os.path.join(
-    EXTRACTED, "racbasicsampleproject", "Formats__Latest.gz", "000.bin"))
 
 # rvt.genesis.__init__ may import sibling streams' modules; import the
 # skeleton module directly so this file never depends on their presence.
@@ -44,7 +45,6 @@ except Exception:                                  # pragma: no cover
     _SPEC.loader.exec_module(sk)
 
 needs_corpus = pytest.mark.skipif(not HAVE_CORPUS, reason="extracted corpus absent")
-needs_schema = pytest.mark.skipif(not HAVE_SCHEMA, reason="schema blob absent")
 
 
 # ---------------------------------------------------------------------------

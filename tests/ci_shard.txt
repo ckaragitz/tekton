@@ -13,6 +13,10 @@
 #                           machine), and the spec->ifc cases need
 #                           ifcopenshell, which is an optional dep.
 
+# FIRST on purpose (#298): the schema gate's ungated sentinel must exercise the
+# real bundled-base fallback before any later file's install_schema() swaps
+# load_schema / materialises a schema cache for the rest of the process.
+tests/test_schema_gate.py
 tests/test_frontdoor.py
 tests/test_prompt_intent.py
 tests/test_versions.py
@@ -54,3 +58,12 @@ tests/test_famgen_factory.py
 tests/test_famgen_catalog.py
 tests/test_records32.py
 tests/test_codec_bases.py
+# schema-only suites re-gated on the shared needs_schema (tests/conftest.py,
+# #298): green on the bundled base alone; sample-reading cases self-skip.
+# (tests/test_schema_gate.py -- the gate's own sentinel -- runs FIRST, above.)
+tests/test_famgen_skeleton.py
+tests/test_famgen_geometry.py
+tests/test_famgen_adoc.py
+tests/test_residue_b.py
+tests/test_genesis_skeleton.py
+tests/test_ifc_family.py

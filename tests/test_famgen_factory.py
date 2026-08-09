@@ -39,26 +39,12 @@ RST = os.path.join(ROOT, "samples", "rstbasicsampleproject.rvt")
 HAVE_RME = os.path.exists(RME)
 HAVE_RST = os.path.exists(RST)
 
+from conftest import needs_schema                              # noqa: E402
 from rvt.famgen import factory as F                            # noqa: E402
 from rvt.famgen import skeleton as SK                           # noqa: E402
 from rvt.famgen import geometry as G                            # noqa: E402
 
-
-def _have_schema() -> bool:
-    """A class schema loads: the extracted corpus blob or, on a fresh clone /
-    CI, the sha-pinned bundled base's embedded copy (load_schema's fallback)."""
-    try:
-        from rvt.schema import load_schema
-        load_schema()
-        return True
-    except Exception:                                        # noqa: BLE001
-        return False
-
-
-HAVE_SCHEMA = _have_schema()
 needs_rme = pytest.mark.skipif(not HAVE_RME, reason="rme sample absent")
-needs_schema = pytest.mark.skipif(
-    not HAVE_SCHEMA, reason="no class schema (extracted corpus and bundled base both absent)")
 
 
 # ---------------------------------------------------------------------------
