@@ -448,15 +448,14 @@ def _find_plane_template(doc: Document, flavour: str) -> int:
 # ===========================================================================
 # nativeisation of a created device (parents / space / mark)
 # ===========================================================================
-def _set_param_astring(obj: dict, param_id: int, value: str) -> bool:
+def _set_param_astring(obj: dict, param_id: int, value: str) -> None:
     """Set an AString element parameter (e.g. the Mark).  Families whose
     donor never had one (switches, sensors) carry a NULL
-    ``m_pParamValueSetAString``; the holder is created in that case (shape
-    verified on receptacle 467291 / light 431705 == the one
-    :func:`rvt.manipulate.param_row_edit` authors)."""
+    ``m_pParamValueSetAString``; :func:`rvt.manipulate.upsert_param_row`
+    authors the holder in that case (shape verified on receptacle 467291 /
+    light 431705)."""
     from ..manipulate import upsert_param_row
     upsert_param_row(obj, int(param_id), str(value), holder="m_pParamValueSetAString")
-    return True
 
 
 def _set_space_room(obj: dict, space: Optional[int], room: Optional[int]) -> None:

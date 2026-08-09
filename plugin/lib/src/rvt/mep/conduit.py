@@ -615,8 +615,7 @@ def _phase_of(doc: Document, donor_val: dict, phase_id: Optional[int]) -> int:
 # ===========================================================================
 def _set_astring_param(obj: dict, param_id: int, value: str) -> None:
     """Set an AString element parameter on a run element being built; a
-    donor whose ``m_pParamValueSetAString`` is null gets the holder authored
-    (:func:`rvt.manipulate.param_row_edit`) rather than the value dropped."""
+    donor whose holder is null gets it authored, never the value dropped."""
     from ..manipulate import upsert_param_row
     upsert_param_row(obj, param_id, value, holder="m_pParamValueSetAString")
 

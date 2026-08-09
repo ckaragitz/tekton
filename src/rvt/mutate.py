@@ -909,15 +909,14 @@ class Document:
         return abs(max(offs) - min(offs)) or None
 
     @staticmethod
-    def _set_param(obj: dict, set_name: str, param_id: int, value) -> str:
+    def _set_param(obj: dict, set_name: str, param_id: int, value) -> None:
         """Upsert one Element param row of a template object being built
         (holder authored when null).  The row / holder shape lives in ONE
-        place, :func:`rvt.manipulate.upsert_param_row`; imported lazily --
-        ``manipulate`` imports this module (lazily) too, and pulling its
-        encoder / writer stack into every ``import rvt.mutate`` would cost
-        the create path ~45 ms for two wall-height rows."""
+        place, :func:`rvt.manipulate.upsert_param_row` -- imported lazily:
+        ``manipulate`` imports this module lazily too, and its encoder /
+        writer stack (~45 ms) stays out of a read-only ``import rvt.mutate``."""
         from .manipulate import upsert_param_row
-        return upsert_param_row(obj, param_id, value, holder=set_name)
+        upsert_param_row(obj, param_id, value, holder=set_name)
 
     @staticmethod
     def _remap_ids(v, mapping: dict):
