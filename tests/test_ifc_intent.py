@@ -22,6 +22,10 @@ Evidence tiers:
 5. THE REAL FILE (inputs/ifc/electrical-room-2500a.ifc): every position is
    resolved (none at the origin), the walls close a ring, the feeder tree
    is fully corroborated, the intent JSON round-trips.
+6. SWEPT SOLIDS (#152): IfcExtrudedAreaSolid bodies (rectangle / circle /
+   arbitrary-closed profiles, direct and mapped) resolve to the same world
+   boxes, walls and dims -- a hand-authored fixture shared with the
+   stdlib-reader tests.
 
 Corpus-dependent tests skip when the input / catalog is absent.
 """
@@ -39,6 +43,9 @@ ROOM_IFC = os.path.join(ROOT, "inputs", "ifc", "electrical-room-2500a.ifc")
 HAVE_ROOM = os.path.exists(ROOM_IFC)
 
 ifcopenshell = pytest.importorskip("ifcopenshell")
+if getattr(ifcopenshell, "IS_STEPLITE", False):      # the bundled shim, not the library
+    pytest.skip("real ifcopenshell not installed (steplite shim on the path)",
+                allow_module_level=True)
 import ifcopenshell.guid  # noqa: E402
 
 from rvt.ifc import intent as I  # noqa: E402
@@ -761,3 +768,50 @@ def test_intent_json_shape_and_roundtrip(room_model, tmp_path):
     assert back["specVersion"] == "2.0"
     assert len(back["equipment"]) == len(room_model.equipment)
     assert len(back["feederTree"]["edges"]) == len(room_model.feeders)
+
+
+# ===========================================================================
+# 6. swept solids: IfcExtrudedAreaSolid bodies ride the tessellated path
+#    (#152) -- hand-authored fixture + shared checks in
+#    tests/fixtures_ifc_extrusion.py (test_steplite.py holds the stdlib
+#    reader to the same tables)
+# ===========================================================================
+
+import fixtures_ifc_extrusion as FX  # noqa: E402  (tests/ is on sys.path under pytest)
+
+
+@pytest.fixture(scope="module")
+def extrusion_path(tmp_path_factory):
+    return FX.write_fixture(str(tmp_path_factory.mktemp("extrusion")))
+
+
+def test_extruded_profiles_become_world_upright_boxes(extrusion_path):
+    """Rectangle (with a 2-D profile Position), IfcPolyline and
+    IfcIndexedPolyCurve (with and without Segments) profiles, a solid
+    Position rotated about Z, one extruded horizontally (Axis = +X), a
+    rotated *placement*, an IfcMappedItem and a circle profile: each lands
+    on its expected WORLD extents (storey at z = 3)."""
+    FX.check_world_boxes(FX.geom_by_name(I, ifcopenshell.open(extrusion_path)))
+
+
+def test_arc_index_is_polygonised_on_the_circle():
+    pts = I._arc_through((1.0, 0.0), (0.0, 1.0), (-1.0, 0.0))   # CCW semicircle
+    assert len(pts) == I._ARC_SEGMENTS // 2 + 1                  # endpoints included
+    assert all(math.isclose(math.hypot(x, y), 1.0, abs_tol=1e-9) for x, y in pts)
+    assert pts[0] == (1.0, 0.0)
+    assert math.isclose(pts[-1][0], -1.0, abs_tol=1e-9) and abs(pts[-1][1]) < 1e-9
+    assert all(y > -1e-9 for _, y in pts)                        # the upper half
+    cw = I._arc_through((1.0, 0.0), (0.0, -1.0), (-1.0, 0.0))   # CW: the lower half
+    assert all(y < 1e-9 for _, y in cw)
+    assert I._arc_through((0.0, 0.0), (1.0, 0.0), (2.0, 0.0)) == [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0)]
+
+
+def test_extrusion_fixture_resolves_walls_equipment_and_world_z(extrusion_path):
+    model = I.resolve_intent(extrusion_path, plan_families_flag=False)
+    js = I.intent_to_json(model)
+    FX.check_intent_json(js)
+    # THE Z CONTRACT through the public helper: level-relative = world - datum
+    for e in js["equipment"]:
+        exp = FX.EXPECTED_EQUIPMENT[e["tag"]]
+        assert math.isclose(I.level_relative_z(e["elevation_m"], js["levels"], e["level"]),
+                            exp[3] - FX.STOREY_ORIGIN[2], abs_tol=1e-4)

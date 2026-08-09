@@ -8,8 +8,10 @@ family pipeline) read IFC through ``ifcopenshell``, a ~40 MB binary wheel
 whose cold install on a fresh sandbox VM costs minutes.  Both modules consume
 only a NARROW, line-oriented slice of IFC4: ``#id=ENTITY(args)`` records,
 attribute access by name, ``is_a`` with inheritance, psets, tessellated
-face sets, placements, styles.  No geometry kernel is ever invoked (the
-writer bakes world coordinates into ``IfcCartesianPointList3D`` vertices).
+face sets, extruded area solids + their profiles, placements, styles.  No
+geometry kernel is ever invoked (the writer bakes world coordinates into
+``IfcCartesianPointList3D`` vertices; extrusions are expanded to prism
+corners by ``rvt.ifc.intent`` itself).
 This module implements exactly that slice in pure stdlib python, so the IFC
 read routes run on a BARE interpreter with ZERO pip installs.
 
@@ -145,6 +147,14 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
     "IFCTYPEPRODUCT": ("IfcTypeProduct", "IFCTYPEOBJECT",
                        ("RepresentationMaps", "Tag")),
     "IFCELEMENTTYPE": ("IfcElementType", "IFCTYPEPRODUCT", ("ElementType",)),
+    "IFCBUILDINGELEMENTTYPE": ("IfcBuildingElementType", "IFCELEMENTTYPE", ()),
+    "IFCBUILDINGELEMENTPROXYTYPE": ("IfcBuildingElementProxyType",
+                                    "IFCBUILDINGELEMENTTYPE", ("PredefinedType",)),
+    "IFCWALLTYPE": ("IfcWallType", "IFCBUILDINGELEMENTTYPE", ("PredefinedType",)),
+    "IFCSLABTYPE": ("IfcSlabType", "IFCBUILDINGELEMENTTYPE", ("PredefinedType",)),
+    "IFCELEMENTCOMPONENTTYPE": ("IfcElementComponentType", "IFCELEMENTTYPE", ()),
+    "IFCDISCRETEACCESSORYTYPE": ("IfcDiscreteAccessoryType", "IFCELEMENTCOMPONENTTYPE",
+                                 ("PredefinedType",)),
     "IFCDISTRIBUTIONELEMENTTYPE": ("IfcDistributionElementType", "IFCELEMENTTYPE", ()),
     "IFCDISTRIBUTIONFLOWELEMENTTYPE": ("IfcDistributionFlowElementType",
                                        "IFCDISTRIBUTIONELEMENTTYPE", ()),
@@ -249,6 +259,37 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
     "IFCSOLIDMODEL": ("IfcSolidModel", "IFCGEOMETRICREPRESENTATIONITEM", ()),
     "IFCMANIFOLDSOLIDBREP": ("IfcManifoldSolidBrep", "IFCSOLIDMODEL", ("Outer",)),
     "IFCFACETEDBREP": ("IfcFacetedBrep", "IFCMANIFOLDSOLIDBREP", ()),
+    # geometry: swept solids + the profiles / planar curves they sweep (#152)
+    "IFCSWEPTAREASOLID": ("IfcSweptAreaSolid", "IFCSOLIDMODEL",
+                          ("SweptArea", "Position")),
+    "IFCEXTRUDEDAREASOLID": ("IfcExtrudedAreaSolid", "IFCSWEPTAREASOLID",
+                             ("ExtrudedDirection", "Depth")),
+    "IFCEXTRUDEDAREASOLIDTAPERED": ("IfcExtrudedAreaSolidTapered",
+                                    "IFCEXTRUDEDAREASOLID", ("EndSweptArea",)),
+    "IFCPROFILEDEF": ("IfcProfileDef", None, ("ProfileType", "ProfileName")),
+    "IFCPARAMETERIZEDPROFILEDEF": ("IfcParameterizedProfileDef", "IFCPROFILEDEF",
+                                   ("Position",)),
+    "IFCRECTANGLEPROFILEDEF": ("IfcRectangleProfileDef", "IFCPARAMETERIZEDPROFILEDEF",
+                               ("XDim", "YDim")),
+    "IFCROUNDEDRECTANGLEPROFILEDEF": ("IfcRoundedRectangleProfileDef",
+                                      "IFCRECTANGLEPROFILEDEF", ("RoundingRadius",)),
+    "IFCRECTANGLEHOLLOWPROFILEDEF": ("IfcRectangleHollowProfileDef",
+                                     "IFCRECTANGLEPROFILEDEF",
+                                     ("WallThickness", "InnerFilletRadius",
+                                      "OuterFilletRadius")),
+    "IFCCIRCLEPROFILEDEF": ("IfcCircleProfileDef", "IFCPARAMETERIZEDPROFILEDEF",
+                            ("Radius",)),
+    "IFCCIRCLEHOLLOWPROFILEDEF": ("IfcCircleHollowProfileDef", "IFCCIRCLEPROFILEDEF",
+                                  ("WallThickness",)),
+    "IFCARBITRARYCLOSEDPROFILEDEF": ("IfcArbitraryClosedProfileDef", "IFCPROFILEDEF",
+                                     ("OuterCurve",)),
+    "IFCARBITRARYPROFILEDEFWITHVOIDS": ("IfcArbitraryProfileDefWithVoids",
+                                        "IFCARBITRARYCLOSEDPROFILEDEF", ("InnerCurves",)),
+    "IFCCURVE": ("IfcCurve", "IFCGEOMETRICREPRESENTATIONITEM", ()),
+    "IFCBOUNDEDCURVE": ("IfcBoundedCurve", "IFCCURVE", ()),
+    "IFCPOLYLINE": ("IfcPolyline", "IFCBOUNDEDCURVE", ("Points",)),
+    "IFCINDEXEDPOLYCURVE": ("IfcIndexedPolyCurve", "IFCBOUNDEDCURVE",
+                            ("Points", "Segments", "SelfIntersect")),
     "IFCCONNECTEDFACESET": ("IfcConnectedFaceSet", "IFCTOPOLOGICALREPRESENTATIONITEM",
                             ("CfsFaces",)),
     "IFCCLOSEDSHELL": ("IfcClosedShell", "IFCCONNECTEDFACESET", ()),
@@ -338,8 +379,10 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                          "LastModifyingApplication", "CreationDate")),
 }
 
-#: CamelCase names of the inline typed-value wrappers (select types) the
-#: reference files + product_facts._MEASURE_* tables use.
+#: CamelCase names of the inline typed-value wrappers the reference files +
+#: product_facts._MEASURE_* tables use (measure selects), plus the segment
+#: index types of IfcIndexedPolyCurve -- interior capitals cannot be
+#: recovered from the all-caps STEP token, so no-arg is_a() needs the table.
 _TYPED_CAMEL = {n.upper(): n for n in (
     "IfcLabel", "IfcText", "IfcIdentifier", "IfcReal", "IfcInteger", "IfcBoolean",
     "IfcLogical", "IfcCountMeasure", "IfcLengthMeasure", "IfcPositiveLengthMeasure",
@@ -349,6 +392,7 @@ _TYPED_CAMEL = {n.upper(): n for n in (
     "IfcNumericMeasure", "IfcRatioMeasure", "IfcMassMeasure",
     "IfcPlaneAngleMeasure", "IfcFrequencyMeasure", "IfcNormalisedRatioMeasure",
     "IfcTimeMeasure", "IfcMonetaryMeasure", "IfcTimeStamp",
+    "IfcLineIndex", "IfcArcIndex", "IfcPositiveInteger",
 )}
 
 # derived lookups -----------------------------------------------------------
