@@ -1047,9 +1047,11 @@ def plan_edit_ops(doc, ops: List[dict]) -> Tuple[list, list, list, list, list]:
             log.append(f"op{n} set-level id={eid} elevation -> {ft:.3f} ft")
         elif k == "set-param":
             eid = int(op["id"])
-            plans.append(M.set_param(doc, eid, int(op["param_id"]), op["value"]))
+            plans.append(M.set_param(doc, eid, int(op["param_id"]), op["value"],
+                                     holder=op.get("holder")))
             edited.append(eid)
-            log.append(f"op{n} set-param id={eid} param {op['param_id']} -> {op['value']!r}")
+            log.append(f"op{n} set-param id={eid} param {op['param_id']} -> {op['value']!r}"
+                       + (f" ({op['holder']})" if op.get("holder") else ""))
         elif k == "move":
             eid = int(op["id"])
             rot = math.radians(float(op["rotation_deg"])) if op.get("rotation_deg") is not None else None

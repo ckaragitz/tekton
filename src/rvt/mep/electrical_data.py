@@ -226,18 +226,7 @@ def _astring_param(v: dict, param_id: int) -> Optional[str]:
 
 
 def _set_astring_param(v: dict, param_id: int, value: str) -> None:
-    holder = v.get("m_pParamValueSetAString")
-    ps = _v(holder).get("m_paramSet") if isinstance(holder, dict) else None
-    if ps is None:
-        v["m_pParamValueSetAString"] = {"ptr_class": "ParamValueSetAString", "pid": -1,
-                                       "value": {"m_paramSet": [{"m_paramId": param_id,
-                                                                  "m_value": value}]}}
-        return
-    for p in ps:
-        if p.get("m_paramId") == param_id:
-            p["m_value"] = value
-            return
-    ps.append({"m_paramId": param_id, "m_value": value})
+    M.upsert_param_row(v, param_id, value, holder="m_pParamValueSetAString")
 
 
 def _elementid_param(v: dict, param_id: int) -> Optional[int]:

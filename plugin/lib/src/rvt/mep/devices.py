@@ -452,12 +452,10 @@ def _set_param_astring(obj: dict, param_id: int, value: str) -> bool:
     """Set an AString element parameter (e.g. the Mark).  Families whose
     donor never had one (switches, sensors) carry a NULL
     ``m_pParamValueSetAString``; the holder is created in that case (shape
-    verified on receptacle 467291 / light 431705)."""
-    if Document._set_param(obj, "m_pParamValueSetAString", param_id, str(value)):
-        return True
-    obj["m_pParamValueSetAString"] = {
-        "ptr_class": "ParamValueSetAString", "pid": -1,
-        "value": {"m_paramSet": [{"m_paramId": int(param_id), "m_value": str(value)}]}}
+    verified on receptacle 467291 / light 431705 == the one
+    :func:`rvt.manipulate.param_row_edit` authors)."""
+    from ..manipulate import upsert_param_row
+    upsert_param_row(obj, int(param_id), str(value), holder="m_pParamValueSetAString")
     return True
 
 

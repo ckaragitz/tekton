@@ -230,18 +230,8 @@ def _astring_param(obj: dict, param_id: int) -> Optional[str]:
 
 
 def _set_astring_param(obj: dict, param_id: int, value: str) -> None:
-    h = obj.get("m_pParamValueSetAString")
-    pv = (h or {}).get("value") if isinstance(h, dict) else None
-    if not isinstance(pv, dict):
-        pv = {"m_paramSet": []}
-        obj["m_pParamValueSetAString"] = {"ptr_class": "ParamValueSetAString",
-                                          "pid": -1, "value": pv}
-    pset = pv.setdefault("m_paramSet", [])
-    for p in pset:
-        if p.get("m_paramId") == param_id:
-            p["m_value"] = value
-            return
-    pset.append({"m_paramId": param_id, "m_value": value})
+    from ..manipulate import upsert_param_row
+    upsert_param_row(obj, param_id, value, holder="m_pParamValueSetAString")
 
 
 def _instance_param_str(obj: dict, param_id: int) -> Optional[str]:

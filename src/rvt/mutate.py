@@ -909,17 +909,15 @@ class Document:
         return abs(max(offs) - min(offs)) or None
 
     @staticmethod
-    def _set_param(obj: dict, set_name: str, param_id: int, value) -> bool:
-        holder = obj.get(set_name)
-        pset = ((holder or {}).get("value") or {}).get("m_paramSet") if holder else None
-        if pset is None:
-            return False
-        for p in pset:
-            if p.get("m_paramId") == param_id:
-                p["m_value"] = value
-                return True
-        pset.append({"m_value": value, "m_paramId": param_id})
-        return True
+    def _set_param(obj: dict, set_name: str, param_id: int, value) -> str:
+        """Upsert one Element param row of a template object being built
+        (holder authored when null).  The row / holder shape lives in ONE
+        place, :func:`rvt.manipulate.upsert_param_row`; imported lazily --
+        ``manipulate`` imports this module (lazily) too, and pulling its
+        encoder / writer stack into every ``import rvt.mutate`` would cost
+        the create path ~45 ms for two wall-height rows."""
+        from .manipulate import upsert_param_row
+        return upsert_param_row(obj, param_id, value, holder=set_name)
 
     @staticmethod
     def _remap_ids(v, mapping: dict):

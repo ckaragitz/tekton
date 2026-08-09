@@ -614,14 +614,11 @@ def _phase_of(doc: Document, donor_val: dict, phase_id: Optional[int]) -> int:
 # CREATE — element builders
 # ===========================================================================
 def _set_astring_param(obj: dict, param_id: int, value: str) -> None:
-    holder = obj.get("m_pParamValueSetAString")
-    pset = ((holder or {}).get("value") or {}).get("m_paramSet") if holder else None
-    if isinstance(pset, list):
-        for p in pset:
-            if p.get("m_paramId") == param_id:
-                p["m_value"] = value
-                return
-        pset.append({"m_paramId": param_id, "m_value": value})
+    """Set an AString element parameter on a run element being built; a
+    donor whose ``m_pParamValueSetAString`` is null gets the holder authored
+    (:func:`rvt.manipulate.param_row_edit`) rather than the value dropped."""
+    from ..manipulate import upsert_param_row
+    upsert_param_row(obj, param_id, value, holder="m_pParamValueSetAString")
 
 
 def _connector_dicts(mgr: dict) -> List[dict]:

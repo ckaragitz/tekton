@@ -941,6 +941,26 @@ def param_row_edit(val: dict, param_id: int, value, *,
             f"authored {PARAM_HOLDERS[holder]} holder for absent parameter {param_id}")
 
 
+def upsert_param_row(val: dict, param_id: int, value, *,
+                     holder: Optional[str] = None) -> str:
+    """Set ``param_id`` = ``value`` in ONE holder of a raw Element object
+    ``val`` (a dict being built at create time -- :mod:`rvt.mep`,
+    :meth:`rvt.mutate.Document._set_param`): the holder's existing row is
+    modified in place, an absent one is inserted with :func:`param_row_edit`
+    + :func:`set_path` (authoring the holder when its pointer is null --
+    never a silent no-op).  Returns what it did.  Committed elements go
+    through :func:`set_param` instead (same shape, recorded as a plan)."""
+    holder = holder or param_holder_for(param_id, value)
+    coerce = _HOLDER_VALUE_TYPE.get(holder)
+    for row in _param_rows(val, holder) or ():
+        if isinstance(row, dict) and row.get("m_paramId") == param_id:
+            row["m_value"] = coerce(value) if coerce else value
+            return f"set parameter {param_id} row in {holder}"
+    path, new, note = param_row_edit(val, param_id, value, holder=holder)
+    set_path(val, path, new)
+    return note
+
+
 def find_param(val: dict, param_id: int) -> List[Tuple[str, int]]:
     """Locate a parameter by BuiltInParameter / shared-param id inside an
     element's decoded object.  Returns [(container_path, index), ...] for
