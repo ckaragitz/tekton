@@ -30,7 +30,7 @@ nobody watching. Follow the section for your MODE.
    `.venv/bin/python tools/sync_plugin.py --check`,
    `.venv/bin/python plugin/scripts/validate_plugin.py`,
    the stream-local tests, and — if you touched anything the shard covers —
-   `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q $(grep -v '^#' tests/ci_shard.txt | xargs)`.
+   `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -- $(python3 tools/dev/shard_list.py --print)`.
    Produced `.rvt`/`.rfa`? `tools/rvt_validate.py` must report 0 errors; never claim a file
    "loads" (rule 4: only the ledger certifies).
 5. **Push and open the PR** — `git push -u origin HEAD`, then `gh pr create --base main --head

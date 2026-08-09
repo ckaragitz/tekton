@@ -19,6 +19,7 @@ sl = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(sl)
 
 BASE = "# CI shard\n\n# first on purpose\ntests/test_schema_gate.py\ntests/test_frontdoor.py\n  tests/test_versions.py  \n"
+BASE_CAP = 51   # tests/ci_shard.txt is frozen for appends (#328): it may shrink, never grow — new entries are drop-ins
 
 
 def test_union_order_dedup_and_comment_stripping():
@@ -69,6 +70,8 @@ def test_real_shard_from_tree_and_from_git_agree_and_every_path_exists():
     with open(os.path.join(ROOT, "tests", "ci_shard.txt"), encoding="utf-8") as fh:
         base_only = sl.parse(fh.read())
     assert shard[:len(base_only)] == base_only                                              # drop-ins only ever append
+    assert len(base_only) <= BASE_CAP, ("tests/ci_shard.txt is frozen for appends (#328): put new shard entries in "
+                                        "tests/ci_shard.d/<issue>-<slug>.txt instead (see tests/ci_shard.d/README)")
     cli = subprocess.run([sys.executable, "-I", HELPER, "--print"], capture_output=True, text=True, check=True).stdout.splitlines()
     assert cli == shard
     if os.path.isdir(os.path.join(ROOT, ".git")) and subprocess.run(["git", "-C", ROOT, "rev-parse", "HEAD"], capture_output=True).returncode == 0:
@@ -76,6 +79,41 @@ def test_real_shard_from_tree_and_from_git_agree_and_every_path_exists():
                                  capture_output=True, text=True, check=True).stdout
         if not tracked.strip():                                                             # blobs == files only when nothing there is uncommitted
             assert sl.merge(*sl.from_git(ROOT)) == shard
+
+
+def _git(repo, *args):
+    return subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t", "-c", "core.hooksPath=/dev/null", *args],
+                          capture_output=True, text=True, check=True).stdout
+
+
+def _seed(repo):
+    (repo / "tests" / "ci_shard.d").mkdir(parents=True)
+    (repo / "tests" / "ci_shard.txt").write_text("# base\ntests/test_one.py\n", encoding="utf-8")
+    (repo / "tests" / "ci_shard.d" / "README").write_text("tests/not_read.py\n", encoding="utf-8")            # non-.txt: ignored by both readers
+    (repo / "tests" / "ci_shard.d" / "7-x.txt").write_bytes(b"tests/test_two.py\n# caf\xe9 in a comment is fine\n")   # undecodable byte, in a comment
+    _git(repo, "init", "-q"); _git(repo, "add", "-A"); _git(repo, "commit", "-qm", "seed")
+
+
+@pytest.mark.skipif(not hasattr(os, "symlink"), reason="no symlinks")
+def test_tree_and_git_readers_share_one_selection_policy(tmp_path):
+    _seed(tmp_path)
+    expect = ["tests/test_one.py", "tests/test_two.py"]
+    assert sl.merge(*sl.from_tree(str(tmp_path))) == expect == sl.merge(*sl.from_git(str(tmp_path)))
+    # the trusted-side property: what a sandboxed step does to the CHECKOUT never changes what --git reads
+    (tmp_path / "tests" / "ci_shard.d" / "7-x.txt").unlink(); os.symlink("/etc/hostname", tmp_path / "tests" / "ci_shard.d" / "7-x.txt")
+    (tmp_path / "tests" / "ci_shard.d" / "8-planted.txt").write_text("tests/test_evil.py\n", encoding="utf-8")
+    assert sl.merge(*sl.from_git(str(tmp_path))) == expect
+    with pytest.raises(sl.Refused, match="not a regular file"):                              # ...while the tree reader refuses the symlink outright
+        sl.from_tree(str(tmp_path))
+    # a COMMITTED symlink drop-in is refused by the git reader too (same policy, not silently skipped)
+    _git(tmp_path, "add", "-A"); _git(tmp_path, "commit", "-qm", "symlink drop-in")
+    with pytest.raises(sl.Refused, match="not a regular file at HEAD"):
+        sl.from_git(str(tmp_path))
+    cli = subprocess.run([sys.executable, "-I", HELPER, "--git", str(tmp_path)], capture_output=True, text=True)
+    assert cli.returncode == 3 and cli.stdout == "" and "refused" in cli.stderr
+    _git(tmp_path, "rm", "-q", "tests/ci_shard.d/7-x.txt", "tests/ci_shard.txt"); _git(tmp_path, "commit", "-qm", "no base")
+    with pytest.raises(sl.Refused, match="missing at HEAD"):
+        sl.from_git(str(tmp_path))
 
 
 def test_dropin_dir_is_documented_and_kept_clean():

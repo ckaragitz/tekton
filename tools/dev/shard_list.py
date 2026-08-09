@@ -58,17 +58,17 @@ def merge(base_text, dropins):
 
 
 def from_tree(root):
-    """Read the base file and the drop-ins from a working tree."""
-    with open(os.path.join(root, BASE), encoding="utf-8") as fh:
-        base_text = fh.read()
+    """Read the base file and the drop-ins from a working tree (same selection policy as from_git)."""
+    def read(rel):  # a shard file must be a regular file, never a symlink; undecodable bytes become U+FFFD and are refused as entries
+        p = os.path.join(root, rel)
+        if os.path.islink(p) or not os.path.isfile(p):
+            raise Refused("%s is not a regular file" % rel)
+        with open(p, encoding="utf-8", errors="replace") as fh:
+            return fh.read()
+
     d = os.path.join(root, DROPIN_DIR)
-    dropins = []
-    for name in (os.listdir(d) if os.path.isdir(d) else []):
-        p = os.path.join(d, name)
-        if name.endswith(".txt") and os.path.isfile(p):
-            with open(p, encoding="utf-8") as fh:
-                dropins.append((name, fh.read()))
-    return base_text, dropins
+    names = [n for n in (os.listdir(d) if os.path.isdir(d) else []) if n.endswith(".txt")]
+    return read(BASE), [(n, read(DROPIN_DIR + "/" + n)) for n in names]
 
 
 def from_git(worktree):
@@ -76,22 +76,25 @@ def from_git(worktree):
     def git(*args):
         return subprocess.run(["git", "-C", worktree, *args], capture_output=True, check=True).stdout
 
-    base_sha, dropins = None, []
+    def read(path, mode, otype, sha):  # same policy as from_tree: regular-file blobs only, U+FFFD for undecodable bytes
+        if otype != b"blob" or mode not in (b"100644", b"100755"):
+            raise Refused("%s is not a regular file at HEAD" % path)
+        return git("cat-file", "blob", sha.decode()).decode("utf-8", "replace")
+
+    base_text, dropins = None, []
     for rec in git("ls-tree", "-z", "HEAD", "--", BASE, DROPIN_DIR + "/").split(b"\0"):
         if not rec:
             continue
         meta, path = rec.split(b"\t", 1)
         mode, otype, sha = meta.split(b" ")
-        path, sha = path.decode("utf-8", "replace"), sha.decode()
-        if otype != b"blob" or mode not in (b"100644", b"100755"):
-            continue  # symlinks, submodules and subtrees are not shard files
+        path = path.decode("utf-8", "replace")
         if path == BASE:
-            base_sha = sha
-        elif path.endswith(".txt"):
-            dropins.append((path.rsplit("/", 1)[1], git("cat-file", "blob", sha).decode("utf-8", "replace")))
-    if base_sha is None:
-        raise Refused("%s is not a regular file at HEAD" % BASE)
-    return git("cat-file", "blob", base_sha).decode("utf-8", "replace"), dropins
+            base_text = read(path, mode, otype, sha)
+        elif path.endswith(".txt"):  # README and any other non-.txt entry is ignored, as in from_tree
+            dropins.append((path.rsplit("/", 1)[1], read(path, mode, otype, sha)))
+    if base_text is None:
+        raise Refused("%s is missing at HEAD" % BASE)
+    return base_text, dropins
 
 
 def main(argv):

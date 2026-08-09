@@ -479,8 +479,8 @@ def test_workflows_are_dispatch_only_and_the_session_pipeline_is_checked_in():
     src = open(ci, encoding="utf-8").read()
     for needle in ("--kill-child", "setpriv --reuid=65534", "--no-new-privs", "env -i ", "git worktree add --detach",
                    "merge --no-edit origin/main", 'python3 -I "$REPO/tools/dev/shard_list.py" --git "$WT"', '[[ "$PR" =~ ^[0-9]+$ ]]', '"verdict"',
-                   'exec 8>"$S/ci/global.lock"; flock -w 5400 8 ||', "8>&- 9>&-",                             # #329: one run per machine; lock fds never reach PR code
-                   '[ -f "$BOX/tests/ci_shard.txt" ] && [ -f "$BOX/src/rvt/__init__.py" ]', '\\"error\\":\\"export\\"}" > "$OUT"; cat "$OUT"; exit 2'):   # #329: partial export is fatal
+                   'exec 8>"$S/ci/global.lock"; flock -w ', "8>&- 9>&-",                                     # #329: one run per machine; neither lock fd reaches PR code
+                   '[ -f "$BOX/tests/ci_shard.txt" ] && [ -f "$BOX/src/rvt/__init__.py" ]', '\\"error\\":\\"export\\"'):   # #329: a failed/partial export is fatal
         assert needle in src, needle                       # sandbox + trusted-side shard read (main's helper over blobs) + merge-with-main + JSON verdict
     for needle in ("shard_list.py --root", "$BOX/tools/dev/shard_list", "$WT/tools/dev/shard_list", "show HEAD:tests/ci_shard.txt", "grep -vE"):
         assert needle not in src, needle                   # #328: never the PR's copy or the checked-out files; the old single-file reader is gone
