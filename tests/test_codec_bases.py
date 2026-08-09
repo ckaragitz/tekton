@@ -265,11 +265,10 @@ def test_cfb_roundtrip_is_stream_equal(base, tmp_path):
     out = str(tmp_path / f"rt_{year}.rvt")
     layout, _tr, _tw = roundtrip(doc.path, out)
     assert layout.major_version == 4 and layout.sector_size == 4096, year
-    problems = verify_pair(doc.path, out)
-    if importlib.util.find_spec("compoundfiles") is None:     # optional 2nd reader
-        problems = [p for p in problems
-                    if not p.startswith("(compoundfiles cross-check skipped")]
+    problems, notes = verify_pair(doc.path, out)
     assert problems == [], f"{year} round trip mismatch:\n  " + "\n  ".join(problems)
+    # the only note is "second reader not installed", and only when it is not
+    assert bool(notes) == (importlib.util.find_spec("compoundfiles") is None), notes
 
 
 # ---------------------------------------------------------------------------
