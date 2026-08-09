@@ -863,6 +863,13 @@ def stage_batch(probes: Sequence[str], *, candidate_bases: Sequence[str] = (),
     if violations:
         raise GateRefusal(violations)
     n = batch_n or next_batch_number(out_dir)
+    if not batch_n:
+        # "highest local batch_<n>.json + 1" is only right when nobody else is staging: two sessions
+        # branching from the same main both took 57..59 (PRs #277/#283). The server-side reservation
+        # (`/batches k` comment -> coord replies with a range, #285) is the collision-free source.
+        print(f"note: batch number {n} chosen locally (highest staged + 1). If other sessions may be "
+              f"staging too, reserve first — comment `/batches <k>` on your issue — and pass the "
+              f"number coord replies with as --batch.", file=sys.stderr)
     control = make_control(ledger, n, out_dir, source=control_from,
                            release=batch_release(entries, ledger))
     os.makedirs(out_dir, exist_ok=True)

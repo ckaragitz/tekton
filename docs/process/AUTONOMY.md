@@ -252,6 +252,7 @@ at that moment by one central authority (`coord`, server-side) — never by N la
 | backstop | `single-holder` evicts any second assignee added by any route within a minute (⛔ naming the holder) |
 | session side | `TEKTON_SESSION=<tag>`; `techlead.py claim <n>` = claim-and-verify (exit 4 + holder if not yours); `techlead.py mine` = the resume rule: 🟢 this session's / ⛔ active elsewhere (hands off) / 🟡 idle ≥ 2 h (resumable) |
 | unlock | `/release` (posts `<!-- unlock by=… -->`), the 72 h reaper, the stuck-PR re-queue, or the merge closing the issue |
+| viewer batch numbers (#285) | the same pattern for the one campaign-global counter sessions used to race on: `/batches <k>` on any issue/PR → coord (one repo-wide concurrency group) reserves `N..N+k-1` above everything on the default branch, every earlier reservation (recorded with a marker on the one `batch-registry` issue) and every `batch_<n>.json` any open PR adds, and replies with the `probe_batch.py stage --batch N` command; `pr-check` re-judges on every push: a PR whose added batch file is already on main, reserved for another issue, or also added by an older open PR gets `batch-clash` + the exact renumber command (a newer / unreserved rival is flagged instead), and the label clears itself |
 
 ## 13. Failure modes and how each heals
 
@@ -271,6 +272,7 @@ at that moment by one central authority (`coord`, server-side) — never by N la
 | Bot merge did not close the linked issue | `automerge` closes linked issues itself after every merge |
 | PR conflicts with `main` | `automerge` dispatches the worker's rebase mode; result re-reviewed and merged |
 | Two PRs for one issue | newer gets `duplicate-pr`; planner closes the worse one; `coord` warned at open time |
+| Two parallel PRs stage viewer batches under the same numbers (both took "highest local + 1" from the same `main`) | prevented by `/batches <k>` reservations; caught anyway by `coord / pr-check` on every push (`batch-clash` + renumber command on the PR that must move — the newer or unreserved one), so the human never sees "batch 57" meaning two different files |
 | Worker run dies after leasing | lease freed after 3 h by the board sweep |
 | Planner files junk | bounded to 5/run; everything it did is in its planning note; humans steer ("stop filing X"), which outranks its judgement next pass; `bots-paused` stops it cold |
 | No Claude token / token expired | model rows go red/skipped, visible in board Health; token-free rows keep the queue, claims, board and label-path merges working; sessions plan and shepherd manually |

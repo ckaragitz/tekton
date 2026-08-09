@@ -17,7 +17,12 @@ name: coord
 #                 skipping gated / in-review / worker-held issues) — a session's "what should I
 #                 work on" with zero human routing; "/steer <text>" on ANY issue or PR = log the
 #                 text verbatim as a `steer` issue for the tech leads to triage (the one-line way
-#                 for a human to steer from a phone). Serialized per issue.
+#                 for a human to steer from a phone); "/batches [k]" on ANY issue or PR = reserve
+#                 the next k viewer batch numbers server-side (#285): recorded once on the one
+#                 `batch-registry` issue, above everything on the default branch, everything
+#                 reserved before and everything any open PR already adds — parallel sessions that
+#                 STAGE can no longer take the same numbers. Serialized per issue (/batches:
+#                 repo-wide; /next: per login).
 #   single-holder however an assignment happens (UI, gh, MCP, /claim), a SECOND assignee is
 #                 removed again and told who holds the issue — unless a current holder added
 #                 them (pairing). This is the invariant; /claim is sugar.
@@ -30,7 +35,11 @@ name: coord
 #                 no `Closes/Refs #N` -> `needs-issue`; linked issue unclaimed -> assigned to the
 #                 PR author; linked issue held by someone else, or another open PR closing the
 #                 same issue -> `overlap` + comment now (automerge's oldest-wins rule only bites
-#                 at merge time); "does not close #N" -> warning, GitHub closes #N anyway.
+#                 at merge time); "does not close #N" -> warning, GitHub closes #N anyway; and on
+#                 every push: a `batch_<n>.json` this PR adds that is already on the default
+#                 branch, reserved for another issue, or also added by an OLDER open PR ->
+#                 `batch-clash` + the exact renumber command (a newer / unreserved rival is
+#                 flagged instead); the label clears itself once the clash is gone.
 #   sweep         hourly + after every merge GitHub tells us about: (a) PRs stacked on a merged
 #                 PR's branch are retargeted, and ones GitHub already closed because that branch
 #                 was deleted are reopened + retargeted (unless their commits ride in an open PR);
@@ -53,7 +62,7 @@ on:
   issues:
     types: [opened, assigned]
   pull_request:
-    types: [opened, edited, reopened, closed]
+    types: [opened, edited, reopened, synchronize, closed]   # synchronize: batch files arrive with later pushes (#285)
   schedule:
     - cron: "40 * * * *"
   workflow_dispatch: {}
@@ -88,11 +97,27 @@ env:
         stacked)     color=fbca04 desc="base is another PR's branch, not the default branch";;
         tracking)    color=5319e7;;
         intake)      color=0e8a16 desc="Free-form issue filed by a human; triaged by the tech leads like a steer";;
+        batch-clash) color=d93f0b desc="adds a viewer batch_<n>.json that main, a reservation, or an older open PR already owns";;
+        batch-registry) color=5319e7 desc="The one issue where coord records /batches reservations (do not edit)";;
       esac
       gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null 2>&1 || true
       gh api -X POST "repos/$REPO/issues/$n/labels" -f "labels[]=$name" >/dev/null 2>&1 || true
     }
     holders() { gh api "repos/$REPO/issues/$1" --jq '[.assignees[].login]|join(",")'; }   # "a,b" or ""
+    # The ONE issue where /batches reservations are recorded (#285); created on first use, labelled
+    # `tracking` so it is never queue work. Prints its number ("" if it cannot be found or made).
+    registry_issue() {
+      local n; n=$(gh issue list --repo "$REPO" --label batch-registry --state open --limit 1 --json number --jq '.[0].number // empty' 2>/dev/null || true)
+      if [ -z "$n" ] && [ "${1:-}" = "--create" ]; then
+        gh label create batch-registry --repo "$REPO" --color 5319e7 --description "The one issue where coord records /batches reservations (do not edit)" >/dev/null 2>&1 || true
+        gh label create tracking --repo "$REPO" --color 5319e7 >/dev/null 2>&1 || true
+        n=$(gh issue create --repo "$REPO" --label batch-registry --label tracking \
+              --title "🔢 Viewer batch-number registry — coord records \`/batches\` reservations here (do not edit)" \
+              --body $'Every `/batches [k]` comment on any issue or PR makes `coord` reserve the next k viewer batch numbers and record the range here as a comment with a machine-readable marker (`.github/workflows/coord.yml`, `tools/dev/coord.py nextbatch`, #285). The next free number is always above everything on the default branch (`experiments/**/batch_<n>.json`), every range recorded here, and every batch file any open PR adds — so parallel sessions that STAGE viewer rounds cannot take the same numbers.\n\nStage with the numbers you were given: `tools/probe_batch.py stage … --batch N`. Nothing here needs a human; do not edit or close this issue.' \
+              2>/dev/null | grep -oE '[0-9]+$' || true)
+      fi
+      echo "$n"
+    }
 
 jobs:
   claim:
@@ -101,13 +126,14 @@ jobs:
       ((!github.event.issue.pull_request &&
         (startsWith(github.event.comment.body, '/claim') || startsWith(github.event.comment.body, '/release') ||
          startsWith(github.event.comment.body, '/next'))) ||
-       startsWith(github.event.comment.body, '/steer'))
+       startsWith(github.event.comment.body, '/steer') || startsWith(github.event.comment.body, '/batches'))
     runs-on: ubuntu-latest
     timeout-minutes: 8
     concurrency:
       # /next is serialized per LOGIN — two sessions of the same person asking at once are handled one
-      # after the other, so they can never be handed the same head (steer #90); the rest per issue.
-      group: ${{ startsWith(github.event.comment.body, '/next') && format('next-{0}', github.event.comment.user.login) || format('issue-{0}', github.event.issue.number) }}
+      # after the other, so they can never be handed the same head (steer #90); /batches repo-wide, so two
+      # simultaneous reservations can never receive overlapping ranges (#285); the rest per issue.
+      group: ${{ startsWith(github.event.comment.body, '/batches') && 'batches' || (startsWith(github.event.comment.body, '/next') && format('next-{0}', github.event.comment.user.login) || format('issue-{0}', github.event.issue.number)) }}
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v6
@@ -170,6 +196,37 @@ jobs:
               react "+1"
               reply "🧭 Logged as ${url} — verbatim, attributed to @$WHO. The tech leads take it from here: the planner (dispatched just now; otherwise its next scheduled run) or the next coding session triages it into requirement/task issues linked back to it, and it stays on the board until then. Nothing else is needed from you."
               say "/steer by $WHO on #$N -> $url"
+              ;;
+            /batches*)
+              # Reserve the next k viewer batch numbers (#285). probe_batch.py numbers a batch "highest
+              # local batch_<n>.json + 1", so two sessions branching from the same main both take 57;
+              # here ONE serialized authority hands out ranges above everything on $DEFAULT, everything
+              # reserved before (registry issue) and everything any open PR already adds. Idempotent per
+              # requesting comment (re-runs answer with the same range).
+              k=$(sed -nE '1s#^/batches[[:space:]]*([0-9]+).*#\1#p' <<<"$BODY" || true); k=${k:-1}
+              if ! [[ "$k" =~ ^[1-9]$ ]]; then
+                react "confused"; reply "🔢 @$WHO — \`/batches\` takes a count from 1 to 9 (one batch per release you will stage), e.g. \`/batches 3\`."
+                exit 0
+              fi
+              reg=$(registry_issue --create)
+              [ -z "$reg" ] && { react "confused"; reply "⚠️ @$WHO — could not find or create the batch-registry issue; pick numbers by hand above the highest \`experiments/acceptance/batch_<n>.json\` of every open PR."; exit 1; }
+              regc=$(mktemp); gh api "repos/$REPO/issues/$reg/comments?per_page=100" --paginate > "$regc"
+              got=$(python3 tools/dev/coord.py reservations --registry "$regc" | jq -r --arg t "$COMMENT_ID" '.[] | select(.token == $t) | "\(.lo) \(.hi)"' | head -1 || true)
+              if [ -n "$got" ]; then
+                read -r lo hi <<<"$got"
+              else
+                gh api "repos/$REPO/git/trees/$DEFAULT?recursive=1" --jq '.tree[].path' > tree.txt 2>/dev/null || : > tree.txt
+                gh pr list --repo "$REPO" --state open --limit 100 --json number,author,body,files > prs.json
+                read -r lo hi <<<"$(python3 tools/dev/coord.py nextbatch --k "$k" --tree tree.txt --registry "$regc" --prs prs.json)" || true
+                if ! [[ "${lo:-}" =~ ^[0-9]+$ && "${hi:-}" =~ ^[0-9]+$ ]]; then
+                  react "confused"; reply "⚠️ @$WHO — could not compute the next free batch number (see this workflow run's log); pick numbers by hand above the highest \`experiments/acceptance/batch_<n>.json\` of every open PR."; exit 1
+                fi
+                gh issue comment "$reg" --repo "$REPO" --body "🔢 batches **${lo}$( [ "$lo" != "$hi" ] && echo "–$hi" )** → @$WHO for #$N (requested in $COMMENT_URL). <!-- batches by=$WHO lo=$lo hi=$hi issue=$N token=$COMMENT_ID -->" >/dev/null
+              fi
+              rm -f "$regc"
+              react "+1"
+              reply "🔢 @$WHO — reserved viewer batch number(s) **${lo}$( [ "$lo" != "$hi" ] && echo "..$hi" )** for #$N (registry: #$reg). Stage with \`tools/probe_batch.py stage … --batch $lo\`$( [ "$lo" != "$hi" ] && echo " (then $((lo+1))…$hi, one per release)" ); name them in your record and upload instructions. Nobody else can be handed these numbers, and \`coord / pr-check\` flags any PR that reuses them."
+              say "/batches: ${lo}-${hi} -> $WHO for #$N"
               ;;
             /release*)
               gh issue edit "$N" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true
@@ -439,6 +496,45 @@ jobs:
           done
           if [ -n "$overlap" ]; then label "$PR" +overlap; else label "$PR" -overlap; fi
           say "#$PR checked"
+      - name: Viewer batch numbers not double-booked
+        # Runs on every push too (synchronize): batch_<n>.json files arrive late in a branch's life.
+        # tools/dev/coord.py batchclash judges; PR-supplied text stays data (helper comes from $DEFAULT).
+        # Independent of the link check's outcome, but not on a superseded (cancelled) run.
+        if: ${{ !cancelled() }}
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          BODY: ${{ github.event.pull_request.body }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          eval "$COORD_LIB"
+          if [ ! -f tools/dev/coord.py ] || ! python3 tools/dev/coord.py batchclash --help >/dev/null 2>&1; then
+            say "#$PR: batchclash helper not on $DEFAULT yet (bootstrap) — batch check skipped"; exit 0
+          fi
+          gh api "repos/$REPO/pulls/$PR/files?per_page=100" --paginate --jq '.[] | {filename, status}' | jq -s . > selffiles.json
+          if ! jq -e '[.[].filename | test("(^|/)batch_[0-9]+\\.json$")] | any' selffiles.json >/dev/null; then
+            label "$PR" -batch-clash; say "#$PR: no batch files"; exit 0
+          fi
+          gh pr list --repo "$REPO" --state open --limit 100 --json number,author,body,files > prs.json
+          gh api "repos/$REPO/git/trees/$DEFAULT?recursive=1" --jq '.tree[].path' > tree.txt 2>/dev/null || : > tree.txt
+          reg=$(registry_issue); regc=$(mktemp)
+          if [ -n "$reg" ]; then gh api "repos/$REPO/issues/$reg/comments?per_page=100" --paginate > "$regc"; else echo '[]' > "$regc"; fi
+          linked=$(python3 tools/dev/coord.py refs <<<"$BODY" | jq -r '(.closing + .refs) | map(tostring) | join(",")')
+          out=$(python3 tools/dev/coord.py batchclash --self "$PR" --linked "$linked" --self-files selffiles.json \
+                  --prs prs.json --registry "$regc" --tree tree.txt)
+          rm -f "$regc"
+          echo "$out" | jq -c '{clashes, flag, suggest}'
+          # Rivals that must renumber instead (this PR owns the number): tell THEM, once per number set.
+          for rpr in $(jq -r '.flag | keys[]' <<<"$out"); do
+            label "$rpr" +batch-clash
+            comment_once "$rpr" "batch-rival-$PR-$(jq -r --arg p "$rpr" '.flag[$p] | map(tostring) | join("_")' <<<"$out")" "$(jq -r --arg p "$rpr" '.rival_messages[$p]' <<<"$out")"
+          done
+          if [ "$(jq '.clashes | length' <<<"$out")" = "0" ]; then
+            label "$PR" -batch-clash; say "#$PR: batch numbers clear"; exit 0
+          fi
+          label "$PR" +batch-clash
+          comment_once "$PR" "batch-clash-$(jq -r .key <<<"$out" | tr ':,' '-_')" "$(jq -r .message <<<"$out")"
+          say "#$PR: batch clash — $(jq -r .key <<<"$out")"
 
   sweep:
     if: >-

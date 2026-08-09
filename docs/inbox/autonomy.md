@@ -268,3 +268,43 @@ whose assignment was first therefore wins even if a rival's lock comment posted 
 first assignee) unassigns and yields; a request that finds its own *other* session's lock first keeps the
 login's assignment and drops only its own lock. No branch can now report a loss while leaving a stale
 assignment.
+
+## Viewer batch numbers at fan-out scale (#285), same session, 2026-08-09
+
+**Failure observed:** two wave-5 engineer PRs (#277 wall solids for #144, #283 identity rungs for
+#134) both added `experiments/acceptance/batch_57/58/59.json` with different contents and both
+told the human uploader "batches 57/58/59" (#145, #19). Cause: `probe_batch.py stage` numbers a
+batch "highest local `batch_<n>.json` + 1" and both branches were cut from the same `main`
+(highest 56). Caught by hand this time (older PR #277 kept the numbers; #283 restaged as 60–62 with
+`--batch`); at 4–5 engineers per wave, most genesis/render work ending in STAGE, it would recur every
+wave — and a verdict "for batch 57" that means two files is a bookkeeping fault in the one instrument
+rule 4 makes authoritative.
+
+**Fix, same pattern as the claim locks:** one server-side authority instead of N checkouts racing.
+- `/batches [k]` on any issue or PR → `coord` (repo-wide concurrency group `batches`, so two requests
+  are strictly ordered) reserves `N..N+k-1`, N = 1 + max(highest `experiments/**/batch_<n>.json` on
+  the default branch via the git tree, highest earlier reservation, highest batch file any open PR
+  adds), records `<!-- batches by lo hi issue token -->` on the ONE `batch-registry` issue (created on
+  first use, labelled `tracking`), and replies in place with the `probe_batch.py stage --batch N`
+  command. Idempotent per requesting comment. Pure judgement in `tools/dev/coord.py`
+  (`next_batch`, `reservations`).
+- Safety net: `coord / pr-check` now also runs on `synchronize` and judges every push with
+  `coord.py batchclash`: an ADDED `batch_<n>.json` (REST file statuses, so #203-style edits of an
+  existing manifest never count) that is already on main, inside a range reserved for an issue this
+  PR does not link, or also added by an OLDER open PR → label `batch-clash` + one comment per clash
+  set with the exact renumber range/command; when this PR owns the number (reservation for its issue,
+  or it is the older PR) the RIVAL is labelled and told instead. Numbers belong to the *issue* they
+  were reserved for, not the login — every engineer session here runs under one login. The label
+  clears itself when the clash is gone.
+- `probe_batch.py stage` without `--batch` prints a one-line "chosen locally — reserve with
+  `/batches <k>` if others may be staging" note; CLAUDE.md §2, the `/fanout` engineer brief and
+  AUTONOMY §12b/§13 say reserve-then-stage.
+
+Evidence: `tests/test_techlead.py::test_viewer_batch_numbers_are_reserved_server_side_and_clashes_are_judged`
+replays today's #277/#283 case (newer told 60..62; a reservation for #134 flips ownership; a file
+that reached main after the branch point must move; two reservations in one sweep never overlap;
+CLI round trip of the verbs the workflow calls) — 29 passed; shellcheck clean on the claim and
+pr-check steps; `sync_plugin.py --check` clean (probe_batch mirrors regenerated); validate_plugin PASS.
+Not exercised live before merge by construction: `pull_request` runs use main's `tools/dev/coord.py`
+(bootstrap guard skips the new step until this lands) — first live proof is the next `/batches`
+comment after merge, which this session will post and record on #285.

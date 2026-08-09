@@ -47,8 +47,24 @@ The parts of the workflow that bash + jq do badly:
            login, which the assignee field alone cannot tell apart.
              python tools/dev/coord.py locks --comments comments.json --assignees a,b  -> JSON
 
+  nextbatch / reservations / batchclash   Viewer batch numbers (#285). `probe_batch.py
+           stage` numbers a batch "highest local batch_<n>.json + 1", so two sessions that
+           branch from the same main and both STAGE take the same numbers (PRs #277 and
+           #283 both added batch_57..59). `/batches k` reserves a range server-side: coord
+           records `<!-- batches by=LOGIN lo=N hi=M issue=I token=ID -->` on the one
+           registry issue (label `batch-registry`), N = 1 + max(highest batch file on the
+           default branch, highest earlier reservation, highest batch file any open PR
+           adds). `batchclash` is the PR-time safety net: a PR whose added batch_<n>.json is
+           already on main, reserved for another issue, or also added by an OLDER open PR
+           is told the exact renumber command; a newer/unreserved rival is flagged instead.
+             python tools/dev/coord.py nextbatch --k 3 --tree tree.txt --registry reg.json --prs prs.json  -> "lo hi"
+             python tools/dev/coord.py batchclash --self 283 --linked 134 --self-files files.json \
+                    --prs prs.json --registry reg.json --tree tree.txt                       -> JSON
+
 issues.json / prs.json are `gh issue list --json number,title,state,assignees,labels` and
-`gh pr list --json number,author,body` output.
+`gh pr list --json number,author,body[,files]` output; tree.txt is one repo path per line
+(`gh api repos/R/git/trees/main?recursive=1 --jq '.tree[].path'`); reg.json / comments.json
+are `gh api repos/R/issues/N/comments` output.
 """
 import argparse, json, math, re, sys
 from collections import Counter
@@ -244,9 +260,169 @@ def standing_locks(comments: list, assignees) -> list:
     return out
 
 
+# ---- viewer batch numbers (#285) -------------------------------------------------------------
+BATCH_FILE_RE = re.compile(r"(?:^|/)batch_(\d+)\.json$")
+RESERVE_RE = re.compile(r"<!-- batches by=([A-Za-z0-9_.\[\]-]+) lo=(\d+) hi=(\d+) issue=(\d+) token=([A-Za-z0-9_-]+) -->")
+MAX_RESERVE = 9        # per request; a viewer round is one batch per release, so 3 is typical
+
+
+def batch_numbers(paths) -> set:
+    """{n} for every experiments/**/batch_<n>.json path in `paths` (numbers are campaign-global)."""
+    out = set()
+    for p in paths or []:
+        p = str(p).replace("\\", "/")
+        m = BATCH_FILE_RE.search(p)
+        if m and (p.startswith("experiments/") or "/" not in p):
+            out.add(int(m.group(1)))
+    return out
+
+
+def reserve_marker(by: str, lo: int, hi: int, issue: int, token: str) -> str:
+    return f"<!-- batches by={by} lo={int(lo)} hi={int(hi)} issue={int(issue)} token={token or '-'} -->"
+
+
+def reservations(comments: list) -> list:
+    """Reserved ranges recorded on the registry issue, in creation order.
+
+    Only coord's own comments count when the author is known (a human pasting a marker
+    reserves nothing); test fixtures without a `user` field are accepted as-is.
+    """
+    out = []
+    for c in comments or []:
+        user = ((c.get("user") or {}).get("login") or "") if isinstance(c, dict) else ""
+        if user and not user.endswith("[bot]"):
+            continue
+        for by, lo, hi, issue, token in RESERVE_RE.findall((c.get("body") or "") if isinstance(c, dict) else str(c)):
+            out.append({"by": by, "lo": int(lo), "hi": int(hi), "issue": int(issue), "token": token,
+                        "created_at": c.get("created_at", "") if isinstance(c, dict) else ""})
+    return out
+
+
+def pr_batches(prs: list, on_main: set) -> dict:
+    """{pr_number: {n}} — batch numbers each open PR ADDS (touching a batch file that is not on
+    the default branch can only mean adding it; `gh pr list --json files` carries no status)."""
+    out = {}
+    for p in prs or []:
+        paths = [(f.get("path") if isinstance(f, dict) else str(f)) for f in (p.get("files") or [])]
+        nums = batch_numbers(paths) - set(on_main)
+        if nums:
+            out[int(p["number"])] = nums
+    return out
+
+
+def next_batch(k: int, on_main: set, reserved: list, open_pr_nums: set) -> tuple:
+    """(lo, hi): k fresh numbers above everything on main, everything reserved, everything any
+    open PR adds — so a reservation can never hand out a number somebody already staged."""
+    k = max(1, min(int(k or 1), MAX_RESERVE))
+    top = max([0, *[int(n) for n in on_main], *[r["hi"] for r in reserved], *[int(n) for n in open_pr_nums]])
+    return top + 1, top + k
+
+
+def batch_clashes(self_pr: int, self_added: set, linked: set, prs: list, reserved: list, on_main: set) -> dict:
+    """PR-time judgement for the batch files `self_pr` adds.
+
+    A number belongs to the ISSUE it was reserved for (all engineer sessions may share one
+    login, so the login cannot discriminate); with no reservation the OLDER open PR wins —
+    automerge's duplicate rule. Returns
+      {"clashes": [{n, kind: main|reserved|older-pr, ...}],   # self must renumber these
+       "flag":    {rival_pr: [n, ...]},                       # rivals that must renumber instead
+       "suggest": (lo, hi) | None, "key": str, "message": str, "rival_messages": {pr: str}}
+    """
+    self_pr = int(self_pr)
+    mine = {int(p) for p in (linked or [])} | {self_pr}
+    others = {pr: nums for pr, nums in pr_batches(prs, on_main).items() if pr != self_pr}
+    authors = {int(p["number"]): ((p.get("author") or {}).get("login", "")) for p in prs or []}
+    clashes, flag = [], {}
+    for n in sorted(int(x) for x in self_added or []):
+        if n in on_main:
+            clashes.append({"n": n, "kind": "main"})
+            continue
+        owner = next((r for r in reserved if r["lo"] <= n <= r["hi"]), None)
+        rivals = sorted(pr for pr, nums in others.items() if n in nums)
+        if owner is not None and owner["issue"] not in mine:
+            clashes.append({"n": n, "kind": "reserved", "issue": owner["issue"], "by": owner["by"]})
+        elif owner is None and any(pr < self_pr for pr in rivals):
+            older = min(pr for pr in rivals if pr < self_pr)
+            clashes.append({"n": n, "kind": "older-pr", "pr": older, "author": authors.get(older, "")})
+        else:
+            for pr in rivals:                       # I own n (reserved for my issue, or I am the older PR)
+                flag.setdefault(pr, []).append(n)
+    suggest = None
+    if clashes:
+        taken = set().union(*others.values()) if others else set()
+        taken |= {int(x) for x in self_added or []} - {c["n"] for c in clashes}
+        suggest = next_batch(len(clashes), on_main, reserved, taken)
+    key = ",".join(f"{c['n']}:{c['kind']}" for c in clashes) or "none"
+    return {"clashes": clashes, "flag": {str(k): v for k, v in flag.items()}, "suggest": suggest,
+            "key": key, "message": _clash_message(self_pr, clashes, suggest),
+            "rival_messages": {str(pr): _rival_message(pr, self_pr, nums) for pr, nums in flag.items()}}
+
+
+def _clash_message(self_pr: int, clashes: list, suggest) -> str:
+    if not clashes:
+        return ""
+    groups = {}                                     # one clause per cause, not per number
+    for c in clashes:
+        cause = (c["kind"], c.get("pr") or c.get("issue") or 0, c.get("author") or c.get("by") or "")
+        groups.setdefault(cause, []).append(c["n"])
+    why = []
+    for (kind, ref, who), nums in groups.items():
+        files = _batch_files(nums)
+        if kind == "main":
+            why.append(f"{files} already exist(s) on the default branch (merged since this branch was cut)")
+        elif kind == "reserved":
+            why.append(f"batch {', '.join(map(str, nums))} is reserved for #{ref} (`/batches` by @{who})")
+        else:
+            why.append(f"{files} is/are also added by the older open PR #{ref}" + (f" (@{who})" if who else "")
+                       + " — the older PR keeps its numbers")
+    lo, hi = suggest
+    rng = f"{lo}" if lo == hi else f"{lo}..{hi}"
+    old = ", ".join(str(c["n"]) for c in clashes)
+    return ("🔢 **Viewer batch-number clash** — " + "; ".join(why) + ".\n\n"
+            f"Renumber this PR's batch(es) {old} → **{rng}**: re-stage with "
+            f"`tools/probe_batch.py stage … --batch {lo}`" + (" (and up)" if lo != hi else "") +
+            f", `git rm` the old `batch_<n>.json`, commit the new manifests, and update the record / the "
+            "upload instructions so the human records verdicts against unambiguous numbers. Next time reserve "
+            "first: comment `/batches <k>` on your issue and pass the numbers coord replies with to `--batch` "
+            "(CLAUDE.md §2). This check re-runs on every push and clears the label by itself.")
+
+
+def _batch_files(nums) -> str:
+    return ", ".join(f"`batch_{n}.json`" for n in sorted(nums))
+
+
+def _rival_message(rival_pr: int, self_pr: int, nums: list) -> str:
+    return (f"🔢 **Viewer batch-number clash** — {_batch_files(nums)} is/are also added by PR #{self_pr}, which owns the number(s) "
+            "(reserved for its issue via `/batches`, or it is the older PR). Renumber here: comment `/batches "
+            f"{len(nums)}` for a fresh range, re-stage with `tools/probe_batch.py stage … --batch <N>`, `git rm` the "
+            "old manifests, and update your record / upload instructions. This check re-runs on every push.")
+
+
 def is_task_shaped(body: str) -> bool:
     """True if an issue body carries a checkable DONE (## DONE, **DONE =**, DONE: ...)."""
     return bool(TASK_SHAPE.search(re.sub(r"<!--.*?-->", " ", body or "", flags=re.S)))
+
+
+def _load_json(path: str, default):
+    """JSON from `path`; `default` when the path is empty, missing or blank (optional inputs)."""
+    if not path:
+        return default
+    try:
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+    except OSError:
+        return default
+    return json.loads(text) if text.strip() else default
+
+
+def _load_lines(path: str) -> list:
+    if not path:
+        return []
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return [ln.strip() for ln in fh if ln.strip()]
+    except OSError:
+        return []
 
 
 def _fmt_hit(score, issue, shared) -> str:
@@ -278,6 +454,20 @@ def main(argv=None) -> int:
     k = sub.add_parser("locks", help="print the standing claim locks of an issue as JSON (first = holder)")
     k.add_argument("--comments", required=True, help="JSON file: the issue's comments (gh api .../comments)")
     k.add_argument("--assignees", default="", help="comma-separated current assignee logins")
+    v = sub.add_parser("reservations", help="print the batch-number reservations recorded in a registry issue's comments as JSON")
+    v.add_argument("--registry", required=True, help="JSON file: the registry issue's comments ('' or missing = none)")
+    nb = sub.add_parser("nextbatch", help="print 'lo hi': the next k free viewer batch numbers")
+    nb.add_argument("--k", type=int, default=1)
+    nb.add_argument("--tree", default="", help="text file: one default-branch path per line")
+    nb.add_argument("--registry", default="", help="JSON file: the registry issue's comments")
+    nb.add_argument("--prs", default="", help="JSON file: gh pr list --json number,author,body,files")
+    bc = sub.add_parser("batchclash", help="print JSON: batch-number clashes of PR --self and what to renumber to")
+    bc.add_argument("--self", type=int, required=True, help="number of the PR being checked")
+    bc.add_argument("--linked", default="", help="comma-separated issue numbers the PR closes/refs")
+    bc.add_argument("--self-files", default="", help="JSON file: REST pulls/N/files ([{filename,status}]); default: paths from --prs")
+    bc.add_argument("--tree", default="")
+    bc.add_argument("--registry", default="")
+    bc.add_argument("--prs", default="")
     a = ap.parse_args(argv)
     if a.cmd == "refs":
         print(json.dumps(refs(sys.stdin.read())))
@@ -288,6 +478,26 @@ def main(argv=None) -> int:
         with open(a.comments, encoding="utf-8") as fh:
             comments = json.load(fh)
         print(json.dumps(standing_locks(comments, [x for x in a.assignees.split(",") if x])))
+        return 0
+    if a.cmd in ("reservations", "nextbatch", "batchclash"):
+        reserved = reservations(_load_json(a.registry, []))
+        if a.cmd == "reservations":
+            print(json.dumps(reserved))
+            return 0
+        on_main = batch_numbers(_load_lines(a.tree))
+        prs = _load_json(a.prs, [])
+        if a.cmd == "nextbatch":
+            taken = set().union(*pr_batches(prs, on_main).values()) if prs else set()
+            print(*next_batch(a.k, on_main, reserved, taken))
+            return 0
+        files = _load_json(a.self_files, None)
+        if files is None:      # no REST statuses: fall back to "touches a batch file not on main"
+            self_added = pr_batches([p for p in prs if int(p["number"]) == a.self], on_main).get(a.self, set())
+        else:
+            self_added = batch_numbers(f.get("filename") or f.get("path") or "" for f in files
+                                       if (f.get("status") or "added") == "added")
+        linked = {int(x) for x in a.linked.split(",") if x.strip().isdigit()}
+        print(json.dumps(batch_clashes(a.self, self_added, linked, prs, reserved, on_main)))
         return 0
     if a.cmd == "reqfile":
         with open(a.path, encoding="utf-8") as fh:
