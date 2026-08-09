@@ -50,3 +50,5 @@ tests/test_go_edit.py
 tests/test_frontdoor_wallsolid.py
 tests/test_status_gate.py
 tests/test_genesis_identity.py
+tests/test_famgen_factory.py
+tests/test_famgen_catalog.py
