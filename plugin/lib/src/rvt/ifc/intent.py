@@ -932,7 +932,7 @@ GENERATED_KINDS = ("switchboard", "distribution_panelboard", "lighting_panelboar
 
 FLOOR_KINDS = ("switchboard", "transformer", "switchgear")
 WALL_KINDS = ("distribution_panelboard", "lighting_panelboard", "receptacle_panelboard",
-              "panelboard", "ground_bus")
+              "panelboard", "ground_bus", "receptacle_device")
 
 
 # ============================================================================
