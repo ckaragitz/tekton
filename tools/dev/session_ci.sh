@@ -55,9 +55,17 @@ t0=$(date +%s)
 D=$(step plugin_drift "$PY" tools/sync_plugin.py --check)
 V=$(step plugin_structure "$PY" plugin/scripts/validate_plugin.py)
 mapfile -t SHARD < <(grep -vE '^\s*(#|$)' "$BOX/tests/ci_shard.txt")
+# The shard list is PR-controlled: accept only test paths (no smuggled pytest flags such as -k/--co/--rootdir
+# that could fake a green run), refuse an empty list (bare `pytest` would collect the whole suite), and end
+# option parsing with `--` before the paths.
+BADSHARD=""; for f in "${SHARD[@]}"; do [[ "$f" =~ ^tests/[A-Za-z0-9_./-]+\.py(::[A-Za-z0-9_.\[\]-]+)*$ ]] || BADSHARD="$BADSHARD $f"; done
+if [ -n "$BADSHARD" ] || [ "${#SHARD[@]}" = "0" ]; then
+  echo "=== shard REFUSED: ${#SHARD[@]} entries, invalid:${BADSHARD:- (empty list)}" >> "$LOG"; RC=3; TAIL="shard list refused (invalid or empty entries:${BADSHARD:- none})"
+else
 echo "=== shard (${#SHARD[@]} files, sandboxed: uid nobody, no network)" >> "$LOG"
-sandbox timeout 1500 "$PY" -m pytest "${SHARD[@]}" -q -p no:cacheprovider --durations=5 >> "$LOG" 2>&1; RC=$?
+sandbox timeout 1500 "$PY" -m pytest -q -p no:cacheprovider --durations=5 -- "${SHARD[@]}" >> "$LOG" 2>&1; RC=$?
 TAIL=$(grep -E "^=* *[0-9]+ (passed|failed)|[0-9]+ passed|[0-9]+ failed| error" "$LOG" | tail -1 | tr -d '=' | sed 's/^ *//')
+fi
 t1=$(date +%s)
 python3 - "$OUT" "$PR" "$HEAD" "$MERGE" "$P" "$D" "$V" "$RC" "$TAIL" "$((t1-t0))" <<'PYEOF'
 import json,sys
