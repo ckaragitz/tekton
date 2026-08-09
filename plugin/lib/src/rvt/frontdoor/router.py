@@ -71,13 +71,28 @@ class RouteResult:
     errors: List[str] = dc_field(default_factory=list)
     manifest_paths: Dict[str, str] = dc_field(default_factory=dict)
     seconds: float = 0.0
+    # the front door's own ``target_version`` block (rvt.frontdoor._resolve_
+    # base_and_version / the author manifest): requested / status / output_
+    # release / line ... -- ONE shape for the rvt and the rfa routes alike
+    target_version: Optional[Dict[str, Any]] = None
+
+    def release_view(self) -> Optional[Dict[str, Any]]:
+        """The compact relay-as-is ``release`` block (same shape as the front
+        door's ``--json`` result, issue #24), or None when no version story."""
+        if not self.target_version:
+            return None
+        from . import target_status as TS
+        return TS.release_view({"target_version": self.target_version,
+                                "status": self.status}, files=self.files)
 
     def as_json(self) -> Dict[str, Any]:
         return {"ok": self.ok, "status": self.status, "line": self.line,
                 "cell": self.cell, "route": self.route, "out_dir": self.out_dir,
                 "files": dict(self.files), "steps": list(self.steps),
                 "stamps": list(self.stamps), "caveats": list(self.caveats),
-                "releases": dict(self.releases), "errors": list(self.errors),
+                "releases": dict(self.releases),
+                "target_version": self.target_version, "release": self.release_view(),
+                "errors": list(self.errors),
                 "manifest": dict(self.manifest_paths), "seconds": self.seconds}
 
 
@@ -206,6 +221,8 @@ def _absorb_author_result(res: RouteResult, r: Any) -> None:
     if "PROOF-ONLY" in status.upper() and status not in res.stamps:
         res.stamps.append(status)
     tv = (r.manifest or {}).get("target_version") or {}
+    if tv:
+        res.target_version = dict(tv)
     if tv.get("line"):
         res.caveats.append(str(tv["line"]))
     res.errors.extend([str(e) for e in (r.errors or [])])
@@ -742,13 +759,97 @@ def _r_ifc_normalize(res, inputs, out_dir, opts):
                   "outside the resolved intent does not survive)")
 
 
-def _families_from_model(res: RouteResult, model, out_dir: str) -> Dict[str, Any]:
-    """stage_families (tools/ifc_intent.py, reused as-is) -> families/*.rfa."""
+def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
+                    emit: Callable[[], Any], *, model=None,
+                    source_ifc: Optional[str] = None) -> Any:
+    """Run a standalone FAMILY emit at the ``--target-version`` release
+    (issue #171) and return its result.
+
+    The recipient's Revit year is resolved by the front door's ONE resolver
+    (``rvt.frontdoor._resolve_base_and_version`` -- the very block the rvt
+    routes carry) and, for a certified non-native target, ``emit`` runs
+    inside ``release_ctx.release_build_context`` of that year's base
+    (framing ordinals, codec singletons, the carried-schema pin and the port
+    layer bound to that release), so the ``.rfa`` ARE Revit N.  If the emit
+    cannot run at that release (no port layer, a class the older schema
+    lacks), or the year is uncertified / unknown, or a wrong-release
+    ``--base`` was refused AS A BASE, the families are still DELIVERED (rule
+    1) by the native emit, and the block says so: ``status='fallback'`` /
+    ``'refused'`` + THE one clear line as a caveat after delivery + the
+    version-agnostic IFC addition (as on the rvt path).  No
+    ``--target-version`` -> today's native emit untouched, only reported.
+    On a degrade ``emit`` runs twice by design: the failed target-release
+    attempt keeps its (``ok: False``, ``attempt``-labelled) step records and
+    the native re-run adds its own -- the honest trace of what was tried."""
+    from . import release_ctx as RC
+    from . import target_status as TS
+    native = RC.native_release()
+    target = opts.get("target_version")
+    if target is None:
+        res.target_version = {
+            "requested": None, "status": "unspecified", "output_release": native,
+            "note": (f"no --target-version given: the families target the certified "
+                     f"default release (Revit {native}); Revit cannot open a newer file "
+                     "-- ask the recipient's Revit year first")}
+        return emit()
+    from . import AuthorRequest, _emit_ifc_addition, _resolve_base_and_version
+    target = int(target)
+    base, vb, errors = _resolve_base_and_version(
+        AuthorRequest(prompt="(family route)", base=opts.get("base"), target_version=target))
+    res.target_version = vb
+    res.errors.extend(errors)
+    if vb.get("status") == "match" and base is not None and target != native:
+        n_err, n_steps = len(res.errors), len(res.steps)
+        try:
+            with RC.release_build_context(base.path) as info:
+                res.steps.append({"stage": "release-context", "ok": True, "seconds": 0.0,
+                                  "impl": "rvt.frontdoor.release_ctx:release_build_context",
+                                  "release": info["release"], "native": info["native"],
+                                  "port_layer": info["port_layer"]})
+                return emit()
+        except RouteError:
+            raise
+        except Exception as e:                                       # noqa: BLE001
+            # certified + pinned, but THIS emit cannot run at that release
+            # (missing port layer / a class the older schema lacks): degrade
+            # to the native emit + the line, never a failure (rule 1)
+            reason = "; ".join(res.errors[n_err:]) or f"{type(e).__name__}: {e}"
+            del res.errors[n_err:]
+            for rec in res.steps[n_steps:]:
+                # the failed attempt stays in the trace, labelled -- the native
+                # re-run below records its own step, so the two never blur
+                rec["attempt"] = f"Revit {target} release context (degraded to native)"
+            vb.update({"status": "fallback", "output_release": native, "pending": reason,
+                       "line": (f"target {target} requested: this family emit cannot run "
+                                f"at Revit {target} yet ({reason}); this file targets "
+                                f"{native} -- your Revit {target} cannot open it; the "
+                                "IFC alongside is version-agnostic (links into Revit "
+                                "2019+)")})
+    elif vb.get("status") == "refused":
+        # interim shim: a wrong-release --base is refused AS A BASE by the
+        # resolver; a family emit needs no base, so deliver native + say so
+        vb.update({"output_release": native,
+                   "line": (f"{vb.get('note')}; the family .rfa are delivered at "
+                            f"Revit {native} (open in {TS.opens_in(native)})")})
+    if vb.get("line"):
+        res.caveats.append(str(vb["line"]))
+    _emit_ifc_addition(vb, res, out_dir, _slug(opts.get("stem") or "prompt_intent"),
+                       model=model, source_ifc=source_ifc, errors=res.errors)
+    return emit()
+
+
+def _families_from_model(res: RouteResult, model, out_dir: str, opts: Dict[str, Any],
+                         *, source_ifc: Optional[str] = None) -> Dict[str, Any]:
+    """stage_families (tools/ifc_intent.py, reused as-is) -> families/*.rfa,
+    at the ``--target-version`` release when one is given (issue #171)."""
     from . import build as B
     steps = _Steps(res)
     R = B.load_ifc_room_module()
-    frec = steps.run("intent->rfa", "tools/ifc_intent.py:stage_families",
-                     lambda: R.stage_families(model, out_dir))
+    frec = _emit_at_target(
+        res, opts, out_dir,
+        lambda: steps.run("intent->rfa", "tools/ifc_intent.py:stage_families",
+                          lambda: R.stage_families(model, out_dir)),
+        model=model, source_ifc=source_ifc)
     def _ab(p: str) -> str:
         return p if os.path.isabs(p) else os.path.join(repo_root(), p)
 
@@ -774,7 +875,7 @@ def _r_prompt_to_rfa(res, inputs, out_dir, opts):
     intent_json = os.path.join(out_dir, "intent.json")
     FI.write_intent_json(model, intent_json)
     res.files["intent"] = intent_json
-    frec = _families_from_model(res, model, out_dir)
+    frec = _families_from_model(res, model, out_dir, opts)
     built = int(frec.get("built") or 0)
     res.ok = built > 0
     res.status = (f"OK ({built} family .rfa generated; refusals honest)"
@@ -800,7 +901,8 @@ def _r_ifc_to_rfa(res, inputs, out_dir, opts):
             intent_json = os.path.join(out_dir, "intent.json")
             FI.write_intent_json(model, intent_json)
             res.files["intent"] = intent_json
-            frec = _families_from_model(res, model, out_dir)
+            frec = _families_from_model(res, model, out_dir, opts,
+                                        source_ifc=inputs["ifc"])
             built = int(frec.get("built") or 0)
             res.ok = built > 0
             res.status = f"OK ({built} catalog family .rfa from the room IFC)"
@@ -808,7 +910,9 @@ def _r_ifc_to_rfa(res, inputs, out_dir, opts):
     res.caveats.append("no buildable room-equipment family plan in this IFC -- "
                        "took the PRODUCT-IFC path (measured facts -> the "
                        "downlight archetype)")
-    _product_rfa(res, inputs["ifc"], out_dir, opts)
+    _emit_at_target(res, opts, out_dir,
+                    lambda: _product_rfa(res, inputs["ifc"], out_dir, opts),
+                    source_ifc=inputs["ifc"])
 
 
 def _product_rfa(res: RouteResult, ifc_path: str, out_dir: str,
@@ -1039,7 +1143,7 @@ def _r_spec_to_rfa(res, inputs, out_dir, opts):
     intent_json = os.path.join(out_dir, "intent.json")
     FI.write_intent_json(model, intent_json)
     res.files["intent"] = intent_json
-    frec = _families_from_model(res, model, out_dir)
+    frec = _families_from_model(res, model, out_dir, opts, source_ifc=ifc_path)
     built = int(frec.get("built") or 0)
     res.ok = built > 0
     res.status = (f"OK ({built} catalog family .rfa from the spec's tagged "
@@ -1234,6 +1338,8 @@ def _write_route_manifest(res: RouteResult, inputs: Dict[str, Any],
         "steps": res.steps,
         "files": {k: _relp(v) for k, v in res.files.items()},
         "releases": res.releases,
+        "target_version": res.target_version,
+        "release": res.release_view(),
         "stamps": res.stamps,
         "caveats": res.caveats,
         "evidence": (res.cell or {}).get("evidence"),
@@ -1255,6 +1361,13 @@ def _write_route_manifest(res: RouteResult, inputs: Dict[str, Any],
     c = res.cell or {}
     lines.append(f"* matrix cell: status **{c.get('status')}**, route "
                  f"`{res.route}`, stages: {' -> '.join(c.get('stages') or [])}")
+    tv = res.target_version
+    if tv:
+        req = tv.get("requested")
+        asked = f"Revit {req}" if req is not None else "(not stated)"
+        tail = f": {tv['line']}" if tv.get("line") else f" -- {tv.get('note') or ''}"
+        lines.append(f"* target version: requested {asked} -> output Revit "
+                     f"{tv.get('output_release')} (**{tv.get('status')}**){tail}")
     if res.files:
         lines.append("* delivered:")
         for k, v in res.files.items():
