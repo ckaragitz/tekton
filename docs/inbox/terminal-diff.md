@@ -225,3 +225,12 @@ the tests); PROOF-ONLY, do-not-redistribute is stated in the kit.
   files to the user for the desktop-Revit check — on an all-FAIL round
   the kit becomes the decisive instrument (in-file suspect space is then
   exactly the footer-blob content function + API-invisible U7/U8).
+
+## Addendum 2026-08-09 — stream revit-kit-v2 (issue #118): the desktop kit is v2
+
+`tools/terminal_diff.py kit` now only delegates to `tools/revit_kit.py build`
+(record: `docs/inbox/revit-kit-v2.md`).  The v1 pair this record describes
+(H12 + BXhf_f1i1 copies) is retired from `experiments/terminal/REVIT-CHECK-KIT.md`:
+E1/E1b PASSED in VERDICTS #36, so H12 failed only on its empty 0x0f3f blob, and
+BXhf_f1i1 predates that fix.  Nothing else in this stream's tool, probes or
+readings changed.

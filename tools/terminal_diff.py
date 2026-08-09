@@ -28,8 +28,11 @@ This tool:
 
   verify     -> re-run the per-probe gates on the emitted bytes.
   stage      -> tools/probe_batch.py staging (control = untouched rst copy).
-  kit        -> experiments/terminal/REVIT-CHECK-KIT.md + the two files a
-                human with desktop Revit should open.
+  kit        -> delegates to tools/revit_kit.py build (kit v2, issue #118):
+                the regenerable K0-K3 desktop-Revit check kit under
+                experiments/terminal/kit2/ + REVIT-CHECK-KIT.md.  The v1
+                pair (H12 + BXhf_f1i1 copies) is retired: both fail only
+                for the empty-blob law solved in VERDICTS #36.
 
 MEASURED FACTS THIS TOOL IS BUILT ON (all re-derived at runtime, gated):
 
@@ -97,7 +100,6 @@ from rvt.stream_encoders import (decode_basic_file_info,      # noqa: E402
 RST = os.path.join(ROOT, "samples", "rstbasicsampleproject.rvt")
 H12 = os.path.join(ROOT, "experiments", "regcorner", "probes", "H12.rvt")
 H10 = os.path.join(ROOT, "experiments", "hostpair", "H10.rvt")
-BXHF = os.path.join(ROOT, "experiments", "hostpair", "BXhf_f1i1.rvt")
 OUT_DIR = os.path.join(ROOT, "experiments", "terminal")
 PROBE_DIR = os.path.join(OUT_DIR, "probes")
 PART = "Partitions/21"
@@ -1363,71 +1365,24 @@ def stage() -> Dict[str, Any]:
     return manifest
 
 
-KIT_MD = """# REVIT CHECK KIT -- one desktop-Revit session, two files, ~10 minutes
-
-**Why you are being asked.**  Autodesk's cloud viewer rejects our generated
-files with an opaque "Processing failed" -- it never says WHY.  Desktop
-Revit shows the SPECIFIC warning/error dialog.  One open attempt per file
-below tells us more than another ten cloud probes.
-
-**Files in this folder** (copies; originals under experiments/):
-
-1. `BXhf_f1i1.rvt` -- OUR generated family + one placed instance (the
-   product shape: what tekton actually ships).
-2. `H12.rvt` -- the all-native-copy probe: an untouched Autodesk sample
-   project plus ONE re-embedded copy of its own concrete-column family
-   (famdoc bytes, inline registry document and host elements are literal
-   byte-copies of Autodesk's own) plus one placed instance.  Every decoded
-   record is native-shaped; only our container envelope + registration
-   differ.  The cloud viewer rejects this file too -- the terminal mystery.
-
-**What to do with EACH file (H12.rvt first):**
-
-1. Open Revit (2026 if available; a newer release is fine -- it will
-   offer to upgrade; an OLDER release cannot open these, stop there).
-2. File > Open > the .rvt.  **Screenshot every dialog that appears**, in
-   order, before clicking anything.  Then click through (OK / Close).
-3. If it opens: Manage tab > Inquiry > **Warnings** -> Export or
-   screenshot the full list.
-4. Project Browser > Families > Structural Columns: does
-   "M_Concrete-Square-Column H9 (or similar)" exist?  Open a 3D view: is
-   a column visible near the origin?  Screenshot.
-5. Try File > Save As (new name).  Screenshot any dialog.
-6. If Revit CRASHES: screenshot the crash/journal dialog and grab the
-   newest file from %LOCALAPPDATA%/Autodesk/Revit/<version>/Journals.
-
-**What each outcome tells us:**
-
-| outcome | reading |
-|---|---|
-| H12 opens clean, column visible | the cloud viewer's audit is stricter than Revit itself; the defect is a viewer-side ingest rule -- we chase the viewer, not file validity |
-| H12 opens with a SPECIFIC warning dialog | that dialog names the audit's objection verbatim -- send the screenshot; it is the fix spec |
-| H12 refuses with "file is corrupt" + detail | the detail line (element id / table name) localises the defect |
-| H12 crashes | journal file names the failing subsystem |
-| BXhf same-vs-different from H12 | same dialog => one shared root cause; different => our generated famdoc has an ADDITIONAL defect beyond the terminal one |
-| both open clean in desktop Revit | ship-blocking only for cloud-viewer workflows; deliverable rule already stamps files -- record it |
-
-**Safety / provenance**: both files are PROOF-ONLY dev probes derived from
-Autodesk's own freely-downloadable sample (rstbasicsampleproject).  Do not
-redistribute; delete after the check.  Nothing here touches your firm's
-models or your Autodesk account beyond opening two local files.
-
-**Send back**: the screenshots + (if any) the journal file + one line per
-file: opened clean / warning dialog / corrupt dialog / crash.
-"""
+KIT_DIR = os.path.join(OUT_DIR, "kit2")
 
 
-def kit() -> None:
-    import shutil
-    os.makedirs(OUT_DIR, exist_ok=True)
-    with open(os.path.join(OUT_DIR, "REVIT-CHECK-KIT.md"), "w") as f:
-        f.write(KIT_MD)
-    for src in (BXHF, H12):
-        dst = os.path.join(OUT_DIR, os.path.basename(src))
-        if not os.path.isfile(dst) or md5_of(dst) != md5_of(src):
-            shutil.copy2(src, dst)
-        log(f"kit file {relp(dst)} md5 {md5_of(dst)}")
-    log("REVIT-CHECK-KIT.md written")
+def kit() -> int:
+    """The desktop-Revit check kit is v2 (issue #118): built from a fresh
+    clone by ``tools/revit_kit.py build`` -- K0 (byte-identical pinned base),
+    K1 (shell walls), K2 (one generated family + one instance), K3 (room
+    combined) + the standalone .rfa, a manifest with an id -> class/unit/
+    family index, and the regenerated REVIT-CHECK-KIT.md.  The v1 pair this
+    verb used to copy (H12 + BXhf_f1i1) is retired: E1/E1b PASSED in
+    VERDICTS #36, so H12 failed only on its empty 0x0f3f blob, and BXhf_f1i1
+    predates that fix.  This verb only delegates."""
+    log("kit -> tools/revit_kit.py build --out " + relp(KIT_DIR)
+        + "  (kit v2, issue #118; the H12/BXhf_f1i1 pair is retired)")
+    if HERE not in sys.path:
+        sys.path.insert(0, HERE)
+    import revit_kit
+    return revit_kit.main(["build", "--out", KIT_DIR])
 
 
 # ===========================================================================
@@ -1442,7 +1397,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     sub.add_parser("probes", help="build the E-probes")
     sub.add_parser("verify", help="re-run gates on emitted probes")
     sub.add_parser("stage", help="probe_batch staging (control = rst copy)")
-    sub.add_parser("kit", help="the desktop-Revit check kit")
+    sub.add_parser("kit", help="the desktop-Revit check kit (delegates to tools/revit_kit.py build)")
     sub.add_parser("all", help="enumerate + probes + verify + stage + kit")
     a = ap.parse_args(argv)
     if a.cmd in ("enumerate", "all"):
@@ -1464,7 +1419,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if a.cmd in ("stage", "all"):
         stage()
     if a.cmd in ("kit", "all"):
-        kit()
+        return kit()
     return 0
 
 

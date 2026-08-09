@@ -274,9 +274,12 @@ def test_batch_42_staged_with_byte_identical_control(probes):
 
 
 def test_revit_check_kit_in_place():
+    """Kit v2 (issue #118, tests/test_revit_kit.py owns the shape checks):
+    the tracked markdown is the regenerated v2 text and the H12/BXhf_f1i1
+    v1 pair is retired; `terminal_diff kit` only delegates."""
     assert os.path.isfile(KIT)
-    text = open(KIT).read()
-    assert "BXhf_f1i1.rvt" in text and "H12.rvt" in text
+    text = open(KIT, encoding="utf-8").read()
+    assert "BXhf_f1i1.rvt" not in text and "H12.rvt" not in text
+    assert "K0_CTRL_G_ABPD.rvt" in text and "K2_equipment_1fam_1inst.rvt" in text
     assert "Warnings" in text and "screenshot" in text.lower()
-    assert md5_of(os.path.join(td.OUT_DIR, "H12.rvt")) == md5_of(td.H12)
-    assert md5_of(os.path.join(td.OUT_DIR, "BXhf_f1i1.rvt")) == md5_of(td.BXHF)
+    assert td.KIT_DIR == os.path.join(td.OUT_DIR, "kit2")

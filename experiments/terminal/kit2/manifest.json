@@ -1,0 +1,2139 @@
+{
+ "schema": "tekton.revit-check-kit/2",
+ "kit_version": 2,
+ "tool": "tools/revit_kit.py",
+ "issue": "#118 (kit v2); serves #16 (the desktop-Revit round)",
+ "honesty": "PROOF-ONLY dev probes under experiments/; never a deliverable",
+ "base": {
+  "path": "plugin/assets/genesis/G_ABPD.rvt",
+  "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+  "pinned_sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+  "watermark": 1472524,
+  "save_units": 1,
+  "release": 2026
+ },
+ "prompt": "an electrical room with 1 panel",
+ "built_through": "rvt.frontdoor.author(prompt, base=K0, strict=True) -> K1/K2; strict=False -> K3",
+ "build_seconds": {
+  "split": 7.0,
+  "combined": 5.4
+ },
+ "open_order": [
+  "K0_CTRL_G_ABPD.rvt",
+  "K1_shell_walls.rvt",
+  "K2_equipment_1fam_1inst.rvt",
+  "K3_room_combined.rvt",
+  "families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa"
+ ],
+ "retired": {
+  "H12": "retired: the all-native-copy probe's ONLY defect was its empty 0x0f3f unit footer blob -- E1 (= H12 + the donor's 64-B blob, one stream changed) and E1b (random 64 B) both PASSED in genesis-audit VERDICTS #36. Opening it in desktop Revit would re-discover a law already fixed in core.",
+  "BXhf_f1i1": "retired: a batch-38-era G_ABPD probe built before the blob fix (empty blob on its family unit) -- it fails for the solved reason, not the open one."
+ },
+ "files": [
+  {
+   "name": "K0_CTRL_G_ABPD.rvt",
+   "kind": "rvt",
+   "role": "control",
+   "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+   "bytes": 581632,
+   "expected": "CERTIFIED base, byte-identical to the plugin's pinned G_ABPD (viewer verdict #24). Must open clean; if it does not, the Revit install / release is the problem and nothing else in the kit can be read.",
+   "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "mode": "project"
+   },
+   "stamps": [],
+   "source": "plugin/assets/genesis/G_ABPD.rvt",
+   "byte_identical_to_pin": true,
+   "census": {
+    "watermark": 1472524,
+    "elemtable_rows": 3102,
+    "host_records": 3102,
+    "classes": {
+     "SWall": 0,
+     "Family": 0,
+     "FamilySymbol": 0,
+     "FamSymSurrogate": 0,
+     "FamilySurrogate": 0,
+     "FamilyInstance": 0
+    },
+    "added_classes": {},
+    "save_units": [
+     {
+      "stream": "Partitions/21",
+      "index": 0,
+      "guid": null,
+      "blocks": 14,
+      "blob_len": 64,
+      "kind": "host"
+     }
+    ],
+    "added_save_units": 0
+   },
+   "added_elements": [],
+   "family_documents": []
+  },
+  {
+   "name": "K1_shell_walls.rvt",
+   "kind": "rvt",
+   "role": "shell",
+   "sha256": "7d013d43a2194dc562c6e7eb6f9f149fc4583f2b53a595a0040afcc93083db42",
+   "bytes": 581632,
+   "expected": "Walls-only species on the composed base -- the certified render lane. Expected to open clean with 4 walls visible in 3D; a dialog here would be NEW information (walls were never the failing axis).",
+   "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "mode": "project"
+   },
+   "stamps": [
+    "PROOF-ONLY, NOT-DELIVERABLE"
+   ],
+   "added_elements": [
+    {
+     "id": 1472525,
+     "class": "SWall",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": null,
+     "family_id": null,
+     "family_unit": null,
+     "tag": "W-S"
+    },
+    {
+     "id": 1472526,
+     "class": "SWall",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": null,
+     "family_id": null,
+     "family_unit": null,
+     "tag": "W-E"
+    },
+    {
+     "id": 1472527,
+     "class": "SWall",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": null,
+     "family_id": null,
+     "family_unit": null,
+     "tag": "W-N"
+    },
+    {
+     "id": 1472528,
+     "class": "SWall",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": null,
+     "family_id": null,
+     "family_unit": null,
+     "tag": "W-W"
+    }
+   ],
+   "family_documents": [],
+   "census": {
+    "watermark": 1472528,
+    "elemtable_rows": 3106,
+    "host_records": 3106,
+    "classes": {
+     "SWall": 4,
+     "Family": 0,
+     "FamilySymbol": 0,
+     "FamSymSurrogate": 0,
+     "FamilySurrogate": 0,
+     "FamilyInstance": 0
+    },
+    "added_classes": {
+     "SWall": 4
+    },
+    "save_units": [
+     {
+      "stream": "Partitions/21",
+      "index": 0,
+      "guid": null,
+      "blocks": 14,
+      "blob_len": 64,
+      "kind": "host"
+     }
+    ],
+    "added_save_units": 0
+   }
+  },
+  {
+   "name": "K2_equipment_1fam_1inst.rvt",
+   "kind": "rvt",
+   "role": "equipment",
+   "sha256": "c0da81bbc5f951492902c5bfa9178640ad6007cb73378824efd1355b3145ee2c",
+   "bytes": 593920,
+   "expected": "THE OPEN CELL, minimal: exactly one generated family document (save unit 1, 64-B blob present) + one placed instance, no walls. The cloud viewer rejects this shape (VERDICTS #48). Whatever dialog / journal line Revit shows here IS the fix spec -- capture it verbatim.",
+   "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "mode": "project"
+   },
+   "stamps": [
+    "PROOF-ONLY, NOT-DELIVERABLE"
+   ],
+   "added_elements": [
+    {
+     "id": 1472566,
+     "class": "Family",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "name": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "tag": "PP-1"
+    },
+    {
+     "id": 1472567,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472568,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472569,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472570,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472571,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472572,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472573,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472574,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472575,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472576,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472577,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472578,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472579,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472580,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472581,
+     "class": "FamilySurrogate",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "name": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+    },
+    {
+     "id": 1472582,
+     "class": "FamilySymbol",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "tag": "PP-1"
+    },
+    {
+     "id": 1472583,
+     "class": "FamSymSurrogate",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "name": "225A MLO 42ckt"
+    },
+    {
+     "id": 1472584,
+     "class": "FamilyInstance",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "tag": "PP-1"
+    }
+   ],
+   "family_documents": [
+    {
+     "unit": 1,
+     "guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+     "blob_len": 64,
+     "blocks": 3,
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "added": true,
+     "n_elements": 41,
+     "classes": {
+      "Family": 1,
+      "UnitsElem": 1,
+      "LevelAttributes": 1,
+      "Level": 1,
+      "DBViewProject": 1,
+      "Viewer": 2,
+      "Viewport": 2,
+      "DBDrawing": 2,
+      "DBViewType": 1,
+      "DBViewPlan": 1,
+      "SketchPlane": 2,
+      "SunAndShadowSettings": 1,
+      "ExtentElem": 1,
+      "RefPlane": 2,
+      "ParamElemFamily": 14,
+      "VarSketch": 1,
+      "CurveElem": 4,
+      "ExtrusionElem": 1,
+      "ElectricalLoadClassification": 1,
+      "ConnectorElem": 1
+     },
+     "elements": [
+      {
+       "id": 1472525,
+       "class": "Family"
+      },
+      {
+       "id": 1472526,
+       "class": "UnitsElem"
+      },
+      {
+       "id": 1472527,
+       "class": "LevelAttributes"
+      },
+      {
+       "id": 1472528,
+       "class": "Level"
+      },
+      {
+       "id": 1472529,
+       "class": "DBViewProject"
+      },
+      {
+       "id": 1472530,
+       "class": "Viewer"
+      },
+      {
+       "id": 1472531,
+       "class": "Viewport"
+      },
+      {
+       "id": 1472532,
+       "class": "DBDrawing"
+      },
+      {
+       "id": 1472533,
+       "class": "DBViewType"
+      },
+      {
+       "id": 1472534,
+       "class": "DBViewPlan"
+      },
+      {
+       "id": 1472535,
+       "class": "Viewer"
+      },
+      {
+       "id": 1472536,
+       "class": "SketchPlane"
+      },
+      {
+       "id": 1472537,
+       "class": "SunAndShadowSettings"
+      },
+      {
+       "id": 1472538,
+       "class": "Viewport"
+      },
+      {
+       "id": 1472539,
+       "class": "DBDrawing"
+      },
+      {
+       "id": 1472540,
+       "class": "ExtentElem"
+      },
+      {
+       "id": 1472541,
+       "class": "RefPlane"
+      },
+      {
+       "id": 1472542,
+       "class": "RefPlane"
+      },
+      {
+       "id": 1472543,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472544,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472545,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472546,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472547,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472548,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472549,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472550,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472551,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472552,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472553,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472554,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472555,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472556,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472557,
+       "class": "SketchPlane"
+      },
+      {
+       "id": 1472558,
+       "class": "VarSketch"
+      },
+      {
+       "id": 1472559,
+       "class": "CurveElem"
+      },
+      {
+       "id": 1472560,
+       "class": "CurveElem"
+      },
+      {
+       "id": 1472561,
+       "class": "CurveElem"
+      },
+      {
+       "id": 1472562,
+       "class": "CurveElem"
+      },
+      {
+       "id": 1472563,
+       "class": "ExtrusionElem"
+      },
+      {
+       "id": 1472564,
+       "class": "ElectricalLoadClassification"
+      },
+      {
+       "id": 1472565,
+       "class": "ConnectorElem"
+      }
+     ]
+    }
+   ],
+   "census": {
+    "watermark": 1472584,
+    "elemtable_rows": 3121,
+    "host_records": 3121,
+    "classes": {
+     "SWall": 0,
+     "Family": 1,
+     "FamilySymbol": 1,
+     "FamSymSurrogate": 1,
+     "FamilySurrogate": 1,
+     "FamilyInstance": 1
+    },
+    "added_classes": {
+     "FamSymSurrogate": 1,
+     "Family": 1,
+     "FamilyInstance": 1,
+     "FamilySurrogate": 1,
+     "FamilySymbol": 1,
+     "ParamElemFamily": 14
+    },
+    "save_units": [
+     {
+      "stream": "Partitions/21",
+      "index": 0,
+      "guid": null,
+      "blocks": 14,
+      "blob_len": 64,
+      "kind": "host"
+     },
+     {
+      "stream": "Partitions/21",
+      "index": 1,
+      "guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+      "blocks": 3,
+      "blob_len": 64,
+      "kind": "famdoc"
+     }
+    ],
+    "added_save_units": 1
+   }
+  },
+  {
+   "name": "K3_room_combined.rvt",
+   "kind": "rvt",
+   "role": "combined",
+   "sha256": "9d8efa65f7345af4b43e6d622bff71f5687252cd2fc01181660fe28f9915d115",
+   "bytes": 593920,
+   "expected": "K1 + K2 in one file: the stamped product shape (PROOF-ONLY: walls+families combination). Same dialog as K2 => one shared cause; a different / extra dialog => the combination adds a second defect.",
+   "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "mode": "project"
+   },
+   "stamps": [
+    "PROOF-ONLY: walls+families combination unverified",
+    "PROOF-ONLY, NOT-DELIVERABLE"
+   ],
+   "added_elements": [
+    {
+     "id": 1472566,
+     "class": "Family",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "name": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "tag": "PP-1"
+    },
+    {
+     "id": 1472567,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472568,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472569,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472570,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472571,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472572,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472573,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472574,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472575,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472576,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472577,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472578,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472579,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472580,
+     "class": "ParamElemFamily",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1
+    },
+    {
+     "id": 1472581,
+     "class": "FamilySurrogate",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "name": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+    },
+    {
+     "id": 1472582,
+     "class": "FamilySymbol",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "tag": "PP-1"
+    },
+    {
+     "id": 1472583,
+     "class": "FamSymSurrogate",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "name": "225A MLO 42ckt"
+    },
+    {
+     "id": 1472584,
+     "class": "SWall",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": null,
+     "family_id": null,
+     "family_unit": null,
+     "tag": "W-S"
+    },
+    {
+     "id": 1472585,
+     "class": "SWall",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": null,
+     "family_id": null,
+     "family_unit": null,
+     "tag": "W-E"
+    },
+    {
+     "id": 1472586,
+     "class": "SWall",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": null,
+     "family_id": null,
+     "family_unit": null,
+     "tag": "W-N"
+    },
+    {
+     "id": 1472587,
+     "class": "SWall",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": null,
+     "family_id": null,
+     "family_unit": null,
+     "tag": "W-W"
+    },
+    {
+     "id": 1472588,
+     "class": "FamilyInstance",
+     "unit": 0,
+     "unit_kind": "host",
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "family_id": 1472566,
+     "family_unit": 1,
+     "tag": "PP-1"
+    }
+   ],
+   "family_documents": [
+    {
+     "unit": 1,
+     "guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+     "blob_len": 64,
+     "blocks": 3,
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "added": true,
+     "n_elements": 41,
+     "classes": {
+      "Family": 1,
+      "UnitsElem": 1,
+      "LevelAttributes": 1,
+      "Level": 1,
+      "DBViewProject": 1,
+      "Viewer": 2,
+      "Viewport": 2,
+      "DBDrawing": 2,
+      "DBViewType": 1,
+      "DBViewPlan": 1,
+      "SketchPlane": 2,
+      "SunAndShadowSettings": 1,
+      "ExtentElem": 1,
+      "RefPlane": 2,
+      "ParamElemFamily": 14,
+      "VarSketch": 1,
+      "CurveElem": 4,
+      "ExtrusionElem": 1,
+      "ElectricalLoadClassification": 1,
+      "ConnectorElem": 1
+     },
+     "elements": [
+      {
+       "id": 1472525,
+       "class": "Family"
+      },
+      {
+       "id": 1472526,
+       "class": "UnitsElem"
+      },
+      {
+       "id": 1472527,
+       "class": "LevelAttributes"
+      },
+      {
+       "id": 1472528,
+       "class": "Level"
+      },
+      {
+       "id": 1472529,
+       "class": "DBViewProject"
+      },
+      {
+       "id": 1472530,
+       "class": "Viewer"
+      },
+      {
+       "id": 1472531,
+       "class": "Viewport"
+      },
+      {
+       "id": 1472532,
+       "class": "DBDrawing"
+      },
+      {
+       "id": 1472533,
+       "class": "DBViewType"
+      },
+      {
+       "id": 1472534,
+       "class": "DBViewPlan"
+      },
+      {
+       "id": 1472535,
+       "class": "Viewer"
+      },
+      {
+       "id": 1472536,
+       "class": "SketchPlane"
+      },
+      {
+       "id": 1472537,
+       "class": "SunAndShadowSettings"
+      },
+      {
+       "id": 1472538,
+       "class": "Viewport"
+      },
+      {
+       "id": 1472539,
+       "class": "DBDrawing"
+      },
+      {
+       "id": 1472540,
+       "class": "ExtentElem"
+      },
+      {
+       "id": 1472541,
+       "class": "RefPlane"
+      },
+      {
+       "id": 1472542,
+       "class": "RefPlane"
+      },
+      {
+       "id": 1472543,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472544,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472545,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472546,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472547,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472548,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472549,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472550,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472551,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472552,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472553,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472554,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472555,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472556,
+       "class": "ParamElemFamily"
+      },
+      {
+       "id": 1472557,
+       "class": "SketchPlane"
+      },
+      {
+       "id": 1472558,
+       "class": "VarSketch"
+      },
+      {
+       "id": 1472559,
+       "class": "CurveElem"
+      },
+      {
+       "id": 1472560,
+       "class": "CurveElem"
+      },
+      {
+       "id": 1472561,
+       "class": "CurveElem"
+      },
+      {
+       "id": 1472562,
+       "class": "CurveElem"
+      },
+      {
+       "id": 1472563,
+       "class": "ExtrusionElem"
+      },
+      {
+       "id": 1472564,
+       "class": "ElectricalLoadClassification"
+      },
+      {
+       "id": 1472565,
+       "class": "ConnectorElem"
+      }
+     ]
+    }
+   ],
+   "census": {
+    "watermark": 1472588,
+    "elemtable_rows": 3125,
+    "host_records": 3125,
+    "classes": {
+     "SWall": 4,
+     "Family": 1,
+     "FamilySymbol": 1,
+     "FamSymSurrogate": 1,
+     "FamilySurrogate": 1,
+     "FamilyInstance": 1
+    },
+    "added_classes": {
+     "FamSymSurrogate": 1,
+     "Family": 1,
+     "FamilyInstance": 1,
+     "FamilySurrogate": 1,
+     "FamilySymbol": 1,
+     "ParamElemFamily": 14,
+     "SWall": 4
+    },
+    "save_units": [
+     {
+      "stream": "Partitions/21",
+      "index": 0,
+      "guid": null,
+      "blocks": 14,
+      "blob_len": 64,
+      "kind": "host"
+     },
+     {
+      "stream": "Partitions/21",
+      "index": 1,
+      "guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+      "blocks": 3,
+      "blob_len": 64,
+      "kind": "famdoc"
+     }
+    ],
+    "added_save_units": 1
+   }
+  },
+  {
+   "name": "families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa",
+   "tag": "PP-1",
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "kind": "rfa",
+   "role": "family",
+   "sha256": "a2bfcbc97f17ab1873d98954aa8cd40780491ff65b1c4445838f574aebd3b47a",
+   "bytes": 217088,
+   "expected": "The generated family K2/K3 embed, as a standalone .rfa. Insert > Load Family it into the opened K1 (or File > Open it). Loads clean => the defect is in how the project EMBEDS/places it, not the family body; a dialog => the family document itself is what Revit objects to.",
+   "validation": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "mode": "family"
+   },
+   "census": {
+    "save_units": [
+     {
+      "stream": "Partitions/0",
+      "index": 0,
+      "guid": null,
+      "blocks": 3,
+      "blob_len": 64,
+      "kind": "host"
+     }
+    ]
+   }
+  }
+ ],
+ "id_index": {
+  "1472525": [
+   {
+    "file": "K1_shell_walls.rvt",
+    "unit": 0,
+    "class": "SWall",
+    "family": null,
+    "tag": "W-S"
+   },
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "Family",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "Family",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472526": [
+   {
+    "file": "K1_shell_walls.rvt",
+    "unit": 0,
+    "class": "SWall",
+    "family": null,
+    "tag": "W-E"
+   },
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "UnitsElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "UnitsElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472527": [
+   {
+    "file": "K1_shell_walls.rvt",
+    "unit": 0,
+    "class": "SWall",
+    "family": null,
+    "tag": "W-N"
+   },
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "LevelAttributes",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "LevelAttributes",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472528": [
+   {
+    "file": "K1_shell_walls.rvt",
+    "unit": 0,
+    "class": "SWall",
+    "family": null,
+    "tag": "W-W"
+   },
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "Level",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "Level",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472566": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "Family",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": "PP-1"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "Family",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": "PP-1"
+   }
+  ],
+  "1472567": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472568": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472569": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472570": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472571": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472572": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472573": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472574": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472575": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472576": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472577": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472578": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472579": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472580": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472581": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "FamilySurrogate",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "FamilySurrogate",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472582": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "FamilySymbol",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": "PP-1"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "FamilySymbol",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": "PP-1"
+   }
+  ],
+  "1472583": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "FamSymSurrogate",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "FamSymSurrogate",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": null
+   }
+  ],
+  "1472584": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 0,
+    "class": "FamilyInstance",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": "PP-1"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "SWall",
+    "family": null,
+    "tag": "W-S"
+   }
+  ],
+  "1472529": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "DBViewProject",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "DBViewProject",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472530": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "Viewer",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "Viewer",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472531": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "Viewport",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "Viewport",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472532": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "DBDrawing",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "DBDrawing",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472533": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "DBViewType",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "DBViewType",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472534": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "DBViewPlan",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "DBViewPlan",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472535": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "Viewer",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "Viewer",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472536": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "SketchPlane",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "SketchPlane",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472537": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "SunAndShadowSettings",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "SunAndShadowSettings",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472538": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "Viewport",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "Viewport",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472539": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "DBDrawing",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "DBDrawing",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472540": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ExtentElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ExtentElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472541": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "RefPlane",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "RefPlane",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472542": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "RefPlane",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "RefPlane",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472543": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472544": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472545": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472546": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472547": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472548": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472549": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472550": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472551": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472552": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472553": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472554": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472555": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472556": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ParamElemFamily",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472557": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "SketchPlane",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "SketchPlane",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472558": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "VarSketch",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "VarSketch",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472559": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "CurveElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "CurveElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472560": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "CurveElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "CurveElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472561": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "CurveElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "CurveElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472562": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "CurveElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "CurveElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472563": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ExtrusionElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ExtrusionElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472564": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ElectricalLoadClassification",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ElectricalLoadClassification",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472565": [
+   {
+    "file": "K2_equipment_1fam_1inst.rvt",
+    "unit": 1,
+    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "class": "ConnectorElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   },
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 1,
+    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "class": "ConnectorElem",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+   }
+  ],
+  "1472585": [
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "SWall",
+    "family": null,
+    "tag": "W-E"
+   }
+  ],
+  "1472586": [
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "SWall",
+    "family": null,
+    "tag": "W-N"
+   }
+  ],
+  "1472587": [
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "SWall",
+    "family": null,
+    "tag": "W-W"
+   }
+  ],
+  "1472588": [
+   {
+    "file": "K3_room_combined.rvt",
+    "unit": 0,
+    "class": "FamilyInstance",
+    "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "tag": "PP-1"
+   }
+  ]
+ },
+ "checks": [],
+ "seconds": 16.5
+}
