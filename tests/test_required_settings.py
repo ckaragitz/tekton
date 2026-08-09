@@ -111,6 +111,33 @@ def test_headers_carry_no_bbox(fi):
             assert fi.value(0, eid, 101).get("m_pBBox") is None, (cn, eid)
 
 
+def test_family_viewer_bound_law(fi):
+    """Donor law (#333): every family Viewer's z bound interval is
+    (100.0, 0.0) -- on the reference level, never degenerate -- and the plan
+    viewer matches the project viewer's shape (bounds inactive, crop on,
+    ortho projMethod 1, viewerFlags 0, not intentionally placed).  The basis
+    frames stay per-view-type (plan frame vs elevation frame) -- the donor
+    exonerated them."""
+    recs = fi.unit_records(0).get(102, {})
+    proj_view = [eid for eid, r in sorted(recs.items())
+                 if fi.class_name(r.class_id) == "DBViewProject"]
+    assert len(proj_view) == 1
+    seen = 0
+    for eid, r in sorted(recs.items()):
+        if fi.class_name(r.class_id) != "Viewer":
+            continue
+        seen += 1
+        v = fi.value(0, eid, 102)
+        bs = v.get("m_boundedSpace") or {}
+        assert (bs.get("m_boundOffset") or [])[2] == [100.0, 0.0], eid
+        assert bs.get("m_boundActive") == [[False, False]] * 3, eid
+        assert bs.get("m_isOn") is True, eid
+        assert v.get("m_projMethodType") == 1, eid
+        assert v.get("m_viewerFlags") == 0, eid
+        assert v.get("m_intentionallyPlaced") is False, eid
+    assert seen == 2, seen
+
+
 def test_walked_binds_stay_self_contained(rfa):
     """The viewer-certified self-contained-binds law (T2a): curve/solid rep
     style binds are member GStyleElem ids or -1, never foreign ids -- the

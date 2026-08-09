@@ -287,3 +287,47 @@ tests/test_required_settings.py, this record, plugin mirror (sync clean).
 Gates: settings+selfcontained+famgen+analyze suites green; full suite
 1625/1/0 (the 1 = upstream); sync_plugin --check clean; validate_plugin
 PASS.  Desktop evidence chain: issue #52 comments (rounds 1–10).
+
+## Iteration 6 — the FAMILY-VIEWER LAW (round 13; issue #333)
+
+Rounds 11–12 (probes K/K2: ALL drawables stripped, still crashed on the
+first canvas click) proved the fault lives in the view furniture, and the
+round-12 diff blamed `Viewer.m_boundedSpace`'s basis.  **Round 13
+correction: that diff compared a mismatched pair** — OUR project viewer
+against the DONOR's plan viewer.  Measured properly (donor viewers 22/26 =
+plan, 49 = project vs ours 1010/1005):
+
+* The basis frames are EXONERATED — the donor keeps the project skeleton's
+  per-view-type frames (plan frame on plan viewers, elevation frame on the
+  project viewer), numerically identical to ours.
+* Every donor viewer's `m_boundOffset[2]` is `(100.0, 0.0)` — the z
+  interval sits on the reference level.  Ours: `(100,-100)` on the project
+  viewer, `(1000, 0.1)` on the plan viewer.
+* The donor's PLAN viewers match the project viewer's SHAPE: bounds
+  inactive (`m_boundActive` all False; ours True on x/y), crop ON
+  (`m_isOn` True; ours False), ortho (`m_projMethodType` 1; ours 2),
+  `m_viewerFlags` 0 (ours 7), `m_intentionallyPlaced` False (ours True).
+  Every crash journal warns `BoundedSpace.cpp:86`.
+
+**Consequence for probes L1/L2** (delivered before the correction): their
+patch forces the PROJECT viewer into a plan frame — donor-contradicted, so
+their verdicts are non-conclusive on the BoundedSpace hypothesis.
+Superseded by probe M.
+
+**Landed:** `_apply_family_viewer_law` in `famgen/skeleton.py`
+(family-doc override only; the project skeleton's `[VERIFIED vs rstbasic]`
+values are untouched), guarded by `test_family_viewer_bound_law`.
+**Probe M** (`probe_m_viewerlaw.rfa`, full panelboard, ONE composite
+variable = the viewer law) is with the owner; control = `main_smoke.rfa`
+(same engine, law absent).  Validator VALID 0 errors, provenance ok on
+both.
+
+## BRANCH STATE (iteration 6)
+
+Branch `claude/333-family-viewer-law` (from main efcf81c).
+Files: src/rvt/famgen/skeleton.py (`_apply_family_viewer_law`),
+tests/test_required_settings.py (+1 test), this record, plugin mirror.
+Gates: required_settings+famgen_skeleton+famgen_factory+selfcontained →
+79 passed / 17 skipped; sync_plugin run (zip rebuilt) + validate_plugin
+PASS; probe M validator VALID 0 errors + provenance ok.  Awaiting the
+owner's desktop verdict on probe M (File > Open + canvas click).

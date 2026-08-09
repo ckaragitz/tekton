@@ -1589,6 +1589,7 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     plan = _gsk.new_plan_view(ids, "Ref. Level", level_id, 0.0, vt.elem_id,
                               phase_id=-1, phase_filter_id=-1)
     els = list(proj.elements()) + [vt] + list(plan.elements())
+    _apply_family_viewer_law(els, proj.view.elem_id)
     for e in els:
         # family-document elements: object design-option sentinel + famId
         if isinstance(e.obj, dict) and "m_designOptionId" in e.obj:
@@ -1603,6 +1604,39 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     doc.view_ids["view_type_plan"] = vt.elem_id
     doc.view_ids["plan"] = plan.view.elem_id
     return plan.view.elem_id
+
+
+def _apply_family_viewer_law(els, project_view_id: int) -> None:
+    """FAMILY-VIEWER LAW (issue #333; measured on the owner's Revit-2026-born
+    donor, viewers 22/26 vs 49): a family document's Viewers keep the project
+    skeleton's per-view-type basis frames but differ in the bound box and the
+    projection fields.
+
+    Every viewer: ``m_boundOffset[2]`` = ``(100.0, 0.0)`` -- the z interval
+    sits ON the reference level, never the symmetric ``(100,-100)`` box or the
+    plan default ``(1000, 0.1)``.  The PLAN viewer additionally matches the
+    project viewer's shape: bounds inactive, crop on, ortho
+    (``m_projMethodType`` 1, not 2), ``m_viewerFlags`` 0 (not 7),
+    ``m_intentionallyPlaced`` False.  [Every crash journal on #333 warns
+    ``BoundedSpace.cpp:86``; the basis rows themselves were exonerated --
+    donor keeps the elevation frame on the project viewer.]
+    """
+    for e in els:
+        if e.class_name != "Viewer":
+            continue
+        o = e.obj
+        bs = o.get("m_boundedSpace")
+        if isinstance(bs, dict):
+            bo = bs.get("m_boundOffset")
+            if isinstance(bo, list) and len(bo) >= 3:
+                bo[2] = [100.0, 0.0]
+            if o.get("m_dbViewId") != project_view_id:
+                bs["m_boundActive"] = [[False, False]] * 3
+                bs["m_isOn"] = True
+        if o.get("m_dbViewId") != project_view_id:
+            o["m_projMethodType"] = 1
+            o["m_viewerFlags"] = 0
+            o["m_intentionallyPlaced"] = False
 
 
 # ---------------------------------------------------------------------------
