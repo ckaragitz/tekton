@@ -319,7 +319,8 @@ first, the engineer second:**
 ```bash
 git switch main && git pull --ff-only          # start from current trunk
 python3 tools/dev/techlead.py brief            # or /board: steers, queue vs floor, PR blockers, waiting-on-human
-gh pr list --author @me --state open           # 1. service your own PRs first (below)
+gh pr list --author @me --state open           # 1. service your own PRs first (below) — and squash-merge any PR labelled
+                                               #    `session-merge` (bots may not; you can): green CI + verdict, or read the diff
 #  2. your human said something directional this session? -> /steer "<their words>"  (before acting on it)
 #  3. untriaged steers, or ready&unassigned below the floor? -> /techlead  (≤10 min, charter-bounded)
 gh issue list --assignee @me --state open      # 4. resume yours, or take the head of the queue:
@@ -471,10 +472,16 @@ you to do unless the bot asks for a human."
    down or wrong; `@claude <instruction>` in any comment makes the bot answer or
    push a change; label `bots-paused` on the board issue idles planner + worker.
    PRs touching `.github/workflows/**` cannot be merged by the Actions token
-   (GitHub restriction) → `needs-human`, owner merges by hand — unless the owner
-   has added the optional `AUTOMERGE_TOKEN` secret (docs/process/AUTONOMY.md §10).
-   That, `needs-decision` questions, viewer uploads, desktop-Revit checks and
-   owner-machine work are the **complete** list of things that wait for a person,
+   (GitHub restriction), and a PR that edits `claude-review.yml` cannot even be
+   bot-reviewed → automerge labels them **`session-merge`: the next coding
+   session — anyone's, at session start — checks CI + verdict (or reads the diff)
+   and squash-merges with its own credentials** (`gh pr merge <n> --squash` or MCP
+   `merge_pull_request`); a session runs under a human's GitHub identity, so
+   GitHub allows it (steer #61, S-2026-08-09-d). Nothing waits on the owner for
+   that; the optional `AUTOMERGE_TOKEN` secret only makes it hands-free
+   (docs/process/AUTONOMY.md §10). `needs-decision` questions, viewer uploads,
+   desktop-Revit checks, owner-machine work and a merge GitHub itself refused
+   (`needs-human`) are the **complete** list of things that wait for a person,
    and the board's *Waiting on a human* section shows them with the reason.
 5. So a session's PR checklist is: link the issue (`Closes #N`), include the record,
    run your stream-local gates, push, open the PR **ready** (not draft) when done —
@@ -514,13 +521,13 @@ tech-lead loop* — the scheduled planner plus every session at session start,
 one charter (`.github/prompts/techlead.md`). That loop triages steers, keeps
 the queue and its labels healthy, keeps `TRACKER.md` / `docs/PROGRAM.md`
 current **via small PRs** (curated roadmap and goals — never the live claim
-board; Issues + the 📋 board are), and folds `docs/inbox/learned-*.md` notes
-into `KNOWLEDGE.md`. Humans keep exactly the physical and reserved things
-(docs/process/AUTONOMY.md §10): answering `needs-decision` issues, uploading
-STAGED viewer batches and recording verdicts (`docs/coverage/viewer-certified.json`
-+ `docs/inbox/genesis-audit.md`, `hot-file` PR — a session prepares the PR,
-the human supplies the verdicts), desktop-Revit checks, owner-machine runs,
-merging workflow-file PRs, and keeping the token/billing alive. Contributors'
+board; Issues + the 📋 board are), folds `docs/inbox/learned-*.md` notes
+into `KNOWLEDGE.md`, and merges `session-merge` PRs. Humans keep exactly the
+physical and reserved things (docs/process/AUTONOMY.md §10): answering
+`needs-decision` issues, uploading STAGED viewer batches and recording verdicts
+(`docs/coverage/viewer-certified.json` + `docs/inbox/genesis-audit.md`,
+`hot-file` PR — a session prepares the PR, the human supplies the verdicts),
+desktop-Revit checks, owner-machine runs, and keeping the token/billing alive. Contributors'
 sessions STAGE viewer batches on their branch (`probe_batch.py stage`) and
 stop at READY, as before.
 

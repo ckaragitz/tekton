@@ -14,7 +14,14 @@ name: automerge
 #   approved + green but CONFLICTING -> dispatch the worker's rebase mode once per SHA.
 #   PR changes .github/workflows/** -> GitHub forbids GITHUB_TOKEN to merge it: merged with the
 #     optional AUTOMERGE_TOKEN secret (a fine-grained PAT of the owner with contents+pull-requests+
-#     workflows write) if present, else `needs-human` = the owner squash-merges by hand.
+#     workflows write) if present, else `session-merge` = the next CODING SESSION squash-merges it
+#     with its own (human-identity) credentials after checking CI + verdict (steer #61: sessions do
+#     what bots cannot; nothing waits on the owner). Same label for a PR that edits the reviewer
+#     itself (no verdict possible: the session reads the diff). `needs-human` is left only for a
+#     merge GitHub itself refused.
+#   CI gate = every check on the head EXCEPT the repo's own bot jobs (IGNORED_CHECKS below; the same
+#     list is BOT_CHECK_NAMES in tools/dev/techlead.py, pinned by tests): a cancelled board render or a
+#     coord pr-check landing on a PR head is not CI and must never block a merge.
 # Escape hatches: label `do-not-merge` holds a PR; label `merge-when-green` applied by a
 # collaborator other than the author (or by the repo owner) substitutes for the AI verdict
 # (use it when the review bot is down or wrong). It never "skips green": zero CI checks are
@@ -87,6 +94,10 @@ jobs:
             echo $(( ( $(date -u +%s) - $(date -u -d "$1" +%s) ) / 60 ))
           }
 
+          # The repo's own bot jobs are not CI (see header). Keep in step with BOT_CHECK_NAMES in tools/dev/techlead.py.
+          IGNORED_CHECKS='"automerge","claude-review","ci-autofix","claude","render","claim","single-holder","issue-intake","pr-check","sweep","gate","plan","pick","implement","file-issues"'
+          merged_any=0
+
           DEFAULT=$(gh api "repos/$REPO" --jq .default_branch)
           CFG=$(gh api "repos/$REPO/contents/.github/autonomy.json?ref=$DEFAULT" --jq .content 2>/dev/null | base64 -d 2>/dev/null || echo '{}')
           QUIET_MIN=$(jq -r '.pipeline.quiet_minutes // 90' <<<"$CFG")
@@ -120,6 +131,7 @@ jobs:
 
             has_label do-not-merge && { say "#$pr held by do-not-merge"; continue; }
             has_label needs-human && { say "#$pr waiting on a human"; continue; }
+            if has_label session-merge && [ -z "${MERGE_TOKEN:-}" ]; then say "#$pr waiting for a coding session to merge it"; continue; fi
 
             # Duplicate rule: an older open PR closes the same issue -> park this one for the planner.
             dup=""
@@ -135,7 +147,7 @@ jobs:
 
             # CI gate on the exact head SHA (ignore automerge itself and the claude* review checks).
             checks=$(gh api "repos/$REPO/commits/$sha/check-runs?per_page=100" \
-                       --jq '[.check_runs[]|select(.name!="automerge")|select(.name|startswith("claude")|not)|{name,status,conclusion}]')
+                       --jq "[.check_runs[]|select(.name|IN($IGNORED_CHECKS)|not)|select(.name|startswith(\"claude\")|not)|{name,status,conclusion}]")
             total=$(jq length <<<"$checks"); pending=$(jq '[.[]|select(.status!="completed")]|length' <<<"$checks")
             bad=$(jq -r '[.[]|select(.status=="completed" and (.conclusion|IN("success","neutral","skipped")|not))|.name]|join(", ")' <<<"$checks")
             ok=$(jq '[.[]|select(.conclusion=="success")]|length' <<<"$checks")
@@ -174,9 +186,9 @@ jobs:
               if [ "$verdict" = "changes" ]; then say "#$pr: review requested changes at ${sha:0:7} (auto-fix ladder / re-queue)"; continue; fi
               # No verdict for this SHA.
               if [ "$touches_reviewer" != "0" ]; then
-                add_label needs-human b60205
-                comment_once "reviewer-edit-$sha" "🧑 **Needs a human.** This PR changes \`.github/workflows/claude-review.yml\` itself; the review action refuses to run a copy that differs from \`$DEFAULT\`, so no AI verdict can ever be produced for it (and workflow changes need the owner to merge anyway). **Owner: review by eye and squash-merge by hand** — judge it on the CI checks and the record. Keep reviewer edits in tiny dedicated PRs."
-                say "#$pr edits the reviewer — human"; continue
+                add_label session-merge 1d76db
+                comment_once "reviewer-edit-$sha" "🧑‍💻 **For a coding session to merge** (\`session-merge\`). This PR changes \`.github/workflows/claude-review.yml\` itself; the review action refuses to run a copy that differs from \`$DEFAULT\`, so no AI verdict can ever exist for it, and the Actions token may not merge workflow changes anyway. **Next coding session (anyone's): read the diff, check the CI checks are green, then squash-merge it with your own credentials** — \`gh pr merge $pr --squash\` or the GitHub MCP \`merge_pull_request\` tool. No human is needed for this (steer #61); the SessionStart banner and the board flag it until it is done. Keep reviewer edits in tiny dedicated PRs."
+                say "#$pr edits the reviewer — session merge"; continue
               fi
               # If no review is running or recent for it, re-request once.
               [ -n "$runs" ] || runs=$(gh run list --repo "$REPO" --workflow claude-review.yml --limit 40 --json headSha,status,createdAt 2>/dev/null || echo '[]')
@@ -224,9 +236,9 @@ jobs:
               if [ -n "${MERGE_TOKEN:-}" ]; then
                 use_token="$MERGE_TOKEN"; say "#$pr touches workflows — merging with AUTOMERGE_TOKEN"
               else
-                add_label needs-human b60205
-                comment_once "wf-$sha" "🛑 Approved ($approved_by) and green, but this PR changes \`.github/workflows/**\` and GitHub does not let the Actions token merge workflow changes. **Owner: squash-merge by hand** — or, to make even this automatic, add a fine-grained personal access token (contents + pull requests + workflows: write on this repo) as the Actions secret \`AUTOMERGE_TOKEN\`."
-                say "#$pr touches workflows — human merge"; continue
+                add_label session-merge 1d76db
+                comment_once "wf-$sha" "🧑‍💻 **For a coding session to merge** (\`session-merge\`). Approved ($approved_by) and green, but this PR changes \`.github/workflows/**\` and GitHub does not let the Actions token merge workflow changes. **Next coding session (anyone's): confirm CI is still green and the verdict above stands, then squash-merge it with your own credentials** — \`gh pr merge $pr --squash\` or the GitHub MCP \`merge_pull_request\` tool. No human is needed (steer #61). To make even this automatic, the owner may add a fine-grained personal access token (contents + pull requests + workflows: write on this repo) as the Actions secret \`AUTOMERGE_TOKEN\`."
+                say "#$pr touches workflows — session merge"; continue
               fi
             fi
             if [ "$mergeable" = "CONFLICTING" ]; then
@@ -249,7 +261,7 @@ jobs:
 
             echo "merging #$pr at ${sha:0:7} — $approved_by, $ok green check(s)"
             if GH_TOKEN="$use_token" gh pr merge "$pr" --repo "$REPO" --squash --delete-branch --match-head-commit "$sha" --subject "$title (#$pr)" >/tmp/m.log 2>&1; then
-              say "#$pr merged ($approved_by)"
+              say "#$pr merged ($approved_by)"; merged_any=1
               # Close the linked issues ourselves: merges by the Actions token do not reliably fire
               # GitHub's closing-keyword linker, and an issue left open falls back into the queue.
               for iss in $closes; do
@@ -266,3 +278,5 @@ jobs:
               echo "::warning::#$pr merge failed: $err"
             fi
           done
+          # Merges by this token raise no events: refresh the board once ourselves.
+          if [ "$merged_any" = "1" ]; then gh workflow run board.yml --repo "$REPO" --ref "$DEFAULT" >/dev/null 2>&1 || true; fi
