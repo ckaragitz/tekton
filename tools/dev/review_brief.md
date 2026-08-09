@@ -1,8 +1,9 @@
 # Independent review brief — the session-hosted merge gate (steer #302)
 
 The GitHub-hosted reviewer (`claude-review.yml`) no longer runs. Every PR gets its
-verdict from a **fresh reviewer context** that the tech-lead session spawns (a subagent,
-or a separate reviewer session for the tech lead's own PRs) with this brief filled in.
+verdict from a **fresh reviewer context** that the tech-lead session spawns with this brief filled
+in — one that did not write the change and carries none of the authoring conversation (a subagent
+qualifies, also for the tech lead's own PRs, and is then told the author is the would-be merger).
 The reviewer never merges and never posts; it returns text, the tech-lead session posts
 it with the marker and decides.
 
@@ -42,7 +43,7 @@ Standard — read `CLAUDE.md` §1 (hard rules), §3b (sources vs generated mirro
 runs with this session's privileges (it must not reach the GitHub connector, git
 credentials, or the session's files). Only through the sandbox:
 ```
-install -d -m 755 -o root -g root /tmp/tekton-ci                      # parent stays root-owned
+[ ! -L /tmp/tekton-ci ] && install -d -m 755 -o root -g root /tmp/tekton-ci   # parent stays root-owned; refuse a planted symlink
 rm -rf /tmp/tekton-ci/rv<PR> /tmp/tekton-ci/rv<PR>-tmp                     # never reuse a dir `nobody` could have prepared
 mkdir -m 755 /tmp/tekton-ci/rv<PR> /tmp/tekton-ci/rv<PR>-tmp
 git -C <repo root> archive refs/pr/<PR> | tar -x -C /tmp/tekton-ci/rv<PR>
