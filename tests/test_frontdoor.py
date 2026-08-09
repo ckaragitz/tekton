@@ -277,6 +277,73 @@ def test_room_noun_is_never_equipment():
     assert len(boards) == 2 and {b.rating_a for b in boards} == {3000.0}
 
 
+ROOM = "an electrical room 20x15 ft with "
+
+
+def _tags(prompt):
+    parsed = PP.parse_prompt(prompt)
+    return parsed, [(it.tag, it.kind) for it in parsed.items]
+
+
+@pytest.mark.parametrize("clause,expect", [
+    ("one 100 A lighting panel LP-1", [("LP-1", "lighting_panelboard")]),
+    ("one 100 A lighting panel named LP-1", [("LP-1", "lighting_panelboard")]),
+    ("one 100 A lighting panel", [("LP-1", "lighting_panelboard")]),
+    ("a 400 A distribution panel DP-1", [("DP-1", "distribution_panelboard")]),
+    ("a main switchboard MSB and two lighting panels",
+     [("MSB", "switchboard"), ("LP-1", "lighting_panelboard"), ("LP-2", "lighting_panelboard")]),
+    ("one 75 kVA transformer T1", [("T1", "transformer")]),
+])
+def test_naming_the_tag_is_one_item_not_two(clause, expect):
+    # #101: 'lighting panel LP-1' is ONE panel tagged LP-1 -- the 'lp' inside
+    # the tag must never re-match as a second lighting panel
+    parsed, got = _tags(ROOM + clause)
+    assert got == expect
+    tags = [t for t, _k in got]
+    assert len(set(tags)) == len(tags)                       # never two items, one tag
+    eq = [u for u in parsed.coverage.understood if u["as"] == "equipment"]
+    assert sum(u["count"] for u in eq) == len(expect)
+    assert not parsed.coverage.ignored_words                 # the tag was consumed, not ignored
+
+
+def test_named_tags_are_understood_as_tags_in_coverage():
+    parsed, got = _tags(ROOM + "two 100 A lighting panels LP-1 and LP-2")
+    assert got == [("LP-1", "lighting_panelboard"), ("LP-2", "lighting_panelboard")]
+    assert all(it.rating_a == 100.0 for it in parsed.items)
+    cov = parsed.coverage.understood
+    eq = [u for u in cov if u["as"] == "equipment"]
+    assert len(eq) == 1 and eq[0]["count"] == 2 and eq[0]["tags"] == ["LP-1", "LP-2"]
+    tg = [u for u in cov if u["as"] == "equipment tag"]
+    assert len(tg) == 1 and tg[0]["tags"] == ["LP-1", "LP-2"] and tg[0]["clause"] == "LP-1 and LP-2"
+    # an uncounted plural takes its count from the tags it names
+    _p, got = _tags(ROOM + "lighting panels LP-1, LP-2 and LP-3")
+    assert [t for t, _k in got] == ["LP-1", "LP-2", "LP-3"]
+    # an explicit count WINS over the number of tags named
+    _p, got = _tags(ROOM + "three lighting panels LP-1 and LP-2")
+    assert [t for t, _k in got] == ["LP-1", "LP-2", "LP-3"]
+
+
+def test_unnamed_counts_and_references_unchanged():
+    # guards: plain counts number exactly as before ...
+    _p, got = _tags(PROMPT)
+    assert [t for t, _k in got] == ["MSB", "DP-1", "DP-2", "LP-1", "LP-2", "LP-3", "LP-4"]
+    _p, got = _tags("an electrical room with 6 panels")
+    assert [t for t, _k in got] == [f"PP-{i}" for i in range(1, 7)]
+    _p, got = _tags(ROOM + "an MDP and two LPs")             # abbreviations stay NOUNS
+    assert got == [("DP-1", "distribution_panelboard"),
+                   ("LP-1", "lighting_panelboard"), ("LP-2", "lighting_panelboard")]
+    # ... a later REFERENCE to a tag is not another piece of equipment ...
+    parsed, got = _tags(ROOM + "one distribution panel and one lighting panel, LP-1 fed from DP-1")
+    assert got == [("DP-1", "distribution_panelboard"), ("LP-1", "lighting_panelboard")]
+    assert parsed.feeders == [("DP-1", "LP-1")]
+    # ... and bare tags alone still stand for one item each, carrying that tag
+    _p, got = _tags(ROOM + "LP-1 and LP-2")
+    assert got == [("LP-1", "lighting_panelboard"), ("LP-2", "lighting_panelboard")]
+    # an explicit tag is never re-issued by auto-numbering
+    _p, got = _tags(ROOM + "one lighting panel LP-2 and one more lighting panel")
+    assert sorted(t for t, _k in got) == ["LP-1", "LP-2"]
+
+
 @needs_catalog
 def test_service_voltage_not_polluted_by_branch_panel_voltage():
     _m, parsed = PP.prompt_to_intent("a 45x30 ft electrical room with a 4000 A switchboard "

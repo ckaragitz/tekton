@@ -139,6 +139,21 @@ _RE_FLUSH = re.compile(r"flush(?:[\s-]*mount(?:ed)?)?|recessed", re.I)
 _RE_SURFACE = re.compile(r"surface(?:[\s-]*mount(?:ed)?)?", re.I)
 _RE_SECTIONS = re.compile(r"(\d{1,2})\s*[- ]?\s*sections?\b", re.I)
 _RE_NAMED = re.compile(r"(?:named|called|tagged|labell?ed|mark(?:ed)?)\s+[\"']?([A-Za-z][A-Za-z0-9\-]{0,11})[\"']?", re.I)
+#: an equipment TAG token ('LP-1', 'DP2', 'T1', 'PP-3A', 'MSB'): a short
+#: letter prefix + number, or one of the digit-less lineup abbreviations
+_TAG_TOKEN = r"(?:[a-z]{1,4}-?\d{1,3}[a-z]?|msb|mdp|swbd)\b"
+#: the tag LIST that may directly follow an equipment noun -- 'lighting
+#: panel LP-1', 'panels LP-1, LP-2 and LP-3', 'panel named "LP-1"'.  It
+#: deliberately reads across 'and' / ',' (a clause boundary everywhere
+#: else) because there they join tags, not clauses.
+_RE_TAG_LIST = re.compile(
+    r"\s*(?:(?:named|called|tagged|labell?ed|marked|designated)\s+)?"
+    r"[\"']?" + _TAG_TOKEN + r"[\"']?"
+    r"(?:\s*(?:,\s*(?:and\s+)?|\band\s+|&\s*)[\"']?" + _TAG_TOKEN + r"[\"']?)*", re.I)
+_RE_TAG_TOKEN = re.compile(_TAG_TOKEN, re.I)
+#: '-1' right after a kind ABBREVIATION ('lp', 'dp', 'msb') makes the whole
+#: token a tag REFERENCE ('LP-1'), not another equipment noun
+_RE_TAG_SUFFIX = re.compile(r"-\d{1,3}[a-z]?\b", re.I)
 
 #: room / dimension extractors
 _RE_ROOM = re.compile(
@@ -583,97 +598,178 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     def overlaps(a: int, b: int) -> bool:
         return any(not (b <= x or a >= y) for x, y in taken)
 
-    for kind, prefix, pat in _KIND_PATTERNS:
-        for km in re.finditer(pat, low):
-            if overlaps(km.start(), km.end()):
+    used_tags: set = set()
+
+    def next_auto_tag(prefix: str) -> Tuple[str, int]:
+        """Next free auto-numbered tag for ``prefix`` (skips tags the
+        prompt already named explicitly, so 'LP-2 and one more lighting
+        panel' never yields two LP-2s)."""
+        while True:
+            counters[prefix] = counters.get(prefix, 0) + 1
+            idx = counters[prefix]
+            if prefix == "MSB":
+                tag = "MSB" if idx == 1 else f"MSB-{idx}"
+            elif prefix == "T":
+                tag = f"T{idx}"
+            else:
+                tag = f"{prefix}-{idx}"
+            if tag not in used_tags:
+                return tag, idx
+
+    #: 'X fed from Y': X and Y are tag REFERENCES by grammar, even digit-less
+    fed_spans = [sp for fm in _RE_FED_FROM.finditer(text)
+                 for sp in (fm.span("load"), fm.span("src"))]
+
+    def ref_end(km: "re.Match") -> Optional[int]:
+        """End offset of the tag REFERENCE a kind ABBREVIATION match is part
+        of -- 'lp' + '-1' = 'LP-1', or a bare 'MSB' inside a fed-from clause
+        -- or None when the match is an equipment NOUN ('two LPs')."""
+        if not (km.group(0).isalpha() and len(km.group(0)) <= 4):
+            return None
+        msuf = _RE_TAG_SUFFIX.match(low, km.end())
+        if msuf is not None:
+            return msuf.end()
+        if any(a <= km.start() and km.end() <= b for a, b in fed_spans):
+            return km.end()
+        return None
+
+    # Equipment NOUN clauses first ('two lighting panels LP-1 and LP-2',
+    # 'an MDP'; they also consume the tag list that follows them), bare tag
+    # REFERENCES last ('LP-1 fed from DP-1', 'LP-1 on the west wall') --
+    # regardless of prompt order.  A reference to a tag a noun clause
+    # already produced is just consumed; an unseen one stands for ONE item
+    # carrying that tag.  So naming a tag never double-counts equipment.
+    kind_matches = [(kind, prefix, km) for kind, prefix, pat in _KIND_PATTERNS
+                    for km in re.finditer(pat, low)]
+    kind_matches = ([m for m in kind_matches if ref_end(m[2]) is None]
+                    + [m for m in kind_matches if ref_end(m[2]) is not None])
+    for kind, prefix, km in kind_matches:
+        if overlaps(km.start(), km.end()):
+            continue
+        rend = ref_end(km)
+        ref_tag = text[km.start():rend].upper() if rend is not None else None
+        if ref_tag in used_tags:
+            # a REFERENCE to equipment a noun clause already produced: consume
+            taken.append((km.start(), rend))
+            mark((km.start(), rend))
+            continue
+        ws, we = clause_window(km.start(), km.end())
+        window = text[ws:we]
+        wlow = window.lower()
+        # explicit TAGS: a bare reference IS its tag; a noun may be followed
+        # by its tag list ('lighting panel LP-1', 'panels LP-1 and LP-2',
+        # 'panel named LP-1'); else a 'named X' anywhere in the clause.
+        tag_start = km.start()
+        tag_toks: List[Tuple[str, int]] = []             # (TAG, end offset in text)
+        if ref_tag is not None:
+            tag_toks = [(ref_tag, rend)]
+        else:
+            mtl = _RE_TAG_LIST.match(low, km.end())
+            named = _RE_NAMED.search(window) if mtl is None else None
+            if mtl is not None:
+                tag_start = km.end()
+                tag_toks = [(tm.group(0).upper(), tm.end())
+                            for tm in _RE_TAG_TOKEN.finditer(low, km.end(), mtl.end())]
+            elif named is not None:
+                tag_start = ws + named.start()
+                tag_toks = [(named.group(1).upper(), ws + named.end())]
+        seen = set(used_tags)
+        tag_toks = [(t, e) for t, e in tag_toks if not (t in seen or seen.add(t))]
+        # count: the nearest number-word / digit BEFORE the noun in the
+        # window, after RATING expressions ('400 A', '75 kVA', '65 kA',
+        # '42-space', '480Y/277 V') are scrubbed so a unit letter ('A')
+        # or a rating digit is never mistaken for a count.  An explicit
+        # count WINS over the number of tags named; tags alone set the
+        # count of an uncounted plural; a bare reference is ONE item.
+        head = wlow[: km.start() - ws]
+        head_count = head
+        for scrub in (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS,
+                      _RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN):
+            head_count = scrub.sub(" ", head_count)
+        cnt = 1
+        mnum = re.findall(r"\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|"
+                          r"eleven|twelve|a|an|pair|single)\b", head_count)
+        plural = km.group(0).rstrip().endswith("s") or "pair" in head
+        explicit_count = None
+        for tok in reversed(mnum):
+            nv = _num_word(tok)
+            if nv is None:
                 continue
-            ws, we = clause_window(km.start(), km.end())
-            window = text[ws:we]
-            wlow = window.lower()
-            # count: the nearest number-word / digit BEFORE the noun in the
-            # window, after RATING expressions ('400 A', '75 kVA', '65 kA',
-            # '42-space', '480Y/277 V') are scrubbed so a unit letter ('A')
-            # or a rating digit is never mistaken for a count.
-            head = wlow[: km.start() - ws]
-            head_count = head
-            for scrub in (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS,
-                          _RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN):
-                head_count = scrub.sub(" ", head_count)
+            explicit_count = nv
+            break
+        if ref_tag is not None:
             cnt = 1
-            mnum = re.findall(r"\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|"
-                              r"eleven|twelve|a|an|pair|single)\b", head_count)
-            plural = km.group(0).rstrip().endswith("s") or "pair" in head
-            explicit_count = None
-            for tok in reversed(mnum):
-                nv = _num_word(tok)
-                if nv is None:
-                    continue
-                explicit_count = nv
-                break
-            if explicit_count is not None:
-                cnt = explicit_count
-            elif plural:
-                cnt = 2 if kind != "switchboard" else 1
-                cov.defaults_applied.append(f"'{km.group(0)}' plural with no count: assumed {cnt}")
-            if cnt <= 0:
-                continue
-            # attributes from the clause window
-            amp = _RE_AMP.search(window)
-            kva = _RE_KVA.search(window)
-            ka = _RE_KA.search(window)
-            volt = _voltage_system_from(window)
-            spaces = _RE_SPACES.search(window)
-            mains = "MCB" if _RE_MCB.search(window) else ("MLO" if _RE_MLO.search(window) else None)
-            mounting = ("flush" if _RE_FLUSH.search(window)
-                        else ("surface" if _RE_SURFACE.search(window) else None))
-            sections = _RE_SECTIONS.search(window)
-            named = _RE_NAMED.search(window)
-            for j in range(cnt):
-                counters[prefix] = counters.get(prefix, 0) + 1
-                idx = counters[prefix]
-                if named and cnt == 1:
-                    tag = named.group(1).upper()
-                elif prefix == "MSB":
-                    tag = "MSB" if idx == 1 else f"MSB-{idx}"
-                elif prefix == "T":
-                    tag = f"T{idx}"
-                else:
-                    tag = f"{prefix}-{idx}"
-                it = PromptItem(kind=kind, tag=tag, count_index=idx, source_text=window.strip())
-                if amp:
-                    it.rating_a = _clean_num(amp.group(1))
-                if kva:
-                    it.kva = _clean_num(kva.group(1))
-                if ka:
-                    it.sccr_ka = _clean_num(ka.group(1))
-                it.voltage = volt
-                it.mains = mains
-                it.spaces = int(spaces.group(1)) if spaces else None
-                it.mounting = mounting
-                it.sections = int(sections.group(1)) if sections else None
-                items.append(it)
-            taken.append((km.start(), km.end()))
-            mark((km.start(), km.end()))
-            for sub in (amp, kva, ka, spaces, sections, named):
-                if sub is not None:
-                    mark((ws + sub.start(), ws + sub.end()))
-            if mains:
-                mm = (_RE_MCB.search(window) or _RE_MLO.search(window))
-                mark((ws + mm.start(), ws + mm.end()))
-            for vm in (_RE_VOLT_SYS.search(window), _RE_VOLT_SLASH.search(window),
-                       _RE_VOLT_PLAIN.search(window)):
-                if vm is not None:
-                    mark((ws + vm.start(), ws + vm.end()))
-            for nm in re.finditer(r"\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|"
-                                  r"eleven|twelve)\b", head):
-                if _num_word(nm.group(1)) == cnt:
-                    mark((ws + nm.start(), ws + nm.end()))
+        elif explicit_count is not None:
+            cnt = explicit_count
+        elif tag_toks:
+            cnt = len(tag_toks)
+        elif plural:
+            cnt = 2 if kind != "switchboard" else 1
+            cov.defaults_applied.append(f"'{km.group(0)}' plural with no count: assumed {cnt}")
+        if cnt <= 0:
+            continue
+        tag_toks = tag_toks[:cnt]
+        tags = [t for t, _e in tag_toks]
+        tag_span = (tag_start, tag_toks[-1][1]) if tag_toks else None
+        # attributes from the clause window
+        amp = _RE_AMP.search(window)
+        kva = _RE_KVA.search(window)
+        ka = _RE_KA.search(window)
+        volt = _voltage_system_from(window)
+        spaces = _RE_SPACES.search(window)
+        mains = "MCB" if _RE_MCB.search(window) else ("MLO" if _RE_MLO.search(window) else None)
+        mounting = ("flush" if _RE_FLUSH.search(window)
+                    else ("surface" if _RE_SURFACE.search(window) else None))
+        sections = _RE_SECTIONS.search(window)
+        for j in range(cnt):
+            if j < len(tags):
+                tag, idx = tags[j], j + 1
+            else:
+                tag, idx = next_auto_tag(prefix)
+            used_tags.add(tag)
+            it = PromptItem(kind=kind, tag=tag, count_index=idx, source_text=window.strip())
+            if amp:
+                it.rating_a = _clean_num(amp.group(1))
+            if kva:
+                it.kva = _clean_num(kva.group(1))
+            if ka:
+                it.sccr_ka = _clean_num(ka.group(1))
+            it.voltage = volt
+            it.mains = mains
+            it.spaces = int(spaces.group(1)) if spaces else None
+            it.mounting = mounting
+            it.sections = int(sections.group(1)) if sections else None
+            items.append(it)
+        taken.append((km.start(), km.end()))
+        mark((km.start(), km.end()))
+        if tag_span is not None:
+            taken.append(tag_span)
+            mark(tag_span)
+        for sub in (amp, kva, ka, spaces, sections):
+            if sub is not None:
+                mark((ws + sub.start(), ws + sub.end()))
+        if mains:
+            mm = (_RE_MCB.search(window) or _RE_MLO.search(window))
+            mark((ws + mm.start(), ws + mm.end()))
+        for vm in (_RE_VOLT_SYS.search(window), _RE_VOLT_SLASH.search(window),
+                   _RE_VOLT_PLAIN.search(window)):
+            if vm is not None:
+                mark((ws + vm.start(), ws + vm.end()))
+        for nm in re.finditer(r"\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|"
+                              r"eleven|twelve)\b", head):
+            if _num_word(nm.group(1)) == cnt:
+                mark((ws + nm.start(), ws + nm.end()))
+        cov.understood.append({
+            "clause": text[km.start():km.end()], "as": "equipment", "kind": kind,
+            "count": cnt, "rating_a": (items[-1].rating_a if items else None),
+            "kva": (items[-1].kva if items else None), "voltage": volt,
+            "mains": mains, "spaces": (items[-1].spaces if items else None),
+            "tags": [it.tag for it in items[-cnt:]],
+        })
+        if tag_span is not None:
             cov.understood.append({
-                "clause": text[km.start():km.end()], "as": "equipment", "kind": kind,
-                "count": cnt, "rating_a": (items[-1].rating_a if items else None),
-                "kva": (items[-1].kva if items else None), "voltage": volt,
-                "mains": mains, "spaces": (items[-1].spaces if items else None),
-            })
+                "clause": text[tag_span[0]:tag_span[1]].strip(), "as": "equipment tag",
+                "kind": kind, "tags": tags})
 
     # room service voltage: the service clause's own voltage, else a
     # switchboard's, else the default -- NEVER a branch panel's own system
