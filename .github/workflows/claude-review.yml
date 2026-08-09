@@ -52,8 +52,8 @@ env:
       jq -r '[.[].body] | reduce .[] as $b (0; if ($b|contains("<!-- claude-autofix reset -->")) then 0 elif ($b|test("<!-- claude-autofix attempt=[0-9]+ -->")) then .+1 else . end)' <<<"$comments"
     }
     # verdict_of <sha>: newest verdict marker in $comments (JSON) whose sha field is a >=12-hex prefix of <sha>.
-    verdict_of() {
-      jq -r '.[].body' <<<"$comments" | grep -oE "<!-- claude-review: (approve|nits|changes) sha=[0-9a-f]{12,40} -->" \
+    verdict_of() {   # `|| true`: a no-match grep must not fail the step under pipefail
+      { jq -r '.[].body' <<<"$comments" | grep -oE "<!-- claude-review: (approve|nits|changes) sha=[0-9a-f]{12,40} -->" || true; } \
         | awk -v s="$1" '{ split($4, kv, "="); if (index(s, kv[2]) == 1) v = $3 } END { print v }'
     }
     park_stuck() {    # $1=pr $2=sha $3=why — label bot-stuck + one explanatory comment per sha (never needs-human)
