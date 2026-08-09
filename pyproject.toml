@@ -3,7 +3,33 @@ name = "rvt"
 version = "0.1.0"
 description = "Read (and eventually write) Autodesk Revit .rvt files"
 requires-python = ">=3.11"
+# The ONLY declared runtime dependency is olefile (the CFB container reader,
+# vendored inside the plugin bundle). Everything else the engine imports is
+# stdlib. Do not grow this list -- heavier packages live in the extras below.
 dependencies = ["olefile>=0.47"]
+
+# Optional extras (issue #3). Contributor setup is `pip install -e ".[test]"`;
+# see README.md "Reproduce", CLAUDE.md section 2, scripts/cloud-setup.sh.
+#   test      -- what the test suite needs: pytest, plus numpy because most
+#                tests reach the geometry/intent math.
+#   geometry  -- numpy alone: the author/intent routes' matrix + hull math
+#                (lazy-imported; needed at first numeric use, not at import).
+#   ifc       -- ifcopenshell, for IFC *authoring* (the tekton-ifc skill) and
+#                `ifcopenshell.validate` ONLY. IFC *reading* needs nothing: the
+#                stdlib reader rvt.ifc.steplite serves it, and installing
+#                ifcopenshell just to read IFC taxes every process (see
+#                docs/writer/dependency-audit.md). Pins mirror
+#                skills/tekton-ifc/scripts/requirements.txt -- keep them equal
+#                (tests/test_pyproject_extras.py checks it).
+#   dev       -- test + geometry: everything a coding session needs, without
+#                the heavy optional IFC authoring backend.
+#   all       -- dev + ifc.
+[project.optional-dependencies]
+test = ["pytest>=7", "numpy>=1.26,<3"]
+geometry = ["numpy>=1.26,<3"]
+ifc = ["ifcopenshell==0.8.5", "numpy>=1.26,<3"]
+dev = ["pytest>=7", "numpy>=1.26,<3"]
+all = ["pytest>=7", "numpy>=1.26,<3", "ifcopenshell==0.8.5"]
 
 [project.scripts]
 rvtinspect = "rvt.cli:main"
