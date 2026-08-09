@@ -51,3 +51,4 @@ tests/test_status_gate.py
 tests/test_genesis_identity.py
 tests/test_famgen_factory.py
 tests/test_famgen_catalog.py
+tests/test_records32.py
