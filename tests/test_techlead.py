@@ -335,6 +335,13 @@ def test_session_locks_and_the_resume_rule():
     cs2 = cs + [{"id": 4, "created_at": "2026-08-09T11:00:00Z", "body": "released " + um("cam")},
                 {"id": 5, "created_at": "2026-08-09T12:00:00Z", "body": "🔒 " + lm("cam", "cloud", "555")}]
     assert [(l["session"]) for l in coord.standing_locks(cs2, ["cam"])] == ["cloud"]  # unlock marker resets cam's epoch
+    # coord's re-lock / take-over reply carries the unlock AND the fresh lock in ONE comment: the fresh
+    # lock must stand (review finding on #107), and older locks of that holder must not.
+    cs3 = cs + [{"id": 6, "created_at": "2026-08-09T12:30:00Z",
+                 "body": "🔒 @cam holds #5 (session tablet, taken over). " + um("cam") + "\n" + lm("cam", "tablet", "666")}]
+    relocked = coord.standing_locks(cs3, ["cam", "chase"])
+    assert [(l["by"], l["session"]) for l in relocked] == [("chase", "desk"), ("cam", "tablet")]
+    assert [l["session"] for l in relocked if l["by"] == "cam"] == ["tablet"]                # laptop/phone released, tablet stands
     # first standing assignee = single-holder's replay rule
     ev = [{"event": "assigned", "assignee": {"login": "a"}}, {"event": "assigned", "assignee": {"login": "b"}},
           {"event": "unassigned", "assignee": {"login": "a"}}, {"event": "assigned", "assignee": {"login": "a"}}]

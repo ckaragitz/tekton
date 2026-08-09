@@ -224,6 +224,9 @@ def standing_locks(comments: list, assignees) -> list:
 
     `comments` = the issue's comments in creation order ({body, created_at, id});
     returns [{by, session, token, created_at, comment_id}]. The FIRST entry holds the issue.
+    A comment carrying BOTH an unlock and a lock for the same holder (coord's re-lock /
+    take-over reply) means "release the old, take the new": unlocks in a comment apply
+    before the locks in that same comment, so the fresh lock stands.
     """
     held = set(assignees or [])
     last_unlock = {}
@@ -235,7 +238,7 @@ def standing_locks(comments: list, assignees) -> list:
         for by, session, token in LOCK_RE.findall(body):
             locks.append({"by": by, "session": session, "token": token, "created_at": c.get("created_at", ""),
                           "comment_id": c.get("id"), "_idx": i})
-    out = [l for l in locks if l["by"] in held and l["_idx"] > last_unlock.get(l["by"], -1)]
+    out = [l for l in locks if l["by"] in held and l["_idx"] >= last_unlock.get(l["by"], -1)]
     for l in out:
         l.pop("_idx", None)
     return out
