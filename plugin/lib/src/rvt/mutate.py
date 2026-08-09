@@ -57,6 +57,10 @@ CLASS_SWALL = 0x0F02
 CLASS_FAMILY_INSTANCE = 0x07C5
 CLASS_ELECTRICAL_SYSTEM = 0x0D87   # RbsElectricalSystem (circuits)
 
+#: Revit's internal electrical units are (SI value) / 0.3048^2 -- volts AND
+#: volt-amperes alike (120 V is stored as 1291.669); rvt.mep re-exports it
+ELEC_INTERNAL_PER_SI = 1.0 / (0.3048 ** 2)
+
 #: seq-103 SerializedDummy record: psize 2 (bare class id, empty object)
 DUMMY_STAMP = zlib.adler32(struct.pack("<H", CLASS_SERIALIZED_DUMMY)) & 0xFFFFFFFF
 assert DUMMY_STAMP == 0x0069003C  # corpus constant, see mutation-plan §4.1
@@ -841,7 +845,7 @@ class Document:
         if poles is not None:
             obj["m_nPoles"] = int(poles)
         if voltage_v is not None:
-            obj["m_dVoltage"] = float(voltage_v) / (0.3048 ** 2)   # SI -> internal
+            obj["m_dVoltage"] = float(voltage_v) * ELEC_INTERNAL_PER_SI
         if start_slot is not None:
             obj["m_nStartSlot"] = int(start_slot)
         if load_classification is not None:

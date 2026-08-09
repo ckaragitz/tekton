@@ -626,7 +626,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         #     open cell, isolated from the certified shell)
         with _timed_stage(res):
             erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded,
-                                          level_ids=level_ids)
+                                          level_ids=level_ids, circuits="C" in opts.stages)
             erec["stage"] = "E(equipment)"
             res.stages.append(_slim_stage(erec))
         if eok:
@@ -660,7 +660,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
             src = current or loaded_file
             with _timed_stage(res):
                 erec, eok = R.stage_equipment(model, src, combined_path, specimens, loaded,
-                                              level_ids=level_ids)
+                                              level_ids=level_ids, circuits="C" in opts.stages)
                 erec["stage"] = "E"
                 res.stages.append(_slim_stage(erec))
             if eok:
@@ -765,6 +765,11 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
 # harvesting the created-element census for the manifest / CRUD affordances
 # ---------------------------------------------------------------------------
 
+#: the per-circuit facts stage E records that ride into the manifest
+_CIRCUIT_KEYS = ("elem_id", "panel", "panel_id", "panel_slot", "load", "load_id", "load_conn",
+                 "number", "start_slot", "poles", "rating_a", "voltage", "edge_kind")
+
+
 def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
     if kind == "wall":
         for w in rec.get("walls") or []:
@@ -785,14 +790,7 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
                                 "file_role": rec.get("stage")})
         for c in rec.get("circuits") or []:
             res.created.append({"kind": "circuit", "tag": f"{c.get('panel')}>{c.get('load')}",
-                                "elem_id": c.get("elem_id"),
-                                "panel": c.get("panel"), "panel_id": c.get("panel_id"),
-                                "panel_slot": c.get("panel_slot"),
-                                "load": c.get("load"), "load_id": c.get("load_id"),
-                                "load_conn": c.get("load_conn"),
-                                "number": c.get("number"), "start_slot": c.get("start_slot"),
-                                "poles": c.get("poles"), "rating_a": c.get("rating_a"),
-                                "voltage": c.get("voltage"), "edge_kind": c.get("edge_kind"),
+                                **{k: c.get(k) for k in _CIRCUIT_KEYS},
                                 "file_role": rec.get("stage")})
 
 
@@ -827,10 +825,8 @@ def _slim_stage(rec: Dict[str, Any]) -> Dict[str, Any]:
                              "position_ft": i.get("position_ft"), "frame_kind": i.get("frame_kind"),
                              "n_dangling": i.get("n_dangling")} for i in rec["instances"]]
     if "circuits" in rec:
-        out["circuits"] = [{"elem_id": c.get("elem_id"), "panel": c.get("panel"),
-                            "panel_slot": c.get("panel_slot"), "load": c.get("load"),
-                            "load_conn": c.get("load_conn"), "number": c.get("number"),
-                            "n_dangling": c.get("n_dangling")} for c in rec["circuits"]]
+        out["circuits"] = [{k: c.get(k) for k in _CIRCUIT_KEYS[:7] + ("n_dangling",)}
+                           for c in rec["circuits"]]
         out["circuits_skipped"] = rec.get("circuits_skipped") or []
         out["circuits_blocker"] = rec.get("circuits_blocker")
     return out

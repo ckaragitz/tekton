@@ -432,38 +432,41 @@ BUNDLED = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
 needs_bundled = pytest.mark.skipif(not os.path.isfile(BUNDLED), reason="bundled genesis base missing")
 
 
-def _slot(index: int) -> dict:
-    """An unconnected instance connector (the loader's slot shape)."""
-    from rvt.famgen.loader import _connector_slot
-    return _connector_slot(index)
-
-
 def _constructed_board(doc, specimens, x: float, slots=()):
     """A free-standing instance cloned from the constructed FamilyInstance
     template with a supply connector 1 + the given 50000-series slots.  The
     family-free base carries no FamilySymbol: the base's own wall type (a
     Symbol) stands in as the type id -- placement scaffolding only; the
     circuit wiring under test never reads the symbol."""
-    sym = specimens.wall_type
-    el = doc.add_family_instance(sym, specimens.level_id, (x, 0.0, 0.0),
+    from rvt.famgen.loader import _connector_slot
+    from rvt.famload_fix import lawful_instance_connector_manager
+    el = doc.add_family_instance(specimens.wall_type, specimens.level_id, (x, 0.0, 0.0),
                                  template_instance_id=specimens.instance_id)
-    el.obj["m_pConnectorManager"] = {
-        "ptr_class": "FamilyInstanceConnectorManager", "pid": -1,
-        "value": {"m_setDeletedConnectors": [],
-                  "m_connPtrArray": [_slot(1)] + [_slot(s) for s in slots],
-                  "m_modifiers": []}}
+    el.obj["m_pConnectorManager"] = lawful_instance_connector_manager(
+        [_connector_slot(i) for i in (1, *slots)])
     return el
 
 
-@pytest.fixture()
-def genesis_doc():
+def _refs(el) -> dict:
+    """{connector nIndex: m_arrRefs} of a NewElement's connector manager."""
+    mgr = el.obj.get("m_pConnectorManager") or el.obj.get("m_pConnectorMgr")
+    return {x["value"]["m_nIndex"]: x["value"]["m_arrRefs"]
+            for x in mgr["value"]["m_connPtrArray"]}
+
+
+@pytest.fixture(scope="module")
+def constructed_specimens():
     if not os.path.isfile(BUNDLED):
         pytest.skip("bundled genesis base missing")
     from rvt.frontdoor import standalone as SA
-    specimens = SA.ConstructedSpecimens(base_path=BUNDLED)
+    return SA.ConstructedSpecimens(base_path=BUNDLED)
+
+
+@pytest.fixture()
+def genesis_doc(constructed_specimens):
     doc = Document.from_file(BUNDLED)
-    specimens.inject_into(doc)
-    return doc, specimens
+    constructed_specimens.inject_into(doc)
+    return doc, constructed_specimens
 
 
 @needs_bundled
@@ -488,16 +491,11 @@ def test_add_circuit_wires_both_sides_from_the_constructed_template(genesis_doc)
                         voltage_v=480.0, description="DP-1 feeder from MSB",
                         template_id=sp.circuit_id)
     v = c.obj
-    conns = [x["value"] for x in v["m_pConnectorMgr"]["value"]["m_connPtrArray"]]
-    assert [k["m_nIndex"] for k in conns] == [0, 1]
-    assert conns[0]["m_arrRefs"] == [{"m_id": load.elem_id, "m_nIndex": 1, "m_connType": 1}]
-    assert conns[1]["m_arrRefs"] == [{"m_id": panel.elem_id, "m_nIndex": 50000, "m_connType": 4}]
+    assert _refs(c) == {0: [{"m_id": load.elem_id, "m_nIndex": 1, "m_connType": 1}],
+                        1: [{"m_id": panel.elem_id, "m_nIndex": 50000, "m_connType": 4}]}
     assert v["m_baseConnectorIdArray"] == [{"m_id": c.elem_id, "m_nIndex": 1, "m_connType": 4}]
     # back-links live in the same-commit instances' connector objects
-    pconn = {x["value"]["m_nIndex"]: x["value"]["m_arrRefs"]
-             for x in panel.obj["m_pConnectorManager"]["value"]["m_connPtrArray"]}
-    lconn = {x["value"]["m_nIndex"]: x["value"]["m_arrRefs"]
-             for x in load.obj["m_pConnectorManager"]["value"]["m_connPtrArray"]}
+    pconn, lconn = _refs(panel), _refs(load)
     assert pconn[50000] == [{"m_id": c.elem_id, "m_nIndex": 1, "m_connType": 4}]
     assert pconn[50001] == [] and pconn[1] == []
     assert lconn[1] == [{"m_id": c.elem_id, "m_nIndex": 0, "m_connType": 4}]
@@ -527,10 +525,8 @@ def test_second_circuit_on_a_panel_takes_the_next_slot_never_shares(genesis_doc)
     l2 = _constructed_board(doc, sp, 9.0)
     c1 = doc.add_circuit(panel, l1, number="1,3,5", start_slot=1, poles=3, template_id=sp.circuit_id)
     c2 = doc.add_circuit(panel, l2, number="2,4,6", start_slot=2, poles=3, template_id=sp.circuit_id)
-    slot = lambda c: c.obj["m_pConnectorMgr"]["value"]["m_connPtrArray"][1]["value"]["m_arrRefs"][0]["m_nIndex"]
-    assert (slot(c1), slot(c2)) == (50000, 50001)
-    pconn = {x["value"]["m_nIndex"]: x["value"]["m_arrRefs"]
-             for x in panel.obj["m_pConnectorManager"]["value"]["m_connPtrArray"]}
+    assert (_refs(c1)[1][0]["m_nIndex"], _refs(c2)[1][0]["m_nIndex"]) == (50000, 50001)
+    pconn = _refs(panel)
     assert pconn[50000][0]["m_id"] == c1.elem_id and pconn[50001][0]["m_id"] == c2.elem_id
     # the template itself is untouched by the clones (deep copies)
     tv = doc.value(sp.circuit_id)

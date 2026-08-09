@@ -77,8 +77,8 @@ import math
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
-from ..mutate import (CLASS_ELECTRICAL_SYSTEM, CLASS_SERIALIZED_DUMMY, Document,
-                      NewElement, OST_ElectricalEquipment, OST_ElectricalFixtures,
+from ..mutate import (CLASS_ELECTRICAL_SYSTEM, CLASS_SERIALIZED_DUMMY, ELEC_INTERNAL_PER_SI,
+                      Document, NewElement, OST_ElectricalEquipment, OST_ElectricalFixtures,
                       OST_LightingFixtures)
 from .. import hosting
 
@@ -127,7 +127,7 @@ DEVICE_CATEGORIES: Dict[int, str] = {
 
 #: internal Revit power / voltage units are (SI value) / 0.3048^2:
 #: 120 V is stored as 1291.6692 and 720 VA as 7750.0155 (circuit 471829).
-INTERNAL_PER_SI = 1.0 / (0.3048 ** 2)     # = 10.7639...
+INTERNAL_PER_SI = ELEC_INTERNAL_PER_SI     # = 10.7639... (one definition, rvt.mutate)
 
 BIP_ALL_MODEL_MARK = -1001203
 

@@ -704,10 +704,8 @@ def electrical_system_template(schema, *, elem_id: int, n_loads: int = 1,
 
     ``add_circuit`` overwrites number / description / rating / poles /
     voltage / start slot / path nodes / connector refs per feeder edge."""
-    conn_pids = [_CIRCUIT_MGR_PID + 1 + k for k in range(n_loads + 1)]
-    last = n_loads
-
-    def _conn(index: int, pid: int) -> Dict[str, Any]:
+    def _conn(index: int) -> Dict[str, Any]:
+        pid = _CIRCUIT_MGR_PID + 1 + index
         return _ptr("Connector", _dflt(
             schema, "Connector",
             m_arrRefs=[], m_pElement={"weakref": 2}, m_nIndex=index,
@@ -719,7 +717,7 @@ def electrical_system_template(schema, *, elem_id: int, n_loads: int = 1,
     mgr = _ptr("RbsSystemConnectorManager", _dflt(
         schema, "RbsSystemConnectorManager",
         m_setDeletedConnectors=[],
-        m_connPtrArray=[_conn(k, pid) for k, pid in enumerate(conn_pids)],
+        m_connPtrArray=[_conn(k) for k in range(n_loads + 1)],
         m_modifiers=[_ptr("MEPConnectionBehaviorModifier",
                           _dflt(schema, "MEPConnectionBehaviorModifier",
                                 m_pConnectorManager={"weakref": _CIRCUIT_MGR_PID}))]),
@@ -748,7 +746,7 @@ def electrical_system_template(schema, *, elem_id: int, n_loads: int = 1,
         "m_designOptionId": -1,
         "m_locked": False, "m_moribund": False, "m_dummy": False,
         # RbsSystem
-        "m_baseConnectorIdArray": [{"m_id": elem_id, "m_nIndex": last, "m_connType": 4}],
+        "m_baseConnectorIdArray": [{"m_id": elem_id, "m_nIndex": n_loads, "m_connType": 4}],
         "m_pConnectorMgr": mgr,
         "m_rgSections": [], "m_strName": "", "m_typeId": -1,
         # RbsElectricalSystem (cable/wire type ids stay at the schema's -1:
@@ -914,7 +912,9 @@ def _wall_type_thickness(doc, wall_type_id: int) -> Tuple[float, float]:
 
 def _circuit_path_offset(doc) -> float:
     """The base's own default circuit-path offset (ft): its ``ElectricalSetting
-    .m_circuitPathOffset`` (a genesis-authored setting), else 0.0."""
+    .m_circuitPathOffset`` (a genesis-authored setting), else 0.0.  (A targeted
+    read on purpose: ``rvt.mep.electrical_data.electrical_settings`` builds the
+    whole inventory and would pull rvt.mep into this import-light module.)"""
     for sid in doc.ids_of_class("ElectricalSetting"):
         v = (doc.value(sid) or {}).get("m_circuitPathOffset")
         if isinstance(v, (int, float)):

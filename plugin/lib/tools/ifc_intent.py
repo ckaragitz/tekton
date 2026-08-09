@@ -358,12 +358,18 @@ class SpecimenSet:
         self.instance_id: Optional[int] = None
         self.instance_symbol: Optional[int] = None
         self.instance_category: Optional[int] = None
+        self.circuit_id: Optional[int] = None
         # a straight wall of any type (prefer the most-instanced type)
         wt = self.doc.wall_types_with_instances()
         if wt:
             best = max(wt.items(), key=lambda kv: len(kv[1]))[0]
             self.wall_type = best
             self.wall_id = self.doc._template_wall(best)
+        # a real single-load circuit, when the source carries one
+        try:
+            self.circuit_id = self.doc._template_circuit()
+        except LookupError:
+            pass
         # a free-standing symbol==master instance -- prefer the CLEANEST
         # scaffolding: a placed MODEL instance (real level + phase) with NO
         # instance geometry-step history / rebar / cover cells / parameter
@@ -398,7 +404,7 @@ class SpecimenSet:
         record index so rvt.mutate can clone them (Formats/Latest is the
         per-release constant: the target's decoder decodes them)."""
         injected = []
-        for eid in (self.wall_id, self.instance_id):
+        for eid in (self.wall_id, self.instance_id, self.circuit_id):
             if eid is None:
                 continue
             for seq in (101, 102, 103):
@@ -414,6 +420,7 @@ class SpecimenSet:
                 "instance_specimen": self.instance_id,
                 "instance_symbol": self.instance_symbol,
                 "instance_category": self.instance_category,
+                "circuit_specimen": self.circuit_id,
                 "instance_specimen_score": getattr(self, "instance_score", None)}
 
 
@@ -816,54 +823,48 @@ NO_CIRCUIT_SPECIMEN = (
 
 def _feeder_voltage_v(text: Any) -> Optional[float]:
     """Line-to-line volts of a feeder edge's voltage text ('480Y/277 V')."""
-    if text in (None, ""):
-        return None
-    try:
-        ll = I.parse_voltage(text).get("ll")
-        return float(ll) if ll else None
-    except Exception:                                       # noqa: BLE001
-        return None
+    return (float(I.parse_voltage(text).get("ll") or 0) or None) if text else None
+
+
+_NO_FEEDERS: Dict[str, Any] = {"circuits": [], "circuits_skipped": [], "circuits_blocker": None,
+                               "circuit_template": None}
 
 
 def wire_feeders(doc, model: I.IntentModel, placed: Dict[str, Any],
-                 circuit_template: Optional[int]) -> Dict[str, Any]:
+                 circuit_template: Optional[int]) -> Tuple[Dict[str, Any], List[Any]]:
     """The feeder CIRCUITS, wired onto the instances ``placed`` ({tag:
     NewElement}) in THIS commit: one ``rvt.mutate.add_circuit(panel, load)``
     per non-service feeder edge whose two ends were both placed, cloned from
-    ``circuit_template`` (the constructed RbsElectricalSystem specimen).
-    Circuit numbers / start slots follow Revit's two-column same-parity
-    packing rule per panel (``rvt.mep.electrical_data.layout_circuits``).
-    Returns {circuits: [...], skipped: [...], blocker}; the circuits are
-    NewElements on ``doc`` -- the caller serialises them with the instances."""
-    from rvt.mep.electrical_data import layout_circuits
-    out: Dict[str, Any] = {"circuits": [], "skipped": [], "blocker": None,
-                           "template": circuit_template}
+    ``circuit_template`` (the constructed RbsElectricalSystem specimen, or a
+    real one the specimen source carries).  Circuit numbers / start slots
+    follow Revit's two-column same-parity packing rule per panel
+    (``rvt.mep.electrical_data.layout_circuits``).  Returns ``(record,
+    elements)``: the record keys ``stage_equipment`` merges (circuits /
+    circuits_skipped / circuits_blocker / circuit_template) and the circuit
+    NewElements the caller serialises with the instances."""
+    from rvt.mep.electrical_data import connectors, layout_circuits
+    rec: Dict[str, Any] = {**_NO_FEEDERS, "circuits": [], "circuits_skipped": [],
+                           "circuit_template": circuit_template}
+    made: List[Any] = []
     edges = [ed for ed in model.feeders if ed.kind != "service"]
-    if not edges:
-        return out
-    if circuit_template is None:
-        out["blocker"] = NO_CIRCUIT_SPECIMEN
-        out["skipped"] = [{"panel": ed.source, "load": ed.target, "reason": "no circuit template"}
-                          for ed in edges]
-        return out
-    # per-panel schedule layout, in edge order
-    per_panel: Dict[str, List[I.FeederEdge]] = {}
-    for ed in edges:
-        per_panel.setdefault(ed.source, []).append(ed)
+    if edges and circuit_template is None:
+        rec["circuits_blocker"] = NO_CIRCUIT_SPECIMEN
+        rec["circuits_skipped"] = [{"panel": ed.source, "load": ed.target,
+                                    "reason": "no circuit template"} for ed in edges]
+        return rec, made
+    # per-panel schedule layout (number / start slot), in edge order
     layout: Dict[Tuple[str, str], dict] = {}
-    for src, eds in per_panel.items():
-        rows = layout_circuits([{"key": (ed.source, ed.target), "poles": ed.poles or 3}
-                                for ed in eds])
-        for r in rows:
-            layout[r["key"]] = r
-    made = []
+    for src in dict.fromkeys(ed.source for ed in edges):
+        for row in layout_circuits([{"key": (ed.source, ed.target), "poles": ed.poles or 3}
+                                    for ed in edges if ed.source == src]):
+            layout[row["key"]] = row
     for ed in edges:
         panel, load = placed.get(ed.source), placed.get(ed.target)
         if panel is None or load is None:
-            out["skipped"].append({
+            rec["circuits_skipped"].append({
                 "panel": ed.source, "load": ed.target,
-                "reason": ("panel not placed" if panel is None else "load not placed")
-                          + " (family not loaded / not in the intent)"})
+                "reason": ("panel" if panel is None else "load")
+                          + " not placed (family not loaded / not in the intent)"})
             continue
         lay = layout[(ed.source, ed.target)]
         volts = _feeder_voltage_v(ed.voltage)
@@ -872,32 +873,29 @@ def wire_feeders(doc, model: I.IntentModel, placed: Dict[str, Any],
                              description=f"{ed.target} feeder from {ed.source}",
                              rating=ed.rating_a, poles=ed.poles, voltage_v=volts,
                              template_id=circuit_template)
-        conns = (doc._conn_manager(el.obj) or {}).get("m_connPtrArray") or []   # noqa: SLF001
-        refs = [((c.get("value") or {}).get("m_arrRefs") or [{}])[0] for c in conns]
+        own = connectors(el.obj)                     # {0: [(load, conn, 1)], LAST: [(panel, slot, 4)]}
+        load_conn, panel_slot = own[0][0][1], own[max(own)][0][1]
         made.append(el)
-        out["circuits"].append({
+        rec["circuits"].append({
             "kind": "circuit", "elem_id": el.elem_id,
-            "panel": ed.source, "panel_id": panel.elem_id,
-            "panel_slot": refs[-1].get("m_nIndex") if refs else None,
-            "load": ed.target, "load_id": load.elem_id,
-            "load_conn": refs[0].get("m_nIndex") if refs else None,
+            "panel": ed.source, "panel_id": panel.elem_id, "panel_slot": panel_slot,
+            "load": ed.target, "load_id": load.elem_id, "load_conn": load_conn,
             "number": lay["new_number"], "start_slot": lay["new_start_slot"],
             "slots": lay["new_slots"], "poles": ed.poles, "rating_a": ed.rating_a,
             "voltage": ed.voltage, "voltage_v": volts, "edge_kind": ed.kind,
             "length_ft": round(float(el.obj.get("m_dLength") or 0.0), 3),
             "notes": el.notes,
         })
-        _log(f"C  circuit {el.elem_id}: {ed.source} slot {refs[-1].get('m_nIndex') if refs else '?'}"
-             f" -> {ed.target} ({lay['new_number']}, {ed.rating_a} A, {ed.poles} P)")
-    out["_elements"] = made
-    return out
+        _log(f"C  circuit {el.elem_id}: {ed.source} slot {panel_slot} -> {ed.target} "
+             f"conn {load_conn} ({lay['new_number']}, {ed.rating_a} A, {ed.poles} P)")
+    return rec, made
 
 
 def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                     specimens: SpecimenSet, loaded: Dict[str, Any], *,
                     level_id: Optional[int] = None,
                     level_ids: Optional[Dict[str, Tuple[int, float]]] = None,
-                    circuits: bool = True,
+                    circuits: bool = False,
                     ) -> Tuple[Dict[str, Any], Optional[str]]:
     """Place one instance of each loaded family at the intent's insertion /
     frame -> ``out_path``.  The intent's z is WORLD (``rvt.ifc.intent
@@ -908,10 +906,11 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
     without a map (research probes, add_to_project) every item lands on
     ``level_id`` (else the story datum nearest 0).
 
-    ``circuits=True`` wires the feeder tree in the SAME commit
-    (:func:`wire_feeders` over ``specimens.circuit_id``): ``rec["circuits"]``
-    lists them; a missing circuit template is ``rec["circuits_blocker"]``,
-    never a stage failure (the instances still land)."""
+    ``circuits=True`` (the build's stage C) wires the feeder tree in the SAME
+    commit (:func:`wire_feeders` over ``specimens.circuit_id``):
+    ``rec["circuits"]`` lists them; a missing circuit template is
+    ``rec["circuits_blocker"]``, never a stage failure (the instances still
+    land)."""
     from rvt.mutate import Document
     from rvt.commit import commit_new_elements, verify_written
     from rvt.frontdoor.levels import resolve as resolve_level
@@ -980,16 +979,12 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                  f"(dangling refs {len(dangling)}, dropped rows {scrub['param_rows_dropped']})")
         # the feeder CIRCUITS, wired onto the just-placed boards pre-serialise
         # (both back-links live in the instances' connector objects)
-        rec["circuits"], rec["circuits_skipped"], rec["circuits_blocker"] = [], [], None
-        if circuits and model.feeders:
-            crec = wire_feeders(doc, model, placed, getattr(specimens, "circuit_id", None))
-            rec["circuits"] = crec["circuits"]
-            rec["circuits_skipped"] = crec["skipped"]
-            rec["circuits_blocker"] = crec["blocker"]
-            rec["circuit_template"] = crec["template"]
-            for cel, crow in zip(crec.get("_elements") or [], rec["circuits"]):
-                crow["n_dangling"] = len(doc.check_references(cel))
-                els.append(cel)
+        crec, cels = (wire_feeders(doc, model, placed, specimens.circuit_id) if circuits
+                      else (_NO_FEEDERS, []))
+        rec.update(crec)
+        for cel, crow in zip(cels, rec["circuits"]):
+            crow["n_dangling"] = len(doc.check_references(cel))
+        els.extend(cels)
         records, plans = [], []
         for el in els:
             recs = doc.serialize(el)
@@ -1037,60 +1032,40 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
 def read_back_circuits(path: str) -> Dict[str, Any]:
     """READ BACK every ``RbsElectricalSystem`` committed into ``path`` and
     verify the circuit reference closure on the written bytes: the base
-    connector names {self, LAST}; conn[LAST] -> a panel slot whose connector
-    points back {circuit, LAST}; every member conn[i] -> a load connector
-    that points back {circuit, i}.  Pure readback -- the file is the truth."""
+    connector names {self, LAST} (``rvt.validate.check_circuits``);
+    conn[LAST] -> a panel slot whose connector points back {circuit, LAST};
+    every member conn[i] -> a load connector that points back {circuit, i}.
+    Pure readback -- the file is the truth."""
+    from rvt.mep.electrical_data import connectors
     from rvt.mutate import Document
+    from rvt.validate import check_circuits
     doc = Document.from_file(path)
-    out: Dict[str, Any] = {"path": _relp(path), "circuits": [], "n": 0, "links_ok": True}
 
-    def _refs_of(v: dict) -> Dict[int, List[dict]]:
-        mgr = Document._conn_manager(v) or {}                # noqa: SLF001
-        m: Dict[int, List[dict]] = {}
-        for c in mgr.get("m_connPtrArray") or []:
-            cv = c.get("value") if isinstance(c, dict) else None
-            if isinstance(cv, dict) and isinstance(cv.get("m_nIndex"), int):
-                m[cv["m_nIndex"]] = [r for r in cv.get("m_arrRefs") or [] if isinstance(r, dict)]
-        return m
+    def _end(cid: int, i: int, ref: Tuple[int, int, int]) -> Dict[str, Any]:
+        """One circuit connector's far end + whether it links back {cid, i}."""
+        tid, tix, ctype = ref
+        back = connectors(doc.value(tid) or {}).get(tix, []) if doc.exists(tid) else []
+        return {"id": tid, "index": tix, "conn_type": ctype,
+                "back_link": any(b[:2] == (cid, i) for b in back)}
 
-    def _points_back(target_id: int, target_index: int, cid: int, cindex: int) -> bool:
-        tv = doc.value(target_id) if doc.exists(target_id) else None
-        back = _refs_of(tv or {}).get(target_index) or []
-        return any(r.get("m_id") == cid and r.get("m_nIndex") == cindex for r in back)
-
+    rows = []
     for cid in sorted(doc.ids_of_class("RbsElectricalSystem")):
         v = doc.value(cid) or {}
-        own = _refs_of(v)
+        own = connectors(v)
         idx = sorted(own)
-        last = idx[-1] if idx else None
-        bca = v.get("m_baseConnectorIdArray") or []
-        b0 = bca[0] if bca and isinstance(bca[0], dict) else {}
-        row: Dict[str, Any] = {
+        ends = {i: _end(cid, i, own[i][0]) if own[i] else None for i in idx}
+        panel = ends.get(idx[-1]) if idx else None
+        loads = [ends[i] for i in idx[:-1]]
+        base_ok = not check_circuits([(cid, v)], {cid: own})
+        rows.append({
             "elem_id": cid, "number": v.get("m_number"), "start_slot": v.get("m_nStartSlot"),
             "poles": v.get("m_nPoles"), "rating_a": v.get("m_dRating"),
-            "connectors": idx,
-            "base_ok": (len(bca) == 1 and b0.get("m_id") == cid and b0.get("m_nIndex") == last),
-            "panel": None, "loads": [],
-        }
-        pref = (own.get(last) or [{}])[0] if last is not None else {}
-        pid, pslot = pref.get("m_id"), pref.get("m_nIndex")
-        row["panel"] = {"id": pid, "slot": pslot, "conn_type": pref.get("m_connType"),
-                        "back_link": bool(isinstance(pid, int) and isinstance(pslot, int)
-                                          and _points_back(pid, pslot, cid, last))}
-        for i in idx[:-1]:
-            lref = (own.get(i) or [{}])[0]
-            lid, lconn = lref.get("m_id"), lref.get("m_nIndex")
-            row["loads"].append({
-                "id": lid, "conn": lconn, "conn_type": lref.get("m_connType"),
-                "back_link": bool(isinstance(lid, int) and isinstance(lconn, int)
-                                  and _points_back(lid, lconn, cid, i))})
-        row["ok"] = bool(row["base_ok"] and row["panel"]["back_link"]
-                         and row["loads"] and all(l["back_link"] for l in row["loads"]))
-        if not row["ok"]:
-            out["links_ok"] = False
-        out["circuits"].append(row)
-    out["n"] = len(out["circuits"])
-    return out
+            "connectors": idx, "base_ok": base_ok, "panel": panel, "loads": loads,
+            "ok": bool(base_ok and panel and panel["back_link"] and loads
+                       and all(l and l["back_link"] for l in loads)),
+        })
+    return {"path": _relp(path), "circuits": rows, "n": len(rows),
+            "links_ok": all(r["ok"] for r in rows)}
 
 
 def stage_circuits(model: I.IntentModel, src_rvt: str) -> Dict[str, Any]:
@@ -1100,31 +1075,27 @@ def stage_circuits(model: I.IntentModel, src_rvt: str) -> Dict[str, Any]:
     non-service feeder edges, and every circuit's both-side back-links
     (:func:`read_back_circuits`).  A shortfall is NAMED (``blocker``) with
     the resolved plan riding along -- never faked."""
-    rec: Dict[str, Any] = {"stage": "C", "in": _relp(src_rvt), "circuits_planned": [],
-                           "ok": False}
-    for ed in model.feeders:
-        if ed.kind == "service":
-            continue
-        rec["circuits_planned"].append(ed.as_json()["circuitPlan"])
+    rec: Dict[str, Any] = {"stage": "C", "in": _relp(src_rvt), "ok": False,
+                           "circuits_planned": [ed.as_json()["circuitPlan"]
+                                                for ed in model.feeders if ed.kind != "service"]}
     planned = len(rec["circuits_planned"])
     try:
         rb = read_back_circuits(src_rvt)
-        rec["readback"] = rb
-        rec["circuits_built"] = rb["n"]
-        rec["links_ok"] = rb["links_ok"]
-        if rb["n"] == 0 and planned:
-            rec["blocker"] = (f"0 of {planned} feeder circuits in the deepest file: "
-                              + NO_CIRCUIT_SPECIMEN)
-        elif rb["n"] < planned:
-            rec["blocker"] = (f"{rb['n']} of {planned} feeder circuits authored (an edge whose "
-                              "panel or load family did not load / place cannot be wired)")
-        elif not rb["links_ok"]:
-            rec["blocker"] = ("circuit reference closure INCOMPLETE on readback (a one-way "
-                              "connector link) -- see readback.circuits")
-        rec["ok"] = bool(rb["n"] == planned and rb["links_ok"])
     except Exception as e:                                  # noqa: BLE001
         rec["error"] = f"{type(e).__name__}: {e}"
         rec["blocker"] = f"circuit readback crashed: {rec['error']}"
+    else:
+        rec.update(readback=rb, circuits_built=rb["n"], links_ok=rb["links_ok"])
+        rec["ok"] = rb["n"] == planned and rb["links_ok"]
+        if not rec["ok"]:
+            rec["blocker"] = (
+                f"0 of {planned} feeder circuits in the deepest file: {NO_CIRCUIT_SPECIMEN}"
+                if rb["n"] == 0 else
+                f"{rb['n']} of {planned} feeder circuits authored (an edge whose panel or "
+                "load family did not load / place cannot be wired)"
+                if rb["n"] != planned else
+                "circuit reference closure INCOMPLETE on readback (a one-way connector "
+                "link) -- see readback.circuits")
     rec["notes"] = [
         "PROOF-ONLY: the circuits are OUR constructed RbsElectricalSystem records "
         "(schema-built template, add_circuit-wired in the equipment commit); validator "
@@ -1368,7 +1339,8 @@ def build_room(ifc_path: str, out_dir: str, *, base_rvt: str = DEFAULT_BASE,
     if "E" in stages and specimens is not None:
         if loaded:
             e_out = os.path.join(out_dir, "electrical_room_2500a.rvt")
-            e_rec, e_ok = stage_equipment(model, current, e_out, specimens, loaded)
+            e_rec, e_ok = stage_equipment(model, current, e_out, specimens, loaded,
+                                              circuits="C" in stages)
             record["stages"].append(e_rec)
             record["outputs"]["room"] = _relp(e_out) if e_ok else None
             if e_ok:

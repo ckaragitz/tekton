@@ -361,6 +361,19 @@ certified with the instances). To run it: reserve `/batches 1`, then
    the clone path in `mutate.add_circuit` (rme specimens) is unchanged. A
    KNOWLEDGE.md reconciliation belongs to the orchestrator fold (hot file).
 
+3. Two `/simplify` findings deliberately NOT applied: (a) routing the stage
+   through `rvt.mep.devices.add_multi_load_circuit(loads=[load])` instead of
+   `mutate.add_circuit` — it is equally clone-only and carries a DIFFERENT
+   header-parent recipe (regenOnly/deferred singletons, `hasNonDetermRegenChildren`
+   True) than the V29-certified `add_circuit`; unifying the two is a behaviour
+   decision for the viewer round, not a cleanup. (b) `release_ctx` port-wraps
+   `family_instance_template` / `swall_template` by name; the circuit template
+   needs no wrap (built from the release's own schema) but a
+   `SA.CONSTRUCTED_TEMPLATES` registry iterated by `release_ctx` would make a
+   fourth template impossible to forget — `release_ctx.py` is outside this
+   territory; suggested patch: replace the two `swap(SA, ...)` lines with a loop
+   over such a registry.
+
 ## Gates run
 
 * `tests/test_frontdoor.py tests/test_mep_devices.py tests/test_mep_electrical_data.py

@@ -1300,8 +1300,8 @@ def test_e2e_feeder_circuits_are_authored_per_release(circuit_jobs, year):
         assert len({c["panel_slot"] for c in mine}) == len(mine)
         assert sorted(c["number"] for c in mine) == ["1,3,5", "2,4,6"][:len(mine)]
     stage_c = [s for s in build["stages"] if s["stage"] == "C"][0]
-    assert stage_c == {**stage_c, "ok": True, "planned": 6, "built": 6, "links_ok": True,
-                       "blocker": None}
+    assert {"ok": True, "planned": 6, "built": 6, "links_ok": True,
+            "blocker": None}.items() <= stage_c.items(), stage_c
     assert not any("CIRCUIT" in d.upper() for d in build["degradations"]), build["degradations"]
     val = build["validation"]["combined"]["validate"]
     assert val["verdict"] == "VALID" and val["n_errors"] == 0, val["errors"]
@@ -1331,9 +1331,9 @@ def test_e2e_circuits_read_back_with_both_side_links(circuit_jobs, year):
     for c in rb["circuits"]:
         assert c["ok"] and c["base_ok"], c
         assert c["connectors"] == [0, 1]
-        assert c["panel"]["back_link"] and c["panel"]["conn_type"] == 4 and c["panel"]["slot"] >= 50000
+        assert c["panel"]["back_link"] and c["panel"]["conn_type"] == 4 and c["panel"]["index"] >= 50000
         assert len(c["loads"]) == 1 and c["loads"][0]["back_link"]
-        assert c["loads"][0]["conn_type"] == 1 and c["loads"][0]["conn"] == 1
+        assert c["loads"][0]["conn_type"] == 1 and c["loads"][0]["index"] == 1
 
 
 def test_circuit_specimen_is_constructed_not_cloned():

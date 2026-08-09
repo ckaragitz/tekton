@@ -7,7 +7,7 @@ Variable = the circuit layer ON / OFF, everything else identical:
 
   CTRL_G_ABPD_circuits146.rvt   byte-identical copy of the certified base
   C146_off.rvt                  the DONE prompt's room WITHOUT circuits
-                                (stage E with circuits=False)
+                                (--stages FLWEV: no stage C, E wires nothing)
   C146_on.rvt                   the same room WITH the 6 feeder circuits
                                 (stage E as shipped: instances + circuits in
                                 one commit)
@@ -70,21 +70,10 @@ def main(argv=None) -> int:
     on_src = r_on.manifest["build"]["files"]["combined"]["path"]
     on = os.path.join(out, "C146_on.rvt")
     shutil.copyfile(on_src, on)
-    # 'off' = the same job with the circuit wiring switched off in stage E:
-    # re-run stage E over the on-job's own W checkpoint + loaded families
+    # 'off' = the same job without stage C (stage E then wires no circuit)
     off = os.path.join(out, "C146_off.rvt")
-    orig = R.stage_equipment
-
-    def no_circuits(*args, **kws):
-        kws["circuits"] = False
-        return orig(*args, **kws)
-
-    R.stage_equipment = no_circuits
-    try:
-        off_dir = os.path.join(out, "_off")
-        r_off = author(prompt=PROMPT, out=off_dir, no_handoff=True, **kw)
-    finally:
-        R.stage_equipment = orig
+    r_off = author(prompt=PROMPT, out=os.path.join(out, "_off"), no_handoff=True,
+                   stages="FLWEV", **kw)
     shutil.copyfile(r_off.manifest["build"]["files"]["combined"]["path"], off)
     ctrl = os.path.join(out, "CTRL_" + os.path.splitext(os.path.basename(base))[0]
                         + "_circuits146.rvt")
