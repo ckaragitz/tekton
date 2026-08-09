@@ -31,6 +31,14 @@ Guards enforced on every run (and by tests/test_plugin_sync.py):
   * DENY list  — quarantined / third-party-extracted reference data NEVER
     enters the plugin tree, and the whole tree is audited for leaks (an ASSET
     is refused if its path matches the deny list).
+  * IDENTITY scan — the BYTES we ship (plugin/**/*.{rvt,rfa,json,md,txt,ifc,
+    tksc} and every such member of the built zip; .rvt/.rfa opened and every
+    stream inflated) are searched, ASCII + UTF-16LE, case-insensitively, for
+    Autodesk employee usernames and `C:\\Users\\` paths. The only tolerated
+    hits are the ones measured in the three genesis bases and frozen in
+    tools/plugin_identity_allowlist.json (tracked by #19): a hit outside the
+    allowlist fails the build, and so does an allowlisted hit that vanished
+    (the allowlist must shrink with the scrub, never lag behind it).
   * ASSET pin  — a bundled .rvt asset must equal its source byte-for-byte
     and, when rvt.frontdoor ships its genesis-base pin, must match that pin's
     sha256 (the plugin can never ship a base the front door would refuse).
@@ -48,13 +56,19 @@ import filecmp
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+import tempfile
+import time
+import zipfile
+from collections import Counter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLUGIN = os.path.join(ROOT, "plugin")
 ZIP = os.path.join(ROOT, "tekton-plugin.zip")
+IDENTITY_ALLOWLIST = os.path.join(ROOT, "tools", "plugin_identity_allowlist.json")
 
 SKIP_DIR_NAMES = {"__pycache__", "node_modules", ".pytest_cache", ".DS_Store"}
 BINARY_EXT = {".rvt", ".rfa", ".mp4", ".mov"}          # never bundled by tree/file syncs
@@ -321,6 +335,180 @@ def verify_assets() -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# identity strings — a CONTENT audit of the bytes we ship (issue #193)
+# ---------------------------------------------------------------------------
+# The deny-audit above is path-based; this one reads the bytes. Tokens: the
+# Autodesk employee usernames rvt.provenance already refuses in a generated
+# file, plus a Windows profile path prefix. Both are searched ASCII and
+# UTF-16LE (the interleaved-NUL encoding Revit stores strings in), case-
+# insensitively, in one regex pass over each file's lowered bytes.
+IDENTITY_SCAN_EXT = {".rvt", ".rfa", ".json", ".md", ".txt", ".ifc", ".tksc"}
+CONTAINER_EXT = {".rvt", ".rfa"}
+USER_PROFILE_TOKEN = "C:\\Users\\"
+RAW_MEMBER = "<raw>"            # member label for a container we could not open
+
+
+def _engine():
+    """(tokens, open_rvt) from OUR engine copy under src/. Imported up front so a
+    missing `olefile` fails loudly instead of degrading containers to a raw
+    skim that sees nothing inside their gzip streams."""
+    src = os.path.join(ROOT, "src")
+    if src not in sys.path:
+        sys.path.insert(0, src)
+    from rvt.container import open_rvt
+    from rvt.provenance import AUTODESK_EMPLOYEE_USERNAMES
+    return sorted(AUTODESK_EMPLOYEE_USERNAMES) + [USER_PROFILE_TOKEN], open_rvt
+
+
+def _identity_matcher(tokens: list[str]):
+    """-> scan(data) -> Counter{token: hits}, ASCII + UTF-16LE, case-insensitive;
+    a backslashed token also matches its JSON/markdown-escaped spelling (C:\\\\Users\\\\)."""
+    back: dict[bytes, str] = {}
+    for tok in tokens:
+        for spelling in {tok.lower(), tok.lower().replace("\\", "\\\\")}:
+            for enc in ("ascii", "utf-16-le"):
+                back[spelling.encode(enc)] = tok
+    rx = re.compile(b"|".join(re.escape(b) for b in sorted(back, key=len, reverse=True)))
+
+    def scan(data: bytes) -> Counter:
+        return Counter(back[m] for m in rx.findall(data.lower()))
+    return scan
+
+
+def _scan_container(path: str, scan, open_rvt) -> dict[str, Counter]:
+    """Per-stream hits of a .rvt/.rfa: each stream's de-paged bytes plus every
+    gzip member inflated (what Revit reads, not the compressed envelope)."""
+    out: dict[str, Counter] = {}
+    with open_rvt(path) as doc:
+        for s in doc.streams():
+            hits = scan(doc.logical(s.name))
+            try:
+                hits += scan(doc.concat(s.name))
+            except Exception:                       # a member we cannot inflate:
+                pass                                # its envelope was scanned above
+            if hits:
+                out[s.name] = hits
+    return out
+
+
+def _scan_blob(name: str, data: bytes, scan, open_rvt, path: str | None = None
+               ) -> dict[str, Counter]:
+    """{member: Counter} for one shipped file. Containers are walked stream by
+    stream; anything else (or a container that will not open) is one blob."""
+    if os.path.splitext(name)[1].lower() in CONTAINER_EXT:
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                if path is None:                    # zip member: olefile wants a path
+                    path = os.path.join(td, os.path.basename(name))
+                    with open(path, "wb") as fh:
+                        fh.write(data)
+                return _scan_container(path, scan, open_rvt)
+        except Exception:
+            hits = scan(data)
+            return {RAW_MEMBER: hits} if hits else {}
+    hits = scan(data)
+    return {"": hits} if hits else {}
+
+
+def audit_identity_strings(root: str = PLUGIN, zip_path: str | None = ZIP) -> dict:
+    """Scan every IDENTITY_SCAN_EXT file under ``root`` and (when it exists)
+    every such member of ``zip_path``. Returns
+    {"hits": [(origin, file, member, token, count)], "files": n, "zip_members": n,
+     "seconds": t} with origin in {"plugin", "zip"}; byte-identical blobs are
+    scanned once (the zip normally repeats the tree verbatim)."""
+    t0 = time.perf_counter()
+    tokens, open_rvt = _engine()
+    scan = _identity_matcher(tokens)
+    cache: dict[str, dict[str, Counter]] = {}           # sha256 -> {member: Counter}
+    hits: list[tuple[str, str, str, str, int]] = []
+    counts = {"plugin": 0, "zip": 0}
+
+    def record(origin: str, rel: str, data: bytes, path: str | None = None) -> None:
+        key = hashlib.sha256(data).hexdigest()
+        if key not in cache:
+            cache[key] = _scan_blob(rel, data, scan, open_rvt, path=path)
+        for member, cnt in cache[key].items():
+            for tok, n in cnt.items():
+                hits.append((origin, rel, member, tok, n))
+        counts[origin] += 1
+
+    for base, dirs, files in os.walk(root):
+        dirs[:] = sorted(d for d in dirs if d not in SKIP_DIR_NAMES)
+        for f in sorted(files):
+            if os.path.splitext(f)[1].lower() not in IDENTITY_SCAN_EXT:
+                continue
+            p = os.path.join(base, f)
+            with open(p, "rb") as fh:
+                record("plugin", os.path.relpath(p, root).replace(os.sep, "/"), fh.read(), p)
+    if zip_path and os.path.isfile(zip_path):
+        with zipfile.ZipFile(zip_path) as zf:
+            for info in zf.infolist():
+                name = info.filename
+                if info.is_dir() or os.path.splitext(name)[1].lower() not in IDENTITY_SCAN_EXT:
+                    continue
+                record("zip", name[2:] if name.startswith("./") else name, zf.read(info))
+    return {"hits": sorted(hits), "files": counts["plugin"], "zip_members": counts["zip"],
+            "seconds": time.perf_counter() - t0}
+
+
+def load_identity_allowlist(path: str = IDENTITY_ALLOWLIST) -> dict[tuple[str, str, str], int]:
+    """{(file, member, token): count} — the frozen, #19-tracked leak set."""
+    with open(path, encoding="utf-8") as fh:
+        doc = json.load(fh)
+    out: dict[tuple[str, str, str], int] = {}
+    for e in doc["entries"]:
+        out[(e["file"], e.get("member", ""), e["token"])] = int(e["count"])
+    return out
+
+
+def check_identity_strings(root: str = PLUGIN, zip_path: str | None = ZIP,
+                           allowlist_path: str = IDENTITY_ALLOWLIST) -> dict:
+    """Run the scan and diff it against the allowlist, per origin. Adds
+    "unexpected" (hit not allowlisted, or count differs) and "vanished"
+    (allowlisted, no longer hit) — both must be empty."""
+    res = audit_identity_strings(root, zip_path)
+    allow = load_identity_allowlist(allowlist_path)
+    origins = ["plugin"] + (["zip"] if res["zip_members"] else [])
+    got = {(o, f, m, t): n for o, f, m, t, n in res["hits"]}
+    unexpected, vanished = [], []
+    for (o, f, m, t), n in sorted(got.items()):
+        want = allow.get((f, m, t))
+        if want != n:
+            unexpected.append((o, f, m, t, n, want))
+    for o in origins:
+        for (f, m, t), want in sorted(allow.items()):
+            if (o, f, m, t) not in got:
+                vanished.append((o, f, m, t, want))
+    res.update(unexpected=unexpected, vanished=vanished, allowlisted=len(got) - len(unexpected),
+               allowlist=os.path.relpath(allowlist_path, ROOT))
+    return res
+
+
+def format_identity_report(res: dict) -> list[str]:
+    """The table --check prints: one row per (origin, file, member)."""
+    lines = [f"IDENTITY SCAN (Autodesk usernames + {USER_PROFILE_TOKEN} in shipped bytes; "
+             f"allowlist {res['allowlist']}, tracked by #19):"]
+    rows: dict[tuple[str, str, str], list[str]] = {}
+    for o, f, m, t, n in res["hits"]:
+        rows.setdefault((o, f, m), []).append(f"{t}={n}")
+    bad = {(o, f, m) for o, f, m, _t, _n, _w in res["unexpected"]}
+    for (o, f, m), toks in rows.items():
+        where = ("zip:" if o == "zip" else "") + f + (f" :: {m}" if m else "")
+        flag = "UNEXPECTED " if (o, f, m) in bad else "allowlisted"
+        lines.append(f"  {flag} {where:<66} {' '.join(toks)}")
+    for o, f, m, t, n, want in res["unexpected"]:
+        exp = "not allowlisted" if want is None else f"allowlist says {want}"
+        lines.append(f"  UNEXPECTED {o}:{f}{' :: ' + m if m else ''} {t}={n} ({exp})")
+    for o, f, m, t, want in res["vanished"]:
+        lines.append(f"  VANISHED   {o}:{f}{' :: ' + m if m else ''} {t}={want} "
+                     f"— gone from the bytes: delete it from {res['allowlist']}")
+    lines.append(f"  {res['files']} file(s) + {res['zip_members']} zip member(s) scanned in "
+                 f"{res['seconds']:.2f} s: {res['allowlisted']} allowlisted hit(s), "
+                 f"{len(res['unexpected'])} unexpected, {len(res['vanished'])} vanished")
+    return lines
+
+
+# ---------------------------------------------------------------------------
 # zip + validate
 # ---------------------------------------------------------------------------
 def rebuild_zip() -> int:
@@ -385,8 +573,13 @@ def main(argv=None) -> int:
         for pr in verify_assets():
             print(f"ASSET PROBLEM: {pr}")
             rc = 1
+        ident = check_identity_strings()
+        print("\n".join(format_identity_report(ident)))
+        if ident["unexpected"] or ident["vanished"]:
+            rc = 1
         if rc == 0:
-            print("plugin in sync with source (deny-audit clean, assets verified)")
+            print("plugin in sync with source (deny-audit clean, identity scan == allowlist, "
+                  "assets verified)")
         return rc
     print(f"synced {len(drift)} file(s) into plugin/")
     if leaks:
@@ -402,6 +595,13 @@ def main(argv=None) -> int:
     if not a.no_zip:
         size = rebuild_zip()
         print(f"rebuilt {os.path.relpath(ZIP, ROOT)} ({size / 1024:.0f} KB)")
+    # content audit last, so the freshly built zip is scanned too
+    ident = check_identity_strings(zip_path=None if a.no_zip else ZIP)
+    if ident["unexpected"] or ident["vanished"]:
+        print("\n".join(format_identity_report(ident)))
+        return 5
+    print(f"  identity scan == allowlist ({ident['allowlisted']} tracked hit(s), "
+          f"{ident['files']} files + {ident['zip_members']} zip members, {ident['seconds']:.2f} s)")
     return 0 if ok else 2
 
 
