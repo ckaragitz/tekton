@@ -171,6 +171,53 @@ def frame_stream(logical: bytes) -> bytes:
     return bytes(out)
 
 
+def lane_syndromes(block: bytes, first: int, second: int, poly: int,
+                   m: int) -> list:
+    """Per-lane CRC syndromes of ONE encoded block, stdlib only.
+
+    Bit p of the codeword belongs to lane ``p % second``, round
+    ``p // second``; a valid codeword has every lane's syndrome == 0 and a
+    single flipped bit at round r of lane i leaves lane i with the
+    signature CRCIO's decoder looks up (validate._signature_table).
+
+    Bit-sliced: the ``m`` CRC state bits are kept as ``m`` Python ints whose
+    bit i is lane i's state bit, so one round is a handful of big-int XORs
+    over ``second`` (<= 2047) bits instead of ``second`` scalar updates --
+    ~2 ms per full 64,896-byte page, i.e. numpy is an optional accelerator
+    for this, never a requirement (issue #75: the bare plugin surface has
+    no numpy and must still verify, not skip or crash)."""
+    nb = first * second
+    big = int.from_bytes(block[:(nb + 7) >> 3], "little")
+    if nb & 7:
+        big &= (1 << nb) - 1
+    lane_mask = (1 << second) - 1
+    taps = [j for j in range(m) if (poly >> j) & 1]
+    c = [0] * m                      # c[j] bit i == bit j of lane i's CRC
+    CH = 64                          # rounds sliced off `big` per chunk
+    chunk_bits = CH * second
+    chunk_mask = (1 << chunk_bits) - 1
+    r = 0
+    while r < first:
+        chunk = big & chunk_mask
+        big >>= chunk_bits
+        for _ in range(min(CH, first - r)):
+            fb = c[0] ^ (chunk & lane_mask)          # (state ^ in) & 1, all lanes
+            chunk >>= second
+            c = c[1:] + [0]                          # state >>= 1, all lanes
+            for j in taps:                           # ^= poly where fb set
+                c[j] ^= fb
+        r += CH
+    out = [0] * second
+    for j, plane in enumerate(c):
+        i = 0
+        while plane:
+            if plane & 1:
+                out[i] |= 1 << j
+            plane >>= 1
+            i += 1
+    return out
+
+
 def _block_data_len(block_len: int, params) -> int:
     """Exact data byte-count of an encoded block of `block_len` bytes
     (reader side: flag=1 geometry + the N-bit pad-count field)."""
@@ -179,6 +226,33 @@ def _block_data_len(block_len: int, params) -> int:
     first, second = _geom_flag1(block_len, m, period, align)
     pre = 0 if first < m else (first - m) * second
     return pre, N
+
+
+def final_block_candidates(tail: bytes) -> list:
+    """``[(params, data_len)]`` for every size class whose N-bit pad-count
+    field self-consistently decodes this final (partial) block: the data
+    length is in range, selects that very class, and re-encodes to exactly
+    ``len(tail)`` bytes.  Usually one candidate; the caller disambiguates by
+    exact re-encode (``unframe_stream``) or by syndrome check (the
+    validator).  Empty list == not a CRCIO block at all."""
+    L = len(tail)
+    out = []
+    for params in PARAM_CLASSES:
+        m, poly, period, align = params
+        pre, N = _block_data_len(L, params)
+        if pre <= N or (pre + 7) // 8 > L:
+            continue
+        fpos = pre - N                       # pad-count field: N bits, LSB first
+        pad = 0
+        for k in range(N):
+            p = fpos + k
+            if (tail[p >> 3] >> (p & 7)) & 1:
+                pad |= 1 << k
+        data_len = ((pre - N) >> 3) - pad
+        if 0 <= data_len <= L and select_params(data_len) == params \
+           and encoded_size(data_len, m, period, align, N) == L:
+            out.append((params, data_len))
+    return out
 
 
 def unframe_stream(raw: bytes) -> bytes:
@@ -192,21 +266,9 @@ def unframe_stream(raw: bytes) -> bytes:
         pos += PAGE_STRIDE
     tail = raw[pos:]
     if tail:
-        # try each size class; the right one reproduces the block exactly
-        for params in PARAM_CLASSES:
-            pre, N = _block_data_len(len(tail), params)
-            if pre <= N or (pre + 7) // 8 > len(tail):
-                continue
-            # read pad-count field (N bits, LSB-first) at bit pre-N
-            fpos = pre - N
-            pad = 0
-            for k in range(N):
-                p = fpos + k
-                if (tail[p >> 3] >> (p & 7)) & 1:
-                    pad |= 1 << k
-            data_len = ((pre - N) >> 3) - pad
-            if 0 <= data_len <= len(tail) and select_params(data_len) == params \
-               and encode_block(tail[:data_len], params) == tail:
+        # the right size class reproduces the block exactly
+        for params, data_len in final_block_candidates(tail):
+            if encode_block(tail[:data_len], params) == tail:
                 out += tail[:data_len]
                 break
         else:

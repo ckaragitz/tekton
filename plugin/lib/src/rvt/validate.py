@@ -129,15 +129,12 @@ import zlib
 from collections import Counter, defaultdict
 from contextlib import ExitStack
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
-# LAZY (perf-coldstart): numpy is only exercised by the ECC syndrome /
-# repair math; the validator's decode-tier checks are numpy-free, and a
-# bare sandbox without numpy can still import + run them.
-from ._lazyimp import lazy_import
-
-np = lazy_import("numpy", globals(), "np", hint="ECC page syndrome math")
-
+# The validator is stdlib + olefile only: the ECC tier's per-lane syndromes
+# come from ``ecc.lane_syndromes`` (bit-sliced, ~2 ms per full page), so a
+# bare sandbox without numpy imports, runs and VERIFIES exactly what a dev
+# checkout does -- one code path on every surface (issue #75).
 import olefile
 
 from . import ecc, partitions
@@ -301,7 +298,7 @@ class Report:
 
 
 # ---------------------------------------------------------------------------
-# L1 — ECC / page framing (numpy syndrome decoder)
+# L1 — ECC / page framing (syndrome decode + single-bit-per-lane repair)
 # ---------------------------------------------------------------------------
 
 _SIG_CACHE: Dict[Tuple[int, int, int], Dict[int, int]] = {}
@@ -324,26 +321,6 @@ def _signature_table(m: int, poly: int, period: int) -> Dict[int, int]:
     return tab
 
 
-def _syndromes(blocks: np.ndarray, first: int, second: int, poly: int) -> np.ndarray:
-    """Per-lane CRC syndromes for a batch of encoded blocks.
-
-    ``blocks``: (P, block_bytes) uint8.  Returns (P, second) uint16; a valid
-    codeword has an all-zero syndrome row.  Bit p of the codeword belongs to
-    lane p % second, round p // second (bit-interleaved).
-    """
-    P = blocks.shape[0]
-    nb = first * second
-    bits = np.unpackbits(blocks[:, :(nb + 7) // 8], axis=1, bitorder="little")[:, :nb]
-    bits = bits.reshape(P, first, second).transpose(1, 0, 2).reshape(first, P * second)
-    c = np.zeros(P * second, dtype=np.uint16)
-    p16 = np.uint16(poly)
-    for r in range(first):
-        fb = (c ^ bits[r]) & np.uint16(1)
-        c >>= np.uint16(1)
-        c ^= fb * p16
-    return c.reshape(P, second)
-
-
 @dataclass
 class _BlockGeom:
     params: Tuple[int, int, int, int]
@@ -357,27 +334,11 @@ def _candidate_final_geometries(tail: bytes) -> List[_BlockGeom]:
     decodes this final (partial) block's data length.  The right one is the
     candidate whose syndrome check comes out clean (or, for a damaged block,
     the one needing the fewest corrections)."""
-    L = len(tail)
     out: List[_BlockGeom] = []
-    for params in ecc.PARAM_CLASSES:
-        m, poly, period, align = params
-        pre, N = ecc._block_data_len(L, params)
-        if pre <= N or (pre + 7) // 8 > L:
-            continue
-        fpos = pre - N
-        pad = 0
-        for k in range(N):
-            q = fpos + k
-            if (tail[q >> 3] >> (q & 7)) & 1:
-                pad |= 1 << k
-        data_len = ((pre - N) >> 3) - pad
-        if not (0 <= data_len <= L):
-            continue
-        if ecc.select_params(data_len) != params:
-            continue
-        if ecc.encoded_size(data_len, m, period, align, N) != L:
-            continue
-        first, second = ecc.geometry(data_len, m, period, align, N)
+    for params, data_len in ecc.final_block_candidates(tail):
+        m, _poly, period, align = params
+        first, second = ecc.geometry(data_len, m, period, align,
+                                     ecc.size_field_bits(period, align))
         out.append(_BlockGeom(params, data_len, first, second))
     return out
 
@@ -392,7 +353,7 @@ class _EccStreamResult:
     uncorrectable_blocks: int = 0
 
 
-def _repair_block(block: bytearray, syn_row: np.ndarray, geom_first: int,
+def _repair_block(block: bytearray, syn_row: Sequence[int], geom_first: int,
                   geom_second: int, params, data_len: int) -> Tuple[int, int, int, bool]:
     """Apply the per-lane single-bit corrections implied by the syndromes.
 
@@ -404,15 +365,16 @@ def _repair_block(block: bytearray, syn_row: np.ndarray, geom_first: int,
     n_corr = n_data = n_other = 0
     uncorrectable = False
     data_bits = data_len * 8
-    for lane in np.nonzero(syn_row)[0]:
-        s = int(syn_row[lane])
-        d = tab.get(s)
+    for lane, s in enumerate(syn_row):
+        if not s:
+            continue
+        d = tab.get(int(s))
         n_corr += 1
         if d is None or (geom_first - 1 - d) < 0:
             uncorrectable = True
             continue
         r = geom_first - 1 - d
-        p = r * geom_second + int(lane)
+        p = r * geom_second + lane
         if (p >> 3) < len(block):
             block[p >> 3] ^= 1 << (p & 7)
         if p < data_bits:
@@ -422,62 +384,32 @@ def _repair_block(block: bytearray, syn_row: np.ndarray, geom_first: int,
     return n_corr, n_data, n_other, uncorrectable
 
 
-def _numpy_available() -> bool:
-    if "_np_ok" not in _NP_STATE:
-        try:
-            import numpy                                     # noqa: F401
-            _NP_STATE["_np_ok"] = True
-        except ImportError:
-            _NP_STATE["_np_ok"] = False
-    return _NP_STATE["_np_ok"]
-
-
-_NP_STATE: dict = {}
-
-
-def ecc_verify_stream(name: str, raw: bytes, rep: Report,
-                      batch: int = 64) -> _EccStreamResult:
+def ecc_verify_stream(name: str, raw: bytes, rep: Report) -> _EccStreamResult:
     """Syndrome-verify every CRCIO block of a framed stream and return the
     ECC-repaired logical stream.  Emits ECC findings on ``rep``.
 
-    Without numpy (a bare zero-pip surface) the syndrome math cannot run:
-    the stream is unframed with the pure-python reader and ONE warning per
-    report says the ECC pages went unverified -- an unavailable checker is
-    an environment gap, not a file defect (the deliverable rule), and every
-    other structure check still runs on the logical bytes."""
+    A stream whose final block is not CRCIO-framed at all (e.g. a family's
+    plain-XML ``PartAtom`` read in project mode) is an in-report ERROR with
+    the raw bytes passed through -- never an exception (issue #75)."""
     res = _EccStreamResult(b"")
     out = bytearray()
     n_full = len(raw) // ecc.PAGE_STRIDE
     where = f"{name}"
 
-    if not _numpy_available():
-        res.logical = ecc.unframe_stream(raw)
-        res.pages += n_full + (1 if raw[n_full * ecc.PAGE_STRIDE:] else 0)
-        if not getattr(rep, "_ecc_skip_warned", False):
-            rep._ecc_skip_warned = True
-            rep.warn(L_STRUCTURE, where,
-                     "ECC page verification SKIPPED: numpy not installed "
-                     "(pages unframed without syndrome checks; install numpy "
-                     "for full verification)")
-        return res
-
-    # ---- full pages (fixed params, batched) --------------------------------
+    # ---- full pages (fixed params) --------------------------------------------
     if n_full:
         params = ecc.PARAM_CLASSES[0]                       # (11,0x500,2047,2)
-        first, second = 2047, 255
-        arr = np.frombuffer(raw[:n_full * ecc.PAGE_STRIDE],
-                            dtype=np.uint8).reshape(n_full, ecc.PAGE_STRIDE)
-        syn_all = []
-        for s0 in range(0, n_full, batch):
-            syn_all.append(_syndromes(arr[s0:s0 + batch], first, second, params[1]))
-        syn = np.concatenate(syn_all) if syn_all else np.zeros((0, second), np.uint16)
-        bad_pages = np.nonzero(syn.any(axis=1))[0]
+        m, poly, first, second = params[0], params[1], 2047, 255
         pages_mut = None
-        for k in bad_pages:
+        for k in range(n_full):
+            page = raw[k * ecc.PAGE_STRIDE:(k + 1) * ecc.PAGE_STRIDE]
+            syn = ecc.lane_syndromes(page, first, second, poly, m)
+            if not any(syn):
+                continue
             if pages_mut is None:
                 pages_mut = bytearray(raw[:n_full * ecc.PAGE_STRIDE])
-            blk = bytearray(pages_mut[k * ecc.PAGE_STRIDE:(k + 1) * ecc.PAGE_STRIDE])
-            nc, nd, nt, unc = _repair_block(blk, syn[k], first, second, params,
+            blk = bytearray(page)
+            nc, nd, nt, unc = _repair_block(blk, syn, first, second, params,
                                             ecc.PAGE_PAYLOAD)
             if _correctable(nd, unc):
                 # single-bit-per-lane repairs Revit itself performs: hand the
@@ -489,13 +421,9 @@ def ecc_verify_stream(name: str, raw: bytes, rep: Report,
             res.data_bits_repaired += nd
             res.trailer_bits_repaired += nt
             _classify_block(rep, where, f"page {k}", nc, nd, nt, unc, res)
-        if pages_mut is not None:
-            src = bytes(pages_mut)
-            for k in range(n_full):
-                out += src[k * ecc.PAGE_STRIDE:k * ecc.PAGE_STRIDE + ecc.PAGE_PAYLOAD]
-        else:
-            for k in range(n_full):
-                out += raw[k * ecc.PAGE_STRIDE:k * ecc.PAGE_STRIDE + ecc.PAGE_PAYLOAD]
+        src = raw if pages_mut is None else bytes(pages_mut)
+        for k in range(n_full):
+            out += src[k * ecc.PAGE_STRIDE:k * ecc.PAGE_STRIDE + ecc.PAGE_PAYLOAD]
         res.pages += n_full
 
     # ---- final partial block --------------------------------------------------
@@ -508,18 +436,15 @@ def ecc_verify_stream(name: str, raw: bytes, rep: Report,
                       "(no size class + pad-count field decodes it)")
             out += tail          # fall back: pass the raw tail through
         else:
-            best = None
-            best_syn = None
-            arr = np.frombuffer(tail, dtype=np.uint8)[None, :]
+            scored = []                                     # (dirty lanes, geom, syndromes)
             for g in cands:
-                syn = _syndromes(arr, g.first, g.second, g.params[1])[0]
-                if best is None or int((syn != 0).sum()) < int((best_syn != 0).sum()):
-                    best, best_syn = g, syn
-                if not syn.any():
+                syn = ecc.lane_syndromes(tail, g.first, g.second, g.params[1], g.params[0])
+                scored.append((sum(1 for s in syn if s), g, syn))
+                if not scored[-1][0]:
                     break
-            g, syn = best, best_syn
+            n_bad, g, syn = min(scored, key=lambda t: t[0])
             blk = bytearray(tail)
-            if syn.any():
+            if n_bad:
                 nc, nd, nt, unc = _repair_block(blk, syn, g.first, g.second,
                                                 g.params, g.data_len)
                 res.lanes_corrected += nc
