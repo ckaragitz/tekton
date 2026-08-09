@@ -100,6 +100,33 @@ the genuine library is absent; if a real distribution is importable the
 shim loads *it* instead of itself (stand-down guarantee, tested).  Zero
 edits to `rvt.ifc.intent` / `rvt.ifc.product_facts`.
 
+**Foreign classes (issue #155, 2026-08-09).** The transcribed attribute
+subset (~200 rows) is no longer the boundary of the class tree: steplite
+also carries `src/rvt/ifc/ifc4_parents.py`, the full IFC4 entity →
+supertype table (776 entities, our own generated text —
+`tools/dev/gen_ifc4_parents.py` reads the public IFC4 declarations out of a
+dev-time ifcopenshell; nothing is imported at runtime).  Any IFC4 entity a
+foreign tool emits therefore lands in the same `by_type('IfcProduct')` /
+`is_a('IfcElement')` closure ifcopenshell reports, in ifcopenshell's own
+order (case-sensitive CamelCase subtype order, file order per class), and
+serves the positional attributes of its nearest transcribed ancestor
+(`GlobalId … Tag` for elements); only its own leaf attributes raise.
+Rows were added for the common building classes (door / window / column /
+beam / roof / stair / railing / curtain wall / plate / member / footing /
+furnishing), the electrical MEP classes (outlet, junction box, protective
+device, appliances, motor / generator, UPS, cable-carrier fitting),
+distribution ports + `IfcRelNests` / `IfcRelConnectsPorts`, systems / zones
++ `IfcRelAssignsToGroup`, and `IfcRelVoidsElement` / `IfcRelFillsElement`;
+every row's supertype and full attribute list is cross-checked against the
+IFC4 declarations in the test suite whenever ifcopenshell is importable.
+Measured effect: `frontdoor author --ifc usecases/chicago-plenum-electrical-room/generated.ifc`
+resolved 17 products under steplite vs 18 under ifcopenshell before (the
+`IfcDoor` was dropped); after, 18 = 18 and the two `intent.json` are
+byte-identical (142 633 bytes) modulo `source.path`.  Still out of scope:
+per-schema hierarchies (IFC2X3-only classes such as
+`IfcElectricDistributionPoint` — #159 — and IFC4X3's renamed supertypes are
+read through the IFC4 tables).
+
 **Equivalence proof** (tests/test_steplite.py, run on both reference IFCs —
 `electrical-room-2500a.ifc` and `chicago-plenum-downlight.ifc`):
 

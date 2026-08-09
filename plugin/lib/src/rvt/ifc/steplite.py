@@ -32,11 +32,23 @@ against ifcopenshell 0.8.5 on the two reference IFCs):
   :func:`get_type`, :func:`calculate_unit_scale`,
   :func:`get_local_placement` (pure-python 4x4 nested lists).
 
+CLASSES OUTSIDE THE ATTRIBUTE SUBSET (issue #155).  The hand-transcribed
+``_SCHEMA`` rows below carry attribute names for the classes the read paths
+touch.  Every OTHER IFC4 entity is still placed in the hierarchy through
+:mod:`rvt.ifc.ifc4_parents` (the full IFC4 class -> supertype table, our
+own generated text): such an entity answers ``is_a()`` with its proper
+CamelCase name and ``is_a('IfcElement')`` / ``by_type('IfcProduct')`` exactly
+as ifcopenshell does, and serves the positional attributes of its nearest
+transcribed ancestor (``GlobalId``/``Name``/``ObjectPlacement``/
+``Representation``/``Tag`` for anything under IfcElement); only its OWN leaf
+attributes raise a clear ``AttributeError``.  A class in neither table (an
+IFC2X3-only or misspelt name) parses, carries ``is_a``/``id``, is returned by
+``by_type`` of its exact name only, and raises on named-attribute access.
+
 WHAT IT DOES NOT DO: write IFC, evaluate derived attributes (``*`` slots
 read as None), run ``ifcopenshell.geom``/``validate``/``api`` (the authoring
-and validation surfaces stay on the real library), or cover entity classes
-outside the read-path subset (unknown classes parse, carry ``is_a``/``id``,
-and raise a clear ``AttributeError`` on named-attribute access).
+and validation surfaces stay on the real library), or apply per-schema
+hierarchies (IFC2X3 / IFC4X3 files are read through the IFC4 tables).
 
 SELECTION.  Callers never import this directly for the fallback to work:
 ``rvt/ifc/_ifcos_shim/ifcopenshell`` is a package with this exact module as
@@ -48,15 +60,19 @@ monkeypatching, no edits to the consumer modules).  ``RVT_STEPLITE_FORCE=1``
 forces the shim backend even when the real library is installed (the engine
 then puts the shim FIRST; used by the equivalence tests and backend A/B).
 
-TERRITORY (perf-deps stream): this module, ``rvt/ifc/_ifcos_shim/**``,
-``tests/test_steplite.py``, ``docs/writer/dependency-audit.md``,
-``docs/inbox/perf-deps.md``.  Imports nothing beyond the stdlib.
+TERRITORY (perf-deps stream): this module, ``rvt/ifc/ifc4_parents.py``,
+``rvt/ifc/_ifcos_shim/**``, ``tests/test_steplite.py``,
+``docs/writer/dependency-audit.md``, ``docs/inbox/perf-deps.md`` /
+``docs/inbox/steplite-parity.md``.  Imports nothing beyond the stdlib.
 """
 from __future__ import annotations
 
+import functools
 import os
 import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+from rvt.ifc.ifc4_parents import PARENT as _IFC4_PARENT
 
 __all__ = [
     "STEPLITE_VERSION", "SteliteError", "StepLiteError", "open", "File",
@@ -78,8 +94,11 @@ SteliteError = StepLiteError  # spelling alias
 # ===========================================================================
 # IFC4 schema subset: parent links + OWN attribute names (positional order).
 # Full attribute lists are the concatenation root..leaf, exactly as STEP
-# serialises them.  Verified attribute-by-attribute against ifcopenshell
-# 0.8.5 get_info() on the reference IFCs (tests/test_steplite.py).
+# serialises them.  Hand-transcribed from the public IFC4 documentation;
+# every row's parent and full attribute list is cross-checked against
+# ifcopenshell 0.8.5's IFC4 declarations whenever that library is importable
+# (tests/test_steplite.py::test_schema_rows_match_ifc4_declarations), and
+# attribute-by-attribute against get_info() on the reference IFCs.
 # ===========================================================================
 
 #: UPPERCASE -> (CamelCase, parent UPPERCASE or None, own attribute names)
@@ -115,6 +134,23 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
     "IFCWALLSTANDARDCASE": ("IfcWallStandardCase", "IFCWALL", ()),
     "IFCSLAB": ("IfcSlab", "IFCBUILDINGELEMENT", ("PredefinedType",)),
     "IFCCOVERING": ("IfcCovering", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCDOOR": ("IfcDoor", "IFCBUILDINGELEMENT",
+                ("OverallHeight", "OverallWidth", "PredefinedType", "OperationType",
+                 "UserDefinedOperationType")),
+    "IFCWINDOW": ("IfcWindow", "IFCBUILDINGELEMENT",
+                  ("OverallHeight", "OverallWidth", "PredefinedType",
+                   "PartitioningType", "UserDefinedPartitioningType")),
+    "IFCCOLUMN": ("IfcColumn", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCBEAM": ("IfcBeam", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCMEMBER": ("IfcMember", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCPLATE": ("IfcPlate", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCFOOTING": ("IfcFooting", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCROOF": ("IfcRoof", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCSTAIR": ("IfcStair", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCRAILING": ("IfcRailing", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCCURTAINWALL": ("IfcCurtainWall", "IFCBUILDINGELEMENT", ("PredefinedType",)),
+    "IFCFURNISHINGELEMENT": ("IfcFurnishingElement", "IFCELEMENT", ()),
+    # distribution (MEP / electrical) elements + ports
     "IFCDISTRIBUTIONELEMENT": ("IfcDistributionElement", "IFCELEMENT", ()),
     "IFCDISTRIBUTIONFLOWELEMENT": ("IfcDistributionFlowElement",
                                    "IFCDISTRIBUTIONELEMENT", ()),
@@ -122,17 +158,44 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                                   "IFCDISTRIBUTIONFLOWELEMENT", ()),
     "IFCTRANSFORMER": ("IfcTransformer", "IFCENERGYCONVERSIONDEVICE",
                        ("PredefinedType",)),
+    "IFCELECTRICMOTOR": ("IfcElectricMotor", "IFCENERGYCONVERSIONDEVICE",
+                         ("PredefinedType",)),
+    "IFCELECTRICGENERATOR": ("IfcElectricGenerator", "IFCENERGYCONVERSIONDEVICE",
+                             ("PredefinedType",)),
     "IFCFLOWCONTROLLER": ("IfcFlowController", "IFCDISTRIBUTIONFLOWELEMENT", ()),
     "IFCELECTRICDISTRIBUTIONBOARD": ("IfcElectricDistributionBoard",
                                      "IFCFLOWCONTROLLER", ("PredefinedType",)),
     "IFCSWITCHINGDEVICE": ("IfcSwitchingDevice", "IFCFLOWCONTROLLER",
                            ("PredefinedType",)),
+    "IFCPROTECTIVEDEVICE": ("IfcProtectiveDevice", "IFCFLOWCONTROLLER",
+                            ("PredefinedType",)),
+    "IFCFLOWFITTING": ("IfcFlowFitting", "IFCDISTRIBUTIONFLOWELEMENT", ()),
+    "IFCCABLECARRIERFITTING": ("IfcCableCarrierFitting", "IFCFLOWFITTING",
+                               ("PredefinedType",)),
+    "IFCJUNCTIONBOX": ("IfcJunctionBox", "IFCFLOWFITTING", ("PredefinedType",)),
     "IFCFLOWSEGMENT": ("IfcFlowSegment", "IFCDISTRIBUTIONFLOWELEMENT", ()),
     "IFCCABLECARRIERSEGMENT": ("IfcCableCarrierSegment", "IFCFLOWSEGMENT",
                                ("PredefinedType",)),
     "IFCCABLESEGMENT": ("IfcCableSegment", "IFCFLOWSEGMENT", ("PredefinedType",)),
+    "IFCFLOWSTORAGEDEVICE": ("IfcFlowStorageDevice", "IFCDISTRIBUTIONFLOWELEMENT", ()),
+    "IFCELECTRICFLOWSTORAGEDEVICE": ("IfcElectricFlowStorageDevice",
+                                     "IFCFLOWSTORAGEDEVICE", ("PredefinedType",)),
     "IFCFLOWTERMINAL": ("IfcFlowTerminal", "IFCDISTRIBUTIONFLOWELEMENT", ()),
     "IFCLIGHTFIXTURE": ("IfcLightFixture", "IFCFLOWTERMINAL", ("PredefinedType",)),
+    "IFCOUTLET": ("IfcOutlet", "IFCFLOWTERMINAL", ("PredefinedType",)),
+    "IFCELECTRICAPPLIANCE": ("IfcElectricAppliance", "IFCFLOWTERMINAL",
+                             ("PredefinedType",)),
+    "IFCAUDIOVISUALAPPLIANCE": ("IfcAudioVisualAppliance", "IFCFLOWTERMINAL",
+                                ("PredefinedType",)),
+    "IFCPORT": ("IfcPort", "IFCPRODUCT", ()),
+    "IFCDISTRIBUTIONPORT": ("IfcDistributionPort", "IFCPORT",
+                            ("FlowDirection", "PredefinedType", "SystemType")),
+    # groups / systems
+    "IFCGROUP": ("IfcGroup", "IFCOBJECT", ()),
+    "IFCSYSTEM": ("IfcSystem", "IFCGROUP", ()),
+    "IFCDISTRIBUTIONSYSTEM": ("IfcDistributionSystem", "IFCSYSTEM",
+                              ("LongName", "PredefinedType")),
+    "IFCZONE": ("IfcZone", "IFCSYSTEM", ("LongName",)),
     "IFCELEMENTCOMPONENT": ("IfcElementComponent", "IFCELEMENT", ()),
     "IFCDISCRETEACCESSORY": ("IfcDiscreteAccessory", "IFCELEMENTCOMPONENT",
                              ("PredefinedType",)),
@@ -152,6 +215,12 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                                     "IFCBUILDINGELEMENTTYPE", ("PredefinedType",)),
     "IFCWALLTYPE": ("IfcWallType", "IFCBUILDINGELEMENTTYPE", ("PredefinedType",)),
     "IFCSLABTYPE": ("IfcSlabType", "IFCBUILDINGELEMENTTYPE", ("PredefinedType",)),
+    "IFCDOORTYPE": ("IfcDoorType", "IFCBUILDINGELEMENTTYPE",
+                    ("PredefinedType", "OperationType", "ParameterTakesPrecedence",
+                     "UserDefinedOperationType")),
+    "IFCWINDOWTYPE": ("IfcWindowType", "IFCBUILDINGELEMENTTYPE",
+                      ("PredefinedType", "PartitioningType",
+                       "ParameterTakesPrecedence", "UserDefinedPartitioningType")),
     "IFCELEMENTCOMPONENTTYPE": ("IfcElementComponentType", "IFCELEMENTTYPE", ()),
     "IFCDISCRETEACCESSORYTYPE": ("IfcDiscreteAccessoryType", "IFCELEMENTCOMPONENTTYPE",
                                  ("PredefinedType",)),
@@ -175,10 +244,24 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
     "IFCRELDECOMPOSES": ("IfcRelDecomposes", "IFCRELATIONSHIP", ()),
     "IFCRELAGGREGATES": ("IfcRelAggregates", "IFCRELDECOMPOSES",
                          ("RelatingObject", "RelatedObjects")),
+    "IFCRELNESTS": ("IfcRelNests", "IFCRELDECOMPOSES",
+                    ("RelatingObject", "RelatedObjects")),
+    "IFCRELVOIDSELEMENT": ("IfcRelVoidsElement", "IFCRELDECOMPOSES",
+                           ("RelatingBuildingElement", "RelatedOpeningElement")),
     "IFCRELCONNECTS": ("IfcRelConnects", "IFCRELATIONSHIP", ()),
     "IFCRELCONTAINEDINSPATIALSTRUCTURE": ("IfcRelContainedInSpatialStructure",
                                           "IFCRELCONNECTS",
                                           ("RelatedElements", "RelatingStructure")),
+    "IFCRELFILLSELEMENT": ("IfcRelFillsElement", "IFCRELCONNECTS",
+                           ("RelatingOpeningElement", "RelatedBuildingElement")),
+    "IFCRELCONNECTSPORTS": ("IfcRelConnectsPorts", "IFCRELCONNECTS",
+                            ("RelatingPort", "RelatedPort", "RealizingElement")),
+    "IFCRELCONNECTSPORTTOELEMENT": ("IfcRelConnectsPortToElement", "IFCRELCONNECTS",
+                                    ("RelatingPort", "RelatedElement")),
+    "IFCRELASSIGNS": ("IfcRelAssigns", "IFCRELATIONSHIP",
+                      ("RelatedObjects", "RelatedObjectsType")),
+    "IFCRELASSIGNSTOGROUP": ("IfcRelAssignsToGroup", "IFCRELASSIGNS",
+                             ("RelatingGroup",)),
     "IFCRELDEFINES": ("IfcRelDefines", "IFCRELATIONSHIP", ()),
     "IFCRELDEFINESBYPROPERTIES": ("IfcRelDefinesByProperties", "IFCRELDEFINES",
                                   ("RelatedObjects", "RelatingPropertyDefinition")),
@@ -190,9 +273,11 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                                  "IFCPROPERTYDEFINITION", ()),
     "IFCPROPERTYSET": ("IfcPropertySet", "IFCPROPERTYSETDEFINITION",
                        ("HasProperties",)),
-    "IFCELEMENTQUANTITY": ("IfcElementQuantity", "IFCPROPERTYSETDEFINITION",
+    "IFCQUANTITYSET": ("IfcQuantitySet", "IFCPROPERTYSETDEFINITION", ()),
+    "IFCELEMENTQUANTITY": ("IfcElementQuantity", "IFCQUANTITYSET",
                            ("MethodOfMeasurement", "Quantities")),
-    "IFCPROPERTY": ("IfcProperty", None, ("Name", "Description")),
+    "IFCPROPERTYABSTRACTION": ("IfcPropertyAbstraction", None, ()),
+    "IFCPROPERTY": ("IfcProperty", "IFCPROPERTYABSTRACTION", ("Name", "Description")),
     "IFCSIMPLEPROPERTY": ("IfcSimpleProperty", "IFCPROPERTY", ()),
     "IFCPROPERTYSINGLEVALUE": ("IfcPropertySingleValue", "IFCSIMPLEPROPERTY",
                                ("NominalValue", "Unit")),
@@ -356,9 +441,10 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
     "IFCCOLOURRGB": ("IfcColourRgb", "IFCCOLOURSPECIFICATION",
                      ("Red", "Green", "Blue")),
     # units + header-ish entities
-    "IFCSIUNIT": ("IfcSIUnit", None, ("Dimensions", "UnitType", "Prefix", "Name")),
-    "IFCCONVERSIONBASEDUNIT": ("IfcConversionBasedUnit", None,
-                               ("Dimensions", "UnitType", "Name", "ConversionFactor")),
+    "IFCNAMEDUNIT": ("IfcNamedUnit", None, ("Dimensions", "UnitType")),
+    "IFCSIUNIT": ("IfcSIUnit", "IFCNAMEDUNIT", ("Prefix", "Name")),
+    "IFCCONVERSIONBASEDUNIT": ("IfcConversionBasedUnit", "IFCNAMEDUNIT",
+                               ("Name", "ConversionFactor")),
     "IFCMEASUREWITHUNIT": ("IfcMeasureWithUnit", None,
                            ("ValueComponent", "UnitComponent")),
     "IFCUNITASSIGNMENT": ("IfcUnitAssignment", None, ("Units",)),
@@ -395,33 +481,53 @@ _TYPED_CAMEL = {n.upper(): n for n in (
     "IfcLineIndex", "IfcArcIndex", "IfcPositiveInteger",
 )}
 
+#: Rows above that deliberately go BEYOND IFC4 -- IFC4x1 additions the
+#: reference writer emits: class -> its trailing attribute names absent from
+#: IFC4 (they read None on IFC4 files), or None when the whole class is
+#: absent from IFC4.  The declaration cross-check in the tests reads this.
+_BEYOND_IFC4: Dict[str, Optional[Tuple[str, ...]]] = {
+    "IFCCARTESIANPOINTLIST2D": ("TagList",),
+    "IFCCARTESIANPOINTLIST3D": ("TagList",),
+    "IFCTRIANGULATEDIRREGULARNETWORK": None,
+}
+
 # derived lookups -----------------------------------------------------------
-_ATTRS_CACHE: Dict[str, Tuple[str, ...]] = {}
+# The class tree is the UNION of the transcribed rows and the full IFC4
+# hierarchy (ifc4_parents): _SCHEMA rows keep their own parent link (each one
+# is the true IFC4 supertype -- tested), every other IFC4 entity hangs where
+# the generated table says.  UPPERCASE keys throughout (STEP tokens).
+_CAMEL: Dict[str, str] = {c.upper(): c for c in _IFC4_PARENT}
+_CAMEL.update({u: row[0] for u, row in _SCHEMA.items()})
+_CAMEL.update(_TYPED_CAMEL)
+_PARENT: Dict[str, Optional[str]] = {
+    c.upper(): (p.upper() if p else None) for c, p in _IFC4_PARENT.items()}
+_PARENT.update({u: row[1] for u, row in _SCHEMA.items()})
+
 _CHILDREN: Dict[str, List[str]] = {}
-for _u, (_c, _p, _o) in _SCHEMA.items():
+for _u, _p in _PARENT.items():
     if _p is not None:
         _CHILDREN.setdefault(_p, []).append(_u)
-for _k in _CHILDREN:                       # ifcopenshell's declaration order is
-    _CHILDREN[_k].sort(key=lambda u: _SCHEMA[u][0])   # alphabetical CamelCase
+for _k in _CHILDREN:            # ifcopenshell walks subtypes() in CASE-SENSITIVE
+    _CHILDREN[_k].sort(key=_CAMEL.__getitem__)   # CamelCase order (IfcCShape < IfcCircle)
 
 
+@functools.lru_cache(maxsize=None)
 def _full_attrs(uname: str) -> Tuple[str, ...]:
-    got = _ATTRS_CACHE.get(uname)
-    if got is None:
-        camel, parent, own = _SCHEMA[uname]
-        got = (_full_attrs(parent) if parent else ()) + tuple(own)
-        _ATTRS_CACHE[uname] = got
-    return got
+    """Positional attribute names steplite can serve for ``uname``: the full
+    root..leaf list for a transcribed class; for any other IFC4 class the
+    list of its nearest transcribed ancestor (a true prefix of its STEP
+    arguments); ``()`` for a class in neither table."""
+    row = _SCHEMA.get(uname)
+    if row is not None:
+        return (_full_attrs(row[1]) if row[1] else ()) + tuple(row[2])
+    parent = _PARENT.get(uname)
+    return _full_attrs(parent) if parent else ()
 
 
 def _camel_of(uname: str) -> str:
-    ent = _SCHEMA.get(uname)
-    if ent:
-        return ent[0]
-    if uname in _TYPED_CAMEL:
-        return _TYPED_CAMEL[uname]
-    # best effort for unknown classes: Ifc + Titlecased remainder
-    return "Ifc" + uname[3:].title() if uname.startswith("IFC") else uname
+    # best effort for a class in no table: Ifc + Titlecased remainder
+    return _CAMEL.get(uname) or (
+        "Ifc" + uname[3:].title() if uname.startswith("IFC") else uname)
 
 
 # ===========================================================================
@@ -614,23 +720,16 @@ class Entity:
         while cur is not None:
             if cur == target:
                 return True
-            ent = _SCHEMA.get(cur)
-            cur = ent[1] if ent else None
+            cur = _PARENT.get(cur)
         return False
 
     def __getattr__(self, attr: str):
         if attr.startswith("_"):
             raise AttributeError(attr)
-        ent = _SCHEMA.get(self._uname)
-        if ent is not None:
-            attrs = _full_attrs(self._uname)
-            try:
-                idx = attrs.index(attr)
-            except ValueError:
-                idx = -1
-            if idx >= 0:
-                raw = self._args[idx] if idx < len(self._args) else None
-                return self._f._resolve(raw)
+        attrs = _full_attrs(self._uname)
+        if attr in attrs:
+            idx = attrs.index(attr)
+            return self._f._resolve(self._args[idx] if idx < len(self._args) else None)
         if attr == "ContainedInStructure":
             return self._f._inverse_rel("IFCRELCONTAINEDINSPATIALSTRUCTURE",
                                         "RelatedElements", self._sid)
@@ -640,10 +739,11 @@ class Entity:
         if attr == "IsTypedBy":
             return self._f._inverse_rel("IFCRELDEFINESBYTYPE",
                                         "RelatedObjects", self._sid)
-        if ent is None:
+        if self._uname not in _SCHEMA:
             raise AttributeError(
-                f"steplite: entity class {self._uname} is outside the read-path "
-                f"subset (no attribute table); cannot read .{attr} of #{self._sid}")
+                f"steplite: entity class {_camel_of(self._uname)} is outside the "
+                f"read-path attribute subset (served: {', '.join(attrs) or 'nothing'}); "
+                f"cannot read .{attr} of #{self._sid}")
         raise AttributeError(
             f"steplite: {_camel_of(self._uname)} has no attribute {attr!r}")
 
@@ -746,9 +846,10 @@ class File:
             args = _parse_args(stmt[m.end() - 1:close + 1])
             ent = Entity(self, sid, uname, args)
             self._by_id[sid] = ent
+            # FILE order per class, as ifcopenshell keeps it (by_type and the
+            # inverse attributes follow it; identical to id order on every
+            # writer that numbers records as it emits them)
             self._by_class.setdefault(uname, []).append(sid)
-        for ids in self._by_class.values():
-            ids.sort()
 
     # -- value resolution ----------------------------------------------------
     def _resolve(self, raw: Any) -> Any:
@@ -783,9 +884,7 @@ class File:
         if self._guid_index is None:
             idx: Dict[str, int] = {}
             for sid, ent in self._by_id.items():
-                attrs = _full_attrs(ent._uname) if ent._uname in _SCHEMA else ()
-                if attrs[:1] == ("GlobalId",) and ent._args and \
-                        isinstance(ent._args[0], str):
+                if ent.is_a("IfcRoot") and ent._args and isinstance(ent._args[0], str):
                     idx[ent._args[0]] = sid
             self._guid_index = idx
         sid = self._guid_index.get(guid)
@@ -795,8 +894,11 @@ class File:
 
     def by_type(self, name: str) -> List[Entity]:
         """All instances of ``name`` INCLUDING subclasses, in ifcopenshell's
-        ordering: depth-first over the declaration tree with subtypes in
-        alphabetical (declaration) order, instances id-ascending per class."""
+        ordering: depth-first over the IFC4 declaration tree (the class
+        itself first, then subtypes in case-sensitive CamelCase order),
+        instances in file order per class.  Every IFC4 entity takes part in
+        the closure whether or not steplite transcribes its attributes; a
+        class outside IFC4 is matched by its exact name only."""
         key = name.upper()
         got = self._by_type_cache.get(key)
         if got is not None:
@@ -809,8 +911,7 @@ class File:
             for child in _CHILDREN.get(uname, ()):
                 visit(child)
 
-        if key in _SCHEMA or key in self._by_class:
-            visit(key)
+        visit(key)
         self._by_type_cache[key] = out
         return list(out)
 

@@ -84,15 +84,22 @@ def _canon(x):
 
 def _assert_attrs_equivalent(fr, fs) -> int:
     """Every entity of the real-library file ``fr``: same class and every
-    named attribute equal (canonicalised) in the steplite file ``fs``.
-    Returns the number of attributes compared."""
+    named attribute equal (canonicalised) in the steplite file ``fs``; the
+    unserved leaf attributes of a class steplite does not transcribe (#155)
+    must RAISE, never silently differ.  Returns the number compared."""
     assert fs.schema == fr.schema
     n = 0
     for er in fr:
         es = fs.by_id(er.id())
         assert es.is_a() == er.is_a(), er.id()
+        uname = er.is_a().upper()
+        served = SL._full_attrs(uname)
         for k, v in er.get_info(recursive=False).items():
             if k in ("id", "type"):
+                continue
+            if uname not in SL._SCHEMA and k not in served:
+                with pytest.raises(AttributeError, match="attribute subset"):
+                    getattr(es, k)
                 continue
             assert _canon(getattr(es, k)) == _canon(v), (er.id(), er.is_a(), k)
             n += 1
@@ -103,6 +110,34 @@ def _assert_by_type_equivalent(fr, fs, classes) -> None:
     """by_type subtype closure AND ordering match for every class name."""
     for cls in classes:
         assert [e.id() for e in fr.by_type(cls)] == [e.id() for e in fs.by_type(cls)], cls
+
+
+def _assert_element_utils_equivalent(fr, fs, placement=True) -> None:
+    """Per IfcElement: inverse ContainedInStructure order, get_psets,
+    get_type and (optionally) the resolved local placement all match."""
+    for er in fr.by_type("IfcElement"):
+        es = fs.by_id(er.id())
+        assert [r.id() for r in er.ContainedInStructure] == \
+               [r.id() for r in es.ContainedInStructure], er.id()
+        assert _ue.get_psets(er) == SL.get_psets(es), er.id()
+        tr, ts = _ue.get_type(er), SL.get_type(es)
+        assert (tr.id() if tr else None) == (ts.id() if ts else None), er.id()
+        if placement:
+            assert _up.get_local_placement(er.ObjectPlacement).tolist() == \
+                   SL.get_local_placement(es.ObjectPlacement), er.id()
+
+
+def _run_bare(code: str, *, isolated=True, timeout=120) -> str:
+    """Run ``code`` in a child interpreter with PYTHONPATH / RVT_STEPLITE_FORCE
+    scrubbed (``-S`` = no site-packages when ``isolated``); assert exit 0 and
+    return stdout."""
+    argv = [sys.executable] + (["-S"] if isolated else []) + ["-c", code]
+    env = {k: v for k, v in os.environ.items()
+           if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")}
+    proc = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True,
+                          timeout=timeout, env=env)
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    return proc.stdout
 
 
 @needs_ifcos
@@ -135,19 +170,11 @@ def test_psets_unit_scale_placement_inverse_match():
             es = fs.by_id(er.id())
             assert _ue.get_psets(er) == SL.get_psets(es), er.id()
         assert _uu.calculate_unit_scale(fr) == SL.calculate_unit_scale(fs)
-        for er in fr.by_type("IfcElement"):
-            es = fs.by_id(er.id())
-            assert _up.get_local_placement(er.ObjectPlacement).tolist() == \
-                   SL.get_local_placement(es.ObjectPlacement), er.id()
+        _assert_element_utils_equivalent(fr, fs)
         for er in fr.by_type("IfcTriangulatedFaceSet")[:8]:
             es = fs.by_id(er.id())
             assert sorted(x.id() for x in fr.get_inverse(er)) == \
                    [x.id() for x in fs.get_inverse(es)], er.id()
-        # get_type on every typed occurrence
-        for er in fr.by_type("IfcElectricDistributionBoard"):
-            tr = _ue.get_type(er)
-            ts = SL.get_type(fs.by_id(er.id()))
-            assert (tr.id() if tr else None) == (ts.id() if ts else None)
 
 
 # ===========================================================================
@@ -228,12 +255,7 @@ def test_steplite_runs_without_numpy_or_ifcopenshell():
         "assert not bad, bad\n"
         "print('OK stdlib-only')\n"
     )
-    proc = subprocess.run([sys.executable, "-S", "-c", code], cwd=ROOT,
-                          capture_output=True, text=True, timeout=120,
-                          env={k: v for k, v in os.environ.items()
-                               if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")})
-    assert proc.returncode == 0, proc.stderr[-2000:]
-    assert "OK stdlib-only" in proc.stdout
+    assert "OK stdlib-only" in _run_bare(code)
 
 
 @needs_corpus
@@ -311,12 +333,7 @@ def test_shim_stands_down_to_real_ifcopenshell():
         "import ifcopenshell.util.element  # real submodules resolve\n"
         "print('OK stand-down', ifcopenshell.version)\n"
     )
-    env = {k: v for k, v in os.environ.items()
-           if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")}
-    proc = subprocess.run([sys.executable, "-c", code], cwd=ROOT,
-                          capture_output=True, text=True, timeout=120, env=env)
-    assert proc.returncode == 0, proc.stderr[-2000:]
-    assert "OK stand-down" in proc.stdout
+    assert "OK stand-down" in _run_bare(code, isolated=False)
 
 
 def test_ensure_engine_appends_shim_only_when_real_absent():
@@ -342,12 +359,7 @@ def test_ensure_engine_appends_shim_only_when_real_absent():
         "assert facts.counts['meshes'] == 29\n"
         "print('OK ensure_engine fallback')\n"
     )
-    env = {k: v for k, v in os.environ.items()
-           if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")}
-    proc = subprocess.run([sys.executable, "-S", "-c", code], cwd=ROOT,
-                          capture_output=True, text=True, timeout=120, env=env)
-    assert proc.returncode == 0, proc.stderr[-2000:]
-    assert "OK ensure_engine fallback" in proc.stdout
+    assert "OK ensure_engine fallback" in _run_bare(code)
 
 
 # ===========================================================================
@@ -456,10 +468,188 @@ def test_extrusion_fixture_matches_ifcopenshell(extrusion_path):
     for er in fr.by_type("IfcExtrudedAreaSolid"):
         es = fs.by_id(er.id())
         assert sorted(x.id() for x in fr.get_inverse(er)) == [x.id() for x in fs.get_inverse(es)]
-    for er in fr.by_type("IfcElement"):
-        es = fs.by_id(er.id())
-        assert _up.get_local_placement(er.ObjectPlacement).tolist() == \
-               SL.get_local_placement(es.ObjectPlacement), er.id()
-        assert _ue.get_psets(er) == SL.get_psets(es), er.id()
-        tr, ts = _ue.get_type(er), SL.get_type(es)
-        assert (tr.id() if tr else None) == (ts.id() if ts else None), er.id()
+    _assert_element_utils_equivalent(fr, fs)
+
+
+# ===========================================================================
+# 6. foreign classes (#155): every IFC4 entity sits in the right by_type /
+#    is_a closure through rvt.ifc.ifc4_parents; the common building / MEP
+#    classes, ports, systems and void/fill relations have transcribed rows
+#    -- hand-authored fixture tests/fixtures_ifc_foreign.py, pinned ids
+# ===========================================================================
+
+import fixtures_ifc_foreign as FF  # noqa: E402
+
+
+@pytest.fixture(scope="module")
+def foreign_path(tmp_path_factory):
+    return FF.write_fixture(str(tmp_path_factory.mktemp("foreign")))
+
+
+def test_foreign_classes_land_in_product_and_element_closures(foreign_path):
+    """No ifcopenshell involved: the stdlib reader alone returns the pinned
+    IfcProduct / IfcElement id lists (ifcopenshell 0.8.5's own order),
+    including the four classes it has NO attribute row for."""
+    f = SL.open(foreign_path)
+    assert [e.id() for e in f.by_type("IfcProduct")] == FF.EXPECTED_PRODUCT_IDS
+    assert [e.id() for e in f.by_type("IfcElement")] == FF.EXPECTED_ELEMENT_IDS
+    assert [e.id() for e in f.by_type("ifcbuildingelement")] == FF.EXPECTED_PRODUCT_IDS[:8]
+    assert [e.id() for e in f.by_type("IfcFlowTerminal")] == [62, 52, 51]   # file order kept
+    assert [e.id() for e in f.by_type("IfcPort")] == [70, 71]
+    assert [e.id() for e in f.by_type("IfcSystem")] == [80, 82]
+    assert [e.id() for e in f.by_type("IfcRelDecomposes")] == [94, 95, 96, 97, 72, 73, 41]
+    assert [e.id() for e in f.by_type("IfcRelConnects")] == [74, 98, 42]
+    assert [e.is_a() for e in f.by_type("IfcNamedUnit")] == ["IfcSIUnit"]
+    assert f.by_type("IfcNoSuchThing") == [] and f.by_type("IfcCurve") == []
+    # untranscribed IFC4 classes: proper CamelCase, full is_a chain, the
+    # IfcElement attribute prefix served, leaf attributes a clear error
+    for camel, sid in FF.UNTRANSCRIBED.items():
+        e = f.by_id(sid)
+        assert camel.upper() not in SL._SCHEMA
+        assert e.is_a() == camel and e.is_a("IfcElement") and e.is_a("IfcProduct")
+        assert e.is_a("IfcRoot") and not e.is_a("IfcSpatialElement")
+        assert e.Tag == e.Name and len(e.GlobalId) == 22
+        assert e.ObjectPlacement.id() == 8 and e.Representation is None
+        assert [r.id() for r in e.ContainedInStructure] == [98]
+        assert f.by_guid(e.GlobalId) is e
+        with pytest.raises(AttributeError, match=r"attribute subset \(served: GlobalId, .* Tag\)"):
+            e.PredefinedType                       # noqa: B018
+    sensor = f.by_id(64)
+    assert sensor.is_a("IfcDistributionControlElement") and sensor.is_a("IfcDistributionElement")
+    assert not sensor.is_a("IfcDistributionFlowElement")
+    assert f.by_id(51).is_a("IfcFlowTerminal") and f.by_id(23).is_a("IfcBuildingElement")
+    # a class in NO table still parses, matches its exact name only, raises
+    ghost = SL.Entity(f, 999999, "IFCNOTINANYSCHEMA", ("x",))
+    assert ghost.is_a() == "IfcNotinanyschema" and not ghost.is_a("IfcRoot")
+    with pytest.raises(AttributeError, match=r"served: nothing"):
+        ghost.Name                                 # noqa: B018
+
+
+def test_transcribed_foreign_rows_serve_their_own_attributes(foreign_path):
+    f = SL.open(foreign_path)
+    door, window = f.by_id(20), f.by_id(21)
+    assert door.is_a("IfcBuildingElement") and door.is_a() == "IfcDoor"
+    assert (door.OverallHeight, door.OverallWidth, door.PredefinedType,
+            door.OperationType, door.UserDefinedOperationType) == \
+        (2.134, 0.914, "DOOR", "SINGLE_SWING_LEFT", None)
+    assert (window.OverallWidth, window.PartitioningType) == (0.9, "SINGLE_PANEL")
+    for sid, (camel, ptype) in FF.PREDEFINED_TYPES.items():
+        e = f.by_id(sid)
+        assert (e.is_a(), e.PredefinedType, e.Tag) == (camel, ptype, e.Name), sid
+    assert f.by_id(50).is_a() == "IfcFurnishingElement" and f.by_id(50).Tag == "DESK"
+    assert f.by_id(63).is_a("IfcFlowStorageDevice") and f.by_id(54).is_a("IfcFlowFitting")
+    # opening / door relations
+    voids, fills = f.by_id(41), f.by_id(42)
+    assert (voids.RelatingBuildingElement.id(), voids.RelatedOpeningElement.id()) == (40, 12)
+    assert (fills.RelatingOpeningElement.id(), fills.RelatedBuildingElement.id()) == (12, 20)
+    # ports: nested under their elements, connected to each other
+    port = f.by_id(70)
+    assert (port.is_a(), port.FlowDirection, port.PredefinedType, port.SystemType) == \
+        ("IfcDistributionPort", "SOURCE", "CABLE", "ELECTRICAL")
+    nests = f.by_type("IfcRelNests")
+    assert [(r.RelatingObject.id(), [o.id() for o in r.RelatedObjects]) for r in nests] == \
+        [(60, [70]), (52, [71])]
+    conn = f.by_type("IfcRelConnectsPorts")[0]
+    assert (conn.RelatingPort.id(), conn.RelatedPort.id(), conn.RealizingElement) == (70, 71, None)
+    # systems / zones + group assignment
+    lv, zone = f.by_id(80), f.by_id(82)
+    assert (lv.is_a(), lv.Name, lv.LongName, lv.PredefinedType) == \
+        ("IfcDistributionSystem", "LV", "Low voltage distribution", "ELECTRICAL")
+    assert lv.is_a("IfcSystem") and lv.is_a("IfcGroup") and lv.is_a("IfcObject")
+    assert (zone.is_a(), zone.LongName) == ("IfcZone", "EZ-1")
+    groups = {r.RelatingGroup.id(): [o.id() for o in r.RelatedObjects]
+              for r in f.by_type("IfcRelAssignsToGroup")}
+    assert groups == {80: [60, 52, 61], 82: [93]}
+    assert f.by_type("IfcRelAssignsToGroup")[0].RelatedObjectsType is None
+    # the true intermediate supertypes added for #155
+    unit = f.by_id(9)
+    assert unit.is_a("IfcNamedUnit") and (unit.UnitType, unit.Prefix, unit.Name) == \
+        ("LENGTHUNIT", None, "METRE") and unit.Dimensions is None       # derived '*'
+    assert SL.calculate_unit_scale(f) == 1
+
+
+def test_foreign_fixture_reads_on_a_bare_interpreter(foreign_path):
+    """``python -S`` (no site-packages): the closure fix rides on nothing but
+    the stdlib + our own generated table."""
+    code = (
+        "import sys\n"
+        f"sys.path.insert(0, {SRC!r})\n"
+        "from rvt.ifc import steplite as SL\n"
+        f"f = SL.open({foreign_path!r})\n"
+        f"assert [e.id() for e in f.by_type('IfcProduct')] == {FF.EXPECTED_PRODUCT_IDS!r}\n"
+        "assert f.by_id(64).is_a('IfcElement') and f.by_id(64).Name == 'OCC-1'\n"
+        "bad = [m for m in sys.modules if m.split('.')[0] in ('numpy', 'ifcopenshell', 'olefile')]\n"
+        "assert not bad, bad\n"
+        "print('OK foreign stdlib-only')\n"
+    )
+    assert "OK foreign stdlib-only" in _run_bare(code)
+
+
+def test_schema_rows_agree_with_the_generated_ifc4_table():
+    """Always runs: every transcribed row keys on its own uppercase name and
+    names the TRUE IFC4 supertype (so the union tree has one parent per
+    class); the generated table is self-consistent."""
+    from rvt.ifc.ifc4_parents import PARENT, SCHEMA
+
+    assert SCHEMA == "IFC4" and len(PARENT) > 700 and PARENT["IfcRoot"] is None
+    assert all(p is None or p in PARENT for p in PARENT.values())
+    for uname, (camel, parent, _own) in SL._SCHEMA.items():
+        assert uname == camel.upper(), camel
+        if uname in SL._BEYOND_IFC4 and SL._BEYOND_IFC4[uname] is None:
+            assert camel not in PARENT, camel                 # whole class beyond IFC4
+            continue
+        assert (SL._camel_of(parent) if parent else None) == PARENT[camel], (camel, parent)
+    # spot checks of the closure machinery itself
+    assert SL._full_attrs("IFCSENSOR") == SL._full_attrs("IFCELEMENT")   # ancestor prefix
+    assert SL._full_attrs("IFCNOTINANYSCHEMA") == ()
+    assert SL._camel_of("IFCCARTESIANTRANSFORMATIONOPERATOR2DNONUNIFORM") == \
+        "IfcCartesianTransformationOperator2DnonUniform"
+
+
+@needs_ifcos
+def test_schema_rows_match_ifc4_declarations():
+    """The programmatic cross-check: every transcribed row's FULL positional
+    attribute list equals ifcopenshell's IFC4 declaration (modulo the
+    documented ``_BEYOND_IFC4`` extensions), and the sibling order by_type
+    walks equals ``entity.subtypes()`` order for every parent."""
+    import ifcopenshell.ifcopenshell_wrapper as W
+
+    schema = W.schema_by_name("IFC4")
+    for uname, (camel, _parent, _own) in SL._SCHEMA.items():
+        extra = SL._BEYOND_IFC4.get(uname, ())
+        if extra is None:
+            continue                                          # whole class beyond IFC4
+        truth = tuple(a.name() for a in schema.declaration_by_name(camel).all_attributes())
+        assert SL._full_attrs(uname) == truth + extra, camel
+    for uname, kids in SL._CHILDREN.items():
+        if SL._BEYOND_IFC4.get(uname, ()) is None:
+            continue
+        truth = [d.name().upper() for d in schema.declaration_by_name(SL._camel_of(uname)).subtypes()]
+        assert [k for k in kids if k in truth] == truth, uname
+
+
+@needs_ifcos
+def test_generated_parent_table_is_current():
+    proc = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "dev", "gen_ifc4_parents.py"),
+                           "--check"], cwd=ROOT, capture_output=True, text=True, timeout=120)
+    assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
+
+
+@needs_ifcos
+def test_foreign_fixture_matches_ifcopenshell(foreign_path):
+    """Parity leg: by_type closures + ordering for every class level, every
+    served attribute equal, unserved leaf attributes of untranscribed
+    classes raise (never silently differ), inverse attributes equal."""
+    fr, fs = _ifcos.open(foreign_path), SL.open(foreign_path)
+    _assert_by_type_equivalent(fr, fs, (
+        "IfcRoot", "IfcObjectDefinition", "IfcObject", "IfcProduct", "IfcElement",
+        "IfcBuildingElement", "IfcDistributionElement", "IfcDistributionFlowElement",
+        "IfcDistributionControlElement", "IfcFlowTerminal", "IfcFlowController",
+        "IfcFlowFitting", "IfcEnergyConversionDevice", "IfcFlowStorageDevice",
+        "IfcFeatureElement", "IfcPort", "IfcSpatialElement", "IfcSpatialStructureElement",
+        "IfcGroup", "IfcSystem", "IfcRelationship", "IfcRelDecomposes", "IfcRelConnects",
+        "IfcRelAssigns", "IfcRelDefines", "IfcNamedUnit", "IfcDoor", "IfcSensor",
+        "IfcRepresentationItem", "IfcPlacement"))
+    assert [e.id() for e in fr.by_type("IfcProduct")] == FF.EXPECTED_PRODUCT_IDS
+    assert _assert_attrs_equivalent(fr, fs) > 300     # raises-not-differs for the 4 untranscribed
+    _assert_element_utils_equivalent(fr, fs, placement=HAVE_NUMPY)
