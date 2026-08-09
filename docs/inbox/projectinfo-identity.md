@@ -35,8 +35,8 @@ Decoded from `plugin/assets/genesis/G_ABPD.rvt` (element **49504**, class
   `ProjectIdentity` (the ten strings; defaults: status
   `PROJECT_STATUS_PROOF_ONLY = "PROOF-ONLY"`, author
   `identity.PRODUCT_AUTHOR_PLACEHOLDER`, everything unknown = blank, never a
-  base placeholder), `FIELD_PARAMS` (field → BuiltInParameter id + Revit UI
-  label, the ten ids `genesis.skeleton.new_project_info` authors),
+  base placeholder), `FIELD_PARAMS` (field → BuiltInParameter id: the ten ids
+  `genesis.skeleton.new_project_info` authors),
   `build_date()` (ISO UTC; honours `SOURCE_DATE_EPOCH`),
   `identity_from_intent(model, issue_date=None)` (name from the intent on
   every route — prompt: the room's name; IFC: `IfcProject.Name` — plus the
