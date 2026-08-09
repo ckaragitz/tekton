@@ -140,7 +140,10 @@ that have it, not on this clone.
   `--check` clean; `plugin/scripts/validate_plugin.py` PASS (23 assertions);
   `tools/dev/check_portable_paths.py` ok.
 
-## Findings / follow-ups (out of territory — filed as task issues, `Refs #171`)
+## Findings / follow-ups (out of territory — tracked as task issues, `Refs #171`)
+
+Issue map: 1 → already #172; 2 → filed **#241**; 3 → filed **#242**; 4 → noted
+in #242's territory (resolver mode) rather than a separate issue; 5 → already #94.
 
 1. **The fallback line for a NEWER target is worded for an older one.**
    `_resolve_base_and_version` says "your Revit 2027 cannot open it" for a
