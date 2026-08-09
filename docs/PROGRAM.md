@@ -72,6 +72,10 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
    compose) — owner-machine + viewer-gated; sessions prepare and STAGE, a human uploads.
 9. **O9 Autonomy OS landed and boring:** #55 merged; a week of planner/worker/board runs with no
    human intervention except §10 items; follow-ups filed by the planner itself.
+10. **O10 Plugin latency as a measured, standing concern** (epic #110, steer #108/S-2026-08-09-g):
+    round-trips per skill flow (#111), SKILL.md/reference token weight (#112), and baseline
+    coverage of every skill surface including `tekton-ifc` (#113). *Done = each child's DONE, and
+    `tools/surface_bench.py` has a recorded before/after for every latency change merged.*
 
 ## Not goals (decided — do not re-propose without a new steer)
 
