@@ -29,11 +29,9 @@ Canonical jobs (the documented one-command skill flows, in session order):
   author-prompt    _bootstrap.py run frontdoor.py author --prompt <panel> --json
   go-author-prompt _bootstrap.py go author --prompt <panel> --json (ONE call:
                    inline readiness + the job + one combined JSON)
-  go-author-6panels  the same ONE call with the README/CLAUDE.md flagship
-                   prompt "an electrical room with 6 panels" (six generated
-                   families loaded + placed); its wall seconds and the `go`
-                   envelope's job_seconds are what the latency epic (#110)
-                   and the tests/test_surface_perf.py ceiling (#184) track
+  go-author-6panels
+                   the same ONE call with the flagship ROOM6_PROMPT (six
+                   generated families loaded + placed; the #184 ceiling)
   author-ifc       _bootstrap.py run frontdoor.py author --ifc electrical-room-2500a.ifc --json
   edit-roundtrip   rvt_edit.py info -> set-level -> rvt_validate.py (3 calls,
                    the pre-#111 tekton-edit flow incl. the mandatory gate; kept
@@ -73,6 +71,7 @@ PLUGIN_TREE = os.path.join(ROOT, "plugin")
 PANEL_PROMPT = "create an eaton panel for me with 6 switches"
 #: the flagship demo prompt: SIX generated families loaded + placed (issue #124)
 ROOM6_PROMPT = "an electrical room with 6 panels"
+ROOM6_FAMILIES = 6
 IFC_EXAMPLE_REL = os.path.join("skills", "tekton-author", "examples",
                                "electrical-room-2500a.ifc")
 #: `go edit` input: the bundled, certified Revit 2025 base (always in the
@@ -379,6 +378,23 @@ def stage_breakdown(result: dict, envelope: dict | None = None) -> dict:
     return bd
 
 
+def load_stage(bd: dict) -> dict:
+    """The manifest's family-load (L) stage row of a breakdown, or {}."""
+    return next((st for st in bd.get("stages") or [] if st.get("stage") == "L"), {})
+
+
+def _degraded_load(bd: dict) -> str:
+    """A non-empty reason when the job loaded fewer families than it planned.
+    The front door still delivers such a build (rule 1) and reports ok, but a
+    job that got fast by loading 2/6 families is not a bench PASS -- it would
+    read as a latency win in the headline table."""
+    load = load_stage(bd)
+    planned, loaded = load.get("n_planned"), load.get("n_loaded")
+    if planned and loaded is not None and loaded < planned:
+        return f"degraded load: {loaded}/{planned} families (delivered, but not the job that was asked for)"
+    return ""
+
+
 def _fmt_breakdown(bd: dict) -> str:
     """'F 4.1s · L 1.5s (1 pass, 6/6) · W 0.3s · E 0.2s · V 1.6s' for the table notes."""
     parts = []
@@ -424,7 +440,8 @@ def job_author_prompt(s: Surface, state: dict) -> JobResult:
         return job.fail("no combined .rvt in the result")
     job.breakdown = stage_breakdown(res)
     state["authored_rvt"] = s.keep_artifact(combined, "prompt_room.rvt")
-    return job
+    degraded = _degraded_load(job.breakdown)
+    return job.fail(degraded) if degraded else job
 
 
 def job_go_author_prompt(s: Surface, state: dict) -> JobResult:
@@ -464,9 +481,10 @@ def _job_go_author(s: Surface, state: dict, name: str, prompt: str, short: str) 
         return job.fail(f"go author reported not-ok: {_tail(inv)}")
     job.breakdown = stage_breakdown(inner, envelope=res)
     combined = (inner.get("files") or {}).get("combined")
-    if combined and os.path.isfile(combined):
-        state.setdefault("authored_rvt", s.keep_artifact(combined, "prompt_room.rvt"))
-    return job
+    if combined and os.path.isfile(combined) and "authored_rvt" not in state:
+        state["authored_rvt"] = s.keep_artifact(combined, "prompt_room.rvt")
+    degraded = _degraded_load(job.breakdown)
+    return job.fail(degraded) if degraded else job
 
 
 def job_author_ifc(s: Surface, state: dict) -> JobResult:

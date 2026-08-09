@@ -11,12 +11,10 @@ install, an eager heavy import, a schema re-parse on the readiness path, or
 a new mandatory shell call sneaking into the flow.
 
 The README/CLAUDE.md FLAGSHIP job -- `go author --prompt "an electrical room
-with 6 panels"`: six generated families, loaded and placed, walls, circuits,
-the gates, ONE shell call -- has its own ceiling (issue #184).  It is the job
-the latency epic (#110) tracks, and it moved 27-28.6 s -> ~10 s (#237 ECC)
--> ~8.5 s (#256 one host pass) -> 3.1-3.7 s (#292 schema memo) on the same
-class of cloud VM; gating only the 1-panel prompt would leave a 4x flagship
-regression (or the loss of any of those wins) invisible.
+with 6 panels"`, six generated families loaded and placed in ONE call -- has
+its own, tighter ceiling (issue #184): it is the job the latency epic (#110)
+tracks, and gating only the 1-panel prompt would leave a 4x flagship
+regression (or the loss of the #237 / #256 / #292 wins) invisible.
 
 The bench itself is tools/surface_bench.py (the simulated-surface harness);
 this test drives its "cowork" surface -- a fresh copy of plugin/ at a
@@ -39,26 +37,20 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PREFLIGHT_CEILING = 2.0
 AUTHOR_CEILING = 20.0
 EDIT_CEILING = 20.0
-# The flagship 6-panel `go author` job (issue #184).  Measured 2026-08-09 on
-# a claude.ai/code cloud VM (4 vCPU Intel Xeon @ 2.10 GHz, Linux 6.18, bare
-# system python 3.11.15, numpy absent) at main@dc0980f: by-hand bare unzip
-# go.job_seconds 3.479 / 3.081 / 3.084 (median 3.08 s, wall 3.19 s); the
-# bench's cowork surface from the shipped zip 3.1 s (codeexec 3.7 s, local
-# 3.2 s); this fixture (cowork, plugin/ tree, numpy present via the user
-# site) 3.48 / 3.44 / 3.31 s wall, job_seconds 3.37 / 3.32 / 3.20.  The
-# GitHub ubuntu-latest runner timed the shard's other bare-build tests
-# within a few percent of this VM the same day, so 8 s is ~2.3-2.5x the
-# medians and ~2.2x the slowest observed run: room for runner variance,
-# none for a lost win (the pre-#292 8.1-8.9 s job and the pre-#237 27 s job
-# both fail it).  Widen only with a newly measured number stated here;
-# never delete the assertion.
+# The flagship 6-panel `go author` job (issue #184): measured 2026-08-09 at
+# main@dc0980f on a claude.ai/code cloud VM (bare system python 3.11), median
+# 3.1-3.4 s wall, slowest observed 3.7 s; GitHub's ubuntu-latest runner timed
+# the shard's other bare builds on par with that VM the same day.  8 s is
+# ~2.3x headroom for runner variance and still fails both earlier states of
+# main (pre-#292 8.1-8.9 s, pre-#237 27 s).  Per-run / per-surface tables:
+# docs/inbox/perf-surfaces.md "FLAGSHIP-PERF-GATE".  Widen only with a newly
+# measured number stated here; never delete the assertion.
 ROOM6_CEILING = 8.0
-ROOM6_FAMILIES = 6
 
-# the canonical flow's call budget: preflight 1 + author 1 + edit 1 (`go edit`,
-# issue #111; the pre-#111 edit flow alone was 3: info -> edit -> gate)
-CANONICAL_SESSION = ("preflight", "author-prompt", "go-edit")
-SESSION_CALL_BUDGET = 3
+# the session's call budget: preflight 1 + author 1 + edit 1 (`go edit`, issue
+# #111; the pre-#111 edit flow alone was 3: info -> edit -> gate) + the
+# flagship author job 1 (`go author`, readiness inline)
+SESSION_CALL_BUDGET = 4
 
 
 def _load_bench():
@@ -88,11 +80,15 @@ def shutil_which(name: str):
 
 
 @pytest.fixture(scope="module")
-def bench_report():
-    bench = _load_bench()
+def bench():
+    return _load_bench()
+
+
+@pytest.fixture(scope="module")
+def bench_report(bench):
     report = bench.run_bench(
         surfaces=["cowork"],
-        jobs=[*CANONICAL_SESSION, "go-author-6panels"],
+        jobs=["preflight", "author-prompt", "go-edit", "go-author-6panels"],
         source=os.path.join(ROOT, "plugin"),      # the working tree, always current
         python_bare=_bare_python(),
         timeout=120.0,
@@ -138,18 +134,20 @@ def test_bare_go_edit_is_one_call_and_bounded(bench_report):
     assert jd["seconds"] < EDIT_CEILING
 
 
-def test_bare_go_author_6panels_under_ceiling(bench_report):
-    """The flagship demo job in ONE `go author` call on a bare surface: READY,
-    ok, all six families actually loaded (a job that got fast by silently
-    loading nothing is not a pass), and under ROOM6_CEILING (issue #184)."""
+def test_bare_go_author_6panels_under_ceiling(bench, bench_report):
+    """The flagship demo job in ONE `go author` call on a bare surface: PASS
+    (the bench itself refuses a degraded load as a pass), the full family
+    count planned (a prompt-parse collapse to fewer families would be fast
+    for the wrong reason), job_seconds reported, and under ROOM6_CEILING
+    (issue #184)."""
     jd = _job(bench_report, "go-author-6panels")
     assert jd["status"] == "PASS", f"flagship `go author` (6 panels) failed on a bare surface: {jd['reason']}"
     assert jd["shell_calls"] == 1, "the flagship prompt job must stay ONE `go author` call"
     bd = jd.get("breakdown") or {}
     assert bd.get("job_seconds") is not None, "the `go` envelope must report job_seconds"
-    load = next((st for st in bd.get("stages") or [] if st.get("stage") == "L"), {})
-    assert load.get("n_loaded") == load.get("n_planned") == ROOM6_FAMILIES, (
-        f"the flagship job must load all {ROOM6_FAMILIES} generated families "
+    load = bench.load_stage(bd)
+    assert load.get("n_planned") == bench.ROOM6_FAMILIES, (
+        f"the flagship prompt must plan {bench.ROOM6_FAMILIES} generated families "
         f"(manifest L stage: {load})")
     assert jd["seconds"] < ROOM6_CEILING, (
         f"bare-env flagship `go author` (6 panels) took {jd['seconds']}s, job_seconds "
@@ -160,7 +158,7 @@ def test_bare_go_author_6panels_under_ceiling(bench_report):
 def test_session_shell_call_budget(bench_report):
     """The choreography budget: a new mandatory call in any canonical flow is
     a regression on every surface (each call is a model round-trip)."""
-    total = sum(_job(bench_report, name)["shell_calls"] for name in CANONICAL_SESSION)
+    total = sum(j["shell_calls"] for j in bench_report["jobs"])
     assert total <= SESSION_CALL_BUDGET, (
-        f"the canonical preflight+author+edit session now takes {total} shell "
+        f"the canonical preflight+author+edit+flagship session now takes {total} shell "
         f"calls (budget {SESSION_CALL_BUDGET}) -- a flow grew an extra round-trip")

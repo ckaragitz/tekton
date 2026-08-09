@@ -295,20 +295,30 @@ carries the `go-author-6panels` job (`ROOM6_PROMPT = "an electrical room
 with 6 panels"`, ONE `_bootstrap.py go author` call; landed with the #124 /
 #183 latency work): it is in `JOB_ORDER`, so the cowork / codeexec / local
 tables and `--json` report it with wall `seconds` and the `go` envelope's
-`breakdown.job_seconds` (+ per-stage seconds). This stream only added it to
-the module docstring's job list; no behaviour change.
+`breakdown.job_seconds` (+ per-stage seconds). This stream added it to the
+module docstring's job list, put `ROOM6_FAMILIES = 6` beside the prompt, and
+made one verdict change that came out of the `/simplify` altitude review:
+both author jobs (`author-prompt` via `run`, `go-author-*` via `go`) now
+FAIL with `degraded load: n/m families (delivered, but not the job that was
+asked for)` when the manifest's L stage loaded fewer families than it
+planned (`_degraded_load` / `load_stage`). The front door still delivers
+such a build and reports ok (rule 1 — the bench never withholds anything, it
+only refuses to print a partial load as a latency PASS in the headline
+table). On `main` today every surface loads 6/6 and 1/1, so no cell changed.
+Also fixed: `_job_go_author` no longer copies the artifact eagerly inside
+`state.setdefault(...)` when an earlier job already kept one.
 
 **What this stream built (DONE 2).** `tests/test_surface_perf.py` gains
 `test_bare_go_author_6panels_under_ceiling`: the fixture now runs
 `preflight, author-prompt, go-edit, go-author-6panels` on the bench's cowork
 surface (plugin working tree, bare interpreter, cleared env, dead proxies)
-and asserts the flagship job PASS in ONE shell call, `go.job_seconds`
-reported, all 6 families loaded (manifest L stage `n_loaded == n_planned ==
-6` — fast-by-loading-nothing is not a pass), and wall **< `ROOM6_CEILING =
-8.0 s`**. The call-budget test now sums the named canonical trio
-(`CANONICAL_SESSION`, budget 3) so the extra author job does not count as a
-choreography regression. Ceiling rationale is in the test file next to the
-constant (date, VM, every measured value); summary below.
+and asserts the flagship job PASS in ONE shell call (PASS now implies no
+degraded load, above), `go.job_seconds` reported, the L stage planned
+`bench.ROOM6_FAMILIES` families (a prompt-parse collapse to fewer families
+would be fast for the wrong reason), and wall **< `ROOM6_CEILING = 8.0 s`**.
+`SESSION_CALL_BUDGET` goes 3 → 4 (preflight 1 + author 1 + `go edit` 1 + the
+flagship `go author` 1) and still sums every job the fixture runs. The
+load-bearing calibration sits next to the constant; the full tables are here.
 
 ### Baseline (this cloud VM, `main@dc0980f` = #292 schema memo merged; 4 vCPU Intel Xeon @ 2.10 GHz, Linux 6.18, system python 3.11.15)
 
@@ -380,19 +390,31 @@ one ~7 s fixture; the shard measured 118.9 s / 674 passed (py3.11, PR #292)
 today, so the < 10 min target is untouched.
 
 **Gates run.** `tests/test_surface_perf.py tests/test_bootstrap.py
-tests/test_coldstart.py -q` (counts in the PR); `tools/sync_plugin.py` then
-`--check` → in sync (surface_bench.py is not mirrored into the plugin);
-`plugin/scripts/validate_plugin.py` PASS; `tools/dev/check_portable_paths.py`
-ok. Full suite not run (SUITE-COORDINATION).
+tests/test_coldstart.py -q` → 24 passed (11.6 s; the perf module alone: 5
+passed, one ~6.7 s fixture); `tests/test_famload_batch.py -k surface_bench`
+→ 1 passed (the other `stage_breakdown` consumer); `/simplify` (four
+angles) → taken: trim the triple-narrated measurements, budget test back to
+summing every job (budget 4), family count beside the prompt in the bench,
+degraded-load verdict pushed down into the bench, shorter docstring entry,
+the eager `keep_artifact`; skipped: a shared `_assert_one_call_under`
+helper (would rewrite three pre-existing tests) and dropping the
+`job_seconds` presence assert (it is DONE 1's contract). `/verify` → the
+plugin/bench recipe: `tools/sync_plugin.py` (zip rebuilt) then
+`tools/surface_bench.py --zip tekton-plugin.zip` on the final tree, table in
+the PR; `--check` → in sync (surface_bench.py is not mirrored into the
+plugin); `plugin/scripts/validate_plugin.py` PASS (24 assertions);
+`tools/dev/check_portable_paths.py` ok. Full suite not run
+(SUITE-COORDINATION).
 
 ### BRANCH STATE (FLAGSHIP-PERF-GATE, #184)
 
 * Branch `cam/184-flagship-perf-gate` from `main@dc0980f`. Files:
-  `tests/test_surface_perf.py` (new test + `ROOM6_CEILING` / `ROOM6_FAMILIES`
-  / `CANONICAL_SESSION`, docstring), `tools/surface_bench.py` (docstring job
-  list only), `docs/inbox/perf-surfaces.md` (this section).
-  `tests/ci_shard.txt` untouched (#136). No hot file, no engine code, no
-  `plugin/lib/**`.
+  `tests/test_surface_perf.py` (new test + `bench` fixture, `ROOM6_CEILING`,
+  `SESSION_CALL_BUDGET` 3 → 4, docstring), `tools/surface_bench.py`
+  (`ROOM6_FAMILIES`, `load_stage`, `_degraded_load` verdict in both author
+  jobs, `setdefault` fix, docstring job list), `docs/inbox/perf-surfaces.md`
+  (this section). `tests/ci_shard.txt` untouched (#136). No hot file, no
+  engine code, no `plugin/lib/**`.
 * Shipped: nothing beyond the PR; `tekton-plugin.zip` rebuilt locally for
   the measurements only (git-ignored). Bench artifacts `out/bench-184.json|md`
   are session-local; their numbers are transcribed above.
