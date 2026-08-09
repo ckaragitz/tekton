@@ -1,0 +1,155 @@
+{
+ "fixture": "c_storeys_relative_placement",
+ "generator": "tools/dev/make_ifc_fixtures.py",
+ "pins": "two storeys (0 and 4 m) under a building rotated 90 deg and offset (10,5), products placed by NON-identity local placements with local (not world-baked) vertices",
+ "notes": [
+  "world = site o building o storey o product o local vertex: insertion_m proves the chain composes (position_source = placement-chain + local geometry)",
+  "#331: LP-2 is named a lighting panel but classifies receptacle_panelboard: the 208Y/120 V (ll <= 240) rule fires before the lighting/LP- name rule in _classify_equipment -- today's order, pinned; #331 decides bug vs intended",
+  "#156: level ids/elevations are pinned here; how they map onto the base's levels at build time is #156's expectation to add"
+ ],
+ "parity_xfail": null,
+ "pinned_backend": "steplite",
+ "expected": {
+  "ok": true,
+  "schema": "IFC4",
+  "project": "tekton conformance fixture",
+  "length_scale_m_per_unit": 1.0,
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Ground",
+    "elevation": 0.0,
+    "elevation_from_placement": 0.0
+   },
+   {
+    "id": "L2",
+    "name": "First",
+    "elevation": 4.0,
+    "elevation_from_placement": 4.0
+   }
+  ],
+  "equipment": [
+   {
+    "tag": "T-1",
+    "name": "T-1 dry-type transformer 75 kVA",
+    "ifcClass": "IfcTransformer",
+    "predefinedType": "VOLTAGE",
+    "kind": "transformer",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     9.0,
+     7.0,
+     0.0
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {
+     "w": 0.8,
+     "d": 0.6,
+     "h": 1.1,
+     "footprint_area": 0.48
+    },
+    "mounting": "floor",
+    "position_source": "placement-chain + local geometry",
+    "fed_from": null,
+    "contract": {
+     "RatingkVA": 75.0,
+     "Primary": "480 V",
+     "Secondary": "208Y/120 V",
+     "PanelName": "T-1"
+    },
+    "items": [
+     "T-1_body",
+     "T-1_nameplate"
+    ]
+   },
+   {
+    "tag": "LP-2",
+    "name": "LP-2 lighting panel 208Y/120 V",
+    "ifcClass": "IfcElectricDistributionBoard",
+    "predefinedType": "DISTRIBUTIONBOARD",
+    "kind": "receptacle_panelboard",
+    "disposition": "generated-family",
+    "level": "L2",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     9.5,
+     7.9,
+     5.4
+    ],
+    "front_normal": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "yaw_deg": -180.0,
+    "dims_m": {
+     "w": 0.6,
+     "d": 0.2,
+     "h": 1.2,
+     "footprint_area": 0.12,
+     "enclosure_w": 0.6,
+     "enclosure_h": 1.2,
+     "top_of_panel": 6.0,
+     "bottom_of_panel": 4.8
+    },
+    "mounting": "wall",
+    "position_source": "placement-chain + local geometry",
+    "fed_from": "T-1",
+    "contract": {
+     "PanelName": "LP-2",
+     "Voltage": "208Y/120 V",
+     "BusRating": 100.0,
+     "MainsType": "Main lugs only",
+     "FedFrom": "T-1",
+     "MainsRating": 100.0,
+     "Phases": 3.0,
+     "Wires": 4.0
+    },
+    "items": [
+     "LP-2_enclosure",
+     "LP-2_nameplate"
+    ]
+   }
+  ],
+  "other_products": [],
+  "room": null,
+  "feeders": [
+   {
+    "source": "T-1",
+    "target": "LP-2",
+    "kind": "secondary"
+   }
+  ],
+  "conduit_runs": [],
+  "family_plans": [
+   {
+    "tag": "T-1",
+    "kind": "transformer",
+    "status": "resolved",
+    "catalog": "eaton/dry-type-transformers"
+   },
+   {
+    "tag": "LP-2",
+    "kind": "receptacle_panelboard",
+    "status": "resolved",
+    "catalog": "eaton/pow-r-line-panelboards"
+   }
+  ],
+  "audit": {
+   "feeder_roots_external": [],
+   "load_equipment_unfed": [
+    "T-1"
+   ],
+   "positions_all_zero": false
+  }
+ }
+}

@@ -1,0 +1,163 @@
+{
+ "fixture": "f_board_type_psets",
+ "generator": "tools/dev/make_ifc_fixtures.py",
+ "pins": "IfcElectricDistributionBoard + IfcElectricDistributionBoardType (IfcRelDefinesByType), PanelSchedule on the occurrence overriding a type-level PanelSchedule, Pset_ManufacturerTypeInformation on the type, fed from an MSB switchboard in the file",
+ "notes": [
+  "get_psets semantics: type psets first, occurrence values override per name (Mounting comes out SURFACE from the occurrence, NumberOfCircuits 42 from the type)",
+  "the feeder edge MSB -> DP-1 comes from FedFrom; MSB has no catalog line -> house family"
+ ],
+ "parity_xfail": null,
+ "pinned_backend": "steplite",
+ "expected": {
+  "ok": true,
+  "schema": "IFC4",
+  "project": "tekton conformance fixture",
+  "length_scale_m_per_unit": 1.0,
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Level 1",
+    "elevation": 0.0,
+    "elevation_from_placement": 0.0
+   }
+  ],
+  "equipment": [
+   {
+    "tag": "MSB",
+    "name": "MSB main switchboard 2000 A",
+    "ifcClass": "IfcElectricDistributionBoard",
+    "predefinedType": "SWITCHBOARD",
+    "kind": "switchboard",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     1.5,
+     3.0,
+     0.1
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {
+     "w": 2.4,
+     "d": 0.9,
+     "h": 2.3,
+     "footprint_area": 2.16
+    },
+    "mounting": "floor",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": "UTILITY",
+    "contract": {
+     "PanelName": "MSB",
+     "Voltage": "480Y/277 V",
+     "BusRating": 2000.0,
+     "MainsType": "Main breaker",
+     "Sections": 3.0,
+     "FedFrom": "UTILITY",
+     "MainsRating": 2000.0,
+     "Phases": 3.0,
+     "Wires": 4.0
+    },
+    "items": [
+     "MSB_body",
+     "MSB_nameplate",
+     "pad_MSB"
+    ]
+   },
+   {
+    "tag": "DP-1",
+    "name": "DP-1",
+    "ifcClass": "IfcElectricDistributionBoard",
+    "predefinedType": "DISTRIBUTIONBOARD",
+    "kind": "distribution_panelboard",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": "THP 400 A 42 ckt",
+    "has_body": true,
+    "insertion_m": [
+     5.0,
+     4.025,
+     1.25
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {
+     "w": 0.9,
+     "d": 0.25,
+     "h": 1.5,
+     "footprint_area": 0.225,
+     "enclosure_w": 0.9,
+     "enclosure_h": 1.5,
+     "top_of_panel": 2.0,
+     "bottom_of_panel": 0.5
+    },
+    "mounting": "wall",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": "MSB",
+    "contract": {
+     "Mounting": "SURFACE",
+     "NumberOfCircuits": 42.0,
+     "PanelName": "DP-1",
+     "Voltage": "480Y/277 V",
+     "BusRating": 400.0,
+     "MainsType": "Main breaker",
+     "FedFrom": "MSB",
+     "Manufacturer": "tekton house",
+     "ModelLabel": "THP-400-42",
+     "MainsRating": 400.0,
+     "Phases": 3.0,
+     "Wires": 4.0
+    },
+    "items": [
+     "DP-1_enclosure",
+     "DP-1_nameplate"
+    ]
+   }
+  ],
+  "other_products": [],
+  "room": null,
+  "feeders": [
+   {
+    "source": "UTILITY",
+    "target": "MSB",
+    "kind": "feeder"
+   },
+   {
+    "source": "MSB",
+    "target": "DP-1",
+    "kind": "feeder"
+   }
+  ],
+  "conduit_runs": [],
+  "family_plans": [
+   {
+    "tag": "MSB",
+    "kind": "switchboard",
+    "status": "house",
+    "catalog": null
+   },
+   {
+    "tag": "DP-1",
+    "kind": "distribution_panelboard",
+    "status": "resolved",
+    "catalog": "eaton/pow-r-line-panelboards"
+   }
+  ],
+  "audit": {
+   "feeder_roots_external": [
+    "UTILITY"
+   ],
+   "load_equipment_unfed": [],
+   "positions_all_zero": false
+  }
+ }
+}

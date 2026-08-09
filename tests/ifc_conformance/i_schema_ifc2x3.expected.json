@@ -1,0 +1,119 @@
+{
+ "fixture": "i_schema_ifc2x3",
+ "generator": "tools/dev/make_ifc_fixtures.py",
+ "pins": "FILE_SCHEMA IFC2X3: IfcFacetedBrep bodies (no tessellation in 2x3), an IfcBuildingElementProxy room shell with CompositionType, an IfcElectricDistributionPoint panel",
+ "notes": [
+  "#159: schema is reported as IFC2X3; steplite has no IfcElectricDistributionPoint row, so the 2x3 panel is absent from its IfcProduct closure (equipment empty) while real ifcopenshell records it as kind proxy -- #159 classifies it as a board",
+  "steplite reads the 2x3 proxy's CompositionType slot as PredefinedType (harmless: the proxy is the room shell)"
+ ],
+ "parity_xfail": "#159: IfcElectricDistributionPoint (IFC2X3) dropped by steplite, kept by ifcopenshell",
+ "pinned_backend": "steplite",
+ "expected": {
+  "ok": true,
+  "schema": "IFC2X3",
+  "project": "tekton conformance fixture",
+  "length_scale_m_per_unit": 1.0,
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Level 1",
+    "elevation": 0.0,
+    "elevation_from_placement": 0.0
+   }
+  ],
+  "equipment": [],
+  "other_products": [
+   {
+    "name": "Electrical Room room shell",
+    "ifcClass": "IfcBuildingElementProxy",
+    "kind": "room_shell",
+    "disposition": "room shell -> walls / doors / pads (see 'room')"
+   }
+  ],
+  "room": {
+   "name": "Electrical Room room shell",
+   "level": "L1",
+   "walls": [
+    {
+     "id": "W-S",
+     "start": [
+      -2.5,
+      -2.0
+     ],
+     "end": [
+      2.5,
+      -2.0
+     ],
+     "thickness": 0.2,
+     "height": 2.8,
+     "base": 0.0,
+     "synthesized": false,
+     "openings": []
+    },
+    {
+     "id": "W-E",
+     "start": [
+      2.5,
+      -2.0
+     ],
+     "end": [
+      2.5,
+      2.0
+     ],
+     "thickness": 0.2,
+     "height": 2.8,
+     "base": 0.0,
+     "synthesized": false,
+     "openings": []
+    },
+    {
+     "id": "W-N",
+     "start": [
+      2.5,
+      2.0
+     ],
+     "end": [
+      -2.5,
+      2.0
+     ],
+     "thickness": 0.2,
+     "height": 2.8,
+     "base": 0.0,
+     "synthesized": false,
+     "openings": []
+    },
+    {
+     "id": "W-W",
+     "start": [
+      -2.5,
+      2.0
+     ],
+     "end": [
+      -2.5,
+      -2.0
+     ],
+     "thickness": 0.2,
+     "height": 2.8,
+     "base": 0.0,
+     "synthesized": false,
+     "openings": []
+    }
+   ],
+   "doors": 0,
+   "info": {
+    "ClearDepth": 3.8,
+    "ClearHeight": 2.8,
+    "ClearWidth": 4.8,
+    "RoomName": "Electrical Room"
+   }
+  },
+  "feeders": [],
+  "conduit_runs": [],
+  "family_plans": [],
+  "audit": {
+   "feeder_roots_external": [],
+   "load_equipment_unfed": [],
+   "positions_all_zero": null
+  }
+ }
+}

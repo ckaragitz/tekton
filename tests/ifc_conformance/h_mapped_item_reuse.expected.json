@@ -1,0 +1,204 @@
+{
+ "fixture": "h_mapped_item_reuse",
+ "generator": "tools/dev/make_ifc_fixtures.py",
+ "pins": "one IfcRepresentationMap (enclosure + nameplate) reused by three panels through IfcMappedItem + IfcCartesianTransformationOperator3D (two translated, one rotated 90 deg)",
+ "notes": [
+  "each occurrence must resolve its OWN insertion and front normal from the shared map: world = placement o target-operator o inverse(map origin) o vertex",
+  "#331: the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage rule before name rule, as in fixture c) -- today's order, pinned"
+ ],
+ "parity_xfail": null,
+ "pinned_backend": "steplite",
+ "expected": {
+  "ok": true,
+  "schema": "IFC4",
+  "project": "tekton conformance fixture",
+  "length_scale_m_per_unit": 1.0,
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Level 1",
+    "elevation": 0.0,
+    "elevation_from_placement": 0.0
+   }
+  ],
+  "equipment": [
+   {
+    "tag": "LP-1",
+    "name": "LP-1 lighting panel 208Y/120 V",
+    "ifcClass": "IfcElectricDistributionBoard",
+    "predefinedType": "DISTRIBUTIONBOARD",
+    "kind": "receptacle_panelboard",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     1.0,
+     4.1,
+     1.4
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {
+     "w": 0.6,
+     "d": 0.2,
+     "h": 1.0,
+     "footprint_area": 0.12,
+     "enclosure_w": 0.6,
+     "enclosure_h": 1.0,
+     "top_of_panel": 1.9,
+     "bottom_of_panel": 0.9
+    },
+    "mounting": "wall",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "LP-1",
+     "Voltage": "208Y/120 V",
+     "BusRating": 100.0,
+     "MainsType": "Main lugs only",
+     "MainsRating": 100.0,
+     "Phases": 3.0,
+     "Wires": 4.0
+    },
+    "items": [
+     "panel_enclosure",
+     "panel_nameplate"
+    ]
+   },
+   {
+    "tag": "LP-2",
+    "name": "LP-2 lighting panel 208Y/120 V",
+    "ifcClass": "IfcElectricDistributionBoard",
+    "predefinedType": "DISTRIBUTIONBOARD",
+    "kind": "receptacle_panelboard",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     2.5,
+     4.1,
+     1.4
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {
+     "w": 0.6,
+     "d": 0.2,
+     "h": 1.0,
+     "footprint_area": 0.12,
+     "enclosure_w": 0.6,
+     "enclosure_h": 1.0,
+     "top_of_panel": 1.9,
+     "bottom_of_panel": 0.9
+    },
+    "mounting": "wall",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "LP-2",
+     "Voltage": "208Y/120 V",
+     "BusRating": 100.0,
+     "MainsType": "Main lugs only",
+     "MainsRating": 100.0,
+     "Phases": 3.0,
+     "Wires": 4.0
+    },
+    "items": [
+     "panel_enclosure",
+     "panel_nameplate"
+    ]
+   },
+   {
+    "tag": "LP-3",
+    "name": "LP-3 lighting panel 208Y/120 V",
+    "ifcClass": "IfcElectricDistributionBoard",
+    "predefinedType": "DISTRIBUTIONBOARD",
+    "kind": "receptacle_panelboard",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     4.9,
+     2.0,
+     1.4
+    ],
+    "front_normal": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "yaw_deg": 90.0,
+    "dims_m": {
+     "w": 0.6,
+     "d": 0.2,
+     "h": 1.0,
+     "footprint_area": 0.12,
+     "enclosure_w": 0.6,
+     "enclosure_h": 1.0,
+     "top_of_panel": 1.9,
+     "bottom_of_panel": 0.9
+    },
+    "mounting": "wall",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "LP-3",
+     "Voltage": "208Y/120 V",
+     "BusRating": 100.0,
+     "MainsType": "Main lugs only",
+     "MainsRating": 100.0,
+     "Phases": 3.0,
+     "Wires": 4.0
+    },
+    "items": [
+     "panel_enclosure",
+     "panel_nameplate"
+    ]
+   }
+  ],
+  "other_products": [],
+  "room": null,
+  "feeders": [],
+  "conduit_runs": [],
+  "family_plans": [
+   {
+    "tag": "LP-1",
+    "kind": "receptacle_panelboard",
+    "status": "resolved",
+    "catalog": "eaton/pow-r-line-panelboards"
+   },
+   {
+    "tag": "LP-2",
+    "kind": "receptacle_panelboard",
+    "status": "resolved",
+    "catalog": "eaton/pow-r-line-panelboards"
+   },
+   {
+    "tag": "LP-3",
+    "kind": "receptacle_panelboard",
+    "status": "resolved",
+    "catalog": "eaton/pow-r-line-panelboards"
+   }
+  ],
+  "audit": {
+   "feeder_roots_external": [],
+   "load_equipment_unfed": [
+    "LP-1",
+    "LP-2",
+    "LP-3"
+   ],
+   "positions_all_zero": false
+  }
+ }
+}

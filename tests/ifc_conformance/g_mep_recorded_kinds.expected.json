@@ -1,0 +1,187 @@
+{
+ "fixture": "g_mep_recorded_kinds",
+ "generator": "tools/dev/make_ifc_fixtures.py",
+ "pins": "IfcTransformer (floor, TransformerSchedule, fed from an external MSB), IfcCableCarrierSegment CABLETRAYSEGMENT with a conduit_msb_t1 solid, IfcDiscreteAccessory strut support",
+ "notes": [
+  "kinds transformer / conduit_run / support; the tray and the strut are disposition recorded (no generated family); the transformer maps to make_transformer",
+  "FedFrom MSB with no MSB in the file -> feeder root external, edge kind primary"
+ ],
+ "parity_xfail": null,
+ "pinned_backend": "steplite",
+ "expected": {
+  "ok": true,
+  "schema": "IFC4",
+  "project": "tekton conformance fixture",
+  "length_scale_m_per_unit": 1.0,
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Level 1",
+    "elevation": 0.0,
+    "elevation_from_placement": 0.0
+   }
+  ],
+  "equipment": [
+   {
+    "tag": "T-1",
+    "name": "T-1 dry-type transformer 45 kVA",
+    "ifcClass": "IfcTransformer",
+    "predefinedType": "VOLTAGE",
+    "kind": "transformer",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     4.0,
+     1.0,
+     0.1
+    ],
+    "front_normal": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "yaw_deg": -180.0,
+    "dims_m": {
+     "w": 0.8,
+     "d": 0.6,
+     "h": 1.1,
+     "footprint_area": 0.48
+    },
+    "mounting": "floor",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": "MSB",
+    "contract": {
+     "FedFrom": "MSB",
+     "RatingkVA": 45.0,
+     "Primary": "480 V",
+     "Secondary": "208Y/120 V",
+     "ImpedancePercent": 5.75,
+     "PanelName": "T-1"
+    },
+    "items": [
+     "T-1_body",
+     "T-1_nameplate",
+     "pad_T-1"
+    ]
+   },
+   {
+    "tag": "CT-1",
+    "name": "Tray MSB to T-1",
+    "ifcClass": "IfcCableCarrierSegment",
+    "predefinedType": "CABLETRAYSEGMENT",
+    "kind": "conduit_run",
+    "disposition": "recorded",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     2.0,
+     1.0,
+     2.6
+    ],
+    "front_normal": [
+     0.0,
+     1.0,
+     0.0
+    ],
+    "yaw_deg": -180.0,
+    "dims_m": {
+     "w": 3.2,
+     "d": 0.3,
+     "h": 0.1,
+     "footprint_area": 0.96
+    },
+    "mounting": "floor",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "CT-1"
+    },
+    "items": [
+     "conduit_msb_t1"
+    ]
+   },
+   {
+    "tag": "ST-1",
+    "name": "Strut ST-1 trapeze",
+    "ifcClass": "IfcDiscreteAccessory",
+    "predefinedType": "BRACKET",
+    "kind": "support",
+    "disposition": "recorded",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     2.0,
+     1.0,
+     2.55
+    ],
+    "front_normal": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "yaw_deg": 90.0,
+    "dims_m": {
+     "w": 0.5,
+     "d": 0.041,
+     "h": 0.05,
+     "footprint_area": 0.021
+    },
+    "mounting": "floor",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": null,
+    "contract": {
+     "StrutSize": "P1000",
+     "RodSize": "3/8 in",
+     "AttachTo": "structure",
+     "PanelName": "ST-1"
+    },
+    "items": [
+     "strut_channel"
+    ]
+   }
+  ],
+  "other_products": [],
+  "room": null,
+  "feeders": [
+   {
+    "source": "MSB",
+    "target": "T-1",
+    "kind": "primary"
+   }
+  ],
+  "conduit_runs": [
+   "conduit_msb_t1"
+  ],
+  "family_plans": [
+   {
+    "tag": "T-1",
+    "kind": "transformer",
+    "status": "resolved",
+    "catalog": "eaton/dry-type-transformers"
+   },
+   {
+    "tag": "CT-1",
+    "kind": "conduit_run",
+    "status": "unmapped",
+    "catalog": null
+   },
+   {
+    "tag": "ST-1",
+    "kind": "support",
+    "status": "unmapped",
+    "catalog": null
+   }
+  ],
+  "audit": {
+   "feeder_roots_external": [
+    "MSB"
+   ],
+   "load_equipment_unfed": [],
+   "positions_all_zero": false
+  }
+ }
+}
