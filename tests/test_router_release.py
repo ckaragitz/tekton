@@ -38,15 +38,10 @@ import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src")
-SHIM = os.path.join(SRC, "rvt", "ifc", "_ifcos_shim")
 sys.path.insert(0, SRC)
-# the IFC read fallback, selected exactly as the plugin bootstrap does
-# (tekton_env.ensure_engine): real ifcopenshell absent -> APPEND the bundled
-# stdlib steplite shim so `import ifcopenshell` in the read paths resolves to
-# it (a real install always wins; the shim stands down by itself otherwise)
-import importlib.util as _ilu                     # noqa: E402
-if _ilu.find_spec("ifcopenshell") is None and SHIM not in sys.path:
-    sys.path.append(SHIM)
+# (the IFC read fallback -- real ifcopenshell absent -> the bundled stdlib
+# steplite shim -- is selected by the engine itself when rvt.ifc is imported,
+# rvt.ifc._fallback / #130; nothing to arrange here)
 
 from rvt import versions as V                     # noqa: E402
 from rvt.frontdoor import router as R             # noqa: E402

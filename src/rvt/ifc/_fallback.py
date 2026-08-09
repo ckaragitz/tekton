@@ -1,48 +1,35 @@
-"""rvt.ifc._fallback -- ENGINE-level selection of the IFC READ backend.
+"""rvt.ifc._fallback -- ENGINE-level selection of the IFC READ backend (#130).
 
 CLAUDE.md §2 declares ifcopenshell OPTIONAL: the IFC *read* paths
-(``rvt.ifc.intent`` behind ``frontdoor author --ifc``, ``rvt.ifc.product_facts``
-behind the IFC family pipeline, the ``rvt.convert.rvt_to_ifc`` round-trip
-check) fall back to the bundled stdlib reader (:mod:`rvt.ifc.steplite`,
+(``rvt.ifc.intent``, ``rvt.ifc.product_facts``, the ``rvt_to_ifc`` round
+trip) fall back to the bundled stdlib reader (:mod:`rvt.ifc.steplite`,
 served as an ``ifcopenshell`` look-alike package under
-``rvt/ifc/_ifcos_shim``).  Until issue #130 that fallback was wired ONLY by
-the plugin bootstrap (``tekton_env.ensure_engine``), so a plain checkout, CI,
-or a Windows / cloud contributor without the optional wheel got
-``IntentError: ifcopenshell is required to read IFC`` from the very routes
-the docs call zero-install.
+``rvt/ifc/_ifcos_shim``).  :func:`ensure_ifc_reader` is THE place that
+fallback is selected; :mod:`rvt.ifc` calls it once on import, and every read
+module is a submodule, so it always runs before their ``import ifcopenshell``
+-- repo checkout, CI and plugin alike:
 
-This module makes the selection an ENGINE property: :func:`ensure_ifc_reader`
-runs once when :mod:`rvt.ifc` is first imported (every read module is a
-submodule, so it always runs before their ``import ifcopenshell``) and
+* NO ``ifcopenshell`` findable -> **append** the shim dir to ``sys.path``
+  (never prepend: a real distribution anywhere on the path always wins, and
+  the shim additionally stands down by itself if one shows up ahead of it);
+* ``RVT_STEPLITE_FORCE=1`` -> shim FIRST, the one explicitly requested case
+  where steplite must beat an installed wheel (equivalence tests, A/B) --
+  the shim's own FORCE check then keeps it from standing down;
+* a real ifcopenshell installed -> nothing is touched.
 
-* when NO ``ifcopenshell`` is findable, **appends** the shim dir to
-  ``sys.path`` -- never prepends, so a real distribution anywhere on the
-  path always wins (the shim additionally stands down by itself if a real
-  install shows up ahead of it, see ``_ifcos_shim/ifcopenshell/__init__``);
-* when ``RVT_STEPLITE_FORCE=1`` is set, puts the shim FIRST -- the one,
-  explicitly requested case where the pure-python backend must beat an
-  installed ifcopenshell (equivalence tests, backend A/B timing);
-* otherwise (a real ifcopenshell is installed) touches nothing.
-
-It is idempotent, stdlib-only, and costs one ``find_spec`` (a cached
-``sys.path`` scan, well under a millisecond) per process.  Repo, CI and
-plugin now select the backend by the same code; ``tekton_env.ensure_engine``
-keeps its own append for older engines and additionally exports the dir on
-``PYTHONPATH`` for child processes -- a harmless duplicate.
-
-Territory: issue #130 (``docs/inbox/ifc-read-fallback-engine.md``).  The
-lazy ``ifcopenshell`` import inside ``rvt.ifc.intent`` is issue #6's and is
-not touched: it simply resolves to whichever backend this module selected.
+Idempotent, stdlib-only, one cached ``find_spec`` per process (~0.1 ms).
+The plugin bootstrap (``tekton_env.ensure_engine``) adds exactly one thing on
+top: exporting the dir on ``PYTHONPATH`` for a skill session's children.
+The lazy ``ifcopenshell`` import inside ``rvt.ifc.intent`` (#6) is untouched;
+it resolves to whichever backend was selected here.
 """
 from __future__ import annotations
 
 import importlib.util
 import os
 import sys
-from typing import Optional
 
-__all__ = ["SHIM_DIR", "FORCE_ENV", "ifcopenshell_findable", "ensure_ifc_reader",
-           "backend"]
+__all__ = ["SHIM_DIR", "FORCE_ENV", "ifcopenshell_findable", "ensure_ifc_reader"]
 
 #: the bundled look-alike package root: <SHIM_DIR>/ifcopenshell/__init__.py
 SHIM_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_ifcos_shim")
@@ -53,49 +40,31 @@ FORCE_ENV = "RVT_STEPLITE_FORCE"
 
 def ifcopenshell_findable() -> bool:
     """True when ``import ifcopenshell`` would currently succeed (the real
-    library, or the shim if its dir is already on ``sys.path``).  A finder
-    that raises (an import blocker in a test, a broken install) counts as
-    "not findable" -- the read paths then refuse with their usual
-    ``IntentError`` instead of dying here."""
+    library, or the shim once its dir is on ``sys.path``).  A finder that
+    raises (an import blocker in a test, a broken install) counts as "not
+    findable" -- the read paths then refuse with their usual ``IntentError``
+    instead of dying here."""
     try:
         return importlib.util.find_spec("ifcopenshell") is not None
     except (ImportError, AttributeError, ValueError):
         return False
 
 
-def _shim_present() -> bool:
-    return os.path.isfile(os.path.join(SHIM_DIR, "ifcopenshell", "__init__.py"))
-
-
-def ensure_ifc_reader() -> Optional[str]:
+def ensure_ifc_reader() -> str | None:
     """Select the IFC read backend for this process (see module doc).
-
-    Returns the shim dir when this call put it on ``sys.path`` (appended, or
-    inserted first under ``RVT_STEPLITE_FORCE``), else ``None`` (real
-    ifcopenshell findable, shim already on the path, or shim not bundled)."""
-    if not _shim_present():
+    Returns the shim dir when this call placed it on ``sys.path``, else
+    ``None`` (already placed, real library findable, or shim not bundled)."""
+    force = bool(os.environ.get(FORCE_ENV))
+    if force and sys.path[:1] == [SHIM_DIR]:
         return None
-    if os.environ.get(FORCE_ENV):
-        if sys.path[:1] == [SHIM_DIR]:
-            return None
-        try:
+    if not force and (SHIM_DIR in sys.path or ifcopenshell_findable()):
+        return None
+    if not os.path.isfile(os.path.join(SHIM_DIR, "ifcopenshell", "__init__.py")):
+        return None
+    if force:
+        if SHIM_DIR in sys.path:
             sys.path.remove(SHIM_DIR)
-        except ValueError:
-            pass
         sys.path.insert(0, SHIM_DIR)
-        return SHIM_DIR
-    if SHIM_DIR in sys.path or ifcopenshell_findable():
-        return None
-    sys.path.append(SHIM_DIR)
+    else:
+        sys.path.append(SHIM_DIR)
     return SHIM_DIR
-
-
-def backend() -> str:
-    """``"ifcopenshell"``, ``"steplite"`` or ``"none"`` -- which reader an
-    ``import ifcopenshell`` resolves to right now (imports it if needed;
-    for manifests / doctors, not for the hot path)."""
-    try:
-        import ifcopenshell  # type: ignore
-    except Exception:
-        return "none"
-    return "steplite" if getattr(ifcopenshell, "IS_STEPLITE", False) else "ifcopenshell"

@@ -35,14 +35,10 @@ Sub-modules (added by separate workstreams; each names its own territory):
 
 __all__ = ["product_facts", "famfrom_ifc", "intent", "steplite", "ensure_ifc_reader"]
 
-# Kept free of HEAVY imports on purpose -- sibling workstreams add modules
-# under rvt.ifc (ifcopenshell / numpy are needed only by the modules that
-# read IFC geometry, and the family composer can run from a JSON facts
-# record without them).  The one thing done eagerly is backend SELECTION
-# (stdlib, one cached find_spec): every read module is a submodule of this
-# package, so by the time its `import ifcopenshell` runs the bundled steplite
-# shim is already importable whenever the real library is not (#130) --
-# repo checkout, CI and plugin alike, not only behind tekton_env.
+# Kept free of HEAVY imports on purpose (ifcopenshell / numpy are needed only
+# by the modules that read IFC geometry; the family composer runs from a JSON
+# facts record without them).  The one eager step is backend SELECTION
+# (stdlib, ~0.1 ms): see rvt.ifc._fallback for the law (#130).
 from ._fallback import ensure_ifc_reader
 
 ensure_ifc_reader()
