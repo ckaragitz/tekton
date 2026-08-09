@@ -361,6 +361,18 @@ python3 tools/dev/techlead.py claim <n>        #    (claiming a specific issue: 
 git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR, always from main
 #  5. more independent ready issues than you can hold? -> /fanout (engineer sessions / subagents), keep building yours
 ```
+**Say in your first message whether THIS surface can spawn engineer sessions** — one line, in every
+session that is talking to a human (not in engineer-session prompts, reviewer or subagent contexts whose
+caller fixed the output format): you have the means iff your tool list contains the Claude Code Remote
+`create_session` / `send_message` tools (cloud sessions on claude.ai/code, on accounts where that tool set
+is enabled) — necessary, not a guarantee, so confirm with the result of the first `create_session`.
+If you have them: offer `/fanout` when there are more workable `ready` issues than you can hold. If
+you do not: say plainly *"this session cannot start engineer sessions (no `create_session` tool on this
+surface); I will use subagents as parallel hands inside this session and leave whole issues in the
+queue"* — never imply fan-out is happening when it is not. Engineer sessions started by someone else's
+session live under THEIR claude.ai account and push under their GitHub identity; you will only ever see
+them as PRs and 🔒 comments on GitHub, not in your own session list.
+
 **Work is pulled, never pushed** (steer #90, S-2026-08-09-f): nobody assigns
 stories; every session, engineer session and the worker takes the head of the
 one shared queue and the lock is taken — and verified — at that moment, so two
