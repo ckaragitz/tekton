@@ -238,12 +238,29 @@ owner's plan feels it; set `worker.enabled=false` to keep planning but stop unat
 - Process changes are work like any other: an issue (`area:process`), a record, a PR. Steers about
   the process are steers.
 
+## 12b. Claims at real-time scale (steer #90): pull, lock per session, verify
+
+Nobody assigns work here. Every actor pulls the head of the one shared queue and the lock is taken
+at that moment by one central authority (`coord`, server-side) — never by N laptops racing:
+
+| Step | Mechanism |
+|---|---|
+| take the head | `/next [s=<session>]` comment anywhere → coord picks from `coord.py queue` (ready, unassigned, not gated / in review / worker-leased; P0 → P1 → oldest) |
+| lock | GitHub's assignee field + a 🔒 comment carrying `<!-- lock by=… session=… token=… -->` |
+| verify before confirming | after assigning, coord settles a few seconds, replays the issue's assignment events (earliest standing assignee) **and** reads the standing locks (earliest wins); only if both are this request does it reply 🎯 — otherwise it undoes the assignment, posts ↩️ + an unlock marker, and tries the next candidate (up to 6) |
+| same person, several sessions | `/next` is serialized per login (concurrency group), so two sessions of one login are handled one after the other and get different issues; `/claim s=<tag>` on an issue locked < 2 h ago by another session of the same login is refused (⛔ "your other session holds it"; `take-over` overrides when that session is gone) |
+| backstop | `single-holder` evicts any second assignee added by any route within a minute (⛔ naming the holder) |
+| session side | `TEKTON_SESSION=<tag>`; `techlead.py claim <n>` = claim-and-verify (exit 4 + holder if not yours); `techlead.py mine` = the resume rule: 🟢 this session's / ⛔ active elsewhere (hands off) / 🟡 idle ≥ 2 h (resumable) |
+| unlock | `/release` (posts `<!-- unlock by=… -->`), the 72 h reaper, the stuck-PR re-queue, or the merge closing the issue |
+
 ## 13. Failure modes and how each heals
 
 | Failure | What happens |
 |---|---|
 | Session dies mid-work, branch pushed, no PR | `coord` sweep opens a draft PR for the orphan branch after 20 min (or lists it on a tracking issue) |
 | Session dies with a green, approved draft | `automerge` marks it ready after 90 quiet min and merges |
+| Two people claim one issue | `/next` and `/claim` verify first-holder + first-lock before confirming and retry for the loser; `single-holder` removes any later assignee within a minute (⛔ comment) |
+| Two sessions of ONE person want the same issue | `/next` serialized per login → different picks; `/claim s=<tag>` refused while another session's lock is < 2 h old; `techlead.py mine` tells a fresh session what is resumable |
 | Session dies with a red / 🛑 PR | after `fix_grace_minutes` with no push, automerge dispatches the bot fix pass (≤ 3 attempts, one per sha/attempt); then `bot-stuck` → after 24 h the issue is `ready`+`retry`, unassigned, pointing at the branch; `/next` or the worker continues it with a fresh budget |
 | Session and bot both want to fix the same head | cannot happen by construction: bots act only after the grace window and only if the head has not moved; the fix job re-fetches before pushing and yields to a newer head; sessions seeing a `🔧 dispatched` marker for their head let it push |
 | Claim abandoned without a PR | 72 h reaper unassigns; issue back in the queue |

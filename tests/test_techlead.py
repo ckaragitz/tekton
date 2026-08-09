@@ -218,7 +218,9 @@ def test_board_and_automerge_share_one_vocabulary():
         assert label in tl.LABELS, f"automerge acts on `{label}` but LABELS does not define it"
         assert f'"{label}"' in src, f"automerge acts on `{label}` but techlead.py never mentions it"
     # markers: written by claude-review.yml / automerge.yml, read by parse_review_state
-    assert "<!-- claude-review: (approve|nits|changes) sha=$SHA -->" in cr and 'sha=$sha -->' in am
+    marker_grep = "<!-- claude-review: (approve|nits|changes) sha=[0-9a-f]{12,40} -->"     # matched by >=12-hex prefix of the head (#90)
+    assert marker_grep in cr and marker_grep in am
+    assert "<!-- claude-review: approve sha=${{ steps.ctx.outputs.sha }} -->" in cr   # ...and WRITTEN with the exact, full head SHA
     assert tl.VERDICT_RE.search("<!-- claude-review: nits sha=abcdef1 -->")
     assert "<!-- claude-autofix attempt=" in cr and tl.ATTEMPT_RE.search("<!-- claude-autofix attempt=2 -->")
     assert tl.RESET_MARK in cr and tl.RESET_MARK in src
@@ -317,6 +319,43 @@ def test_workflow_file_prs_need_a_verdict_before_session_merge():
         assert "actions: read" in top and "actions: write" not in top, f"{wf_name}: the model job must not hold actions: write"
         assert "\n  refresh-board:\n" in text and "actions: write" in text.split("\n  refresh-board:\n", 1)[1]
     assert tl.is_bot_check("refresh-board")
+
+
+def test_session_locks_and_the_resume_rule():
+    """steer #90: locks are per session; standing = holder still assigned and not unlocked since;
+    the earliest standing lock wins; `mine` judges this-session / active-elsewhere / idle."""
+    coord = tl.coord
+    lm, um = coord.lock_marker, coord.unlock_marker
+    cs = [{"id": 1, "created_at": "2026-08-09T10:00:00Z", "body": "🔒 " + lm("cam", "laptop", "111")},
+          {"id": 2, "created_at": "2026-08-09T10:00:03Z", "body": "🔒 " + lm("cam", "phone", "222")},
+          {"id": 3, "created_at": "2026-08-09T10:00:04Z", "body": "🔒 " + lm("chase", "desk", "333")}]
+    locks = coord.standing_locks(cs, ["cam", "chase"])
+    assert [(l["by"], l["session"]) for l in locks] == [("cam", "laptop"), ("cam", "phone"), ("chase", "desk")]
+    assert coord.standing_locks(cs, ["chase"])[0]["session"] == "desk"            # cam unassigned -> cam's locks lapse
+    cs2 = cs + [{"id": 4, "created_at": "2026-08-09T11:00:00Z", "body": "released " + um("cam")},
+                {"id": 5, "created_at": "2026-08-09T12:00:00Z", "body": "🔒 " + lm("cam", "cloud", "555")}]
+    assert [(l["session"]) for l in coord.standing_locks(cs2, ["cam"])] == ["cloud"]  # unlock marker resets cam's epoch
+    # first standing assignee = single-holder's replay rule
+    ev = [{"event": "assigned", "assignee": {"login": "a"}}, {"event": "assigned", "assignee": {"login": "b"}},
+          {"event": "unassigned", "assignee": {"login": "a"}}, {"event": "assigned", "assignee": {"login": "a"}}]
+    assert tl.first_standing_assignee(ev, ["a", "b"]) == "b" and tl.first_standing_assignee([], ["z"]) == "z"
+    # the resume rule
+    now = dt.datetime(2026, 8, 9, 10, 30, tzinfo=dt.timezone.utc)
+    issue = {"number": 7, "updated_at": "2026-08-09T10:20:00Z"}
+    assert tl.judge_mine(issue, locks, "cam", "laptop", now)[0] == "this-session"
+    assert tl.judge_mine(issue, locks, "cam", "tablet", now)[0] == "active-elsewhere"          # another session's fresh lock
+    old_issue = {"number": 7, "updated_at": "2026-08-09T06:00:00Z"}
+    old_locks = [dict(locks[0], created_at="2026-08-09T06:00:00Z")]
+    assert tl.judge_mine(old_issue, old_locks, "cam", "tablet", now)[0] == "idle"              # > 2 h quiet -> resumable
+    assert tl.judge_mine(issue, [], "cam", "tablet", now)[0] == "active-elsewhere"             # recent activity, no lock of ours
+    # coord.yml wiring: per-login serialization of /next, session-tagged locks, verification, unlock markers
+    cy = _wf("coord.yml")
+    assert "format('next-{0}', github.event.comment.user.login)" in cy
+    for needle in ("lock_line()", "first_holder()", "first_lock()", "tools/dev/coord.py locks", "<!-- unlock by=$WHO -->",
+                   "your other session", "take-over", "yields #"):
+        assert needle in cy, needle
+    # verdict markers match by >=12-hex prefix of the head on both bash sides
+    assert "sha=[0-9a-f]{12,40}" in _wf("automerge.yml") and "verdict_of()" in _wf("claude-review.yml")
 
 
 def test_board_triggers_stay_bounded():
