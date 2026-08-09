@@ -79,14 +79,25 @@ from .._lazyimp import lazy_import
 np = lazy_import("numpy", globals(), "np",
                  hint="IFC placement / geometry resolution")
 
-try:  # ifcopenshell is required to READ an IFC; keep the module importable
-    import ifcopenshell  # type: ignore
-    import ifcopenshell.util.element as _ue  # type: ignore
-    _HAVE_IFCOS = True
-except Exception:  # pragma: no cover - the sandbox always has it
-    ifcopenshell = None  # type: ignore
-    _ue = None           # type: ignore
-    _HAVE_IFCOS = False
+# LAZY (issue #6): ifcopenshell (the real library OR the bundled steplite
+# shim) loads on first IFC read, never at front-door import -- the real
+# package's eager import taxed every prompt-only process and dragged numpy +
+# shapely in with it.  resolve_intent() gates on _load_ifcos().
+ifcopenshell = lazy_import("ifcopenshell", globals(), "ifcopenshell",
+                           hint="reading an .ifc")
+_ue = lazy_import("ifcopenshell.util.element", globals(), "_ue",
+                  hint="reading an .ifc")
+
+
+def _load_ifcos() -> bool:
+    """Perform the deferred import now (the first touch of each proxy imports
+    it and rebinds this module's global to the real module); False when no
+    ifcopenshell -- real or shim -- is importable, the one condition
+    resolve_intent refuses on."""
+    try:
+        return callable(ifcopenshell.open) and callable(_ue.get_psets)
+    except Exception:  # pragma: no cover - the shim is always bundled
+        return False
 
 __all__ = [
     "INTENT_VERSION", "IntentError", "Placement", "GeomItem", "ProductGeometry",
@@ -2146,7 +2157,7 @@ def resolve_products(f) -> List[Tuple[Any, Placement, ProductGeometry]]:
 
 def resolve_intent(ifc_path: str, *, plan_families_flag: bool = True) -> IntentModel:
     """RESOLVE ``ifc_path`` into the placement-true, mapped INTENT."""
-    if not _HAVE_IFCOS:
+    if not _load_ifcos():
         raise IntentError("ifcopenshell is required to read IFC")
     if not os.path.isfile(ifc_path):
         raise IntentError(f"no such file: {ifc_path}")

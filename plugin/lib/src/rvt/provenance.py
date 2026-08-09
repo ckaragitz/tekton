@@ -71,6 +71,7 @@ CLI: ``tools/provenance.py FILE.rvt --baseline all --streams --json out.json``.
 """
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import uuid
@@ -715,6 +716,18 @@ def _unit_guid_str(g: Optional[bytes]) -> Optional[str]:
         return None
 
 
+@contextlib.contextmanager
+def reading_own_release(rvt_path: str):
+    """Walk ``rvt_path`` under its OWN release (rvt.global_framing's lenient
+    ladder: own schema -> pinned table -> native; partition framing +
+    Global-stream tokens + ADocument decoder follow the file) -- a Revit
+    2025/2024 candidate or baseline is walked, not skipped as one opaque
+    unit (issue #14).  Yields the fallback note (None = own schema)."""
+    from .global_framing import enter_own_release
+    with contextlib.ExitStack() as stack:
+        yield enter_own_release(stack, rvt_path)
+
+
 def embedded_units(rvt_path: Optional[str]) -> List[dict]:
     """Enumerate the embedded save units (family DOCUMENTS) of a file.
 
@@ -726,7 +739,7 @@ def embedded_units(rvt_path: Optional[str]) -> List[dict]:
     from .container import open_rvt
     from .partitions import StreamWalker
     out: List[dict] = []
-    with open_rvt(rvt_path) as f:
+    with reading_own_release(rvt_path), open_rvt(rvt_path) as f:
         for pn in f.partition_streams():
             try:
                 w = StreamWalker(f.logical(pn), inflate=False, keep_data=False)
@@ -1472,7 +1485,7 @@ def content_units(rvt_path: str, *, with_partitions: bool = True) -> List[Conten
     from .container import open_rvt
     from .partitions import StreamWalker, _inflate_member
     units: List[ContentUnit] = []
-    with open_rvt(rvt_path) as f:
+    with reading_own_release(rvt_path), open_rvt(rvt_path) as f:
         for s in sorted(f.streams(), key=lambda x: x.name):
             n = s.name
             if n.startswith("Partitions/"):

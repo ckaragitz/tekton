@@ -54,9 +54,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from rvt.mutate import Document                                    # noqa: E402
-from rvt.provenance import format_report, provenance             # noqa: E402
+from rvt.provenance import format_report, provenance, reading_own_release  # noqa: E402
 
 DEFAULT_CACHE_DIR = os.path.join(ROOT, "experiments", "genesis", "provenance", ".cache")
+
+
+def _open_own_release(path: str) -> Document:
+    """``Document.from_file`` under the file's own release framing."""
+    with reading_own_release(path):
+        return Document.from_file(path)
 
 
 def _elemtable_ids(path: str):
@@ -169,21 +175,25 @@ def main(argv=None) -> int:
         base_paths = [p for p in base_paths
                       if not (os.path.abspath(p) in seen or seen.add(os.path.abspath(p)))]
 
-    doc = Document.from_file(args.file)
+    # every file is opened under its OWN release (a Revit 2025/2024 candidate
+    # is ledgered, not refused with a framing error -- issue #14); the ledger
+    # itself then runs under the candidate's release
+    doc = _open_own_release(args.file)
     baselines = []
     for bp in base_paths:
         if os.path.abspath(bp) == os.path.abspath(args.file):
             baselines.append(doc)
         else:
-            baselines.append(Document.from_file(bp))
+            baselines.append(_open_own_release(bp))
 
-    report = provenance(doc, baselines[0] if baselines else None,
-                        baselines=baselines or None,
-                        examples=args.examples, with_units=not args.no_units,
-                        strict=args.strict,
-                        streams=args.streams and not args.no_baseline,
-                        strings=args.strings, identity=args.identity,
-                        cache_dir=(args.cache_dir or None), verbose=not args.quiet)
+    with reading_own_release(args.file):
+        report = provenance(doc, baselines[0] if baselines else None,
+                            baselines=baselines or None,
+                            examples=args.examples, with_units=not args.no_units,
+                            strict=args.strict,
+                            streams=args.streams and not args.no_baseline,
+                            strings=args.strings, identity=args.identity,
+                            cache_dir=(args.cache_dir or None), verbose=not args.quiet)
     report["elapsed_s"] = round(time.time() - t0, 1)
 
     if args.json:

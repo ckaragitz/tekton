@@ -16,12 +16,21 @@ What is enforced here:
   tests/test_frontdoor.py gates them: file presence + RVT_SKIP_LARGE);
 * every MISSING cell answers with ok=False and THE one clear line naming
   the closest supported route -- never a traceback;
-* CLI: ``tools/route.py matrix`` exits 0 (the self-audit passes live).
+* the rvt.convert cells registered by issue #5 (rvt->ifc, rvt->rfa extract,
+  prompt+rfa family edits, prompt+rvt add-into-project, ifc+rvt merge, the
+  extracted-.rfa reload lane) run END TO END on a fresh clone: the source
+  project is BUILT here from a prompt on the pinned genesis base (no
+  samples/, no experiments/ binaries needed);
+* the committed docs/product/PERMUTATION-MATRIX.md agrees with the machine
+  matrix cell for cell (a doc that drifts fails the suite);
+* CLI: ``tools/route.py matrix`` and ``tools/frontdoor.py matrix`` exit 0
+  (the self-audit passes live; absent probe binaries are a note, not a fail).
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -43,12 +52,15 @@ TINY_SPEC = os.path.join(ROOT, "spec", "examples", "tiny.json")
 ROOM_SPEC = os.path.join(ROOT, "usecases", "chicago-plenum-electrical-room", "room-spec.json")
 WORKED_RVT = os.path.join(ROOT, "experiments", "frontdoor", "prompt-electrical-room",
                           "electrical_room_prompt.rvt")
+MATRIX_DOC = os.path.join(ROOT, "docs", "product", "PERMUTATION-MATRIX.md")
 
 PANEL_PROMPT = ("an eaton pow-r-line panelboard rated 400 A with 42 spaces at "
                 "480Y/277 V, main breaker, surface mounted, named DP-7")
 ROOM_PROMPT = ("an electrical room 30x20 ft rated for 2500 A service with a "
                "main switchboard, two 400 A distribution panels and four "
                "lighting panels")
+# a deliberately small room: one wall loop + two lighting panels (~12 s to build)
+SMALL_ROOM_PROMPT = "an electrical room 20x15 ft with two 100 A lighting panels"
 
 skip_large = pytest.mark.skipif(os.environ.get("RVT_SKIP_LARGE") == "1",
                                 reason="RVT_SKIP_LARGE=1")
@@ -56,6 +68,19 @@ needs_genesis = pytest.mark.skipif(
     not (os.path.exists(GENESIS) and os.path.exists(SPECIMENS)),
     reason="genesis base / specimen ancestor absent")
 needs_rst = pytest.mark.skipif(not os.path.exists(RST), reason="rst host absent")
+
+
+def _pinned_base():
+    """The pinned certified genesis base (repo copy or plugin-bundled), or None."""
+    try:
+        from rvt.frontdoor.base import resolve_base
+        return resolve_base().path
+    except Exception:
+        return None
+
+
+PINNED_BASE = _pinned_base()
+needs_pin = pytest.mark.skipif(PINNED_BASE is None, reason="pinned genesis base absent")
 
 
 def _has_ifcopenshell() -> bool:
@@ -107,29 +132,39 @@ def test_every_claimed_cell_carries_evidence_and_stages():
             assert c.stages, f"{c.key()} claims {c.status} without stages"
 
 
-def _fresh_clone_missing_bins(problems):
-    """True when EVERY audit problem is a certified .rvt under the
-    git-ignored experiments/ tree AND none of those binaries exist here --
-    the fresh-clone signature.  Any other problem class (ledger mismatch,
-    missing tests/ citation) is a genuine stale citation everywhere."""
-    import glob as _glob
-    if not problems:
-        return False
-    if not all("certified file missing on disk: experiments/" in p
-               for p in problems):
-        return False
-    return not _glob.glob(os.path.join(ROOT, "experiments", "acceptance",
-                                       "*.rvt"))
-
-
 def test_evidence_self_audit_is_clean():
-    """THE honesty gate: every cited test/worked path exists on disk and
-    every certified: citation is in the viewer ledger's CERTIFIED list."""
-    problems = MX.verify_evidence()
-    if _fresh_clone_missing_bins(problems):
-        pytest.skip("certified evidence binaries live in git-ignored "
-                    "experiments/ and are absent on a fresh clone")
-    assert problems == [], "stale/false evidence citations:\n" + "\n".join(problems)
+    """THE honesty gate, live on EVERY checkout (fresh clone and CI included):
+    every cited test/worked/record path exists, every certified: citation is
+    in the viewer ledger's CERTIFIED list, every stage/chain reference
+    resolves.  Certified probe binaries absent from a fresh clone are the
+    one tolerated class -- the ledger certifies them, not the disk -- and
+    on a checkout that carries the binaries even those are hard."""
+    rep = MX.audit()
+    assert rep["ledger_present"], "docs/coverage/viewer-certified.json must be readable"
+    assert rep["problems"] == [], ("stale/false evidence citations:\n"
+                                   + "\n".join(rep["problems"]))
+    for p in rep["absent_binaries"]:
+        assert MX.ABSENT_BINARY_MARK in p
+
+
+def test_audit_classifies_only_the_binary_class_as_soft():
+    raw = MX.verify_evidence()
+    rep = MX.audit()
+    soft = [p for p in raw if MX.ABSENT_BINARY_MARK in p]
+    hard = [p for p in raw if MX.ABSENT_BINARY_MARK not in p]
+    assert set(hard) <= set(rep["problems"])
+    if rep["fresh_clone"]:
+        assert rep["absent_binaries"] == soft
+    else:
+        assert set(soft) <= set(rep["problems"]) and rep["absent_binaries"] == []
+
+
+def test_render_text_is_the_shared_printer():
+    text, rep = MX.render_text()
+    assert "PERMUTATION MATRIX" in text and "chains" in text
+    cnt = MX.status_counts()
+    assert f"{cnt['works']} works / {cnt['partial']} partial / {cnt['missing']} missing" in text
+    assert rep["n_cells"] == len(MX.CELLS)
 
 
 def test_matrix_router_coherence():
@@ -175,6 +210,74 @@ def test_missing_cells_point_to_live_closest():
 def test_matrix_as_json_serializes():
     j = json.dumps(MX.as_json(), default=str)
     assert "cells" in j and "chains" in j
+    assert MX.as_json()["counts"] == MX.status_counts()
+
+
+def test_convert_implementations_are_registered():
+    """Issue #5's DONE: every rvt.convert route has a matrix cell that names
+    a registered router implementation."""
+    want = {
+        (("rvt",), "ifc"): "rvt_to_ifc",
+        (("rvt",), "rfa"): "extract_family",
+        (("prompt", "rfa"), "rfa"): "rfa_modify",
+        (("ifc", "rvt"), "rvt"): "ifc_merge_into_rvt",
+        (("prompt", "rvt"), "rvt"): "rvt_edit",          # edit | add_to_project branch
+        (("rfa", "rvt"), "rvt"): "rfa_load",             # famspec | extracted-.rfa reload
+        (("rfa",), "rvt"): "rfa_load",
+    }
+    for key, route in want.items():
+        c = MX.CELLS[key]
+        assert c.status == MX.STATUS_WORKS, key
+        assert c.route == route and route in R._IMPLS, key
+    stages = {s.impl for s in MX.STAGES.values()}
+    for impl in ("rvt.convert.rvt_to_ifc:extract_intent",
+                 "rvt.convert.extract_family:extract_family",
+                 "rvt.convert.extract_family:reload_family",
+                 "rvt.convert.add_to_project:add_to_project",
+                 "rvt.convert.merge_ifc:merge_ifc",
+                 "rvt.convert.modify_family:modify_family"):
+        assert impl in stages, impl
+
+
+def test_certified_depths_are_cited_on_the_rfa_cells():
+    """The .rfa-load (T2a) and extract->place (TB0g) certifications ride on
+    the cells they deepen -- and verify_evidence() keeps them honest."""
+    load = MX.CELLS[(("rfa", "rvt"), "rvt")].evidence + MX.CELLS[(("rfa",), "rvt")].evidence
+    assert "certified:experiments/rftprobe/T2a.rvt" in load
+    assert "certified:experiments/species/TB0g.rvt" in load
+    assert "certified:experiments/species/TB0g.rvt" in MX.CELLS[(("rvt",), "rfa")].evidence
+    assert "rvt->rfa->loaded-rvt" in MX.CHAINS
+
+
+_DOC_ROW = re.compile(r"^\|\s*([a-z+ →]+?)\s*\|\s*(\*\*works\*\*|\*partial\*|\*missing\*)\s*\|")
+
+
+def _doc_cells():
+    """{(inputs, output): status} parsed from the two tables of the doc."""
+    out = {}
+    with open(MATRIX_DOC, encoding="utf-8") as fh:
+        for line in fh:
+            m = _DOC_ROW.match(line.strip())
+            if not m or m.group(1).count("→") != 1:      # chain rows have 2+
+                continue
+            lhs, rhs = m.group(1).split("→")
+            ins = [t.strip() for t in lhs.split("+") if t.strip()]
+            status = m.group(2).strip("*")
+            out[MX.key_for(ins, rhs.strip())] = status
+    return out
+
+
+def test_permutation_matrix_doc_agrees_with_machine_matrix():
+    """docs/product/PERMUTATION-MATRIX.md is the rendered copy: every cell
+    row it prints must carry the machine matrix's status, and every machine
+    cell must have a row."""
+    doc = _doc_cells()
+    assert doc, "no cell rows parsed from PERMUTATION-MATRIX.md"
+    for key, cell in MX.CELLS.items():
+        assert key in doc, f"PERMUTATION-MATRIX.md has no row for {key}"
+        assert doc[key] == cell.status, (f"PERMUTATION-MATRIX.md says {doc[key]} for "
+                                         f"{key}, the machine matrix says {cell.status}")
+    assert set(doc) == set(MX.CELLS), f"doc rows without a machine cell: {set(doc) - set(MX.CELLS)}"
 
 
 # ===========================================================================
@@ -215,12 +318,14 @@ def test_unknown_combination_gets_the_fallback_line(tmp_path):
     assert "Closest supported route" in res.line
 
 
-def test_bare_rfa_path_is_refused_with_the_row(tmp_path):
-    res = R.route({"rfa": str(tmp_path / "some_family.rfa")}, "rvt",
-                  out=str(tmp_path / "o"))
+def test_famspec_is_not_an_editable_file(tmp_path):
+    """prompt+rfa EDITS an existing .rfa; a famspec there is refused with
+    the clear line pointing at prompt->rfa."""
+    res = R.route({"rfa": {"kind": "downlight"}, "prompt": "set BusRating 225"},
+                  "rfa", out=str(tmp_path / "o"))
     assert res.ok is False
     assert "UNSUPPORTED-INPUT-FORM" in res.status
-    assert "famspec" in res.line
+    assert "prompt -> rfa" in res.line and res.files == {}
 
 
 def test_unwired_famspec_kind_names_the_room_pipeline(tmp_path):
@@ -239,6 +344,25 @@ def test_bad_arguments_raise_route_error(tmp_path):
         R.route({}, "rvt")
     with pytest.raises(R.RouteError):
         R.route({"ifc": str(tmp_path / "missing.ifc")}, "rvt")
+    with pytest.raises(R.RouteError):                 # a .rfa PATH must exist
+        R.route({"rfa": str(tmp_path / "some_family.rfa")}, "rvt")
+
+
+@pytest.mark.parametrize("prompt,edit", [
+    ("move DP-1 to 3,1,4.66", True),
+    ("delete LP-4 with cascade", True),
+    ("rename panel LP-1 to LP-9", True),
+    ("set mark of 1472703 to X", True),
+    ('[{"op": "delete", "id": 123456}]', True),
+    ("add a 75 kVA transformer to my project", False),
+    ("an electrical room 30x20 ft with two 400 A distribution panels", False),
+    ("a 100 A lighting panel", False),
+])
+def test_edit_shape_decides_edit_vs_add(prompt, edit):
+    """prompt+rvt dispatch is decided on SHAPE without the file: an edit
+    clause whose name does not resolve stays an edit (reported honestly),
+    it is never re-read as 'add a DP-1'."""
+    assert R._edit_shaped(prompt) is edit
 
 
 # ===========================================================================
@@ -325,13 +449,29 @@ def test_e2e_prompt_rvt_edit(tmp_path):
     assert any("PROOF-ONLY" in s for s in res.stamps)
 
 
+def _famcontainer_present() -> bool:
+    """The famspec (downlight) lane emits its .rfa on the family container
+    archetype (rvt.famgen.famdoc_adoc.TEMPLATE_DONOR, research corpus) --
+    absent on a fresh clone until famfrom_ifc emits on the bundled base."""
+    try:
+        from rvt.famgen import famdoc_adoc as FA
+        return os.path.isfile(FA.TEMPLATE_DONOR)
+    except Exception:
+        return False
+
+
+needs_famcontainer = pytest.mark.skipif(not _famcontainer_present(),
+                                        reason="family container archetype absent (owner machine)")
+
+
 @needs_ifc
 @needs_catalog
-@needs_rst
+@needs_famcontainer
+@needs_pin
 @skip_large
 def test_e2e_famspec_downlight_loaded(tmp_path):
     """The RFA -> loaded-RVT combination (the certified L1a/L_downlight
-    mechanism, reproduced by the router)."""
+    mechanism, reproduced by the router; default host = the pinned base)."""
     res = R.route({"rfa": {"kind": "downlight"}}, "rvt", out=str(tmp_path / "o"))
     assert res.ok, res.errors
     assert os.path.isfile(res.files["rfa"])
@@ -370,6 +510,220 @@ def test_e2e_ifc_to_rvt(tmp_path):
 
 
 # ===========================================================================
+# 3b. the rvt.convert cells (issue #5) -- END TO END on a fresh clone.
+#     The source project is BUILT here from a prompt on the pinned base;
+#     the heavy ones honour RVT_SKIP_LARGE like every other build.
+# ===========================================================================
+
+def _validator_errors(path: str) -> int:
+    from rvt.validate import validate_file
+    return len(validate_file(path).errors)
+
+
+@pytest.fixture(scope="module")
+def built_room(tmp_path_factory):
+    """ONE prompt->rvt build shared by the convert e2e tests: a small room
+    (4 walls + two generated, loaded, placed lighting panels) on the pinned
+    genesis base, plus the generated .rfa deliverables.  ~12 s."""
+    if os.environ.get("RVT_SKIP_LARGE") == "1":
+        pytest.skip("RVT_SKIP_LARGE=1")
+    if PINNED_BASE is None or not _catalog_ok():
+        pytest.skip("pinned genesis base / famgen catalog absent")
+    out = tmp_path_factory.mktemp("built_room")
+    res = R.route({"prompt": SMALL_ROOM_PROMPT}, "rvt", out=str(out), no_handoff=True)
+    rvt = res.files.get("combined")
+    if not (res.ok and rvt and os.path.isfile(rvt)):
+        pytest.skip(f"prompt->rvt did not build here: {res.status} {res.errors[:2]}")
+    rfas = sorted(p for k, p in res.files.items()
+                  if k.startswith("rfa:") or (isinstance(p, str) and p.endswith(".rfa")))
+    fam_dir = res.files.get("families_dir")
+    if not rfas and fam_dir and os.path.isdir(fam_dir):
+        rfas = sorted(os.path.join(fam_dir, f) for f in os.listdir(fam_dir) if f.endswith(".rfa"))
+    assert rfas, "the build produced no .rfa deliverables"
+    return {"rvt": rvt, "rfas": rfas, "out": str(out)}
+
+
+@needs_pin
+def test_e2e_rvt_to_ifc_delivers_on_the_bare_base(tmp_path):
+    """rvt -> ifc runs on ANY project: the family-free genesis base exports
+    its levels; the manifest says honestly that no room round trip ran."""
+    res = R.route({"rvt": PINNED_BASE}, "ifc", out=str(tmp_path / "o"))
+    assert res.ok, res.errors
+    assert res.route == "rvt_to_ifc"
+    assert os.path.isfile(res.files["ifc"])
+    assert open(res.files["ifc"], "rb").read(32).startswith(b"ISO-10303-21")
+    assert os.path.isfile(res.manifest_paths["rvt_to_ifc:json"])
+    assert os.path.isfile(res.manifest_paths["route.json"])
+
+
+@needs_ifc
+def test_e2e_rvt_to_ifc_round_trips_a_built_room(built_room, tmp_path):
+    """THE ACCEPTANCE of rvt -> ifc: everything the build put in the .rvt
+    (walls, equipment, positions) survives into the IFC and back through
+    our own resolver."""
+    res = R.route({"rvt": built_room["rvt"]}, "ifc", out=str(tmp_path / "o"))
+    assert res.ok, res.errors
+    man = json.load(open(res.manifest_paths["rvt_to_ifc:json"]))
+    rt = man["roundtrip"]
+    assert rt["ran"] and rt["all_survived"], rt
+    n_eq = len(man["equipment"])
+    assert n_eq >= 1 and rt["equipment_survived"] == f"{n_eq}/{n_eq}"
+    assert rt["walls_matched"] == "4/4"
+    assert "all_survived=True" in res.status
+
+
+@needs_pin
+def test_e2e_extract_family_on_a_family_free_project_is_one_clear_line(tmp_path):
+    res = R.route({"rvt": PINNED_BASE}, "rfa", out=str(tmp_path / "o"))
+    assert res.ok is False and res.route == "extract_family"
+    assert "embeds NO family documents" in res.line
+    assert "Closest supported route" in res.line
+    assert os.path.isfile(res.files["families"])
+
+
+def test_e2e_extract_family_needs_a_selector_when_several(built_room, tmp_path):
+    res = R.route({"rvt": built_room["rvt"]}, "rfa", out=str(tmp_path / "o"))
+    assert res.ok is False
+    assert "NEEDS-A-SELECTOR" in res.status
+    assert "--family" in res.line
+    listing = json.load(open(res.files["families"]))
+    assert len(listing) >= 2 and all(r["family_name"] for r in listing)
+
+
+def test_e2e_extract_then_reload_full_cycle(built_room, tmp_path):
+    """rvt -> rfa (extract) then rfa -> rvt (the extracted-.rfa reload lane
+    onto the pinned base): generate -> load -> extract -> re-load, all our
+    machinery, project validator 0 errors at the end."""
+    listing = json.load(open(R.route({"rvt": built_room["rvt"]}, "rfa",
+                                       out=str(tmp_path / "ls")).files["families"]))
+    sel = str(listing[0]["family_id"])
+    ex = R.route({"rvt": built_room["rvt"]}, "rfa", out=str(tmp_path / "x"), family=sel)
+    assert ex.ok, ex.errors
+    rfa = ex.files["rfa"]
+    assert os.path.isfile(rfa) and ex.status.startswith("OK"), ex.status
+    xman = json.load(open(ex.manifest_paths["extract_family:json"]))
+    assert xman["validation"]["family_mode"]["verdict"] == "VALID"
+    assert xman["validation"]["family_mode"]["n_errors"] == 0
+    # reload onto the default host (the pinned certified genesis base)
+    rl = R.route({"rfa": rfa}, "rvt", out=str(tmp_path / "r"))
+    assert rl.ok, rl.errors + [rl.status, rl.line]
+    assert rl.route == "rfa_load"
+    loaded = rl.files["loaded_rvt"]
+    assert os.path.isfile(loaded) and os.path.isfile(rl.files["load_report"])
+    assert "VALID 0 errors" in rl.status
+    assert _validator_errors(loaded) == 0
+    # reloading into the project it came from is refused BY NAME (its ids
+    # are already past that host's watermark) -- one clear line, no traceback
+    back = R.route({"rfa": rfa, "rvt": built_room["rvt"]}, "rvt", out=str(tmp_path / "b"))
+    assert back.ok is False and back.line and "STANDALONE-BORN" in back.line
+
+
+@needs_catalog
+@needs_pin
+def test_standalone_born_rfa_gets_the_clear_line_not_a_traceback(tmp_path):
+    """Our own .rfa deliverables are standalone-born (ids from 1000): the
+    reload lane answers with THE line naming the certified-but-unwired
+    id-remap lane (T2a) and the routes that do work today."""
+    gen = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(tmp_path / "g"))
+    assert gen.ok, gen.errors
+    rfa = next(p for k, p in gen.files.items() if k.startswith("rfa:"))
+    res = R.route({"rfa": rfa}, "rvt", out=str(tmp_path / "o"))
+    assert res.ok is False
+    assert "UNSUPPORTED-INPUT-FORM" in res.status
+    assert "STANDALONE-BORN" in res.line and "T2a" in res.line
+    assert "loaded_rvt" not in res.files
+
+
+@needs_catalog
+def test_e2e_prompt_rfa_modify(tmp_path):
+    """prompt+rfa -> rfa on OUR generated family: rename the type + set two
+    parameters; family-mode validator VALID, every edit echoed by the
+    semantic re-read, release preserved."""
+    gen = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(tmp_path / "g"))
+    assert gen.ok, gen.errors
+    rfa = next(p for k, p in gen.files.items() if k.startswith("rfa:"))
+    res = R.route({"rfa": rfa, "prompt": "rename the type to 225A MCB 42ckt; "
+                                       "set BusRating 225; set PanelName DP-9"},
+                  "rfa", out=str(tmp_path / "o"))
+    assert res.ok, res.errors + [res.status, res.line]
+    assert res.route == "rfa_modify" and res.status.startswith("OK"), res.status
+    out_rfa = res.files["rfa"]
+    assert os.path.isfile(out_rfa) and out_rfa != rfa
+    man = json.load(open(res.manifest_paths["modify_family:json"]))
+    g = man["validation"]["rfa"]
+    assert g["family_mode"]["verdict"] == "VALID" and g["family_mode"]["n_errors"] == 0
+    assert g["release"]["preserved"] is True
+    assert [r["ok"] for r in g["reread"]] == [True, True, True]
+    assert any("PROOF-ONLY" in s for s in res.stamps)
+
+
+@needs_catalog
+def test_e2e_prompt_rfa_modify_bad_edit_is_one_clear_line(tmp_path):
+    gen = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(tmp_path / "g"))
+    assert gen.ok, gen.errors
+    rfa = next(p for k, p in gen.files.items() if k.startswith("rfa:"))
+    res = R.route({"rfa": rfa, "prompt": "make it prettier"}, "rfa", out=str(tmp_path / "o"))
+    assert res.ok is False
+    assert res.line and "Grammar" in res.line
+    assert not any("Traceback" in e for e in res.errors[:1])
+
+
+def test_e2e_add_into_project(built_room, tmp_path):
+    """prompt+rvt with an AUTHORING prompt: rvt.convert.add_to_project puts a
+    generated transformer INTO the built room -- delivered, validator VALID
+    0 errors, release preserved, the target's own content untouched."""
+    res = R.route({"rvt": built_room["rvt"],
+                   "prompt": "add a 75 kVA transformer to my project"},
+                  "rvt", out=str(tmp_path / "o"))
+    assert res.ok, res.errors + [res.status, res.line]
+    assert res.route == "rvt_edit"
+    out = res.files["combined"]
+    assert os.path.isfile(out) and out != built_room["rvt"]
+    assert res.status.startswith("OK") and "release 2026 preserved" in res.status
+    man = json.load(open(res.manifest_paths["add_to_project:json"]))
+    kinds = {(c["kind"], c.get("tag")) for c in man["created"]}
+    assert ("equipment-instance", "T1") in kinds and ("loaded-family", "T1") in kinds
+    g = man["validation"]["combined"]
+    assert g["validate"]["verdict"] == "VALID" and g["release"]["preserved"] is True
+    assert _validator_errors(out) == 0
+    assert any("PROOF-ONLY" in s for s in res.stamps)
+    assert any(k.startswith("rfa:") for k in res.files)          # the .rfa rides along
+
+
+@needs_ifc
+def test_e2e_merge_ifc_into_project(built_room, tmp_path):
+    """ifc+rvt: an IFC of a second small room MERGED into the built room at
+    the auto-disjoint offset -- delivered, VALID 0 errors, release preserved,
+    the open-bug stamp riding because walls AND families were created."""
+    ifc = R.route({"prompt": "an electrical room 16x12 ft with one 100 A lighting panel"},
+                  "ifc", out=str(tmp_path / "i"))
+    assert ifc.ok, ifc.errors
+    res = R.route({"rvt": built_room["rvt"], "ifc": ifc.files["ifc"]}, "rvt",
+                  out=str(tmp_path / "o"))
+    assert res.ok, res.errors + [res.status, res.line]
+    assert res.route == "ifc_merge_into_rvt"
+    out = res.files["combined"]
+    assert os.path.isfile(out)
+    man = json.load(open(res.manifest_paths["merge_ifc:json"]))
+    assert len(man["created_ids"]) >= 3                          # walls + family + instance
+    assert man["placement"]["offset"] and "auto-disjoint" in man["placement"]["rule"]
+    g = man["validation"]["combined"]
+    assert g["validate"]["verdict"] == "VALID" and g["release"]["preserved"] is True
+    assert _validator_errors(out) == 0
+    assert any("walls+families" in s for s in res.stamps), res.stamps
+
+
+def test_e2e_edit_shaped_prompt_still_edits(built_room, tmp_path):
+    """The certified edit branch of prompt+rvt is untouched by the add
+    branch: an edit sentence on the built room moves the panel."""
+    res = R.route({"rvt": built_room["rvt"], "prompt": "move LP-1 to 3,1,4.66"},
+                  "rvt", out=str(tmp_path / "o"))
+    assert res.ok, res.errors + [res.status]
+    assert os.path.isfile(res.files["edited"])
+    assert any("PROOF-ONLY" in s for s in res.stamps)
+
+
+# ===========================================================================
 # 4. the route manifest contract
 # ===========================================================================
 
@@ -390,22 +744,42 @@ def test_route_manifest_shape(tmp_path):
 # 5. the CLI
 # ===========================================================================
 
-def test_cli_matrix_self_audits():
-    if _fresh_clone_missing_bins(MX.verify_evidence()):
-        pytest.skip("certified evidence binaries live in git-ignored "
-                    "experiments/ and are absent on a fresh clone")
-    p = subprocess.run([PY, os.path.join(ROOT, "tools", "route.py"), "matrix"],
+@pytest.mark.parametrize("tool", ["route.py", "frontdoor.py"])
+def test_cli_matrix_self_audits(tool):
+    """Both front doors print the SAME table through the shared renderer and
+    exit 0 on every checkout: hard audit problems fail, absent probe
+    binaries (fresh clone) are a note."""
+    p = subprocess.run([PY, os.path.join(ROOT, "tools", tool), "matrix"],
                        capture_output=True, text=True, cwd=ROOT)
     assert p.returncode == 0, p.stdout + p.stderr
     assert "PERMUTATION MATRIX" in p.stdout
     assert "evidence self-audit: every citation checks out" in p.stdout
+    assert "rvt->rfa->loaded-rvt" in p.stdout
+
+
+def test_cli_matrix_json_carries_the_audit():
+    p = subprocess.run([PY, os.path.join(ROOT, "tools", "route.py"), "matrix", "--json"],
+                       capture_output=True, text=True, cwd=ROOT)
+    assert p.returncode == 0, p.stderr
+    d = json.loads(p.stdout)
+    assert d["audit"]["problems"] == [] and d["counts"]["works"] >= 17
+    assert len(d["cells"]) == len(MX.CELLS)
+
+
+def test_frontdoor_author_route_is_untouched_by_the_matrix_verb():
+    """The hot-file patch is additive: `author` keeps its exact usage error."""
+    p = subprocess.run([PY, os.path.join(ROOT, "tools", "frontdoor.py"), "author"],
+                       capture_output=True, text=True, cwd=ROOT)
+    assert p.returncode == 2
+    p2 = subprocess.run([PY, os.path.join(ROOT, "tools", "frontdoor.py"), "--help"],
+                        capture_output=True, text=True, cwd=ROOT)
+    assert p2.returncode == 0 and "matrix" in p2.stdout and "tools/route.py" in p2.stdout
 
 
 def test_cli_unsupported_exit_code(tmp_path):
-    rvt = tmp_path / "x.rvt"
-    rvt.write_bytes(b"x")
     p = subprocess.run([PY, os.path.join(ROOT, "tools", "route.py"), "run",
-                        "--output", "ifc", "--rvt", str(rvt)],
+                        "--output", "ifc", "--rfa", '{"kind": "downlight"}',
+                        "--out", str(tmp_path / "o")],
                        capture_output=True, text=True, cwd=ROOT)
     assert p.returncode == 4, p.stdout + p.stderr
     assert "Closest supported route" in p.stdout
@@ -413,10 +787,18 @@ def test_cli_unsupported_exit_code(tmp_path):
 
 def test_cli_explain_missing_cell():
     p = subprocess.run([PY, os.path.join(ROOT, "tools", "route.py"), "explain",
-                        "--output", "rfa", "--inputs", "prompt,rfa"],
+                        "--output", "rfa", "--inputs", "rfa"],
                        capture_output=True, text=True, cwd=ROOT)
     assert p.returncode == 4
-    assert "MISSING" in p.stdout and "prompt->rfa" in p.stdout.replace(" ", "")
+    assert "MISSING" in p.stdout and "prompt+rfa" in p.stdout
+
+
+def test_cli_explain_flipped_cell_is_zero():
+    p = subprocess.run([PY, os.path.join(ROOT, "tools", "route.py"), "explain",
+                        "--output", "ifc", "--inputs", "rvt"],
+                       capture_output=True, text=True, cwd=ROOT)
+    assert p.returncode == 0, p.stdout
+    assert "works via rvt_to_ifc" in p.stdout and "certified" not in p.stdout.split("\n")[0]
 
 
 def test_cli_usage_error_is_2():

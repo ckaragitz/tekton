@@ -53,6 +53,7 @@ tools/ifc_intent.py (module), rvt.{mutate,versions,validate,famload}.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import os
@@ -223,9 +224,25 @@ def _wall_span_ft(v: dict) -> Optional[Tuple[float, float, float, float]]:
 def resolve_target(path: str, *, survey_limit: int = 4000) -> TargetInfo:
     """Open the user's file and survey what the routes need: release
     (rvt.versions), schema identity, levels, wall/instance census and the
-    content bounding box (metres) that placement stays clear of."""
+    content bounding box (metres) that placement stays clear of.
+
+    The survey reads the target under its OWN release (``rvt.frontdoor.
+    release_ctx.host_release_context`` -- famload-2025 lane, issue #14); a
+    target whose release cannot host authoring is still surveyed natively
+    and :func:`build_into_target` refuses it with the version model's
+    reason."""
     if not os.path.isfile(path):
         raise ConvertError(f"target file not found: {path}")
+    from ..frontdoor.release_ctx import enter_host_release
+    with contextlib.ExitStack() as stack:
+        ctx_note = enter_host_release(stack, path)
+        info = _resolve_target(path, survey_limit=survey_limit)
+        if ctx_note:
+            info.notes.append(ctx_note)
+        return info
+
+
+def _resolve_target(path: str, *, survey_limit: int) -> TargetInfo:
     release = V.detect_release(path)
     info = TargetInfo(
         path=os.path.abspath(path), release=release,
@@ -416,7 +433,26 @@ def build_into_target(model: FI.IntentModel, target: TargetInfo, out_dir: str,
     The walls+families OPEN BUG degrade applies exactly as in the front
     door: ``--strict`` emits two coordinated files (shell / equipment), the
     default emits ONE stamped combined file.  Returns the full record;
-    ``record['files']`` maps role -> path (the deliverables)."""
+    ``record['files']`` maps role -> path (the deliverables).
+
+    Every stage runs under the TARGET's own release (the host release
+    context -- issue #14): a Revit 2025 target is loaded / walled / placed
+    with 2025 framing, codecs and the port layer, and stays 2025; a target
+    that cannot host authoring enters no context and the release guard
+    below refuses it with the version model's reason."""
+    from ..frontdoor.release_ctx import enter_host_release
+    with contextlib.ExitStack() as stack:
+        enter_host_release(stack, target.path)
+        return _build_into_target(model, target, out_dir, stem=stem,
+                                  strict=strict, level=level,
+                                  validate=validate, wall_mode=wall_mode,
+                                  symbol_solid=symbol_solid)
+
+
+def _build_into_target(model: FI.IntentModel, target: TargetInfo, out_dir: str,
+                       *, stem: str, strict: bool, level: Optional[str],
+                       validate: bool, wall_mode: str,
+                       symbol_solid: bool) -> Dict[str, Any]:
     t0 = time.time()
     os.makedirs(out_dir, exist_ok=True)
     stages_dir = os.path.join(out_dir, "_stages")
