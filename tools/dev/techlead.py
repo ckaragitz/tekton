@@ -87,6 +87,8 @@ LABELS = {
     "overlap": ("d93f0b", "Another open PR or another assignee targets the same issue"),
     "stacked": ("fbca04", "Base is another PR's branch, not the default branch"),
     "duplicate-pr": ("d93f0b", "A second open PR for an issue another PR already closes; the older one wins"),
+    "batch-clash": ("d93f0b", "Adds a viewer batch_<n>.json that main, a reservation, or an older open PR already owns"),
+    "batch-registry": ("5319e7", "The one issue where coord records /batches reservations (do not edit)"),
     "stale": ("cfd3d7", "No commits for days; will be closed and its issue re-queued unless it moves"),
     "wip": ("cfd3d7", "Holds a draft: automerge will not auto-mark it ready"),
     "do-not-merge": ("000000", "Holds a PR from automerge entirely"),
