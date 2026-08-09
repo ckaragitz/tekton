@@ -134,8 +134,8 @@ class ExtractedEquipment:
     family_unit: Optional[int] = None
     contract_source: List[str] = dc_field(default_factory=list)
     notes: List[str] = dc_field(default_factory=list)
-    #: the extracted level id ('L1'..) of the instance's building-story datum;
-    #: SET => insertion_m[2] is relative to it (the emitter's storey contract)
+    #: the extracted level id ('L1'..) of the instance's building-story datum
+    #: (an annotation for the emitter's storey containment; z stays WORLD)
     level: Optional[str] = None
 
     def as_json(self) -> Dict[str, Any]:
@@ -163,7 +163,7 @@ class _Room:
         self.doors: list = []
         self.clear: Dict[str, Any] = {}
         self.info = {"RoomName": name}
-        self.level: Optional[str] = None      # SET => wall base_m is relative to it
+        self.level: Optional[str] = None      # the walls' story level (annotation; z stays world)
 
 
 class ExtractedModel:
@@ -622,12 +622,12 @@ def _extract_intent(rvt_path: str, *, max_walls: Optional[int]) -> ExtractedMode
     model.feeders, feeder_stats = _extract_feeders(doc, model.equipment)
 
     # STOREYS: the emitter writes one IfcBuildingStorey per building-story
-    # level and contains each object under ITS level with level-relative z
-    # (rvt.frontdoor.ifc_out's contract) -- so every instance / the room shell
-    # takes the story datum it is associated to (m_assocLevelId) and its z is
-    # rebased on that datum.  Objects on a non-story reference datum keep
-    # world z and no level (they land under the storey nearest 0).  The
-    # dominant story still sorts first for level-blind consumers.
+    # level and contains each object under ITS level (rvt.frontdoor.ifc_out;
+    # z stays WORLD -- rvt.ifc.intent.level_elevation contract) -- so every
+    # instance / the room shell is annotated with the story datum it is
+    # associated to (m_assocLevelId).  Objects on a non-story reference datum
+    # get no level (they land under the storey nearest 0).  The dominant
+    # story still sorts first for level-blind consumers.
     stories = {lv["elem_id"]: lv for lv in model.levels
                if lv.get("is_building_story") is not False}
     lvl_use: Dict[Any, int] = {}
@@ -636,7 +636,6 @@ def _extract_intent(rvt_path: str, *, max_walls: Optional[int]) -> ExtractedMode
         lvl_use[lid] = lvl_use.get(lid, 0) + 1
         if lid in stories:
             e.level = stories[lid]["id"]
-            e.insertion_m[2] = float(e.insertion_m[2]) - float(stories[lid]["elevation"])
     wall_lvls: Dict[Any, int] = {}
     for row in wall_rows:
         wall_lvls[row.get("level_id")] = wall_lvls.get(row.get("level_id"), 0) + 1
@@ -645,8 +644,6 @@ def _extract_intent(rvt_path: str, *, max_walls: Optional[int]) -> ExtractedMode
         rlid = max(wall_lvls, key=lambda k: wall_lvls[k])
         if rlid in stories:                # the shell stands on its walls' dominant story
             model.room.level = stories[rlid]["id"]
-            for wr in model.room.walls:
-                wr.base_m = round(float(wr.base_m) - float(stories[rlid]["elevation"]), 6)
     if lvl_use and model.levels:
         dominant = max(lvl_use, key=lambda k: lvl_use[k])
         model.levels.sort(key=lambda l: (l.get("elem_id") != dominant,

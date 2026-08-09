@@ -19,8 +19,8 @@ The mechanics are the ifc-room stream's PROVEN build code, reused as-is
        W1_gabpd_wall_solid recipe -- unless ``RVT_WALL_REP=dummy``) on the
        room's level datum;
     E  the EQUIPMENT instances (rvt.mutate.add_family_instance onto OUR
-       loaded symbols at the intent's frames, our connector managers), each
-       on ITS level's datum (m_assocLevelId + level-relative z);
+       loaded symbols at the intent's WORLD frames, our connector managers),
+       each associated to ITS level's datum (m_assocLevelId);
     C  the feeder CIRCUITS (rvt.mep territory) -- today a NAMED BLOCKER on
        the family-free base (no circuit specimen); recorded, never faked;
     V  the gates: rvt.validate (0 errors) / four-registry census / identity

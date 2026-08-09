@@ -323,6 +323,64 @@ with tests, plus its four nits:
    on the tech lead's explicit instruction (round-2 review), one hunk + the
    `level` field.
 
+## Round 3 (re-review of `79d15dd`): the z contract SETTLED — world z canonical, `level` an annotation
+
+The reviewer found a THIRD consumer of the round-1 "level-relative z" model
+(`merge_ifc` / `add_to_project.translate_model`, the `ifc+rvt → rvt` cell:
+LP-1..4 landed on 311 @ 4.659 ft instead of 18.659). Rather than patch a
+third consumer, the contract is now the one main always had: **every z in the
+shared intent model is WORLD** (`Equipment.insertion_m[2]`, `elevation_m`,
+`mounting_height_m`, `WallRun.base_m`, `RoomShell.clear['base_m']`), and
+`Equipment.level` / `RoomShell.level` are ANNOTATIONS naming the storey. ONE
+helper — `rvt.ifc.intent.level_elevation(levels, level)` /
+`level_relative_z(z, levels, level)` — serves the two consumers that need a
+level-relative z: `ifc_out` (local z under the containing storey = world −
+storey elevation, uniformly for levelled and level-less objects) and stage E's
+per-instance `z_above_level_ft` report (world − datum z). Consequences:
+`_assign_storeys` only sets `level`; `prompt_to_intent` adds the level's
+elevation to the layout's above-floor z (LP-1 `insertion_m[2]` = 4.2672 + 1.42
+= 5.6872 m, walls `base_m` = the room level's elevation); stage E places every
+instance at world z and only picks the DATUM from the level map; `rvt_to_ifc`
+annotates `level` from `m_assocLevelId` without touching z; `merge_ifc`,
+`add_to_project`, `roundtrip_table` are untouched and correct by default.
+Reviewer's repro `route.py run --output rvt --ifc two.ifc --rvt <copy of
+G_ABPD.rvt>` → MSB 0.328 ft, LP-1..4 **18.659 ft** (main's numbers);
+`test_merge_ifc_of_a_two_storey_ifc_is_world_faithful` pins it. Nits folded:
+`_RE_STOREYS` excludes only the singular `level <digit>` ('two storeys 14 ft
+floor to floor' and '2 floors 4 m apart' count again); the round-2 round-trip
+test carries the numpy gate; the rvt_to_ifc "story nearest 0 not at 0" case is
+moot (ifc_out subtracts the CONTAINING storey's elevation from world z for
+level-less gear too: world 10 ft under a storey @ 9.84 → local 0.16 → composes
+back to 10).
+
+### Audit — every reader of `insertion_m` / `elevation_m` / `base_m` / `mounting_height_m` under `src/` and `tools/` (`grep -rnE`), world or relative, and why it is right now
+
+| Reader (file:line) | Field | Reads as | Why correct after this change |
+|---|---|---|---|
+| `src/rvt/ifc/intent.py:1083,1121,1135,1141,1150` (`_resolve_equipment_placement`) | insertion / elevation / mounting_height | WRITES world (composed placement × world-baked pts) | the producer of the contract; unchanged from main |
+| `src/rvt/ifc/intent.py:1344,1405,1486,1505` (`_extract_room_shell` / `_close_room`) | wall `base_m`, `clear.base_m` | WRITES world (geometry z) | unchanged from main |
+| `src/rvt/ifc/intent.py:953-968` (`Equipment.as_json`), `:1207` (`WallRun.as_json`) | all | serialises as stored = world | intent.json now documents world z + `level` |
+| `src/rvt/ifc/intent.py:2172-2200` (`level_elevation` / `level_relative_z` / `_assign_storeys`) | insertion (read only by the helper's callers) | derives relative ON DEMAND; `_assign_storeys` no longer touches z | the one place a relative z is computed |
+| `src/rvt/ifc/intent.py:2380-2386` (`_audit`), `:2471` (CLI print) | insertion x/y, elevation | x/y only / display | z not used |
+| `src/rvt/ifc/intent.py:703-719` (`_collect_items`) | `base_m` | a 4×4 MATRIX named base_m, not a z | unrelated name collision |
+| `src/rvt/frontdoor/prompt_intent.py:1202-1265` (`layout_room` / `_layout_storey`) | `PromptItem.insertion_m` | above-ITS-floor (layout-internal dataclass, not the shared model) | converted to world at `:1429-1440` before it enters `Equipment` |
+| `src/rvt/frontdoor/prompt_intent.py:1429-1440,1466,1478` (`prompt_to_intent`) | insertion / elevation / mounting_height / base_m | WRITES world = layout z + `level_z[level]`; walls' base = room level elevation | matches the IFC producer; `test_two_storey_intent_model_carries_levels` |
+| `src/rvt/frontdoor/prompt_intent.py:1519-1530` (audit), `:1889` (CLI) | insertion x/y | x/y only / display | z not used |
+| `src/rvt/frontdoor/prompt_intent.py:1637` (`scene_brief`) | insertion | world → `position_m` (note says world) | Three.js places groups in world; a storey name rides alongside |
+| `src/rvt/frontdoor/ifc_out.py:265,297` (`write_intent_ifc`) | wall base_m, insertion | world → LOCAL under the containing storey (`- zoff`, zoff = that storey's elevation) | the storey placement adds it back: chain composes to world; round-trip tests ×3 |
+| `src/rvt/frontdoor/intent.py:119` (`summarize`) | insertion | world, rounded for the manifest | display |
+| `tools/ifc_intent.py:852-856` (`stage_equipment`) | insertion | world → `position_ft` directly; datum from the level map only for `m_assocLevelId` + the `z_above_level_ft` report | LPs 18.659 on 245423, MSB 0.328 on 311; IFC-route inputs land where main put them |
+| `tools/ifc_intent.py:1313-1314` (CLI print) | insertion, elevation | display | — |
+| `src/rvt/convert/add_to_project.py:350-351` (`model_bbox_m`) | insertion x/y | plan bbox | z not used |
+| `src/rvt/convert/add_to_project.py:384-388` (`translate_model`) | insertion, elevation | world + (dx, dy, target-level dz) | untouched; correct BECAUSE z is world again (`test_merge_ifc_of_a_two_storey_ifc_is_world_faithful`, `test_add_to_project_end_to_end`, `test_merge_ifc_end_to_end`) |
+| `src/rvt/convert/merge_ifc.py:58` (via `translate_model`) | insertion | world | same as above; reviewer's repro = main's numbers |
+| `src/rvt/convert/rvt_to_ifc.py:257,265,479` (`_extract_walls` / `_extract_equipment`) | base_m, insertion | WRITES world (curve z / `m_Trf` origin) | unchanged from main; `level` annotated separately at `:626-648` |
+| `src/rvt/convert/rvt_to_ifc.py:710` (`roundtrip_table`) | insertion | world vs world (re-read IFC composes to world) | no false PARTIAL: both sides world (`test_convert_combo` green) |
+| `tools/render_probes.py:511,522` | insertion | world → probe placement | research probes on single-storey intents; world = what they always got |
+| `src/rvt/frontdoor/edit.py:179,313`, `tools/rvt_job.py:1044` | `elevation_m` of a `set-level` OP | an edit op's target elevation, not an intent field | unrelated |
+| `src/rvt/genesis/residue_a.py:638,1703,1725`, `src/rvt/genesis/house_standard.py:261,1433` | `GRID_CONVENTION['elevation_m']`, `SITE['elevation_m']` | genesis constants | unrelated |
+| `src/rvt/ifc/product_facts.py:575` | `storey_elevation_m` (a product-facts key) | the IFC storey's elevation | unrelated to instance z |
+
 ## Open questions
 
 - Stages P and D are two open → commit → reopen passes over the same base;
@@ -338,7 +396,7 @@ with tests, plus its four nits:
 - Files written: `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/ifc/intent.py`,
   `src/rvt/frontdoor/levels.py` (new), `src/rvt/frontdoor/build.py`,
   `src/rvt/frontdoor/manifest.py`, `src/rvt/frontdoor/ifc_out.py`,
-  `src/rvt/convert/rvt_to_ifc.py` (round 2), `tools/ifc_intent.py`, `tests/test_prompt_intent.py`,
+  `src/rvt/convert/rvt_to_ifc.py` (rounds 2–3: `level` annotation only), `tools/ifc_intent.py`, `tests/test_prompt_intent.py`,
   `tests/test_frontdoor.py`, `tests/ci_shard.txt`, this record; sync
   mirrors `plugin/lib/src/rvt/frontdoor/{prompt_intent,levels,build,manifest,ifc_out}.py`,
   `plugin/lib/src/rvt/ifc/intent.py`, `plugin/lib/tools/ifc_intent.py`,

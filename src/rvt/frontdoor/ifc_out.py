@@ -14,8 +14,9 @@ The emitted file is the shape our own resolver (:mod:`rvt.ifc.intent`) is
 proven on -- the worked ``inputs/ifc/electrical-room-2500a.ifc`` dialect:
 
 * IFC4, SI metres, project -> site -> building -> one storey PER INTENT LEVEL
-  (placed at the level's elevation; every product contained under ITS
-  level's storey with level-relative z, so the chain composes to world);
+  (building stories only; placed at the level's elevation; every product
+  contained under ITS level's storey with local z = world z - elevation, so
+  the chain composes back to the model's WORLD z);
 * ONE room-shell ``IfcBuildingElementProxy`` carrying a ``RoomInformation``
   pset and per-wall box solids named ``wall_<i>`` (world-baked
   ``IfcTriangulatedFaceSet``; the resolver re-derives centerlines);
@@ -203,9 +204,9 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
     plc_bld = w.add(f"IFCLOCALPLACEMENT({plc_site},{a2p})")
     bld = w.add(f"IFCBUILDING({_s(_guid('building'))},{oh},'Building',$,$,{plc_bld},$,$,.ELEMENT.,$,$,$)")
     # one IfcBuildingStorey per intent level, its placement AT the level's
-    # elevation: a product sits under ITS level's storey with level-relative
-    # z (Equipment.level / RoomShell.level set), so the storey chain composes
-    # back to world z and `frontdoor author --ifc` re-reads the same levels.
+    # elevation: a product sits under ITS level's storey (Equipment.level /
+    # RoomShell.level) with local z = world z - that elevation, so the storey
+    # chain composes back to world z and `author --ifc` re-reads the levels.
     # Only BUILDING STORIES become storeys (a read-back model also lists the
     # source's reference datums, ``is_building_story: False``); a level-blind
     # caller (no object carries a level: world z throughout) gets ONE storey.
@@ -229,17 +230,14 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
         sto = w.add(f"IFCBUILDINGSTOREY({_s(_guid('storey:' + lid + ':' + lname))},{oh},"
                     f"{_s(lname)},$,$,{plc_sto},$,$,.ELEMENT.,{_f(lelev)})")
         storeys[lid] = (sto, plc_sto, lelev)
-    #: level-less objects carry WORLD z: they go under the storey nearest 0,
-    #: rebased on it (z - its elevation)
+    #: an object goes under ITS level's storey (level-less: the storey
+    #: nearest 0); its z in the model is WORLD (rvt.ifc.intent.level_elevation
+    #: contract), so the local z under the storey = world z - storey elevation
     ground_id = min(storeys, key=lambda k: (abs(storeys[k][2]), storeys[k][2]))
 
     def storey_for(level: Optional[str]) -> Tuple[str, str, float]:
-        """(storey, its placement, z to subtract) for an object's level."""
-        if level in storeys:
-            sto_, plc_, _elev = storeys[str(level)]
-            return sto_, plc_, 0.0
-        sto_, plc_, elev_ = storeys[ground_id]
-        return sto_, plc_, elev_
+        """(storey, its placement, its elevation to subtract from world z)."""
+        return storeys[str(level)] if level in storeys else storeys[ground_id]
 
     w.add(f"IFCRELAGGREGATES({_s(_guid('agg:project'))},{oh},$,$,{proj},({site}))")
     w.add(f"IFCRELAGGREGATES({_s(_guid('agg:site'))},{oh},$,$,{site},({bld}))")
@@ -297,7 +295,7 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
         hh = float(dims.get("h", 1.2))
         sto, plc_sto, zoff = storey_for(getattr(eq, "level", None))
         ins = list(map(float, getattr(eq, "insertion_m", [0.0, 0.0, 0.0])))
-        ins[2] -= zoff                                   # z relative to ITS storey
+        ins[2] -= zoff                                   # world -> local under ITS storey
         fr = list(map(float, (getattr(eq, "front_normal", None) or [0.0, -1.0, 0.0])))[:2]
         fl = math.hypot(*fr) or 1.0
         fx, fy = fr[0] / fl, fr[1] / fl                 # front normal (out of the face)

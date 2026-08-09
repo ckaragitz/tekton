@@ -192,10 +192,11 @@ _RE_WALL_THICK = re.compile(r"walls?\s+(?:that\s+are\s+|of\s+)?(?P<t>\d{1,3}(?:\
                             _DIM_UNIT + r")\s*thick", re.I)
 #: levels, three clause kinds (each may appear any number of times):
 #: a STOREY COUNT ('two storey', '3-story', 'two floors', 'single storey'),
-#: -- never '<n> level <digit>' ('4 level 2 lighting panels' = 4 panels on L2)
+#: -- never the singular '<n> level <digit>' ('4 level 2 lighting panels' =
+#: 4 panels on L2), while '2 storeys 14 ft floor to floor' still counts
 _RE_STOREYS = re.compile(
     r"\b(?P<n>\d{1,2}|one|two|three|four|five|six|single|double)[\s-]*"
-    r"(?:stor(?:e)?ys?\b|stories\b|levels?\b|floors\b)(?![\s-]*\d)", re.I)
+    r"(?:stor(?:e)?ys?\b|stories\b|levels\b|level\b(?![\s-]*\d)|floors\b)", re.I)
 #: a LEVEL REFERENCE ('on level 2', 'the second floor', 'ground floor',
 #: 'at L2') -- scoped to the equipment clause it sits in, else to the room,
 _LEVEL_NOUN = r"(?:level|floor|stor(?:e)?y)"
@@ -1400,6 +1401,9 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
     parsed = parse_prompt(prompt)
     layout_room(parsed)
     room_pr = parsed.room
+    #: storey number -> its datum's world elevation (m)
+    level_z = {i + 1: float(lv.get("elevation") or 0.0) for i, lv in enumerate(parsed.levels)}
+    room_z = level_z.get(room_pr.level, 0.0) if room_pr is not None else 0.0
 
     # ---- equipment -> rvt.ifc.intent.Equipment ---------------------------
     equipment: List[I.Equipment] = []
@@ -1419,17 +1423,21 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
             description=f"{_describe_item(it)}; {desc} (front-door prompt layout)",
             object_type=None, type_name=None, kind=it.kind, psets=con.pop("_prompt_psets"),
             contract=con, placement=plc, geometry=geom)
-        eq.insertion_m = list(map(float, it.insertion_m))
+        # the layout's z is above ITS floor; the intent model carries WORLD z
+        # (rvt.ifc.intent.level_elevation contract) + the level annotation
+        eq.level = f"L{it.level or 1}"
+        z_world = float(it.insertion_m[2]) + level_z.get(it.level or 1, 0.0)
+        eq.insertion_m = [float(it.insertion_m[0]), float(it.insertion_m[1]), z_world]
         eq.front_normal = [float(it.front[0]), float(it.front[1]), 0.0]
         eq.dims_m = dict(it.dims_m)
-        eq.elevation_m = float(it.insertion_m[2]) if it.frame_kind == "yaw" else float(
-            it.insertion_m[2] - float(it.dims_m.get("h", 1.2)) / 2.0)
+        eq.elevation_m = z_world if it.frame_kind == "yaw" else (
+            z_world - float(it.dims_m.get("h", 1.2)) / 2.0)
         if it.frame_kind == "upright":
             eq.frame3x3 = _upright_frame(eq.front_normal)
             fx = eq.frame3x3[0]
             eq.yaw_deg = math.degrees(math.atan2(fx[1], fx[0]))
             eq.mounting = "surface"
-            eq.mounting_height_m = float(it.insertion_m[2])
+            eq.mounting_height_m = z_world
             eq.notes.append("insertion = centre of the enclosure's mounting (back) plane on the "
                             f"{it.wall_id or 'nearest'} wall; upright work-plane frame "
                             "(family +Z = front normal, +Y = up)")
@@ -1439,7 +1447,6 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
             eq.notes.append("insertion = footprint centre at the base of the body (on a "
                             f"{DEFAULT_PAD_M} m housekeeping pad); yaw frame, front = family -Y")
         eq.frame_kind = it.frame_kind
-        eq.level = f"L{it.level or 1}"          # insertion z is relative to THIS level
         eq.position_source = ("prompt-layout (deterministic room-layout rule; positions are "
                               "authored from the prompt, not surveyed)")
         eq.notes.append(f"dims {it.dims_source}")
@@ -1456,7 +1463,7 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
                 wall_id=wid, p0_m=[float(p0[0]), float(p0[1])],
                 p1_m=[float(p1[0]), float(p1[1])],
                 thickness_m=float(room_pr.wall_thickness_m),
-                height_m=float(room_pr.height_m), base_m=0.0, synthesized=False,
+                height_m=float(room_pr.height_m), base_m=room_z, synthesized=False,
                 reason=("authored from the prompt's room dimensions (deterministic layout: "
                         "closed counter-clockwise centerline ring centred at the origin, "
                         "interior on the left of every wall's drawing direction)"),
@@ -1468,7 +1475,7 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
         room.clear = {"clearWidth_m": room_pr.width_m - room_pr.wall_thickness_m,
                       "clearDepth_m": room_pr.depth_m - room_pr.wall_thickness_m,
                       "clearHeight_m": room_pr.height_m, "wall_height_m": room_pr.height_m,
-                      "base_m": 0.0, "ring_ccw": True,
+                      "base_m": room_z, "ring_ccw": True,
                       "centerline_extents_m": {"x": [-hw, hw], "y": [-hd, hd]}}
         room.info = {"RoomName": room_pr.name, "ClearWidth": room_pr.width_m,
                      "ClearDepth": room_pr.depth_m, "ClearHeight": room_pr.height_m,
@@ -1633,8 +1640,8 @@ def scene_brief(prompt: str, *, parsed: Optional[ParsedPrompt] = None,
             "group_name": f"{'panel' if 'panelboard' in eq.kind else eq.kind}_{eq.tag}",
             "tag": eq.tag, "kind": eq.kind,
             "position_m": {"x": pos[0], "y": pos[1], "z": pos[2],
-                           "note": ("z is relative to the product's storey; Three.js is Y-up: "
-                                    "place the group at (x, storey elevation + z, -y) if your "
+                           "note": ("world coordinates (z includes the storey's elevation); "
+                                    "Three.js is Y-up: place the group at (x, z, -y) if your "
                                     "stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage "
                                     "convention]; the exporter writes real IfcLocalPlacements "
                                     "from group positions")},

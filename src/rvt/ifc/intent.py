@@ -106,6 +106,7 @@ __all__ = [
     "compose_placement", "axis2placement3d_matrix", "identity_matrix",
     "is_identity", "analyze_product",
     "resolve_intent", "intent_to_json", "write_intent", "plan_families",
+    "level_elevation", "level_relative_z",
     "make_house_switchboard", "resolve_products",
 ]
 
@@ -929,10 +930,9 @@ class Equipment:
     elevation_m: float = 0.0
     mounting: str = "floor"
     mounting_height_m: Optional[float] = None
-    #: the intent level ('L2') this item sits on: SET => insertion_m z is
-    #: relative to that level's datum and the placed instance associates to
-    #: it; None => world z / the first storey (the IFC route composes
-    #: absolute placements)
+    #: the intent level ('L2') this item belongs to -- an ANNOTATION: every z
+    #: here stays WORLD (see :func:`level_elevation`); the placed instance
+    #: associates to that level's datum; None => the storey nearest 0
     level: Optional[str] = None
     position_source: str = "geometry-recovered"
     notes: List[str] = dc_field(default_factory=list)
@@ -1222,7 +1222,7 @@ class RoomShell:
     clear: Dict[str, Any] = dc_field(default_factory=dict)
     info: Dict[str, Any] = dc_field(default_factory=dict)
     notes: List[str] = dc_field(default_factory=list)
-    level: Optional[str] = None          # intent level ('L1') the shell's walls stand on; None -> first storey
+    level: Optional[str] = None          # intent level ('L1') the shell's walls stand on (annotation; z stays world)
 
     def as_json(self) -> dict:
         return {"name": self.name, "step_id": self.step_id, "level": self.level,
@@ -2166,16 +2166,37 @@ def _storey_of_products(f) -> Dict[int, int]:
     return out
 
 
+def level_elevation(levels: Optional[Sequence[dict]], level: Optional[str]) -> Optional[float]:
+    """Elevation (m) of intent level ``level`` ('L2') in ``levels``, else None.
+
+    THE Z CONTRACT: every z in the intent model is WORLD (``insertion_m[2]``,
+    ``elevation_m``, ``mounting_height_m``, wall ``base_m``); ``level`` on an
+    Equipment / RoomShell is an ANNOTATION naming the storey it belongs to.
+    The few consumers that need a level-relative z (IFC storey containment,
+    the placed instance's offset above its datum) derive it here through
+    :func:`level_relative_z` -- nobody stores one."""
+    if not level:
+        return None
+    for i, lv in enumerate(levels or []):
+        if str(lv.get("id") or f"L{i + 1}") == str(level):
+            return float(lv.get("elevation") or 0.0)
+    return None
+
+
+def level_relative_z(z_world: float, levels: Optional[Sequence[dict]],
+                     level: Optional[str]) -> float:
+    """``z_world`` measured from level ``level``'s elevation (unchanged when
+    the level is unknown / unset)."""
+    return float(z_world) - float(level_elevation(levels, level) or 0.0)
+
+
 def _assign_storeys(f, levels: List[dict], equipment: List["Equipment"],
                     room: Optional["RoomShell"], room_prod) -> None:
-    """Set ``Equipment.level`` / ``RoomShell.level`` from each product's
-    containing storey and rebase its z on that storey: ``insertion_m[2]``,
-    ``elevation_m``, ``mounting_height_m`` (and the shell's wall ``base_m``)
-    become LEVEL-RELATIVE -- the one contract the build (stage D / E) and the
-    IFC emitter read.  World z = the level's ``elevation`` + the relative z,
-    so geometry stays where the IFC put it while the datum lands where the
-    storey says.  Products with no resolvable storey keep world z and
-    ``level = None`` (the build lands them on the datum nearest 0)."""
+    """Annotate ``Equipment.level`` / ``RoomShell.level`` with each product's
+    containing storey (spatial containment; spaces walked up to their
+    storey).  Nothing is rebased: z stays WORLD (see :func:`level_elevation`).
+    Products with no resolvable storey keep ``level = None`` (the build lands
+    them on the datum nearest 0)."""
     by_step = {lv.get("step_id"): lv for lv in levels if lv.get("step_id") is not None}
     if not by_step:
         return
@@ -2186,28 +2207,16 @@ def _assign_storeys(f, levels: List[dict], equipment: List["Equipment"],
 
     for eq in equipment:
         lv = level_for(eq.step_id)
-        if lv is None:
-            continue
-        dz = float(lv.get("elevation") or 0.0)
-        eq.level = str(lv["id"])
-        eq.insertion_m = [float(eq.insertion_m[0]), float(eq.insertion_m[1]),
-                          float(eq.insertion_m[2]) - dz]
-        eq.elevation_m = float(eq.elevation_m) - dz
-        if eq.mounting_height_m is not None:
-            eq.mounting_height_m = float(eq.mounting_height_m) - dz
-        eq.notes.append(f"level = {eq.level} ('{lv.get('name')}', storey #{lv.get('step_id')}): "
-                        f"z values are relative to its datum ({dz:g} m)")
+        if lv is not None:
+            eq.level = str(lv["id"])
+            eq.notes.append(f"level = {eq.level} ('{lv.get('name')}', storey #{lv.get('step_id')}, "
+                            f"{float(lv.get('elevation') or 0.0):g} m); z values stay world")
     if room is not None and room_prod is not None:
         lv = level_for(room_prod.id())
         if lv is not None:
-            dz = float(lv.get("elevation") or 0.0)
             room.level = str(lv["id"])
-            for wr in room.walls:
-                wr.base_m = float(wr.base_m or 0.0) - dz
-            if "base_m" in room.clear:
-                room.clear["base_m"] = float(room.clear["base_m"] or 0.0) - dz
             room.notes.append(f"level = {room.level} ('{lv.get('name')}'): the shell's walls "
-                              f"stand on its datum (base z relative to {dz:g} m)")
+                              "stand on its datum")
 
 
 def _length_scale(f) -> float:

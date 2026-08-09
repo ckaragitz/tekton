@@ -242,7 +242,13 @@ def test_two_storey_intent_model_carries_levels():
     assert model.room is not None and model.room.level == "L1" and len(model.room.walls) == 4
     assert {e.tag: e.level for e in model.equipment} == {
         "MSB": "L1", "LP-1": "L2", "LP-2": "L2", "LP-3": "L2", "LP-4": "L2"}
-    # z stays level-relative (the panel mount centre AFF), each storey laid out afresh
-    lp = model.by_tag("LP-1")
-    assert abs(lp.insertion_m[2] - PP.DEFAULT_PANEL_MOUNT_CENTER_M) < 1e-9
+    # the intent model carries WORLD z (layout height above ITS floor + the
+    # level's elevation) with the level as an annotation; each storey laid out afresh
+    from rvt.ifc.intent import level_relative_z
+    lp, msb = model.by_tag("LP-1"), model.by_tag("MSB")
+    assert abs(lp.insertion_m[2] - (4.2672 + PP.DEFAULT_PANEL_MOUNT_CENTER_M)) < 1e-9
+    assert abs(level_relative_z(lp.insertion_m[2], model.levels, lp.level)
+               - PP.DEFAULT_PANEL_MOUNT_CENTER_M) < 1e-9
+    assert abs(msb.insertion_m[2] - PP.DEFAULT_PAD_M) < 1e-9 and lp.mounting_height_m == lp.insertion_m[2]
     assert lp.as_json()["level"] == "L2"
+    assert {w.base_m for w in model.room.walls} == {0.0}          # the shell's level L1 @ 0

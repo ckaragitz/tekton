@@ -871,9 +871,10 @@ def test_stage_d_binds_levels_to_the_story_datums_only(tmp_path, release):
         # the third storey: recorded, bound to the top datum at its OWN z, never created
         assert [nb["id"] for nb in rec["not_built"]] == ["L3"]
         assert "NOT created" in rec["not_built"][0]["reason"]
-        # '' = level-less items (WORLD z): the datum nearest 0, NO z offset
+        # every item carries WORLD z; the map picks DATUMS: L3 (not built) -> the top
+        # datum, '' (level-less items) -> the datum nearest 0
         assert rec["level_map"] == {"L1": (l1["base_id"], 0.0), "L2": (l2["base_id"], 14.0),
-                                    "L3": (l2["base_id"], 28.0), "": (l1["base_id"], 0.0)}
+                                    "L3": (l2["base_id"], 14.0), "": (l1["base_id"], 0.0)}
         assert rec["room_level_id"] == l1["base_id"]                    # no room level given
         assert "room shell on it stands on Level 2's datum (14 ft)" in rec["not_built"][0]["reason"]
         assert LV.resolve(rec["level_map"], "L2") == (l2["base_id"], 14.0)
@@ -943,9 +944,9 @@ def test_stage_d_writes_nothing_when_the_datums_already_match(tmp_path):
     lm = LV.level_map(bound, nb)
     assert lm[""] == (stories[1]["id"], 0.0) and LV.resolve(lm, None) == (stories[1]["id"], 0.0)
     assert abs(lm["L1"][1] + 3.0 * PP.FT_PER_M) < 1e-6
-    # a single storey above grade: level-less items still get z offset 0 on it
+    # a single storey above grade: level-less items land on it (the only / nearest datum)
     bound, nb = LV.bind_levels(doc, [{"id": "L1", "name": "Level 1", "elevation": 3.0}])
-    assert LV.level_map(bound, nb)[""] == (stories[0]["id"], 0.0)
+    assert LV.level_map(bound, nb)[""][0] == stories[0]["id"]
 
 
 @pytest.fixture(scope="module")
@@ -1052,36 +1053,39 @@ def _storey_variant(tmp_path, name: str) -> str:
 
 @needs_ifc_lane
 def test_ifc_products_take_their_storey_with_level_relative_z(tmp_path):
-    """The resolver assigns Equipment.level / RoomShell.level from spatial
-    containment and rebases z on that storey; world z is unchanged."""
+    """The resolver annotates Equipment.level / RoomShell.level from spatial
+    containment; every z stays WORLD, level_relative_z derives the offset."""
+    from rvt.ifc.intent import level_relative_z
     base = FI.intent_from_ifc(ROOM_IFC)                       # one storey @ 0: numbers as before
     assert [(lv["id"], lv["name"], lv["elevation"]) for lv in base.levels] == [("L1", "Level 1", 0.0)]
     assert base.room.level == "L1" and {e.level for e in base.equipment} == {"L1"}
     world = {e.tag: round(e.insertion_m[2], 4) for e in base.equipment}
     # (a) a Basement @ -3 m BELOW the room's storey: the room and its gear are on L2
-    #     ('Level 1' @ 0), NOT sunk onto the basement; z unchanged (its storey is @ 0)
+    #     ('Level 1' @ 0), NOT on the basement; world z unchanged
     m = FI.intent_from_ifc(_storey_variant(tmp_path, "basement"))
     assert [(lv["id"], lv["name"], lv["elevation"]) for lv in m.levels] == [
         ("L1", "Basement", -3.0), ("L2", "Level 1", 0.0)]
     assert m.room.level == "L2" and {e.level for e in m.equipment} == {"L2"}
     assert {e.tag: round(e.insertion_m[2], 4) for e in m.equipment} == world
     assert {round(w.base_m, 4) for w in m.room.walls} == {0.0}
-    # (b) the single storey moved to +3 m: world z rides up 3 m, level-relative z does not
+    # (b) the single storey moved to +3 m: WORLD z rides up 3 m with the geometry,
+    #     the offset above ITS level does not
     m = FI.intent_from_ifc(_storey_variant(tmp_path, "plus3"))
     assert [(lv["name"], lv["elevation"]) for lv in m.levels] == [("Level 1", 3.0)]
     assert m.room.level == "L1" and {e.level for e in m.equipment} == {"L1"}
-    assert {e.tag: round(e.insertion_m[2], 4) for e in m.equipment} == world
-    assert {round(w.base_m, 4) for w in m.room.walls} == {0.0}
-    msb = m.by_tag("MSB")
-    assert round(msb.elevation_m, 4) == round(base.by_tag("MSB").elevation_m, 4)
+    assert {e.tag: round(e.insertion_m[2] - 3.0, 4) for e in m.equipment} == world
+    assert {e.tag: round(level_relative_z(e.insertion_m[2], m.levels, e.level), 4)
+            for e in m.equipment} == world
+    assert {round(w.base_m, 4) for w in m.room.walls} == {3.0}
+    assert round(m.by_tag("MSB").elevation_m - 3.0, 4) == round(base.by_tag("MSB").elevation_m, 4)
 
 
 @needs_ifc_lane
 @needs_pinned
 def test_stage_d_on_ifc_storeys_never_sinks_or_double_offsets_the_room(tmp_path):
-    """Through the level map the build uses: Basement variant -> room datum =
-    the story that ends up @ 0, gear z offset = that datum's 0; +3 m variant ->
-    gear world z = 3 m + its level-relative z exactly once."""
+    """Through the level map the build uses: Basement variant -> room + gear
+    on the story datum that ends up @ 0 (walls base 0, MSB world z 0.328 ft);
+    +3 m variant -> the datum @ 9.843 ft, MSB world z 10.171 ft (3.1 m, once)."""
     from rvt.mutate import Document
     doc = Document.from_file(PINNED[2026])
     s1, s2 = (lv["id"] for lv in LV.story_levels(doc))
@@ -1089,14 +1093,15 @@ def test_stage_d_on_ifc_storeys_never_sinks_or_double_offsets_the_room(tmp_path)
     bound, nb = LV.bind_levels(doc, m.levels)
     lm = LV.level_map(bound, nb)
     assert LV.resolve(lm, m.room.level) == (s2, 0.0)                     # walls base 0 ft
-    lvl, z0 = LV.resolve(lm, m.by_tag("MSB").level)
-    assert (lvl, round(z0 + m.by_tag("MSB").insertion_m[2] * PP.FT_PER_M, 3)) == (s2, 0.328)
+    lvl, datum = LV.resolve(lm, m.by_tag("MSB").level)
+    assert (lvl, datum, round(m.by_tag("MSB").insertion_m[2] * PP.FT_PER_M, 3)) == (s2, 0.0, 0.328)
     m = FI.intent_from_ifc(_storey_variant(tmp_path, "plus3"))
     bound, nb = LV.bind_levels(doc, m.levels)
     lm = LV.level_map(bound, nb)
-    lvl, z0 = LV.resolve(lm, m.by_tag("MSB").level)
-    assert lvl == s1 and abs(z0 - 3.0 * PP.FT_PER_M) < 1e-6
-    assert round(z0 + m.by_tag("MSB").insertion_m[2] * PP.FT_PER_M, 3) == 10.171   # 3.1 m, once
+    lvl, datum = LV.resolve(lm, m.by_tag("MSB").level)
+    assert lvl == s1 and abs(datum - 3.0 * PP.FT_PER_M) < 1e-6            # walls base 9.843 ft
+    assert LV.resolve(lm, m.room.level) == (s1, datum)
+    assert round(m.by_tag("MSB").insertion_m[2] * PP.FT_PER_M, 3) == 10.171
 
 
 @needs_ifc_lane
@@ -1144,6 +1149,7 @@ def test_rvt_to_ifc_of_the_pinned_base_writes_only_its_story_datum(tmp_path):
     assert len(stos) == 1 and "GEN " not in stos[0], stos
 
 
+@needs_ifc_lane
 def test_rvt_ifc_rvt_round_trip_keeps_storeys_and_unique_level_names(two_storey_job, tmp_path):
     """convert_rvt_to_ifc(<the built two-storey job>) -> 2 storeys ('Level 1'
     / 'Level 2', none of the base's 7 reference datums), each product under
@@ -1160,9 +1166,9 @@ def test_rvt_ifc_rvt_round_trip_keeps_storeys_and_unique_level_names(two_storey_
     assert text.count("IFCRELCONTAINEDINSPATIALSTRUCTURE(") == 2 and "GEN " not in "".join(_storey_lines(out))
     m = FI.intent_from_ifc(out)
     assert [(lv["name"], lv["elevation"]) for lv in m.levels] == [("Level 1", 0.0), ("Level 2", 4.2672)]
-    assert {e.tag: (e.level, round(e.insertion_m[2], 2)) for e in m.equipment} == {
-        "MSB": ("L1", 0.1), "LP-1": ("L2", 1.42), "LP-2": ("L2", 1.42),
-        "LP-3": ("L2", 1.42), "LP-4": ("L2", 1.42)}
+    assert {e.tag: (e.level, round(e.insertion_m[2], 2)) for e in m.equipment} == {   # WORLD z
+        "MSB": ("L1", 0.1), "LP-1": ("L2", 5.69), "LP-2": ("L2", 5.69),
+        "LP-3": ("L2", 5.69), "LP-4": ("L2", 5.69)}
     assert m.room is not None and m.room.level == "L1" and {round(w.base_m, 3) for w in m.room.walls} == {0.0}
     # ifc -> rvt leg: the level map the build uses (no full second build needed)
     doc = Document.from_file(PINNED[2026])
@@ -1171,8 +1177,8 @@ def test_rvt_ifc_rvt_round_trip_keeps_storeys_and_unique_level_names(two_storey_
         (311, "Level 1", 0.0, None), (245423, "Level 2", 14.0, None)] and not nb
     lm = LV.level_map(bound, nb)
     assert LV.resolve(lm, m.room.level) == (311, 0.0)
-    lvl, z0 = LV.resolve(lm, m.by_tag("LP-1").level)
-    assert (lvl, round(z0 + m.by_tag("LP-1").insertion_m[2] * PP.FT_PER_M, 3)) == (245423, 18.659)
+    lvl, datum = LV.resolve(lm, m.by_tag("LP-1").level)
+    assert (lvl, datum, round(m.by_tag("LP-1").insertion_m[2] * PP.FT_PER_M, 3)) == (245423, 14.0, 18.659)
 
 
 @needs_pinned
@@ -1193,3 +1199,26 @@ def test_a_datum_is_never_renamed_to_a_name_another_level_keeps():
                                        {"id": "L2", "name": s[0]["name"], "elevation": 4.0}])
     assert [b["name"] for b in bound] == [s[1]["name"], s[0]["name"]]
     assert not any("rename_skipped" in b for b in bound)
+
+
+@needs_ifc_lane
+@needs_pinned
+@needs_catalog
+def test_merge_ifc_of_a_two_storey_ifc_is_world_faithful(tmp_path):
+    """The ifc+rvt -> rvt cell (rvt.convert.merge_ifc / add_to_project, which
+    read insertion z as WORLD and were not touched): the two-storey IFC merged
+    into a copy of the pinned base lands LP-1..4 at 18.659 ft and the MSB at
+    0.328 ft -- exactly main's numbers -- because world z is the contract."""
+    import shutil
+    from rvt.convert import merge_ifc as MI
+    from rvt.frontdoor import ifc_out
+    model, _parsed = PP.prompt_to_intent(TWO_STOREY)
+    two = ifc_out.write_intent_ifc(model, str(tmp_path / "two.ifc"))
+    tgt = str(tmp_path / "target.rvt")
+    shutil.copyfile(PINNED[2026], tgt)
+    rec = MI.merge_ifc(two, tgt, str(tmp_path / "out"), stem="two_merge")
+    assert rec["deliverables"], rec.get("errors")
+    z = {c["tag"]: c["position_ft"][2] for c in rec["created"] if c["kind"] == "equipment-instance"}
+    assert set(z) == {"MSB", "LP-1", "LP-2", "LP-3", "LP-4"}, rec.get("degradations")
+    assert all(abs(z[t] - 18.659) < 1e-3 for t in z if t.startswith("LP")), z
+    assert abs(z["MSB"] - 0.328) < 1e-3, z
