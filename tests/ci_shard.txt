@@ -24,3 +24,4 @@ tests/test_coord.py
 tests/test_validate_release.py
 tests/test_rvt_analyze.py
 tests/test_techlead.py
+tests/test_geo_site_determinism.py
