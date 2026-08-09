@@ -141,3 +141,13 @@ nothing.)
   ok; `tools/dev/check_portable_paths.py` ok; CI shard (`tests/ci_shard.txt`,
   `RVT_SKIP_LARGE=1`) green — counts in the PR body.
 * Nothing staged for the viewer; no `.rvt`/`.rfa` committed; no ledger change.
+
+## Follow-up (review nit on #79, same branch name restarted from main)
+
+`byte_scan_ids` names at most its 12 most common values, so with more than 12
+distinct uncorroborated windows the `false_positive_windows` list was silently
+partial.  The ledger now also carries `raw_window_distinct` and
+`false_positive_windows_complete` (true iff every distinct uncorroborated
+window is named), so a truncated list says so.  The fatal/non-fatal decision
+was never affected (exact re-scan against `carried`).  Stream tests 13 passed;
+CI shard 136 passed / 23 skipped; `sync_plugin.py --check` clean.

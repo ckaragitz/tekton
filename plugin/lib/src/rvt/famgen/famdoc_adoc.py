@@ -734,15 +734,22 @@ def corroborated_donor_scan(payload: bytes, tree: Any, donor_ids: Set[int], *,
     carried = set(donor_ids) & _tree_int_leaves(tree)
     real = byte_scan(payload, carried) if carried else {"hits": 0, "distinct": 0,
                                                         "examples": []}
+    fp_windows = [i for i in scan["examples"] if i not in carried]
     return {
         **real,
         "raw_window_hits": scan["hits"],
-        "false_positive_windows": [i for i in scan["examples"] if i not in carried],
+        "raw_window_distinct": scan["distinct"],
+        "false_positive_windows": fp_windows,
+        # byte_scan_ids names at most its 12 most common values; say so when
+        # more distinct uncorroborated windows exist than are listed
+        "false_positive_windows_complete": (
+            scan["distinct"] - real.get("distinct", 0) <= len(fp_windows)),
         "false_positive_note": (
             "i64 byte window(s) equal a donor id but NO integer leaf of the "
             "schema-decoded tree holds that value -- cross-field alignment "
             "artefact (the scan's documented false-positive class); recorded, "
-            "not fatal.  'hits' counts only tree-corroborated donor ids."),
+            "not fatal.  'hits' counts only tree-corroborated donor ids; "
+            "'raw_window_distinct' is the full distinct-window count."),
     }
 
 
