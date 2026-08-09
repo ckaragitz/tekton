@@ -76,4 +76,3 @@ tests/test_ifc_family.py
 tests/test_sync_zip.py
 tests/test_ifc_conformance.py
 tests/test_input_release.py
-tests/test_ifc_census.py

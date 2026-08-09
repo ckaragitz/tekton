@@ -2523,8 +2523,13 @@ def resolve_intent(ifc_path: str, *, plan_families_flag: bool = True) -> IntentM
     # ---- audit / self-checks
     audit = _audit(equipment, room, feeders)
 
-    # ---- census: what the file held vs what reached the intent (#153)
-    census = _census(f, products, equipment, others)
+    # ---- census: what the file held vs what reached the intent (#153) -- a
+    # pure observer: if IT fails the intent (and the delivery) must not, so a
+    # fault is recorded in its place and the manifest says 'census unavailable'
+    try:
+        census = _census(f, products, equipment, others)
+    except Exception as e:                                             # noqa: BLE001
+        census = {"error": f"{type(e).__name__}: {e}"}
 
     model = IntentModel(
         source_path=os.path.abspath(ifc_path), schema=f.schema,

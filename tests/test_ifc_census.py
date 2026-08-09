@@ -181,6 +181,45 @@ def test_manifest_has_no_section_when_nothing_is_lost(models, tmp_path):
     assert "recorded, not modelled (2)" in md
 
 
+def test_a_failing_census_never_costs_the_intent(monkeypatch, tmp_path):
+    """The census is a pure observer: if IT raises, resolve_intent still
+    returns the full intent (so the file is still built and delivered --
+    rule 1), the fault rides in census['error'], the manifest says
+    'unavailable' and adds no section / no degradation."""
+    from rvt.ifc import intent as I
+    from rvt.frontdoor import intent as FI
+    from rvt.frontdoor import manifest as MF
+    from rvt.frontdoor.base import ResolvedBase
+
+    def boom(*_a, **_k):
+        raise RuntimeError("synthetic census fault")
+    monkeypatch.setattr(I, "_census", boom)
+    model = FI.intent_from_ifc(FIXTURE)
+    assert model.equipment and model.census == {"error": "RuntimeError: synthetic census fault"}
+    summary = FI.summarize(model)
+    base = ResolvedBase(path=FIXTURE, source="explicit", sha256="0" * 64, pinned=False)
+    m = MF.build_manifest(route="ifc", inputs={"ifc": FIXTURE}, base=base, out_dir=str(tmp_path),
+                          intent_summary=summary, intent_json=None, build=None)
+    md = MF._render_md(m)
+    assert "IFC census: **unavailable** (RuntimeError: synthetic census fault)" in md
+    assert "## Not converted from the IFC" not in md
+    assert not any(d.startswith("IFC census:") for d in m["build"]["degradations"])
+
+
+def test_prompt_route_other_products_render_without_an_ifc_class(tmp_path):
+    """The prompt route's recorded-only entries carry kind + name but no
+    ifcClass; the manifest line must not print 'None →'."""
+    from rvt.frontdoor import manifest as MF
+    from rvt.frontdoor.base import ResolvedBase
+    summary = {"project": "p", "other_products": [{"kind": "luminaire", "name": "6 downlights",
+                                                    "disposition": "not modelled"}]}
+    base = ResolvedBase(path=FIXTURE, source="explicit", sha256="0" * 64, pinned=False)
+    m = MF.build_manifest(route="prompt", inputs={"prompt": "x"}, base=base, out_dir=str(tmp_path),
+                          intent_summary=summary, intent_json=None, build=None)
+    md = MF._render_md(m)
+    assert "- recorded, not modelled (1): 6 downlights (luminaire)" in md and "None →" not in md
+
+
 def test_intent_json_carries_the_census(models, tmp_path):
     import json
     from rvt.frontdoor import intent as FI

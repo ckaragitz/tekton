@@ -556,13 +556,17 @@ def _render_md(m: Dict[str, Any]) -> str:
         ap("- family plans: " + ", ".join(f"{k} {v}" for k, v in fps.items()))
         ap(f"- feeder edges: {len(it.get('feeder_edges') or [])}")
         ops = it.get("other_products") or []
-        if ops:
+        if ops:                                # prompt-route entries carry no ifcClass: kind only
             ap(f"- recorded, not modelled ({len(ops)}): "
-               + ", ".join(f"{o.get('name') or o.get('tag')} ({o.get('ifcClass')} → {o.get('kind')})"
+               + ", ".join(f"{o.get('name') or o.get('tag')} ("
+                           + (f"{o['ifcClass']} → " if o.get("ifcClass") else "") + f"{o.get('kind')})"
                            for o in ops[:24]))
     gaps = (m.get("intent") or {}).get("census_gaps") or census_gaps(it.get("census"))
     cs = it.get("census") or {}
-    if cs:
+    if cs.get("error"):                        # the observer failed; the delivery did not (rule 1)
+        ap(f"- IFC census: **unavailable** ({cs['error']}) — the file is delivered regardless; "
+           "what did not convert is not enumerated for this run")
+    elif cs:
         tot = cs.get("totals") or {}
         bi = cs.get("body_items") or {}
         ap(f"- IFC census ({cs.get('schema')}): {cs.get('products_total')} products read — "

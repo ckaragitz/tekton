@@ -1,0 +1,2 @@
+# IFC census (#153): stdlib / steplite, no ifcopenshell needed
+tests/test_ifc_census.py

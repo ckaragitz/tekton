@@ -4,8 +4,8 @@ Stream: `ifc-census` (eng #153, cloud engineer session started by the tech-lead 
 2026-08-09). Charter = issue #153 (Refs #108 wave 2, **PG1 honesty**). Territory:
 `src/rvt/ifc/intent.py` (census computation next to `resolve_intent`, `IntentModel.census`),
 `src/rvt/frontdoor/intent.py` (`summarize`), `src/rvt/frontdoor/manifest.py` (the
-MANIFEST.md section + the one degradation line), NEW `tests/test_ifc_census.py`, one line at
-the END of `tests/ci_shard.txt`, the conformance generator's registry + pinned expectations
+MANIFEST.md section + the one degradation line), NEW `tests/test_ifc_census.py`, the shard drop-in
+`tests/ci_shard.d/153-ifc-census.txt`, the conformance generator's registry + pinned expectations
 (`tools/dev/make_ifc_fixtures.py`, `tests/ifc_conformance/*`), regenerated `plugin/lib/**`,
 this record. NOT touched: `tools/frontdoor.py`, `src/rvt/frontdoor/matrix.py` (wording patch
 below), `src/rvt/frontdoor/base.py`, `skills/tekton-ifc/**`, `src/rvt/ifc/steplite.py`
@@ -86,7 +86,7 @@ and the two `IfcRelVoidsElement` / `IfcRelFillsElement` relationships vanish the
   sibling issue extends when its DONE pins a new fact (#153 census …)") gains
   `census` (minus the prose `legend`) → all ten `.expected.json` re-pinned with
   `.venv/bin/python tools/dev/make_ifc_fixtures.py --update-expected` (see *Re-pins* below).
-* **`tests/test_ifc_census.py`** (8 tests, appended LAST to `tests/ci_shard.txt`), stdlib /
+* **`tests/test_ifc_census.py`** (10 tests, sharded via the drop-in `tests/ci_shard.d/153-ifc-census.txt`), stdlib /
   steplite: resolves fixture j + `inputs/ifc/electrical-room-2500a.ifc` in ONE child
   interpreter with `RVT_STEPLITE_FORCE=1` via the generator's `resolve_summaries`; asserts
   j's exact counts (7 products; totals 2/4/1; IfcSpace dropped 1 citing #158; body items
@@ -111,7 +111,7 @@ the equipment list already differs by).
 |---|---|---|---|---|---|
 | `inputs/ifc/electrical-room-2500a.ifc` | 17 | 10 / 7 / 0 | 111 tess (111 / 0 / 0) | — | absent ("nothing dropped or unreadable") |
 | `usecases/chicago-plenum-electrical-room/hardened.ifc` | 14 | 11 / 3 / 0 | 61 extr + 4 tess (65 / 0 / 0) | — | absent |
-| `d_wall_opening_door` | 8 | 2 / 4 / 1 (IfcOpeningElement) | 3 extr + 2 tess (4 / 0 / 1) | IfcRelFillsElement×1, IfcRelVoidsElement×1 | present |
+| `d_wall_opening_door` | 7 | 2 / 4 / 1 (IfcOpeningElement) | 3 extr + 2 tess (4 / 0 / 1) | IfcRelFillsElement×1, IfcRelVoidsElement×1 | present |
 | `e_space_in_storey` | 7 | 4 / 2 / 1 (IfcSpace) | 4 tess (4 / 0 / 0) | — | present |
 | `j_census_space_unreadable_body` | 7 | 2 / 4 / 1 (IfcSpace) | 2 extr + 1 swept disk + 2 tess (3 / 1 / 1) | — | present |
 
@@ -217,12 +217,31 @@ self-explaining to a QA reader who never opens the Python) and dropping
 `non_body_representations` (kept — it is what makes `total` reconcile when a file carries
 Axis / FootPrint reps).
 
+## Review round 1 (tech-lead session, independent reviewer) — fixed on the same branch
+
+1. `tests/ci_shard.txt` was frozen for appends by #346 (merged after this branch was cut):
+   rebased on `main` @ da72763, the appended line REMOVED (the file is byte-identical to
+   main's again) and the drop-in `tests/ci_shard.d/153-ifc-census.txt` added instead;
+   `python3 tools/dev/shard_list.py --print` lists `tests/test_ifc_census.py`;
+   `tests/test_shard_list.py` 23 passed.
+2. The census call in `resolve_intent` is wrapped: an exception in this pure observer lands
+   as `census = {"error": "<Type>: <msg>"}`, the intent (and the delivery) proceed, the
+   manifest one-liner says `IFC census: **unavailable** (…)`, no section, no degradation —
+   new test `test_a_failing_census_never_costs_the_intent` (monkeypatched fault).
+   The `recorded, not modelled` line no longer prints `None →` for prompt-route entries
+   without an `ifcClass` — new test `test_prompt_route_other_products_render_without_an_ifc_class`.
+   Typo fixed: `d_wall_opening_door` has 7 products (site, building, storey, wall, opening,
+   door, panel), not 8.
+3. Filed by the tech lead, not here: `_is_body_rep` treats only `Body` / unnamed identifiers
+   as body, so an unreadable solid under `Facetation` / `Body-Fallback` is tallied in
+   `non_body_representations` and does not raise the section.
+
 ## BRANCH STATE
 
 * Branch `cam/153-ifc-census` from `main` @ 935b419; PR opened (number in the report).
 * Files: `src/rvt/ifc/intent.py`, `src/rvt/frontdoor/intent.py`,
   `src/rvt/frontdoor/manifest.py`, `tools/dev/make_ifc_fixtures.py`,
-  `tests/test_ifc_census.py` (new), `tests/ci_shard.txt` (+1 line, last),
+  `tests/test_ifc_census.py` (new), `tests/ci_shard.d/153-ifc-census.txt` (new drop-in; `tests/ci_shard.txt` untouched),
   `tests/ifc_conformance/j_census_space_unreadable_body.{ifc,expected.json}` (new),
   `tests/ifc_conformance/{a..i}.expected.json` (census key), `plugin/lib/src/rvt/**` mirrors
   (sync), this record.
