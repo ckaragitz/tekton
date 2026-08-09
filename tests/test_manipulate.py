@@ -350,3 +350,89 @@ def test_param_holder_for():
         M.param_row_edit({"m_pParamValueSetInt": None}, -1001200, 3, holder="m_pBogus")
     with pytest.raises(M.ManipulationError):        # not an Element object
         M.param_row_edit({"m_name": "x"}, M.BIP_ALL_MODEL_MARK, "M")
+
+
+# ---------------------------------------------------------------------------
+# #289: the raw-dict upsert every create-time helper delegates to, and the
+# `holder` key of the ops.json set-param op
+# ---------------------------------------------------------------------------
+def test_upsert_param_row_pure():
+    from rvt import manipulate as M
+    obj = {"m_pParamValueSetAString": None, "m_pParamValueSetDouble": None,
+           "m_pParamValueSetInt": None, "m_pParamValueSetElementId": None}
+    note = M.upsert_param_row(obj, M.BIP_ALL_MODEL_MARK, "M-1")
+    assert "authored ParamValueSetAString holder" in note
+    assert obj["m_pParamValueSetAString"] == {
+        "ptr_class": "ParamValueSetAString", "pid": -1,
+        "value": {"m_paramSet": [{"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-1"}]}}
+    assert "into existing" in M.upsert_param_row(obj, M.BIP_ROOM_NAME, "Elec")
+    assert M.upsert_param_row(obj, M.BIP_ALL_MODEL_MARK, 7).startswith("set parameter")
+    rows = obj["m_pParamValueSetAString"]["value"]["m_paramSet"]
+    assert rows == [{"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "7"},      # in place, coerced
+                    {"m_paramId": M.BIP_ROOM_NAME, "m_value": "Elec"}]        # never duplicated
+    M.upsert_param_row(obj, -1002050, -1, holder="m_pParamValueSetElementId")
+    assert obj["m_pParamValueSetElementId"]["ptr_class"] == "ParamValueSetElementId"
+    assert obj["m_pParamValueSetElementId"]["value"]["m_paramSet"] == [
+        {"m_paramId": -1002050, "m_value": -1}]
+    assert obj["m_pParamValueSetInt"] is None and obj["m_pParamValueSetDouble"] is None
+    with pytest.raises(M.ManipulationError):         # not an Element object: loud, not silent
+        M.upsert_param_row({"m_name": "x"}, M.BIP_ALL_MODEL_MARK, "M")
+
+
+@pytest.mark.parametrize("helper", ["conduit._set_astring_param",
+                                    "electrical_data._set_astring_param",
+                                    "views_spaces._set_astring_param",
+                                    "devices._set_param_astring"])
+def test_mep_astring_helpers_author_a_null_holder(helper):
+    """conduit._set_astring_param used to return silently on a null
+    m_pParamValueSetAString (a Mark on a created run was dropped); all four
+    mep helpers now author the holder through manipulate.param_row_edit."""
+    import importlib
+    from rvt import manipulate as M
+    mod, fn = helper.split(".")
+    setter = getattr(importlib.import_module(f"rvt.mep.{mod}"), fn)
+    obj = {"m_pParamValueSetAString": None}
+    setter(obj, M.BIP_ALL_MODEL_MARK, "C-1")
+    assert obj["m_pParamValueSetAString"] == {
+        "ptr_class": "ParamValueSetAString", "pid": -1,
+        "value": {"m_paramSet": [{"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "C-1"}]}}
+    setter(obj, M.BIP_ALL_MODEL_MARK, "C-2")             # present -> modified in place
+    assert M._param_rows(obj, "m_pParamValueSetAString") == [
+        {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "C-2"}]
+
+
+def test_mutate_set_param_authors_a_null_double_holder():
+    from rvt.mutate import BIP_WALL_HEIGHT, Document
+    obj = {"m_pParamValueSetDouble": None}
+    Document._set_param(obj, "m_pParamValueSetDouble", BIP_WALL_HEIGHT, 10)
+    assert obj["m_pParamValueSetDouble"]["ptr_class"] == "ParamValueSetDouble"
+    assert obj["m_pParamValueSetDouble"]["value"]["m_paramSet"] == [
+        {"m_paramId": BIP_WALL_HEIGHT, "m_value": 10.0}]
+
+
+def test_job_set_param_op_lands_an_elementid_row_via_holder(prompt_room, tmp_path):
+    """`{"op":"set-param",...,"holder":"m_pParamValueSetElementId"}` through
+    tools/rvt_job.py edit (the ops.json door the front door and the skills
+    use) inserts an ElementId row -- a bare -1 would otherwise type as Int."""
+    import json
+    from rvt import manipulate as M
+    from rvt.mutate import Document
+    from test_job import _load_job                    # tests/ is on sys.path under pytest
+    src, eid = prompt_room["path"], prompt_room["panel"]
+    job = _load_job()
+    ops = [{"op": "set-param", "id": eid, "param_id": -1002050, "value": -1,
+            "holder": "m_pParamValueSetElementId"},
+           {"op": "set-param", "id": eid, "param_id": -1001200, "value": 3}]   # no holder -> Int
+    ops_p = tmp_path / "ops.json"
+    ops_p.write_text(json.dumps({"ops": ops}))
+    out = tmp_path / "eid.rvt"
+    rc = job.main(["edit", src, "--ops", str(ops_p), "-o", str(out)])
+    assert rc == 0
+    man = json.loads((tmp_path / "eid.rvt.manifest.json").read_text())
+    assert man["hard_gates_passed"] and man["gates"]["validation"]["status"].startswith("PASS")
+    assert any("(m_pParamValueSetElementId)" in line for line in man["edit"]["log"])
+    _healthy(M.verify_manipulated(str(out), edited_ids=[eid]), expect_edited=[eid])
+    d2 = Document.from_file(str(out))
+    assert _rows(d2, eid, "m_pParamValueSetElementId") == [{"m_paramId": -1002050, "m_value": -1}]
+    assert _rows(d2, eid, "m_pParamValueSetInt") == [{"m_paramId": -1001200, "m_value": 3}]
+    assert _rows(d2, eid, "m_pParamValueSetAString") is None      # untouched holders stay null

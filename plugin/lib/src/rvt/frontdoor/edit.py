@@ -177,7 +177,9 @@ class EditSpec:
                 "resolutions": dict(self.resolutions),
                 "vocabulary": ("delete{id,cascade} | rename{id,name} | set-mark{id,mark} | "
                                "set-level{id,elevation_ft|elevation_m} | set-param{id,param_id,"
-                               "value} | move{id,to|delta,rotation_deg} | retype{id,symbol} | "
+                               "value,holder?} (holder = m_pParamValueSet{AString|Double|Int|"
+                               "ElementId}; only needed to type an ABSENT row, e.g. an ElementId "
+                               "-1 is a bare int) | move{id,to|delta,rotation_deg} | retype{id,symbol} | "
                                "add-instance{symbol,position_ft,rotation_deg,name} | "
                                "add-circuit{panel,load} -- the SAME ops.json the job runner "
                                "(tools/rvt_job.py edit) accepts")}

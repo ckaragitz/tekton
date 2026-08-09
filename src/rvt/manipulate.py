@@ -885,6 +885,14 @@ PARAM_HOLDERS = {"m_pParamValueSetDouble": "ParamValueSetDouble",
 #: python coercion of ``m_value`` per holder (ElementId / Int rows are ints)
 _HOLDER_VALUE_TYPE = {"m_pParamValueSetAString": str, "m_pParamValueSetDouble": float}
 
+
+def _coerce_value(holder: str, value):
+    """``value`` as the holder stores it when MODIFYING a row (text / double
+    coerced; Int / ElementId left as given -- a new row's int() happens in
+    :func:`param_row_edit`)."""
+    coerce = _HOLDER_VALUE_TYPE.get(holder)
+    return coerce(value) if coerce else value
+
 #: built-in parameters whose holder is known whatever python type the value
 #: arrives as (a Mark or room number of 7 is still text): id -> holder
 KNOWN_PARAM_HOLDERS = {pid: "m_pParamValueSetAString" for pid in (
@@ -939,6 +947,25 @@ def param_row_edit(val: dict, param_id: int, value, *,
     return (holder, {"ptr_class": PARAM_HOLDERS[holder], "pid": -1,
                      "value": {"m_paramSet": [row]}},
             f"authored {PARAM_HOLDERS[holder]} holder for absent parameter {param_id}")
+
+
+def upsert_param_row(val: dict, param_id: int, value, *,
+                     holder: Optional[str] = None) -> str:
+    """Set ``param_id`` = ``value`` in ONE holder of a raw Element object
+    ``val`` (a dict being built at create time -- :mod:`rvt.mep`,
+    :meth:`rvt.mutate.Document._set_param`): the holder's existing row is
+    modified in place, an absent one is inserted with :func:`param_row_edit`
+    + :func:`set_path` (authoring the holder when its pointer is null --
+    never a silent no-op).  Returns what it did.  Committed elements go
+    through :func:`set_param` instead (same shape, recorded as a plan)."""
+    holder = holder or param_holder_for(param_id, value)
+    for row in _param_rows(val, holder) or ():
+        if isinstance(row, dict) and row.get("m_paramId") == param_id:
+            row["m_value"] = _coerce_value(holder, value)
+            return f"set parameter {param_id} row in {holder}"
+    path, new, note = param_row_edit(val, param_id, value, holder=holder)
+    set_path(val, path, new)
+    return note
 
 
 def find_param(val: dict, param_id: int) -> List[Tuple[str, int]]:
@@ -1000,8 +1027,7 @@ def set_param(doc, eid: int, param_id: int, value, *, seq: int = 102,
             else:
                 changes[f"{cont}[{idx}].m_elemId"] = value
         else:
-            coerce = _HOLDER_VALUE_TYPE.get(cont.split(".", 1)[0])   # by holder field
-            changes[f"{cont}[{idx}].m_value"] = coerce(value) if coerce else value
+            changes[f"{cont}[{idx}].m_value"] = _coerce_value(cont.split(".", 1)[0], value)
     return modify_element(doc, eid, changes, seq=seq, kind="set-param",
                           reason=f"set parameter {param_id} = {value!r}")
 
