@@ -38,13 +38,17 @@ It is now **lane-parallel (bit-sliced), stdlib only, byte-identical**:
   viewer round is needed** (hard rule 4 is about Autodesk's reader; the
   bytes it reads are identical — proven below, not assumed).
 
-Overlap with PR #128 (#75, open, not on `main` when this was built): it adds
-`lane_syndromes` on the VERIFY side with the same plane slicing. This change
-is independent of it (no shared lines; both add functions to `ecc.py` at
-different anchors). Once both are on `main`, `lane_syndromes` can become
-`_crc_planes(big, first, second, poly, m)` + its plane→lane transpose — a
-10-line follow-up, deliberately not done here to keep the two PRs
-conflict-free.
+Overlap with PR #128 (#75): it added `lane_syndromes` on the VERIFY side with
+the same plane slicing and merged to `main` while this branch was in flight
+(the rebase conflicted only in `tests/ci_shard.txt`; both lines kept). With
+it on `main` the promised share is done here: `lane_syndromes` is now
+`_crc_planes(block, first, second, poly, m)` + its plane→lane transpose (one
+slicing loop in the engine instead of two). Proven unchanged before/after on
+40 captured cases (every class × 5 sizes; clean codeword → all-zero
+syndromes, one flipped bit → identical per-lane signatures, trailing junk
+bytes past `first*second` bits ignored identically) and by
+`tests/test_bare_family_validate.py` (42) staying green; a full-page verify
+went from ~2 ms to 0.55 ms as a side effect.
 
 ## 2. Evidence — before/after (this VM: cloud CCR, 4 vCPU Xeon @ 2.1 GHz, Python 3.11.15)
 
@@ -60,6 +64,7 @@ true`, exit 0.
 |---|---|---|---|
 | `go author` 6 panels — `go.job_seconds` run 1 / run 2 | **22.13 / 22.41 s** | **10.58 / 9.69 s** | 0.46× |
 | same, process wall | 22.34 / 22.58 s | 10.78 / 9.86 s | |
+| same job re-measured after rebasing onto `main @ 4a75d4c` (post-#128/#141), BEFORE zip rebuilt from that `main`, final tree incl. the `lane_syndromes` share — job_seconds, 3 runs each | 20.83 / 20.07 / 20.11 s | **10.50 / 10.57 / 10.69 s** | 0.52× |
 | `go author` walls-only prompt ("an empty electrical room 6 by 8 meters") job_seconds | 2.06 s | 1.20 s | 0.58× |
 | `encode_block`, one random 64,896-B page (min of 30) | 86.8 ms | **0.71 ms** | **121×** |
 | `encode_block`, 3,000-B final block (class m=9) | 4.05 ms | 0.095 ms | 43× |
@@ -69,8 +74,10 @@ true`, exit 0.
 | ECC share of the 6-panel job (cProfile cum, `encode_block` 298 calls) | 37.75 s of 64.7 s profiled (scout VM, #182) | 0.31 s of 20.3 s profiled (intermediate 1.7 ms/page build; final build ≈ 0.15 s) | |
 
 Issue targets: job_seconds ≤ 14 s (scout baseline 27.0–28.6 s, i.e. ≤ 0.52×)
-→ **met** (9.7–10.6 s here from a 22.1–22.4 s baseline = 0.46×; the scout's
-own prototype landed at 11.35 s); surface_bench cowork go-author-prompt ≤ 4 s
+→ **met** (9.7–10.7 s here from a 20.1–22.4 s baseline = 0.46–0.52×; the
+scout's own prototype landed at 11.35 s; one AFTER run taken while another
+unzip was still writing to the same disk read 22.9 s and is discarded as host
+contention — the six quiet runs agree within 1 s); surface_bench cowork go-author-prompt ≤ 4 s
 → **2.7 s**; per-page encode new ≤ old/5 → **old/121**. An intermediate
 build of this branch (64-round int-shift chunks, list re-allocation per
 round, per-plane OR into the page int) measured 1.72 ms/page and 11.04 /
@@ -113,16 +120,16 @@ pre-existing and filed as #127.)
 * `tests/test_ecc_encode.py` (new, sample-free, in `tests/ci_shard.txt`):
   **239 passed, 1 xfailed** in 6.0 s.
 * `tests/test_ecc_encode.py tests/test_ecc.py tests/test_ecc_intel.py
-  tests/test_coldstart.py tests/test_bootstrap.py tests/test_plugin_sync.py`
-  → **265 passed / 28 skipped / 1 xfailed** (skips = the two sample-gated ECC
-  files; `samples/` absent in a cloud clone). `tests/test_bare_family_validate.py`
-  does not exist on `main` yet (PR #128 open) — not run.
+  tests/test_coldstart.py tests/test_bootstrap.py tests/test_plugin_sync.py
+  tests/test_bare_family_validate.py` (after rebasing onto #128)
+  → **307 passed / 28 skipped / 1 xfailed** in 16 s (skips = the two sample-gated ECC files; `samples/` absent
+  in a cloud clone).
 * CI shard exactly as CI runs it (`tests/ci_shard.txt` incl. the new file,
-  `RVT_SKIP_LARGE=1`) → **425 passed / 31 skipped / 1 xfailed**.
+  `RVT_SKIP_LARGE=1`) → **495 passed / 31 skipped / 1 xfailed** in 84 s.
 * `tools/sync_plugin.py` run (1 file mirrored: `plugin/lib/src/rvt/ecc.py`;
-  deny-audit clean; zip rebuilt 4982 KB), `--check` clean;
+  deny-audit clean; zip rebuilt 5002 KB), `--check` clean;
   `plugin/scripts/validate_plugin.py` PASS (23 assertions);
-  `tools/dev/check_portable_paths.py` ok (2678 paths).
+  `tools/dev/check_portable_paths.py` ok (2692 paths).
 * Full suite NOT run (SUITE-COORDINATION).
 
 ## 4. Findings
@@ -166,11 +173,16 @@ pre-existing and filed as #127.)
 
 ## BRANCH STATE
 
-* Branch `cam/182-ecc-encode-bitslice` from `main @ a1bba74`; PR closes #182.
+* Branch `cam/182-ecc-encode-bitslice` from `main @ a1bba74`, rebased onto
+  `main @ 4a75d4c` (after #128); PR closes #182.
 * Files written: `src/rvt/ecc.py` (+`_crc_planes`, `encode_block` rewritten,
-  old loop kept as `_encode_block_ref`), `tests/test_ecc_encode.py` (new, 184
-  tests), `tests/ci_shard.txt` (+1 line), this record; `tools/sync_plugin.py`
+  old loop kept as `_encode_block_ref`, `lane_syndromes` re-expressed on
+  `_crc_planes`), `tests/test_ecc_encode.py` (new, 239 tests + 1 strict
+  xfail), `tests/ci_shard.txt` (+1 line), this record; `tools/sync_plugin.py`
   mirror `plugin/lib/src/rvt/ecc.py`.
+* Follow-up filed: #236 (one deframer: `ecc.unframe_stream` stride-sized
+  final block). Next-hot-spot numbers commented on #124 / #110 (schema-cache
+  memoisation is already #183 / #216).
 * Gates: §3, all green locally.
 * Nothing staged for the viewer (framing byte-identical — no certification
   claim, no round needed); no `.rvt`/`.rfa` committed; no ledger change;

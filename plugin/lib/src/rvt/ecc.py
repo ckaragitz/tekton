@@ -54,8 +54,59 @@ def encoded_size(nbytes: int, m: int, period: int, align: int, N: int) -> int:
     return (first * second + 7) // 8
 
 
+def _crc_planes(buf: bytes, rounds: int, second: int, poly: int, m: int) -> list:
+    """Bit-sliced reflected CRC (init 0) of all ``second`` lanes at once.
+
+    Bit p of ``buf`` (little-endian) is lane ``p % second``'s input at round
+    ``p // second``, so one round's inputs are ``second`` contiguous bits.
+    The CRC state is ``m`` ints ("planes"; bit i of plane j == bit j of lane
+    i's register): a round is a few big-int ops instead of ``second`` scalar
+    ones.  Returns the planes after ``rounds`` rounds; bits of ``buf`` past
+    ``rounds * second`` are ignored."""
+    lane_mask = (1 << second) - 1
+    assert (poly >> (m - 1)) & 1              # reflected poly: top tap always set
+    low_taps = [j for j in range(m - 1) if (poly >> j) & 1]
+    c = [0] * m
+    CH = 8                                    # rounds per chunk (x8 = byte-aligned)
+    step = CH * second >> 3
+    for r in range(0, rounds, CH):
+        off = r * second >> 3
+        chunk = int.from_bytes(buf[off:off + step], "little")
+        for _ in range(min(CH, rounds - r)):
+            fb = c[0] ^ (chunk & lane_mask)   # (state ^ in) & 1, every lane
+            chunk >>= second
+            del c[0]                          # state >>= 1 ...
+            c.append(fb)                      # ... ^= top tap where fb set
+            for j in low_taps:                # ... ^= the other taps
+                c[j] ^= fb
+    return c
+
+
 def encode_block(data: bytes, params=(11, 0x500, 2047, 2)) -> bytes:
-    """Return the full encoded block (data + pad + size field + parity)."""
+    """Return the full encoded block (data + pad + size field + parity).
+    Lane-parallel; byte-identical to the bit-at-a-time ``_encode_block_ref``
+    (parity plane j lands at bit ``pre + j*second``, i.e. CRCIO's "parity
+    bit j of lane i -> bit pre + i + j*second")."""
+    m, poly, period, align = params
+    N = size_field_bits(period, align)
+    first, second = geometry(len(data), m, period, align, N)
+    rounds = first - m
+    pre = rounds * second                     # bits before the parity area
+    pad_bytes = (pre - len(data) * 8 - N) >> 3
+    assert 0 <= pad_bytes < (1 << N)
+    big = int.from_bytes(data, "little") | (pad_bytes << (pre - N))
+    planes = _crc_planes(big.to_bytes((pre + 7) >> 3, "little"),
+                         rounds, second, poly, m)
+    parity = 0
+    for j, plane in enumerate(planes):
+        parity |= plane << (j * second)
+    big |= parity << pre
+    return big.to_bytes((first * second + 7) >> 3, "little")
+
+
+def _encode_block_ref(data: bytes, params=(11, 0x500, 2047, 2)) -> bytes:
+    """Reference bit-at-a-time encoder (the original CRCIO transcription);
+    ~90 ms per full page.  Kept only as the oracle for ``encode_block``."""
     m, poly, period, align = params
     N = size_field_bits(period, align)
     bits = len(data) * 8
@@ -180,35 +231,13 @@ def lane_syndromes(block: bytes, first: int, second: int, poly: int,
     single flipped bit at round r of lane i leaves lane i with the
     signature CRCIO's decoder looks up (validate._signature_table).
 
-    Bit-sliced: the ``m`` CRC state bits are kept as ``m`` Python ints whose
-    bit i is lane i's state bit, so one round is a handful of big-int XORs
-    over ``second`` (<= 2047) bits instead of ``second`` scalar updates --
-    ~2 ms per full 64,896-byte page, i.e. numpy is an optional accelerator
-    for this, never a requirement (issue #75: the bare plugin surface has
-    no numpy and must still verify, not skip or crash)."""
-    nb = first * second
-    big = int.from_bytes(block[:(nb + 7) >> 3], "little")
-    if nb & 7:
-        big &= (1 << nb) - 1
-    lane_mask = (1 << second) - 1
-    taps = [j for j in range(m) if (poly >> j) & 1]
-    c = [0] * m                      # c[j] bit i == bit j of lane i's CRC
-    CH = 64                          # rounds sliced off `big` per chunk
-    chunk_bits = CH * second
-    chunk_mask = (1 << chunk_bits) - 1
-    r = 0
-    while r < first:
-        chunk = big & chunk_mask
-        big >>= chunk_bits
-        for _ in range(min(CH, first - r)):
-            fb = c[0] ^ (chunk & lane_mask)          # (state ^ in) & 1, all lanes
-            chunk >>= second
-            c = c[1:] + [0]                          # state >>= 1, all lanes
-            for j in taps:                           # ^= poly where fb set
-                c[j] ^= fb
-        r += CH
+    Bit-sliced (the encoder's ``_crc_planes`` run over all ``first`` rounds,
+    then transposed plane -> lane): well under 1 ms per full 64,896-byte
+    page, stdlib only -- numpy is never a requirement for verification
+    (issue #75: the bare plugin surface has no numpy and must still verify,
+    not skip or crash)."""
     out = [0] * second
-    for j, plane in enumerate(c):
+    for j, plane in enumerate(_crc_planes(block, first, second, poly, m)):
         i = 0
         while plane:
             if plane & 1:

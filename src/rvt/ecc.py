@@ -231,35 +231,13 @@ def lane_syndromes(block: bytes, first: int, second: int, poly: int,
     single flipped bit at round r of lane i leaves lane i with the
     signature CRCIO's decoder looks up (validate._signature_table).
 
-    Bit-sliced: the ``m`` CRC state bits are kept as ``m`` Python ints whose
-    bit i is lane i's state bit, so one round is a handful of big-int XORs
-    over ``second`` (<= 2047) bits instead of ``second`` scalar updates --
-    ~2 ms per full 64,896-byte page, i.e. numpy is an optional accelerator
-    for this, never a requirement (issue #75: the bare plugin surface has
-    no numpy and must still verify, not skip or crash)."""
-    nb = first * second
-    big = int.from_bytes(block[:(nb + 7) >> 3], "little")
-    if nb & 7:
-        big &= (1 << nb) - 1
-    lane_mask = (1 << second) - 1
-    taps = [j for j in range(m) if (poly >> j) & 1]
-    c = [0] * m                      # c[j] bit i == bit j of lane i's CRC
-    CH = 64                          # rounds sliced off `big` per chunk
-    chunk_bits = CH * second
-    chunk_mask = (1 << chunk_bits) - 1
-    r = 0
-    while r < first:
-        chunk = big & chunk_mask
-        big >>= chunk_bits
-        for _ in range(min(CH, first - r)):
-            fb = c[0] ^ (chunk & lane_mask)          # (state ^ in) & 1, all lanes
-            chunk >>= second
-            c = c[1:] + [0]                          # state >>= 1, all lanes
-            for j in taps:                           # ^= poly where fb set
-                c[j] ^= fb
-        r += CH
+    Bit-sliced (the encoder's ``_crc_planes`` run over all ``first`` rounds,
+    then transposed plane -> lane): well under 1 ms per full 64,896-byte
+    page, stdlib only -- numpy is never a requirement for verification
+    (issue #75: the bare plugin surface has no numpy and must still verify,
+    not skip or crash)."""
     out = [0] * second
-    for j, plane in enumerate(c):
+    for j, plane in enumerate(_crc_planes(block, first, second, poly, m)):
         i = 0
         while plane:
             if plane & 1:
