@@ -140,11 +140,15 @@ jobs:
                 | awk -v cur=",$cur," '$1=="assigned" && !($2 in pos) { pos[$2]=++n; order[n]=$2 } $1=="unassigned" { delete pos[$2] } END { for (i=1; i<=n; i++) if ((order[i] in pos) && pos[order[i]]==i && index(cur, ","order[i]",")) { print order[i]; exit } }')
             [ -z "$f" ] && f=${cur%%,*}; echo "$f"
           }
-          # first_lock <issue>: "by session token" of the earliest STANDING lock (tools/dev/coord.py locks).
+          # first_lock <issue> [login]: "by session token created_at" of the earliest STANDING lock
+          # (tools/dev/coord.py locks) — of that login only when given. ONE authority per question (#90):
+          # across logins the earliest standing ASSIGNEE wins (what single-holder enforces); between
+          # sessions of one login the earliest standing LOCK of that login picks the session.
           first_lock() {
-            local f; f=$(mktemp)      # never write scratch into the checkout (a stray lc-5.json got committed once)
+            local f who="${2:-}"; f=$(mktemp)      # never write scratch into the checkout
             gh api "repos/$REPO/issues/$1/comments?per_page=100" --paginate > "$f"
-            python3 tools/dev/coord.py locks --comments "$f" --assignees "$(holders "$1")" | jq -r '.[0] // empty | "\(.by) \(.session) \(.token) \(.created_at)"'
+            python3 tools/dev/coord.py locks --comments "$f" --assignees "$(holders "$1")" \
+              | jq -r --arg who "$who" '[.[] | select($who == "" or .by == $who)][0] // empty | "\(.by) \(.session) \(.token) \(.created_at)"'
             rm -f "$f"
           }
           # Live state, not the event payload: two /claim comments seconds apart are serialized by
@@ -190,13 +194,21 @@ jobs:
                 gh issue comment "$cand" --repo "$REPO" --body "🔒 @$WHO holds #$cand (session \`$SESSION\`, via \`/next\`). Branch \`<you>/$cand-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$cand\`** after the first commit — the bots review, fix, mark ready and merge it even if your session ends. \`/release\` if you drop it.
               $(lock_line)" >/dev/null
                 sleep 6                                                        # let a simultaneous rival's assignment/lock land
-                fh=$(first_holder "$cand"); read -r lby lsession ltoken _lts <<<"$(first_lock "$cand")" || true
+                fh=$(first_holder "$cand"); read -r _lby lsession ltoken _lts <<<"$(first_lock "$cand" "$WHO")" || true
+                # WIN = my login is the earliest standing assignee AND this request holds my login's earliest lock.
                 if [ "$fh" = "$WHO" ] && [ "${ltoken:-}" = "$COMMENT_ID" ]; then pick=$cand; break; fi
-                # Lost: undo quietly and try the next candidate. (If the winner is another login, single-holder
-                # would evict us anyway; if it is another SESSION of the same login, only the lock order can tell.)
-                if [ "$fh" != "$WHO" ]; then gh issue edit "$cand" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true; fi
-                gh issue comment "$cand" --repo "$REPO" --body "↩️ @$WHO (session \`$SESSION\`) yields #$cand to @${lby:-$fh} (session \`${lsession:--}\`), whose claim landed first. <!-- unlock by=$WHO -->" >/dev/null
-                say "/next: $WHO lost the race for #$cand to ${lby:-$fh}/${lsession:--}"
+                if [ "$fh" != "$WHO" ]; then
+                  # Another LOGIN's assignment landed first: undo mine (single-holder would evict me anyway) and yield.
+                  gh issue edit "$cand" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true
+                  gh issue comment "$cand" --repo "$REPO" --body "↩️ @$WHO (session \`$SESSION\`) yields #$cand to @$fh, whose claim landed first. <!-- unlock by=$WHO -->" >/dev/null
+                  say "/next: $WHO lost the race for #$cand to $fh"
+                else
+                  # My login holds it, but through ANOTHER of my sessions (its lock is my login's earliest): keep the
+                  # assignment (that session's), drop only THIS request's lock, and move on to the next candidate.
+                  gh issue comment "$cand" --repo "$REPO" --body "↩️ session \`$SESSION\` of @$WHO steps back from #$cand: @$WHO's session \`${lsession:--}\` locked it first. <!-- unlock by=$WHO -->
+              <!-- lock by=$WHO session=${lsession:--} token=${ltoken:-relock} -->" >/dev/null
+                  say "/next: $WHO/$SESSION defers #$cand to own session ${lsession:--}"
+                fi
               done
               if [ -z "$pick" ]; then
                 react "confused"

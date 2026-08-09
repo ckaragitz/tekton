@@ -355,11 +355,21 @@ def test_session_locks_and_the_resume_rule():
     old_locks = [dict(locks[0], created_at="2026-08-09T06:00:00Z")]
     assert tl.judge_mine(old_issue, old_locks, "cam", "tablet", now)[0] == "idle"              # > 2 h quiet -> resumable
     assert tl.judge_mine(issue, [], "cam", "tablet", now)[0] == "active-elsewhere"             # recent activity, no lock of ours
+    # Cross-login race where the two orders DISAGREE (review finding on #107): my assignment event was first,
+    # but the rival's lock COMMENT landed first. Assignment order is the cross-login authority, so the first
+    # standing lock *of my login* is what decides my session — I win; the rival (not first assignee) yields.
+    race = [{"id": 1, "created_at": "2026-08-09T10:00:00Z", "body": "🔒 " + lm("chase", "desk", "900")},     # rival's comment first
+            {"id": 2, "created_at": "2026-08-09T10:00:01Z", "body": "🔒 " + lm("cam", "laptop", "901")}]
+    ev2 = [{"event": "assigned", "assignee": {"login": "cam"}}, {"event": "assigned", "assignee": {"login": "chase"}}]
+    assert tl.first_standing_assignee(ev2, ["cam", "chase"]) == "cam"
+    mine_first = [l for l in coord.standing_locks(race, ["cam", "chase"]) if l["by"] == "cam"][0]
+    assert mine_first["token"] == "901"                                                          # -> cam/laptop wins, keeps the assignment
+    assert [l for l in coord.standing_locks(race, ["cam"])] and coord.standing_locks(race, ["cam"])[0]["by"] == "cam"   # once chase yields, cam's lock is THE first
     # coord.yml wiring: per-login serialization of /next, session-tagged locks, verification, unlock markers
     cy = _wf("coord.yml")
     assert "format('next-{0}', github.event.comment.user.login)" in cy
     for needle in ("lock_line()", "first_holder()", "first_lock()", "tools/dev/coord.py locks", "<!-- unlock by=$WHO -->",
-                   "your other session", "take-over", "yields #"):
+                   "your other session", "take-over", "yields #", 'first_lock "$cand" "$WHO"', "select($who ==", "steps back from"):
         assert needle in cy, needle
     # verdict markers match by >=12-hex prefix of the head on both bash sides
     assert "sha=[0-9a-f]{12,40}" in _wf("automerge.yml") and "verdict_of()" in _wf("claude-review.yml")

@@ -1106,15 +1106,20 @@ def claim(gh: GH, number: int, me: str, session: str, settle: float = 6.0, log=p
     issue = gh.get(f"issues/{number}")
     assignees = [a["login"] for a in issue.get("assignees") or []]
     first = first_standing_assignee([e for e in events if e.get("event") in ("assigned", "unassigned")], assignees)
-    locks = coord.standing_locks(gh.comments(number), assignees)
-    lock0 = locks[0] if locks else {"by": first, "session": "-", "token": ""}
+    # ONE authority per question (#90): across logins the earliest standing ASSIGNEE wins (single-holder's
+    # rule); between sessions of one login the earliest standing LOCK *of that login* picks the session.
+    mine_locks = [l for l in coord.standing_locks(gh.comments(number), assignees) if l["by"] == me]
+    lock0 = mine_locks[0] if mine_locks else {"by": me, "session": "-", "token": ""}
     if first == me and lock0.get("token") == token:
-        return {"ok": True, "holder": me, "holder_session": session, "reason": "verified: first assignee and first lock"}
+        return {"ok": True, "holder": me, "holder_session": session, "reason": "verified: first assignee and my login's first lock"}
     if first != me:
-        gh.unassign(number, [me])
-    gh.comment(number, f"↩️ @{me} (session `{session or '-'}`) yields #{number} to @{lock0.get('by') or first} "
-                       f"(session `{lock0.get('session', '-')}`), whose claim landed first. {coord.unlock_marker(me)}")
-    return {"ok": False, "holder": lock0.get("by") or first, "holder_session": lock0.get("session", "-"), "reason": "lost the race"}
+        gh.unassign(number, [me])                     # another login was first: undo mine and yield
+        gh.comment(number, f"↩️ @{me} (session `{session or '-'}`) yields #{number} to @{first}, whose claim landed first. {coord.unlock_marker(me)}")
+        return {"ok": False, "holder": first, "holder_session": "-", "reason": "lost the race to another login"}
+    # my login holds it through ANOTHER of my sessions: keep the assignment, drop only this request's lock
+    gh.comment(number, f"↩️ session `{session or '-'}` of @{me} steps back from #{number}: session `{lock0.get('session', '-')}` "
+                       f"locked it first. {coord.unlock_marker(me)}\n{coord.lock_marker(me, lock0.get('session', '-'), lock0.get('token') or 'relock')}")
+    return {"ok": False, "holder": me, "holder_session": lock0.get("session", "-"), "reason": "held by another session of mine"}
 
 
 def mine(gh: GH, me: str, session: str, idle_hours: float, now=None) -> list:

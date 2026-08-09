@@ -255,3 +255,16 @@ loser instead of a late ⛔; `techlead.py claim <n>` does the same from a sessio
 reaper and the re-queue sweep post unlock markers so old locks lapse. Also: verdict markers are now
 matched by a ≥ 12-hex prefix of the head in automerge/claude-review (the reviewer dropped the last
 digit of a SHA once on #89; that can no longer stall a PR).
+
+**Review rounds on #107 (independent reviewer from `main`), for the record:** (1) a re-lock comment
+carrying unlock + fresh lock in one body self-cancelled the fresh lock (`>` → `>=`: unlocks in a comment
+apply before its locks); (2) a stray `lc-5.json` from a local drive of `first_lock` was committed
+(`first_lock` now writes to `mktemp`); (3) cross-login races were judged by two authorities that can
+disagree inside the settle window (assignment-event order vs lock-comment order), leaving a "loser" still
+assigned. Resolution: ONE authority per question — across logins the earliest standing assignee wins
+(exactly `single-holder`'s rule), between sessions of one login the earliest standing lock *of that
+login* picks the session (`first_lock <issue> <login>`, `claim()` filters its own login's locks). A request
+whose assignment was first therefore wins even if a rival's lock comment posted earlier; the rival (not
+first assignee) unassigns and yields; a request that finds its own *other* session's lock first keeps the
+login's assignment and drops only its own lock. No branch can now report a loss while leaving a stale
+assignment.
