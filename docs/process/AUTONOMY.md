@@ -132,7 +132,8 @@ session, not left for a human to notice.
 | `retry` | re-queued after a stuck/stale attempt: continue the named branch | board sweep |
 | `bot-stuck` (PR) | bots exhausted the fix budget or cannot get a verdict; issue will be re-queued | `claude-review` / `automerge` |
 | `needs-rebase` (PR) · `duplicate-pr` (PR) · `stale` (PR) | conflicts, rebase job dispatched · second PR for one issue, older wins · untouched draft | `automerge` / sweep |
-| `needs-human` (PR) | genuinely needs a person: workflow-file merge without `AUTOMERGE_TOKEN`, or GitHub refused the merge | `automerge` |
+| `session-merge` (PR) | bots may not merge it (workflow files) or cannot review it (reviewer edit): the next coding session checks CI + verdict / reads the diff and squash-merges with its own credentials | `automerge` |
+| `needs-human` (PR) | GitHub itself refused the merge — a person must look (rare) | `automerge` |
 | `wip` · `do-not-merge` · `merge-when-green` (PR) | hold a draft from auto-ready · hold anything · human substitute for the AI verdict (non-author) | humans / sessions |
 | `needs-issue` · `overlap` · `stacked` (PR) | no `Closes #n` · issue held by someone else or rival PR · based on another PR's branch | `coord` |
 | `board` · `tracking` · `bots-paused` | the board issue · context-only issues · pause switch (on the board issue) | system / humans |
@@ -142,10 +143,10 @@ session, not left for a human to notice.
 | Workflow | Runs on | Token | Does |
 |---|---|---|---|
 | `coord.yml` | comments, issue open/assign, PR open/edit, hourly | built-in | `/claim` `/release` `/next` `/steer`; one holder per issue; intake labelling + duplicate hints; PR↔issue link/overlap/stacked checks; stacked-PR rescue; orphan-branch draft PRs; 72 h stale-claim reaper |
-| `board.yml` | issue/PR events, bot workflows finishing, hourly | built-in | hygiene sweep (re-queue stuck, free dead leases, nudge/close stale drafts) then re-render + pin the board |
+| `board.yml` | every 20 min; issues/PRs opening, closing, becoming ready; dispatched by automerge/planner/worker after they change state | built-in | hygiene sweep (re-queue stuck, free dead leases, nudge/close stale drafts) then re-render + pin the board |
 | `CI` (`ci.yml`) | every PR push, `main`, dispatch | built-in | portable paths, plugin drift, plugin structure, fast test shard (py3.11 + 3.12) |
 | `claude-review.yml` | every PR push; dispatch (re-request); red CI | Claude | review → verdict marker per head SHA (rescue pass if missing); bounded auto-fix on 🛑 and on red CI (budget 3, reset-aware); exhaustion → `bot-stuck` |
-| `automerge.yml` | CI/review finishing, labels, every 30 min | built-in (+ optional `AUTOMERGE_TOKEN`) | zero-check CI dispatch; review re-request; quiet-draft auto-ready; conflict → rebase dispatch; squash-merge; close linked issues; duplicate parking |
+| `automerge.yml` | CI/review finishing, labels, every 30 min | built-in (+ optional `AUTOMERGE_TOKEN`) | zero-check CI dispatch; review re-request; quiet-draft auto-ready; conflict → rebase dispatch; squash-merge; close linked issues; duplicate parking; `session-merge` labelling for what only a session may merge |
 | `techlead.yml` | every 6 h, on `steer`/`intake` labels, dispatch | Claude | the tech-lead pass (§4 of the charter): triage, groom, replenish, `auto` marking, planning note; ≤ 5 new issues/run; may open one docs PR |
 | `worker.yml` | every 2 h, dispatch (also `mode=rebase` from automerge) | Claude | pick (deterministic) → lease → implement per `CLAUDE.md` → PR `Closes #n`; WIP ≤ 2 bot PRs, ≤ 4 runs/day |
 | `requirements.yml` | push to `main` under `docs/requirements/` | built-in | legacy drop-box: one issue per requirement file |
@@ -184,8 +185,8 @@ system (file it, `area:process`).
 
 | Needs a person | Why it cannot be automated | How it is surfaced | Optional way to remove it |
 |---|---|---|---|
-| Merging a PR that changes `.github/workflows/**` | GitHub forbids the Actions token from merging workflow changes (platform rule) | PR labelled `needs-human` + comment; board | add a fine-grained PAT of the owner (contents + pull requests + workflows: write, this repo only) as secret `AUTOMERGE_TOKEN` — automerge then merges these too. Logic lives in `tools/dev/*.py` + prompts + `autonomy.json` precisely so workflow files rarely change. |
-| Reviewing a PR that changes `claude-review.yml` itself | the review action refuses to run a copy of its workflow that differs from `main`'s, so no AI verdict can exist for such a PR (observed on #57) | `automerge` labels it `needs-human` immediately with the reason; board | none — keep reviewer edits in tiny dedicated PRs the owner reads by eye; every other workflow file is reviewed normally |
+| ~~Merging a PR that changes `.github/workflows/**`~~ — **not a human's job any more** (steer #61) | GitHub forbids the *Actions token* from merging workflow changes, but a coding session acts under a person's GitHub identity and may | PR labelled `session-merge` + comment; board *In review* lane; SessionStart banner "MERGE FIRST" | any session, at session start: CI green + verdict stands → `gh pr merge <n> --squash` (or MCP `merge_pull_request`). Hands-free alternative: owner adds a fine-grained PAT (contents + pull requests + workflows: write) as secret `AUTOMERGE_TOKEN`. Logic lives in `tools/dev/*.py` + prompts + `autonomy.json` precisely so workflow files rarely change. |
+| ~~Reviewing a PR that changes `claude-review.yml` itself~~ — same | the review action refuses to run a copy of its workflow that differs from `main`'s, so no AI verdict can exist for such a PR (observed on #57) | `automerge` labels it `session-merge` immediately with the reason | the merging session reads the diff itself (keep reviewer edits in tiny dedicated PRs); every other workflow file is reviewed normally |
 | `needs-decision` issues | money, legal/counsel (C1/C4/C5, trademark), going public, product direction calls the steerers reserved | issue label; board; planning note | answer in a comment (it is a steer); the tech leads proceed |
 | Viewer certification uploads (`needs-viewer`) | Autodesk's viewer needs an interactive login; rule 4 makes it the arbiter | sessions STAGE batches (`probe_batch.py stage`) and stop at READY; board lists them | none by design (no APS — rule 7) |
 | Desktop-Revit checks (`needs-revit-desktop`) | needs a licensed desktop install a bot may not touch (rule 2) | label; board | none by design |
@@ -242,7 +243,8 @@ owner's plan feels it; set `worker.enabled=false` to keep planning but stop unat
 | Session dies with a red / 🛑 PR | auto-fix passes (≤ 3); then `bot-stuck` → after 24 h the issue is `ready`+`retry`, unassigned, pointing at the branch; `/next` or the worker continues it with a fresh budget |
 | Claim abandoned without a PR | 72 h reaper unassigns; issue back in the queue |
 | Review run ends without a verdict (turn cap, crash) | rescue pass in the same run; else `automerge` re-requests the review; after 4 h `bot-stuck` |
-| PR edits `claude-review.yml` (the reviewer refuses modified copies of itself) | `automerge` labels it `needs-human` at once with the reason; the owner reviews + merges that one by eye |
+| PR edits `claude-review.yml` (the reviewer refuses modified copies of itself) | `automerge` labels it `session-merge` at once with the reason; the next session reads the diff and merges it |
+| A bot's own check run (cancelled board `render`, coord `pr-check`, …) lands on a PR head | not CI: the merge gate and the board ignore bot job names (`BOT_CHECK_NAMES` / `IGNORED_CHECKS`, pinned by tests) |
 | PR branch carries an older copy of `claude-review.yml` than `main` (dispatched review refuses to run) | the re-request comment says so; merging `main` into the branch (any session, or the worker's rebase mode) re-arms the review on the new head |
 | Bot merge did not close the linked issue | `automerge` closes linked issues itself after every merge |
 | PR conflicts with `main` | `automerge` dispatches the worker's rebase mode; result re-reviewed and merged |

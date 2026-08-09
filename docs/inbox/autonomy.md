@@ -168,3 +168,26 @@ Anything off → fix in `tools/dev/techlead.py` / prompts (bot-mergeable) where 
   (steers, triaged), #55 (task), #56 (board placeholder), #25 (rewritten). Follow-ups filed as
   task issues by this session in its tech-lead role: SHA-pin third-party actions; single GraphQL
   query for the board snapshot.
+
+## Day-one live fixes (issue #64) and the session-merge path (issue #62), same session
+
+Observed within minutes of #57 landing (board render 06:25 UTC, run list): (1) `board.yml` ran
+~30 times in 3 minutes — label/assignment events from the planner pass and the engineers' claims
+plus `workflow_run` fan-out — 29 cancelled by the concurrency group, each still a billed runner
+start; (2) a *cancelled* `render` run attached to PR #63's head read as "🟥 CI red (render)" on
+the board and would have blocked automerge, and the same would have hit every engineer PR opened
+during a busy spell. Fixes: board triggers bounded to a 20-min cron + issue/PR open/close/ready
+(automerge, planner and worker dispatch a refresh themselves after changing state); one shared
+ignore-list of the bots' own job names (`BOT_CHECK_NAMES` in techlead.py == `IGNORED_CHECKS` in
+automerge.yml), with a tripwire test that parses every non-CI workflow's job ids/names and fails
+if one is missing, and asserts CI's own jobs are *not* ignored.
+
+Steer #61 ("let's fix it and keep the show running") made the workflow-file gate a **session's**
+job: automerge now labels such PRs (and reviewer-edit PRs) `session-merge` with a comment telling
+the next coding session to check CI + verdict (or read the diff) and squash-merge with its own
+credentials; the board shows them in review as "waiting for any coding session", not under
+*Waiting on a human*; the SessionStart banner prints "MERGE FIRST: PR #…"; `CLAUDE.md` §4 step 1
+and AUTONOMY §7/§10/§13 say so. `needs-human` is left for a merge GitHub itself refused. The
+planner had already filed this as #62 from the steer and opened #63 for the STEERING row — the
+loop closing on itself. Tests: 35 passed (2 new tripwires); actionlint clean; gates clean.
+This PR (#62 + #64) is itself a workflow-file PR: merged by the authoring session once CI is green.

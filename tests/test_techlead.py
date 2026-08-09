@@ -185,17 +185,18 @@ def test_pr_status_lanes_mirror_automerge_order():
     lane = lambda **kw: tl.pr_status(_pr(**kw), CFG)[1]   # noqa: E731
     text = lambda **kw: tl.pr_status(_pr(**kw), CFG)[0]   # noqa: E731
     assert lane(labels=["do-not-merge"]) == "held"
-    assert lane(labels=["needs-human"], touches=True) == "human"
+    assert lane(labels=["needs-human"], touches=True) == "human"           # GitHub refused the merge: a person
+    assert lane(labels=["session-merge"], touches=True) == "session"       # bots may not merge it: any session does
     assert lane(labels=["duplicate-pr"]) == "human"
     assert lane(labels=["needs-issue"]) == "merging" and "no linked issue" in text(labels=["needs-issue"])   # a note, not a blocker (automerge does not check it)
     assert lane(checks=[]) == "ci"
     assert lane(checks=[{"name": "py3.11", "status": "queued", "conclusion": None}]) == "ci"
     assert lane(checks=RED) == "red"
     assert lane(comments=[]) == "review"
-    assert lane(comments=[], touches_reviewer=True) == "human"                        # the reviewer cannot review its own edit
+    assert lane(comments=[], touches_reviewer=True) == "session"                      # the reviewer cannot review its own edit -> a session merges
     assert lane(comments=[], labels=["merge-when-green"]) == "merging"                # human approval substitutes for the verdict
     assert lane(comments=["🛑\n<!-- claude-review: changes sha=1234567 -->"]) == "changes"
-    assert lane(touches=True) == "human"                       # green + approved + workflows -> owner
+    assert lane(touches=True) == "session"                     # green + approved + workflows -> the next session merges it
     assert lane(mergeable_state="dirty") == "conflict"
     assert lane() == "merging"
     t, l = tl.pr_status(_pr(draft=True, head_date="2026-08-09T05:00:00Z"), CFG)
@@ -210,7 +211,7 @@ def test_board_and_automerge_share_one_vocabulary():
     comment markers both sides parse are spelled identically."""
     am, cr = _wf("automerge.yml"), _wf("claude-review.yml")
     acted_on = set(re.findall(r"(?:has_label|add_label|drop_label) ([a-z][a-z-]+)", am))
-    assert {"do-not-merge", "needs-human", "duplicate-pr", "merge-when-green", "wip", "needs-rebase", "bot-stuck"} <= acted_on
+    assert {"do-not-merge", "needs-human", "session-merge", "duplicate-pr", "merge-when-green", "wip", "needs-rebase", "bot-stuck"} <= acted_on
     src = open(PATH, encoding="utf-8").read()
     for label in acted_on:
         assert label in tl.LABELS, f"automerge acts on `{label}` but LABELS does not define it"
@@ -245,6 +246,44 @@ def test_workflows_only_create_labels_the_vocabulary_owns():
             assert label in tl.LABELS, f"{name} creates label `{label}` that tools/dev/techlead.py LABELS does not own"
 
 
+def test_merge_gate_ignores_exactly_the_bots_own_jobs():
+    """A bot job's check run on a PR head (cancelled board render, coord pr-check, …) is not CI (#64).
+    Both sides carry the same ignore-list; every job of every non-CI workflow must be on it."""
+    for path in glob.glob(os.path.join(WF, "*.yml")):
+        name = os.path.basename(path)
+        if name == "ci.yml":
+            continue
+        text = _wf(name)
+        jobs_block = text.split("\njobs:\n", 1)[1]
+        job_ids = re.findall(r"(?m)^  ([a-z][a-z0-9-]*):\s*$", jobs_block)
+        job_names = re.findall(r"(?m)^    name: ([A-Za-z0-9$.{} _-]+)$", jobs_block)
+        assert job_ids, f"{name}: no jobs parsed"
+        for j in job_ids + job_names:
+            assert tl.is_bot_check(j.strip()), f"{name}: job `{j}` is not in techlead.BOT_CHECK_NAMES — the merge gate would treat its check run as CI"
+    # CI's own jobs must NOT be ignored
+    ci_jobs = re.findall(r"(?m)^    name: (.+)$", _wf("ci.yml").split("\njobs:\n", 1)[1])
+    assert ci_jobs and not any(tl.is_bot_check(j.replace("${{ matrix.python-version }}", "3.11")) for j in ci_jobs)
+    assert not tl.is_bot_check("py3.11") and not tl.is_bot_check("windows / py3.12")
+    # automerge's inline list is the same set
+    m = re.search(r"IGNORED_CHECKS='([^']+)'", _wf("automerge.yml"))
+    assert m, "IGNORED_CHECKS not found in automerge.yml"
+    assert set(json.loads("[" + m.group(1) + "]")) == set(tl.BOT_CHECK_NAMES)
+    # and a cancelled render no longer reads as red
+    s = tl.summarize_checks(GREEN + [{"name": "render", "status": "completed", "conclusion": "cancelled"},
+                                     {"name": "pr-check", "status": "completed", "conclusion": "failure"}])
+    assert s["green"] is True and s["bad"] == []
+
+
+def test_board_triggers_stay_bounded():
+    """#64: no workflow_run fan-out and no label/assignment triggers on the board (30 runs in 3 min on day one)."""
+    on_block = _wf("board.yml").split("\non:\n", 1)[1].split("\npermissions:", 1)[0]
+    keys = "\n".join(ln for ln in on_block.splitlines() if not ln.lstrip().startswith("#"))   # trigger keys, not the prose
+    assert "workflow_run" not in keys and "labeled" not in keys and "assigned" not in keys
+    assert "*/20" in keys and "workflow_dispatch" in keys
+    for wf_name in ("automerge.yml", "techlead.yml", "worker.yml"):
+        assert "gh workflow run board.yml" in _wf(wf_name), f"{wf_name} must refresh the board itself after changing state"
+
+
 # ───────────────────────── classify + board ─────────────────────────
 
 def test_classify_sections():
@@ -254,11 +293,12 @@ def test_classify_sections():
     assert [e["number"] for e in m["next_up"]] == [5, 3, 7, 11, 24]                # P0 first, then P1 by age; #14/#37/#9 in review, #60 leased
     assert {e["number"] for e in m["waiting"]} == {16, 22}                          # gated; #23 is tracking -> not listed
     assert [e["number"] for e in m["others"]] == [52]                               # not ready, not gated: backlog remainder
-    assert [r["number"] for r in m["waiting_prs"]] == [57]                          # reviewer-touching PR needs the owner
+    assert m["waiting_prs"] == [] and [r["number"] for r in m["session_prs"]] == [57]  # reviewer-touching PR: a session merges it, no human
     h = m["health"]
-    assert (h["ready_unassigned"], h["in_review"], h["steers_untriaged"], h["stuck_prs"], h["bot_prs_open"]) == (5, 4, 1, 1, 1)
+    assert (h["ready_unassigned"], h["in_review"], h["steers_untriaged"], h["stuck_prs"], h["bot_prs_open"], h["session_merge"]) == (5, 4, 1, 1, 1, 1)
     assert h["paused"] is False and h["board_issue"] == 56
     assert any("untriaged steer" in w for w in h["warnings"]) and any("fix budget" in w for w in h["warnings"])
+    assert any("waiting for ANY coding session" in w and "#57" in w for w in h["warnings"])
     assert not any("below floor" in w for w in h["warnings"])                       # 5 >= floor 4
 
 
@@ -277,6 +317,7 @@ def test_board_render_is_complete_marked_and_stable_across_renders():
     for heading in ("## 🧭 Steers from humans", "## 🔨 In progress", "## 🔍 In review", "## ⏭️ Next up", "## 🧑 Waiting on a human", "## ✅ Done in the last 7 days", "## 🩺 Health"):
         assert heading in body, heading
     assert "| #54 |" in body and "refuses to run modified" in body and "rebase job dispatched" in body
+    assert "1 for a session to merge" in body
     assert "#10-what-still-needs-a-human-and-why" in body                           # anchor exists in docs/process/AUTONOMY.md
     with open(os.path.join(ROOT, "docs", "process", "AUTONOMY.md"), encoding="utf-8") as fh:
         assert "## 10. What still needs a human, and why" in fh.read()

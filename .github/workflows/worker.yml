@@ -34,7 +34,7 @@ permissions:
   issues: write
   pull-requests: write
   id-token: write
-  actions: read
+  actions: write        # refresh the board when a run settles
   checks: read
 
 concurrency:
@@ -171,6 +171,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           OUTCOME: ${{ steps.work.outcome }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
         run: |
           set -euo pipefail
           [ "$MODE" = "rebase" ] && { echo "rebase run finished ($OUTCOME)"; exit 0; }
@@ -184,3 +185,4 @@ jobs:
             gh issue comment "$ISSUE" --repo "$REPO" --body "🤖 Worker run ended (**$OUTCOME**) without opening a PR — see the [run log]($RUN_URL) and any comment above for why.$pushed The issue is released back to the queue (label \`bot-working\` removed); the planner may sharpen it or clear \`auto\` if it is not workable unattended." >/dev/null
             echo "::warning::#$ISSUE: no PR opened ($OUTCOME)"
           fi
+          gh workflow run board.yml --repo "$REPO" --ref "$DEFAULT_BRANCH" >/dev/null 2>&1 || true

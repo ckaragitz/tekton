@@ -29,7 +29,7 @@ permissions:
   issues: write
   pull-requests: write
   id-token: write
-  actions: read
+  actions: write        # refresh the board at the end of a pass
   checks: read
 
 concurrency:
@@ -123,3 +123,9 @@ jobs:
           claude_args: |
             --max-turns ${{ steps.brief.outputs.max_turns }}
             --allowedTools "Read,Glob,Grep,Edit,Write,Bash(gh issue:*),Bash(gh label:*),Bash(gh search:*),Bash(gh pr list:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(gh pr close:*),Bash(gh pr edit:*),Bash(gh api:*),Bash(git log:*),Bash(git diff:*),Bash(git show:*),Bash(git status:*),Bash(git switch:*),Bash(git checkout:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(python3 tools/dev/techlead.py:*),Bash(python3 tools/dev/coord.py:*),Bash(ls:*),Bash(cat:*)"
+      - name: Refresh the board
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
+        run: gh workflow run board.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" >/dev/null 2>&1 || true

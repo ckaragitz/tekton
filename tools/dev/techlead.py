@@ -75,7 +75,8 @@ LABELS = {
     "bot-stuck": ("b60205", "Bots exhausted their fix budget on this PR; its issue is re-queued with context"),
     "retry": ("fbca04", "Re-queued after a stuck/abandoned attempt: continue the existing branch"),
     "needs-decision": ("b60205", "A human must answer the question in this issue before work continues"),
-    "needs-human": ("b60205", "Genuinely needs a person (workflow-file merge, refused merge, reviewer edit)"),
+    "needs-human": ("b60205", "GitHub itself refused the merge; a person must look (rare)"),
+    "session-merge": ("1d76db", "Bots may not merge this (workflow files / reviewer edit); the next coding session squash-merges it"),
     "needs-rebase": ("d93f0b", "Conflicts with main; the rebase job (or the author) must merge main in"),
     "needs-issue": ("b60205", "PR has no linked issue (Closes #N / Refs #N)"),
     "overlap": ("d93f0b", "Another open PR or another assignee targets the same issue"),
@@ -93,6 +94,22 @@ LABELS = {
 }
 
 REVIEWER_WORKFLOW = ".github/workflows/claude-review.yml"
+# Job names of the repo's own bot workflows. Their check runs can land on a PR head (pull_request /
+# pull_request_target jobs, or a cancelled run from a concurrency group) and must never be mistaken
+# for CI by the merge gate or the board. automerge.yml carries the same list (IGNORED_CHECKS there);
+# tests/test_techlead.py fails when a bot workflow gains a job that neither list knows.
+BOT_CHECK_NAMES = frozenset({
+    "automerge", "claude-review", "ci-autofix", "claude",          # merge machine, reviewer, mention bot
+    "render",                                                      # board.yml
+    "claim", "single-holder", "issue-intake", "pr-check", "sweep",  # coord.yml
+    "gate", "plan",                                                # techlead.yml
+    "pick", "implement",                                           # worker.yml
+    "file-issues",                                                 # requirements.yml
+})
+
+
+def is_bot_check(name: str) -> bool:
+    return name in BOT_CHECK_NAMES or str(name).startswith("claude")
 BOT_SUFFIX = "[bot]"
 VERDICT_RE = re.compile(r"<!-- claude-review: (approve|nits|changes) sha=([0-9a-f]{7,40}) -->")
 ATTEMPT_RE = re.compile(r"<!-- claude-autofix attempt=\d+ -->")
@@ -367,8 +384,8 @@ def parse_review_state(comment_bodies: list, head_sha: str) -> dict:
 
 
 def summarize_checks(check_runs: list) -> dict:
-    """CI gate exactly as automerge sees it: ignore automerge itself and the claude* checks."""
-    runs = [c for c in check_runs or [] if c.get("name") != "automerge" and not str(c.get("name", "")).startswith("claude")]
+    """CI gate exactly as automerge sees it: the repo's own bot jobs are not CI (BOT_CHECK_NAMES)."""
+    runs = [c for c in check_runs or [] if not is_bot_check(c.get("name", ""))]
     pending = [c["name"] for c in runs if c.get("status") != "completed"]
     bad = [c["name"] for c in runs if c.get("status") == "completed" and c.get("conclusion") not in ("success", "neutral", "skipped")]
     ok = [c["name"] for c in runs if c.get("conclusion") == "success"]
@@ -461,11 +478,12 @@ def pr_status(pr: dict, cfg: dict) -> tuple:
     fix = f"auto-fix {min(rv['attempts'], mx)}/{mx}" + (" → **bot-stuck**, issue re-queued after a quiet day" if is_stuck(pr) else "")
     if "do-not-merge" in L:
         return "⏸ held by `do-not-merge`" + note, "held"
+    if "session-merge" in L:
+        why = ("it changes the reviewer workflow itself, which cannot be bot-reviewed — read the diff, check CI" if pr["touches_reviewer"]
+               else "it changes `.github/workflows/**`, which the Actions token may not merge — check CI + verdict")
+        return f"🧑‍💻 waiting for **any coding session** to squash-merge it ({why}); no human needed" + note, "session"
     if "needs-human" in L:
-        why = ("changes the reviewer workflow itself — cannot be bot-reviewed" if pr["touches_reviewer"]
-               else "changes `.github/workflows/**` — the Actions token may not merge it" if pr["touches_workflows"]
-               else "see the bot's last comment")
-        return f"🧑 needs a human: {why} → owner squash-merges by hand" + note, "human"
+        return "🧑 needs a human: GitHub refused the merge — see the bot's last comment" + note, "human"
     if "duplicate-pr" in L:
         return "👯 a second PR for an issue another open PR already closes (older wins) — the planner closes one" + note, "human"
     if ch["total"] == 0:
@@ -480,8 +498,8 @@ def pr_status(pr: dict, cfg: dict) -> tuple:
         if v == "changes":
             return f"🟢 CI · 🛑 changes requested · {fix}" + (" · draft" if pr["draft"] else "") + note, "changes"
         if pr["touches_reviewer"]:
-            return ("🟢 CI · 🧑 changes the reviewer workflow itself, which the review bot refuses to run modified — "
-                    "**owner reviews and squash-merges by hand**") + note, "human"
+            return ("🟢 CI · 🧑‍💻 changes the reviewer workflow itself, which the review bot refuses to run modified — "
+                    "automerge labels it `session-merge`: **the next coding session reads the diff and squash-merges it**") + note, "session"
         return ("🟢 CI · ⏳ no review verdict for this commit yet (automerge re-requests it after "
                 f"{cfg['pipeline']['review_wait_minutes']} min; `bot-stuck` after {cfg['pipeline']['review_stuck_minutes']})") + note, "review"
     if pr["draft"]:
@@ -490,7 +508,7 @@ def pr_status(pr: dict, cfg: dict) -> tuple:
         eta = (parse_ts(pr["head_date"]) or utcnow()) + _dt.timedelta(minutes=quiet_min)
         return f"🟢 CI · {approved} · **draft** — auto-marked ready ≈ {at(eta)} UTC ({quiet_min} quiet min after the last push), then merged" + note, "draft"
     if pr["touches_workflows"]:
-        return f"🟢 CI · {approved} · changes `.github/workflows/**` → **owner squash-merges by hand** (or `AUTOMERGE_TOKEN`)" + note, "human"
+        return f"🟢 CI · {approved} · changes `.github/workflows/**` → `session-merge`: **the next coding session squash-merges it** (or `AUTOMERGE_TOKEN` makes it automatic)" + note, "session"
     if pr["mergeable_state"] == "dirty" or pr.get("mergeable") is False:
         return f"🟢 CI · {approved} · ⚠️ conflicts with main → rebase job dispatched (`needs-rebase`)" + note, "conflict"
     return f"🟢 CI · {approved} → merges on the next automerge sweep (≤ 30 min)" + note, "merging"
@@ -530,10 +548,11 @@ def classify(snap: dict, cfg: dict, now=None) -> dict:
                        "head_ref": p["head_ref"], "closing": p["closing"], "refs": p["refs"],
                        "status": status, "lane": lane, "stuck": is_stuck(p), "bot": is_bot_pr(p, cfg)})
     human_prs = [r for r in review if r["lane"] == "human"]
+    session_prs = [r for r in review if r["lane"] == "session"]
     board = find_board_issue(issues, cfg)
     health = {
         "open_issues": len(issues), "ready_unassigned": len(queue), "in_progress": len(progress),
-        "in_review": len(review), "waiting_human": len(waiting) + len(human_prs),
+        "in_review": len(review), "waiting_human": len(waiting) + len(human_prs), "session_merge": len(session_prs),
         "steers_untriaged": len([s for s in steers if not s["triaged"]]),
         "bot_prs_open": len([r for r in review if r["bot"]]), "stuck_prs": len([r for r in review if r["stuck"]]),
         "ready_floor": int(cfg["planner"]["ready_floor"]), "ready_ceiling": int(cfg["planner"]["ready_ceiling"]),
@@ -551,8 +570,11 @@ def classify(snap: dict, cfg: dict, now=None) -> dict:
         warnings.append(f"{health['stuck_prs']} PR(s) exhausted the bots' fix budget — their issues are re-queued for a fresh attempt")
     if health["paused"]:
         warnings.append("`bots-paused` is set on this board: planner and worker are idle (reviews and merges continue)")
+    if session_prs:
+        warnings.append("PR(s) waiting for ANY coding session to squash-merge (bots may not: workflow files / reviewer edit): "
+                        + " ".join(f"#{r['number']}" for r in session_prs) + " — the first session to start does it (CLAUDE.md §4 step 1)")
     health["warnings"] = warnings
-    return {"now": iso(now), "repo": snap["repo"], "steers": steers, "waiting": waiting, "waiting_prs": human_prs,
+    return {"now": iso(now), "repo": snap["repo"], "steers": steers, "waiting": waiting, "waiting_prs": human_prs, "session_prs": session_prs,
             "progress": progress, "review": review, "next_up": [
                 {"number": i["number"], "title": i.get("title", ""), "priority": coord.priority(i),
                  "labels": sorted(labels_of(i)), "created_at": i.get("created_at")} for i in queue],
@@ -587,11 +609,11 @@ def _lbl(labels, keep=("area:", "hot-file", "auto", "retry", "good-first-pick", 
 def render_board(model: dict, cfg: dict, repo: str) -> str:
     h = model["health"]
     L = [BOARD_BEGIN,
-         f"_Rendered {at(model['now'])} UTC by `board` (token-free; hourly + on every issue/PR event). "
+         f"_Rendered {at(model['now'])} UTC by `board` (token-free; every 20 min and when issues/PRs open, close or become ready). "
          "Do not edit this body — it is overwritten. Talk in comments; steer with `/steer <text>`. All times UTC._",
          "",
          f"**{h['in_progress']} in progress · {h['in_review']} in review · {h['ready_unassigned']} ready & free · "
-         f"{h['waiting_human']} waiting on a human · {h['steers_untriaged']} untriaged steer(s)** — "
+         f"{h['session_merge']} for a session to merge · {h['waiting_human']} waiting on a human · {h['steers_untriaged']} untriaged steer(s)** — "
          f"[START HERE](https://github.com/{repo}/issues/25) · [how this works](https://github.com/{repo}/blob/main/docs/process/AUTONOMY.md) · "
          f"[goals](https://github.com/{repo}/blob/main/docs/PROGRAM.md) · [standing steers](https://github.com/{repo}/blob/main/docs/STEERING.md)"]
     if h["warnings"]:
@@ -1036,7 +1058,11 @@ def hello(repo: str, timeout=4.0) -> str:
                  if "triaged" not in labels_of(i)]
         board = gh.get("issues", state="open", labels=cfg["board"]["label"], per_page=5)
         board_url = board[0]["html_url"] if board else board_q
+        merge_me = gh.get("issues", state="open", labels="session-merge", per_page=20)
         lines.append(f"  Live: {len(inbox)} untriaged steer(s) · {len(ready)} ready & unassigned (floor {cfg['planner']['ready_floor']}) · board: {board_url}")
+        if merge_me:
+            lines.append("  MERGE FIRST (bots may not; you can): " + "; ".join(f"PR #{i['number']} {i['title'][:50]}" for i in merge_me[:4])
+                         + " — check CI + verdict (or read the diff), then `gh pr merge <n> --squash` / MCP merge_pull_request")
         if inbox:
             lines.append("  Untriaged: " + "; ".join(f"#{i['number']} {i['title'][:60]}" for i in inbox[:3]))
         if ready:
