@@ -194,11 +194,11 @@ skill wording/flow/UX → change the `SKILL.md` / `_shared` / commands
 directly under `plugin/`.
 
 **Two hygiene notes so a dev session doesn't confuse itself with an
-end-user session:** the repo intentionally has **no `.claude/skills/`** (the
-product skills aren't auto-loaded into the session that is editing them —
-`.claude/` holds only the *process* pieces: the SessionStart banner and the
-`/steer` `/techlead` `/board` `/fanout` commands, none of which are product
-skills),
+end-user session:** the repo has **no *product* skills under `.claude/skills/`**
+(the product skills aren't auto-loaded into the session that is editing them —
+`.claude/` holds only *process* pieces: the SessionStart banner, the `/steer`
+`/techlead` `/board` `/fanout` commands, and the `verify` skill = this repo's
+build-and-drive recipe that the pre-commit `/verify` step uses),
 and interactive dogfooding of the skills is best done in a *separate*
 scratch session with the built plugin loaded (`claude --plugin-dir
 /path/to/tekton/plugin` or the installed zip) — so "the skill I'm editing"
