@@ -369,7 +369,8 @@ def test_session_locks_and_the_resume_rule():
     cy = _wf("coord.yml")
     assert "format('next-{0}', github.event.comment.user.login)" in cy
     for needle in ("lock_line()", "first_holder()", "first_lock()", "tools/dev/coord.py locks", "<!-- unlock by=$WHO -->",
-                   "your other session", "take-over", "yields #", 'first_lock "$cand" "$WHO"', "select($who ==", "steps back from"):
+                   "your other session", "take-over", "yields #", 'first_lock "$cand" "$WHO"', 'first_lock "$N" "$WHO"',
+                   "select($who ==", "steps back from"):
         assert needle in cy, needle
     # verdict markers match by >=12-hex prefix of the head on both bash sides
     assert "sha=[0-9a-f]{12,40}" in _wf("automerge.yml") and "verdict_of()" in _wf("claude-review.yml")

@@ -238,7 +238,7 @@ jobs:
               fi
               if [[ ",$held," == *",$WHO,"* ]]; then
                 # Already assigned to this login: is it THIS session's lock, another live session's, or idle?
-                read -r lby lsession ltoken lts <<<"$(first_lock "$N")" || true
+                read -r lby lsession ltoken lts <<<"$(first_lock "$N" "$WHO")" || true      # MY login's locks only (a pairing partner's earlier lock must not mask my other session's)
                 if [ -n "${lby:-}" ] && [ "$lby" = "$WHO" ] && [ "$lsession" != "$SESSION" ] && [ "$TAKEOVER" != "yes" ]; then
                   age=$(( ( $(date -u +%s) - $(date -u -d "$lts" +%s) ) / 60 ))
                   if [ "$age" -lt 120 ]; then
