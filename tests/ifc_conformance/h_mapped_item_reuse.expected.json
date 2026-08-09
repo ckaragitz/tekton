@@ -4,7 +4,7 @@
  "pins": "one IfcRepresentationMap (enclosure + nameplate) reused by three panels through IfcMappedItem + IfcCartesianTransformationOperator3D (two translated, one rotated 90 deg)",
  "notes": [
   "each occurrence must resolve its OWN insertion and front normal from the shared map: world = placement o target-operator o inverse(map origin) o vertex",
-  "the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage rule before name rule, as in fixture c) -- today's order, pinned"
+  "#331: the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage rule before name rule, as in fixture c) -- today's order, pinned"
  ],
  "parity_xfail": null,
  "pinned_backend": "steplite",

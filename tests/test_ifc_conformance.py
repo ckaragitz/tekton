@@ -44,7 +44,7 @@ def _real_ifcopenshell_importable() -> bool:
         spec = importlib.machinery.PathFinder.find_spec("ifcopenshell", paths)
     except (ImportError, AttributeError, ValueError):
         return False
-    return spec is not None and bool(spec.origin) and SHIM_DIR not in os.path.abspath(spec.origin)
+    return spec is not None and bool(spec.origin) and "_ifcos_shim" not in spec.origin
 
 
 HAVE_REAL_IFCOS = _real_ifcopenshell_importable()

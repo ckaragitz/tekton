@@ -3,8 +3,8 @@
  "generator": "tools/dev/make_ifc_fixtures.py",
  "pins": "IfcWallStandardCase with an IfcExtrudedAreaSolid body, an IfcOpeningElement related by IfcRelVoidsElement, an IfcDoor filling it (IfcRelFillsElement), plus one tessellated panel",
  "notes": [
-  "#152: the extruded wall/door bodies are NOT read today (has_body false; the wall's insertion falls back to its placement origin) -- #152 flips has_body and dims",
-  "#157: the wall is recorded as equipment kind wall / disposition recorded and room is null; #157 turns it into a WallRun with the opening recorded",
+  "#152 (landed, PR #327): the wall's IfcExtrudedAreaSolid body IS read -- has_body true, insertion = footprint centre [4,2,0] through the (1,2,0) placement, dims 6.0 x 0.2 x 3.0, position_source placement-chain + local geometry; the extrusion carries no IfcStyledItem so its item name is null",
+  "#157: the wall is still recorded as equipment kind wall / disposition recorded and room is null; #157 turns it into a WallRun with the opening recorded",
   "#155: steplite has no IfcDoor schema row, so the door is absent from its IfcProduct closure; real ifcopenshell lists it (kind proxy, recorded)"
  ],
  "parity_xfail": "#155: IfcDoor dropped by steplite's IfcProduct closure, kept by ifcopenshell",
@@ -32,9 +32,9 @@
     "disposition": "recorded",
     "level": "L1",
     "typeName": null,
-    "has_body": false,
+    "has_body": true,
     "insertion_m": [
-     1.0,
+     4.0,
      2.0,
      0.0
     ],
@@ -44,14 +44,21 @@
      0.0
     ],
     "yaw_deg": 0.0,
-    "dims_m": {},
+    "dims_m": {
+     "w": 6.0,
+     "d": 0.2,
+     "h": 3.0,
+     "footprint_area": 1.2
+    },
     "mounting": "floor",
-    "position_source": "placement-chain",
+    "position_source": "placement-chain + local geometry",
     "fed_from": null,
     "contract": {
      "PanelName": "W-1"
     },
-    "items": []
+    "items": [
+     null
+    ]
    },
    {
     "tag": "DP-1",

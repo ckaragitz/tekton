@@ -52,7 +52,7 @@ steplite change (eng #152 holds `intent.py` / `steplite.py` this wave).
 | `a_units_mm` | 6082 | `IfcSIUnit` MILLI METRE → scale 0.001; 6×4.5 m room shell + wall panel authored in mm | scale 0.001; walls/insertion back in metres (DP-1 at [1.0, 2.15, 1.3]); `RoomInformation` `IfcLengthMeasure`s come back **unscaled** (5800) — informational, pinned as-is | = |
 | `b_units_feet` | 6553 | `IfcConversionBasedUnit` FOOT (0.3048 via `IfcMeasureWithUnit`) | scale 0.3048; identical metres geometry to (a) | = |
 | `c_storeys_relative_placement` | 5627 | building rotated 90° + offset (10,5); storeys 0 / 4 m; products on NON-identity local placements with local vertices | levels L1 Ground 0 / L2 First 4.0; T-1 → L1 at [9,7,0], LP-2 → L2 at [9.5,7.9,5.4], `position_source = placement-chain + local geometry`; feeder T-1→LP-2 `secondary`; LP-2 "lighting panel 208Y/120" classifies `receptacle_panelboard` (voltage rule precedes name rule — today's order) (#156 adds the base-level mapping expectation) | = |
-| `d_wall_opening_door` | 5448 | `IfcWallStandardCase` extrusion + `IfcOpeningElement`/`IfcRelVoidsElement` + `IfcDoor`/`IfcRelFillsElement` + one tessellated panel | wall = equipment kind `wall`, `has_body false`, insertion = placement origin [1,2,0] (#152 reads the extrusion; #157 makes it a WallRun with the opening); room null; door absent under steplite | **xfail #155** (IfcDoor dropped by steplite's IfcProduct closure, kept by ifcopenshell as `proxy`/recorded) |
+| `d_wall_opening_door` | 5448 | `IfcWallStandardCase` extrusion + `IfcOpeningElement`/`IfcRelVoidsElement` + `IfcDoor`/`IfcRelFillsElement` + one tessellated panel | **re-pinned in this PR after #152 landed (PR #327)**: wall = equipment kind `wall`, `has_body true`, insertion = footprint centre [4,2,0] via the (1,2,0) placement, dims 6.0×0.2×3.0, `placement-chain + local geometry`, item name null (unstyled extrusion); still not a WallRun and room null (#157); door absent under steplite | **xfail #155** (IfcDoor dropped by steplite's IfcProduct closure, kept by ifcopenshell as `proxy`/recorded) |
 | `e_space_in_storey` | 5872 | `IfcSpace` aggregated in L2 (3.5 m); RP-2 contained in the SPACE, LP-1 in L1 | RP-2 gets `level L2` through space→storey; the space itself appears nowhere in the intent (#158) | = |
 | `f_board_type_psets` | 6469 | board + `IfcElectricDistributionBoardType` (`IfcRelDefinesByType`), occurrence `PanelSchedule` over a type-level one, `Pset_ManufacturerTypeInformation` on the type, MSB switchboard in file | `typeName` from the type; Mounting SURFACE (occurrence wins) + NumberOfCircuits 42 (from type); Manufacturer/ModelLabel folded into the contract; feeders UTILITY→MSB, MSB→DP-1; MSB → `house` family plan | = |
 | `g_mep_recorded_kinds` | 5634 | `IfcTransformer` VOLTAGE + pad, `IfcCableCarrierSegment` CABLETRAYSEGMENT with `conduit_msb_t1`, `IfcDiscreteAccessory` BRACKET strut | kinds transformer / conduit_run / support; tray + strut `recorded`; conduit run corroboration item listed; feeder root MSB external, edge `primary` | = |
@@ -106,11 +106,10 @@ a rounding boundary. Census key: to be added by #153 (`summarize()` is the one p
 
 1. `IfcLengthMeasure` pset values are not unit-scaled by the resolver (mm file → `ClearWidth
    5800`). Only informational fields are affected today (`RoomInformation` is echoed, never
-   built from), so it is pinned with a note rather than filed; #153's census/#158's space
-   intake should decide whether pset measures get converted.
+   built from); pinned with a note hung on **#153** (census / measure handling).
 2. `_classify_equipment` tests the ≤ 240 V receptacle rule before the `lighting|lp-` name
    rule, so an "LP-n lighting panel 208Y/120 V" is a `receptacle_panelboard` (fixtures c, h).
-   Pinned as today's order; whoever changes it re-pins deliberately.
+   Pinned as today's order; filed **#331** (XS: bug vs intended) and cited in both notes.
 3. #155 / #159 divergences reproduced minimally by (d) and (i) — those issues now have a
    one-line checkable DONE: their PR turns the strict xfail into a pass (pytest will fail the
    suite on XPASS until the `parity_xfail` entry is removed and `--update-expected` re-run).
@@ -148,7 +147,7 @@ consolidating the three test-side copies into a `tests/` helper touches
 
 ## BRANCH STATE
 
-* Branch `cam/154-ifc-conformance-fixtures` from `main` @ 311dee9, rebased onto f0bde6a (#309) and again onto ba9e439 (#319 + #323; `tests/ci_shard.txt` conflicts = keep both, my line last); PR opened ready (not
+* Branch `cam/154-ifc-conformance-fixtures` from `main` @ 311dee9, rebased onto f0bde6a (#309) again onto ba9e439 (#319 + #323) and onto 950d4b6 (#327 = #152, clean; `tests/ci_shard.txt` conflicts = keep both, my line last); PR opened ready (not
   draft) with `Closes #154`; regime #302: checks on GitHub are meaningless, the tech-lead
   session runs the shard on the head SHA and merges via API.
 * Files added: `tools/dev/make_ifc_fixtures.py`, `tests/test_ifc_conformance.py`,
@@ -157,5 +156,16 @@ consolidating the three test-side copies into a `tests/` helper touches
 * Not touched: `src/**` (sync `--check` clean), `samples/ vendor/ extracted/`, workflows, hot files.
 * Gates: see Evidence (module green with and without ifcopenshell; `--check` clean; portable
   paths clean). Nothing staged for the viewer; no certification claim.
-* Follow-ups filed: #320. Open questions: none blocking; findings 1–2 are notes for #153/#158
-  and the classifier's owner, not new issues (searched: #152 #153 #155–#159 cover the rest).
+* **Re-pin after #152 (PR #327) merged under this branch** — the designed workflow, exercised once
+  before landing: rebased onto main @ 950d4b6 (clean); the module went `1 failed` on exactly
+  `d_wall_opening_door`; `--update-expected` re-pinned that one file and nothing else; every
+  flipped field is #152's doing (W-1: `has_body` false→true, `insertion_m` [1,2,0]→[4,2,0],
+  `dims_m` {}→{w 6.0, d 0.2, h 3.0, footprint_area 1.2}, `position_source` placement-chain →
+  placement-chain + local geometry, `items` []→[null]); DP-1 and every other fixture unchanged;
+  parity: still exactly the two strict xfails (#155: under real ifcopenshell the door now also
+  has its 0.9×0.05×2.1 body read, W-1/DP-1 identical across backends; #159 unchanged), no XPASS.
+  Notes updated (#152 cited as landed; a→#153; c/h→#331); `.ifc` bytes untouched. Gates on the
+  re-pinned head: `--check` ok 9/9; module 27 passed / 2 xfailed with the wheel, and
+  `test_ifc_conformance + test_steplite + test_ifc_intent` **without** the wheel now
+  `27 passed, 18 skipped` (#327 also fixed #320); portable paths ok 2801; plugin in sync.
+* Follow-ups filed: #320 (since fixed by #327), #331. Open questions: none blocking.

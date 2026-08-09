@@ -4,7 +4,7 @@
  "pins": "SI millimetre length unit (IfcSIUnit MILLI METRE): scale 0.001, room shell 6 x 4.5 m read back in metres, one wall panel",
  "notes": [
   "length_scale_m_per_unit must be 0.001 and every insertion/wall coordinate metres; a regression here means the unit scale stopped being applied to tessellated vertices",
-  "RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come back UNSCALED today (5800, not 5.8): pset length measures are informational and not unit-converted by the resolver -- pinned as-is"
+  "#153: RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come back UNSCALED today (5800, not 5.8) -- pset length measures are informational and not unit-converted by the resolver; the census/measure decision belongs to #153"
  ],
  "parity_xfail": null,
  "pinned_backend": "steplite",

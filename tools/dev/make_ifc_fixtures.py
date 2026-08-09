@@ -414,9 +414,9 @@ def _room_with_panel(m: Model, *, k: float) -> Model:
          "read back in metres, one wall panel",
          notes=["length_scale_m_per_unit must be 0.001 and every insertion/wall coordinate metres; "
                 "a regression here means the unit scale stopped being applied to tessellated vertices",
-                "RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come back "
-                "UNSCALED today (5800, not 5.8): pset length measures are informational and not "
-                "unit-converted by the resolver -- pinned as-is"])
+                "#153: RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come "
+                "back UNSCALED today (5800, not 5.8) -- pset length measures are informational and "
+                "not unit-converted by the resolver; the census/measure decision belongs to #153"])
 def _fx_a() -> Model:
     return _room_with_panel(Model("a_units_mm", unit="milli"), k=1000.0)
 
@@ -435,9 +435,9 @@ def _fx_b() -> Model:
          "placed by NON-identity local placements with local (not world-baked) vertices",
          notes=["world = site o building o storey o product o local vertex: insertion_m proves the "
                 "chain composes (position_source = placement-chain + local geometry)",
-                "LP-2 is named a lighting panel but classifies receptacle_panelboard: the 208Y/120 V "
-                "(ll <= 240) rule fires before the lighting/LP- name rule in _classify_equipment -- "
-                "today's order, pinned",
+                "#331: LP-2 is named a lighting panel but classifies receptacle_panelboard: the "
+                "208Y/120 V (ll <= 240) rule fires before the lighting/LP- name rule in "
+                "_classify_equipment -- today's order, pinned; #331 decides bug vs intended",
                 "#156: level ids/elevations are pinned here; how they map onto the base's levels "
                 "at build time is #156's expectation to add"])
 def _fx_c() -> Model:
@@ -468,10 +468,12 @@ def _fx_c() -> Model:
 @fixture("d_wall_opening_door",
          "IfcWallStandardCase with an IfcExtrudedAreaSolid body, an IfcOpeningElement related by "
          "IfcRelVoidsElement, an IfcDoor filling it (IfcRelFillsElement), plus one tessellated panel",
-         notes=["#152: the extruded wall/door bodies are NOT read today (has_body false; the wall's "
-                "insertion falls back to its placement origin) -- #152 flips has_body and dims",
-                "#157: the wall is recorded as equipment kind wall / disposition recorded and room "
-                "is null; #157 turns it into a WallRun with the opening recorded",
+         notes=["#152 (landed, PR #327): the wall's IfcExtrudedAreaSolid body IS read -- has_body "
+                "true, insertion = footprint centre [4,2,0] through the (1,2,0) placement, dims "
+                "6.0 x 0.2 x 3.0, position_source placement-chain + local geometry; the extrusion "
+                "carries no IfcStyledItem so its item name is null",
+                "#157: the wall is still recorded as equipment kind wall / disposition recorded and "
+                "room is null; #157 turns it into a WallRun with the opening recorded",
                 "#155: steplite has no IfcDoor schema row, so the door is absent from its "
                 "IfcProduct closure; real ifcopenshell lists it (kind proxy, recorded)"],
          parity_xfail="#155: IfcDoor dropped by steplite's IfcProduct closure, kept by ifcopenshell")
@@ -590,8 +592,8 @@ def _fx_g() -> Model:
          "IfcMappedItem + IfcCartesianTransformationOperator3D (two translated, one rotated 90 deg)",
          notes=["each occurrence must resolve its OWN insertion and front normal from the shared map: "
                 "world = placement o target-operator o inverse(map origin) o vertex",
-                "the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage rule "
-                "before name rule, as in fixture c) -- today's order, pinned"])
+                "#331: the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage "
+                "rule before name rule, as in fixture c) -- today's order, pinned"])
 def _fx_h() -> Model:
     m = Model("h_mapped_item_reuse")
     sto, plc_sto = m.storey("Level 1", 0.0)

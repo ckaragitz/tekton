@@ -4,7 +4,7 @@
  "pins": "two storeys (0 and 4 m) under a building rotated 90 deg and offset (10,5), products placed by NON-identity local placements with local (not world-baked) vertices",
  "notes": [
   "world = site o building o storey o product o local vertex: insertion_m proves the chain composes (position_source = placement-chain + local geometry)",
-  "LP-2 is named a lighting panel but classifies receptacle_panelboard: the 208Y/120 V (ll <= 240) rule fires before the lighting/LP- name rule in _classify_equipment -- today's order, pinned",
+  "#331: LP-2 is named a lighting panel but classifies receptacle_panelboard: the 208Y/120 V (ll <= 240) rule fires before the lighting/LP- name rule in _classify_equipment -- today's order, pinned; #331 decides bug vs intended",
   "#156: level ids/elevations are pinned here; how they map onto the base's levels at build time is #156's expectation to add"
  ],
  "parity_xfail": null,
