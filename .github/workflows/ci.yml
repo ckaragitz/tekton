@@ -2,7 +2,8 @@ name: CI
 
 # CI v1 (issue #2). Three humans' sessions need one shared definition of green.
 # Deliberately does NOT run the full ~1,700-test suite (~25 min) — see
-# docs/inbox/SUITE-COORDINATION.md. The per-PR shard lives in tests/ci_shard.txt.
+# docs/inbox/SUITE-COORDINATION.md. The per-PR shard is tests/ci_shard.txt + the tests/ci_shard.d/*.txt
+# drop-ins (#328), merged and validated by tools/dev/shard_list.py — the same helper session_ci.sh uses.
 
 on:
   # steer #302: no GitHub-hosted compute. Every event/schedule trigger is off; the file is kept as the
@@ -52,6 +53,7 @@ jobs:
 
       - name: Fast test shard
         run: |
-          mapfile -t SHARD < <(grep -vE '^\s*(#|$)' tests/ci_shard.txt)
+          SHARD_TXT=$(python tools/dev/shard_list.py --print)   # a refused/empty list fails the step here (bash -e)
+          mapfile -t SHARD <<<"$SHARD_TXT"
           printf 'shard: %s\n' "${SHARD[@]}"
-          python -m pytest "${SHARD[@]}" -q --durations=10
+          python -m pytest -q --durations=10 -- "${SHARD[@]}"

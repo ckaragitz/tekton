@@ -16,6 +16,7 @@ Closes #
 
 ## Gates run (paste counts / outputs)
 - [ ] Stream-local tests: `.venv/bin/python -m pytest tests/test_<yours>.py -q` → 
+- [ ] New fresh-clone-safe test file for the CI shard? → added a drop-in `tests/ci_shard.d/<issue>-<slug>.txt` (never edited `tests/ci_shard.txt`)  [ ] n/a
 - [ ] Touched `src/`, `tools/`, `skills/`, or `plugin/`? → `tools/sync_plugin.py` run, `--check` clean, `plugin/scripts/validate_plugin.py` OK
 - [ ] …and the product still works from a bare unzip: `tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py` green (or `tools/surface_bench.py` output pasted)
 - [ ] Produced `.rvt`/`.rfa` output? → `tools/rvt_validate.py` 0 errors + `tools/provenance.py` clean

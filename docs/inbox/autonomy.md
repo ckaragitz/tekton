@@ -376,3 +376,110 @@ green; portable paths ok; plugin untouched (`--check` in sync). Shipped when mer
 ticker with a lease is the next slice of #302.
 Merged as f0bde6a after a third review round (🟡; sandboxed shard 885 passed / 44 skipped / 3 xfailed on the final head);
 its three nits (`timeout -k`, loud abort in the brief's recipe, `[ -O "$JAIL" ]`) landed in the follow-up branch cam/302-session-ci-nits.
+
+## CI shard drop-ins + one-run-per-machine + fatal export (issues #328, #329) — eng328, session session_01Jd4Qv6BLvJMjJCtNBSSFwx, 2026-08-09
+
+**Why.** Under the session-hosted pipeline every rebase costs a sandboxed shard re-run (~4 min of tech-lead CPU) plus a
+delta review, and `tests/ci_shard.txt` had become the file that forced them: every PR sharding a new test appended one
+line at the same spot, so any two such PRs conflicted (#316 vs #310; #324 vs #319, twice — three engineer rebases in one
+day for this alone). Separately the #318 review found that `session_ci.sh` only serialized runs of the *same* PR (every
+sandboxed step of every PR is uid 65534 under one jail parent, so an overlapping run of PR B could write into PR A's box
+while A's shard executed) and that a failed `mkdir`/`tar` export was not fatal.
+
+**What was built.**
+- `tools/dev/shard_list.py` (stdlib only, 3.11-isolated-mode clean): the shard = `tests/ci_shard.txt` in its own order
+  (`tests/test_schema_gate.py` stays first) + every `tests/ci_shard.d/*.txt` sorted by file name; blank lines and
+  whole-line `#` comments dropped, surrounding whitespace/CR stripped, duplicates collapsed (first occurrence wins);
+  every entry must match `^tests/[A-Za-z0-9_./-]+\.py$` with no `..` (the exact rule `session_ci.sh` enforced inline
+  before), drop-in names must match `[A-Za-z0-9][A-Za-z0-9_.-]*\.txt`, the list must be non-empty — one violation refuses
+  the whole list (exit 3, bounded diagnostic: PR-controlled text never floods the log). Two readers, one `merge()`:
+  `--root` (working tree; contributors and the reference `ci.yml`) and `--git WT` (git objects of `HEAD` in worktree
+  `WT`: `git ls-tree -z` + `git cat-file blob`, regular-file blobs only — symlink/submodule entries are not shard files).
+- `tools/dev/session_ci.sh`, line by line: (1) header documents the global lock, the out-of-scope per-run uid, the
+  drop-ins, and that setup failures print `{"pr":N,"error":…}` + exit 2; (2) after the per-PR `flock -n 9` a second lock
+  `exec 8>"$S/ci/global.lock"; flock -w 5400 8` held until exit — different PRs queue, the same PR still fails fast, no
+  cycle (per-PR first, then global); (3) the shard block now runs `python3 -I "$REPO/tools/dev/shard_list.py" --git "$WT"`
+  — MAIN's helper by absolute path (never `$WT`/`$BOX` copies), over the merged head's blobs while the root-owned
+  worktree still exists and before anything is exported or handed to `nobody`; a non-zero exit becomes the existing
+  REFUSED path (`RC=3`), and the old per-entry bash regex loop is kept verbatim as a second gate so the trusted side holds
+  even if the helper is ever loosened; `--` before the paths unchanged; (4) the export pipeline's status is captured
+  (`pipefail` is on) and after the worktree is dropped the run requires rc 0 **and** `$BOX/tests/ci_shard.txt` **and**
+  `$BOX/src/rvt/__init__.py`, else it logs, removes the box, writes `{"pr":N,"head":…,"error":"export"}` and exits 2 —
+  the shard never runs over half a tree; (5) `sandbox()` closes fd 8 as well as 9 (`8>&- 9>&-`) so neither lock fd
+  reaches PR code; (6) `flock -u 8` at the end. `bash -n` clean; `shellcheck -S warning` clean (shellcheck 0.11.0 from the
+  `shellcheck-py` wheel — `/usr/local/bin/shellcheck` is absent on the cloud image; main's copy is equally clean).
+- `.github/workflows/ci.yml` (still `workflow_dispatch`-only): the shard step writes `python tools/dev/shard_list.py
+  --print` to a file first (a refused list fails the step instead of degrading to bare `pytest`), then
+  `pytest -q --durations=10 -- "${SHARD[@]}"`.
+- `tests/ci_shard.d/README` (the rules), `tests/ci_shard.d/328-shard-list.txt` (the first drop-in: this stream's own
+  test), `tests/test_shard_list.py` (22 tests: union order, dedup, comment/whitespace/CRLF handling, 12 refused entry
+  shapes incl. smuggled pytest flags and `..`, 5 refused names, empty list, bounded diagnostics, tree reader == git
+  reader == CLI on the real repo, every listed path exists, drop-ins only ever append after the base file, both consumers
+  use the helper and the old `git show HEAD:tests/ci_shard.txt | grep` reader is gone, the helper runs before the export),
+  `tests/test_techlead.py` pipeline test needles updated (helper-from-`$REPO`, global lock, `8>&- 9>&-`, export check +
+  `"error":"export"` exit, and a negative: no `--root`/`$BOX`/`$WT` helper path in the script).
+- `CLAUDE.md` §4 CI bullet and `.github/pull_request_template.md` (one checklist line) tell contributors to add
+  `tests/ci_shard.d/<issue>-<slug>.txt` instead of editing `tests/ci_shard.txt`.
+
+**Evidence.**
+- Shard today (`origin/main` 935b419): 51 entries; `python3 tools/dev/shard_list.py --print | wc -l` → 52 (= 51 + this
+  stream's drop-in); `--git "$PWD"` over the committed tree gives the identical list; on `main`'s tree (no drop-in dir)
+  the helper's output is byte-identical to `grep -vE '^\s*(#|$)' tests/ci_shard.txt`.
+- Trusted-side property, demonstrated on a scratch worktree: with `tests/ci_shard.txt` replaced in the *checkout* by a
+  symlink to `/etc/passwd` and a drop-in by a symlink to `/etc/hostname` (uncommitted — what a sandboxed step could do to
+  its box), `--git WT` still returned the committed list (blob content); a *committed* symlink drop-in is skipped (mode
+  120000 is not a regular blob); a committed drop-in containing `tests/test_x.py -k nothing` / `../etc/passwd` → exit 3,
+  whole list refused; a drop-in named `bad name.txt` → exit 3; `tests/ci_shard.txt` deleted at HEAD → exit 3; helper
+  missing at `$REPO` → python exit 2 → the script's REFUSED path (`BADSHARD=" (refused by shard_list.py rc=2 …)"`, `RC=3`).
+- Before/after, two synthetic PRs each sharding one test, merged into `main` in either order (scratch repo seeded with
+  the real `tests/ci_shard.txt`, README and helper):
+  ```
+  # BEFORE: both append to tests/ci_shard.txt
+  git switch -c old-a main; echo tests/test_a.py >> tests/ci_shard.txt; git commit -am A
+  git switch -c old-b main; echo tests/test_b.py >> tests/ci_shard.txt; git commit -am B
+  main + old-a + old-b  -> CONFLICT (tests/ci_shard.txt)      main + old-b + old-a -> CONFLICT (tests/ci_shard.txt)
+  # AFTER: each adds tests/ci_shard.d/<n>-<slug>.txt
+  git switch -c new-a main; echo tests/test_a.py > tests/ci_shard.d/501-a.txt; git add -A; git commit -m A
+  git switch -c new-b main; echo tests/test_b.py > tests/ci_shard.d/502-b.txt; git add -A; git commit -m B
+  main + new-a + new-b  -> clean, shard tail: tests/test_a.py tests/test_b.py
+  main + new-b + new-a  -> clean, shard tail: tests/test_a.py tests/test_b.py   (same list either order: sha256 a4e6c1d6490d…)
+  ```
+- Gates (final head): `tests/test_shard_list.py` 23 passed; `tests/test_techlead.py` 29 passed (52 in 1.1 s together);
+  `check_portable_paths.py` ok (2815 paths); `sync_plugin.py --check` in sync (no `src/` touched); `validate_plugin.py`
+  PASS. `session_ci.sh` itself was NOT run end-to-end here (needs root + `unshare`/`setpriv` prerequisites and a fetched
+  PR ref; the tech-lead session keeps running MAIN's copy against this PR and switches to this copy after merge) — the
+  shard-read block was executed verbatim in `bash` against a real worktree instead (53 entries incl. a demo drop-in, first
+  = `tests/test_schema_gate.py`, `BADSHARD` empty).
+
+**Cleanup round (four-angle `/simplify` + altitude review, same session, before the PR opened).** Applied: the CLI
+lost the unused `--rev`; drop-ins are sorted once (in `merge()`), dedup is `dict.fromkeys`; ONE `git ls-tree` call
+lists base + drop-ins; both readers now share one selection policy (a `.txt`/base that is not a regular file is
+*refused* by both — the git reader used to skip a committed symlink silently while the tree reader followed it — and
+both decode with U+FFFD replacement, so an undecodable byte is a refused entry, never a traceback), pinned by a new
+tmp-repo parity test (23 tests now); the `session_ci.sh` needles live only in `tests/test_techlead.py` and were reduced
+to invariant tokens (`global.lock` + `flock -w`, `8>&- 9>&-`, the export witnesses, `"error":"export"`, helper-before-
+export ordering, negatives for `--root`/`$BOX`/`$WT` copies and the old `git show | grep` reader); `ci.yml` reads the
+helper with the same `$(…)` + `mapfile <<<` idiom as the script (no temp file); the altitude finding that mattered most —
+*the frozen file itself never said it was frozen* — is fixed at the source: `tests/ci_shard.txt`'s header now says
+"FROZEN FOR APPENDS, add `tests/ci_shard.d/<issue>-<slug>.txt`", and `tests/test_shard_list.py` caps the base file at
+its current 51 entries (may shrink, never grow) with that message, so an append fails the appender's own test run
+instead of conflicting with a stranger later. Declined, with reasons: replacing the retained bash `ENTRY` re-check with
+a looser "no leading `-`//, no `..`" invariant (kept character-identical to the helper on purpose: in this script a
+second copy that can only be *stricter* than the helper is the acceptable failure direction; loosen both together);
+a `fail_setup` function over all five `{"error":…}` exits and closing every fd ≥ 3 structurally in `sandbox()` (both
+touch lines outside this territory — good follow-ups for whoever next holds the whole script); folding the base file
+into `tests/ci_shard.d/000-core.txt` (contradicts #328's "kept").
+
+**Findings / follow-ups.** `.github/prompts/worker.md` (a prompt an unattended agent executes verbatim, not a workflow)
+got the one-line switch to `pytest -q -- $(python3 tools/dev/shard_list.py --print)` in this PR — one line outside the
+declared territory, stated here and in the PR. The fix-pass text inside `.github/workflows/claude-review.yml:339` still
+spells `$(grep -v '^#' tests/ci_shard.txt | xargs)`: dormant under steer #302, fails *quiet* (runs a shrinking subset)
+if ever revived — left for a workflow-file PR and filed as a task issue (`Refs #328`) rather than left in prose. A
+distinct throwaway uid per sandboxed run stays out of scope (user namespaces), as #329 states.
+
+BRANCH STATE (cam/328-shard-dropins): `tools/dev/shard_list.py` (new), `tools/dev/session_ci.sh` (shard block, global
+lock, fatal export, fd hygiene, header), `.github/workflows/ci.yml` (shard step; dispatch-only unchanged),
+`tests/ci_shard.d/README` + `tests/ci_shard.d/328-shard-list.txt` (new), `tests/test_shard_list.py` (new),
+`tests/test_techlead.py` (needles), `tests/ci_shard.txt` (header freeze notice only — no entry moved), `.github/prompts/worker.md`
+(one line), `CLAUDE.md` §4 one bullet sentence, `.github/pull_request_template.md` one line, this record. Gates as above. Shipped when merged; the tech lead exercises the modified `session_ci.sh` live on the next PR
+after switching its checkout to the merged `main`.

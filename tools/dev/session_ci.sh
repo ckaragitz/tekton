@@ -15,10 +15,17 @@
 #     tools/dev/check_portable_paths.py over the PR's file NAMES.
 #   * The privileged side reads back one JSON line and the log as data; nothing from the PR is eval'd.
 # What it tests is the PR head MERGED with origin/main (what GitHub's merge ref used to test).
+# Runs are serialized machine-wide (#329): every sandboxed step of every PR is the same uid under the same jail
+# parent, so besides the per-PR lock (a second run of the SAME PR fails fast) the whole run holds ONE global lock
+# ($S/ci/global.lock) — invocations for different PRs queue instead of overlapping. A distinct throwaway uid per run
+# would need user namespaces and is out of scope. The test shard is tests/ci_shard.txt + the tests/ci_shard.d/*.txt
+# drop-ins (#328), merged by THIS checkout's tools/dev/shard_list.py from the PR head's git blobs.
 # Needs: root (setpriv/unshare/chown/flock), util-linux unshare with --kill-child, python3, tar; the repo venv (or
-# SESSION_CI_PYTHON) readable by nobody. Scratch defaults to REPO/.git/session-ci (root-only); override with SESSION_CI_DIR.
+# SESSION_CI_PYTHON) readable by nobody. Scratch defaults to REPO/.git/session-ci (root-only); override with SESSION_CI_DIR
+# (all runs on one machine must share it — the global lock lives there).
 # Prints one JSON object: {pr, head, merge_with_main, portable_paths, plugin_drift, plugin_structure,
-# shard_rc, shard_summary, seconds, sandbox, verdict: pass|fail}; exit 0 either way (read the verdict).
+# shard_rc, shard_summary, seconds, sandbox, verdict: pass|fail}; exit 0 either way (read the verdict) —
+# except setup failures (no ref, worktree, tree export, lock timeout): {"pr":N,"error":...} and exit 2.
 set -uo pipefail
 PR=${1:?usage: tools/dev/session_ci.sh <pr-number>  (fetch it first: git fetch origin "pull/<n>/head:refs/pr/<n>")}
 [[ "$PR" =~ ^[0-9]+$ ]] || { echo "usage: PR must be a number" >&2; exit 2; }
@@ -35,6 +42,7 @@ JAIL=/tmp/tekton-ci; BOX=$JAIL/box-$PR; TMPBOX=$JAIL/tmp-$PR
 [ ! -L "$JAIL" ] && mkdir -p "$JAIL" && [ ! -L "$JAIL" ] && [ -d "$JAIL" ] && chown -h root:root "$JAIL" && [ -O "$JAIL" ] && chmod 755 "$JAIL" || { echo "refusing $JAIL (symlink, foreign, or not creatable)" >&2; exit 2; }
 cd "$REPO" || exit 2
 exec 9>"$LOCK"; flock -n 9 || { echo "{\"pr\":$PR,\"error\":\"another session_ci run holds PR $PR\"}"; exit 2; }   # one run per PR at a time
+exec 8>"$S/ci/global.lock"; flock -w 5400 8 || { echo "{\"pr\":$PR,\"error\":\"timed out waiting for the global session_ci lock\"}"; exit 2; }   # one run per MACHINE at a time (#329): held until exit
 rm -f "$LOG" "$OUT"; : > "$LOG"; rm -rf "$BOX" "$TMPBOX"; git worktree remove --force "$WT" >/dev/null 2>&1; rm -rf "$WT"; git worktree prune
 git fetch -q origin main 2>>"$LOG" || echo "(warning: could not refresh origin/main; merge test uses the local copy)" >> "$LOG"
 HEAD=$(git rev-parse "refs/pr/$PR") || { echo "{\"pr\":$PR,\"error\":\"no ref refs/pr/$PR\"}" > "$OUT"; cat "$OUT"; exit 2; }
@@ -48,22 +56,29 @@ fi
 # 2) trusted script, PR data: portable path names (stdlib-only checker from THIS checkout, run by absolute path)
 echo "=== portable_paths (main's checker over the PR tree)" >> "$LOG"
 if (cd "$WT" && python3 -I "$REPO/tools/dev/check_portable_paths.py") >> "$LOG" 2>&1; then P=ok; else P=FAIL; fi
-# The shard list is PR-controlled TEXT: read it here, on the trusted side, from the git blob (never from the box,
-# where sandboxed code could have swapped the file for a symlink into root-only files); accept only plain test
-# files under tests/ (no smuggled pytest flags such as -k/--co/--rootdir that could fake a green run, no `..`),
-# refuse an empty list (bare `pytest` would collect the whole suite), and end option parsing with `--` later.
-mapfile -t SHARD < <(git -C "$WT" show HEAD:tests/ci_shard.txt 2>>"$LOG" | grep -vE '^\s*(#|$)')
-BADSHARD=""; for f in "${SHARD[@]}"; do { [[ "$f" =~ ^tests/[A-Za-z0-9_./-]+\.py$ ]] && [[ "$f" != *..* ]]; } || BADSHARD="$BADSHARD $f"; done
-# 3) export the merged tree (no .git, no remotes) into the box, then hand the box to nobody
-mkdir -m 755 "$BOX" "$TMPBOX" && git -C "$WT" ls-files -z | (cd "$WT" && tar --null --verbatim-files-from -T - -cf -) | tar -xf - -C "$BOX"
+# The shard list (tests/ci_shard.txt + the tests/ci_shard.d/*.txt drop-ins, #328) is PR-controlled TEXT: it is read
+# here, on the trusted side, by THIS checkout's stdlib helper (never the PR's copy) from the git BLOBS of the merged
+# head (`git ls-tree`/`cat-file` — never from the box, where sandboxed code could have swapped a file for a symlink
+# into root-only files). The helper accepts only plain test files under tests/ (no smuggled pytest flags such as
+# -k/--co/--rootdir that could fake a green run, no `..`), collapses duplicates and refuses an empty list (bare
+# `pytest` would collect the whole suite); the loop below re-checks every entry so this gate holds even if the helper
+# is ever loosened, and option parsing still ends with `--` before the paths later.
+SHARD=(); BADSHARD=""
+if SHARD_TXT=$(python3 -I "$REPO/tools/dev/shard_list.py" --git "$WT" 2>>"$LOG"); then [ -n "$SHARD_TXT" ] && mapfile -t SHARD <<<"$SHARD_TXT"; else BADSHARD=" (refused by shard_list.py rc=$?; see log)"; fi
+for f in "${SHARD[@]}"; do { [[ "$f" =~ ^tests/[A-Za-z0-9_./-]+\.py$ ]] && [[ "$f" != *..* ]]; } || BADSHARD="$BADSHARD $f"; done
+# 3) export the merged tree (no .git, no remotes) into the box, then hand the box to nobody. A failed or partial
+# export is FATAL (#329): never run the shard over half a tree and call the result a verdict.
+mkdir -m 755 "$BOX" "$TMPBOX" && git -C "$WT" ls-files -z | (cd "$WT" && tar --null --verbatim-files-from -T - -cf -) | tar -xf - -C "$BOX"; EXPORT_RC=$?
 git worktree remove --force "$WT" >/dev/null 2>&1; rm -rf "$WT"
+{ [ "$EXPORT_RC" = 0 ] && [ -f "$BOX/tests/ci_shard.txt" ] && [ -f "$BOX/src/rvt/__init__.py" ]; } || \
+  { echo "=== export FAILED (rc=$EXPORT_RC)" >> "$LOG"; rm -rf "$BOX" "$TMPBOX"; echo "{\"pr\":$PR,\"head\":\"$HEAD\",\"error\":\"export\"}" > "$OUT"; cat "$OUT"; exit 2; }
 chown -R nobody:nogroup "$BOX" "$TMPBOX"      # chown -R does not follow symlinks inside the tree
 sandbox() {  # run "$@" as nobody: no network, own PID + mount namespaces (children die with the step), no caps, no setuid gain
   unshare -n -m -p -f --mount-proc --kill-child \
     setpriv --reuid=65534 --regid=65534 --clear-groups --inh-caps=-all --bounding-set=-all --no-new-privs \
     env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$TMPBOX" TMPDIR="$TMPBOX" LANG=C.UTF-8 \
         PYTHONPATH="$BOX/src" PYTHONDONTWRITEBYTECODE=1 RVT_SKIP_LARGE=1 GIT_CONFIG_GLOBAL="$TMPBOX/.gitconfig" \
-    bash -c 'cd "$0" && exec "$@"' "$BOX" "$@" 9>&- </dev/null   # the flock fd and stdin never reach PR code
+    bash -c 'cd "$0" && exec "$@"' "$BOX" "$@" 8>&- 9>&- </dev/null   # the two flock fds and stdin never reach PR code
 }
 sandbox timeout -k 30 120 git init -q >>"$LOG" 2>&1 && sandbox timeout -k 30 300 git add -A >>"$LOG" 2>&1 && \
   sandbox timeout -k 30 300 git -c user.name=ci -c user.email=ci@local commit -qm export >>"$LOG" 2>&1 || echo "(box git init failed — tests needing git ls-files may fail)" >> "$LOG"
@@ -90,4 +105,4 @@ green = re.match(r"^\d+ passed\b", r["shard_summary"]) and not re.search(r"(^|, 
 r["verdict"]="pass" if (merge=="clean" and p=="ok" and d=="ok" and v=="ok" and r["shard_rc"]==0 and green) else "fail"
 json.dump(r,open(out,"w")); print(json.dumps(r))
 PYEOF
-rm -rf "$BOX" "$TMPBOX"; flock -u 9
+rm -rf "$BOX" "$TMPBOX"; flock -u 9; flock -u 8

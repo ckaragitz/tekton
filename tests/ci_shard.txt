@@ -7,6 +7,12 @@
 #
 # One path per line. Blank lines and # comments ignored.
 #
+# FROZEN FOR APPENDS (#328): do NOT add lines here — every PR appending to this
+# one spot conflicted with every other. Add a drop-in file instead:
+#     tests/ci_shard.d/<issue>-<slug>.txt   (same rules; see tests/ci_shard.d/README)
+# tools/dev/shard_list.py --print merges this file (first, in this order) with the
+# drop-ins; tests/test_shard_list.py fails if this file grows.
+#
 # Deliberately NOT in the shard:
 #   tests/test_router.py  — test_e2e_prompt_to_rfa needs the git-ignored
 #                           extracted/racbasicsampleproject corpus (owner

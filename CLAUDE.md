@@ -435,7 +435,11 @@ before writing code.
   `plugin/scripts/validate_plugin.py`, then the fast shard listed in
   `tests/ci_shard.txt` (never the full suite — see
   `docs/inbox/SUITE-COORDINATION.md`). Red CI blocks merge — fix, don't
-  bypass.
+  bypass. **To put a test file into the shard, add a drop-in
+  `tests/ci_shard.d/<issue>-<slug>.txt` (one `tests/….py` path per line) —
+  never append to `tests/ci_shard.txt`** (every PR editing that one spot
+  conflicted with every other, #328); `python3 tools/dev/shard_list.py --print`
+  prints the merged list both CI paths run (`tests/ci_shard.d/README`).
 
 **Git cadence on your laptop (several engineers, sessions that come and go):**
 ```bash

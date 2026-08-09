@@ -1,0 +1,2 @@
+# #328: the shard helper's own tests (and the first drop-in, eating its own dog food)
+tests/test_shard_list.py
