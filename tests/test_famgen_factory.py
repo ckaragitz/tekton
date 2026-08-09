@@ -390,6 +390,217 @@ def test_provenance_scan_whitelists_forge_vocabulary_only():
 
 
 # ---------------------------------------------------------------------------
+# 3b. TYPE CATALOGS -- one family, N catalog selections (issue #163)
+# ---------------------------------------------------------------------------
+
+#: a multi-type build per advertised kind: (constructor kwargs, expected type names)
+MULTI = {
+    "panelboard": (dict(fn=F.make_panelboard, mains_a=400, spaces=42, voltage="480Y/277",
+                        mcb=False, mounting="surface", types=[225, "400A", 600]),
+                   ["225A MLO 42ckt", "400A MLO 42ckt", "600A MLO 42ckt"]),
+    "transformer": (dict(fn=F.make_transformer, kva=75, types=[30, "45kVA", 75]),
+                    ["30 kVA 480-208Y/120", "45 kVA 480-208Y/120", "75 kVA 480-208Y/120"]),
+    "troffer": (dict(fn=F.make_luminaire, kind="recessed-troffer", size="2x4", cct=4000,
+                     types=[30, 38, {"wattage": 48, "lumens": 6000}]),
+                ["2x4 30W 4000K", "2x4 38W 4000K", "2x4 48W 4000K"]),
+    "downlight": (dict(fn=F.make_luminaire, kind="downlight",
+                       types=[{"lumens": 1000, "type_name": "6in 1000lm"},
+                              {"lumens": 2000, "type_name": "6in 2000lm"}]),
+                  ["6in 1000lm", "6in 2000lm"]),
+}
+
+
+def _multi(kind, **extra):
+    kw = dict(MULTI[kind][0]); fn = kw.pop("fn")
+    kw.update(extra)
+    return fn(**kw)
+
+
+def test_type_jobs_normalise_selectors():
+    prim = {"mains_a": 400, "spaces": 42, "mcb": True}
+    assert F._type_jobs(None, prim, scalar_key="mains_a") == [prim]
+    assert F._type_jobs([], prim, scalar_key="mains_a") == [prim]
+    jobs = F._type_jobs([225, "400A", {"mains_a": 600, "mcb": False, "type_name": "X"}],
+                        prim, scalar_key="mains_a")
+    assert [j["mains_a"] for j in jobs] == [225.0, 400.0, 600]
+    assert jobs[2]["mcb"] is False and jobs[2]["type_name"] == "X" and jobs[0]["mcb"] is True
+    with pytest.raises(F.FactoryError, match="per-type"):
+        F._type_jobs([{"voltage": 208}], prim, scalar_key="mains_a")   # family-level, not per type
+    with pytest.raises(F.FactoryError, match="not a number"):
+        F._type_jobs(["big"], prim, scalar_key="mains_a")
+
+
+@needs_schema
+@pytest.mark.parametrize("kind", sorted(MULTI))
+def test_multi_type_family_has_one_row_per_selection(kind):
+    prod = _multi(kind)
+    want = MULTI[kind][1]
+    assert [n for n, _v in prod.doc.types] == want                    # the unit-side table
+    assert [t.name for t in prod.types] == want
+    summ = prod.summary()
+    assert summ["types"] == want
+    assert [t["name"] for t in summ["type_facts"]] == want
+    # per-type facts ride in the report: each row has its own sheet + values
+    for tf in summ["type_facts"]:
+        assert set(tf) >= {"name", "subject", "variant", "assumed_fields", "values"}
+    # nothing assumed hides in a row: the family-level list is the union
+    union = sorted({a for t in prod.types for a in t.facts.assumed()})
+    assert summ["assumed_fields"] == union
+    # ONE solid, one connector set -- a product line, not N families
+    assert len(prod.forms) == 1
+    assert sum(1 for e in prod.doc.elements if e.class_name == "ExtrusionElem") == 1
+    assert any("types" in n and "primary" in n for n in prod.notes)
+
+
+@needs_schema
+def test_multi_type_rows_carry_per_type_facts():
+    """Per-type dims / ratings / Model as parameter VALUES: the 225/400/600 A
+    PRL2X rows differ in Height (48/60/72 in, the sizing table) and
+    MainsRating; the transformer rows differ in frame dims, weight AND Model."""
+    prod = _multi("panelboard")
+    pid = {n: pe.elem_id for n, pe in prod.doc.params.items()}
+    heights = [round(vals[pid["Height"]] * 12.0, 3) for _n, vals in prod.doc.types]
+    mains = [vals[pid["MainsRating"]] for _n, vals in prod.doc.types]
+    assert heights == [48.0, 60.0, 72.0] and mains == [225.0, 400.0, 600.0]
+    assert [t.facts.get("height_in") for t in prod.types] == [48.0, 60.0, 72.0]
+    # the solid is the PRIMARY (first) type's box: 20 x 48 in profile
+    assert prod.forms[0].params["dims_in"] == [20.0, 48.0, 5.75]
+    x = _multi("transformer")
+    models = [vals[SK._TYPE_TEXT_PARAMS["model"]] for _n, vals in x.doc.types]
+    assert len(set(models)) == 3                                       # per-type Model
+    widths = [t.facts.get("width_in") for t in x.types]
+    assert widths[0] == widths[1] != widths[2]                          # FR940 / FR940 / FR942
+    assert [round(v["Weight"]) for v in (t.as_json()["values"] for t in x.types)] == [409, 416, 570]
+
+
+@needs_schema
+def test_multi_type_family_name_drops_what_varies():
+    assert _multi("panelboard").name == "Panelboard 480Y/277 MLO 42ckt Surface"
+    assert _multi("transformer").name == "Dry Type Transformer 480-208Y/120"
+    assert _multi("troffer").name == "Recessed Troffer 2x4"
+    # file stems name the rating set
+    assert _multi("panelboard").file_stem == "eaton_prl2x_225_400_600a_42sp_480y_277"
+    assert _multi("transformer").file_stem == "xfmr_30_45_75kva_480_208y_120"
+
+
+@needs_schema
+def test_duplicate_type_names_refused():
+    with pytest.raises(F.FactoryError, match="same type name"):
+        F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", types=[400, 400])
+    with pytest.raises(F.FactoryError, match="same type name"):
+        F.make_luminaire(kind="downlight", types=[{"lumens": 1000}, {"lumens": 2000}])
+
+
+@needs_schema
+def test_default_single_type_structure_unchanged():
+    """No ``types=`` == the historical single-type family, row for row: same
+    name, stem, one type, same values as an explicit one-selector build."""
+    a = F.make_panelboard(vendor="eaton", line="pow-r-line", mains_a=400, spaces=42,
+                         voltage="480Y/277", mcb=True, mounting="surface")
+    b = F.make_panelboard(vendor="eaton", line="pow-r-line", mains_a=400, spaces=42,
+                         voltage="480Y/277", mcb=True, mounting="surface", types=[400])
+    assert a.name == b.name == "Panelboard 480Y/277 400A MCB 42ckt Surface"
+    assert a.file_stem == b.file_stem == "eaton_prl2x_400a_42sp_480y_277"
+    assert [n for n, _v in a.doc.types] == [n for n, _v in b.doc.types] == ["400A MCB 42ckt"]
+    assert [sorted(v.items(), key=str) for _n, v in a.doc.types] == \
+        [sorted(v.items(), key=str) for _n, v in b.doc.types]
+    assert [(e.elem_id, e.class_name) for e in a.doc.elements] == \
+        [(e.elem_id, e.class_name) for e in b.doc.elements]
+    assert len(a.types) == 1 and a.summary()["assumed_fields"] == a.facts.assumed()
+    assert a.notes == b.notes
+
+
+@needs_schema
+def test_type_catalog_text_is_ours_one_row_per_type(tmp_path):
+    prod = _multi("panelboard")
+    txt = F.type_catalog_text(prod)
+    lines = txt.split("\r\n")
+    assert lines[-1] == "" and len(lines) == 1 + 3 + 1
+    head = lines[0].split(",")
+    assert head[0] == "" and all(h.count("##") == 2 for h in head[1:])   # ,Param##SPEC##UNITS
+    assert "Width##LENGTH##INCHES" in head and "MainsRating##ELECTRICAL_CURRENT##AMPERES" in head
+    assert "Model##OTHER##" in head and "Voltage##ELECTRICAL_POTENTIAL##VOLTS" in head
+    rows = [l.split(",") for l in lines[1:4]]
+    assert [r[0] for r in rows] == MULTI["panelboard"][1]
+    hi = head.index("Height##LENGTH##INCHES"); mi = head.index("MainsRating##ELECTRICAL_CURRENT##AMPERES")
+    assert [r[hi] for r in rows] == ["48", "60", "72"] and [r[mi] for r in rows] == ["225", "400", "600"]
+    assert txt.isascii() and "Autodesk" not in txt
+    rep = F.write_type_catalog(prod, str(tmp_path / "p.txt"))
+    assert rep["columns"] == head[1:] and open(rep["path"], newline="").read() == txt
+    assert F._catalog_cell(5.750) == "5.75" and F._catalog_cell(None) == ""
+    # a value with a comma / quote is quoted by the csv writer, never split
+    prod.types[0].catalog.append(("Note", "text", 'a,"b"'))
+    assert F.type_catalog_text(prod).split("\r\n")[1].endswith(',"a,""b"""')
+
+
+@needs_schema
+def test_write_type_catalog_lands_beside_the_rfa_and_in_the_report(tmp_path):
+    prod = _multi("transformer")
+    assert prod.write_type_catalog(str(tmp_path / "t.rfa"))["path"] == str(tmp_path / "t.txt")
+    rep = prod.write(str(tmp_path / "t.rfa"), validate=False, provenance=False)
+    tc = rep["family"]["type_catalog"]
+    assert tc["path"] == str(tmp_path / "t.txt") and os.path.isfile(tc["path"])
+    assert tc["types"] == MULTI["transformer"][1] and "Weight##OTHER##" in tc["columns"]
+    import json as _json
+    on_disk = _json.load(open(rep["report_path"]))
+    assert on_disk["family"]["type_catalog"]["path"] == tc["path"]     # the sidecar report too
+
+
+@needs_schema
+@pytest.mark.parametrize("kind", sorted(MULTI))
+def test_multi_type_rfa_is_valid_provenance_clean_and_inventories_n_types(tmp_path, kind):
+    """The emitted multi-type .rfa: read-back clean, family-mode VALID 0
+    errors, provenance green, and the convert package's inventory lists the
+    N type names in order (validator green is necessary, not certification)."""
+    from rvt.convert import modify_family as MF
+    prod = _multi(kind)
+    rep = prod.write(str(tmp_path / f"{kind}.rfa"), validate=True, provenance=True)
+    assert rep["ok"], rep.get("caveats")
+    fam = rep["validate"]["family_mode"]
+    assert fam["verdict"] == "VALID" and fam["n_errors"] == 0, fam.get("errors")
+    assert rep["provenance"]["ok"] and rep["provenance"]["suspects"] == []
+    assert [t["name"] for t in rep["family"]["type_facts"]] == MULTI[kind][1]
+    inv = MF.inventory_family(rep["path"])
+    assert inv.type_names == MULTI[kind][1]
+
+
+@needs_schema
+def test_scoped_edit_of_one_type_row_rereads(tmp_path):
+    """`edit_family --set MainsRating=800 --type '600A MLO 42ckt'`: only that
+    row changes; family-mode VALID; the engine's re-read gate holds."""
+    from rvt.convert import edit_family as EF
+    from rvt.families import FamilyIndex
+    prod = _multi("panelboard")
+    src = str(tmp_path / "p3.rfa")
+    assert prod.write(src, validate=False, provenance=False)["verify"]["ok"]
+    rc = EF.main([src, "-o", str(tmp_path / "e"), "--stem", "scoped",
+                  "--set", "MainsRating=800", "--type", "600A MLO 42ckt"])
+    assert rc == 0
+    out = str(tmp_path / "e" / "scoped.rfa")
+    idx = FamilyIndex(out)
+    recs = idx.unit_records(0)[102]
+    fam_id = [i for i, r in recs.items() if idx.class_name(r.class_id) == "Family"][0]
+    ftt = idx.decode(0, fam_id, 102).value["m_pFamilyTypes"]["value"]
+    pid = prod.doc.params["MainsRating"].elem_id
+    got = [(p["name"], [r["m_value"] for r in p["params"]["m_params"]
+                       if r.get("m_paramId") == pid][0]) for p in ftt["m_pairs"]]
+    assert got == [("225A MLO 42ckt", 225.0), ("400A MLO 42ckt", 400.0), ("600A MLO 42ckt", 800.0)]
+
+
+def test_make_family_cli_exposes_types(capsys):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("make_family",
+                                                  os.path.join(ROOT, "tools", "make_family.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    assert mod._types_arg("225, 400 ,600") == ["225", "400", "600"] and mod._types_arg(None) == []
+    for sub in ("panelboard", "transformer", "luminaire"):
+        with pytest.raises(SystemExit):
+            mod.main([sub, "--help"])
+        out = capsys.readouterr().out
+        assert "--types" in out and "--type-catalog" in out
+
+
+# ---------------------------------------------------------------------------
 # 4. loader mechanisms
 # ---------------------------------------------------------------------------
 

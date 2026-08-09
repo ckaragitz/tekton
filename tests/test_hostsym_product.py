@@ -8,12 +8,15 @@ binds a blank-named symbol.  The UNIT side keeps the born blank-pair-first
 table (`[' ', real..]`).  Both loaders used to leak the unit's blank pair to
 the host side; birthright v3 patched that opt-in.  These tests pin the law
 on the product loaders themselves, on the pinned certified base (no samples/
-needed), for the plain product document AND a born-shaped one.
+needed), for the plain product document AND a born-shaped one -- and, since
+type catalogs (#163), for a MULTI-TYPE product: N real-named pairs (one per
+catalog selection), zero blank-named pairs, in both loaders.
 """
 from __future__ import annotations
 
 import os
 import sys
+from dataclasses import replace
 
 import pytest
 
@@ -236,3 +239,120 @@ class TestFamload:
         rep = BR.apply_host_symbol_law(doc)
         assert rep["applied"] is True and [n for n, _v in doc.types] == ["400A MCB 42ckt"]
         assert self._plan(fl_host, doc).type_names == ["400A MCB 42ckt"]
+
+
+# ---------------------------------------------------------------------------
+# 4. MULTI-TYPE families (type catalogs, #163): N real-named pairs, 0 blank
+# ---------------------------------------------------------------------------
+
+TYPES3 = ["225A MCB 42ckt", "400A MCB 42ckt", "600A MCB 42ckt"]
+
+
+def _panel3(start_id: int):
+    """ONE panelboard family with three catalog selections (225/400/600 A)."""
+    return F.make_panelboard(vendor="eaton", line="pow-r-line", mains_a=400,
+                            spaces=42, voltage="480Y/277", mcb=True,
+                            mounting="surface", solid=True, start_id=start_id,
+                            types=[225, 400, 600])
+
+
+def _sym_names(elements):
+    syms = [e for e in elements if e.class_name == "FamilySymbol"]
+    ssurs = [e for e in elements if e.class_name == "FamSymSurrogate"]
+    return ([s.obj["m_symbolInfo"]["value"]["m_name"] for s in syms],
+            [s.obj["m_name"] for s in ssurs], syms, ssurs)
+
+
+@needs_base
+class TestMultiTypeFamgenLoader:
+    def test_plan_has_one_pair_per_real_type_primary_first(self, host):
+        prod = _panel3(host.watermark + 1)
+        assert [n for n, _v in prod.doc.types] == TYPES3
+        plan = L.plan_load(prod, host, place=True)
+        assert plan.type_names == TYPES3 and plan.type_name == TYPES3[0]
+        assert len(plan.symbol_ids) == len(plan.symbol_surrogate_ids) == 3
+        assert plan.symbol_id == plan.symbol_ids[0]
+        assert plan.symbol_surrogate_id == plan.symbol_surrogate_ids[0]
+        ids = plan.symbol_ids + plan.symbol_surrogate_ids + [plan.instance_id]
+        assert len(set(ids)) == 7 and min(ids) > host.watermark          # distinct, above the doc
+        assert set(ids) <= set(L._plan_host_ids(plan))
+
+    def test_host_table_rows_are_all_backed_by_symbol_pairs(self, host):
+        prod = _panel3(host.watermark + 1)
+        plan = L.plan_load(prod, host, place=False)
+        fam = L.author_host_family(prod, plan, host)
+        assert _table(fam.obj) == ([" "] + TYPES3, 1)                     # one blank, m_idx on primary
+        res = L.load_family_into_project(BASE, None, product=prod, place=False,
+                                         symbol_solid=True, validate=False)
+        gate = res.proofs["roundtrip_gate"]
+        assert gate["failed"] == 0 and gate["roundtrip_ok"] == gate["records"]
+        classes = [e["class"] for e in res.elements]
+        assert classes.count("FamilySymbol") == 3 and classes.count("FamSymSurrogate") == 3
+        assert classes.count("Family") == 1 and classes.count("FamilySurrogate") == 1
+        assert res.proofs["plan"]["type_names"] == TYPES3
+        assert res.proofs["plan"]["host_ids"]["symbols"] == plan_symbols(res)
+
+    def test_symbols_are_real_named_and_carry_their_own_row(self, host):
+        prod = _panel3(host.watermark + 1)
+        plan = L.plan_load(prod, host, place=False)
+        pid = plan.twin_of[prod.doc.params["MainsRating"].elem_id]
+        got = []
+        for tname, sym, ssur in L._symbol_pairs(plan):
+            sub = replace(plan, type_name=tname, symbol_id=sym, symbol_surrogate_id=ssur)
+            el, _g = L.author_family_symbol(prod, sub, host, L._type_rows(prod, tname), solid=True)
+            ss = L.author_famsym_surrogate(sub, host.category)
+            rows = el.obj["m_pParams"]["value"]["m_params"]
+            mains = [r["m_value"] for r in rows if r.get("m_paramId") == pid][0]
+            got.append((el.obj["m_symbolInfo"]["value"]["m_name"], ss.obj["m_name"],
+                        ss.obj["m_elemId"] == sym, el.obj["m_partitionSurrogateId"] == ssur, mains))
+        assert got == [(n, n, True, True, a) for n, a in zip(TYPES3, [225.0, 400.0, 600.0])]
+
+    def test_born_shaped_multi_type_still_no_blank_pair(self, host):
+        prod = _panel3(host.watermark + 1)
+        _make_born_shaped(prod.doc)
+        assert [n for n, _v in prod.doc.types] == [" "] + TYPES3
+        plan = L.plan_load(prod, host, place=False)
+        assert plan.type_names == TYPES3 and plan.type_name == TYPES3[0]
+        assert _table(L.author_host_family(prod, plan, host).obj) == ([" "] + TYPES3, 1)
+
+    def test_single_type_plan_allocates_exactly_what_it_always_did(self, host):
+        """A one-type load's ids are unchanged by the N-pair extension."""
+        plan = L.plan_load(_panel(host.watermark + 1), host, place=True)
+        assert plan.type_names == ["400A MCB 42ckt"]
+        assert plan.symbol_ids == [plan.symbol_id] == [plan.surrogate_id + 1]
+        assert plan.symbol_surrogate_ids == [plan.symbol_surrogate_id] == [plan.surrogate_id + 2]
+        assert plan.instance_id == plan.surrogate_id + 3
+
+
+def plan_symbols(res):
+    return [e["elem_id"] for e in res.elements if e["class"] == "FamilySymbol"]
+
+
+@needs_base
+class TestMultiTypeFamload:
+    def _plan(self, fl_host, doc):
+        plan, _nxt = FL._plan_family(FL.FamilyLoad(key="panel3", doc=doc), doc,
+                                     fl_host, fl_host.watermark + 1)
+        return plan
+
+    def test_plans_n_real_pairs_zero_blank(self, fl_host):
+        for born in (False, True):
+            doc = _panel3(fl_host.watermark + 1).doc
+            if born:
+                _make_born_shaped(doc)
+            plan = self._plan(fl_host, doc)
+            assert plan.type_names == TYPES3
+            assert len(plan.symbol_ids) == len(plan.symbol_surrogate_ids) == 3
+            names, snames, syms, ssurs = _sym_names(FL.author_host_elements(doc, plan))
+            assert names == snames == TYPES3 and all(n.strip() for n in names + snames)
+            assert [s.obj["m_elemId"] for s in ssurs] == plan.symbol_ids
+
+    def test_dry_run_load_is_lawful_end_to_end(self, fl_host):
+        doc = _panel3(fl_host.watermark + 1).doc
+        res = FL.load_family_documents(BASE, [FL.FamilyLoad(key="panel3", doc=doc)],
+                                       None, validate=False)
+        gate = res.proofs["roundtrip_gate"]
+        assert gate["failed"] == 0 and gate["roundtrip_ok"] == gate["records"]
+        assert [p.type_names for p in res.plans] == [TYPES3]
+        classes = [e["class"] for e in res.proofs["host_elements"]["by_family"]["panel3"]]
+        assert classes.count("FamilySymbol") == 3 and classes.count("FamSymSurrogate") == 3

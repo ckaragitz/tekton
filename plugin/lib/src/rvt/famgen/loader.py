@@ -297,12 +297,18 @@ class LoadPlan:
     fam_doc_guid: str                          # host Family.m_famDocGUID (minted)
     session_guid_hex: str                      # 32-hex session guid for the twins' typeIds
     family_name: str
-    type_name: str
+    type_name: str                             # the PRIMARY (current) type = what an instance binds
     host_family_id: int = INVALID
     surrogate_id: int = INVALID
-    symbol_id: int = INVALID
+    symbol_id: int = INVALID                   # the primary type's symbol pair
     symbol_surrogate_id: int = INVALID
     instance_id: int = INVALID
+    # one FamSymSurrogate+FamilySymbol pair per REAL-named type (famload's
+    # shape): parallel lists in unit-table order; the primary's entries equal
+    # symbol_id / symbol_surrogate_id / type_name above
+    type_names: List[str] = dc_field(default_factory=list)
+    symbol_ids: List[int] = dc_field(default_factory=list)
+    symbol_surrogate_ids: List[int] = dc_field(default_factory=list)
     twin_of: Dict[int, int] = dc_field(default_factory=dict)     # embedded P_i -> host T_i
     abs_index: Dict[int, int] = dc_field(default_factory=dict)   # embedded elem id -> absorbed index
     core_ids: List[int] = dc_field(default_factory=list)
@@ -351,6 +357,17 @@ def plan_load(product, host: HostContext, *, place: bool) -> LoadPlan:
     plan.surrogate_id = alloc()
     plan.symbol_id = alloc()
     plan.symbol_surrogate_id = alloc()
+    # every OTHER real-named type gets its own pair (a host Family table row
+    # is always backed by a FamSymSurrogate+FamilySymbol); primary first, so
+    # a one-type load allocates exactly what it always did
+    plan.type_names = [plan.type_name]
+    plan.symbol_ids = [plan.symbol_id]
+    plan.symbol_surrogate_ids = [plan.symbol_surrogate_id]
+    for tname in real_type_names(doc):
+        if tname != plan.type_name:
+            plan.type_names.append(tname)
+            plan.symbol_ids.append(alloc())
+            plan.symbol_surrogate_ids.append(alloc())
     if place:
         plan.instance_id = alloc()
     # load classification: resolve OUR connector's LC by NAME to a host LC
@@ -687,7 +704,9 @@ def author_host_family(product, plan: LoadPlan, host: HostContext):
         blank = {"name": " ", "params": {"m_params": cur_rows,
                                          "m_geomRefHandles": {"m_offsetGeomMap": []}}}
         ftt["m_pairs"] = [blank] + pairs
-        ftt["m_idx"] = 1 if pairs else 0                # current type = ours [H]
+        # current type = the primary (instance-facing) real pair [H]
+        names = [str(p.get("name", "")) for p in pairs]
+        ftt["m_idx"] = 1 + names.index(plan.type_name) if plan.type_name in names else 0
     # -- cells: connector data cell(s) FIRST, then the parameter order cell -
     cl = ((o.get("m_cellList") or {}).get("value") or {})
     cells = []
@@ -966,7 +985,9 @@ def build_symbol_geometry(product, plan: LoadPlan, host: HostContext,
 
 def author_family_symbol(product, plan: LoadPlan, host: HostContext,
                          type_rows: List[dict], *, solid: bool = True):
-    """The host ``FamilySymbol`` for our (single) type.
+    """The host ``FamilySymbol`` for ONE type (``plan.type_name`` /
+    ``plan.symbol_id``; :func:`_author_load` calls it once per real-named
+    type with a per-pair view of the plan).
 
     Content = OURS: the type name, the parameter row (the same rows as the
     host Family's, keyed by the twins), and the symbol geometry (or, in the
@@ -1299,7 +1320,7 @@ def register_in_host_adocument(latest_value: dict, plan: LoadPlan, *,
     # 3. ElementTrackingData
     etd = _appinfo_slot(latest_value, "ElementTrackingData")
     if etd is not None:
-        for fld, ids in (("m_symbols", [plan.symbol_id]),
+        for fld, ids in (("m_symbols", list(plan.symbol_ids)),
                          ("m_elems", ([plan.instance_id] if plan.instance_id != INVALID else []))):
             if not ids:
                 continue
@@ -1352,25 +1373,34 @@ def _roundtrip_gate(elements) -> Dict[str, Any]:
     return roundtrip_report(elements)
 
 
-def _type_rows(product) -> List[dict]:
-    """The current type's parameter rows (family-document keyed)."""
+def _type_rows(product, type_name: Optional[str] = None) -> List[dict]:
+    """The parameter rows (family-document keyed) of the type named
+    ``type_name`` -- by default the current type's."""
     sf = product.doc.self_family
     ftt = ((sf.obj.get("m_pFamilyTypes") or {}).get("value") or {})
     pairs = ftt.get("m_pairs") or []
     if pairs:
         idx = product.doc.current_type if product.doc.current_type < len(pairs) else 0
+        if type_name is not None:
+            named = [i for i, p in enumerate(pairs) if str(p.get("name", "")) == type_name]
+            idx = named[0] if named else idx
         rows = ((pairs[idx].get("params") or {}).get("m_params")) or []
         return _dc(list(rows))
     fp = ((sf.obj.get("m_familyParams") or {}).get("value") or {})
     return _dc(list(fp.get("m_params") or []))
 
 
+def _symbol_pairs(plan: LoadPlan) -> List[Tuple[str, int, int]]:
+    """(type name, symbol id, sym-surrogate id) per real-named type, primary first."""
+    return list(zip(plan.type_names, plan.symbol_ids, plan.symbol_surrogate_ids))
+
+
 def _plan_host_ids(plan: LoadPlan) -> List[int]:
-    """Every host id a load allocates (Family, surrogates, symbol, instance
+    """Every host id a load allocates (Family, surrogates, symbols, instance
     if placed, the ParamElem twins) -- the one canonical list."""
-    ids = [x for x in (plan.host_family_id, plan.surrogate_id, plan.symbol_id,
-                       plan.symbol_surrogate_id, plan.instance_id) if x != INVALID]
-    return ids + list(plan.twin_of.values())
+    ids = [plan.host_family_id, plan.surrogate_id, plan.instance_id]
+    ids += plan.symbol_ids + plan.symbol_surrogate_ids
+    return [x for x in ids if x != INVALID] + list(plan.twin_of.values())
 
 
 @dataclass
@@ -1419,7 +1449,10 @@ def _author_load(product, host: HostContext, *, place: bool, symbol_solid: bool,
                         max(e.elem_id for e in doc.elements)],
         "host_ids": {"family": plan.host_family_id, "surrogate": plan.surrogate_id,
                      "symbol": plan.symbol_id, "symbol_surrogate": plan.symbol_surrogate_id,
+                     "symbols": list(plan.symbol_ids),
+                     "symbol_surrogates": list(plan.symbol_surrogate_ids),
                      "instance": plan.instance_id, "twins": len(plan.twin_of)},
+        "type_names": list(plan.type_names),
         "resolved": {"category_gstyle": host.category_gstyle,
                      "load_classification": {"name": plan.load_class_name,
                                              "host_id": plan.load_class_host},
@@ -1434,10 +1467,17 @@ def _author_load(product, host: HostContext, *, place: bool, symbol_solid: bool,
     els.extend(author_param_twins(product, plan))
     els.append(author_family_surrogate(plan, host.category))
     els.append(author_host_family(product, plan, host))
-    hsym, geo = author_family_symbol(product, plan, host, _type_rows(product),
-                                     solid=symbol_solid)
-    els.append(hsym)
-    els.append(author_famsym_surrogate(plan, host.category))
+    # one FamilySymbol + FamSymSurrogate per real-named type (primary first);
+    # every symbol carries the ONE authored solid (geometry is not
+    # label-driven) and its own type's parameter row
+    geo = None
+    for tname, sym, ssur in _symbol_pairs(plan):
+        sub = replace(plan, type_name=tname, symbol_id=sym, symbol_surrogate_id=ssur)
+        hsym, g = author_family_symbol(product, sub, host, _type_rows(product, tname),
+                                       solid=symbol_solid)
+        geo = geo if geo is not None else g
+        els.append(hsym)
+        els.append(author_famsym_surrogate(sub, host.category))
     if place:
         els.append(author_family_instance(product, plan, host,
                                           circuit_slots=circuit_slots))
@@ -1951,7 +1991,8 @@ def verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
         pr["elemtable"] = {"our_host_ids_present": all(i in et_ids for i in _plan_host_ids(plan))}
         pr["adocument"] = {"content_table_record": plan.guid in ct_guids,
                            "family_mgr_entry": plan.guid in fm_guids,
-                           "symbol_tracked": plan.symbol_id in tracked}
+                           # every symbol of the family (one per real type)
+                           "symbol_tracked": all(s in tracked for s in plan.symbol_ids)}
         mine = [d for d in docs if d.get("content_doc_guid") == plan.guid]
         pr["family_documents"] = {
             "ours": [{"family_id": d["family_id"], "family_name": d["family_name"],
