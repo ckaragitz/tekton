@@ -81,7 +81,8 @@ from .base import PIN, BaseError, repo_root, sha256_of
 __all__ = [
     "StandaloneError", "plugin_root", "bundled_base_path", "bundled_schema",
     "install_schema", "schema_identity_report", "default_object",
-    "family_instance_template", "swall_template", "ConstructedSpecimens",
+    "family_instance_template", "swall_template", "electrical_system_template",
+    "ConstructedSpecimens",
     "CONSTRUCTED", "make_specimens", "standalone_family_write", "activate",
     "forbid_research_inputs", "author_standalone", "dependency_table",
 ]
@@ -96,6 +97,7 @@ SCHEMA_2026_SHA256 = "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ec
 
 _ELECTRICAL_EQUIPMENT = -2001040
 _WALLS_CATEGORY = -2000011
+_ELECTRICAL_CIRCUIT = -2008037          # BuiltInCategory OST_ElectricalCircuit
 
 
 class StandaloneError(RuntimeError):
@@ -648,6 +650,125 @@ def swall_template(schema, *, elem_id: int, level_id: int, wall_type_id: int,
     return hdr, obj
 
 
+#: archive object numbering inside one element record: pid 1 = the document,
+#: pid 2 = the record's root object; weakly-referenced owned objects are
+#: numbered from 3 in encounter order (rvt.famgen.geometry.assign_pids law).
+#: A circuit's connector manager is the first such object, its connectors next.
+_CIRCUIT_MGR_PID = 3
+
+#: Connector.m_mode of a SYSTEM-side (logical) connector -- the counterpart
+#: of the 1 a family-instance's physical connector carries
+#: (docs/streams/10-objects.md, RbsElectricalSystem decode).
+_SYSTEM_CONNECTOR_MODE = 4
+
+#: RbsElectricalSystem.m_systemType: Revit API ElectricalSystemType.PowerCircuit
+#: (public enumeration; docs/writer/family-skeleton.md "system type codes").
+_POWER_CIRCUIT = 6
+
+#: RbsElectricalSystem.m_circuitConnType: 1 = assigned to a panel, 0 =
+#: unassigned (docs/writer/mep-electrical-data.md sec. 3.2).  add_circuit
+#: always assigns the panel, so the template carries the assigned state.
+_CIRCUIT_ASSIGNED = 1
+
+
+def electrical_system_template(schema, *, elem_id: int, n_loads: int = 1,
+                               path_offset_ft: float = 0.0
+                               ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """A CONSTRUCTED electrical CIRCUIT (``RbsElectricalSystem``) clone
+    template with ``n_loads`` member connectors + the FINAL base-equipment
+    connector -- the object model of KNOWLEDGE.md "Electrical circuits":
+
+    * ``m_pConnectorMgr`` -> ``RbsSystemConnectorManager`` (pid 3) owning
+      ``n_loads + 1`` ``Connector`` objects (pids 4..), indices ``0..n``,
+      each UNCONNECTED (empty ``m_arrRefs``; ``rvt.mutate.add_circuit``
+      wires load / panel + both back-links in the same commit), each with
+      its one ``RbsSystemConnectorModifier`` weak-pointing back at it; the
+      manager's own ``MEPConnectionBehaviorModifier`` weak-points at the
+      manager (the class shapes the schema itself names);
+    * ``m_baseConnectorIdArray = [{self, LAST, connType 4}]`` -- the
+      validator's CIRCUITS invariant holds on the template itself;
+    * on 2026 a ``CellList`` with one EMPTY ``ElectricalLoadClassificationsData``
+      cell (no connected-load data is claimed); on the 2025/2024 class
+      version (load maps on the element itself, no such cell class) none;
+    * scalar state: assigned power circuit (``m_circuitConnType`` 1,
+      ``m_systemType`` 6 = PowerCircuit, ``m_circuitType`` 0), no MEP
+      system type / cable (wire) type / cable size (``-1``: the base carries
+      no wire types), ``m_pathOffset`` = the base's own
+      ``ElectricalSetting.m_circuitPathOffset`` when given; every other
+      numeric field at its schema default (documented one by one in
+      docs/inbox/mep-electrical.md -- nothing here is read from any file).
+
+    Built from ``default_object`` of the schema it is GIVEN, so each
+    release's own class version (2026 vs the 2025/2024 field set) comes out
+    complete with no port-layer adaptation.
+
+    ``add_circuit`` overwrites number / description / rating / poles /
+    voltage / start slot / path nodes / connector refs per feeder edge."""
+    def _conn(index: int) -> Dict[str, Any]:
+        pid = _CIRCUIT_MGR_PID + 1 + index
+        return _ptr("Connector", _dflt(
+            schema, "Connector",
+            m_arrRefs=[], m_pElement={"weakref": 2}, m_nIndex=index,
+            m_mode=_SYSTEM_CONNECTOR_MODE,
+            m_modifiers=[_ptr("RbsSystemConnectorModifier",
+                              _dflt(schema, "RbsSystemConnectorModifier",
+                                    m_pConnector={"weakref": pid}))]), pid=pid)
+
+    mgr = _ptr("RbsSystemConnectorManager", _dflt(
+        schema, "RbsSystemConnectorManager",
+        m_setDeletedConnectors=[],
+        m_connPtrArray=[_conn(k) for k in range(n_loads + 1)],
+        m_modifiers=[_ptr("MEPConnectionBehaviorModifier",
+                          _dflt(schema, "MEPConnectionBehaviorModifier",
+                                m_pConnectorManager={"weakref": _CIRCUIT_MGR_PID}))]),
+        pid=_CIRCUIT_MGR_PID)
+
+    # 2026 keeps a circuit's connected-load data in an (here EMPTY) cell; the
+    # 2025/2024 class versions carry it as per-class maps on the element
+    # itself (schema defaults = empty) and name no such cell class -> no
+    # cell list, exactly like the base's other cell-less elements
+    cells = None
+    if schema.by_name.get("ElectricalLoadClassificationsData") is not None:
+        cells = _ptr("CellList", {"m_cells": [
+            _ptr("ElectricalLoadClassificationsData",
+                 default_object(schema, "ElectricalLoadClassificationsData"))]})
+    obj = default_object(schema, "RbsElectricalSystem")
+    obj.update({
+        # Element: a system is not a geometric / levelled / phased element
+        "m_pParamValueSetDouble": None, "m_pParamValueSetInt": None,
+        "m_pParamValueSetAString": None, "m_pParamValueSetElementId": None,
+        "m_geomSteps": None, "m_pGeomTable": None, "m_constrInfo": [],
+        "m_cellList": cells,
+        "m_docAccess": {"m_pDoc": {"weakref": 1}},
+        "m_id": elem_id,
+        "m_assocLevelId": -1, "m_famId": -1, "m_unplacedOwnerId": -1,
+        "m_ownerDBViewId": -1, "m_createdPhaseId": -1, "m_demolishedPhaseId": -1,
+        "m_designOptionId": -1,
+        "m_locked": False, "m_moribund": False, "m_dummy": False,
+        # RbsSystem
+        "m_baseConnectorIdArray": [{"m_id": elem_id, "m_nIndex": n_loads, "m_connType": 4}],
+        "m_pConnectorMgr": mgr,
+        "m_rgSections": [], "m_strName": "", "m_typeId": -1,
+        # RbsElectricalSystem (cable/wire type ids stay at the schema's -1:
+        # the base carries no wire types; every load figure stays 0)
+        "m_customizePathNodes": [], "m_pathNodes": [],
+        "m_number": "", "m_strDescription": "", "m_strLoadClassifications": "",
+        "m_strNotes": "",
+        "m_pathOffset": float(path_offset_ft),
+        "m_circuitConnType": _CIRCUIT_ASSIGNED,
+        "m_circuitType": 0,
+        "m_systemType": _POWER_CIRCUIT,
+        "m_bReserved": False, "m_bSlotLocked": False,
+    })
+    # per-class header species word of RbsElectricalSystem (docs/inbox/
+    # identity.md RANK 2: species-coherent per class; 0x101A -- low byte 0x1A,
+    # pattern-cell bit 0x800 clear); a system has no spatial extent -> no bbox
+    hdr = _element_header(schema, category=_ELECTRICAL_CIRCUIT,
+                          class_name="RbsElectricalSystem", flags4=4122)
+    hdr["m_pBBox"] = None
+    return hdr, obj
+
+
 # ===========================================================================
 # 5. the SpecimenSet replacement
 # ===========================================================================
@@ -665,6 +786,7 @@ class ConstructedSpecimens:
     #: template ids: far above any real id in the base lineage, never emitted
     WALL_TID = 990000001
     INSTANCE_TID = 990000002
+    CIRCUIT_TID = 990000003
 
     def __init__(self, source_path: str = CONSTRUCTED,
                  base_path: Optional[str] = None):
@@ -698,6 +820,7 @@ class ConstructedSpecimens:
         self.instance_symbol: Optional[int] = None       # constructed: no residue to repoint
         self.instance_category: Optional[int] = _ELECTRICAL_EQUIPMENT
         self.wall_id: Optional[int] = None
+        self.circuit_id: Optional[int] = None
         h, o = family_instance_template(schema, elem_id=self.INSTANCE_TID,
                                         level_id=level_id, phase_id=phase_id)
         self._add_template(schema, self.INSTANCE_TID, "ElementHeader", h,
@@ -709,6 +832,13 @@ class ConstructedSpecimens:
                                   thickness_ft=thickness, shell_ft=shell,
                                   phase_id=phase_id)
             self._add_template(schema, self.WALL_TID, "ElementHeader", h, "SWall", o)
+        if schema.by_name.get("RbsElectricalSystem") is not None:
+            self.circuit_id = self.CIRCUIT_TID
+            h, o = electrical_system_template(
+                schema, elem_id=self.CIRCUIT_TID,
+                path_offset_ft=_circuit_path_offset(base_doc))
+            self._add_template(schema, self.CIRCUIT_TID, "ElementHeader", h,
+                               "RbsElectricalSystem", o)
 
     # -- encoding ---------------------------------------------------------
     def _add_template(self, schema, eid: int, hdr_cls: str, hdr: Dict[str, Any],
@@ -745,6 +875,7 @@ class ConstructedSpecimens:
                 "instance_specimen": self.instance_id,
                 "instance_symbol": self.instance_symbol,
                 "instance_category": self.instance_category,
+                "circuit_specimen": self.circuit_id,
                 "constructed": True,
                 "note": ("templates CONSTRUCTED from the schema + documented "
                          "generic shapes; no ancestor/donor file read, no "
@@ -777,6 +908,18 @@ def _wall_type_thickness(doc, wall_type_id: int) -> Tuple[float, float]:
     total = sum(widths) or 0.4
     shell = widths[0] if len(widths) >= 3 else 0.0
     return total, shell
+
+
+def _circuit_path_offset(doc) -> float:
+    """The base's own default circuit-path offset (ft): its ``ElectricalSetting
+    .m_circuitPathOffset`` (a genesis-authored setting), else 0.0.  (A targeted
+    read on purpose: ``rvt.mep.electrical_data.electrical_settings`` builds the
+    whole inventory and would pull rvt.mep into this import-light module.)"""
+    for sid in doc.ids_of_class("ElectricalSetting"):
+        v = (doc.value(sid) or {}).get("m_circuitPathOffset")
+        if isinstance(v, (int, float)):
+            return float(v)
+    return 0.0
 
 
 def make_specimens(source_path: Optional[str] = None,
@@ -1089,11 +1232,16 @@ def dependency_table() -> List[Dict[str, str]]:
                    "optional)",
          "now": "same file when present; the built-in fallback otherwise "
                 "(PROVEN sufficient: family-mode VALID 0 errors without it)"},
-        {"feature": "feeder circuits (stage C)",
-         "before": "no circuit specimen anywhere (named blocker)",
-         "now": "unchanged: still a NAMED BLOCKER (RbsElectricalSystem "
-                "constructor is electrical-stream territory); the resolved "
-                "circuit plan rides in the manifest"},
+        {"feature": "feeder circuit clone template (stage E+C, one commit)",
+         "before": "no circuit specimen anywhere: rvt.mutate.add_circuit is "
+                   "clone-only and the composed bases carry 0 RbsElectricalSystem "
+                   "(named blocker; the plan rode in the manifest)",
+         "now": "CONSTRUCTED 2-connector RbsElectricalSystem template (schema "
+                "defaults + the decoded circuit object model: system connector "
+                "manager/connectors/modifiers, self base connector, empty load "
+                "data cell; the base's own circuit-path offset); add_circuit "
+                "wires each non-service feeder edge in the equipment commit "
+                "(PROOF-ONLY: validator-green, not viewer-certified)"},
     ]
 
 

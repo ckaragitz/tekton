@@ -305,8 +305,15 @@ _OPEN_BUG = ("PLACED INSTANCES of our generated families on our composed "
              "emits two coordinated files instead, both delivered -- 'shell' "
              "(walls + loaded families, the certified shape) + 'equipment' "
              "(the placed instances, the open cell isolated)")
-_CIRCUITS = ("feeder CIRCUITS are a NAMED BLOCKER on the genesis base: the "
-             "resolved circuit plan rides in the manifest, never faked")
+_CIRCUITS = ("feeder CIRCUITS are AUTHORED natively on the genesis base "
+             "(2026/2025/2024): one constructed RbsElectricalSystem per "
+             "non-service feeder edge, wired panel slot <-> load supply in the "
+             "equipment commit and read back (count == edges, both-side "
+             "connector links, validator CIRCUITS rule 0 errors) -- PROOF-ONLY: "
+             "validator-green is necessary, NOT certification; no viewer "
+             "verdict exists for the circuit layer yet (issue #146), and it "
+             "rides the open instance cell above; a shortfall is named in the "
+             "manifest with the resolved plan, never faked")
 _CATALOG = ("family generation covers the catalog-backed kinds (panelboard / "
             "transformer / luminaire / the honest house switchboard); "
             "anything without facts is REFUSED by name, never invented")

@@ -422,3 +422,146 @@ def test_delete_device_plan_neutralises_circuit_and_wires():
     assert "RbsElectricalSystem" in refcls and "RbsWireCurve" in refcls
     # its circuit and its host plane are NOT deleted
     assert 469428 not in plan.ids_to_remove and 467294 not in plan.ids_to_remove
+
+
+# ---------------------------------------------------------------------------
+# add_circuit over the CONSTRUCTED circuit specimen (issue #146) -- no sample:
+# the bundled genesis base + rvt.frontdoor.standalone templates only
+# ---------------------------------------------------------------------------
+BUNDLED = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
+needs_bundled = pytest.mark.skipif(not os.path.isfile(BUNDLED), reason="bundled genesis base missing")
+
+
+def _constructed_board(doc, specimens, x: float, slots=()):
+    """A free-standing instance cloned from the constructed FamilyInstance
+    template with a supply connector 1 + the given 50000-series slots.  The
+    family-free base carries no FamilySymbol: the base's own wall type (a
+    Symbol) stands in as the type id -- placement scaffolding only; the
+    circuit wiring under test never reads the symbol."""
+    from rvt.famgen.loader import _connector_slot
+    from rvt.famload_fix import lawful_instance_connector_manager
+    el = doc.add_family_instance(specimens.wall_type, specimens.level_id, (x, 0.0, 0.0),
+                                 template_instance_id=specimens.instance_id)
+    el.obj["m_pConnectorManager"] = lawful_instance_connector_manager(
+        [_connector_slot(i) for i in (1, *slots)])
+    return el
+
+
+def _refs(el) -> dict:
+    """{connector nIndex: m_arrRefs} of a NewElement's connector manager."""
+    mgr = el.obj.get("m_pConnectorManager") or el.obj.get("m_pConnectorMgr")
+    return {x["value"]["m_nIndex"]: x["value"]["m_arrRefs"]
+            for x in mgr["value"]["m_connPtrArray"]}
+
+
+@pytest.fixture(scope="module")
+def constructed_specimens():
+    if not os.path.isfile(BUNDLED):
+        pytest.skip("bundled genesis base missing")
+    from rvt.frontdoor import standalone as SA
+    return SA.ConstructedSpecimens(base_path=BUNDLED)
+
+
+@pytest.fixture()
+def genesis_doc(constructed_specimens):
+    doc = Document.from_file(BUNDLED)
+    constructed_specimens.inject_into(doc)
+    return doc, constructed_specimens
+
+
+@needs_bundled
+def test_base_has_no_circuit_to_clone_but_the_constructed_template_serves(genesis_doc):
+    doc, sp = genesis_doc
+    assert doc.ids_of_class("RbsElectricalSystem") == []
+    with pytest.raises(LookupError):
+        doc._template_circuit()                    # clone-only path: nothing to clone
+    assert sp.circuit_id and doc.value(sp.circuit_id)["m_baseConnectorIdArray"] == [
+        {"m_id": sp.circuit_id, "m_nIndex": 1, "m_connType": 4}]
+
+
+@needs_bundled
+def test_add_circuit_wires_both_sides_from_the_constructed_template(genesis_doc):
+    """panel slot 50000 <-> circuit conn 1 (base), load supply 1 <-> circuit
+    conn 0; base connector {self, LAST}; voltage stored in internal units;
+    the path-less template gets the straight panel -> load polyline."""
+    doc, sp = genesis_doc
+    panel = _constructed_board(doc, sp, 0.0, slots=(50000, 50001))
+    load = _constructed_board(doc, sp, 12.0)
+    c = doc.add_circuit(panel, load, number="1,3,5", start_slot=1, rating=400, poles=3,
+                        voltage_v=480.0, description="DP-1 feeder from MSB",
+                        template_id=sp.circuit_id)
+    v = c.obj
+    assert _refs(c) == {0: [{"m_id": load.elem_id, "m_nIndex": 1, "m_connType": 1}],
+                        1: [{"m_id": panel.elem_id, "m_nIndex": 50000, "m_connType": 4}]}
+    assert v["m_baseConnectorIdArray"] == [{"m_id": c.elem_id, "m_nIndex": 1, "m_connType": 4}]
+    # back-links live in the same-commit instances' connector objects
+    pconn, lconn = _refs(panel), _refs(load)
+    assert pconn[50000] == [{"m_id": c.elem_id, "m_nIndex": 1, "m_connType": 4}]
+    assert pconn[50001] == [] and pconn[1] == []
+    assert lconn[1] == [{"m_id": c.elem_id, "m_nIndex": 0, "m_connType": 4}]
+    # electrical values + schedule placement
+    assert v["m_number"] == "1,3,5" and v["m_nStartSlot"] == 1
+    assert v["m_dRating"] == 400.0 and v["m_nPoles"] == 3
+    assert math.isclose(v["m_dVoltage"], 480.0 / 0.3048 ** 2)
+    assert v["m_strDescription"] == "DP-1 feeder from MSB"
+    # path: node 0 = the panel (real), node 1 virtual at the load; length = 12 ft
+    nodes = v["m_pathNodes"]
+    assert [n["m_elemId"] for n in nodes] == [panel.elem_id, -1]
+    assert [n["m_isVirtualNode"] for n in nodes] == [False, True]
+    assert math.isclose(v["m_dLength"], 12.0)
+    # header parents: panel, load, self; the three records serialise
+    par = c.header["m_parents"]["value"]
+    assert par["m_deletion"] == sorted([panel.elem_id, load.elem_id, c.elem_id])
+    assert par["m_appearanceParents"] == sorted([panel.elem_id, load.elem_id])
+    assert doc.serialize(c) is not None
+    assert doc.check_references(c) == []
+
+
+@needs_bundled
+def test_second_circuit_on_a_panel_takes_the_next_slot_never_shares(genesis_doc):
+    doc, sp = genesis_doc
+    panel = _constructed_board(doc, sp, 0.0, slots=(50000, 50001))
+    l1 = _constructed_board(doc, sp, 6.0)
+    l2 = _constructed_board(doc, sp, 9.0)
+    c1 = doc.add_circuit(panel, l1, number="1,3,5", start_slot=1, poles=3, template_id=sp.circuit_id)
+    c2 = doc.add_circuit(panel, l2, number="2,4,6", start_slot=2, poles=3, template_id=sp.circuit_id)
+    assert (_refs(c1)[1][0]["m_nIndex"], _refs(c2)[1][0]["m_nIndex"]) == (50000, 50001)
+    pconn = _refs(panel)
+    assert pconn[50000][0]["m_id"] == c1.elem_id and pconn[50001][0]["m_id"] == c2.elem_id
+    # the template itself is untouched by the clones (deep copies)
+    tv = doc.value(sp.circuit_id)
+    assert all(x["value"]["m_arrRefs"] == [] for x in tv["m_pConnectorMgr"]["value"]["m_connPtrArray"])
+    assert tv["m_pathNodes"] == [] and tv["m_number"] == ""
+
+
+@needs_bundled
+def test_committed_circuit_validates_and_reads_back(genesis_doc, tmp_path):
+    """One panel + one load + one circuit committed onto the bundled base:
+    rvt_validate 0 errors (CIRCUITS rule counted), symmetric connector graph,
+    and the readback finds exactly one RbsElectricalSystem linked both ways."""
+    from rvt.commit import commit_new_elements, verify_written
+    from rvt.validate import validate_file
+    doc, sp = genesis_doc
+    panel = _constructed_board(doc, sp, 0.0, slots=(50000,))
+    load = _constructed_board(doc, sp, 8.0)
+    c = doc.add_circuit(panel, load, number="1", start_slot=1, rating=100, poles=1,
+                        voltage_v=208.0, template_id=sp.circuit_id)
+    els = [panel, load, c]
+    out = str(tmp_path / "one_circuit.rvt")
+    commit_new_elements(BUNDLED, out, [dict(doc.serialize(e)) for e in els],
+                        [e.elemrec for e in els])
+    ver = verify_written(out, [e.elem_id for e in els])
+    assert ver.get("ok", ver.get("structurally_valid", True)), ver
+    rep = validate_file(out, strict=True)          # strict = the circuit-ready gate
+    bad = [f.message for f in rep.errors + rep.warnings
+           if f.where in ("circuits", "connectors", "references")]
+    assert not bad, bad                             # CIRCUITS rule, symmetric graph, no dangling id
+    assert rep.ok, [f.message for f in rep.errors]
+    assert rep.stats.get("circuits") == 1 and rep.stats.get("connector_edges") == 4
+    back = Document.from_file(out)
+    assert back.ids_of_class("RbsElectricalSystem") == [c.elem_id]
+    bv = back.value(c.elem_id)
+    assert bv["m_pConnectorMgr"]["ptr_class"] == "RbsSystemConnectorManager"
+    pv = back.value(panel.elem_id)["m_pConnectorManager"]["value"]["m_connPtrArray"]
+    assert any(x["value"]["m_nIndex"] == 50000 and x["value"]["m_arrRefs"][0]["m_id"] == c.elem_id
+               for x in pv)

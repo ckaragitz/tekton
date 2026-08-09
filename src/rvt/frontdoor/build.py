@@ -20,9 +20,11 @@ The mechanics are the ifc-room stream's PROVEN build code, reused as-is
        room's level datum;
     E  the EQUIPMENT instances (rvt.mutate.add_family_instance onto OUR
        loaded symbols at the intent's WORLD frames, our connector managers),
-       each associated to ITS level's datum (m_assocLevelId);
-    C  the feeder CIRCUITS (rvt.mep territory) -- today a NAMED BLOCKER on
-       the family-free base (no circuit specimen); recorded, never faked;
+       each associated to ITS level's datum (m_assocLevelId), AND -- in the
+       same commit -- the feeder CIRCUITS (rvt.mutate.add_circuit over the
+       constructed RbsElectricalSystem specimen, one per non-service edge);
+    C  the circuit READBACK (count == edges, both-side connector links on
+       the written bytes); a shortfall is recorded, never faked;
     V  the gates: rvt.validate (0 errors) / four-registry census / identity
        gate / the P0 provenance-deliverability gate, per output file.
 
@@ -624,7 +626,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         #     open cell, isolated from the certified shell)
         with _timed_stage(res):
             erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded,
-                                          level_ids=level_ids)
+                                          level_ids=level_ids, circuits="C" in opts.stages)
             erec["stage"] = "E(equipment)"
             res.stages.append(_slim_stage(erec))
         if eok:
@@ -658,7 +660,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
             src = current or loaded_file
             with _timed_stage(res):
                 erec, eok = R.stage_equipment(model, src, combined_path, specimens, loaded,
-                                              level_ids=level_ids)
+                                              level_ids=level_ids, circuits="C" in opts.stages)
                 erec["stage"] = "E"
                 res.stages.append(_slim_stage(erec))
             if eok:
@@ -687,20 +689,20 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                 _harvest_loaded_families(res, loaded)
 
     # ------------------------------------------------------------------
-    # C. circuits (rvt.mep territory; a NAMED BLOCKER on this base today)
+    # C. circuits: wired in stage E's commit; read back + verified here
     # ------------------------------------------------------------------
     deepest = res.deepest
     if "C" in opts.stages and deepest and model.feeders:
         with _timed_stage(res):
             crec = R.stage_circuits(model, deepest)
-            res.circuits = {k: v for k, v in crec.items() if k != "template_circuit"}
-            res.stages.append({"stage": "C", "planned": len(crec.get("circuits_planned") or []),
+            res.circuits = crec
+            res.stages.append({"stage": "C", "ok": crec.get("ok"),
+                               "planned": len(crec.get("circuits_planned") or []),
+                               "built": crec.get("circuits_built"),
+                               "links_ok": crec.get("links_ok"),
                                "blocker": crec.get("blocker")})
         if crec.get("blocker"):
-            res.degradations.append("feeder CIRCUITS not authored: " + str(crec.get("blocker"))
-                                    + " -- the resolved circuit PLAN rides in the manifest "
-                                      "(rvt.mep add_circuit / a Revit-side add-in build them "
-                                      "from it)")
+            res.degradations.append("feeder CIRCUITS incomplete: " + str(crec.get("blocker")))
 
     # ------------------------------------------------------------------
     # V. gates per emitted file
@@ -763,6 +765,11 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
 # harvesting the created-element census for the manifest / CRUD affordances
 # ---------------------------------------------------------------------------
 
+#: the per-circuit facts stage E records that ride into the manifest
+_CIRCUIT_KEYS = ("elem_id", "panel", "panel_id", "panel_slot", "load", "load_id", "load_conn",
+                 "number", "start_slot", "poles", "rating_a", "voltage", "edge_kind")
+
+
 def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
     if kind == "wall":
         for w in rec.get("walls") or []:
@@ -780,6 +787,10 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
                                 "z_above_level_ft": i.get("z_above_level_ft"),
                                 "frame_kind": i.get("frame_kind"),
                                 "connector_slots_panel": i.get("connector_slots_panel"),
+                                "file_role": rec.get("stage")})
+        for c in rec.get("circuits") or []:
+            res.created.append({"kind": "circuit", "tag": f"{c.get('panel')}>{c.get('load')}",
+                                **{k: c.get(k) for k in _CIRCUIT_KEYS},
                                 "file_role": rec.get("stage")})
 
 
@@ -813,4 +824,9 @@ def _slim_stage(rec: Dict[str, Any]) -> Dict[str, Any]:
                              "symbol": i.get("symbol"), "family": i.get("family"),
                              "position_ft": i.get("position_ft"), "frame_kind": i.get("frame_kind"),
                              "n_dangling": i.get("n_dangling")} for i in rec["instances"]]
+    if "circuits" in rec:
+        out["circuits"] = [{k: c.get(k) for k in _CIRCUIT_KEYS[:7] + ("n_dangling",)}
+                           for c in rec["circuits"]]
+        out["circuits_skipped"] = rec.get("circuits_skipped") or []
+        out["circuits_blocker"] = rec.get("circuits_blocker")
     return out
