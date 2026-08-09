@@ -148,7 +148,7 @@ consolidating the three test-side copies into a `tests/` helper touches
 
 ## BRANCH STATE
 
-* Branch `cam/154-ifc-conformance-fixtures` from `main` @ 311dee9, rebased onto f0bde6a (#309, `tests/ci_shard.txt` conflict = keep both); PR opened ready (not
+* Branch `cam/154-ifc-conformance-fixtures` from `main` @ 311dee9, rebased onto f0bde6a (#309) and again onto ba9e439 (#319 + #323; `tests/ci_shard.txt` conflicts = keep both, my line last); PR opened ready (not
   draft) with `Closes #154`; regime #302: checks on GitHub are meaningless, the tech-lead
   session runs the shard on the head SHA and merges via API.
 * Files added: `tools/dev/make_ifc_fixtures.py`, `tests/test_ifc_conformance.py`,
