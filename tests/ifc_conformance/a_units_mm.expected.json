@@ -4,7 +4,7 @@
  "pins": "SI millimetre length unit (IfcSIUnit MILLI METRE): scale 0.001, room shell 6 x 4.5 m read back in metres, one wall panel",
  "notes": [
   "length_scale_m_per_unit must be 0.001 and every insertion/wall coordinate metres; a regression here means the unit scale stopped being applied to tessellated vertices",
-  "#153: RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come back UNSCALED today (5800, not 5.8) -- pset length measures are informational and not unit-converted by the resolver; the census/measure decision belongs to #153"
+  "RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come back UNSCALED today (5800, not 5.8) -- pset length measures are informational and not unit-converted by the resolver; #153 (landed) enumerates products / bodies / relationships, not pset measures, so converting them is its own follow-up"
  ],
  "parity_xfail": null,
  "pinned_backend": "steplite",
@@ -174,6 +174,83 @@
     "DP-1"
    ],
    "positions_all_zero": false
+  },
+  "census": {
+   "schema": "IFC4",
+   "products_total": 5,
+   "totals": {
+    "mapped": 3,
+    "recorded": 2,
+    "dropped": 0
+   },
+   "by_class": {
+    "IfcBuilding": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    },
+    "IfcBuildingElementProxy": {
+     "read": 1,
+     "mapped": 1,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": null
+    },
+    "IfcBuildingStorey": {
+     "read": 1,
+     "mapped": 1,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": "-> a level (the base's story datums)"
+    },
+    "IfcElectricDistributionBoard": {
+     "read": 1,
+     "mapped": 1,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": null
+    },
+    "IfcSite": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    }
+   },
+   "spatial": {
+    "sites": 1,
+    "buildings": 1,
+    "storeys": 1,
+    "spaces": 0
+   },
+   "body_items": {
+    "total": 6,
+    "by_type": {
+     "IfcTriangulatedFaceSet": 6
+    },
+    "read": 6,
+    "unreadable": 0,
+    "unreadable_by_type": {},
+    "on_unread_products": 0,
+    "readable_kinds": [
+     "IfcTriangulatedFaceSet",
+     "IfcTriangulatedIrregularNetwork",
+     "IfcPolygonalFaceSet",
+     "IfcFacetedBrep",
+     "IfcExtrudedAreaSolid"
+    ],
+    "products_left_bodiless": [],
+    "non_body_representations": {}
+   },
+   "relationships_consumed": {
+    "IfcRelAggregates": 3,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcRelDefinesByProperties": 2
+   },
+   "relationships_ignored": []
   }
  }
 }

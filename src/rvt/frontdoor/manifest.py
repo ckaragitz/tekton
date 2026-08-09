@@ -26,7 +26,7 @@ from typing import Any, Dict, List, Optional, Sequence
 from .base import ResolvedBase, PIN, repo_root
 
 __all__ = ["TOOL", "TOOL_VERSION", "file_facts", "crud_affordances",
-           "coverage_cross_reference", "build_manifest", "edit_manifest",
+           "coverage_cross_reference", "census_gaps", "build_manifest", "edit_manifest",
            "write_manifest"]
 
 TOOL = "tekton frontdoor (rvt.frontdoor)"
@@ -227,6 +227,52 @@ def _release_line(version: Optional[Dict[str, Any]] = None) -> str:
 
 
 # ---------------------------------------------------------------------------
+# the IFC census: what the input held that did NOT reach the .rvt (issue #153)
+# ---------------------------------------------------------------------------
+
+def census_gaps(census: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """The part of an intent census a QA engineer must see: dropped product
+    classes, unreadable body-item types, products left without any body, and
+    the relationship classes not read.  ``show`` is True whenever anything
+    was dropped or unreadable -- the trigger for the MANIFEST.md section and
+    the one build degradation line (a LABEL: delivery is unchanged)."""
+    c = census or {}
+    by_class = c.get("by_class") or {}
+    body = c.get("body_items") or {}
+    dropped = [{"class": cls, "count": int(row.get("dropped") or 0), "of": int(row.get("read") or 0),
+                "reason": row.get("reason")}
+               for cls, row in by_class.items() if int(row.get("dropped") or 0) > 0]
+    n_dropped = sum(d["count"] for d in dropped)
+    n_unreadable = int(body.get("unreadable") or 0)
+    return {
+        "show": bool(n_dropped or n_unreadable),
+        "products_total": int(c.get("products_total") or 0),
+        "schema": c.get("schema"),
+        "dropped": dropped, "n_dropped": n_dropped,
+        "unreadable_by_type": dict(body.get("unreadable_by_type") or {}),
+        "n_unreadable": n_unreadable,
+        "body_items_total": int(body.get("total") or 0),
+        "readable_kinds": list(body.get("readable_kinds") or []),
+        "bodiless": list(body.get("products_left_bodiless") or []),
+        "relationships_ignored": list(c.get("relationships_ignored") or []),
+    }
+
+
+def _census_degradation(g: Dict[str, Any]) -> str:
+    """The ONE build degradation line the census adds (only when g['show'])."""
+    parts = []
+    if g["n_dropped"]:
+        parts.append(f"{g['n_dropped']} of {g['products_total']} products dropped ("
+                     + ", ".join(f"{d['class']}×{d['count']}" for d in g["dropped"]) + ")")
+    if g["n_unreadable"]:
+        parts.append(f"{g['n_unreadable']} of {g['body_items_total']} body items unreadable ("
+                     + ", ".join(f"{t}×{n}" for t, n in g["unreadable_by_type"].items()) + ")")
+    return ("IFC census: " + "; ".join(parts) + " -- that content does not reach the .rvt; "
+            "delivery unchanged (a label, hard rule 1); itemised under 'Not converted from the "
+            "IFC' / manifest.json intent.summary.census")
+
+
+# ---------------------------------------------------------------------------
 # create routes (prompt / ifc)
 # ---------------------------------------------------------------------------
 
@@ -285,13 +331,17 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
         "elements_created": created,
         "project_info": build.get("project_info") or {},
         "levels": build.get("levels") or {},
-        "degradations": build.get("degradations") or [],
+        "degradations": list(build.get("degradations") or []),
         "circuits": build.get("circuits") or {},
         "validation": build.get("validation") or {},
         "status_gate": build.get("status_gate") or {},
         "seconds": build.get("seconds"),
         "errors": (build.get("errors") or []) + list(errors or []),
     }
+    gaps = census_gaps((intent_summary or {}).get("census"))
+    m["intent"]["census_gaps"] = gaps
+    if gaps["show"]:                       # a LABEL on the delivered file(s), never a refusal
+        m["build"]["degradations"].append(_census_degradation(gaps))
     m["crud"] = crud_affordances(files, created, out_dir=out_dir)
     m["coverage_matrix"] = coverage_cross_reference(created)
     m["honesty"] = _honesty(build, verdict, version)
@@ -505,7 +555,45 @@ def _render_md(m: Dict[str, Any]) -> str:
         fps = it.get("family_plans_by_status") or {}
         ap("- family plans: " + ", ".join(f"{k} {v}" for k, v in fps.items()))
         ap(f"- feeder edges: {len(it.get('feeder_edges') or [])}")
+        ops = it.get("other_products") or []
+        if ops:                                # prompt-route entries carry no ifcClass: kind only
+            ap(f"- recorded, not modelled ({len(ops)}): "
+               + ", ".join(f"{o.get('name') or o.get('tag')} ("
+                           + (f"{o['ifcClass']} → " if o.get("ifcClass") else "") + f"{o.get('kind')})"
+                           for o in ops[:24]))
+    gaps = (m.get("intent") or {}).get("census_gaps") or census_gaps(it.get("census"))
+    cs = it.get("census") or {}
+    if cs.get("error"):                        # the observer failed; the delivery did not (rule 1)
+        ap(f"- IFC census: **unavailable** ({cs['error']}) — the file is delivered regardless; "
+           "what did not convert is not enumerated for this run")
+    elif cs:
+        tot = cs.get("totals") or {}
+        bi = cs.get("body_items") or {}
+        ap(f"- IFC census ({cs.get('schema')}): {cs.get('products_total')} products read — "
+           f"{tot.get('mapped', 0)} mapped, {tot.get('recorded', 0)} recorded only, "
+           f"{gaps['n_dropped']} dropped; body items {bi.get('read', 0)}/{bi.get('total', 0)} read, "
+           f"{gaps['n_unreadable']} unreadable — "
+           + ("see **Not converted from the IFC** below" if gaps["show"] else "nothing dropped or unreadable"))
     ap(f"- intent JSON: `{(m.get('intent') or {}).get('json')}`")
+    if gaps["show"]:
+        ap("")
+        ap("## Not converted from the IFC")
+        ap(f"- the input held {gaps['products_total']} products ({gaps['schema']}); the content below "
+           "did NOT reach the delivered .rvt — the file is delivered all the same (a label, never a "
+           "refusal); full per-class census in `manifest.json` → intent.summary.census / `intent.json` → census")
+        for d in gaps["dropped"]:
+            ap(f"- **dropped** {d['class']} ×{d['count']}"
+               + (f" of {d['of']}" if d["of"] != d["count"] else "") + f" — {d.get('reason') or 'not read'}")
+        if gaps["n_unreadable"]:
+            ap(f"- **unreadable body items** ({gaps['n_unreadable']} of {gaps['body_items_total']}): "
+               + ", ".join(f"{t} ×{n}" for t, n in gaps["unreadable_by_type"].items())
+               + f" — the resolver reads {', '.join(gaps['readable_kinds'])}; anything else loses its geometry")
+        for b in gaps["bodiless"][:24]:
+            ap(f"- **left without any body**: '{b.get('tag') or b.get('name')}' ({b.get('ifcClass')}, "
+               f"{b.get('unreadable')}/{b.get('body_items')} body items unreadable) — recorded at its "
+               "placement with no extents")
+        for r in gaps["relationships_ignored"]:
+            ap(f"- relationship not read: {r.get('class')} ×{r.get('count')} — {r.get('effect')}")
     cov = m.get("prompt_coverage")
     if cov:
         ap("")

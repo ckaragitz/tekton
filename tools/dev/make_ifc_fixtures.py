@@ -414,9 +414,10 @@ def _room_with_panel(m: Model, *, k: float) -> Model:
          "read back in metres, one wall panel",
          notes=["length_scale_m_per_unit must be 0.001 and every insertion/wall coordinate metres; "
                 "a regression here means the unit scale stopped being applied to tessellated vertices",
-                "#153: RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come "
-                "back UNSCALED today (5800, not 5.8) -- pset length measures are informational and "
-                "not unit-converted by the resolver; the census/measure decision belongs to #153"])
+                "RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come back "
+                "UNSCALED today (5800, not 5.8) -- pset length measures are informational and not "
+                "unit-converted by the resolver; #153 (landed) enumerates products / bodies / "
+                "relationships, not pset measures, so converting them is its own follow-up"])
 def _fx_a() -> Model:
     return _room_with_panel(Model("a_units_mm", unit="milli"), k=1000.0)
 
@@ -506,7 +507,8 @@ def _fx_d() -> Model:
          "IfcSpace aggregated into the upper of two storeys, one panel contained in the SPACE "
          "(level resolves through the space to L2), one contained directly in the lower storey",
          notes=["#158: the IfcSpace itself is not an IfcElement, so it appears in neither equipment "
-                "nor other_products today; #158 reads it into the intent as a room",
+                "nor other_products today -- the census (#153) counts it dropped x1 with the reason; "
+                "#158 reads it into the intent as a room",
                 "the panel inside the space must still get level L2 (containment walked space -> storey)"])
 def _fx_e() -> Model:
     m = Model("e_space_in_storey")
@@ -643,6 +645,41 @@ def _fx_i() -> Model:
     return m
 
 
+@fixture("j_census_space_unreadable_body",
+         "census probe (#153): an IfcSpace WITH its own extruded body aggregated into the storey, "
+         "a tessellated panel contained in the space, an IfcWallStandardCase extrusion, and an "
+         "IfcCableCarrierSegment whose only body item is an IfcSweptDiskSolid (no reader exists)",
+         notes=["#153: census pins products_total 7 -- IfcSpace dropped 1 (its extrusion counted "
+                "on_unread_products), DP-1 mapped, W-1 + CT-1 recorded; body items 5 = "
+                "IfcExtrudedAreaSolid 2 + IfcSweptDiskSolid 1 + IfcTriangulatedFaceSet 2, read 3, "
+                "unreadable 1 (the swept disk), CT-1 listed as left without any body",
+                "#158 will flip IfcSpace from dropped to mapped/recorded; a swept-disk reader would "
+                "flip unreadable to 0 -- either re-pins this fixture deliberately"])
+def _fx_j() -> Model:
+    m = Model("j_census_space_unreadable_body")
+    sto, plc_sto = m.storey("Level 1", 0.0)
+    plc_space = m.placement(plc_sto)
+    space_rep = m.shape([m.extrusion(4.0, 3.0, 2.7, center=(2.0, 1.5))], "SweptSolid")
+    space = m.w.add(f"IFCSPACE({m.gid('space:101')},{m.oh},'101',$,$,{plc_space},{space_rep},"
+                    "'Electrical 101',.ELEMENT.,.INTERNAL.,$)")
+    m.aggregate(sto, [space])
+    panel = m.board("DP-1", "DP-1 distribution panel 480Y/277 V", plc_space,
+                    {"PanelName": "DP-1", "Voltage": "480Y/277 V", "BusRating": 400.0},
+                    cx=2.0, cy=2.775, w=0.9, d=0.25, zlo=0.6, zhi=2.0, front=(0.0, -1.0), upright=True)
+    wall = m.product("IfcWallStandardCase", "Basic Wall 200 mm", plc=m.placement(plc_sto, m.axis((0.0, 3.1, 0.0))),
+                     rep=m.shape([m.extrusion(4.0, 0.2, 2.7, center=(2.0, 0.0))], "SweptSolid"),
+                     tag="W-1", tail=".STANDARD.")
+    w = m.w
+    pts = [w.add(f"IFCCARTESIANPOINT({_pt(p)})") for p in ((0.5, 0.2, 2.4), (3.5, 0.2, 2.4), (3.5, 2.5, 2.4))]
+    directrix = w.add(f"IFCPOLYLINE(({','.join(pts)}))")
+    disk = w.add(f"IFCSWEPTDISKSOLID({directrix},0.025,$,$,$)")
+    conduit = m.product("IfcCableCarrierSegment", "Conduit DP-1 homerun", plc=m.placement(plc_sto),
+                        rep=m.shape([disk], "AdvancedSweptSolid"), tag="CT-1", tail=".CONDUITSEGMENT.")
+    m.contain(space, [panel])
+    m.contain(sto, [wall, conduit])
+    return m
+
+
 # ---------------------------------------------------------------------------
 # resolver summary (runs INSIDE the --resolve subprocess; imports the engine)
 # ---------------------------------------------------------------------------
@@ -706,6 +743,7 @@ def summarize(path: str) -> Dict[str, Any]:
                          for p in model.family_plans],
         "audit": {k: model.audit.get(k) for k in ("feeder_roots_external", "load_equipment_unfed",
                                                  "positions_all_zero")},
+        "census": {k: v for k, v in model.census.items() if k != "legend"},   # #153 (legend = prose)
     }
 
 

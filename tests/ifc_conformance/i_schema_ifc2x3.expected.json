@@ -114,6 +114,76 @@
    "feeder_roots_external": [],
    "load_equipment_unfed": [],
    "positions_all_zero": null
+  },
+  "census": {
+   "schema": "IFC2X3",
+   "products_total": 4,
+   "totals": {
+    "mapped": 2,
+    "recorded": 2,
+    "dropped": 0
+   },
+   "by_class": {
+    "IfcBuilding": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    },
+    "IfcBuildingElementProxy": {
+     "read": 1,
+     "mapped": 1,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": null
+    },
+    "IfcBuildingStorey": {
+     "read": 1,
+     "mapped": 1,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": "-> a level (the base's story datums)"
+    },
+    "IfcSite": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    }
+   },
+   "spatial": {
+    "sites": 1,
+    "buildings": 1,
+    "storeys": 1,
+    "spaces": 0
+   },
+   "body_items": {
+    "total": 4,
+    "by_type": {
+     "IfcFacetedBrep": 4
+    },
+    "read": 4,
+    "unreadable": 0,
+    "unreadable_by_type": {},
+    "on_unread_products": 0,
+    "readable_kinds": [
+     "IfcTriangulatedFaceSet",
+     "IfcTriangulatedIrregularNetwork",
+     "IfcPolygonalFaceSet",
+     "IfcFacetedBrep",
+     "IfcExtrudedAreaSolid"
+    ],
+    "products_left_bodiless": [],
+    "non_body_representations": {}
+   },
+   "relationships_consumed": {
+    "IfcRelAggregates": 3,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcRelDefinesByProperties": 2
+   },
+   "relationships_ignored": []
   }
  }
 }
