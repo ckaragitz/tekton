@@ -929,6 +929,11 @@ class Equipment:
     elevation_m: float = 0.0
     mounting: str = "floor"
     mounting_height_m: Optional[float] = None
+    #: the intent level ('L2') this item sits on: SET => insertion_m z is
+    #: relative to that level's datum and the placed instance associates to
+    #: it; None => world z / the first storey (the IFC route composes
+    #: absolute placements)
+    level: Optional[str] = None
     position_source: str = "geometry-recovered"
     notes: List[str] = dc_field(default_factory=list)
     fed_from: Optional[str] = None
@@ -961,6 +966,7 @@ class Equipment:
             "dims_m": {k: _f(v) for k, v in self.dims_m.items()},
             "mounting": self.mounting,
             "mounting_height_m": None if self.mounting_height_m is None else _f(self.mounting_height_m),
+            "level": self.level,
             "fedFrom": self.fed_from,
             "contract": {k: v for k, v in self.contract.items()},
             "psets": self.psets,
@@ -1216,9 +1222,10 @@ class RoomShell:
     clear: Dict[str, Any] = dc_field(default_factory=dict)
     info: Dict[str, Any] = dc_field(default_factory=dict)
     notes: List[str] = dc_field(default_factory=list)
+    level: Optional[str] = None          # intent level ('L1') the shell's walls stand on; None -> first storey
 
     def as_json(self) -> dict:
-        return {"name": self.name, "step_id": self.step_id,
+        return {"name": self.name, "step_id": self.step_id, "level": self.level,
                 "walls": [w.as_json() for w in self.walls],
                 "doors": [d.as_json() for d in self.doors],
                 "floor": self.floor, "housekeepingPads": self.pads,
@@ -2126,7 +2133,7 @@ def _levels(f) -> List[dict]:
     if not out:
         out.append({"id": "L1", "name": "Level 1", "elevation": 0.0,
                     "elevation_from_placement": 0.0, "step_id": None, "guid": None,
-                    "note": "no IfcBuildingStorey: default Level 1 at 0"})
+                    "default": True, "note": "no IfcBuildingStorey: default Level 1 at 0"})
     return out
 
 

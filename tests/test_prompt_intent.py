@@ -130,3 +130,99 @@ def test_dimensioned_demo_prompt_end_to_end():
     assert model.room is not None and len(model.room.walls) == 4
     assert parsed.room.service_voltage == "240"
     assert parsed.coverage.ignored_words == []
+
+
+# ===========================================================================
+# levels (issue #147): storey counts, per-item level references, the
+# floor-to-floor height, and the honest 'storeys beyond 2' record
+# ===========================================================================
+
+TWO_STOREY = ("a two storey electrical building 40 by 30 ft, floor to floor 14 ft, with a "
+              "main switchboard and four lighting panels on level 2")
+
+
+def _levels(parsed):
+    return [(lv["id"], lv["name"], lv["elevation"]) for lv in parsed.levels]
+
+
+def test_two_storey_prompt_levels_and_per_item_levels():
+    parsed = PP.parse_prompt(TWO_STOREY)
+    # 'two storey' AND 'on level 2' are both consumed (every level clause, not the first)
+    kinds = [(u["as"], u["clause"]) for u in parsed.coverage.understood]
+    assert ("storeys", "two storey") in kinds and ("equipment level", "on level 2") in kinds
+    assert ("floor-to-floor height", "floor to floor 14 ft") in kinds
+    # datums a floor-to-floor height apart: 14 ft = 4.2672 m
+    assert _levels(parsed) == [("L1", "Level 1", 0.0), ("L2", "Level 2", 4.2672)]
+    assert parsed.room is not None and parsed.room.level == 1
+    assert parsed.room.floor_to_floor_m == 4.2672
+    assert [(it.tag, it.level) for it in parsed.items] == [
+        ("MSB", 1), ("LP-1", 2), ("LP-2", 2), ("LP-3", 2), ("LP-4", 2)]
+    # the old blanket warning is gone; the room-level default for the MSB is STATED
+    assert not any("all equipment is placed on Level 1" in w for w in parsed.coverage.warnings)
+    assert any(d.startswith("MSB: placed on Level 1") for d in parsed.coverage.defaults_applied)
+    assert parsed.coverage.not_built == [] and parsed.coverage.ignored_words == []
+
+
+def test_three_storeys_are_recorded_not_built_never_collapsed():
+    parsed = PP.parse_prompt("a three storey electrical building 40 by 30 ft with a main "
+                             "switchboard, two distribution panels on level 2 and four "
+                             "lighting panels on level 3")
+    # the intent keeps all three storeys (default spacing = room height + 2 ft, stated) ...
+    assert [lv["id"] for lv in parsed.levels] == ["L1", "L2", "L3"]
+    assert parsed.levels[2]["elevation"] == round(2 * (PP.DEFAULT_ROOM_HEIGHT_M
+                                                       + PP.DEFAULT_FLOOR_ALLOWANCE_M), 4)
+    assert any(d.startswith("floor-to-floor height:") for d in parsed.coverage.defaults_applied)
+    assert [(it.tag, it.level) for it in parsed.items] == [
+        ("MSB", 1), ("DP-1", 2), ("DP-2", 2), ("LP-1", 3), ("LP-2", 3), ("LP-3", 3), ("LP-4", 3)]
+    # ... and the storey the base cannot carry is recorded, with the reason
+    nb = [n for n in parsed.coverage.not_built if n["kind"] == "storey"]
+    assert len(nb) == 1 and PP.BUILT_STOREYS == 2
+    assert "storeys beyond 2 (base carries two story levels)" in nb[0]["reason"]
+    assert "Level 3" in nb[0]["reason"]
+
+
+def test_room_level_reference_scopes_the_room_and_its_gear():
+    parsed = PP.parse_prompt("an electrical room on level 2 with 4 panels")
+    assert parsed.room.level == 2
+    assert [lv["id"] for lv in parsed.levels] == ["L1", "L2"]
+    assert {it.level for it in parsed.items} == {2}
+    assert any(u["as"] == "room level" and u["level"] == "L2" for u in parsed.coverage.understood)
+
+
+def test_ordinal_floors_and_tag_lists_across_and():
+    parsed = PP.parse_prompt("a 2-story equipment room 20 by 20 ft, 4.2 m floor to floor, two "
+                             "lighting panels LP-1 and LP-2 on the second floor and a "
+                             "transformer on the ground floor")
+    assert _levels(parsed) == [("L1", "Level 1", 0.0), ("L2", "Level 2", 4.2)]
+    # the level reference after a tag list that ran across 'and' still binds to the panels
+    assert [(it.tag, it.level) for it in parsed.items] == [("LP-1", 2), ("LP-2", 2), ("T1", 1)]
+    # 'floor 4' inside '4.2 m floor to floor' is NOT a level reference; '2' is not a count
+    assert len(parsed.levels) == 2 and len(parsed.items) == 3
+    # a stated floor-to-floor height sizes the unstated clear height (stated default)
+    assert parsed.room.height_m == round(4.2 - PP.DEFAULT_FLOOR_ALLOWANCE_M, 4)
+    assert parsed.coverage.ignored_words == []
+
+
+def test_single_storey_prompts_are_unchanged():
+    parsed = PP.parse_prompt("an electrical room with 6 panels")
+    # nothing said about levels: ONE defaulted storey that asserts nothing about the datum
+    assert parsed.levels == [{"id": "L1", "name": "Level 1", "elevation": 0.0, "default": True}]
+    assert parsed.room.level == 1 and {it.level for it in parsed.items} == {1}
+    assert not any("floor-to-floor" in d or "placed on Level" in d
+                   for d in parsed.coverage.defaults_applied)
+    # a level digit is never an equipment count: 'level 2 lighting panels' != 2 panels by count
+    p2 = PP.parse_prompt("an electrical room with level 2 lighting panels LP-7")
+    assert [(it.tag, it.level) for it in p2.items] == [("LP-7", 2)]
+
+
+@needs_catalog
+def test_two_storey_intent_model_carries_levels():
+    model, parsed = PP.prompt_to_intent(TWO_STOREY)
+    assert [(lv["id"], lv["elevation"]) for lv in model.levels] == [("L1", 0.0), ("L2", 4.2672)]
+    assert model.room is not None and model.room.level == "L1" and len(model.room.walls) == 4
+    assert {e.tag: e.level for e in model.equipment} == {
+        "MSB": "L1", "LP-1": "L2", "LP-2": "L2", "LP-3": "L2", "LP-4": "L2"}
+    # z stays level-relative (the panel mount centre AFF), each storey laid out afresh
+    lp = model.by_tag("LP-1")
+    assert abs(lp.insertion_m[2] - PP.DEFAULT_PANEL_MOUNT_CENTER_M) < 1e-9
+    assert lp.as_json()["level"] == "L2"
