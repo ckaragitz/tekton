@@ -824,6 +824,16 @@ def standalone_family_write(product, path: str, *, validate: bool = True,
                                  timestamp=timestamp, write_reports=False)
     rep["emit"] = {k: v for k, v in emit.items() if k not in ("verify", "adocument")}
     rep["adocument"] = (emit.get("adocument") or {}).get("conclusion")
+    rep["adocument_archetype"] = (emit.get("adocument") or {}).get("archetype")
+    if not FA.container_is_family(donor):
+        # the deliverable rule: deliver, stamped, caveat said OUT LOUD
+        rep.setdefault("caveats", []).append(
+            "family ADocument authored CONSTRUCTIVELY (schema-built famdoc "
+            "tree; the bundled container is a project, not a family "
+            "archetype). All registries ship empty and Revit regenerates "
+            "session state on open -- desktop-Revit acceptance of this "
+            "shape is tracked in issue #52; supply $RVT_FAMILY_DONOR "
+            "(any Revit-born .rfa) to author from a real family archetype.")
     rep["verify"] = emit.get("verify")
     if validate:
         try:

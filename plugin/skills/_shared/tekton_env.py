@@ -550,6 +550,9 @@ def doctor(install: bool = False) -> int:
         print("  family container: bundled (genesis base)")
         if fd_.get("note"):
             print(f"                    NOTE: {fd_['note']}")
+        print("                    .rfa ADocument is authored CONSTRUCTIVELY (schema-built")
+        print("                    famdoc tree; empty registries -- desktop acceptance")
+        print("                    tracked in issue #52).")
         print(f"                    (${FAMILY_DONOR_ENV} stays as an expert override, e.g. a")
         print("                     non-2026 target release. We never look for Autodesk")
         print("                     content on this machine.)")
