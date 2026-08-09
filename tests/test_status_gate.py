@@ -196,6 +196,20 @@ def test_stale_census_on_a_pinned_base_is_said_not_mistaken_for_a_user_base(job,
     assert "census asset STALE" in g["reason"] and "user-supplied" not in g["reason"]
 
 
+def test_census_module_unavailable_is_said_in_the_gate(job, monkeypatch):
+    """If the census lookup cannot even import, base_kind falls back to the
+    name heuristic -- and the manifest SAYS the lookup was down (review nit
+    on #276: never a silent user-base for our own pin)."""
+    monkeypatch.setattr(job, "_census_mod", lambda: None)
+    monkeypatch.setitem(job.OPT.errors, "rvt.frontdoor.census", "ImportError: simulated")
+    path = _pinned(2026)
+    g = job.provenance_gate(path, path)
+    assert g["base_kind"] == "user-base"                # bytes could not be consulted
+    assert g["census"].startswith("UNAVAILABLE (ImportError: simulated)")
+    assert "reads as user-base until fixed" in g["census"]
+    assert g["status"] == "PROOF-ONLY, NOT-DELIVERABLE"  # fails safe: never over-claims
+
+
 # ---------------------------------------------------------------------------
 # 3. end to end: our created content on our base is OURS
 # ---------------------------------------------------------------------------

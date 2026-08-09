@@ -467,10 +467,14 @@ def provenance_gate(out_path: str, base_path: Optional[str], *,
                             "base_kind": kind}
     if census is not None:
         gate["residue"] = census.summary()
+    elif "rvt.frontdoor.census" in OPT.errors:
+        # the lookup itself is down: base_kind could not be decided by bytes,
+        # so say so beside whatever the name heuristic fell back to
+        gate["census"] = f"UNAVAILABLE ({OPT.errors['rvt.frontdoor.census']}): base_kind " \
+                         "decided by file name only; a pinned base reads as user-base until fixed"
     elif pinned_id:
-        gate["census"] = (OPT.errors.get("rvt.frontdoor.census")
-                          or f"STALE: no census entry for the pinned {pinned_id} bytes -- "
-                             "run tools/genesis_census.py build")
+        gate["census"] = (f"STALE: no census entry for the pinned {pinned_id} bytes -- "
+                          "run tools/genesis_census.py build")
     if skip:
         gate["status"] = "SKIPPED (--no-provenance) => treated as NOT-DELIVERABLE"
         gate["reason"] = "provenance ledger not run; deliverability unproven"
