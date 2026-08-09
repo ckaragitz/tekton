@@ -79,15 +79,20 @@ def _types_arg(raw) -> list:
     return [t.strip() for t in str(raw).split(",") if t.strip()]
 
 
+def _types_flags(p, axis: str) -> None:
+    p.add_argument("--types", default=None, metavar="A,B,C",
+                   help=f"multi-type family: comma-separated {axis} selectors, one "
+                        "type-table row each (first = primary type / the solid's box)")
+    p.add_argument("--type-catalog", action="store_true",
+                   help="also write OUR Revit type catalog <stem>.txt beside the .rfa")
+
+
 def _emit(prod, ns) -> dict:
-    """Write the .rfa (+ report), the optional type catalog, print, return."""
+    """Write the optional type catalog, the .rfa (+ report), print, return."""
     out = ns.output or os.path.join(F.FACTORY_OUT, prod.file_stem + ".rfa")
+    if ns.type_catalog:
+        prod.write_type_catalog(out)                  # first, so the report records it
     rep = prod.write(out, validate=not ns.no_validate)
-    if getattr(ns, "type_catalog", False):
-        rep["type_catalog"] = prod.write_type_catalog(rfa_path=out)
-        with open(rep["report_path"], "w") as fh:          # keep the sidecar in the report
-            json.dump({k: v for k, v in rep.items() if k != "report_path"},
-                      fh, indent=1, default=str)
     _print_report(rep, ns.json)
     return rep
 
@@ -104,9 +109,9 @@ def _print_report(rep: dict, as_json: bool) -> None:
     if len(type_facts) > 1:
         for tf in type_facts:
             print(f"              {tf.get('name')}: assumed {tf.get('assumed_fields')}")
-    if rep.get("type_catalog"):
-        print(f"type catalog: {rep['type_catalog'].get('path')} "
-              f"({len(rep['type_catalog'].get('columns') or [])} columns)")
+    if fam.get("type_catalog"):
+        print(f"type catalog: {fam['type_catalog'].get('path')} "
+              f"({len(fam['type_catalog'].get('columns') or [])} columns)")
     print(f"parameters  : {len(fam.get('parameters') or [])} "
           f"({', '.join((fam.get('parameters') or [])[:8])}...)")
     forms = fam.get("forms") or []
@@ -209,13 +214,6 @@ def main(argv=None) -> int:
         prog="make_family",
         description="Generate a Revit family (.rfa) from a job spec via the asset factory.")
     sub = ap.add_subparsers(dest="cmd", required=True)
-
-    def _types_flags(p, axis: str) -> None:
-        p.add_argument("--types", default=None, metavar="A,B,C",
-                       help=f"multi-type family: comma-separated {axis} selectors, one "
-                            "type-table row each (first = primary type / the solid's box)")
-        p.add_argument("--type-catalog", action="store_true",
-                       help="also write OUR Revit type catalog <stem>.txt beside the .rfa")
 
     p = sub.add_parser("panelboard", help="generate a panelboard family")
     p.add_argument("--vendor", default="eaton")

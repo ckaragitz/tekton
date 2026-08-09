@@ -358,16 +358,14 @@ def plan_load(product, host: HostContext, *, place: bool) -> LoadPlan:
     plan.symbol_id = alloc()
     plan.symbol_surrogate_id = alloc()
     # every OTHER real-named type gets its own pair (a host Family table row
-    # is always backed by a FamSymSurrogate+FamilySymbol); the primary keeps
-    # the ids above, so a one-type load allocates exactly what it always did
-    plan.type_names = real_type_names(doc) or [plan.type_name]
-    if plan.type_name not in plan.type_names:                  # pragma: no cover
-        plan.type_names.insert(0, plan.type_name)
-    for tname in plan.type_names:
-        if tname == plan.type_name and plan.symbol_id not in plan.symbol_ids:
-            plan.symbol_ids.append(plan.symbol_id)
-            plan.symbol_surrogate_ids.append(plan.symbol_surrogate_id)
-        else:
+    # is always backed by a FamSymSurrogate+FamilySymbol); primary first, so
+    # a one-type load allocates exactly what it always did
+    plan.type_names = [plan.type_name]
+    plan.symbol_ids = [plan.symbol_id]
+    plan.symbol_surrogate_ids = [plan.symbol_surrogate_id]
+    for tname in real_type_names(doc):
+        if tname != plan.type_name:
+            plan.type_names.append(tname)
             plan.symbol_ids.append(alloc())
             plan.symbol_surrogate_ids.append(alloc())
     if place:
@@ -708,8 +706,7 @@ def author_host_family(product, plan: LoadPlan, host: HostContext):
         ftt["m_pairs"] = [blank] + pairs
         # current type = the primary (instance-facing) real pair [H]
         names = [str(p.get("name", "")) for p in pairs]
-        ftt["m_idx"] = (1 + names.index(plan.type_name)) if plan.type_name in names \
-            else (1 if pairs else 0)
+        ftt["m_idx"] = 1 + names.index(plan.type_name) if plan.type_name in names else 0
     # -- cells: connector data cell(s) FIRST, then the parameter order cell -
     cl = ((o.get("m_cellList") or {}).get("value") or {})
     cells = []
@@ -1323,7 +1320,7 @@ def register_in_host_adocument(latest_value: dict, plan: LoadPlan, *,
     # 3. ElementTrackingData
     etd = _appinfo_slot(latest_value, "ElementTrackingData")
     if etd is not None:
-        for fld, ids in (("m_symbols", list(plan.symbol_ids or [plan.symbol_id])),
+        for fld, ids in (("m_symbols", list(plan.symbol_ids)),
                          ("m_elems", ([plan.instance_id] if plan.instance_id != INVALID else []))):
             if not ids:
                 continue
@@ -1394,23 +1391,16 @@ def _type_rows(product, type_name: Optional[str] = None) -> List[dict]:
 
 
 def _symbol_pairs(plan: LoadPlan) -> List[Tuple[str, int, int]]:
-    """(type name, symbol id, sym-surrogate id) per real-named type, primary
-    first -- a plan made before the lists existed reads as its one pair."""
-    pairs = list(zip(plan.type_names, plan.symbol_ids, plan.symbol_surrogate_ids))
-    if not pairs:
-        return [(plan.type_name, plan.symbol_id, plan.symbol_surrogate_id)]
-    pairs.sort(key=lambda p: p[1] != plan.symbol_id)          # stable: primary first
-    return pairs
+    """(type name, symbol id, sym-surrogate id) per real-named type, primary first."""
+    return list(zip(plan.type_names, plan.symbol_ids, plan.symbol_surrogate_ids))
 
 
 def _plan_host_ids(plan: LoadPlan) -> List[int]:
     """Every host id a load allocates (Family, surrogates, symbols, instance
     if placed, the ParamElem twins) -- the one canonical list."""
-    ids = [x for x in (plan.host_family_id, plan.surrogate_id, plan.instance_id)
-           if x != INVALID]
-    for _n, sym, ssur in _symbol_pairs(plan):
-        ids += [x for x in (sym, ssur) if x != INVALID]
-    return ids + list(plan.twin_of.values())
+    ids = [plan.host_family_id, plan.surrogate_id, plan.instance_id]
+    ids += plan.symbol_ids + plan.symbol_surrogate_ids
+    return [x for x in ids if x != INVALID] + list(plan.twin_of.values())
 
 
 @dataclass
@@ -2002,8 +1992,7 @@ def verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
         pr["adocument"] = {"content_table_record": plan.guid in ct_guids,
                            "family_mgr_entry": plan.guid in fm_guids,
                            # every symbol of the family (one per real type)
-                           "symbol_tracked": all(s in tracked for s in
-                                                 (plan.symbol_ids or [plan.symbol_id]))}
+                           "symbol_tracked": all(s in tracked for s in plan.symbol_ids)}
         mine = [d for d in docs if d.get("content_doc_guid") == plan.guid]
         pr["family_documents"] = {
             "ours": [{"family_id": d["family_id"], "family_name": d["family_name"],

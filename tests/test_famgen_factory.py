@@ -525,10 +525,25 @@ def test_type_catalog_text_is_ours_one_row_per_type(tmp_path):
     hi = head.index("Height##LENGTH##INCHES"); mi = head.index("MainsRating##ELECTRICAL_CURRENT##AMPERES")
     assert [r[hi] for r in rows] == ["48", "60", "72"] and [r[mi] for r in rows] == ["225", "400", "600"]
     assert txt.isascii() and "Autodesk" not in txt
-    rep = prod.write_type_catalog(rfa_path=str(tmp_path / "p.rfa"))
-    assert rep["path"].endswith("p.txt") and open(rep["path"], newline="").read() == txt
-    # values with commas are quoted (transformer enclosure 'NEMA 2 (indoor)' has none; force one)
-    assert F._catalog_cell('a,"b"') == '"a,""b"""' and F._catalog_cell(5.750) == "5.75"
+    rep = F.write_type_catalog(prod, str(tmp_path / "p.txt"))
+    assert rep["columns"] == head[1:] and open(rep["path"], newline="").read() == txt
+    assert F._catalog_cell(5.750) == "5.75" and F._catalog_cell(None) == ""
+    # a value with a comma / quote is quoted by the csv writer, never split
+    prod.types[0].catalog.append(("Note", "text", 'a,"b"'))
+    assert F.type_catalog_text(prod).split("\r\n")[1].endswith(',"a,""b"""')
+
+
+@needs_schema
+def test_write_type_catalog_lands_beside_the_rfa_and_in_the_report(tmp_path):
+    prod = _multi("transformer")
+    assert prod.write_type_catalog(str(tmp_path / "t.rfa"))["path"] == str(tmp_path / "t.txt")
+    rep = prod.write(str(tmp_path / "t.rfa"), validate=False, provenance=False)
+    tc = rep["family"]["type_catalog"]
+    assert tc["path"] == str(tmp_path / "t.txt") and os.path.isfile(tc["path"])
+    assert tc["types"] == MULTI["transformer"][1] and "Weight##OTHER##" in tc["columns"]
+    import json as _json
+    on_disk = _json.load(open(rep["report_path"]))
+    assert on_disk["family"]["type_catalog"]["path"] == tc["path"]     # the sidecar report too
 
 
 @needs_schema
