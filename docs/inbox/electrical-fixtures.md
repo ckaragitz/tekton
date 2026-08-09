@@ -64,6 +64,28 @@ Unverified fields surfaced per family: receptacle/switch 11 (`box_*`, `plate_*`,
 
 **Gates (after the `/simplify` cleanup pass — 4 review angles, fixes applied: one device-constants row, AFF gating decoupled from the delivery-status table, memoised facts, `_plan_device(eq)` from the equipment's pset with the contract/plan voltage disagreement fixed, `_type_name_for` device branch, ratings loop + dims lists in the factory, `load-device` as its own verb):** `tests/test_famgen_factory.py` + `tests/test_prompt_intent.py` + `tests/test_frontdoor.py` (RVT_SKIP_LARGE=1) **139 passed / 9 skipped**; `tests/test_router.py -k matrix` 8 passed; `tools/sync_plugin.py` → 4 mirrors regenerated, `--check` clean (deny-audit clean, identity scan == allowlist); `plugin/scripts/validate_plugin.py` PASS (25 assertions); `tools/dev/check_portable_paths.py` ok (2833 paths). `tests/test_famgen_skeleton.py` does not exist (nothing to run). Full-suite not run (SUITE-COORDINATION).
 
+## Review round 1 (tech-lead review of head 80bfbe6): the IFC emit blocker, fixed
+
+The independent review found ONE PG1 defect: `src/rvt/frontdoor/ifc_out.py` whitelisted four
+entity classes and coerced the new `IfcOutlet` equipment into `IfcElectricDistributionBoard` with a
+`PanelSchedule` pset — `route.py run --prompt "… a 100 A lighting panel and 4 duplex receptacles"
+--output ifc` wrote FIVE boards, and re-entry (`author --ifc`) read them as `receptacle_panelboard`
+×4 with refused `make_panelboard` plans. Territory was extended to `ifc_out.py` for exactly this.
+
+| Fix | Where | What |
+|---|---|---|
+| honest emit | `src/rvt/frontdoor/ifc_out.py` | `_CLASSES` gains `ifcoutlet`; `_PDT_BY_KIND['receptacle_device'] = 'POWEROUTLET'` (IfcOutletTypeEnum) applied to `IfcOutlet` too (`_PDT_CLASSES`); `_PSET_BY_KIND['receptacle_device'] = 'DeviceSchedule'` and a device writes its OWN schedule pset verbatim (Voltage / Phases / Wires / Load / MountingHeight / Mounting / DeviceType — Load and MountingHeight are not tagging-contract keys, so the normalised contract alone would drop them); the front-feature nameplate is clamped to the body (`min(0.12, 0.4·w)` × `min(0.022, 0.15·h)`) so a 70 mm device does not carry a 240 mm plate — **no change for any existing kind: a device-free intent emits byte-for-byte what `main`'s emitter does** (checked against `git show origin/main:…ifc_out.py`). |
+| both routes agree on the plan (review nit 2) | `prompt_intent.plan_planned_devices(model)` (public) + a one-line hook in `src/rvt/frontdoor/intent.py::intent_from_ifc` (the single seam every `--ifc` entry uses: CLI, router, merge_ifc) | every `receptacle_device` — prompt-built or read back from `IfcOutlet` + DeviceSchedule — gets the SAME `planned` make_device plan (kwargs from the pset: kind, mounting_height_in, voltage, va) and the same disposition text; the prompt route now calls the same helper (one code path). Before: IFC re-entry gave disposition `generated-family` with an `unmapped` plan. |
+| round-trip test | `tests/test_frontdoor.py::test_prompted_receptacles_round_trip_through_our_ifc_as_outlets` | 4 `IFCOUTLET(` / 4 `.POWEROUTLET.` / exactly 1 `IFCELECTRICDISTRIBUTIONBOARD(` / 4 `'DeviceSchedule'`; re-entry `equipment_by_kind == {lighting_panelboard: 1, receptacle_device: 4}`, plans `{resolved: 1, planned: 4}`, LP-1 `make_panelboard` resolved, each R-n `IfcOutlet` / upright / z = 44 in / plan kwargs `{duplex-receptacle, 44.0, '120', 180.0}` / refusal names #359; a device-free intent has 0 outlets, 1 board, no DeviceSchedule. |
+| matrix doc | `docs/product/PERMUTATION-MATRIX.md` prompt → ifc row | evidence + caveat sentence (status unchanged; `matrix.py` untouched; doc test agrees). |
+
+Reproductions of the reviewer's three cases on the fixed tree: `route.py run --prompt "…lighting panel and 4 duplex receptacles" --output ifc` → status OK, `prompt_intent.ifc` **4 IFCOUTLET / 1 board**; the DONE prompt with `--target-version 2023` → `prompt_room.ifc` **4 outlets / 0 boards**; `author --ifc <that ifc>` → `equipment_by_kind {receptacle_device: 4}`, plans `{planned: 4}` (make_device), walls built, VALID 0 errors, no `make_panelboard` refusal.
+
+Review nit 1 (the planned-device degradation line ends with `build.py`'s *"the facts store never invents
+dimensions/ratings …"* tail — the wrong reason for a #359 deferral) is composed in
+`src/rvt/frontdoor/build.py:440-444`, outside this territory: noted on #359 (its load/place work removes
+the line altogether; until then the plan's own `refusal` text leads with "not a refusal: …").
+
 ## Findings
 
 - `survey_host(category=…)` is already parameterised; only its two callers pin the default — #359 is mostly plumbing (`product.doc.category_id`), plus the stage-E specimen/scrub category and `_constructor_for`. Do the category generalisation once for #150 (luminaires) and #359.
@@ -79,6 +101,6 @@ Unverified fields surfaced per family: receptacle/switch 11 (`box_*`, `plate_*`,
 ## BRANCH STATE
 
 - Branch `cam/166-electrical-fixtures` from `main` @ fba7efb; PR #358 (`Closes #166`).
-- Files written: `src/rvt/famgen/factory.py`, `src/rvt/famgen/facts/generic/devices-and-mounting.json`, `tools/make_family.py`, `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/ifc/intent.py` (two constants), `plugin/skills/tekton-author/references/CATALOG-FACTS.md`, `docs/product/PERMUTATION-MATRIX.md` (caveat prose only), `tests/test_famgen_factory.py`, `tests/test_prompt_intent.py`, `tests/test_frontdoor.py`, this record; regenerated mirrors `plugin/lib/src/rvt/{famgen/factory.py, famgen/facts/generic/devices-and-mounting.json, frontdoor/prompt_intent.py, ifc/intent.py}`.
+- Files written: `src/rvt/famgen/factory.py`, `src/rvt/famgen/facts/generic/devices-and-mounting.json`, `tools/make_family.py`, `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/frontdoor/ifc_out.py` + `src/rvt/frontdoor/intent.py` (review round 1), `src/rvt/ifc/intent.py` (three constants), `plugin/skills/tekton-author/references/CATALOG-FACTS.md`, `docs/product/PERMUTATION-MATRIX.md` (caveat prose only), `tests/test_famgen_factory.py`, `tests/test_prompt_intent.py`, `tests/test_frontdoor.py`, this record; regenerated mirrors `plugin/lib/src/rvt/{famgen/factory.py, famgen/facts/generic/devices-and-mounting.json, frontdoor/prompt_intent.py, frontdoor/ifc_out.py, frontdoor/intent.py, ifc/intent.py}`.
 - Not touched: hot files (`tools/frontdoor.py` used only, `SKILL.md`, `versions/`, `base.py`, TRACKER/KNOWLEDGE, ledger), #146's files (`standalone.py`, `mutate.py`, `mep/devices.py`, `tools/ifc_intent.py`, `build.py`, `matrix.py`), `loader.py`, `router.py`, the #349 census.
 - Shipped: generation (3 kinds), CLI verbs, unplaced load lane, prompt/intent planning + layout, docs, tests. Staged for viewer: nothing (no "loads in Revit" claim; validator-green only — rule 4). Follow-ups: #359 (load + place in the room build), #361 (famspec kind `device` + the router caveat-key nit).

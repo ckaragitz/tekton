@@ -72,9 +72,13 @@ OPEN_BUG_TEXT = (
 
 def intent_from_ifc(ifc_path: str) -> IntentModel:
     """The ``--ifc`` route: resolve an authored IFC into the placement-true,
-    tagging-contract-mapped intent (spec v2) -- pure delegation to
-    :func:`rvt.ifc.intent.resolve_intent` (the ifc-room stream's resolver)."""
-    return I.resolve_intent(ifc_path)
+    tagging-contract-mapped intent (spec v2) -- delegation to
+    :func:`rvt.ifc.intent.resolve_intent` (the ifc-room stream's resolver),
+    then the front door's own plan for kinds it generates but does not place
+    yet (wiring devices read back from ``IfcOutlet``: the same ``planned``
+    make_device plan the prompt route authors, issue #166 / #359)."""
+    from .prompt_intent import plan_planned_devices
+    return plan_planned_devices(I.resolve_intent(ifc_path))
 
 
 def write_intent_json(model: IntentModel, path: str) -> str:
