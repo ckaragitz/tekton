@@ -42,14 +42,20 @@ Standard — read `CLAUDE.md` §1 (hard rules), §3b (sources vs generated mirro
 runs with this session's privileges (it must not reach the GitHub connector, git
 credentials, or the session's files). Only through the sandbox:
 ```
-mkdir -p /tmp/tekton-ci/rv<PR> /tmp/tekton-ci/rv<PR>-tmp
+install -d -m 755 -o root -g root /tmp/tekton-ci                      # parent stays root-owned
+rm -rf /tmp/tekton-ci/rv<PR> /tmp/tekton-ci/rv<PR>-tmp                     # never reuse a dir `nobody` could have prepared
+mkdir -m 755 /tmp/tekton-ci/rv<PR> /tmp/tekton-ci/rv<PR>-tmp
 git -C <repo root> archive refs/pr/<PR> | tar -x -C /tmp/tekton-ci/rv<PR>
 chown -R nobody:nogroup /tmp/tekton-ci/rv<PR> /tmp/tekton-ci/rv<PR>-tmp
-unshare -n setpriv --reuid=65534 --regid=65534 --clear-groups --inh-caps=-all \
+unshare -n -m -p -f --mount-proc --kill-child \
+  setpriv --reuid=65534 --regid=65534 --clear-groups --inh-caps=-all --bounding-set=-all --no-new-privs \
   env -i PATH=/usr/local/bin:/usr/bin:/bin HOME=/tmp/tekton-ci/rv<PR>-tmp TMPDIR=/tmp/tekton-ci/rv<PR>-tmp \
       LANG=C.UTF-8 PYTHONPATH=/tmp/tekton-ci/rv<PR>/src RVT_SKIP_LARGE=1 \
   bash -c 'cd /tmp/tekton-ci/rv<PR> && <command using <repo root>/.venv/bin/python>'
 ```
+(no network; own PID and mount namespaces so nothing the PR starts outlives the command; no
+capabilities and no setuid gain). Never read a file back from those two dirs with your own
+privileges after PR code has run there — treat anything you need as command OUTPUT (text).
 Copy any pinned asset you need to write near (e.g. a base to merge into) into the tmp dir
 first; never modify `plugin/assets` in place. Targeted pytest files are fine; do not run
 the whole shard (`tools/dev/session_ci.sh` does that separately). Clean up the two dirs.

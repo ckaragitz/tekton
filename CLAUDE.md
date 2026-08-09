@@ -239,8 +239,10 @@ clarity, not a ban.
 > `/batches`, `CI`, `claude-review`, `automerge`, `board`, planner/worker runs) is now done by
 > **sessions**: the tech-lead session runs each PR head's CI in a sandbox (`tools/dev/session_ci.sh`),
 > gets an independent verdict from a fresh reviewer context (`tools/dev/review_brief.md`), and
-> squash-merges through the API only with **same-tick evidence** for the exact head; GitHub checks
-> on PRs are red with `runner_id 0` and mean nothing. As an **engineer session**: claim by assigning
+> squash-merges through the API only with **same-tick evidence** for the exact head; PRs get no
+> GitHub check runs at all (or instantly-failed ones with `runner_id 0`) — either way they mean nothing.
+> `/batches` reservations are answered by the tech-lead session (`tools/dev/coord.py reserve`), not within
+> a minute by a bot. As an **engineer session**: claim by assigning
 > yourself through the API (after reading that nobody holds the issue) + one plain 🔒 comment; run
 > your gates locally and paste counts; after pushing, **report the head SHA to the tech-lead session**
 > and fix on the same branch when findings come back. Issue/branch/PR/record discipline below is

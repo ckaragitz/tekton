@@ -358,3 +358,19 @@ of a changed z contract until the tech lead directed a structural settlement: wo
 `level` an annotation) → f3ac44e; #308 (813, 🟡, 1-type loader ids byte-identical to main) → 109345e.
 Merges by the session identity fire the `Closes #N` linker; branch protection did not object.
 Throughput cost: ~3 min CPU per shard run + one reviewer subagent per head; merges land per tick.
+Review of this very PR (#309) by a fresh context returned 🛑 with three real holes in the first checked-in
+`session_ci.sh`, all fixed before merge: root read the PR-controlled `tests/ci_shard.txt` from the box AFTER
+sandboxed code had run there (a planted symlink exfiltrated root-only file lines into the posted summary —
+now read from the git blob on the trusted side, validated as plain `tests/*.py` paths, empty list refused,
+`--` before the paths, and the summary reduced to a pytest-shaped tally); the privileged scratch defaulted into
+world-writable `/tmp` (now `REPO/.git/session-ci`, 0700, must be an own non-symlink dir; `/tmp/tekton-ci`
+parent root-owned) and steps had no PID namespace, so a `nobody` daemon could outlive a run and prepare traps
+(now `unshare -n -m -p -f --mount-proc --kill-child` + `--bounding-set=-all --no-new-privs`; verified a
+`setsid sleep` no longer survives); and the new test imported PyYAML, which no extra declares (now textual).
+Plus: PR number validated, `origin/main` refreshed before the merge test, one run per PR (`flock`).
+
+BRANCH STATE (cam/302-session-hosted-pipeline): `.github/workflows/*.yml` (dispatch-only), `tools/dev/session_ci.sh`,
+`tools/dev/review_brief.md`, `CLAUDE.md` §4 banner, `docs/process/AUTONOMY.md` §12c, `docs/STEERING.md`
+S-2026-08-09-i, `.claude/commands/fanout.md`, `tests/test_techlead.py`, this record. Gates: `tests/test_techlead.py`
+green; portable paths ok; plugin untouched (`--check` in sync). Shipped when merged; the fresh-session hourly
+ticker with a lease is the next slice of #302.

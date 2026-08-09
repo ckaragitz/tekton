@@ -467,21 +467,21 @@ def test_workflows_are_dispatch_only_and_the_session_pipeline_is_checked_in():
     """Steer #302: no GitHub-hosted compute — no event, schedule or workflow_run trigger may remain on any
     workflow (each executed job billed a metered minute the owner will not fund; the quota died in a day).
     The files stay as reference designs runnable by hand; the live pipeline is session-hosted and its two
-    instruments (sandboxed CI + the reviewer brief) must be in the repo so any fresh session can run it."""
-    import yaml
+    instruments (sandboxed CI + the reviewer brief) must be in the repo so any fresh session can run it.
+    Parsed textually on purpose: PyYAML is not a declared test dependency."""
     for path in sorted(glob.glob(os.path.join(WF, "*.yml"))):
-        with open(path, encoding="utf-8") as fh:
-            d = yaml.safe_load(fh)
-        on = d.get(True) or d.get("on")
-        assert list(on.keys()) == ["workflow_dispatch"], f"{os.path.basename(path)} still has triggers {list(on.keys())}"
+        on_block = _wf(os.path.basename(path)).split("\non:\n", 1)[1]
+        on_block = re.split(r"(?m)^(?=[a-z])", on_block, maxsplit=1)[0]                    # up to the next top-level key
+        keys = re.findall(r"(?m)^  ([a-z_]+):", on_block)                                     # 2-space-indented trigger names
+        assert keys == ["workflow_dispatch"], f"{os.path.basename(path)} still has triggers {keys}"
     ci = os.path.join(ROOT, "tools", "dev", "session_ci.sh")
     assert os.access(ci, os.X_OK)
     src = open(ci, encoding="utf-8").read()
-    for needle in ("unshare -n setpriv --reuid=65534", "env -i ", "git worktree add --detach", "merge --no-edit origin/main",
-                   "tests/ci_shard.txt", '"verdict"'):
-        assert needle in src, needle                                                   # sandbox + merge-with-main + shard + JSON verdict
+    for needle in ("--kill-child", "setpriv --reuid=65534", "--no-new-privs", "env -i ", "git worktree add --detach",
+                   "merge --no-edit origin/main", "show HEAD:tests/ci_shard.txt", '[[ "$PR" =~ ^[0-9]+$ ]]', '"verdict"'):
+        assert needle in src, needle                       # sandbox + trusted-side shard read + merge-with-main + JSON verdict
     brief = open(os.path.join(ROOT, "tools", "dev", "review_brief.md"), encoding="utf-8").read()
-    for needle in ("VERDICT=approve|nits|changes", "claude-review:", "session-ci:", "same tick", "unshare -n setpriv"):
+    for needle in ("VERDICT=approve|nits|changes", "claude-review:", "session-ci:", "same tick", "--kill-child"):
         assert needle in brief, needle
 
 
