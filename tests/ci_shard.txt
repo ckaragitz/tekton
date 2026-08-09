@@ -27,3 +27,4 @@ tests/test_rvt_analyze.py
 tests/test_techlead.py
 tests/test_geo_site_determinism.py
 tests/test_verify_manipulated_release.py
+tests/test_hostsym_product.py

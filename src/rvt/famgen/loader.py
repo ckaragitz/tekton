@@ -264,6 +264,32 @@ def survey_host(host_rvt: str = DEFAULT_HOST, *,
 # the load plan: ids, twins, absorbed indices
 # ---------------------------------------------------------------------------
 
+def real_type_names(doc) -> List[str]:
+    """The family's REAL-named types = the ones that become host symbols.
+
+    A blank ' ' pair in ``doc.types`` / the unit-side ``FamilyTypeTable`` is
+    the family document's own current-values row (the born blank-pair-first
+    law, kept INSIDE the unit); it is never a host ``FamilySymbol`` /
+    ``FamSymSurrogate`` and never a second row of the host Family's table
+    [corpus law, measured on 36 native host Family rows: zero rows with more
+    than the one leading blank, zero whose ``m_idx`` names a blank, zero
+    instances bound to a blank-named symbol -- docs/inbox/species.md 1.2]."""
+    names = (str(n) for n, _v in (doc.types or []))
+    return [n for n in names if n.strip()]
+
+
+def symbol_type_name(doc, fallback: str) -> str:
+    """The host FamilySymbol's type name: the current type when it is
+    real-named, else the first real-named type, else ``fallback``."""
+    types = doc.types or []
+    if 0 <= doc.current_type < len(types):
+        cur = str(types[doc.current_type][0])
+        if cur.strip():
+            return cur
+    real = real_type_names(doc)
+    return real[0] if real else fallback
+
+
 @dataclass
 class LoadPlan:
     """Ids and correspondences of one family load."""
@@ -305,8 +331,7 @@ def plan_load(product, host: HostContext, *, place: bool) -> LoadPlan:
     plan = LoadPlan(guid=guid, fam_doc_guid=str(uuid.uuid4()),
                     session_guid_hex=uuid.uuid4().hex,
                     family_name=doc.name or product.name,
-                    type_name=(doc.types[doc.current_type][0]
-                               if doc.types else (doc.name or product.name)),
+                    type_name=symbol_type_name(doc, doc.name or product.name),
                     episode=int(host.episode))
     # absorbed indices of OUR document (the self-Family's m_familyIds)
     fids = (((sf.obj.get("m_familyIds") or {}).get("value") or {})
@@ -617,7 +642,10 @@ def author_host_family(product, plan: LoadPlan, host: HostContext):
     * ``m_familyIds`` narrowed to the HOST-side twins, each keeping its
       embedded counterpart's absorbed index [V 455334->1106 == 786844->1106];
     * ``m_pFamilyTypes`` gains the leading blank ' ' row (= the current
-      values) [V], types keyed by the twins;
+      values) [V] ahead of the REAL-named types keyed by the twins; a blank
+      pair the unit table already carries (born blank-pair-first law) is NOT
+      copied -- one leading blank, ``m_idx`` on a real pair [corpus law,
+      :func:`real_type_names`];
     * host-only: ``m_dbviewInfos`` (preview views), the ``ConnectorDataCell``
       summarizing our connector, ``m_oFamilyReferenceIdxMgr`` (origin
       references), ``m_defaultHeight*`` = -1e30;
@@ -647,6 +675,8 @@ def author_host_family(product, plan: LoadPlan, host: HostContext):
     if ftt:
         pairs = []
         for pr in ftt.get("m_pairs") or []:
+            if not str(pr.get("name", "")).strip():
+                continue                             # the unit's own blank row: never a host type
             pr2 = _dc(pr)
             params = pr2.get("params") or {}
             if isinstance(params, dict):
