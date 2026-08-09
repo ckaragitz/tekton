@@ -1,0 +1,1081 @@
+{
+ "stamp": "PROOF-ONLY -- dev probe manifest of tools/genesis_identity.py; decoded sample identity values are redacted (<employee_N> = an Autodesk sample maintainer's login, in rvt.provenance.AUTODESK_EMPLOYEE_USERNAMES order); nothing here ships",
+ "tool": "tools/genesis_identity.py",
+ "release": 2025,
+ "base": {
+  "ledger_relpath": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+  "on_disk": "plugin/assets/genesis/G_ABPD_2025.rvt",
+  "sha256": "6242c3aaccf86e7187fbd56879d450089c6fd33ad677d5847cb7c56d5e2b1171",
+  "identity": {
+   "bfi": {
+    "author": "Autodesk Revit",
+    "client_app_name": "RevitApplication",
+    "format": "2025",
+    "build": "Development Build",
+    "username": "",
+    "last_save_path": "C:\\Users\\<employee_3>\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+    "unique_document_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+    "central_episode_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+    "locale": "ENU",
+    "unique_document_increments": "21",
+    "central_version_number": 21,
+    "central_model_identity": "00000000-0000-0000-0000-000000000000",
+    "model_identity": "00000000-0000-0000-0000-000000000000"
+   },
+   "dit": {
+    "records": 21,
+    "records2_equal": true,
+    "usernames": {
+     "<employee_8>": 1,
+     "<employee_6>": 3,
+     "<employee_4>": 8,
+     "<employee_5>": 4,
+     "<employee_2>": 1,
+     "<employee_1>": 1,
+     "<employee_7>": 2,
+     "<employee_3>": 1
+    }
+   },
+   "history": {
+    "count": 1015,
+    "entry0_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3"
+   },
+   "pi": {
+    "members": [
+     "C:\\Users\\<employee_3>\\AppData\\Local\\Temp\\1d713040-bb77-468b-b800-db7dfbc5a85a\\Revit31071f78-e63c-4d17-8e27-6b08380305f3.project.xml"
+    ],
+    "title": "rstbasicsampleproject",
+    "updated": "2024-03-19T10:24:51Z",
+    "design_file": {
+     "title": "rstbasicsampleproject.rvt",
+     "product": "Revit",
+     "product_version": "2025",
+     "updated": "2024-03-19T10:24:51Z"
+    },
+    "params": null
+   },
+   "td": {
+    "size_ok": true,
+    "is_transmitted": "false",
+    "version": "5",
+    "references": [
+     {
+      "ElementId": "86291",
+      "ExternalFileReferenceType": "Keynote Table",
+      "LastSavedPath": "RevitKeynotes_Metric.txt",
+      "LastSavedAbsolutePath": "C:\\ProgramData\\Autodesk\\RVT 2025\\Libraries\\English\\US\\RevitKeynotes_Metric.txt",
+      "LastSavedLoadState": "Loaded"
+     },
+     {
+      "ElementId": "1218726",
+      "ExternalFileReferenceType": "Assembly Code Table",
+      "LastSavedPath": "UniformatClassifications.txt",
+      "LastSavedAbsolutePath": "C:\\ProgramData\\Autodesk\\RVT 2025\\Libraries\\English-Imperial\\US\\UniformatClassifications.txt",
+      "LastSavedLoadState": "Loaded"
+     },
+     {
+      "ElementId": "1250029",
+      "ExternalFileReferenceType": "Revit Link",
+      "LastSavedPath": "..\\..\\..\\..\\..\\Desktop\\rac_basic_sample_project.rvt",
+      "LastSavedAbsolutePath": "C:\\..\\Desktop\\rac_basic_sample_project.rvt",
+      "LastSavedLoadState": "Unloaded"
+     }
+    ]
+   }
+  },
+  "provenance_identity": {
+   "ok": false,
+   "violation_fields": [
+    "DocumentIncrementTable.username",
+    "author",
+    "client_app_name",
+    "last_save_path"
+   ],
+   "dit_usernames": {
+    "<employee_8>": 1,
+    "<employee_6>": 3,
+    "<employee_4>": 8,
+    "<employee_5>": 4,
+    "<employee_2>": 1,
+    "<employee_1>": 1,
+    "<employee_7>": 2,
+    "<employee_3>": 1
+   }
+  },
+  "byte_scan": {
+   "owned_hits": {
+    "BasicFileInfo": {
+     "<employee_3>": {
+      "raw": 2
+     },
+     "C:\\Users\\": {
+      "raw": 2
+     },
+     "\\Desktop\\Downloadable Files": {
+      "raw": 2
+     }
+    },
+    "Global/DocumentIncrementTable": {
+     "<employee_1>": {
+      "inflated0": 2
+     },
+     "<employee_2>": {
+      "inflated0": 2
+     },
+     "<employee_3>": {
+      "inflated0": 2
+     },
+     "<employee_4>": {
+      "inflated0": 16
+     },
+     "<employee_5>": {
+      "inflated0": 8
+     },
+     "<employee_6>": {
+      "inflated0": 6
+     },
+     "<employee_7>": {
+      "inflated0": 4
+     },
+     "<employee_8>": {
+      "inflated0": 2
+     }
+    },
+    "ProjectInformation": {
+     "<employee_3>": {
+      "raw": 2
+     },
+     "C:\\Users\\": {
+      "raw": 2
+     },
+     "\\AppData\\Local\\": {
+      "raw": 2
+     }
+    },
+    "TransmissionData": {
+     "ProgramData\\Autodesk": {
+      "raw": 2
+     }
+    }
+   },
+   "residual_hits": {
+    "Partitions/20": {
+     "<employee_3>": {
+      "inflated4": 1
+     },
+     "C:\\Users\\": {
+      "inflated4": 1
+     },
+     "ProgramData\\Autodesk": {
+      "inflated4": 1
+     },
+     "OneDrive - Autodesk": {
+      "inflated4": 1
+     }
+    }
+   }
+  }
+ },
+ "username": "",
+ "timestamp_iso": "2026-08-09T12:00:00Z",
+ "with_guid": false,
+ "rungs": [
+  {
+   "rung": "I_all",
+   "kind": "candidate-base",
+   "risk": "single surface x4 (the candidate)",
+   "file": "experiments/identity_g2/2025/I_all_2025.rvt",
+   "base": "plugin/assets/genesis/G_ABPD_2025.rvt",
+   "release": 2025,
+   "families": [
+    "bfi",
+    "dit",
+    "pi",
+    "td"
+   ],
+   "intended_streams": [
+    "BasicFileInfo",
+    "Global/DocumentIncrementTable",
+    "ProjectInformation",
+    "TransmissionData"
+   ],
+   "sha256": "42efb84cc349c7df7388c31f3fc748e94eb511b6f87575e4a6cf6449a507a029",
+   "md5": "d9602493ed801d9cd8ea39ec8ab80339",
+   "bytes": 593920,
+   "stream_diff": {
+    "changed": [
+     "TransmissionData",
+     "BasicFileInfo",
+     "ProjectInformation",
+     "Global/DocumentIncrementTable"
+    ],
+    "identical_count": 8,
+    "structure_ok": true
+   },
+   "validate": {
+    "release_detected": 2025,
+    "counts": {
+     "error": 0,
+     "warning": 0,
+     "info": 2
+    },
+    "fallback": null,
+    "errors": []
+   },
+   "provenance_identity": {
+    "ok": true,
+    "violation_fields": [],
+    "dit_usernames": {
+     "": 21
+    },
+    "advisories": []
+   },
+   "decoded": {
+    "bfi": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "format": "2025",
+     "build": "Development Build",
+     "username": "",
+     "last_save_path": "G_ABPD_2025.rvt",
+     "unique_document_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "central_episode_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "locale": "ENU",
+     "unique_document_increments": "21",
+     "central_version_number": 21,
+     "central_model_identity": "00000000-0000-0000-0000-000000000000",
+     "model_identity": "00000000-0000-0000-0000-000000000000"
+    },
+    "dit": {
+     "records": 21,
+     "records2_equal": true,
+     "usernames": {
+      "": 21
+     }
+    },
+    "history": {
+     "count": 1015,
+     "entry0_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3"
+    },
+    "pi": {
+     "members": [
+      "Revit527cedc9-d9e4-404b-9ef6-abb4380b59e3.project.xml"
+     ],
+     "title": "G_ABPD_2025",
+     "updated": "2026-08-09T12:00:00Z",
+     "design_file": {
+      "title": "G_ABPD_2025.rvt",
+      "product": "Revit",
+      "product_version": "2025",
+      "updated": "2026-08-09T12:00:00Z"
+     },
+     "params": null
+    },
+    "td": {
+     "size_ok": true,
+     "is_transmitted": "false",
+     "version": "5",
+     "references": [
+      {
+       "ElementId": "86291",
+       "ExternalFileReferenceType": "Keynote Table",
+       "LastSavedPath": "RevitKeynotes_Metric.txt",
+       "LastSavedAbsolutePath": "RevitKeynotes_Metric.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1218726",
+       "ExternalFileReferenceType": "Assembly Code Table",
+       "LastSavedPath": "UniformatClassifications.txt",
+       "LastSavedAbsolutePath": "UniformatClassifications.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1250029",
+       "ExternalFileReferenceType": "Revit Link",
+       "LastSavedPath": "..\\..\\..\\..\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedAbsolutePath": "..\\..\\..\\..\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedLoadState": "Unloaded"
+      }
+     ]
+    }
+   },
+   "byte_scan": {
+    "owned_hits": {},
+    "residual_hits": {
+     "Partitions/20": {
+      "<employee_3>": {
+       "inflated4": 1
+      },
+      "C:\\Users\\": {
+       "inflated4": 1
+      },
+      "ProgramData\\Autodesk": {
+       "inflated4": 1
+      },
+      "OneDrive - Autodesk": {
+       "inflated4": 1
+      }
+     }
+    }
+   },
+   "problems": [],
+   "ok": true
+  },
+  {
+   "rung": "I_bfi",
+   "kind": "probe",
+   "risk": "single surface",
+   "file": "experiments/identity_g2/2025/I_bfi_2025.rvt",
+   "base": "plugin/assets/genesis/G_ABPD_2025.rvt",
+   "release": 2025,
+   "families": [
+    "bfi"
+   ],
+   "intended_streams": [
+    "BasicFileInfo"
+   ],
+   "sha256": "a4d979a741cf4ab28e755130a1f4d23e9f14177f9820046daaa849eb5c4bd266",
+   "md5": "87eec63b3a6df4471fa615ce4d762fba",
+   "bytes": 598016,
+   "stream_diff": {
+    "changed": [
+     "BasicFileInfo"
+    ],
+    "identical_count": 11,
+    "structure_ok": true
+   },
+   "validate": {
+    "release_detected": 2025,
+    "counts": {
+     "error": 0,
+     "warning": 0,
+     "info": 2
+    },
+    "fallback": null,
+    "errors": []
+   },
+   "provenance_identity": {
+    "ok": false,
+    "violation_fields": [
+     "DocumentIncrementTable.username"
+    ],
+    "dit_usernames": {
+     "<employee_8>": 1,
+     "<employee_6>": 3,
+     "<employee_4>": 8,
+     "<employee_5>": 4,
+     "<employee_2>": 1,
+     "<employee_1>": 1,
+     "<employee_7>": 2,
+     "<employee_3>": 1
+    },
+    "advisories": []
+   },
+   "decoded": {
+    "bfi": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "format": "2025",
+     "build": "Development Build",
+     "username": "",
+     "last_save_path": "G_ABPD_2025.rvt",
+     "unique_document_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "central_episode_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "locale": "ENU",
+     "unique_document_increments": "21",
+     "central_version_number": 21,
+     "central_model_identity": "00000000-0000-0000-0000-000000000000",
+     "model_identity": "00000000-0000-0000-0000-000000000000"
+    },
+    "dit": {
+     "records": 21,
+     "records2_equal": true,
+     "usernames": {
+      "<employee_8>": 1,
+      "<employee_6>": 3,
+      "<employee_4>": 8,
+      "<employee_5>": 4,
+      "<employee_2>": 1,
+      "<employee_1>": 1,
+      "<employee_7>": 2,
+      "<employee_3>": 1
+     }
+    },
+    "history": {
+     "count": 1015,
+     "entry0_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3"
+    },
+    "pi": {
+     "members": [
+      "C:\\Users\\<employee_3>\\AppData\\Local\\Temp\\1d713040-bb77-468b-b800-db7dfbc5a85a\\Revit31071f78-e63c-4d17-8e27-6b08380305f3.project.xml"
+     ],
+     "title": "rstbasicsampleproject",
+     "updated": "2024-03-19T10:24:51Z",
+     "design_file": {
+      "title": "rstbasicsampleproject.rvt",
+      "product": "Revit",
+      "product_version": "2025",
+      "updated": "2024-03-19T10:24:51Z"
+     },
+     "params": null
+    },
+    "td": {
+     "size_ok": true,
+     "is_transmitted": "false",
+     "version": "5",
+     "references": [
+      {
+       "ElementId": "86291",
+       "ExternalFileReferenceType": "Keynote Table",
+       "LastSavedPath": "RevitKeynotes_Metric.txt",
+       "LastSavedAbsolutePath": "C:\\ProgramData\\Autodesk\\RVT 2025\\Libraries\\English\\US\\RevitKeynotes_Metric.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1218726",
+       "ExternalFileReferenceType": "Assembly Code Table",
+       "LastSavedPath": "UniformatClassifications.txt",
+       "LastSavedAbsolutePath": "C:\\ProgramData\\Autodesk\\RVT 2025\\Libraries\\English-Imperial\\US\\UniformatClassifications.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1250029",
+       "ExternalFileReferenceType": "Revit Link",
+       "LastSavedPath": "..\\..\\..\\..\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedAbsolutePath": "C:\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedLoadState": "Unloaded"
+      }
+     ]
+    }
+   },
+   "byte_scan": {
+    "owned_hits": {
+     "Global/DocumentIncrementTable": {
+      "<employee_1>": {
+       "inflated0": 2
+      },
+      "<employee_2>": {
+       "inflated0": 2
+      },
+      "<employee_3>": {
+       "inflated0": 2
+      },
+      "<employee_4>": {
+       "inflated0": 16
+      },
+      "<employee_5>": {
+       "inflated0": 8
+      },
+      "<employee_6>": {
+       "inflated0": 6
+      },
+      "<employee_7>": {
+       "inflated0": 4
+      },
+      "<employee_8>": {
+       "inflated0": 2
+      }
+     },
+     "ProjectInformation": {
+      "<employee_3>": {
+       "raw": 2
+      },
+      "C:\\Users\\": {
+       "raw": 2
+      },
+      "\\AppData\\Local\\": {
+       "raw": 2
+      }
+     },
+     "TransmissionData": {
+      "ProgramData\\Autodesk": {
+       "raw": 2
+      }
+     }
+    },
+    "residual_hits": {
+     "Partitions/20": {
+      "<employee_3>": {
+       "inflated4": 1
+      },
+      "C:\\Users\\": {
+       "inflated4": 1
+      },
+      "ProgramData\\Autodesk": {
+       "inflated4": 1
+      },
+      "OneDrive - Autodesk": {
+       "inflated4": 1
+      }
+     }
+    }
+   },
+   "problems": [],
+   "ok": true
+  },
+  {
+   "rung": "I_dit",
+   "kind": "probe",
+   "risk": "single surface",
+   "file": "experiments/identity_g2/2025/I_dit_2025.rvt",
+   "base": "plugin/assets/genesis/G_ABPD_2025.rvt",
+   "release": 2025,
+   "families": [
+    "dit"
+   ],
+   "intended_streams": [
+    "Global/DocumentIncrementTable"
+   ],
+   "sha256": "8363961dd2807392c1e95b62574e8eb17d32f1129e40c32de4a2b4e2d120757f",
+   "md5": "2a72049eaaa2a020da29fdf9f1d1edec",
+   "bytes": 598016,
+   "stream_diff": {
+    "changed": [
+     "Global/DocumentIncrementTable"
+    ],
+    "identical_count": 11,
+    "structure_ok": true
+   },
+   "validate": {
+    "release_detected": 2025,
+    "counts": {
+     "error": 0,
+     "warning": 0,
+     "info": 2
+    },
+    "fallback": null,
+    "errors": []
+   },
+   "provenance_identity": {
+    "ok": false,
+    "violation_fields": [
+     "author",
+     "client_app_name",
+     "last_save_path"
+    ],
+    "dit_usernames": {
+     "": 21
+    },
+    "advisories": []
+   },
+   "decoded": {
+    "bfi": {
+     "author": "Autodesk Revit",
+     "client_app_name": "RevitApplication",
+     "format": "2025",
+     "build": "Development Build",
+     "username": "",
+     "last_save_path": "C:\\Users\\<employee_3>\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+     "unique_document_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "central_episode_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "locale": "ENU",
+     "unique_document_increments": "21",
+     "central_version_number": 21,
+     "central_model_identity": "00000000-0000-0000-0000-000000000000",
+     "model_identity": "00000000-0000-0000-0000-000000000000"
+    },
+    "dit": {
+     "records": 21,
+     "records2_equal": true,
+     "usernames": {
+      "": 21
+     }
+    },
+    "history": {
+     "count": 1015,
+     "entry0_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3"
+    },
+    "pi": {
+     "members": [
+      "C:\\Users\\<employee_3>\\AppData\\Local\\Temp\\1d713040-bb77-468b-b800-db7dfbc5a85a\\Revit31071f78-e63c-4d17-8e27-6b08380305f3.project.xml"
+     ],
+     "title": "rstbasicsampleproject",
+     "updated": "2024-03-19T10:24:51Z",
+     "design_file": {
+      "title": "rstbasicsampleproject.rvt",
+      "product": "Revit",
+      "product_version": "2025",
+      "updated": "2024-03-19T10:24:51Z"
+     },
+     "params": null
+    },
+    "td": {
+     "size_ok": true,
+     "is_transmitted": "false",
+     "version": "5",
+     "references": [
+      {
+       "ElementId": "86291",
+       "ExternalFileReferenceType": "Keynote Table",
+       "LastSavedPath": "RevitKeynotes_Metric.txt",
+       "LastSavedAbsolutePath": "C:\\ProgramData\\Autodesk\\RVT 2025\\Libraries\\English\\US\\RevitKeynotes_Metric.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1218726",
+       "ExternalFileReferenceType": "Assembly Code Table",
+       "LastSavedPath": "UniformatClassifications.txt",
+       "LastSavedAbsolutePath": "C:\\ProgramData\\Autodesk\\RVT 2025\\Libraries\\English-Imperial\\US\\UniformatClassifications.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1250029",
+       "ExternalFileReferenceType": "Revit Link",
+       "LastSavedPath": "..\\..\\..\\..\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedAbsolutePath": "C:\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedLoadState": "Unloaded"
+      }
+     ]
+    }
+   },
+   "byte_scan": {
+    "owned_hits": {
+     "BasicFileInfo": {
+      "<employee_3>": {
+       "raw": 2
+      },
+      "C:\\Users\\": {
+       "raw": 2
+      },
+      "\\Desktop\\Downloadable Files": {
+       "raw": 2
+      }
+     },
+     "ProjectInformation": {
+      "<employee_3>": {
+       "raw": 2
+      },
+      "C:\\Users\\": {
+       "raw": 2
+      },
+      "\\AppData\\Local\\": {
+       "raw": 2
+      }
+     },
+     "TransmissionData": {
+      "ProgramData\\Autodesk": {
+       "raw": 2
+      }
+     }
+    },
+    "residual_hits": {
+     "Partitions/20": {
+      "<employee_3>": {
+       "inflated4": 1
+      },
+      "C:\\Users\\": {
+       "inflated4": 1
+      },
+      "ProgramData\\Autodesk": {
+       "inflated4": 1
+      },
+      "OneDrive - Autodesk": {
+       "inflated4": 1
+      }
+     }
+    }
+   },
+   "problems": [],
+   "ok": true
+  },
+  {
+   "rung": "I_pi",
+   "kind": "probe",
+   "risk": "single surface",
+   "file": "experiments/identity_g2/2025/I_pi_2025.rvt",
+   "base": "plugin/assets/genesis/G_ABPD_2025.rvt",
+   "release": 2025,
+   "families": [
+    "pi"
+   ],
+   "intended_streams": [
+    "ProjectInformation"
+   ],
+   "sha256": "bffaeb31ceaf93e85b951c3360e86ee515fe034b3bfaf0087bb339b7b33120e6",
+   "md5": "e167d9de089f90a9c9a555d428584b37",
+   "bytes": 598016,
+   "stream_diff": {
+    "changed": [
+     "ProjectInformation"
+    ],
+    "identical_count": 11,
+    "structure_ok": true
+   },
+   "validate": {
+    "release_detected": 2025,
+    "counts": {
+     "error": 0,
+     "warning": 0,
+     "info": 2
+    },
+    "fallback": null,
+    "errors": []
+   },
+   "provenance_identity": {
+    "ok": false,
+    "violation_fields": [
+     "DocumentIncrementTable.username",
+     "author",
+     "client_app_name",
+     "last_save_path"
+    ],
+    "dit_usernames": {
+     "<employee_8>": 1,
+     "<employee_6>": 3,
+     "<employee_4>": 8,
+     "<employee_5>": 4,
+     "<employee_2>": 1,
+     "<employee_1>": 1,
+     "<employee_7>": 2,
+     "<employee_3>": 1
+    },
+    "advisories": []
+   },
+   "decoded": {
+    "bfi": {
+     "author": "Autodesk Revit",
+     "client_app_name": "RevitApplication",
+     "format": "2025",
+     "build": "Development Build",
+     "username": "",
+     "last_save_path": "C:\\Users\\<employee_3>\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+     "unique_document_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "central_episode_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "locale": "ENU",
+     "unique_document_increments": "21",
+     "central_version_number": 21,
+     "central_model_identity": "00000000-0000-0000-0000-000000000000",
+     "model_identity": "00000000-0000-0000-0000-000000000000"
+    },
+    "dit": {
+     "records": 21,
+     "records2_equal": true,
+     "usernames": {
+      "<employee_8>": 1,
+      "<employee_6>": 3,
+      "<employee_4>": 8,
+      "<employee_5>": 4,
+      "<employee_2>": 1,
+      "<employee_1>": 1,
+      "<employee_7>": 2,
+      "<employee_3>": 1
+     }
+    },
+    "history": {
+     "count": 1015,
+     "entry0_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3"
+    },
+    "pi": {
+     "members": [
+      "Revit527cedc9-d9e4-404b-9ef6-abb4380b59e3.project.xml"
+     ],
+     "title": "G_ABPD_2025",
+     "updated": "2026-08-09T12:00:00Z",
+     "design_file": {
+      "title": "G_ABPD_2025.rvt",
+      "product": "Revit",
+      "product_version": "2025",
+      "updated": "2026-08-09T12:00:00Z"
+     },
+     "params": null
+    },
+    "td": {
+     "size_ok": true,
+     "is_transmitted": "false",
+     "version": "5",
+     "references": [
+      {
+       "ElementId": "86291",
+       "ExternalFileReferenceType": "Keynote Table",
+       "LastSavedPath": "RevitKeynotes_Metric.txt",
+       "LastSavedAbsolutePath": "C:\\ProgramData\\Autodesk\\RVT 2025\\Libraries\\English\\US\\RevitKeynotes_Metric.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1218726",
+       "ExternalFileReferenceType": "Assembly Code Table",
+       "LastSavedPath": "UniformatClassifications.txt",
+       "LastSavedAbsolutePath": "C:\\ProgramData\\Autodesk\\RVT 2025\\Libraries\\English-Imperial\\US\\UniformatClassifications.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1250029",
+       "ExternalFileReferenceType": "Revit Link",
+       "LastSavedPath": "..\\..\\..\\..\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedAbsolutePath": "C:\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedLoadState": "Unloaded"
+      }
+     ]
+    }
+   },
+   "byte_scan": {
+    "owned_hits": {
+     "BasicFileInfo": {
+      "<employee_3>": {
+       "raw": 2
+      },
+      "C:\\Users\\": {
+       "raw": 2
+      },
+      "\\Desktop\\Downloadable Files": {
+       "raw": 2
+      }
+     },
+     "Global/DocumentIncrementTable": {
+      "<employee_1>": {
+       "inflated0": 2
+      },
+      "<employee_2>": {
+       "inflated0": 2
+      },
+      "<employee_3>": {
+       "inflated0": 2
+      },
+      "<employee_4>": {
+       "inflated0": 16
+      },
+      "<employee_5>": {
+       "inflated0": 8
+      },
+      "<employee_6>": {
+       "inflated0": 6
+      },
+      "<employee_7>": {
+       "inflated0": 4
+      },
+      "<employee_8>": {
+       "inflated0": 2
+      }
+     },
+     "TransmissionData": {
+      "ProgramData\\Autodesk": {
+       "raw": 2
+      }
+     }
+    },
+    "residual_hits": {
+     "Partitions/20": {
+      "<employee_3>": {
+       "inflated4": 1
+      },
+      "C:\\Users\\": {
+       "inflated4": 1
+      },
+      "ProgramData\\Autodesk": {
+       "inflated4": 1
+      },
+      "OneDrive - Autodesk": {
+       "inflated4": 1
+      }
+     }
+    }
+   },
+   "problems": [],
+   "ok": true
+  },
+  {
+   "rung": "I_td",
+   "kind": "probe",
+   "risk": "single surface",
+   "file": "experiments/identity_g2/2025/I_td_2025.rvt",
+   "base": "plugin/assets/genesis/G_ABPD_2025.rvt",
+   "release": 2025,
+   "families": [
+    "td"
+   ],
+   "intended_streams": [
+    "TransmissionData"
+   ],
+   "sha256": "1357aadaac056e4ae57c8a0d3b097c280d0344e470db5ff1d6e48eaa24438098",
+   "md5": "e71e2854b0d1fb38e143ed23ab7f7e57",
+   "bytes": 598016,
+   "stream_diff": {
+    "changed": [
+     "TransmissionData"
+    ],
+    "identical_count": 11,
+    "structure_ok": true
+   },
+   "validate": {
+    "release_detected": 2025,
+    "counts": {
+     "error": 0,
+     "warning": 0,
+     "info": 2
+    },
+    "fallback": null,
+    "errors": []
+   },
+   "provenance_identity": {
+    "ok": false,
+    "violation_fields": [
+     "DocumentIncrementTable.username",
+     "author",
+     "client_app_name",
+     "last_save_path"
+    ],
+    "dit_usernames": {
+     "<employee_8>": 1,
+     "<employee_6>": 3,
+     "<employee_4>": 8,
+     "<employee_5>": 4,
+     "<employee_2>": 1,
+     "<employee_1>": 1,
+     "<employee_7>": 2,
+     "<employee_3>": 1
+    },
+    "advisories": []
+   },
+   "decoded": {
+    "bfi": {
+     "author": "Autodesk Revit",
+     "client_app_name": "RevitApplication",
+     "format": "2025",
+     "build": "Development Build",
+     "username": "",
+     "last_save_path": "C:\\Users\\<employee_3>\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+     "unique_document_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "central_episode_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+     "locale": "ENU",
+     "unique_document_increments": "21",
+     "central_version_number": 21,
+     "central_model_identity": "00000000-0000-0000-0000-000000000000",
+     "model_identity": "00000000-0000-0000-0000-000000000000"
+    },
+    "dit": {
+     "records": 21,
+     "records2_equal": true,
+     "usernames": {
+      "<employee_8>": 1,
+      "<employee_6>": 3,
+      "<employee_4>": 8,
+      "<employee_5>": 4,
+      "<employee_2>": 1,
+      "<employee_1>": 1,
+      "<employee_7>": 2,
+      "<employee_3>": 1
+     }
+    },
+    "history": {
+     "count": 1015,
+     "entry0_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3"
+    },
+    "pi": {
+     "members": [
+      "C:\\Users\\<employee_3>\\AppData\\Local\\Temp\\1d713040-bb77-468b-b800-db7dfbc5a85a\\Revit31071f78-e63c-4d17-8e27-6b08380305f3.project.xml"
+     ],
+     "title": "rstbasicsampleproject",
+     "updated": "2024-03-19T10:24:51Z",
+     "design_file": {
+      "title": "rstbasicsampleproject.rvt",
+      "product": "Revit",
+      "product_version": "2025",
+      "updated": "2024-03-19T10:24:51Z"
+     },
+     "params": null
+    },
+    "td": {
+     "size_ok": true,
+     "is_transmitted": "false",
+     "version": "5",
+     "references": [
+      {
+       "ElementId": "86291",
+       "ExternalFileReferenceType": "Keynote Table",
+       "LastSavedPath": "RevitKeynotes_Metric.txt",
+       "LastSavedAbsolutePath": "RevitKeynotes_Metric.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1218726",
+       "ExternalFileReferenceType": "Assembly Code Table",
+       "LastSavedPath": "UniformatClassifications.txt",
+       "LastSavedAbsolutePath": "UniformatClassifications.txt",
+       "LastSavedLoadState": "Loaded"
+      },
+      {
+       "ElementId": "1250029",
+       "ExternalFileReferenceType": "Revit Link",
+       "LastSavedPath": "..\\..\\..\\..\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedAbsolutePath": "..\\..\\..\\..\\..\\Desktop\\rac_basic_sample_project.rvt",
+       "LastSavedLoadState": "Unloaded"
+      }
+     ]
+    }
+   },
+   "byte_scan": {
+    "owned_hits": {
+     "BasicFileInfo": {
+      "<employee_3>": {
+       "raw": 2
+      },
+      "C:\\Users\\": {
+       "raw": 2
+      },
+      "\\Desktop\\Downloadable Files": {
+       "raw": 2
+      }
+     },
+     "Global/DocumentIncrementTable": {
+      "<employee_1>": {
+       "inflated0": 2
+      },
+      "<employee_2>": {
+       "inflated0": 2
+      },
+      "<employee_3>": {
+       "inflated0": 2
+      },
+      "<employee_4>": {
+       "inflated0": 16
+      },
+      "<employee_5>": {
+       "inflated0": 8
+      },
+      "<employee_6>": {
+       "inflated0": 6
+      },
+      "<employee_7>": {
+       "inflated0": 4
+      },
+      "<employee_8>": {
+       "inflated0": 2
+      }
+     },
+     "ProjectInformation": {
+      "<employee_3>": {
+       "raw": 2
+      },
+      "C:\\Users\\": {
+       "raw": 2
+      },
+      "\\AppData\\Local\\": {
+       "raw": 2
+      }
+     }
+    },
+    "residual_hits": {
+     "Partitions/20": {
+      "<employee_3>": {
+       "inflated4": 1
+      },
+      "C:\\Users\\": {
+       "inflated4": 1
+      },
+      "ProgramData\\Autodesk": {
+       "inflated4": 1
+      },
+      "OneDrive - Autodesk": {
+       "inflated4": 1
+      }
+     }
+    }
+   },
+   "problems": [],
+   "ok": true
+  }
+ ],
+ "ok": true,
+ "seconds": 4.2
+}

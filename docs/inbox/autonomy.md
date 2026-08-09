@@ -268,3 +268,63 @@ whose assignment was first therefore wins even if a rival's lock comment posted 
 first assignee) unassigns and yields; a request that finds its own *other* session's lock first keeps the
 login's assignment and drops only its own lock. No branch can now report a loss while leaving a stale
 assignment.
+
+## Viewer batch numbers at fan-out scale (#285), same session, 2026-08-09
+
+**Failure observed:** two wave-5 engineer PRs (#277 wall solids for #144, #283 identity rungs for
+#134) both added `experiments/acceptance/batch_57/58/59.json` with different contents and both
+told the human uploader "batches 57/58/59" (#145, #19). Cause: `probe_batch.py stage` numbers a
+batch "highest local `batch_<n>.json` + 1" and both branches were cut from the same `main`
+(highest 56). Caught by hand this time (older PR #277 kept the numbers; #283 restaged as 60–62 with
+`--batch`); at 4–5 engineers per wave, most genesis/render work ending in STAGE, it would recur every
+wave — and a verdict "for batch 57" that means two files is a bookkeeping fault in the one instrument
+rule 4 makes authoritative. An integer, campaign-global, monotone counter has to stay (`"batch": n`
+in manifests, `CTRL_*_b<n>` control names, `--batch type=int`, `batch_(\d+)` parsers in ~20 tools,
+every `ORCHESTRATOR VERDICTS` section) — so the fix is an allocator, not a new id scheme.
+
+**Fix, same pattern as the claim locks:** one server-side authority instead of N checkouts racing.
+- `/batches [k]` on any issue or PR → `coord` (repo-wide concurrency group `batches`, so two requests
+  are strictly ordered) runs `tools/dev/coord.py reserve`: `N..N+k-1`, N = 1 + max(highest
+  `experiments/**/batch_<n>.json` on the default branch — read from the runner's own clone with
+  `git ls-tree`, no API call —, highest earlier reservation, highest batch file any open PR adds,
+  and never below `HISTORICAL_ROUNDS`); records `<!-- batches by lo hi issue token -->` on the ONE
+  `batch-registry` issue (created on first use, `tracking`); replies in place with the command.
+  Idempotent per requesting comment; all wording rendered by the tested python, bash only posts.
+- The reservation reaches the code that picks numbers: `probe_batch.next_batch_number()` honours
+  `RVT_BATCH_FLOOR=<N>` — the seam every stager shares (only `probe_batch.py stage` has `--batch`;
+  ~13 other tools compute their own number through that function) — and `stage` prints a
+  reserve-first note when it had to choose locally.
+- Safety net: `coord.py batchjudge` judges ALL open PRs at once (a number belongs to the *issue* it
+  was reserved for — every engineer session runs under one login —, unreserved numbers to the OLDEST
+  PR adding them; everyone else must move, each mover gets a distinct target range). It runs when a
+  PR opens / is edited (`pr-check`, after a 1-call probe that the PR adds a batch file at all) and
+  hourly in `sweep` — deliberately NOT on `synchronize`: a runner per push of every PR (~150/day at
+  today's pace) to catch a few events per wave was the wrong price; hourly re-judging costs one PR
+  listing + a local tree read. Movers get `batch-clash` + one comment per number set with the exact
+  range/command; the label clears itself; **automerge holds `batch-clash`** so the ledger can never
+  receive two files behind one number; the worker's rebase mode refuses to hand-merge an add/add
+  batch manifest (it cannot restage) and labels the PR instead.
+- CLAUDE.md §2 (+ env var list), the `/fanout` engineer brief and AUTONOMY §12b/§13 say
+  reserve-then-stage; `batch-clash` / `batch-registry` join `techlead.py LABELS` (wording owner).
+
+**Simplify pass (4 reviewers) changed the first draft materially:** dropped `synchronize` (efficiency),
+tree via `git ls-tree` instead of the recursive-tree API (0.7 MB/call), one all-PR judge instead of a
+per-PR `batchclash` + rival-flagging pair, python renders every message and owns the 1..9 bound and the
+idempotency rule (bash formatted ranges three different ways), registry labels created through the
+shared `label` helper, `linked` derived from the PR bodies already in `prs.json`, the floor now agrees
+with `probe_batch.HISTORICAL_ROUNDS` (a test pins the pair), and the reservation is consumable by every
+stager through `RVT_BATCH_FLOOR` (altitude: "the reservation could not reach the code that picks
+numbers"). Not taken: allocation by create-only git ref push (elegant, token-free, but unverifiable
+whether the cloud git proxy accepts a non-`refs/heads/` namespace, and a second coordination substrate
+next to issue comments); a token-free git floor inside `probe_batch` (network in a pure-local tool) —
+noted on #8, whose campaign-global local numbering is the complementary half.
+
+Evidence: `tests/test_techlead.py::test_viewer_batch_numbers_are_reserved_server_side_and_clashes_are_judged`
+replays today's #277/#283 case (newer told 60..62; a reservation for #134 flips ownership; a PR that
+reserved on itself owns its range; two movers get 60 and 61..63; re-run of a recorded request answers
+57..59/seen; two reservations in one sweep never overlap; CLI round trip of `reserve` + `batchjudge`;
+wiring needles incl. "no synchronize", the automerge hold and the rebase rule) — 29 passed; shellcheck
+clean on every touched step; `sync_plugin.py --check` clean (probe_batch mirrors regenerated);
+validate_plugin PASS; portable paths ok. First live proof is necessarily post-merge (`pull_request` /
+`issue_comment` runs use `main`'s helper; the bootstrap guard skips until then): this session posts the
+first `/batches` and records the reply on #285.

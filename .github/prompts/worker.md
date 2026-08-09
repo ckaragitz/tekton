@@ -59,7 +59,11 @@ without changing its intent:
 2. Resolve each conflict by keeping **both** sides' intent; read the two histories (`git log
    --merge -p <file>`) before choosing. Regenerated mirrors (`plugin/lib/**`, `plugin/marketplace.json`,
    `plugin/assets/schema_cache/index.json`) are never hand-merged: take either side, then run
-   `.venv/bin/python tools/sync_plugin.py` and commit the result. If a conflict is a genuine
+   `.venv/bin/python tools/sync_plugin.py` and commit the result. A viewer batch manifest
+   (`experiments/**/batch_<n>.json`) that BOTH sides added is never merged by hand — two streams
+   staged different files under one batch number: abort the merge, add label `batch-clash`, comment
+   that this PR must renumber its batch (`/batches <k>` for a fresh range, then re-stage with
+   `tools/probe_batch.py stage … --batch <N>`), and stop. If a conflict is a genuine
    disagreement in logic you cannot reconcile with confidence, abort the merge, comment on the PR
    with the file/hunk and the two intents, add label `needs-decision`, and stop.
 3. Run the gates in step 4 above; commit the merge; `git push origin HEAD:<BRANCH>`.
