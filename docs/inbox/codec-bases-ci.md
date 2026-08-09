@@ -149,10 +149,12 @@ under `plugin/assets/genesis/`, adding it to `BASES` exercises the
 The `verify_pair` notes-vs-problems follow-up recorded under *Findings* is done in
 `src/rvt/roundtrip.py`: `verify_pair` now returns `VerifyResult(problems, notes)`
 (a `NamedTuple`; unpack as `problems, notes = verify_pair(a, b)`). The
-"`(compoundfiles cross-check skipped: …)`" line is a *note* and is emitted only on
-`ImportError` (second reader not installed); any other exception from that reader
-is a *problem* (`compoundfiles could not read output: …`), so a genuine rejection
-can no longer be filtered by anyone. Truthiness of the result follows `problems`
+"`(compoundfiles cross-check skipped: reader not installed)`" line is a *note*, emitted
+only when `_verify_with_compoundfiles` returns `None` because
+`importlib.util.find_spec("compoundfiles") is None` (decided before the import, not by
+catching `ImportError`); any exception from that reader once installed is a *problem*
+(`compoundfiles could not read output: …`), so a genuine rejection can no longer be
+filtered by anyone. Truthiness of the result follows `problems`
 alone (`if verify_pair(a, b):` still means "differs"); comparing the result to
 `[]` is now always False — compare `.problems`. Callers updated: the CLI
 (`python -m rvt.roundtrip --verify`, prints notes after the verdict),
