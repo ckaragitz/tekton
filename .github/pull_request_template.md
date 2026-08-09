@@ -1,7 +1,8 @@
-<!-- One issue = one branch (from main, never stacked on another PR's branch) = one PR. `coord` checks the linked issue / claim / overlap the moment this opens; CI + claude-review run automatically, a bounded auto-fix may push to your branch, and automerge squash-merges when green + approved. Humans are only pinged via a `needs-human` label. For a partial, write "Refs #N" — never "does not close #N" (GitHub closes it anyway). -->
+<!-- One issue = one branch (from main, never stacked on another PR's branch) = one PR. `coord` checks the linked issue / claim / overlap the moment this opens; CI + claude-review run automatically, a bounded auto-fix may push to your branch, automerge squash-merges when green + approved (a green + approved DRAFT is marked ready and merged after 90 quiet minutes — label `wip` to hold it), and closes the linked issue. If the bots cannot finish it, the issue is re-queued with this branch named; humans are only pinged for the short list in docs/process/AUTONOMY.md §10. For a partial, write "Refs #N" — never "does not close #N" (GitHub closes it anyway). -->
 Closes #
 
-- [ ] I was that issue's assignee before starting (self-assign or `/claim`; no ⛔ from the `coord` bot), and searched open issues/PRs for the same work
+- [ ] I was that issue's assignee before starting (self-assign, `/claim` or `/next`; no ⛔ from the `coord` bot), and searched open issues/PRs for the same work
+- [ ] Any steer my human gave me during this work is logged as a `steer` issue (`/steer`), and follow-ups I found are filed as task issues (`Refs #…`), not left in prose
 
 ## What changed and why
 <!-- 2-5 lines. What the change does, not how you found it. -->

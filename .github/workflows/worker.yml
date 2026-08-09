@@ -1,0 +1,184 @@
+name: worker
+
+# The unattended engineer. Every 2 h (and on dispatch) it takes ONE issue from the head of the
+# ready queue that the tech-lead planner cleared for unattended work (label `auto`; re-queued
+# `retry` issues first — finishing beats starting), leases it (`bot-working`), implements it per
+# CLAUDE.md exactly like a human-started session would (branch bot/<n>-<slug>, gates, record),
+# and opens a PR with `Closes #<n>`. From there the ordinary pipeline reviews, fixes, and merges
+# it. Mode `rebase` (dispatched by automerge) merges main into a conflicting approved PR branch
+# and resolves the conflicts. Bounded by .github/autonomy.json: worker.wip_limit open bot PRs,
+# worker.max_runs_per_day, pause with label `bots-paused` on the board issue. The pick is
+# deterministic (tools/dev/techlead.py pick); the work is .github/prompts/worker.md.
+# Needs the same secret as claude-review.yml; without it nothing here runs.
+
+on:
+  schedule:
+    - cron: "43 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "implement (an issue from the queue, or `issue`) | rebase (merge main into PR `pr`)"
+        required: false
+        default: "implement"
+      issue:
+        description: "issue number to implement now (optional; default = head of the eligible queue)"
+        required: false
+        default: ""
+      pr:
+        description: "PR number (rebase mode only)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+  actions: read
+  checks: read
+
+concurrency:
+  group: worker
+  cancel-in-progress: false
+
+jobs:
+  pick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    outputs:
+      go: ${{ steps.decide.outputs.go }}
+      mode: ${{ steps.decide.outputs.mode }}
+      issue: ${{ steps.decide.outputs.issue }}
+      pr: ${{ steps.decide.outputs.pr }}
+      branch: ${{ steps.decide.outputs.branch }}
+      title: ${{ steps.decide.outputs.title }}
+      reason: ${{ steps.decide.outputs.reason }}
+    steps:
+      - name: Credential present?
+        id: tok
+        env:
+          HAS_OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$HAS_OAUTH" = "true" ] || [ "$HAS_KEY" = "true" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"
+          else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::warning::worker offline: no CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY secret"; fi
+      - uses: actions/checkout@v6
+        if: steps.tok.outputs.ok == 'true'
+        with:
+          sparse-checkout: |
+            tools/dev
+            .github
+      - name: Decide the job
+        id: decide
+        if: steps.tok.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          MODE: ${{ inputs.mode }}
+          IN_ISSUE: ${{ inputs.issue }}
+          IN_PR: ${{ inputs.pr }}
+        run: |
+          set -euo pipefail
+          MODE="${MODE:-implement}"
+          if [ "$MODE" = "rebase" ]; then
+            [[ "$IN_PR" =~ ^[0-9]+$ ]] || { echo "::error::rebase mode needs a numeric pr input"; exit 1; }
+            j=$(gh pr view "$IN_PR" --repo "$REPO" --json state,headRefName,title,isCrossRepository)
+            [ "$(jq -r .state <<<"$j")" = "OPEN" ] || { echo "go=no" >> "$GITHUB_OUTPUT"; echo "reason=PR #$IN_PR is not open" >> "$GITHUB_OUTPUT"; exit 0; }
+            [ "$(jq -r .isCrossRepository <<<"$j")" = "false" ] || { echo "go=no" >> "$GITHUB_OUTPUT"; echo "reason=PR #$IN_PR comes from a fork" >> "$GITHUB_OUTPUT"; exit 0; }
+            {
+              echo "go=yes"; echo "mode=rebase"; echo "pr=$IN_PR"; echo "issue=0"
+              echo "branch=$(jq -r .headRefName <<<"$j")"
+              echo "title=$(jq -r .title <<<"$j" | tr -d '\r\n' | cut -c1-120)"
+              echo "reason=dispatched rebase"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          [[ -z "$IN_ISSUE" || "$IN_ISSUE" =~ ^[0-9]+$ ]] || { echo "::error::issue input must be a number"; exit 1; }
+          set +e
+          python3 tools/dev/techlead.py pick --issue "${IN_ISSUE:-0}" --github-output "$GITHUB_OUTPUT" > pick.json
+          rc=$?
+          set -e
+          cat pick.json
+          [ "$rc" = "0" ] || [ "$rc" = "3" ] || exit "$rc"
+
+  implement:
+    needs: pick
+    if: needs.pick.outputs.go == 'yes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      MODE: ${{ needs.pick.outputs.mode }}
+      ISSUE: ${{ needs.pick.outputs.issue }}
+      PR: ${{ needs.pick.outputs.pr }}
+      BRANCH: ${{ needs.pick.outputs.branch }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Lease the issue + prepare the branch
+        id: prep
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          [[ "$BRANCH" =~ ^[A-Za-z0-9._/-]+$ ]] || { echo "::error::refusing odd branch name '$BRANCH'"; exit 1; }
+          git config user.name  "claude[bot]"
+          git config user.email "209825114+claude[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+            git fetch origin "$BRANCH" && git switch -c "$BRANCH" --track "origin/$BRANCH"
+            if [ "$MODE" = "implement" ]; then MODE="continue"; fi
+          else
+            [ "$MODE" = "rebase" ] && { echo "::error::branch $BRANCH of PR #$PR is gone"; exit 1; }
+            git switch -c "$BRANCH"
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          if [ "$MODE" != "rebase" ]; then
+            gh label create bot-working --repo "$REPO" --color 5319e7 --force >/dev/null 2>&1 || true
+            gh issue edit "$ISSUE" --repo "$REPO" --add-label bot-working >/dev/null
+            gh issue comment "$ISSUE" --repo "$REPO" --body "🤖 The unattended worker took this ($MODE on \`$BRANCH\`) — [run]($RUN_URL). It opens a PR with \`Closes #$ISSUE\` when the gates pass; if it cannot finish it says why here and releases the issue. A human may take over any time with \`/claim\` (the worker yields)." >/dev/null
+          fi
+          bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; the worker runs without a prepared venv"
+          echo "max_turns=$(jq -r '.worker.max_turns // 120' .github/autonomy.json 2>/dev/null || echo 120)" >> "$GITHUB_OUTPUT"
+
+      - name: Do the work
+        id: work
+        continue-on-error: true
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}   RUN: ${{ github.run_id }}   MODE: ${{ steps.prep.outputs.mode }}
+            ISSUE: #${{ needs.pick.outputs.issue }}   PR: #${{ needs.pick.outputs.pr }}   BRANCH (checked out): ${{ needs.pick.outputs.branch }}
+
+            You are running UNATTENDED as one of this repository's engineers. CLAUDE.md is auto-loaded
+            and is law (§1 hard rules; §2 gates; §3b sources-vs-mirrors; §4 branch/PR/record rules).
+            Your task-specific instructions are in .github/prompts/worker.md — read it now and follow the
+            section for MODE exactly. The Python env is prepared (.venv/bin/python). You are on BRANCH.
+            When you stop, GitHub must show the outcome: a pushed branch + an open PR, or a comment on the
+            issue saying precisely what blocked you. Never leave work only in this runner.
+          claude_args: |
+            --max-turns ${{ steps.prep.outputs.max_turns }}
+            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr ready:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh api:*),Bash(.venv/bin/python:*),Bash(python3:*),Bash(python:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*),Bash(grep:*),Bash(xargs:*),Bash(find:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(unzip:*),Bash(diff:*)"
+
+      - name: Settle the lease
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OUTCOME: ${{ steps.work.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          [ "$MODE" = "rebase" ] && { echo "rebase run finished ($OUTCOME)"; exit 0; }
+          gh api -X DELETE "repos/$REPO/issues/$ISSUE/labels/bot-working" >/dev/null 2>&1 || true
+          open_pr=$(gh pr list --repo "$REPO" --state open --head "$BRANCH" --json number --jq '.[0].number // empty')
+          if [ -n "$open_pr" ]; then
+            gh api -X DELETE "repos/$REPO/issues/$ISSUE/labels/retry" >/dev/null 2>&1 || true
+            echo "::notice::#$ISSUE -> PR #$open_pr ($OUTCOME)"
+          else
+            pushed=""; git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1 && pushed=" Branch \`$BRANCH\` is pushed — the next attempt continues from it."
+            gh issue comment "$ISSUE" --repo "$REPO" --body "🤖 Worker run ended (**$OUTCOME**) without opening a PR — see the [run log]($RUN_URL) and any comment above for why.$pushed The issue is released back to the queue (label \`bot-working\` removed); the planner may sharpen it or clear \`auto\` if it is not workable unattended." >/dev/null
+            echo "::warning::#$ISSUE: no PR opened ($OUTCOME)"
+          fi

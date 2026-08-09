@@ -23,3 +23,4 @@ tests/test_coldstart.py
 tests/test_coord.py
 tests/test_validate_release.py
 tests/test_rvt_analyze.py
+tests/test_techlead.py

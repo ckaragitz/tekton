@@ -1,0 +1,53 @@
+name: board
+
+# The official task board: ONE pinned issue (label `board`) whose body is re-rendered from
+# live GitHub state — in progress / in review with the exact merge blocker per PR / next up /
+# waiting on a human / untriaged steers / done this week / bot health — plus the hygiene the
+# merge bots do not do (re-queue issues whose PR is `bot-stuck`, free dead worker leases,
+# nudge then close drafts nobody touches). Token-free: built-in GITHUB_TOKEN only, so it
+# works whether or not the model-backed bots are on. Logic: tools/dev/techlead.py (board,
+# sweep) — change that file, not this one (workflow edits need the owner to merge).
+# Events raised by our own bots' GITHUB_TOKEN do not re-trigger workflows, so no loops.
+
+on:
+  issues:
+    types: [opened, closed, reopened, labeled, unlabeled, assigned, unassigned]
+  pull_request_target:
+    types: [opened, closed, reopened, ready_for_review, converted_to_draft, labeled, unlabeled]
+  workflow_run:
+    workflows: ["CI", "claude-review", "automerge", "techlead", "worker"]
+    types: [completed]
+  schedule:
+    - cron: "20 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: board
+  cancel-in-progress: true     # a burst of events collapses into one render
+
+jobs:
+  render:
+    # The board's own edits arrive via GITHUB_TOKEN and trigger nothing; label events on the
+    # board issue itself (pause switch) do re-render, which is what we want.
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Let a burst of events settle
+        run: sleep 15
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch || 'main' }}
+          sparse-checkout: |
+            tools/dev
+            .github
+      - name: Sweep + render the board issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 tools/dev/techlead.py board

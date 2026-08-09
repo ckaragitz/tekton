@@ -1,0 +1,122 @@
+name: techlead
+
+# The tech-lead planner, unattended: the same charter a human-started session follows
+# (.github/prompts/techlead.md), run on a schedule and whenever a human steers, starting from
+# the deterministic brief (tools/dev/techlead.py brief). It triages `steer` / `intake` issues
+# into requirement/task issues, keeps the `ready` queue between floor and ceiling from
+# docs/PROGRAM.md, retires obsolete issues, fixes labels, marks bot-suitable issues `auto`,
+# resolves duplicate PRs, and leaves one planning note on the board. It files issues and may
+# open ONE docs PR (docs/STEERING.md, docs/PROGRAM.md); it never edits code, never merges,
+# never assigns humans. Bounded per run by .github/autonomy.json (planner.*).
+# Needs the same secret as claude-review.yml; without it the `plan` job is skipped (the board's
+# Health line shows that) and human-started sessions do the planning at session start.
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  issues:
+    types: [labeled]           # a steer/intake label = a human steered: plan now, not in 6 h
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "why you are running the planner by hand (shows in the log)"
+        required: false
+        default: "manual"
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: techlead
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: >-
+      github.event_name != 'issues' ||
+      (github.event.label.name == 'steer' || github.event.label.name == 'intake')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has_token: ${{ steps.tok.outputs.has_token }}
+      need: ${{ steps.need.outputs.need }}
+      why: ${{ steps.need.outputs.why }}
+    steps:
+      - id: tok
+        env:
+          HAS_OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$HAS_OAUTH" = "true" ] || [ "$HAS_KEY" = "true" ]; then echo "has_token=true" >> "$GITHUB_OUTPUT"
+          else echo "has_token=false" >> "$GITHUB_OUTPUT"; echo "::warning::planner offline: no CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY secret — sessions plan at session start instead (CLAUDE.md §4)"; fi
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            tools/dev
+            .github
+      - id: need
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          python3 tools/dev/techlead.py brief --json > brief.json
+          steers=$(jq -r .health.steers_untriaged brief.json); ready=$(jq -r .health.ready_unassigned brief.json)
+          floor=$(jq -r .health.ready_floor brief.json); paused=$(jq -r .health.paused brief.json)
+          dup=$(jq -r '[.review[]|select(.labels|index("duplicate-pr"))]|length' brief.json)
+          need=yes; why="$EVENT"
+          if [ "$paused" = "true" ]; then need=no; why="bots-paused label on the board issue"
+          elif [ "$EVENT" = "issues" ] && [ "$steers" = "0" ]; then need=no; why="steer event but nothing untriaged (already handled)"
+          elif [ "$EVENT" = "schedule" ] && [ "$steers" = "0" ] && [ "$ready" -ge "$floor" ] && [ "$dup" = "0" ] && [ $(( $(date -u +%-H) / 6 )) -ne 1 ]; then
+            # Quiet schedule ticks (nothing to triage, queue healthy) only do the full grooming pass
+            # once a day (the 06:17 UTC tick); the other ticks exit here and cost nothing.
+            need=no; why="queue healthy ($ready ready ≥ floor $floor), no steers — grooming runs on the daily tick"
+          fi
+          echo "need=$need" >> "$GITHUB_OUTPUT"; echo "why=$why" >> "$GITHUB_OUTPUT"
+          echo "steers=$steers ready=$ready floor=$floor paused=$paused dup=$dup -> need=$need ($why)"
+
+  plan:
+    needs: gate
+    if: needs.gate.outputs.has_token == 'true' && needs.gate.outputs.need == 'yes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Brief + limits
+        id: brief
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 tools/dev/techlead.py labels
+          python3 tools/dev/techlead.py brief --out /tmp/brief.md >/dev/null
+          echo "max_turns=$(jq -r '.planner.max_turns // 60' .github/autonomy.json 2>/dev/null || echo 60)" >> "$GITHUB_OUTPUT"
+          echo "max_new=$(jq -r '.planner.max_new_issues_per_run // 5' .github/autonomy.json 2>/dev/null || echo 5)" >> "$GITHUB_OUTPUT"
+          git config user.name  "claude[bot]"
+          git config user.email "209825114+claude[bot]@users.noreply.github.com"
+          wc -l /tmp/brief.md
+      - name: Tech-lead pass
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}   RUN: ${{ github.run_id }}   TRIGGER: ${{ github.event_name }} (${{ needs.gate.outputs.why }})
+            LIMITS: at most ${{ steps.brief.outputs.max_new }} new issues this run; at most ONE docs-only PR; no code edits; no merges; never assign a human.
+
+            You are running UNATTENDED as the tech lead of this repository. Read, in this order:
+            CLAUDE.md (auto-loaded; §1 hard rules and §4 are law), .github/prompts/techlead.md (your
+            charter — follow it step by step), /tmp/brief.md (the live state you start from; do not
+            spend turns re-deriving it), docs/PROGRAM.md and docs/STEERING.md.
+            Then do the pass the charter describes and finish with the planning note on the board issue.
+            Everything you decide must be visible on GitHub when you stop (issues, comments, labels, the
+            note); nothing may live only in this run's log.
+          claude_args: |
+            --max-turns ${{ steps.brief.outputs.max_turns }}
+            --allowedTools "Read,Glob,Grep,Edit,Write,Bash(gh issue:*),Bash(gh label:*),Bash(gh search:*),Bash(gh pr list:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(gh pr close:*),Bash(gh pr edit:*),Bash(gh api:*),Bash(git log:*),Bash(git diff:*),Bash(git show:*),Bash(git status:*),Bash(git switch:*),Bash(git checkout:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(python3 tools/dev/techlead.py:*),Bash(python3 tools/dev/coord.py:*),Bash(ls:*),Bash(cat:*)"

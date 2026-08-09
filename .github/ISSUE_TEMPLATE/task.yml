@@ -1,0 +1,54 @@
+name: "🔧 Task (for coding sessions / tech leads)"
+description: "A unit of work with a checkable DONE — what sessions and the planner file. Humans: use the Steer form instead; you never need this one."
+title: ""
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Title = the checkable DONE in one line. Search open **and** closed issues for the same work first (`coord` posts likely duplicates after filing, but by then you have written it). Then add labels: one of `P0`/`P1`/`P2`, ≥ 1 `area:*`, and one state (`ready`, or a gate: `blocked` / `needs-viewer` / `needs-revit-desktop` / `owner-machine` / `needs-decision`), plus `hot-file` / `good-first-pick` / `epic` as fitting. Claim by assigning yourself (or comment `/claim`).
+  - type: input
+    id: refs
+    attributes:
+      label: Provenance
+      description: "`Refs #<steer or epic>` — where this comes from (a logged steer, an epic, a record). Leave empty only for work you derived from docs/PROGRAM.md yourself."
+      placeholder: "Refs #54"
+    validations:
+      required: false
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: The user-visible or pipeline-visible problem this solves; link evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: DONE (checkable)
+      description: What must be demonstrably true — numbers, commands, files a reviewer can verify from the diff and CI.
+      value: |
+        -
+    validations:
+      required: true
+  - type: textarea
+    id: territory
+    attributes:
+      label: Territory
+      description: Files/dirs the work may touch. Name hot files explicitly (CLAUDE.md §4) and add the `hot-file` label if any.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence expected
+      description: "Which gates prove it: stream-local tests, `tools/sync_plugin.py --check`, validator 0 errors, bare-unzip run, staged viewer batch, …"
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / gotchas
+      description: What a session landing cold must read first — KNOWLEDGE.md sections, docs/inbox records, exonerated axes, prior attempts.
+    validations:
+      required: false

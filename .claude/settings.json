@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-.}/tools/dev/techlead.py\" hello 2>/dev/null || echo 'tekton: you are a tech lead here - read CLAUDE.md section 4 and docs/process/AUTONOMY.md; log human steers with /steer before acting on them.'",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

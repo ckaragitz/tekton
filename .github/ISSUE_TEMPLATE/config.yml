@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "📋 The board — what is in progress, in review, planned, and waiting on a person"
+    url: https://github.com/ckaragitz/tekton/issues?q=is%3Aopen+label%3Aboard
+    about: "Auto-updated hourly and on every change. Read this before asking anyone for status."
+  - name: "📖 How work flows here (humans steer; coding sessions are the tech leads; bots merge)"
+    url: https://github.com/ckaragitz/tekton/blob/main/docs/process/AUTONOMY.md
+    about: "The whole system on one page, including the short list of things that still need a human and why."
