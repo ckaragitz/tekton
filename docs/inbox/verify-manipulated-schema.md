@@ -120,7 +120,7 @@ the record body at a baked `+16` (64-bit header width) — the same bake
   on the 2025 base → `ManipulationError: walker errors after re-emit:
   ['unexpected tag 0x0f28 at 18']`. Only `release_build_context` (front
   door / `go`) swaps those. That is the same class of defect as this issue
-  on the write side; filed as its own task issue (`Refs #11`) because it
+  on the write side; filed as its own task issue (#70, `Refs #11`) because it
   touches `mutate.py` + the emit helpers + a tool, not the verifier.
 * `records32.verify_manipulated32` is now functionally redundant (the core
   verifier binds the own schema, is width-independent for stamps, and picks
