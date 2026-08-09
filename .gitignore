@@ -34,3 +34,6 @@ tests/out/
 
 # --- build artifacts (regenerate: .venv/bin/python tools/sync_plugin.py) ---
 /*.zip
+
+# Agent-isolation worktrees created inside the checkout by multi-agent workflows (never commit)
+.claude/worktrees/
