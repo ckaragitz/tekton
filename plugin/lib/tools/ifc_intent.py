@@ -522,39 +522,16 @@ def _clean_wall_clone(el, doc, spec_id: int, mode: str = "min") -> Dict[str, Any
     return log
 
 
-#: seq-103 representation of a created wall: 'solid' = the authored six-face
-#: GElement B-rep (rvt.render.brep -- the RSOLID_walls_A_solid / W1_gabpd_wall_solid
-#: mechanism, RENDER-certified as a shape); 'dummy' = SerializedDummy (LOAD-certified
-#: T2/T3/V22/V26 path; desktop Revit regenerates, the cloud viewer draws nothing)
-WALL_REPS = ("solid", "dummy")
-
-
-def _bake_wall_solid(doc, el, wall_type_id: int, height_ft: float) -> Dict[str, Any]:
-    """CREATE-TIME bake: author the wall's seq-103 ``GElement`` solid from
-    its own (cleaned) seq-102 object and install it as ``el.rep`` so
-    ``Document.serialize`` emits a GElement instead of the SerializedDummy.
-
-    The recipe is EXACTLY the W1_gabpd_wall_solid one (certified LOAD +
-    RENDER on the composed genesis base): ``rvt.render.brep`` box re-tagged
-    to the wall's own BaseWallGStep history, root category -1, the type's
-    layer material on sides/top/bottom when that MaterialElem exists in the
-    document (else -1), end caps -1, no ref-plane sub-graphics.
-    """
-    from rvt.render.brep import wall_rep_from_object
-    from rvt.render.wallgeom import layer_material
-    side_mat = layer_material(doc, wall_type_id)
-    rep, geom, tags = wall_rep_from_object(
-        el.obj, element_id=int(el.elem_id), height=height_ft,
-        root_category_id=-1, side_material_id=side_mat, end_material_id=-1,
-        with_ref_planes=False)
-    el.rep = rep
-    el.notes = [n for n in el.notes if not str(n).startswith("seq103 = SerializedDummy")]
-    el.notes.append("seq103 = AUTHORED GElement solid (rvt.render.brep, W1_gabpd_wall_solid "
-                    "recipe): 6 faces / 12 edges tagged from the wall's own BaseWallGStep")
-    return {"kind": "solid", "faces": 6, "edges": 12, "tags": tags.source,
-            "length_ft": round(geom.length, 4), "thickness_ft": round(geom.thickness, 4),
-            "base_z_ft": round(geom.base_z, 4), "height_ft": round(geom.height, 4),
-            "side_material_id": side_mat, "root_category_id": -1}
+#: stage-record note per created-wall seq-103 rep (mechanism only; the
+#: certification wording lives in rvt.frontdoor.manifest.LOAD_VS_RENDER)
+WALL_REP_NOTE = {
+    "solid": ("wall geometry rep = AUTHORED seq-103 GElement solid per wall "
+              "(rvt.render.brep.bake_planned_wall, the W1_gabpd_wall_solid recipe; "
+              "per-wall facts under 'rep')"),
+    "dummy": ("wall geometry rep = SerializedDummy (Revit regenerates the solid from "
+              "the type + location line; the certified T2/T3/V22/V26 wall path; the "
+              "cloud viewer draws nothing)"),
+}
 
 
 def _pick_level(doc, want_elev_ft: float = 0.0) -> int:
@@ -576,18 +553,18 @@ def stage_walls(model: I.IntentModel, src_rvt: str, out_path: str,
     """Add the room's walls to ``src_rvt`` -> ``out_path``.  ``wall_mode``:
     'min' (reference repair, history kept), 'unjoin' (textbook unjoined
     history), 'raw' (no clean-up: the specimen clone as rvt.mutate leaves it).
-    ``wall_rep``: 'solid' (authored seq-103 GElement, :func:`_bake_wall_solid`;
-    the front door's default via ``BuildOptions.wall_rep``) or 'dummy'
-    (SerializedDummy rep -- the research probe builders' unchanged default, so
-    their outputs stay byte-identical)."""
+    ``wall_rep``: 'solid' (authored seq-103 GElement via
+    ``rvt.render.brep.bake_planned_wall``; the front door's default through
+    ``BuildOptions.wall_rep``) or 'dummy' (SerializedDummy rep -- the research
+    probe builders' unchanged default, so their outputs stay byte-identical)."""
     from rvt.mutate import Document
     from rvt.commit import commit_new_elements, verify_written
+    from rvt.render.brep import WALL_REPS, bake_planned_wall
+    if wall_rep not in WALL_REPS:
+        raise ValueError(f"unknown wall_rep {wall_rep!r} (want one of {WALL_REPS})")
     rec: Dict[str, Any] = {"stage": "W", "in": _relp(src_rvt), "out": _relp(out_path),
                            "wall_mode": wall_mode, "wall_rep": wall_rep, "walls": [],
                            "ok": False}
-    if wall_rep not in WALL_REPS:
-        rec["blocker"] = f"unknown wall_rep {wall_rep!r} (want one of {WALL_REPS})"
-        return rec, None
     if not model.room or not model.room.walls:
         rec["blocker"] = "the intent carries no room walls"
         return rec, None
@@ -623,8 +600,8 @@ def stage_walls(model: I.IntentModel, src_rvt: str, out_path: str,
             el = doc.add_wall(lvl, wt, p0, p1, height=h, template_id=spec_wall)
             clean = ({} if wall_mode == "raw"
                      else _clean_wall_clone(el, doc, spec_wall, mode=wall_mode))
-            rep = (_bake_wall_solid(doc, el, wt, h) if wall_rep == "solid"
-                   else {"kind": "dummy"})
+            rep = (bake_planned_wall(doc, el, wall_type_id=wt, height=h)
+                   if wall_rep == "solid" else None)
             dangling = doc.check_references(el)
             els.append(el)
             rec["walls"].append({
@@ -640,7 +617,7 @@ def stage_walls(model: I.IntentModel, src_rvt: str, out_path: str,
                 "notes": el.notes,
             })
             _log(f"W  {w.wall_id:4s} elem {el.elem_id} {p0} -> {p1} ft h={h:.2f} "
-                 f"(dangling refs {len(dangling)}, mode {wall_mode}, rep {rep['kind']})")
+                 f"(dangling refs {len(dangling)}, mode {wall_mode}, rep {wall_rep})")
         # serialize + commit
         records, plans = [], []
         for el in els:
@@ -656,14 +633,7 @@ def stage_walls(model: I.IntentModel, src_rvt: str, out_path: str,
         rec["ok"] = bool(rec["structurally_valid"])
         rec["seconds"] = round(time.time() - t0, 1)
         rec["notes"] = [
-            ("wall geometry rep = AUTHORED seq-103 GElement solid per wall (rvt.render.brep, "
-             "the W1_gabpd_wall_solid / RSOLID_walls_A_solid recipe -- RENDER-certified as a "
-             "SHAPE; this exact output is uncertified until its own viewer batch passes; "
-             "RVT_WALL_REP=dummy restores the SerializedDummy rep)"
-             if wall_rep == "solid" else
-             "wall geometry rep = SerializedDummy (Revit regenerates the solid from "
-             "the type + location line; the certified T2/T3/V22/V26 wall path; the cloud "
-             "viewer draws nothing)"),
+            WALL_REP_NOTE[wall_rep],
             "wall LOCATION LINES are the intent's centerline ring (metres -> feet); "
             "the built thickness is the base wall type's compound structure, not the "
             "IFC's 0.2 m (recorded per wall as ifc_thickness_m)",

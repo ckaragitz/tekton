@@ -116,11 +116,12 @@ def _relp(p: Optional[str]) -> Optional[str]:
 #: env opt-out for the created walls' seq-103 rep (``dummy`` restores the
 #: pre-bake SerializedDummy output byte-for-byte; no front-door flag needed)
 WALL_REP_ENV = "RVT_WALL_REP"
-WALL_REPS = ("solid", "dummy")
 
 
 def default_wall_rep() -> str:
-    """``'solid'`` unless ``RVT_WALL_REP=dummy`` (unknown values -> 'solid')."""
+    """``'solid'`` unless ``RVT_WALL_REP=dummy`` (unknown values -> 'solid':
+    a typo must not cost the user their walls)."""
+    from ..render.brep import WALL_REPS
     v = (os.environ.get(WALL_REP_ENV) or "solid").strip().lower()
     return v if v in WALL_REPS else "solid"
 
@@ -701,7 +702,7 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
         for w in rec.get("walls") or []:
             res.created.append({"kind": "wall", "tag": w.get("id"), "elem_id": w.get("elem_id"),
                                 "length_m": w.get("length_m"), "height_ft": w.get("height_ft"),
-                                "rep": (w.get("rep") or {}).get("kind", "dummy"),
+                                "rep": rec.get("wall_rep", "dummy"),
                                 "file_role": rec.get("stage")})
     else:
         for i in rec.get("instances") or []:

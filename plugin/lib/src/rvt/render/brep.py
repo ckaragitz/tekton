@@ -37,7 +37,8 @@ Public API::
     geom = wall_geometry_from_object(wall_obj, base_z, height)   # from the wall's own seq-102 object
     tags = tags_from_wall_object(wall_obj)                        # BaseWallGStep face/edge tags
     rep  = wall_solid_brep(geom, tags, element_id=id, ...)        # the seq-103 GElement dict
-    # then: rvt.regadd.substitute_elements(src, out, {id: {103: (0x89e, rep)}}, seqs=(103,))
+    # existing file: rvt.regadd.substitute_elements(src, out, {id: {103: (0x89e, rep)}}, seqs=(103,))
+    # create time:   bake_planned_wall(doc, new_element, wall_type_id=wt)  # sets NewElement.rep
 
 The GElement produced is the exact record shape of a native unjoined
 wall's rep: root ``GElement`` (bBox / gElemType 3 / elementId) -> ONE main
@@ -595,8 +596,45 @@ def wall_rep_from_object(wall_obj: dict, *, element_id: int,
     return rep, geom, tags
 
 
+# ---------------------------------------------------------------------------
+# create-time bake: the certified W1 recipe on a planned NewElement
+# ---------------------------------------------------------------------------
+
+#: the seq-103 representation kinds a created wall may carry: 'solid' = the
+#: authored GElement of this module (RSOLID_walls_A_solid / W1_gabpd_wall_solid,
+#: RENDER-certified as a shape); 'dummy' = SerializedDummy (LOAD-certified
+#: T2/T3/V22/V26 path; desktop Revit regenerates, the cloud viewer draws nothing)
+WALL_REPS = ("solid", "dummy")
+
+
+def bake_planned_wall(doc, el, *, wall_type_id: int,
+                      height: Optional[float] = None,
+                      side_material_id: Optional[int] = None) -> dict:
+    """CREATE-TIME bake with the W1_gabpd_wall_solid recipe: build the
+    six-face solid from the planned ``rvt.mutate.NewElement`` wall's own
+    (already rewritten) seq-102 object and install it as ``el.rep``, so
+    ``Document.serialize`` / ``commit_new_elements`` emit a GElement instead
+    of the SerializedDummy.  Root category -1, end caps -1, no ref-plane
+    sub-graphics; sides/top/bottom carry ``side_material_id`` -- by default
+    the wall type's own layer ``MaterialElem`` when it exists in ``doc``
+    (:func:`rvt.render.wallgeom.layer_material`), else -1.  Returns the
+    measured facts of the bake (JSON-able)."""
+    from .wallgeom import layer_material
+    if side_material_id is None:
+        side_material_id = layer_material(doc, wall_type_id)
+    rep, geom, tags = wall_rep_from_object(el.obj, element_id=el.elem_id, height=height,
+                                           side_material_id=side_material_id)
+    el.rep = rep
+    el.notes.append("seq103 = AUTHORED GElement solid (rvt.render.brep.bake_planned_wall, "
+                    "the W1_gabpd_wall_solid recipe), superseding the SerializedDummy plan")
+    return {"tags": tags.source, "length_ft": round(geom.length, 4),
+            "thickness_ft": round(geom.thickness, 4), "base_z_ft": round(geom.base_z, 4),
+            "height_ft": round(geom.height, 4), "side_material_id": int(side_material_id)}
+
+
 __all__ = [
-    "CLASS_GELEMENT", "WallGeometry", "WallTags",
+    "CLASS_GELEMENT", "WALL_REPS", "WallGeometry", "WallTags",
     "tags_from_wall_object", "wall_geometry_from_object",
     "ref_planes_from_wall_object", "wall_solid_brep", "wall_rep_from_object",
+    "bake_planned_wall",
 ]

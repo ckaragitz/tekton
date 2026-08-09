@@ -166,8 +166,9 @@ def coverage_cross_reference(created: List[Dict[str, Any]]) -> Dict[str, Any]:
 # the honesty box
 # ---------------------------------------------------------------------------
 
-#: honesty.load_vs_render, keyed by the created walls' seq-103 rep (stage W's
-#: ``wall_rep``); no W stage in the run -> the 'dummy' (historical) wording
+#: honesty.load_vs_render, keyed by the seq-103 rep the created walls actually
+#: carry (``elements_created[].rep``); no wall created -> the 'dummy'
+#: (historical) wording.  The ONE home of the certification-state sentence.
 LOAD_VS_RENDER = {
     "solid": ("created walls carry authored solids: each SWall's seq-103 rep is a six-face "
               "GElement B-rep (rvt.render.brep, the W1_gabpd_wall_solid / "
@@ -184,11 +185,10 @@ LOAD_VS_RENDER = {
 
 
 def _wall_rep_of(build: Optional[Dict[str, Any]]) -> str:
-    """The seq-103 rep kind stage W actually wrote ('solid' / 'dummy')."""
-    for st in (build or {}).get("stages") or []:
-        if str(st.get("stage") or "").startswith("W") and st.get("ok") and st.get("wall_rep"):
-            return str(st["wall_rep"])
-    return "dummy"
+    """The seq-103 rep kind the created walls carry ('solid' / 'dummy')."""
+    created = (build or {}).get("created") or []
+    solid = any(c.get("kind") == "wall" and c.get("rep") == "solid" for c in created)
+    return "solid" if solid else "dummy"
 
 
 def _honesty(build: Optional[Dict[str, Any]], verdict: Optional[Dict[str, Any]],
