@@ -5,9 +5,9 @@
  "notes": [
   "#152 (landed, PR #327): the wall's IfcExtrudedAreaSolid body IS read -- has_body true, insertion = footprint centre [4,2,0] through the (1,2,0) placement, dims 6.0 x 0.2 x 3.0, position_source placement-chain + local geometry; the extrusion carries no IfcStyledItem so its item name is null",
   "#157: the wall is still recorded as equipment kind wall / disposition recorded and room is null; #157 turns it into a WallRun with the opening recorded",
-  "#155: steplite has no IfcDoor schema row, so the door is absent from its IfcProduct closure; real ifcopenshell lists it (kind proxy, recorded)"
+  "#155 (landed): steplite keeps the IfcDoor in its IfcProduct closure exactly as ifcopenshell does -- D-1 is recorded equipment of kind proxy with its body read (insertion [3.45,2,0], dims 0.9 x 0.05 x 2.1) and an unmapped family plan; parity holds, no xfail"
  ],
- "parity_xfail": "#155: IfcDoor dropped by steplite's IfcProduct closure, kept by ifcopenshell",
+ "parity_xfail": null,
  "pinned_backend": "steplite",
  "expected": {
   "ok": true,
@@ -23,6 +23,43 @@
    }
   ],
   "equipment": [
+   {
+    "tag": "D-1",
+    "name": "Single flush door 900 x 2100",
+    "ifcClass": "IfcDoor",
+    "predefinedType": "DOOR",
+    "kind": "proxy",
+    "disposition": "recorded",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     3.45,
+     2.0,
+     0.0
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {
+     "w": 0.9,
+     "d": 0.05,
+     "h": 2.1,
+     "footprint_area": 0.045
+    },
+    "mounting": "floor",
+    "position_source": "placement-chain + local geometry",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "D-1"
+    },
+    "items": [
+     null
+    ]
+   },
    {
     "tag": "W-1",
     "name": "Basic Wall 200 mm",
@@ -113,6 +150,12 @@
   "feeders": [],
   "conduit_runs": [],
   "family_plans": [
+   {
+    "tag": "D-1",
+    "kind": "proxy",
+    "status": "unmapped",
+    "catalog": null
+   },
    {
     "tag": "W-1",
     "kind": "wall",

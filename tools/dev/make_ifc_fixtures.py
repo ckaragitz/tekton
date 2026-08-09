@@ -474,9 +474,10 @@ def _fx_c() -> Model:
                 "carries no IfcStyledItem so its item name is null",
                 "#157: the wall is still recorded as equipment kind wall / disposition recorded and "
                 "room is null; #157 turns it into a WallRun with the opening recorded",
-                "#155: steplite has no IfcDoor schema row, so the door is absent from its "
-                "IfcProduct closure; real ifcopenshell lists it (kind proxy, recorded)"],
-         parity_xfail="#155: IfcDoor dropped by steplite's IfcProduct closure, kept by ifcopenshell")
+                "#155 (landed): steplite keeps the IfcDoor in its IfcProduct closure exactly as "
+                "ifcopenshell does -- D-1 is recorded equipment of kind proxy with its body read "
+                "(insertion [3.45,2,0], dims 0.9 x 0.05 x 2.1) and an unmapped family plan; parity "
+                "holds, no xfail"])
 def _fx_d() -> Model:
     m = Model("d_wall_opening_door")
     sto, plc_sto = m.storey("Level 1", 0.0)

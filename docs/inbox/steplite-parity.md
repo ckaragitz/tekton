@@ -99,15 +99,25 @@ added or re-parented here**.
 
 ## Conformance fixture `d_wall_opening_door` (#324)
 
-PR #324 (eng #154) pins that fixture's parity leg as `xfail(strict=True)`
-citing #155 (IfcDoor dropped by steplite).  With this branch steplite keeps
-the door, so that strict xfail must flip.  #324 had not merged when this
-branch was cut (`origin/main@950d4b6`); the flip (remove the xfail flag,
-re-pin `d_wall_opening_door.expected.json` via
-`tools/dev/make_ifc_fixtures.py --update-expected`, one expectation change:
-the door appears as a recorded `proxy` product exactly as under
-ifcopenshell) is done on this branch after rebasing onto the merged #324 —
-see BRANCH STATE for whether that has happened at the head you are reading.
+PR #324 (eng #154) pinned that fixture's parity leg as `xfail(strict=True)`
+citing #155 (IfcDoor dropped by steplite).  #324 merged (`main@efcf81c`)
+while this branch was in flight; rebased onto it, the conformance module
+showed exactly the previewed shape — `d_wall_opening_door` off its pin and
+its parity leg `XPASS(strict)`, every other fixture on its pin, #159's xfail
+intact.  Flipped DELIBERATELY on this branch: `parity_xfail` removed and the
+#155 note rewritten to the landed fact in `tools/dev/make_ifc_fixtures.py`,
+then `RVT_STEPLITE_FORCE=1 … make_ifc_fixtures.py --update-expected` →
+`expected: 1 re-pinned ['d_wall_opening_door']`.  The one expectation change,
+explained: door `D-1` now appears (a) in `equipment` as a recorded `proxy`
+(`ifcClass IfcDoor`, `has_body true`, insertion `[3.45, 2.0, 0.0]`, dims
+`0.9 × 0.05 × 2.1`, level L1, `position_source placement-chain + local
+geometry`) and (b) in `family_plans` as `proxy / unmapped` — byte-for-byte
+what real ifcopenshell already produced for this fixture, which is why the
+parity leg now passes instead of xfailing.  Nothing else in any
+`.expected.json` moved; `make_ifc_fixtures.py --check` → `ok: 9 fixtures`.
+After the flip: `tests/test_ifc_conformance.py` WITH ifcopenshell **28 passed
+/ 1 xfailed** (#159 only); WITHOUT **20 passed / 9 skipped** (parity legs skip
+by design).
 
 ## Findings
 
@@ -194,13 +204,11 @@ next step and the generator is one `decl.attributes()` loop away from it.
   `in.rvt` → `rvt_validate` ok / 0 errors.  (With `python3 -S` = no numpy the
   same job exits 3 `FAILED (numpy is required here …)` with the manifest still
   written — the documented numpy floor of the intent route, unchanged.)
-* Pending at this head: the `d_wall_opening_door` xfail flip + re-pin waits
-  for #324 to merge (previewed in a scratch worktree: with this steplite over
-  #324's head, exactly that fixture moves — door `D-1` appears as recorded
-  `proxy` equipment + one `family_plans` entry — its parity leg XPASSes
-  strictly, every other fixture stays on its pin, #159's xfail stays).  After
-  the merge: rebase, drop the `parity_xfail` + the #155 note in
-  `tools/dev/make_ifc_fixtures.py`, `--update-expected`, re-run
-  `tests/test_ifc_conformance.py`, push, report the new head.
+* Rebased onto `origin/main@efcf81c` (= merged #324); the `d_wall_opening_door`
+  flip is ON this branch (see the section above): files
+  `tools/dev/make_ifc_fixtures.py` (registry note + `parity_xfail` only) and
+  `tests/ifc_conformance/d_wall_opening_door.expected.json` (re-pinned).
+  `tests/test_ifc_conformance.py`: 28 passed / 1 xfailed with the wheel,
+  20 passed / 9 skipped without.
 * Staged vs shipped: nothing staged for the viewer (no certification claim);
   the reader change ships in the plugin mirrors.
