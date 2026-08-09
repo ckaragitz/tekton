@@ -797,6 +797,50 @@ def test_frontdoor_author_route_is_untouched_by_the_matrix_verb():
     assert p2.returncode == 0 and "matrix" in p2.stdout and "tools/route.py" in p2.stdout
 
 
+@needs_catalog
+def test_cli_run_json_stdout_is_one_document(tmp_path, capsys):
+    """``route.py run ... --json`` writes exactly ONE JSON document to stdout;
+    the stages' progress (``[ifc_intent] F ...``) lands in <out>/route.log,
+    named in the result's manifest block (issue #188)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "_route_cli", os.path.join(ROOT, "tools", "route.py"))
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)                 # in-process: capsys sees main()'s stdout
+    rc = cli.main(["run", "--output", "rfa", "--prompt", PANEL_PROMPT,
+                   "--out", str(tmp_path / "o"), "--json"])
+    out = capsys.readouterr().out
+    doc = json.loads(out)                        # raises on any non-JSON prefix
+    assert rc == 0 and isinstance(doc, dict) and doc["ok"], out[-2000:]
+    assert "[ifc_intent]" not in out
+    log_p = doc["manifest"]["route.log"]
+    assert os.path.isfile(log_p) and "[ifc_intent] F" in open(log_p).read()
+
+
+@needs_catalog
+def test_route_without_quiet_still_prints_progress(tmp_path, capsys):
+    """The human (non --json) path is untouched: progress stays live on stdout
+    and no route.log is written."""
+    res = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(tmp_path / "o"))
+    assert res.ok, res.errors
+    assert "[ifc_intent] F" in capsys.readouterr().out
+    assert "route.log" not in res.manifest_paths
+
+
+@needs_pin
+@needs_catalog
+def test_frontdoor_json_stdout_stays_one_document(tmp_path):
+    """Regression guard for the other front door: ``frontdoor.py author --json``
+    already keeps stage progress off stdout (build quiet capture) -- keep it so."""
+    p = subprocess.run([PY, os.path.join(ROOT, "tools", "frontdoor.py"), "author",
+                        "--prompt", SMALL_ROOM_PROMPT, "--out", str(tmp_path / "o"),
+                        "--json"], capture_output=True, text=True, cwd=ROOT)
+    assert p.returncode in (0, 3), p.stderr[-2000:]
+    doc = json.loads(p.stdout)
+    assert isinstance(doc, dict) and doc["route"] == "prompt"
+    assert "[ifc_intent]" not in p.stdout
+
+
 def test_cli_unsupported_exit_code(tmp_path):
     p = subprocess.run([PY, os.path.join(ROOT, "tools", "route.py"), "run",
                         "--output", "ifc", "--rfa", '{"kind": "downlight"}',
