@@ -25,6 +25,7 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import struct
 import sys
 import uuid
@@ -121,6 +122,52 @@ def raw_inflate_after_gzip_header(data: bytes, off: int) -> Tuple[bytes, int]:
 # ---------------------------------------------------------------------------
 # BasicFileInfo
 # ---------------------------------------------------------------------------
+
+#: The two ``BasicFileInfo`` layouts Revit has shipped, told apart by their
+#: UTF-16LE mirror-text markers (public prior art: docs/prior-art.md P1/P3 --
+#: the Archive Team era table and the DROID container signatures).  The
+#: markers are searched as raw byte substrings, so the odd byte offset the
+#: mirror text lands at (see :func:`parse_basic_file_info`) does not matter.
+BFI_ERA_2019 = "2019+"          # 'Format: 20xx' -- the layout parse_basic_file_info decodes
+BFI_ERA_2008 = "2008-2018"      # 'Revit Build: <product> 20xx (Build: ...)' -- never read by tekton
+BFI_ERA_UNKNOWN = "unknown"      # neither marker: not a BasicFileInfo we can classify
+_ERA_MARKERS = (("Format:".encode("utf-16le"), BFI_ERA_2019),
+                ("Revit Build:".encode("utf-16le"), BFI_ERA_2008))
+_ERA_YEAR_WINDOW = 256           # bytes of UTF-16LE text scanned after a marker for the year
+_YEAR_ON_LINE = re.compile(r"[^\r\n]*?(20\d{2})")   # first 20xx before the line ends
+
+
+def _year_after(data: bytes, at: int) -> Optional[int]:
+    """First ``20xx`` in the UTF-16LE text starting at byte ``at``, on that
+    mirror line only, else None."""
+    m = _YEAR_ON_LINE.match(data[at:at + _ERA_YEAR_WINDOW].decode("utf-16le", errors="replace"))
+    return int(m.group(1)) if m else None
+
+
+def classify_bfi_era(raw: bytes) -> Dict[str, Any]:
+    """Which ``BasicFileInfo`` era a raw stream belongs to, and the release
+    year it declares -- WITHOUT assuming the 2019+ binary layout.
+
+    Returns ``{'era': '2019+' | '2008-2018' | 'unknown', 'year': int | None}``:
+
+    * ``'2019+'``     -- the mirror text carries ``Format: 20xx`` (Revit 2019
+      and newer; the layout :func:`parse_basic_file_info` decodes).  ``year``
+      is that number (None if the marker has no year after it).
+    * ``'2008-2018'`` -- no ``Format:`` but a ``Revit Build: ... 20xx ...``
+      line (the Revit 2008-2018 layout tekton has never read).  ``year`` is
+      the first ``20xx`` on that line, if any.
+    * ``'unknown'``   -- neither marker (empty / truncated / not a
+      BasicFileInfo stream at all); ``year`` None.
+
+    Total: never raises, whatever the bytes.
+    """
+    data = bytes(raw or b"")
+    for marker, era in _ERA_MARKERS:                # 'Format:' wins when both appear
+        i = data.find(marker)
+        if i != -1:
+            return {"era": era, "year": _year_after(data, i + len(marker))}
+    return {"era": BFI_ERA_UNKNOWN, "year": None}
+
 
 def parse_basic_file_info(data: bytes) -> Dict[str, Any]:
     """Decode ``BasicFileInfo``.

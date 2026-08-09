@@ -46,7 +46,7 @@ import os
 import re
 import time
 from dataclasses import dataclass, field as dc_field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, NoReturn, Optional
 
 from . import base as _base
 from . import intent as _intent
@@ -54,7 +54,8 @@ from .base import (BaseError, BaseNotCertified, ResolvedBase, PIN,
                    is_autodesk_sample, resolve_base, release_status)
 
 __all__ = [
-    "author", "run", "AuthorRequest", "AuthorResult", "FrontDoorError", "ROUTES",
+    "author", "run", "AuthorRequest", "AuthorResult", "FrontDoorError",
+    "InputReleaseRefused", "ROUTES",
     "BaseError", "BaseNotCertified", "ResolvedBase", "PIN", "resolve_base",
     "is_autodesk_sample", "release_status", "VERSION",
 ]
@@ -65,6 +66,17 @@ ROUTES = ("prompt", "ifc", "rvt")
 
 class FrontDoorError(RuntimeError):
     """A request the front door cannot honour (bad arguments / no input)."""
+
+
+class InputReleaseRefused(FrontDoorError):
+    """The ``--rvt`` INPUT is of an era / release tekton cannot read (issue
+    #176): nothing can be built from it, so the route stops with ONE line
+    (``str(exc)``; the CLI's usage-error exit 2, no traceback) after writing
+    the refusal manifest.  ``.result`` is that :class:`AuthorResult`."""
+
+    def __init__(self, line: str, result: "AuthorResult") -> None:
+        super().__init__(line)
+        self.result = result
 
 
 @dataclass
@@ -531,18 +543,50 @@ def _route_rvt(req: AuthorRequest, out_dir: str) -> AuthorResult:
         res.errors.append(f"--rvt file not found: {req.rvt}")
         res.status = "FAILED (rvt file not found)"
         return res
+    # the INPUT's era / release is classified on EVERY job before anything
+    # opens it (issue #176): a known release proceeds as before, a 2019+
+    # release tekton has never read proceeds stamped UNVERIFIED-RELEASE, and
+    # a pre-2019 / undetectable / non-Revit input is refused with one line
+    from .input_release import input_release_block
+    in_rel = input_release_block(rvt_path)
+    if in_rel["status"] == "refused":
+        _refuse_rvt_input(req, out_dir, res, rvt_path, in_rel)
     # the edit runs under the INPUT file's own release (host release context,
     # issue #14): a Revit 2025/2024 project is opened, planned, edited and
     # verified with its release's framing + codecs; a native file enters no
-    # context; a release we cannot author into is reported, never guessed
+    # context; a release we cannot author into is reported, never guessed --
+    # and is then at least READ under its own schema (the instruments'
+    # lenient ladder, #121) so open / plan are schema-directed, not 2026-framed
     from .release_ctx import enter_host_release
     with contextlib.ExitStack() as stack:
         ctx_note = enter_host_release(stack, rvt_path)
-        return _route_rvt_inner(req, out_dir, res, rvt_path, ctx_note)
+        if ctx_note:
+            from ..global_framing import enter_own_release
+            rung = enter_own_release(stack, rvt_path)
+            if rung:
+                ctx_note = f"{ctx_note}; read side: {rung}"
+        return _route_rvt_inner(req, out_dir, res, rvt_path, ctx_note, in_rel)
+
+
+def _refuse_rvt_input(req: AuthorRequest, out_dir: str, res: AuthorResult,
+                      rvt_path: str, in_rel: Dict[str, Any]) -> NoReturn:
+    """Write the refusal manifest for an unreadable-era input, then raise
+    :class:`InputReleaseRefused` (the ONE line; exit 2 at the CLI)."""
+    from . import manifest as MF
+    line = str(in_rel["line"])
+    res.manifest = MF.edit_manifest(
+        inputs={"rvt": rvt_path, "edit": req.edit},
+        base_note="no edit attempted: the input's release cannot be read (see input_release)",
+        out_dir=out_dir, edit_spec={}, run={}, errors=[line], input_release=in_rel)
+    res.manifest_paths = MF.write_manifest(res.manifest, out_dir)
+    res.status = line
+    res.errors = [line]
+    raise InputReleaseRefused(line, res)
 
 
 def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
-                     rvt_path: str, ctx_note: Optional[str]) -> AuthorResult:
+                     rvt_path: str, ctx_note: Optional[str],
+                     in_rel: Dict[str, Any]) -> AuthorResult:
     from . import edit as E
     from . import manifest as MF
 
@@ -586,12 +630,12 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
     # an edit keeps its input's release, so the recipient question is only
     # "can you open the input" -- answered here without a follow-up call
     version_block = _rvt_route_version_block(
-        rvt_path, int(req.target_version) if req.target_version is not None else None)
+        int(req.target_version) if req.target_version is not None else None, in_rel["year"])
     manifest = MF.edit_manifest(
         inputs=inputs, base_note=base_note, out_dir=out_dir,
         edit_spec=(spec.as_json() if spec is not None else {"error": errors[:1]}),
         run=run, editables_before=editables_before, errors=errors,
-        version=version_block)
+        version=version_block, input_release=in_rel)
     res.manifest = manifest
     res.manifest_paths = MF.write_manifest(manifest, out_dir)
     res.status = str(manifest.get("status"))
@@ -604,17 +648,12 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
 # helpers
 # ============================================================================
 
-def _rvt_route_version_block(rvt_path: str, target: Optional[int]) -> Dict[str, Any]:
+def _rvt_route_version_block(target: Optional[int], in_rel: Optional[int]) -> Dict[str, Any]:
     """The honest version story for an EDIT: the output preserves the input
-    file's release (an edit cannot transmute a 2026 file into a 2025 one).
-    ``target=None`` = the recipient's year was not stated: the detected input
-    release is still reported (status ``detected``)."""
-    in_rel: Optional[int] = None
-    try:
-        from .. import versions as _V
-        in_rel = _V.detect_release(rvt_path)
-    except Exception:                                                # pragma: no cover
-        _V = None
+    file's release ``in_rel`` (the year the input-release precheck detected;
+    an edit cannot transmute a 2026 file into a 2025 one).  ``target=None`` =
+    the recipient's year was not stated: the detected input release is still
+    reported (status ``detected``)."""
     vb: Dict[str, Any] = {"requested": (int(target) if target is not None else None),
                           "input_release": in_rel, "output_release": in_rel}
     if in_rel is not None and target is None:
