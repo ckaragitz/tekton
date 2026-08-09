@@ -999,14 +999,18 @@ def identity_gate(path: str) -> Dict[str, Any]:
 
 def status_gate(out_path: str, base_path: str) -> Dict[str, Any]:
     """The job runner's provenance / deliverability gate: ledgers the output
-    against its base.  Every genesis base descends from an Autodesk sample
-    (ZA_deep = the rst sample reduced + substituted in place), so the honest
-    status is PROOF-ONLY, NOT-DELIVERABLE -- recorded, not asserted away."""
+    against its base.  On the pinned composed genesis base the ledger uses
+    the base's authorship census (rvt.frontdoor.census, #143) -- only its
+    residue is Autodesk-derived, our composed slots and this build's content
+    are ours -- and the reason names the still-open gates (G2 #19 / G3 #23 /
+    residue #21); the honest status stays PROOF-ONLY, NOT-DELIVERABLE, a
+    LABEL recorded beside the delivered file, never a refusal."""
     try:
         sys.path.insert(0, HERE)
         import rvt_job as J  # type: ignore
         g = J.provenance_gate(out_path, base_path)
         return {k: g.get(k) for k in ("status", "deliverable", "base", "base_is_autodesk_sample",
+                                       "base_kind", "residue",
                                        "g1", "provenance_totals", "created_elements", "reason",
                                        "elapsed_s") if k in g}
     except Exception as e:
