@@ -16,6 +16,10 @@ Asserts (per the Claude Code plugin reference, verified 2026-08):
     (scripts/, references/, assets/, examples/, lib/, skills/, agents/,
     commands/) exists on disk.
   * lib/pyproject.toml parses and its package source exists.
+  * stale-claim guard: agents/*.md, commands/*.md, README.md and
+    docs/HONEST-STATUS.md carry none of the retired phrases in STALE_CLAIMS
+    (".rvt creation not yet available / route to IFC", `pip install ./lib`
+    on the hot path ...) -- issue #119; the front door creates and delivers.
 
 Exit 0 = all assertions passed; 1 = failures listed. Prints a report.
 
@@ -24,6 +28,7 @@ Usage:
 """
 from __future__ import annotations
 
+import glob
 import json
 import os
 import re
@@ -357,6 +362,56 @@ def check_referenced_paths() -> None:
         fail(f"{doc}: referenced path does not exist: {ref}")
 
 
+# ---------------------------------------------------------------- stale claims
+# Retired capability claims that must never return to the shipped front
+# matter (issue #119, hard rule 1): the front door CREATES and DELIVERS
+# .rvt/.rfa on the certified bases, and nothing on the job path installs.
+# (regex, why) -- matched case-insensitively, one failure per line hit.
+STALE_CLAIMS = (
+    (r"not yet available",
+     ".rvt/.rfa creation is delivered by `go author`; nothing is 'not yet available'"),
+    (r"in-progress and not deliverable",
+     "creation is delivered (stamped PROOF-ONLY), never 'not deliverable'"),
+    (r"route (?:it |them |the \w+ )?to IFC",
+     "IFC is an addition, never a replacement for a requested .rvt (rule 1)"),
+    (r"deliver Tier-1 IFC instead",
+     "never swap an IFC for a requested .rvt (rule 1)"),
+    (r"pip install \./lib",
+     "no install on the hot path: the bootstrap finds lib/ itself (doctor --install is the only install)"),
+    (r"creation of new elements in `?\.rvt`? is not",
+     "creation is delivered by the tekton-author flow"),
+    (r"still in progress",
+     "grade capabilities certified / validated / open with evidence, not 'in progress'"),
+)
+STALE_CLAIM_DOCS = ("agents/*.md", "commands/*.md", "README.md",
+                    os.path.join("docs", "HONEST-STATUS.md"))
+
+
+def stale_claim_hits(root: str) -> list[str]:
+    """`relpath:line: phrase -- why` for every retired claim found under root."""
+    pats = [(re.compile(rx, re.I), why) for rx, why in STALE_CLAIMS]
+    hits: list[str] = []
+    for pattern in STALE_CLAIM_DOCS:
+        for path in sorted(glob.glob(os.path.join(root, pattern))):
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                for n, line in enumerate(fh, 1):
+                    for rx, why in pats:
+                        m = rx.search(line)
+                        if m:
+                            hits.append(f"{os.path.relpath(path, root)}:{n}: "
+                                        f"stale claim {m.group(0)!r} -- {why}")
+    return hits
+
+
+def check_stale_claims() -> None:
+    hits = stale_claim_hits(ROOT)
+    for h in hits:
+        fail(h)
+    if not hits:
+        ok(f"stale-claim guard: {len(STALE_CLAIMS)} retired phrases absent from "
+           f"agents/, commands/, README.md, docs/HONEST-STATUS.md")
+
+
 # ---------------------------------------------------------------- main
 def main() -> int:
     print(f"== validate_plugin: {ROOT} ==")
@@ -367,6 +422,7 @@ def main() -> int:
     check_commands()
     check_lib()
     check_referenced_paths()
+    check_stale_claims()
     for n in notes:
         print("  " + n)
     print(f"\n  assertions passed: {checked}")
