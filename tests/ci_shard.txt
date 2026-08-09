@@ -46,3 +46,4 @@ tests/test_probe_batch.py
 tests/test_rfa_load.py
 tests/test_go_edit.py
 tests/test_frontdoor_wallsolid.py
+tests/test_status_gate.py
