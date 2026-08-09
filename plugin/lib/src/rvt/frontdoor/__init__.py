@@ -41,6 +41,7 @@ CLI: ``tools/frontdoor.py`` (the ``author`` command).  Territory:
 """
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import time
@@ -473,17 +474,29 @@ def _route_ifc(req: AuthorRequest, out_dir: str) -> AuthorResult:
 # ============================================================================
 
 def _route_rvt(req: AuthorRequest, out_dir: str) -> AuthorResult:
-    from . import edit as E
-    from . import manifest as MF
-
     res = AuthorResult(route="rvt", ok=False, status="", out_dir=out_dir)
     rvt_path = os.path.abspath(str(req.rvt))
-    inputs: Dict[str, Any] = {"rvt": rvt_path, "edit": req.edit}
-    errors: List[str] = []
     if not os.path.isfile(rvt_path):
         res.errors.append(f"--rvt file not found: {req.rvt}")
         res.status = "FAILED (rvt file not found)"
         return res
+    # the edit runs under the INPUT file's own release (host release context,
+    # issue #14): a Revit 2025/2024 project is opened, planned, edited and
+    # verified with its release's framing + codecs; a native file enters no
+    # context; a release we cannot author into is reported, never guessed
+    from .release_ctx import enter_host_release
+    with contextlib.ExitStack() as stack:
+        ctx_note = enter_host_release(stack, rvt_path)
+        return _route_rvt_inner(req, out_dir, res, rvt_path, ctx_note)
+
+
+def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
+                     rvt_path: str, ctx_note: Optional[str]) -> AuthorResult:
+    from . import edit as E
+    from . import manifest as MF
+
+    inputs: Dict[str, Any] = {"rvt": rvt_path, "edit": req.edit}
+    errors: List[str] = []
     # open the project (file-driven) and normalise the edit into ops
     editables_before = None
     spec = None
@@ -498,7 +511,8 @@ def _route_rvt(req: AuthorRequest, out_dir: str) -> AuthorResult:
     except E.EditParseError as e:
         errors.append(f"edit not understood: {e}")
     except Exception as e:                                           # noqa: BLE001
-        errors.append(f"cannot open/plan {rvt_path}: {type(e).__name__}: {e}")
+        errors.append(f"cannot open/plan {rvt_path}: {type(e).__name__}: {e}"
+                      + (f" ({ctx_note})" if ctx_note else ""))
 
     run: Dict[str, Any] = {}
     if spec is not None and not errors:

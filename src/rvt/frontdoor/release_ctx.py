@@ -63,6 +63,21 @@ port layer module (``rvt.genesis.port<year>``); anything else raises
 Everything swapped is restored LIFO on exit; nesting is safe; nothing on
 disk changes.  Territory: this file + the two-line entry hook in
 ``rvt.frontdoor.build`` (documented in docs/inbox/build-2025.md).
+
+THE HOST-KEYED ENTRY (famload-2025-lane, issue #14).  The build context is
+keyed on the BASE the front door resolved.  Every lane that instead operates
+on an EXISTING file -- the four-registry loader ``rvt.famload``, the
+component loader ``rvt.famgen.loader``, ``rvt.convert.add_to_project``
+(prompt + the user's project), the ``--rvt --edit`` route -- needs the very
+same swap set keyed on THAT file's release, or it dies on the first
+``StreamWalker`` with ``unexpected Partitions header: v=9 cls=0x391`` (gap B
+of docs/inbox/compose-2025.md).  :func:`host_release_context` is that entry:
+same mechanism, any existing file, re-entrant (a same-release context that
+is already active is joined, not re-applied -- the loaders are called from
+inside ``build_intent`` too), and the family CONTAINER donor stays OUR
+bundled certified base of the host's release (never the user's file -- rule
+3).  The read-only Global-stream tokens both contexts need come from
+``rvt.global_framing`` (the leaf the validator's census shares).
 """
 from __future__ import annotations
 
@@ -75,7 +90,8 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 from .. import versions as V
 
 __all__ = ["ReleaseContextError", "native_release", "needs_release_context",
-           "release_build_context", "active_release"]
+           "release_build_context", "host_release_context", "enter_host_release",
+           "active_release"]
 
 
 class ReleaseContextError(RuntimeError):
@@ -83,13 +99,14 @@ class ReleaseContextError(RuntimeError):
     missing piece (unknown release, uncertified, or no port layer)."""
 
 
-#: the currently ACTIVE non-default release context (None outside one).
-_ACTIVE: Dict[str, Any] = {"release": None}
+#: the info dict of the ACTIVE non-default release context (None outside one).
+_ACTIVE: Dict[str, Any] = {"info": None}
 
 
 def active_release() -> Optional[int]:
-    """The release year of the innermost active build context, or None."""
-    return _ACTIVE["release"]
+    """The release year of the active non-default release context, or None."""
+    info = _ACTIVE["info"]
+    return int(info["release"]) if info else None
 
 
 def native_release() -> int:
@@ -125,7 +142,8 @@ def _codec_triple_from_base(base_path: str, year: int):
     """(decoder, encoder, schema) parsed from the BASE's own Formats/Latest,
     verified against the release pin -- the standalone-safe way to get the
     target schema (never reads samples/)."""
-    schema = V.schema_of(base_path)
+    from ..global_framing import schema_of
+    schema = schema_of(base_path)
     want = V.KNOWN_RELEASES[year].schema_sha256
     got = schema.stats()["sha256"]
     if want and got != want:
@@ -205,28 +223,95 @@ def _wrap_records_methods(swap, port, dec) -> None:
 # the context
 # ---------------------------------------------------------------------------
 
-@contextlib.contextmanager
-def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
-    """Run the build stack against ``base_path``'s own release.
-
-    No-op (yields None) when the base IS the native release.  Otherwise
-    yields a small info dict and keeps every swap active until exit."""
-    year = V.detect_release(base_path)
+def _classify_release(path: str, *, host: bool):
+    """(year, Release, port module) for an existing file, or the no-op marker
+    ``(year, None, None)`` when the file IS the native release.  Raises
+    ``ReleaseContextError`` naming the one missing piece otherwise."""
+    what = "host lane (load/place/edit)" if host else "build"
+    year = V.detect_release(path)
     if year is None:
         raise ReleaseContextError(
-            f"cannot detect the Revit release of {base_path} -- refusing to "
+            f"cannot detect the Revit release of {path} -- refusing to "
             "guess the emit framing")
     if year == native_release():
-        yield None
-        return
+        return year, None, None
     rel = V.KNOWN_RELEASES.get(year)
     if rel is None or not rel.creation_certified:
         raise ReleaseContextError(
             f"Revit {year} is not a certified creation release "
             f"(KNOWN_RELEASES[{year}].creation_certified is not True) -- "
-            "resolve_base should never have produced this base")
-    port = _port_module(year)
-    dec, enc, schema = _codec_triple_from_base(base_path, year)
+            f"the {what} cannot author into a Revit {year} file")
+    return year, rel, _port_module(year)
+
+
+def _bundled_base_of(year: int) -> Optional[str]:
+    """OUR pinned + certified genesis base of ``year`` from bundled locations
+    (repo pin path or the plugin bundle), or None when it does not resolve.
+    The family CONTAINER donor of a host-keyed context: never the user's own
+    file (rule 3), always our composed base of the same release."""
+    try:
+        from .base import resolve_base
+        rb = resolve_base(target_release=int(year))
+    except Exception:                                   # noqa: BLE001
+        return None
+    return rb.path if (rb.pinned and rb.certified) else None
+
+
+@contextlib.contextmanager
+def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
+    """Run the build stack against ``base_path``'s own release.
+
+    No-op (yields None) when the base IS the native release.  Otherwise
+    yields a small info dict and keeps every swap active until exit.  A
+    same-release context that is already active is joined (yields its info)
+    instead of re-applied."""
+    with _release_context(base_path, host=False) as info:
+        yield info
+
+
+@contextlib.contextmanager
+def host_release_context(host_path: str) -> Iterator[Optional[Dict[str, Any]]]:
+    """Run a load / place / edit lane against an EXISTING file's own release
+    (the famload-2025 lane's entry -- gap B).
+
+    ``host_path`` is any readable project: our own output, a bundled base or
+    the user's file.  No-op (yields None) for a native-release host; joins an
+    already-active same-release context; otherwise applies exactly the build
+    context's swap set keyed on the HOST's release, with the family container
+    donor pinned to our bundled certified base of that release."""
+    with _release_context(host_path, host=True) as info:
+        yield info
+
+
+def enter_host_release(stack: contextlib.ExitStack, host_path: str) -> Optional[str]:
+    """Enter :func:`host_release_context` on ``stack`` for a lane that must
+    still SURVEY / REPORT when the host's release cannot be authored into
+    (an uncertified or undetectable release).  Returns None when the context
+    is in force (or the host is native), else the refusal sentence -- the
+    caller records it and its own guard refuses honestly downstream."""
+    try:
+        stack.enter_context(host_release_context(host_path))
+        return None
+    except ReleaseContextError as e:
+        return f"no release context for {host_path}: {e}"
+
+
+@contextlib.contextmanager
+def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, Any]]]:
+    year, rel, port = _classify_release(path, host=host)
+    if rel is None:
+        yield None
+        return
+    active = _ACTIVE["info"]
+    if active is not None:
+        if int(active["release"]) == year:
+            yield active                          # re-entrant: join, don't stack
+            return
+        raise ReleaseContextError(
+            f"a Revit {active['release']} release context is active; cannot "
+            f"enter a Revit {year} context for {path} inside it (one release "
+            "per process scope -- exit the outer context first)")
+    dec, enc, schema = _codec_triple_from_base(path, year)
 
     saved: List[Tuple[Any, str, Any]] = []
 
@@ -236,9 +321,9 @@ def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
 
     import os
 
-    from .. import adocument as ADOC
     from .. import commit as COMMIT
     from .. import encode as ENC
+    from .. import global_framing as GF
     from .. import manipulate as MANIP
     from .. import mutate as MU
     from .. import reduce as RED
@@ -256,29 +341,36 @@ def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
     from ..stream_encoders import decode_basic_file_info
     from . import standalone as SA
 
-    base_abs = os.path.abspath(base_path)
+    path_abs = os.path.abspath(path)
+    # the family CONTAINER donor + standalone "active base": the build's own
+    # base, or -- for a host lane -- our bundled certified base of the host's
+    # release (falls back to the host only when no bundle resolves, recorded)
+    donor_abs = path_abs
+    donor_note = "build base"
+    if host:
+        bundled = _bundled_base_of(year)
+        if bundled:
+            donor_abs = os.path.abspath(bundled)
+            donor_note = "bundled certified base of the host's release"
+        else:
+            donor_note = ("the host itself (no bundled certified base of "
+                          f"Revit {year} resolved) -- family containers would "
+                          "borrow the host's Formats/Latest")
 
-    with V.reading(base_path) as ords:
-        # ---- (1) module-local framing-tag copies (context_2025's list) ----
+    with V.reading(schema=schema) as ords, GF.bound(ords, schema=schema):
+        # ---- (1) module-local framing-tag copies (context_2025's list; ----
+        # ----     the Global-stream tokens + ADocument decoder are GF's) ----
         swap(RED, "BLOCK_TAG", ords["BLOCK_TAG"])
         swap(RED, "BLOCK_TRL_TAG", ords["TRAILER_TAG"])
         swap(MANIP, "BLOCK_TAG", ords["BLOCK_TAG"])
         swap(MANIP, "TRAILER_TAG", ords["TRAILER_TAG"])
         swap(COMMIT, "BLOCK_TRL_TAG", ords["TRAILER_TAG"])
         swap(WRITER, "BLOCK_TRL_TAG", ords["TRAILER_TAG"])
-        swap(FF, "CD_SEPARATOR", struct.pack(
-            "<HiHi", ords["CONTAINER_CLASS"], -1, ords["UNIT_INNER_CLASS"], -1))
-        swap(FF, "CD_END_RECORD", struct.pack(
-            "<HiiI", ords["CONTAINER_CLASS"], 0, -1, 0))
-        # ---- (1b) famgen's own framing copies (this stream's addition) ----
+        # ---- (1b) famgen's own framing copies (build-2025's addition) -----
         swap(FSK, "_PART_TAG", ords["CONTAINER_CLASS"])
         swap(FSK, "BLOCK_TAG", ords["BLOCK_TAG"])
         swap(FSK, "TRAILER_TAG", ords["TRAILER_TAG"])
         swap(FSK, "FOOTER_TAG", ords["FOOTER_TAG"])
-        swap(FDA, "FAMILY_END_RECORD", struct.pack(
-            "<Hii", ords["CONTAINER_CLASS"], 0, -1))
-        swap(GSK, "EMPTY_CONTENT_DOCUMENTS", struct.pack(
-            "<HIII", ords["CONTAINER_CLASS"], 0, 0xFFFFFFFF, 0))
         # build_family_save_unit bakes its 12-byte unit separator inline;
         # rewrite exactly those 12 bytes on the way out (framing only,
         # payload untouched)
@@ -295,9 +387,9 @@ def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
 
         swap(FF, "build_family_save_unit", bfsu)
 
-        # ---- (2) codec singletons -> the base's schema --------------------
+        # ---- (2) codec singletons -> the base's schema (the ADocument -----
+        # ----     decoder is GF.bound's) -----------------------------------
         swap(ENC, "_DEFAULT_ENCODER", enc)
-        swap(ADOC, "_DECODER", ADOC.ADocumentDecoder(schema))
         swap(REGADD, "ObjectDecoder", functools.partial(ObjectDecoder, schema))
         swap(REGDIFF, "ObjectDecoder", functools.partial(ObjectDecoder, schema))
         # constructor singletons (genesis.types._STATE is read via _S())
@@ -325,6 +417,7 @@ def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
                 return schema
             return orig_load(path)
 
+        from .. import adocument as ADOC
         from .. import objects as OBJECTS
         swap(SCHEMA, "load_schema", _load_schema_ctx)
         for _m in (OBJECTS, ENC, ADOC):
@@ -339,8 +432,9 @@ def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
         swap(MU, "CLASS_ELECTRICAL_SYSTEM", _by_name(schema, "RbsElectricalSystem"))
 
         # ---- (4) fresh-document global models: class tags by name, --------
-        # ----     identity strings from the base's own BasicFileInfo -------
-        with open_rvt(base_path) as f:
+        # ----     identity strings from OUR base's own BasicFileInfo -------
+        # ----     (the donor: never a user's host file -- rule 6) ----------
+        with open_rvt(donor_abs) as f:
             bfi = decode_basic_file_info(f.raw("BasicFileInfo"))
         base_format = str(bfi.get("format") or year)
         base_build = str(bfi.get("build") or "")
@@ -404,23 +498,24 @@ def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
         swap(FF, "FORMATS_LATEST_SHA256_PREFIX", pin_prefix)
         swap(FDA, "FORMATS_LATEST_SHA256_PREFIX", pin_prefix)
 
-        # ---- (6) standalone resolution: the ACTIVE base is the bundle -----
+        # ---- (6) standalone resolution: the ACTIVE base is OUR base of ----
+        # ----     this release (the family container donor) ---------------
         orig_bbp = SA.bundled_base_path
 
         def bbp(explicit: Optional[str] = None, **kw) -> str:
             if explicit:
                 return orig_bbp(explicit, **kw)     # caller authority intact
-            return base_abs
+            return donor_abs
 
         swap(SA, "bundled_base_path", bbp)
         prev_sa_state = dict(SA._SCHEMA_STATE)
         SA._SCHEMA_STATE.clear()
         SA._SCHEMA_STATE.update({
-            "schema": schema, "from": base_abs,
+            "schema": schema, "from": path_abs,
             "sha256": schema.stats()["sha256"],
             "bytes": schema.stats().get("bytes", 0), "blob": b"",
             "is_corpus_constant": False,
-            "installed": True, "installed_from": base_abs,
+            "installed": True, "installed_from": path_abs,
             "decoder": dec, "encoder": enc,
         })
         # the constructed specimen templates through the port layer (mined
@@ -444,15 +539,19 @@ def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
         # famdoc_adoc's own raise sites (corroborated_donor_scan, issue #12),
         # so every release path -- 2026 included -- gets it.
 
+        # "base" = OUR base of this release (the family container donor);
+        # "path" = the file the context is keyed on (== base for a build)
         info = {"release": year, "native": native_release(),
                 "ordinals": dict(ords), "schema_sha256": schema.stats()["sha256"],
-                "port_layer": port.__name__, "base": base_abs,
+                "port_layer": port.__name__, "base": donor_abs,
+                "base_note": donor_note, "keyed_on": ("host" if host else "base"),
+                "path": path_abs,
                 "bfi": {"format": base_format, "build": base_build}}
-        _ACTIVE["release"] = year
+        _ACTIVE["info"] = info
         try:
             yield info
         finally:
-            _ACTIVE["release"] = None
+            _ACTIVE["info"] = None
             for obj, name, val in reversed(saved):
                 setattr(obj, name, val)
             GSK._SCHEMA_CACHE.clear()
