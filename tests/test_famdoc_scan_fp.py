@@ -136,7 +136,8 @@ def test_misaligned_window_is_recorded_not_counted(authored, misaligned_window):
     r = _corroborated(authored, {misaligned_window})
     assert r["hits"] == 0 and r["distinct"] == 0 and r["examples"] == []
     assert r["false_positive_windows"] == [misaligned_window]
-    assert r["raw_window_hits"] == raw["hits"]
+    assert r["raw_window_hits"] == raw["hits"] and r["raw_window_distinct"] == raw["distinct"]
+    assert r["false_positive_windows_complete"] is True
     assert "cross-field" in r["false_positive_note"]
 
 
