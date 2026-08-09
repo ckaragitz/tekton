@@ -10,19 +10,24 @@ per-route code:
 
 - **Inputs** — any subset of `{prompt, ifc, rvt, rfa, spec}`
   (`spec` = the building/room spec JSON, `spec/building.schema.json`
-  dialect; `rfa` = a family request: a **famspec** JSON `{"kind": …}` —
+  dialect; `rfa` = a **famspec** JSON `{"kind": …}` *or* a `.rfa` path —
   see the rfa rows for the honest input contract).
 - **Outputs** — one of `{rvt, rfa, ifc}`.
 - **Machine truth**: `src/rvt/frontdoor/matrix.py` (`CELLS`/`STAGES`/`CHAINS`).
-  `tools/route.py matrix` prints the live table **and self-audits every
-  evidence citation** (test paths exist; every `certified:` ref is really
-  in `docs/coverage/viewer-certified.json`). `tests/test_router.py` fails
-  the suite if any claim goes stale. This document is the rendered copy.
+  `tools/route.py matrix` (and `tools/frontdoor.py matrix`) print the live
+  table **and self-audit every evidence citation** (test/worked/record paths
+  exist; every `certified:` ref is really in
+  `docs/coverage/viewer-certified.json`). `tests/test_router.py` fails the
+  suite if any claim goes stale **or if this document disagrees with the
+  machine matrix**. On a fresh clone the certified probe *binaries*
+  (git-ignored `experiments/**/*.rvt`) are absent — the audit says so as a
+  note; the ledger, not the disk, certifies them.
 - **Router**: `rvt.frontdoor.router.route(inputs, output, **opts)`,
-  CLI `tools/route.py run`. It composes the *existing* certified stages —
-  it adds no authoring logic of its own. Anything not in the table comes
-  back as **one clear line** (the matrix row + the closest supported
-  route), never a traceback.
+  CLI `tools/route.py run`. It composes the *existing* stages — the front
+  door’s build/edit pipelines and the `rvt.convert` routes — and adds no
+  authoring logic of its own. Anything not in the table comes back as
+  **one clear line** (the matrix row + the closest supported route), never
+  a traceback.
 - **Deliverable rule**: gates are labels. Every route **delivers** its
   output file plus *every* intermediate (intent JSON, IFC, families,
   underlying manifests) plus a route manifest (`route.json` / `ROUTE.md`)
@@ -31,9 +36,14 @@ per-route code:
 
 Status vocabulary — honest per cell:
 
-- **works** — runnable end-to-end today; runnable evidence cited.
+- **works** — runnable end-to-end today; runnable evidence cited (tests +
+  worked manifests; `certified:` where the ledger has it). *Works* is a
+  statement about the route, not viewer acceptance of every output: the
+  caveats column says exactly what Autodesk’s reader has and has not seen.
 - **partial** — the mechanism runs with a *named* caveat/scope gap.
 - **missing** — not implemented; the router answers with the clear line.
+
+Live census: **21 cells — 17 works / 1 partial / 3 missing.**
 
 ## Single inputs (all 15 cells enumerated)
 
@@ -46,11 +56,11 @@ Status vocabulary — honest per cell:
 | ifc → ifc | **works** | `ifc_normalize` (ifc→intent, intent→ifc) | `tests/test_target2025.py`, `tests/test_ifc_intent.py` | normalisation into our tagging-contract dialect; content outside the resolved intent does not survive |
 | ifc → rfa | **works** | `ifc_to_rfa` (room: intent→rfa; product: ifc→facts→rfa) | **certified** `L_downlight_loaded.rvt`; `tests/test_ifc_family.py` | room IFCs → catalog families for tagged equipment; product IFCs → the measured **downlight archetype** (the one facts→rfa archetype wired) |
 | rvt → rvt | *missing* | — | — | an .rvt alone is a no-op copy; an edit needs instructions → use **prompt+rvt** |
-| rvt → ifc | *missing* | — | — | no RVT→intent resolver yet (we read/inventory .rvt, we don’t lift geometry back to intent); inspect with `tools/rvt_edit.py info` |
-| rvt → rfa | *missing* | — | — | family extraction not implemented — and extracting third-party families would redistribute vendor bytes (content rule); our families are regenerable from plans |
-| rfa → rvt | **works** | `famspec_load` (facts→rfa, four-registry load) | **certified** `L1a_rstbasic_loaded_levelhead.rvt`, `L_downlight_loaded.rvt`; `tests/test_famload.py` | **input contract**: a famspec JSON (`{"kind": "downlight", …}`) — the family is *rebuilt by its constructor* and loaded; a bare foreign `.rfa` path is refused with this row (no .rfa-from-disk reload yet); default host = the loader-certified rst host |
-| rfa → ifc | *missing* | — | — | no family→IFC emitter; author the product IFC from facts instead |
-| rfa → rfa | *missing* | — | — | family modification needs instructions and no family-edit pipeline exists (see prompt+rfa) |
+| rvt → ifc | **works** | `rvt_to_ifc` (rvt-read, rvt→intent readback, intent→ifc — `rvt.convert.rvt_to_ifc`) | `tests/test_convert.py`; `tests/test_router.py` (builds a room, exports it, everything survives); worked `experiments/convert/rvt-to-ifc/electrical_room_prompt.ifc` + manifest; record `docs/inbox/convert-a.md` | **the round trip is the acceptance**: the IFC re-resolves through our own resolver and the manifest carries the survival table (acceptance output: equipment 7/7 → 4/4 incl. transformer, walls 4/4; quarantined MEP sample: equipment 29/29, feeder edges 28/28, walls 131/133 honest partial). Scope: levels, straight walls, electrical equipment + tagging-contract values, equipment-to-equipment feeders; the rest is *counted* as not-extracted. A foreign source is delivered with the FOREIGN DESIGN CONTENT (+ QUARANTINED) stamps |
+| rvt → rfa | **works** | `extract_family` (rvt-read, rvt→rfa — `rvt.convert.extract_family`, `--family` selector) | `tests/test_convert.py`; `tests/test_router.py` (extract → reload full cycle); worked `experiments/convert/extract-family/DP1_reextracted.*`; **certified** `TB0g.rvt` (extract→place, base level); record `convert-a.md` | our loaded-project outputs extract **clean** (family-mode validator 0 errors) and complete the full cycle generate→load→extract→re-load; a Revit-authored *project-hosted* family is delivered + labelled partial (dangling host-side style/category refs — repatriation is a follow-up); nested family documents refused by name; foreign source → FOREIGN/QUARANTINED stamps. TB0g certifies extract→place *at base level* (embedded-born famdoc + instance on our composed base PASSES); the product lane’s own artifact is validator/census-gated |
+| rfa → rvt | **works** | `rfa_load` (famspec: facts→rfa + four-registry `rfa-load`; extracted .rfa: `rfa-reload`) | **certified** `L1a_rstbasic_loaded_levelhead.rvt`, `L_downlight_loaded.rvt`, `stage_L8_lp4.rvt`, **`T2a.rvt`** (a Revit-born standalone .rfa famloaded onto our composed base + instance), **`TB0g.rvt`**; worked `experiments/rftprobe/probes.json`, `DP1_reextracted.reloaded.rvt.load.json`; `tests/test_famload.py`, `tests/test_convert.py`, `tests/test_router.py` | **input contract**: (a) famspec JSON (`{"kind": "downlight", …}`) — rebuilt by its constructor, loaded via `rvt.famload`; (b) a `.rfa` tekton **extracted** from a loaded project — reloaded as-is via `rvt.famgen.loader` into a host whose id watermark sits below the family’s ids (the pinned base always qualifies); (c) a **standalone-born** `.rfa` (any Revit-saved family, our own `start_id=1000` deliverables) needs the schema-typed id-remap lane — viewer-certified in the research lane (T2a) but **not product-wired yet** → one clear line. Default host = the pinned certified genesis base (bundled); pass `--rvt` for your project. The famspec lane needs the family container archetype on disk (owner machine) until `famfrom_ifc` emits on the bundled base |
+| rfa → ifc | *missing* | — | — | no family→IFC emitter; author the product IFC from facts, or load the family and export the project (rfa→rvt then rvt→ifc) |
+| rfa → rfa | *missing* | — | — | an .rfa alone is a no-op; family modification needs instructions → **prompt+rfa → rfa** (edit sentence, inline JSON ops or ops.json) |
 | spec → rvt | **works** | `spec_to_rvt` (**chain** spec→ifc→intent→rvt on the genesis base) | **certified** `V23_electrical_room.rvt` (legacy direct); worked `usecases/chicago-plenum…/generated.ifc`; `tests/test_job.py` | the legacy direct build (`tools/rvt_job.py create --spec`, template project) remains as **spec+rvt**; open-bug/PROOF-ONLY caveats ride |
 | spec → ifc | **works** | `spec_to_ifc` (deterministic generator) | worked `usecases/…/generated.ifc`; `skills/tekton-ifc/tests` | identical spec → byte-identical IFC |
 | spec → rfa | **works** | `spec_to_rfa` (chain spec→ifc→intent→rfa) | worked families dir; `tests/test_famgen_factory.py` | the spec’s *tagged* equipment maps to catalog family plans; catalog scope as above |
@@ -59,14 +69,14 @@ Status vocabulary — honest per cell:
 
 | in → out | status | route | evidence | honest caveats |
 |---|---|---|---|---|
-| prompt + rvt → rvt | **works** | `rvt_edit` (the certified edit pipeline: modify / move / retype / delete / cascade, NL or ops.json) | **certified** `M3_modify`, `M4_move_retype`, `M2_delete_cascade`, `M2_delete_cascade_rac` (foreign file); worked `rvt-edit-room/` | the prompt is the *edit*; an authoring-shaped prompt falls back to building **on your .rvt as base** — that branch is *partial* (gates run, no viewer certification on arbitrary bases). Known blocker: rename/set-mark on *our created* instances (no param rows yet) |
-| ifc + rvt → rvt | *partial* | `ifc_onto_rvt` (merge: the IFC intent built with your .rvt as base) | stage evidence + `tests/test_frontdoor.py` | certified stage code + all gates run on *your* base; viewer certification exists only for the genesis base; Autodesk samples refused |
-| prompt + rfa → rfa | *missing* | — | — | family modification (open an .rfa, apply a prompt, re-emit) is not built; regenerate from changed facts: prompt→rfa |
-| rfa + rvt → rvt | *partial* | `famspec_load` (load into **your** project) | **certified** L1a / L_downlight (rst host), `stage_L8_lp4` (genesis lineage) | four-registry mechanism + census/validator gates run on arbitrary hosts *without* viewer evidence; famspec contract as above (`downlight` wired; catalog kinds load via the room pipeline) |
+| prompt + rvt → rvt | **works** | `rvt_edit`: an **edit-shaped** prompt runs the certified edit pipeline (modify / move / retype / delete / cascade, NL or ops.json); an **authoring-shaped** prompt (“add a 100 A lighting panel and a 75 kVA transformer to my project”) runs `rvt.convert.add_to_project` INTO your file | **certified** `M3_modify`, `M4_move_retype`, `M2_delete_cascade`, `M2_delete_cascade_rac` (foreign file); worked `rvt-edit-room/`, `experiments/convert_combo/A1_add_own/` (VALID 0 errors), `A2_add_rme_devonly/` (32.6 MB quarantined MEP sample, VALID 0 errors, census coherent 308 units); `tests/test_convert_combo.py`, `tests/test_router.py` | edit vs add is decided on the prompt’s *shape* (an edit clause whose name does not resolve stays an edit and is reported, never re-read as an addition). Add branch: new equipment generated zero-donor, four-registry loaded, placed in free floor space beside your content (`--at X Y`, `--level`); the target’s **release preserved** by construction, its schema installed, unsupported releases refused with `creation_status`’s reason. **Viewer**: the edit branch is certified; **no add-into artifact has been through Autodesk’s reader** and our generated famdocs under a placed instance are the OPEN CELL — expect the audit to reject the added equipment until it closes (validator/census/release gates run; PROOF-ONLY). Known edit blocker: rename/set-mark on *our created* instances (no param rows yet) |
+| ifc + rvt → rvt | **works** | `ifc_merge_into_rvt` — `rvt.convert.merge_ifc`: the IFC’s resolved intent appended INTO your .rvt at a deterministic **disjoint offset** (`--offset DX DY`; `0 0` = the IFC’s own frame) | worked `experiments/convert_combo/B1_merge_ifc_into_own/` (28 created ids, VALID 0 errors), `B2_merge_rst_devonly/` (rst sample, VALID 0 errors; two independent runs converge on identical created ids); `tests/test_convert_combo.py`, `tests/test_router.py` | same INTO-gates as above (validator 0 errors to claim, four-registry census, release preserved, unsupported releases refused by name); walls **and** families created ⇒ the walls+families OPEN-BUG stamp rides exactly as on the front door (`--strict` gives the two-file degrade); **viewer-unverified as a merged artifact**; foreign targets stamped FOREIGN/QUARANTINED; PROOF-ONLY |
+| prompt + rfa → rfa | **works** | `rfa_modify` — `rvt.convert.modify_family` (text \| inline JSON \| ops.json; `rvt.convert.edit_family` = the structured-ops surface over the same engine) | worked `experiments/convert_combo/C1_modify_own/`, `C2_rename_family/`, `experiments/convert/edit-family/` (family-mode VALID 0 errors, re-read proven, PartAtom in step); `tests/test_convert_combo.py`, `tests/test_convert.py`, `tests/test_router.py` | one vocabulary: `rename-type \| rename-family \| set-param` (type-scopable); values convert spec-driven (amps, volts, kVA; **lengths need an explicit unit**); a famspec is not editable (generate first: prompt→rfa). **Partial on foreign Revit-authored .rfa**: read/parse yes, commit blocked by the ElemTable GraveyardRec codec gap (refused by name). Dimension edits change the value only (no constraint graph — regenerate for true geometry). The edited .rfa is validator-gated, not viewer-certified; PROOF-ONLY |
+| rfa + rvt → rvt | **works** | `rfa_load` (load into **your** project: famspec via `rvt.famload`; extracted `.rfa` via `rvt.famgen.loader`) | **certified** L1a / L_downlight (rst host), `stage_L8_lp4` (genesis lineage), **T2a** (Revit-born .rfa on the composed base + instance), **TB0g** (embedded-born famdoc on the composed base + instance); worked `DP1_reextracted.reloaded.rvt.load.json`; `tests/test_famload.py`, `tests/test_convert.py`, `tests/test_router.py` | input contract exactly as the rfa→rvt row (famspec \| tekton-extracted .rfa \| standalone-born → clear line); no instance is placed by this cell (place with prompt+rvt “add …”); on *your* host the same mechanisms + gates run — the viewer evidence is on the rst sample host and our genesis/composed bases; a host of another release loads only where that release’s creation support is certified; PROOF-ONLY |
 | prompt + ifc → rvt | *partial* | `ifc_build_then_edit` (build the IFC, then apply the prompt as an edit) | composition of two proven stages | a non-edit prompt cannot merge into the IFC’s intent yet (intent-level merge unbuilt) — the route fails with the edit grammar rather than guessing |
 | spec + rvt → rvt | **works** | `spec_on_rvt_seed` (`tools/rvt_job.py create --spec --base`) | **certified** `V23_electrical_room.rvt`; `tests/test_job.py` | your .rvt is the seed/template: seed audit + hard gates; output ledgered against that seed (PROOF-ONLY vs what you supply) |
 
-**Anything else** (e.g. `prompt+spec → rvt`, `rvt → ifc`, any output for an
+**Anything else** (e.g. `prompt+spec → rvt`, `rfa → ifc`, any output for an
 unlisted combination): the router returns the matrix row and the closest
 supported route in one line, exit code 4 — never a traceback.
 
@@ -78,10 +88,11 @@ supported route in one line, exit code 4 — never a traceback.
 | spec → ifc → rvt | **works** | the canonical `spec → rvt` route | see spec→rvt row |
 | ifc → rfa → loaded-rvt | **works** | `--via family` on ifc→rvt, and the automatic product-IFC fallback | **certified** `L_downlight_loaded.rvt` |
 | prompt → rfa → loaded-rvt | **works** | the F/L stages *inside* prompt→rvt (families generated, loaded, placed) | **certified** `stage_L8_lp4.rvt` |
+| rvt → rfa → loaded-rvt | **works** | **extract → place into our projects** in two hops: `route --output rfa --rvt A.rvt --family X`, then `route --output rvt --rfa X.rfa [--rvt B.rvt]` (default host: the pinned base) | **certified** `TB0g.rvt` (base level); worked `DP1_reextracted.reloaded.rvt.load.json`; `tests/test_convert.py`, `tests/test_router.py` |
 
-## Demonstrated end-to-end (2026-08-04, this stream)
+## Demonstrated end-to-end
 
-All five live under `experiments/routes/` with `route.json` + `ROUTE.md`:
+`experiments/routes/` (2026-08-04, `route.json` + `ROUTE.md` each):
 
 1. `demo1-prompt-to-rfa` — prompt → **2 .rfa** (validator VALID, provenance ok), 3 s.
 2. `demo2-spec-to-ifc` — room-spec → IFC4 (657 entities, deterministic), 0.3 s.
@@ -92,23 +103,44 @@ All five live under `experiments/routes/` with `route.json` + `ROUTE.md`:
 5. `demo5-prompt-rvt-edit` — prompt+rvt edit (move + cascade delete), hard
    gates PASSED, 1.8 s.
 
-## The named gaps (what would flip cells)
+The `rvt.convert` cells (2026-08-09, issue #5) are re-run **from a fresh
+clone** by `tests/test_router.py` on every invocation (RVT_SKIP_LARGE=1
+skips the ~1 min of builds): a small room is built from a prompt on the
+pinned base, then exported to IFC (everything survives the round trip), a
+family is extracted and reloaded onto the base (project validator 0 errors),
+a transformer is **added into** the room and a second room’s IFC is
+**merged into** it (both VALID 0 errors, release preserved), and a generated
+family is edited (VALID, re-read proven). The recorded numbers are in
+`docs/inbox/matrix-flips.md`; the worked proofs of the convert streams live
+under `experiments/convert/` and `experiments/convert_combo/`.
 
-> In flight at time of writing: the `rvt.convert` streams
-> (`docs/inbox/convert-b.md`) are landing implementations for several of
-> these gaps (add-into-project, ifc merge, family modify, rvt→ifc,
-> family extract, .rfa reload). Cells flip here — with their evidence
-> cited and self-audited — when those records close; until then the
-> statuses below are the proven truth.
+## The named gaps (what would flip or deepen cells)
 
-- **RVT→intent resolver** — unlocks rvt→ifc, rvt→rvt re-authoring, true
-  ifc+rvt merge semantics, prompt+ifc intent merge.
-- **.rfa-from-disk reload** (.rfa → FamilyDoc reconstitution) — unlocks
-  bare-.rfa loads and the family-edit pipeline (prompt+rfa).
-- **Standalone catalog-kind loads** (famload for panelboard/transformer/
-  luminaire outside the room pipeline) — flips rfa cells from scoped to full.
-- **Open bug r2** (walls+families in one file) — removes the stamp from
-  every combined build.
-- **Instance param rows on created instances** — unlocks rename/set-mark
-  edits on our own output.
-- **G2/G3 gates** — flip PROOF-ONLY to DELIVERABLE everywhere.
+- **Product-wire the certified any-.rfa load** — the schema-typed id-remap +
+  `rvt.famload` lane that loaded a Revit-born 1,992-element `.rfa` onto our
+  composed base with an instance (T2a, certified) lives in the research lane
+  (`tools/rft_probe.py`); wiring it as `rvt.convert` code flips input form (c)
+  of the rfa cells (standalone-born `.rfa`, including our own `.rfa`
+  deliverables) from *clear line* to *loads*.
+- **The open cell** (our generated famdocs + placed instances on our composed
+  bases fail Autodesk’s audit) — closing it removes the viewer caveat from
+  every add-into / merge-into / prompt→rvt output; the desktop-Revit dialog
+  is the next instrument (`docs/inbox/genesis-audit.md`).
+- **A viewer round for the INTO artifacts** — A1/B1 (our targets) staged behind
+  a certified control would move the add/merge cells from gate-checked to
+  ledgered (or name the failure).
+- **famspec lane on the bundled base** — `rvt.ifc.famfrom_ifc` should emit its
+  `.rfa` on the plugin-bundled container instead of the research-corpus
+  archetype, so the downlight famspec runs on a fresh clone.
+- **GraveyardRec codec** (`rvt.stream_encoders`) — unlocks edits of foreign
+  Revit-authored `.rfa` files (prompt+rfa partial → works on foreign files).
+- **Host-resource repatriation + nested units** — flips foreign project-hosted
+  family extraction from partial to clean.
+- **RVT→intent depth** — non-electrical categories, curved/curtain walls,
+  circuits to non-equipment loads in `rvt_to_ifc`; and prompt+ifc
+  intent-level merge (the one remaining *partial* cell).
+- **Standalone catalog-kind famspecs** (panelboard/transformer/luminaire as
+  `{"kind": …}` outside the room pipeline).
+- **Open bug r2** (walls+families in one file) — removes the stamp from every
+  combined build. **Instance param rows** — rename/set-mark on our own
+  instances. **G2/G3 gates** — flip PROOF-ONLY to DELIVERABLE everywhere.
