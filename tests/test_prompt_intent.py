@@ -252,3 +252,84 @@ def test_two_storey_intent_model_carries_levels():
     assert abs(msb.insertion_m[2] - PP.DEFAULT_PAD_M) < 1e-9 and lp.mounting_height_m == lp.insertion_m[2]
     assert lp.as_json()["level"] == "L2"
     assert {w.base_m for w in model.room.walls} == {0.0}          # the shell's level L1 @ 0
+
+
+# ===========================================================================
+# wiring devices (Electrical Fixtures) -- issue #166: parsed, planned and
+# laid out at the ADA/NEC height; front-door load + placement is issue #359
+# ===========================================================================
+
+def test_receptacles_are_a_build_path_kind_not_unbuilt():
+    parsed = PP.parse_prompt("a room with 4 duplex receptacles")
+    assert [(it.kind, it.tag) for it in parsed.items] == [
+        ("receptacle_device", "R-1"), ("receptacle_device", "R-2"),
+        ("receptacle_device", "R-3"), ("receptacle_device", "R-4")]
+    assert parsed.coverage.not_built == [] and parsed.coverage.ignored_words == []
+    assert any(u["as"] == "equipment" and u["kind"] == "receptacle_device" and u["count"] == 4
+               for u in parsed.coverage.understood)
+    # a receptacle PANEL is still a panelboard, an outlet is a device, luminaires stay unbuilt
+    p2 = PP.parse_prompt("an electrical room with a receptacle panel, 3 outlets at 44 in AFF "
+                         "and two LED troffers")
+    assert [(it.kind, it.height_in) for it in p2.items] == [
+        ("receptacle_panelboard", None)] + [("receptacle_device", 44.0)] * 3
+    assert [n["kind"] for n in p2.coverage.not_built] == ["luminaire"]
+    assert "44" not in p2.coverage.ignored_words and "AFF" not in p2.coverage.ignored_words
+
+
+@needs_catalog
+def test_receptacles_are_laid_out_at_the_facts_height_and_planned_with_make_device():
+    from rvt.frontdoor import intent as FI
+    from rvt.ifc import intent as I
+    model, parsed = PP.prompt_to_intent("a room with 4 duplex receptacles")
+    assert "receptacle_device" in I.GENERATED_KINDS and I.KIND_BY_CLASS["IfcOutlet"] == "receptacle_device"
+    eq = model.equipment
+    assert [e.kind for e in eq] == ["receptacle_device"] * 4 and {e.ifc_class for e in eq} == {"IfcOutlet"}
+    # the wall-panel law: west / east interior faces, upright frame into the room,
+    # z = the facts' 18 in AFF convention (ADA 15..48 in envelope stated in coverage)
+    assert {round(e.insertion_m[2], 4) for e in eq} == {round(18 * 0.0254, 4)}
+    assert {e.frame_kind for e in eq} == {"upright"} and {abs(e.insertion_m[0]) for e in eq} == {4.4704}
+    assert model.audit["equipment_inside_room_ring"] == "4/4"
+    assert any("18 in AFF" in d and "ADA 308.2.1" in d for d in parsed.coverage.defaults_applied)
+    assert any("NEC 220.14(I)" in d for d in parsed.coverage.defaults_applied)
+    # ONE make_device plan per device, facts attached, status 'planned' = never in
+    # the load/placement stages (cannot shed real equipment from the batch), the
+    # follow-up named instead of a refusal
+    plans = model.family_plans
+    assert [(p.constructor, p.status, p.variant) for p in plans] == [
+        ("rvt.famgen.factory.make_device", "planned", "duplex-receptacle-5-15R")] * 4
+    assert plans[0].kwargs == {"kind": "duplex-receptacle", "mounting_height_in": 18.0,
+                               "voltage": "120", "va": 180.0}
+    assert "#359" in plans[0].refusal and "not a refusal" in plans[0].refusal
+    assert FI.buildable_family_plans(model) == [] and FI.combination_check(model).mode == "single"
+    assert "NOT loaded/placed" in eq[0].disposition
+    assert model.other_products == [] and model.feeders == []
+    # the device schedule pset rides on the equipment (scene brief / IFC handoff)
+    dev = eq[0].psets["DeviceSchedule"]
+    assert (dev["Load"], dev["MountingHeight"], dev["Phases"]) == (180.0, 18.0, 1)
+    brief = PP.scene_brief("a room with 4 duplex receptacles")
+    prods = brief["products"]
+    assert [p["userData_ifc"]["ifcClass"] for p in prods] == ["IFCOUTLET"] * 4
+    assert prods[0]["userData_ifc"]["psets"][0]["name"] == "DeviceSchedule"
+    assert prods[0]["group_name"] == "receptacle_R-1"
+
+
+@needs_catalog
+def test_devices_never_displace_or_shed_the_equipment_of_a_mixed_prompt():
+    from rvt.frontdoor import intent as FI
+    model, parsed = PP.prompt_to_intent(
+        "an electrical room 30x20 ft with a 150 kVA transformer, a 225 A 208Y/120 receptacle "
+        "panel and 6 receptacles at 1.1 m above the floor")
+    kinds = [it.kind for it in parsed.items]
+    assert kinds.count("receptacle_device") == 6 and "receptacle_panelboard" in kinds
+    assert {it.height_in for it in parsed.items if it.kind == "receptacle_device"} == {43.31}
+    status = {p.tag: p.status for p in model.family_plans}
+    assert status["RP-1"] == "resolved" and status["T1"] == "resolved"
+    assert {s for t, s in status.items() if t.startswith("R-")} == {"planned"}
+    assert [p.tag for p in FI.buildable_family_plans(model)] == ["RP-1", "T1"]
+    assert FI.combination_check(model).n_instances == 2               # the panel + the transformer
+    assert [(e.source, e.target) for e in model.feeders] == [("T1", "RP-1")]
+    # panels keep the north-most wall slots; devices follow on the same faces at their own height
+    rp, r1 = model.by_tag("RP-1"), model.by_tag("R-1")
+    assert rp.insertion_m[2] == PP.DEFAULT_PANEL_MOUNT_CENTER_M and round(r1.insertion_m[2], 3) == 1.1
+    assert rp.insertion_m[1] > max(e.insertion_m[1] for e in model.equipment
+                                   if e.kind == "receptacle_device" and e.insertion_m[0] < 0)

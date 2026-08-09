@@ -827,6 +827,44 @@ def test_e2e_rename_and_set_mark_on_our_own_output(identity_job, tmp_path):
                     {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-7"}]
 
 
+@needs_catalog
+def test_e2e_prompted_receptacles_are_delivered_as_planned_devices(tmp_path):
+    """Issue #166's DONE prompt through the product path.  Electrical Fixtures
+    GENERATE (make_device) and load unplaced, but the front door does not load
+    or place the category yet (issue #359) -- so the job is DELIVERED (rule 1):
+    exit ok, the room's walls on the pinned base (project validator 0 errors),
+    the 4 receptacles as `receptacle_device` equipment planned with make_device
+    at the facts' 18 in AFF, and one degradation line per device naming the
+    follow-up -- never a not_built shrug, never a fake instance."""
+    if not os.path.isfile(PINNED[2026]):
+        pytest.skip("bundled genesis base missing")
+    r = FD.author(prompt="a room with 4 duplex receptacles", out=str(tmp_path / "rc"),
+                  no_handoff=True)
+    assert r.route == "prompt" and r.ok, (r.status, r.errors)
+    assert "PROOF-ONLY" in r.status
+    man = r.manifest
+    summ = man["intent"]["summary"]
+    assert summ["equipment_by_kind"] == {"receptacle_device": 4}
+    assert summ["family_plans_by_status"] == {"planned": 4}
+    assert {p["constructor"] for p in summ["family_plans"]} == {"make_device"}
+    assert {round(e["insertion_m"][2], 3) for e in summ["equipment"]} == {0.457}
+    assert man["prompt_coverage"]["not_built"] == []
+    build = man["build"]
+    assert build["errors"] == []
+    v = build["combination_verdict"]
+    assert v["mode"] == "single" and v["n_instances"] == 0 and v["n_walls"] == 4
+    kinds = [c["kind"] for c in build["elements_created"]]
+    assert kinds == ["wall"] * 4                     # no instance is faked
+    degr = build["degradations"]
+    assert len([d for d in degr if "receptacle_device" in d and "#359" in d]) == 4
+    combined = build["files"]["combined"]["path"]
+    assert os.path.isfile(combined)
+    assert build["validation"]["combined"]["validate"]["n_errors"] == 0
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        md = fh.read()
+    assert "receptacle_device×4" in md and "18 in AFF" in md
+
+
 # ===========================================================================
 # 9. stage D: the intent's levels bound to the base's two building-story
 #    datums (issue #147) -- rename + re-elevate (the certified modify shape),

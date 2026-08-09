@@ -107,7 +107,18 @@ _KIND_PATTERNS: List[Tuple[str, str, str]] = [
      r"(?:dry[\s-]*type\s+)?(?:step[\s-]*(?:down|up)\s+)?transformers?|(?P<abbr>\bxfmrs?\b)"),
     ("panelboard", "PP",
      r"panel\s*boards?|(?:electrical\s+|branch\s+)?panels?"),
+    # WIRING DEVICES (Electrical Fixtures, issue #166): our make_device family;
+    # planned + laid out at the ADA/NEC height, NOT yet loaded/placed by the
+    # room build (issue #359) -- said in coverage + the family plan, never dropped
+    ("receptacle_device", "R",
+     r"(?:duplex\s+|convenience\s+|quad\s+|gfci\s+|general[\s-]*purpose\s+)?"
+     r"(?:receptacles?|(?:power\s+|wall\s+)?outlets?)(?!\s+panel)"),
 ]
+
+#: kinds our factory GENERATES (family plan + layout) but the room build does
+#: not load / place yet: kind -> the issue that owns the placement
+PLANNED_ONLY_KINDS = {"receptacle_device": "issue #359 (front door loads + places "
+                                           "Electrical Fixtures)"}
 
 #: recognised but NOT in the model build path today (coverage honesty)
 _UNBUILT_PATTERNS: List[Tuple[str, str]] = [
@@ -119,7 +130,6 @@ _UNBUILT_PATTERNS: List[Tuple[str, str]] = [
     ("motor_control_center", r"motor\s+control\s+cent(?:er|re)s?|\bmcc\b"),
     ("busway", r"bus\s*(?:way|duct|bar\s+trunking)"),
     ("disconnect", r"(?:fused\s+|non[\s-]*fused\s+)?disconnect(?:\s+switch(?:es)?)?s?|safety\s+switch(?:es)?"),
-    ("receptacle_device", r"(?:duplex\s+|quad\s+|gfci\s+)?receptacles?(?!\s+panel)|outlets?"),
     ("meter", r"\bmeters?\b|metering(?:\s+cabinet)?|ct\s+cabinet"),
     ("cable_tray", r"cable\s+trays?"),
     ("conduit", r"conduits?|racew?ays?"),
@@ -140,6 +150,12 @@ _RE_MLO = re.compile(r"main\s+lugs?(?:\s+only)?|\bmlo\b", re.I)
 _RE_FLUSH = re.compile(r"flush(?:[\s-]*mount(?:ed)?)?|recessed", re.I)
 _RE_SURFACE = re.compile(r"surface(?:[\s-]*mount(?:ed)?)?", re.I)
 _RE_SECTIONS = re.compile(r"(\d{1,2})\s*[- ]?\s*sections?\b", re.I)
+#: a device MOUNTING HEIGHT above the floor: 'at 18 in AFF', '44 inches above
+#: the finished floor', '1100 mm mounting height' (unit AND an AFF phrase
+#: required, so neither a bare count nor the room's 'N ft high' is read as one)
+_RE_AFF = re.compile(
+    r"(?:mounted\s+)?(?:at\s+)?(?P<h>\d{1,4}(?:\.\d+)?)\s*(?P<u>in\b|inch(?:es)?|\"|mm\b|m\b)\s*"
+    r"(?:a\.?f\.?f\.?\b|above\s+(?:the\s+)?(?:finish(?:ed)?\s+)?floor|mounting\s+height)", re.I)
 _NAMING_VERBS = r"(?:named|called|tagged|labell?ed|mark(?:ed)?|designated)"
 _RE_NAMED = re.compile(_NAMING_VERBS + r"\s+[\"']?([A-Za-z][A-Za-z0-9\-]{0,11})[\"']?", re.I)
 #: an equipment TAG token ('LP-1', 'DP2', 'T1', 'PP-3A'): a short letter
@@ -251,6 +267,37 @@ BUILT_STOREYS = 2
 #: refuses; a resolved plan REPLACES these with catalog facts
 _DEF_PANEL_DIMS = {"w": 0.508, "d": 0.190, "h": 1.219}
 _DEF_LP_DIMS = {"w": 0.508, "d": 0.146, "h": 1.219}
+#: the prompted receptacle: OUR make_device('duplex-receptacle') at 120 V with
+#: the NEC 220.14(I) 180 VA unit load booked on its connector
+DEFAULT_DEVICE_KIND = "duplex-receptacle"
+DEFAULT_DEVICE_VOLTAGE = "120"
+DEFAULT_DEVICE_VA = 180.0
+_DEF_DEVICE_DIMS = {"w": 0.070, "d": 0.070, "h": 0.114}     # facts-store fallback only
+
+
+def _device_facts(height_in: Optional[float] = None):
+    """OUR device fact sheet (rvt.famgen.factory.resolve_device_facts) for
+    the prompted receptacle, or None when the facts store refuses."""
+    try:
+        from ..famgen import factory as F
+        return F.resolve_device_facts(DEFAULT_DEVICE_KIND, mounting_height_in=height_in,
+                                      voltage=DEFAULT_DEVICE_VOLTAGE, va=DEFAULT_DEVICE_VA)
+    except Exception:                                    # noqa: BLE001 - stated fallback
+        return None
+
+
+def _device_height_default() -> Tuple[float, str]:
+    """The receptacle mounting height the layout uses when the prompt names
+    none: the facts record's typical convention (18 in to the box centre,
+    'assumed') inside the ADA 308.2.1 reach envelope (15..48 in, the FACT)."""
+    sheet = _device_facts()
+    if sheet is None:
+        return 18.0, "convention; device facts store unavailable"
+    rng = sheet.get("ada_reach_range_in") or [15, 48]
+    return (float(sheet.get("mounting_height_in") or 18.0),
+            f"design convention from generic/devices-and-mounting, flagged "
+            f"'{sheet.values['mounting_height_in'].kind}'; ADA 308.2.1 reach envelope "
+            f"{rng[0]:g}..{rng[1]:g} in to the operable part is the sourced fact")
 
 
 # ============================================================================
@@ -271,6 +318,7 @@ class PromptItem:
     sccr_ka: Optional[float] = None
     sections: Optional[int] = None
     mounting: Optional[str] = None
+    height_in: Optional[float] = None      # device mounting height AFF (receptacle_device)
     fed_from: Optional[str] = None
     name: Optional[str] = None
     level: Optional[int] = None            # storey number (1 = Level 1); None -> the room's
@@ -743,7 +791,8 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     items: List[PromptItem] = []
     #: attribute window around a kind match: text between the previous
     #: comma/'and'/period and the next comma/'and'/period
-    boundaries = [m.start() for m in re.finditer(r",|;|\band\b|\bplus\b|\bwith\b|\.", low)]
+    # (a decimal point inside a number -- '1.1 m', '7.5 kVA' -- is not a sentence stop)
+    boundaries = [m.start() for m in re.finditer(r",|;|\band\b|\bplus\b|\bwith\b|\.(?!\d)", low)]
 
     def clause_window(start: int, end: int) -> Tuple[int, int]:
         lo_b = 0
@@ -898,6 +947,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         mounting = ("flush" if _RE_FLUSH.search(window)
                     else ("surface" if _RE_SURFACE.search(window) else None))
         sections = _RE_SECTIONS.search(window)
+        aff = _RE_AFF.search(window) if kind in PLANNED_ONLY_KINDS else None
         for j in range(cnt):
             tag, idx = issue_tag(prefix, tags[j] if j < len(tags) else None)
             it = PromptItem(kind=kind, tag=tag, count_index=idx, source_text=window.strip())
@@ -907,6 +957,9 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                 it.kva = _clean_num(kva.group(1))
             if ka:
                 it.sccr_ka = _clean_num(ka.group(1))
+            if aff:
+                it.height_in = round(_to_metres(_clean_num(aff.group("h")), aff.group("u"))
+                                     * IN_PER_M, 2)
             it.voltage = volt
             it.mains = mains
             it.spaces = int(spaces.group(1)) if spaces else None
@@ -921,7 +974,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         if tag_span is not None:
             taken.append(tag_span)
             mark(tag_span)
-        for sub in (amp, kva, ka, spaces, sections):
+        for sub in (amp, kva, ka, spaces, sections, aff):
             if sub is not None:
                 mark((ws + sub.start(), ws + sub.end()))
         if mains:
@@ -968,8 +1021,10 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                    "reason": ("recognised, but this kind is outside today's model build "
                               "path (recorded in the intent, NOT modelled). Luminaires: "
                               "our make_luminaire family exists but the room build "
-                              "places electrical EQUIPMENT only; devices/conduit/doors "
-                              "belong to the fixture / conduit / hosting streams.")}
+                              "places electrical EQUIPMENT only (issue #150); conduit / "
+                              "doors belong to the conduit / hosting streams. (Receptacles "
+                              "are no longer here: they are parsed, planned and laid out "
+                              "as 'receptacle_device' equipment.)")}
             unbuilt.append(rec)
             cov.not_built.append(rec)
 
@@ -1076,6 +1131,23 @@ def _apply_defaults(item: PromptItem, room: Optional[PromptRoom],
             cov.defaults_applied.append(f"{item.tag}: 480 V delta primary -> 208Y/120 V secondary "
                                         "(the standard step-down)")
         item.mounting = item.mounting or "floor"
+    elif item.kind == "receptacle_device":
+        # a 120 V 1-pole duplex receptacle; the placement height comes from
+        # OUR device facts (18 in AFF convention inside the ADA 15..48 in
+        # reach envelope) unless the prompt said 'at N in AFF'
+        first = item.count_index == 1          # one coverage line per clause, not per device
+        if item.voltage is None:
+            item.voltage = DEFAULT_DEVICE_VOLTAGE
+            if first:
+                cov.defaults_applied.append(f"{item.tag} (and its siblings): {DEFAULT_DEVICE_VOLTAGE} V "
+                                            f"1-pole receptacle ({DEFAULT_DEVICE_VA:g} VA booked, "
+                                            "NEC 220.14(I) unit load)")
+        if item.height_in is None:
+            item.height_in, why = _device_height_default()
+            if first:
+                cov.defaults_applied.append(f"{item.tag} (and its siblings): mounted "
+                                            f"{item.height_in:g} in AFF ({why})")
+        item.mounting = item.mounting or "wall"
     else:  # panelboards
         if item.rating_a is None:
             item.rating_a = {"distribution_panelboard": 400.0, "lighting_panelboard": 100.0,
@@ -1128,6 +1200,16 @@ def _contract_for(item: PromptItem) -> Dict[str, Any]:
         }
         if item.fed_from:
             psets["SwitchboardSchedule"]["FedFrom"] = item.fed_from
+    elif item.kind == "receptacle_device":
+        psets["DeviceSchedule"] = {
+            "PanelName": item.tag, "Voltage": f"{v} V", "Phases": 1, "Wires": 2,
+            "Load": float(DEFAULT_DEVICE_VA),
+            "MountingHeight": float(item.height_in or 18.0),
+            "Mounting": f"Wall, {(item.height_in or 18.0):g} in AFF to the box centre",
+            "DeviceType": "NEMA 5-15R duplex receptacle",
+        }
+        if item.fed_from:
+            psets["DeviceSchedule"]["FedFrom"] = item.fed_from
     else:  # panelboards
         psets["PanelSchedule"] = {
             "PanelName": item.tag, "Voltage": f"{v} V", "Phases": 3, "Wires": 4,
@@ -1201,7 +1283,7 @@ def layout_room(parsed: ParsedPrompt) -> None:
             w = float(it.dims_m.get("w", 1.0))
             it.insertion_m = [round(x + w / 2.0, 4), 0.0,
                               DEFAULT_PAD_M if it.kind in ("switchboard", "transformer")
-                              else DEFAULT_PANEL_MOUNT_CENTER_M]
+                              else _wall_mount_z(it)]
             it.front = [0.0, -1.0, 0.0]
             if it.kind in ("switchboard", "transformer"):
                 it.frame_kind, it.mount_kind, it.yaw_deg = "yaw", "floor", 0.0
@@ -1251,8 +1333,9 @@ def _layout_storey(floor_items: List[PromptItem], wall_items: List[PromptItem],
         west: List[PromptItem] = []
         east: List[PromptItem] = []
         # distribution panels first, then lighting, receptacle, generic
+        # panels, and the wiring devices last (same faces, their own height)
         order = {"distribution_panelboard": 0, "panelboard": 1,
-                 "lighting_panelboard": 2, "receptacle_panelboard": 3}
+                 "lighting_panelboard": 2, "receptacle_panelboard": 3, "receptacle_device": 5}
         wall_sorted = sorted(wall_items, key=lambda it: (order.get(it.kind, 9), it.count_index))
         for k, it in enumerate(wall_sorted):
             (west if k % 2 == 0 else east).append(it)
@@ -1262,7 +1345,7 @@ def _layout_storey(floor_items: List[PromptItem], wall_items: List[PromptItem],
             for it in group:
                 w = float(it.dims_m.get("w", 0.508))
                 y -= w / 2.0
-                it.insertion_m = [round(x_face, 4), round(y, 4), DEFAULT_PANEL_MOUNT_CENTER_M]
+                it.insertion_m = [round(x_face, 4), round(y, 4), _wall_mount_z(it)]
                 it.front = list(front)
                 it.frame_kind, it.mount_kind, it.yaw_deg = "upright", "surface", 0.0
                 it.wall_id = side
@@ -1271,6 +1354,14 @@ def _layout_storey(floor_items: List[PromptItem], wall_items: List[PromptItem],
                     cov.warnings.append(f"the {side} wall is full on Level {lvl}: {it.tag} "
                                         "overruns the south corner -- widen/deepen the room "
                                         "or reduce the panel count")
+
+
+def _wall_mount_z(item: PromptItem) -> float:
+    """Height above ITS floor of a wall item's insertion (the centre of its
+    mounting plane): the panel enclosure centre, or a device's AFF height."""
+    if item.kind == "receptacle_device":
+        return round(float(item.height_in or 18.0) / IN_PER_M, 4)
+    return DEFAULT_PANEL_MOUNT_CENTER_M
 
 
 def _default_dims(item: PromptItem) -> Tuple[Dict[str, float], str]:
@@ -1291,6 +1382,15 @@ def _default_dims(item: PromptItem) -> Tuple[Dict[str, float], str]:
                     f"catalog fact ({sheet.catalog} {sheet.variant})")
         except Exception:
             return ({"w": 0.9, "d": 0.75, "h": 1.14}, "prompt-default (generic dry-type footprint)")
+    if item.kind == "receptacle_device":
+        sheet = _device_facts(item.height_in)
+        if sheet is None:
+            return dict(_DEF_DEVICE_DIMS), "prompt-default (device facts store unavailable)"
+        return ({"w": float(sheet.get("plate_width_in")) / IN_PER_M,
+                 "d": float(sheet.get("box_depth_in") + sheet.get("plate_thickness_in")) / IN_PER_M,
+                 "h": float(sheet.get("plate_height_in")) / IN_PER_M},
+                f"OUR device envelope ({sheet.catalog} {sheet.variant}: faceplate w x h, box "
+                "depth + plate; every figure 'assumed' on the record)")
     if item.kind in ("lighting_panelboard", "receptacle_panelboard"):
         return dict(_DEF_LP_DIMS), "prompt-default (replaced by catalog facts once planned)"
     return dict(_DEF_PANEL_DIMS), "prompt-default (replaced by catalog facts once planned)"
@@ -1388,6 +1488,45 @@ def _default_feeders(parsed: ParsedPrompt, equipment: List[I.Equipment]) -> List
     return list(edges.values())
 
 
+def _plan_device(eq: I.Equipment, item: Optional[PromptItem]) -> I.FamilyPlan:
+    """The family plan of a prompted wiring device: OUR
+    ``rvt.famgen.factory.make_device`` with the facts it resolves to, status
+    ``planned`` -- generated + loadable unplaced today, NOT loaded / placed by
+    the room build (:data:`PLANNED_ONLY_KINDS`), which the plan says verbatim
+    so the manifest's degradations name the follow-up instead of a refusal."""
+    height = item.height_in if item is not None else None
+    kwargs = dict(kind=DEFAULT_DEVICE_KIND, mounting_height_in=height,
+                  voltage=DEFAULT_DEVICE_VOLTAGE, va=DEFAULT_DEVICE_VA)
+    dims_mod = {k: eq.dims_m.get(k) for k in ("w", "d", "h") if eq.dims_m.get(k) is not None}
+    fp = I.FamilyPlan(tag=eq.tag, kind=eq.kind, constructor="rvt.famgen.factory.make_device",
+                      kwargs=kwargs, status="planned", dims_modeled_m=dims_mod,
+                      dims_catalog_m=dict(dims_mod))
+    sheet = _device_facts(height)
+    if sheet is None:
+        fp.status, fp.refusal = "refused", "device facts store unavailable (make_device)"
+        return fp
+    fp.catalog, fp.variant = sheet.catalog, sheet.variant
+    fp.facts_summary = {
+        "subject": sheet.subject, "model": sheet.get("model"),
+        "manufacturer": sheet.get("manufacturer"),
+        "mounting_height_in": sheet.get("mounting_height_in"),
+        "voltage_v": sheet.get("voltage_v"), "load_va": sheet.get("load_va"),
+        "box_in": {"w": sheet.get("box_width_in"), "h": sheet.get("box_height_in"),
+                   "d": sheet.get("box_depth_in")},
+        "plate_in": {"w": sheet.get("plate_width_in"), "h": sheet.get("plate_height_in"),
+                     "t": sheet.get("plate_thickness_in")},
+        "assumed_fields": sheet.assumed(), "unverified_fields": sheet.unverified(),
+        "notes": list(sheet.notes),
+    }
+    fp.refusal = ("not a refusal: the family GENERATES (make_device: family-mode VALID, "
+                  "provenance clean) and loads UNPLACED (tools/make_family.py load --family "
+                  "device); the front door does not load/place Electrical Fixtures yet -- "
+                  + PLANNED_ONLY_KINDS["receptacle_device"])
+    fp.notes.append("planned + laid out at the ADA/NEC height on the west/east interior faces "
+                    "(the wall-panel law); delivered as intent + manifest rows, not instances")
+    return fp
+
+
 def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
     """THE BUILT-IN FALLBACK: prompt -> the SAME :class:`IntentModel` the
     ``--ifc`` route resolves (equipment with tagging-contract dicts, a room
@@ -1412,11 +1551,13 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
         plc = I.Placement(I.identity_matrix(), [],
                           ["prompt-authored: no IFC placement chain"])
         geom = I.ProductGeometry(items=[])
-        cls = {"switchboard": "IfcElectricDistributionBoard",
-               "transformer": "IfcTransformer"}.get(it.kind, "IfcElectricDistributionBoard")
-        pdt = {"switchboard": "SWITCHBOARD", "transformer": "VOLTAGE"}.get(it.kind, "DISTRIBUTIONBOARD")
+        cls = {"switchboard": "IfcElectricDistributionBoard", "transformer": "IfcTransformer",
+               "receptacle_device": "IfcOutlet"}.get(it.kind, "IfcElectricDistributionBoard")
+        pdt = {"switchboard": "SWITCHBOARD", "transformer": "VOLTAGE",
+               "receptacle_device": "POWEROUTLET"}.get(it.kind, "DISTRIBUTIONBOARD")
         desc = ("floor-mounted lineup on a housekeeping pad" if it.kind in ("switchboard", "transformer")
-                else "surface wall-mounted panelboard")
+                else f"wall-mounted wiring device at {(it.height_in or 18.0):g} in AFF"
+                if it.kind == "receptacle_device" else "surface wall-mounted panelboard")
         eq = I.Equipment(
             step_id=-(k + 1), guid=f"prompt:{it.tag}", ifc_class=cls, predefined_type=pdt,
             name=(f"{it.tag} - " + _describe_item(it)), tag=it.tag,
@@ -1451,7 +1592,9 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
                               "authored from the prompt, not surveyed)")
         eq.notes.append(f"dims {it.dims_source}")
         eq.fed_from = con.get("FedFrom") or it.fed_from
-        eq.disposition = "generated-family"
+        eq.disposition = ("generated-family" if it.kind not in PLANNED_ONLY_KINDS else
+                          f"generated-family, NOT loaded/placed by this route yet "
+                          f"({PLANNED_ONLY_KINDS[it.kind]})")
         equipment.append(eq)
 
     # ---- room shell ---------------------------------------------------------
@@ -1491,6 +1634,13 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
 
     # ---- family mapping (the SAME resolver the IFC route uses) --------------
     plans = I.plan_families(equipment)
+    # wiring devices: OUR make_device family, planned from the device facts but
+    # kept OUT of the load/placement stages until issue #359 (a 'planned' plan is
+    # not buildable_family_plans material, so it can never shed real equipment
+    # from the batched load)
+    items_by_tag = {it.tag: it for it in parsed.buildable_items}
+    plans = [(_plan_device(eq, items_by_tag.get(eq.tag)) if eq.kind == "receptacle_device" else pl)
+             for eq, pl in zip(equipment, plans)]
     # catalog facts REPLACE the prompt-default dims wherever a plan resolved
     for eq, pl in zip(equipment, plans):
         if pl.status == "resolved" and pl.dims_catalog_m:
@@ -1563,6 +1713,9 @@ def _describe_item(it: PromptItem) -> str:
     if it.kind == "transformer":
         pri, sec = _split_xfmr_voltage(it.voltage)
         return f"{(it.kva or DEFAULT_XFMR_KVA):g} kVA dry-type transformer, {pri} -> {sec}"
+    if it.kind == "receptacle_device":
+        return (f"{it.voltage or DEFAULT_DEVICE_VOLTAGE} V duplex receptacle (NEMA 5-15R), "
+                f"{DEFAULT_DEVICE_VA:g} VA, {(it.height_in or 18.0):g} in AFF")
     role = {"distribution_panelboard": "distribution panelboard",
             "lighting_panelboard": "lighting panelboard",
             "receptacle_panelboard": "receptacle/appliance panelboard",
@@ -1611,6 +1764,7 @@ def scene_brief(prompt: str, *, parsed: Optional[ParsedPrompt] = None,
                if not k.startswith("_") and v not in (None, "")}
         pset_name = ("TransformerSchedule" if eq.kind == "transformer"
                      else "SwitchboardSchedule" if eq.kind == "switchboard"
+                     else "DeviceSchedule" if eq.kind == "receptacle_device"
                      else "PanelSchedule")
         typed = {}
         for k, v in con.items():
@@ -1632,12 +1786,17 @@ def scene_brief(prompt: str, *, parsed: Optional[ParsedPrompt] = None,
                 if k in eq.contract and k not in typed:
                     v = eq.contract[k]
                     typed[k] = {"value": float(v), "type": "real"} if k == "RatingkVA" else str(v)
+        elif eq.kind == "receptacle_device":
+            dev = (eq.psets or {}).get("DeviceSchedule") or {}
+            for k, ty in (("Load", "real"), ("MountingHeight", "real"), ("DeviceType", None)):
+                if k in dev and k not in typed:
+                    typed[k] = {"value": float(dev[k]), "type": ty} if ty else str(dev[k])
         if eq.tag in fed_by:
             typed["FedFrom"] = fed_by[eq.tag]
         pos = [round(float(x), 4) for x in eq.insertion_m]
         storey = storey_of.get(eq.level or "", storeys[0])
         products.append({
-            "group_name": f"{'panel' if 'panelboard' in eq.kind else eq.kind}_{eq.tag}",
+            "group_name": f"{'panel' if 'panelboard' in eq.kind else 'receptacle' if eq.kind == 'receptacle_device' else eq.kind}_{eq.tag}",
             "tag": eq.tag, "kind": eq.kind,
             "position_m": {"x": pos[0], "y": pos[1], "z": pos[2],
                            "note": ("world coordinates (z includes the storey's elevation); "

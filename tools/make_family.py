@@ -208,7 +208,7 @@ def cmd_provenance(ns) -> int:
 
 #: the follow-up that owns front-door PLACEMENT of Electrical Fixtures (#166
 #: shipped generation + the unplaced load; placement needs loader work)
-DEVICE_PLACEMENT_FOLLOWUP = "issue #166 follow-up (Electrical Fixtures placement)"
+DEVICE_PLACEMENT_FOLLOWUP = "issue #359 (front door loads + places Electrical Fixtures)"
 
 
 def cmd_load_device(ns) -> int:
