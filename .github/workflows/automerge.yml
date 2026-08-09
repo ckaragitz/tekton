@@ -85,6 +85,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # Under pipefail EVERY `x=$(grep …|…)` capture must end in `|| true`: otherwise the first PR whose
+          # comments lack the pattern aborts the whole sweep (2026-08-09: a 🛑 PR with zero fix attempts parked
+          # eight approved PRs). tests/test_techlead.py pins this.
           say() { echo "::notice::$*"; }
           closes_of() { python3 -c "$CLOSES_PY"; }          # PR body on stdin -> issue numbers it closes
           # Per-PR comment cache: fetched once ($cbodies), consulted by has_marker, extended by comment_once.
@@ -106,8 +109,8 @@ jobs:
             local why="$1" attempts t_verdict t_attempt last quiet key
             attempts=$(awk 'index($0,"<!-- claude-autofix reset -->"){n=0} /<!-- claude-autofix attempt=[0-9]+ -->/{n++} END{print n+0}' <<<"$cbodies")
             [ "$attempts" -ge "$MAX_FIX" ] && { say "#$pr: fix budget spent ($attempts/$MAX_FIX) — the fix/review jobs park it bot-stuck"; return 0; }
-            t_verdict=$(grep -F -- "<!-- claude-review: changes sha=$sha -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1)
-            t_attempt=$(grep -E -- "<!-- claude-autofix attempt=[0-9]+ -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1)
+            t_verdict=$(grep -F -- "<!-- claude-review: changes sha=$sha -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1 || true)
+            t_attempt=$(grep -E -- "<!-- claude-autofix attempt=[0-9]+ -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1 || true)
             last=$(newest "$t_head" "$t_red" "$t_verdict" "$t_attempt")
             quiet=$(age_min "$last")
             if [ "$quiet" -lt "$FIX_GRACE_MIN" ]; then say "#$pr: $why — grace ${quiet}/${FIX_GRACE_MIN} min: a live session goes first"; return 0; fi
@@ -255,7 +258,7 @@ jobs:
                   say "#$pr: review dispatch failed"
                 fi
               else
-                ts=$(grep -F -- "<!-- automerge:review-dispatch-$sha -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1)
+                ts=$(grep -F -- "<!-- automerge:review-dispatch-$sha -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1 || true)
                 if [ "$(age_min "$ts")" -ge "$STUCK_AFTER_MIN" ]; then
                   if [ "$touches_wf" != "0" ]; then
                     if ! has_label needs-human; then

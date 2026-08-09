@@ -319,6 +319,16 @@ def test_workflow_file_prs_need_a_verdict_before_session_merge():
     assert tl.is_bot_check("refresh-board")
 
 
+def test_automerge_grep_captures_survive_no_match():
+    """automerge.yml runs under `set -euo pipefail`: a `x=$(grep ... | ...)` capture whose pattern is
+    absent exits 1 through pipefail and aborts the entire sweep (2026-08-09 outage). Every such capture
+    must end in `|| true` (or the grep must sit in an if/&&/|| condition)."""
+    am = _wf("automerge.yml")
+    bad = [ln.strip() for ln in am.splitlines()
+           if re.search(r"^\s*[A-Za-z_][A-Za-z0-9_]*=\$\(.*\bgrep\b", ln) and "|| true" not in ln and "|| echo" not in ln]
+    assert not bad, "grep captures without a no-match guard:\n" + "\n".join(bad)
+
+
 def test_board_triggers_stay_bounded():
     """#64: no workflow_run fan-out and no label/assignment triggers on the board (30 runs in 3 min on day one)."""
     on_block = _wf("board.yml").split("\non:\n", 1)[1].split("\npermissions:", 1)[0]
