@@ -37,3 +37,6 @@ tests/out/
 
 # Agent-isolation worktrees created inside the checkout by multi-agent workflows (never commit)
 .claude/worktrees/
+
+# Job output written by every documented command (frontdoor --out out/..., benches, scout scratch) — never commit
+out/
