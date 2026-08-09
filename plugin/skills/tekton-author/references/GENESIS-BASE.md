@@ -109,18 +109,20 @@ resolves, in order:
 1. `--base <path>` (the user's authority; an Autodesk SAMPLE project is
    REFUSED; if the file's sha256 equals the pin it is asserted as the
    certified genesis base, otherwise accepted-but-not-certified).
-2. `$RVT_GENESIS_BASE` (same pin check).
-3. The pinned research-repo path, then a plugin-bundled copy
-   (`<plugin-root>/lib/genesis/G_ABPD.rvt`).
+2. `$RVT_GENESIS_BASE` (same pin check) — the USER's override, see §5.
+3. The pinned base for the requested `--target-version` (default 2026):
+   the research-repo path, then the plugin-bundled copy
+   (`<plugin-root>/assets/genesis/G_ABPD.rvt`, `G_ABPD_2025.rvt`,
+   `G_ABPD_2024.rvt`), each sha256-verified against its pin.
 
-Because this plugin ships the base at `assets/genesis/G_ABPD.rvt`, the
-skill points the front door at it explicitly — either export
-`RVT_GENESIS_BASE="<plugin-root>/assets/genesis/G_ABPD.rvt"` once, or pass
-`--base assets/genesis/G_ABPD.rvt`. The bytes are the pinned bytes, so both
-routes resolve as `certified_genesis_base: true`. A hash MISMATCH is a hard
-refusal ("re-pin after re-certification"), never a silent substitution —
-if you ever see it, the bundled asset drifted from source; run
-`python tools/sync_plugin.py` in the research repo.
+The plugin is self-resolving: `_bootstrap.py` exports `RVT_PLUGIN_ROOT` and
+the front door finds the bundled base of the requested release by itself,
+so a skill session sets nothing — in particular it does **not** export
+`RVT_GENESIS_BASE` pointing at the bundled default (that would sit ahead of
+step 3 and pin a `--target-version 2025` job to the 2026 base, #92). A hash
+MISMATCH is a hard refusal ("re-pin after re-certification"), never a
+silent substitution — if you ever see it, the bundled asset drifted from
+source; run `python tools/sync_plugin.py` in the research repo.
 
 ## 5. Bring your own base (a firm's certified template)
 

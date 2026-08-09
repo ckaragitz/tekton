@@ -418,6 +418,15 @@ Revit, which is lost on the next re-link.
 > IFC, tell us your exact Revit version first (Help → About), and never save
 > the coordination file forward past your team's oldest install.
 
+When the user does want the `.rvt`: ask the year ONCE ("2026, 2025, 2024,
+or older?"), then hand the validated `.ifc` to the **tekton-author** front
+door in one call — `python <plugin>/skills/tekton-author/scripts/_bootstrap.py
+go author --ifc out.ifc --target-version YEAR --out out/rvt` — and relay its
+`result.release` block: 2026/2025/2024 build natively on that year's
+certified base (opens in that year and newer); an older year still delivers
+the default build plus one clear line that their Revit cannot open it, with
+this IFC as the usable deliverable. Unsure or mixed installs → 2024.
+
 **6.5 Units and origin.** Model is metres SI; Revit converts on link — switch
 display to feet-inches with *Manage → Project Units* if wanted. The model
 sits near the origin; use *Auto – Origin to Origin* positioning (or shared

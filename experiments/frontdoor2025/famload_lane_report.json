@@ -1,0 +1,183 @@
+{
+ "stream": "famload-2025-lane (issue #14)",
+ "built_at": "2026-08-09T07:11:51Z",
+ "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+ "base_sha256": "6242c3aaccf86e7187fbd56879d450089c6fd33ad677d5847cb7c56d5e2b1171",
+ "probes": [
+  {
+   "name": "FL25_head",
+   "lane": "rvt.famload.load_family_document",
+   "instance": false,
+   "contents": "the certified 2025 base + ONE constructor-built annotation family (RW Section Head - Open) loaded four-registry; NO instance",
+   "file": "experiments/frontdoor2025/famload_lane/FL25_head.rvt",
+   "ok": true,
+   "registries": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "coherent": true,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "units_missing_from_contentdocs": [],
+    "units_missing_from_contenttable": [],
+    "units_missing_from_familymgr": [],
+    "contenttable_dangling": [],
+    "familymgr_dangling": [],
+    "before": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 9,
+     "coherent": true
+    },
+    "units_added": 1,
+    "units_added_ok": true,
+    "ours_in_all_four": true
+   },
+   "host_linkage_ok": true,
+   "md5": "8d87c53a61b31e02e6f261084ab763c8",
+   "bytes": 602112,
+   "emission": {
+    "pass": true,
+    "gates": {
+     "G1_identity": true,
+     "G2_schema": true,
+     "G3_framing": true,
+     "G4_validator": true,
+     "G5_registries": true
+    }
+   },
+   "census_after": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "adocument_clean": true,
+    "pass": true
+   }
+  },
+  {
+   "name": "L25_panel_noinst",
+   "lane": "rvt.famgen.loader.load_family_into_project(place=False)",
+   "instance": false,
+   "contents": "the certified 2025 base + ONE generated Eaton PRL1X 400 A panelboard family loaded four-registry; NO instance",
+   "file": "experiments/frontdoor2025/famload_lane/L25_panel_noinst.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "symbol_id": 1472506,
+   "family_id": 1472490,
+   "verify_keys": [
+    "adocument",
+    "container",
+    "elemtable",
+    "family_documents",
+    "ok",
+    "partition",
+    "path",
+    "provenance_ours",
+    "structure_layer",
+    "validate"
+   ],
+   "md5": "4992993f1cd1bec3252f9b95effe82c0",
+   "bytes": 610304,
+   "emission": {
+    "pass": true,
+    "gates": {
+     "G1_identity": true,
+     "G2_schema": true,
+     "G3_framing": true,
+     "G4_validator": true,
+     "G5_registries": true
+    }
+   },
+   "census_after": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "adocument_clean": true,
+    "pass": true
+   }
+  },
+  {
+   "name": "ATP25_lp1",
+   "lane": "rvt.convert.add_to_project('add a 100 A lighting panel')",
+   "instance": true,
+   "contents": "the certified 2025 base + ONE generated 100 A lighting panelboard family loaded four-registry + ONE placed instance (constructed-specimen scaffolding, free-standing)",
+   "file": "experiments/frontdoor2025/famload_lane/ATP25_lp1.rvt",
+   "ok": true,
+   "errors": [],
+   "created": [
+    {
+     "kind": "family(.rfa)",
+     "tag": "LP-1",
+     "name": "Lighting Panelboard LP-1 480Y/277 100A MLO 42sp",
+     "path": "experiments/frontdoor2025/famload_lane/ATP25_lp1/families/lp1_eaton_prl2x_100a_42sp_480y_277.rfa",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "variant": "PRL2X",
+     "ok": true
+    },
+    {
+     "kind": "equipment-instance",
+     "tag": "LP-1",
+     "elem_id": 1472508,
+     "symbol": 1472506,
+     "family": 1472490,
+     "position_ft": [
+      0.833,
+      0.0,
+      4.659
+     ],
+     "file_role": "E"
+    },
+    {
+     "kind": "loaded-family",
+     "tag": "LP-1",
+     "symbol_id": 1472506,
+     "family_id": 1472490,
+     "content_guid": "facafd1b-151a-4db6-a1bd-51e80479bcbe"
+    }
+   ],
+   "census": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contentdocs_guids": [
+     "facafd1b-151a-4db6-a1bd-51e80479bcbe"
+    ],
+    "contenttable_records": 1,
+    "contenttable_guids": [
+     "facafd1b-151a-4db6-a1bd-51e80479bcbe"
+    ],
+    "familymgr_entries": 10,
+    "familymgr_guids": [
+     "facafd1b-151a-4db6-a1bd-51e80479bcbe"
+    ],
+    "coherent": true
+   },
+   "target_release": 2025,
+   "md5": "6b0f953f68a450cd868e353828d724b1",
+   "bytes": 610304,
+   "emission": {
+    "pass": true,
+    "gates": {
+     "G1_identity": true,
+     "G2_schema": true,
+     "G3_framing": true,
+     "G4_validator": true,
+     "G5_registries": true
+    }
+   },
+   "census_after": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "adocument_clean": true,
+    "pass": true
+   }
+  }
+ ],
+ "all_pass": true,
+ "seconds": 15.5
+}

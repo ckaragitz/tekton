@@ -6,9 +6,14 @@
     route.py run --output rvt --ifc design.ifc
     route.py run --output rvt --ifc design.ifc --rvt mine.rvt   # merge onto your file
     route.py run --output rvt --rvt in.rvt --prompt "delete DP-1 with cascade"
+    route.py run --output rvt --rvt mine.rvt --prompt "add a 75 kVA transformer to my project"
     route.py run --output rvt --rfa '{"kind": "downlight"}'     # famspec -> .rfa -> loaded .rvt
+    route.py run --output rvt --rfa extracted.rfa [--rvt host.rvt]   # reload an extracted family
     route.py run --output ifc --spec room-spec.json
+    route.py run --output ifc --rvt project.rvt                 # RVT -> IFC4 (round-trip checked)
     route.py run --output rfa --prompt "a 75 kVA transformer"
+    route.py run --output rfa --rvt project.rvt --family DP-1   # extract one embedded family
+    route.py run --output rfa --rfa dp1.rfa --prompt "set BusRating 225; rename the type to 225A"
 
     route.py matrix [--json]        # the live permutation truth table
     route.py explain --output rvt --inputs prompt,ifc           # one cell
@@ -58,16 +63,19 @@ def build_parser() -> argparse.ArgumentParser:
                     help="what to produce")
     ins = pr.add_argument_group("inputs (any combination)")
     ins.add_argument("--prompt", default=None, metavar="TEXT",
-                     help="natural language (authoring prompt, or the edit "
-                          "sentence when combined with --rvt)")
+                     help="natural language: an authoring prompt; with --rvt "
+                          "the edit sentence ('move DP-1 to 3,4') or an "
+                          "addition ('add a 75 kVA transformer to my project'); "
+                          "with --rfa the family edit ('set BusRating 225')")
     ins.add_argument("--ifc", default=None, metavar="FILE.ifc")
     ins.add_argument("--rvt", default=None, metavar="FILE.rvt",
-                     help="an existing project (edit target / merge base / "
-                          "load host / seed)")
-    ins.add_argument("--rfa", default=None, metavar="FAMSPEC|FILE",
+                     help="an existing project (edit / add / merge target, "
+                          "load host, seed, or the source to export / extract from)")
+    ins.add_argument("--rfa", default=None, metavar="FAMSPEC|FILE.rfa",
                      help="a famspec JSON ({'kind': 'downlight', ...}, inline "
-                          "or a .json path); a bare .rfa path is answered "
-                          "with the honest matrix row")
+                          "or a .json path) to GENERATE + load, or a .rfa path "
+                          "(the file to edit with --prompt, or a tekton-"
+                          "extracted family to reload)")
     ins.add_argument("--spec", default=None, metavar="SPEC.json",
                      help="a building/room spec (spec/building.schema.json)")
     outg = pr.add_argument_group("output & policy (passed through to the stages)")
@@ -86,6 +94,21 @@ def build_parser() -> argparse.ArgumentParser:
     outg.add_argument("--stages", default=None,
                       help="build stage subset FLWECV (build cells only)")
     outg.add_argument("--no-validate", action="store_true")
+    conv = pr.add_argument_group("convert cells (rvt->rfa extract, add / merge INTO --rvt, rvt->ifc)")
+    conv.add_argument("--family", default=None, metavar="SELECTOR",
+                      help="rvt->rfa: which embedded family to extract "
+                           "(name fragment | family id | unit index)")
+    conv.add_argument("--level", default=None, metavar="N|NAME",
+                      help="add/merge into --rvt: the target level "
+                           "(1-based storey index or name substring)")
+    conv.add_argument("--at", type=float, nargs=2, default=None, metavar=("X_M", "Y_M"),
+                      help="add into --rvt: explicit anchor in metres (default: "
+                           "free floor space east of the target's content)")
+    conv.add_argument("--offset", type=float, nargs=2, default=None, metavar=("DX_M", "DY_M"),
+                      help="merge into --rvt: explicit offset in metres "
+                           "(0 0 = the IFC's own world frame; default: disjoint east)")
+    conv.add_argument("--no-roundtrip", action="store_true",
+                      help="rvt->ifc: skip the resolve_intent round-trip check")
     pr.add_argument("--json", action="store_true", help="print the result JSON")
 
     pm = sub.add_parser("matrix", help="print the live permutation truth table")
@@ -105,7 +128,8 @@ def cmd_run(a) -> int:
               if getattr(a, k) is not None}
     opts = {}
     for k in ("out", "stem", "via", "strict", "base", "target_version",
-              "stages", "no_validate"):
+              "stages", "no_validate", "family", "level", "at", "offset",
+              "no_roundtrip"):
         v = getattr(a, k, None)
         if v not in (None, False):
             opts[k] = v
@@ -157,37 +181,20 @@ def _print_result(res) -> None:
 
 
 def cmd_matrix(a) -> int:
+    """Print the live table + run the evidence self-audit (one renderer,
+    rvt.frontdoor.matrix.render_text, shared with tools/frontdoor.py matrix).
+    Exit 3 only on HARD audit problems (a citation missing from the ledger /
+    the tree); certified probe binaries absent on a fresh clone are a note."""
     from rvt.frontdoor import matrix as MX
     if a.json:
-        print(json.dumps(MX.as_json(), indent=1, default=str))
-        return EX_OK
-    print("\ntekton PERMUTATION MATRIX -- inputs {prompt, ifc, rvt, rfa, spec} "
-          "-> outputs {rvt, rfa, ifc}")
-    print("(machine truth: src/rvt/frontdoor/matrix.py; rendered doc: "
-          "docs/product/PERMUTATION-MATRIX.md)\n")
-    for row in MX.matrix_rows():
-        ins = "+".join(row["inputs"])
-        status = row["status"].upper()
-        if row["status"] == "missing":
-            print(f"  {ins:14s} -> {row['output']:3s}  {status:8s} "
-                  f"{row['missing_reason']}")
-        else:
-            print(f"  {ins:14s} -> {row['output']:3s}  {status:8s} "
-                  f"route={row['route']}  stages: {' -> '.join(row['stages'])}")
-    print("\nchains (opts --via):")
-    for name, ch in MX.CHAINS.items():
-        print(f"  {name:24s} [{ch['status']}] {' -> '.join(ch['stages'])}")
-    print("\nany other (inputs, output) combination is answered with the "
-          "matrix row + the closest supported route in one clear line.")
-    probs = MX.verify_evidence()
-    if probs:
-        print(f"\nWARNING: {len(probs)} evidence citations FAILED the "
-              "self-audit (run tests/test_router.py):")
-        for p in probs[:10]:
-            print(f"  ! {p}")
+        payload = MX.as_json()
+        payload["audit"] = rep = MX.audit()
+        print(json.dumps(payload, indent=1, default=str))
+        return EX_INCOMPLETE if (rep["ledger_present"] and rep["problems"]) else EX_OK
+    text, rep = MX.render_text()
+    print(text, end="")
+    if rep.get("ledger_present") and rep.get("problems"):
         return EX_INCOMPLETE
-    print(f"\nevidence self-audit: every citation checks out "
-          f"({len(MX.CELLS)} cells, {len(MX.STAGES)} stages).")
     return EX_OK
 
 

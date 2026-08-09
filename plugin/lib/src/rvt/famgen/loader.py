@@ -1391,7 +1391,23 @@ def load_family_into_project(host_rvt: str = DEFAULT_HOST,
     (``rvt.commit.commit_new_elements``: host elements into save-unit 0 +
     ElemTable + identity) -> pass 2 (splice our embedded save unit, insert
     our ContentDocuments entry, write the edited host ADocument) -> verify.
+
+    Runs under the HOST's own release (``rvt.frontdoor.release_ctx.
+    host_release_context`` -- issue #14): joins ``build_intent``'s context
+    when called inside it, enters its own when called bare.
     """
+    from ..frontdoor.release_ctx import host_release_context
+    with host_release_context(host_rvt):
+        return _load_family_into_project(
+            host_rvt, out_path, product, place=place, symbol_solid=symbol_solid,
+            circuit_slots=circuit_slots, report_path=report_path,
+            validate=validate)
+
+
+def _load_family_into_project(host_rvt: str, out_path: Optional[str],
+                              product, *, place: bool, symbol_solid: bool,
+                              circuit_slots: int, report_path: Optional[str],
+                              validate: bool) -> LoadResult:
     from . import factory as F
     from ..encode import encode_record
     from ..commit import commit_new_elements
