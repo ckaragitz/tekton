@@ -16,26 +16,28 @@ ledger entries `experiments/render/RSOLID_walls_A_solid.rvt` and
 **before** `Document.serialize`, so the normal `commit_new_elements` path writes it
 (no post-hoc `substitute_elements` rewrite, `rvt/mutate.py` untouched).
 
-* `tools/ifc_intent.py`: `stage_walls(..., wall_rep='dummy'|'solid')` + `_bake_wall_solid(doc, el, wall_type, height)`.
-  Recipe = W1's exactly: root category `-1`, side/top/bottom material = the wall
+* `src/rvt/render/brep.py`: `bake_planned_wall(doc, el, *, wall_type_id, height, side_material_id=None)`
+  (create-time sibling of `wallgeom.bake_planned_wall`) + `WALL_REPS`; `tools/ifc_intent.py`:
+  `stage_walls(..., wall_rep='dummy'|'solid')` dispatches to it in one line. Recipe = W1's exactly: root category `-1`, side/top/bottom material = the wall
   type's own layer `MaterialElem` when it exists in the document
   (`rvt.render.wallgeom.layer_material`, else `-1`), end caps `-1`, no ref-plane
   sub-graphics, face/edge tags read from the wall's own `BaseWallGStep` history
-  (`tags.source == 'history'` on the constructed template). Per-wall `rep` facts and
-  `rec['wall_rep']` land in the stage record; the stage notes are conditional. The
-  low-level default stays `'dummy'` so the research probe builders
+  (`tags.source == 'history'` on the constructed template). Per-wall measured `rep` facts and
+  `rec['wall_rep']` land in the stage record; the stage note states mechanism only. An
+  unknown `wall_rep` raises (API misuse). The low-level default stays `'dummy'` so the research probe builders
   (`tools/render_probes.py`, `ifc_intent.py room`) keep producing byte-identical files.
 * `src/rvt/frontdoor/build.py`: `BuildOptions.wall_rep` (default `default_wall_rep()`
   = `'solid'` unless env `RVT_WALL_REP=dummy`; unknown values → `'solid'`), threaded
   into both `stage_walls` calls (single/stamp and split-strict shell); `_slim_stage`
   keeps `wall_rep` + per-wall `rep`; `elements_created[].rep`. **No `tools/frontdoor.py`
   flag** (hot file untouched) and no `AuthorRequest` field — the env var is the opt-out.
-* `src/rvt/frontdoor/manifest.py`: `honesty.tiers.load_vs_render` follows the rep stage
-  W actually wrote (`LOAD_VS_RENDER['solid'|'dummy']`); the solid wording says the
+* `src/rvt/frontdoor/manifest.py`: `honesty.tiers.load_vs_render` follows the rep the
+  created wall elements actually carry (`LOAD_VS_RENDER['solid'|'dummy']`, the ONE home of
+  the certification-state sentence); the solid wording says the
   RENDER mechanism is certified *as a shape* and that **this exact output is
   uncertified until its own viewer batch passes**. `_honesty(None, …)` still works.
 * `tests/test_frontdoor_wallsolid.py` (new, fresh-clone, in `tests/ci_shard.txt`).
-* Plugin mirrors re-synced (`plugin/lib/src/rvt/frontdoor/{build,manifest}.py`,
+* Plugin mirrors re-synced (`plugin/lib/src/rvt/frontdoor/{build,manifest}.py`, `plugin/lib/src/rvt/render/brep.py`,
   `plugin/lib/tools/ifc_intent.py`, `plugin/skills/tekton-author/scripts/ifc_intent.py`).
 
 Why `brep` and not `wallgeom.bake_planned_wall` (the second, native-exact
@@ -89,9 +91,18 @@ LOAD-certified ROOM2025_walls shape) rather than an R5 clone, hence 121 mm on 20
 
 ## Gates run
 
-* `pytest tests/test_frontdoor_wallsolid.py` → **4 passed** (11.4 s).
+* `pytest tests/test_frontdoor_wallsolid.py` → **4 passed** (6.2 s after the /simplify pass; 11.4 s before).
 * `pytest tests/test_frontdoor.py tests/test_router.py tests/test_render_wallgeom.py tests/test_render_inspect.py tests/test_frontdoor_standalone.py tests/test_probe_batch.py tests/test_ifc_intent.py`
   → **204 passed, 28 skipped** (57.9 s; skips = corpus/ladder-gated cases, expected in a fresh clone).
+  Caveat found while gating: once `probe_batch stage` has copied binaries into
+  `experiments/acceptance/`, `rvt.frontdoor.matrix.audit()` treats THIS checkout as an owner
+  machine (`_experiment_binaries_present()` = any `experiments/acceptance/*.rvt`) and the 38
+  ledger binaries a fresh clone never has turn HARD → 4 `test_router.py` reds locally
+  (73 passed / 4 skipped again with the staged copies moved aside; CI unaffected). Filed as a
+  process follow-up (fresh-clone staging, #263, should not redden the stager's own audit).
+* `/simplify` (4 review lenses) applied: bake moved into the engine, no note surgery, one
+  wording home, evidence-keyed honesty, leaner test; outputs sha-identical before/after on
+  2026 (`1e07e23a…`), dummy (`f924e5ff…`), 2025 (`86b7ac9a…`), 2024 (`cdec67b3…`).
 * `pytest tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py` → **26 passed, 4 skipped**.
 * `tools/sync_plugin.py` → synced 4 files, deny-audit clean, validation passed, zip rebuilt;
   `--check` → in sync. `plugin/scripts/validate_plugin.py` → PASS (24 assertions).
@@ -145,10 +156,11 @@ the upload and the verdict PR.
 ## BRANCH STATE
 
 * Branch `cam/144-wall-solids-frontdoor` from `main` @ a5a853f; commits: engine change +
-  test + shard + mirrors; staging declarations + this record.
-* Files written: `tools/ifc_intent.py`, `src/rvt/frontdoor/build.py`,
+  test + shard + mirrors; staging declarations + this record; probes' intent.json; the
+  /simplify pass (bake into `rvt.render.brep`).
+* Files written: `src/rvt/render/brep.py`, `tools/ifc_intent.py`, `src/rvt/frontdoor/build.py`,
   `src/rvt/frontdoor/manifest.py`, `tests/test_frontdoor_wallsolid.py`, `tests/ci_shard.txt`,
-  plugin mirrors (4), `experiments/wall_solids_frontdoor/{2026,2025,2024}/{manifest.json,MANIFEST.md}`,
+  plugin mirrors (5), `experiments/wall_solids_frontdoor/{2026,2025,2024}/{manifest.json,MANIFEST.md,intent.json}`,
   `experiments/acceptance/batch_{57,58,59}.json`, `docs/inbox/wall-solids-frontdoor.md`,
   `docs/inbox/render-emit.md` (own header, pointer only).
 * Staged, not shipped: batches 57/58/59 READY in `experiments/acceptance/` (binaries local,
