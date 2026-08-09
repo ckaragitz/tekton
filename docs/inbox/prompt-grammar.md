@@ -94,8 +94,9 @@ Stream: eng #147 · branch `cam/147-prompt-levels` · PR #293 · 2026-08-09 ·
 Territory: `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/ifc/intent.py`
 (`Equipment.level`, `RoomShell.level`, defaulted level flag),
 `src/rvt/frontdoor/levels.py` (NEW, stage D), `src/rvt/frontdoor/build.py`,
-`src/rvt/frontdoor/manifest.py`, `tools/ifc_intent.py` (`stage_equipment`
-level selection only), `tests/test_prompt_intent.py`, `tests/test_frontdoor.py`.
+`src/rvt/frontdoor/manifest.py`, `src/rvt/frontdoor/ifc_out.py` (storey per level,
+fix round), `tools/ifc_intent.py` (`stage_equipment` level selection only),
+`tests/test_prompt_intent.py`, `tests/test_frontdoor.py`, `tests/ci_shard.txt`.
 No hot file, no `manipulate.py` / `mutate.py` edit (#186's territory — the
 certified `set_level_elevation` / `modify_element` / `commit_plans` are called,
 not changed).
@@ -258,25 +259,68 @@ clone, bundled pinned bases, `tools/frontdoor.py author --prompt … [--target-v
    which is computed before any base is opened; the constant is documented as
    mirroring the pinned bases and stage D reports the base's real count).
 
+## Fix round after the independent review of `67b61b8` (🛑 → addressed)
+
+The review found two real regressions outside the DONE prompt; both fixed
+with tests, plus its four nits:
+
+1. **prompt → IFC addition dropped the storeys** (`ifc_out.py` still wrote ONE
+   `IfcBuildingStorey` with raw, now level-relative, z → `route run --output
+   ifc` put LP-1..4 on the ground floor; `--via ifc` delivered them on 311).
+   Now `write_intent_ifc` writes one storey PER intent level, placed at the
+   level's elevation, and contains every product under ITS level's storey with
+   level-relative z (level-less objects: the storey nearest 0, z rebased on
+   it). Round trip of the DONE prompt through our resolver: 2 storeys, levels
+   L1/L2 @ 0/4.2672, LPs `level == 'L2'` z 1.42, MSB + shell on L1
+   (`test_prompt_to_ifc_addition_keeps_every_storey`).
+2. **Stage D on IFC intents sank / double-offset level-less rooms** (the `""`
+   fallback was the LOWEST storey with its z: worked room + a 'Basement' @ −3 m
+   → walls −9.84 ft, MSB −9.51; single storey @ +3 m → MSB 20.01 ft). Two
+   changes: (a) `""` = the bound datum nearest z = 0 with NO z offset (main's
+   `_pick_level` semantics — a level-less item carries world z); (b) the IFC
+   resolver now assigns `Equipment.level` / `RoomShell.level` from spatial
+   containment (`IfcRelContainedInSpatialStructure`, spaces walked up through
+   `IfcRelAggregates`) and rebases `insertion_m[2]` / `elevation_m` /
+   `mounting_height_m` / wall `base_m` on that storey — ONE contract for z on
+   both routes. Measured through the full 2026 build: Basement variant → 311
+   'Basement' @ −9.843, 245423 'Level 1' @ 0, walls base 0, MSB 0.328, LPs
+   5.062 ft on 245423 (main's geometry); +3 m variant → 311 'Level 1' @ 9.843,
+   walls base 9.843, MSB 10.171 ft (3.1 m, once); both 0 validator errors
+   (`test_ifc_products_take_their_storey_with_level_relative_z`,
+   `test_stage_d_on_ifc_storeys_never_sinks_or_double_offsets_the_room`). The
+   earlier wording here ("gear at the correct absolute z" for the IFC lane) was
+   wrong for non-zero storeys and is superseded by this paragraph.
+3. Nits: a `default` level never renames OR moves its datum; the not-built
+   reason states the one z rule (gear keeps the storey's own z, a room shell
+   stands on the top datum — a wall's base is its datum, no base offset is
+   authored); a level reference adjacent to the room phrase ("6 panels in an
+   electrical room on the second floor", "a second floor electrical room")
+   scopes the ROOM (`test_level_reference_adjacent_to_the_room_scopes_the_room`);
+   `tests/test_prompt_intent.py` added to `tests/ci_shard.txt`.
+4. Side effect worth knowing (convert stream): `rvt_to_ifc` feeds the same
+   emitter with world-z equipment and no `level`, so converted files now list
+   every level of the source as a storey and contain the gear under the one
+   nearest 0 (its "dominant level first" sort and comment predate this);
+   `test_convert_combo` / `test_router*` unchanged and green.
+
 ## Open questions
 
-- The IFC route leaves `Equipment.level = None` (world z, first storey) while
-  stage D now renames / re-elevates the datums from named `IfcBuildingStorey`s:
-  a multi-storey IFC would get its L2 datum right but its L2 gear associated
-  to Level 1 at the correct absolute z. Today's IFC inputs are single-storey
-  rooms; making the IFC resolver assign the storey and rebase z (one contract
-  for `insertion_m[2]`) is its own before/after on the certified IFC lane.
 - Stages P and D are two open → commit → reopen passes over the same base;
   one shared "base edits" pass (one `Document.from_file`, one `commit_plans`)
   would save ≈ 0.1 s and one intermediate file.
+- Binding is by elevation ORDER: an IFC with a basement re-purposes datum 311
+  (and its 'L1 - Ground Floor' plan view) as the basement and 245423 as the
+  ground floor. Correct as datums; the plan-view names are not renamed (view
+  rename is not a certified shape yet).
 
 ## BRANCH STATE
 
 - Files written: `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/ifc/intent.py`,
   `src/rvt/frontdoor/levels.py` (new), `src/rvt/frontdoor/build.py`,
-  `src/rvt/frontdoor/manifest.py`, `tools/ifc_intent.py`,
-  `tests/test_prompt_intent.py`, `tests/test_frontdoor.py`, this record; sync
-  mirrors `plugin/lib/src/rvt/frontdoor/{prompt_intent,levels,build,manifest}.py`,
+  `src/rvt/frontdoor/manifest.py`, `src/rvt/frontdoor/ifc_out.py`,
+  `tools/ifc_intent.py`, `tests/test_prompt_intent.py`,
+  `tests/test_frontdoor.py`, `tests/ci_shard.txt`, this record; sync
+  mirrors `plugin/lib/src/rvt/frontdoor/{prompt_intent,levels,build,manifest,ifc_out}.py`,
   `plugin/lib/src/rvt/ifc/intent.py`, `plugin/lib/tools/ifc_intent.py`,
   `plugin/skills/tekton-author/scripts/ifc_intent.py` (regenerated by
   `tools/sync_plugin.py`, never hand-edited).

@@ -871,9 +871,11 @@ def test_stage_d_binds_levels_to_the_story_datums_only(tmp_path, release):
         # the third storey: recorded, bound to the top datum at its OWN z, never created
         assert [nb["id"] for nb in rec["not_built"]] == ["L3"]
         assert "NOT created" in rec["not_built"][0]["reason"]
+        # '' = level-less items (WORLD z): the datum nearest 0, NO z offset
         assert rec["level_map"] == {"L1": (l1["base_id"], 0.0), "L2": (l2["base_id"], 14.0),
                                     "L3": (l2["base_id"], 28.0), "": (l1["base_id"], 0.0)}
         assert rec["room_level_id"] == l1["base_id"]                    # no room level given
+        assert "room shell on it stands on Level 2's datum (14 ft)" in rec["not_built"][0]["reason"]
         assert LV.resolve(rec["level_map"], "L2") == (l2["base_id"], 14.0)
         assert LV.resolve(rec["level_map"], "L9") == LV.resolve(rec["level_map"], None) \
             == (l1["base_id"], 0.0)
@@ -924,12 +926,26 @@ def test_stage_d_writes_nothing_when_the_datums_already_match(tmp_path):
     # keeps the datum's own name -> nothing to write
     dflt = [{"id": "L1", "name": "Level 1", "elevation": 0.0, "default": True}]
     assert PP.parse_prompt("an electrical room 30 by 20 ft").levels == dflt
-    for silent in (dflt, []):
+    for silent in (dflt, [], [dict(dflt[0], elevation=1.0)]):    # a default NEVER renames or moves
         rec = LV.stage_levels(base, str(tmp_path / "dflt.rvt"), silent)
         assert rec["ok"] and not rec["written"], rec
         assert [(b["name"], b["base_id"], b["rename"], b["move"]) for b in rec["levels"]] == \
                [(stories[0]["name"], stories[0]["id"], False, False)]
         assert not rec["not_built"] and rec["room_level_id"] == stories[0]["id"]
+    # an intent whose lowest level is BELOW grade (an IFC 'Basement' @ -3 m + 'Level 1'
+    # @ 0): bound in elevation order, and level-less items / a level-less room land
+    # on the datum that ends up nearest 0 with NO z offset -- never on the basement
+    doc = Document.from_file(base)
+    bound, nb = LV.bind_levels(doc, [{"id": "L1", "name": "Basement", "elevation": -3.0},
+                                     {"id": "L2", "name": "Level 1", "elevation": 0.0}])
+    assert [(b["base_id"], b["name"]) for b in bound] == [(stories[0]["id"], "Basement"),
+                                                          (stories[1]["id"], "Level 1")]
+    lm = LV.level_map(bound, nb)
+    assert lm[""] == (stories[1]["id"], 0.0) and LV.resolve(lm, None) == (stories[1]["id"], 0.0)
+    assert abs(lm["L1"][1] + 3.0 * PP.FT_PER_M) < 1e-6
+    # a single storey above grade: level-less items still get z offset 0 on it
+    bound, nb = LV.bind_levels(doc, [{"id": "L1", "name": "Level 1", "elevation": 3.0}])
+    assert LV.level_map(bound, nb)[""] == (stories[0]["id"], 0.0)
 
 
 @pytest.fixture(scope="module")
@@ -984,3 +1000,122 @@ def test_e2e_two_storey_prompt_places_gear_per_level(two_storey_job):
         md = fh.read()
     assert "levels (the base's building-story datums, renamed / re-elevated)" in md
     assert "L2 → 'Level 2' @ 14 ft" in md
+
+
+# ===========================================================================
+# 10. the IFC lane under the level contract (issue #147 review): storeys are
+#     bound in elevation order, every product takes ITS storey (level-relative
+#     z), level-less objects keep world z on the datum nearest 0, and the
+#     prompt -> IFC addition writes one storey per level (round trip)
+# ===========================================================================
+
+ROOM_IFC = os.path.join(ROOT, "inputs", "ifc", "electrical-room-2500a.ifc")
+
+
+def _have_numpy() -> bool:
+    try:
+        import numpy  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
+needs_ifc_lane = pytest.mark.skipif(not (os.path.isfile(ROOM_IFC) and _have_numpy()),
+                                    reason="worked IFC input or numpy absent")
+
+
+def _storey_variant(tmp_path, name: str) -> str:
+    """The worked room IFC (one storey 'Level 1' @ 0, room + gear contained in
+    it, world-baked vertices) with (a) an extra 'Basement' storey @ -3 m or
+    (b) its single storey moved to +3 m (placement AND Elevation)."""
+    src = open(ROOM_IFC, encoding="utf-8").read()
+    sto = "#26=IFCBUILDINGSTOREY('14kxonpfZf0kKWo7G2nBh$',#5,'Level 1',$,$,#25,$,$,.ELEMENT.,0.);"
+    agg = "#29=IFCRELAGGREGATES('3tZeI_SmPBi7Tm32cEnPOc',#5,$,$,#24,(#26));"
+    plc = "#25=IFCLOCALPLACEMENT(#23,#9);"
+    assert sto in src and agg in src and plc in src
+    if name == "basement":
+        out = src.replace(sto, sto + "\n#900001=IFCCARTESIANPOINT((0.,0.,-3.));\n"
+                          "#900002=IFCAXIS2PLACEMENT3D(#900001,$,$);\n"
+                          "#900003=IFCLOCALPLACEMENT(#23,#900002);\n"
+                          "#900004=IFCBUILDINGSTOREY('1BasementStoreyGuid001',#5,'Basement',$,$,"
+                          "#900003,$,$,.ELEMENT.,-3.);")
+        out = out.replace(agg, agg.replace("(#26)", "(#26,#900004)"))
+    else:  # plus3
+        out = src.replace(plc, "#900001=IFCCARTESIANPOINT((0.,0.,3.));\n"
+                          "#900002=IFCAXIS2PLACEMENT3D(#900001,$,$);\n"
+                          "#25=IFCLOCALPLACEMENT(#23,#900002);")
+        out = out.replace(sto, sto.replace(".ELEMENT.,0.", ".ELEMENT.,3."))
+    p = tmp_path / f"{name}.ifc"
+    p.write_text(out, encoding="utf-8")
+    return str(p)
+
+
+@needs_ifc_lane
+def test_ifc_products_take_their_storey_with_level_relative_z(tmp_path):
+    """The resolver assigns Equipment.level / RoomShell.level from spatial
+    containment and rebases z on that storey; world z is unchanged."""
+    base = FI.intent_from_ifc(ROOM_IFC)                       # one storey @ 0: numbers as before
+    assert [(lv["id"], lv["name"], lv["elevation"]) for lv in base.levels] == [("L1", "Level 1", 0.0)]
+    assert base.room.level == "L1" and {e.level for e in base.equipment} == {"L1"}
+    world = {e.tag: round(e.insertion_m[2], 4) for e in base.equipment}
+    # (a) a Basement @ -3 m BELOW the room's storey: the room and its gear are on L2
+    #     ('Level 1' @ 0), NOT sunk onto the basement; z unchanged (its storey is @ 0)
+    m = FI.intent_from_ifc(_storey_variant(tmp_path, "basement"))
+    assert [(lv["id"], lv["name"], lv["elevation"]) for lv in m.levels] == [
+        ("L1", "Basement", -3.0), ("L2", "Level 1", 0.0)]
+    assert m.room.level == "L2" and {e.level for e in m.equipment} == {"L2"}
+    assert {e.tag: round(e.insertion_m[2], 4) for e in m.equipment} == world
+    assert {round(w.base_m, 4) for w in m.room.walls} == {0.0}
+    # (b) the single storey moved to +3 m: world z rides up 3 m, level-relative z does not
+    m = FI.intent_from_ifc(_storey_variant(tmp_path, "plus3"))
+    assert [(lv["name"], lv["elevation"]) for lv in m.levels] == [("Level 1", 3.0)]
+    assert m.room.level == "L1" and {e.level for e in m.equipment} == {"L1"}
+    assert {e.tag: round(e.insertion_m[2], 4) for e in m.equipment} == world
+    assert {round(w.base_m, 4) for w in m.room.walls} == {0.0}
+    msb = m.by_tag("MSB")
+    assert round(msb.elevation_m, 4) == round(base.by_tag("MSB").elevation_m, 4)
+
+
+@needs_ifc_lane
+@needs_pinned
+def test_stage_d_on_ifc_storeys_never_sinks_or_double_offsets_the_room(tmp_path):
+    """Through the level map the build uses: Basement variant -> room datum =
+    the story that ends up @ 0, gear z offset = that datum's 0; +3 m variant ->
+    gear world z = 3 m + its level-relative z exactly once."""
+    from rvt.mutate import Document
+    doc = Document.from_file(PINNED[2026])
+    s1, s2 = (lv["id"] for lv in LV.story_levels(doc))
+    m = FI.intent_from_ifc(_storey_variant(tmp_path, "basement"))
+    bound, nb = LV.bind_levels(doc, m.levels)
+    lm = LV.level_map(bound, nb)
+    assert LV.resolve(lm, m.room.level) == (s2, 0.0)                     # walls base 0 ft
+    lvl, z0 = LV.resolve(lm, m.by_tag("MSB").level)
+    assert (lvl, round(z0 + m.by_tag("MSB").insertion_m[2] * PP.FT_PER_M, 3)) == (s2, 0.328)
+    m = FI.intent_from_ifc(_storey_variant(tmp_path, "plus3"))
+    bound, nb = LV.bind_levels(doc, m.levels)
+    lm = LV.level_map(bound, nb)
+    lvl, z0 = LV.resolve(lm, m.by_tag("MSB").level)
+    assert lvl == s1 and abs(z0 - 3.0 * PP.FT_PER_M) < 1e-6
+    assert round(z0 + m.by_tag("MSB").insertion_m[2] * PP.FT_PER_M, 3) == 10.171   # 3.1 m, once
+
+
+@needs_ifc_lane
+@needs_catalog
+def test_prompt_to_ifc_addition_keeps_every_storey(tmp_path):
+    """The version-agnostic IFC of a two-storey prompt carries BOTH storeys and
+    each product under its own: re-read through our resolver the LPs are on
+    L2 @ 4.2672 m with their level-relative z, the switchboard + shell on L1."""
+    from rvt.frontdoor import ifc_out
+    model, parsed = PP.prompt_to_intent(TWO_STOREY)
+    p = ifc_out.write_intent_ifc(model, str(tmp_path / "two.ifc"))
+    text = open(p, encoding="ascii").read()
+    assert text.count("IFCBUILDINGSTOREY(") == 2
+    assert text.count("IFCRELCONTAINEDINSPATIALSTRUCTURE(") == 2
+    m2 = FI.intent_from_ifc(p)
+    assert [(lv["id"], lv["name"], lv["elevation"]) for lv in m2.levels] == [
+        ("L1", "Level 1", 0.0), ("L2", "Level 2", 4.2672)]
+    assert {e.tag: e.level for e in m2.equipment} == {e.tag: e.level for e in model.equipment} == {
+        "MSB": "L1", "LP-1": "L2", "LP-2": "L2", "LP-3": "L2", "LP-4": "L2"}
+    for e in m2.equipment:
+        assert abs(e.insertion_m[2] - model.by_tag(e.tag).insertion_m[2]) < 1e-3, e.tag
+    assert m2.room is not None and m2.room.level == "L1" and len(m2.room.walls) == 4

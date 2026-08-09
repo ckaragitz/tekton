@@ -2137,6 +2137,79 @@ def _levels(f) -> List[dict]:
     return out
 
 
+def _storey_of_products(f) -> Dict[int, int]:
+    """``{product step id: IfcBuildingStorey step id}`` from the spatial
+    containment relations; a product contained in an ``IfcSpace`` resolves
+    through the space's aggregation / containment up to its storey."""
+    parent: Dict[int, Any] = {}                        # spatial element id -> parent structure
+    for rel in f.by_type("IfcRelAggregates"):
+        whole = getattr(rel, "RelatingObject", None)
+        for part in (getattr(rel, "RelatedObjects", None) or []):
+            if whole is not None:
+                parent[part.id()] = whole
+    contained: Dict[int, Any] = {}
+    for rel in f.by_type("IfcRelContainedInSpatialStructure"):
+        struct = getattr(rel, "RelatingStructure", None)
+        for el in (getattr(rel, "RelatedElements", None) or []):
+            if struct is not None:
+                contained[el.id()] = struct
+    for sid, struct in list(contained.items()):        # spaces are contained too
+        parent.setdefault(sid, struct)
+    out: Dict[int, int] = {}
+    for pid, struct in contained.items():
+        hops = 0
+        while struct is not None and not struct.is_a("IfcBuildingStorey") and hops < 8:
+            struct = parent.get(struct.id())
+            hops += 1
+        if struct is not None and struct.is_a("IfcBuildingStorey"):
+            out[pid] = struct.id()
+    return out
+
+
+def _assign_storeys(f, levels: List[dict], equipment: List["Equipment"],
+                    room: Optional["RoomShell"], room_prod) -> None:
+    """Set ``Equipment.level`` / ``RoomShell.level`` from each product's
+    containing storey and rebase its z on that storey: ``insertion_m[2]``,
+    ``elevation_m``, ``mounting_height_m`` (and the shell's wall ``base_m``)
+    become LEVEL-RELATIVE -- the one contract the build (stage D / E) and the
+    IFC emitter read.  World z = the level's ``elevation`` + the relative z,
+    so geometry stays where the IFC put it while the datum lands where the
+    storey says.  Products with no resolvable storey keep world z and
+    ``level = None`` (the build lands them on the datum nearest 0)."""
+    by_step = {lv.get("step_id"): lv for lv in levels if lv.get("step_id") is not None}
+    if not by_step:
+        return
+    storey_of = _storey_of_products(f)
+
+    def level_for(step_id: Optional[int]) -> Optional[dict]:
+        return by_step.get(storey_of.get(step_id)) if step_id is not None else None
+
+    for eq in equipment:
+        lv = level_for(eq.step_id)
+        if lv is None:
+            continue
+        dz = float(lv.get("elevation") or 0.0)
+        eq.level = str(lv["id"])
+        eq.insertion_m = [float(eq.insertion_m[0]), float(eq.insertion_m[1]),
+                          float(eq.insertion_m[2]) - dz]
+        eq.elevation_m = float(eq.elevation_m) - dz
+        if eq.mounting_height_m is not None:
+            eq.mounting_height_m = float(eq.mounting_height_m) - dz
+        eq.notes.append(f"level = {eq.level} ('{lv.get('name')}', storey #{lv.get('step_id')}): "
+                        f"z values are relative to its datum ({dz:g} m)")
+    if room is not None and room_prod is not None:
+        lv = level_for(room_prod.id())
+        if lv is not None:
+            dz = float(lv.get("elevation") or 0.0)
+            room.level = str(lv["id"])
+            for wr in room.walls:
+                wr.base_m = float(wr.base_m or 0.0) - dz
+            if "base_m" in room.clear:
+                room.clear["base_m"] = float(room.clear["base_m"] or 0.0) - dz
+            room.notes.append(f"level = {room.level} ('{lv.get('name')}'): the shell's walls "
+                              f"stand on its datum (base z relative to {dz:g} m)")
+
+
 def _length_scale(f) -> float:
     """Metres per model length unit."""
     try:
@@ -2257,13 +2330,17 @@ def resolve_intent(ifc_path: str, *, plan_families_flag: bool = True) -> IntentM
     # ---- family mapping
     plans = plan_families(equipment) if plan_families_flag else []
 
+    # ---- storeys: every product's level from its spatial containment
+    levels = _levels(f)
+    _assign_storeys(f, levels, equipment, room, room_prod)
+
     # ---- audit / self-checks
     audit = _audit(equipment, room, feeders)
 
     model = IntentModel(
         source_path=os.path.abspath(ifc_path), schema=f.schema,
         project_name=(proj.Name if proj else None) or "Imported model",
-        length_scale_m=scale, levels=_levels(f), equipment=equipment,
+        length_scale_m=scale, levels=levels, equipment=equipment,
         other_products=others, room=room, clearances=clearances,
         feeders=feeders, conduit_runs=runs, family_plans=plans, audit=audit)
     model.notes += [

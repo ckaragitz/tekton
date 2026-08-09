@@ -19,10 +19,15 @@ their equipment binds to the top built datum at the storey's own elevation.
 The stage runs right after stage P (base -> ``_stages/stage_D_levels.rvt``)
 so walls (W) and instances (E) grow on the re-elevated datums:
 :func:`level_map` hands them ``{intent level id: (base Level id, datum z
-ft)}`` plus the ``""`` entry every unmapped item falls back to --
-``rvt.mutate.add_wall`` reads the wall's base z from the datum,
-``stage_equipment`` adds the datum z to the item's level-relative z and sets
-``m_assocLevelId``.  When nothing differs -- every job whose prompt / IFC
+ft)}`` plus the ``""`` entry every level-less item falls back to (the bound
+datum nearest z = 0 with NO z offset: an item without a level carries world
+z, exactly main's ``_pick_level`` semantics) -- ``rvt.mutate.add_wall``
+reads the wall's base z from the datum, ``stage_equipment`` adds the datum z
+to the item's level-relative z and sets ``m_assocLevelId``.  A storey that
+is not built maps its gear to the top datum at the storey's OWN z, while a
+room shell on it stands on the top datum itself (a wall's base IS its datum;
+no base offset is authored) -- both said in the ``not_built`` reason.  When
+nothing differs -- every job whose prompt / IFC
 says nothing about levels (no level, or one DEFAULTED storey, asserts no
 name), or an intent that already matches -- no file is written, the caller
 keeps its input, and the output stays byte-identical to a build without this
@@ -43,7 +48,8 @@ __all__ = ["ELEV_TOL_FT", "story_levels", "bind_levels", "level_map", "resolve",
 ELEV_TOL_FT = 1e-6
 
 #: intent level id -> (base Level element id, datum z in ft); key ``""`` =
-#: the datum an item with no / an unknown level lands on (the first storey)
+#: the datum an item with no / an unknown level lands on: the bound datum
+#: nearest z = 0 with z offset 0 (a level-less item carries WORLD z)
 LevelMap = Dict[str, Tuple[int, float]]
 
 
@@ -63,7 +69,8 @@ def bind_levels(doc, intent_levels: Sequence[dict]) -> Tuple[List[dict], List[di
     ``{"id", "name", "elevation_ft", "base_id" (the top bound datum),
     "reason"}``.  An intent that asserts nothing about levels -- no level at
     all, or one flagged ``"default": True`` (a prompt / IFC silent about
-    levels) -- binds the first storey and keeps the datum's own name."""
+    levels) -- binds the first storey and keeps the datum's own name AND
+    elevation (it never renames or moves anything)."""
     stories = story_levels(doc)
     if not stories:
         raise ValueError("the base carries no Level datum to bind the intent's levels to")
@@ -79,8 +86,8 @@ def bind_levels(doc, intent_levels: Sequence[dict]) -> Tuple[List[dict], List[di
         if i < len(stories):
             st = stories[i]
             base_elev = float(st.get("elevation_ft") or 0.0)
-            if lv.get("default"):
-                name = st.get("name") or name
+            if lv.get("default"):                    # asserts nothing: keep the datum as is
+                name, elev_ft = st.get("name") or name, base_elev
             bound.append({"id": lid, "name": name, "elevation_ft": elev_ft,
                           "base_id": int(st["id"]), "base_name": st.get("name"),
                           "base_elevation_ft": base_elev,
@@ -94,8 +101,10 @@ def bind_levels(doc, intent_levels: Sequence[dict]) -> Tuple[List[dict], List[di
                            f"{len(stories)} building-story datums and the create path binds "
                            "storeys to them (rename + re-elevate, the certified modify shape) "
                            "-- it does not add Level datums / plan views yet; equipment on it "
-                           f"is placed at its elevation, associated to {top['name']} "
-                           f"(Level {top['base_id']})")})
+                           f"is placed at its own elevation, associated to {top['name']} "
+                           f"(Level {top['base_id']}); a room shell on it stands on "
+                           f"{top['name']}'s datum ({top['elevation_ft']:g} ft) -- a wall's "
+                           "base IS its datum and no base offset is authored")})
     return bound, not_built
 
 
@@ -103,12 +112,15 @@ def level_map(bound: Sequence[dict], not_built: Sequence[dict] = (), *,
               landed: bool = True) -> LevelMap:
     """The :data:`LevelMap` for stages W / E.  ``landed=False`` (the edit did
     not land) speaks the base's own elevations; a not-built storey maps to
-    the top bound datum at the storey's OWN z; ``""`` = the first storey."""
+    the top bound datum at the storey's OWN z; ``""`` (level-less items,
+    which carry WORLD z) = the bound datum whose final elevation is nearest
+    0, with NO z offset -- main's ``_pick_level`` semantics."""
     z = "elevation_ft" if landed else "base_elevation_ft"
     out: LevelMap = {b["id"]: (int(b["base_id"]), float(b[z])) for b in bound}
     out.update({nb["id"]: (int(nb["base_id"]), float(nb["elevation_ft"])) for nb in not_built})
     if bound:
-        out.setdefault("", out[bound[0]["id"]])
+        ground = min(bound, key=lambda b: (abs(float(b[z])), float(b[z])))
+        out.setdefault("", (int(ground["base_id"]), 0.0))
     return out
 
 

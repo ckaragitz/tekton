@@ -721,7 +721,14 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         if n <= 0 and raw not in ("top", "upper"):
             continue
         mark(lm.span())
-        level_refs.append({"span": lm.span(), "text": lm.group(0).strip(), "n": n, "tags": []})
+        # a reference ADJACENT to the room phrase ('electrical room on the
+        # second floor', 'second floor electrical room') scopes the ROOM,
+        # whatever equipment clause it also falls in
+        adjacent = bool(m_room and (not text[m_room.end():lm.start()].strip(" ,")
+                                    if lm.start() >= m_room.end()
+                                    else not text[lm.end():m_room.start()].strip(" ,")))
+        level_refs.append({"span": lm.span(), "text": lm.group(0).strip(), "n": n, "tags": [],
+                           "room": adjacent})
     # storeys = max(the count, every referenced level); 'top floor' = that
     n_levels = max([storey_count or 1] + [r["n"] for r in level_refs])
     for r in level_refs:
@@ -876,8 +883,8 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         # extended past a tag list that ran across 'and': 'panels LP-1 and
         # LP-2 on level 2'); unreferenced items follow the room (section 4)
         region_end = clause_window(tag_span[1], tag_span[1])[1] if tag_span and tag_span[1] > we else we
-        item_ref = next((ref for ref in level_refs
-                         if ws <= ref["span"][0] and ref["span"][1] <= region_end), None)
+        item_ref = next((ref for ref in level_refs if not ref["room"]
+                         and ws <= ref["span"][0] and ref["span"][1] <= region_end), None)
         item_level = item_ref["n"] if item_ref else None
         # attributes from the clause window
         amp = _RE_AMP.search(window)

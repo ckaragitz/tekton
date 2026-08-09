@@ -189,6 +189,21 @@ def test_room_level_reference_scopes_the_room_and_its_gear():
     assert any(u["as"] == "room level" and u["level"] == "L2" for u in parsed.coverage.understood)
 
 
+@pytest.mark.parametrize("prompt,scope", [
+    ("6 panels in an electrical room on the second floor", "room level"),      # ref right after the room
+    ("a second floor electrical room with 6 panels", "room level"),            # ref right before it
+    ("four lighting panels on level 2 in a 30 by 20 ft electrical room", "equipment level"),
+])
+def test_level_reference_adjacent_to_the_room_scopes_the_room(prompt, scope):
+    """A reference glued to the room phrase moves the ROOM (walls + gear),
+    even when no ',' / 'and' / 'with' separates it from the equipment
+    clause; one inside the equipment clause alone stays item-scope."""
+    parsed = PP.parse_prompt(prompt)
+    assert any(u["as"] == scope and u["level"] == "L2" for u in parsed.coverage.understood)
+    assert {it.level for it in parsed.items} == {2}
+    assert parsed.room.level == (2 if scope == "room level" else 1)
+
+
 def test_ordinal_floors_and_tag_lists_across_and():
     parsed = PP.parse_prompt("a 2-story equipment room 20 by 20 ft, 4.2 m floor to floor, two "
                              "lighting panels LP-1 and LP-2 on the second floor and a "
