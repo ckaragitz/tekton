@@ -20,9 +20,11 @@ The mechanics are the ifc-room stream's PROVEN build code, reused as-is
        room's level datum;
     E  the EQUIPMENT instances (rvt.mutate.add_family_instance onto OUR
        loaded symbols at the intent's WORLD frames, our connector managers),
-       each associated to ITS level's datum (m_assocLevelId);
-    C  the feeder CIRCUITS (rvt.mep territory) -- today a NAMED BLOCKER on
-       the family-free base (no circuit specimen); recorded, never faked;
+       each associated to ITS level's datum (m_assocLevelId), AND -- in the
+       same commit -- the feeder CIRCUITS (rvt.mutate.add_circuit over the
+       constructed RbsElectricalSystem specimen, one per non-service edge);
+    C  the circuit READBACK (count == edges, both-side connector links on
+       the written bytes); a shortfall is recorded, never faked;
     V  the gates: rvt.validate (0 errors) / four-registry census / identity
        gate / the P0 provenance-deliverability gate, per output file.
 
@@ -700,8 +702,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                                "links_ok": crec.get("links_ok"),
                                "blocker": crec.get("blocker")})
         if crec.get("blocker"):
-            res.degradations.append("feeder CIRCUITS incomplete: " + str(crec.get("blocker"))
-                                    + " -- the resolved circuit PLAN rides in the manifest")
+            res.degradations.append("feeder CIRCUITS incomplete: " + str(crec.get("blocker")))
 
     # ------------------------------------------------------------------
     # V. gates per emitted file

@@ -1,0 +1,64 @@
+{
+ "stream": "mep-electrical / issue #146: native feeder circuits, single-variable pair",
+ "issue": 146,
+ "target_version": 2026,
+ "prompt": "electrical room 30x20 ft with a 2000A main switchboard, two 400A distribution panels and four lighting panels",
+ "base": {
+  "file": "plugin/assets/genesis/G_ABPD.rvt",
+  "certification": {
+   "file": "plugin/assets/genesis/G_ABPD.rvt",
+   "proves": "pinned composed genesis base of this release (docs/coverage/viewer-certified.json)"
+  }
+ },
+ "standing_control": {
+  "file": "experiments/mep/circuits146/CTRL_G_ABPD_circuits146.rvt",
+  "identical_to": "plugin/assets/genesis/G_ABPD.rvt",
+  "md5": "1f1ff65bd68415a05228d6b6ac2bf271",
+  "purpose": "byte-identical certified base; read FIRST, a FAIL voids the round"
+ },
+ "read_order": "control, then C146_off (the open instance cell alone), then C146_on",
+ "reading_the_results": {
+  "control FAIL": "environment/oracle problem -- round VOID",
+  "off FAIL, on FAIL with the same card": "circuit layer adds no new defect; the instance cell (#16) masks it -- re-run the pair when #16 closes",
+  "off FAIL, on FAIL differently / earlier": "the circuit records are a second, independent defect -- bisect the RbsElectricalSystem field table in docs/inbox/mep-electrical.md",
+  "off PASS, on FAIL": "the circuit layer alone fails -- same bisection",
+  "both PASS": "feeder circuits certified together with the instances"
+ },
+ "not_staged": "deliberately NOT staged by the authoring session (issue #146 stops at validator + readback); reserve a batch (/batches 1) and run tools/probe_batch.py stage --manifest experiments/mep/circuits146/probes.json --batch <N>",
+ "probes": [
+  {
+   "file": "experiments/mep/circuits146/C146_off.rvt",
+   "probe": "C146_off",
+   "kind": "probe",
+   "base": "plugin/assets/genesis/G_ABPD.rvt",
+   "md5": "52a58dff6e64648aa55d05759b0c8058",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "circuits": 0,
+   "circuit_links_ok": true,
+   "instances": 7,
+   "walls": 4,
+   "identity_gate": "PASS",
+   "tests": "the DONE prompt's room with the feeder circuit layer OFF (instances carry free slots only)",
+   "variable": "circuits off",
+   "stamp": "PROOF-ONLY: generated-family INSTANCES on a composed genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)"
+  },
+  {
+   "file": "experiments/mep/circuits146/C146_on.rvt",
+   "probe": "C146_on",
+   "kind": "probe",
+   "base": "plugin/assets/genesis/G_ABPD.rvt",
+   "md5": "e199f27896ed56b442bd2abdc58cb5ac",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "circuits": 6,
+   "circuit_links_ok": true,
+   "instances": 7,
+   "walls": 4,
+   "identity_gate": "PASS",
+   "tests": "the DONE prompt's room with the feeder circuit layer ON (6 constructed RbsElectricalSystem, both-side links)",
+   "variable": "circuits on",
+   "stamp": "PROOF-ONLY: generated-family INSTANCES on a composed genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)"
+  }
+ ]
+}

@@ -178,3 +178,199 @@ panel_renumber.rvt}` (all 5 proofs: structural VALID + rvt_validate 0 errors
 + semantic OK), `docs/writer/mep-electrical-data.md`, `docs/inbox/
 mep-electrical.md`. Full suite 377 passed / 3 failed (all foreign, above).
 DONE met; STOP.
+
+---
+
+# eng146 — native feeder circuits on the genesis base (issue #146, PR #353)
+
+Stream: `cam/146-native-circuits`, one engineer session (cse_01UQR7uoRdCA8QGcSASquJBz),
+2026-08-09. Territory: `src/rvt/frontdoor/standalone.py`, `src/rvt/mutate.py`
+(add_circuit template injection only), `tools/ifc_intent.py`
+(stage_equipment / stage_circuits), `src/rvt/frontdoor/build.py`,
+`src/rvt/frontdoor/matrix.py` (`_CIRCUITS` caveat only) + the pinned doc row,
+`tests/test_frontdoor.py`, `tests/test_mep_devices.py`, this header,
+`experiments/mep/circuits146/` (probe maker + probes.json; .rvt git-ignored).
+One out-of-territory line: `tests/test_frontdoor_standalone.py` pinned the
+injected-template set to `{wall, instance}`; it now includes `circuit_id`
+(direct consequence, 2 lines).
+
+## What was built
+
+1. **`standalone.electrical_system_template(schema, *, elem_id, n_loads=1, path_offset_ft)`**
+   — a CONSTRUCTED `RbsElectricalSystem` clone template built from
+   `default_object(schema, …)` of the base's OWN schema, exactly like the
+   SWall / FamilyInstance templates. `ConstructedSpecimens.circuit_id`
+   (= `CIRCUIT_TID` 990000003) is injected next to the wall/instance templates;
+   `inject_into()` reports `circuit_specimen`. Nothing is read from any file;
+   `tools/provenance.py` attributes the emitted circuits `ours-created`.
+2. **Stages E and C in ONE commit** — `tools/ifc_intent.wire_feeders()` runs
+   inside `stage_equipment` after the boards are placed and BEFORE
+   serialisation: one `Document.add_circuit(panel, load, number=, start_slot=,
+   description=, rating=, poles=, voltage_v=, template_id=specimens.circuit_id)`
+   per non-service feeder edge whose two ends were placed; the circuits are
+   serialised and committed with the instances (both back-links live in the
+   instances' connector objects). Numbers / start slots come from
+   `rvt.mep.electrical_data.layout_circuits` per panel (the two-column
+   same-parity packing law: first 3-pole feeder `1,3,5`, second `2,4,6`).
+3. **Stage C = the readback verifier** — `read_back_circuits(path)` re-opens the
+   deepest file and checks the WRITTEN truth: `ids_of_class('RbsElectricalSystem')`,
+   base connector `{self, LAST}`, `conn[LAST] -> panel slot` answered by
+   `panel.conn[slot] -> {circuit, LAST}`, `conn[0] -> load supply` answered by
+   `load.conn[1] -> {circuit, 0}`. `stage_circuits` names a blocker only on a
+   shortfall (count < planned, or a one-way link); the manifest's stage-C row
+   carries `planned / built / links_ok`.
+4. **`mutate.add_circuit`** gained `voltage_v=` (SI → internal ÷0.3048²),
+   `start_slot=` (`m_nStartSlot`), and — only for a template that carries NO
+   path nodes (the constructed one) — the straight panel→load polyline
+   (node 0 = the panel, real; node 1 virtual at the load; `m_dLength` = its
+   length). The clone path over a real specimen is byte-for-byte unchanged.
+5. Manifest: `elements_created` rows of kind `circuit` (`tag "MSB>DP-1"`,
+   `panel/panel_id/panel_slot`, `load/load_id/load_conn`, `number`, `start_slot`,
+   `poles`, `rating_a`, `voltage`, `edge_kind`); `dependency_table()` row
+   rewritten; matrix `_CIRCUITS` caveat + the `prompt → rvt` doc row rewritten
+   to the new truth (still PROOF-ONLY, no certification claim).
+
+## The constructed RbsElectricalSystem — every field, and why
+
+Sources allowed by the issue: the decoded circuit object model
+(KNOWLEDGE.md "Electrical circuits", `docs/writer/mep-electrical-data.md` §3.2,
+`docs/streams/10-objects.md`, `src/rvt/mep/devices.py` docstrings), the
+validator's CIRCUITS / connector-graph invariants, public Revit API enums,
+the base's own elements, and the schema default everywhere else. No value is
+pasted from a sample; the class SHAPES (which classes hang where) are the
+mined law.
+
+| field | value | source |
+|---|---|---|
+| header `m_classDef` | `RbsElectricalSystem` | the class |
+| header `m_categroryId` | −2008037 | BuiltInCategory `OST_ElectricalCircuit` (public enum) |
+| header `m_abFlags4Bytes` | 4122 (0x101A) | per-CLASS header species word (docs/inbox/identity.md RANK 2, genesis-fixer G1: constant per class, low byte 0x1A, pattern-cell bit 0x800 clear) — the same treatment as the FamilyInstance (2344) / SWall (6441) templates; a format-bookkeeping constant, not content |
+| header `m_pBBox` | null | a system has no spatial extent (rep = SerializedDummy); the base's other non-geometric elements carry null |
+| header `m_viewRules` | −4225 | `_element_header` (every constructed template) |
+| header parents | deletion {panel, load, self}, appearance {panel, load}, rest empty | `mutate.add_circuit`'s certified recipe (V29 on rme), unchanged; devices.py's richer law (regenOnly {load symbol, ElectricalSetting, CircuitNamingTypeSetting}, deferred {MEPSystemTracker}) is NOT applied — see open questions |
+| Element param sets / geomSteps / GeomTable | null | schema default; a system is not geometric |
+| `m_cellList` (2026) | `CellList{[ElectricalLoadClassificationsData{4 empty maps}]}` | 2026 keeps a circuit's connected-load data in this cell (class named by the 2026 schema); EMPTY = no load data claimed |
+| `m_cellList` (2025/2024) | null | that class version carries the load maps on the element (`m_loadsPerClass` etc., left empty) and the schema names no such cell class → schema default, like the base's other cell-less elements |
+| `m_docAccess` | weakref 1 | archive law: pid 1 = the document |
+| level / famId / owner view / phases / design option | −1 | a system is not levelled or phased; schema default for ElementId |
+| `m_baseConnectorIdArray` | `[{self, LAST, connType 4}]` | validator CIRCUITS invariant; KNOWLEDGE.md model |
+| `m_pConnectorMgr` | `RbsSystemConnectorManager` pid 3 | the system-side manager class the schema names (docs/streams/10-objects.md decode); pid 3 = first weakly-referenced object after doc(1)/root(2) (`famgen.geometry.assign_pids` law) |
+| its `m_connPtrArray` | `n_loads+1` × `Connector` pids 4.., `m_nIndex` 0..n, `m_arrRefs []`, `m_pElement` weakref 2, `m_mode` 4, `m_modifiers [RbsSystemConnectorModifier{m_pConnector: weakref own pid}]` | class shape per the decode notes; `m_mode` 4 = a logical SYSTEM connector (an instance's physical connector carries 1 — `famgen.loader._connector_slot`); refs are wired by `add_circuit` |
+| its `m_modifiers` | `[MEPConnectionBehaviorModifier{m_pConnectorManager: weakref 3}]` | class shape per the decode notes; weak-points at the manager |
+| `m_setDeletedConnectors`, `m_rgSections` | [] | schema default |
+| `m_strName` | "" | circuits are unnamed systems |
+| `m_typeId` | −1 | an electrical circuit has no MEP system-type element; schema default |
+| `m_nextFreeSectionId`, `m_numberOfElements(InNetwork)`, `m_systemState` | 0 | **not derivable** → schema default (the documented 9-load decode also shows 0/0 element counts) |
+| `m_number` / `m_nStartSlot` | per feeder: `layout_circuits` | mep-electrical-data §3.3 law (reproduces Autodesk's numbering) |
+| `m_strDescription` | `"<load> feeder from <panel>"` | ours (the intent's circuitPlan) |
+| `m_strLoadClassifications`, `m_strNotes` | "" | no connected-load data claimed |
+| `m_cableType` / `m_cableSizeElementId` (2026), `m_idWireType` (2025/24) | −1 | the base carries 0 `RbsWireType`; schema default |
+| `m_dRating`, `m_nPoles` | feeder edge (400/100 A, 3 P) | intent |
+| `m_dVoltage` | LL volts ÷ 0.3048² (480 V → 5166.68) | KNOWLEDGE.md electrical internal units |
+| `m_dApparentLoad`, `m_dTrueLoad`, per-phase data, `m_dVoltageDrop`, `m_dFrame` | 0 | no load calculation is claimed (honest zero) |
+| `m_pathNodes` | `[panel (real), load (virtual)]`, `m_dLength` = distance | our own two placements; node 0 = the base equipment (devices.py 171/171 law) |
+| `m_pathOffset` | the base's own `ElectricalSetting.m_circuitPathOffset` (9.0223 ft = 2750 mm, a genesis-authored setting) | base fact |
+| `m_pathOffsetAllDevice`, `m_circuitPathMode`, `m_nNumRuns`, `m_nPhaseInfo`, `m_nGroupNumber`, `m_nNamingIndex` | 0 | **not derivable from our own knowledge** → schema default (see open questions: PathMode / NumRuns are the two most likely to matter to Revit) |
+| `m_circuitConnType` | 1 | §3.2: 1 = assigned to a panel (add_circuit always assigns) |
+| `m_circuitType` | 0 | §3.2: 0 = circuit |
+| `m_systemType` | 6 | Revit API `ElectricalSystemType.PowerCircuit` (docs/writer/family-skeleton.md) |
+| `m_bReserved`, `m_bSlotLocked` | False | schema default |
+| seq-103 rep | SerializedDummy | circuits carry no geometry (baked-geometry.md: 187/187 dummy) |
+
+## Evidence (numbers)
+
+DONE prompt: `frontdoor author --prompt "electrical room 30x20 ft with a 2000A
+main switchboard, two 400A distribution panels and four lighting panels"`.
+
+| target | exit | stage C | circuits in manifest | `rvt_validate` | `stats.circuits` / `connector_edges` | `ids_of_class('RbsElectricalSystem')` (own release) | readback links |
+|---|---|---|---|---|---|---|---|
+| 2026 | 0 | ok, planned 6 / built 6 / links_ok | 6 (`MSB>DP-1` 50000↔1 `1,3,5`; `MSB>DP-2` 50001↔1 `2,4,6`; `DP-1>LP-1` 50000 `1,3,5`; `DP-2>LP-2` 50000 `1,3,5`; `DP-1>LP-3` 50001 `2,4,6`; `DP-2>LP-4` 50001 `2,4,6`) | VALID 0 errors / 1 warning (the known DataStorage decoder gap) — default AND `--strict` | 6 / 24 | 6 | all True both sides |
+| 2025 | 0 | ok, 6/6, links_ok | same 6 | VALID 0 errors | 6 | 6 | all True |
+| 2024 | 0 | ok, 6/6, links_ok | same 6 | VALID 0 errors | 6 | 6 | all True |
+
+Baseline before the change (same prompt, `main` 3583f7e): stage C blocker
+"NO CIRCUIT SPECIMEN … an RbsElectricalSystem CONSTRUCTOR is the exact
+missing piece", 6 planned / 0 built, degradation in the manifest.
+No stage-C degradation after. Job wall time unchanged (4.8–5.4 s).
+
+Provenance (`tools/provenance.py out.rvt --baseline plugin/assets/genesis/G_ABPD.rvt --streams`):
+placed-model-content `RbsElectricalSystem: ours-created 6`, `FamilyInstance:
+ours-created 7`; totals vs the pinned base `ours-created 127 / ours-modified 1
+/ transitive-cloned 18 / identical-to-base 3101`; the emitted circuits carry no
+positive id but panel/load/self and no string but our description. With
+`--baseline all` (no samples corpus in a cloud clone) the G1 line is the
+base's standing "unattributable, 9,178 Autodesk resource identifiers" in BOTH
+the before and after runs (3241 → 3247 elements = exactly +6 circuits);
+identity ok (author `rvt-writer`, username empty). The G1/G2 gate itself is
+#19/#23 territory and unchanged by this stream.
+
+Bare surface: `tekton-plugin.zip` unzipped to a temp dir, system `python3
+skills/tekton-author/scripts/_bootstrap.py go author --prompt <DONE prompt>` →
+`tekton: READY …`, exit 0, 6 circuits, VALID 0 errors, 5.3 s.
+
+Degrade path (rule 1): with the template absent (`stage_equipment(circuits=False)`
+/ a SpecimenSet without `circuit_id`) the job still delivers; stage C reads back
+0/6 and the manifest degradation names `NO_CIRCUIT_SPECIMEN`.
+
+## STAGE-ready note (NOT staged — no certification claim)
+
+`experiments/mep/circuits146/make_probes.py` builds the single-variable pair
+and writes `experiments/mep/circuits146/probes.json` (files git-ignored):
+control `CTRL_G_ABPD_circuits146.rvt` (md5 1f1ff65b… = the pinned base),
+`C146_off.rvt` (7 instances, 0 circuits, VALID 0) and `C146_on.rvt` (7 instances,
+6 circuits, VALID 0). Both probes carry placed instances of our generated
+families = the OPEN CELL (#16), so `on` reads only RELATIVE to `off` (same card
+⇒ the circuit layer adds no new defect; a different/earlier failure ⇒ the
+circuit records are a second defect → bisect the field table above; both PASS ⇒
+certified with the instances). To run it: reserve `/batches 1`, then
+`tools/probe_batch.py stage --manifest experiments/mep/circuits146/probes.json --batch <N>`.
+
+## Findings
+
+* The 2025/2024 `RbsElectricalSystem` is a different class VERSION from 2026:
+  2026 moved per-class load maps + per-phase doubles into an
+  `ElectricalLoadClassificationsData` cell and `m_apparentPerPhaseData`, and
+  renamed `m_idWireType` → `m_cableType`(+`m_cableSizeElementId`); 2025/2024
+  carry `m_loadsPerClass / m_reactiveLoadsPerClass / m_trueLoadsPerClass`,
+  `m_dApparentLoadPhaseA..C`, wire-size strings and `m_nNumHots/Neutrals/Grounds`
+  on the element. Building the template from `default_object` of the schema it
+  is GIVEN makes it release-native with no port hook (first attempt hard-coded
+  the 2026 cell class and crashed on 2025 — fixed by asking the schema).
+* `Connector`, `RbsSystemConnectorManager/Modifier`, `MEPConnectionBehaviorModifier`,
+  `CircuitPathNode`, `ConnectorId` are field-identical across 2024–2026.
+* `ids_of_class(host_only=True)` filters by ElemTable, so an injected template
+  is invisible to `_template_circuit()`; the stage passes `template_id=`
+  explicitly (and the readback count is therefore exactly the committed set).
+* Pre-existing, not touched (loader territory): placed instances' `Connector`
+  objects are written with pid −1 while their three modifiers weak-point at
+  pid 4 (`famgen.loader._connector_slot`); the archive law would number each
+  connector and point its modifiers at it (as this stream's circuit connectors
+  do). Certified add_to_project files carry the same shape, so it is tolerated;
+  worth a hygiene issue if an instance-axis bisection ever needs it.
+
+## Open questions (for the viewer round, not blockers here)
+
+1. `m_circuitPathMode` / `m_nNumRuns` / `m_nPhaseInfo` / `m_nextFreeSectionId`
+   ship at schema default 0 because their law is not ours to state; if desktop
+   Revit objects to the circuit layer specifically, these four and the header
+   parents (regenOnly ElectricalSetting + CircuitNamingTypeSetting, deferred
+   MEPSystemTracker per devices.py's corpus-corrected law) are the first
+   single-variable candidates — one at a time, with `C146_off` as the control.
+2. KNOWLEDGE.md still says `pathNodes[0].m_elemId = first load`; devices.py's
+   later 171/171 census says the PANEL. The constructed path follows devices.py;
+   the clone path in `mutate.add_circuit` (rme specimens) is unchanged. A
+   KNOWLEDGE.md reconciliation belongs to the orchestrator fold (hot file).
+
+## Gates run
+
+* `tests/test_frontdoor.py tests/test_mep_devices.py tests/test_mep_electrical_data.py
+  tests/test_frontdoor_standalone.py tests/test_router.py -q -rs` → see BRANCH STATE.
+* `tools/sync_plugin.py` → synced, deny-audit clean, identity scan == allowlist;
+  `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok.
+* New tests: `test_frontdoor.py` — `test_e2e_feeder_circuits_are_authored_per_release[2026/2025/2024]`,
+  `test_e2e_circuits_read_back_with_both_side_links[2026/2025/2024]`,
+  `test_circuit_specimen_is_constructed_not_cloned`; `test_mep_devices.py` — four
+  sample-free `add_circuit` tests over the constructed template on the bundled
+  base (wiring both sides, slot allocation, template immutability, a committed
+  one-circuit file strict-VALID + readback). No new test FILE → no ci_shard.d drop-in.

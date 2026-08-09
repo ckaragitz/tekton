@@ -726,6 +726,8 @@ class Document:
     def add_circuit(self, panel: "NewElement", load: "NewElement", *,
                     number: str = "1", description: Optional[str] = None,
                     rating: Optional[float] = None, poles: Optional[int] = None,
+                    voltage_v: Optional[float] = None,
+                    start_slot: Optional[int] = None,
                     load_classification: Optional[str] = None,
                     panel_conn_index: Optional[int] = None,
                     load_conn_index: Optional[int] = None,
@@ -747,6 +749,15 @@ class Document:
           pathNodes[0].elemId       -> load
         A panel's 50000-series connectors are its per-circuit SLOTS (one circuit
         each, never shared); its low index (1) is its own INCOMING supply.
+
+        ``template_id`` may name a template INJECTED into this document (the
+        constructed ``rvt.frontdoor.standalone`` circuit specimen on a base
+        that carries no circuit); a template with NO path nodes gets the
+        straight panel -> load polyline (node 0 = the panel, the real-model
+        rule; node 1 virtual at the load) and ``m_dLength`` = its length.
+        ``voltage_v`` (line volts, SI) is stored in internal units
+        (x 1/0.3048^2); ``start_slot`` sets ``m_nStartSlot`` (the first slot
+        ``number`` names).
         """
         tpl = template_id or self._template_circuit()
         sid = self.next_id()
@@ -811,6 +822,16 @@ class Document:
                 else:
                     nd["m_elemId"] = -1
                     nd["m_isVirtualNode"] = True
+        else:
+            # a path-less (constructed) template: the straight panel -> load
+            # polyline; node 0 = the base equipment (the real-model rule,
+            # rvt.mep.devices), node 1 virtual at the load
+            ppos = _origin(panel.obj)
+            obj["m_pathNodes"] = [
+                {"m_elemId": panel.elem_id, "m_position": ppos, "m_isVirtualNode": False},
+                {"m_elemId": -1, "m_position": lpos, "m_isVirtualNode": True},
+            ]
+            obj["m_dLength"] = math.dist(ppos, lpos)
 
         obj["m_number"] = str(number)
         obj["m_strDescription"] = description if description is not None else obj.get("m_strDescription", "")
@@ -819,6 +840,10 @@ class Document:
             obj["m_dRating"] = float(rating)
         if poles is not None:
             obj["m_nPoles"] = int(poles)
+        if voltage_v is not None:
+            obj["m_dVoltage"] = float(voltage_v) / (0.3048 ** 2)   # SI -> internal
+        if start_slot is not None:
+            obj["m_nStartSlot"] = int(start_slot)
         if load_classification is not None:
             obj["m_strLoadClassifications"] = load_classification
 
