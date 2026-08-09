@@ -14,9 +14,10 @@ this file's own location:
   * :func:`ensure_engine` -- make ``import rvt`` work by inserting the
     bundled ``<root>/lib/src`` into ``sys.path`` (and the vendored
     ``olefile`` under ``skills/_shared/_vendor`` if the real one is
-    absent).  NO pip install, NO venv creation.  Also exports the env vars
-    the engine reads (``RVT_PLUGIN_ROOT``, ``RVT_GENESIS_BASE``) and a
-    matching ``PYTHONPATH`` so child processes inherit the same world.
+    absent).  NO pip install, NO venv creation.  Also exports the env var
+    the engine reads (``RVT_PLUGIN_ROOT``) and a matching ``PYTHONPATH``
+    so child processes inherit the same world.  ``RVT_GENESIS_BASE`` is
+    the USER's override and is never exported by the plugin (#92).
   * :func:`preflight` -- ONE call, < 2 s, returning the readiness dict
     {python, engine, genesis_base, family_donor, out_dir, ...} plus a
     single human-readable line.  This replaces the old multi-command
@@ -124,6 +125,34 @@ def _append_env_path(var: str, path: str) -> None:
         os.environ[var] = os.pathsep.join(parts + [path]) if parts else path
 
 
+def _is_bundled_default_base(path: str, root: str) -> bool:
+    """True when ``path`` IS the plugin's pinned default genesis base: the
+    bundled file itself, or a byte-identical copy (e.g. a previous install
+    dir a stale shell export still points at) -- size first, sha256 only
+    on a size match, so a large firm template costs one stat."""
+    try:
+        if os.path.samefile(path, os.path.join(root, GENESIS_REL)):
+            return True
+        with open(os.path.join(root, PIN_REL)) as fh:
+            pin = json.load(fh)["default"]
+        return (os.path.getsize(path) == int(pin["bytes"])
+                and _sha256(path).lower() == str(pin["sha256"]).lower())
+    except (OSError, KeyError, ValueError):
+        return False                     # missing/unreadable: the engine reports it
+
+
+def _drop_bundled_base_env(root: str) -> None:
+    """``$RVT_GENESIS_BASE`` is the USER's override and the engine honours
+    it ahead of the per-release bundled bases ``--target-version`` selects,
+    so the plugin never exports it; an inherited value that is merely our
+    own default base (what older bootstraps / the legacy ``--env`` lines
+    exported) carries no user intent and is dropped, or it would pin every
+    job to the default release (#92).  Any other value is left alone."""
+    envp = os.environ.get("RVT_GENESIS_BASE")
+    if envp and _is_bundled_default_base(envp, root):
+        del os.environ["RVT_GENESIS_BASE"]
+
+
 def ensure_engine(root: str | None = None) -> str:
     """Make ``import rvt`` (and its only third-party dep, olefile) work from
     the plugin's own bundled source.  Idempotent, < 10 ms after the first
@@ -132,9 +161,9 @@ def ensure_engine(root: str | None = None) -> str:
     The BUNDLED engine wins over any pip-installed ``rvt`` so the plugin
     always runs the engine it ships (killing the per-session
     ``pip install -e ./lib`` ceremony and the stale-install failure mode).
-    Env exports (``RVT_PLUGIN_ROOT``, ``RVT_GENESIS_BASE``, ``PYTHONPATH``)
-    use ``setdefault`` semantics for the RVT_* vars, so an explicit user
-    override is always honoured."""
+    Env exports (``RVT_PLUGIN_ROOT``, ``PYTHONPATH``) use ``setdefault`` /
+    prepend semantics; ``RVT_GENESIS_BASE`` is the user's and is never
+    exported (see :func:`_drop_bundled_base_env`)."""
     r = plugin_root() if root is None else root
     lib_src = os.path.join(r, "lib", "src")
     bundled = os.path.isdir(os.path.join(lib_src, "rvt"))
@@ -149,9 +178,7 @@ def ensure_engine(root: str | None = None) -> str:
             sys.path.insert(0, vendor)
     # the env contract the engine reads (children inherit via PYTHONPATH)
     os.environ.setdefault("RVT_PLUGIN_ROOT", r)
-    base = os.path.join(r, GENESIS_REL)
-    if os.path.isfile(base):
-        os.environ.setdefault("RVT_GENESIS_BASE", base)
+    _drop_bundled_base_env(r)
     if bundled:
         _prepend_env_path("PYTHONPATH", lib_src)
         vendor = os.path.join(r, "skills", "_shared", "_vendor")
@@ -611,16 +638,15 @@ def doctor(install: bool = False) -> int:
 # ---------------------------------------------------------------------------
 
 def _legacy_env_lines(r: str) -> str:
-    """The old ``--env`` export lines, kept so existing docs keep working."""
+    """The old ``--env`` export lines, kept so existing docs keep working.
+    ``RVT_GENESIS_BASE`` is deliberately NOT among them any more: the
+    engine finds every bundled base from ``RVT_PLUGIN_ROOT``, and exporting
+    the default one would override ``--target-version`` (#92)."""
     lib_src = os.path.join(r, "lib", "src")
     vendor = os.path.join(r, "skills", "_shared", "_vendor")
     path = lib_src + (os.pathsep + vendor if os.path.isdir(vendor) else "")
-    lines = [f'export PYTHONPATH="{path}${{PYTHONPATH:+:$PYTHONPATH}}"',
-             f'export RVT_PLUGIN_ROOT="{r}"']
-    base = os.path.join(r, GENESIS_REL)
-    if os.path.isfile(base):
-        lines.append(f'export RVT_GENESIS_BASE="{base}"')
-    return "\n".join(lines)
+    return "\n".join([f'export PYTHONPATH="{path}${{PYTHONPATH:+:$PYTHONPATH}}"',
+                      f'export RVT_PLUGIN_ROOT="{r}"'])
 
 
 def cli(argv: list[str] | None = None, base_dir: str | None = None) -> int:
