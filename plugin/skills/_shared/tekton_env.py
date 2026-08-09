@@ -29,8 +29,10 @@ this file's own location:
     combined JSON on stdout, so a skill session needs exactly ONE Bash
     call (every call is a full model round-trip on an AI surface):
     ``python scripts/_bootstrap.py go author --prompt "..." --out out/j1 --json``.
-    ``go author ...`` routes to the front door; ``go <script>.py ...`` runs
-    any sibling script the same way.  ``run`` stays for compatibility.
+    ``go author ...`` routes to the front door; ``go edit IN.rvt VERB ...``
+    is the id-based edit + its gates in one process (#111); ``go
+    <script>.py ...`` runs any sibling script the same way.  ``run`` stays
+    for compatibility.
 
   ensure_engine also installs the BUILD-TIME SCHEMA CACHE
   (``rvt.schema_cache``, shipped at ``assets/schema_cache/``): the parsed
@@ -455,22 +457,33 @@ def run_script(script: str, argv: list[str], base_dir: str | None = None) -> int
 # go -- ONE-CALL dispatch: preflight + job + ONE combined JSON
 # ---------------------------------------------------------------------------
 
+#: `go VERB ...` verbs that are not a sibling ``.py``: (script, its home
+#: skill, the argv prefix the script wants in place of the verb).  ``author``
+#: -> the front door's own ``author`` subcommand; ``edit`` -> the id-based
+#: edit tool, whose ``--json`` mode runs the edit + the structural self-check
+#: + THE MANDATORY VALIDATION GATE in one process (issue #111).
+_GO_VERBS = {"author": ("frontdoor.py", "tekton-author", ["author"]),
+             "edit": ("rvt_edit.py", "tekton-edit", [])}
+
+
 def _resolve_go_target(argv: list[str], base_dir: str | None) -> tuple[str, list[str]]:
-    """``go <script>.py ARGS...`` runs that sibling script; anything else
-    (``go author --prompt ...``) routes to the front door.  When the calling
-    skill's own scripts dir has no ``frontdoor.py`` (e.g. tekton-edit), the
-    canonical copy beside tekton-author is used -- resolved from the plugin
-    root, never by searching."""
-    if argv and argv[0].endswith(".py"):
+    """``go <script>.py ARGS...`` runs that sibling script; ``go author ...``
+    routes to the front door and ``go edit IN.rvt VERB ...`` to
+    ``rvt_edit.py --json`` (edit + gates, ONE JSON); anything else is handed
+    to the front door as-is.  When the calling skill's own scripts dir lacks
+    the script (e.g. ``go author`` from tekton-edit), the canonical copy
+    beside its home skill is used -- resolved from the plugin root, never by
+    searching."""
+    if argv[0].endswith(".py"):
         return argv[0], argv[1:]
-    script = "frontdoor.py"
+    verb = argv[0] if argv[0] in _GO_VERBS else None
+    script, home, prefix = _GO_VERBS[verb or "author"]
     if not (base_dir and os.path.isfile(os.path.join(base_dir, script))):
-        cand = os.path.join(plugin_root(), "skills", "tekton-author",
-                            "scripts", script)
+        cand = os.path.join(plugin_root(), "skills", home, "scripts", script)
         if os.path.isfile(cand):
             script = cand
-    args = list(argv)
-    if args and args[0] == "author" and "--json" not in args:
+    args = prefix + argv[1:] if verb else list(argv)
+    if verb and "--json" not in args:
         args.append("--json")            # ONE machine-readable combined result
     return script, args
 
@@ -516,23 +529,28 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
 
         _bootstrap.py go author --prompt "..." --target-version 2025 --out out/job1 --json
         _bootstrap.py go author --ifc design.ifc --target-version 2024 --out out/job2
-        _bootstrap.py go rvt_edit.py set-level in.rvt --json
+        _bootstrap.py go edit in.rvt set-level --id 311 --elevation-ft 12 -o out/edited.rvt
+        _bootstrap.py go rvt_edit.py in.rvt info
 
     stdout is exactly one JSON object: ``{"go": {ready, preflight_line,
-    preflight_seconds, job_seconds, exit_code, inputs?, ...}, "result": <the
+    preflight_seconds, verb, job_seconds, exit_code, inputs?, ...}, "result": <the
     job's own --json result (or null; raw stdout tail rides in go.stdout
     when the job printed non-JSON)}``.  ``go.inputs`` lists the auto-
     detected Revit release of every .rvt/.rfa named in the args; the front
     door's ``result.release`` block carries the requested/output release,
     what opens it, the per-release honest status and any line to relay
-    verbatim.  Exit code: the job's own exit code; 3 when preflight said
-    NOT READY (the job is never attempted); 2 usage."""
+    verbatim; ``go edit``'s ``result`` carries the change report, the
+    written file, Revit N in / N out and both gates (``result.gates``:
+    structural self-check + the mandatory validator, 0 errors required).
+    Exit code: the job's own exit code; 3 when preflight said NOT READY
+    (the job is never attempted); 2 usage."""
     import io
     from contextlib import redirect_stdout
 
     t0 = time.time()
     if not argv:
-        sys.stderr.write("usage: _bootstrap.py go (author ARGS... | SCRIPT.py ARGS...)\n")
+        sys.stderr.write("usage: _bootstrap.py go (author ARGS... | edit IN.rvt VERB ARGS... "
+                         "| SCRIPT.py ARGS...)\n")
         return 2
     pf = preflight()
     out: dict = {"go": {"one_call": True, "ready": bool(pf["ok"]),
@@ -544,6 +562,8 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
         print(json.dumps(out, indent=1, default=str))
         return 3
     script, args = _resolve_go_target(argv, base_dir)
+    # which dispatch ran: "author" / "edit" (issue #111) / the sibling script's name
+    out["go"]["verb"] = argv[0] if argv[0] in _GO_VERBS else os.path.basename(script)
     inputs = _input_releases(args)
     if inputs:
         out["go"]["inputs"] = inputs
@@ -700,7 +720,8 @@ def cli(argv: list[str] | None = None, base_dir: str | None = None) -> int:
         doctor [--install]      -> the one-time environment check/setup
         go ARGS...              -> ONE call: preflight + job + ONE combined JSON
                                    (`go author --prompt ... --out d` routes to the
-                                   front door; `go SCRIPT.py ...` runs any sibling)
+                                   front door; `go edit IN.rvt VERB ... -o OUT` is
+                                   the edit + its gates; `go SCRIPT.py ...` any sibling)
         run SCRIPT [ARGS...]    -> run a sibling skill script, engine ready
     """
     argv = list(sys.argv[1:] if argv is None else argv)

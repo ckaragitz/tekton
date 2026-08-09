@@ -29,7 +29,10 @@ Canonical jobs (the documented one-command skill flows, in session order):
   author-prompt    _bootstrap.py run frontdoor.py author --prompt <panel> --json
   author-ifc       _bootstrap.py run frontdoor.py author --ifc electrical-room-2500a.ifc --json
   edit-roundtrip   rvt_edit.py info -> set-level -> rvt_validate.py (3 calls,
-                   the tekton-edit SKILL flow incl. the mandatory gate)
+                   the pre-#111 tekton-edit flow incl. the mandatory gate; kept
+                   as the fallback path and the before-number)
+  go-edit          _bootstrap.py go edit <bundled 2025 base> set-level ... (ONE
+                   call: readiness + edit + self-check + the mandatory gate)
   validate         skills/tekton-inspect: rvt_validate.py <authored .rvt>
 
 Run from the repo root with the repo interpreter:
@@ -65,9 +68,14 @@ PANEL_PROMPT = "create an eaton panel for me with 6 switches"
 ROOM6_PROMPT = "an electrical room with 6 panels"
 IFC_EXAMPLE_REL = os.path.join("skills", "tekton-author", "examples",
                                "electrical-room-2500a.ifc")
+#: `go edit` input: the bundled, certified Revit 2025 base (always in the
+#: plugin, so the job needs no earlier step) and a Level present in all three
+#: bundled bases ("GEN B1 - Basement", tests/test_edit_own_release.py)
+GO_EDIT_BASE_REL = os.path.join("assets", "genesis", "G_ABPD_2025.rvt")
+GO_EDIT_LEVEL_ID = 1351691
 
 JOB_ORDER = ("preflight", "author-prompt", "go-author-prompt", "go-author-6panels",
-             "author-ifc", "edit-roundtrip", "validate")
+             "author-ifc", "edit-roundtrip", "go-edit", "validate")
 SURFACE_ORDER = ("cowork", "codeexec", "local")
 
 # what each surface is, one line, for the table header
@@ -511,6 +519,41 @@ def job_edit_roundtrip(s: Surface, state: dict) -> JobResult:
     return job
 
 
+def job_go_edit(s: Surface, state: dict) -> JobResult:
+    """The tekton-edit SKILL flow since #111: ONE `go edit` call = readiness +
+    the edit + the structural self-check + the mandatory validation gate, one
+    combined JSON.  Runs on the bundled Revit 2025 base so it needs no
+    earlier step.  SKIPPED (not failed) on plugin builds without `go edit`."""
+    job = JobResult("go-edit")
+    edited_name = "go-edited.rvt"
+    inv = s.run("go edit set-level (2025 base)", lambda s: [
+        s.bootstrap("tekton-edit"), "go", "edit",
+        os.path.join(s.plugin_dir, GO_EDIT_BASE_REL),
+        "set-level", "--id", str(GO_EDIT_LEVEL_ID), "--elevation-ft", "5.0",
+        "-o", os.path.join(s.workdir, "out", edited_name)])
+    job.invocations.append(inv)
+    res = _json_or_none(inv.stdout)
+    if res is None or "verb" not in res.get("go", {}):
+        # pre-`go` builds print the readiness line; pre-#111 `go` has no verb
+        # marker (and no `edit` verb) -- an absent feature, not a failure
+        return job.skipped("`go edit` not in this plugin build yet")
+    inner = res.get("result")
+    if not isinstance(inner, dict) or "gates" not in inner:
+        return job.fail(f"go edit failed: {_tail(inv)}")
+    if inv.exit_code != 0 or not inner.get("ok"):
+        return job.fail(f"go edit not ok: {inner.get('error') or inner['gates'].get('line') or _tail(inv)}")
+    out = (inner.get("output") or {}).get("path")
+    if not out or not os.path.isfile(out):
+        return job.fail("go edit reported ok but wrote no file")
+    s.keep_artifact(out, edited_name)
+    job.breakdown = {"job_seconds": res["go"].get("job_seconds"),
+                     "preflight_seconds": res["go"].get("preflight_seconds"),
+                     "edit_seconds": inner.get("seconds"),
+                     "validation_seconds": inner["gates"]["validation"].get("elapsed_s"),
+                     "gates": inner["gates"].get("line")}
+    return job
+
+
 def job_validate(s: Surface, state: dict) -> JobResult:
     job = JobResult("validate")
     rvt = state.get("authored_rvt")
@@ -532,6 +575,7 @@ JOBS = {
     "go-author-6panels": job_go_author_6panels,
     "author-ifc": job_author_ifc,
     "edit-roundtrip": job_edit_roundtrip,
+    "go-edit": job_go_edit,
     "validate": job_validate,
 }
 
@@ -618,6 +662,10 @@ def markdown_table(report: dict) -> str:
             bd = jd.get("breakdown")
             if bd and bd.get("stages"):
                 notes.append(f"- {sn} / {jd['job']} stages: {_fmt_breakdown(bd)}")
+            elif bd and bd.get("gates"):                # go-edit: edit + gates inside ONE call
+                notes.append(f"- {sn} / {jd['job']}: job {bd.get('job_seconds')}s "
+                             f"(edit+gates {bd.get('edit_seconds')}s, of which validator "
+                             f"{bd.get('validation_seconds')}s) -- {bd['gates']}")
     reasons = []
     for sn in surfaces:
         for jd in by[sn]["jobs"]:
