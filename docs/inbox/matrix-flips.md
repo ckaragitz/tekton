@@ -1,7 +1,7 @@
 # matrix-flips — the convert cells registered, the certified rfa depths cited, the frontdoor patch applied (issue #5)
 
 Stream: **matrix-flips** (issue #5; P0 `hot-file`, area frontdoor + convert).
-Date: 2026-08-09. Branch `cam/5-matrix-cells` from `main` @ `3538da4`.
+Date: 2026-08-09. Branch `cam/5-matrix-cells` (on `main` @ `33622e3` at push).
 Territory (per the issue): `src/rvt/frontdoor/matrix.py`,
 `src/rvt/frontdoor/router.py`, `tools/frontdoor.py` (hot file — the tiny
 additive patch only), `tools/route.py`, `docs/product/PERMUTATION-MATRIX.md`,
@@ -266,8 +266,10 @@ evidence self-audit: every citation checks out against the ledger and the tree (
 
 ## BRANCH STATE
 
-* Branch: `cam/5-matrix-cells` (from `main` @ 3538da4; fast-forwarded once
-  mid-stream when `main` moved from 0f0431a — no conflicts, gates re-run after).
+* Branch: `cam/5-matrix-cells` — cut from `main` @ 0f0431a, fast-forwarded to
+  3538da4 mid-stream (product files moved: validate.py / loader.py / famload.py
+  — all gates re-run after), rebased onto 33622e3 before push (docs-only delta:
+  `docs/STEERING.md`); no conflicts at any point.
 * Files written — sources: `src/rvt/frontdoor/matrix.py`,
   `src/rvt/frontdoor/router.py`, `tools/route.py`, `tools/frontdoor.py`
   (hot file, +22/−1), `tests/test_router.py`,
