@@ -34,7 +34,7 @@ Where the time goes (cProfile + an un-profiled timer on the same job):
   6 × standalone_family_write): the prompt "6 panels" yields six copies of one catalog model that differ
   only in Mark/GUIDs. → **#124** (one host pass for N families; reuse the famdoc).
 - **The schema cache is loaded 62 times per job for ONE digest** (4.1 s; `schema_cache.parse_cached` has
-  no in-process memo). → **#184**.
+  no in-process memo). → **#183**.
 - Imports are *not* the cost on the bare path (209 modules, 0.16 s self-time) — but with ifcopenshell
   present the prompt path used to import it eagerly: fixed in **PR #141** (`import rvt.frontdoor.build`
   376 → 52 ms; process import time 423 → 200 ms). Remaining eager import: `xml.sax` → urllib/http/ssl in
@@ -48,7 +48,7 @@ Where the time goes (cProfile + an un-profiled timer on the same job):
   today: SKILL.md 65.9 KB across five skills (tekton-ifc alone 33.5 KB) + tekton-ifc references 154 KB.
 - **No CI guard:** `test_surface_perf.py` is not in the shard, skips without numpy in /usr/bin/python3,
   and benches the 1-panel prompt (6–7 s) against a 20 s ceiling while the flagship measures 27–28 s. →
-  **#183** (flagship job in the bench with a ceiling), **#136**.
+  **#184** (flagship job in the bench with a ceiling), **#136**.
 
 **Done, for a user:** a one-sentence request returns a delivered file in **≤ 10 s** for a typical room on
 any surface, in ONE tool call whose JSON already carries paths, per-release status and caveats (no
@@ -56,12 +56,12 @@ follow-up calls), with the skill layer's eagerly loaded text small enough not to
 fails if the flagship job regresses.
 
 **Staged path:** (1) the encoder (#182) — the single 2.4× lever, byte-identical so no viewer round;
-(2) N-family host pass + famdoc reuse (#124) and the schema memo (#184) — together the path to ≤ 10 s;
+(2) N-family host pass + famdoc reuse (#124) and the schema memo (#183) — together the path to ≤ 10 s;
 (3) the report block + one-call skills (#185, #213, PR #173) — fewer model round trips; (4) guards —
-flagship bench in CI (#183, #136), a per-user cache dir so warm < cold, determinism (#168) so caching is
+flagship bench in CI (#184, #136), a per-user cache dir so warm < cold, determinism (#168) so caching is
 even possible; (5) the long tail — remaining eager imports (#139), IFC on the bare surface (#127, #130).
 
-**Issues:** #182, #124, #184, #185, #183, #213, #139, #136, #111, #110, #125, #127, #130; landed: PR #141
+**Issues:** #182, #124, #183 (schema memo), #184 (flagship bench in CI), #185, #213, #139, #136, #111, #110, #125, #127, #130; landed: PR #141
 (#6), PR #128 (#75), PR #126 (#92), PR #173 (#24).
 
 ## B. Genesis: native creation from a prompt
