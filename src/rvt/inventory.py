@@ -46,6 +46,11 @@ Demo::
 
     python -m rvt.inventory samples/rmebasicsampleproject.rvt
     python -m rvt.inventory --stats            # name-resolution % on 3 samples
+
+The functions take an already-open ``Document`` (the caller's release
+context applies); the CLI opens a path under the file's OWN release
+(``rvt.global_framing.enter_own_release``), so a Revit 2025 / 2024 project
+is inventoried, not refused.
 """
 from __future__ import annotations
 
@@ -677,16 +682,25 @@ def main(argv=None):
     if not argv or argv[0] in ("--stats",):
         _print_stats()
         return 0
+    import os
+    from contextlib import ExitStack
+    from .global_framing import enter_own_release
     from .mutate import Document
     path = argv[0]
-    doc = Document.from_file(path) if path.endswith(".rvt") else Document.load(path)
-    inv = inventory(doc)
+    with ExitStack() as stack:                  # the file's own release, once
+        note = enter_own_release(stack, path) if os.path.isfile(path) else None
+        doc = Document.from_file(path) if path.endswith(".rvt") else Document.load(path)
+        inv = inventory(doc)                    # plain data from here on
+    if note:
+        inv["release_note"] = note
     if "--json" in argv:
         json.dump(inv, sys.stdout, indent=1, default=str)
         print()
         return 0
     st = inv["stats"]
     print(f"== inventory of {path}")
+    if note:
+        print(f"release: {note}")
     print(f"levels ({st['levels']}): " + ", ".join(
         f"{l['name']}@{l['elevation_ft']:.2f}ft" for l in inv["levels"]))
     print(f"wall types: {st['wall_types_named']}/{st['wall_types']} named "

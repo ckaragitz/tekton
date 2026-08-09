@@ -44,9 +44,13 @@ Demo (repo root)::
     python -m rvt.census --certified                 # every certified+failed+sample
     python -m rvt.census --certified --json out.json
 
-Everything is read-only; no file is modified.  A full run over the six
-samples + every certified / failed file takes ~30 s (the ADocument decode of
-each ``Global/Latest`` dominates).
+Everything is read-only; no file is modified.  Every file is read under its
+OWN release (``rvt.global_framing.enter_own_release``), so a Revit 2025 /
+2024 project is censused, not refused, and each census records its
+``release``; class inventories differ per release, so :func:`run_certified`
+keeps releases apart (``by_release``).  A full run over the six samples +
+every certified / failed file takes ~30 s (the ADocument decode of each
+``Global/Latest`` dominates).
 """
 from __future__ import annotations
 
@@ -186,15 +190,33 @@ def dbviewtype_report(fi, host_ids: set) -> Dict[str, Any]:
 def census(path: str, *, with_dbviewtype: bool = True,
            with_adocument: bool = True) -> Dict[str, Any]:
     """Full census of ONE ``.rvt``: classes, streams, units, coherence,
-    families, DBViewType references.  Read-only."""
+    families, DBViewType references.  Read-only, under the file's OWN
+    release (entered once here); ``release`` is the year its BasicFileInfo
+    declares and ``release_note`` appears only when the own schema could not
+    settle the framing (the fallback rung taken, one sentence)."""
+    from contextlib import ExitStack
+    from .global_framing import enter_own_release
+
+    path = path if os.path.isabs(path) else os.path.join(ROOT, path)
+    with ExitStack() as stack:
+        note = enter_own_release(stack, path)
+        out = _census(path, with_dbviewtype=with_dbviewtype,
+                      with_adocument=with_adocument)
+    if note:
+        out["release_note"] = note
+    return out
+
+
+def _census(path: str, *, with_dbviewtype: bool, with_adocument: bool) -> Dict[str, Any]:
     t0 = time.time()
     from .container import open_rvt
     from .elemtable import inflate_global_stream, parse_elemtable
     from .families import FamilyIndex
+    from .versions import detect_release
 
-    path = path if os.path.isabs(path) else os.path.join(ROOT, path)
     out: Dict[str, Any] = {"file": os.path.relpath(path, ROOT),
-                           "size_bytes": os.path.getsize(path)}
+                           "size_bytes": os.path.getsize(path),
+                           "release": detect_release(path)}
 
     # -- container: streams, ContentDocuments, ElemTable ---------------------
     with open_rvt(path) as f:
@@ -421,26 +443,51 @@ def run(paths: Sequence[str], **kw) -> List[Dict[str, Any]]:
     return out
 
 
-def run_certified(include_samples: bool = True, **kw) -> Dict[str, Any]:
+def _corpus_tables(passing: List[Dict[str, Any]],
+                   failing: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """The diff tables over ONE release's passing / failing censuses."""
+    return {
+        "passing_files": [c["file"] for c in passing],
+        "failing_files": [c["file"] for c in failing],
+        "mandatory_set": mandatory_set(passing),
+        "class_presence_passing": class_presence(passing),
+        "suspects_strict": rank_suspects(passing, failing, min_presence=1.0),
+        "suspects_loose": rank_suspects(passing, failing, min_presence=0.85),
+        "streams_units": stream_unit_matrix(passing + failing),
+    }
+
+
+def run_certified(include_samples: bool = True, *,
+                  reference_release: Optional[int] = None, **kw) -> Dict[str, Any]:
     """The whole positive/negative corpus: six samples + every certified
-    (PASS) + every failed (FAIL) file, plus all the diff tables."""
+    (PASS) + every failed (FAIL) file, plus all the diff tables.
+
+    Releases are kept apart (a mandatory set is an intersection of class
+    inventories, and those differ per release): every release seen gets its
+    tables under ``by_release[year]``, and the top-level tables are those of
+    ``reference_release`` -- default: the release with the most accepted
+    files read (later year on a tie; ``rvt.versions.LATEST_RELEASE`` when
+    none were read), stated as ``reference_release``.  ``censuses`` holds
+    every file read, each with its ``release``."""
+    from .versions import LATEST_RELEASE
     lists = load_certified()
     passing_paths = list(lists["certified"])
     if include_samples:
         passing_paths = [os.path.join("samples", s + ".rvt") for s in SAMPLES] + passing_paths
     passing = [c for c in run(passing_paths, **kw) if "error" not in c]
     failing = [c for c in run(lists["failed"], **kw) if "error" not in c]
-    mand = mandatory_set(passing)
-    return {
-        "passing_files": [c["file"] for c in passing],
-        "failing_files": [c["file"] for c in failing],
-        "mandatory_set": mand,
-        "class_presence_passing": class_presence(passing),
-        "suspects_strict": rank_suspects(passing, failing, min_presence=1.0),
-        "suspects_loose": rank_suspects(passing, failing, min_presence=0.85),
-        "streams_units": stream_unit_matrix(passing + failing),
-        "censuses": {c["file"]: c for c in passing + failing},
-    }
+    n_pass = Counter(c["release"] for c in passing if c.get("release"))
+    ref = int(reference_release or
+              max(n_pass, key=lambda y: (n_pass[y], y), default=LATEST_RELEASE))
+    years = sorted({c["release"] for c in passing + failing if c.get("release")} | {ref})
+    by_release = {y: _corpus_tables([c for c in passing if c.get("release") == y],
+                                    [c for c in failing if c.get("release") == y])
+                  for y in years}
+    out = dict(by_release[ref])
+    out["reference_release"] = ref
+    out["by_release"] = by_release
+    out["censuses"] = {c["file"]: c for c in passing + failing}
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -449,6 +496,8 @@ def run_certified(include_samples: bool = True, **kw) -> Dict[str, Any]:
 
 def _print_census(c: Dict[str, Any]) -> None:
     print(f"== {c['file']}  ({c['size_bytes']:,} B)")
+    if c.get("release_note"):
+        print(f"   release: {c['release_note']}")
     print(f"   host_records={c['host_records']}  classes={c['n_classes']}  "
           f"units={c['units']['total']} (family docs {c['units']['family_documents']})  "
           f"CD entries={c['content_documents'].get('entries')}  "
@@ -475,6 +524,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     if "--certified" in argv:
         rep = run_certified()
         print(f"passing files: {len(rep['passing_files'])}   failing: {len(rep['failing_files'])}")
+        if len(rep["by_release"]) > 1:
+            for year, sub in rep["by_release"].items():
+                tag = "reference" if year == rep["reference_release"] else "by_release"
+                print(f"   release {year}: passing {len(sub['passing_files'])}  "
+                      f"failing {len(sub['failing_files'])}  "
+                      f"mandatory classes {len(sub['mandatory_set'])}  ({tag})")
         print(f"mandatory classes (in EVERY accepted file): {len(rep['mandatory_set'])}")
         for cls, st in list(rep["mandatory_set"].items())[:40]:
             print(f"   {cls:32s} min={st['min']:5d} max={st['max']:6d}")

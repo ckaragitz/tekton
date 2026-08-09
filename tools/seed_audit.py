@@ -23,6 +23,9 @@ audit checks two things:
    instance").
 
 Accepts either a .rvt path or a research-corpus name (e.g. rmebasicsampleproject).
+A path is read under the seed's OWN Revit release (rvt.global_framing.
+enter_own_release), so a firm on Revit 2025 / 2024 audits its own seed; a
+degraded seed says which fallback framing was used (``release_note``).
 """
 from __future__ import annotations
 
@@ -33,12 +36,14 @@ import math
 import os
 import re
 import sys
+from contextlib import ExitStack
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from rvt import inventory as inv  # noqa: E402
+from rvt.global_framing import enter_own_release  # noqa: E402
 from rvt.mutate import Document  # noqa: E402
 
 FT_PER_M = 3.280839895
@@ -388,6 +393,17 @@ def audit_misc(spec: dict, invd: dict) -> list[dict]:
 # report assembly
 # ---------------------------------------------------------------------------
 def audit(seed: str, spec: dict | None) -> dict:
+    """Inventory (+ coverage against ``spec``) of ``seed``, read under the
+    seed's own release when it is a file on disk."""
+    with ExitStack() as stack:
+        note = enter_own_release(stack, seed) if os.path.isfile(seed) else None
+        report = _audit(seed, spec)
+    if note:
+        report["release_note"] = note
+    return report
+
+
+def _audit(seed: str, spec: dict | None) -> dict:
     doc = load_document(seed)
     invd = inv.inventory(doc)
     report = {"seed": seed, "inventory": invd}
@@ -433,6 +449,8 @@ def _print(report: dict, full: bool = False) -> None:
     invd = report["inventory"]
     st = invd["stats"]
     print(f"=== SEED AUDIT: {report['seed']}")
+    if report.get("release_note"):
+        print(f"release: {report['release_note']}")
     print(f"levels ({st['levels']}): " + ", ".join(
         f"{l['name']} @ {l['elevation_ft']:.2f} ft" for l in invd["levels"]))
     print(f"wall types: {st['wall_types']} ({st['wall_types_named']} named)")

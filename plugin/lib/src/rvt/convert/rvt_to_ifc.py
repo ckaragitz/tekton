@@ -46,6 +46,11 @@ PROVENANCE: an IFC exported from someone else's model carries THEIR design
 content.  The manifest stamps the source lineage (tekton-authored vs
 Autodesk-sample vs unknown) and quarantined sources are labelled dev-only.
 
+RELEASE: the source is read under its OWN Revit release
+(``rvt.global_framing.enter_own_release``), so a 2025 / 2024 project exports
+like a 2026 one; ``input.provenance.format`` names that release and a
+degraded source records the fallback rung taken as a caveat.
+
 CLI::
 
     python -m rvt.convert.rvt_to_ifc <in.rvt> [-o out.ifc | --out-dir D]
@@ -62,9 +67,11 @@ import os
 import re
 import time
 import traceback
+from contextlib import ExitStack
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from ..global_framing import enter_own_release
 from .add_to_project import (ConvertError, TOOL, TOOL_VERSION, _jdump, _relp,
                              _sha256, quarantined_input)
 
@@ -576,7 +583,15 @@ def source_provenance(rvt_path: str) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def extract_intent(rvt_path: str, *, max_walls: Optional[int] = None) -> ExtractedModel:
-    """Read ``rvt_path`` back into the intent-shaped :class:`ExtractedModel`."""
+    """Read ``rvt_path`` back into the intent-shaped :class:`ExtractedModel`
+    (under the file's own release; the whole read happens inside it)."""
+    with ExitStack() as stack:
+        if os.path.isfile(rvt_path):
+            enter_own_release(stack, rvt_path)
+        return _extract_intent(rvt_path, max_walls=max_walls)
+
+
+def _extract_intent(rvt_path: str, *, max_walls: Optional[int]) -> ExtractedModel:
     if not os.path.isfile(rvt_path):
         raise RvtReadError(f"no such file: {rvt_path}")
     from ..families import FamilyIndex
@@ -727,7 +742,19 @@ def convert_rvt_to_ifc(rvt_path: str, out_ifc: Optional[str] = None, *,
 
     Returns the manifest record; the IFC + ``<stem>.manifest.json`` /
     ``MANIFEST.md`` land beside it (``out_dir`` defaults to the IFC's
-    directory)."""
+    directory).  The source's own release is entered once here, around the
+    whole route; a fallback rung, if taken, is a caveat in the manifest."""
+    with ExitStack() as stack:
+        note = enter_own_release(stack, rvt_path) if os.path.isfile(rvt_path) else None
+        return _convert_rvt_to_ifc(rvt_path, out_ifc, out_dir=out_dir,
+                                   roundtrip=roundtrip, max_walls=max_walls,
+                                   release_note=note)
+
+
+def _convert_rvt_to_ifc(rvt_path: str, out_ifc: Optional[str], *,
+                        out_dir: Optional[str], roundtrip: bool,
+                        max_walls: Optional[int],
+                        release_note: Optional[str]) -> Dict[str, Any]:
     from ..frontdoor.ifc_out import write_intent_ifc
     t0 = time.time()
     if out_ifc is None:
@@ -752,9 +779,11 @@ def convert_rvt_to_ifc(rvt_path: str, out_ifc: Optional[str] = None, *,
             "QUARANTINED SOURCE (dev-only): the source is research-corpus / "
             "third-party sample content; this export exists to prove the "
             "converter works on foreign files and stays in experiments/.")
+    if release_note:
+        rec["degradations"].append(f"source release: {release_note}")
 
     try:
-        model = extract_intent(rvt_path, max_walls=max_walls)
+        model = _extract_intent(rvt_path, max_walls=max_walls)   # already in the release
         rec["extraction"] = model.extraction
         rec["levels"] = model.levels
         rec["equipment"] = [e.as_json() for e in model.equipment]

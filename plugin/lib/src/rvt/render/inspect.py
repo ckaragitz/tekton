@@ -66,7 +66,9 @@ Public API::
     ref = resolve_instance_reference(doc, row)   # instance -> its symbol's row
 
 ``source`` = a :class:`rvt.mutate.Document`, a ``.rvt`` path, or a corpus
-project name (``rstbasicsampleproject``).  CLI::
+project name (``rstbasicsampleproject``).  A path is read under the file's
+OWN release (``rvt.global_framing.enter_own_release`` -- any Revit release
+we can frame, not only the latest; restored on return).  CLI::
 
     python -m rvt.render.inspect <file.rvt|project>
         [--class SWall] [--id 493612] [--all] [--limit N] [--json out.json]
@@ -78,9 +80,11 @@ import json
 import os
 import sys
 from collections import Counter, defaultdict
+from contextlib import ExitStack
 from dataclasses import asdict, dataclass, field as dc_field
 from typing import Any, Iterable, Optional, Sequence, Union
 
+from ..global_framing import enter_own_release
 from ..mutate import Document
 
 # --- classes -----------------------------------------------------------------
@@ -174,6 +178,15 @@ def _open(source: Union[str, "Document"]) -> Document:
             return Document.from_file(source)
         return Document.load(source)
     raise TypeError(f"unsupported source {type(source)!r}")
+
+
+def _enter_release(stack: ExitStack, source: Any) -> Optional[str]:
+    """Put a file source's OWN release in force on ``stack`` (a Document /
+    corpus name has no file to read it from).  Returns the ladder's fallback
+    sentence when the file's own schema did not settle it."""
+    if isinstance(source, str) and os.path.isfile(source):
+        return enter_own_release(stack, source)
+    return None
 
 
 def _ptr(x: Any):
@@ -369,23 +382,26 @@ def inspect(source: Union[str, Document], *, classes: Optional[Sequence[str]] = 
     (``["SWall", "FamilyInstance"]``); neither -> EVERY host-document
     element that owns a seq-103 record.  ``host_only`` keeps to the host
     document (unit 0 = ``Global/ElemTable`` ids), excluding embedded family
-    documents; ``limit`` caps the row count.
+    documents; ``limit`` caps the row count.  A path is opened and decoded
+    under the file's own release (restored on return).
     """
-    doc = _open(source)
-    if ids:
-        want = list(ids)
-    elif classes:
-        want = []
-        for cname in classes:
-            want.extend(doc.ids_of_class(cname, host_only=host_only))
-        want = sorted(set(want))
-    else:
-        want = sorted(doc.idx[103])
-        if host_only:
-            want = [i for i in want if i in doc.et_by_id]
-    if limit:
-        want = want[:limit]
-    return [inspect_element(doc, eid) for eid in want]
+    with ExitStack() as stack:
+        _enter_release(stack, source)
+        doc = _open(source)
+        if ids:
+            want = list(ids)
+        elif classes:
+            want = []
+            for cname in classes:
+                want.extend(doc.ids_of_class(cname, host_only=host_only))
+            want = sorted(set(want))
+        else:
+            want = sorted(doc.idx[103])
+            if host_only:
+                want = [i for i in want if i in doc.et_by_id]
+        if limit:
+            want = want[:limit]
+        return [inspect_element(doc, eid) for eid in want]
 
 
 # --- reporting -------------------------------------------------------------------
@@ -546,32 +562,38 @@ def main(argv: Optional[list] = None) -> int:
             show_all = True; i += 1
         else:
             print(f"unknown arg {a!r}"); return 2
-    doc = _open(source)
-    if not classes and not ids and not show_all:
-        # default: the classes a genesis / creation stream cares about
-        classes = ["SWall", "VWall", "FaceWall", "FamilyInstance",
-                   "FamilySymbol", "Floor", "Ceiling", "Level", "Grid"]
-    rows = inspect(doc, classes=classes or None, ids=ids or None, limit=limit)
-    if len(rows) > 60 and not ids:
-        print(render_class_summary(rows))
-        s = summary(rows)
-        print("-" * 78)
-        print(f"{s['elements']} elements: {s['with_baked_geometry']} baked/referenced, "
-              f"{s['without_baked_geometry']} without; kinds "
-              + ", ".join(f"{k}={v}" for k, v in sorted(s["kinds"].items(), key=lambda kv: -kv[1])))
-    else:
-        print(render_report(rows))
-        for r in rows:
-            if r.by_reference:
-                ref = resolve_instance_reference(doc, r)
-                if ref is not None:
-                    print(f"    -> instance {r.element_id} references symbol {r.symbol_id}: "
-                          f"{ref.kind} ({ref.geometry_bytes} B, faces={ref.n_faces})")
-    if show_faces:
-        for r in rows:
-            if r.kind == "brep":
-                print()
-                print(face_report(doc, r.element_id))
+    with ExitStack() as stack:                  # the file's own release, once
+        note = _enter_release(stack, source)
+        if note:
+            print(f"release: {note}")
+        doc = _open(source)
+        if not classes and not ids and not show_all:
+            # default: the classes a genesis / creation stream cares about
+            classes = ["SWall", "VWall", "FaceWall", "FamilyInstance",
+                       "FamilySymbol", "Floor", "Ceiling", "Level", "Grid"]
+        rows = inspect(doc, classes=classes or None, ids=ids or None, limit=limit)
+        if len(rows) > 60 and not ids:
+            print(render_class_summary(rows))
+            s = summary(rows)
+            print("-" * 78)
+            print(f"{s['elements']} elements: {s['with_baked_geometry']} baked/referenced, "
+                  f"{s['without_baked_geometry']} without; kinds "
+                  + ", ".join(f"{k}={v}" for k, v in sorted(s["kinds"].items(),
+                                                          key=lambda kv: -kv[1])))
+        else:
+            print(render_report(rows))
+            for r in rows:
+                if r.by_reference:
+                    ref = resolve_instance_reference(doc, r)
+                    if ref is not None:
+                        print(f"    -> instance {r.element_id} references symbol "
+                              f"{r.symbol_id}: {ref.kind} ({ref.geometry_bytes} B, "
+                              f"faces={ref.n_faces})")
+        if show_faces:
+            for r in rows:
+                if r.kind == "brep":
+                    print()
+                    print(face_report(doc, r.element_id))
     if json_out:
         os.makedirs(os.path.dirname(os.path.abspath(json_out)), exist_ok=True)
         with open(json_out, "w") as fh:
