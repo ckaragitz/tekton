@@ -684,3 +684,121 @@ def test_e2e_strict_split_and_rvt_edit(tmp_path):
     assert r2.manifest["edit"]["hard_gates_passed"] is True
     edited = Document.from_file(r2.files["edited"])
     assert len(edited.ids_of_class("FamilyInstance")) == 6
+
+
+# ===========================================================================
+# 8. stage P: the JOB's identity in ProjectInfo (issue #148) -- runs on the
+#    pinned bases shipped in plugin/assets/genesis (no samples/ needed)
+# ===========================================================================
+
+from rvt.frontdoor import project_info as PI                # noqa: E402
+from rvt.identity import PRODUCT_AUTHOR_PLACEHOLDER          # noqa: E402
+
+PINNED = {2026: os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt"),
+          2025: os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2025.rvt"),
+          2024: os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2024.rvt")}
+BASE_PLACEHOLDERS = ("rev-revit", "Genesis Base", "GENESIS Base", "Genesis Baseline", "GEN-0000")
+needs_pinned = pytest.mark.skipif(not all(os.path.isfile(p) for p in PINNED.values()),
+                                  reason="bundled genesis bases missing")
+
+
+class _FakeIntent:
+    project_name = "Riverside Clinic"
+
+
+def test_project_identity_maps_the_ten_builtin_params(monkeypatch):
+    from dataclasses import replace
+    from rvt.genesis import house_standard as HS
+    ident = PI.identity_from_intent(_FakeIntent(), issue_date="2026-08-09")
+    assert ident.project_name == "Riverside Clinic"
+    assert ident.project_status == PI.PROJECT_STATUS_PROOF_ONLY == "PROOF-ONLY"
+    assert ident.author == PRODUCT_AUTHOR_PLACEHOLDER          # hard rule 6
+    # the same ten fields the genesis constructor authors, one BIP each
+    assert set(PI.FIELD_PARAMS) == set(HS.PROJECT_INFO) and len(set(PI.FIELD_PARAMS.values())) == 10
+    params = replace(ident, project_number="RC-01", client_name="Riverside Health").params()
+    assert set(params) == set(PI.FIELD_PARAMS.values())
+    assert params[-1006317] == "Riverside Clinic" and params[-1006316] == "RC-01"
+    assert params[-1006319] == "Riverside Health" and params[-1006320] == "PROOF-ONLY"
+    assert params[-1006321] == "2026-08-09" and params[-1019008] == PRODUCT_AUTHOR_PLACEHOLDER
+    assert params[-1019005] == "" and params[-1019007] == ""   # unknown -> blank, never a placeholder
+    # the issue date is the build date: SOURCE_DATE_EPOCH pins it, else today (UTC)
+    monkeypatch.setenv("SOURCE_DATE_EPOCH", "1780000000")      # 2026-05-28T..Z
+    assert PI.build_date() == "2026-05-28"
+    assert PI.identity_from_intent(_FakeIntent()).issue_date == "2026-05-28"
+    monkeypatch.delenv("SOURCE_DATE_EPOCH")
+    assert PI.build_date(now=0) == "1970-01-01"
+    assert len(PI.build_date()) == 10
+
+
+@needs_pinned
+@pytest.mark.parametrize("release", [2026, 2025, 2024])
+def test_stage_p_edits_only_projectinfo_and_is_deterministic(tmp_path, release):
+    """On each pinned base: the ten strings land on the singleton ProjectInfo,
+    that record is the ONLY element whose bytes change (nothing added or
+    removed), no base placeholder survives, and two runs are byte-identical."""
+    from rvt.mutate import Document
+    from rvt import manipulate as M
+    from rvt import reduce_law as RL
+    from rvt.frontdoor import release_ctx as RC
+    base = PINNED[release]
+    ident = PI.ProjectIdentity(project_name="Riverside Clinic", issue_date="2026-08-09",
+                               project_number="RC-01", client_name="Riverside Health",
+                               building_name="Clinic Block A")
+    out1, out2 = str(tmp_path / "p1.rvt"), str(tmp_path / "p2.rvt")
+    with RC.release_build_context(base):
+        rec = PI.stage_project_info(base, out1, ident)
+        assert rec["ok"] is True, rec
+        assert rec["after"] == ident.as_json() and not rec["mismatch"]
+        assert rec["before"]["project_name"] != ident.project_name      # it really changed
+        assert rec["commit"]["replaced"] == [[102, rec["elem_id"]]]
+        assert rec["commit"]["elemtable_count_before"] == rec["commit"]["elemtable_count_after"]
+        # the certified modify shape's structural proof, under the file's own release
+        v = M.verify_manipulated(out1, edited_ids=[rec["elem_id"]])
+        assert v["stamps_ok"] and v["crc_failures"] == 0 and v["walker_errors"] == 0, v
+        assert v["ecc_mismatches"] == 0 and v["unit0_ids_equal_elemtable"] is True, v
+        assert v["edited"][str(rec["elem_id"])]["102"] == {"class": "ProjectInfo", "clean": True}
+        # the Document record diff: exactly one pre-existing element modified, seq 102
+        diff = RL.element_diff(Document.from_file(base), Document.from_file(out1))
+        assert not diff.removed and not diff.added, (diff.removed, diff.added)
+        assert diff.modified == {rec["elem_id"]: [102]}, diff.modified
+        got = PI.read_project_info(Document.from_file(out1))
+        assert got["fields"] == ident.as_json()
+        assert not [v for v in got["params"].values() for p in BASE_PLACEHOLDERS if p in str(v)]
+        # deterministic: same base + same identity -> the same bytes
+        assert PI.stage_project_info(base, out2, ident)["ok"] is True
+    with open(out1, "rb") as a, open(out2, "rb") as b:
+        assert a.read() == b.read()
+
+
+@pytest.fixture(scope="module")
+def identity_job(tmp_path_factory):
+    if not os.path.isfile(PINNED[2026]):
+        pytest.skip("bundled genesis base missing")
+    out = str(tmp_path_factory.mktemp("pi") / "job")
+    return FD.author(prompt="an electrical room with 1 panel", out=out, no_handoff=True)
+
+
+def test_e2e_prompt_output_carries_the_job_identity(identity_job):
+    """The product shape: a prompt job's combined .rvt decodes with the
+    intent's project name, PROOF-ONLY status, today's issue date and OUR
+    author placeholder; the manifest says what was written."""
+    from rvt.mutate import Document
+    r = identity_job
+    assert r.ok, (r.status, r.errors)
+    build = r.manifest["build"]
+    pi = build["project_info"]
+    assert pi["ok"] is True and pi["elem_id"] and not pi["mismatch"], pi
+    assert pi["commit"]["replaced"] == [[102, pi["elem_id"]]]
+    assert [s["stage"] for s in build["stages"]][0] == "P"
+    combined = build["files"]["combined"]["path"]
+    got = PI.read_project_info(Document.from_file(combined))
+    f = got["fields"]
+    assert f["project_name"] == r.manifest["intent"]["summary"]["project"] == "Electrical Room"
+    assert f["project_status"] == "PROOF-ONLY" and "PROOF-ONLY" in r.status
+    assert f["author"] == PRODUCT_AUTHOR_PLACEHOLDER
+    assert f["issue_date"] == pi["identity"]["issue_date"] == PI.build_date()
+    assert f == pi["after"]
+    assert not [v for v in got["params"].values() for p in BASE_PLACEHOLDERS if p in str(v)]
+    assert build["validation"]["combined"]["validate"]["n_errors"] == 0
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        assert "project information (ProjectInfo" in fh.read()

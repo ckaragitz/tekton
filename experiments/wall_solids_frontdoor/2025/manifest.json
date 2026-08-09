@@ -1,0 +1,732 @@
+{
+ "tool": "tekton frontdoor (rvt.frontdoor)",
+ "tool_version": "1.0.0",
+ "product": "tekton (multi-surface front door)",
+ "generated_at": "2026-08-09T13:00:20Z",
+ "route": "prompt",
+ "inputs": {
+  "prompt": "an electrical room 30 by 20 ft",
+  "fallback_parser": "rules-first deterministic (no external model call, no API key)"
+ },
+ "out_dir": "experiments/wall_solids_frontdoor/2025",
+ "target_version": {
+  "requested": 2025,
+  "status": "match",
+  "output_release": 2025,
+  "note": "Revit 2025 target: certified Revit 2025 genesis base resolved"
+ },
+ "prompt_handoff": {
+  "scene_brief": "experiments/wall_solids_frontdoor/2025/scene-brief.json",
+  "handoff": "experiments/wall_solids_frontdoor/2025/HANDOFF.md",
+  "instructions": "experiments/wall_solids_frontdoor/2025/PROMPT_TO_IFC.md",
+  "primary_path_note": "an AI surface executes HANDOFF.md/scene-brief.json with Three.js, exports IFC4 (tekton-ifc exporter, our tagging-contract Psets), and the .ifc re-enters via `frontdoor author --ifc` -- the recommended path"
+ },
+ "prompt_coverage": {
+  "understood": [
+   {
+    "clause": "30 by 20 ft",
+    "as": "room dimensions",
+    "width_m": 9.144,
+    "depth_m": 6.096,
+    "unit_assumed": "ft"
+   }
+  ],
+  "ignored_words": [],
+  "not_built": [],
+  "defaults_applied": [
+   "room height: 3.6576 m (12 ft)",
+   "wall thickness: 0.2032 m location-line offset (the built wall uses the base wall type's compound structure)",
+   "service voltage system: 480Y/277 V"
+  ],
+  "warnings": [],
+  "consumed_ratio": 0.867,
+  "statement": "rules-first deterministic parser (no external model call, no API key): everything under 'understood' was normalised into the intent; 'ignored_words' are prompt words the parser did not use; 'not_built' items were recognised but are outside today's model build path; 'defaults_applied' names every value the parser had to assume."
+ },
+ "base": {
+  "path": "/home/user/tekton/plugin/assets/genesis/G_ABPD_2025.rvt",
+  "source": "pinned-bundled",
+  "sha256": "6242c3aaccf86e7187fbd56879d450089c6fd33ad677d5847cb7c56d5e2b1171",
+  "pinned": true,
+  "certified_genesis_base": true,
+  "is_autodesk_sample": false,
+  "certification": {
+   "ledger": "docs/coverage/viewer-certified.json",
+   "entry": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "required": "viewer PASS (3D + sheet, not empty) + ledger entry + sha256 pin here + KNOWN_RELEASES[2025].creation_certified = True (G25-5)"
+  },
+  "warnings": [],
+  "pin": {
+   "id": "G_ABPD",
+   "relpath": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+   "bytes": 581632,
+   "revit_release": "2026",
+   "certification": {
+    "ledger": "docs/coverage/viewer-certified.json",
+    "entry": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "proves": "THE COMPOSED GENESIS PROJECT BASE LOADS: G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the Autodesk viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt)",
+    "verdict": "docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS",
+    "composed_by": "tools/genesis_compose.py (anchor byte-exact against certified ZA_deep)"
+   },
+   "residue_disclosure": "Per verdict #24: ~260 Autodesk-authored elements remain + 4 named stragglers, plus the two shipped product corpora present in EVERY Revit file (Formats/Latest schema + ESSchemaStorage unit schemas = counsel question C4). The genesis LINEAGE descends from the rst sample reduced + substituted in place; deliverability of any output is decided by the P0 provenance gate (rvt.provenance), never assumed by this registry.",
+   "specimen_ancestor": {
+    "id": "R5",
+    "relpath": "experiments/genesis/R5.rvt",
+    "sha256": "ae40074bb9379ee01b75f43e5bed23f450e34664d40deabed4a226e0847d4181"
+   }
+  },
+  "policy": "the front door authors ONLY on the certified genesis base (our composed project, no Autodesk-authored base content) or a user-supplied non-sample base; NEVER an Autodesk sample"
+ },
+ "intent": {
+  "summary": {
+   "project": "Electrical Room",
+   "source": "prompt:an electrical room 30 by 20 ft",
+   "schema": "prompt/spec-v2",
+   "levels": [
+    {
+     "id": "L1",
+     "name": "Level 1",
+     "elevation": 0.0
+    }
+   ],
+   "room": {
+    "name": "Electrical Room",
+    "walls": 4,
+    "walls_synthesized": 0,
+    "doors": 0,
+    "ring_ccw": true,
+    "centerline_extents_m": {
+     "x": [
+      -4.572,
+      4.572
+     ],
+     "y": [
+      -3.048,
+      3.048
+     ]
+    }
+   },
+   "equipment_total": 0,
+   "equipment_by_kind": {},
+   "equipment": [],
+   "feeder_edges": [],
+   "family_plans_by_status": {},
+   "family_plans": [],
+   "clearances": 0,
+   "audit": {
+    "source": "prompt (built-in rules-first fallback; no external model call)",
+    "equipment_with_positions": 0,
+    "positions_all_zero": null,
+    "feeder_edges": 0,
+    "family_plans": {},
+    "prompt_consumed_ratio": 0.867,
+    "prompt_ignored_words": [],
+    "equipment_inside_room_ring": "0/0"
+   }
+  },
+  "json": "experiments/wall_solids_frontdoor/2025/intent.json"
+ },
+ "build": {
+  "combination_verdict": {
+   "open_bug": null,
+   "open_bug_text": null,
+   "has_walls": true,
+   "n_walls": 4,
+   "has_loaded_families": false,
+   "n_loaded_families": 0,
+   "n_instances": 0,
+   "places_instances": false,
+   "composed_base": true,
+   "triggers_open_bug": false,
+   "mode": "single",
+   "stamp": null,
+   "files": [
+    "combined"
+   ],
+   "reason": "open cell not exercised by this job: walls only (viewer-certified shape: room shell on the genesis base)",
+   "notes": []
+  },
+  "files": {
+   "combined": {
+    "path": "/home/user/tekton/experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt",
+    "relpath": "experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt",
+    "bytes": 602112,
+    "sha256": "86b7ac9a4df8a3fa0ba5972ddfaa6abc46140d02e91ea4bad939f87f070f208c"
+   }
+  },
+  "families_dir": null,
+  "stages": [
+   {
+    "stage": "release-context",
+    "release": 2025,
+    "native": 2026,
+    "port_layer": "rvt.genesis.port2025"
+   },
+   {
+    "stage": "specimens",
+    "source": "__constructed__",
+    "wall": 990000001,
+    "wall_type": 600634,
+    "instance": 990000002,
+    "instance_symbol": null,
+    "instance_category": -2001040,
+    "seconds": 0.11
+   },
+   {
+    "stage": "W",
+    "ok": true,
+    "in": "plugin/assets/genesis/G_ABPD_2025.rvt",
+    "out": "experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt",
+    "wall_mode": "min",
+    "wall_rep": "solid",
+    "wall_type": 600634,
+    "wall_type_name": "CL_W1",
+    "level": 311,
+    "elemtable_before": 3316,
+    "elemtable_after": 3320,
+    "new_ids": [
+     1472449,
+     1472450,
+     1472451,
+     1472452
+    ],
+    "verify": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "stamps_ok": true,
+     "elemtable_matches_header": true,
+     "sentinels_last": true,
+     "new_elements_clean_per_seq": {
+      "101": 4,
+      "102": 4,
+      "103": 4
+     }
+    },
+    "structurally_valid": true,
+    "seconds": 0.19,
+    "notes": [
+     "wall geometry rep = AUTHORED seq-103 GElement solid per wall (rvt.render.brep, the W1_gabpd_wall_solid / RSOLID_walls_A_solid recipe -- RENDER-certified as a SHAPE; this exact output is uncertified until its own viewer batch passes; RVT_WALL_REP=dummy restores the SerializedDummy rep)",
+     "wall LOCATION LINES are the intent's centerline ring (metres -> feet); the built thickness is the base wall type's compound structure, not the IFC's 0.2 m (recorded per wall as ifc_thickness_m)",
+     "door OPENINGS are recorded in the intent but NOT cut (no door family / hosting in v1)",
+     "specimen scaffolding: SWall 990000001 cloned from the base's certified ancestor (constructed -- no specimen file) (same wall type id 600634 in both files; the specimen is a clone TEMPLATE, never emitted)",
+     "EVERY same-type specimen in the lineage is a JOINED, painted wall -> the clone clean-up mode 'min' repairs what the clone leaves behind (per-wall log 'clone_cleanup'): self face-refs repointed, paint face-ref overrides cleared, join partner edge tags cleared, header parents filtered to existing ids (the Walls-category GStyle row 30 is one of the 235 catalog rows the R9 lineage GC'd away -- our headers must not name it); 'unjoin' additionally trims the history to the textbook unjoined form",
+     "OPEN acceptance question this probe answers: placed walls in a file whose Walls-category projection GStyle row is absent (never before tested -- the base lineage has no walls); a FAIL here + a card message points at the ADD-cat rung (the 235 missing built-in category rows)"
+    ],
+    "walls": [
+     {
+      "id": "W-S",
+      "elem_id": 1472449,
+      "p0_ft": [
+       -15.0,
+       -10.0
+      ],
+      "p1_ft": [
+       15.0,
+       -10.0
+      ],
+      "height_ft": 12.0,
+      "rep": {
+       "kind": "solid",
+       "faces": 6,
+       "edges": 12,
+       "tags": "history",
+       "length_ft": 30.0,
+       "thickness_ft": 0.9186,
+       "base_z_ft": 0.0,
+       "height_ft": 12.0,
+       "side_material_id": 600660,
+       "root_category_id": -1
+      },
+      "n_dangling": 0
+     },
+     {
+      "id": "W-E",
+      "elem_id": 1472450,
+      "p0_ft": [
+       15.0,
+       -10.0
+      ],
+      "p1_ft": [
+       15.0,
+       10.0
+      ],
+      "height_ft": 12.0,
+      "rep": {
+       "kind": "solid",
+       "faces": 6,
+       "edges": 12,
+       "tags": "history",
+       "length_ft": 20.0,
+       "thickness_ft": 0.9186,
+       "base_z_ft": 0.0,
+       "height_ft": 12.0,
+       "side_material_id": 600660,
+       "root_category_id": -1
+      },
+      "n_dangling": 0
+     },
+     {
+      "id": "W-N",
+      "elem_id": 1472451,
+      "p0_ft": [
+       15.0,
+       10.0
+      ],
+      "p1_ft": [
+       -15.0,
+       10.0
+      ],
+      "height_ft": 12.0,
+      "rep": {
+       "kind": "solid",
+       "faces": 6,
+       "edges": 12,
+       "tags": "history",
+       "length_ft": 30.0,
+       "thickness_ft": 0.9186,
+       "base_z_ft": 0.0,
+       "height_ft": 12.0,
+       "side_material_id": 600660,
+       "root_category_id": -1
+      },
+      "n_dangling": 0
+     },
+     {
+      "id": "W-W",
+      "elem_id": 1472452,
+      "p0_ft": [
+       -15.0,
+       10.0
+      ],
+      "p1_ft": [
+       -15.0,
+       -10.0
+      ],
+      "height_ft": 12.0,
+      "rep": {
+       "kind": "solid",
+       "faces": 6,
+       "edges": 12,
+       "tags": "history",
+       "length_ft": 20.0,
+       "thickness_ft": 0.9186,
+       "base_z_ft": 0.0,
+       "height_ft": 12.0,
+       "side_material_id": 600660,
+       "root_category_id": -1
+      },
+      "n_dangling": 0
+     }
+    ]
+   },
+   {
+    "stage": "V",
+    "files": [
+     "combined"
+    ],
+    "gates": {
+     "validate": 0.56,
+     "census": 0.12,
+     "identity": 0.01,
+     "status_gate": 0.43
+    },
+    "seconds": 1.12
+   }
+  ],
+  "load": {},
+  "families": {},
+  "family_files": [],
+  "elements_created": [
+   {
+    "kind": "wall",
+    "tag": "W-S",
+    "elem_id": 1472449,
+    "length_m": 9.144,
+    "height_ft": 12.0,
+    "rep": "solid",
+    "file_role": "W"
+   },
+   {
+    "kind": "wall",
+    "tag": "W-E",
+    "elem_id": 1472450,
+    "length_m": 6.096,
+    "height_ft": 12.0,
+    "rep": "solid",
+    "file_role": "W"
+   },
+   {
+    "kind": "wall",
+    "tag": "W-N",
+    "elem_id": 1472451,
+    "length_m": 9.144,
+    "height_ft": 12.0,
+    "rep": "solid",
+    "file_role": "W"
+   },
+   {
+    "kind": "wall",
+    "tag": "W-W",
+    "elem_id": 1472452,
+    "length_m": 6.096,
+    "height_ft": 12.0,
+    "rep": "solid",
+    "file_role": "W"
+   }
+  ],
+  "degradations": [],
+  "circuits": {},
+  "validation": {
+   "combined": {
+    "validate": {
+     "path": "experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt",
+     "md5": "54188947f7437bbe29ece64b249eeecf",
+     "size": 602112,
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 0,
+     "errors": [],
+     "warnings": [],
+     "stats": {
+      "streams": 12,
+      "pages_checked": 15,
+      "gzip_members": 8,
+      "partition_blocks": 15,
+      "records": 9963,
+      "elements_decoded": 3320,
+      "decode_failures": 0,
+      "refs_checked": 50859,
+      "connector_edges": 0,
+      "circuits": 0
+     },
+     "seconds": 0.6
+    },
+    "census": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contentdocs_guids": [],
+     "contenttable_records": 0,
+     "contenttable_guids": [],
+     "familymgr_entries": 9,
+     "familymgr_guids": [],
+     "coherent": true
+    },
+    "identity": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "WSOLID2025_walls.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+      "central_episode_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3",
+      "format": "2025",
+      "build": "Development Build",
+      "locale": "ENU",
+      "unique_document_increments": "21"
+     },
+     "history_head_guid": "527cedc9-d9e4-404b-9ef6-abb4380b59e3"
+    },
+    "self_checks_ok": true
+   }
+  },
+  "status_gate": {
+   "status": "PROOF-ONLY, NOT-DELIVERABLE",
+   "deliverable": false,
+   "base": "/home/user/tekton/plugin/assets/genesis/G_ABPD_2025.rvt",
+   "base_is_autodesk_sample": false,
+   "g1": {
+    "passes": false,
+    "verdict": "FAIL \u2014 3,260 Autodesk-derived element(s) in expression-bearing categories",
+    "blocking": [
+     {
+      "category": "loadable-families",
+      "provenance": "autodesk-sample",
+      "count": 16,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "autodesk-sample",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 155,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 1664,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 103,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 49,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 822,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "autodesk-sample",
+      "count": 11,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "autodesk-sample",
+      "count": 36,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "autodesk-sample",
+      "count": 354,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "autodesk-sample",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ]
+   },
+   "provenance_totals": {
+    "autodesk-sample": 3316,
+    "transitive-cloned": 4
+   },
+   "created_elements": [
+    {
+     "id": 1472449,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+     "lineage": [
+      {
+       "id": 600634,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "CL_W1"
+      },
+      {
+       "id": 600660,
+       "class": "MaterialElem",
+       "category": "patterns-materials",
+       "via": "m_renderStyleId",
+       "name": "GEN Concrete, Cast-in-Place"
+      }
+     ],
+     "attribution": "G_ABPD_2025"
+    },
+    {
+     "id": 1472450,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+     "lineage": [
+      {
+       "id": 600634,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "CL_W1"
+      },
+      {
+       "id": 600660,
+       "class": "MaterialElem",
+       "category": "patterns-materials",
+       "via": "m_renderStyleId",
+       "name": "GEN Concrete, Cast-in-Place"
+      }
+     ],
+     "attribution": "G_ABPD_2025"
+    },
+    {
+     "id": 1472451,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+     "lineage": [
+      {
+       "id": 600634,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "CL_W1"
+      },
+      {
+       "id": 600660,
+       "class": "MaterialElem",
+       "category": "patterns-materials",
+       "via": "m_renderStyleId",
+       "name": "GEN Concrete, Cast-in-Place"
+      }
+     ],
+     "attribution": "G_ABPD_2025"
+    },
+    {
+     "id": 1472452,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+     "lineage": [
+      {
+       "id": 600634,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "CL_W1"
+      },
+      {
+       "id": 600660,
+       "class": "MaterialElem",
+       "category": "patterns-materials",
+       "via": "m_renderStyleId",
+       "name": "GEN Concrete, Cast-in-Place"
+      }
+     ],
+     "attribution": "G_ABPD_2025"
+    }
+   ],
+   "reason": "P0 genesis gate G1 fails (the base carries derived expression that G1 blocks): FAIL \u2014 3,260 Autodesk-derived element(s) in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base.",
+   "elapsed_s": 0.4
+  },
+  "seconds": 1.5,
+  "errors": []
+ },
+ "crud": {
+  "entrypoint": "python tools/frontdoor.py author --rvt experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt --edit \"<sentence | ops.json | inline JSON>\" --out <dir>",
+  "note": "every element the front door created is EDITABLE and DELETABLE through the same front door (--rvt --edit) or the underlying rvt_edit.py / rvt_job.py ops -- one ops vocabulary for all of them",
+  "elements": [
+   {
+    "tag": "W-S",
+    "elem_id": 1472449,
+    "kind": "wall",
+    "file": "experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt",
+    "modify": {
+     "note": "a wall's geometry is its location line + type + level; move / delete are supported; length / type changes are the walls stream's modify path",
+     "delete": {
+      "text_edit": "delete 1472449",
+      "cli": "python tools/rvt_edit.py experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt delete --id 1472449 -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472449,
+       "cascade": true
+      }
+     }
+    }
+   },
+   {
+    "tag": "W-E",
+    "elem_id": 1472450,
+    "kind": "wall",
+    "file": "experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt",
+    "modify": {
+     "note": "a wall's geometry is its location line + type + level; move / delete are supported; length / type changes are the walls stream's modify path",
+     "delete": {
+      "text_edit": "delete 1472450",
+      "cli": "python tools/rvt_edit.py experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt delete --id 1472450 -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472450,
+       "cascade": true
+      }
+     }
+    }
+   },
+   {
+    "tag": "W-N",
+    "elem_id": 1472451,
+    "kind": "wall",
+    "file": "experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt",
+    "modify": {
+     "note": "a wall's geometry is its location line + type + level; move / delete are supported; length / type changes are the walls stream's modify path",
+     "delete": {
+      "text_edit": "delete 1472451",
+      "cli": "python tools/rvt_edit.py experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt delete --id 1472451 -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472451,
+       "cascade": true
+      }
+     }
+    }
+   },
+   {
+    "tag": "W-W",
+    "elem_id": 1472452,
+    "kind": "wall",
+    "file": "experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt",
+    "modify": {
+     "note": "a wall's geometry is its location line + type + level; move / delete are supported; length / type changes are the walls stream's modify path",
+     "delete": {
+      "text_edit": "delete 1472452",
+      "cli": "python tools/rvt_edit.py experiments/wall_solids_frontdoor/2025/WSOLID2025_walls.rvt delete --id 1472452 -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472452,
+       "cascade": true
+      }
+     }
+    }
+   }
+  ],
+  "layer_operations": {
+   "recreate": "re-run the same `frontdoor author` command (deterministic for the same inputs) -- outputs are regenerated from the intent",
+   "start_over": "the base is untouched; delete the output directory to discard the whole created layer",
+   "circuits": "feeder circuits are NOT authored on this base yet (named blocker in the manifest); the resolved circuit plan is in the intent's feederTree.circuitPlan -- rvt.mep add_circuit / a Revit-side add-in consume it"
+  }
+ },
+ "coverage_matrix": {
+  "matrix": "docs/coverage/matrix.json (28 categories x 6 verbs; tools/coverage.py)",
+  "cells_exercised": [
+   {
+    "category": "walls",
+    "verb": "create"
+   }
+  ],
+  "affordances": "modify / move / retype / delete over every created element are the manipulate stream's certified cells (M2/M3/M4); the front door's --rvt route drives them"
+ },
+ "honesty": {
+  "tiers": {
+   "self_checks": "rvt.validate (0 errors), four-registry coherence, identity gate -- prove OUR OWN invariants; reported per file below",
+   "autodesk_acceptance": "NOT claimed by this run: only the Autodesk Viewer / Revit prove acceptance (upload -> 'translated' -> open the {3D} view). Report both tiers separately, never conflated.",
+   "load_vs_render": "created walls carry authored solids: each SWall's seq-103 rep is a six-face GElement B-rep (rvt.render.brep, the W1_gabpd_wall_solid / RSOLID_walls_A_solid recipe -- RENDER-certified as a SHAPE on the composed base); THIS exact output is uncertified until its own viewer batch passes, and every other certification behind these shapes is a LOAD pass; our loaded symbols carry real solids; RVT_WALL_REP=dummy restores the SerializedDummy rep"
+  },
+  "proof_only_stamps": [
+   "PROOF-ONLY, NOT-DELIVERABLE"
+  ],
+  "release": "Revit 2025 target (the base and the schema are 2025); Revit cannot open a newer file -- confirm the customer's Revit version before promising a .rvt (`--target-version N` makes the front door check, and degrade honestly, for you)"
+ },
+ "status": "PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)"
+}

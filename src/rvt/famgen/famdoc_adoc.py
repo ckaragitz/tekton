@@ -1110,6 +1110,33 @@ def author_family_adocument(source, *, mode: str = "candidate",
             "set / row list empty, fixed-length positional arrays nulled in place, "
             "scalars -1) -- the zero-registry shape; only m_ownerFamilyId names ours")
 
+    # 4b. UNIQUE-ELEMENTS + PEN-TABLE WIRING (issue #52, desktop rounds
+    # 4-5): Revit's required-internal-settings checker reads
+    # UniqueElementsTracking's positional ids (indices measured on a
+    # Revit-2026-born family: AutoCam 10, DefaultDivide 60, DrawOrder3d 85)
+    # and the view draw path reads PenWidthTableInfo.m_penWidthTableElemId
+    # -- the purge nulls all four, so they are re-pointed at OUR elements.
+    by_class = {}
+    for e in (getattr(source, "elements", None) or []):
+        cn = getattr(e, "class_name", None)
+        if cn and cn not in by_class:
+            by_class[cn] = int(e.elem_id)
+    uet = _appinfo_body(tree, "UniqueElementsTracking")
+    if isinstance(uet, dict) and isinstance(uet.get("m_elemIds"), list):
+        for idx, cls in ((10, "AutoCamSettingsElem"),
+                         (60, "DefaultDivideSettings"),
+                         (85, "DrawOrder3dElem")):
+            if cls in by_class and idx < len(uet["m_elemIds"]):
+                uet["m_elemIds"][idx] = by_class[cls]
+                report["registries"][f"UniqueElementsTracking[{idx}]"] = \
+                    f"= {by_class[cls]} ({cls}, OURS)"
+    pwi = _appinfo_body(tree, "PenWidthTableInfo")
+    if isinstance(pwi, dict) and "m_penWidthTableElemId" in pwi \
+            and "PenWidthTableElem" in by_class:
+        pwi["m_penWidthTableElemId"] = by_class["PenWidthTableElem"]
+        report["registries"]["PenWidthTableInfo.m_penWidthTableElemId"] = \
+            f"= {by_class['PenWidthTableElem']} (OUR ISO-128 pen table)"
+
     # 5. authorship -------------------------------------------------------------
     tree["m_ownerFamilyId"] = int(inv.self_family_id)      # the family owns the document
     tree["m_ownerFamilyContainingGroupId"] = INVALID

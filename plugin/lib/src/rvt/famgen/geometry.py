@@ -1152,7 +1152,7 @@ def new_curve_elem(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
     hdr = _hdr("CurveElem", ctx, elem_id, category=BIC_LINES,
                deletion=[ctx.family_id, sketch_plane_id, sketch_id, prev_id, next_id],
                appearance=[sketch_id], regen_only=[ctx.level_id, extrusion_id],
-               nondeterm=True, misc_id=sketch_id, bbox=bbox)
+               nondeterm=True, misc_id=sketch_id, bbox=None)  # donor law #52: headers carry no bbox
     return SkelElement(elem_id, "CurveElem", hdr, obj, root, kind="curve",
                        owner_id=sketch_id,
                        refs={"sketch": sketch_id, "sketch_plane": sketch_plane_id,
@@ -1920,7 +1920,7 @@ def new_arc_curve_elem(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: 
     hdr = _hdr("CurveElem", ctx, elem_id, category=BIC_LINES,
                deletion=[ctx.family_id, sketch_plane_id, sketch_id, partner_id],
                appearance=[sketch_id], regen_only=[ctx.level_id, extrusion_id],
-               nondeterm=True, misc_id=sketch_id, bbox=bbox)
+               nondeterm=True, misc_id=sketch_id, bbox=None)  # donor law #52: headers carry no bbox
     return SkelElement(elem_id, "CurveElem", hdr, obj, root, kind="curve",
                        owner_id=sketch_id,
                        refs={"sketch": sketch_id, "sketch_plane": sketch_plane_id,
@@ -2039,7 +2039,7 @@ def new_var_sketch_curves(elem_id: int, ctx: FamilyDocContext, *,
     assign_pids(root)
     hdr = _hdr("VarSketch", ctx, elem_id,
                deletion=[ctx.family_id, sketch_plane_id, user_id, *curve_ids, *dim_ids],
-               regen_only=[ctx.level_id], bbox=bbox)
+               regen_only=[ctx.level_id], bbox=None)  # donor law #52
     return SkelElement(elem_id, "VarSketch", hdr, obj, root, kind="sketch",
                        owner_id=user_id,
                        refs={"sketch_plane": sketch_plane_id, "extrusion": user_id,

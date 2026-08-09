@@ -623,26 +623,35 @@ def test_e2e_extract_then_reload_full_cycle(built_room, tmp_path):
     assert os.path.isfile(loaded) and os.path.isfile(rl.files["load_report"])
     assert "VALID 0 errors" in rl.status
     assert _validator_errors(loaded) == 0
-    # reloading into the project it came from is refused BY NAME (its ids
-    # are already past that host's watermark) -- one clear line, no traceback
+    # reloading into the project it came from: its ids no longer clear THAT
+    # host's watermark, so the id-remap lane re-numbers it above (issue #99)
+    # -- a second copy of the family lands as a new content document
     back = R.route({"rfa": rfa, "rvt": built_room["rvt"]}, "rvt", out=str(tmp_path / "b"))
-    assert back.ok is False and back.line and "STANDALONE-BORN" in back.line
+    assert back.ok, back.errors + [back.status, back.line]
+    assert [s["stage"] for s in back.steps][-1] == "rfa-born-load"
+    assert _validator_errors(back.files["loaded_rvt"]) == 0
 
 
 @needs_catalog
 @needs_pin
-def test_standalone_born_rfa_gets_the_clear_line_not_a_traceback(tmp_path):
+def test_standalone_born_rfa_loads_onto_the_pinned_base(tmp_path):
     """Our own .rfa deliverables are standalone-born (ids from 1000): the
-    reload lane answers with THE line naming the certified-but-unwired
-    id-remap lane (T2a) and the routes that do work today."""
+    rfa -> rvt cell LOADS them through the schema-typed id remap +
+    rvt.famload (the certified T2a mechanism, product-wired in
+    rvt.convert.rfa_load -- issue #99): project validator 0 errors, the
+    caveat names the mechanism's certification and this artifact's lack of
+    it (never 'loads in Revit')."""
     gen = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(tmp_path / "g"))
     assert gen.ok, gen.errors
     rfa = next(p for k, p in gen.files.items() if k.startswith("rfa:"))
     res = R.route({"rfa": rfa}, "rvt", out=str(tmp_path / "o"))
-    assert res.ok is False
-    assert "UNSUPPORTED-INPUT-FORM" in res.status
-    assert "STANDALONE-BORN" in res.line and "T2a" in res.line
-    assert "loaded_rvt" not in res.files
+    assert res.ok is True, res.errors + [res.status, res.line]
+    assert [s["stage"] for s in res.steps] == ["rfa-classify", "rfa-born-load"]
+    assert "VALID 0 errors" in res.status and _validator_errors(res.files["loaded_rvt"]) == 0
+    reg = json.load(open(res.files["load_report"]))["proofs"]["verify_written"]["registries"]
+    assert reg["coherent"] is True and reg["ours_in_all_four"] is True
+    # the lane-level contract (caveat wording, rebase census, 2025 host, refusals)
+    # is pinned by tests/test_rfa_load.py, which runs in the CI shard
 
 
 @needs_catalog
