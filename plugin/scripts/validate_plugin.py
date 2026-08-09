@@ -20,6 +20,12 @@ Asserts (per the Claude Code plugin reference, verified 2026-08):
     docs/HONEST-STATUS.md carry none of the retired phrases in STALE_CLAIMS
     (".rvt creation not yet available / route to IFC", `pip install ./lib`
     on the hot path ...) -- issue #119; the front door creates and delivers.
+  * identity scan (issue #193): when this plugin sits inside the repo
+    (../tools/sync_plugin.py exists), the shipped bytes are content-scanned
+    for Autodesk employee usernames and `C:\\Users\\` paths with the very
+    same audit `tools/sync_plugin.py --check` runs; any hit outside
+    tools/plugin_identity_allowlist.json (tracked by #19), or an allowlisted
+    hit that vanished, fails. A bare install has no repo beside it and says so.
 
 Exit 0 = all assertions passed; 1 = failures listed. Prints a report.
 
@@ -412,6 +418,39 @@ def check_stale_claims() -> None:
            + ", ".join(STALE_CLAIM_DOCS))
 
 
+# ---------------------------------------------------------------- identity scan
+# The content audit lives in the repo's tools/sync_plugin.py (with its
+# allowlist beside it); this validator borrows it when the repo is there, so
+# CI's "Plugin structure" step and `sync_plugin.py --check` can never disagree.
+REPO_SYNC_PLUGIN = os.path.normpath(os.path.join(HERE, "..", "..", "tools", "sync_plugin.py"))
+
+
+def check_identity_strings() -> None:
+    if not os.path.isfile(REPO_SYNC_PLUGIN):
+        ok("identity scan skipped: no repo tools/sync_plugin.py beside this plugin "
+           "(bare install; the build that produced it ran the scan)")
+        return
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("sync_plugin", REPO_SYNC_PLUGIN)
+    sp = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(sp)
+        res = sp.check_identity_strings(ROOT, zip_path=None)
+    except Exception as e:                  # engine dep (olefile) missing, allowlist unreadable...
+        fail(f"identity scan could not run: {e} -- run with the repo's .venv/bin/python")
+        return
+    for o, f, m, t, n, want in res["unexpected"]:
+        exp = "not allowlisted" if want is None else f"allowlist says {want}"
+        fail(f"identity scan: UNEXPECTED {f}{' :: ' + m if m else ''} carries {t!r} x{n} "
+             f"({exp}) -- remove the string, never extend {res['allowlist']}")
+    for o, f, m, t, want in res["vanished"]:
+        fail(f"identity scan: VANISHED {f}{' :: ' + m if m else ''} {t!r} x{want} is gone "
+             f"from the bytes -- delete its row from {res['allowlist']} (tracked by #19)")
+    if not (res["unexpected"] or res["vanished"]):
+        ok(f"identity scan: {res['files']} files, {res['allowlisted']} allowlisted hit(s) "
+           f"(tracked by #19), 0 unexpected, 0 vanished ({res['seconds']:.2f} s)")
+
+
 # ---------------------------------------------------------------- main
 def main() -> int:
     global ROOT
@@ -426,6 +465,7 @@ def main() -> int:
     check_lib()
     check_referenced_paths()
     check_stale_claims()
+    check_identity_strings()
     for n in notes:
         print("  " + n)
     print(f"\n  assertions passed: {checked}")
