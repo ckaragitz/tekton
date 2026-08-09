@@ -30,6 +30,7 @@ tests/test_techlead.py
 tests/test_geo_site_determinism.py
 tests/test_verify_manipulated_release.py
 tests/test_hostsym_product.py
+tests/test_pyproject_extras.py
 tests/test_target2025.py
 tests/test_famload_2025.py
 tests/test_target_version_first.py

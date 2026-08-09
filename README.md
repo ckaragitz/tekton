@@ -163,11 +163,19 @@ them). `tools/coverage.py report` re-renders without work.
 ## Reproduce
 
 ```bash
-uv venv .venv && uv pip install --python .venv/bin/python -e .   # installs `rvt` (dep: olefile)
-.venv/bin/python -m pytest tests/ -q                              # full suite
-.venv/bin/python tools/sync_plugin.py --check                     # plugin drift guard
+uv venv .venv && uv pip install --python .venv/bin/python -e ".[test]"   # `rvt` (runtime dep: olefile) + the test extra (pytest, numpy)
+# no uv?  python3.11 -m venv .venv && .venv/bin/pip install -e ".[test]"  # same thing with plain venv/pip (or: bash scripts/cloud-setup.sh)
+.venv/bin/python -m pytest tests/test_versions.py -q                      # a fresh-clone-safe file; the per-PR shard is tests/ci_shard.txt
+.venv/bin/python tools/sync_plugin.py --check                             # plugin drift guard
 ```
 
-Python: **always** `/Users/ck/dev/things/tekton/.venv/bin/python`, from
-the repo root. Read `AGENT_BRIEF.md`, `KNOWLEDGE.md`, `TRACKER.md` before
-touching anything.
+Extras declared in `pyproject.toml`: `test` (pytest + numpy — what the
+suite needs), `geometry` (numpy only), `ifc` (ifcopenshell, **optional** —
+IFC *authoring* only; IFC *reading* needs no install thanks to the stdlib
+reader `rvt.ifc.steplite`), `dev` (= test + geometry), `all` (everything).
+The full suite (`tests/ -q`) is ~25 min and coordinated — run your
+stream-local files instead (see `CLAUDE.md` §2).
+
+Python: **always** the repo's `.venv/bin/python`, from the repo root. Read
+`CLAUDE.md`, `AGENT_BRIEF.md`, `KNOWLEDGE.md`, `TRACKER.md` before touching
+anything.
