@@ -14,19 +14,33 @@ edit.log, tests/test_router.py for route.log):
   an OSError: the #374 review's edge) -- still runs the block, tells
   ``on_degrade`` ONE note, writes no file and leaks nothing to stdout.
 
-Fresh-clone safe (stdlib + the package; no samples, no bases).
+Issue #424: the body lives in the stdlib-only leaf ``src/rvt/_logsink.py``
+(``rvt.frontdoor.stagelog`` re-exports it) so the two remaining call sites --
+the router's spec+rvt ``job-create.log`` and ``tools/rvt_job.py --json``'s
+``<out>.log`` -- share it without the ``rvt.frontdoor`` package import; both
+call sites are checked here (a fake seed job for the router; the real ops
+door on the bundled 2025 base for ``rvt_job.py``, skipped if it is absent).
+
+Fresh-clone safe (stdlib + the package; no samples).
 """
 from __future__ import annotations
 
+import ast
+import json
 import os
+import subprocess
 import sys
 
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, "src"))
+SRC = os.path.join(ROOT, "src")
+sys.path.insert(0, SRC)
 
 from rvt.frontdoor.stagelog import stage_stdout      # noqa: E402
+
+BASE_2025 = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2025.rvt")
+LEVEL_ID = 1351691                                   # "GEN B1 - Basement" on the pinned bases
 
 
 def _sinks():
@@ -102,6 +116,116 @@ def test_tripwire_refusal_degrades_exactly_like_an_oserror(tmp_path, capsys):
 def test_callbacks_are_optional(tmp_path):
     with stage_stdout(str(tmp_path), "x.log", quiet=True):
         print("[fake]")
-    with stage_stdout(str(tmp_path / "missing" / "dir"), "x.log", quiet=True):
-        print("[fake]")                                  # FileNotFoundError -> silent in-memory sink
-    assert (tmp_path / "x.log").is_file() and not (tmp_path / "missing").exists()
+    squat = tmp_path / "a file"
+    squat.write_text("not a dir")
+    with stage_stdout(str(squat), "x.log", quiet=True):
+        print("[fake]")                                  # unmakeable dir -> silent in-memory sink
+    assert (tmp_path / "x.log").is_file() and squat.read_text() == "not a dir"
+
+
+# ---------------------------------------------------------------------------
+# issue #424: one stdlib leaf; the two call sites that joined it last
+# ---------------------------------------------------------------------------
+
+def test_the_front_door_name_is_the_stdlib_leaf():
+    """ONE implementation, and importing it runs nothing under rvt.frontdoor
+    (``tools/rvt_job.py`` pays no package import for its --json log)."""
+    from rvt import _logsink
+    assert stage_stdout is _logsink.stage_stdout
+    r = subprocess.run([sys.executable, "-I", "-S", "-c",
+                        f"import sys; sys.path.insert(0, {SRC!r}); import rvt._logsink; "
+                        "print(sorted(m for m in sys.modules if m == 'rvt' or m.startswith('rvt.')))"],
+                       capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, r.stderr
+    assert ast.literal_eval(r.stdout.strip()) == ["rvt", "rvt._logsink"]
+
+
+def test_a_missing_out_dir_is_made_and_an_unmakeable_one_degrades_like_open(tmp_path, capsys):
+    """The log may open before its job has made a fresh ``--out`` dir
+    (``rvt_job.py --json``): quiet makes the dir; a dir that cannot be made is
+    the same ONE note as an unopenable log (any uid: no chmod); verbose makes
+    nothing."""
+    opened, notes, cb = _sinks()
+    fresh = tmp_path / "fresh" / "dir"
+    with stage_stdout(str(fresh), "x.log", quiet=False, **cb):
+        pass
+    assert not (tmp_path / "fresh").exists()
+    with stage_stdout(str(fresh), "x.log", quiet=True, **cb):
+        print("[fake] first")
+    assert opened == [str(fresh / "x.log")] and notes == [] and (fresh / "x.log").is_file()
+    squat = tmp_path / "a file"
+    squat.write_text("not a dir")
+    ran = []
+    with stage_stdout(str(squat / "sub"), "x.log", quiet=True, **cb):
+        print("[fake] second")
+        ran.append(1)
+    assert ran == [1] and len(opened) == 1 and len(notes) == 1
+    assert notes[0].startswith("x.log not writable (") and notes[0].endswith("; stage output not logged")
+    assert not (squat / "sub").exists() and capsys.readouterr().out == ""
+
+
+def test_router_seed_job_log_streams_through_the_helper(tmp_path, monkeypatch, capsys):
+    """spec+rvt: the seed job's progress streams into ``<out>/job-create.log``
+    (named in ``files['job_log']``); a squatted log costs the log -- ONE
+    caveat, no error, the job still runs and delivers -- never the step."""
+    from rvt.frontdoor import edit as E
+    from rvt.frontdoor import router as R
+
+    class FakeJob:                                       # stands in for tools/rvt_job.py
+        @staticmethod
+        def main(argv):
+            out = argv[argv.index("-o") + 1]
+            print(f"[fake_job] create -> {out}")
+            with open(out, "wb") as fh:
+                fh.write(b"not really a project")
+            return 0
+
+    monkeypatch.setattr(E, "load_job_module", lambda: FakeJob)
+    spec, seed = tmp_path / "tiny.json", tmp_path / "seed.rvt"
+    spec.write_text("{}")
+    seed.write_bytes(b"")
+
+    out = tmp_path / "logged"
+    res = R.route({"spec": str(spec), "rvt": str(seed)}, "rvt", out=str(out), quiet=True)
+    log_p = str(out / "job-create.log")
+    assert res.ok, (res.status, res.errors)
+    assert res.files.get("job_log") == log_p and res.files.get("rvt") == str(out / "tiny.rvt")
+    with open(log_p, encoding="utf-8") as fh:
+        assert "[fake_job] create -> " in fh.read()
+    assert not [cv for cv in res.caveats if "not writable" in cv]
+
+    squatted = tmp_path / "squatted"
+    (squatted / "job-create.log").mkdir(parents=True)
+    res = R.route({"spec": str(spec), "rvt": str(seed)}, "rvt", out=str(squatted), quiet=True)
+    assert res.ok and res.files.get("rvt") == str(squatted / "tiny.rvt"), (res.status, res.errors)
+    assert "job_log" not in res.files
+    notes = [cv for cv in res.caveats if "not writable" in cv]
+    assert len(notes) == 1 and notes[0].startswith("job-create.log not writable (IsADirectoryError")
+    assert not [e for e in res.errors if "job-create" in e or "route crashed" in e], res.errors
+    assert "[fake_job]" not in capsys.readouterr().out
+
+
+@pytest.mark.skipif(not os.path.isfile(BASE_2025), reason="bundled 2025 genesis base missing")
+def test_rvt_job_json_with_a_squatted_log_still_delivers_one_json(tmp_path):
+    """``rvt_job.py edit … --json`` whose ``<out>.log`` cannot open: the edit is
+    delivered, stdout is still exactly ONE JSON (+ ONE ``degradations`` note,
+    no ``output.log`` named), stderr stays empty -- no traceback (#424; the
+    logged happy path is tests/test_go_edit.py's ops-door case)."""
+    ops = tmp_path / "ops.json"
+    ops.write_text(json.dumps([{"op": "set-level", "id": LEVEL_ID, "elevation_ft": 5}]))
+    out = tmp_path / "ops door" / "edited.rvt"
+    (tmp_path / "ops door" / "edited.rvt.log").mkdir(parents=True)
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "rvt_job.py"), "edit", BASE_2025,
+                        "--ops", str(ops), "-o", str(out), "--json"],
+                       capture_output=True, text=True, timeout=600, cwd=str(tmp_path),
+                       env={k: v for k, v in os.environ.items() if not k.startswith("RVT_")})
+    assert r.returncode == 0, r.stderr[-2000:]
+    assert r.stderr == ""
+    doc = json.loads(r.stdout)                           # exactly one document
+    assert doc["exit_code"] == 0 and doc["hard_gates_passed"] is True
+    assert doc["output"]["path"] == str(out) and os.path.isfile(out) and doc["output"]["bytes"] > 0
+    assert "log" not in doc["output"]
+    assert len(doc["degradations"]) == 1
+    assert doc["degradations"][0].startswith("edited.rvt.log not writable (IsADirectoryError")
+    with open(str(out) + ".manifest.json") as fh:      # the printed object IS the manifest (+ the two run keys)
+        assert {k: v for k, v in doc.items() if k not in ("exit_code", "degradations")} == json.load(fh)

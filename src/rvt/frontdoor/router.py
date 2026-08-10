@@ -30,9 +30,7 @@ CLI: ``tools/route.py``.  Territory: perm-matrix stream (new module).
 """
 from __future__ import annotations
 
-import contextlib
 import importlib.util
-import io
 import json
 import os
 import re
@@ -1445,14 +1443,12 @@ def _r_spec_on_rvt_seed(res, inputs, out_dir, opts):
         argv.append("--no-validate")
 
     def run() -> int:
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            rc = int(J.main(argv))
-        log_p = os.path.join(out_dir, "job-create.log")
-        with open(log_p, "w") as fh:
-            fh.write(buf.getvalue())
-        res.files["job_log"] = log_p
-        return rc
+        # seed job progress -> job-create.log (whatever the route's own verbosity);
+        # an unopenable log = ONE caveat, never the job (#424)
+        with stage_stdout(out_dir, "job-create.log", quiet=True,
+                          on_open=lambda p: res.files.__setitem__("job_log", p),
+                          on_degrade=res.caveats.append):
+            return int(J.main(argv))
 
     rc = steps.run("spec->rvt-legacy", "tools/rvt_job.py:main create", run)
     if os.path.isfile(out_rvt):
