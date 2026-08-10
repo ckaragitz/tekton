@@ -1455,7 +1455,8 @@ def apply_edits_to_segment(seg: bytes, seq: int, removals: set,
 
 
 def _primary_partition(doc, entries_by_path) -> str:
-    """The partition stream holding the host document (unit 0 == ElemTable)."""
+    """The partition stream holding the host document (unit 0 == ElemTable).
+    ``doc``: an open ``RvtDocument`` or a ``rvt.validate.WalkedFile``."""
     parts = doc.partition_streams()
     if len(parts) == 1:
         return parts[0]
@@ -1596,15 +1597,16 @@ def commit_session(doc, out_path: str, **kw) -> ManipCommitReport:
 # ===========================================================================
 def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                        edited_ids: Sequence[int] = (),
-                       expect_elemtable_count: Optional[int] = None) -> dict:
+                       expect_elemtable_count: Optional[int] = None,
+                       walked=None) -> dict:
     """Prove a manipulated file is structurally healthy and the edits landed.
 
-    Checks: gzip CRC of every member of every stream; per-page ECC trailers
-    of the two re-emitted streams; framing walker errors; the block ISIZE
-    identity on every block; partition header count == ElemTable count;
-    per-seq sentinels last; adler32 stamps of every unit-0 seq-102/103
-    record; deleted ids absent from unit 0 (all seqs) and from the
-    ElemTable; edited ids present, decoding cleanly, in all their seqs.
+    Checks: gzip CRC of every member of every framed stream; per-page ECC
+    trailers of the two re-emitted streams; framing walker errors; the block
+    ISIZE identity on every block; partition header count == ElemTable
+    count; per-seq sentinels last; adler32 stamps of every unit-0
+    seq-102/103 record; deleted ids absent from unit 0 (all seqs) and from
+    the ElemTable; edited ids present, decoding cleanly, in all their seqs.
 
     The file is judged under its OWN release framing and OWN schema
     (:func:`rvt.validate.enter_own_release` -- nest-safe, restored on exit;
@@ -1612,11 +1614,17 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
     context.  ``rep["fallbacks"]`` is empty when both came from the file;
     otherwise it names each rung used instead and why (a label, never a
     raise).
+
+    ``walked`` (optional, :func:`rvt.validate.walk_file`) is the file already
+    read by a caller that also runs the validator on it: the byte facts come
+    from that one read/inflate walk instead of a second one (#266).  The
+    verdict is the same with or without it -- the self-check always judges
+    OUR bytes as stored, never the validator's CRCIO-auto-repaired view.
     """
     from contextlib import ExitStack
 
     from .objects import ObjectDecoder
-    from .validate import enter_own_release
+    from .validate import enter_own_release, walk_file
     from .versions import schema_of
     rep: Dict[str, Any] = {"crc_failures": 0, "ecc_mismatches": 0,
                            "walker_errors": 0, "isize_identity_mismatches": 0,
@@ -1629,36 +1637,41 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
         framing_fallback = enter_own_release(stack, path)
         if framing_fallback:
             rep["fallbacks"].append(framing_fallback)
-        d = stack.enter_context(open_rvt(path))
+        # the self-check judges OUR bytes exactly as stored (the shared walk
+        # itself unless its ECC pass repaired a payload bit -- never on a file
+        # we just framed); walkers are built here, under the file's release
+        walked = (walked.view(repair=False) if walked is not None
+                  else walk_file(path, repair=False))
         try:
-            dec = ObjectDecoder(schema_of(d))              # the FILE'S schema
+            dec = ObjectDecoder(schema_of(walked))         # the FILE'S schema
         except Exception as e:                             # noqa: BLE001
             dec = ObjectDecoder()
             rep["fallbacks"].append(
                 f"own schema unreadable ({type(e).__name__}: {e}); edited "
                 "records decoded against the built-in latest-release schema")
-        pname = _primary_partition(d, None)
-        rep["crc_failures"] = sum(0 if m.crc_ok else 1
-                                   for s in d.streams() for m in d.members(s.name))
+        pname = _primary_partition(walked, None)
+        w = walked.walker(pname)                           # every block inflated ONCE
+        rep["crc_failures"] = (
+            sum(1 for b in w.blocks if b.crc_ok is False)
+            + sum(1 for n in walked.names if n != pname and n not in walked.unframed
+                  for m in walked.members(n) if not m.crc_ok))
         for name in (pname, "Global/ElemTable"):
-            rep["ecc_mismatches"] += ecc.framing_mismatches(d.raw(name))
-        model = decode_elemtable(d.inflate("Global/ElemTable"))
+            rep["ecc_mismatches"] += ecc.framing_mismatches(walked.raw(name))
+        model = decode_elemtable(walked.inflate("Global/ElemTable"))
         et_ids = [r[4] for r in model["records"]]
         rep["elemtable_count"] = len(et_ids)
         rep["elemtable_ids_sorted"] = et_ids == sorted(et_ids)
         etset = set(et_ids)
         rep["deleted_in_elemtable"] = [i for i in deleted_ids if i in etset]
-        logical = d.logical(pname)
-        rep["header_count"] = struct.unpack_from("<I", logical, PART_HDR_COUNT_OFF)[0]
-        w = StreamWalker(logical, inflate=True, keep_data=True)
+        rep["header_count"] = struct.unpack_from("<I", walked.logical(pname),
+                                                 PART_HDR_COUNT_OFF)[0]
         rep["walker_errors"] = len(w.errors)
         rep["isize_identity_mismatches"] = sum(
             1 for b in w.blocks if b.data is not None and b.intended_len != len(b.data))
+        segments = walked.segments(pname)
         u0_102_ids = None
         for seq in (101, 102, 103):
-            seg = b"".join(b.data for b in sorted(w.blocks, key=lambda x: x.hdr_offset)
-                           if b.unit == 0 and b.seq == seq)
-            recs = list(iter_records(seg, seq))
+            recs = list(iter_records(segments.get((0, seq), b""), seq))
             rep["sentinel_last"][seq] = bool(recs) and recs[-1].elem_id == -1
             ids_here = set()
             for r in recs:
