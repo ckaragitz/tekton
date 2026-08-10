@@ -136,9 +136,10 @@ def test_family_viewer_bound_law(fi):
         assert v.get("m_projMethodType") == 1, eid
         assert v.get("m_viewerFlags") == 0, eid
         assert v.get("m_intentionallyPlaced") is False, eid
-    # project + floor plan + ceiling plan (the 3D view's Viewer3d is a
-    # different class with its own donor shape -- not under this law)
-    assert seen == 3, seen
+    # project + floor plan + ceiling plan + the four elevations (the 3D
+    # view's Viewer3d is a different class with its own donor shape -- not
+    # under this law)
+    assert seen == 7, seen
 
 
 def test_units_table_covers_every_param_spec(fi):
@@ -244,3 +245,37 @@ def test_donorless_host_document_wires_every_registry(tmp_path):
     assert (populated.get("PenWidthTableInfo") or {}).get("m_penWidthTableElemId", -1) > 0
     assert (populated.get("SymbolIdMgr") or {}).get("m_defElementTypeMap")
     assert (populated.get("BrowserOrganizationTracking") or {}).get("m_elemIdSet")
+
+
+def test_family_carries_the_four_elevations(fi):
+    """Owner steer S-2026-08-10-a: a generated family carries a Revit-born
+    family's view set -- Ref. Level plan, ceiling plan, four elevations and
+    the "View 1" 3D view.  Shape measured on the donor's DBViewSection
+    31/35/39/43: one shared "Elevation 1" DBViewType, a section view type of
+    1, cut plane through the family origin, and the family view scale."""
+    recs = fi.unit_records(0).get(102, {})
+    sections = {}
+    for eid, r in sorted(recs.items()):
+        if fi.class_name(r.class_id) == "DBViewSection":
+            sections[fi.value(0, eid, 102)["m_viewName"]] = eid
+    assert sorted(sections) == ["Back", "Front", "Left", "Right"], sorted(sections)
+    types = set()
+    for name, eid in sections.items():
+        v = fi.value(0, eid, 102)
+        assert v["m_sectionViewType"] == 1, name
+        assert v["m_scale"] == 0.041666666666666664, name
+        assert v["m_origin"] == [0.0, 0.0, 0.0], name
+        assert v["m_lightSchemeId"] == -1, name
+        assert v["m_pDetailDrawOrderMgr"]["ptr_class"] == "DrawOrderMgr3dFamily", name
+        assert v["m_pViewDisplayMgr"]["value"]["m_lights"][
+            "m_sunAndShadowSettingsId"] == -1, name
+        # the four view directions are the four faces, and each viewer's
+        # basis is the matching camera frame
+        vw = fi.value(0, v["m_viewerId"], 102)
+        vd = v["m_viewDir"]
+        assert vw["m_boundedSpace"]["m_basis"][2] == [-vd[0], -vd[1], -vd[2]], name
+        types.add(v["m_dbViewTypeId"])
+    assert len(types) == 1, types            # ONE shared elevation view type
+    dirs = {tuple(fi.value(0, e, 102)["m_viewDir"]) for e in sections.values()}
+    assert dirs == {(0.0, 1.0, -0.0), (0.0, -1.0, 0.0),
+                    (-1.0, 0.0, 0.0), (1.0, 0.0, 0.0)}, dirs

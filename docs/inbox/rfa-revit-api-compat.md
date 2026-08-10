@@ -666,3 +666,50 @@ still ships plan + ceiling + "View 1" only. No constructor yet; next.
   PASS (25 assertions)
 * staged, not shipped: desktop verdict on `panel400_v5.rfa` /
   `hanger_v6.rfa` (the owner's two failing cases, rebuilt under the law)
+
+## Iteration 15 — the four elevations (steer S-2026-08-10-a)
+
+The family view set was still missing the elevations the steer requires.
+Added `new_elevation_view` (famgen/skeleton.py): per elevation a
+`DBViewSection` (`m_sectionViewType` 1, cut plane through the family
+origin, `MakeCutterForSectionGStep` flags 7997) + `Viewer` +
+fixed `SketchPlane` + `DBDrawing`/`Viewport` + `ExtentElem`, under ONE
+shared "Elevation 1" `DBViewType` — the donor's own arrangement (type 1139
+for all four). The four camera frames and their cutter x/y vectors are a
+measured table, not a derived rule: Revit's Back/Front frames do not follow
+the same convention as Left/Right, and deriving them is exactly the guess
+that cost four rounds on the view law.
+
+**Evidence:** Back / Left / Right match the donor's `DBViewSection` and
+`Viewer` on *every* non-id field; Front differs only in `m_origin` /
+`m_pCutter` / the viewer's bounded-space origin, all of which carry the
+donor's y = −15 elevation-marker position (where that file's author dragged
+the marker) — ours stays symmetric at the origin. `SketchPlane.m_oTrf`
+columns are (horz, vert, viewDir) [donor 1885-1888]. `ExtentElem` header
+role 26, same as the plans [donor 435-438].
+
+Family element count 74 → 99. Builds green for 2026, 2025 and 2024
+(validator family-mode VALID, 0 errors each).
+
+**Two count assertions were updated, not loosened:** the viewer-bound law
+now sees 7 Viewers (project + 2 plans + 4 elevations, was 3) and the extent
+role split now includes `DBViewSection: {26}` — the donor value.
+
+**Known residue, filed not fixed:** the document still carries 3
+`SunAndShadowSettings` and 1 `LightSchemeElement` where a Revit-born family
+has 1 and 0. The family-view law already unlinks them (every view's
+`m_sunAndShadowSettingsId` is −1), so they are unreferenced; removing them
+is a *reduction* and must go through `reduce_law` (their headers name the
+views as deletion parents), which is a separate change.
+
+### BRANCH STATE (updated)
+* written: `src/rvt/famgen/skeleton.py` (+`new_elevation_view`,
+  `_FAMILY_ELEVATIONS`), `tests/test_required_settings.py`
+  (+`test_family_carries_the_four_elevations`, viewer count 3→7),
+  `tests/test_identity.py` (extent roles + `DBViewSection`)
+* gates: 13 stream-local files 280 passed / 71 skipped;
+  `tests/test_plugin_sync.py test_bootstrap.py test_coldstart.py` 28 passed;
+  `tools/sync_plugin.py --check` clean; `plugin/scripts/validate_plugin.py`
+  PASS
+* staged, not shipped: desktop verdict on `panel400_v6.rfa` /
+  `hanger_v7.rfa`

@@ -2251,10 +2251,19 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     cplan = _gsk.new_plan_view(ids, "Ref. Level", level_id, 0.0, vt_c.elem_id,
                                phase_id=-1, phase_filter_id=-1)
     cplan.view.obj["m_planViewType"] = 2
+    # the four elevations (steer S-2026-08-10-a: a generated family carries a
+    # Revit-born family's view set).  ONE shared "Elevation 1" DBViewType,
+    # exactly as the donor does [type 1139 for all four].
+    vt_e = _gsk.new_view_type(_alloc(ids), "Elevation 1", "elevation")
+    elevs = [new_elevation_view(ids, nm, vt_e.elem_id, vd, hd, vt2, cx, cy)
+             for nm, vd, hd, vt2, cx, cy in _FAMILY_ELEVATIONS]
     vt_3 = _gsk.new_view_type(_alloc(ids), "3D View", "3d")
     v3d = _gsk.new_3d_view(ids, "View 1", vt_3.elem_id, ground_level_id=level_id)
     els = (list(proj.elements()) + [vt] + list(plan.elements())
-           + [vt_c] + list(cplan.elements()) + [vt_3] + list(v3d.elements()))
+           + [vt_c] + list(cplan.elements()) + [vt_e])
+    for ev in elevs:
+        els += list(ev.elements())
+    els += [vt_3] + list(v3d.elements())
     _apply_family_viewer_law(els, proj.view.elem_id)
     for e in els:
         # family-document elements: object design-option sentinel + famId
@@ -2270,8 +2279,102 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     doc.view_ids["view_type_plan"] = vt.elem_id
     doc.view_ids["plan"] = plan.view.elem_id
     doc.view_ids["ceiling"] = cplan.view.elem_id
+    doc.view_ids["view_type_elevation"] = vt_e.elem_id
+    for nm, ev in zip((r[0] for r in _FAMILY_ELEVATIONS), elevs):
+        doc.view_ids[f"elev_{nm.lower()}"] = ev.view.elem_id
     doc.view_ids["view3d"] = v3d.view.elem_id
     return plan.view.elem_id
+
+
+#: THE FOUR FAMILY ELEVATIONS [measured on the donor's DBViewSection
+#: 31/35/39/43 + viewers 30/34/38/42 + sketch planes 1885-1888].  Each row
+#: is (name, viewDir, horzDir, vertDir, cutter xVec, cutter yVec).  The
+#: cutter frames are stored per elevation rather than derived: Revit's own
+#: Back/Front frames do not follow the same rule as Left/Right, and a
+#: derived guess is exactly the kind of thing that cost four rounds on the
+#: view law above.
+_FAMILY_ELEVATIONS = (
+    ("Back",  (0.0, 1.0, -0.0), (-1.0, 0.0, 0.0), (0.0, 0.0, 1.0),
+     (-0.0, -0.0, -1.0), (1.0, -0.0, 0.0)),
+    ("Front", (0.0, -1.0, 0.0), (1.0, 0.0, -0.0), (0.0, 0.0, 1.0),
+     (0.0, 0.0, 1.0), (1.0, 0.0, -0.0)),
+    ("Left",  (-1.0, 0.0, 0.0), (0.0, -1.0, 0.0), (0.0, 0.0, 1.0),
+     (0.0, 1.0, 0.0), (0.0, -0.0, 1.0)),
+    ("Right", (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0),
+     (-0.0, -1.0, -0.0), (0.0, 0.0, 1.0)),
+)
+
+
+def new_elevation_view(ids: IdSource, name: str, view_type_id: int,
+                       view_dir: Sequence[float], horz_dir: Sequence[float],
+                       vert_dir: Sequence[float],
+                       cut_xvec: Sequence[float], cut_yvec: Sequence[float]):
+    """One of a family document's four elevations: ``DBViewSection`` +
+    ``Viewer`` + fixed ``SketchPlane`` + ``DBDrawing``/``Viewport`` +
+    ``ExtentElem`` [membership measured on donor 31/30/1885/32/33/435].
+
+    A family elevation is a section view (``m_sectionViewType`` 1) whose
+    cut plane passes through the family origin, with no sun settings, no
+    light scheme and no crop -- the family-view law's shape, authored here
+    rather than stamped on afterwards.
+    """
+    view_id = _alloc(ids)
+    viewer_id = _alloc(ids)
+    sketch_id = _alloc(ids)
+    viewport_id = _alloc(ids)
+    drawing_id = _alloc(ids)
+    extent_id = _alloc(ids)
+    obj = _gsk.dbview_base(
+        view_id, name, viewer_id=viewer_id, drawing_id=drawing_id,
+        sun_settings_id=-1, view_type_id=view_type_id,
+        extent_elem_id=extent_id, fixed_sketch_plane_id=sketch_id,
+        origin=(0.0, 0.0, 0.0), view_dir=view_dir, horz_dir=horz_dir,
+        vert_dir=vert_dir, scale=FAMILY_VIEW_SCALE, back_clipping=-1,
+        excluded_categories=(), cell_list=False)
+    obj["m_geomSteps"] = _ptr("GeomStepList", {
+        "m_nonBRepGList": [_ptr("MakeCutterForSectionGStep", {
+            "m_faceHistTable": [], "m_curveHistTableSet": [],
+            "m_edgeHistTable": [], "m_edgeHistTableReverse": [],
+            "m_id": 1, "m_version": 0, "m_flags": 7997,
+            "m_pElem": _weak(2), "m_oExtraDatas": None})],
+        "m_bRepFormGList": [], "m_bRepAdjustGList": [],
+        "m_bRepCutOutGList": [], "m_bRepPostCutOutGList": [],
+        "m_bRepTweakGList": [],
+        "m_bRepFormSnapshot": None, "m_bRepAdjustSnapshot": None,
+        "m_bRepCutOutSnapshot": None, "m_bRepPostCutOutSnapshot": None,
+        "m_pElem": _weak(2),
+        "m_latestGStepTypeInPrevRegenCycle": [1, 1, 1, 1, 1],
+        "m_idCounter": 2, "m_flags": 9})
+    obj["m_pCutter"] = _ptr("GenericPlaneCutter", {
+        "m_pPlane": plane((0.0, 0.0, 0.0), cut_xvec, cut_yvec,
+                          EMPTY_ENVELOPE, pid=3),
+        "m_bAssignCutFaceTag": True, "m_bBackPlaneCut": False})
+    obj["m_sectionViewType"] = 1
+    dele = [view_id, viewer_id, sketch_id, drawing_id, extent_id] + (
+        [view_type_id] if view_type_id >= 0 else [])
+    hdr = element_header("DBViewSection", category=OST_VIEWS, deletion=dele,
+                         appearance=[view_type_id] if view_type_id >= 0 else [],
+                         flags=10, visible_view_flags=-32608)
+    view = SkelElement(view_id, "DBViewSection", hdr, obj, None, kind="view")
+    viewer = _gsk.new_viewer(
+        viewer_id, view_id, orig=(0.0, 0.0, 0.0), with_gstep=True,
+        appearance=[view_type_id] if view_type_id >= 0 else [],
+        regen_only=[view_type_id] if view_type_id >= 0 else [], flags=10)
+    vb = viewer.obj.get("m_boundedSpace")
+    if isinstance(vb, dict):
+        vb["m_basis"] = [list(horz_dir), list(vert_dir),
+                         [-view_dir[0], -view_dir[1], -view_dir[2]]]
+    sketch = _gsk.new_sketch_plane(sketch_id, view_id, datum_id=view_id,
+                                   elevation_ft=0.0)
+    trf = sketch.obj.get("m_oTrf")
+    if isinstance(trf, dict) and isinstance(trf.get("value"), dict):
+        # columns = (horz, vert, viewDir) [donor 1885-1888]
+        trf["value"]["m_3x3"] = [[horz_dir[i], vert_dir[i], view_dir[i]]
+                                 for i in range(3)]
+    viewport = _gsk.new_viewport(viewport_id, view_id, drawing_id, flags=10)
+    drawing = _gsk.new_dbdrawing(drawing_id, [viewport_id], view_id, flags=8202)
+    extent = _gsk.new_extent_elem(extent_id, view_id, (0.0, 0.0, 0.0))
+    return _gsk.ViewSpec(view, [viewer, sketch, viewport, drawing, extent])
 
 
 _FAMILY_VIEW_EXCL_ASSET = os.path.join(os.path.dirname(os.path.abspath(__file__)),

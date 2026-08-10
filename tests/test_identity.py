@@ -308,11 +308,13 @@ class TestV4LaneOnRealProducts:
                 view_cls = cls_of[e.obj["m_dbViewId"]]
                 roles.setdefault(view_cls, set()).add(
                     e.header["m_abFlags4Bytes"])
-        # the family view set: Ref. Level plan + ceiling plan (DBViewPlan)
-        # and "View 1" (DBView3d) -- satellites 26 / 26 / 10
-        assert roles == {"DBViewPlan": {26}, "DBView3d": {10}}, roles
+        # the family view set: Ref. Level plan + ceiling plan (DBViewPlan),
+        # the four elevations (DBViewSection) and "View 1" (DBView3d) --
+        # satellite roles 26 / 26 / 10 [donor extents 435-438 are 26]
+        assert roles == {"DBViewPlan": {26}, "DBViewSection": {26},
+                         "DBView3d": {10}}, roles
         assert entry["report"]["identity"]["extent_roles"] == \
-            {"plan_section": 2, "view3d": 1}
+            {"plan_section": 6, "view3d": 1}
         # every other covered class carries the table value uniformly
         for e in els:
             want = BR.BORN_HEADER_FLAGS.get(e.class_name)
