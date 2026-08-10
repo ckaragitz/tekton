@@ -1,5 +1,6 @@
 """pytest bootstrap: make ``src/`` importable, register markers, and expose
-the ONE schema-availability gate (``HAVE_SCHEMA`` / ``needs_schema``)."""
+the ONE schema-availability gate (``HAVE_SCHEMA`` / ``needs_schema``) and the
+ONE real-ifcopenshell gate (``HAVE_IFC_AUTHORING`` / ``needs_ifc_authoring``)."""
 import os
 import sys
 
@@ -10,6 +11,7 @@ SRC = os.path.join(ROOT, "src")
 if SRC not in sys.path:
     sys.path.insert(0, SRC)
 
+from rvt.ifc._fallback import ifc_authoring_available            # noqa: E402
 from rvt.schema import schema_available                       # noqa: E402
 
 #: The ONE schema gate (``from conftest import HAVE_SCHEMA, needs_schema``):
@@ -19,6 +21,18 @@ HAVE_SCHEMA = schema_available()
 needs_schema = pytest.mark.skipif(
     not HAVE_SCHEMA,
     reason="no class schema (extracted corpus and bundled genesis base both absent)")
+
+#: The ONE real-ifcopenshell gate (``from conftest import HAVE_IFC_AUTHORING,
+#: needs_ifc_authoring``): the engine-owned query (#367), True only for a REAL
+#: wheel with ``ifcopenshell.api`` -- the bundled steplite shim, which is on
+#: ``sys.path`` in every process that imported ``rvt.ifc``, never counts, so
+#: "does ``import ifcopenshell`` succeed" is NOT this question.  Gate only what
+#: AUTHORS IFC through the wheel or compares against the real library; IFC
+#: *reading* is served by the shim by design and must stay ungated.
+HAVE_IFC_AUTHORING = ifc_authoring_available()
+needs_ifc_authoring = pytest.mark.skipif(
+    not HAVE_IFC_AUTHORING,
+    reason="real ifcopenshell wheel absent (optional `ifc` extra; the bundled steplite shim only reads)")
 
 #: the git-ignored research dirs: a FileNotFoundError under one of these
 #: means "fresh clone without the research corpus / built ladders", never

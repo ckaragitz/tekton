@@ -36,6 +36,8 @@ import sys
 
 import pytest
 
+from conftest import needs_ifc_authoring   # spec->ifc AUTHORS through ifcopenshell.api, #367
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
@@ -83,17 +85,6 @@ PINNED_BASE = _pinned_base()
 needs_pin = pytest.mark.skipif(PINNED_BASE is None, reason="pinned genesis base absent")
 
 
-def _has_ifcopenshell() -> bool:
-    """A REAL wheel: spec->ifc AUTHORS through ``ifcopenshell.api``; the bundled
-    steplite shim (on ``sys.path`` as soon as ``rvt.ifc`` is imported -- the
-    router above already did) only reads, so importability alone proves nothing."""
-    try:
-        import ifcopenshell
-        return not getattr(ifcopenshell, "IS_STEPLITE", False)
-    except Exception:
-        return False
-
-
 def _catalog_ok() -> bool:
     try:
         from rvt.famgen import factory as F
@@ -105,8 +96,6 @@ def _catalog_ok() -> bool:
         return False
 
 
-needs_ifc = pytest.mark.skipif(not _has_ifcopenshell(),
-                               reason="ifcopenshell wheel absent (steplite shim only reads)")
 needs_catalog = pytest.mark.skipif(not _catalog_ok(), reason="famgen catalog absent")
 
 
@@ -619,7 +608,7 @@ def test_e2e_prompt_to_ifc_round_trips(tmp_path):
     assert model.room and len(model.room.walls) == 4
 
 
-@needs_ifc
+@needs_ifc_authoring
 @pytest.mark.skipif(not os.path.exists(TINY_SPEC), reason="spec example absent")
 def test_e2e_spec_to_ifc(tmp_path):
     res = R.route({"spec": TINY_SPEC}, "ifc", out=str(tmp_path / "o"))
@@ -637,7 +626,7 @@ def test_e2e_ifc_normalize(tmp_path):
     assert os.path.isfile(res.files["ifc"]) and os.path.isfile(res.files["intent"])
 
 
-@needs_ifc
+@needs_ifc_authoring
 @needs_catalog
 @pytest.mark.skipif(not os.path.exists(ROOM_SPEC), reason="room spec absent")
 @skip_large
@@ -943,7 +932,7 @@ def test_e2e_edit_shaped_prompt_still_edits(built_room, tmp_path):
 # 4. the route manifest contract
 # ===========================================================================
 
-@needs_ifc
+@needs_ifc_authoring
 @pytest.mark.skipif(not os.path.exists(TINY_SPEC), reason="spec example absent")
 def test_route_manifest_shape(tmp_path):
     res = R.route({"spec": TINY_SPEC}, "ifc", out=str(tmp_path / "o"))

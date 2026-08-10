@@ -33,12 +33,14 @@ Sub-modules (added by separate workstreams; each names its own territory):
   that fallback: real ifcopenshell when installed, else steplite.
 """
 
-__all__ = ["product_facts", "famfrom_ifc", "intent", "steplite", "ensure_ifc_reader"]
+__all__ = ["product_facts", "famfrom_ifc", "intent", "steplite", "ensure_ifc_reader",
+           "ifc_authoring_available"]
 
 # Kept free of HEAVY imports on purpose (ifcopenshell / numpy are needed only
 # by the modules that read IFC geometry; the family composer runs from a JSON
 # facts record without them).  The one eager step is backend SELECTION
-# (stdlib, ~0.1 ms): see rvt.ifc._fallback for the law (#130).
-from ._fallback import ensure_ifc_reader
+# (stdlib, ~0.1 ms): see rvt.ifc._fallback for the law (#130) and for the one
+# "is a REAL wheel importable" query (#367).
+from ._fallback import ensure_ifc_reader, ifc_authoring_available
 
 ensure_ifc_reader()

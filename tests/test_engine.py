@@ -26,6 +26,15 @@ import sys
 
 import pytest
 
+# bridge_lib / harden_ifc / generate_ifc import ifcopenshell.api/.validate/.geom at
+# module top -- the real wheel, which the reader-only shim does not serve (#367)
+from conftest import HAVE_IFC_AUTHORING
+
+if not HAVE_IFC_AUTHORING:
+    pytest.skip("real ifcopenshell wheel absent (optional `ifc` extra): the tekton-ifc "
+                "scripts under test import ifcopenshell.api/.validate/.geom",
+                allow_module_level=True)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS = os.path.join(ROOT, "skills", "tekton-ifc", "scripts")
 SAMPLE = os.path.join(ROOT, "samples", "design-ifc", "bs-area-e-electrical-room.ifc")
@@ -164,7 +173,6 @@ def test_harden_real_sample_recovers_geometry(tmp_path):
 @needs_sample
 def test_harden_geometry_is_unchanged(tmp_path):
     """World-space bounding boxes of every element are identical after hardening."""
-    ifcopenshell = pytest.importorskip("ifcopenshell")
     import ifcopenshell.geom
     import numpy as np
     out = tmp_path / "sample_hardened.ifc"

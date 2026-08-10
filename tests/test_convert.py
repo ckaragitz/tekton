@@ -42,18 +42,8 @@ needs_rme = pytest.mark.skipif(not os.path.isfile(RME),
                                reason="rme research sample absent")
 skip_large = pytest.mark.skipif(os.environ.get("RVT_SKIP_LARGE") == "1",
                                 reason="RVT_SKIP_LARGE=1")
-
-
-def _have_ifcopenshell() -> bool:
-    try:
-        import ifcopenshell  # noqa: F401
-        return True
-    except Exception:
-        return False
-
-
-needs_ifcos = pytest.mark.skipif(not _have_ifcopenshell(),
-                                 reason="ifcopenshell unavailable")
+# (no ifcopenshell gate: rvt->ifc is our own writer and its round trip READS via
+# the bundled steplite shim when no wheel is installed -- #130 / #367)
 
 
 # ===========================================================================
@@ -61,7 +51,6 @@ needs_ifcos = pytest.mark.skipif(not _have_ifcopenshell(),
 # ===========================================================================
 
 @needs_accept
-@needs_ifcos
 def test_rvt_to_ifc_roundtrip_survives_on_own_output(tmp_path):
     """The acceptance-test .rvt is a SHARED, REGENERABLE artifact -- sibling
     streams rebuild it with prompt variants (7-board room, 4-board room with
@@ -129,7 +118,6 @@ def test_rvt_to_ifc_extraction_reads_contract_values():
 
 @needs_rme
 @skip_large
-@needs_ifcos
 def test_rvt_to_ifc_foreign_is_stamped_and_honest(tmp_path):
     from rvt.convert.rvt_to_ifc import convert_rvt_to_ifc
     out = str(tmp_path / "rme.ifc")

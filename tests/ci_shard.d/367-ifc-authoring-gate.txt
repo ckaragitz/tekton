@@ -1,0 +1,2 @@
+# the ONE real-ifcopenshell gate (#367): fresh-clone safe, wheel presence simulated in-process
+tests/test_ifc_authoring_gate.py
