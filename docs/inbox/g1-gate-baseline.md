@@ -1057,7 +1057,7 @@ tech-lead exception to the #498 fence on `build.py`, announced on #498** (no imp
 that function); `src/rvt/famload_fix.py` (the alias scan `_ifc_intent_modules()` deleted, its one caller reads
 `sys.modules.get("ifc_intent")`, docstring); their two regenerated mirrors under `plugin/lib/`; NEW
 `tests/test_one_ifc_module.py` + `tests/ci_shard.d/507-one-ifc-module.txt`; this section. `tools/ifc_intent.py`
-untouched (no by-path self-import turned up; its `_jdump`/gate sites are #495/#509's). Based on `main@fdcbf12`.
+untouched (no by-path self-import turned up; its `_jdump`/gate sites are #495/#509's). Based on `main@fdcbf12`, rebased onto `main@f44de2e` (#538; no shared files) before push — sync `--check`, `validate_plugin`, portable paths and the two one-module test files + `test_selfcheck_release` re-ran green (16 passed).
 
 Decision that differs from eng #477's on purpose: #477 could refuse to adopt a pre-existing `sys.modules["rvt_job"]`
 because it removed the last by-name importer; here **some 20 files under `tools/` + `tests/` keep `import ifc_intent` by
@@ -1163,7 +1163,7 @@ PY
 
 ### BRANCH STATE (eng #507)
 
-* Branch `cam/507-one-ifc-module` from `main@fdcbf12`; PR closes #507.
+* Branch `cam/507-one-ifc-module` from `main@fdcbf12`, rebased onto `main@f44de2e`; PR closes #507.
 * Files: `src/rvt/frontdoor/build.py` (`load_ifc_room_module` body only — tech-lead exception to the #498 fence,
   announced on #498), `src/rvt/famload_fix.py`, mirrors `plugin/lib/src/rvt/frontdoor/build.py` +
   `plugin/lib/src/rvt/famload_fix.py` (written by `tools/sync_plugin.py`, byte-identical to source), NEW
