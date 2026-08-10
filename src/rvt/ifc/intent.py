@@ -2222,7 +2222,10 @@ class FamilyPlan:
     kind: str
     constructor: str                        # dotted path of the constructor
     kwargs: Dict[str, Any]
-    status: str = "planned"                 # 'resolved' | 'refused' | 'house' | 'unmapped'
+    # 'resolved' | 'house'  -> built;  'refused' (a fact/policy refusal: the
+    # catalog has no member) | 'unmapped' (no constructor for the kind) |
+    # 'faulted' (planning RAISED: a resolver bug, #462) -> recorded, not built
+    status: str = "planned"
     catalog: Optional[str] = None
     variant: Optional[str] = None
     facts_summary: Dict[str, Any] = dc_field(default_factory=dict)
@@ -2534,16 +2537,17 @@ def _resolve_device_facts(fp: FamilyPlan) -> None:
 
 def plan_families(equipment: List[Equipment]) -> List[FamilyPlan]:
     """The mapping table: one :class:`FamilyPlan` per equipment item.  Total:
-    an item whose planning raises anyway is 'refused' with the exception as
-    its recorded reason (the build lists it under its degradations); every
-    other item still plans and the file is still delivered (rule 1, #442)."""
+    an item whose planning raises anyway is 'faulted' -- a resolver bug, kept
+    distinct from an honest fact refusal (#462) -- with the exception as its
+    recorded reason (the build lists it under its degradations); every other
+    item still plans and the file is still delivered (rule 1, #442)."""
     plans: List[FamilyPlan] = []
     for e in equipment:
         try:
             plans.append(plan_family_for(e))
         except Exception as exc:                        # noqa: BLE001 - the per-item backstop
             plans.append(FamilyPlan(
-                tag=e.tag, kind=e.kind, constructor="", kwargs={}, status="refused",
+                tag=e.tag, kind=e.kind, constructor="", kwargs={}, status="faulted",
                 refusal=f"{type(exc).__name__}: {exc}",
                 notes=["planning this item raised (a resolver fault, not a fact refusal) -> "
                        "it is NOT built; every other item still is and the file is delivered"]))

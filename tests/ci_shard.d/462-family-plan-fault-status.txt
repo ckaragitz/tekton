@@ -1,0 +1,2 @@
+# issue #462: fault vs refusal status; sample-free (catalog, bundled example IFCs, steplite, pinned base)
+tests/test_intent_faulted.py

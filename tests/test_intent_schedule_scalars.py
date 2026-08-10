@@ -301,9 +301,11 @@ def test_board_branches_plan_from_hand_typed_cells_with_one_note_per_cell():
 
 @needs_catalog
 def test_plan_families_refuses_the_item_whose_planning_raises_and_plans_the_rest(monkeypatch):
-    """The per-item backstop: an unexpected exception out of ONE branch is a
-    recorded refusal for THAT item (listed under the build's degradations,
-    nothing buildable) -- never propagated; its neighbours still plan."""
+    """The per-item backstop: an unexpected exception out of ONE branch is
+    recorded for THAT item -- status 'faulted', a resolver bug kept apart
+    from an honest fact refusal (#462) -- listed under the build's
+    degradations, nothing buildable, never propagated; its neighbours still
+    plan."""
     def boom(fp):
         raise RuntimeError("resolver bug (unit test)")
     monkeypatch.setattr(I, "_resolve_xfmr_facts", boom)
@@ -314,7 +316,7 @@ def test_plan_families_refuses_the_item_whose_planning_raises_and_plans_the_rest
     with pytest.raises(RuntimeError):
         I.plan_family_for(items[1])                                  # the branch itself does raise ...
     plans = I.plan_families(items)                                   # ... the table never does
-    assert [(p.tag, p.status) for p in plans] == [("DP-1", "resolved"), ("T1", "refused"), ("R-1", "resolved")]
+    assert [(p.tag, p.status) for p in plans] == [("DP-1", "resolved"), ("T1", "faulted"), ("R-1", "resolved")]
     t1 = plans[1]
     assert t1.refusal == "RuntimeError: resolver bug (unit test)"
     assert (t1.kind, t1.constructor, t1.kwargs) == ("transformer", "", {})
@@ -324,7 +326,7 @@ def test_plan_families_refuses_the_item_whose_planning_raises_and_plans_the_rest
                           levels=[], equipment=items, other_products=[], room=None, clearances=[],
                           feeders=[], conduit_runs=[], family_plans=plans, audit={})
     assert [p.tag for p in FI.buildable_family_plans(model)] == ["DP-1", "R-1"]
-    assert FI.summarize(model)["family_plans_by_status"] == {"resolved": 2, "refused": 1}
+    assert FI.summarize(model)["family_plans_by_status"] == {"resolved": 2, "faulted": 1}
 
 
 # ---------------------------------------------------------------------------
