@@ -37,6 +37,7 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Optional, Tuple
 
 from .base import repo_root
+from .. import _jsonsafe
 from .._logsink import stage_stdout
 
 __all__ = ["EditParseError", "EditSpec", "parse_edit_spec", "editables",
@@ -381,10 +382,9 @@ def run_edit(rvt_path: str, spec: EditSpec, out_dir: str, *,
     os.makedirs(out_dir, exist_ok=True)
     stem = out_name or (os.path.splitext(os.path.basename(rvt_path))[0] + ".edited")
     out_rvt = os.path.join(out_dir, stem + ".rvt")
-    ops_path = os.path.join(out_dir, "ops.json")
-    with open(ops_path, "w") as fh:
-        json.dump({"ops": spec.ops, "source": spec.source,
-                   "understood": spec.understood}, fh, indent=1, default=str)
+    ops_path = _jsonsafe.write(os.path.join(out_dir, "ops.json"),
+                               {"ops": spec.ops, "source": spec.source,
+                                "understood": spec.understood}, indent=1)
     argv = ["edit", os.path.abspath(rvt_path), "--ops", ops_path, "-o", out_rvt]
     if not validate:
         argv.append("--no-validate")

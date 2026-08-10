@@ -191,6 +191,14 @@ def _jsonable(o):
     return str(o)
 
 
+def _jsonsafe():
+    """``rvt._jsonsafe`` (a stdlib leaf, imported late like every ``rvt``
+    module here): the strict writer behind every manifest / validation / spec
+    JSON and the ``--json`` stdout document -- no bare Infinity/NaN (#475)."""
+    from rvt import _jsonsafe as JS
+    return JS
+
+
 def _abs(p: Optional[str]) -> Optional[str]:
     return os.path.abspath(p) if p else None
 
@@ -363,9 +371,7 @@ def validation_gate(path: str, out_json: str, *, layers: Optional[List[str]] = N
     rep = validate_file(path, layers=lay, strict=strict, walked=walked)
     payload = rep.to_json()
     try:
-        os.makedirs(os.path.dirname(os.path.abspath(out_json)) or ".", exist_ok=True)
-        with open(out_json, "w") as fh:
-            json.dump(payload, fh, indent=1)
+        _jsonsafe().write(out_json, payload, indent=1)
     except OSError:
         out_json = None
     findings = [f.to_json() for f in rep.findings if f.severity != "info"]
@@ -673,9 +679,7 @@ def write_manifest(out_path: str, manifest: dict) -> str:
                                "bytes": os.path.getsize(out_path) if os.path.exists(out_path) else None,
                                "sha256": sha256_of(out_path)})
     _record_manifest(manifest)
-    with open(mp, "w") as fh:
-        json.dump(manifest, fh, indent=1, default=_jsonable)
-    return mp
+    return _jsonsafe().write(mp, manifest, indent=1, default=_jsonable)
 
 
 def _print_summary(manifest: dict) -> None:
@@ -1061,8 +1065,7 @@ def _write_stub_manifest(out_path: str, manifest: dict) -> None:
     manifest.pop("_t0", None)
     _record_manifest(manifest)
     try:
-        with open(mp, "w") as fh:
-            json.dump(manifest, fh, indent=1, default=_jsonable)
+        _jsonsafe().write(mp, manifest, indent=1, default=_jsonable)
         print(f"[rvt_job] manifest: {mp}")
     except OSError:
         pass
@@ -1087,9 +1090,7 @@ def cmd_from_ifc(args) -> int:
     spec = i2s.extract(args.ifc)
     out_path = os.path.abspath(args.out)
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-    spec_out = args.spec_out or (out_path + ".spec.json")
-    with open(spec_out, "w") as fh:
-        json.dump(spec, fh, indent=2)
+    spec_out = _jsonsafe().write(args.spec_out or (out_path + ".spec.json"), spec, indent=2)
     kinds: Dict[str, int] = {}
     for e in spec.get("equipment", []):
         kinds[e.get("kind")] = kinds.get(e.get("kind"), 0) + 1
@@ -1495,7 +1496,7 @@ def main(argv=None) -> int:
                 "status": _RUN["status"] or f"FAILED (exit {rc}) before anything was written; "
                                             "the reason is the one line on stderr"})
     doc = dict(_RUN["manifest"], exit_code=rc)
-    print(json.dumps(doc, indent=1, default=_jsonable))
+    print(_jsonsafe().dumps(doc, indent=1, default=_jsonable))
     return rc
 
 

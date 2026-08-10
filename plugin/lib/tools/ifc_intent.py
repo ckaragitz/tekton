@@ -67,6 +67,7 @@ SRC = os.path.join(ROOT, "src")
 if SRC not in sys.path:
     sys.path.insert(0, SRC)
 
+from rvt import _jsonsafe  # noqa: E402
 from rvt.ifc import intent as I  # noqa: E402
 
 FT_PER_M = 3.280839895013123
@@ -103,9 +104,7 @@ def _log(msg: str) -> None:
 
 
 def _jdump(path: str, obj: Any) -> None:
-    os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
-    with open(path, "w") as fh:
-        json.dump(obj, fh, indent=1, default=str)
+    _jsonsafe.write(path, obj, indent=1)
 
 
 # ===========================================================================

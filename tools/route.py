@@ -36,7 +36,6 @@ line was printed); 1 = unexpected error.
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import sys
 import traceback
@@ -48,6 +47,13 @@ for p in (os.path.join(ROOT, "src"), os.path.join(ROOT, "lib", "src")):
         sys.path.insert(0, p)
 
 EX_OK, EX_ERR, EX_USAGE, EX_INCOMPLETE, EX_UNSUPPORTED = 0, 1, 2, 3, 4
+
+
+def _print_json(obj) -> None:
+    """The ``--json`` stdout document, strictly parseable: no bare
+    Infinity/NaN token (``rvt._jsonsafe``, #475)."""
+    from rvt import _jsonsafe
+    print(_jsonsafe.dumps(obj, indent=1))
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -151,7 +157,7 @@ def cmd_run(a) -> int:
         traceback.print_exc()
         return EX_ERR
     if a.json:
-        print(json.dumps(res.as_json(), indent=1, default=str))
+        _print_json(res.as_json())
     else:
         _print_result(res)
     if res.line and not res.ok and not res.files:
@@ -196,7 +202,7 @@ def cmd_matrix(a) -> int:
     if a.json:
         payload = MX.as_json()
         payload["audit"] = rep = MX.audit()
-        print(json.dumps(payload, indent=1, default=str))
+        _print_json(payload)
         return EX_INCOMPLETE if (rep["ledger_present"] and rep["problems"]) else EX_OK
     text, rep = MX.render_text()
     print(text, end="")
@@ -217,7 +223,7 @@ def cmd_explain(a) -> int:
         print(MX.unsupported_line(kinds, a.output))
         return EX_UNSUPPORTED
     if a.json:
-        print(json.dumps(c.as_json(), indent=1, default=str))
+        _print_json(c.as_json())
         return EX_OK
     print(MX.describe_cell(c))
     for e in c.evidence:

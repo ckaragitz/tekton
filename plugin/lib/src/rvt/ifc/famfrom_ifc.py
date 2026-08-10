@@ -73,6 +73,7 @@ import time
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
+from .. import _jsonsafe
 from ..famgen import factory as F
 from ..famgen import skeleton as SK
 from ..famgen import geometry as G
@@ -348,9 +349,7 @@ class DownlightProduct:
                          and (not validate or (rep.get("validate") or {}).get("ok"))
                          and (not provenance or (rep.get("provenance") or {}).get("ok")))
         rep["seconds"] = round(time.time() - t0, 1)
-        rp = report_path or (os.path.splitext(path)[0] + ".json")
-        with open(rp, "w") as fh:
-            json.dump(rep, fh, indent=1, default=str)
+        rp = _jsonsafe.write(report_path or (os.path.splitext(path)[0] + ".json"), rep, indent=1)
         rep["report_path"] = rp
         return rep
 
@@ -890,10 +889,7 @@ def write_probes_manifest(out_dir: str, *, rfa: Dict[str, Any],
             "parameter value, not a cut form (phase 2)",
         ],
     }
-    path = os.path.join(out_dir, "probes.json")
-    with open(path, "w") as fh:
-        json.dump(manifest, fh, indent=1, default=str)
-    manifest["path"] = path
+    manifest["path"] = _jsonsafe.write(os.path.join(out_dir, "probes.json"), manifest, indent=1)
     return manifest
 
 
@@ -1006,8 +1002,7 @@ def build_deliverables(out_dir: str = OUT_DIR, *, ifc_path: str = PF.DEFAULT_IFC
                                    load_rme=load_rme)
     summary["probes"] = {"path": probes["path"], "ids": [e["id"] for e in probes["probes"]]}
     summary["seconds"] = round(time.time() - t0, 1)
-    with open(os.path.join(out_dir, "ifc_family.json"), "w") as fh:
-        json.dump(summary, fh, indent=1, default=str)
+    _jsonsafe.write(os.path.join(out_dir, "ifc_family.json"), summary, indent=1)
     log(f"== done in {summary['seconds']}s -> {out_dir}")
     return summary
 
