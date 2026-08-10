@@ -604,7 +604,20 @@ def _dim_format_options(unit: str = "autodesk.unit.unit:meters-1.0.0", *,
             "m_bUseGrouping": False, "m_bUsePlusPrefix": False}
 
 
-def new_object_style(ids, self_family_id: int, category_id: int) -> SkelElement:
+#: THE RETOUCH STYLES every Revit-born family view names in its
+#: ``RetouchTable``: the INVISIBLE-LINES style (category -2000064) and the
+#: NOT-SILHOUETTE style (-2000082).  Both are pen 2, colour 8355711, no line
+#: pattern [identical in the owner's donor (146 / 1266) and the Autodesk
+#: library panelboard (17968 / 83898) -- two independently authored files,
+#: same pair, so this is the format's law and not one author's setting].
+#: Ours shipped -1 for both, leaving the linework pass with no style to
+#: resolve.
+RETOUCH_STYLES = ((-2000064, "invisible"), (-2000082, "not_silhouette"))
+
+
+def new_object_style(ids, self_family_id: int, category_id: int, *,
+                     pen: int = 1, color: int = 0,
+                     line_pattern: int = -3000010) -> SkelElement:
     """THE OBJECT STYLE of the family's own category -- the graphics style
     every solid's ``Geometry`` node names, and therefore the LINE STYLE
     Revit draws that solid's edges with.
@@ -625,8 +638,9 @@ def new_object_style(ids, self_family_id: int, category_id: int) -> SkelElement:
     o = element_base(eid, cell_list=True)
     o["m_famId"] = int(self_family_id)
     o["m_pGStyle"] = _ptr("GStyle", {
-        "m_linePatternId": -3000010, "m_materialElemId": -1,
-        "m_penNumber": 1, "m_color": 0, "m_isScreenSized": False})
+        "m_linePatternId": int(line_pattern), "m_materialElemId": -1,
+        "m_penNumber": int(pen), "m_color": int(color),
+        "m_isScreenSized": False})
     o["m_categoryId"] = int(category_id)
     o["m_ownerId"] = -1
     o["m_gstyleType"] = 1
@@ -1663,6 +1677,7 @@ class FamilyDoc:
     plan_view_id: int = -1
     dim_style_id: int = -1
     object_style_id: int = -1
+    retouch_style_ids: Dict[str, int] = dc_field(default_factory=dict)
     part_type: int = 0
     work_plane_based: bool = False
     finalized: bool = False
@@ -2198,6 +2213,13 @@ def new_family_document(category, name: str, *, host: str = "none",
     _obj_style = new_object_style(ids, fam.elem_id, doc.category_id)
     doc.add(_obj_style)
     doc.object_style_id = _obj_style.elem_id
+    # -- the two RETOUCH styles every family view's RetouchTable names ----
+    for _cat, _role in RETOUCH_STYLES:
+        _st = new_object_style(ids, fam.elem_id, _cat, pen=2, color=8355711,
+                               line_pattern=-1)
+        doc.add(_st)
+        doc.retouch_style_ids[_role] = _st.elem_id
+    _bind_retouch_styles(doc)
     # -- the classification-table singletons (issue #333 round 27: the
     # edit path's required-unique-elements check names them) ---------------
     for se in new_classification_tables(ids, fam.elem_id):
@@ -2259,6 +2281,25 @@ def _resolve_category(category) -> int:
     if key not in table:
         raise KeyError(f"unknown family category {category!r}")
     return table[key]
+
+
+def _bind_retouch_styles(doc: "FamilyDoc") -> None:
+    """Point every view's ``RetouchTable`` at the document's retouch styles.
+
+    The views are composed before the styles exist, so this runs after both.
+    A view whose table carries -1/-1 has no style to resolve for the
+    linework pass [owner: geometry visible in Shaded, no outline in any
+    mode, nothing at all in Wireframe]."""
+    inv = int(doc.retouch_style_ids.get("invisible", -1))
+    nsi = int(doc.retouch_style_ids.get("not_silhouette", -1))
+    for e in doc.elements:
+        if e.class_name not in _VIEW_CLASSES:
+            continue
+        rt = e.obj.get("m_pRetouchTable")
+        body = rt.get("value") if isinstance(rt, dict) else None
+        if isinstance(body, dict):
+            _put(body, "m_invisibleGStyleId", inv)
+            _put(body, "m_notSilhouetteGStyleId", nsi)
 
 
 def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:

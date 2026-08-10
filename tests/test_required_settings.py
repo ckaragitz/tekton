@@ -296,9 +296,9 @@ def test_solids_name_the_family_object_style(fi):
             v = fi.value(0, eid, 102)
             if int(v.get("m_categoryId", 0)) < 0:      # a BUILT-IN category
                 styles[eid] = int(v["m_categoryId"])
-    assert len(styles) == 1, styles
-    (style_id, cat), = styles.items()
-    assert cat == -2001040, cat                        # Electrical Equipment
+    # the family's own object style + the two retouch styles every view names
+    assert sorted(styles.values()) == [-2001040, -2000082, -2000064], styles
+    style_id = [e for e, c in styles.items() if c == -2001040][0]
     seen = 0
     for eid, r in recs.items():
         if fi.class_name(r.class_id) != "ExtrusionElem":
@@ -311,3 +311,30 @@ def test_solids_name_the_family_object_style(fi):
         assert gi["m_controlCommand"] == 67108864, eid
         seen += 1
     assert seen >= 1
+
+
+def test_every_view_names_the_retouch_styles(fi):
+    """Every Revit-born family view's ``RetouchTable`` names an
+    INVISIBLE-LINES style (category -2000064) and a NOT-SILHOUETTE style
+    (-2000082) -- identical pair in the owner's donor (146/1266) and in the
+    Autodesk library panelboard (17968/83898), i.e. format law, not one
+    author's setting.  Ours shipped -1/-1, leaving the linework pass with
+    no style to resolve."""
+    recs = fi.unit_records(0).get(102, {})
+    by_cat = {}
+    for eid, r in recs.items():
+        if fi.class_name(r.class_id) == "GStyleElem":
+            v = fi.value(0, eid, 102)
+            by_cat[int(v.get("m_categoryId", 0))] = eid
+    inv, nsi = by_cat.get(-2000064), by_cat.get(-2000082)
+    assert inv and nsi, sorted(by_cat)
+    seen = 0
+    for eid, r in recs.items():
+        cn = fi.class_name(r.class_id)
+        if cn not in ("DBViewProject", "DBViewPlan", "DBView3d", "DBViewSection"):
+            continue
+        rt = fi.value(0, eid, 102)["m_pRetouchTable"]["value"]
+        assert rt["m_invisibleGStyleId"] == inv, (cn, eid)
+        assert rt["m_notSilhouetteGStyleId"] == nsi, (cn, eid)
+        seen += 1
+    assert seen == 8, seen        # project + 2 plans + 4 elevations + View 1

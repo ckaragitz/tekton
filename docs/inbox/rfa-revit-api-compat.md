@@ -819,3 +819,55 @@ Guarded by `test_solids_name_the_family_object_style`. Family element count
 * gates: 13 stream-local files 279 passed / 55 skipped + the new guard;
   `tools/sync_plugin.py --check` clean
 * staged, not shipped: desktop verdict on `panel400_v8.rfa` / `hanger_v9.rfa`
+
+## Iteration 18 — the retouch styles (edges still not drawn)
+
+The object style (iteration 17) was necessary and not sufficient: the owner
+reports the solid is still invisible in Wireframe.
+
+**One hypothesis killed by measuring it.** Our extrusion's `Edge` GInfo
+flags read 557572 against the Autodesk panelboard's first extrusion at
+557060 — a single bit (9) apart, and a tempting answer. Checking ALL THREE
+of that file's extrusions instead of the first killed it: two of the three
+carry **557572, exactly ours**. The 557060 one is the 28-edge shape, so the
+bit tracks topology, not visibility. Edge flags are exonerated; recorded so
+nobody re-suspects them. Our box B-rep is structurally sound as well —
+6 Faces / 6 EdgeLoops / 12 Edges, the correct census for a box.
+
+**What the same comparison did show.** Every family view's `RetouchTable`
+in a Revit-born file names two graphics styles:
+
+| | owner's donor | Autodesk panelboard | ours |
+|---|---|---|---|
+| `m_invisibleGStyleId` | 146 → category −2000064 | 17968 → −2000064 | **−1** |
+| `m_notSilhouetteGStyleId` | 1266 → category −2000082 | 83898 → −2000082 | **−1** |
+
+Both styles: gstyleType 1, ownerId −1, pen 2, colour 8355711, no line
+pattern. Two independently authored files agreeing on the same pair makes
+this format law rather than one author's setting — the test that the earlier
+`m_famElemVisibility` mistake taught us to run.
+
+**Fix:** `new_object_style` generalised (pen / colour / line pattern), the
+two retouch styles built into every famdoc, and `_bind_retouch_styles`
+points every view's table at them (the views are composed before the styles
+exist, so it binds afterwards). Verified: styles 1076 (−2000064) and 1077
+(−2000082), named by all 8 views.
+
+Guarded by `test_every_view_names_the_retouch_styles`. Element count
+100 → 102. Green on 2026, 2025, 2024.
+
+**Honest status:** this is a measured difference against two Revit-born
+files, not a proven cause. If Wireframe is still empty, the remaining
+untested difference in the render path is the `Geometry` node's own
+`m_flags` (573444, identical in both) and the seq-101 header role of the
+extrusion — and at that point the right instrument is a Revit-born file
+containing a form built the way ours is, not another field diff.
+
+### BRANCH STATE (updated)
+* written: `src/rvt/famgen/skeleton.py` (`RETOUCH_STYLES`,
+  `_bind_retouch_styles`, parameterised `new_object_style`,
+  `FamilyDoc.retouch_style_ids`), `tests/test_required_settings.py`
+* gates: 13 stream-local files 249 passed / 83 skipped, plus
+  `test_required_settings.py` + `test_identity.py` 50 passed;
+  `tools/sync_plugin.py --check` clean
+* staged, not shipped: desktop verdict on `panel400_v9.rfa` / `hanger_v10.rfa`
