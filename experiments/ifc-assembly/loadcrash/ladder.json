@@ -1,0 +1,37 @@
+{
+ "stamp": "PROOF-ONLY",
+ "rows": [
+  {
+   "rung": "L0_one_box",
+   "solids": 1,
+   "bytes": 225280,
+   "verdict": "VALID",
+   "errors": 0,
+   "provenance_ok": true
+  },
+  {
+   "rung": "L1_hanger_13_solids",
+   "solids": 13,
+   "bytes": 237568,
+   "verdict": "VALID",
+   "errors": 0,
+   "provenance_ok": true
+  },
+  {
+   "rung": "L2_hanger_103_solids",
+   "solids": 103,
+   "bytes": 417792,
+   "verdict": "VALID",
+   "errors": 0,
+   "provenance_ok": true
+  },
+  {
+   "rung": "L1b_four_solids",
+   "solids": 4,
+   "bytes": 229376,
+   "verdict": "VALID",
+   "errors": 0,
+   "provenance_ok": true
+  }
+ ]
+}
