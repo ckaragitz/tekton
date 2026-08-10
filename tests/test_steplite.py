@@ -22,6 +22,7 @@ plugin sandboxes); the stdlib-only tests always run.
 from __future__ import annotations
 
 import importlib
+import importlib.util
 import json
 import os
 import subprocess
@@ -821,3 +822,103 @@ def test_ifc4x3_fixture_matches_ifcopenshell(ifc4x3_path):
     _assert_element_utils_equivalent(fr, fs, placement=HAVE_NUMPY)
     for er in fr.by_type("IfcObjectDefinition"):
         assert _ue.get_psets(er) == SL.get_psets(fs.by_id(er.id())), er.id()
+
+
+# ===========================================================================
+# 8. large files (#160): the inverse attributes are served from one-pass
+#    per-(rel class, attr) indexes -- same answers as the per-id scan they
+#    replaced, without its O(products x rels) cost
+# ===========================================================================
+
+def test_inverse_attribute_semantics_are_kept_by_the_index(tmp_path):
+    """What IsDefinedBy / IsTypedBy / ContainedInStructure promise, on a file
+    built to hit every corner: rels of the EXACT class in FILE order, each rel
+    once even when it lists the id twice, ``()`` for an id no rel names, and
+    get_psets / get_type layered on top (type psets first, occurrence over)."""
+    f = SL.open(_write_min_step(
+        tmp_path, "IFC4",
+        "#1=IFCWALL('w1',$,'W1',$,$,$,$,'T1',$);\n"
+        "#2=IFCWALL('w2',$,'W2',$,$,$,$,'T2',$);\n"
+        "#3=IFCWALL('w3',$,'W3',$,$,$,$,'T3',$);\n"
+        "#4=IFCPROPERTYSINGLEVALUE('A',$,IFCINTEGER(1),$);\n"
+        "#5=IFCPROPERTYSINGLEVALUE('A',$,IFCINTEGER(2),$);\n"
+        "#6=IFCPROPERTYSET('p6',$,'PS',$,(#4));\n"
+        "#7=IFCPROPERTYSET('p7',$,'PS',$,(#5));\n"
+        "#8=IFCPROPERTYSET('p8',$,'TypePS',$,(#4));\n"
+        "#9=IFCWALLTYPE('t9',$,'WT',$,$,(#8),$,$,$,.NOTDEFINED.);\n"
+        "#12=IFCRELDEFINESBYPROPERTIES('r12',$,$,$,(#2,#1,#1),#7);\n"   # before #11 in the FILE
+        "#11=IFCRELDEFINESBYPROPERTIES('r11',$,$,$,(#1),#6);\n"
+        "#13=IFCRELDEFINESBYTYPE('r13',$,$,$,(#1,#2),#9);\n"
+        "#14=IFCBUILDINGSTOREY('s',$,'L1',$,$,$,$,$,.ELEMENT.,0.);\n"
+        "#15=IFCRELCONTAINEDINSPATIALSTRUCTURE('c',$,$,$,(#2,#1),#14);\n"))
+    w1, w2, w3 = f.by_id(1), f.by_id(2), f.by_id(3)
+    assert [r.id() for r in w1.IsDefinedBy] == [12, 11]          # file order, #12 once
+    assert [r.id() for r in w2.IsDefinedBy] == [12]
+    assert w3.IsDefinedBy == () and w3.IsTypedBy == () and w3.ContainedInStructure == ()
+    assert [r.id() for r in w1.IsTypedBy] == [13] and [r.id() for r in w2.IsTypedBy] == [13]
+    assert [r.id() for r in w2.ContainedInStructure] == [15]
+    assert w1.IsDefinedBy is w1.IsDefinedBy                       # served from the index
+    assert SL.get_type(w1).id() == 9 and SL.get_type(w3) is None
+    # type pset first, then occurrence psets in IsDefinedBy order; a later
+    # same-named pset overrides (#11's PS over #12's PS for w1)
+    assert SL.get_psets(w1) == {"TypePS": {"A": 1, "id": 8}, "PS": {"A": 1, "id": 6}}
+    assert list(SL.get_psets(w1)) == ["TypePS", "PS"]
+    assert SL.get_psets(w2) == {"TypePS": {"A": 1, "id": 8}, "PS": {"A": 2, "id": 7}}
+    assert SL.get_psets(w3) == {}
+    assert [e.id() for e in f.get_inverse(w1)] == [11, 12, 13, 15]  # id-ascending, once each
+
+
+def _load_perf_probe():
+    spec = importlib.util.spec_from_file_location(
+        "ifc_perf_probe", os.path.join(ROOT, "tools", "dev", "ifc_perf_probe.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_read_layer_is_linear_on_a_2000_product_file(tmp_path):
+    """The sharp guard, stdlib-only and in-process: on perf_2000.ifc (2 004
+    products, 3.5 MB, generated here in ~0.2 s) the whole read layer --
+    get_psets + get_type + ContainedInStructure for EVERY product -- is served
+    from exactly three (rel class, attr) indexes (structural: a per-id scan
+    has no such index) and takes 0.05 s; the per-id scan took 9.4 s on the
+    same VM.  The 2 s bound sits 40x above the one and 4x below the other."""
+    import time
+    probe = _load_perf_probe()
+    info = probe.generate(2000, str(tmp_path))
+    f = SL.open(info["path"])
+    products = f.by_type("IfcProduct")
+    assert len(products) == 2004                    # 2000 gear + shell + site/building/storey
+    t0 = time.perf_counter()
+    contained = typed = with_psets = 0
+    for p in products:
+        with_psets += bool(SL.get_psets(p))
+        typed += SL.get_type(p) is not None
+        contained += len(getattr(p, "ContainedInStructure", ()) or ())
+    took = time.perf_counter() - t0
+    assert (contained, typed, with_psets) == (2001, 0, 2001)   # every element under the storey, psets on each
+    assert set(f._inverse_index) == {("IFCRELDEFINESBYPROPERTIES", "RelatedObjects"),
+                                     ("IFCRELDEFINESBYTYPE", "RelatedObjects"),
+                                     ("IFCRELCONTAINEDINSPATIALSTRUCTURE", "RelatedElements")}
+    assert len(f._inverse_index["IFCRELDEFINESBYPROPERTIES", "RelatedObjects"]) == 2001   # one entry per named id
+    assert took < 2.0, f"read layer took {took:.2f} s for 2004 products (indexes lost?)"
+
+
+@pytest.mark.skipif(not HAVE_NUMPY, reason="intent path needs numpy")
+def test_large_ifc_resolves_without_the_quadratic_scan(tmp_path):
+    """The issue's literal end-to-end line: perf_500.ifc (our own emitter, 501
+    products, 0.86 MB) resolves through ``resolve_intent`` on the forced
+    steplite shim, in the probe's own measured child, in < 5 s (1.1 s on the
+    #160 VM, of which the read layer is 0.015 s; the per-id scan cost 0.5 s at
+    this size, 9 s at 2 000 and 315 s at 10 000 -- the SHARP reader guard is
+    the 2 000-product test above; this one holds the whole shim route).
+    Portable: the child guards its POSIX-only ``resource`` import, so on
+    Windows the row still comes back ``ok`` (``maxrss_mb`` null, not read here)."""
+    probe = _load_perf_probe()
+    info = probe.generate(500, str(tmp_path))
+    assert info["products"] == 501 and os.path.getsize(info["path"]) > 500_000
+    # the probe's own measured child: forced shim, fresh interpreter, one JSON row
+    got = probe.measure("steplite", info["path"], timeout=240, python=sys.executable, src=SRC)
+    assert got.get("ok"), got
+    assert got["equipment"] == 500 and got["walls"] == 4, got
+    assert got["resolve_s"] < 5.0, got
