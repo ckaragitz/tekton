@@ -25,6 +25,32 @@
   "both PASS": "feeder circuits certified together with the instances"
  },
  "not_staged": "deliberately NOT staged by the authoring session (issue #146 stops at validator + readback); reserve a batch (/batches 1) and run tools/probe_batch.py stage --manifest experiments/mep/circuits146/probes.json --batch <N>",
+ "next_single_variable": {
+  "why": "eng146 shipped these four RbsElectricalSystem fields at schema default as 'not derivable'; the checked-in corpus census shows each is constant over 188/188 specimens -- the highest-prior circuit-layer variable, applied together first",
+  "census": "experiments/genesis/lint/invariants/RbsElectricalSystem.json",
+  "support": "188/188 specimens for each field (187 rme + 1 rac)",
+  "fields": {
+   "m_circuitPathMode": {
+    "shipped": 0,
+    "census": 2
+   },
+   "m_nNumRuns": {
+    "shipped": 0,
+    "census": 1
+   },
+   "m_nextFreeSectionId": {
+    "shipped": 0,
+    "census": 1
+   },
+   "m_pathOffsetAllDevice": {
+    "shipped": 0.0,
+    "census": 30000.0
+   }
+  },
+  "probe": "C146_on_pathconst = C146_on with the four census values (one variable); control + C146_off + C146_on unchanged",
+  "not_a_candidate": "m_nPhaseInfo (0:1 / 1:124 / 2:33 / 3:30 -- not constant)",
+  "status": "NOT built, NOT staged, shipped template unchanged (viewer-gated decision)"
+ },
  "probes": [
   {
    "file": "experiments/mep/circuits146/C146_off.rvt",

@@ -19,6 +19,10 @@ defect; 'off' FAIL + 'on' a DIFFERENT failure => the circuit records are a
 second defect; both PASS => circuits certified with the instances.  A
 control FAIL voids the round.
 
+NEXT single variable if 'on' fails where 'off' does not: NEXT_SINGLE_VARIABLE
+below (the four corpus-constant path fields, issue #360), written into
+probes.json as "next_single_variable"; docs/inbox/mep-electrical.md § eng360.
+
     .venv/bin/python experiments/mep/circuits146/make_probes.py [--target-version 2026]
 """
 from __future__ import annotations
@@ -37,6 +41,23 @@ sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 PROMPT = ("electrical room 30x20 ft with a 2000A main switchboard, two 400A "
           "distribution panels and four lighting panels")
+
+#: the candidate for the round AFTER the on/off pair (docs/inbox/mep-electrical.md § eng360)
+NEXT_SINGLE_VARIABLE = {
+    "why": ("eng146 shipped these four RbsElectricalSystem fields at schema default as 'not "
+            "derivable'; the checked-in corpus census shows each is constant over 188/188 "
+            "specimens -- the highest-prior circuit-layer variable, applied together first"),
+    "census": "experiments/genesis/lint/invariants/RbsElectricalSystem.json",
+    "support": "188/188 specimens for each field (187 rme + 1 rac)",
+    "fields": {"m_circuitPathMode": {"shipped": 0, "census": 2},
+               "m_nNumRuns": {"shipped": 0, "census": 1},
+               "m_nextFreeSectionId": {"shipped": 0, "census": 1},
+               "m_pathOffsetAllDevice": {"shipped": 0.0, "census": 30000.0}},
+    "probe": "C146_on_pathconst = C146_on with the four census values (one variable); "
+             "control + C146_off + C146_on unchanged",
+    "not_a_candidate": "m_nPhaseInfo (0:1 / 1:124 / 2:33 / 3:30 -- not constant)",
+    "status": "NOT built, NOT staged, shipped template unchanged (viewer-gated decision)",
+}
 
 
 def _md5(p: str) -> str:
@@ -127,6 +148,7 @@ def main(argv=None) -> int:
                        "at validator + readback); reserve a batch (/batches 1) and run "
                        "tools/probe_batch.py stage --manifest experiments/mep/circuits146/"
                        "probes.json --batch <N>"),
+        "next_single_variable": NEXT_SINGLE_VARIABLE,
         "probes": probes,
     }
     path = os.path.join(out, "probes.json")

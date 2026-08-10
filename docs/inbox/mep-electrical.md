@@ -406,3 +406,140 @@ sync `--check` clean, validate_plugin PASS, portable paths ok, bare-unzip `go au
 Shipped: everything above. Staged for the viewer: NOTHING (probe pair prepared, not staged,
 no ledger claim). DONE of #146 met at validator + readback depth on 2026/2025/2024; STOP
 after the tech-lead session's CI + review + merge.
+
+---
+
+# eng360 — native-circuit follow-ups from #353's review (issue #360), 2026-08-10
+
+Stream: `cam/360-native-circuits-followups`, one engineer session (eng360). Additions
+only; eng146's text above is untouched. Territory: `tools/ifc_intent.py` (stage-C
+message + the no-circuit feeder record), `src/rvt/frontdoor/build.py` (4 lines: hand
+stage E's record to stage C, name "C not requested" — the one place the front door
+calls `stage_circuits`, so unavoidable for the manifest to carry the cause),
+`tests/test_mep_devices.py` (+2), `tests/ci_shard.d/146-native-circuits.txt` (new),
+`experiments/mep/circuits146/` notes, regenerated mirrors, this header.
+
+## What changed
+
+1. **Stage C names the real cause of a shortfall.** `stage_circuits(model, path,
+   equipment=None)` now receives stage E's record and `_circuit_shortfall()` reads
+   the cause off it instead of always printing `NO_CIRCUIT_SPECIMEN`:
+   * E did not run → `"… stage E (equipment placement) did not run -> no board instance exists to wire"`;
+   * E skipped / did not commit → `"… stage E did not commit its instances (+ circuits): <E's reason/blocker/error> …"`;
+   * E's caller opted out (`circuits_requested: False`) → `STAGE_C_NOT_REQUESTED`
+     (`"stage C (circuits) NOT requested (--stages lacks 'C'): …"`);
+   * E's own `circuits_blocker` → verbatim (`NO_CIRCUIT_SPECIMEN`);
+   * edges E skipped for an unplaced end → `"… N feeder edge(s) skipped in stage E for an UNPLACED end -- MSB>DP-1: panel not placed (…); …"`.
+   `stage_equipment(circuits=False)` with feeder edges in the intent records a **neutral
+   opt-out at its own altitude** — `circuits_requested: False`, every edge in
+   `circuits_skipped` with reason `"circuits not requested by the caller"`, NO
+   `circuits_blocker` (engine-level callers such as `convert/add_to_project.py` never pass
+   `circuits=` and know nothing of `--stages`, so a blocker naming a CLI flag would be
+   wrong there — a `/simplify` altitude finding, applied). The orchestrators that own
+   `--stages` word it: stage C as above, and `build.py` adds the degradation
+   `"feeder CIRCUITS not wired: stage C (circuits) NOT requested (--stages lacks 'C') …"`;
+   the slim E row in the manifest carries `circuits_requested`. The manifest is no longer
+   silent when `--stages` lacks C.
+2. **`_NO_FEEDERS` → `_feeders_unwired(edges=(), reason=None, blocker=None)`**: a new
+   dict + new lists per call (stage E `update`s it into its record and appends to the
+   lists; the module-level dict was handed out by reference). `circuit_edges(model)` is
+   the single definition of "feeder edges that become circuits" (service entrance
+   excluded), used by `wire_feeders`, `stage_equipment`, `stage_circuits`, `build.py`.
+3. Record / STAGE-note correction (below) — **no shipped value changed**.
+4. `tests/test_mep_devices.py` sharded whole (measurement below).
+
+## Correction to eng146's open question 1 — the four "not derivable" path fields are corpus-constant
+
+eng146's field table calls `m_circuitPathMode / m_nNumRuns / m_nextFreeSectionId /
+m_pathOffsetAllDevice` "not derivable" and ships them at schema default. The
+checked-in census `experiments/genesis/lint/invariants/RbsElectricalSystem.json`
+(188 specimens: 187 rme + 1 rac) says otherwise — they are **constant across the
+whole corpus**:
+
+| field | shipped today (read back from the DONE prompt's `prompt_room.rvt`, 2026) | census value | support |
+|---|---|---|---|
+| `m_circuitPathMode` | 0 | **2** | 188/188 |
+| `m_nNumRuns` | 0 | **1** | 188/188 |
+| `m_nextFreeSectionId` | 0 | **1** | 188/188 |
+| `m_pathOffsetAllDevice` | 0.0 | **30000.0** | 188/188 |
+| (`m_pathOffset`) | 9.0223 (from the base's `ElectricalSetting`) | 9.0223097 | 188/188 — already agrees |
+| (`m_nPhaseInfo`) | 0 | 0:1 / 1:124 / 2:33 / 3:30 | NOT constant — stays out of the first round |
+| (`m_systemState`, `m_nGroupNumber`, `m_nNamingIndex`, `m_numberOfElements(InNetwork)`) | 0 | 0 | 188/188 — already agree |
+
+So the first circuits viewer round has an obvious **candidate single variable**: the
+four corpus constants `{PathMode 2, NumRuns 1, nextFreeSectionId 1,
+pathOffsetAllDevice 30000.0}` applied together as ONE variable against `C146_on` as
+shipped (with `C146_off` + the byte-identical control, per eng146's read order), and
+bisected only if that flips the card. A corpus constant is a *law we mined*, not donor
+content (rule 3: values authored by us from a census, like the 0x0f3f footer law).
+**Deliberately not changed here**: the shipped template keeps the schema defaults until
+a viewer verdict says otherwise (rule 4 — validator + readback are green either way and
+cannot arbitrate); nothing staged, no batch reserved, no ledger claim. The STAGE notes
+(`experiments/mep/circuits146/make_probes.py` docstring + the `next_single_variable`
+key it writes into `probes.json`) now carry the same candidate so whoever reserves the
+batch starts from the census, not from a guess.
+
+## Evidence
+
+* DONE prompt through the front door on this branch (2026): exit 0, stage C
+  `ok / planned 6 / built 6 / links_ok`, 6 `circuit` rows, `VALID` 0 errors, no circuit
+  degradation, 5.0 s — unchanged from #353.
+* Same prompt with `--stages FLWEV`: exit 0, `VALID` 0 errors, 0 circuits, stage E row
+  `circuits_requested: false`, 6 skipped (`"circuits not requested by the caller"`), no
+  `circuits_blocker`, E note `"… 0 RbsElectricalSystem (template None), 6 skipped -- circuits
+  not requested by the caller (circuits=False)"`, degradation `"feeder CIRCUITS not wired:
+  stage C (circuits) NOT requested (--stages lacks 'C'): …"` (was: silent).
+* Unplaced-ends case (test, bundled base, template present, nothing placed): stage C blocker
+  `"0 of 6 feeder circuits in the deepest file: 6 feeder edge(s) skipped in stage E for an
+  UNPLACED end -- MSB>DP-1: panel not placed (family not loaded / not in the intent); …"` and
+  NOT `NO CIRCUIT SPECIMEN` (was: always `NO CIRCUIT SPECIMEN`).
+* Shard decision (item 4): `RVT_SKIP_LARGE=1`, no `samples/`: the WHOLE
+  `tests/test_mep_devices.py` = **6 passed / 18 skipped / 0 failed in 2.0 s** (the 18 rme
+  cases self-skip; the 6 sample-free cases run on the bundled base) → sharded whole via
+  `tests/ci_shard.d/146-native-circuits.txt`; no split file needed. Shard 57 → 58 files.
+
+## Gates run
+
+See BRANCH STATE.
+
+* `/simplify` on the diff: applied — the opt-out moved off `circuits_blocker` to a neutral
+  `circuits_requested: False` at stage E's altitude (engine-level callers of
+  `stage_equipment` never see `--stages` text), `_feeders_unwired(edges, reason, blocker=None)`
+  arg order, `not ok` alone covers a skipped E record, `circuit_edges` computed once in
+  `build.py`, `make_probes` census support hoisted + docstring de-duplicated, freshness test
+  trimmed. Skipped (noted, not argued): `circuit_edges` would sit best as an `IntentModel`
+  helper in `src/rvt/ifc/intent.py` (three older inline copies live in `prompt_intent.py:1817`,
+  `ifc/intent.py:2796`, `tools/bisect_instance_bug.py:172`) — outside this territory, a
+  one-line follow-up for whoever next holds `src/rvt/ifc/intent.py`; the duplicated
+  `CIRCUIT_PROMPT` constant across test files is the repo's current convention (no shared
+  conftest constant).
+* `/verify` on the final head: front door DONE prompt 2026 / 2025 / 2024 → exit 0, stage C
+  6/6 links_ok, `VALID` 0 errors each; `tools/rvt_validate.py` on the 2026 output and on the
+  `--stages FLWEV` output → `ok: true`, 0 errors; `tools/provenance.py … --baseline
+  plugin/assets/genesis/G_ABPD.rvt --streams` → `RbsElectricalSystem created=6`, embedded
+  families `ours-created 7`, totals created 127 / modified 1 / cloned 18 / sample 3,101 =
+  eng146's numbers exactly (the standing G1/identity lines are the base's, #19/#23, unchanged);
+  bare unzip of the rebuilt `tekton-plugin.zip`, system `python3 …/_bootstrap.py go author
+  --prompt <DONE prompt>` → `tekton: READY`, exit 0, 6 circuits, stage C (6, 6, True), `VALID` 0,
+  5.1 s.
+
+BRANCH STATE (eng360): `cam/360-native-circuits-followups` from `origin/main` e54f13f, rebased onto 8f7a1d9 (#368) before push, PR
+opened ready (number in the issue thread). Files written: `tools/ifc_intent.py`
+(`STAGE_C_NOT_REQUESTED`, `CIRCUITS_NOT_REQUESTED_REASON`, `circuit_edges`, `_feeders_unwired`
+replacing `_NO_FEEDERS`, `_circuit_shortfall`, `stage_circuits(…, equipment=)`,
+`stage_equipment` opt-out record + note, `build_room` hands E's record to C),
+`src/rvt/frontdoor/build.py` (+6 lines: `erec` hoist, pass to `stage_circuits`, "not wired"
+degradation, `circuit_edges` once, slim E row `circuits_requested`), `tests/test_mep_devices.py`
+(+2 tests, 2 module fixtures), `tests/ci_shard.d/146-native-circuits.txt` (new),
+`experiments/mep/circuits146/{make_probes.py,probes.json}` (`next_single_variable`),
+regenerated `plugin/lib/src/rvt/frontdoor/build.py`, `plugin/lib/tools/ifc_intent.py`,
+`plugin/skills/tekton-author/scripts/ifc_intent.py`, this header. Gates on the final head:
+`RVT_SKIP_LARGE=1 pytest tests/test_mep_devices.py tests/test_frontdoor.py
+tests/test_mep_electrical_data.py tests/test_shard_list.py tests/test_plugin_sync.py
+tests/test_bootstrap.py tests/test_frontdoor_standalone.py -q -rs` → see the PR body (counts
+pasted there from the same head); `tests/test_mep_devices.py` alone 6 passed / 18 skipped, 1.8 s;
+`tools/sync_plugin.py` synced + `--check` exit 0; `validate_plugin.py` PASS (25 assertions);
+`check_portable_paths.py` ok (2853); `shard_list.py --print` 58 files incl.
+`tests/test_mep_devices.py`; `pytest tests/test_shard_list.py` 23 passed. Shipped: all four
+items. Staged for the viewer: NOTHING (no batch reserved, no ledger claim; shipped circuit
+template values unchanged). STOP after the tech-lead session's CI + review + merge.
