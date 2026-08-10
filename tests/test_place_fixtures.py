@@ -104,6 +104,43 @@ def test_devices_share_one_family_and_load_after_the_equipment():
 # 2. the loader binds each family's OWN category on one surveyed host
 # ---------------------------------------------------------------------------
 
+class _StubDoc:
+    def __init__(self, category_id):
+        self.category_id = category_id
+
+
+class _StubProduct:
+    """A product-shaped object: only ``.doc.category_id`` matters here (the
+    shape of famgen ``FamilyProduct`` AND of ``convert.extract_family``'s
+    extracted products, whose ``RfaFamilyDoc.category_id`` is -1 when the
+    family's category could not be read)."""
+
+    def __init__(self, category_id):
+        self.doc = _StubDoc(category_id)
+
+
+def test_product_category_defaults_an_unknown_category_to_the_equipment_binding():
+    """The pre-#359 behaviour for anything that is not a real BuiltInCategory:
+    an extracted family whose category could not be read (-1), a doc without
+    the field, None, junk -> Electrical Equipment (never an UNBOUND load); a
+    real non-equipment category (an extracted lighting fixture) -> ITSELF,
+    so ``extract_family.reload_family`` now stamps such a family with its own
+    category instead of -2001040."""
+    from rvt.famgen import loader as L
+    assert L.product_category(_StubProduct(-1)) == OST_ELECTRICAL_EQUIPMENT
+    assert L.product_category(_StubProduct(None)) == OST_ELECTRICAL_EQUIPMENT
+    assert L.product_category(_StubProduct(0)) == OST_ELECTRICAL_EQUIPMENT
+    assert L.product_category(_StubProduct(125)) == OST_ELECTRICAL_EQUIPMENT      # a GStyle id, not a category
+    assert L.product_category(_StubProduct("-2001060")) == OST_ELECTRICAL_EQUIPMENT
+    assert L.product_category(_StubProduct(True)) == OST_ELECTRICAL_EQUIPMENT
+    assert L.product_category(object()) == OST_ELECTRICAL_EQUIPMENT              # no doc at all
+    assert L.product_category(_StubProduct(-1), default=OST_ELECTRICAL_FIXTURES) == OST_ELECTRICAL_FIXTURES
+    assert L.product_category(_StubProduct(OST_ELECTRICAL_FIXTURES)) == OST_ELECTRICAL_FIXTURES
+    assert L.product_category(_StubProduct(-2001120)) == -2001120                # OST_LightingFixtures: its own
+    assert L.product_category(_StubProduct(-2000011)) == -2000011                # the ceiling's edge (Walls)
+    assert L.BUILTIN_CATEGORY_CEILING == -2000000
+
+
 @needs_base
 @needs_catalog
 def test_bind_category_rebinds_the_surveyed_host_without_mutating_it():
@@ -256,6 +293,38 @@ def test_done_prompt_readback_instances_are_fixtures_at_18in_upright_on_L1(done_
         conns = ((v.get("m_pConnectorManager") or {}).get("value") or {}).get("m_connPtrArray") or []
         assert len(conns) == 1                                                # our one 1-pole connector, no panel slots
         assert v.get("m_hostId") in (-1, None)                                # free-standing (face-hosting = follow-up)
+
+
+BASES = {2025: os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2025.rvt"),
+         2024: os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2024.rvt")}
+
+
+@needs_catalog
+@pytest.mark.parametrize("release", [2025, 2024])
+def test_done_prompt_places_the_devices_on_the_older_certified_bases_too(tmp_path, release):
+    """``--target-version 2025 / 2024``: the same one shared family + four
+    placed Electrical Fixtures on that release's certified base, the output
+    IS that release (BasicFileInfo), project validator 0 errors under its own
+    release -- the famgen load lane needed nothing device-specific there.
+    Validated, NOT viewer-certified (rule 4); the open-cell stamp rides along."""
+    if not os.path.isfile(BASES[release]):
+        pytest.skip(f"bundled {release} genesis base missing")
+    from rvt.versions import detect_release
+    r = FD.author(prompt=DONE_PROMPT, out=str(tmp_path / f"v{release}"), no_handoff=True,
+                  target_version=release)
+    assert r.ok, (r.status, r.errors)
+    build = r.manifest["build"]
+    assert build["errors"] == []
+    kinds = [c["kind"] for c in build["elements_created"]]
+    assert (kinds.count("family(.rfa)"), kinds.count("fixture-instance"), kinds.count("loaded-family")) == (1, 4, 1)
+    assert {c["category"] for c in build["elements_created"] if c["kind"] == "fixture-instance"} == {OST_ELECTRICAL_FIXTURES}
+    assert build["combination_verdict"]["stamp"] == FI.OPEN_CELL_STAMP
+    g = build["validation"]["combined"]["validate"]
+    assert (g["verdict"], g["n_errors"]) == ("VALID", 0)
+    combined = build["files"]["combined"]["path"]
+    assert detect_release(combined) == release                             # the file IS that release
+    tv = r.manifest["target_version"]
+    assert (tv["requested"], tv["output_release"], tv["status"]) == (release, release, "match")
 
 
 # ---------------------------------------------------------------------------

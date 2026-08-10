@@ -278,12 +278,24 @@ def bind_category(ctx: HostContext, category: int) -> HostContext:
                    template_instance=tpl, template_host=tpl_host, notes=notes)
 
 
+#: the built-in (OST_*) category id range: every BuiltInCategory is a
+#: negative int at or below -2000000 (-2000011 Walls ... -2007000 Connectors);
+#: -1 = INVALID / "could not be read"
+BUILTIN_CATEGORY_CEILING = -2000000
+
+
 def product_category(product, default: int = CAT_ELECTRICAL_EQUIPMENT) -> int:
     """The built-in category a product's own family document declares
     (``FamilyDoc.category_id``) -- what its host surrogates / symbol header /
-    ElementTrackingData row must carry; ``default`` for a product without one."""
+    ElementTrackingData row must carry.  ``default`` (Electrical Equipment,
+    the loader's binding before categories came from the product) for a
+    product without a document, without a category, or whose category could
+    not be read (``rvt.convert.extract_family.RfaFamilyDoc`` records ``-1``
+    then) -- an unknown category never loads UNBOUND."""
     cat = getattr(getattr(product, "doc", None), "category_id", None)
-    return int(cat) if isinstance(cat, int) and cat < 0 else int(default)
+    if isinstance(cat, bool) or not isinstance(cat, int) or cat > BUILTIN_CATEGORY_CEILING:
+        return int(default)
+    return int(cat)
 
 
 # ---------------------------------------------------------------------------
