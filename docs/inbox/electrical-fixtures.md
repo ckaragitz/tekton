@@ -212,7 +212,7 @@ The one observable delta on the prompt route, stated rather than hidden: because
 
 ## BRANCH STATE (eng #397)
 
-- Branch `cam/397-intent-device-branch` from `main` @ b253668; PR to follow (`Closes #397`).
+- Branch `cam/397-intent-device-branch` from `main` @ b253668 (rebased on d2da397); PR **#437** (`Closes #397`).
 - Files written: `src/rvt/ifc/intent.py`, `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/frontdoor/intent.py`, `tools/ifc_intent.py`, `tests/test_intent_device_plan.py` (new), `tests/ci_shard.d/397-intent-device-plan.txt` (new), this record (own header); regenerated mirrors `plugin/lib/src/rvt/{ifc/intent.py, frontdoor/prompt_intent.py, frontdoor/intent.py}`, `plugin/lib/tools/ifc_intent.py`, `plugin/skills/tekton-author/scripts/ifc_intent.py`.
 - Not touched (held elsewhere): `docs/product/PERMUTATION-MATRIX.md`, `src/rvt/frontdoor/manifest.py`, `src/rvt/ifc/_fallback.py`, famgen factory bodies.
 - Shipped: one device mapping owned by the intent layer; both routes and the bare resolver/CLI yield the same resolved plan. Staged for viewer: nothing (no writer bytes changed; placed instances remain the open cell #16).
