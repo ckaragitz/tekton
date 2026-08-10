@@ -23,11 +23,12 @@ import os
 import time
 from typing import Any, Dict, List, Optional, Sequence
 
-from .base import ResolvedBase, PIN, repo_root
+from .base import GenesisPin, ResolvedBase, PIN, repo_root
 
 __all__ = ["TOOL", "TOOL_VERSION", "file_facts", "crud_affordances",
            "coverage_cross_reference", "census_gaps", "authorship_census_note",
-           "status_gate_lines", "build_manifest", "edit_manifest", "write_manifest"]
+           "status_gate_lines", "resolved_pin", "build_manifest", "edit_manifest",
+           "write_manifest"]
 
 TOOL = "tekton frontdoor (rvt.frontdoor)"
 TOOL_VERSION = "1.0.0"
@@ -370,6 +371,45 @@ def _honesty_lines(hon: Dict[str, Any]) -> List[str]:
 
 
 # ---------------------------------------------------------------------------
+# the pin block: the registry slot the resolved base answers to (issue #264)
+# ---------------------------------------------------------------------------
+
+def resolved_pin(base: ResolvedBase, release: Optional[int] = None, *,
+                 pin: GenesisPin = PIN) -> Dict[str, Any]:
+    """The registry pin the run's base was checked against, as ``base.pin``.
+
+    A ``--target-version 2025`` (or 2024) run resolves THAT release's slot
+    (``G_ABPD_2025``), so the pin block must name that slot's relpath / sha256 /
+    certification entry -- never the default (2026) pin beside a 2025 base.
+    The slot is the one whose pinned sha256 IS the resolved base's digest (any
+    pinned resolution, and a ``--base`` copy that happens to be the certified
+    bytes); failing that, ``release`` (the run's output release, or the target
+    a refused run was resolved against); failing that, the registry default,
+    which yields ``pin.as_json()`` unchanged."""
+    digest = str(base.sha256 or "").lower()
+    year = next((y for y in pin.release_years()
+                 if digest and str((pin.release_slot(y) or {}).get("sha256") or "").lower() == digest),
+                release)
+    out = pin.as_json()
+    if year is None or int(year) == int(pin.revit_release):
+        return out                          # the default slot IS the default record
+    slot = pin.release_slot(int(year)) or {}
+    if not slot.get("sha256"):              # unknown / unpinned year: the default stands
+        return out
+    out.update({k: slot[k] for k in ("id", "relpath", "sha256", "bytes", "lineage") if k in slot},
+               revit_release=str(int(year)), certification=dict(slot.get("certification") or {}))
+    return out
+
+
+def _version_release(version: Optional[Dict[str, Any]]) -> Optional[int]:
+    """The release a version block names: what was produced, else what was
+    requested (a refused run produced nothing), else None."""
+    v = version or {}
+    return next((int(v[k]) for k in ("output_release", "requested")
+                 if str(v.get(k) or "").isdigit()), None)
+
+
+# ---------------------------------------------------------------------------
 # create routes (prompt / ifc)
 # ---------------------------------------------------------------------------
 
@@ -407,7 +447,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
         m["prompt_coverage"] = coverage
     m["base"] = {
         **base.as_json(),
-        "pin": PIN.as_json(),
+        "pin": resolved_pin(base, _version_release(version)),
         "policy": ("the front door authors ONLY on the certified genesis base (our composed "
                    "project, no Autodesk-authored base content) or a user-supplied non-sample "
                    "base; NEVER an Autodesk sample"),
@@ -654,9 +694,12 @@ def _render_md(m: Dict[str, Any]) -> str:
     ap(f"- pinned: {b.get('pinned')} · certified genesis base: {b.get('certified_genesis_base')} · "
        f"Autodesk sample: {b.get('is_autodesk_sample')}")
     cert = (b.get('certification') or {})
-    if cert:
+    if cert.get("proves") or cert.get("verdict"):
         ap(f"- certification: {cert.get('proves', '')}")
         ap(f"  - verdict: {cert.get('verdict', '')}")
+    elif cert:                                  # a per-release slot cites its ledger entry
+        ap(f"- certification: `{cert.get('ledger')}` entry `{cert.get('entry')}`"
+           + (f" — {cert['required']}" if cert.get("required") else ""))
     for w in b.get("warnings") or []:
         ap(f"- **base warning**: {w}")
     it = (m.get("intent") or {}).get("summary") or {}

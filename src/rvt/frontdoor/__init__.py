@@ -698,8 +698,11 @@ def _ok_from_status(status: str) -> bool:
 
 def _explicit_or_pin(req: AuthorRequest) -> ResolvedBase:
     """A ResolvedBase for the manifest when the real resolution failed (so
-    the manifest still names what was attempted)."""
-    p = os.path.abspath(req.base) if req.base else os.path.join(_base.repo_root(), PIN.base_relpath)
+    the manifest still names what was attempted -- the target release's own
+    slot when the registry has one, #264)."""
+    slot = PIN.release_slot(int(req.target_version or PIN.revit_release)) or {}
+    p = (os.path.abspath(req.base) if req.base
+         else PIN.candidate_paths(relpath=slot.get("relpath"))[0])
     return ResolvedBase(path=p, source=("explicit" if req.base else "pinned-repo"),
                         sha256="(unresolved)", pinned=False,
                         is_autodesk_sample=is_autodesk_sample(p), certified=False,
