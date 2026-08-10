@@ -579,3 +579,61 @@ governing law is already written down (#333). What is not yet known is **which**
 103 sketches violates it. Two cheap next moves, in order: run `Load Family` on the
 existing pair (it costs two clicks and separates count from N-gon), and bisect the hanger
 by halves if the pair comes back inconclusive.
+
+## ROOT CAUSE: an arc sketch promises curves its solver does not hold (#589)
+
+The matched pair came back — both loaded, confirmed present in the family browser, with
+only Revit's expected "saved by an application not developed or licensed by Autodesk"
+warning. That exonerates the two hypotheses the pair was built to test and leaves exactly
+one difference:
+
+| family | sketches whose curve index map is LONGER than its solver records | Load Family |
+|---|---|---|
+| `P_boxes103` — 103 boxes | 0 | **loads** |
+| `P_polys14` — 14 N-gons | 0 | **loads** |
+| hanger — 87 box + 14 polygon + **2 cylinder** | **2** | **CRASH** |
+| hanger 13-solid — 9 box + **4 cylinder** | **4** | never load-tested |
+
+**Count is exonerated** (103 solids load). **N-gons are exonerated** (they load). The two
+cylinders are the whole difference, and the structure is unambiguous:
+
+| shape | absorbed curves | `m_elemRecs` | `m_curveObjIdxMap` | constraints | serFlags |
+|---|---|---|---|---|---|
+| box | 4 | **4** | 4 | 8 | 32 |
+| polygon | 5 | **5** | 5 | 10 | 32 |
+| **cylinder** | 2 | **0** | **2** | 0 | 1 |
+
+`VarSketch::getCurveObj` indexes `m_elemRecs` through that map. The map names indices 0
+and 1; the array is empty; the read goes out of range. That is `VarSketch.cpp:634` —
+**the exact law issue #333 established for line sketches, which the arc path never got.**
+#333 reached it by editing a parameter; `Load Family` reaches it too. Filed as **#589**.
+
+### The correction to my own earlier reading
+
+I had written "1, 4 and 13 solids load" into the record and into a decision table. The
+journals show journals 0041/0042 ran `Open an existing project` **only** — L0, L1b and L1
+were opened, never load-tested. The 13-solid family contains **four** cylinders, so on this
+mechanism it should crash too. "It opens" was never evidence about loading, and I treated
+it as if it were.
+
+### The fix shipped here, and its boundary
+
+`CYLINDER_AS_POLYGON`: a round profile is still **measured** as a cylinder — the report
+still says "cylinder, ⌀0.500 in", the honesty of the measurement is untouched — but it is
+**authored** as the mesh's own N-gon hull, which travels the proven line-segment path. It
+is also *closer to the source* than an idealised circle, because a tessellated rod arrives
+as an N-gon in the first place. The hanger now emits 87 box + 16 polygon, **0** sketches
+promising more than they hold, `.rfa` VALID 0 errors, provenance clean.
+
+This is a workaround at the lane, not a fix at the engine. #589 owns the real fix
+(author the arc solver records) and needs a desktop verdict to close; the interim is
+pinned by two tests so it cannot be mistaken for one:
+
+* `test_an_arc_sketch_still_ships_an_empty_solver_the_engine_bug` — PINS the defect and
+  flips when #589 lands.
+* `test_the_assembly_lane_never_emits_a_sketch_revit_cannot_load` — the invariant that
+  would have caught this before a human ever opened Revit: whatever this lane measures,
+  the family it hands the factory must not contain a sketch promising curves its solver
+  cannot resolve.
+
+Still unproven until desktop says so (rule 4): that the rebuilt hanger actually loads.

@@ -291,15 +291,19 @@ def test_to_parts_is_the_factory_contract(tmp_path):
         ("Box", "IFCBUILDINGELEMENTPROXY", _box_mesh(1.0, 2.0, 3.0)),
         ("Rod", "IFCMEMBER", _prism_mesh(0.2, 1.0, 24, ox=3.0)),
     ])
-    parts = AP.assembly_parts(p)
-    assert {q["shape"] for q in parts} == {"box", "cylinder"}
+    m = AP.read_assembly(p)
+    # MEASURED: the rod is round and says so in the report
+    assert {x.fit for x in m.parts} == {"box", "cylinder"}
+    # AUTHORED: never an arc sketch -- that is what crashes Load Family
+    parts = m.to_parts()
+    assert {q["shape"] for q in parts} == {"box", "polygon"}
     for q in parts:
         assert q["height_ft"] > 0
         assert "base_z_ft" in q and "name" in q
         if q["shape"] == "box":
             assert q["width_ft"] > 0 and q["depth_ft"] > 0 and len(q["center"]) == 2
         else:
-            assert q["radius_ft"] > 0 and len(q["center"]) == 2
+            assert len(q["vertices"]) >= 3
 
 
 def test_json_record_carries_the_numbers_a_reader_needs(tmp_path):
@@ -568,3 +572,72 @@ def test_the_reader_prefers_the_exact_box_lane(tmp_path):
     assert m.decomposed[0]["fill_after"] == 1.0
     assert all(x.fit == "box" for x in m.parts)
     assert not m.kept_prism
+
+
+# ---------------------------------------------------------------------------
+# the Load Family crash law (#333 / VarSketch.cpp:634)
+# ---------------------------------------------------------------------------
+
+def _inconsistent_sketches(parts, name="probe"):
+    """Sketches whose curve index map promises more curves than the solver
+    records hold.  ``VarSketch::getCurveObj`` indexes ``m_elemRecs`` through
+    that map, so a map longer than the records is an out-of-range read inside
+    Revit -- it survives OPEN and kills ``Insert > Load Family``."""
+    from rvt.frontdoor import famspec as FS
+    doc = FS.build("generic_model", {"parts": parts, "name": name}).doc
+    return [e.elem_id for e in doc.elements
+            if e.class_name == "VarSketch"
+            and len(e.obj.get("m_curveObjIdxMap") or []) > len(e.obj.get("m_elemRecs") or [])]
+
+
+def test_an_arc_sketch_still_ships_an_empty_solver_the_engine_bug():
+    """PINS THE DEFECT so the workaround below is not mistaken for a fix.
+
+    add_cylinder_form authors a VarSketch naming 2 arcs in m_curveObjIdxMap
+    with m_elemRecs EMPTY. Owner's desktop Revit 2026: a family containing one
+    crashes Insert > Load Family with "Invalid idx in VarSketch::getCurveObj
+    (VarSketch.cpp:634)" + 0xc0000005, while 103 boxes and 14 N-gons load. When
+    the arc solver state is authored and desktop-verified, this test flips.
+    """
+    assert _inconsistent_sketches(
+        [{"shape": "cylinder", "radius_ft": 0.5, "height_ft": 2.0}], "arc") != []
+
+
+def test_line_based_shapes_carry_the_solver_records_they_promise():
+    for shape in ({"shape": "box", "width_ft": 1.0, "depth_ft": 1.0, "height_ft": 1.0},
+                  {"shape": "polygon", "height_ft": 1.0,
+                   "vertices": [[0, 0], [1, 0], [1, 1], [0.5, 1.4], [0, 1]]}):
+        assert _inconsistent_sketches([shape], "line") == []
+
+
+def test_the_assembly_lane_never_emits_a_sketch_revit_cannot_load(tmp_path):
+    """THE INVARIANT. Whatever this lane measures -- round, boxy or N-gon --
+    the family it hands the factory must not contain a sketch that promises
+    curves its solver cannot resolve. This is the check that would have caught
+    the crash before a human opened Revit."""
+    pts, tris = _prism_mesh(0.5, 3.0, 40)          # measured as a CYLINDER
+    box_p, box_t = _box_mesh(1.0, 1.0, 1.0, ox=4.0)
+    n = len(pts)
+    allp = list(pts) + list(box_p)
+    allt = [(a + 1, b + 1, c + 1) for a, b, c in _tri0(tris)] + \
+           [(a + n, b + n, c + n) for a, b, c in box_t]
+    p = write_ifc(str(tmp_path / "mix.ifc"),
+                  [("Rod", "IFCMEMBER", (allp[:n], [(a + 1, b + 1, c + 1) for a, b, c in _tri0(tris)])),
+                   ("Block", "IFCBUILDINGELEMENTPROXY", (list(box_p), list(box_t)))])
+    m = AP.read_assembly(p)
+    assert any(x.fit == "cylinder" for x in m.parts)        # it IS measured round
+    assert _inconsistent_sketches(m.to_parts(), "mix") == []  # and still loadable
+
+
+def test_a_round_profile_is_measured_round_but_authored_as_its_hull():
+    """The report must keep saying 'cylinder, radius R' -- the honesty of the
+    measurement is not what changed; only the authored curve type is."""
+    pts, _ = _prism_mesh(0.5, 3.0, 40)
+    fit = AP.fit_solid(pts)
+    assert fit["fit"] == "cylinder"
+    assert fit["radius_ft"] == pytest.approx(0.5, rel=0.02)
+    part = AP.PartSolid(name="r", ifc_class="IfcMember", tag="", guid="",
+                        fit="cylinder", center_ft=tuple(fit["center"]),
+                        height_ft=fit["height_ft"], base_z_ft=fit["base_z_ft"],
+                        radius_ft=fit["radius_ft"], vertices_ft=fit["vertices"]).to_part()
+    assert part["shape"] == "polygon" and len(part["vertices"]) >= 8

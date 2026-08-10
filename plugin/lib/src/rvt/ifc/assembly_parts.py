@@ -124,6 +124,20 @@ MAX_GRID_CELLS = 20000
 #: slotted channel is genuinely many boxes, and each is EXACT.
 MAX_BOXES = 120
 
+#: Author a measured-round profile as its N-gon hull instead of an ARC-based
+#: cylinder.  Not cosmetic -- ``add_cylinder_form`` emits a VarSketch whose
+#: ``m_curveObjIdxMap`` names 2 arcs while ``m_elemRecs`` (the solver records
+#: ``VarSketch::getCurveObj`` indexes) is EMPTY.  Revit 2026 survives OPENING
+#: such a family and dies inside ``Insert > Load Family`` with
+#: "Invalid idx in VarSketch::getCurveObj (VarSketch.cpp:634)" + an access
+#: violation -- the very law issue #333 established for line sketches and that
+#: the arc path never got.  The owner's matched pair settled it: 103 boxes load,
+#: 14 N-gons load, the hanger's 2 cylinders crash.  The hull is also CLOSER to
+#: the source than an idealised circle, since a tessellated rod arrives as an
+#: N-gon in the first place.  Flip to False once the arc solver state is
+#: authored and desktop-verified (see the engine issue).
+CYLINDER_AS_POLYGON = True
+
 
 class AssemblyError(ValueError):
     """The IFC has no product with a tessellated body to measure."""
@@ -172,6 +186,12 @@ class PartSolid:
             "height_ft": self.height_ft, "base_z_ft": self.base_z_ft,
         }
         if self.fit == "cylinder":
+            if CYLINDER_AS_POLYGON and self.vertices_ft:
+                # measured round, authored as the mesh's own N-gon: the arc
+                # sketch ships an empty solver and crashes Load Family.
+                part["shape"] = "polygon"
+                part["vertices"] = self.vertices_ft
+                return part
             part["radius_ft"] = self.radius_ft
             part["center"] = list(self.center_ft)
         elif self.fit == "polygon":
@@ -418,7 +438,9 @@ def fit_solid(points_ft: Sequence[Sequence[float]],
         radii = [math.hypot(v[0] - cx, v[1] - cy) for v in hull]
         mean_r = sum(radii) / len(radii)
         if mean_r > 0 and (max(radii) - min(radii)) / mean_r <= CYLINDER_TOLERANCE:
+            ring = _decimate(hull, MAX_HULL_POINTS) if len(hull) > MAX_HULL_POINTS else hull
             return dict(common, fit="cylinder", center=(cx, cy), radius_ft=mean_r,
+                        vertices=ring,      # the mesh's own outline, for authoring
                         fill=_fill(math.pi * mean_r * mean_r * height))
 
     hull_area = _polygon_area(hull) if len(hull) >= 3 else 0.0
