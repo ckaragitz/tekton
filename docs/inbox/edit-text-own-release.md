@@ -613,7 +613,11 @@ BRANCH STATE / PR body.
   `tests/test_release_ctx_refusal.py` (new),
   `tests/ci_shard.d/535-release-ctx-refusal.txt` (new), this section.
 * Gates: listed in 535.2; whole merged shard (`RVT_SKIP_LARGE=1 … -p
-  no:cacheprovider $(shard_list.py --print)`): SHARD_RESULT_PLACEHOLDER.
+  no:cacheprovider $(shard_list.py --print)`): **1863 passed, 134 skipped, 3
+  xfailed** (92 files, 6 min 52 s) on the pre-/simplify head over 074af6b; **1900
+  passed, 134 skipped, 3 xfailed** (93 files, 6 min 34 s, pytest rc 0) on the final
+  head 7292372 rebased over 152d009 (+37 = #556's `test_ifc_assembly` drop-in that
+  landed on main meanwhile; this record-only commit on top changes no test input).
 * Follow-ups filed: #559, #560, #561 (pre-existing red famgen test on main, fenced).
 * Staged vs shipped: nothing staged for the viewer (no output byte changes —
   md5 ×3 identical); the plugin zip is a regenerated, git-ignored artifact.
