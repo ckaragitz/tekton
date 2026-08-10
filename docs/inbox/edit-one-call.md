@@ -1745,7 +1745,9 @@ paths with a space, `env -i PATH=/usr/bin:/bin` + dead proxies, `/usr/bin/python
 `result.ok true`, structural PASS | validation PASS (0 errors), structural report
 keys == the fixed 12, stderr 0 B; wall before 0.649 0.627 0.657 0.676 0.664 s
 (median **0.657**) · after 0.635 0.641 0.668 0.670 0.642 s (median **0.642**) —
-unchanged.
+unchanged. Re-run on the final (post-`/simplify`) head's zip, on a noisier VM right
+after the shard: before 0.920 0.738 0.760 0.723 0.953 s (median 0.760) · after
+0.776 0.729 0.717 0.714 0.730 s (median 0.729), same READY / PASS lines — unchanged.
 
 ### 3. Findings / follow-ups
 
@@ -1788,6 +1790,40 @@ unchanged.
 * Not touched: `src/rvt/versions/**` (→ #534), `tools/rvt_job.py`, `tools/rvt_edit.py`,
   `tests/conftest.py`, `tests/ci_shard.txt`, any hot file, any NO-GO / fenced file of
   this wave.
-* Shipped vs staged: everything ships with the PR; nothing for the viewer (no written
-  byte changes — no writer touched; the bare-unzip edit output validates 0 errors as
-  on main).
+* Shipped vs staged: everything ships with the PR (#537); nothing for the viewer (no
+  written byte changes — no writer touched; the bare-unzip edit output validates 0
+  errors as on main).
+* Gates on the final head (post-`/simplify`): `tests/test_partition_header_verdict.py`
+  **19 passed** (6.7 s); + `test_manipulate_import_context test_gates_shared_walk` →
+  35 passed; neighbours + plugin files (`test_gates_shared_walk test_manipulate
+  test_verify_manipulated_release test_edit_own_release test_validate_release
+  test_ecc_final_block test_validate_footer_blob test_bare_family_validate
+  test_records32 test_job test_go_edit test_modify_family_carrier
+  test_manipulate_import_context test_rvt_analyze test_plugin_sync test_bootstrap
+  test_coldstart`, pre-simplify head; the pass moved one import line and two
+  docstrings — identity probe 0-diff and the three files above green after it) →
+  **234 passed, 9 skipped (samples absent), 1 xfailed, 0 failed** (52 s); whole
+  merged CI shard (`python3 tools/dev/shard_list.py --print`, `RVT_SKIP_LARGE=1 … -q
+  -p no:cacheprovider`, final head) → **1798 passed, 133 skipped, 3 xfailed, 0 failed
+  in 454 s**; `tools/sync_plugin.py` run → `--check`: *plugin in sync with source
+  (deny-audit clean, identity scan == allowlist, assets verified)*;
+  `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2938). `/verify` on the final head:
+  `rvt_validate.py` — three bases `VALID` rc 0; partition-less `INVALID (1)` =
+  `[ERROR] structure Partitions/<N>: no Partitions/<N> stream` rc 1;
+  partition-less-without-ElemTable 3, header-zeroed primary 4, 64 KiB truncation 11,
+  non-CFB 1 — stderr 0 lines everywhere, no traceback; `rvt_edit.py <base> set-level
+  --id 1351691 --elevation-ft 5 --json` on 2026 / 2025 / 2024 → rc 0, stderr 0 B,
+  `ok=True`, `structural PASS (crc_failures=0, ecc_mismatches=0, walker_errors=0,
+  stamps_ok=True) | validation PASS (0 errors)`, "Revit N in, Revit N out", the three
+  outputs `VALID`; `rvt_job.py edit <2025 base> --ops {set-level} --json
+  --no-provenance` → rc 0, stderr 0 B, ONE JSON == manifest on disk, `PROOF-ONLY,
+  NOT-DELIVERABLE (hard gates PASSED)`, structural PASS (no `framing_errors` key) /
+  validation PASS 0, 598,016 B; `rvt_edit._gates` on the partition-less fixture →
+  `structural FAIL (crc_failures=0, ecc_mismatches=0, walker_errors=0, stamps_ok=None)
+  | validation FAIL (1 errors, 0 warnings)`, `hard_gates_passed False`,
+  `framing_errors {"Partitions/<N>": "no Partitions/<N> stream"}` == the validation
+  gate's top finding at the same where; bare-unzip `go edit` READY (§2 latency).
+* Probe artefacts (scratchpad, not committed): `probe/{make_fx,judge}.py`,
+  `probe/fx/*` (19 fixtures written by main's engine), `probe/{main,head,head2}/*.json`,
+  `bench.sh`, `before.zip` / `after.zip`, `shard.log`.
