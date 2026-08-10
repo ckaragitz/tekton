@@ -1032,7 +1032,89 @@ def _r_ifc_to_rfa(res, inputs, out_dir, opts):
     res.caveats.append("no buildable room-equipment family plan in this IFC -- "
                        "took the PRODUCT-IFC path (measured facts -> the "
                        "downlight archetype)")
-    _product_rfa(res, inputs["ifc"], out_dir, opts)
+    mark = len(res.errors)
+    try:
+        _product_rfa(res, inputs["ifc"], out_dir, opts)
+        return
+    except _StepFailed:
+        pass
+    # The archetype lane could not measure this IFC (several products, or a
+    # body it does not model).  Rather than end at the refusal, measure every
+    # product's mesh into prisms and author ONE multi-part family (#498).
+    demoted = res.errors[mark:]
+    del res.errors[mark:]
+    for e in demoted:
+        res.caveats.append(f"the measured-archetype lane did not apply here ({e}) "
+                           "-- fell through to the ASSEMBLY lane below")
+    _assembly_rfa(res, inputs["ifc"], out_dir, opts)
+
+
+def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
+                  opts: Dict[str, Any]) -> None:
+    """An ARBITRARY-GEOMETRY IFC -> ONE multi-part generic_model .rfa.
+
+    The third ``ifc -> rfa`` lane (steer S-2026-08-10-c / #498): no catalog
+    identity, no archetype -- every product with a tessellated body is
+    measured into a prism (:mod:`rvt.ifc.assembly_parts`) and the whole set
+    is authored as one donor-free family through the generic_model
+    constructor, so the emit / validate / provenance / target-version block
+    is the very one the famspec lane uses."""
+    from ..ifc import assembly_parts as AP
+    steps = _Steps(res)
+    try:
+        model = steps.run("ifc->parts", "rvt.ifc.assembly_parts:read_assembly",
+                          lambda: AP.read_assembly(ifc_path))
+    except _StepFailed as sf:
+        res.ok = False
+        msg = str(sf.__cause__)[:400]
+        res.status = f"FAILED (ifc->parts: {msg})"
+        res.line = (f"nothing in this IFC could be measured into a solid: {msg}. "
+                    "The assembly lane authors a family from TESSELLATED bodies "
+                    "(IfcTriangulatedFaceSet / IfcPolygonalFaceSet); an IFC of "
+                    "swept/CSG solids re-exports as a mesh from most authoring "
+                    "tools. Nothing is invented from an unmeasurable body.")
+        return
+
+    rec_path = os.path.join(out_dir, "assembly-parts.json")
+    try:
+        with open(rec_path, "w", encoding="utf-8") as fh:
+            json.dump(model.to_json(), fh, indent=1)
+        res.files["assembly_parts"] = rec_path
+    except OSError as e:                                        # delivery never blocks
+        res.caveats.append(f"the measurement record could not be written ({e})")
+
+    name = (model.assembly_name or model.project_name
+            or os.path.splitext(os.path.basename(ifc_path))[0])
+    kw: Dict[str, Any] = {
+        "parts": model.to_parts(), "name": name,
+        "source": f"IFC mesh ({os.path.basename(ifc_path)})",
+    }
+    sub = dict(opts)
+    sub.setdefault("stem", _slug(name))
+    _famspec_rfa(res, "generic_model", kw, out_dir, sub)
+    if not res.files.get("rfa"):
+        return
+    d = model.dims_ft()
+    res.status = (f"OK ({len(model.parts)}-part generic_model .rfa measured from "
+                  f"{os.path.basename(ifc_path)})")
+    res.caveats.append(
+        f"ASSEMBLY LANE: {len(model.parts)} IFC product(s) measured into prisms "
+        f"({', '.join(f'{k} x{v}' for k, v in sorted(model.fit_counts().items()))}), "
+        f"overall {d['x'] * 12:.2f} x {d['y'] * 12:.2f} x {d['z'] * 12:.2f} in; every "
+        "dimension is GIVEN by your mesh and reported as such -- no catalog fact, no "
+        "manufacturer identity, no donor bytes")
+    res.caveats.extend(model.notes)
+    if model.skipped:
+        res.caveats.append(
+            f"{len(model.skipped)} product(s) carried no measurable solid and were "
+            "SKIPPED BY NAME (never guessed): "
+            + "; ".join(f"{s['name']} ({s['reason']})" for s in model.skipped[:6]))
+    res.caveats.append(
+        "each part is the PRISMATIC MASSING of its mesh (plan footprint extruded "
+        "over the mesh's Z extent), not a faceted copy: a cross-section that varies "
+        "with height becomes its envelope. assembly-parts.json reports each part's "
+        "'fill' (mesh volume / authored prism volume) so the approximation is "
+        "measurable per part rather than described.")
 
 
 def _product_rfa(res: RouteResult, ifc_path: str, out_dir: str,
