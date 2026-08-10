@@ -2568,6 +2568,21 @@ _FAMILY_VIEW_LIGHTS = {"m_sunAndShadowSettingsId": -1,
                        "m_shadowIntensity": 50,
                        "m_sunlightIntensity": 0}
 
+#: The rest of ``m_pViewDisplayMgr`` a family view carries.  Found by
+#: ``tools/famdiff.py``, not by eye: every hand-written diff in this campaign
+#: put the display manager in its SKIP set because the subtree is long and
+#: "obviously stock", and it was wrong in four places the whole time.  Both
+#: reference files agree on all four, which is what makes them law -- the
+#: same run shows ``m_annotationsExcluded`` DISAGREEING between the two
+#: references, so that one is an author's choice and is left alone.
+_FAMILY_VIEW_DISPLAY = {
+    "m_exposure": {"m_crushBlacks": 0.2, "m_exposureDouble": 14.0},
+    "m_shadows": {"m_ambientShadows": False},
+}
+#: ``m_oStaticRRTRenderSettings.m_BkIamgeSettings.m_FitType`` (Autodesk's
+#: spelling, not ours) -- 0 in both references, 43 in ours.
+_FAMILY_VIEW_BK_FIT_TYPE = 0
+
 #: ``VIEW_DETAIL_LEVEL`` (-1011002): 1 = Coarse on the plans, 2 = Medium on
 #: the 3D view [measured].  Our 3D view shipped an EMPTY int param set, i.e.
 #: no detail level at all.
@@ -2760,6 +2775,16 @@ def _apply_family_viewer_law(els, project_view_id: int) -> None:
                 model = vdmv.get("m_model")
                 if isinstance(model, dict) and e.class_name != "DBView3d":
                     _put(model, "m_surfaces", 1)
+                for grp, wanted in _FAMILY_VIEW_DISPLAY.items():
+                    sub = vdmv.get(grp)
+                    if isinstance(sub, dict):
+                        for k, val in wanted.items():
+                            _put(sub, k, val)
+                rrt = vdmv.get("m_oStaticRRTRenderSettings")
+                rrtv = rrt.get("value") if isinstance(rrt, dict) else None
+                bk = rrtv.get("m_BkIamgeSettings") if isinstance(rrtv, dict) else None
+                if isinstance(bk, dict):
+                    _put(bk, "m_FitType", _FAMILY_VIEW_BK_FIT_TYPE)
             _apply_family_draw_filters(e)
             ints = o.get("m_pParamValueSetInt")
             iv = ints.get("value") if isinstance(ints, dict) else None

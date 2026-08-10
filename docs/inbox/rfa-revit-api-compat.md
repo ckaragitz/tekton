@@ -917,3 +917,67 @@ likely a dimension or a constraint element rather than a field on the form.
 * gates: 14 stream-local files 297 passed / 58 skipped;
   `tools/sync_plugin.py --check` clean
 * shipped for verdict: `panel400_v10.rfa`
+
+## Iteration 20 — famdiff: stop hand-rolling the comparison
+
+**Owner steer (2026-08-10): "we reverse engineered the format. thats the
+whole rvt python library we built from the ground up we should be able to
+compute this."** Correct, and the record above proves the point against
+itself: every law in iterations 14-19 was found by decoding a file where the
+behaviour works, decoding one where it does not, and comparing -- and every
+one of those comparisons was hand-written as throwaway Python in a heredoc,
+explored once, and discarded. The knowledge was never missing. The
+INSTRUMENT was.
+
+`tools/famdiff.py` makes it a command:
+
+    python tools/famdiff.py REFERENCE.rfa OURS.rfa [--class C] [--rep] [--all]
+
+* pairs elements by CLASS and ROLE (view name, plan type, category,
+  symbol name), never by id;
+* diffs recursively, optionally into the seq-103 B-rep;
+* classifies each leaf so the noise removes itself: **id** (both sides hold
+  an element id live in their own file -- 1075 vs 17866 is renumbering, not
+  a finding), **float** (equal within 1e-9 -- 3.999999999999994 vs 4.0),
+  **real**;
+* RANKS real differences by how many paired elements show them, and labels
+  a difference present in EVERY pair `LAW`. That ranking is the automated
+  form of the check that saved this campaign from "fixing" an edge-flag bit
+  two of three reference extrusions turned out to share with ours.
+
+**It paid for itself on the first run.** Four differences in
+`m_pViewDisplayMgr`, present in every paired view, that every hand-written
+diff in this campaign had **explicitly skipped** because the subtree is long
+and looks stock:
+
+| field | references | ours |
+|---|---|---|
+| `m_exposure.m_crushBlacks` | 0.2 | 1.0 |
+| `m_exposure.m_exposureDouble` | 14.0 | 15.0 |
+| `m_oStaticRRTRenderSettings.m_BkIamgeSettings.m_FitType` | 0 | 43 |
+| `m_shadows.m_ambientShadows` | False | True |
+
+Both reference families agree on all four -> law, now applied. The same run
+shows `m_annotationsExcluded` DISAGREEING between the two references, so
+that one is an author's choice and is deliberately left alone -- the tool
+makes that distinction cheap instead of a judgement call.
+
+**Residual after applying them: zero.** `famdiff` against the Revit-born
+donor over `DBViewPlan`, `DBViewSection` and `Viewer` reports "the two agree
+on every paired element".
+
+**What still cannot be computed, stated precisely so nobody re-litigates
+it:** the mapping from a value to a Revit BEHAVIOUR. The schema says
+`m_flags` is a 32-bit int; nothing in any file says bit 0 means "draw in
+Plan/RCP". That needs an oracle -- desktop Revit, or two files that differ
+in exactly one behaviour. What famdiff computes is the CANDIDATE SET, which
+is the expensive part; the oracle then costs one open.
+
+### BRANCH STATE (updated)
+* written: `tools/famdiff.py` (new instrument),
+  `src/rvt/famgen/skeleton.py` (`_FAMILY_VIEW_DISPLAY`,
+  `_FAMILY_VIEW_BK_FIT_TYPE` + their application)
+* gates: 14 stream-local files 297 passed / 58 skipped; 2026/2025/2024 build
+  VALID 0 errors; `tools/sync_plugin.py --check` clean;
+  `check_portable_paths.py` ok (2934 paths)
+* shipped for verdict: `panel400_v11.rfa`
