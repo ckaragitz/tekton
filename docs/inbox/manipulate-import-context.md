@@ -111,7 +111,12 @@ Gates on the final head: see BRANCH STATE.
   pattern, `reduce.BLOCK_TAG` / `writer.BLOCK_TRL_TAG`'s by-value importers — would
   shrink every release context's patch list. Not done here (outside territory;
   `release_ctx.py` is frontdoor, the genesis tools are owner-machine campaign
-  drivers). Filed as a task issue `Refs #455` (see BRANCH STATE for the number).
+  drivers). Filed as **#467** (`Refs #455`, P2 area:engine), which also carries
+  the /simplify altitude review's widening of the class: by-value from-imports of
+  names `records32._patch_table` rebinds per holding module, in modules the table
+  does not list (`mep/electrical_data.py:78` `decode/encode_elemtable`,
+  `regadd.py:119` `encode_record`/`record_bytes`) — overlaps #174. Sibling, not
+  duplicate: #93 (Global-stream ContentDocuments tokens).
 
 ## BRANCH STATE
 

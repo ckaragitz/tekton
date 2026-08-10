@@ -81,18 +81,12 @@ from .versions import LATEST_RELEASE, framing_table
 from .writer import gzip_member
 
 # ---------------------------------------------------------------------------
-#: Block framing tags are read from :mod:`rvt.partitions` at CALL time (see
-#: :func:`_emit_block`): ``rvt.versions.reading()`` rebinds them there by
-#: name per release and restores them on exit, exactly like the walker that
-#: re-checks every re-emitted stream reads them.  A by-value copy taken at
-#: import froze whatever release context the process's FIRST import of this
-#: module happened to sit in (``records32.reading32`` on a 2023 file imports
-#: it inside one) and every later 2026 edit wrote 2024/2023 tags (#455).
-#: The two names below are NOT read by this module; they remain only as the
-#: at-rest 2026 handles that ``frontdoor.release_ctx`` and ``tools/genesis_*``
-#: swap alongside ``rvt.partitions`` inside the same ``reading()`` (inert).
-BLOCK_TAG = framing_table(LATEST_RELEASE)["BLOCK_TAG"]
-TRAILER_TAG = framing_table(LATEST_RELEASE)["TRAILER_TAG"]
+# NOT read by this module: block tags come from rvt.partitions at CALL time
+# (see _emit_block, #455 -- a by-value copy froze whatever release context the
+# first import sat in).  Kept only as the at-rest 2026 handles that
+# frontdoor.release_ctx and tools/genesis_* still getattr/setattr (inert).
+_T26 = framing_table(LATEST_RELEASE)
+BLOCK_TAG, TRAILER_TAG = _T26["BLOCK_TAG"], _T26["TRAILER_TAG"]
 
 INVALID_ID = -1
 OWNER_NONE_U64 = 0xFFFFFFFFFFFFFFFF
