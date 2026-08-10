@@ -1476,10 +1476,20 @@ def _header_count(doc, pname: str) -> Optional[int]:
     return struct.unpack_from("<I", logical, PART_HDR_COUNT_OFF)[0]
 
 
+#: where / why a container without any ``Partitions/<N>`` stream fails --
+#: the validator's L1 finding on it, word for word (rvt.validate structure layer)
+NO_PARTITION_WHERE = "Partitions/<N>"
+NO_PARTITION_WHY = "no Partitions/<N> stream"
+
+
 def _primary_partition(doc, entries_by_path) -> str:
     """The partition stream holding the host document (unit 0 == ElemTable).
-    ``doc``: an open ``RvtDocument`` or a ``rvt.validate.WalkedFile``."""
+    ``doc``: an open ``RvtDocument`` or a ``rvt.validate.WalkedFile``.
+    No partition stream at all -> ``ManipulationError`` (nothing to edit;
+    :func:`verify_manipulated` judges such a file without asking)."""
     parts = doc.partition_streams()
+    if not parts:
+        raise ManipulationError(NO_PARTITION_WHY)
     if len(parts) == 1:
         return parts[0]
     # dach carries a second, empty partition (0 elements): pick the stream
@@ -1632,7 +1642,10 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
     partition whose stream header does not parse is ONE walker error, its
     reason recorded in ``rep["framing_errors"][<partition>]`` -- present only
     then -- and, on the primary, the block-dependent facts below stay None:
-    a FAIL verdict, never a raise); the block ISIZE identity on the primary
+    a FAIL verdict, never a raise; a file with NO partition stream has
+    nothing to walk: 0 walker errors, ``framing_errors`` names the absence
+    where and as the validator does, header count and block facts None);
+    the block ISIZE identity on the primary
     partition; partition header count == ElemTable count (a lost / CRC-bad
     ElemTable is not parsed: its counts stay None and the verdict FAILs);
     per-seq sentinels last; adler32 stamps of every unit-0 seq-102/103
@@ -1682,12 +1695,18 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
             rep["fallbacks"].append(
                 f"own schema unreadable ({type(e).__name__}: {e}); edited "
                 "records decoded against the built-in latest-release schema")
-        pname = _primary_partition(walked, None)
         parts = walked.partition_streams()
         # framing walker errors of every partition; one whose stream header
         # does not parse enumerates no block: ONE walker error, its reason
-        # recorded as the validator words its L1 finding
+        # recorded as the validator words its L1 finding.  No partition at
+        # all: nothing walked (0 errors), the absence recorded the same way,
+        # and every fact read off the primary stays None (-> FAIL)
         framing: Dict[str, str] = {}
+        if parts:
+            pname = _primary_partition(walked, None)
+        else:
+            pname = NO_PARTITION_WHERE
+            framing[pname] = NO_PARTITION_WHY
         for p in parts:
             why = walked.framing_error(p)
             if why:
@@ -1714,7 +1733,8 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
             rep["elemtable_ids_sorted"] = et_ids == sorted(et_ids)
             etset = set(et_ids)
             rep["deleted_in_elemtable"] = [i for i in deleted_ids if i in etset]
-        rep["header_count"] = _header_count(walked, pname)
+        if parts:
+            rep["header_count"] = _header_count(walked, pname)
         if pname not in framing:                           # the primary's blocks, inflated ONCE
             w = walked.walker(pname)
             rep["isize_identity_mismatches"] = sum(

@@ -23,6 +23,13 @@ by convention) and takes its family-mode unframed set from the file
 carries ``framing_errors`` (present only when earned) -- so ``rvt_job.py edit
 … --json`` names the damaged partition and the reason in its ONE JSON.
 
+#501 closed the last raising shape: a container with NO ``Partitions/<N>``
+stream (``_primary_partition``'s ``max()`` of an empty list).  Nothing is
+walked there -- 0 walker errors -- the absence is recorded under the same
+conditional key, where and worded as the validator's L1 finding
+(``framing_errors["Partitions/<N>"] == "no Partitions/<N> stream"``), the
+header count and every block fact stay ``None``, and both gates say FAIL.
+
 Fresh-clone runnable (tracked bundled bases + the tracked eval-kit family;
 edits and damaged copies go to ``tmp_path``); in the CI shard via
 tests/ci_shard.d/458-partition-header-verdict.txt.
@@ -100,11 +107,14 @@ def _partition(path: str) -> str:
         return doc.partition_streams()[0]
 
 
-def _rewrite(src: str, dst: str, mutate_by_name: dict, extra=()) -> None:
+def _rewrite(src: str, dst: str, mutate_by_name: dict, extra=(), drop=()) -> None:
     """Copy ``src`` to ``dst`` with the RAW bytes of each named stream passed
-    through its ``mutate(bytearray)``; ``extra`` entries appended verbatim."""
+    through its ``mutate(bytearray)``; ``extra`` entries appended verbatim,
+    streams named in ``drop`` left out."""
     out = []
     for e in read_entries(src):
+        if e.entry_type == "stream" and e.path in drop:
+            continue
         if e.entry_type == "stream" and e.path in mutate_by_name:
             raw = bytearray(e.data)
             mutate_by_name[e.path](raw)
@@ -239,6 +249,45 @@ def test_lost_elemtable_on_two_partition_file_is_a_verdict(job, tmp_path, edited
 
 
 # ---------------------------------------------------------------------------
+# 3b. NO partition stream at all (#501): nothing to walk, the absence named
+#     where and as the validator names it, every primary fact None -> FAIL
+# ---------------------------------------------------------------------------
+NO_PARTITION = {M.NO_PARTITION_WHERE: M.NO_PARTITION_WHY}
+
+
+def test_partitionless_file_is_a_fail_verdict(job, tmp_path, edited):
+    bad = str(tmp_path / "nopart.rvt")
+    _rewrite(edited, bad, {}, drop=[_partition(edited)])
+    with open_rvt(bad) as doc:
+        assert doc.partition_streams() == []
+        with pytest.raises(M.ManipulationError, match=M.NO_PARTITION_WHY):
+            M._primary_partition(doc, None)                # the writers' question: named, not max()
+    v, structural, rep = _judged(job, bad)                    # the self-check's: no exception
+    assert structural["status"] == "FAIL"
+    assert v["walker_errors"] == 0 and v["framing_errors"] == NO_PARTITION
+    assert v["header_count"] is None and isinstance(v["elemtable_count"], int)
+    for k in BLOCK_DEPENDENT:
+        assert v[k] is None, (k, v[k])
+    assert v["edited"] == {} and (v["crc_failures"], v["ecc_mismatches"]) == (0, 0)
+    assert list(v)[:len(VERIFY_KEYS)] == VERIFY_KEYS         # no always-present key added
+    # the validator FAILs with the same words at the same where (its L1 finding)
+    assert not rep["ok"] and _errors_at(rep, M.NO_PARTITION_WHERE) == [M.NO_PARTITION_WHY]
+    assert structural["report"]["framing_errors"] == NO_PARTITION
+    assert structural["report"]["walker_errors"] == 0 and structural["report"]["stamps_ok"] is None
+
+
+def test_partitionless_file_without_elemtable_still_fails(job, tmp_path, edited):
+    """Both counts ``None`` compare equal -- the verdict is still FAIL
+    (``stamps_ok`` / ``sentinel_last`` never checked -> never PASS)."""
+    bad = str(tmp_path / "nopart_noet.rvt")
+    _rewrite(edited, bad, {}, drop=[_partition(edited), "Global/ElemTable"])
+    v, structural, rep = _judged(job, bad)
+    assert structural["status"] == "FAIL" and not rep["ok"]
+    assert v["elemtable_count"] is None and v["header_count"] is None
+    assert v["framing_errors"] == NO_PARTITION and v["walker_errors"] == 0
+
+
+# ---------------------------------------------------------------------------
 # 4. identity: undamaged files say exactly what they said (no new key, PASS)
 # ---------------------------------------------------------------------------
 VERIFY_KEYS = ["crc_failures", "ecc_mismatches", "walker_errors", "isize_identity_mismatches",
@@ -309,6 +358,31 @@ def test_job_json_structural_block_names_partition_and_reason(job, capsys, tmp_p
     val = doc["gates"]["validation"]
     assert val["status"] == "FAIL"
     assert why[pname] in [f["message"] for f in val["top_findings"] if f["where"] == pname]
+    assert os.path.isfile(doc["output"]["path"]) and doc["hard_gates_passed"] is False
+
+
+def test_job_json_partitionless_output_is_delivered_and_labelled(job, capsys, tmp_path, monkeypatch):
+    """The #501 shape through the door: the written file loses its partition
+    stream right after the write -- ONE JSON, FAIL on both gates with the
+    reason, the file still delivered, no traceback."""
+    pname = _partition(BASES[2025])
+    scrub = job.scrub_identity
+
+    def scrub_then_drop(path, **kw):
+        res = scrub(path, **kw)
+        _rewrite(path, path, {}, drop=[pname])
+        return res
+    monkeypatch.setattr(job, "scrub_identity", scrub_then_drop)
+    rc, doc = _job_edit_json(job, capsys, tmp_path, "nopart")
+    assert rc == job.EX_STRUCT and doc["exit_code"] == rc
+    structural = doc["gates"]["structural"]
+    assert structural["status"] == "FAIL" and structural["report"]["walker_errors"] == 0
+    assert structural["report"]["framing_errors"] == NO_PARTITION
+    assert structural["report"]["header_count"] is None
+    val = doc["gates"]["validation"]
+    assert val["status"] == "FAIL"
+    assert M.NO_PARTITION_WHY in [f["message"] for f in val["top_findings"]
+                                  if f["where"] == M.NO_PARTITION_WHERE]
     assert os.path.isfile(doc["output"]["path"]) and doc["hard_gates_passed"] is False
 
 
