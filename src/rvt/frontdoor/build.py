@@ -73,7 +73,7 @@ from . import project_info as PI
 from . import release_ctx as RC
 from .base import ResolvedBase, repo_root, resolve_specimen_source
 from . import standalone as SA
-from .stagelog import stage_stdout
+from .._logsink import stage_stdout
 
 __all__ = ["BuildError", "BuildOptions", "BuildResult", "load_ifc_room_module",
            "build_intent"]
@@ -204,7 +204,7 @@ def _stage_stdout(res: BuildResult, out_dir: str, quiet: bool):
     and the path rides in ``res.build_log`` (``manifest.write_manifest`` names
     it beside ``json`` / ``md``); an unwritable ``out_dir`` costs the log (a
     note in ``res.degradations`` -- ``errors`` would flip the rollup status to
-    FAILED), never the stages (:mod:`rvt.frontdoor.stagelog`, #373)."""
+    FAILED), never the stages (:mod:`rvt._logsink`, #373)."""
     return stage_stdout(out_dir, "build.log", quiet=quiet,
                         on_open=lambda p: setattr(res, "build_log", p),
                         on_degrade=res.degradations.append)

@@ -513,3 +513,80 @@ Skipped, with reasons: follow-ups 2 and 3 above.
   3 xfailed** in 302 s, and again on the final tree **1508 passed, 134 skipped, 3 xfailed** in 295 s; `sync_plugin.py --check` clean; `validate_plugin.py` PASS;
   portable paths ok. Nothing staged for the viewer (no format bytes changed).
 * Shipped vs staged: everything in this PR ships; nothing awaits a human. No follow-up issue filed (findings 1–3 above).
+
+## eng #441 — 2026-08-10 (fresh cloud clone, no `samples/`, `origin/main` @ a1927c8, i.e. after #456/#459/#460)
+
+**The shim is retired** (eng #424's follow-up 4, filed as #441): `src/rvt/frontdoor/build.py`, `edit.py` and `router.py` now
+`from .._logsink import stage_stdout`; `tests/test_stagelog.py` imports `rvt._logsink.stage_stdout`; the 14-line
+`src/rvt/frontdoor/stagelog.py` (docstring + one re-export) is deleted and `tools/sync_plugin.py` pruned its mirror
+`plugin/lib/src/rvt/frontdoor/stagelog.py` by itself (`sync_plugin.py` names no file explicitly — the `src/rvt/**` mirror is a
+tree walk, so nothing in the tool changed). All three importers moved together, never 2-via-shim / 1-direct. ONE name for ONE
+function; no behaviour change — the bytes every route runs are the same `rvt._logsink.stage_stdout` they already ran through
+the re-export.
+
+Beyond the four import lines, five **comment-only** lines changed so nothing shipped points at a module that no longer exists
+(and so the issue's own `grep` DONE holds over `src tools tests plugin skills`): the three wrappers' docstring cross-references
+`:mod:`rvt.frontdoor.stagelog`` → `:mod:`rvt._logsink`` (`build.py` `_stage_stdout`, `edit.py` `run_edit`, `router.py`
+`_stage_stdout`), the last sentence of `rvt/_logsink.py`'s module docstring ("… re-exports it for the front-door modules" →
+"the front-door routes import it from here directly; there is no second name for it"), and `tools/rvt_job.py:1485`'s comment
+("not rvt.frontdoor.stagelog: …" → "this door pays no rvt.frontdoor package import"). `tests/test_stagelog.py`: the module
+docstring names `rvt._logsink` instead of the deleted path; `test_the_front_door_name_is_the_stdlib_leaf` became
+`test_the_helper_is_a_stdlib_leaf` — the `stage_stdout is _logsink.stage_stdout` identity assertion is **dropped** (there is
+only one name left to compare) and the import-isolation subprocess assertion (`import rvt._logsink` → `sys.modules ∩ rvt.* ==
+['rvt', 'rvt._logsink']`) stays byte-for-byte. No new test file, so no `tests/ci_shard.d/` drop-in (`373-stagelog.txt` already
+lists `tests/test_stagelog.py`).
+
+### Evidence (this VM; repo `.venv` = CPython 3.11.15; "as nobody" = `runuser -u nobody`, `HOME` = a 0777 `out/n441/`, input = a 0644 copy of `plugin/assets/genesis/G_ABPD_2025.rvt`)
+
+* `git grep -n "frontdoor\.stagelog\|from \.stagelog\|import stagelog" -- src tools tests plugin skills` → **no hits** (exit 1).
+  With the issue's unescaped dot (`frontdoor.stagelog`) the only remaining matches anywhere are this record's own filename
+  `frontdoor-stagelog.md` cited in `rvt/_logsink.py`'s docstring (lines 10, 32) and the historical records under `docs/inbox/`
+  — records left alone, as the issue says.
+* `frontdoor.py author --prompt "an electrical room with 6 panels" --out p --json` (as nobody) → rc 0, stdout 1,750 B = ONE JSON,
+  **stderr 0 B**, `manifest` = `build.log, json, md`, `files` = `combined, families_dir`, `build.log` 17 lines;
+  `tools/rvt_validate.py p/prompt_room.rvt` → `ok true` (0 errors, 1 warning = the known DataStorage decoder gap, 2 info).
+* `route.py run --output rvt --prompt "…6 panels" --out r --json` (as nobody) → rc 0, stdout 5,537 B ONE JSON, **stderr 0 B**,
+  `manifest` ∋ `route.log`, `route.json`, `author:build.log`; `route.log` 0 lines and the nested `build.log` 17 lines — identical
+  counts on `main` (`git stash`, same command, same VM: rc 0, stderr 0 B, `route.log` 0 / `build.log` 17).
+* `frontdoor.py author --rvt G_ABPD_2025.rvt --edit "set level 311 elevation to 5 ft" --out ok --json` (as nobody) → rc 0, ONE
+  JSON 1,013 B, **stderr 0 B**, `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`, `manifest` = `edit.log, json, md`, `files` =
+  `edited`, `edit.log` 18 lines; `tools/rvt_validate.py ok/G_ABPD_2025.edited.rvt` → `ok true`, 0 errors / 0 warnings / 2 info
+  under its own release ("validates", never "loads" — rule 4; no format bytes changed by this PR, no certification claim).
+* The failing edit per #450: `… --edit "move 311 to 3,1,4.66" --out fe --json` (as nobody) → **rc 3**, stdout 759 B ONE JSON
+  (`status` = `FAILED (planning: ManipulationError: element has no InstanceInfo …)`, `manifest` = `edit.log, json, md`, `files {}`),
+  **stderr 0 B**, `edit.log` 16 lines ending `[rvt_job] FAILED (planning: …)` / `[rvt_job] manifest: …`.
+* Bare surface: `tools/sync_plugin.py` rebuilt `tekton-plugin.zip` (5,227 KB; `lib/src/rvt/frontdoor/` in the zip holds **no**
+  `stagelog.py`); unzipped under the scratch dir, `env -u PYTHONPATH -u TEKTON_ROOT python3 skills/tekton-author/scripts/_bootstrap.py
+  go author --prompt "an electrical room with 6 panels" --out out/j1 --json` → rc 0, **stderr 0 B**, ONE JSON: `go.ready true`,
+  `preflight_line` = `tekton: READY | python 3.11.15 | engine bundled | genesis verified (Revit 2026) | family-donor missing |
+  out-dir OK | 0.045s`, `job_seconds 3.97`, `result.files` = `combined, families_dir` (`prompt_room.rvt` + 6 `.rfa`),
+  `result.manifest` = `build.log, json, md`.
+
+### Gates
+
+* Stream-local: `RVT_SKIP_LARGE=1 pytest tests/test_stagelog.py tests/test_frontdoor.py tests/test_router.py tests/test_go_edit.py
+  -q -rs` → **202 passed, 18 skipped** in 65 s (skips = 6 `RVT_SKIP_LARGE`, the rest root-can-write-0555 / absent-samples
+  self-skips, as on `main`); `tests/test_stagelog.py` alone 9 passed / 1 skipped.
+* `tools/sync_plugin.py` → synced, deny-audit clean, validation passed, zip rebuilt; `--check` → `plugin in sync with source`;
+  `plugin/scripts/validate_plugin.py` → `RESULT: PASS` (25 assertions); `tools/dev/check_portable_paths.py` → `ok: 2907 tracked
+  paths are portable`.
+* Whole merged CI shard (`RVT_SKIP_LARGE=1 pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`): see
+  BRANCH STATE below for the final-tree counts.
+
+### `/simplify` (4 lenses) — applied / skipped
+
+Reuse, efficiency and altitude lenses: clean — the diff adds no code; `-X importtime` on `import rvt.frontdoor.router` (+ build,
+edit) shows 30 `rvt.*` modules after vs 31 before (the shim), `rvt._logsink` self-time ~0.15 ms either way, router cumulative
+~40–44 ms both ways (noise); neither `rvt/__init__.py` nor `rvt/frontdoor/__init__.py` aliases `stage_stdout`, and no mirror
+map / validator / shard drop-in names the deleted path. Simplification lens, applied: the two sentences that only documented an
+absence ("there is no second name for it" in `_logsink.py`, "no re-export, #441" in the test docstring) were dropped and the test
+docstring reflowed. Skipped: renaming `tests/test_stagelog.py` / `tests/ci_shard.d/373-stagelog.txt` after the module they were
+named for — pure churn, and the drop-in is outside this territory; the file's first line already names `rvt._logsink.stage_stdout`.
+
+### `/verify` (final tree, repo `.venv`, as uid nobody, fresh `out/n441/v/`; and the rebuilt zip unzipped bare)
+
+Same four commands as the Evidence block, re-run on the post-`/simplify` tree: prompt → rc 0 / stderr 0 B / `build.log, json, md`
+/ `build.log` 17 lines / validates `error 0, warning 1, info 2`; route → rc 0 / stderr 0 B / `route.log` named (0 lines, as on
+main) + `author:build.log` 17; edit ok → rc 0 / stderr 0 B / `edit.log` 18 / edited file validates `error 0, warning 0, info 2`;
+failing edit → rc 3 / ONE JSON / **stderr 0 B** / `edit.log` 16. Bare unzip `go author … --json` → rc 0, stderr 0 B, `tekton:
+READY | … | 0.044s`, `ready true`, `files` = `combined, families_dir`; `unzip -l tekton-plugin.zip | grep -c stagelog` → 0.

@@ -1,5 +1,5 @@
 """test_stagelog.py -- the ONE quiet-stage log helper every front-door route
-shares (src/rvt/frontdoor/stagelog.py, issue #373).
+shares (``rvt._logsink.stage_stdout``, issues #373 / #424).
 
 The contract, checked on the helper itself (the three routes' wrappers are
 covered where they live: tests/test_frontdoor.py section 8b for build.log /
@@ -14,9 +14,9 @@ edit.log, tests/test_router.py for route.log):
   an OSError: the #374 review's edge) -- still runs the block, tells
   ``on_degrade`` ONE note, writes no file and leaks nothing to stdout.
 
-Issue #424: the body lives in the stdlib-only leaf ``src/rvt/_logsink.py``
-(``rvt.frontdoor.stagelog`` re-exports it) so the two remaining call sites --
-the router's spec+rvt ``job-create.log`` and ``tools/rvt_job.py --json``'s
+Issue #424: the body lives in the stdlib-only leaf ``src/rvt/_logsink.py``,
+which every caller imports directly, so the two remaining call sites -- the
+router's spec+rvt ``job-create.log`` and ``tools/rvt_job.py --json``'s
 ``<out>.log`` -- share it without the ``rvt.frontdoor`` package import; both
 call sites are checked here (a fake seed job for the router; the real ops
 door on the bundled 2025 base for ``rvt_job.py``, skipped if it is absent).
@@ -37,7 +37,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src")
 sys.path.insert(0, SRC)
 
-from rvt.frontdoor.stagelog import stage_stdout      # noqa: E402
+from rvt._logsink import stage_stdout                # noqa: E402
 
 BASE_2025 = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2025.rvt")
 LEVEL_ID = 1351691                                   # "GEN B1 - Basement" on the pinned bases
@@ -127,11 +127,9 @@ def test_callbacks_are_optional(tmp_path):
 # issue #424: one stdlib leaf; the two call sites that joined it last
 # ---------------------------------------------------------------------------
 
-def test_the_front_door_name_is_the_stdlib_leaf():
-    """ONE implementation, and importing it runs nothing under rvt.frontdoor
+def test_the_helper_is_a_stdlib_leaf():
+    """Importing the ONE implementation runs nothing under rvt.frontdoor
     (``tools/rvt_job.py`` pays no package import for its --json log)."""
-    from rvt import _logsink
-    assert stage_stdout is _logsink.stage_stdout
     r = subprocess.run([sys.executable, "-I", "-S", "-c",
                         f"import sys; sys.path.insert(0, {SRC!r}); import rvt._logsink; "
                         "print(sorted(m for m in sys.modules if m == 'rvt' or m.startswith('rvt.')))"],

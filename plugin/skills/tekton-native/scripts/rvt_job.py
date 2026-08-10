@@ -1481,8 +1481,8 @@ def main(argv=None) -> int:
     if not want_json:
         return _dispatch(args)
     # --json: progress -> <out>.log (named in output.log); an unopenable log = ONE
-    # note in the manifest, never a lost delivery.  The shared stdlib leaf,
-    # not rvt.frontdoor.stagelog: this door pays no package import (#424).
+    # note in the manifest, never a lost delivery.  The shared stdlib leaf:
+    # this door pays no rvt.frontdoor package import (#424).
     from rvt._logsink import stage_stdout
     out_abs = os.path.abspath(args.out)
     with stage_stdout(os.path.dirname(out_abs), os.path.basename(out_abs) + ".log", quiet=True,
