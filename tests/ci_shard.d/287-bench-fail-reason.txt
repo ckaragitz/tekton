@@ -1,0 +1,2 @@
+# issue #287: surface_bench non-PASS reason quotes the job's own verdict (pure unit test, no plugin build)
+tests/test_surface_bench_reason.py
