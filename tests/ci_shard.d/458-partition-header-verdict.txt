@@ -1,0 +1,2 @@
+# unparseable partition header = a FAIL verdict, never a raise (#458): bundled bases only, tmp_path outputs
+tests/test_partition_header_verdict.py

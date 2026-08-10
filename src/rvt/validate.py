@@ -137,7 +137,8 @@ import zlib
 from collections import Counter, defaultdict
 from contextlib import ExitStack
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import (Any, Callable, Dict, FrozenSet, Iterable, List, Optional, Sequence, Set,
+                    Tuple)
 
 # The validator is stdlib + olefile only: the ECC tier's per-lane syndromes
 # come from ``ecc.lane_syndromes`` (bit-sliced, ~2 ms per full page), so a
@@ -585,10 +586,11 @@ def _iter_seg_records(seg: bytes, seq: int, unit: int) -> Iterable[_Rec]:
 # ONE read + ONE ECC pass + ONE inflate/CRC walk of a container (#266)
 # ---------------------------------------------------------------------------
 
-#: the framed streams of the inventory law -- ``Contents``, ``Formats/Latest``,
-#: every ``Global/*``: framing = [prefix] + ONE gzip body, so a member scan that
-#: finds nothing in one of them means its body no longer inflates
-_GZIP_BODIED = frozenset(REQUIRED_STREAMS) - UNFRAMED_STREAMS
+def unframed_streams_of(names: Iterable[str]) -> FrozenSet[str]:
+    """The streams THIS file stores without CRCIO paging / gzip framing:
+    ``UNFRAMED_STREAMS``, plus the plain-XML ``PartAtom`` when the inventory
+    has one (a family) -- the shape read off the file, not a caller's flag."""
+    return UNFRAMED_STREAMS | ({"PartAtom"} & set(names))
 
 
 class WalkedFile:
@@ -621,15 +623,20 @@ class WalkedFile:
     walkers read the partition-framing ordinals in force, so :meth:`walker`
     / :meth:`segments` are built on first use and must first be used under
     the file's own release (:func:`enter_own_release`) -- both gates do.
+
+    ``unframed`` defaults to the file's own shape (:func:`unframed_streams_of`:
+    a family's ``PartAtom`` joins the project set when present); the
+    validator passes its mode's set explicitly.
     """
 
     def __init__(self, path: str, names: Sequence[str],
                  read_raw: Optional[Callable[[str], bytes]],
-                 unframed: Iterable[str] = UNFRAMED_STREAMS, *, repair: bool = True,
+                 unframed: Optional[Iterable[str]] = None, *, repair: bool = True,
                  _shared: Optional["WalkedFile"] = None):
         self.path = path
         self.names: List[str] = list(names)              # stream inventory, OLE order
-        self.unframed = frozenset(unframed)              # streams with NO CRCIO paging
+        self.unframed = (unframed_streams_of(names) if unframed is None
+                         else frozenset(unframed))       # streams with NO CRCIO paging
         self.repair = bool(repair)
         self._read_raw = read_raw
         # view-independent caches (shared between views of one file)
@@ -770,6 +777,16 @@ class WalkedFile:
             raise w
         return w
 
+    def framing_error(self, pname: str) -> Optional[str]:
+        """Why ``Partitions/<N>``'s framing does not parse (its stream header,
+        under the release in force), worded as the L1 finding both gates
+        record -- ``None`` when :meth:`walker` succeeds."""
+        try:
+            self.walker(pname)
+        except Exception as e:                           # noqa: BLE001 -- a verdict, never a raise
+            return f"partition header/framing: {e}"
+        return None
+
     def segments(self, pname: str) -> Dict[Tuple[int, int], bytes]:
         """``{(unit, seq): bytes}`` -- the inflated blocks of the partition
         joined per save unit and seq, in stream order."""
@@ -787,18 +804,21 @@ class WalkedFile:
         inflate at all, enumerated by the stream's FRAMING -- the L1 law as a
         count: a ``Partitions/<N>`` by its block headers (:meth:`walker`, so
         under the file's own release; an uninflatable body is a block with
-        ``crc_ok=False``, a framing that does not parse raises); a stream the
-        inventory law frames around ONE gzip body (``Contents``,
-        ``Formats/Latest``, ``Global/*``) whose member scan finds none has
-        lost it -> 1; any other stream: its members that fail (a family's
-        plain-XML ``PartAtom`` promises none; an unframed stream -> 0)."""
+        ``crc_ok=False``; a framing that does not parse enumerates no body ->
+        0, that failure is :meth:`framing_error`'s); any other framed stream:
+        its members that fail, and one whose member scan finds none has lost
+        its body -> 1 (every framed stream carries >= 1 gzip member -- the
+        validator's L1 error on it); an unframed stream (a family's plain-XML
+        ``PartAtom`` included, :func:`unframed_streams_of`) -> 0."""
         if name in self.unframed:
             return 0
         if name.startswith("Partitions/"):
+            if self.framing_error(name):
+                return 0
             return sum(1 for b in self.walker(name).blocks if b.crc_ok is False)
         members = self.members(name)
         if not members:
-            return int(name in _GZIP_BODIED)
+            return 1
         return sum(1 for m in members if not m.crc_ok)
 
     # -- lifetime ------------------------------------------------------------------
