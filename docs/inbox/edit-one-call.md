@@ -1214,3 +1214,226 @@ PASS, 598,016 B written.
 * Probe artefacts (scratchpad, not committed): `probe/{make_fx,judge,rfa,rfa2}.py`,
   `probe/fx/*.rvt` (written by main's engine), `probe/{main,head}/*.json`,
   `door/gate_stage.py`, `bench.sh`, `before.zip` / `after.zip`.
+
+## eng #486 — 2026-08-10 — the validator words its framing finding through the walk and takes its family shape from the file; the manifest's structural block carries `framing_errors`
+
+Stream: `eng486` (engineer session under the tech-lead session; branch
+`cam/486-validator-file-shape` from `main @ 4cc81dd`, i.e. after #495's
+`_jsonsafe` writer lines in `tools/rvt_job.py`). Closes #486; Refs #458 (whose
+§4 offered both halves as patches), #430, #266. No written byte changes and no
+verdict changes: one wording now comes from one place, one set from one law,
+and one dict key travels one block further.
+
+### 1. What was built
+
+1. **`Validator._layer_structure` words the partition-framing finding through
+   `WalkedFile.framing_error(pname)`** — `why = walked.framing_error(pname);
+   if why: rep.error(L_STRUCTURE, pname, why); continue`, then
+   `walked.walker(pname)` (cached, cannot raise once `framing_error` said
+   `None`). The inline `f"partition header/framing: {e}"` is gone, so the
+   validator's L1 error and the self-check's `framing_errors[p]` are one string
+   by construction (#458 had them equal by convention). The `< 18 bytes →
+   "partition stream too short"` pre-check stays first, so a stub partition
+   keeps its old wording (folding it into `framing_error` would have changed the
+   self-check's text for that case — `WalkedFile` is #458's, not this
+   territory; pinned as-is by `test_validator_words_the_framing_finding_through_the_walk`).
+2. **`Validator` takes its family-mode unframed set from the file.**
+   `__init__` no longer spells `UNFRAMED_STREAMS | {"PartAtom"}`; `_open` sets
+   `self.unframed_streams = unframed_streams_of(names) if family else
+   UNFRAMED_STREAMS` once the inventory is known (from the given walk's `names`,
+   else the freshly opened container's), and only then takes the caller's walk
+   as `walked.view(repair=True, unframed=…)`. In family mode that set *is* the
+   walk's default shape, so a shared `walk_file()` object is used outright on an
+   `.rfa` **and** on a project (`--family` on a `.rvt`: 1 sibling view on main →
+   0); project mode keeps `UNFRAMED_STREAMS` — the explicit flag / `--project` is
+   honoured exactly, `PartAtom` judged framed on purpose — so every report in
+   either mode is byte-identical (§2) and the one remaining sibling view is the
+   deliberate one: project mode on an `.rfa` (§3, → #502).
+3. **`tools/rvt_job.py::structural_gate_from_manipulated` keeps
+   `framing_errors`** — conditionally (`if v.get("framing_errors"):
+   keep["framing_errors"] = …`), matching the verify dict's present-only-when-
+   earned key, so a healthy job's manifest gains no `null` field (0-line diff)
+   and a damaged one's `gates.structural.report` names the partition and the
+   reason next to `walker_errors`, in the ONE `--json` document and the
+   identical manifest on disk. Nothing else in the file touched (#495's writer
+   lines, the printed == on-disk contract intact — the new door test re-asserts it).
+4. **Tests** — `tests/test_partition_header_verdict.py` 11 → **15**: the three
+   header-zeroed cases also assert `structural["report"]["framing_errors"] ==
+   v["framing_errors"]`; the identity cases assert `list(structural["report"]) ==
+   STRUCTURAL_REPORT_KEYS` (no key added on the bases, the edit, the verbatim
+   twin); new `test_validator_words_the_framing_finding_through_the_walk`
+   (L1 error at the zeroed primary `== walked.framing_error(p)`, a 10-byte twin
+   → `"partition stream too short"` while `framing_error` has the struct text);
+   new `test_job_json_structural_block_names_partition_and_reason` — drives
+   `rvt_job.main(["edit", <2025 base>, "--ops", {set-level}, "-o", …, "--json",
+   "--no-provenance"])` in-process with `scrub_identity` wrapped to zero the
+   primary's header right after the door wrote the file (the writer-regression
+   case): rc `EX_STRUCT` (3), ONE JSON on stdout == the manifest on disk (+
+   `exit_code`), `gates.structural` FAIL / `walker_errors 1` /
+   `framing_errors == {Partitions/20: "partition header/framing: unexpected
+   Partitions header: v=0 cls=0x0"}`, `gates.validation` FAIL with the same
+   words at the same `where`, output file delivered, `hard_gates_passed false`;
+   new `test_job_json_healthy_structural_block_gains_no_key` (rc 0, PASS, report
+   keys == the fixed list); new `test_validator_takes_the_family_shape_from_the_file`
+   (family mode: `val.walked is <the given walk>` on the `.rfa` and on a base,
+   set == `unframed_streams_of(names)`; explicit project mode on the `.rfa`: a
+   view sharing `_raw`, set == `UNFRAMED_STREAMS`, the pinned `PartAtom` +
+   `ProjectInformation` errors still reported). Against `main @ 4cc81dd`'s
+   engine (file copied into a worktree): **5 failed / 10 passed** — the three
+   `framing_errors`-in-report assertions, the door test and the shape test are
+   red on main, green here; the wording test passes on both (identity pin).
+
+### 2. Evidence
+
+**Identity probe, exactly as #458's** (`scratchpad/probe/`: fixtures written
+ONCE by `main @ 4cc81dd`'s engine — the three pinned bases copied, a `set-level`
+edit of the 2025 base, a verbatim twin, #460's smash set (primary 64 B,
+`Global/Latest`, `Contents`, `Global/ElemTable`), #458's header cases (primary /
+twin / both zeroed, lost ElemTable on the twin file), a memberless `Global/Orphan`,
+a 10-byte twin, a 64 KiB truncation, and the tracked eval-kit `.rfa`; judged by
+main (worktree) and by this head in separate `-I` interpreters: `verify_manipulated`
+dict + `structural_gate_from_manipulated` + the validator report (−timings) +
+`validation_gate` (−elapsed/report_json), independent AND shared walk, **plus the
+CLI `tools/rvt_validate.py --json` report** (and `--family` / `--project` on the
+`.rfa`); `json.tool --sort-keys | diff | grep -c '^[<>]'`):
+
+| fixture | verdicts (main == head) | diff lines main→head |
+|---|---|---|
+| `G_ABPD` / `_2025` / `_2024`, the edit, the verbatim twin | structural PASS · validation PASS | **0 / 0 / 0 / 0 / 0** |
+| primary smash, `Global/Latest`, `Contents`, `Global/ElemTable`, lost ElemTable on twin file, `Global/Orphan`, 64 KiB truncation | FAIL (Contents: structural PASS · validation FAIL, as before) | **0** each |
+| `.rfa` — verify (indep + shared), validator project + family in-process, CLI default/`--family`/`--project` | PASS · family OK / project 3 errors | **0** |
+| **primary header zeroed** | FAIL · FAIL (4 errors, report identical) | **6** = `structural.report.framing_errors {Partitions/20: …}` ×(independent, shared) — the intended one |
+| **twin header zeroed** / **both zeroed** | FAIL · FAIL (2 / 8 errors, identical) | **6 / 8** = the same key (1 / 2 partitions) ×2 views |
+| **10-byte twin** | FAIL · FAIL (validator: `partition stream too short`, identical) | **6** = `framing_errors {Partitions/21: "partition header/framing: unpack_from requires …"}` ×2 |
+
+Every validator report — in-process and CLI, both modes — and every verify dict
+is byte-identical main vs head on every fixture; the ONLY diff lines anywhere are
+the `framing_errors` entries inside `structural.report` of the four framing-damaged
+files. Sibling views built by a `validate_file(…, walked=walk_file(x))` (spy on
+`WalkedFile.__init__(_shared=…)`), main → head: `.rfa` family mode 0 → 0, `.rfa`
+project mode 1 → 1 (by request, §3), base project mode 0 → 0, base family mode
+**1 → 0**.
+
+**Through the door** — `test_job_json_structural_block_names_partition_and_reason`
+above is the `rvt_job.py edit <copy damaged after a door-written edit> … --json`
+drive: ONE JSON, `gates.structural.report = {…, "walker_errors": 1,
+"framing_errors": {"Partitions/20": "partition header/framing: unexpected
+Partitions header: v=0 cls=0x0"}}`, `gates.validation.top_findings` carrying the
+same sentence, status `FAILED (structural, validation)`, the `.rvt` written and
+named. A partition-less container still raises inside `_primary_partition`
+(`max()` of an empty list) — not in #486's DONE → filed **#501**.
+
+**Latency** (S-2026-08-09-g) and **gates**: see BRANCH STATE (measured on the
+final head).
+
+### 3. Findings
+
+1. The default is the last duplicated fact. `validate_file(x.rfa)` with no flag
+   is project mode by definition today, and that verdict (3 mode-mismatch errors)
+   is a *pinned contract in famgen territory*: `famgen.skeleton.validate_family`
+   computes its `project_mode` block with a bare `validate_file(path)`, and
+   `test_famgen_skeleton.py:619` (`n_errors == 3`), `test_bare_family_validate.py`
+   (`"PartAtom" in wheres`, `project_mode INVALID`) pin it. Both designs the
+   issue sketched — the set unconditionally from the file (project mode on an
+   `.rfa` → 1 error) or `family=None` inferred (→ 0 errors) — move that contract
+   and need the famgen call to say `family=False`; `src/rvt/famgen/**` was NO-GO
+   this wave, so #486 lands the part that changes no verdict anywhere and the
+   default goes to **#502** with the exact call sites named.
+2. Once `framing_error` is the validator's wording, the `try/except` around
+   `walked.walker()` in `_layer_structure` is dead by construction (the walker is
+   cached — the same object or the same exception every call); `_walkers()` in the
+   consistency layer keeps its own `partition walker: …` wording for the L2
+   re-walk of a file whose every partition failed L1 (visible in the zeroed
+   primary's report on main and head alike) — a second sentence for a second
+   layer, left alone (byte identity; outside `_layer_structure`).
+
+### 4. Open questions / follow-ups
+
+* **#501** — `verify_manipulated` on a partition-less file: FAIL verdict, not
+  `ValueError: max() arg is an empty sequence` (`_primary_partition`).
+* **#502** — `family=None` default inferred from the file; `validate_family`'s raw
+  comparison and the three pins say `family=False`; removes the last sibling view.
+* Not filed (no caller, no ask): folding the `< 18 bytes` pre-check into
+  `WalkedFile.framing_error` so the stub-partition case reads the same sentence in
+  both gates (would change the self-check's text for that case only); and the L2
+  `_walkers()` re-walk keeping its own `partition walker: …` sentence when every
+  partition failed L1 (a second layer's second sentence, byte identity this round).
+* `/simplify` (reuse / simplification / efficiency / altitude, four reviewers) →
+  applied: `Validator.unframed_streams` dropped as shadow state — `_open` computes
+  the mode's shape once as a local and the given walk / the lazily built
+  `WalkedFile` carries it (`self.walked.unframed` is the one reader; the family arm
+  passes `None` = the file's own shape), one `if/else` instead of two; `w =
+  self.part_walkers[pname] = walked.walker(pname)`; `if "framing_errors" in v:`
+  states the presence contract literally; tests: `monkeypatch.setattr` instead of
+  hand-rolled restore, the dead third return value dropped, `_opened_validator`
+  named for what it returns, one `_assert_healthy_shape` helper for the four
+  identity pins, structure-only validations pass `layers=("structure",)` (−0.4 s).
+  Skipped, with reason: hoisting the "stdout JSON == manifest on disk" check into
+  `tests/conftest.py` for `test_frontdoor_json_strict` / `test_stagelog` to share
+  (both files are other engineers' this wave — eng #488 / NO-GO list); dropping the
+  healthy `--json` door test (~1 s; it is DONE 3's stated evidence).
+
+### BRANCH STATE (eng #486)
+
+* Branch `cam/486-validator-file-shape` from `main @ 4cc81dd`; PR closes #486;
+  follow-ups filed: **#501** (partition-less file → verdict), **#502** (`family=None`
+  inferred default; famgen's raw comparison says `family=False`).
+* Files written: `src/rvt/validate.py` (`Validator.__init__`, `_open`,
+  `_layer_structure`'s partition loop + its gzip loop's one read of
+  `walked.unframed` — nothing else: `WalkedFile`, #429/#447's plan path,
+  `crc_failures`, #466's ref_sink hoist, `validate_file`, the CLI untouched),
+  `tools/rvt_job.py` (`structural_gate_from_manipulated`'s keep lines only; #495's
+  writer lines untouched), `tests/test_partition_header_verdict.py` (11 → 15 tests;
+  already in the shard via `tests/ci_shard.d/458-partition-header-verdict.txt`, no
+  new drop-in needed), this record section. Generated mirrors re-synced by
+  `tools/sync_plugin.py`: `plugin/lib/src/rvt/validate.py`, `plugin/lib/tools/rvt_job.py`,
+  `plugin/skills/{tekton-author,tekton-edit,tekton-native}/scripts/rvt_job.py`.
+* Not touched: `src/rvt/versions/**`, `src/rvt/manipulate.py`, `src/rvt/famgen/**`,
+  `tools/frontdoor.py`, `tools/rvt_edit.py`, `tests/conftest.py`, any hot file, any
+  NO-GO file of this wave.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer (no
+  written byte changes — the three `rvt_edit.py set-level` outputs and the
+  `rvt_job` / front-door edit outputs validate 0 errors exactly as on main).
+* Gates on the final head (post-`/simplify`): `tests/test_partition_header_verdict.py`
+  **15 passed** (4.6 s; against `main @ 4cc81dd`'s engine 5 failed / 10 passed);
+  neighbours + plugin tests (`test_gates_shared_walk test_manipulate
+  test_verify_manipulated_release test_edit_own_release test_validate_release
+  test_ecc_final_block test_validate_footer_blob test_bare_family_validate
+  test_records32 test_job test_go_edit test_modify_family_carrier
+  test_manipulate_import_context test_famgen_skeleton test_rvt_analyze
+  test_plugin_sync test_bootstrap test_coldstart test_surface_perf`) → **262 passed,
+  23 skipped, 1 xfailed, 0 failed** (43 s); whole merged CI shard (`python3
+  tools/dev/shard_list.py --print`, `RVT_SKIP_LARGE=1 … -q -p no:cacheprovider`) →
+  **1738 passed, 139 skipped, 3 xfailed, 0 failed in 325 s** on the pre-simplify head
+  and **1738 passed, 139 skipped, 3 xfailed, 0 failed in 319 s** again on the final head; `tools/sync_plugin.py` run → `--check`: *plugin in
+  sync with source (deny-audit clean, identity scan == allowlist, assets verified)*;
+  `plugin/scripts/validate_plugin.py` PASS; `tools/dev/check_portable_paths.py` ok
+  (2925). Identity probe re-run on the final head: 0 diff lines on every healthy /
+  smash / `.rfa` fixture and view, the four framing-damaged fixtures differing ONLY by
+  `structural.report.framing_errors`. `/verify` on the final head: validator row —
+  three bases `OK errors=0` (rc 0), 64 KiB truncation FAIL 11, header-zeroed primary
+  / twin / 10-byte twin FAIL 4 / 2 / 2, partition-less FAIL 1, non-CFB FAIL 1 (rc 1
+  each, no traceback anywhere), the eval-kit `.rfa` OK 0 (auto family) / FAIL 3
+  (`--project`, the pinned raw comparison); `rvt_edit.py <base> set-level --id
+  1351691 --elevation-ft 5 --json` on all three bases → `ok=True`, structural PASS
+  (walker_errors=0) | validation PASS (0 errors), "Revit N in, Revit N out", stderr
+  0 B; `rvt_job.py edit <2025 base> --ops {set-level} --json` → rc 0, stderr 0 B, ONE
+  JSON == manifest on disk, `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`,
+  structural PASS (no `framing_errors` key) / validation PASS 0, 598,016 B, output
+  validates 0 errors; `frontdoor.py author --rvt <2025 base> --edit "set level
+  1351691 elevation to 5 ft" --json` → rc 0, stderr 0 B, same status, job manifest
+  structural PASS / validation PASS 0, output validates 0 errors. **Latency**
+  (S-2026-08-09-g): bare unzip of `tekton-plugin.zip` built from `main @ 4cc81dd`
+  ("before", 5,363,094 B) and from the final head ("after") into paths with a space,
+  `env -i PATH=/usr/bin:/bin` + dead proxies, `/usr/bin/python3` 3.11.15, `go edit
+  assets/genesis/G_ABPD_2025.rvt set-level --id 1351691 --elevation-ft 5 -o
+  out/edited.rvt --json`, alternating 5+5 after a `.pyc`-compiling first pair (0.841
+  / 0.868 s): every run rc 0, `go.ready true`, `tekton: READY …`, structural PASS |
+  validation PASS (0 errors), stderr 0 B, structural report keys unchanged; wall
+  before 0.514 0.508 0.510 0.505 0.512 s (median **0.510**) · after 0.507 0.507 0.508
+  0.516 0.507 s (median **0.507**) — unchanged. The ops door from the same bare unzip
+  (`go rvt_job.py edit … --ops ops.json --no-provenance --json`) → `go.ready true`,
+  exit 0, structural PASS / validation PASS, stderr 0 B.
+* Probe artefacts (scratchpad, not committed): `probe/{make_fx,judge}.py`,
+  `probe/fx/*` (17 fixtures written by main's engine), `probe/{main,head}/*.json`,
+  `probe/nopart.rvt`, `bench.sh`, `before.zip` / `after.zip`, `shard.log` / `shard2.log`.
