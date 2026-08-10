@@ -238,8 +238,12 @@ engineer's voice under its own header; nothing above this rule was edited.
    (The issue's Territory lists this file; the wave brief's "NOT shard_list.py" is read as `tools/dev/shard_list.py`,
    which is untouched — flagged in the PR for the reviewer to overrule.)
 3. **`tests/conftest.py` — the DocsReadAudit keepers** (every pre-existing gate, fixture and hook byte-intact):
-   - **Class collectors carry their module.** `collector_module(collector)` = `collector.path` for `pytest.Module`
-     **and `pytest.Class`**, `None` for Session/Dir/Package; `pytest_collectstart` attributes through it. Before, a
+   - **Class collectors carry their module.** `collector_module(collector)` = the path of the collector's nearest
+     file-backed ancestor, itself included (`collector.getparent(pytest.File)`): a `pytest.Module`'s own file, a
+     **`pytest.Class`**'s file, any other `pytest.File` collector alike; `None` for Session/Dir/Package, which sit
+     above every file. `pytest_collectstart` attributes through it. (First cut: an `isinstance(…, (Module, Class))`
+     allow-list — the /simplify altitude pass generalised it so the next non-Python collector cannot fall back to
+     "session level = enforced", i.e. this very bug, again.) Before, a
      Class collector passed `None` ⇒ session level ⇒ *enforced*: a docs read made while a class's methods are
      collected (`pytest_generate_tests`, a param-id callable) in a **non-shard** file failed a local run of that file
      with the "opened by the CI shard" gloss. Latent (no `pytest_generate_tests` under `tests/` today), real (bite below).
@@ -318,15 +322,15 @@ this branch (RVT_DOCS_AUDIT=report): 1 passed …  docs-read audit
 
 **Whole merged shard, audit on, `RVT_DOCS_AUDIT=report`, same 4-vCPU VM, sequential runs:**
 ```
-BEFORE  origin/main 9d4f456 (worktree)   @@BEFORE@@
-AFTER   this branch                      @@AFTER@@
+BEFORE  origin/main 9d4f456 (worktree)   1836 passed, 134 skipped, 3 xfailed in 415.84s   wall 417.1 s
+AFTER   this branch                      1839 passed, 134 skipped, 3 xfailed in 412.43s   wall 414.0 s   (+3 = this file's new rows)
 ```
 Census unchanged: the same three `SHARD_READS` paths (`docs/coverage/viewer-certified.json`,
 `docs/process/AUTONOMY.md`, `docs/product/PERMUTATION-MATRIX.md`), all `ok`, no `--`/`FAIL` rows; header
 `3 repo docs/ file(s) opened…` on both.
 
 **Gates:** `python3 tools/dev/check_portable_paths.py` ok; nothing under `src/ tools/ skills/ plugin/` touched, so
-`sync_plugin.py --check` / `validate_plugin.py` are moot (run anyway: @@SYNC@@).
+`sync_plugin.py --check` / `validate_plugin.py` are moot (run anyway: `plugin in sync with source (deny-audit clean, identity scan == allowlist, assets verified)` / `RESULT: PASS`).
 
 ### Limits, restated and extended (keeper 5)
 
@@ -346,14 +350,35 @@ by construction — stated here, **measured** (a throwaway hook in `.venv/bin/py
   every mode; the hook does not parse `args[1]`). Conservative on purpose: a shard test that *writes* a tracked docs
   file is a bigger smell than one that reads it, and the way out is the same line in the report.
 
+### /simplify pass (four angles) — taken / not taken
+
+Taken: `judge()` picks its classifier once (`kind = …` in the `try`/`except`) instead of re-testing `error` per read
+with `rx`/`shard` conditionally unbound; the verdict is built *from* `READ_BUCKETS` (one key list, not two);
+`rules()`' docstring follows the new contract; the install block reads the opt-out once; `collector_module` keys on
+`getparent(pytest.File)` (above); the two child-pytest launchers in `tests/test_docs_read_audit.py` are one
+`_child_pytest(node, cwd=ROOT, **env)` and the trivial `_child_run` wrapper is inlined; `import conftest` there gave way
+to `AUDIT_SENTINEL` + a `CONFTEST` path; `tests/test_shard_list.py`'s last two raw `git -C ROOT` calls go through
+`conftest.git` (a `try/except` replaces the `.git`-dir + `rev-parse` probe; same assertion). Efficiency: clean — nothing
+added to the per-event `__call__` or per-item paths; the hermetic rig costs two child interpreters (~1 s here), which
+cannot be one process precisely because of the sentinel (a second in-process session would adopt the first recorder).
+Not taken, with reason: moving the ERE-subset guard (`_portable_ere`) *into* `conftest.shard_reads_pattern()` so a
+non-portable pattern fails closed in-band on every platform (altitude) — the issue's DONE says the guard stays in
+`tests/test_ci_fresh.py`, so it does; noted for the tech lead as a one-line option. A two-field verdict
+(`error` + `buckets`) / caching the load failure inside `rules()` — deferred as the reviewers themselves suggest (low
+cost today; `audit_failed` is already the one predicate). `tests/test_portable_paths.py`'s private `GIT_ENV` /
+`git init` loop / `importlib` stanza (reuse, outside this territory) → filed as #557.
+
 ### Follow-ups
 
-None new. The optional `session_ci.sh` `TAIL` keyed on the `docs-read audit FAILED` banner (listed by #523) remains
-optional and outside this territory (`tools/dev/`).
+- #557 — `tests/test_portable_paths.py` adopts the shared helpers (the last private `GIT_ENV` under `tests/`).
+- Optional, for the tech lead: host the ERE-subset guard in `conftest.shard_reads_pattern()` (raise `ValueError` → the
+  fail-closed `error` path reports it everywhere, incl. Windows/no-bash where `test_ci_fresh.py` skips).
+- The optional `session_ci.sh` `TAIL` keyed on the `docs-read audit FAILED` banner (listed by #523) remains optional
+  and outside this territory (`tools/dev/`).
 
 BRANCH STATE (cam/542-conftest-helpers): `tests/conftest.py` (DocsReadAudit: `unjudged`/`error` verdict keys,
 `audit_failed`, `READ_BUCKETS`, `docs_audit_header`, `collector_module`, `AUDIT_SENTINEL` install guard, could-not-judge
 report wording; `git_commit` stages named paths only; docstrings), `tests/test_ci_fresh.py` (helper adoption only),
-`tests/test_shard_list.py` (helper adoption only), `tests/test_docs_read_audit.py` (+3 rows, 2 extended), this section.
+`tests/test_shard_list.py` (helper adoption only, incl. its two read-only `git -C ROOT` calls), `tests/test_docs_read_audit.py` (+3 rows, 2 extended, one child-pytest launcher), this section.
 No `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed (all four files already in the merged shard);
 nothing staged for the viewer; no certification claim.

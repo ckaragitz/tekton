@@ -32,6 +32,7 @@ SESSION_ID = "<session>"                     # the reader id outside any test it
 #: set on ``sys`` once the hook is installed: ONE recorder + ONE (unremovable) audit hook per interpreter, even if this
 #: file is executed a second time (another import mode, a reload) -- the second module object adopts the first recorder.
 AUDIT_SENTINEL = "_rvt_docs_read_audit"
+READ_BUCKETS = ("offenders", "covered", "unenforced", "unjudged")      # the verdict keys that map a docs path -> [reader ids]
 #: ``RVT_DOCS_AUDIT``: ``0``/``off`` = do not install the hook (the documented opt-out should it ever cost time);
 #: ``report`` = also print every recorded read at session end (offenders always print); anything else = on.
 DOCS_AUDIT_MODE = {"0": "off", "off": "off", "no": "off", "false": "off", "report": "report"}.get(
@@ -95,7 +96,7 @@ class DocsReadAudit:
 
     def rules(self):
         """(compiled ``SHARD_READS``, the merged CI shard) -- loaded once, from their one source each; raises if either
-        cannot be read (the session-end judge turns that into a named, fail-closed offender)."""
+        cannot be read (the session-end judge records that as ``error`` and fails the run closed)."""
         if self._rules is None:
             self._rules = (re.compile(shard_reads_pattern()), frozenset(ci_shard_files()))
         return self._rules
@@ -121,20 +122,18 @@ class DocsReadAudit:
         {"offenders": {path: [ids]}, "covered": {…}, "unenforced": {…}, "unjudged": {}, "error": None} -- or, when the
         rules cannot be loaded, ``error`` = "Type: message" and every recorded read lands in ``unjudged`` instead: the
         run fails CLOSED on that (``audit_failed``), in its own words, however few reads there were (even none)."""
-        out = {"offenders": {}, "covered": {}, "unenforced": {}, "unjudged": {}, "error": None}
+        out = dict({bucket: {} for bucket in READ_BUCKETS}, error=None)
         try:
             rx, shard = self.rules()
+            kind = lambda path, module: self.kind(path, module, rx, shard)      # noqa: E731
         except Exception as e:                   # noqa: BLE001 -- cannot judge = fail closed, and say so
             out["error"] = "%s: %s" % (type(e).__name__, e)
+            kind = lambda path, module: "unjudged"                              # noqa: E731
         for path, contexts in sorted(self.reads.items()):
             for module, reader_id in sorted(contexts):
-                bucket = "unjudged" if out["error"] else self.kind(path, module, rx, shard)
-                out[bucket].setdefault(path, []).append(reader_id)
+                out[kind(path, module)].setdefault(path, []).append(reader_id)
         self.verdict = out
         return out
-
-
-READ_BUCKETS = ("offenders", "covered", "unenforced", "unjudged")      # the verdict keys that map a docs path -> [reader ids]
 
 
 def audit_failed(verdict):
@@ -160,11 +159,13 @@ def ci_shard_files():
 
 
 #: the process-wide recorder (``from conftest import DOCS_AUDIT``); ``None`` when opted out (``RVT_DOCS_AUDIT=0``).
-DOCS_AUDIT = None if DOCS_AUDIT_MODE == "off" else getattr(sys, AUDIT_SENTINEL, None)
-if DOCS_AUDIT is None and DOCS_AUDIT_MODE != "off":
-    DOCS_AUDIT = DocsReadAudit(ROOT)
-    sys.addaudithook(DOCS_AUDIT)
-    setattr(sys, AUDIT_SENTINEL, DOCS_AUDIT)
+DOCS_AUDIT = None
+if DOCS_AUDIT_MODE != "off":
+    DOCS_AUDIT = getattr(sys, AUDIT_SENTINEL, None)          # a second execution of this file adopts the first recorder
+    if DOCS_AUDIT is None:
+        DOCS_AUDIT = DocsReadAudit(ROOT)
+        sys.addaudithook(DOCS_AUDIT)
+        setattr(sys, AUDIT_SENTINEL, DOCS_AUDIT)
 
 from rvt.frontdoor import base as _B                          # noqa: E402
 from rvt.ifc._fallback import ifc_authoring_available            # noqa: E402
@@ -283,7 +284,8 @@ def pytest_configure(config):
 
 def docs_audit_header(verdict):
     """The section's first line: how many DISTINCT repo docs/ files were opened (a path listed under two buckets -- read
-    by a shard and a non-shard module, say -- is one file), and what they were judged against."""
+    by a shard and a non-shard module, say -- is one file), and what they were judged against.  Derived from the
+    verdict rather than the recorder's ``reads`` so that a synthetic verdict reports the same way."""
     opened = len({path for bucket in READ_BUCKETS for path in verdict[bucket]})
     return "%d repo docs/ file(s) opened by this test process; judged against SHARD_READS of tools/dev/ci_fresh.sh (#523)" % opened
 
@@ -310,9 +312,11 @@ def docs_audit_lines(verdict, everything=False):
 
 
 def collector_module(collector):
-    """The test module a collector's reads belong to: a Module's own file (reads at import), a Class's file (reads while
-    its methods are collected -- ``pytest_generate_tests``, param-id callables); the Session/Dir/Package have none."""
-    return collector.path if isinstance(collector, (pytest.Module, pytest.Class)) else None
+    """The test module a collector's reads belong to = its nearest file-backed ancestor, itself included: a Module's own
+    file (reads at import), a Class's file (reads while its methods are collected -- ``pytest_generate_tests``, param-id
+    callables), any other ``pytest.File`` collector alike; the Session/Dir/Package sit above every file and have none."""
+    owner = collector.getparent(pytest.File)
+    return None if owner is None else owner.path
 
 
 def pytest_collectstart(collector):

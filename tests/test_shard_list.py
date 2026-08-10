@@ -73,11 +73,12 @@ def test_real_shard_from_tree_and_from_git_agree_and_every_path_exists():
                                         "tests/ci_shard.d/<issue>-<slug>.txt instead (see tests/ci_shard.d/README)")
     cli = subprocess.run([sys.executable, "-I", HELPER, "--print"], capture_output=True, text=True, check=True).stdout.splitlines()
     assert cli == shard
-    if os.path.isdir(os.path.join(ROOT, ".git")) and subprocess.run(["git", "-C", ROOT, "rev-parse", "HEAD"], capture_output=True).returncode == 0:
-        tracked = subprocess.run(["git", "-C", ROOT, "status", "--porcelain", "--", "tests/ci_shard.txt", "tests/ci_shard.d"],
-                                 capture_output=True, text=True, check=True).stdout
-        if not tracked.strip():                                                             # blobs == files only when nothing there is uncommitted
-            assert sl.merge(*sl.from_git(ROOT)) == shard
+    try:
+        dirty = git(ROOT, "status", "--porcelain", "--", "tests/ci_shard.txt", "tests/ci_shard.d")
+    except (subprocess.CalledProcessError, FileNotFoundError):                              # not a git checkout here (or no git): nothing to compare
+        dirty = None
+    if dirty == "":                                                                         # blobs == files only when nothing there is uncommitted
+        assert sl.merge(*sl.from_git(ROOT)) == shard
 
 
 def _seed(repo):

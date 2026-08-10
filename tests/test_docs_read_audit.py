@@ -33,11 +33,11 @@ import sys
 
 import pytest
 
-import conftest
-from conftest import (AUDITED_DIR, DOCS_AUDIT, ROOT, SESSION_ID, DocsReadAudit, audit_failed, ci_shard_files, collector_module,
-                      docs_audit_header, docs_audit_lines, git, git_commit, shard_reads_pattern)
+from conftest import (AUDIT_SENTINEL, AUDITED_DIR, DOCS_AUDIT, ROOT, SESSION_ID, DocsReadAudit, audit_failed, ci_shard_files,
+                      collector_module, docs_audit_header, docs_audit_lines, git, git_commit, shard_reads_pattern)
 
 ME = "tests/test_docs_read_audit.py"
+CONFTEST = os.path.join(ROOT, "tests", "conftest.py")
 SELFTEST = "RVT_DOCS_AUDIT_SELFTEST"           # set to a path relative to <repo>/docs: the self-test reader opens it
 LEDGER = "coverage/viewer-certified.json"      # relative to docs/: inside SHARD_READS, read by the shard since ever
 OUTSIDE = "STEERING.md"                        # relative to docs/: tracked, outside SHARD_READS, read by no test
@@ -170,11 +170,22 @@ class TestCollectorAttribution:
 
 @pytest.mark.skipif(DOCS_AUDIT is None, reason="the audit is switched off in this process (RVT_DOCS_AUDIT=0)")
 def test_executing_conftest_a_second_time_adopts_the_installed_recorder_instead_of_stacking_a_hook():
-    spec = importlib.util.spec_from_file_location("conftest_executed_twice", conftest.__file__)
+    spec = importlib.util.spec_from_file_location("conftest_executed_twice", CONFTEST)
     twice = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(twice)                                            # a second module object from the same file, same interpreter
-    assert twice.DOCS_AUDIT is DOCS_AUDIT is getattr(sys, conftest.AUDIT_SENTINEL)   # one recorder (an audit hook cannot be removed: never add a 2nd)
+    assert twice.DOCS_AUDIT is DOCS_AUDIT is getattr(sys, AUDIT_SENTINEL)     # one recorder (an audit hook cannot be removed: never add a 2nd)
     assert twice.DocsReadAudit is not DocsReadAudit                           # (it really was executed again: its classes are new objects)
+
+
+def _child_pytest(node, cwd=ROOT, **env):
+    """``node`` in a child pytest (its own interpreter, its own hook) -> (exit code, stdout).  The child audits (plain
+    on unless ``env`` says otherwise) even if this process opted out; ``env`` rides on top of ours."""
+    full = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
+    full.pop("RVT_DOCS_AUDIT", None)
+    full.update(env)
+    out = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", node],
+                         cwd=cwd, env=full, capture_output=True, text=True, timeout=300)
+    return out.returncode, out.stdout
 
 
 CLASS_COLLECT_READER = '''"""A NON-shard file whose CLASS collection opens a docs file (pytest_generate_tests for a method)."""
@@ -198,20 +209,19 @@ def test_wiring_end_to_end_a_docs_read_during_class_collection_belongs_to_its_mo
     the file, so: recorded, listed as unenforced, exit 0 (before #542 the Class collector had no module, the read
     counted as session level and the very same run was red).  Control: list the file in the copy's shard -> the same
     read is an offender, exit 1, named with the class as its reader."""
-    for rel in ("tests/conftest.py", "tools/dev/ci_fresh.sh", "tools/dev/shard_list.py"):
-        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(os.path.join(ROOT, *rel.split("/")), tmp_path / rel)
+    for src in (CONFTEST, os.path.join(ROOT, "tools", "dev", "ci_fresh.sh"), os.path.join(ROOT, "tools", "dev", "shard_list.py")):
+        dst = tmp_path / os.path.relpath(src, ROOT)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(src, dst)
     (tmp_path / AUDITED_DIR).mkdir()
     (tmp_path / AUDITED_DIR / "zz-bite.md").write_text("a line the collector reads\n", encoding="utf-8")
     (tmp_path / "tests" / "test_zz_class_collect.py").write_text(CLASS_COLLECT_READER % (AUDITED_DIR, "zz-bite.md"), encoding="utf-8")
     reader = "tests/test_zz_class_collect.py::TestCollected"
-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", RVT_DOCS_AUDIT="report", PYTHONPATH=os.path.join(ROOT, "src"), TEKTON_ROOT=ROOT)
 
     def run(shard):
         (tmp_path / "tests" / "ci_shard.txt").write_text(shard, encoding="utf-8")
-        out = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_zz_class_collect.py"],
-                             cwd=tmp_path, env=env, capture_output=True, text=True, timeout=300)
-        return out.returncode, out.stdout
+        return _child_pytest("tests/test_zz_class_collect.py", cwd=tmp_path, RVT_DOCS_AUDIT="report",
+                             PYTHONPATH=os.path.join(ROOT, "src"), TEKTON_ROOT=ROOT)      # the copy's conftest, the real engine
     rc, out = run("tests/test_other.py\n")                                    # the reader is not a shard file
     assert rc == 0, out
     assert "1 passed" in out and "error" not in out.lower() and "docs-read audit FAILED" not in out
@@ -222,25 +232,15 @@ def test_wiring_end_to_end_a_docs_read_during_class_collection_belongs_to_its_mo
     assert "  FAIL %s/zz-bite.md   (opened by the CI shard, NOT covered by SHARD_READS)\n         <- %s\n" % (AUDITED_DIR, reader) in out, out
 
 
-def _child_run(target):
-    """This file's self-test reader in a child pytest (its own interpreter, its own hook), told to open docs/<target>."""
-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
-    env[SELFTEST] = target
-    env.pop("RVT_DOCS_AUDIT", None)                                          # the child audits even if this process opted out
-    out = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", ME + "::test_zz_selftest_reader"],
-                         cwd=ROOT, env=env, capture_output=True, text=True, timeout=300)
-    return out.returncode, out.stdout
-
-
 def test_session_wiring_end_to_end_an_uncovered_docs_read_fails_the_run_naming_test_and_path_a_covered_one_does_not():
     path, reader = posixpath.join(AUDITED_DIR, OUTSIDE), ME + "::test_zz_selftest_reader"
-    rc, out = _child_run(OUTSIDE)
+    rc, out = _child_pytest(reader, **{SELFTEST: OUTSIDE})                  # this file's self-test reader, told to open docs/<OUTSIDE>
     assert rc == 1, out
     assert "1 passed, 1 error" in out                                        # its assertions passed; the audit made IT red, in pytest's own tally
     assert "ERROR at teardown of test_zz_selftest_reader" in out and "docs-read audit (#523): this test opened %s --" % path in out
     assert "docs-read audit FAILED" in out                                   # ...and the session-end section names path + every reader
     assert "  FAIL %s " % path in out and "\n         <- %s\n" % reader in out and "SHARD_READS in tools/dev/ci_fresh.sh" in out
-    rc, out = _child_run(LEDGER)                                             # the control: same road, a covered file
+    rc, out = _child_pytest(reader, **{SELFTEST: LEDGER})                   # the control: same road, a covered file
     assert rc == 0, out
     assert "1 passed" in out and "error" not in out and "docs-read audit" not in out
 
