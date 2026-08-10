@@ -292,18 +292,16 @@ def test_to_parts_is_the_factory_contract(tmp_path):
         ("Rod", "IFCMEMBER", _prism_mesh(0.2, 1.0, 24, ox=3.0)),
     ])
     m = AP.read_assembly(p)
-    # MEASURED: the rod is round and says so in the report
     assert {x.fit for x in m.parts} == {"box", "cylinder"}
-    # AUTHORED: never an arc sketch -- that is what crashes Load Family
     parts = m.to_parts()
-    assert {q["shape"] for q in parts} == {"box", "polygon"}
+    assert {q["shape"] for q in parts} == {"box", "cylinder"}
     for q in parts:
         assert q["height_ft"] > 0
         assert "base_z_ft" in q and "name" in q
         if q["shape"] == "box":
             assert q["width_ft"] > 0 and q["depth_ft"] > 0 and len(q["center"]) == 2
         else:
-            assert len(q["vertices"]) >= 3
+            assert q["radius_ft"] > 0 and len(q["center"]) == 2
 
 
 def test_json_record_carries_the_numbers_a_reader_needs(tmp_path):
@@ -642,9 +640,10 @@ def test_the_assembly_lane_never_emits_a_sketch_revit_cannot_load(tmp_path):
     assert _inconsistent_sketches(m.to_parts(), "mix") == []  # and still loadable
 
 
-def test_a_round_profile_is_measured_round_but_authored_as_its_hull():
-    """The report must keep saying 'cylinder, radius R' -- the honesty of the
-    measurement is not what changed; only the authored curve type is."""
+def test_a_round_profile_is_measured_round_and_authored_round():
+    """With #589's arc solver records desktop-verified (A5/A3 load, the empty
+    A0 control crashes), a measured cylinder is authored as a real cylinder
+    again -- not as the N-gon stand-in the crash forced."""
     pts, _ = _prism_mesh(0.5, 3.0, 40)
     fit = AP.fit_solid(pts)
     assert fit["fit"] == "cylinder"
@@ -653,4 +652,5 @@ def test_a_round_profile_is_measured_round_but_authored_as_its_hull():
                         fit="cylinder", center_ft=tuple(fit["center"]),
                         height_ft=fit["height_ft"], base_z_ft=fit["base_z_ft"],
                         radius_ft=fit["radius_ft"], vertices_ft=fit["vertices"]).to_part()
-    assert part["shape"] == "polygon" and len(part["vertices"]) >= 8
+    assert part["shape"] == "cylinder"
+    assert part["radius_ft"] == pytest.approx(0.5, rel=0.02)

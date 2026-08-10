@@ -125,18 +125,21 @@ MAX_GRID_CELLS = 20000
 MAX_BOXES = 120
 
 #: Author a measured-round profile as its N-gon hull instead of an ARC-based
-#: cylinder.  Not cosmetic -- ``add_cylinder_form`` emits a VarSketch whose
-#: ``m_curveObjIdxMap`` names 2 arcs while ``m_elemRecs`` (the solver records
-#: ``VarSketch::getCurveObj`` indexes) is EMPTY.  Revit 2026 survives OPENING
-#: such a family and dies inside ``Insert > Load Family`` with
-#: "Invalid idx in VarSketch::getCurveObj (VarSketch.cpp:634)" + an access
-#: violation -- the very law issue #333 established for line sketches and that
-#: the arc path never got.  The owner's matched pair settled it: 103 boxes load,
-#: 14 N-gons load, the hanger's 2 cylinders crash.  The hull is also CLOSER to
-#: the source than an idealised circle, since a tessellated rod arrives as an
-#: N-gon in the first place.  Flip to False once the arc solver state is
-#: authored and desktop-verified (see the engine issue).
-CYLINDER_AS_POLYGON = True
+#: cylinder.  This existed because ``add_cylinder_form`` emitted a VarSketch
+#: whose ``m_curveObjIdxMap`` named 2 arcs while ``m_elemRecs`` (the solver
+#: records ``VarSketch::getCurveObj`` indexes) was EMPTY -- an out-of-range
+#: read that survived OPENING a family and killed ``Insert > Load Family``
+#: with "Invalid idx in VarSketch::getCurveObj (VarSketch.cpp:634)" + an
+#: access violation.
+#:
+#: RESOLVED 2026-08-10 (#589).  The arc records are authored now
+#: (:func:`rvt.famgen.geometry._curve_solver_obj`) and the owner's desktop
+#: settled it on Revit 2026: BOTH parameter layouts load and the pre-fix
+#: empty-solver control CRASHED, which is what makes it the mechanism rather
+#: than a coincidence.  So round profiles are authored as real cylinders
+#: again; this switch stays as the documented way back if an arc regression
+#: ever appears.
+CYLINDER_AS_POLYGON = False
 
 
 class AssemblyError(ValueError):

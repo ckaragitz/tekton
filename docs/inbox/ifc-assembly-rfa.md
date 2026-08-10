@@ -637,3 +637,46 @@ pinned by two tests so it cannot be mistaken for one:
   cannot resolve.
 
 Still unproven until desktop says so (rule 4): that the rebuilt hanger actually loads.
+
+## DESKTOP VERDICT on the arc solver (owner, Revit 2026, 2026-08-10) — #589 mechanism CONFIRMED
+
+| rung | `m_params` per arc | Load Family into a new project |
+|---|---|---|
+| `A5_cylinder` | `[cx, cy, r, ang0, ang1]` | **loads** |
+| `A3_cylinder` | `[cx, cy, r]` | **loads** |
+| `A0_cylinder` | *(empty — pre-fix control)* | **CRASHES** |
+
+**The control is what makes this a result.** A0 is the old empty solver and it still dies,
+so the two passes cannot be credited to anything else that changed between builds: the
+mechanism is exactly the one the journal named — `m_elemRecs` empty while
+`m_curveObjIdxMap` names the arcs, an out-of-range read in
+`VarSketch::getCurveObj` (`VarSketch.cpp:634`).
+
+### What the pair does NOT settle, and I am not going to pretend otherwise
+
+**Both layouts load, so loading does not discriminate between them.** What the parameter
+vector actually governs is how the sketch *flexes* — and that is precisely how #333
+surfaced in round 26: not on load, but on **editing a parameter**. A wrong-but-well-formed
+vector can load perfectly and misbehave the moment the family is driven.
+
+`ARC_SOLVER_PARAMS` therefore stays at **`center_radius_angles`** (A5) on principle rather
+than on this evidence: it matches the arc's real degrees of freedom, and the schema carries
+`VarSketchArcEndAngleConstrObj(m_angle, m_end)`, a constraint that only means something if
+the end angles ARE parameters. A3 is recorded as an equally load-clean alternative. The
+test that would separate them is a **parameter-driven flex on a cylinder**, which is the
+#333 trigger and is filed, not fudged.
+
+### Result
+
+`CYLINDER_AS_POLYGON` is back to **False** — the N-gon stand-in was only ever there because
+arcs crashed. The hanger is authored as measured again: **87 box + 2 cylinder + 14 polygon**,
+0 sketches promising more than their solver holds, `.rfa` VALID 0 errors, provenance clean.
+The rods are true cylinders rather than 40-gons.
+
+Two laws are now written down where the next session will hit them:
+
+* `new_var_sketch_curves` carries one solver record per curve, of the class the file's own
+  schema gives (`GArc` → `VarSketchArcObj`, `GLine` → `VarSketchLineSegObj`), with the
+  guess cache declaring the same parameter vector.
+* `test_the_assembly_lane_never_emits_a_sketch_revit_cannot_load` is the invariant: a map
+  longer than its records is an out-of-range read inside Revit, and no lane may ship one.
