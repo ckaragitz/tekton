@@ -111,6 +111,7 @@ __all__ = [
     "is_identity", "analyze_product",
     "resolve_intent", "intent_to_json", "write_intent", "plan_families",
     "plan_family_for", "DEVICE_PSET", "device_voltage", "parse_device_load",
+    "parse_schedule_scalar", "parse_mounting_height", "CONTRACT_SCALARS",
     "level_elevation", "level_relative_z",
     "make_house_switchboard", "resolve_products",
 ]
@@ -949,8 +950,123 @@ DEFAULT_DEVICE_VA = 180.0
 #: a booked load above this is a typo, not a wiring device (a 100 A, 480 V
 #: 3-pole pin-and-sleeve receptacle -- the largest catalogued -- is ~83 kVA)
 MAX_DEVICE_VA = 100_000.0
+
+
+# ============================================================================
+# schedule scalars as a person types them: '180 VA', '400 A', '42 ckt',
+# '75 kVA', '65 kA', '44 in' (issues #438 / #442)
+# ============================================================================
+
+def _scalar_rx(tail: str):
+    """A number then the optional unit ``tail`` a person types after it;
+    group(1) = the number, group(2) = the unit token that scales it."""
+    return re.compile(r"^\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)\s*" + tail + r"\s*$", re.I)
+
+
 #: '180', '180 VA', '180VA', '0.18 kVA', '1.5e2 va' (a person types the unit)
-_RE_LOAD_VA = re.compile(r"^\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)\s*(k?)(?:va)?\s*$", re.I)
+_RE_LOAD_VA = _scalar_rx(r"(k?)(?:va)?")
+_KILO = {"": 1.0, "k": 1000.0}
+_PLAIN = {"": 1.0}
+#: '44', '44 in', '44"', '1100 mm', '3.5 ft', '44 in AFF' -> inches
+_INCH = {"": 1.0, "in": 1.0, "inch": 1.0, "inches": 1.0, '"': 1.0, "mm": 1.0 / 25.4,
+         "cm": 10.0 / 25.4, "m": 1000.0 / 25.4, "ft": 12.0, "'": 12.0}
+#: sanity caps: a cell above these is a typo, not a rating (the largest
+#: low-voltage switchboard bus is ~10 kA; 200 kA is the top standard SCCR;
+#: no panelboard carries 200+ poles; a wall device 20 ft up is not one)
+MAX_BOARD_A = 20_000.0
+MAX_SCCR_KA = 300.0
+MAX_XFMR_KVA = 100_000.0
+MAX_CIRCUITS = 200
+MAX_SECTIONS = 40
+MAX_MOUNT_IN = 240.0
+
+#: how each KIND of schedule cell reads through :func:`parse_schedule_scalar`
+#: (``what`` = the note's noun, ``unit`` = what a coerced value is reported
+#: in, ``rx`` / ``factors`` = the unit tails a person types and what each
+#: scales by, ``cap`` / ``cap_for`` = the sanity ceiling and its wording)
+LOAD_VA = dict(what="apparent load", unit="VA", rx=_RE_LOAD_VA, factors=_KILO,
+               cap=MAX_DEVICE_VA, cap_for="one wiring device")
+AMPS = dict(what="current rating", unit="A", rx=_scalar_rx(r"(k?)(?:a|amps?|amperes?)?"),
+            factors=_KILO, cap=MAX_BOARD_A, cap_for="one distribution board")
+KVA = dict(what="transformer rating", unit="kVA", rx=_scalar_rx(r"()(?:kva)?"),
+           factors=_PLAIN, cap=MAX_XFMR_KVA, cap_for="one transformer")
+KA = dict(what="short-circuit rating", unit="kA", rx=_scalar_rx(r"()(?:ka(?:ic)?)?"),
+          factors=_PLAIN, cap=MAX_SCCR_KA, cap_for="one distribution board")
+INCHES = dict(what="mounting height", unit="in",
+              rx=_scalar_rx(r"(in(?:ch(?:es)?)?|\"|mm|cm|m|ft|')?\.?(?:\s*a\.?f\.?f\.?|\s*above .*)?"),
+              factors=_INCH, cap=MAX_MOUNT_IN, cap_for="a wall device above the floor",
+              zero_is_empty=False)
+
+
+def _count(what: str, cap: int, cap_for: str) -> dict:
+    """A whole-number cell: '42', '42 ckt', '3 ph', '4W', '2-section'."""
+    return dict(what=what, unit="", rx=_scalar_rx(r"()(?:-?[a-z][-a-z. ]*)?"), factors=_PLAIN,
+                cap=float(cap), cap_for=cap_for, integer=True)
+
+
+#: the tagging contract's numeric cells: :func:`normalize_contract` reads
+#: every one through :func:`parse_schedule_scalar`, so whoever consumes the
+#: contract (classification, the feeder tree, :func:`plan_family_for`, the
+#: room builder) sees a number or no cell -- never '400 A'
+CONTRACT_SCALARS: Dict[str, dict] = {
+    "BusRating": AMPS,
+    "MainsRating": AMPS,
+    "ShortCircuitRatingkA": KA,
+    "RatingkVA": KVA,
+    "NumberOfCircuits": _count("circuit count", MAX_CIRCUITS, "one panelboard"),
+    "Phases": _count("phase count", 3, "a phase count"),
+    "Wires": _count("wire count", 5, "a wire count"),
+    "Sections": _count("section count", MAX_SECTIONS, "one switchboard lineup"),
+}
+
+
+def parse_schedule_scalar(pset_key: str, raw: Any, *, what: str, unit: str, rx: Any,
+                          factors: Dict[str, float], cap: float, cap_for: str,
+                          fallback: str, default: Any = None, integer: bool = False,
+                          zero_is_empty: bool = True) -> Tuple[Any, Optional[str]]:
+    """ONE schedule cell -> (value, note).  A number rides as is; a numeric
+    text label with the unit a person types ('400 A', '42 ckt', '0.18 kVA',
+    '44 in', '1100 mm') coerces to ``unit`` with ONE note saying so; an
+    absent / blank cell (and a zero one, unless ``zero_is_empty`` is False)
+    is ``default`` silently.  Anything unparseable, negative, non-finite,
+    fractional for an ``integer`` cell or above ``cap`` is ``default`` with
+    ONE note naming the property (``pset_key``), the value and what happens
+    instead (``fallback``) -- recorded, never raised (rule 1: one bad cell
+    must not withhold the file).  The kind presets (:data:`LOAD_VA`,
+    :data:`AMPS`, :data:`KVA`, :data:`KA`, :data:`INCHES`, :func:`_count`)
+    supply everything but ``pset_key`` / ``raw`` / ``fallback`` / ``default``."""
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        return default, None
+    value: Optional[float] = None
+    note: Optional[str] = None
+    shown = repr(raw) if len(repr(raw)) <= 60 else repr(raw)[:57] + "..."   # a 400-digit cell, clipped
+    unit_sfx = f" {unit}" if unit else ""
+    if isinstance(raw, (int, float)) and not isinstance(raw, bool):
+        try:
+            value = float(raw)
+        except OverflowError:                           # a >308-digit IFCINTEGER
+            value = math.inf                            # -> 'not finite', below
+    elif isinstance(raw, str):
+        m = rx.match(raw)
+        factor = factors.get((m.group(2) or "").lower()) if m else None
+        if factor is not None:
+            value = float(m.group(1)) * factor
+            note = f"{pset_key} {shown} is a text label, not a measure -> read as {value:g}{unit_sfx}"
+    if value == 0 and zero_is_empty:
+        return default, None                            # 0 -> an empty cell, as ever
+    if value is not None and math.isfinite(value) and 0 <= value <= cap \
+            and not (integer and value != int(value)):
+        return (int(value) if integer else value), note
+    why = ("not a number" if value is None else "not finite" if not math.isfinite(value)
+           else "negative" if value < 0
+           else "not a whole number" if integer and value != int(value)
+           else f"above the {cap:g}{unit_sfx} sanity cap for {cap_for}")
+    return default, f"{pset_key} {shown} is not a usable {what} ({why}) -> {fallback}"
+
+
+def _empty_cell(key: str) -> str:
+    """The ``fallback`` wording of a contract cell that is dropped."""
+    return f"ignored: {key} reads as an empty cell (fix the schedule cell to book it)"
 
 
 # ============================================================================
@@ -1086,10 +1202,23 @@ def _psets(prod, unit_scales: Dict[str, float]) -> Dict[str, Dict[str, Any]]:
             if k == "id":
                 continue
             factor = factors.get((pname, k), 1.0)
-            clean[k] = v * factor if factor != 1.0 else v
+            clean[k] = _finite_or_text(v * factor if factor != 1.0 else v)
         if clean:
             out[pname] = clean
     return out
+
+
+def _finite_or_text(v: Any) -> Any:
+    """A non-finite pset value (``IFCREAL(1.E400)`` reads as inf; NaN) as
+    its text 'inf' / '-inf' / 'nan': it is no measure anything can be built
+    from (the schedule parsers then drop it with a note naming it), and left
+    a float Python's json would echo it into intent.json / manifest.json as a
+    bare ``Infinity`` / ``NaN`` token strict parsers reject (#442)."""
+    if isinstance(v, float) and not math.isfinite(v):
+        return str(v)
+    if isinstance(v, (list, tuple)):
+        return type(v)(_finite_or_text(x) for x in v)
+    return v
 
 
 def _first(psets: Dict[str, Dict[str, Any]], *keys: str) -> Any:
@@ -1151,6 +1280,22 @@ def normalize_contract(psets: Dict[str, Dict[str, Any]], *, name: str,
                   "MaxSpacingM", "AttachTo"):
             if k in props:
                 put(k, props[k], f"pset:{pname}.{k}")
+    # numeric cells as a person types them ('400 A', '42 ckt', '75 kVA', '65 kA'):
+    # coerced to the number, or -- unusable -- dropped so the cell reads as
+    # empty (the name text / the other rating / the consumer's default stand
+    # in exactly as if it were); ONE note per cell either way (#442)
+    notes: List[str] = []
+    for key, spec in CONTRACT_SCALARS.items():
+        if key not in con:
+            continue
+        label = src[key][len("pset:"):] if src[key].startswith("pset:") else key
+        value, note = parse_schedule_scalar(label, con[key], fallback=_empty_cell(key), **spec)
+        if note:
+            notes.append(note)
+        if value is not None:
+            con[key] = value
+        elif note:                                      # unusable (a blank / zero cell stays put)
+            del con[key], src[key]
     # PanelName defaults to the tag / leading name token
     if "PanelName" not in con:
         put("PanelName", tag or (name.split()[0] if name else None), "tag" if tag else "name")
@@ -1183,6 +1328,8 @@ def normalize_contract(psets: Dict[str, Dict[str, Any]], *, name: str,
     if "Wires" not in con and vs.get("wires"):
         put("Wires", vs["wires"], "derived from voltage system")
     con["_provenance"] = src
+    if notes:
+        con["_notes"] = notes
     return con
 
 
@@ -2099,43 +2246,56 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
     con = eq.contract
     v = con.get("_voltage") or {}
     dims_mod = {k: eq.dims_m.get(k) for k in ("w", "d", "h") if eq.dims_m.get(k) is not None}
+    # the schedule's numeric cells: normalize_contract already coerced / dropped
+    # them (its notes ride here onto the plan); a hand-built contract reads
+    # through the same rule, so no cell can raise out of a branch (#442)
+    notes: List[str] = list(con.get("_notes") or [])
+
+    def cell(key: str, default: Any = None) -> Any:
+        value, note = parse_schedule_scalar(key, con.get(key), fallback=_empty_cell(key),
+                                            **CONTRACT_SCALARS[key])
+        if note:
+            notes.append(note)
+        return default if value is None else value
+
     if eq.kind == "receptacle_device":
         dev = (eq.psets or {}).get(DEVICE_PSET) or {}
         va, load_note = parse_device_load(dev.get("Load"))
-        kwargs = dict(kind=DEFAULT_DEVICE_KIND, mounting_height_in=dev.get("MountingHeight"),
+        height_in, height_note = parse_mounting_height(dev.get("MountingHeight"))
+        kwargs = dict(kind=DEFAULT_DEVICE_KIND, mounting_height_in=height_in,
                       voltage=device_voltage(dev.get("Voltage"),
                                              poles=dev.get("Poles") or dev.get("Phases")),
                       va=va)
         fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
                         constructor="rvt.famgen.factory.make_device",
                         kwargs=kwargs, dims_modeled_m=dims_mod,
-                        notes=[load_note] if load_note else [])
+                        notes=notes + [n for n in (load_note, height_note) if n])
         _resolve_device_facts(fp)
         return fp
     if eq.kind in ("distribution_panelboard", "lighting_panelboard",
                    "receptacle_panelboard", "panelboard"):
         mains_type = str(con.get("MainsType") or "")
         mcb = "lug" not in mains_type.lower()
-        mains_a = float(con.get("MainsRating") or con.get("BusRating") or 0.0)
-        spaces = int(con.get("NumberOfCircuits") or 42)
+        mains_a = cell("MainsRating") or cell("BusRating", 0.0)
+        spaces = cell("NumberOfCircuits", 42)
         voltage = str(v.get("system") or con.get("Voltage") or "480Y/277").replace(" V", "")
         kwargs = dict(vendor="eaton", line="pow-r-line", mains_a=mains_a, spaces=spaces,
                       voltage=voltage, mcb=mcb, mounting=_mounting_word(eq),
                       panel_name=str(con.get("PanelName") or eq.tag),
-                      sccr_ka=con.get("ShortCircuitRatingkA"))
+                      sccr_ka=cell("ShortCircuitRatingkA"))
         fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
                         constructor="rvt.famgen.factory.make_panelboard",
-                        kwargs=kwargs, dims_modeled_m=dims_mod)
+                        kwargs=kwargs, dims_modeled_m=dims_mod, notes=notes)
         _resolve_panel_facts(fp)
         return fp
     if eq.kind == "transformer":
-        kva = float(con.get("RatingkVA") or 0.0)
+        kva = cell("RatingkVA", 0.0)
         prim = parse_voltage(con.get("Primary")).get("ll") or 480.0
         sec = str(con.get("Secondary") or "208Y/120").replace(" V", "")
         kwargs = dict(kva=kva, vendor="eaton", primary_v=int(prim), secondary_v=sec)
         fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
                         constructor="rvt.famgen.factory.make_transformer",
-                        kwargs=kwargs, dims_modeled_m=dims_mod)
+                        kwargs=kwargs, dims_modeled_m=dims_mod, notes=notes)
         _resolve_xfmr_facts(fp)
         return fp
     if eq.kind == "switchboard":
@@ -2143,19 +2303,19 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
         # / 1200 A members).  A 2500 A device is a SWITCHBOARD: no catalog
         # line on record -> ask the factory (records the honest refusal), then
         # plan the HOUSE switchboard from our own IFC-modeled dimensions.
-        mains_a = float(con.get("MainsRating") or con.get("BusRating") or 2500.0)
+        mains_a = cell("MainsRating") or cell("BusRating", 2500.0)
         voltage = str(v.get("system") or con.get("Voltage") or "480Y/277").replace(" V", "")
         probe = dict(vendor="eaton", line="pow-r-line", mains_a=mains_a,
-                     spaces=int(con.get("NumberOfCircuits") or 42),
+                     spaces=cell("NumberOfCircuits", 42),
                      voltage=voltage, mcb=True, mounting="surface",
                      panel_name=str(con.get("PanelName") or eq.tag))
         refusal = _probe_panel_refusal(probe)
         kwargs = dict(
             tag=eq.tag, name="Switchboard " + eq.tag, mains_a=mains_a, voltage=voltage,
-            phases=int(con.get("Phases") or v.get("phases") or 3),
-            wires=int(con.get("Wires") or v.get("wires") or 4),
-            sccr_ka=float(con.get("ShortCircuitRatingkA") or 0.0),
-            sections=int(con.get("Sections") or 1),
+            phases=cell("Phases") or int(v.get("phases") or 3),
+            wires=cell("Wires") or int(v.get("wires") or 4),
+            sccr_ka=cell("ShortCircuitRatingkA", 0.0),
+            sections=cell("Sections", 1),
             mains_device=str(con.get("MainDevice") or con.get("MainsType") or "Main breaker"),
             mounting=str(con.get("Mounting") or "floor"),
             feeder_entry=str(con.get("FeederEntry") or ""),
@@ -2168,7 +2328,7 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
         fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
                         constructor="rvt.ifc.intent.make_house_switchboard",
                         kwargs=kwargs, status="house", refusal=refusal,
-                        dims_modeled_m=dims_mod, dims_catalog_m=dict(dims_mod))
+                        dims_modeled_m=dims_mod, dims_catalog_m=dict(dims_mod), notes=notes)
         fp.notes.append(
             "NO catalog record covers a 2500 A switchboard (the Pow-R-Line "
             "panelboard members top out at 600 / 800 / 1200 A) and no switchboard "
@@ -2198,7 +2358,7 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
         "proxy": "generic proxy with no equipment semantics; recorded",
     }.get(eq.kind, "no generated-content constructor for this kind; recorded")
     return FamilyPlan(tag=eq.tag, kind=eq.kind, constructor="", kwargs={},
-                      status="unmapped", refusal=reason, dims_modeled_m=dims_mod)
+                      status="unmapped", refusal=reason, dims_modeled_m=dims_mod, notes=notes)
 
 
 def _probe_panel_refusal(kwargs: dict) -> str:
@@ -2303,34 +2463,26 @@ def parse_device_load(load: Any) -> Tuple[float, Optional[str]]:
     books the NEC 220.14(I) unit load silently.  Anything unparseable,
     negative, non-finite or above :data:`MAX_DEVICE_VA` degrades THIS device
     to the default load with ONE note naming the property and the value --
-    recorded, never raised (rule 1: one bad cell must not withhold the file)."""
-    if load is None or (isinstance(load, str) and not load.strip()):
-        return DEFAULT_DEVICE_VA, None
-    va: Optional[float] = None
-    note: Optional[str] = None
-    shown = repr(load) if len(repr(load)) <= 60 else repr(load)[:57] + "..."   # a 400-digit cell, clipped
-    if isinstance(load, (int, float)) and not isinstance(load, bool):
-        try:
-            va = float(load)
-        except OverflowError:                           # a >308-digit IFCINTEGER
-            va = math.inf                               # -> 'not finite', below
-    elif isinstance(load, str):
-        m = _RE_LOAD_VA.match(load)
-        if m:
-            va = float(m.group(1)) * (1000.0 if m.group(2) else 1.0)
-            note = (f"{DEVICE_PSET}.Load {shown} is a text label, not a measure -> "
-                    f"read as {va:g} VA")
-    if va == 0:
-        return DEFAULT_DEVICE_VA, None                  # 0 -> the unit load, as ever
-    if va is not None and math.isfinite(va) and 0 < va <= MAX_DEVICE_VA:
-        return va, note
-    why = ("not a number" if va is None else "not finite" if not math.isfinite(va)
-           else "negative" if va < 0
-           else f"above the {MAX_DEVICE_VA:g} VA sanity cap for one wiring device")
-    return DEFAULT_DEVICE_VA, (
-        f"{DEVICE_PSET}.Load {shown} is not a usable apparent load ({why}) -> this "
-        f"device books the default {DEFAULT_DEVICE_VA:g} VA (NEC 220.14(I) receptacle "
-        "unit load) instead; fix the schedule cell to book another load")
+    recorded, never raised (rule 1: one bad cell must not withhold the file).
+    A thin preset of :func:`parse_schedule_scalar`."""
+    return parse_schedule_scalar(
+        f"{DEVICE_PSET}.Load", load, default=DEFAULT_DEVICE_VA,
+        fallback=f"this device books the default {DEFAULT_DEVICE_VA:g} VA (NEC 220.14(I) "
+                 "receptacle unit load) instead; fix the schedule cell to book another load",
+        **LOAD_VA)
+
+
+def parse_mounting_height(height: Any) -> Tuple[Optional[float], Optional[str]]:
+    """``DeviceSchedule.MountingHeight`` -> (inches AFF or None, note): '44',
+    '44 in', '44"', '1100 mm', '3.5 ft' coerce to inches (a text label leaves
+    ONE note); an absent cell is None silently and an unusable one None with
+    ONE note -- None lets the facts' typical height for the device stand in,
+    flagged 'assumed'.  Never raises."""
+    return parse_schedule_scalar(
+        f"{DEVICE_PSET}.MountingHeight", height,
+        fallback="the facts' typical mounting height for this device stands in (flagged "
+                 "'assumed'); fix the schedule cell to book another height",
+        **INCHES)
 
 
 def _resolve_device_facts(fp: FamilyPlan) -> None:
@@ -2359,8 +2511,21 @@ def _resolve_device_facts(fp: FamilyPlan) -> None:
 
 
 def plan_families(equipment: List[Equipment]) -> List[FamilyPlan]:
-    """The mapping table: one :class:`FamilyPlan` per equipment item."""
-    return [plan_family_for(e) for e in equipment]
+    """The mapping table: one :class:`FamilyPlan` per equipment item.  Total:
+    an item whose planning raises anyway is 'refused' with the exception as
+    its recorded reason (the build lists it under its degradations); every
+    other item still plans and the file is still delivered (rule 1, #442)."""
+    plans: List[FamilyPlan] = []
+    for e in equipment:
+        try:
+            plans.append(plan_family_for(e))
+        except Exception as exc:                        # noqa: BLE001 - the per-item backstop
+            plans.append(FamilyPlan(
+                tag=e.tag, kind=e.kind, constructor="", kwargs={}, status="refused",
+                refusal=f"{type(exc).__name__}: {exc}",
+                notes=["planning this item raised (a resolver fault, not a fact refusal) -> "
+                       "it is NOT built; every other item still is and the file is delivered"]))
+    return plans
 
 
 # ---------------------------------------------------------------------------

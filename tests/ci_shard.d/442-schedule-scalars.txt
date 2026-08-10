@@ -1,0 +1,2 @@
+# fresh-clone safe: hand-built records, the famgen catalog, the bundled steplite reader, the pinned base (#442)
+tests/test_intent_schedule_scalars.py
