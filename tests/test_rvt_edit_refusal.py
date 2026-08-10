@@ -122,7 +122,7 @@ def test_plain_mode_refuses_in_one_or_two_lines_never_a_traceback(bad, edit, cap
         lines = cap.err.splitlines()
         assert len(lines) == 1 + warned, (name, lines)
         if warned:
-            assert lines[0].startswith(f"[rvt_edit] warning: no release context for {path}: "), (name, lines[0])
+            assert lines[0].startswith(f"[rvt_edit] warning: no release context for {os.path.basename(path)}: "), (name, lines[0])
         assert lines[-1].startswith(f"[rvt_edit] FAILED ({prefix}") and lines[-1].endswith(")"), (name, lines[-1])
     assert (edit.EX_OK, edit.EX_FAIL, edit.EX_NOT_RVT) == (0, 1, 2) and "Exit codes:" in edit.__doc__
 
@@ -138,7 +138,7 @@ def test_json_mode_refuses_with_one_object_and_an_empty_stderr(bad, edit, capsys
         assert doc["input"] == {"path": os.path.abspath(path)} and isinstance(doc["seconds"], float), name
         assert ("release_note" in doc) is warned, name
         if warned:
-            assert doc["release_note"].startswith(f"no release context for {path}: "), name
+            assert doc["release_note"].startswith(f"no release context for {os.path.basename(path)}: "), name
         assert doc["release"] == (NO_RELEASE if rc == 2 else {**NO_RELEASE, "input": year,
                                                               "opens_in": doc["release"]["opens_in"]}), name
         if rc == 1:
