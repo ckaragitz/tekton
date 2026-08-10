@@ -625,6 +625,51 @@ def test_sweep_requeues_stuck_after_a_quiet_day_frees_dead_leases_and_ages_out_d
 
 # ───────────────────────── steer log ─────────────────────────
 
+def test_wave_ledger_round_trips_and_ignores_quoted_or_fenced_markers():
+    """#386: the fan-out ledger is code — render → parse is lossless for the fields a tick needs, markers a stranger
+    quotes or fences do not count (comments are unauthenticated), last writer wins per (wave, issue), and `live`
+    keeps exactly the ledgered issues that are still open."""
+    rows = [{"issue": 284, "session": "session_01J5YH3CZjGMZG4DJXFYYT1h", "territory": "src/rvt/frontdoor/census.py, tools/rvt_job.py (gate | only) --> x"},
+            {"issue": 337, "session": "session_01ED26sa3J3T6gao9AKhLHmu", "territory": "src/rvt/ifc/steplite.py\n+ new table"}]
+    body = tl.render_wave("14", rows, tech_lead="session_01R7j2MKADANzEFxvHGbVV7w", kept="#386", when="2026-08-10T02:44:00Z")
+    assert "issue → engineer session id → territory" not in body and "| issue | engineer session | territory |" in body   # the table AUTONOMY §12c names
+    assert body.count("<!-- wave:14 ") == 2 and "-->" not in body.split("<!-- wave:", 1)[0].replace("—>", "")            # territory text cannot close a marker early
+    got = tl.parse_waves([body])
+    assert [(e["wave"], e["issue"], e["session"]) for e in got] == [("14", 284, rows[0]["session"]), ("14", 337, rows[1]["session"])]
+    assert "\n" not in got[1]["territory"] and "|" not in got[0]["territory"]                                             # flattened + table-safe
+    # a human editing the table above the markers changes nothing; a second post for the same (wave, issue) wins
+    edited = body.replace("| #284 |", "| #284 (P1!) |") + "\n<!-- wave:14 issue=284 session=session_TAKEOVER territory=same -->"
+    assert {e["issue"]: e["session"] for e in tl.parse_waves([edited])}[284] == "session_TAKEOVER"
+    # markers quoted or fenced in someone else's comment are ignored
+    stranger = "> <!-- wave:99 issue=1 session=evil territory=x -->\n\n```\n<!-- wave:98 issue=2 session=evil territory=y -->\n```\nlooks legit?"
+    assert tl.parse_waves([stranger]) == [] and [e["wave"] for e in tl.parse_waves([stranger, body])] == ["14", "14"]
+    # live = still-open issues only (a merged PR closes its issue through the linker)
+    assert [e["issue"] for e in tl.live_waves(got, open_issue_numbers=[337, 400])] == [337]
+    # CLI row grammar and its errors
+    assert tl.parse_wave_rows(["#284=session_a:t: with colon", "337 = s_b :  y "]) == [
+        {"issue": 284, "session": "session_a", "territory": "t: with colon"}, {"issue": 337, "session": "s_b", "territory": "y"}]
+    for bad in (["nonsense"], ["284=has space:x"], []):
+        try:
+            tl.parse_wave_rows(bad)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"accepted {bad!r}")
+
+
+def test_wave_cli_is_offline_for_dry_run_and_from_file(tmp_path):
+    out = subprocess.run([sys.executable, PATH, "wave", "post", "--wave", "7", "--row", "12=session_x:tools/a.py", "--dry-run"],
+                         capture_output=True, text=True, timeout=30, cwd=ROOT, env={**os.environ, "GH_TOKEN": "", "GITHUB_TOKEN": ""})
+    assert out.returncode == 0, out.stderr
+    assert "<!-- wave:7 issue=12 session=session_x territory=tools/a.py -->" in out.stdout
+    f = tmp_path / "comments.json"
+    f.write_text(json.dumps([{"body": out.stdout}, {"body": "unrelated"}, "raw <!-- wave:8 issue=13 session=s territory=t -->"]), encoding="utf-8")
+    live = subprocess.run([sys.executable, PATH, "wave", "live", "--from-file", str(f), "--open", "12", "--json"],
+                          capture_output=True, text=True, timeout=30, cwd=ROOT, env={**os.environ, "GH_TOKEN": "", "GITHUB_TOKEN": ""})
+    assert live.returncode == 0, live.stderr
+    assert [(e["wave"], e["issue"]) for e in json.loads(live.stdout)] == [("7", 12)]
+
+
 def test_steer_issue_is_verbatim_attributed_and_titled_by_first_sentence():
     spec = tl.steer_issue("Windows matters more than new features this month. Also stop touching 2023.\nThanks",
                           by="@Ckaragitz12", source="comment on #40", logged_by="github-actions", when=NOW)

@@ -509,3 +509,26 @@ next wave on); `tests/test_techlead.py` 30 passed.
 BRANCH STATE (cam/342-fanout-never-merge): `CLAUDE.md` (banner sentence), `docs/process/AUTONOMY.md` (§12c: 3 edits),
 `.claude/commands/fanout.md`, `tests/test_techlead.py` (+1 test), this section. Docs/process only; shipped when merged
 through the session pipeline.
+
+## The wave ledger as code (issue #386), same session, 2026-08-10
+
+**What.** `tools/dev/techlead.py wave post --wave <k> --row '<issue>=<session>:<territory>' … [--kept …] [--dry-run]`
+renders ONE board-issue comment for an engineer wave — the human table AUTONOMY §12c names plus one machine line
+per engineer, `<!-- wave:<k> issue=<n> session=<id> territory=<paths> -->`, in the family the tools already parse
+(`session-ci:` / `claude-review:`); territory text is flattened and cannot close the marker early. `wave live`
+reads the board issue's comments (API with `gh`/token; `--from-file` + `--open` for a token-less cloud session that
+saved the comments through MCP) and prints the ledgered waves whose issues are still open — the set a tick treats
+as its own in-flight fan-out; `brief` shows the same as one "waves in flight" line (one extra API call). Markers
+inside ``` fences or `> ` quotes are ignored and last writer wins per (wave, issue): comments are unauthenticated
+(one shared login), so a marker is a hint for reconstruction, never authorisation. `.claude/commands/fanout.md`
+step 3 and AUTONOMY §12c's fan-out row now name the command instead of describing a table by hand.
+
+**Evidence.** `tests/test_techlead.py`: `test_wave_ledger_round_trips_and_ignores_quoted_or_fenced_markers` (render →
+parse round trip, table edits harmless, quoted/fenced markers ignored, takeover wins, live = open issues, row grammar
+errors) and `test_wave_cli_is_offline_for_dry_run_and_from_file` (subprocess, no token) — 32 passed. Real use: wave 14's
+ledger (posted by hand on #56 minutes before this existed) parses as-is once re-posted with markers; the next wave uses
+`wave post`.
+
+BRANCH STATE (cam/386-wave-ledger): `tools/dev/techlead.py` (+ledger functions, `wave` subcommand, brief line),
+`tests/test_techlead.py` (+2 tests), `.claude/commands/fanout.md` (step 3 pointer), `docs/process/AUTONOMY.md`
+(§12c pointer), this section. Process tooling only; shipped when merged through the session pipeline.

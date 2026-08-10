@@ -124,6 +124,10 @@ RESET_MARK = "<!-- claude-autofix reset -->"
 EXHAUSTED_RE = re.compile(r"<!-- claude-autofix exhausted sha=([0-9a-f]{7,40}) -->")
 RETRY_BRANCH_RE = re.compile(r"<!-- retry-branch: ([A-Za-z0-9._/-]+) -->")
 BOARD_BEGIN, BOARD_END = "<!-- board:begin -->", "<!-- board:end -->"
+# Fan-out ledger (#386): one board-issue comment per engineer wave; a machine line per engineer so a session whose
+# memory was compacted can rebuild "which sessions are mine" from GitHub alone. Information, never authorisation.
+WAVE_MARK_RE = re.compile(r"<!-- wave:([A-Za-z0-9._-]{1,24}) issue=(\d{1,7}) session=([A-Za-z0-9_-]{1,64}) territory=(.{0,300}?) -->")
+FENCE_RE = re.compile(r"(?ms)^\s*```.*?^\s*```")
 
 
 # ─────────────────────────────── small utils ────────────────────────────────
@@ -388,6 +392,60 @@ def parse_review_state(comment_bodies: list, head_sha: str) -> dict:
         if any(_same_sha(head_sha, sha) for sha in EXHAUSTED_RE.findall(b)):
             exhausted = True
     return {"verdict": verdict, "attempts": attempts, "exhausted": exhausted, "last_summary": last_summary}
+
+
+# ─────────────────────────────── fan-out ledger (#386) ────────────────────────────────
+
+def render_wave(wave: str, rows: list, tech_lead: str = "", kept: str = "", when: str = "") -> str:
+    """One board-issue comment for an engineer wave: the human table + one machine marker per engineer.
+    rows: [{"issue": int, "session": str, "territory": str}]. Territory text is flattened to one line and
+    stripped of anything that could close the marker early."""
+    def clean(t: str) -> str:
+        return re.sub(r"\s+", " ", str(t or "")).replace("-->", "—>").replace("|", "/").strip()[:300]
+    head = f"**Fan-out ledger — wave {wave}**" + (f" (tech-lead session `{tech_lead}`" + (f", {when}" if when else "") + ")" if tech_lead else "")
+    L = [head + " — AUTONOMY §12c: read back at the start of every tick before treating an unfamiliar engineer report as someone else's.", "",
+         "| issue | engineer session | territory |", "|---|---|---|"]
+    for r in rows:
+        L.append(f"| #{int(r['issue'])} | `{clean(r['session'])}` | {clean(r['territory'])} |")
+    if kept:
+        L += ["", f"Kept by the tech lead: {clean(kept)}"]
+    L.append("")
+    L.extend(f"<!-- wave:{clean(wave)} issue={int(r['issue'])} session={clean(r['session'])} territory={clean(r['territory'])} -->" for r in rows)
+    return "\n".join(L)
+
+
+def parse_waves(comment_bodies: list) -> list:
+    """Every wave marker found in the given comment bodies, oldest first, last writer wins per (wave, issue).
+    Markers inside ``` fences or `> ` quoted lines are ignored: comments are unauthenticated (every session
+    writes under one login and anyone can quote a marker), so a marker is a hint for reconstruction only."""
+    found = {}
+    for b in comment_bodies:
+        text = FENCE_RE.sub("", b or "")
+        text = "\n".join(ln for ln in text.splitlines() if not ln.lstrip().startswith(">"))
+        for wave, issue, session, territory in WAVE_MARK_RE.findall(text):
+            found[(wave, int(issue))] = {"wave": wave, "issue": int(issue), "session": session, "territory": territory.strip()}
+    return list(found.values())
+
+
+def live_waves(entries: list, open_issue_numbers) -> list:
+    """The subset a tick must treat as its own in-flight fan-out: the ledgered issue is still open
+    (a merged PR closes it through the linker; a released/abandoned issue is re-labelled, still open,
+    and rightly stays listed until someone takes it)."""
+    open_set = {int(n) for n in open_issue_numbers}
+    return [e for e in entries if e["issue"] in open_set]
+
+
+def parse_wave_rows(specs: list) -> list:
+    """CLI row grammar: '<issue>=<session>:<territory>' (territory may contain ':' and spaces)."""
+    rows = []
+    for s in specs:
+        m = re.match(r"^\s*#?(\d+)\s*=\s*([A-Za-z0-9_-]+)\s*:(.*)$", s or "", re.S)
+        if not m:
+            raise ValueError(f"wave row must look like 284=session_abc:territory text — got {s!r}")
+        rows.append({"issue": int(m.group(1)), "session": m.group(2), "territory": m.group(3).strip()})
+    if not rows:
+        raise ValueError("a wave needs at least one --row")
+    return rows
 
 
 def summarize_checks(check_runs: list) -> dict:
@@ -727,6 +785,9 @@ def render_brief(model: dict, cfg: dict, repo: str) -> str:
          f"- limits this pass: at most {cfg['planner']['max_new_issues_per_run']} new issues; stop filing at the ceiling; "
          f"worker eligibility = `{cfg['worker']['eligible']}` (label `auto`), hot-file allowed for worker: {cfg['worker']['allow_hot_file']}"]
     L.extend(f"- ⚠️ {w}" for w in h["warnings"])
+    waves = model.get("waves")
+    if waves is not None:                       # #386: engineer waves still in flight per the board-issue ledger
+        L.append("- waves in flight (ledger): " + (", ".join(f"wave {e['wave']} #{e['issue']} → `{e['session']}`" for e in waves) or "none"))
     L += ["", "## Steers / intake awaiting triage (obey; log derived issues with `Refs #<steer>` + label `from-steer`; then label the steer `triaged`)"]
     unt = [s for s in model["steers"] if not s["triaged"]]
     if not unt:
@@ -1195,6 +1256,22 @@ def hello(repo: str, timeout=4.0) -> str:
 
 # ─────────────────────────────── CLI ────────────────────────────────────────
 
+def _print_waves(entries: list, as_json: bool):
+    if as_json:
+        print(json.dumps(entries, ensure_ascii=False, indent=2))
+    elif not entries:
+        print("no ledgered wave in flight")
+    else:
+        for e in entries:
+            print(f"wave {e['wave']:<4} #{e['issue']:<6} {e['session']:<34} {e['territory'][:90]}")
+
+
+def board_wave_entries(gh: GH, issues: list, cfg: dict) -> list:
+    """Wave markers on the board issue's comments (empty when there is no board issue yet)."""
+    board = find_board_issue(issues, cfg)
+    return parse_waves([c.get("body") or "" for c in gh.comments(board["number"])]) if board else []
+
+
 def _client(repo_arg) -> GH:
     repo, token = resolve_repo(repo_arg), resolve_token()
     if not repo:
@@ -1243,10 +1320,40 @@ def main(argv=None) -> int:
     mi.add_argument("--json", action="store_true")
     sub.add_parser("labels", help="create the label vocabulary")
     sub.add_parser("hello", help="SessionStart banner")
+    w = sub.add_parser("wave", help="fan-out ledger on the board issue: `wave post` when starting engineer sessions, `wave live` at the start of every tick (#386)")
+    wsub = w.add_subparsers(dest="wave_cmd", required=True)
+    wp = wsub.add_parser("post", help="post one ledger comment for a wave (or --dry-run to print it)")
+    wp.add_argument("--wave", required=True, help="wave id, e.g. 14")
+    wp.add_argument("--row", action="append", default=[], metavar="ISSUE=SESSION:TERRITORY", help="one per engineer session (repeatable)")
+    wp.add_argument("--tech-lead", default=os.environ.get("TEKTON_SESSION", ""), help="the tech-lead session id (default $TEKTON_SESSION)")
+    wp.add_argument("--kept", default="", help="what the tech lead kept for itself, free text")
+    wp.add_argument("--dry-run", action="store_true", help="print the comment body, post nothing (works offline)")
+    wl = wsub.add_parser("live", help="print the ledgered waves whose issues are still open (what this tick must treat as its own)")
+    wl.add_argument("--from-file", default="", help="read comment bodies from this file (a JSON list of strings, or raw text) instead of the API — for cloud sessions without a token: save the board issue's comments via MCP first")
+    wl.add_argument("--open", default="", help="with --from-file: comma-separated issue numbers known to be open (default: treat every ledgered issue as open)")
+    wl.add_argument("--json", action="store_true")
     a = ap.parse_args(argv)
 
     if a.cmd == "hello":
         print(hello(resolve_repo(a.repo)))
+        return 0
+    if a.cmd == "wave" and (getattr(a, "dry_run", False) or getattr(a, "from_file", "")):   # offline paths: no token needed
+        try:
+            if a.wave_cmd == "post":
+                print(render_wave(a.wave, parse_wave_rows(a.row), a.tech_lead, a.kept, iso(utcnow())))
+            else:
+                raw = open(a.from_file, encoding="utf-8", errors="replace").read()
+                try:
+                    bodies = json.loads(raw)
+                    bodies = [b if isinstance(b, str) else (b or {}).get("body", "") for b in bodies] if isinstance(bodies, list) else [raw]
+                except ValueError:
+                    bodies = [raw]
+                entries = parse_waves(bodies)
+                if a.open:
+                    entries = live_waves(entries, [n for n in re.split(r"[,\s]+", a.open) if n.strip().isdigit()])
+                _print_waves(entries, a.json)
+        except (ValueError, OSError) as e:
+            sys.exit(f"techlead wave: {e}")
         return 0
     cfg = load_config()
     if a.cmd == "config":
@@ -1286,6 +1393,17 @@ def _run(a, cfg: dict) -> int:
             print(f"claim: NOT yours — {r['reason']} (holder @{r['holder']}, session {r['holder_session']})", file=sys.stderr)
             return 4
         return 0
+    if a.cmd == "wave":                                   # online paths (dry-run / --from-file were handled in main)
+        issues = fetch_issues(gh)
+        if a.wave_cmd == "post":
+            board = find_board_issue(issues, cfg)
+            if not board:
+                sys.exit("techlead wave: no board issue (label '%s') to post on — run `techlead.py board` once, or use --dry-run and paste it" % cfg["board"]["label"])
+            body = render_wave(a.wave, parse_wave_rows(a.row), a.tech_lead, a.kept, iso(utcnow()))
+            print(gh.comment(board["number"], body).get("html_url", ""))
+        else:
+            _print_waves(live_waves(board_wave_entries(gh, issues, cfg), [i["number"] for i in issues]), a.json)   # fetch_issues = open issues only
+        return 0
     if a.cmd == "mine":
         me = a.me or whoami(gh)
         rows = mine(gh, me, a.session, a.idle_hours)
@@ -1324,6 +1442,11 @@ def _run(a, cfg: dict) -> int:
             upsert_board(gh, snap["issues"], cfg, body)
         print(f"api calls: {gh.calls}", file=sys.stderr)
     elif a.cmd == "brief":
+        try:                                          # #386: one extra call — the board issue's comments carry the wave ledger
+            model["waves"] = live_waves(board_wave_entries(gh, snap["issues"], cfg), [i["number"] for i in snap["issues"]])
+        except GitHubError as e:
+            model["waves"] = None
+            print(f"waves: skipped ({e})", file=sys.stderr)
         out = json.dumps(model, indent=2, default=str) if a.json else render_brief(model, cfg, gh.repo)
         print(out)
         if a.out:
