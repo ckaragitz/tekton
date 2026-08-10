@@ -175,7 +175,14 @@ def test_panelboard_family_composition():
     assert prod.kind == "panelboard" and doc.finalized
     assert doc.category_id == SK.OST_ELECTRICAL_EQUIPMENT
     assert doc.part_type == SK.PART_TYPE["panelboard"] == 14
-    assert doc.work_plane_based is True
+    # FREE-STANDING, not work-plane-based: the geometry stands W x D x H on
+    # the reference level, and the hosting flag has to agree with it.  (The
+    # Autodesk rme panelboard is work-plane-based and traces the panel FACE
+    # in the family XY with the depth on Z -- which is why it lies flat in
+    # the family editor and stands up only once placed on a wall face.  We
+    # place instances on LEVELS, not by picking a face, so that combination
+    # genuinely left the panel on the floor.)
+    assert doc.work_plane_based is False
     # the tagging-contract parameter NAMES are present
     for pname, _s, _g in F.PANEL_CONTRACT_PARAMS:
         assert pname in doc.params, f"contract parameter {pname} missing"

@@ -871,3 +871,49 @@ containing a form built the way ours is, not another field diff.
   `test_required_settings.py` + `test_identity.py` 50 passed;
   `tools/sync_plugin.py --check` clean
 * staged, not shipped: desktop verdict on `panel400_v9.rfa` / `hanger_v10.rfa`
+
+## Iteration 19 — WIREFRAME WORKS, and the hosting flag that was lying
+
+**Owner verdict on iteration 18: "looks like v9 for the panel displays in
+wireframe!"** The retouch styles were the missing piece. The full chain that
+took a generated family from "nothing visible anywhere" to "renders in every
+display mode" is now: the family-view law (#17 above) -> Plan/RCP visibility
+bit -> the family object style -> the two retouch styles.
+
+**Then a finding that partly reverses iteration 16.** Measuring the Autodesk
+rme panelboard to build the Height->extrusion association showed:
+
+* `m_isWorkPlaneBased` **True**, part type 14 -- byte-identical hosting flags
+  to ours;
+* its extrusions span **1.667 x 1.667 x 0.479 ft with the depth on Z** --
+  i.e. it traces the panel FACE in the family XY, exactly the convention
+  iteration 16 changed away from;
+* `m_constrInfo` empty on all three, so no parameter association there
+  either -- the Height drive will have to come from somewhere else.
+
+So our original axes were not a mistake: they were a face-hosted family
+behaving like one. It lies flat in the family editor **on purpose** and
+stands up when you place it on a wall face.
+
+**The actual inconsistency** was that we set work-plane-based AND place
+instances on LEVELS rather than by picking a face, so the panel really did
+end up lying on the floor of the project. Iteration 16 fixed the symptom and
+left the flag claiming something the geometry no longer matched.
+
+`make_panelboard` is now free-standing (`work_plane_based=False`) so the
+geometry and the hosting flag agree, per the owner's steer ("it should be
+pointed up especially if its in those elevation views"). The face-hosted
+alternative is one flag plus the W x H axis swap, and the note in the
+product says so in as many words.
+
+**Open:** Height still does not drive the box. The association is NOT on the
+extrusion (`m_constrInfo` empty in the reference), so the next measurement is
+where a Revit-born family stores "Extrusion End = <family parameter>" --
+likely a dimension or a constraint element rather than a field on the form.
+
+### BRANCH STATE (updated)
+* written: `src/rvt/famgen/factory.py` (panelboard free-standing + the
+  measured note), `tests/test_famgen_factory.py`
+* gates: 14 stream-local files 297 passed / 58 skipped;
+  `tools/sync_plugin.py --check` clean
+* shipped for verdict: `panel400_v10.rfa`

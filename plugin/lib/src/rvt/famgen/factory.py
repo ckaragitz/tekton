@@ -1569,11 +1569,22 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
         _common([f"{int(j['spaces'])}ckt" for j in jobs]), mount.title())
     doc = SK.new_family_document("electrical_equipment", fam_name,
                                  part_type=SK.PART_TYPE["panelboard"],
-                                 work_plane_based=True, start_id=start_id,
+                                 work_plane_based=False, start_id=start_id,
                                  plane_length_ft=max(6.0, H * 1.5),
                                  shared_params=shared_params)
-    doc.notes.append("panelboard: work-plane-based (face-hosted like every rme "
-                     "panelboard); enclosure box in the family XY = the host face")
+    doc.notes.append(
+        "panelboard: FREE-STANDING (level-based), enclosure standing W x D "
+        "on the reference level, H tall. The Autodesk rme panelboard is "
+        "instead WORK-PLANE-BASED and traces the panel FACE in the family XY "
+        "with the depth along Z -- which is why it lies flat in the family "
+        "editor and only stands up once you place it on a wall face "
+        "[measured: m_isWorkPlaneBased True, part type 14, extrusions "
+        "1.667 x 1.667 x 0.479 ft with the depth on Z]. We place instances "
+        "on LEVELS, not by picking a face, so a work-plane-based family "
+        "genuinely ended up lying on the floor; the geometry and the hosting "
+        "flag now agree. Reverting to the face-hosted convention is one flag "
+        "plus the W x H axis swap (owner steer 2026-08-10: 'it should be "
+        "pointed up especially if its in those elevation views').")
     # -- parameters: dimensions ------------------------------------------
     for dim in ("Width", "Height", "Depth"):
         _num(doc, dim, "length", "dimensions")
