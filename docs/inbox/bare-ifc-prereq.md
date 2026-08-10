@@ -291,8 +291,9 @@ FAIL with `_why`; pre-`go` build → SKIPPED).  (b) #565's BLOCKED for `author-i
 table the *preflight job* left in `state`, so `--jobs author-ifc` alone on a numpy-less
 interpreter still read FAIL / exit 1: make it order-independent with the smallest thing that
 works.  Territory: `tools/surface_bench.py` (new job + order fix; launch/timing machinery
-reused, not changed), `tests/test_surface_bench_reason.py`, this section.  Not touched:
-`tekton_env.py`, the front door, `tests/test_surface_perf.py` (see finding 2),
+reused, not changed), `tests/test_surface_bench_reason.py`, `tests/test_surface_perf.py` (the issue's
+third DONE bullet — added on the tech lead's ruling, finding 2), this section.  Not touched:
+`tekton_env.py`, the front door,
 `tests/ci_shard.txt` (no new test *file* — the reason test is already in the merged shard via
 `tests/ci_shard.d/287-bench-fail-reason.txt`).  `surface_bench.py` is still not mirrored into
 the plugin: the zip rebuilt on this head is **byte-identical** to the one built from `main`
@@ -308,6 +309,7 @@ the plugin: the zip rebuilt on this head is **byte-identical** to the one built 
 | `_probe_preflight(s, state, label)` | the `_bootstrap.py --json` call factored out of `job_preflight`: ONE counted invocation; records `state["preflight"] = {python, extras, routes, internal_seconds}` when READY and `{}` when not (= "asked, not READY"). `job_preflight` = that probe + the same PASS / `preflight not READY: …` FAIL as before (row identical in the diff below). |
 | `job_author_ifc` | after "built → PASS" and before reading the table: `if "preflight" not in state` (the preflight job did not run in this bench session) → append `_probe_preflight(s, state, "preflight --json (route table)")` to **this row's** invocations, then classify exactly as #565 does. So alone it is 2 counted calls (job 0.4 s + probe 0.08 s → BLOCKED); in a full session (preflight already asked) it stays 1 call and byte-for-byte the #565 row; a built job never probes; a probe that comes back without a table (pre-#127 build) or NOT READY leaves the old FAIL. |
 | `tests/test_surface_bench_reason.py` (+12 tests → 30; already in the shard) | `_FakeSurface` now answers a *sequence* of canned `(stdout, exit)` per call and records each call's label + argv. Rows: `go-author-ifc` is in `JOB_ORDER` right after `author-ifc` and in `JOBS`; its ONE call is `go author --ifc <plugin>/…/electrical-room-2500a.ifc --target-version 2025 --json --out <workdir>/…`; classification from synthetic envelopes with **empty state** — prerequisite envelope → BLOCKED / reason = the NOT-READY-for-`--ifc` line / `prerequisite` carried / cell `0.1s BLOCKED (needs numpy)`, READY + `result.ok` ifc envelope → PASS with `breakdown.job_seconds`, ran-and-failed envelope (`Unable to parse IFC SPF header`) → FAIL quoting `errors[0]`, plain readiness line (pre-`go` build) → SKIPPED; `author-ifc` alone: failed job then a READY probe stating `routes.ifc` not ok → BLOCKED, 2 calls, labels `[author --ifc (electrical room), preflight --json (route table)]`, probe argv `[_bootstrap.py, --json]`, table kept in `state` — and the same job with the table already in state → BLOCKED, same reason, **1** call; alone + probe without a table / probe NOT READY → still FAIL (2 calls, no `prerequisite` key); alone + built → PASS, 1 call, no probe; `job_preflight` READY → PASS + full `state["preflight"]`, NOT READY → FAIL with its line + `state["preflight"] == {}`. |
+| `tests/test_surface_perf.py` (+1 test → 6; already in the shard via `136-release-gates.txt`) | `go-author-ifc` appended to the `bench_report` fixture's jobs; `SESSION_CALL_BUDGET` 4 → 5 (comment says why); `test_bare_go_author_ifc_builds_or_states_its_prerequisite` — status ∈ exactly {PASS, BLOCKED}, 1 call, PASS+`job_seconds`+`< AUTHOR_CEILING` when the surface's own preflight says numpy is present, BLOCKED+`needs == ["numpy"]`+`< PREFLIGHT_CEILING` when absent; every pre-existing assertion byte-intact (finding 2 has the measured cost on both interpreters). |
 
 ### Evidence — this cloud VM, `/usr/bin/python3` 3.11.15 with **no numpy** (and no olefile) as the bare interpreter, repo `.venv` (numpy present) as `local`
 
@@ -400,15 +402,25 @@ PASS (0.6 / 0.9 s); extras `numpy=yes`; exit 0.
    of cost is the shell call would be the one dishonest number in the table.  In the default job list the
    preflight job has already asked, so the row — and `tests/test_surface_perf.py`'s call budget, which does
    not include `author-ifc` anyway — is unchanged.
-2. Issue #562's DONE also names a `tests/test_surface_perf.py` ceiling/BLOCKED assertion for the new row; the
-   tech lead's brief for this wave scoped the territory to the bench + the reason test + this record, so it is
-   **not** in this PR.  It is a 15-line follow-on for whoever holds that file next (add `"go-author-ifc"` to the
-   `bench_report` job list; assert `status == "BLOCKED" and prerequisite.needs == ["numpy"]` when
-   `importlib.util.find_spec("numpy")` is None under `_bare_python()` — probe by subprocess, never import at
-   collection — else `status == "PASS" and shell_calls == 1 and seconds < AUTHOR_CEILING`; bump
-   `SESSION_CALL_BUDGET` 4 → 5 with the reason).  Cost in the tech lead's numpy-less sandbox: +0.1 s per shard
-   run; on a bare python *with* numpy: +~9 s.  Not filed as a separate issue: it is literally #562's third DONE
-   bullet — if the reviewer wants it in this PR, it lands on this branch in one push.
+2. Issue #562's DONE also names a `tests/test_surface_perf.py` assertion for the new row; the first head of this
+   PR (ba028d8) left it out because the brief's territory line did not list that file — the tech lead ruled that
+   an accident and asked for it on this branch, so it **is** in the PR (second commit).  What it adds — every
+   pre-existing assertion in the file left byte-intact: `"go-author-ifc"` appended to the `bench_report`
+   fixture's job list (last, so the four existing rows run exactly as before); `SESSION_CALL_BUDGET` 4 → 5 with
+   the comment saying why (the documented IFC flow is ONE call whether it builds or states its prerequisite);
+   `test_bare_go_author_ifc_builds_or_states_its_prerequisite`: the row's status ∈ **exactly {PASS, BLOCKED}**
+   (FAIL or a silent SKIPPED is red), 1 shell call, and *which* of the two is tied to the surface's own preflight
+   `extras.numpy` (= that interpreter's `find_spec("numpy")` under the bench env — numpy is never imported into
+   the test process, and the expectation cannot disagree with what the surface itself sees): numpy present →
+   PASS + `breakdown.job_seconds` + `seconds < AUTHOR_CEILING` (20 s); absent → BLOCKED +
+   `prerequisite.needs == ["numpy"]` + `seconds < PREFLIGHT_CEILING` (2 s: a preflight-cost answer, not a job).
+   **Measured shard cost, this VM, plugin tree, cowork surface (the fixture's exact `run_bench` call):**
+   numpy-less bare (`/usr/bin/python3`, what `_bare_python()` picks here): row `BLOCKED 0.069 s`, 1 call,
+   `needs ['numpy']`; whole file **5 passed in 8.80 / 8.41 s → 6 passed in 9.05 / 8.51 s** (+≈0.1 s, inside
+   run-to-run noise); numpy-present bare (the repo `.venv` python forced in as `_bare_python()` — what a CI
+   sandbox whose only python3 is the venv gives): row `PASS 8.435 s` (job 8.237 s, 8/8 families, 1 call), whole
+   file **5 passed in 8.77 / 9.23 s → 6 passed in 16.64 / 16.67 s** (+≈8 s = the real ifc build); session calls
+   4 → 5 on both.  Both branches of the assertion were exercised for real, not only the one this host defaults to.
 3. `go author --ifc` on the bundled example plans and loads **8** families in one host pass (L `8/8`), so the
    shared degraded-load guard (`n_loaded < n_planned` → FAIL) covers the ifc row for free; a future ifc build that
    quietly loads 5/8 will read FAIL here, not a fast PASS.
@@ -424,7 +436,7 @@ PASS (0.6 / 0.9 s); extras `numpy=yes`; exit 0.
 
 ### Gates run (this session, final tree)
 
-- Stream-local: `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_surface_bench_reason.py -q -rs` → **30 passed** (0.12 s; 18 pre-existing + 12 new).
+- Stream-local: `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_surface_bench_reason.py -q -rs` → **30 passed** (0.12 s; 18 pre-existing + 12 new); `tests/test_surface_perf.py` → **6 passed** (8.5–9.1 s with the numpy-less `/usr/bin/python3`; 16.6–16.7 s with the venv python forced in as the bare interpreter — both branches green).
 - Neighbours: `tests/test_surface_bench_reason.py tests/test_surface_perf.py tests/test_bootstrap.py tests/test_coldstart.py tests/test_plugin_sync.py -q -rs` → **68 passed** (19.0 s).
 - `.venv/bin/python tools/sync_plugin.py` then `--check` → *plugin in sync with source (deny-audit clean, identity scan == allowlist, assets verified)*; rebuilt zip byte-identical to main's; `plugin/scripts/validate_plugin.py` → *RESULT: PASS*; `python3 tools/dev/check_portable_paths.py` → *ok: 2960 tracked paths are portable*.
 - `/verify` (drive the real surface, zip rebuilt on the **final** tree — still byte-identical to main's — bare `/usr/bin/python3`): full bench exit 0, `go-author-ifc` `0.1s BLOCKED (needs numpy)` / `0.1s (+0.1s extract) BLOCKED (needs numpy)` / `8.5s` PASS, `author-ifc` `0.4s BLOCKED` / `0.6s BLOCKED` / `6.9s`, 11 calls per surface, JSON diff vs before again 24/24 old rows identical + the one added row; `--surfaces cowork,codeexec --jobs author-ifc` alone → `0.6s BLOCKED (needs numpy)` / `0.7s (+0.3s extract) BLOCKED (needs numpy)`, 2 calls each, exit 0 (main: FAIL / exit 1); the earlier `--jobs go-author-ifc` alone (BLOCKED ×2, exit 0) and numpy-present (PASS + validate PASS on the ifc output) runs above.
@@ -433,7 +445,7 @@ PASS (0.6 / 0.9 s); extras `numpy=yes`; exit 0.
 ### BRANCH STATE (eng #562)
 
 - **Branch:** `cam/562-go-author-ifc-bench` from `origin/main` @ 7d04c82.
-- **Files written:** `tools/surface_bench.py`, `tests/test_surface_bench_reason.py`, `docs/inbox/bare-ifc-prereq.md` (this section only).
+- **Files written:** `tools/surface_bench.py`, `tests/test_surface_bench_reason.py`, `tests/test_surface_perf.py`, `docs/inbox/bare-ifc-prereq.md` (this section only).
 - **Shipped vs staged:** dev tool only — `surface_bench.py` is not mirrored into the plugin; the rebuilt zip is byte-identical to main's; nothing viewer-gated, no batch, no `.rvt` committed.
 - **Gates:** stream-local 30 passed; neighbours 68 passed; sync `--check` clean; validate_plugin PASS; portable paths ok; full bench exit 0 (new row BLOCKED on cowork/codeexec, PASS on local; 10 → 11 calls per surface; 24/24 old rows identical); `--jobs author-ifc` alone on the bare interpreter: main FAIL/exit 1 → head BLOCKED/exit 0; merged shard **1909 passed, 134 skipped, 3 xfailed** (479 s).
-- **Open:** finding 2 (the `test_surface_perf.py` assertion for the new row — #562's third DONE bullet, outside this wave's territory; ready to land on this branch on request).
+- **Open:** nothing from the issue's DONE; the perf assertion (finding 2) landed in the second commit on the tech lead's ruling.
