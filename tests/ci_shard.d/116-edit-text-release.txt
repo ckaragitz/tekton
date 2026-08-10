@@ -1,0 +1,2 @@
+# fresh-clone safe: edits the three tracked genesis bases under plugin/assets/genesis (issue #116)
+tests/test_edit_text_release.py
