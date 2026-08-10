@@ -592,3 +592,25 @@ BRANCH STATE (cam/302-loop-lease): `tools/dev/techlead.py` (lease grammar/functi
 brief line, config default), `tools/dev/coord.py` (`unquoted` drops MCP-escaped quotes), `.github/autonomy.json` (+`lease`),
 `.github/prompts/tick.md` (new), `tests/test_techlead.py` (+2), `docs/process/AUTONOMY.md` (§12c row), this section.
 Process tooling; shipped when merged.
+
+## Steer #422 — no approval prompts, ever; the watchdog leg parked (same session, 2026-08-10)
+
+**What happened.** After #411 merged, the session created the watchdog routine through the Claude Code Remote MCP tool
+(which warned it stores no connectors), pointed the hourly routine at `tick.md`, and TEST-FIRED the watchdog while
+holding the lease. Measured on the fired session (`session_011J8984eVzisoWXD3NrUYkr`): no repo, no `add_repo`, no GitHub
+MCP tools, no Claude Code Remote tools, `github.com/ckaragitz/tekton` 403 through its proxy, then a `ConnectGitHub`
+prompt requiring a human click. Meanwhile every routine call (`create_trigger`, `update_trigger` ×2, `fire_trigger`)
+had itself surfaced an approval prompt to the owner, who said: "Ok so wtf is going on? I don't want to keep approving
+things" (steer #422, standing → S-2026-08-10-b).
+
+**What changed.** The session-created watchdog is disabled (renamed to say why) and the hung test session archived;
+`tick.md` loses every routine call (no re-arm step; the header says a tick never creates/updates/fires routines nor
+spawns anything that needs a click; the watchdog is owner-created and optional, #421, and only such a session re-arms
+its own routine); AUTONOMY §12c's loop row says the same and states plainly that until the owner creates one, the loop
+pauses if its session dies and resumes when a new session starts; STEERING.md gains S-2026-08-10-b. What keeps working
+unchanged and prompt-free: the hourly wake, the lease renewal (`issue_write`), the sandboxed CI + independent review +
+API merge pipeline, engineer fan-out, the wave ledger. Lesson kept for future sessions: prefer mechanisms that run
+through tools that never prompt; describe anything needing the owner's account once, in an issue, for their leisure.
+
+BRANCH STATE (cam/422-no-approval-prompts): `.github/prompts/tick.md`, `docs/process/AUTONOMY.md` (§12c row),
+`docs/STEERING.md` (+S-2026-08-10-b), this section. Docs/process only.
