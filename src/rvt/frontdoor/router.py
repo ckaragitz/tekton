@@ -45,6 +45,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from . import famspec as FS
 from . import matrix as MX
 from .base import repo_root
+from .stagelog import stage_stdout
 
 __all__ = ["RouteError", "RouteResult", "route", "route_ids"]
 
@@ -175,31 +176,13 @@ class _StepFailed(Exception):
 
 
 def _stage_stdout(res: RouteResult, out_dir: str, quiet: bool):
-    """``quiet``: the stages' stdout streams into ``<out_dir>/route.log``
-    (line-buffered: a long route can be tailed, a killed one keeps its
-    progress) and the path rides in ``res.manifest_paths``; else untouched.
-    The log is opened HERE, at call time (before the caller's stage ``try``):
-    an unwritable ``out_dir`` degrades to an unlogged run (in-memory sink + a
-    note in ``res.errors``), never to "route crashed" with no stage run.
-    Capture is ``sys.stdout``-level only; a stage that shells out must
-    capture its child itself."""
-    if not quiet:
-        return contextlib.nullcontext()
-    log_p = os.path.join(out_dir, "route.log")
-    try:
-        fh = open(log_p, "w", buffering=1, encoding="utf-8", errors="backslashreplace")
-    except OSError as e:
-        res.errors.append(f"route.log not writable ({type(e).__name__}: {e}); "
-                          "stage output not logged")
-        return _redirect_stdout_into(io.StringIO())
-    res.manifest_paths["route.log"] = log_p
-    return _redirect_stdout_into(fh)
-
-
-@contextlib.contextmanager
-def _redirect_stdout_into(fh):
-    with fh, contextlib.redirect_stdout(fh):
-        yield
+    """``quiet``: the stages' stdout streams into ``<out_dir>/route.log``,
+    named in ``res.manifest_paths``; an unwritable ``out_dir`` costs the log
+    (ONE caveat -- the router's non-fatal channel, where build degradations
+    already land), never the stages (:mod:`rvt.frontdoor.stagelog`, #373)."""
+    return stage_stdout(out_dir, "route.log", quiet=quiet,
+                        on_open=lambda p: res.manifest_paths.__setitem__("route.log", p),
+                        on_degrade=res.caveats.append)
 
 
 def _load_tool(relpath: str, modname: str):

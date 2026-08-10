@@ -36,6 +36,7 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Optional, Tuple
 
 from .base import repo_root
+from .stagelog import stage_stdout
 
 __all__ = ["EditParseError", "EditSpec", "parse_edit_spec", "editables",
            "resolve_ref", "load_job_module", "run_edit"]
@@ -354,10 +355,14 @@ def run_edit(rvt_path: str, spec: EditSpec, out_dir: str, *,
              quiet: bool = False) -> Dict[str, Any]:
     """Apply ``spec.ops`` to ``rvt_path`` through the job runner's EDIT
     mode (rvt.manipulate ops in ONE commit + rvt.mutate adds + the hard
-    gates) and return {rc, out_rvt, job_manifest, validation}.
+    gates) and return {rc, out_rvt, job_manifest, validation, log_path,
+    degradations}.
 
     The job runner writes ``<out>.manifest.json`` / ``<out>.validation.json``;
-    the front door's own manifest wraps them.
+    the front door's own manifest wraps them.  ``quiet``: the runner's
+    progress streams into ``<out_dir>/edit.log`` (:mod:`rvt.frontdoor.stagelog`,
+    the build's ``build.log`` shape) and ``log_path`` names it; an unwritable
+    ``out_dir`` costs the log (one ``degradations`` note), never the edit.
     """
     J = load_job_module()
     os.makedirs(out_dir, exist_ok=True)
@@ -372,16 +377,11 @@ def run_edit(rvt_path: str, spec: EditSpec, out_dir: str, *,
         argv.append("--no-validate")
     if strict_validate:
         argv.append("--strict-validate")
-    if quiet:
-        import contextlib
-        import io
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            rc = int(J.main(argv))
-        log = buf.getvalue()
-    else:
+    log: Dict[str, Any] = {"path": None, "degradations": []}
+    with stage_stdout(out_dir, "edit.log", quiet=quiet,
+                      on_open=lambda p: log.__setitem__("path", p),
+                      on_degrade=log["degradations"].append):
         rc = int(J.main(argv))
-        log = ""
     job_manifest, validation = {}, {}
     mp = out_rvt + ".manifest.json"
     if os.path.isfile(mp):
@@ -398,4 +398,4 @@ def run_edit(rvt_path: str, spec: EditSpec, out_dir: str, *,
             "ops_json": ops_path, "job_manifest": job_manifest,
             "validation_json": vp if os.path.isfile(vp) else None,
             "job_manifest_json": mp if os.path.isfile(mp) else None,
-            "log": log}
+            "log_path": log["path"], "degradations": log["degradations"]}

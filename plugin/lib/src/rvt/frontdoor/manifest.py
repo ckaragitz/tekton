@@ -449,7 +449,8 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
                                     "kind", "report", "identity", "reason", "deliverable",
                                     "base_is_autodesk_sample")}
                       for k, g in gates.items()},
-            "log_tail": (run.get("log") or "")[-2000:],
+            "log": _relp(run.get("log_path")),           # the quiet edit's job log: a PATH, like
+            "degradations": list(run.get("degradations") or []),   # build.log (issue #373)
             "rc": run.get("rc"),
         },
         "output": file_facts(out_rvt),
@@ -491,9 +492,12 @@ def write_manifest(manifest: Dict[str, Any], out_dir: str) -> Dict[str, str]:
     with open(mp, "w") as fh:
         fh.write(_render_md(manifest))
     paths = {"json": jp, "md": mp}
-    if (manifest.get("build") or {}).get("log"):     # the quiet build's stage log opened (#312):
-        paths["build.log"] = os.path.join(out_dir, "build.log")   # named beside them, never a
-    return paths                                                  # deliverable in `files`
+    for block in ("build", "edit"):                  # the quiet stage log that opened (#312 /
+        log = (manifest.get(block) or {}).get("log") # #373): named beside them by its own file
+        if log:                                      # name, never a deliverable in `files`
+            name = os.path.basename(str(log))
+            paths[name] = os.path.join(out_dir, name)
+    return paths
 
 
 def _render_md(m: Dict[str, Any]) -> str:
@@ -554,6 +558,10 @@ def _render_md(m: Dict[str, Any]) -> str:
             ap(f"- output: `{o.get('relpath')}` ({o.get('bytes')} bytes, sha256 `{str(o.get('sha256'))[:16]}…`)")
         el = m.get("elements") or {}
         ap(f"- edited {el.get('edited')} · deleted {el.get('deleted')} · created {el.get('created')}")
+        for d in e.get("degradations") or []:
+            ap(f"- **degradation**: {d}")
+        if e.get("log"):
+            ap(f"- job log (plan / commit / gate progress): `{e['log']}`")
         ap("")
         ap("## CRUD (the result stays editable)")
         c = m.get("crud") or {}

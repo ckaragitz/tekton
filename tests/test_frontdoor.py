@@ -902,6 +902,80 @@ def test_unwritable_out_dir_degrades_to_an_unlogged_build_not_a_crash(tmp_path, 
     assert not (ro / "build.log").exists()
 
 
+# -- 8c. the SAME helper on the --rvt --edit route (issue #373): the job
+#        runner's progress lands in <out>/edit.log and the manifest names the
+#        PATH beside json / md exactly like build.log (no captured text in it)
+
+@needs_pinned
+def test_quiet_edit_writes_edit_log_and_the_manifest_names_it(tmp_path, capsys):
+    out = tmp_path / "e"
+    r = FD.author(rvt=PINNED[2025], edit="set level 311 elevation to 5 ft", out=str(out))
+    assert r.route == "rvt" and r.ok, (r.status, r.errors)
+    assert capsys.readouterr().out == ""                        # quiet: nothing leaked
+    log_p = r.manifest_paths["edit.log"]
+    assert log_p == str(out / "edit.log") and os.path.isfile(log_p)
+    with open(log_p, encoding="utf-8") as fh:
+        text = fh.read()
+    assert "[rvt_job] planning 1 op(s)" in text and "[rvt_job] validating" in text
+    e = r.manifest["edit"]
+    assert e["log"] and e["log"].endswith("edit.log") and e["degradations"] == []
+    assert "log_tail" not in e                                   # a path, never captured content
+    assert "edit.log" not in r.files and list(r.files) == ["edited"]         # named, not delivered
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        assert "job log" in fh.read()
+    # --verbose: live on stdout, no file, nothing named
+    r2 = FD.author(rvt=PINNED[2025], edit="set level 311 elevation to 5 ft",
+                   out=str(tmp_path / "v"), quiet=False)
+    assert r2.ok and "[rvt_job] planning" in capsys.readouterr().out
+    assert "edit.log" not in r2.manifest_paths and r2.manifest["edit"]["log"] is None
+    assert not (tmp_path / "v" / "edit.log").exists()
+
+
+@needs_pinned
+def test_an_unopenable_edit_log_costs_the_log_never_the_edit(tmp_path, capsys):
+    """The log cannot open (here: ``edit.log`` squatted by a directory -- an
+    OSError under any uid) -> the edit is still DELIVERED, the manifest carries
+    ONE degradation and names no log, stdout stays clean: logging never costs
+    a delivery (hard rule 1; the build's 8b twin, #373)."""
+    out = tmp_path / "e"
+    (out / "edit.log").mkdir(parents=True)
+    r = FD.author(rvt=PINNED[2025], edit="set level 311 elevation to 5 ft", out=str(out))
+    assert r.ok and os.path.isfile(r.files["edited"]), (r.status, r.errors)
+    assert "edit.log" not in r.manifest_paths and r.manifest["edit"]["log"] is None
+    degr = r.manifest["edit"]["degradations"]
+    assert len(degr) == 1 and degr[0].startswith("edit.log not writable (IsADirectoryError")
+    assert "[rvt_job]" not in capsys.readouterr().out
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        assert "**degradation**: edit.log not writable" in fh.read()
+
+
+@needs_catalog
+@needs_pinned
+def test_out_dir_under_a_quarantined_name_is_still_one_json(tmp_path):
+    """The #374 review's edge: ``--out …/samples/x`` arms the standalone
+    tripwire against the job's OWN out dir, and its audit hook refuses
+    ``open(<out>/build.log)`` with StandaloneError (not OSError).  The shared
+    helper degrades that like any unwritable log, so the ENVELOPE holds: ONE
+    JSON on stdout, 0 B on stderr, a manifest on disk, never rc 1 + a
+    traceback (root or not: no chmod involved).  Only the envelope is pinned:
+    whether such an --out delivers or is refused up front is #425's decision
+    (today: rc 3 NO-OUTPUT + a ``build.log not writable (StandaloneError``
+    degradation, because the hook also refuses the job's own output writes)."""
+    import subprocess
+    out = tmp_path / "samples" / "x"
+    p = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "frontdoor.py"), "author",
+                        "--prompt", "an electrical room with 1 panel", "--out", str(out),
+                        "--json"], capture_output=True, text=True, cwd=ROOT)
+    assert p.stderr == "" and "Traceback" not in p.stdout
+    doc = json.loads(p.stdout)                                   # ONE document
+    assert p.returncode in (0, 2, 3) and doc["route"] == "prompt" and doc["status"]
+    assert os.path.isfile(doc["manifest"]["json"])
+    with open(doc["manifest"]["json"], encoding="utf-8") as fh:
+        degr = (json.load(fh).get("build") or {}).get("degradations") or []
+    noted = [d for d in degr if d.startswith("build.log not writable")]
+    assert len(noted) <= 1 and not (noted and "build.log" in doc["manifest"])   # named or noted, once
+
+
 @needs_catalog
 def test_prompted_receptacles_round_trip_through_our_ifc_as_outlets(tmp_path):
     """prompt -> OUR IFC -> re-entry (#166 review): a wiring device is emitted
