@@ -324,3 +324,225 @@ sys.exit(rc or 0)
 * Bench artifacts (`out/bench-before.json|md`, `out/bench-after.json|md`,
   validation JSONs) are session-local under `out/` (git-ignored); their
   numbers are transcribed in §2.
+
+---
+
+## eng #291 — 2026-08-10 — one interception mechanism (miss-loader hook), `_SCHEMAS` re-measured and restated
+
+Stream: PERF-SCHEMA-MEMO follow-up · issue #291 (filed by §6 above) · Refs #183 #110 · PG6 ·
+steer S-2026-08-09-g (measured before/after from a bare surface) · size S · territory:
+`src/rvt/schema.py`, `src/rvt/schema_cache.py`, `src/rvt/global_framing.py` (+ their
+regenerated `plugin/lib/src/rvt/` mirrors), `tests/test_schema_memo.py`, `tests/test_coldstart.py`
+(one subprocess assertion reworded), this section. Not touched: `src/rvt/frontdoor/standalone.py`,
+`plugin/skills/_shared/tekton_schema.py` / `tekton_env.py` (#377/#389/#267 — read
+`docs/inbox/install-schema.md`; nothing here needed them), `src/rvt/versions/**` (hot), any
+SKILL.md.
+
+### What was built
+
+* **`rvt.schema.register_miss_loader(loader) -> bool`** — the one documented hook below the
+  memo. `parse(data, source)` = `memoized(sha256(data), _materialise)`, and `_materialise` asks
+  each registered `loader(digest, source)` (registration order) for a ready-made `Schema` before
+  it runs `parse_uncached`. Contract in the docstring: `digest` is the only key (`source` is a
+  label for `Schema.source`), a loader answers `None` for "not mine" and never raises, a returned
+  Schema whose `.sha256` is not `digest` is refused (one comparison in `_materialise`, so the
+  memo's key provably stays the content hash whoever registers), and an accepted one is memoized
+  exactly like a parse (asked at most once per digest per process). Idempotent by identity
+  (`False` if already registered). `parse_uncached` bypasses memo *and* loaders (so
+  `schema_cache.build_cache` still rebuilds from the byte-level parser). `_MISS_LOADERS` sits next
+  to `_MEMO`; nothing else in `schema.py` moved — `memoized` / `memo_clear` / `load_schema` /
+  `load_schema_file` / `schema_available` are byte-for-byte what #183/#377 left (an existing
+  explicit copy IS parsed verbatim and memoized per content; a missing explicit path raises
+  `FileNotFoundError`; the no-arg call falls back to the bundled base).
+* **`rvt.schema_cache.install()`** no longer rebinds `rvt.schema.parse`: it is
+  `register_miss_loader(disk_loader)` + the same small report (`"(already)"` on a repeat, `dirs` =
+  `cache_dirs()`). **`disk_loader(digest, source="")`** (new public name, 3 lines) =
+  `_load_cached_from_disk(digest, None, source)` — the sha-verified `.tksc` lookup over
+  `cache_dirs()` that already never raises. Gone: `parse_cached`, `parse._schema_cache_orig`,
+  `rvt.schema._schema_cache_installed`, the never-used `install(dirs=…)` parameter (no caller in
+  `src/ tools/ tests/ plugin/skills/` ever passed it; `$RVT_SCHEMA_CACHE_DIR` is the extra-dir
+  knob and stays) — and with it any install state outside `rvt.schema`'s one list — and the
+  import-order sensitivity the issue names (`families.py`'s `from .schema import parse` bound at
+  import time used to bypass the wrapper on a cold process when imported before `install()`; the
+  hook is inside `parse`, so every binder gets the disk arm). `load_cached(sha, dirs)` (used
+  directly by `versions/_release_schema.py`) is unchanged: `memoized(digest, <disk lookup>)`.
+  `plugin/skills/_shared/tekton_env.py::_install_schema_cache` is **unchanged** (still
+  `schema_cache.install()` inside a `try`); its docstring's verb "wraps `rvt.schema.parse`" is
+  now loosely worded — suggested 1-word patch for whoever next holds that file (outside this
+  territory): `wraps` → `hooks` (`_install_schema_cache.__doc__`, line 238).
+* **`global_framing._SCHEMAS` kept, comment restated** (DONE option 2, decided by the numbers in
+  the next section): it is *not* a parse cache — the parse is served by `rvt.schema`'s memo
+  whichever way the bytes arrive — what a hit skips is `versions.schema_of`'s container re-open
+  + `Formats/Latest` re-inflate + sha256 (~7 ms) on a repeat `reading()` entry of the same file.
+  The old comment ("a parse is ~0.1 s") invited a third fix of parse cost there; the new one says
+  what it saves, how much, and cites the measurement.
+* **Tests.** `tests/test_schema_memo.py::test_five_cached_parses_load_the_cache_file_once` now
+  asserts the new observable: after `install()` `S._MISS_LOADERS == [SC.disk_loader]`, **`S.parse`
+  is the same function object as before** (nothing rebound), a second `install()` reports
+  `(already)` without a second registration, 5 parses → `load_cache_file` once and `_Parser.run`
+  never, `load_cached` and a pre-install reference to `parse` return that one object, **a digest
+  no cache file answers reaches the real parser exactly once** (not `_from_cache`), and junk still
+  raises `ParseError` with the loader registered; the list is monkeypatch-restored so ordering
+  with the other memo tests never matters. New `test_a_loader_answering_the_wrong_digest_is_refused`
+  (a registered loader returning a Schema of another sha → the real parser runs, and the memo then
+  answers without asking the loader again). `tests/test_coldstart.py::test_cached_parse_hit_and_fallback_miss`
+  (bare subprocess through the real bootstrap): `installed` = the parsed schema's `_from_cache`
+  (only a registered disk loader can produce one) instead of the retired module flag; hit +
+  `ParseError` miss as before.
+
+### Measurements
+
+VM: claude.ai/code cloud session, 4 vCPU, Linux 6.18, Python 3.11.15 (repo `.venv` for the
+in-process rows, system `python3` for the bare rows). BEFORE = `origin/main@2b87024`; AFTER =
+this branch. Scratch instruments live in the session scratchpad (`bench/micro.py`,
+`bench/count_parses.py` = §5's counter plus `global_framing.schema_of` / `versions.schema_of`
+call, hit and time counters, `bench/summarize.py`).
+
+**(a) Chokepoint micro-timings, ×200 per fresh process, 3 interleaved processes per side
+(medians of the per-process medians).** Corpus absent, so the first `load_schema()` is the
+bundled fallback; "cache" rows call `schema_cache.install()` first (the plugin order), "parser"
+rows do not.
+
+| call | BEFORE | AFTER |
+|---|---|---|
+| `import rvt.schema` self time (`-X importtime`, 3 runs) | 2.38–2.45 ms | 2.45–2.69 ms |
+| first `load_schema()` (cache arm: one `.tksc` load) | 75–217 ms (first process cold disk) | 76–86 ms |
+| first `load_schema()` (parser arm: one real parse) | 119–122 ms | 117–122 ms |
+| `load_schema()` ×200 (fallback: base sha256 + inflate + memo hit) | 1571 µs | 1563 µs |
+| `ObjectDecoder()` ×200 (same path) | 1621 µs | 1612 µs |
+| `parse(blob)` ×200 (sha256 of 496,597 B + memo hit) | 1181 µs | 1187 µs |
+| after `install_schema(base)`: `load_schema()` ×200 | 0.17 µs | 0.17 µs |
+| after `install_schema(base)`: `ObjectDecoder()` ×200 | 0.76 µs | 0.76 µs |
+
+Same order everywhere (run-to-run spread on this VM is ±10 %; the hook adds one empty-list
+iteration on a *miss* only and nothing on a hit).
+
+**(b) What `_SCHEMAS` still saves — counted inside real bare jobs (BEFORE zip, `env -i`, system
+python3, `count_parses.py`).**
+
+| job | `parse` calls / distinct digests / real parses / `.tksc` loads | `global_framing.schema_of` calls → LRU hits | `versions.schema_of` calls, total time | `go` wall |
+|---|---|---|---|---|
+| `go author` "an electrical room with 6 panels" (2 runs) | 70 / 1 / 0 / 1 | 18 → **9 hits** (6 family `.rfa` ×2, `prompt_room.rvt` ×4, `stage_L_loaded.rvt`, `G_ABPD.rvt`) | 27 calls, 0.207 s (7.7 ms each) | 4.96 / 5.24 s |
+| `go edit G_ABPD.rvt set-level …` | 6 / 1 / 0 / 1 | 2 → **1 hit** | 4 calls, 0.032 s | 0.71 s |
+
+So the LRU saves 9 × ~7.5 ms ≈ **70 ms per flagship job (1.4 %)** and ~8 ms per edit — CPU that
+is deterministic but smaller than this VM's run-to-run spread of a whole job (±0.15 s). Deleting
+20 lines to buy a known +70 ms on the flagship path is the wrong trade under S-2026-08-09-g, so
+the LRU stays and its comment now tells the truth. The 27 − 9 = **18 remaining
+`versions.schema_of` calls are `records32.reading32`'s own unconditional inflate per `reading()`
+entry** (~135 ms per flagship job): that is exactly open issue **#251** ("`global_framing.reading`
+parses once per entry, not twice" — needs the `reading32(source, schema=…)` passthrough in the hot
+`versions/` dir); re-measured numbers posted there rather than a duplicate filed.
+
+**(c) `tools/surface_bench.py --zip … --jobs preflight,go-author-prompt,go-author-6panels,go-edit`,
+three zips built by `tools/sync_plugin.py` — BEFORE (`main`), AFTER (this head), and a bench-only
+NO-LRU variant of this head (`global_framing.schema_of` = plain `versions.schema_of`) — 3 full
+runs each, interleaved (before, after, no-lru, before, …), machine otherwise idle; medians of job
+wall time, individual runs in parentheses.**
+
+| surface | job | BEFORE `main` | AFTER (this head) | NO-LRU variant | Δ after − before | Δ no-LRU − before |
+|---|---|---|---|---|---|---|
+| cowork | preflight | 0.105 s (0.096 / 0.105 / 0.106) | 0.106 s (0.098 / 0.108 / 0.106) | 0.115 s (0.118 / 0.103 / 0.115) | +0.00 | +0.01 |
+| cowork | go-author-prompt | 3.109 s (3.023 / 3.112 / 3.109) | 3.029 s (3.029 / 3.002 / 3.266) | 3.023 s (3.023 / 3.023 / 3.257) | −0.08 | −0.09 |
+| cowork | go-author-6panels | 4.919 s (4.932 / 4.919 / 4.812) | 5.086 s (5.214 / 5.086 / 5.053) | 4.968 s (4.968 / 4.829 / 5.147) | +0.17 | +0.05 |
+| cowork | go-edit | 0.909 s (0.909 / 0.903 / 0.926) | 0.983 s (0.983 / 0.907 / 1.013) | 0.939 s (0.939 / 0.921 / 1.005) | +0.07 | +0.03 |
+| codeexec | preflight | 0.098 s (0.095 / 0.102 / 0.098) | 0.101 s (0.101 / 0.098 / 0.108) | 0.113 s (0.111 / 0.114 / 0.113) | +0.00 | +0.01 |
+| codeexec | go-author-prompt | 3.029 s (3.029 / 2.891 / 3.213) | 3.223 s (3.223 / 2.948 / 3.272) | 3.002 s (2.951 / 3.002 / 3.242) | +0.19 | −0.03 |
+| codeexec | go-author-6panels | 5.696 s (5.696 / 5.304 / 5.705) | 5.590 s (5.997 / 5.372 / 5.590) | 5.933 s (5.400 / 5.933 / 6.100) | −0.11 | +0.24 |
+| codeexec | go-edit | 1.316 s (1.345 / 1.212 / 1.316) | 1.284 s (1.284 / 1.316 / 1.226) | 1.314 s (1.182 / 1.401 / 1.314) | −0.03 | −0.00 |
+| local | preflight | 0.075 s (0.089 / 0.068 / 0.075) | 0.071 s (0.071 / 0.077 / 0.067) | 0.077 s (0.067 / 0.103 / 0.077) | −0.00 | +0.00 |
+| local | go-author-prompt | 2.495 s (2.962 / 2.364 / 2.495) | 2.658 s (2.736 / 2.361 / 2.658) | 2.436 s (2.611 / 2.436 / 2.412) | +0.16 | −0.06 |
+| local | go-author-6panels | 4.982 s (4.674 / 5.021 / 4.982) | 5.122 s (4.915 / 5.122 / 5.740) | 4.739 s (5.034 / 4.698 / 4.739) | +0.14 | −0.24 |
+| local | go-edit | 0.898 s (0.876 / 0.898 / 0.942) | 0.921 s (0.896 / 0.921 / 1.146) | 0.869 s (0.934 / 0.863 / 0.869) | +0.02 | −0.03 |
+
+**Every cell PASS on all three zips** (36/36 job runs per variant; `go-edit` = structural PASS +
+validation PASS, 0 errors, everywhere). Read as: **no slowdown, and no measurable whole-job
+signal from the LRU either way** — both Δ columns are mixed-sign and each sits inside its own
+row's run-to-run spread (6panels moves +0.17 on cowork and −0.11 on codeexec for the same AFTER
+zip; the NO-LRU zip is −0.24 on local and +0.24 on codeexec). That is what (a) and (b) predict:
+the hook costs nothing on the 69 memo hits and one empty-list walk on the single miss, and the
+LRU's 70 ms is a third of one row's spread. Because cowork/6panels was the one row whose AFTER
+runs did not overlap BEFORE, it was re-run head-to-head with nothing else on the machine — bare
+unzips of the two zips, `env -i PATH=/usr/bin:/bin python3 …/_bootstrap.py go author --prompt "an
+electrical room with 6 panels"`, **5 alternating runs each: BEFORE `go.job_seconds` 4.939 / 5.104
+/ 4.927 / 4.766 / 4.820 (median 4.93 s), AFTER 5.628¹ / 4.998 / 4.849 / 4.835 / 4.830 (median
+4.85 s)** — same order (¹ first run straight after that tree's unzip). Both trees' `prompt_room.rvt`:
+692,224 B, `tools/rvt_validate.py` → ok, **0 errors** / 1 warning (the known DataStorage
+Extensible-Storage decoder gap) / 2 info, identical before and after.
+
+### Gates (final head)
+
+* `RVT_SKIP_LARGE=1 pytest tests/test_schema_memo.py tests/test_coldstart.py
+  tests/test_frontdoor_standalone.py tests/test_lazy_schema_wrapper.py tests/test_schema_gate.py
+  tests/test_bootstrap.py tests/test_plugin_sync.py tests/test_surface_perf.py tests/test_go_edit.py
+  -q -rs` → **63 passed / 6 skipped / 0 failed** in 30 s (skips: `test_frontdoor_standalone.py:316`
+  "research machine only" and five `test_surface_perf.py` "no bare python3 with numpy on this
+  host" — pre-existing environment skips). The four order-sensitive schema files
+  (`test_schema_gate`, `test_lazy_schema_wrapper`, `test_frontdoor_standalone`,
+  `test_schema_memo`) also run green in both directions (27 passed / 1 skipped each way).
+  Adjacent consumers of `load_cached` / `schema_of`: `tests/test_records32.py test_codec_bases.py
+  test_validate_release.py test_readers_own_release.py` → 100 passed / 2 xfailed. Full suite NOT
+  run (SUITE-COORDINATION). No new test *file* → no shard drop-in (`test_schema_memo.py` and
+  `test_coldstart.py` are already in the shard).
+* `tools/sync_plugin.py` → synced 3 files (`plugin/lib/src/rvt/{schema,schema_cache,global_framing}.py`),
+  deny-audit clean, identity scan == allowlist, assets verified (**no schema-cache asset drift**:
+  the `.tksc` payload is untouched), zip rebuilt (5201 KB); `--check` → in sync, exit 0;
+  `plugin/scripts/validate_plugin.py` → PASS (25 assertions); `tools/dev/check_portable_paths.py`
+  → ok (2879 paths).
+* `/simplify` (4 angles): reuse — clean; efficiency — clean (hit path = one sha256 + one dict
+  get, as before; the miss path now hashes twice instead of three times); simplification —
+  applied: the never-used `install(dirs=…)` parameter and its `_INSTALL_DIRS` global dropped, the
+  test's tautological "early binder" asserts and the coldstart probe's private-list peek dropped;
+  altitude — applied: `_materialise` refuses a loader's Schema of the wrong digest (the memo owns
+  its key invariant), the hook docstring says `source` is a label not a key, the `_SCHEMAS`
+  comment names #251 as its retirement condition; skipped: threading `digest` into
+  `parse_uncached` (cold path, ~1 ms once per process; #183's simplify removed exactly that
+  pass-through), the stale verb in `tekton_env._install_schema_cache.__doc__` (outside territory,
+  patch suggested above).
+* `/verify` from a **bare unzip of the rebuilt zip, `env -i PATH=/usr/bin:/bin`, system `python3`
+  3.11.15**, no repo on the path: `skills/tekton-author/scripts/_bootstrap.py go author --prompt
+  "an electrical room with 6 panels" --out out/j1 --json` → exit 0, one JSON document, preflight
+  `tekton: READY | python 3.11.15 | engine bundled | genesis verified (Revit 2026) | family-donor
+  missing | out-dir OK | 0.061s`, `go.ready true`, job 5.5 s, `result.ok true`, `errors []`, six
+  `.rfa` + `prompt_room.rvt` delivered (PROOF-ONLY stamped, as always); `tools/rvt_validate.py` on
+  it → ok, **0 errors** / 1 warning (the known DataStorage Extensible-Storage decoder gap) / 2
+  info. `skills/tekton-edit/scripts/_bootstrap.py go edit assets/genesis/G_ABPD.rvt set-level --id
+  1351691 --elevation-ft 12.0 -o out/e1/edited.rvt` → exit 0, READY, job 0.63 s, `result.ok true`,
+  `structural PASS (crc_failures=0, ecc_mismatches=0, walker_errors=0, stamps_ok=True) | validation
+  PASS (0 errors, 1 warnings)`; `rvt_validate.py` on the edited file → 0 errors. The hook itself
+  through the plugin's own bootstrap in that unzip (`tekton_env.ensure_engine()`):
+  `rvt.schema._MISS_LOADERS == [rvt.schema_cache.disk_loader]`, `rvt.schema.parse` is still the
+  module's own function, `install()` again → `(already)`; `load_schema()` → 4690 classes, sha
+  `6459a9a93ebde32c…`, **`_from_cache True`**, 79 ms, second call `is` the same object;
+  `load_schema('/nonexistent/2025.bin')` → `FileNotFoundError /nonexistent/2025.bin`; `parse(b"junk")`
+  with the loader registered → `ParseError`; and the import-time binder the issue names,
+  `rvt.families.parse_schema is rvt.schema.parse` → **True** (it now gets the disk arm too).
+
+### Findings / observations
+
+* No new issue filed: the one follow-up this work surfaces (one schema read per `reading()`
+  entry) is already #251; commented there with the post-memo cost model (inflate + sha ≈ 7 ms per
+  redundant call, 18 per flagship job) so whoever takes it measures against the right baseline.
+* `docs/inbox/perf-coldstart.md` §Runtime still describes the retired `parse._schema_cache_orig`
+  wrapper — left as that stream's historical record (no cross-voice edit); this section is the
+  current description.
+
+### BRANCH STATE
+
+* Branch `cam/291-schema-miss-loader` from `origin/main@2b87024`; PR `Closes #291`; no new issue
+  (the follow-up is #251, commented there).
+* Files: `src/rvt/schema.py` (`_MISS_LOADERS`, `register_miss_loader`, `_materialise`; `parse`
+  routes its miss through it), `src/rvt/schema_cache.py` (`disk_loader`; `install()` registers it,
+  no rebinding, no `dirs` parameter; module docstring), `src/rvt/global_framing.py` (comment +
+  docstring of `_SCHEMAS` / `schema_of` only — no code change), `tests/test_schema_memo.py` (one
+  test rewritten to the new observable, one added), `tests/test_coldstart.py` (one subprocess
+  assertion + one docstring word), this section, and the regenerated
+  `plugin/lib/src/rvt/{schema,schema_cache,global_framing}.py` (by `tools/sync_plugin.py`, never
+  hand-edited). No hot file, no `standalone.py`, no `plugin/skills/_shared/*`, no SKILL.md.
+* Gates: as above — 63 / 6 skipped / 0 failed (+100 / 2 xfailed adjacent); sync `--check` clean,
+  no asset drift; validate_plugin PASS; portable paths ok; bare-unzip `go author` READY + VALID 0
+  errors and `go edit` READY + 0 errors; micro-timings same order; bench: all 36 cells PASS on
+  all three zips, no slowdown, LRU kept on the counted 70 ms/job with a truthful comment.
+* Shipped vs staged: everything ships with the merge; no `.rvt`/`.rfa` committed, no viewer
+  claim, no probe batch; `tekton-plugin.zip` and the three bench zips regenerated locally only
+  (git-ignored / session scratchpad).

@@ -46,16 +46,22 @@ from typing import Any, Dict, Iterator, Mapping, Optional
 
 __all__ = ["tokens", "bound", "reading", "enter_own_release", "schema_of"]
 
-#: parsed ``Formats/Latest`` schemas by (abspath, size, mtime_ns): a parse is
-#: ~0.1 s and a census / provenance run enters :func:`reading` several
-#: times per file.  Tiny LRU; a schema is read-only to every consumer.
+#: ``versions.schema_of`` results by (abspath, size, mtime_ns).  NOT a parse
+#: cache -- the parse itself is served by ``rvt.schema``'s sha256 memo
+#: (#183) whichever way the bytes arrive.  What a hit here skips is the
+#: container re-open + ``Formats/Latest`` re-inflate + sha256 that
+#: ``versions.schema_of`` pays before it can reach that memo: ~7 ms per
+#: repeat :func:`reading` entry of the same file (measured #291: 9 of 18
+#: entries hit in a 6-panel prompt job, 1 of 2 in an edit).  Retire it with
+#: #251, once :func:`reading` reads the schema once per entry and hands it
+#: down.  Tiny LRU; a schema is read-only to every consumer.
 _SCHEMAS: "OrderedDict[tuple, Any]" = OrderedDict()
 _SCHEMAS_MAX = 4
 
 
 def schema_of(source: Any):
-    """``rvt.versions.schema_of`` memoised for on-disk paths (keyed by path,
-    size and mtime, so a rewritten file is re-parsed)."""
+    """``rvt.versions.schema_of`` minus the re-inflate for on-disk paths seen
+    before (keyed by path, size and mtime, so a rewritten file is re-read)."""
     from . import versions as V
     if not isinstance(source, (str, os.PathLike)):
         return V.schema_of(source)
