@@ -1,0 +1,245 @@
+"""test_release_ctx_refusal.py -- ``rvt.frontdoor.release_ctx`` keeps its two
+promises for a file it cannot even PROBE (issue #535, Refs #518 / #70 / #116):
+
+* ``host_release_context(p)`` raises ONE type, ``UnreadableHost`` (a
+  ``ReleaseContextError`` carrying ``.path``, ``.why`` and the layer's own
+  error as ``__cause__``) for a text file named ``.rvt``, a copy truncated
+  mid-sector, and a 2025/2024 host whose ``Formats/Latest`` does not parse --
+  never the raw ``OleFileError`` / ``ParseError`` / ``OSError``;
+* ``enter_host_release(stack, p)`` therefore returns its refusal NOTE for
+  every one of them and never raises;
+* a setup failure after the first ``swap()`` restores every module constant
+  (nothing leaks into the next job of the process);
+* the three readable pinned bases behave exactly as before (controls), and a
+  host with no ``BasicFileInfo`` is still readable (the schema signature
+  detects its release);
+* the callers rely on it: the front door's ``--rvt --edit`` route answers a
+  damaged-schema host with its normal FAILED envelope (exit 3, ONE JSON,
+  empty stderr), ``rvt_edit_text.py`` refuses in one line (exit 2: the
+  container is opened before the release is entered, as ``rvt_selfcheck``
+  does, so a text file is ONE line; a damaged schema is the warning + the
+  walker's line), and
+  ``rvt_selfcheck.py`` -- its interim guard deleted -- still reaches FAIL.
+
+Damaged copies are built in-test from the tracked pins; nothing is checked in.
+Run: .venv/bin/python -m pytest tests/test_release_ctx_refusal.py -q
+"""
+from __future__ import annotations
+
+import contextlib
+import dataclasses
+import json
+import os
+import sys
+
+import pytest
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "src"))
+
+from conftest import CERTIFIED_YEARS, load_tool, pinned_base    # noqa: E402
+from rvt import mutate as MU                                   # noqa: E402
+from rvt import partitions as P                                # noqa: E402
+from rvt import versions as V                                  # noqa: E402
+from rvt.frontdoor import release_ctx as RC                    # noqa: E402
+from rvt.frontdoor import standalone as SA                     # noqa: E402
+from rvt.genesis import skeleton as GSK                        # noqa: E402
+
+NATIVE_LAST = sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE)   # a leak would break the native run
+FOREIGN = [y for y in CERTIFIED_YEARS if y != V.LATEST_RELEASE]     # the 2025/2024 pins
+LEVEL_EDIT = "set level 1351691 elevation to -9 ft"                 # GEN B1 - Basement, on every pin
+OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length
+
+
+def _constants() -> dict:
+    """Everything a leaked release context would leave behind."""
+    snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
+    snap.update(active=RC.active_release(),
+                mu=(MU.CLASS_ELEMENT_HEADER, MU.CLASS_SWALL, MU.CLASS_FAMILY_INSTANCE),
+                gsk=(GSK.minimal_history, GSK.minimal_elemtable, sorted(GSK._SCHEMA_CACHE)),
+                sa=(SA.bundled_base_path, SA.family_instance_template, dict(SA._SCHEMA_STATE)))
+    return snap
+
+
+@pytest.fixture(autouse=True)
+def _no_leak():
+    before = _constants()
+    assert before["active"] is None
+    yield
+    assert _constants() == before
+
+
+def _rewrite_stream(src: str, dst: str, name: str, damage) -> str:
+    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW bytes replaced
+    by ``damage(raw)`` (dropped when ``damage`` is None) -- every other entry
+    byte-identical."""
+    from rvt.cfb_writer import write_cfb
+    from rvt.roundtrip import read_entries
+    entries = []
+    for e in read_entries(src):                  # e.data IS the stream's raw bytes
+        if e.entry_type == "stream" and e.path == name:
+            if damage is None:
+                continue
+            e = dataclasses.replace(e, data=damage(e.data))
+        entries.append(e)
+    write_cfb(dst, entries)
+    return dst
+
+
+@pytest.fixture(scope="module")
+def bad(tmp_path_factory):
+    """name -> (path, expected __cause__ type name) of every unreadable host."""
+    d = tmp_path_factory.mktemp("bad")
+    any_pin = pinned_base(CERTIFIED_YEARS[0])
+    out = {}
+    text = d / "text.rvt"
+    text.write_text("this is not a Revit file\n" * 8, encoding="utf-8")
+    out["text"] = (str(text), "NotOleFileError")
+    trunc = d / "trunc4k.rvt"
+    with open(any_pin, "rb") as fh:
+        trunc.write_bytes(fh.read(4096))
+    out["trunc4k"] = (str(trunc), "OleFileError")
+    if FOREIGN:                      # a NATIVE host never parses its schema to enter (nothing to swap)
+        pin = pinned_base(FOREIGN[0])
+        out["schema_dmg"] = (_rewrite_stream(pin, str(d / "schema_dmg.rvt"), "Formats/Latest",
+                                             lambda raw: raw[:2000] + bytes(64) + raw[2064:]), "ParseError")
+        out["schema_gone"] = (_rewrite_stream(pin, str(d / "schema_gone.rvt"), "Formats/Latest", None),
+                              "OSError")
+    return out
+
+
+@pytest.fixture(scope="module")
+def schema_dmg(bad):
+    if "schema_dmg" not in bad:
+        pytest.skip("no certified foreign-release pin")
+    return bad["schema_dmg"][0]
+
+
+# ---------------------------------------------------------------------------
+# the helper itself
+# ---------------------------------------------------------------------------
+
+def test_unreadable_hosts_raise_one_typed_exception(bad):
+    for name, (path, cause) in bad.items():
+        with pytest.raises(RC.UnreadableHost) as ei:
+            with RC.host_release_context(path):
+                pytest.fail(f"{name}: entered a context on an unreadable host")
+        e = ei.value
+        assert isinstance(e, RC.ReleaseContextError), name          # `except ReleaseContextError` callers keep working
+        assert e.path == path and "\n" not in e.why, name
+        assert type(e.__cause__).__name__ == cause and cause in e.why, (name, e.why)
+        assert str(e) == f"{path}: {e.why}"
+
+
+def test_enter_host_release_returns_its_note_never_raises(bad):
+    for name, (path, cause) in bad.items():
+        with contextlib.ExitStack() as stack:
+            note = RC.enter_host_release(stack, path)
+            assert RC.active_release() is None, name
+        assert isinstance(note, str) and note.startswith(f"no release context for {path}: "), name
+        assert cause in note and note.count(path) == 1, (name, note)     # the why, not the path twice
+
+
+@pytest.mark.parametrize("year", NATIVE_LAST)
+def test_readable_pins_are_unchanged_controls(year):
+    with contextlib.ExitStack() as stack:
+        assert RC.enter_host_release(stack, pinned_base(year)) is None
+        assert RC.active_release() == (None if year == V.LATEST_RELEASE else year)
+
+
+@pytest.mark.parametrize("year", NATIVE_LAST)
+def test_a_host_without_basicfileinfo_is_still_readable(year, tmp_path):
+    """``detect_release`` falls back to the schema signature; the context's
+    identity strings come from OUR bundled base, never the host (rule 6)."""
+    host = _rewrite_stream(pinned_base(year), str(tmp_path / "no_bfi.rvt"), "BasicFileInfo", None)
+    with RC.host_release_context(host) as info:
+        if year == V.LATEST_RELEASE:
+            assert info is None
+        else:
+            assert info["release"] == year and info["base"] != os.path.abspath(host)
+
+
+def test_setup_failure_after_the_first_swap_restores_everything(monkeypatch):
+    if not FOREIGN:
+        pytest.skip("no certified foreign-release pin")
+    calls = {"n": 0}
+    orig = RC._by_name
+
+    def by_name_failing_once(schema, name):
+        calls["n"] += 1
+        if calls["n"] == 3:                       # two mutate constants already swapped
+            raise RC.ReleaseContextError("class 'X' is missing (injected once)")
+        return orig(schema, name)
+
+    monkeypatch.setattr(RC, "_by_name", by_name_failing_once)
+    before = _constants()
+    with pytest.raises(RC.ReleaseContextError, match="injected once"):
+        with RC.host_release_context(pinned_base(FOREIGN[0])):
+            pytest.fail("entered despite the setup failure")
+    assert _constants() == before                 # main leaked MU.CLASS_ELEMENT_HEADER here
+    with RC.host_release_context(pinned_base(FOREIGN[0])) as info:      # and the next job still works
+        assert info["release"] == FOREIGN[0] and MU.CLASS_ELEMENT_HEADER != before["mu"][0]
+
+
+# ---------------------------------------------------------------------------
+# the callers that rely on it
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(scope="module")
+def frontdoor_cli():
+    return load_tool("frontdoor")
+
+
+@pytest.fixture(scope="module")
+def edit_text():
+    return load_tool("rvt_edit_text")
+
+
+@pytest.fixture(scope="module")
+def selfcheck():
+    return load_tool("rvt_selfcheck")
+
+
+def test_frontdoor_edit_route_answers_a_damaged_schema_host_with_its_failed_envelope(
+        schema_dmg, frontdoor_cli, tmp_path, capsys):
+    import rvt.frontdoor as FD
+    res = FD.author(rvt=schema_dmg, edit=LEVEL_EDIT, out=str(tmp_path / "api"))
+    assert res.route == "rvt" and res.ok is False and res.status.startswith("FAILED"), res.status
+    assert res.errors and res.errors[0].startswith("cannot open/plan ") \
+        and "no release context for " in res.errors[0] and "Formats/Latest" in res.errors[0]
+    assert not res.files and os.path.isfile(res.manifest_paths["json"])
+    capsys.readouterr()
+    rc = frontdoor_cli.main(["author", "--rvt", schema_dmg, "--edit", LEVEL_EDIT,
+                            "--out", str(tmp_path / "cli"), "--json"])
+    cap = capsys.readouterr()
+    assert rc == frontdoor_cli.EX_INCOMPLETE == 3
+    assert cap.err == ""                                   # no traceback, no chatter
+    doc = json.loads(cap.out)                              # ONE json document, nothing else
+    assert doc["ok"] is False and doc["status"].startswith("FAILED")
+    assert "no release context for " in doc["errors"][0]
+
+
+def test_rvt_edit_text_refuses_in_one_line(bad, schema_dmg, edit_text, tmp_path, capsys):
+    rc = edit_text.main([schema_dmg, "--old", OLD_NAME, "--new", NEW_NAME, "--utf16",
+                         "-o", str(tmp_path / "never.rvt")])
+    cap = capsys.readouterr()
+    assert rc == 2 and not os.path.exists(tmp_path / "never.rvt")
+    warning, error = cap.err.splitlines()                  # exactly two lines, no traceback
+    assert warning.startswith("warning: no release context for ") and "Formats/Latest" in warning
+    assert error.startswith("ERROR: input partition does not walk cleanly: ValueError: ")
+    for name in ("text", "trunc4k"):                    # not even a container: ONE line, before any release entry
+        rc = edit_text.main([bad[name][0], "--old", OLD_NAME, "--new", NEW_NAME, "--utf16",
+                             "-o", str(tmp_path / "never.rvt")])
+        (only_line,) = capsys.readouterr().err.splitlines()
+        assert rc == 2 and only_line.startswith("ERROR: cannot open as an .rvt container: "), name
+
+
+def test_rvt_selfcheck_reaches_its_verdict_without_a_local_guard(schema_dmg, selfcheck, tmp_path, capsys):
+    rc = selfcheck.main([schema_dmg, "--json", str(tmp_path / "sc.json")])
+    cap = capsys.readouterr()
+    assert rc == 1 and "Traceback" not in cap.err + cap.out
+    assert cap.err.startswith("warning: no release context for ") and "Formats/Latest" in cap.err
+    with open(tmp_path / "sc.json", encoding="utf-8") as fh:
+        rep = json.load(fh)
+    assert rep["verdict"] == "FAIL" and rep["release_note"].startswith("no release context for ")
+    assert rep["walker"]["walker_errors"] == 1

@@ -364,3 +364,260 @@ for the 2025/2024 edit lane) is unaffected and still the certification path.
   damaged schema stream + swap restore before `yield`; then drop the guard here).
 * Staged vs shipped: nothing staged for the viewer; the plugin zip is a
   regenerated, git-ignored artifact.
+
+---
+
+# eng #535 (2026-08-10) — `release_ctx.enter_host_release` keeps its "note, never raise" promise for a file it cannot even probe; `host_release_context` raises ONE typed `UnreadableHost`; the swap set is restored when setup fails before `yield`; `rvt_selfcheck.py` drops its interim guard (issue #535, Refs #518 / #116 / #70)
+
+Stream: `release-ctx-refusal` (eng #535, engineer session started by the
+tech-lead session). Written under this stream's own header; nothing above is
+edited (eng #533 appends its own section to this same file in parallel — if
+both PRs are open at once the tech lead settles the record conflict; note for
+#533: `tools/rvt_inspect.py` can now call `enter_host_release` bare, no local
+`except` needed, and gets a note for a text file / truncation / damaged schema).
+Territory: `src/rvt/frontdoor/release_ctx.py` (the exception type, the two
+guarded probes, the restore registration — the swap tables themselves are
+untouched), `tools/rvt_selfcheck.py` (the 5-line guard removal the issue's
+DONE ends with), `tools/rvt_edit_text.py` (its own downstream guard: container
+open + walker construction → one line, exit 2), their regenerated mirrors,
+`tests/test_release_ctx_refusal.py` + `tests/ci_shard.d/535-release-ctx-refusal.txt`,
+this section. `src/rvt/frontdoor/__init__.py` needed **no** change (checked
+first, see 535.1). No hot file touched; `versions/**`, `base.py`,
+`tools/frontdoor.py`, `tools/rvt_edit.py`, `tools/rvt_inspect.py`,
+`manifest.py` untouched. (The issue body suggested a separate record
+`docs/inbox/release-ctx-damaged-host.md`; the tech-lead brief asked for this
+section — same lineage as 518.3, one file to read.)
+
+## 535.0 The defect, reproduced (fresh cloud clone, `origin/main` @ 074af6b, before any change)
+
+Bad inputs built in the scratchpad from the tracked pins (nothing checked in):
+`text.rvt` (8 lines of ASCII), `trunc4k_<y>.rvt` (first 4096 bytes of each
+pin), `trunc64k_<y>.rvt`, `bfi_{gone,zero,short}_<y>.rvt` (`BasicFileInfo`
+dropped / zeroed / cut to 10 bytes via `read_entries` → `write_cfb`),
+`schema_dmg_<y>.rvt` (64 bytes of `Formats/Latest` zeroed at raw offset 2000 —
+#518's repro), `schema_gone_<y>.rvt` (`Formats/Latest` dropped), y ∈
+{2026, 2025, 2024}.
+
+`enter_host_release(stack, p)` on `main` (documented contract: *None or the
+refusal sentence*):
+
+| input | `main` | why |
+|---|---|---|
+| `text.rvt` | **raises** `NotOleFileError: not an OLE2 structured storage file` | `_classify_release → V.detect_release → open_rvt` |
+| `trunc4k_*` | **raises** `OleFileError: incomplete OLE sector` | same |
+| `schema_dmg_2025/2024` | **raises** `ParseError: parse error at 0x603b: class marker != 0 (0x403c) @0x603b: 14 1e …` | `_codec_triple_from_base → global_framing.schema_of` |
+| `schema_gone_2025/2024` | **raises** `OSError: file not found` | same (`doc.concat("Formats/Latest")`) |
+| `schema_dmg_2026`, `schema_gone_2026` | `None` (native: the schema is never parsed to enter) | — |
+| `bfi_{gone,zero,short}_*` | `None`, context entered on 2025/2024 (`detect_release` falls back to the schema signature; the context reads identity strings from OUR bundled base, not the host) | readable — control |
+| `trunc64k_2025/2024` | note: `base … carries schema sha256 e3b0c442… but the Revit 2025 pin is c964f9aa…` (`schema_of` yields an *empty* schema; the pin check refuses) | readable-but-unpinned — control |
+| the three pins | `None`; 2025/2024 → `active_release() == year` | control |
+
+The three surfaces on `main`, same inputs (`--edit "set level 1351691 elevation to -9 ft"` / `--old "GEN B1 - Basement" --new "OUR B1 - Basement" --utf16`):
+
+| input | front door `author --rvt … --edit … --json` | `rvt_edit_text.py` | `rvt_selfcheck.py` |
+|---|---|---|---|
+| `text.rvt`, `trunc4k_2025` | rc 2, one stderr line `REFUSED (input release): … not an OLE2 compound file …` (#176's precheck, before the release entry — not this issue's, unchanged) | **rc 1, 45/52-line traceback** (`NotOleFileError` / `OleFileError` out of `enter_host_release`) | rc 2 `ERROR: cannot open as an .rvt container: …` (opens first) |
+| `schema_dmg_2025` / `_2024` | **rc 1, stdout empty, 56-line traceback ending `rvt.schema.ParseError: parse error at 0x603b …`** (out of `_route_rvt → enter_host_release`; `tools/frontdoor.py`'s last-resort `traceback.print_exc()`); bare-unzip `go author --rvt … --edit … --json`: rc 1, `"result": null`, same 56 lines on stderr | **rc 1, 53-line traceback** (`ParseError`) | rc 1 `VERDICT : FAIL` + `warning: no release context for …: ParseError: …` — only because of #518's local `except Exception` guard |
+| `schema_gone_2025` | rc 2 `REFUSED (input release): … (no Formats/Latest class schema stream)` (#176) | **rc 1, 50-line traceback** (`OSError: file not found`) | rc 1 FAIL + warning (guard) |
+| `trunc64k_2025` | rc 3, one JSON, `errors[0] = cannot open/plan …: RuntimeError: Partitions/20: walker errors [...] (no release context for …)` | note printed, then **17-line traceback** `ValueError: unexpected Partitions header: v=9 cls=0x391` out of the bare `P.StreamWalker(...)` | rc 1 FAIL + warning |
+
+And the secondary hardening, made observable: with `RC._by_name` patched to
+raise `ReleaseContextError` on its 3rd call (two `rvt.mutate` class ids already
+swapped), `with host_release_context(G_ABPD_2025)` on `main` raises — and
+leaves `MU.CLASS_ELEMENT_HEADER == 1479` (the 2025 id) behind in the process
+(native: 1509); the `rvt.partitions` framing table is restored only because
+`V.reading`'s own `with` unwinds. Head: everything restored (535.2).
+
+## 535.1 What was built
+
+* **`release_ctx.UnreadableHost(ReleaseContextError)`** — `.path`, `.why` (one
+  sentence, no newline), the layer's own error as `__cause__`, `str(e) ==
+  f"{path}: {why}"`; exported in `__all__`, documented in the module docstring.
+  A *subclass* of `ReleaseContextError` on purpose: every existing `except
+  ReleaseContextError` (`enter_host_release` itself, `build.py:417`, the famload
+  tests) keeps working and now also covers the unreadable cases; `with
+  host_release_context(p)` callers that want to tell "unreadable" from
+  "uncertified" catch the subclass. (The brief floated `FrontDoorError` /
+  `ValueError` as bases: `FrontDoorError` lives in `rvt.frontdoor.__init__`,
+  which imports this module lazily — a base there is an import cycle and the
+  wrong direction; and a `ValueError` base would be caught by unrelated `except
+  ValueError` arms such as `rvt_edit._run_json`'s "unknown id" line. One parent,
+  the one every caller already names.)
+* **Two guarded probes, nothing else moved:** `_detect_release(path)` (used by
+  `_classify_release` and by the exported `needs_release_context`, so the module
+  has no unguarded probe left — /simplify altitude finding) wraps
+  `V.detect_release(path)` → `UnreadableHost(path, "not a Revit container tekton
+  can open (<Exc>: <msg>)")`; `_codec_triple_from_base` wraps
+  `global_framing.schema_of(base_path)` → `UnreadableHost(path, "its
+  Formats/Latest class schema cannot be read (<Exc>: <msg>)")`. Both `except
+  Exception … from e` with a `noqa: BLE001` and the reason inline — the same
+  altitude and breadth as the instrument ladder the issue points at
+  (`global_framing.enter_own_release`, `except Exception` → sentence): the probe
+  reads an untrusted file, *any* failure to read it is the finding, and the
+  detail survives on `__cause__`. The schema-pin mismatch stays a plain
+  `ReleaseContextError` (readable, unpinned — not unreadable). A native host
+  returns from `_classify_release` before the schema probe exactly as before, so
+  the 2026 path parses nothing new and imports nothing new (535.2).
+* **`enter_host_release`** gains one `except UnreadableHost as e: return f"no
+  release context for {host_path}: {e.why}"` arm above the existing one, so the
+  note carries the path once, then the why (the generic arm would print the path
+  twice, as the pin-mismatch note already does today — left alone).
+* **Restore-before-yield (`_release_context`)**, minimal-diff: the `with
+  V.reading(…) as ords, GF.bound(…)` line also opens a `contextlib.ExitStack()
+  as undo`; the three shared dicts (`GSK._SCHEMA_CACHE`, `port._STATE`,
+  `SA._SCHEMA_STATE`) are snapshotted right there as one `[(live, dict(live)), …]`
+  list and one `@undo.callback _restore()`
+  (the old `finally:` body, verbatim in effect: `_ACTIVE` cleared, `saved`
+  replayed LIFO, the three dicts reset) is registered **before the first
+  `swap()`**; the trailing `try: yield / finally:` collapses to `yield info`. The
+  ~170-line swap body keeps its indentation and content byte-for-byte (the three
+  `prev_* = dict(…)` lines moved up, nothing else) — the diff is the point of
+  review, so it was kept small. Unwind order is unchanged (undo is innermost:
+  swaps first, then `GF.bound`, then `V.reading`, as the old `finally` inside
+  the `with` did).
+* **`tools/rvt_selfcheck.py`**: the interim `try/except Exception` around
+  `enter_host_release` (cited to this issue) is deleted; `enter_files_release`
+  is `natively_framed(doc)` → lazy import → `return enter_host_release(stack,
+  path)`. The 2026 path still never imports `release_ctx` (#518's latency fix
+  intact — module set identical, 535.2). The warning text for a damaged schema
+  changes from the guard's `…: ParseError: parse error …` to the helper's `…:
+  its Formats/Latest class schema cannot be read (ParseError: parse error …)`;
+  #518's `test_damaged_schema_stream_still_reaches_a_verdict` asserts the prefix
+  and stays green unmodified (its docstring still says "the helper raises past
+  its own refusal" — another stream's file, left for them; harmless).
+* **`tools/rvt_edit_text.py`** had no local catch around `enter_host_release`
+  (the brief assumed one); what it lacked was its *own downstream guard*, which
+  the issue's DONE names ("warning + exit ≠ 0 at the walker, no traceback"). It
+  now has `rvt_selfcheck.main`'s exact order and words: `main()` opens the
+  container first (`ERROR: cannot open as an .rvt container: <e>`, exit 2 — a
+  text file / truncation is ONE line and never reaches the release entry; the
+  first head guarded inside `_edit` and printed warning + error, /simplify moved
+  it up), then enters the release, then hands `doc` to `_edit(a, doc, …)`, which
+  constructs the walker under a `try` (`ERROR: input partition does not walk
+  cleanly: <Exc>: <msg>`, exit 2 — the same words its existing `w.errors`
+  refusal prints; a damaged-schema host *does* open, so this is legitimately
+  `_edit`'s). `with open_rvt(a.path) as doc:` became `with doc:` so the 70-line
+  body is not re-indented. Happy path untouched (2025/2024 edit: `SELF-CHECK
+  PASS`, repo and bare unzip).
+* **`src/rvt/frontdoor/__init__.py`: no change needed** — checked first as the
+  brief asked. `_route_rvt` already treats the return of `enter_host_release` as
+  a note, then enters `global_framing.enter_own_release` (never raises) and
+  `_route_rvt_inner`, whose `Document.from_file` arm turns the open failure into
+  `errors[0] = "cannot open/plan <path>: <Exc>: <msg> (<note>)"` → manifest
+  `FAILED …` → `EX_INCOMPLETE` (3) with the one JSON on stdout. The only reason
+  it tracebacked was the raise *inside* `enter_host_release`.
+* **Test** `tests/test_release_ctx_refusal.py` (12 tests, 0.6 s, fresh-clone
+  safe — pins via `conftest.CERTIFIED_YEARS` / `pinned_base`, tools via
+  `conftest.load_tool`, `conftest.py` only read): the four unreadable hosts
+  (text, 4 KB truncation, damaged schema, dropped schema — built in a module
+  fixture from the tracked pins) → `host_release_context` raises `UnreadableHost`
+  that **is** a `ReleaseContextError`, `.path == p`, one-line `.why` naming the
+  cause class, `type(__cause__).__name__` == the expected layer error;
+  `enter_host_release` → a `str` starting `no release context for <p>: ` with the
+  path exactly once, `active_release()` None throughout; controls: the three pins
+  enter/skip exactly as before, and a `BasicFileInfo`-less copy of each pin is
+  still readable (2025/2024 enter with `info["base"]` = our bundle, not the
+  host); the setup-failure restore (`_by_name` raising on call 3 →
+  `ReleaseContextError`, every snapshotted constant back, and the next
+  `host_release_context` on the same pin enters fine); the callers: front door
+  API `FD.author(rvt=schema_dmg, …)` → `ok False`, `status FAILED…`, `errors[0]`
+  = `cannot open/plan … no release context for … Formats/Latest …`, manifest on
+  disk; CLI `main([... --json])` → rc `EX_INCOMPLETE == 3`, **stderr `""`**,
+  stdout parses as ONE JSON; `rvt_edit_text` on the damaged schema → rc 2,
+  exactly two stderr lines (warning + `ERROR: input partition does not walk
+  cleanly: ValueError: …`), nothing written, and on text / truncation → rc 2,
+  exactly ONE line `ERROR: cannot open as an .rvt container: …`; `rvt_selfcheck` on the
+  damaged schema with the guard gone → rc 1, `FAIL`, `release_note`, walker 1, no
+  traceback. An autouse fixture snapshots the framing table, `active_release()`,
+  three `rvt.mutate` ids, two `genesis.skeleton` builders + cache keys, and
+  `standalone`'s `bundled_base_path` / template / `_SCHEMA_STATE` around every
+  test. In the shard via the drop-in.
+
+## 535.2 Evidence (head of this branch)
+
+**The three surfaces, after** (same inputs as 535.0; repo `.venv` and — where
+marked † — the bare unzip of the rebuilt zip as nobody, `env -i PATH=/usr/bin:/bin
+python3` 3.11.15):
+
+| input | front door `--json` | `rvt_edit_text.py` | `rvt_selfcheck.py` |
+|---|---|---|---|
+| `schema_dmg_2025` | **rc 3, 32-line JSON on stdout, stderr 0 lines**; `status: FAILED (edit did not complete: rc None)`; `errors[0]: cannot open/plan …/schema_dmg_2025.rvt: ParseError: parse error at 0x603b: … (no release context for …: its Formats/Latest class schema cannot be read (ParseError: …))`. † `go author --rvt … --edit … --json`: rc 3, `go.ready true`, `result.status FAILED (…)`, stderr **0** lines (main: rc 1, `result null`, 56 lines) | rc 2, stderr exactly: `warning: no release context for …: its Formats/Latest class schema cannot be read (ParseError: parse error at 0x603b: class marker != 0 (0x403c) …)` / `ERROR: input partition does not walk cleanly: ValueError: unexpected Partitions header: v=9 cls=0x391`; † identical | rc 1, `VERDICT : FAIL -> gzip CRC failures: 1; ECC page mismatches: 1 …; partition walker errors: 1; judged without its release context (…)`, one stderr warning (the helper's sentence); † identical |
+| `schema_dmg_2024` | rc 3, one JSON, stderr empty (`ParseError … 0x5c1b`) | — | — |
+| `schema_gone_2025` | rc 2 (#176 precheck, unchanged) | rc 2: warning `… cannot be read (OSError: file not found)` + `ERROR: input partition does not walk cleanly: ValueError: …` | rc 1 FAIL + warning |
+| `text.rvt` / `trunc4k_2025` | rc 2 (#176 precheck, unchanged) | rc 2, ONE line: `ERROR: cannot open as an .rvt container: not an OLE2 structured storage file` (resp. `incomplete OLE sector`) — opened before the release entry, like selfcheck; † identical | rc 2, one line (unchanged) |
+| `trunc64k_2025` | rc 3, one JSON (unchanged) | rc 2: pin-mismatch warning + `ERROR: input partition does not walk cleanly: ValueError: …` (main: traceback) | rc 1 FAIL (unchanged) |
+| `bfi_gone_2025` | rc 3 `edit not understood` for the placeholder sentence / proceeds for a real one (unchanged — readable) | — | — |
+
+**Identity — readable files behave byte-identically:**
+
+* `frontdoor.py author --rvt <pin> --edit "set level 1351691 elevation to -9 ft" --out … --json`, head vs `main`, all rc 0 `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`; md5 of the edited `.rvt`: 2026 `ad47a1681c0bbbbef4285b4300aea689` = `ad47a168…a689`; 2025 `bb8299902f1b37fd815986a10c28782b` = same; 2024 `4a70a9460330c26e3d68ef441989de19` = same. **×3 identical.**
+* `-X importtime`, module sets sorted and diffed head vs `main`: `tools/rvt_selfcheck.py G_ABPD.rvt` (2026, native) **114 = 114 modules, diff empty** (`release_ctx` still not among them); `enter_host_release(stack, G_ABPD.rvt)` in a bare interpreter **157 = 157, diff empty**. The 2026 path gained no import and no probe (the schema guard sits after the native early-return; the detect guard wraps the same call).
+* † `run rvt_selfcheck.py assets/genesis/G_ABPD.rvt` → `VERDICT : PASS`, rc 0, no warning; † `run rvt_edit_text.py assets/genesis/G_ABPD_2025.rvt --old "GEN B1 - Basement" --new "OUR B1 - Basement" --utf16 -o out/e25.rvt` → `SELF-CHECK PASS`.
+* Restore hardening: the 535.0 `_by_name`-fails-on-call-3 experiment on head → raises `ReleaseContextError`, every snapshotted constant equal to before (`main`: `MU.CLASS_ELEMENT_HEADER` 1509 → 1479 leaked), and an immediate re-entry on the 2025 pin yields `release 2025` and restores again.
+
+**Gates:** `tests/test_release_ctx_refusal.py` **12 passed** (0.6 s);
+neighbours `test_selfcheck_release test_edit_text_release test_edit_own_release
+test_famload_2025 test_input_release` + mine: **72 passed** (14 s);
+`tools/sync_plugin.py` → synced 3 files (the `release_ctx` lib mirror + the two
+tekton-native script mirrors), deny-audit clean, validation passed, zip rebuilt
+(5273 KB), identity scan 0 mismatches; `--check` clean;
+`plugin/scripts/validate_plugin.py` PASS (25 assertions);
+`tools/dev/check_portable_paths.py` ok (2955 paths); whole merged shard: see
+BRANCH STATE / PR body.
+
+## 535.3 Findings / follow-ups (searched first, then filed task-shaped)
+
+* **#559** (`Refs #535`, `P2 ready area:frontdoor good-first-pick`): the edit
+  route's status for a job that never ran is `FAILED (edit did not complete: rc
+  None)`; the reason rides only in `errors[0]`. The create routes already say
+  `FAILED (<errors[0][:160]>)`. `manifest.py` is outside this territory; the
+  brief's "status sentence names the reason" is met by `errors[0]` today and by
+  `status` once #559 lands (its DONE lets this stream's front-door test tighten
+  to `"Formats/Latest" in doc["status"]`).
+* **#560** (`Refs #535`, `P2 ready area:plugin good-first-pick`): `tools/rvt_edit.py
+  <file> info` *without* `--json` still tracebacks on every note case (its
+  `_run` calls `Document.from_file` bare; `_run_json` — what the skill uses —
+  answers cleanly). Pre-existing for the pin-mismatch / uncertified cases; #535
+  merely adds the unreadable ones to the same clean-on-`--json`, raw-on-plain
+  split. `rvt_edit.py` is outside this territory.
+* **#561** (`Refs #12 / #498`, `P1 ready area:famgen`): running every `release_ctx`-touching
+  test file surfaced `tests/test_famdoc_scan_fp.py::test_provenance_scan_on_the_real_bundled_universe_is_clean`
+  **red on `origin/main` @ 074af6b with nothing changed** (6 donor-universe id hits, ids
+  18403/18404/18453, not classified as window false positives). Pre-existing, outside the
+  shard (so no gate shows it), inside the #498 fence — filed, not touched; the other 165
+  tests of those 12 files pass on head.
+* /simplify (4 angles) applied: the shared `_detect_release` probe (closes the
+  `needs_release_context` hole), the snapshot list in `_restore`, the trimmed
+  module docstring, `rvt_edit_text` open-before-enter (one line for a non-container),
+  test const hoist + single-open damaged-copy builder. Skipped with reason: hoisting
+  `_rewrite_stream` / the no-leak fixture into `tests/conftest.py` (that file is
+  another engineer's territory this wave, PR #558 — worth a follow-up sweep once it
+  lands: four test files now carry a copy); collapsing `enter_host_release`'s two
+  `except` arms into one `getattr(e, "why", e)` (explicit arms preferred; `.why` is
+  the documented field the brief asked for); dropping the 8-line selfcheck assertion
+  that overlaps #518's test (kept: it pins the helper's new wording, and #518's
+  docstring still describes the old guard).
+* Not filed (note for eng #533, above): `rvt_inspect.py` needs no local guard.
+* Not filed: `tests/test_selfcheck_release.py`'s docstring line "(#535: the
+  helper raises past its own refusal)" is now history; whoever next touches that
+  file can reword it.
+
+## 535 BRANCH STATE
+
+* Branch `cam/535-release-ctx-refusal` from `origin/main` @ 074af6b; one PR,
+  `Closes #535`.
+* Files: `src/rvt/frontdoor/release_ctx.py`, `tools/rvt_selfcheck.py`,
+  `tools/rvt_edit_text.py`, regenerated mirrors
+  `plugin/lib/src/rvt/frontdoor/release_ctx.py` +
+  `plugin/skills/tekton-native/scripts/{rvt_selfcheck,rvt_edit_text}.py`,
+  `tests/test_release_ctx_refusal.py` (new),
+  `tests/ci_shard.d/535-release-ctx-refusal.txt` (new), this section.
+* Gates: listed in 535.2; whole merged shard (`RVT_SKIP_LARGE=1 … -p
+  no:cacheprovider $(shard_list.py --print)`): **1863 passed, 134 skipped, 3
+  xfailed** (92 files, 6 min 52 s) on the pre-/simplify head over 074af6b; **1900
+  passed, 134 skipped, 3 xfailed** (93 files, 6 min 34 s, pytest rc 0) on the final
+  head 7292372 rebased over 152d009 (+37 = #556's `test_ifc_assembly` drop-in that
+  landed on main meanwhile; this record-only commit on top changes no test input).
+* Follow-ups filed: #559, #560, #561 (pre-existing red famgen test on main, fenced).
+* Staged vs shipped: nothing staged for the viewer (no output byte changes —
+  md5 ×3 identical); the plugin zip is a regenerated, git-ignored artifact.

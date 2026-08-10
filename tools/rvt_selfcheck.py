@@ -148,11 +148,7 @@ def enter_files_release(stack: contextlib.ExitStack, doc, path: str) -> str | No
     if natively_framed(doc):
         return None
     from rvt.frontdoor.release_ctx import enter_host_release   # foreign files only: keep the native path light
-    try:
-        return enter_host_release(stack, path)
-    except Exception as e:  # noqa: BLE001 -- a damaged Formats/Latest raises past the
-        # helper's own refusal today (#535); this tool must still reach a verdict
-        return f"no release context for {path}: {type(e).__name__}: {e}"
+    return enter_host_release(stack, path)     # a note, never a raise -- even for a damaged schema (#535)
 
 
 def main(argv=None) -> int:

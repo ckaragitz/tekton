@@ -62,9 +62,16 @@ release must be creation-certified in ``KNOWN_RELEASES`` and must have a
 port layer module (``rvt.genesis.port<year>``); anything else raises
 ``ReleaseContextError`` naming the missing piece.
 
-Everything swapped is restored LIFO on exit; nesting is safe; nothing on
+Everything swapped is restored LIFO on exit -- and on a setup failure after
+the first swap, before anything was yielded; nesting is safe; nothing on
 disk changes.  Territory: this file + the two-line entry hook in
 ``rvt.frontdoor.build`` (documented in docs/inbox/build-2025.md).
+
+A file that cannot even be PROBED (not a CFB container, truncated, or a
+foreign-release host whose ``Formats/Latest`` does not parse) raises exactly
+one type, :class:`UnreadableHost`, never the raw error of the layer that
+noticed (#535) -- so :func:`enter_host_release` keeps its promise of a
+refusal NOTE for every file a survey/report lane is handed.
 
 THE HOST-KEYED ENTRY (famload-2025-lane, issue #14).  The build context is
 keyed on the BASE the front door resolved.  Every lane that instead operates
@@ -91,14 +98,26 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
 from .. import versions as V
 
-__all__ = ["ReleaseContextError", "native_release", "needs_release_context",
-           "release_build_context", "host_release_context", "enter_host_release",
-           "active_release"]
+__all__ = ["ReleaseContextError", "UnreadableHost", "native_release",
+           "needs_release_context", "release_build_context",
+           "host_release_context", "enter_host_release", "active_release"]
 
 
 class ReleaseContextError(RuntimeError):
     """The base's release cannot be activated; the message names the ONE
     missing piece (unknown release, uncertified, or no port layer)."""
+
+
+class UnreadableHost(ReleaseContextError):
+    """The file cannot be probed for its release at all: it is not a readable
+    CFB container (text, truncated mid-sector), or its own ``Formats/Latest``
+    class schema does not parse.  ``.path`` is the file, ``.why`` the one
+    sentence a caller relays; the container/parser error is ``__cause__``."""
+
+    def __init__(self, path: str, why: str):
+        self.path = str(path)
+        self.why = why
+        super().__init__(f"{self.path}: {why}")
 
 
 #: the info dict of the ACTIVE non-default release context (None outside one).
@@ -120,13 +139,25 @@ def native_release() -> int:
 
 def needs_release_context(base_path: str) -> bool:
     """True when building on ``base_path`` requires the release context."""
-    rel = V.detect_release(base_path)
+    rel = _detect_release(base_path)
     return rel is not None and rel != native_release()
 
 
 # ---------------------------------------------------------------------------
 # small helpers
 # ---------------------------------------------------------------------------
+
+def _detect_release(path: str) -> Optional[int]:
+    """``V.detect_release`` for a file a USER handed us: a path that does not
+    even open as a CFB container (text, truncated mid-sector) is an
+    unreadable host, said once and typed -- not the container layer's raw
+    error."""
+    try:
+        return V.detect_release(path)
+    except Exception as e:               # noqa: BLE001 -- a container that does not open IS the finding
+        raise UnreadableHost(
+            path, f"not a Revit container tekton can open ({type(e).__name__}: {e})") from e
+
 
 def _port_module(year: int):
     """``rvt.genesis.port<year>`` -- the constructor portability layer."""
@@ -145,7 +176,12 @@ def _codec_triple_from_base(base_path: str, year: int):
     verified against the release pin -- the standalone-safe way to get the
     target schema (never reads samples/)."""
     from ..global_framing import schema_of
-    schema = schema_of(base_path)
+    try:
+        schema = schema_of(base_path)
+    except Exception as e:               # noqa: BLE001 -- a schema stream that does not read IS the finding
+        raise UnreadableHost(
+            base_path, "its Formats/Latest class schema cannot be read "
+            f"({type(e).__name__}: {e})") from e
     want = V.KNOWN_RELEASES[year].schema_sha256
     got = schema.sha256
     if want and got != want:
@@ -230,7 +266,7 @@ def _classify_release(path: str, *, host: bool):
     ``(year, None, None)`` when the file IS the native release.  Raises
     ``ReleaseContextError`` naming the one missing piece otherwise."""
     what = "host lane (load/place/edit)" if host else "build"
-    year = V.detect_release(path)
+    year = _detect_release(path)
     if year is None:
         raise ReleaseContextError(
             f"cannot detect the Revit release of {path} -- refusing to "
@@ -288,12 +324,15 @@ def host_release_context(host_path: str) -> Iterator[Optional[Dict[str, Any]]]:
 def enter_host_release(stack: contextlib.ExitStack, host_path: str) -> Optional[str]:
     """Enter :func:`host_release_context` on ``stack`` for a lane that must
     still SURVEY / REPORT when the host's release cannot be authored into
-    (an uncertified or undetectable release).  Returns None when the context
-    is in force (or the host is native), else the refusal sentence -- the
-    caller records it and its own guard refuses honestly downstream."""
+    (an uncertified or undetectable release, an unreadable file).  Returns
+    None when the context is in force (or the host is native), else the
+    refusal sentence -- the caller records it and its own guard refuses
+    honestly downstream.  Never raises for the file it is handed."""
     try:
         stack.enter_context(host_release_context(host_path))
         return None
+    except UnreadableHost as e:
+        return f"no release context for {host_path}: {e.why}"
     except ReleaseContextError as e:
         return f"no release context for {host_path}: {e}"
 
@@ -355,7 +394,23 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
                           f"Revit {year} resolved) -- family containers would "
                           "borrow the host's Formats/Latest")
 
-    with V.reading(schema=schema) as ords, GF.bound(ords, schema=schema):
+    with V.reading(schema=schema) as ords, GF.bound(ords, schema=schema), \
+            contextlib.ExitStack() as undo:
+        # every swap below is undone LIFO when this block exits: after the
+        # yield, or on a setup failure BEFORE it (#535) -- so the three
+        # shared dicts are snapshotted and the restore registered up front
+        snapshots = [(live, dict(live))
+                     for live in (GSK._SCHEMA_CACHE, port._STATE, SA._SCHEMA_STATE)]
+
+        @undo.callback
+        def _restore() -> None:
+            _ACTIVE["info"] = None
+            for obj, name, val in reversed(saved):
+                setattr(obj, name, val)
+            for live, prev in snapshots:
+                live.clear()
+                live.update(prev)
+
         # ---- (1) block framing is V.reading's alone (every project-side --
         # ----     emitter reads rvt.partitions at call time, #467); the ----
         # ----     famgen framing copies still need swapping (#547) ---------
@@ -387,7 +442,6 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
         # constructor singletons (genesis.types._STATE is read via _S())
         swap(GT, "_STATE", {"dec": dec, "enc": enc, "schema": schema})
         # genesis.skeleton's shared cache is a dict consumers read by key
-        prev_cache = dict(GSK._SCHEMA_CACHE)
         GSK._SCHEMA_CACHE.clear()
         GSK._SCHEMA_CACHE.update({"dec": dec, "enc": enc})
         # the port layer's own target-codec state: seed from the base so the
@@ -397,7 +451,6 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
             raise ReleaseContextError(
                 f"port layer {port.__name__} lacks _S{year % 100}() -- "
                 "cannot seed its codec state")
-        prev_port_state = dict(port._STATE)
         port._STATE[yy] = (dec, enc, schema)
         # rvt.schema default chokepoints (install_schema's reroute, but
         # scoped + restored; a mixed-release process may hold stale seeds)
@@ -494,7 +547,6 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
             return donor_abs
 
         swap(SA, "bundled_base_path", bbp)
-        prev_sa_state = dict(SA._SCHEMA_STATE)
         SA._SCHEMA_STATE.clear()
         SA._SCHEMA_STATE.update({
             "schema": schema, "from": path_abs,
@@ -534,15 +586,4 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
                 "path": path_abs,
                 "bfi": {"format": base_format, "build": base_build}}
         _ACTIVE["info"] = info
-        try:
-            yield info
-        finally:
-            _ACTIVE["info"] = None
-            for obj, name, val in reversed(saved):
-                setattr(obj, name, val)
-            GSK._SCHEMA_CACHE.clear()
-            GSK._SCHEMA_CACHE.update(prev_cache)
-            port._STATE.clear()
-            port._STATE.update(prev_port_state)
-            SA._SCHEMA_STATE.clear()
-            SA._SCHEMA_STATE.update(prev_sa_state)
+        yield info
