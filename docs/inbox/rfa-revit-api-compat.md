@@ -1179,3 +1179,48 @@ on the origin, i.e. `hex_solo` minus nothing.
 * written: no engine change -- diagnosis only
 * gates: unchanged (309 passed / 58 skipped, sync clean)
 * shipped for verdict: `probe_C_origin_vs_tall.rfa`
+
+## Iteration 25 — all four variables exonerated individually; testing the combination
+
+**Owner: `probe_C_origin_vs_tall.rfa` renders ALL THREE parts.** The control
+box, the flat hexagon centred exactly on the origin, and the 1.0 ft tall
+hexagon are all present and correct.
+
+So every variable that distinguished `hex_solo` from a rendering file has
+now been cleared **on its own**:
+
+| variable | verdict | evidence |
+|---|---|---|
+| convex profile | fine | probe A hexagon renders |
+| only form in the file | fine | probe B, L alone, renders |
+| centred on the family origin | fine | probe C middle hexagon renders |
+| 1.0 ft tall (not a flat slab) | fine | probe C right hexagon renders |
+
+`hex_solo` is exactly *centred + tall + alone*, and each of those three is
+individually harmless. Either the COMBINATION is the fault, or the original
+file was not what its recipe says it was.
+
+Both are now testable, and the second one first because it is cheaper:
+
+* `probe_E_hex_solo_again.rfa` -- `hex_solo` rebuilt from the identical
+  recipe. It comes out **225,280 bytes, exactly the original's size**, and
+  `famdiff` between the two reports no differences at all. So E *is*
+  hex_solo. If E renders, the original open was the fluke (stale file,
+  wrong view, cached thumbnail) and there is no geometry bug at all. If E
+  is also empty, the failure is reproducible and real.
+* `probe_D_tall_centred.rfa` -- the exact same tall centred hexagon plus a
+  flat control box off to the side. If the hexagon appears here but E is
+  empty, then "alone" matters only in combination with tall + centred, and
+  the bug is in whatever the document does differently when a single form
+  is the entire family.
+
+**Note on cost:** this is the fifth consecutive round spent on one invisible
+hexagon, each round costing the owner an open. The four exonerations are
+real progress and each was single-variable, but the honest read is that
+`hex_solo` may simply have been a bad file, and iteration 22 should have
+re-sent it once before building three probes on top of it.
+
+### BRANCH STATE (updated)
+* written: no engine change -- diagnosis only
+* gates: unchanged (309 passed / 58 skipped, sync clean)
+* shipped for verdict: `probe_D_tall_centred.rfa`, `probe_E_hex_solo_again.rfa`
