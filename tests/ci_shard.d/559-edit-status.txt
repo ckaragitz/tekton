@@ -1,0 +1,2 @@
+# fresh-clone safe: the tracked 2025 genesis pin + a tmp_path truncation of it (issue #559)
+tests/test_edit_status.py
