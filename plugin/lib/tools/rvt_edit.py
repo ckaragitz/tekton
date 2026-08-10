@@ -20,6 +20,14 @@ issue #111).
 The file is opened, planned, re-emitted and verified under ITS OWN Revit
 release (a 2025/2024 project keeps its release's framing, id width and
 schema; the output declares the input's release) -- issue #70.
+
+Exit codes: 0 done (read verb answered / file written AND both gates PASS);
+1 the input opened but could not be planned, the edit is impossible, or a
+gate stopped it (a written file is still named -- deliver it); 2 the input
+is not a Revit container at all (also argparse usage).  A file that cannot
+be used is ONE ``[rvt_edit] FAILED (...)`` line on stderr (plain) or ONE
+``{"ok": false, "error": ...}`` object on stdout (``--json``, stderr empty)
+-- never a traceback (issue #560).
 """
 from __future__ import annotations
 
@@ -35,6 +43,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
 sys.path.insert(0, os.path.join(HERE, "..", "lib", "src"))     # plugin layout
 
+from rvt.container import open_rvt  # noqa: E402
 from rvt.mutate import Document  # noqa: E402
 from rvt import _jsonsafe  # noqa: E402  -- stdlib leaf
 from rvt import manipulate as M  # noqa: E402
@@ -44,6 +53,34 @@ from rvt.frontdoor.release_ctx import enter_host_release  # noqa: E402
 from rvt.frontdoor.target_status import opens_in  # noqa: E402
 
 WRITE_VERBS = ("delete", "rename-panel", "set-mark", "set-level", "move", "retype")
+EX_OK, EX_FAIL, EX_NOT_RVT = 0, 1, 2             # the documented exit codes (module docstring)
+
+
+class Unopenable(Exception):
+    """The INPUT cannot be used: ONE sentence + the documented exit code
+    (``EX_NOT_RVT``: not a Revit container at all -- a text file named .rvt,
+    a copy cut mid-sector; ``EX_FAIL``: a container that does not walk /
+    parse / plan -- truncated, damaged, a release no context could enter)."""
+
+    def __init__(self, sentence: str, rc: int):
+        super().__init__(sentence)
+        self.rc = rc
+
+
+def _open(path: str):
+    """The ONE open boundary: open + walk + plan the INPUT; a user's file that
+    cannot be used becomes a sentence + exit code, never a traceback.  Not even
+    a CFB container (the sibling CLIs' probe and words) -> 2; a container that
+    does not walk / parse (the front door's ``cannot open/plan``) -> 1.  The
+    probe runs only after the open failed: a readable file pays nothing."""
+    try:
+        return Document.from_file(path)
+    except Exception as e:                        # noqa: BLE001 -- a user's file that does not open/walk/parse IS the finding
+        try:
+            open_rvt(path).close()
+        except Exception as probe:                # noqa: BLE001 -- not even a CFB container: nothing in it can be read
+            raise Unopenable(f"cannot open as an .rvt container: {probe}", EX_NOT_RVT) from probe
+        raise Unopenable(f"cannot open/plan {path}: {type(e).__name__}: {e}", EX_FAIL) from e
 
 
 def _report(rep, out):
@@ -66,7 +103,10 @@ def _inventory_summary(doc) -> dict:
 
 def _release_block(in_path: str, out_path: str | None) -> dict:
     """Revit N in -> Revit N out, detected from each file's own BasicFileInfo."""
-    rin = V.detect_release(in_path)
+    try:
+        rin = V.detect_release(in_path)
+    except Exception:                            # noqa: BLE001 -- a refused input whose release cannot be read has none to report
+        rin = None
     rout = V.detect_release(out_path) if out_path and os.path.isfile(out_path) else None
     return {"input": rin, "output": rout, "opens_in": opens_in(rout or rin),
             "line": (f"Revit {rin} in, Revit {rout} out; opens in Revit {rout} and newer, "
@@ -132,10 +172,8 @@ def main(argv=None) -> int:
     if a.cmd in WRITE_VERBS:                     # `-o out/edited.rvt` into a fresh dir just works
         os.makedirs(os.path.dirname(os.path.abspath(a.out)) or ".", exist_ok=True)
     with contextlib.ExitStack() as stack:
-        note = enter_host_release(stack, a.file)
-        if note:
-            print(f"[rvt_edit] warning: {note}", file=sys.stderr)
-        return _run_json(a, note) if want_json else _run(a)
+        note = enter_host_release(stack, a.file)  # a note, never a raise; --json carries it as release_note
+        return _run_json(a, note) if want_json else _run(a, note)
 
 
 def _edit(a: argparse.Namespace, doc):
@@ -156,18 +194,43 @@ def _edit(a: argparse.Namespace, doc):
     return M.commit_plans(a.file, a.out, plans)
 
 
-def _run(a: argparse.Namespace) -> int:
-    doc = Document.from_file(a.file)
+#: what both doors answer in ONE sentence instead of a traceback: a file that
+#: cannot be opened/planned, an impossible edit, an unknown id and friends
+REFUSED = (Unopenable, M.ManipulationError, ValueError, LookupError)
 
-    if a.cmd == "info":
-        print(json.dumps(_inventory_summary(doc), indent=2, default=str))
-        return 0
-    if a.cmd == "deps":
-        print(json.dumps(M.dependency_report(doc, a.id), indent=2, default=str)[:6000])
-        return 0
 
-    _report(_edit(a, doc), a.out)
-    return 0
+def _failure(cmd: str, e: Exception) -> tuple:
+    """(the ONE sentence, exit code) for a caught ``REFUSED`` error."""
+    if isinstance(e, Unopenable):
+        return str(e), e.rc
+    if isinstance(e, M.DependentsError):          # its first line names the blocker
+        return str(e).splitlines()[0], EX_FAIL
+    if isinstance(e, M.ManipulationError):
+        return f"{cmd} impossible: {e}", EX_FAIL
+    return f"{cmd} failed: {type(e).__name__}: {e}", EX_FAIL
+
+
+def _run(a: argparse.Namespace, note) -> int:
+    """Plain mode: the human printers; a refusal is the release warning (if
+    any) then ONE ``[rvt_edit] FAILED (...)`` line on stderr."""
+    if note:
+        print(f"[rvt_edit] warning: {note}", file=sys.stderr)
+    written = None
+    try:
+        doc = _open(a.file)
+        if a.cmd == "info":
+            print(json.dumps(_inventory_summary(doc), indent=2, default=str))
+        elif a.cmd == "deps":
+            print(json.dumps(M.dependency_report(doc, a.id), indent=2, default=str)[:6000])
+        else:
+            rep = _edit(a, doc)
+            written = a.out                       # on disk from here on: name it whatever follows
+            _report(rep, a.out)
+        return EX_OK
+    except REFUSED as e:
+        err, rc = _failure(a.cmd, e)
+    print(f"[rvt_edit] FAILED ({err})" + (f" -- written: {written}" if written else ""), file=sys.stderr)
+    return rc
 
 
 def _run_json(a: argparse.Namespace, note) -> int:
@@ -175,18 +238,20 @@ def _run_json(a: argparse.Namespace, note) -> int:
     session reports -- the edit's change report, the written file, Revit N
     in / N out, the structural self-check and THE MANDATORY VALIDATION GATE
     (run here, in-process; never skipped) -- so the whole tekton-edit flow is
-    ONE shell call (issue #111).  An impossible edit (unknown id, a delete
-    with dependents and no --cascade) is ``ok: false`` + ONE ``error`` line
-    (+ ``dependents`` when that is the blocker).  Exit 0 = written AND both
-    gates PASS; 1 otherwise (a written file is still named: deliver it, then
-    say which gate stopped it)."""
+    ONE shell call (issue #111).  A refusal (a file that cannot be opened or
+    planned, an impossible edit -- unknown id, a delete with dependents and
+    no --cascade) is ``ok: false`` + ONE ``error`` line (+ ``dependents``
+    when that is the blocker); stderr stays empty (the release note rides in
+    ``release_note``).  A written file is always named: deliver it, then say
+    which gate stopped it."""
     t0 = time.time()
     res: dict = {"ok": False, "command": a.cmd,
                  "input": {"path": os.path.abspath(a.file)}}
     if note:
         res["release_note"] = note
+    rc = EX_FAIL
     try:
-        doc = Document.from_file(a.file)
+        doc = _open(a.file)
         if a.cmd == "info":
             res.update(_inventory_summary(doc), ok=True)
         elif a.cmd == "deps":
@@ -201,17 +266,14 @@ def _run_json(a: argparse.Namespace, note) -> int:
             res["ok"] = bool(res["gates"]["hard_gates_passed"])
             res["status_note"] = ("self-checks + validator are necessary, NOT sufficient: "
                                   "'accepted by Autodesk' only after the user opens the file")
-    except M.DependentsError as e:
-        res["error"] = str(e).splitlines()[0]
-        res["dependents"] = (e.report or {}).get("dependents", [])[:50]
-    except M.ManipulationError as e:
-        res["error"] = f"{a.cmd} impossible: {e}"
-    except (ValueError, LookupError) as e:               # unknown id and friends: ONE clear line
-        res["error"] = f"{a.cmd} failed: {type(e).__name__}: {e}"
+    except REFUSED as e:
+        res["error"], rc = _failure(a.cmd, e)
+        if isinstance(e, M.DependentsError):
+            res["dependents"] = (e.report or {}).get("dependents", [])[:50]
     res["release"] = _release_block(a.file, (res.get("output") or {}).get("path"))
     res["seconds"] = round(time.time() - t0, 3)
     print(_jsonsafe.dumps(res, indent=1))
-    return 0 if res["ok"] else 1
+    return EX_OK if res["ok"] else rc
 
 
 if __name__ == "__main__":

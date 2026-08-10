@@ -1,0 +1,2 @@
+# sample-free: bad inputs are built in-test from the tracked pins (#560)
+tests/test_rvt_edit_refusal.py
