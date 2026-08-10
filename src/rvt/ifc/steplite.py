@@ -889,7 +889,8 @@ class File:
         self._schema = "IFC4"           # FILE_SCHEMA identifier, upper-cased
         self._tree = _TREE_IFC4         # the class tree that identifier selects
         self._guid_index: Optional[Dict[str, int]] = None
-        self._inverse_cache: Dict[Tuple[str, str, int], Tuple[Entity, ...]] = {}
+        # (rel class, related attr) -> {related id: rels naming it}; see _inverse_rel (#160)
+        self._inverse_index: Dict[Tuple[str, str], Dict[int, Tuple[Entity, ...]]] = {}
         self._get_inverse_index: Optional[Dict[int, List[int]]] = None
         self._by_type_cache: Dict[str, List[Entity]] = {}
         self._parse(text)
@@ -1053,20 +1054,25 @@ class File:
     # -- inverse attributes ---------------------------------------------------
     def _inverse_rel(self, rel_uname: str, related_attr: str, sid: int
                      ) -> Tuple[Entity, ...]:
-        key = (rel_uname, related_attr, sid)
-        got = self._inverse_cache.get(key)
-        if got is None:
-            hits: List[Entity] = []
+        """The ``rel_uname`` relationships (exact class, file order) whose
+        ``related_attr`` aggregate names entity ``sid`` -- each rel once,
+        ``()`` for an id no rel names.  Served from a per-(class, attr) index
+        built by ONE pass over the class on first use: the per-id scan it
+        replaces was O(products x rels), 9 s of a 12 s resolve at 2000
+        products (#160)."""
+        key = (rel_uname, related_attr)
+        index = self._inverse_index.get(key)
+        if index is None:
+            hits: Dict[int, List[Entity]] = {}
             for rid in self._by_class.get(rel_uname, ()):
                 rel = self._by_id[rid]
-                related = getattr(rel, related_attr, ()) or ()
-                for e in related:
-                    if isinstance(e, Entity) and e._sid == sid:
-                        hits.append(rel)
-                        break
-            got = tuple(hits)
-            self._inverse_cache[key] = got
-        return got
+                for e in getattr(rel, related_attr, ()) or ():
+                    if isinstance(e, Entity):
+                        lst = hits.setdefault(e._sid, [])
+                        if not lst or lst[-1] is not rel:     # an id listed twice: rel once
+                            lst.append(rel)
+            index = self._inverse_index[key] = {i: tuple(v) for i, v in hits.items()}
+        return index.get(sid, ())
 
 
 def open(path: Any) -> File:                       # noqa: A001 (ifcopenshell name)
