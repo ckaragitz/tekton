@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import runpy
 import sys
@@ -530,6 +531,24 @@ def _input_releases(argv: list[str]) -> list[dict]:
     return out
 
 
+def _json_doc(obj) -> str:
+    """The ONE stdout document as strict JSON: a non-finite float (ours, or in
+    a job's re-parsed ``result``) prints as 'inf'/'-inf'/'nan', never a bare
+    ``Infinity``/``NaN``.  Inline twin of ``rvt._jsonsafe.dumps`` -- this
+    bootstrap prints before (or without) an importable engine; identical bytes
+    on finite data; ``default=str`` leaves ``allow_nan`` nothing to trip on
+    (#488)."""
+    def walk(o):
+        if isinstance(o, float):
+            return o if math.isfinite(o) else str(o)
+        if isinstance(o, dict):
+            return {k: walk(v) for k, v in o.items()}
+        if isinstance(o, (list, tuple)):
+            return [walk(v) for v in o]
+        return o
+    return json.dumps(walk(obj), indent=1, default=str, allow_nan=False)
+
+
 def go(argv: list[str], base_dir: str | None = None) -> int:
     """THE ONE-CALL SKILL FLOW: inline preflight, then the job, then ONE
     combined JSON object on stdout -- so a skill session spends exactly ONE
@@ -570,7 +589,7 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
     if not pf["ok"]:
         out["go"]["preflight"] = pf          # the full detail, only on failure
         out["result"] = None
-        print(json.dumps(out, indent=1, default=str))
+        print(_json_doc(out))
         return 3
     script, args = _resolve_go_target(argv, base_dir)
     # which dispatch ran: "author" / "edit" (issue #111) / the sibling script's name
@@ -615,7 +634,7 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
     out["result"] = res
     if extra.strip():
         out["go"]["stdout"] = extra[-8000:]  # non-JSON job output, tail
-    print(json.dumps(out, indent=1, default=str))
+    print(_json_doc(out))
     return code
 
 
@@ -754,7 +773,7 @@ def cli(argv: list[str] | None = None, base_dir: str | None = None) -> int:
             return 3
     pf = preflight()
     if "--json" in argv:
-        print(json.dumps(pf, indent=1, default=str))
+        print(_json_doc(pf))
     else:
         print(pf["line"])
     return 0 if pf["ok"] else 3

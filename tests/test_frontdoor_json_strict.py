@@ -13,7 +13,9 @@ the walk missed fails HERE, never as an unparseable file in a user's run.
 and routes the remaining job-dir sinks through it -- ``scene-brief.json``,
 the edit ``ops.json`` echo, ``tools/ifc_intent._jdump``, ``famfrom_ifc``'s
 reports, ``tools/rvt_job``'s manifests -- plus ``_jsonsafe.dumps`` for the
-``--json`` stdout documents of ``tools/rvt_job`` and ``tools/route``.
+``--json`` stdout documents of ``tools/rvt_job`` and ``tools/route``; #488
+the last stdout sinks (``tools/frontdoor``, ``tools/rvt_edit``, and the
+bootstrap's ``go`` envelope, which inlines the walk: it cannot import rvt).
 
 Pinned below: the walk itself; that it is a byte-for-byte no-op on finite
 data (the 6-panel prompt's manifest must not move); a synthetic payload
@@ -26,7 +28,10 @@ in-repo catalog is all ``prompt_to_intent`` needs.
 """
 from __future__ import annotations
 
+import argparse
 import dataclasses
+import importlib.util
+import inspect
 import io
 import json
 import math
@@ -44,6 +49,7 @@ from rvt.frontdoor import router as R
 from rvt.ifc import intent as I
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEKTON_ENV = os.path.join(ROOT, "plugin", "skills", "_shared", "tekton_env.py")   # hand-authored, tracked
 INF, NAN = float("inf"), float("nan")
 PROMPT = "an electrical room with 6 panels"
 
@@ -267,17 +273,125 @@ def test_route_s_json_printer_is_strict(capsys):
     assert doc["seconds"] == "inf" and doc["cell"]["seq"][1] == ["nan", ["inf"]]
 
 
+# --- the #488 stdout sinks -------------------------------------------------
+
+@pytest.fixture(scope="module")
+def frontdoor_tool():
+    return load_tool("frontdoor")
+
+
+def test_frontdoor_author_json_prints_one_strict_document(frontdoor_tool, monkeypatch, capsys):
+    """The CLI path a skill session parses: ``author … --json`` prints
+    ``AuthorResult.as_json()``; a non-finite timing / extent inside it lands
+    as text and the exit code still follows ``ok`` (3 = did not complete)."""
+    from rvt import frontdoor as FD
+    res = FD.AuthorResult(route="prompt", ok=False, status="unit: build did not complete",
+                          out_dir="/nowhere", files={"combined": "/nowhere/x.rvt"},
+                          handoff={"poison": _poison()}, errors=["unit"], seconds=INF)
+    monkeypatch.setattr(FD, "run", lambda req: res)
+    rc = frontdoor_tool.main(["author", "--prompt", PROMPT, "--json"])
+    doc = json.loads(capsys.readouterr().out, parse_constant=_refuse_constant)   # ONE document
+    assert rc == frontdoor_tool.EX_INCOMPLETE and doc["ok"] is False and doc["route"] == "prompt"
+    assert doc["seconds"] == "inf" and doc["handoff"]["poison"]["seq"] == [["-inf", 2], ["nan", ["inf"]]]
+    assert doc["files"] == {"combined": "/nowhere/x.rvt"} and doc["errors"] == ["unit"]
+
+
+def test_frontdoor_matrix_json_prints_one_strict_document(frontdoor_tool, monkeypatch, capsys):
+    from rvt.frontdoor import matrix as MX
+    monkeypatch.setattr(MX, "audit", lambda: {"problems": [], "score": NAN, "extent": (INF, -INF)})
+    rc = frontdoor_tool.main(["matrix", "--json"])
+    doc = json.loads(capsys.readouterr().out, parse_constant=_refuse_constant)
+    assert rc == frontdoor_tool.EX_OK and doc["cells"]
+    assert doc["audit"] == {"problems": [], "score": "nan", "extent": ["inf", "-inf"]}
+
+
+def test_rvt_edit_json_result_is_strict(monkeypatch, capsys):
+    """``rvt_edit.py FILE VERB … --json`` (what ``go edit`` runs): its ONE
+    result object goes through ``_jsonsafe.dumps``; the human-mode printers
+    (``info`` / ``deps`` / the change report) keep plain ``json.dumps``."""
+    T = load_tool("rvt_edit")
+
+    class Doc:
+        @staticmethod
+        def from_file(path):
+            return object()
+    monkeypatch.setattr(T, "Document", Doc)
+    monkeypatch.setattr(T, "_inventory_summary", lambda doc: {"levels": [{"elevation_ft": INF}]})
+    monkeypatch.setattr(T, "_release_block", lambda i, o: {"input": None, "output": None, "ratio": NAN})
+    rc = T._run_json(argparse.Namespace(cmd="info", file="unit.rvt"), "unit note")
+    doc = json.loads(capsys.readouterr().out, parse_constant=_refuse_constant)
+    assert rc == 0 and doc["ok"] is True and doc["release_note"] == "unit note"
+    assert doc["levels"] == [{"elevation_ft": "inf"}] and doc["release"]["ratio"] == "nan"
+    # rvt_edit is not a JSON_DOOR below (its human-mode printers keep json.dumps): pin the door itself
+    assert not re.search(r"\bjson\.dumps\(", inspect.getsource(T._run_json))
+
+
+@pytest.fixture(scope="module")
+def tekton_env():
+    """The hand-authored bootstrap, imported in-process (importing it has no
+    side effects; ``preflight`` / ``run_script`` are stubbed per test)."""
+    spec = importlib.util.spec_from_file_location("tekton_env", TEKTON_ENV)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def test_the_bootstrap_s_inline_walk_matches_jsonsafe(tekton_env, six_panels):
+    """``tekton_env._json_doc`` cannot import ``rvt`` (it prints before -- or
+    without -- an engine), so it inlines the walk: strict on poison, and
+    byte-identical to plain ``json.dumps(…, indent=1, default=str)`` (what
+    it printed before) AND to ``_jsonsafe.dumps`` on finite data."""
+    got = json.loads(tekton_env._json_doc({"go": _poison(), "result": [INF]}),
+                     parse_constant=_refuse_constant)
+    assert got["go"]["nested"]["deeper"]["deepest"] == [1.0, "inf", {"again": "nan"}]
+    assert got["result"] == ["inf"]
+    model, parsed = six_panels
+    for obj in (PP.scene_brief(PROMPT, parsed=parsed, model=model),
+                {"go": {"ready": True, "seconds": 0.123, "inputs": []}, "result": {"t": (1, 2.5)}}):
+        assert tekton_env._json_doc(obj) == json.dumps(obj, indent=1, default=str) \
+            == JS.dumps(obj, indent=1)
+
+
+def test_go_s_one_json_envelope_is_strict_even_around_a_non_strict_job(tekton_env, monkeypatch,
+                                                                       capsys, tmp_path):
+    """``go SCRIPT.py …`` re-parses the job's stdout with ``json.loads``,
+    which ACCEPTS a bare ``Infinity``/``NaN`` -- so a sibling script that
+    still prints one must not leak it through the envelope; and the NOT
+    READY branch (no engine importable at all) prints strict JSON too."""
+    monkeypatch.setattr(tekton_env, "preflight",
+                        lambda root=None: {"ok": True, "line": "tekton: READY | unit", "seconds": 0.01})
+
+    def fake_run(script, args, base_dir=None):
+        print('{"x": Infinity, "t": [NaN, 1.5], "name": "%s"}' % os.path.basename(script))
+        return 0
+    monkeypatch.setattr(tekton_env, "run_script", fake_run)
+    rc = tekton_env.go(["poison.py", "--flag"], base_dir=str(tmp_path))
+    doc = json.loads(capsys.readouterr().out, parse_constant=_refuse_constant)
+    assert rc == 0 and doc["go"]["ready"] is True and doc["go"]["exit_code"] == 0
+    assert doc["result"] == {"x": "inf", "t": ["nan", 1.5], "name": "poison.py"}
+    assert "stdout" not in doc["go"]                 # the job's output WAS one JSON object
+
+    monkeypatch.setattr(tekton_env, "preflight",
+                        lambda root=None: {"ok": False, "line": "tekton: NOT READY | unit",
+                                           "seconds": INF, "checks": [{"ratio": NAN}]})
+    rc = tekton_env.go(["author", "--prompt", PROMPT], base_dir=str(tmp_path))
+    doc = json.loads(capsys.readouterr().out, parse_constant=_refuse_constant)
+    assert rc == 3 and doc["result"] is None and doc["go"]["ready"] is False
+    assert doc["go"]["preflight"]["seconds"] == "inf" and doc["go"]["preflight"]["checks"] == [{"ratio": "nan"}]
+
+
 # --- tripwires ------------------------------------------------------------
 
-#: every module #461 / #475 switched; the two ``--json`` doors additionally
+#: every module #461 / #475 / #488 switched; the ``--json`` doors additionally
 #: print their ONE stdout document through ``_jsonsafe.dumps``, so a bare
 #: ``json.dumps(`` is banned there too (elsewhere it still renders dev /
-#: progress output legitimately: prompt_intent's __main__, ifc_intent's echo).
+#: progress output legitimately: prompt_intent's __main__, ifc_intent's echo,
+#: rvt_edit's human-mode ``info`` / ``deps`` / change-report printers).
 WRITERS = ("src/rvt/ifc/intent.py", "src/rvt/frontdoor/manifest.py", "src/rvt/frontdoor/router.py",
            "src/rvt/frontdoor/standalone.py", "src/rvt/frontdoor/prompt_intent.py",
            "src/rvt/frontdoor/edit.py", "src/rvt/ifc/famfrom_ifc.py", "tools/ifc_intent.py",
-           "tools/rvt_job.py", "tools/route.py")
-JSON_DOORS = ("tools/rvt_job.py", "tools/route.py")
+           "tools/rvt_job.py", "tools/route.py", "tools/frontdoor.py", "tools/rvt_edit.py")
+JSON_DOORS = ("tools/rvt_job.py", "tools/route.py", "tools/frontdoor.py")
 
 
 @pytest.mark.parametrize("rel", WRITERS)
@@ -290,6 +404,17 @@ def test_no_switched_module_dumps_around_the_walk(rel):
     if rel in JSON_DOORS:
         assert not re.search(r"\bjson\.dumps\(", src), f"{rel}: a bare json.dumps( bypasses rvt._jsonsafe"
     assert re.search(r"\b_jsonsafe\b", src), f"{rel}: no longer goes through rvt._jsonsafe"
+
+
+def test_the_bootstrap_dumps_only_through_its_inline_walk(tekton_env):
+    """``tekton_env.py`` keeps exactly ONE ``json.dump(s)(`` -- the one inside
+    ``_json_doc`` -- so the ``go`` envelope, the NOT READY branch and
+    ``--json`` preflight cannot regrow a bare printer; and it stays
+    engine-free at module level."""
+    src = open(TEKTON_ENV, encoding="utf-8").read()
+    assert len(re.findall(r"\bjson\.dumps?\(", src)) == 1
+    assert re.search(r"\bjson\.dumps\(", inspect.getsource(tekton_env._json_doc))
+    assert not re.search(r"^(?:from|import)\s+rvt\b", src, re.M)
 
 
 def test_jsonsafe_is_a_stdlib_leaf():

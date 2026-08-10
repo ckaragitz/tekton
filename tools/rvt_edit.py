@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "src"))
 sys.path.insert(0, os.path.join(HERE, "..", "lib", "src"))     # plugin layout
 
 from rvt.mutate import Document  # noqa: E402
+from rvt import _jsonsafe  # noqa: E402  -- stdlib leaf
 from rvt import manipulate as M  # noqa: E402
 from rvt import inventory as INV  # noqa: E402
 from rvt import versions as V  # noqa: E402
@@ -209,7 +210,7 @@ def _run_json(a: argparse.Namespace, note) -> int:
         res["error"] = f"{a.cmd} failed: {type(e).__name__}: {e}"
     res["release"] = _release_block(a.file, (res.get("output") or {}).get("path"))
     res["seconds"] = round(time.time() - t0, 3)
-    print(json.dumps(res, indent=1, default=str))
+    print(_jsonsafe.dumps(res, indent=1))
     return 0 if res["ok"] else 1
 
 
