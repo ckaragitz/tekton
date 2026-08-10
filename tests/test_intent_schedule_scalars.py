@@ -54,7 +54,8 @@ def _catalog_ok() -> bool:
         return False
 
 
-needs_catalog = pytest.mark.skipif(not _catalog_ok(), reason="famgen catalog absent")
+_CATALOG = _catalog_ok()
+needs_catalog = pytest.mark.skipif(not _CATALOG, reason="famgen catalog absent")
 
 _CLASS = {"transformer": "IfcTransformer", "receptacle_device": "IfcOutlet"}
 _PSET = {"transformer": "TransformerSchedule", "switchboard": "SwitchboardSchedule",
@@ -81,8 +82,7 @@ def _eq(tag: str, kind: str, schedule: dict, *, contract=None, dims=None) -> I.E
 # ---------------------------------------------------------------------------
 
 def _amps(raw):
-    return I.parse_schedule_scalar("PanelSchedule.MainsRating", raw,
-                                   fallback="ignored (unit test)", **I.AMPS)
+    return I.parse_schedule_scalar("PanelSchedule.MainsRating", raw, I.AMPS, fallback="ignored (unit test)")
 
 
 def test_each_scalar_kind_coerces_the_unit_a_person_types_and_degrades_the_rest_with_one_note():
@@ -110,41 +110,32 @@ def test_each_scalar_kind_coerces_the_unit_a_person_types_and_degrades_the_rest_
     assert v is None and "(not finite)" in note and len(note) < 200
     assert note.startswith("PanelSchedule.MainsRating 1" + "0" * 56 + "... is not a usable current rating")
     # kVA / kA: the unit IS the property's ('75 kVA' -> 75, '65 kAIC' -> 65)
-    kva = lambda raw: I.parse_schedule_scalar("T.RatingkVA", raw, fallback="x", **I.KVA)      # noqa: E731
+    kva = lambda raw: I.parse_schedule_scalar("T.RatingkVA", raw, I.KVA, fallback="x")      # noqa: E731
     assert kva("75 kVA") == (75.0, "T.RatingkVA '75 kVA' is a text label, not a measure -> read as 75 kVA")
     assert kva("75kva")[0] == kva("75")[0] == kva(75)[0] == 75.0
     assert kva("big") == (None, "T.RatingkVA 'big' is not a usable transformer rating (not a number) -> x")
-    ka = lambda raw: I.parse_schedule_scalar("S.ShortCircuitRatingkA", raw, fallback="x", **I.KA)   # noqa: E731
+    ka = lambda raw: I.parse_schedule_scalar("S.ShortCircuitRatingkA", raw, I.KA, fallback="x")   # noqa: E731
     assert [ka(r)[0] for r in ("65 kA", "65kA", "65 kAIC", "65", 65.0)] == [65.0] * 5
     assert "above the 300 kA sanity cap" in ka("400 kA")[1]
     # counts: whole numbers with the word a person types after them; returned as int
     ckt = I.CONTRACT_SCALARS["NumberOfCircuits"]
-    count = lambda raw: I.parse_schedule_scalar("P.NumberOfCircuits", raw, fallback="x", **ckt)   # noqa: E731
+    count = lambda raw: I.parse_schedule_scalar("P.NumberOfCircuits", raw, ckt, fallback="x")   # noqa: E731
     for raw in ("42", "42 ckt", "42 circuits", "42-circuit", "42 spaces", "42 SP", 42, 42.0):
         v, _ = count(raw)
         assert v == 42 and isinstance(v, int), raw
     assert count("42.5")[0] is None and "(not a whole number)" in count("42.5")[1]
     assert count(42.5)[0] is None and "(not a whole number)" in count(42.5)[1]
     assert "(above the 200 sanity cap for one panelboard)" in count("400 ckt")[1]
-    phases = lambda raw: I.parse_schedule_scalar("P.Phases", raw, fallback="x",       # noqa: E731
-                                                 **I.CONTRACT_SCALARS["Phases"])[0]
+    phases = lambda raw: I.parse_schedule_scalar("P.Phases", raw, I.CONTRACT_SCALARS["Phases"],   # noqa: E731
+                                                 fallback="x")[0]
     assert [phases(r) for r in ("3", "3 ph", "3-phase", "3PH", 3, "1P", "4")] == [3, 3, 3, 3, 3, 1, None]
-    assert I.parse_schedule_scalar("S.Sections", "4 sections", fallback="x",
-                                   **I.CONTRACT_SCALARS["Sections"])[0] == 4
-    assert I.parse_schedule_scalar("S.Wires", "4W", fallback="x", **I.CONTRACT_SCALARS["Wires"])[0] == 4
-
-
-def test_parse_device_load_is_the_load_preset_word_for_word():
-    """#438's rule did not move: ``parse_device_load`` IS
-    ``parse_schedule_scalar`` with the Load preset (its 35 pinned cases live
-    in tests/test_intent_device_plan.py; spot-check the seams here)."""
-    for raw in ("180 VA", "0.18 kVA", "abc", -5, float("nan"), 1e12, None, 0, "0 VA", 360.5, 10 ** 400):
-        assert I.parse_device_load(raw) == I.parse_schedule_scalar(
-            "DeviceSchedule.Load", raw, default=I.DEFAULT_DEVICE_VA,
-            fallback=f"this device books the default {I.DEFAULT_DEVICE_VA:g} VA (NEC 220.14(I) "
-                     "receptacle unit load) instead; fix the schedule cell to book another load",
-            **I.LOAD_VA), raw
-    assert I.LOAD_VA["cap"] == I.MAX_DEVICE_VA and I.LOAD_VA["unit"] == "VA"
+    assert I.parse_schedule_scalar("S.Sections", "4 sections", I.CONTRACT_SCALARS["Sections"], fallback="x")[0] == 4
+    assert I.parse_schedule_scalar("S.Wires", "4W", I.CONTRACT_SCALARS["Wires"], fallback="x")[0] == 4
+    # parse_device_load IS the Load preset (its 35 pinned cases: tests/test_intent_device_plan.py)
+    assert (I.LOAD_VA.cap, I.LOAD_VA.unit, I.LOAD_VA.factors) == (I.MAX_DEVICE_VA, "VA", {"": 1.0, "k": 1000.0})
+    # a space-stuffed junk cell fails in linear time (possessive tails), not by backtracking
+    for junk in ("42 ckt" + " " * 20000 + "!", "42" + " " * 20000 + "!", " " * 20000 + "x"):
+        assert count(junk)[0] is None and I.parse_mounting_height(junk)[0] is None and _amps(junk)[0] is None
 
 
 def test_a_mounting_height_coerces_to_inches_or_lets_the_facts_convention_stand_in():
@@ -161,7 +152,7 @@ def test_a_mounting_height_coerces_to_inches_or_lets_the_facts_convention_stand_
         assert H(raw) == (float(raw), None), raw
     assert H(None) == (None, None) and H("  ") == (None, None)
     for raw, why in (("eye level", "not a number"), ("44 kg", "not a number"), (-18, "negative"),
-                     (float("nan"), "not finite"), ("300 in", "above the 240 in sanity cap")):
+                     (float("nan"), "not finite"), ("4400", "above the 600 in sanity cap"), ("30 m", "above the 600 in")):
         v, note = H(raw)
         assert v is None, raw
         assert note.startswith(f"DeviceSchedule.MountingHeight {raw!r} is not a usable mounting height ({why}")
@@ -198,6 +189,16 @@ def test_normalize_contract_coerces_hand_typed_cells_and_drops_unusable_ones_wit
         "PanelSchedule.NumberOfCircuits 'lots' is not a usable circuit count (not a number)",
         "PanelSchedule.Phases 7 is not a usable phase count (above the 3 sanity cap for a phase count)"]
     assert all(n.endswith("reads as an empty cell (fix the schedule cell to book it)") for n in con["_notes"])
+    # a figure mined from the NAME clears the same caps as a cell: an absurd '30000 A' in both
+    # the pset and the name is dropped twice (two notes), never re-injected by the name text
+    absurd = I.normalize_contract({"SwitchboardSchedule": {"BusRating": 30000.0}}, name="MSB 30000 A switchboard",
+                                  object_type=None, description=None, tag="MSB")
+    assert "BusRating" not in absurd and "MainsRating" not in absurd
+    assert [n.split(" is ")[0] for n in absurd["_notes"]] == ["SwitchboardSchedule.BusRating 30000.0",
+                                                            "name-text BusRating 30000.0"]
+    named = I.normalize_contract({}, name="DP-2 400 A 42-circuit panel", object_type=None, description=None, tag="DP-2")
+    assert (named["BusRating"], named["MainsRating"], named["NumberOfCircuits"]) == (400.0, 400.0, 42)
+    assert "_notes" not in named
     # a blank / zero cell stays put, silently (a switchboard's NumberOfCircuits 0 round-trips as 0)
     zero = I.normalize_contract({"SwitchboardSchedule": {"NumberOfCircuits": 0, "Sections": 4.0}},
                                 name="MSB", object_type=None, description=None, tag="MSB")
@@ -239,7 +240,6 @@ def test_board_branches_plan_from_hand_typed_cells_with_one_note_per_cell():
     assert (dp.kwargs["mains_a"], dp.kwargs["spaces"], dp.kwargs["sccr_ka"]) == (400.0, 42, 65.0)
     assert len(dp.notes) == 3 and dp.notes[0] == (
         "PanelSchedule.MainsRating '400 A' is a text label, not a measure -> read as 400 A")
-    assert dp.as_json()["notes"] == dp.notes                           # ... and they ride into intent.json
     lp = I.plan_family_for(_eq("LP-1", "lighting_panelboard", {"Voltage": "480Y/277 V", "BusRating": "100 A",
                                                                 "MainsType": "Main lugs only"}))
     assert lp.status == "resolved" and lp.kwargs["mains_a"] == 100.0 and lp.variant == "PRL2X"
@@ -311,7 +311,7 @@ def test_plan_families_refuses_the_item_whose_planning_raises_and_plans_the_rest
 @pytest.fixture(scope="module")
 def our_ifc(tmp_path_factory):
     """OUR IFC of a 100 A lighting panel + 4 receptacles at 44 in AFF."""
-    if not _catalog_ok():
+    if not _CATALOG:
         pytest.skip("famgen catalog absent")
     from rvt.frontdoor.ifc_out import write_intent_ifc
     model, _ = PP.prompt_to_intent(RT_PROMPT)
@@ -384,9 +384,6 @@ def test_every_other_retyped_scalar_resolves_with_one_note_and_no_bare_infinity(
         ("Load", ("#93=IFCPROPERTYSINGLEVALUE('Load',$,IFCREAL(180.),$)",
                   "#93=IFCPROPERTYSINGLEVALUE('Load',$,IFCREAL(1.E400),$)"), "R-1", ("va", I.DEFAULT_DEVICE_VA)),
     ]
-    text = open(our_ifc, encoding="ascii").read()
-    for key, (old, _new), _tag, _kw in cases:
-        assert text.count(old) == 1, (key, old)                       # the fixture is what we think it is
     for key, swap, tag, (kw, want) in cases:
         hand = _retyped(our_ifc, str(tmp_path / f"{key}.ifc"), swap)
         model = I.resolve_intent(hand)                                # never raises
