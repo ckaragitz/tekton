@@ -39,20 +39,35 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 import rvt.versions as V                       # noqa: E402
 from rvt.frontdoor import base as B            # noqa: E402
 import rvt.frontdoor as FD                     # noqa: E402
+from conftest import pinned_base               # noqa: E402
 
-GENESIS = os.path.join(ROOT, "experiments", "genesis", "subst_k4", "compose", "G_ABPD.rvt")
 PANEL_PROMPT = "a 400 A distribution panel"
 ROOM_PROMPT = ("an electrical room 30x20 ft rated for 2500 A service with a main "
                "switchboard, two 400 A distribution panels and four lighting panels")
 
 certified_2025 = 2025 in V.SUPPORTED_CREATION_RELEASES
-until_2025_certifies = pytest.mark.skipif(
-    not certified_2025,
-    reason="the Revit-2025 genesis base is pending certification -- G25-5 "
-           "(docs/writer/genesis-2025-plan.md) flips KNOWN_RELEASES[2025]."
-           "creation_certified and this test arms itself")
-needs_genesis = pytest.mark.skipif(not os.path.exists(GENESIS),
-                                   reason="pinned genesis base absent")
+
+
+# The bases come through the registry (``resolve_base(target_release=N)``:
+# the repo pin path, else the sha-verified plugin/assets/genesis copy), never
+# a git-ignored experiments/ literal, so every gate below EXECUTES on a fresh
+# clone / in CI (issue #136); ``pinned_base`` skips cleanly only when nothing
+# certified + pinned resolves on the machine (or the year is not certified).
+
+@pytest.fixture(scope="module")
+def genesis():
+    """The certified default (2026) genesis base."""
+    return pinned_base(2026)
+
+
+@pytest.fixture(scope="module")
+def g25():
+    """The certified Revit-2025 genesis base (resolves once G25-5 certified it)."""
+    return pinned_base(2025)
+
+
+needs_genesis = pytest.mark.usefixtures("genesis")        # builds on the default base
+needs_2025_base = pytest.mark.usefixtures("g25")          # builds on / needs the 2025 base
 
 
 # ===========================================================================
@@ -107,12 +122,11 @@ def test_resolve_base_2025_refuses_or_resolves_never_silently():
         assert "pending certification" in str(ei.value)
 
 
-@needs_genesis
-def test_explicit_base_of_wrong_release_is_refused_for_2025_target():
+def test_explicit_base_of_wrong_release_is_refused_for_2025_target(genesis):
     """--base <a 2026 file> --target-version 2025 must refuse (require_release),
     never author a 2026 file while promising 2025."""
     with pytest.raises(V.VersionError):
-        B.resolve_base(GENESIS, target_release=2025)
+        B.resolve_base(genesis, target_release=2025)
 
 
 def test_cli_flag_parses():
@@ -162,29 +176,38 @@ def test_frontdoor_2025_target_delivers_line_plus_ifc(tmp_path):
         assert (json.load(fh).get("target_version") or {}).get("line") == tv["line"]
 
 
-@needs_genesis
-def test_frontdoor_explicit_pinned_base_still_falls_back(tmp_path):
-    """The plugin's author_standalone passes the BUNDLED base as an explicit
-    --base; with a 2025 target that must degrade honestly (fallback), not
-    refuse -- the file IS our pinned default, not a user override."""
-    if certified_2025:
-        pytest.skip("2025 certified: the explicit-2026-base path now refuses correctly")
+def test_frontdoor_explicit_pinned_base_never_refuses(tmp_path, genesis):
+    """The plugin's author_standalone passes the BUNDLED default (2026) base as
+    an explicit --base; with a 2025 target that is no user override -- the file
+    IS our pinned base arriving by path -- so it must never refuse: once 2025
+    is certified the target's OWN slot is resolved instead (``match``, a 2025
+    file; issue #24 / #472), before that it degrades honestly (``fallback`` +
+    the IFC addition)."""
     r = FD.author(prompt=PANEL_PROMPT, target_version=2025, handoff_only=True,
-                  base=GENESIS, out=str(tmp_path))
+                  base=genesis, out=str(tmp_path))
+    assert r.ok, r.errors
     tv = r.manifest.get("target_version") or {}
-    assert tv.get("status") == "fallback"
-    assert r.files.get("ifc") and os.path.isfile(r.files["ifc"])
+    if certified_2025:
+        assert tv.get("status") == "match"
+        assert tv.get("output_release") == 2025
+        assert r.manifest["base"]["pinned"]
+        assert r.manifest["base"]["source"].startswith("pinned-")
+        assert "--base" in tv.get("note", "")           # the note says the named file was recognised
+        assert "ifc" not in r.files
+    else:
+        assert tv.get("status") == "fallback"
+        assert r.files.get("ifc") and os.path.isfile(r.files["ifc"])
 
 
-@needs_genesis
-@pytest.mark.skipif(not os.path.exists(os.path.join(ROOT, "experiments", "genesis", "R5.rvt")),
-                    reason="R5 ancestor absent")
-def test_frontdoor_user_base_of_wrong_release_is_refused(tmp_path):
+def test_frontdoor_user_base_of_wrong_release_is_refused(tmp_path, monkeypatch, genesis):
     """A genuinely user-supplied 2026 base with a 2025 target is REFUSED --
     the front door never authors a wrong-release file while promising the
-    target (R5 is certified 2026 lineage but NOT the pinned default)."""
-    r = FD.author(prompt=PANEL_PROMPT, target_version=2025,
-                  base=os.path.join(ROOT, "experiments", "genesis", "R5.rvt"),
+    target.  Stand-in for "a firm's own 2026 file": the pinned 2026 base with
+    the registry match switched off (a plain byte-copy of a certified slot is
+    recognised as OUR base and resolves the target's slot -- the test above;
+    same seam as tests/test_frontdoor_manifest_pin.py's ``_firm_bases``)."""
+    monkeypatch.setattr(B, "_certified_slot_for_digest", lambda digest, pin=B.PIN: None)
+    r = FD.author(prompt=PANEL_PROMPT, target_version=2025, base=genesis,
                   out=str(tmp_path))
     tv = r.manifest.get("target_version") or {}
     assert tv.get("status") == "refused"
@@ -228,8 +251,7 @@ def test_ifc_addition_roundtrips_the_intent(tmp_path):
 # THE FINISH LINE (arms itself at G25-5)
 # ===========================================================================
 
-@until_2025_certifies
-@needs_genesis
+@needs_2025_base
 def test_END_STATE_author_2025_produces_a_2025_file(tmp_path):
     """G25-5 acceptance: `author --prompt <panel> --target-version 2025` ->
     a file whose BasicFileInfo Format is 2025 and whose Formats/Latest is
@@ -271,16 +293,7 @@ def test_END_STATE_author_2025_produces_a_2025_file(tmp_path):
                 StreamWalker(f.logical(pn), inflate=True, keep_data=False)
 
 
-def _bundled_2025_base():
-    """The certified 2025 base from BUNDLED locations (plugin/assets in git),
-    so the family/instance finish line runs in a fresh clone and in CI."""
-    from rvt.frontdoor import release_ctx as RC
-    return RC._bundled_base_of(2025) if certified_2025 else None
-
-
-@pytest.mark.skipif(_bundled_2025_base() is None,
-                    reason="no bundled certified 2025 base resolves (or 2025 "
-                           "is not a certified creation release)")
+@needs_2025_base
 def test_END_STATE_2025_family_and_instance_lane(tmp_path):
     """Issue #14 finish line: ``author --prompt <panel> --target-version 2025``
     emits a Revit-2025 file with ONE generated family LOADED four-registry and
@@ -335,15 +348,7 @@ def test_END_STATE_2025_family_and_instance_lane(tmp_path):
 # THE RELEASE BUILD CONTEXT (rvt.frontdoor.release_ctx -- build-2025 stream)
 # ===========================================================================
 
-G25 = os.path.join(ROOT, "experiments", "genesis", "subst_k4_2025", "compose",
-                   "G_ABPD_2025.rvt")
-needs_2025_base = pytest.mark.skipif(not os.path.exists(G25),
-                                     reason="composed 2025 base absent")
-
-
-@until_2025_certifies
-@needs_2025_base
-def test_release_ctx_swaps_and_restores_everything():
+def test_release_ctx_swaps_and_restores_everything(g25):
     """Entering the context re-points framing tags, codec singletons and the
     mutate class ids at the 2025 release; exiting restores EVERY one."""
     from rvt.frontdoor import release_ctx as RC
@@ -355,7 +360,7 @@ def test_release_ctx_swaps_and_restores_everything():
               MU.CLASS_FAMILY_INSTANCE, ENC._DEFAULT_ENCODER, dict(GT._STATE))
     assert RC.native_release() == 2026
     assert RC.active_release() is None
-    with RC.release_build_context(G25) as info:
+    with RC.release_build_context(g25) as info:
         assert info and info["release"] == 2025 and RC.active_release() == 2025
         ords = info["ordinals"]
         assert P.BLOCK_TAG == ords["BLOCK_TAG"] != before[0]
@@ -371,13 +376,12 @@ def test_release_ctx_swaps_and_restores_everything():
     assert set(after[6]) == set(before[6])
 
 
-@needs_genesis
-def test_release_ctx_native_base_is_a_noop():
+def test_release_ctx_native_base_is_a_noop(genesis):
     """The default-release base enters no context at all (yields None)."""
     from rvt.frontdoor import release_ctx as RC
     from rvt import partitions as P
     tag = P.BLOCK_TAG
-    with RC.release_build_context(GENESIS) as info:
+    with RC.release_build_context(genesis) as info:
         assert info is None
         assert P.BLOCK_TAG == tag
-    assert not RC.needs_release_context(GENESIS)
+    assert not RC.needs_release_context(genesis)
