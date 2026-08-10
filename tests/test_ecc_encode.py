@@ -72,13 +72,12 @@ def test_encoded_size_and_prefix():
 
 
 # A final block of 64,388..64,895 data bytes encodes to exactly PAGE_STRIDE
-# bytes and the *reader* `unframe_stream` takes it for a full page -- a
-# pre-existing decoder ambiguity independent of the encoder (both encoders
-# agree there): #236.  The strict xfail retires itself when #236 lands.
+# bytes; the reader must still decode it by its pad-count field, never take
+# it for a full page (#236 / #294 -- `ecc.iter_blocks` is the shared law;
+# tests/test_ecc_final_block.py covers the checkers built on it).
 @pytest.mark.parametrize("n", [
-    0, 1, 300, 5000, 64387, PAGE_PAYLOAD, PAGE_PAYLOAD + 1, 2 * PAGE_PAYLOAD + 777,
-    pytest.param(PAGE_PAYLOAD - 1, marks=pytest.mark.xfail(
-        strict=True, reason="#236: stride-sized final block read as a full page")),
+    0, 1, 300, 5000, 64387, 64388, PAGE_PAYLOAD - 1, PAGE_PAYLOAD, PAGE_PAYLOAD + 1,
+    PAGE_PAYLOAD + 64500, 2 * PAGE_PAYLOAD + 777, 3 * PAGE_PAYLOAD - 1, 3 * PAGE_PAYLOAD,
 ])
 def test_frame_unframe_round_trip(n):
     logical = _rand(n, 42)

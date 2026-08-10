@@ -209,7 +209,8 @@ PAGE_STRIDE = 65_249
 def frame_stream(logical: bytes) -> bytes:
     """Encode a whole logical stream into its raw page-framed CRCIO form:
     every full 64,896-byte page + 353-byte trailer, then the final partial
-    block encoded with the size class selected by its byte count."""
+    block encoded with the size class selected by its byte count.
+    ``iter_blocks`` is the inverse walk every reader/checker must use."""
     out = bytearray()
     pos = 0
     n = len(logical)
@@ -220,6 +221,26 @@ def frame_stream(logical: bytes) -> bytes:
         tail = logical[pos:]
         out += encode_block(tail, select_params(len(tail)))
     return bytes(out)
+
+
+def iter_blocks(raw: bytes):
+    """The ONE page-walk law for a CRCIO-framed raw stream -- the exact
+    inverse of ``frame_stream``'s emission order, shared by every reader and
+    checker: yields ``(block, is_final)``.  A PAGE_STRIDE-sized block that is
+    FOLLOWED by more bytes is a full page (64,896 data bytes + 353-byte
+    trailer); the LAST block (1..PAGE_STRIDE bytes) is always the final block
+    and only its pad-count field can tell its data length: a final block of
+    64,388..64,895 data bytes selects the full-page class and encodes to
+    exactly PAGE_STRIDE bytes (pad field 1..508), indistinguishable by length
+    from a genuine full page (pad field 0 -> 64,896 -- the same decode covers
+    both).  A naive ``len(raw) // PAGE_STRIDE`` walk takes such a final block
+    for a page: ~0.8 % of stream lengths (#236 / #294)."""
+    pos, n = 0, len(raw)
+    while n - pos > PAGE_STRIDE:
+        yield raw[pos:pos + PAGE_STRIDE], False
+        pos += PAGE_STRIDE
+    if n:
+        yield raw[pos:], True
 
 
 def lane_syndromes(block: bytes, first: int, second: int, poly: int,
@@ -284,25 +305,47 @@ def final_block_candidates(tail: bytes) -> list:
     return out
 
 
+def final_block_data_len(block: bytes):
+    """Exact data byte-count of a FINAL block (``iter_blocks``' last item):
+    the size class whose pad-count field decodes it AND reproduces it
+    byte-for-byte on re-encode -- a genuine full page included (pad 0 ->
+    PAGE_PAYLOAD).  ``None`` == no class does (not CRCIO-framed, or damaged,
+    or an Autodesk-born partial block with heap bytes leaked into its pad
+    region -- those verify by syndrome in ``rvt.validate``, never here)."""
+    for params, data_len in final_block_candidates(block):
+        if encode_block(block[:data_len], params) == block:
+            return data_len
+    return None
+
+
 def unframe_stream(raw: bytes) -> bytes:
-    """Inverse of frame_stream for a CRCIO-framed raw stream: strips every
-    full page's 353-byte trailer and decodes the final block's exact data
-    length from its pad-count field. (No error correction is attempted.)"""
+    """Inverse of frame_stream for a CRCIO-framed raw stream (walked by
+    ``iter_blocks``): strips every full page's 353-byte trailer and decodes
+    the final block's exact data length from its pad-count field.  No error
+    correction is attempted; a final block no size class reproduces raises
+    ``ValueError`` (e.g. an unframed stream handed in by mistake)."""
     out = bytearray()
-    pos, n = 0, len(raw)
-    while n - pos >= PAGE_STRIDE:
-        out += raw[pos:pos + PAGE_PAYLOAD]
-        pos += PAGE_STRIDE
-    tail = raw[pos:]
-    if tail:
-        # the right size class reproduces the block exactly
-        for params, data_len in final_block_candidates(tail):
-            if encode_block(tail[:data_len], params) == tail:
-                out += tail[:data_len]
-                break
-        else:
+    for block, is_final in iter_blocks(raw):
+        data_len = final_block_data_len(block) if is_final else PAGE_PAYLOAD
+        if data_len is None:
             raise ValueError("final block is not CRCIO-framed (raw stream?)")
+        out += block[:data_len]
     return bytes(out)
+
+
+def framing_mismatches(raw: bytes) -> int:
+    """How many CRCIO blocks of a framed raw stream (walked by
+    ``iter_blocks``) break ``frame_stream``'s law: a full page whose trailer
+    is not ``page_trailer(payload)``, or a final block no size class decodes
+    and reproduces.  0 <=> ``frame_stream(unframe_stream(raw)) == raw``.  The
+    post-write self-check for streams WE framed (verify_written /
+    verify_manipulated / verify_reduced); Autodesk-born partial blocks are
+    ``rvt.validate``'s (syndrome) business, not this exact re-encode's."""
+    bad = 0
+    for block, is_final in iter_blocks(raw):
+        bad += ((final_block_data_len(block) is None) if is_final else
+                (page_trailer(block[:PAGE_PAYLOAD]) != block[PAGE_PAYLOAD:]))
+    return bad
 
 
 if __name__ == "__main__":   # demo: rstbasic Formats/Latest page 0 + round-trip
@@ -310,10 +353,7 @@ if __name__ == "__main__":   # demo: rstbasic Formats/Latest page 0 + round-trip
     ole = olefile.OleFileIO('samples/racbasicsampleproject.rvt')
     for name in ('Formats/Latest', 'Global/History', 'Contents', 'Global/PartitionTable'):
         raw = ole.openstream(name.split('/')).read()
-        page = raw[:PAGE_PAYLOAD] if len(raw) >= PAGE_STRIDE else None
-        if page is not None:
-            print(name, 'page0 trailer byte-exact:',
-                  page_trailer(page) == raw[PAGE_PAYLOAD:PAGE_STRIDE])
         logical = unframe_stream(raw)
         print(name, 'raw', len(raw), 'logical', len(logical),
+              'blocks not byte-exact:', framing_mismatches(raw),
               'round-trip:', frame_stream(logical) == raw)
