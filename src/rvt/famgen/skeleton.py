@@ -2096,7 +2096,19 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     vt = _gsk.new_view_type(_alloc(ids), "Floor Plan", "floor_plan")
     plan = _gsk.new_plan_view(ids, "Ref. Level", level_id, 0.0, vt.elem_id,
                               phase_id=-1, phase_filter_id=-1)
-    els = list(proj.elements()) + [vt] + list(plan.elements())
+    # -- the ceiling plan + the 3D view (issue #381, owner steer: generated
+    # families carry the family view set).  Donor law: the ceiling plan is a
+    # second "Ref. Level" DBViewPlan with m_planViewType 2 (same +Z view
+    # dir); the 3D view is "View 1" (donor 463).  Elevations (DBViewSection)
+    # are phase 2 -- no constructor yet.
+    vt_c = _gsk.new_view_type(_alloc(ids), "Ceiling Plan", "ceiling_plan")
+    cplan = _gsk.new_plan_view(ids, "Ref. Level", level_id, 0.0, vt_c.elem_id,
+                               phase_id=-1, phase_filter_id=-1)
+    cplan.view.obj["m_planViewType"] = 2
+    vt_3 = _gsk.new_view_type(_alloc(ids), "3D View", "3d")
+    v3d = _gsk.new_3d_view(ids, "View 1", vt_3.elem_id, ground_level_id=level_id)
+    els = (list(proj.elements()) + [vt] + list(plan.elements())
+           + [vt_c] + list(cplan.elements()) + [vt_3] + list(v3d.elements()))
     _apply_family_viewer_law(els, proj.view.elem_id)
     for e in els:
         # family-document elements: object design-option sentinel + famId
@@ -2111,6 +2123,8 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     doc.view_ids["project"] = proj.view.elem_id
     doc.view_ids["view_type_plan"] = vt.elem_id
     doc.view_ids["plan"] = plan.view.elem_id
+    doc.view_ids["ceiling"] = cplan.view.elem_id
+    doc.view_ids["view3d"] = v3d.view.elem_id
     return plan.view.elem_id
 
 

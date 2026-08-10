@@ -136,7 +136,9 @@ def test_family_viewer_bound_law(fi):
         assert v.get("m_projMethodType") == 1, eid
         assert v.get("m_viewerFlags") == 0, eid
         assert v.get("m_intentionallyPlaced") is False, eid
-    assert seen == 2, seen
+    # project + floor plan + ceiling plan (the 3D view's Viewer3d is a
+    # different class with its own donor shape -- not under this law)
+    assert seen == 3, seen
 
 
 def test_units_table_covers_every_param_spec(fi):
