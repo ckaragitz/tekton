@@ -1,0 +1,2 @@
+# sample-free: synthetic byte strings + the tracked pinned genesis bases (#569)
+tests/test_schema_empty.py

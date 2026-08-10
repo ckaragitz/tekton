@@ -557,9 +557,15 @@ def register_miss_loader(loader) -> bool:
 def parse_uncached(data: bytes, source: str = "") -> Schema:
     """Really parse a whole ``Formats/Latest`` inflated stream into a NEW
     :class:`Schema`, bypassing the memo and the miss loaders.  Raises
-    ParseError."""
+    ParseError -- also for input that holds no class record at all (empty,
+    or nothing but the <=15-byte zero pad: what a truncated container's
+    ``Formats/Latest`` inflates to), so no caller is handed a 0-class
+    Schema whose every lookup fails somewhere less legible (#569)."""
     p = _Parser(data)
     s = p.run()
+    if not s.classes:
+        raise ParseError(s.consumed, f"no class records in {len(data):,} bytes of "
+                                     "Formats/Latest (an empty or truncated schema stream)")
     s.classes.sort(key=lambda c: c.type_id)   # id order (== definition order)
     s.total_size = len(data)
     s.sha256 = hashlib.sha256(data).hexdigest()
@@ -577,7 +583,9 @@ def _materialise(digest: str, data: bytes, source: str) -> Schema:
 
 
 def parse(data: bytes, source: str = "") -> Schema:
-    """Parse a whole ``Formats/Latest`` inflated stream. Raises ParseError.
+    """Parse a whole ``Formats/Latest`` inflated stream. Raises ParseError
+    (malformed, truncated, or holding no class record -- see
+    :func:`parse_uncached`); a raise is never memoized.
 
     Memoized per process by content sha256: the same bytes yield the SAME
     :class:`Schema` object (``source`` then names its first materialisation);
