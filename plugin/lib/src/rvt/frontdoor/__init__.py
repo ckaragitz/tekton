@@ -653,7 +653,9 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
     except E.EditParseError as e:
         errors.append(f"edit not understood: {e}")
     except Exception as e:                                           # noqa: BLE001
-        errors.append(f"cannot open/plan {rvt_path}: {type(e).__name__}: {e}"
+        # the input by NAME: its absolute path rides in inputs.rvt, and in front
+        # of the reason it would push the reason past the status cut (#573)
+        errors.append(f"cannot open/plan {os.path.basename(rvt_path)}: {type(e).__name__}: {e}"
                       + (f" ({ctx_note})" if ctx_note else ""))
 
     run: Dict[str, Any] = {}
