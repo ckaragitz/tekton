@@ -520,3 +520,174 @@ allow-listed pair `("src/rvt/estorage.py", "iter_records")` is gone), so #467's 
   under the running child process — `T.seg32` → `T.SEG32`; re-run clean); `tools/sync_plugin.py` synced
   1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
   `tools/dev/check_portable_paths.py` ok (2960 paths). Follow-up filed: #566.
+
+## eng #566 — 2026-08-10 — `python -m rvt.estorage` reads a file under its OWN release; the 2024 catalog is an honest "0 schemas (reason)"
+
+Stream: eng #566 (issue #566, `Refs #548 #533`; branch `cam/566-estorage-cli-release` from `main` @ 4bd7ecf,
+i.e. after #570 / #548 and #572 / #533 had merged). Written in eng #566's voice; the sections above are untouched.
+
+### What was built (two things, both inside `src/rvt/estorage.py`; nothing else in `src/`)
+
+1. **The CLI enters the file's own release — the `tools/rvt_inspect.py` (#572) shape.** `main()` resolves the
+   argument to a path (`_doc_path`: a `.rvt` path, or `samples/<project>.rvt`; a bare corpus project name still
+   goes to `Document.load` with no context, as before), returns **2** on a missing path, and asks
+   `_natively_framed(path)` — every `Partitions/<N>` header parses with the container class bound in
+   `rvt.partitions` right now (2 ms on the 2026 base). A native file enters nothing and imports nothing extra;
+   anything else lazily imports `rvt.global_framing.enter_own_release` and enters it ONCE on an `ExitStack` that
+   wraps the load **and** every walk (`--report` / `--walk` / `--roundtrip` moved verbatim into `_report(doc,
+   target, flags)` so the body did not re-indent), printing the ladder's note as `warning: …` on stderr when there
+   is one (never on a certified pin). A file that then still cannot be loaded is `ERROR: cannot load <path>:
+   <Type>: <message>` on stderr, exit **1** — a stated verdict, never a traceback. `print_catalog(cat, stream=None)`
+   now resolves `sys.stdout` at call time (its old `stream=sys.stdout` default was bound at import, so a
+   captured/redirected stdout lost the catalog block — found by the new test's `capsys`, invisible on a terminal).
+   `_natively_framed` is the same predicate as `tools/rvt_inspect.natively_framed`; **note for eng #567**: once your
+   predicate lands in `rvt/global_framing.py`, `estorage._natively_framed` (path-taking: it opens the container
+   itself) can become a call to it — not adopted here because #567 had not merged at 4bd7ecf and that file is yours.
+2. **The catalog locator's absent case reports instead of raising.** `locate_schema_map`'s no-class branch returns
+   its documented "nothing located" triple `(-1, 0, {})` instead of `raise ESSchemaError("archive schema lacks
+   'std::pair< GUIDvalue, SchemaUsageInfo >'")`; `schemas()` stamps the new `ESSchemaCatalog.note` (default `""`)
+   with one derived sentence whenever the catalog comes back empty (`_no_map_reason(schema)`: pair class present
+   but no entry located / no `ESSchemaStorage` at all / `ESSchemaStorage` present with a different ESSchema map —
+   it names the member it finds, it does not guess); `print_catalog` prints `ES schema catalog: 0 schemas (<note>)`
+   for an empty noted catalog and the unchanged `N schemas (map count …)` line otherwise. Harvest, tracking,
+   entity codec, `es_report`, `verify_document`, `collect_entity_closures`: untouched (an empty catalog was already
+   a legal input to all of them — the 2025 base has run that way since #548's by-hand driver).
+   **Which of the issue's two alternatives, and why:** the class is *not* "merely named differently" on 2024. The
+   2024 base's own `Formats/Latest` (4492 classes) has **no `SchemaUsageInfo` class**; its `ESSchemaStorage`
+   (0x537) is `{m_storedForgeSchemas : pair<AString,AString>, m_storedParameterSchemas : pair<AString,AString>,
+   m_storedSchemas : std::pair< GUIDvalue, ESSchema >, m_dirty}` — the catalog value is a bare `ESSchema` (0x536,
+   same eight members as 2026's 0x56e), without the 2025+ `SchemaUsageInfo{m_contentDocsKeys, m_schema,
+   m_usedInHost}` wrapper (2026: `ESSchemaStorage` 0x56f `m_schemaUsageMap`; the 2025 base has the 2026 layout).
+   Reading that layout is new harvest semantics (a second entry shape for `_decode_pair_at` / `_schema_from_pair`),
+   outside this issue's "empty/absent case only" territory → filed as **#576**; until then the report is the honest
+   `0 schemas (this file's archive schema has no 'std::pair< GUIDvalue, SchemaUsageInfo >' -- its ESSchemaStorage
+   keeps m_storedSchemas : std::pair< GUIDvalue, ESSchema >, an older catalog layout this module does not read
+   yet, #576)` — quoted verbatim from the head's 2024 run.
+
+### Evidence (numbers)
+
+* **Before/after, the three bundled bases, `python -m rvt.estorage <base> --report --walk --roundtrip`**
+  (stdout+stderr; scratch transcripts kept for the PR):
+  `G_ABPD.rvt` (2026) — main: exit 0; head: exit 0, **byte-identical, unmasked** (`cmp` clean, md5 `36c9475fed40…`
+  both sides incl. the `in 0.0s` timing; 3102 host elements, 2 schemas `AREXContentGenerator` 6 tracked /
+  `DaylightingAnalysisInfo` 1 tracked, walk host 1 `DataStorage`, round-trip examined 1 / clean 1 / byte-exact 1).
+  `G_ABPD_2025.rvt` — main: `ValueError: unexpected Partitions header: v=9 cls=0x391` from `Document.from_file →
+  StreamWalker` (exit 1, pre-walk); head: exit 0, no stderr, `loaded G_ABPD_2025: 3316 host elements`, 2 schemas
+  (map count 2 @0xe690f; tracking @0x137e0a; the same two GUIDs as 2026), ES report 2 schemas, round-trip examined
+  0 records (0 ES entity records in this base — the same reading #548's by-hand `versions.reading` driver got).
+  `G_ABPD_2024.rvt` — main: `… cls=0x37b` (exit 1, pre-walk; and behind it the locator's `ESSchemaError`); head:
+  exit 0, no stderr, `loaded G_ABPD_2024: 3278 host elements`, the `0 schemas (…)` line quoted above, `ES report:
+  0 schemas`, round-trip examined 0.  Wall time 0.44 / 0.66 / 0.44 s.
+* **Damaged / absent inputs, head** (all seven: a stated line, no traceback): partition header zeroed (first 16
+  bytes of `Partitions/<N>`, re-emitted with `cfb_writer`) on the 2026 and on the 2025 base → `ERROR: cannot load
+  …: ValueError: unexpected Partitions header: v=0 cls=0x0`, exit 1 (the 2026 copy is not natively framed any
+  more, climbs the ladder, resolves its own schema silently, then the load states the verdict); `Formats/Latest`
+  mangled → 2026 copy: `ERROR: cannot load …: ParseError: …` exit 1; 2025 copy: `warning: own schema unreadable
+  (ParseError …); checked against the pinned Revit 2025 framing table (the release BasicFileInfo declares)` then
+  the same ERROR, exit 1; CFB header zeroed → `warning: own-release framing not resolved (NotOleFileError …)` +
+  `ERROR: cannot load …: NotOleFileError`, exit 1; 64 KiB truncation → warning (VersionError: schema lacks the
+  partition-framing classes) + `ERROR: … RuntimeError: Partitions/20: walker errors [...]`, exit 1; missing path →
+  `ERROR: no such file: …`, exit 2.
+* **Import weight of the 2026 (native) CLI path unchanged:** `-X importtime -m rvt.estorage G_ABPD.rvt --report`
+  imports the **identical set of 107 modules** on main and head (`diff` of the sorted module lists empty; the 8
+  `rvt.*` modules are `rvt, container, elemtable, encode, mutate, objects, partitions, schema` — no
+  `global_framing`, no `versions`; `contextlib`, the one new module-level import, was already in the set); summed
+  import self-time median of 5: main 120 ms / head 128 ms (run-to-run noise ±10 ms on this VM). The foreign path
+  (2025/2024) imports 135 modules: + `rvt.global_framing`, `rvt.versions`, `rvt.versions.records32`,
+  `rvt.adocument` and the famgen/genesis token holders `global_framing.bound()` rebinds — exactly what
+  `rvt_inspect --records` pulls on the same files.
+* **Validator on the three bases unchanged** (estorage is not on `rvt.validate`'s import path; run anyway):
+  `G_ABPD` VALID errors 0 / warnings 1 (the known `DataStorage x1` ES decoder-gap warning, element 1382860),
+  `G_ABPD_2025` VALID 0/0, `G_ABPD_2024` VALID 0/0.
+* **New doors** — `tests/test_estorage_cli_release.py` (11 tests, 2.3 s, bundled bases only, in the shard via
+  `tests/ci_shard.d/566-estorage-cli-release.txt`): full `--report --walk --roundtrip` on each certified pin
+  (foreign first) with the catalog line derived from the pin's own schema (usage-map class present → `N schemas
+  (map count`; absent → the honest `0 schemas (this file's archive schema has no …` + the member it names);
+  `schemas(path)` / `locate_schema_map` from the library on each pin (empty + note + `(-1, 0, {})` where absent);
+  the native pin never reaches `enter_own_release` (monkeypatched to raise); the real `-m` door in a fresh
+  interpreter on the oldest foreign pin; header-zeroed copies of a foreign and the native pin → exit 1 + the ERROR
+  line, stdout empty; missing path → exit 2; an autouse no-leak fixture (framing table, `active_release`,
+  `objects.iter_records`, ADocument decoder, `FAMILY_END_RECORD` identical before/after every test).
+  **Against `main`'s `estorage.py`: 11 failed** — [2024]/[2025] full report and the `-m` door on the
+  `unexpected Partitions header` ValueError (the bug), [2024] library on the `ESSchemaError` (the bug), the two
+  header-zeroed and the missing-path cases on raw `ValueError` / `FileNotFoundError` tracebacks (the bug),
+  and [2026] full report / native-pin / [2025]-[2026] library only on the harness-visible differences (the
+  import-time-bound `stream=sys.stdout` default hid the catalog block from `capsys`; `cat.note` did not exist).
+  On the head: 11 passed.
+
+### Follow-ups (searched first: "m_storedSchemas", "estorage 2024 catalog", "rvt.estorage own release" → only #566 / #548 / #50)
+
+* **#576** (new, `Refs #566 #548`, P2 · area:engine · ready): read the ≤ 2024 `ESSchemaStorage.m_storedSchemas`
+  layout so the 2024 base lists its schemas instead of the honest 0 (findings above are in its body).
+* For **eng #567** (no issue needed — a one-line adoption inside their open stream): `estorage._natively_framed`
+  is a by-path twin of `rvt_inspect.natively_framed`; fold it onto the `global_framing` predicate when it exists.
+
+### /simplify and /verify (eng #566)
+
+* `/simplify` — four review angles on the diff (reuse, simplification, efficiency, altitude), then applied:
+  `_load_doc` dropped (its only caller had already resolved `_doc_path`; `main` now loads inline and resolves the
+  path once); the missing-path check hoisted above the `ExitStack` (one nesting level gone); `print_catalog`'s
+  lambda is `print(*a, file=stream)` (`file=None` already means the current `sys.stdout`); `_no_map_reason` folded
+  from three branches to two (pair class present / absent — the absent branch derives the member list from
+  whatever `ESSchemaStorage` the schema has, or says "no ESSchema map at all"); `locate_schema_map`'s docstring cut
+  to one clause; `_natively_framed`'s docstring points at its intended engine home (`rvt.native_framing`, #567 /
+  PR #577) instead of citing a tool as canonical; in the test: the native "ladder never reached" check folded into
+  the parametrized full-report run (one 0.3 s CLI run fewer → 10 tests, 2.0 s), the restated `"0 schemas" not in`
+  and catalog-offset assertions dropped. **Reviewed and kept, with the reason:** (efficiency) `_natively_framed`
+  reads + de-pages every partition stream only to parse 18 header bytes, and `Document.from_file` then re-reads
+  them — measured 0.47 ms on the pins (0.1 % of a 350–420 ms run) but linear, ≈3 ms/MB of partition data on a
+  *native* file (162 ms on a synthetic 50 MB partition); the zero-cost alternative (EAFP: load first, enter the
+  ladder and retry only on the header `ValueError`) was declined to keep the exact predicate semantics of the two
+  sibling instruments and of #577's shared `natively_framed(doc)` this folds onto — the real cure is an O(1)
+  stream-head accessor in `container.py` that would make the shared predicate O(partitions) for all three callers
+  (noted on #567's thread; not filed separately — it belongs to whoever measures #577's callers on a large project);
+  (altitude) the locator collapsing "class absent" and "nothing located" into one triple while `schemas()`
+  re-derives which — acceptable while both read the same `by_name` fact, to be revisited when #576 gives the
+  locator a second layout branch (then it should return the reason itself); (simplification) `if not len(cat) and
+  cat.note` keeps its `len` guard on purpose — a note on a non-empty catalog must never print "0 schemas";
+  (reuse) the test scaffolding is now a sixth copy → filed **#579** rather than a seventh next time.
+* `/verify` on the final tree — the surface this diff reaches is `rvt.estorage`'s own CLI: the three bases with
+  `--report --walk --roundtrip` → exit 0 / 0 / 0, four sections each, no stderr; 2026 stdout `cmp`-identical to
+  `origin/main`'s; the two header-zeroed copies → the `ERROR: cannot load …: ValueError: unexpected Partitions
+  header: v=0 cls=0x0` line, exit 1; a missing path → `ERROR: no such file`, exit 2; mirror `cmp`-identical to
+  source. Because `src/` changed: `tools/sync_plugin.py` (1 file synced, zip rebuilt 5292 KB), then a **bare unzip
+  of `tekton-plugin.zip`, `env -i` system `python3` 3.11**: `skills/tekton-author/scripts/_bootstrap.py go author
+  --prompt "an electrical room with 6 panels" --out out/j1 --json` → rc 0, `result.ok: true`, 4.5 s wall (estorage
+  is not on that path; this shows the shipped mirror still boots); and the mirrored CLI itself from the unzip
+  (`PYTHONPATH=lib/src:skills/_shared/_vendor python3 -m rvt.estorage assets/genesis/<base> --report --walk
+  --roundtrip`) → exit 0 ×3, four sections, no warnings, 2026 stdout identical to the repo's. Honest footnote:
+  without the vendored `olefile` dir on the path that bare `-m` invocation dies at `import olefile` — on `main` too
+  (`Document.from_file` imports `rvt.container`); the dev CLI is not a bootstrap-wrapped skill script and needs the
+  engine's one runtime dependency, as documented.
+
+## BRANCH STATE (eng #566)
+
+* Branch `cam/566-estorage-cli-release` from `origin/main` @ 4bd7ecf (after #570/#548 and #572/#533); PR body starts
+  `Closes #566`. Not rebased onto anything unmerged; if #577 (#567) merges first, the fold-in is the 3-line swap
+  named on #567's thread and I take it on this branch.
+* Files written — source: `src/rvt/estorage.py` (module docstring CLI paragraph; `import contextlib`;
+  `ESSchemaCatalog.note`; `locate_schema_map` no-class branch → `(-1, 0, {})` + docstring; `schemas()` stamps
+  `cat.note` via new `_no_map_reason`; CLI section: `_doc_path`, `_natively_framed`, `print_catalog(stream=None)` +
+  its empty-catalog line, `main` (exit-2 check, `ExitStack`, lazy ladder, load verdict) and the old body as
+  `_report`); tests: `tests/test_estorage_cli_release.py` (new, 10 tests), `tests/ci_shard.d/566-estorage-cli-release.txt`
+  (new drop-in); this record (this section only). Generated mirror re-synced: `plugin/lib/src/rvt/estorage.py`.
+* Not touched: `src/rvt/versions/**`, `src/rvt/global_framing.py` (#567's), `objects.py`, `mutate.py`,
+  `container.py`, every NO-GO / FENCED / hot file of the brief, `tests/ci_shard.txt`, `tests/conftest.py`.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer — read path + a dev CLI only, no byte any
+  route writes can change (2026 CLI stdout byte-identical to `main`; the three bases validate as before: VALID,
+  warnings 1 / 0 / 0).
+* Follow-ups filed: **#576** (read the ≤ 2024 `m_storedSchemas` catalog layout), **#579** (hoist the own-release
+  test scaffolding into `conftest.py`); hand-off comment on **#567** (fold `estorage._natively_framed` onto
+  `rvt.native_framing` once #577 is on main).
+* Gates on the final head (`RVT_SKIP_LARGE=1 -p no:cacheprovider`): `tests/test_estorage_cli_release.py` **10 passed**
+  (2.0 s; against `main`'s `estorage.py` the pre-simplify 11-test form was 11 failed, see Evidence); stream-local +
+  neighbours (`test_estorage_cli_release test_estorage_ids32 test_estorage test_framing_by_name test_inspect_release
+  test_shard_list test_manipulate_import_context`) **66 passed / 12 skipped** (the 12 = `test_estorage.py`'s
+  sample-backed cases, as on any fresh clone) before /simplify, re-run after: see below; **whole merged CI shard**
+  (`python3 tools/dev/shard_list.py --print`, 97 files incl. the new drop-in): SHARD_RESULT_PLACEHOLDER;
+  `tools/sync_plugin.py` synced 1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2972 tracked paths). (An earlier whole-shard run, started before the
+  /simplify edits and overlapping them, read 1941 passed / 2 failed — `test_plugin_sync` on the not-yet-re-synced
+  mirror and the `-m` subprocess door catching the tree mid-edit (`NameError: _load_doc`); both artefacts of editing
+  under a running shard, the mistake #548's record also confesses — the canonical run above was taken on the frozen
+  final tree.)
