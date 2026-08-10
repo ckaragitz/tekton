@@ -77,10 +77,11 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
     coverage of every skill surface including `tekton-ifc` (#113). *Done = each child's DONE, and
     `tools/surface_bench.py` has a recorded before/after for every latency change merged.*
 11. **O11 Donor-free families on every route** (P0 steer #498, S-2026-08-10-c): `prompt → rfa` and
-    `ifc → rfa` (a full multi-element IFC such as a Claude Design export) emit self-generated families carrying
-    every desktop-verified law with no `family_donor` / `$RVT_FAMILY_DONOR`; the donor escape hatch stops being
-    needed for any documented flow. *Done = #498's DONE: structural host-ADocument gate extended to the IFC
-    route, desktop verdicts recorded, matrix rows honest.*
+    `ifc → rfa` (a full multi-element IFC such as a Claude Design export) emit self-generated
+    families carrying every desktop-verified law with no `family_donor` / `$RVT_FAMILY_DONOR`;
+    the donor escape hatch stops being needed for any documented flow. *Done = #498's DONE
+    (1)–(3): the structural host-ADocument gate extended to the IFC route, desktop verdicts
+    recorded, matrix rows honest.*
 
 ## Not goals (decided — do not re-propose without a new steer)
 
