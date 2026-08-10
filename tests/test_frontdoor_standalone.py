@@ -219,7 +219,7 @@ def test_schema_identity_class_for_class():
         assert rep["n_classes"] == 4690
 
 
-def test_install_schema_seeds_every_chokepoint():
+def test_install_schema_seeds_every_chokepoint(tmp_path):
     from rvt.frontdoor import standalone as SA
     SA.install_schema()
     from rvt import adocument, encode, objects, schema
@@ -230,6 +230,45 @@ def test_install_schema_seeds_every_chokepoint():
     assert os.path.isfile(schema.DEFAULT_PATH)
     from rvt.genesis import skeleton as gsk
     assert gsk._SCHEMA_CACHE.get("dec") is not None
+    # the contract (#315): only the default-path family answers with the
+    # installed schema; an explicit path loads verbatim, a missing one raises
+    assert schema.load_schema(None) is s
+    assert schema.load_schema(schema.DEFAULT_PATH) is s
+    missing = str(tmp_path / "typo" / "Formats_Latest_2025.bin")
+    with pytest.raises(FileNotFoundError) as ei:
+        objects.load_schema(missing)
+    assert ei.value.filename == missing
+    copy = str(tmp_path / "Formats_Latest_copy.bin")
+    shutil.copyfile(schema.DEFAULT_PATH, copy)
+    assert schema.load_schema(copy).sha256 == s.sha256
+
+
+def test_install_schema_behind_the_plugins_lazy_wrapper(tmp_path, monkeypatch):
+    """The order ``go`` uses on a bare surface: ``tekton_env`` arms the lazy
+    wrapper (``skills/_shared/tekton_schema.py``) BEFORE ``install_schema``
+    runs.  An explicit missing path must still end in ``FileNotFoundError``
+    -- the bundled loader loads explicit paths itself instead of delegating
+    back into the wrapper it replaced (which would re-enter it forever)."""
+    from rvt import adocument, encode, objects, schema
+    from rvt.frontdoor import standalone as SA
+    for mod in (schema, objects, encode, adocument):      # restored at teardown
+        monkeypatch.setattr(mod, "load_schema", mod.load_schema)
+    monkeypatch.setattr(schema, "DEFAULT_PATH", schema.DEFAULT_PATH)
+    monkeypatch.delattr(schema, "_tekton_lazy_bundled_schema", raising=False)
+    monkeypatch.setattr(SA, "_SCHEMA_STATE", {})          # a full (re)install
+    monkeypatch.syspath_prepend(os.path.join(PLUGIN, "skills", "_shared"))
+    import tekton_schema as lazy
+    assert lazy.install() in ("installed", "corpus-present")
+    lazy_ref = schema.load_schema                         # a holder of the wrapper
+    SA.install_schema()
+    s = objects.load_schema()
+    assert s is SA.bundled_schema()
+    assert schema.load_schema() is s and adocument.load_schema(None) is s
+    assert lazy_ref() is s
+    missing = str(tmp_path / "no" / "such" / "schema.bin")
+    for load in (schema.load_schema, objects.load_schema, lazy_ref):
+        with pytest.raises(FileNotFoundError):
+            load(missing)
 
 
 def test_constructed_templates_encode_decode_clean():
