@@ -541,3 +541,20 @@ by Revit and has been deleted" / warning "Highlighted lines overlap".
 
 Probe AE (`probe_ae_corners.rfa`) with the owner; VALID 0 errors; suites
 112 passed / 35 skipped.
+
+## VERDICT (round 28): IT WORKS
+
+Probe AE desktop-confirmed by the owner: value edits apply cleanly — the
+full journey (open, render, zoom, pan, select, Family Types, edit values
+incl. geometry-driving Width) works on a generated panelboard in desktop
+Revit 2026.  Campaign issue #333 DONE met and exceeded.
+
+## BRANCH STATE (final)
+
+Branch `claude/333-varsketch-solver2` (PR #368, from merged main fba7efb).
+Files: famgen/{geometry,skeleton,famdoc_adoc}.py, tests, this record,
+learned-famdoc-laws.md, plugin mirror.  Gates: famgen suites 112 passed /
+35 skipped; sync_plugin + validate_plugin PASS; probe AE VALID 0 errors +
+desktop-confirmed.  Follow-ups to file as issues: arc-sketch solver records
+(cylinders), LeaderStyle arrow-size warning, SketchGridAppearance UET[40],
+Save-As + Load-Family desktop verification sweep.
