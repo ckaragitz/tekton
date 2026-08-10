@@ -84,18 +84,14 @@ needs_pin = pytest.mark.skipif(PINNED_BASE is None, reason="pinned genesis base 
 
 
 def _has_ifcopenshell() -> bool:
-    """A REAL ifcopenshell wheel is importable -- spec->ifc AUTHORS through
-    ``ifcopenshell.api``.  The bundled steplite shim only reads, and
-    ``import rvt.ifc`` appends it to ``sys.path`` in every process, so a bare
-    ``import ifcopenshell`` also succeeds on a fresh clone once any earlier
-    module in the run has touched ``rvt.ifc`` (shard order) -- not evidence
-    of the wheel (same test as tests/test_router_release.py)."""
+    """A REAL wheel: spec->ifc AUTHORS through ``ifcopenshell.api``; the bundled
+    steplite shim (on ``sys.path`` as soon as ``rvt.ifc`` is imported -- the
+    router above already did) only reads, so importability alone proves nothing."""
     try:
         import ifcopenshell
+        return not getattr(ifcopenshell, "IS_STEPLITE", False)
     except Exception:
         return False
-    return (not getattr(ifcopenshell, "IS_STEPLITE", False)
-            and "_ifcos_shim" not in (getattr(ifcopenshell, "__file__", "") or ""))
 
 
 def _catalog_ok() -> bool:

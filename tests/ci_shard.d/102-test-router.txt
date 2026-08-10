@@ -1,4 +1,2 @@
-# #102: the permutation-matrix honesty gate + PERMUTATION-MATRIX.md drift guard on every PR.
-# Fresh-clone green: heavy convert e2e builds honour RVT_SKIP_LARGE=1, the
-# spec->ifc AUTHORING cases skip without a real ifcopenshell wheel (needs_ifc).
+# #102: matrix honesty gate + PERMUTATION-MATRIX.md drift guard on every PR; fresh-clone safe (RVT_SKIP_LARGE, needs_ifc gates the spec->ifc authoring cases)
 tests/test_router.py
