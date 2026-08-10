@@ -1,0 +1,2 @@
+# #507: one executed copy of tools/ifc_intent.py per process (bundled 2026 pin + walls prompt; fresh-clone safe)
+tests/test_one_ifc_module.py

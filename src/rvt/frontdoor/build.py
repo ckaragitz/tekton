@@ -93,20 +93,29 @@ _ROOM = None
 def load_ifc_room_module():
     """Import ``tools/ifc_intent.py`` (the ifc-room stream's staged builder:
     stage_families / stage_load / SpecimenSet / stage_walls /
-    stage_equipment / stage_circuits + the gates)."""
+    stage_equipment / stage_circuits + the gates).  Cached and registered as
+    ``sys.modules["ifc_intent"]`` -- the name ``tools/`` and ``tests/`` import
+    it by -- so every in-process caller shares one executed copy whichever
+    door loaded it first (#507)."""
     global _ROOM
     if _ROOM is not None:
         return _ROOM
-    p = os.path.join(repo_root(), "tools", "ifc_intent.py")
-    if not os.path.isfile(p):
-        raise BuildError(f"tools/ifc_intent.py not found at {p} (the front door reuses "
-                         "the ifc-room stream's build code)")
-    spec = importlib.util.spec_from_file_location("_frontdoor_ifc_room", p)
-    if spec is None or spec.loader is None:
-        raise BuildError("cannot load tools/ifc_intent.py")
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = mod
-    spec.loader.exec_module(mod)
+    mod = sys.modules.get("ifc_intent")
+    if mod is None:
+        p = os.path.join(repo_root(), "tools", "ifc_intent.py")
+        if not os.path.isfile(p):
+            raise BuildError(f"tools/ifc_intent.py not found at {p} (the front door reuses "
+                             "the ifc-room stream's build code)")
+        spec = importlib.util.spec_from_file_location("ifc_intent", p)
+        if spec is None or spec.loader is None:
+            raise BuildError("cannot load tools/ifc_intent.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = mod
+        try:
+            spec.loader.exec_module(mod)
+        except BaseException:
+            sys.modules.pop(spec.name, None)          # never adopt a half-executed copy on retry
+            raise
     _ROOM = mod
     return mod
 
