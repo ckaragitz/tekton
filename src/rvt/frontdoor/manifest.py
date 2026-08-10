@@ -26,8 +26,8 @@ from typing import Any, Dict, List, Optional, Sequence
 from .base import ResolvedBase, PIN, repo_root
 
 __all__ = ["TOOL", "TOOL_VERSION", "file_facts", "crud_affordances",
-           "coverage_cross_reference", "census_gaps", "build_manifest", "edit_manifest",
-           "write_manifest"]
+           "coverage_cross_reference", "census_gaps", "authorship_census_note",
+           "build_manifest", "edit_manifest", "write_manifest"]
 
 TOOL = "tekton frontdoor (rvt.frontdoor)"
 TOOL_VERSION = "1.0.0"
@@ -276,6 +276,28 @@ def _census_degradation(g: Dict[str, Any]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# the status gate's AUTHORSHIP census note (issue #143 / #303): the gate says
+# `census: STALE …` when the pinned bytes have no census entry and `census:
+# UNAVAILABLE (…)` when the lookup could not even import -- either way the
+# ledger fell back to the conservative reading and the manifest must SAY so
+# (never a silent "user-supplied base" for our own pin)
+# ---------------------------------------------------------------------------
+
+def authorship_census_note(status_gate: Optional[Dict[str, Any]]) -> Optional[str]:
+    """The one line a STALE / UNAVAILABLE authorship census adds to
+    build.degradations and MANIFEST.md, or None when the census applied (a
+    ``residue`` block is present) or the base simply has none (a sample, a
+    user's ``--base``)."""
+    note = (status_gate or {}).get("census")
+    if not note:
+        return None
+    return (f"status-gate authorship census {note} -- the ledger fell back to the conservative "
+            "reading (everything inherited from the base counted as the base's, nothing presumed "
+            "ours), so the blocker count over-states, never under-states; the label and the "
+            "delivered file are unaffected (hard rule 1)")
+
+
+# ---------------------------------------------------------------------------
 # create routes (prompt / ifc)
 # ---------------------------------------------------------------------------
 
@@ -346,6 +368,9 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
     m["intent"]["census_gaps"] = gaps
     if gaps["show"]:                       # a LABEL on the delivered file(s), never a refusal
         m["build"]["degradations"].append(_census_degradation(gaps))
+    note = authorship_census_note(m["build"]["status_gate"])
+    if note:                               # STALE / UNAVAILABLE base census: said, never silent
+        m["build"]["degradations"].append(note)
     m["crud"] = crud_affordances(files, created, out_dir=out_dir)
     m["coverage_matrix"] = coverage_cross_reference(created)
     m["honesty"] = _honesty(build, verdict, version)
@@ -700,7 +725,10 @@ def _render_md(m: Dict[str, Any]) -> str:
             ap(f"- this build: {tot.get('ours-created', 0)} created elements ours, "
                f"{tot.get('transitive-cloned', 0)} created with lineage into the residue")
         elif sg.get("base_kind"):
-            ap(f"- base authorship: **{sg['base_kind']}** (no census: everything inherited "
+            # no residue block: the base has no census (sample / user --base) -- or it is OUR
+            # pin and the census is STALE / UNAVAILABLE, which is said, never silent (#303)
+            why = f"census **{sg['census']}**" if sg.get("census") else "no census"
+            ap(f"- base authorship: **{sg['base_kind']}** ({why}: everything inherited "
                "from the base is ledgered as the base's)")
     for d in (build.get("degradations") or []):
         ap(f"- **degradation**: {d}")

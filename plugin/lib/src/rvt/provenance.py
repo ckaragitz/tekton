@@ -45,12 +45,25 @@ C descends from):
                         the caller passes its authorship census as a
                         :class:`ComposedBaseline` — issue #143; a candidate
                         that merely DESCENDS from the pin is ledgered against
-                        the pin itself, #284) id present in B at a slot our
-                        constructors re-authored in place: ours by
-                        composition, identical or edited.  B's RESIDUE ids
-                        (still byte-identical to the Autodesk ancestor) keep
-                        the ``autodesk-sample`` / ``ours-modified`` verdicts,
-                        and only THEY seed clone lineage for created elements.
+                        the pin itself, #284) id present in B OUTSIDE the
+                        census's residue set: ours by composition, identical
+                        or edited.  What is TRUSTED here, exactly: the residue
+                        set of ``rvt/frontdoor/assets/genesis_census.json``,
+                        which ``tools/genesis_census.py`` derives from the
+                        certified rung reports by one law -- a slot of B is
+                        ours iff some certified rung's ``byte_delta`` changed
+                        its record AND that rung's ``landed_slots`` emitted an
+                        object there ("changed => landed", asserted per rung;
+                        on 2026 also reproduced id for id by a byte compare
+                        against the ancestor).  This module does not re-verify
+                        that against the ancestor's bytes (they are not
+                        shipped); it applies the set.  B's RESIDUE ids (no rung
+                        changed them: still the ancestor's serialization) keep
+                        the ``autodesk-sample`` / ``ours-modified`` verdicts BY
+                        THIS MODULE'S OWN BYTE LAW against B, and only THEY
+                        seed clone lineage for created elements.  No census
+                        (stale asset, foreign base) => no ``ours-composed``:
+                        everything inherited is ledgered as the sample's.
 
 Embedded family DOCUMENTS (partition save units 1..k) are ledgered as units:
 a unit whose separator GUID exists in the baseline is an ``autodesk-sample``
@@ -101,10 +114,12 @@ P_CLONED = "transitive-cloned"
 P_UNMATCHED = "unmatched"
 P_UNBASELINED = "unbaselined"
 #: inherited (identical or edited) from OUR pinned composed genesis base at a
-#: slot our constructors re-authored in place -- ours by composition, NOT
-#: Autodesk-derived.  Only ever assigned when the caller supplies the base's
-#: authorship census (a :class:`ComposedBaseline`, rvt.frontdoor.census,
-#: #143); the residue ids of that census keep the sample verdicts below.
+#: slot our constructors re-authored in place (a certified rung changed its
+#: record AND landed an object there -- tools/genesis_census.py's law) --
+#: ours by composition, NOT Autodesk-derived.  Only ever assigned when the
+#: caller supplies the base's authorship census (a :class:`ComposedBaseline`,
+#: rvt.frontdoor.census, #143), which is trusted as given; the residue ids of
+#: that census keep the sample verdicts below.
 P_COMPOSED = "ours-composed"
 
 PROVENANCES = (P_SAMPLE, P_MODIFIED, P_CREATED, P_CLONED, P_COMPOSED,
@@ -118,10 +133,12 @@ DERIVED = frozenset({P_SAMPLE, P_MODIFIED, P_CLONED})
 @dataclass(frozen=True)
 class ComposedBaseline:
     """The baseline is OUR pinned composed genesis base ``pinned_id``
-    (rvt.frontdoor.census, #143 / #284): ``residue_ids`` are ITS slots still
-    byte-identical to the Autodesk ancestor -- ledgered exactly as sample
-    elements, and alone seeding clone lineage; every other baseline slot is
-    ours by composition."""
+    (rvt.frontdoor.census, #143 / #284): ``residue_ids`` are ITS slots no
+    certified rung changed (still the Autodesk ancestor's serialization) --
+    ledgered exactly as sample elements, and alone seeding clone lineage;
+    every other baseline slot is ours by composition (a certified rung
+    changed its record and landed an object there).  The set is the census
+    asset's, derived by tools/genesis_census.py and applied here as given."""
     residue_ids: FrozenSet[int]
     pinned_id: Optional[str] = None
 
@@ -668,12 +685,15 @@ def classify_elements(doc, baseline=None, *, clone_index: Optional[_CloneIndex] 
     descends from (or None -> everything is ``unbaselined``).
 
     ``composed`` (issue #143): pass it iff ``baseline`` is OUR pinned
-    composed genesis base -- its ``residue_ids`` are the baseline ids still
-    byte-identical to the Autodesk ancestor (rvt.frontdoor.census).  Every
-    other baseline id is then ours by composition (``ours-composed``,
-    inherited or edited) and seeds no clone lineage; the residue ids are
-    ledgered exactly as sample elements are.  ``None`` = the baseline is a
-    sample: v1 behaviour.
+    composed genesis base -- its ``residue_ids`` are the baseline ids no
+    certified rung changed (still the Autodesk ancestor's serialization;
+    rvt.frontdoor.census, derived by tools/genesis_census.py under the law
+    "ours iff a certified rung changed the record AND landed an object
+    there").  That set is applied as given, not re-derived here: every other
+    baseline id is ours by composition (``ours-composed``, inherited or
+    edited) and seeds no clone lineage; the residue ids are ledgered exactly
+    as sample elements are (this module's byte law against ``baseline``).
+    ``None`` = the baseline is a sample: v1 behaviour.
     """
     verdicts: Dict[int, ElementVerdict] = {}
     host_ids = sorted(doc.et_by_id)

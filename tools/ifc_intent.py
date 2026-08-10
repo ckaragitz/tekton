@@ -1328,8 +1328,9 @@ def status_gate(out_path: str, base_path: str) -> Dict[str, Any]:
         import rvt_job as J  # type: ignore
         g = J.provenance_gate(out_path, base_path)
         return {k: g.get(k) for k in ("status", "deliverable", "base", "base_is_autodesk_sample",
-                                       "base_kind", "residue",
-                                       "g1", "provenance_totals", "created_elements", "reason",
+                                       "base_kind", "residue", "census", "ledgered_against",
+                                       "g1", "provenance_totals", "created_elements",
+                                       "modified_elements", "reason",
                                        "elapsed_s") if k in g}
     except Exception as e:
         return {"status": "PROOF-ONLY, NOT-DELIVERABLE (gate crashed: "
