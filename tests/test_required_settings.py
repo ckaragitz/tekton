@@ -96,7 +96,8 @@ def test_refplane_cutvec_is_the_plane_normal(fi):
         if fi.class_name(r.class_id) == "RefPlane":
             assert fi.value(0, eid, 102).get("m_cutVec") == [0.0, 0.0, 1.0], eid
             seen += 1
-    assert seen == 2
+    # 2 center planes + the 4 parametric-drive side planes (issue #372)
+    assert seen == 6
 
 
 def test_headers_carry_no_bbox(fi):
