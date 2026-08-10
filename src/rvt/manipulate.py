@@ -68,17 +68,26 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from . import ecc
+from . import partitions as _P
 from .cfb_writer import write_cfb
 from .commit import PART_HDR_COUNT_OFF
 from .container import open_rvt
 from .encode import ObjectEncoder, record_stamp
 from .objects import Record, iter_records
-from .partitions import BLOCK_TAG, TRAILER_TAG, StreamWalker, record_header_len
+from .partitions import StreamWalker, record_header_len
 from .roundtrip import read_entries
 from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
+from .versions import LATEST_RELEASE, framing_table
 from .writer import gzip_member
 
 # ---------------------------------------------------------------------------
+# NOT read by this module: block tags come from rvt.partitions at CALL time
+# (see _emit_block, #455 -- a by-value copy froze whatever release context the
+# first import sat in).  Kept only as the at-rest 2026 handles that
+# frontdoor.release_ctx and tools/genesis_* still getattr/setattr (inert).
+_T26 = framing_table(LATEST_RELEASE)
+BLOCK_TAG, TRAILER_TAG = _T26["BLOCK_TAG"], _T26["TRAILER_TAG"]
+
 INVALID_ID = -1
 OWNER_NONE_U64 = 0xFFFFFFFFFFFFFFFF
 CLASS_SKETCH_PLANE = "SketchPlane"
@@ -1418,10 +1427,13 @@ def chunk_segment(seg: bytes, seq: int, budget: int = BLOCK_BUDGET) -> List[dict
 
 
 def _emit_block(b: dict, seq: int, level: int = 3) -> bytes:
+    """Frame one block with the tags in force in :mod:`rvt.partitions` NOW
+    (the release ``rvt.versions.reading()`` activated, 2026 at rest) -- the
+    same values the post-emit re-walk checks against."""
     gz = gzip_member(b["payload"], level=level, sync_flush=True)
     nb = 8 + len(gz)
-    hdr = struct.pack("<HIIIIII", BLOCK_TAG, b["flags"], b["A"], nb, b["C"], seq, 0)
-    return hdr + gz + struct.pack("<HI", TRAILER_TAG, nb)
+    hdr = struct.pack("<HIIIIII", _P.BLOCK_TAG, b["flags"], b["A"], nb, b["C"], seq, 0)
+    return hdr + gz + struct.pack("<HI", _P.TRAILER_TAG, nb)
 
 
 def apply_edits_to_segment(seg: bytes, seq: int, removals: set,
