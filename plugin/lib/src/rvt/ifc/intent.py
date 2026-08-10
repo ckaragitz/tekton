@@ -960,10 +960,12 @@ MAX_DEVICE_VA = 100_000.0
 
 def _scalar_rx(tail: str):
     """A number then the optional unit ``tail`` a person types after it;
-    group(1) = the number, group(2) = the unit token that scales it.  The
-    open-ended repeats are possessive (``*+``) so a space-stuffed junk cell
-    fails in linear time instead of backtracking into ``\\s*$``."""
-    return re.compile(r"^\s*+([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)\s*+" + tail + r"\s*$", re.I)
+    group(1) = the number ('1,200' with its thousands commas included --
+    strip them before ``float``), group(2) = the unit token that scales it.
+    The open-ended repeats are possessive (``*+``) so a space-stuffed junk
+    cell fails in linear time instead of backtracking into ``\\s*$``."""
+    return re.compile(r"^\s*+([-+]?(?:\d{1,3}(?:,\d{3})++(?:\.\d*)?|\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)\s*+"
+                      + tail + r"\s*$", re.I)
 
 
 @dataclass(frozen=True)
@@ -1034,8 +1036,8 @@ CONTRACT_SCALARS: Dict[str, ScalarKind] = {
 def parse_schedule_scalar(pset_key: str, raw: Any, kind: ScalarKind, *, fallback: str,
                           default: Any = None) -> Tuple[Any, Optional[str]]:
     """ONE schedule cell -> (value, note).  A number rides as is; a numeric
-    text label with the unit a person types ('400 A', '42 ckt', '0.18 kVA',
-    '44 in', '1100 mm') coerces to ``kind.unit`` with ONE note saying so; an
+    text label with the unit a person types ('400 A', '1,200 A', '42 ckt',
+    '0.18 kVA', '44 in', '1100 mm') coerces to ``kind.unit`` with ONE note; an
     absent / blank cell (and a zero one, unless ``kind.zero_is_empty`` is
     False) is ``default`` silently.  Anything unparseable, negative,
     non-finite, fractional for an ``integer`` kind or above ``kind.cap`` is
@@ -1059,7 +1061,7 @@ def parse_schedule_scalar(pset_key: str, raw: Any, kind: ScalarKind, *, fallback
         m = kind.rx.match(raw)
         factor = kind.factors.get((m.group(2) or "").lower()) if m else None   # .get: a tail the
         if factor is not None:                          # table lacks is 'not a number', not a raise
-            value = float(m.group(1)) * factor
+            value = float(m.group(1).replace(",", "")) * factor
             note = f"{pset_key} {shown} is a text label, not a measure -> read as {value:g}{unit_sfx}"
     if value == 0 and kind.zero_is_empty:
         return default, None                            # 0 -> an empty cell, as ever
@@ -1304,22 +1306,26 @@ def normalize_contract(psets: Dict[str, Dict[str, Any]], *, name: str,
     for key in CONTRACT_SCALARS:
         if key not in con:
             continue
-        n_notes = len(notes)
-        value = read(key, con[key], src[key].removeprefix("pset:"))
+        raw = con[key]
+        value = read(key, raw, src[key].removeprefix("pset:"))
         if value is not None:
             con[key] = value
-        elif len(notes) > n_notes:                      # unusable (a blank / zero cell stays put)
+        elif not (isinstance(raw, (int, float)) and not isinstance(raw, bool) and raw == 0):
+            # unusable (noted), blank or a TEXT zero ('0 A', '  '): the cell reads as
+            # empty -- no raw string is ever left for a consumer to cast; an authored
+            # numeric 0 stays put (a switchboard's NumberOfCircuits 0 round-trips)
             del con[key], src[key]
     # PanelName defaults to the tag / leading name token
     if "PanelName" not in con:
         put("PanelName", tag or (name.split()[0] if name else None), "tag" if tag else "name")
     # ratings hidden in the name / object type text (a mined figure clears the
-    # same caps as a cell, so 'MSB 30000 A' cannot re-inject what a cell dropped)
+    # same caps as a cell, so 'MSB 30000 A' cannot re-inject what a cell dropped;
+    # '1,200 A' is 1200, never the '200' after its comma)
     hay = " ".join(x for x in (name, object_type, description) if x)
     if "BusRating" not in con:
-        m = re.search(r"(\d{2,5})\s*A\b", hay)
+        m = re.search(r"(?<![\d,.])(\d{1,3}(?:,\d{3})+|\d{2,5})\s*A\b", hay)
         if m:
-            put("BusRating", read("BusRating", float(m.group(1)), "name-text BusRating"),
+            put("BusRating", read("BusRating", float(m.group(1).replace(",", "")), "name-text BusRating"),
                 "name-text (NNN A)")
     if "NumberOfCircuits" not in con:
         m = re.search(r"(\d{1,3})[- ]?(?:space|circuit|ckt)", hay, re.I)

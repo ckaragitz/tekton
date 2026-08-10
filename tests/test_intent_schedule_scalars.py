@@ -199,6 +199,29 @@ def test_normalize_contract_coerces_hand_typed_cells_and_drops_unusable_ones_wit
     named = I.normalize_contract({}, name="DP-2 400 A 42-circuit panel", object_type=None, description=None, tag="DP-2")
     assert (named["BusRating"], named["MainsRating"], named["NumberOfCircuits"]) == (400.0, 400.0, 42)
     assert "_notes" not in named
+    # review of #457: a TEXT cell that parses to "empty" ('0 A', '-0 kVA', '0 ph', '  ', '0.0') is
+    # dropped like an unusable one, silently -- no raw string is ever left in the contract for a
+    # consumer (classification, the feeder tree, the room builder) to cast
+    empties = {"PanelSchedule": {"Voltage": "208Y/120 V", "BusRating": "0 A", "MainsRating": "  ",
+                                 "NumberOfCircuits": "0 ckt", "ShortCircuitRatingkA": "0.0",
+                                 "Phases": "0 ph", "Wires": "0W"},
+               "TransformerSchedule": {"RatingkVA": "-0 kVA", "Sections": " "}}
+    con = I.normalize_contract(empties, name="LP-1", object_type=None, description=None, tag="LP-1")
+    assert {k: v for k, v in con.items() if not k.startswith("_")} == {
+        "Voltage": "208Y/120 V", "PanelName": "LP-1", "Phases": 3, "Wires": 4}   # phases/wires re-derived
+    assert "_notes" not in con and "BusRating" not in con["_provenance"]
+    for schedule in (typed, junk, empties):
+        c = I.normalize_contract(schedule, name="X 30-space", object_type=None, description=None, tag="X")
+        assert not [k for k in I.CONTRACT_SCALARS if isinstance(c.get(k), str)], c
+    # '1,200 A' is 1200 with its thousands comma (cell and name text alike), never the '200' after it
+    assert _amps("1,200 A") == (1200.0, "PanelSchedule.MainsRating '1,200 A' is a text label, not a measure "
+                                        "-> read as 1200 A")
+    assert _amps("12,000A")[0] == 12000.0 and _amps("1,200.5")[0] == 1200.5
+    assert _amps("1,20 A")[0] is None and _amps("1,2000 A")[0] is None and _amps(",200 A")[0] is None
+    for nm, want in (("DP-1 - 1,200 A distribution panel", 1200.0), ("MSB 4000A", 4000.0),
+                     ("LP-2 100 A", 100.0), ("X 12,00 A", None), ("T 1.200 A", None)):
+        c = I.normalize_contract({}, name=nm, object_type=None, description=None, tag="X")
+        assert c.get("BusRating") == want and c.get("MainsRating") == want, nm
     # a blank / zero cell stays put, silently (a switchboard's NumberOfCircuits 0 round-trips as 0)
     zero = I.normalize_contract({"SwitchboardSchedule": {"NumberOfCircuits": 0, "Sections": 4.0}},
                                 name="MSB", object_type=None, description=None, tag="MSB")
@@ -362,6 +385,22 @@ def test_a_hand_typed_mains_rating_no_longer_fails_the_ifc_route(our_ifc, tmp_pa
     with open(r.intent_json, encoding="utf-8") as fh:
         on_disk = {p["tag"]: p for p in json.load(fh)["familyMapping"]}
     assert on_disk["LP-1"]["notes"] == lp.notes and on_disk["LP-1"]["kwargs"]["mains_a"] == 100.0
+    # review of #457: a TEXT zero ('0 A') reads as an empty cell -- dropped from the contract,
+    # never left as a raw string for a consumer to cast; LP-1 rates from its MainsRating, is
+    # built and placed, and the file is delivered exactly as above
+    zero = _retyped(our_ifc, str(tmp_path / "zero.ifc"),
+                    ("IFCPROPERTYSINGLEVALUE('BusRating',$,IFCREAL(100.),$)",
+                     "IFCPROPERTYSINGLEVALUE('BusRating',$,IFCLABEL('0 A'),$)"))
+    con = next(e for e in FI.intent_from_ifc(zero).equipment if e.tag == "LP-1").contract
+    assert con["MainsRating"] == 100.0 and "_notes" not in con
+    assert not isinstance(con.get("BusRating"), str)                    # gone, or re-mined from the name text
+    assert con["_provenance"].get("BusRating", "name-text").startswith("name-text")
+    r = FD.author(ifc=zero, out=str(tmp_path / "job0"))
+    assert r.ok and r.errors == [] and os.path.isfile(r.files.get("combined") or ""), (r.status, r.errors)
+    build = r.manifest["build"]
+    assert build["errors"] == [] and build["degradations"] == []
+    assert build["validation"]["combined"]["validate"]["n_errors"] == 0
+    assert [c["kind"] for c in build["elements_created"]].count("equipment-instance") == 1   # LP-1 built
 
 
 def test_every_other_retyped_scalar_resolves_with_one_note_and_no_bare_infinity(our_ifc, tmp_path):
@@ -383,6 +422,13 @@ def test_every_other_retyped_scalar_resolves_with_one_note_and_no_bare_infinity(
          ("mounting_height_in", pytest.approx(1100 / 25.4))),
         ("Load", ("#93=IFCPROPERTYSINGLEVALUE('Load',$,IFCREAL(180.),$)",
                   "#93=IFCPROPERTYSINGLEVALUE('Load',$,IFCREAL(1.E400),$)"), "R-1", ("va", I.DEFAULT_DEVICE_VA)),
+        # review of #457: TEXT zeros / blanks read as empty cells, silently (no note, no raw string)
+        ("MainsRating=0", ("IFCPROPERTYSINGLEVALUE('MainsRating',$,IFCREAL(100.),$)",
+                           "IFCPROPERTYSINGLEVALUE('MainsRating',$,IFCLABEL('0 A'),$)"), "LP-1", ("mains_a", 100.0)),
+        ("Phases=blank", ("#69=IFCPROPERTYSINGLEVALUE('Phases',$,IFCINTEGER(3),$)",
+                          "#69=IFCPROPERTYSINGLEVALUE('Phases',$,IFCLABEL('  '),$)"), "LP-1", ("mains_a", 100.0)),
+        ("NumberOfCircuits=0", ("IFCPROPERTYSINGLEVALUE('NumberOfCircuits',$,IFCINTEGER(42),$)",
+                                "IFCPROPERTYSINGLEVALUE('NumberOfCircuits',$,IFCLABEL('-0 ckt'),$)"), "LP-1", ("spaces", 42)),
     ]
     for key, swap, tag, (kw, want) in cases:
         hand = _retyped(our_ifc, str(tmp_path / f"{key}.ifc"), swap)
@@ -391,7 +437,13 @@ def test_every_other_retyped_scalar_resolves_with_one_note_and_no_bare_infinity(
         assert plan.status == "resolved", (key, plan.status, plan.refusal)
         assert plan.kwargs[kw] == want, (key, plan.kwargs)
         sched = [n for n in plan.notes if "Schedule." in n]
-        assert len(sched) == 1 and f"Schedule.{key} " in sched[0], (key, plan.notes)
+        if "=" in key:                                                # an empty cell: silent
+            assert sched == [], (key, plan.notes)
+        else:
+            assert len(sched) == 1 and f"Schedule.{key} " in sched[0], (key, plan.notes)
+        for e in model.equipment:                                     # no raw string left to cast, anywhere
+            assert not [k for k in I.CONTRACT_SCALARS if isinstance(e.contract.get(k), str)], (key, e.tag)
+        assert all(isinstance(f.rating_a, (int, float, type(None))) for f in model.feeders), key
         js = json.dumps(I.intent_to_json(model), allow_nan=False, default=str)   # strict: no Infinity / NaN
         if key in ("Wires", "Load"):
             eq = next(e for e in model.equipment if e.tag == tag)
