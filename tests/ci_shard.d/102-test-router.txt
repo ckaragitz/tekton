@@ -1,0 +1,2 @@
+# #102: matrix honesty gate + PERMUTATION-MATRIX.md drift guard on every PR; fresh-clone safe (RVT_SKIP_LARGE, needs_ifc gates the spec->ifc authoring cases)
+tests/test_router.py

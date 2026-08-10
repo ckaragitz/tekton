@@ -13,11 +13,9 @@
 # tools/dev/shard_list.py --print merges this file (first, in this order) with the
 # drop-ins; tests/test_shard_list.py fails if this file grows.
 #
-# Deliberately NOT in the shard:
-#   tests/test_router.py  — test_e2e_prompt_to_rfa needs the git-ignored
-#                           extracted/racbasicsampleproject corpus (owner
-#                           machine), and the spec->ifc cases need
-#                           ifcopenshell, which is an optional dep.
+# tests/test_router.py used to be excluded here; it runs from the drop-in
+# tests/ci_shard.d/102-test-router.txt now (#102): fresh-clone green with
+# RVT_SKIP_LARGE=1, its spec->ifc authoring cases gated on a real ifcopenshell.
 
 # FIRST on purpose (#298): the schema gate's ungated sentinel must exercise the
 # real bundled-base fallback before any later file's install_schema() swaps
