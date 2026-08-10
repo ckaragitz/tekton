@@ -82,6 +82,12 @@ SPECIMEN_ENV = "RVT_SPECIMEN_ANCESTOR"        # user-supplied specimen ancestor 
 FAMILY_DONOR_ENV = "RVT_FAMILY_DONOR"         # user-supplied family format donor (reported only)
 LINE_PREFIX = "tekton:"                       # every readiness line starts with this
 MIN_PY = (3, 9)
+#: front-door input routes that need an optional extra beyond the stdlib and
+#: the bundled engine (#127): ``--ifc`` resolves placement chains / geometry
+#: in numpy (``rvt.ifc.intent``'s lazy import); ``--prompt`` and ``--rvt``
+#: need nothing.  tests/test_coldstart.py pins BOTH directions, so this table
+#: cannot drift from what the engine actually does without a red test.
+ROUTE_EXTRAS = {"ifc": ("numpy",)}
 
 
 class TektonEnvError(RuntimeError):
@@ -330,13 +336,30 @@ def _check_out_dir() -> dict:
     return {"ok": False, "path": None, "where": None}
 
 
+def _route_capability(extras: dict) -> dict:
+    """Per front-door input route (``prompt`` / ``ifc`` / ``rvt``): buildable
+    on this interpreter now (``ok``), or the missing extra(s) it ``needs``
+    plus the one-line ``fix`` -- from :data:`ROUTE_EXTRAS` and the extras
+    presence preflight already probed (find_spec only; nothing is imported)."""
+    routes = {}
+    for route in ("prompt", "ifc", "rvt"):
+        needs = [m for m in ROUTE_EXTRAS.get(route, ()) if not extras.get(m)]
+        cap: dict = {"ok": not needs, "needs": needs}
+        if needs:
+            cap["fix"] = f"python -m pip install {' '.join(needs)}"
+        routes[route] = cap
+    return routes
+
+
 def preflight(root: str | None = None) -> dict:
     """The whole environment story in one call.  Returns the readiness dict;
     ``result['line']`` is the single line to print/report.  READY means the
     four hard inputs are good: python, engine, verified genesis base,
     writable output dir.  A missing family donor does NOT block readiness --
     it degrades the family build stage and the skill asks the user for one
-    file instead."""
+    file instead.  ``result['routes']`` (and the line's ``ifc-route``
+    segment) says per input route whether it builds here or which extra it
+    needs first (#127) -- READY never precedes a guaranteed FAILED."""
     t0 = time.time()
     res: dict = {"ok": False}
 
@@ -396,6 +419,10 @@ def preflight(root: str | None = None) -> dict:
     import importlib.util as _ilu
     res["extras"] = {m: _ilu.find_spec(m) is not None
                      for m in ("numpy", "ifcopenshell")}
+    # per-route capability, stated UP FRONT (#127): the environment can be
+    # READY while one input route still needs an extra; `go` never starts a
+    # job this table already knows cannot build here.
+    res["routes"] = _route_capability(res["extras"])
 
     # writable output dir
     res["out_dir"] = _check_out_dir()
@@ -410,10 +437,12 @@ def preflight(root: str | None = None) -> dict:
               (f" (Revit {rel})" if rel else "")
         eng = "bundled" if res["engine"]["source"].startswith("bundled") else "installed"
         outw = "OK" if res["out_dir"]["where"] == "cwd" else f"{res['out_dir']['path']} only"
+        ifc = res["routes"]["ifc"]
+        ifcw = "OK" if ifc["ok"] else f"needs {' + '.join(ifc['needs'])} ({ifc['fix']})"
         res["line"] = (f"{LINE_PREFIX} READY | python {res['python']['version']} | "
                        f"engine {eng} | genesis {gen} | "
                        f"family-donor {res['family_donor']['status']} | "
-                       f"out-dir {outw} | {res['seconds']}s")
+                       f"ifc-route {ifcw} | out-dir {outw} | {res['seconds']}s")
     else:
         bad = []
         for k in ("python", "engine", "genesis_base", "out_dir"):
@@ -500,6 +529,20 @@ def _resolve_go_target(argv: list[str], base_dir: str | None) -> tuple[str, list
 _REVIT_EXTS = (".rvt", ".rfa", ".rte", ".rft")
 
 
+def _gated_route(script: str, args: list[str]) -> str | None:
+    """The front-door input route this `go` job asks for when that route has
+    a prerequisite preflight tracks (:data:`ROUTE_EXTRAS` -- today ``ifc``,
+    from ``--ifc FILE`` / ``--ifc=FILE`` on a ``frontdoor.py`` call); None
+    for every job that needs nothing beyond the bundled engine."""
+    if os.path.basename(script) != "frontdoor.py":
+        return None
+    for route in ROUTE_EXTRAS:
+        flag = f"--{route}"
+        if any(a == flag or a.startswith(flag + "=") for a in args):
+            return route
+    return None
+
+
 def _input_releases(argv: list[str]) -> list[dict]:
     """The Revit release of every EXISTING .rvt/.rfa named on the command
     line, auto-detected from the file's own BasicFileInfo (a few ms each) --
@@ -572,8 +615,10 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
     structural self-check + the mandatory validator, 0 errors required);
     ``go rvt_job.py edit …``'s ``result`` IS the ops door's manifest
     (``status``, ``gates``, ``output``, ``edit``; progress in ``output.log``).
-    Exit code: the job's own exit code; 3 when preflight said NOT READY
-    (the job is never attempted); 2 usage."""
+    Exit code: the job's own exit code; 3 when preflight said NOT READY --
+    or the requested input route needs an extra this interpreter lacks
+    (``go.prerequisite`` = {route, needs, fix}, #127) -- and the job is
+    never attempted; 2 usage."""
     import io
     from contextlib import redirect_stdout
 
@@ -586,14 +631,31 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
     out: dict = {"go": {"one_call": True, "ready": bool(pf["ok"]),
                         "preflight_line": pf["line"],
                         "preflight_seconds": pf["seconds"]}}
-    if not pf["ok"]:
-        out["go"]["preflight"] = pf          # the full detail, only on failure
-        out["result"] = None
+
+    def not_ready() -> int:                  # the job is never attempted
+        out["go"].update({"ready": False, "exit_code": 3, "preflight": pf})
+        out["result"] = None                 # ^ the full detail, only on failure
         print(_json_doc(out))
         return 3
+
+    if not pf["ok"]:
+        return not_ready()
     script, args = _resolve_go_target(argv, base_dir)
     # which dispatch ran: "author" / "edit" (issue #111) / the sibling script's name
     out["go"]["verb"] = argv[0] if argv[0] in _GO_VERBS else os.path.basename(script)
+    route = _gated_route(script, args)
+    cap = pf["routes"].get(route) if route else None
+    if cap and not cap["ok"]:
+        # preflight already knows THIS route cannot build here: state its
+        # prerequisite ONCE, up front, instead of a job that stops mid-way (#127)
+        needs = " + ".join(cap["needs"])
+        out["go"].update({
+            "route": route,
+            "prerequisite": {"route": route, "needs": list(cap["needs"]), "fix": cap["fix"]},
+            "preflight_line": (f"{LINE_PREFIX} NOT READY for --{route} | {route}-route needs "
+                               f"{needs}: {cap['fix']} (one-time; the other routes are "
+                               "READY without it)")})
+        return not_ready()
     inputs = _input_releases(args)
     if inputs:
         out["go"]["inputs"] = inputs
@@ -712,9 +774,9 @@ def doctor(install: bool = False) -> int:
         rc = subprocess.call([sys.executable, "-m", "pip", "install", *missing])
         print(f"  pip exit: {rc}")
     elif missing:
-        need_read = [m for m in missing if m == "numpy"]
-        if need_read:
-            print(f"\n  the --ifc intent route needs numpy: python -m pip install numpy")
+        ifc = pf["routes"]["ifc"]
+        if not ifc["ok"]:
+            print(f"\n  the --ifc route needs {' + '.join(ifc['needs'])}: {ifc['fix']}")
         if "ifcopenshell" in missing:
             print("  IFC reads already work (steplite); install ifcopenshell only "
                   "for authoring/validation: python -m pip install ifcopenshell")

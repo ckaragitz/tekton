@@ -534,6 +534,11 @@ def _route_ifc(req: AuthorRequest, out_dir: str) -> AuthorResult:
         res.intent_json = intent_json
         inputs["intent_resolver"] = ("rvt.ifc.intent (placement chains + world geometry + "
                                      "tagging-contract Pset join key)")
+    except ImportError as e:               # an optional extra this route needs (numpy, #127)
+        mod = getattr(e, "name", None) or getattr(e.__cause__, "name", None) or "an extra"
+        errors.append(f"IFC intent failed: the --ifc route needs {mod}, not installed on "
+                      f"this interpreter -- one-time fix: python -m pip install {mod} "
+                      "(--prompt / --rvt run without it)")
     except Exception as e:                                           # noqa: BLE001
         errors.append(f"IFC intent failed: {type(e).__name__}: {e}")
 
