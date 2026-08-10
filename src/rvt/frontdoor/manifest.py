@@ -541,6 +541,25 @@ def _rollup_status(m: Dict[str, Any]) -> str:
 # the --rvt (edit) route
 # ---------------------------------------------------------------------------
 
+_STATUS_REASON_MAX = 160        # errors[0] rides whole in `FAILED (...)` up to this
+
+
+def _status_reason(error: Any) -> str:
+    """One line of ``error`` for the status sentence a skill relays verbatim:
+    whole when it fits :data:`_STATUS_REASON_MAX`, else cut at the last word
+    boundary that keeps at least a third of it (never mid-word unless one
+    token is that long), trailing clause punctuation dropped, ``...`` marking
+    the cut."""
+    text = " ".join(str(error).split())
+    if len(text) <= _STATUS_REASON_MAX:
+        return text
+    keep = _STATUS_REASON_MAX - len("...")
+    cut = text.rfind(" ", 0, keep + 1)                # a boundary at or before `keep`
+    if cut < _STATUS_REASON_MAX // 3:
+        cut = keep
+    return text[:cut].rstrip(" ,;:-(") + "..."
+
+
 def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
                   edit_spec: Dict[str, Any], run: Dict[str, Any],
                   editables_before: Optional[Dict[str, Any]] = None,
@@ -563,7 +582,12 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
     refused_line = str(ir["line"]) if ir.get("status") == "refused" else None
     unverified = ir.get("status") == "unverified"
     status = job.get("status") or ("FAILED (no job manifest)" if run.get("rc") else "UNKNOWN")
-    if errors or (run.get("rc") not in (0, None) and not job):
+    if errors and run.get("rc") is None:
+        # the job never started (cannot open/plan, edit not understood, the
+        # run raised): the reason IS the status, like the create routes'
+        # `FAILED (<errors[0]>)` -- never "rc None" with the cause elsewhere
+        status = "FAILED (" + _status_reason(errors[0]) + ")"
+    elif errors or (run.get("rc") not in (0, None) and not job):
         status = "FAILED (edit did not complete: rc %s)" % (run.get("rc"),)
     if refused_line:
         status = refused_line
