@@ -151,7 +151,7 @@ class BuildOptions:
     wall_rep: str = dc_field(default_factory=default_wall_rep)   # 'solid' | 'dummy'
     symbol_solid: bool = True
     validate: bool = True
-    quiet: bool = True
+    quiet: bool = True                         # stage output -> <out_dir>/build.log, not stdout
 
 
 @dataclass
@@ -171,7 +171,7 @@ class BuildResult:
     created: List[Dict[str, Any]] = dc_field(default_factory=list)   # created elements
     errors: List[str] = dc_field(default_factory=list)
     seconds: float = 0.0
-    log: str = ""
+    build_log: Optional[str] = None            # <out_dir>/build.log when the quiet log opened
 
     @property
     def deepest(self) -> Optional[str]:
@@ -191,7 +191,41 @@ class BuildResult:
             "degradations": list(self.degradations),
             "created": list(self.created), "errors": list(self.errors),
             "stages": list(self.stages), "seconds": self.seconds,
+            "build_log": self.build_log,
         }
+
+
+# ---------------------------------------------------------------------------
+# the quiet build's stage log (issue #312; the router's route.log shape, #188)
+# ---------------------------------------------------------------------------
+
+def _stage_stdout(res: BuildResult, out_dir: str, quiet: bool):
+    """``quiet``: the stage chain's stdout streams into ``<out_dir>/build.log``
+    (line-buffered: a long build can be tailed, a crashed one keeps its
+    progress) and the path rides in ``res.build_log``; else untouched (live
+    on the caller's stdout, no file).  The log is opened HERE, at call time
+    (before the caller's stage ``try``): an unwritable ``out_dir`` degrades
+    to an unlogged run (in-memory sink + a note in ``res.degradations`` --
+    a label, never an error: logging can never cost a delivery), never to
+    "build crashed" with no stage run.  Capture is ``sys.stdout``-level only;
+    ``manifest.write_manifest`` names the file beside ``json`` / ``md``."""
+    if not quiet:
+        return contextlib.nullcontext()
+    log_p = os.path.join(out_dir, "build.log")
+    try:
+        fh = open(log_p, "w", buffering=1, encoding="utf-8", errors="backslashreplace")
+    except OSError as e:
+        res.degradations.append(f"build.log not writable ({type(e).__name__}: {e}); "
+                                "stage output not logged")
+        return _redirect_stdout_into(io.StringIO())
+    res.build_log = log_p
+    return _redirect_stdout_into(fh)
+
+
+@contextlib.contextmanager
+def _redirect_stdout_into(fh):
+    with fh, contextlib.redirect_stdout(fh):
+        yield
 
 
 # ---------------------------------------------------------------------------
@@ -403,7 +437,6 @@ def build_intent(model: FI.IntentModel, opts: BuildOptions) -> BuildResult:
 
 def _build_intent_inner(model: FI.IntentModel, opts: BuildOptions, R,
                         res: BuildResult, t0: float) -> BuildResult:
-    log_buf = io.StringIO()
     stages_dir = os.path.join(opts.out_dir, "_stages")
 
     # STANDALONE RESOLUTION (docs/inbox/standalone.md): the schema comes from
@@ -451,14 +484,13 @@ def _build_intent_inner(model: FI.IntentModel, opts: BuildOptions, R,
             res.seconds = round(time.time() - t0, 1)
             return res
 
-        ctx = contextlib.redirect_stdout(log_buf) if opts.quiet else contextlib.nullcontext()
-        with ctx:
+        capture = _stage_stdout(res, opts.out_dir, quiet=opts.quiet)   # opens build.log now
+        with capture:
             try:
                 _run(model, opts, R, res, verdict, plans, want_walls, want_fams, stages_dir)
             except Exception as e:                                       # noqa: BLE001
                 res.errors.append(f"build crashed: {type(e).__name__}: {e}")
                 res.errors.append(traceback.format_exc(limit=8))
-        res.log = log_buf.getvalue() if opts.quiet else ""
         res.seconds = round(time.time() - t0, 1)
         return res
     finally:
