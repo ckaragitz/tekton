@@ -1135,3 +1135,47 @@ geometry.
 * written: no engine change this iteration -- diagnosis only
 * gates: unchanged from iteration 22 (309 passed / 58 skipped, sync clean)
 * shipped for verdict: `probe_A_hex_in_place.rfa`, `probe_B_L_alone.rfa`
+
+## Iteration 24 — convexity and aloneness both exonerated
+
+**Owner opened both single-variable probes; BOTH render.**
+
+* `probe_A_hex_in_place.rfa` -- the hexagon renders as a clean solid, with
+  the cylinder and cap controls. **Convexity is not the cause**; a convex
+  N-gon prism is fine.
+* `probe_B_L_alone.rfa` -- the L renders by itself. **Being the only form in
+  the file is not the cause**; there is no document-level bug.
+
+Two of the four confounded variables from `hex_solo` are dead. What is left,
+and it is the pair nobody had looked at:
+
+| | rendered so far | `hex_solo` (invisible) |
+|---|---|---|
+| position | offset into +x/+y | **centred on the origin** |
+| aspect | flat slab, 0.25 ft thick | **1.0 ft tall on a 1.0 ft footprint** |
+
+Every single form this project has ever seen render is a FLAT SLAB sitting
+away from the origin. That is not a deliberate choice, it is an accident of
+how the probes were written -- and it means "tall" and "centred" have never
+once been tested. The panelboard's enclosure is 1.667 ft tall and centred,
+which makes this directly relevant to the product rather than a curiosity.
+
+`probe_C_origin_vs_tall.rfa` separates them in ONE file (parts render
+independently, so same document, same views, same camera = the cleanest
+possible comparison):
+
+1. `control-box` at x = -2, flat -- the shape that has never failed;
+2. `hex-at-origin`, r = 0.5, **flat**, centred exactly on (0, 0);
+3. `hex-tall` at x = +2, r = 0.5, **1.0 ft tall**.
+
+Reading: 2 missing -> a form centred on the family origin is invisible
+(suspect the reference planes / sketch-plane association at the origin).
+3 missing -> tall extrusions are invisible (suspect the start > end
+"extrude-down" convention, or a view range / cut plane). Both present ->
+the cause is the COMBINATION, and the next probe is a tall hexagon centred
+on the origin, i.e. `hex_solo` minus nothing.
+
+### BRANCH STATE (updated)
+* written: no engine change -- diagnosis only
+* gates: unchanged (309 passed / 58 skipped, sync clean)
+* shipped for verdict: `probe_C_origin_vs_tall.rfa`
