@@ -590,3 +590,19 @@ Same four commands as the Evidence block, re-run on the post-`/simplify` tree: p
 main) + `author:build.log` 17; edit ok → rc 0 / stderr 0 B / `edit.log` 18 / edited file validates `error 0, warning 0, info 2`;
 failing edit → rc 3 / ONE JSON / **stderr 0 B** / `edit.log` 16. Bare unzip `go author … --json` → rc 0, stderr 0 B, `tekton:
 READY | … | 0.044s`, `ready true`, `files` = `combined, families_dir`; `unzip -l tekton-plugin.zip | grep -c stagelog` → 0.
+
+## BRANCH STATE (eng #441)
+
+* Branch `cam/441-retire-stagelog-shim` from `origin/main` @ a1927c8.
+* Files written: `src/rvt/frontdoor/build.py`, `edit.py`, `router.py` (one import line + one docstring cross-reference each),
+  `src/rvt/_logsink.py` (docstring: last sentence dropped), `tools/rvt_job.py` (one comment), `tests/test_stagelog.py`,
+  `docs/inbox/frontdoor-stagelog.md` (this section); deleted `src/rvt/frontdoor/stagelog.py`; regenerated mirrors
+  `plugin/lib/src/rvt/{_logsink.py,frontdoor/build.py,frontdoor/edit.py,frontdoor/router.py}`, `plugin/lib/tools/rvt_job.py`,
+  `plugin/skills/{tekton-author,tekton-edit,tekton-native}/scripts/rvt_job.py`, and `plugin/lib/src/rvt/frontdoor/stagelog.py`
+  removed by the sync. `tools/sync_plugin.py` itself untouched (it lists no file explicitly).
+* Gates: stream-local 202 passed / 18 skipped; whole merged CI shard (75 files) **1591 passed, 134 skipped, 3 xfailed** in 285 s on
+  the pre-`/simplify` tree (that reading is discounted: two `git stash`/`pop` baseline measurements briefly reverted the tree while
+  it ran) and, re-run cleanly on the committed final tree with nothing else touching it, **1591 passed, 134 skipped, 3 xfailed** in
+  284 s; `sync_plugin.py --check` clean; `validate_plugin.py` PASS; portable paths ok. Nothing staged for the viewer (no format
+  bytes changed).
+* Shipped vs staged: everything in this PR ships; nothing awaits a human. No follow-up issue filed — none found.
