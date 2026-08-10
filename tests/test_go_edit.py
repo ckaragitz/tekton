@@ -163,20 +163,60 @@ def test_go_ops_door_result_is_the_manifest(plugin_copy, workdir):
         assert "[rvt_job] validating" in fh.read()
 
 
+def _aborted(r, doc, out, code, status_prefix):
+    """The ops door's abort shape: exit ``code``, the ONE JSON is a stub whose
+    ``status`` names why, nothing written, stderr is that status as exactly ONE
+    ``[rvt_job] FAILED (…)`` line -- never a traceback (that rides in
+    ``output.log``).  Returns ``result``."""
+    assert r.returncode == code, r.stderr[-2000:]
+    assert "stdout" not in doc["go"] and "exception" not in doc["go"]
+    res = doc["result"]
+    assert res["exit_code"] == code and res["status"].startswith(status_prefix), res["status"]
+    assert res["output"]["written"] is False and not os.path.exists(out)
+    assert r.stderr.splitlines() == [f"[rvt_job] {res['status']}"] and "Traceback" not in r.stderr
+    with open(res["output"]["log"]) as fh:               # the diagnostic detail is kept, off stderr
+        assert "Traceback (most recent call last)" in fh.read()
+    return res
+
+
 def test_go_ops_door_unplannable_op_is_one_json_stub(plugin_copy, workdir):
     """An unplannable op aborts the whole run (a partial edit is worse than
-    none) and the ONE JSON is the stub manifest naming why; nothing written."""
+    none): exit 2, ONE stub, ONE stderr line."""
     ops = os.path.join(workdir, "bad-ops.json")
     with open(ops, "w") as fh:
         json.dump([{"op": "set-level", "id": 999999999, "elevation_ft": 5}], fh)
     out = os.path.join(workdir, "ops door", "never.rvt")
     r, doc = _go(plugin_copy, workdir, "rvt_job.py", "edit", _base(plugin_copy, 2025),
                  "--ops", ops, "-o", out)
-    assert r.returncode == 2
-    res = doc["result"]
-    assert res["exit_code"] == 2 and res["status"].startswith("FAILED (planning")
-    assert "999999999" in res["status"]
-    assert res["output"]["written"] is False and not os.path.exists(out)
+    res = _aborted(r, doc, out, 2, "FAILED (planning: ")
+    assert res["mode"] == "edit" and "999999999" in res["status"]
+
+
+def test_go_create_door_unplannable_spec_is_one_json_stub(plugin_copy, workdir):
+    """The create door's planning abort is the same shape (a spec the builder
+    cannot plan: a level with no ``id``)."""
+    spec = os.path.join(workdir, "bad-spec.json")
+    with open(spec, "w") as fh:
+        json.dump({"project": {"name": "x"}, "levels": [{"name": "Level 1"}],
+                   "walls": [], "equipment": []}, fh)
+    out = os.path.join(workdir, "create door", "never.rvt")
+    r, doc = _go(plugin_copy, workdir, "rvt_job.py", "create", "--spec", spec,
+                 "--base", _base(plugin_copy, 2026), "--allow-not-ready", "-o", out,
+                 skill="tekton-author")               # the copy with spec_to_rvt.py beside it
+    assert _aborted(r, doc, out, 2, "FAILED (planning: ")["mode"] == "create"
+
+
+def test_go_ops_door_unusable_input_is_one_line_too(plugin_copy, workdir):
+    """An abort before any manifest of its own (an ``--ops`` that is not JSON:
+    the dispatcher's last resort, exit 1) holds the same law, and the stub's
+    ``status`` IS the reason -- nothing to fish out of stderr."""
+    bad = os.path.join(workdir, "not-json.txt")
+    with open(bad, "w") as fh:
+        fh.write("{oops")
+    out = os.path.join(workdir, "unusable ops", "never.rvt")
+    r, doc = _go(plugin_copy, workdir, "rvt_job.py", "edit", _base(plugin_copy, 2025),
+                 "--ops", bad, "-o", out)
+    assert _aborted(r, doc, out, 1, "FAILED (edit: JSONDecodeError: ")["mode"] == "edit"
 
 
 def test_go_edit_works_from_a_skill_without_rvt_edit(plugin_copy, workdir):
