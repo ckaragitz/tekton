@@ -1926,9 +1926,12 @@ class FamilyDoc:
         what is left.  A Revit-born family instead parks the camera a couple
         of feet off its object at 1:24 [measured].
 
-        The view DIRECTION is kept exactly as authored (so the Viewer3d
-        basis stays valid); only the target, the eye distance and the scale
-        are fitted to the model's bounding box.
+        The view DIRECTION is Revit's own family isometric [donor 463/461:
+        viewDir (0.5773502691896258, -0.5773502691896258, 0.577350269189626)
+        with the matching horizontal/vertical rows]; the target, the eye
+        distance and the scale are fitted to the model's bounding box.  The
+        project skeleton's direction looked DOWN at a building from above --
+        the reason the earlier "camera fit" round still framed nothing.
         """
         lo = [float("inf")] * 3
         hi = [float("-inf")] * 3
@@ -1948,20 +1951,30 @@ class FamilyDoc:
         centre = [(lo[k] + hi[k]) / 2.0 for k in range(3)]
         size = max([hi[k] - lo[k] for k in range(3)] + [0.5])
         dist = size * 3.0                            # the whole body in frame
+        vd, hd, vt = FAMILY_VIEW3D_FRAME
         for e in self.elements:
             if e.class_name == "DBView3d":
-                vd = e.obj.get("m_viewDir") or [-0.6834861261734088,
-                                                -0.6834861261734088,
-                                                0.25630729731502827]
-                eye = [centre[k] + float(vd[k]) * dist for k in range(3)]
+                eye = [centre[k] + vd[k] * dist for k in range(3)]
                 e.obj["m_origin"] = eye
                 e.obj["m_scale"] = self.VIEW3D_SCALE
+                e.obj["m_viewDir"] = list(vd)
+                e.obj["m_horzDir"] = list(hd)
+                e.obj["m_vertDir"] = list(vt)
                 for sat in self.elements:
                     if sat.class_name == "Viewer3d":
                         sat.obj["m_targetPos"] = list(centre)
                         bs = sat.obj.get("m_boundedSpace")
                         if isinstance(bs, dict):
                             bs["m_orig"] = list(eye)
+                            # the viewer basis IS the camera frame; a stale
+                            # basis with a new eye is the mismatch that made
+                            # "View 1" look at empty space
+                            bs["m_basis"] = [list(hd), list(vt),
+                                             [-vd[0], -vd[1], -vd[2]]]
+                for sat in self.elements:
+                    if (sat.class_name == "ExtentElem"
+                            and sat.obj.get("m_dbViewId") == e.elem_id):
+                        sat.obj["m_dbViewNorm"] = [-vd[0], -vd[1], -vd[2]]
                 break
 
     def _type_param_entries(self, vals: Dict[Any, Any]) -> List[dict]:
@@ -2286,54 +2299,312 @@ def _apply_family_view_exclusions(els) -> None:
     with open(_FAMILY_VIEW_EXCL_ASSET, "r", encoding="utf-8") as fh:
         law = json.load(fh)
     for e in els:
-        key = ("3d" if e.class_name == "DBView3d"
-               else "plan" if e.class_name in ("DBViewPlan", "DBViewProject")
-               else None)
-        if key is None:
+        if e.class_name == "DBView3d":
+            key = "3d"
+        elif e.class_name == "DBViewProject":
+            key = "project"
+        elif e.class_name == "DBViewSection":
+            key = "section"
+        elif e.class_name == "DBViewPlan":
+            key = "ceiling" if int(e.obj.get("m_planViewType") or 1) == 2 else "plan"
+        else:
             continue
-        wanted = [int(x) for x in law.get(key, [])]
+        wanted = [int(x) for x in law.get(key) or law.get("plan", [])]
         for df in (e.obj.get("m_oaDrawFilters") or []):
             body = (df.get("value") or {}) if isinstance(df, dict) else {}
             if isinstance(body.get("m_categoryIds"), list):
                 body["m_categoryIds"] = list(wanted)
+                # a family view excludes CATEGORIES, never a whole class of
+                # content [every donor family view: all four flags False].
+                for flag in ("m_annotationsExcluded", "m_modelsExcluded",
+                             "m_analyticalModelsExcluded", "m_importsExcluded"):
+                    _put(body, flag, False)
+
+
+#: THE FAMILY 3D CAMERA FRAME (viewDir, horzDir, vertDir) -- the isometric
+#: Revit itself gives a family's "View 1" [donor 463/461].  The project
+#: skeleton's frame looks down on a building from above.
+FAMILY_VIEW3D_FRAME = (
+    (0.5773502691896258, -0.5773502691896258, 0.577350269189626),
+    (0.7071067811865476, 0.7071067811865476, 0.0),
+    (-0.40824829046386313, 0.40824829046386313, 0.816496580927726),
+)
+
+#: THE FAMILY-VIEW SCALE.  Every view of a Revit-born family document --
+#: the implicit project view, the Ref. Level plan, the ceiling plan, the four
+#: elevations and "View 1" -- carries 1:24 [measured: donor views 50/23/27/
+#: 31/35/39/43/463 all 0.041666666666666664].  The project skeleton's 1:100
+#: is a building scale: it renders a 1'-8" panel's dimension text at nine
+#: inches tall, which is what buried the model in the owner's screenshots.
+FAMILY_VIEW_SCALE = 0.041666666666666664
+
+#: PLAN-VIEW RANGE per ``m_planViewType`` [measured on donor 23 (plan) and 27
+#: (ceiling)].  Offsets are relative to the Reference Level; ``None`` in
+#: ``pvr2_levels`` means "this view's level id", every other entry is the
+#: literal sentinel Revit stores.  The project skeleton instead derives the
+#: range from the storey height, which on a family's single level produced a
+#: cut plane ABOVE the top clip and a view-depth cutter under the level.
+_FAMILY_PLAN_RANGE = {
+    1: {"cut": 4.0, "top": 7.5, "bottom": 0.0, "level_below": -999999999.9999999,
+        "underlay": 0, "offsets": [4.0, 7.5, 0.0, 0.0, 0.0],
+        "level_pos": [0, 0, 0, -1, 0], "pvr2_levels": [None, None, None, -4, -1],
+        "cut_yvec": [0.0, -1.0, 0.0]},
+    2: {"cut": 7.5, "top": 999999999.9999999, "bottom": 0.0,
+        "level_below": 999999999.9999999,
+        "underlay": 1, "offsets": [7.5, 0.0, 0.0, 0.0, 0.0],
+        "level_pos": [0, 1, 0, 1, 0], "pvr2_levels": [None, -2, None, -2, -1],
+        "cut_yvec": [0.0, 1.0, 0.0]},
+}
+
+#: ``m_oaDrawFilters`` composition per view class [measured].  A family
+#: document has no phases and no design options, so a Revit-born famdoc view
+#: carries NEITHER ``PhasingDrawFilter`` NOR ``DesignOptionDrawFilter`` -- it
+#: keeps a bare ``None`` in the slot where the project view has them.  Ours
+#: shipped both, and both filter on state a famdoc cannot satisfy.
+_FAMILY_DRAW_FILTERS = {
+    "DBViewProject": ("IckyExcludedCategoriesSetPtrWrapper",
+                      "PartitionVisibilityDrawFilter",
+                      "RvtLinkDrawFilter", "HideElementsDrawFilter"),
+    "DBViewPlan": ("IckyExcludedCategoriesSetPtrWrapper", None,
+                   "PartitionVisibilityDrawFilter",
+                   "RvtLinkDrawFilter", "HideElementsDrawFilter"),
+    "DBViewSection": ("IckyExcludedCategoriesSetPtrWrapper", None,
+                      "PartitionVisibilityDrawFilter",
+                      "RvtLinkDrawFilter", "HideElementsDrawFilter"),
+    "DBView3d": ("IckyExcludedCategoriesSetPtrWrapper",
+                 "PartitionVisibilityDrawFilter", None,
+                 "RvtLinkDrawFilter", "HideElementsDrawFilter"),
+}
+
+#: ``m_pViewDisplayMgr.m_lights`` of a family view: NO sun-and-shadow
+#: settings element (owner: "what is up with the sun path???" -- the project
+#: skeleton points every view at a SunAndShadowSettings, so Revit draws the
+#: 150-unit sun path around a 4-inch component).
+_FAMILY_VIEW_LIGHTS = {"m_sunAndShadowSettingsId": -1,
+                       "m_ambientLightIntensity": 30,
+                       "m_shadowIntensity": 50,
+                       "m_sunlightIntensity": 0}
+
+#: ``VIEW_DETAIL_LEVEL`` (-1011002): 1 = Coarse on the plans, 2 = Medium on
+#: the 3D view [measured].  Our 3D view shipped an EMPTY int param set, i.e.
+#: no detail level at all.
+_PARAM_VIEW_DETAIL_LEVEL = -1011002
+#: ``m_pParamValueSetInt`` entry the project skeleton adds and a famdoc view
+#: does not carry (a project-only display flag).
+_PARAM_PROJECT_ONLY_INT = -1005163
+
+_VIEW_CLASSES = ("DBViewProject", "DBViewPlan", "DBView3d", "DBViewSection")
+
+
+def _put(obj, key, value) -> None:
+    """Assign ONLY when the active release's schema defines the field --
+    writing a 2026-only field into a 2024/2025 object breaks the ADocument
+    round-trip (the regression this rule was written for)."""
+    if isinstance(obj, dict) and key in obj:
+        obj[key] = value
+
+
+def _wrap(ptr_class: str, value: dict) -> dict:
+    return {"ptr_class": ptr_class, "pid": -1, "value": value}
+
+
+def _pattern_cell_list() -> Optional[dict]:
+    return _wrap("CellList", {"m_cells": [
+        _wrap("PatternHelper", {"m_PatternPositionMap": [],
+                                "m_substituteFaceMap": []})]})
+
+
+def _clone_gstep(step: dict, ptr_class: str, sid: int, flags: int) -> dict:
+    """A GStep of another class with the same body shape [every GStep carries
+    the identical ``m_faceHistTable``/``m_curveHistTableSet``/``m_edgeHist*``/
+    ``m_id``/``m_version``/``m_flags``/``m_pElem``/``m_oExtraDatas`` set]."""
+    out = copy.deepcopy(step)
+    out["ptr_class"] = ptr_class
+    body = out.get("value")
+    if isinstance(body, dict):
+        body["m_id"] = sid
+        body["m_flags"] = flags
+    return out
+
+
+def _apply_family_draw_filters(e) -> None:
+    """Re-compose ``m_oaDrawFilters`` to the family shape for this class."""
+    order = _FAMILY_DRAW_FILTERS.get(e.class_name)
+    have = e.obj.get("m_oaDrawFilters")
+    if order is None or not isinstance(have, list):
+        return
+    by_class = {f.get("ptr_class"): f for f in have if isinstance(f, dict)}
+    out = []
+    for want in order:
+        if want is None:
+            out.append(None)
+        elif want in by_class:
+            out.append(by_class[want])
+    e.obj["m_oaDrawFilters"] = out
+
+
+def _plan_level_id(o: dict) -> int:
+    """The Reference Level a plan view is bound to: ``m_genElemId`` [the
+    field the donor carries the level in], falling back to whatever the
+    already-built PlanViewRange2 names."""
+    lid = int(o.get("m_genElemId", -1) or -1)
+    if lid > 0:
+        return lid
+    pvr2 = o.get("m_pPlanViewRange2")
+    ids = (pvr2 or {}).get("value", {}).get("m_viewDepthPlaneLevelIds") \
+        if isinstance(pvr2, dict) else None
+    if isinstance(ids, list) and ids and int(ids[0]) > 0:
+        return int(ids[0])
+    return int(o.get("m_assocLevelId", -1) or -1)
+
+
+def _apply_family_plan_range(e, level_id: int) -> None:
+    """Cut plane / top / bottom / view depth of a family plan view."""
+    law = _FAMILY_PLAN_RANGE.get(int(e.obj.get("m_planViewType") or 1))
+    if law is None:
+        return
+    o = e.obj
+    _put(o, "m_origin", [0.0, 0.0, 0.0])
+    _put(o, "m_backClipping", -1)
+    _put(o, "m_cutPlaneElev", law["cut"])
+    _put(o, "m_topClipElev", law["top"])
+    _put(o, "m_bottomClipElev", law["bottom"])
+    _put(o, "m_levelBelowElev", law["level_below"])
+    _put(o, "m_columnSymbolElev", 0.0)
+    _put(o, "m_underlayOrientation", law["underlay"])
+    pvr = o.get("m_pPlanViewRange")
+    if isinstance(pvr, dict) and isinstance(pvr.get("value"), dict):
+        _put(pvr["value"], "m_offsets", list(law["offsets"]))
+        _put(pvr["value"], "m_levelPos", list(law["level_pos"]))
+    pvr2 = o.get("m_pPlanViewRange2")
+    if isinstance(pvr2, dict) and isinstance(pvr2.get("value"), dict):
+        _put(pvr2["value"], "m_viewDepthPlaneOffsets", list(law["offsets"]))
+        _put(pvr2["value"], "m_viewDepthPlaneLevelIds",
+             [level_id if s is None else s for s in law["pvr2_levels"]])
+    cutter = o.get("m_pCutter")
+    plane = (cutter or {}).get("value", {}).get("m_pPlane") if isinstance(cutter, dict) else None
+    if isinstance(plane, dict) and isinstance(plane.get("value"), dict):
+        _put(plane["value"], "m_origin", [0.0, 0.0, law["cut"]])
+        _put(plane["value"], "m_yVec", list(law["cut_yvec"]))
+    # a family plan view has NO separate view-depth cutter element; the depth
+    # plane is expressed by the second GStep instead [donor 23/27].
+    _put(o, "m_pViewDepthCutter", None)
+    steps = o.get("m_geomSteps")
+    body = steps.get("value") if isinstance(steps, dict) else None
+    lst = body.get("m_nonBRepGList") if isinstance(body, dict) else None
+    if isinstance(lst, list) and len(lst) == 1 and isinstance(lst[0], dict):
+        first = lst[0]
+        if isinstance(first.get("value"), dict):
+            first["value"]["m_flags"] = 317
+        lst.append(_clone_gstep(first,
+                                "MakeViewDepthCutterForPlanRegionsGStep", 2,
+                                40765))
+        _put(body, "m_idCounter", 3)
+        _put(body, "m_flags", 9)
 
 
 def _apply_family_viewer_law(els, project_view_id: int) -> None:
-    """FAMILY-VIEWER LAW (issue #333; measured on the owner's Revit-2026-born
-    donor, viewers 22/26 vs 49): a family document's Viewers keep the project
-    skeleton's per-view-type basis frames but differ in the bound box and the
-    projection fields.
+    """THE FAMILY-VIEW LAW -- the whole view constellation of a family
+    document, measured field by field against the owner's Revit-2026-born
+    donor (views 50/23/27/463, viewers 49/22/26/461) rather than patched one
+    guess at a time.
 
-    Every viewer: ``m_boundOffset[2]`` = ``(100.0, 0.0)`` -- the z interval
-    sits ON the reference level, never the symmetric ``(100,-100)`` box or the
-    plan default ``(1000, 0.1)``.  The PLAN viewer additionally matches the
-    project viewer's shape: bounds inactive, crop on, ortho
-    (``m_projMethodType`` 1, not 2), ``m_viewerFlags`` 0 (not 7),
-    ``m_intentionallyPlaced`` False.  [Every crash journal on #333 warns
-    ``BoundedSpace.cpp:86``; the basis rows themselves were exonerated --
-    donor keeps the elevation frame on the project viewer.]
+    Four rounds of single-field fixes (camera fit, 3D crop box, category
+    exclusions, the family draw-order manager) each left the owner's report
+    unchanged -- "i dont see the element whats so ever" -- and the control
+    (a panelboard, not the new multi-part path) failed the same way, which
+    exonerated the geometry and convicted the views.  The full diff then
+    showed our views were still *project* views in five ways a family
+    document cannot satisfy:
+
+    * ``PhasingDrawFilter`` + ``DesignOptionDrawFilter`` in ``m_oaDrawFilters``
+      -- a famdoc has no phases and no design options, so both filters test
+      state that is never satisfied and drop the model from the draw pass.
+      A Revit-born famdoc view carries neither (a bare ``None`` sits in the
+      slot); a freshly created ``{3D}`` view has none either, which is
+      exactly why THAT view showed the geometry.
+    * ``m_scale`` 1:100 instead of 1:24 -- the giant dimension text.
+    * ``m_pViewDisplayMgr.m_lights`` pointing at a SunAndShadowSettings --
+      the sun path the owner asked about.
+    * ``DrawOrderMgr`` instead of ``DrawOrderMgr3dFamily`` on EVERY view (we
+      had only converted the 3D one).
+    * a plan view range derived from a storey height: cut plane above the
+      top clip, plus a view-depth cutter a famdoc does not carry.
+
+    The Viewer3d additionally shipped a PERSPECTIVE projection
+    (``m_projMethodType`` 2, ``m_viewerFlags`` 7); a family's "View 1" is
+    orthographic, which is also why the donor parks its eye ~1.7 ft off the
+    target and still frames the whole body.
+
+    Kept from the earlier rounds (all still donor-measured): the bound-box
+    law below, the annotation-only category exclusions, and the fitted 3D
+    camera.
     """
     _apply_family_view_exclusions(els)
+    ceiling_view_ids = {e.obj.get("m_id") for e in els
+                        if e.class_name == "DBViewPlan"
+                        and int(e.obj.get("m_planViewType") or 1) == 2}
     for e in els:
-        if e.class_name == "DBView3d":
-            # THE FAMILY 3D-VIEW LAW (owner: geometry only visible in a
-            # NEWLY CREATED {3D} view).  Measured donor 463 vs ours:
-            #   * m_pDetailDrawOrderMgr is a DrawOrderMgr3dFamily -- the
-            #     FAMILY draw-order manager; we shipped the project's
-            #     DrawOrderMgr, i.e. the wrong draw pass for a famdoc;
-            #   * a family 3D view carries NO light scheme (-1), no
-            #     cellList and no param-value-set element.
-            dom = e.obj.get("m_pDetailDrawOrderMgr")
-            if isinstance(dom, dict) and dom.get("ptr_class") == "DrawOrderMgr":
+        if e.class_name in _VIEW_CLASSES:
+            o = e.obj
+            _put(o, "m_scale", FAMILY_VIEW_SCALE)
+            _put(o, "m_cellList", None)
+            # the phase / phase-filter param pair is project state
+            _put(o, "m_pParamValueSetElementId", None)
+            _put(o, "m_lightSchemeId", -1)
+            dom = o.get("m_pDetailDrawOrderMgr")
+            if isinstance(dom, dict) and dom.get("ptr_class") != "DrawOrderMgr3dFamily":
                 from ..genesis.types import blank_object as _blank
                 try:
+                    old = dom.get("value") if isinstance(dom.get("value"), dict) else {}
+                    new = _blank("DrawOrderMgr3dFamily")
+                    # keep the doc / view back-pointers the project manager
+                    # already carried [donor: weakrefs 1 and 2]
+                    for ref in ("m_pADoc", "m_pDBView"):
+                        if ref in old and ref in new:
+                            new[ref] = old[ref]
                     dom["ptr_class"] = "DrawOrderMgr3dFamily"
-                    dom["value"] = _blank("DrawOrderMgr3dFamily")
+                    dom["value"] = new
                 except Exception:                      # pragma: no cover
                     pass
-            e.obj["m_lightSchemeId"] = -1
-            e.obj["m_cellList"] = None
-            e.obj["m_pParamValueSetElementId"] = None
+            vdm = o.get("m_pViewDisplayMgr")
+            vdmv = vdm.get("value") if isinstance(vdm, dict) else None
+            if isinstance(vdmv, dict):
+                lights = vdmv.get("m_lights")
+                if isinstance(lights, dict):
+                    for k, v in _FAMILY_VIEW_LIGHTS.items():
+                        _put(lights, k, v)
+                model = vdmv.get("m_model")
+                if isinstance(model, dict) and e.class_name != "DBView3d":
+                    _put(model, "m_surfaces", 1)
+            _apply_family_draw_filters(e)
+            ints = o.get("m_pParamValueSetInt")
+            iv = ints.get("value") if isinstance(ints, dict) else None
+            if isinstance(iv, dict) and isinstance(iv.get("m_paramSet"), list):
+                iv["m_paramSet"] = [
+                    p for p in iv["m_paramSet"]
+                    if p.get("m_paramId") != _PARAM_PROJECT_ONLY_INT]
+                # the implicit project view carries no detail level at all
+                want = ({"DBView3d": 2}.get(e.class_name, 1)
+                        if e.class_name != "DBViewProject" else None)
+                if want is None:
+                    iv["m_paramSet"] = [
+                        p for p in iv["m_paramSet"]
+                        if p.get("m_paramId") != _PARAM_VIEW_DETAIL_LEVEL]
+                else:
+                    for p in iv["m_paramSet"]:
+                        if p.get("m_paramId") == _PARAM_VIEW_DETAIL_LEVEL:
+                            p["m_value"] = want
+                            break
+                    else:
+                        iv["m_paramSet"].append(
+                            {"m_paramId": _PARAM_VIEW_DETAIL_LEVEL,
+                             "m_value": want})
+            if e.class_name == "DBViewPlan":
+                if o.get("m_pParamValueSetDouble") is None:
+                    _put(o, "m_pParamValueSetDouble",
+                         _wrap("ParamValueSetDouble", {"m_paramSet": []}))
+                _apply_family_plan_range(e, _plan_level_id(o))
             continue
         if e.class_name == "Viewer3d":
             # THE 3D CROP LAW (owner report: "i see nothing in revit" -- an
@@ -2344,12 +2615,22 @@ def _apply_family_viewer_law(els, project_view_id: int) -> None:
             # draws.  A Revit-born family carries +-100 ft with every bound
             # INACTIVE [measured on the donor 461 and the Autodesk library
             # panelboard 1134560].
-            bs = e.obj.get("m_boundedSpace")
+            o = e.obj
+            bs = o.get("m_boundedSpace")
             if isinstance(bs, dict):
                 bs["m_boundOffset"] = [[100.0, -100.0], [100.0, -100.0],
                                        [1000.0, 0.1]]
                 bs["m_boundActive"] = [[False, False]] * 3
                 bs["m_isOn"] = True
+            # ORTHOGRAPHIC, exactly like Revit's own family "View 1"
+            _put(o, "m_projMethodType", 1)
+            _put(o, "m_viewerFlags", 0)
+            _put(o, "m_intentionallyPlaced", False)
+            _put(o, "m_pParamValueSetElementId", None)
+            if o.get("m_cellList") is None:
+                _put(o, "m_cellList", _pattern_cell_list())
+            if o.get("m_geomSteps") is None:
+                _put(o, "m_geomSteps", _viewer3d_geom_steps(els))
             continue
         if e.class_name != "Viewer":
             continue
@@ -2366,6 +2647,40 @@ def _apply_family_viewer_law(els, project_view_id: int) -> None:
             o["m_projMethodType"] = 1
             o["m_viewerFlags"] = 0
             o["m_intentionallyPlaced"] = False
+            # a plan/ceiling viewer spins about +Z, not +Y [donor 22/26]
+            _put(o, "m_axisDir", [0.0, 0.0, 1.0])
+            if o.get("m_dbViewId") in ceiling_view_ids:
+                _put(o, "m_bReflected", True)
+        else:
+            _put(o, "m_cellList", None)
+
+
+def _viewer3d_geom_steps(els) -> Optional[dict]:
+    """The Viewer3d's own two-step geometry list [donor 461]: a
+    ``MakeCutterForViewer3d`` (flags 7997) followed by a ``ViewerGStep``
+    (flags 761725).  Built by re-tagging a plan view's GStep, whose body
+    shape is identical, so nothing is copied out of a donor file."""
+    template = None
+    for e in els:
+        steps = e.obj.get("m_geomSteps") if isinstance(e.obj, dict) else None
+        body = steps.get("value") if isinstance(steps, dict) else None
+        lst = body.get("m_nonBRepGList") if isinstance(body, dict) else None
+        if isinstance(lst, list) and lst and isinstance(lst[0], dict):
+            template = (steps, lst[0])
+            break
+    if template is None:                                  # pragma: no cover
+        return None
+    steps, step = template
+    out = copy.deepcopy(steps)
+    body = out["value"]
+    body["m_nonBRepGList"] = [
+        _clone_gstep(step, "MakeCutterForViewer3d", 1, 7997),
+        _clone_gstep(step, "ViewerGStep", 2, 761725),
+    ]
+    body["m_idCounter"] = 3
+    body["m_flags"] = 9
+    _put(body, "m_latestGStepTypeInPrevRegenCycle", [1, 1, 1, 1, 1])
+    return out
 
 
 # ---------------------------------------------------------------------------

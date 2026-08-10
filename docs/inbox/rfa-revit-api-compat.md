@@ -598,3 +598,71 @@ Guarded by `test_donorless_host_document_wires_every_registry` (the first
 test that reads the host ADocument).
 
 Desktop verdict pending on `donorless_fixed.rfa` / `donorless_troffer.rfa`.
+
+## Iteration 14 — THE FAMILY-VIEW LAW (invisible geometry, sun path, giant text)
+
+**Report:** "i dont see the element whats so ever", across three families
+(`hanger_v5`, `panel400_v4`, a generic box) and every view the family ships
+— Floor Plan, Ceiling Plan, "View 1" — while a `{3D}` view the owner
+created *inside the same file* drew the geometry fine. Plus: "even the
+reference lines cover the element" (dimension text at nine inches for a
+1'-8" panel) and "what is up with the sun path???".
+
+**What ended the guessing.** Four consecutive single-field rounds (camera
+fit, the Viewer3d crop box, the category-exclusion list, the family
+draw-order manager) each shipped and each left the report unchanged. The
+control the owner ran — a *panelboard*, not the new multi-part path — failed
+identically, which exonerated the geometry and convicted the view
+constellation. So the views were diffed **field by field** against the
+Revit-2026-born donor (views 50/23/27/463, viewers 49/22/26/461) instead of
+patched one hypothesis at a time: **75 differing fields across 8 elements.**
+
+**Root causes (all "our views were still PROJECT views"):**
+
+| Field | Ours | Revit-born famdoc | Effect |
+|---|---|---|---|
+| `m_oaDrawFilters` | `PhasingDrawFilter` + `DesignOptionDrawFilter` present | neither (a bare `None` in the slot) | a famdoc has no phases and no design options, so both filters test state nothing satisfies — **the model never reaches the draw pass**. A freshly created `{3D}` view has neither, which is exactly why THAT view drew. |
+| `m_scale` | 0.01 (1:100) | 0.041666666666666664 (1:24) on *every* view | dimension text ~9 in. tall on a 20 in. panel |
+| `m_pViewDisplayMgr.m_lights.m_sunAndShadowSettingsId` | a real element | `-1` | the sun path around a 4-inch component |
+| `m_pDetailDrawOrderMgr` | `DrawOrderMgr` on plans + project view | `DrawOrderMgr3dFamily` on **all** views | round 13 had converted only the 3D view |
+| plan view range | derived from a storey height: cut plane 7.55 ft **above** the 3.94 ft top clip, plus a view-depth cutter | cut 4.0 / top 7.5 (plan), cut 7.5 / top ∞ (ceiling), no depth cutter | inverted range |
+| `Viewer3d.m_projMethodType` / `m_viewerFlags` | 2 / 7 (perspective) | 1 / 0 (orthographic) | "View 1" is ortho in Revit; the donor parks its eye 1.7 ft off target and still frames the body |
+| `DBView3d` camera frame | the project skeleton's look-down-on-a-building direction | the SE isometric (0.5774, −0.5774, 0.5774) | the earlier "camera fit" framed the right point in the wrong direction |
+| `m_analyticalModelsExcluded` (3D) | `True` | `False` | (all four class-exclusion flags are False in every donor family view) |
+| `m_pParamValueSetInt` | 3D view had an EMPTY set | `VIEW_DETAIL_LEVEL` = 2 (3D), 1 (plans), absent (project view) | no detail level at all |
+
+**Fix:** one law, `_apply_family_viewer_law` in `famgen/skeleton.py`, applied
+to the whole constellation (`DBViewProject` / `DBViewPlan` / `DBView3d` /
+`DBViewSection` + their `Viewer`/`Viewer3d`), plus
+`_apply_family_plan_range`, `_viewer3d_geom_steps` and per-view-kind
+exclusion lists in `assets/family_view_excluded_categories.json` (now
+`project` 7 / `plan` 41 / `ceiling` 41 / `3d` 42 / `section` 46 entries —
+category ids only, no donor content). Release-shaped throughout: `_put`
+writes a field only when the active release's schema defines it.
+
+**Evidence:** every non-id field of all 8 view/viewer elements now matches
+the Revit-born donor exactly (`DBViewProject` MATCH, `DBViewPlan.plan`
+MATCH, `DBViewPlan.ceiling` MATCH, `DBView3d` MATCH, `Viewer.project`
+MATCH, `Viewer.plan` MATCH, `Viewer.ceiling` MATCH, `Viewer3d` MATCH — the
+only residue is our own element ids inside `PlanViewRange2`). Builds green
+for 2026, 2025 and 2024 (validator family-mode VALID, 0 errors each).
+
+**Still open:** the four elevation views (`DBViewSection` Back/Front/Left/
+Right) the donor carries and steer S-2026-08-10-a requires — the family
+still ships plan + ceiling + "View 1" only. No constructor yet; next.
+
+### BRANCH STATE
+* written: `src/rvt/famgen/skeleton.py` (family-view law, plan range, 3D
+  camera frame, per-view-kind exclusions),
+  `src/rvt/famgen/assets/family_view_excluded_categories.json` (+3 keys)
+* gates: `tests/test_required_settings.py tests/test_identity.py
+  tests/test_router_release.py tests/test_famgen_factory.py` 118 passed /
+  8 skipped; `tests/test_famgen_skeleton.py test_famgen_adoc.py
+  test_famgen_geometry.py test_bare_family_validate.py test_objects_plans.py
+  test_famgen_catalog.py` 117 passed / 27 skipped;
+  `tests/test_port2023.py test_port2024.py test_port2025.py
+  test_famload_2025.py` 53 passed / 36 skipped;
+  `tools/sync_plugin.py --check` clean; `plugin/scripts/validate_plugin.py`
+  PASS (25 assertions)
+* staged, not shipped: desktop verdict on `panel400_v5.rfa` /
+  `hanger_v6.rfa` (the owner's two failing cases, rebuilt under the law)
