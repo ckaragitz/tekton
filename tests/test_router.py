@@ -348,10 +348,16 @@ def test_unknown_famspec_kind_is_one_clear_line(output, tmp_path):
 # ===========================================================================
 
 from rvt.frontdoor import famspec as FS     # noqa: E402  (stdlib-light: json/os/re)
+from rvt.famgen import skeleton as SK       # noqa: E402
 
 FAMSPEC_SCHEMA = os.path.join(ROOT, "spec", "famspec.schema.json")
 FAMSPEC_EXAMPLES = {k: os.path.join(ROOT, "spec", "examples", f"famspec-{k}.json")
                     for k in FS.CATALOG_KINDS}
+#: the Revit category (OST id) each catalog kind's family must bind
+FAMSPEC_CATEGORY = {"panelboard": SK.OST_ELECTRICAL_EQUIPMENT,
+                    "transformer": SK.OST_ELECTRICAL_EQUIPMENT,
+                    "luminaire": SK.OST_LIGHTING_FIXTURES,
+                    "device": SK.OST_ELECTRICAL_FIXTURES}          # -2001060, issue #361
 
 
 def _famspec_schema():
@@ -365,22 +371,38 @@ def test_famspec_schema_is_draft07_and_covers_every_kind():
     assert sch["properties"]["kind"]["enum"] == list(FS.KINDS)
     assert set(sch["definitions"]) >= set(FS.KINDS)
     # the DONE names router._FAMSPEC_KINDS: it IS the contract's kind list
-    assert R._FAMSPEC_KINDS is FS.KINDS == ("panelboard", "transformer", "luminaire", "downlight")
+    assert R._FAMSPEC_KINDS is FS.KINDS == ("panelboard", "transformer", "luminaire",
+                                            "device", "downlight")
+    assert [alt["$ref"].rsplit("/", 1)[-1] for alt in sch["oneOf"]] == list(FS.KINDS)
     assert os.path.samefile(FS.schema_path(), FAMSPEC_SCHEMA)
 
 
-@pytest.mark.parametrize("kind", ["panelboard", "transformer", "luminaire"])
+@pytest.mark.parametrize("kind", FS.CATALOG_KINDS)
 def test_famspec_schema_mirrors_the_constructor_kwargs(kind):
     """Per-kind fields == make_<kind>'s keyword arguments (minus start_id,
-    plus the route field target_version; luminaire's own `kind` is `fixture`)."""
+    plus the route field target_version; luminaire's / device's own `kind`
+    is the famspec field `fixture` / `device`, FS.OWN_KIND_FIELD)."""
     import inspect
     from rvt.famgen import factory as F
     sch = _famspec_schema()
     fields = set(sch["definitions"][kind]["properties"]) - {"kind", "target_version"}
-    if kind == "luminaire":
-        fields = (fields - {"fixture"}) | {"kind"}
+    if kind in FS.OWN_KIND_FIELD:
+        fields = (fields - {FS.OWN_KIND_FIELD[kind]}) | {"kind"}
     params = set(inspect.signature(getattr(F, f"make_{kind}")).parameters) - {"start_id"}
     assert fields == params, (fields ^ params)
+
+
+def test_famspec_device_field_enumerates_the_factory_device_kinds():
+    """Issue #361: the famspec `device` field IS make_device's own kind list
+    (rvt.famgen.factory.DEVICE_KINDS) -- the schema cannot drift from it, and
+    an alias / typo is one clear schema line, not a constructor traceback."""
+    from rvt.famgen import factory as F
+    sch = _famspec_schema()
+    dev = sch["definitions"]["device"]
+    assert dev["properties"]["device"]["enum"] == list(F.DEVICE_KINDS)
+    assert "types" not in dev["properties"]                     # make_device is single-type
+    assert FS.normalise({"kind": "device", "device": "switch", "va": 0}) == \
+        ("device", {"kind": "switch", "va": 0}, {})
 
 
 @pytest.mark.parametrize("kind", sorted(FAMSPEC_EXAMPLES))
@@ -390,8 +412,10 @@ def test_famspec_examples_validate_against_the_schema(kind):
     assert FS.validate(spec) == []
     k, kw, ropts = FS.normalise(spec)
     assert k == kind and ropts == {}
-    # luminaire's `fixture` becomes make_luminaire's own `kind`; no other kwarg is `kind`
-    assert ("kind" in kw) is (kind == "luminaire")
+    # luminaire's `fixture` / device's `device` become the constructor's own
+    # `kind`; no other kwarg is `kind`
+    assert ("kind" in kw) is (kind in FS.OWN_KIND_FIELD)
+    assert not (set(FS.OWN_KIND_FIELD.values()) & set(kw))
 
 
 @pytest.mark.parametrize("bad,needle,status", [
@@ -402,6 +426,8 @@ def test_famspec_examples_validate_against_the_schema(kind):
     ({"kind": "panelboard", "target_version": "2025"}, "integer Revit year", "INVALID-FAMSPEC"),
     ({"kind": "luminaire", "types": []}, "fewer than 1 items", "INVALID-FAMSPEC"),
     ({"kind": "downlight", "detail": "sketchy"}, "not one of ['standard', 'envelope']", "INVALID-FAMSPEC"),
+    ({"kind": "device", "mounting_height": 44}, "unknown field 'mounting_height'", "INVALID-FAMSPEC"),
+    ({"kind": "device", "device": "toaster"}, "'toaster' is not one of", "INVALID-FAMSPEC"),
     ({"kinds": "panelboard"}, "is not one of", "UNSUPPORTED-FAMSPEC-KIND (unset)"),
 ])
 def test_invalid_famspec_is_named_by_the_stdlib_validator(bad, needle, status, tmp_path):
@@ -444,6 +470,7 @@ def test_e2e_famspec_to_rfa_every_catalog_kind(kind, tmp_path):
     manifest, stamped PROOF-ONLY (rule 1: a label, delivered regardless)."""
     from rvt.validate import validate_file
     from rvt.famgen import factory as F
+    from rvt.convert.rfa_load import RfaSource
     res = R.route({"rfa": FAMSPEC_EXAMPLES[kind]}, "rfa", out=str(tmp_path / "o"))
     assert res.ok, res.errors + [res.status, res.line]
     assert res.route == "rfa_generate" and res.status.startswith("OK"), res.status
@@ -458,6 +485,10 @@ def test_e2e_famspec_to_rfa_every_catalog_kind(kind, tmp_path):
     # the independent gates the DONE names: rvt_validate --family, make_family provenance
     assert len(validate_file(rfa, family=True).errors) == 0
     assert F.provenance_scan(rfa)["ok"] is True
+    # the category: reported by the writer AND read back from the written file
+    ost = FAMSPEC_CATEGORY[kind]
+    assert rep["family"]["category"] == SK.category_label(ost)
+    assert RfaSource(rfa).facts.category == ost
     assert any(s.startswith("PROOF-ONLY") for s in res.stamps)
     assert "VALID 0 errors" in res.status and "provenance ok=True" in res.status
     man = json.load(open(res.manifest_paths["route.json"]))
@@ -484,6 +515,8 @@ def test_e2e_famspec_loaded_onto_the_pinned_base_every_catalog_kind(kind, tmp_pa
     assert rep["validate_project_mode"]["n_errors"] == 0
     reg = (rep.get("verify") or {}).get("registries") or {}
     assert reg.get("coherent") is True and reg.get("ours_in_all_four") is True
+    (ours,) = rep["verify"]["family_inventory"]["ours"]        # the host Family, by category
+    assert ours["ok"] is True and ours["category"] == FAMSPEC_CATEGORY[kind]
     assert _validator_errors(res.files["loaded_rvt"]) == 0
     assert "project validates 0 errors" in res.status and "Revit" not in res.status
     assert any(s.startswith("PROOF-ONLY") for s in res.stamps)
@@ -534,6 +567,14 @@ def test_cli_run_json_famspec_is_one_document(tmp_path, capsys):
     doc = json.loads(out)
     assert rc == 0 and doc["ok"] and doc["route"] == "rfa_generate", out[-1500:]
     assert os.path.isfile(doc["files"]["rfa"]) and "route.log" in doc["manifest"]
+    # issue #361's title form: the device famspec INLINE on the command line
+    rc = cli.main(["run", "--output", "rfa", "--rfa",
+                   '{"kind": "device", "device": "duplex-receptacle"}',
+                   "--out", str(tmp_path / "d"), "--json"])
+    doc = json.loads(capsys.readouterr().out)
+    assert rc == 0 and doc["ok"] and doc["route"] == "rfa_generate", doc.get("status")
+    assert os.path.basename(doc["files"]["rfa"]) == "duplex_receptacle_nema_5_15r_120v.rfa"
+    assert doc["status"].startswith("OK (device family 'Duplex Receptacle NEMA 5-15R 120V'")
 
 
 def test_bad_arguments_raise_route_error(tmp_path):

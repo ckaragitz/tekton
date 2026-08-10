@@ -74,8 +74,8 @@ def build_parser() -> argparse.ArgumentParser:
                           "load host, seed, or the source to export / extract from)")
     ins.add_argument("--rfa", default=None, metavar="FAMSPEC|FILE.rfa",
                      help="a famspec JSON ({'kind': 'panelboard' | 'transformer' "
-                          "| 'luminaire' | 'downlight', ...} per spec/famspec."
-                          "schema.json, inline or a .json path) to GENERATE "
+                          "| 'luminaire' | 'device' | 'downlight', ...} per spec/"
+                          "famspec.schema.json, inline or a .json path) to GENERATE "
                           "(--output rfa) or generate + LOAD (--output rvt), or a "
                           ".rfa path (the file to edit with --prompt, or a "
                           "family to load / reload)")

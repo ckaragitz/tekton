@@ -1090,7 +1090,9 @@ def _load_family(res: RouteResult, out_dir: str, opts: Dict[str, Any], *,
                   f"FAILED (load: {rep.stop_reason or rep.error or 'see report'})")
 
 
-_FAMSPEC_KINDS = FS.KINDS          # panelboard / transformer / luminaire / downlight
+_FAMSPEC_KINDS = FS.KINDS          # panelboard / transformer / luminaire / device / downlight
+#: "'panelboard' | 'transformer' | ..." -- the kind alternatives as the clear lines spell them
+_FAMSPEC_KINDS_ALT = " | ".join(f"'{k}'" for k in FS.KINDS)
 
 #: the honest label every famspec-generated deliverable carries (rule 1: a
 #: label after delivery, never a refusal): validator + provenance gates ran,
@@ -1105,8 +1107,8 @@ def _rfa_lanes_line() -> str:
     reads, what it refuses by name (one home: rvt.convert.rfa_load), and the
     closest supported routes."""
     from ..convert.rfa_load import REFUSED_BY_NAME
-    return ("What this cell reads: a famspec JSON ({'kind': 'panelboard' | 'transformer' "
-            "| 'luminaire' | 'downlight', ...} -- spec/famspec.schema.json), a .rfa "
+    return (f"What this cell reads: a famspec JSON ({{'kind': {_FAMSPEC_KINDS_ALT}, ...}} "
+            "-- spec/famspec.schema.json), a .rfa "
             "tekton EXTRACTED from a loaded project (reloaded verbatim), or any "
             "STANDALONE-BORN .rfa -- our own .rfa deliverables and Revit-saved family "
             "files whose ElemTable our codec parses (schema-typed id remap + "
@@ -1301,14 +1303,15 @@ def _famspec_rfa(res: RouteResult, kind: str, kw: Dict[str, Any], out_dir: str,
 
 def _r_rfa_generate(res, inputs, out_dir, opts):
     """rfa -> rfa: a famspec ({'kind': panelboard | transformer | luminaire |
-    downlight, ...}) -> OUR standalone .rfa (issue #162).  A .rfa PATH alone
-    is a no-op (nothing to generate, nothing to edit): THE clear line."""
+    device | downlight, ...}) -> OUR standalone .rfa (issue #162 / #361).  A
+    .rfa PATH alone is a no-op (nothing to generate, nothing to edit): THE
+    clear line."""
     famspec, rfa_path = _read_famspec(inputs["rfa"])
     if rfa_path is not None:
         res.ok = False
         res.status = "UNSUPPORTED-INPUT-FORM (an existing .rfa alone is a no-op)"
-        res.line = ("rfa -> rfa GENERATES a family from a famspec JSON ({'kind': "
-                    f"{' | '.join(FS.KINDS)}, ...}} -- spec/famspec.schema.json); an existing "
+        res.line = (f"rfa -> rfa GENERATES a family from a famspec JSON ({{'kind': "
+                    f"{_FAMSPEC_KINDS_ALT}, ...}} -- spec/famspec.schema.json); an existing "
                     ".rfa with .rfa output has nothing to generate. Closest supported routes: "
                     "prompt+rfa -> rfa (EDIT it: 'set BusRating 225; rename the type to X'), "
                     "rfa -> rvt (LOAD it into a project).")
