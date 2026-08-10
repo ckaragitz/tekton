@@ -27,19 +27,46 @@ validator-VALID with 0 errors and provenance-clean before they leave here.
 | `L1_hanger_13_solids` | 13 | the hanger, decomposition OFF (one solid per IFC product) |
 | `L2_hanger_103_solids` | 103 | the hanger as shipped, decomposition ON |
 
-## How to read the result
+## RESULT (owner, desktop Revit 2026)
 
-- **L0 crashes** → the generated family *document structure* is at fault; nothing to do
-  with the IFC lane, and it belongs to the open cell rather than to this stream.
-- **L0/L1b/L1 load, L2 crashes** → it is SCALE. Cap solids per family and re-test.
-- **L0 loads, L1 crashes** → something specific to the assembly lane's geometry.
-- Any **dialog text** Revit shows is worth more than the pass/fail: that is the signal
-  issue #16 has been waiting for.
+**L0 (1), L1b (4), L1 (13) all load. L2 (103) crashes.**
 
-A counter-observation already in hand: our own four-registry loader (`route run --output
-rvt --rfa <file>`) puts the same family into a project with the **project validator at 0
-errors**, and that lane has certified precedent (`L1a`, `stage_L8_lp4`). So the failure is
-specific to Revit's own Load Family path, not to the family being in a project.
+## …and why that does NOT yet say "scale"
+
+**This ladder is confounded.** It claimed solid count was its only variable. It is not:
+
+| rung | solids | shape mix |
+|---|---|---|
+| L1 | 13 | 9 box + 4 cylinder — **no polygons** |
+| L2 | 103 | 87 box + 2 cylinder + **14 polygon** |
+
+L1 → L2 moves count **and** introduces N-gon parts, so the crash could be either. An
+earlier version of this file asserted "it is SCALE"; that was wrong and is retracted.
+Reading the code weakens the shape hypothesis without excluding it — #515 removed the
+regeneration fallback, so N-gons carry a cached B-rep exactly like boxes.
+
+`build_pair.py` is the matched pair that separates them in two files:
+
+| rung | solids | shapes | isolates |
+|---|---|---|---|
+| `P_boxes103` | 103 | box only | COUNT at L2's value, shape mix eliminated |
+| `P_polys14` | 14 | polygon only | SHAPE at a count already known to load |
+
+- `boxes103` crashes → count alone suffices; N-gons not implicated.
+- `boxes103` loads, `polys14` crashes → N-gon parts are the cause, not count.
+- both load → it is the combination, or something else in L2 entirely.
+- both crash → two independent causes.
+
+Any **dialog text** Revit shows is worth more than the pass/fail — that is the signal
+issue #16 has been waiting for.
+
+## Not a route to a fix: building a .rvt off the family
+
+An earlier round offered a project our own four-registry loader had assembled with the
+family in it. It **did not open**, and the owner's steer (#585) is explicit:
+*"dont try to build a rvt off a family"*. Routing around Revit's own Load Family path is
+not how this gets solved, and a `VALID / 0 errors` validator result never meant the file
+worked (hard rule 4).
 
 ## Rebuild
 

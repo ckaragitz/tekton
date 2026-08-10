@@ -1,0 +1,28 @@
+{
+ "stamp": "PROOF-ONLY",
+ "question": "count vs N-gon",
+ "rows": [
+  {
+   "rung": "P_boxes103",
+   "solids": 103,
+   "shapes": [
+    "box"
+   ],
+   "bytes": 331776,
+   "verdict": "VALID",
+   "errors": 0,
+   "provenance_ok": true
+  },
+  {
+   "rung": "P_polys14",
+   "solids": 14,
+   "shapes": [
+    "polygon"
+   ],
+   "bytes": 249856,
+   "verdict": "VALID",
+   "errors": 0,
+   "provenance_ok": true
+  }
+ ]
+}
