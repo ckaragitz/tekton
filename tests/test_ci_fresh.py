@@ -23,6 +23,7 @@ import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HELPER = os.path.join(ROOT, "tools", "dev", "ci_fresh.sh")
+CHECKER = os.path.join(ROOT, "tools", "dev", "check_portable_paths.py")   # the names-only gate the helper re-runs at merge time (#522)
 SESSION_CI = os.path.join(ROOT, "tools", "dev", "session_ci.sh")
 SHARD_LIST = os.path.join(ROOT, "tools", "dev", "shard_list.py")
 
@@ -46,7 +47,7 @@ def _commit(repo, files, msg, delete=()):
             fh.write(text)
     for rel in delete:
         os.remove(os.path.join(repo, rel))
-    _git(repo, "add", "-A")
+    _git(repo, "add", "-A", "--", *files, *delete)                     # these paths only: untracked helper copies never ride along
     _git(repo, "commit", "-qm", msg)
     return _git(repo, "rev-parse", "HEAD")
 
@@ -58,24 +59,31 @@ def _verdict(ci_dir, pr, **fields):
 
 @pytest.fixture
 def rig(tmp_path):
-    """An upstream repo + a clone of it that carries a COPY of the helper at tools/dev/ (so the script's own
-    `dirname $0/../..` resolution is what is tested), a real PR head in the clone (branch pr7 = origin/main + PR_ADDS,
-    what session_ci.sh would have fetched as refs/pr/7) and a stored pass verdict for PR 7 against the clone's origin/main."""
+    """An upstream repo + a clone of it that carries a COPY of the helper and of the checker it re-runs at tools/dev/ (so
+    the script's own `dirname $0/../..` resolution is what is tested), a real PR head in the clone (branch pr7 =
+    origin/main + PR_ADDS, what session_ci.sh would have fetched as refs/pr/7) and a stored pass verdict for PR 7
+    against the clone's origin/main."""
     up, clone = str(tmp_path / "upstream"), str(tmp_path / "clone")
     os.makedirs(up)
     _git(up, "init", "-q", "-b", "main")
     _commit(up, {"src/a.py": "a\n", "docs/x.md": "d\n", "docs/inbox/old.md": "o\n", "docs/coverage/viewer-certified.json": "{}\n"}, "one")
     _git(str(tmp_path), "clone", "-q", up, clone)
     was = _git(clone, "rev-parse", "origin/main")
-    _git(clone, "switch", "-q", "-c", "pr7")
-    head = _commit(clone, PR_ADDS, "the PR")                            # nothing else is untracked yet: the helper copy comes after
-    _git(clone, "switch", "-q", "--detach", "origin/main")
     os.makedirs(os.path.join(clone, "tools", "dev"))
-    shutil.copy(HELPER, os.path.join(clone, "tools", "dev", "ci_fresh.sh"))
+    for tool in (HELPER, CHECKER):
+        shutil.copy(tool, os.path.join(clone, "tools", "dev"))
     ci = os.path.join(clone, ".git", "session-ci", "ci")
     os.makedirs(ci)
-    _verdict(ci, 7, head=head, main=was, verdict="pass")
-    ns = types.SimpleNamespace(up=up, ci=ci, was=was, head=head, err=None)
+    ns = types.SimpleNamespace(up=up, ci=ci, was=was, err=None)
+
+    def pr(n, files):
+        """A PR head in the clone the way session_ci.sh leaves it (origin/main + `files`, fetched, not checked out)
+        and a stored pass verdict for it against the clone's origin/main -> the head SHA."""
+        _git(clone, "switch", "-q", "-c", "pr%d" % n, "origin/main")
+        head = _commit(clone, files, "PR %d" % n)
+        _git(clone, "switch", "-q", "--detach", "origin/main")
+        _verdict(ci, n, head=head, main=was, verdict="pass")
+        return head
 
     def fresh(*argv, path=None):
         env = dict(GIT_ENV, PATH=path) if path else GIT_ENV
@@ -83,7 +91,8 @@ def rig(tmp_path):
                              cwd=clone, env=env, capture_output=True, text=True, timeout=60)
         ns.err = out.stderr
         return out.returncode, out.stdout.strip()
-    ns.fresh = fresh
+    ns.pr, ns.fresh = pr, fresh
+    ns.head = pr(7, PR_ADDS)
     return ns
 
 
@@ -143,13 +152,14 @@ def test_docs_added_on_main_with_a_head_this_clone_lacks_fail_closed_but_modifie
 
 
 def test_the_collision_check_fails_closed_when_its_interpreter_fails(rig, tmp_path):
-    """A merge gate never reads "the check crashed" as "no collision": if the python3 behind the twin comparison fails
-    (the review forced it with an argv above 128 KiB; the lists now travel on stdin, and any other failure lands here),
-    the answer is "cannot judge", exit 2 -- not FRESH. A python3 shim that dies only for that one program proves it;
-    the JSON read before it goes through the real interpreter."""
+    """A merge gate never reads "the check crashed" as "no collision": if the python3 behind the collision check fails
+    (the review forced it with an argv above 128 KiB; the names are now read from git -z plumbing inside the program,
+    and any other failure -- a git call, the checker import -- lands here), the answer is "cannot judge", exit 2 --
+    not FRESH. A python3 shim that dies only for that one program (the one handed tools/dev/check_portable_paths.py,
+    #522) proves it; the JSON read before it goes through the real interpreter."""
     shim = tmp_path / "py-shim"
     shim.mkdir()
-    (shim / "python3").write_text('#!/bin/sh\nfor a in "$@"; do case "$a" in *lower*) echo "shim: refusing the collision check" >&2; exit 1;; esac; done\n'
+    (shim / "python3").write_text('#!/bin/sh\nfor a in "$@"; do case "$a" in */check_portable_paths.py) echo "shim: refusing the collision check" >&2; exit 1;; esac; done\n'
                                   'exec "%s" "$@"\n' % shutil.which("python3"))
     (shim / "python3").chmod(0o755)
     path = str(shim) + os.pathsep + os.environ.get("PATH", "")
@@ -159,6 +169,24 @@ def test_the_collision_check_fails_closed_when_its_interpreter_fails(rig, tmp_pa
     assert "shim: refusing" in rig.err
     now = _commit(rig.up, {"docs/x.md": "more\n"}, "and a modified doc", delete=("docs/inbox/Foo.md",))
     assert rig.fresh(7, rig.head, path=path) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # no docs ADD left in was..now: the check is not needed, the shim never fires
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="a file named aux.md cannot be created on Windows -- that is the law being felt")
+def test_the_merge_time_gate_is_the_checker_itself_not_a_rederived_twin_law(rig):
+    """#522: once main added docs files, the helper re-runs tools/dev/check_portable_paths.py's own check() over the
+    post-merge name set instead of comparing lower-cased names inline. Fingerprint: a reserved device name has
+    nothing to do with case twins, yet a PR adding docs/aux.md is refused with the checker's own problem line the
+    moment main adds any docs file (a real pass verdict cannot carry such a name -- session_ci.sh ran the same checker
+    over it -- so this row proves which code judges, and fails closed should a JSON ever lie). Modified docs alone
+    change no name, so they re-run nothing; a PR whose names are clean stays FRESH under the very same drift."""
+    head = rig.pr(8, {"docs/aux.md": "x\n"})
+    now = _commit(rig.up, {"docs/x.md": "more\n"}, "docs modified only")
+    assert rig.fresh(8, head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))
+    now = _commit(rig.up, {"docs/inbox/record.md": "new\n"}, "a record added on main")
+    assert rig.fresh(8, head) == (4, "STALE was=%s now=%s changed=docs/aux.md (tools/dev/check_portable_paths.py rejects the post-merge name set: "
+                                    "reserved device name on Windows: 'docs/aux.md') -> re-run tools/dev/session_ci.sh 8" % (rig.was, now))
+    assert rig.fresh(7, rig.head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))
+    assert rig.err == ""
 
 
 @pytest.mark.skipif(sys.platform == "win32", reason="a file named ' ' cannot exist on Windows")

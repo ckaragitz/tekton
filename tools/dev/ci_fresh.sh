@@ -12,18 +12,22 @@
 # files shard tests open for content (SHARD_READS: the certification ledger and rendered matrix — tests/test_router.py,
 # test_probe_batch.py, test_frontdoor_manifest_pin.py; AUTONOMY.md — needles in tests/test_techlead.py; the list is
 # pinned against the shard's real docs/ reads by tests/test_ci_fresh.py). A docs DELETION is drift too:
-# src/rvt/frontdoor/matrix.py cites docs/inbox records by existence. So is a docs file ADDED on main whose name
-# collides, compared lower-cased, with a path the PR itself adds: the same name is an add/add conflict, and case-only
-# twins are the one cross-file law of tools/dev/check_portable_paths.py, so portable_paths would redden only after the
-# merge (#496); if main added docs files and the recorded head is not in this clone, that cannot be ruled out — STALE
-# too. Anything else is STALE. A filter or interpreter failing on the way is "cannot judge", never FRESH.
+# src/rvt/frontdoor/matrix.py cites docs/inbox records by existence. So is a docs file ADDED on main when the
+# post-merge name set no longer passes tools/dev/check_portable_paths.py — THE names-only gate session_ci.sh ran, its
+# own check() imported from this checkout and re-run here, not a re-derived law (#522) — over the names the merge will
+# hold, taken from objects only: ls-tree of the new main, minus the names the PR deletes, plus the names it adds (an
+# approximation of the merged tree's names that needs no merge; a name added on both sides stays in twice = add/add).
+# A case-only twin of a path the PR adds would redden portable_paths only after the merge (#496); any other law the
+# checker has or gains is felt the same way. If main added docs files and the recorded head is not in this clone, none
+# of that can be ruled out — STALE too. Anything else is STALE. A filter or interpreter failing on the way is "cannot
+# judge", never FRESH.
 # With <head-sha> (what `git ls-remote` says the PR head is right now) it also refuses a JSON computed for another
 # head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.
 #
-# Trusted side only: git plumbing on THIS checkout (main, plus the file NAMES the recorded PR head adds — the same
-# names-only reading session_ci.sh's portable_paths step does) + a stdlib read of our own JSON. It never checks
-# out, imports or executes anything from the PR. Needs git, python3, awk (POSIX: mawk, gawk and busybox agree), and
-# network to `git fetch origin main`.
+# Trusted side only: git plumbing on THIS checkout (main, plus the file NAMES the recorded PR head adds and deletes —
+# the same names-only reading session_ci.sh's portable_paths step does), this checkout's own check_portable_paths.py,
+# and a stdlib read of our own JSON. It never checks out, imports or executes anything from the PR. Needs git,
+# python3, awk (POSIX: mawk, gawk and busybox agree), and network to `git fetch origin main`.
 # Prints one line. Exit 0 FRESH | 4 STALE (main moved under the verdict, or the recorded main is unknown here) |
 # 5 the JSON is for another head / not a pass | 3 MISSING (no JSON, or one from before "main" was recorded) |
 # 2 bad PR number / cannot judge (fetch or diff failed) — every non-zero exit means "do not merge on this verdict".
@@ -50,12 +54,27 @@ DRIFT=$(git diff --name-status --no-renames "$WAS" "$NOW" --) || { echo "cannot 
 name3() { awk 'BEGIN {n=0; s=""} length($0) {n++; if (n<=3) s=s (n>1?",":"") $0} END {if (n>3) s=s ",…"; print s}'; }   # paths, one per line -> first three named, the rest counted as an ellipsis (length, not NF: a name made of blanks still counts)
 BLOCK=$(awk -F'\t' -v reads="$SHARD_READS" '!($1 ~ /^[AM]$/ && $2 ~ /^docs\// && $2 !~ reads) {print $2}' <<<"$DRIFT" | name3) || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # every path that is NOT tolerated drift
 [ -n "$BLOCK" ] && { echo "STALE was=$WAS now=$NOW changed=$BLOCK -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
-ADDS=$(awk -F'\t' '$1=="A" {print $2}' <<<"$DRIFT") || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # docs files main ADDED: harmless unless the PR adds the same name or a case-twin of it (names the head has and $WAS lacks)
+ADDS=$(awk -F'\t' '$1=="A" {print $2}' <<<"$DRIFT") || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # docs files main ADDED: new names, harmless unless the post-merge name set now fails the names-only gate (below; needs the head's names)
 if [ -n "$ADDS" ]; then
   { [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "$HEAD^{commit}" 2>/dev/null; } || { echo "STALE was=$WAS now=$NOW changed=$(name3 <<<"$ADDS") (main added docs files and the recorded head \"$HEAD\" is not a commit in this clone, so a collision with a path PR $PR adds cannot be ruled out) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
-  PRADDS=$(git diff --name-only --no-renames --diff-filter=A "$WAS" "$HEAD" --) || { echo "cannot judge PR $PR: git diff $WAS $HEAD failed"; exit 2; }
-  # both lists on stdin (main's adds, a blank line, the PR's adds — git never emits an empty name), so no argv/env size limit applies; lower() = the checker's own comparison
-  TWIN=$(printf '%s\n\n%s\n' "$ADDS" "$PRADDS" | python3 -I -c 'import sys; adds, pr = sys.stdin.read().split("\n\n", 1); low = {p.lower() for p in pr.splitlines()}; print("\n".join(a for a in adds.splitlines() if a.lower() in low))' | name3) || { echo "cannot judge PR $PR: the collision check against the names PR $PR adds failed"; exit 2; }
-  [ -n "$TWIN" ] && { echo "STALE was=$WAS now=$NOW changed=$TWIN (added on main; PR $PR adds the same name or a case-twin of it: an add/add conflict or a portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
+  # The program below (stdin carries it, argv the checker's path + three SHAs + the PR number; it re-reads the names it needs with
+  # git -z itself: no argv/env size limit, and names git would quote stay intact) prints nothing when the set is clean, else
+  # line 1 = the reason to show and one name per line after it. A main-added name colliding with a PR-added one keeps #496's
+  # wording (message continuity only); anything else the checker rejects shows the checker's own first problem line.
+  HIT=$(python3 -IB - "$REPO/tools/dev/check_portable_paths.py" "$WAS" "$NOW" "$HEAD" "$PR" <<'PY'
+import importlib.util, subprocess, sys
+spec = importlib.util.spec_from_file_location("check_portable_paths", sys.argv[1]); checker = importlib.util.module_from_spec(spec); spec.loader.exec_module(checker)
+was, now, head, pr = sys.argv[2:]
+def names(*args): return subprocess.run(["git", *args], check=True, stdout=subprocess.PIPE).stdout.decode("utf-8", "replace").split("\0")[:-1]
+def moved(how, tip): return names("diff", "--name-only", "-z", "--no-renames", "--diff-filter=" + how, was, tip, "--")   # names Added / Deleted from the recorded main to tip
+adds, pradds, gone = moved("A", now), moved("A", head), set(moved("D", head))                                              # adds = $ADDS above, re-read NUL-clean
+findings = checker.check([p for p in names("ls-tree", "-r", "--name-only", "-z", now) if p not in gone] + pradds)
+twinned = {p for _, involved in findings if not set(involved).isdisjoint(pradds) for p in involved}                        # every name of a finding that holds a PR-added name
+twins = [a for a in adds if a in twinned]
+if twins: print("added on main; PR %s adds the same name or a case-twin of it: an add/add conflict or a portable_paths failure after the merge" % pr, *twins, sep="\n")
+elif findings: print("tools/dev/check_portable_paths.py rejects the post-merge name set: %s%s" % (findings[0][0], " (+%d more)" % (len(findings) - 1) if findings[1:] else ""), *dict.fromkeys(p for _, involved in findings for p in involved), sep="\n")
+PY
+  ) || { echo "cannot judge PR $PR: the collision check against the names PR $PR adds failed"; exit 2; }
+  [ -n "$HIT" ] && { NAMED=$(name3 <<<"${HIT#*$'\n'}") || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }; echo "STALE was=$WAS now=$NOW changed=$NAMED (${HIT%%$'\n'*}) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
 fi
 echo "FRESH(docs-only drift) was=$WAS now=$NOW"; exit 0
