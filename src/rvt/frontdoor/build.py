@@ -301,8 +301,8 @@ def stage_load_batched(model: FI.IntentModel, base_path: str, stages_dir: str, R
     plus ``mode`` / ``host_passes`` / ``shared_proofs`` / ``verify``.
     (``rvt.convert.add_to_project`` still calls the chained ``stage_load``.)"""
     from ..famgen import loader as L
-    order = R._load_order(model)                  # one representative tag per FAMILY
     groups = R.family_groups(model)               # representative -> every tag placed on it
+    order = R._load_order(model, groups)          # one representative tag per FAMILY
     out = os.path.join(stages_dir, "stage_L_loaded.rvt")
     rec: Dict[str, Any] = {"stage": "L", "mode": "batched (one host pass)",
                            "base": _relp(base_path), "order": order, "loads": [],
@@ -337,10 +337,8 @@ def stage_load_batched(model: FI.IntentModel, base_path: str, stages_dir: str, R
                                 ("adocument_reencode", "content_documents", "pass1_commit",
                                  "write_error")}
         rec["verify"] = res.shared.get("verify_written")
-        entries = [_load_entry(tag, lr, base_path, out, R) for tag, lr in zip(attempt, res.loads)]
-        for e in entries:
-            if len(groups.get(e["tag"], ())) > 1:
-                e["tags"] = list(groups[e["tag"]])       # the equipment sharing this family
+        entries = [{**_load_entry(tag, lr, base_path, out, R), **R._group_tags(groups, tag)}
+                   for tag, lr in zip(attempt, res.loads)]
         n_written = sum(1 for lr in res.loads if lr.out_path)     # families in the written file
         file_ok = bool(n_written) and bool((rec["verify"] or {}).get("file_ok"))
         if file_ok and all(lr.ok for lr in res.loads[:n_written]):
@@ -467,7 +465,8 @@ def _build_intent_inner(model: FI.IntentModel, opts: BuildOptions, R,
         #      lineage: the pinned bases are, and an explicit/env override is a
         #      genesis campaign base -- the conservative label either way. ----
         verdict = FI.combination_check(model, strict=opts.strict, stages=opts.stages,
-                                       composed_base=not opts.base.is_autodesk_sample)
+                                       composed_base=not opts.base.is_autodesk_sample,
+                                       n_families=len(R.family_groups(model)))
         res.verdict = verdict
         plans = FI.buildable_family_plans(model)
         n_walls = verdict.n_walls
@@ -479,8 +478,8 @@ def _build_intent_inner(model: FI.IntentModel, opts: BuildOptions, R,
                 res.degradations.append(
                     f"{p.tag} ({p.kind}): NOT built -- family plan {p.status}"
                     + (f": {p.refusal}" if p.refusal else "")
-                    + (" (the facts store never invents dimensions/ratings; supply the missing "
-                       "facts or choose a covered rating)" if p.status != "planned" else ""))
+                    + " (the facts store never invents dimensions/ratings; supply the missing "
+                      "facts or choose a covered rating)")
 
         if not want_walls and not want_fams:
             res.errors.append("intent has nothing buildable: no walls and no loadable family plans "
@@ -560,6 +559,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         for f in frec.get("families") or []:
             if f.get("built"):
                 res.created.append({"kind": "family(.rfa)", "tag": f.get("tag"),
+                                    **({"tags": f["tags"]} if f.get("tags") else {}),
                                     "name": f.get("family_name"), "path": f.get("path"),
                                     "catalog": f.get("catalog"), "variant": f.get("variant"),
                                     "ok": f.get("ok")})
@@ -625,7 +625,8 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         planned = verdict
         verdict = FI.combination_check(model, strict=opts.strict, stages=opts.stages,
                                        composed_base=planned.composed_base,
-                                       loaded_tags=loaded if have_fams else ())
+                                       loaded_tags=loaded if have_fams else (),
+                                       n_families=R.n_families(loaded) if have_fams else 0)
         res.verdict = verdict
         if planned.triggers_open_bug and not verdict.triggers_open_bug:
             res.degradations.append("nothing loaded -> no instance placed: the job collapsed "
@@ -668,7 +669,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
             res.stages.append(_slim_stage(erec))
         if eok:
             res.files["equipment"] = equip_path
-            _harvest_created(res, erec, "instance", model)
+            _harvest_created(res, erec, "instance")
         else:
             res.degradations.append("equipment file NOT emitted (instances NOT placed): "
                                     + str(erec.get("blocker") or erec.get("error"))
@@ -702,7 +703,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                 res.stages.append(_slim_stage(erec))
             if eok:
                 current = combined_path
-                _harvest_created(res, erec, "instance", model)
+                _harvest_created(res, erec, "instance")
             else:
                 res.degradations.append("equipment instances NOT placed: "
                                         + str(erec.get("blocker") or erec.get("error")))
@@ -809,19 +810,14 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
 _CIRCUIT_KEYS = ("elem_id", "panel", "panel_id", "panel_slot", "load", "load_id", "load_conn",
                  "number", "start_slot", "poles", "rating_a", "voltage", "edge_kind")
 
-#: created-instance kind by the placed instance's header category (stage E
-#: ``instances[].category``); anything else is electrical equipment
-OST_ELECTRICAL_FIXTURES = -2001060
-_INSTANCE_KIND = {OST_ELECTRICAL_FIXTURES: "fixture-instance"}
+#: created-element kinds of PLACED instances (stage E's ``created_kind``)
 INSTANCE_KINDS = ("equipment-instance", "fixture-instance")
 
-#: the wiring device's schedule pset (rvt.frontdoor.prompt_intent.DEVICE_PSET)
-#: -- one row per placed device in the manifest
-DEVICE_PSET = "DeviceSchedule"
+#: what a wiring-device row carries beyond an equipment row (stage E decides)
+_FIXTURE_KEYS = ("category", "shared_with", "schedule")
 
 
-def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str,
-                     model: Optional[FI.IntentModel] = None) -> None:
+def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
     if kind == "wall":
         for w in rec.get("walls") or []:
             res.created.append({"kind": "wall", "tag": w.get("id"), "elem_id": w.get("elem_id"),
@@ -830,8 +826,7 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str,
                                 "file_role": rec.get("stage")})
     else:
         for i in rec.get("instances") or []:
-            row = {"kind": _INSTANCE_KIND.get(i.get("category"), "equipment-instance"),
-                   "tag": i.get("tag"),
+            row = {"kind": i.get("created_kind") or "equipment-instance", "tag": i.get("tag"),
                    "elem_id": i.get("elem_id"), "symbol": i.get("symbol"),
                    "family": i.get("family"), "equip_kind": i.get("kind"),
                    "position_ft": i.get("position_ft"),
@@ -841,9 +836,7 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str,
                    "connector_slots_panel": i.get("connector_slots_panel"),
                    "file_role": rec.get("stage")}
             if row["kind"] == "fixture-instance":
-                eq = model.by_tag(row["tag"]) if model is not None else None
-                row.update(category=i.get("category"), shared_with=i.get("shared_with"),
-                           schedule=dict(((eq.psets if eq else None) or {}).get(DEVICE_PSET) or {}))
+                row.update({k: i.get(k) for k in _FIXTURE_KEYS})
             res.created.append(row)
         for c in rec.get("circuits") or []:
             res.created.append({"kind": "circuit", "tag": f"{c.get('panel')}>{c.get('load')}",
@@ -852,23 +845,15 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str,
 
 
 def _harvest_loaded_families(res: BuildResult, loaded: Dict[str, Any]) -> None:
-    """One ``loaded-family`` row per FAMILY: the equipment tags sharing a
-    device family ride on their representative's row under ``tags``."""
+    """One ``loaded-family`` row per FAMILY (a shared device family's member
+    tags ride on its representative's row under ``tags``, as stage L wrote)."""
     seen = {c.get("tag") for c in res.created if c.get("kind") == "loaded-family"}
-    rows: Dict[str, Dict[str, Any]] = {}
     for tag, info in (loaded or {}).items():
-        rep = info.get("shared_with") or tag
-        if rep in seen:
+        if tag in seen or info.get("shared_with"):
             continue
-        row = rows.get(rep)
-        if row is None:
-            row = rows[rep] = {"kind": "loaded-family", "tag": rep,
-                               "symbol_id": info.get("symbol_id"),
-                               "family_id": info.get("family_id"),
-                               "content_guid": info.get("content_guid")}
-            res.created.append(row)
-        if tag != rep:
-            row.setdefault("tags", [rep]).append(tag)
+        res.created.append({"kind": "loaded-family", "tag": tag,
+                            **{k: info.get(k) for k in ("symbol_id", "family_id", "content_guid")},
+                            **({"tags": list(info["tags"])} if info.get("tags") else {})})
 
 
 def _slim_stage(rec: Dict[str, Any]) -> Dict[str, Any]:

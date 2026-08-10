@@ -48,11 +48,13 @@ rvt.famgen / rvt.famload / rvt.validate / rvt.hosting / rvt.mep.
 from __future__ import annotations
 
 import argparse
+import collections
 import copy
 import hashlib
 import json
 import math
 import os
+import re
 import shutil
 import sys
 import time
@@ -125,10 +127,17 @@ def _constructor_for(plan: I.FamilyPlan):
 
 
 def _is_device_plan(plan: I.FamilyPlan) -> bool:
-    """A wiring-device plan (``make_device``, Electrical Fixtures): ONE
-    family per distinct kwargs shared by every device, loaded after the
-    equipment families, placed like the wall gear."""
+    """A wiring-device plan (``make_device``, Electrical Fixtures).  Devices
+    are per-TYPE content, not per-instance: the family name carries no tag
+    (so identical devices share ONE family, :func:`family_key`) and device
+    families load in the LAST tier (:func:`_load_order`) -- even a lone
+    receptacle, so a device family that cannot be authored never costs the
+    equipment before it."""
     return bool(plan.constructor) and plan.constructor.endswith("make_device")
+
+
+def _slug(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", str(text).lower()).strip("_")
 
 
 def build_product(plan: I.FamilyPlan, *, start_id: int = 1000, solid: bool = True,
@@ -175,11 +184,11 @@ def _family_name_for(plan: I.FamilyPlan) -> str:
 
 def family_key(plan: I.FamilyPlan) -> Tuple[str, str]:
     """Plans with the same key are ONE generated family (built once, loaded
-    once; every equipment item of the key is placed on its symbol).  Boards
-    and transformers carry their tag in the family name -> one family each,
-    as before; wiring devices do not -> N receptacles, one family."""
-    if plan.constructor.endswith("make_house_switchboard"):
-        return (plan.constructor, plan.tag)
+    once; every equipment item of the key is placed on its symbol).  The key
+    is the generated family NAME -- the host's own uniqueness constraint:
+    boards, transformers and the house switchboard carry their tag in it ->
+    one family each, as before; wiring devices do not -> N receptacles, one
+    family."""
     return (plan.constructor, _family_name_for(plan))
 
 
@@ -188,14 +197,20 @@ def family_groups(model: I.IntentModel) -> Dict[str, List[str]]:
     [every tag placed on that family]}`` in plan order (:func:`family_key`
     -- one entry per board / transformer, one shared entry per distinct
     wiring device)."""
+    from rvt.frontdoor.intent import buildable_family_plans
     reps: Dict[Tuple[str, str], str] = {}
     groups: Dict[str, List[str]] = {}
-    for p in model.family_plans or []:
-        if p.status not in ("resolved", "house"):
-            continue
+    for p in buildable_family_plans(model):
         rep = reps.setdefault(family_key(p), p.tag)
         groups.setdefault(rep, []).append(p.tag)
     return groups
+
+
+def _group_tags(groups: Dict[str, List[str]], rep: str) -> Dict[str, List[str]]:
+    """``{"tags": [...]}`` for a record row of a family SHARED by several
+    equipment tags; nothing for a one-tag family (rows stay as they were)."""
+    tags = groups.get(rep) or [rep]
+    return {"tags": list(tags)} if len(tags) > 1 else {}
 
 
 def stage_families(model: I.IntentModel, out_dir: str) -> Dict[str, Any]:
@@ -207,24 +222,22 @@ def stage_families(model: I.IntentModel, out_dir: str) -> Dict[str, Any]:
     os.makedirs(fam_dir, exist_ok=True)
     rec: Dict[str, Any] = {"stage": "F", "families": [], "dir": _relp(fam_dir)}
     groups = family_groups(model)
-    members = {t for tags in groups.values() for t in tags[1:]}
     for plan in model.family_plans:
         if plan.status not in ("resolved", "house"):
             rec["families"].append({"tag": plan.tag, "kind": plan.kind, "built": False,
                                     "reason": plan.refusal or f"status {plan.status}"})
             continue
-        if plan.tag in members:
+        if plan.tag not in groups:
             continue                                             # rides its group's family
         try:
             prod = build_product(plan, start_id=1000)
-            shared = len(groups[plan.tag]) > 1
-            stem = (prod.file_stem if shared
+            # a device file is named by its family (the shared key); a board's by its tag
+            stem = (_slug(prod.name) if _is_device_plan(plan)
                     else f"{plan.tag.lower().replace('-', '')}_{prod.file_stem}")
             path = os.path.join(fam_dir, f"{stem}.rfa")
             rep = prod.write(path)
             entry = {
-                "tag": plan.tag, "kind": plan.kind, "built": True,
-                **({"tags": list(groups[plan.tag])} if shared else {}),
+                "tag": plan.tag, "kind": plan.kind, "built": True, **_group_tags(groups, plan.tag),
                 "path": _relp(path), "size": os.path.getsize(path),
                 "family_name": prod.name, "constructor": plan.constructor,
                 "kwargs": plan.kwargs, "catalog": plan.catalog, "variant": plan.variant,
@@ -280,12 +293,13 @@ def host_watermark(path: str) -> int:
 # ===========================================================================
 
 #: load order = the feeder tree top-down (source before its loads), one entry
-#: per FAMILY (the representative tag of :func:`family_groups`); the shared
-#: wiring-device families load LAST, so a device family that cannot be
-#: authored can only ever cost devices, never the equipment before it
-def _load_order(model: I.IntentModel) -> List[str]:
-    groups = family_groups(model)
-    plans = {t: model.plan_for(t) for t in groups}
+#: per FAMILY (the representative tag of :func:`family_groups`, computed here
+#: unless the caller already holds ``groups``); wiring-device families load in
+#: the LAST tier, so a device family that cannot be authored can only ever
+#: cost devices, never the equipment before it
+def _load_order(model: I.IntentModel,
+                groups: Optional[Dict[str, List[str]]] = None) -> List[str]:
+    plans = {t: model.plan_for(t) for t in (family_groups(model) if groups is None else groups)}
     # roots first: equipment whose feeder source is external (UTILITY/SERVICE)
     fed_by = {ed.target: ed.source for ed in model.feeders}
     depth: Dict[str, int] = {}
@@ -314,9 +328,10 @@ def n_families(loaded: Dict[str, Any]) -> int:
 def _loaded_group(loaded: Dict[str, Any], groups: Dict[str, List[str]], rep: str,
                   info: Dict[str, Any]) -> None:
     """Record family ``rep`` as loaded for EVERY tag placed on it (stage E
-    looks instances up by equipment tag; members name their family's
-    representative under ``shared_with``)."""
-    loaded[rep] = info
+    looks instances up by equipment tag): the representative's entry lists
+    a shared family's ``tags``; each member's names it under ``shared_with``
+    (the ONE place either field is written)."""
+    loaded[rep] = {**info, **_group_tags(groups, rep)}
     for t in groups.get(rep, [rep])[1:]:
         loaded[t] = {**info, "shared_with": rep}
 
@@ -329,8 +344,8 @@ def stage_load(model: I.IntentModel, base_rvt: str, out_dir: str, *,
     from rvt.famgen import loader as L
     rec: Dict[str, Any] = {"stage": "L", "base": _relp(base_rvt), "loads": [],
                            "final": None, "blocker": None}
-    order = _load_order(model)
     groups = family_groups(model)
+    order = _load_order(model, groups)
     current = os.path.join(out_dir, "stage_L0_base.rvt")
     shutil.copyfile(base_rvt, current)
     rec["order"] = order
@@ -369,8 +384,7 @@ def stage_load(model: I.IntentModel, base_rvt: str, out_dir: str, *,
                 rec["blocker"] = f"{tag}: {entry['blocker']}"
                 _log(f"L  {tag} FAILED: {entry['blocker']}")
                 break
-            if len(groups.get(tag, ())) > 1:
-                entry["tags"] = list(groups[tag])
+            entry.update(_group_tags(groups, tag))
             _loaded_group(loaded, groups, tag,
                           {"symbol_id": entry["symbol_id"], "family_id": entry["family_id"],
                            "content_guid": entry["content_guid"], "product": prod})
@@ -987,6 +1001,18 @@ def wire_feeders(doc, model: I.IntentModel, placed: Dict[str, Any],
     return rec, made
 
 
+def _instance_labels(eq: Any, category: int) -> Dict[str, Any]:
+    """The manifest-facing labels of a placed instance, decided HERE by the
+    one producer (every harvester copies them): ``created_kind`` by header
+    category; a wiring device also carries its schedule pset as ``schedule``
+    (one device-schedule row per placed device)."""
+    if category != OST_ELECTRICAL_FIXTURES:
+        return {"created_kind": "equipment-instance"}
+    from rvt.frontdoor.prompt_intent import DEVICE_PSET      # already imported by any device job
+    return {"created_kind": "fixture-instance",
+            "schedule": dict((eq.psets or {}).get(DEVICE_PSET) or {})}
+
+
 def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                     specimens: SpecimenSet, loaded: Dict[str, Any], *,
                     level_id: Optional[int] = None,
@@ -1035,9 +1061,9 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
         for ed in model.feeders:
             out_edges[ed.source] = out_edges.get(ed.source, 0) + 1
         from rvt.famgen.loader import product_category
+        from rvt.famgen.skeleton import category_label
         els = []
         placed: Dict[str, Any] = {}
-        categories: Dict[int, int] = {}                   # header category -> instances
         for eq in model.equipment:
             if eq.tag not in loaded:
                 continue
@@ -1063,13 +1089,13 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                                     spec_symbol=specimens.instance_symbol,
                                     spec_category=specimens.instance_category,
                                     category=cat)
-            categories[cat] = categories.get(cat, 0) + 1
             dangling = doc.check_references(el)
             els.append(el)
             placed[eq.tag] = el
             rec["instances"].append({
-                "tag": eq.tag, "kind": eq.kind, "category": cat, "elem_id": el.elem_id,
-                "symbol": sym, "family": fam, "shared_with": info.get("shared_with"),
+                "tag": eq.tag, "kind": eq.kind, "category": cat, **_instance_labels(eq, cat),
+                "elem_id": el.elem_id, "symbol": sym, "family": fam,
+                "shared_with": info.get("shared_with"),
                 "position_ft": [round(x, 3) for x in pos_ft],
                 "position_m": [round(x, 4) for x in ins],
                 "level": eq.level, "level_id": eq_lvl,
@@ -1102,7 +1128,8 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
         ver = verify_written(out_path, ids)
         rec.update(_commit_summary(crep, ver, ids))
         rec["ok"] = bool(rec["structurally_valid"])
-        rec["instances_by_category"] = {str(k): v for k, v in sorted(categories.items())}
+        rec["instances_by_category"] = dict(collections.Counter(
+            category_label(i["category"]) for i in rec["instances"]))
         rec["seconds"] = round(time.time() - t0, 1)
         rec["notes"] = [
             "placement = FREE-STANDING at the intent's insertion point with the intent's "
@@ -1121,11 +1148,9 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
             f"specimen scaffolding: instance {tpl} (category {specimens.instance_category}) "
             f"cloned from the base's certified ancestor "
             f"{os.path.basename(specimens.source_path)}; header category patched to each "
-            f"instance's OWN family category ({rec['instances_by_category']}: "
-            f"{OST_ELECTRICAL_EQUIPMENT} Electrical Equipment / {OST_ELECTRICAL_FIXTURES} "
-            "Electrical Fixtures), specimen-symbol refs repointed, param rows keyed by "
-            "other-document ParamElems dropped, structural-analysis leftovers reset "
-            "(per-instance scrub log recorded)",
+            f"instance's OWN family category ({rec['instances_by_category']}), "
+            "specimen-symbol refs repointed, param rows keyed by other-document ParamElems "
+            "dropped, structural-analysis leftovers reset (per-instance scrub log recorded)",
         ]
         return rec, out_path if rec["ok"] else None
     except Exception as e:

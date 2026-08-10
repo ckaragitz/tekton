@@ -90,10 +90,14 @@ def test_devices_share_one_family_and_load_after_the_equipment():
     assert R._family_name_for(dev) == "Duplex Receptacle 5-15R 120V 180VA 43.31in AFF"
     assert len({R.family_key(model.plan_for(t)) for t in groups["R-1"]}) == 1
     assert "LP-1" in R._family_name_for(model.plan_for("LP-1"))          # boards keep per-tag names
-    # two mounting heights = two device families (never one family silently at one height)
+    # two mounting heights = two device families (never one family silently at one height),
+    # each written to its OWN .rfa (the file is named by the family, not the constructor stem)
     two, _ = PP.prompt_to_intent("a room with 4 receptacles at 18 in AFF and 2 outlets at 44 in AFF")
     g2 = R.family_groups(two)
     assert sorted(len(v) for v in g2.values()) == [2, 4] and len(g2) == 2
+    names = {R._slug(R._family_name_for(two.plan_for(t))) for t in g2}
+    assert names == {"duplex_receptacle_5_15r_120v_180va_18in_aff",
+                     "duplex_receptacle_5_15r_120v_180va_44in_aff"}
 
 
 # ---------------------------------------------------------------------------
@@ -203,7 +207,8 @@ def test_done_prompt_delivers_one_stamped_file_with_four_placed_devices(done_job
     created = build["elements_created"]
     rfa = [c for c in created if c["kind"] == "family(.rfa)"]
     assert len(rfa) == 1 and rfa[0]["ok"] and os.path.isfile(rfa[0]["path"])
-    assert rfa[0]["variant"] == "duplex-receptacle-5-15R"
+    assert rfa[0]["variant"] == "duplex-receptacle-5-15R" and rfa[0]["tags"] == ["R-1", "R-2", "R-3", "R-4"]
+    assert os.path.basename(rfa[0]["path"]) == "duplex_receptacle_5_15r_120v_180va_18in_aff.rfa"
     lf = [c for c in created if c["kind"] == "loaded-family"]
     assert len(lf) == 1 and lf[0]["tags"] == ["R-1", "R-2", "R-3", "R-4"]
     devices = [c for c in created if c["kind"] == "fixture-instance"]

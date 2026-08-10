@@ -195,13 +195,14 @@ class HostContext:
 
 
 def survey_host(host_rvt: str = DEFAULT_HOST, *,
-                category: int = CAT_ELECTRICAL_EQUIPMENT) -> HostContext:
+                category: Optional[int] = CAT_ELECTRICAL_EQUIPMENT) -> HostContext:
     """Open the host and resolve the resources a family of ``category``
     binds to: the category's projection ``GStyleElem`` (the symbol
     geometry's line style), the named load classifications (a family's
     connector load classification RESOLVES BY NAME to a host one), the id
     watermark, the load episode, and a specimen instance to clone the
-    placement scaffolding from.
+    placement scaffolding from.  ``category=None`` = the category-neutral
+    survey only (``ctx.category == INVALID``); :func:`bind_category` later.
     """
     from ..mutate import Document
     from ..families import FamilyIndex
@@ -232,22 +233,22 @@ def survey_host(host_rvt: str = DEFAULT_HOST, *,
     ctx.fill_pattern_solid = fps[0] if fps else INVALID
     ctx.line_pattern_solid = lps[0] if lps else INVALID
     ctx.levels = doc.levels()
-    return bind_category(ctx, category)
+    return ctx if category is None else bind_category(ctx, category)
 
 
 def bind_category(ctx: HostContext, category: int) -> HostContext:
     """``ctx`` bound to ``category``: the category's projection
     ``GStyleElem`` and a specimen instance of it (placement scaffolding)
-    resolved on the SAME surveyed host -- a new context (``ctx`` untouched)
-    unless ``ctx`` is already bound to ``category``.  The batched loader
-    binds one per distinct family category (a fixtures family among
-    equipment families must not inherit the equipment category on its
-    surrogates / symbol header / tracking rows)."""
+    resolved on the SAME surveyed host -- a new context (``ctx`` untouched;
+    ``notes`` are the binding's own) unless ``ctx`` is already bound to
+    ``category``.  The batched loader binds one per distinct family category
+    (a fixtures family among equipment families must not inherit the
+    equipment category on its surrogates / symbol header / tracking rows)."""
     category = int(category)
     if ctx.category == category:
         return ctx
     doc = ctx.doc
-    notes = [n for n in ctx.notes if not n.startswith("no host ")]
+    notes: List[str] = []
     # category projection GStyle: the GStyleElem whose object m_categoryId
     # == category and m_gstyleType == 1 (projection)          [V id 124 on rme]
     best = None
@@ -1747,12 +1748,12 @@ def load_families_into_project(host_rvt: str, out_path: str, products: Sequence[
 def _load_families_into_project(host_rvt: str, out_path: str, products: List[Any], *,
                                 symbol_solid: bool, report_path: Optional[str],
                                 validate: bool) -> BatchLoadResult:
-    host = survey_host(host_rvt)
+    host = survey_host(host_rvt, category=None)
     shared: Dict[str, Any] = {"host_watermark": host.watermark, "n_products": len(products)}
     authored: List[_AuthoredLoad] = []
     auth_failure = ""                    # why the first un-authorable family failed
     cursor = int(host.watermark)
-    bound = {host.category: host}        # one category binding per distinct family category
+    bound: Dict[int, HostContext] = {}   # one category binding per distinct family category
     for i, item in enumerate(products):
         try:
             product = item(cursor + 1) if callable(item) else item

@@ -202,7 +202,8 @@ class CombinationVerdict:
 
 def combination_check(model: IntentModel, *, strict: bool = False,
                       stages: str = "FLWECV", composed_base: bool = True,
-                      loaded_tags: Optional[Iterable[str]] = None) -> CombinationVerdict:
+                      loaded_tags: Optional[Iterable[str]] = None,
+                      n_families: Optional[int] = None) -> CombinationVerdict:
     """Decide how the build must degrade for THIS intent on THIS host.
 
     The truth table follows the ledger (docs/coverage/viewer-certified.json,
@@ -226,15 +227,18 @@ def combination_check(model: IntentModel, *, strict: bool = False,
     ``composed_base`` defaults to True: a caller that cannot vouch for the
     host's lineage gets the conservative label (a stamp never withholds).
     ``loaded_tags``: None at plan time (every buildable plan is assumed to
-    load); after the L stage pass the tags that actually loaded (stage L's
-    ``{tag: info}`` map counts a shared device family once) and the verdict
-    follows the load result (nothing loaded -> nothing placed).
+    load); after the L stage pass the tags that actually loaded and the
+    verdict follows the load result (nothing loaded -> nothing placed).
+    ``n_families``: the FAMILY count when the caller knows it (several
+    equipment tags may share one generated family -- the build passes
+    ``tools/ifc_intent.family_groups`` / ``n_families``); default = one per
+    buildable plan / loaded tag.
     """
     n_walls = len(model.room.walls) if model.room else 0
-    if loaded_tags is None:
+    if n_families is not None:
+        n_fam = int(n_families)
+    elif loaded_tags is None:
         n_fam = len(buildable_family_plans(model))
-    elif isinstance(loaded_tags, dict):           # stage L's map: shared families count once
-        n_fam = len({(v or {}).get("shared_with") or t for t, v in loaded_tags.items()})
     else:
         n_fam = len(set(loaded_tags))
     has_w, has_f = n_walls > 0, n_fam > 0
