@@ -28,6 +28,7 @@ from .. import _jsonsafe
 
 __all__ = ["TOOL", "TOOL_VERSION", "file_facts", "crud_affordances",
            "coverage_cross_reference", "census_gaps", "authorship_census_note",
+           "plan_note_degradations",
            "status_gate_lines", "resolved_pin", "build_manifest", "edit_manifest",
            "write_manifest"]
 
@@ -304,6 +305,30 @@ def authorship_census_note(status_gate: Optional[Dict[str, Any]]) -> Optional[st
             "delivered file are unaffected (hard rule 1)")
 
 
+# ---------------------------------------------------------------------------
+# plan notes (issue #465): every family plan's notes ride in intent.summary.
+# family_plans[].notes and under MANIFEST.md's family-plans row; a note saying
+# a schedule cell was DROPPED / DEFAULTED is also a build degradation (the panel
+# silently rated from another cell or a default), a coerced label is not
+# ---------------------------------------------------------------------------
+
+#: the wording rvt.ifc.intent.parse_schedule_scalar gives every dropped / defaulted cell
+DROPPED_CELL_MARK = " is not a usable "
+
+
+def plan_note_degradations(intent_summary: Optional[Dict[str, Any]]) -> List[str]:
+    """One degradation line per family plan whose notes say a schedule cell
+    was dropped or defaulted (``'LP-1: PanelSchedule.MainsRating '4OO A' is
+    not a usable current rating (not a number) -> ...'``); ``[]`` when no plan
+    carries such a note (every prompt job, every clean IFC)."""
+    out: List[str] = []
+    for p in (intent_summary or {}).get("family_plans") or []:
+        dropped = [n for n in p.get("notes") or [] if DROPPED_CELL_MARK in n]
+        if dropped:
+            out.append(f"{p.get('tag')}: " + "; ".join(dropped))
+    return out
+
+
 #: the keys of each job-runner gate the EDIT route's manifest echoes under
 #: edit.gates.<name> (the full dicts stay one hop away in edit.job_manifest):
 #: the structural / validation / identity summaries, and for base_provenance
@@ -481,6 +506,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
     m["intent"]["census_gaps"] = gaps
     if gaps["show"]:                       # a LABEL on the delivered file(s), never a refusal
         m["build"]["degradations"].append(_census_degradation(gaps))
+    m["build"]["degradations"] += plan_note_degradations(intent_summary)   # dropped cells: said
     note = authorship_census_note(m["build"]["status_gate"])
     if note:                               # STALE / UNAVAILABLE base census: said, never silent
         m["build"]["degradations"].append(note)
@@ -716,6 +742,9 @@ def _render_md(m: Dict[str, Any]) -> str:
            + ", ".join(f"{k}×{v}" for k, v in (it.get('equipment_by_kind') or {}).items()))
         fps = it.get("family_plans_by_status") or {}
         ap("- family plans: " + ", ".join(f"{k} {v}" for k, v in fps.items()))
+        for p in it.get("family_plans") or []:      # each plan's notes (#465); nothing when none
+            for n in p.get("notes") or []:
+                ap(f"  - note: `{p.get('tag')}` — {n}")
         ap(f"- feeder edges: {len(it.get('feeder_edges') or [])}")
         ops = it.get("other_products") or []
         if ops:                                # prompt-route entries carry no ifcClass: kind only
