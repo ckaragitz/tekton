@@ -540,3 +540,30 @@ BRANCH STATE (cam/386-wave-ledger): `tools/dev/techlead.py` (ledger functions, `
 `fetch_board_issue` shared with `hello`), `tools/dev/coord.py` (`unquoted`), `tests/test_techlead.py` (+2 tests),
 `.claude/commands/fanout.md`, `docs/process/AUTONOMY.md` (§12c), this section. Process tooling only; shipped when
 merged through the session pipeline.
+
+## The loop survives its session: a lease + a fresh session per fire (#302 remainder), same session, 2026-08-10
+
+**What.** One issue body (#410, `lease.issue` in `.github/autonomy.json`) is the loop's lease:
+`<!-- techlead-lease holder=<session id> until=<UTC iso> -->`. `tools/dev/techlead.py lease status --me <id>`
+answers HOLD (mine → renew and act), TAKE (none / garbled / released / expired → the holder is gone: write it in
+my name and act) or STANDBY (another session, unexpired → do nothing this fire; exit 5); `lease renew` writes it
+(refuses to overwrite another live holder without `--take-over`; `--release` writes `holder=none`); both have the
+token-less forms a cloud tick needs (`--from-file <issue JSON>` to judge, `--dry-run` to print the body for MCP
+`issue_write`). `.github/prompts/tick.md` is the standalone tick prompt with the lease as step 0 — the same text
+serves the hourly wake into the persistent session and a fresh-session routine every `lease.fresh_every_hours`
+(2): the persistent loop renews for `lease.minutes` (100) each hour, so a fresh fire normally stands by at the
+cost of one read; if the persistent session dies, the lease lapses within ≤ 100 min and the next fresh fire takes
+over with nothing but GitHub for state (which is why the wave ledger and the same-tick evidence rules exist).
+The marker is information, not authorisation — the failure it prevents is two well-behaved loops acting at once,
+not a hostile writer. `docs/process/AUTONOMY.md` §12c's loop row describes it; `DEFAULTS`/`autonomy.json` gain
+`lease.{issue,minutes,fresh_every_hours}`.
+
+**Evidence.** `tests/test_techlead.py` 34 passed (`test_loop_lease_decides_hold_take_standby_and_round_trips`,
+`test_lease_cli_is_offline_with_from_file_and_dry_run`); every decision path driven by hand offline (take / hold /
+standby rc 5 / refuse-to-steal / expired take-over / release / clean error). After merge: the lease written on
+#410 in this session's name, the hourly routine's prompt replaced by `tick.md`, and the fresh-session routine
+created — recorded on #302.
+
+BRANCH STATE (cam/302-loop-lease): `tools/dev/techlead.py` (lease grammar/functions/CLI, config default),
+`.github/autonomy.json` (+`lease`), `.github/prompts/tick.md` (new), `tests/test_techlead.py` (+2),
+`docs/process/AUTONOMY.md` (§12c row), this section. Process tooling; shipped when merged.

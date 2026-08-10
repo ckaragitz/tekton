@@ -688,6 +688,53 @@ def test_wave_cli_is_offline_for_dry_run_and_from_file(tmp_path):
     assert wrong.returncode != 0 and "expected the JSON LIST" in wrong.stderr and "Traceback" not in wrong.stderr   # a wrapped object is an error, not "nothing in flight"
 
 
+def test_loop_lease_decides_hold_take_standby_and_round_trips():
+    """#302 remainder: one issue body says which session runs the tick until when. Arriving sessions HOLD (mine),
+    TAKE (none/garbled/released/expired) or STAND BY (someone else's, unexpired); the marker round-trips; a quoted
+    marker does not count; a holder id that would not parse back is refused."""
+    me, fresh = "session_01R7j2MKADANzEFxvHGbVV7w", "session_FRESH123"
+    now = NOW
+    body = tl.render_lease(me, now + dt.timedelta(minutes=100), note="hourly | tick --> ok")
+    lease = tl.parse_lease(body)
+    assert lease["holder"] == me and lease["until"] == tl.iso(now + dt.timedelta(minutes=100)) and "-->" not in body.split("<!--")[0]
+    assert tl.lease_decision(body, me, now)["action"] == "hold"
+    assert tl.lease_decision(body, fresh, now)["action"] == "standby"
+    assert tl.lease_decision(body, fresh, now + dt.timedelta(minutes=101))["action"] == "take"          # expired → the holder is gone
+    assert tl.lease_decision("", fresh, now)["action"] == "take" and tl.lease_decision("garbled <!-- techlead-lease -->", fresh, now)["action"] == "take"
+    released = tl.render_lease("none", now)
+    assert tl.lease_decision(released, fresh, now)["action"] == "take" and tl.lease_decision(released, fresh, now)["why"] == "released"
+    assert tl.parse_lease("> " + body.splitlines()[-1]) is None                                          # quoted marker: not asserted
+    two = body + "\n" + tl.render_lease(fresh, now + dt.timedelta(minutes=5)).splitlines()[-1]
+    assert tl.parse_lease(two)["holder"] == fresh                                                         # last asserted marker wins
+    for bad in ("has space", "x" * 65, ""):
+        try:
+            tl.render_lease(bad, now)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"rendered lease for {bad!r}")
+    assert tl.DEFAULTS["lease"]["issue"] == tl.load_config()["lease"]["issue"] > 0
+
+
+def test_lease_cli_is_offline_with_from_file_and_dry_run(tmp_path):
+    env = {**os.environ, "GH_TOKEN": "", "GITHUB_TOKEN": "", "TEKTON_SESSION": "session_ME"}
+    run = lambda *args: subprocess.run([sys.executable, PATH, "lease", *args], capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)   # noqa: E731
+    free = tmp_path / "free.json"; free.write_text(json.dumps({"number": 1, "body": "<!-- techlead-lease holder=none until=2026-08-10T00:00:00Z -->"}), encoding="utf-8")
+    st = run("status", "--from-file", str(free), "--json")
+    assert st.returncode == 0 and json.loads(st.stdout)["action"] == "take"
+    body = run("renew", "--from-file", str(free), "--minutes", "30", "--dry-run")
+    assert body.returncode == 0 and "<!-- techlead-lease holder=session_ME until=" in body.stdout
+    mine = tmp_path / "mine.json"; mine.write_text(json.dumps({"body": body.stdout}), encoding="utf-8")
+    assert run("status", "--from-file", str(mine)).returncode == 0                                        # hold
+    other = run("status", "--from-file", str(mine), "--me", "session_FRESH")
+    assert other.returncode == 5 and other.stdout.startswith("STANDBY")                                   # a fresh fire stands by
+    steal = run("renew", "--from-file", str(mine), "--me", "session_FRESH", "--dry-run")
+    assert steal.returncode == 5 and "REFUSED" in steal.stderr and "Traceback" not in steal.stderr
+    assert run("renew", "--from-file", str(mine), "--me", "session_FRESH", "--take-over", "--dry-run").returncode == 0
+    nofile = run("renew", "--dry-run")
+    assert nofile.returncode == 0 and "NOT checked" in nofile.stderr                                       # honest about not having judged the current lease
+
+
 def test_steer_issue_is_verbatim_attributed_and_titled_by_first_sentence():
     spec = tl.steer_issue("Windows matters more than new features this month. Also stop touching 2023.\nThanks",
                           by="@Ckaragitz12", source="comment on #40", logged_by="github-actions", when=NOW)
