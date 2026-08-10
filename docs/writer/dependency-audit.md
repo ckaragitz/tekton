@@ -122,10 +122,22 @@ IFC4 declarations in the test suite whenever ifcopenshell is importable.
 Measured effect: `frontdoor author --ifc usecases/chicago-plenum-electrical-room/generated.ifc`
 resolved 17 products under steplite vs 18 under ifcopenshell before (the
 `IfcDoor` was dropped); after, 18 = 18 and the two `intent.json` are
-byte-identical (142 633 bytes) modulo `source.path`.  Still out of scope:
-per-schema hierarchies (IFC2X3-only classes such as
-`IfcElectricDistributionPoint` — #159 — and IFC4X3's renamed supertypes are
-read through the IFC4 tables).
+byte-identical (142 633 bytes) modulo `source.path`.
+
+**Class tree per FILE_SCHEMA (issue #337, 2026-08-10).** steplite now picks
+the tree per file: an `IFC4X3*` file is read through
+`src/rvt/ifc/ifc4x3_add2_parents.py` (876 entities, generated the same way
+with `--schema IFC4X3_ADD2`) plus an eight-row delta for what IFC4.3 changed
+in the transcribed subset (`IfcBuildingElement[Type]` → `IfcBuiltElement[Type]`,
+`IfcBuilding` ⊂ `IfcFacility`, `IfcProperty.Specification`,
+`IfcObjectPlacement.PlacementRelTo`), so `is_a('IfcBuiltElement')`,
+`by_type('IfcFacility')`, `schema == 'IFC4X3'` / `schema_identifier ==
+'IFC4X3_ADD2'` answer as ifcopenshell does; the cross-check of every row
+against `schema_by_name("IFC4X3_ADD2")` went from 31 differences to 0.  The
+IFC4X3 table is imported on first IFC4X3 file only (+0.96 ms / +291 KiB then;
+IFC4-only processes: import time unchanged, +31 KiB).  Still out of scope:
+IFC2X3's own hierarchy and attribute orders (IFC2X3 / IFC4X1 / IFC4X2 files
+keep the IFC4 tree; `IfcElectricDistributionPoint` etc. — #159).
 
 **Equivalence proof** (tests/test_steplite.py, run on both reference IFCs —
 `electrical-room-2500a.ifc` and `chicago-plenum-downlight.ifc`):
