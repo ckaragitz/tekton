@@ -223,7 +223,7 @@ non-slow guard test.
    attribute access, `get_psets` / `get_type` are untouched.  `IfcRelAggregates`
    is consumed by `rvt.ifc.intent` through ONE `by_type` scan, never per
    product, so it needed no index (the generic index would serve a future
-   `Decomposes` accessor for free).  +17 / −12 lines.
+   `Decomposes` accessor for free).  +19 / −13 lines (numstat).
 2. **`tools/dev/ifc_perf_probe.py`** (new, stdlib + engine): writes
    `perf_<n>.ifc` with OUR emitter (`rvt.frontdoor.ifc_out.write_intent_ifc` fed
    a synthetic duck-typed intent model: a 4-wall room shell + n products cycling
@@ -256,9 +256,9 @@ non-slow guard test.
 
 ### Equivalence (results AND ordering identical to main)
 
-* `tests/test_steplite.py`: **31 passed** (29 pre-existing incl. the two-backend
+* `tests/test_steplite.py`: **32 passed** (29 pre-existing incl. the two-backend
   BYTE-equality of `resolve_intent → intent_to_json` + `product_facts` on both
-  reference IFCs, + the 2 new), real ifcopenshell 0.8.5 present so no parity
+  reference IFCs, + the 3 new), real ifcopenshell 0.8.5 present so no parity
   test skipped.
 * main (`cd2d5a2`, a `git worktree`) vs head, both under `RVT_STEPLITE_FORCE=1`,
   one dump script per file recording `intent_to_json(resolve_intent(f))` **plus,
@@ -358,7 +358,7 @@ child's VmHWM.
 * Branch `cam/160-steplite-inverse-index` from `main` @ `cd2d5a2`; PR closes #160.
 * Files: `src/rvt/ifc/steplite.py` (edit: `_inverse_rel` + `File.__init__` slot),
   `plugin/lib/src/rvt/ifc/steplite.py` (generated mirror via `tools/sync_plugin.py`),
-  `tools/dev/ifc_perf_probe.py` (new), `tests/test_steplite.py` (+§8, 2 tests,
+  `tools/dev/ifc_perf_probe.py` (new), `tests/test_steplite.py` (+§8, 3 tests,
   `import importlib.util`), `docs/inbox/perf-deps.md` (this section only).
   No hot file, no fenced file, no NO-GO file touched; `tests/ci_shard.txt`
   untouched (test_steplite.py was already in it — no drop-in needed).
@@ -399,3 +399,12 @@ child's VmHWM.
   3-row `{attr: (rel class, related attr)}` table now that the index behind them
   is generic.
 * Follow-ups filed: #519.  Nothing staged for the viewer (no `.rvt` claim).
+* Review round 1 (tech lead, 🟡 nits on `a8dba3a`, everything reproduced on the
+  reviewer's box: parity 18/18, n=2000 ratio 1.91x → 0.87x under load, read
+  layer 10.4 s → 0.08 s): (1) the probe's child imported the POSIX-only
+  `resource` module unguarded, so on Windows the perf_500 shard test would have
+  FAILED instead of passing (PG3/O2) — now guarded (`maxrss_mb: null` there,
+  timings unaffected; exercised by running the child with `resource` made
+  unimportable and `/proc` unreadable → row still `ok`), one line each in the
+  probe and test docstrings; (2) stale counts in this record aligned (32 passed /
+  3 new tests / numstat +19 −13).

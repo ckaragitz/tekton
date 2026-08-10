@@ -26,7 +26,8 @@ every product of the opened file, no resolver work -- so a change in
 ``rvt.ifc.intent``'s own cost cannot hide (or pose as) a reader regression;
 ``resolve_s`` is the whole ``resolve_intent`` (its own open included);
 ``maxrss_mb`` is the child's OWN peak RSS in MiB (VmHWM, ``ru_maxrss`` only as
-the fallback -- see the child code for why).
+the fallback -- see the child code for why; ``null`` on Windows, which has
+neither /proc nor the ``resource`` module -- the timings are unaffected).
 Stdlib + the engine only; the ifcopenshell rows say ``"skipped"`` when the
 wheel is absent (never a runtime dependency -- CLAUDE.md section 2).
 """
@@ -127,7 +128,11 @@ def generate(n: int, out_dir: str) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 _CHILD = r"""
-import gc, json, os, resource, sys, time
+import gc, json, os, sys, time
+try:
+    import resource                       # POSIX only: absent on Windows -> maxrss null there
+except ImportError:
+    resource = None
 sys.path.insert(0, sys.argv[1])
 backend, path = sys.argv[2], sys.argv[3]
 if backend == "steplite":
@@ -170,13 +175,15 @@ def peak_rss_mb():
                     return int(line.split()[1]) / 1024.0, "VmHWM"
     except OSError:
         pass
+    if resource is None:                  # Windows: no stdlib peak-RSS source; timings still stand
+        return None, None
     rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     return (rss / (1024.0 * 1024.0) if sys.platform == "darwin" else rss / 1024.0), "ru_maxrss"
 rss_mb, rss_src = peak_rss_mb()
 walls = len(getattr(getattr(model, "room", None), "walls", None) or [])
 print(json.dumps({"ok": True, "open_s": round(t1 - t0, 3), "read_slice_s": round(t_slice, 3),
                   "resolve_s": round(t3 - t2, 3),
-                  "maxrss_mb": round(rss_mb, 1), "maxrss_source": rss_src,
+                  "maxrss_mb": None if rss_mb is None else round(rss_mb, 1), "maxrss_source": rss_src,
                   "equipment": len(model.equipment), "walls": walls}))
 """
 

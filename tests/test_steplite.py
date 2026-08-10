@@ -911,7 +911,9 @@ def test_large_ifc_resolves_without_the_quadratic_scan(tmp_path):
     steplite shim, in the probe's own measured child, in < 5 s (1.1 s on the
     #160 VM, of which the read layer is 0.015 s; the per-id scan cost 0.5 s at
     this size, 9 s at 2 000 and 315 s at 10 000 -- the SHARP reader guard is
-    the 2 000-product test above; this one holds the whole shim route)."""
+    the 2 000-product test above; this one holds the whole shim route).
+    Portable: the child guards its POSIX-only ``resource`` import, so on
+    Windows the row still comes back ``ok`` (``maxrss_mb`` null, not read here)."""
     probe = _load_perf_probe()
     info = probe.generate(500, str(tmp_path))
     assert info["products"] == 501 and os.path.getsize(info["path"]) > 500_000
