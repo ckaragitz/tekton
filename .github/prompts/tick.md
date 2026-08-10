@@ -63,7 +63,9 @@ message describing the change — no tool/AI attribution) ONLY when in THIS tick
 reviewer said approve/nits for the exact head you re-read (`git ls-remote`) just before merging, AND
 `tools/dev/ci_fresh.sh <n> <that head>` — run right before the merge — says FRESH (exit 0: the JSON is a pass for
 that head and its `main` is still `origin/main`, or differs only by added/modified `docs/**` no shard test opens
-whose names, with the PR's, still pass `tools/dev/check_portable_paths.py` — e.g. no add/add or case-twin collision);
+whose names, with the PR's, still pass `tools/dev/check_portable_paths.py` — e.g. no add/add or case-twin collision — or,
+`FRESH(disjoint drift)`, by code its judge `tools/dev/ci_fresh_drift.py` shows to be path-disjoint from the PR's change,
+not imported or named by it either way, gate-free and merge-clean; export `CI_FRESH_STRICT=1` to refuse that last kind);
 anything else (STALE: `main` moved under the verdict since the run, #476; WRONG-HEAD; MISSING; cannot judge) → re-run
 `session_ci.sh <n>` and merge on the new JSON, never on the old one (this serialises merges behind CI runs;
 reviews stay parallel, they are diff-scoped). Markers from
