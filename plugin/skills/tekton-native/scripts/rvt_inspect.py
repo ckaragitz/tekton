@@ -51,7 +51,7 @@ from rvt import objects as O  # noqa: E402  -- iter_records via the module: the 
 from rvt import partitions as P  # noqa: E402
 from rvt import schema as schema_mod  # noqa: E402
 from rvt.container import open_rvt  # noqa: E402
-from rvt.native_framing import enter_files_release  # noqa: E402  -- the instrument ladder, lazily, for foreign files only
+from rvt.native_framing import enter_files_release  # noqa: E402
 
 
 def print_records(doc, dec: O.ObjectDecoder, limit: int) -> int:
