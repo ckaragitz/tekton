@@ -49,11 +49,21 @@ EDIT_CEILING = 20.0
 # docs/inbox/perf-surfaces.md "FLAGSHIP-PERF-GATE".  Widen only with a newly
 # measured number stated here; never delete the assertion.
 ROOM6_CEILING = 8.0
+# The documented IFC flow -- ONE `go author --ifc FILE --target-version N`
+# call (issue #562) -- has exactly two honest outcomes on a bare surface: on a
+# python WITHOUT numpy the surface states the route's prerequisite up front and
+# attempts no job (BLOCKED, a preflight-cost answer: measured 0.1 s), and WITH
+# numpy the real ifc build runs (measured 2026-08-10 on a claude.ai/code cloud
+# VM, venv python 3.11 + numpy as the bare interpreter, plugin tree, cowork
+# surface: 8.6-9.2 s wall, job ~8.5 s, 8/8 families in one host pass) and is
+# held to the same generous AUTHOR_CEILING as the 1-panel prompt job.
 
 # the session's call budget: preflight 1 + author 1 + edit 1 (`go edit`, issue
 # #111; the pre-#111 edit flow alone was 3: info -> edit -> gate) + the
-# flagship author job 1 (`go author`, readiness inline)
-SESSION_CALL_BUDGET = 4
+# flagship author job 1 (`go author`, readiness inline) + the documented IFC
+# flow 1 (`go author --ifc`, issue #562: ONE call whether it builds or states
+# its prerequisite -- was 4 before that row joined the session)
+SESSION_CALL_BUDGET = 5
 
 
 def _load_bench():
@@ -90,7 +100,7 @@ def bench():
 def bench_report(bench):
     report = bench.run_bench(
         surfaces=["cowork"],
-        jobs=["preflight", "author-prompt", "go-edit", "go-author-6panels"],
+        jobs=["preflight", "author-prompt", "go-edit", "go-author-6panels", "go-author-ifc"],
         source=os.path.join(ROOT, "plugin"),      # the working tree, always current
         python_bare=_bare_python(),
         timeout=120.0,
@@ -155,6 +165,37 @@ def test_bare_go_author_6panels_under_ceiling(bench, bench_report):
         f"bare-env flagship `go author` (6 panels) took {jd['seconds']}s, job_seconds "
         f"{bd['job_seconds']}s (ceiling {ROOM6_CEILING}s) -- per-family cost regressed "
         f"(schema re-materialised per decoder? a second host pass? ECC back on the slow path?)")
+
+
+def test_bare_go_author_ifc_builds_or_states_its_prerequisite(bench_report):
+    """The documented IFC flow is ONE `go author --ifc` call on a bare surface
+    (issue #562) and reads exactly one of two honest outcomes -- PASS (numpy on
+    the bare python: the ifc job built, under AUTHOR_CEILING) or BLOCKED (no
+    numpy: the surface named the route's prerequisite up front, `go.prerequisite`,
+    and attempted no job) -- never FAIL, never a silent SKIPPED.  Which of the
+    two applies is read from the surface's OWN preflight (`extras.numpy` = that
+    interpreter's `find_spec("numpy")` under the bench env), so the test runs on
+    any host and numpy is never imported into this process."""
+    jd = _job(bench_report, "go-author-ifc")
+    assert jd["status"] in ("PASS", "BLOCKED"), (
+        f"`go author --ifc` on a bare surface is {jd['status']}: {jd['reason']}")
+    assert jd["shell_calls"] == 1, "the IFC flow must stay ONE `go author --ifc` call"
+    if (bench_report.get("extras") or {}).get("numpy"):
+        assert jd["status"] == "PASS", (
+            f"numpy is on the bare python but the ifc job did not build: {jd['reason']}")
+        assert (jd.get("breakdown") or {}).get("job_seconds") is not None, (
+            "the `go` envelope must report job_seconds")
+        assert jd["seconds"] < AUTHOR_CEILING, (
+            f"bare-env `go author --ifc` took {jd['seconds']}s (ceiling {AUTHOR_CEILING}s) -- "
+            "the ifc route's cold-start compute regressed")
+    else:
+        assert jd["status"] == "BLOCKED", (
+            f"numpy is absent but the ifc route was not gated up front: {jd['status']} -- {jd['reason']}")
+        assert (jd.get("prerequisite") or {}).get("needs") == ["numpy"], (
+            f"a numpy-less surface must state the ifc route's ONE prerequisite (go.prerequisite): {jd}")
+        assert jd["seconds"] < PREFLIGHT_CEILING, (
+            f"stating the prerequisite took {jd['seconds']}s (ceiling {PREFLIGHT_CEILING}s) -- "
+            "it must stay a preflight-cost answer, not a job that starts and stops")
 
 
 def test_session_shell_call_budget(bench_report):

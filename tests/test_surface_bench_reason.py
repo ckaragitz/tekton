@@ -14,6 +14,11 @@ UP FRONT (`go` envelope ``go.prerequisite`` since #550, or preflight's
 ``routes.ifc`` for the `run frontdoor.py author --ifc` job) is ``BLOCKED``
 with the {route, needs, fix} carried into the JSON row -- distinct from a
 FAILED job (still ``FAIL``) and a READY one (still ``PASS``).
+
+Issue #562 adds the ``go-author-ifc`` job (ONE `go author --ifc FILE
+--target-version N` call, classified from the envelope itself) and makes the
+``author-ifc`` row's BLOCKED independent of job order: run without the
+preflight job it asks the surface for its route table itself (one counted call).
 """
 from __future__ import annotations
 
@@ -115,11 +120,12 @@ GO_READY_OK = {"go": {"one_call": True, "ready": True, "verb": "author", "exit_c
 
 
 class _FakeSurface:
-    """Just enough Surface for a job classifier: ``run`` hands back a canned
-    Invocation instead of spawning a shell call."""
+    """Just enough Surface for a job classifier: ``run`` hands back canned
+    Invocations -- one (stdout, exit) per call, in order -- instead of
+    spawning shell calls, and remembers each call's label + argv."""
 
-    def __init__(self, bench, stdout: str, exit_code: int, workdir: str):
-        self._bench, self._stdout, self._exit = bench, stdout, exit_code
+    def __init__(self, bench, calls: list, workdir: str):
+        self._bench, self._calls, self.labels, self.argvs = bench, list(calls), [], []
         self.call_no, self.workdir, self.plugin_dir = 0, workdir, workdir
 
     def bootstrap(self, skill: str) -> str:
@@ -127,12 +133,16 @@ class _FakeSurface:
 
     def run(self, label, argv_builder):
         self.call_no += 1
-        argv_builder(self)                                # the job builds its argv as for real
-        return _inv(self._bench, stdout=self._stdout, exit_code=self._exit)
+        self.labels.append(label)
+        self.argvs.append(argv_builder(self))             # the job builds its argv as for real
+        stdout, exit_code = self._calls[self.call_no - 1]  # an unplanned call is an IndexError
+        return _inv(self._bench, stdout=stdout, exit_code=exit_code)
 
 
-def _surface(bench, tmp_path, payload, exit_code):
-    return _FakeSurface(bench, json.dumps(payload, indent=1), exit_code, str(tmp_path))
+def _surface(bench, tmp_path, payload, exit_code, *then):
+    """``then``: further ``(payload, exit)`` pairs answering the 2nd, 3rd... call."""
+    calls = [(json.dumps(p, indent=1), c) for p, c in ((payload, exit_code), *then)]
+    return _FakeSurface(bench, calls, str(tmp_path))
 
 
 def test_go_envelope_with_prerequisite_is_blocked_and_carries_needs_fix(bench, tmp_path):
@@ -173,6 +183,9 @@ IFC_FAILED_NUMPY = {"route": "ifc", "ok": False, "errors": [
     "IFC intent failed: the --ifc route needs numpy, not installed on this interpreter -- "
     "one-time fix: python -m pip install numpy (--prompt / --rvt run without it)"],
     "status": "FAILED (IFC intent failed: ...)", "files": {}}
+IFC_BUILT_OK = {"route": "ifc", "ok": True, "status": "PROOF-ONLY", "errors": [], "files": {}}
+AUTHOR_IFC_BLOCKED = ("ifc route prerequisite stated by preflight: "
+                      "needs numpy (python -m pip install numpy)")
 
 
 @pytest.mark.parametrize("routes, expected_status", [
@@ -185,8 +198,7 @@ def test_author_ifc_prerequisite_stated_by_preflight(bench, tmp_path, routes, ex
     job = bench.job_author_ifc(_surface(bench, tmp_path, IFC_FAILED_NUMPY, 3), state)
     assert job.status == expected_status
     if expected_status == "BLOCKED":
-        assert job.reason == ("ifc route prerequisite stated by preflight: "
-                              "needs numpy (python -m pip install numpy)")
+        assert job.reason == AUTHOR_IFC_BLOCKED
         assert job.as_dict()["prerequisite"] == PREREQ
     else:
         assert job.reason.startswith("author --ifc failed: IFC intent failed: the --ifc route needs numpy")
@@ -195,8 +207,7 @@ def test_author_ifc_prerequisite_stated_by_preflight(bench, tmp_path, routes, ex
 
 def test_author_ifc_that_built_is_pass_whatever_the_table_says(bench, tmp_path):
     state = {"preflight": {"routes": {"ifc": {"ok": False, "needs": ["numpy"], "fix": "x"}}}}
-    ok = {"route": "ifc", "ok": True, "status": "PROOF-ONLY", "errors": [], "files": {}}
-    assert bench.job_author_ifc(_surface(bench, tmp_path, ok, 0), state).status == "PASS"
+    assert bench.job_author_ifc(_surface(bench, tmp_path, IFC_BUILT_OK, 0), state).status == "PASS"
 
 
 def test_table_and_summary_say_blocked_needs_numpy(bench, tmp_path):
@@ -216,3 +227,131 @@ def test_table_and_summary_say_blocked_needs_numpy(bench, tmp_path):
     assert "| go-author-prompt | 1 | 0.1s BLOCKED (needs numpy) | 0.1s |" in md
     assert f"- cowork / go-author-prompt: BLOCKED -- {NOT_READY_IFC}" in md
     assert "FAIL" not in md
+
+
+# ---------------------------------------------------------------------------
+# issue #562: the `go author --ifc` row, and author-ifc BLOCKED whatever ran before it
+# ---------------------------------------------------------------------------
+
+#: the ONE JSON `go author --ifc ...` prints when numpy IS present and the job built
+GO_IFC_READY_OK = {"go": {"one_call": True, "ready": True, "verb": "author", "exit_code": 0,
+                          "preflight_line": "tekton: READY | ... | ifc-route OK | ...",
+                          "job_seconds": 7.1},
+                   "result": {"ok": True, "route": "ifc", "status": "PROOF-ONLY (self-checks PASS)",
+                              "errors": [], "files": {},
+                              "release": {"requested": 2025, "output": 2025}}}
+#: ... and when the job ran but the IFC itself was unusable (a real failure, numpy or not)
+GO_IFC_FAILED = {"go": {"one_call": True, "ready": True, "verb": "author", "exit_code": 3},
+                 "result": {"ok": False, "route": "ifc", "files": {},
+                            "errors": ["IFC intent failed: Error: Unable to parse IFC SPF header"],
+                            "status": "FAILED (IFC intent failed: Error: Unable to parse IFC SPF header)"}}
+#: `_bootstrap.py --json` on a numpy-less interpreter (the keys the bench reads)
+PREFLIGHT_BARE = {"ok": True, "python": {"version": "3.11.15"}, "seconds": 0.06,
+                  "line": "tekton: READY | ... | ifc-route needs numpy (python -m pip install numpy) | ...",
+                  "extras": {"numpy": False, "ifcopenshell": True},
+                  "routes": {"prompt": {"ok": True, "needs": []}, "ifc": dict(PREREQ, ok=False),
+                             "rvt": {"ok": True, "needs": []}}}
+
+
+def test_go_author_ifc_is_a_canonical_job_after_author_ifc(bench):
+    order = list(bench.JOB_ORDER)
+    assert order.index("go-author-ifc") == order.index("author-ifc") + 1
+    assert bench.JOBS["go-author-ifc"] is bench.job_go_author_ifc
+
+
+def test_go_author_ifc_is_one_go_call_naming_the_bundled_ifc_and_a_release(bench, tmp_path):
+    s = _surface(bench, tmp_path, GO_PREREQ_ENVELOPE, 3)
+    job = bench.job_go_author_ifc(s, {})
+    assert job.calls == 1 and s.labels == ["go author --ifc (electrical room)"]
+    argv = s.argvs[0]
+    assert argv[:3] == [s.bootstrap("tekton-author"), "go", "author"]
+    assert argv[argv.index("--ifc") + 1] == os.path.join(s.plugin_dir, bench.IFC_EXAMPLE_REL)
+    assert argv[argv.index("--target-version") + 1] == bench.GO_IFC_TARGET_VERSION == "2025"
+    assert "--json" in argv and argv[argv.index("--out") + 1].startswith(s.workdir)
+
+
+@pytest.mark.parametrize("payload, exit_code, status, reason", [
+    (GO_PREREQ_ENVELOPE, 3, "BLOCKED", NOT_READY_IFC),        # bare interpreter: stated up front
+    (GO_IFC_READY_OK, 0, "PASS", ""),                          # numpy present: built
+    (GO_IFC_FAILED, 3, "FAIL",                                 # ran and failed: a real FAIL, own verdict
+     "go author failed: IFC intent failed: Error: Unable to parse IFC SPF header"),
+])
+def test_go_author_ifc_classified_from_the_envelope_itself(bench, tmp_path, payload, exit_code,
+                                                            status, reason):
+    """No preflight job, no routes table in state: the envelope alone decides."""
+    job = bench.job_go_author_ifc(_surface(bench, tmp_path, payload, exit_code), {})
+    assert (job.status, job.reason) == (status, reason)
+    jd = job.as_dict()
+    assert jd["job"] == "go-author-ifc" and jd["shell_calls"] == 1
+    assert {"shell_calls", "seconds", "extract_seconds", "invocations"} <= set(jd)
+    if status == "BLOCKED":
+        assert jd["prerequisite"] == PREREQ
+        assert bench._cell(jd, "cowork") == "0.1s BLOCKED (needs numpy)"
+    else:
+        assert "prerequisite" not in jd
+    if status == "PASS":
+        assert jd["breakdown"]["job_seconds"] == 7.1
+
+
+def test_go_author_ifc_on_a_pre_go_build_is_skipped(bench, tmp_path):
+    """A plugin build that predates `go` answers unknown argv with the plain
+    readiness line -- an absent feature (skipped), not a failure."""
+    s = _FakeSurface(bench, [("tekton: READY | engine OK | 0.05s\n", 0)], str(tmp_path))
+    assert bench.job_go_author_ifc(s, {}).status == "SKIPPED"
+
+
+def test_author_ifc_alone_asks_the_surface_for_its_route_table(bench, tmp_path):
+    """`--jobs author-ifc` with no preflight job before it (#562): the failed job
+    is followed by ONE counted `_bootstrap.py --json` probe on the same row, and
+    the stated `routes.ifc` prerequisite makes it BLOCKED exactly as in a full
+    session -- never FAIL just because of job order."""
+    s = _surface(bench, tmp_path, IFC_FAILED_NUMPY, 3, (PREFLIGHT_BARE, 0))
+    state: dict = {}
+    job = bench.job_author_ifc(s, state)
+    assert (job.status, job.reason) == ("BLOCKED", AUTHOR_IFC_BLOCKED)
+    assert job.as_dict()["prerequisite"] == PREREQ
+    assert job.calls == 2 and s.labels == ["author --ifc (electrical room)",
+                                           "preflight --json (route table)"]
+    assert s.argvs[1] == [s.bootstrap("tekton-author"), "--json"]
+    assert state["preflight"]["routes"]["ifc"]["ok"] is False   # kept for later jobs
+    # in a full session (preflight already asked) the row stays ONE call
+    s2 = _surface(bench, tmp_path, IFC_FAILED_NUMPY, 3)
+    job2 = bench.job_author_ifc(s2, {"preflight": {"routes": PREFLIGHT_BARE["routes"]}})
+    assert (job2.status, job2.reason, job2.calls) == ("BLOCKED", job.reason, 1)
+
+
+@pytest.mark.parametrize("probe, probe_exit", [
+    ({k: v for k, v in PREFLIGHT_BARE.items() if k != "routes"}, 0),   # pre-#127 build: READY, no table
+    ({"ok": False, "line": "tekton: NOT READY | engine: ImportError: x"}, 3),   # broken surface
+])
+def test_author_ifc_alone_without_a_stated_prerequisite_is_still_fail(bench, tmp_path,
+                                                                        probe, probe_exit):
+    s = _surface(bench, tmp_path, IFC_FAILED_NUMPY, 3, (probe, probe_exit))
+    state: dict = {}
+    job = bench.job_author_ifc(s, state)
+    assert job.status == "FAIL" and job.calls == 2
+    assert job.reason.startswith("author --ifc failed: IFC intent failed: the --ifc route needs numpy")
+    assert "prerequisite" not in job.as_dict()
+    assert "preflight" in state                                 # asked once; later jobs reuse it
+
+
+def test_author_ifc_alone_that_built_never_probes(bench, tmp_path):
+    job = bench.job_author_ifc(_surface(bench, tmp_path, IFC_BUILT_OK, 0), {})
+    assert (job.status, job.calls) == ("PASS", 1)
+
+
+def test_preflight_job_ready_records_the_route_table(bench, tmp_path):
+    state: dict = {}
+    job = bench.job_preflight(_surface(bench, tmp_path, PREFLIGHT_BARE, 0), state)
+    assert (job.status, job.reason, job.calls) == ("PASS", "", 1)
+    assert state["preflight"] == {"python": "3.11.15", "extras": PREFLIGHT_BARE["extras"],
+                                  "routes": PREFLIGHT_BARE["routes"], "internal_seconds": 0.06}
+
+
+def test_preflight_job_not_ready_fails_and_leaves_an_asked_marker(bench, tmp_path):
+    not_ready = {"ok": False, "line": "tekton: NOT READY | genesis-base: missing"}
+    state: dict = {}
+    job = bench.job_preflight(_surface(bench, tmp_path, not_ready, 3), state)
+    assert (job.status, job.calls) == ("FAIL", 1)
+    assert job.reason == "preflight not READY: tekton: NOT READY | genesis-base: missing"
+    assert state["preflight"] == {}          # asked, not READY: author-ifc will not re-probe

@@ -33,6 +33,10 @@ Canonical jobs (the documented one-command skill flows, in session order):
                    the same ONE call with the flagship ROOM6_PROMPT (six
                    generated families loaded + placed; the #184 ceiling)
   author-ifc       _bootstrap.py run frontdoor.py author --ifc electrical-room-2500a.ifc --json
+  go-author-ifc    _bootstrap.py go author --ifc electrical-room-2500a.ifc --target-version 2025 --json
+                   (ONE call -- the IFC flow the SKILL documents; on a
+                   numpy-less interpreter the envelope states the route's
+                   prerequisite up front -> BLOCKED (needs numpy))
   edit-roundtrip   rvt_edit.py info -> set-level -> rvt_validate.py (3 calls,
                    the pre-#111 tekton-edit flow incl. the mandatory gate; kept
                    as the fallback path and the before-number)
@@ -74,6 +78,9 @@ ROOM6_PROMPT = "an electrical room with 6 panels"
 ROOM6_FAMILIES = 6
 IFC_EXAMPLE_REL = os.path.join("skills", "tekton-author", "examples",
                                "electrical-room-2500a.ifc")
+#: `go author --ifc` names the recipient's release, as the SKILL tells a
+#: session to (target version is a first-class input); 2025 = a certified base
+GO_IFC_TARGET_VERSION = "2025"
 #: `go edit` input: the bundled, certified Revit 2025 base (always in the
 #: plugin, so the job needs no earlier step) and a Level present in all three
 #: bundled bases ("GEN B1 - Basement", tests/test_edit_own_release.py)
@@ -81,7 +88,7 @@ GO_EDIT_BASE_REL = os.path.join("assets", "genesis", "G_ABPD_2025.rvt")
 GO_EDIT_LEVEL_ID = 1351691
 
 JOB_ORDER = ("preflight", "author-prompt", "go-author-prompt", "go-author-6panels",
-             "author-ifc", "edit-roundtrip", "go-edit", "validate")
+             "author-ifc", "go-author-ifc", "edit-roundtrip", "go-edit", "validate")
 SURFACE_ORDER = ("cowork", "codeexec", "local")
 
 # what each surface is, one line, for the table header
@@ -467,20 +474,28 @@ def _fmt_breakdown(bd: dict) -> str:
     return inner
 
 
-def job_preflight(s: Surface, state: dict) -> JobResult:
-    job = JobResult("preflight")
-    inv = s.run("preflight --json", lambda s: [s.bootstrap("tekton-author"), "--json"])
-    job.invocations.append(inv)
+def _probe_preflight(s: Surface, state: dict, label: str) -> Invocation:
+    """ONE `_bootstrap.py --json` call.  Records the surface's own summary in
+    ``state["preflight"]`` -- python, extras, the per-route capability table
+    stated up front (#127; ``{}`` on plugin builds that predate it) -- when it
+    is READY, ``{}`` when it is not: either way the surface has been asked."""
+    inv = s.run(label, lambda s: [s.bootstrap("tekton-author"), "--json"])
     pf = _json_or_none(inv.stdout)
-    if inv.exit_code != 0 or not pf or not pf.get("ok"):
-        return job.fail(f"preflight not READY: {_why(inv)}")
+    if inv.exit_code != 0 or not isinstance(pf, dict) or not pf.get("ok"):
+        state["preflight"] = {}
+        return inv
     state["preflight"] = {"python": pf["python"]["version"],
                           "extras": pf.get("extras", {}),
-                          # per-route capability stated up front (#127); absent
-                          # on plugin builds that predate it
                           "routes": pf.get("routes", {}),
                           "internal_seconds": pf.get("seconds")}
-    return job
+    return inv
+
+
+def job_preflight(s: Surface, state: dict) -> JobResult:
+    job = JobResult("preflight")
+    inv = _probe_preflight(s, state, "preflight --json")
+    job.invocations.append(inv)
+    return job if state["preflight"] else job.fail(f"preflight not READY: {_why(inv)}")
 
 
 def job_author_prompt(s: Surface, state: dict) -> JobResult:
@@ -506,22 +521,38 @@ def job_go_author_prompt(s: Surface, state: dict) -> JobResult:
     """The ONE-CALL flow (`_bootstrap.py go author ...`): inline preflight +
     the job + one combined JSON -- a whole session in a single shell call.
     SKIPPED (not failed) on plugin builds that predate the `go` dispatch."""
-    return _job_go_author(s, state, "go-author-prompt", PANEL_PROMPT, "panel")
+    return _job_go_author(s, state, "go-author-prompt", "--prompt (panel)",
+                          lambda s: ["--prompt", PANEL_PROMPT])
 
 
 def job_go_author_6panels(s: Surface, state: dict) -> JobResult:
     """The flagship demo prompt through the one-call flow: six generated
     families loaded (ONE host pass since #124) + walls + six placed
     instances.  The job whose per-stage breakdown the latency epic tracks."""
-    return _job_go_author(s, state, "go-author-6panels", ROOM6_PROMPT, "6 panels")
+    return _job_go_author(s, state, "go-author-6panels", "--prompt (6 panels)",
+                          lambda s: ["--prompt", ROOM6_PROMPT])
 
 
-def _job_go_author(s: Surface, state: dict, name: str, prompt: str, short: str) -> JobResult:
+def job_go_author_ifc(s: Surface, state: dict) -> JobResult:
+    """The IFC flow the SKILL documents: ONE `go author --ifc FILE
+    --target-version N` call.  With numpy the job builds (PASS); on a
+    numpy-less interpreter the envelope states the route's prerequisite up
+    front (`go.prerequisite`, #550) and no job is attempted -> BLOCKED (needs
+    numpy), classified from the envelope itself, whatever ran before it."""
+    return _job_go_author(s, state, "go-author-ifc", "--ifc (electrical room)",
+                          lambda s: ["--ifc", os.path.join(s.plugin_dir, IFC_EXAMPLE_REL),
+                                     "--target-version", GO_IFC_TARGET_VERSION])
+
+
+def _job_go_author(s: Surface, state: dict, name: str, short: str, route_args) -> JobResult:
+    """One `go author` job.  ``route_args(surface)`` -> the input part of the
+    argv (``--prompt P`` / ``--ifc FILE --target-version N``), built after the
+    per-call reset so it sees this call's plugin dir."""
     job = JobResult(name)
     out_tag = f"out-go-{s.call_no + 1}"
-    inv = s.run(f"go author --prompt ({short})", lambda s: [
-        s.bootstrap("tekton-author"), "go", "author",
-        "--prompt", prompt, "--json", "--out", os.path.join(s.workdir, out_tag)])
+    inv = s.run(f"go author {short}", lambda s: [
+        s.bootstrap("tekton-author"), "go", "author", *route_args(s),
+        "--json", "--out", os.path.join(s.workdir, out_tag)])
     job.invocations.append(inv)
     res = _json_or_none(inv.stdout)
     if res is None and ((inv.stdout or "").lstrip().startswith("tekton:")
@@ -543,7 +574,7 @@ def _job_go_author(s: Surface, state: dict, name: str, prompt: str, short: str) 
     job.breakdown = stage_breakdown(inner, envelope=res)
     combined = (inner.get("files") or {}).get("combined")
     if combined and os.path.isfile(combined) and "authored_rvt" not in state:
-        state["authored_rvt"] = s.keep_artifact(combined, "prompt_room.rvt")
+        state["authored_rvt"] = s.keep_artifact(combined, os.path.basename(combined))
     degraded = _degraded_load(job.breakdown)
     return job.fail(degraded) if degraded else job
 
@@ -559,10 +590,15 @@ def job_author_ifc(s: Surface, state: dict) -> JobResult:
     res = _json_or_none(inv.stdout)
     if inv.exit_code == 0 and res and res.get("ok"):
         return job
+    if "preflight" not in state:
+        # run without the preflight job (`--jobs author-ifc`): ask the surface
+        # for its route table now -- one cheap call, counted on this row -- so
+        # the classification below never depends on job order (#562)
+        job.invocations.append(_probe_preflight(s, state, "preflight --json (route table)"))
     # preflight already stated this route cannot build here (routes.ifc,
     # #127): an honest surface truth, not a regression (#553).  Absent table
-    # (pre-#127 plugin build, or preflight not run) -> classified as before.
-    cap = (state.get("preflight") or {}).get("routes", {}).get("ifc")
+    # (pre-#127 plugin build) -> classified as before.
+    cap = state["preflight"].get("routes", {}).get("ifc")
     if isinstance(cap, dict) and not cap.get("ok", True):
         prereq = {"route": "ifc", "needs": cap.get("needs") or [], "fix": cap.get("fix")}
         return job.blocked(f"ifc route prerequisite stated by preflight: {_needs_words(prereq)}",
@@ -668,6 +704,7 @@ JOBS = {
     "go-author-prompt": job_go_author_prompt,
     "go-author-6panels": job_go_author_6panels,
     "author-ifc": job_author_ifc,
+    "go-author-ifc": job_go_author_ifc,
     "edit-roundtrip": job_edit_roundtrip,
     "go-edit": job_go_edit,
     "validate": job_validate,
