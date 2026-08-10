@@ -1,0 +1,2 @@
+# the runtime docs-read audit + shared git fixture (#523): stdlib + git, fresh-clone safe
+tests/test_docs_read_audit.py
