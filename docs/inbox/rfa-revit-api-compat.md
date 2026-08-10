@@ -516,3 +516,28 @@ Probe AD (`probe_ad_solver.rfa`) with the owner; validator VALID 0 errors;
 famgen suites 124 passed / 35 skipped.  Open follow-up: the arc sketch
 (`new_var_sketch_curves`, cylinders) still emits an empty solver -- needs
 `VarSketchArcObj` records (same law, arc shape) before troffer/xfmr edits.
+
+## Iteration 12 — corner-coincidence joins + classification tables (round 27)
+
+**Round 27 verdicts (probe AD, journals 0037 + screenshots):** the solver
+now RUNS -- the crash/serious-error is gone, replaced by Revit's NORMAL
+4-message error dialog on value edit: "Can't make Extrusion" / "Base sketch
+for extrusion is invalid" / "Internal setting 'Keynote Table' is required
+by Revit and has been deleted" / warning "Highlighted lines overlap".
+
+**Two faults, both fixed:**
+1. **PP subtype semantics decoded** (donor 2432 measured end-to-end):
+   subtype 1 = the (x1,y1) start, 2 = the (x2,y2) end, and each PP names a
+   REAL shared corner -- the donor's edges are NOT wound tip-to-tail, so
+   copying its index pattern glued the wrong corners of OUR winding and the
+   re-solve collapsed the loop.  Joins are now COINCIDENCE-DETECTED from
+   the actual endpoints (verified: every PP in the built probe names an
+   exactly-coincident corner).
+2. **Classification tables** (`AssemblyCodeTable` UET[64] +
+   `KeynoteTable` UET[65], donor 2971/2972): authored as MINIMAL EMPTY
+   tables -- the donor's carry Autodesk sample keynote text + an
+   external-file reference into an Autodesk install path, content we never
+   copy; the checker needs the registered element, not the data.
+
+Probe AE (`probe_ae_corners.rfa`) with the owner; VALID 0 errors; suites
+112 passed / 35 skipped.

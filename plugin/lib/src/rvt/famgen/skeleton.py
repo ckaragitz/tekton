@@ -505,6 +505,51 @@ def _apply_family_units_law(units: "SkelElement") -> None:
         units.obj["m_units"] = json.load(fh)
 
 
+def new_classification_tables(ids, self_family_id: int) -> List[SkelElement]:
+    """The CLASSIFICATION-TABLE singletons (issue #333, desktop round 27):
+    editing a family parameter runs the required-unique-elements check, and
+    it names these when absent ("Internal setting 'Keynote Table' is
+    required by Revit and has been deleted") -- ``AssemblyCodeTable`` (UET
+    slot 64) and ``KeynoteTable`` (UET slot 65), measured on the donor
+    (unit-0 ids 2971/2972).  OUR tables are MINIMAL AND EMPTY: the donor's
+    carry Autodesk's sample keynote text and an external-file reference to
+    an Autodesk install path -- content we never copy (hard rules 2/3);
+    the checker requires the registered ELEMENT, not the sample data.
+    """
+    from ..genesis.types import blank_object as _blank
+    fam = int(self_family_id)
+    out: List[SkelElement] = []
+    for cls, tree_cls, extra in (
+            ("AssemblyCodeTable", "ClassificationEntries",
+             {"m_hasUserCustomizedAssemblyCode": False}),
+            ("KeynoteTable", "KeynoteEntryTable",
+             {"m_name": "Standard", "m_isBuiltIn": True,
+              "m_hasUserCustomizedKeynote": False})):
+        eid = _alloc(ids)
+        o = _blank(cls)
+        o.update({"m_id": eid, "m_famId": fam,
+                  "m_docAccess": {"m_pDoc": _weak(1)},
+                  "m_assocLevelId": -1, "m_unplacedOwnerId": -1,
+                  "m_ownerDBViewId": -1, "m_createdPhaseId": -1,
+                  "m_demolishedPhaseId": -1, "m_designOptionId": -1,
+                  "m_cellList": {"ptr_class": "CellList", "pid": -1, "value": {
+                      "m_cells": [
+                          {"ptr_class": "ExternalFileReferenceCell", "pid": -1,
+                           "value": {}},
+                          {"ptr_class": "ExternalResourceReferenceCell", "pid": -1,
+                           "value": {"m_externalResourceReferences": [],
+                                     "m_externalResourceReferencesExpanded": []}}]}},
+                  "m_oKeyBasedTreeEntries": {"ptr_class": tree_cls, "pid": -1,
+                                             "value": dict(_blank(tree_cls),
+                                                           m_keyBasedTreeEntrySet=[])},
+                  "m_lastReadSucceeded": True})
+        o.update(extra)
+        hdr = element_header(cls, category=-1, deletion=[fam, eid],
+                             flags=67117070, visible_view_flags=-32768)
+        out.append(SkelElement(eid, cls, hdr, o, None, kind="classification-table"))
+    return out
+
+
 def _dim_format_options(unit: str = "autodesk.unit.unit:meters-1.0.0", *,
                         symbol: str = "", accuracy: float = 1.0,
                         use_default: bool = True) -> dict:
@@ -2004,6 +2049,10 @@ def new_family_document(category, name: str, *, host: str = "none",
     for se in dim_els:
         doc.add(se)
     doc.dim_style_id = dim_style_id
+    # -- the classification-table singletons (issue #333 round 27: the
+    # edit path's required-unique-elements check names them) ---------------
+    for se in new_classification_tables(ids, fam.elem_id):
+        doc.add(se)
     doc.types = []
     return doc
 

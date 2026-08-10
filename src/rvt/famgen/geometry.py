@@ -1072,18 +1072,28 @@ def new_var_sketch(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
 
     def _is_horizontal(a, b) -> bool:
         return abs(b[1] - a[1]) <= abs(b[0] - a[0])
+    # PP joins are COINCIDENCE-DETECTED, not copied by index pattern: the
+    # donor's subtype semantics are 1 = the (x1,y1) start, 2 = the (x2,y2)
+    # end, and each PP names one shared CORNER (donor round 27: gluing the
+    # wrong corners re-solves the loop into overlapping lines -> "Base
+    # sketch for extrusion is invalid").  Interleave per donor: HV0, then
+    # for each edge i>0 its joins to lower-index edges, then HV(i).
+    def _corner_joins(i: int) -> list:
+        out = []
+        pts_i = (lines[i][0], lines[i][1])
+        for j in range(i):
+            pts_j = (lines[j][0], lines[j][1])
+            for si, pi_ in enumerate(pts_i, start=1):
+                for sj, pj in enumerate(pts_j, start=1):
+                    if abs(pi_[0] - pj[0]) < 1e-9 and abs(pi_[1] - pj[1]) < 1e-9:
+                        out.append(_pp(i, j, si, sj))
+        return out
     constrs: list = []
-    if n >= 3:
-        # donor interleave for a closed loop of n edges:
-        # HV0, PP(1,0), HV1, PP(2,1), HV2, ..., PP(n-1,0)[1,2],
-        # PP(n-1,n-2)[2,1], HV(n-1)   [VERIFIED n=4 vs donor 2432]
+    if n >= 2:
         constrs.append(_hv(0, _is_horizontal(*lines[0])))
-        for i in range(1, n - 1):
-            constrs.append(_pp(i, i - 1, 2, 1))
+        for i in range(1, n):
+            constrs.extend(_corner_joins(i))
             constrs.append(_hv(i, _is_horizontal(*lines[i])))
-        constrs.append(_pp(n - 1, 0, 1, 2))
-        constrs.append(_pp(n - 1, n - 2, 2, 1))
-        constrs.append(_hv(n - 1, _is_horizontal(*lines[n - 1])))
     obj["m_constrRecs"] = constrs
     gc = blank_object("VarSketchGuessCache")
     gc["m_pSketch"] = _weak(2)

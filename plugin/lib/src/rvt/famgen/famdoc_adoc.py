@@ -1125,6 +1125,8 @@ def author_family_adocument(source, *, mode: str = "candidate",
     if isinstance(uet, dict) and isinstance(uet.get("m_elemIds"), list):
         for idx, cls in ((10, "AutoCamSettingsElem"),
                          (60, "DefaultDivideSettings"),
+                         (64, "AssemblyCodeTable"),      # issue #333 round 27
+                         (65, "KeynoteTable"),           # issue #333 round 27
                          (85, "DrawOrder3dElem")):
             if cls in by_class and idx < len(uet["m_elemIds"]):
                 uet["m_elemIds"][idx] = by_class[cls]
