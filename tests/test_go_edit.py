@@ -127,6 +127,58 @@ def test_go_edit_info_is_the_same_one_call(plugin_copy, workdir):
     assert res["release"]["input"] == 2024
 
 
+def test_go_ops_door_result_is_the_manifest(plugin_copy, workdir):
+    """`go rvt_job.py edit IN --ops ops.json -o OUT` (the batch/ops door) is
+    ONE call whose ``result`` IS the manifest the door writes -- status, all
+    four gates, the written file, the op log -- not prose in ``go.stdout`` and
+    no second call to read ``OUT.manifest.json`` (issue #267); the progress
+    lines went to ``result.output.log``, stderr stays clean."""
+    ops = os.path.join(workdir, "ops.json")
+    with open(ops, "w") as fh:
+        json.dump({"ops": [{"op": "set-level", "id": LEVEL_ID, "elevation_ft": 5}]}, fh)
+    out = os.path.join(workdir, "ops door", "edited.rvt")
+    r, doc = _go(plugin_copy, workdir, "rvt_job.py", "edit", _base(plugin_copy, 2025),
+                 "--ops", ops, "-o", out)
+    assert r.returncode == 0, r.stderr[-2000:]
+    assert doc["go"]["verb"] == "rvt_job.py"
+    assert "stdout" not in doc["go"], "the ops door printed non-JSON on stdout"
+    assert r.stderr == ""
+    res = doc["result"]
+    assert res["mode"] == "edit" and res["exit_code"] == 0
+    assert res["status"].startswith("PROOF-ONLY") and res["hard_gates_passed"] is True
+    assert res["output"]["path"] == os.path.abspath(out) and os.path.isfile(out)
+    assert res["output"]["bytes"] == os.path.getsize(out) > 0
+    g = res["gates"]
+    assert g["structural"]["status"] == "PASS" and g["identity"]["status"] == "PASS"
+    assert g["validation"]["status"] == "PASS" and g["validation"]["errors"] == 0
+    assert g["base_provenance"]["base_kind"] == "pinned-composed-genesis"
+    assert res["edit"]["edited_ids"] == [LEVEL_ID] and res["edit"]["deleted_ids"] == []
+    assert len(res["edit"]["log"]) == 1 and "set-level" in res["edit"]["log"][0]
+    # the same object is the manifest on disk (+ exit_code); progress rode the log
+    with open(out + ".manifest.json") as fh:
+        on_disk = json.load(fh)
+    assert {k: v for k, v in res.items() if k != "exit_code"} == on_disk
+    assert res["output"]["log"] == out + ".log"
+    with open(res["output"]["log"]) as fh:
+        assert "[rvt_job] validating" in fh.read()
+
+
+def test_go_ops_door_unplannable_op_is_one_json_stub(plugin_copy, workdir):
+    """An unplannable op aborts the whole run (a partial edit is worse than
+    none) and the ONE JSON is the stub manifest naming why; nothing written."""
+    ops = os.path.join(workdir, "bad-ops.json")
+    with open(ops, "w") as fh:
+        json.dump([{"op": "set-level", "id": 999999999, "elevation_ft": 5}], fh)
+    out = os.path.join(workdir, "ops door", "never.rvt")
+    r, doc = _go(plugin_copy, workdir, "rvt_job.py", "edit", _base(plugin_copy, 2025),
+                 "--ops", ops, "-o", out)
+    assert r.returncode == 2
+    res = doc["result"]
+    assert res["exit_code"] == 2 and res["status"].startswith("FAILED (planning")
+    assert "999999999" in res["status"]
+    assert res["output"]["written"] is False and not os.path.exists(out)
+
+
 def test_go_edit_works_from_a_skill_without_rvt_edit(plugin_copy, workdir):
     """`go edit` from tekton-author (no rvt_edit.py beside it) resolves the
     canonical copy beside tekton-edit from the plugin root -- never a search."""

@@ -56,6 +56,13 @@ Exit codes: 0 = all hard gates passed (status may still be PROOF-ONLY);
 2 = planning / seed / spec failure; 3 = structural; 4 = validation;
 5 = identity; 6 = --require-deliverable and the output is not deliverable;
 1 = usage / unexpected error.
+
+OUTPUT MODES: text (default) prints progress lines + the summary above on
+stdout.  ``--json`` (position-free; ``_bootstrap.py go rvt_job.py …`` appends
+it) prints exactly ONE JSON object on stdout = the manifest it writes (full or
+stub) + ``exit_code``; the progress lines stream into ``<out>.log`` (named in
+``output.log``) so a skill session's ONE call returns the gates, the status
+and the written file with nothing else to read or parse (issue #267).
 """
 from __future__ import annotations
 
@@ -64,6 +71,7 @@ import contextlib
 import dataclasses
 import hashlib
 import importlib.util
+import io
 import json
 import math
 import os
@@ -84,6 +92,10 @@ SAMPLES_DIR = os.path.join(ROOT, "samples")
 
 # exit codes -----------------------------------------------------------------
 EX_OK, EX_ERR, EX_PLAN, EX_STRUCT, EX_VALIDATE, EX_IDENTITY, EX_NOT_DELIVERABLE = 0, 1, 2, 3, 4, 5, 6
+
+#: --json run state: the progress-log path every manifest of this run names,
+#: and the last manifest written (full or stub) = the ONE object on stdout
+_RUN: Dict[str, Any] = {"log": None, "manifest": None}
 
 
 # ===========================================================================
@@ -585,12 +597,20 @@ def _describe_new_elements(out_path: str, ids: List[int]) -> List[dict]:
     return out
 
 
+def _record_manifest(manifest: dict) -> None:
+    """Name the --json progress log in, and remember, every manifest written."""
+    if _RUN["log"]:
+        manifest["output"]["log"] = _RUN["log"]
+    _RUN["manifest"] = manifest
+
+
 def write_manifest(out_path: str, manifest: dict) -> str:
     mp = out_path + ".manifest.json"
     manifest.setdefault("output", {})
     manifest["output"].update({"path": _abs(out_path),
                                "bytes": os.path.getsize(out_path) if os.path.exists(out_path) else None,
                                "sha256": sha256_of(out_path)})
+    _record_manifest(manifest)
     with open(mp, "w") as fh:
         json.dump(manifest, fh, indent=1, default=_jsonable)
     return mp
@@ -960,6 +980,7 @@ def _write_stub_manifest(out_path: str, manifest: dict) -> None:
     mp = out_path + ".manifest.json"
     manifest.setdefault("output", {"path": _abs(out_path), "written": False})
     manifest.pop("_t0", None)
+    _record_manifest(manifest)
     try:
         with open(mp, "w") as fh:
             json.dump(manifest, fh, indent=1, default=_jsonable)
@@ -1352,16 +1373,13 @@ def _add_create_flags(p: argparse.ArgumentParser) -> None:
                    help="proceed even when the seed audit says SEED NOT READY")
 
 
-def main(argv=None) -> int:
-    ap = build_parser()
-    args = ap.parse_args(argv)
+def _dispatch(args) -> int:
     try:
         if args.mode == "create":
             return cmd_create(args)
         if args.mode == "from-ifc":
             return cmd_from_ifc(args)
-        if args.mode == "edit":
-            return cmd_edit(args)
+        return cmd_edit(args)                # argparse guarantees one of the three
     except KeyboardInterrupt:
         return EX_ERR
     except SystemExit:
@@ -1369,8 +1387,38 @@ def main(argv=None) -> int:
     except Exception:
         traceback.print_exc()
         return EX_ERR
-    ap.error("unknown mode")
-    return EX_ERR
+
+
+def _open_job_log(log_path: str):
+    """The --json progress sink: ``<out>.log``, line-buffered (a crashed run
+    keeps its progress); an unwritable path degrades to an in-memory sink --
+    logging never costs a delivery (the front door's build.log shape, #312)."""
+    try:
+        os.makedirs(os.path.dirname(log_path) or ".", exist_ok=True)
+        return open(log_path, "w", buffering=1, encoding="utf-8", errors="backslashreplace"), log_path
+    except OSError:
+        return io.StringIO(), None
+
+
+def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    want_json = "--json" in argv             # position-free: `go rvt_job.py …` appends it last
+    argv = [x for x in argv if x != "--json"]
+    args = build_parser().parse_args(argv)
+    _RUN.update(log=None, manifest=None)     # per run (main() is also called in-process)
+    if not want_json:
+        return _dispatch(args)
+    out_abs = os.path.abspath(args.out)
+    sink, _RUN["log"] = _open_job_log(out_abs + ".log")
+    with sink, contextlib.redirect_stdout(sink):
+        rc = _dispatch(args)
+        if _RUN["manifest"] is None:         # died before any manifest (input / ops.json unusable)
+            _write_stub_manifest(out_abs, {
+                "tool": "rvt_job", "tool_version": TOOL_VERSION, "mode": args.mode,
+                "status": f"FAILED (exit {rc}) before anything was written; "
+                          "the reason is the one line on stderr"})
+    print(json.dumps(dict(_RUN["manifest"], exit_code=rc), indent=1, default=_jsonable))
+    return rc
 
 
 if __name__ == "__main__":
