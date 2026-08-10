@@ -488,9 +488,20 @@ def test_workflows_are_dispatch_only_and_the_session_pipeline_is_checked_in():
     brief = open(os.path.join(ROOT, "tools", "dev", "review_brief.md"), encoding="utf-8").read()
     for needle in ("VERDICT=approve|nits|changes", "claude-review:", "session-ci:", "same tick", "--kill-child"):
         assert needle in brief, needle
-    fanout = open(os.path.join(ROOT, ".claude", "commands", "fanout.md"), encoding="utf-8").read()
-    for needle in ("only the tech-lead session merges", "head SHA", "Write every wave into the ledger"):   # #342: engineers never merge; waves are reconstructible from GitHub alone
-        assert needle in fanout, needle
+
+
+def test_engineers_never_merge_and_waves_are_ledgered():
+    """#342: one engineer PR reached main outside the pipeline, and a whole wave was mistaken for a stranger's after
+    the tech lead's context was compacted. The two rules that prevent both live in the layers every session loads
+    (CLAUDE.md banner, AUTONOMY §12c) and in the fan-out command; pinned by invariant tokens, not by prose."""
+    def low(*parts):
+        return open(os.path.join(ROOT, *parts), encoding="utf-8").read().lower()
+    claude, autonomy, fanout = low("CLAUDE.md"), low("docs", "process", "AUTONOMY.md"), low(".claude", "commands", "fanout.md")
+    for text in (claude, autonomy, fanout):
+        assert "never merge" in text                                     # engineers never merge; only a tech-lead session with same-tick evidence
+    for text in (autonomy, fanout):
+        assert "issue → engineer session id → territory" in text         # the one ledger table a stranger session searches GitHub for
+    assert "board issue (#56)" in fanout                                 # one canonical place, read back every tick
 
 
 # ───────────────────────── classify + board ─────────────────────────

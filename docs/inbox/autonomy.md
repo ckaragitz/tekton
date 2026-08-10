@@ -486,27 +486,26 @@ after switching its checkout to the merged `main`.
 
 ## Only the tech lead merges; every wave is written into the ledger (steer #342), same session, 2026-08-10
 
-**What happened.** During the "merge everything" drive one engineer PR (#358) reached `main` outside the session
-pipeline (squash 3a44f6d under the shared `cam-karagitz` identity), and four engineer reports (wave 12: #312, #360,
-#315, #367 → PRs #374/#375/#377/#379) arrived at the tech-lead session from sessions it could no longer remember
-starting — the launch had been compacted out of its context. For one tick the loop treated its own wave as a second,
-unknown tech lead and paused fan-out to avoid a phantom collision; the sessions' archive records (`parent_session_id`
-= the tech-lead session, tag `wave-12`) settled it. Every affected head still got same-tick sandboxed CI + an
-independent verdict (post-merge for #358, recorded on the PR), so `main` was never unverified — but both gaps were
-process bugs, not luck to rely on.
+**What happened.** (1) #358 (squash 3a44f6d, shared `cam-karagitz` identity) reached `main` outside the session
+pipeline; (2) the wave-12 reports (#374/#375/#377/#379) arrived after their launch had been compacted out of the tech
+lead's context and were read as another tech lead's wave for one tick — settled by the sessions' `parent_session_id` +
+tag `wave-12`. Every head still got same-tick sandboxed CI + a verdict (#358 post-merge, recorded on the PR).
 
-**What changed.** `.claude/commands/fanout.md`: the engineer prompt now says in terms that engineers never merge —
-not their own PR, not anyone's; only the tech-lead session merges, and only with same-tick CI + review evidence for the
-exact head — and step 2 obliges the tech lead to write every wave into GitHub the moment it starts it (one comment with
-`issue → engineer session id → territory` on the steer/board issue), because a session's memory can be compacted away
-mid-loop and GitHub alone must be enough to reconstruct who started what. The concurrency line states the standing
-exception (a "run continuously" steer such as #108 raises the cap from 3 to 5) and the same-file = overlap rule.
-`tests/test_techlead.py` pins the three phrases so a later edit cannot drop them silently. `docs/STEERING.md` gains
-S-2026-08-10-a — the owner's standing steer #381 (generated families carry the full Revit-born view set), logged by the
-collaborator session that received it and now visible to every session at start.
+**What changed.** The two rules now live where every session loads them: `CLAUDE.md` §4 banner — an engineer session
+never merges (any label), a merge is only ever a tech-lead session holding same-tick CI + verdict for the exact head,
+which is also how the older "a session squash-merges" lines are to be read; `docs/process/AUTONOMY.md` §12c — the same
+in the Merge row and the engineer paragraph, and the fan-out row gains the ledger duty (one board-issue comment
+`issue → engineer session id → territory` per wave at launch, sessions tagged `wave-<k>`, read back at the start of every
+tick before an unfamiliar report is treated as foreign). `.claude/commands/fanout.md` shrinks to pointers: flat
+territory rule (no file in common) + one cap sentence, never-merge inside the engineer prompt's existing parenthetical,
+ledger-first as step 3 on the board issue (#56). `tests/test_techlead.py::test_engineers_never_merge_and_waves_are_ledgered`
+pins invariant tokens in all three files. (/simplify: 4 angles; applied all — right layer, one canonical place,
+ledger-first ordering, standalone test, this record trimmed; the unrelated #381 STEERING row split into its own PR.)
+Follow-up filed: a `techlead.py wave` subcommand that writes/reads the ledger as a marker so the duty is code, not prose.
 
-**Evidence.** Wave 13 (#359/#294/#348/#376/#267) was launched under the new text and its ledger comment is on #342;
-`tests/test_techlead.py` green locally (count in the PR); no product code touched.
+**Evidence.** Wave 13 (#359/#294/#348/#376/#267) launched under the new text, ledger comment on #342 (board from the
+next wave on); `tests/test_techlead.py` 30 passed.
 
-BRANCH STATE (cam/342-fanout-never-merge): `.claude/commands/fanout.md`, `tests/test_techlead.py` (3 needles),
-`docs/STEERING.md` (+1 row), this record section. Docs/process only; shipped when merged through the session pipeline.
+BRANCH STATE (cam/342-fanout-never-merge): `CLAUDE.md` (banner sentence), `docs/process/AUTONOMY.md` (§12c: 3 edits),
+`.claude/commands/fanout.md`, `tests/test_techlead.py` (+1 test), this section. Docs/process only; shipped when merged
+through the session pipeline.

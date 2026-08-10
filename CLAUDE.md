@@ -245,7 +245,10 @@ clarity, not a ban.
 > a minute by a bot. As an **engineer session**: claim by assigning
 > yourself through the API (after reading that nobody holds the issue) + one plain 🔒 comment; run
 > your gates locally and paste counts; after pushing, **report the head SHA to the tech-lead session**
-> and fix on the same branch when findings come back. Issue/branch/PR/record discipline below is
+> and fix on the same branch when findings come back; and **you never merge** — not your own PR, not
+> anyone's, whatever label it carries: under this regime a merge is done only by a tech-lead session
+> holding same-tick sandboxed CI + an independent verdict for that exact head, and every "a session
+> squash-merges" line below means exactly that. Issue/branch/PR/record discipline below is
 > unchanged. Full description: `docs/process/AUTONOMY.md` §12c.
 
 
