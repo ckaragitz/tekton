@@ -906,10 +906,13 @@ def test_unwritable_out_dir_degrades_to_an_unlogged_build_not_a_crash(tmp_path, 
 #        runner's progress lands in <out>/edit.log and the manifest names the
 #        PATH beside json / md exactly like build.log (no captured text in it)
 
+_SET_LEVEL = "set level 311 elevation to 5 ft"   # the certified edit op on the bundled bases
+
+
 @needs_pinned
 def test_quiet_edit_writes_edit_log_and_the_manifest_names_it(tmp_path, capsys):
     out = tmp_path / "e"
-    r = FD.author(rvt=PINNED[2025], edit="set level 311 elevation to 5 ft", out=str(out))
+    r = FD.author(rvt=PINNED[2025], edit=_SET_LEVEL, out=str(out))
     assert r.route == "rvt" and r.ok, (r.status, r.errors)
     assert capsys.readouterr().out == ""                        # quiet: nothing leaked
     log_p = r.manifest_paths["edit.log"]
@@ -924,7 +927,7 @@ def test_quiet_edit_writes_edit_log_and_the_manifest_names_it(tmp_path, capsys):
     with open(r.manifest_paths["md"], encoding="utf-8") as fh:
         assert "job log" in fh.read()
     # --verbose: live on stdout, no file, nothing named
-    r2 = FD.author(rvt=PINNED[2025], edit="set level 311 elevation to 5 ft",
+    r2 = FD.author(rvt=PINNED[2025], edit=_SET_LEVEL,
                    out=str(tmp_path / "v"), quiet=False)
     assert r2.ok and "[rvt_job] planning" in capsys.readouterr().out
     assert "edit.log" not in r2.manifest_paths and r2.manifest["edit"]["log"] is None
@@ -939,7 +942,7 @@ def test_an_unopenable_edit_log_costs_the_log_never_the_edit(tmp_path, capsys):
     a delivery (hard rule 1; the build's 8b twin, #373)."""
     out = tmp_path / "e"
     (out / "edit.log").mkdir(parents=True)
-    r = FD.author(rvt=PINNED[2025], edit="set level 311 elevation to 5 ft", out=str(out))
+    r = FD.author(rvt=PINNED[2025], edit=_SET_LEVEL, out=str(out))
     assert r.ok and os.path.isfile(r.files["edited"]), (r.status, r.errors)
     assert "edit.log" not in r.manifest_paths and r.manifest["edit"]["log"] is None
     degr = r.manifest["edit"]["degradations"]
@@ -1021,29 +1024,73 @@ def test_out_dir_under_a_quarantined_name_is_still_one_json(tmp_path):
     assert not [d for d in degr if "StandaloneError" in d or "not writable" in d], degr
 
 
-@needs_catalog
-@needs_pinned
-def test_out_dir_inside_this_checkouts_quarantine_is_refused_up_front(tmp_path, monkeypatch):
-    """The twin: an ``--out`` INSIDE this checkout's real quarantine root
-    (``<repo>/samples/x``) is refused with ONE line before any stage runs --
-    ONE result, ``errors == [line]``, status ``FAILED (line…)``, a manifest,
-    no ``_stages``/families/``.rvt`` written, never NO-OUTPUT with per-stage
-    tripwire notes.  (The checkout root is pointed at ``tmp_path`` so the
-    test never writes into the repo's own ``samples/``.)"""
+#: one representative job per route (issue #452): the small feet-unit IFC
+#: fixture builds in ~2 s; the edit is the certified set-level op on the
+#: bundled 2025 base
+_ROUTE_JOBS = {
+    "prompt": dict(prompt="an electrical room with 1 panel"),
+    "ifc": dict(ifc=os.path.join(ROOT, "tests", "ifc_conformance", "b_units_feet.ifc")),
+    "rvt": dict(rvt=PINNED[2025], edit=_SET_LEVEL),
+}
+
+
+@pytest.mark.parametrize("route", list(_ROUTE_JOBS))
+@pytest.mark.parametrize("where", [("samples", "e"),                              # a quarantine root
+                                   ("ProgramData", "Autodesk", "RVT 2026", "j")])  # hard rule 2
+def test_out_dir_inside_this_checkouts_quarantine_is_refused_before_it_exists(
+        tmp_path, monkeypatch, route, where):
+    """The twin, for ALL three routes (issue #452, one level above #425's
+    build-step backstop): an ``--out`` INSIDE this checkout's real quarantine
+    root (``<repo>/samples/e``) or an Autodesk installation directory is
+    refused by ``run()`` BEFORE the dir is created -- ``FrontDoorError``
+    whose ``str`` IS ``out_dir_refusal``'s ONE line (the CLI's exit 2, no
+    traceback; the line's wording per root is ``test_out_dir_guard``'s to
+    pin), and NOTHING on disk: no dir, no ``intent.json``/handoff/manifest
+    from prompt/ifc, no edited ``.rvt`` under ``samples/`` reading as an
+    "Autodesk sample" ever after.  (The checkout root is pointed at
+    ``tmp_path`` so the test never goes near the repo's own ``samples/``;
+    fresh-clone safe: nothing is opened before the refusal.)"""
     from rvt.frontdoor import standalone as SA
     monkeypatch.setattr(SA, "repo_root", lambda: str(tmp_path))
-    out = tmp_path / "samples" / "x"
-    r = FD.author(prompt="an electrical room with 1 panel", out=str(out))
-    assert r.ok is False and len(r.errors) == 1, r.errors
-    line = r.errors[0]
-    assert line.startswith("--out refused (nothing built): ") and "\n" not in line
-    assert "quarantined samples" + os.sep in line and line.endswith(str(out))
-    assert r.status == "FAILED (" + line[:160] + ")" and r.files == {}
-    build = r.manifest["build"]
-    assert build["stages"] == [] and build["degradations"] == [] and build["log"] is None
-    assert os.path.isfile(r.manifest_paths["json"]) and "build.log" not in r.manifest_paths
-    assert not (out / "_stages").exists() and not (out / "families").exists()
-    assert not list(out.glob("*.rvt"))
+    out = str(tmp_path.joinpath(*where))
+    with pytest.raises(FD.FrontDoorError) as ei:
+        FD.author(out=out, **_ROUTE_JOBS[route])
+    line = str(ei.value)
+    assert line == SA.out_dir_refusal(out) and line.endswith("--out than " + out)
+    assert list(tmp_path.iterdir()) == []                        # zero bytes: not even the dir
+
+
+def test_build_intent_keeps_its_own_out_dir_refusal_for_direct_callers(tmp_path, monkeypatch):
+    """#425's check inside ``build_intent`` stays as the in-process backstop
+    for callers that skip ``run()``: ONE error line, nothing created -- and it
+    fires before the model or the base is even looked at."""
+    from rvt.frontdoor import build as FB, standalone as SA
+    monkeypatch.setattr(SA, "repo_root", lambda: str(tmp_path))
+    out = str(tmp_path / "vendor" / "v")
+    br = FB.build_intent(None, FB.BuildOptions(out_dir=out, base=None))
+    assert br.errors == [SA.out_dir_refusal(out)] and br.stages == [] and br.files == {}
+    assert list(tmp_path.iterdir()) == []
+
+
+@needs_catalog
+@needs_pinned
+@pytest.mark.parametrize("route, named, role", [
+    ("ifc", ("vendor", "i"), "combined"),
+    ("rvt", ("samples", "e"), "edited"),
+])
+def test_a_dir_named_like_a_quarantine_root_elsewhere_delivers_on_every_route(
+        tmp_path, route, named, role):
+    """The positive twin on the ifc and edit routes (the prompt route's is the
+    CLI test ``test_out_dir_under_a_quarantined_name_is_still_one_json``):
+    ``--out <tmp>/vendor/i`` / ``<tmp>/samples/e`` -- the user's OWN disk,
+    merely NAMED like a quarantine root -- still DELIVERS: ok, the file on
+    disk under that dir, no error, and the edit's output is not an "Autodesk
+    sample" to ``resolve_base`` afterwards."""
+    out = tmp_path.joinpath(*named)
+    r = FD.author(out=str(out), **_ROUTE_JOBS[route])
+    assert r.route == route and r.ok and r.errors == [], (r.status, r.errors)
+    assert os.path.isfile(r.files[role]) and r.files[role].startswith(str(out) + os.sep)
+    assert not B.is_autodesk_sample(r.files[role])
 
 
 @needs_catalog

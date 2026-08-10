@@ -809,3 +809,145 @@ whole merged shard on this head **1535 passed / 134 skipped / 3 xfailed, 0 faile
   plain-dir control's rows (the standing G2/#19 identity + base-residue items), nothing new; nothing staged for the
   viewer; nothing awaits a human.
 * Shipped vs staged: everything in this PR ships. Follow-up 1 filed as #452 (`Refs #425`).
+
+## eng #452 — 2026-08-10 (fresh cloud clone, no `samples/`, `origin/main` @ 2767197): the `--out` refusal moves up into `run()`, all three routes, zero bytes
+
+Issue #452 (Refs #425, its follow-up 1). "Where may a job's out dir live" is a property of the *request*, so it is now
+judged beside `_out_dir()` in `rvt.frontdoor.run()` — the issue's four lines, verbatim, before `os.makedirs`:
+`out_dir_refusal(out_dir)` → `raise FrontDoorError(line)`. `build_intent`'s check (#425) stays untouched as the
+in-process backstop for direct callers. Effects: the `--rvt --edit` route (which never reaches `build_intent`) no
+longer *delivers* into `<repo>/samples/`; prompt/ifc no longer leave `intent.json` + handoff + manifest there; the CLI
+answers through its existing `FrontDoorError` path — rc 2 (`EX_USAGE`), `[frontdoor] usage error: <the one line>` on
+stderr, no traceback, 0 B on stdout. Cost on every job: the lazy `from .standalone import out_dir_refusal` (stdlib-only
+module imports; `.base` is already loaded) measured 3.8 ms first import + 0.17 ms per call — the prompt/ifc routes
+imported it anyway via `build.py`; the edit route pays the 4 ms once.
+
+### Evidence (this VM; `--json`; BEFORE = `main` @ 2767197 run as root because uid nobody cannot `mkdir` in the checkout — #425's caveat; AFTER as nobody AND as root, since nothing is created either way)
+
+| case | `main` @ 2767197 | this head |
+|---|---|---|
+| edit `--rvt <G_ABPD_2025 copy> --edit "set level 311 elevation to 5 ft" --out <tree>/samples/e` | **rc 0**, 0 B stderr, `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`, `files.edited = <tree>/samples/e/G_ABPD_2025.edited.rvt`, **`is_autodesk_sample(edited) -> True`**; on disk 7 files (`.edited.rvt`, its manifest + validation json, `MANIFEST.md`, `edit.log`, `manifest.json`, `ops.json`) | **rc 2** (nobody and root), stdout 0 B, stderr exactly `[frontdoor] usage error: --out refused (nothing built): it lies inside this checkout's quarantined samples/ directory, whose files the build may never read -- choose another --out than /home/user/tekton/samples/e`, no traceback; **`<tree>/samples` does not exist afterwards** |
+| prompt `"…1 panel" --out <tree>/samples/p` | rc 3 (build_intent's #425 refusal), ONE JSON `FAILED (--out refused …)`; on disk `HANDOFF.md, MANIFEST.md, PROMPT_TO_IFC.md, intent.json, manifest.json, scene-brief.json` | rc 2, the one line (`… than /home/user/tekton/samples/p`), nothing on disk; `--out Samples/p` (case variant, root) → rc 2 `… than /home/user/tekton/Samples/p`, no `Samples/` created |
+| ifc `usecases/chicago-plenum…/generated.ifc --out <tree>/samples/i` | rc 3, ONE JSON `FAILED (--out refused …)`; on disk `MANIFEST.md, intent.json, manifest.json` | rc 2, the one line, nothing on disk; `--out experiments/genesis/i452` (root) → rc 2 `… quarantined experiments/genesis/ directory … than /home/user/tekton/experiments/genesis/i452`, dir absent |
+| prompt `--out "/tmp/ProgramData/Autodesk/RVT 2026/j"` (root) | (build_intent refusal shape, rc 3 + route files) | rc 2 `… it lies inside an Autodesk installation directory, which tekton never reads or writes -- choose another --out than /tmp/ProgramData/Autodesk/RVT 2026/j`; `/tmp/ProgramData` absent |
+| **positive twins, uid nobody:** edit `--out <tmp>/samples/e` · prompt `--out <tmp>/samples/p` · ifc chicago `--out <tmp>/vendor/i` | rc 0 all (per #425) | **rc 0 all**, 0 B stderr, `errors []`; edit `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)` 0.8 s, `edited` exists, `is_autodesk_sample -> False`; prompt `PROOF-ONLY (self-checks PASS; …)` 2.0 s `combined` + `families_dir`; ifc same status 4.7 s — #425's exemption untouched |
+| `route.py run --prompt … --output rvt --out <tree>/samples/r452` (root; router.py NOT this territory) | rc 3 via build_intent, front-door pre-build files + router files in the dir | rc 3, ONE JSON, status `FAILED (prompt->intent + intent->rvt: FrontDoorError: --out refused …)`, no traceback — but the ROUTER's own `makedirs` + `route.log`/`route.json`/`ROUTE.md` still land in `<tree>/samples/r452` → filed **#473** |
+
+The edit route still arms **no** tripwire, deliberately (as #425's follow-up note argued): its input is by definition a
+user file that may live anywhere — including a directory named `samples/` on their disk — and it authors nothing from
+bundled assets, so the corpus-read law has nothing to police there; the out-dir refusal is the only clause of §7 that
+applies to it, and it now does. (`test_quiet_edit_*` and the positive twin confirm an edit under `<tmp>/samples/e`
+delivers with `errors == []`.)
+
+### Which spelling `run()` judges (the tech-lead note on #452 from PR #453's adversarial review)
+
+`run()` calls `out_dir_refusal` unchanged, so the out dir is judged by where it **physically** lies — `_canon` =
+`realpath`, case-folded, as a dir prefix — and `run()`'s new docstring says so in as many words, naming the one shape
+that comparison does not catch. Measured in-process with the checkout root pointed at a tmp tree:
+
+```
+inward:  <treelink>/Samples/x       (treelink -> tree)          refused=True   realpath=<tmp>/tree/Samples/x
+outward: <tree>/samples/escape/x    (samples/escape -> elsewhere) refused=False realpath=<tmp>/elsewhere/x
+         is_autodesk_sample(<tree>/samples/escape/x/a.edited.rvt) -> True
+```
+Every inward alias (a symlinked or case-variant spelling of the checkout) is refused. The outward link — someone with
+write access *inside* git-ignored `samples/` planting `samples/escape -> /elsewhere`, then passing `--out
+samples/escape/x` — delivers physically into `/elsewhere/x`; no corpus byte becomes readable through it (every read of a
+real root still raises) and the engine never creates symlinks, **but** the paths `AuthorResult.files` and the manifest
+report keep the lexical `<repo>/samples/escape/x/…` spelling, which `base.is_autodesk_sample()` (a lexical
+`startswith(<repo>/samples/)`) calls an Autodesk sample ever after — the very mislabel this issue ends, surviving in
+that contrived shape. Refusing the lexical spelling too cannot be done in `run()` without a fourth private definition
+of "quarantine" in `src/` (#425 finding 4 already counts three), and `standalone.py` is read-only for this stream, so
+the chosen answer is: **docstring states the shape now; the one-function fix is filed as #474** with this patch (it
+also makes `forbid_research_inputs`' "under ANY spelling: symlinked, or differing only in case" true, and lets
+`run()`'s docstring drop the caveat):
+
+```python
+# src/rvt/frontdoor/standalone.py §7 — NOT applied here (territory)
+def _inside(path: str, root: str) -> bool:
+    """True when ANY spelling of ``path`` (lexical abspath and realpath, case
+    folded) equals or lies inside ANY spelling of directory ``root``."""
+    roots = {_dirp(os.path.normcase(sp).lower()) for sp in _spellings(root)}
+    return any(_dirp(os.path.normcase(sp).lower()).startswith(r)
+               for sp in _spellings(path) for r in roots)
+```
+
+### The `--json` question (hot file, not changed — stated as asked)
+
+`tools/frontdoor.py::cmd_author` maps `FrontDoorError` (and its subclass `InputReleaseRefused`, #176) to rc 2 with the
+line on **stderr and no JSON on stdout**, `--json` or not. For a skill session driving `go author … --json` that means
+`{"go": {…, "exit_code": 2}, "result": null}` plus the stderr line — one round-trip, the reason legible, but not inside
+the ONE JSON the surface parses. My recommendation for whoever next holds `tools/frontdoor.py`: under `--json`, print
+`{"route": <route or null>, "ok": false, "status": "REFUSED (<line>)", "errors": [<line>], "files": {}, …}` for every
+`FrontDoorError` and keep rc 2 — the same answer #176 wants for `InputReleaseRefused` (whose `.result` already carries a
+manifest); one `except` branch, both cases. Not filed separately: it is #176's open question verbatim, now with a second
+customer.
+
+### Tests
+
+`tests/test_frontdoor.py`: #425's refused-up-front twin (`test_out_dir_inside_this_checkouts_quarantine_is_refused_up_front`,
+which asserted `build_intent`'s rc-3 result shape through `FD.author`) necessarily changes shape — it IS the behaviour
+being moved — and becomes `test_out_dir_inside_this_checkouts_quarantine_is_refused_before_it_exists`: 3 routes ×
+{`samples/e`, `ProgramData/Autodesk/RVT 2026/j`} = 6 cases, checkout root monkeypatched to `tmp_path`, each
+`pytest.raises(FrontDoorError)` with **`str(exc) == out_dir_refusal(out)`** (the per-root wording stays
+`test_out_dir_guard`'s to pin — one home, not two) and **`list(tmp_path.iterdir()) == []`** afterwards — fresh-clone
+safe with no skip marks (nothing is opened before the refusal). `build_intent`'s backstop, no longer reachable through
+`run()`, keeps a direct test (`test_build_intent_keeps_its_own_out_dir_refusal_for_direct_callers`: `build_intent(None,
+BuildOptions(out_dir=<tmp>/vendor/v, base=None))` → `errors == [the line]`, nothing created — it fires before model or
+base are touched). Plus `test_a_dir_named_like_a_quarantine_root_elsewhere_delivers_on_every_route` (ifc
+`tests/ifc_conformance/b_units_feet.ifc --out <tmp>/vendor/i` → `combined`; edit `PINNED[2025] --out <tmp>/samples/e` →
+`edited`, `is_autodesk_sample -> False`; `needs_catalog`+`needs_pinned` like the prompt CLI twin; +3.2 s in the shard,
+kept because the DONE asks for per-route delivery evidence). #425's `test_out_dir_under_a_quarantined_name_is_still_one_json`
+and all 29 of `tests/test_out_dir_guard.py` untouched and green. `test_frontdoor.py` is already in `tests/ci_shard.txt`,
+so no drop-in was needed.
+
+### `/simplify` (4 lenses) — applied / skipped
+
+Applied: `run()`'s docstring names the predicate by reference instead of restating its root list and spelling law, and
+states the outward-link shape as a known hole citing #474 rather than as behaviour (simplification + altitude); the
+refusal test shrank from 3×3 to 3×2 and asserts equality with `out_dir_refusal(out)` instead of three wording fragments
+(reuse + simplification); the six literal copies of the certified edit sentence in `test_frontdoor.py` became one
+`_SET_LEVEL` constant (reuse); the positive twin's docstring no longer reads as a "…while" fragment under `-k`; the
+backstop got its direct test (altitude: "unreachable and untested" otherwise). Efficiency lens: clean — the lazy import
+costs a native-2026 edit 3.4–3.8 ms once (prompt/ifc and 2025/2024 edits already import `standalone`), 0.08–0.17 ms and
+~33 `lstat`s per call. Skipped, with reasons: a `claim_out_dir(out_dir)` refuse-or-create helper exported for
+`build_intent`/the router to share (altitude #3) — new public API beyond "`run()` only"; offered to #473 instead; an
+`OutDirRefused(FrontDoorError)` subclass à la `InputReleaseRefused` (nit) — the CLI path is identical and the test's
+equality assert needs no string match, YAGNI until a handler wants it; dropping the ifc/edit positive twins to save 3 s
+(efficiency #3) — the DONE demands them.
+
+### Gates
+
+* Stream-local: `tests/test_frontdoor.py tests/test_out_dir_guard.py tests/test_stagelog.py tests/test_frontdoor_standalone.py`
+  → **135 passed / 7 skipped** (56.7 s; skips: pinned research base, rst sample, 2× `RVT_SKIP_LARGE`, 2× chmod-as-root,
+  research-machine donor hatch).
+* Whole merged CI shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1 -p no:cacheprovider`, first head, before the `/simplify` test reshaping): **1627 passed / 139 skipped / 3 xfailed / 1 failed** in 295.5 s —
+  the one failure is `main`'s own (#476, below), reproduced with this diff stashed; re-run on the final head (d06d1d2's
+  tree): stream-local **133 passed / 7 skipped** (55.4 s; 9→6 refusal cases + 1 backstop test), whole shard **1625 passed /
+  139 skipped / 3 xfailed / 1 failed (the same #476)** in 290.1 s.
+* `tools/sync_plugin.py` → synced 1 file (`plugin/lib/src/rvt/frontdoor/__init__.py`), deny-audit clean, validation
+  passed, zip rebuilt (5231 KB); `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2911 paths).
+* Full suite NOT run (SUITE-COORDINATION). Nothing staged for the viewer: no format byte changes.
+
+## BRANCH STATE (eng #452)
+
+* Branch `cam/452-run-out-dir-refusal` from `origin/main` @ 2767197.
+* Files written: `src/rvt/frontdoor/__init__.py` (`run()`: docstring + the 4-line refusal before `makedirs`),
+  `tests/test_frontdoor.py` (the refused twin re-shaped ×9 + the ifc/edit positive twins), `docs/inbox/standalone.md`
+  (this section); regenerated mirror `plugin/lib/src/rvt/frontdoor/__init__.py`.
+* Gates: as above. `/verify` (this head, uid nobody, system `python3` 3.11, bare unzip of the rebuilt `tekton-plugin.zip`
+  under git-ignored `out/verify/`, no repo on the path): `go author --prompt "an electrical room with 6 panels" --out
+  <unzip>/../samples/j1 --json` → ONE JSON, `go.ready true`, `exit_code 0`, job 3.6 s, `PROOF-ONLY (self-checks PASS; …)`,
+  `combined` + `families_dir`, `errors []`; the same with `--out "/tmp/ProgramData/Autodesk/RVT 2026/j"` → rc 2, ONE
+  JSON `{"go": {…, "ready": true, "exit_code": 2, "job_seconds": 0.021}, "result": null}` + the one stderr line
+  `[frontdoor] usage error: --out refused (nothing built): it lies inside an Autodesk installation directory, … than
+  /tmp/ProgramData/Autodesk/RVT 2026/j`, `/tmp/ProgramData` absent; `rvt_validate` on the delivered
+  `<tmp>/samples/e/G_ABPD_2025.edited.rvt` → `ok true`, 0 errors / 0 warnings, and on `samples/j1/prompt_room.rvt` →
+  `ok true`, 0 errors / 1 (known) warning. Validates, not "loads" (rule 4); nothing staged for the viewer.
+* Base note for the reviewer: the merged shard shows **1 failed** on this head AND on pristine `main` @ 2767197 —
+  `tests/test_manipulate.py::test_job_set_param_op_lands_an_elementid_row_via_holder` (`ImportError: cannot import
+  name '_load_job' from 'test_job'`, a cross-file import #471 removed an hour earlier). Not this diff; reproduced with
+  the diff stashed; filed as **#476** (P1, one line, `tests/test_manipulate.py` — outside this territory).
+* Follow-ups filed: #473 (router `run()` refuses before its own `makedirs`), #474 (`_inside` judges the lexical spelling
+  too — the outward-symlink shape). Nothing awaits a human; nothing staged vs shipped — everything in this PR ships.
