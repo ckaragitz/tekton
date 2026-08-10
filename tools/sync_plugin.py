@@ -190,7 +190,7 @@ def mappings():
         (os.path.join(ROOT, "usecases", "chicago-plenum-electrical-room", "room-spec.json"),
          "skills/tekton-native/examples/room-spec.json"),
     ]
-    for k in ("panelboard", "transformer", "luminaire"):       # the worked famspecs
+    for k in ("panelboard", "transformer", "luminaire", "device"):   # the worked famspecs
         files.append((os.path.join(ROOT, "spec", "examples", f"famspec-{k}.json"),
                       f"skills/tekton-native/examples/famspec-{k}.json"))
     # --- tekton skills: colocate the engine scripts beside each skill --------

@@ -316,7 +316,7 @@ _CIRCUITS = ("feeder CIRCUITS are AUTHORED natively on the genesis base "
              "rides the open instance cell above; a shortfall is named in the "
              "manifest with the resolved plan, never faked")
 _CATALOG = ("family generation covers the catalog-backed kinds (panelboard / "
-            "transformer / luminaire / the honest house switchboard); "
+            "transformer / luminaire / wiring device / the honest house switchboard); "
             "anything without facts is REFUSED by name, never invented")
 # --- caveats shared by the rvt.convert cells (issue #5) --------------------
 _INTO_GATES = ("INTO-AN-EXISTING-FILE gates: validator 0 errors required to "
