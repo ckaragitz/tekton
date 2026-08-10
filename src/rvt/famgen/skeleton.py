@@ -2277,6 +2277,22 @@ def _apply_family_viewer_law(els, project_view_id: int) -> None:
     donor keeps the elevation frame on the project viewer.]
     """
     for e in els:
+        if e.class_name == "Viewer3d":
+            # THE 3D CROP LAW (owner report: "i see nothing in revit" -- an
+            # EMPTY 3D view with a white rectangle in it).  The project
+            # skeleton's Viewer3d ships a 0.05 x 0.03 ft crop box with
+            # cropping ACTIVE on x and y: about half an inch, so every
+            # family's geometry is clipped away and only the crop boundary
+            # draws.  A Revit-born family carries +-100 ft with every bound
+            # INACTIVE [measured on the donor 461 and the Autodesk library
+            # panelboard 1134560].
+            bs = e.obj.get("m_boundedSpace")
+            if isinstance(bs, dict):
+                bs["m_boundOffset"] = [[100.0, -100.0], [100.0, -100.0],
+                                       [1000.0, 0.1]]
+                bs["m_boundActive"] = [[False, False]] * 3
+                bs["m_isOn"] = True
+            continue
         if e.class_name != "Viewer":
             continue
         o = e.obj
