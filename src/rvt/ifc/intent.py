@@ -939,15 +939,115 @@ WALL_KINDS = ("distribution_panelboard", "lighting_panelboard", "receptacle_pane
 # psets: normalise the tagging contract
 # ============================================================================
 
-def _psets(prod) -> Dict[str, Dict[str, Any]]:
-    """{pset name: {prop: value}} for a product (occurrence + its type)."""
+#: Dimensioned pset values are authored in the PROJECT's units (or the
+#: property's own ``Unit``), exactly like coordinates -- a Revit / ArchiCAD
+#: mm export writes ``ClearWidth`` as ``IFCLENGTHMEASURE(5800.)`` -- so they
+#: are converted to SI here the way vertices are (#348).  Wrapped measure
+#: class (of an IfcPropertySingleValue) or quantity class -> (the
+#: IfcUnitEnum it is expressed in, the power an SI prefix carries for that
+#: unit).  ``IfcReal`` / ``IfcInteger`` / labels and every other measure
+#: pass through untouched.
+_DIMENSIONED: Dict[str, Tuple[str, int]] = {
+    "IfcLengthMeasure": ("LENGTHUNIT", 1),
+    "IfcPositiveLengthMeasure": ("LENGTHUNIT", 1),
+    "IfcNonNegativeLengthMeasure": ("LENGTHUNIT", 1),
+    "IfcQuantityLength": ("LENGTHUNIT", 1),
+    "IfcAreaMeasure": ("AREAUNIT", 2),
+    "IfcQuantityArea": ("AREAUNIT", 2),
+    "IfcVolumeMeasure": ("VOLUMEUNIT", 3),
+    "IfcQuantityVolume": ("VOLUMEUNIT", 3),
+}
+_SI_PREFIX = {
+    "EXA": 1e18, "PETA": 1e15, "TERA": 1e12, "GIGA": 1e9, "MEGA": 1e6, "KILO": 1e3,
+    "HECTO": 1e2, "DECA": 1e1, "DECI": 1e-1, "CENTI": 1e-2, "MILLI": 1e-3,
+    "MICRO": 1e-6, "NANO": 1e-9, "PICO": 1e-12, "FEMTO": 1e-15, "ATTO": 1e-18,
+}
+
+
+def _si_factor(unit, power: int) -> float:
+    """SI value of one ``unit`` (an IfcNamedUnit): conversion-based chains
+    multiply through (FOOT = 0.3048 METRE, INCH = 25.4 MILLI METRE), and an
+    SI prefix counts ``power`` times (MILLI on a SQUARE_METRE is 1e-6 --
+    which is why ``calculate_unit_scale``, prefix-once on both backends, is
+    not used for area / volume).  Anything else (derived / context-dependent
+    / absent) is taken as SI."""
+    k = 1.0
+    while unit is not None and unit.is_a("IfcConversionBasedUnit"):
+        factor = unit.ConversionFactor
+        k *= float(factor.ValueComponent.wrappedValue)
+        unit = factor.UnitComponent
+    if unit is not None and unit.is_a("IfcSIUnit"):
+        k *= _SI_PREFIX.get(unit.Prefix, 1.0) ** power
+    return k
+
+
+def _unit_scales(f) -> Dict[str, float]:
+    """{IfcUnitEnum: SI factor} for the project's dimensioned units.  Length
+    is :func:`_length_scale` itself -- THE number applied to every vertex --
+    so a pset length and a coordinate can never disagree; area and volume
+    read their own assignment (a mm file routinely keeps SQUARE_METRE, so
+    they are NOT the length scale squared / cubed)."""
+    proj = (f.by_type("IfcProject") or [None])[0]
+    assigned: Dict[str, Any] = {}
+    for unit in getattr(getattr(proj, "UnitsInContext", None), "Units", None) or ():
+        assigned.setdefault(getattr(unit, "UnitType", None), unit)
+    return {"LENGTHUNIT": _length_scale(f),
+            "AREAUNIT": _si_factor(assigned.get("AREAUNIT"), 2),
+            "VOLUMEUNIT": _si_factor(assigned.get("VOLUMEUNIT"), 3)}
+
+
+def _measure_factors(prod, unit_scales: Dict[str, float]) -> Dict[Tuple[str, str], float]:
+    """{(pset name, property name): SI factor} for ``prod``.  ``get_psets``
+    (either backend) unwraps values and drops their measure class, so this
+    walks the same definitions IN ITS ORDER -- the type's own sets, then the
+    occurrence's -- and the last writer of a (pset, property) wins exactly
+    as it does there; the two must move together (parity is pinned on both
+    backends by tests/test_ifc_intent_units.py's override rows)."""
+    try:
+        ptype = _ue.get_type(prod)
+    except Exception:
+        ptype = None
+    defs = list(getattr(ptype, "HasPropertySets", None) or ())
+    defs.extend(rel.RelatingPropertyDefinition for rel in getattr(prod, "IsDefinedBy", None) or ()
+                if rel.is_a("IfcRelDefinesByProperties"))
+    out: Dict[Tuple[str, str], float] = {}
+    for pdef in defs:
+        if pdef.is_a("IfcPropertySet"):
+            members = [(pr, pr.NominalValue if pr.is_a("IfcPropertySingleValue") else None)
+                       for pr in pdef.HasProperties or ()]
+        elif pdef.is_a("IfcElementQuantity"):
+            members = [(q, q) for q in pdef.Quantities or ()]
+        else:
+            continue
+        for member, carrier in members:
+            k = 1.0
+            dim = next((d for cls, d in _DIMENSIONED.items() if carrier.is_a(cls)), None) \
+                if carrier is not None else None
+            if dim is not None:
+                unit_type, power = dim
+                own_unit = getattr(member, "Unit", None)
+                k = _si_factor(own_unit, power) if own_unit is not None else unit_scales[unit_type]
+            out[(pdef.Name, member.Name)] = k
+    return out
+
+
+def _psets(prod, unit_scales: Dict[str, float]) -> Dict[str, Dict[str, Any]]:
+    """{pset name: {prop: value}} for a product (occurrence + its type),
+    length / area / volume measures and quantities in SI (see
+    :data:`_DIMENSIONED`; ``unit_scales`` = :func:`_unit_scales`)."""
     out: Dict[str, Dict[str, Any]] = {}
     try:
         raw = _ue.get_psets(prod) or {}
     except Exception:
         raw = {}
+    factors = _measure_factors(prod, unit_scales)
     for pname, props in raw.items():
-        clean = {k: v for k, v in (props or {}).items() if k != "id"}
+        clean = {}
+        for k, v in (props or {}).items():
+            if k == "id":
+                continue
+            factor = factors.get((pname, k), 1.0)
+            clean[k] = v * factor if factor != 1.0 else v
         if clean:
             out[pname] = clean
     return out
@@ -2449,10 +2549,11 @@ def resolve_intent(ifc_path: str, *, plan_families_flag: bool = True) -> IntentM
     room_psets: Dict[str, Dict[str, Any]] = {}
     clearance_prods: List[Tuple[Any, ProductGeometry, str]] = []
     conduit_prods: List[Tuple[Any, ProductGeometry]] = []
+    unit_scales = _unit_scales(f)
 
     # ---- pass 1: classify every product; equipment gets a full record
     for prod, plc, geom in products:
-        psets = _psets(prod)
+        psets = _psets(prod, unit_scales)
         contract = normalize_contract(psets, name=prod.Name or "", object_type=getattr(prod, "ObjectType", None),
                                       description=prod.Description, tag=getattr(prod, "Tag", None))
         kind = _classify_equipment(prod, psets, contract)

@@ -151,9 +151,9 @@
    ],
    "doors": 0,
    "info": {
-    "ClearDepth": 14.108,
-    "ClearHeight": 9.843,
-    "ClearWidth": 19.029,
+    "ClearDepth": 4.3,
+    "ClearHeight": 3.0,
+    "ClearWidth": 5.8,
     "RoomName": "Electrical Room"
    }
   },

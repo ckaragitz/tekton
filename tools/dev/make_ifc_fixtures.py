@@ -414,10 +414,10 @@ def _room_with_panel(m: Model, *, k: float) -> Model:
          "read back in metres, one wall panel",
          notes=["length_scale_m_per_unit must be 0.001 and every insertion/wall coordinate metres; "
                 "a regression here means the unit scale stopped being applied to tessellated vertices",
-                "RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come back "
-                "UNSCALED today (5800, not 5.8) -- pset length measures are informational and not "
-                "unit-converted by the resolver; #153 (landed) enumerates products / bodies / "
-                "relationships, not pset measures, so converting them is its own follow-up"])
+                "RoomInformation ClearWidth/Depth/Height are IfcLengthMeasure in mm and come back in "
+                "METRES (5.8, not 5800): dimensioned pset measures honour the project's unit "
+                "assignment exactly like vertices (#348); unitless IfcReal / IfcInteger (BusRating "
+                "400, NumberOfCircuits 42) are untouched"])
 def _fx_a() -> Model:
     return _room_with_panel(Model("a_units_mm", unit="milli"), k=1000.0)
 
