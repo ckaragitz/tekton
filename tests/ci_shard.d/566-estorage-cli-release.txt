@@ -1,0 +1,2 @@
+# fresh-clone safe: python -m rvt.estorage on the three tracked genesis bases under plugin/assets/genesis (issue #566)
+tests/test_estorage_cli_release.py

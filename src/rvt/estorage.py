@@ -74,10 +74,18 @@ Public API::
     enc  = ESEncoder(dec)                     # record-level encoder (symmetric)
     verify_document(doc)                      # corpus proof: byte-exact per record
 
-``python -m rvt.estorage <project|path.rvt> [--report] [--roundtrip]``.
+``python -m rvt.estorage <project|path.rvt> [--report] [--walk] [--roundtrip]``
+reads a file under ITS OWN release (a Revit 2025/2024 project is walked with
+that release's framing, entered once through ``rvt.native_framing`` -> the
+``rvt.global_framing`` note-never-raise ladder; a native file enters nothing
+and imports no ladder) and reports an honest
+``0 schemas (reason)`` where no schema-usage map can be read.  Exit codes:
+0 = reported; 1 = the file could not be loaded (stated on stderr, never a
+traceback); 2 = no such file.
 """
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import struct
@@ -196,6 +204,7 @@ class ESSchemaCatalog:
         self.tracking: dict[str, list[int]] = {}   # schema guid -> element ids
         self.tracking_offset: int = -1
         self.source: str = ""
+        self.note: str = ""                # why the catalog is empty, when it is
 
     def add(self, s: ESSchemaDef):
         if s.guid not in self.by_guid:
@@ -395,11 +404,14 @@ def locate_schema_map(gl: bytes, dec: ObjectDecoder,
     (schema GUIDs seen in entity tokens) the map-key occurrences of those
     GUIDs seed the chain; otherwise (or in addition, when that finds nothing)
     a GUID-free structural scan finds one entry.  Returns
-    ``(count_offset, count, {entry_offset: (end, value)})``.
+    ``(count_offset, count, {entry_offset: (end, value)})`` -- ``(-1, 0, {})``
+    when no entry can be located or the archive schema lacks the pair class
+    (the older ``m_storedSchemas`` layout, #576; :func:`schemas` then names
+    the reason in ``cat.note``).
     """
     pair_cd = dec.schema.by_name.get(_PAIR_CLASS)
     if pair_cd is None:
-        raise ESSchemaError(f"archive schema lacks {_PAIR_CLASS!r}")
+        return -1, 0, {}
     pair_id = pair_cd.type_id
     seeds: list[int] = []
     for g in seed_guids or []:
@@ -565,6 +577,8 @@ def schemas(source, decoder: Optional[ObjectDecoder] = None,
     cat.source = src
     count_off, count, entries = locate_schema_map(gl, base, seed_guids)
     cat.map_offset, cat.map_count = count_off, count
+    if not entries:
+        cat.note = _no_map_reason(base.schema)
     for k in sorted(entries):
         end, v = entries[k]
         try:
@@ -576,6 +590,18 @@ def schemas(source, decoder: Optional[ObjectDecoder] = None,
         cat.tracking_offset = toff
         cat.tracking = table
     return cat
+
+
+def _no_map_reason(schema: Schema) -> str:
+    """One sentence on why no schema-usage map was read from a file carrying
+    ``schema`` -- the catalog is then honestly empty, never guessed."""
+    if _PAIR_CLASS in schema.by_name:
+        return "no ESSchemaStorage.m_schemaUsageMap entry could be located in Global/Latest"
+    ess = schema.by_name.get("ESSchemaStorage")
+    kept = ", ".join(f"{f.name} : {f.type_name}" for f in (ess.fields if ess else ())
+                     if f.type_name and "ESSchema" in f.type_name) or "no ESSchema map at all"
+    return (f"this file's archive schema has no {_PAIR_CLASS!r} -- its ESSchemaStorage "
+            f"keeps {kept}, an older catalog layout this module does not read yet, #576")
 
 
 def _decoder_for(source) -> ObjectDecoder:
@@ -1315,18 +1341,20 @@ def _entity_closures(dec: ESDecoder, r) -> list[tuple]:
 # CLI
 # ---------------------------------------------------------------------------
 
-def _load_doc(arg: str):
-    from .mutate import Document
+def _doc_path(arg: str) -> Optional[str]:
+    """The .rvt path ``arg`` names (a path, or a corpus sample by project
+    name); None when it names an extracted corpus project instead."""
     if arg.lower().endswith(".rvt") or os.path.sep in arg:
-        return Document.from_file(arg)
+        return arg
     sample = os.path.join(ROOT, "samples", f"{arg}.rvt")
-    if os.path.exists(sample):
-        return Document.from_file(sample)
-    return Document.load(arg)
+    return sample if os.path.exists(sample) else None
 
 
-def print_catalog(cat: ESSchemaCatalog, stream=sys.stdout):
-    P = lambda *a: print(*a, file=stream)
+def print_catalog(cat: ESSchemaCatalog, stream=None):
+    P = lambda *a: print(*a, file=stream)       # None = sys.stdout at CALL time (a captured/redirected stdout counts)
+    if not len(cat) and cat.note:
+        P(f"ES schema catalog: 0 schemas ({cat.note})")
+        return
     P(f"ES schema catalog: {len(cat)} schemas (map count {cat.map_count} "
       f"@{cat.map_offset:#x} in Global/Latest; tracking @{cat.tracking_offset:#x})")
     for s in cat:
@@ -1350,7 +1378,35 @@ def main(argv=None):
     flags = {a for a in argv if a.startswith("--")}
     args = [a for a in argv if not a.startswith("--")]
     target = args[0] if args else "rmebasicsampleproject"
-    doc = _load_doc(target)
+    path = _doc_path(target)                     # None: an extracted corpus project, loaded as it always was
+    if path is not None and not os.path.exists(path):
+        print(f"ERROR: no such file: {path}", file=sys.stderr)
+        return 2
+    from .container import open_rvt
+    from .mutate import Document
+    from .native_framing import enter_files_release
+    with contextlib.ExitStack() as stack:
+        try:
+            if path is not None:
+                # read under the FILE's own release: opened once for the probe, a
+                # native file enters nothing (no ladder imported); a foreign one
+                # climbs the instrument ladder once -- a note, never a raise
+                with open_rvt(path) as f:
+                    note = enter_files_release(stack, f, path)
+                if note:
+                    print(f"warning: {note}", file=sys.stderr)
+                doc = Document.from_file(path)
+            else:
+                doc = Document.load(target)
+        except Exception as e:  # noqa: BLE001 -- a file that cannot be opened or loaded IS the verdict, not a crash
+            print(f"ERROR: cannot load {target}: {type(e).__name__}: {e}", file=sys.stderr)
+            return 1
+        return _report(doc, target, flags)
+
+
+def _report(doc, target: str, flags: set) -> int:
+    """Print the catalog and the ``--report`` / ``--walk`` / ``--roundtrip``
+    sections for a loaded ``doc``, under whatever release is in force."""
     print(f"loaded {getattr(doc, 'project', target)}: {len(doc.et_by_id)} host elements")
     cat = schemas(doc)
     print_catalog(cat)
