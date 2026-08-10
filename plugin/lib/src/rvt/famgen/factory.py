@@ -896,7 +896,139 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
     return fb
 
 
-def make_generic_model(*, height_ft: float,
+def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
+                            category: str, solid: bool, source: str,
+                            start_id: int,
+                            shared_params: SK.SharedParamsArg) -> FamilyProduct:
+    """A MULTI-PART generic model: several stacked / offset extrusions in one
+    family (a canopy + a stem, a base + a body + a cap).  This is the LOD
+    answer -- a real object is an assembly of solids, not one blob.  Overall
+    Width / Depth / Height parameters report the assembly's bounding box.
+    """
+    fam_name = name or "Generic Model"
+    doc = SK.new_family_document(category, fam_name, work_plane_based=False,
+                                 start_id=start_id, shared_params=shared_params)
+    built: List[G.FormBundle] = []
+    x0 = y0 = z0 = float("inf")
+    x1 = y1 = z1 = float("-inf")
+    for i, part in enumerate(parts):
+        fb = add_generic_part(doc, part, solid=solid)
+        built.append(fb)
+        base = float(part.get("base_z_ft") or 0.0)
+        h = float(part["height_ft"])
+        cx, cy = tuple(part.get("center") or (0.0, 0.0))
+        shape = str(part.get("shape") or "box").lower()
+        if shape == "cylinder":
+            r = float(part.get("radius_ft") if part.get("radius_ft") is not None
+                      else float(part["diameter_ft"]) / 2.0)
+            hw = hd = r
+        elif shape == "polygon":
+            vs = [G._v(p) for p in part["vertices"]]
+            xs = [v[0] for v in vs]; ys = [v[1] for v in vs]
+            hw = (max(xs) - min(xs)) / 2.0; hd = (max(ys) - min(ys)) / 2.0
+            cx += (max(xs) + min(xs)) / 2.0; cy += (max(ys) + min(ys)) / 2.0
+        else:
+            hw = float(part["width_ft"]) / 2.0; hd = float(part["depth_ft"]) / 2.0
+        x0, x1 = min(x0, cx - hw), max(x1, cx + hw)
+        y0, y1 = min(y0, cy - hd), max(y1, cy + hd)
+        z0, z1 = min(z0, base), max(z1, base + h)
+    W, D, H = (x1 - x0), (y1 - y0), (z1 - z0)
+    sheet = FactSheet(subject=f"generic model {fam_name} ({len(built)} parts)")
+    sheet.set("width_in", W * 12.0, kind="given", source=source)
+    sheet.set("depth_in", D * 12.0, kind="given", source=source)
+    sheet.set("height_in", H * 12.0, kind="given", source=source)
+    sheet.set("part_count", len(built), kind="given", source=source)
+    for dim in ("Width", "Depth", "Height"):
+        _num(doc, dim, "length", "dimensions")
+    doc.add_type(_clean_name(fam_name), {
+        doc.params["Width"].elem_id: W,
+        doc.params["Depth"].elem_id: D,
+        doc.params["Height"].elem_id: H,
+        "description": (f"{fam_name}: {len(built)}-part assembly, overall "
+                        f"{W * 12.0:g} W x {D * 12.0:g} D x {H * 12.0:g} H in "
+                        f"-- geometry GIVEN ({source}), no catalog record"),
+    })
+    doc.notes.append(f"multi-part generic model: {len(built)} extrusions "
+                     f"({', '.join(str(p.get('shape') or 'box') for p in parts)}); "
+                     f"Width/Depth/Height report the assembly bounding box")
+    doc.finalize()
+    prod = FamilyProduct("generic_model", doc, sheet, forms=built,
+                         file_stem=_slug(fam_name))
+    prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
+                      "catalog facts; no manufacturer identity is claimed")
+    return prod
+
+
+def add_cylinder_form(doc: SK.FamilyDoc, radius_ft: float, height_ft: float, *,
+                      base_z_ft: float = 0.0,
+                      center: Sequence[float] = (0.0, 0.0),
+                      rep: str = G.REP_SOLID) -> G.FormBundle:
+    """Author a true ARC-PROFILE cylinder (a stem, a can, a bollard) --
+    Revit's own two-half-arc circle sketch, not a faceted approximation."""
+    if doc.finalized:
+        raise FactoryError("document is finalized; add forms before finalize")
+    ctx = geometry_context(doc)
+    fb = G.cylinder(float(radius_ft), float(height_ft), ctx, doc.ids,
+                    base_z_ft=float(base_z_ft), center=tuple(center), rep=rep)
+    doc.add(*fb.elements)
+    return fb
+
+
+#: the shapes one PART of a multi-part generic model may take (issue #498
+#: LOD follow-up): every one is an extrusion this engine already emits.
+GENERIC_PART_SHAPES = ("box", "cylinder", "polygon")
+
+
+def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
+                     solid: bool = True) -> G.FormBundle:
+    """Author ONE part of a multi-part generic model.  ``part`` =
+    ``{"shape": "box"|"cylinder"|"polygon", ...}``:
+
+    * ``box``      -- ``width_ft``, ``depth_ft``, ``height_ft``
+    * ``cylinder`` -- ``radius_ft`` (or ``diameter_ft``), ``height_ft``
+    * ``polygon``  -- ``vertices`` (closed ring, feet), ``height_ft``
+
+    plus optional ``base_z_ft`` (default 0) and ``center`` (plan, default
+    origin) -- so parts STACK into a real assembly instead of one blob.
+    """
+    shape = str(part.get("shape") or "box").lower()
+    if shape not in GENERIC_PART_SHAPES:
+        raise FactoryError(f"unknown part shape {shape!r}: "
+                           f"one of {', '.join(GENERIC_PART_SHAPES)}")
+    h = part.get("height_ft")
+    if h is None or float(h) <= 0:
+        raise FactoryError(f"part {shape!r} needs a positive height_ft")
+    base = float(part.get("base_z_ft") or 0.0)
+    center = tuple(part.get("center") or (0.0, 0.0))
+    rep = G.REP_SOLID if solid else G.REP_DUMMY
+    if shape == "cylinder":
+        r = part.get("radius_ft")
+        if r is None and part.get("diameter_ft") is not None:
+            r = float(part["diameter_ft"]) / 2.0
+        if r is None or float(r) <= 0:
+            raise FactoryError("a cylinder part needs radius_ft or diameter_ft")
+        fb = add_cylinder_form(doc, float(r), float(h), base_z_ft=base,
+                               center=center, rep=rep)
+    elif shape == "polygon":
+        vs = part.get("vertices")
+        if not vs:
+            raise FactoryError("a polygon part needs vertices")
+        if center != (0.0, 0.0):
+            vs = [[float(p[0]) + center[0], float(p[1]) + center[1]] for p in vs]
+        fb = add_polygon_form(doc, vs, float(h), base_z_ft=base, rep=rep)
+    else:
+        w, d = part.get("width_ft"), part.get("depth_ft")
+        if w is None or d is None:
+            raise FactoryError("a box part needs width_ft and depth_ft")
+        fb = add_box_form(doc, float(w), float(d), float(h), base_z_ft=base,
+                          center=center, rep=rep)
+    fb.params.update({"role": str(part.get("name") or shape), "shape": shape,
+                      "base_z_ft": base})
+    return fb
+
+
+def make_generic_model(*, height_ft: Optional[float] = None,
+                       parts: Optional[Sequence[Dict[str, Any]]] = None,
                        vertices: Optional[Sequence[Sequence[float]]] = None,
                        width_ft: Optional[float] = None,
                        depth_ft: Optional[float] = None,
@@ -919,11 +1051,17 @@ def make_generic_model(*, height_ft: float,
     Donor-free like every other constructor; carries the full famdoc law
     set (settings singletons, views, browser folders, sketch solver).
     """
+    if parts:
+        return _make_generic_multipart(parts, name=name, category=category,
+                                       solid=solid, source=source,
+                                       start_id=start_id,
+                                       shared_params=shared_params)
     if height_ft is None or float(height_ft) <= 0:
-        raise FactoryError("make_generic_model needs a positive height_ft")
+        raise FactoryError("make_generic_model needs a positive height_ft "
+                           "(or parts=[...] for a multi-part assembly)")
     if vertices is None and (width_ft is None or depth_ft is None):
         raise FactoryError("make_generic_model needs vertices=[...] or "
-                           "width_ft + depth_ft")
+                           "width_ft + depth_ft, or parts=[...]")
     H = float(height_ft)
     prof = G.polygon_profile(vertices) if vertices is not None else None
     W = float(prof.width) if prof is not None else float(width_ft)
