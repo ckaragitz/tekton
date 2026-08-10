@@ -332,7 +332,7 @@ def test_oriented_footprint_rectangle_and_yaw():
 
 
 def _equipment_from(synth, prod, plc, geom, contract=None, kind="distribution_panelboard"):
-    psets = I._psets(prod)
+    psets = I._psets(prod, I._unit_scales(synth.f))
     con = contract if contract is not None else I.normalize_contract(
         psets, name=prod.Name or "", object_type=None, description=prod.Description,
         tag=getattr(prod, "Tag", None))
@@ -438,7 +438,7 @@ def _room_shell_file():
 def test_room_shell_walls_openings_and_synthesized_front():
     f, room = _room_shell_file()
     plc, geom = I.analyze_product(f, room, scale=1.0)
-    psets = I._psets(room)
+    psets = I._psets(room, I._unit_scales(f))
     shell = I._extract_room_shell(f, room, geom, psets)
     I._close_room(shell)
     ids = {w.wall_id: w for w in shell.walls}
@@ -528,7 +528,7 @@ def test_classify_equipment_by_predefined_and_pset(synth):
                                                    "MainsType": "Main breaker"}})
     for prod, want in ((msb, "switchboard"), (lp, "receptacle_panelboard"),
                        (dp, "distribution_panelboard")):
-        ps = I._psets(prod)
+        ps = I._psets(prod, I._unit_scales(synth.f))
         con = I.normalize_contract(ps, name=prod.Name, object_type=None, description=None,
                                    tag=prod.Tag)
         assert I._classify_equipment(prod, ps, con) == want

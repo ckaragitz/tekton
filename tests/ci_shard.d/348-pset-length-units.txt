@@ -1,0 +1,2 @@
+# #348: hand-authored STEP text in the test itself; no ifcopenshell / numpy / samples needed
+tests/test_ifc_intent_units.py
