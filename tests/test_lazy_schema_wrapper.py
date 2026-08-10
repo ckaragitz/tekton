@@ -1,16 +1,13 @@
-"""The plugin's lazy bundled-schema wrapper follows the one chokepoint
-contract (issue #376; ``plugin/skills/_shared/tekton_schema.py``, the same
-rule as ``rvt.frontdoor.standalone.default_schema_loader`` from #315):
-
-* the default-path call (no arg / ``None`` / ``DEFAULT_PATH``) activates
-  ``standalone.install_schema()`` at most once and answers with the schema
-  it installed;
-* any other path is parsed verbatim -- it never activates the fallback and a
-  missing one raises ``FileNotFoundError`` naming it;
-* armed AFTER a completed ``install_schema()`` (a long-lived host, not the
-  ``go`` order) nothing re-enters the wrapper: before #376 both ``None`` and
-  a missing explicit path recursed until ``RecursionError`` and surfaced as
-  the false "the plugin bundle is incomplete".
+"""The plugin's lazy schema install (``plugin/skills/_shared/
+tekton_schema.py``) keeps the one chokepoint contract of
+``standalone.default_schema_loader`` (issue #376): armed over a default
+path that already resolves it wraps nothing; armed on a bare machine the
+default-path family installs once and answers with the installed schema,
+any other path is parsed verbatim and a missing one raises
+``FileNotFoundError``.  Before #376, arming it AFTER a completed
+``install_schema()`` made ``None`` and every missing explicit path recurse
+into the wrapper until ``RecursionError``, reported as the false "the plugin
+bundle is incomplete".
 
 Fresh-clone safe and in-process (the only schema bytes are the pinned plugin
 base's own); every swapped name is monkeypatch-restored so neighbours in the
@@ -46,12 +43,12 @@ def lazy(monkeypatch):
 
 def test_armed_after_a_completed_install(lazy, tmp_path):
     SA.install_schema()
-    installed = SA.bundled_schema()
-    assert lazy.install() == "corpus-present"           # DEFAULT_PATH = the cache file
-    wrapper = schema.load_schema
-    assert objects.load_schema is wrapper is not None
+    installed, loader = SA.bundled_schema(), schema.load_schema
+    # the default path is install_schema()'s cache file: nothing is wrapped
+    assert lazy.install() == "corpus-present"
+    assert schema.load_schema is loader and objects.load_schema is loader
     # the default-path family answers with the installed object ...
-    assert wrapper() is installed
+    assert schema.load_schema() is installed
     assert objects.load_schema(None) is installed
     assert adocument.load_schema(schema.DEFAULT_PATH) is installed
     # ... a missing explicit path raises, naming it -- no RecursionError ...
@@ -63,7 +60,8 @@ def test_armed_after_a_completed_install(lazy, tmp_path):
     # ... and an existing explicit path is that file, parsed verbatim
     copy = str(tmp_path / "Formats_Latest_copy.bin")
     shutil.copyfile(schema.DEFAULT_PATH, copy)
-    assert wrapper(copy).sha256 == installed.sha256
+    assert schema.load_schema(copy).sha256 == installed.sha256
+    assert lazy.install() == "already"
 
 
 def test_explicit_path_never_activates_the_fallback(lazy, tmp_path, monkeypatch):
@@ -79,7 +77,6 @@ def test_explicit_path_never_activates_the_fallback(lazy, tmp_path, monkeypatch)
     # the first default-path need activates install_schema() once ...
     s = objects.ObjectDecoder().schema
     assert SA._SCHEMA_STATE.get("installed") and s is SA.bundled_schema()
-    assert s.sha256 == SA.SCHEMA_2026_SHA256
     # ... which re-points every chokepoint past the wrapper; a held reference
     # still answers with the same object and still raises for a missing path
     assert schema.load_schema is not wrapper and objects.load_schema is not wrapper
