@@ -501,3 +501,45 @@ batch starts from the census, not from a guess.
 ## Gates run
 
 See BRANCH STATE.
+
+* `/simplify` on the diff: applied — the opt-out moved off `circuits_blocker` to a neutral
+  `circuits_requested: False` at stage E's altitude (engine-level callers of
+  `stage_equipment` never see `--stages` text), `_feeders_unwired(edges, reason, blocker=None)`
+  arg order, `not ok` alone covers a skipped E record, `circuit_edges` computed once in
+  `build.py`, `make_probes` census support hoisted + docstring de-duplicated, freshness test
+  trimmed. Skipped (noted, not argued): `circuit_edges` would sit best as an `IntentModel`
+  helper in `src/rvt/ifc/intent.py` (three older inline copies live in `prompt_intent.py:1817`,
+  `ifc/intent.py:2796`, `tools/bisect_instance_bug.py:172`) — outside this territory, a
+  one-line follow-up for whoever next holds `src/rvt/ifc/intent.py`; the duplicated
+  `CIRCUIT_PROMPT` constant across test files is the repo's current convention (no shared
+  conftest constant).
+* `/verify` on the final head: front door DONE prompt 2026 / 2025 / 2024 → exit 0, stage C
+  6/6 links_ok, `VALID` 0 errors each; `tools/rvt_validate.py` on the 2026 output and on the
+  `--stages FLWEV` output → `ok: true`, 0 errors; `tools/provenance.py … --baseline
+  plugin/assets/genesis/G_ABPD.rvt --streams` → `RbsElectricalSystem created=6`, embedded
+  families `ours-created 7`, totals created 127 / modified 1 / cloned 18 / sample 3,101 =
+  eng146's numbers exactly (the standing G1/identity lines are the base's, #19/#23, unchanged);
+  bare unzip of the rebuilt `tekton-plugin.zip`, system `python3 …/_bootstrap.py go author
+  --prompt <DONE prompt>` → `tekton: READY`, exit 0, 6 circuits, stage C (6, 6, True), `VALID` 0,
+  5.1 s.
+
+BRANCH STATE (eng360): `cam/360-native-circuits-followups` from `origin/main` e54f13f, rebased onto 8f7a1d9 (#368) before push, PR
+opened ready (number in the issue thread). Files written: `tools/ifc_intent.py`
+(`STAGE_C_NOT_REQUESTED`, `CIRCUITS_NOT_REQUESTED_REASON`, `circuit_edges`, `_feeders_unwired`
+replacing `_NO_FEEDERS`, `_circuit_shortfall`, `stage_circuits(…, equipment=)`,
+`stage_equipment` opt-out record + note, `build_room` hands E's record to C),
+`src/rvt/frontdoor/build.py` (+6 lines: `erec` hoist, pass to `stage_circuits`, "not wired"
+degradation, `circuit_edges` once, slim E row `circuits_requested`), `tests/test_mep_devices.py`
+(+2 tests, 2 module fixtures), `tests/ci_shard.d/146-native-circuits.txt` (new),
+`experiments/mep/circuits146/{make_probes.py,probes.json}` (`next_single_variable`),
+regenerated `plugin/lib/src/rvt/frontdoor/build.py`, `plugin/lib/tools/ifc_intent.py`,
+`plugin/skills/tekton-author/scripts/ifc_intent.py`, this header. Gates on the final head:
+`RVT_SKIP_LARGE=1 pytest tests/test_mep_devices.py tests/test_frontdoor.py
+tests/test_mep_electrical_data.py tests/test_shard_list.py tests/test_plugin_sync.py
+tests/test_bootstrap.py tests/test_frontdoor_standalone.py -q -rs` → see the PR body (counts
+pasted there from the same head); `tests/test_mep_devices.py` alone 6 passed / 18 skipped, 1.8 s;
+`tools/sync_plugin.py` synced + `--check` exit 0; `validate_plugin.py` PASS (25 assertions);
+`check_portable_paths.py` ok (2853); `shard_list.py --print` 58 files incl.
+`tests/test_mep_devices.py`; `pytest tests/test_shard_list.py` 23 passed. Shipped: all four
+items. Staged for the viewer: NOTHING (no batch reserved, no ledger claim; shipped circuit
+template values unchanged). STOP after the tech-lead session's CI + review + merge.
