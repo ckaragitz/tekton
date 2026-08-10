@@ -201,3 +201,46 @@ def test_walked_binds_stay_self_contained(rfa):
     prod = F.make_panelboard(mains_a=225, spaces=30, voltage="480Y/277")
     census = walked_bind_census(prod.doc)
     assert census["foreign"] == 0, census
+
+
+def test_donorless_host_document_wires_every_registry(tmp_path):
+    """THE DONOR-LESS LAW (the ckaragitz12 bug): a family built with NO
+    ``family_donor`` -- what every install without the owner's escape-hatch
+    file produces -- must ship a REAL host ADocument, not a skeleton.
+
+    Its constructive tree populates the AppInfoManager's manager slots (a
+    Revit-born famdoc fills 133 of 239); with them empty every registry the
+    famgen laws wire silently no-opped and ``Global/Latest`` shipped as a
+    252-byte stub that Revit rejects at ``Failed to load elemStream#0``.
+    Every other test reads the ELEMENT records, so nothing caught it.
+    """
+    from rvt import schema as _RS
+    if not os.path.isfile(_RS.DEFAULT_PATH):
+        from rvt.frontdoor.standalone import activate
+        activate()
+    from rvt.famgen import factory as F
+    from rvt.frontdoor.standalone import standalone_family_write
+    from rvt import adocument as A
+    from rvt.container import open_rvt
+
+    out = str(tmp_path / "donorless.rfa")
+    prod = F.make_panelboard(mains_a=225, spaces=30, voltage="480Y/277")
+    standalone_family_write(prod, out, validate=False, provenance=False,
+                            timestamp=0)                      # NO family_donor
+    with open_rvt(out) as f:
+        host = b"".join(f.inflate_all("Global/Latest"))
+    assert len(host) > 1000, f"host ADocument is a stub ({len(host)} bytes)"
+    arr = (((A.decode_latest(host).value.get("m_pAppInfoManager") or {})
+            .get("value") or {}).get("m_appInfoArr") or [])
+    populated = {s.get("ptr_class"): (s.get("value") or {})
+                 for s in arr if isinstance(s, dict)}
+    assert len(populated) >= 130, f"only {len(populated)} manager slots populated"
+    uet = populated.get("UniqueElementsTracking")
+    assert uet is not None, "no UniqueElementsTracking manager"
+    ids = uet.get("m_elemIds") or []
+    assert len(ids) == 93, f"UET id array is {len(ids)} long, expected 93"
+    for slot in (10, 60, 64, 65, 85):        # autocam/divide/assembly/keynote/draworder
+        assert ids[slot] > 0, f"UniqueElementsTracking[{slot}] unset ({ids[slot]})"
+    assert (populated.get("PenWidthTableInfo") or {}).get("m_penWidthTableElemId", -1) > 0
+    assert (populated.get("SymbolIdMgr") or {}).get("m_defElementTypeMap")
+    assert (populated.get("BrowserOrganizationTracking") or {}).get("m_elemIdSet")

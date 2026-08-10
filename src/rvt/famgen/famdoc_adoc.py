@@ -946,6 +946,66 @@ def container_is_family(path: str) -> bool:
         return False
 
 
+#: slot index -> AppInfo class name, measured on a Revit-2026-born family
+#: document's host ADocument (structural metadata only -- class names and
+#: their positions in the fixed 239-slot m_appInfoArr, no donor content).
+_APPINFO_SLOTS_ASSET = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                    "assets", "famdoc_appinfo_slots.json")
+
+#: length of ``UniqueElementsTracking.m_elemIds`` in a Revit-born family
+#: document (positional: index = the required-element kind).
+_UET_SLOTS = 93
+
+
+def _populate_appinfo_managers(tree: dict) -> int:
+    """THE APPINFO-MANAGER LAW (the donor-less bug): a Revit family document
+    populates 133 of its AppInfoManager's 239 manager slots; our
+    constructive tree populated ZERO, so every registry the famgen laws
+    wire (``UniqueElementsTracking`` [10]/[60]/[64]/[65]/[85],
+    ``PenWidthTableInfo``, ``SymbolIdMgr`` key 10,
+    ``BrowserOrganizationTracking``) silently no-opped and the host
+    ``Global/Latest`` shipped as a 252-byte skeleton -- the same stub Revit
+    rejects with ``Failed to load elemStream#0``.
+
+    Every slot is a SCHEMA-BUILT blank of the class the donor carries at
+    that index (``m_pADoc`` weakref 1 where the class has one); the
+    downstream repopulate/wiring steps then fill in OUR element ids.
+    Returns the number of slots populated.
+    """
+    from ..genesis.types import blank_object as _blank
+    mgr = tree.get("m_pAppInfoManager")
+    if not isinstance(mgr, dict):
+        return 0
+    arr = (mgr.get("value") or {}).get("m_appInfoArr")
+    if not isinstance(arr, list):
+        return 0
+    with open(_APPINFO_SLOTS_ASSET, "r", encoding="utf-8") as fh:
+        slots = json.load(fh)
+    n = 0
+    for k, cls in slots.items():
+        i = int(k)
+        if i >= len(arr) or isinstance(arr[i], dict):
+            continue
+        try:
+            body = _blank(cls)
+        except Exception:                                  # pragma: no cover
+            continue
+        if isinstance(body, dict) and "m_pADoc" in body:
+            body["m_pADoc"] = {"weakref": 1}
+        if cls == "UniqueElementsTracking":
+            # the required-unique-elements array is POSITIONAL: a blank is
+            # zero-length, so the [10]/[60]/[64]/[65]/[85] writes would have
+            # nothing to write into.  Size it to the donor's 93 slots, all
+            # unset; famdoc_adoc step 4b then points OURS at their elements.
+            ids = body.get("m_elemIds")
+            if not isinstance(ids, list):
+                ids = []
+            body["m_elemIds"] = (list(ids) + [-1] * _UET_SLOTS)[:_UET_SLOTS]
+        arr[i] = {"ptr_class": cls, "pid": -1, "value": body}
+        n += 1
+    return n
+
+
 def constructive_family_host_tree(doc) -> dict:
     """HOST-form family-document ADocument built from the SCHEMA ALONE --
     no archetype file read.  The verified constructive embedded tree
@@ -964,6 +1024,7 @@ def constructive_family_host_tree(doc) -> dict:
     tree = copy.deepcopy(emb["value"])
     tree["m_elemTable"] = None       # lives in Global/ElemTable
     tree["m_pHistory"] = None        # lives in Global/History
+    _populate_appinfo_managers(tree)
     # ARCHIVE RENUMBERING (the desktop round-2 verdict, issue #52): in a
     # host ``Global/Latest`` stream the ADocument IS archive object 1 and
     # every self-reference points there (measured: 196/196 weakrefs == 1
