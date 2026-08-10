@@ -23,7 +23,8 @@
 # Needs: root (setpriv/unshare/chown/flock), util-linux unshare with --kill-child, python3, tar; the repo venv (or
 # SESSION_CI_PYTHON) readable by nobody. Scratch defaults to REPO/.git/session-ci (root-only); override with SESSION_CI_DIR
 # (all runs on one machine must share it — the global lock lives there).
-# Prints one JSON object: {pr, head, merge_with_main, portable_paths, plugin_drift, plugin_structure,
+# Prints one JSON object: {pr, head, main (the origin/main it was merged with — tools/dev/ci_fresh.sh <pr> says
+# FRESH/STALE against the current one before a merge, #487), merge_with_main, portable_paths, plugin_drift, plugin_structure,
 # shard_rc, shard_summary, seconds, sandbox, verdict: pass|fail}; exit 0 either way (read the verdict) —
 # except setup failures (no ref, worktree, tree export, lock timeout): {"pr":N,"error":...} and exit 2.
 set -uo pipefail
@@ -46,12 +47,16 @@ exec 8>"$S/ci/global.lock"; flock -w 5400 8 || { echo "{\"pr\":$PR,\"error\":\"t
 rm -f "$LOG" "$OUT"; : > "$LOG"; rm -rf "$BOX" "$TMPBOX"; git worktree remove --force "$WT" >/dev/null 2>&1; rm -rf "$WT"; git worktree prune
 git fetch -q origin main 2>>"$LOG" || echo "(warning: could not refresh origin/main; merge test uses the local copy)" >> "$LOG"
 HEAD=$(git rev-parse "refs/pr/$PR") || { echo "{\"pr\":$PR,\"error\":\"no ref refs/pr/$PR\"}" > "$OUT"; cat "$OUT"; exit 2; }
+# The trunk this verdict is valid against (#476/#487): recorded as "main" in the JSON, and the merge test below uses THIS
+# sha, never the ref name — so recorded == merged even if tools/dev/ci_fresh.sh (lock-free, same checkout) re-fetches
+# origin/main mid-run. ci_fresh.sh <pr> compares it with the origin/main of merge time: STALE -> re-run, never merge.
+MAIN=$(git rev-parse --verify -q origin/main) || { echo "{\"pr\":$PR,\"error\":\"no origin/main\"}" > "$OUT"; cat "$OUT"; exit 2; }
 
-# 1) trusted: merge result of head + origin/main in a root-owned worktree (what GitHub's merge ref tested)
+# 1) trusted: merge result of head + origin/main (= "$MAIN") in a root-owned worktree (what GitHub's merge ref tested)
 git worktree add --detach "$WT" "$HEAD" >/dev/null 2>&1 || { echo "{\"pr\":$PR,\"error\":\"worktree\"}" > "$OUT"; cat "$OUT"; exit 2; }
 MERGE=clean
-if [ "$(git -C "$WT" rev-list --count HEAD..origin/main)" != "0" ]; then
-  git -C "$WT" -c core.hooksPath=/dev/null -c user.name=ci -c user.email=ci@local merge --no-edit origin/main >>"$LOG" 2>&1 || MERGE=conflict
+if [ "$(git -C "$WT" rev-list --count "HEAD..$MAIN")" != "0" ]; then
+  git -C "$WT" -c core.hooksPath=/dev/null -c user.name=ci -c user.email=ci@local merge --no-edit "$MAIN" >>"$LOG" 2>&1 || MERGE=conflict
 fi
 # 2) trusted script, PR data: portable path names (stdlib-only checker from THIS checkout, run by absolute path)
 echo "=== portable_paths (main's checker over the PR tree)" >> "$LOG"
@@ -95,10 +100,10 @@ else
   TAIL=$(grep -oE '[0-9]+ (passed|failed|error|errors)(, [0-9]+ [a-z]+)* in [0-9.]+s( \([0-9:]+\))?' "$LOG" | tail -1 | cut -c1-160)   # bounded: it gets posted
 fi
 t1=$(date +%s)
-python3 - "$OUT" "$PR" "$HEAD" "$MERGE" "$P" "$D" "$V" "$RC" "$TAIL" "$((t1-t0))" <<'PYEOF'
+python3 - "$OUT" "$PR" "$HEAD" "$MAIN" "$MERGE" "$P" "$D" "$V" "$RC" "$TAIL" "$((t1-t0))" <<'PYEOF'
 import json,sys
-out,pr,head,merge,p,d,v,rc,tail,secs=sys.argv[1:]
-r={"pr":int(pr),"head":head,"merge_with_main":merge,"portable_paths":p,"plugin_drift":d,"plugin_structure":v,
+out,pr,head,main,merge,p,d,v,rc,tail,secs=sys.argv[1:]
+r={"pr":int(pr),"head":head,"main":main,"merge_with_main":merge,"portable_paths":p,"plugin_drift":d,"plugin_structure":v,
    "shard_rc":int(rc),"shard_summary":tail.strip(),"seconds":int(secs),"sandbox":"uid=nobody,net+pid+mnt ns,no caps,no-new-privs,env scrubbed,tree exported"}
 import re
 green = re.match(r"^\d+ passed\b", r["shard_summary"]) and not re.search(r"(^|, )\d+ (failed|errors?)\b", r["shard_summary"])   # "3 xfailed" is not a failure

@@ -614,3 +614,94 @@ through tools that never prompt; describe anything needing the owner's account o
 
 BRANCH STATE (cam/422-no-approval-prompts): `.github/prompts/tick.md`, `docs/process/AUTONOMY.md` (§12c row),
 `docs/STEERING.md` (+S-2026-08-10-b), this section. Docs/process only.
+
+
+## eng #487 — 2026-08-10: a CI verdict is only valid against the `main` it merged (incident #476)
+
+Written by engineer session eng #487 (issue #487, branch `cam/487-ci-fresh`), not by the stream owner above.
+
+**Incident.** #476: `main` went red at `2767197` through a semantic merge collision the session pipeline could not
+see. #469 put `tests/test_manipulate.py` into the shard (drop-in `455-manipulate-order.txt`); #471 deleted
+`tests/test_job.py::_load_job`, which that file imported. Both were CI'd green by `tools/dev/session_ci.sh` — which
+already merges `origin/main` into the head before running the shard — but #471's run was computed against the `main`
+of *before* #469 landed (`.git/session-ci/ci/471.json` on the tech-lead box: `merge_with_main: clean, verdict: pass`
+for head `1b4c3d70`, computed before `42748ca`), and #471 was squash-merged minutes later without a re-run: 1 failed /
+1627 passed on the merged trunk (fixed by PR #484). "Same-tick evidence for the exact head" constrained the *head*,
+never the *trunk the verdict was computed against*; the merge was textually clean, so neither git nor GitHub's
+mergeability could flag it. The tech-lead session patched its live copy at once; this lands the rule in the repo.
+
+**What changed.**
+- `tools/dev/session_ci.sh`: `MAIN=$(git rev-parse --verify -q origin/main)` captured right after the head is resolved
+  (after its `git fetch origin main`, before the worktree; no `origin/main` at all is a setup error, exit 2 like "no
+  ref") and emitted as `"main"` in the one-line JSON right after `"head"`. The merge test now uses that SHA
+  (`rev-list --count "HEAD..$MAIN"`, `merge --no-edit "$MAIN"`) instead of the ref name, so recorded == merged by
+  construction — this change itself introduces the concurrent fetcher that could otherwise split them (`ci_fresh.sh`
+  re-fetches `origin/main` in the same checkout, lock-free, possibly while another PR's run sits between `MAIN=` and the
+  merge). The one `tests/test_techlead.py` needle that pinned `merge --no-edit origin/main` now pins `"$MAIN"`. Nothing
+  else in the script moved (sandbox, locks, shard reader untouched).
+- `tools/dev/ci_fresh.sh <pr> [<head-sha>]` (new, bash + git + awk + a stdlib JSON read; trusted side only — it never
+  checks out, imports or runs PR code): reads `.git/session-ci/ci/<pr>.json` (`SESSION_CI_DIR` honoured exactly like
+  `session_ci.sh`), `git fetch origin main`, then ONE line: `FRESH main=<sha>` (exit 0) when unchanged;
+  `FRESH(docs-only drift) was=… now=…` (exit 0) when every path in `git diff --name-status <was> <now>` is tolerated;
+  `STALE was=… now=… changed=<first 3 blocking paths>[,…] -> re-run tools/dev/session_ci.sh <pr>` (exit 4) otherwise;
+  `MISSING …` (exit 3) for no JSON, a garbled JSON, or a pre-#487 JSON without `main`; exit 2 for a bad PR number or
+  "cannot judge" (fetch/diff failed). A recorded `main` this clone has never seen (trunk rewritten, JSON from another
+  checkout) is `STALE … changed=?` — fail closed. With the optional `<head-sha>` (what `git ls-remote` says right
+  before the merge) it also refuses a JSON computed for another head (`WRONG-HEAD`, exit 5) or whose verdict is not
+  `pass` (`NOT-PASS`, exit 5), so one call is the whole CI-side pre-merge check; without it, behaviour is exactly the
+  issue's spec.
+- **Tolerated drift is narrower than "docs/**", on evidence.** The issue said docs-only drift is harmless; grepping
+  the merged shard shows it is not quite: `tests/test_router.py` opens `docs/coverage/viewer-certified.json` and
+  `docs/product/PERMUTATION-MATRIX.md` (`verify_evidence()` / rendered-matrix agreement), `tests/test_probe_batch.py`
+  and `tests/test_frontdoor_manifest_pin.py` open the ledger, `tests/test_techlead.py` pins needles in
+  `docs/process/AUTONOMY.md`, and `src/rvt/frontdoor/matrix.py` cites `record:docs/inbox/*.md` evidence **by
+  existence**. A verdict-ledger PR (docs-only, hot-file) landing between PR A's CI run and its merge is exactly the
+  #476 shape again. So the helper tolerates only files **added or modified** under `docs/**` that are **not** in
+  `SHARD_READS='^docs/(coverage/|product/PERMUTATION-MATRIX\.md$|process/AUTONOMY\.md$)'`; a docs deletion, those
+  three, and anything outside `docs/` are STALE. Records, `learned-*` notes, `docs/STEERING.md`, `docs/writer/**` —
+  the common docs-only merges — stay tolerated, so the throughput the exemption was for is kept. If the tech lead
+  prefers the plain `docs/**` rule, it is one regex and one awk condition to loosen; the tests name each case.
+- `.github/prompts/tick.md` §2: the merge sentence gains one clause — merge only when this tick's CI said pass AND the
+  reviewer said approve/nits for the re-read head AND `ci_fresh.sh <n> <that head>` run right before the merge exits 0;
+  anything else → re-run `session_ci.sh` and merge on the new JSON (merges serialise behind CI runs; reviews stay
+  parallel, they are diff-scoped). Structure of the file unchanged (the hourly loop reads it verbatim).
+- `docs/process/AUTONOMY.md` §12c, Merge row: one sentence stating the same rule and why. `tools/dev/review_brief.md`
+  unchanged.
+- `tests/test_ci_fresh.py` (new, fresh-clone safe, skips without bash/git; 11 tests, ~1.3 s) + drop-in
+  `tests/ci_shard.d/487-ci-fresh.txt`: builds an upstream repo + clone in `tmp_path`, copies the helper into the
+  clone's `tools/dev/` so its own path resolution is exercised, and pins: unchanged → FRESH (with and without the head
+  arg); added/modified narrative docs → FRESH(docs-only drift); code drift → STALE, exit 4, first three blocking paths +
+  ellipsis, docs paths not counted; ledger / rendered matrix / AUTONOMY.md modified, or a record deleted → STALE naming
+  that path; missing / garbled / `main`-less JSON → exit 3; bad PR number → exit 2; wrong head or non-pass with the head
+  arg → exit 5; unknown recorded `main` → STALE; and that `session_ci.sh` captures `MAIN` between `HEAD=` and the
+  worktree, merges `"$MAIN"`, emits it right after `head`, and shares the scratch layout with the helper.
+
+**Evidence.** `bash -n tools/dev/session_ci.sh && bash -n tools/dev/ci_fresh.sh` → OK (`awk` on this image is mawk;
+the filter is POSIX awk). Dry demonstration on a throwaway upstream + clone (scratch dir, helper copied into the clone,
+`H` = the head recorded in 7.json):
+```
+--- missing json (pr 8):                 MISSING …/clone/.git/session-ci/ci/8.json (no CI verdict stored for PR 8: run tools/dev/session_ci.sh 8)      exit=3
+--- json without main (pr 9):            MISSING "main" in …/ci/9.json (a verdict from before #487: re-run tools/dev/session_ci.sh 9)                exit=3
+--- unchanged:                           FRESH main=ca7eef121dfc17a8977b909f47542ab4ce536cfd                                                        exit=0
+--- unchanged, expected head given:      FRESH main=ca7eef121dfc17a8977b909f47542ab4ce536cfd                                                        exit=0
+--- json is for another head:            WRONG-HEAD json=eeee…e now=ffff…f (the stored run is for another head: run tools/dev/session_ci.sh 7)          exit=5
+--- docs-only drift (record + note):     FRESH(docs-only drift) was=ca7eef12… now=690ef7c0…                                                          exit=0
+--- ledger touched + a record deleted:   STALE was=ca7eef12… now=1d98bce2… changed=docs/coverage/viewer-certified.json,docs/inbox/old.md -> re-run tools/dev/session_ci.sh 7   exit=4
+--- code drift:                          STALE was=ca7eef12… now=8175039d… changed=docs/coverage/viewer-certified.json,docs/inbox/old.md,src/a.py,… -> re-run tools/dev/session_ci.sh 7   exit=4
+--- unknown recorded main:               STALE was=111…1 now=8175039d… changed=? (111…1 is not in this clone: main rewritten, or a JSON from another checkout)   exit=4
+--- bad arg:                             usage: PR must be a number                                                                             exit=2
+```
+`tests/test_ci_fresh.py`: 11 passed. Other gate counts are in the PR body.
+
+**Left for the tech lead (not built here).** (a) FRESH-then-merge is still a small TOCTOU against a *collaborator*
+self-merging between the check and the API call; only this loop's own merges are serialised by the rule — the same
+residual the head re-read always had. (b) The eventual home for "ls-remote head + JSON + freshness → merge args" is a
+`techlead.py merge-gate` verb; at today's size a 40-line script next to `session_ci.sh` is the honest form. (c) A shared
+throwaway-git-repo fixture now exists twice (`tests/test_shard_list.py`, `tests/test_ci_fresh.py`); lifting one into
+`tests/conftest.py` waits for that file to be free (#485 holds it this wave).
+
+BRANCH STATE (cam/487-ci-fresh): `tools/dev/session_ci.sh` (+`MAIN` pinned by SHA and merged by SHA, +`"main"` in
+the JSON, header line), `tools/dev/ci_fresh.sh` (new, 0755), `tests/test_ci_fresh.py` (new),
+`tests/ci_shard.d/487-ci-fresh.txt` (new), `tests/test_techlead.py` (one needle: `merge --no-edit "$MAIN"`),
+`.github/prompts/tick.md` (§2, one clause), `docs/process/AUTONOMY.md` (§12c Merge row, one sentence), this section.
+No workflow files, no engine code, no plugin sources; nothing staged for the viewer.
