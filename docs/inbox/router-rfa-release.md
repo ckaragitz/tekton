@@ -200,3 +200,172 @@ in #242's territory (resolver mode) rather than a separate issue; 5 → already 
 * shipped vs staged: code + tests + docs shipped in the PR; nothing STAGED for
   the viewer (per-release `.rfa` remain validator-gated; a viewer round for
   2025/2024 standalone families would be a separate `needs-viewer` task).
+
+---
+
+## eng #242 — 2026-08-10: the family LOAD routes honour `--target-version` too (issue #242)
+
+Stream: engineer session `eng242` (cloud, fresh clone: no `samples/`, no viewer;
+this venv has ifcopenshell 0.8.5 + numpy), started by the tech-lead session.
+Territory: `src/rvt/frontdoor/router.py` (`_resolve_host`, `_r_rfa_load`,
+`_r_ifc_family_load`, `_emit_at_target`), `src/rvt/frontdoor/matrix.py` (the two
+rfa→rvt cells' caveat + evidence, the `ifc->rfa->loaded-rvt` chain note),
+`tests/test_router_load_release.py` (new, CI shard drop-in
+`tests/ci_shard.d/242-router-load-release.txt`), one assertion in
+`tests/test_rfa_load.py` that pinned the behaviour this issue replaces,
+`docs/product/PERMUTATION-MATRIX.md` (rfa → rvt, rfa + rvt → rvt, the chain row),
+this section. Nothing under `src/rvt/versions/`, `famload.py`, `tools/frontdoor.py`.
+
+### What was already true on main @ 2b87024 (measured, not assumed)
+
+Follow-up 3 above was written against 730fe5a. Since then #351 (famspec
+contract) routed `_resolve_host` through `_target_base` — the memoised call to
+the front door's ONE resolver (`rvt.frontdoor._resolve_base_and_version`) that
+`_emit_at_target` uses. So on today's main, with **no `--rvt`**:
+
+| command (fresh clone, `--json`, exit 0 each) | `.rfa` | loaded `.rvt` | `target_version.status` | project validator |
+|---|---|---|---|---|
+| `route.py run --output rvt --rfa spec/examples/famspec-panelboard.json` | 2026 | 2026 | `unspecified` (+ ask-the-year note) | VALID 0 errors |
+| `… --target-version 2025` | **2025** | **2025** | `match` | VALID 0 errors (2.6 s) |
+| `… --target-version 2024` | **2024** | **2024** | `match` | VALID 0 errors (2.5 s) |
+| `… --target-version 2023` / `2027` | 2026 | 2026 | `fallback` + THE line in caveats | VALID 0 errors |
+| luminaire / device / transformer famspec `--target-version 2024` | 2024 | 2024 | `match` | VALID 0 errors |
+| standalone-born `.rfa` PATH (2026-born, and 2025-born) `--target-version 2025` | — | **2025** (id-remap lane) | `match` | VALID 0 errors |
+
+(`rvt.versions.detect_release` on every file; four registries coherent per the
+load report.) That half of the DONE needed pinning, not building.
+
+### What was NOT true, and is now
+
+1. **`--rvt` given: the block described the wrong file.** `_resolve_host` only
+   appended "`--target-version N ignored for the LOAD`"; `route.json.target_version`
+   stayed whatever the `.rfa` emit had set. Measured on a Revit-2025 host
+   (a famspec loaded onto G_ABPD_2025): `--target-version 2024` → block
+   `match / output_release 2024` while the delivered `loaded_rvt` is **2025**; no
+   flag → block `unspecified / output_release 2026` over a 2025 deliverable. PG1
+   violation (the honest table claimed a release the primary deliverable is not).
+   **Now** `_host_version_block` states the LOAD's story with the edit route's own
+   block builder (`rvt.frontdoor._rvt_route_version_block`, reused — the host's
+   release auto-detected via `rvt.versions.detect_release`, worded for a load):
+   `detected` (no flag) / `match` / `match-older` / `fallback` + THE line
+   ("target 2024 requested: the --rvt route preserves the input file's release
+   (Revit 2025) -- your Revit 2024 cannot open the loaded output either; supply a
+   Revit 2024 input file to get a Revit-openable load"), `input_release` +
+   `output_release` = the host's year, the line/note in caveats, and the `.rfa`
+   emitted beside it keeps its own resolver block under `target_version.rfa`
+   (ROUTE.md prints both lines). Measured after: host 2025 × flag {none, 2024,
+   2025, 2026} → `detected / fallback / match / match-older`, `releases ==
+   {rfa: flag-or-2026, loaded_rvt: 2025}`, validator 0 errors each, `release`
+   view relays `input_release` + the line verbatim.
+2. **The ifc → rfa → loaded-rvt chain (`--via family`) emitted natively and said
+   nothing.** `_r_ifc_family_load` called `_product_rfa` bare; with
+   `--target-version 2025` the route JSON carried `target_version: null`.
+   **Now** `_product_rfa` itself runs its compose + emit through `_emit_at_target`
+   (`source_ifc=` for the fallback IFC copy) for both of its callers — the
+   ifc → rfa product branch and this chain — with the release-independent
+   `ifc->facts` measurement hoisted out of the retried thunk (measured once, was
+   twice on a degrade; the load's builder reuses those facts instead of
+   re-parsing the IFC per call), and the load host comes from `_resolve_host` →
+   the memoised `_target_base` (one resolver call, one block, stated once).
+   Fresh clone, `--target-version 2025`: `ifc->facts` once, the 2025 base
+   resolved, the Revit-2025 release context entered (`release-context` step,
+   release 2025), `facts->rfa` runs in it, and `rfa-emit` then stops on the
+   **pre-existing, flag-independent** container
+   gap (`family container source not found … racbasicsamplefamily-2026.rfa`,
+   #94 — identical without the flag, exit 3 both before and after); the block is
+   stated (`requested 2025`, degrade reason named verbatim), no traceback. The
+   end-to-end proof at 2025 (rfa + loaded rvt both 2025, VALID) needs the family
+   container archetype on disk → owner machine; the test's full branch runs there
+   and self-selects the fresh-clone branch here. Not claimed beyond that.
+3. **A degraded emit left the load host on the wrong release.** When
+   `_emit_at_target` degrades a certified year to native (a class the older
+   schema lacks — the ArcElemCell-at-2024 case above), it rewrote the block to
+   `fallback / 2026` but the memo still held the *target's* base, so a following
+   load would host on the 2024 base under a block saying 2026 (and rebuild the
+   family under the very release it had just failed at). **Now** the degrade
+   branch re-points the memo at the default base through the same resolver
+   (`_resolve(res, opts, label, None)` — the router's single call site of
+   `_resolve_base_and_version`, factored out of `_target_base`), so block, `.rfa`
+   and host name ONE release. Proven with a synthetic single-variable failure
+   (`famspec.write` raising only inside the 2024 context): delivered, both files
+   2026, `fallback` + the reason in the line, host caveat names the 2026 base.
+4. The two carry-along review nits from #243 on `_emit_at_target` (docstring: the
+   IFC addition rides only on `fallback`; the dead `base is not None` condition)
+   are folded in as posted on the issue.
+
+### Evidence a reviewer reproduces as nobody (fresh clone, bundled bases)
+
+```
+tools/route.py run --output rvt --rfa spec/examples/famspec-panelboard.json --target-version 2025 --out X --json
+tools/route.py run --output rvt --rfa spec/examples/famspec-panelboard.json --target-version 2024 --out Y --json
+```
+→ exit 0, ONE JSON document on stdout, `releases == {"rfa": N, "loaded_rvt": N}`,
+`target_version.status == "match"`, status `OK (family loaded four-registry;
+project validates 0 errors)`, load report `registries.coherent` +
+`ours_in_all_four` true. `--target-version 2023` → exit 0, both files 2026,
+`status == "fallback"`, the line in `caveats` and ROUTE.md. Add
+`--rvt <a Revit-2025 .rvt>` → `status == "fallback"` for 2024 with the line,
+`detected` with no flag. `--ifc inputs/ifc/chicago-plenum-downlight.ifc --output rvt --via family --target-version 2025`
+→ `steps[0] == release-context (2025)`, block requested 2025, then the #94
+container stop (exit 3, as on main). No flag → the same result as main
+(compared field by field: status, releases `{rfa: 2026, loaded_rvt: 2026}`,
+block, steps, stamps identical; the one addition is the matrix cell's new
+PER RELEASE caveat line), and with `--rvt` the new host-release caveat replaces
+"ignored for the LOAD".
+
+### Gates run (this session, py3.11)
+
+* `tests/test_router_load_release.py` (new): **21 passed** (54 s) — 8 famspec
+  kind×year loads, 2 `.rfa`-path loads, 2 uncertified years, 5 explicit-host
+  cases, the degrade consistency case, the no-flag case, the chain case
+  (fresh-clone branch), the CLI case.
+* `tests/test_router.py tests/test_router_release.py tests/test_rfa_load.py`
+  (`RVT_SKIP_LARGE=1`): **132 passed, 12 skipped** (122 + 10) (skips = `@slow` large cases +
+  one root-chmod case), after updating the one `test_rfa_load.py` assertion that
+  pinned "ignored for the LOAD" to the new stated-not-ignored contract.
+* `tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py`: **28 passed**.
+* `tools/sync_plugin.py` (2 files mirrored: `plugin/lib/src/rvt/frontdoor/{router,matrix}.py`),
+  `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok; `tools/route.py matrix` evidence
+  self-audit clean (21 cells, 23 stages, 5 chains).
+
+### Follow-ups (out of territory; searched, then filed/noted)
+
+* `rvt.frontdoor._rvt_route_version_block(target, in_rel)` words its note/line for
+  an *edit* ("edited output", "Revit-openable edit", "the edit preserves"); the
+  router rewrites those phrases for a load. A `verb=` keyword on the builder
+  would retire the string surgery — filed as **#419** (`Refs #242`), a 4-line
+  change in `src/rvt/frontdoor/__init__.py`:
+  ```diff
+  -def _rvt_route_version_block(target: Optional[int], in_rel: Optional[int]) -> Dict[str, Any]:
+  +def _rvt_route_version_block(target: Optional[int], in_rel: Optional[int], *,
+  +                             verb: str = "edit") -> Dict[str, Any]:
+  ...  f"the {verb}ed output stays Revit {in_rel}" / f"a Revit-openable {verb}"
+  ```
+* `_emit_at_target`'s degrade line attributes ANY in-context emit failure to the
+  release ("this family emit cannot run at Revit 2025 yet (<reason>)"); on a
+  fresh clone the product-IFC chain's reason is the #94 container gap, which is
+  not release-related. The reason is quoted verbatim so nothing is hidden, and
+  #94 removes the case; noted rather than filed.
+* `/simplify` pass (4 reviewers) applied: `_resolve` factored so the resolver has
+  one call site; `_product_rfa` owns its `_emit_at_target` wrap (no duplicated
+  wrapper at two call sites) with facts hoisted; the `"input_release" not in`
+  sniff and a redundant `int()` dropped from `_host_version_block`; an unused
+  test marker removed, two forked tests made straight-line. Skipped with reason:
+  a first-class `RouteResult` field for the `.rfa` sub-block (nesting keeps ONE
+  serialised block; the manifest/`release` view need no new key), dropping the
+  `"edit" not in line` assertions (they guard exactly the user-visible wording
+  this change promises), and folding the `match-older` case into a pure-function
+  check (it is the end-to-end proof that the flag reaches the host block; ~3 s).
+
+### BRANCH STATE
+
+* branch `cam/242-router-load-release` from main @ 2b87024; files:
+  `src/rvt/frontdoor/router.py`, `src/rvt/frontdoor/matrix.py`, their
+  `plugin/lib/` mirrors, `tests/test_router_load_release.py` (new),
+  `tests/ci_shard.d/242-router-load-release.txt` (new), `tests/test_rfa_load.py`
+  (one test renamed/re-asserted), `docs/product/PERMUTATION-MATRIX.md` (three
+  rows), `docs/inbox/router-rfa-release.md` (this section).
+* gates: as above, all green locally; the new file is in the CI shard.
+* shipped vs staged: code + tests + docs in the PR; nothing STAGED for the
+  viewer — per-release loads stay validator-gated, the matrix says so.

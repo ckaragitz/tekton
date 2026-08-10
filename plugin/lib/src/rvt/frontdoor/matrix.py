@@ -371,6 +371,23 @@ _RFA_HOST = ("default host = the pinned certified genesis base (G_ABPD, "
              "lineage (stage_L8_lp4), a Revit-born standalone .rfa (T2a) and "
              "an embedded-born family document (TB0g) onto the composed base "
              "with instances")
+_RFA_RELEASE = ("PER RELEASE (--target-version, or 'target_version' in the famspec): "
+                "with no rvt the host is THAT year's pinned certified base and the "
+                "family is emitted AND loaded under its release -- 2026 / 2025 / 2024: "
+                "the .rfa and the loaded project both ARE that release, project "
+                "validator 0 errors, four-registry census coherent (every catalog "
+                "famspec kind and the standalone-born .rfa lane, fresh clone, "
+                "tests/test_router_load_release.py); an uncertified (2023) or unknown "
+                "(2027+) year is never refused and never silent -- loaded onto the "
+                "default Revit 2026 base + THE one line, as on every create route; "
+                "a family that cannot be emitted at a certified year degrades "
+                "ONCE (block, .rfa and host all name the default release). A given "
+                "rvt keeps ITS release (a load cannot transmute the host): stated "
+                "every time as detected / match / match-older, or THE line when the "
+                "stated year is older than that host; the .rfa beside it is emitted at "
+                "the flag's year and says so in its own block. The load "
+                "certifications above are 2026-era files: 2025 / 2024 loads are "
+                "VALIDATED under their own release, not viewer-certified")
 _RFA_FAMSPEC_ENV = ("the catalog famspec kinds (panelboard / transformer / "
                     "luminaire / device) emit on the plugin-bundled base and run anywhere "
                     "(fresh clone, cloud session, bare plugin unzip); the "
@@ -498,8 +515,9 @@ _CELL_LIST: List[Cell] = [
           "worked:spec/famspec.schema.json",
           "test:tests/test_ifc_family.py", "test:tests/test_famload.py",
           "test:tests/test_convert.py", "test:tests/test_router.py",
-          "test:tests/test_rfa_load.py", "record:docs/inbox/rfa-load-product.md",
-          "record:docs/inbox/famspec-contract.md"),
+          "test:tests/test_rfa_load.py", "test:tests/test_router_load_release.py",
+          "record:docs/inbox/rfa-load-product.md",
+          "record:docs/inbox/famspec-contract.md", "record:docs/inbox/router-rfa-release.md"),
          (_RFA_INPUT,
           "famspec lane (form a): every famspec kind LOADS onto the pinned base with "
           "project validator 0 errors and a coherent four-registry census (the "
@@ -509,7 +527,7 @@ _CELL_LIST: List[Cell] = [
           "spec/famspec.schema.json (unknown kind, misspelt field, wrong type) or "
           "whose facts the catalog lacks is answered in ONE clear line naming the "
           "field -- never a traceback, never an invented dimension",
-          _RFA_HOST, _RFA_FAMSPEC_ENV, _FAMSPEC_GATES, _PROOF_ONLY)),
+          _RFA_HOST, _RFA_RELEASE, _RFA_FAMSPEC_ENV, _FAMSPEC_GATES, _PROOF_ONLY)),
     Cell(("rfa",), "ifc", STATUS_MISSING, None, (),
          (), (),
          missing_reason="no family->IFC product emitter exists yet",
@@ -667,7 +685,9 @@ _CELL_LIST: List[Cell] = [
           "worked:experiments/convert/extract-family/DP1_reextracted.reloaded.rvt.load.json",
           "test:tests/test_famload.py", "test:tests/test_convert.py",
           "test:tests/test_router.py", "test:tests/test_rfa_load.py",
-          "record:docs/inbox/rfa-load-product.md"),
+          "test:tests/test_router_load_release.py",
+          "record:docs/inbox/rfa-load-product.md",
+          "record:docs/inbox/router-rfa-release.md"),
          ("LOAD the family into YOUR project (the rvt): the famspec lane and "
           "the standalone-born .rfa lane through the certified four-registry "
           "loader (rvt.famload), the extracted-.rfa lane through the component "
@@ -679,7 +699,7 @@ _CELL_LIST: List[Cell] = [
           "composed bases (both Revit-lineage 2026 projects) -- a host of "
           "another release loads only where that release's creation support "
           "is certified",
-          _RFA_FAMSPEC_ENV, _PROOF_ONLY)),
+          _RFA_RELEASE, _RFA_FAMSPEC_ENV, _PROOF_ONLY)),
     Cell(("ifc", "prompt"), "rvt", STATUS_PARTIAL, "ifc_build_then_edit",
          ("ifc->intent", "intent->rvt", "rvt-read", "rvt-edit"),
          ("test:tests/test_ifc_intent.py", "test:tests/test_manipulate.py"),
@@ -731,9 +751,14 @@ CHAINS: Dict[str, Dict[str, Any]] = {
         "status": STATUS_WORKS,
         "note": ("a PRODUCT IFC measured into facts, composed as our family, "
                  "loaded four-registry into the certified host -- the "
-                 "L_downlight_loaded pipeline"),
+                 "L_downlight_loaded pipeline; per release exactly as rfa->rvt "
+                 "(the product .rfa is emitted in the --target-version year's "
+                 "context and the default host is that year's certified base, one "
+                 "resolver, one stated block); the measured archetype itself still "
+                 "needs the family container archetype on disk (owner machine, #94)"),
         "evidence": ("certified:experiments/families/ifc/L_downlight_loaded.rvt",
-                     "test:tests/test_ifc_family.py"),
+                     "test:tests/test_ifc_family.py",
+                     "test:tests/test_router_load_release.py"),
     },
     "prompt->rfa->loaded-rvt": {
         "via": None, "cell": key_for(("prompt",), "rvt"),

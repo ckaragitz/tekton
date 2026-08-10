@@ -231,11 +231,23 @@ def test_route_rfa_to_rvt_target_2025_loads_onto_the_2025_base(panel_rfa, tmp_pa
 
 @needs_catalog
 @needs_pin
-def test_target_version_is_ignored_with_an_explicit_host(panel_rfa, tmp_path):
+def test_target_version_with_an_explicit_host_is_stated_not_ignored(panel_rfa, tmp_path):
+    """--rvt keeps ITS release (the pinned base is a Revit-2026 project); a
+    stated 2025 cannot open the loaded output and THE line says so (#242;
+    the full contract is tests/test_router_load_release.py)."""
+    from rvt import versions as V
     res = R.route({"rfa": panel_rfa, "rvt": PINNED_BASE}, "rvt", out=str(tmp_path / "o"),
                   target_version=2025)
-    assert res.ok is True, res.errors + [res.status]
-    assert any("ignored for the LOAD" in c for c in res.caveats)
+    assert res.ok is True, res.errors + [res.status]                  # delivered (rule 1)
+    host_rel = V.detect_release(PINNED_BASE)
+    assert V.detect_release(res.files["loaded_rvt"]) == host_rel
+    assert host_rel > 2025                                            # the premise
+    tv = res.target_version or {}
+    assert tv.get("requested") == 2025 and tv.get("output_release") == host_rel, tv
+    assert tv.get("status") == "fallback"
+    assert "your Revit 2025 cannot open the reloaded output" in tv["line"]
+    assert tv["line"] in res.caveats
+    assert not any("ignored for the LOAD" in c for c in res.caveats)
 
 
 def test_matrix_names_the_new_lane_and_keeps_its_evidence_honest():
