@@ -1,0 +1,2 @@
+# issue #264: manifest base.pin names the resolved release slot (pinned bases ship in plugin/assets/genesis)
+tests/test_frontdoor_manifest_pin.py
