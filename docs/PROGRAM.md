@@ -79,9 +79,13 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
 11. **O11 Donor-free families on every route** (P0 steer #498, S-2026-08-10-c): `prompt → rfa` and
     `ifc → rfa` (a full multi-element IFC such as a Claude Design export) emit self-generated
     families carrying every desktop-verified law with no `family_donor` / `$RVT_FAMILY_DONOR`;
-    the donor escape hatch stops being needed for any documented flow. *Done = #498's DONE
-    (1)–(3): the structural host-ADocument gate extended to the IFC route, desktop verdicts
-    recorded, matrix rows honest.*
+    the donor escape hatch stops being needed for any documented flow. Per steer #591
+    (S-2026-08-10-e) the prompt lane also authors a free-form dimensioned object ("a box 2 ft ×
+    3 ft × 4 ft") as a `generic_model` family from the prompt's own numbers, and a dimensionless
+    prompt asks the one question it needs instead of refusing; per steer #585 (S-2026-08-10-d) a
+    family that fails in Revit is fixed on Revit's own path, never by wrapping it in a project.
+    *Done = #498's DONE (1)–(3): the structural host-ADocument gate extended to the IFC route,
+    desktop verdicts recorded, matrix rows honest; plus #591's DONE (1)–(4).*
 
 ## Not goals (decided — do not re-propose without a new steer)
 
