@@ -130,3 +130,12 @@ Warnings on every file = the known 1,171-record Extensible-Storage decode gap
 | circuit to EXISTING panel | CREATE | BLOCKED (phase 2) | — | needs the two-sided connector edit as in-place record edits inside one combined create+edit commit (open item O1) |
 
 BRANCH STATE: mep-devices — module + 18 tests + 6 proof files complete; all six proofs STRUCTURALLY VALID, semantic readback OK and 0 validator errors (edit/delete files strict-clean, created files strict-blocked ONLY by the writer-core counter defect diff'd above); full suite result reported by the agent; viewer certification pending; two writer-core findings (identity/History GUID, commit.py counter) filed above for the orchestrator.
+
+## eng #359 — 2026-08-10 (pointer, place-fixtures stream)
+
+The front door now LOADS + PLACES generated Electrical Fixtures (`author --prompt 'a room with 4 duplex
+receptacles …'` → one shared `make_device` family, 4 `fixture-instance` rows + a device-schedule row each,
+validator 0 errors, open-cell stamp). That work generalised the famgen loader / stage-E category, not this
+module: record, evidence and BRANCH STATE are in `docs/inbox/electrical-fixtures.md` under the eng #359
+header. `rvt.mep.devices` (face-hosting on dummy planes, multi-load circuits) stays the fidelity follow-up
+named there.

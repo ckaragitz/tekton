@@ -38,6 +38,7 @@ TOOL_VERSION = "1.0.0"
 _CATEGORY_FOR = {
     "wall": "walls",
     "equipment-instance": "electrical_equipment",
+    "fixture-instance": "electrical_devices",
     "family(.rfa)": "families",
     "loaded-family": "families",
     "circuit": "circuits_systems",
@@ -113,9 +114,11 @@ def crud_affordances(files: Dict[str, Optional[str]], created: List[Dict[str, An
             r["not_available"] = {
                 "rename / set-mark": ("front-door instances are specimen-scaffolded clones "
                                       "with NO instance parameter rows (the tag/PanelName rides "
-                                      "on each board's own generated family + type) -- rename "
-                                      "= regenerate with a new tag; `rename`/`set-mark` DO work "
-                                      "on native instances in a user's file (--rvt route)"),
+                                      "on each board's own generated family + type; wiring "
+                                      "devices share ONE family, their R-n tag is the manifest's "
+                                      "label only) -- rename = regenerate with a new tag; "
+                                      "`rename`/`set-mark` DO work on native instances in a "
+                                      "user's file (--rvt route)"),
             }
         rows.append(r)
     return {
@@ -637,10 +640,27 @@ def _render_md(m: Dict[str, Any]) -> str:
             src = (f"{c.get('catalog')} {c.get('variant')}" if c.get("catalog")
                    else "house family (our own modeled extents; no catalog line covers the rating)")
             ap(f"- family: `{c.get('name')}` ({c.get('tag')}; {src}; ok={c.get('ok')})")
-    n_inst = sum(1 for c in (build.get("elements_created") or []) if c.get("kind") == "equipment-instance")
-    n_wall = sum(1 for c in (build.get("elements_created") or []) if c.get("kind") == "wall")
-    n_lf = sum(1 for c in (build.get("elements_created") or []) if c.get("kind") == "loaded-family")
-    ap(f"- created: {n_wall} walls, {n_inst} equipment instances, {n_lf} loaded families")
+    created_rows = build.get("elements_created") or []
+    n_inst = sum(1 for c in created_rows if c.get("kind") == "equipment-instance")
+    n_wall = sum(1 for c in created_rows if c.get("kind") == "wall")
+    n_lf = sum(1 for c in created_rows if c.get("kind") == "loaded-family")
+    devices = [c for c in created_rows if c.get("kind") == "fixture-instance"]
+    ap(f"- created: {n_wall} walls, {n_inst} equipment instances, "
+       + (f"{len(devices)} wiring devices, " if devices else "")
+       + f"{n_lf} loaded families")
+    if devices:
+        ap("- device schedule (one Electrical Fixtures instance per row, all on ONE shared "
+           "generated family; free-standing upright at the wall face, PROOF-ONLY like the boards):")
+        ap("")
+        ap("| tag | id | device | V | VA | height AFF | at (ft) | level |")
+        ap("|---|---|---|---|---|---|---|---|")
+        for c in devices:
+            s = c.get("schedule") or {}
+            pos = ", ".join(f"{float(x):g}" for x in (c.get("position_ft") or []))
+            ap(f"| {c.get('tag')} | {c.get('elem_id')} | {s.get('DeviceType') or c.get('equip_kind')} "
+               f"| {s.get('Voltage', '')} | {s.get('Load', '')} | {s.get('MountingHeight', '')} in "
+               f"| {pos} | {c.get('level') or ''} |")
+        ap("")
     pi = build.get("project_info") or {}
     if pi.get("ok"):
         ident = pi.get("after") or {}

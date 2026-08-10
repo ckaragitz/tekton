@@ -255,8 +255,9 @@ def test_two_storey_intent_model_carries_levels():
 
 
 # ===========================================================================
-# wiring devices (Electrical Fixtures) -- issue #166: parsed, planned and
-# laid out at the ADA/NEC height; front-door load + placement is issue #359
+# wiring devices (Electrical Fixtures) -- issue #166: parsed and laid out at
+# the ADA/NEC height; issue #359: a RESOLVED make_device plan the room build
+# loads (one shared family) and places (tests/test_place_fixtures.py)
 # ===========================================================================
 
 def test_receptacles_are_a_build_path_kind_not_unbuilt():
@@ -277,7 +278,7 @@ def test_receptacles_are_a_build_path_kind_not_unbuilt():
 
 
 @needs_catalog
-def test_receptacles_are_laid_out_at_the_facts_height_and_planned_with_make_device():
+def test_receptacles_are_laid_out_at_the_facts_height_and_resolved_with_make_device():
     from rvt.frontdoor import intent as FI
     from rvt.ifc import intent as I
     model, parsed = PP.prompt_to_intent("a room with 4 duplex receptacles")
@@ -291,17 +292,20 @@ def test_receptacles_are_laid_out_at_the_facts_height_and_planned_with_make_devi
     assert model.audit["equipment_inside_room_ring"] == "4/4"
     assert any("18 in AFF" in d and "ADA 308.2.1" in d for d in parsed.coverage.defaults_applied)
     assert any("NEC 220.14(I)" in d for d in parsed.coverage.defaults_applied)
-    # ONE make_device plan per device, facts attached, status 'planned' = never in
-    # the load/placement stages (cannot shed real equipment from the batch), the
-    # follow-up named instead of a refusal
+    # ONE resolved make_device plan per device (the model's plan_for(tag) contract),
+    # identical kwargs = ONE shared family in the build; facts attached, no refusal;
+    # buildable, so the room build loads + places them (the open cell, stamped)
     plans = model.family_plans
     assert [(p.constructor, p.status, p.variant) for p in plans] == [
-        ("rvt.famgen.factory.make_device", "planned", "duplex-receptacle-5-15R")] * 4
+        ("rvt.famgen.factory.make_device", "resolved", "duplex-receptacle-5-15R")] * 4
     assert plans[0].kwargs == {"kind": "duplex-receptacle", "mounting_height_in": 18.0,
                                "voltage": "120", "va": 180.0}
-    assert "#359" in plans[0].refusal and "not a refusal" in plans[0].refusal
-    assert FI.buildable_family_plans(model) == [] and FI.combination_check(model).mode == "single"
-    assert "NOT loaded/placed" in eq[0].disposition
+    assert all(p.kwargs == plans[0].kwargs for p in plans)
+    assert plans[0].refusal is None and plans[0].catalog == "generic/devices-and-mounting"
+    assert FI.buildable_family_plans(model) == plans
+    v = FI.combination_check(model)
+    assert (v.mode, v.n_instances, v.triggers_open_bug) == ("stamp-proof-only", 4, True)
+    assert eq[0].disposition == "generated-family"
     assert model.other_products == [] and model.feeders == []
     # the device schedule pset rides on the equipment (scene brief / IFC handoff)
     dev = eq[0].psets["DeviceSchedule"]
@@ -323,11 +327,11 @@ def test_devices_never_displace_or_shed_the_equipment_of_a_mixed_prompt():
     assert kinds.count("receptacle_device") == 6 and "receptacle_panelboard" in kinds
     assert {it.height_in for it in parsed.items if it.kind == "receptacle_device"} == {43.31}
     status = {p.tag: p.status for p in model.family_plans}
-    assert status["RP-1"] == "resolved" and status["T1"] == "resolved"
-    assert {s for t, s in status.items() if t.startswith("R-")} == {"planned"}
-    assert [p.tag for p in FI.buildable_family_plans(model)] == ["RP-1", "T1"]
-    assert FI.combination_check(model).n_instances == 2               # the panel + the transformer
-    assert [(e.source, e.target) for e in model.feeders] == [("T1", "RP-1")]
+    assert set(status.values()) == {"resolved"}
+    assert [p.tag for p in FI.buildable_family_plans(model)] == [
+        "RP-1", "T1", "R-1", "R-2", "R-3", "R-4", "R-5", "R-6"]
+    assert FI.combination_check(model).n_instances == 8               # panel + transformer + 6 devices
+    assert [(e.source, e.target) for e in model.feeders] == [("T1", "RP-1")]   # devices are unfed
     # panels keep the north-most wall slots; devices follow on the same faces at their own height
     rp, r1 = model.by_tag("RP-1"), model.by_tag("R-1")
     assert rp.insertion_m[2] == PP.DEFAULT_PANEL_MOUNT_CENTER_M and round(r1.insertion_m[2], 3) == 1.1
