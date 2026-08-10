@@ -439,3 +439,64 @@ What it does NOT establish, and must not be written up as if it did:
 Recorded because it is the first desktop confirmation this stream has, and because it
 retires the one remaining reason to doubt the box lane: the slots are the visible
 signature of a correct decomposition.
+
+## RETRACTION + a confounded ladder (owner, 2026-08-10) — steer #585
+
+Two things I got wrong, recorded before anything is built on top of them.
+
+### 1. The loader-built `.rvt` was not "a working path today". Retracted.
+
+I sent a project our own four-registry loader had built with the family in it, and called
+it a working path that bypasses `Insert > Load Family`. The owner's verdict: **it did not
+open**, and:
+
+> "stop that thats not the way we solve these issues"
+
+Two failures in that, not one:
+
+* **Routing around Revit's own path is not a fix.** It hides the defect behind a lane the
+  user did not ask for. Logged as steer #585.
+* **I called a file usable on the strength of `VALID / 0 errors`.** That is hard rule 4
+  restated the hard way — our validator is not the arbiter — and I broke it on a file I
+  handed over as a solution. The project-validator result stands as a fact; "so it works"
+  never followed from it.
+
+The loader lane's own failure to open is **negative evidence against that lane**, and
+belongs with the open cell rather than being quietly dropped.
+
+### 2. The crash ladder was CONFOUNDED. My own README's claim was false.
+
+`build_ladder.py` says "the only difference between L1 and L2 is the NUMBER OF SOLIDS".
+It is not:
+
+| rung | solids | shape mix |
+|---|---|---|
+| L1 | 13 | 9 box + 4 cylinder — **no polygons** |
+| L2 | 103 | 87 box + 2 cylinder + **14 polygon** |
+
+L1 → L2 varies solid count **and** introduces N-gon parts. The repo's own evidence
+discipline is single-variable experiments with matched pairs, and this was neither.
+
+Owner's results: **L0 (1), L1b (4), L1 (13) all load. L2 (103) crashes.** That is real and
+useful — but it narrows the cause to *"something that appears between 13 and 103 solids"*,
+which is **count or N-gon parts or both**, not "it is scale" as the README's decision table
+asserts. That table is wrong as written and must not be read as settled.
+
+Measured while checking (no Revit needed):
+
+```
+rung   solids  elements  id range      classes at L2
+L0        1       102    1000..1101    CurveElem 588, SketchPlane 109,
+L1b       4       113    1000..1112    VarSketch 103, ExtrusionElem 103
+L1       13       168    1000..1167
+L2      103       982    1000..1981
+```
+
+One hypothesis is already weakened by reading the code rather than guessing: N-gon parts
+do **not** ship the regeneration representation any more (#515 removed that fallback), so
+polygons and boxes both carry a cached B-rep. That makes shape mix less likely than count
+— but "less likely" is not "excluded", and the ladder as built cannot tell them apart.
+
+A clean pair would be **N boxes only** at rising N (13 / 40 / 87 / 103, one shape type
+throughout), which isolates count with nothing else moving. Not built here: the owner has
+called a halt to how this was being approached, and the next step is theirs to set.
