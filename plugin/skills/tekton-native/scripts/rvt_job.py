@@ -65,7 +65,11 @@ stdout.  ``--json`` (position-free; ``_bootstrap.py go rvt_job.py …`` appends
 it) prints exactly ONE JSON object on stdout = the manifest it writes (full or
 stub) + ``exit_code``; the progress lines stream into ``<out>.log`` (named in
 ``output.log``) so a skill session's ONE call returns the gates, the status
-and the written file with nothing else to read or parse (issue #267).
+and the written file with nothing else to read or parse (issue #267).  A log
+that cannot be opened adds ONE ``degradations`` note to the printed object
+only (not to the on-disk manifest).  In both modes an abort is ONE
+``[rvt_job] …`` line on stderr; a traceback, when there is one, rides with
+the progress (stdout / ``<out>.log``), never stderr.
 """
 from __future__ import annotations
 
@@ -96,8 +100,9 @@ SAMPLES_DIR = os.path.join(ROOT, "samples")
 EX_OK, EX_ERR, EX_PLAN, EX_STRUCT, EX_VALIDATE, EX_IDENTITY, EX_NOT_DELIVERABLE = 0, 1, 2, 3, 4, 5, 6
 
 #: --json run state: the progress-log path every manifest of this run names,
-#: and the last manifest written (full or stub) = the ONE object on stdout
-_RUN: Dict[str, Any] = {"log": None, "manifest": None}
+#: the last manifest written (full or stub) = the ONE object on stdout, and
+#: the last abort's one-line status (the stub's, when no manifest carries it)
+_RUN: Dict[str, Any] = {"log": None, "manifest": None, "status": None}
 
 
 # ===========================================================================
@@ -1017,8 +1022,7 @@ def create_from_spec(spec: dict, spec_source: str, args, *, mode: str = "create"
     try:
         records, plans, log, tpl = _plan_create(spec, base_path, args.template, args)
     except Exception as e:
-        traceback.print_exc()
-        manifest["status"] = f"FAILED (planning: {type(e).__name__}: {e})"
+        manifest["status"] = _failed("planning", e)
         _write_stub_manifest(out_path, manifest)
         return EX_PLAN
     for line in log:
@@ -1050,6 +1054,17 @@ def create_from_spec(spec: dict, spec_source: str, args, *, mode: str = "create"
 
     # ---- 5..7 gates + manifest ---------------------------------------------
     return run_gates(mode, out_path, base_path, manifest, structural=structural, args=args)
+
+
+def _failed(stage: str, exc: BaseException) -> str:
+    """The abort law: the traceback rides with the progress (stdout, i.e. the
+    log under ``--json``), stderr gets ONE ``[rvt_job] FAILED (stage: Exc:
+    msg)`` line; returns (and remembers for the stub) that status."""
+    traceback.print_exc(file=sys.stdout)
+    status = f"FAILED ({stage}: {type(exc).__name__}: {exc})"
+    print(f"[rvt_job] {status}", file=sys.stderr)
+    _RUN["status"] = status
+    return status
 
 
 def _write_stub_manifest(out_path: str, manifest: dict) -> None:
@@ -1305,8 +1320,7 @@ def _cmd_edit(args, in_path: str, release_note: Optional[str]) -> int:
         print(f"[rvt_job] {manifest['status']}", file=sys.stderr)
         return EX_PLAN
     except Exception as e:
-        traceback.print_exc()
-        manifest["status"] = f"FAILED (planning: {type(e).__name__}: {e})"
+        manifest["status"] = _failed("planning", e)
         _write_stub_manifest(out_path, manifest)
         return EX_PLAN
     for line in log:
@@ -1465,8 +1479,8 @@ def _dispatch(args) -> int:
         return EX_ERR
     except SystemExit:
         raise
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:                   # unusable inputs (ops/spec/base) or an engine fault
+        _failed(args.mode, e)
         return EX_ERR
 
 
@@ -1475,7 +1489,7 @@ def main(argv=None) -> int:
     want_json = "--json" in argv             # position-free: `go rvt_job.py …` appends it last
     argv = [x for x in argv if x != "--json"]
     args = build_parser().parse_args(argv)
-    _RUN.update(log=None, manifest=None)     # per run (main() is also called in-process)
+    _RUN.update(log=None, manifest=None, status=None)   # per run (main() is also called in-process)
     if not want_json:
         return _dispatch(args)
     # --json: progress -> <out>.log (named in output.log); an unopenable log = ONE
@@ -1490,8 +1504,8 @@ def main(argv=None) -> int:
         if _RUN["manifest"] is None:         # died before any manifest (input / ops.json unusable)
             _write_stub_manifest(out_abs, {
                 "tool": "rvt_job", "tool_version": TOOL_VERSION, "mode": args.mode,
-                "status": f"FAILED (exit {rc}) before anything was written; "
-                          "the reason is the one line on stderr"})
+                "status": _RUN["status"] or f"FAILED (exit {rc}) before anything was written; "
+                                            "the reason is the one line on stderr"})
     doc = dict(_RUN["manifest"], exit_code=rc)
     if notes:
         doc["degradations"] = notes
