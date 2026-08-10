@@ -208,3 +208,152 @@ helper, hook and fixture byte-intact, only shifted), `tests/test_docs_read_audit
 `tests/ci_shard.d/523-docs-read-audit.txt` (new drop-in), this record (new). Nothing under `src/`, `tools/`, `plugin/`,
 `skills/`; `tests/test_ci_fresh.py` and `tests/test_shard_list.py` untouched (adoption of the shared helpers = the
 follow-up above). Nothing staged for the viewer; no certification claim.
+
+---
+
+## 2026-08-10 — eng #542: the consumers adopt conftest's helpers, and the five keepers from #543's review
+
+**Stream:** shard-docs-audit, continued by eng #542 (issue #542; Refs #523, #528, #487 (c)). Written in this
+engineer's voice under its own header; nothing above this rule was edited.
+
+### What landed
+
+1. **`tests/test_ci_fresh.py` adopts the shared helpers** — `from conftest import GIT_ENV, HAVE_GIT, ci_shard_files,
+   git, git_commit, git_init, shard_reads_pattern`; its private `GIT_ENV`, `_git`, `_commit`, `_shard_reads` and the
+   inline `importlib` load of `tools/dev/shard_list.py` are gone (`SHARD_LIST` with them). Swaps, all mechanical:
+   `_git(cwd, …)` → `git(cwd, …)`; `os.makedirs(up)` + `git init -q -b main` → `git_init(up)`; `_commit` →
+   `git_commit`; the meta-test's shard list → `ci_shard_files()`; the pattern → `shard_reads_pattern()` behind a local
+   `_portable_ere()` that keeps the ERE-subset guard (`[\w/^$|()\[\].-]+`) in this file, as the issue asks; the module
+   skip now reads `HAVE_GIT`. **No assertion changed.** One real difference surfaced and was resolved in conftest, not
+   papered over here: since #522 this file's `_commit` staged *only the named paths* (`add -A -- <files> <deletes>`) —
+   the rig's clone carries untracked copies of `ci_fresh.sh` + `check_portable_paths.py` under `tools/dev/`, and an
+   `add -A` of everything would commit them into the PR head, after which `switch --detach origin/main` deletes them
+   from the work tree and every `fresh()` call dies. So **`conftest.git_commit` now stages exactly the paths it was
+   handed** (docstring says so); for its other user (`test_docs_read_audit.py`'s `git_repo` row, incl. a delete) that is
+   the same commit as before.
+2. **`tests/test_shard_list.py`** — its `_git` (`git -C repo -c user.name=t -c user.email=t@t -c core.hooksPath=/dev/null`)
+   → conftest's `git` (identity and a nulled global/system config come from `GIT_ENV`); the bare `git init -q` in
+   `_seed` → `git_init(repo)` (branch `main`, no `init.defaultBranch` hint noise); the module-level `importlib` stanza
+   → `load_tool("dev/shard_list")`, the loader `conftest.ci_shard_files()` merges through. Assertions untouched.
+   (The issue's Territory lists this file; the wave brief's "NOT shard_list.py" is read as `tools/dev/shard_list.py`,
+   which is untouched — flagged in the PR for the reviewer to overrule.)
+3. **`tests/conftest.py` — the DocsReadAudit keepers** (every pre-existing gate, fixture and hook byte-intact):
+   - **Class collectors carry their module.** `collector_module(collector)` = `collector.path` for `pytest.Module`
+     **and `pytest.Class`**, `None` for Session/Dir/Package; `pytest_collectstart` attributes through it. Before, a
+     Class collector passed `None` ⇒ session level ⇒ *enforced*: a docs read made while a class's methods are
+     collected (`pytest_generate_tests`, a param-id callable) in a **non-shard** file failed a local run of that file
+     with the "opened by the CI shard" gloss. Latent (no `pytest_generate_tests` under `tests/` today), real (bite below).
+   - **"Could not judge" has its own words.** The verdict is now `{"offenders", "covered", "unenforced", "unjudged",
+     "error"}`: when `SHARD_READS` or the shard list cannot be loaded, `error` = `"Type: message"`, every recorded read
+     lands in `unjudged` (kept, listed as `??  <path>  (recorded, could not be judged)` with its readers), and the
+     section opens with `FAIL the audit could not judge any read (<error>) -- fail closed: …restore them` instead of a
+     pseudo-path glossed "opened by the CI shard, NOT covered" and counted as "1 repo docs/ file(s) opened". One
+     predicate, `audit_failed(verdict)` (= offenders or error), drives `pytest_sessionfinish`'s exit-1 flip and the
+     red banner, so the fail-closed outcome is unchanged: still exit 1 with zero reads recorded.
+   - **The header counts files, not rows.** `docs_audit_header(verdict)` counts *distinct* paths across the read
+     buckets; a path read by a shard module (offender) and a non-shard module (unenforced) is one file (main summed
+     bucket sizes: "2 repo docs/ file(s)" for one file).
+   - **Idempotent installation.** `AUDIT_SENTINEL = "_rvt_docs_read_audit"` on `sys`: the first execution creates the
+     recorder, `sys.addaudithook`s it and parks it there; a second execution of the file in the same interpreter
+     (another import mode, a reload) adopts that recorder instead of stacking a second, unremovable hook.
+   - `AUDITED_DIR` stays — the recorder and `tests/test_docs_read_audit.py` (whose house rule keeps real docs names out
+     of its literals) build every path from it — but its comment no longer claims it exists for the static scanner's
+     sake. Consequently **conftest was *not* added to `NAMES_NOT_READS`**: it names no docs path, so the excuse would be
+     unearned, and that list's own comment asks to stay tiny. (The issue's third DONE bullet offered the excuse as the
+     way to spell `docs` plainly; with a named constant being ordinary style rather than a dodge, "if and only if it
+     must name docs paths" resolves to: it need not.)
+4. **`tests/test_docs_read_audit.py`** — three new rows and two extended ones: `TestCollectorAttribution` (a method on
+   purpose: its parent *is* a `pytest.Class`, its grandparent the `pytest.Module` — real nodes handed to
+   `collector_module`; the class and module map to this file, `tests/` and the session to `None`; a synthetic read under
+   the class context is unenforced under a shard lacking the module, the same read under a directory collector is an
+   offence); executing `conftest.py` a second time via `importlib` yields new class objects but
+   `twice.DOCS_AUDIT is DOCS_AUDIT is sys._rvt_docs_read_audit`; and a **hermetic end-to-end pair**: a tmp copy of the
+   rig (this `conftest.py`, `tools/dev/ci_fresh.sh`, `tools/dev/shard_list.py`, a one-line `tests/ci_shard.txt`, a
+   `docs/zz-bite.md`, the engine from the real `src/` via `PYTHONPATH`) runs a generated test file whose
+   `pytest_generate_tests` opens the docs file while `TestCollected` is collected — not in the copy's shard → `1 passed`,
+   exit 0, listed `--  docs/zz-bite.md  (not a CI-shard file…)  <- tests/test_zz_class_collect.py::TestCollected`;
+   listed in the shard → exit 1, `FAIL … <- …::TestCollected`. The judge row now also pins `unjudged == {}` /
+   `error is None` on a normal verdict, the distinct-file header (4 files; a two-bucket path counted once), and the
+   fail-closed verdict's exact shape, header ("0 repo docs/ file(s) opened") and wording with and without recorded reads.
+
+### Evidence
+
+**Stream-local counts, before → after** (`RVT_SKIP_LARGE=1 … -q -rs -p no:cacheprovider`, this VM):
+`tests/test_ci_fresh.py` 21 passed / 2 skipped (gawk, busybox absent) → **21 / 2**; `tests/test_shard_list.py` 23 → **23**;
+`tests/test_portable_paths.py` 3 → **3**; `tests/test_docs_read_audit.py` 6 passed / 1 skipped → **9 / 1** (the three new
+rows; the skip is the inert self-test reader). The four together: 53 passed, 3 skipped → **56 passed, 3 skipped**.
+
+**The #543 bite, reproduced on this branch and reverted** (same injection as above: a `src/` function opening
+`docs/STEERING.md` through two variables, appended to `tests/test_shard_list.py`):
+```
+$ .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_shard_list.py tests/test_ci_fresh.py::test_SHARD_READS_covers_every_docs_path_the_ci_shard_reads
+........................E.                                               [100%]
+___________ ERROR at teardown of test_zz_injected_indirect_docs_read ___________
+docs-read audit (#523): this test opened docs/STEERING.md -- repo docs/ file(s) NOT covered by SHARD_READS in tools/dev/ci_fresh.sh; …
+============================ docs-read audit FAILED ============================
+1 repo docs/ file(s) opened by this test process; judged against SHARD_READS of tools/dev/ci_fresh.sh (#523)
+  FAIL docs/STEERING.md   (opened by the CI shard, NOT covered by SHARD_READS)
+         <- tests/test_shard_list.py::test_zz_injected_indirect_docs_read
+…
+25 passed, 1 error in 0.60s        (exit 1; `git diff tests/test_shard_list.py | grep zz_injected` empty afterwards)
+```
+
+**The new bite — a non-shard file whose CLASS collection opens `docs/STEERING.md`, run alone**
+(`tests/test_zz_bite_class_collect.py`: `pytest_generate_tests` opens the file to parametrize `TestCollectedByAClass.test_row`; never committed):
+```
+origin/main 9d4f456 conftest:   1 passed …  docs-read audit FAILED
+                                  FAIL docs/STEERING.md   (opened by the CI shard, NOT covered by SHARD_READS)
+                                         <- tests/test_zz_bite_class_collect.py::TestCollectedByAClass        exit 1
+this branch (RVT_DOCS_AUDIT=report): 1 passed …  docs-read audit
+                                  --   docs/STEERING.md   (not a CI-shard file: recorded, not enforced)
+                                         <- tests/test_zz_bite_class_collect.py::TestCollectedByAClass        exit 0
+```
+(the automated form of this pair is the hermetic row in `tests/test_docs_read_audit.py`.)
+
+**Could-not-judge wording, live** (a recorder whose `shard_reads_pattern` is pointed at `/dev/null`):
+`audit_failed → True`; header `0 repo docs/ file(s) opened by this test process; …`; first line
+`FAIL the audit could not judge any read (ValueError: no SHARD_READS='...' line in /dev/null) -- fail closed: without SHARD_READS from tools/dev/ci_fresh.sh and the merged shard from tools/dev/shard_list.py no docs/ read can be called covered; restore them`.
+
+**Double execution → one recorder:** `tests/test_docs_read_audit.py::test_executing_conftest_a_second_time_adopts_the_installed_recorder_instead_of_stacking_a_hook` (green above).
+
+**Whole merged shard, audit on, `RVT_DOCS_AUDIT=report`, same 4-vCPU VM, sequential runs:**
+```
+BEFORE  origin/main 9d4f456 (worktree)   @@BEFORE@@
+AFTER   this branch                      @@AFTER@@
+```
+Census unchanged: the same three `SHARD_READS` paths (`docs/coverage/viewer-certified.json`,
+`docs/process/AUTONOMY.md`, `docs/product/PERMUTATION-MATRIX.md`), all `ok`, no `--`/`FAIL` rows; header
+`3 repo docs/ file(s) opened…` on both.
+
+**Gates:** `python3 tools/dev/check_portable_paths.py` ok; nothing under `src/ tools/ skills/ plugin/` touched, so
+`sync_plugin.py --check` / `validate_plugin.py` are moot (run anyway: @@SYNC@@).
+
+### Limits, restated and extended (keeper 5)
+
+The recorder sees the interpreter's own `open` audit event and nothing else, so some reader classes are outside it
+by construction — stated here, **measured** (a throwaway hook in `.venv/bin/python`, this VM), so nobody hunts a
+"missed read" in the hook nor distrusts a reader that is in fact seen:
+- **subprocesses** (another interpreter: `tools/route.py matrix` run as a child, the child pytest runs above) — as #523 said;
+- **C-extension readers that open the file below the Python layer: NOT seen** — `ifcopenshell.open(path)` with the
+  real wheel (its C++ STEP reader; opening `inputs/ifc/chicago-plenum-downlight.ifc` raised no `open` event at all) and
+  `sqlite3.connect(path)` (raises its own `sqlite3.connect` event, not `open`). **Seen after all**, contrary to the
+  review's guess: `numpy.fromfile(path)`, `numpy.load(path)`, `numpy.loadtxt(path)` — numpy opens a path argument
+  through Python's `open`, so each raised `('open', 'docs/STEERING.md')`; and `mmap` needs an fd, whose `os.open` is
+  seen (the `mmap.__new__` event then names only the fd). None of the unseen kind reads repo `docs/` today
+  (ifcopenshell reads `.ifc` inputs; nothing uses sqlite); a future docs reader through such a library must open the
+  path in Python and hand over the file object/bytes — or be added to `SHARD_READS` by hand;
+- and, in the other direction, **write-mode opens under `docs/` are counted as reads** (`open` raises one event for
+  every mode; the hook does not parse `args[1]`). Conservative on purpose: a shard test that *writes* a tracked docs
+  file is a bigger smell than one that reads it, and the way out is the same line in the report.
+
+### Follow-ups
+
+None new. The optional `session_ci.sh` `TAIL` keyed on the `docs-read audit FAILED` banner (listed by #523) remains
+optional and outside this territory (`tools/dev/`).
+
+BRANCH STATE (cam/542-conftest-helpers): `tests/conftest.py` (DocsReadAudit: `unjudged`/`error` verdict keys,
+`audit_failed`, `READ_BUCKETS`, `docs_audit_header`, `collector_module`, `AUDIT_SENTINEL` install guard, could-not-judge
+report wording; `git_commit` stages named paths only; docstrings), `tests/test_ci_fresh.py` (helper adoption only),
+`tests/test_shard_list.py` (helper adoption only), `tests/test_docs_read_audit.py` (+3 rows, 2 extended), this section.
+No `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed (all four files already in the merged shard);
+nothing staged for the viewer; no certification claim.

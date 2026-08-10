@@ -10,7 +10,6 @@ awk on this machine gives the same quiet answer, and (meta) that the helper's SH
 docs/ path the real CI shard reads. Fresh-clone runnable: stdlib + git + bash only (skips where bash or git is absent).
 """
 import ast
-import importlib.util
 import json
 import os
 import re
@@ -21,35 +20,17 @@ import types
 
 import pytest
 
+from conftest import GIT_ENV, HAVE_GIT, ci_shard_files, git, git_commit, git_init, shard_reads_pattern
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HELPER = os.path.join(ROOT, "tools", "dev", "ci_fresh.sh")
 CHECKER = os.path.join(ROOT, "tools", "dev", "check_portable_paths.py")   # the names-only gate the helper re-runs at merge time (#522)
 SESSION_CI = os.path.join(ROOT, "tools", "dev", "session_ci.sh")
-SHARD_LIST = os.path.join(ROOT, "tools", "dev", "shard_list.py")
 
-pytestmark = pytest.mark.skipif(not (shutil.which("bash") and shutil.which("git")), reason="needs bash + git")
+pytestmark = pytest.mark.skipif(not (shutil.which("bash") and HAVE_GIT), reason="needs bash + git")
 
-GIT_ENV = dict(os.environ, GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@t", GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@t",
-               GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
 E40 = "e" * 40                       # a head SHA this clone has never seen
 PR_ADDS = {"docs/inbox/foo.md": "f\n", "src/new.py": "n\n"}   # what the rig's PR 7 adds on top of origin/main
-
-
-def _git(cwd, *args):
-    return subprocess.run(["git", *args], cwd=cwd, env=GIT_ENV, check=True, capture_output=True, text=True, timeout=60).stdout.strip()
-
-
-def _commit(repo, files, msg, delete=()):
-    for rel, text in files.items():
-        path = os.path.join(repo, rel)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "a", encoding="utf-8") as fh:
-            fh.write(text)
-    for rel in delete:
-        os.remove(os.path.join(repo, rel))
-    _git(repo, "add", "-A", "--", *files, *delete)                     # these paths only: untracked helper copies never ride along
-    _git(repo, "commit", "-qm", msg)
-    return _git(repo, "rev-parse", "HEAD")
 
 
 def _verdict(ci_dir, pr, **fields):
@@ -63,12 +44,10 @@ def rig(tmp_path):
     the script's own `dirname $0/../..` resolution is what is tested), a real PR head in the clone (branch pr7 =
     origin/main + PR_ADDS, what session_ci.sh would have fetched as refs/pr/7) and a stored pass verdict for PR 7
     against the clone's origin/main."""
-    up, clone = str(tmp_path / "upstream"), str(tmp_path / "clone")
-    os.makedirs(up)
-    _git(up, "init", "-q", "-b", "main")
-    _commit(up, {"src/a.py": "a\n", "docs/x.md": "d\n", "docs/inbox/old.md": "o\n", "docs/coverage/viewer-certified.json": "{}\n"}, "one")
-    _git(str(tmp_path), "clone", "-q", up, clone)
-    was = _git(clone, "rev-parse", "origin/main")
+    up, clone = git_init(str(tmp_path / "upstream")), str(tmp_path / "clone")
+    git_commit(up, {"src/a.py": "a\n", "docs/x.md": "d\n", "docs/inbox/old.md": "o\n", "docs/coverage/viewer-certified.json": "{}\n"}, "one")
+    git(tmp_path, "clone", "-q", up, clone)
+    was = git(clone, "rev-parse", "origin/main")
     os.makedirs(os.path.join(clone, "tools", "dev"))
     for tool in (HELPER, CHECKER):
         shutil.copy(tool, os.path.join(clone, "tools", "dev"))
@@ -79,9 +58,9 @@ def rig(tmp_path):
     def pr(n, files):
         """A PR head in the clone the way session_ci.sh leaves it (origin/main + `files`, fetched, not checked out)
         and a stored pass verdict for it against the clone's origin/main -> the head SHA."""
-        _git(clone, "switch", "-q", "-c", "pr%d" % n, "origin/main")
-        head = _commit(clone, files, "PR %d" % n)
-        _git(clone, "switch", "-q", "--detach", "origin/main")
+        git(clone, "switch", "-q", "-c", "pr%d" % n, "origin/main")
+        head = git_commit(clone, files, "PR %d" % n)                  # those paths only: the untracked helper copies never ride along
+        git(clone, "switch", "-q", "--detach", "origin/main")
         _verdict(ci, n, head=head, main=was, verdict="pass")
         return head
 
@@ -102,13 +81,13 @@ def test_unchanged_main_is_fresh(rig):
 
 
 def test_docs_only_drift_is_fresh_and_says_so(rig):
-    now = _commit(rig.up, {"docs/x.md": "more\n", "docs/inbox/record.md": "new\n", "docs/STEERING.md": "| row |\n"}, "docs only")
+    now = git_commit(rig.up, {"docs/x.md": "more\n", "docs/inbox/record.md": "new\n", "docs/STEERING.md": "| row |\n"}, "docs only")
     assert rig.fresh() == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))
     assert rig.err == ""
 
 
 def test_code_drift_is_stale_names_the_first_three_paths_and_exits_4(rig):
-    now = _commit(rig.up, {"docs/x.md": "more\n", "src/a.py": "b\n", "tests/ci_shard.d/9-x.txt": "tests/test_b.py\n",
+    now = git_commit(rig.up, {"docs/x.md": "more\n", "src/a.py": "b\n", "tests/ci_shard.d/9-x.txt": "tests/test_b.py\n",
                            "tools/t.py": "t\n", "src/z.py": "z\n"}, "code moved under the verdict")
     rc, line = rig.fresh()
     assert rc == 4, line
@@ -122,7 +101,7 @@ def test_code_drift_is_stale_names_the_first_three_paths_and_exits_4(rig):
     ({"docs/x.md": "more\n"}, ("docs/inbox/old.md",), "docs/inbox/old.md"),                              # matrix.py cites records by existence: a deletion is drift
 ])
 def test_docs_the_shard_reads_and_docs_deletions_are_stale(rig, files, delete, blocking):
-    now = _commit(rig.up, files, "docs the gates can feel", delete=delete)
+    now = git_commit(rig.up, files, "docs the gates can feel", delete=delete)
     assert rig.fresh() == (4, "STALE was=%s now=%s changed=%s -> re-run tools/dev/session_ci.sh 7" % (rig.was, now, blocking))
 
 
@@ -136,16 +115,16 @@ def test_a_docs_file_added_on_main_that_case_twins_a_pr_added_path_is_stale(rig,
     docs/inbox/Foo.md while the PR adds docs/inbox/foo.md reddens portable_paths only after the merge -- the verdict
     computed against the older main cannot have seen it. (The very same name is an add/add conflict: not mergeable on
     the old verdict either.) Other docs adds in the same drift stay tolerated and unnamed."""
-    now = _commit(rig.up, {added: "twin\n", "docs/inbox/record.md": "new\n", "docs/x.md": "more\n"}, "main adds a twin of the PR's docs/inbox/foo.md")
+    now = git_commit(rig.up, {added: "twin\n", "docs/inbox/record.md": "new\n", "docs/x.md": "more\n"}, "main adds a twin of the PR's docs/inbox/foo.md")
     assert rig.fresh(7, rig.head) == (4, TWIN_LINE % (rig.was, now, added))
     assert rig.err == ""
 
 
 def test_docs_added_on_main_with_a_head_this_clone_lacks_fail_closed_but_modified_docs_need_no_head(rig):
     _verdict(rig.ci, 17, head=E40, main=rig.was, verdict="pass")        # a JSON whose head was never fetched here
-    now = _commit(rig.up, {"docs/x.md": "more\n"}, "docs modified only")
+    now = git_commit(rig.up, {"docs/x.md": "more\n"}, "docs modified only")
     assert rig.fresh(17) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # a MODIFIED docs file existed at `was`: session_ci already saw its name
-    now = _commit(rig.up, {"docs/inbox/record.md": "new\n", "docs/inbox/note.md": "n\n"}, "docs added")
+    now = git_commit(rig.up, {"docs/inbox/record.md": "new\n", "docs/inbox/note.md": "n\n"}, "docs added")
     assert rig.fresh(17) == (4, 'STALE was=%s now=%s changed=docs/inbox/note.md,docs/inbox/record.md (main added docs files and the recorded head "%s" '
                              'is not a commit in this clone, so a collision with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17' % (rig.was, now, E40))
     assert rig.fresh(7) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))    # the same drift with a known head: no twin, tolerated
@@ -163,11 +142,11 @@ def test_the_collision_check_fails_closed_when_its_interpreter_fails(rig, tmp_pa
                                   'exec "%s" "$@"\n' % shutil.which("python3"))
     (shim / "python3").chmod(0o755)
     path = str(shim) + os.pathsep + os.environ.get("PATH", "")
-    now = _commit(rig.up, {"docs/inbox/Foo.md": "twin\n"}, "main adds a twin")
+    now = git_commit(rig.up, {"docs/inbox/Foo.md": "twin\n"}, "main adds a twin")
     assert rig.fresh(7, rig.head) == (4, TWIN_LINE % (rig.was, now, "docs/inbox/Foo.md"))          # the real interpreter sees it
     assert rig.fresh(7, rig.head, path=path) == (2, "cannot judge PR 7: the collision check against the names PR 7 adds failed")
     assert "shim: refusing" in rig.err
-    now = _commit(rig.up, {"docs/x.md": "more\n"}, "and a modified doc", delete=("docs/inbox/Foo.md",))
+    now = git_commit(rig.up, {"docs/x.md": "more\n"}, "and a modified doc", delete=("docs/inbox/Foo.md",))
     assert rig.fresh(7, rig.head, path=path) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # no docs ADD left in was..now: the check is not needed, the shim never fires
 
 
@@ -180,9 +159,9 @@ def test_the_merge_time_gate_is_the_checker_itself_not_a_rederived_twin_law(rig)
     over it -- so this row proves which code judges, and fails closed should a JSON ever lie). Modified docs alone
     change no name, so they re-run nothing; a PR whose names are clean stays FRESH under the very same drift."""
     head = rig.pr(8, {"docs/aux.md": "x\n"})
-    now = _commit(rig.up, {"docs/x.md": "more\n"}, "docs modified only")
+    now = git_commit(rig.up, {"docs/x.md": "more\n"}, "docs modified only")
     assert rig.fresh(8, head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))
-    now = _commit(rig.up, {"docs/inbox/record.md": "new\n"}, "a record added on main")
+    now = git_commit(rig.up, {"docs/inbox/record.md": "new\n"}, "a record added on main")
     assert rig.fresh(8, head) == (4, "STALE was=%s now=%s changed=docs/aux.md (tools/dev/check_portable_paths.py rejects the post-merge name set: "
                                     "reserved device name on Windows: 'docs/aux.md') -> re-run tools/dev/session_ci.sh 8" % (rig.was, now))
     assert rig.fresh(7, rig.head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))
@@ -193,7 +172,7 @@ def test_the_merge_time_gate_is_the_checker_itself_not_a_rederived_twin_law(rig)
 def test_a_blocking_path_whose_name_is_all_blanks_is_still_named_and_stale(rig):
     """The join helper counts lines by length, not awk NF: a top-level file literally named " " is untolerated drift
     and must keep main's answer (STALE, the blank name after changed=), never vanish into FRESH(docs-only drift)."""
-    now = _commit(rig.up, {" ": "z\n", "docs/x.md": "more\n"}, "a file named blank")
+    now = git_commit(rig.up, {" ": "z\n", "docs/x.md": "more\n"}, "a file named blank")
     assert rig.fresh() == (4, "STALE was=%s now=%s changed=  -> re-run tools/dev/session_ci.sh 7" % (rig.was, now))
 
 
@@ -208,11 +187,11 @@ def test_every_installed_awk_gives_the_same_quiet_answers(rig, tmp_path, flavour
     (shim / "awk").symlink_to(shutil.which(flavour))                    # busybox, too: it picks the applet from argv[0]'s basename
     path = str(shim) + os.pathsep + os.environ.get("PATH", "")
     # a near-miss of a SHARD_READS name (any character where the literal dot must be) is plain tolerated docs drift...
-    now = _commit(rig.up, {"docs/product/PERMUTATION-MATRIX-md": "x\n", "docs/process/AUTONOMY_md": "x\n", "docs/x.md": "more\n"}, "near misses")
+    now = git_commit(rig.up, {"docs/product/PERMUTATION-MATRIX-md": "x\n", "docs/process/AUTONOMY_md": "x\n", "docs/x.md": "more\n"}, "near misses")
     assert rig.fresh(path=path) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now)), flavour
     assert rig.err == "", (flavour, rig.err)
     # ...the real name is not, and the blocking list is joined the same way
-    now = _commit(rig.up, {"docs/product/PERMUTATION-MATRIX.md": "| cell |\n", "src/a.py": "b\n", "src/b.py": "b\n", "src/c.py": "c\n"}, "the real thing")
+    now = git_commit(rig.up, {"docs/product/PERMUTATION-MATRIX.md": "| cell |\n", "src/a.py": "b\n", "src/b.py": "b\n", "src/c.py": "c\n"}, "the real thing")
     assert rig.fresh(path=path) == (4, "STALE was=%s now=%s changed=docs/product/PERMUTATION-MATRIX.md,src/a.py,src/b.py,… -> re-run tools/dev/session_ci.sh 7" % (rig.was, now)), flavour
     assert rig.err == "", (flavour, rig.err)
 
@@ -261,16 +240,15 @@ def test_session_ci_records_the_main_it_merged_and_the_helper_stays_trusted_side
     assert "SESSION_CI_DIR:-$REPO/.git/session-ci" in helper and "SESSION_CI_DIR:-$REPO/.git/session-ci" in src           # one scratch layout, two readers
     for needle in ("git checkout", "git switch", "worktree add", "pytest", "refs/pr/", "cat-file -p", "cat-file blob", "git show", "git archive"):
         assert needle not in helper, needle          # it never touches PR code: our own JSON + git plumbing (names, never contents) only
-    assert r"\." not in _shard_reads()               # [.] is the portable literal dot inside an awk -v string (gawk degrades \. to . with a warning)
+    assert r"\." not in _portable_ere()              # [.] is the portable literal dot inside an awk -v string (gawk degrades \. to . with a warning)
 
 
 # ---- meta: SHARD_READS must cover every docs/ path the real CI shard reads (#496) --------------------------------------
 
-def _shard_reads():
-    """The helper's SHARD_READS ERE, from the script itself (one source of truth). It is run below as a Python `re`, so
-    it must stay inside the subset both dialects read the same way (anchors, groups, alternation, [.] classes)."""
-    with open(HELPER, encoding="utf-8") as fh:
-        pattern = re.search(r"^SHARD_READS='([^']*)'", fh.read(), re.M).group(1)
+def _portable_ere():
+    """The helper's SHARD_READS ERE (conftest lifts it out of the script itself: one source of truth). It is run below as
+    a Python `re`, so it must stay inside the subset both dialects read the same way (anchors, groups, alternation, [.] classes)."""
+    pattern = shard_reads_pattern()
     assert re.fullmatch(r"[\w/^$|()\[\].-]+", pattern), pattern
     return pattern
 
@@ -408,13 +386,10 @@ def test_SHARD_READS_covers_every_docs_path_the_ci_shard_reads():
     still held to what it hands to open()/read_text(). Blind spot, stated: a docs read hidden inside src/ or tools/
     code a test merely calls is not seen here (today those are the ledger via matrix.py/census.py -- covered -- and
     matrix.py's existence-only record citations, which is why a docs DELETION is never tolerated drift)."""
-    spec = importlib.util.spec_from_file_location("shard_list", SHARD_LIST)
-    sl = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(sl)
-    shard = sl.merge(*sl.from_tree(ROOT))
+    shard = ci_shard_files()
     helpers = sorted("tests/" + n for n in os.listdir(os.path.join(ROOT, "tests")) if n.endswith(".py") and not n.startswith("test_"))
-    reads = re.compile(_shard_reads())
-    tracked = set(_git(ROOT, "ls-files", "--", "docs").splitlines())
+    reads = re.compile(_portable_ere())
+    tracked = set(git(ROOT, "ls-files", "--", "docs").splitlines())
     assert len(shard) > 40 and "tests/test_router.py" in shard and len(tracked) > 50          # the instrument is looking at the real thing
     assert set(NAMES_NOT_READS) <= set(shard + helpers), "NAMES_NOT_READS excuses a file that is not in the shard any more"
     offenders, readers = {}, set()
