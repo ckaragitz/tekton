@@ -346,7 +346,7 @@ Front door (`FD.author`) on seven of those (`msb_sccr_65kA`, `dp_ckt_42ckt`, `dp
 - neighbours (final tree): `tests/test_intent_device_plan.py tests/test_intent_schedule_scalars.py tests/test_ifc_intent.py tests/test_ifc_intent_units.py tests/test_prompt_intent.py tests/test_ifc_census.py tests/test_census.py tests/test_place_fixtures.py tests/test_rvt_to_ifc_kind_agreement.py tests/test_rvt_to_ifc_param_carrier.py tests/test_convert_combo.py` → **150 passed / 15 skipped** (sample-gated skips) in 27 s.
 - `tools/sync_plugin.py` → mirror `plugin/lib/src/rvt/ifc/intent.py` regenerated, zip rebuilt; `--check` clean (deny-audit clean, identity scan == allowlist, assets verified); `plugin/scripts/validate_plugin.py` PASS (25 assertions); `python3 tools/dev/check_portable_paths.py` ok (2908 paths); `tools/dev/shard_list.py --print` lists the new file (75 entries).
 - the scratch probe (19 single-cell variants, bare resolver) re-run on the post-`/simplify` tree: rows **identical** to the pre-simplify run; the two prompt jobs re-run: `intent.json` / `scene-brief.json` byte-identical to `main`'s, manifest status/rows/kinds/degradations/census/plans/VALID identical.
-- whole merged CI shard on the final tree: see BRANCH STATE.
+- whole merged CI shard on the final tree (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`): **1564 passed, 134 skipped, 3 xfailed** in 302.1 s.
 - Full suite not run (SUITE-COORDINATION).
 
 ## BRANCH STATE (eng #442)
