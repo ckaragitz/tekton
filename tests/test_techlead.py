@@ -712,10 +712,12 @@ def test_loop_lease_decides_hold_take_standby_and_round_trips():
     assert tl.watchdog_at(tl.lease_decision(body, me, now), now, 100, 5, new_until=now + 100 * m) == now + 105 * m
     assert tl.watchdog_at(tl.lease_decision("", fresh, now), now, 100, 5) == now + 100 * m
     # trust policy: quoted (raw or MCP-escaped), fenced → not asserted; last asserted line wins
-    assert tl.parse_lease("> " + marker_line) is None and tl.parse_lease("&gt; " + marker_line) is None and tl.parse_lease("```\n" + marker_line + "\n```") is None
+    assert tl.coord.unquoted("> " + marker_line) == "" and tl.coord.unquoted("&gt; " + marker_line) == "" and tl.coord.unquoted("```\n" + marker_line + "\n```").strip() == ""   # quoted/fenced: not asserted…
+    assert tl.parse_lease("unrelated prose\n> quoting someone: session=x") is None                          # …and harmless when the body is not about a lease
     assert tl.parse_lease(body + "\n" + tl.render_lease(fresh, now).splitlines()[-1])["holder"] == fresh
     # damaged, never take: prose without a marker line (a shell ate it), an impossible timestamp
-    for damaged in ("**Loop lease** (docs): x until **2026-08-10T05:39:30Z** UTC\n\n", "techlead-lease session=session_A until=2026-02-30T00:00:00Z", "the techlead-lease line got mangled"):
+    fenced_only = "```\n" + body + "\n```"                                                                # a holder pasted the whole lease inside a fence
+    for damaged in ("**Loop lease** (docs): x until **2026-08-10T05:39:30Z** UTC\n\n", "techlead-lease session=session_A until=2026-02-30T00:00:00Z", "the techlead-lease line got mangled", fenced_only, "> " + marker_line):
         try:
             tl.lease_decision(damaged, fresh, now)
         except tl.LeaseDamaged:
@@ -763,6 +765,8 @@ def test_lease_cli_is_offline_fail_closed_and_always_arms_the_watchdog(tmp_path)
     assert run("renew", "--from-file", str(mine), "--me", "session_FRESH", "--release", "--dry-run").returncode == 5     # only your own lease can be released
     unjudged = run("renew", "--dry-run")
     assert unjudged.returncode != 0 and "needs --from-file" in unjudged.stderr and "Traceback" not in unjudged.stderr   # fail closed
+    empty = run("renew", "--from-file", "-", "--dry-run", stdin="")
+    assert empty.returncode != 0 and "is empty" in empty.stderr and empty.stdout == ""                          # zero bytes = the save failed, never "no lease → take"
     wrapped = run("renew", "--from-file", "-", "--dry-run", stdin=json.dumps({"issue": {"body": "x"}}))
     assert wrapped.returncode != 0 and "'body' key" in wrapped.stderr and "Traceback" not in wrapped.stderr
 

@@ -583,6 +583,12 @@ applied all but the optional config nesting (kept `lease.{issue,minutes}` top-le
 different substrate). After merge (recorded on #302): the lease written on #410 in this session's name through the
 token-less path; the hourly routine's prompt replaced by the stub; the watchdog routine created and armed.
 
+Second review 🟡 → also applied: empty saved input is refused (never "no lease"), the damage hint reads the RAW body (a lease
+wholly inside a fence/quote is DAMAGED, not takeable), the margin is clamped ≥ 2 min, a watchdog-fired session re-arms once
+more after its release, and the take-over board line skips routine hand-backs. Tests: `tests/test_techlead.py` +
+`tests/test_coord.py` 45 passed.
+
 BRANCH STATE (cam/302-loop-lease): `tools/dev/techlead.py` (lease grammar/functions/CLI, shared `body_of`/`load_saved`,
-brief line, config default), `.github/autonomy.json` (+`lease`), `.github/prompts/tick.md` (new), `tests/test_techlead.py`
-(+2), `docs/process/AUTONOMY.md` (§12c row), this section. Process tooling; shipped when merged.
+brief line, config default), `tools/dev/coord.py` (`unquoted` drops MCP-escaped quotes), `.github/autonomy.json` (+`lease`),
+`.github/prompts/tick.md` (new), `tests/test_techlead.py` (+2), `docs/process/AUTONOMY.md` (§12c row), this section.
+Process tooling; shipped when merged.

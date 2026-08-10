@@ -38,14 +38,16 @@ every other surface uses — never invent a name like "techlead": mutual exclusi
    - **`HOLD`** (yours, even if it lapsed) or **`TAKE`** (none / released / another holder's lease expired — that holder
      is gone) → write stdout with MCP `issue_write` (method `update`, that issue, `body`). After a **TAKE**, `issue_read`
      once more and stand down if the marker line now names someone else (two takers in one minute: the later reader
-     yields); then post one line on the board issue (#56): "took the loop lease from `<old holder>` (expired `<until>`)".
+     yields); then post one line on the board issue (#56): "took the loop lease (was `<old holder>` until `<until>`)" —
+     skip the line when the old holder was `none` (a routine hand-back, not a takeover).
 5. Long ticks: redo steps 1–4 with a FRESH `issue_read` (never the copy saved at tick start) right before every merge
    in §2, every `create_session` in §3 and every issue you file in §4, whenever your last renew is older than
    `lease.minutes` / 2.
 6. End of pass: the persistent session just stops (its lease keeps running; the hourly wake renews it). A
    watchdog-fired session hands the lease back — `lease renew --release --from-file <fresh read> --dry-run` →
-   `issue_write` — so a persistent session that is alive after all reclaims at its next wake; if none is, the watchdog
-   you armed in step 3 fires at `ARM_WATCHDOG_AT` and its session TAKEs the released lease.
+   `issue_write` — and re-arms the watchdog once more with the `ARM_WATCHDOG_AT` that release prints (now +
+   `lease.minutes`), so a persistent session that is alive after all gets first refusal at its next hourly wake and,
+   if none is, the watchdog fires then and its session TAKEs the released lease.
 
 ## 1. Picture
 `list_pull_requests` (open); a skim of `ready` issues (the search result is large — save it and summarise);

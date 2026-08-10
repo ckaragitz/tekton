@@ -490,7 +490,7 @@ def parse_lease(body: str):
     text = coord.unquoted(body or "")
     found = LEASE_RE.findall(text)
     if not found:
-        if LEASE_HINT_RE.search(text):
+        if LEASE_HINT_RE.search(body or ""):        # the RAW body: a lease wholly inside a fence/quote is damage, never "no lease"
             raise LeaseDamaged("the lease issue mentions a lease but no `techlead-lease session=… until=…` line parses — re-read it (save the MCP result to a file; never paste it through echo/an unquoted heredoc) or repair the body by hand")
         return None
     holder, until = found[-1]
@@ -560,8 +560,11 @@ def body_of(obj) -> str:
 
 
 def load_saved(path: str):
-    """A file saved from MCP/the API (`-` = stdin): parsed JSON, or the raw text when it is not JSON (a pasted body)."""
+    """A file saved from MCP/the API (`-` = stdin): parsed JSON, or the raw text when it is not JSON (a pasted body).
+    Empty input is refused: MCP/the API always yield an object, so zero bytes means the save/pipe failed."""
     raw = sys.stdin.read() if path == "-" else open(path, encoding="utf-8").read()
+    if not raw.strip():
+        raise ValueError(f"{'stdin' if path == '-' else path} is empty — save the MCP/API result to the file first (a genuinely empty lease arrives as {{\"body\": \"\"}})")
     try:
         return json.loads(raw)
     except ValueError:
@@ -1444,7 +1447,7 @@ def _lease(a, cfg: dict) -> int:
     if not me or me in ("none", "-") or not re.fullmatch(SESSION_ID, me):
         raise ValueError("--me / $TEKTON_SESSION / $CLAUDE_CODE_REMOTE_SESSION_ID must be this session's real id (not empty, 'none' or '-')")
     L = cfg["lease"]
-    n, minutes, margin, now, gh = int(L["issue"]), int(a.minutes or L["minutes"]) if hasattr(a, "minutes") else int(L["minutes"]), int(L["watchdog_margin_minutes"]), utcnow(), None
+    n, minutes, margin, now, gh = int(L["issue"]), int(getattr(a, "minutes", 0) or L["minutes"]), max(2, int(L["watchdog_margin_minutes"])), utcnow(), None
     if a.from_file:
         saved = load_saved(a.from_file)
         body = saved if isinstance(saved, str) else body_of(saved)
