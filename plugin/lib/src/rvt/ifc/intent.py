@@ -1245,6 +1245,31 @@ class Equipment:
         }
 
 
+def panelboard_flavour(hay: str, *, ll: Optional[float], bus: Optional[float], mains: str) -> str:
+    """The panelboard kind of a (non-switchboard) distribution board from its
+    lower-cased text ``hay`` (name / description / object type / tag), its
+    line-to-line volts, bus amps and mains-type text.  THE one precedence,
+    shared by whoever labels a board (the resolver here; the rvt -> ifc
+    extractor mirrors it): explicit role words and our own tag prefixes
+    outrank the voltage / mains heuristics -- an 'LP-2 lighting panel
+    208Y/120 V' is a lighting panelboard, not a receptacle one by its 208 V
+    (#331).  The bare word 'distribution' stays a weak signal below the
+    voltage rule: it is IEC's generic name for ANY board."""
+    if re.search(r"receptacle|appliance|rp-", hay):
+        return "receptacle_panelboard"
+    if re.search(r"lighting|lp-", hay):
+        return "lighting_panelboard"
+    if "dp-" in hay:
+        return "distribution_panelboard"
+    if ll and ll <= 240:
+        return "receptacle_panelboard"
+    if bus is not None and bus <= 225 and "lugs" in mains.lower():
+        return "lighting_panelboard"
+    if "distribution" in hay or (bus is not None and bus >= 250):
+        return "distribution_panelboard"
+    return "panelboard"
+
+
 def _classify_equipment(prod, psets: Dict[str, Dict[str, Any]], contract: Dict[str, Any]) -> str:
     """Refine the IFC class into an actionable equipment kind by predefined
     type + the tagging-contract pset (the pset IS the join key)."""
@@ -1256,17 +1281,10 @@ def _classify_equipment(prod, psets: Dict[str, Dict[str, Any]], contract: Dict[s
     if cls == "IfcElectricDistributionBoard":
         if pdt == "SWITCHBOARD" or "switchboardschedule" in pset_names or "switchboard" in hay:
             return "switchboard"
-        # panelboard flavours by voltage / mains / role words
-        v = contract.get("_voltage") or {}
         bus = contract.get("BusRating")
-        if re.search(r"receptacle|appliance", hay) or (v.get("ll") and v["ll"] <= 240):
-            return "receptacle_panelboard"
-        if re.search(r"lighting|lp-", hay) or (bus is not None and float(bus) <= 225
-                                                 and "lugs" in str(contract.get("MainsType", "")).lower()):
-            return "lighting_panelboard"
-        if re.search(r"distribution|dp-", hay) or (bus is not None and float(bus) >= 250):
-            return "distribution_panelboard"
-        return "panelboard"
+        return panelboard_flavour(hay, ll=(contract.get("_voltage") or {}).get("ll"),
+                                  bus=None if bus is None else float(bus),
+                                  mains=str(contract.get("MainsType", "")))
     if cls == "IfcTransformer":
         return "transformer"
     if cls == "IfcSwitchingDevice":

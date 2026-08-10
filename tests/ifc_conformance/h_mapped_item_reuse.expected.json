@@ -3,8 +3,7 @@
  "generator": "tools/dev/make_ifc_fixtures.py",
  "pins": "one IfcRepresentationMap (enclosure + nameplate) reused by three panels through IfcMappedItem + IfcCartesianTransformationOperator3D (two translated, one rotated 90 deg)",
  "notes": [
-  "each occurrence must resolve its OWN insertion and front normal from the shared map: world = placement o target-operator o inverse(map origin) o vertex",
-  "#331: the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage rule before name rule, as in fixture c) -- today's order, pinned"
+  "each occurrence must resolve its OWN insertion and front normal from the shared map: world = placement o target-operator o inverse(map origin) o vertex"
  ],
  "parity_xfail": null,
  "pinned_backend": "steplite",
@@ -27,7 +26,7 @@
     "name": "LP-1 lighting panel 208Y/120 V",
     "ifcClass": "IfcElectricDistributionBoard",
     "predefinedType": "DISTRIBUTIONBOARD",
-    "kind": "receptacle_panelboard",
+    "kind": "lighting_panelboard",
     "disposition": "generated-family",
     "level": "L1",
     "typeName": null,
@@ -75,7 +74,7 @@
     "name": "LP-2 lighting panel 208Y/120 V",
     "ifcClass": "IfcElectricDistributionBoard",
     "predefinedType": "DISTRIBUTIONBOARD",
-    "kind": "receptacle_panelboard",
+    "kind": "lighting_panelboard",
     "disposition": "generated-family",
     "level": "L1",
     "typeName": null,
@@ -123,7 +122,7 @@
     "name": "LP-3 lighting panel 208Y/120 V",
     "ifcClass": "IfcElectricDistributionBoard",
     "predefinedType": "DISTRIBUTIONBOARD",
-    "kind": "receptacle_panelboard",
+    "kind": "lighting_panelboard",
     "disposition": "generated-family",
     "level": "L1",
     "typeName": null,
@@ -174,19 +173,19 @@
   "family_plans": [
    {
     "tag": "LP-1",
-    "kind": "receptacle_panelboard",
+    "kind": "lighting_panelboard",
     "status": "resolved",
     "catalog": "eaton/pow-r-line-panelboards"
    },
    {
     "tag": "LP-2",
-    "kind": "receptacle_panelboard",
+    "kind": "lighting_panelboard",
     "status": "resolved",
     "catalog": "eaton/pow-r-line-panelboards"
    },
    {
     "tag": "LP-3",
-    "kind": "receptacle_panelboard",
+    "kind": "lighting_panelboard",
     "status": "resolved",
     "catalog": "eaton/pow-r-line-panelboards"
    }

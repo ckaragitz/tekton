@@ -1,0 +1,2 @@
+# backend-free classifier table (#331): stub product, numpy only
+tests/test_ifc_classify_equipment.py
