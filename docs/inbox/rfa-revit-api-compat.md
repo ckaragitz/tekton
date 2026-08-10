@@ -772,3 +772,50 @@ donor's.
 * gates: 14 stream-local files 295 passed / 58 skipped;
   `tools/sync_plugin.py --check` clean
 * staged, not shipped: desktop verdict on `panel400_v7.rfa` / `hanger_v8.rfa`
+
+## Iteration 17 — THE OBJECT-STYLE LAW (no outline in any display mode)
+
+**Report:** "when graphics display is on i can not see the outlining of the
+geometry. i should be able to see it not only in shaded." The panel's own
+3D screenshot shows the tell: a flat shaded body with **no edge lines at
+all**, which is not how Revit draws a solid. So this was never a
+wireframe-mode problem — the edges were not reaching the draw pass in any
+mode, and Shaded happened to be the one mode that needs no line style.
+
+**Measurement** (our extrusion vs the Autodesk library panelboard's three,
+`m_subNodes[0]` = the `Geometry` node, GInfo field by field):
+
+| GInfo field | Autodesk | Ours |
+|---|---|---|
+| `m_categoryId` | 17866 / 18446 (GStyleElem ids) | **−1** |
+| `m_controlCommand` | 67108864 (+ per-element bits) | **0** |
+| `m_flags` | 573444 | 573444 (match) |
+
+`17866` is a `GStyleElem` whose own `m_categoryId` is **−2001040** — the
+family's BUILT-IN category, not a CategoryElem id the way our
+dimension-style copies are — with gstyleType 1, pen 1, colour 0, line
+pattern −3000010, header role 67110926.
+
+**Root cause:** a solid's `Geometry` node names the graphics style Revit
+draws its EDGES with, and our documents deliberately carried none —
+`geometry_context()` said so in as many words: *"reference the family's own
+category style (-1: our documents carry no object-style copies -- the S0
+reduction)"*. The reduction was invisible until the geometry itself became
+visible.
+
+**Fix:** `new_object_style` builds the family-category `GStyleElem` into
+every famdoc (`doc.object_style_id`), and `geometry_context` hands its id to
+every form as `geometry_style_id` with `solid_control_command` 67108864.
+Verified on a built panelboard: object style 1075 → category −2001040, and
+the extrusion's Geometry node names 1075 with cmd 67108864.
+
+Guarded by `test_solids_name_the_family_object_style`. Family element count
+99 → 100. Builds green for 2026, 2025 and 2024.
+
+### BRANCH STATE (updated)
+* written: `src/rvt/famgen/skeleton.py` (`new_object_style`,
+  `FamilyDoc.object_style_id`), `src/rvt/famgen/factory.py`
+  (`geometry_context` binds it), `tests/test_required_settings.py`
+* gates: 13 stream-local files 279 passed / 55 skipped + the new guard;
+  `tools/sync_plugin.py --check` clean
+* staged, not shipped: desktop verdict on `panel400_v8.rfa` / `hanger_v9.rfa`

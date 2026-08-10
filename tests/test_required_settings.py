@@ -279,3 +279,35 @@ def test_family_carries_the_four_elevations(fi):
     dirs = {tuple(fi.value(0, e, 102)["m_viewDir"]) for e in sections.values()}
     assert dirs == {(0.0, 1.0, -0.0), (0.0, -1.0, 0.0),
                     (-1.0, 0.0, 0.0), (1.0, 0.0, 0.0)}, dirs
+
+
+def test_solids_name_the_family_object_style(fi):
+    """THE OBJECT-STYLE LAW (owner: "when graphics display is on i can not
+    see the outlining of the geometry").  A solid's ``Geometry`` node names
+    the graphics style Revit draws its EDGES with; ours named -1, so a
+    generated family rendered as a shaded body with no outline and vanished
+    in Wireframe.  Measured on the Autodesk library panelboard's extrusions:
+    the style is a GStyleElem whose m_categoryId is the family's BUILT-IN
+    category, and the node carries control command 67108864."""
+    recs = fi.unit_records(0).get(102, {})
+    styles = {}
+    for eid, r in recs.items():
+        if fi.class_name(r.class_id) == "GStyleElem":
+            v = fi.value(0, eid, 102)
+            if int(v.get("m_categoryId", 0)) < 0:      # a BUILT-IN category
+                styles[eid] = int(v["m_categoryId"])
+    assert len(styles) == 1, styles
+    (style_id, cat), = styles.items()
+    assert cat == -2001040, cat                        # Electrical Equipment
+    seen = 0
+    for eid, r in recs.items():
+        if fi.class_name(r.class_id) != "ExtrusionElem":
+            continue
+        rep = fi.decode(0, eid, 103)
+        if rep is None:                                 # dummy rep variant
+            continue
+        gi = rep.value["m_subNodes"][0]["value"]["m_GInfo"]
+        assert gi["m_categoryId"] == style_id, (eid, gi["m_categoryId"])
+        assert gi["m_controlCommand"] == 67108864, eid
+        seen += 1
+    assert seen >= 1

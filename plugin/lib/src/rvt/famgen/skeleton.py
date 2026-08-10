@@ -604,6 +604,39 @@ def _dim_format_options(unit: str = "autodesk.unit.unit:meters-1.0.0", *,
             "m_bUseGrouping": False, "m_bUsePlusPrefix": False}
 
 
+def new_object_style(ids, self_family_id: int, category_id: int) -> SkelElement:
+    """THE OBJECT STYLE of the family's own category -- the graphics style
+    every solid's ``Geometry`` node names, and therefore the LINE STYLE
+    Revit draws that solid's edges with.
+
+    Our documents used to carry none (``geometry_style_id`` -1, "the S0
+    reduction"), which is why a generated family rendered as a flat shaded
+    body with no outline at all and vanished entirely in Wireframe [owner:
+    "when graphics display is on i can not see the outlining of the
+    geometry"]: shaded faces come from the material, but the edges have no
+    style to be drawn in.
+
+    Measured on the Autodesk library panelboard's 17866: a ``GStyleElem``
+    whose ``m_categoryId`` is the family's BUILT-IN category (not a
+    CategoryElem id, the way the dimension-style copies are), gstyleType 1,
+    pen 1, colour 0, line pattern -3000010, header role 67110926.
+    """
+    eid = _alloc(ids)
+    o = element_base(eid, cell_list=True)
+    o["m_famId"] = int(self_family_id)
+    o["m_pGStyle"] = _ptr("GStyle", {
+        "m_linePatternId": -3000010, "m_materialElemId": -1,
+        "m_penNumber": 1, "m_color": 0, "m_isScreenSized": False})
+    o["m_categoryId"] = int(category_id)
+    o["m_ownerId"] = -1
+    o["m_gstyleType"] = 1
+    hdr = element_header("GStyleElem", category=-1,
+                         deletion=[int(self_family_id), eid],
+                         flags=67110926, visible_view_flags=-32768)
+    hdr["m_familyId"] = int(self_family_id)
+    return SkelElement(eid, "GStyleElem", hdr, o, None, kind="object-style")
+
+
 def new_dimension_style_constellation(ids, self_family_id: int) -> Tuple[int, List[SkelElement]]:
     """The DIMENSION-STYLE LAW (issue #333, desktop round 15): selecting any
     element in the family editor spawns temporary dimensions, and the lookup
@@ -1629,6 +1662,7 @@ class FamilyDoc:
     view_ids: Dict[str, int] = dc_field(default_factory=dict)
     plan_view_id: int = -1
     dim_style_id: int = -1
+    object_style_id: int = -1
     part_type: int = 0
     work_plane_based: bool = False
     finalized: bool = False
@@ -2159,6 +2193,11 @@ def new_family_document(category, name: str, *, host: str = "none",
     for se in dim_els:
         doc.add(se)
     doc.dim_style_id = dim_style_id
+    # -- the object style of our own category: the line style every solid's
+    # Geometry node names, i.e. what Revit draws its EDGES with -----------
+    _obj_style = new_object_style(ids, fam.elem_id, doc.category_id)
+    doc.add(_obj_style)
+    doc.object_style_id = _obj_style.elem_id
     # -- the classification-table singletons (issue #333 round 27: the
     # edit path's required-unique-elements check names them) ---------------
     for se in new_classification_tables(ids, fam.elem_id):

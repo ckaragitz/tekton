@@ -836,14 +836,18 @@ def resolve_device_facts(kind: str = "duplex-receptacle", *,
 def geometry_context(doc: SK.FamilyDoc, *, embedded: bool = False) -> G.FamilyDocContext:
     """The :class:`rvt.famgen.geometry.FamilyDocContext` of a from-scratch
     :class:`FamilyDoc`: forms belong to the doc's self-Family, sketch on the
-    doc's Reference Level, and reference the family's own category style
-    (-1: our documents carry no object-style copies -- the S0 reduction)."""
+    doc's Reference Level, and name the family's OWN OBJECT STYLE -- the
+    graphics style Revit draws the solid's edges with.  That used to be -1
+    ("our documents carry no object-style copies -- the S0 reduction"), and
+    an unstyled solid draws no outline in any display mode and disappears
+    entirely in Wireframe.  ``solid_control_command`` 67108864 rides with
+    it [both measured on the Autodesk library panelboard's extrusions]."""
     return G.FamilyDocContext(
         family_id=int(doc.self_family.elem_id),
         level_id=int(doc.ref_level.elem_id),
-        geometry_style_id=-1,
+        geometry_style_id=int(doc.object_style_id),
         curve_style_id=-1,
-        solid_control_command=0,
+        solid_control_command=67108864,
         extra_regen_ids=[],
         embedded=bool(embedded),
     )
