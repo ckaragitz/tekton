@@ -808,8 +808,8 @@ RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_history_head_guid.py test
 
 Stream `eng470` (engineer session for #470, P2/XS, PG7 test hygiene; the follow-up #451 filed). Territory used:
 `tests/conftest.py` (the `job` fixture + a `load_tool` guard), `tests/test_gates_shared_walk.py` (its local `job`
-override deleted — it was part of the decision), `tests/test_manipulate.py` (one test's loader → the fixture; red on
-`main`, see below), this section. `src/rvt/frontdoor/edit.py` was READ only; the one
+override deleted — it was part of the decision), this section (a `tests/test_manipulate.py` hunk was carried
+briefly and dropped — it lands as #484, see below). `src/rvt/frontdoor/edit.py` was READ only; the one
 change it could use is a patch below, not applied. No `src/` `tools/` `skills/` `plugin/` file touched → no mirror,
 no shard drop-in (no new test file). Decision: **delegate** (the issue's first option), not "document the split".
 
@@ -824,8 +824,7 @@ no shard drop-in (no new test file). Decision: **delegate** (the issue's first o
 | `pytest --collect-only -q` ids of the four files | 60 | 60, `diff` empty |
 | `--setup-plan` | `SETUP M job` ×4 / `TEARDOWN M job` ×4 (a fresh exec per file) | `SETUP S job` ×1 / `TEARDOWN S job` ×1 (session scope — see below) |
 | `grep -rn "def job(" tests` | `conftest.py`, `test_gates_shared_walk.py` | `conftest.py` only |
-| `tests/test_manipulate.py` (its one `rvt_job` test imported `test_job._load_job`, deleted by #471) | **1 failed** / 13 passed / 5 skipped | 14 passed / 5 skipped (ids 19 = 19) |
-| WHOLE merged CI shard (78 files, `RVT_SKIP_LARGE=1`) | 1 failed / 1617 passed / 139 skipped / 3 xfailed | **1618 passed / 139 skipped / 3 xfailed** (5 m 49 s) |
+| WHOLE merged CI shard (78 files, `RVT_SKIP_LARGE=1`) | 1 failed (`test_manipulate`'s `from test_job import _load_job`, red since #471 = #476) / 1617 passed / 139 skipped / 3 xfailed | **1618 passed / 139 skipped / 3 xfailed** (5 m 49 s) measured with #476's three-line fix in the tree; that fix ships as #484, not here |
 
 ### What was built
 
@@ -851,11 +850,11 @@ no shard drop-in (no new test file). Decision: **delegate** (the issue's first o
   `tests/test_manipulate.py::test_job_set_param_op_lands_an_elementid_row_via_holder` did `from test_job import
   _load_job` — the per-file loader #471 deleted from `test_job.py` hours earlier — so it has raised `ImportError`
   on `main` since #471 (`1 failed, 13 passed, 5 skipped` for the file; the shard `1 failed / 1617 / 139 / 3 xfailed`).
-  It now requests the conftest `job` fixture like every other consumer (signature `+ job`, the import and
-  `job = _load_job()` gone, docstring names the fixture; no assertion touched, the file's 19 ids identical) →
-  `14 passed / 5 skipped`. `tests/test_manipulate.py` is outside the territory this wave named; taken anyway because
-  it is the same mechanism, three lines, and the only way the "whole shard green" gate can hold — flagged to the
-  reviewer as such. `grep -rn "_load_job\|from test_job" tests` → nothing.
+  The fix (the test requests the conftest `job` fixture like every other consumer; no assertion touched, ids
+  identical; `14 passed / 5 skipped`) was first carried here, then **dropped from this PR on the tech lead's call**:
+  it is tracked as #476 and lands separately as hotfix PR #484 (the identical three lines), which merges first —
+  two PRs carrying one hunk only manufacture a conflict. This branch therefore leaves `tests/test_manipulate.py`
+  as on `main`; the shard is green once #484 is in (the tech lead's sandbox merges `origin/main` into this head).
 
 ### Why sharing one module across test files is safe here (measured, then read)
 
@@ -929,15 +928,16 @@ RVT_SKIP_LARGE=1 .venv/bin/python -m pytest --setup-plan tests/test_gates_shared
 ### BRANCH STATE (eng #470)
 
 * Branch `cam/470-one-job-loader` from `main@2767197` (right after #471); PR closes #470.
-* Files: `tests/conftest.py`, `tests/test_gates_shared_walk.py`, `tests/test_manipulate.py` (one test, see above), this
-  section. No `src/` `tools/` `skills/` `plugin/` file, no mirror, no asset, no hot file, no new test file → no shard drop-in.
-* Gates: collected ids of the four `job` consumers 60 = 60 (`diff` empty), `test_manipulate.py` 19 = 19; the four files
-  **55 passed / 5 skipped** on `main` and on the branch, forward and reversed order (`RVT_SKIP_LARGE=1 -rs`; skips famgen
-  catalog ×1, `samples/rst…` ×4); `test_manipulate.py` `main` **1 failed / 13 / 5** → branch **14 passed / 5 skipped**;
-  `--setup-plan` `SETUP S job` ×1 (was `M` ×4); probe: live `rvt_job` objects per process 4 → **1**, `sys.modules["rvt_job"]
-  is edit._JOB` after every file, boundary state identical before/after; the WHOLE merged CI shard (`shard_list.py --print`,
-  78 files) **1618 passed / 139 skipped / 3 xfailed** in 5 m 49 s on the final tree (first draft = main + module scope:
-  1 failed = the pre-existing `test_manipulate` ImportError / 1617 / 139 / 3, 6 m 00 s); `tools/sync_plugin.py --check` →
+* Files: `tests/conftest.py`, `tests/test_gates_shared_walk.py`, this section (the `tests/test_manipulate.py` hunk of the
+  first push, `7161bad`, was dropped in the second commit — it ships as #484 for #476). No `src/` `tools/` `skills/`
+  `plugin/` file, no mirror, no asset, no hot file, no new test file → no shard drop-in.
+* Gates: collected ids of the four `job` consumers 60 = 60 (`diff` empty); the four files **55 passed / 5 skipped** on
+  `main` and on the branch, forward and reversed order (`RVT_SKIP_LARGE=1 -rs`; skips famgen catalog ×1, `samples/rst…`
+  ×4); `--setup-plan` `SETUP S job` ×1 (was `M` ×4); probe: live `rvt_job` objects per process 4 → **1**,
+  `sys.modules["rvt_job"] is edit._JOB` after every file, boundary state identical before/after; the WHOLE merged CI shard
+  (`shard_list.py --print`, 78 files) **1618 passed / 139 skipped / 3 xfailed** in 5 m 49 s with #476's fix in the tree
+  (without it, i.e. this branch alone on `main@2767197`: exactly the one pre-existing `test_manipulate` ImportError /
+  1617 / 139 / 3 — green again once #484 is on `main`); `tools/sync_plugin.py --check` →
   in sync (nothing under `src/`/`tools/` touched); `check_portable_paths.py` ok (2911). `/simplify` four angles applied
   (docstring cut, `session` scope, `load_tool("rvt_job")` guard, "must go" wording for #477); `/verify` drove
   `frontdoor.py author --prompt "an electrical room with 6 panels"` (rc 0, `ok true`, status_gate `PROOF-ONLY,
