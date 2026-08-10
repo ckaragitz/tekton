@@ -324,10 +324,11 @@ this branch (RVT_DOCS_AUDIT=report): 1 passed …  docs-read audit
 ```
 BEFORE  origin/main 9d4f456 (worktree)   1836 passed, 134 skipped, 3 xfailed in 415.84s   wall 417.1 s
 AFTER   this branch                      1839 passed, 134 skipped, 3 xfailed in 412.43s   wall 414.0 s   (+3 = this file's new rows)
+AFTER   final head (post-/simplify)      1839 passed, 134 skipped, 3 xfailed in 397.14s   wall 398.4 s   (run-to-run spread on this VM ~15-20 s)
 ```
 Census unchanged: the same three `SHARD_READS` paths (`docs/coverage/viewer-certified.json`,
 `docs/process/AUTONOMY.md`, `docs/product/PERMUTATION-MATRIX.md`), all `ok`, no `--`/`FAIL` rows; header
-`3 repo docs/ file(s) opened…` on both.
+`3 repo docs/ file(s) opened…` on all three (`diff` of the three sections: empty).
 
 **Gates:** `python3 tools/dev/check_portable_paths.py` ok; nothing under `src/ tools/ skills/ plugin/` touched, so
 `sync_plugin.py --check` / `validate_plugin.py` are moot (run anyway: `plugin in sync with source (deny-audit clean, identity scan == allowlist, assets verified)` / `RESULT: PASS`).
