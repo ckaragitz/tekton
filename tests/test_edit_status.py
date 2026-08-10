@@ -9,13 +9,16 @@ whole, ``edit.rc`` unchanged; a job that DID run and returned rc != 0 keeps
 ``FAILED (edit did not complete: rc N)``; the refused / UNVERIFIED-RELEASE
 composition and every successful (PROOF-ONLY) status are byte-identical.
 
-Sample-free: the "cannot open" inputs are a 64 KB truncation and a
-schema-damaged copy of the tracked, certified 2025 genesis pin, written under
-a deliberately long (>= 100 character) tmp directory: the sentence names the
-input by basename so the reason survives the status cut, while the absolute
-path stays in the manifest's ``inputs.rvt`` (issue #573).  The grammar miss
-and the good edit run on the pin itself.  Fresh-clone runnable (CI shard
-drop-in tests/ci_shard.d/559-edit-status.txt).
+Sample-free: the "cannot open" inputs are a 64 KB truncation of the tracked
+native-release genesis pin and a schema-damaged copy of the certified 2025
+pin, written under a deliberately long (>= 100 character) tmp directory: the
+sentence names the input by basename so the reason survives the status cut,
+while the absolute path stays in the manifest's ``inputs.rvt`` (issue #573);
+the reason itself rides as short clauses -- a host whose own class schema
+cannot be read says THAT inside the cut, and the layers' whole errors follow
+in ``errors[1]`` (issue #574).  The grammar miss and the good edit run on the
+2025 pin itself.  Fresh-clone runnable (CI shard drop-in
+tests/ci_shard.d/559-edit-status.txt).
 
 Run: .venv/bin/python -m pytest tests/test_edit_status.py -q
 """
@@ -34,6 +37,7 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from conftest import pinned_base                             # noqa: E402
 import rvt.frontdoor as FD                                   # noqa: E402
+from rvt import versions as V                                # noqa: E402
 from rvt.frontdoor import input_release as IR                # noqa: E402
 from rvt.frontdoor import manifest as MF                     # noqa: E402
 
@@ -56,9 +60,11 @@ def long_dir(tmp_path_factory):
 
 @pytest.fixture(scope="module")
 def trunc64k(long_dir):
-    """The 2025 pin cut at 64 KB: a valid CFB header, broken streams."""
+    """The NATIVE pin cut at 64 KB: a valid CFB header, its release still
+    detected, broken streams -- no release context is involved for a native
+    host, so the walker's finding is the whole reason on its own."""
     dst = os.path.join(long_dir, "trunc64k.rvt")
-    with open(pinned_base(2025), "rb") as fh, open(dst, "wb") as out:
+    with open(pinned_base(V.LATEST_RELEASE), "rb") as fh, open(dst, "wb") as out:
         out.write(fh.read(64 * 1024))
     return dst
 
@@ -80,20 +86,21 @@ def schema_dmg(long_dir):
 
 
 def _assert_named_not_pathed(man: dict, src: str, *reason_words: str):
-    """The #573 contract for a host that cannot be opened / planned, read off
-    its ``manifest.json``: the sentence names the input by basename, the
-    reason words sit inside the status cut, and the absolute path lives on
-    in ``inputs.rvt``."""
+    """The #573/#574 contract for a host that cannot be opened / planned, read
+    off its ``manifest.json``: every sentence names the input by basename,
+    the reason words sit inside the status cut, and the absolute path lives
+    on in ``inputs.rvt`` -- and only there."""
     named = f"cannot open/plan {os.path.basename(src)}: "
-    status, errors0 = man["status"], man["errors"][0]
-    assert errors0.startswith(named), errors0[:200]
+    status, errors = man["status"], man["errors"]
+    for e in errors:
+        assert e.startswith(named), e[:200]
     assert status.startswith(f"FAILED ({named}"), status
     assert len(status) <= len("FAILED ()") + MF._STATUS_REASON_MAX
-    assert os.path.dirname(src) not in status                  # the path no longer eats the budget ...
+    assert os.path.dirname(src) not in " ".join([status, *errors])   # the path no longer eats the budget ...
     for w in reason_words:                                     # ... so the reason rides inside the cut
         assert w in status, (w, status)
     assert man["inputs"]["rvt"] == src == man["base"]["input_file"]   # nothing lost: the full path, where it lived
-    assert man["edit"]["rc"] is None
+    assert man["edit"]["rc"] is None and man["edit"]["spec"] == {"error": errors[:1]}
 
 
 def _edit_manifest(**kw):
@@ -190,19 +197,26 @@ def test_cli_unopenable_host_exit_3_one_json_reason_in_status(trunc64k, tmp_path
     man = json.loads((tmp_path / "j" / "manifest.json").read_text())
     assert (doc["status"], doc["errors"]) == (man["status"], man["errors"])
     _assert_named_not_pathed(man, trunc64k, "RuntimeError", "walker errors")
+    assert len(man["errors"]) == 1                         # nothing was cut: no second, whole entry needed
 
 
 # ---------------------------------------------------------------------------
 # the route, in process: a 2025 host whose own class schema does not parse
 # ---------------------------------------------------------------------------
 
-def test_schema_damaged_host_status_names_the_file_and_the_parse_error(schema_dmg, tmp_path):
+def test_schema_damaged_host_status_says_its_schema_cannot_be_read(schema_dmg, tmp_path):
     r = FD.author(rvt=schema_dmg, edit=GOOD_EDIT, out=str(tmp_path / "s"))
     assert r.ok is False and not r.files
     man = json.loads((tmp_path / "s" / "manifest.json").read_text())
     assert (r.status, r.errors) == (man["status"], man["errors"])
-    _assert_named_not_pathed(man, schema_dmg, "ParseError", "parse error")
-    assert "Formats/Latest" in r.errors[0]      # errors[0] stays whole: the release note rides behind the reason
+    # the host could not even be probed: THAT is the sentence, legible inside the cut ...
+    _assert_named_not_pathed(man, schema_dmg, "its Formats/Latest class schema cannot be read",
+                             "(ParseError: parse error at 0x")
+    whole, = r.errors[1:]                       # ... and every layer's words ride whole, once, behind it
+    assert whole.startswith("cannot open/plan schema_dmg.rvt: ParseError: parse error at 0x")
+    assert "(no release context for schema_dmg.rvt: its Formats/Latest class schema cannot be read " \
+        "(ParseError: " in whole and "; read side: own schema unreadable (" in whole
+    assert f"**Status:** {r.status}" in (tmp_path / "s" / "MANIFEST.md").read_text()
 
 
 def test_good_edit_status_unchanged(tmp_path):
