@@ -1646,6 +1646,10 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                   apparent_load_va=float(watt or 0.0), power_factor=0.95,
                   bind_voltage_param="Voltage", bind_load_param="Wattage",
                   load_class="Lighting", description="Power Connection")
+    if shape == "box":
+        # parametric drive (issue #372): the troffer sketch is X=Length, Y=Width
+        from . import param_drive as PD
+        PD.wire_panelboard_drive(doc, x_caption="Length", y_caption="Width")
     doc.finalize()
     stem = ("troffer_" + _slug(size) + "_recessed") if shape == "box" \
         else _slug(f"downlight_{facts.get('aperture_in'):g}in")

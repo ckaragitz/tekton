@@ -365,7 +365,8 @@ def _classify_rect(lines) -> Dict[str, Tuple[int, Tuple[float, float],
             "left": vert[0], "right": vert[1]}
 
 
-def wire_panelboard_drive(doc) -> Dict[str, Any]:
+def wire_panelboard_drive(doc, *, x_caption: str = "Width",
+                          y_caption: str = "Height") -> Dict[str, Any]:
     """Wire the parametric drive chain into a PANELBOARD ``FamilyDoc``
     (call AFTER the box form exists, BEFORE ``finalize``):
 
@@ -401,7 +402,7 @@ def wire_panelboard_drive(doc) -> Dict[str, Any]:
     view_sp_id = view_sp.elem_id if view_sp is not None else geo_sp_id
     # parameters + current values (the current type row, internal feet)
     try:
-        w_pe, h_pe = doc.params["Width"], doc.params["Height"]
+        w_pe, h_pe = doc.params[x_caption], doc.params[y_caption]
     except KeyError as e:
         raise ValueError(f"param_drive: missing family parameter {e}") from None
     vals = doc.types[doc.current_type][1] if doc.types else {}
