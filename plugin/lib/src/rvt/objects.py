@@ -76,6 +76,8 @@ table, samples) — see :func:`main`.
 """
 from __future__ import annotations
 
+import codecs
+import functools
 import json
 import os
 import struct
@@ -107,8 +109,9 @@ _PRIM_FMT = {
     0x0b: ("<q", 8),   # int64
 }
 # the same kinds as ONE struct char for the compiled plans ("?" == bool(u8))
-_PRIM_CHAR = {0x01: "?", 0x02: "B", 0x03: "h", 0x04: "i", 0x05: "I",
-              0x06: "f", 0x07: "d", 0x0b: "q"}
+_PRIM_CHAR = {k: ("?" if k == 0x01 else fmt[-1]) for k, (fmt, _sz) in _PRIM_FMT.items()}
+# archive object indices taken before any record body: 1 = document, 2 = root
+_SEED_PIDS = (1, 2)
 
 
 class DecodeError(Exception):
@@ -217,9 +220,7 @@ class Reader:
         return raw.decode("utf-16-le", errors="surrogatepass")
 
     def guid(self) -> str:
-        b = self.take(16)
-        d1, d2, d3 = struct.unpack_from("<IHH", b, 0)
-        return _fmt_guid(d1, d2, d3, b[8:16])
+        return _fmt_guid(*_S_GUID.unpack(self.take(16)))
 
     def element_id(self) -> int:
         """ElementId = Identifier = int64 LE, -1 invalid."""
@@ -289,19 +290,27 @@ class _Pending:
 
 # ---------------------------------------------------------------------------
 class ObjectDecoder:
-    """Decodes serialized objects using a parsed :class:`rvt.schema.Schema`."""
+    """Decodes serialized objects using a parsed :class:`rvt.schema.Schema`.
+
+    Extension API: the reference walk's hook methods in ``_HOOKS``.  A
+    subclass overriding any of them (to observe or remap ids by path, to
+    ledger bodies...) is decoded by the reference walk only -- its override
+    sees every field exactly as before, at reference-walk speed
+    (``cls._hooks_native`` says which path a class takes).  To merely observe
+    ElementIds, prefer ``ref_sink`` and keep the plan path.
+    """
 
     # False forces every record through the reference walk (A/B switch for
     # the compiled plans; behaviour is identical either way by construction)
     use_plans = True
-    # the reference walk's hooks: a subclass overriding any of them is decoded
-    # by the reference walk only, so its override sees every field as before
     _HOOKS = ("_decode_class", "_decode_field", "_decode_scalar",
-              "_decode_value_class", "_decode_pointer")
-    # class-level defaults: an instance that skipped __init__ still decodes
-    # (reference walk, no sink)
-    ref_sink: Optional[list] = None
-    _hooks_native = False
+              "_decode_value_class", "_decode_pointer", "class_name")
+    _hooks_native = True                     # recomputed per subclass below
+
+    def __init_subclass__(cls, **kw):
+        super().__init_subclass__(**kw)
+        cls._hooks_native = all(getattr(cls, h) is getattr(ObjectDecoder, h)
+                                for h in ObjectDecoder._HOOKS)
 
     def __init__(self, schema: Optional[Schema] = None):
         self.schema = schema or load_schema()
@@ -321,11 +330,11 @@ class ObjectDecoder:
         # appended to it as (field name, id) -- schema-typed, in field order
         # (rvt.validate's reference-integrity input; callers reset it per record)
         self.ref_sink: Optional[list] = None
-        # compiled per-class plans (see _compile); only an unspecialised
-        # decoder takes the plan path -- hook overrides need the reference walk
+        # compiled per-class plans (see _compile), and why/how often the plan
+        # path handed a record back to the walk ({exception name: count};
+        # anything but _Bail / struct 'error' there is a plan bug, not data)
         self._plans: dict = {}
-        self._hooks_native = all(getattr(type(self), h) is getattr(ObjectDecoder, h)
-                                 for h in self._HOOKS)
+        self.plan_bails: Counter = Counter()
 
     # -- schema helpers ------------------------------------------------------
     def chain(self, class_id: int) -> list[ClassDef]:
@@ -363,13 +372,17 @@ class ObjectDecoder:
         (truncation, an implausible count, an unknown pointer class, a shape
         it does not compile...) hands the record to the reference walk below,
         which re-decodes it from byte 0 and is the one that reports errors.
+        Plans read ids as the 64-bit ``Reader.element_id`` does; while the
+        32-bit-id era (rvt.versions.records32) has that method patched, every
+        record takes the walk, which goes through the patched method.
         """
-        if self.use_plans and self._hooks_native:
+        if self.use_plans and self._hooks_native and Reader.element_id is _ELEMENT_ID64:
             sink = self.ref_sink
             mark = len(sink) if sink is not None else 0
             try:
                 return self._decode_record_planned(class_id, payload)
-            except Exception:
+            except Exception as e:
+                self.plan_bails[type(e).__name__] += 1
                 if sink is not None:
                     del sink[mark:]           # the reference walk re-reads them
         return self._decode_record_walked(class_id, payload)
@@ -380,7 +393,7 @@ class ObjectDecoder:
         name = self.class_name(class_id)
         obj = DecodedObject(class_id, name, {}, 0, len(payload))
         rd = Reader(payload)
-        state = _State(seen_pids={1, 2})
+        state = _State(seen_pids=set(_SEED_PIDS))
         queue: deque[_Pending] = deque()
         try:
             if class_id not in self.schema.by_id:
@@ -399,11 +412,7 @@ class ObjectDecoder:
         except (struct.error, IndexError) as e:
             obj.errors.append({"field": state.path, "offset": rd.p, "error": f"truncated: {e}"})
         obj.consumed = rd.p
-        # a zero-field class over an all-zero payload is an empty stub object
-        # (e.g. SerializedDummy in seq 103: tiny record, no size trailer)
-        if not obj.errors and obj.consumed < obj.total and obj.total <= 4 \
-                and not any(payload[obj.consumed:]):
-            obj.stub = True
+        obj.stub = not obj.errors and _is_stub(obj.consumed, payload)
         return obj
 
     # -- class body ------------------------------------------------------------
@@ -504,7 +513,7 @@ class ObjectDecoder:
         if type_id == self.id_ElementId or type_id == self.id_Identifier:
             v = rd.element_id()
             if type_id == self.id_ElementId and self.ref_sink is not None:
-                self.ref_sink.append((_leaf_name(path), v))
+                self.ref_sink.append((leaf_name(path), v))
             return v
         if type_id == self.id_XYZ:
             return rd.xyz()
@@ -537,15 +546,17 @@ class ObjectDecoder:
     # A class plan is the class chain (parent-first, exactly self.chain())
     # flattened ONCE into a tuple of steps with their dict keys precomputed
     # (field_key's shadowing rule is static per chain):
-    #   (_G, Struct, size, keys, fixups)  a run of consecutive fixed-size
-    #        fields read by ONE unpack, one slot per key (out.update(zip(keys,
-    #        vals)))); fixups = ((slot, key, M_*, a, b), ...) for the slots
-    #        that report an ElementId to ref_sink or arrive packed (XYZ/UV/
-    #        GUID/fixed arrays as raw bytes, weak/classref as bare ints)
+    #   (_G, Struct, size, keys, fixups, fixups_without_ids)  a run of
+    #        consecutive fixed-size fields read by ONE unpack, one slot per key
+    #        (out.update(zip(keys, vals))); fixups = ((slot, key, E_*, a, b),
+    #        ...) for the slots that report an ElementId to ref_sink (E_ID,
+    #        a = name; skipped when there is no sink) or arrive packed (E_XYZ/
+    #        E_UV/E_GUID raw bytes; E_LIST raw bytes, a = the n-item Struct,
+    #        b = id name|None; E_WEAK/E_CREF bare ints)
     #   (_X, key, fop, e|None)  one variable-size field (e = its element op
     #        when the field is a single element), fop mirroring _decode_field:
     #        (F_ELEM, e) | (F_CONT, min_size, e) | (F_FIXED, n, e) |
-    #        (F_STRS, n|None) | (F_ARR, n|None, sub_fop) | (F_BAIL,)
+    #        (F_ARR, n|None, sub_fop) | (F_BAIL,)
     #   e (one element, mirroring _decode_scalar): (E_PRIM, char, Struct,
     #        size) | (E_ID, name|None) | (E_XYZ,) | (E_UV,) | (E_GUID,) |
     #        (E_WEAK,) | (E_CREF,) | (E_STR,) | (E_PTR,) | (E_CLASS, type_id)
@@ -556,12 +567,6 @@ class ObjectDecoder:
     # re-decoding with the reference walk, so a record either decodes to the
     # very same value here or is reported by the code that always reported it.
     # =========================================================================
-    def _plan(self, class_id: int) -> tuple:
-        plan = self._plans.get(class_id)
-        if plan is None:
-            plan = self._plans[class_id] = self._compile(class_id)
-        return plan
-
     def _compile(self, class_id: int) -> tuple:
         steps: list = []
         keys_seen: dict = {}               # field_key's view of the dict so far
@@ -573,66 +578,47 @@ class ObjectDecoder:
             st = struct.Struct("<" + "".join(r[1] for r in run))
             keys = tuple(r[0] for r in run)
             fixups = tuple((i, key, conv, a, b)
-                           for i, (key, _fmt, conv, a, b) in enumerate(run) if conv != M_PLAIN)
-            steps.append((_G, st, st.size, keys, fixups))
+                           for i, (key, _fmt, conv, a, b) in enumerate(run) if conv is not None)
+            unsunk = tuple(x for x in fixups if x[2] != E_ID)      # no sink: ids need no visit
+            steps.append((_G, st, st.size, keys, fixups, unsunk))
             run.clear()
 
         for cd in self.chain(class_id):
             for f in cd.fields:
                 key = field_key(cd, f, keys_seen)
                 keys_seen[key] = None
-                g = self._groupable(f)
-                if g is None:
+                slot = self._fixed_slot(f)
+                if slot is None:
                     flush()
                     fop = self._compile_field(f, f.name)
                     steps.append((_X, key, fop, fop[1] if fop[0] == F_ELEM else None))
                 else:
-                    run.append((key,) + g)
+                    run.append((key,) + slot)
         flush()
         return tuple(steps)
 
-    def _groupable(self, f: Field):
-        """(struct fmt, fix-up, a, b) for a field of fixed byte size -- ONE
-        struct slot per field, multi-value fields as raw ``Ns`` bytes their
-        fix-up unpacks -- else None.  Mirrors _decode_field/_decode_scalar."""
-        kind = f.kind
+    def _fixed_slot(self, f: Field):
+        """(struct fmt, fix-up code|None, a, b) for a field of fixed byte size
+        -- ONE struct slot per field, a multi-value field as raw ``Ns`` bytes
+        its fix-up unpacks -- else None (a variable-size field).  Derived from
+        the field's element op, so it agrees with _compile_elem by construction."""
         shape = f.flags >> 4
-        indir = f.flags & 0x0F
-        if kind == 0x08 or kind == 0x0D or shape == 0x5:
+        if f.kind == 0x08 or f.kind == 0x0D or shape == 0x5:
             return None
+        e = self._compile_elem(f, f.name)
+        code = e[0]
         if shape == 0x1:                                   # fixed array: schema count
             n = f.count or 0
-            if kind in _PRIM_CHAR:
-                ch = _PRIM_CHAR[kind]
-                return (f"{n * _PRIM_FMT[kind][1]}s", M_LIST, _nstruct(ch, n), None)
-            if kind == 0x0E and indir == 0 and f.type_id is not None:
-                if f.type_id == self.id_ElementId:
-                    return (f"{n * 8}s", M_LIST, _nstruct("q", n), f.name)
-                if f.type_id == self.id_Identifier:
-                    return (f"{n * 8}s", M_LIST, _nstruct("q", n), None)
+            if code == E_PRIM:
+                return (f"{n * e[3]}s", E_LIST, _nstruct(e[1], n), None)
+            if code == E_ID:
+                return (f"{n * 8}s", E_LIST, _nstruct("q", n), e[1])
             return None
-        if kind in _PRIM_CHAR:
-            return (_PRIM_CHAR[kind], M_PLAIN, None, None)
-        if kind == 0x09:
-            return ("16s", M_GUID, None, None)
-        if kind == 0x0A:
-            return ("H", M_CREF, None, None)
-        if kind == 0x0E:
-            if indir == 3:
-                return ("I", M_WEAK, None, None)
-            if indir == 0 and f.type_id is not None:
-                t = f.type_id
-                if t == self.id_ElementId:
-                    return ("q", M_IDREF, f.name, None)
-                if t == self.id_Identifier:
-                    return ("q", M_PLAIN, None, None)
-                if t == self.id_XYZ:
-                    return ("24s", M_XYZ, None, None)
-                if t == self.id_UV:
-                    return ("16s", M_UV, None, None)
-                if t == self.id_GUIDvalue:
-                    return ("16s", M_GUID, None, None)
-        return None
+        if code == E_PRIM:
+            return (e[1], None, None, None)
+        if code == E_ID:                                   # e[1]: name to report, or None
+            return ("q", E_ID if e[1] is not None else None, e[1], None)
+        return _FIXED_SLOT.get(code)                       # GUID/classref/weak/XYZ/UV, else None
 
     def _compile_field(self, f: Field, ref_name: str) -> tuple:
         """One field as _decode_field reads it (kind 8 / 0x0D / container /
@@ -643,10 +629,10 @@ class ObjectDecoder:
         shape = f.flags >> 4
         if kind == 0x08:
             if shape == 0x5:
-                return (F_STRS, None)
+                return (F_CONT, 4, _E_STR)                 # count32(4, "string count")
             if shape == 0x1:
-                return (F_STRS, f.count) if f.count is not None else (F_BAIL,)
-            return (F_ELEM, (E_STR,))
+                return (F_FIXED, f.count, _E_STR)          # raw f.count, exactly as the walk
+            return (F_ELEM, _E_STR)
         if kind == 0x0D:
             if f.element is None:
                 return (F_BAIL,)
@@ -667,9 +653,9 @@ class ObjectDecoder:
         kind = f.kind
         if kind in _PRIM_CHAR:
             ch = _PRIM_CHAR[kind]
-            return (E_PRIM, ch, struct.Struct("<" + ch), _PRIM_FMT[kind][1])
+            return (E_PRIM, ch, _nstruct(ch, 1), _PRIM_FMT[kind][1])
         if kind == 0x08:
-            return (E_STR,)
+            return _E_STR
         if kind == 0x09:
             return (E_GUID,)
         if kind == 0x0A:
@@ -711,8 +697,7 @@ class ObjectDecoder:
             holder["value"] = self._run_plan(cls, cx)
         obj = DecodedObject(class_id, by_id[class_id].name, value, cx.p, len(payload))
         obj.n_deferred = n_deferred
-        if obj.consumed < obj.total and obj.total <= 4 and not any(payload[obj.consumed:]):
-            obj.stub = True
+        obj.stub = _is_stub(obj.consumed, payload)
         return obj
 
     def _run_plan(self, class_id: int, cx: "_Cx") -> dict:
@@ -722,17 +707,18 @@ class ObjectDecoder:
         out: dict = {}
         d = cx.d
         sink = cx.sink
+        fx = 4 if sink is not None else 5                  # which fix-up tuple of a run
         plan = self._plans.get(class_id)
         if plan is None:
-            plan = self._plan(class_id)
+            plan = self._plans[class_id] = self._compile(class_id)
         for step in plan:
             if step[0] == _G:                              # a fused fixed-size run
                 p = cx.p
                 vals = step[1].unpack_from(d, p)
                 cx.p = p + step[2]
                 out.update(zip(step[3], vals))
-                if step[4]:
-                    self._fixup(out, vals, step[4], sink)
+                if step[fx]:
+                    self._fixup(out, vals, step[fx], sink)
             elif step[3] is not None:                      # a one-element field
                 out[step[1]] = self._x_elem(step[3], cx)
             else:
@@ -745,20 +731,20 @@ class ObjectDecoder:
         ElementIds to ``sink`` (as the reference walk reads them) and give
         packed slots their decoded shape (re-assigning a key keeps its place)."""
         for i, key, conv, a, b in fixups:
-            if conv == M_IDREF:
+            if conv == E_ID:
                 if sink is not None:
                     sink.append((a, vals[i]))
-            elif conv == M_XYZ:
+            elif conv == E_XYZ:
                 out[key] = list(_S_3D.unpack(vals[i]))
-            elif conv == M_GUID:
+            elif conv == E_GUID:
                 out[key] = _fmt_guid(*_S_GUID.unpack(vals[i]))
-            elif conv == M_WEAK:
+            elif conv == E_WEAK:
                 out[key] = {"weakref": vals[i]}
-            elif conv == M_UV:
+            elif conv == E_UV:
                 out[key] = list(_S_2D.unpack(vals[i]))
-            elif conv == M_CREF:
+            elif conv == E_CREF:
                 out[key] = {"classref": self.class_name(vals[i])}
-            else:                                          # M_LIST: a = n-item Struct, b = id name
+            else:                                          # E_LIST: a = n-item Struct, b = id name
                 lst = out[key] = list(a.unpack(vals[i]))
                 if b is not None and sink is not None:
                     sink.extend([(b, v) for v in lst])
@@ -771,11 +757,6 @@ class ObjectDecoder:
             return self._x_list(fop[2], _count32(cx, fop[1]), cx)
         if t == F_FIXED:
             return self._x_list(fop[2], fop[1], cx)
-        if t == F_STRS:
-            n = fop[1]
-            if n is None:
-                n = _count32(cx, 4)
-            return [_astring(cx) for _ in range(n)]
         if t == F_ARR:
             n = fop[1]
             if n is None:
@@ -843,14 +824,14 @@ class ObjectDecoder:
             return {"weakref": v}
         if code == E_XYZ:
             p = cx.p
-            v = _S_3D.unpack_from(cx.d, p)
+            v = list(_S_3D.unpack_from(cx.d, p))
             cx.p = p + 24
-            return [v[0], v[1], v[2]]
+            return v
         if code == E_UV:
             p = cx.p
-            v = _S_2D.unpack_from(cx.d, p)
+            v = list(_S_2D.unpack_from(cx.d, p))
             cx.p = p + 16
-            return [v[0], v[1]]
+            return v
         if code == E_GUID:
             p = cx.p
             v = _S_GUID.unpack_from(cx.d, p)
@@ -866,10 +847,14 @@ class ObjectDecoder:
 
 # -- compiled-plan vocabulary -----------------------------------------------------
 _G, _X = 0, 1                                              # step tags
-F_ELEM, F_CONT, F_FIXED, F_STRS, F_ARR, F_BAIL = range(6)  # field ops
+F_ELEM, F_CONT, F_FIXED, F_ARR, F_BAIL = range(5)          # field ops
 (E_PRIM, E_ID, E_XYZ, E_UV, E_GUID, E_WEAK, E_CREF, E_STR,
- E_PTR, E_CLASS, E_BAIL) = range(11)                        # element ops
-M_PLAIN, M_IDREF, M_XYZ, M_UV, M_GUID, M_WEAK, M_CREF, M_LIST = range(8)  # run-slot fix-ups
+ E_PTR, E_CLASS, E_BAIL, E_LIST) = range(12)                # element ops (E_LIST: run fix-up only)
+_E_STR = (E_STR,)
+# run slot of the fixed-size element ops other than E_PRIM/E_ID (see _fixed_slot)
+_FIXED_SLOT = {E_GUID: ("16s", E_GUID, None, None), E_CREF: ("H", E_CREF, None, None),
+               E_WEAK: ("I", E_WEAK, None, None), E_XYZ: ("24s", E_XYZ, None, None),
+               E_UV: ("16s", E_UV, None, None)}
 _S_Q = struct.Struct("<q")
 _S_I32 = struct.Struct("<i")
 _S_U32 = struct.Struct("<I")
@@ -877,7 +862,10 @@ _S_U16 = struct.Struct("<H")
 _S_3D = struct.Struct("<3d")
 _S_2D = struct.Struct("<2d")
 _S_GUID = struct.Struct("<IHH8s")
-_NSTRUCTS: dict = {}
+_utf16le = codecs.utf_16_le_decode
+# the 64-bit in-body id read the plans assume; rvt.versions.records32 swaps
+# Reader.element_id for the 32-bit era, and decode_record then takes the walk
+_ELEMENT_ID64 = Reader.element_id
 
 
 class _Bail(Exception):
@@ -893,28 +881,31 @@ class _Cx:
         self.n = len(d)
         self.p = 0
         self.queue: deque = deque()
-        self.seen = {1, 2}
+        self.seen = set(_SEED_PIDS)
         self.sink = sink
         self.depth = 0
 
 
+@functools.lru_cache(maxsize=4096)
 def _nstruct(ch: str, n: int) -> struct.Struct:
-    """Struct for ``n`` consecutive little-endian ``ch`` items (memoized)."""
-    st = _NSTRUCTS.get((ch, n))
-    if st is None:
-        if len(_NSTRUCTS) > 4096:
-            _NSTRUCTS.clear()
-        st = _NSTRUCTS[(ch, n)] = struct.Struct(f"<{n}{ch}")
-    return st
+    """Struct for ``n`` consecutive little-endian ``ch`` items."""
+    return struct.Struct(f"<{n}{ch}")
+
+
+def _is_stub(consumed: int, payload: bytes) -> bool:
+    """A zero-field class over an all-zero payload of <= 4 bytes is an empty
+    stub object (e.g. SerializedDummy in seq 103: tiny record, no trailer)."""
+    return consumed < len(payload) <= 4 and not any(payload[consumed:])
 
 
 def _count32(cx: _Cx, min_elem: int) -> int:
-    """u32 container count with Reader.count32's exact plausibility cap."""
+    """u32 container count with Reader.count32's exact plausibility cap
+    (every plan caller passes min_elem >= 1, so its max(min_elem, 1) is moot)."""
     p = cx.p
     c = _S_U32.unpack_from(cx.d, p)[0]
     p += 4
     cx.p = p
-    if c > MAX_CONTAINER or c * max(min_elem, 1) > (cx.n - p) + 16:
+    if c > MAX_CONTAINER or c * min_elem > (cx.n - p) + 16:
         raise _Bail()
     return c
 
@@ -931,14 +922,16 @@ def _astring(cx: _Cx):
         raise _Bail()
     end = p + 2 * n
     cx.p = end
-    return cx.d[p:end].decode("utf-16-le", errors="surrogatepass")
+    # == bytes.decode("utf-16-le", "surrogatepass") without the codec-registry
+    # lookup "utf-16-le" costs per call (final=True: nothing withheld)
+    return _utf16le(cx.d[p:end], "surrogatepass", True)[0]
 
 
 def _fmt_guid(d1: int, d2: int, d3: int, t: bytes) -> str:
     return f"{d1:08x}-{d2:04x}-{d3:04x}-{t[0]:02x}{t[1]:02x}-{t[2:].hex()}"
 
 
-def _leaf_name(path: str) -> str:
+def leaf_name(path: str) -> str:
     """Field name at the end of a reference-walk path (``A.b->C.m_x[3]`` -> ``m_x``)."""
     return path.rsplit(".", 1)[-1].split("[", 1)[0]
 
@@ -1330,7 +1323,8 @@ def main(argv=None):
     tot = sum(st["total"] for st in per_class.values())
     print(f"{project} seq {seq}: {n} records, {len(per_class)} classes; clean "
           f"full-record decodes {tot_clean} ({100.0 * tot_clean / max(n, 1):.2f}%); "
-          f"byte coverage {100.0 * cons / max(tot, 1):.2f}%")
+          f"byte coverage {100.0 * cons / max(tot, 1):.2f}%; plan path handed "
+          f"{sum(dec.plan_bails.values())} record(s) to the walk {dict(dec.plan_bails)}")
     print(f"{'class':>7} {'name':32s} {'records':>8} {'clean':>7} {'rate':>6} "
           f"{'byte-cov':>8} {'mean cons/total':>18}")
     for cls, name, cnt, clean, rate, cov, mc, mt in rate_table(dec, per_class, 40):

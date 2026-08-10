@@ -1358,7 +1358,7 @@ class Validator:
             except Exception:
                 pass
 
-        from .objects import ObjectDecoder
+        from .objects import ObjectDecoder, leaf_name
         dec = ObjectDecoder(schema)             # compiled-plan path; ids via ref_sink
         # -- index every seq-102 record file-wide ---------------------------------------
         recs102: Dict[int, Tuple[int, bytes, int]] = {}      # id -> (class, payload, unit)
@@ -1398,7 +1398,6 @@ class Validator:
         conns: Dict[int, Dict[int, List[Tuple[int, int, int]]]] = {}
         circuits: List[Tuple[int, dict]] = []
         typed_checks: List[Tuple[int, str, int, str]] = []       # (owner, field, target, need)
-        need_of: Dict[str, Optional[str]] = {}                   # field name -> Symbol|Level|None
         sym_family: Dict[int, int] = {}                          # FamilySymbol -> m_familyId
         fam_guids: Dict[int, Set[str]] = {}                      # host Family -> famdoc GUID(s)
         inst_ids: Set[int] = set()                               # FamilyInstance-derived owners
@@ -1426,14 +1425,12 @@ class Validator:
             v = obj.value
             dangles = False
             for fname, val in sink:
-                if val > 0:
-                    if fname not in need_of:
-                        need_of[fname] = _typed_need(fname)
-                    need = need_of[fname]
+                if val > 0:                           # a set id (not -1/0/built-in negatives)
+                    need = _typed_need(fname)
                     if need is not None:
                         typed_checks.append((eid, fname, val, need))
-                    if val not in universe:
-                        dangles = True
+                    if val not in universe:           # = find_dangling_refs' law; it re-judges
+                        dangles = True                # this owner's re-read below
             if dangles:
                 dangling_owners.append(eid)
             cm = _connector_map(v)
@@ -1481,8 +1478,7 @@ class Validator:
                     ((eid, path, val) for path, val in pdec.refs), universe))
         rep.stats["refs_checked"] = n_refs
         if dangling:
-            byfield = Counter(p.rsplit(".", 1)[-1].split("[", 1)[0]
-                              for _o, p, _t in dangling)
+            byfield = Counter(leaf_name(p) for _o, p, _t in dangling)
             ex = "; ".join(f"element {o} {p.split('->')[-1]}={t}"
                            for o, p, t in dangling[:4])
             rep.error(L_SEMANTIC, "references",

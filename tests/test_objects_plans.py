@@ -22,13 +22,16 @@ Run: .venv/bin/python -m pytest tests/test_objects_plans.py -q
 from __future__ import annotations
 
 import os
+import struct
 from contextlib import ExitStack
 
 import pytest
 
 from rvt import objects as O
-from rvt.objects import ObjectDecoder, Reader, _fmt_guid, _leaf_name
-from rvt.validate import Validator, _iter_seg_records, enter_own_release, validate_file
+from rvt.objects import ObjectDecoder, Reader, _fmt_guid, leaf_name
+from rvt.schema import Field
+from rvt.validate import (Validator, _iter_seg_records, _RefDecoder, enter_own_release,
+                          validate_file)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GEN = os.path.join(ROOT, "plugin", "assets", "genesis")
@@ -40,20 +43,9 @@ pytestmark = pytest.mark.skipif(
     not all(os.path.isfile(p) for p in BASES.values()),
     reason="bundled genesis bases missing")
 
-
-class _PathRefDecoder(ObjectDecoder):
-    """The pre-#427 validator decoder: ElementIds by full field path through
-    the ``_decode_value_class`` hook -- so it must take the reference walk."""
-
-    def __init__(self, schema):
-        super().__init__(schema)
-        self.refs = []
-
-    def _decode_value_class(self, rd, type_id, queue, state, path):
-        v = super()._decode_value_class(rd, type_id, queue, state, path)
-        if type_id == self.id_ElementId:
-            self.refs.append((path, v))
-        return v
+# the plan path's only legitimate exits: it declines (_Bail) or runs out of
+# bytes (struct.error); any other exception type there is a plan bug
+LEGIT_BAILS = {"_Bail", struct.error.__name__}
 
 
 def _records(path: str, stack: ExitStack):
@@ -81,8 +73,9 @@ def _records(path: str, stack: ExitStack):
 def _same(a: O.DecodedObject, b: O.DecodedObject) -> bool:
     fa = (a.class_id, a.class_name, a.consumed, a.total, a.errors, a.n_deferred, a.stub, a.clean)
     fb = (b.class_id, b.class_name, b.consumed, b.total, b.errors, b.n_deferred, b.stub, b.clean)
-    # repr pins the value TYPES too (bool vs int, list vs tuple, key order)
-    return fa == fb and a.value == b.value and repr(a.value) == repr(b.value)
+    # repr pins structure, key order AND value types (bool vs int, list vs
+    # tuple), and unlike == it calls two identical NaN doubles equal
+    return fa == fb and repr(a.value) == repr(b.value)
 
 
 @pytest.fixture(scope="module")
@@ -104,36 +97,87 @@ def test_plan_path_equals_reference_walk_on_every_record(corpus, year):
     fast = ObjectDecoder(schema)
     slow = ObjectDecoder(schema)
     slow.use_plans = False
-    hooked = _PathRefDecoder(schema)
+    hooked = _RefDecoder(schema)                # ids by full path via a hook override
     assert fast._hooks_native and slow._hooks_native and not hooked._hooks_native
-    planned = bailed = 0
     for eid, cls, payload in recs:
         fast.ref_sink, slow.ref_sink, hooked.refs = [], [], []
         a = fast.decode_record(cls, payload)
         b = slow.decode_record(cls, payload)
         c = hooked.decode_record(cls, payload)
         assert _same(a, b) and _same(b, c), (year, eid, a.class_name)
-        assert fast.ref_sink == slow.ref_sink == [(_leaf_name(p), v) for p, v in hooked.refs], \
+        assert fast.ref_sink == slow.ref_sink == [(leaf_name(p), v) for p, v in hooked.refs], \
             (year, eid, a.class_name)
-        try:                                    # which path actually produced `a`?
-            fast.ref_sink = None
-            fast._decode_record_planned(cls, payload)
-            planned += 1
-        except Exception:
-            bailed += 1
-            assert not a.clean, "the plan path may only decline a record the walk also faults"
-    # the plan path is the one doing the work (a decode-gap record or two may bail)
-    assert planned >= len(recs) - 2 and bailed <= 2, (planned, bailed)
+        if not a.clean:                         # a record the walk faults: the plan path bailed
+            assert sum(fast.plan_bails.values()) >= 1
+    # the plan path is the one doing the work: it declines at most the decode-
+    # gap record or two the walk also faults, and only ever by its two exits
+    bailed = sum(fast.plan_bails.values())
+    assert bailed <= 2 and bailed == sum(1 for _e, c, p in recs
+                                         if not slow.decode_record(c, p).clean), fast.plan_bails
+    assert set(fast.plan_bails) <= LEGIT_BAILS, fast.plan_bails
+    assert not slow.plan_bails and not hooked.plan_bails      # they never tried
 
 
 def test_hook_override_never_takes_the_plan_path(corpus, monkeypatch):
     schema, recs = corpus[2025]
-    hooked = _PathRefDecoder(schema)
+    hooked = _RefDecoder(schema)
     monkeypatch.setattr(ObjectDecoder, "_decode_record_planned",
                         lambda self, c, p: pytest.fail("plan path taken under a hook override"))
     for _eid, cls, payload in recs[:200]:
         hooked.decode_record(cls, payload)
     assert hooked.refs, "the override saw no ElementId -- it was bypassed"
+
+    class NamesOnly(ObjectDecoder):             # even a class_name override counts
+        def class_name(self, class_id):
+            return super().class_name(class_id).upper()
+    assert not NamesOnly._hooks_native and ObjectDecoder._hooks_native
+    assert NamesOnly(schema).decode_record(recs[0][1], recs[0][2]).class_name.isupper()
+
+
+def test_ids32_era_takes_the_walk(corpus, monkeypatch):
+    """rvt.versions.records32 swaps Reader.element_id for a 32-bit read
+    (Revit <= 2023).  Plans assume the 64-bit read, so while that patch is
+    in force every record goes through the walk -- and thereby through the
+    patched method, exactly as before plans existed."""
+    from rvt.versions import records32
+    schema, recs = corpus[2025]
+    fast = ObjectDecoder(schema)
+    slow = ObjectDecoder(schema)
+    slow.use_plans = False
+    monkeypatch.setattr(ObjectDecoder, "_decode_record_planned",
+                        lambda self, c, p: pytest.fail("plan path taken in the 32-bit era"))
+    with records32.ids32():
+        assert Reader.element_id is not O._ELEMENT_ID64
+        for _eid, cls, payload in recs[:150]:
+            fast.ref_sink, slow.ref_sink = [], []
+            assert _same(fast.decode_record(cls, payload), slow.decode_record(cls, payload))
+            assert fast.ref_sink == slow.ref_sink
+    assert Reader.element_id is O._ELEMENT_ID64            # restored: plans are back
+    monkeypatch.undo()
+    fast.decode_record(recs[0][1], recs[0][2])
+    assert not fast.plan_bails
+
+
+def test_flattened_value_classes_compile_flat(corpus):
+    """The walk flattens ElementId/Identifier/XYZ/UV/GUIDvalue in
+    _decode_value_class; the compiler must never plan them as a nested class
+    (E_CLASS) and must give the fixed-size ones a run slot -- one ladder."""
+    schema, _recs = corpus[2025]
+    dec = ObjectDecoder(schema)
+    flat = {"id_ElementId": O.E_ID, "id_Identifier": O.E_ID, "id_XYZ": O.E_XYZ,
+            "id_UV": O.E_UV, "id_GUIDvalue": O.E_GUID}
+    for attr, code in flat.items():
+        t = getattr(dec, attr)
+        assert t is not None, attr
+        f = Field(name="m_x", kind=0x0E, flags=0x00, offset=0, type_id=t)
+        assert dec._compile_elem(f, "m_x")[0] == code, attr
+        assert dec._fixed_slot(f) is not None, attr
+        arr = Field(name="m_xs", kind=0x0E, flags=0x10, offset=0, type_id=t, count=3)
+        assert (dec._fixed_slot(arr) is not None) == (code == O.E_ID), attr   # id arrays fuse
+    other = next(c for c in schema.classes if c.fields and c.type_id not in
+                 {getattr(dec, a) for a in flat})
+    f = Field(name="m_o", kind=0x0E, flags=0x00, offset=0, type_id=other.type_id)
+    assert dec._compile_elem(f, "m_o")[0] == O.E_CLASS and dec._fixed_slot(f) is None
 
 
 # ---------------------------------------------------------------------------
@@ -182,13 +226,21 @@ def test_ref_sink_is_reset_when_the_plan_path_bails(corpus):
         assert fast.ref_sink == slow.ref_sink and fast.ref_sink[0] == ("keep", 7)
 
 
-def test_reader_guid_and_plan_guid_agree():
+def test_reader_primitives_and_plan_primitives_agree():
     raw = bytes(range(16))
     assert Reader(raw).guid() == _fmt_guid(0x03020100, 0x0504, 0x0706, raw[8:]) \
         == "03020100-0504-0706-0809-0a0b0c0d0e0f"
-    assert _leaf_name("HostObj.m_a->Sub.m_ids[3]") == "m_ids"
-    assert _leaf_name("Level.m_levelTypeId") == "m_levelTypeId"
-    assert _leaf_name("A.m_arr[1][2]") == "m_arr"
+    # AString: the plan path's codec shortcut == Reader.astring, lone
+    # surrogates (surrogatepass), BOM-looking prefixes, empty and null included
+    for units in ([0xD800], [0x41, 0xDC00], [0xFEFF, 0x42], [0xFFFE], [], [0xD83D, 0xDE00]):
+        body = struct.pack("<I", len(units)) + b"".join(struct.pack("<H", u) for u in units)
+        cx = O._Cx(body, None)
+        assert O._astring(cx) == Reader(body).astring() and cx.p == len(body)
+    null = struct.pack("<I", 0xFFFFFFFF)
+    assert O._astring(O._Cx(null, None)) is None is Reader(null).astring()
+    assert leaf_name("HostObj.m_a->Sub.m_ids[3]") == "m_ids"
+    assert leaf_name("Level.m_levelTypeId") == "m_levelTypeId"
+    assert leaf_name("A.m_arr[1][2]") == "m_arr"
 
 
 # ---------------------------------------------------------------------------

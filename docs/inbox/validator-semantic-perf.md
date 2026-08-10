@@ -30,37 +30,53 @@ Stream: `eng427` (engineer session under the tech-lead session; branch
      verbatim), which stays the one and only error reporter. So a record either decodes to
      the very same `DecodedObject` (values *and* their Python types, `consumed`, `clean`,
      `stub`, `n_deferred`) or is reported by the code that always reported it;
-   - a subclass that overrides any walk hook (`_decode_class/_field/_scalar/
-     _value_class/_pointer` — `ADocumentDecoder`, `ESDecoder`, `rfa_load._Remap`, the
-     tools' remap/tag decoders) is detected at `__init__` and **always** takes the
-     reference walk, so every override sees every field exactly as before;
+   - the walk's hook methods (`_decode_class/_field/_scalar/_value_class/_pointer` and
+     `class_name`) are now the *documented* extension API (`_HOOKS`, class docstring):
+     a subclass overriding any of them (`ADocumentDecoder`, `ESDecoder`,
+     `rfa_load._Remap`, the tools' remap/tag decoders) is detected once per class
+     (`__init_subclass__` → `cls._hooks_native`) and **always** takes the reference
+     walk, so every override sees every field exactly as before, at the speed it had;
      `ObjectDecoder.use_plans = False` forces the walk for A/B checks;
+   - the **32-bit-id era** (`rvt.versions.records32`, Revit ≤ 2023) swaps
+     `Reader.element_id` process-globally; plans assume the 64-bit read, so while that
+     patch is in force every record takes the walk — through the patched method, exactly
+     as before plans existed (found by the review pass; test added);
+   - `dec.plan_bails` counts, by exception type, the records the plan path handed back
+     (`python -m rvt.objects` prints it); anything but `_Bail`/`struct.error` there is a
+     plan bug, and the new test asserts exactly that on the bundled bases;
    - new optional **`dec.ref_sink: list`** — when set, every ElementId-typed value read
      is appended as `(field name, id)` in field order (schema-typed, both paths; an
      inline array's anonymous element reports as its wrapper field, = the leaf of the
-     walk's path). This is what the validator needs from a record, without a hook
-     override and without path strings.
-   `Reader.guid` and the plan path share one `_fmt_guid`.
+     walk's path, `objects.leaf_name`). This is what the validator needs from a record,
+     without a hook override and without path strings; with no sink the id-only
+     fix-ups are not even visited.
+   `Reader.guid` and the plan path share one `_fmt_guid`/`_S_GUID`; both record paths
+   share one `_is_stub`; `_fixed_slot` (which fields fuse) is *derived* from
+   `_compile_elem` so the flattened-value-class ladder exists once in the compiler.
 2. **`rvt.validate._layer_semantic`** decodes through the plain decoder + `ref_sink`
    instead of the `_RefDecoder` hook subclass: `refs_checked` = ids read; typed
-   symbol/level checks classify by field name (memoized per name, `_typed_need`);
-   dangling ids are detected inline against the (already complete) id universe, and
-   **only the owners that hold one are re-read with `_RefDecoder`** (kept, lazily built)
-   so the ERROR message names each dangling id by its exact full field path, in the same
-   owner order and field order as before — zero re-reads on a healthy file, one per
-   damaged owner otherwise. `_check_loaded_content` lost its dead `dec.refs = []`.
-   `WalkedFile` / #429 untouched (rebased on, intact).
-3. **`tests/test_objects_plans.py`** (NEW, 11 tests, fresh-clone safe: bundled bases +
-   `tmp_path`; in the shard via `tests/ci_shard.d/427-objects-plans.txt`): on **every
-   seq-102 record of the three bundled bases** (9,696 records) plan path == reference
-   walk == a `_decode_value_class`-overriding subclass on all `DecodedObject` fields and
-   `repr(value)` (types, key order), and `ref_sink` == the walk's == the leaf of the
-   override's full paths; the override never enters the plan path (spy); >2,000
-   truncation depths + smashed/zeroed/over-long/shifted payloads + an unknown root class
-   report identical error dicts; a bailing record leaves no half-read ids in the sink;
-   `validate_file(...).to_json()` minus timings is identical with `use_plans` False/True
-   on the three bases and on a synthesized dangling-`m_assocLevelId` copy whose message
-   keeps `element <id> DBViewPlan.m_assocLevelId=987654321`.
+   symbol/level checks classify by field name (`_typed_need`); dangling ids are
+   detected inline against the (already complete) id universe, and **only the owners
+   that hold one are re-read with `_RefDecoder`** (kept, lazily built) so the ERROR
+   message names each dangling id by its exact full field path, in the same owner order
+   and field order as before — zero re-reads on a healthy file, one per damaged owner
+   otherwise. `_check_loaded_content` lost its dead `dec.refs = []`. `WalkedFile` /
+   #429 untouched (rebased on, intact).
+3. **`tests/test_objects_plans.py`** (NEW, 13 tests, ~9 s, fresh-clone safe: bundled
+   bases + `tmp_path`; in the shard via `tests/ci_shard.d/427-objects-plans.txt`): on
+   **every seq-102 record of the three bundled bases** (9,696 records) plan path ==
+   reference walk == the validator's path-recording `_RefDecoder` on all `DecodedObject`
+   fields and `repr(value)` (types, key order, NaN-safe), and `ref_sink` == the walk's
+   == the leaf of the override's full paths; bails ≤ 2, == the walk-faulted records, and
+   only of the two legitimate types; a hook (or `class_name`) override never enters the
+   plan path (spy); the `ids32()` era never enters it and reads identically to the walk;
+   the flattened value classes never compile as nested classes; >2,000 truncation
+   depths + smashed/zeroed/over-long/shifted payloads + an unknown root class report
+   identical error dicts; a bailing record leaves no half-read ids in the sink; the
+   AString codec shortcut == `Reader.astring` on lone surrogates/BOM/empty/null;
+   `validate_file(...).to_json()` minus timings is identical with `use_plans`
+   False/True on the three bases and on a synthesized dangling-`m_assocLevelId` copy
+   whose message keeps `element <id> DBViewPlan.m_assocLevelId=987654321`.
 
 Candidate cuts from the issue, each single-variable against the byte-identical report:
 
@@ -72,7 +88,9 @@ Candidate cuts from the issue, each single-variable against the byte-identical r
 | skip seq-102 records of classes with no ElementId-typed field | **rejected**: `clean` (= all bytes consumed, no error) needs the full read of every record and is what the decode-failure WARNING counts; with the plan path a no-id record costs ~10 µs, so there is nothing left to buy |
 | one dispatch less per single-element field + pointer-first element dispatch | kept (75 → 67 ms) |
 | one slot per key in fused runs (packed `Ns` members + fix-ups) instead of a two-mode spread | kept — same speed, one insertion path |
+| review pass: `codecs.utf_16_le_decode` shortcut in `_astring` (no per-call codec-registry lookup); a sink-less fix-up tuple per run so callers without a sink skip id-only visits; `max()` out of `_count32` | kept (decode-all, no sink: 67 → 60 ms) |
 | `_iter_seg_records` with `slots`/`Struct` objects | rejected: 8.2 → 7.7 ms over all three layers, not worth touching a shared helper |
+| reuse one `_Cx`/deque per decoder; unpack steps in the `for` | rejected: at the noise floor (±3 %), pins the last payload on the instance |
 
 ## 2. Evidence
 
@@ -129,6 +147,13 @@ content, four registries). The issue asked for ≥ 30 % / ≥ 120 ms off `valida
 its (slower) reference machine; here the layer loses 62 % and `validate_file` 167 ms of
 315.
 
+*Final head (after the review pass), same harness, same nine files:* semantic medians
+86.0 / **98.3** / 95.7 ms (2026 / 2025 / 2024 bases), 86.5 / 96.4 / 96.5 (edits), 96.1 /
+96.5 / 95.0 (damaged copies); `validate_file` on the 2025 base 141.2 ms; decode-all 60 ms
+(no sink) — and **0 diff lines** against main's nine reports again. Profile top-5 at the
+final head: `_run_plan` 0.068 s, `_iter_seg_records` 0.037, `_x_elem` 0.035,
+`_layer_semantic` own loop 0.029, `_fixup` 0.019 (0.67 M calls, 0.43 s profiled).
+
 **Bare unzip, `tools/surface_bench.py --zip before.zip|after.zip --surfaces
 cowork,codeexec --jobs go-edit,author-prompt,validate,go-author-prompt --python-bare
 /usr/bin/python3`, before/after ALTERNATING, 5 runs each** (`before.zip` built by
@@ -178,22 +203,49 @@ from.
   faults — the truncation/corruption tests pin the second property; the "declined ≤ 2 of
   9,696" assertion watches the first.
 
-## 4. Open questions / follow-ups
+## 4. Open questions / follow-ups (from the review pass; noted, not filed — none is user-facing today)
 
-- Tools that subclass the decoder only to *harvest* ElementIds by path
-  (`tools/birthright_mine.py` TagDecoder) could read `ref_sink` instead and get the plan
-  path; the *remapping* subclasses (`rfa_load._Remap`, `rft_probe`, `union_reconcile`)
-  need write positions, which is a different feature — left as they are (reference walk,
-  unchanged behaviour). Not filed: no user-facing latency hangs on them today.
+- **A first-class `id_map` primitive on the decoder** would retire the five
+  near-identical `_decode_value_class` *remap* subclasses (`convert/rfa_load._Remap` —
+  the extract→place lane — `tools/rft_probe.py`, `union_reconcile.py`,
+  `selfcontained.py`; `birthright_mine.py` only observes and could use `ref_sink` now)
+  and put them on the plan path. Worth an issue the day extract→place latency matters.
+- `Reader` is no longer the *only* place the read laws live: `_count32`/`_astring` mirror
+  `Reader.count32`/`astring` on the plan cursor (kept separate for call overhead; the
+  A/B tests are the guard). A later cleanup could hoist the two laws (plausibility cap,
+  AString bound) into shared module constants/predicates.
+- The walk derives a sink entry's field name from its display path (`leaf_name`); a
+  structural `state.leaf` would decouple it from path formatting. Test-guarded today.
+- 32-bit era: plans are simply off there (walk speed, as before). Era-aware plans (id
+  struct char threaded through the compiler) are possible if the 2023 lane ever needs
+  the speed.
 
 ## BRANCH STATE
 
-- Branch `cam/427-validator-semantic-perf` from `main @ f05db8b`; PR closes #427.
-- Files: `src/rvt/objects.py` (compiled plan path + `ref_sink`; reference walk kept
-  verbatim as `_decode_record_walked`), `src/rvt/validate.py` (`_layer_semantic` on
-  `ref_sink`, one-owner path re-read, `_typed_need`; `_check_loaded_content` dead line),
-  `tests/test_objects_plans.py` (new), `tests/ci_shard.d/427-objects-plans.txt` (new),
-  this record; mirrors `plugin/lib/src/rvt/{objects,validate}.py` via `tools/sync_plugin.py`.
-- Gates: GATES_LINE
+- Branch `cam/427-validator-semantic-perf` from `main @ f05db8b`; PR #447 closes #427.
+- Files: `src/rvt/objects.py` (compiled plan path, `ref_sink`, `plan_bails`, `leaf_name`;
+  reference walk kept as `_decode_record_walked` — only its stub line and GUID/`{1,2}`
+  spellings now go through the shared helpers), `src/rvt/validate.py` (`_layer_semantic`
+  on `ref_sink`, one-owner path re-read, `_typed_need`; `_check_loaded_content` dead
+  line), `tests/test_objects_plans.py` (new), `tests/ci_shard.d/427-objects-plans.txt`
+  (new), this record; mirrors `plugin/lib/src/rvt/{objects,validate}.py` via
+  `tools/sync_plugin.py`.
+- Gates (final head): `tests/test_objects_plans.py` 13 passed; stream-local
+  (`test_objects_plans test_validate_release test_validate_footer_blob
+  test_bare_family_validate test_gates_shared_walk test_objects test_encode test_adocument
+  test_estorage test_plugin_sync`) 96 passed / 42 skipped (sample-gated); regression net
+  (`famgen_factory/loader/adoc/catalog, famload/_2025/_fix/_batch, manipulate, mutate,
+  convert, convert_combo, roundtrip, verify_manipulated_release, stream_encoders,
+  genesis2_adocument, records32`) 190 passed / 186 skipped / 1 xfailed; whole merged CI
+  shard (`pytest -q $(python3 tools/dev/shard_list.py --print)`, `RVT_SKIP_LARGE=1`): **1507 passed, 134 skipped, 3 xfailed, 0 failed** (4 m 37 s); 2023-era `test_genesis_2023 test_port2023` 16 passed / 41 skipped; `tools/sync_plugin.py` run + `--check` clean;
+  `plugin/scripts/validate_plugin.py` PASS; `check_portable_paths` ok (2900).
+- `/verify` (final head): `rvt_validate --quiet` on the three bases OK errors=0 (0.2/0.2/0.1 s);
+  64 KB-truncated 2025 base FAIL errors=11 exit 1, no traceback; non-CFB junk FAIL 1 container
+  error exit 1; the dangling copy prints `element 245443 DBViewPlan.m_assocLevelId=987654321`;
+  `frontdoor.py author --rvt G_ABPD_2025.rvt --edit "set level 1351691 elevation to 5 ft"` →
+  delivered, `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`, edited file validates 0 errors
+  (refs_checked 50759); bare unzip of `tekton-plugin.zip`, `env -i` `/usr/bin/python3`
+  `_bootstrap.py go edit assets/genesis/G_ABPD_2025.rvt set-level --id 1351691 --elevation-ft 5.0`
+  → ok, in-call 0.33 s, structural PASS, validation PASS (0 errors, 0 warnings) in 0.1 s.
 - Nothing staged for the viewer (read path only; no written byte changes — pinned by the
   roundtrip/encode/manipulate suites and by the byte-identical edit outputs' reports).
