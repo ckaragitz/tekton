@@ -311,3 +311,88 @@ call are not the at-rest ones.
 * Not filed (dev-only, PROOF-ONLY): `experiments/genesis2025/subst/run_ladder2025.py:149`
   and `tools/make_v18.py` / `make_v19.py` still spell the old names; the latter two keep
   working through the alias, the former is superseded by `tools/genesis_2025.py`.
+
+### /simplify and /verify (eng #467)
+
+`/simplify` (4 angles — reuse, simplification, efficiency, altitude). Applied: the
+new test reuses `conftest.pinned_base` / `ROOT` instead of a hand-rolled `BASES` +
+skipif (so a `$RVT_GENESIS_BASE` override skips honestly), drops an unused import,
+parses the `src/rvt` tree once for both source laws (`lru_cache`; ~1 s per shard run),
+and says plainly that the literal law covers the two shapes seen so far, not every
+way to bake an ordinal; the five explanatory comment blocks in `electrical_data` /
+`regadd` / `manipulate` / `reduce` / `release_ctx` shrank to 1–4 lines; `writer.__getattr__`'s
+docstring names #547 as its removal trigger; the stale "these four modules keep their
+OWN copies … reduce.py:59 …" grep paragraphs directly above each genesis driver's
+`_LOCAL_TAG_PATCHES` were rewritten (comment-only) instead of leaving a tombstone
+inside the tuple. Skipped, with reason: hoisting `_tags` + the fresh-interpreter
+harness shared by `test_manipulate_import_context.py` and the new file into
+`tests/conftest.py` (conftest is another engineer's territory this wave — eng #523);
+folding `from .partitions import StreamWalker` into `_P.StreamWalker` in
+`reduce`/`commit` (style churn, a class is never rebound); the now-dead `ords[spec]`
+string-spec branch in the genesis drivers' context loops (owner-machine logic —
+rows-only mandate); migrating `tools/make_v18.py` / `make_v19.py` off the alias
+(outside territory; folded into #547); altitude verdict "right depth" for the
+call-time reads, with one deeper follow-up filed: **#551** — shrink
+`records32._patch_table` to origin rows by converting its remaining *holder* modules
+to module reads (hot file, its own tiny PR); the genesis drivers' `format-202x.md`
+generators still print the historical patch table (past tense, owner-machine docs).
+
+`/verify` on the post-simplify head (fresh cloud clone, no `samples/`):
+`tools/frontdoor.py author --rvt <G_ABPD{,_2025,_2024}.rvt> --edit "set level 1351691
+elevation to 5 ft" --json` → rc 0 ×3, stderr 0 B, `PROOF-ONLY, NOT-DELIVERABLE (hard
+gates PASSED)`, output release 2026/2025/2024 = input's, `tools/rvt_validate.py` on each
+edited file → `VALID (no errors)` (0/0/0 errors, 1/0/0 warnings); `tools/frontdoor.py
+author --prompt "an electrical room with 6 panels" --target-version {2026,2025,2024}
+--json` → rc 0 ×3, stderr 0 B, `PROOF-ONLY (self-checks PASS …)` ×3, combined `.rvt`
+validates 0 errors ×3, `tools/provenance.py --baseline all --streams` rc 2 ×3 = the two
+standing G2 identity findings (`unique_document_guid` / `central_episode_guid` inherited
+from the composed base, #19) — the identical two findings and rc on the main-built file;
+bare unzip of the rebuilt `tekton-plugin.zip`, `env -i /usr/bin/python3` (3.11.15):
+`skills/tekton-edit/scripts/_bootstrap.py go edit <base copy> set-level --id 1351691
+--elevation-ft 12.0 --json` ×3 → rc 0, `tekton: READY`, result.ok=True, stderr 0 B, wall
+1.05 / 0.68 / 0.68 s, outputs **md5-identical to main's repo `rvt_edit` outputs**
+(`8f9321bd…` / `17cc046e…` / `188355bc…`); `skills/tekton-author/scripts/_bootstrap.py go
+author --prompt "an electrical room with 6 panels" --target-version 2025 --json` → rc 0,
+`tekton: READY`, ok=True, `PROOF-ONLY (self-checks PASS …)`, combined `.rvt` + 12 family
+files delivered, wall 5.7 s.
+
+## BRANCH STATE (eng #467)
+
+* Branch `cam/467-framing-by-name` from `main` @ fdcbf12; PR body starts `Closes #467`.
+* Files written — sources: `src/rvt/reduce.py` (`_P` import; literal + `BLOCK_TRL_TAG`
+  import gone; `NewBlock.frame` reads `_P.*`), `src/rvt/writer.py` (`_P` import, PEP 562
+  `__getattr__` alias, literal gone, `regzip_partition_logical` reads `_P.*`),
+  `src/rvt/commit.py`, `src/rvt/families.py`, `src/rvt/mep/conduit.py` (the
+  `BLOCK_TRL_TAG` from-imports → `_P.TRAILER_TAG`), `src/rvt/manipulate.py` (inert
+  handles + their import gone), `src/rvt/mep/electrical_data.py` + `src/rvt/regadd.py`
+  (module reads for the ids32-rebound names), `src/rvt/frontdoor/release_ctx.py` (six
+  swap rows + four imports gone, docstring/comment updated — nothing else),
+  `tools/genesis_2025.py` / `genesis_2024.py` / `genesis_2023.py` (six `_LOCAL_TAG_PATCHES`
+  rows gone + the comment paragraph above the tuple; nothing else); tests:
+  `tests/test_framing_by_name.py` (new, 10 tests), `tests/ci_shard.d/467-framing-by-name.txt`
+  (new), `tests/test_manipulate_import_context.py`, `tests/test_edit_own_release.py`,
+  `tests/test_genesis_2025.py`, `tests/test_genesis_2024.py`, `tests/test_y2024.py`,
+  `tests/test_y2025_b.py`; this record. Generated mirrors re-synced (`tools/sync_plugin.py`):
+  `plugin/lib/src/rvt/{commit,families,manipulate,reduce,regadd,writer}.py`,
+  `plugin/lib/src/rvt/mep/{conduit,electrical_data}.py`, `plugin/lib/src/rvt/frontdoor/release_ctx.py`.
+* Not touched: `src/rvt/versions/**`, `src/rvt/partitions.py`, `src/rvt/famgen/**` and every
+  other FENCED / NO-GO / hot file, `tests/ci_shard.txt`, `tests/conftest.py`.
+* Residuals stated above: famgen's copies + `release_ctx`'s three `swap(FSK, …_TAG)` rows +
+  the `writer` alias (#547, blocked on #498's campaign); `estorage.py:90` (#548);
+  `records32` holder rows (#551); dev-only `experiments/genesis2025/subst/run_ladder2025.py`,
+  `tools/make_v18.py`, `tools/make_v19.py`.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer — no byte of any
+  front-door / edit output changes (three-base `cmp` + the pinned 30-file prompt job); the
+  only outputs that change are ones `main` could not produce (reduce on a 2025/2024 file under
+  the engine's own release ladder) or produced wrong (writer trailers there).
+* Gates on the final head (`RVT_SKIP_LARGE=1 -p no:cacheprovider`): `tests/test_framing_by_name.py`
+  10 passed (main: 9 failed / 1 passed); stream-local + neighbours 186 passed / 138 skipped /
+  1 xfailed pre-simplify and the touched subset (`test_framing_by_name
+  test_manipulate_import_context test_edit_own_release test_regadd test_y2024 test_y2025_b
+  test_edit_text_release`) 89 passed / 29 skipped post-simplify; **whole merged CI shard**
+  (`python3 tools/dev/shard_list.py --print`, 88 files incl. the new drop-in) →
+  **1815 passed, 133 skipped, 3 xfailed in 493 s** on the first commit's code and
+  **1815 passed, 133 skipped, 3 xfailed in 467 s** again on the final (post-simplify) code;
+  `tools/sync_plugin.py` synced 9 then 6 files, `--check` clean; `plugin/scripts/validate_plugin.py`
+  PASS (25 assertions); `tools/dev/check_portable_paths.py` ok (2943 paths). Follow-ups
+  filed: #547, #548, #551.

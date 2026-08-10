@@ -80,9 +80,7 @@ from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
 from .validate import NO_PARTITION_WHERE, NO_PARTITION_WHY, enter_own_release, walk_file
 from .writer import gzip_member
 
-# Block tags are not attributes of this module: _emit_block reads
-# rvt.partitions.BLOCK_TAG / TRAILER_TAG at CALL time (#455), and no release
-# context swaps a per-module copy any more (#467).
+# no block-tag attributes here: _emit_block reads rvt.partitions at CALL time (#455/#467)
 
 INVALID_ID = -1
 OWNER_NONE_U64 = 0xFFFFFFFFFFFFFFFF

@@ -33,8 +33,8 @@ def __getattr__(name: str):
     """``writer.BLOCK_TRL_TAG`` holds no value of its own: the block trailer
     tag is ``rvt.partitions.TRAILER_TAG`` (rebound BY NAME per release by
     ``rvt.versions.reading``), resolved here at ACCESS time for the one
-    remaining ``from ..writer import BLOCK_TRL_TAG`` (famgen.geometry's
-    call-time import) and the dev tools that still spell it -- #467."""
+    remaining ``from ..writer import BLOCK_TRL_TAG`` -- famgen.geometry's
+    call-time import, fenced when #467 landed.  Delete with #547."""
     if name == "BLOCK_TRL_TAG":
         return _P.TRAILER_TAG
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

@@ -26,32 +26,22 @@ Fresh-clone safe: needs only ``plugin/assets/genesis``.
 from __future__ import annotations
 
 import ast
+import functools
 import json
 import os
 import struct
 import subprocess
 import sys
 import textwrap
-from contextlib import ExitStack
 
 import pytest
+from conftest import ROOT, pinned_base          # the certified pinned base of a year, or a clean skip
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from rvt import partitions as P
+from rvt import versions as V
+
 SRC = os.path.join(ROOT, "src", "rvt")
-sys.path.insert(0, os.path.join(ROOT, "src"))
-
-from rvt import partitions as P                              # noqa: E402
-from rvt import versions as V                                # noqa: E402
-
-GEN = os.path.join(ROOT, "plugin", "assets", "genesis")
-BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
-         2025: os.path.join(GEN, "G_ABPD_2025.rvt"),
-         2024: os.path.join(GEN, "G_ABPD_2024.rvt")}
 LEVEL_ID = 1351691                     # "GEN B1 - Basement", present in every G_ABPD base
-
-needs_bases = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
 
 
 def _tags(raw: bytes) -> tuple:
@@ -106,7 +96,6 @@ def test_no_module_keeps_the_retired_tag_handles():
             assert name not in vars(mod), f"{mod.__name__}.{name} is a by-value copy"
 
 
-@needs_bases
 @pytest.mark.parametrize("year", [2025, 2024])
 def test_regzip_and_rebuild_follow_the_files_own_release(year):
     """writer.regzip_partition_logical + families._rebuild_partition_logical
@@ -115,7 +104,7 @@ def test_regzip_and_rebuild_follow_the_files_own_release(year):
     from rvt import families as F
     from rvt import writer as W
     from rvt.container import open_rvt
-    base = BASES[year]
+    base = pinned_base(year)
     t = V.framing_table(year)
     with V.reading(base), open_rvt(base) as d:
         name = d.partition_streams()[0]
@@ -188,7 +177,7 @@ DOORS = {
 
 
 def _run_fresh(door: str, out: str) -> dict:
-    consts = dict(ROOT=ROOT, BASE_2026=BASES[2026], BASE_2024=BASES[2024],
+    consts = dict(ROOT=ROOT, BASE_2026=pinned_base(2026), BASE_2024=pinned_base(2024),
                   LEVEL_ID=LEVEL_ID, OUT=out)
     src = ("".join(f"{k} = {v!r}\n" for k, v in consts.items())
            + PRELUDE + textwrap.dedent(DOORS[door]))
@@ -198,7 +187,6 @@ def _run_fresh(door: str, out: str) -> dict:
     return json.loads(cp.stdout.strip().splitlines()[-1])
 
 
-@needs_bases
 def test_first_import_inside_2024_then_a_2026_reduce_frames_2026(tmp_path):
     from rvt import reduce as R
     t24, t26 = V.framing_table(2024), V.framing_table(2026)
@@ -211,12 +199,11 @@ def test_first_import_inside_2024_then_a_2026_reduce_frames_2026(tmp_path):
                             "errors": [], "in_force": [t26["BLOCK_TAG"], t26["TRAILER_TAG"]]}
     # byte-identical to the same reduce made by THIS process (imports at rest)
     ref = str(tmp_path / "ref.rvt")
-    R.delete_elements(BASES[2026], ref, [LEVEL_ID])
+    R.delete_elements(pinned_base(2026), ref, [LEVEL_ID])
     with open(out, "rb") as a, open(ref, "rb") as b:
         assert a.read() == b.read()
 
 
-@needs_bases
 def test_a_2024_file_reduced_under_its_own_release_frames_2024(tmp_path):
     t24, t26 = V.framing_table(2024), V.framing_table(2026)
     r = _run_fresh("import-at-rest-then-reduce-2024-under-own-release", str(tmp_path / "r24.rvt"))
@@ -232,14 +219,18 @@ def test_a_2024_file_reduced_under_its_own_release_frames_2024(tmp_path):
 # 3. source laws: the class cannot come back unnoticed
 # ---------------------------------------------------------------------------
 #: famgen is fenced this wave (its literals + release_ctx's FSK swap rows stay
-#: until the famgen follow-up of #467); nothing else may hold a copy
+#: until #547, the famgen follow-up of #467); nothing else may hold a copy
 FENCED_DIRS = ("famgen",)
 FRAMING_NAMES = {"BLOCK_TAG", "TRAILER_TAG", "FOOTER_TAG", "BLOCK_TRL_TAG"}
 FRAMING_VALUES = {v for y in V.KNOWN_RELEASES for k, v in V.framing_table(y).items()
                   if k in ("BLOCK_TAG", "TRAILER_TAG", "FOOTER_TAG")}
 
 
-def _modules():
+@functools.lru_cache(maxsize=None)
+def _modules() -> tuple:
+    """((repo-relative path, parsed module), ...) for src/rvt minus the fence
+    -- parsed once for both source laws."""
+    out = []
     for dirpath, _dirs, files in os.walk(SRC):
         rel = os.path.relpath(dirpath, SRC)
         if rel.split(os.sep)[0] in FENCED_DIRS or "__pycache__" in rel:
@@ -247,13 +238,18 @@ def _modules():
         for f in sorted(files):
             if f.endswith(".py"):
                 path = os.path.join(dirpath, f)
-                yield os.path.relpath(path, ROOT), ast.parse(open(path, encoding="utf-8").read())
+                with open(path, encoding="utf-8") as fh:
+                    out.append((os.path.relpath(path, ROOT), ast.parse(fh.read())))
+    return tuple(out)
 
 
 def test_no_by_value_copy_of_a_block_framing_name_outside_partitions():
     """No ``from .partitions/.writer import <TAG>`` (any depth) and no
     module-level ``<NAME>_TAG = <a framing ordinal>`` literal anywhere but
-    rvt/partitions.py itself (the versions tables are dict literals, fine)."""
+    rvt/partitions.py itself (the versions tables are dict literals, fine).
+    Deliberately the two shapes this class has taken so far, not every way to
+    bake an ordinal (an inline ``struct.pack("<H", 0x0F28)`` would pass here);
+    the behavioural doors above are what catch a wrong byte."""
     offenders = []
     for rel, tree in _modules():
         if rel.replace(os.sep, "/") == "src/rvt/partitions.py":
@@ -272,7 +268,7 @@ def test_no_by_value_copy_of_a_block_framing_name_outside_partitions():
     assert offenders == [], "by-value block-framing copies:\n" + "\n".join(offenders)
 
 
-#: outside #467's territory; filed as its follow-up (read-only ES walk)
+#: outside #467's territory; filed as #548 (read-only ES walk) -- empties there
 KNOWN_RESIDUAL_IDS32 = {("src/rvt/estorage.py", "iter_records")}
 
 

@@ -57,9 +57,7 @@ from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
 from .writer import gzip_member
 
 # --- framing constants ------------------------------------------------------
-# (the block header/trailer TAGS are not constants of this module: they are
-#  read from rvt.partitions at CALL time, so a release context that rebinds
-#  them by name reaches NewBlock.frame with no per-module swap row -- #467)
+# (block header/trailer tags: read from rvt.partitions at CALL time -- #467)
 SEQS = (101, 102, 103)
 #: uncompressed payload target per block; Autodesk's writer packs whole
 #: records up to 131,072 (0x20000) and body-chunks bigger records at 131,072

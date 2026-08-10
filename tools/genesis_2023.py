@@ -88,11 +88,11 @@ RUNG_ORDER = ["R5_2023", "R6_2023", "R7_2023", "R8_2023", "R9_2023",
 # ---------------------------------------------------------------------------
 # rvt.versions.reading patches rvt.partitions; rvt.versions.records32.ids32
 # patches the whole 32-bit-id record layer (framing walks, in-body ids, the
-# ElemTable wire codec, the emit paths).  These four modules ALSO keep their
-# OWN copies of the framing ordinals (from-imports or local literals) that
-# the partitions patch cannot reach -- the exact list the 2025 campaign
-# proved necessary (tools/genesis_2025.py _LOCAL_TAG_PATCHES, verified by
-# grep again on 2026-08-04 for this stream).
+# ElemTable wire codec, the emit paths).  What neither patch reaches are
+# module-LOCAL copies of an ordinal -- the list the 2025 campaign proved
+# necessary (tools/genesis_2025.py _LOCAL_TAG_PATCHES), minus the six
+# block-tag rows #467 retired (rvt.reduce / manipulate / commit / writer
+# read rvt.partitions at call time now).
 def _cd_separator(o: Dict[str, int]) -> bytes:
     return struct.pack("<HiHi", o["CONTAINER_CLASS"], -1, o["UNIT_INNER_CLASS"], -1)
 
@@ -102,9 +102,6 @@ def _cd_end_record(o: Dict[str, int]) -> bytes:
 
 
 _LOCAL_TAG_PATCHES = (
-    # the block header/trailer rows (rvt.reduce / manipulate / commit / writer)
-    # retired with #467: those modules read rvt.partitions at CALL time, so
-    # versions.reading alone re-points them
     ("rvt.famgen.factory", "CD_SEPARATOR", _cd_separator),
     ("rvt.famgen.factory", "CD_END_RECORD", _cd_end_record),
 )

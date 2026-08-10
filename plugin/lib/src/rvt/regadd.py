@@ -127,13 +127,10 @@ from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
 from .streams_edit import INVALID_ID, NO_EPISODE, elemtable_add_element
 from .writer import gzip_member
 
-# ``E.encode_record`` / ``E.record_bytes`` / ``_reduce.verify_reduced`` are
-# read THROUGH their modules at call time, never from-imported:
-# ``rvt.versions.records32.ids32()`` rebinds them by name on ``rvt.encode`` /
-# ``rvt.reduce`` for the <= 2023 32-bit-id era, and a by-value copy here would
-# keep the 64-bit variant under it (#467).  (``iter_records`` and the
-# ElemTable codec above ARE from-imports: ids32's patch table lists this
-# module as one of their holders.)
+# encode_record / record_bytes / verify_reduced are read via ``E.`` /
+# ``_reduce.`` at call time: records32.ids32() rebinds them BY NAME there
+# (#467; iter_records + the ElemTable codec above may stay from-imports --
+# ids32's patch table lists this module as one of their holders)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 INVALID = -1

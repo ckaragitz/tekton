@@ -93,11 +93,12 @@ RUNG_ORDER = ["R5_2024", "R6_2024", "R7_2024", "R8_2024", "R9_2024",
 # the per-release emit context: versions.reading + the module-LOCAL copies
 # ---------------------------------------------------------------------------
 # rvt.versions.reading patches rvt.partitions (module globals looked up at
-# call time).  These modules keep their OWN copies of the framing ordinals --
-# from-imports or baked literals -- that the patch cannot reach.  The list is
-# the one genesis_2025.py proved complete for a cross-release emit (2025
-# ladder viewer-certified, verdicts #28); every value derives from the ACTIVE
-# ordinals, so nothing here is per-release.
+# call time).  What it cannot reach are module-LOCAL copies of an ordinal:
+# the list genesis_2025.py proved complete for a cross-release emit (2025
+# ladder viewer-certified, verdicts #28), minus the six block-tag rows #467
+# retired (rvt.reduce / manipulate / commit / writer read rvt.partitions at
+# call time now); every value derives from the ACTIVE ordinals, so nothing
+# here is per-release.
 #   (module, attr, ordinal-name or callable(ords))
 
 
@@ -110,9 +111,6 @@ def _cd_end_record(o: Dict[str, int]) -> bytes:
 
 
 _LOCAL_TAG_PATCHES = (
-    # the block header/trailer rows (rvt.reduce / manipulate / commit / writer)
-    # retired with #467: those modules read rvt.partitions at CALL time, so
-    # versions.reading alone re-points them
     ("rvt.famgen.factory", "CD_SEPARATOR", _cd_separator),
     ("rvt.famgen.factory", "CD_END_RECORD", _cd_end_record),
 )

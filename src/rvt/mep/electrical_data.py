@@ -81,11 +81,8 @@ from ..stream_encoders import global_prefix
 from ..streams_edit import elemtable_add_element
 from ..writer import gzip_member
 
-# ``decode_elemtable`` / ``encode_elemtable`` / ``_assert_sentinel_tail`` are
-# read THROUGH their modules (``SE.`` / ``_commit.``) at call time, never
-# from-imported: ``rvt.versions.records32.ids32()`` rebinds them by name on
-# ``rvt.stream_encoders`` / ``rvt.commit`` for the <= 2023 32-bit-id era, and a
-# by-value copy here would keep the 64-bit variant under it (#467).
+# decode/encode_elemtable and _assert_sentinel_tail are read via ``SE.`` /
+# ``_commit.`` at call time: records32.ids32() rebinds them BY NAME there (#467)
 
 # ---------------------------------------------------------------------------
 # constants (all corpus-verified against rmebasicsampleproject unless [H])

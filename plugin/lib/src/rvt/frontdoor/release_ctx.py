@@ -356,12 +356,9 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
                           "borrow the host's Formats/Latest")
 
     with V.reading(schema=schema) as ords, GF.bound(ords, schema=schema):
-        # ---- (1) block framing: V.reading rebinds rvt.partitions BY NAME --
-        # ----     and every project-side emitter (reduce / writer / commit /
-        # ----     manipulate / families / mep.conduit) reads it at CALL time
-        # ----     (#455, #467) -- no per-module copy left to swap; the
-        # ----     Global-stream tokens + ADocument decoder are GF's --------
-        # ---- (1b) famgen's own framing copies (build-2025's addition) -----
+        # ---- (1) block framing is V.reading's alone (every project-side --
+        # ----     emitter reads rvt.partitions at call time, #467); the ----
+        # ----     famgen framing copies still need swapping (#547) ---------
         swap(FSK, "_PART_TAG", ords["CONTAINER_CLASS"])
         swap(FSK, "BLOCK_TAG", ords["BLOCK_TAG"])
         swap(FSK, "TRAILER_TAG", ords["TRAILER_TAG"])
