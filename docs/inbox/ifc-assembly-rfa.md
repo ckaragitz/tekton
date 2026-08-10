@@ -500,3 +500,82 @@ polygons and boxes both carry a cached B-rep. That makes shape mix less likely t
 A clean pair would be **N boxes only** at rising N (13 / 40 / 87 / 103, one shape type
 throughout), which isolates count with nothing else moving. Not built here: the owner has
 called a halt to how this was being approached, and the next step is theirs to set.
+
+## THE CRASH, NAMED (Revit journals 0040/0041/0042, owner, 2026-08-10)
+
+Revit 2026.5 (Build 20260731_1210) journals. Journal **0040** carries the crash:
+
+```
+'onCommand Load a family into the project
+'inTransaction MFCdocUI_1:-1 Load Family
+'C 10-Aug-2026 18:48:00.888;  DBG_WARN: Invalid idx in VarSketch::getCurveObj:
+    line 634 of F:\Ship_5_0\2026_px64\Source\Essentials\EssentialsDB\Sketch\VarSketch.cpp.
+'C 10-Aug-2026 18:48:00.889;  captureTryCrash 0xc0000005
+```
+
+`0xc0000005` is an access violation, one millisecond after the warning. The file is the
+103-solid hanger; it had already **opened** fine in the same session
+(`FormOrAbandon::openFromModelPath` succeeded, views drew) — the crash is on `Load Family`
+only, exactly as reported.
+
+### We have met this error before, and our own source says so
+
+`src/rvt/famgen/geometry.py` (`new_var_sketch`) already documents this signature verbatim:
+
+> SOLVER STATE (issue #333, desktop round 26 -- the value-edit law): regen resolves each
+> curve through `VarSketch::getCurveObj`, which indexes `m_elemRecs`; an empty solver
+> "[H: Revit re-solves on edit]" is FALSIFIED -- editing any family parameter raised
+> "Invalid idx in VarSketch::getCurveObj (VarSketch.cpp:634)" + the serious-error dialog.
+
+Round 26 hit it by **editing a parameter**; this hits it via **Load Family**. Same
+function, same line, same index failure. So this is not a new mystery — it is the #333
+law being violated again by some sketch in this document, on a second trigger.
+
+### What the journals also settle: the matched pair was NOT load-tested
+
+Journals 0041 and 0042 record `onCommand Open an existing project` **only** — no
+`Load Family`, no `captureTryCrash`:
+
+| journal | files | operation | result |
+|---|---|---|---|
+| 0040 | hanger 103 solids | open, then **Load Family** | **CRASH** |
+| 0041 | L0, L1b, L1, and the loaded .rvt | open only | no crash |
+| 0042 | `P_boxes103`, `P_polys14` | open only | no crash |
+
+So **count vs N-gon is still unanswered** — the deciding operation was never run on the
+pair. (The `..._loaded.rvt` also appears in 0041 with no crash recorded, which does not
+match "it did not open"; worth a second look, but the steer stands regardless.)
+
+### Ruled out from the file side, with evidence rather than guesses
+
+Chased and eliminated, each by direct measurement on the crashing document versus the
+loading one:
+
+* **the hard-coded solver pid layout** (`seg_pid = 4 + n + i`) — verified against
+  `assign_pids` for rectangles and 3/5/7/12/24/48-gons: pids match and every constraint
+  weakref lands on a `VarSketchLineSegObj`. Holds at every shape and count.
+* **duplicate element ids** — none, in either document.
+* **curve references dangling** — every `m_curveObjIdxMap` entry names a `CurveElem` that
+  exists in the document.
+* **spurious PP joins from coincidence detection** — `_corner_joins` pairs *any*
+  coincident endpoints including non-adjacent edges, which a sliced ring could plausibly
+  trigger; measured across all 14 polygon parts of the hanger: **0** non-adjacent
+  coincidences.
+* **the arc/cylinder sketch quirk** (`m_absorbedCurves != m_elemRecs` on cylinder sketches,
+  2 findings per cylinder) — present in the 13-solid document too, which loads. Not
+  sufficient to crash.
+* **`TRUSTED_MAX_ID = 1450`**, which sits temptingly between the max element id of the
+  loading document (1167) and the crashing one (1981) — it is a **class-id** heuristic in
+  a name table, unrelated to element ids. Coincidence, not mechanism.
+
+Also read off the journal, incidentally: `Rvt.Attr.Username: rvt-writer` — the placeholder
+identity survives into the shipped file as intended — and Revit's expected third-party
+dialog ("saved by an application that was not developed or licensed by Autodesk").
+
+### Where this goes next
+
+The failing structure is named (`m_elemRecs` indexing inside a `VarSketch`) and the
+governing law is already written down (#333). What is not yet known is **which** of the
+103 sketches violates it. Two cheap next moves, in order: run `Load Family` on the
+existing pair (it costs two clicks and separates count from N-gon), and bisect the hanger
+by halves if the pair comes back inconclusive.
