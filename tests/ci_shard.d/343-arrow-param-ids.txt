@@ -1,0 +1,2 @@
+# fresh-clone safe: reads only tracked JSON under experiments/ + plugin-independent constructors (#343)
+tests/test_arrow_param_ids.py
