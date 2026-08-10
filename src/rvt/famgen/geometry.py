@@ -1343,6 +1343,13 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
         solid = solid_box_brep(prof, start, end, element_id=elem_id,
                                geometry_style_id=ctx.geometry_style_id,
                                control_command=ctx.solid_control_command)
+        # never ship an open or self-inconsistent shell again: the record
+        # validator cannot see B-rep topology, so a broken solid used to
+        # reach Revit with "0 errors" reported (issue #504).
+        _probs = check_solid(solid, expect_n=len(prof.vertices))
+        if _probs:
+            raise ValueError("generated solid is not a closed manifold: "
+                             + "; ".join(_probs))
     elif rep == REP_DUMMY:
         solid = None
     else:
@@ -3108,3 +3115,110 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# ---------------------------------------------------------------------------
+# solid self-checks: the invariants a closed B-rep must satisfy
+# ---------------------------------------------------------------------------
+
+def check_solid(gelement: dict, *, expect_n: int | None = None) -> List[str]:
+    """Return a list of problems with a built solid -- empty means sound.
+
+    Added after a generated N-gon prism reached the owner's Revit with the
+    validator green (issue #504): ``rvt_validate`` checks records and
+    references, and knows nothing about whether a B-rep is a closed
+    manifold.  These are the invariants that ARE computable from the solid
+    alone, so no reference file and no Revit round-trip is needed:
+
+    1. Euler characteristic  V - E + F = 2  (a prism has 2N vertices);
+    2. every edge names exactly 2 faces, and every face is named by at
+       least 3 edges;
+    3. every face's edge loop CLOSES -- following ``m_next`` within that
+       face returns to the EdgeLoop, visiting each of its edges once;
+    4. every edge endpoint reconstructs to the SAME 3D point from both of
+       its faces' (origin, xVec, yVec) frames -- i.e. the stored uv
+       coordinates and the surface frames agree.
+
+    A solid that passes all four can still be wrong in ways only Autodesk's
+    reader can judge (hard rule 4), but it cannot be OPEN, self-inconsistent
+    or mis-parametrised, which is what silently shipped before.
+    """
+    probs: List[str] = []
+    try:
+        geom = gelement["m_subNodes"][0]["value"]
+        faces, edges = geom["m_pFaces"], geom["m_pEdges"]
+    except (KeyError, IndexError, TypeError):
+        return ["not a GElement with a Geometry subnode"]
+    wr = lambda w: w["weakref"]                                   # noqa: E731
+    epid = {e["pid"]: e for e in edges}
+    frame = {}
+    for f in faces:
+        s = (f["value"].get("m_pSurf") or {}).get("value") or {}
+        if "m_origin" in s:
+            frame[f["pid"]] = (s["m_origin"], s["m_xVec"], s["m_yVec"])
+
+    uses: Dict[int, int] = {}
+    for e in edges:
+        fl = e["value"]["m_pFace"]
+        if len(fl) != 2:
+            probs.append(f"edge {e['pid']} names {len(fl)} faces, expected 2")
+        for w in fl:
+            uses[wr(w)] = uses.get(wr(w), 0) + 1
+    for f in faces:
+        if uses.get(f["pid"], 0) < 3:
+            probs.append(f"face {f['pid']} is bounded by "
+                         f"{uses.get(f['pid'], 0)} edges, expected >= 3")
+
+    if expect_n is not None:
+        if len(faces) != expect_n + 2:
+            probs.append(f"{len(faces)} faces, expected {expect_n + 2}")
+        if len(edges) != 3 * expect_n:
+            probs.append(f"{len(edges)} edges, expected {3 * expect_n}")
+        if (2 * expect_n) - len(edges) + len(faces) != 2:
+            probs.append(f"Euler V-E+F != 2 for a {expect_n}-gon prism")
+
+    for f in faces:
+        lp = f["value"].get("m_pFirstLoop") or {}
+        if not lp:
+            probs.append(f"face {f['pid']} has no edge loop")
+            continue
+        cur, seen, guard = wr(lp["value"]["m_next"]), [], 0
+        limit = 4 * len(edges) + 8
+        while cur != lp["pid"] and guard < limit:
+            e = epid.get(cur)
+            if e is None:
+                probs.append(f"face {f['pid']} loop references unknown edge {cur}")
+                break
+            seen.append(cur)
+            k = 0 if wr(e["value"]["m_pFace"][0]) == f["pid"] else 1
+            cur = wr(e["value"]["m_next"][k])
+            guard += 1
+        else:
+            if len(seen) != len(set(seen)):
+                probs.append(f"face {f['pid']} loop revisits an edge")
+            elif len(seen) != uses.get(f["pid"], 0):
+                probs.append(f"face {f['pid']} loop walks {len(seen)} edges "
+                             f"but {uses.get(f['pid'], 0)} name it")
+            continue
+        probs.append(f"face {f['pid']} edge loop does not close")
+
+    worst = 0.0
+    for e in edges:
+        ev = e["value"]
+        if len(ev["m_pFace"]) != 2:
+            continue
+        for pt in ev["m_firstAndLastEdgePnts"]:
+            xyz = []
+            for k in (0, 1):
+                fid = wr(ev["m_pFace"][k])
+                if fid not in frame:
+                    break
+                o, x, y = frame[fid]
+                u, v = pt["uv"][k]
+                xyz.append([o[c] + u * x[c] + v * y[c] for c in range(3)])
+            if len(xyz) == 2:
+                worst = max(worst, max(abs(xyz[0][c] - xyz[1][c]) for c in range(3)))
+    if worst > 1e-6:
+        probs.append(f"edge endpoints disagree between their two faces by "
+                     f"{worst:.3g} ft (uv / surface frame mismatch)")
+    return probs

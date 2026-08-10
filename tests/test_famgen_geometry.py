@@ -484,3 +484,30 @@ def test_emitted_family_validates_at_parity(tmp_path, ctx):
     assert vp["parity"], vp["errors_beyond_baseline"]
     assert vp["out_stats"]["decode_failures"] == 0
     assert vp["out_stats"]["elements_decoded"] == vp["donor_stats"]["elements_decoded"] + 7
+
+
+@pytest.mark.parametrize("n", [3, 4, 5, 6, 8, 12])
+def test_prism_solid_is_a_closed_manifold(n):
+    """Every generated prism must be a CLOSED, self-consistent solid.  The
+    validator cannot see this (it checks records, not B-rep topology), so a
+    broken solid used to reach Revit with 0 errors reported."""
+    import math
+    ring = [[math.cos(2 * math.pi * k / n), math.sin(2 * math.pi * k / n)]
+            for k in range(n)]
+    assert G.check_solid(G.solid_box_brep(ring, 1.0, 0.0, element_id=1),
+                         expect_n=n) == []
+
+
+def test_check_solid_catches_an_open_shell():
+    """The check must FAIL on a solid that is missing a face -- otherwise it
+    is not evidence of anything."""
+    g = G.solid_box_brep(G.rect_profile(1.0, 1.0), 1.0, 0.0, element_id=1)
+    assert G.check_solid(g, expect_n=4) == []
+    g["m_subNodes"][0]["value"]["m_pFaces"].pop()          # drop a side face
+    assert G.check_solid(g, expect_n=4) != []
+
+
+def test_concave_prism_solid_is_closed():
+    L = [[0, 0], [1.5, 0], [1.5, .4], [.4, .4], [.4, 1.2], [0, 1.2]]
+    assert G.check_solid(G.solid_box_brep(L, 1.0, 0.0, element_id=1),
+                         expect_n=6) == []

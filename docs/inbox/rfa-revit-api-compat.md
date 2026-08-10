@@ -1033,3 +1033,55 @@ class is visible in the schema), unlike the N-gon, which was pure arithmetic.
 * gates: 14 stream-local files 301 passed / 58 skipped; 2026/2025/2024 build
   VALID 0 errors; `tools/sync_plugin.py --check` clean
 * shipped for verdict: `concave_probe_v2.rfa`, `ngon_probe.rfa`
+
+## Iteration 22 — the L renders; the second probe is inconclusive and that is MY fault
+
+**Owner screenshots, two files.**
+
+`concave_probe_v2.rfa`: **the concave L-bracket renders as a solid**, with
+the cylinder and cap. Iteration 21's N-gon prism is confirmed in Revit.
+Arbitrary closed profiles are live.
+
+`ngon_probe.rfa`: unreadable as evidence. The two prisms look like open
+shells, but every invariant computable from the solid says otherwise, and
+the probe was badly designed by me:
+
+* two shapes, both SQUAT (1.2 ft across x 0.4 ft tall, and 1 x 0.9 x 0.3),
+* horizontally OFFSET from each other -- raw vertex rings were given in the
+  +x/+y quadrant while every box and cylinder we build centres on the
+  origin, so nothing lines up,
+* stacked so they SHARE a plane at z = 0.3 (coincident faces).
+
+Three variables at once. Unreadable by construction; a control would have
+caught it. Rebuilt as `hex_solo.rfa`: ONE hexagonal prism, centred,
+1.0 ft across x 1.0 ft tall, nothing touching it.
+
+**What was checked before asking for another open** (all pass, n = 3..12
+and the concave L):
+
+| invariant | result |
+|---|---|
+| Euler V-E+F = 2 (2N vertices) | holds |
+| every edge names exactly 2 faces | holds |
+| every face bounded by >= 3 edges (caps N, sides 4) | holds |
+| every face loop CLOSES following `m_next` | holds |
+| endpoint uv agrees between an edge's two faces | max 6.7e-16 ft |
+| default 3D camera outside the geometry bbox | holds, both probes |
+
+**Landed as `geometry.check_solid()` and wired into `prism_form`**, which
+now REFUSES to emit a form whose solid is not a closed manifold. This is
+the gap that let a bad solid reach Revit with "0 errors": `rvt_validate`
+checks records and references and knows nothing about B-rep topology.
+`test_check_solid_catches_an_open_shell` deletes a face and asserts the
+check fails, so the check is evidence rather than decoration.
+
+**Honest limit:** these invariants prove a solid is closed and
+self-consistent. They cannot prove Autodesk's reader likes it (hard rule 4).
+What they do is make "the validator was green" stop meaning nothing here.
+
+### BRANCH STATE (updated)
+* written: `src/rvt/famgen/geometry.py` (`check_solid` + the `prism_form`
+  gate), `tests/test_famgen_geometry.py` (+3 tests incl. the negative)
+* gates: 14 stream-local files 309 passed / 58 skipped;
+  `tools/sync_plugin.py --check` clean
+* shipped for verdict: `hex_solo.rfa` (single variable, centred, control-shaped)
