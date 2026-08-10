@@ -118,8 +118,6 @@ def main(argv=None) -> int:
         try:
             blob = doc.concat("Formats/Latest")
             sch = schema_mod.parse(blob, source=a.path)
-            if not sch.classes:                          # a truncated file inflates to nothing
-                raise ValueError(f"no classes in {len(blob):,} inflated bytes")   # parse() should raise itself: #569
         except Exception as e:  # noqa: BLE001 -- a schema stream that does not read IS the finding
             print(f"\nschema (Formats/Latest): unreadable ({type(e).__name__}: {e}) "
                   "-- nothing below the stream listing can be reported")
