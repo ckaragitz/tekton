@@ -727,3 +727,211 @@ edit … --ops` rc 0 ×3 (hard gates PASSED, validator 0 errors).
 * Bench artefacts (not committed): `out/gatedump/*.{json,rvt}`,
   `out/bench_{before,after}_{1,2,3}.json`, `out/tekton-plugin.{before,after}.zip`,
   `out/shard_after.log`.
+
+## eng #430 — 2026-08-10 — the self-check counts a lost gzip body on EVERY framed stream (`WalkedFile.crc_failures`, by framing)
+
+Stream: `eng430` (engineer session under the tech-lead session; branch
+`cam/430-verify-nonprimary-streams` from `main @ 855f764`). Closes #430; Refs
+#266 / #429 (whose independent review found the gap). No written byte changes —
+only how the structural gate *reads* a file.
+
+### 1. What was built
+
+1. **`rvt.validate.WalkedFile.crc_failures(name) -> int`** — the validator's L1
+   gzip law *as a count*, per stream, enumerated by the stream's FRAMING: a
+   `Partitions/<N>` by its block headers (`walker(name)`: an uninflatable body
+   is a block with `crc_ok=False`); a stream the inventory law frames around
+   ONE gzip body — `_GZIP_BODIED = frozenset(REQUIRED_STREAMS) - UNFRAMED_STREAMS`
+   = `Contents`, `Formats/Latest`, every `Global/*`, derived from the existing
+   constants, no new inventory — whose member scan finds nothing has lost its
+   body → **1**; any other stream: its members that fail CRC32/ISIZE (so a
+   family's plain-XML `PartAtom`, which the validator only exempts in family
+   mode, still reads 0 — the verify dict of an `.rfa` edit is unchanged); an
+   unframed stream → 0. Why a method on the walk and not a loop in
+   `manipulate.py`: it is a byte-level fact both gates need, next to the
+   constants it derives from ("one code path").
+2. **`rvt.manipulate.verify_manipulated`**: `crc_failures = Σ walked.crc_failures(n)`
+   over every stream (was: block walker on the PRIMARY partition only + a
+   magic scan of everything else, which skips a body that will not inflate and
+   read 0 for it — the blind spot #429 closed for the primary partition and its
+   review found still open on `Global/Latest`, `Contents`, a second partition);
+   `walker_errors = Σ len(walker(p).errors)` over **every** partition (was: the
+   primary's only — enumerating a twin partition by framing and dropping the
+   framing errors found while doing so would be half a law; the validator makes
+   both L1 errors); the ElemTable is taken through `walked.payload()` (the
+   validator's stricter question: first magic, CRC32/ISIZE-verified, else
+   `None`) and a lost / CRC-bad ElemTable is **not parsed**: `elemtable_count`,
+   `elemtable_ids_sorted`, `unit0_ids_equal_elemtable` stay `None`,
+   `deleted_in_elemtable` `[]`, `header_count` still read → the gate FAILs on
+   `crc_failures ≥ 1` *and* `elemtable_count != header_count` — a verdict where
+   `main` raised (`ValueError: no gzip members` on a smash; `ValueError:
+   ElemTable footer is 26 bytes / graveyard 45 …` on a one-bit flip, i.e.
+   `decode_elemtable` parsing the raw-deflate garbage `_inflate_at`'s fallback
+   hands back with `crc_ok=False`). Docstring rewritten to say so. Nothing else
+   in the function moved; the dict's keys, order and values on a healthy file
+   are identical (§2).
+3. **Docstring precision (`WalkedFile`, `view()`, `logical()`)** — the class
+   keeps the two-view contract; `view()` now says byte-exactly what `logical()`
+   is in each case: a sibling `repair=False` view → `container.depage(raw)` (the
+   stored payload **plus** the final partial block's pad + short trailer, which
+   `depage` leaves as trailing junk); the `repair=False` view of a repairing
+   walk that repaired nothing → `self`, whose `logical()` is the ECC pass's
+   output = the same stored payload, unaltered, every block's trailer cut, that
+   junk included = `depage(raw)` minus its trailing junk, **not** `depage(raw)`
+   itself. Measured on `G_ABPD_2025.rvt`: `depage` − ECC output = 37…627 bytes
+   per framed stream, always a strict prefix match (`Contents` 42, `Formats/Latest`
+   627, `Global/ElemTable` 582, `Global/Latest` 374, `Partitions/20` 597 …); the
+   junk sits past the last member / the end record, so no scan, walker or
+   verdict differs — which §2's identity also proves.
+4. **`tools/rvt_edit.py::_gates`** calls `walked.close()` right after the
+   validation gate, as `rvt_job.run_gates` does (the `--json` door no longer
+   pins several times the file's size through the JSON assembly).
+5. **Tests** (`tests/test_gates_shared_walk.py`, already in the shard via
+   `tests/ci_shard.d/266-shared-gate-walk.txt`; 8 → **12**):
+   `test_lost_body_off_the_primary_partition_fails_the_self_check[Contents |
+   Global/ElemTable | Global/Latest]` — 64 bytes destroyed inside the one gzip
+   body → `crc_failures ≥ 1`, structural **FAIL**, validation FAIL with an
+   error at that stream, shared == independent (all four dicts), and for the
+   ElemTable the counts are `None` (a verdict, not a raise);
+   `test_non_primary_partition_is_walked_by_framing` — the edit output with its
+   partition duplicated as `Partitions/<N+1>`: verbatim twin → both gates PASS,
+   `crc_failures`/`walker_errors` 0, sharing invisible; twin with its first
+   block destroyed → `crc_failures ≥ 1`, structural FAIL, primary/ElemTable/edit
+   checks still clean, validator error `"… CRC32/ISIZE"` at the twin. All four
+   are red against `main`'s engine (checked: `PYTHONPATH=<main>/src pytest -k
+   "lost_body or non_primary"` → 4 failed) and green on the head. A shared
+   `_smash64()` replaced three copies of the 64×`0xff` write.
+
+### 2. Evidence
+
+**The smash probe, before/after** (`scratchpad/probe/probe.py`: fixtures
+written ONCE — the three pinned bases copied, a `set-level` edit of the 2025
+base written by `main`'s code, damaged copies of that edit — then judged by
+`main @ 855f764` (`git worktree`) and by this head; per file the
+`verify_manipulated` dict + `structural_gate_from_manipulated` + the whole
+validator report (−timings) + `validation_gate` (−elapsed/report_json) as
+`json.tool --sort-keys`, `diff | grep -c '^[<>]'`):
+
+| file | main: structural (crc/ecc/walk, et/hdr) · validation | head | diff lines main→head |
+|---|---|---|---|
+| `G_ABPD.rvt` / `_2025` / `_2024` | PASS (0/0/0) · PASS (0 err; 2026: 1 warn) | identical | **0 / 0 / 0** |
+| set-level edit of the 2025 base | PASS (0/0/0, 3316/3316) · PASS (0, 0) | identical | **0** |
+| verbatim second partition added | PASS (0/0/0) · PASS (0, 0) | identical | **0** |
+| primary partition, 64 B destroyed (#429's case) | FAIL (1/1/0) · FAIL (3, 1) | identical | **0** |
+| `Global/Latest`, 1 bit flipped (raw-deflate fallback inflates it, `crc_ok=False`) | FAIL (1/0/0) · PASS (0, 1 auto-repairable) | identical | **0** |
+| **`Global/Latest`, 64 B destroyed** (the review's probe) | **PASS (0/0/0)** · FAIL (2, 0) | **FAIL (1/0/0)** · FAIL (2, 0) | 6 = `crc_failures` 0→1 (dict + gate report) + `status` PASS→FAIL |
+| `Contents`, 64 B destroyed | PASS (0/0/0) · FAIL (3, 0) | FAIL (1/0/0) · FAIL (3, 0) | 6 (same three lines) |
+| second partition, first block destroyed | PASS (0/0/0) · FAIL (3, 1) | FAIL (1/0/0) · FAIL (3, 1) | 6 (same three lines) |
+| `Global/ElemTable`, 64 B destroyed | **raises** `ValueError: 'Global/ElemTable': no gzip members` · FAIL (3, 0) | FAIL (1/1/0, et **None**/3316) · FAIL (3, 0) | verdict instead of a traceback |
+| `Global/ElemTable`, 1 bit flipped | **raises** `ValueError: ElemTable footer is 26 bytes / graveyard 45 …` · PASS (0, 1) | FAIL (1/1/0, et None/3316) · PASS (0, 1) | verdict instead of a traceback |
+
+Every validator finding is identical main vs head on every row (the validator
+was not touched); on the head shared == independent on every row (the tests pin
+it). `verify_manipulated` on the tracked Revit-born family
+`tekton-eval-kit/TEST-KIT/08_eaton_panelboard_family.rfa` (carries `PartAtom`):
+`crc 0 / ecc 0 / walk 0 / et 41/41 / stamps ok / fallbacks []` on main **and**
+head — the `.rfa` dict is unchanged too.
+
+**Latency — unchanged, as expected (no extra inflate anywhere).** Bare unzip of
+`tekton-plugin.zip` built from `main` ("before") and from this branch
+("after") into paths with a space, `env -i PATH=/usr/bin:/bin` + dead proxies,
+`/usr/bin/python3` 3.11, `go edit assets/genesis/G_ABPD_2025.rvt set-level --id
+1351691 --elevation-ft 5 -o out/edited.rvt --json`, alternating: every run rc 0,
+`ready: true`, `tekton: READY …`, structural PASS | validation PASS (0 errors),
+stderr 0 B. Wall (s), 6 steady-state runs each after the `.pyc`-compiling first
+run: before 0.512 0.518 0.526 0.528 0.559 (median **0.526**, in-call `seconds`
+0.446–0.485) · after 0.511 0.528 0.529 0.532 0.570 (median **0.529**, in-call
+0.442–0.498); an earlier batch of 4+4 read 0.515–0.530 both sides. Within
+run-to-run noise; re-taken on the final head: see BRANCH STATE. Efficiency
+review of the diff: cost-neutral on the one-partition bases (the partition loop
+is the cached primary walker), a small saving on multi-partition files in the
+shared path (a twin partition is now inflated once by the walker both gates
+share instead of walker + a separate magic-scan inflate).
+
+**Gates** (`RVT_SKIP_LARGE=1 … -q -rs -p no:cacheprovider`):
+`tests/test_gates_shared_walk.py` **12 passed**; neighbours
+`test_go_edit test_edit_own_release test_verify_manipulated_release
+test_validate_release test_ecc_final_block test_validate_footer_blob
+test_bare_family_validate test_manipulate test_records32 test_job
+test_modify_family_carrier test_plugin_sync test_bootstrap test_coldstart
+test_surface_perf` + the above → **223 passed, 14 skipped (samples absent), 1
+xfailed**; `tools/sync_plugin.py` run → `--check`: *plugin in sync with source
+(deny-audit clean, identity scan == allowlist, assets verified)*;
+`plugin/scripts/validate_plugin.py` PASS (25 assertions);
+`tools/dev/check_portable_paths.py` ok (2906 paths); whole merged CI shard: see
+BRANCH STATE.
+
+`/simplify` (reuse / simplification / efficiency / altitude lenses) → applied:
+the name-prefix helper first written in `manipulate.py` became
+`WalkedFile.crc_failures` over `REQUIRED_STREAMS − UNFRAMED_STREAMS` (reuse +
+altitude); the ElemTable guard uses the existing `WalkedFile.payload()` instead
+of re-deriving "first member CRC-ok"; the `pw = w if name == pname else …`
+branch and a try/except that counted a twin partition's unparseable framing as
+`walker_errors += 1` while the primary's raises were dropped for ONE policy
+(any partition whose stream header does not parse raises, exactly as before on
+the primary — see §4); the always-true `u0_102_ids is not None` guard went; the
+depage/junk account is stated once (`view()`), class and `logical()` point at
+it; `_smash64` in the tests. Skipped: nothing.
+
+### 3. Findings
+
+1. Off the primary partition, `main`'s self-check could not see a destroyed
+   gzip body at all (`Global/Latest`, `Contents`, a second partition: structural
+   PASS, `crc_failures 0`, while the validator FAILed) and turned a destroyed or
+   bit-flipped `Global/ElemTable` into a traceback instead of a verdict. Nothing
+   shipped unlabelled — both gates run on every edit and the validation gate
+   caught each case — but a structural-only reader (`--no-provenance`, the
+   `structural_verify` block `convert.modify_family` records) was told PASS.
+2. A one-bit flip and a 64-byte smash in a `Global/*` body behave differently
+   under the magic scan: the flip usually still raw-inflates (→ a member with
+   `crc_ok=False`, counted even on `main`), the smash does not inflate at all (→
+   no member → invisible to a scan). Only enumeration by framing sees both.
+
+### 4. Open questions / follow-ups
+
+* A partition whose 44-byte stream header does not parse (`parse_stream_header`
+  → `ValueError`) still makes `verify_manipulated` **raise** rather than return
+  a FAIL verdict — for the primary (as always) and, now uniformly, for a twin;
+  likewise `_primary_partition()` inflates the ElemTable to choose among several
+  partitions, so a lost ElemTable on a *multi*-partition file raises there before
+  the verdict logic runs. Making those verdicts too means leaving every
+  block-dependent field `None` the way the ElemTable fields now are; and the
+  deeper cut the altitude review named — `walk_file` inferring the family shape
+  (`PartAtom` present → unframed) so both gates apply literally one inventory
+  law with no `_GZIP_BODIED` distinction — touches the validator's family mode.
+  Both filed together as one task-shaped follow-up: **#458** (Refs #430).
+
+### BRANCH STATE (eng #430)
+
+* Branch `cam/430-verify-nonprimary-streams` from `main @ 855f764`; PR closes #430.
+* Files written: `src/rvt/validate.py` (`_GZIP_BODIED`, `WalkedFile.crc_failures`;
+  docstrings of `WalkedFile` / `view()` / `logical()` — nothing else in the
+  module touched, #429/#447's plan path intact), `src/rvt/manipulate.py`
+  (`verify_manipulated` only), `tools/rvt_edit.py` (one line),
+  `tests/test_gates_shared_walk.py` (+4 tests, `_with_second_partition`,
+  `_smash64`), this record section. Generated mirrors re-synced by
+  `tools/sync_plugin.py`: `plugin/lib/src/rvt/{validate,manipulate}.py`,
+  `plugin/lib/tools/rvt_edit.py`, `plugin/skills/tekton-{edit,native}/scripts/rvt_edit.py`.
+* Not touched: `src/rvt/versions/**` (records32's verify is #394's), `tools/rvt_job.py`
+  (eng #440's), any hot file, the validator's layers.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer (no
+  written byte changes).
+* Gates on the final head: whole merged CI shard (`python3 tools/dev/shard_list.py
+  --print`, `RVT_SKIP_LARGE=1 … -q -p no:cacheprovider`) → **1560 passed, 134 skipped,
+  3 xfailed in 329 s**; `tests/test_gates_shared_walk.py` 12 passed; neighbours 223
+  passed / 14 skipped / 1 xfailed; sync `--check` clean, `validate_plugin` PASS,
+  portable paths ok. `/verify` on the final head: `rvt_edit.py <base> set-level …
+  --json` on all three bases → rc 0, stderr 0 B, `ok=True`, structural PASS |
+  validation PASS (0 errors), "Revit N in, Revit N out"; `rvt_validate.py` on the
+  three outputs → VALID 0 errors; `rvt_job.py edit <2025 base> --ops {set-level,
+  set-mark} --json` → `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`, structural
+  PASS / validation PASS, stderr 0 B; the edit door on the twin-partition-damaged
+  INPUT → file written (827,392 B) and labelled `structural FAIL (crc_failures=1 …)
+  | validation FAIL (3 errors)`, rc 1, stderr 0 B (delivered, labelled — main said
+  structural PASS there); truncated / non-CFB files → INVALID 11 / 1 error(s), no
+  traceback. Bare unzip of the final `tekton-plugin.zip` vs main's, `env -i
+  /usr/bin/python3`, `go edit … set-level --json`, alternating 4+4: every run rc 0,
+  READY, both gates PASS; wall before 0.537 0.599 0.529 s (first, `.pyc`-compiling
+  run 0.923) vs after 0.512 0.552 0.527 s (first 0.844) — unchanged.
+* Probe artefacts (scratchpad, not committed): `probe/probe.py`, `probe/fx/*.rvt`,
+  `probe/{main,head}/*.json`, `bench.sh`, `before.zip` / `after.zip`.

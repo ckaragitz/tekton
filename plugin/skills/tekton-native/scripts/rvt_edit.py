@@ -87,6 +87,7 @@ def _gates(a: argparse.Namespace, rep) -> dict:
     v = M.verify_manipulated(a.out, deleted_ids=deleted, edited_ids=edited, walked=walked)
     structural = J.structural_gate_from_manipulated(v)
     validation = J.validation_gate(a.out, a.out + ".validation.json", walked=walked)
+    walked.close()                               # several times the file's size; nothing below needs it
     ok = structural["status"] == "PASS" and validation["status"] == "PASS"
     line = (f"structural {structural['status']} (crc_failures={v.get('crc_failures')}, "
             f"ecc_mismatches={v.get('ecc_mismatches')}, walker_errors={v.get('walker_errors')}, "
