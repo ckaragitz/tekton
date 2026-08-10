@@ -8,13 +8,17 @@ ITS OWN release on every certified pinned base (issue #116, Refs #70):
 * the output validates 0 errors STANDALONE and still declares the input's
   release; the renamed level decodes with the new name;
 * the native framing constants are back after every run -- the foreign
-  releases run first, so a leak would break the following native edit.
+  releases run first, so a leak would break the following native edit;
+* a natively framed file enters nothing and imports no ``rvt.frontdoor``
+  module (``rvt.native_framing``, #575); a foreign one still enters the
+  AUTHORING context (``release_ctx``), not the read-side ladder.
 
 Run: .venv/bin/python -m pytest tests/test_edit_text_release.py -q
 """
 from __future__ import annotations
 
 import os
+import subprocess
 import sys
 
 import pytest
@@ -31,6 +35,7 @@ from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 LEVEL_ID = 1351691                     # "GEN B1 - Basement", present on every pin
 OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length
 FOREIGN_FIRST = sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE)
+FOREIGN = [y for y in CERTIFIED_YEARS if y != V.LATEST_RELEASE]      # the 2025/2024 pins
 
 
 @pytest.fixture(scope="module")
@@ -88,3 +93,29 @@ def test_length_change_is_refused_before_any_read(edit_text, tmp_path, capsys):
                          "--new", OLD_NAME + "X", "--utf16", "-o", out])
     assert rc == 2 and not os.path.exists(out)
     assert "size-preserving edit required" in capsys.readouterr().err
+
+
+def _modules_after_edit(year: int, out: str) -> set[str]:
+    """Run the CLI in a fresh interpreter on the pinned base of ``year`` (rc 0,
+    ``SELF-CHECK PASS``) and return the ``rvt.*`` modules it had imported."""
+    code = ("import sys; sys.path.insert(0, 'tools'); import rvt_edit_text as T; "
+            "rc = T.main(sys.argv[1:]); "
+            "print('MODULES', *sorted(m for m in sys.modules if m.startswith('rvt'))); sys.exit(rc)")
+    r = subprocess.run([sys.executable, "-c", code, pinned_base(year), "--old", OLD_NAME,
+                        "--new", NEW_NAME, "--utf16", "-o", out], capture_output=True, text=True, cwd=ROOT)
+    assert r.returncode == 0 and "SELF-CHECK PASS" in r.stdout, (r.returncode, r.stderr[-600:])
+    line = [ln for ln in r.stdout.splitlines() if ln.startswith("MODULES ")][-1]
+    return set(line.split()[1:])
+
+
+def test_native_edit_imports_nothing_under_rvt_frontdoor(tmp_path):
+    mods = _modules_after_edit(V.LATEST_RELEASE, str(tmp_path / "native.rvt"))
+    assert "rvt.native_framing" in mods
+    heavy = sorted(m for m in mods if m.startswith(("rvt.frontdoor", "rvt.global_framing", "rvt.versions")))
+    assert heavy == [], heavy
+
+
+@pytest.mark.parametrize("year", FOREIGN)
+def test_foreign_edit_enters_the_authoring_context_not_the_read_side_ladder(year, tmp_path):
+    mods = _modules_after_edit(year, str(tmp_path / f"f{year}.rvt"))
+    assert "rvt.frontdoor.release_ctx" in mods, sorted(mods)

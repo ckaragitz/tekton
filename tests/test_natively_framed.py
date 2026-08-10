@@ -43,7 +43,7 @@ from rvt.container import open_rvt                             # noqa: E402
 from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 
 FOREIGN = [y for y in CERTIFIED_YEARS if y != V.LATEST_RELEASE]    # the 2025/2024 pins
-TOOLS = ["rvt_selfcheck", "rvt_inspect"]
+TOOLS = ["rvt_selfcheck", "rvt_inspect", "rvt_edit_text"]      # every CLI that enters via rvt.native_framing
 
 
 def _native_constants() -> dict:
