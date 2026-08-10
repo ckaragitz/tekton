@@ -495,7 +495,9 @@ allow-listed pair `("src/rvt/estorage.py", "iter_records")` is gone), so #467's 
 
 ## BRANCH STATE (eng #548)
 
-* Branch `cam/548-estorage-ids32` from `main` @ 7d04c82; PR body starts `Closes #548`.
+* Branch `cam/548-estorage-ids32` from `main` @ 7d04c82, rebased onto 6250424 (#563, no file overlap) before
+  the PR opened — stream-local files + #563's `test_release_ctx_refusal.py` re-run there: 57 passed / 1 xfailed,
+  `sync_plugin.py --check` clean; PR body starts `Closes #548`.
 * Files written — source: `src/rvt/estorage.py` (`from . import objects as O`; `iter_records` dropped
   from the `from .objects import (…)` list; four call sites → `O.iter_records(seg, 102)`; nothing else);
   tests: `tests/test_estorage_ids32.py` (new, 3 tests), `tests/ci_shard.d/548-estorage-ids32.txt` (new
