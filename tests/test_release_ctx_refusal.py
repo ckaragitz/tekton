@@ -54,7 +54,7 @@ OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length
 def _constants() -> dict:
     """Everything a leaked release context would leave behind."""
     snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
-    snap.update(active=RC.active_release(),
+    snap.update(active=RC.active_release(), refused=dict(RC._REFUSED),
                 mu=(MU.CLASS_ELEMENT_HEADER, MU.CLASS_SWALL, MU.CLASS_FAMILY_INSTANCE),
                 gsk=(GSK.minimal_history, GSK.minimal_elemtable, sorted(GSK._SCHEMA_CACHE)),
                 sa=(SA.bundled_base_path, SA.family_instance_template, dict(SA._SCHEMA_STATE)))
@@ -126,18 +126,57 @@ def test_unreadable_hosts_raise_one_typed_exception(bad):
                 pytest.fail(f"{name}: entered a context on an unreadable host")
         e = ei.value
         assert isinstance(e, RC.ReleaseContextError), name          # `except ReleaseContextError` callers keep working
-        assert e.path == path and "\n" not in e.why, name
+        assert e.path == path and "\n" not in e.why, name            # .path: the path as handed in, for callers
         assert type(e.__cause__).__name__ == cause and cause in e.why, (name, e.why)
         assert str(e) == f"{path}: {e.why}"
+        assert e.why.endswith(f" ({RC.cause_clause(e.__cause__)})"), (name, e.why)   # the layer's error as a CLAUSE (#574)
+
+
+def test_cause_clause_is_type_plus_first_clause_the_error_itself_untouched():
+    """``.why`` / the note carry ``Type: <first clause>``; a parser's hex
+    context no longer rides in the sentence (it stays on ``__cause__``)."""
+    short = ValueError("Partitions/20: walker errors ['no trailer']")
+    assert RC.cause_clause(short) == f"ValueError: {short}"            # fits: verbatim
+    assert RC.cause_clause(OSError()) == "OSError"                     # no message: the type alone
+    hexy = RuntimeError("parse error at 0x603b: class marker != 0 (0x403c) @0x603b: "
+                        + " ".join(f"{b:02x}" for b in range(64)) + "\nsecond line")
+    clause = RC.cause_clause(hexy)
+    assert clause.startswith("RuntimeError: parse error at 0x603b: class marker != 0 (0x403c)")
+    assert clause.endswith("...") and "\n" not in clause and len(clause) <= len("RuntimeError: ") + RC._CAUSE_MAX
+    kept = clause[len("RuntimeError: "):-3]
+    assert str(hexy).startswith(kept) and str(hexy)[len(kept)] == " "  # cut on a word boundary
 
 
 def test_enter_host_release_returns_its_note_never_raises(bad):
     for name, (path, cause) in bad.items():
+        lead = f"no release context for {os.path.basename(path)}: "
         with contextlib.ExitStack() as stack:
             note = RC.enter_host_release(stack, path)
             assert RC.active_release() is None, name
-        assert isinstance(note, str) and note.startswith(f"no release context for {path}: "), name
-        assert cause in note and note.count(path) == 1, (name, note)     # the why, not the path twice
+            # a caller composing its own sentence reads the typed error back
+            # while its stack is open: these hosts could not even be probed
+            e = RC.refused(path)
+            assert isinstance(e, RC.UnreadableHost) and note == lead + e.why, name
+        assert RC.refused(path) is None, name                          # gone with the caller's stack
+        # the host by NAME, once: the caller reports the path it handed in (#574)
+        assert note.startswith(lead) and cause in note and os.path.dirname(path) not in note, (name, note)
+
+
+def test_a_release_we_cannot_author_into_is_refused_but_not_unreadable(monkeypatch):
+    """An uncertified release: the note says so and ``refused`` hands back a
+    plain ``ReleaseContextError`` -- context behind a caller's own finding,
+    not the reason it leads with."""
+    if not FOREIGN:
+        pytest.skip("no certified foreign-release pin")
+    year, path = FOREIGN[0], pinned_base(FOREIGN[0])
+    monkeypatch.setitem(V.KNOWN_RELEASES, year,
+                        dataclasses.replace(V.KNOWN_RELEASES[year], creation_certified=False))
+    with contextlib.ExitStack() as stack:
+        note = RC.enter_host_release(stack, path)
+        e = RC.refused(path)
+        assert type(e) is RC.ReleaseContextError and note == f"no release context for {os.path.basename(path)}: {e}"
+        assert f"Revit {year} is not a certified creation release" in note and RC.active_release() is None
+    assert RC.refused(path) is None
 
 
 @pytest.mark.parametrize("year", NATIVE_LAST)
@@ -205,8 +244,10 @@ def test_frontdoor_edit_route_answers_a_damaged_schema_host_with_its_failed_enve
     import rvt.frontdoor as FD
     res = FD.author(rvt=schema_dmg, edit=LEVEL_EDIT, out=str(tmp_path / "api"))
     assert res.route == "rvt" and res.ok is False and res.status.startswith("FAILED"), res.status
-    assert res.errors and res.errors[0].startswith("cannot open/plan ") \
-        and "no release context for " in res.errors[0] and "Formats/Latest" in res.errors[0]
+    # the host could not even be probed: that IS the reason (the sentence's
+    # shape is test_edit_status's); the whole note rides in errors[1] (#574)
+    assert res.errors and "Formats/Latest" in res.errors[0] \
+        and "(no release context for schema_dmg.rvt: " in res.errors[1]
     assert not res.files and os.path.isfile(res.manifest_paths["json"])
     capsys.readouterr()
     rc = frontdoor_cli.main(["author", "--rvt", schema_dmg, "--edit", LEVEL_EDIT,
@@ -215,8 +256,7 @@ def test_frontdoor_edit_route_answers_a_damaged_schema_host_with_its_failed_enve
     assert rc == frontdoor_cli.EX_INCOMPLETE == 3
     assert cap.err == ""                                   # no traceback, no chatter
     doc = json.loads(cap.out)                              # ONE json document, nothing else
-    assert doc["ok"] is False and doc["status"].startswith("FAILED")
-    assert "no release context for " in doc["errors"][0]
+    assert doc["ok"] is False and (doc["status"], doc["errors"]) == (res.status, res.errors)
 
 
 def test_rvt_edit_text_refuses_in_one_line(bad, schema_dmg, edit_text, tmp_path, capsys):

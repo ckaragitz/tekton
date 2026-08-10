@@ -164,7 +164,7 @@ def test_damaged_schema_is_each_ladders_own_note_never_a_raise(tmp_path):
     with open_rvt(bad) as doc:
         with contextlib.ExitStack() as stack:
             note = NF.enter_files_release(stack, doc, bad, host=True)
-            assert note.startswith(f"no release context for {bad}: ")
+            assert note.startswith("no release context for schema_dmg.rvt: its Formats/Latest ")   # by name (#574)
             assert RC.active_release() is None and NF.natively_framed(doc) is False   # nothing entered
         with contextlib.ExitStack() as stack:
             note = NF.enter_files_release(stack, doc, bad)

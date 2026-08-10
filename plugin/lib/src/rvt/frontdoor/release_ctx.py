@@ -93,6 +93,7 @@ from __future__ import annotations
 import contextlib
 import functools
 import importlib
+import os
 import struct
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
@@ -100,7 +101,14 @@ from .. import versions as V
 
 __all__ = ["ReleaseContextError", "UnreadableHost", "native_release",
            "needs_release_context", "release_build_context",
-           "host_release_context", "enter_host_release", "active_release"]
+           "host_release_context", "enter_host_release", "refused",
+           "active_release", "cause_clause"]
+
+#: a layer's own error rides in ``.why`` / a refusal note as a CLAUSE at most
+#: this long (the exception stays whole where it is chained or listed): a
+#: parser's hex context is noise in a sentence a skill relays verbatim, and
+#: in front of the reason it pushes the reason out of a status cut (#574)
+_CAUSE_MAX = 80
 
 
 class ReleaseContextError(RuntimeError):
@@ -111,8 +119,9 @@ class ReleaseContextError(RuntimeError):
 class UnreadableHost(ReleaseContextError):
     """The file cannot be probed for its release at all: it is not a readable
     CFB container (text, truncated mid-sector), or its own ``Formats/Latest``
-    class schema does not parse.  ``.path`` is the file, ``.why`` the one
-    sentence a caller relays; the container/parser error is ``__cause__``."""
+    class schema does not parse.  ``.path`` is the file (as handed in),
+    ``.why`` the one sentence a caller relays -- the layer's error named by
+    type and its first clause; the whole error is ``__cause__``."""
 
     def __init__(self, path: str, why: str):
         self.path = str(path)
@@ -120,8 +129,31 @@ class UnreadableHost(ReleaseContextError):
         super().__init__(f"{self.path}: {why}")
 
 
+def _clip(text: str, limit: int) -> str:
+    """``text`` as one line, whole when it fits ``limit``, else cut at the
+    last word boundary that keeps at least a third of it, ``...`` marking the
+    cut (the status sentence's rule, ``manifest._status_reason``)."""
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    keep = limit - len("...")
+    cut = text.rfind(" ", 0, keep + 1)
+    return text[:cut if cut >= limit // 3 else keep].rstrip(" ,;:-(") + "..."
+
+
+def cause_clause(e: BaseException) -> str:
+    """``Type: first clause`` of ``e`` for a sentence (the bare type name when
+    there is no message).  The exception itself is not touched -- keep it
+    chained / listed whole next to the sentence."""
+    text = _clip(str(e), _CAUSE_MAX)
+    return f"{type(e).__name__}: {text}" if text else type(e).__name__
+
+
 #: the info dict of the ACTIVE non-default release context (None outside one).
 _ACTIVE: Dict[str, Any] = {"info": None}
+#: the error each open enter_host_release() call turned into its note, keyed
+#: by the host's absolute path, dropped when that caller's stack unwinds
+_REFUSED: Dict[str, ReleaseContextError] = {}
 
 
 def active_release() -> Optional[int]:
@@ -156,7 +188,7 @@ def _detect_release(path: str) -> Optional[int]:
         return V.detect_release(path)
     except Exception as e:               # noqa: BLE001 -- a container that does not open IS the finding
         raise UnreadableHost(
-            path, f"not a Revit container tekton can open ({type(e).__name__}: {e})") from e
+            path, f"not a Revit container tekton can open ({cause_clause(e)})") from e
 
 
 def _port_module(year: int):
@@ -181,14 +213,15 @@ def _codec_triple_from_base(base_path: str, year: int):
     except Exception as e:               # noqa: BLE001 -- a schema stream that does not read IS the finding
         raise UnreadableHost(
             base_path, "its Formats/Latest class schema cannot be read "
-            f"({type(e).__name__}: {e})") from e
+            f"({cause_clause(e)})") from e
     want = V.KNOWN_RELEASES[year].schema_sha256
     got = schema.sha256
     if want and got != want:
+        # the file by NAME: the caller holds (and reports) the path it handed in
         raise ReleaseContextError(
-            f"base {base_path} carries schema sha256 {got[:16]}... but the "
-            f"Revit {year} pin is {want[:16]}... -- refusing to build on an "
-            "unpinned schema")
+            f"base {os.path.basename(base_path)} carries schema sha256 "
+            f"{got[:16]}... but the Revit {year} pin is {want[:16]}... -- "
+            "refusing to build on an unpinned schema")
     from ..encode import ObjectEncoder
     from ..objects import ObjectDecoder
     dec = ObjectDecoder(schema)
@@ -327,14 +360,31 @@ def enter_host_release(stack: contextlib.ExitStack, host_path: str) -> Optional[
     (an uncertified or undetectable release, an unreadable file).  Returns
     None when the context is in force (or the host is native), else the
     refusal sentence -- the caller records it and its own guard refuses
-    honestly downstream.  Never raises for the file it is handed."""
+    honestly downstream.  Never raises for the file it is handed.
+
+    The note names the host by basename: every caller already reports the
+    path it handed in (the front door's ``inputs.rvt``, a tool's argv), and
+    an absolute upload path in front of the reason pushes the reason out of
+    a status sentence (#574).  A caller that composes its own sentence reads
+    the typed error back with :func:`refused` while ``stack`` is open."""
     try:
         stack.enter_context(host_release_context(host_path))
         return None
-    except UnreadableHost as e:
-        return f"no release context for {host_path}: {e.why}"
     except ReleaseContextError as e:
-        return f"no release context for {host_path}: {e}"
+        key = os.path.abspath(host_path)
+        _REFUSED[key] = e
+        stack.callback(_REFUSED.pop, key, None)
+        why = e.why if isinstance(e, UnreadableHost) else str(e)
+        return f"no release context for {os.path.basename(host_path)}: {why}"
+
+
+def refused(host_path: str) -> Optional[ReleaseContextError]:
+    """The error :func:`enter_host_release` turned into its note for
+    ``host_path`` -- an :class:`UnreadableHost` when the file itself could
+    not be probed (``.path`` the path as handed in, ``.why``, ``__cause__``),
+    a plain :class:`ReleaseContextError` for a release tekton cannot author
+    into -- while that caller's stack is open; None otherwise."""
+    return _REFUSED.get(os.path.abspath(host_path))
 
 
 @contextlib.contextmanager
@@ -359,8 +409,6 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
     def swap(obj: Any, name: str, value: Any) -> None:
         saved.append((obj, name, getattr(obj, name)))
         setattr(obj, name, value)
-
-    import os
 
     from .. import encode as ENC
     from .. import global_framing as GF

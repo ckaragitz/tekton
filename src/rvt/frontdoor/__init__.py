@@ -653,10 +653,21 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
     except E.EditParseError as e:
         errors.append(f"edit not understood: {e}")
     except Exception as e:                                           # noqa: BLE001
-        # the input by NAME: its absolute path rides in inputs.rvt, and in front
-        # of the reason it would push the reason past the status cut (#573)
-        errors.append(f"cannot open/plan {os.path.basename(rvt_path)}: {type(e).__name__}: {e}"
-                      + (f" ({ctx_note})" if ctx_note else ""))
+        # errors[0] is the sentence the status relays: the input by NAME (#573;
+        # its path is inputs.rvt) and the reason as a clause -- a host the
+        # release context could not even probe says THAT (the open failure is
+        # the same fact, illegibly); errors[1] keeps every layer's words (#574)
+        from .release_ctx import UnreadableHost, cause_clause, refused
+        named = f"cannot open/plan {os.path.basename(rvt_path)}: "
+        tail = f" ({ctx_note})" if ctx_note else ""
+        unreadable, clause = refused(rvt_path), cause_clause(e)
+        if isinstance(unreadable, UnreadableHost):
+            errors.append(named + unreadable.why + ("" if clause in unreadable.why else f" ({clause})"))
+        else:
+            errors.append(named + clause + tail)
+        full = f"{named}{type(e).__name__}: {e}{tail}"
+        if full != errors[0]:
+            errors.append(full)
 
     run: Dict[str, Any] = {}
     if spec is not None and not errors:
