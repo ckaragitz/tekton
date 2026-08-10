@@ -403,3 +403,39 @@ Unchanged and still open: swept/CSG bodies are skipped by name; the famgen type-
 text-value question from round 2; **no viewer certification is claimed** (rule 4) — the
 `.rfa` is validator- and provenance-gated only, and a desktop or viewer check is still
 the only thing that can say "Revit opens it".
+
+## DESKTOP VERDICT (owner, 2026-08-10) — it opens, and the slots are there
+
+The owner opened `Back-to-Back_Trapeze_Pipe_Hanger_-_LOD_400.rfa` (the round-3 build:
+13 IFC products → 103 solids, 408 KB, release 2026) in **desktop Revit** and reports,
+verbatim:
+
+> "it opened and all the slots for the channel are in"
+
+This is the arbiter, not our validator (hard rule 4). What it establishes:
+
+1. **A donor-free, self-generated multi-solid family opens in desktop Revit.** Not a
+   loaded project, not a catalog family — a `generic_model` composed entirely from a
+   caller's IFC mesh, with `PRODUCT_AUTHOR_PLACEHOLDER` identity and zero donor bytes.
+   That is #498 / S-2026-08-10-c's own goal demonstrated on a real vendor file.
+2. **The exact box decomposition is right in the only way that counts.** The strut's
+   punched slots are *visible in Revit* — those slots exist only because
+   `decompose_boxes` classified 555 grid cells with a winding-number test and merged the
+   occupied ones into 59 (and 23) maximal boxes. A parity ray-cast would have filled
+   them in; the round-2 envelope would have been a solid bar. The geometry a human sees
+   matches the geometry the numbers claimed.
+3. **103 solids in one family is a workable size** — it opened, rather than choking.
+
+What it does NOT establish, and must not be written up as if it did:
+
+* it is **not** a ledger certification. `docs/coverage/viewer-certified.json` records
+  `probe_batch` rounds — a certified base plus a byte-identical control per batch — and
+  this was a single hand-opened file with no control. The ledger stays untouched.
+* the Revit **year** of the desktop that opened it is not yet recorded here, and the
+  file is a 2026 build; nor is it recorded whether Revit raised warnings on open, or
+  whether the family loads into a *project* and places (a separate step from opening).
+  Those are asked, not assumed.
+
+Recorded because it is the first desktop confirmation this stream has, and because it
+retires the one remaining reason to doubt the box lane: the slots are the visible
+signature of a correct decomposition.
