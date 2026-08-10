@@ -60,6 +60,27 @@ regeneration fallback, so N-gons carry a cached B-rep exactly like boxes.
 Any **dialog text** Revit shows is worth more than the pass/fail — that is the signal
 issue #16 has been waiting for.
 
+### INTERIM (owner, 2026-08-10): both rungs OPEN cleanly — which does not discriminate yet
+
+Owner: *"here are two files no crashes when opening up family"*, with screenshots showing
+`P_boxes103` as a correct 103-box grid and `P_polys14` as 14 correct N-gon prisms.
+
+Two things follow, and only two:
+
+1. **The geometry authoring is right at both counts and both shapes.** The N-gon prisms
+   render as real solids, which independently confirms #515's cached-B-rep fix — a
+   regeneration-rep part would have drawn nothing.
+2. **Nothing about the crash.** THE FAILING OPERATION WAS NEVER `Open`. The 103-solid
+   hanger *also* opened cleanly in Revit 2026 — the crash was on
+   **`Insert > Load Family` into a project**. So "both open" is consistent with every
+   hypothesis still on the table and rules none of them out.
+
+**The pair is only decided by running `Insert > Load Family` on each**, into a project,
+the same way the hanger was loaded when it crashed. Until then the count-vs-N-gon question
+is open and the table above is unanswered.
+
+Recorded so the screenshots are not mistaken later for a negative result on the crash.
+
 ## Not a route to a fix: building a .rvt off the family
 
 An earlier round offered a project our own four-registry loader had assembled with the
