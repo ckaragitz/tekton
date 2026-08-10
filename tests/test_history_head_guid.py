@@ -17,7 +17,6 @@ in ``rvt.mep.views_spaces``).  Pinned here, on the certified pinned bases
 """
 from __future__ import annotations
 
-import importlib.util
 import json
 import os
 import sys
@@ -29,34 +28,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from rvt import stream_encoders as SE                 # noqa: E402
-from rvt.frontdoor import base as B                    # noqa: E402
 from rvt.frontdoor import census as C                  # noqa: E402
 from rvt.frontdoor.release_ctx import release_build_context   # noqa: E402
-
-
-def _pinned(year: int) -> str:
-    """The certified PINNED base of ``year`` or a clean skip (bundle absent /
-    a ``$RVT_GENESIS_BASE`` override in force) -- as tests/test_status_gate."""
-    try:
-        rb = B.resolve_base(target_release=year)
-    except B.BaseError as e:                          # pragma: no cover - bundle absent
-        pytest.skip(f"pinned base for {year} unavailable: {e}")
-    if not (rb.pinned and rb.certified):              # pragma: no cover - override in force
-        pytest.skip(f"Revit {year}: the resolved base is not the certified pin ({rb.path})")
-    return rb.path
-
-
-CERTIFIED_YEARS = [y for y in B.PIN.release_years() if B.release_status(y)["certified"]]
-
-
-@pytest.fixture(scope="module")
-def job():
-    p = os.path.join(ROOT, "tools", "rvt_job.py")
-    spec = importlib.util.spec_from_file_location("rvt_job", p)
-    m = importlib.util.module_from_spec(spec)
-    sys.modules["rvt_job"] = m
-    spec.loader.exec_module(m)
-    return m
+from conftest import CERTIFIED_YEARS, pinned_base       # noqa: E402  (and the `job` fixture)
 
 
 def _independent_history0(path: str) -> str:
@@ -76,7 +50,7 @@ def _bfi_guid(path: str) -> str:
 
 @pytest.mark.parametrize("year", CERTIFIED_YEARS)
 def test_one_reader_one_casing(year):
-    pin = _pinned(year)
+    pin = pinned_base(year)
     with release_build_context(pin):
         h0 = SE.history_head_guid(pin)
         assert isinstance(h0, str) and h0
@@ -89,6 +63,19 @@ def test_one_reader_one_casing(year):
             assert SE.history_head_guid(f) == h0
     assert SE.history_head_guid(os.path.join(ROOT, "nope", "absent.rvt")) is None   # never raises
     assert SE.history_head_guid(__file__) is None                                    # not a container
+
+
+def test_argument_contract_and_census_dir():
+    """Pin-independent (#451): a path or an ``RvtDocument``, nothing else -- a
+    plain binary file object is a caller bug (``TypeError``), not "no History"
+    (its ``.raw`` attribute used to satisfy the duck-typed document arm); and
+    ``dir(census)`` lists the lazily re-exported name, same object as the engine's."""
+    with open(__file__, "rb") as fh, pytest.raises(TypeError):
+        SE.history_head_guid(fh)
+    with pytest.raises(TypeError):
+        SE.history_head_guid(None)
+    assert "history_head_guid" in dir(C)
+    assert C.history_head_guid is SE.history_head_guid
 
 
 def test_no_local_copies_remain():
@@ -107,7 +94,7 @@ def test_edit_hands_the_identity_scrub_history0_verbatim(job, year, tmp_path, mo
     what the scrub received before #434 -- and the identity gate reads the
     output back coherent (PASS, our author, GUID == History[0])."""
     import rvt.identity as ID
-    pin = _pinned(year)
+    pin = pinned_base(year)
     with release_build_context(pin):
         expected = _independent_history0(pin)
     seen = []

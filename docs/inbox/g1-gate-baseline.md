@@ -714,3 +714,92 @@ grep -rn "def history_head_guid" src tools            # -> src/rvt/stream_encode
   then `go author --rvt out/j4/prompt_room.rvt --edit "move PP-1 …"` **READY** exit 0 2.2 s, identity PASS,
   descends-from-pinned-genesis, ledgered against the bundled `assets/genesis/G_ABPD.rvt`.
 * Shipped vs staged: ships with the merge; a refactor with zero output-byte change — no viewer claim, no probe batch.
+
+## eng #451 — 2026-08-10 — the pin/loader test helpers live ONCE in `tests/conftest.py`; `dir(census)` lists the lazy re-export; `history_head_guid` takes a path or an `RvtDocument`, nothing else
+
+Stream `eng451` (engineer session for #451, P2/XS, PG7 test hygiene + the two review nits of PR #454 parked on
+#451). Territory used: `tests/conftest.py`, `tests/test_status_gate.py` / `tests/test_job.py` /
+`tests/test_history_head_guid.py` (helper swap only), `src/rvt/frontdoor/census.py` (a module `__dir__` only),
+`src/rvt/stream_encoders.py` (`history_head_guid` argument check + docstring only), this section; regenerated
+mirrors `plugin/lib/src/rvt/{frontdoor/census,stream_encoders}.py`. No hot file, no NO-GO file, no asset touched.
+
+### What was built
+
+* `tests/conftest.py` gains the ONE copy of three helpers that had grown to three copies (#434 `/simplify`
+  reuse finding): `CERTIFIED_YEARS` (release years whose pinned composed base is certified — the parametrize
+  axis), `pinned_base(year)` (the certified pin's path or a clean `pytest.skip`, with `test_status_gate`'s
+  fuller skip wording: bundle absent / `$RVT_GENESIS_BASE`·`--base` override in force), `load_tool(name)`
+  (`tools/<name>.py` executed as module `name`, registered in `sys.modules[name]` — `tools/ifc_intent.py` does
+  `import rvt_job`, and a test driving it wants the module it patched) and the module-scoped fixture `job` =
+  `load_tool("rvt_job")` — named `job` because that is the parameter all three files already request, so no test
+  body changes; module scope kept on purpose (a fresh `rvt_job` per test file, exactly as before, so one file's
+  patches never reach the next).  Cost of the new conftest-time `import rvt.frontdoor.base`: +5 modules / 13 ms,
+  no olefile (measured; conftest already imports `rvt.schema` + `rvt.ifc._fallback`); `CERTIFIED_YEARS` 1 ms
+  (pin JSON, no hashing).
+* The three files import them (`from conftest import CERTIFIED_YEARS, load_tool, pinned_base`; call sites renamed
+  `_pinned(` → `pinned_base(` ×21, `_load_tool(` → `load_tool(` ×2 — mechanical, no assertion changed); their local
+  `_pinned` / `CERTIFIED_YEARS` / `_load_tool` / `_load_job` / `job` definitions and the now-unused
+  `importlib`/`sys`/`base` imports are gone.  `grep -rn 'def _pinned\|_pinned(\|spec_from_file_location("rvt_job"'
+  tests` → **nothing** (conftest spells them `pinned_base` / `load_tool(name)`); `grep -rn "def job(" tests` →
+  `conftest.py` + `test_gates_shared_walk.py` (a different loader on purpose: `rvt.frontdoor.edit.load_job_module`,
+  outside this territory — see follow-up below).
+* `census.__dir__()` returns `sorted(set(globals()) | set(__all__))`, so `dir(census)` lists `history_head_guid`
+  (lazy `__getattr__` re-export since #454) again; bare `import rvt.frontdoor.census` still 64 new modules, no
+  `olefile` / `rvt.container` / `rvt.stream_encoders` (== `main@a1927c8`, measured same interpreter).
+* `stream_encoders.history_head_guid(path_or_doc)`: the duck-typed `hasattr(x, "raw")` arm is replaced by an
+  explicit contract — `str`/`bytes`/`os.PathLike` → open the container; `rvt.container.RvtDocument` → read the
+  open document; **anything else raises `TypeError`** (decided: a plain binary file object or a `mutate.Document`
+  is a caller bug and must not read as "no History" = `None`; the old duck-typing matched `io.BufferedReader.raw`
+  and was swallowed to `None`).  Path / document behaviour unchanged: absent file, non-container, empty or
+  unreadable stream → `None`, never raises; the three pins return the same GUIDs by both arms
+  (`34447475-…cdbe1` / `527cedc9-…59e3` / `badabcab-…e7ca`, == eng #434's table; `test_one_reader_one_casing[year]`).
+  The `RvtDocument` name is a `TYPE_CHECKING`-only import (annotation), the runtime `isinstance` import is local
+  to the non-path arm, so pure-payload importers of the codec module still never load olefile.  All six
+  engine/tool callers pass a real path or an `RvtDocument`.
+* `test_history_head_guid.py` gains ONE unparametrized test, `test_argument_contract_and_census_dir` (file object /
+  `None` → `TypeError`; `"history_head_guid" in dir(C)`; same object as the engine's) — pin-independent, so it
+  runs on a bundle-less clone too (a `/simplify` altitude finding: the first draft rode inside the year-parametrized
+  test).  Every pre-existing test id is unchanged.
+* `/simplify` (four angles) applied: aliases dropped for real call-site renames (greppable), the false "engine code
+  imports rvt_job" rationale corrected to `tools/ifc_intent.py`, the "ONE loader" over-claim dropped (20+ files
+  still hand-roll `spec_from_file_location` for other tools), the contract asserts split out, docstring trimmed.
+  Skipped, with reason: `job` → `rvt.frontdoor.edit.load_job_module()` (reuse + altitude both asked; it is
+  process-cached under `_frontdoor_rvt_job`, so tests would share ONE module object across files and with the
+  `--rvt` route — a semantics change for a helper-move PR; filed as a follow-up), `functools.lru_cache` on
+  `pinned_base` (would mask a mid-run `$RVT_GENESIS_BASE` monkeypatch for ~20 × few-ms saved), `job` session
+  scope (same isolation argument), a `raw()`-Protocol instead of the nominal `RvtDocument` check so
+  `rvt.validate.WalkedFile` also passes (validate.py is another engineer's this wave; no caller needs it today).
+
+### How to run
+
+```bash
+RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_history_head_guid.py tests/test_status_gate.py tests/test_job.py -q -rs
+.venv/bin/python -c "import sys;sys.path.insert(0,'src');import rvt.frontdoor.census as c;print('history_head_guid' in dir(c), c.history_head_guid is __import__('rvt.stream_encoders',fromlist=['x']).history_head_guid)"   # True True
+```
+
+### BRANCH STATE (eng #451)
+
+* Branch `cam/451-tests-conftest` from `main@a1927c8` (after #454/#459); PR closes #451.
+* Files: `tests/conftest.py`, `tests/test_status_gate.py`, `tests/test_job.py`, `tests/test_history_head_guid.py`,
+  `src/rvt/frontdoor/census.py`, `src/rvt/stream_encoders.py`, this section; regenerated mirrors
+  `plugin/lib/src/rvt/frontdoor/census.py`, `plugin/lib/src/rvt/stream_encoders.py`. No new test file → no shard drop-in.
+* Gates: collected ids — before 47 (`test_history_head_guid` 7, `test_status_gate` 34, `test_job` 6; `pytest --collect-only
+  -q | tail -1` each), after the helper move 47 with a sorted-id `diff` empty, final tree 48 = the same 47 + the one new
+  `test_argument_contract_and_census_dir`; the three files **42 passed / 5 skipped** before, **43 passed / 5 skipped** after
+  (`RVT_SKIP_LARGE=1`; skips unchanged = famgen catalog absent ×1, `samples/rst…` ×4); the WHOLE merged CI shard
+  (`shard_list.py --print`, 75 files) **1592 passed / 134 skipped / 3 xfailed** in 5 m 49 s on the final tree (pre-`/simplify`
+  tree: 1591 / 134 / 3 — the +1 is the new test); `tools/sync_plugin.py` then `--check` clean (deny-audit clean, identity
+  scan == allowlist, assets verified); `validate_plugin.py` PASS (25 assertions); `check_portable_paths.py` ok (2908);
+  bare `import rvt.frontdoor.census` 64 new modules, no olefile/container/stream_encoders (== main). `/verify` drove:
+  `history_head_guid` on the three pins by path and by open document (equal, GUIDs above), a `BufferedReader` →
+  `TypeError: history_head_guid() takes a .rvt/.rfa path or an open rvt.container.RvtDocument, not 'BufferedReader'`,
+  an absent path → `None`; front door `author --prompt "an electrical room with 6 panels"` rc 0, `PROOF-ONLY (self-checks
+  PASS)`, `build.validation.combined.identity` PASS with `history_head_guid 34447475-…` == BFI GUID, `rvt_validate` VALID
+  0 errors; front door `--rvt G_ABPD_2025.rvt --edit "set level 694 elevation to 12"` rc 0, `ok true`, output release 2025,
+  stamps `["PROOF-ONLY, NOT-DELIVERABLE"]`, job manifest `base.history_head_guid 527cedc9-…` == identity gate PASS GUID,
+  edited file VALID 0 errors; bare unzip + system Python 3.11.15 `go author --prompt …` `ready true` in 4.8 s, identity
+  PASS `34447475-…`, `base_kind pinned-composed-genesis`.
+* Follow-up filed: #470 (Refs #451) — conftest `job` could delegate to `rvt.frontdoor.edit.load_job_module()` so tests and the
+  `--rvt` route share one `rvt_job` module object (and `test_gates_shared_walk` / `test_edit_own_release` drop their own
+  fixture) — needs a decision on per-file isolation vs one shared module, hence not folded into this XS.
+* Shipped vs staged: ships with the merge; test refactor + one argument check, zero output-byte change — no viewer claim.

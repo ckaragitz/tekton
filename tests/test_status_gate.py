@@ -37,7 +37,6 @@ Asserted here:
 from __future__ import annotations
 
 import copy
-import importlib.util
 import json
 import os
 import re
@@ -52,39 +51,12 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from rvt.frontdoor import base as B          # noqa: E402
 from rvt.frontdoor import census as C        # noqa: E402
 from rvt import versions as V                 # noqa: E402
-
-
-def _load_tool(name: str):
-    p = os.path.join(ROOT, "tools", f"{name}.py")
-    spec = importlib.util.spec_from_file_location(name, p)
-    m = importlib.util.module_from_spec(spec)
-    sys.modules[name] = m
-    spec.loader.exec_module(m)
-    return m
-
-
-@pytest.fixture(scope="module")
-def job():
-    return _load_tool("rvt_job")
+from conftest import CERTIFIED_YEARS, load_tool, pinned_base   # noqa: E402  (and the `job` fixture)
 
 
 @pytest.fixture(scope="module")
 def census_tool():
-    return _load_tool("genesis_census")
-
-
-def _pinned(year: int) -> str:
-    """The certified PINNED base of ``year`` -- or a clean skip: the bundle may
-    be absent, and ``$RVT_GENESIS_BASE`` may point the resolver at a firm's
-    own (non-pinned) base, whose authorship these tests cannot speak to."""
-    try:
-        rb = B.resolve_base(target_release=year)
-    except B.BaseError as e:                          # pragma: no cover - bundle absent
-        pytest.skip(f"pinned base for {year} unavailable: {e}")
-    if not (rb.pinned and rb.certified):              # pragma: no cover - override in force
-        pytest.skip(f"Revit {year}: the resolved base is not the certified pin "
-                    f"({rb.path}; $RVT_GENESIS_BASE / --base override) -- census tests are of the pin only")
-    return rb.path
+    return load_tool("genesis_census")
 
 
 @pytest.fixture(scope="module")
@@ -97,9 +69,6 @@ def built(census_tool):
         return census_tool.build_census(audit), audit
     except B.BaseError as e:                          # pragma: no cover - override in force
         pytest.skip(str(e))
-
-
-CERTIFIED_YEARS = [y for y in B.PIN.release_years() if B.release_status(y)["certified"]]
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +99,7 @@ def test_census_covers_every_certified_pin():
 def test_2026_chain_method_agrees_with_byte_ground_truth(built):
     """The rung-chain derivation reproduces residue_c/census.json (seq-102
     compare vs the K4 ancestor) id for id: 422 identical, 11 never authored."""
-    c = C.for_file(_pinned(2026))
+    c = C.for_file(pinned_base(2026))
     assert c is not None and c.base_id == "G_ABPD"
     raw = built[0]["bases"][c.sha256]
     cc = raw["cross_check"]
@@ -221,7 +190,7 @@ def test_census_tool_refuses_evidence_that_breaks_the_law(census_tool, real_inde
     violation derives no census, `build` writes NOTHING and `check` exits 1 --
     so the shipped asset stays the last census the evidence supported (a
     changed pin then reads STALE in the gate = the conservative ledger)."""
-    _pinned(2026)
+    pinned_base(2026)
     monkeypatch.setattr(census_tool, "ReportIndex", _doctored_index(real_index, mutate))
     with pytest.raises(census_tool.LawViolation) as ei:
         census_tool.build_census()
@@ -234,7 +203,7 @@ def test_census_tool_refuses_evidence_that_breaks_the_law(census_tool, real_inde
 
 
 def test_census_applies_only_to_exact_pinned_bytes(tmp_path):
-    src = _pinned(2026)
+    src = pinned_base(2026)
     twin = tmp_path / "OfficeSampleProject.rvt"          # a sample's NAME, our bytes
     shutil.copyfile(src, twin)
     assert C.lookup(str(twin)) == ("G_ABPD", C.for_file(src))   # bytes decide, not names
@@ -254,7 +223,7 @@ def test_census_applies_only_to_exact_pinned_bytes(tmp_path):
 # ---------------------------------------------------------------------------
 @pytest.mark.parametrize("year", CERTIFIED_YEARS)
 def test_gate_on_pinned_base_reads_the_census(job, year):
-    path = _pinned(year)
+    path = pinned_base(year)
     with V.reading(path):
         g = job.provenance_gate(path, path)
     assert g["base_kind"] == "pinned-composed-genesis"
@@ -296,7 +265,7 @@ def test_sample_base_wording_is_unchanged(job, tmp_path, monkeypatch):
     nothing."""
     _no_lineage(monkeypatch)
     fake = tmp_path / "rstbasicsampleproject.rvt"
-    shutil.copyfile(_pinned(2026), fake)
+    shutil.copyfile(pinned_base(2026), fake)
     g = job.provenance_gate(str(fake), str(fake))
     assert g["base_is_autodesk_sample"] is True and g["base_kind"] == "autodesk-sample"
     assert "residue" not in g
@@ -309,7 +278,7 @@ def test_sample_base_wording_is_unchanged(job, tmp_path, monkeypatch):
 
 def test_user_base_is_worded_as_such(job, monkeypatch):
     _no_lineage(monkeypatch)
-    path = _pinned(2026)
+    path = pinned_base(2026)
     g = job.provenance_gate(path, path)
     assert g["base_kind"] == "user-base" and "residue" not in g
     assert g["status"] == "PROOF-ONLY, NOT-DELIVERABLE"
@@ -323,7 +292,7 @@ def test_stale_census_on_a_pinned_base_is_said_not_mistaken_for_a_user_base(job,
     ledger falls back to the conservative v1 reading and the manifest says
     STALE with the fix."""
     monkeypatch.setattr(C, "lookup", lambda p: ("G_ABPD", None))
-    path = _pinned(2026)
+    path = pinned_base(2026)
     g = job.provenance_gate(path, path)
     assert g["base_kind"] == "pinned-composed-genesis" and "residue" not in g
     assert g["census"].startswith("STALE") and "genesis_census.py build" in g["census"]
@@ -337,7 +306,7 @@ def test_census_module_unavailable_is_said_in_the_gate(job, monkeypatch):
     on #276: never a silent user-base for our own pin)."""
     monkeypatch.setattr(job, "_census_mod", lambda: None)
     monkeypatch.setitem(job.OPT.errors, "rvt.frontdoor.census", "ImportError: simulated")
-    path = _pinned(2026)
+    path = pinned_base(2026)
     g = job.provenance_gate(path, path)
     assert g["base_kind"] == "user-base"                # bytes could not be consulted
     assert g["census"].startswith("UNAVAILABLE (ImportError: simulated)")
@@ -371,7 +340,7 @@ def test_deliverable_flip_needs_certified_g1_and_g3_cleared(job, monkeypatch):
         assert job.deliverable_now({"passes": True, "certifies_G1": certifies}) is flips, (certifies, g3)
     monkeypatch.setattr(job, "G3_CLEARED", False)
 
-    path = _pinned(2026)
+    path = pinned_base(2026)
     P = job._provenance_mod()
     monkeypatch.setattr(P, "gate_G1", _passing_g1(certifies=False))
     with V.reading(path):
@@ -407,7 +376,7 @@ def test_census_unavailable_reaches_the_front_door_manifest(job, monkeypatch, tm
     UNAVAILABLE (status_gate.census, a build degradation, the base-authorship
     line) instead of presenting our pin as a plain user-supplied base.  The
     label stays PROOF-ONLY and the file is delivered."""
-    _pinned(2026)
+    pinned_base(2026)
     monkeypatch.setitem(sys.modules, "rvt_job", job)                  # the module ifc_intent.status_gate imports
     monkeypatch.setattr(job, "_census_mod", lambda: None)
     monkeypatch.setitem(job.OPT.errors, "rvt.frontdoor.census", "ImportError: simulated")
@@ -430,7 +399,7 @@ def test_stale_census_reaches_the_front_door_manifest(monkeypatch, tmp_path):
     """A re-pin without `tools/genesis_census.py build`: the gate says STALE
     and so do manifest.json (status_gate.census + a degradation) and
     MANIFEST.md; base_kind stays pinned-composed-genesis."""
-    _pinned(2026)
+    pinned_base(2026)
     monkeypatch.setattr(C, "lookup", lambda p: ("G_ABPD", None) if p and os.path.isfile(p) else (None, None))
     man, md = _walls_job(tmp_path, "s")
     sg = man["build"]["status_gate"]
@@ -485,7 +454,7 @@ def test_frontdoor_prompt_job_gate_counts_only_the_residue(tmp_path):
     assert sg["base_kind"] == "pinned-composed-genesis"
     assert sg["base_is_autodesk_sample"] is False
     assert sg["status"] == "PROOF-ONLY, NOT-DELIVERABLE"
-    pin = C.for_file(_pinned(2026))                     # expected numbers come from the census itself
+    pin = C.for_file(pinned_base(2026))                     # expected numbers come from the census itself
     assert sg["residue"]["base_id"] == pin.base_id == "G_ABPD" and "census" not in sg
     tot = sg["provenance_totals"]
     assert tot["ours-composed"] == pin.ours_by_composition and tot["autodesk-sample"] == len(pin.residue_ids)
@@ -544,7 +513,7 @@ def _chain(year: int, tmp_path_factory):
     Cached per release for the module: (create result, edit result)."""
     if year not in _CHAINS:
         import rvt.frontdoor as FD
-        _pinned(year)                                        # skip cleanly if the bundle is absent
+        pinned_base(year)                                        # skip cleanly if the bundle is absent
         d = tmp_path_factory.mktemp(f"chain{year}")
         c = FD.author(prompt=WALLS_PROMPT, out=str(d / "p"), no_handoff=True, target_version=year)
         assert c.ok, (year, c.status, c.errors)
@@ -585,7 +554,7 @@ def test_edit_of_our_output_descends_from_the_pin(year, tmp_path_factory):
     assert dsc["share"] >= 0.99 and dsc["pin_slots_dropped"] == 0 and dsc["pin_slots_edited"] <= 3
     assert dsc["pin_slots_probed"] == census.ours_by_composition and dsc["probed"] == "composed slots"
     assert dsc["history_head_guid_matches_pin"] is True     # corroborating, not the test
-    assert os.path.basename(g["ledgered_against"]) == os.path.basename(_pinned(year))
+    assert os.path.basename(g["ledgered_against"]) == os.path.basename(pinned_base(year))
     # the same reading as the create route, one lineage step later (one wall gone)
     ct, et = sg["provenance_totals"], g["provenance_totals"]
     assert et["ours-composed"] == ct["ours-composed"] > 2000
@@ -640,7 +609,7 @@ def test_edit_manifest_surfaces_the_gate_like_the_create_routes(year, tmp_path_f
     the delivery changes (rule 1)."""
     from rvt.frontdoor.manifest import status_gate_lines
     c, e = _chain(year, tmp_path_factory)
-    pin_name = os.path.basename(_pinned(year))
+    pin_name = os.path.basename(pinned_base(year))
     g = _job_gate(e.manifest)                                  # the job runner's full gate
     fg = e.manifest["edit"]["gates"]["base_provenance"]       # the front door's echo of it
     assert {k: fg[k] for k in ECHOED} == {k: g[k] for k in ECHOED}
@@ -753,7 +722,7 @@ def test_second_generation_edit_still_descends(tmp_path_factory, tmp_path):
 def test_lineage_api(tmp_path_factory):
     """rvt.frontdoor.census.lineage / pin_file: exact pin, descendant, nothing."""
     from rvt.mutate import Document
-    pin = _pinned(2026)
+    pin = pinned_base(2026)
     lin = C.lineage(pin)
     assert lin.exact and lin.kind == C.KIND_PINNED == "pinned-composed-genesis"
     assert lin.pin_doc is None and lin.pin_path == os.path.abspath(pin)
@@ -808,7 +777,7 @@ def test_a_relative_that_is_not_a_descendant_stays_user_base(job):
     certified bytes -> no census can vouch for it -> user-base.  This is why
     the episode GUID is evidence, never the test."""
     p = os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT", "02_created_room_shell_with_geometry.rvt")
-    assert C.history_head_guid(p) == C.history_head_guid(_pinned(2026))
+    assert C.history_head_guid(p) == C.history_head_guid(pinned_base(2026))
     assert C.lineage(p) is None
     assert job.classify_base(p) == ("user-base", None)
 
@@ -822,8 +791,8 @@ def test_residue_slot_edited_upstream_stays_derived(tmp_path_factory, tmp_path):
     from rvt.provenance import _cls
     c, _e = _chain(2026, tmp_path_factory)
     x = c.manifest["build"]["files"]["combined"]["path"]
-    pin = Document.from_file(_pinned(2026))
-    slot = min(e for e in C.for_file(_pinned(2026)).residue_ids if _cls(pin, e) == "GStyleElem")
+    pin = Document.from_file(pinned_base(2026))
+    slot = min(e for e in C.for_file(pinned_base(2026)).residue_ids if _cls(pin, e) == "GStyleElem")
     e1 = FD.author(rvt=x, edit=json.dumps({"ops": [{"op": "set-mark", "id": slot, "mark": "ZZ"}]}),
                    out=str(tmp_path / "m1"))
     assert e1.ok, (e1.status, e1.errors)
@@ -848,7 +817,7 @@ def test_provenance_cli_composed_base_auto(tmp_path_factory, tmp_path):
     the pin it descends from with the pin's census (same element reading as
     the gate), skips the stream ledger honestly, and is the fallback when no
     sample baseline resolves (a fresh clone)."""
-    prov = _load_tool("provenance")
+    prov = load_tool("provenance")
     c, e = _chain(2026, tmp_path_factory)
     y = e.manifest["output"]["path"]
     js = tmp_path / "prov.json"

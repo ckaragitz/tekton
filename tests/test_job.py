@@ -10,30 +10,14 @@ any commit.
 """
 from __future__ import annotations
 
-import importlib.util
 import json
 import os
-import sys
 
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RST = os.path.join(ROOT, "samples", "rstbasicsampleproject.rvt")
-sys.path.insert(0, os.path.join(ROOT, "src"))
-
-
-def _load_job():
-    p = os.path.join(ROOT, "tools", "rvt_job.py")
-    spec = importlib.util.spec_from_file_location("rvt_job", p)
-    m = importlib.util.module_from_spec(spec)
-    sys.modules["rvt_job"] = m
-    spec.loader.exec_module(m)
-    return m
-
-
-@pytest.fixture(scope="module")
-def job():
-    return _load_job()
+# the `job` fixture (tools/rvt_job.py as module ``rvt_job``) comes from tests/conftest.py
 
 
 needs_rst = pytest.mark.skipif(not os.path.exists(RST),
