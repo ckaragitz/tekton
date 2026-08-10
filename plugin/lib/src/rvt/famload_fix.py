@@ -197,21 +197,6 @@ def recset_sorted(latest_value: dict) -> bool:
 # the patch set (context manager -- nothing outside it is modified)
 # ---------------------------------------------------------------------------
 
-def _ifc_intent_modules() -> List[Any]:
-    """Every loaded module object that IS tools/ifc_intent.py (it is imported
-    under several names: 'ifc_intent', '_frontdoor_ifc_room', ...)."""
-    out = []
-    for mod in list(sys.modules.values()):
-        if mod is None:
-            continue
-        if (getattr(mod, "__name__", "") or "").split(".")[-1] in (
-                "ifc_intent", "_frontdoor_ifc_room") or (
-                hasattr(mod, "_connector_manager_for")
-                and hasattr(mod, "stage_equipment")):
-            out.append(mod)
-    return out
-
-
 @contextlib.contextmanager
 def fixed_product_path(*, fix_connector_manager: bool = True,
                        fix_content_table_sort: bool = True,
@@ -221,8 +206,8 @@ def fixed_product_path(*, fix_connector_manager: bool = True,
     """Apply the D1..D5 fixes to the LIVE product path for the duration of
     the ``with`` block: ``rvt.famgen.loader`` (author_host_family /
     author_family_symbol / author_family_instance / _connector_data_cells /
-    register_in_host_adocument), every loaded ``tools/ifc_intent`` module
-    (``_connector_manager_for``), and
+    register_in_host_adocument), ``sys.modules["ifc_intent"]`` if this
+    process has loaded it (``_connector_manager_for``), and
     ``rvt.frontdoor.standalone.ConstructedSpecimens`` (phase resolution).
     All patches are reverted on exit.
     """
@@ -308,12 +293,13 @@ def fixed_product_path(*, fix_connector_manager: bool = True,
             return el
         patch(L, "author_family_instance", inst_fixed)
 
-        for mod in _ifc_intent_modules():
-            orig_cm = mod._connector_manager_for
+        room = sys.modules.get("ifc_intent")               # patched only if already live, never loaded here
+        if room is not None:
+            orig_cm = room._connector_manager_for
 
-            def cm_fixed(product, circuit_slots, _orig=orig_cm):
-                return _fix_manager_dict(_orig(product, circuit_slots))
-            patch(mod, "_connector_manager_for", cm_fixed)
+            def cm_fixed(product, circuit_slots):
+                return _fix_manager_dict(orig_cm(product, circuit_slots))
+            patch(room, "_connector_manager_for", cm_fixed)
 
     # -- D5: ConstructedSpecimens phase resolution --------------------------
     if fix_specimen_phase:

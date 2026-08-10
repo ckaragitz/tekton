@@ -1048,3 +1048,133 @@ PY
   manifests identical outside noise) — no viewer claim, nothing staged.
 * Follow-up filed: **#507** (Refs #477) — the same one-name cure for `tools/ifc_intent.py` (`_frontdoor_ifc_room` vs
   `import ifc_intent`, and `famload_fix`'s alias scan); `tools/rvt_job.py`'s `_rvtjob_<name>` loaders noted there.
+
+## eng #507 — 2026-08-10 — ONE executed copy of `tools/ifc_intent.py` per process: `load_ifc_room_module()` registers (or adopts) `sys.modules["ifc_intent"]`, and `famload_fix` patches that one object by its one name
+
+Stream `eng507` (engineer session for #507, P2/S, PG3/PG7; Refs #477, whose "Findings" bullet above is the charter).
+Territory used, all inside the issue's: `src/rvt/frontdoor/build.py` — **`load_ifc_room_module` body only, a
+tech-lead exception to the #498 fence on `build.py`, announced on #498** (no import/format/docstring churn outside
+that function); `src/rvt/famload_fix.py` (the alias scan `_ifc_intent_modules()` deleted, its one caller reads
+`sys.modules.get("ifc_intent")`, docstring); their two regenerated mirrors under `plugin/lib/`; NEW
+`tests/test_one_ifc_module.py` + `tests/ci_shard.d/507-one-ifc-module.txt`; this section. `tools/ifc_intent.py`
+untouched (no by-path self-import turned up; its `_jdump`/gate sites are #495/#509's). Based on `main@fdcbf12`.
+
+Decision that differs from eng #477's on purpose: #477 could refuse to adopt a pre-existing `sys.modules["rvt_job"]`
+because it removed the last by-name importer; here **some 20 files under `tools/` + `tests/` keep `import ifc_intent` by
+name** (dev probes, bisect tools, two test modules — none on the product path, all legitimate) and the DONE says
+*either order*, so the loader registers the name when it is first and **adopts the by-name copy when it is second**
+(`mod = sys.modules.get("ifc_intent")` before exec). A failed exec pops the name again so a retry never adopts a
+half-executed module. The product process (front door, `go`, router, `add_to_project`) never imports the name before
+the loader, so for it nothing changed but the key: `_frontdoor_ifc_room` → `ifc_intent`.
+
+### Result in one screen
+
+| the issue's probe — ONE process, `build.load_ifc_room_module()` + `sys.path.insert(0, tools); import ifc_intent`, both orders | `main@fdcbf12` | this branch |
+|---|---|---|
+| live modules whose `__file__` ends in `ifc_intent.py` (loader-first / import-first) | `['_frontdoor_ifc_room', 'ifc_intent']`, 2 ids / same | **`['ifc_intent']`, 1** / same |
+| `load_ifc_room_module() is sys.modules["ifc_intent"]` | `False` / `False` | **`True` / `True`** |
+| `famload_fix.fixed_product_path()` patches `_connector_manager_for` on … | both copies (alias scan) | the one copy, by name; reverted on exit (both orders) |
+| same probe with a real prompt job (`FD.author(prompt=walls)`, 2026 pin) instead of the bare loader, both orders | `['_frontdoor_ifc_room', 'ifc_intent']`, loader ≠ entry | **`['ifc_intent']`**, loader is entry, job `ok` |
+| inside the bare unzip (`tekton_env.ensure_engine()`, `lib/tools` on path, import-first) | — | `ifc_intent lib/tools/ifc_intent.py True ['ifc_intent']` |
+| front-door manifests, `tools/frontdoor.py author` — 6-panel `--prompt` / `--ifc inputs/ifc/electrical-room-2500a.ifc` (main run twice = noise class: content GUIDs, sha256/md5, paths under the out dir, `*.seconds`, `generated_at`; 149 / 214 noisy keys) | 2848 / 4310 flattened keys | **0 / 0 diffs outside the noise class** (the 3 / 5 residual keys are the checkout location — `base.path`, `status_gate.base`, `inputs.ifc`, `intent.summary.source` — and one `validate.seconds` 0.4→0.3); status `PROOF-ONLY (self-checks PASS…)`, status_gate `PROOF-ONLY, NOT-DELIVERABLE` / `pinned-composed-genesis` ×2, both outputs `rvt_validate` VALID 0 errors (1 known DataStorage warning) |
+| `python -X importtime -c "import rvt.frontdoor"` ×3 | 89 modules, neither `rvt.frontdoor.build` nor `ifc_intent` eager; 45.3 / 44.4 / 57.3 ms | 89 modules, same absences; 73.1 (cold) / 43.2 / 43.6 ms — unchanged |
+| bare unzip of `tekton-plugin.zip`, system `python3` 3.11.15 (no numpy, no olefile), `go author --prompt "an electrical room with 6 panels" --json` ×2 | READY / rc 0 / stderr **0 B** / wall 5.06 s, 4.80 s | READY / rc 0 / stderr **0 B** / 5.12 s, 4.50 s (unchanged) |
+| neighbour files (`test_ifc_intent test_famload_fix test_famload test_famload_batch test_frontdoor test_router test_router_release test_router_load_release test_one_job_module test_frontdoor_json_strict test_famdoc_bisect test_instbug test_place_fixtures test_intent_device_plan test_mep_devices test_status_gate`, `RVT_SKIP_LARGE=1 -rs`) | 426 passed / 74 skipped | 426 / 74 for the same 16 files (+4 = the new file → **430 passed / 74 skipped**, 3 m 57 s) |
+| new `tests/test_one_ifc_module.py` on `main` (copied in) vs here | 4 failed (`['_frontdoor_ifc_room','ifc_intent']`, `loader_is_entry False`) | 4 passed, 2.8 s |
+| WHOLE merged CI shard (`shard_list.py --print`, incl. the new drop-in) | — | **1809 passed / 133 skipped / 3 xfailed**, rc 0, 7 m 39 s (88 files) |
+
+### What was built
+
+* `rvt.frontdoor.build.load_ifc_room_module()` keeps its cache (`build._ROOM`), its candidate path
+  (`<repo_root>/tools/ifc_intent.py` — `<plugin>/lib/tools/ifc_intent.py` in the bundle) and its `BuildError`s; it now
+  (a) returns `sys.modules["ifc_intent"]` if a by-name import already executed the file, else (b) executes it under the
+  spec name `ifc_intent` and registers that, popping the entry if exec raises. Every in-process caller of the loader
+  (`build_intent`, the router, `standalone`, `convert.add_to_project`, five dev tools, six test files) is unchanged.
+* `rvt.famload_fix.fixed_product_path()` (D1): the `_ifc_intent_modules()` alias/duck-type scan over all of
+  `sys.modules` is gone; the D1 branch patches `sys.modules.get("ifc_intent")._connector_manager_for` if the module is
+  live and, as before, never loads it itself. Its two callers (`tests/test_famload_fix.py`,
+  `experiments/instbug/fix/build_fix_probes.py` — whose "pre-load every module the patch set must reach: `import
+  ifc_intent` + `load_ifc_room_module()`" idiom is exactly the pain this removes) behave the same; the idiom is now
+  merely redundant, not wrong, so those files are left alone.
+* `tests/test_one_ifc_module.py` — every assertion in a FRESH interpreter (the loader is process-cached, and
+  `conftest.load_tool("ifc_intent")` deliberately rebinds the name to a fresh copy for `test_frontdoor_json_strict`, so
+  an in-process identity check would depend on file order): (1) structure × {loader-first, import-first}: one object,
+  it is the `sys.modules` entry and the loader's, `__name__ == "ifc_intent"`, and `fixed_product_path(fix_specimen_phase=False)`
+  patches then reverts it; (2) behaviour × {prompt-first, import-first}: `FD.author(prompt=<famgen-free walls>)` on the
+  bundled 2026 pin + a by-name import → `names == ["ifc_intent"]`, loader is the entry, job ok. ~0.7 s per probe.
+
+### Findings
+
+* The `_rvtjob_<name>` loaders in `tools/rvt_job.py:113` (`spec_to_rvt`, `seed_audit`, `ifc_to_spec`) never meet a
+  by-name import in a product process: `grep` finds no `import spec_to_rvt|seed_audit|ifc_to_spec` under `src/ tools/
+  plugin/skills/_shared/`; only `tests/test_inventory.py:159` and `tests/test_readers_own_release.py:64` exec
+  `seed_audit.py` under its own name inside a pytest process. Noted, not changed (the issue: "don't gold-plate";
+  `tools/rvt_job.py` is another engineer's file this wave).
+* One more by-path exec of `tools/ifc_intent.py` exists off the product path: `src/rvt/render/wallgeom.py:1854`
+  `_load_ifc_intent_tool()` registers `_ifc_intent_tool` for the wall-bake probe builder `build_walls_file()` (called
+  only from that module's own probe driver, no product caller). Follow-up-shaped (make it call
+  `build.load_ifc_room_module()`); outside this issue's territory — searched issues (none), filed as **#544** (Refs #507).
+* `tests/test_intent_device_plan.py:264` execs the file as `_room` inside its own subprocess — a test's private
+  interpreter, harmless.
+
+### How to run
+
+```bash
+RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_one_ifc_module.py -q -rs          # 4 passed (~3 s)
+.venv/bin/python - <<'PY'                                                                # the issue's probe, one process
+import sys; sys.path.insert(0, "src"); sys.path.insert(0, "tools")
+import rvt.frontdoor as FD
+FD.author(prompt="an electrical room with 6 panels", out="out/p507/p", no_handoff=True, quiet=True)
+import ifc_intent
+from rvt.frontdoor import build as B
+print(sorted(k for k, m in list(sys.modules.items()) if (getattr(m, "__file__", "") or "").endswith("ifc_intent.py")), B.load_ifc_room_module() is sys.modules["ifc_intent"] is ifc_intent)   # ['ifc_intent'] True
+PY
+```
+
+### `/simplify` and `/verify`
+
+* `/simplify` (4 angles). Applied: the test's shared `_HEAD` is formatted once with `ROOT` and the prompt travels by
+  `argv`, so both probe tails are plain source (no `{{…}}` escaping, no per-call `.format`); the job probe keys results
+  by step name instead of re-deriving the order index; `famload_fix`'s docstring parenthetical trimmed to what the code
+  does. Reuse and efficiency: clean (no existing helper the fenced body could call — `router._load_tool` lacks
+  adopt/pop and sits downstream of `build`; the D1 patch is one `dict.get` replacing a scan of all `sys.modules`; the
+  four fresh interpreters cost 2.9 s total and each is load-bearing). Skipped with reason: (a) *"make `sys.modules`
+  the authority on every call, `_ROOM` a memo of it"* (altitude) — following a rebinding on every call would let
+  `conftest.load_tool("ifc_intent")`'s deliberately private fresh copy silently become the product path's module
+  mid-process (the opposite of that helper's documented purpose), no actor in a product process rebinds the name, and
+  the tech-lead constraint is the minimum body diff; the deep fix is on the test side and is filed as **#545** (a session
+  `room` fixture + `load_tool` refusing `"ifc_intent"`, the #470 move); (b) dropping `loader_is_entry` from the
+  structure probe as derivable — kept, it is the DONE's literal wording and costs nothing; (c) one shared by-path tool
+  loader for the six hand-rolled ones in `src/rvt/` — out of territory (two call sites fenced), filed as **#546**
+  (`blocked` until the #498 fence lifts).
+* `/verify` PASS on the final tree — drove `tools/frontdoor.py author` on three routes: `--prompt "…6 panels"` (rc 0,
+  stderr 0 B, `prompt_room.rvt` + 6 `.rfa`, status `PROOF-ONLY (self-checks PASS…)`), `--ifc
+  inputs/ifc/electrical-room-2500a.ifc --target-version 2025` (rc 0, 0 B, `rvt_analyze` → release 2025 / schema
+  release 2025), `--rvt G_ABPD_2025.rvt --edit "set level 694 elevation to 12"` (rc 0, 0 B, `PROOF-ONLY,
+  NOT-DELIVERABLE (hard gates PASSED)`); all three outputs + one generated `.rfa` (`--family`) `rvt_validate` **VALID, 0
+  errors** under their own release; `provenance.py --baseline all --streams` on the prompt output: baseline_kind
+  `pinned-composed-genesis`, totals `autodesk-sample 422 / ours-created 118 / ours-composed 2680` (= main's manifest),
+  0 warnings, G1 FAIL as on main (the standing PROOF-ONLY reason, #19/#21). Bare unzip of the final
+  `tekton-plugin.zip`, system `python3` 3.11.15 without numpy/olefile: `go author --prompt … --json` ×2 → `tekton:
+  READY | engine bundled | genesis verified (Revit 2026)`, rc 0, stderr **0 B**, wall 5.2 s / 4.5 s, 1 `.rvt` + 6
+  `.rfa` delivered. Probe: `--ifc README.md` → rc 3, status `FAILED (IFC intent failed: Error: Unable to parse IFC SPF
+  header)`, stderr 302 B = ifcopenshell's own `__del__` KeyError noise, byte-identical on `main` (pre-existing, not
+  this diff). No viewer claim anywhere: "validates 0 errors", never "loads".
+
+### BRANCH STATE (eng #507)
+
+* Branch `cam/507-one-ifc-module` from `main@fdcbf12`; PR closes #507.
+* Files: `src/rvt/frontdoor/build.py` (`load_ifc_room_module` body only — tech-lead exception to the #498 fence,
+  announced on #498), `src/rvt/famload_fix.py`, mirrors `plugin/lib/src/rvt/frontdoor/build.py` +
+  `plugin/lib/src/rvt/famload_fix.py` (written by `tools/sync_plugin.py`, byte-identical to source), NEW
+  `tests/test_one_ifc_module.py`, NEW `tests/ci_shard.d/507-one-ifc-module.txt`, this section. No hot file, no asset,
+  no `TRACKER.md`, `tools/ifc_intent.py` untouched.
+* Gates: `tools/sync_plugin.py` then `--check` → in sync (deny-audit clean, identity scan == allowlist, assets
+  verified); `plugin/scripts/validate_plugin.py` PASS (25 assertions); `check_portable_paths.py` ok (2941 paths); new
+  file 4 passed (4 failed when copied onto `main`); neighbours 426/74 on main = 426/74 here (+4 → 430/74); whole merged
+  shard **1809 passed / 133 skipped / 3 xfailed** (7 m 39 s; the post-`/simplify` delta is test-template + docstring
+  only and the two touched test files re-ran 12 passed / 5 skipped); `/simplify` applied, `/verify` PASS (above).
+* Shipped vs staged: ships with the merge; loader-name plumbing only, zero output-byte change (manifests identical to
+  main outside the noise class, outputs VALID) — no viewer claim, nothing staged.
+* Follow-ups filed (searched first): **#544** (`wallgeom._load_ifc_intent_tool` third door, Refs #507), **#545** (test-side
+  `room` fixture / `load_tool("ifc_intent")` refused), **#546** (one shared by-path tool loader; `blocked` on the #498 fence).
