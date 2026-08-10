@@ -112,11 +112,12 @@ if it differs.
 | | files | result | wall |
 |---|---|---|---|
 | before (main's tree, 83 files) | 83 | 1756 passed, 139 skipped, 3 xfailed, 0 failed | 315.97 s (5:16) |
-| after (head, 85 files) | 85 | **1781 passed, 131 skipped, 3 xfailed, 0 failed** | 315.23 s (5:15) |
+| after (final head, 85 files) | 85 | **1781 passed, 131 skipped, 3 xfailed, 0 failed** | 317.62 s (5:18) |
+| (after, pre-`/simplify` draft of the same tests — same counts) | 85 | 1781 passed, 131 skipped, 3 xfailed, 0 failed | 315.23 s (5:15) |
 
-Delta: +25 passed / −8 skipped; wall **+0 s within run-to-run noise** (the added work is ~14 s of test time by
-`--durations` — 6.5 s perf fixture + ~7 s of newly-executing target builds — i.e. < 5 % of the shard and inside
-its variance on this VM); the shard stays ≈ 5¼ min here, well under the ~8 min line.
+Delta: +25 passed / −8 skipped; wall **+1.7 s (+0.5 %), within run-to-run noise** (the added work is ~14 s of
+test time by `--durations` — 6.6 s perf fixture + ~7 s of newly-executing target builds — i.e. < 5 % of the
+shard and inside its variance on this 4-vCPU VM); the shard stays ≈ 5¼ min here, well under the ~8 min line.
 
 ### Findings / follow-ups
 
@@ -167,6 +168,6 @@ its variance on this VM); the shard stays ≈ 5¼ min here, well under the ~8 mi
 * Branch `cam/136-release-gates` from `origin/main` @ cd2d5a2. Files: `tests/test_target2025.py`,
   `tests/test_target2024.py`, `tests/test_surface_perf.py`, `tests/ci_shard.d/136-release-gates.txt` (new),
   `docs/inbox/ci-release-gates.md` (new, this file). Nothing under `src/ tools/ plugin/ skills/`.
-* Gates: as above — 32/0/0 stream-local; merged shard 1781 passed / 131 skipped / 3 xfailed / 0 failed in
-  315 s (was 1756 / 139 / 3 / 0 in 316 s on main's tree).
+* Gates: as above — 32/0/0 stream-local; merged shard on the final tree 1781 passed / 131 skipped /
+  3 xfailed / 0 failed in 317.62 s (was 1756 / 139 / 3 / 0 in 315.97 s on main's tree).
 * Staged: nothing (no certification claim; no viewer batch). Shipped: via the PR that closes #136.
