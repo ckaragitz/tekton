@@ -849,3 +849,141 @@ tests incl. the per-awk rows, the blank-name and forced-failure rows, and the SH
 unit test), this section. Already in the shard via `tests/ci_shard.d/487-ci-fresh.txt`
 (no new drop-in needed). No workflow files, no tick.md/AUTONOMY.md change, no engine or plugin sources
 (`sync_plugin.py --check` clean, `validate_plugin.py` PASS, portable paths ok); nothing staged for the viewer.
+
+
+## eng #522 — 2026-08-10: the merge-time collision check is `check_portable_paths.py`'s own `check()`, not a re-derived twin law; the exit-0 glosses made whole
+
+Written by engineer session eng #522 (issue #522 = the altitude keeper from #496's /simplify pass; branch
+`cam/522-portable-paths-seam`), not by the stream owner above.
+
+**What changed.**
+- `tools/dev/check_portable_paths.py`: the gate is now a pure function, `check(paths) -> [(problem line, [names
+  involved])]`, in the order the CLI prints them; `main()` = `check(git ls-files -z)` and prints exactly what it printed
+  before. Every law (illegal characters, length, trailing dot/space, reserved device names, case-only collisions) lives
+  inside `check()`, and the docstring says why: `ci_fresh.sh` re-runs it at merge time, so a law added there is felt at
+  merge time with no second edit. The "names involved" half of each finding is what lets the helper keep naming *which*
+  main-added file collides (below) instead of parsing problem strings.
+- `tools/dev/ci_fresh.sh` — the collision program only (the docs-ADD branch after the unknown-head refusal); every other
+  line, message and exit code untouched. The inline `str.lower()` comparison of main's docs adds against the PR's adds is
+  gone. In its place one `python3 -IB -` program (heredoc; argv = this checkout's `check_portable_paths.py`, `was`, `now`,
+  `head`, the PR number) imports the checker **from the trusted checkout by absolute path** (`importlib`; `-I` so neither
+  cwd nor environment can substitute another module, `-B` so nothing is written into `tools/dev/`), reads the names it
+  needs with git `-z` plumbing itself (`diff --name-only -z --no-renames --diff-filter=A|D was now|head`,
+  `ls-tree -r --name-only -z now` — names only, no argv/env size limit, names git would quote stay intact, nothing of the
+  PR checked out, shown or run; a failing git call raises → non-zero → the existing `cannot judge …`, exit 2), and runs
+  `check()` over the **post-merge name set**: `ls-tree(now)` minus the names the PR deletes plus the names it adds — an
+  approximation of the merged tree's names taken from objects only, kept as a list so a name added on both sides appears
+  twice and is a collision group (= add/add; `check()`'s docstring now states that repeats are groups, so this is contract,
+  not accident). It prints nothing when the set is clean, else line 1 = the finished reason and one name per line after
+  it; bash has **one** template: `STALE was=… now=… changed=<name3 of those names> (<reason>) -> re-run …`, exit 4. Two
+  reasons exist: a main-added name sharing a finding with a PR-added name → #496's wording, so that row stays
+  **byte-identical** (`changed=<those main adds> (added on main; PR <n> adds the same name or a case-twin of it: …)` —
+  message continuity only: nothing parses the parenthetical, and collapsing both into the checker's own line is a one-row
+  change if the tech lead prefers it); anything else the checker rejects in that set (today reachable only if a JSON lies
+  about a pass, or `main` itself is already non-portable) → `changed=<the names involved> (tools/dev/check_portable_paths.py
+  rejects the post-merge name set: <its first problem line>[ (+N more)])` — fail closed, never FRESH. Why the full
+  post-merge set and not just "main's adds ∪ PR's adds": it is the input `session_ci.sh`'s portable_paths step would see
+  after the merge, so FRESH means "that gate would still say ok" with no induction argument about which pairs were
+  already judged; cost measured below. Why subtract the PR's deletions: a PR that renames `docs/x.md → docs/X.md`
+  (case-only) must stay FRESH when main adds an unrelated record — without it `ls-tree(now)` still holds `x.md` and the
+  checker would see a phantom twin (table row "PR 10 renames"). Header comment rewritten to say all this once.
+- `.github/prompts/tick.md` §2 and `docs/process/AUTONOMY.md` §12c Merge row: one clause each, structure and every other
+  sentence intact — the exit-0 gloss now reads "… added/modified `docs/**` no shard test opens whose names, with the
+  PR's, still pass `tools/dev/check_portable_paths.py` — e.g. no add/add or case-twin collision" (the gate is the
+  definition; the enumeration is explicitly an example, so a new checker law never makes the gloss stale again), and the
+  "anything else" list names "cannot judge" (tick.md) / "or anything the helper cannot judge" (AUTONOMY.md). No
+  `tests/test_techlead.py` needle pins either sentence (checked: none mentions `ci_fresh`, `docs/**` or "shard test
+  opens"), so that file is untouched.
+- `tests/test_ci_fresh.py` 22 → 23 tests: the rig copies the checker next to the helper (the helper now needs it — the
+  first run without it was `cannot judge …`, exit 2: fail-closed as designed) and grows `rig.pr(n, files)` (a PR head
+  branch in the clone + its pass JSON; `_commit` stages only the paths it is given, so the untracked tool copies never
+  ride along — which is what lets a test build a second PR after the rig exists; the now-redundant initial detach went);
+  the three twin rows and the add/add row pass **unchanged**; the python-shim row keys on the argument that identifies
+  the collision program now (`*/check_portable_paths.py` instead of `*lower*` — the word the issue exists to remove);
+  new `test_the_merge_time_gate_is_the_checker_itself_not_a_rederived_twin_law` (PR 8 adds `docs/aux.md`: docs
+  *modified* on main → FRESH, nothing re-run; a record *added* on main → `STALE … rejects the post-merge name set:
+  reserved device name on Windows: 'docs/aux.md'`, exit 4, stderr empty; PR 7 under the same drift → FRESH — a per-name
+  law cannot come from a twin comparison, so this row is the seam's fingerprint; `skipif win32` because `aux.md` cannot
+  be created there, which is the law).
+- `tests/test_portable_paths.py` (new, 3 tests, stdlib + git) + `tests/ci_shard.d/522-portable-paths.txt`: the checker
+  had no direct test; now `check()`'s contract is pinned on a synthetic list (every law once, incl. the repeated-name
+  group, expected `(line, involved)` pairs in CLI order; reserved names are whole stems up to the first dot), and the CLI
+  is pinned both ways — `main()` on this checkout prints exactly `ok: <git ls-files count> tracked paths are portable`,
+  rc 0, and on a throwaway repo with `w/A.md`, `w/a.md`, `w/aux.md`, `d./e.md` prints the exact `NON-PORTABLE PATHS:` block,
+  rc 1 (skips on Windows / case-insensitive filesystems, where those names cannot coexist). Fixture names avoid `docs/`
+  on purpose: #496's `SHARD_READS` meta-test correctly flagged a first draft that named `docs/b:c.md` (read as a computed
+  path under `docs/`) — renamed rather than excused.
+- /simplify pass (4 angles) applied before the first push: one bash template instead of a `twin`/`gate` tag protocol +
+  `case`; `--diff-filter` instead of hand-pairing `--name-status -z` records; the formula stated once (header) instead of
+  three times; "e.g." in both glosses; the checker test in its own file with the CLI pinned instead of re-certifying the
+  checkout through the seam. Deferred, with reasons, to the review/follow-ups: (a) collapsing the #496 message into the
+  checker's own line (byte-identity of that row was this issue's stated constraint); (b) `git merge-tree --write-tree
+  <now> <head>` (git ≥ 2.38) would give the *real* merged tree's names and report add/add itself, retiring the set
+  algebra — a bigger change with a git-version floor, filed as #539; (c) a named trusted module instead of the
+  heredoc — territory this wave is the collision program inside `ci_fresh.sh`.
+
+**Follow-ups filed (searched first, no duplicates).** #539 — judge the *real* merged tree with `git merge-tree
+--write-tree <now> <head>` (objects only) instead of the ls-tree − deletes + adds approximation; it also reports add/add and
+docs content conflicts itself. #540 — git-quoted docs names (non-ASCII) are read as blocking drift by the awk `^docs/`
+test (pre-existing, fail-closed; measured identical on d75302b and this head).
+
+**Evidence.**
+- CLI byte-identity: `python3 tools/dev/check_portable_paths.py` from `d75302b` vs this branch on the repo → `cmp` equal
+  (`ok: 2938 tracked paths are portable`, rc 0); on a synthetic tree tripping every law (trailing dot dir, `aux.md`,
+  `b:c.md`, a trailing-blank name, a 242-char path, a three-way case group) → `cmp` equal, 6 problem lines, rc 1.
+- Outcome table (one deterministic script, fixed dates → identical SHAs run to run; throwaway upstream + clone with the
+  helper — and for this branch the checker — copied into `clone/tools/dev/`; #496's 14 rows + 6 new ones), captured for
+  BEFORE = `d75302b`'s helper and AFTER = this branch, each under mawk 1.3.4, gawk 5.2.1 and busybox awk as `/usr/bin/awk`:
+```
+--- missing json (pr 5):                           MISSING …/clone/.git/session-ci/ci/5.json (no CI verdict stored for PR 5: run tools/dev/session_ci.sh 5)   exit=3
+--- json without main (pr 9):                      MISSING "main" in …/clone/.git/session-ci/ci/9.json (a verdict from before #487: re-run tools/dev/session_ci.sh 9)   exit=3
+--- unchanged:                                     FRESH main=d2aa484327c63863a1094dc7e1f5ec1088311fad   exit=0
+--- unchanged, expected head given:                FRESH main=d2aa484327c63863a1094dc7e1f5ec1088311fad   exit=0
+--- json is for another head:                      WRONG-HEAD json=d0209e4d0a30d3042390d71e44c70232f072a393 now=ffffffffffffffffffffffffffffffffffffffff (the stored run is for another head: run tools/dev/session_ci.sh 7)   exit=5
+--- non-pass verdict, head given (pr 4):           NOT-PASS verdict=fail for head d0209e4d0a30d3042390d71e44c70232f072a393 (nothing to merge on)   exit=5
+--- docs-only drift (record + note):               FRESH(docs-only drift) was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=210f50ab5a99623332408c39d33eb86ec1f4bb96   exit=0
+--- docs-only drift, head unknown here (pr 17):    STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=210f50ab5a99623332408c39d33eb86ec1f4bb96 changed=docs/STEERING.md,docs/inbox/record.md (main added docs files and the recorded head "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" is not a commit in this clone, so a collision with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17   exit=4
+--- docs-only drift, PR 8 adds docs/aux.md (#522): STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=210f50ab5a99623332408c39d33eb86ec1f4bb96 changed=docs/aux.md (tools/dev/check_portable_paths.py rejects the post-merge name set: reserved device name on Windows: 'docs/aux.md') -> re-run tools/dev/session_ci.sh 8   exit=4
+--- docs-only drift, PR 10 renames x.md->X.md (#522): FRESH(docs-only drift) was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=210f50ab5a99623332408c39d33eb86ec1f4bb96   exit=0
+--- docs-only drift, M only, head unknown (17):    FRESH(docs-only drift) was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=f99e28577c3b2c9d41b67723821c79e9e4092983   exit=0
+--- docs-only drift, M only, PR 8 (#522):          FRESH(docs-only drift) was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=f99e28577c3b2c9d41b67723821c79e9e4092983   exit=0
+--- docs-only drift, main ADDS a case-twin:        STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=efa7918dde30a076d796faf4d5a68a38afe18945 changed=docs/inbox/Foo.md (added on main; PR 7 adds the same name or a case-twin of it: an add/add conflict or a portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 7   exit=4
+--- docs-only drift, main ADDS the same name:      STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=5c21835e02b76b0627795ef4e69db5f55028aea7 changed=docs/inbox/foo.md (added on main; PR 7 adds the same name or a case-twin of it: an add/add conflict or a portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 7   exit=4
+--- main ADDS a twin of the name PR 10 renamed:    STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=ff4de82913f1a34acf2d88bed5c5a6b502c9b5ab changed=docs/X.MD (added on main; PR 10 adds the same name or a case-twin of it: an add/add conflict or a portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 10   exit=4
+--- ledger touched + a record deleted:             STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=46266cedc0346717f51f54c0b19d021d2b4fd0d2 changed=docs/coverage/viewer-certified.json,docs/inbox/old.md -> re-run tools/dev/session_ci.sh 7   exit=4
+--- code drift:                                    STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=becfb8f7fc68b6bb7a5452cea34a76a94695ee77 changed=docs/coverage/viewer-certified.json,docs/inbox/old.md,src/a.py,… -> re-run tools/dev/session_ci.sh 7   exit=4
+--- unknown recorded main:                         STALE was=1111111111111111111111111111111111111111 now=becfb8f7fc68b6bb7a5452cea34a76a94695ee77 changed=? (1111111111111111111111111111111111111111 is not in this clone: main rewritten, or a JSON from another checkout)   exit=4
+--- bad arg:                                          exit=2
+    stderr: usage: PR must be a number
+```
+  `diff` of the six captures: AFTER-mawk == AFTER-gawk == AFTER-busybox (stdout **and** stderr, all 20 rows); BEFORE vs
+  AFTER under each awk differ in **exactly one row**, the intended one — `PR 8 adds docs/aux.md` (`FRESH(docs-only drift)`
+  → the STALE line above); the three #496 twin/add/add rows, the rename rows and everything else are byte-identical
+  (stdout, stderr, rc). (`was` is the very SHA of #496's table — the same deterministic base; PR 7's head differs only because
+  this rig words its commit differently.)
+- The review's overflow shape re-run (4 000 docs files + `docs/inbox/FOO.md` added on main, 248 KiB of names, PR adds
+  `docs/inbox/foo.md`): BEFORE and AFTER print the identical `STALE … changed=docs/inbox/FOO.md (added on main; …)`, rc 4;
+  0.11–0.12 s → 0.15–0.16 s wall (two extra `git diff`, one `ls-tree`, a full `check()` over ~4 000 names). On this repo's 2 938 names `check()` takes
+  7 ms; the branch only runs when main added docs files. (busybox awk here = BusyBox v1.36.1.)
+- /verify on a real-shaped tree (a local clone of this repo as upstream + clone, this branch's helper and checker copied in,
+  a PR adding `docs/inbox/x-note.md` + `tools/dev/x_tool.py` with a pass JSON): unchanged → `FRESH main=…` 0.05 s; a
+  `learned-*` note added + `STEERING.md` modified on main → `FRESH(docs-only drift)` 0.14 s (the checker imported from the
+  clone's own `tools/dev/`, run over the 2 654-name tree; no `__pycache__` written); main then adds `docs/inbox/X-Note.md`
+  → `STALE … changed=docs/inbox/X-Note.md (added on main; PR 522 adds the same name or a case-twin of it: …)` rc 4, 0.16 s.
+  Read-only on the real checkout: `bash tools/dev/ci_fresh.sh 528` → `MISSING …/528.json …` rc 3; `… 52x` → usage, rc 2;
+  `git status` unchanged.
+- Observed, pre-existing, unchanged by this PR (both helpers print the same line): a docs file whose name git quotes
+  (non-ASCII or other `core.quotePath` characters, e.g. `docs/inbox/café notes.md`) added on main is not recognised as
+  `docs/` drift by the awk filter (the field starts with `"`), so it reads `STALE … changed="docs/inbox/caf\303\251 notes.md"`
+  → one CI re-run instead of FRESH. Fail-closed and rare (`git ls-files` has no non-ASCII or blank-carrying name today); filed as #540
+  rather than widened here (the drift filter is outside this issue's lines).
+- Gates: `bash -n tools/dev/ci_fresh.sh` OK; `tests/test_ci_fresh.py` 23 passed (mawk, gawk, busybox rows all ran) +
+  `tests/test_portable_paths.py` 3 passed; with `test_techlead.py` + `test_shard_list.py`: 83 passed; `python3 tools/dev/check_portable_paths.py`
+  ok (2940 with the two new files); `tools/sync_plugin.py --check` in sync; `plugin/scripts/validate_plugin.py` PASS; whole merged shard: see PR body.
+
+BRANCH STATE (cam/522-portable-paths-seam): `tools/dev/check_portable_paths.py` (`check()` seam; CLI output
+byte-identical), `tools/dev/ci_fresh.sh` (collision program → the checker over the post-merge name set; header + one
+comment; every other line/message/exit code unchanged), `tests/test_ci_fresh.py` (checker copied into the rig, `rig.pr()`,
+shim needle, +1 test), `tests/test_portable_paths.py` + `tests/ci_shard.d/522-portable-paths.txt` (new), `.github/prompts/tick.md` (§2: one clause + "cannot judge"), `docs/process/AUTONOMY.md` (§12c
+Merge row: one clause), this section. `test_ci_fresh.py` was already in the shard (`487-ci-fresh.txt`). No workflow files, no
+`session_ci.sh`, no `conftest.py`, no engine or plugin sources; nothing staged for the viewer.

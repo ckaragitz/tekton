@@ -1,0 +1,2 @@
+# #522: tools/dev/check_portable_paths.py -- the check() seam ci_fresh.sh re-runs, and its CLI (stdlib + git)
+tests/test_portable_paths.py

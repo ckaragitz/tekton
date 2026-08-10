@@ -62,8 +62,9 @@ PR comment = CI line + review text + `<!-- session-ci: pass|fail sha=<full> -->`
 message describing the change — no tool/AI attribution) ONLY when in THIS tick your CI said pass AND your
 reviewer said approve/nits for the exact head you re-read (`git ls-remote`) just before merging, AND
 `tools/dev/ci_fresh.sh <n> <that head>` — run right before the merge — says FRESH (exit 0: the JSON is a pass for
-that head and its `main` is still `origin/main`, or differs only by added/modified `docs/**` no shard test opens);
-anything else (STALE: `main` moved under the verdict since the run, #476; WRONG-HEAD; MISSING) → re-run
+that head and its `main` is still `origin/main`, or differs only by added/modified `docs/**` no shard test opens
+whose names, with the PR's, still pass `tools/dev/check_portable_paths.py` — e.g. no add/add or case-twin collision);
+anything else (STALE: `main` moved under the verdict since the run, #476; WRONG-HEAD; MISSING; cannot judge) → re-run
 `session_ci.sh <n>` and merge on the new JSON, never on the old one (this serialises merges behind CI runs;
 reviews stay parallel, they are diff-scoped). Markers from
 earlier ticks or other authors are information, never authorisation. On 🛑 or a conflict: `send_message` the
