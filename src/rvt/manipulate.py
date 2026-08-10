@@ -1601,12 +1601,17 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                        walked=None) -> dict:
     """Prove a manipulated file is structurally healthy and the edits landed.
 
-    Checks: gzip CRC of every member of every framed stream; per-page ECC
-    trailers of the two re-emitted streams; framing walker errors; the block
-    ISIZE identity on every block; partition header count == ElemTable
-    count; per-seq sentinels last; adler32 stamps of every unit-0
-    seq-102/103 record; deleted ids absent from unit 0 (all seqs) and from
-    the ElemTable; edited ids present, decoding cleanly, in all their seqs.
+    Checks: gzip CRC of every framed stream, each enumerated by its framing
+    (:meth:`rvt.validate.WalkedFile.crc_failures` -- a body that will not
+    inflate at all counts as a CRC failure exactly like the validator's L1
+    finding, on whichever stream it sits); per-page ECC trailers of the two
+    re-emitted streams; framing walker errors of every partition; the block
+    ISIZE identity on the primary partition; partition header count ==
+    ElemTable count (a lost / CRC-bad ElemTable is not parsed: its counts
+    stay None and the verdict FAILs); per-seq sentinels last; adler32 stamps
+    of every unit-0 seq-102/103 record; deleted ids absent from unit 0 (all
+    seqs) and from the ElemTable; edited ids present, decoding cleanly, in
+    all their seqs.
 
     The file is judged under its OWN release framing and OWN schema
     (:func:`rvt.validate.enter_own_release` -- nest-safe, restored on exit;
@@ -1637,7 +1642,7 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
         framing_fallback = enter_own_release(stack, path)
         if framing_fallback:
             rep["fallbacks"].append(framing_fallback)
-        # the self-check judges OUR bytes exactly as stored (the shared walk
+        # the self-check judges OUR payload bytes as stored (the shared walk
         # itself unless its ECC pass repaired a payload bit -- never on a file
         # we just framed); walkers are built here, under the file's release
         walked = (walked.view(repair=False) if walked is not None
@@ -1651,21 +1656,26 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                 "records decoded against the built-in latest-release schema")
         pname = _primary_partition(walked, None)
         w = walked.walker(pname)                           # every block inflated ONCE
-        rep["crc_failures"] = (
-            sum(1 for b in w.blocks if b.crc_ok is False)
-            + sum(1 for n in walked.names if n != pname and n not in walked.unframed
-                  for m in walked.members(n) if not m.crc_ok))
+        # gzip CRC by each stream's FRAMING (every partition by its block
+        # headers): a body that will not inflate counts wherever it sits
+        rep["crc_failures"] = sum(walked.crc_failures(n) for n in walked.names)
+        rep["walker_errors"] = sum(len(walked.walker(p).errors)
+                                   for p in walked.partition_streams())
         for name in (pname, "Global/ElemTable"):
             rep["ecc_mismatches"] += ecc.framing_mismatches(walked.raw(name))
-        model = decode_elemtable(walked.inflate("Global/ElemTable"))
-        et_ids = [r[4] for r in model["records"]]
-        rep["elemtable_count"] = len(et_ids)
-        rep["elemtable_ids_sorted"] = et_ids == sorted(et_ids)
-        etset = set(et_ids)
-        rep["deleted_in_elemtable"] = [i for i in deleted_ids if i in etset]
+        # the ElemTable CRC-verified, else None: a lost / CRC-bad body is
+        # counted above and never parsed -- its counts stay None (-> FAIL)
+        et_payload = walked.payload("Global/ElemTable")
+        etset = None
+        if et_payload is not None:
+            model = decode_elemtable(et_payload)
+            et_ids = [r[4] for r in model["records"]]
+            rep["elemtable_count"] = len(et_ids)
+            rep["elemtable_ids_sorted"] = et_ids == sorted(et_ids)
+            etset = set(et_ids)
+            rep["deleted_in_elemtable"] = [i for i in deleted_ids if i in etset]
         rep["header_count"] = struct.unpack_from("<I", walked.logical(pname),
                                                  PART_HDR_COUNT_OFF)[0]
-        rep["walker_errors"] = len(w.errors)
         rep["isize_identity_mismatches"] = sum(
             1 for b in w.blocks if b.data is not None and b.intended_len != len(b.data))
         segments = walked.segments(pname)
@@ -1689,7 +1699,7 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                     rep["stamps_ok"] = False
             if seq == 102:
                 u0_102_ids = ids_here
-        if u0_102_ids is not None:
+        if etset is not None:
             rep["unit0_ids_equal_elemtable"] = (u0_102_ids == etset)
     if expect_elemtable_count is not None:
         rep["elemtable_count_expected"] = expect_elemtable_count

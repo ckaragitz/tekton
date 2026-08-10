@@ -11,6 +11,9 @@ bundled genesis bases, on a set-level edit of one, on a hard-damaged copy
 validator's view is REPAIRED while the writer self-check must still judge the
 bytes as stored) the shared-walk gate dicts are identical to the ones two
 independent walks produce, and the damaged copies FAIL exactly as before.
+Since #430 the self-check enumerates blocks by each stream's framing, so a
+lost gzip body off the primary partition (``Global/Latest``, ``Contents``,
+``Global/ElemTable``, a second ``Partitions/<N>``) FAILs it as well.
 
 Fresh-clone runnable (tracked bundled bases only; edits and damaged copies are
 written to ``tmp_path``); in the CI shard via tests/ci_shard.d/.
@@ -131,6 +134,11 @@ def _partition(path: str) -> str:
 _IN_FIRST_MEMBER = 44 + 26 + 10 + 200
 
 
+def _smash64(raw: bytearray, off: int = _IN_FIRST_MEMBER) -> None:
+    """Destroy 64 bytes at ``off`` -- far beyond CRCIO auto-repair."""
+    raw[off:off + 64] = b"\xff" * 64
+
+
 # ---------------------------------------------------------------------------
 # 1. the three pinned bases: identical dicts, and healthy
 # ---------------------------------------------------------------------------
@@ -166,11 +174,7 @@ def test_hard_damage_fails_both_gates_identically(job, tmp_path, edited):
     """64 payload bytes destroyed in the partition's first block: far beyond
     the CRCIO auto-repair envelope -> validator ERROR, structural FAIL."""
     bad = str(tmp_path / "hard.rvt")
-    pname = _partition(edited)
-
-    def smash(raw):
-        raw[_IN_FIRST_MEMBER:_IN_FIRST_MEMBER + 64] = b"\xff" * 64
-    _rewrite_stream(edited, bad, pname, smash)
+    _rewrite_stream(edited, bad, _partition(edited), _smash64)
     v, structural, report, vg = _assert_sharing_is_invisible(
         job, bad, tmp_path, "hard", edited=[LEVEL_ID])
     assert structural["status"] == "FAIL"
@@ -199,6 +203,75 @@ def test_soft_damage_is_judged_as_stored_by_the_self_check(job, tmp_path, edited
     assert report["ok"] and vg["status"] == "PASS"
     assert any("auto-repairable" in f["message"] for f in report["findings"]
                if f["severity"] == "warning"), report["findings"][:5]
+
+
+# ---------------------------------------------------------------------------
+# 3b. off the primary partition the self-check sees a lost body too (#430):
+#     blocks are enumerated by each stream's FRAMING, so a body that will not
+#     inflate at all is a CRC failure wherever it sits -- not only where the
+#     block walker of the primary partition happens to look
+# ---------------------------------------------------------------------------
+# 64 destroyed bytes inside the ONE gzip body of a non-partition framed stream:
+# Global/* = u64 prefix + gzip header + a bit; Contents = 24-byte wrapper + ...
+_LOST_BODY = {"Global/Latest": 8 + 10 + 200, "Global/ElemTable": 8 + 10 + 200,
+              "Contents": 24 + 10 + 20}
+
+
+@pytest.mark.parametrize("name", sorted(_LOST_BODY))
+def test_lost_body_off_the_primary_partition_fails_the_self_check(job, tmp_path, edited, name):
+    """A magic scan alone skips an uninflatable member and reads 0; by the
+    stream's framing the body is missing -> ``crc_failures`` >= 1 ->
+    structural FAIL, exactly like the validator's L1 error on it.  A lost
+    ``Global/ElemTable`` is a verdict (counts None -> FAIL), not a raise."""
+    bad = str(tmp_path / "lost.rvt")
+    _rewrite_stream(edited, bad, name, lambda raw: _smash64(raw, _LOST_BODY[name]))
+    v, structural, report, vg = _assert_sharing_is_invisible(
+        job, bad, tmp_path, "lost-" + name.replace("/", "-"), edited=[LEVEL_ID])
+    assert v["crc_failures"] >= 1 and structural["status"] == "FAIL", v
+    assert vg["status"] == "FAIL" and not report["ok"]
+    assert any(f["where"] == name for f in report["findings"] if f["severity"] == "error")
+    if name == "Global/ElemTable":
+        assert v["elemtable_count"] is None and v["unit0_ids_equal_elemtable"] is None
+        assert isinstance(v["header_count"], int)
+
+
+def _with_second_partition(src: str, dst: str, *, damaged: bool) -> str:
+    """Copy ``src`` to ``dst`` with its partition duplicated under the next
+    stream number (a NON-primary partition; the primary stays untouched),
+    the copy's first block body destroyed when ``damaged``."""
+    entries = read_entries(src)
+    pname = _partition(src)
+    part = next(e for e in entries if e.entry_type == "stream" and e.path == pname)
+    raw = bytearray(part.data)
+    if damaged:
+        _smash64(raw)
+    second = f"Partitions/{int(pname.split('/')[1]) + 1}"
+    write_cfb(dst, entries + [dataclasses.replace(part, path=second, data=bytes(raw))])
+    return second
+
+
+def test_non_primary_partition_is_walked_by_framing(job, tmp_path, edited):
+    """A second partition is judged by its block headers like the primary:
+    verbatim copy -> both gates PASS, dicts unchanged by sharing; its first
+    block destroyed -> ``crc_failures`` >= 1, structural FAIL (the primary,
+    the ElemTable and every edit check still clean)."""
+    twin = str(tmp_path / "twin.rvt")
+    _with_second_partition(edited, twin, damaged=False)
+    v, structural, report, vg = _assert_sharing_is_invisible(
+        job, twin, tmp_path, "twin", edited=[LEVEL_ID])
+    assert structural["status"] == "PASS" and vg["status"] == "PASS", (structural, vg)
+    assert (v["crc_failures"], v["walker_errors"]) == (0, 0)
+
+    bad = str(tmp_path / "twin_bad.rvt")
+    second = _with_second_partition(edited, bad, damaged=True)
+    v, structural, report, vg = _assert_sharing_is_invisible(
+        job, bad, tmp_path, "twin-bad", edited=[LEVEL_ID])
+    assert v["crc_failures"] >= 1 and structural["status"] == "FAIL", v
+    assert v["ecc_mismatches"] == 0 and v["elemtable_count"] == v["header_count"]
+    assert v["edited"][str(LEVEL_ID)]["102"] == {"class": "Level", "clean": True}
+    assert vg["status"] == "FAIL"
+    assert any(f["where"] == second and "CRC32" in f["message"]
+               for f in report["findings"] if f["severity"] == "error")
 
 
 # ---------------------------------------------------------------------------

@@ -585,6 +585,12 @@ def _iter_seg_records(seg: bytes, seq: int, unit: int) -> Iterable[_Rec]:
 # ONE read + ONE ECC pass + ONE inflate/CRC walk of a container (#266)
 # ---------------------------------------------------------------------------
 
+#: the framed streams of the inventory law -- ``Contents``, ``Formats/Latest``,
+#: every ``Global/*``: framing = [prefix] + ONE gzip body, so a member scan that
+#: finds nothing in one of them means its body no longer inflates
+_GZIP_BODIED = frozenset(REQUIRED_STREAMS) - UNFRAMED_STREAMS
+
+
 class WalkedFile:
     """A container page-walked ONCE: raw streams, the ECC pass (syndrome
     verify + auto-repair -> the logical bytes Revit's reader sees, plus its
@@ -604,11 +610,12 @@ class WalkedFile:
 
     Two views of the same bytes, :meth:`view` converts (sharing everything
     already read and verified): ``repair=True`` -- the validator's --
-    :meth:`logical` is the ECC-REPAIRED stream, what Revit's reader sees
+    :meth:`logical` is the ECC-REPAIRED payload, what Revit's reader sees
     after CRCIO auto-repair; ``repair=False`` -- the writer self-check's --
-    :meth:`logical` is the stream exactly as stored, page trailers stripped
-    (``container.depage``).  On a file the ECC pass repairs no payload bit in
-    -- every file we just wrote -- one object serves both.
+    :meth:`logical` is the payload as stored (``container.depage``).  On a
+    file the ECC pass repairs no payload bit in -- every file we just wrote
+    -- one object serves both; :meth:`view` says byte-exactly what its
+    :meth:`logical` then is.
 
     Reading, the ECC pass and the gzip scan are release-independent; block
     walkers read the partition-framing ordinals in force, so :meth:`walker`
@@ -646,7 +653,18 @@ class WalkedFile:
         mode or, asked for the as-stored view, an ECC pass that repaired no
         payload bit anywhere -- else a sibling view over the SAME raw
         streams and ECC results (nothing re-read or re-verified; members and
-        walkers recomputed on use, over the other logical bytes)."""
+        walkers recomputed on use, over the other logical bytes).
+
+        Byte-exactly: a sibling ``repair=False`` view's :meth:`logical` is
+        ``container.depage(raw)`` -- the stored payload plus the final
+        (partial) block's pad + short trailer, which ``depage`` leaves as
+        trailing junk after the last payload byte.  Asked ``repair=False`` of
+        a repairing walk that repaired nothing, ``self`` is returned and its
+        :meth:`logical` is the ECC pass's output: the same stored payload,
+        unaltered, with EVERY block's trailer cut, that junk included -- so
+        ``depage(raw)`` minus its trailing junk, not ``depage(raw)`` itself.
+        The junk sits past the last gzip member / the partition's end record;
+        every member scan, walker and verdict reads the same either way."""
         shape = self.unframed if unframed is None else frozenset(unframed)
         if shape == self.unframed and (
                 repair == self.repair
@@ -691,8 +709,8 @@ class WalkedFile:
 
     def logical(self, name: str) -> bytes:
         """The logical stream of this view: ECC-repaired (``repair=True``) or
-        exactly as stored, de-paged (``repair=False``); an unframed stream:
-        as stored."""
+        as stored, de-paged (``repair=False``) -- :meth:`view` has the
+        byte-exact account; an unframed stream: as stored."""
         if name in self.unframed:
             return self.raw(name)
         if self.repair:
@@ -763,6 +781,25 @@ class WalkedFile:
                     acc[(b.unit, b.seq)] += b.data
             segs = self._segments[pname] = {k: bytes(v) for k, v in acc.items()}
         return segs
+
+    def crc_failures(self, name: str) -> int:
+        """The gzip bodies of ``name`` that fail CRC32/ISIZE or will not
+        inflate at all, enumerated by the stream's FRAMING -- the L1 law as a
+        count: a ``Partitions/<N>`` by its block headers (:meth:`walker`, so
+        under the file's own release; an uninflatable body is a block with
+        ``crc_ok=False``, a framing that does not parse raises); a stream the
+        inventory law frames around ONE gzip body (``Contents``,
+        ``Formats/Latest``, ``Global/*``) whose member scan finds none has
+        lost it -> 1; any other stream: its members that fail (a family's
+        plain-XML ``PartAtom`` promises none; an unframed stream -> 0)."""
+        if name in self.unframed:
+            return 0
+        if name.startswith("Partitions/"):
+            return sum(1 for b in self.walker(name).blocks if b.crc_ok is False)
+        members = self.members(name)
+        if not members:
+            return int(name in _GZIP_BODIED)
+        return sum(1 for m in members if not m.crc_ok)
 
     # -- lifetime ------------------------------------------------------------------
     def close(self) -> None:
