@@ -177,6 +177,12 @@ REQUIRED_STREAMS = (
 )
 OPTIONAL_STREAMS = ("RevitPreview4.0",)
 
+#: where / why a container without any ``Partitions/<N>`` stream fails L1 --
+#: ONE pair for both gates: the structure layer's finding here and the
+#: self-check's ``framing_errors`` entry (rvt.manipulate re-exports them)
+NO_PARTITION_WHERE = "Partitions/<N>"
+NO_PARTITION_WHY = "no Partitions/<N> stream"
+
 #: known per-stream 8-byte prefixes of the Global/* streams (u64 constant)
 GLOBAL_PREFIX_VALUE = {
     "Global/Latest": 5, "Global/ContentDocuments": 1,
@@ -780,7 +786,8 @@ class WalkedFile:
     def framing_error(self, pname: str) -> Optional[str]:
         """Why ``Partitions/<N>``'s framing does not parse (its stream header,
         under the release in force), worded as the L1 finding both gates
-        record -- ``None`` when :meth:`walker` succeeds."""
+        record -- ``None`` when :meth:`walker` succeeds.  (No partition at
+        all is the module's ``NO_PARTITION_WHERE`` / ``NO_PARTITION_WHY``.)"""
         try:
             self.walker(pname)
         except Exception as e:                           # noqa: BLE001 -- a verdict, never a raise
@@ -976,7 +983,7 @@ class Validator:
             if req not in names:
                 rep.error(L_STRUCTURE, req, "expected stream is missing")
         if not self.walked.partition_streams():
-            rep.error(L_STRUCTURE, "Partitions/<N>", "no Partitions/<N> stream")
+            rep.error(L_STRUCTURE, NO_PARTITION_WHERE, NO_PARTITION_WHY)
         for opt in OPTIONAL_STREAMS:
             if opt not in names:
                 rep.info(L_STRUCTURE, opt, "optional stream absent (allowed)")

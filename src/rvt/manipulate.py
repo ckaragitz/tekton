@@ -77,6 +77,7 @@ from .objects import Record, iter_records
 from .partitions import StreamWalker, record_header_len
 from .roundtrip import read_entries
 from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
+from .validate import NO_PARTITION_WHERE, NO_PARTITION_WHY, enter_own_release, walk_file
 from .versions import LATEST_RELEASE, framing_table
 from .writer import gzip_member
 
@@ -1476,12 +1477,6 @@ def _header_count(doc, pname: str) -> Optional[int]:
     return struct.unpack_from("<I", logical, PART_HDR_COUNT_OFF)[0]
 
 
-#: where / why a container without any ``Partitions/<N>`` stream fails --
-#: the validator's L1 finding on it, word for word (rvt.validate structure layer)
-NO_PARTITION_WHERE = "Partitions/<N>"
-NO_PARTITION_WHY = "no Partitions/<N> stream"
-
-
 def _primary_partition(doc, entries_by_path) -> str:
     """The partition stream holding the host document (unit 0 == ElemTable).
     ``doc``: an open ``RvtDocument`` or a ``rvt.validate.WalkedFile``.
@@ -1668,7 +1663,6 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
     from contextlib import ExitStack
 
     from .objects import ObjectDecoder
-    from .validate import enter_own_release, walk_file
     from .versions import schema_of
     # block-dependent facts start None = not checked (never PASS); the block
     # walk of the primary partition fills them in

@@ -28,7 +28,9 @@ stream (``_primary_partition``'s ``max()`` of an empty list).  Nothing is
 walked there -- 0 walker errors -- the absence is recorded under the same
 conditional key, where and worded as the validator's L1 finding
 (``framing_errors["Partitions/<N>"] == "no Partitions/<N> stream"``), the
-header count and every block fact stay ``None``, and both gates say FAIL.
+header count and every block fact stay ``None``, and both gates say FAIL
+(one where/why pair by construction since #520: ``rvt.validate`` owns it,
+``rvt.manipulate`` re-exports it).
 
 Fresh-clone runnable (tracked bundled bases + the tracked eval-kit family;
 edits and damaged copies go to ``tmp_path``); in the CI shard via
@@ -253,6 +255,15 @@ def test_lost_elemtable_on_two_partition_file_is_a_verdict(job, tmp_path, edited
 #     where and as the validator names it, every primary fact None -> FAIL
 # ---------------------------------------------------------------------------
 NO_PARTITION = {M.NO_PARTITION_WHERE: M.NO_PARTITION_WHY}
+
+
+def test_partitionless_placeholder_is_the_validators_own_pair():
+    """ONE where/why pair by construction (#520): the self-check's placeholder
+    IS the pair ``Validator._layer_structure`` words its L1 finding with --
+    ``rvt.validate`` owns it, ``rvt.manipulate`` re-exports the same objects."""
+    import rvt.validate as VAL
+    assert M.NO_PARTITION_WHERE is VAL.NO_PARTITION_WHERE
+    assert M.NO_PARTITION_WHY is VAL.NO_PARTITION_WHY
 
 
 def test_partitionless_file_is_a_fail_verdict(job, tmp_path, edited):
