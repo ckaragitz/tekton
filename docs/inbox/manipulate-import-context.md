@@ -134,5 +134,25 @@ Gates on the final head: see BRANCH STATE.
   any hot file.
 * Shipped vs staged: everything ships with the PR; nothing for the viewer (no written
   byte changes on any path — three-base `cmp` above).
-* Gates on the final head: (filled in below by the same stream once the whole merged
-  shard, `/simplify` and `/verify` have run).
+* PR #469 (not draft). Follow-up filed: #467.
+* Gates (fresh cloud clone, `RVT_SKIP_LARGE=1 -p no:cacheprovider`): stream-local +
+  neighbours (`test_manipulate_import_context test_manipulate test_edit_own_release
+  test_genesis_2025/2024/2023 test_versions test_records32 test_target2025 test_y2024
+  test_y2025_b test_famload_2025 test_objects_plans test_history_head_guid`) → **178 passed,
+  114 skipped, 1 xfailed** (39 s); whole merged CI shard (`python3 tools/dev/shard_list.py
+  --print`, incl. the new drop-in) → **1609 passed, 139 skipped, 3 xfailed in 404 s** on the
+  first commit 0dcf03b and **1609 passed, 139 skipped, 3 xfailed in 394 s** again on the final code (f61fc1a); `tools/sync_plugin.py`
+  synced 1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2908 paths). `/simplify`: 4 angles, fixes applied
+  (one `framing_table()` call, 4-line note, test script by concatenation, `_tags()` helper);
+  altitude verdict "right depth". `/verify` on the post-simplify code: `tools/rvt_edit.py
+  <G_ABPD{,_2025,_2024}.rvt> set-level --id 1351691 --elevation-ft 12.0 --json` → rc 0,
+  stderr 0 B, ok=True, structural PASS | validation PASS ×3, outputs byte-identical to
+  main's (`cmp`, sizes/sha256 in the Evidence table), `tools/rvt_validate.py` VALID errors=0
+  ×3; `tools/frontdoor.py author --rvt G_ABPD_2025.rvt --edit "set level 1351691 elevation
+  to 5 ft" --json` → rc 0, stderr 0 B, `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`,
+  release 2025, edited file VALID; bare unzip of the rebuilt `tekton-plugin.zip`, `env -i
+  /usr/bin/python3` (3.11.15) `skills/tekton-edit/scripts/_bootstrap.py go edit <2026 base
+  copy> set-level … --json` ×3 → rc 0, stderr 0 B, `tekton: READY`, result.ok=True,
+  structural PASS | validation PASS (0 errors, 1 warning), wall 0.98 / 0.64 / 0.62 s, output
+  byte-identical to the repo/main output.
