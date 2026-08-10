@@ -32,8 +32,8 @@ simply undecorated. Decorating them with the old predicate would have changed no
 ## What changed (gates only — no assertion touched)
 
 * `_has_ifcopenshell()` now answers "is a REAL wheel importable": `import ifcopenshell`, then
-  `not IS_STEPLITE and "_ifcos_shim" not in __file__` — the same test
-  `tests/test_router_release.py::_has_real_ifcopenshell` and `tests/test_steplite.py`
+  `not IS_STEPLITE` (the engine-owned discriminator, `src/rvt/ifc/steplite.py`) — the same
+  test `tests/test_router_release.py::_has_real_ifcopenshell` and `tests/test_steplite.py`
   (`HAVE_IFCOS`) already use; no new shared predicate, `conftest.py` untouched. It is
   order-independent: identical result whether the file is collected alone or after a module
   that already put the shim on `sys.path` (measured both ways, below). Skip reason now says
@@ -59,24 +59,27 @@ simply undecorated. Decorating them with the old predicate would have changed no
 
 `tests/test_router.py` alone, `-q -p no:cacheprovider`:
 
-| shape | passed | skipped | failed | wall |
+| shape (rebased head on `main`@c1b52ed, 113 collected — #363 added 4 wheel-free cases) | passed | skipped | failed | wall |
 |---|---|---|---|---|
-| baseline `main`@ec62a06, no wheel, `RVT_SKIP_LARGE=1` | 95 | 12 | **2** | 17.9 s |
-| **after, no wheel, `RVT_SKIP_LARGE=1` (CI shape)** | **95** | **14** | **0** | 18.8 s |
-| after, no wheel, `RVT_SKIP_LARGE=1`, collected after `tests/test_steplite.py` (shim already on `sys.path`) | same two `needs_ifc` skips only (106 p / 25 s for the pair) | | 0 | 17.4 s |
-| **after, WITH ifcopenshell 0.8.5, `RVT_SKIP_LARGE=1`** | **97** | **12** | **0** | 19.2 s |
-| after, no wheel, large builds ON | 101 | 8 | 0 | 27.5 s |
-| after, WITH wheel, large builds ON | 104 | 5 | 0 | 31.6 s |
+| baseline `main`@ec62a06 (109 collected), no wheel, `RVT_SKIP_LARGE=1` | 95 | 12 | **2** | 17.9 s |
+| **after, no wheel, `RVT_SKIP_LARGE=1` (CI shape)** | **99** | **14** | **0** | 19.5 s |
+| after, no wheel, `RVT_SKIP_LARGE=1`, collected after `tests/test_steplite.py` (shim already on `sys.path`) | same two `needs_ifc` skips only (110 p / 25 s for the pair) | | 0 | 18.8 s |
+| **after, WITH ifcopenshell 0.8.5, `RVT_SKIP_LARGE=1`** | **101** | **12** | **0** | 19.3 s |
+| after, no wheel, large builds ON | 105 | 8 | 0 | 31.8 s |
+| after, WITH wheel, large builds ON | 108 | 5 | 0 | 36.6 s |
 
-No-wheel skips in the CI shape are exactly `:626 test_e2e_spec_to_ifc` and
-`:950 test_route_manifest_shape` (+ the pre-existing `RVT_SKIP_LARGE`, absent-asset and
+(Pre-rebase on ec62a06 the same rows read 95/14/0, 97/12/0, 101/8/0, 104/5/0 — the +4 is #363's
+cases in every shape; they need no wheel.)
+
+No-wheel skips in the CI shape are exactly `:622 test_e2e_spec_to_ifc` and
+`:946 test_route_manifest_shape` (+ the pre-existing `RVT_SKIP_LARGE`, absent-asset and
 running-as-root `chmod 0555` skips; under session CI's `uid=nobody` the chmod case runs).
-With the wheel the same 95 pass plus the two gated cases run: 97.
+With the wheel the same 99 pass plus the two gated cases run: 101.
 
 Shard: `python3 tools/dev/shard_list.py --print | grep -n test_router` →
 `30:tests/test_router_release.py`, `52:tests/test_router.py` (once).
 `tests/test_shard_list.py` → 23 passed. `tools/dev/check_portable_paths.py` → ok (2839 paths).
-Whole merged shard, CI shape (`env RVT_SKIP_LARGE=1 LANG=C.UTF-8`, no wheel):
+Whole merged shard, CI shape (`env RVT_SKIP_LARGE=1 LANG=C.UTF-8`, no wheel; measured pre-rebase on ec62a06):
 before the drop-in **1093 passed / 124 skipped / 3 xfailed in 197.1 s**; with it **1188 passed / 138 skipped /
 3 xfailed / 0 failed in 204.3 s** — exactly +95 passed / +14 skipped (the file) and **+7 s wall** (less than the
 file's ~19 s alone: imports and the schema cache are already warm mid-shard), well inside the 1500 s
@@ -108,7 +111,7 @@ Its header still says the file is "Deliberately NOT in the shard"; whoever next 
 
 ## BRANCH STATE
 
-* Branch `cam/102-shard-test-router` from `main`@ec62a06; files: `tests/test_router.py`
+* Branch `cam/102-shard-test-router` from `main`@ec62a06, rebased onto `main`@c1b52ed (after #363); files: `tests/test_router.py`
   (predicate + decorator lines only), `tests/ci_shard.d/102-test-router.txt` (new),
   `docs/inbox/ci-shard-router.md` (this record, new).
 * Gates: table above; `tests/test_shard_list.py` 23 passed; portable paths ok;
