@@ -1085,3 +1085,53 @@ What they do is make "the validator was green" stop meaning nothing here.
 * gates: 14 stream-local files 309 passed / 58 skipped;
   `tools/sync_plugin.py --check` clean
 * shipped for verdict: `hex_solo.rfa` (single variable, centred, control-shaped)
+
+## Iteration 23 — hex_solo is invisible, and nothing computable explains it
+
+**Owner: `hex_solo.rfa` shows nothing at all.** One hexagonal prism, centred,
+1 ft across x 1 ft tall -- absent. The SAME generator, same code path and
+same n = 6 produced the concave L that rendered in iteration 22.
+
+**Everything checkable says the file is sound.** Compared against
+`concave_probe_v2.rfa` (which renders), via `tools/famdiff.py` and a class
+census:
+
+* the ExtrusionElem is identical in kind: `m_famElemVisibility` flags 57399,
+  categoryId -1, a seq-103 rep present, **8 faces** = 6 sides + 2 caps;
+* `check_solid` passes (closed manifold, loops close, uv consistent);
+* the sketch curves are right -- each `m_origin`/`m_dirVec`/`m_endParams`
+  triple reconstructs the correct hexagon vertex;
+* famdiff over EVERY class reports only coordinate differences. No class is
+  present in one file and missing from the other;
+* class census: only `CurveElem` 12/6, `ExtrusionElem` 3/1, `SketchPlane`
+  9/7, `VarSketch` 3/1 -- all exactly proportional to part count
+  (1 sketch plane + 1 VarSketch + 1 curve-per-edge per part, over a
+  6-element baseline). Every other class is equal;
+* the 3D camera sits outside the geometry bbox in both files.
+
+hex_solo is a strict structural SUBSET of the file that renders. No defect
+is computable from the file, so the difference is in something only Revit
+evaluates.
+
+**Four variables were confounded** between "L renders" and "hex does not":
+concave vs convex, 1.5 ft vs 1 ft, offset into +x/+y vs centred on the
+origin, and accompanied vs alone. Iteration 22 already criticised exactly
+this and then shipped `hex_solo` with four changes at once.
+
+Two probes, ONE variable each, both against the file known to render:
+
+| probe | changed vs `concave_probe_v2` | in-file control |
+|---|---|---|
+| `probe_A_hex_in_place.rfa` | the L profile -> a hexagon, same footprint, same z | cylinder + cap, unchanged |
+| `probe_B_L_alone.rfa` | companions removed | none -- that IS the variable |
+
+Reading: A hides the hexagon but shows cylinder+cap -> convexity or the
+profile itself. A shows everything -> the shape was never the problem. B
+hides the L -> being the only form in the file is the problem, which would
+also explain `hex_solo` and would make it a document-level bug, not
+geometry.
+
+### BRANCH STATE (updated)
+* written: no engine change this iteration -- diagnosis only
+* gates: unchanged from iteration 22 (309 passed / 58 skipped, sync clean)
+* shipped for verdict: `probe_A_hex_in_place.rfa`, `probe_B_L_alone.rfa`
