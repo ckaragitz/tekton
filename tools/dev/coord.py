@@ -224,6 +224,18 @@ def queue(issues: list, prs: list, *, held_labels=("bot-working",)) -> list:
 
 LOCK_RE = re.compile(r"<!-- lock by=([A-Za-z0-9_.\[\]-]+) session=([A-Za-z0-9_.:@/-]+) token=([A-Za-z0-9_-]+) -->")
 UNLOCK_RE = re.compile(r"<!-- unlock by=([A-Za-z0-9_.\[\]-]+) -->")
+FENCE_RE = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1")      # [ \t]* not \s*: linear on newline runs; ``` and ~~~ fences
+
+
+def unquoted(body: str) -> str:
+    """A comment body minus fenced blocks (``` / ~~~) and `> ` quoted lines — the part its author actually asserted.
+    Marker readers that must not honour a marker someone merely quoted call this first (comments are
+    unauthenticated: every session writes under one login and anyone can quote or fence a marker). Indented
+    code blocks, inline code spans and an unterminated fence still count as asserted — over-counting is the
+    safe direction for a hint that is never authorisation."""
+    text = FENCE_RE.sub("", body or "")
+    return "\n".join(ln for ln in text.splitlines() if not ln.lstrip().startswith(">"))
+
 
 
 def lock_marker(by: str, session: str = "-", token: str = "-") -> str:

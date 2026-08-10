@@ -625,6 +625,69 @@ def test_sweep_requeues_stuck_after_a_quiet_day_frees_dead_leases_and_ages_out_d
 
 # ───────────────────────── steer log ─────────────────────────
 
+def test_wave_ledger_round_trips_and_ignores_quoted_or_fenced_markers():
+    """#386: the fan-out ledger is code — render → parse is lossless for the fields a tick needs, markers a stranger
+    quotes or fences do not count (comments are unauthenticated), last writer wins per (wave, issue), an id that would
+    not parse back is refused at render time (one grammar), and 'in flight' = assigned or answered by an open PR."""
+    rows = [{"issue": 284, "session": "session_01J5YH3CZjGMZG4DJXFYYT1h", "territory": "src/rvt/frontdoor/census.py, tools/rvt_job.py (gate | only) --> x"},
+            {"issue": 337, "session": "session_01ED26sa3J3T6gao9AKhLHmu", "territory": "src/rvt/ifc/steplite.py\n+ new table"}]
+    body = tl.render_wave("14", rows, tech_lead="session_01R7j2MKADANzEFxvHGbVV7w", kept="#386")
+    assert "| issue | engineer session | territory |" in body                                       # the table AUTONOMY §12c names
+    assert body.count("<!-- wave:14 ") == 2 and "-->" not in body.split("<!-- wave:", 1)[0]         # territory text cannot close a marker early
+    got = tl.parse_waves([body])
+    assert [(e["wave"], e["issue"], e["session"]) for e in got] == [("14", 284, rows[0]["session"]), ("14", 337, rows[1]["session"])]
+    assert "\n" not in got[1]["territory"] and "|" not in got[0]["territory"]                        # flattened + table-safe
+    # a human editing the table above the markers changes nothing; a later post for the same (wave, issue) wins
+    edited = body.replace("| #284 |", "| #284 (P1!) |") + "\n<!-- wave:14 issue=284 session=session_TAKEOVER territory=same -->"
+    assert {e["issue"]: e["session"] for e in tl.parse_waves([edited])}[284] == "session_TAKEOVER"
+    # markers quoted or fenced in someone else's comment are ignored (coord.unquoted is the shared policy)
+    stranger = "> <!-- wave:99 issue=1 session=evil territory=x -->\n\n```\n<!-- wave:98 issue=2 session=evil territory=y -->\n```\nlooks legit?"
+    assert tl.coord.unquoted(stranger).strip() == "looks legit?"
+    assert tl.parse_waves([stranger]) == [] and [e["wave"] for e in tl.parse_waves([stranger, body])] == ["14", "14"]
+    # ONE grammar: ids that would not parse back are refused when rendering, not silently ledgered dead
+    assert tl.parse_waves(["~~~\n<!-- wave:97 issue=3 session=evil territory=z -->\n~~~"]) == []          # ~~~ fences too
+    import time as _time
+    t0 = _time.time(); tl.coord.unquoted("\n" * 65000 + "<!-- wave:"); assert _time.time() - t0 < 1.0     # linear, not quadratic, on newline runs
+    for bad_wave, bad_rows in (("14 (retry)", rows), ("x" * 25, rows), ("14", [{"issue": 1, "session": "has space", "territory": "t"}]), ("14", []),
+                               ("14 issue=99 session=evil territory=x", [{"issue": 1, "session": "s1", "territory": "t"}]),      # content, not count
+                               ("14", [{"issue": 1, "session": "x territory=fake", "territory": "t"}]),
+                               ("14", [{"issue": 5, "session": "a", "territory": "t"}, {"issue": 5, "session": "b", "territory": "u"}])):   # duplicate issue
+        try:
+            tl.render_wave(bad_wave, bad_rows)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"rendered an unparseable ledger for {bad_wave!r} {bad_rows!r}")
+    # in flight = open & (assigned | closed by an open PR); recognition uses all entries regardless
+    issues = [I(284, "a", ["P1"], assignees=["cam-karagitz"]), I(337, "b", ["P2"]), I(361, "c", ["P2"])]
+    prs = [{"number": 400, "closing": [337]}, {"number": 401, "body": "Closes #999 (raw API dict, parsed with coord.refs)"}]
+    assert tl.busy_issue_numbers(issues, prs) == {284, 337, 999}
+    assert [e["issue"] for e in tl.waves_in_flight(got, tl.busy_issue_numbers(issues, prs))] == [284, 337]
+    assert tl.waves_in_flight(got, {361}) == []
+
+
+def test_wave_cli_is_offline_for_dry_run_and_from_file(tmp_path):
+    env = {**os.environ, "GH_TOKEN": "", "GITHUB_TOKEN": ""}
+    out = subprocess.run([sys.executable, PATH, "wave", "post", "--wave", "7", "--row", "12", "session_x", "tools/a.py, tests", "--row", "#13", "session_y", "b", "--dry-run"],
+                         capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
+    assert out.returncode == 0, out.stderr
+    assert "<!-- wave:7 issue=12 session=session_x territory=tools/a.py, tests -->" in out.stdout and "issue=13 session=session_y" in out.stdout
+    assert re.search(r"<!-- techlead:wave-7-[0-9a-f]{10} -->\s*$", out.stdout)      # dry-run carries the idempotence marker comment_once appends
+    bad = subprocess.run([sys.executable, PATH, "wave", "post", "--wave", "no good", "--row", "1", "s", "t", "--dry-run"],
+                         capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
+    assert bad.returncode != 0 and "would not parse back" in bad.stderr and "Traceback" not in bad.stderr
+    f = tmp_path / "comments.json"                        # the shape the API / MCP issue_read return: a list of comment dicts
+    f.write_text(json.dumps([{"body": out.stdout}, {"body": "unrelated"}, {"body": "> <!-- wave:8 issue=14 session=q territory=quoted -->"}]), encoding="utf-8")
+    live = subprocess.run([sys.executable, PATH, "wave", "live", "--from-file", str(f), "--json"], capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
+    assert live.returncode == 0, live.stderr
+    assert [(e["wave"], e["issue"]) for e in json.loads(live.stdout)] == [("7", 12), ("7", 13)]           # recognition: every asserted row
+    only = subprocess.run([sys.executable, PATH, "wave", "live", "--from-file", str(f), "--open", "#13, 99", "--json"], capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
+    assert [(e["issue"]) for e in json.loads(only.stdout)] == [13]
+    g = tmp_path / "wrapped.json"; g.write_text(json.dumps({"comments": [{"body": out.stdout}]}), encoding="utf-8")
+    wrong = subprocess.run([sys.executable, PATH, "wave", "live", "--from-file", str(g)], capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
+    assert wrong.returncode != 0 and "expected the JSON LIST" in wrong.stderr and "Traceback" not in wrong.stderr   # a wrapped object is an error, not "nothing in flight"
+
+
 def test_steer_issue_is_verbatim_attributed_and_titled_by_first_sentence():
     spec = tl.steer_issue("Windows matters more than new features this month. Also stop touching 2023.\nThanks",
                           by="@Ckaragitz12", source="comment on #40", logged_by="github-actions", when=NOW)
