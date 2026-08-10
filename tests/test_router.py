@@ -36,7 +36,7 @@ import sys
 
 import pytest
 
-from conftest import needs_ifc_authoring   # spec->ifc AUTHORS through ifcopenshell.api, #367
+from conftest import load_tool, needs_ifc_authoring   # spec->ifc AUTHORS through ifcopenshell.api, #367
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
@@ -590,6 +590,59 @@ def test_bad_arguments_raise_route_error(tmp_path):
         R.route({"rfa": str(tmp_path / "some_family.rfa")}, "rvt")
 
 
+# 2c. --out inside THIS checkout's quarantine roots (or an Autodesk install
+#     dir) is a usage error for EVERY supported cell, judged before the
+#     router's own makedirs (issue #473, one layer above the front door's
+#     #452); the positive twin -- a dir merely NAMED ``samples/`` elsewhere
+#     still delivers -- rides on ``test_e2e_prompt_to_rfa``'s out dir
+
+_SINGLE_CELLS = [c for c in MX.all_cells()
+                 if len(c.inputs) == 1 and c.status != MX.STATUS_MISSING]
+
+
+@pytest.mark.parametrize("cell", _SINGLE_CELLS, ids=lambda c: c.inputs[0] + "->" + c.output)
+@pytest.mark.parametrize("where", [("samples", "r"),                              # a quarantine root
+                                   ("ProgramData", "Autodesk", "RVT 2026", "r")])  # hard rule 2
+def test_out_dir_inside_this_checkouts_quarantine_is_refused_before_it_exists(
+        cell, where, tmp_path, monkeypatch):
+    """Every single-input cell (prompt/ifc/rvt/rfa/spec -> rvt/rfa/ifc): an
+    ``out`` INSIDE this checkout's real quarantine root (``<repo>/samples/r``)
+    or an Autodesk installation directory raises ``RouteError`` whose ``str``
+    IS ``out_dir_refusal``'s ONE line (the CLI's exit 2; the wording per root
+    is ``test_out_dir_guard``'s to pin) BEFORE the router's ``makedirs`` --
+    no ``route.log``/``route.json``/``ROUTE.md`` among the corpus, also for
+    the cells whose stages never reach the front door's own refusal
+    (``--output rfa``, rvt->ifc, extract).  The checkout root is pointed at
+    ``<tmp>/tree`` so the test never goes near the repo's own ``samples/``;
+    fresh-clone safe: nothing is opened before the refusal."""
+    from rvt.frontdoor import standalone as SA
+    tree = tmp_path / "tree"
+    monkeypatch.setattr(SA, "repo_root", lambda: str(tree))
+    out = str(tree.joinpath(*where))
+    with pytest.raises(R.RouteError) as ei:
+        R.route(_dummy_inputs(cell.inputs, tmp_path), cell.output, out=out, quiet=True)
+    assert str(ei.value) == SA.out_dir_refusal(out)
+    assert not tree.exists()                                     # zero bytes: not even the dir
+
+
+def test_cli_refused_out_dir_is_exit_2_one_stderr_line_nothing_on_disk(tmp_path, monkeypatch, capsys):
+    """Through ``tools/route.py run --json``: the refusal rides the CLI's
+    existing ``RouteError`` path -- rc 2 (usage), ``[route] usage error: <the
+    one line>`` on stderr, 0 B on stdout (no JSON, as for every other usage
+    error; the ``--json`` shape of a refusal stays #176's question), and the
+    quarantine dir is never created."""
+    from rvt.frontdoor import standalone as SA
+    tree = tmp_path / "tree"
+    monkeypatch.setattr(SA, "repo_root", lambda: str(tree))
+    out = str(tree / "vendor" / "r")
+    rc = load_tool("route").main(["run", "--prompt", "a 100 A lighting panel", "--output", "rfa",
+                                  "--out", out, "--json"])
+    cap = capsys.readouterr()
+    assert rc == 2 and cap.out == ""
+    assert cap.err == "[route] usage error: " + SA.out_dir_refusal(out) + "\n"
+    assert not tree.exists()
+
+
 @pytest.mark.parametrize("prompt,edit", [
     ("move DP-1 to 3,1,4.66", True),
     ("delete LP-4 with cascade", True),
@@ -624,10 +677,14 @@ def test_works_cell_resolves_to_registered_impl(cell):
 
 @needs_catalog
 def test_e2e_prompt_to_rfa(tmp_path):
-    res = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(tmp_path / "o"))
-    assert res.ok, res.errors
+    """...and the out dir is ``<tmp>/samples/o`` -- the user's OWN disk merely
+    NAMED like a quarantine root -- which still DELIVERS (#473's positive
+    twin: ``errors == []``, the .rfa under that dir, ``route.json`` beside)."""
+    out = tmp_path / "samples" / "o"
+    res = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(out))
+    assert res.ok and res.errors == [], (res.status, res.errors)
     rfas = [p for k, p in res.files.items() if k.startswith("rfa:")]
-    assert rfas and all(os.path.isfile(p) for p in rfas)
+    assert rfas and all(p.startswith(str(out) + os.sep) and os.path.isfile(p) for p in rfas)
     assert os.path.isfile(res.files["intent"])
     assert os.path.isfile(res.manifest_paths["route.json"])
     man = json.load(open(res.manifest_paths["route.json"]))
