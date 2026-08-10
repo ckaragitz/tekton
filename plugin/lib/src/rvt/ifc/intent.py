@@ -2221,6 +2221,10 @@ def make_house_switchboard(*, tag: str = "MSB", name: str = "Switchboard",
                     apparent_load_va=0.0, power_factor=1.0,
                     bind_voltage_param="Voltage", load_class="Power",
                     description="Service / feeder bus (top entry)")
+    # parametric drive (issue #372): the floor-standing box footprint is
+    # X=Width, Y=Depth in the plan sketch
+    from ..famgen import param_drive as PD
+    PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
     doc.finalize()
     prod = F.FamilyProduct("switchboard", doc, sheet, forms=[fb],
                            file_stem=re.sub(r"[^a-z0-9_]+", "_",
