@@ -1,0 +1,4 @@
+# fresh-clone safe as a WHOLE file (#360 item 4): the rme-sample cases self-skip, the
+# constructed-circuit + stage-C honesty cases run on the bundled genesis base only.
+# Measured on a no-samples clone, RVT_SKIP_LARGE=1: 6 passed / 18 skipped / 0 failed, 2.0 s.
+tests/test_mep_devices.py
