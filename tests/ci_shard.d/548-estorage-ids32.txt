@@ -1,0 +1,2 @@
+# #548: estorage walks records with the walker in force (synthetic 32/64-bit segments only; fresh-clone safe)
+tests/test_estorage_ids32.py
