@@ -1,0 +1,2 @@
+# fresh-clone safe: inspects the three tracked genesis bases under plugin/assets/genesis (issue #533)
+tests/test_inspect_release.py
