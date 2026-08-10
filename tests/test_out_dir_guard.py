@@ -100,6 +100,82 @@ def test_an_output_dir_overlapping_a_real_quarantine_root_exempts_nothing(armed,
     _must_trip(os.path.join(Q_R5, "R5.rvt"))
 
 
+def test_a_case_variant_of_a_real_quarantine_root_is_the_root(armed):
+    """``<repo>/Samples/x`` IS ``<repo>/samples/x`` on NTFS/APFS, and the
+    hook's segment law is case-blind everywhere -- so the overlap test is
+    too: refused up front, and arming with it exempts nothing (review E1)."""
+    out = os.path.join(REPO, "Samples", "x425")
+    line = SA.out_dir_refusal(out)
+    assert line and f"quarantined samples{os.sep} directory" in line and line.endswith(out)
+    armed(outputs=[out])
+    assert SA._GUARD["outputs"] == ()
+    _must_trip(os.path.join(out, "prompt_room.rvt"))              # main raised here too
+    _must_trip(os.path.join(REPO, "samples", "some.rvt"))
+    _must_trip(os.path.join(REPO, "EXPERIMENTS", "Genesis", "R5.rvt"))
+
+
+@pytest.fixture
+def treelink(tmp_path):
+    """A second SPELLING of this checkout: ``<tmp>/treelink -> <repo>``."""
+    link = tmp_path / "treelink"
+    try:
+        os.symlink(REPO, str(link), target_is_directory=True)
+    except (OSError, NotImplementedError) as e:                # pragma: no cover
+        pytest.skip(f"cannot create a directory symlink here: {e}")
+    return str(link)
+
+
+def test_engine_imported_through_a_symlink_still_guards_the_real_tree(treelink, armed,
+                                                                       monkeypatch):
+    """The engine's ``repo_root()`` is the symlink spelling, the job's --out
+    the real one (review D5): the out dir is STILL inside the real quarantine
+    root -> refused, and arming with it exempts nothing under either spelling."""
+    monkeypatch.setattr(SA, "repo_root", lambda: treelink)
+    assert SA.quarantine_roots()[1] == os.path.join(treelink, "samples")
+    out = os.path.join(REPO, "samples", "Snowdon")             # the REAL spelling
+    line = SA.out_dir_refusal(out)
+    assert line and f"quarantined samples{os.sep} directory" in line and line.endswith(out)
+    armed(outputs=[out])
+    assert SA._GUARD["outputs"] == ()
+    _must_trip(os.path.join(out, "real.rvt"))
+    _must_trip(os.path.join(treelink, "samples", "Snowdon", "real.rvt"))
+    _must_trip(os.path.join(treelink, "vendor", "x.rfa"))
+
+
+def test_a_symlink_spelled_output_is_dropped_entirely(treelink, armed):
+    """A direct caller arms with the SYMLINK spelling of ``<repo>/samples/x``
+    (review D3): one of its spellings nests the real root, so the output is
+    dropped ENTIRELY -- the link spelling does not survive as a prefix."""
+    out = os.path.join(treelink, "samples", "Snowdon")
+    assert SA.out_dir_refusal(out) is not None
+    armed(outputs=[out, os.path.join(treelink, "experiments")])   # + an ancestor, link-spelled
+    assert SA._GUARD["outputs"] == ()
+    _must_trip(os.path.join(out, "real.rvt"))                   # link spelling
+    _must_trip(os.path.join(REPO, "samples", "Snowdon", "real.rvt"))   # real spelling
+    _must_trip(os.path.join(treelink, "experiments", "genesis", "R5.rvt"))
+    # while a genuinely foreign dir reached through a link stays the job's own
+    # output under BOTH spellings (the stranger's macOS /tmp -> /private/tmp)
+
+
+def test_a_symlinked_stranger_dir_is_exempt_under_both_spellings(tmp_path, armed):
+    real = tmp_path / "disk" / "samples" / "jobs" / "x"
+    real.mkdir(parents=True)
+    link = tmp_path / "home"
+    try:
+        os.symlink(str(tmp_path / "disk"), str(link), target_is_directory=True)
+    except (OSError, NotImplementedError) as e:                # pragma: no cover
+        pytest.skip(f"cannot create a directory symlink here: {e}")
+    out = os.path.join(str(link), "samples", "jobs", "x")      # the spelling the user typed
+    assert SA.out_dir_refusal(out) is None
+    armed(outputs=[out])
+    assert set(SA._GUARD["outputs"]) == {out + os.sep, str(real) + os.sep}
+    for spelling in (out, str(real)):
+        with open(os.path.join(spelling, "build.log"), "a") as fh:
+            fh.write("ok\n")
+    _must_trip(os.path.join(str(link), "samples", "jobs", "other.rvt"))
+    _must_trip(os.path.join(Q_SAMPLES, "some.rvt"))
+
+
 def test_disarmed_guard_polices_nothing(tmp_path, armed):
     armed(outputs=[str(tmp_path)])
     SA.allow_research_inputs()

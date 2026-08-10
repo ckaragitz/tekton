@@ -762,15 +762,47 @@ stay exempt, and `allow` precedes the Autodesk check today) which is behaviour o
 `run()` (altitude #2) — follow-up 1 above, out of territory; a shared `conftest.py` arm/disarm fixture for the three
 test files (reuse #3) — wider than this diff; findings 4 above (reuse #1) — out of territory.
 
+### Review round 1 (tech lead 🟡 on 92e9e49) — the overlap test now compares ONE canonical spelling
+
+The reviewer's 21 read-probes matched `main`; three *arming/refusal* shapes did not, all one cause — quarantine
+roots were compared in the checkout's `abspath(__file__)` spelling, case-sensitively, while `outputs` carried
+abspath+realpath and were filtered per spelling:
+
+* **E1** `--out <repo>/Samples/x425` → not refused and prefix-exempted; on NTFS/APFS that IS `samples/x425`
+  (main: every read under it raised, the segment law being case-blind);
+* **D5** engine imported through a symlinked checkout spelling + `--out <real>/samples/Snowdon` →
+  `out_dir_refusal() is None`, `_GUARD["outputs"] == ('<real>/samples/Snowdon/',)`, reads under it allowed;
+* **D3** a direct caller arming `outputs=[<treelink>/samples/Snowdon]` kept the link spelling as a prefix.
+
+Fix: `_canon(path) = _dirp(normcase(realpath(path)).lower())` and `_inside`/`_nested` compare canonical forms
+of BOTH sides (so any spelling of the out dir meets any spelling of the root; case-blind like the hook's own
+segment law); an output is dropped **entirely** when the output itself — hence any of its spellings — nests a root,
+and only surviving outputs contribute their abspath+realpath prefixes to the hook. Re-measured at the CLI:
+E1 → rc 3, the one line (`… than /home/user/tekton/Samples/x425`), files `{}`; D5 (`python <treelink>/tools/frontdoor.py
+… --out /home/user/tekton/samples/Snowdon`, `repo_root()` confirmed = the link spelling) → rc 3, the one line;
+the stranger (`--out <tmp>/samples/x9`, uid nobody) → rc 0, PROOF-ONLY, `degradations []`, unchanged. Four tests
+added to `tests/test_out_dir_guard.py` (29 total, 0.7 s): the case variant, the symlinked-checkout spelling
+(`repo_root` monkeypatched to a `tmp/treelink -> <repo>` symlink), the symlink-spelled output arming (+ a
+link-spelled ancestor), and the positive twin — a stranger dir reached through a symlink stays exempt under BOTH
+spellings (`_GUARD["outputs"] == {link/, real/}`, its `build.log` appends under either).
+
+Also taken (the reviewer's optional item, one token, caused by this stream's signature change):
+`tools/genesis_compose_2025.py::_forbid_with_base(*, allow=(), **kw)` passes `outputs=` through instead of
+`TypeError`-ing inside the obsolete `--simulate-allow-fix` dev simulation. Gates on this head: stream-local
+`test_frontdoor + test_stagelog + test_out_dir_guard + test_frontdoor_standalone` **122 passed / 7 skipped**;
+whole merged shard on this head **1535 passed / 134 skipped / 3 xfailed, 0 failed** (441.44 s); `sync_plugin.py
+--check` clean, `validate_plugin` PASS, portable paths ok.
+
 ## BRANCH STATE (eng #425)
 
 * Branch `cam/425-out-dir-not-research-input` from `origin/main` @ af15f6c.
 * Files written: `src/rvt/frontdoor/standalone.py` (§7: `_RESEARCH_DIRS`, `quarantine_roots`, `out_dir_refusal`,
   `forbid_research_inputs(outputs=)`), `src/rvt/frontdoor/build.py` (`build_intent` up-front refusal; arming call passes
-  `outputs=[opts.out_dir]`), `tests/test_out_dir_guard.py` (new, 25), `tests/ci_shard.d/425-out-dir-guard.txt` (new),
+  `outputs=[opts.out_dir]`), `tests/test_out_dir_guard.py` (new, 29), `tests/ci_shard.d/425-out-dir-guard.txt` (new),
+  `tools/genesis_compose_2025.py` (`**kw` pass-through, review round 1),
   `tests/test_frontdoor.py` (quarantined-name test tightened to rc 0 + delivered; new refused-up-front twin),
   `docs/inbox/standalone.md` (this section); regenerated mirrors `plugin/lib/src/rvt/frontdoor/{standalone,build}.py`.
-* Gates: as listed above (shard 1531 passed / 134 skipped / 3 xfailed); `sync_plugin.py --check` clean; `/verify`: bare-unzip
+* Gates: as listed above (shard 1531/134/3x on 92e9e49; **1535 passed / 134 skipped / 3 xfailed** after review round 1); `sync_plugin.py --check` clean; `/verify`: bare-unzip
   `go author --prompt "…6 panels" --out <tmp>/samples/j1 --json` (uid nobody, system python3) → READY, exit 0, PROOF-ONLY,
   `combined` + `families_dir`, `build.log, json, md`, `errors []`; the 6-panel `.rvt` built into `<tmp>/samples/v1`
   `rvt_validate` VALID (no errors; 1 known warning) and `provenance.py --baseline all --streams` shows exactly the

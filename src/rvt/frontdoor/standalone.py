@@ -1046,10 +1046,12 @@ def _is_autodesk_install(low_path: str) -> bool:
 
 
 def quarantine_roots() -> List[str]:
-    """THIS checkout's quarantine roots (absolute): ``<repo>/extracted``,
-    ``<repo>/samples``, ``<repo>/vendor``, ``<repo>/experiments/genesis`` --
-    where the research corpus actually lives (present or not; inside the
-    plugin bundle ``repo_root()`` is its ``lib/`` dir and none exist)."""
+    """THIS checkout's quarantine roots (absolute, in the checkout's own
+    spelling): ``<repo>/extracted``, ``<repo>/samples``, ``<repo>/vendor``,
+    ``<repo>/experiments/genesis`` -- where the research corpus actually
+    lives (present or not; inside the plugin bundle ``repo_root()`` is its
+    ``lib/`` dir and none exist).  Compare against them with :func:`_inside`
+    / :func:`_nested`, never with a raw ``startswith``."""
     root = repo_root()
     return [os.path.join(root, *d) for d in _RESEARCH_DIRS]
 
@@ -1068,9 +1070,18 @@ def _dirp(path: str) -> str:
     return path.rstrip(os.sep) + os.sep
 
 
+def _canon(path: str) -> str:
+    """The ONE spelling directories are compared in: symlinks resolved
+    (a checkout imported through a link, macOS ``/tmp``) and case folded
+    (``Samples`` IS ``samples`` on NTFS/APFS -- and the hook's segment law is
+    case-blind everywhere, so the overlap test is too), as a dir prefix."""
+    return _dirp(os.path.normcase(os.path.realpath(path)).lower())
+
+
 def _inside(path: str, root: str) -> bool:
-    """True when ``path`` equals or lies inside directory ``root``."""
-    return _dirp(path).startswith(_dirp(root))
+    """True when ``path`` equals or lies inside directory ``root`` (canonical
+    comparison: any spelling of either side)."""
+    return _canon(path).startswith(_canon(root))
 
 
 def _nested(a: str, b: str) -> bool:
@@ -1097,8 +1108,8 @@ def out_dir_refusal(out_dir: str) -> Optional[str]:
     if _is_autodesk_install(ap.lower()):
         why = "an Autodesk installation directory, which tekton never reads or writes"
     else:
-        hit = next((d for sp in _spellings(out_dir)
-                    for d, q in zip(_RESEARCH_DIRS, quarantine_roots()) if _inside(sp, q)), None)
+        hit = next((d for d, q in zip(_RESEARCH_DIRS, quarantine_roots()) if _inside(ap, q)),
+                   None)
         if hit:
             why = (f"this checkout's quarantined {os.path.join(*hit)}{os.sep} directory, "
                    "whose files the build may never read")
@@ -1125,17 +1136,19 @@ def forbid_research_inputs(*, allow: Sequence[str] = (),
     job's outputs, not research inputs, so a directory merely NAMED
     ``samples``/... on the user's disk does not trip the corpus law -- but
     they are NEVER exempt from the Autodesk-install ban, and an output dir
-    that contains or lies inside a quarantine root of THIS checkout exempts
-    nothing (the corpus stays exactly as guarded; :func:`out_dir_refusal`
-    refuses such an ``--out`` up front)."""
+    that equals, contains or lies inside a quarantine root of THIS checkout
+    -- under ANY spelling: symlinked, or differing only in case -- exempts
+    nothing at all (the corpus stays exactly as guarded;
+    :func:`out_dir_refusal` refuses such an ``--out`` up front)."""
     _GUARD["allow"] = [os.path.abspath(a) for a in allow]
     try:
         _GUARD["allow"].append(os.path.abspath(bundled_base_path()))
     except Exception:
         pass
     roots = quarantine_roots()
-    _GUARD["outputs"] = tuple(_dirp(sp) for o in outputs for sp in _spellings(o)
-                              if not any(_nested(sp, q) for q in roots))
+    _GUARD["outputs"] = tuple(_dirp(sp) for o in outputs
+                              if not any(_nested(o, q) for q in roots)
+                              for sp in _spellings(o))
     _GUARD["enabled"] = True
     if _GUARD["armed"]:
         return
