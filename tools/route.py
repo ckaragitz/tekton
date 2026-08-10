@@ -46,13 +46,13 @@ for p in (os.path.join(ROOT, "src"), os.path.join(ROOT, "lib", "src")):
     if p not in sys.path:
         sys.path.insert(0, p)
 
+from rvt import _jsonsafe  # noqa: E402  -- stdlib leaf
+
 EX_OK, EX_ERR, EX_USAGE, EX_INCOMPLETE, EX_UNSUPPORTED = 0, 1, 2, 3, 4
 
 
 def _print_json(obj) -> None:
-    """The ``--json`` stdout document, strictly parseable: no bare
-    Infinity/NaN token (``rvt._jsonsafe``, #475)."""
-    from rvt import _jsonsafe
+    """The ``--json`` stdout document -- strict JSON, no bare Infinity/NaN (#475)."""
     print(_jsonsafe.dumps(obj, indent=1))
 
 

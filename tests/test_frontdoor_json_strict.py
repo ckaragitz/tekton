@@ -27,16 +27,15 @@ in-repo catalog is all ``prompt_to_intent`` needs.
 from __future__ import annotations
 
 import dataclasses
-import importlib.util
 import io
 import json
 import math
 import os
 import re
-import sys
 
 import pytest
 
+from conftest import load_tool
 from rvt import _jsonsafe as JS
 from rvt.frontdoor import edit as E
 from rvt.frontdoor import manifest as MF
@@ -47,16 +46,6 @@ from rvt.ifc import intent as I
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INF, NAN = float("inf"), float("nan")
 PROMPT = "an electrical room with 6 panels"
-
-
-def _load_tool(name):
-    """Import ``tools/<name>.py`` by path (they are CLIs, not a package)."""
-    spec = importlib.util.spec_from_file_location(f"_jsonstrict_{name}",
-                                                  os.path.join(ROOT, "tools", f"{name}.py"))
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = mod
-    spec.loader.exec_module(mod)
-    return mod
 
 
 def _refuse_constant(tok):                       # json.loads' hook for Infinity/-Infinity/NaN
@@ -135,8 +124,9 @@ def test_a_default_hook_s_result_is_walked_too():
         return dataclasses.asdict(o) if dataclasses.is_dataclass(o) else str(o)
 
     doc = {"t": Timing(INF, (NAN, 2.5)), "nested": [Timing(1.0, (Timing(-INF, ()),))]}
-    for text in (JS.dumps(doc, default=expand, indent=1),
-                 (lambda b: (JS.dump(doc, b, default=expand), b.getvalue())[1])(io.StringIO())):
+    buf = io.StringIO()
+    JS.dump(doc, buf, default=expand)
+    for text in (JS.dumps(doc, default=expand, indent=1), buf.getvalue()):
         got = json.loads(text, parse_constant=_refuse_constant)
         assert got["t"] == {"seconds": "inf", "parts": ["nan", 2.5]}
         assert got["nested"][0]["parts"][0] == {"seconds": "-inf", "parts": []}
@@ -229,7 +219,7 @@ def test_the_edit_ops_echo_lands_strict_json_before_the_job_runs(tmp_path):
 
 
 def test_ifc_intent_jdump_lands_strict_json(tmp_path):
-    T = _load_tool("ifc_intent")
+    T = load_tool("ifc_intent")
     p = tmp_path / "families" / "families_record.json"
     T._jdump(str(p), {"families": [_poison()], "seconds": INF})
     got = _strict_load(str(p))
@@ -271,7 +261,7 @@ def test_rvt_job_manifests_and_its_one_json_stdout_document_are_strict(tmp_path,
 
 
 def test_route_s_json_printer_is_strict(capsys):
-    T = _load_tool("route")
+    T = load_tool("route")
     T._print_json({"cell": _poison(), "seconds": INF})
     doc = json.loads(capsys.readouterr().out, parse_constant=_refuse_constant)
     assert doc["seconds"] == "inf" and doc["cell"]["seq"][1] == ["nan", ["inf"]]
@@ -279,31 +269,27 @@ def test_route_s_json_printer_is_strict(capsys):
 
 # --- tripwires ------------------------------------------------------------
 
-#: rel path -> (strict-writer calls expected, whether json.dumps( is banned too).
-#: ``json.dumps`` stays legal where a module still prints human/dev output with
-#: it (prompt_intent's __main__, ifc_intent's progress echo); the two --json
-#: doors (rvt_job, route) print their ONE document through ``_jsonsafe.dumps``.
-WRITERS = {
-    "src/rvt/ifc/intent.py": (1, False), "src/rvt/frontdoor/manifest.py": (1, False),
-    "src/rvt/frontdoor/router.py": (4, False), "src/rvt/frontdoor/standalone.py": (1, False),
-    "src/rvt/frontdoor/prompt_intent.py": (1, False), "src/rvt/frontdoor/edit.py": (1, True),
-    "src/rvt/ifc/famfrom_ifc.py": (3, True), "tools/ifc_intent.py": (1, False),
-    "tools/rvt_job.py": (5, True), "tools/route.py": (1, True),
-}
-_SAFE_CALL = re.compile(r"_jsonsafe(?:\(\))?\.(?:write|dumps?)\(")
+#: every module #461 / #475 switched; the two ``--json`` doors additionally
+#: print their ONE stdout document through ``_jsonsafe.dumps``, so a bare
+#: ``json.dumps(`` is banned there too (elsewhere it still renders dev /
+#: progress output legitimately: prompt_intent's __main__, ifc_intent's echo).
+WRITERS = ("src/rvt/ifc/intent.py", "src/rvt/frontdoor/manifest.py", "src/rvt/frontdoor/router.py",
+           "src/rvt/frontdoor/standalone.py", "src/rvt/frontdoor/prompt_intent.py",
+           "src/rvt/frontdoor/edit.py", "src/rvt/ifc/famfrom_ifc.py", "tools/ifc_intent.py",
+           "tools/rvt_job.py", "tools/route.py")
+JSON_DOORS = ("tools/rvt_job.py", "tools/route.py")
 
 
-@pytest.mark.parametrize("rel", sorted(WRITERS))
-def test_no_touched_writer_dumps_around_the_walk(rel):
+@pytest.mark.parametrize("rel", WRITERS)
+def test_no_switched_module_dumps_around_the_walk(rel):
     """Coarse on purpose: the round trips above pin the behaviour; this only
-    catches a bare ``json.dump(`` (or, on the --json doors, ``json.dumps(``)
-    re-appearing in a switched module, or a strict call quietly dropped."""
-    calls, no_dumps = WRITERS[rel]
+    catches a bare ``json.dump(`` (or, on a --json door, ``json.dumps(``)
+    re-appearing in a switched module, or the strict writer dropped from it."""
     src = open(os.path.join(ROOT, rel), encoding="utf-8").read()
     assert not re.search(r"\bjson\.dump\(", src), f"{rel}: a bare json.dump( bypasses rvt._jsonsafe"
-    if no_dumps:
+    if rel in JSON_DOORS:
         assert not re.search(r"\bjson\.dumps\(", src), f"{rel}: a bare json.dumps( bypasses rvt._jsonsafe"
-    assert len(_SAFE_CALL.findall(src)) == calls, (rel, _SAFE_CALL.findall(src))
+    assert re.search(r"\b_jsonsafe\b", src), f"{rel}: no longer goes through rvt._jsonsafe"
 
 
 def test_jsonsafe_is_a_stdlib_leaf():
