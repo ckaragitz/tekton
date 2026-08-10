@@ -86,7 +86,17 @@ def _assert_pass(rc: int, rep: dict, printed: str) -> None:
 def test_pinned_base_passes_under_its_own_release(year, selfcheck, tmp_path, capsys):
     rc, rep, cap = _run(selfcheck, capsys, pinned_base(year), str(tmp_path / "sc.json"))
     _assert_pass(rc, rep, cap.out)
-    assert cap.err == ""                                      # certified pin: no release warning
+    assert cap.err == "" and "release_note" not in rep        # certified pin: no release warning
+
+
+def test_skip_stamps_walks_without_keeping_record_data(selfcheck, tmp_path, capsys):
+    rc = selfcheck.main([pinned_base(FOREIGN_FIRST[0]), "--skip-stamps", "--json", str(tmp_path / "sc.json")])
+    cap = capsys.readouterr()
+    with open(tmp_path / "sc.json", encoding="utf-8") as fh:
+        rep = json.load(fh)
+    assert rc == 0 and rep["verdict"] == "PASS" and rep["walker"]["walker_errors"] == 0
+    assert rep["stamps"] == {"records_checked": 0, "stamps_valid": 0, "stamp_failures": 0, "skipped": True}
+    assert "4 record stamps: skipped (--skip-stamps)" in cap.out
 
 
 @pytest.mark.parametrize("year", FOREIGN)
@@ -147,6 +157,8 @@ def test_damaged_schema_stream_still_reaches_a_verdict(selfcheck, tmp_path, caps
     rc, rep, cap = _run(selfcheck, capsys, bad, str(tmp_path / "sc.json"))
     assert rc == 1 and rep["verdict"] == "FAIL", cap.out[-800:]
     assert cap.err.startswith("warning: no release context for ")
+    assert rep["release_note"].startswith("no release context for ")      # --json says why ...
+    assert rep["failures"][-1].startswith("judged without its release context (")   # ... and so does the verdict
     assert rep["gzip"]["crc_failures"] == 1 and rep["walker"]["walker_errors"] == 1
 
 

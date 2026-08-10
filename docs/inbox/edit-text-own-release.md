@@ -204,10 +204,11 @@ assets/genesis/<base> --json out/x.json`:
   / `rvt_edit_text.py`; the SKILL documents `_bootstrap.py run` for all three
   and the script's usage text now says so.
 * **The fix** (the #70 / #116 pattern): `main()` proves the path exists and
-  opens as a CFB container (exit 2 otherwise, unchanged), then enters
+  opens as a CFB container (exit 2 otherwise, unchanged), then — unless the
+  file is natively framed, see the latency bullet below — enters
   `rvt.frontdoor.release_ctx.enter_host_release(stack, path)` **once** around
-  the four checks. A native (2026) file enters no context (stdout and `--json`
-  byte-identical to `main`'s — diffed, see 518.2); a 2025/2024 file is walked
+  the four checks. A native (2026) file enters no context (stdout, stderr and
+  `--json` byte-identical to `main`'s — diffed, see 518.2); a 2025/2024 file is walked
   with its release's `CONTAINER_CLASS` / block / trailer tags because
   `StreamWalker` is referenced through the module (`P.StreamWalker`) and reads
   `rvt.partitions` at call time; an uncertified/undetectable release prints
@@ -215,14 +216,15 @@ assets/genesis/<base> --json out/x.json`:
   (the walker then fails honestly). `check_gzip` / `check_ecc` are
   release-agnostic and untouched.
 * **A damaged file reaches a verdict, never a traceback** (the DONE's "a
-  corrupt file still exits 1"): the partitions are walked **once**
-  (`walk_partitions(doc)` → `{name: StreamWalker | the exception it raised}`,
-  shared by the walker and stamp checks — one inflate per stream instead of
-  the old two, and one guard instead of two); a partition whose stream header
-  cannot be parsed is one walker error carrying the exception text
-  (`first_errors: ["ValueError: unexpected Partitions header: v=0 cls=0x0"]`,
-  `blocks: 0`) → `VERDICT : FAIL`, exit 1, and the stamp check skips it
-  (already counted). This is the altitude the engine's own *judging* callers
+  corrupt file still exits 1"): the walker and stamp checks come from **one**
+  walk per partition (`check_partitions(doc, stamps=…)` → `(walker report,
+  stamp report)`: one inflate per stream instead of the old two, one
+  partition held at a time as before, block data kept only when stamps are
+  wanted — `--skip-stamps` walks with `keep_data=False`); a partition whose
+  stream header cannot be parsed is one walker error carrying the exception
+  text (`first_errors: ["ValueError: unexpected Partitions header: v=0
+  cls=0x0"]`, `blocks: 0`) → `VERDICT : FAIL`, exit 1, and contributes no
+  stamps (already counted). This is the altitude the engine's own *judging* callers
   use (`validate.py` `WalkedFile.walker()` caches walker-or-exception the same
   way); `StreamWalker` raising on a bad header stays its contract for the ~30
   authoring callers. And because this is *the* tool whose input is expected to
@@ -235,24 +237,39 @@ assets/genesis/<base> --json out/x.json`:
   1). That guard is an interim at the wrong altitude — the helper should keep
   its own "note, never raise" promise for all six callers — so it is filed as
   **#535** (`Refs #518`, `area:frontdoor`) and the comment cites it; #535's
-  DONE ends with deleting the guard here. Healthy-file output is unchanged by
-  both.
-* **Chosen deliberately, with numbers: `enter_host_release`, not the lighter
-  instrument ladder.** /simplify's reuse pass proposed
-  `rvt.global_framing.enter_own_release` (what `rvt_validate` / `rvt_analyze`
-  / `seed_audit` use; never raises). Measured in-repo, context entry only:
-  `enter_host_release` 2026 **0.045 s** · 2025 0.162 s · 2024 0.164 s (43
-  `rvt.*` modules); `enter_own_release` 0.116 / 0.120 / 0.113 s (18 modules —
-  it parses `Formats/Latest` on *every* release, so the native path every
-  current user is on would get ~70 ms slower per call); a hand-rolled
-  `detect_release(doc)` + `V.reading(year=)` 0.03 s everywhere but re-implements
-  the certified/unknown-release guards. The issue's DONE and the brief name
-  `enter_host_release`, it keeps parity with the two sibling edit CLIs (one
-  entry, one refusal sentence, one no-leak guarantee), and it is the fastest
-  on 2026; the 2025/2024 whole-command wall is 0.42 / 0.24 s from a bare unzip
-  for a once-per-delivery gate. Swapping the one call later is a three-line
-  change if #535 or a latency budget says so.
-* **Test** `tests/test_selfcheck_release.py` (8 tests, 0.6 s, fresh-clone safe
+  DONE ends with deleting the guard here. When a file FAILs *and* was judged
+  without its release context, the note is echoed as the last `failures`
+  entry (`judged without its release context (…)`) and as `release_note` in
+  `--json`, so the verdict explains itself; a note alone never fails a file,
+  and a healthy pin's report carries neither (2026 output unchanged).
+* **The native path pays nothing for release awareness (S-2026-08-09-g) —
+  corrected after review, with the honest before/after.** The first head
+  (b8bb320) imported `rvt.frontdoor.release_ctx` eagerly and always called
+  `enter_host_release`, and this record claimed "0.25 s (main 0.27 s)" from two
+  single wall-clock runs. The tech-lead review measured it properly
+  (interleaved, bare unzip): 2026 median **137 ms vs main 97 ms, +40 ms /
+  +40 %** — reproduced here at 165 vs 120 ms (7+7 interleaved): the eager
+  import pulls ~14–22 extra `rvt.*` modules and `enter_host_release` re-opens
+  the container for `detect_release` even on a native file. Fixed at the
+  script's own altitude: `natively_framed(doc)` asks the engine's own header
+  parser (`P.parse_stream_header` on each partition's logical bytes — no
+  layout re-implemented) whether every partition already parses with the
+  container class bound in `rvt.partitions`; if so nothing is entered and
+  nothing more is imported. Only a foreign or damaged file imports
+  `release_ctx` (lazily, inside `enter_files_release`) and enters
+  `enter_host_release(stack, path)` once, as the DONE names. Alternatives
+  measured and not taken: gating on `V.detect_release(doc)` (reuses the open
+  container but imports `rvt.stream_encoders` → schema/writer/roundtrip, 2026
+  median 145 ms, still +25); `global_framing.enter_own_release` (parses
+  `Formats/Latest` on every release, ~+70 ms on 2026); always-on
+  `enter_host_release` (+40). Result, interleaved 7+7 from a fresh bare unzip
+  of the rebuilt zip, `env -i` system python 3.11.15, medians: **2026 main
+  108 ms → head 103 ms** (runs: main 106 108 110 109 102 114 105 · head 97 100
+  104 109 102 109 103 — parity; the single shared inflate gives the few ms
+  back); 2025 head 245 ms, 2024 head 242 ms (5 runs each; main: traceback).
+  So: native users pay 0; a 2025/2024 delivery pays ~140 ms once for the
+  context that makes the gate work at all.
+* **Test** `tests/test_selfcheck_release.py` (9 tests, 1.3 s, fresh-clone safe
   — pins via `conftest.CERTIFIED_YEARS` / `pinned_base`, tools via
   `conftest.load_tool`; `conftest.py` only *read*, it is another engineer's
   territory this wave): PASS with all four counts zero and `records_checked ==
@@ -265,7 +282,9 @@ assets/genesis/<base> --json out/x.json`:
   header zeroed → exit 1, `verdict FAIL`, `walker_errors 1` naming the
   `ValueError`, `ecc_mismatches 1`, no `Traceback` on either stream; a 2025
   copy with 64 bytes of `Formats/Latest` zeroed → the stderr warning, exit 1,
-  `FAIL` (CRC 1, walker 1) — the #535 guard is exercised, not speculative; a
+  `FAIL` (CRC 1, walker 1), `release_note` in `--json` and the note as the
+  last `failures` line — the #535 guard is exercised, not speculative;
+  `--skip-stamps` on a pin → PASS with the exact skipped-stamps dict; a
   CFB-header-zeroed copy and a missing path → exit 2 with the one-line error.
   Damaged copies are built in-test from the tracked pin (`read_entries` →
   replace one stream's raw bytes → `write_cfb`), nothing checked in. In the
@@ -273,23 +292,24 @@ assets/genesis/<base> --json out/x.json`:
 
 ## 518.2 Evidence (head of this branch; as nobody from a bare unzip of the rebuilt zip unless stated)
 
-| input | head (`run rvt_selfcheck.py … --json`) | wall |
+| input | head (`run rvt_selfcheck.py … --json`) | wall (bare unzip, `env -i` python3 3.11.15) |
 |---|---|---|
-| `G_ABPD.rvt` (2026) | exit 0 · 22/0 CRC · 5 pages/0 · 14 blocks, 0 errors · 3102/3102 · `PASS` — **stdout `diff` vs main: identical; `--json` `cmp` vs main: identical** | 0.25 s (main 0.27 s) |
-| `G_ABPD_2025.rvt` | exit 0 · 23 members/0 CRC · 6 pages/0 mismatches · 15 blocks in 1 stream, 0 errors · **3316/3316** stamps · `PASS` (no stderr) | 0.42 s |
-| `G_ABPD_2024.rvt` | exit 0 · 23/0 · 6/0 · 15 blocks, 0 errors · **3278/3278** · `PASS` | 0.24 s |
+| `G_ABPD.rvt` (2026) | exit 0 · 22/0 CRC · 5 pages/0 · 14 blocks, 0 errors · 3102/3102 · `PASS` — **stdout `diff` vs main: identical; `--json` `cmp` vs main: identical; stderr empty** | median **103 ms** (main **108 ms**), 7+7 interleaved |
+| `G_ABPD_2025.rvt` | exit 0 · 23 members/0 CRC · 6 pages/0 mismatches · 15 blocks in 1 stream, 0 errors · **3316/3316** stamps · `PASS` (no stderr) | median 245 ms (5 runs) |
+| `G_ABPD_2024.rvt` | exit 0 · 23/0 · 6/0 · 15 blocks, 0 errors · **3278/3278** · `PASS` | median 242 ms (5 runs) |
 | #521 flow, 2025: `run rvt_edit_text.py assets/genesis/G_ABPD_2025.rvt --old "GEN Floor Plan" --new "OUR Floor Plan" --utf16 -o out/edited_2025.rvt` (`SELF-CHECK PASS`, 3316/3316) → `run rvt_selfcheck.py out/edited_2025.rvt` | exit 0 · 23/0 · 6/0 · 15/0 · 3316/3316 · `PASS` | — |
 | same flow, 2024 | exit 0 · 3278/3278 · `PASS` | — |
 | 2025 copy, first 16 bytes of `Partitions/20` zeroed | exit 1 · `2 page ECC : 6 full pages checked, 1 mismatches` · `3 block walker : 0 blocks in 1 partition stream(s), 1 errors` · `4 record stamps: 0/0` · `VERDICT : FAIL -> ECC page mismatches: 1 (Autodesk reader will reject); partition walker errors: 1`; json `first_errors: ["ValueError: unexpected Partitions header: v=0 cls=0x0"]`; **no traceback** | — |
 | 2026 copy, same damage | exit 1 · same FAIL verdict (main: traceback) | — |
 | 2025 copy, one byte flipped at raw offset 30000 of `Partitions/20` | exit 1 · `1 CRC failures` · `1 mismatches` · walker 0 · 3316/3316 · `FAIL -> gzip CRC failures: 1; ECC page mismatches: 1` | — |
-| 2025 copy, 64 bytes of `Formats/Latest` zeroed at raw offset 2000 | exit 1 · stderr `warning: no release context for …: ParseError: parse error at 0x603b: class marker != 0 (0x403c) …` · `1 CRC failures` · `1 mismatches` · walker `0 blocks …, 1 errors` · `VERDICT : FAIL`; **no traceback** (without the #535 guard: traceback) | — |
+| 2025 copy, 64 bytes of `Formats/Latest` zeroed at raw offset 2000 | exit 1 · stderr `warning: no release context for …: ParseError: parse error at 0x603b: class marker != 0 (0x403c) …` · `1 CRC failures` · `1 mismatches` · walker `0 blocks …, 1 errors` · `VERDICT : FAIL -> …; judged without its release context (no release context for …)`; json `release_note` set; **no traceback** (without the #535 guard: traceback) | — |
+| `head -c 65536` truncations of the 2025 / 2026 pins | exit 1 · `FAIL -> partition walker errors: 1` (2025 adds `; judged without its release context (… schema sha256 e3b0c442… but the Revit 2025 pin is c964f9aa… …)`); no traceback | — |
 | 2025 copy, CFB header sector zeroed | exit 2 · `ERROR: cannot open as an .rvt container: not an OLE2 structured storage file` | — |
 
 The same runs from the repo (`.venv/bin/python tools/rvt_selfcheck.py …`)
 print identical reports.
 
-**Gates:** `tests/test_selfcheck_release.py` 8 passed (0.63 s); neighbours
+**Gates:** `tests/test_selfcheck_release.py` 9 passed (1.31 s); neighbours
 `tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py
 tests/test_edit_text_release.py tests/test_edit_own_release.py` 43 passed
 (13.6 s); `tools/sync_plugin.py` → synced 1 file, deny-audit clean, validation

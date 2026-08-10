@@ -25,9 +25,11 @@ The file is judged under ITS OWN release (issue #518, the pattern
 rvt_edit.py / rvt_edit_text.py use since #70 / #116): a Revit 2025/2024
 project's Partitions/<N> streams are walked with that release's container
 class and block/trailer tags, read from ``rvt.partitions`` at call time --
-never a module-level copy of the 2026 constants. A partition that cannot
-be walked at all (damaged header, unknown release) is a walker error and a
-FAIL verdict, not a traceback.
+never a module-level copy of the 2026 constants. A native file (every
+partition header already parses with the natively bound container class)
+enters no context and imports nothing extra, so the common path costs what
+it always did. A partition that cannot be walked at all (damaged header,
+unknown release) is a walker error and a FAIL verdict, not a traceback.
 
 Exit codes: 0 = all checks pass; 1 = at least one check failed;
 2 = not a readable .rvt / CFB container.
@@ -51,7 +53,6 @@ sys.path.insert(0, os.path.join(HERE, "..", "lib", "src"))     # plugin layout
 from rvt import ecc  # noqa: E402
 from rvt import partitions as P  # noqa: E402
 from rvt.container import open_rvt  # noqa: E402
-from rvt.frontdoor.release_ctx import enter_host_release  # noqa: E402
 from rvt.objects import iter_records  # noqa: E402
 
 # Streams stored with NO CRCIO paging (their parsers consume every byte).
@@ -96,48 +97,62 @@ def check_ecc(doc, max_pages: int | None) -> dict:
     return {"full_pages_checked": tot, "ecc_mismatches": bad, "streams": per}
 
 
-def walk_partitions(doc) -> dict:
-    """{Partitions/<N>: its StreamWalker -- or the exception an unwalkable
-    stream raised (damaged header, unknown release): a walker error and a
-    FAIL verdict downstream, never a traceback}. One inflate per stream,
-    shared by the walker and stamp checks."""
-    walks = {}
+def check_partitions(doc, stamps: bool = True) -> tuple[dict, dict]:
+    """The block-walker check and (unless ``stamps`` is False) the adler32
+    stamp check of every seq-102 record, from ONE walk per Partitions/<N>
+    stream, one partition held at a time. A stream that cannot be walked at
+    all (damaged header, unknown release) is one walker error carrying the
+    exception text -- a FAIL verdict downstream, never a traceback."""
+    out = {}
+    errors = checked = ok = 0
     for name in doc.partition_streams():
         try:
-            walks[name] = P.StreamWalker(doc.logical(name), inflate=True, keep_data=True)
+            w = P.StreamWalker(doc.logical(name), inflate=True, keep_data=stamps)
         except Exception as e:  # noqa: BLE001 -- the damage judge reports, it does not raise
-            walks[name] = e
-    return walks
-
-
-def check_walker(walks: dict) -> dict:
-    out = {}
-    errors = 0
-    for name, w in walks.items():
-        if isinstance(w, Exception):
-            out[name] = {"blocks": 0, "walker_errors": 1, "first_errors": [f"{type(w).__name__}: {w}"]}
+            out[name] = {"blocks": 0, "walker_errors": 1, "first_errors": [f"{type(e).__name__}: {e}"]}
             errors += 1
             continue
         out[name] = {"blocks": len(w.blocks), "walker_errors": len(w.errors),
                      "first_errors": [str(e) for e in w.errors[:3]]}
         errors += len(w.errors)
-    return {"partitions": out, "walker_errors": errors}
+        if stamps:
+            seg = b"".join(b.data for b in sorted(w.blocks, key=lambda x: x.hdr_offset) if b.seq == 102)
+            for rec in iter_records(seg, 102):
+                if rec.elem_id == -1 or rec.body_size < 2:
+                    continue
+                body = seg[rec.seg_offset + 16: rec.seg_offset + 16 + rec.body_size]
+                checked += 1
+                ok += (zlib.adler32(body) & 0xFFFFFFFF) == rec.stamp
+    return ({"partitions": out, "walker_errors": errors},
+            {"records_checked": checked, "stamps_valid": ok, "stamp_failures": checked - ok})
 
 
-def check_stamps(walks: dict) -> dict:
-    """Verify adler32 stamps on every seq-102 record of every partition."""
-    checked = ok = 0
-    for w in walks.values():
-        if isinstance(w, Exception):    # already a walker error in check_walker
-            continue
-        seg = b"".join(b.data for b in sorted(w.blocks, key=lambda x: x.hdr_offset) if b.seq == 102)
-        for rec in iter_records(seg, 102):
-            if rec.elem_id == -1 or rec.body_size < 2:
-                continue
-            body = seg[rec.seg_offset + 16: rec.seg_offset + 16 + rec.body_size]
-            checked += 1
-            ok += (zlib.adler32(body) & 0xFFFFFFFF) == rec.stamp
-    return {"records_checked": checked, "stamps_valid": ok, "stamp_failures": checked - ok}
+def natively_framed(doc) -> bool:
+    """True when every Partitions/<N> header already parses with the
+    container class bound in ``rvt.partitions`` right now -- a native-release
+    file: nothing to enter, nothing more to import (the common path pays
+    nothing for release awareness). Anything else -- a foreign release, a
+    damaged header -- asks the version model."""
+    try:
+        for name in doc.partition_streams():
+            P.parse_stream_header(doc.logical(name))     # raises on any other container class
+    except Exception:  # noqa: BLE001
+        return False
+    return True
+
+
+def enter_files_release(stack: contextlib.ExitStack, doc, path: str) -> str | None:
+    """Put ``path``'s own release in force on ``stack`` when it is not the
+    native one; None when nothing had to be said, else the one sentence why
+    the file is being judged without its release context."""
+    if natively_framed(doc):
+        return None
+    from rvt.frontdoor.release_ctx import enter_host_release   # foreign files only: keep the native path light
+    try:
+        return enter_host_release(stack, path)
+    except Exception as e:  # noqa: BLE001 -- a damaged Formats/Latest raises past the
+        # helper's own refusal today (#535); this tool must still reach a verdict
+        return f"no release context for {path}: {type(e).__name__}: {e}"
 
 
 def main(argv=None) -> int:
@@ -161,19 +176,14 @@ def main(argv=None) -> int:
     # walk the partitions under the FILE's own release; a file whose release
     # cannot be entered is still checked (release-blind) and fails honestly
     with contextlib.ExitStack() as stack, doc:
-        try:
-            note = enter_host_release(stack, a.path)
-        except Exception as e:  # noqa: BLE001 -- a damaged Formats/Latest raises past the
-            # helper's own refusal today (#535); this tool must still reach a verdict
-            note = f"no release context for {a.path}: {type(e).__name__}: {e}"
+        note = enter_files_release(stack, doc, a.path)
         if note:
             print(f"warning: {note}", file=sys.stderr)
         gz = check_gzip(doc)
         ec = check_ecc(doc, a.max_partition_pages)
-        walks = walk_partitions(doc)
-        wk = check_walker(walks)
-        st = {"records_checked": 0, "stamps_valid": 0, "stamp_failures": 0, "skipped": True} \
-            if a.skip_stamps else check_stamps(walks)
+        wk, st = check_partitions(doc, stamps=not a.skip_stamps)
+        if a.skip_stamps:
+            st["skipped"] = True
 
     result = {"file": a.path, "size": os.path.getsize(a.path),
               "gzip": gz, "ecc": ec, "walker": wk, "stamps": st}
@@ -186,8 +196,12 @@ def main(argv=None) -> int:
         fails.append(f"partition walker errors: {wk['walker_errors']}")
     if st.get("stamp_failures"):
         fails.append(f"stale record stamps: {st['stamp_failures']} (hygiene; investigate the edit)")
+    if fails and note:          # the verdict explains itself; a note alone never fails a file
+        fails.append(f"judged without its release context ({note})")
     result["verdict"] = "FAIL" if fails else "PASS"
     result["failures"] = fails
+    if note:
+        result["release_note"] = note
 
     print(f"== rvt_selfcheck: {a.path} ({result['size']:,} bytes) ==")
     print(f"  1 gzip members : {gz['members']} verified, {gz['crc_failures']} CRC failures")
