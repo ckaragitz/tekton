@@ -165,9 +165,23 @@ def author(*, prompt: Optional[str] = None, ifc: Optional[str] = None,
 
 
 def run(req: AuthorRequest) -> AuthorResult:
+    """Route ``req``.  Where the job's out dir may live is a property of the
+    REQUEST, so it is judged here, for all three routes, before the dir is
+    created (issue #452): an ``--out`` that :func:`standalone.out_dir_refusal`
+    refuses (inside THIS checkout's quarantine roots or an Autodesk
+    installation directory) raises :class:`FrontDoorError` with its ONE line
+    and writes zero bytes -- no edited file under ``<repo>/samples/`` reading
+    as an Autodesk sample ever after, no intent/handoff files there.  That
+    predicate judges the dir's PHYSICAL location (symlinks resolved, case
+    folded), so every alias of the checkout is caught; its one known hole --
+    an outward symlink planted inside ``samples/`` -- is #474's to close."""
     t0 = time.time()
     route = req.route()
     out_dir = _out_dir(req, route)
+    from .standalone import out_dir_refusal
+    line = out_dir_refusal(out_dir)
+    if line:
+        raise FrontDoorError(line)          # before makedirs: nothing lands in the quarantine dir
     os.makedirs(out_dir, exist_ok=True)
     if route == "rvt":
         res = _route_rvt(req, out_dir)
