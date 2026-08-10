@@ -23,8 +23,8 @@ every other surface uses — never invent a name like "techlead": mutual exclusi
    result to a FILE with the Write tool (e.g. `out/lease.json`). Never pass it through `echo`/an unquoted heredoc: the
    body is data, and a shell that swallows part of it would make you misjudge the lease.
 2. `python3 tools/dev/techlead.py lease renew --me "$CLAUDE_CODE_REMOTE_SESSION_ID" --from-file out/lease.json --dry-run`
-   prints on stderr `HOLD|TAKE|STANDBY|DAMAGED: …` (and an `ARM_WATCHDOG_AT=<UTC>` line that only an owner-created
-   watchdog session uses — everyone else ignores it), and on stdout (hold/take only) the new body.
+   prints on stderr `HOLD|TAKE|STANDBY|DAMAGED: …` (ignore its `ARM_WATCHDOG_AT` line — nothing is re-armed from a
+   session, steer #422), and on stdout (hold/take only) the new body.
 3. Act on the verdict:
    - **exit 5 `STANDBY`** (another live loop holds it) → nothing else; one line "standby: held by … until …"; end the turn.
    - **exit 6 `DAMAGED`** (the issue mentions a lease but no marker line parses / impossible timestamp) → re-read once
@@ -40,8 +40,8 @@ every other surface uses — never invent a name like "techlead": mutual exclusi
 5. End of pass: the persistent session just stops (its lease keeps running; the hourly wake renews it). A session
    that is NOT the persistent one (an owner-created watchdog fire, or one the owner started by hand for one pass)
    hands the lease back at the end — `lease renew --release --from-file <fresh read> --dry-run` → `issue_write` — so
-   the persistent session reclaims at its next wake. An owner-created watchdog session, and only it, also re-arms
-   its own routine at `ARM_WATCHDOG_AT` (that routine was created by the owner with the tools to do so).
+   the persistent session reclaims at its next wake. (An owner-created watchdog, #421, is a plain periodic
+   routine: each fire reads the lease and stands by while a loop lives — nothing ever needs re-arming.)
 
 ## 1. Picture
 `list_pull_requests` (open); a skim of `ready` issues (the search result is large — save it and summarise);
