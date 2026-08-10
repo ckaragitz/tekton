@@ -80,7 +80,7 @@ from .base import PIN, BaseError, repo_root, sha256_of
 
 __all__ = [
     "StandaloneError", "plugin_root", "bundled_base_path", "bundled_schema",
-    "install_schema", "schema_identity_report", "default_object",
+    "default_schema_loader", "install_schema", "schema_identity_report", "default_object",
     "family_instance_template", "swall_template", "electrical_system_template",
     "ConstructedSpecimens",
     "CONSTRUCTED", "make_specimens", "standalone_family_write", "activate",
@@ -202,14 +202,30 @@ def bundled_schema(base_path: Optional[str] = None):
     return schema
 
 
+def default_schema_loader(schema, *default_paths: str):
+    """The ``load_schema`` replacement every chokepoint swap installs
+    (:func:`install_schema` step (b), ``release_ctx``): the no-arg call and
+    ``default_paths`` answer with ``schema`` -- the installed base's own class
+    map, in memory; any other path is parsed verbatim by the engine, so a
+    missing one raises ``FileNotFoundError`` instead of being answered with
+    this release's schema."""
+    from ..schema import load_schema_file
+
+    def load_schema(path: Optional[str] = None):
+        if path is None or path in default_paths:
+            return schema
+        return load_schema_file(path)
+    return load_schema
+
+
 def install_schema(base_path: Optional[str] = None) -> Dict[str, Any]:
     """Reroute EVERY default-schema chokepoint to the bundled base's embedded
     schema, so no code path ever resolves the research corpus:
 
     * ``rvt.schema.load_schema`` (and the from-imported copies in
       ``rvt.objects`` / ``rvt.encode`` / ``rvt.adocument``) -- the no-arg /
-      default-path call returns the bundled schema; an explicit existing path
-      still loads that path;
+      default-path call returns THIS base's schema; an explicit path is
+      loaded verbatim (:func:`default_schema_loader`);
     * ``rvt.schema.DEFAULT_PATH`` -- pointed at a materialised cache file of
       the same bytes (for any code comparing/opening the path directly);
     * the singleton caches: ``rvt.genesis.skeleton._SCHEMA_CACHE`` (used by
@@ -240,14 +256,10 @@ def install_schema(base_path: Optional[str] = None) -> Dict[str, Any]:
     _schema.DEFAULT_PATH = cache_file
     report["installed"].append(f"rvt.schema.DEFAULT_PATH -> {cache_file}")
 
-    # (b) load_schema in every module that from-imported it
-    orig_load = _schema.load_schema
-
-    def _load_schema_bundled(path: str = old_default):
-        if path in (None, old_default, cache_file) or not os.path.isfile(path):
-            return schema
-        return orig_load(path)
-
+    # (b) load_schema in every module that from-imported it -- kept beside
+    # the engine's native fallback on purpose: that serves the pinned 2026
+    # constant, this serves THIS base's schema (docs/inbox/install-schema.md)
+    _load_schema_bundled = default_schema_loader(schema, old_default, cache_file)
     _schema.load_schema = _load_schema_bundled
     from .. import objects as _objects
     from .. import encode as _encode
