@@ -172,9 +172,10 @@ def run(req: AuthorRequest) -> AuthorResult:
     installation directory) raises :class:`FrontDoorError` with its ONE line
     and writes zero bytes -- no edited file under ``<repo>/samples/`` reading
     as an Autodesk sample ever after, no intent/handoff files there.  That
-    predicate judges the dir's PHYSICAL location (symlinks resolved, case
-    folded), so every alias of the checkout is caught; its one known hole --
-    an outward symlink planted inside ``samples/`` -- is #474's to close."""
+    predicate judges BOTH the dir's lexical spelling and its physical
+    location (symlinks resolved, case folded), so every alias of the
+    checkout -- and an outward link planted inside ``samples/`` (#474) --
+    is caught."""
     t0 = time.time()
     route = req.route()
     out_dir = _out_dir(req, route)

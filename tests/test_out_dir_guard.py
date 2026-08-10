@@ -176,6 +176,116 @@ def test_a_symlinked_stranger_dir_is_exempt_under_both_spellings(tmp_path, armed
     _must_trip(os.path.join(Q_SAMPLES, "some.rvt"))
 
 
+def _symlink(target: str, link: str) -> str:
+    try:
+        os.symlink(target, link, target_is_directory=True)
+    except (OSError, NotImplementedError) as e:                # pragma: no cover
+        pytest.skip(f"cannot create a directory symlink here: {e}")
+    return link
+
+
+@pytest.fixture
+def tree(tmp_path, monkeypatch):
+    """A checkout root of its own under tmp (``repo_root()`` pointed at it),
+    with a real ``samples/`` dir and an ``elsewhere/`` dir OUTSIDE it -- so
+    the link cases never go near this repo's own ``samples/``."""
+    root = tmp_path / "tree"
+    (root / "samples").mkdir(parents=True)
+    (tmp_path / "elsewhere").mkdir()
+    monkeypatch.setattr(SA, "repo_root", lambda: str(root))
+    return root
+
+
+def test_an_outward_link_planted_inside_samples_is_still_inside_samples(tree, armed):
+    """Issue #474: ``<tree>/samples/escape -> <tmp>/elsewhere`` + ``--out
+    <tree>/samples/escape/j``.  Physically the job would land in
+    ``elsewhere/j`` -- but every path it reports is SPELLED under
+    ``<tree>/samples/``, which ``is_autodesk_sample()`` calls an Autodesk
+    sample ever after.  The lexical spelling lies inside the quarantine root,
+    so it is refused with the one line, and arming with it exempts nothing."""
+    elsewhere = str(tree.parent / "elsewhere")
+    escape = _symlink(elsewhere, str(tree / "samples" / "escape"))
+    out = os.path.join(escape, "j")
+    assert os.path.realpath(out) == os.path.join(os.path.realpath(elsewhere), "j")  # outward
+    line = SA.out_dir_refusal(out)
+    assert line and f"quarantined samples{os.sep} directory" in line
+    assert line.endswith("choose another --out than " + out)
+    assert SA.out_dir_refusal(str(tree / "Samples" / "escape" / "j")) is not None   # case-blind
+    armed(outputs=[out])
+    assert SA._GUARD["outputs"] == ()
+    _must_trip(os.path.join(out, "prompt_room.rvt"))              # the spelling the job would use
+    _must_trip(os.path.join(str(tree), "samples", "some.rvt"))
+    assert os.listdir(elsewhere) == []                              # nothing reached through the link
+
+
+def test_an_inward_link_outside_the_tree_is_inside_by_its_physical_spelling(tree, armed):
+    """The mirror shape, caught before and after #474 alike: ``<tmp>/inward ->
+    <tree>/samples`` + ``--out <tmp>/inward/j`` is physically inside the
+    quarantine root -> refused, exempts nothing under either spelling."""
+    inward = _symlink(str(tree / "samples"), str(tree.parent / "inward"))
+    out = os.path.join(inward, "j")
+    line = SA.out_dir_refusal(out)
+    assert line and f"quarantined samples{os.sep} directory" in line and line.endswith(out)
+    armed(outputs=[out])
+    assert SA._GUARD["outputs"] == ()
+    _must_trip(os.path.join(str(tree), "samples", "j", "prompt_room.rvt"))
+
+
+@pytest.mark.parametrize("shape", ["named", "tree_out_link", "foreign_link"])
+def test_links_and_names_that_lie_outside_under_both_spellings_are_not_refused(tree, armed,
+                                                                             shape):
+    """The negatives #474 must not swallow: a dir merely NAMED ``samples``
+    elsewhere; an outward link from a NON-quarantine dir of the tree
+    (``<tree>/out -> elsewhere``); a link placed OUTSIDE the tree pointing
+    outside it (``<tmp>/home -> elsewhere``, a ``samples/`` under it).  None
+    is inside a quarantine root under either spelling: not refused, and the
+    job's own dir is exempt under both spellings."""
+    elsewhere = str(tree.parent / "elsewhere")
+    if shape == "named":
+        out = os.path.join(elsewhere, "samples", "j")
+    elif shape == "tree_out_link":
+        out = os.path.join(_symlink(elsewhere, str(tree / "out")), "j")
+    else:
+        out = os.path.join(_symlink(elsewhere, str(tree.parent / "home")), "samples", "j")
+    assert SA.out_dir_refusal(out) is None
+    os.makedirs(out)
+    armed(outputs=[out])
+    spellings = {out, os.path.realpath(out)}
+    assert set(SA._GUARD["outputs"]) == {sp + os.sep for sp in spellings}
+    for spelling in spellings:
+        with open(os.path.join(spelling, "build.log"), "a") as fh:
+            fh.write("ok\n")
+    _must_trip(os.path.join(str(tree), "samples", "some.rvt"))
+
+
+def test_a_link_into_an_autodesk_install_dir_is_that_dir(tree):
+    """Rule 2's bullet is judged on both spellings too: ``<tmp>/adlink ->
+    <tmp>/Program Files/Autodesk/Revit 2026`` + ``--out <tmp>/adlink/j``
+    would physically write into the install dir -- refused with the
+    install-dir line (the target here is a plain tmp dir NAMED like one;
+    nothing under it is opened either way)."""
+    target = tree.parent / "Program Files" / "Autodesk" / "Revit 2026"
+    target.mkdir(parents=True)
+    out = os.path.join(_symlink(str(target), str(tree.parent / "adlink")), "j")
+    line = SA.out_dir_refusal(out)
+    assert line and "Autodesk installation directory" in line and line.endswith(out)
+    assert list(target.iterdir()) == []
+
+
+def test_run_refuses_the_outward_link_before_anything_lands_beyond_it(tree):
+    """End to end through the front door's ``run()`` (which owns the up-front
+    refusal, #452): the outward-link ``--out`` raises ``FrontDoorError`` whose
+    text IS the one line, and NOTHING is created -- not under the link's
+    lexical spelling, not in the dir it points at."""
+    import rvt.frontdoor as FD
+    elsewhere = str(tree.parent / "elsewhere")
+    out = os.path.join(_symlink(elsewhere, str(tree / "samples" / "escape")), "j")
+    with pytest.raises(FD.FrontDoorError) as ei:
+        FD.author(prompt="a room with four walls", out=out)
+    assert str(ei.value) == SA.out_dir_refusal(out)
+    assert os.listdir(elsewhere) == [] and not os.path.lexists(out)
+
+
 def test_disarmed_guard_polices_nothing(tmp_path, armed):
     armed(outputs=[str(tmp_path)])
     SA.allow_research_inputs()
