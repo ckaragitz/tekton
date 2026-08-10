@@ -114,17 +114,26 @@ import zlib
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 from . import ecc
+from . import encode as E
+from . import reduce as _reduce
 from .cfb_writer import write_cfb
 from .container import open_rvt
-from .encode import encode_record, record_bytes
 from .objects import ObjectDecoder, iter_records
 from .partitions import StreamWalker
 from .reduce import (BLOCK_TARGET, PART_HDR_COUNT_OFF, PART_HDR_LEN, SEQS, Rec,
-                     reblock, split_records, unframe_exact, verify_reduced)
+                     reblock, split_records, unframe_exact)
 from .roundtrip import read_entries
 from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
 from .streams_edit import INVALID_ID, NO_EPISODE, elemtable_add_element
 from .writer import gzip_member
+
+# ``E.encode_record`` / ``E.record_bytes`` / ``_reduce.verify_reduced`` are
+# read THROUGH their modules at call time, never from-imported:
+# ``rvt.versions.records32.ids32()`` rebinds them by name on ``rvt.encode`` /
+# ``rvt.reduce`` for the <= 2023 32-bit-id era, and a by-value copy here would
+# keep the 64-bit variant under it (#467).  (``iter_records`` and the
+# ElemTable codec above ARE from-imports: ids32's patch table lists this
+# module as one of their holders.)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 INVALID = -1
@@ -654,7 +663,7 @@ def framed_records_from(records: Any, elem_id: int) -> Dict[int, bytes]:
             out[seq] = fb
         else:
             cid, value = item
-            out[seq] = encode_record(seq, int(elem_id), None, int(cid), value)
+            out[seq] = E.encode_record(seq, int(elem_id), None, int(cid), value)
     return out
 
 
@@ -957,7 +966,7 @@ def _verify_byte_identity(img: EditImage, eid: int, recs: Dict[int, Rec]) -> dic
             out["seqs"][str(seq)] = {"identical": False, "decode_clean": False}
             ok = False
             continue
-        re = encode_record(seq, int(eid), None, cid, dec.value)
+        re = E.encode_record(seq, int(eid), None, cid, dec.value)
         same = (re == r.data)
         ok = ok and same
         entry = {"identical": same, "class": img.decoder.class_name(cid), "bytes": len(r.data)}
@@ -1201,7 +1210,7 @@ def _certify(rep, src: str, out: str, *, verify: bool, want_diff: bool,
             rep.validator = {"error": repr(e)[:300]}
             problems.append("validator crashed")
         try:
-            st = verify_reduced(out, [])
+            st = _reduce.verify_reduced(out, [])
             rep.structural = {k: st.get(k) for k in ("ok", "crc_failures", "ecc_mismatches",
                                                     "walker_errors", "counts_match",
                                                     "seq_id_sets_equal", "stamps_bad",
@@ -1260,7 +1269,7 @@ def _unit0_index(path: str):
             seg = b"".join(b.data for b in u0 if b.seq == seq)
             ids = []
             for r in iter_records(seg, seq):
-                out[(seq, r.elem_id)] = bytes(record_bytes(seg, r, seq))
+                out[(seq, r.elem_id)] = bytes(E.record_bytes(seg, r, seq))
                 if r.elem_id >= 0:
                     ids.append(r.elem_id)
             order[seq] = ids

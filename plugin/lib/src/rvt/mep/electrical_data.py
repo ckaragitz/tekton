@@ -63,11 +63,13 @@ import zlib
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
+from .. import commit as _commit
 from .. import ecc
 from .. import inventory as inv
 from .. import manipulate as M
+from .. import stream_encoders as SE
 from ..cfb_writer import write_cfb
-from ..commit import PART_HDR_COUNT_OFF, _assert_sentinel_tail
+from ..commit import PART_HDR_COUNT_OFF
 from ..container import open_rvt
 from ..manipulate import (BLOCK_BUDGET, DeletePlan, FieldChange, ModifyPlan,
                           apply_edits_to_segment, chunk_segment)
@@ -75,9 +77,15 @@ from ..mutate import (CLASS_GELEMENT, CLASS_SERIALIZED_DUMMY, Document,
                       ElemRecPlan, NewElement)
 from ..partitions import StreamWalker
 from ..roundtrip import read_entries
-from ..stream_encoders import decode_elemtable, encode_elemtable, global_prefix
+from ..stream_encoders import global_prefix
 from ..streams_edit import elemtable_add_element
 from ..writer import gzip_member
+
+# ``decode_elemtable`` / ``encode_elemtable`` / ``_assert_sentinel_tail`` are
+# read THROUGH their modules (``SE.`` / ``_commit.``) at call time, never
+# from-imported: ``rvt.versions.records32.ids32()`` rebinds them by name on
+# ``rvt.stream_encoders`` / ``rvt.commit`` for the <= 2023 32-bit-id era, and a
+# by-value copy here would keep the 64-bit variant under it (#467).
 
 # ---------------------------------------------------------------------------
 # constants (all corpus-verified against rmebasicsampleproject unless [H])
@@ -1562,7 +1570,7 @@ class ElectricalCommitReport:
 
 def _sentinel_offset(seg: bytes, seq: int) -> int:
     """Offset of the trailing sentinel record in a unit-0 per-seq segment."""
-    return _assert_sentinel_tail(seg, seq)
+    return _commit._assert_sentinel_tail(seg, seq)
 
 
 def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
@@ -1620,7 +1628,7 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
         pname = M._primary_partition(d, entries)
 
         # ---- 1. Global/ElemTable ------------------------------------------------
-        model = decode_elemtable(d.inflate("Global/ElemTable"))
+        model = SE.decode_elemtable(d.inflate("Global/ElemTable"))
         count_before = len(model["records"])
         if et_remove:
             model["records"] = [r for r in model["records"] if r[4] not in et_remove]
@@ -1631,7 +1639,7 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
                                   user_modified_ep=creation_ep)
         count_after = len(model["records"])
         watermark = int(model["footer"]["last_id"])
-        et_payload = encode_elemtable(model)
+        et_payload = SE.encode_elemtable(model)
         et_logical = global_prefix("Global/ElemTable") + gzip_member(et_payload, level=3)
         new_streams["Global/ElemTable"] = ecc.frame_stream(et_logical)
 

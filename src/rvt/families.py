@@ -616,7 +616,8 @@ def _rebuild_partition_logical(logical: bytes, walker: StreamWalker,
     from ``seg_by_seq`` (re-encoded / edited segments) at the same block
     boundaries, re-gzipped by us; all inter-block bytes are copied and the
     stream is truncated cleanly after the end record."""
-    from .writer import BLOCK_TRL_LEN, BLOCK_TRL_TAG, gzip_member
+    from . import partitions as _P
+    from .writer import BLOCK_TRL_LEN, gzip_member
     out = bytearray()
     cursor = 0
     cur: dict[int, int] = {seq: 0 for seq in seg_by_seq}
@@ -634,7 +635,7 @@ def _rebuild_partition_logical(logical: bytes, walker: StreamWalker,
         gz = gzip_member(payload, level=level, sync_flush=True)
         nb = 8 + len(gz)
         struct.pack_into("<I", out, hdr_start + 10, nb)      # patch header B
-        out += gz + struct.pack("<HI", BLOCK_TRL_TAG, nb)   # trailer mirror
+        out += gz + struct.pack("<HI", _P.TRAILER_TAG, nb)  # trailer mirror (tag in force NOW)
         cursor = b.member_offset + b.member_len + BLOCK_TRL_LEN
     out += logical[cursor:]
     for seq, seg in seg_by_seq.items():

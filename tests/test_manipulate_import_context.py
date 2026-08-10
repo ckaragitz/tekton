@@ -86,7 +86,7 @@ with open_rvt(OUT) as d:
     w = StreamWalker(d.logical(d.partition_streams()[0]), inflate=False, keep_data=False)
     tags = sorted({struct.unpack_from("<H", w.raw, b.hdr_offset)[0] for b in w.blocks})
 print(json.dumps({
-    "t26": t26, "at_rest": {"P": [P.BLOCK_TAG, P.TRAILER_TAG], "M": [M.BLOCK_TAG, M.TRAILER_TAG]},
+    "t26": t26, "at_rest": [P.BLOCK_TAG, P.TRAILER_TAG], "manip_copies": [hasattr(M, "BLOCK_TAG"), hasattr(M, "TRAILER_TAG")],
     "walker_errors": v["walker_errors"], "crc_failures": v["crc_failures"],
     "ecc_mismatches": v["ecc_mismatches"], "stamps_ok": v["stamps_ok"],
     "edited_clean": all(x["clean"] for x in v["edited"][str(LEVEL_ID)].values()),
@@ -127,9 +127,9 @@ def test_first_import_inside_a_foreign_context_still_emits_2026_tags(context, tm
     out = str(tmp_path / "edit2026.rvt")
     r = _run_fresh(context, out)
     tags26 = [r["t26"]["BLOCK_TAG"], r["t26"]["TRAILER_TAG"]]
-    # the context restored rvt.partitions; manipulate's at-rest handles are
-    # the 2026 table whatever context its import sat in
-    assert r["at_rest"] == {"P": tags26, "M": tags26}
+    # the context restored rvt.partitions, and manipulate keeps NO copy of the
+    # tags whatever context its import sat in (#467 removed the inert handles)
+    assert r["at_rest"] == tags26 and r["manip_copies"] == [False, False]
     # the 2026 edit re-emitted clean, validates, and carries 2026 tags on disk
     assert r["walker_errors"] == 0 and r["crc_failures"] == 0 and r["ecc_mismatches"] == 0
     assert r["stamps_ok"] and r["edited_clean"]
@@ -159,4 +159,4 @@ def test_emit_block_reads_partitions_at_call_time():
             assert P.BLOCK_TAG == t["BLOCK_TAG"]
     t26 = V.framing_table(V.LATEST_RELEASE)
     assert _tags(M._emit_block(blk, 102)) == (t26["BLOCK_TAG"], t26["TRAILER_TAG"]) \
-        == (M.BLOCK_TAG, M.TRAILER_TAG)
+        == (P.BLOCK_TAG, P.TRAILER_TAG)

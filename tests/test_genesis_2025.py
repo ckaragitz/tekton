@@ -72,15 +72,14 @@ def test_context_2025_patches_and_restores_every_local_tag():
 
     with G.context_2025(SRC) as ords:
         assert ords == ords25
-        import rvt.reduce as RD
-        import rvt.manipulate as MP
-        import rvt.commit as CM
+        import rvt.partitions as P
         import rvt.writer as WR
         import rvt.famgen.factory as FF
-        assert RD.BLOCK_TAG == ords25["BLOCK_TAG"] == 0x0ED9
-        assert RD.BLOCK_TRL_TAG == ords25["TRAILER_TAG"] == 0x0ED2
-        assert MP.BLOCK_TAG == 0x0ED9 and MP.TRAILER_TAG == 0x0ED2
-        assert CM.BLOCK_TRL_TAG == 0x0ED2 and WR.BLOCK_TRL_TAG == 0x0ED2
+        # the block emitters (reduce / manipulate / commit / writer) keep no
+        # tag copies (#467): the one binding is rvt.partitions', by name
+        assert P.BLOCK_TAG == ords25["BLOCK_TAG"] == 0x0ED9
+        assert P.TRAILER_TAG == ords25["TRAILER_TAG"] == 0x0ED2
+        assert WR.BLOCK_TRL_TAG == 0x0ED2          # access-time alias of P.TRAILER_TAG
         assert FF.CD_SEPARATOR[:2] == (0x0391).to_bytes(2, "little")
         assert FF.CD_END_RECORD[:2] == (0x0391).to_bytes(2, "little")
         # the cached ADocument decoder is the FILE's schema, not the 2026 map
@@ -92,8 +91,8 @@ def test_context_2025_patches_and_restores_every_local_tag():
         mod = importlib.import_module(mod_name)
         assert getattr(mod, attr) == val, f"{mod_name}.{attr} not restored"
     assert adoc._DECODER is dec_before
-    import rvt.reduce as RD
-    assert RD.BLOCK_TAG == 0x0F28
+    import rvt.partitions as P
+    assert P.BLOCK_TAG == 0x0F28 and P.TRAILER_TAG == 0x0F21
 
 
 # ---------------------------------------------------------------------------

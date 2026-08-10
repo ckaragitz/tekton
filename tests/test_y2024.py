@@ -96,13 +96,13 @@ def test_2024_schema_view_layout_deltas():
 
 
 def test_context_patches_and_restores_the_framing_constants():
-    from rvt import reduce as RED
+    from rvt import partitions as P      # the one binding every emitter reads (#467)
     from rvt import versions
-    before = RED.BLOCK_TAG
+    before = P.BLOCK_TAG
     want = versions.KNOWN_RELEASES[2024].framing["BLOCK_TAG"]
     with YB.context_y2024(YB.BASE_2024):
-        assert RED.BLOCK_TAG == want == 0x0E7C
-    assert RED.BLOCK_TAG == before, "the context must restore on exit"
+        assert P.BLOCK_TAG == want == 0x0E7C
+    assert P.BLOCK_TAG == before, "the context must restore on exit"
 
 
 def test_geo_site_guids_are_pinned_deterministic():

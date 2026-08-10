@@ -15,11 +15,13 @@ streams proved out, plus the famgen-path additions this stream owns:
 
 * ``rvt.versions.reading(base)`` -- the six partition-framing ordinals in
   ``rvt.partitions`` (+ TERMINATOR + the resync search), read AND write side
-  [the version-model stream's proven context].
-* The module-local framing-tag copies ``versions.reading`` cannot reach
-  [tools/genesis_2025.py::context_2025's proven list]: ``rvt.reduce``,
-  ``rvt.manipulate``, ``rvt.commit``, ``rvt.writer`` block/trailer tags and
-  ``rvt.famgen.factory``'s ContentDocuments separator/end-record.
+  [the version-model stream's proven context].  Every project-side block
+  emitter (``rvt.reduce``, ``rvt.writer``, ``rvt.commit``, ``rvt.manipulate``,
+  ``rvt.families``, ``rvt.mep.conduit``) reads those names at CALL time, so
+  this alone re-points them (#455/#467 retired the per-module tag copies
+  tools/genesis_2025.py::context_2025 once had to swap one by one); the rest
+  of that list -- ``rvt.famgen.factory``'s ContentDocuments separator/
+  end-record -- is ``global_framing.bound``'s (#93).
 * The per-release default codecs [run_ladder2025.py's proven swaps]:
   ``rvt.encode._DEFAULT_ENCODER``, ``rvt.adocument._DECODER``,
   ``rvt.regadd``/``rvt.regdiff``'s decoder factories, and the constructor
@@ -321,16 +323,12 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
 
     import os
 
-    from .. import commit as COMMIT
     from .. import encode as ENC
     from .. import global_framing as GF
-    from .. import manipulate as MANIP
     from .. import mutate as MU
-    from .. import reduce as RED
     from .. import regadd as REGADD
     from .. import regdiff as REGDIFF
     from .. import schema as SCHEMA
-    from .. import writer as WRITER
     from ..container import open_rvt
     from ..famgen import factory as FF
     from ..famgen import famdoc_adoc as FDA
@@ -358,14 +356,11 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
                           "borrow the host's Formats/Latest")
 
     with V.reading(schema=schema) as ords, GF.bound(ords, schema=schema):
-        # ---- (1) module-local framing-tag copies (context_2025's list; ----
-        # ----     the Global-stream tokens + ADocument decoder are GF's) ----
-        swap(RED, "BLOCK_TAG", ords["BLOCK_TAG"])
-        swap(RED, "BLOCK_TRL_TAG", ords["TRAILER_TAG"])
-        swap(MANIP, "BLOCK_TAG", ords["BLOCK_TAG"])
-        swap(MANIP, "TRAILER_TAG", ords["TRAILER_TAG"])
-        swap(COMMIT, "BLOCK_TRL_TAG", ords["TRAILER_TAG"])
-        swap(WRITER, "BLOCK_TRL_TAG", ords["TRAILER_TAG"])
+        # ---- (1) block framing: V.reading rebinds rvt.partitions BY NAME --
+        # ----     and every project-side emitter (reduce / writer / commit /
+        # ----     manipulate / families / mep.conduit) reads it at CALL time
+        # ----     (#455, #467) -- no per-module copy left to swap; the
+        # ----     Global-stream tokens + ADocument decoder are GF's --------
         # ---- (1b) famgen's own framing copies (build-2025's addition) -----
         swap(FSK, "_PART_TAG", ords["CONTAINER_CLASS"])
         swap(FSK, "BLOCK_TAG", ords["BLOCK_TAG"])

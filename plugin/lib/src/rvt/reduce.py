@@ -47,16 +47,19 @@ from collections import Counter, defaultdict
 from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 from . import ecc
+from . import partitions as _P
 from .cfb_writer import write_cfb
 from .container import open_rvt
 from .objects import iter_records
 from .partitions import StreamWalker
 from .roundtrip import read_entries
 from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
-from .writer import BLOCK_TRL_TAG, gzip_member
+from .writer import gzip_member
 
 # --- framing constants ------------------------------------------------------
-BLOCK_TAG = 0x0F28
+# (the block header/trailer TAGS are not constants of this module: they are
+#  read from rvt.partitions at CALL time, so a release context that rebinds
+#  them by name reaches NewBlock.frame with no per-module swap row -- #467)
 SEQS = (101, 102, 103)
 #: uncompressed payload target per block; Autodesk's writer packs whole
 #: records up to 131,072 (0x20000) and body-chunks bigger records at 131,072
@@ -134,9 +137,9 @@ class NewBlock:
     def frame(self, level: int = 3) -> bytes:
         gz = gzip_member(self.payload, level=level, sync_flush=True)
         B = 8 + len(gz)
-        hdr = struct.pack("<HIIIIII", BLOCK_TAG, self.flags, self.A, B, self.C,
+        hdr = struct.pack("<HIIIIII", _P.BLOCK_TAG, self.flags, self.A, B, self.C,
                           self.seq, 0)
-        return hdr + gz + struct.pack("<HI", BLOCK_TRL_TAG, B)
+        return hdr + gz + struct.pack("<HI", _P.TRAILER_TAG, B)
 
     @property
     def isize_ok(self) -> bool:

@@ -102,12 +102,9 @@ def _cd_end_record(o: Dict[str, int]) -> bytes:
 
 
 _LOCAL_TAG_PATCHES = (
-    ("rvt.reduce", "BLOCK_TAG", "BLOCK_TAG"),
-    ("rvt.reduce", "BLOCK_TRL_TAG", "TRAILER_TAG"),
-    ("rvt.manipulate", "BLOCK_TAG", "BLOCK_TAG"),
-    ("rvt.manipulate", "TRAILER_TAG", "TRAILER_TAG"),
-    ("rvt.commit", "BLOCK_TRL_TAG", "TRAILER_TAG"),
-    ("rvt.writer", "BLOCK_TRL_TAG", "TRAILER_TAG"),
+    # the block header/trailer rows (rvt.reduce / manipulate / commit / writer)
+    # retired with #467: those modules read rvt.partitions at CALL time, so
+    # versions.reading alone re-points them
     ("rvt.famgen.factory", "CD_SEPARATOR", _cd_separator),
     ("rvt.famgen.factory", "CD_END_RECORD", _cd_end_record),
 )

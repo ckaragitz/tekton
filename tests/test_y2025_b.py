@@ -84,11 +84,11 @@ def test_2025_schema_lacks_the_2026_only_view_fields_and_conductor_catalog():
 
 
 def test_context_patches_and_restores_the_framing_constants():
-    from rvt import reduce as RED
-    before = RED.BLOCK_TAG
+    from rvt import partitions as P      # the one binding every emitter reads (#467)
+    before = P.BLOCK_TAG
     with Y.context_y2025(Y.BASE_2025):
-        assert RED.BLOCK_TAG != 0x0F28, "inside the context the 2025 ordinal is bound"
-    assert RED.BLOCK_TAG == before == 0x0F28, "the context must restore the 2026 constant"
+        assert P.BLOCK_TAG != 0x0F28, "inside the context the 2025 ordinal is bound"
+    assert P.BLOCK_TAG == before == 0x0F28, "the context must restore the 2026 constant"
 
 
 def test_source_aware_hooks_carry_already_2025_shaped_values():

@@ -27,6 +27,7 @@ import struct
 from typing import Dict, List, Sequence, Tuple
 
 from . import ecc
+from . import partitions as _P
 from .cfb_writer import write_cfb
 from .container import open_rvt
 from .partitions import StreamWalker
@@ -34,7 +35,7 @@ from .roundtrip import read_entries
 from .stream_encoders import (decode_elemtable, encode_elemtable,
                               global_prefix)
 from .streams_edit import elemtable_add_element
-from .writer import BLOCK_TRL_TAG, gzip_member
+from .writer import gzip_member
 
 _ISIZE_ADJ = {4: 0, 5: 4, 6: -4, 7: 0}
 PART_HDR_COUNT_OFF = 14        # u32 elem_table_count in the 18-byte stream header
@@ -165,7 +166,7 @@ def commit_new_elements(src_rvt: str, out_path: str,
                 struct.pack_into("<I", out, hdr + 6, a_new)   # A
                 struct.pack_into("<I", out, hdr + 14, c_new)  # C
             out += gz
-            out += struct.pack("<HI", BLOCK_TRL_TAG, nb)
+            out += struct.pack("<HI", _P.TRAILER_TAG, nb)   # the tag in force NOW (#467)
             cursor = b.member_offset + b.member_len + 6
         out += logical[cursor:]
         # header elem_table_count += n
