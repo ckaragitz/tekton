@@ -238,9 +238,10 @@ def test_router_seed_job_stderr_verdict_joins_its_log_when_quiet(tmp_path, monke
 @pytest.mark.skipif(not os.path.isfile(BASE_2025), reason="bundled 2025 genesis base missing")
 def test_rvt_job_json_with_a_squatted_log_still_delivers_one_json(tmp_path):
     """``rvt_job.py edit … --json`` whose ``<out>.log`` cannot open: the edit is
-    delivered, stdout is still exactly ONE JSON (+ ONE ``degradations`` note,
-    no ``output.log`` named), stderr stays empty -- no traceback (#424; the
-    logged happy path is tests/test_go_edit.py's ops-door case)."""
+    delivered, stdout is still exactly ONE JSON == the on-disk manifest (both
+    carry the ONE ``degradations`` note, no ``output.log`` named) + ``exit_code``,
+    stderr stays empty -- no traceback (#424, #440; the logged happy path is
+    tests/test_go_edit.py's ops-door case)."""
     ops = tmp_path / "ops.json"
     ops.write_text(json.dumps([{"op": "set-level", "id": LEVEL_ID, "elevation_ft": 5}]))
     out = tmp_path / "ops door" / "edited.rvt"
@@ -255,7 +256,8 @@ def test_rvt_job_json_with_a_squatted_log_still_delivers_one_json(tmp_path):
     assert doc["exit_code"] == 0 and doc["hard_gates_passed"] is True
     assert doc["output"]["path"] == str(out) and os.path.isfile(out) and doc["output"]["bytes"] > 0
     assert "log" not in doc["output"]
-    assert len(doc["degradations"]) == 1
-    assert doc["degradations"][0].startswith("edited.rvt.log not writable (IsADirectoryError")
-    with open(str(out) + ".manifest.json") as fh:      # the printed object IS the manifest (+ the two run keys)
-        assert {k: v for k, v in doc.items() if k not in ("exit_code", "degradations")} == json.load(fh)
+    with open(str(out) + ".manifest.json") as fh:
+        on_disk = json.load(fh)
+    assert len(on_disk["degradations"]) == 1             # the file itself says why output.log is absent
+    assert on_disk["degradations"][0].startswith("edited.rvt.log not writable (IsADirectoryError")
+    assert {k: v for k, v in doc.items() if k != "exit_code"} == on_disk   # the printed object IS the manifest (+ exit_code)

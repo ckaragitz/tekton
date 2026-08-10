@@ -66,8 +66,8 @@ it) prints exactly ONE JSON object on stdout = the manifest it writes (full or
 stub) + ``exit_code``; the progress lines stream into ``<out>.log`` (named in
 ``output.log``) so a skill session's ONE call returns the gates, the status
 and the written file with nothing else to read or parse (issue #267).  A log
-that cannot be opened adds ONE ``degradations`` note to the printed object
-only (not to the on-disk manifest).  In both modes an abort is ONE
+that cannot be opened adds ONE ``degradations`` note to the manifest (printed
+and on disk alike; the key is absent otherwise).  In both modes an abort is ONE
 ``[rvt_job] …`` line on stderr; a traceback, when there is one, rides with
 the progress (stdout / ``<out>.log``), never stderr.
 """
@@ -100,9 +100,10 @@ SAMPLES_DIR = os.path.join(ROOT, "samples")
 EX_OK, EX_ERR, EX_PLAN, EX_STRUCT, EX_VALIDATE, EX_IDENTITY, EX_NOT_DELIVERABLE = 0, 1, 2, 3, 4, 5, 6
 
 #: --json run state: the progress-log path every manifest of this run names,
-#: the last manifest written (full or stub) = the ONE object on stdout, and
-#: the last abort's one-line status (the stub's, when no manifest carries it)
-_RUN: Dict[str, Any] = {"log": None, "manifest": None, "status": None}
+#: the last manifest written (full or stub) = the ONE object on stdout, the
+#: last abort's one-line status (the stub's, when no manifest carries it), and
+#: the degradation notes (log could not open) every manifest of this run carries
+_RUN: Dict[str, Any] = {"log": None, "manifest": None, "status": None, "degradations": []}
 
 
 # ===========================================================================
@@ -656,9 +657,12 @@ def _describe_new_elements(out_path: str, ids: List[int]) -> List[dict]:
 
 
 def _record_manifest(manifest: dict) -> None:
-    """Name the --json progress log in, and remember, every manifest written."""
+    """Name the --json progress log (or why there is none) in, and remember,
+    every manifest written."""
     if _RUN["log"]:
         manifest["output"]["log"] = _RUN["log"]
+    if _RUN["degradations"]:                 # absent, not [], on the happy path
+        manifest["degradations"] = _RUN["degradations"]
     _RUN["manifest"] = manifest
 
 
@@ -1473,17 +1477,17 @@ def main(argv=None) -> int:
     want_json = "--json" in argv             # position-free: `go rvt_job.py …` appends it last
     argv = [x for x in argv if x != "--json"]
     args = build_parser().parse_args(argv)
-    _RUN.update(log=None, manifest=None, status=None)   # per run (main() is also called in-process)
+    _RUN.update(log=None, manifest=None, status=None, degradations=[])   # per run (main() is also called in-process)
     if not want_json:
         return _dispatch(args)
     # --json: progress -> <out>.log (named in output.log); an unopenable log = ONE
-    # note in the printed JSON, never a lost delivery.  The shared stdlib leaf,
+    # note in the manifest, never a lost delivery.  The shared stdlib leaf,
     # not rvt.frontdoor.stagelog: this door pays no package import (#424).
     from rvt._logsink import stage_stdout
     out_abs = os.path.abspath(args.out)
-    notes: List[str] = []
     with stage_stdout(os.path.dirname(out_abs), os.path.basename(out_abs) + ".log", quiet=True,
-                      on_open=lambda p: _RUN.__setitem__("log", p), on_degrade=notes.append):
+                      on_open=lambda p: _RUN.__setitem__("log", p),
+                      on_degrade=lambda note: _RUN["degradations"].append(note)):
         rc = _dispatch(args)
         if _RUN["manifest"] is None:         # died before any manifest (input / ops.json unusable)
             _write_stub_manifest(out_abs, {
@@ -1491,8 +1495,6 @@ def main(argv=None) -> int:
                 "status": _RUN["status"] or f"FAILED (exit {rc}) before anything was written; "
                                             "the reason is the one line on stderr"})
     doc = dict(_RUN["manifest"], exit_code=rc)
-    if notes:
-        doc["degradations"] = notes
     print(json.dumps(doc, indent=1, default=_jsonable))
     return rc
 
