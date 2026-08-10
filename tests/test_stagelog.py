@@ -164,29 +164,34 @@ def test_a_missing_out_dir_is_made_and_an_unmakeable_one_degrades_like_open(tmp_
     assert not (squat / "sub").exists() and capsys.readouterr().out == ""
 
 
+def _seed_route(tmp_path, monkeypatch, job_main):
+    """spec+rvt through the router with ``job_main(argv) -> rc`` standing in
+    for ``tools/rvt_job.py``; returns ``run(out, quiet) -> RouteResult``."""
+    from rvt.frontdoor import edit as E
+    from rvt.frontdoor import router as R
+    monkeypatch.setattr(E, "load_job_module",
+                        lambda: type("FakeJob", (), {"main": staticmethod(job_main)}))
+    spec, seed = tmp_path / "tiny.json", tmp_path / "seed.rvt"
+    spec.write_text("{}")
+    seed.write_bytes(b"")
+    return lambda out, quiet: R.route({"spec": str(spec), "rvt": str(seed)}, "rvt",
+                                      out=str(out), quiet=quiet)
+
+
 def test_router_seed_job_log_streams_through_the_helper(tmp_path, monkeypatch, capsys):
     """spec+rvt: the seed job's progress streams into ``<out>/job-create.log``
     (named in ``files['job_log']``); a squatted log costs the log -- ONE
     caveat, no error, the job still runs and delivers -- never the step."""
-    from rvt.frontdoor import edit as E
-    from rvt.frontdoor import router as R
+    def fake_job(argv):
+        out = argv[argv.index("-o") + 1]
+        print(f"[fake_job] create -> {out}")
+        with open(out, "wb") as fh:
+            fh.write(b"not really a project")
+        return 0
 
-    class FakeJob:                                       # stands in for tools/rvt_job.py
-        @staticmethod
-        def main(argv):
-            out = argv[argv.index("-o") + 1]
-            print(f"[fake_job] create -> {out}")
-            with open(out, "wb") as fh:
-                fh.write(b"not really a project")
-            return 0
-
-    monkeypatch.setattr(E, "load_job_module", lambda: FakeJob)
-    spec, seed = tmp_path / "tiny.json", tmp_path / "seed.rvt"
-    spec.write_text("{}")
-    seed.write_bytes(b"")
-
+    run = _seed_route(tmp_path, monkeypatch, fake_job)
     out = tmp_path / "logged"
-    res = R.route({"spec": str(spec), "rvt": str(seed)}, "rvt", out=str(out), quiet=True)
+    res = run(out, True)
     log_p = str(out / "job-create.log")
     assert res.ok, (res.status, res.errors)
     assert res.files.get("job_log") == log_p and res.files.get("rvt") == str(out / "tiny.rvt")
@@ -196,13 +201,38 @@ def test_router_seed_job_log_streams_through_the_helper(tmp_path, monkeypatch, c
 
     squatted = tmp_path / "squatted"
     (squatted / "job-create.log").mkdir(parents=True)
-    res = R.route({"spec": str(spec), "rvt": str(seed)}, "rvt", out=str(squatted), quiet=True)
+    res = run(squatted, True)
     assert res.ok and res.files.get("rvt") == str(squatted / "tiny.rvt"), (res.status, res.errors)
     assert "job_log" not in res.files
     notes = [cv for cv in res.caveats if "not writable" in cv]
     assert len(notes) == 1 and notes[0].startswith("job-create.log not writable (IsADirectoryError")
     assert not [e for e in res.errors if "job-create" in e or "route crashed" in e], res.errors
     assert "[fake_job]" not in capsys.readouterr().out
+
+
+def test_router_seed_job_stderr_verdict_joins_its_log_when_quiet(tmp_path, monkeypatch, capsys):
+    """#448: a FAILING seed job's ONE stderr verdict line lands in
+    ``job-create.log`` after its progress when the route is quiet (``--json``:
+    stderr 0 B); a verbose route keeps that line live on stderr."""
+    def failing_job(argv):
+        print("[fake_job] seed audit ...")
+        print("[fake_job] SEED NOT READY -> aborting", file=sys.stderr)
+        return 2
+
+    run = _seed_route(tmp_path, monkeypatch, failing_job)
+    res = run(tmp_path / "q", True)
+    cap = capsys.readouterr()
+    assert cap.out == "" and cap.err == ""
+    assert not res.ok and res.status == "FAILED (rvt_job.py create exited 2)"
+    with open(res.files["job_log"], encoding="utf-8") as fh:
+        assert fh.read().splitlines() == ["[fake_job] seed audit ...",
+                                        "[fake_job] SEED NOT READY -> aborting"]
+
+    res = run(tmp_path / "v", False)
+    cap = capsys.readouterr()
+    assert cap.err.splitlines() == ["[fake_job] SEED NOT READY -> aborting"]
+    with open(res.files["job_log"], encoding="utf-8") as fh:
+        assert fh.read().splitlines() == ["[fake_job] seed audit ..."]   # progress still logged, as before
 
 
 @pytest.mark.skipif(not os.path.isfile(BASE_2025), reason="bundled 2025 genesis base missing")

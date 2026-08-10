@@ -949,6 +949,53 @@ def test_an_unopenable_edit_log_costs_the_log_never_the_edit(tmp_path, capsys):
         assert "**degradation**: edit.log not writable" in fh.read()
 
 
+_UNPLANNABLE = "move 311 to 3,1,4.66"        # 311 is a Level, not a placed instance: planning fails
+_UNPLANNABLE_WHY = "FAILED (planning: ManipulationError: element has no InstanceInfo (not a placed instance))"
+
+
+@needs_pinned
+def test_a_failing_edit_puts_the_job_verdict_in_edit_log_not_on_stderr(tmp_path, capsys):
+    """#448: the in-process job's ONE ``[rvt_job] FAILED (…)`` stderr line
+    joins its progress in ``edit.log`` when quiet -- the front door's own
+    stderr stays empty and the manifest's ``status`` names the reason;
+    ``--verbose`` keeps that line live on stderr exactly as before."""
+    out = tmp_path / "f"
+    r = FD.author(rvt=PINNED[2025], edit=_UNPLANNABLE, out=str(out))
+    cap = capsys.readouterr()
+    assert cap.out == "" and cap.err == ""                       # quiet: nothing leaked, either stream
+    assert not r.ok and r.files == {} and r.status == _UNPLANNABLE_WHY
+    log_p = r.manifest_paths["edit.log"]
+    assert log_p == str(out / "edit.log") and r.manifest["edit"]["degradations"] == []
+    with open(log_p, encoding="utf-8") as fh:
+        text = fh.read()
+    assert "[rvt_job] planning 1 op(s)" in text and f"[rvt_job] {_UNPLANNABLE_WHY}\n" in text
+    # --verbose: progress live on stdout, the verdict line live on stderr, no log
+    r2 = FD.author(rvt=PINNED[2025], edit=_UNPLANNABLE, out=str(tmp_path / "v"), quiet=False)
+    cap = capsys.readouterr()
+    assert not r2.ok and "[rvt_job] planning" in cap.out
+    assert cap.err.splitlines() == [f"[rvt_job] {_UNPLANNABLE_WHY}"]
+    assert "edit.log" not in r2.manifest_paths and not (tmp_path / "v" / "edit.log").exists()
+
+
+@needs_pinned
+def test_cli_failing_edit_json_is_one_document_and_nothing_on_stderr(tmp_path):
+    """The envelope at the front door itself for a FAILING ``--rvt --edit``:
+    rc 3, exactly one JSON document on stdout whose ``status`` carries the
+    reason, 0 bytes on stderr, the verdict line in the named ``edit.log``."""
+    import subprocess
+    out = tmp_path / "o"
+    p = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "frontdoor.py"), "author",
+                        "--rvt", PINNED[2025], "--edit", _UNPLANNABLE, "--out", str(out),
+                        "--json"], capture_output=True, text=True, cwd=ROOT)
+    assert p.returncode == 3, p.stderr[-2000:]
+    assert p.stderr == ""
+    doc = json.loads(p.stdout)                                   # ONE document, no prefix lines
+    assert doc["route"] == "rvt" and doc["files"] == {} and doc["status"] == _UNPLANNABLE_WHY
+    assert os.path.samefile(doc["manifest"]["edit.log"], out / "edit.log")
+    with open(out / "edit.log", encoding="utf-8") as fh:
+        assert f"[rvt_job] {_UNPLANNABLE_WHY}\n" in fh.read()
+
+
 @needs_catalog
 @needs_pinned
 def test_out_dir_under_a_quarantined_name_is_still_one_json(tmp_path):
