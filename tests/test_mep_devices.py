@@ -565,3 +565,85 @@ def test_committed_circuit_validates_and_reads_back(genesis_doc, tmp_path):
     pv = back.value(panel.elem_id)["m_pConnectorManager"]["value"]["m_connPtrArray"]
     assert any(x["value"]["m_nIndex"] == 50000 and x["value"]["m_arrRefs"][0]["m_id"] == c.elem_id
                for x in pv)
+
+
+# ---------------------------------------------------------------------------
+# stage E / stage C honesty over the feeder record (issue #360) -- no sample:
+# the DONE prompt's intent + the bundled base + tools/ifc_intent.py
+# ---------------------------------------------------------------------------
+CIRCUIT_PROMPT = ("electrical room 30x20 ft with a 2000A main switchboard, two 400A "
+                  "distribution panels and four lighting panels")
+
+
+@pytest.fixture(scope="module")
+def room_module():
+    from rvt.frontdoor.build import load_ifc_room_module
+    return load_ifc_room_module()
+
+
+@pytest.fixture(scope="module")
+def circuit_model():
+    from rvt.frontdoor.prompt_intent import prompt_to_intent
+    model, _parsed = prompt_to_intent(CIRCUIT_PROMPT)
+    return model
+
+
+def test_unwired_feeder_record_is_a_fresh_copy_per_call(room_module, circuit_model):
+    """stage E ``update``s the no-circuit record into its own and appends to
+    its lists: two calls must never share a dict or a list (the old
+    module-level ``_NO_FEEDERS`` was handed out by reference)."""
+    R = room_module
+    a, b = R._feeders_unwired(), R._feeders_unwired()
+    assert a == b == {"circuits": [], "circuits_skipped": [], "circuits_blocker": None,
+                      "circuit_template": None}
+    assert a is not b
+    assert a["circuits"] is not b["circuits"] and a["circuits_skipped"] is not b["circuits_skipped"]
+    a["circuits"].append({"elem_id": 1})
+    a["circuits_skipped"].append({"panel": "MSB"})
+    assert b["circuits"] == [] and b["circuits_skipped"] == []
+    assert R._feeders_unwired()["circuits"] == []
+    # the populated shapes are fresh too, and name every edge + the blocker
+    edges = R.circuit_edges(circuit_model)
+    assert len(edges) == 6                                   # the service entrance is no circuit
+    n1 = R._feeders_unwired(edges, R.STAGE_C_NOT_REQUESTED, "stage C not requested")
+    n2 = R._feeders_unwired(edges, R.STAGE_C_NOT_REQUESTED, "stage C not requested")
+    assert n1["circuits_skipped"] is not n2["circuits_skipped"]
+    assert n1["circuits_blocker"] == R.STAGE_C_NOT_REQUESTED
+    assert {(s["panel"], s["load"]) for s in n1["circuits_skipped"]} == {
+        (ed.source, ed.target) for ed in edges}
+
+
+@needs_bundled
+def test_stage_c_names_the_real_cause_of_a_circuit_shortfall(genesis_doc, room_module,
+                                                             circuit_model):
+    """0 circuits in the deepest file has four distinct causes and stage C
+    names the one stage E recorded -- unplaced ends are NOT blamed on a
+    missing specimen (issue #360 item 1)."""
+    R, model = room_module, circuit_model
+    doc, sp = genesis_doc
+    # (a) unplaced ends: the template EXISTS, nothing was placed -> every edge skipped
+    crec, made = R.wire_feeders(doc, model, {}, sp.circuit_id)
+    assert made == [] and crec["circuits_blocker"] is None
+    assert len(crec["circuits_skipped"]) == 6
+    assert all("not placed" in s["reason"] for s in crec["circuits_skipped"])
+    c = R.stage_circuits(model, BUNDLED, {"stage": "E", "ok": True, **crec})
+    assert c["ok"] is False and c["circuits_built"] == 0 and len(c["circuits_planned"]) == 6
+    assert c["blocker"].startswith("0 of 6 feeder circuits in the deepest file: "
+                                   "6 feeder edge(s) skipped in stage E for an UNPLACED end")
+    assert "MSB>DP-1: panel not placed" in c["blocker"]
+    assert "NO CIRCUIT SPECIMEN" not in c["blocker"]
+    # (b) specimen missing: wire_feeders' own blocker rides through verbatim
+    spec = R.wire_feeders(doc, model, {}, None)[0]
+    assert spec["circuits_blocker"] == R.NO_CIRCUIT_SPECIMEN
+    assert R.stage_circuits(model, BUNDLED, {"stage": "E", "ok": True, **spec})["blocker"] \
+        == "0 of 6 feeder circuits in the deepest file: " + R.NO_CIRCUIT_SPECIMEN
+    # (c) stage C not requested in stage E (--stages without C)
+    nreq = R._feeders_unwired(R.circuit_edges(model), R.STAGE_C_NOT_REQUESTED,
+                              "stage C not requested")
+    assert R.stage_circuits(model, BUNDLED, {"stage": "E", "ok": True, **nreq})["blocker"] \
+        .endswith(R.STAGE_C_NOT_REQUESTED)
+    # (d) stage E never ran / did not commit
+    assert "stage E (equipment placement) did not run" in R.stage_circuits(model, BUNDLED)["blocker"]
+    skipped_e = {"stage": "E", "skipped": True, "reason": "no families loaded"}
+    assert "did not commit its instances (+ circuits): no families loaded" in \
+        R.stage_circuits(model, BUNDLED, skipped_e)["blocker"]

@@ -821,13 +821,33 @@ NO_CIRCUIT_SPECIMEN = (
     "resolved feeder plan rides in the manifest instead")
 
 
+STAGE_C_NOT_REQUESTED = (
+    "stage C (circuits) NOT requested (--stages lacks 'C'): the feeder edges stay a "
+    "plan in the intent; no RbsElectricalSystem is authored")
+
+
 def _feeder_voltage_v(text: Any) -> Optional[float]:
     """Line-to-line volts of a feeder edge's voltage text ('480Y/277 V')."""
     return (float(I.parse_voltage(text).get("ll") or 0) or None) if text else None
 
 
-_NO_FEEDERS: Dict[str, Any] = {"circuits": [], "circuits_skipped": [], "circuits_blocker": None,
-                               "circuit_template": None}
+def circuit_edges(model: I.IntentModel) -> List[Any]:
+    """The feeder edges that become circuits (a service entrance is not one)."""
+    return [ed for ed in model.feeders if ed.kind != "service"]
+
+
+def _feeders_unwired(edges: Sequence[Any] = (), blocker: Optional[str] = None,
+                     reason: Optional[str] = None) -> Dict[str, Any]:
+    """A FRESH feeder record with no circuit wired -- a new dict and new lists
+    per call: stage E ``update``s it into its own record and appends to those
+    lists, so a shared module-level default would leak between builds.  With
+    ``edges``, every one lands in ``circuits_skipped`` for ``reason`` and
+    ``blocker`` names why none was wired."""
+    return {"circuits": [],
+            "circuits_skipped": [{"panel": ed.source, "load": ed.target, "reason": reason}
+                                 for ed in edges],
+            "circuits_blocker": blocker if edges else None,
+            "circuit_template": None}
 
 
 def wire_feeders(doc, model: I.IntentModel, placed: Dict[str, Any],
@@ -843,15 +863,11 @@ def wire_feeders(doc, model: I.IntentModel, placed: Dict[str, Any],
     circuits_skipped / circuits_blocker / circuit_template) and the circuit
     NewElements the caller serialises with the instances."""
     from rvt.mep.electrical_data import connectors, layout_circuits
-    rec: Dict[str, Any] = {**_NO_FEEDERS, "circuits": [], "circuits_skipped": [],
-                           "circuit_template": circuit_template}
     made: List[Any] = []
-    edges = [ed for ed in model.feeders if ed.kind != "service"]
+    edges = circuit_edges(model)
     if edges and circuit_template is None:
-        rec["circuits_blocker"] = NO_CIRCUIT_SPECIMEN
-        rec["circuits_skipped"] = [{"panel": ed.source, "load": ed.target,
-                                    "reason": "no circuit template"} for ed in edges]
-        return rec, made
+        return _feeders_unwired(edges, NO_CIRCUIT_SPECIMEN, "no circuit template"), made
+    rec = {**_feeders_unwired(), "circuit_template": circuit_template}
     # per-panel schedule layout (number / start slot), in edge order
     layout: Dict[Tuple[str, str], dict] = {}
     for src in dict.fromkeys(ed.source for ed in edges):
@@ -910,7 +926,9 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
     commit (:func:`wire_feeders` over ``specimens.circuit_id``):
     ``rec["circuits"]`` lists them; a missing circuit template is
     ``rec["circuits_blocker"]``, never a stage failure (the instances still
-    land)."""
+    land).  ``circuits=False`` with feeder edges in the intent records THAT
+    as the blocker (:data:`STAGE_C_NOT_REQUESTED`, every edge skipped) so the
+    manifest never goes silent about a plan it did not wire."""
     from rvt.mutate import Document
     from rvt.commit import commit_new_elements, verify_written
     from rvt.frontdoor.levels import resolve as resolve_level
@@ -980,7 +998,8 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
         # the feeder CIRCUITS, wired onto the just-placed boards pre-serialise
         # (both back-links live in the instances' connector objects)
         crec, cels = (wire_feeders(doc, model, placed, specimens.circuit_id) if circuits
-                      else (_NO_FEEDERS, []))
+                      else (_feeders_unwired(circuit_edges(model), STAGE_C_NOT_REQUESTED,
+                                             "stage C not requested"), []))
         rec.update(crec)
         for cel, crow in zip(cels, rec["circuits"]):
             crow["n_dangling"] = len(doc.check_references(cel))
@@ -1068,16 +1087,44 @@ def read_back_circuits(path: str) -> Dict[str, Any]:
             "links_ok": all(r["ok"] for r in rows)}
 
 
-def stage_circuits(model: I.IntentModel, src_rvt: str) -> Dict[str, Any]:
+def _circuit_shortfall(planned: int, built: int, equipment: Optional[Dict[str, Any]]) -> str:
+    """Why the deepest file carries ``built`` != ``planned`` circuits, named
+    from stage E's OWN record (the stage that wires them) -- never a guess:
+    E did not run / failed, its ``circuits_blocker`` (no circuit specimen, or
+    stage C not requested), or the edges it skipped for an unplaced end."""
+    head = f"{built} of {planned} feeder circuits in the deepest file"
+    if equipment is None:
+        return (f"{head}: stage E (equipment placement) did not run -> no board "
+                "instance exists to wire")
+    if equipment.get("skipped") or not equipment.get("ok"):
+        why = (equipment.get("reason") or equipment.get("blocker") or equipment.get("error")
+               or "output not structurally valid")
+        return (f"{head}: stage E did not commit its instances (+ circuits): {why} "
+                "-> nothing wired survives in the deepest file")
+    if equipment.get("circuits_blocker"):
+        return f"{head}: {equipment['circuits_blocker']}"
+    skipped = equipment.get("circuits_skipped") or []
+    if skipped:
+        return (f"{head}: {len(skipped)} feeder edge(s) skipped in stage E for an UNPLACED "
+                "end -- " + "; ".join(f"{s.get('panel')}>{s.get('load')}: {s.get('reason')}"
+                                      for s in skipped))
+    return (f"{head}: stage E wired {len(equipment.get('circuits') or [])} in its commit "
+            "but the readback disagrees -- see readback.circuits")
+
+
+def stage_circuits(model: I.IntentModel, src_rvt: str,
+                   equipment: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """The circuit READBACK stage.  Stage E wires the feeder circuits in its
     own commit; this stage re-opens the deepest file and checks the written
     truth against the plan: ``ids_of_class('RbsElectricalSystem')`` == the
     non-service feeder edges, and every circuit's both-side back-links
     (:func:`read_back_circuits`).  A shortfall is NAMED (``blocker``) with
-    the resolved plan riding along -- never faked."""
+    the resolved plan riding along -- never faked -- and the name is the REAL
+    cause read off ``equipment`` (stage E's record: :func:`_circuit_shortfall`),
+    not a blanket 'no circuit specimen'."""
     rec: Dict[str, Any] = {"stage": "C", "in": _relp(src_rvt), "ok": False,
                            "circuits_planned": [ed.as_json()["circuitPlan"]
-                                                for ed in model.feeders if ed.kind != "service"]}
+                                                for ed in circuit_edges(model)]}
     planned = len(rec["circuits_planned"])
     try:
         rb = read_back_circuits(src_rvt)
@@ -1089,11 +1136,7 @@ def stage_circuits(model: I.IntentModel, src_rvt: str) -> Dict[str, Any]:
         rec["ok"] = rb["n"] == planned and rb["links_ok"]
         if not rec["ok"]:
             rec["blocker"] = (
-                f"0 of {planned} feeder circuits in the deepest file: {NO_CIRCUIT_SPECIMEN}"
-                if rb["n"] == 0 else
-                f"{rb['n']} of {planned} feeder circuits authored (an edge whose panel or "
-                "load family did not load / place cannot be wired)"
-                if rb["n"] != planned else
+                _circuit_shortfall(planned, rb["n"], equipment) if rb["n"] != planned else
                 "circuit reference closure INCOMPLETE on readback (a one-way connector "
                 "link) -- see readback.circuits")
     rec["notes"] = [
@@ -1336,21 +1379,22 @@ def build_room(ifc_path: str, out_dir: str, *, base_rvt: str = DEFAULT_BASE,
         if walls_out:
             current = walls_out
     # ---- stage E
+    e_rec = None
     if "E" in stages and specimens is not None:
         if loaded:
             e_out = os.path.join(out_dir, "electrical_room_2500a.rvt")
             e_rec, e_ok = stage_equipment(model, current, e_out, specimens, loaded,
                                               circuits="C" in stages)
-            record["stages"].append(e_rec)
             record["outputs"]["room"] = _relp(e_out) if e_ok else None
             if e_ok:
                 current = e_out
         else:
-            record["stages"].append({"stage": "E", "skipped": True,
-                                     "reason": "no families loaded (stage L blocker) -> nothing to place"})
-    # ---- stage C
+            e_rec = {"stage": "E", "skipped": True,
+                     "reason": "no families loaded (stage L blocker) -> nothing to place"}
+        record["stages"].append(e_rec)
+    # ---- stage C (reads stage E's record to name a shortfall's real cause)
     if "C" in stages:
-        record["stages"].append(stage_circuits(model, current))
+        record["stages"].append(stage_circuits(model, current, e_rec))
     # ---- stage V
     if "V" in stages:
         v_rec: Dict[str, Any] = {"stage": "V", "files": []}
