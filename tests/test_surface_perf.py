@@ -26,12 +26,15 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import shutil
 import subprocess
 import sys
 
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# the plugin's own floor (plugin/skills/_shared/tekton_env.py MIN_PY)
+MIN_BARE_PY = (3, 9)
 
 # ceilings (seconds) -- generous on purpose; the baseline is ~20x under them
 PREFLIGHT_CEILING = 2.0
@@ -62,21 +65,20 @@ def _load_bench():
 
 
 def _bare_python() -> str:
-    """The bare interpreter approximating a sandbox VM.  The author job's
-    intent model needs numpy (both real sandboxes ship it); skip -- loudly --
-    when no such interpreter exists on this CI host."""
-    for cand in ("/usr/bin/python3", shutil_which("python3")):
-        if cand and os.path.isfile(cand):
-            r = subprocess.run([cand, "-c", "import numpy"], capture_output=True)
-            if r.returncode == 0:
-                return cand
-    pytest.skip("no bare python3 with numpy on this host -- the bare-surface "
-                "perf gate needs one (both real sandboxes ship numpy)")
-
-
-def shutil_which(name: str):
-    import shutil
-    return shutil.which(name)
+    """The bare interpreter approximating a sandbox VM: the system
+    ``/usr/bin/python3``, else the first ``python3`` on PATH, else the BASE
+    interpreter under this (venv) one -- whichever first meets the plugin's
+    own floor -- and only as a last resort the test interpreter itself (a venv
+    python would put its site-packages on the "bare" surface).  numpy is NOT
+    required: every canonical job builds numpy-free (#44 / #127), so the gate
+    EXECUTES on any host instead of skipping where the system python lacks it
+    (issue #136)."""
+    floor = "import sys; sys.exit(sys.version_info < %r)" % (MIN_BARE_PY,)
+    for cand in ("/usr/bin/python3", shutil.which("python3"),
+                 getattr(sys, "_base_executable", None)):
+        if cand and os.path.isfile(cand) and subprocess.run([cand, "-c", floor]).returncode == 0:
+            return cand
+    return sys.executable
 
 
 @pytest.fixture(scope="module")

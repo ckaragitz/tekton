@@ -40,20 +40,34 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 import rvt.versions as V                       # noqa: E402
 from rvt.frontdoor import base as B            # noqa: E402
 import rvt.frontdoor as FD                     # noqa: E402
+from conftest import pinned_base               # noqa: E402
 
-GENESIS = os.path.join(ROOT, "experiments", "genesis", "subst_k4", "compose", "G_ABPD.rvt")
 PANEL_PROMPT = "a 400 A distribution panel"
 
 certified_2024 = 2024 in V.SUPPORTED_CREATION_RELEASES
 certified_2025 = 2025 in V.SUPPORTED_CREATION_RELEASES
-until_2024_certifies = pytest.mark.skipif(
-    not certified_2024,
-    reason="the Revit-2024 genesis base is pending certification -- the 2024 "
-           "campaign (the certified genesis recipe re-run on 2024 format "
-           "data, per genesis-audit verdict #28) flips KNOWN_RELEASES[2024]."
-           "creation_certified and this test arms itself")
-needs_genesis = pytest.mark.skipif(not os.path.exists(GENESIS),
-                                   reason="pinned genesis base absent")
+
+
+# The bases come through the registry (``resolve_base(target_release=N)``:
+# the repo pin path, else the sha-verified plugin/assets/genesis copy), never
+# a git-ignored experiments/ literal, so every gate below EXECUTES on a fresh
+# clone / in CI (issue #136); ``pinned_base`` skips cleanly only when nothing
+# certified + pinned resolves on the machine (or the year is not certified).
+
+@pytest.fixture(scope="module")
+def genesis():
+    """The certified default (2026) genesis base."""
+    return pinned_base(2026)
+
+
+@pytest.fixture(scope="module")
+def g24():
+    """The certified Revit-2024 genesis base (resolves once its campaign certified it)."""
+    return pinned_base(2024)
+
+
+needs_genesis = pytest.mark.usefixtures("genesis")        # builds on the default base
+needs_2024_base = pytest.mark.usefixtures("g24")          # builds on / needs the 2024 base
 
 
 # ===========================================================================
@@ -155,12 +169,11 @@ def test_resolve_base_2024_refuses_or_resolves_never_silently():
         assert "2024" in str(ei.value)
 
 
-@needs_genesis
-def test_explicit_base_of_wrong_release_is_refused_for_2024_target():
+def test_explicit_base_of_wrong_release_is_refused_for_2024_target(genesis):
     """--base <a 2026 file> --target-version 2024 must refuse (require_release),
     never author a 2026 file while promising 2024."""
     with pytest.raises(V.VersionError):
-        B.resolve_base(GENESIS, target_release=2024)
+        B.resolve_base(genesis, target_release=2024)
 
 
 def test_cli_flag_parses_2024():
@@ -173,9 +186,16 @@ def test_cli_flag_parses_2024():
     ap = cli.build_parser()
     a = ap.parse_args(["author", "--prompt", "x", "--target-version", "2024"])
     assert a.target_version == 2024
-    # a release with no registry slot at all stays rejected at the CLI
+    # Any year parses (issue #24 / #172, hard rule 1): a year with no registry
+    # slot (2023) is not argparse-refused -- it reaches the engine's guard,
+    # which DELIVERS the default build + THE honest line + the IFC addition
+    # (tests/test_target_version_first.py pins that end to end); only
+    # non-integers still exit 2.  (Expecting SystemExit for 2023 was the
+    # pre-#172 contract and had been red on main since.)
+    assert ap.parse_args(["author", "--prompt", "x", "--target-version",
+                          "2023"]).target_version == 2023
     with pytest.raises(SystemExit):
-        ap.parse_args(["author", "--prompt", "x", "--target-version", "2023"])
+        ap.parse_args(["author", "--prompt", "x", "--target-version", "R24"])
 
 
 # ===========================================================================
@@ -207,29 +227,38 @@ def test_frontdoor_2024_target_delivers_line_plus_ifc(tmp_path):
         assert (json.load(fh).get("target_version") or {}).get("line") == tv["line"]
 
 
-@needs_genesis
-def test_frontdoor_explicit_pinned_base_still_falls_back_2024(tmp_path):
-    """The plugin's author_standalone passes the BUNDLED base as an explicit
-    --base; with a 2024 target that must degrade honestly (fallback), not
-    refuse -- the file IS our pinned default, not a user override."""
-    if certified_2024:
-        pytest.skip("2024 certified: the explicit-2026-base path now refuses correctly")
+def test_frontdoor_explicit_pinned_base_never_refuses_2024(tmp_path, genesis):
+    """The plugin's author_standalone passes the BUNDLED default (2026) base as
+    an explicit --base; with a 2024 target that is no user override -- the file
+    IS our pinned base arriving by path -- so it must never refuse: once 2024
+    is certified the target's OWN slot is resolved instead (``match``, a 2024
+    file; issue #24 / #472), before that it degrades honestly (``fallback`` +
+    the IFC addition)."""
     r = FD.author(prompt=PANEL_PROMPT, target_version=2024, handoff_only=True,
-                  base=GENESIS, out=str(tmp_path))
+                  base=genesis, out=str(tmp_path))
+    assert r.ok, r.errors
     tv = r.manifest.get("target_version") or {}
-    assert tv.get("status") == "fallback"
-    assert r.files.get("ifc") and os.path.isfile(r.files["ifc"])
+    if certified_2024:
+        assert tv.get("status") == "match"
+        assert tv.get("output_release") == 2024
+        assert r.manifest["base"]["pinned"]
+        assert r.manifest["base"]["source"].startswith("pinned-")
+        assert "--base" in tv.get("note", "")           # the note says the named file was recognised
+        assert "ifc" not in r.files
+    else:
+        assert tv.get("status") == "fallback"
+        assert r.files.get("ifc") and os.path.isfile(r.files["ifc"])
 
 
-@needs_genesis
-@pytest.mark.skipif(not os.path.exists(os.path.join(ROOT, "experiments", "genesis", "R5.rvt")),
-                    reason="R5 ancestor absent")
-def test_frontdoor_user_base_of_wrong_release_is_refused_2024(tmp_path):
+def test_frontdoor_user_base_of_wrong_release_is_refused_2024(tmp_path, monkeypatch, genesis):
     """A genuinely user-supplied 2026 base with a 2024 target is REFUSED --
     the front door never authors a wrong-release file while promising the
-    target (R5 is certified 2026 lineage but NOT the pinned default)."""
-    r = FD.author(prompt=PANEL_PROMPT, target_version=2024,
-                  base=os.path.join(ROOT, "experiments", "genesis", "R5.rvt"),
+    target.  Stand-in for "a firm's own 2026 file": the pinned 2026 base with
+    the registry match switched off (a plain byte-copy of a certified slot is
+    recognised as OUR base and resolves the target's slot -- the test above;
+    same seam as tests/test_frontdoor_manifest_pin.py's ``_firm_bases``)."""
+    monkeypatch.setattr(B, "_certified_slot_for_digest", lambda digest, pin=B.PIN: None)
+    r = FD.author(prompt=PANEL_PROMPT, target_version=2024, base=genesis,
                   out=str(tmp_path))
     tv = r.manifest.get("target_version") or {}
     assert tv.get("status") == "refused"
@@ -240,8 +269,7 @@ def test_frontdoor_user_base_of_wrong_release_is_refused_2024(tmp_path):
 # THE FINISH LINE (arms itself at the 2024 campaign's certification tick)
 # ===========================================================================
 
-@until_2024_certifies
-@needs_genesis
+@needs_2024_base
 def test_END_STATE_author_2024_produces_a_2024_file(tmp_path):
     """2024 acceptance: `author --prompt <panel> --target-version 2024` ->
     a file whose BasicFileInfo Format is 2024 and whose Formats/Latest is

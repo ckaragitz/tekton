@@ -1,0 +1,7 @@
+# issue #136: the per-release acceptance gates resolve their bases through the
+# registry (repo pin -> plugin/assets/genesis, sha-verified) and the bare-surface
+# perf gate runs on the numpy-free system python, so all three EXECUTE on a
+# fresh clone (test_target2025.py is also in ci_shard.txt; listed once, runs once)
+tests/test_target2025.py
+tests/test_target2024.py
+tests/test_surface_perf.py
