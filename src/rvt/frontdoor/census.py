@@ -294,6 +294,11 @@ def __getattr__(name: str):
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
+def __dir__():
+    """``dir(census)`` lists every ``__all__`` name, the lazy re-export included."""
+    return sorted(set(globals()) | set(__all__))
+
+
 __all__ = ["BaseCensus", "CENSUS_PATH", "SCHEMA", "RESIDUE_MEANING", "load", "lookup",
            "for_file", "pinned_sha256s", "Lineage", "lineage", "pin_file", "history_head_guid",
            "DESCENT_MIN_IDENTICAL", "KIND_PINNED", "KIND_DESCENDS"]

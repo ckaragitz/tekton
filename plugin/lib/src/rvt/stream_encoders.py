@@ -36,11 +36,14 @@ import os
 import struct
 import uuid
 import zlib
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 from . import elemtable as _elemtable
 from . import meta as _meta
 from .writer import gzip_member
+
+if TYPE_CHECKING:                                       # annotation only -- never loads olefile at import
+    from .container import RvtDocument
 
 # ---------------------------------------------------------------------------
 # Global/* envelope: 8-byte per-stream-name constant prefix (u64 LE)
@@ -247,15 +250,18 @@ def decode_history(payload: bytes) -> Dict[str, Any]:
     }
 
 
-def history_head_guid(path_or_doc: Any) -> Optional[str]:
+def history_head_guid(path_or_doc: "str | bytes | os.PathLike | RvtDocument") -> Optional[str]:
     """``Global/History`` entry[0] GUID of a file -- the newest save episode,
     which ``BasicFileInfo``'s Unique Document GUID must equal (the L2 save
     invariant; a minimal commit records no new episode, so the identity scrub
-    is handed THIS guid rather than a fresh one) -- or None when the stream is
-    absent, empty or unreadable (never raises).  The ONE reader (#434).
+    is handed THIS guid rather than a fresh one) -- or None when the file or
+    the stream is absent, empty or unreadable (never raises for those).  The
+    ONE reader (#434).
 
-    ``path_or_doc``: a ``.rvt``/``.rfa`` path, or an already-open
-    ``rvt.container.RvtDocument`` (anything with ``.raw()``; spares a re-open).
+    ``path_or_doc`` is a ``.rvt``/``.rfa`` path (anything ``os.fspath`` takes)
+    or an already-open ``rvt.container.RvtDocument`` (spares a re-open) --
+    nothing else: any other object (e.g. a plain binary file object) is a
+    caller bug and raises ``TypeError``, never reads as "no History".
 
     Casing rule, decided here only: the canonical lowercase hyphenated form
     ``str(uuid.UUID)`` yields -- exactly how :func:`decode_history` stringifies
@@ -263,13 +269,19 @@ def history_head_guid(path_or_doc: Any) -> Optional[str]:
     is byte-for-byte what ``rvt.identity.own_basic_file_info(document_guid=)``
     has always received; callers need not re-case it.
     """
+    from_path = isinstance(path_or_doc, (str, bytes, os.PathLike))
+    if not from_path:
+        from .container import RvtDocument      # whoever opened the document already loaded it
+        if not isinstance(path_or_doc, RvtDocument):
+            raise TypeError("history_head_guid() takes a .rvt/.rfa path or an open "
+                            f"rvt.container.RvtDocument, not {type(path_or_doc).__name__!r}")
     try:
-        if hasattr(path_or_doc, "raw"):
-            raw = path_or_doc.raw("Global/History")
-        else:
+        if from_path:
             from .container import open_rvt        # local: pure-payload users of this codec module never load olefile
             with open_rvt(os.fspath(path_or_doc)) as f:
                 raw = f.raw("Global/History")
+        else:
+            raw = path_or_doc.raw("Global/History")
         ents = decode_history(_elemtable.inflate_global_stream(raw).payload).get("entries") or []
         return str(ents[0][0]) if ents else None
     except Exception:                                   # noqa: BLE001

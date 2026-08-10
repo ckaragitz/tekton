@@ -1,6 +1,10 @@
 """pytest bootstrap: make ``src/`` importable, register markers, and expose
-the ONE schema-availability gate (``HAVE_SCHEMA`` / ``needs_schema``) and the
-ONE real-ifcopenshell gate (``HAVE_IFC_AUTHORING`` / ``needs_ifc_authoring``)."""
+the ONE schema-availability gate (``HAVE_SCHEMA`` / ``needs_schema``), the
+ONE real-ifcopenshell gate (``HAVE_IFC_AUTHORING`` / ``needs_ifc_authoring``),
+the "certified pinned base of a year, or a clean skip" helper
+(``pinned_base`` / ``CERTIFIED_YEARS``) and a ``tools/<name>.py`` loader
+(``load_tool`` / the ``job`` fixture = ``tools/rvt_job.py``)."""
+import importlib.util
 import os
 import sys
 
@@ -11,6 +15,7 @@ SRC = os.path.join(ROOT, "src")
 if SRC not in sys.path:
     sys.path.insert(0, SRC)
 
+from rvt.frontdoor import base as _B                          # noqa: E402
 from rvt.ifc._fallback import ifc_authoring_available            # noqa: E402
 from rvt.schema import schema_available                       # noqa: E402
 
@@ -33,6 +38,45 @@ HAVE_IFC_AUTHORING = ifc_authoring_available()
 needs_ifc_authoring = pytest.mark.skipif(
     not HAVE_IFC_AUTHORING,
     reason="real ifcopenshell wheel absent (optional `ifc` extra; the bundled steplite shim only reads)")
+
+#: The release years whose PINNED composed genesis base is certified
+#: (``from conftest import CERTIFIED_YEARS``) -- the parametrize axis of every
+#: "on each certified pin" test; tracked assets, so fresh-clone safe.
+CERTIFIED_YEARS = [y for y in _B.PIN.release_years() if _B.release_status(y)["certified"]]
+
+
+def pinned_base(year: int) -> str:
+    """The certified PINNED base of ``year`` -- or a clean skip: the bundle may
+    be absent, and ``$RVT_GENESIS_BASE`` may point the resolver at a firm's
+    own (non-pinned) base, whose authorship these tests cannot speak to."""
+    try:
+        rb = _B.resolve_base(target_release=year)
+    except _B.BaseError as e:                         # pragma: no cover - bundle absent
+        pytest.skip(f"pinned base for {year} unavailable: {e}")
+    if not (rb.pinned and rb.certified):              # pragma: no cover - override in force
+        pytest.skip(f"Revit {year}: the resolved base is not the certified pin "
+                    f"({rb.path}; $RVT_GENESIS_BASE / --base override) -- these tests are of the pin only")
+    return rb.path
+
+
+def load_tool(name: str):
+    """``tools/<name>.py`` executed as module ``name`` and registered in
+    ``sys.modules`` under that name (``tools/ifc_intent.py`` does ``import
+    rvt_job``; a test that drives it wants the module it patched).  A fresh
+    module per call: request it through a module-scoped fixture, as ``job``
+    below does, so one test file's patches never reach the next."""
+    spec = importlib.util.spec_from_file_location(name, os.path.join(ROOT, "tools", f"{name}.py"))
+    m = importlib.util.module_from_spec(spec)
+    sys.modules[name] = m
+    spec.loader.exec_module(m)
+    return m
+
+
+@pytest.fixture(scope="module")
+def job():
+    """``tools/rvt_job.py`` -- the front door's job runner -- as module ``rvt_job``."""
+    return load_tool("rvt_job")
+
 
 #: the git-ignored research dirs: a FileNotFoundError under one of these
 #: means "fresh clone without the research corpus / built ladders", never
