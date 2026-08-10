@@ -1,0 +1,4 @@
+# #294 / #236: one page-walk law (ecc.iter_blocks) for unframe_stream and the
+# verify_* gates -- synthetic streams + variants of the tracked pinned bases
+# written into tmp_path; no samples/, no ifcopenshell.
+tests/test_ecc_final_block.py

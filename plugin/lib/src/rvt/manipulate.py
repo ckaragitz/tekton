@@ -1641,13 +1641,7 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
         rep["crc_failures"] = sum(0 if m.crc_ok else 1
                                    for s in d.streams() for m in d.members(s.name))
         for name in (pname, "Global/ElemTable"):
-            raw = d.raw(name)
-            n_full = len(raw) // ecc.PAGE_STRIDE
-            for k in range(n_full):
-                page = raw[k * ecc.PAGE_STRIDE:k * ecc.PAGE_STRIDE + ecc.PAGE_PAYLOAD]
-                tr = raw[k * ecc.PAGE_STRIDE + ecc.PAGE_PAYLOAD:(k + 1) * ecc.PAGE_STRIDE]
-                if ecc.page_trailer(page) != tr:
-                    rep["ecc_mismatches"] += 1
+            rep["ecc_mismatches"] += ecc.framing_mismatches(d.raw(name))
         model = decode_elemtable(d.inflate("Global/ElemTable"))
         et_ids = [r[4] for r in model["records"]]
         rep["elemtable_count"] = len(et_ids)

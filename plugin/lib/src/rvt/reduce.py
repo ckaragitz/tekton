@@ -296,49 +296,9 @@ def delete_elements(src_rvt: str, out_path: str, delete_ids: Iterable[int], *,
 # structural verification (the self-check gate for every staged reduction)
 # ---------------------------------------------------------------------------
 
-def _final_block_data_len(block: bytes) -> Optional[int]:
-    """Data byte-count of a CRCIO final block, decoded from its pad-count
-    field (works for a genuine full page too: pad == 0 -> 64,896)."""
-    for params in ecc.PARAM_CLASSES:
-        pre, N = ecc._block_data_len(len(block), params)
-        if pre <= N or (pre + 7) // 8 > len(block):
-            continue
-        fpos = pre - N
-        pad = 0
-        for k in range(N):
-            p = fpos + k
-            if (block[p >> 3] >> (p & 7)) & 1:
-                pad |= 1 << k
-        data_len = ((pre - N) >> 3) - pad
-        if 0 <= data_len <= len(block) and ecc.select_params(data_len) == params \
-                and ecc.encode_block(block[:data_len], params) == block:
-            return data_len
-    return None
-
-
-def unframe_exact(raw: bytes) -> bytes:
-    """Recover the exact LOGICAL stream from a CRCIO-framed raw stream.
-
-    Unlike a naive stride walk this treats only pages FOLLOWED BY MORE BYTES
-    as full pages; the LAST block (<= one stride) always has its data length
-    decoded from its pad-count field.  This is the disambiguation the reader
-    itself has available: a final partial block whose data length lands in
-    the full-size class (5,082..64,896 bytes) encodes to exactly one 65,249
-    -byte stride and is otherwise indistinguishable from a full page by
-    length alone (hit by R1s: a 64,875-byte final block).
-    """
-    out = bytearray()
-    pos, n = 0, len(raw)
-    while n - pos > ecc.PAGE_STRIDE:
-        out += raw[pos:pos + ecc.PAGE_PAYLOAD]
-        pos += ecc.PAGE_STRIDE
-    block = raw[pos:]
-    if block:
-        dl = _final_block_data_len(block)
-        if dl is None:
-            raise ValueError("final block is not CRCIO-framed")
-        out += block[:dl]
-    return bytes(out)
+# The last-block law this stream found first (R1s: a 64,875-byte final block)
+# now lives in the codec (``ecc.iter_blocks``, #236); the name stays for callers.
+unframe_exact = ecc.unframe_stream
 
 def verify_reduced(path: str, deleted_ids: Iterable[int] = ()) -> dict:
     """Prove a reduced file is structurally healthy.
@@ -364,17 +324,9 @@ def verify_reduced(path: str, deleted_ids: Iterable[int] = ()) -> dict:
         rep["crc_failures"] = sum(0 if m.crc_ok else 1
                                    for s in d.streams() for m in d.members(s.name))
         for name in (pname, "Global/ElemTable"):
-            raw = d.raw(name)
-            # full round-trip proof: unframe (decodes the final block's exact
-            # data length from its pad-count field) then re-frame must
-            # reproduce every raw byte. (A naive raw//PAGE_STRIDE full-page
-            # count false-alarms when the final PARTIAL block happens to make
-            # the raw length an exact multiple of the stride.)
-            try:
-                if ecc.frame_stream(unframe_exact(raw)) != raw:
-                    rep["ecc_mismatches"] += 1
-            except Exception:
-                rep["ecc_mismatches"] += 1
+            # full round-trip proof: every full page's trailer AND the final
+            # block (decoded by its pad-count field) must re-encode exactly
+            rep["ecc_mismatches"] += ecc.framing_mismatches(d.raw(name))
         model = decode_elemtable(d.inflate("Global/ElemTable"))
         et_ids = {r[4] for r in model["records"]}
         rep["elemtable_count"] = len(model["records"])
