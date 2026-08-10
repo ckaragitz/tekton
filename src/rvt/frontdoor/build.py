@@ -693,7 +693,8 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     # C. circuits: wired in stage E's commit; read back + verified here
     # ------------------------------------------------------------------
     deepest = res.deepest
-    if "C" in opts.stages and deepest and model.feeders:
+    feeder_edges = R.circuit_edges(model)             # non-service edges = the circuits planned
+    if "C" in opts.stages and deepest and feeder_edges:
         with _timed_stage(res):
             crec = R.stage_circuits(model, deepest, erec)
             res.circuits = crec
@@ -704,7 +705,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                                "blocker": crec.get("blocker")})
         if crec.get("blocker"):
             res.degradations.append("feeder CIRCUITS incomplete: " + str(crec.get("blocker")))
-    elif deepest and R.circuit_edges(model):
+    elif deepest and feeder_edges:
         res.degradations.append("feeder CIRCUITS not wired: " + R.STAGE_C_NOT_REQUESTED)
 
     # ------------------------------------------------------------------
@@ -832,4 +833,5 @@ def _slim_stage(rec: Dict[str, Any]) -> Dict[str, Any]:
                            for c in rec["circuits"]]
         out["circuits_skipped"] = rec.get("circuits_skipped") or []
         out["circuits_blocker"] = rec.get("circuits_blocker")
+        out["circuits_requested"] = rec.get("circuits_requested", True)
     return out

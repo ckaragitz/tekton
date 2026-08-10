@@ -598,19 +598,15 @@ def test_unwired_feeder_record_is_a_fresh_copy_per_call(room_module, circuit_mod
                       "circuit_template": None}
     assert a is not b
     assert a["circuits"] is not b["circuits"] and a["circuits_skipped"] is not b["circuits_skipped"]
-    a["circuits"].append({"elem_id": 1})
-    a["circuits_skipped"].append({"panel": "MSB"})
-    assert b["circuits"] == [] and b["circuits_skipped"] == []
-    assert R._feeders_unwired()["circuits"] == []
-    # the populated shapes are fresh too, and name every edge + the blocker
+    a["circuits"].append({"elem_id": 1})                     # what stage E does to its copy
+    assert b["circuits"] == [] and R._feeders_unwired()["circuits"] == []
+    # the populated shape names every edge; a reason alone is no blocker
     edges = R.circuit_edges(circuit_model)
     assert len(edges) == 6                                   # the service entrance is no circuit
-    n1 = R._feeders_unwired(edges, R.STAGE_C_NOT_REQUESTED, "stage C not requested")
-    n2 = R._feeders_unwired(edges, R.STAGE_C_NOT_REQUESTED, "stage C not requested")
-    assert n1["circuits_skipped"] is not n2["circuits_skipped"]
-    assert n1["circuits_blocker"] == R.STAGE_C_NOT_REQUESTED
-    assert {(s["panel"], s["load"]) for s in n1["circuits_skipped"]} == {
-        (ed.source, ed.target) for ed in edges}
+    nreq = R._feeders_unwired(edges, R.CIRCUITS_NOT_REQUESTED_REASON)
+    assert nreq["circuits_blocker"] is None
+    assert {(s["panel"], s["load"], s["reason"]) for s in nreq["circuits_skipped"]} == {
+        (ed.source, ed.target, R.CIRCUITS_NOT_REQUESTED_REASON) for ed in edges}
 
 
 @needs_bundled
@@ -637,11 +633,12 @@ def test_stage_c_names_the_real_cause_of_a_circuit_shortfall(genesis_doc, room_m
     assert spec["circuits_blocker"] == R.NO_CIRCUIT_SPECIMEN
     assert R.stage_circuits(model, BUNDLED, {"stage": "E", "ok": True, **spec})["blocker"] \
         == "0 of 6 feeder circuits in the deepest file: " + R.NO_CIRCUIT_SPECIMEN
-    # (c) stage C not requested in stage E (--stages without C)
-    nreq = R._feeders_unwired(R.circuit_edges(model), R.STAGE_C_NOT_REQUESTED,
-                              "stage C not requested")
-    assert R.stage_circuits(model, BUNDLED, {"stage": "E", "ok": True, **nreq})["blocker"] \
-        .endswith(R.STAGE_C_NOT_REQUESTED)
+    # (c) circuits not requested of stage E (--stages without C): a neutral
+    #     opt-out in E's record, worded by the orchestrator level in stage C
+    nreq = {"stage": "E", "ok": True, "circuits_requested": False,
+            **R._feeders_unwired(R.circuit_edges(model), R.CIRCUITS_NOT_REQUESTED_REASON)}
+    assert R.stage_circuits(model, BUNDLED, nreq)["blocker"] \
+        == "0 of 6 feeder circuits in the deepest file: " + R.STAGE_C_NOT_REQUESTED
     # (d) stage E never ran / did not commit
     assert "stage E (equipment placement) did not run" in R.stage_circuits(model, BUNDLED)["blocker"]
     skipped_e = {"stage": "E", "skipped": True, "reason": "no families loaded"}

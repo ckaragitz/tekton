@@ -821,9 +821,12 @@ NO_CIRCUIT_SPECIMEN = (
     "resolved feeder plan rides in the manifest instead")
 
 
+#: the ORCHESTRATOR-level name (build_room / the front door own ``--stages``)
+#: for stage E's neutral ``circuits_requested: False`` (its caller opted out)
 STAGE_C_NOT_REQUESTED = (
     "stage C (circuits) NOT requested (--stages lacks 'C'): the feeder edges stay a "
     "plan in the intent; no RbsElectricalSystem is authored")
+CIRCUITS_NOT_REQUESTED_REASON = "circuits not requested by the caller"
 
 
 def _feeder_voltage_v(text: Any) -> Optional[float]:
@@ -836,13 +839,13 @@ def circuit_edges(model: I.IntentModel) -> List[Any]:
     return [ed for ed in model.feeders if ed.kind != "service"]
 
 
-def _feeders_unwired(edges: Sequence[Any] = (), blocker: Optional[str] = None,
-                     reason: Optional[str] = None) -> Dict[str, Any]:
+def _feeders_unwired(edges: Sequence[Any] = (), reason: Optional[str] = None,
+                     blocker: Optional[str] = None) -> Dict[str, Any]:
     """A FRESH feeder record with no circuit wired -- a new dict and new lists
     per call: stage E ``update``s it into its own record and appends to those
     lists, so a shared module-level default would leak between builds.  With
-    ``edges``, every one lands in ``circuits_skipped`` for ``reason`` and
-    ``blocker`` names why none was wired."""
+    ``edges``, every one lands in ``circuits_skipped`` for ``reason``;
+    ``blocker`` (if any) names what BLOCKED the wiring."""
     return {"circuits": [],
             "circuits_skipped": [{"panel": ed.source, "load": ed.target, "reason": reason}
                                  for ed in edges],
@@ -866,7 +869,7 @@ def wire_feeders(doc, model: I.IntentModel, placed: Dict[str, Any],
     made: List[Any] = []
     edges = circuit_edges(model)
     if edges and circuit_template is None:
-        return _feeders_unwired(edges, NO_CIRCUIT_SPECIMEN, "no circuit template"), made
+        return _feeders_unwired(edges, "no circuit template", blocker=NO_CIRCUIT_SPECIMEN), made
     rec = {**_feeders_unwired(), "circuit_template": circuit_template}
     # per-panel schedule layout (number / start slot), in edge order
     layout: Dict[Tuple[str, str], dict] = {}
@@ -926,9 +929,11 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
     commit (:func:`wire_feeders` over ``specimens.circuit_id``):
     ``rec["circuits"]`` lists them; a missing circuit template is
     ``rec["circuits_blocker"]``, never a stage failure (the instances still
-    land).  ``circuits=False`` with feeder edges in the intent records THAT
-    as the blocker (:data:`STAGE_C_NOT_REQUESTED`, every edge skipped) so the
-    manifest never goes silent about a plan it did not wire."""
+    land).  ``circuits=False`` records ``rec["circuits_requested"] = False``
+    with every feeder edge in ``circuits_skipped`` (reason
+    :data:`CIRCUITS_NOT_REQUESTED_REASON`) -- a neutral opt-out, no blocker;
+    the orchestrator that owns ``--stages`` words it (:data:`STAGE_C_NOT_REQUESTED`)
+    so the manifest never goes silent about a plan it did not wire."""
     from rvt.mutate import Document
     from rvt.commit import commit_new_elements, verify_written
     from rvt.frontdoor.levels import resolve as resolve_level
@@ -998,9 +1003,8 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
         # the feeder CIRCUITS, wired onto the just-placed boards pre-serialise
         # (both back-links live in the instances' connector objects)
         crec, cels = (wire_feeders(doc, model, placed, specimens.circuit_id) if circuits
-                      else (_feeders_unwired(circuit_edges(model), STAGE_C_NOT_REQUESTED,
-                                             "stage C not requested"), []))
-        rec.update(crec)
+                      else (_feeders_unwired(circuit_edges(model), CIRCUITS_NOT_REQUESTED_REASON), []))
+        rec.update(crec, circuits_requested=circuits)
         for cel, crow in zip(cels, rec["circuits"]):
             crow["n_dangling"] = len(doc.check_references(cel))
         els.extend(cels)
@@ -1027,6 +1031,7 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
             "connector set (+ one 50000-series slot per outgoing feeder)",
             f"feeder circuits in the SAME commit: {len(rec['circuits'])} RbsElectricalSystem "
             f"(template {rec.get('circuit_template')}), {len(rec['circuits_skipped'])} skipped"
+            + ("" if circuits else f" -- {CIRCUITS_NOT_REQUESTED_REASON} (circuits=False)")
             + (f" -- blocker: {rec['circuits_blocker']}" if rec.get("circuits_blocker") else ""),
             f"specimen scaffolding: instance {tpl} (category {specimens.instance_category}) "
             f"cloned from the base's certified ancestor "
@@ -1090,17 +1095,21 @@ def read_back_circuits(path: str) -> Dict[str, Any]:
 def _circuit_shortfall(planned: int, built: int, equipment: Optional[Dict[str, Any]]) -> str:
     """Why the deepest file carries ``built`` != ``planned`` circuits, named
     from stage E's OWN record (the stage that wires them) -- never a guess:
-    E did not run / failed, its ``circuits_blocker`` (no circuit specimen, or
-    stage C not requested), or the edges it skipped for an unplaced end."""
+    E did not run / did not commit, E's caller opted out of circuits
+    (``circuits_requested`` False = ``--stages`` without C), E's
+    ``circuits_blocker`` (no circuit specimen), or the edges it skipped for
+    an unplaced end."""
     head = f"{built} of {planned} feeder circuits in the deepest file"
     if equipment is None:
         return (f"{head}: stage E (equipment placement) did not run -> no board "
                 "instance exists to wire")
-    if equipment.get("skipped") or not equipment.get("ok"):
+    if not equipment.get("ok"):                          # skipped, blocked, crashed, invalid
         why = (equipment.get("reason") or equipment.get("blocker") or equipment.get("error")
                or "output not structurally valid")
         return (f"{head}: stage E did not commit its instances (+ circuits): {why} "
                 "-> nothing wired survives in the deepest file")
+    if not equipment.get("circuits_requested", True):
+        return f"{head}: {STAGE_C_NOT_REQUESTED}"
     if equipment.get("circuits_blocker"):
         return f"{head}: {equipment['circuits_blocker']}"
     skipped = equipment.get("circuits_skipped") or []

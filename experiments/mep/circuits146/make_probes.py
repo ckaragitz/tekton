@@ -19,14 +19,9 @@ defect; 'off' FAIL + 'on' a DIFFERENT failure => the circuit records are a
 second defect; both PASS => circuits certified with the instances.  A
 control FAIL voids the round.
 
-NEXT single variable if 'on' fails where 'off' does not (issue #360, from
-#353's review): the constructed template ships m_circuitPathMode / m_nNumRuns
-/ m_nextFreeSectionId / m_pathOffsetAllDevice at schema default 0, but the
-checked-in census experiments/genesis/lint/invariants/RbsElectricalSystem.json
-has them CORPUS-CONSTANT 2 / 1 / 1 / 30000.0 (188/188 specimens).  Apply the
-four together as ONE variable ('C146_on_pathconst' vs 'C146_on'), bisect only
-if the card flips.  Recorded in probes.json as "next_single_variable"; the
-shipped values are NOT changed until a viewer verdict says so (rule 4).
+NEXT single variable if 'on' fails where 'off' does not: NEXT_SINGLE_VARIABLE
+below (the four corpus-constant path fields, issue #360), written into
+probes.json as "next_single_variable"; docs/inbox/mep-electrical.md § eng360.
 
     .venv/bin/python experiments/mep/circuits146/make_probes.py [--target-version 2026]
 """
@@ -53,10 +48,11 @@ NEXT_SINGLE_VARIABLE = {
             "derivable'; the checked-in corpus census shows each is constant over 188/188 "
             "specimens -- the highest-prior circuit-layer variable, applied together first"),
     "census": "experiments/genesis/lint/invariants/RbsElectricalSystem.json",
-    "fields": {"m_circuitPathMode": {"shipped": 0, "census": 2, "support": "188/188"},
-               "m_nNumRuns": {"shipped": 0, "census": 1, "support": "188/188"},
-               "m_nextFreeSectionId": {"shipped": 0, "census": 1, "support": "188/188"},
-               "m_pathOffsetAllDevice": {"shipped": 0.0, "census": 30000.0, "support": "188/188"}},
+    "support": "188/188 specimens for each field (187 rme + 1 rac)",
+    "fields": {"m_circuitPathMode": {"shipped": 0, "census": 2},
+               "m_nNumRuns": {"shipped": 0, "census": 1},
+               "m_nextFreeSectionId": {"shipped": 0, "census": 1},
+               "m_pathOffsetAllDevice": {"shipped": 0.0, "census": 30000.0}},
     "probe": "C146_on_pathconst = C146_on with the four census values (one variable); "
              "control + C146_off + C146_on unchanged",
     "not_a_candidate": "m_nPhaseInfo (0:1 / 1:124 / 2:33 / 3:30 -- not constant)",

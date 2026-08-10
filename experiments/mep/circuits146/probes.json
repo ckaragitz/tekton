@@ -28,26 +28,23 @@
  "next_single_variable": {
   "why": "eng146 shipped these four RbsElectricalSystem fields at schema default as 'not derivable'; the checked-in corpus census shows each is constant over 188/188 specimens -- the highest-prior circuit-layer variable, applied together first",
   "census": "experiments/genesis/lint/invariants/RbsElectricalSystem.json",
+  "support": "188/188 specimens for each field (187 rme + 1 rac)",
   "fields": {
    "m_circuitPathMode": {
     "shipped": 0,
-    "census": 2,
-    "support": "188/188"
+    "census": 2
    },
    "m_nNumRuns": {
     "shipped": 0,
-    "census": 1,
-    "support": "188/188"
+    "census": 1
    },
    "m_nextFreeSectionId": {
     "shipped": 0,
-    "census": 1,
-    "support": "188/188"
+    "census": 1
    },
    "m_pathOffsetAllDevice": {
     "shipped": 0.0,
-    "census": 30000.0,
-    "support": "188/188"
+    "census": 30000.0
    }
   },
   "probe": "C146_on_pathconst = C146_on with the four census values (one variable); control + C146_off + C146_on unchanged",

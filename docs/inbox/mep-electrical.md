@@ -426,15 +426,21 @@ calls `stage_circuits`, so unavoidable for the manifest to carry the cause),
    the cause off it instead of always printing `NO_CIRCUIT_SPECIMEN`:
    * E did not run → `"… stage E (equipment placement) did not run -> no board instance exists to wire"`;
    * E skipped / did not commit → `"… stage E did not commit its instances (+ circuits): <E's reason/blocker/error> …"`;
-   * E's own `circuits_blocker` → verbatim (`NO_CIRCUIT_SPECIMEN`, or the new
-     `STAGE_C_NOT_REQUESTED`);
+   * E's caller opted out (`circuits_requested: False`) → `STAGE_C_NOT_REQUESTED`
+     (`"stage C (circuits) NOT requested (--stages lacks 'C'): …"`);
+   * E's own `circuits_blocker` → verbatim (`NO_CIRCUIT_SPECIMEN`);
    * edges E skipped for an unplaced end → `"… N feeder edge(s) skipped in stage E for an UNPLACED end -- MSB>DP-1: panel not placed (…); …"`.
-   `stage_equipment(circuits=False)` with feeder edges in the intent records
-   `circuits_blocker = STAGE_C_NOT_REQUESTED` + every edge in `circuits_skipped`
-   (reason `"stage C not requested"`), and `build.py` adds the degradation
-   `"feeder CIRCUITS not wired: stage C (circuits) NOT requested (--stages lacks 'C') …"`
-   — the manifest is no longer silent when `--stages` lacks C.
-2. **`_NO_FEEDERS` → `_feeders_unwired(edges=(), blocker=None, reason=None)`**: a new
+   `stage_equipment(circuits=False)` with feeder edges in the intent records a **neutral
+   opt-out at its own altitude** — `circuits_requested: False`, every edge in
+   `circuits_skipped` with reason `"circuits not requested by the caller"`, NO
+   `circuits_blocker` (engine-level callers such as `convert/add_to_project.py` never pass
+   `circuits=` and know nothing of `--stages`, so a blocker naming a CLI flag would be
+   wrong there — a `/simplify` altitude finding, applied). The orchestrators that own
+   `--stages` word it: stage C as above, and `build.py` adds the degradation
+   `"feeder CIRCUITS not wired: stage C (circuits) NOT requested (--stages lacks 'C') …"`;
+   the slim E row in the manifest carries `circuits_requested`. The manifest is no longer
+   silent when `--stages` lacks C.
+2. **`_NO_FEEDERS` → `_feeders_unwired(edges=(), reason=None, blocker=None)`**: a new
    dict + new lists per call (stage E `update`s it into its record and appends to the
    lists; the module-level dict was handed out by reference). `circuit_edges(model)` is
    the single definition of "feeder edges that become circuits" (service entrance
@@ -478,9 +484,11 @@ batch starts from the census, not from a guess.
 * DONE prompt through the front door on this branch (2026): exit 0, stage C
   `ok / planned 6 / built 6 / links_ok`, 6 `circuit` rows, `VALID` 0 errors, no circuit
   degradation, 5.0 s — unchanged from #353.
-* Same prompt with `--stages FLWEV`: exit 0, `VALID` 0 errors, 0 circuits, stage E record
-  `circuits_blocker = "stage C (circuits) NOT requested (--stages lacks 'C'): …"`, 6 skipped,
-  degradation `"feeder CIRCUITS not wired: stage C (circuits) NOT requested …"` (was: silent).
+* Same prompt with `--stages FLWEV`: exit 0, `VALID` 0 errors, 0 circuits, stage E row
+  `circuits_requested: false`, 6 skipped (`"circuits not requested by the caller"`), no
+  `circuits_blocker`, E note `"… 0 RbsElectricalSystem (template None), 6 skipped -- circuits
+  not requested by the caller (circuits=False)"`, degradation `"feeder CIRCUITS not wired:
+  stage C (circuits) NOT requested (--stages lacks 'C'): …"` (was: silent).
 * Unplaced-ends case (test, bundled base, template present, nothing placed): stage C blocker
   `"0 of 6 feeder circuits in the deepest file: 6 feeder edge(s) skipped in stage E for an
   UNPLACED end -- MSB>DP-1: panel not placed (family not loaded / not in the intent); …"` and
