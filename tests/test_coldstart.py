@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import glob
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -225,11 +226,8 @@ def test_go_usage_error(plugin_copy, workdir):
 IFC_EXAMPLE_REL = os.path.join("skills", "tekton-author", "examples",
                                "electrical-room-2500a.ifc")
 
-try:
-    import numpy  # noqa: F401
-    HAVE_NUMPY = True
-except ImportError:                                     # pragma: no cover
-    HAVE_NUMPY = False
+# the exact probe preflight uses -- and numpy is never imported into this process
+HAVE_NUMPY = importlib.util.find_spec("numpy") is not None
 
 
 def test_preflight_states_ifc_route_needs_numpy_when_absent(plugin_copy, workdir):
@@ -272,8 +270,8 @@ def test_go_author_ifc_without_numpy_states_prerequisite_once(plugin_copy, workd
     assert r.stderr == ""
     doc = json.loads(r.stdout)                     # stdout IS one JSON object
     g = doc["go"]
-    assert g["ready"] is False and g["exit_code"] == 3 and g["route"] == "ifc"
-    assert g["prerequisite"]["needs"] == ["numpy"]
+    assert g["ready"] is False and g["exit_code"] == 3
+    assert g["prerequisite"]["route"] == "ifc" and g["prerequisite"]["needs"] == ["numpy"]
     assert "pip install numpy" in g["prerequisite"]["fix"]
     assert g["preflight_line"].startswith("tekton: NOT READY for --ifc")
     assert "numpy" in g["preflight_line"]

@@ -351,6 +351,12 @@ def _route_capability(extras: dict) -> dict:
     return routes
 
 
+def _route_words(cap: dict) -> str:
+    """``OK`` or ``needs numpy (python -m pip install numpy)`` -- the ONE
+    wording of a route's capability (READY line, `go`, doctor)."""
+    return "OK" if cap["ok"] else f"needs {' + '.join(cap['needs'])} ({cap['fix']})"
+
+
 def preflight(root: str | None = None) -> dict:
     """The whole environment story in one call.  Returns the readiness dict;
     ``result['line']`` is the single line to print/report.  READY means the
@@ -437,12 +443,11 @@ def preflight(root: str | None = None) -> dict:
               (f" (Revit {rel})" if rel else "")
         eng = "bundled" if res["engine"]["source"].startswith("bundled") else "installed"
         outw = "OK" if res["out_dir"]["where"] == "cwd" else f"{res['out_dir']['path']} only"
-        ifc = res["routes"]["ifc"]
-        ifcw = "OK" if ifc["ok"] else f"needs {' + '.join(ifc['needs'])} ({ifc['fix']})"
+        gated = " | ".join(f"{r}-route {_route_words(res['routes'][r])}" for r in ROUTE_EXTRAS)
         res["line"] = (f"{LINE_PREFIX} READY | python {res['python']['version']} | "
                        f"engine {eng} | genesis {gen} | "
                        f"family-donor {res['family_donor']['status']} | "
-                       f"ifc-route {ifcw} | out-dir {outw} | {res['seconds']}s")
+                       f"{gated} | out-dir {outw} | {res['seconds']}s")
     else:
         bad = []
         for k in ("python", "engine", "genesis_base", "out_dir"):
@@ -532,9 +537,11 @@ _REVIT_EXTS = (".rvt", ".rfa", ".rte", ".rft")
 def _gated_route(script: str, args: list[str]) -> str | None:
     """The front-door input route this `go` job asks for when that route has
     a prerequisite preflight tracks (:data:`ROUTE_EXTRAS` -- today ``ifc``,
-    from ``--ifc FILE`` / ``--ifc=FILE`` on a ``frontdoor.py`` call); None
-    for every job that needs nothing beyond the bundled engine."""
-    if os.path.basename(script) != "frontdoor.py":
+    from ``--ifc FILE`` / ``--ifc=FILE`` on a front-door call); None for
+    every other job.  Deliberately the front door only: there the failure
+    is proven (tests/test_coldstart.py); gating a sibling script on a guess
+    would be a refusal of a job that might have built (hard rule 1)."""
+    if os.path.basename(script) != _GO_VERBS["author"][0]:
         return None
     for route in ROUTE_EXTRAS:
         flag = f"--{route}"
@@ -631,31 +638,26 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
     out: dict = {"go": {"one_call": True, "ready": bool(pf["ok"]),
                         "preflight_line": pf["line"],
                         "preflight_seconds": pf["seconds"]}}
-
-    def not_ready() -> int:                  # the job is never attempted
-        out["go"].update({"ready": False, "exit_code": 3, "preflight": pf})
-        out["result"] = None                 # ^ the full detail, only on failure
+    if pf["ok"]:
+        script, args = _resolve_go_target(argv, base_dir)
+        # which dispatch ran: "author" / "edit" (issue #111) / the sibling script's name
+        out["go"]["verb"] = argv[0] if argv[0] in _GO_VERBS else os.path.basename(script)
+        route = _gated_route(script, args)
+        cap = pf["routes"][route] if route else None
+        if cap and not cap["ok"]:
+            # preflight already knows THIS route cannot build here: state its
+            # prerequisite ONCE, up front, instead of a job that stops mid-way (#127)
+            out["go"].update({
+                "ready": False,
+                "prerequisite": {"route": route, "needs": cap["needs"], "fix": cap["fix"]},
+                "preflight_line": (f"{LINE_PREFIX} NOT READY for --{route} | {route}-route "
+                                   f"{_route_words(cap)} -- one-time; the other routes "
+                                   "are READY without it")})
+    if not out["go"]["ready"]:               # the job is never attempted
+        out["go"].update({"exit_code": 3, "preflight": pf})   # full detail, only on failure
+        out["result"] = None
         print(_json_doc(out))
         return 3
-
-    if not pf["ok"]:
-        return not_ready()
-    script, args = _resolve_go_target(argv, base_dir)
-    # which dispatch ran: "author" / "edit" (issue #111) / the sibling script's name
-    out["go"]["verb"] = argv[0] if argv[0] in _GO_VERBS else os.path.basename(script)
-    route = _gated_route(script, args)
-    cap = pf["routes"].get(route) if route else None
-    if cap and not cap["ok"]:
-        # preflight already knows THIS route cannot build here: state its
-        # prerequisite ONCE, up front, instead of a job that stops mid-way (#127)
-        needs = " + ".join(cap["needs"])
-        out["go"].update({
-            "route": route,
-            "prerequisite": {"route": route, "needs": list(cap["needs"]), "fix": cap["fix"]},
-            "preflight_line": (f"{LINE_PREFIX} NOT READY for --{route} | {route}-route needs "
-                               f"{needs}: {cap['fix']} (one-time; the other routes are "
-                               "READY without it)")})
-        return not_ready()
     inputs = _input_releases(args)
     if inputs:
         out["go"]["inputs"] = inputs
@@ -774,9 +776,9 @@ def doctor(install: bool = False) -> int:
         rc = subprocess.call([sys.executable, "-m", "pip", "install", *missing])
         print(f"  pip exit: {rc}")
     elif missing:
-        ifc = pf["routes"]["ifc"]
-        if not ifc["ok"]:
-            print(f"\n  the --ifc route needs {' + '.join(ifc['needs'])}: {ifc['fix']}")
+        for route, cap in pf["routes"].items():
+            if not cap["ok"]:
+                print(f"\n  the --{route} route {_route_words(cap)}")
         if "ifcopenshell" in missing:
             print("  IFC reads already work (steplite); install ifcopenshell only "
                   "for authoring/validation: python -m pip install ifcopenshell")
