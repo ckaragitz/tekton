@@ -344,9 +344,37 @@ def _json_or_none(text: str):
         return None
 
 
-def _tail(inv: Invocation) -> str:
-    msg = (inv.stderr or inv.stdout or "").strip().splitlines()
-    return msg[-1][:200] if msg else f"exit {inv.exit_code}"
+_JSON_PUNCT = frozenset("{}[],")
+
+
+def _why(inv: Invocation) -> str:
+    """Why a job did not pass, in <= 200 chars, for its `reason` (issue #287).
+
+    Prefers the job's OWN verdict when it printed a well-formed --json result
+    (front door: ``errors[0]`` / ``status``; `go` envelope: ``result.error`` /
+    ``result.gates.line``, or the preflight line when the job never ran),
+    then the last non-empty stderr line, then the last stdout line that is
+    not bare JSON punctuation (a clean failure pretty-prints its JSON, so the
+    literal last line is ``}``), then ``exit N``."""
+    def _d(v) -> dict:
+        return v if isinstance(v, dict) else {}
+
+    res = _json_or_none(inv.stdout)
+    if isinstance(res, dict):
+        go, inner = _d(res.get("go")), _d(res.get("result")) or res
+        errs = inner.get("errors")
+        for cand in (errs[0] if isinstance(errs, list) and errs else None,
+                     inner.get("error"), inner.get("status"), _d(inner.get("gates")).get("line"),
+                     go.get("exception"), inner.get("line"),
+                     None if go.get("ready", True) else go.get("preflight_line")):
+            if isinstance(cand, str) and cand.strip():
+                return " ".join(cand.split())[:200]
+    for text, is_stdout in ((inv.stderr, False), (inv.stdout, True)):
+        for line in reversed((text or "").splitlines()):
+            line = line.strip()
+            if line and not (is_stdout and set(line) <= _JSON_PUNCT):
+                return line[:200]
+    return f"exit {inv.exit_code}"
 
 
 def stage_breakdown(result: dict, envelope: dict | None = None) -> dict:
@@ -418,7 +446,7 @@ def job_preflight(s: Surface, state: dict) -> JobResult:
     job.invocations.append(inv)
     pf = _json_or_none(inv.stdout)
     if inv.exit_code != 0 or not pf or not pf.get("ok"):
-        return job.fail(f"preflight not READY: {_tail(inv)}")
+        return job.fail(f"preflight not READY: {_why(inv)}")
     state["preflight"] = {"python": pf["python"]["version"],
                           "extras": pf.get("extras", {}),
                           "internal_seconds": pf.get("seconds")}
@@ -434,7 +462,7 @@ def job_author_prompt(s: Surface, state: dict) -> JobResult:
     job.invocations.append(inv)
     res = _json_or_none(inv.stdout)
     if inv.exit_code != 0 or not res or not res.get("ok"):
-        return job.fail(f"author --prompt failed: {_tail(inv)}")
+        return job.fail(f"author --prompt failed: {_why(inv)}")
     combined = (res.get("files") or {}).get("combined")
     if not combined or not os.path.isfile(combined):
         return job.fail("no combined .rvt in the result")
@@ -473,12 +501,12 @@ def _job_go_author(s: Surface, state: dict, name: str, prompt: str, short: str) 
         # line, exit 0/3) or usage-error -- an absent feature, not a failure
         return job.skipped("`go` dispatch not in this plugin build yet")
     if inv.exit_code != 0 or not res:
-        return job.fail(f"go author failed: {_tail(inv)}")
+        return job.fail(f"go author failed: {_why(inv)}")
     # the combined JSON: accept either the front door result directly or a
     # {preflight, result} envelope -- the contract is ONE call, ONE JSON.
     inner = res.get("result", res)
     if not inner.get("ok"):
-        return job.fail(f"go author reported not-ok: {_tail(inv)}")
+        return job.fail(f"go author reported not-ok: {_why(inv)}")
     job.breakdown = stage_breakdown(inner, envelope=res)
     combined = (inner.get("files") or {}).get("combined")
     if combined and os.path.isfile(combined) and "authored_rvt" not in state:
@@ -502,7 +530,7 @@ def job_author_ifc(s: Surface, state: dict) -> JobResult:
     if "ifcopenshell" in blob:
         return job.blocked("ifcopenshell not importable on this surface "
                            "(fresh-sandbox install is minutes / impossible without egress)")
-    return job.fail(f"author --ifc failed: {_tail(inv)}")
+    return job.fail(f"author --ifc failed: {_why(inv)}")
 
 
 def job_edit_roundtrip(s: Surface, state: dict) -> JobResult:
@@ -518,7 +546,7 @@ def job_edit_roundtrip(s: Surface, state: dict) -> JobResult:
     job.invocations.append(inv)
     info = _json_or_none(inv.stdout)
     if inv.exit_code != 0 or not info or not info.get("levels"):
-        return job.fail(f"info failed: {_tail(inv)}")
+        return job.fail(f"info failed: {_why(inv)}")
     lvl = max(info["levels"], key=lambda l: l.get("elevation_ft", 0.0))
 
     # call 2: the edit (nudge the top level; deterministic, always present)
@@ -531,7 +559,7 @@ def job_edit_roundtrip(s: Surface, state: dict) -> JobResult:
     job.invocations.append(inv)
     edited = os.path.join(s.workdir, edited_name)
     if inv.exit_code != 0 or not os.path.isfile(edited):
-        return job.fail(f"set-level failed: {_tail(inv)}")
+        return job.fail(f"set-level failed: {_why(inv)}")
     edited = s.keep_artifact(edited, "edited.rvt")
 
     # call 3: the mandatory gate on every written file
@@ -540,7 +568,7 @@ def job_edit_roundtrip(s: Surface, state: dict) -> JobResult:
         s.stage_input(edited), "--quiet"])
     job.invocations.append(inv)
     if inv.exit_code != 0:
-        return job.fail(f"edited file failed the gate: {_tail(inv)}")
+        return job.fail(f"edited file failed the gate: {_why(inv)}")
     return job
 
 
@@ -564,9 +592,9 @@ def job_go_edit(s: Surface, state: dict) -> JobResult:
         return job.skipped("`go edit` not in this plugin build yet")
     inner = res.get("result")
     if not isinstance(inner, dict) or "gates" not in inner:
-        return job.fail(f"go edit failed: {_tail(inv)}")
+        return job.fail(f"go edit failed: {_why(inv)}")
     if inv.exit_code != 0 or not inner.get("ok"):
-        return job.fail(f"go edit not ok: {inner.get('error') or inner['gates'].get('line') or _tail(inv)}")
+        return job.fail(f"go edit not ok: {_why(inv)}")
     out = (inner.get("output") or {}).get("path")
     if not out or not os.path.isfile(out):
         return job.fail("go edit reported ok but wrote no file")
@@ -589,7 +617,7 @@ def job_validate(s: Surface, state: dict) -> JobResult:
         s.stage_input(rvt), "--quiet"])
     job.invocations.append(inv)
     if inv.exit_code != 0:
-        return job.fail(f"validator errors: {_tail(inv)}")
+        return job.fail(f"validator errors: {_why(inv)}")
     return job
 
 
