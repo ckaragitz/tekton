@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
-"""One-off GENERATOR for src/rvt/ifc/ifc4_parents.py (issue #155).
+"""One-off GENERATOR for src/rvt/ifc/ifc4_parents.py (issue #155) and its
+per-schema siblings such as src/rvt/ifc/ifc4x3_add2_parents.py (issue #337).
 
 steplite (rvt.ifc.steplite, the stdlib-only IFC reader the plugin ships)
 hand-transcribes attribute rows for the entity subset the read paths use.
 To keep entities OUTSIDE that subset inside the right ``by_type`` / ``is_a``
 closures it also needs the plain "class -> supertype" relation of the whole
-IFC4 entity hierarchy.  That relation is a fact of buildingSMART's PUBLIC
-IFC4 (ADD2 TC1) EXPRESS schema; this script reads it out of a locally
-installed ifcopenshell (``ifcopenshell_wrapper.schema_by_name("IFC4")``)
-and writes it down as OUR OWN python text: one ``"IfcChild": "IfcParent"``
-line per entity, nothing else (no attribute lists, no vendor file bytes).
+entity hierarchy of the file's schema.  That relation is a fact of
+buildingSMART's PUBLIC EXPRESS schemas (IFC4 ADD2 TC1, IFC4X3 ADD2, ...);
+this script reads it out of a locally installed ifcopenshell
+(``ifcopenshell_wrapper.schema_by_name(NAME)``: for every entity
+declaration, ``entity.name()`` and ``entity.supertype().name()`` -- two
+CamelCase identifiers, nothing else) and writes it down as OUR OWN python
+text: one ``"IfcChild": "IfcParent"`` line per entity (no attribute lists,
+no type/select/enum declarations, no vendor file bytes).  No network access:
+the schema ships inside the installed wheel.
 
 ifcopenshell is a DEV-TIME input of this generator only -- the generated
-module imports nothing and steplite stays stdlib-only at runtime.
+modules import nothing and steplite stays stdlib-only at runtime; steplite
+picks the table by the file's ``FILE_SCHEMA`` (IFC4X3* -> ifc4x3_add2,
+everything else -> ifc4).
 
-    .venv/bin/python tools/dev/gen_ifc4_parents.py            # rewrite the module
+    .venv/bin/python tools/dev/gen_ifc4_parents.py            # rewrite ifc4_parents.py
     .venv/bin/python tools/dev/gen_ifc4_parents.py --check    # exit 1 on drift
-    .venv/bin/python tools/dev/gen_ifc4_parents.py --schema IFC2X3   # -> ifc2x3_parents.py
+    .venv/bin/python tools/dev/gen_ifc4_parents.py --schema IFC4X3_ADD2 [--check]   # -> ifc4x3_add2_parents.py
 """
 from __future__ import annotations
 
@@ -44,7 +51,7 @@ schema FACTS (which class specialises which), carries no attribute lists and
 no bytes of any vendor file, and imports nothing -- ``rvt.ifc.steplite``
 reads it so that entity classes outside its hand-transcribed attribute
 subset still land in the correct ``by_type`` / ``is_a`` closures (an
-``IfcDoor`` is an ``IfcBuildingElement`` is an ``IfcElement`` is an
+``IfcDoor`` is an ``{built}`` is an ``IfcElement`` is an
 ``IfcProduct`` ...) exactly as the real library reports them.
 
 Do not edit by hand: re-run the generator (``--check`` reports drift).
@@ -75,7 +82,9 @@ def render(schema_name: str) -> str:
         sup = decl.supertype()
         rows.append((decl.name(), sup.name() if sup is not None else None))
     module = os.path.splitext(os.path.basename(out_path(schema_name)))[0]
-    head = HEADER.format(module=module, schema=schema_name,
+    # the docstring's example supertype: IFC4X3 renamed IfcBuildingElement
+    built = dict(rows).get("IfcDoor") or "IfcBuildingElement"
+    head = HEADER.format(module=module, schema=schema_name, built=built,
                          version=ifcopenshell.version, count=len(rows))
     return head + "".join(f"    {name!r}: {parent!r},\n" for name, parent in rows) + "}\n"
 
@@ -83,7 +92,8 @@ def render(schema_name: str) -> str:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--schema", default="IFC4",
-                    help="ifcopenshell schema name (default IFC4; steplite reads ifc4_parents)")
+                    help="ifcopenshell schema name (default IFC4 -> ifc4_parents.py; "
+                         "IFC4X3_ADD2 -> ifc4x3_add2_parents.py, read for IFC4X3* files)")
     ap.add_argument("--check", action="store_true",
                     help="do not write; exit 1 if the module on disk differs")
     args = ap.parse_args(argv)

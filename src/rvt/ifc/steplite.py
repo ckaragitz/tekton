@@ -18,12 +18,13 @@ read routes run on a BARE interpreter with ZERO pip installs.
 WHAT IT MIMICS (the call surface the read paths actually use, verified
 against ifcopenshell 0.8.5 on the two reference IFCs):
 
-* ``steplite.open(path)`` -> :class:`File` with ``schema`` /
-  ``schema_identifier``, ``by_type`` (subtype closure, ifcopenshell's
-  declaration-tree DFS ordering), ``by_id``, ``by_guid``, ``get_inverse``.
+* ``steplite.open(path)`` -> :class:`File` with ``schema`` (general
+  version, ``IFC4X3``) / ``schema_identifier`` (``IFC4X3_ADD2``),
+  ``by_type`` (subtype closure, ifcopenshell's declaration-tree DFS
+  ordering), ``by_id``, ``by_guid``, ``get_inverse``.
 * entities: ``.is_a()`` / ``.is_a(name)`` (case-insensitive, ancestors
-  included), ``.id()``, attribute access by IFC4 attribute NAME (positional
-  STEP args mapped through the bundled schema table), the inverse
+  included), ``.id()``, attribute access by attribute NAME (positional
+  STEP args mapped through the bundled schema tables), the inverse
   attributes ``ContainedInStructure`` / ``IsDefinedBy`` / ``IsTypedBy``.
 * typed values (``IFCLABEL('x')``) -> objects with ``.is_a()`` and
   ``.wrappedValue``; enums -> plain strings; ``.T.``/``.F.`` -> bool.
@@ -45,10 +46,18 @@ attributes raise a clear ``AttributeError``.  A class in neither table (an
 IFC2X3-only or misspelt name) parses, carries ``is_a``/``id``, is returned by
 ``by_type`` of its exact name only, and raises on named-attribute access.
 
+CLASS TREE PER FILE_SCHEMA (issue #337).  The tree is chosen per file from
+its ``FILE_SCHEMA``: ``IFC4X3*`` files are read through the IFC4X3_ADD2 tree
+(:mod:`rvt.ifc.ifc4x3_add2_parents` + the small ``_SCHEMA_IFC4X3`` row
+delta -- IfcBuiltElement, IfcFacility, ``IfcProperty.Specification``,
+``IfcObjectPlacement.PlacementRelTo``), so an IFC4X3 wall answers
+``is_a('IfcBuiltElement')`` and ``by_type('IfcBuiltElement')`` finds it, as
+ifcopenshell does; every other identifier (IFC4, IFC4X1/X2, IFC2X3) keeps
+the IFC4 tree -- IFC2X3's own hierarchy and attribute orders are #159's.
+
 WHAT IT DOES NOT DO: write IFC, evaluate derived attributes (``*`` slots
-read as None), run ``ifcopenshell.geom``/``validate``/``api`` (the authoring
-and validation surfaces stay on the real library), or apply per-schema
-hierarchies (IFC2X3 / IFC4X3 files are read through the IFC4 tables).
+read as None), or run ``ifcopenshell.geom``/``validate``/``api`` (the
+authoring and validation surfaces stay on the real library).
 
 SELECTION.  Callers never import this directly for the fallback to work:
 ``rvt/ifc/_ifcos_shim/ifcopenshell`` is a package with this exact module as
@@ -61,18 +70,17 @@ forces the shim backend even when the real library is installed (the engine
 then puts the shim FIRST; used by the equivalence tests and backend A/B).
 
 TERRITORY (perf-deps stream): this module, ``rvt/ifc/ifc4_parents.py``,
-``rvt/ifc/_ifcos_shim/**``, ``tests/test_steplite.py``,
-``docs/writer/dependency-audit.md``, ``docs/inbox/perf-deps.md`` /
-``docs/inbox/steplite-parity.md``.  Imports nothing beyond the stdlib.
+``rvt/ifc/ifc4x3_add2_parents.py``, ``rvt/ifc/_ifcos_shim/**``,
+``tests/test_steplite.py``, ``docs/writer/dependency-audit.md``,
+``docs/inbox/perf-deps.md`` / ``docs/inbox/steplite-parity.md``.  Imports
+nothing beyond the stdlib.
 """
 from __future__ import annotations
 
-import functools
+import importlib
 import os
 import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
-
-from rvt.ifc.ifc4_parents import PARENT as _IFC4_PARENT
 
 __all__ = [
     "STEPLITE_VERSION", "SteliteError", "StepLiteError", "open", "File",
@@ -97,8 +105,9 @@ SteliteError = StepLiteError  # spelling alias
 # serialises them.  Hand-transcribed from the public IFC4 documentation;
 # every row's parent and full attribute list is cross-checked against
 # ifcopenshell 0.8.5's IFC4 declarations whenever that library is importable
-# (tests/test_steplite.py::test_schema_rows_match_ifc4_declarations), and
-# attribute-by-attribute against get_info() on the reference IFCs.
+# (tests/test_steplite.py::test_schema_rows_match_declarations), and
+# attribute-by-attribute against get_info() on the reference IFCs.  The
+# IFC4X3 tree reuses these rows with the ``_SCHEMA_IFC4X3`` delta below.
 # ===========================================================================
 
 #: UPPERCASE -> (CamelCase, parent UPPERCASE or None, own attribute names)
@@ -491,43 +500,137 @@ _BEYOND_IFC4: Dict[str, Optional[Tuple[str, ...]]] = {
     "IFCTRIANGULATEDIRREGULARNETWORK": None,
 }
 
+# ---------------------------------------------------------------------------
+# Per-schema deltas (issue #337).  The rows above are IFC4's.  A file whose
+# FILE_SCHEMA is IFC4X3* is read through the IFC4X3_ADD2 class tree instead:
+# the generated ``rvt.ifc.ifc4x3_add2_parents`` table supplies EVERY
+# supertype there (IfcWall < IfcBuiltElement < IfcElement, IfcBuilding <
+# IfcFacility, ...), so the rows below only replace / add / drop the
+# transcribed rows whose EXISTENCE or OWN ATTRIBUTES differ in that schema
+# (transcribed from the public IFC4.3 documentation; cross-checked against
+# ifcopenshell's IFC4X3_ADD2 declarations by the tests).  Same row shape as
+# _SCHEMA; a row's parent slot names its true IFC4X3 supertype (tested) but,
+# as for every row of a class the generated table declares, the TABLE is
+# what places it.  None = no such class in IFC4X3: the IFC4 row is dropped.
+# ---------------------------------------------------------------------------
+_SCHEMA_IFC4X3: Dict[str, Optional[Tuple[str, Optional[str], Tuple[str, ...]]]] = {
+    # IfcBuildingElement(Type) was RENAMED IfcBuiltElement(Type)
+    "IFCBUILDINGELEMENT": None,
+    "IFCBUILTELEMENT": ("IfcBuiltElement", "IFCELEMENT", ()),
+    "IFCBUILDINGELEMENTTYPE": None,
+    "IFCBUILTELEMENTTYPE": ("IfcBuiltElementType", "IFCELEMENTTYPE", ()),
+    # new intermediate spatial supertype: IfcBuilding < IfcFacility
+    "IFCFACILITY": ("IfcFacility", "IFCSPATIALSTRUCTUREELEMENT", ()),
+    # IfcProperty.Description was renamed Specification (same position)
+    "IFCPROPERTY": ("IfcProperty", "IFCPROPERTYABSTRACTION", ("Name", "Specification")),
+    # PlacementRelTo was hoisted from IfcLocalPlacement to IfcObjectPlacement
+    # (IfcLocalPlacement's full list is unchanged; IfcGridPlacement gains it)
+    "IFCOBJECTPLACEMENT": ("IfcObjectPlacement", None, ("PlacementRelTo",)),
+    "IFCLOCALPLACEMENT": ("IfcLocalPlacement", "IFCOBJECTPLACEMENT",
+                          ("RelativePlacement",)),
+}
+
+#: Rows kept in the IFC4X3 tree although IFC4X3_ADD2 does not declare the
+#: class (same shape as _BEYOND_IFC4): IfcPresentationStyleAssignment was
+#: deleted in IFC4.3 (deprecated since IFC4) but writers that merely bump the
+#: FILE_SCHEMA string still emit it around their styles.
+_BEYOND_IFC4X3: Dict[str, Optional[Tuple[str, ...]]] = {
+    "IFCPRESENTATIONSTYLEASSIGNMENT": None,
+}
+
+#: General schema version -> (generated parents module, row delta over
+#: _SCHEMA, beyond-schema allowances).  A version absent here (IFC2X3 --
+#: #159 --, IFC4X1, IFC4X2, anything unrecognised) reads through IFC4's tree;
+#: a schema family is added by one row here plus its delta and its table.
+_TREE_SPECS: Dict[str, Tuple[str, Dict[str, Any], Dict[str, Optional[Tuple[str, ...]]]]] = {
+    "IFC4": ("rvt.ifc.ifc4_parents", {}, _BEYOND_IFC4),
+    "IFC4X3": ("rvt.ifc.ifc4x3_add2_parents", _SCHEMA_IFC4X3, _BEYOND_IFC4X3),
+}
+
+_SCHEMA_VERSION_RX = re.compile(r"IFC\d+(?:X\d+)?")
+
+
+def _schema_version(schema_identifier: str) -> str:
+    """General schema version as ifcopenshell spells it: ``IFC4X3`` for
+    ``IFC4X3_ADD2`` / ``ifc4x3_tc1``, ``IFC4``, ``IFC2X3`` ...; an identifier
+    of no recognisable shape is returned upper-cased as is."""
+    ident = schema_identifier.upper()
+    m = _SCHEMA_VERSION_RX.match(ident)
+    return m.group(0) if m else ident
+
+
+def _camel_guess(uname: str) -> str:
+    # best effort for a name in no table: Ifc + Titlecased remainder
+    return "Ifc" + uname[3:].title() if uname.startswith("IFC") else uname
+
+
 # derived lookups -----------------------------------------------------------
-# The class tree is the UNION of the transcribed rows and the full IFC4
-# hierarchy (ifc4_parents): _SCHEMA rows keep their own parent link (each one
-# is the true IFC4 supertype -- tested), every other IFC4 entity hangs where
-# the generated table says.  UPPERCASE keys throughout (STEP tokens).
-_CAMEL: Dict[str, str] = {c.upper(): c for c in _IFC4_PARENT}
-_CAMEL.update({u: row[0] for u, row in _SCHEMA.items()})
-_CAMEL.update(_TYPED_CAMEL)
-_PARENT: Dict[str, Optional[str]] = {
-    c.upper(): (p.upper() if p else None) for c, p in _IFC4_PARENT.items()}
-_PARENT.update({u: row[1] for u, row in _SCHEMA.items()})
 
-_CHILDREN: Dict[str, List[str]] = {}
-for _u, _p in _PARENT.items():
-    if _p is not None:
-        _CHILDREN.setdefault(_p, []).append(_u)
-for _k in _CHILDREN:            # ifcopenshell walks subtypes() in CASE-SENSITIVE
-    _CHILDREN[_k].sort(key=_CAMEL.__getitem__)   # CamelCase order (IfcCShape < IfcCircle)
+class _Tree:
+    """One schema's ENTITY class tree: the UNION of a generated class ->
+    supertype table and the transcribed attribute rows.  The generated table
+    places every class the schema declares (it IS the schema fact); a row's
+    own parent slot only places a class the table lacks (the deliberate
+    beyond-schema rows).  UPPERCASE keys throughout (STEP tokens).  One
+    instance per schema version, shared by every :class:`File` of it."""
+    __slots__ = ("rows", "camel", "parent", "children", "_attrs")
+
+    def __init__(self, generated: Dict[str, Optional[str]],
+                 rows: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]]):
+        self.rows = rows
+        self.camel: Dict[str, str] = {c.upper(): c for c in generated}
+        self.camel.update({u: row[0] for u, row in rows.items()})
+        self.parent: Dict[str, Optional[str]] = {
+            c.upper(): (p.upper() if p else None) for c, p in generated.items()}
+        for u, row in rows.items():
+            self.parent.setdefault(u, row[1])
+        self.children: Dict[str, List[str]] = {}
+        for u, p in self.parent.items():
+            if p is not None:
+                self.children.setdefault(p, []).append(u)
+        for kids in self.children.values():   # ifcopenshell walks subtypes() in
+            kids.sort(key=self.camel.__getitem__)  # CASE-SENSITIVE CamelCase order
+        self._attrs: Dict[str, Tuple[str, ...]] = {}
+
+    def full_attrs(self, uname: str) -> Tuple[str, ...]:
+        """Positional attribute names steplite can serve for ``uname``: the
+        own attributes of every transcribed class on its root..leaf chain --
+        the full list for a transcribed class (every transcribed class's
+        supertype is transcribed too -- tested), the list of the nearest
+        transcribed ancestor for any other class of the schema (a true prefix
+        of its STEP arguments), ``()`` for a class in neither table."""
+        got = self._attrs.get(uname)
+        if got is None:
+            parent = self.parent.get(uname)
+            row = self.rows.get(uname)
+            got = (self.full_attrs(parent) if parent else ()) + (row[2] if row else ())
+            self._attrs[uname] = got
+        return got
+
+    def camel_of(self, uname: str) -> str:
+        return self.camel.get(uname) or _camel_guess(uname)
 
 
-@functools.lru_cache(maxsize=None)
-def _full_attrs(uname: str) -> Tuple[str, ...]:
-    """Positional attribute names steplite can serve for ``uname``: the full
-    root..leaf list for a transcribed class; for any other IFC4 class the
-    list of its nearest transcribed ancestor (a true prefix of its STEP
-    arguments); ``()`` for a class in neither table."""
-    row = _SCHEMA.get(uname)
-    if row is not None:
-        return (_full_attrs(row[1]) if row[1] else ()) + tuple(row[2])
-    parent = _PARENT.get(uname)
-    return _full_attrs(parent) if parent else ()
+_TREES: Dict[str, _Tree] = {}
 
 
-def _camel_of(uname: str) -> str:
-    # best effort for a class in no table: Ifc + Titlecased remainder
-    return _CAMEL.get(uname) or (
-        "Ifc" + uname[3:].title() if uname.startswith("IFC") else uname)
+def _tree_for(schema_identifier: str) -> _Tree:
+    """The class tree a file is read through, by its FILE_SCHEMA identifier
+    (see ``_TREE_SPECS``).  Built on first use per version, so an IFC4-only
+    process never imports the IFC4X3 table."""
+    version = _schema_version(schema_identifier)
+    tree = _TREES.get(version)
+    if tree is None:
+        spec = _TREE_SPECS.get(version)
+        if spec is None:
+            return _tree_for("IFC4")
+        module, delta, _beyond = spec
+        rows = {u: row for u, row in {**_SCHEMA, **delta}.items() if row is not None}
+        tree = _TREES[version] = _Tree(importlib.import_module(module).PARENT, rows)
+    return tree
+
+
+_TREE_IFC4 = _tree_for("IFC4")
 
 
 # ===========================================================================
@@ -544,13 +647,12 @@ class TypedValue:
         self.wrappedValue = value
 
     def is_a(self, name: Optional[str] = None):
-        camel = _camel_of(self._uname)
-        if name is None:
-            return camel
+        if name is None:      # simple types, not entities: no class tree involved
+            return _TYPED_CAMEL.get(self._uname) or _camel_guess(self._uname)
         return name.upper() == self._uname
 
     def __repr__(self):                                        # pragma: no cover
-        return f"{_camel_of(self._uname)}({self.wrappedValue!r})"
+        return f"{self.is_a()}({self.wrappedValue!r})"
 
 
 class _Ref:
@@ -713,20 +815,23 @@ class Entity:
         return self._sid
 
     def is_a(self, name: Optional[str] = None):
+        tree = self._f._tree
         if name is None:
-            return _camel_of(self._uname)
+            return tree.camel_of(self._uname)
         target = name.upper()
+        parent = tree.parent
         cur: Optional[str] = self._uname
         while cur is not None:
             if cur == target:
                 return True
-            cur = _PARENT.get(cur)
+            cur = parent.get(cur)
         return False
 
     def __getattr__(self, attr: str):
         if attr.startswith("_"):
             raise AttributeError(attr)
-        attrs = _full_attrs(self._uname)
+        tree = self._f._tree
+        attrs = tree.full_attrs(self._uname)
         if attr in attrs:
             idx = attrs.index(attr)
             return self._f._resolve(self._args[idx] if idx < len(self._args) else None)
@@ -739,13 +844,13 @@ class Entity:
         if attr == "IsTypedBy":
             return self._f._inverse_rel("IFCRELDEFINESBYTYPE",
                                         "RelatedObjects", self._sid)
-        if self._uname not in _SCHEMA:
+        if self._uname not in tree.rows:
             raise AttributeError(
-                f"steplite: entity class {_camel_of(self._uname)} is outside the "
+                f"steplite: entity class {tree.camel_of(self._uname)} is outside the "
                 f"read-path attribute subset (served: {', '.join(attrs) or 'nothing'}); "
                 f"cannot read .{attr} of #{self._sid}")
         raise AttributeError(
-            f"steplite: {_camel_of(self._uname)} has no attribute {attr!r}")
+            f"steplite: {tree.camel_of(self._uname)} has no attribute {attr!r}")
 
     def __repr__(self):                                        # pragma: no cover
         return f"#{self._sid}={self._uname}(...)"
@@ -781,7 +886,8 @@ class File:
         self.path = path
         self._by_id: Dict[int, Entity] = {}
         self._by_class: Dict[str, List[int]] = {}
-        self._schema = "IFC4"
+        self._schema = "IFC4"           # FILE_SCHEMA identifier, upper-cased
+        self._tree = _TREE_IFC4         # the class tree that identifier selects
         self._guid_index: Optional[Dict[str, int]] = None
         self._inverse_cache: Dict[Tuple[str, str, int], Tuple[Entity, ...]] = {}
         self._get_inverse_index: Optional[Dict[int, List[int]]] = None
@@ -829,7 +935,8 @@ class File:
         self.header = _Header(hdr)
         fs = hdr.get("FILE_SCHEMA") or ((),)
         if fs and isinstance(fs[0], tuple) and fs[0] and isinstance(fs[0][0], str):
-            self._schema = fs[0][0]
+            self._schema = fs[0][0].upper()
+            self._tree = _tree_for(self._schema)
         # data records
         for stmt in self._statements(data_text):
             m = _RECORD_RX.match(stmt)
@@ -865,10 +972,13 @@ class File:
     # -- ifcopenshell surface ------------------------------------------------
     @property
     def schema(self) -> str:
-        return self._schema
+        """General schema version as ifcopenshell reports it: ``IFC4X3`` for
+        a ``FILE_SCHEMA(('IFC4X3_ADD2'))`` file, ``IFC4`` / ``IFC2X3`` ..."""
+        return _schema_version(self._schema)
 
     @property
     def schema_identifier(self) -> str:
+        """The full FILE_SCHEMA identifier (``IFC4X3_ADD2``)."""
         return self._schema
 
     def by_id(self, sid: int) -> Entity:
@@ -894,21 +1004,23 @@ class File:
 
     def by_type(self, name: str) -> List[Entity]:
         """All instances of ``name`` INCLUDING subclasses, in ifcopenshell's
-        ordering: depth-first over the IFC4 declaration tree (the class
-        itself first, then subtypes in case-sensitive CamelCase order),
-        instances in file order per class.  Every IFC4 entity takes part in
-        the closure whether or not steplite transcribes its attributes; a
-        class outside IFC4 is matched by its exact name only."""
+        ordering: depth-first over the declaration tree of the file's schema
+        (the class itself first, then subtypes in case-sensitive CamelCase
+        order), instances in file order per class.  Every entity of the
+        schema takes part in the closure whether or not steplite transcribes
+        its attributes; a class outside it is matched by its exact name only
+        (``[]`` where ifcopenshell raises)."""
         key = name.upper()
         got = self._by_type_cache.get(key)
         if got is not None:
             return list(got)
         out: List[Entity] = []
+        children = self._tree.children
 
         def visit(uname: str) -> None:
             for sid in self._by_class.get(uname, ()):
                 out.append(self._by_id[sid])
-            for child in _CHILDREN.get(uname, ()):
+            for child in children.get(uname, ()):
                 visit(child)
 
         visit(key)

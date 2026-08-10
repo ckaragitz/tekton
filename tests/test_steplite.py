@@ -21,6 +21,7 @@ plugin sandboxes); the stdlib-only tests always run.
 """
 from __future__ import annotations
 
+import importlib
 import json
 import os
 import subprocess
@@ -88,17 +89,18 @@ def _assert_attrs_equivalent(fr, fs) -> int:
     named attribute equal (canonicalised) in the steplite file ``fs``; the
     unserved leaf attributes of a class steplite does not transcribe (#155)
     must RAISE, never silently differ.  Returns the number compared."""
-    assert fs.schema == fr.schema
+    assert (fs.schema, fs.schema_identifier) == (fr.schema, fr.schema_identifier)
+    tree = fs._tree
     n = 0
     for er in fr:
         es = fs.by_id(er.id())
         assert es.is_a() == er.is_a(), er.id()
         uname = er.is_a().upper()
-        served = SL._full_attrs(uname)
+        served = tree.full_attrs(uname)
         for k, v in er.get_info(recursive=False).items():
             if k in ("id", "type"):
                 continue
-            if uname not in SL._SCHEMA and k not in served:
+            if uname not in tree.rows and k not in served:
                 with pytest.raises(AttributeError, match="attribute subset"):
                     getattr(es, k)
                 continue
@@ -139,6 +141,18 @@ def _run_bare(code: str, *, isolated=True, timeout=120) -> str:
                           timeout=timeout, env=env)
     assert proc.returncode == 0, proc.stderr[-2000:]
     return proc.stdout
+
+
+def _write_min_step(tmp_path, schema: str, data: str) -> str:
+    """A minimal STEP file: fixed header (originating system ``orig``), the
+    given ``FILE_SCHEMA`` identifier and DATA records; returns its path."""
+    p = os.path.join(str(tmp_path), "min.ifc")
+    with open(p, "w") as fh:
+        fh.write("ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION((''),'2;1');\n"
+                 "FILE_NAME('x','t',(''),(''),'pp','orig','');\n"
+                 f"FILE_SCHEMA(('{schema}'));\nENDSEC;\nDATA;\n{data}"
+                 "ENDSEC;\nEND-ISO-10303-21;\n")
+    return p
 
 
 @needs_ifcos
@@ -297,19 +311,10 @@ def test_parser_primitives():
 
 
 def test_string_decoding_edge_cases(tmp_path):
-    step = (
-        "ISO-10303-21;\nHEADER;\n"
-        "FILE_DESCRIPTION((''),'2;1');\n"
-        "FILE_NAME('x','t',(''),(''),'pp','orig','');\n"
-        "FILE_SCHEMA(('IFC4'));\nENDSEC;\nDATA;\n"
+    f = SL.open(_write_min_step(
+        tmp_path, "IFC4",
         "#1=IFCORGANIZATION($,'It''s \\X2\\00E9\\X0\\; ok','a;b',$,$);\n"
-        "#2=IFCCARTESIANPOINT((1.5E-1,-2.,+3.25));\n"
-        "ENDSEC;\nEND-ISO-10303-21;\n"
-    )
-    p = os.path.join(str(tmp_path), "t.ifc")
-    with open(p, "w") as fh:
-        fh.write(step)
-    f = SL.open(p)
+        "#2=IFCCARTESIANPOINT((1.5E-1,-2.,+3.25));\n"))
     org = f.by_id(1)
     assert org.Name == "It's é; ok"           # '' + \X2\ + ';' in string
     assert org.Description == "a;b"
@@ -487,6 +492,25 @@ def foreign_path(tmp_path_factory):
     return FF.write_fixture(str(tmp_path_factory.mktemp("foreign")))
 
 
+def _assert_untranscribed_elements(f, untranscribed) -> None:
+    """Each ``{CamelCase: step id}`` names an element class the file's tree
+    has NO row for: proper CamelCase, the full is_a chain, the IfcElement
+    attribute prefix + inverse + by_guid served, its leaf attribute a clear
+    error (the fixtures contain such elements in storey relation #98)."""
+    assert untranscribed
+    for camel, sid in untranscribed.items():
+        e = f.by_id(sid)
+        assert camel.upper() not in f._tree.rows
+        assert e.is_a() == camel and e.is_a("IfcElement") and e.is_a("IfcProduct")
+        assert e.is_a("IfcRoot") and not e.is_a("IfcSpatialElement")
+        assert e.Tag == e.Name and len(e.GlobalId) == 22
+        assert e.ObjectPlacement.id() == 8 and e.Representation is None
+        assert [r.id() for r in e.ContainedInStructure] == [98]
+        assert f.by_guid(e.GlobalId) is e
+        with pytest.raises(AttributeError, match=r"attribute subset \(served: GlobalId, .* Tag\)"):
+            e.PredefinedType                       # noqa: B018
+
+
 def test_foreign_classes_land_in_product_and_element_closures(foreign_path):
     """No ifcopenshell involved: the stdlib reader alone returns the pinned
     IfcProduct / IfcElement id lists (ifcopenshell 0.8.5's own order),
@@ -502,19 +526,7 @@ def test_foreign_classes_land_in_product_and_element_closures(foreign_path):
     assert [e.id() for e in f.by_type("IfcRelConnects")] == [74, 98, 42]
     assert [e.is_a() for e in f.by_type("IfcNamedUnit")] == ["IfcSIUnit"]
     assert f.by_type("IfcNoSuchThing") == [] and f.by_type("IfcCurve") == []
-    # untranscribed IFC4 classes: proper CamelCase, full is_a chain, the
-    # IfcElement attribute prefix served, leaf attributes a clear error
-    for camel, sid in FF.UNTRANSCRIBED.items():
-        e = f.by_id(sid)
-        assert camel.upper() not in SL._SCHEMA
-        assert e.is_a() == camel and e.is_a("IfcElement") and e.is_a("IfcProduct")
-        assert e.is_a("IfcRoot") and not e.is_a("IfcSpatialElement")
-        assert e.Tag == e.Name and len(e.GlobalId) == 22
-        assert e.ObjectPlacement.id() == 8 and e.Representation is None
-        assert [r.id() for r in e.ContainedInStructure] == [98]
-        assert f.by_guid(e.GlobalId) is e
-        with pytest.raises(AttributeError, match=r"attribute subset \(served: GlobalId, .* Tag\)"):
-            e.PredefinedType                       # noqa: B018
+    _assert_untranscribed_elements(f, FF.UNTRANSCRIBED)   # IFC4 classes through ifc4_parents
     sensor = f.by_id(64)
     assert sensor.is_a("IfcDistributionControlElement") and sensor.is_a("IfcDistributionElement")
     assert not sensor.is_a("IfcDistributionFlowElement")
@@ -586,53 +598,105 @@ def test_foreign_fixture_reads_on_a_bare_interpreter(foreign_path):
     assert "OK foreign stdlib-only" in _run_bare(code)
 
 
-def test_schema_rows_agree_with_the_generated_ifc4_table():
-    """Always runs: every transcribed row keys on its own uppercase name and
-    names the TRUE IFC4 supertype (so the union tree has one parent per
-    class); the generated table is self-consistent."""
-    from rvt.ifc.ifc4_parents import PARENT, SCHEMA
+def _tree_spec(version):
+    """(tree, generated parents module, row delta, beyond allowances) for one
+    ``SL._TREE_SPECS`` version -- the two class trees files are read through."""
+    module, delta, beyond = SL._TREE_SPECS[version]
+    return SL._tree_for(version), importlib.import_module(module), delta, beyond
 
-    assert SCHEMA == "IFC4" and len(PARENT) > 700 and PARENT["IfcRoot"] is None
+
+@pytest.mark.parametrize("version", sorted(SL._TREE_SPECS))
+def test_schema_rows_agree_with_the_generated_tables(version):
+    """Always runs, per tree: the generated table is self-consistent; every
+    transcribed row keys on its own uppercase name; a row's class is either
+    declared by the generated table or a deliberate ``beyond`` row; every
+    transcribed class's tree parent is transcribed too (so ``full_attrs`` of
+    a transcribed class only ever concatenates transcribed rows); the rows
+    hand-written FOR this schema (IFC4: all, IFC4X3: the delta) name their
+    TRUE supertype; delta drops are gone from this tree only."""
+    tree, mod, delta, beyond = _tree_spec(version)
+    PARENT = mod.PARENT
+    assert SL._schema_version(mod.SCHEMA) == version
+    assert len(PARENT) > 700 and PARENT["IfcRoot"] is None
     assert all(p is None or p in PARENT for p in PARENT.values())
-    for uname, (camel, parent, _own) in SL._SCHEMA.items():
+    assert len(tree.parent) == len(PARENT) + sum(1 for v in beyond.values() if v is None)
+    hand = delta or SL._SCHEMA
+    for uname, (camel, parent, _own) in tree.rows.items():
         assert uname == camel.upper(), camel
-        if uname in SL._BEYOND_IFC4 and SL._BEYOND_IFC4[uname] is None:
-            assert camel not in PARENT, camel                 # whole class beyond IFC4
-            continue
-        assert (SL._camel_of(parent) if parent else None) == PARENT[camel], (camel, parent)
+        assert (camel in PARENT) == (beyond.get(uname, ()) is not None), camel
+        tp = tree.parent[uname]
+        assert tp is None or tp in tree.rows, (camel, tp)     # transcribed chain up to the root
+        if uname in hand and camel in PARENT:
+            assert (tree.camel_of(parent) if parent else None) == PARENT[camel], (camel, parent)
+    assert set(tree.rows) == {u for u, row in {**SL._SCHEMA, **delta}.items() if row is not None}
     # spot checks of the closure machinery itself
-    assert SL._full_attrs("IFCSENSOR") == SL._full_attrs("IFCELEMENT")   # ancestor prefix
-    assert SL._full_attrs("IFCNOTINANYSCHEMA") == ()
-    assert SL._camel_of("IFCCARTESIANTRANSFORMATIONOPERATOR2DNONUNIFORM") == \
+    assert tree.full_attrs("IFCSENSOR") == tree.full_attrs("IFCELEMENT")   # ancestor prefix
+    assert tree.full_attrs("IFCNOTINANYSCHEMA") == ()
+    assert tree.camel_of("IFCCARTESIANTRANSFORMATIONOPERATOR2DNONUNIFORM") == \
         "IfcCartesianTransformationOperator2DnonUniform"
+    assert tree.camel_of("IFCNOTINANYSCHEMA") == "IfcNotinanyschema"
+
+
+def test_tree_selection_and_schema_naming(tmp_path):
+    """FILE_SCHEMA picks the tree (IFC4X3* -> IFC4X3's, anything else ->
+    IFC4's) and ``schema`` / ``schema_identifier`` are spelt as ifcopenshell
+    spells them; an IFC4X3 wall is an IfcBuiltElement, any other wall an
+    IfcBuildingElement."""
+    ifc4, ifc4x3 = SL._tree_for("IFC4"), SL._tree_for("IFC4X3")
+    assert ifc4 is SL._TREE_IFC4 is SL._tree_for("garbage 4X3") is not ifc4x3
+    for ident, general, tree in (("IFC4", "IFC4", ifc4), ("IFC2X3", "IFC2X3", ifc4),
+                                 ("IFC4X1", "IFC4X1", ifc4), ("ifc4x3_add2", "IFC4X3", ifc4x3),
+                                 ("IFC4X3_TC1", "IFC4X3", ifc4x3), ("IFC4X3", "IFC4X3", ifc4x3)):
+        f = SL.open(_write_min_step(
+            tmp_path, ident, "#2=IFCWALL('0wall00000000000000001',$,'W1',$,$,$,$,'W1',.SOLIDWALL.);\n"))
+        assert (f.schema, f.schema_identifier) == (general, ident.upper()) and f._tree is tree, ident
+        wall = f.by_id(2)
+        assert wall.is_a("IfcBuiltElement") == (tree is ifc4x3) == (not wall.is_a("IfcBuildingElement"))
+        assert wall.is_a("IfcElement") and wall.PredefinedType == "SOLIDWALL"
 
 
 @needs_ifcos
-def test_schema_rows_match_ifc4_declarations():
-    """The programmatic cross-check: every transcribed row's FULL positional
-    attribute list equals ifcopenshell's IFC4 declaration (modulo the
-    documented ``_BEYOND_IFC4`` extensions), and the sibling order by_type
-    walks equals ``entity.subtypes()`` order for every parent."""
+@pytest.mark.parametrize("version", sorted(SL._TREE_SPECS))
+def test_schema_rows_match_declarations(version):
+    """The programmatic cross-check, per tree: every transcribed row's
+    supertype and FULL positional attribute list equal ifcopenshell's
+    declaration (modulo the documented ``beyond`` extensions), and the
+    sibling order by_type walks equals ``entity.subtypes()`` order for every
+    parent, with no undeclared sibling except a deliberate ``beyond`` row."""
     import ifcopenshell.ifcopenshell_wrapper as W
 
-    schema = W.schema_by_name("IFC4")
-    for uname, (camel, _parent, _own) in SL._SCHEMA.items():
-        extra = SL._BEYOND_IFC4.get(uname, ())
+    tree, mod, _delta, beyond = _tree_spec(version)
+    try:
+        schema = W.schema_by_name(mod.SCHEMA)
+    except Exception as exc:                                  # pragma: no cover
+        pytest.skip(f"this ifcopenshell lacks {mod.SCHEMA}: {exc}")
+    checked = 0
+    for uname, (camel, _parent, _own) in tree.rows.items():
+        extra = beyond.get(uname, ())
         if extra is None:
-            continue                                          # whole class beyond IFC4
-        truth = tuple(a.name() for a in schema.declaration_by_name(camel).all_attributes())
-        assert SL._full_attrs(uname) == truth + extra, camel
-    for uname, kids in SL._CHILDREN.items():
-        if SL._BEYOND_IFC4.get(uname, ()) is None:
+            continue                                          # whole class beyond the schema
+        decl = schema.declaration_by_name(camel)
+        sup = decl.supertype()
+        assert tree.parent[uname] == (sup.name().upper() if sup else None), camel
+        truth = tuple(a.name() for a in decl.all_attributes())
+        assert tree.full_attrs(uname) == truth + extra, camel
+        checked += 1
+    assert checked > 190
+    for uname, kids in tree.children.items():
+        if beyond.get(uname, ()) is None:
             continue
-        truth = [d.name().upper() for d in schema.declaration_by_name(SL._camel_of(uname)).subtypes()]
+        truth = [d.name().upper() for d in schema.declaration_by_name(tree.camel_of(uname)).subtypes()]
         assert [k for k in kids if k in truth] == truth, uname
+        assert all(beyond.get(k, ()) is None for k in kids if k not in truth), uname
 
 
 @needs_ifcos
-def test_generated_parent_table_is_current():
+@pytest.mark.parametrize("version", sorted(SL._TREE_SPECS))
+def test_generated_parent_tables_are_current(version):
+    schema_name = _tree_spec(version)[1].SCHEMA
     proc = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "dev", "gen_ifc4_parents.py"),
-                           "--check"], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                           "--schema", schema_name, "--check"],
+                          cwd=ROOT, capture_output=True, text=True, timeout=120)
     assert proc.returncode == 0, proc.stdout[-2000:] + proc.stderr[-2000:]
 
 
@@ -654,3 +718,106 @@ def test_foreign_fixture_matches_ifcopenshell(foreign_path):
     assert [e.id() for e in fr.by_type("IfcProduct")] == FF.EXPECTED_PRODUCT_IDS
     assert _assert_attrs_equivalent(fr, fs) > 300     # raises-not-differs for the 4 untranscribed
     _assert_element_utils_equivalent(fr, fs, placement=HAVE_NUMPY)
+
+
+# ===========================================================================
+# 7. class tree per FILE_SCHEMA (#337): an IFC4X3 file is read through the
+#    IFC4X3_ADD2 tree (rvt.ifc.ifc4x3_add2_parents + the _SCHEMA_IFC4X3 row
+#    delta) -- hand-authored fixture tests/fixtures_ifc4x3.py, pinned ids
+# ===========================================================================
+
+import fixtures_ifc4x3 as F43  # noqa: E402
+
+
+@pytest.fixture(scope="module")
+def ifc4x3_path(tmp_path_factory):
+    return F43.write_fixture(str(tmp_path_factory.mktemp("ifc4x3")))
+
+
+def test_ifc4x3_file_is_read_through_the_ifc4x3_tree(ifc4x3_path):
+    """No ifcopenshell involved: the stdlib reader alone gives ifcopenshell
+    0.8.5's answers for an IFC4X3_ADD2 file -- IfcBuiltElement / IfcFacility
+    closures, the pinned IfcProduct order, the renamed / hoisted attributes."""
+    f = SL.open(ifc4x3_path)
+    assert (f.schema, f.schema_identifier) == ("IFC4X3", "IFC4X3_ADD2")
+    assert f._tree is SL._tree_for("IFC4X3") is not SL._TREE_IFC4
+    assert [e.id() for e in f.by_type("IfcProduct")] == F43.EXPECTED_PRODUCT_IDS
+    assert [e.id() for e in f.by_type("IfcElement")] == F43.EXPECTED_ELEMENT_IDS
+    assert [e.id() for e in f.by_type("IfcBuiltElement")] == F43.EXPECTED_BUILT_ELEMENT_IDS
+    assert f.by_type("IfcBuildingElement") == [] and f.by_type("IfcBuildingElementType") == []
+    building = f.by_type("IfcBuilding")[0]
+    assert building.is_a("IfcFacility") and building.is_a("IfcSpatialStructureElement")
+    assert [e.id() for e in f.by_type("IfcFacility")] == [91]
+    assert [e.id() for e in f.by_type("IfcSpatialElement")] == [92, 91, 90]
+    assert (building.CompositionType, building.ElevationOfRefHeight, building.LongName) == \
+        ("ELEMENT", None, None)
+    wall, door = f.by_id(40), f.by_id(21)
+    for e in f.by_type("IfcBuiltElement"):
+        assert e.is_a("IfcBuiltElement") and e.is_a("IfcElement") and e.is_a("IfcProduct")
+        assert not e.is_a("IfcBuildingElement") and e.Tag == e.Name, e.id()
+    assert (wall.is_a(), wall.PredefinedType) == ("IfcWall", "SOLIDWALL")
+    assert (door.OverallHeight, door.OverallWidth, door.OperationType) == (2.1, 0.9, "SINGLE_SWING_LEFT")
+    wtype = SL.get_type(wall)
+    assert wtype.id() == 45 and wtype.is_a("IfcBuiltElementType") and wtype.PredefinedType == "SOLIDWALL"
+    assert [t.id() for t in f.by_type("IfcElementType")] == [45]
+    _assert_untranscribed_elements(f, F43.UNTRANSCRIBED)  # IFC4X3-only classes, no row
+    assert f.by_id(24).is_a("IfcBuiltElement") and f.by_id(51).is_a("IfcFlowController")
+    assert [e.id() for e in f.by_type("IfcFlowController")] == [51, 52]
+    # IfcProperty.Specification (renamed from Description), psets unaffected
+    prop = f.by_id(60)
+    assert (prop.Name, prop.Specification, prop.NominalValue.wrappedValue) == \
+        ("FireRating", "2 h per the door schedule", "120")
+    with pytest.raises(AttributeError, match="no attribute 'Description'"):
+        prop.Description                           # noqa: B018
+    assert f.by_id(61).Specification is None and f.by_id(61).EnumerationValues[0].wrappedValue == "PAINT"
+    assert SL.get_psets(wall) == {"Pset_WallCommon": {"FireRating": "90", "Finish": ["PAINT"], "id": 67}}
+    assert SL.get_psets(f.by_id(51)) == {"TektonElectrical": {"Rating": 400.0, "id": 64}}
+    # IfcObjectPlacement.PlacementRelTo (hoisted): the chain still resolves
+    root_plc, rel_plc = f.by_id(8), f.by_id(13)
+    assert root_plc.PlacementRelTo is None and rel_plc.PlacementRelTo is root_plc
+    assert rel_plc.is_a("IfcObjectPlacement") and rel_plc.RelativePlacement.Location.Coordinates == (2.0, 1.0, 0.0)
+    assert [row[3] for row in SL.get_local_placement(door.ObjectPlacement)] == [2.0, 1.0, 0.0, 1.0]
+    assert SL.calculate_unit_scale(f) == 1
+
+
+def test_ifc4x3_tree_is_lazy_and_reads_on_a_bare_interpreter(ifc4x3_path, foreign_path):
+    """``python -S``: an IFC4 file never imports the IFC4X3 table; an IFC4X3
+    file does, and reads on nothing but the stdlib + our generated tables."""
+    code = (
+        "import sys\n"
+        f"sys.path.insert(0, {SRC!r})\n"
+        "from rvt.ifc import steplite as SL\n"
+        f"f4 = SL.open({foreign_path!r})\n"
+        "assert f4.by_id(40).is_a('IfcBuildingElement') and not f4.by_id(40).is_a('IfcBuiltElement')\n"
+        "assert 'rvt.ifc.ifc4x3_add2_parents' not in sys.modules, 'IFC4X3 table imported for an IFC4 file'\n"
+        f"f = SL.open({ifc4x3_path!r})\n"
+        "assert 'rvt.ifc.ifc4x3_add2_parents' in sys.modules\n"
+        f"assert [e.id() for e in f.by_type('IfcBuiltElement')] == {F43.EXPECTED_BUILT_ELEMENT_IDS!r}\n"
+        "assert f.by_type('IfcBuilding')[0].is_a('IfcFacility') and f.by_id(60).Specification\n"
+        "bad = [m for m in sys.modules if m.split('.')[0] in ('numpy', 'ifcopenshell', 'olefile')]\n"
+        "assert not bad, bad\n"
+        "print('OK ifc4x3 stdlib-only')\n"
+    )
+    assert "OK ifc4x3 stdlib-only" in _run_bare(code)
+
+
+@needs_ifcos
+def test_ifc4x3_fixture_matches_ifcopenshell(ifc4x3_path):
+    """Parity leg: ifcopenshell reads the fixture through ITS IFC4X3_ADD2
+    schema; by_type closures + ordering at every level, every served
+    attribute, psets / types / placements / inverses all agree."""
+    fr, fs = _ifcos.open(ifc4x3_path), SL.open(ifc4x3_path)
+    assert fr.schema_identifier == "IFC4X3_ADD2" and fr.by_id(40).is_a("IfcBuiltElement")
+    _assert_by_type_equivalent(fr, fs, (
+        "IfcRoot", "IfcObjectDefinition", "IfcObject", "IfcProduct", "IfcElement",
+        "IfcBuiltElement", "IfcDistributionElement", "IfcDistributionFlowElement",
+        "IfcFlowController", "IfcFlowTerminal", "IfcSpatialElement",
+        "IfcSpatialStructureElement", "IfcFacility", "IfcBuilding", "IfcKerb",
+        "IfcTypeObject", "IfcElementType", "IfcBuiltElementType", "IfcRelationship",
+        "IfcRelDefines", "IfcPropertyAbstraction", "IfcProperty", "IfcSimpleProperty",
+        "IfcPropertyDefinition", "IfcObjectPlacement", "IfcRepresentationItem", "IfcNamedUnit"))
+    assert [e.id() for e in fr.by_type("IfcProduct")] == F43.EXPECTED_PRODUCT_IDS
+    assert _assert_attrs_equivalent(fr, fs) > 250     # raises-not-differs for IfcKerb / IfcDistributionBoard
+    _assert_element_utils_equivalent(fr, fs, placement=HAVE_NUMPY)
+    for er in fr.by_type("IfcObjectDefinition"):
+        assert _ue.get_psets(er) == SL.get_psets(fs.by_id(er.id())), er.id()
