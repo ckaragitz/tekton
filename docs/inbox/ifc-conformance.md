@@ -302,9 +302,30 @@ survival is PARTIAL" degradation label (IFC delivered regardless). Scope of the 
 boards whose text says lighting/LP- (or RP- boards above 240 V) on the rvt→ifc route with
 round-trip on; 480Y/277 rooms (acceptance room, `SMALL_ROOM_PROMPT`, every shard test) unaffected.
 With `panelboard_flavour` now extracted, #412 is a three-line change: `_classify` calls
-`panelboard_flavour(hay, ll=ll, bus=bus, mains=…)` and the copy disappears. If the reviewer prefers
-that inside this PR, it is one push; it was kept out only because the charter limited `src/` to
-`_classify_equipment`.
+`panelboard_flavour(hay, ll=ll, bus=bus, mains=…)` and the copy disappears. It was first kept out
+because the charter limited `src/` to `_classify_equipment`; **the tech-lead session then widened
+the territory for exactly this ("shipping the resolver fix while our own round trip labels the same
+boards PARTIAL is a self-disagreement this PR would introduce") and #412 landed in this PR as a
+second commit** — `src/rvt/convert/rvt_to_ifc.py::_classify` keeps its own hay (family name +
+PanelName), switchboard/transformer word tests and Voltage/BusRating parsing, and returns
+`panelboard_flavour(...)` for the panel flavours (−9/+2 lines, `re` still used elsewhere in the
+module) + its `plugin/lib` mirror; NEW `tests/test_rvt_to_ifc_kind_agreement.py` (in the same shard
+drop-in): a 7-row unit table `_classify(name, contract) == panelboard_flavour(same evidence)` on our
+own family-name/type-table shapes + Revit's stock name, the #331 case from the .rvt side, and the
+end-to-end **h-fixture round trip** (front door `author(ifc=h_mapped_item_reuse.ifc)` on the bundled
+base → `convert_rvt_to_ifc`) asserting extracted kinds `LP-1/2/3 lighting_panelboard`, `kind_ok
+[True, True, True]`, `equipment_survived 3/3`, `all_survived True` (skips without schema cache /
+base / catalog). `9 passed in 3.30s` (wheel) / `9 passed in 2.93s` (forced steplite); against the
+old `rvt_to_ifc.py` (stash check) `4 failed, 5 passed` — the LP-1 208 V and DP-1 208 V rows, the
+.rvt-side case and the round trip. Neighbours: `tests/test_convert.py
+tests/test_rvt_to_ifc_param_carrier.py tests/test_rvt_to_ifc_kind_agreement.py
+tests/test_ifc_classify_equipment.py tests/test_shard_list.py` → `64 passed, 8 skipped` (wheel;
+skips = acceptance-room artefact absent / RVT_SKIP_LARGE), `41 passed, 8 skipped` forced steplite
+(without shard_list); `tests/test_router.py -k rvt_to_ifc` → `1 passed, 1 skipped`. /verify of the
+route itself: `tools/route.py run --rvt out/verify331/final-h_mapped_item_reuse-lite/
+h_mapped_item_reuse.rvt --output ifc` → exit 0, status `OK (IFC4 exported; round trip: equipment
+3/3, walls 0/0, feeder edges 0/0, all_survived=True)`, extracted `LP-1/2/3 lighting_panelboard`,
+`degradations: []` (was `0/3`, PARTIAL on the first head).
 
 **/simplify (4 angles) — applied vs kept.** Applied: `v`/`bus` no longer computed ahead of the
 text-only rules (simplification + efficiency, same finding); the test's needless `dict(schedule)`
@@ -326,12 +347,14 @@ module-level ifcopenshell skip). Kept: the test still drives the private `_class
   −5 lines); `tests/ifc_conformance/c_storeys_relative_placement.expected.json`,
   `tests/ifc_conformance/h_mapped_item_reuse.expected.json` (re-pinned, table above);
   NEW `tests/test_ifc_classify_equipment.py`, NEW `tests/ci_shard.d/331-lp-lighting-classify.txt`;
-  this section.
-* Not touched: `.ifc` fixture bytes, `rvt_to_ifc.py` (#412), `prompt_intent.py` (#414), hot files,
-  workflows, `TRACKER.md`.
+  second commit (territory widened by the tech lead, `Closes #412`): `src/rvt/convert/rvt_to_ifc.py`
+  (`_classify` only) + `plugin/lib/src/rvt/convert/rvt_to_ifc.py`, NEW
+  `tests/test_rvt_to_ifc_kind_agreement.py` (added to the same drop-in); this section.
+* Not touched: `.ifc` fixture bytes, `prompt_intent.py` (#414), hot files, workflows, `TRACKER.md`.
 * Gates: above + `tools/sync_plugin.py` then `--check` clean, `plugin/scripts/validate_plugin.py`
-  PASS (25 assertions), `tools/dev/check_portable_paths.py` ok (2881), `tests/test_plugin_sync.py
-  tests/test_shard_list.py tests/test_bootstrap.py` 40 passed (counts repeated in the PR body).
-  Nothing staged; no certification claim.
-* Follow-ups filed: #412 (rvt→ifc calls the shared rule), #414 ("Lighting and Appliance Panelboard"
-  phrase, one decision for both classifiers). Open questions: none blocking.
+  PASS (25 assertions), `tools/dev/check_portable_paths.py` ok (2882 on the second commit),
+  `tests/test_plugin_sync.py tests/test_shard_list.py tests/test_bootstrap.py` 40 passed (counts
+  repeated in the PR body). Nothing staged; no certification claim.
+* Follow-ups filed: #412 (rvt→ifc calls the shared rule — then pulled into this PR at the tech
+  lead's request), #414 ("Lighting and Appliance Panelboard" phrase, one decision for both
+  classifiers). Open questions: none blocking.
