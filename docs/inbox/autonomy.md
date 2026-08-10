@@ -705,3 +705,127 @@ the JSON, header line), `tools/dev/ci_fresh.sh` (new, 0755), `tests/test_ci_fres
 `tests/ci_shard.d/487-ci-fresh.txt` (new), `tests/test_techlead.py` (one needle: `merge --no-edit "$MAIN"`),
 `.github/prompts/tick.md` (§2, one clause), `docs/process/AUTONOMY.md` (§12c Merge row, one sentence), this section.
 No workflow files, no engine code, no plugin sources; nothing staged for the viewer.
+
+
+## eng #496 — 2026-08-10: `ci_fresh.sh` hardening — portable awk, the docs-only case-twin hole closed, `SHARD_READS` pinned to the shard's real reads
+
+Written by engineer session eng #496 (issue #496 = the keepers from PR #489's independent review; branch
+`cam/496-ci-fresh-hardening`), not by the stream owner above.
+
+**What changed.**
+- `tools/dev/ci_fresh.sh`: (1) `SHARD_READS` spells its literal dots `[.]`, not `\.`. Measured, not assumed: with the
+  old string mawk 1.3.4 keeps `\.` literal and is silent; gawk 5.2.1 prints `awk: warning: escape sequence `\.' treated
+  as plain `.'` on **every** call that reaches the drift filter (plain gawk, not only `--lint`) and matches
+  `docs/product/PERMUTATION-MATRIXxmd` as if it were the matrix (looser, so it erred to STALE — safe but noisy and
+  host-dependent). With `[.]` both give identical stdout **and** stderr on every row of the table below, and
+  `gawk --lint` is clean on all three awk programs (the join helper initialises its two variables for that reason).
+  (2) The residual hole inside tolerated docs-only drift is closed: after the existing filter finds no blocking path,
+  the docs files main **added** are compared, lower-cased exactly like `tools/dev/check_portable_paths.py` does
+  (`str.lower()`, in `python3 -I`, not awk `tolower` — mawk's is bytes-only, gawk's locale-aware: the same portability
+  class as (1)), against the names the recorded PR head adds (`git diff --name-only --diff-filter=A <was> <head>`:
+  names in the head's tree that `origin/main@was` lacks — git names only, the same names-only reading
+  `session_ci.sh`'s portable_paths step already does; nothing from the PR is checked out, shown or run, and the
+  trusted-side needle test now also forbids `cat-file -p|blob`, `git show`, `git archive`). A collision →
+  `STALE was=… now=… changed=<the twin(s)> (added on main, case-twin of a path PR <n> adds: portable_paths would
+  redden after the merge) -> re-run …`, exit 4. The identical name counts too: that is an add/add conflict, so the old
+  verdict's `merge_with_main: clean` is void either way. **Choice made (the issue offered two):** the exact check, not
+  "any docs ADD → STALE" — new records and `learned-*` notes are the most common docs-only merges, and demoting every
+  one of them to a CI re-run would give back most of the throughput the exemption exists for; the exact check costs one
+  `git diff --name-only` and keeps them FRESH. **One deliberate tightening:** if main added docs files and the JSON's
+  `head` is not a commit in this clone (a JSON carried over from another checkout; never the case on the tech-lead box,
+  where `session_ci.sh` fetched `refs/pr/<n>` into the same checkout minutes earlier), the twin cannot be ruled out →
+  `STALE … (main added docs files and head <sha> is not in this clone, so a case-twin with a path PR <n> adds cannot be
+  ruled out)`, exit 4 — the same fail-closed stance the helper already takes for an unknown recorded `main`. Modified
+  docs files need no head (their names existed at `was`, so `session_ci.sh` already checked them with the PR's).
+  Every other outcome, message and exit code is byte-identical (table below). Header comment updated to say all this.
+- `tools/dev/session_ci.sh`: header comment only — the setup-failure list now names every `{"pr":N,"error":…}` the
+  script can emit (`no origin/main` and the per-PR lock were missing); a needle in `tests/test_ci_fresh.py` counts the
+  six error exits so a seventh forces the header (and the pin) to be updated. No logic change.
+- `tests/test_ci_fresh.py` 11 → 20 tests (19 run here + 1 honest skip), still stdlib + git + bash, ~3.5 s: the rig's
+  PR 7 now has a **real head** in the clone (branch `pr7` = origin/main + `docs/inbox/foo.md` + `src/new.py`, what
+  `session_ci.sh` would have fetched) and `fresh()` records stderr; new rows: main adds `docs/inbox/Foo.md` /
+  `FOO.MD` / `foo.md` next to tolerated adds → STALE naming only the twin, stderr empty; docs ADDs with a head this
+  clone lacks → STALE (fail closed) while docs MODs with the same JSON stay FRESH and the same drift with a known head
+  stays FRESH; **one row per awk flavour installed** (`mawk`, `gawk`, `busybox` — a PATH shim makes each `/usr/bin/awk`
+  in turn; missing flavours are reported as skips so the CI summary says what was covered): near-miss names
+  (`PERMUTATION-MATRIX-md`, `AUTONOMY_md`) are tolerated drift, the real name is STALE, the 3-named+ellipsis join is
+  identical, stderr is empty; the `[.]`-not-`\.` spelling is pinned; and the **meta-test**
+  `test_SHARD_READS_covers_every_docs_path_the_ci_shard_reads`: it merges the real shard with `tools/dev/shard_list.py`
+  (exactly what `session_ci.sh` runs) plus the non-test helpers under `tests/`, parses each file with `ast`, and collects
+  every docs/ path the **code** names as a path — whole string constants without whitespace containing `docs/` (also
+  f-string chunks and `%s` templates), and `docs` as a component of a join-like run (`os.path.join(ROOT, "docs", …)`,
+  any `f("docs", "x", …)`, `ROOT / "docs" / …`, `+` chains); docstrings and prose never count (a sentence cannot be
+  opened). Each reference resolves against `git ls-files docs`: a real file → itself; a directory or a computed name →
+  every tracked file under the nearest existing directory (fail-safe: `f"docs/inbox/{x}.md"` reads all of inbox); a
+  fully literal path that does not exist → fiction (fixture names). Every resolved file must match the helper's own
+  `SHARD_READS` (read from the script, one source of truth); the failure names file, literal and the uncovered paths and
+  the two ways out (add to `SHARD_READS`, or list the file in `NAMES_NOT_READS` with a reason if it only *names* docs
+  paths — today that list is this test file alone, by construction; an excused file is **still scanned for what it
+  hands to `open()`/`read_text()`/`read_bytes()`**, so the excuse covers naming, never opening — shown to bite on this
+  very file: a temporary `open(os.path.join(ROOT, "docs", "STEERING.md"))` in `tests/test_ci_fresh.py` fails the
+  meta-test naming it, reverted). The pattern is read out of the script and run as a Python `re`, so a guard keeps it
+  inside the character subset ERE and `re` read identically. A companion unit test pins the scanner on a synthetic
+  module (joins, `/` chains, f-strings, `%` templates, `+` chains seen; docstrings and `reason=` prose not; the
+  opens-only mode sees `open(join(…))`, `(ROOT / "docs" / …).read_text()`, `json.load(open(f"…"))` and ignores names).
+  Result on `main` today = the review's census exactly: readers are `test_techlead.py` → `docs/process/AUTONOMY.md`,
+  `test_probe_batch.py` + `test_frontdoor_manifest_pin.py` → the ledger, `test_router.py` → the rendered matrix (its
+  ledger read goes through `matrix.py`'s constant); every other docs/ string in the 83 shard files + 5 helpers is
+  fiction (`docs/requirements/x.md`, `docs/batch_9.json`, `docs/HONEST-STATUS.md` under a tmp plugin root…). Shown to
+  bite: appending `open(os.path.join(ROOT, "docs", "STEERING.md"))` to `tests/test_shard_list.py` →
+  `AssertionError: … {('tests/test_shard_list.py', 'docs/STEERING.md'): ['docs/STEERING.md']} -- add them to
+  SHARD_READS …` (reverted). Blind spot, stated in the test: a docs read hidden in `src/`/`tools/` code that a test
+  merely calls is not seen statically (today: the ledger via `matrix.py`/`census.py`, covered; `matrix.py`'s
+  existence-only record citations, which is why deletions are never tolerated).
+- Not changed, on purpose: `.github/prompts/tick.md` §2 and `docs/process/AUTONOMY.md` §12c both key the merge on the
+  helper's **exit code** ("says FRESH (exit 0 …); anything else → re-run"); their parenthetical gloss of exit 0
+  ("unchanged, or only added/modified docs/** no shard test opens") is now a necessary rather than an exhaustive
+  description (a case-twinning add is also refused), exactly as it already left `NOT-PASS`/"cannot judge" to "anything
+  else". Making both glosses exhaustive is a two-file wording change and AUTONOMY.md is outside this territory, so it is
+  left as one follow-up rather than done in one file only. Patch, if wanted, for both files: after "no shard test opens"
+  insert "and none of which case-twins a path the PR adds".
+
+**Evidence.** `bash -n tools/dev/ci_fresh.sh && bash -n tools/dev/session_ci.sh` → OK. The outcome table, produced by
+one deterministic script (fixed author/committer dates → identical SHAs run to run, so BEFORE/AFTER and mawk/gawk are
+`diff`-able byte for byte) on a throwaway upstream + clone with the helper copied into the clone; PR 7's JSON records
+the real `pr7` head, PR 17's the never-fetched `eeee…`, PR 4 a `fail`, PR 6 an unknown `main`, PR 9 no `main`:
+```
+--- missing json (pr 8):                         MISSING …/clone/.git/session-ci/ci/8.json (no CI verdict stored for PR 8: run tools/dev/session_ci.sh 8)   exit=3
+--- json without main (pr 9):                    MISSING "main" in …/clone/.git/session-ci/ci/9.json (a verdict from before #487: re-run tools/dev/session_ci.sh 9)   exit=3
+--- unchanged:                                   FRESH main=d2aa484327c63863a1094dc7e1f5ec1088311fad   exit=0
+--- unchanged, expected head given:              FRESH main=d2aa484327c63863a1094dc7e1f5ec1088311fad   exit=0
+--- json is for another head:                    WRONG-HEAD json=5c8c931602dae26c9c363afb34192db18f8640c1 now=ffffffffffffffffffffffffffffffffffffffff (the stored run is for another head: run tools/dev/session_ci.sh 7)   exit=5
+--- non-pass verdict, head given (pr 4):         NOT-PASS verdict=fail for head 5c8c931602dae26c9c363afb34192db18f8640c1 (nothing to merge on)   exit=5
+--- docs-only drift (record + note):             FRESH(docs-only drift) was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=543aacc54bbe9307a648fa2c041260fee1226bd0   exit=0
+--- docs-only drift, head unknown here (pr 17):  STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=543aacc54bbe9307a648fa2c041260fee1226bd0 changed=docs/STEERING.md,docs/inbox/record.md (main added docs files and head eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee is not in this clone, so a case-twin with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17   exit=4
+--- docs-only drift, M only, head unknown (17):  FRESH(docs-only drift) was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=473cf31f4a244c8641a28a7924639e3e413e725d   exit=0
+--- docs-only drift, main ADDS a case-twin:      STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=6e7e83e49f7e4733bb55da82159ce25400b33b69 changed=docs/inbox/Foo.md (added on main, case-twin of a path PR 7 adds: portable_paths would redden after the merge) -> re-run tools/dev/session_ci.sh 7   exit=4
+--- ledger touched + a record deleted:           STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=aa8682d7670db19892fc01162adfb7561f7fac9f changed=docs/coverage/viewer-certified.json,docs/inbox/old.md -> re-run tools/dev/session_ci.sh 7   exit=4
+--- code drift:                                  STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=728d20f16976bae643c5c127a69e5180599b28a5 changed=docs/coverage/viewer-certified.json,docs/inbox/old.md,src/a.py,… -> re-run tools/dev/session_ci.sh 7   exit=4
+--- unknown recorded main:                       STALE was=1111111111111111111111111111111111111111 now=728d20f16976bae643c5c127a69e5180599b28a5 changed=? (1111111111111111111111111111111111111111 is not in this clone: main rewritten, or a JSON from another checkout)   exit=4
+--- bad arg:                                     usage: PR must be a number   exit=2
+```
+`diff` of the four captures: AFTER-mawk == AFTER-gawk (stdout **and** stderr, all 14 rows); BEFORE-mawk vs AFTER-mawk
+differ in exactly the two rows this issue asked to change (`head unknown here (pr 17)` and `main ADDS a case-twin`,
+both `FRESH(docs-only drift)` → the STALE lines above); BEFORE-gawk additionally carried the `\.` warning on stderr in
+all six rows that reach the drift filter, AFTER-gawk carries none. `gawk --lint` on the three awk programs: no output.
+busybox awk is not installed on this image (the test row says so as a skip). Gate counts are in the PR body.
+
+**Follow-ups filed (from this PR's /simplify altitude pass; searched first, no duplicates).** #522 — the twin check
+re-derives `check_portable_paths.py`'s one cross-file law in a second file; the general form is a `check(paths)` seam in
+the checker so the helper re-runs the *whole* names-only gate over `ls-tree(NOW)` ∪ PR-added names at merge time (the
+checker was out of territory here), plus the tick.md/AUTONOMY.md gloss clause above. #523 — the exact instrument for
+`SHARD_READS` is a runtime `open` audit hook in `tests/conftest.py` (no heuristics, no excuse list, sees indirect
+`src/`/`tools/` readers), which also gives #487's (c) — the duplicated throwaway-git fixture — a home; `conftest.py`
+was out of territory here too. Applied in this PR from the same pass: `_commit` reused for the PR branch (no `_write`
+split), one-pass join-run consumption in the scanner, `ast.get_docstring` for docstring detection, busybox via a plain
+symlink, absent awk flavours skipped by `pytest.param` marks before the rig is built, files without a `docs` substring
+not parsed, `SHARD_READS` extracted once. Kept on purpose: `BEGIN {n=0; s=""}` in `name3` (a no-op for awk semantics,
+there so `gawk --lint` stays silent — the issue's DONE), and `python3 -I` rather than awk `tolower()` for the twin
+comparison (parity with the checker's `str.lower()`; ~15 ms once per merge, only when main added docs files).
+
+BRANCH STATE (cam/496-ci-fresh-hardening): `tools/dev/ci_fresh.sh` (`[.]` regex, `name3` join helper, the case-twin /
+unknown-head STALE branch, header), `tools/dev/session_ci.sh` (header comment: complete setup-failure list; no logic
+change), `tests/test_ci_fresh.py` (real PR head in the rig, stderr captured, +9 tests incl. the per-awk rows and the
+SHARD_READS meta-test with its scanner unit test), this section. Already in the shard via `tests/ci_shard.d/487-ci-fresh.txt`
+(no new drop-in needed). No workflow files, no tick.md/AUTONOMY.md change, no engine or plugin sources
+(`sync_plugin.py --check` clean, `validate_plugin.py` PASS, portable paths ok); nothing staged for the viewer.

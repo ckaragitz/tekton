@@ -26,7 +26,8 @@
 # Prints one JSON object: {pr, head, main (the origin/main it was merged with — tools/dev/ci_fresh.sh <pr> says
 # FRESH/STALE against the current one before a merge, #487), merge_with_main, portable_paths, plugin_drift, plugin_structure,
 # shard_rc, shard_summary, seconds, sandbox, verdict: pass|fail}; exit 0 either way (read the verdict) —
-# except setup failures (no ref, worktree, tree export, lock timeout): {"pr":N,"error":...} and exit 2.
+# except setup failures (no ref, no origin/main, another run holds the PR / global lock timeout, worktree, tree export):
+# {"pr":N,"error":...} and exit 2.
 set -uo pipefail
 PR=${1:?usage: tools/dev/session_ci.sh <pr-number>  (fetch it first: git fetch origin "pull/<n>/head:refs/pr/<n>")}
 [[ "$PR" =~ ^[0-9]+$ ]] || { echo "usage: PR must be a number" >&2; exit 2; }
