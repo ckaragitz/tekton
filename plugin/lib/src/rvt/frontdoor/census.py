@@ -11,10 +11,23 @@ applies ONLY to the exact certified bytes.  Any other base (a user's
 ``--base``, an Autodesk sample) has no census: the provenance ledger then
 treats everything inherited from it as the sample's, as before.
 
+The census applies TRANSITIVELY (issue #284): a file that is not a pin but
+DESCENDS from one -- a prior tekton output grown on ``G_ABPD*``, now the
+input of an edit -- is recognised by :func:`lineage` (a byte descent test:
+>= 95 % of the pin's composed slots present and byte-identical in it) and is
+then ledgered against THE PIN ITSELF with the pin's census, so its residue is
+exactly the pin's residue it still carries byte-identical, residue slots any
+build in the chain edited read ``ours-modified`` (still derived), and every
+element the chain created is examined for lineage like a new one.  A file
+with no descent (a foreign project, an Autodesk sample) has no lineage:
+nothing inherited from it is presumed ours.
+
 Consumers: ``tools/rvt_job.provenance_gate`` (the front door's status gate)
-hands :attr:`BaseCensus.residue_ids` to ``rvt.provenance.provenance(...,
-composed_residue_ids=...)`` so a build on our base is ledgered against the
-true residue instead of counting every composed element as Autodesk-derived.
+and ``tools/provenance.py --composed-base auto`` hand
+:meth:`Lineage.composed_baseline` (+ :attr:`Lineage.pin_doc` for a
+descendant) to ``rvt.provenance.provenance(..., composed=...)`` so a build --
+or an edit of a build -- on our base is ledgered against the true residue
+instead of counting every composed element as Autodesk-derived.
 """
 from __future__ import annotations
 
@@ -123,5 +136,169 @@ def for_file(path: Optional[str]) -> Optional[BaseCensus]:
     return lookup(path)[1]
 
 
+# ---------------------------------------------------------------------------
+# the transitive census (issue #284): a file that DESCENDS from a pin
+# ---------------------------------------------------------------------------
+#: descent bar: this share of the pin's COMPOSED slots (all its slots when the
+#: census is stale) must be present AND byte-identical in the file.  Our
+#: builds and edits touch a handful of base slots (ProjectInfo, a level or
+#: two); an Autodesk sample shares only the residue (~13 %); an older tekton
+#: output grown on an earlier rung shares 64-74 % (no census vouches for the
+#: rest); a foreign project shares nothing.
+DESCENT_MIN_IDENTICAL = 0.95
+
+KIND_PINNED = "pinned-composed-genesis"        #: the bytes ARE a certified pin
+KIND_DESCENDS = "descends-from-pinned-genesis" #: passes the descent test against one
+
+
+@dataclass(frozen=True)
+class Lineage:
+    """A base file IS a certified pin (``exact``) or DESCENDS from one.
+    ``census`` None = the asset is stale for that pin (ledger conservatively,
+    say STALE).  ``pin_doc`` = the parsed pin a descendant is ledgered
+    against (None when exact: the base is the pin); ``evidence`` = the
+    descent test's numbers, for manifests."""
+    pinned_id: str
+    census: Optional[BaseCensus]
+    exact: bool
+    pin_path: str
+    pin_doc: Any = field(default=None, compare=False, repr=False)
+    evidence: Dict[str, Any] = field(default_factory=dict, compare=False)
+
+    @property
+    def kind(self) -> str:
+        return KIND_PINNED if self.exact else KIND_DESCENDS
+
+    def composed_baseline(self):
+        """The pin's census as the ledger's ``ComposedBaseline`` (None when
+        stale: nothing can be split, everything inherited reads as sample)."""
+        if self.census is None:
+            return None
+        from ..provenance import ComposedBaseline
+        return ComposedBaseline(residue_ids=self.census.residue_ids, pinned_id=self.pinned_id)
+
+    def summary(self) -> Optional[Dict[str, Any]]:
+        """The manifest's ``residue`` block: :meth:`BaseCensus.summary` of the
+        pin (unchanged since #143), plus -- for a descendant only -- which pin
+        it descends from and the descent evidence.  None when stale."""
+        if self.census is None:
+            return None
+        out = self.census.summary()
+        if not self.exact:
+            out["descends_from"] = self.pinned_id
+            out["descent"] = dict(self.evidence)
+        return out
+
+
+def history_head_guid(path: str) -> Optional[str]:
+    """``Global/History`` entry[0] GUID (the newest save episode) or None.
+    Our commits reuse the pin's episode, so a descendant carries the pin's --
+    corroborating evidence only: the pin inherited it from its own Autodesk
+    ancestor, and older outputs that fail the byte test carry it too."""
+    try:
+        from ..container import open_rvt
+        from ..elemtable import inflate_global_stream
+        from ..stream_encoders import decode_history
+        with open_rvt(path) as f:
+            hist = decode_history(inflate_global_stream(f.raw("Global/History")).payload)
+        ents = hist.get("entries") or []
+        return str(ents[0][0]).lower() if ents else None
+    except Exception:                                   # noqa: BLE001
+        return None
+
+
+def pin_file(year: Optional[int]) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    """(pin id, path, sha256) of the CERTIFIED pin of release ``year`` from
+    the registry's own candidate locations (repo path, plugin bundle),
+    sha-verified -- or Nones.  Registry-direct on purpose: a firm's
+    ``$RVT_GENESIS_BASE`` names the base to BUILD on, not what our pin is."""
+    from .base import PIN, release_status
+    if year is None:
+        return None, None, None
+    st = release_status(int(year))
+    slot = PIN.release_slot(int(year)) or {}
+    sha = str(st.get("sha256") or "").lower()
+    if not (st["certified"] and sha):
+        return None, None, None
+    for cand in PIN.candidate_paths(relpath=str(slot.get("relpath") or "") or None):
+        if os.path.isfile(cand) and sha256_of(cand).lower() == sha:
+            return str(st.get("id")), cand, sha
+    return None, None, None
+
+
+_PINS: Dict[str, Tuple[str, str, Any]] = {}     # sha -> (id, path, parsed Document)
+
+
+def _pin_of_release(year: Optional[int]) -> Optional[Tuple[str, str, str, Any]]:
+    """(id, path, sha, Document) of the certified pin for ``year``, parsed
+    once per process (the pin is immutable: everything derived from it is a
+    function of its sha).  None when there is no such pin here or it does
+    not parse under the release context in force (never cached)."""
+    pin_id, path, sha = pin_file(year)
+    if not path:
+        return None
+    if sha not in _PINS:
+        from ..mutate import Document
+        try:
+            _PINS[sha] = (pin_id, path, Document.from_file(path))
+        except Exception:                               # noqa: BLE001
+            return None
+    pin_id, path, doc = _PINS[sha]
+    return pin_id, path, sha, doc
+
+
+def lineage(path: Optional[str], doc: Any = None, *, exact_only: bool = False) -> Optional[Lineage]:
+    """The certified pin ``path`` IS or DESCENDS FROM, or None.
+
+    Bytes first, as :func:`lookup`: an exact sha256 of a certified pin is the
+    pin whatever the file is named.  Otherwise (unless ``exact_only``) the
+    DESCENT TEST against the certified pin of the file's own release: of the
+    pin's composed slots (census complement; every slot when the census is
+    stale) at least :data:`DESCENT_MIN_IDENTICAL` must be present in the file
+    with byte-identical records (``rvt.provenance.same_records``, the
+    ledger's own byte law).  ``doc`` = the already-parsed
+    ``rvt.mutate.Document`` of ``path`` (spares a second parse); the caller
+    owns the release context (the edit route and tools/provenance.py already
+    read under the file's own release).  Any failure to read is "no lineage":
+    the gate falls back to the name heuristic and never over-claims."""
+    if not path or not os.path.isfile(path):
+        return None
+    pinned, census = lookup(path)
+    if pinned:
+        return Lineage(pinned_id=pinned, census=census, exact=True, pin_path=os.path.abspath(path))
+    if exact_only:
+        return None
+    try:
+        from ..mutate import Document
+        from ..provenance import same_records
+        from ..versions import detect_release
+        pin = _pin_of_release(detect_release(path))
+        if pin is None or os.path.abspath(pin[1]) == os.path.abspath(path):
+            return None
+        pin_id, pin_path, pin_sha, pin_doc = pin
+        base = doc if doc is not None else Document.from_file(path)
+        pin_ids, base_ids = set(pin_doc.et_by_id), set(base.et_by_id)
+        identical = {e for e in pin_ids & base_ids if same_records(base, pin_doc, e)}
+    except Exception:                                   # noqa: BLE001
+        return None
+    census = load().get(pin_sha)
+    probe = (pin_ids - census.residue_ids) if census is not None else pin_ids
+    share = len(probe & identical) / max(1, len(probe))
+    if share < DESCENT_MIN_IDENTICAL:
+        return None
+    hist0 = history_head_guid(path)
+    evidence = {
+        "min_share": DESCENT_MIN_IDENTICAL, "share": round(share, 4),
+        "probed": "composed slots" if census is not None else "all pin slots (census STALE)",
+        "pin_slots_probed": len(probe), "probed_identical": len(probe & identical),
+        "pin_slots_edited": len((pin_ids & base_ids) - identical),
+        "pin_slots_dropped": len(pin_ids - base_ids),
+        "history_head_guid_matches_pin": hist0 is not None and hist0 == history_head_guid(pin_path),
+    }
+    return Lineage(pinned_id=pin_id, census=census, exact=False, pin_path=os.path.abspath(pin_path),
+                   pin_doc=pin_doc, evidence=evidence)
+
+
 __all__ = ["BaseCensus", "CENSUS_PATH", "SCHEMA", "RESIDUE_MEANING", "load", "lookup",
-           "for_file", "pinned_sha256s"]
+           "for_file", "pinned_sha256s", "Lineage", "lineage", "pin_file", "history_head_guid",
+           "DESCENT_MIN_IDENTICAL", "KIND_PINNED", "KIND_DESCENDS"]
