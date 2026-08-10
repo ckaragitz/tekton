@@ -41,8 +41,8 @@ with neither spelling of `<repo>/samples` and is not refused (invoke through `/a
 Closing that class means resolving every lexical *prefix* of the path physically (`realpath(ap[:i]) + ap[i:]` per
 component boundary — O(depth²) `lstat`s once per job, plus drive-letter care on Windows); not done here: the DONE is the
 two-endpoint form, the precondition is three contrivances deep (write access inside git-ignored `samples/` + an inward
-alias + invoking through the other name), and no corpus byte becomes readable through any of it. Offered to the tech
-lead as a follow-up rather than filed, to keep the queue free of a P3.
+alias + invoking through the other name), and no corpus byte becomes readable through any of it. Filed on the tech
+lead's word as **#500** (P3, `Refs #474`, with the prefix-wise `realpath` sketch and its cost); not fixed here.
 
 Why both spellings and not "lexical only": the inward aliases (#425 review D3/D5, #452's `treelink -> <repo>` and
 `/Samples/x`) are only visible physically; the outward link only lexically. Cross pairs (lexical path vs physical root
@@ -93,12 +93,12 @@ head `36 passed` — matched pairs. The 29 existing cases and #452/#473's `test_
 (`/simplify`'s reuse lens noted `_symlink` is the third copy of the symlink-or-skip idiom in this file; the two older
 copies live in the frozen tests/fixture and stay as they are this round).
 
-## Follow-up delivered as a patch (outside this territory)
+## The `run()` docstring (applied in this PR on the tech lead's word)
 
-`src/rvt/frontdoor/__init__.py::run.__doc__` still ends "its one known hole -- an outward symlink planted inside
-``samples/`` -- is #474's to close." — true until this merges, stale after. The brief put `__init__.py` out of bounds
-(PR traffic in that file today), so the one-sentence edit is offered here for the tech lead to wave into this PR or the
-next one touching the file:
+`src/rvt/frontdoor/__init__.py::run.__doc__` ended "its one known hole -- an outward symlink planted inside
+``samples/`` -- is #474's to close." — stale once this merges. The brief first put `__init__.py` out of bounds (PR
+traffic in that file); after the report the tech-lead session asked for the docstring-only correction in THIS PR
+(`__init__.py` unheld once #478/#490 merged). Applied verbatim, no code change, mirror regenerated:
 
 ```diff
 -    predicate judges the dir's PHYSICAL location (symlinks resolved, case
@@ -147,9 +147,9 @@ next one touching the file:
   `_symlink` helper, 7 cases; the 29 existing untouched), `docs/inbox/out-dir-symlink.md` (this record, new file);
   regenerated mirror `plugin/lib/src/rvt/frontdoor/standalone.py`. No shard drop-in needed (the test file is already
   listed by `tests/ci_shard.d/425-out-dir-guard.txt`).
-* Not touched, by instruction: `src/rvt/frontdoor/__init__.py` (stale `run()` docstring sentence — patch above),
-  `router.py` (#473 / PR #493 — its own `ROUTE.md`/`route.json`/`route.log` still land through the link before the
-  engine refuses), `tools/frontdoor.py`.
-* Follow-ups: none filed. Two offered to the tech lead in the PR: (a) the three-line `run()` docstring patch above;
-  (b) the composed-alias residual (prefix-wise `realpath`), P3 at most — say the word and it becomes an issue.
+* Second round (tech-lead reply on PR #499): `src/rvt/frontdoor/__init__.py` — `run()` docstring only (the 3-line
+  correction above), + its regenerated mirror `plugin/lib/src/rvt/frontdoor/__init__.py`. Not touched: `router.py`
+  (#473 / PR #493, merged underneath — the router now refuses before its own `makedirs` and inherits `_inside`),
+  `tools/frontdoor.py`.
+* Follow-ups filed: **#500** (P3) — the composed-alias residual, prefix-wise `realpath`, `Refs #474`.
 * Nothing awaits a human; nothing staged vs shipped — everything in this PR ships.
