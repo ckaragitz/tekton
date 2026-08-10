@@ -1010,10 +1010,13 @@ def new_var_sketch(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
     obj["m_oSketchGridData"] = None
     obj["m_refPnt"] = None
     obj["m_sketchPlaneId"] = int(sketch_plane_id)
-    obj["m_serFlags"] = 1
+    # serFlags 32 + version 1 on a curve-bearing parametric sketch (donor
+    # 2432; the curve-less donor sketch 2400 carries 1/0 -- 32 plausibly
+    # flags the serialized solver state below)
+    obj["m_serFlags"] = 32 if n else 1
     obj["m_nextIndex"] = n
     obj["m_isEdited"] = 0
-    obj["m_version"] = 0
+    obj["m_version"] = 1 if n else 0
     obj["m_remainVisible"] = False
     obj["m_isSuspendedNew"] = False
     obj["m_allowResetLineEndConstr"] = True
@@ -1027,15 +1030,76 @@ def new_var_sketch(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
         for _ in range(n)]
     obj["m_customDatumPlanes"] = []
     obj["m_pPlaneRef"] = None
-    obj["m_elemRecs"] = []                       # solver line objects: none [H]
+    # SOLVER STATE (issue #333, desktop round 26 -- the value-edit law):
+    # regen resolves each curve through VarSketch::getCurveObj, which indexes
+    # m_elemRecs; an empty solver ("[H: Revit re-solves on edit]") is
+    # FALSIFIED -- editing any family parameter raised "Invalid idx in
+    # VarSketch::getCurveObj (VarSketch.cpp:634)" + the serious-error dialog.
+    # Donor law (Revit-2026-born famdoc, VarSketch 2432): one
+    # VarSketchLineSegObj per curve (4 VarParams = x1,y1,x2,y2), a HorVer
+    # constraint per axis-parallel edge + point-point joins closing the
+    # loop, and the guess cache primed with the parameter vector.
+    # Weakrefs address solver objects by archive pid: pid 3 = m_pPlane,
+    # 4..3+n = the absorbed GLines, 4+n+i = LineSegObj i (assign_pids
+    # reproduces this numbering).
+    seg_pid = [4 + n + i for i in range(n)]
+    obj["m_elemRecs"] = [
+        _ptr("VarSketchLineSegObj", {
+            "m_params": [_ptr("VarParam", {"m_refCt": 1, "m_val": float(c)})
+                         for c in (a[0], a[1], b[0], b[1])],
+            "m_pSketch": _weak(2),
+            "m_objId": int(curve_ids[i]),
+            "m_angleCoef": 1.0,
+            "m_unbounded": False,
+        }) for i, (a, b) in enumerate(lines)]
     obj["m_curveObjIdxMap"] = [{"first": int(cid), "second": i}
                                for i, cid in enumerate(curve_ids)]
     obj["m_pointRecs"] = []
     obj["m_pointObjIdxMap"] = []
-    obj["m_constrRecs"] = []
+
+    def _hv(i: int, horizontal: bool) -> dict:
+        return _ptr("VarSketchHorVerConstrObj", {
+            "m_params": [], "m_pSketch": _weak(2), "m_objId": -1,
+            "m_constrElems": [{"weakref": seg_pid[i]}],
+            "m_constrSubTypes": [0], "m_priorityLevel": 3,
+            "m_hor": bool(horizontal)})
+
+    def _pp(i: int, j: int, sub_i: int, sub_j: int) -> dict:
+        return _ptr("VarSketchPPConstrObj", {
+            "m_params": [], "m_pSketch": _weak(2), "m_objId": -1,
+            "m_constrElems": [{"weakref": seg_pid[i]}, {"weakref": seg_pid[j]}],
+            "m_constrSubTypes": [sub_i, sub_j], "m_priorityLevel": 0})
+
+    def _is_horizontal(a, b) -> bool:
+        return abs(b[1] - a[1]) <= abs(b[0] - a[0])
+    # PP joins are COINCIDENCE-DETECTED, not copied by index pattern: the
+    # donor's subtype semantics are 1 = the (x1,y1) start, 2 = the (x2,y2)
+    # end, and each PP names one shared CORNER (donor round 27: gluing the
+    # wrong corners re-solves the loop into overlapping lines -> "Base
+    # sketch for extrusion is invalid").  Interleave per donor: HV0, then
+    # for each edge i>0 its joins to lower-index edges, then HV(i).
+    def _corner_joins(i: int) -> list:
+        out = []
+        pts_i = (lines[i][0], lines[i][1])
+        for j in range(i):
+            pts_j = (lines[j][0], lines[j][1])
+            for si, pi_ in enumerate(pts_i, start=1):
+                for sj, pj in enumerate(pts_j, start=1):
+                    if abs(pi_[0] - pj[0]) < 1e-9 and abs(pi_[1] - pj[1]) < 1e-9:
+                        out.append(_pp(i, j, si, sj))
+        return out
+    constrs: list = []
+    if n >= 2:
+        constrs.append(_hv(0, _is_horizontal(*lines[0])))
+        for i in range(1, n):
+            constrs.extend(_corner_joins(i))
+            constrs.append(_hv(i, _is_horizontal(*lines[i])))
+    obj["m_constrRecs"] = constrs
     gc = blank_object("VarSketchGuessCache")
     gc["m_pSketch"] = _weak(2)
-    gc["m_guessArr"] = []
+    gc["m_guessArr"] = [_ptr("VarSketchGuess", {
+        "m_values": [float(c) for a, b in lines for c in (a[0], a[1], b[0], b[1])],
+        "m_useCount": 29})]
     gc["m_nPar"] = 0
     obj["m_oGuessCache"] = _ptr("VarSketchGuessCache", gc)
     obj["m_oParamPlane"] = plane([0, 0, 0], [1, 0, 0], [0, 1, 0],
