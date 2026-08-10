@@ -1008,9 +1008,8 @@ def _instance_labels(eq: Any, category: int) -> Dict[str, Any]:
     (one device-schedule row per placed device)."""
     if category != OST_ELECTRICAL_FIXTURES:
         return {"created_kind": "equipment-instance"}
-    from rvt.frontdoor.prompt_intent import DEVICE_PSET      # already imported by any device job
     return {"created_kind": "fixture-instance",
-            "schedule": dict((eq.psets or {}).get(DEVICE_PSET) or {})}
+            "schedule": dict((eq.psets or {}).get(I.DEVICE_PSET) or {})}
 
 
 def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
