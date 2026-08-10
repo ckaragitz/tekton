@@ -151,6 +151,15 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
     Stage("ifc->facts", "rvt.ifc.product_facts:extract_product_facts",
           "measure a PRODUCT IFC into ProductFacts (dims, parts, psets)",
           ("test:tests/test_ifc_family.py",)),
+    Stage("ifc->parts", "rvt.ifc.assembly_parts:read_assembly",
+          "measure EVERY tessellated product of an arbitrary-geometry IFC "
+          "(no catalog identity, no archetype) into prismatic solids -- the "
+          "plan hull fitted to a cylinder / box / N-gon, extruded over the "
+          "mesh's Z extent, placement chain applied, per-part 'fill' "
+          "(mesh volume / prism volume) reported so the massing's fidelity "
+          "is a number; feeds make_generic_model(parts=...)",
+          ("test:tests/test_ifc_assembly.py",
+           "record:docs/inbox/ifc-assembly-rfa.md")),
     Stage("facts->rfa", "rvt.ifc.famfrom_ifc:make_downlight",
           "compose OUR family from measured facts (the recessed-downlight "
           "archetype; assay-clean emit_family_rfa_v2)",
@@ -442,12 +451,29 @@ _CELL_LIST: List[Cell] = [
           "outside the resolved intent (finishes, annotations, non-contract "
           "psets) does not survive the round trip",)),
     Cell(("ifc",), "rfa", STATUS_WORKS, "ifc_to_rfa",
-         ("ifc->intent", "intent->rfa", "ifc->facts", "facts->rfa"),
+         ("ifc->intent", "intent->rfa", "ifc->facts", "facts->rfa", "ifc->parts"),
          ("certified:experiments/families/ifc/L_downlight_loaded.rvt",
-          "test:tests/test_ifc_family.py", "test:tests/test_ifc_intent.py"),
-         ("ROOM IFCs yield catalog families for their tagged equipment "
-          "(intent->rfa); PRODUCT IFCs are measured into facts and composed "
-          "as the downlight archetype (the one facts->rfa archetype wired)",
+          "test:tests/test_ifc_family.py", "test:tests/test_ifc_intent.py",
+          "test:tests/test_ifc_assembly.py",
+          "record:docs/inbox/ifc-assembly-rfa.md"),
+         ("THREE lanes, tried in that order: ROOM IFCs yield catalog families "
+          "for their tagged equipment (intent->rfa); a single PRODUCT IFC is "
+          "measured into facts and composed as the downlight archetype (the one "
+          "facts->rfa archetype wired); ANY OTHER geometry IFC -- several "
+          "untagged products, a fabrication assembly, a Claude Design body -- "
+          "goes to the ASSEMBLY lane (ifc->parts), which measures every "
+          "tessellated body and authors ONE donor-free multi-part "
+          "generic_model .rfa instead of refusing",
+          "the ASSEMBLY lane authors the PRISMATIC MASSING of each mesh (plan "
+          "footprint extruded over its Z extent), not a faceted copy: a "
+          "cross-section that varies with height becomes its envelope, and "
+          "assembly-parts.json reports each part's 'fill' (mesh volume / "
+          "authored prism volume) so that approximation is measured per part, "
+          "never described. Rotation is not expressible in the part contract, "
+          "so a body whose axis is not Z is massed by its bounding prism",
+          "the assembly lane needs TESSELLATED bodies (IfcTriangulatedFaceSet / "
+          "IfcPolygonalFaceSet); a product carrying only swept/CSG solids is "
+          "skipped BY NAME in the record, never given a guessed size",
           _CATALOG)),
     # ---------------- singles: rvt ----------------
     Cell(("rvt",), "rvt", STATUS_MISSING, None, (),
