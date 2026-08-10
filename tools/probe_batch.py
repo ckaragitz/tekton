@@ -418,10 +418,12 @@ def frontdoor_entries(manifest: dict, pins: Sequence[PinnedBase] = ()) -> List[T
     best-match ordering are shared:
 
       * manifest.base.sha256 equals a genesis pin's sha256 -> that pin's
-        certified relpath (experiments/genesis/.../G_ABPD*.rvt) -- the base
-        block of a --target-version 2025 run still embeds the DEFAULT pin, so
-        the digest is matched against every release slot, not base.pin only;
-      * else base.pin when base.sha256 == base.pin.sha256;
+        certified relpath (experiments/genesis/.../G_ABPD*.rvt) -- matched
+        against every release slot so a manifest written before base.pin
+        named the resolved slot (#264) still resolves to its own release;
+      * else base.pin when base.sha256 == base.pin.sha256 (every manifest the
+        front door writes today: base.pin IS the slot the run resolved, and an
+        explicit --base copy of a certified slot reads pinned there too, #439);
       * else the base file itself (an explicit --base / $RVT_GENESIS_BASE /
         the --rvt route's input): the ledger then judges that path -- by
         path or by bytes -- like any other declared base.

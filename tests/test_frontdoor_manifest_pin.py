@@ -7,7 +7,9 @@ Before: ``build_manifest`` always embedded the DEFAULT (2026) pin, so a
 …/G_ABPD.rvt`` -- the pin block contradicted the base it sat under and
 ``tools/probe_batch.py`` had to match the digest against every slot to learn
 the lineage.  Now the pin block is the slot the base answers to: same relpath,
-same sha256, same certification entry; 2026 unchanged.
+same sha256, same certification entry; 2026 unchanged.  Issue #439 (section
+below) makes ``resolve_base``'s explicit / env branches agree: a ``--base`` copy
+of a certified slot's bytes reads ``pinned`` / certified for that slot.
 
 Fresh-clone safe: the three pinned bases ship in-repo under
 ``plugin/assets/genesis`` (sha-verified against the registry by
@@ -15,13 +17,18 @@ Fresh-clone safe: the three pinned bases ship in-repo under
 """
 from __future__ import annotations
 
+import copy
 import os
+import shutil
 import sys
 
 import pytest
 
+import rvt.frontdoor as FD
 from rvt.frontdoor import base as B
 from rvt.frontdoor import manifest as MF
+
+from conftest import CERTIFIED_YEARS, pinned_base
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
@@ -149,7 +156,6 @@ def test_probe_batch_resolves_a_target_release_output_via_base_pin_alone(tmp_pat
 def test_an_unresolved_target_run_names_the_targets_slot():
     """The stand-in base a refused run's manifest gets names the target's own
     slot path, so base.path and base.pin agree even when nothing was built."""
-    import rvt.frontdoor as FD
     y1 = OTHER_YEARS[0]
     rb = FD._explicit_or_pin(FD.AuthorRequest(prompt="x", target_version=y1))
     assert os.path.basename(rb.path) == os.path.basename(B.PIN.release_slot(y1)["relpath"])
@@ -160,3 +166,118 @@ def test_an_unresolved_target_run_names_the_targets_slot():
     # no target, or a year the registry has no slot for: the default relpath, as before
     for req in (FD.AuthorRequest(prompt="x"), FD.AuthorRequest(prompt="x", target_version=2019)):
         assert FD._explicit_or_pin(req).path == os.path.join(B.repo_root(), B.PIN.base_relpath)
+
+
+# ---------------------------------------------------------------------------
+# eng #439 -- 2026-08-10: an explicit --base / $RVT_GENESIS_BASE that IS a
+# certified slot's bytes reads pinned + certified for THAT slot (before: only
+# the default 2026 sha was compared, so a copy of G_ABPD_2025.rvt passed by
+# path read pinned=False + "not the pinned genesis base" next to a base.pin
+# block naming the very slot it is).  Labels only -- the bytes never change.
+# ---------------------------------------------------------------------------
+
+OTHER_CERTIFIED_YEARS = [y for y in CERTIFIED_YEARS if y != DEFAULT_YEAR]
+NOT_PINNED = "not the pinned genesis base"
+
+
+def _slot_copy(tmp_path, year):
+    """A byte-identical copy of the certified pinned base of ``year`` under a
+    foreign name/dir -- what a packager or a firm pointing at the bundled base
+    hands in (a clean skip when the pin is not resolvable / overridden here)."""
+    dst = tmp_path / f"copy_of_{year}.rvt"
+    shutil.copyfile(pinned_base(year), dst)
+    return str(dst)
+
+
+def _assert_pinned_as(rb, year, source):
+    slot = B.PIN.release_slot(year)
+    assert rb.source == source
+    assert rb.pinned is True and rb.certified is True
+    assert rb.sha256 == slot["sha256"]
+    assert rb.certification == dict(slot.get("certification") or {}) != {}
+    assert not any(NOT_PINNED in w for w in rb.warnings)
+    js = rb.as_json()
+    assert js["pinned"] is True and js["certified_genesis_base"] is True
+    assert js["certification"] == rb.certification
+
+
+@pytest.mark.parametrize("year", CERTIFIED_YEARS)
+def test_explicit_copy_of_a_certified_slot_is_pinned_for_that_slot(tmp_path, year):
+    slot_copy = _slot_copy(tmp_path, year)
+    # with the matching --target-version ...
+    _assert_pinned_as(B.resolve_base(slot_copy, target_release=year), year, "explicit")
+    # ... and with none at all (DONE 2: the digest is matched against every certified slot)
+    _assert_pinned_as(B.resolve_base(slot_copy), year, "explicit")
+
+
+@pytest.mark.parametrize("year", CERTIFIED_YEARS)
+def test_env_copy_of_a_certified_slot_is_pinned_for_that_slot(tmp_path, monkeypatch, year):
+    monkeypatch.setenv("RVT_GENESIS_BASE", _slot_copy(tmp_path, year))
+    _assert_pinned_as(B.resolve_base(None, target_release=year), year, "env")
+    _assert_pinned_as(B.resolve_base(None), year, "env")
+
+
+@pytest.mark.parametrize("year", OTHER_CERTIFIED_YEARS)
+def test_manifest_of_an_explicit_slot_copy_is_self_consistent(tmp_path, year):
+    """DONE 3: base.pinned true AND base.pin.sha256 == base.sha256 (after #264
+    the pin block already named the slot by digest; now the flag agrees)."""
+    rb = B.resolve_base(_slot_copy(tmp_path, year), target_release=year)
+    man = MF.build_manifest(route="prompt", inputs={}, base=rb, out_dir=str(tmp_path),
+                            intent_summary=None, intent_json=None, build=None,
+                            version={"requested": year, "status": "match", "output_release": year})
+    base, slot = man["base"], B.PIN.release_slot(year)
+    assert base["source"] == "explicit" and base["pinned"] is True
+    assert base["certified_genesis_base"] is True and base["warnings"] == []
+    assert base["pin"]["sha256"] == base["sha256"] == slot["sha256"]
+    assert base["pin"]["id"] == slot["id"]
+    assert base["pin"]["certification"] == base["certification"]
+
+
+def test_a_foreign_base_stays_unpinned_with_the_warning(tmp_path, monkeypatch):
+    firm = tmp_path / "firm_standard.rvt"
+    firm.write_bytes(b"a firm's own base -- not any registry slot's bytes")
+    rb = B.resolve_base(str(firm))
+    assert rb.source == "explicit" and rb.pinned is False and rb.certified is False
+    assert rb.certification == {} and rb.as_json()["certification"] is None
+    assert any(NOT_PINNED in w for w in rb.warnings)
+    monkeypatch.setenv("RVT_GENESIS_BASE", str(firm))
+    rb = B.resolve_base(None)
+    assert rb.source == "env" and rb.pinned is False and rb.certified is False
+    assert any(NOT_PINNED in w for w in rb.warnings)
+
+
+def test_a_pending_slots_bytes_are_not_called_certified(tmp_path):
+    """pinned/certified needs the slot to be CERTIFIED (release_status: slot
+    status + sha pin + version model), not merely to carry a matching sha --
+    the same bytes the shipped registry calls certified (tests above)."""
+    year = OTHER_CERTIFIED_YEARS[0]
+    raw = copy.deepcopy(B.PIN.raw)
+    raw["releases"][str(year)]["status"] = "pending certification"
+    pending_pin = B.GenesisPin(raw)
+    assert B.release_status(year, pin=pending_pin)["certified"] is False
+    rb = B.resolve_base(_slot_copy(tmp_path, year), pin=pending_pin)
+    assert rb.pinned is False and rb.certified is False and rb.certification == {}
+    assert any(NOT_PINNED in w for w in rb.warnings)
+
+
+@pytest.mark.parametrize("year", OTHER_CERTIFIED_YEARS)
+def test_no_target_explicit_slot_copy_resolves_pinned_but_reports_the_default_release(tmp_path, year):
+    """Honest statement of today's behaviour (#472): with NO --target-version the
+    front door's version block names the registry default release even when the
+    supplied base -- and therefore the delivered file -- is a 2025/2024 one.  The
+    base block is the truthful half (pinned, pin.id = that slot); the version
+    block is #472's to fix in rvt.frontdoor._resolve_base_and_version."""
+    base, vb, errors = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", base=_slot_copy(tmp_path, year)))
+    assert errors == [] and base.pinned is True and base.certified is True
+    assert MF.resolved_pin(base, MF._version_release(vb))["id"] == B.PIN.release_slot(year)["id"]
+    assert vb["requested"] is None and vb["status"] == "unspecified"
+
+
+@pytest.mark.xfail(strict=True, reason="#472: no --target-version -> output_release is the "
+                   "registry default (2026), not the supplied base's own release; flip when fixed")
+@pytest.mark.parametrize("year", OTHER_CERTIFIED_YEARS)
+def test_no_target_explicit_slot_copy_reports_its_own_release(tmp_path, year):
+    _, vb, _ = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", base=_slot_copy(tmp_path, year)))
+    assert vb["output_release"] == year

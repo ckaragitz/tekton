@@ -265,6 +265,17 @@ def release_status(year: int, *, pin: GenesisPin = PIN) -> Dict[str, Any]:
     }
 
 
+def _certified_slot_for_digest(digest: str, *, pin: GenesisPin = PIN) -> Optional[Dict[str, Any]]:
+    """The CERTIFIED registry slot whose pinned sha256 IS ``digest`` (a copy
+    of ``G_ABPD_2025.rvt`` arriving by path is still our certified 2025 base),
+    or None -- a firm's own base, a stale copy, a pending slot's bytes."""
+    for year in pin.release_years():
+        st = release_status(year, pin=pin)
+        if st["certified"] and str(st["sha256"]).lower() == digest.lower():
+            return pin.release_slot(year)
+    return None
+
+
 # ---------------------------------------------------------------------------
 # resolution
 # ---------------------------------------------------------------------------
@@ -275,9 +286,9 @@ class ResolvedBase:
     path: str
     source: str                        # 'explicit' | 'env' | 'pinned-repo' | 'pinned-bundled'
     sha256: str
-    pinned: bool                       # True = matched the genesis pin
+    pinned: bool                       # True = matched a certified release slot's pin
     is_autodesk_sample: bool = False
-    certified: bool = False            # True only for the pinned genesis base
+    certified: bool = False            # True only for a certified slot's pinned bytes
     certification: Dict[str, Any] = dc_field(default_factory=dict)
     warnings: List[str] = dc_field(default_factory=list)
 
@@ -338,10 +349,11 @@ def resolve_base(explicit: Optional[str] = None, *,
                 "or a base you supply that is not an Autodesk sample. Nothing "
                 "grown on a sample is a product (P0 provenance gate G1).")
         digest = sha256_of(p)
-        pinned = digest.lower() == pin.base_sha256.lower()
+        slot = _certified_slot_for_digest(digest, pin=pin)
+        pinned = slot is not None
         rb = ResolvedBase(path=p, source="explicit", sha256=digest, pinned=pinned,
                           is_autodesk_sample=sample, certified=pinned,
-                          certification=pin.certification if pinned else {})
+                          certification=dict(slot.get("certification") or {}) if slot else {})
         if not pinned:
             rb.warnings.append(
                 "explicit --base is not the pinned genesis base: accepted on the "
@@ -362,10 +374,11 @@ def resolve_base(explicit: Optional[str] = None, *,
         if is_autodesk_sample(p):
             raise BaseError(f"$RVT_GENESIS_BASE {envp!r} is an Autodesk sample project -- refused")
         digest = sha256_of(p)
-        pinned = digest.lower() == pin.base_sha256.lower()
+        slot = _certified_slot_for_digest(digest, pin=pin)
+        pinned = slot is not None
         rb = ResolvedBase(path=p, source="env", sha256=digest, pinned=pinned,
                           certified=pinned,
-                          certification=pin.certification if pinned else {})
+                          certification=dict(slot.get("certification") or {}) if slot else {})
         if not pinned:
             rb.warnings.append("$RVT_GENESIS_BASE is not the pinned genesis base "
                                "(accepted on the environment's authority)")
