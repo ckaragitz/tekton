@@ -260,6 +260,13 @@ Refs #438 (independent-review follow-up of #437 / #397; #400). Branch `cam/438-d
 - whole merged CI shard on the final tree (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`): **1498 passed, 134 skipped, 3 xfailed** in 292.7 s.
 - Full suite not run (SUITE-COORDINATION).
 
+## Review round 1 (tech lead, 🟡 on 5b7cb67) — fixed on the same branch
+
+- **Finding (new to this PR):** `device_voltage` caught `(TypeError, ValueError)` only, so a hand-typed pole count `Phases IFCREAL(1.E400)` (inf → `int(float(inf))`) or a >308-digit `IFCINTEGER` raised `OverflowError` out of `plan_families` → route FAILED. **Fix:** the pole count is read as `float` with an `isfinite` guard and `OverflowError` in the except (non-finite / unreadable = 1-pole); a string pole count now takes its leading digits so `'2P'` / `'2-pole'` / `' 3 ph'` honour the "≥ 2 → L-L" rule (`'P2'` / `'n/a'` stay 1-pole). `parse_device_load` gets the same one-word guard (`float(load)` on a >308-digit int → treated as inf → the "not finite" degrade note, pre-existing on `main` too), and the value echoed in a note is clipped to 60 chars so a 400-digit cell does not become a 400-char note.
+- Tests 11 → **35** (one parametrised `device_voltage` table of 24 pole spellings incl. `inf` / `-inf` / `nan` / `10**400` / `'1e400'` / `'2P'` / `'2-pole'` / `True` / `[2]`; the plan-level `Phases inf + Load 10**400` case resolves at `'120'` / 180 VA with one note; the clipped-repr assertion).
+- Re-driven (`RVT_STEPLITE_FORCE=1`): `rt_inf.ifc` (R-1 `Phases IFCREAL(1.E400)` + `Load IFCINTEGER(10**400)`) → on 5b7cb67 rc 3 `FAILED (… OverflowError: int too large to convert to float)`; now **rc 0**, PROOF-ONLY, VALID 0, R-1 `{voltage '120', va 180.0}` + one clipped `not finite` note; `rt_bad` / `rt_nasty` / `rt_wye` unchanged (rc 0, `errors []`).
+- Gates on the fix tree: `tests/test_intent_device_plan.py` 35 passed (also under `RVT_STEPLITE_FORCE=1`); `sync_plugin.py` run + `--check` clean; `validate_plugin.py` PASS; portable paths ok; whole merged CI shard **1522 passed, 134 skipped, 3 xfailed** in 290.0 s.
+
 ## BRANCH STATE (eng #438)
 
 - Branch `cam/438-device-load-coerce` from `main` @ f05db8b; PR (`Closes #438`).

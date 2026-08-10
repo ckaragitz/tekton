@@ -129,6 +129,11 @@ def test_a_silent_schedule_books_the_default_row_and_a_wye_voltage_its_line_to_n
     assert two_pole.kwargs["voltage"] == "208"
     assert I.plan_family_for(_device("R-5", {"Voltage": "208Y/120 V", "Phases": "2"})).kwargs["voltage"] == "208"
     assert I.plan_family_for(_device("R-6", {"Voltage": "208Y/120", "Phases": 1, "Wires": 2})).kwargs["voltage"] == "120"
+    assert I.plan_family_for(_device("R-7", {"Voltage": "208Y/120", "Poles": "2P"})).kwargs["voltage"] == "208"
+    # a junk pole count / an overflowing load never raise out of the plan (review of #446)
+    junk = I.plan_family_for(_device("R-8", {"Voltage": "208Y/120", "Phases": float("inf"), "Load": 10 ** 400}))
+    assert junk.status == "resolved" and (junk.kwargs["voltage"], junk.kwargs["va"]) == ("120", I.DEFAULT_DEVICE_VA)
+    assert len(junk.notes) == 1 and "not finite" in junk.notes[0]
     # plan_families keeps one plan per item, in order, boards and devices alike
     plans = I.plan_families([_device("R-1", {"MountingHeight": 18.0}), _device("R-2", {"MountingHeight": 44.0})])
     assert [(p.tag, p.status, p.kwargs["mounting_height_in"]) for p in plans] == [
@@ -150,6 +155,18 @@ def test_the_prompt_route_and_the_plan_book_one_device_voltage():
     assert I.device_voltage("208Y/120", poles="n/a") == "120"           # an unreadable pole count = 1-pole
 
 
+@pytest.mark.parametrize("poles, want", [
+    (None, "120"), (1, "120"), (1.0, "120"), ("1", "120"), ("1P", "120"), (True, "120"),
+    (2, "208"), (2.0, "208"), ("2", "208"), ("2P", "208"), ("2-pole", "208"), (" 3 ph", "208"), (3, "208"),
+    ("n/a", "120"), ("", "120"), ("P2", "120"), (0, "120"), (-2, "120"), ([2], "120"),
+    # review of #446: a hand-typed IFCREAL(1.E400) / NaN / >308-digit IFCINTEGER pole count must
+    # not raise (OverflowError / ValueError) out of plan_families -- it is simply a 1-pole device
+    (float("inf"), "120"), (float("-inf"), "120"), (float("nan"), "120"), (10 ** 400, "120"), ("1e400", "120"),
+])
+def test_device_voltage_reads_any_pole_count_without_raising(poles, want):
+    assert I.device_voltage("208Y/120", poles=poles) == want
+
+
 def test_a_unit_suffixed_load_coerces_and_a_bad_load_degrades_that_one_device_with_a_note():
     """``DeviceSchedule.Load`` as a person types it (#438): '180 VA' / '180VA' /
     '0.18 kVA' coerce to VA (a text label leaves ONE note saying so); 'abc',
@@ -169,12 +186,18 @@ def test_a_unit_suffixed_load_coerces_and_a_bad_load_degrades_that_one_device_wi
                      (True, "not a number"), ([180], "not a number"),
                      (-5, "negative"), ("-5 VA", "negative"),
                      (float("nan"), "not finite"), (float("inf"), "not finite"),
+                     ("1e400 VA", "not finite"),
                      (1e12, "sanity cap"), ("1e12", "sanity cap"), ("101 kVA", "sanity cap")):
         va, note = I.parse_device_load(raw)
         assert va == D, raw
         assert note.startswith(f"DeviceSchedule.Load {raw!r} is not a usable apparent load (") and why in note
         assert f"books the default {D:g} VA" in note
     assert I.parse_device_load(I.MAX_DEVICE_VA) == (I.MAX_DEVICE_VA, None)   # the cap itself is a load
+    # review of #446: a >308-digit IFCINTEGER must not raise OverflowError, and its 400-digit
+    # repr is clipped in the note rather than echoed whole
+    va, note = I.parse_device_load(10 ** 400)
+    assert va == D and "(not finite)" in note
+    assert note.startswith("DeviceSchedule.Load " + "1" + "0" * 56 + "... is not a usable") and len(note) < 300
 
 
 @needs_catalog

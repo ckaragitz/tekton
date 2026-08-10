@@ -2276,14 +2276,21 @@ def device_voltage(voltage: Any, poles: Any = None) -> str:
     """The connector voltage a wiring device books from a schedule / clause
     voltage.  A 1-pole device on a wye system takes the line-to-neutral leg
     ('208Y/120' -> '120', '480Y/277' -> '277'); only a 2- or 3-pole device
-    (``Poles`` / ``Phases`` >= 2 on its schedule) takes the line-to-line
-    ('208Y/120' -> '208').  A plain figure rides as is ('277 V' -> '277');
-    nothing parseable -> the :data:`DEFAULT_DEVICE_VOLTAGE` row.  ONE rule
-    for the prompt route's clause voltage and the plan's schedule voltage."""
+    (``Poles`` / ``Phases`` >= 2 on its schedule: 2, '2', '2P', '2-pole')
+    takes the line-to-line ('208Y/120' -> '208').  A plain figure rides as
+    is ('277 V' -> '277'); nothing parseable -> the
+    :data:`DEFAULT_DEVICE_VOLTAGE` row; an unreadable / non-finite pole count
+    is 1-pole.  Never raises.  ONE rule for the prompt route's clause voltage
+    and the plan's schedule voltage."""
     vs = parse_voltage(voltage)
     try:
-        multi = int(float(poles)) >= 2
-    except (TypeError, ValueError):
+        if isinstance(poles, str):
+            m = re.match(r"\s*\+?(\d+)", poles)                # '2', '2P', '2-pole', '3 ph'
+            n = float(m.group(1)) if m else 1.0
+        else:
+            n = float(poles) if poles is not None else 1.0    # a >308-digit int overflows -> 1-pole
+        multi = math.isfinite(n) and n >= 2
+    except (TypeError, ValueError, OverflowError):
         multi = False
     v = vs.get("ll") if multi else (vs.get("ln") or vs.get("ll"))
     return f"{v:g}" if v else DEFAULT_DEVICE_VOLTAGE
@@ -2301,13 +2308,17 @@ def parse_device_load(load: Any) -> Tuple[float, Optional[str]]:
         return DEFAULT_DEVICE_VA, None
     va: Optional[float] = None
     note: Optional[str] = None
+    shown = repr(load) if len(repr(load)) <= 60 else repr(load)[:57] + "..."   # a 400-digit cell, clipped
     if isinstance(load, (int, float)) and not isinstance(load, bool):
-        va = float(load)
+        try:
+            va = float(load)
+        except OverflowError:                           # a >308-digit IFCINTEGER
+            va = math.inf                               # -> 'not finite', below
     elif isinstance(load, str):
         m = _RE_LOAD_VA.match(load)
         if m:
             va = float(m.group(1)) * (1000.0 if m.group(2) else 1.0)
-            note = (f"{DEVICE_PSET}.Load {load!r} is a text label, not a measure -> "
+            note = (f"{DEVICE_PSET}.Load {shown} is a text label, not a measure -> "
                     f"read as {va:g} VA")
     if va == 0:
         return DEFAULT_DEVICE_VA, None                  # 0 -> the unit load, as ever
@@ -2317,7 +2328,7 @@ def parse_device_load(load: Any) -> Tuple[float, Optional[str]]:
            else "negative" if va < 0
            else f"above the {MAX_DEVICE_VA:g} VA sanity cap for one wiring device")
     return DEFAULT_DEVICE_VA, (
-        f"{DEVICE_PSET}.Load {load!r} is not a usable apparent load ({why}) -> this "
+        f"{DEVICE_PSET}.Load {shown} is not a usable apparent load ({why}) -> this "
         f"device books the default {DEFAULT_DEVICE_VA:g} VA (NEC 220.14(I) receptacle "
         "unit load) instead; fix the schedule cell to book another load")
 
