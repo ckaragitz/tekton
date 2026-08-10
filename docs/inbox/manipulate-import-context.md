@@ -684,7 +684,7 @@ i.e. after #570 / #548 and #572 / #533 had merged). Written in eng #566's voice;
   neighbours (`test_estorage_cli_release test_estorage_ids32 test_estorage test_framing_by_name test_inspect_release
   test_shard_list test_manipulate_import_context`) **66 passed / 12 skipped** (the 12 = `test_estorage.py`'s
   sample-backed cases, as on any fresh clone) before /simplify, re-run after: see below; **whole merged CI shard**
-  (`python3 tools/dev/shard_list.py --print`, 97 files incl. the new drop-in): SHARD_RESULT_PLACEHOLDER;
+  (`python3 tools/dev/shard_list.py --print`, 97 files incl. the new drop-in): **1942 passed, 134 skipped, 3 xfailed in 403 s**, 0 failed;
   `tools/sync_plugin.py` synced 1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
   `tools/dev/check_portable_paths.py` ok (2972 tracked paths). (An earlier whole-shard run, started before the
   /simplify edits and overlapping them, read 1941 passed / 2 failed — `test_plugin_sync` on the not-yet-re-synced
