@@ -205,3 +205,224 @@ validator PASS inside the call, session total 3 calls);
 * Bench artefacts (not committed): `out/bench_before.json`,
   `out/bench_after.json`, `out/bench_after_codeexec.json`,
   `out/flow_before_{1,2,3}.json`, `out/flow_after_{1,2,3}.json`.
+
+---
+
+## eng #267 — 2026-08-10 — the ops/batch door is ONE JSON too (`go rvt_job.py edit … --ops`)
+
+Stream: `eng267` (engineer session under the tech-lead session; branch
+`cam/267-go-ops-json`). Closes #267; Refs #111 (§4 above named this
+follow-up), #110, #108 / S-2026-08-09-g. Follow-ups filed: #390 (the
+hot-file `SKILL.md` wording, patch below), #391 (a `go-ops` bench job).
+
+### 1. What was built
+
+1. **`tools/rvt_job.py --json`** (position-free, stripped before argparse
+   exactly like `rvt_edit.py --json`; text mode byte-for-byte unchanged —
+   diffed): stdout is exactly ONE JSON object = **the manifest this run
+   wrote** (the full `<out>.manifest.json` after the gates, or the stub
+   manifest of an aborted run) + `exit_code`. Every progress line
+   (`[rvt_job] planning …`, the op log, `validating …`, the text summary)
+   streams into **`<out>.log`**, line-buffered, named in `output.log` of
+   the JSON *and* of the manifest file — the front door's `build.log`
+   shape (#312/#188), so stderr stays **0 B** on a clean run and a skill
+   session's Bash result is the one object and nothing else. An unwritable
+   log path degrades to an in-memory sink (logging never costs a
+   delivery). The two usage-level failures that used to die before any
+   manifest existed (input `.rvt` missing → exit 1; `ops.json` empty/not a
+   list → exit 2) now write — in `--json` mode only — the same stub
+   manifest every other abort writes (`status` = `FAILED (exit N) before
+   anything was written; the reason is the one line on stderr`,
+   `output.written:false`), so "stdout == the manifest on disk +
+   `exit_code`" holds on every path. Implementation is at `main()` level
+   (`_dispatch`, `_open_job_log`, a two-key `_RUN` state that
+   `write_manifest` / `_write_stub_manifest` fill via `_record_manifest`)
+   — **no gate, plan or commit code changed**; `create` / `from-ifc`
+   inherit the flag for free (same `run_gates` / stub writers), untested
+   beyond argparse because the skills route creation through the front door.
+2. **`plugin/skills/_shared/tekton_env.py`**: `_GO_JSON_SCRIPTS =
+   {"rvt_job.py"}` — `go rvt_job.py …` appends `--json` (as `go author` /
+   `go edit` already do for their tools), so the example `tekton-edit/SKILL.md`
+   has printed since #111 (`go rvt_job.py edit their.rvt --ops out/ops.json
+   -o out/edited.rvt`) now yields `result` = the manifest with no wording
+   change; `go`'s docstring names the shape. Nothing else in the dispatcher
+   moved (`go edit`, `go author`, `go rvt_edit.py …` untouched).
+3. **`tests/test_go_edit.py`** (+2, already in the CI shard; bare `-I -S`
+   plugin copy at a path with spaces, sample-free):
+   `test_go_ops_door_result_is_the_manifest` — ONE call on the bundled
+   2025 base returns `result.status` PROOF-ONLY…(hard gates PASSED),
+   `gates.validation.errors == 0`, structural/identity PASS,
+   `base_provenance.base_kind == pinned-composed-genesis`,
+   `output.path` exists with the stated bytes, `edit.edited_ids ==
+   [1351691]`, `go.stdout` absent, **stderr == ""**, and `result` minus
+   `exit_code` **equals the manifest file on disk** while `output.log`
+   holds the progress lines; `test_go_ops_door_unplannable_op_is_one_json_stub`
+   — an unknown id aborts the whole run, exit 2, `result` is the stub
+   (`status` "FAILED (planning: … 999999999 …)", `output.written:false`),
+   nothing written.
+
+### 2. Evidence — before / after from a BARE surface
+
+Host: this cloud VM, `/usr/bin/python3` 3.11.15 **without numpy**; plugin
+= `tekton-plugin.zip` built by `tools/sync_plugin.py` from `origin/main @
+e5b7864` ("before") and from this branch ("after"), each unzipped to a
+temp path with spaces; `env -i` (HOME + `/usr/bin:/bin` only, dead
+proxies); fresh work dir per run (run 1 pays the `.pyc` compile). Flow:
+`skills/tekton-edit/scripts/_bootstrap.py go rvt_job.py edit
+<unzip>/assets/genesis/G_ABPD_2025.rvt --ops ops.json -o out/edited.rvt`,
+`ops.json = {"ops":[{"op":"set-level","id":1351691,"elevation_ft":5}]}`.
+
+| bare unzip + system python3, `go rvt_job.py edit --ops` | exit | wall (3 runs; median) | stdout | stderr | `result` | `go.stdout` |
+|---|---|---|---|---|---|---|
+| before (`main`) | 0 | 1.14 / 0.87 / 0.85 s; **0.87 s** | 2,316 B | 0 B | **`null`** | 1,606 B of prose (op log, `[rvt_job] …` progress, the text summary) |
+| after (this branch, final head) | 0 | 1.13 / 0.83 / 0.84 s; **0.84 s** | 11,098 B | **0 B** | **the manifest**: 14 keys, `status` "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)", `gates.validation.errors` 0, `output.path/bytes/sha256/log`, `edit.*`, `exit_code` 0 | absent |
+
+The edited `.rvt` is **byte-identical** before vs after (`cmp` clean,
+598,016 bytes; validates 0 errors / 0 warnings under its own release, 2025
+in → 2025 out) — only the reporting changed. Wall time is unchanged within
+noise (the JSON dump replaces the prose print; the log file is ~1.5 KB).
+
+**Calls per ops-door flow: 2 → 1.** Before, the facts a skill must relay
+(status, the four gate verdicts, error counts, the written path) were only
+machine-readable in `out/edited.rvt.manifest.json`, i.e. a second Bash
+round-trip (`cat` = 9,588 B more) or prose-scraping `go.stdout`; after,
+they are `result` in the same call. Byte ledger for a session that wants
+the facts: before 2,316 B + 9,588 B over **2** calls = 11,904 B; after
+11,098 B in **1** call (−1 model round-trip, −806 B, no prose parsing). A
+session that previously ignored the manifest now receives ~8.8 KB more in
+that one call — see open question 1.
+
+`tools/surface_bench.py --zip before.zip|after.zip` (the harness of
+record; it has **no ops-door job** — #391 — so this is the no-regression /
+noise reading across every existing job, 3 runs each, medians):
+
+| surface | job | calls | before s | after s | status |
+|---|---|---|---|---|---|
+| cowork | preflight | 1 | 0.07 | 0.07 | PASS / PASS |
+| cowork | author-prompt | 1 | 2.36 | 2.39 | PASS / PASS |
+| cowork | go-author-prompt | 1 | 1.88 | 2.00 | PASS / PASS |
+| cowork | go-author-6panels | 1 | 3.83 | 3.83 | PASS / PASS |
+| cowork | author-ifc | 1 | 5.52 | 5.54 | PASS / PASS |
+| cowork | edit-roundtrip | 3 | 1.08 | 1.11 | PASS / PASS |
+| cowork | go-edit | 1 | 0.78 | 0.78 | PASS / PASS |
+| cowork | validate | 1 | 0.55 | 0.55 | PASS / PASS |
+| cowork | **session** | 10 | 15.98 | 16.46 | — |
+| codeexec (fresh extract every call) | preflight | 1 | 0.07 | 0.07 | PASS / PASS |
+| codeexec | author-prompt | 1 | 2.42 | 2.36 | PASS / PASS |
+| codeexec | go-author-prompt | 1 | 2.35 | 2.38 | PASS / PASS |
+| codeexec | go-author-6panels | 1 | 4.17 | 4.33 | PASS / PASS |
+| codeexec | author-ifc | 1 | 5.90 | 6.07 | PASS / PASS |
+| codeexec | edit-roundtrip | 3 | 1.52 | 1.63 | PASS / PASS |
+| codeexec | go-edit | 1 | 0.95 | 1.02 | PASS / PASS |
+| codeexec | validate | 1 | 0.80 | 0.76 | PASS / PASS |
+| codeexec | **session** | 10 | 18.25 | 18.58 | — |
+
+(`--python-bare` = the venv interpreter, numpy present, as both real
+sandboxes ship numpy. With the host's numpy-less `/usr/bin/python3` every
+job reads the same before/after too — session 11.20 s → 11.17 s — except
+`author-ifc`, which FAILs identically on both builds: the IFC route needs
+numpy for placement, and the bench prints its reason as `author --ifc
+failed: }`, the pretty-JSON-tail bug already filed as #287.) No job moved
+outside ±0.1 s noise; none of them executes `rvt_job.py`.
+
+Gates run this session: `tests/test_go_edit.py` **7 passed** (3.6 s);
+`tests/test_edit_own_release.py tests/test_plugin_sync.py
+tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py
+tests/test_plugin_validate.py` → **45 passed, 5 skipped** (the 5 =
+`test_surface_perf.py`, self-skipping without a numpy-capable bare
+`python3`); the same `test_surface_perf.py` with the venv first on `PATH`
+→ **5 passed**; `tools/sync_plugin.py` then `--check` clean (deny-audit
+clean, identity scan == allowlist, assets verified);
+`plugin/scripts/validate_plugin.py` PASS (25 assertions);
+`tools/dev/check_portable_paths.py` ok (2861 paths). Text mode of
+`rvt_job.py edit` diffed byte-identical against `main`'s output (paths
+normalised); the four `--json` failure shapes (unknown op, unknown id,
+missing input, empty ops) exercised by hand — one object each, exit 2/2/1/2.
+
+### 3. Findings
+
+1. **Progress belongs in a log file, not on stderr, in `--json` mode.**
+   #267's DONE said "progress lines go to stderr"; `go` passes the job's
+   stderr straight through to the skill session, so that would have put
+   ~1.5 KB of `[rvt_job] …` lines (already duplicated in `result.edit.log`
+   and the gate blocks) into every Bash result. `go author --json` is
+   silent on stderr today; the front door solved the same problem with
+   `<out_dir>/build.log` named in the manifest (#312). The ops door now
+   does the same (`<out>.log`, `output.log`), and the shard test pins
+   `stderr == ""`. Deviation from the issue's letter, recorded here on
+   purpose.
+2. Under `go`, a *planning* failure still prints the engine traceback on
+   stderr (`traceback.print_exc()` in `_cmd_edit`, pre-existing text-mode
+   behaviour, unchanged by design: "no gate semantics change"); the one
+   JSON's `status` carries the one-line reason, so a skill never needs the
+   traceback. Quieting it in `--json` mode is a two-line follow-up if the
+   reviewer wants it; left alone to keep this diff to output plumbing.
+3. `result` == the manifest file, key for key (+ `exit_code`) — asserted
+   by the test — so there is exactly one shape to document for the ops
+   door whether a session reads stdout or, later, the file.
+4. (Simplify pass) Applied: `_RUN` is reset at the top of every `main()`
+   (tests call `job.main([...])` in-process, so a `--json` run followed by
+   a text run in one interpreter would otherwise have stamped a stale
+   `output.log`); the pre-manifest failure object goes through
+   `_write_stub_manifest` instead of a third hand-built shape (finding 3's
+   invariant now has no exception); a comment that restated the module
+   docstring dropped. Skipped, on purpose: folding `_GO_JSON_SCRIPTS` and
+   `_GO_VERBS` into one script-keyed `--json` set (it would also flip `go
+   rvt_edit.py …` / `go frontdoor.py …` spellings to `--json` — a
+   behaviour change outside #267); a shared stdlib-only log-sink helper for
+   `build.log` / `route.log` / `<out>.log` — that is #373's scope
+   (frontdoor territory), noted there as a fourth call site.
+
+### 4. Open questions / follow-ups
+
+1. **Token weight of the one object (S-2026-08-09-g).** 11.1 KB ≈ 2.8 k
+   tokens per ops-door call; 3.2 KB of it is `gates.base_provenance.g1`
+   (the ≤16-entry `blocking` list) and 0.7 KB the PROOF-ONLY `reason`
+   sentence that already summarises it; `edit.plans` is 0.6 KB per op. A
+   stdout-only projection (keep the file complete; drop `g1.blocking` /
+   `edit.plans` / `stats` from what `--json` prints) would roughly halve
+   it but breaks finding 3's "result IS the manifest" invariant — a
+   product call, not made here. Candidate under #112/#110 if the tech
+   lead wants it; not filed (search-before-file: nothing open; the value
+   is arguable).
+2. #390 — `plugin/skills/tekton-edit/SKILL.md` (hot file, outside this
+   engineer session's territory) should stop pointing at the manifest
+   *file* and name the ops door's `result` fields. Patch (≤ 6 lines,
+   +~120 B):
+   ```diff
+   -# several ops in ONE consistent commit, set-param, add-instance/add-circuit (gates + manifest already run):
+   +# several ops in ONE consistent commit, set-param, add-instance/add-circuit — result IS the manifest (gates already run):
+    python "$B" go rvt_job.py edit their.rvt --ops out/ops.json -o out/edited.rvt
+    …
+   -# any unplannable op ABORTS the whole run (a partial edit is worse than none); manifest = out/edited.rvt.manifest.json
+   +# any unplannable op ABORTS the whole run (a partial edit is worse than none): result.status "FAILED (…)", output.written false
+    …
+    edit is `ok:false` + ONE `error` line (+ `dependents`). Exit 0 = written
+   -and both gates PASS. Confirm ids with the user (from `info`) before
+   +and both gates PASS. The ops door's `result` is its manifest: relay
+   +`status`, `gates.validation.errors` (must be 0) + `structural`/`identity`
+   +status, `output.path`; `gates.base_provenance.reason` is the PROOF-ONLY
+   +sentence; never re-read the manifest file or `output.log`. Confirm ids with the user (from `info`) before
+   ```
+3. #391 — `tools/surface_bench.py` job `go-ops` (outside this territory)
+   so the ops door has a standing reading on cowork/codeexec and in
+   #221's product-smoke; the by-hand table above is its first datum.
+
+### BRANCH STATE (eng #267)
+
+* Branch `cam/267-go-ops-json` from `origin/main @ e5b7864`; PR closes #267.
+* Files written: `tools/rvt_job.py` (module docstring OUTPUT MODES;
+  `_RUN`, `_record_manifest`, `_dispatch`, `_open_job_log`, `main`'s
+  `--json` branch incl. the pre-manifest stub; `import io`), `plugin/skills/_shared/tekton_env.py`
+  (`_GO_JSON_SCRIPTS`, the `--json` append for `go rvt_job.py …`,
+  docstrings), `tests/test_go_edit.py` (+2 tests), this section.
+  Generated mirrors re-synced by `tools/sync_plugin.py`:
+  `plugin/lib/tools/rvt_job.py`, `plugin/skills/{tekton-author,tekton-edit,tekton-native}/scripts/rvt_job.py`.
+* Not touched: `tools/frontdoor.py`, `plugin/skills/*/SKILL.md` (#390),
+  `tools/surface_bench.py` (#391), `tools/rvt_edit.py`, `src/rvt/**`,
+  `tests/ci_shard.txt` (the test file was already in the shard).
+* Shipped vs staged: everything above ships with the PR; nothing staged for
+  the viewer (no format bytes changed — the edited output is byte-identical
+  to `main`'s).
+* Bench artefacts (not committed): `out/bench267/{before,after,np_before,np_after}_{1,2,3}.{json,md,log}`,
+  scratch `flow_{before,after}_{1,2,3}.json`.

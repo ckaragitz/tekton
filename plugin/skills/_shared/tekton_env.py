@@ -462,18 +462,24 @@ def run_script(script: str, argv: list[str], base_dir: str | None = None) -> int
 #: + THE MANDATORY VALIDATION GATE in one process (issue #111).
 _GO_VERBS = {"author": ("frontdoor.py", "tekton-author", ["author"]),
              "edit": ("rvt_edit.py", "tekton-edit", [])}
+#: sibling scripts whose ``--json`` prints ONE object `go` can hand over as
+#: ``result``: the ops/batch door's manifest (issue #267)
+_GO_JSON_SCRIPTS = {"rvt_job.py"}
 
 
 def _resolve_go_target(argv: list[str], base_dir: str | None) -> tuple[str, list[str]]:
-    """``go <script>.py ARGS...`` runs that sibling script; ``go author ...``
-    routes to the front door and ``go edit IN.rvt VERB ...`` to
-    ``rvt_edit.py --json`` (edit + gates, ONE JSON); anything else is handed
-    to the front door as-is.  When the calling skill's own scripts dir lacks
-    the script (e.g. ``go author`` from tekton-edit), the canonical copy
-    beside its home skill is used -- resolved from the plugin root, never by
-    searching."""
+    """``go <script>.py ARGS...`` runs that sibling script (``--json``
+    appended for the ones in ``_GO_JSON_SCRIPTS``); ``go author ...`` routes
+    to the front door and ``go edit IN.rvt VERB ...`` to ``rvt_edit.py
+    --json`` (edit + gates, ONE JSON); anything else is handed to the front
+    door as-is.  When the calling skill's own scripts dir lacks the script
+    (e.g. ``go author`` from tekton-edit), the canonical copy beside its home
+    skill is used -- resolved from the plugin root, never by searching."""
     if argv[0].endswith(".py"):
-        return argv[0], argv[1:]
+        args = list(argv[1:])
+        if os.path.basename(argv[0]) in _GO_JSON_SCRIPTS and "--json" not in args:
+            args.append("--json")            # its manifest IS the result (no second read)
+        return argv[0], args
     verb = argv[0] if argv[0] in _GO_VERBS else None
     script, home, prefix = _GO_VERBS[verb or "author"]
     if not (base_dir and os.path.isfile(os.path.join(base_dir, script))):
@@ -528,6 +534,7 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
         _bootstrap.py go author --prompt "..." --target-version 2025 --out out/job1 --json
         _bootstrap.py go author --ifc design.ifc --target-version 2024 --out out/job2
         _bootstrap.py go edit in.rvt set-level --id 311 --elevation-ft 12 -o out/edited.rvt
+        _bootstrap.py go rvt_job.py edit in.rvt --ops ops.json -o out/edited.rvt
         _bootstrap.py go rvt_edit.py in.rvt info
 
     stdout is exactly one JSON object: ``{"go": {ready, preflight_line,
@@ -539,7 +546,9 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
     what opens it, the per-release honest status and any line to relay
     verbatim; ``go edit``'s ``result`` carries the change report, the
     written file, Revit N in / N out and both gates (``result.gates``:
-    structural self-check + the mandatory validator, 0 errors required).
+    structural self-check + the mandatory validator, 0 errors required);
+    ``go rvt_job.py edit …``'s ``result`` IS the ops door's manifest
+    (``status``, ``gates``, ``output``, ``edit``; progress in ``output.log``).
     Exit code: the job's own exit code; 3 when preflight said NOT READY
     (the job is never attempted); 2 usage."""
     import io
