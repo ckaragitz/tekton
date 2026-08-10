@@ -232,9 +232,32 @@ def _stamp_releases(res: RouteResult) -> None:
             res.releases[role] = None
 
 
+BUILD_CAVEAT_PREFIX = "build: "
+BUILD_CAVEAT_CAP = 10           # degradations listed as caveats before the "+N more" tail
+
+
+def _absorb_build_degradations(res: RouteResult, r: Any) -> None:
+    """Every ``manifest.build.degradations`` entry of an author result (the
+    IFC census line, 'W-1 NOT built', 'validation SKIPPED', ...) rides into
+    ``res.caveats`` prefixed ``build: `` -- order kept, duplicates dropped,
+    a long list capped with a '+N more, see MANIFEST.md' tail.  Labels after
+    delivery (rule 1): ``ok`` / ``status`` are untouched (issue #347)."""
+    degradations = ((r.manifest or {}).get("build") or {}).get("degradations") or []
+    fresh = [cv for cv in dict.fromkeys(BUILD_CAVEAT_PREFIX + str(d) for d in degradations)
+             if cv not in res.caveats]
+    if len(fresh) > BUILD_CAVEAT_CAP:
+        md = (r.manifest_paths or {}).get("md") or "MANIFEST.md"
+        more = len(fresh) - BUILD_CAVEAT_CAP
+        fresh = fresh[:BUILD_CAVEAT_CAP] + [
+            f"{BUILD_CAVEAT_PREFIX}... +{more} more degradation(s), see {md} "
+            "(build.degradations in manifest.json)"]
+    res.caveats.extend(fresh)
+
+
 def _absorb_author_result(res: RouteResult, r: Any) -> None:
     """Fold an AuthorResult (rvt.frontdoor.author) into the RouteResult:
-    files, intermediate artifacts, stamps, errors, manifests."""
+    files, intermediate artifacts, stamps, caveats (the target-version line +
+    every build degradation), errors, manifests."""
     for role, p in (r.files or {}).items():
         if isinstance(p, dict):
             p = p.get("path")
@@ -260,6 +283,7 @@ def _absorb_author_result(res: RouteResult, r: Any) -> None:
         res.target_version = dict(tv)
     if tv.get("line"):
         res.caveats.append(str(tv["line"]))
+    _absorb_build_degradations(res, r)
     res.errors.extend([str(e) for e in (r.errors or [])])
 
 
