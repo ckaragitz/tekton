@@ -78,14 +78,12 @@ RUNG_ORDER = ["R5_2025", "R6_2025", "R7_2025", "R8_2025", "R9_2025",
 # the 2025 emit context: versions.reading + the module-LOCAL tag copies
 # ---------------------------------------------------------------------------
 # rvt.versions.reading patches rvt.partitions (module globals looked up at
-# call time).  These four modules keep their OWN copies of the framing
-# ordinals -- from-imports or local literals -- that the patch cannot reach.
-# Verified by grep on 2026-08-04 (the exact risk genesis-2025-plan.md SS7
-# names): rvt/reduce.py:59 ``BLOCK_TAG = 0x0F28`` (used by NewBlock.frame),
-# rvt/reduce.py:56 + rvt/commit.py:37 ``from .writer import BLOCK_TRL_TAG``,
-# rvt/manipulate.py:76 ``from .partitions import BLOCK_TAG, TRAILER_TAG``,
-# rvt/famgen/factory.py:1469-1471 CD_SEPARATOR / CD_END_RECORD baking the
-# 2026 ContentMarker/ContentKey ordinals (0x3A3/0x3A2).
+# call time).  What it cannot reach are module-LOCAL copies of an ordinal;
+# the 2026-08-04 grep found six block-tag copies (rvt.reduce / manipulate /
+# commit / writer -- retired by #455/#467, those modules now read
+# rvt.partitions at call time) and rvt/famgen/factory.py's CD_SEPARATOR /
+# CD_END_RECORD baking the 2026 ContentMarker/ContentKey ordinals
+# (0x3A3/0x3A2), which remain.
 #   (module, attr, ordinal-name or callable(ords))
 def _cd_separator(o: Dict[str, int]) -> bytes:
     return struct.pack("<HiHi", o["CONTAINER_CLASS"], -1, o["UNIT_INNER_CLASS"], -1)
@@ -96,12 +94,6 @@ def _cd_end_record(o: Dict[str, int]) -> bytes:
 
 
 _LOCAL_TAG_PATCHES = (
-    ("rvt.reduce", "BLOCK_TAG", "BLOCK_TAG"),
-    ("rvt.reduce", "BLOCK_TRL_TAG", "TRAILER_TAG"),
-    ("rvt.manipulate", "BLOCK_TAG", "BLOCK_TAG"),
-    ("rvt.manipulate", "TRAILER_TAG", "TRAILER_TAG"),
-    ("rvt.commit", "BLOCK_TRL_TAG", "TRAILER_TAG"),
-    ("rvt.writer", "BLOCK_TRL_TAG", "TRAILER_TAG"),
     ("rvt.famgen.factory", "CD_SEPARATOR", _cd_separator),
     ("rvt.famgen.factory", "CD_END_RECORD", _cd_end_record),
 )

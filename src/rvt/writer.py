@@ -22,10 +22,22 @@ import struct
 import zlib
 from typing import Callable, Iterable, List, Optional
 
+from . import partitions as _P
 from .cfb_writer import CfbEntry, write_cfb
 from .container import (PAGE_PAYLOAD, PAGE_STRIDE, PAGE_TRAILER,
                         RvtDocument, open_rvt)
 from .roundtrip import read_entries
+
+
+def __getattr__(name: str):
+    """``writer.BLOCK_TRL_TAG`` holds no value of its own: the block trailer
+    tag is ``rvt.partitions.TRAILER_TAG`` (rebound BY NAME per release by
+    ``rvt.versions.reading``), resolved here at ACCESS time for the one
+    remaining ``from ..writer import BLOCK_TRL_TAG`` -- famgen.geometry's
+    call-time import, fenced when #467 landed.  Delete with #547."""
+    if name == "BLOCK_TRL_TAG":
+        return _P.TRAILER_TAG
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 # ---------------------------------------------------------------------------
 # gzip member construction
@@ -156,9 +168,8 @@ def frame_pages(logical: bytes, trailer_fn: TrailerFn,
 # Partitions/<N> re-gzip (recompress every block, keep framing consistent)
 # ---------------------------------------------------------------------------
 
-BLOCK_HDR_LEN = 26          # u16 0x0f28, u32 flags, A, B, C, seq, u32 0
-BLOCK_TRL_LEN = 6           # u16 0x0f21, u32 B (mirror of header B)
-BLOCK_TRL_TAG = 0x0F21
+BLOCK_HDR_LEN = 26          # u16 BLOCK_TAG (2026: 0x0f28), u32 flags, A, B, C, seq, u32 0
+BLOCK_TRL_LEN = 6           # u16 TRAILER_TAG (2026: 0x0f21), u32 B (mirror of header B)
 
 
 def regzip_partition_logical(doc: RvtDocument, name: str, level: int = 6) -> bytes:
@@ -167,15 +178,15 @@ def regzip_partition_logical(doc: RvtDocument, name: str, level: int = 6) -> byt
     Walks the block framing (via ``rvt.partitions.StreamWalker``), and for each
     block re-emits: the original 26-byte header with ``B`` patched to
     ``8 + len(new_gzip)``, our gzip member of the identical inflated payload,
-    and the 6-byte trailer ``(0x0f21, B)``. Every byte between/around blocks
-    (stream header, save-unit separators/terminators/footers, end record,
-    tail) is copied verbatim. Uncompressed content is bit-identical to the
-    original; only the compressed representation and the B fields change.
+    and the 6-byte trailer ``(TRAILER_TAG, B)`` -- the tag ``rvt.partitions``
+    holds NOW (the file's release when a context is in force). Every byte
+    between/around blocks (stream header, save-unit separators/terminators/
+    footers, end record, tail) is copied verbatim. Uncompressed content is
+    bit-identical to the original; only the compressed representation and the
+    B fields change.
     """
-    from .partitions import StreamWalker  # local import: partitions may import writer someday
-
     logical = doc.logical(name)
-    walker = StreamWalker(logical, inflate=True, keep_data=True)
+    walker = _P.StreamWalker(logical, inflate=True, keep_data=True)
     if walker.errors:
         raise ValueError(f"{name!r}: walker reported errors: {walker.errors[:3]}")
     blocks = sorted(walker.blocks, key=lambda b: b.hdr_offset)
@@ -193,7 +204,7 @@ def regzip_partition_logical(doc: RvtDocument, name: str, level: int = 6) -> byt
         new_b = 8 + len(new_gz)
         struct.pack_into("<I", out, hdr_start + 10, new_b)   # patch header B
         out += new_gz
-        out += struct.pack("<HI", BLOCK_TRL_TAG, new_b)     # trailer mirror
+        out += struct.pack("<HI", _P.TRAILER_TAG, new_b)    # trailer mirror
         cursor = b.member_offset + b.member_len + BLOCK_TRL_LEN
     out += logical[cursor:]
     return bytes(out)

@@ -33,7 +33,6 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from rvt import manipulate as MANIP                        # noqa: E402
 from rvt import partitions as P                            # noqa: E402
 from rvt import versions as V                              # noqa: E402
 from rvt.frontdoor import release_ctx as RC                # noqa: E402
@@ -65,11 +64,10 @@ def _rvt_edit():
 
 
 def _native_constants() -> dict:
-    """The framing table + the module-local tag copies a release context
-    swaps: snapshot to prove nothing leaks past an edit of a 2025/2024 file."""
+    """The framing table a release context rebinds (the one place block tags
+    live -- no module keeps a copy, #467): snapshot to prove nothing leaks
+    past an edit of a 2025/2024 file."""
     snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
-    snap["MANIP.BLOCK_TAG"] = MANIP.BLOCK_TAG
-    snap["MANIP.TRAILER_TAG"] = MANIP.TRAILER_TAG
     snap["active_release"] = RC.active_release()
     return snap
 

@@ -1461,11 +1461,12 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
     from ..cfb_writer import write_cfb
     from ..container import open_rvt
     from .. import ecc
+    from .. import partitions as _P
     from ..partitions import StreamWalker
     from ..roundtrip import read_entries
     from ..stream_encoders import decode_elemtable, encode_elemtable, global_prefix
     from ..streams_edit import elemtable_add_element
-    from ..writer import BLOCK_TRL_TAG, gzip_member
+    from ..writer import gzip_member
 
     elements: List[NewElement] = []
     for p in plans:
@@ -1559,7 +1560,7 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
                 struct.pack_into("<I", out, hdr + 6, a_new)
                 struct.pack_into("<I", out, hdr + 14, c_new)
             out += gz
-            out += struct.pack("<HI", BLOCK_TRL_TAG, nb)
+            out += struct.pack("<HI", _P.TRAILER_TAG, nb)   # the tag in force NOW (#467)
             cursor = b.member_offset + b.member_len + 6
         out += logical[cursor:]
         struct.pack_into("<I", out, PART_HDR_COUNT_OFF, count_after)

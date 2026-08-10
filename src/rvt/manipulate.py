@@ -78,16 +78,9 @@ from .partitions import StreamWalker, record_header_len
 from .roundtrip import read_entries
 from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
 from .validate import NO_PARTITION_WHERE, NO_PARTITION_WHY, enter_own_release, walk_file
-from .versions import LATEST_RELEASE, framing_table
 from .writer import gzip_member
 
-# ---------------------------------------------------------------------------
-# NOT read by this module: block tags come from rvt.partitions at CALL time
-# (see _emit_block, #455 -- a by-value copy froze whatever release context the
-# first import sat in).  Kept only as the at-rest 2026 handles that
-# frontdoor.release_ctx and tools/genesis_* still getattr/setattr (inert).
-_T26 = framing_table(LATEST_RELEASE)
-BLOCK_TAG, TRAILER_TAG = _T26["BLOCK_TAG"], _T26["TRAILER_TAG"]
+# no block-tag attributes here: _emit_block reads rvt.partitions at CALL time (#455/#467)
 
 INVALID_ID = -1
 OWNER_NONE_U64 = 0xFFFFFFFFFFFFFFFF

@@ -1,0 +1,3 @@
+# #467: no by-value copies of names a release context rebinds by name; fresh-clone safe
+# (bundled plugin/assets/genesis bases only, source-law tests need nothing)
+tests/test_framing_by_name.py
