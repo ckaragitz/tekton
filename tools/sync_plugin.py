@@ -142,6 +142,11 @@ def _tool(name: str) -> str:
 # every engine script the front door composes sits SIDE BY SIDE with it —
 # rvt_job.py / seed_audit.py load their siblings by path from their own dir.
 AUTHOR_SCRIPTS = ("frontdoor.py",            # OPTIONAL: the unified router (frontdoor stream)
+                  # the PERMUTATION ROUTER: the only door to the famspec
+                  # inputs (rfa/spec) -- including kind=generic_model, an
+                  # arbitrary 3D body -> .rfa (issue #498). frontdoor.py
+                  # itself points users at it, so it has to ship.
+                  "route.py",
                   "rvt_job.py", "spec_to_rvt.py", "ifc_to_spec.py", "ifc_intent.py",
                   "seed_audit.py", "panel_schedule.py", "genesis_compose.py",
                   "probe_batch.py", "rvt_validate.py")
@@ -156,7 +161,7 @@ OPTIONAL_SOURCES = {_tool("frontdoor.py")}
 # install repo_root() resolves to <plugin-root>/lib (its src/rvt marker), so
 # the same scripts must ALSO sit at plugin/lib/tools/. Remove this shim once
 # the front door looks beside the running script (docs/inbox/plugin-packaging.md).
-LIB_TOOLS_SHIM = ("frontdoor.py", "ifc_intent.py", "rvt_job.py", "probe_batch.py",
+LIB_TOOLS_SHIM = ("frontdoor.py", "route.py", "ifc_intent.py", "rvt_job.py", "probe_batch.py",
                   "spec_to_rvt.py", "ifc_to_spec.py", "seed_audit.py",
                   "panel_schedule.py", "genesis_compose.py", "rvt_validate.py",
                   "rvt_edit.py",

@@ -6,14 +6,15 @@
   "type": "object",
   "required": ["kind"],
   "properties": {
-    "kind": {"enum": ["panelboard", "transformer", "luminaire", "device", "downlight"]}
+    "kind": {"enum": ["panelboard", "transformer", "luminaire", "device", "downlight", "generic_model"]}
   },
   "oneOf": [
     {"$ref": "#/definitions/panelboard"},
     {"$ref": "#/definitions/transformer"},
     {"$ref": "#/definitions/luminaire"},
     {"$ref": "#/definitions/device"},
-    {"$ref": "#/definitions/downlight"}
+    {"$ref": "#/definitions/downlight"},
+    {"$ref": "#/definitions/generic_model"}
   ],
   "definitions": {
     "common": {
@@ -140,6 +141,27 @@
         "cct": {"type": "number", "exclusiveMinimum": 0},
         "photometric_web": {"type": "string", "minLength": 1, "description": "IES reference (a URL/file NAME parameter value; no photometric file is bundled)."},
         "detail": {"enum": ["standard", "envelope"], "description": "'standard' = can + trim + lens + frame + boxes + hangers; 'envelope' = can + trim ring only."},
+        "name": {"$ref": "#/definitions/common/properties/name"},
+        "solid": {"$ref": "#/definitions/common/properties/solid"},
+        "target_version": {"$ref": "#/definitions/common/properties/target_version"}
+      }
+    },
+    "generic_model": {
+      "title": "kind = generic_model -> rvt.famgen.factory.make_generic_model(**fields): an ARBITRARY 3D body, geometry GIVEN by the caller",
+      "description": "NOT catalog-backed: the caller supplies the geometry (a Claude Design body, an IFC solid, a measured object) and every dimension is flagged GIVEN with its source in the report -- never presented as a manufacturer fact. Either 'vertices' (a closed planar ring in feet, 3+ points, any winding, convex or concave) or 'width_ft' + 'depth_ft', extruded 'height_ft'. A non-rectangular ring ships the regeneration rep (Revit rebuilds the solid on open; cached N-gon B-rep is issue #504).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "height_ft"],
+      "properties": {
+        "kind": {"const": "generic_model"},
+        "height_ft": {"type": "number", "exclusiveMinimum": 0, "description": "Extrusion height in feet."},
+        "vertices": {"type": "array", "minItems": 3, "description": "Closed planar ring in the family plane, feet: [[x, y], ...]. Mutually exclusive with width_ft/depth_ft.",
+                     "items": {"type": "array", "minItems": 2, "maxItems": 3, "items": {"type": "number"}}},
+        "width_ft": {"type": "number", "exclusiveMinimum": 0, "description": "Rectangular footprint width (with depth_ft)."},
+        "depth_ft": {"type": "number", "exclusiveMinimum": 0, "description": "Rectangular footprint depth (with width_ft)."},
+        "base_z_ft": {"type": "number", "description": "Base elevation of the extrusion in the family (default 0)."},
+        "category": {"type": "string", "minLength": 1, "description": "Family category (default 'generic_model'; e.g. 'furniture', 'electrical_equipment')."},
+        "source": {"type": "string", "minLength": 1, "description": "Where the geometry came from, recorded on every GIVEN dimension (e.g. 'claude-design', 'ifc:body')."},
         "name": {"$ref": "#/definitions/common/properties/name"},
         "solid": {"$ref": "#/definitions/common/properties/solid"},
         "target_version": {"$ref": "#/definitions/common/properties/target_version"}
