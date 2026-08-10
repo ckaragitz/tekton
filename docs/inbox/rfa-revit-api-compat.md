@@ -491,3 +491,28 @@ VALID 0 errors; suites 97 passed / 28 skipped.
 Remaining open threads: the recoverable "serious error" the owner hit while
 EDITING values in probe AA (may vanish with the real law — AB tests it);
 `Sketch Grid Appearance` (UET slot 40) follow-up singleton.
+
+## Iteration 11 — the SOLVER-STATE law (round 26; the value-edit fix)
+
+**Round 25-26 verdicts:** Family Types opens on the full panelboard (storage-
+class law confirmed); editing ANY value raises the recoverable serious-error
+dialog.  Journal 0036 names it: `DBG_WARN: Invalid idx in
+VarSketch::getCurveObj (VarSketch.cpp:634)` -- regen resolves each curve
+through the sketch's SOLVER RECORDS, and `new_var_sketch` emitted them EMPTY
+(the "[H: Revit re-solves on edit]" hypothesis, now falsified).
+
+**Donor law (VarSketch 2432 vs curve-less 2400):** a curve-bearing
+parametric sketch carries `m_elemRecs` (one `VarSketchLineSegObj` per curve:
+4 `VarParam`s = x1,y1,x2,y2, m_objId = the CurveElem), `m_constrRecs`
+(closed-loop interleave: HV0, PP(1,0)[2,1], HV1, PP(2,1)[2,1], HV2,
+PP(3,0)[1,2], PP(3,2)[2,1], HV3), a guess cache primed with the parameter
+vector (useCount 29), `m_serFlags` 32 and `m_version` 1.  Weakrefs address
+solver objects by archive pid (plane 3, GLines 4..3+n, LineSegObj i =
+4+n+i); `assign_pids` reproduces the numbering -- verified our build lands
+pids 8-11/12-19/20/21-36 byte-identical to the donor layout.
+
+**Landed:** solver state authored in `new_var_sketch` (famgen/geometry.py).
+Probe AD (`probe_ad_solver.rfa`) with the owner; validator VALID 0 errors;
+famgen suites 124 passed / 35 skipped.  Open follow-up: the arc sketch
+(`new_var_sketch_curves`, cylinders) still emits an empty solver -- needs
+`VarSketchArcObj` records (same law, arc shape) before troffer/xfmr edits.
