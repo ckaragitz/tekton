@@ -2261,6 +2261,43 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     return plan.view.elem_id
 
 
+_FAMILY_VIEW_EXCL_ASSET = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                       "assets",
+                                       "family_view_excluded_categories.json")
+
+
+def _apply_family_view_exclusions(els) -> None:
+    """THE FAMILY-VIEW EXCLUSION LAW (owner report: "i cant see this at all
+    unless i open a new 3d view").
+
+    A view's draw filters carry an EXCLUDED-CATEGORY set.  The project
+    skeleton's 3D set excludes the model categories a coordination view
+    hides -- Electrical Equipment (-2001040), Electrical Fixtures
+    (-2001060), Lighting Fixtures (-2001120), Mechanical, Plumbing,
+    Structural ... which are exactly the categories a generated FAMILY
+    lives in, so its own geometry was filtered out of its own views while a
+    freshly created {3D} view (no exclusions) showed it fine.
+
+    A Revit-born family excludes ANNOTATION categories only [measured on
+    the owner's donor: 42 entries in the 3D view, 41 in the plan, none of
+    them a model category a component would use].  That measured set is
+    shipped as an asset and applied to every family view.
+    """
+    with open(_FAMILY_VIEW_EXCL_ASSET, "r", encoding="utf-8") as fh:
+        law = json.load(fh)
+    for e in els:
+        key = ("3d" if e.class_name == "DBView3d"
+               else "plan" if e.class_name in ("DBViewPlan", "DBViewProject")
+               else None)
+        if key is None:
+            continue
+        wanted = [int(x) for x in law.get(key, [])]
+        for df in (e.obj.get("m_oaDrawFilters") or []):
+            body = (df.get("value") or {}) if isinstance(df, dict) else {}
+            if isinstance(body.get("m_categoryIds"), list):
+                body["m_categoryIds"] = list(wanted)
+
+
 def _apply_family_viewer_law(els, project_view_id: int) -> None:
     """FAMILY-VIEWER LAW (issue #333; measured on the owner's Revit-2026-born
     donor, viewers 22/26 vs 49): a family document's Viewers keep the project
@@ -2276,6 +2313,7 @@ def _apply_family_viewer_law(els, project_view_id: int) -> None:
     ``BoundedSpace.cpp:86``; the basis rows themselves were exonerated --
     donor keeps the elevation frame on the project viewer.]
     """
+    _apply_family_view_exclusions(els)
     for e in els:
         if e.class_name == "Viewer3d":
             # THE 3D CROP LAW (owner report: "i see nothing in revit" -- an
