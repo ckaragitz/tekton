@@ -145,7 +145,7 @@ def _codec_triple_from_base(base_path: str, year: int):
     from ..global_framing import schema_of
     schema = schema_of(base_path)
     want = V.KNOWN_RELEASES[year].schema_sha256
-    got = schema.stats()["sha256"]
+    got = schema.sha256
     if want and got != want:
         raise ReleaseContextError(
             f"base {base_path} carries schema sha256 {got[:16]}... but the "
@@ -506,8 +506,8 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
         SA._SCHEMA_STATE.clear()
         SA._SCHEMA_STATE.update({
             "schema": schema, "from": path_abs,
-            "sha256": schema.stats()["sha256"],
-            "bytes": schema.stats().get("bytes", 0), "blob": b"",
+            "sha256": schema.sha256,
+            "bytes": schema.total_size, "blob": b"",
             "is_corpus_constant": False,
             "installed": True, "installed_from": path_abs,
             "decoder": dec, "encoder": enc,
@@ -536,7 +536,7 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
         # "base" = OUR base of this release (the family container donor);
         # "path" = the file the context is keyed on (== base for a build)
         info = {"release": year, "native": native_release(),
-                "ordinals": dict(ords), "schema_sha256": schema.stats()["sha256"],
+                "ordinals": dict(ords), "schema_sha256": schema.sha256,
                 "port_layer": port.__name__, "base": donor_abs,
                 "base_note": donor_note, "keyed_on": ("host" if host else "base"),
                 "path": path_abs,
