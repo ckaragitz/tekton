@@ -1,0 +1,7 @@
+{
+  "kind": "device",
+  "device": "duplex-receptacle",
+  "mounting_height_in": 18,
+  "voltage": 120,
+  "va": 180
+}

@@ -6,6 +6,7 @@ asking tekton to GENERATE one family with its own constructors (issue #162):
     kind = panelboard  -> rvt.famgen.factory.make_panelboard(**fields)
     kind = transformer -> rvt.famgen.factory.make_transformer(**fields)
     kind = luminaire   -> rvt.famgen.factory.make_luminaire(kind=fixture, **fields)
+    kind = device      -> rvt.famgen.factory.make_device(kind=device, **fields)
     kind = downlight   -> rvt.ifc.famfrom_ifc.make_downlight(**fields)   (measured
                           product archetype; owner machine until it emits on the
                           bundled base)
@@ -20,8 +21,9 @@ our own text; ``spec/examples/famspec-*.json``).  This module:
   dependency), degrading to the built-in kind/type checks when the schema
   file is not shipped;
 * :func:`normalise` -- split a famspec into ``(kind, constructor kwargs,
-  route options)`` (``target_version`` is a ROUTE option, ``fixture`` is
-  make_luminaire's ``kind``, ``shared_params: "default"`` is OUR file);
+  route options)`` (``target_version`` is a ROUTE option, ``fixture`` /
+  ``device`` are make_luminaire's / make_device's own ``kind``,
+  ``shared_params: "default"`` is OUR file);
 * :func:`build` / :func:`write` / :func:`is_refusal` -- the constructor
   dispatch, the one .rfa writer over both product types, and the "refused
   by name" classification the router's rfa cells call, so the router holds
@@ -38,18 +40,21 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from .base import repo_root
 
-__all__ = ["KINDS", "CATALOG_KINDS", "FamspecError", "schema_path", "schema",
+__all__ = ["KINDS", "CATALOG_KINDS", "OWN_KIND_FIELD", "FamspecError", "schema_path", "schema",
            "validate", "check_schema", "normalise", "build", "write",
            "constructor_name", "is_refusal"]
 
 #: the catalog kinds (rvt.famgen.factory) run anywhere; downlight (the
 #: measured product archetype, rvt.ifc.famfrom_ifc) needs the research
 #: corpus' family container until it emits on the bundled base
-CATALOG_KINDS: Tuple[str, ...] = ("panelboard", "transformer", "luminaire")
+CATALOG_KINDS: Tuple[str, ...] = ("panelboard", "transformer", "luminaire", "device")
 KINDS: Tuple[str, ...] = CATALOG_KINDS + ("downlight",)
 
 #: famspec fields that steer the ROUTE, not the constructor
 _ROUTE_FIELDS = ("target_version",)
+#: famspec kind -> the field carrying that constructor's OWN ``kind`` argument
+#: (renamed in the famspec because ``kind`` selects the constructor)
+OWN_KIND_FIELD = {"luminaire": "fixture", "device": "device"}
 
 SCHEMA_RELPATH = os.path.join("spec", "famspec.schema.json")
 #: tools/sync_plugin.py mirrors spec/famspec.schema.json beside the native skill
@@ -233,16 +238,18 @@ def validate(spec: Any) -> List[str]:
 def normalise(spec: Dict[str, Any]) -> Tuple[str, Dict[str, Any], Dict[str, Any]]:
     """``(kind, constructor kwargs, route options)`` of a VALID famspec
     (raises :class:`FamspecError` otherwise).  Route options today:
-    ``target_version``.  Constructor renames: luminaire ``fixture`` ->
-    ``kind``; ``shared_params: 'default'`` -> the factory's own file."""
+    ``target_version``.  Constructor renames: luminaire ``fixture`` /
+    device ``device`` -> ``kind``; ``shared_params: 'default'`` -> the
+    factory's own file."""
     probs = validate(spec)
     if probs:
         raise FamspecError(probs)
     kind = str(spec["kind"]).strip().lower()
     kw = {k: v for k, v in spec.items() if k != "kind" and k not in _ROUTE_FIELDS}
     ropts = {k: spec[k] for k in _ROUTE_FIELDS if spec.get(k) is not None}
-    if kind == "luminaire" and "fixture" in kw:
-        kw["kind"] = kw.pop("fixture")
+    own = OWN_KIND_FIELD.get(kind)
+    if own in kw:
+        kw["kind"] = kw.pop(own)
     if str(kw.get("shared_params") or "").strip().lower() == "default":
         from ..famgen import factory as F
         kw["shared_params"] = F.DEFAULT_SHARED_PARAMS

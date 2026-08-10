@@ -71,3 +71,85 @@ The two DONE commands per kind (`tools/route.py run --output {rfa,rvt} --rfa spe
 - Branch `cam/162-famspec-kinds` from `main` @ 935b419; one PR, `Closes #162`.
 - Files written: `spec/famspec.schema.json` (new), `spec/examples/famspec-{panelboard,transformer,luminaire}.json` (new), `src/rvt/frontdoor/famspec.py` (new), `src/rvt/frontdoor/router.py`, `src/rvt/frontdoor/matrix.py`, `docs/product/PERMUTATION-MATRIX.md`, `tests/test_router.py`, `tools/route.py` (help text), `tools/sync_plugin.py` (mirror map), `docs/inbox/famspec-contract.md` (this record); regenerated mirrors `plugin/lib/src/rvt/frontdoor/{famspec,router,matrix}.py`, `plugin/skills/tekton-native/examples/famspec*.json`. No hot file touched (`tools/frontdoor.py`, SKILL.md, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`, TRACKER/KNOWLEDGE, ledger untouched); `rvt.famgen.factory` untouched (constructors called as they are).
 - Gates: listed above, all green on this head. Nothing STAGED for the viewer (no batch reserved; not required by the DONE). Shipped = code + contract + tests + docs; certification state unchanged (PROOF-ONLY stamps ride every famspec output).
+
+---
+
+## eng #361 — 2026-08-10 — famspec kind `device` (the wiring-device family through the router's rfa cells)
+
+Stream: `famspec-contract` continued (eng #361, cloud engineer session `session_01RUCj179tWnLvwQ1Q2t3xJW`, started
+by the tech-lead session) · Refs #166 (shipped `rvt.famgen.factory.make_device`), #162 (the contract above),
+#359 (the room build placing devices — a different lane, untouched here) · PG3 / PG6.
+
+### Why
+
+`make_device(kind, mounting_height_in=None, voltage=120, va=180)` (duplex receptacle 5-15R / 5-20R, single-pole
+switch, 4 in square junction box; category Electrical Fixtures) existed only behind the repo CLI
+`tools/make_family.py device`; the famspec — the product's structured family request on every surface — refused
+`{"kind": "device"}` with `UNSUPPORTED-FAMSPEC-KIND`. The plugin ships the schema and the router, not `make_family.py`.
+
+### What was built (all inside the issue's territory)
+
+| Piece | Where | What |
+|---|---|---|
+| Contract | `spec/famspec.schema.json` | `"device"` added to the `kind` enum and the `oneOf`; new `definitions/device` (`additionalProperties:false`): `device` = **enum of `rvt.famgen.factory.DEVICE_KINDS`** (`duplex-receptacle` / `duplex-receptacle-20a` / `switch` / `junction-box`; it is make_device's own `kind`, renamed because `kind` selects the constructor — the luminaire/`fixture` precedent), `mounting_height_in` (> 0), `voltage` (the shared voltage shape), `va` (≥ 0: a switch / junction box books none), + common `name` / `solid` / `target_version` / `shared_params`. No `types` (make_device is single-type). Top description + the downlight note now say "four catalog kinds". |
+| Worked example | `spec/examples/famspec-device.json` (new) | `{"kind":"device","device":"duplex-receptacle","mounting_height_in":18,"voltage":120,"va":180}`. |
+| Contract in code | `src/rvt/frontdoor/famspec.py` | `CATALOG_KINDS` gains `device` (so `KINDS` = panelboard, transformer, luminaire, device, downlight); the per-kind rename became one table `OWN_KIND_FIELD = {"luminaire": "fixture", "device": "device"}` used by `normalise()`; `build()` needed nothing (`getattr(factory, f"make_{kind}")`). |
+| Router | `src/rvt/frontdoor/router.py` (famspec dispatch wording only) | `_FAMSPEC_KINDS_ALT` derives the "'panelboard' \| … \| 'downlight'" alternatives of the rfa clear line from `FS.KINDS` instead of a hand-typed four-kind string; `_r_rfa_generate` docstring. **No dispatch code changed** — the #162 design (validate → normalise → `FS.build`) carried the new kind as intended. |
+| Matrix | `src/rvt/frontdoor/matrix.py` (caveat wording + one evidence pointer) | `famspec->rfa` stage impl names `make_device`; `_RFA_INPUT` / `_RFA_FAMSPEC_ENV` list `device`; `rfa → rvt` famspec caveat: "all five kinds LOAD … the device kind lands UNPLACED as an Electrical Fixtures host family, category −2001060"; `rfa → rfa` cell: evidence `worked:spec/examples/famspec-device.json` added, first caveat lists `device` and carries **re-measured** fresh-clone element counts (the old "45 / 43 / 39" predates the shared view constellation of S-2026-08-10-a: today panelboard 87 / transformer 75 / luminaire 81 / device 73). No cell status flipped; `verify_evidence()` clean (21 cells, 23 stages, 5 chains). `_CATALOG` (shared with the prompt/IFC cells): left alone on the first head because `main` @ b169376 did not build device families in the prompt lane; **after rebasing onto f2888b1 (#400 merged: the front door loads + places one shared `make_device` family)** the same probe builds `rfa:R-1`, so `_CATALOG` now lists "wiring device" too. |
+| CLI | `tools/route.py` | `--rfa` help lists `'device'`. |
+| Skill reference | `plugin/skills/tekton-author/references/CATALOG-FACTS.md` (hand-authored reference, not a SKILL.md) | the wiring-device row now names the famspec kind `device`, its fields, how a plugin session reaches it (`rvt.frontdoor.router.route({"rfa": {…}}, "rfa"\|"rvt")`; repo `tools/route.py run --rfa '{…}' --output rfa\|rvt`), and the honest status: validator-green + provenance clean + PROOF-ONLY, **not viewer-certified as these artifacts** (rule 4); the "until #361 lands" wording retired. Rebase onto #400: the row was a content conflict — resolved keeping BOTH (this famspec column + #400's placed-fixtures honest status). |
+| Doc | `docs/product/PERMUTATION-MATRIX.md` (free after #400 merged; tech lead OK'd) | inputs bullet lists `device`; `rfa → rfa` row: `make_device` in the dispatch list, worked examples `famspec-{…,device}.json`, re-measured element counts; `rfa + rvt → rvt` row: "any of the five kinds". Cell statuses untouched (`test_permutation_matrix_doc_agrees_with_machine_matrix` green). |
+| Plugin | `tools/sync_plugin.py` mirror map (one word; tech lead OK'd) + regenerated mirrors | `"device"` joins the worked-famspec tuple so `spec/examples/famspec-device.json` ships as `plugin/skills/tekton-native/examples/famspec-device.json` beside the other three (the schema was already mirrored). |
+| Tests | `tests/test_router.py` §2b | kinds pin updated (+ `oneOf` order == `FS.KINDS`); the **schema-fields == `inspect.signature(make_<kind>)`** law now parametrised over `FS.CATALOG_KINDS` (device included, rename via `FS.OWN_KIND_FIELD`); new `test_famspec_device_field_enumerates_the_factory_device_kinds` (schema enum == `factory.DEVICE_KINDS`, no `types`, normalise renames `device`→`kind`, an alias like `outlet` is a schema line); +2 invalid-famspec rows (`mounting_height` typo → "unknown field", `toaster` → "is not one of"); the per-kind e2e `rfa → rfa` test now also asserts the **category reported by the writer AND read back from the written file** (`RfaSource(rfa).facts.category`: −2001040 / −2001040 / −2001120 / **−2001060**); the per-kind e2e `rfa → rvt` test asserts the host Family's category in the load report's family inventory; the ONE-JSON CLI test also runs the issue-title form `--rfa '{"kind": "device", "device": "duplex-receptacle"}'` inline. `FAMSPEC_EXAMPLES` is keyed on `CATALOG_KINDS`, so every existing per-kind case picked the device up by itself. `tests/test_router.py` is already in the CI shard (`tests/ci_shard.d/102-test-router.txt`) — no new test file, no new drop-in. |
+
+### Evidence (fresh cloud clone, no `samples/`; this head)
+
+`tools/route.py run --output rfa --rfa spec/examples/famspec-<kind>.json --json` (exit 0, stdout = ONE JSON document each):
+
+| kind | family | elements | types | family-mode validator | provenance | category (report / read back) | `.rfa` bytes | emit s |
+|---|---|---|---|---|---|---|---|---|
+| panelboard | Panelboard 208Y/120 225A MCB 42ckt Surface | 87 | `225A MCB 42ckt` | VALID 0 err | ok | Electrical Equipment / −2001040 | 225,280 | 0.4 |
+| transformer | Dry Type Transformer 45kVA 480-208Y/120 | 75 | `45 kVA 480-208Y/120` | VALID 0 err | ok | Electrical Equipment / −2001040 | 225,280 | 0.4 |
+| luminaire | Recessed Troffer 2x4 38W | 81 | `2x4 38W 4000K` | VALID 0 err | ok | Lighting Fixtures / −2001120 | 225,280 | 0.4 |
+| **device** | **Duplex Receptacle NEMA 5-15R 120V** | **73** | `NEMA 5-15R 120V` | **VALID 0 err** | **ok** | **Electrical Fixtures / −2001060** | 225,280 | 0.4 |
+
+Independent gates on the device `.rfa`: `tools/rvt_validate.py … --family --json` → `ok: true`, error 0 / warning 0 / info 2, 73 elements decoded, 0 decode failures, 1,239 refs checked; `tools/make_family.py provenance …` → `"ok": true`; `rvt.convert.rfa_load.RfaSource(rfa).facts` → category **−2001060**, part_type 0, types `['NEMA 5-15R 120V']`, release 2026.
+
+Every device kind through both cells (`R.route({"rfa": {"kind": "device", "device": K}}, "rfa" | "rvt")`, default host = pinned `G_ABPD` 2026):
+
+| device | family | elements | family-mode | prov | read-back cat | emit s | `--output rvt` | project validator | census coherent / ours in all four | load s |
+|---|---|---|---|---|---|---|---|---|---|---|
+| duplex-receptacle | Duplex Receptacle NEMA 5-15R 120V | 73 | VALID 0 | ok | −2001060 | 0.4 | OK, host family 1472598, category −2001060 | VALID 0 errors | True / True | 1.5 |
+| duplex-receptacle-20a | Duplex Receptacle NEMA 5-20R 120V | 73 | VALID 0 | ok | −2001060 | 0.2 | OK, −2001060 | VALID 0 | True / True | 1.5 |
+| switch | Single Pole Switch Single Pole 120V | 73 | VALID 0 | ok | −2001060 | 0.2 | OK, −2001060 | VALID 0 | True / True | 1.5 |
+| junction-box | Junction Box 4in Square 120V | 73 | VALID 0 | ok | −2001060 | 0.2 | OK, −2001060 | VALID 0 | True / True | 1.6 |
+
+- Per release: `{"kind":"device","device":"switch","mounting_height_in":44,"target_version":2025}` `--output rfa` → `.rfa` IS **2025** (`status: match`, caveat "target_version=2025 taken from the famspec"); `{"device":"junction-box","va":0,"voltage":"277"}` `--output rvt --target-version 2024` → `.rfa` **2024** + loaded `.rvt` **2024**, project validates 0 errors.
+- Negative, one clear line each, `INVALID-FAMSPEC`, exit 4, no traceback: `"device":"toaster"` → `$.device: 'toaster' is not one of ['duplex-receptacle', 'duplex-receptacle-20a', 'switch', 'junction-box']`; `"mounting_height": 44` → `$: unknown field 'mounting_height' (allowed: device, kind, mounting_height_in, name, shared_params, solid, target_version, va, voltage)`; `"va": -1` → `$.va: -1 < minimum 0`.
+- `tools/route.py matrix` → 21 cells: 18 works / 1 partial / 2 missing (unchanged), evidence self-audit clean; `route.py explain --inputs rfa --output rfa` lists `worked:spec/examples/famspec-device.json` and the five-kind caveat, exit 0. Honest status everywhere: validator-green + PROOF-ONLY, never "certified" (rule 4).
+
+### Gates run (this head)
+
+- `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_router.py tests/test_famgen_factory.py tests/test_router_release.py -q -rs` → **179 passed, 17 skipped** (skips: `RVT_SKIP_LARGE` ×10, worked .rvt absent, chmod-as-root, rme/rst samples absent ×5), 43 s. The famspec/rfa subset alone: 51 passed, 2 skipped, 14 s.
+- `tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py` → **28 passed, 5 skipped** (surface_perf: no bare python3 with numpy on this host), 6 s.
+- `tools/sync_plugin.py` → synced (mirrors `plugin/lib/src/rvt/frontdoor/{famspec,router,matrix}.py`, `plugin/skills/tekton-native/examples/famspec.schema.json`), deny-audit clean, identity scan == allowlist, validation passed, zip rebuilt; `--check` → in sync, exit 0. `plugin/scripts/validate_plugin.py` → PASS (25 assertions). `tools/dev/check_portable_paths.py` → ok (2869 → 2870 tracked paths).
+- `/simplify` (4 reviewers): applied — the router's second hand-typed kinds join now reuses `_FAMSPEC_KINDS_ALT`; numerals dropped from prose ("every famspec kind LOADS", "the catalog kinds (…)") so the next kind touches fewer lines; the test's category oracle spelt with `SK.OST_*` + `SK.category_label`; the device schema test trimmed of assertions the parametrised cases already make; the CATALOG-FACTS row tightened. Skipped with reason: the inline-JSON CLI run stays (only success-path test of the issue-title command form, ~0.4 s).
+- `/verify` (drove `tools/route.py`, this head): `run --output rfa --rfa '{"kind":"device","device":"duplex-receptacle","mounting_height_in":18,"voltage":120,"va":180}' --json` → rc 0, stderr 0 bytes, ONE JSON: `ok true`, `rfa_generate`, `OK (device family 'Duplex Receptacle NEMA 5-15R 120V' … 73 elements … provenance ok=True; validator family-mode VALID 0 errors)`, PROOF-ONLY stamp; `rvt_validate.py <rfa> --family` → VALID, error 0 / warning 0 / info 2; `make_family.py provenance` → `"ok": true`; `RfaSource(rfa).facts` → −2001060 / part_type 0 / `['NEMA 5-15R 120V']` / 2026. `run --output rvt --rfa spec/examples/famspec-device.json --target-version 2025 --json` → rc 0, `rfa_load`, releases `{'rfa': 2025, 'loaded_rvt': 2025}` `match`, host family 1472522 category −2001060, project VALID 0 errors (independent `rvt_validate.py` on the loaded 2025 file: error 0 / warning 0). `--rfa '{"kind":"device","device":"toaster"}'` → rc 4, the one clear line. `explain --inputs rfa --output rfa` lists `famspec-device.json`; `matrix` audit clean. **Bare plugin surface** (`tekton-plugin.zip` unzipped, `env -i`, system python3 3.11, no repo on `sys.path`): schema found at `skills/tekton-native/examples/famspec.schema.json`; device `rfa` OK 0.66 s, device `rvt` (junction-box, va 0) OK "project validates 0 errors" 1.54 s, `"device":"outlet"` → INVALID-FAMSPEC line.
+
+### Findings
+
+1. **The #162 design held**: adding a catalog kind is schema + one tuple entry + one rename-table entry; the router needed no dispatch change. The only code smell was three hand-typed "'panelboard' | 'transformer' | 'luminaire' | 'downlight'" strings (router clear line, matrix caveats, CLI help) — the router's is now derived from `FS.KINDS`; the matrix/CLI ones stay literal (they are prose pinned by review, and `matrix.py` must not import-cycle through famspec's kinds for wording).
+2. **Companion bug confirmed live on `main` @ b169376 (not fixed here — outside "famspec dispatch only")**: `route.py run --output rfa --prompt "… 3 duplex receptacles"` → `R-1: NOT built -- None` ×3 (after #400 the device plans build, so this exact repro no longer shows it, but the key mismatch below is unchanged in code and bites any refused plan). `router._families_from_model` (router.py ~960) reads `f['status']` / `f['refusal']`; `tools/ifc_intent.stage_families` writes `reason`. Two-line fix (`f.get('reason') or f.get('status')`), but `tools/ifc_intent.py` is held by eng #359 and the router function is the prompt→rfa lane, so it is filed as a follow-up task (below) rather than folded in.
+3. On `main` @ b169376 the prompt lane did not build device families (same probe: 1 panel `.rfa`, three device plans NOT built); on f2888b1 (#400) it builds one shared device family (`OK (2 family .rfa generated)`, `rfa:LP-1` + `rfa:R-1`) — hence `_CATALOG` widened only after the rebase.
+
+### Follow-ups / patches for files outside this territory
+
+- ~~`tools/sync_plugin.py` mirror map~~ and ~~`docs/product/PERMUTATION-MATRIX.md` prose~~ — both were parked here as patches on the first head (outside the listed territory / held by #400); the tech lead widened the territory after #400 merged and both are **applied in this PR** (see the table above).
+- **SKILL.md line (hot file, not touched)** — wanted in `plugin/skills/tekton-native/SKILL.md` (or tekton-author) where structured inputs are listed: "a famspec JSON (`examples/famspec.schema.json`: kind = panelboard | transformer | luminaire | device | downlight) generates OUR `.rfa`; `device` = duplex receptacle / 20 A receptacle / switch / junction box (Electrical Fixtures), validator-green, PROOF-ONLY".
+- Follow-up task filed: **#403** — the `reason` vs `status`/`refusal` key mismatch (finding 2), `Refs #361`, `ready` + `good-first-pick`.
+
+### BRANCH STATE
+
+- Branch `cam/361-famspec-device` from `main` @ b169376, rebased onto f2888b1 (#400) with one content conflict (CATALOG-FACTS.md, both sides kept); one PR #404, `Closes #361`.
+- Files written: `spec/famspec.schema.json`, `spec/examples/famspec-device.json` (new), `src/rvt/frontdoor/famspec.py`, `src/rvt/frontdoor/router.py` (wording), `src/rvt/frontdoor/matrix.py` (caveats + 1 evidence pointer), `tools/route.py` (help), `tools/sync_plugin.py` (mirror map, one word), `tests/test_router.py`, `plugin/skills/tekton-author/references/CATALOG-FACTS.md`, `docs/product/PERMUTATION-MATRIX.md` (prose), `docs/inbox/famspec-contract.md` (this section); regenerated mirrors `plugin/lib/src/rvt/frontdoor/{famspec,router,matrix}.py`, `plugin/skills/tekton-native/examples/famspec.schema.json` + `famspec-device.json` (new mirror). No hot file, no `TRACKER.md`; `rvt.famgen.factory` read-only.
+- Gates: above, green on this head. Nothing STAGED for the viewer (not in the DONE; the device lane is validator-gated + PROOF-ONLY like the other famspec kinds). Shipped = contract + example + tests + reference prose.
