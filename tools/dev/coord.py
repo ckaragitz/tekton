@@ -234,7 +234,7 @@ def unquoted(body: str) -> str:
     code blocks, inline code spans and an unterminated fence still count as asserted — over-counting is the
     safe direction for a hint that is never authorisation."""
     text = FENCE_RE.sub("", body or "")
-    return "\n".join(ln for ln in text.splitlines() if not ln.lstrip().startswith(">"))
+    return "\n".join(ln for ln in text.splitlines() if not ln.lstrip().startswith((">", "&gt;")))   # MCP issue_read entity-escapes `>`
 
 
 

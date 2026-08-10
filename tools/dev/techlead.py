@@ -64,7 +64,7 @@ DEFAULTS = {
                "allow_hot_file": False, "max_turns": 120, "branch_prefix": "bot/"},
     "pipeline": {"quiet_minutes": 90, "max_fix_attempts": 3, "fix_grace_minutes": 15, "review_wait_minutes": 20, "review_stuck_minutes": 240,
                  "stale_draft_days": 5, "close_stale_days": 14, "requeue_stuck_after_hours": 24, "worker_lease_hours": 3},
-    "lease": {"issue": 410, "minutes": 100},          # loop lease register (#302); the worker's label lease is pipeline.worker_lease_hours
+    "lease": {"issue": 410, "minutes": 100, "watchdog_margin_minutes": 5},   # loop lease register (#302); the worker's label lease is pipeline.worker_lease_hours
     "pause_label": "bots-paused",
 }
 
@@ -132,9 +132,11 @@ WAVE_ID, SESSION_ID, TERRITORY_MAX = r"[A-Za-z0-9._-]{1,24}", r"[A-Za-z0-9_-]{1,
 WAVE_MARK_RE = re.compile(rf"<!-- wave:({WAVE_ID}) issue=(\d{{1,7}}) session=({SESSION_ID}) territory=(.{{0,{TERRITORY_MAX}}}?) -->")
 # Loop lease (#302 remainder): ONE issue body says which session runs the tick until when; a fresh session per
 # fire stands by while it is unexpired and takes over when it is not. Same trust stance: information, not auth.
-# NOT an HTML comment: MCP `issue_read` strips `<!-- -->` from issue BODIES (comments keep them), and the token-less
-# tick reads the lease exactly that way — so the lease marker is a visible backticked line.
-LEASE_RE = re.compile(rf"techlead-lease session=({SESSION_ID}|none) until=(\d{{4}}-\d\d-\d\dT\d\d:\d\d:\d\dZ)\b")
+# A plain visible line, on purpose: MCP `issue_read` strips `<!-- -->` from issue BODIES (comments keep them), and a
+# backticked line invites shell command substitution when a session pipes the JSON through an unquoted heredoc/echo
+# (the marker vanishes → "no lease" → a second loop). No shell metacharacters anywhere in the marker line.
+LEASE_RE = re.compile(rf"(?m)^[ \t]*techlead-lease session=({SESSION_ID}|none) until=(\d{{4}}-\d\d-\d\dT\d\d:\d\d:\d\dZ)[ \t]*$")
+LEASE_HINT_RE = re.compile(r"techlead-lease|Loop lease")     # prose a holder always writes: present without a parseable marker = transport damage
 
 
 # ─────────────────────────────── small utils ────────────────────────────────
@@ -470,33 +472,80 @@ def busy_issue_numbers(issues: list, prs: list) -> set:
 
 # ─────────────────────────────── loop lease (#302) ────────────────────────────────
 
+class LeaseDamaged(ValueError):
+    """The body talks about a lease but carries no parseable marker (or an impossible timestamp): a holder only ever
+    writes round-tripped bodies, so this is transport damage or hand-mangling — refuse to judge; never TAKE on it."""
+
+
+def normalise_session(sid: str) -> str:
+    """One holder, one spelling: a CCR VM calls itself cse_<x> ($CLAUDE_CODE_REMOTE_SESSION_ID) while every other
+    surface (create_session, send_message, the ledger) says session_<x>."""
+    sid = (sid or "").strip()
+    return "session_" + sid[4:] if sid.startswith("cse_") else sid
+
+
 def parse_lease(body: str):
-    """{"holder", "until"} from the lease issue body (the LAST asserted marker wins), or None when absent/garbled."""
-    found = LEASE_RE.findall(coord.unquoted(body or ""))
+    """{"holder", "until"} from the lease issue body — the LAST asserted marker line wins; None when there is none.
+    Raises LeaseDamaged when the body mentions a lease but no marker parses (incl. an impossible timestamp)."""
+    text = coord.unquoted(body or "")
+    found = LEASE_RE.findall(text)
     if not found:
+        if LEASE_HINT_RE.search(text):
+            raise LeaseDamaged("the lease issue mentions a lease but no `techlead-lease session=… until=…` line parses — re-read it (save the MCP result to a file; never paste it through echo/an unquoted heredoc) or repair the body by hand")
         return None
     holder, until = found[-1]
-    return {"holder": holder, "until": until} if parse_ts(until) else None
+    if not _valid_stamp(until):
+        raise LeaseDamaged(f"lease timestamp {until!r} is not a real UTC time")
+    return {"holder": holder, "until": until}
+
+
+def _valid_stamp(until: str) -> bool:
+    try:
+        _dt.datetime.strptime(until, "%Y-%m-%dT%H:%M:%SZ")
+        return True
+    except ValueError:
+        return False
 
 
 def lease_decision(body: str, me: str, now) -> dict:
-    """What a session arriving at a tick must do:  hold — the lease is mine (renew it and run the tick);
-    take — no lease, garbled, released (`none`) or expired: that holder is gone (write it in my name and run the
-    tick); standby — another session holds an unexpired lease (do nothing this fire)."""
+    """What a session arriving at a tick must do:  hold — the lease is mine (renew it and run the tick; a lease of
+    mine that already lapsed is still mine to renew);  take — no lease at all, released (`none`) or another
+    holder's lease expired (that holder is gone: write it in my name and run the tick);  standby — another session
+    holds an unexpired lease (do nothing this fire but keep the watchdog armed). Raises LeaseDamaged (see parse_lease)."""
+    me = normalise_session(me)
     lease = parse_lease(body)
-    if not lease or lease["holder"] == "none" or parse_ts(lease["until"]) <= now:
+    if lease and lease["holder"] == me:
+        lapsed = _stamp(lease["until"]) <= now
+        return {"action": "hold", "why": f"mine{' (lapsed ' + lease['until'] + ', renewing)' if lapsed else ' until ' + lease['until']}", "lease": lease}
+    if not lease or lease["holder"] == "none" or _stamp(lease["until"]) <= now:
         why = "no lease" if not lease else ("released" if lease["holder"] == "none" else f"expired {lease['until']} (holder {lease['holder']} is gone)")
         return {"action": "take", "why": why, "lease": lease}
-    if lease["holder"] == me:
-        return {"action": "hold", "why": f"mine until {lease['until']}", "lease": lease}
     return {"action": "standby", "why": f"held by {lease['holder']} until {lease['until']}", "lease": lease}
 
 
+def _stamp(until: str):
+    return _dt.datetime.strptime(until, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=_dt.timezone.utc)
+
+
+def watchdog_at(decision: dict, now, minutes: int, margin: int, new_until=None):
+    """When the watchdog one-shot must fire so the loop survives whatever happens next — the ONE invariant every fire
+    (hold, take, standby, release) leaves behind: the lease in force after this fire, plus a margin. A standby fire
+    arms it past the live holder's expiry; a hold/take past its own new expiry; a release at now + the normal cadence."""
+    if new_until is not None:                                   # hold/take just wrote a lease until new_until
+        return new_until + _dt.timedelta(minutes=margin)
+    lease = decision.get("lease")
+    if lease and lease["holder"] != "none" and _stamp(lease["until"]) > now:      # a lease is in force (someone else's on standby, mine on a read-only status)
+        return _stamp(lease["until"]) + _dt.timedelta(minutes=margin)
+    return now + _dt.timedelta(minutes=minutes)                 # released / lapsed / nothing in force: normal cadence
+
+
 def render_lease(holder: str, until, note: str = "") -> str:
-    """The lease issue body: the one line that changes + the marker (the explanation lives in the issue title and
-    AUTONOMY §12c, not in a body rewritten every hour). Validity by round trip — LEASE_RE is the only grammar."""
-    body = "\n".join([f"**Loop lease** (docs/process/AUTONOMY.md §12c): `{holder}` until **{iso(until)}** UTC" + (f" — {marker_safe(note)}" if note else ""),
-                      "", f"`techlead-lease session={holder} until={iso(until)}`"])
+    """The lease issue body: the one line that changes + the marker line (the explanation lives in the issue title and
+    AUTONOMY §12c, not in a body rewritten every hour). Validity by round trip — LEASE_RE is the only grammar; the
+    reserved words `none`/`-` are only ever written by --release."""
+    holder = normalise_session(holder)
+    body = "\n".join([f"**Loop lease** (docs/process/AUTONOMY.md 12c): {holder} until **{iso(until)}** UTC" + (f" — {marker_safe(note)}" if note else ""),
+                      "", f"techlead-lease session={holder} until={iso(until)}"])
     if (parse_lease(body) or {}).get("holder") != holder:
         raise ValueError(f"holder {holder!r} would not parse back (allowed: {SESSION_ID} or 'none')")
     return body
@@ -1386,36 +1435,52 @@ def _wave(a, cfg: dict) -> int:
 
 
 def _lease(a, cfg: dict) -> int:
-    """`lease status` (read-only) / `lease renew` (#302). Both print `ACTION: why` on stderr; `renew` refuses on
-    STANDBY (exit 5) and otherwise writes the lease in --me's name — over the API, or with --dry-run prints the body
-    for MCP `issue_write` after judging the copy given by --from-file (required then: never an unjudged body)."""
-    me = (a.me or "").strip()
-    if not me:
-        raise ValueError("--me / $TEKTON_SESSION must name this session")
-    n, now, gh = int(cfg["lease"]["issue"]), utcnow(), None
+    """`lease status` (read-only) / `lease renew` (#302). Both print `ACTION: why` and `ARM_WATCHDOG_AT=<UTC>` on stderr —
+    the time the watchdog one-shot must be (re)armed to, whatever the outcome. `renew` refuses on STANDBY (exit 5)
+    and otherwise writes the lease in --me's name — over the API, or with --dry-run prints the body for MCP
+    `issue_write` after judging the copy given by --from-file (required then: never an unjudged body). A damaged
+    lease body (mentions a lease, no parseable line) is exit 6: re-read, never take."""
+    me = normalise_session(a.me)
+    if not me or me in ("none", "-") or not re.fullmatch(SESSION_ID, me):
+        raise ValueError("--me / $TEKTON_SESSION / $CLAUDE_CODE_REMOTE_SESSION_ID must be this session's real id (not empty, 'none' or '-')")
+    L = cfg["lease"]
+    n, minutes, margin, now, gh = int(L["issue"]), int(a.minutes or L["minutes"]) if hasattr(a, "minutes") else int(L["minutes"]), int(L["watchdog_margin_minutes"]), utcnow(), None
     if a.from_file:
         saved = load_saved(a.from_file)
         body = saved if isinstance(saved, str) else body_of(saved)
     elif a.lease_cmd == "renew" and a.dry_run:
-        raise ValueError("--dry-run needs --from-file <the lease issue as MCP/API returned it, or - for stdin>: the body is only printed after the current lease was judged")
+        raise ValueError("--dry-run needs --from-file <the lease issue saved from MCP/API to a FILE, or - for stdin>: the body is only printed after the current lease was judged")
     else:
         gh = _client(a.repo)
         body = gh.get(f"issues/{n}").get("body") or ""
-    d = lease_decision(body, me, now)
+    try:
+        d = lease_decision(body, me, now)
+    except LeaseDamaged as e:
+        print(f"DAMAGED: {e} (lease issue #{n})", file=sys.stderr)
+        print(f"ARM_WATCHDOG_AT={iso(now + _dt.timedelta(minutes=minutes))}", file=sys.stderr)     # keep the loop alive while a human/the holder repairs it
+        return 6
+    releasing = a.lease_cmd == "renew" and a.release
+    new_until = None
+    if a.lease_cmd == "renew" and d["action"] != "standby":
+        new_until = now if releasing else now + _dt.timedelta(minutes=minutes)
+    arm = watchdog_at(d, now, minutes, margin, None if releasing else new_until)
     print(f"{d['action'].upper()}: {d['why']} (lease issue #{n}, me {me})", file=sys.stderr)
+    print(f"ARM_WATCHDOG_AT={iso(arm)}", file=sys.stderr)
     if a.lease_cmd == "status":
         if a.json:
-            print(json.dumps({"me": me, "issue": n, "now": iso(now), **d}, ensure_ascii=False))
+            print(json.dumps({"me": me, "issue": n, "now": iso(now), "arm_watchdog_at": iso(arm), **d}, ensure_ascii=False))
         return 5 if d["action"] == "standby" else 0
     if d["action"] == "standby":
         return 5                                          # another live loop holds it: never write alongside it
-    until = now + _dt.timedelta(minutes=a.minutes or int(cfg["lease"]["minutes"]))
-    new_body = render_lease(me, until, a.note)
+    if releasing and d["action"] != "hold":
+        print("REFUSED: --release only hands back a lease that is yours", file=sys.stderr)
+        return 5
+    new_body = render_lease("none" if releasing else me, new_until, a.note)
     if a.dry_run:
         print(new_body)
     else:
         (gh or _client(a.repo)).edit_issue(n, body=new_body)
-        print(f"lease #{n} written: session={me} until={iso(until)}", file=sys.stderr)
+        print(f"lease #{n} written: {new_body.splitlines()[-1]}", file=sys.stderr)
     return 0
 
 
@@ -1488,8 +1553,9 @@ def main(argv=None) -> int:
     lr.add_argument("--minutes", type=int, default=0, help="lease length (default lease.minutes from .github/autonomy.json)")
     lr.add_argument("--note", default="", help="free text shown to humans on the lease issue")
     lr.add_argument("--dry-run", action="store_true", help="print the body instead of writing it (paste with MCP `issue_write`); requires --from-file")
+    lr.add_argument("--release", action="store_true", help="hand YOUR lease back (session=none) — what a watchdog-fired session does after its pass so the persistent session reclaims at its next wake")
     for sp in (ls_, lr):
-        sp.add_argument("--me", default=os.environ.get("TEKTON_SESSION", ""), help="this session's id (default $TEKTON_SESSION)")
+        sp.add_argument("--me", default=os.environ.get("TEKTON_SESSION", "") or os.environ.get("CLAUDE_CODE_REMOTE_SESSION_ID", ""), help="this session's id (default $TEKTON_SESSION, else $CLAUDE_CODE_REMOTE_SESSION_ID; cse_ and session_ spell the same holder)")
         sp.add_argument("--from-file", default="", help="the lease issue as MCP `issue_read`/the API returned it (JSON object with `body`, or a raw body; `-` = stdin) — the token-less form")
     a = ap.parse_args(argv)
 
@@ -1585,7 +1651,10 @@ def _run(a, cfg: dict) -> int:
             model["waves"] = None
             print(f"waves: skipped ({e})", file=sys.stderr)
         li = next((i for i in snap["issues"] if int(i["number"]) == int(cfg["lease"]["issue"])), None)     # #302: 0 extra calls
-        model["lease"] = lease_decision((li or {}).get("body") or "", os.environ.get("TEKTON_SESSION", "") or "-", now) if li else None
+        try:
+            model["lease"] = lease_decision((li or {}).get("body") or "", os.environ.get("TEKTON_SESSION", "") or os.environ.get("CLAUDE_CODE_REMOTE_SESSION_ID", "") or "-", now) if li else None
+        except LeaseDamaged as e:
+            model["lease"] = {"action": "damaged", "why": str(e)[:120]}
         out = json.dumps(model, indent=2, default=str) if a.json else render_brief(model, cfg, gh.repo)
         print(out)
         if a.out:

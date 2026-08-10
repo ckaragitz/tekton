@@ -35,7 +35,8 @@
   },
   "lease": {
     "issue": 410,
-    "minutes": 100
+    "minutes": 100,
+    "watchdog_margin_minutes": 5
   },
   "pause_label": "bots-paused"
 }

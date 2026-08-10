@@ -563,8 +563,22 @@ take-over line on the board) + the watchdog push; then picture (incl. wave-ledge
 pipeline, fan-out by reference to `fanout.md`, backlog, build, report; long ticks re-run step 0 before merging or
 fanning out. Both routines' stored prompts are stubs pointing at the file, so edits ship by PR.
 
-**Evidence.** `tests/test_techlead.py` 34 passed (`test_loop_lease_decides_hold_take_standby_and_round_trips`,
-`test_lease_cli_is_offline_fail_closed_and_reads_stdin`); every decision path driven offline. /simplify: 4 angles,
+**Review round (🛑 → fixed).** The independent review found two real holes: a STANDBY fire ended without re-arming the
+watchdog (an early fire at the expiry boundary would have left the loop dead), and the backticked marker plus "pipe the
+JSON" invited shell command substitution that erased the marker and yielded TAKE over a live holder. Now ONE invariant:
+every outcome (hold / take / standby / damaged) prints `ARM_WATCHDOG_AT` = the lease in force + `lease.watchdog_margin_minutes`
+(or now + `lease.minutes` when nothing is in force) and tick.md re-arms the watchdog with it before any turn may end;
+the marker is a plain `techlead-lease session=… until=…` line with no shell metacharacters; a body that mentions a lease
+without a parseable line (or with an impossible timestamp) is DAMAGED — exit 6, repaired, never taken; `none`/`-` are
+reserved; `cse_…` ($CLAUDE_CODE_REMOTE_SESSION_ID) and `session_…` spell one holder; a lapsed lease of my own is HOLD;
+`--release` hands back only your own lease (a watchdog-fired session does that at the end so the persistent one
+reclaims); `coord.unquoted` also drops MCP-escaped `&gt;` quotes; tick.md names the session-id source, the
+missing-routine branch, the prerequisites, and re-reads afresh before merges/fan-out/filing on long ticks.
+
+**Evidence.** `tests/test_techlead.py` (`test_loop_lease_decides_hold_take_standby_and_round_trips`,
+`test_lease_cli_is_offline_fail_closed_and_always_arms_the_watchdog`) pin the boundary (until − 1 s standby / at until
+take), own-lapsed hold, the three watchdog arm rules, quoted/escaped/fenced markers, damaged bodies, reserved ids,
+release rules, fail-closed dry-run; every path also driven by hand offline. /simplify: 4 angles,
 applied all but the optional config nesting (kept `lease.{issue,minutes}` top-level; the worker's label lease is a
 different substrate). After merge (recorded on #302): the lease written on #410 in this session's name through the
 token-less path; the hourly routine's prompt replaced by the stub; the watchdog routine created and armed.

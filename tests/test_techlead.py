@@ -689,20 +689,39 @@ def test_wave_cli_is_offline_for_dry_run_and_from_file(tmp_path):
 
 
 def test_loop_lease_decides_hold_take_standby_and_round_trips():
-    """#302 remainder: one issue body says which session runs the tick until when. Arriving sessions HOLD (mine),
-    TAKE (none/garbled/released/expired) or STAND BY (someone else's, unexpired); the marker round-trips; a quoted
-    marker does not count; a holder id that would not parse back is refused; a saved object without `body` is an error."""
+    """#302 remainder: one issue body says which session runs the tick until when. Arriving sessions HOLD (mine, even
+    lapsed), TAKE (none/released/another holder's expired lease) or STAND BY (someone else's, unexpired); every outcome
+    yields a watchdog arm time so the loop survives; the marker is a plain line that round-trips; quoted/fenced/escaped-
+    quoted markers do not count; a body that mentions a lease without a parseable line is DAMAGED, never 'take'."""
     me, fresh = "session_01R7j2MKADANzEFxvHGbVV7w", "session_FRESH123"
-    now = NOW
-    body = tl.render_lease(me, now + dt.timedelta(minutes=100), note="hourly | tick --> ok")
-    assert len(body) < 260 and tl.parse_lease(body) == {"holder": me, "until": tl.iso(now + dt.timedelta(minutes=100))} and "<!--" not in body                      # visible marker: MCP issue_read strips HTML comments from bodies
-    assert tl.lease_decision(body, me, now)["action"] == "hold"
+    now, m = NOW, dt.timedelta(minutes=1)
+    body = tl.render_lease("cse_01R7j2MKADANzEFxvHGbVV7w", now + 100 * m, note="hourly | tick --> `ok`")     # cse_ spelling normalised
+    assert tl.parse_lease(body) == {"holder": me, "until": tl.iso(now + 100 * m)}
+    marker_line = body.splitlines()[-1]
+    assert marker_line == f"techlead-lease session={me} until={tl.iso(now + 100 * m)}" and not set("`$<>|;&") & set(marker_line)   # no shell metacharacters, no HTML comment
+    assert tl.lease_decision(body, me, now)["action"] == "hold" and tl.lease_decision(body, "cse_01R7j2MKADANzEFxvHGbVV7w", now)["action"] == "hold"
     assert tl.lease_decision(body, fresh, now)["action"] == "standby"
-    assert tl.lease_decision(body, fresh, now + dt.timedelta(minutes=101))["action"] == "take"          # expired → the holder is gone
-    assert tl.lease_decision("", fresh, now)["action"] == "take" and tl.lease_decision("garbled <!-- techlead-lease -->", fresh, now)["action"] == "take"
-    assert tl.lease_decision(tl.render_lease("none", now + dt.timedelta(minutes=50)), fresh, now)["why"] == "released"
-    assert tl.parse_lease("> " + body.splitlines()[-1]) is None and tl.parse_lease("```\n" + body.splitlines()[-1] + "\n```") is None                                          # quoted marker: not asserted
-    assert tl.parse_lease(body + "\n" + tl.render_lease(fresh, now).splitlines()[-1])["holder"] == fresh  # last asserted marker wins
+    assert tl.lease_decision(body, fresh, now + 100 * m - dt.timedelta(seconds=1))["action"] == "standby"    # boundary: 1 s before until
+    assert tl.lease_decision(body, fresh, now + 100 * m)["action"] == "take"                                  # at until exactly: the holder is gone
+    assert tl.lease_decision(body, me, now + 103 * m)["action"] == "hold"                                    # my own lapsed lease is still mine to renew
+    assert tl.lease_decision("", fresh, now)["action"] == "take"                                             # a repo with no lease yet
+    assert tl.lease_decision(tl.render_lease("none", now + 50 * m), fresh, now)["why"] == "released"
+    # every outcome leaves a watchdog time behind: standby → the live lease + margin; hold/take → the new lease + margin; nothing in force → cadence
+    d = tl.lease_decision(body, fresh, now)
+    assert tl.watchdog_at(d, now, 100, 5) == now + 105 * m
+    assert tl.watchdog_at(tl.lease_decision(body, me, now), now, 100, 5, new_until=now + 100 * m) == now + 105 * m
+    assert tl.watchdog_at(tl.lease_decision("", fresh, now), now, 100, 5) == now + 100 * m
+    # trust policy: quoted (raw or MCP-escaped), fenced → not asserted; last asserted line wins
+    assert tl.parse_lease("> " + marker_line) is None and tl.parse_lease("&gt; " + marker_line) is None and tl.parse_lease("```\n" + marker_line + "\n```") is None
+    assert tl.parse_lease(body + "\n" + tl.render_lease(fresh, now).splitlines()[-1])["holder"] == fresh
+    # damaged, never take: prose without a marker line (a shell ate it), an impossible timestamp
+    for damaged in ("**Loop lease** (docs): x until **2026-08-10T05:39:30Z** UTC\n\n", "techlead-lease session=session_A until=2026-02-30T00:00:00Z", "the techlead-lease line got mangled"):
+        try:
+            tl.lease_decision(damaged, fresh, now)
+        except tl.LeaseDamaged:
+            pass
+        else:
+            raise AssertionError(f"judged a damaged body: {damaged!r}")
     for bad in ("has space", "x" * 65, ""):
         try:
             tl.render_lease(bad, now)
@@ -718,26 +737,32 @@ def test_loop_lease_decides_hold_take_standby_and_round_trips():
             pass
         else:
             raise AssertionError(f"accepted {wrapped!r}")                                                # never 'empty' → TAKE over a live holder
-    assert tl.DEFAULTS["lease"] == {k: tl.load_config()["lease"][k] for k in ("issue", "minutes")} and tl.DEFAULTS["lease"]["issue"] > 0
+    assert tl.DEFAULTS["lease"] == tl.load_config()["lease"] and tl.DEFAULTS["lease"]["issue"] > 0
 
 
-def test_lease_cli_is_offline_fail_closed_and_reads_stdin(tmp_path):
-    env = {**os.environ, "GH_TOKEN": "", "GITHUB_TOKEN": "", "TEKTON_SESSION": "session_ME"}
+def test_lease_cli_is_offline_fail_closed_and_always_arms_the_watchdog(tmp_path):
+    env = {**os.environ, "GH_TOKEN": "", "GITHUB_TOKEN": "", "TEKTON_SESSION": "", "CLAUDE_CODE_REMOTE_SESSION_ID": "cse_ME"}
     def run(*args, stdin=None):
         return subprocess.run([sys.executable, PATH, "lease", *args], capture_output=True, text=True, timeout=30, cwd=ROOT, env=env, input=stdin)
-    free = json.dumps({"number": 1, "body": "old prose\n`techlead-lease session=none until=2026-08-10T00:00:00Z`"})
+    arm = lambda r: re.search(r"ARM_WATCHDOG_AT=(\S+Z)", r.stderr).group(1)      # noqa: E731 — every outcome prints it
+    free = json.dumps({"number": 1, "body": ""})
     st = run("status", "--from-file", "-", "--json", stdin=free)
-    assert st.returncode == 0 and json.loads(st.stdout)["action"] == "take" and st.stderr.startswith("TAKE:")
+    assert st.returncode == 0 and json.loads(st.stdout)["action"] == "take" and st.stderr.startswith("TAKE:") and arm(st)
     body = run("renew", "--from-file", "-", "--minutes", "30", "--dry-run", stdin=free)
-    assert body.returncode == 0 and "`techlead-lease session=session_ME until=" in body.stdout and body.stderr.startswith("TAKE:")
+    assert body.returncode == 0 and "\ntechlead-lease session=session_ME until=" in body.stdout and arm(body)          # cse_ME → session_ME
     mine = tmp_path / "mine.json"; mine.write_text(json.dumps({"body": body.stdout}), encoding="utf-8")
     hold = run("renew", "--from-file", str(mine), "--dry-run")
     assert hold.returncode == 0 and hold.stderr.startswith("HOLD:")
     other = run("renew", "--from-file", str(mine), "--me", "session_FRESH", "--dry-run")
-    assert other.returncode == 5 and other.stderr.startswith("STANDBY:") and other.stdout == ""              # a fresh fire stands by; nothing to paste
-    assert run("status", "--from-file", str(mine), "--me", "session_FRESH").returncode == 5
+    assert other.returncode == 5 and other.stderr.startswith("STANDBY:") and other.stdout == "" and arm(other) > arm(hold)[:0] + json.loads(run("status", "--from-file", str(mine), "--json").stdout)["lease"]["until"]   # standby arms PAST the live lease
+    damaged = run("renew", "--from-file", "-", "--me", "session_FRESH", "--dry-run", stdin=json.dumps({"body": "**Loop lease**: x until **2026-08-10T05:39:30Z**\n"}))
+    assert damaged.returncode == 6 and damaged.stderr.startswith("DAMAGED:") and damaged.stdout == "" and arm(damaged)   # never take; still keeps the loop alive
+    assert run("status", "--from-file", str(mine), "--me", "none").returncode == 1                             # reserved id refused
+    rel = run("renew", "--from-file", str(mine), "--release", "--dry-run")
+    assert rel.returncode == 0 and rel.stdout.rstrip().endswith("techlead-lease session=none until=" + arm(rel)[:0] + rel.stdout.rstrip().rsplit("until=", 1)[1])
+    assert run("renew", "--from-file", str(mine), "--me", "session_FRESH", "--release", "--dry-run").returncode == 5     # only your own lease can be released
     unjudged = run("renew", "--dry-run")
-    assert unjudged.returncode != 0 and "needs --from-file" in unjudged.stderr and "Traceback" not in unjudged.stderr   # fail closed: no body without judging the lease
+    assert unjudged.returncode != 0 and "needs --from-file" in unjudged.stderr and "Traceback" not in unjudged.stderr   # fail closed
     wrapped = run("renew", "--from-file", "-", "--dry-run", stdin=json.dumps({"issue": {"body": "x"}}))
     assert wrapped.returncode != 0 and "'body' key" in wrapped.stderr and "Traceback" not in wrapped.stderr
 
