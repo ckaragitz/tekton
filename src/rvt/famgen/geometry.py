@@ -170,7 +170,16 @@ class FamilyDocContext:
     solid_control_command: int = 0
     extra_regen_ids: List[int] = dc_field(default_factory=list)
     embedded: bool = False            # project-embedded flavour (flag bits)
-    fam_elem_visibility: int = 57398  # ExtrusionElem.m_famElemVisibility [V rfa]
+    #: ``ExtrusionElem.m_famElemVisibility`` -- the Family Element Visibility
+    #: Settings bitfield.  Bit 0 is "Plan/RCP"; the value measured off the
+    #: donor (57398) has it CLEAR, i.e. that family's author had switched
+    #: Plan/RCP display OFF, and we inherited the choice on every form we
+    #: ship -- so a generated family drew nothing in its own plan and ceiling
+    #: views no matter what the views said [owner screenshot: "Display in 3D
+    #: views and:" with Plan/RCP unticked].  Revit's own default for a new
+    #: form has all three view boxes ticked; 57399 = 57398 | Plan/RCP.
+    FAM_ELEM_VISIBILITY_ALL_VIEWS = 57399
+    fam_elem_visibility: int = 57399  # ExtrusionElem.m_famElemVisibility
     #: Geometry.m_tessEpsCntrl.m_TessEpsCntrlVersion of the donor's own
     #: forms: 0 in the standalone sample .rfa, 1 in the rme-embedded
     #: panelboard family (both load) [V]; matched to the donor.
@@ -211,7 +220,11 @@ def context_from_rfa(path: str = SAMPLE_RFA) -> FamilyDocContext:
             te = geo.get("m_tessEpsCntrl") or {}
             ctx.tess_version = int(te.get("m_TessEpsCntrlVersion", ctx.tess_version))
         v = idx.value(unit, eid) or {}
-        ctx.fam_elem_visibility = int((v.get("m_famElemVisibility") or {}).get("m_flags", 57398))
+        # adopt the specimen's bitfield but never its "hidden in Plan/RCP"
+        # choice -- that is the author's UI preference, not a format law
+        ctx.fam_elem_visibility = int(
+            (v.get("m_famElemVisibility") or {}).get(
+                "m_flags", GeometryContext.FAM_ELEM_VISIBILITY_ALL_VIEWS)) | 1
         h = idx.value(unit, eid, 101) or {}
         regen = ((h.get("m_parents") or {}).get("value") or {}).get("m_regenOnly") or []
         ctx.extra_regen_ids = [int(r) for r in regen if r in refplanes]
@@ -566,10 +579,20 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
                    *, element_id: int, geometry_style_id: int = -1,
                    control_command: int = 0,
                    base_pid: int = 3) -> dict:
-    """The cached six-face B-rep solid (seq-103 ``GElement``) of a
-    rectangular extrusion, built field by field.
+    """The cached (N+2)-face B-rep solid (seq-103 ``GElement``) of a PRISM
+    over any closed planar profile, built field by field.
 
-    ``profile`` -- 4 CCW vertices in the sketch plane (z ignored);
+    Generalised from the 4-gon on measured evidence that the alternative
+    does not exist: a form shipped with the SerializedDummy "regeneration"
+    rep draws NOTHING in Revit [owner probe, concave L-bracket + cylinder +
+    cap: the two cached-B-rep parts rendered, the regeneration part was
+    absent].  Revit does not rebuild a family form's solid from its sketch
+    on open, so every form needs a real cached solid -- and an N-gon prism
+    is the SAME topology as the box (2 caps + N sides, 3N edges, tags from
+    :func:`_box_tags`, whose numbering was already written for N).  Nothing
+    below was specific to 4; only the guard was.
+
+    ``profile`` -- >= 3 CCW vertices in the sketch plane (z ignored);
     ``start`` / ``end`` -- offsets along the sketch normal (+z), with
     ``start > end`` (the "extrude-down" convention of every box specimen:
     the START cap is the top face).  ``element_id`` becomes the root tag /
@@ -592,11 +615,11 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
     direction rules with specimen evidence.  Returns the GElement dict (the
     caller wraps it as the seq-103 rep of the ExtrusionElem).
     """
-    prof = profile if isinstance(profile, RectProfile) else profile_from_vertices(profile)
+    prof = profile if isinstance(profile, RectProfile) else polygon_profile(profile)
     V = [_v(p) for p in prof.vertices]
     n = len(V)
-    if n != 4:
-        raise ValueError("solid_box_brep: box profile has 4 vertices")
+    if n < 3:
+        raise ValueError(f"a prism profile needs at least 3 vertices (got {n})")
     if polygon_area_xy(V) <= 0:
         raise ValueError("profile must be counter-clockwise (viewed from +z)")
     zs, ze = float(start), float(end)
@@ -1282,8 +1305,17 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
         raise ValueError("extrusions here are extrude-DOWN: start > end")
     obj = _base("ExtrusionElem", elem_id, family_id=ctx.family_id,
                 int_params={BIP_CURVE_ELEM_INT: 1},
-                double_params_ordered=[(BIP_EXTRUSION_END, float(end)),
-                                       (BIP_EXTRUSION_START, float(start))])
+                double_params_ordered=[
+                    # Revit reads -1001800 as "Extrusion Start" and -1001801
+                    # as "Extrusion End", and shows Depth = End - Start.  The
+                    # box path traces extrude-DOWN (its `start` IS the top),
+                    # so writing the raw pair put the top in Start and gave
+                    # every box a NEGATIVE depth in the properties palette
+                    # [owner screenshot: Start 0'5 3/4", End 0'0",
+                    # Depth -0'5 3/4"].  Order by elevation, not by the
+                    # tracer's direction; the B-rep is unaffected.
+                    (BIP_EXTRUSION_END, max(float(start), float(end))),
+                    (BIP_EXTRUSION_START, min(float(start), float(end)))])
     step = extrusion_gstep(n)
     obj["m_geomSteps"] = _gstep_list([_ptr("ExtrusionGStep", step)],
                                      latest=2, id_counter=2, flags=9)
@@ -1311,6 +1343,13 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
         solid = solid_box_brep(prof, start, end, element_id=elem_id,
                                geometry_style_id=ctx.geometry_style_id,
                                control_command=ctx.solid_control_command)
+        # never ship an open or self-inconsistent shell again: the record
+        # validator cannot see B-rep topology, so a broken solid used to
+        # reach Revit with "0 errors" reported (issue #504).
+        _probs = check_solid(solid, expect_n=len(prof.vertices))
+        if _probs:
+            raise ValueError("generated solid is not a closed manifold: "
+                             + "; ".join(_probs))
     elif rep == REP_DUMMY:
         solid = None
     else:
@@ -2157,8 +2196,17 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
         raise ValueError("cylinder extrusions are extrude-UP: end > start")
     obj = _base("ExtrusionElem", elem_id, family_id=ctx.family_id,
                 int_params={BIP_CURVE_ELEM_INT: 1},
-                double_params_ordered=[(BIP_EXTRUSION_END, float(end)),
-                                       (BIP_EXTRUSION_START, float(start))])
+                double_params_ordered=[
+                    # Revit reads -1001800 as "Extrusion Start" and -1001801
+                    # as "Extrusion End", and shows Depth = End - Start.  The
+                    # box path traces extrude-DOWN (its `start` IS the top),
+                    # so writing the raw pair put the top in Start and gave
+                    # every box a NEGATIVE depth in the properties palette
+                    # [owner screenshot: Start 0'5 3/4", End 0'0",
+                    # Depth -0'5 3/4"].  Order by elevation, not by the
+                    # tracer's direction; the B-rep is unaffected.
+                    (BIP_EXTRUSION_END, max(float(start), float(end))),
+                    (BIP_EXTRUSION_START, min(float(start), float(end)))])
     step = extrusion_gstep_circles(k)
     obj["m_geomSteps"] = _gstep_list([_ptr("ExtrusionGStep", step)],
                                      latest=2, id_counter=2, flags=9)
@@ -3067,3 +3115,110 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+# ---------------------------------------------------------------------------
+# solid self-checks: the invariants a closed B-rep must satisfy
+# ---------------------------------------------------------------------------
+
+def check_solid(gelement: dict, *, expect_n: int | None = None) -> List[str]:
+    """Return a list of problems with a built solid -- empty means sound.
+
+    Added after a generated N-gon prism reached the owner's Revit with the
+    validator green (issue #504): ``rvt_validate`` checks records and
+    references, and knows nothing about whether a B-rep is a closed
+    manifold.  These are the invariants that ARE computable from the solid
+    alone, so no reference file and no Revit round-trip is needed:
+
+    1. Euler characteristic  V - E + F = 2  (a prism has 2N vertices);
+    2. every edge names exactly 2 faces, and every face is named by at
+       least 3 edges;
+    3. every face's edge loop CLOSES -- following ``m_next`` within that
+       face returns to the EdgeLoop, visiting each of its edges once;
+    4. every edge endpoint reconstructs to the SAME 3D point from both of
+       its faces' (origin, xVec, yVec) frames -- i.e. the stored uv
+       coordinates and the surface frames agree.
+
+    A solid that passes all four can still be wrong in ways only Autodesk's
+    reader can judge (hard rule 4), but it cannot be OPEN, self-inconsistent
+    or mis-parametrised, which is what silently shipped before.
+    """
+    probs: List[str] = []
+    try:
+        geom = gelement["m_subNodes"][0]["value"]
+        faces, edges = geom["m_pFaces"], geom["m_pEdges"]
+    except (KeyError, IndexError, TypeError):
+        return ["not a GElement with a Geometry subnode"]
+    wr = lambda w: w["weakref"]                                   # noqa: E731
+    epid = {e["pid"]: e for e in edges}
+    frame = {}
+    for f in faces:
+        s = (f["value"].get("m_pSurf") or {}).get("value") or {}
+        if "m_origin" in s:
+            frame[f["pid"]] = (s["m_origin"], s["m_xVec"], s["m_yVec"])
+
+    uses: Dict[int, int] = {}
+    for e in edges:
+        fl = e["value"]["m_pFace"]
+        if len(fl) != 2:
+            probs.append(f"edge {e['pid']} names {len(fl)} faces, expected 2")
+        for w in fl:
+            uses[wr(w)] = uses.get(wr(w), 0) + 1
+    for f in faces:
+        if uses.get(f["pid"], 0) < 3:
+            probs.append(f"face {f['pid']} is bounded by "
+                         f"{uses.get(f['pid'], 0)} edges, expected >= 3")
+
+    if expect_n is not None:
+        if len(faces) != expect_n + 2:
+            probs.append(f"{len(faces)} faces, expected {expect_n + 2}")
+        if len(edges) != 3 * expect_n:
+            probs.append(f"{len(edges)} edges, expected {3 * expect_n}")
+        if (2 * expect_n) - len(edges) + len(faces) != 2:
+            probs.append(f"Euler V-E+F != 2 for a {expect_n}-gon prism")
+
+    for f in faces:
+        lp = f["value"].get("m_pFirstLoop") or {}
+        if not lp:
+            probs.append(f"face {f['pid']} has no edge loop")
+            continue
+        cur, seen, guard = wr(lp["value"]["m_next"]), [], 0
+        limit = 4 * len(edges) + 8
+        while cur != lp["pid"] and guard < limit:
+            e = epid.get(cur)
+            if e is None:
+                probs.append(f"face {f['pid']} loop references unknown edge {cur}")
+                break
+            seen.append(cur)
+            k = 0 if wr(e["value"]["m_pFace"][0]) == f["pid"] else 1
+            cur = wr(e["value"]["m_next"][k])
+            guard += 1
+        else:
+            if len(seen) != len(set(seen)):
+                probs.append(f"face {f['pid']} loop revisits an edge")
+            elif len(seen) != uses.get(f["pid"], 0):
+                probs.append(f"face {f['pid']} loop walks {len(seen)} edges "
+                             f"but {uses.get(f['pid'], 0)} name it")
+            continue
+        probs.append(f"face {f['pid']} edge loop does not close")
+
+    worst = 0.0
+    for e in edges:
+        ev = e["value"]
+        if len(ev["m_pFace"]) != 2:
+            continue
+        for pt in ev["m_firstAndLastEdgePnts"]:
+            xyz = []
+            for k in (0, 1):
+                fid = wr(ev["m_pFace"][k])
+                if fid not in frame:
+                    break
+                o, x, y = frame[fid]
+                u, v = pt["uv"][k]
+                xyz.append([o[c] + u * x[c] + v * y[c] for c in range(3)])
+            if len(xyz) == 2:
+                worst = max(worst, max(abs(xyz[0][c] - xyz[1][c]) for c in range(3)))
+    if worst > 1e-6:
+        probs.append(f"edge endpoints disagree between their two faces by "
+                     f"{worst:.3g} ft (uv / surface frame mismatch)")
+    return probs

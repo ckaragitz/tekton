@@ -136,9 +136,10 @@ def test_family_viewer_bound_law(fi):
         assert v.get("m_projMethodType") == 1, eid
         assert v.get("m_viewerFlags") == 0, eid
         assert v.get("m_intentionallyPlaced") is False, eid
-    # project + floor plan + ceiling plan (the 3D view's Viewer3d is a
-    # different class with its own donor shape -- not under this law)
-    assert seen == 3, seen
+    # project + floor plan + ceiling plan + the four elevations (the 3D
+    # view's Viewer3d is a different class with its own donor shape -- not
+    # under this law)
+    assert seen == 7, seen
 
 
 def test_units_table_covers_every_param_spec(fi):
@@ -244,3 +245,96 @@ def test_donorless_host_document_wires_every_registry(tmp_path):
     assert (populated.get("PenWidthTableInfo") or {}).get("m_penWidthTableElemId", -1) > 0
     assert (populated.get("SymbolIdMgr") or {}).get("m_defElementTypeMap")
     assert (populated.get("BrowserOrganizationTracking") or {}).get("m_elemIdSet")
+
+
+def test_family_carries_the_four_elevations(fi):
+    """Owner steer S-2026-08-10-a: a generated family carries a Revit-born
+    family's view set -- Ref. Level plan, ceiling plan, four elevations and
+    the "View 1" 3D view.  Shape measured on the donor's DBViewSection
+    31/35/39/43: one shared "Elevation 1" DBViewType, a section view type of
+    1, cut plane through the family origin, and the family view scale."""
+    recs = fi.unit_records(0).get(102, {})
+    sections = {}
+    for eid, r in sorted(recs.items()):
+        if fi.class_name(r.class_id) == "DBViewSection":
+            sections[fi.value(0, eid, 102)["m_viewName"]] = eid
+    assert sorted(sections) == ["Back", "Front", "Left", "Right"], sorted(sections)
+    types = set()
+    for name, eid in sections.items():
+        v = fi.value(0, eid, 102)
+        assert v["m_sectionViewType"] == 1, name
+        assert v["m_scale"] == 0.041666666666666664, name
+        assert v["m_origin"] == [0.0, 0.0, 0.0], name
+        assert v["m_lightSchemeId"] == -1, name
+        assert v["m_pDetailDrawOrderMgr"]["ptr_class"] == "DrawOrderMgr3dFamily", name
+        assert v["m_pViewDisplayMgr"]["value"]["m_lights"][
+            "m_sunAndShadowSettingsId"] == -1, name
+        # the four view directions are the four faces, and each viewer's
+        # basis is the matching camera frame
+        vw = fi.value(0, v["m_viewerId"], 102)
+        vd = v["m_viewDir"]
+        assert vw["m_boundedSpace"]["m_basis"][2] == [-vd[0], -vd[1], -vd[2]], name
+        types.add(v["m_dbViewTypeId"])
+    assert len(types) == 1, types            # ONE shared elevation view type
+    dirs = {tuple(fi.value(0, e, 102)["m_viewDir"]) for e in sections.values()}
+    assert dirs == {(0.0, 1.0, -0.0), (0.0, -1.0, 0.0),
+                    (-1.0, 0.0, 0.0), (1.0, 0.0, 0.0)}, dirs
+
+
+def test_solids_name_the_family_object_style(fi):
+    """THE OBJECT-STYLE LAW (owner: "when graphics display is on i can not
+    see the outlining of the geometry").  A solid's ``Geometry`` node names
+    the graphics style Revit draws its EDGES with; ours named -1, so a
+    generated family rendered as a shaded body with no outline and vanished
+    in Wireframe.  Measured on the Autodesk library panelboard's extrusions:
+    the style is a GStyleElem whose m_categoryId is the family's BUILT-IN
+    category, and the node carries control command 67108864."""
+    recs = fi.unit_records(0).get(102, {})
+    styles = {}
+    for eid, r in recs.items():
+        if fi.class_name(r.class_id) == "GStyleElem":
+            v = fi.value(0, eid, 102)
+            if int(v.get("m_categoryId", 0)) < 0:      # a BUILT-IN category
+                styles[eid] = int(v["m_categoryId"])
+    # the family's own object style + the two retouch styles every view names
+    assert sorted(styles.values()) == [-2001040, -2000082, -2000064], styles
+    style_id = [e for e, c in styles.items() if c == -2001040][0]
+    seen = 0
+    for eid, r in recs.items():
+        if fi.class_name(r.class_id) != "ExtrusionElem":
+            continue
+        rep = fi.decode(0, eid, 103)
+        if rep is None:                                 # dummy rep variant
+            continue
+        gi = rep.value["m_subNodes"][0]["value"]["m_GInfo"]
+        assert gi["m_categoryId"] == style_id, (eid, gi["m_categoryId"])
+        assert gi["m_controlCommand"] == 67108864, eid
+        seen += 1
+    assert seen >= 1
+
+
+def test_every_view_names_the_retouch_styles(fi):
+    """Every Revit-born family view's ``RetouchTable`` names an
+    INVISIBLE-LINES style (category -2000064) and a NOT-SILHOUETTE style
+    (-2000082) -- identical pair in the owner's donor (146/1266) and in the
+    Autodesk library panelboard (17968/83898), i.e. format law, not one
+    author's setting.  Ours shipped -1/-1, leaving the linework pass with
+    no style to resolve."""
+    recs = fi.unit_records(0).get(102, {})
+    by_cat = {}
+    for eid, r in recs.items():
+        if fi.class_name(r.class_id) == "GStyleElem":
+            v = fi.value(0, eid, 102)
+            by_cat[int(v.get("m_categoryId", 0))] = eid
+    inv, nsi = by_cat.get(-2000064), by_cat.get(-2000082)
+    assert inv and nsi, sorted(by_cat)
+    seen = 0
+    for eid, r in recs.items():
+        cn = fi.class_name(r.class_id)
+        if cn not in ("DBViewProject", "DBViewPlan", "DBView3d", "DBViewSection"):
+            continue
+        rt = fi.value(0, eid, 102)["m_pRetouchTable"]["value"]
+        assert rt["m_invisibleGStyleId"] == inv, (cn, eid)
+        assert rt["m_notSilhouetteGStyleId"] == nsi, (cn, eid)
+        seen += 1
+    assert seen == 8, seen        # project + 2 plans + 4 elevations + View 1

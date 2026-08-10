@@ -836,14 +836,18 @@ def resolve_device_facts(kind: str = "duplex-receptacle", *,
 def geometry_context(doc: SK.FamilyDoc, *, embedded: bool = False) -> G.FamilyDocContext:
     """The :class:`rvt.famgen.geometry.FamilyDocContext` of a from-scratch
     :class:`FamilyDoc`: forms belong to the doc's self-Family, sketch on the
-    doc's Reference Level, and reference the family's own category style
-    (-1: our documents carry no object-style copies -- the S0 reduction)."""
+    doc's Reference Level, and name the family's OWN OBJECT STYLE -- the
+    graphics style Revit draws the solid's edges with.  That used to be -1
+    ("our documents carry no object-style copies -- the S0 reduction"), and
+    an unstyled solid draws no outline in any display mode and disappears
+    entirely in Wireframe.  ``solid_control_command`` 67108864 rides with
+    it [both measured on the Autodesk library panelboard's extrusions]."""
     return G.FamilyDocContext(
         family_id=int(doc.self_family.elem_id),
         level_id=int(doc.ref_level.elem_id),
-        geometry_style_id=-1,
+        geometry_style_id=int(doc.object_style_id),
         curve_style_id=-1,
-        solid_control_command=0,
+        solid_control_command=67108864,
         extra_regen_ids=[],
         embedded=bool(embedded),
     )
@@ -882,21 +886,153 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
         raise FactoryError("document is finalized; add forms before finalize")
     ctx = geometry_context(doc)
     prof = G.polygon_profile(vertices)
-    if rep == G.REP_SOLID and len(prof.vertices) != 4:
-        # the CACHED six-face B-rep template (solid_box_brep) is the
-        # rectangular case only; a non-rectangular ring ships the
-        # regeneration rep instead -- the extrusion is fully defined by its
-        # sketch + depth and Revit rebuilds the solid on open (the variant
-        # already accepted for walls).  Generalising the cached rep to
-        # N-gons is issue #499.
-        rep = G.REP_DUMMY
+    # NO REGENERATION FALLBACK.  This used to ship the SerializedDummy rep
+    # for anything that was not a 4-gon, on the theory that "the extrusion
+    # is fully defined by its sketch + depth and Revit rebuilds the solid on
+    # open".  That theory is FALSE for family forms and was silently costing
+    # every non-rectangular part: the owner's probe (concave L + cylinder +
+    # cap) rendered the two cached-B-rep parts and drew NOTHING for the
+    # regeneration one.  solid_box_brep is now the N-gon prism it always
+    # structurally was.
     fb = G.prism_form(prof, float(height_ft), ctx, doc.ids,
                       base_z_ft=float(base_z_ft), rep=rep, kind="polygon")
     doc.add(*fb.elements)
     return fb
 
 
-def make_generic_model(*, height_ft: float,
+def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
+                            category: str, solid: bool, source: str,
+                            start_id: int,
+                            shared_params: SK.SharedParamsArg) -> FamilyProduct:
+    """A MULTI-PART generic model: several stacked / offset extrusions in one
+    family (a canopy + a stem, a base + a body + a cap).  This is the LOD
+    answer -- a real object is an assembly of solids, not one blob.  Overall
+    Width / Depth / Height parameters report the assembly's bounding box.
+    """
+    fam_name = name or "Generic Model"
+    doc = SK.new_family_document(category, fam_name, work_plane_based=False,
+                                 start_id=start_id, shared_params=shared_params)
+    built: List[G.FormBundle] = []
+    x0 = y0 = z0 = float("inf")
+    x1 = y1 = z1 = float("-inf")
+    for i, part in enumerate(parts):
+        fb = add_generic_part(doc, part, solid=solid)
+        built.append(fb)
+        base = float(part.get("base_z_ft") or 0.0)
+        h = float(part["height_ft"])
+        cx, cy = tuple(part.get("center") or (0.0, 0.0))
+        shape = str(part.get("shape") or "box").lower()
+        if shape == "cylinder":
+            r = float(part.get("radius_ft") if part.get("radius_ft") is not None
+                      else float(part["diameter_ft"]) / 2.0)
+            hw = hd = r
+        elif shape == "polygon":
+            vs = [G._v(p) for p in part["vertices"]]
+            xs = [v[0] for v in vs]; ys = [v[1] for v in vs]
+            hw = (max(xs) - min(xs)) / 2.0; hd = (max(ys) - min(ys)) / 2.0
+            cx += (max(xs) + min(xs)) / 2.0; cy += (max(ys) + min(ys)) / 2.0
+        else:
+            hw = float(part["width_ft"]) / 2.0; hd = float(part["depth_ft"]) / 2.0
+        x0, x1 = min(x0, cx - hw), max(x1, cx + hw)
+        y0, y1 = min(y0, cy - hd), max(y1, cy + hd)
+        z0, z1 = min(z0, base), max(z1, base + h)
+    W, D, H = (x1 - x0), (y1 - y0), (z1 - z0)
+    sheet = FactSheet(subject=f"generic model {fam_name} ({len(built)} parts)")
+    sheet.set("width_in", W * 12.0, kind="given", source=source)
+    sheet.set("depth_in", D * 12.0, kind="given", source=source)
+    sheet.set("height_in", H * 12.0, kind="given", source=source)
+    sheet.set("part_count", len(built), kind="given", source=source)
+    for dim in ("Width", "Depth", "Height"):
+        _num(doc, dim, "length", "dimensions")
+    doc.add_type(_clean_name(fam_name), {
+        doc.params["Width"].elem_id: W,
+        doc.params["Depth"].elem_id: D,
+        doc.params["Height"].elem_id: H,
+        "description": (f"{fam_name}: {len(built)}-part assembly, overall "
+                        f"{W * 12.0:g} W x {D * 12.0:g} D x {H * 12.0:g} H in "
+                        f"-- geometry GIVEN ({source}), no catalog record"),
+    })
+    doc.notes.append(f"multi-part generic model: {len(built)} extrusions "
+                     f"({', '.join(str(p.get('shape') or 'box') for p in parts)}); "
+                     f"Width/Depth/Height report the assembly bounding box")
+    doc.finalize()
+    prod = FamilyProduct("generic_model", doc, sheet, forms=built,
+                         file_stem=_slug(fam_name))
+    prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
+                      "catalog facts; no manufacturer identity is claimed")
+    return prod
+
+
+def add_cylinder_form(doc: SK.FamilyDoc, radius_ft: float, height_ft: float, *,
+                      base_z_ft: float = 0.0,
+                      center: Sequence[float] = (0.0, 0.0),
+                      rep: str = G.REP_SOLID) -> G.FormBundle:
+    """Author a true ARC-PROFILE cylinder (a stem, a can, a bollard) --
+    Revit's own two-half-arc circle sketch, not a faceted approximation."""
+    if doc.finalized:
+        raise FactoryError("document is finalized; add forms before finalize")
+    ctx = geometry_context(doc)
+    fb = G.cylinder(float(radius_ft), float(height_ft), ctx, doc.ids,
+                    base_z_ft=float(base_z_ft), center=tuple(center), rep=rep)
+    doc.add(*fb.elements)
+    return fb
+
+
+#: the shapes one PART of a multi-part generic model may take (issue #498
+#: LOD follow-up): every one is an extrusion this engine already emits.
+GENERIC_PART_SHAPES = ("box", "cylinder", "polygon")
+
+
+def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
+                     solid: bool = True) -> G.FormBundle:
+    """Author ONE part of a multi-part generic model.  ``part`` =
+    ``{"shape": "box"|"cylinder"|"polygon", ...}``:
+
+    * ``box``      -- ``width_ft``, ``depth_ft``, ``height_ft``
+    * ``cylinder`` -- ``radius_ft`` (or ``diameter_ft``), ``height_ft``
+    * ``polygon``  -- ``vertices`` (closed ring, feet), ``height_ft``
+
+    plus optional ``base_z_ft`` (default 0) and ``center`` (plan, default
+    origin) -- so parts STACK into a real assembly instead of one blob.
+    """
+    shape = str(part.get("shape") or "box").lower()
+    if shape not in GENERIC_PART_SHAPES:
+        raise FactoryError(f"unknown part shape {shape!r}: "
+                           f"one of {', '.join(GENERIC_PART_SHAPES)}")
+    h = part.get("height_ft")
+    if h is None or float(h) <= 0:
+        raise FactoryError(f"part {shape!r} needs a positive height_ft")
+    base = float(part.get("base_z_ft") or 0.0)
+    center = tuple(part.get("center") or (0.0, 0.0))
+    rep = G.REP_SOLID if solid else G.REP_DUMMY
+    if shape == "cylinder":
+        r = part.get("radius_ft")
+        if r is None and part.get("diameter_ft") is not None:
+            r = float(part["diameter_ft"]) / 2.0
+        if r is None or float(r) <= 0:
+            raise FactoryError("a cylinder part needs radius_ft or diameter_ft")
+        fb = add_cylinder_form(doc, float(r), float(h), base_z_ft=base,
+                               center=center, rep=rep)
+    elif shape == "polygon":
+        vs = part.get("vertices")
+        if not vs:
+            raise FactoryError("a polygon part needs vertices")
+        if center != (0.0, 0.0):
+            vs = [[float(p[0]) + center[0], float(p[1]) + center[1]] for p in vs]
+        fb = add_polygon_form(doc, vs, float(h), base_z_ft=base, rep=rep)
+    else:
+        w, d = part.get("width_ft"), part.get("depth_ft")
+        if w is None or d is None:
+            raise FactoryError("a box part needs width_ft and depth_ft")
+        fb = add_box_form(doc, float(w), float(d), float(h), base_z_ft=base,
+                          center=center, rep=rep)
+    fb.params.update({"role": str(part.get("name") or shape), "shape": shape,
+                      "base_z_ft": base})
+    return fb
+
+
+def make_generic_model(*, height_ft: Optional[float] = None,
+                       parts: Optional[Sequence[Dict[str, Any]]] = None,
                        vertices: Optional[Sequence[Sequence[float]]] = None,
                        width_ft: Optional[float] = None,
                        depth_ft: Optional[float] = None,
@@ -919,11 +1055,17 @@ def make_generic_model(*, height_ft: float,
     Donor-free like every other constructor; carries the full famdoc law
     set (settings singletons, views, browser folders, sketch solver).
     """
+    if parts:
+        return _make_generic_multipart(parts, name=name, category=category,
+                                       solid=solid, source=source,
+                                       start_id=start_id,
+                                       shared_params=shared_params)
     if height_ft is None or float(height_ft) <= 0:
-        raise FactoryError("make_generic_model needs a positive height_ft")
+        raise FactoryError("make_generic_model needs a positive height_ft "
+                           "(or parts=[...] for a multi-part assembly)")
     if vertices is None and (width_ft is None or depth_ft is None):
         raise FactoryError("make_generic_model needs vertices=[...] or "
-                           "width_ft + depth_ft")
+                           "width_ft + depth_ft, or parts=[...]")
     H = float(height_ft)
     prof = G.polygon_profile(vertices) if vertices is not None else None
     W = float(prof.width) if prof is not None else float(width_ft)
@@ -1427,11 +1569,22 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
         _common([f"{int(j['spaces'])}ckt" for j in jobs]), mount.title())
     doc = SK.new_family_document("electrical_equipment", fam_name,
                                  part_type=SK.PART_TYPE["panelboard"],
-                                 work_plane_based=True, start_id=start_id,
+                                 work_plane_based=False, start_id=start_id,
                                  plane_length_ft=max(6.0, H * 1.5),
                                  shared_params=shared_params)
-    doc.notes.append("panelboard: work-plane-based (face-hosted like every rme "
-                     "panelboard); enclosure box in the family XY = the host face")
+    doc.notes.append(
+        "panelboard: FREE-STANDING (level-based), enclosure standing W x D "
+        "on the reference level, H tall. The Autodesk rme panelboard is "
+        "instead WORK-PLANE-BASED and traces the panel FACE in the family XY "
+        "with the depth along Z -- which is why it lies flat in the family "
+        "editor and only stands up once you place it on a wall face "
+        "[measured: m_isWorkPlaneBased True, part type 14, extrusions "
+        "1.667 x 1.667 x 0.479 ft with the depth on Z]. We place instances "
+        "on LEVELS, not by picking a face, so a work-plane-based family "
+        "genuinely ended up lying on the floor; the geometry and the hosting "
+        "flag now agree. Reverting to the face-hosted convention is one flag "
+        "plus the W x H axis swap (owner steer 2026-08-10: 'it should be "
+        "pointed up especially if its in those elevation views').")
     # -- parameters: dimensions ------------------------------------------
     for dim in ("Width", "Height", "Depth"):
         _num(doc, dim, "length", "dimensions")
@@ -1467,13 +1620,18 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
             f"(box {fx.get('width_in'):g} W x {fx.get('height_in'):g} H x "
             f"{fx.get('depth_in'):g} D in; generated from catalog facts)"))
     # -- geometry: the enclosure box -------------------------------------
-    # profile W (x) x H (y) in the family plane (the wall face); depth along
-    # +Z for surface mounting, recessed (-Z) for flush.
-    if mount.startswith("flush"):
-        base_z, height = -D, D          # box behind the face (z -D..0)
-    else:
-        base_z, height = 0.0, D         # box proud of the face (z 0..D)
-    fb = add_box_form(doc, W, H, height, base_z_ft=base_z, center=(0.0, 0.0),
+    # THE PANEL STANDS UP (owner: "it seems that the panel is laying down.
+    # it should be pointed up especially if its in those elevation views").
+    # This used to trace W (x) x H (y) in the family plane and push the
+    # DEPTH along +Z -- the convention of a FACE-HOSTED family, whose xy
+    # plane is the wall face.  A standalone Electrical Equipment family's
+    # xy plane is the Ref. Level floor plan, so that laid a 5 ft panel flat
+    # on the floor: right solid, wrong axis.  Footprint is W (x) x D (y),
+    # H tall from the reference level, like the transformer next door.
+    # Mounting shifts the box in Y about the wall face at y = 0: surface =
+    # proud of it (0..D), flush = recessed behind it (-D..0).
+    y_centre = -D / 2.0 if mount.startswith("flush") else D / 2.0
+    fb = add_box_form(doc, W, D, H, base_z_ft=0.0, center=(0.0, y_centre),
                       rep=G.REP_SOLID if solid else G.REP_DUMMY)
     fb.params.update({"role": "panelboard enclosure",
                       "dims_in": [facts.get("width_in"), facts.get("height_in"),
@@ -1481,16 +1639,23 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                       "mounting": mount})
     # -- connector: 3-pole power feed, top face centre (specimen convention)
     poles = 3 if int(facts.get("phases")) >= 3 else 1
-    add_connector(doc, host=fb, face="+y",
-                  location=(0.0, H / 2.0, base_z + height / 2.0),
-                  direction=(0.0, 0.0, -1.0), u_axis=(0.0, 1.0, 0.0),
+    # the feeder enters a standing panelboard from ABOVE, so the connector
+    # moves with the box to the top face (it used to sit on +y, the upward
+    # face of the panel while it lay on its back)
+    add_connector(doc, host=fb, face="top",
+                  location=(0.0, y_centre, H),
+                  direction=(0.0, 0.0, 1.0), u_axis=(1.0, 0.0, 0.0),
                   voltage_v=vll, poles=poles, apparent_load_va=0.0,
                   power_factor=1.0, bind_voltage_param="Voltage",
                   load_class="Power", description="Panel Feed")
-    # -- parametric drive: editing Width/Height must MOVE the extrusion
-    #    (issue #372: side RefPlanes + Alignments + labeled dims, donor law)
+    # -- parametric drive: editing the two SKETCH dimensions must MOVE the
+    #    extrusion (issue #372: side RefPlanes + Alignments + labeled dims).
+    #    Standing the panel up makes the footprint Width x Depth; Height is
+    #    now the extrusion depth, which needs a built-in-to-family parameter
+    #    association we do not author yet (filed) -- it is still a real
+    #    parameter and still sizes the geometry at generation time.
     from . import param_drive as PD
-    PD.wire_panelboard_drive(doc)
+    PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
     doc.finalize()
     prod = FamilyProduct("panelboard", doc, facts, forms=[fb], types=rows,
                          file_stem=_slug(f"{vendor}_{facts.variant}_"

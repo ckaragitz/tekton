@@ -156,8 +156,38 @@ def test_solid_requires_ccw_and_downward():
     prof = G.rect_profile(1.0, 1.0)
     with pytest.raises(ValueError):
         G.solid_box_brep(prof, 0.0, 1.0, element_id=1)      # end > start
+    # a pre-built profile must already be CCW -- the caller asserted an order
     with pytest.raises(ValueError):
-        G.solid_box_brep([[1, 1], [1, -1], [-1, -1], [-1, 1]], 1.0, 0.0, element_id=1)  # CW
+        G.solid_box_brep(G.RectProfile([[1, 1, 0], [1, -1, 0], [-1, -1, 0],
+                                        [-1, 1, 0]]), 1.0, 0.0, element_id=1)
+    # a RAW vertex ring is normalised instead (an IFC profile's winding
+    # follows its own axis convention), so clockwise input builds fine...
+    cw = G.solid_box_brep([[1, 1], [1, -1], [-1, -1], [-1, 1]], 1.0, 0.0,
+                          element_id=1)
+    assert cw["m_subNodes"][0]["value"]["m_pFaces"]
+    # ...but a degenerate ring still cannot be a prism
+    with pytest.raises(ValueError):
+        G.solid_box_brep([[0, 0], [1, 0]], 1.0, 0.0, element_id=1)
+    with pytest.raises(ValueError):                       # collinear
+        G.solid_box_brep([[0, 0], [1, 0], [2, 0]], 1.0, 0.0, element_id=1)
+
+
+@pytest.mark.parametrize("n", [3, 5, 6, 12])
+def test_ngon_prism_solid_is_cached(n):
+    """THE N-GON PRISM (owner probe: a form shipped with the SerializedDummy
+    'regeneration' rep draws NOTHING in Revit, so every form needs a real
+    cached solid).  An N-gon prism is the box topology with N sides."""
+    import math
+    ring = [[math.cos(2 * math.pi * k / n), math.sin(2 * math.pi * k / n)]
+            for k in range(n)]
+    g = G.solid_box_brep(ring, 1.0, 0.0, element_id=1)
+    geom = g["m_subNodes"][0]["value"]
+    assert len(geom["m_pFaces"]) == n + 2, n        # 2 caps + N sides
+    assert len(geom["m_pEdges"]) == 3 * n, n        # N rails x2 + N laterals
+    # a concave ring is a prism too -- the topology does not care
+    L = [[0, 0], [1.5, 0], [1.5, .4], [.4, .4], [.4, 1.2], [0, 1.2]]
+    gl = G.solid_box_brep(L, 1.0, 0.0, element_id=1)["m_subNodes"][0]["value"]
+    assert len(gl["m_pFaces"]) == 8 and len(gl["m_pEdges"]) == 18
 
 
 @needs_rme
@@ -193,11 +223,14 @@ def test_box_bundle_schema_roundtrip(ctx, rep):
     assert rt["ok"], [(k, v) for k, v in rt["elements"].items() if not v["ok"]]
     ex = fb.by_class("ExtrusionElem")[0]
     assert (ex.rep is not None) == (rep == G.REP_SOLID)
-    # extrusion offsets: start (top) = 700 mm, end (bottom) = 0
+    # extrusion offsets are ordered by ELEVATION, not by the tracer's
+    # direction: Revit reads -1001800 as "Extrusion Start" and shows
+    # Depth = End - Start, so the box path's traced start (its TOP) belongs
+    # in END or every box reports a negative depth in the properties palette
     ps = {p["m_paramId"]: p["m_value"]
           for p in ex.obj["m_pParamValueSetDouble"]["value"]["m_paramSet"]}
-    assert abs(ps[G.BIP_EXTRUSION_START] - G.mm(700)) < 1e-12
-    assert ps[G.BIP_EXTRUSION_END] == 0.0
+    assert ps[G.BIP_EXTRUSION_START] == 0.0
+    assert abs(ps[G.BIP_EXTRUSION_END] - G.mm(700)) < 1e-12
     # the sketch feeds the extrusion; the extrusion's helper points at the sketch
     sk = fb.by_class("VarSketch")[0]
     assert sk.obj["m_userId"] == ex.elem_id
@@ -451,3 +484,30 @@ def test_emitted_family_validates_at_parity(tmp_path, ctx):
     assert vp["parity"], vp["errors_beyond_baseline"]
     assert vp["out_stats"]["decode_failures"] == 0
     assert vp["out_stats"]["elements_decoded"] == vp["donor_stats"]["elements_decoded"] + 7
+
+
+@pytest.mark.parametrize("n", [3, 4, 5, 6, 8, 12])
+def test_prism_solid_is_a_closed_manifold(n):
+    """Every generated prism must be a CLOSED, self-consistent solid.  The
+    validator cannot see this (it checks records, not B-rep topology), so a
+    broken solid used to reach Revit with 0 errors reported."""
+    import math
+    ring = [[math.cos(2 * math.pi * k / n), math.sin(2 * math.pi * k / n)]
+            for k in range(n)]
+    assert G.check_solid(G.solid_box_brep(ring, 1.0, 0.0, element_id=1),
+                         expect_n=n) == []
+
+
+def test_check_solid_catches_an_open_shell():
+    """The check must FAIL on a solid that is missing a face -- otherwise it
+    is not evidence of anything."""
+    g = G.solid_box_brep(G.rect_profile(1.0, 1.0), 1.0, 0.0, element_id=1)
+    assert G.check_solid(g, expect_n=4) == []
+    g["m_subNodes"][0]["value"]["m_pFaces"].pop()          # drop a side face
+    assert G.check_solid(g, expect_n=4) != []
+
+
+def test_concave_prism_solid_is_closed():
+    L = [[0, 0], [1.5, 0], [1.5, .4], [.4, .4], [.4, 1.2], [0, 1.2]]
+    assert G.check_solid(G.solid_box_brep(L, 1.0, 0.0, element_id=1),
+                         expect_n=6) == []
