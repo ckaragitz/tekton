@@ -16,6 +16,13 @@ shape off the file (``PartAtom`` present -> unframed), so "every framed
 non-partition stream carries >= 1 gzip member" is applied literally by both
 gates.  On undamaged files nothing a gate says changes.
 
+#486 finished the two consumers: the validator words its partition-framing
+finding THROUGH ``WalkedFile.framing_error`` (one string by construction, not
+by convention) and takes its family-mode unframed set from the file
+(``unframed_streams_of``), and the job manifest's ``structural.report``
+carries ``framing_errors`` (present only when earned) -- so ``rvt_job.py edit
+… --json`` names the damaged partition and the reason in its ONE JSON.
+
 Fresh-clone runnable (tracked bundled bases + the tracked eval-kit family;
 edits and damaged copies go to ``tmp_path``); in the CI shard via
 tests/ci_shard.d/458-partition-header-verdict.txt.
@@ -25,6 +32,7 @@ Run: .venv/bin/python -m pytest tests/test_partition_header_verdict.py -q
 from __future__ import annotations
 
 import dataclasses
+import json
 import os
 
 import pytest
@@ -33,7 +41,8 @@ from rvt import manipulate as M
 from rvt.cfb_writer import CfbEntry, write_cfb
 from rvt.container import open_rvt
 from rvt.roundtrip import read_entries
-from rvt.validate import UNFRAMED_STREAMS, unframed_streams_of, validate_file, walk_file
+from rvt.validate import (UNFRAMED_STREAMS, Validator, unframed_streams_of, validate_file,
+                          walk_file)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GEN = os.path.join(ROOT, "plugin", "assets", "genesis")
@@ -50,6 +59,13 @@ pytestmark = pytest.mark.skipif(
 #: the block-dependent facts of the primary partition: not checked -> None
 BLOCK_DEPENDENT = ("isize_identity_mismatches", "sentinel_last", "stamps_ok",
                    "unit0_ids_equal_elemtable")
+
+#: the manifest's structural.report on an undamaged file: no key added (#486)
+STRUCTURAL_REPORT_KEYS = ["crc_failures", "ecc_mismatches", "walker_errors",
+                          "isize_identity_mismatches", "stamps_ok", "elemtable_count",
+                          "header_count", "sentinel_last", "deleted_still_present",
+                          "deleted_in_elemtable", "elemtable_ids_sorted",
+                          "unit0_ids_equal_elemtable"]
 
 
 def _gates(job, path, *, walked=None, edited=(LEVEL_ID,)):
@@ -155,6 +171,8 @@ def test_primary_header_zeroed_is_a_fail_verdict(job, tmp_path, edited):
     assert isinstance(v["elemtable_count"], int) and v["header_count"] == 0
     # the validator words the same condition identically, and FAILs too
     assert not rep["ok"] and v["framing_errors"][pname] in _errors_at(rep, pname)
+    # ... and the manifest's structural block carries the reason, not only the count
+    assert structural["report"]["framing_errors"] == v["framing_errors"]
 
 
 # ---------------------------------------------------------------------------
@@ -173,6 +191,7 @@ def test_twin_header_zeroed_is_a_fail_verdict(job, tmp_path, edited):
     assert v["edited"][str(LEVEL_ID)]["102"] == {"class": "Level", "clean": True}
     assert not rep["ok"] and v["framing_errors"][twin.path] in _errors_at(rep, twin.path)
     assert not _errors_at(rep, _partition(edited))
+    assert structural["report"]["framing_errors"] == v["framing_errors"]
 
 
 def test_both_headers_zeroed_count_two_walker_errors(job, tmp_path, edited):
@@ -182,6 +201,25 @@ def test_both_headers_zeroed_count_two_walker_errors(job, tmp_path, edited):
     v, structural, rep = _judged(job, bad)
     assert structural["status"] == "FAIL" and v["walker_errors"] == 2
     assert len(v["framing_errors"]) == 2 and v["stamps_ok"] is None
+    assert sorted(structural["report"]["framing_errors"]) == sorted(v["framing_errors"])
+
+
+def test_validator_words_the_framing_finding_through_the_walk(tmp_path, edited):
+    """ONE wording by construction: the validator's L1 error on a partition
+    whose header does not parse IS ``WalkedFile.framing_error(p)``; a
+    partition under 18 bytes keeps the validator's own pre-check wording."""
+    pname = _partition(edited)
+    bad = str(tmp_path / "primary_hdr0_w.rvt")
+    short = dataclasses.replace(_twin_entry(edited), data=b"\x00" * 10)
+    _rewrite(edited, bad, {pname: _zero16}, extra=[short])
+    walked = walk_file(bad)
+    rep = validate_file(bad, layers=("structure",), walked=walked).to_json()
+    l1 = {f["where"]: f["message"] for f in rep["findings"]      # the LAST structure error per where
+          if f["severity"] == "error" and f["layer"] == "structure"}
+    assert l1[pname] == walked.framing_error(pname)               # (after the ECC pass's findings)
+    assert l1[short.path] == "partition stream too short"
+    assert walked.framing_error(short.path).startswith("partition header/framing: ")
+    walked.close()
 
 
 # ---------------------------------------------------------------------------
@@ -209,22 +247,77 @@ VERIFY_KEYS = ["crc_failures", "ecc_mismatches", "walker_errors", "isize_identit
                "elemtable_ids_sorted", "unit0_ids_equal_elemtable", "fallbacks"]
 
 
+def _assert_healthy_shape(v, structural, rep):
+    """PASS, and no key added anywhere: ``framing_errors`` only when earned."""
+    assert list(v) == VERIFY_KEYS
+    assert list(structural["report"]) == STRUCTURAL_REPORT_KEYS
+    assert structural["status"] == "PASS" and rep["ok"]
+
+
 @pytest.mark.parametrize("year", sorted(BASES))
 def test_undamaged_bases_unchanged(job, year):
     v, structural, rep = _judged(job, BASES[year], edited=())
-    assert list(v) == VERIFY_KEYS                             # framing_errors only when earned
-    assert structural["status"] == "PASS" and rep["ok"]
+    _assert_healthy_shape(v, structural, rep)
     assert (v["crc_failures"], v["ecc_mismatches"], v["walker_errors"]) == (0, 0, 0)
 
 
 def test_undamaged_edit_and_verbatim_twin_unchanged(job, tmp_path, edited):
-    v, structural, rep = _judged(job, edited)
-    assert list(v) == VERIFY_KEYS and structural["status"] == "PASS" and rep["ok"]
+    _assert_healthy_shape(*_judged(job, edited))
     twin = str(tmp_path / "twin_ok.rvt")
     _rewrite(edited, twin, {}, extra=[_twin_entry(edited)])
     v, structural, rep = _judged(job, twin)
-    assert list(v) == VERIFY_KEYS and structural["status"] == "PASS" and rep["ok"]
+    _assert_healthy_shape(v, structural, rep)
     assert v["walker_errors"] == 0
+
+
+# ---------------------------------------------------------------------------
+# 4b. through the door: `rvt_job.py edit … --json` names partition + reason
+# ---------------------------------------------------------------------------
+def _job_edit_json(job, capsys, tmp_path, name):
+    """``rvt_job.py edit <2025 base> --ops {set-level} -o … --json`` in-process:
+    (rc, the ONE JSON on stdout) -- which is also the manifest on disk."""
+    ops = tmp_path / f"{name}.ops.json"
+    ops.write_text(json.dumps([{"op": "set-level", "id": LEVEL_ID, "elevation_ft": 5.0}]))
+    out = str(tmp_path / f"{name}.rvt")
+    capsys.readouterr()
+    rc = job.main(["edit", BASES[2025], "--ops", str(ops), "-o", out, "--json", "--no-provenance"])
+    doc = json.loads(capsys.readouterr().out)              # ONE JSON, nothing else on stdout
+    with open(out + ".manifest.json") as fh:
+        assert {k: val for k, val in doc.items() if k != "exit_code"} == json.load(fh)
+    return rc, doc
+
+
+def test_job_json_structural_block_names_partition_and_reason(job, capsys, tmp_path, monkeypatch):
+    """A writer regression -- the primary's header broken right after the door
+    wrote (and scrubbed) the file: the case the self-check exists to label."""
+    pname = _partition(BASES[2025])
+    scrub = job.scrub_identity
+
+    def scrub_then_damage(path, **kw):
+        res = scrub(path, **kw)
+        _rewrite(path, path, {pname: _zero16})
+        return res
+    monkeypatch.setattr(job, "scrub_identity", scrub_then_damage)
+    rc, doc = _job_edit_json(job, capsys, tmp_path, "hdr0")
+    assert rc == job.EX_STRUCT and doc["exit_code"] == rc
+    structural = doc["gates"]["structural"]
+    assert structural["status"] == "FAIL" and structural["report"]["walker_errors"] == 1
+    why = structural["report"]["framing_errors"]
+    assert list(why) == [pname]
+    assert why[pname].startswith("partition header/framing: unexpected Partitions header")
+    # the validation gate FAILs on the same words; the file was still delivered
+    val = doc["gates"]["validation"]
+    assert val["status"] == "FAIL"
+    assert why[pname] in [f["message"] for f in val["top_findings"] if f["where"] == pname]
+    assert os.path.isfile(doc["output"]["path"]) and doc["hard_gates_passed"] is False
+
+
+def test_job_json_healthy_structural_block_gains_no_key(job, capsys, tmp_path):
+    rc, doc = _job_edit_json(job, capsys, tmp_path, "healthy")
+    assert rc == 0 and doc["hard_gates_passed"] is True
+    structural = doc["gates"]["structural"]
+    assert structural["status"] == "PASS"
+    assert list(structural["report"]) == STRUCTURAL_REPORT_KEYS   # no `framing_errors: null`
 
 
 # ---------------------------------------------------------------------------
@@ -255,6 +348,37 @@ def test_family_partatom_is_unframed_and_costs_nothing():
     assert v["elemtable_count"] == v["header_count"] and "framing_errors" not in v
     assert validate_file(FAMILY, family=True, walked=walked).ok
     walked.close()
+
+
+def _opened_validator(path, walked, **kw):
+    """A validator handed ``walked``, opened: ``.walked`` is what its layers draw from."""
+    val = Validator(path, walked=walked, **kw)
+    val._open()
+    return val
+
+
+@pytest.mark.skipif(not os.path.isfile(FAMILY), reason="tracked eval-kit family missing")
+def test_validator_takes_the_family_shape_from_the_file():
+    """Family mode: the validator's unframed set IS the file's own shape
+    (``unframed_streams_of``), so a shared walk is used outright -- on the
+    ``.rfa`` and on a project alike -- never re-viewed.  Project mode keeps
+    judging ``PartAtom`` framed when asked to (the explicit flag / ``--project``
+    is honoured: the raw comparison ``famgen``'s ``validate_family`` reports),
+    which on an ``.rfa`` is the one remaining sibling view."""
+    fam = walk_file(FAMILY)
+    assert _opened_validator(FAMILY, fam, family=True).walked is fam
+    assert fam.unframed == unframed_streams_of(fam.names) and "PartAtom" in fam.unframed
+    raw = _opened_validator(FAMILY, fam, family=False).walked   # explicit project mode honoured
+    assert raw is not fam and raw.unframed == UNFRAMED_STREAMS
+    assert raw._raw is fam._raw                               # a view: nothing re-read
+    wheres = {f.where for f in validate_file(FAMILY, layers=("structure",), walked=fam).errors}
+    assert {"PartAtom", "ProjectInformation"} <= wheres         # the pinned raw comparison
+    fam.close()
+    base = walk_file(BASES[2025])
+    assert base.unframed == UNFRAMED_STREAMS
+    for family in (False, True):
+        assert _opened_validator(BASES[2025], base, family=family).walked is base
+    base.close()
 
 
 def test_memberless_framed_stream_fails_both_gates_alike(job, tmp_path, edited):

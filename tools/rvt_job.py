@@ -336,6 +336,8 @@ def structural_gate_from_manipulated(v: dict) -> dict:
         "stamps_ok", "elemtable_count", "header_count", "sentinel_last",
         "deleted_still_present", "deleted_in_elemtable", "elemtable_ids_sorted",
         "unit0_ids_equal_elemtable")}
+    if "framing_errors" in v:                     # {partition: reason}, present only when earned
+        keep["framing_errors"] = v["framing_errors"]
     warnings = []
     # Block-header A/C counter identity: the known commit.py off-by-4*A defect
     # on element-INSERT blocks.  The calibrated arbiter (rvt.validate) rates

@@ -887,17 +887,16 @@ class Validator:
         self.required_streams = (tuple(s for s in REQUIRED_STREAMS
                                        if s != "ProjectInformation")
                                  if family else REQUIRED_STREAMS)
-        self.unframed_streams = (frozenset(set(UNFRAMED_STREAMS) | {"PartAtom"})
-                                 if family else UNFRAMED_STREAMS)
         self.rep = Report(path, layers=self.layers)
         self.ole: Optional[olefile.OleFileIO] = None
         self.names: List[str] = []
         # the ONE read/ECC/inflate walk every layer draws from (set by _open):
         # the caller's, seen as this validator's repaired view of its stream
-        # shape (#266), else one built lazily over self.ole
-        self._given: Optional[WalkedFile] = (
-            walked.view(repair=True, unframed=self.unframed_streams)
-            if walked is not None else None)
+        # shape (#266), else one built lazily over self.ole.  Its ``unframed``
+        # IS the mode's shape: the file's own (unframed_streams_of, the walk's
+        # default) in family mode; project mode judges PartAtom framed on
+        # purpose (the raw comparison famgen's validate_family reports).
+        self._given: Optional[WalkedFile] = walked
         self.walked: WalkedFile
         self._replayed: Set[str] = set()              # streams whose ECC findings are in rep
         # decoded structures shared between layers
@@ -937,8 +936,10 @@ class Validator:
     # -- container -----------------------------------------------------------
     def _open(self) -> None:
         rep = self.rep
-        if self._given is not None:
-            self.walked = self._given
+        given = self._given
+        if given is not None:
+            shape = unframed_streams_of(given.names) if self.family else UNFRAMED_STREAMS
+            self.walked = given.view(repair=True, unframed=shape)
         else:                                        # nobody walked it for us: open + walk lazily
             if not olefile.isOleFile(self.path):
                 rep.error(L_STRUCTURE, "container", "not an OLE2/CFB compound file")
@@ -950,9 +951,9 @@ class Validator:
                 raise _Abort()
             ole = self.ole
             names = ["/".join(p) for p in ole.listdir(streams=True, storages=False)]
-            self.walked = WalkedFile(self.path, names,
+            self.walked = WalkedFile(self.path, names,          # None = the file's own shape
                                      lambda n: ole.openstream(n.split("/")).read(),
-                                     self.unframed_streams)
+                                     None if self.family else UNFRAMED_STREAMS)
         self.names = self.walked.names
         self.rep.stats["streams"] = len(self.names)
 
@@ -993,7 +994,7 @@ class Validator:
         # -- gzip members ---------------------------------------------------------
         n_members = 0
         for name in self.names:
-            if name in self.unframed_streams or name.startswith("Partitions/"):
+            if name in walked.unframed or name.startswith("Partitions/"):
                 continue
             logical = self._logical(name)
             members = walked.members(name)
@@ -1044,12 +1045,11 @@ class Validator:
             if len(self._logical(pname)) < 18:
                 rep.error(L_STRUCTURE, pname, "partition stream too short")
                 continue
-            try:
-                w = walked.walker(pname)
-            except Exception as e:
-                rep.error(L_STRUCTURE, pname, f"partition header/framing: {e}")
+            why = walked.framing_error(pname)            # the ONE wording both gates record
+            if why:
+                rep.error(L_STRUCTURE, pname, why)
                 continue
-            self.part_walkers[pname] = w
+            w = self.part_walkers[pname] = walked.walker(pname)
             for msg in w.errors:
                 rep.error(L_STRUCTURE, pname, f"block walker: {msg}")
             n_blocks += len(w.blocks)
