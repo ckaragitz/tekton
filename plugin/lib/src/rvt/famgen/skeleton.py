@@ -1907,8 +1907,62 @@ class FamilyDoc:
         # element index + ownership over EVERY element (self last)
         others = [e.elem_id for e in self.elements if e.elem_id != fam.elem_id]
         refresh_self_family_index(fam, others)
+        self._fit_3d_view()
         self.finalized = True
         return self
+
+    #: 3D-view scale of a Revit-born family document (1:24) -- the project
+    #: default 5.0 frames a building, not a component [measured on the
+    #: owner's donor + the Autodesk library panelboard].
+    VIEW3D_SCALE = 0.041666666666666664
+
+    def _fit_3d_view(self) -> None:
+        """FRAME THE 3D VIEW ON THE MODEL (owner report: a small family "I do
+        not see it at all", with the sun path filling the frame).
+
+        The project skeleton's 3D camera sits at (-40,-40,20) looking at
+        (0,0,5) at scale 5.0 -- 46 ft away, aimed ABOVE a component: a 4 in.
+        hanger is an invisible speck and the 150-unit sun path dominates
+        what is left.  A Revit-born family instead parks the camera a couple
+        of feet off its object at 1:24 [measured].
+
+        The view DIRECTION is kept exactly as authored (so the Viewer3d
+        basis stays valid); only the target, the eye distance and the scale
+        are fitted to the model's bounding box.
+        """
+        lo = [float("inf")] * 3
+        hi = [float("-inf")] * 3
+        for e in self.elements:
+            rep = getattr(e, "rep", None)
+            bb = rep.get("m_bBox") if isinstance(rep, dict) else None
+            if not (isinstance(bb, list) and len(bb) == 2):
+                continue
+            try:
+                for k in range(3):
+                    lo[k] = min(lo[k], float(bb[0][k]))
+                    hi[k] = max(hi[k], float(bb[1][k]))
+            except (TypeError, ValueError, IndexError):       # pragma: no cover
+                continue
+        if not all(x < float("inf") for x in lo):
+            return                                   # no geometry: leave as built
+        centre = [(lo[k] + hi[k]) / 2.0 for k in range(3)]
+        size = max([hi[k] - lo[k] for k in range(3)] + [0.5])
+        dist = size * 3.0                            # the whole body in frame
+        for e in self.elements:
+            if e.class_name == "DBView3d":
+                vd = e.obj.get("m_viewDir") or [-0.6834861261734088,
+                                                -0.6834861261734088,
+                                                0.25630729731502827]
+                eye = [centre[k] + float(vd[k]) * dist for k in range(3)]
+                e.obj["m_origin"] = eye
+                e.obj["m_scale"] = self.VIEW3D_SCALE
+                for sat in self.elements:
+                    if sat.class_name == "Viewer3d":
+                        sat.obj["m_targetPos"] = list(centre)
+                        bs = sat.obj.get("m_boundedSpace")
+                        if isinstance(bs, dict):
+                            bs["m_orig"] = list(eye)
+                break
 
     def _type_param_entries(self, vals: Dict[Any, Any]) -> List[dict]:
         out = []
@@ -2118,7 +2172,38 @@ def _resolve_category(category) -> int:
              "transformer": OST_ELECTRICAL_EQUIPMENT,
              "switchboard": OST_ELECTRICAL_EQUIPMENT,
              "electrical_fixture": OST_ELECTRICAL_FIXTURES,
-             "electrical_fixtures": OST_ELECTRICAL_FIXTURES}
+             "electrical_fixtures": OST_ELECTRICAL_FIXTURES,
+             # -- the wider category set (owner steer: "a panel goes under
+             # electrical equipment and a receptacle goes under electrical
+             # fixtures" -- nothing real belongs in Generic Models by
+             # default).  The five above are DESKTOP-VERIFIED; the ids below
+             # are Revit's published BuiltInCategory constants and are
+             # [INFERRED] until a family in each opens in the right branch
+             # of Revit's category list (issue #516).  An explicit integer
+             # OST id always passes straight through.
+             **{k: v for k, v in {
+                 "mechanical_equipment": -2001140,
+                 "plumbing_fixture": -2001160, "plumbing_fixtures": -2001160,
+                 "specialty_equipment": -2001350,
+                 "casework": -2000079,
+                 "pipe_accessory": -2008055, "pipe_accessories": -2008055,
+                 "duct_accessory": -2008016, "duct_accessories": -2008016,
+                 "cable_tray": -2008130, "cable_trays": -2008130,
+                 "conduit": -2008132, "conduits": -2008132,
+                 "cable_tray_fitting": -2008131,
+                 "conduit_fitting": -2008133,
+                 "lighting_device": -2008080, "lighting_devices": -2008080,
+                 "fire_alarm_device": -2008013, "fire_alarm_devices": -2008013,
+                 "data_device": -2008083, "data_devices": -2008083,
+                 "communication_device": -2008012,
+                 "security_device": -2008085,
+                 "nurse_call_device": -2008084,
+                 "telephone_device": -2008086,
+                 "structural_framing": -2001320,
+                 "structural_column": -2001330,
+                 "door": -2000023, "doors": -2000023,
+                 "window": -2000014, "windows": -2000014,
+             }.items()}}
     if key not in table:
         raise KeyError(f"unknown family category {category!r}")
     return table[key]
