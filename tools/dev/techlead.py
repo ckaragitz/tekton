@@ -419,9 +419,19 @@ def render_wave(wave: str, rows: list, tech_lead: str = "", kept: str = "") -> s
         L += ["", f"Kept by the tech lead: {marker_safe(kept)}"]
     L += [""] + [f"<!-- wave:{marker_safe(wave, None)} issue={int(r['issue'])} session={marker_safe(r['session'], None)} territory={marker_safe(r['territory'])} -->" for r in rows]
     body = "\n".join(L)
-    if len(parse_waves([body])) != len({int(r["issue"]) for r in rows}):
-        raise ValueError(f"wave id {wave!r} or a session id would not parse back (allowed: wave {WAVE_ID}, session {SESSION_ID})")
+    want = [(str(wave), int(r["issue"]), str(r["session"])) for r in rows]
+    if len({i for _, i, _ in want}) != len(want):
+        raise ValueError("two rows for one issue — a wave lists each issue once (a take-over is a new post under the same wave id)")
+    if [(e["wave"], e["issue"], e["session"]) for e in parse_waves([body])] != want:
+        raise ValueError(f"wave id {wave!r} or a session id would not parse back verbatim (allowed: wave {WAVE_ID}, session {SESSION_ID})")
     return body
+
+
+def wave_comment_key(wave: str, body: str) -> str:
+    """comment_once key for a ledger post: wave + body digest, so a retried identical post is suppressed while a
+    deliberate re-post (take-over: different session) still lands. `--dry-run` prints the same marker so a ledger
+    pasted through MCP suppresses a later identical online post too."""
+    return f"wave-{marker_safe(wave, None)}-{hashlib.sha1(body.encode('utf-8')).hexdigest()[:10]}"
 
 
 def parse_waves(comment_bodies: list) -> list:
@@ -1283,19 +1293,21 @@ def _wave(a, cfg: dict) -> int:
         rows = [{"issue": int(str(n).lstrip("#")), "session": sid, "territory": t} for n, sid, t in a.row]
         body = render_wave(a.wave, rows, a.tech_lead, a.kept)
         if a.dry_run:
-            print(body)
+            print(body + f"\n\n<!-- techlead:{wave_comment_key(a.wave, body)} -->")     # the marker comment_once would append
             return 0
         gh = _client(a.repo)
         board = fetch_board_issue(gh, cfg)
         if not board:
             sys.exit(f"techlead wave: no open issue labelled '{cfg['board']['label']}' to post on — `techlead.py board` creates it; or --dry-run and paste")
-        digest = hashlib.sha1(body.encode("utf-8")).hexdigest()[:10]         # a deliberate re-post (take-over) differs → still lands
-        posted = gh.comment_once(board["number"], f"wave-{marker_safe(a.wave, None)}-{digest}", body, existing=board_comment_bodies(gh, board))
+        posted = gh.comment_once(board["number"], wave_comment_key(a.wave, body), body, existing=board_comment_bodies(gh, board))
         print(board["html_url"] + ("" if posted else "  (already ledgered — identical wave comment exists)"))
         return 0
     if a.from_file:                                        # the comment list exactly as the API / MCP issue_read return it
         with open(a.from_file, encoding="utf-8") as fh:
-            entries = parse_waves([c.get("body") or "" if isinstance(c, dict) else str(c) for c in json.load(fh)])
+            comments = json.load(fh)
+        if not isinstance(comments, list):
+            raise ValueError(f"{a.from_file}: expected the JSON LIST of comments the API / MCP issue_read return, got {type(comments).__name__}")
+        entries = parse_waves([c.get("body") or "" if isinstance(c, dict) else str(c) for c in comments])
         if a.open:
             entries = waves_in_flight(entries, [int(t.strip().lstrip("#")) for t in a.open.split(",") if t.strip()])
     else:
@@ -1462,7 +1474,7 @@ def _run(a, cfg: dict) -> int:
             upsert_board(gh, snap["issues"], cfg, body)
         print(f"api calls: {gh.calls}", file=sys.stderr)
     elif a.cmd == "brief":
-        try:                                          # #386: one extra call — the board issue's comments carry the wave ledger
+        try:                                          # #386: 0–2 extra calls — the board issue's newest comments carry the wave ledger
             board = find_board_issue(snap["issues"], cfg)
             model["waves"] = waves_in_flight(parse_waves(board_comment_bodies(gh, board)) if board else [], busy_issue_numbers(snap["issues"], snap["prs"]))
         except GitHubError as e:

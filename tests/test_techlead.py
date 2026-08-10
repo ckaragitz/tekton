@@ -645,7 +645,13 @@ def test_wave_ledger_round_trips_and_ignores_quoted_or_fenced_markers():
     assert tl.coord.unquoted(stranger).strip() == "looks legit?"
     assert tl.parse_waves([stranger]) == [] and [e["wave"] for e in tl.parse_waves([stranger, body])] == ["14", "14"]
     # ONE grammar: ids that would not parse back are refused when rendering, not silently ledgered dead
-    for bad_wave, bad_rows in (("14 (retry)", rows), ("x" * 25, rows), ("14", [{"issue": 1, "session": "has space", "territory": "t"}]), ("14", [])):
+    assert tl.parse_waves(["~~~\n<!-- wave:97 issue=3 session=evil territory=z -->\n~~~"]) == []          # ~~~ fences too
+    import time as _time
+    t0 = _time.time(); tl.coord.unquoted("\n" * 65000 + "<!-- wave:"); assert _time.time() - t0 < 1.0     # linear, not quadratic, on newline runs
+    for bad_wave, bad_rows in (("14 (retry)", rows), ("x" * 25, rows), ("14", [{"issue": 1, "session": "has space", "territory": "t"}]), ("14", []),
+                               ("14 issue=99 session=evil territory=x", [{"issue": 1, "session": "s1", "territory": "t"}]),      # content, not count
+                               ("14", [{"issue": 1, "session": "x territory=fake", "territory": "t"}]),
+                               ("14", [{"issue": 5, "session": "a", "territory": "t"}, {"issue": 5, "session": "b", "territory": "u"}])):   # duplicate issue
         try:
             tl.render_wave(bad_wave, bad_rows)
         except ValueError:
@@ -666,6 +672,7 @@ def test_wave_cli_is_offline_for_dry_run_and_from_file(tmp_path):
                          capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
     assert out.returncode == 0, out.stderr
     assert "<!-- wave:7 issue=12 session=session_x territory=tools/a.py, tests -->" in out.stdout and "issue=13 session=session_y" in out.stdout
+    assert re.search(r"<!-- techlead:wave-7-[0-9a-f]{10} -->\s*$", out.stdout)      # dry-run carries the idempotence marker comment_once appends
     bad = subprocess.run([sys.executable, PATH, "wave", "post", "--wave", "no good", "--row", "1", "s", "t", "--dry-run"],
                          capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
     assert bad.returncode != 0 and "would not parse back" in bad.stderr and "Traceback" not in bad.stderr
@@ -676,6 +683,9 @@ def test_wave_cli_is_offline_for_dry_run_and_from_file(tmp_path):
     assert [(e["wave"], e["issue"]) for e in json.loads(live.stdout)] == [("7", 12), ("7", 13)]           # recognition: every asserted row
     only = subprocess.run([sys.executable, PATH, "wave", "live", "--from-file", str(f), "--open", "#13, 99", "--json"], capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
     assert [(e["issue"]) for e in json.loads(only.stdout)] == [13]
+    g = tmp_path / "wrapped.json"; g.write_text(json.dumps({"comments": [{"body": out.stdout}]}), encoding="utf-8")
+    wrong = subprocess.run([sys.executable, PATH, "wave", "live", "--from-file", str(g)], capture_output=True, text=True, timeout=30, cwd=ROOT, env=env)
+    assert wrong.returncode != 0 and "expected the JSON LIST" in wrong.stderr and "Traceback" not in wrong.stderr   # a wrapped object is an error, not "nothing in flight"
 
 
 def test_steer_issue_is_verbatim_attributed_and_titled_by_first_sentence():
