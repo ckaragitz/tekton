@@ -11,6 +11,10 @@ resolver, and anything that calls ``resolve_intent`` directly (the
 ``tools/ifc_intent.py intent`` CLI, research probes) sees ``IfcOutlet``
 products as ``resolved make_device`` instead of ``unmapped``.
 
+#438: a hand-typed ``Load`` ('180 VA', 'abc') coerces or degrades that ONE
+device with a note and the ``--ifc`` route still delivers (rule 1); a 1-pole
+device on a wye system books the line-to-neutral leg on both routes.
+
 Sample-free (the famgen catalog + the bundled steplite reader); no file here
 is claimed to load in Revit (rule 4).
 
@@ -20,6 +24,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
 import os
 import subprocess
 import sys
@@ -100,24 +105,120 @@ def test_plan_family_for_maps_a_receptacle_device_to_make_device_with_schedule_k
 
 
 @needs_catalog
-def test_a_silent_schedule_books_the_default_row_and_a_wye_voltage_its_line_to_line():
+def test_a_silent_schedule_books_the_default_row_and_a_wye_voltage_its_line_to_neutral_leg():
     # no schedule at all -> OUR duplex receptacle at 120 V / 180 VA, height from the facts' convention
     bare = I.plan_family_for(_device("R-9"))
     assert bare.status == "resolved"
     assert bare.kwargs == {"kind": I.DEFAULT_DEVICE_KIND, "mounting_height_in": None,
                            "voltage": I.DEFAULT_DEVICE_VOLTAGE, "va": I.DEFAULT_DEVICE_VA}
     assert bare.facts_summary["mounting_height_in"] == 18.0          # the record's typical (assumed)
-    # a schedule voltage parses through parse_voltage: '277 V' -> '277', '208Y/120' -> the L-L '208'
+    # a schedule voltage parses through device_voltage: a plain '277 V' -> '277'
     v277 = I.plan_family_for(_device("R-2", {"Voltage": "277 V", "Load": 0, "MountingHeight": 96}))
     assert v277.kwargs["voltage"] == "277" and v277.kwargs["va"] == I.DEFAULT_DEVICE_VA   # Load 0 -> unit load
     assert v277.kwargs["mounting_height_in"] == 96 and v277.facts_summary["voltage_v"] == 277.0
+    assert v277.notes == []                                            # a silent / zero load leaves no note
+    # DELIBERATE CHANGE (#438): a wye SYSTEM voltage on a 1-pole receptacle books its
+    # line-to-NEUTRAL leg ('208Y/120' -> '120') -- make_device builds ONE 1-pole connector,
+    # and a duplex receptacle on a 208Y/120 board sits phase-to-neutral; #397 had inherited
+    # the L-L '208' here while the prompt route (_device_voltage) already booked L-N.
     wye = I.plan_family_for(_device("R-3", {"Voltage": "208Y/120", "Load": 360.0, "MountingHeight": 18.0}))
-    assert (wye.kwargs["voltage"], wye.kwargs["va"]) == ("208", 360.0)
-    assert wye.facts_summary["load_va"] == 360.0                       # the booked load follows the schedule
+    assert (wye.kwargs["voltage"], wye.kwargs["va"]) == ("120", 360.0)
+    assert (wye.facts_summary["voltage_v"], wye.facts_summary["load_va"]) == (120.0, 360.0)
+    # ... only a schedule that SAYS 2-pole (Poles / Phases >= 2) takes the line-to-line
+    two_pole = I.plan_family_for(_device("R-4", {"Voltage": "208Y/120", "Poles": 2, "Load": 360.0}))
+    assert two_pole.kwargs["voltage"] == "208"
+    assert I.plan_family_for(_device("R-5", {"Voltage": "208Y/120 V", "Phases": "2"})).kwargs["voltage"] == "208"
+    assert I.plan_family_for(_device("R-6", {"Voltage": "208Y/120", "Phases": 1, "Wires": 2})).kwargs["voltage"] == "120"
+    assert I.plan_family_for(_device("R-7", {"Voltage": "208Y/120", "Poles": "2P"})).kwargs["voltage"] == "208"
+    # a junk pole count / an overflowing load never raise out of the plan (review of #446)
+    junk = I.plan_family_for(_device("R-8", {"Voltage": "208Y/120", "Phases": float("inf"), "Load": 10 ** 400}))
+    assert junk.status == "resolved" and (junk.kwargs["voltage"], junk.kwargs["va"]) == ("120", I.DEFAULT_DEVICE_VA)
+    assert len(junk.notes) == 1 and "not finite" in junk.notes[0]
     # plan_families keeps one plan per item, in order, boards and devices alike
     plans = I.plan_families([_device("R-1", {"MountingHeight": 18.0}), _device("R-2", {"MountingHeight": 44.0})])
     assert [(p.tag, p.status, p.kwargs["mounting_height_in"]) for p in plans] == [
         ("R-1", "resolved", 18.0), ("R-2", "resolved", 44.0)]
+
+
+def test_the_prompt_route_and_the_plan_book_one_device_voltage():
+    """``prompt_intent._device_voltage`` IS ``intent.device_voltage`` (#438):
+    the clause voltage a prompted receptacle carries onto its DeviceSchedule
+    and the voltage plan_family_for books from that schedule are the same
+    figure for every spelling -- L-N of a wye system, a plain number as is,
+    the 120 V default row otherwise."""
+    for said, want in (("208Y/120", "120"), ("480Y/277 V", "277"), ("277 V", "277"),
+                       ("120", "120"), (None, "120"), ("low voltage", "120")):
+        item = PP.PromptItem(kind="receptacle_device", tag="R-1", voltage=said)
+        assert PP._device_voltage(item) == I.device_voltage(said) == want, said
+        assert I.device_voltage(said, poles=1) == want
+    assert I.device_voltage("208Y/120", poles=2) == "208" and I.device_voltage("480Y/277", poles="3") == "480"
+    assert I.device_voltage("208Y/120", poles="n/a") == "120"           # an unreadable pole count = 1-pole
+
+
+@pytest.mark.parametrize("poles, want", [
+    (None, "120"), (1, "120"), (1.0, "120"), ("1", "120"), ("1P", "120"), (True, "120"),
+    (2, "208"), (2.0, "208"), ("2", "208"), ("2P", "208"), ("2-pole", "208"), (" 3 ph", "208"), (3, "208"),
+    ("n/a", "120"), ("", "120"), ("P2", "120"), (0, "120"), (-2, "120"), ([2], "120"),
+    # review of #446: a hand-typed IFCREAL(1.E400) / NaN / >308-digit IFCINTEGER pole count must
+    # not raise (OverflowError / ValueError) out of plan_families -- it is simply a 1-pole device
+    (float("inf"), "120"), (float("-inf"), "120"), (float("nan"), "120"), (10 ** 400, "120"), ("1e400", "120"),
+])
+def test_device_voltage_reads_any_pole_count_without_raising(poles, want):
+    assert I.device_voltage("208Y/120", poles=poles) == want
+
+
+def test_a_unit_suffixed_load_coerces_and_a_bad_load_degrades_that_one_device_with_a_note():
+    """``DeviceSchedule.Load`` as a person types it (#438): '180 VA' / '180VA' /
+    '0.18 kVA' coerce to VA (a text label leaves ONE note saying so); 'abc',
+    a negative, NaN or an absurd figure fall back to the default unit load with
+    ONE note naming the property and the value -- never an exception."""
+    D = I.DEFAULT_DEVICE_VA
+    for raw, want in (("180 VA", 180.0), ("180VA", 180.0), ("180", 180.0), (" 360 va ", 360.0),
+                      ("0.18 kVA", 180.0), ("1.5kva", 1500.0), ("1.5e2 VA", 150.0)):
+        va, note = I.parse_device_load(raw)
+        assert va == want, raw
+        assert note.startswith(f"DeviceSchedule.Load {raw!r} is a text label") and f"read as {want:g} VA" in note
+    for raw in (180, 180.0, 360.5):                                    # a real measure: as is, silently
+        assert I.parse_device_load(raw) == (float(raw), None)
+    for raw in (None, "", "  ", 0, 0.0, "0", "0 VA"):                  # absent / zero: the unit load, silently
+        assert I.parse_device_load(raw) == (D, None), raw
+    for raw, why in (("abc", "not a number"), ("180 W", "not a number"), ("nan", "not a number"),
+                     (True, "not a number"), ([180], "not a number"),
+                     (-5, "negative"), ("-5 VA", "negative"),
+                     (float("nan"), "not finite"), (float("inf"), "not finite"),
+                     ("1e400 VA", "not finite"),
+                     (1e12, "sanity cap"), ("1e12", "sanity cap"), ("101 kVA", "sanity cap")):
+        va, note = I.parse_device_load(raw)
+        assert va == D, raw
+        assert note.startswith(f"DeviceSchedule.Load {raw!r} is not a usable apparent load (") and why in note
+        assert f"books the default {D:g} VA" in note
+    assert I.parse_device_load(I.MAX_DEVICE_VA) == (I.MAX_DEVICE_VA, None)   # the cap itself is a load
+    # review of #446: a >308-digit IFCINTEGER must not raise OverflowError, and its 400-digit
+    # repr is clipped in the note rather than echoed whole
+    va, note = I.parse_device_load(10 ** 400)
+    assert va == D and "(not finite)" in note
+    assert note.startswith("DeviceSchedule.Load " + "1" + "0" * 56 + "... is not a usable") and len(note) < 300
+
+
+@needs_catalog
+def test_plan_family_for_never_raises_on_a_bad_load_and_records_one_note():
+    ok = I.plan_family_for(_device("R-1", {"Voltage": "120 V", "Load": "180 VA", "MountingHeight": 44.0}))
+    assert ok.status == "resolved" and ok.kwargs["va"] == 180.0 and ok.facts_summary["load_va"] == 180.0
+    assert len(ok.notes) == 1 and "'180 VA' is a text label" in ok.notes[0]
+    kva = I.plan_family_for(_device("R-2", {"Load": "0.36 kVA"}))
+    assert kva.kwargs["va"] == 360.0 and kva.facts_summary["load_va"] == 360.0
+    for bad in ("abc", -5, float("nan"), 1e12):                        # the issue's four: text, negative, NaN, absurd
+        p = I.plan_family_for(_device("R-3", {"Voltage": "120 V", "Load": bad, "MountingHeight": 18.0}))
+        assert p.status == "resolved" and p.refusal is None, bad       # degraded, not refused: it is built
+        assert p.kwargs["va"] == I.DEFAULT_DEVICE_VA and p.facts_summary["load_va"] == I.DEFAULT_DEVICE_VA
+        assert len(p.notes) == 1 and repr(bad) in p.notes[0], p.notes   # ONE note, naming the value
+        assert p.as_json()["notes"] == p.notes                          # ... and it rides into intent.json
+    # plan_families over a mixed list: every item planned, nothing raised, notes only where earned
+    plans = I.plan_families([_device("R-1", {"Load": 180.0}), _device("R-2", {"Load": "abc"}),
+                             _device("R-3", {"Load": "180 VA"}), _device("R-4", {})])
+    assert [(p.tag, p.status, p.kwargs["va"], len(p.notes)) for p in plans] == [
+        ("R-1", "resolved", 180.0, 0), ("R-2", "resolved", 180.0, 1),
+        ("R-3", "resolved", 180.0, 1), ("R-4", "resolved", 180.0, 0)]
 
 
 def test_a_facts_refusal_is_recorded_not_raised(monkeypatch):
@@ -227,3 +328,60 @@ def test_resolve_intent_maps_ifcoutlet_devices_without_the_front_door(our_ifc):
     assert [(m[1], m[3], m[4]) for m in maps] == [("LP-1", "resolved", "make_panelboard")] + [
         (f"R-{i}", "resolved", "make_device") for i in range(1, 5)]
     assert "unmapped" not in out
+
+
+# ---------------------------------------------------------------------------
+# 4. rule 1 on the --ifc route: one bad schedule cell degrades one device,
+#    the project file is still delivered (#438)
+# ---------------------------------------------------------------------------
+
+PINNED_2026 = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
+
+
+def _hand_edited_ifc(src: str, dst: str, *loads: str) -> str:
+    """Copy OUR IFC with the first len(loads) ``Load`` cells retyped the way a
+    person hand-authors them: ``IFCLABEL('180 VA')`` instead of ``IFCREAL(180.)``."""
+    text = open(src, encoding="ascii").read()
+    for lab in loads:
+        assert "IFCPROPERTYSINGLEVALUE('Load',$,IFCREAL(180.),$)" in text
+        text = text.replace("IFCPROPERTYSINGLEVALUE('Load',$,IFCREAL(180.),$)",
+                            f"IFCPROPERTYSINGLEVALUE('Load',$,IFCLABEL('{lab}'),$)", 1)
+    with open(dst, "w", encoding="ascii", newline="") as fh:
+        fh.write(text)
+    return dst
+
+
+def test_a_hand_typed_load_label_no_longer_fails_the_ifc_route(our_ifc, tmp_path):
+    """Before #438 ``Load IFCLABEL('180 VA')`` raised ``ValueError: could not
+    convert string to float`` out of plan_families and the whole route ended
+    FAILED, rc 3, no .rvt.  Now: '180 VA' coerces (one note), 'abc' degrades
+    that ONE device to the unit load (one note), every device is still planned,
+    generated, loaded and placed, and the combined file is DELIVERED, stamped,
+    validator 0 errors (rule 1; no Revit-load claim -- rule 4)."""
+    if not os.path.isfile(PINNED_2026):
+        pytest.skip("bundled genesis base missing")
+    import rvt.frontdoor as FD
+    bad = _hand_edited_ifc(our_ifc, str(tmp_path / "hand.ifc"), "180 VA", "abc")
+    # the bare resolver first: nothing raises, two notes earned, kwargs unchanged
+    model = FI.intent_from_ifc(bad)
+    devs = [model.plan_for(f"R-{i}") for i in range(1, 5)]
+    assert {p.status for p in devs} == {"resolved"}
+    assert [p.kwargs["va"] for p in devs] == [180.0] * 4
+    notes = sorted(n for p in devs for n in p.notes)
+    assert len(notes) == 2, notes
+    assert notes[0].startswith("DeviceSchedule.Load '180 VA' is a text label") and "read as 180 VA" in notes[0]
+    assert notes[1].startswith("DeviceSchedule.Load 'abc' is not a usable apparent load (not a number)")
+    # the product path: delivered, stamped, 0 validator errors, no degradation, 4 placed devices
+    r = FD.author(ifc=bad, out=str(tmp_path / "job"))
+    assert r.route == "ifc" and r.ok and r.errors == [], (r.status, r.errors)
+    assert "PROOF-ONLY" in r.status
+    combined = r.files.get("combined")
+    assert combined and os.path.isfile(combined) and os.path.getsize(combined) > 0
+    build = r.manifest["build"]
+    assert build["errors"] == [] and build["degradations"] == []
+    assert build["validation"]["combined"]["validate"]["n_errors"] == 0
+    assert [c["kind"] for c in build["elements_created"]].count("fixture-instance") == 4
+    assert r.manifest["intent"]["summary"]["family_plans_by_status"] == {"resolved": 5}
+    with open(r.intent_json, encoding="utf-8") as fh:
+        on_disk = json.load(fh)["familyMapping"]
+    assert sorted(n for p in on_disk for n in p["notes"]) == notes       # the two notes ride into intent.json
