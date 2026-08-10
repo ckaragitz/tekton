@@ -24,6 +24,9 @@ Asserted here:
     ledgered against the pin with the pin's census (same totals in kind as
     the build it edits, the reason names the pin), residue slots edited
     upstream stay derived, and a file with no byte descent keeps user-base;
+    and the front door's OWN edit manifest echoes that gate like the create
+    routes' build.status_gate (kind / residue / ledgered_against / totals,
+    the base-authorship line, the label as a stamp -- issue #406);
   * the hardening of issue #303: the census tool's laws ("changed => landed"
     per rung, the phase-2 deletion reconciliation, chain == byte truth) void
     the census when broken (exit 1, nothing written); the DELIVERABLE label
@@ -616,6 +619,119 @@ def test_edit_of_our_output_descends_from_the_pin(year, tmp_path_factory):
     fm = e.manifest
     assert fm["status"].startswith("PROOF-ONLY, NOT-DELIVERABLE")
     assert fm["edit"]["gates"]["base_provenance"]["reason"] == reason
+
+
+#: the base_provenance keys the front-door EDIT manifest echoes (#406),
+#: pinned here independently of manifest._EDIT_GATE_KEYS on purpose (the
+#: contract a skill session reads); the per-element lists (g1.blocking,
+#: created/modified_elements) stay one hop away in edit.job_manifest
+ECHOED = ("status", "deliverable", "base_is_autodesk_sample", "base_kind", "residue",
+          "ledgered_against", "provenance_totals", "reason")
+EDIT_LEDGER_OF = "this file's ledger (everything the chain created)"
+
+
+@pytest.mark.parametrize("year", CERTIFIED_YEARS)
+def test_edit_manifest_surfaces_the_gate_like_the_create_routes(year, tmp_path_factory):
+    """#406: the front door's OWN manifest.json / MANIFEST.md of an edit say
+    what the create routes' build.status_gate says -- base_kind, the pin's
+    census + descent evidence, the pin it was ledgered against, the ledger
+    totals -- and the P0 label is a STAMP (honesty.proof_only_stamps, the
+    --json `stamps`), not only the status line.  Nothing about the label or
+    the delivery changes (rule 1)."""
+    from rvt.frontdoor.manifest import status_gate_lines
+    c, e = _chain(year, tmp_path_factory)
+    pin_name = os.path.basename(_pinned(year))
+    g = _job_gate(e.manifest)                                  # the job runner's full gate
+    fg = e.manifest["edit"]["gates"]["base_provenance"]       # the front door's echo of it
+    assert {k: fg[k] for k in ECHOED} == {k: g[k] for k in ECHOED}
+    assert set(fg) <= set(ECHOED) | {"census"}                # summaries only, no element lists
+    assert fg["base_kind"] == "descends-from-pinned-genesis" and fg["base_is_autodesk_sample"] is False
+    assert fg["residue"]["descends_from"] == B.PIN.release_slot(year)["id"]
+    assert os.path.basename(fg["ledgered_against"]) == pin_name
+    ct = c.manifest["build"]["status_gate"]["provenance_totals"]      # the create route's reading
+    tot = fg["provenance_totals"]
+    assert (tot["ours-composed"], tot["autodesk-sample"]) == (ct["ours-composed"], ct["autodesk-sample"])
+    assert tot.get("ours-created", 0) + tot.get("transitive-cloned", 0) == 3      # 4 walls built, 1 deleted
+    # the label is a stamp wherever a reader looks -- and the file is delivered
+    assert "PROOF-ONLY, NOT-DELIVERABLE" in e.manifest["honesty"]["proof_only_stamps"]
+    assert "PROOF-ONLY, NOT-DELIVERABLE" in e.as_json()["stamps"]
+    assert e.manifest["status"].startswith("PROOF-ONLY, NOT-DELIVERABLE") and e.ok
+    out = e.manifest["output"]["path"]
+    assert os.path.isfile(out if os.path.isabs(out) else os.path.join(ROOT, out))
+    assert not any("authorship census" in d for d in e.manifest["edit"]["degradations"])   # census applied
+    # MANIFEST.md: the same lines the create routes print, worded for a descendant
+    with open(e.manifest_paths["md"], encoding="utf-8") as fh:
+        md = fh.read()
+    lines = status_gate_lines(fg, ledger_of=EDIT_LEDGER_OF)
+    assert len(lines) == 3 and all(ln in md for ln in lines), (lines, md)
+    assert lines[0] == f"- deliverability (P0 gate): PROOF-ONLY, NOT-DELIVERABLE — {fg['reason']}"
+    dsc = fg["residue"]["descent"]
+    for cite in ("- base authorship (issue #143 census): **descends-from-pinned-genesis** — descends from "
+                 f"{fg['residue']['descends_from']} (Revit {year}; ",
+                 f"{dsc['probed_identical']:,} of {dsc['pin_slots_probed']:,} composed slots byte-identical, "
+                 f"share {dsc['share']} ≥ 0.95), ledgered against the pin `{pin_name}` and its census — ",
+                 f"{tot['ours-composed']:,} of {fg['residue']['host_elements']:,} base elements ours by composition"):
+        assert cite in lines[1], (cite, lines[1])
+    assert lines[2].startswith(f"- {EDIT_LEDGER_OF}: {tot.get('ours-created', 0)} created elements ours, ")
+    assert "## Honesty\n- **PROOF-ONLY, NOT-DELIVERABLE** (a label, never a refusal)" in md
+
+
+def test_edit_manifest_words_a_foreign_base_and_a_downed_census_honestly(tmp_path):
+    """The same echo for the other base kinds, on synthetic job manifests (no
+    bytes needed): a user's own file reads user-base with the no-census line;
+    our pin with a STALE census is SAID (one degradation + the census line,
+    as on the create routes, #303); a gate that never classified prints no
+    authorship line; a refused input (no job at all) stamps nothing."""
+    from rvt.frontdoor import manifest as MF
+    out = tmp_path / "y.rvt"
+    out.write_bytes(b"x")
+
+    def _man(gate):
+        run = {"rc": 0, "out_rvt": str(out), "degradations": [],
+               "job_manifest": {"status": "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)",
+                                "hard_gates_passed": True,
+                                "gates": {"validation": {"status": "PASS", "errors": 0, "warnings": 1,
+                                                         "report": {"big": 1}, "extra": "dropped"},
+                                          "base_provenance": dict(gate)}}}
+        m = MF.edit_manifest(inputs={"rvt": "in.rvt", "edit": "x"}, base_note="n", out_dir=str(tmp_path),
+                             edit_spec={"understood": []}, run=run)
+        return m, MF._render_md(m)
+
+    user = {"status": "PROOF-ONLY, NOT-DELIVERABLE", "deliverable": False, "base": "/abs/in.rvt",
+            "base_is_autodesk_sample": False, "base_kind": "user-base",
+            "g1": {"blocking": [{"count": 3283}]}, "created_elements": [], "modified_elements": [],
+            "provenance_totals": {"autodesk-sample": 3345, "ours-modified": 1},
+            "reason": "P0 genesis gate G1 fails (a user-supplied base with no authorship census; …)"}
+    m, md = _man(user)
+    fg = m["edit"]["gates"]["base_provenance"]
+    assert fg["base_kind"] == "user-base" and fg["provenance_totals"] == user["provenance_totals"]
+    assert not {"g1", "created_elements", "modified_elements", "base"} & set(fg)
+    assert m["edit"]["gates"]["validation"] == {"status": "PASS", "errors": 0, "warnings": 1, "report": {"big": 1}}
+    assert m["honesty"]["proof_only_stamps"] == ["PROOF-ONLY, NOT-DELIVERABLE"]
+    assert "- base authorship: **user-base** (no census: everything inherited from the base is ledgered as the base's)" in md
+    assert f"- deliverability (P0 gate): PROOF-ONLY, NOT-DELIVERABLE — {user['reason']}" in md
+    assert m["edit"]["degradations"] == []
+
+    stale = dict(user, base_kind="pinned-composed-genesis",
+                 census="STALE: no census entry for the pinned G_ABPD bytes -- run tools/genesis_census.py build")
+    m, md = _man(stale)
+    assert m["edit"]["gates"]["base_provenance"]["census"].startswith("STALE")
+    deg = [d for d in m["edit"]["degradations"] if "authorship census STALE" in d]
+    assert len(deg) == 1 and "hard rule 1" in deg[0]
+    assert "- base authorship: **pinned-composed-genesis** (census **STALE" in md
+    assert "**degradation**: status-gate authorship census STALE" in md
+
+    skipped = {"status": "SKIPPED (--no-provenance) => treated as NOT-DELIVERABLE", "deliverable": False,
+               "reason": "provenance ledger not run; deliverability unproven"}
+    m, md = _man(skipped)
+    assert "base authorship" not in md and m["honesty"]["proof_only_stamps"] == []
+    assert "- deliverability (P0 gate): SKIPPED (--no-provenance)" in md
+    assert MF.status_gate_lines({}) == [] and MF.status_gate_lines(None) == []
+
+    m = MF.edit_manifest(inputs={"rvt": "in.rvt", "edit": "x"}, base_note="n", out_dir=str(tmp_path),
+                         edit_spec={}, run={}, errors=["refused"])
+    assert m["edit"]["gates"] == {} and m["honesty"]["proof_only_stamps"] == []
+    assert m["status"].startswith("FAILED") and "base authorship" not in MF._render_md(m)
 
 
 def test_second_generation_edit_still_descends(tmp_path_factory, tmp_path):
