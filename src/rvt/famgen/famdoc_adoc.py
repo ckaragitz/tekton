@@ -1220,10 +1220,20 @@ def author_family_adocument(source, *, mode: str = "candidate",
     if isinstance(bot, dict) and len(borgs) == 2:
         sheets_org, views_org = borgs                # allocation order (skeleton)
         bot["m_elemIdSet"] = [sheets_org, views_org]
-        bot["m_currentBrOrgTypeToBrOrgMap"] = [
-            {"first": 0, "second": views_org},
-            {"first": 1, "second": sheets_org}]
         bot["m_idMRU"] = -1
+        # RELEASE-SHAPED: 2026 tracks the current organization per view-type
+        # in one map; 2024/2025 carry a field per browser (views / sheets /
+        # schedules).  Only ever WRITE keys the active schema defines --
+        # inventing one breaks the ADocument round-trip for that release.
+        if "m_currentBrOrgTypeToBrOrgMap" in bot:
+            bot["m_currentBrOrgTypeToBrOrgMap"] = [
+                {"first": 0, "second": views_org},
+                {"first": 1, "second": sheets_org}]
+        else:
+            if "m_currentBrOrgViews" in bot:
+                bot["m_currentBrOrgViews"] = views_org
+            if "m_currentBrOrgSheets" in bot:
+                bot["m_currentBrOrgSheets"] = sheets_org
         report["registries"]["BrowserOrganizationTracking"] = \
             f"views -> {views_org}, sheets -> {sheets_org} (OURS)"
 
