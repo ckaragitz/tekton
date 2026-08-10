@@ -1071,18 +1071,20 @@ def _dirp(path: str) -> str:
     return path.rstrip(os.sep) + os.sep
 
 
-def _canon(path: str) -> str:
-    """The ONE spelling directories are compared in: symlinks resolved
-    (a checkout imported through a link, macOS ``/tmp``) and case folded
-    (``Samples`` IS ``samples`` on NTFS/APFS -- and the hook's segment law is
-    case-blind everywhere, so the overlap test is too), as a dir prefix."""
-    return _dirp(os.path.normcase(os.path.realpath(path)).lower())
+def _canons(path: str) -> List[str]:
+    """BOTH :func:`_spellings` of ``path`` -- lexical (abspath) and physical
+    (realpath) -- each case folded (``Samples`` IS ``samples`` on NTFS/APFS,
+    and the hook's segment law is case-blind everywhere, so the overlap test
+    is too) and as a dir prefix.  Strings + ``realpath`` only: nothing under
+    either spelling is opened."""
+    return [_dirp(os.path.normcase(sp).lower()) for sp in _spellings(path)]
 
 
 def _inside(path: str, root: str) -> bool:
-    """True when ``path`` equals or lies inside directory ``root`` (canonical
-    comparison: any spelling of either side)."""
-    return _canon(path).startswith(_canon(root))
+    """True when either spelling of ``path`` equals or lies inside either
+    spelling of directory ``root`` (:func:`_canons`)."""
+    roots = _canons(root)
+    return any(p.startswith(r) for p in _canons(path) for r in roots)
 
 
 def _nested(a: str, b: str) -> bool:
@@ -1096,17 +1098,24 @@ def out_dir_refusal(out_dir: str) -> Optional[str]:
 
     * inside (or equal to) a quarantine root of THIS checkout -- the job's
       outputs would sit among the research inputs the armed build may never
-      read (and anything under ``<repo>/samples`` is an Autodesk sample to
-      ``resolve_base`` ever after), so exempting it would unguard the corpus;
+      read (and anything spelled under ``<repo>/samples`` is an Autodesk
+      sample to ``resolve_base`` ever after), so exempting it would unguard
+      the corpus;
     * inside an Autodesk installation directory (hard rule 2: never read,
       let alone written).
 
-    A directory merely NAMED ``samples``/``vendor``/... anywhere else is the
-    user's own disk and is NOT refused: :func:`forbid_research_inputs`
-    exempts it as the job's own output dir."""
+    Both are judged on the dir's LEXICAL spelling (what the user typed and
+    every reported path will read) as well as its PHYSICAL one (symlinks
+    resolved, case folded): an inward alias of the checkout is caught by the
+    latter, an outward link planted inside ``samples/`` (``<repo>/samples/
+    escape -> /elsewhere``, issue #474) by the former.  A directory merely
+    NAMED ``samples``/``vendor``/... anywhere else -- or a link outside the
+    checkout pointing outside it -- is the user's own disk and is NOT
+    refused: :func:`forbid_research_inputs` exempts it as the job's own
+    output dir."""
     ap = os.path.abspath(out_dir)
     why = None
-    if _is_autodesk_install(ap.lower()):
+    if _is_autodesk_install(ap.lower()) or _is_autodesk_install(os.path.realpath(ap).lower()):
         why = "an Autodesk installation directory, which tekton never reads or writes"
     else:
         hit = next((d for d, q in zip(_RESEARCH_DIRS, quarantine_roots()) if _inside(ap, q)),
