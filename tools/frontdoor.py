@@ -44,7 +44,6 @@ still 0), 2 = usage / route error, 3 = build/edit did not complete,
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import sys
 import traceback
@@ -160,6 +159,7 @@ def _print_summary(r) -> None:
 
 def cmd_author(a) -> int:
     from rvt import frontdoor as FD
+    from rvt import _jsonsafe                    # the --json document is strict JSON (#488)
     try:
         req = FD.AuthorRequest(
             prompt=a.prompt, ifc=a.ifc, rvt=a.rvt, edit=a.edit, out=a.out,
@@ -181,7 +181,7 @@ def cmd_author(a) -> int:
         traceback.print_exc()
         return EX_ERR
     if a.json:
-        print(json.dumps(r.as_json(), indent=1, default=str))
+        print(_jsonsafe.dumps(r.as_json(), indent=1))
     else:
         _print_summary(r)
     st = str(r.status).upper()
@@ -196,10 +196,11 @@ def cmd_matrix(a) -> int:
     """The live permutation matrix + evidence self-audit (read-only; the one
     renderer rvt.frontdoor.matrix.render_text is shared with tools/route.py)."""
     from rvt.frontdoor import matrix as MX
+    from rvt import _jsonsafe
     if a.json:
         payload = MX.as_json()
         payload["audit"] = MX.audit()
-        print(json.dumps(payload, indent=1, default=str))
+        print(_jsonsafe.dumps(payload, indent=1))
         return EX_OK
     text, rep = MX.render_text()
     print(text, end="")
