@@ -75,8 +75,9 @@ class RouteResult:
     manifest_paths: Dict[str, str] = dc_field(default_factory=dict)
     seconds: float = 0.0
     # the front door's own ``target_version`` block (rvt.frontdoor._resolve_
-    # base_and_version / the author manifest): requested / status / output_
-    # release / line ... -- ONE shape for the rvt and the rfa routes alike
+    # base_and_version / the author manifest; with a --rvt host the edit
+    # route's _rvt_route_version_block + input_release): requested / status /
+    # output_release / line ... -- ONE shape for the rvt and the rfa routes alike
     target_version: Optional[Dict[str, Any]] = None
     # _target_base's per-route memo {target: (base, block)}: a route that
     # resolves the same --target-version twice (emit, then load host) gets
@@ -326,22 +327,60 @@ def _target_base(res: RouteResult, opts: Dict[str, Any], label: str):
     that needs a base: the load host here, the emit release in
     :func:`_emit_at_target`; memoised per route (``res._bases``) so a route
     doing both resolves -- and states -- the block once."""
-    from . import AuthorRequest, _resolve_base_and_version
     target = opts.get("target_version")
     if target in res._bases:
         return res._bases[target]
-    base, vb, errors = _resolve_base_and_version(
-        AuthorRequest(prompt=f"({label})", base=opts.get("base"),
-                      target_version=None if target is None else int(target)))
+    base, vb = _resolve(res, opts, label, target)
     res.target_version = vb
-    res.errors.extend(errors)
     res._bases[target] = (base, vb)
     return base, vb
 
 
+def _resolve(res: RouteResult, opts: Dict[str, Any], label: str, target: Any):
+    """ONE call to the front door's resolver for ``target`` (None = the
+    default base); its errors ride in ``res.errors``.  The only place the
+    router talks to ``_resolve_base_and_version``."""
+    from . import AuthorRequest, _resolve_base_and_version
+    base, vb, errors = _resolve_base_and_version(
+        AuthorRequest(prompt=f"({label})", base=opts.get("base"),
+                      target_version=None if target is None else int(target)))
+    res.errors.extend(errors)
+    return base, vb
+
+
+def _host_version_block(res: RouteResult, host: str, target: Any, *, verb: str) -> None:
+    """``--rvt`` given: the loaded output keeps THE HOST's release (a load
+    runs under the host's own release, ``rvt.famload``'s
+    host_release_context -- it cannot transmute a 2025 project into a 2024
+    one), so THE ``target_version`` block of this rvt-output cell is the
+    edit route's own (``rvt.frontdoor._rvt_route_version_block``: the host's
+    release auto-detected and stated every time -- ``detected`` with no
+    flag, ``match`` / ``match-older``, or ``fallback`` + THE one clear line
+    when the stated year cannot open the host), worded for a load.  A
+    family emitted beside it at ``--target-version`` (the famspec / product
+    lanes, :func:`_emit_at_target`) keeps its own block under ``rfa``."""
+    from . import _rvt_route_version_block
+    from .. import versions as V
+    try:
+        host_rel: Optional[int] = int(V.detect_release(host))
+    except Exception:                                                # noqa: BLE001
+        host_rel = None
+    hb = _rvt_route_version_block(target, host_rel)
+    for k in ("line", "note"):        # the edit route's wording, said of a load
+        if hb.get(k):
+            hb[k] = (hb[k].replace("edited output", f"{verb}ed output")
+                     .replace("Revit-openable edit", f"Revit-openable {verb}")
+                     .replace("the edit preserves", f"the {verb} preserves"))
+    if res.target_version:            # the family emitted beside it, at the flag's year
+        hb["rfa"] = res.target_version
+    res.target_version = hb
+    res.caveats.append(str(hb.get("line") or f"{verb}ed INTO your --rvt: {hb.get('note')}"))
+
+
 def _resolve_host(res: RouteResult, host: Optional[str], *, verb: str,
                   opts: Dict[str, Any]) -> Optional[str]:
-    """``host`` when given (the user's project -- its own release rules), else
+    """``host`` when given (the user's project: the output keeps ITS release,
+    stated by :func:`_host_version_block`), else
     the default host: the pinned certified genesis base, or with
     ``--target-version N`` the certified base OF THAT RELEASE
     (:func:`_target_base`; the load then runs under that host's release via
@@ -351,9 +390,7 @@ def _resolve_host(res: RouteResult, host: Optional[str], *, verb: str,
     status + the clear line (never a traceback)."""
     target = opts.get("target_version")
     if host is not None:
-        if target is not None:
-            res.caveats.append(f"--target-version {target} ignored for the LOAD: the "
-                               "family goes INTO your --rvt, whose own release rules")
+        _host_version_block(res, host, target, verb=verb)
         return host
     n_err, restated = len(res.errors), target in res._bases
     base, vb = _target_base(res, opts, "family load")
@@ -859,12 +896,17 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
     lacks), or the year is uncertified / unknown, or a wrong-release
     ``--base`` was refused AS A BASE, the families are still DELIVERED (rule
     1) by the native emit, and the block says so: ``status='fallback'`` /
-    ``'refused'`` + THE one clear line as a caveat after delivery + the
-    version-agnostic IFC addition (as on the rvt path).  No
+    ``'refused'`` + THE one clear line as a caveat after delivery, and on a
+    ``fallback`` (not on ``refused``) the version-agnostic IFC addition as
+    on the rvt path.  No
     ``--target-version`` -> today's native emit untouched, only reported.
     On a degrade ``emit`` runs twice by design: the failed target-release
     attempt keeps its (``ok: False``, ``attempt``-labelled) step records and
-    the native re-run adds its own -- the honest trace of what was tried."""
+    the native re-run adds its own -- the honest trace of what was tried;
+    and the memoised base (:func:`_target_base`) is re-pointed at the
+    default so a LOAD that follows (rfa -> rvt, the ifc family chain) hosts
+    on the very release the block now names, not on the year the family
+    could not be built for."""
     from . import release_ctx as RC
     from . import target_status as TS
     native = RC.native_release()
@@ -879,7 +921,7 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
     from . import _emit_ifc_addition
     target = int(target)
     base, vb = _target_base(res, opts, "family route")
-    if vb.get("status") == "match" and base is not None and target != native:
+    if vb.get("status") == "match" and target != native:      # match => base resolved
         n_err, n_steps = len(res.errors), len(res.steps)
         try:
             with RC.release_build_context(base.path) as info:
@@ -906,6 +948,7 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
                                 f"{native} -- your Revit {target} cannot open it; the "
                                 "IFC alongside is version-agnostic (links into Revit "
                                 "2019+)")})
+            res._bases[target] = (_resolve(res, opts, "family route", None)[0], vb)
     elif vb.get("status") == "refused":
         # interim shim: a wrong-release --base is refused AS A BASE by the
         # resolver; a family emit needs no base, so deliver native + say so
@@ -1007,15 +1050,15 @@ def _r_ifc_to_rfa(res, inputs, out_dir, opts):
     res.caveats.append("no buildable room-equipment family plan in this IFC -- "
                        "took the PRODUCT-IFC path (measured facts -> the "
                        "downlight archetype)")
-    _emit_at_target(res, opts, out_dir,
-                    lambda: _product_rfa(res, inputs["ifc"], out_dir, opts),
-                    source_ifc=inputs["ifc"])
+    _product_rfa(res, inputs["ifc"], out_dir, opts)
 
 
 def _product_rfa(res: RouteResult, ifc_path: str, out_dir: str,
                  opts: Dict[str, Any]) -> Optional[Any]:
     """PRODUCT IFC -> facts -> our downlight family .rfa (the certified
-    archetype).  Returns the DownlightProduct or None."""
+    archetype), composed and emitted at the ``--target-version`` release
+    (:func:`_emit_at_target`; the release-independent fact extraction runs
+    once, outside it).  Returns the DownlightProduct or None."""
     from ..ifc import product_facts as PF
     from ..ifc import famfrom_ifc as FFI
     steps = _Steps(res)
@@ -1025,25 +1068,33 @@ def _product_rfa(res: RouteResult, ifc_path: str, out_dir: str,
     steps.run("facts->json", "rvt.ifc.product_facts:write_facts_record",
               lambda: PF.write_facts_record(facts, facts_p))
     res.files["product_facts"] = facts_p
-    prod = steps.run("facts->rfa", "rvt.ifc.famfrom_ifc:make_downlight",
-                     lambda: FFI.make_downlight(facts=facts))
-    stem = _slug(opts.get("stem") or getattr(prod.doc, "name", "downlight"))
-    rfa_path = os.path.join(out_dir, f"{stem}.rfa")
-    rep = steps.run("rfa-emit", "rvt.ifc.famfrom_ifc:DownlightProduct.write_rfa",
-                    lambda: prod.write_rfa(rfa_path))
-    res.files["rfa"] = rfa_path
-    if rep.get("report_path"):
-        res.files["rfa_report"] = rep["report_path"]
-    ok = bool(((rep.get("validate") or {}).get("verdict") == "VALID")
-              or os.path.isfile(rfa_path))
-    res.ok = ok
-    res.status = ("OK (measured product family emitted; validator family-mode)"
-                  if ok else "FAILED (family emit did not validate)")
-    return prod
+
+    def emit():
+        prod = steps.run("facts->rfa", "rvt.ifc.famfrom_ifc:make_downlight",
+                         lambda: FFI.make_downlight(facts=facts))
+        stem = _slug(opts.get("stem") or getattr(prod.doc, "name", "downlight"))
+        rfa_path = os.path.join(out_dir, f"{stem}.rfa")
+        rep = steps.run("rfa-emit", "rvt.ifc.famfrom_ifc:DownlightProduct.write_rfa",
+                        lambda: prod.write_rfa(rfa_path))
+        res.files["rfa"] = rfa_path
+        if rep.get("report_path"):
+            res.files["rfa_report"] = rep["report_path"]
+        ok = bool(((rep.get("validate") or {}).get("verdict") == "VALID")
+                  or os.path.isfile(rfa_path))
+        res.ok = ok
+        res.status = ("OK (measured product family emitted; validator family-mode)"
+                      if ok else "FAILED (family emit did not validate)")
+        return prod
+
+    return _emit_at_target(res, opts, out_dir, emit, source_ifc=ifc_path)
 
 
 def _r_ifc_family_load(res, inputs, out_dir, opts):
-    """The ifc->rfa->loaded-rvt chain (the L_downlight_loaded pipeline)."""
+    """The ifc->rfa->loaded-rvt chain (the L_downlight_loaded pipeline): the
+    product .rfa is emitted at the ``--target-version`` release
+    (:func:`_product_rfa`, as ifc -> rfa does) and LOADED into ``--rvt`` or
+    that release's certified base (:func:`_resolve_host`, one memoised
+    version block for both)."""
     from ..ifc import famfrom_ifc as FFI
     prod = _product_rfa(res, inputs["ifc"], out_dir, opts)
     if prod is None or not res.ok:
@@ -1051,7 +1102,7 @@ def _r_ifc_family_load(res, inputs, out_dir, opts):
     _load_family(res, out_dir, opts,
                  host=inputs.get("rvt"),
                  builder=lambda start_id=100000: FFI.make_downlight(
-                     ifc_path=inputs["ifc"], start_id=start_id).doc,
+                     facts=prod.product_facts, start_id=start_id).doc,
                  name=_slug(getattr(prod.doc, "name", "downlight")),
                  category=int(prod.doc.category_id))
 
@@ -1611,12 +1662,14 @@ def _write_route_manifest(res: RouteResult, inputs: Dict[str, Any],
     c = res.cell or {}
     lines.append(f"* matrix cell: status **{c.get('status')}**, route "
                  f"`{res.route}`, stages: {' -> '.join(c.get('stages') or [])}")
-    tv = res.target_version
-    if tv:
+    for label, tv in (("target version", res.target_version),
+                      ("the .rfa beside it", (res.target_version or {}).get("rfa"))):
+        if not tv:
+            continue
         req = tv.get("requested")
         asked = f"Revit {req}" if req is not None else "(not stated)"
         tail = f": {tv['line']}" if tv.get("line") else f" -- {tv.get('note') or ''}"
-        lines.append(f"* target version: requested {asked} -> output Revit "
+        lines.append(f"* {label}: requested {asked} -> output Revit "
                      f"{tv.get('output_release')} (**{tv.get('status')}**){tail}")
     if res.files:
         lines.append("* delivered:")

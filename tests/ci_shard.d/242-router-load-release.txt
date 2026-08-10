@@ -1,0 +1,2 @@
+# rfa[+rvt] -> rvt and the ifc family chain honour --target-version (#242): bundled bases + famgen catalog only, self-skips otherwise
+tests/test_router_load_release.py
