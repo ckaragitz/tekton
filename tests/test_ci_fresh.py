@@ -16,6 +16,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import types
 
 import pytest
@@ -116,6 +117,10 @@ def test_docs_the_shard_reads_and_docs_deletions_are_stale(rig, files, delete, b
     assert rig.fresh() == (4, "STALE was=%s now=%s changed=%s -> re-run tools/dev/session_ci.sh 7" % (rig.was, now, blocking))
 
 
+TWIN_LINE = ("STALE was=%s now=%s changed=%s (added on main; PR 7 adds the same name or a case-twin of it: an add/add conflict or a "
+             "portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 7")
+
+
 @pytest.mark.parametrize("added", ["docs/inbox/Foo.md", "docs/inbox/FOO.MD", "docs/inbox/foo.md"])
 def test_a_docs_file_added_on_main_that_case_twins_a_pr_added_path_is_stale(rig, added):
     """#496: case-only twins are the one CROSS-FILE law of tools/dev/check_portable_paths.py, so `main` adding
@@ -123,8 +128,7 @@ def test_a_docs_file_added_on_main_that_case_twins_a_pr_added_path_is_stale(rig,
     computed against the older main cannot have seen it. (The very same name is an add/add conflict: not mergeable on
     the old verdict either.) Other docs adds in the same drift stay tolerated and unnamed."""
     now = _commit(rig.up, {added: "twin\n", "docs/inbox/record.md": "new\n", "docs/x.md": "more\n"}, "main adds a twin of the PR's docs/inbox/foo.md")
-    assert rig.fresh(7, rig.head) == (4, "STALE was=%s now=%s changed=%s (added on main, case-twin of a path PR 7 adds: portable_paths would "
-                                         "redden after the merge) -> re-run tools/dev/session_ci.sh 7" % (rig.was, now, added))
+    assert rig.fresh(7, rig.head) == (4, TWIN_LINE % (rig.was, now, added))
     assert rig.err == ""
 
 
@@ -133,9 +137,36 @@ def test_docs_added_on_main_with_a_head_this_clone_lacks_fail_closed_but_modifie
     now = _commit(rig.up, {"docs/x.md": "more\n"}, "docs modified only")
     assert rig.fresh(17) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # a MODIFIED docs file existed at `was`: session_ci already saw its name
     now = _commit(rig.up, {"docs/inbox/record.md": "new\n", "docs/inbox/note.md": "n\n"}, "docs added")
-    assert rig.fresh(17) == (4, "STALE was=%s now=%s changed=docs/inbox/note.md,docs/inbox/record.md (main added docs files and head %s is not in "
-                             "this clone, so a case-twin with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17" % (rig.was, now, E40))
+    assert rig.fresh(17) == (4, 'STALE was=%s now=%s changed=docs/inbox/note.md,docs/inbox/record.md (main added docs files and the recorded head "%s" '
+                             'is not a commit in this clone, so a collision with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17' % (rig.was, now, E40))
     assert rig.fresh(7) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))    # the same drift with a known head: no twin, tolerated
+
+
+def test_the_collision_check_fails_closed_when_its_interpreter_fails(rig, tmp_path):
+    """A merge gate never reads "the check crashed" as "no collision": if the python3 behind the twin comparison fails
+    (the review forced it with an argv above 128 KiB; the lists now travel on stdin, and any other failure lands here),
+    the answer is "cannot judge", exit 2 -- not FRESH. A python3 shim that dies only for that one program proves it;
+    the JSON read before it goes through the real interpreter."""
+    shim = tmp_path / "py-shim"
+    shim.mkdir()
+    (shim / "python3").write_text('#!/bin/sh\nfor a in "$@"; do case "$a" in *lower*) echo "shim: refusing the collision check" >&2; exit 1;; esac; done\n'
+                                  'exec "%s" "$@"\n' % shutil.which("python3"))
+    (shim / "python3").chmod(0o755)
+    path = str(shim) + os.pathsep + os.environ.get("PATH", "")
+    now = _commit(rig.up, {"docs/inbox/Foo.md": "twin\n"}, "main adds a twin")
+    assert rig.fresh(7, rig.head) == (4, TWIN_LINE % (rig.was, now, "docs/inbox/Foo.md"))          # the real interpreter sees it
+    assert rig.fresh(7, rig.head, path=path) == (2, "cannot judge PR 7: the collision check against the names PR 7 adds failed")
+    assert "shim: refusing" in rig.err
+    now = _commit(rig.up, {"docs/x.md": "more\n"}, "and a modified doc", delete=("docs/inbox/Foo.md",))
+    assert rig.fresh(7, rig.head, path=path) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # no docs ADD left in was..now: the check is not needed, the shim never fires
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="a file named ' ' cannot exist on Windows")
+def test_a_blocking_path_whose_name_is_all_blanks_is_still_named_and_stale(rig):
+    """The join helper counts lines by length, not awk NF: a top-level file literally named " " is untolerated drift
+    and must keep main's answer (STALE, the blank name after changed=), never vanish into FRESH(docs-only drift)."""
+    now = _commit(rig.up, {" ": "z\n", "docs/x.md": "more\n"}, "a file named blank")
+    assert rig.fresh() == (4, "STALE was=%s now=%s changed=  -> re-run tools/dev/session_ci.sh 7" % (rig.was, now))
 
 
 @pytest.mark.parametrize("flavour", [pytest.param(f, marks=pytest.mark.skipif(not shutil.which(f), reason="%s is not installed on this machine" % f))

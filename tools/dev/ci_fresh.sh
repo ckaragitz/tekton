@@ -13,9 +13,10 @@
 # test_probe_batch.py, test_frontdoor_manifest_pin.py; AUTONOMY.md — needles in tests/test_techlead.py; the list is
 # pinned against the shard's real docs/ reads by tests/test_ci_fresh.py). A docs DELETION is drift too:
 # src/rvt/frontdoor/matrix.py cites docs/inbox records by existence. So is a docs file ADDED on main whose name
-# collides, compared lower-cased, with a path the PR itself adds: case-only twins are the one cross-file law of
-# tools/dev/check_portable_paths.py, so portable_paths would redden only after the merge (#496); if main added docs
-# files and the recorded head is not in this clone, that cannot be ruled out — STALE too. Anything else is STALE.
+# collides, compared lower-cased, with a path the PR itself adds: the same name is an add/add conflict, and case-only
+# twins are the one cross-file law of tools/dev/check_portable_paths.py, so portable_paths would redden only after the
+# merge (#496); if main added docs files and the recorded head is not in this clone, that cannot be ruled out — STALE
+# too. Anything else is STALE. A filter or interpreter failing on the way is "cannot judge", never FRESH.
 # With <head-sha> (what `git ls-remote` says the PR head is right now) it also refuses a JSON computed for another
 # head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.
 #
@@ -45,14 +46,16 @@ NOW=$(git rev-parse --verify -q origin/main) || { echo "cannot judge PR $PR: no 
 [ "$WAS" = "$NOW" ] && { echo "FRESH main=$NOW"; exit 0; }
 git cat-file -e "$WAS^{commit}" 2>/dev/null || { echo "STALE was=$WAS now=$NOW changed=? ($WAS is not in this clone: main rewritten, or a JSON from another checkout)"; exit 4; }
 DRIFT=$(git diff --name-status --no-renames "$WAS" "$NOW" --) || { echo "cannot judge PR $PR: git diff $WAS $NOW failed"; exit 2; }
-name3() { awk 'BEGIN {n=0; s=""} NF {n++; if (n<=3) s=s (n>1?",":"") $0} END {if (n>3) s=s ",…"; print s}'; }   # paths, one per line -> first three named, the rest counted as an ellipsis
-BLOCK=$(awk -F'\t' -v reads="$SHARD_READS" '!($1 ~ /^[AM]$/ && $2 ~ /^docs\// && $2 !~ reads) {print $2}' <<<"$DRIFT" | name3)   # every path that is NOT tolerated drift
+# Everything below fails CLOSED: a filter/interpreter that errors is "cannot judge" (exit 2), never an empty list read as FRESH.
+name3() { awk 'BEGIN {n=0; s=""} length($0) {n++; if (n<=3) s=s (n>1?",":"") $0} END {if (n>3) s=s ",…"; print s}'; }   # paths, one per line -> first three named, the rest counted as an ellipsis (length, not NF: a name made of blanks still counts)
+BLOCK=$(awk -F'\t' -v reads="$SHARD_READS" '!($1 ~ /^[AM]$/ && $2 ~ /^docs\// && $2 !~ reads) {print $2}' <<<"$DRIFT" | name3) || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # every path that is NOT tolerated drift
 [ -n "$BLOCK" ] && { echo "STALE was=$WAS now=$NOW changed=$BLOCK -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
-ADDS=$(awk -F'\t' '$1=="A" {print $2}' <<<"$DRIFT")   # docs files main ADDED: harmless unless one case-twins a path the PR adds (names the head has and $WAS lacks)
+ADDS=$(awk -F'\t' '$1=="A" {print $2}' <<<"$DRIFT") || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # docs files main ADDED: harmless unless the PR adds the same name or a case-twin of it (names the head has and $WAS lacks)
 if [ -n "$ADDS" ]; then
-  { [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "$HEAD^{commit}" 2>/dev/null; } || { echo "STALE was=$WAS now=$NOW changed=$(name3 <<<"$ADDS") (main added docs files and head $HEAD is not in this clone, so a case-twin with a path PR $PR adds cannot be ruled out) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
+  { [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "$HEAD^{commit}" 2>/dev/null; } || { echo "STALE was=$WAS now=$NOW changed=$(name3 <<<"$ADDS") (main added docs files and the recorded head \"$HEAD\" is not a commit in this clone, so a collision with a path PR $PR adds cannot be ruled out) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
   PRADDS=$(git diff --name-only --no-renames --diff-filter=A "$WAS" "$HEAD" --) || { echo "cannot judge PR $PR: git diff $WAS $HEAD failed"; exit 2; }
-  TWIN=$(python3 -I -c 'import sys; pr={p.lower() for p in sys.stdin.read().splitlines()}; print("\n".join(a for a in sys.argv[1].splitlines() if a.lower() in pr))' "$ADDS" <<<"$PRADDS" | name3)   # lower() = the checker's own comparison
-  [ -n "$TWIN" ] && { echo "STALE was=$WAS now=$NOW changed=$TWIN (added on main, case-twin of a path PR $PR adds: portable_paths would redden after the merge) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
+  # both lists on stdin (main's adds, a blank line, the PR's adds — git never emits an empty name), so no argv/env size limit applies; lower() = the checker's own comparison
+  TWIN=$(printf '%s\n\n%s\n' "$ADDS" "$PRADDS" | python3 -I -c 'import sys; adds, pr = sys.stdin.read().split("\n\n", 1); low = {p.lower() for p in pr.splitlines()}; print("\n".join(a for a in adds.splitlines() if a.lower() in low))' | name3) || { echo "cannot judge PR $PR: the collision check against the names PR $PR adds failed"; exit 2; }
+  [ -n "$TWIN" ] && { echo "STALE was=$WAS now=$NOW changed=$TWIN (added on main; PR $PR adds the same name or a case-twin of it: an add/add conflict or a portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
 fi
 echo "FRESH(docs-only drift) was=$WAS now=$NOW"; exit 0

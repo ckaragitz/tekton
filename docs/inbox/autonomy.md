@@ -726,16 +726,16 @@ Written by engineer session eng #496 (issue #496 = the keepers from PR #489's in
   names in the head's tree that `origin/main@was` lacks — git names only, the same names-only reading
   `session_ci.sh`'s portable_paths step already does; nothing from the PR is checked out, shown or run, and the
   trusted-side needle test now also forbids `cat-file -p|blob`, `git show`, `git archive`). A collision →
-  `STALE was=… now=… changed=<the twin(s)> (added on main, case-twin of a path PR <n> adds: portable_paths would
-  redden after the merge) -> re-run …`, exit 4. The identical name counts too: that is an add/add conflict, so the old
+  `STALE was=… now=… changed=<the twin(s)> (added on main; PR <n> adds the same name or a case-twin of it: an
+  add/add conflict or a portable_paths failure after the merge) -> re-run …`, exit 4. The identical name counts too: that is an add/add conflict, so the old
   verdict's `merge_with_main: clean` is void either way. **Choice made (the issue offered two):** the exact check, not
   "any docs ADD → STALE" — new records and `learned-*` notes are the most common docs-only merges, and demoting every
   one of them to a CI re-run would give back most of the throughput the exemption exists for; the exact check costs one
   `git diff --name-only` and keeps them FRESH. **One deliberate tightening:** if main added docs files and the JSON's
   `head` is not a commit in this clone (a JSON carried over from another checkout; never the case on the tech-lead box,
   where `session_ci.sh` fetched `refs/pr/<n>` into the same checkout minutes earlier), the twin cannot be ruled out →
-  `STALE … (main added docs files and head <sha> is not in this clone, so a case-twin with a path PR <n> adds cannot be
-  ruled out)`, exit 4 — the same fail-closed stance the helper already takes for an unknown recorded `main`. Modified
+  `STALE … (main added docs files and the recorded head "<sha>" is not a commit in this clone, so a collision with a
+  path PR <n> adds cannot be ruled out)`, exit 4 — the same fail-closed stance the helper already takes for an unknown recorded `main`. Modified
   docs files need no head (their names existed at `was`, so `session_ci.sh` already checked them with the PR's).
   Every other outcome, message and exit code is byte-identical (table below). Header comment updated to say all this.
 - `tools/dev/session_ci.sh`: header comment only — the setup-failure list now names every `{"pr":N,"error":…}` the
@@ -796,9 +796,9 @@ the real `pr7` head, PR 17's the never-fetched `eeee…`, PR 4 a `fail`, PR 6 an
 --- json is for another head:                    WRONG-HEAD json=5c8c931602dae26c9c363afb34192db18f8640c1 now=ffffffffffffffffffffffffffffffffffffffff (the stored run is for another head: run tools/dev/session_ci.sh 7)   exit=5
 --- non-pass verdict, head given (pr 4):         NOT-PASS verdict=fail for head 5c8c931602dae26c9c363afb34192db18f8640c1 (nothing to merge on)   exit=5
 --- docs-only drift (record + note):             FRESH(docs-only drift) was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=543aacc54bbe9307a648fa2c041260fee1226bd0   exit=0
---- docs-only drift, head unknown here (pr 17):  STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=543aacc54bbe9307a648fa2c041260fee1226bd0 changed=docs/STEERING.md,docs/inbox/record.md (main added docs files and head eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee is not in this clone, so a case-twin with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17   exit=4
+--- docs-only drift, head unknown here (pr 17):  STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=543aacc54bbe9307a648fa2c041260fee1226bd0 changed=docs/STEERING.md,docs/inbox/record.md (main added docs files and the recorded head "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" is not a commit in this clone, so a collision with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17   exit=4
 --- docs-only drift, M only, head unknown (17):  FRESH(docs-only drift) was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=473cf31f4a244c8641a28a7924639e3e413e725d   exit=0
---- docs-only drift, main ADDS a case-twin:      STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=6e7e83e49f7e4733bb55da82159ce25400b33b69 changed=docs/inbox/Foo.md (added on main, case-twin of a path PR 7 adds: portable_paths would redden after the merge) -> re-run tools/dev/session_ci.sh 7   exit=4
+--- docs-only drift, main ADDS a case-twin:      STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=6e7e83e49f7e4733bb55da82159ce25400b33b69 changed=docs/inbox/Foo.md (added on main; PR 7 adds the same name or a case-twin of it: an add/add conflict or a portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 7   exit=4
 --- ledger touched + a record deleted:           STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=aa8682d7670db19892fc01162adfb7561f7fac9f changed=docs/coverage/viewer-certified.json,docs/inbox/old.md -> re-run tools/dev/session_ci.sh 7   exit=4
 --- code drift:                                  STALE was=d2aa484327c63863a1094dc7e1f5ec1088311fad now=728d20f16976bae643c5c127a69e5180599b28a5 changed=docs/coverage/viewer-certified.json,docs/inbox/old.md,src/a.py,… -> re-run tools/dev/session_ci.sh 7   exit=4
 --- unknown recorded main:                       STALE was=1111111111111111111111111111111111111111 now=728d20f16976bae643c5c127a69e5180599b28a5 changed=? (1111111111111111111111111111111111111111 is not in this clone: main rewritten, or a JSON from another checkout)   exit=4
@@ -823,9 +823,29 @@ not parsed, `SHARD_READS` extracted once. Kept on purpose: `BEGIN {n=0; s=""}` i
 there so `gawk --lint` stays silent — the issue's DONE), and `python3 -I` rather than awk `tolower()` for the twin
 comparison (parity with the checker's `str.lower()`; ~15 ms once per merge, only when main added docs files).
 
-BRANCH STATE (cam/496-ci-fresh-hardening): `tools/dev/ci_fresh.sh` (`[.]` regex, `name3` join helper, the case-twin /
-unknown-head STALE branch, header), `tools/dev/session_ci.sh` (header comment: complete setup-failure list; no logic
-change), `tests/test_ci_fresh.py` (real PR head in the rig, stderr captured, +9 tests incl. the per-awk rows and the
-SHARD_READS meta-test with its scanner unit test), this section. Already in the shard via `tests/ci_shard.d/487-ci-fresh.txt`
+**Review round 1 (tech-lead independent review, 🟡 nits on `1a6731d`; both real findings were fail-OPEN paths in a
+merge gate, fixed on the same branch).** (1) `name3` guarded lines with awk `NF`, so a blocking path whose name is all
+blanks (a top-level file literally named `" "`) vanished and the helper said `FRESH(docs-only drift)` where `main`'s
+says `STALE … changed=  ` — now `length($0)`: byte-identical to `main` again on that input (checked side by side), and
+a test row pins it. (2) The collision check had no failure guard and passed main's docs adds as one argv string: the
+reviewer forced `Argument list too long` with > 128 KiB of adds and got `FRESH`, exit 0, past a real twin. Now both
+lists travel on **stdin** (main's adds, a blank line, the PR's adds — git never emits an empty name), and every
+substitution below the drift diff carries `|| { echo "cannot judge PR <n>: …"; exit 2; }` (the two awk filters too —
+same class, previously unguarded). Reproduced on the reviewer's shape: 4 000 docs files + `docs/inbox/FOO.md` added on
+main (248 KiB of names) against a PR adding `docs/inbox/foo.md` → old head: `python3: Argument list too long` then
+`FRESH(docs-only drift)` rc 0; new head: `STALE … changed=docs/inbox/FOO.md (…)` rc 4 in 0.12 s. A test row forces the
+failure with a `python3` PATH shim that dies only for the collision program (the JSON read before it uses the real
+interpreter): → `cannot judge PR 7: the collision check against the names PR 7 adds failed`, exit 2, and the same shim
+is never reached when the drift holds no docs ADD. (3) Cosmetics taken: the collision message now reads "PR <n> adds
+the same name or a case-twin of it: an add/add conflict or a portable_paths failure after the merge" (the identical
+name is not a *case* twin), and the unknown-head message quotes the head (`the recorded head "-"` when the JSON has
+none). Outcome table re-run on the new head: mawk == gawk byte for byte; vs `main` still exactly the two intended rows
+differ (their new wording is what the table above shows). `tests/test_ci_fresh.py`: 21 passed, 1 skipped (busybox).
+
+BRANCH STATE (cam/496-ci-fresh-hardening): `tools/dev/ci_fresh.sh` (`[.]` regex, `name3` join helper, the collision /
+unknown-head STALE branch, fail-closed guards on every filter, header), `tools/dev/session_ci.sh` (header comment:
+complete setup-failure list; no logic change), `tests/test_ci_fresh.py` (real PR head in the rig, stderr captured, +11
+tests incl. the per-awk rows, the blank-name and forced-failure rows, and the SHARD_READS meta-test with its scanner
+unit test), this section. Already in the shard via `tests/ci_shard.d/487-ci-fresh.txt`
 (no new drop-in needed). No workflow files, no tick.md/AUTONOMY.md change, no engine or plugin sources
 (`sync_plugin.py --check` clean, `validate_plugin.py` PASS, portable paths ok); nothing staged for the viewer.
