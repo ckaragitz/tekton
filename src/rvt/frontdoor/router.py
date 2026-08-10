@@ -1444,10 +1444,12 @@ def _r_spec_on_rvt_seed(res, inputs, out_dir, opts):
 
     def run() -> int:
         # seed job progress -> job-create.log (whatever the route's own verbosity);
-        # an unopenable log = ONE caveat, never the job (#424)
-        with stage_stdout(out_dir, "job-create.log", quiet=True,
-                          on_open=lambda p: res.files.__setitem__("job_log", p),
-                          on_degrade=res.caveats.append):
+        # an unopenable log = ONE caveat, never the job (#424).  Its stderr
+        # verdict line joins the log only when the route is quiet (#448).
+        with (stage_stdout(out_dir, "job-create.log", quiet=True,
+                           on_open=lambda p: res.files.__setitem__("job_log", p),
+                           on_degrade=res.caveats.append),
+              E.job_stderr_joins_stdout(bool(opts.get("quiet")))):
             return int(J.main(argv))
 
     rc = steps.run("spec->rvt-legacy", "tools/rvt_job.py:main create", run)

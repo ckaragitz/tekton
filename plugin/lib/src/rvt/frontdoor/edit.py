@@ -26,6 +26,7 @@ Territory: ``src/rvt/frontdoor/`` (front-door stream).  Imports
 """
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import json
 import math
@@ -39,7 +40,7 @@ from .base import repo_root
 from .stagelog import stage_stdout
 
 __all__ = ["EditParseError", "EditSpec", "parse_edit_spec", "editables",
-           "resolve_ref", "load_job_module", "run_edit"]
+           "resolve_ref", "load_job_module", "job_stderr_joins_stdout", "run_edit"]
 
 FT_PER_M = 3.280839895013123
 
@@ -77,6 +78,17 @@ def load_job_module():
                 return mod
     raise ImportError("tools/rvt_job.py not found (the --rvt route delegates to the "
                       "job runner's edit pipeline); tried: " + "; ".join(cands))
+
+
+@contextlib.contextmanager
+def job_stderr_joins_stdout(quiet: bool):
+    """``quiet``: for the block, the in-process job runner's stderr (its ONE
+    ``[rvt_job] FAILED (…)`` verdict line) goes wherever ``sys.stdout`` points
+    at ENTRY -- entered after :func:`stage_stdout`, that is the same stage log
+    (or degrade sink), so the caller's own stderr stays 0 B; the reason rides
+    in the manifest's ``status`` anyway.  Not ``quiet``: stderr stays live."""
+    with (contextlib.redirect_stderr(sys.stdout) if quiet else contextlib.nullcontext()):
+        yield
 
 
 # ---------------------------------------------------------------------------
@@ -360,9 +372,10 @@ def run_edit(rvt_path: str, spec: EditSpec, out_dir: str, *,
 
     The job runner writes ``<out>.manifest.json`` / ``<out>.validation.json``;
     the front door's own manifest wraps them.  ``quiet``: the runner's
-    progress streams into ``<out_dir>/edit.log`` (:mod:`rvt.frontdoor.stagelog`,
-    the build's ``build.log`` shape) and ``log_path`` names it; an unwritable
-    ``out_dir`` costs the log (one ``degradations`` note), never the edit.
+    progress AND its stderr verdict line stream into ``<out_dir>/edit.log``
+    (:mod:`rvt.frontdoor.stagelog`, the build's ``build.log`` shape) and
+    ``log_path`` names it; an unwritable ``out_dir`` costs the log (one
+    ``degradations`` note), never the edit.
     """
     J = load_job_module()
     os.makedirs(out_dir, exist_ok=True)
@@ -378,9 +391,10 @@ def run_edit(rvt_path: str, spec: EditSpec, out_dir: str, *,
     if strict_validate:
         argv.append("--strict-validate")
     log: Dict[str, Any] = {"path": None, "degradations": []}
-    with stage_stdout(out_dir, "edit.log", quiet=quiet,
-                      on_open=lambda p: log.__setitem__("path", p),
-                      on_degrade=log["degradations"].append):
+    with (stage_stdout(out_dir, "edit.log", quiet=quiet,
+                       on_open=lambda p: log.__setitem__("path", p),
+                       on_degrade=log["degradations"].append),
+          job_stderr_joins_stdout(quiet)):
         rc = int(J.main(argv))
     job_manifest, validation = {}, {}
     mp = out_rvt + ".manifest.json"
