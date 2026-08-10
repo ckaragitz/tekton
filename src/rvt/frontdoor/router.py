@@ -1085,9 +1085,23 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
 
     name = (model.assembly_name or model.project_name
             or os.path.splitext(os.path.basename(ifc_path))[0])
+    # identity + a bill of materials the family can SCHEDULE, carried verbatim
+    # off the IFC's psets: absent stays absent, nothing is invented.
+    bom = model.bill_of_materials()
+    text_params: Dict[str, str] = {"Source IFC": os.path.basename(ifc_path)}
+    if model.assembly_tag:
+        text_params["Assembly Tag"] = model.assembly_tag
+    pns = [r["part_number"] for r in bom if r["part_number"]]
+    if pns:
+        seen: List[str] = []
+        for pn in pns:
+            if pn not in seen:
+                seen.append(pn)
+        text_params["Part Numbers"] = ", ".join(seen)
     kw: Dict[str, Any] = {
         "parts": model.to_parts(), "name": name,
         "source": f"IFC mesh ({os.path.basename(ifc_path)})",
+        "identity": dict(model.identity), "text_params": text_params,
     }
     sub = dict(opts)
     sub.setdefault("stem", _slug(name))
@@ -1104,6 +1118,24 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
         "dimension is GIVEN by your mesh and reported as such -- no catalog fact, no "
         "manufacturer identity, no donor bytes")
     res.caveats.extend(model.notes)
+    if model.decomposed:
+        res.caveats.append(
+            "slab decomposition improved " + ", ".join(
+                f"{r['name']} ({r['parts']} solids, fill {r['fill_before']:.2f} -> "
+                f"{r['fill_after']:.2f})" for r in model.decomposed[:6]))
+    if model.kept_prism:
+        res.caveats.append(
+            "kept as a single prism (the decomposition was refused, never "
+            "silently accepted): " + "; ".join(
+                f"{r['name']} -- {r['reason']}" for r in model.kept_prism[:6]))
+    if bom:
+        res.caveats.append(
+            f"bill of materials read off the IFC psets and authored onto the family "
+            f"type ({len(bom)} product rows; part numbers "
+            f"{text_params.get('Part Numbers', 'absent')})"
+            + ("" if model.identity else
+               "; no Manufacturer property in the source, so that identity field is "
+               "left EMPTY rather than invented"))
     if model.skipped:
         res.caveats.append(
             f"{len(model.skipped)} product(s) carried no measurable solid and were "

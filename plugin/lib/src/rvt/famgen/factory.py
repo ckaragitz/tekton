@@ -903,7 +903,10 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
 def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             category: str, solid: bool, source: str,
                             start_id: int,
-                            shared_params: SK.SharedParamsArg) -> FamilyProduct:
+                            shared_params: SK.SharedParamsArg,
+                            identity: Optional[Dict[str, str]] = None,
+                            text_params: Optional[Dict[str, str]] = None
+                            ) -> FamilyProduct:
     """A MULTI-PART generic model: several stacked / offset extrusions in one
     family (a canopy + a stem, a base + a body + a cap).  This is the LOD
     answer -- a real object is an assembly of solids, not one blob.  Overall
@@ -944,14 +947,24 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     sheet.set("part_count", len(built), kind="given", source=source)
     for dim in ("Width", "Depth", "Height"):
         _num(doc, dim, "length", "dimensions")
-    doc.add_type(_clean_name(fam_name), {
+    # Caller-supplied TEXT parameters (e.g. an IFC's part numbers): authored so
+    # the family SCHEDULES, carried verbatim, never parsed into a catalog claim.
+    for cap in (text_params or {}):
+        _text(doc, cap, "identity")
+    row: Dict[Any, Any] = {
         doc.params["Width"].elem_id: W,
         doc.params["Depth"].elem_id: D,
         doc.params["Height"].elem_id: H,
         "description": (f"{fam_name}: {len(built)}-part assembly, overall "
                         f"{W * 12.0:g} W x {D * 12.0:g} D x {H * 12.0:g} H in "
                         f"-- geometry GIVEN ({source}), no catalog record"),
-    })
+    }
+    for cap, val in (text_params or {}).items():
+        row[doc.params[cap].elem_id] = str(val)
+    for key, val in (identity or {}).items():          # manufacturer/model/url
+        if val:
+            row[key] = str(val)
+    doc.add_type(_clean_name(fam_name), row)
     doc.notes.append(f"multi-part generic model: {len(built)} extrusions "
                      f"({', '.join(str(p.get('shape') or 'box') for p in parts)}); "
                      f"Width/Depth/Height report the assembly bounding box")
@@ -1040,7 +1053,10 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        category: str = "generic_model",
                        base_z_ft: float = 0.0, solid: bool = True,
                        source: str = "given", start_id: int = 1000,
-                       shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
+                       shared_params: SK.SharedParamsArg = None,
+                       identity: Optional[Dict[str, str]] = None,
+                       text_params: Optional[Dict[str, str]] = None
+                       ) -> FamilyProduct:
     """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
     "when i go to claude design and ask it to build me a 3d object you
     should be able to fully convert that to a rfa file").
@@ -1059,7 +1075,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
         return _make_generic_multipart(parts, name=name, category=category,
                                        solid=solid, source=source,
                                        start_id=start_id,
-                                       shared_params=shared_params)
+                                       shared_params=shared_params,
+                                       identity=identity, text_params=text_params)
     if height_ft is None or float(height_ft) <= 0:
         raise FactoryError("make_generic_model needs a positive height_ft "
                            "(or parts=[...] for a multi-part assembly)")

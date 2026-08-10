@@ -347,3 +347,114 @@ def test_the_assembly_lane_says_what_it_could_not_measure(tmp_path):
     res = R.route({"ifc": p}, "rfa", out=str(tmp_path / "o2"), quiet=True)
     assert not res.ok
     assert "tessellated" in (res.line or "").lower()
+
+
+# ---------------------------------------------------------------------------
+# slab decomposition
+# ---------------------------------------------------------------------------
+
+def _tri0(tris):
+    return [(a - 1, b - 1, c - 1) for a, b, c in tris]
+
+
+def test_slice_of_a_box_is_its_rectangle():
+    pts, tris = _box_mesh(2.0, 4.0, 6.0)
+    rings = AP.slice_loops(pts, _tri0(tris), 3.0)
+    assert len(rings) == 1
+    assert AP._polygon_area(rings[0]) == pytest.approx(8.0, rel=1e-9)
+
+
+def test_slice_returns_none_when_the_section_is_ambiguous():
+    """Two boxes touching at exactly one point: the segments alone do not
+    determine the rings, so the slice must refuse rather than guess."""
+    p1, t1 = _box_mesh(1.0, 1.0, 2.0, ox=-0.5, oy=-0.5)
+    p2, t2 = _box_mesh(1.0, 1.0, 2.0, ox=0.5, oy=0.5)
+    pts = list(p1) + list(p2)
+    tris = _tri0(t1) + [(a - 1 + len(p1), b - 1 + len(p1), c - 1 + len(p1))
+                        for a, b, c in t2]
+    assert AP.slice_loops(pts, tris, 1.0) is None
+
+
+def test_ring_nesting_marks_a_hole_odd_and_its_island_even():
+    outer = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    hole = [[2, 2], [8, 2], [8, 8], [2, 8]]
+    island = [[4, 4], [6, 4], [6, 6], [4, 6]]
+    assert AP.ring_nesting([outer, hole, island]) == [0, 1, 2]
+
+
+def test_two_stacked_boxes_decompose_into_two_slabs():
+    pts, tris = _box_mesh(4.0, 4.0, 1.0)
+    p2, t2 = _box_mesh(1.0, 1.0, 1.0, oz=1.0)
+    n = len(pts)
+    allp = list(pts) + list(p2)
+    allt = _tri0(tris) + [(a - 1 + n, b - 1 + n, c - 1 + n) for a, b, c in t2]
+    dec = AP.decompose_slabs(allp, allt)
+    assert dec is not None
+    assert len(dec["parts"]) == 2
+    assert dec["volume_ft3"] == pytest.approx(16.0 + 1.0, rel=1e-6)
+
+
+def test_a_constant_section_merges_into_one_part_not_many():
+    """A plain rod must not come back as a stack of pancakes."""
+    pts, tris = _prism_mesh(0.5, 4.0, 24)
+    dec = AP.decompose_slabs(pts, _tri0(tris))
+    if dec is not None:
+        assert len(dec["parts"]) == 1
+
+
+def test_decomposition_conserves_material_or_is_refused():
+    assert AP._conserves(1.0, 1.0)
+    assert AP._conserves(1.5, 1.0)          # a filled hole ADDS material: fine
+    assert not AP._conserves(0.5, 1.0)      # lost material: never acceptable
+
+
+def test_the_budget_is_a_refusal_not_a_truncation():
+    pts, tris = _box_mesh(1.0, 1.0, 1.0)
+    assert AP.decompose_slabs(pts, _tri0(tris), max_parts=0) is None
+    assert AP.decompose_slabs(pts, _tri0(tris), max_slabs=0) is None
+
+
+def test_a_body_whose_section_runs_sideways_keeps_its_prism(tmp_path):
+    """The C-channel case: a section constant along X cannot be expressed by
+    a Z-extruded part, so the reader must keep the honest envelope AND say
+    why -- never author a decomposition that lost material."""
+    # a U lying on its side: two flanges + a web, constant along X
+    parts = []
+    for oy, oz, d, h in ((-0.45, 0.0, 0.1, 1.0), (0.45, 0.0, 0.1, 1.0),
+                         (0.0, 0.0, 1.0, 0.1)):
+        parts.append(_box_mesh(4.0, d, h, oy=oy, oz=oz))
+    pts, tris = [], []
+    for p, t in parts:
+        n = len(pts)
+        pts += list(p)
+        tris += [(a - 1 + n, b - 1 + n, c - 1 + n) for a, b, c in t]
+    p = write_ifc(str(tmp_path / "u.ifc"), [("U Channel", "IFCMEMBER", (pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]))])
+    m = AP.read_assembly(p)
+    assert len(m.parts) == 1                     # one prism, not a wrong stack
+    assert m.kept_prism and m.kept_prism[0]["name"] == "U Channel"
+    assert m.parts[0].fill is not None and m.parts[0].fill < 0.9
+
+
+def test_decomposition_is_reported_per_product(tmp_path):
+    pts, tris = _box_mesh(4.0, 4.0, 1.0)
+    p2, t2 = _box_mesh(1.0, 1.0, 1.0, oz=1.0)
+    n = len(pts)
+    allp = list(pts) + list(p2)
+    allt = list(tris) + [(a + n, b + n, c + n) for a, b, c in t2]
+    p = write_ifc(str(tmp_path / "d.ifc"), [("Stepped", "IFCBUILDINGELEMENTPROXY", (allp, allt))])
+    m = AP.read_assembly(p)
+    assert len(m.parts) == 2
+    assert m.decomposed and m.decomposed[0]["name"] == "Stepped"
+    assert m.decomposed[0]["fill_after"] > m.decomposed[0]["fill_before"]
+    assert all(x.of_product == "Stepped" for x in m.parts)
+    assert [x.name for x in m.parts] == ["Stepped [1/2]", "Stepped [2/2]"]
+
+
+def test_decompose_can_be_switched_off(tmp_path):
+    pts, tris = _box_mesh(4.0, 4.0, 1.0)
+    p2, t2 = _box_mesh(1.0, 1.0, 1.0, oz=1.0)
+    n = len(pts)
+    allp = list(pts) + list(p2)
+    allt = list(tris) + [(a + n, b + n, c + n) for a, b, c in t2]
+    p = write_ifc(str(tmp_path / "d2.ifc"), [("Stepped", "IFCBUILDINGELEMENTPROXY", (allp, allt))])
+    assert len(AP.read_assembly(p, decompose=False).parts) == 1

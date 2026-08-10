@@ -32,18 +32,43 @@ a manufacturer claim.  Each part becomes the *prismatic massing* of its mesh:
   cylinder / an axis-aligned box / an N-gon (:func:`fit_solid`), and
 * it is extruded over the mesh's full Z extent.
 
-So a solid whose cross-section VARIES with height is over-approximated to
-its shadow prism: a strut channel's C-profile becomes its rectangular
-envelope, a hex nut's chamfer disappears, a bolt's thread is a smooth
-cylinder.  :attr:`PartSolid.fill` records exactly how much of the prism the
-mesh actually occupies -- the mesh's own closed-surface volume (divergence
-theorem over its triangles) over the authored prism's volume -- so the report
-can say which parts are faithful and which are envelopes, per part, in
-numbers instead of adjectives.  Nothing is invented: a product with no
-tessellated body is SKIPPED BY NAME, never given a guessed size.
+:attr:`PartSolid.fill` records exactly how much of that prism the mesh
+actually occupies -- the mesh's own closed-surface volume (divergence theorem
+over its triangles) over the authored prism's volume -- so the report says
+which parts are faithful and which are envelopes, per part, in numbers
+instead of adjectives.  Nothing is invented: a product with no tessellated
+body is SKIPPED BY NAME, never given a guessed size.
+
+WHEN ONE PRISM IS NOT ENOUGH (:func:`decompose_slabs`).  A body whose section
+changes with height -- a stack of nuts and washers, a stepped base -- is cut
+at its vertex Z levels and each slab's REAL section is authored
+(:func:`slice_loops`), concavity and disjoint regions included; unchanged
+slabs merge, so a plain rod stays one part.  Two things make this safe to
+trust rather than merely impressive:
+
+* an AMBIGUOUS slice (any welded vertex of degree != 2, i.e. regions touching
+  at a point) is refused outright -- guessing there yields a plausible solid
+  that is not the body; and
+* the result must CONSERVE MATERIAL (:func:`_conserves`).  Filling a hole the
+  part contract cannot express only ever ADDS volume; authoring *less* volume
+  than the mesh holds means a ring was mis-nested or a region was lost, so
+  the decomposition is discarded however good its fill ratio looks.
+
+Either way the caller keeps the single prism and is told which body it was
+and why (``AssemblyModel.kept_prism``).  The unfixable case is a section that
+runs along X or Y -- a strut channel's C-profile -- because
+``add_generic_part`` extrudes along Z only: no rotation is expressible in the
+part contract, so that body is honestly an envelope until the contract grows
+one.
+
+IDENTITY.  ``Pset_ManufacturerTypeInformation`` (part numbers, references,
+manufacturer) is read per product into a bill of materials and authored onto
+the family type VERBATIM.  An absent property stays absent: an empty identity
+field is honest, an invented one is not.
 
 Pure stdlib (:mod:`rvt.ifc.steplite` through the engine's reader selection,
 so no ifcopenshell is needed), no donor bytes, no Autodesk anything.
+
 Territory: ifc-assembly stream (new module; imports steplite + product_facts
 helpers, edits neither).
 """
@@ -57,6 +82,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 __all__ = [
     "AssemblyError", "PartSolid", "AssemblyModel", "FT_PER_M",
     "convex_hull_2d", "fit_solid", "read_assembly", "assembly_parts",
+    "slice_loops", "ring_nesting", "mesh_volume", "decompose_slabs",
     "MIN_EXTENT_FT", "CYLINDER_TOLERANCE", "RECT_TOLERANCE", "MAX_HULL_POINTS",
 ]
 
@@ -75,6 +101,20 @@ RECT_TOLERANCE = 0.98
 #: Cap on the authored N-gon footprint (a tessellated arc can hull to
 #: hundreds of points; the family only needs the shape, not the tessellation).
 MAX_HULL_POINTS = 48
+
+#: Decimal places vertices are welded to when stitching a slice (~1e-9 ft).
+_WELD = 9
+
+#: A single prism at or above this fill is already the body -- do not decompose.
+DECOMPOSE_FILL = 0.90
+
+#: Budgets for :func:`decompose_slabs`.  A body needing more than these is
+#: kept as its single prism and the cap is REPORTED, never silently applied.
+MAX_SLABS = 64
+MAX_DECOMPOSED_PARTS = 40
+
+#: A slice ring below this area (ft^2 ~ 0.0144 in^2) is a tessellation sliver.
+MIN_SLAB_AREA_FT2 = 1e-4
 
 
 class AssemblyError(ValueError):
@@ -111,6 +151,10 @@ class PartSolid:
     n_faces: int = 0
     fill: Optional[float] = None
     bbox_ft: List[List[float]] = dc_field(default_factory=list)
+    of_product: str = ""          # the IFC product this solid came from
+    slabs: int = 0                # >0 when it is one slab of a decomposition
+    part_number: str = ""         # Pset_ManufacturerTypeInformation, verbatim
+    reference: str = ""
 
     def to_part(self) -> Dict[str, Any]:
         """The ``parts=[...]`` dict :func:`rvt.famgen.factory.add_generic_part`
@@ -142,6 +186,9 @@ class PartSolid:
             "height_in": round(self.height_ft * 12.0, 4),
             "n_points": self.n_points, "n_faces": self.n_faces,
             "fill": (round(self.fill, 4) if self.fill is not None else None),
+            "of_product": self.of_product or self.name,
+            "slabs": self.slabs,
+            "part_number": self.part_number, "reference": self.reference,
             "bbox_ft": [[round(v, 6) for v in row] for row in self.bbox_ft],
         }
         if self.width_ft is not None:
@@ -169,6 +216,11 @@ class AssemblyModel:
     unit_scale_m: float
     parts: List[PartSolid]
     skipped: List[Dict[str, str]] = dc_field(default_factory=list)
+    decomposed: List[Dict[str, Any]] = dc_field(default_factory=list)
+    kept_prism: List[Dict[str, str]] = dc_field(default_factory=list)
+    identity: Dict[str, str] = dc_field(default_factory=dict)
+    assembly_tag: str = ""
+    assembly_description: str = ""
     origin_shift_ft: Tuple[float, float, float] = (0.0, 0.0, 0.0)
     notes: List[str] = dc_field(default_factory=list)
 
@@ -200,10 +252,31 @@ class AssemblyModel:
             "overall_dims_ft": {k: round(v, 6) for k, v in d.items()},
             "overall_dims_in": {k: round(v * 12.0, 4) for k, v in d.items()},
             "fit_counts": self.fit_counts(),
+            "product_count": len({p.of_product or p.name for p in self.parts}),
             "parts": [p.to_json() for p in self.parts],
+            "decomposed": list(self.decomposed),
+            "kept_prism": list(self.kept_prism),
+            "identity": dict(self.identity),
+            "assembly_tag": self.assembly_tag,
+            "assembly_description": self.assembly_description,
+            "bill_of_materials": self.bill_of_materials(),
             "skipped": list(self.skipped),
             "notes": list(self.notes),
         }
+
+    def bill_of_materials(self) -> List[Dict[str, Any]]:
+        """One row per distinct source product: its part number, reference and
+        how many solids were authored for it.  Read straight off the IFC's
+        ``Pset_ManufacturerTypeInformation`` -- carried VERBATIM, never
+        normalised into a catalog claim we cannot back."""
+        rows: Dict[str, Dict[str, Any]] = {}
+        for p in self.parts:
+            key = p.of_product or p.name
+            row = rows.setdefault(key, {"product": key, "ifc_class": p.ifc_class,
+                                        "part_number": p.part_number,
+                                        "reference": p.reference, "solids": 0})
+            row["solids"] += 1
+        return list(rows.values())
 
     def fit_counts(self) -> Dict[str, int]:
         out: Dict[str, int] = {}
@@ -355,6 +428,127 @@ def fit_solid(points_ft: Sequence[Sequence[float]],
                 fill=_fill(_polygon_area(ring) * height))
 
 
+def slice_loops(points: Sequence[Sequence[float]],
+                triangles: Sequence[Sequence[int]],
+                z: float) -> Optional[List[List[List[float]]]]:
+    """The closed cross-section rings of a mesh at the horizontal plane ``z``.
+
+    Each triangle straddling the plane contributes one segment; segments are
+    welded end-to-end into closed rings.  ``z`` is expected to be a SLAB
+    MIDPOINT (strictly between two vertex levels), so no vertex lies on the
+    plane and the strictly-signed test below is exact -- that is what keeps
+    this free of the usual coplanar-vertex special cases.
+
+    Rings come back unordered and un-nested; :func:`ring_nesting` says which
+    are solid and which are holes.  None means the slice is AMBIGUOUS (see
+    :func:`_stitch`) -- not "no rings", which is an empty list.
+    """
+    segs: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
+    for tri in triangles:
+        if len(tri) < 3:
+            continue
+        try:
+            P = [points[tri[0]], points[tri[1]], points[tri[2]]]
+        except IndexError:
+            continue
+        hit: List[Tuple[float, float]] = []
+        for i in range(3):
+            p, q = P[i], P[(i + 1) % 3]
+            if (p[2] - z) * (q[2] - z) < 0.0:
+                t = (z - p[2]) / (q[2] - p[2])
+                hit.append((round(p[0] + t * (q[0] - p[0]), _WELD),
+                            round(p[1] + t * (q[1] - p[1]), _WELD)))
+        if len(hit) == 2 and hit[0] != hit[1]:
+            segs.append((hit[0], hit[1]))
+    rings = _stitch(segs)
+    if rings is None:
+        return None
+    return rings
+
+
+def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
+            ) -> Optional[List[List[List[float]]]]:
+    """Weld segments into closed rings, each segment used exactly once.
+
+    Returns None when the slice is AMBIGUOUS -- any welded vertex with a
+    degree other than 2, which is where two regions touch at a point or the
+    plane grazes an edge.  There the ring set is not determined by the
+    segments alone, and guessing produces a plausible-looking solid that is
+    not the body.  The caller falls back to the single prism and says so.
+    """
+    from collections import defaultdict
+    adj: Dict[Tuple[float, float], List[int]] = defaultdict(list)
+    for i, (a, b) in enumerate(segs):
+        adj[a].append(i)
+        adj[b].append(i)
+    if any(len(v) != 2 for v in adj.values()):
+        return None
+    used = [False] * len(segs)
+    rings: List[List[List[float]]] = []
+    for start_i in range(len(segs)):
+        if used[start_i]:
+            continue
+        used[start_i] = True
+        a, b = segs[start_i]
+        ring = [a, b]
+        cur = b
+        while cur != a:
+            nxt = -1
+            for j in adj.get(cur, ()):                 # an unused segment at cur
+                if not used[j]:
+                    nxt = j
+                    break
+            if nxt < 0:
+                break                                   # open chain: not a ring
+            used[nxt] = True
+            p, q = segs[nxt]
+            cur = q if p == cur else p
+            ring.append(cur)
+        if cur == a and len(ring) >= 4:                 # closed (last == first)
+            rings.append([list(v) for v in ring[:-1]])
+    return [_drop_collinear(r) for r in rings if len(r) >= 3]
+
+
+def _drop_collinear(ring: Sequence[Sequence[float]], eps: float = 1e-12
+                    ) -> List[List[float]]:
+    out: List[List[float]] = []
+    n = len(ring)
+    for i in range(n):
+        a, b, c = ring[i - 1], ring[i], ring[(i + 1) % n]
+        if abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) > eps:
+            out.append([float(b[0]), float(b[1])])
+    return out if len(out) >= 3 else [[float(v[0]), float(v[1])] for v in ring]
+
+
+def _point_in_ring(pt: Sequence[float], ring: Sequence[Sequence[float]]) -> bool:
+    x, y = float(pt[0]), float(pt[1])
+    inside = False
+    n = len(ring)
+    for i in range(n):
+        x1, y1 = ring[i][0], ring[i][1]
+        x2, y2 = ring[(i + 1) % n][0], ring[(i + 1) % n][1]
+        if (y1 > y) != (y2 > y):
+            xi = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
+            if xi > x:
+                inside = not inside
+    return inside
+
+
+def ring_nesting(rings: Sequence[Sequence[Sequence[float]]]) -> List[int]:
+    """Even-odd nesting depth per ring: 0 = solid outer, 1 = a hole in it,
+    2 = an island inside that hole, ...
+
+    Containment is tested with a ring's own VERTEX, not its interior point: a
+    slice's rings are disjoint (the ambiguous case is refused upstream), so a
+    boundary point of A lies in B exactly when A lies in B -- whereas an
+    interior point of a ring that CONTAINS others is inside those others and
+    would count them as its own parents.
+    """
+    return [sum(1 for j, other in enumerate(rings)
+                if j != i and _point_in_ring(rings[i][0], other))
+            for i in range(len(rings))]
+
+
 def mesh_volume(points: Sequence[Sequence[float]],
                 triangles: Sequence[Sequence[int]]) -> float:
     """The enclosed volume of a CLOSED triangle mesh (divergence theorem:
@@ -377,6 +571,103 @@ def mesh_volume(points: Sequence[Sequence[float]],
                   - p[1] * (q[0] * r[2] - q[2] * r[0])
                   + p[2] * (q[0] * r[1] - q[1] * r[0])) / 6.0
     return abs(total)
+
+
+# ---------------------------------------------------------------------------
+# slab decomposition -- the honest answer to "one prism is an envelope"
+# ---------------------------------------------------------------------------
+
+def decompose_slabs(points: Sequence[Sequence[float]],
+                    triangles: Sequence[Sequence[int]], *,
+                    max_slabs: int = MAX_SLABS,
+                    max_parts: int = MAX_DECOMPOSED_PARTS,
+                    min_area_ft2: float = MIN_SLAB_AREA_FT2
+                    ) -> Optional[Dict[str, Any]]:
+    """Cut a mesh into horizontal slabs and author each slab's REAL
+    cross-section, so a body whose section changes with height stops being
+    one fat envelope.
+
+    Between two consecutive vertex Z levels a closed mesh's cross-section is
+    constant, so the midpoint slice (:func:`slice_loops`) IS that slab's exact
+    section -- concavity, disjoint regions and all.  Adjacent slabs whose
+    section did not change are merged, so a plain rod stays ONE part while a
+    C-channel becomes its back plate plus its two walls.
+
+    Returns ``{parts, volume_ft3, n_slabs, holes_filled, dropped}``, or None
+    when the body does not decompose usefully (one level, or the result would
+    blow the budgets -- a cap the caller REPORTS rather than hides).  Holes
+    are not expressible in the part contract: a ring at odd nesting depth is
+    dropped from the solid set and counted in ``holes_filled``.
+    """
+    if not triangles:
+        return None
+    levels = sorted({round(float(p[2]), _WELD) for p in points})
+    slabs_z = [(levels[i], levels[i + 1]) for i in range(len(levels) - 1)
+               if levels[i + 1] - levels[i] > MIN_EXTENT_FT]
+    if not slabs_z or len(slabs_z) > max_slabs:
+        return None
+
+    raw: List[Tuple[float, float, List[List[List[float]]]]] = []
+    holes = dropped = 0
+    for z0, z1 in slabs_z:
+        rings = slice_loops(points, triangles, (z0 + z1) / 2.0)
+        if rings is None:
+            return None                                 # ambiguous slice
+        if not rings:
+            continue
+        solid: List[List[List[float]]] = []
+        for r, d in zip(rings, ring_nesting(rings)):
+            if d % 2:                                   # a hole, not a solid
+                holes += 1
+                continue
+            if _polygon_area(r) < min_area_ft2:         # slice sliver
+                dropped += 1
+                continue
+            solid.append(r)
+        if solid:
+            raw.append((z0, z1, solid))
+    if not raw:
+        return None
+
+    merged: List[List[Any]] = []
+    for z0, z1, rings in raw:
+        if merged and abs(merged[-1][1] - z0) <= 10.0 ** -_WELD \
+                and _same_section(merged[-1][2], rings):
+            merged[-1][1] = z1                          # the section continues
+        else:
+            merged.append([z0, z1, rings])
+
+    if sum(len(r) for _, _, r in merged) > max_parts:
+        return None
+
+    parts: List[Dict[str, Any]] = []
+    volume = 0.0
+    for z0, z1, rings in merged:
+        h = z1 - z0
+        for ring in rings:
+            out = _decimate(ring, MAX_HULL_POINTS) if len(ring) > MAX_HULL_POINTS else ring
+            parts.append({"shape": "polygon", "vertices": out,
+                          "height_ft": h, "base_z_ft": z0})
+            volume += _polygon_area(out) * h
+    return {"parts": parts, "volume_ft3": volume, "n_slabs": len(merged),
+            "holes_filled": holes, "dropped": dropped}
+
+
+def _conserves(authored_ft3: float, mesh_ft3: float, tol: float = 0.02) -> bool:
+    """A decomposition may only ADD material (a hole it cannot express gets
+    filled), never LOSE it.  Authored < mesh means a ring was mis-nested or a
+    region went missing -- the decomposition is wrong and must be discarded,
+    however good its fill ratio looks."""
+    return authored_ft3 >= mesh_ft3 * (1.0 - tol)
+
+
+def _same_section(a: Sequence[Sequence[Sequence[float]]],
+                  b: Sequence[Sequence[Sequence[float]]]) -> bool:
+    """Two slabs carry the same section (so they merge into one taller part)."""
+    if len(a) != len(b):
+        return False
+    return (sorted(tuple(tuple(v) for v in r) for r in a)
+            == sorted(tuple(tuple(v) for v in r) for r in b))
 
 
 # ---------------------------------------------------------------------------
@@ -435,6 +726,51 @@ def _mesh_triangles(item) -> List[Tuple[int, int, int]]:
     return tris
 
 
+#: IFC property names we read identity from, most specific first.  Everything
+#: is carried VERBATIM: these are the caller's strings, not catalog facts.
+_PART_NUMBER_PROPS = ("PartNumber", "ArticleNumber", "ModelReference",
+                      "ModelLabel", "GlobalTradeItemNumber")
+_REFERENCE_PROPS = ("Reference", "Description", "Tag")
+
+
+def _props(product) -> Dict[str, Any]:
+    """Every single-value property of a product, flattened across its psets."""
+    from . import product_facts as PF
+    out: Dict[str, Any] = {}
+    try:
+        for props in (PF._collect_psets(product) or {}).values():
+            for k, v in props.items():
+                out.setdefault(str(k), v.get("value"))
+    except Exception:
+        return {}
+    return out
+
+
+def _identity_of(product) -> Tuple[str, str]:
+    """``(part_number, reference)`` for one product, verbatim or ''."""
+    p = _props(product)
+    pn = next((str(p[k]) for k in _PART_NUMBER_PROPS if p.get(k) not in (None, "")), "")
+    if not pn:
+        pn = str(getattr(product, "Tag", "") or "")
+    ref = next((str(p[k]) for k in _REFERENCE_PROPS if p.get(k) not in (None, "")), "")
+    return pn, ref
+
+
+def _pset_identity(product) -> Dict[str, str]:
+    """The assembly's identity data mapped onto the family-type fields Revit
+    schedules (``manufacturer`` / ``model`` / ``url``).  Absent stays ABSENT --
+    an empty identity field is honest, an invented one is not."""
+    p = _props(product)
+    out: Dict[str, str] = {}
+    for key, names in (("manufacturer", ("Manufacturer",)),
+                       ("model", _PART_NUMBER_PROPS),
+                       ("url", ("URL", "ProductURL"))):
+        v = next((str(p[n]) for n in names if p.get(n) not in (None, "")), "")
+        if v:
+            out[key] = v
+    return out
+
+
 def _name_of(prod, index: int) -> str:
     for attr in ("Name", "Description", "Tag"):
         v = getattr(prod, attr, None)
@@ -443,7 +779,8 @@ def _name_of(prod, index: int) -> str:
     return f"{prod.is_a()} {index + 1}"
 
 
-def read_assembly(ifc_path: str, *, recentre: bool = True) -> AssemblyModel:
+def read_assembly(ifc_path: str, *, recentre: bool = True,
+                  decompose: bool = True) -> AssemblyModel:
     """Measure EVERY product with a tessellated body into a :class:`PartSolid`.
 
     World coordinates: each mesh's points are carried through its product's
@@ -473,13 +810,20 @@ def read_assembly(ifc_path: str, *, recentre: bool = True) -> AssemblyModel:
     except Exception:
         application = ""
     asm = ""
+    asm_tag = asm_desc = ""
+    identity: Dict[str, str] = {}
     for a in (f.by_type("IfcElementAssembly") or []):
         if getattr(a, "Name", None):
             asm = str(a.Name)
+            asm_tag = str(getattr(a, "Tag", "") or "")
+            asm_desc = str(getattr(a, "Description", "") or "")
+            identity = _pset_identity(a)
             break
 
     parts: List[PartSolid] = []
     skipped: List[Dict[str, str]] = []
+    decomposed: List[Dict[str, Any]] = []
+    kept_prism: List[Dict[str, str]] = []
     for i, prod in enumerate(f.by_type("IfcProduct") or []):
         if prod.is_a("IfcSpatialStructureElement") or prod.is_a("IfcSpatialElement"):
             continue
@@ -515,18 +859,67 @@ def read_assembly(ifc_path: str, *, recentre: bool = True) -> AssemblyModel:
         except AssemblyError as e:
             skipped.append({"name": name, "ifc_class": prod.is_a(), "reason": str(e)})
             continue
+        pn, ref = _identity_of(prod)
+        common = dict(ifc_class=prod.is_a(),
+                      tag=str(getattr(prod, "Tag", "") or ""),
+                      guid=str(getattr(prod, "GlobalId", "") or ""),
+                      n_points=len(pts_ft), n_faces=n_faces,
+                      part_number=pn, reference=ref,
+                      bbox_ft=[list(fit["bbox"][0]), list(fit["bbox"][1])])
+
+        # One prism is an ENVELOPE for a body whose section varies with height.
+        # Cut it into slabs when that would actually buy fidelity, and only
+        # keep the result if it really is closer to the mesh.
+        dec = None
+        if decompose and vol is not None and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
+            dec = decompose_slabs(pts_ft, tris)
+            if dec is not None:
+                dv = dec["volume_ft3"]
+                before = fit.get("fill") or 0.0
+                if dv <= 0 or not _conserves(dv, vol):
+                    # authored less material than the mesh holds: a ring was
+                    # mis-nested or a region was lost. A better-looking fill
+                    # ratio does not make that solid right.
+                    kept_prism.append({"name": name, "reason": (
+                        f"slab decomposition dropped material "
+                        f"({dv * 1728:.3f} in3 authored vs {vol * 1728:.3f} in3 in the mesh)")})
+                    dec = None
+                elif vol / dv < before + 0.02:
+                    kept_prism.append({"name": name, "reason": (
+                        f"slab decomposition was no closer than the single prism "
+                        f"(fill {vol / dv:.2f} vs {before:.2f})")})
+                    dec = None
+            else:
+                kept_prism.append({"name": name, "reason": (
+                    "not decomposable into horizontal slabs (an ambiguous slice, "
+                    "one Z level, or over the part budget) -- its section most "
+                    "likely runs along X or Y, which the Z-extruded part contract "
+                    "cannot express")})
+        if dec is not None:
+            n = len(dec["parts"])
+            for k, part in enumerate(dec["parts"], 1):
+                parts.append(PartSolid(
+                    name=(f"{name} [{k}/{n}]" if n > 1 else name),
+                    fit="polygon", center_ft=(0.0, 0.0),
+                    height_ft=part["height_ft"], base_z_ft=part["base_z_ft"],
+                    vertices_ft=part["vertices"],
+                    fill=(dec["volume_ft3"] and vol / dec["volume_ft3"]),
+                    of_product=name, slabs=dec["n_slabs"], **common))
+            decomposed.append({
+                "name": name, "parts": n, "slabs": dec["n_slabs"],
+                "fill_before": round(float(fit.get("fill") or 0.0), 4),
+                "fill_after": round(vol / dec["volume_ft3"], 4) if dec["volume_ft3"] else None,
+                "holes_filled": dec["holes_filled"], "slivers_dropped": dec["dropped"]})
+            continue
+
         parts.append(PartSolid(
-            name=name, ifc_class=prod.is_a(),
-            tag=str(getattr(prod, "Tag", "") or ""),
-            guid=str(getattr(prod, "GlobalId", "") or ""),
+            name=name,
             fit=fit["fit"], center_ft=tuple(fit["center"]),
             height_ft=fit["height_ft"], base_z_ft=fit["base_z_ft"],
             width_ft=fit.get("width_ft"), depth_ft=fit.get("depth_ft"),
             radius_ft=fit.get("radius_ft"), vertices_ft=fit.get("vertices"),
-            n_points=len(pts_ft), n_faces=n_faces,
             fill=(None if fit.get("fill") is None else float(fit["fill"])),
-            bbox_ft=[list(fit["bbox"][0]), list(fit["bbox"][1])],
-        ))
+            of_product=name, **common))
 
     if not parts:
         detail = ("; ".join(f"{s['name']}: {s['reason']}" for s in skipped[:4])
@@ -538,6 +931,8 @@ def read_assembly(ifc_path: str, *, recentre: bool = True) -> AssemblyModel:
         source_path=path, schema=str(getattr(f, "schema", "") or ""),
         project_name=project_name, application=application,
         assembly_name=asm, unit_scale_m=scale, parts=parts, skipped=skipped,
+        decomposed=decomposed, kept_prism=kept_prism, identity=identity,
+        assembly_tag=asm_tag, assembly_description=asm_desc,
     )
     model.notes.append(
         f"{len(parts)} product(s) measured into prismatic solids "
@@ -558,8 +953,10 @@ def read_assembly(ifc_path: str, *, recentre: bool = True) -> AssemblyModel:
     return model.recentre() if recentre else model
 
 
-def assembly_parts(ifc_path: str, *, recentre: bool = True) -> List[Dict[str, Any]]:
+def assembly_parts(ifc_path: str, *, recentre: bool = True,
+                   decompose: bool = True) -> List[Dict[str, Any]]:
     """The ``parts=[...]`` list for
     :func:`rvt.famgen.factory.make_generic_model` -- the one call the router
     lane needs."""
-    return read_assembly(ifc_path, recentre=recentre).to_parts()
+    return read_assembly(ifc_path, recentre=recentre,
+                         decompose=decompose).to_parts()
