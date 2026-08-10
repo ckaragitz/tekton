@@ -3,8 +3,16 @@
 Stream: `ci-shard-router` (eng #102, cloud engineer session started by the tech-lead session,
 2026-08-09). Charter = issue #102 (Refs #5; regression #354 reached `main` because this file was
 unsharded). Territory: `tests/test_router.py` (gate lines only), NEW
-`tests/ci_shard.d/102-test-router.txt`, this record. NOT touched: `src/`, `tools/`,
-`tests/ci_shard.txt` (frozen, #328 — comment-only patch below), `tests/conftest.py`, hot files.
+`tests/ci_shard.d/102-test-router.txt`, a comment-only correction to `tests/ci_shard.txt`'s
+header (tech-lead ruling: the #328 freeze is about appending *entries*; no entry added, removed
+or reordered), this record. NOT touched: `src/`, `tools/`, `tests/conftest.py`, hot files.
+
+**Headline finding — why nothing caught #354-class regressions:** this file's `needs_ifc` gate
+has been a guaranteed no-op since the steplite fallback (#130). Importing the router loads
+`rvt.ifc`, which puts the bundled shim on `sys.path`, so "does `import ifcopenshell` succeed"
+was always True: the decorator never skipped anything, the two spec→ifc cases that really need
+the wheel were red on every fresh clone, and *that* standing red is what kept the whole file —
+matrix honesty gate and doc-drift guard included — out of the per-PR shard. Details in §Finding.
 
 ## Why
 
@@ -85,34 +93,27 @@ before the drop-in **1093 passed / 124 skipped / 3 xfailed in 197.1 s**; with it
 file's ~19 s alone: imports and the schema cache are already warm mid-shard), well inside the 1500 s
 sandbox timeout.
 
-## Patch carried for the frozen file (not applied here — `tests/ci_shard.txt` is outside this territory)
+## `tests/ci_shard.txt` header (comment-only, applied on the tech lead's ruling)
 
-Its header still says the file is "Deliberately NOT in the shard"; whoever next holds
-`tests/ci_shard.txt` can drop these four comment lines (entries unchanged, so
-`test_shard_list.py`'s no-growth pin is unaffected):
-
-```
--# Deliberately NOT in the shard:
--#   tests/test_router.py  — test_e2e_prompt_to_rfa needs the git-ignored
--#                           extracted/racbasicsampleproject corpus (owner
--#                           machine), and the spec->ifc cases need
--#                           ifcopenshell, which is an optional dep.
-```
+The header's "Deliberately NOT in the shard: tests/test_router.py …" paragraph is replaced by
+three comment lines pointing at the drop-in. Entries untouched: `shard_list.py --print | wc -l`
+= 55 before and after; `tests/test_shard_list.py` 23 passed after the edit.
 
 ## Open questions / follow-ups
 
 * #133 (spec→ifc authoring needs the wheel) is the product gap behind the two skips; when it
   lands a stdlib authoring path, the three `@needs_ifc` decorations here become removable and
   the CI shape gains those cases.
-* Other files still carry the permissive "does `import ifcopenshell` succeed" predicate
-  (`tests/test_convert.py::needs_ifcos`, `tests/test_ifc_family.py::needs_ifc`); whether they are
-  equally dead depends on their import order — worth one census pass when #133 or a
-  shared-marker cleanup touches them (not filed separately: no failing case observed).
+* Predicate consolidation — one engine query `rvt.ifc._fallback.ifc_authoring_available()` +
+  one `conftest` marker replacing the ~6 hand-rolled real-wheel predicates (and the two still
+  permissive ones in `tests/test_convert.py::needs_ifcos`, `tests/test_ifc_family.py::needs_ifc`)
+  — is being filed by the tech-lead session (Refs #133 #102), not done here.
 
 ## BRANCH STATE
 
 * Branch `cam/102-shard-test-router` from `main`@ec62a06, rebased onto `main`@c1b52ed (after #363); files: `tests/test_router.py`
   (predicate + decorator lines only), `tests/ci_shard.d/102-test-router.txt` (new),
+  `tests/ci_shard.txt` (3 comment lines replace 5; entries untouched),
   `docs/inbox/ci-shard-router.md` (this record, new).
 * Gates: table above; `tests/test_shard_list.py` 23 passed; portable paths ok;
   `tools/sync_plugin.py --check` → in sync, deny-audit clean (no `src/`/`tools/`/`skills/` touched).
