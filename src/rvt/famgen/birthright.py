@@ -120,7 +120,8 @@ __all__ = ["BirthSpec", "read_birth_spec", "birth_delta", "apply_birthright",
            "apply_birthright_v3", "apply_host_symbol_law",
            "apply_host_family_table_law",
            "apply_birthright_v4", "apply_born_identity", "identity_census",
-           "BORN_HEADER_FLAGS", "BORN_IDENTITY_LAW", "BIRTH_SUFFIX_BASE"]
+           "BORN_HEADER_FLAGS", "BORN_EXTENT_FLAGS_3D", "born_header_flags",
+           "BORN_IDENTITY_LAW", "BIRTH_SUFFIX_BASE"]
 
 
 # ---------------------------------------------------------------------------
@@ -1239,22 +1240,26 @@ def apply_host_family_table_law(host_family_el) -> Dict[str, Any]:
     current-values row; point m_idx at the first real pair.  Restores the
     native shape (rstbasic: [' ', 'Notch'] m_idx 1; single-type [' ']
     m_idx 0).  Since #10 the product loader authors that shape itself, so
-    on loader output this is a verifier that reports ``applied: False``."""
+    on loader output this is a verifier that reports ``applied: False``;
+    ``native`` states the shape verdict positively either way (False only
+    on the two off-shape early returns, which also carry ``why``)."""
     o = getattr(host_family_el, "obj", None) or {}
     ftt = ((o.get("m_pFamilyTypes") or {}).get("value") or {})
     pairs = ftt.get("m_pairs") or []
     if not pairs:
-        return {"applied": False, "why": "host Family has no type pairs"}
+        return {"applied": False, "native": False,
+                "why": "host Family has no type pairs"}
     head, rest = pairs[0], pairs[1:]
     if str(head.get("name", "")).strip():
-        return {"applied": False,
+        return {"applied": False, "native": False,
                 "why": "no leading blank current-values row",
                 "pairs": [p.get("name") for p in pairs]}
     keep = [p for p in rest if str(p.get("name", "")).strip()]
     dropped = len(rest) - len(keep)
     ftt["m_pairs"] = [head] + keep
     ftt["m_idx"] = 1 if keep else 0
-    return {"applied": dropped > 0, "dropped_blank_rows": dropped,
+    return {"applied": dropped > 0, "native": True,
+            "dropped_blank_rows": dropped,
             "pairs": [p.get("name") for p in ftt["m_pairs"]],
             "m_idx": ftt["m_idx"]}
 
@@ -1325,8 +1330,10 @@ BORN_IDENTITY_LAW = (
 #: byte-confirmed against T1uG's shell block.  Only classes our skeleton
 #: authors are listed; classes absent from the table are left untouched.
 #: ExtentElem is role-split in the specimen (plan/section satellites 26,
-#: the DBView3d satellite 10) -- our products author no DBView3d, so the
-#: lane pins 26 and REFUSES if a DBView3d is present.
+#: the DBView3d satellite 10 -- ExtentElem {26: 6, 10: 1} against 2 plan +
+#: 4 section + 1 3D views): the table carries the plan/section value and
+#: :func:`born_header_flags` resolves the role per element, now that every
+#: generated family carries the "View 1" DBView3d (#381).
 BORN_HEADER_FLAGS: Dict[str, int] = {
     "Level": 2074,
     "LevelAttributes": 30,
@@ -1340,6 +1347,29 @@ BORN_HEADER_FLAGS: Dict[str, int] = {
     "RefPlane": 2074,
     "SunAndShadowSettings": 8222,
 }
+
+#: the DBView3d satellite's ExtentElem value (the role split above)
+BORN_EXTENT_FLAGS_3D = 10
+
+
+def _view3d_ids(els) -> set:
+    return {int(e.elem_id) for e in els if e.class_name == "DBView3d"}
+
+
+def _extent_view_id(el):
+    """The view an ExtentElem is the satellite of (its ``m_dbViewId``)."""
+    return (getattr(el, "obj", None) or {}).get("m_dbViewId")
+
+
+def born_header_flags(el, view3d_ids) -> Optional[int]:
+    """The born-standalone ``m_abFlags4Bytes`` value for ``el`` -- the
+    :data:`BORN_HEADER_FLAGS` table value, except an ExtentElem whose
+    ``m_dbViewId`` names a DBView3d (``view3d_ids``) carries
+    :data:`BORN_EXTENT_FLAGS_3D`.  None = class not covered (untouched)."""
+    if el.class_name == "ExtentElem" and _extent_view_id(el) in view3d_ids:
+        return BORN_EXTENT_FLAGS_3D
+    return BORN_HEADER_FLAGS.get(el.class_name)
+
 
 #: the private birth-id space the identity lane mints family-parameter
 #: birth ids in: small (far below any project watermark), disjoint from
@@ -1372,19 +1402,31 @@ def apply_born_identity(doc, *,
     """Lane IDENTITY (v4), POST-finalize: re-mint every family parameter's
     identity suffix as a FROZEN BIRTH id in the private birth space, and
     set every covered header's ``m_abFlags4Bytes`` to the born-standalone
-    value.  Mutates ``doc.elements`` in place; build-refusing on any
-    unexpected shape (unfinalized doc, a param whose suffix is not the
-    famgen SELF mint, a DBView3d in the roster, birth-space overflow)."""
+    value (ExtentElem by role: plan/section satellite 26, the DBView3d's
+    satellite 10).  Mutates ``doc.elements`` in place; build-refusing on
+    any unexpected shape (unfinalized doc, a param whose suffix is not the
+    famgen SELF mint, an ExtentElem naming a view the document does not
+    carry, birth-space overflow)."""
     if not getattr(doc, "finalized", False):
         raise ValueError(
             "birthright v4 identity: document is not finalized -- the "
             "identity re-mint runs on the baked element list")
     els = list(doc.elements)
-    if any(e.class_name == "DBView3d" for e in els):
-        raise ValueError(
-            "birthright v4 identity: document authors a DBView3d -- the "
-            "ExtentElem flags law is role-split there and this lane only "
-            "knows the plan/section shape; refuse")
+    ids = {int(e.elem_id) for e in els}
+    view3d_ids = _view3d_ids(els)
+    extent_roles: Dict[str, int] = {}
+    for el in els:
+        if el.class_name != "ExtentElem":
+            continue
+        vid = _extent_view_id(el)
+        if vid not in ids:
+            raise ValueError(
+                f"birthright v4 identity: ExtentElem {el.elem_id} names "
+                f"view {vid!r}, which the document does not carry -- its "
+                f"flags role (plan/section 26 vs DBView3d 10) is "
+                f"undecidable; refuse")
+        role = "view3d" if vid in view3d_ids else "plan_section"
+        extent_roles[role] = extent_roles.get(role, 0) + 1
     params = sorted((e for e in els if e.class_name == "ParamElemFamily"),
                     key=lambda e: int(e.elem_id))
     if len(params) >= _BIRTH_SUFFIX_SPAN:
@@ -1414,7 +1456,7 @@ def apply_born_identity(doc, *,
     flags_set: Dict[str, int] = {}
     flags_changed = 0
     for el in els:
-        want = BORN_HEADER_FLAGS.get(el.class_name)
+        want = born_header_flags(el, view3d_ids)
         if want is None:
             continue
         hdr = getattr(el, "header", None)
@@ -1432,7 +1474,8 @@ def apply_born_identity(doc, *,
             "suffixes": suffixes,
             "flags_classes": flags_set,
             "flags_headers_covered": sum(flags_set.values()),
-            "flags_changed": flags_changed}
+            "flags_changed": flags_changed,
+            "extent_roles": extent_roles}
 
 
 def identity_census(doc) -> Dict[str, Any]:
@@ -1446,6 +1489,7 @@ def identity_census(doc) -> Dict[str, Any]:
     self_minted = []
     big_suffix = []
     flags_off = []
+    view3d_ids = _view3d_ids(doc.elements)
     for el in doc.elements:
         if el.class_name == "ParamElemFamily":
             parts = _param_type_id_parts(el)
@@ -1459,7 +1503,7 @@ def identity_census(doc) -> Dict[str, Any]:
                 self_minted.append(row)
             if parts["embedded_id"] >= (1 << 20):
                 big_suffix.append(row)
-        want = BORN_HEADER_FLAGS.get(el.class_name)
+        want = born_header_flags(el, view3d_ids)
         if want is not None:
             got = (getattr(el, "header", None) or {}).get("m_abFlags4Bytes")
             if got != want:

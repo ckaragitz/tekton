@@ -264,3 +264,179 @@ tools/identity_probe.py stage       # batch (G_ABPD control, md5-verified)
 * **Batch 55 is STAGED, gates green, md5-verified, control
   byte-identical to certified G_ABPD.  NOT uploaded — the orchestrator
   uploads (stage-only law).  STOP at READY.**
+
+---
+
+## eng #388 — 2026-08-10 — the v4 lane accepts our own DBView3d (ExtentElem role split); refusal retired
+
+Stream: `eng388` (engineer session under the tech-lead session; branch
+`cam/388-birthright-v4-dbview3d`).  Closes #388.  Refs #381 / #383 (every
+generated family now carries the ceiling plan + the "View 1" `DBView3d`
+constellation).  The identity axis stays **exonerated** for the open cell
+(verdict #48) — nothing below is a viewer/Revit claim; it repairs a lane
+that raised on every product.
+
+### 1. The break (measured on `main` @ 2b87024)
+
+`with birthright.enabled(spec, version=4): make_panelboard / make_luminaire /
+make_transformer(start_id=3000)` — all three:
+
+```
+ValueError: birthright v4 identity: document authors a DBView3d -- the ExtentElem
+flags law is role-split there and this lane only knows the plan/section shape; refuse
+```
+
+(v2/v3 unaffected; `tests/test_identity.py` used toy documents and *pinned*
+the refusal, so no test caught it — the #383 reviewer did.)
+
+### 2. The change (`src/rvt/famgen/birthright.py`, ~25 lines)
+
+* The role split the module already documented, now resolved per element:
+  `born_header_flags(el, view3d_ids)` = the `BORN_HEADER_FLAGS` table value,
+  except an `ExtentElem` whose `obj["m_dbViewId"]` names a `DBView3d`
+  carries `BORN_EXTENT_FLAGS_3D = 10`; plan/section satellites keep 26.
+  Authority unchanged: `identity_diff.json` born-standalone `ExtentElem
+  {26: 6, 10: 1}` = 2 plan + 4 section + 1 3D view of the vendor .rfa.
+* `apply_born_identity` and `identity_census` both go through it (a 3D
+  satellite left at 26 is a census `flags_off`, so the lane and its gate
+  cannot disagree); `_extent_view_id(el)` is the one place `m_dbViewId` is
+  read; the report gains `extent_roles` (`{"plan_section": n, "view3d": m}`,
+  tallied from the same predicate, not back-derived from the value).
+* `apply_host_family_table_law` gains an explicit `native: bool` verdict
+  (see §3, the identity_probe adjustment) — additive key, v3 behaviour and
+  every existing assertion unchanged.
+* The DBView3d refusal is **removed**; in its place the lane refuses only an
+  `ExtentElem` naming a view id the document does not carry (role
+  undecidable) — the "refuse loudly on a shape it does not understand" law,
+  narrowed to the actually-undecidable case.
+* Classes the 3D constellation adds that the table never covered
+  (`DBView3d` 65562, `Viewer3d` 18744, `ModelClipBox`, `LightSchemeElement`
+  in the specimen) stay **untouched**, exactly as the table's contract says
+  ("classes absent from the table are left untouched") — widening the table
+  is a separate, single-variable decision, not this fix.
+
+### 3. Evidence (this VM: cloud session, no `samples/` / `vendor/`)
+
+After, same call as §1 (bundled `experiments/birthright/template_birth.json`):
+
+| product | builds | version | n_added | verify | identity_ok | suffixes re-minted | flags changed | ExtentElem (view class → flags) |
+|---|---|---|---|---|---|---|---|---|
+| make_panelboard | ✅ | 4 | 1683 | ok | True | 14 | 31 | DBViewPlan 26, DBViewPlan 26, **DBView3d 10** |
+| make_luminaire | ✅ | 4 | 1683 | ok | True | 8 | 31 | DBViewPlan 26, DBViewPlan 26, **DBView3d 10** |
+| make_transformer | ✅ | 4 | 1683 | ok | True | 11 | 27 | DBViewPlan 26, DBViewPlan 26, **DBView3d 10** |
+
+One v4-lane product emitted through the product's own `write()`
+(`make_panelboard` → `panelboard_v4.rfa`, 1,770 elements, scratch dir):
+`tools/rvt_validate.py … --family` → **VALID (no errors); warnings=0**;
+`tools/make_family.py provenance` → **PROVENANCE-CLEAN** (all 11 checks
+true: zero donor ADocument bytes / ids / names, identity ours, footer ours).
+
+`tools/identity_probe.py build` on the post-#383 tree (G_ABPD supplied
+locally as a byte-identical copy of the plugin pin, md5 `1f1ff65b…` = the
+compose manifest's):
+
+```
+[identity] BX_v4 BUILT -> experiments/identity/BX_v4.rvt (md5 adf457ab, 2.2s)
+[identity] BX_v4: validator 0 err (unexpected 0), coherent True, identity-form True, species True, gates_ok True
+[identity] DEMO_250v_room_v10 BUILT -> experiments/identity/DEMO_250v_room_v10.rvt (md5 8c8e4eab, 15.0s)
+[identity] DEMO_250v_room_v10: validator 0 err (unexpected 0), coherent True, identity-form True, species True, gates_ok False
+[identity] I1 FAILED: FileNotFoundError: /home/user/tekton/samples/rstbasicsampleproject.rvt
+```
+
+* **BX_v4** (SC1's recipe at v4: famload + one instance on G_ABPD): builds,
+  every gate green — identity lane applied (14 suffixes, 33 headers covered,
+  31 changed), doc-side census green, hostsym applied, verify ok, walked
+  binds self-contained, file-level census all-OTHER-form, species ok.
+* **DEMO v10** (the prompt through `rvt.frontdoor.run` at v4): builds — 6
+  families, identity census green on every one, validator 0, species ok.
+  Its `gates_ok False` is **one pre-existing, unrelated axis**:
+  `survivor_law_ok False` = host survivor **49504 `ProjectInfo`** modified in
+  seq-102 (`Building Name 'Genesis Base' → ''` etc.) — the front door's
+  deliberate per-job ProjectInfo identity write from **#148**
+  (`docs/inbox/projectinfo-identity.md`), which postdates this probe's
+  byte-identical-survivor gate (`bisect_instance_bug.account`).  Not caused
+  by #381/#383/#388 and not birthright's; filed as a follow-up (below)
+  rather than loosened here.
+* **I1** is sample-gated by construction (T1u's famdoc = `samples/
+  rstbasicsampleproject.rvt` + the vendor .rfa) — the one step a cloud VM
+  cannot run; it never touches the v4 lane (I1 normalizes T1u's fields
+  directly), so it is unaffected by this change.
+* `tools/identity_probe.py` needed **one adjustment to build DEMO v10 at
+  all**, independent of #383: its "loader-half hostsym applied on every
+  family" check has been dead since **#10** (the product loader authors the
+  native single-leading-blank table itself, so `apply_host_family_table_law`
+  is a verifier reporting `applied: False` — its own docstring and
+  `test_hostsym_product::test_birthright_v3_loader_half_is_now_a_noop` say
+  so).  Fixed at the contract, not by inference: `apply_host_family_table_law`
+  (birthright, in territory) now states the shape verdict positively —
+  `native: bool` on all three return paths (False only on the two off-shape
+  early returns that also carry `why`) — and the probe keys on
+  `all(native)`; one changed condition + comment in the probe, said here as
+  the charter asks.  `tools/species_probe.py:1245` (DEMO v9) still carries
+  the identical dead `all(applied)` check — out of territory, same one-line
+  fix when that probe is next run.
+* BX_v4 / DEMO md5s differ run to run (`adf457ab`/`63b5402b`,
+  `8c8e4eab`/`8cea5b7d`) with no source change between runs — pre-existing
+  build nondeterminism (#9's territory), not introduced here.
+* The regenerated `experiments/identity/accounting.json` / `probes.json` /
+  `_build/**` from these local runs are **not** committed: the tracked
+  copies are the owner-machine batch-55 evidence the layer-3 tests pin, and
+  a cloud rebuild (I1 absent, DEMO gate red on #148) would only degrade
+  them.  Numbers above are from the scratch copy.
+
+### 4. Tests
+
+`tests/test_identity.py`: `test_refuses_dbview3d` → **`test_accepts_dbview3d_and_splits_extent_role`**
+(toy doc: plan satellite → 26, 3D satellite → 10, DBView3d header untouched,
+`extent_roles`, census green; census flags a 3D satellite left at 26) +
+`test_refuses_extent_naming_absent_view` +
+`test_loader_half_states_native_verdict`; new **`TestV4LaneOnRealProducts`**
+(bundled spec, fresh-clone safe, ~0.4 s): the v4 lane over the real
+`make_panelboard` / `make_luminaire` / `make_transformer` (version 4,
+identity applied, census green, verify ok) and the panelboard's ExtentElem
+roles `{DBViewPlan: {26}, DBView3d: {10}}`, `extent_roles {plan_section 2,
+view3d 1}`, every other covered class uniform at the table value.  Against
+`main`'s `birthright.py` these are 2 failed + 4 errors; with the change
+**37 passed, 3 skipped** (vendor .rfa absent / BX_v4 absent / staged
+binaries absent).  The file joins the CI shard via
+`tests/ci_shard.d/388-birthright-v4-dbview3d.txt` (whole file is
+fresh-clone safe: layers 2–3 read tracked JSON and self-skip on absent
+binaries).  Adjacent: test_identity + test_plugin_sync + test_species +
+test_birthright + test_hostsym_product + test_shard_list = **145 passed, 5
+skipped**.
+
+### 5. Follow-ups (filed, `Refs #388`)
+
+* **#413** — identity_probe / bisect survivor gate vs the #148 ProjectInfo write: the
+  DEMO-lane accounting should treat the front door's *declared* ProjectInfo
+  identity write (element 49504, seq-102 string params only) as lawful — or
+  diff against a ProjectInfo-normalised parent — instead of reading it as a
+  survivor-law violation; until then every front-door-built probe's
+  `survivor_law_ok` is False by design.
+* (noted, not filed — belongs to the #381 campaign's own sequencing) the
+  born table does not cover the 3D constellation's own classes
+  (`DBView3d`/`Viewer3d`/`ModelClipBox`/`LightSchemeElement`); if the
+  identity axis is ever re-opened with new evidence, that is the next
+  single variable, with the specimen values already in `identity_diff.json`.
+
+### BRANCH STATE (eng #388)
+
+* Branch `cam/388-birthright-v4-dbview3d` from `main` @ 2b87024.  Files:
+  `src/rvt/famgen/birthright.py` (+ mirror `plugin/lib/src/rvt/famgen/
+  birthright.py` via `tools/sync_plugin.py`), `tests/test_identity.py`,
+  `tests/ci_shard.d/388-birthright-v4-dbview3d.txt` (new),
+  `tools/identity_probe.py` (the DEMO v10 hostsym-check condition, §3),
+  this section.  `/simplify` ran (4 angles; applied: single-site
+  `m_dbViewId` read, predicate-keyed role tally, explicit `native` verdict
+  instead of inferring from `why`).  Nothing under `skeleton.py` / factory bodies / hot
+  files.
+* Gates: test_identity 37 passed / 3 skipped; adjacent run (identity,
+  plugin_sync, species, birthright, hostsym_product, shard_list) 145 passed /
+  5 skipped; `tools/sync_plugin.py` synced 1 file, `--check` clean (deny-audit
+  clean, identity scan == allowlist, assets verified);
+  `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok; `tests/test_shard_list.py` 23
+  passed.  No full-suite run (charter).
+* Nothing staged for the viewer; no certification claim.  Zero donor bytes:
+  the change is a per-element choice between two already-tabled scalar law
+  values.
