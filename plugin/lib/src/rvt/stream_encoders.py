@@ -32,6 +32,7 @@ reports that the trailers are NOT valid.
 """
 from __future__ import annotations
 
+import os
 import struct
 import uuid
 import zlib
@@ -244,6 +245,35 @@ def decode_history(payload: bytes) -> Dict[str, Any]:
         "entries": [(str(e.guid), e.tag) for e in h.entries],
         "trailing": h.trailing.hex(),                 # u32 0 in corpus
     }
+
+
+def history_head_guid(path_or_doc: Any) -> Optional[str]:
+    """``Global/History`` entry[0] GUID of a file -- the newest save episode,
+    which ``BasicFileInfo``'s Unique Document GUID must equal (the L2 save
+    invariant; a minimal commit records no new episode, so the identity scrub
+    is handed THIS guid rather than a fresh one) -- or None when the stream is
+    absent, empty or unreadable (never raises).  The ONE reader (#434).
+
+    ``path_or_doc``: a ``.rvt``/``.rfa`` path, or an already-open
+    ``rvt.container.RvtDocument`` (anything with ``.raw()``; spares a re-open).
+
+    Casing rule, decided here only: the canonical lowercase hyphenated form
+    ``str(uuid.UUID)`` yields -- exactly how :func:`decode_history` stringifies
+    entries -- so it compares equal to a lower-cased ``BasicFileInfo`` GUID and
+    is byte-for-byte what ``rvt.identity.own_basic_file_info(document_guid=)``
+    has always received; callers need not re-case it.
+    """
+    try:
+        if hasattr(path_or_doc, "raw"):
+            raw = path_or_doc.raw("Global/History")
+        else:
+            from .container import open_rvt        # local: pure-payload users of this codec module never load olefile
+            with open_rvt(os.fspath(path_or_doc)) as f:
+                raw = f.raw("Global/History")
+        ents = decode_history(_elemtable.inflate_global_stream(raw).payload).get("entries") or []
+        return str(ents[0][0]) if ents else None
+    except Exception:                                   # noqa: BLE001
+        return None
 
 
 def encode_history(model: Dict[str, Any]) -> bytes:

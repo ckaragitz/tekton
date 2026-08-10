@@ -190,23 +190,6 @@ class Lineage:
         return out
 
 
-def history_head_guid(path: str) -> Optional[str]:
-    """``Global/History`` entry[0] GUID (the newest save episode) or None.
-    Our commits reuse the pin's episode, so a descendant carries the pin's --
-    corroborating evidence only: the pin inherited it from its own Autodesk
-    ancestor, and older outputs that fail the byte test carry it too."""
-    try:
-        from ..container import open_rvt
-        from ..elemtable import inflate_global_stream
-        from ..stream_encoders import decode_history
-        with open_rvt(path) as f:
-            hist = decode_history(inflate_global_stream(f.raw("Global/History")).payload)
-        ents = hist.get("entries") or []
-        return str(ents[0][0]).lower() if ents else None
-    except Exception:                                   # noqa: BLE001
-        return None
-
-
 def pin_file(year: Optional[int]) -> Tuple[Optional[str], Optional[str], Optional[str]]:
     """(pin id, path, sha256) of the CERTIFIED pin of release ``year`` from
     the registry's own candidate locations (repo path, plugin bundle),
@@ -271,6 +254,7 @@ def lineage(path: Optional[str], doc: Any = None, *, exact_only: bool = False) -
     try:
         from ..mutate import Document
         from ..provenance import same_records
+        from ..stream_encoders import history_head_guid
         from ..versions import detect_release
         pin = _pin_of_release(detect_release(path))
         if pin is None or os.path.abspath(pin[1]) == os.path.abspath(path):
@@ -293,10 +277,21 @@ def lineage(path: Optional[str], doc: Any = None, *, exact_only: bool = False) -
         "pin_slots_probed": len(probe), "probed_identical": len(probe & identical),
         "pin_slots_edited": len((pin_ids & base_ids) - identical),
         "pin_slots_dropped": len(pin_ids - base_ids),
+        # corroborating only: our commits reuse the pin's episode, but the pin
+        # inherited it from its own ancestor and non-descendants carry it too
         "history_head_guid_matches_pin": hist0 is not None and hist0 == history_head_guid(pin_path),
     }
     return Lineage(pinned_id=pin_id, census=census, exact=False, pin_path=os.path.abspath(pin_path),
                    pin_doc=pin_doc, evidence=evidence)
+
+
+def __getattr__(name: str):
+    """``census.history_head_guid`` stays importable (it lived here until #434)
+    without a bare census import loading the codec/container modules."""
+    if name == "history_head_guid":
+        from ..stream_encoders import history_head_guid
+        return history_head_guid
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 __all__ = ["BaseCensus", "CENSUS_PATH", "SCHEMA", "RESIDUE_MEANING", "load", "lookup",

@@ -617,3 +617,100 @@ RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_status_gate.py -q -rs
   the *bundled* `assets/genesis/G_ABPD.rvt`, the authorship line in its MANIFEST.md.
 * Shipped vs staged: ships with the merge; manifest wording only — no bytes of any output, base or asset
   change, no viewer claim, no probe batch.
+
+## eng #434 — 2026-08-10 — ONE engine reader for the History[0] episode GUID (`rvt.stream_encoders.history_head_guid`); the identity scrub receives the same bytes
+
+Stream `eng434` (engineer session for #434, P2/XS, PG6 engine hygiene; the tidy-up eng #284 F8 and eng #406
+F15 above deferred while `tools/rvt_job.py` was held). Territory used: `src/rvt/stream_encoders.py` (the new
+function, next to `decode_history`), `src/rvt/frontdoor/census.py` / `tools/rvt_job.py` /
+`src/rvt/mep/views_spaces.py` (import swaps only), one new test `tests/test_history_head_guid.py` + its shard
+drop-in `tests/ci_shard.d/434-history-head-guid.txt`, this section; regenerated mirrors (`plugin/lib/src/rvt/
+{stream_encoders,frontdoor/census,mep/views_spaces}.py`, `plugin/lib/tools/rvt_job.py`, the three
+`plugin/skills/tekton-{author,edit,native}/scripts/rvt_job.py`). No hot file, no NO-GO file, no asset touched.
+
+### Result in one screen
+
+| | before (`main@af15f6c`) | after (this branch) |
+|---|---|---|
+| definitions of "History entry[0] GUID of a file" | 3: `census.history_head_guid` (`inflate_global_stream` + `.lower()`), `rvt_job.history_head_guid` (`inflate_global_stream`, un-lowered, fed to `scrub_identity`), inline in `views_spaces.commit_elements` (`f.inflate` scan, un-lowered) | 1: `rvt.stream_encoders.history_head_guid(path_or_doc)`; census re-exports it (`C.history_head_guid is SE.history_head_guid`), `rvt_job` imports it in `identity_gate` / `create_from_spec` / `_cmd_edit`, `views_spaces` calls it — `grep -rn "def history_head_guid" src tools` → `src/rvt/stream_encoders.py:250` only |
+| the casing rule | implicit ×3 (one `.lower()`, two not) | documented once: the canonical lowercase `str(uuid.UUID)` form `decode_history` already yields — measured: all three old copies returned the identical lowercase string on all three pins (the `.lower()` was a no-op), so nothing any caller receives changes |
+| what `own_basic_file_info(document_guid=…)` receives in an `rvt_job edit` of each pin (spy) | `'34447475-…cdbe1'` / `'527cedc9-…59e3'` / `'badabcab-…e7ca'` (2026/2025/2024) | the same three strings, same type, same case (asserted before == after by the snapshot script; pinned going forward by `test_edit_hands_the_identity_scrub_history0_verbatim[year]`) |
+| `identity_gate(pin)` JSON ×3, `provenance_gate(pin, pin)` JSON ×3 (`sort_keys`; `elapsed_s` and the checkout's absolute `base` path aside) | — | `diff` empty on all six |
+| front door `author --prompt "an electrical room with 6 panels"` → `build.validation.combined.identity` | `{history_head_guid 34447475-…, identity{author rvt-writer, unique_document_guid 34447475-…, …}, issues [], PASS}` | byte-identical JSON; the output's `BasicFileInfo` stream bytes identical (1,911 B) |
+| front door `author --rvt X --edit "move PP-1 to 3,1,4.66"` (same X both sides) → `edit.gates.identity` | PASS, GUID `34447475-…` | byte-identical JSON **and the whole edited `.rvt` sha256-identical** before/after |
+
+### What was built
+
+* `rvt.stream_encoders.history_head_guid(path_or_doc) -> Optional[str]` — a `.rvt`/`.rfa` path or an
+  already-open `rvt.container.RvtDocument`; `Global/History` → `inflate_global_stream` → `decode_history` →
+  `entries[0][0]`; None when absent/empty/unreadable, never raises. Docstring carries the one casing rule and
+  why the value exists (BFI Unique Document GUID must == History entry[0]; minimal commits record no new
+  episode, so the scrub is handed this GUID instead of a fresh one).
+* `census.py`: local def deleted; `lineage()` imports the engine reader in its existing lazy try-block, and a
+  five-line module `__getattr__` keeps `census.history_head_guid` (in `__all__`, used by
+  `test_status_gate::test_a_relative_…`) resolving to the SAME object without a bare `import
+  rvt.frontdoor.census` loading the codec/container modules (measured: a module-level import cost +33 ms and
+  +8 modules incl. `olefile` on a bare census import; now 46 ms / 9 `rvt` modules / no olefile == `main`). The
+  "corroborating only" note moved to a two-line comment on the `history_head_guid_matches_pin` evidence key.
+  `rvt_job.py`: local def deleted (a three-line section comment keeps the why), three function-local imports
+  (the file's lazy-import idiom; `identity_gate` reads it from the already-open document, one `open_rvt` fewer).
+  `views_spaces.py`: the inline try/decode block → one call.
+* `/simplify` (four angles) applied: duck-typed `.raw()` for the open-doc arm, docstring cut to contract + casing
+  rule (no caller changelog), the census laziness above, the brittle `decode_history(` source-grep dropped from
+  the test. Skipped, with reason: hoisting `_pinned` / the `rvt_job` loader into `tests/conftest.py` (third copy
+  now — touches `test_status_gate.py` / `test_job.py`, outside this territory; filed as #451), the consumer-side
+  `h0.lower()` in `identity_gate` (harmless; "touch nothing else" in `rvt_job.py`), caching the pin's History[0]
+  next to `_PINS` (pre-existing ~4 ms per `lineage()` call, not a regression).
+* `tests/test_history_head_guid.py` (7 tests, 2.2 s, fresh-clone safe — tracked pins only): per certified year
+  the engine value == an independent decode (`container.inflate` + `content.parse_history().document_guid`) ==
+  canonical lowercase == the pin's BFI GUID, census re-export is the same object, open-doc form agrees, absent /
+  non-container → None; no former call site defines or re-derives it; and a real `rvt_job edit` of each pin with
+  a spy on `rvt.identity.own_basic_file_info` receives `document_guid == History[0]` verbatim, manifest
+  `base.history_head_guid` and `gates.identity` coherent + PASS.
+
+### Findings
+
+* **F18 — the "casing caveat" was latent, not live.** `decode_history` stringifies `uuid.UUID`, whose `str()`
+  is always lowercase, so `census`'s `.lower()` never changed a byte and `rvt_job`'s un-lowered value was already
+  canonical. The consolidation therefore changes no output byte anywhere; the rule is now written down where the
+  value is made so a future reader that upper-cases (e.g. a BFI-side GUID) cannot drift in unnoticed.
+* **F19 — `provenance_gate(pin, pin)` differs run-to-run only in `elapsed_s` and the absolute `base` path** (as
+  eng #406 noted); the prompt route's whole-file sha differs run-to-run for reasons outside this stream (famgen
+  determinism, #9) while its `BasicFileInfo` bytes and identity gate are stable — the edit route is fully
+  byte-reproducible on the same input.
+
+### How to run
+
+```bash
+RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_history_head_guid.py tests/test_status_gate.py tests/test_job.py -q -rs
+grep -rn "def history_head_guid" src tools            # -> src/rvt/stream_encoders.py only
+.venv/bin/python -c "import sys;sys.path.insert(0,'src');from rvt.stream_encoders import history_head_guid as h;print(h('plugin/assets/genesis/G_ABPD.rvt'))"
+```
+
+### BRANCH STATE (eng #434)
+
+* Branch `cam/434-history-head-guid` from `main@af15f6c` (after #443 landed in `tools/rvt_job.py`); PR closes #434.
+* Files: `src/rvt/stream_encoders.py` (+`history_head_guid`), `src/rvt/frontdoor/census.py`, `tools/rvt_job.py`,
+  `src/rvt/mep/views_spaces.py` (import swaps), `tests/test_history_head_guid.py` (new, 7 tests),
+  `tests/ci_shard.d/434-history-head-guid.txt`, this section; regenerated mirrors `plugin/lib/src/rvt/{stream_encoders,
+  frontdoor/census,mep/views_spaces}.py`, `plugin/lib/tools/rvt_job.py`, `plugin/skills/tekton-{author,edit,native}/scripts/rvt_job.py`.
+  No hot file, no NO-GO file, no asset, no pinned-base byte touched. Follow-up filed: #451 (test helpers → conftest).
+* Gates: `tests/test_history_head_guid.py` **7 passed** (2.6 s); neighbours `test_status_gate test_job test_stream_encoders
+  test_mep_views_spaces` **36 passed / 108 skipped** (`RVT_SKIP_LARGE=1`; skips = samples-gated ×107 + the `@slow` 6-panel
+  e2e; `test_lineage_api` green); the WHOLE merged CI shard (`shard_list.py --print`, 73 files incl. the new drop-in)
+  **1512 passed / 134 skipped / 3 xfailed** in 7 m 04 s on the final tree (an earlier run on the pre-`/simplify` tree: same
+  counts); `tools/sync_plugin.py` then `--check` clean (deny-audit clean, identity scan == allowlist, assets verified);
+  `plugin/scripts/validate_plugin.py` PASS (25 assertions); `check_portable_paths.py` ok (2901); `grep -rn "def
+  history_head_guid" src tools` → `src/rvt/stream_encoders.py:250` only; before/after snapshot (worktree of `main` vs this
+  branch, same venv): History[0] of the three pins identical by all readers, `own_basic_file_info(document_guid=)` kwarg
+  identical ×3, `identity_gate(pin)` JSON identical ×3, `provenance_gate(pin, pin)` JSON identical ×3 (`elapsed_s`/abs
+  path aside); bare `import rvt.frontdoor.census` 46 ms / 9 rvt modules / no olefile (== main). `/verify` drove: front
+  door prompt (6 panels; `build.validation.combined.identity` PASS, GUID `34447475-…`, JSON byte-identical to main's, output
+  `BasicFileInfo` bytes identical) → edit of it (rc 0, `ok true`, stamps `["PROOF-ONLY, NOT-DELIVERABLE"]`,
+  `gates.identity` PASS + JSON identical to main's, **edited `.rvt` sha256-identical to main's from the same input**,
+  descends-from-pinned-genesis 422/2,680/118, `rvt_validate` ok 0 errors / 1 warning = the standing DataStorage ES gap) →
+  edit of the 2025 pin (`--rvt G_ABPD_2025.rvt --edit "set level 694 elevation to 12"`: rc 0, identity PASS, format 2025,
+  GUID `527cedc9-…`, validation PASS 0) → bare unzip + system Python 3.11.15: `go author --prompt …` **READY** exit 0 5.7 s,
+  then `go author --rvt out/j4/prompt_room.rvt --edit "move PP-1 …"` **READY** exit 0 2.2 s, identity PASS,
+  descends-from-pinned-genesis, ledgered against the bundled `assets/genesis/G_ABPD.rvt`.
+* Shipped vs staged: ships with the merge; a refactor with zero output-byte change — no viewer claim, no probe batch.

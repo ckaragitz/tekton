@@ -229,27 +229,9 @@ def resolve_base(base: Optional[str], template_key: str) -> str:
 # ===========================================================================
 # identity (gate G2): OUR BasicFileInfo, path scrubbed, GUID coherent
 # ===========================================================================
-def history_head_guid(path: str) -> Optional[str]:
-    """History entry[0] GUID of ``path`` — the newest save-episode GUID.
-
-    The writer's minimal commit reuses the CURRENT episode for new/edited
-    elements (no new History row), so the document's identity GUID must
-    stay == History[0] to keep the L2 invariant 'BasicFileInfo Unique
-    Document GUID == History entry[0]' true.  We therefore hand this GUID
-    to the identity scrub instead of minting a fresh (incoherent) one.
-    """
-    try:
-        from rvt.container import open_rvt
-        from rvt.elemtable import inflate_global_stream
-        from rvt.stream_encoders import decode_history
-        with open_rvt(path) as f:
-            hist = decode_history(inflate_global_stream(f.raw("Global/History")).payload)
-        ents = hist.get("entries") or []
-        return str(ents[0][0]) if ents else None
-    except Exception:
-        return None
-
-
+# A minimal commit records no new History episode, so create/edit hand the
+# scrub rvt.stream_encoders.history_head_guid (History entry[0]; one reader,
+# one casing, #434) as document_guid instead of minting an incoherent one.
 def scrub_identity(path: str, *, document_guid: Optional[str] = None) -> dict:
     """Rewrite ``path``'s BasicFileInfo with OUR identity (in place).
 
@@ -282,9 +264,10 @@ def identity_gate(path: str) -> dict:
     try:
         from rvt import identity as ID
         from rvt.container import open_rvt
-        from rvt.stream_encoders import decode_basic_file_info
+        from rvt.stream_encoders import decode_basic_file_info, history_head_guid
         with open_rvt(path) as f:
             m = decode_basic_file_info(f.raw("BasicFileInfo"))
+            h0 = history_head_guid(f)
         ident = {k: m.get(k) for k in (
             "author", "client_app_name", "username", "last_save_path",
             "central_model_path", "unique_document_guid", "central_episode_guid",
@@ -303,7 +286,6 @@ def identity_gate(path: str) -> dict:
         if str(m.get("client_app_name") or "") != ID.DEFAULT_CLIENT_APP:
             issues.append(f"client_app_name {m.get('client_app_name')!r} != {ID.DEFAULT_CLIENT_APP!r}")
         # coherence (informational here; the validator enforces it as L2)
-        h0 = history_head_guid(path)
         gate["history_head_guid"] = h0
         if h0 and str(m.get("unique_document_guid") or "").lower() != h0.lower():
             issues.append("unique_document_guid != History[0] (would trip the validator)")
@@ -979,6 +961,7 @@ def _plan_create(spec: dict, base_path: str, template_key: str, args) -> Tuple[l
 def create_from_spec(spec: dict, spec_source: str, args, *, mode: str = "create") -> int:
     """The CREATE pipeline shared by `create` and `from-ifc`."""
     from rvt.commit import commit_new_elements, verify_written
+    from rvt.stream_encoders import history_head_guid
     t0 = time.time()
     out_path = os.path.abspath(args.out)
     base_path = resolve_base(args.base, args.template)
@@ -1275,6 +1258,7 @@ def _cmd_edit(args, in_path: str, release_note: Optional[str]) -> int:
     from rvt import manipulate as M
     from rvt import versions as V
     from rvt.mutate import Document
+    from rvt.stream_encoders import history_head_guid
     from rvt.validate import walk_file
     t0 = time.time()
     out_path = os.path.abspath(args.out)

@@ -1,0 +1,2 @@
+# #434: one engine History[0] reader; runs on the tracked pinned bases only (fresh-clone safe)
+tests/test_history_head_guid.py
