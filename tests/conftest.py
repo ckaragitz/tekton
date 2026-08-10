@@ -7,7 +7,7 @@ the "certified pinned base of a year, or a clean skip" helper
 runtime docs-read audit (``DOCS_AUDIT``: which repo ``docs/`` files did this
 test process open, checked at session end against ``tools/dev/ci_fresh.sh``'s
 ``SHARD_READS``, #523) and the shared throwaway-git-repo helpers
-(``GIT_ENV`` / ``git`` / ``git_commit`` / ``HAVE_GIT`` / the ``git_repo`` fixture)."""
+(``GIT_ENV`` / ``git`` / ``git_init`` / ``git_commit`` / ``HAVE_GIT`` / the ``git_repo`` fixture)."""
 import importlib.util
 import os
 import re
@@ -25,11 +25,14 @@ if SRC not in sys.path:
 
 # ---- runtime docs-read audit (#523) -- installed BEFORE the engine imports below, so an import-time read is seen too --
 
-#: the audited top-level directory of the repo.  A plain name on purpose: this module is itself scanned by the static
-#: tripwire in tests/test_ci_fresh.py, to which a "docs" component inside a join reads as "opens all of docs/".
+#: the audited top-level directory of the repo (the recorder below and tests/test_docs_read_audit.py build every path from it).
 AUDITED_DIR = "docs"
 CI_FRESH = os.path.join(ROOT, "tools", "dev", "ci_fresh.sh")
 SESSION_ID = "<session>"                     # the reader id outside any test item or module: conftest import, sessionstart
+#: set on ``sys`` once the hook is installed: ONE recorder + ONE (unremovable) audit hook per interpreter, even if this
+#: file is executed a second time (another import mode, a reload) -- the second module object adopts the first recorder.
+AUDIT_SENTINEL = "_rvt_docs_read_audit"
+READ_BUCKETS = ("offenders", "covered", "unenforced", "unjudged")      # the verdict keys that map a docs path -> [reader ids]
 #: ``RVT_DOCS_AUDIT``: ``0``/``off`` = do not install the hook (the documented opt-out should it ever cost time);
 #: ``report`` = also print every recorded read at session end (offenders always print); anything else = on.
 DOCS_AUDIT_MODE = {"0": "off", "off": "off", "no": "off", "false": "off", "report": "report"}.get(
@@ -41,7 +44,9 @@ class DocsReadAudit:
     the one ``open`` event) whose normalised path lies under ``<root>/docs/``, keyed by repo-relative posix path,
     with the context (test module, reader id) that was current when it happened.  Exact where the static scan of
     tests/test_ci_fresh.py is heuristic: a read through a variable, a glob or ``src/``/``tools/`` code is seen the
-    same as a literal one.  Not seen, by construction: reads made by a *subprocess* (another interpreter).
+    same as a literal one.  Not seen, by construction: reads made by a *subprocess* (another interpreter) or by a C
+    extension that opens the path itself (``ifcopenshell.open``; numpy's readers go through Python's ``open`` and ARE
+    seen); a write-mode ``open`` under docs/ counts as a read (the mode is not parsed -- conservative on purpose).
     Cost: one string compare per audited event, a normpath per ``open`` -- measured on the merged shard: noise.
 
     The rule (``kind``): a read is COVERED when ``SHARD_READS`` matches its path; otherwise it is an OFFENDER --
@@ -80,8 +85,8 @@ class DocsReadAudit:
             pass
 
     def enter(self, module_path, reader_id):
-        """Attribute what follows to ``reader_id``; ``module_path`` = the test module it belongs to (items and Module
-        collectors have one; the session and directory collectors pass None and count as session level)."""
+        """Attribute what follows to ``reader_id``; ``module_path`` = the test module it belongs to (items, Module and
+        Class collectors have one; the session and directory collectors pass None and count as session level)."""
         rel = ""
         if module_path is not None:
             ap = os.path.abspath(os.fspath(module_path))
@@ -91,7 +96,7 @@ class DocsReadAudit:
 
     def rules(self):
         """(compiled ``SHARD_READS``, the merged CI shard) -- loaded once, from their one source each; raises if either
-        cannot be read (the session-end judge turns that into a named, fail-closed offender)."""
+        cannot be read (the session-end judge records that as ``error`` and fails the run closed)."""
         if self._rules is None:
             self._rules = (re.compile(shard_reads_pattern()), frozenset(ci_shard_files()))
         return self._rules
@@ -114,18 +119,26 @@ class DocsReadAudit:
 
     def judge(self):
         """The session-end verdict over every recorded read -> ``self.verdict`` =
-        {"offenders": {path: [ids]}, "covered": {path: [ids]}, "unenforced": {path: [ids]}}."""
-        out = {"offenders": {}, "covered": {}, "unenforced": {}}
+        {"offenders": {path: [ids]}, "covered": {…}, "unenforced": {…}, "unjudged": {}, "error": None} -- or, when the
+        rules cannot be loaded, ``error`` = "Type: message" and every recorded read lands in ``unjudged`` instead: the
+        run fails CLOSED on that (``audit_failed``), in its own words, however few reads there were (even none)."""
+        out = dict({bucket: {} for bucket in READ_BUCKETS}, error=None)
         try:
             rx, shard = self.rules()
+            kind = lambda path, module: self.kind(path, module, rx, shard)      # noqa: E731
         except Exception as e:                   # noqa: BLE001 -- cannot judge = fail closed, and say so
-            out["offenders"]["(the audit could not judge: %s: %s)" % (type(e).__name__, e)] = [SESSION_ID]
-        else:
-            for path, contexts in sorted(self.reads.items()):
-                for module, reader_id in sorted(contexts):
-                    out[self.kind(path, module, rx, shard)].setdefault(path, []).append(reader_id)
+            out["error"] = "%s: %s" % (type(e).__name__, e)
+            kind = lambda path, module: "unjudged"                              # noqa: E731
+        for path, contexts in sorted(self.reads.items()):
+            for module, reader_id in sorted(contexts):
+                out[kind(path, module)].setdefault(path, []).append(reader_id)
         self.verdict = out
         return out
+
+
+def audit_failed(verdict):
+    """Does this verdict fail the run?  An uncovered read by the shard does; so does a judge that could not judge."""
+    return bool(verdict["offenders"] or verdict["error"])
 
 
 def shard_reads_pattern(script=CI_FRESH):
@@ -146,9 +159,13 @@ def ci_shard_files():
 
 
 #: the process-wide recorder (``from conftest import DOCS_AUDIT``); ``None`` when opted out (``RVT_DOCS_AUDIT=0``).
-DOCS_AUDIT = None if DOCS_AUDIT_MODE == "off" else DocsReadAudit(ROOT)
-if DOCS_AUDIT is not None:
-    sys.addaudithook(DOCS_AUDIT)
+DOCS_AUDIT = None
+if DOCS_AUDIT_MODE != "off":
+    DOCS_AUDIT = getattr(sys, AUDIT_SENTINEL, None)          # a second execution of this file adopts the first recorder
+    if DOCS_AUDIT is None:
+        DOCS_AUDIT = DocsReadAudit(ROOT)
+        sys.addaudithook(DOCS_AUDIT)
+        setattr(sys, AUDIT_SENTINEL, DOCS_AUDIT)
 
 from rvt.frontdoor import base as _B                          # noqa: E402
 from rvt.ifc._fallback import ifc_authoring_available            # noqa: E402
@@ -265,12 +282,25 @@ def pytest_configure(config):
 
 # ---- runtime docs-read audit: pytest wiring (recorder + judge are defined at the top of this file) ------------------
 
+def docs_audit_header(verdict):
+    """The section's first line: how many DISTINCT repo docs/ files were opened (a path listed under two buckets -- read
+    by a shard and a non-shard module, say -- is one file), and what they were judged against.  Derived from the
+    verdict rather than the recorder's ``reads`` so that a synthetic verdict reports the same way."""
+    opened = len({path for bucket in READ_BUCKETS for path in verdict[bucket]})
+    return "%d repo docs/ file(s) opened by this test process; judged against SHARD_READS of tools/dev/ci_fresh.sh (#523)" % opened
+
+
 def docs_audit_lines(verdict, everything=False):
-    """The report: offenders always (they fail the run), the rest when ``everything``.  A tagged line per path, then
-    one indented line per reader (test id) -- complete, never truncated: fixing an offender needs every id."""
+    """The report: what fails the run always (offenders; or the reason nothing could be judged, then every unjudged
+    read), the rest when ``everything``.  A tagged line per path, then one indented line per reader (test id) --
+    complete, never truncated: fixing an offender needs every id."""
     def rows(tag, bucket, gloss):
         return [line for path, ids in sorted(verdict[bucket].items())
                 for line in ["  %-4s %s%s" % (tag, path, gloss)] + ["         <- %s" % i for i in ids]]
+    if verdict["error"]:
+        return (["  FAIL the audit could not judge any read (%s) -- fail closed: without SHARD_READS from tools/dev/ci_fresh.sh and the merged"
+                 " shard from tools/dev/shard_list.py no docs/ read can be called covered; restore them" % verdict["error"]]
+                + rows("??", "unjudged", "   (recorded, could not be judged)"))
     lines = rows("FAIL", "offenders", "   (opened by the CI shard, NOT covered by SHARD_READS)")
     if everything:
         lines += rows("ok", "covered", "") + rows("--", "unenforced", "   (not a CI-shard file: recorded, not enforced)")
@@ -281,9 +311,17 @@ def docs_audit_lines(verdict, everything=False):
     return lines
 
 
+def collector_module(collector):
+    """The test module a collector's reads belong to = its nearest file-backed ancestor, itself included: a Module's own
+    file (reads at import), a Class's file (reads while its methods are collected -- ``pytest_generate_tests``, param-id
+    callables), any other ``pytest.File`` collector alike; the Session/Dir/Package sit above every file and have none."""
+    owner = collector.getparent(pytest.File)
+    return None if owner is None else owner.path
+
+
 def pytest_collectstart(collector):
-    if DOCS_AUDIT is not None:                  # module-level reads (at import) belong to the module being collected
-        DOCS_AUDIT.enter(collector.path if isinstance(collector, pytest.Module) else None, collector.nodeid)
+    if DOCS_AUDIT is not None:
+        DOCS_AUDIT.enter(collector_module(collector), collector.nodeid)
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -307,19 +345,18 @@ def pytest_runtest_teardown(item, nextitem):
 def pytest_sessionfinish(session, exitstatus):
     """Judge every recorded read once, at the end.  Item-level offenders are already red tests; this also catches the
     reads no item owns (conftest import, module collection) and turns an otherwise green run into exit 1 for them."""
-    if DOCS_AUDIT is not None and DOCS_AUDIT.judge()["offenders"] and session.exitstatus == 0:
+    if DOCS_AUDIT is not None and audit_failed(DOCS_AUDIT.judge()) and session.exitstatus == 0:
         session.exitstatus = pytest.ExitCode.TESTS_FAILED
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     verdict = DOCS_AUDIT.verdict if DOCS_AUDIT is not None else None
     everything = DOCS_AUDIT_MODE == "report"
-    if verdict is None or not (verdict["offenders"] or everything):
+    bad = verdict is not None and audit_failed(verdict)
+    if verdict is None or not (bad or everything):
         return
-    bad = bool(verdict["offenders"])
     terminalreporter.section("docs-read audit%s" % (" FAILED" if bad else ""), sep="=", red=bad, bold=bad)
-    terminalreporter.line("%d repo docs/ file(s) opened by this test process; judged against SHARD_READS of tools/dev/ci_fresh.sh (#523)"
-                          % sum(map(len, verdict.values())))
+    terminalreporter.line(docs_audit_header(verdict))
     for line in docs_audit_lines(verdict, everything):
         terminalreporter.line(line, red=bad and line.startswith("  FAIL"))
 
@@ -354,7 +391,9 @@ def git_init(path):
 
 
 def git_commit(repo, files, msg, delete=()):
-    """Append ``files`` ({relpath: text}), remove ``delete`` (relpaths), commit everything as ``msg`` -> the new HEAD sha."""
+    """Append ``files`` ({relpath: text}), remove ``delete`` (relpaths), commit exactly those paths as ``msg`` -> the new
+    HEAD sha.  Only the named paths are staged: anything else lying in the work tree (a rig's untracked helper copies,
+    say) never rides along."""
     for rel, text in files.items():
         path = os.path.join(os.fspath(repo), rel)
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -362,7 +401,7 @@ def git_commit(repo, files, msg, delete=()):
             fh.write(text)
     for rel in delete:
         os.remove(os.path.join(os.fspath(repo), rel))
-    git(repo, "add", "-A")
+    git(repo, "add", "-A", "--", *files, *delete)
     git(repo, "commit", "-qm", msg)
     return git(repo, "rev-parse", "HEAD")
 
