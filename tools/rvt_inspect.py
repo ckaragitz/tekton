@@ -51,29 +51,7 @@ from rvt import objects as O  # noqa: E402  -- iter_records via the module: the 
 from rvt import partitions as P  # noqa: E402
 from rvt import schema as schema_mod  # noqa: E402
 from rvt.container import open_rvt  # noqa: E402
-
-
-def natively_framed(doc) -> bool:
-    """True when every Partitions/<N> header already parses with the
-    container class bound in ``rvt.partitions`` right now -- a native-release
-    file: nothing to enter, nothing more to import.  Anything else -- a
-    foreign release, a damaged header -- asks the version model."""
-    try:
-        for name in doc.partition_streams():
-            P.parse_stream_header(doc.logical(name))     # raises on any other container class
-    except Exception:  # noqa: BLE001
-        return False
-    return True
-
-
-def enter_files_release(stack: contextlib.ExitStack, doc, path: str) -> str | None:
-    """Put ``path``'s own release in force on ``stack`` when it is not the
-    native one; None when nothing had to be said, else the one sentence
-    naming the rung the file is read on instead (reported, never raised)."""
-    if natively_framed(doc):
-        return None
-    from rvt.global_framing import enter_own_release   # foreign files only: keep the native path light
-    return enter_own_release(stack, path)
+from rvt.native_framing import enter_files_release  # noqa: E402  -- the instrument ladder, lazily, for foreign files only
 
 
 def print_records(doc, dec: O.ObjectDecoder, limit: int) -> int:
@@ -166,8 +144,9 @@ def main(argv=None) -> int:
             print(f"\nclass map written: {a.dump_schema}")
 
         if a.records:
-            # walk under the FILE's own release; a file whose release cannot be
-            # resolved is still walked (on the rung the note names) and reported honestly
+            # walk under the FILE's own release (a native file enters nothing);
+            # a file whose release cannot be resolved is still walked (on the
+            # rung the note names) and reported honestly
             with contextlib.ExitStack() as stack:
                 note = enter_files_release(stack, doc, a.path)
                 if note:
