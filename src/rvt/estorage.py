@@ -76,8 +76,9 @@ Public API::
 
 ``python -m rvt.estorage <project|path.rvt> [--report] [--walk] [--roundtrip]``
 reads a file under ITS OWN release (a Revit 2025/2024 project is walked with
-that release's framing, entered once through ``rvt.global_framing``'s
-note-never-raise ladder; a native file enters nothing) and reports an honest
+that release's framing, entered once through ``rvt.native_framing`` -> the
+``rvt.global_framing`` note-never-raise ladder; a native file enters nothing
+and imports no ladder) and reports an honest
 ``0 schemas (reason)`` where no schema-usage map can be read.  Exit codes:
 0 = reported; 1 = the file could not be loaded (stated on stderr, never a
 traceback); 2 = no such file.
@@ -1349,24 +1350,6 @@ def _doc_path(arg: str) -> Optional[str]:
     return sample if os.path.exists(sample) else None
 
 
-def _natively_framed(path: str) -> bool:
-    """True when every Partitions/<N> header of ``path`` already parses with
-    the container class bound in ``rvt.partitions`` right now -- a
-    native-release file: nothing to enter, nothing more to import.  Anything
-    else (a foreign release, a damaged header, an unreadable container) asks
-    the version model.  By-path twin of the engine predicate #567 lands as
-    ``rvt.native_framing``; fold onto it once that is on main."""
-    from .container import open_rvt
-    from .partitions import parse_stream_header
-    try:
-        with open_rvt(path) as f:
-            for name in f.partition_streams():
-                parse_stream_header(f.logical(name))     # raises on any other container class
-    except Exception:  # noqa: BLE001 -- damage is an answer here, not an error
-        return False
-    return True
-
-
 def print_catalog(cat: ESSchemaCatalog, stream=None):
     P = lambda *a: print(*a, file=stream)       # None = sys.stdout at CALL time (a captured/redirected stdout counts)
     if not len(cat) and cat.note:
@@ -1399,18 +1382,23 @@ def main(argv=None):
     if path is not None and not os.path.exists(path):
         print(f"ERROR: no such file: {path}", file=sys.stderr)
         return 2
+    from .container import open_rvt
     from .mutate import Document
+    from .native_framing import enter_files_release
     with contextlib.ExitStack() as stack:
-        # read under the FILE's own release: a native file enters nothing; a
-        # foreign one climbs the instrument ladder once (reported, never raised)
-        if path is not None and not _natively_framed(path):
-            from .global_framing import enter_own_release   # foreign files only: keep the native path light
-            note = enter_own_release(stack, path)
-            if note:
-                print(f"warning: {note}", file=sys.stderr)
         try:
-            doc = Document.from_file(path) if path else Document.load(target)
-        except Exception as e:  # noqa: BLE001 -- a file that cannot be loaded IS the verdict, not a crash
+            if path is not None:
+                # read under the FILE's own release: opened once for the probe, a
+                # native file enters nothing (no ladder imported); a foreign one
+                # climbs the instrument ladder once -- a note, never a raise
+                with open_rvt(path) as f:
+                    note = enter_files_release(stack, f, path)
+                if note:
+                    print(f"warning: {note}", file=sys.stderr)
+                doc = Document.from_file(path)
+            else:
+                doc = Document.load(target)
+        except Exception as e:  # noqa: BLE001 -- a file that cannot be opened or loaded IS the verdict, not a crash
             print(f"ERROR: cannot load {target}: {type(e).__name__}: {e}", file=sys.stderr)
             return 1
         return _report(doc, target, flags)

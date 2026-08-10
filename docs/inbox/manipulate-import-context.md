@@ -660,15 +660,37 @@ i.e. after #570 / #548 and #572 / #533 had merged). Written in eng #566's voice;
   (`Document.from_file` imports `rvt.container`); the dev CLI is not a bootstrap-wrapped skill script and needs the
   engine's one runtime dependency, as documented.
 
+### Fold onto `rvt.native_framing` after #577 merged (tech-lead ruling, same branch, rebased onto `main` @ 6084e78)
+
+* `estorage._natively_framed(path)` is **deleted**; `main()` now opens the container once for the probe and hands
+  the open document to the shared helper — `with open_rvt(path) as f: note = enter_files_release(stack, f, path)`
+  (`rvt.native_framing`, default ladder = `global_framing.enter_own_release`, imported inside that function only when
+  the predicate says foreign; a note, never a raise) — then loads. No third variant was added to `native_framing.py`.
+  The open + probe + load sit in one `try`, so a file that cannot even be opened as a container is the same single
+  `ERROR: cannot load …: NotOleFileError: …` line, exit 1 (before the fold that case printed a redundant ladder
+  `warning:` first; every other transcript is byte-identical to the pre-fold head: the three bases `cmp` clean —
+  2026 still `cmp`-identical to `main`@4bd7ecf's unmasked — header-zeroed ×2, schema-mangled, truncated, missing).
+  This is also where the record states plainly the **one library-visible change of this PR**: `schemas()` (and
+  `locate_schema_map`) return an empty, noted catalog / the `(-1, 0, {})` triple on a schema without the pair class
+  where they used to raise `ESSchemaError` — accepted by the tech lead as inside the issue's territory.
+* `-X importtime`, native 2026 `-m rvt.estorage … --report` path: `main`@4bd7ecf 107 modules → head **108: exactly
+  +1, `rvt.native_framing`** (self 0.22 ms; nothing else added or removed — still no `global_framing` / `versions`);
+  the 2025 (foreign) path 135 → 136, the same +1.
+* Gates after the fold: `tests/test_estorage_cli_release.py` 10 passed, `tests/test_natively_framed.py` 16 passed,
+  `tests/test_estorage_ids32.py` 3 passed (29 in 2.4 s); neighbours `test_inspect_release` 13 / `test_selfcheck_release`
+  9 / `test_framing_by_name` 10 passed, `test_estorage` 2 passed 12 skipped; `tools/sync_plugin.py` synced 1 file,
+  `--check` clean; `validate_plugin.py` PASS; portable paths ok (2976). (`test_natively_framed`'s AST "no private
+  copy" law lists the two tools; adding `src/rvt/estorage.py` to it is a one-line follow-up for that file's next
+  owner — not in this stream's territory.)
+
 ## BRANCH STATE (eng #566)
 
-* Branch `cam/566-estorage-cli-release` from `origin/main` @ 4bd7ecf (after #570/#548 and #572/#533); PR body starts
-  `Closes #566`. Not rebased onto anything unmerged; if #577 (#567) merges first, the fold-in is the 3-line swap
-  named on #567's thread and I take it on this branch.
+* Branch `cam/566-estorage-cli-release` from `origin/main` @ 4bd7ecf (after #570/#548 and #572/#533), rebased onto
+  6084e78 once #577 (#567) merged and folded onto `rvt.native_framing` (above); PR #580, body starts `Closes #566`.
 * Files written — source: `src/rvt/estorage.py` (module docstring CLI paragraph; `import contextlib`;
   `ESSchemaCatalog.note`; `locate_schema_map` no-class branch → `(-1, 0, {})` + docstring; `schemas()` stamps
-  `cat.note` via new `_no_map_reason`; CLI section: `_doc_path`, `_natively_framed`, `print_catalog(stream=None)` +
-  its empty-catalog line, `main` (exit-2 check, `ExitStack`, lazy ladder, load verdict) and the old body as
+  `cat.note` via new `_no_map_reason`; CLI section: `_doc_path`, `print_catalog(stream=None)` +
+  its empty-catalog line, `main` (exit-2 check, `ExitStack`, one `open_rvt` + `native_framing.enter_files_release`, load verdict) and the old body as
   `_report`); tests: `tests/test_estorage_cli_release.py` (new, 10 tests), `tests/ci_shard.d/566-estorage-cli-release.txt`
   (new drop-in); this record (this section only). Generated mirror re-synced: `plugin/lib/src/rvt/estorage.py`.
 * Not touched: `src/rvt/versions/**`, `src/rvt/global_framing.py` (#567's), `objects.py`, `mutate.py`,

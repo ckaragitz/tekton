@@ -10,8 +10,9 @@ every certified pinned base (issue #566, Refs #548 / #533):
   honest ``0 schemas (reason)`` -- from the library too: ``schemas()`` returns
   an empty catalog carrying the reason, ``locate_schema_map`` its documented
   "nothing located" triple -- instead of raising ``ESSchemaError``;
-* the native pin enters no release context at all, a foreign one the instrument
-  ladder ``global_framing.enter_own_release`` (and the real ``-m`` door agrees);
+* the native pin enters no release context at all, a foreign one (via
+  ``rvt.native_framing``) the instrument ladder ``global_framing.enter_own_release``
+  -- and the real ``-m`` door agrees;
 * a damaged copy (partition header zeroed) and a missing path are stated
   verdicts (exit 1 / 2 on stderr), never a traceback;
 * the native framing constants are back after every run -- the foreign pins
