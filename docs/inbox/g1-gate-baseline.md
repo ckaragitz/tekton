@@ -803,3 +803,148 @@ RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_history_head_guid.py test
   `--rvt` route share one `rvt_job` module object (and `test_gates_shared_walk` / `test_edit_own_release` drop their own
   fixture) — needs a decision on per-file isolation vs one shared module, hence not folded into this XS.
 * Shipped vs staged: ships with the merge; test refactor + one argument check, zero output-byte change — no viewer claim.
+
+## eng #470 — 2026-08-10 — ONE `rvt_job` module object per pytest process: the conftest `job` fixture IS `rvt.frontdoor.edit.load_job_module()`, aliased as `sys.modules["rvt_job"]`
+
+Stream `eng470` (engineer session for #470, P2/XS, PG7 test hygiene; the follow-up #451 filed). Territory used:
+`tests/conftest.py` (the `job` fixture + a `load_tool` guard), `tests/test_gates_shared_walk.py` (its local `job`
+override deleted — it was part of the decision), `tests/test_manipulate.py` (one test's loader → the fixture; red on
+`main`, see below), this section. `src/rvt/frontdoor/edit.py` was READ only; the one
+change it could use is a patch below, not applied. No `src/` `tools/` `skills/` `plugin/` file touched → no mirror,
+no shard drop-in (no new test file). Decision: **delegate** (the issue's first option), not "document the split".
+
+### Result in one screen
+
+| measured in ONE pytest process over the four `job` consumers (`test_status_gate`, `test_job`, `test_history_head_guid`, `test_gates_shared_walk`) | `main@2767197` | this branch |
+|---|---|---|
+| distinct live `rvt_job` module objects by the end (probe plugin, both file orders) | **4** (`rvt_job` ×3 fresh per file + the engine's `_frontdoor_rvt_job`) | **1** |
+| `sys.modules["rvt_job"]` (what `tools/ifc_intent.py`'s `import rvt_job` = the prompt/IFC routes' identity + status gates gets) | whichever test file loaded last — it stays registered after that file's teardown | the engine's object, `is rvt.frontdoor.edit._JOB` |
+| state at every file boundary: `G3_CLEARED` / `OPT.errors` / `_census_mod` patched? / `_RUN` | `False` / `{}` / no / defaults except `manifest` = last one `main()` wrote | identical: `False` / `{}` / no / same `manifest` residue |
+| the four files, forward and reversed order (`RVT_SKIP_LARGE=1 -rs`) | 55 passed / 5 skipped, 55 / 5 | 55 / 5, 55 / 5 (same five skips: famgen catalog ×1, `samples/rst…` ×4) |
+| `pytest --collect-only -q` ids of the four files | 60 | 60, `diff` empty |
+| `--setup-plan` | `SETUP M job` ×4 / `TEARDOWN M job` ×4 (a fresh exec per file) | `SETUP S job` ×1 / `TEARDOWN S job` ×1 (session scope — see below) |
+| `grep -rn "def job(" tests` | `conftest.py`, `test_gates_shared_walk.py` | `conftest.py` only |
+| `tests/test_manipulate.py` (its one `rvt_job` test imported `test_job._load_job`, deleted by #471) | **1 failed** / 13 passed / 5 skipped | 14 passed / 5 skipped (ids 19 = 19) |
+| WHOLE merged CI shard (78 files, `RVT_SKIP_LARGE=1`) | 1 failed / 1617 passed / 139 skipped / 3 xfailed | **1618 passed / 139 skipped / 3 xfailed** (5 m 49 s) |
+
+### What was built
+
+* `tests/conftest.py::job` now returns `rvt.frontdoor.edit.load_job_module()` — the process-cached module the `--rvt`
+  route (`edit.run_edit`), the router and `tools/rvt_edit.py` drive — and registers that same object as
+  `sys.modules["rvt_job"]`, so a `monkeypatch.setattr(job, …)` in a test reaches BOTH the copy the engine calls and the
+  copy `tools/ifc_intent.py` imports by name (before: three objects could disagree; `test_status_gate.py:380`'s
+  `monkeypatch.setitem(sys.modules, "rvt_job", job)` existed only to paper over that and is now a same-value no-op —
+  left untouched: outside this wave's territory, listed in #477's DONE). `load_tool(name)` stays for the other tools
+  (`genesis_census`, `provenance`), fresh-per-call as before, and now **refuses** `"rvt_job"` (`ValueError` naming
+  the fixture) so a future test cannot silently re-create the N-object world (`/simplify` altitude finding: the
+  invariant was prose-only).
+* Scope is `session`, decided: the OBJECT is process-wide whatever the scope says (the engine caches it in
+  `edit._JOB`), so `session` is the honest declaration and `--setup-plan` now shows one `SETUP S job` per run. The
+  first draft kept `module` "to re-assert the alias per file in case a file in between dropped it"; `/simplify`
+  (simplification + altitude) called that a healer instinct — nothing in the suite drops the key except a
+  `monkeypatch.setitem` that restores it, and a violation should trip, not be silently repaired — so it went.
+  Test ids do not depend on fixture scope (60 = 60, `diff` empty).
+* `tests/test_gates_shared_walk.py` loses its own module-scoped `job` (it already was `load_job_module()`; now that is
+  what conftest hands every file). `tests/test_edit_own_release.py` has no `job` fixture — its one inline
+  `load_job_module()` call (test 3) already yields the same object; nothing to swap, file untouched.
+* **A fifth loader, and `main` was red on it** (found by the whole-shard run, reproduced on pristine `main@2767197`):
+  `tests/test_manipulate.py::test_job_set_param_op_lands_an_elementid_row_via_holder` did `from test_job import
+  _load_job` — the per-file loader #471 deleted from `test_job.py` hours earlier — so it has raised `ImportError`
+  on `main` since #471 (`1 failed, 13 passed, 5 skipped` for the file; the shard `1 failed / 1617 / 139 / 3 xfailed`).
+  It now requests the conftest `job` fixture like every other consumer (signature `+ job`, the import and
+  `job = _load_job()` gone, docstring names the fixture; no assertion touched, the file's 19 ids identical) →
+  `14 passed / 5 skipped`. `tests/test_manipulate.py` is outside the territory this wave named; taken anyway because
+  it is the same mechanism, three lines, and the only way the "whole shard green" gate can hold — flagged to the
+  reviewer as such. `grep -rn "_load_job\|from test_job" tests` → nothing.
+
+### Why sharing one module across test files is safe here (measured, then read)
+
+The reason #451 kept a fresh module per file was "one file's patches never reach the next". Inventory of what could
+carry over, `tools/rvt_job.py@2767197`:
+
+* Module-level bindings (AST walk): constants (`HERE ROOT TOOL_VERSION FT_PER_M SAMPLES_DIR EX_* G3_COUNSEL G3_CLEARED
+  OP_MANIPULATE OP_CREATE`) + exactly two mutable holders, `_RUN` (dict) and `OPT` (`.errors` dict). No `global`
+  statement anywhere → nothing rebinds a module name at run time.
+* Every test-side mutation of the module in `tests/` goes through `monkeypatch` (`setattr(job, "G3_CLEARED" |
+  "_census_mod", …)`, `setitem(job.OPT.errors, …)`, `setitem(sys.modules, "rvt_job", …)`) — function-scoped, undone
+  before the next test, let alone the next file; `grep -rnE '\bjob\.[A-Za-z_]+(\[[^]]*\])? *(=[^=]|\.append|\.update|\.clear|\.pop)' tests` → nothing.
+* `_RUN`: reset at the top of every `main()` (#443) and READ only downstream of that reset inside the same call
+  (`_record_manifest` ← `write_manifest`/`_write_stub_manifest` ← `run_gates`/`create_from_spec`/`_dispatch` ← `main`;
+  no test and no engine caller reaches a manifest writer except through `main()` — `grep` of `run_gates|create_from_spec|
+  write_manifest|_write_stub_manifest` outside `rvt_job.py` finds only `rvt.frontdoor.manifest.write_manifest`, a
+  different function). The `manifest` residue the probe shows at file boundaries is therefore dead until overwritten —
+  and it was already there on `main` in the engine copy.
+* `OPT.errors`: written only when a lazy loader genuinely fails (environment-deterministic — a fresh module would record
+  the same failure on its first call) or by `monkeypatch.setitem` (undone).
+* Import-time behaviour of `rvt_job.py`: two `sys.path.insert`s and constants; every `rvt.*` import is lazy inside
+  functions, so "first exec inside a non-2026 release context" cannot snapshot framing (cf. #455) — and the module now
+  executes exactly once per process anyway.
+* Measured with a throwaway `-p jobprobe` plugin (scratch, not committed: at each file's last teardown it records
+  `id()`/`__name__`/`G3_CLEARED`/`OPT.errors`/`_RUN`/census-patched for `sys.modules["rvt_job"]`,
+  `sys.modules["_frontdoor_rvt_job"]` and `edit._JOB`): table above, forward and reversed file order, before and after.
+
+### Finding (product side, outside this territory) + patch
+
+The same split exists in the PRODUCT process, not only under pytest: one interpreter that runs an `--rvt` edit job and a
+prompt/IFC job (`FD.author(rvt=…, edit=…)` then `FD.author(prompt=…)`, i.e. any plugin session doing two jobs, or a
+router chain) ends with **two** executed copies of `tools/rvt_job.py` — `_frontdoor_rvt_job` (from
+`edit.load_job_module`) and `rvt_job` (from `tools/ifc_intent.py`'s `sys.path.insert(0, HERE); import rvt_job`);
+a prompt-only process has one (`rvt_job`). Measured: `sorted(k for k,m in sys.modules.items() if m.__file__…endswith
+("rvt_job.py"))` → `['_frontdoor_rvt_job', 'rvt_job']`, 2 distinct ids, both jobs `ok`. Harmless today (neither copy's
+state is consulted by the other; `G3_CLEARED` is a constant), but it is one more exec of a 1.5 kloc module per mixed
+session and the day `G3_CLEARED` or a census override becomes a runtime switch the two doors could disagree. The
+fix is a few lines in `src/rvt/frontdoor/edit.py::load_job_module` (READ-only for eng #470 — hence a patch, filed as
+a follow-up task, not applied):
+
+```diff
+@@ def load_job_module():
+     global _JOB
+     if _JOB is not None:
+         return _JOB
++    already = sys.modules.get("rvt_job")            # tools/ifc_intent.py imported it by name first (a prompt/IFC job ran)
++    if already is not None and os.path.basename(getattr(already, "__file__", "") or "") == "rvt_job.py":
++        _JOB = sys.modules["_frontdoor_rvt_job"] = already
++        return already
+     cands = [os.path.join(repo_root(), "tools", "rvt_job.py")]
+@@
+                 mod = importlib.util.module_from_spec(spec)
+                 sys.modules[spec.name] = mod
++                sys.modules.setdefault("rvt_job", mod)  # ...and a later `import rvt_job` (ifc_intent) reuses THIS object
+                 spec.loader.exec_module(mod)
+```
+With that in the engine, conftest's own `sys.modules["rvt_job"] = mod` line **must go** (or become
+`assert sys.modules.get("rvt_job", mod) is mod`) and so must `test_status_gate.py:380`'s same-value `setitem` —
+otherwise the test bootstrap silently heals any regression of the engine's one-object invariant (both listed in
+#477's DONE). The better engine shape, also noted on #477: `tools/ifc_intent.py` goes through `load_job_module()`
+instead of a bare `sys.path` import, so there is one loader and one name rather than one loader answering to two.
+
+### How to run
+
+```bash
+RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_status_gate.py tests/test_job.py tests/test_history_head_guid.py tests/test_gates_shared_walk.py -q -rs
+RVT_SKIP_LARGE=1 .venv/bin/python -m pytest --setup-plan tests/test_gates_shared_walk.py | grep ' job'      # SETUP    M job (from conftest)
+.venv/bin/python -c "import sys;sys.path[:0]=['src','tests'];import conftest,rvt.frontdoor.edit as E;m=conftest.job.__wrapped__();print(m is E.load_job_module() is sys.modules['rvt_job'] is sys.modules['_frontdoor_rvt_job'])"   # True
+```
+
+### BRANCH STATE (eng #470)
+
+* Branch `cam/470-one-job-loader` from `main@2767197` (right after #471); PR closes #470.
+* Files: `tests/conftest.py`, `tests/test_gates_shared_walk.py`, `tests/test_manipulate.py` (one test, see above), this
+  section. No `src/` `tools/` `skills/` `plugin/` file, no mirror, no asset, no hot file, no new test file → no shard drop-in.
+* Gates: collected ids of the four `job` consumers 60 = 60 (`diff` empty), `test_manipulate.py` 19 = 19; the four files
+  **55 passed / 5 skipped** on `main` and on the branch, forward and reversed order (`RVT_SKIP_LARGE=1 -rs`; skips famgen
+  catalog ×1, `samples/rst…` ×4); `test_manipulate.py` `main` **1 failed / 13 / 5** → branch **14 passed / 5 skipped**;
+  `--setup-plan` `SETUP S job` ×1 (was `M` ×4); probe: live `rvt_job` objects per process 4 → **1**, `sys.modules["rvt_job"]
+  is edit._JOB` after every file, boundary state identical before/after; the WHOLE merged CI shard (`shard_list.py --print`,
+  78 files) **1618 passed / 139 skipped / 3 xfailed** in 5 m 49 s on the final tree (first draft = main + module scope:
+  1 failed = the pre-existing `test_manipulate` ImportError / 1617 / 139 / 3, 6 m 00 s); `tools/sync_plugin.py --check` →
+  in sync (nothing under `src/`/`tools/` touched); `check_portable_paths.py` ok (2911). `/simplify` four angles applied
+  (docstring cut, `session` scope, `load_tool("rvt_job")` guard, "must go" wording for #477); `/verify` drove
+  `frontdoor.py author --prompt "an electrical room with 6 panels"` (rc 0, `ok true`, status_gate `PROOF-ONLY,
+  NOT-DELIVERABLE` / `pinned-composed-genesis`, identity PASS, `rvt_validate` VALID 0 errors / 1 warning) and
+  `frontdoor.py author --rvt G_ABPD_2025.rvt --edit "set level 694 elevation to 12"` (rc 0, `ok true`, output release
+  2025, job gates structural/validation/identity PASS, VALID 0 errors) — the two routes the two loaders serve.
+* Follow-up filed: **#477** (Refs #470, `ready` `P2` `area:frontdoor` `good-first-pick`) — one product process running an
+  edit job and a prompt/IFC job holds ONE `rvt_job` copy (`load_job_module()` ≡ `sys.modules["rvt_job"]`; preferably
+  `ifc_intent` goes through the engine loader), then the conftest alias line and `test_status_gate.py:380` are deleted.
+* Shipped vs staged: ships with the merge; test plumbing only, zero output-byte change — no viewer claim.

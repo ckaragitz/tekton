@@ -410,16 +410,15 @@ def test_mutate_set_param_authors_a_null_double_holder():
         {"m_paramId": BIP_WALL_HEIGHT, "m_value": 10.0}]
 
 
-def test_job_set_param_op_lands_an_elementid_row_via_holder(prompt_room, tmp_path):
+def test_job_set_param_op_lands_an_elementid_row_via_holder(prompt_room, tmp_path, job):
     """`{"op":"set-param",...,"holder":"m_pParamValueSetElementId"}` through
     tools/rvt_job.py edit (the ops.json door the front door and the skills
-    use) inserts an ElementId row -- a bare -1 would otherwise type as Int."""
+    use; ``job`` = the conftest fixture) inserts an ElementId row -- a bare -1
+    would otherwise type as Int."""
     import json
     from rvt import manipulate as M
     from rvt.mutate import Document
-    from test_job import _load_job                    # tests/ is on sys.path under pytest
     src, eid = prompt_room["path"], prompt_room["panel"]
-    job = _load_job()
     ops = [{"op": "set-param", "id": eid, "param_id": -1002050, "value": -1,
             "holder": "m_pParamValueSetElementId"},
            {"op": "set-param", "id": eid, "param_id": -1001200, "value": 3}]   # no holder -> Int

@@ -56,13 +56,6 @@ def _constants_restored():
     assert {k: getattr(P, k) for k in latest} == latest
 
 
-@pytest.fixture(scope="module")
-def job():
-    """``tools/rvt_job.py`` -- the gate verdict functions both doors use."""
-    from rvt.frontdoor.edit import load_job_module
-    return load_job_module()
-
-
 def _report_json(rep) -> dict:
     """A validator Report as the gate sees it, minus wall-clock noise."""
     d = rep.to_json()
