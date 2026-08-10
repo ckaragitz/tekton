@@ -886,14 +886,14 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
         raise FactoryError("document is finalized; add forms before finalize")
     ctx = geometry_context(doc)
     prof = G.polygon_profile(vertices)
-    if rep == G.REP_SOLID and len(prof.vertices) != 4:
-        # the CACHED six-face B-rep template (solid_box_brep) is the
-        # rectangular case only; a non-rectangular ring ships the
-        # regeneration rep instead -- the extrusion is fully defined by its
-        # sketch + depth and Revit rebuilds the solid on open (the variant
-        # already accepted for walls).  Generalising the cached rep to
-        # N-gons is issue #499.
-        rep = G.REP_DUMMY
+    # NO REGENERATION FALLBACK.  This used to ship the SerializedDummy rep
+    # for anything that was not a 4-gon, on the theory that "the extrusion
+    # is fully defined by its sketch + depth and Revit rebuilds the solid on
+    # open".  That theory is FALSE for family forms and was silently costing
+    # every non-rectangular part: the owner's probe (concave L + cylinder +
+    # cap) rendered the two cached-B-rep parts and drew NOTHING for the
+    # regeneration one.  solid_box_brep is now the N-gon prism it always
+    # structurally was.
     fb = G.prism_form(prof, float(height_ft), ctx, doc.ids,
                       base_z_ft=float(base_z_ft), rep=rep, kind="polygon")
     doc.add(*fb.elements)

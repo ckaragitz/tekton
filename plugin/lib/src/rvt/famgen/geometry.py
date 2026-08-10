@@ -579,10 +579,20 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
                    *, element_id: int, geometry_style_id: int = -1,
                    control_command: int = 0,
                    base_pid: int = 3) -> dict:
-    """The cached six-face B-rep solid (seq-103 ``GElement``) of a
-    rectangular extrusion, built field by field.
+    """The cached (N+2)-face B-rep solid (seq-103 ``GElement``) of a PRISM
+    over any closed planar profile, built field by field.
 
-    ``profile`` -- 4 CCW vertices in the sketch plane (z ignored);
+    Generalised from the 4-gon on measured evidence that the alternative
+    does not exist: a form shipped with the SerializedDummy "regeneration"
+    rep draws NOTHING in Revit [owner probe, concave L-bracket + cylinder +
+    cap: the two cached-B-rep parts rendered, the regeneration part was
+    absent].  Revit does not rebuild a family form's solid from its sketch
+    on open, so every form needs a real cached solid -- and an N-gon prism
+    is the SAME topology as the box (2 caps + N sides, 3N edges, tags from
+    :func:`_box_tags`, whose numbering was already written for N).  Nothing
+    below was specific to 4; only the guard was.
+
+    ``profile`` -- >= 3 CCW vertices in the sketch plane (z ignored);
     ``start`` / ``end`` -- offsets along the sketch normal (+z), with
     ``start > end`` (the "extrude-down" convention of every box specimen:
     the START cap is the top face).  ``element_id`` becomes the root tag /
@@ -605,11 +615,11 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
     direction rules with specimen evidence.  Returns the GElement dict (the
     caller wraps it as the seq-103 rep of the ExtrusionElem).
     """
-    prof = profile if isinstance(profile, RectProfile) else profile_from_vertices(profile)
+    prof = profile if isinstance(profile, RectProfile) else polygon_profile(profile)
     V = [_v(p) for p in prof.vertices]
     n = len(V)
-    if n != 4:
-        raise ValueError("solid_box_brep: box profile has 4 vertices")
+    if n < 3:
+        raise ValueError(f"a prism profile needs at least 3 vertices (got {n})")
     if polygon_area_xy(V) <= 0:
         raise ValueError("profile must be counter-clockwise (viewed from +z)")
     zs, ze = float(start), float(end)

@@ -981,3 +981,55 @@ is the expensive part; the oracle then costs one open.
   VALID 0 errors; `tools/sync_plugin.py --check` clean;
   `check_portable_paths.py` ok (2934 paths)
 * shipped for verdict: `panel400_v11.rfa`
+
+## Iteration 21 — the regeneration rep is a MYTH, and the N-gon prism
+
+**The probe and its verdict.** A three-part family (concave L-bracket +
+cylinder + cap) was built to test one question: does Revit rebuild a family
+form's solid from its sketch when the file ships the SerializedDummy
+"regeneration" rep? Owner screenshot: the cylinder and the cap render, and
+**the L-bracket is absent**. Clean negative, single variable (the two that
+rendered carry cached B-reps, the one that vanished does not).
+
+**This kills a belief that had been load-bearing since the box work.** The
+code asserted, in `add_polygon_form`, that "the extrusion is fully defined
+by its sketch + depth and Revit rebuilds the solid on open (the variant
+already accepted for walls)". Accepted for WALLS, never once verified for a
+family form. Consequences:
+
+* every non-4-gon part a generated family has ever contained was
+  **invisible**, silently -- including the owner's early hangers;
+* the shortcut to revolves/sweeps ("author the definition, skip the B-rep")
+  does not exist. Every form needs a real cached solid.
+
+**The fix needed no reference file at all** -- the point of the owner's
+steer, and the proof of it. `solid_box_brep` was never rectangle-specific:
+`_box_tags(n)` was already written for N, the frames, envelopes, edge order,
+pid numbering and uv projections are all expressed in `n`, and a prism over
+an N-gon is exactly the box topology with N sides (N+2 faces, 3N edges).
+Only the guard said 4. Removed; `add_polygon_form`'s REP_DUMMY fallback
+removed with it.
+
+Verified: triangle, pentagon, hexagon, 12-gon and the concave L all build
+cached B-reps with the right census (N+2 faces, 3N edges) and round-trip
+clean. The three-part probe now reports cached B-rep for all three parts.
+
+**Contract change, deliberate:** a RAW vertex ring handed to
+`solid_box_brep` is now winding-NORMALISED rather than refused (an IFC
+profile's winding follows its own axis convention, and `polygon_profile`
+already did this for `add_polygon_form`). A pre-built `RectProfile` must
+still be CCW -- the caller asserted an order -- and degenerate or collinear
+rings still raise. The guard test now documents all three.
+
+**Open, and now correctly scoped:** revolve / sweep / blend still need their
+own cached B-reps, i.e. the surface-of-revolution and swept topologies. That
+IS a measurement problem (`ConeSurf` exists; no sphere or torus surface
+class is visible in the schema), unlike the N-gon, which was pure arithmetic.
+
+### BRANCH STATE (updated)
+* written: `src/rvt/famgen/geometry.py` (N-gon prism), `factory.py` (no
+  regeneration fallback), `tests/test_famgen_geometry.py`
+  (+`test_ngon_prism_solid_is_cached`, rewritten winding guard)
+* gates: 14 stream-local files 301 passed / 58 skipped; 2026/2025/2024 build
+  VALID 0 errors; `tools/sync_plugin.py --check` clean
+* shipped for verdict: `concave_probe_v2.rfa`, `ngon_probe.rfa`

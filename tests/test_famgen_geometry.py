@@ -156,8 +156,38 @@ def test_solid_requires_ccw_and_downward():
     prof = G.rect_profile(1.0, 1.0)
     with pytest.raises(ValueError):
         G.solid_box_brep(prof, 0.0, 1.0, element_id=1)      # end > start
+    # a pre-built profile must already be CCW -- the caller asserted an order
     with pytest.raises(ValueError):
-        G.solid_box_brep([[1, 1], [1, -1], [-1, -1], [-1, 1]], 1.0, 0.0, element_id=1)  # CW
+        G.solid_box_brep(G.RectProfile([[1, 1, 0], [1, -1, 0], [-1, -1, 0],
+                                        [-1, 1, 0]]), 1.0, 0.0, element_id=1)
+    # a RAW vertex ring is normalised instead (an IFC profile's winding
+    # follows its own axis convention), so clockwise input builds fine...
+    cw = G.solid_box_brep([[1, 1], [1, -1], [-1, -1], [-1, 1]], 1.0, 0.0,
+                          element_id=1)
+    assert cw["m_subNodes"][0]["value"]["m_pFaces"]
+    # ...but a degenerate ring still cannot be a prism
+    with pytest.raises(ValueError):
+        G.solid_box_brep([[0, 0], [1, 0]], 1.0, 0.0, element_id=1)
+    with pytest.raises(ValueError):                       # collinear
+        G.solid_box_brep([[0, 0], [1, 0], [2, 0]], 1.0, 0.0, element_id=1)
+
+
+@pytest.mark.parametrize("n", [3, 5, 6, 12])
+def test_ngon_prism_solid_is_cached(n):
+    """THE N-GON PRISM (owner probe: a form shipped with the SerializedDummy
+    'regeneration' rep draws NOTHING in Revit, so every form needs a real
+    cached solid).  An N-gon prism is the box topology with N sides."""
+    import math
+    ring = [[math.cos(2 * math.pi * k / n), math.sin(2 * math.pi * k / n)]
+            for k in range(n)]
+    g = G.solid_box_brep(ring, 1.0, 0.0, element_id=1)
+    geom = g["m_subNodes"][0]["value"]
+    assert len(geom["m_pFaces"]) == n + 2, n        # 2 caps + N sides
+    assert len(geom["m_pEdges"]) == 3 * n, n        # N rails x2 + N laterals
+    # a concave ring is a prism too -- the topology does not care
+    L = [[0, 0], [1.5, 0], [1.5, .4], [.4, .4], [.4, 1.2], [0, 1.2]]
+    gl = G.solid_box_brep(L, 1.0, 0.0, element_id=1)["m_subNodes"][0]["value"]
+    assert len(gl["m_pFaces"]) == 8 and len(gl["m_pEdges"]) == 18
 
 
 @needs_rme
