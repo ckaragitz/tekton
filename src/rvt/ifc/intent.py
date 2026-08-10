@@ -110,6 +110,7 @@ __all__ = [
     "compose_placement", "axis2placement3d_matrix", "identity_matrix",
     "is_identity", "analyze_product",
     "resolve_intent", "intent_to_json", "write_intent", "plan_families",
+    "plan_family_for", "DEVICE_PSET",
     "level_elevation", "level_relative_z",
     "make_house_switchboard", "resolve_products",
 ]
@@ -924,8 +925,8 @@ KIND_BY_CLASS = {
 }
 
 #: equipment kinds that map to OUR generated content (``receptacle_device``:
-#: rvt.famgen.factory.make_device -- generated + loadable, its front-door
-#: placement is issue #359)
+#: rvt.famgen.factory.make_device, Electrical Fixtures -- one shared family
+#: per distinct schedule, loaded + placed by the front door since #359)
 GENERATED_KINDS = ("switchboard", "distribution_panelboard", "lighting_panelboard",
                    "receptacle_panelboard", "panelboard", "transformer",
                    "receptacle_device")
@@ -933,6 +934,18 @@ GENERATED_KINDS = ("switchboard", "distribution_panelboard", "lighting_panelboar
 FLOOR_KINDS = ("switchboard", "transformer", "switchgear")
 WALL_KINDS = ("distribution_panelboard", "lighting_panelboard", "receptacle_panelboard",
               "panelboard", "ground_bus", "receptacle_device")
+
+#: the wiring device's own schedule pset (Voltage / Load / MountingHeight /
+#: DeviceType ride on the equipment: scene brief, OUR IFC's IfcOutlet, the
+#: manifest's device-schedule row) -- the join key of the device mapping,
+#: as the tagging contract is the boards'
+DEVICE_PSET = "DeviceSchedule"
+#: the ONE device row plan_family_for maps a ``receptacle_device`` to: OUR
+#: make_device('duplex-receptacle'); a schedule that names no voltage / load
+#: books 120 V and the NEC 220.14(I) 180 VA receptacle unit load
+DEFAULT_DEVICE_KIND = "duplex-receptacle"
+DEFAULT_DEVICE_VOLTAGE = "120"
+DEFAULT_DEVICE_VA = 180.0
 
 
 # ============================================================================
@@ -2073,11 +2086,25 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
     the switchboard -> :func:`make_house_switchboard` (no panelboard member
     covers 2500 A -- the factory REFUSES it, honestly recorded, and the house
     family is composed from OUR OWN IFC-modeled dimensions + the Pset
-    ratings).  Every other kind is 'unmapped' with a stated reason.
+    ratings); a wiring device -> ``make_device`` (generic device + mounting
+    facts; kwargs from its own :data:`DEVICE_PSET`, so devices with the same
+    schedule share ONE family in the build).  Every other kind is 'unmapped'
+    with a stated reason.
     """
     con = eq.contract
     v = con.get("_voltage") or {}
     dims_mod = {k: eq.dims_m.get(k) for k in ("w", "d", "h") if eq.dims_m.get(k) is not None}
+    if eq.kind == "receptacle_device":
+        dev = (eq.psets or {}).get(DEVICE_PSET) or {}
+        volt = parse_voltage(dev.get("Voltage")).get("ll")
+        kwargs = dict(kind=DEFAULT_DEVICE_KIND, mounting_height_in=dev.get("MountingHeight"),
+                      voltage=f"{volt:g}" if volt else DEFAULT_DEVICE_VOLTAGE,
+                      va=float(dev.get("Load") or DEFAULT_DEVICE_VA))
+        fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
+                        constructor="rvt.famgen.factory.make_device",
+                        kwargs=kwargs, dims_modeled_m=dims_mod)
+        _resolve_device_facts(fp)
+        return fp
     if eq.kind in ("distribution_panelboard", "lighting_panelboard",
                    "receptacle_panelboard", "panelboard"):
         mains_type = str(con.get("MainsType") or "")
@@ -2236,6 +2263,31 @@ def _resolve_xfmr_facts(fp: FamilyPlan) -> None:
     fp.dims_catalog_m = {"w": float(sheet.get("width_in")) / IN_PER_M,
                          "h": float(sheet.get("height_in")) / IN_PER_M,
                          "d": float(sheet.get("depth_in")) / IN_PER_M}
+
+
+def _resolve_device_facts(fp: FamilyPlan) -> None:
+    try:
+        from ..famgen import factory as F
+        sheet = F.resolve_device_facts(**fp.kwargs)     # make_device's kwargs ARE the resolver's
+    except Exception as e:
+        fp.status = "refused"
+        fp.refusal = f"{type(e).__name__}: {e}"
+        return
+    fp.status = "resolved"
+    fp.catalog = sheet.catalog
+    fp.variant = sheet.variant
+    fp.facts_summary = {
+        "subject": sheet.subject, "model": sheet.get("model"),
+        "manufacturer": sheet.get("manufacturer"),
+        "mounting_height_in": sheet.get("mounting_height_in"),
+        "voltage_v": sheet.get("voltage_v"), "load_va": sheet.get("load_va"),
+        "assumed_fields": sheet.assumed(), "unverified_fields": sheet.unverified(),
+    }
+    # the faceplate is the modelled envelope: plate w x h on the wall face,
+    # box depth + plate thickness into it
+    fp.dims_catalog_m = {"w": float(sheet.get("plate_width_in")) / IN_PER_M,
+                         "h": float(sheet.get("plate_height_in")) / IN_PER_M,
+                         "d": float(sheet.get("box_depth_in") + sheet.get("plate_thickness_in")) / IN_PER_M}
 
 
 def plan_families(equipment: List[Equipment]) -> List[FamilyPlan]:

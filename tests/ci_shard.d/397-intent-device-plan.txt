@@ -1,0 +1,2 @@
+# fresh-clone safe: hand-built Equipment + the famgen catalog + the bundled steplite reader (#397)
+tests/test_intent_device_plan.py

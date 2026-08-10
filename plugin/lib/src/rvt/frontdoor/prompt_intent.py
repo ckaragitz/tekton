@@ -60,7 +60,7 @@ from ..ifc import intent as I
 __all__ = [
     "PromptError", "PromptItem", "PromptRoom", "ParsedPrompt", "PromptCoverage",
     "parse_prompt", "layout_room", "prompt_to_intent", "scene_brief",
-    "write_handoff", "handoff_instructions_path", "plan_devices", "FT_PER_M",
+    "write_handoff", "handoff_instructions_path", "FT_PER_M",
 ]
 
 FT_PER_M = 3.280839895013123
@@ -270,25 +270,28 @@ _DEF_LP_DIMS = {"w": 0.508, "d": 0.146, "h": 1.219}
 #: the prompted receptacle (kind ``receptacle_device``): OUR
 #: make_device('duplex-receptacle') at 120 V with the NEC 220.14(I) 180 VA unit
 #: load booked on its connector, at the facts' 18 in AFF convention -- ONE row
-#: every device branch below reads
-DEFAULT_DEVICE_KIND = "duplex-receptacle"
-DEFAULT_DEVICE_VOLTAGE = "120"
-DEFAULT_DEVICE_VA = 180.0
+#: every device branch below reads, and the SAME row the resolver's
+#: ``plan_family_for`` maps a device to (one source: rvt.ifc.intent)
+DEFAULT_DEVICE_KIND = I.DEFAULT_DEVICE_KIND
+DEFAULT_DEVICE_VOLTAGE = I.DEFAULT_DEVICE_VOLTAGE
+DEFAULT_DEVICE_VA = I.DEFAULT_DEVICE_VA
 DEFAULT_DEVICE_HEIGHT_IN = 18.0         # used only when the facts store is unavailable
-DEVICE_PSET = "DeviceSchedule"          # the device's schedule pset (scene brief / contract)
+DEVICE_PSET = I.DEVICE_PSET             # the device's schedule pset (scene brief / contract)
 DEVICE_IFC = ("IfcOutlet", "POWEROUTLET")
 _DEF_DEVICE_DIMS = {"w": 0.070, "d": 0.070, "h": 0.114}     # facts-store fallback only
 
 
-@functools.lru_cache(maxsize=8)
-def _device_facts(height_in: Optional[float] = None, voltage: str = DEFAULT_DEVICE_VOLTAGE):
+@functools.lru_cache(maxsize=1)
+def _device_facts():
     """OUR device fact sheet (rvt.famgen.factory.resolve_device_facts) for
-    the prompted receptacle, or None when the facts store refuses.  Memoised:
-    every receptacle of a job resolves to the same record (read-only use)."""
+    the prompted receptacle's default row, or None when the facts store
+    refuses -- the LAYOUT's reader (height convention, envelope dims); the
+    per-device plan + facts are the resolver's (``I.plan_family_for``).
+    Memoised: every receptacle of a job reads the same record (read-only)."""
     try:
         from ..famgen import factory as F
-        return F.resolve_device_facts(DEFAULT_DEVICE_KIND, mounting_height_in=height_in,
-                                      voltage=voltage, va=DEFAULT_DEVICE_VA)
+        return F.resolve_device_facts(DEFAULT_DEVICE_KIND, voltage=DEFAULT_DEVICE_VOLTAGE,
+                                      va=DEFAULT_DEVICE_VA)
     except Exception:                                    # noqa: BLE001 - stated fallback
         return None
 
@@ -1515,70 +1518,6 @@ def _default_feeders(parsed: ParsedPrompt, equipment: List[I.Equipment]) -> List
     return list(edges.values())
 
 
-def _plan_device(eq: I.Equipment) -> I.FamilyPlan:
-    """The family plan of a wiring device, shaped like every branch of
-    ``rvt.ifc.intent.plan_family_for`` (kwargs from the equipment's own
-    contract / schedule pset, then a ``_resolve_*_facts`` step) so the pair
-    can move there verbatim.  A resolved plan is ``buildable_family_plans``
-    material: the room build generates ONE family per distinct kwargs (every
-    device of a job normally shares it -- ``tools/ifc_intent.family_key``),
-    loads it with the Electrical Fixtures category and places one instance
-    per device (issue #359)."""
-    dev = (eq.psets or {}).get(DEVICE_PSET) or {}
-    volt = (I.parse_voltage(dev.get("Voltage")) or {}).get("ll")
-    kwargs = dict(kind=DEFAULT_DEVICE_KIND, mounting_height_in=dev.get("MountingHeight"),
-                  voltage=f"{volt:g}" if volt else DEFAULT_DEVICE_VOLTAGE,
-                  va=float(dev.get("Load") or DEFAULT_DEVICE_VA))
-    dims_mod = {k: eq.dims_m.get(k) for k in ("w", "d", "h") if eq.dims_m.get(k) is not None}
-    fp = I.FamilyPlan(tag=eq.tag, kind=eq.kind, constructor="rvt.famgen.factory.make_device",
-                      kwargs=kwargs, dims_modeled_m=dims_mod)
-    _resolve_device_facts(fp)
-    return fp
-
-
-def plan_devices(model: I.IntentModel) -> I.IntentModel:
-    """Give every wiring device of ``model`` (prompt-built OR read back from
-    an IFC's ``IfcOutlet`` + DeviceSchedule pset) the SAME family plan the
-    prompt route authors (:func:`_plan_device`: constructor ``make_device``,
-    catalog facts, status ``resolved``) in place of the resolver's generic
-    ``unmapped`` -- so disposition and plan agree on both routes until the
-    branch moves into ``rvt.ifc.intent.plan_family_for``.  In place; returns
-    ``model``."""
-    devices = [e for e in (model.equipment or []) if e.kind == "receptacle_device"]
-    if not devices:
-        return model
-    plans = list(model.family_plans or [])
-    by_tag = {p.tag: i for i, p in enumerate(plans)}
-    for eq in devices:
-        fp = _plan_device(eq)
-        if eq.tag in by_tag:
-            plans[by_tag[eq.tag]] = fp
-        else:
-            plans.append(fp)
-        eq.disposition = "generated-family"
-    model.family_plans = plans
-    if isinstance(model.audit, dict) and "family_plans" in model.audit:
-        model.audit["family_plans"] = {p.tag: p.status for p in plans}
-    return model
-
-
-def _resolve_device_facts(fp: I.FamilyPlan) -> None:
-    sheet = _device_facts(fp.kwargs["mounting_height_in"], fp.kwargs["voltage"])
-    if sheet is None:
-        fp.status, fp.refusal = "refused", "device facts store unavailable (make_device)"
-        return
-    fp.status, fp.catalog, fp.variant = "resolved", sheet.catalog, sheet.variant
-    fp.facts_summary = {"subject": sheet.subject, "model": sheet.get("model"),
-                        "manufacturer": sheet.get("manufacturer"),
-                        "mounting_height_in": sheet.get("mounting_height_in"),
-                        "voltage_v": sheet.get("voltage_v"), "load_va": sheet.get("load_va"),
-                        "assumed_fields": sheet.assumed(),
-                        "unverified_fields": sheet.unverified()}
-    fp.dims_catalog_m = {"w": float(sheet.get("plate_width_in")) / IN_PER_M,
-                         "h": float(sheet.get("plate_height_in")) / IN_PER_M,
-                         "d": float(sheet.get("box_depth_in") + sheet.get("plate_thickness_in")) / IN_PER_M}
-
-
 def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
     """THE BUILT-IN FALLBACK: prompt -> the SAME :class:`IntentModel` the
     ``--ifc`` route resolves (equipment with tagging-contract dicts, a room
@@ -1748,7 +1687,6 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
         "Psets, and the file re-enters through --ifc; this fallback exists so the front "
         "door WORKS with no external model call and no API key",
     ]
-    plan_devices(model)                     # devices: OUR make_device plan (catalog facts)
     return model, parsed
 
 
