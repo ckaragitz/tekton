@@ -2315,6 +2315,26 @@ def _apply_family_viewer_law(els, project_view_id: int) -> None:
     """
     _apply_family_view_exclusions(els)
     for e in els:
+        if e.class_name == "DBView3d":
+            # THE FAMILY 3D-VIEW LAW (owner: geometry only visible in a
+            # NEWLY CREATED {3D} view).  Measured donor 463 vs ours:
+            #   * m_pDetailDrawOrderMgr is a DrawOrderMgr3dFamily -- the
+            #     FAMILY draw-order manager; we shipped the project's
+            #     DrawOrderMgr, i.e. the wrong draw pass for a famdoc;
+            #   * a family 3D view carries NO light scheme (-1), no
+            #     cellList and no param-value-set element.
+            dom = e.obj.get("m_pDetailDrawOrderMgr")
+            if isinstance(dom, dict) and dom.get("ptr_class") == "DrawOrderMgr":
+                from ..genesis.types import blank_object as _blank
+                try:
+                    dom["ptr_class"] = "DrawOrderMgr3dFamily"
+                    dom["value"] = _blank("DrawOrderMgr3dFamily")
+                except Exception:                      # pragma: no cover
+                    pass
+            e.obj["m_lightSchemeId"] = -1
+            e.obj["m_cellList"] = None
+            e.obj["m_pParamValueSetElementId"] = None
+            continue
         if e.class_name == "Viewer3d":
             # THE 3D CROP LAW (owner report: "i see nothing in revit" -- an
             # EMPTY 3D view with a white rectangle in it).  The project
