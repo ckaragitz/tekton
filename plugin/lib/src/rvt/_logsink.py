@@ -29,8 +29,7 @@ delivered file role.  One law for every caller (issues #373 / #424; callers:
 Stdlib only and a LEAF on purpose: ``tools/rvt_job.py`` imports it on its
 ``--json`` hot path, and importing anything under ``rvt.frontdoor`` would run
 that package's ``__init__`` (~47 ms / +59 modules on a cloud VM, measured in
-``docs/inbox/frontdoor-stagelog.md``).  ``rvt.frontdoor.stagelog`` re-exports
-:func:`stage_stdout` for the front-door modules that already name it.
+``docs/inbox/frontdoor-stagelog.md``).
 """
 from __future__ import annotations
 

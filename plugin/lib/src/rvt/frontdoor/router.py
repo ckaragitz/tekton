@@ -43,7 +43,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from . import famspec as FS
 from . import matrix as MX
 from .base import repo_root
-from .stagelog import stage_stdout
+from .._logsink import stage_stdout
 
 __all__ = ["RouteError", "RouteResult", "route", "route_ids"]
 
@@ -177,7 +177,7 @@ def _stage_stdout(res: RouteResult, out_dir: str, quiet: bool):
     """``quiet``: the stages' stdout streams into ``<out_dir>/route.log``,
     named in ``res.manifest_paths``; an unwritable ``out_dir`` costs the log
     (ONE caveat -- the router's non-fatal channel, where build degradations
-    already land), never the stages (:mod:`rvt.frontdoor.stagelog`, #373)."""
+    already land), never the stages (:mod:`rvt._logsink`, #373)."""
     return stage_stdout(out_dir, "route.log", quiet=quiet,
                         on_open=lambda p: res.manifest_paths.__setitem__("route.log", p),
                         on_degrade=res.caveats.append)

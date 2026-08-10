@@ -37,7 +37,7 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Optional, Tuple
 
 from .base import repo_root
-from .stagelog import stage_stdout
+from .._logsink import stage_stdout
 
 __all__ = ["EditParseError", "EditSpec", "parse_edit_spec", "editables",
            "resolve_ref", "load_job_module", "job_stderr_joins_stdout", "run_edit"]
@@ -373,7 +373,7 @@ def run_edit(rvt_path: str, spec: EditSpec, out_dir: str, *,
     The job runner writes ``<out>.manifest.json`` / ``<out>.validation.json``;
     the front door's own manifest wraps them.  ``quiet``: the runner's
     progress AND its stderr verdict line stream into ``<out_dir>/edit.log``
-    (:mod:`rvt.frontdoor.stagelog`, the build's ``build.log`` shape) and
+    (:mod:`rvt._logsink`, the build's ``build.log`` shape) and
     ``log_path`` names it; an unwritable ``out_dir`` costs the log (one
     ``degradations`` note), never the edit.
     """
