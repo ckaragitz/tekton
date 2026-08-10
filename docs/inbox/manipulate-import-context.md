@@ -396,3 +396,127 @@ files delivered, wall 5.7 s.
   `tools/sync_plugin.py` synced 9 then 6 files, `--check` clean; `plugin/scripts/validate_plugin.py`
   PASS (25 assertions); `tools/dev/check_portable_paths.py` ok (2943 paths). Follow-ups
   filed: #547, #548, #551.
+
+
+## eng #548 — 2026-08-10 — the last residual of the class: `rvt.estorage` walks records with the walker in force
+
+Stream: eng #548 (issue #548, `Refs #467 #455`; branch `cam/548-estorage-ids32` from `main` @ 7d04c82,
+after PR #554 / #467 had merged as 074af6b). Written in eng #548's voice; the sections above are untouched.
+
+### What was built (one variable)
+
+`src/rvt/estorage.py:89-92` no longer takes a module-level by-value copy of `iter_records`
+(`from .objects import (…, iter_records, field_key)` → the same import without `iter_records`, plus
+`from . import objects as O`); its four seq-102 walks (`harvest_token_guids` :534, `es_report` :1050,
+`verify_document` :1172, `collect_entity_closures` :1249) call `O.iter_records(seg, 102)` — a read
+THROUGH `rvt.objects` at CALL time, the route the issue preferred, so `records32.ids32()`'s by-name
+rebind of `objects.iter_records → iter_records32` now reaches the Extensible-Storage entity walk of a
+≤ 2023 file. Nothing under `src/rvt/versions/**` changed and no `records32._patch_table` row became
+redundant (estorage was never a listed holder; the eight `iter_records` holder rows are exactly as #551
+found them). `tests/test_framing_by_name.py:271-272`: `KNOWN_RESIDUAL_IDS32` is now the empty set (the one
+allow-listed pair `("src/rvt/estorage.py", "iter_records")` is gone), so #467's live AST source law covers
+`estorage.py` like every other engine module. Read path only: no byte any route writes can change.
+
+### Evidence (numbers)
+
+* **New doors, red on `main`, green on the head** — `tests/test_estorage_ids32.py` (3 tests, synthetic
+  32/64-bit seq-102 segments packed in the file from `docs/writer/format-2023.md`; no Autodesk bytes;
+  in the shard via `tests/ci_shard.d/548-estorage-ids32.txt`):
+  1. binding: `"iter_records" not in vars(rvt.estorage)`; `estorage.O.iter_records is iter_records32`
+     inside `ids32()` and `is objects.iter_records` before/after;
+  2. behaviour through the estorage entry point `harvest_token_guids(seg, decoder)` with a recording
+     decoder: under `ids32()` a 32-bit segment visits exactly the `(class_id, payload)` pairs
+     `iter_records32` yields (`[(0x0576, b"\x01\x02\x03"), (0x0819, b"")]`, sentinel skipped); outside
+     the context the same bytes do NOT (matched fail half — the 64-bit walker yields `[]` on them), and a
+     64-bit segment at rest yields the pair list;
+  3. the #455 fresh-interpreter shape: a subprocess whose FIRST `import rvt.estorage` happens inside
+     `ids32()` walks the 32-bit segment inside, and after exit walks the 64-bit segment == this
+     process's in-context-free result and the 32-bit one != it. On `main`'s `estorage.py` that
+     subprocess reports `after64 == []` — the by-value copy taken inside the context froze
+     `iter_records32` for the life of the process (no engine module imports `rvt.estorage` at module
+     level, so a first import inside `reading32` was a real possibility, e.g. `python -m rvt.estorage`
+     on a 2023 file once #566 lands); with the head it is `[[1398,"010203"],[2073,""]]`.
+  With `main`'s `src/rvt/estorage.py` stashed back in: `test_estorage_ids32.py` **3 failed** +
+  `test_framing_by_name.py::test_every_module_level_copy_of_an_ids32_patched_name_is_a_listed_holder`
+  **failed** (offender `src/rvt/estorage.py:90 … import iter_records (holders: [… rvt.regdiff])`);
+  on the head all green (below).
+* **Identity, head vs `main`, the one door that exercises estorage** (`grep -rn estorage src tools skills
+  plugin/skills tests` → only `src/rvt/estorage.py` itself, its CLI, and `tests/test_estorage*.py`;
+  `import rvt.validate, rvt.frontdoor` leaves `rvt.estorage` out of `sys.modules`, so `rvt_validate` /
+  the front door cannot move): `python -m rvt.estorage <base> --report --walk --roundtrip`, entered under
+  each base's own release (`with versions.reading(path)`, scratch driver — the bare CLI does not do that
+  yet, filed as **#566**), stdout+stderr with the `in N.NNs` timing masked:
+  `G_ABPD.rvt` (2026) **byte-identical** (md5 040f21a174b6…; 3102 host elements, 2 schemas
+  `AREXContentGenerator` 6 tracked / `DaylightingAnalysisInfo` 1 tracked, walk host 1 `DataStorage`,
+  round-trip examined 1 / entities 1 / clean 1 / undecodable 0 / byte-exact 1);
+  `G_ABPD_2025.rvt` **byte-identical** (md5 dff650de68d5…; 2 schemas, 0 ES records, exit 0);
+  `G_ABPD_2024.rvt` identical **except three traceback line numbers** (+1 from the added import line):
+  both sides exit 1 in `schemas() → locate_schema_map` with the pre-existing
+  `ESSchemaError: archive schema lacks 'std::pair< GUIDvalue, SchemaUsageInfo >'`, i.e. before any record
+  walk — also in #566's DONE.
+* `tools/rvt_validate.py` on the three bundled bases at the head: `G_ABPD` VALID, warnings=1 (the known
+  `DataStorage x1` ES decoder-gap warning, element 1382860 — unchanged), `G_ABPD_2025` VALID warnings=0,
+  `G_ABPD_2024` VALID warnings=0 — necessarily identical to `main` (estorage is not on that import path).
+
+### Follow-ups (searched first: "estorage CLI own release", "python -m rvt.estorage" → only #548)
+
+* **#566** (new, `Refs #548`, P2 · area:engine · ready · good-first-pick): `python -m rvt.estorage PATH`
+  enters the file's own release (2025/2024 bases die on `unexpected Partitions header: v=9 cls=0x37b`
+  today) and reports an honest empty catalog on the 2024 base instead of the `ESSchemaError` traceback.
+* Nothing for #551: no holder row is made redundant by this change.
+
+### /simplify and /verify (eng #548)
+
+* `/simplify` (four review angles on the diff): reuse — clean (test helpers come only from
+  `conftest.py` by convention; `test_records32`'s `rec32` is 32-bit only and importing that module would
+  drag six engine modules into the fresh-interpreter door; no stub decoder exists to reuse); efficiency —
+  clean (`O.iter_records` is one attribute read per walk, ~3 ns; `rvt.objects` was already imported by
+  the next line; the one subprocess costs ~0.1 s); simplification/altitude — applied: one `seg(id_fmt)`
+  builder + `SEG32`/`SEG64` constants instead of two copy-pasted builders, the tautological
+  `ES.O is O …` conjuncts and the derivable fourth assertion of the subprocess door dropped, the import
+  trailer in `estorage.py` cut to sibling density, the allow-list comment stripped of history narration,
+  and the child asserts `"rvt.estorage" not in sys.modules` before its door so "FIRST import" is checked,
+  not assumed. **Not applied, noted for the file's next owner (#551 reworks the holder rows and will touch
+  this test):** two reviewers would delete the now-empty `KNOWN_RESIDUAL_IDS32` constant *and* its
+  `not in` clause (`tests/test_framing_by_name.py:272,294`, 3 lines) so the source law is absolute; kept
+  here because the issue's DONE is literally "becomes the empty set and the test stays green" and the
+  brief granted this stream that single line of #467's file. Patch, for whoever takes it:
+  delete `:271-272` and the `and (rel.replace(os.sep, "/"), a.name) not in KNOWN_RESIDUAL_IDS32` conjunct.
+* `/verify` on the final tree: the tool this diff reaches is `rvt.estorage`'s own CLI —
+  `python -m rvt.estorage plugin/assets/genesis/G_ABPD.rvt --report --walk` → 2 schemas, walk host 1
+  `DataStorage`, exit 0; the scratch own-release driver on `G_ABPD` / `G_ABPD_2025` → output byte-identical
+  to `main`'s (re-checked post-simplify with `cmp`). Because `src/` changed: `tools/sync_plugin.py`
+  (synced `plugin/lib/src/rvt/estorage.py`, zip rebuilt 5288 KB), then a **bare unzip of
+  `tekton-plugin.zip` with system `python3`**: `skills/tekton-author/scripts/_bootstrap.py go author
+  --prompt "an electrical room with 6 panels" --out out/j1 --json` → `tekton: READY | python 3.11.15 |
+  engine bundled | genesis verified (Revit 2026) | …`, exit 0, `result.ok: true`,
+  `PROOF-ONLY (self-checks PASS …)`, 4.4 s wall (estorage is not on that path; this only shows the
+  shipped mirror still boots).
+
+## BRANCH STATE (eng #548)
+
+* Branch `cam/548-estorage-ids32` from `main` @ 7d04c82, rebased onto 6250424 (#563, no file overlap) before
+  the PR opened — stream-local files + #563's `test_release_ctx_refusal.py` re-run there: 57 passed / 1 xfailed,
+  `sync_plugin.py --check` clean; PR body starts `Closes #548`.
+* Files written — source: `src/rvt/estorage.py` (`from . import objects as O`; `iter_records` dropped
+  from the `from .objects import (…)` list; four call sites → `O.iter_records(seg, 102)`; nothing else);
+  tests: `tests/test_estorage_ids32.py` (new, 3 tests), `tests/ci_shard.d/548-estorage-ids32.txt` (new
+  drop-in), `tests/test_framing_by_name.py` (`KNOWN_RESIDUAL_IDS32` → empty set + its comment; nothing
+  else); this record (this section only). Generated mirror re-synced (`tools/sync_plugin.py`):
+  `plugin/lib/src/rvt/estorage.py`.
+* Not touched: `src/rvt/versions/**` (no table row added or removed), every NO-GO / FENCED / hot file
+  of the brief, `tests/ci_shard.txt`, `tests/conftest.py`.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer — read path only, no byte any
+  route writes can change (2026/2025 estorage door byte-identical to `main`; the three bases validate as
+  before: VALID / warnings 1 (the known DataStorage ES gap) / 0 / 0).
+* Gates on the final head (`RVT_SKIP_LARGE=1 -p no:cacheprovider`): `tests/test_estorage_ids32.py`
+  3 passed (on `main`'s `estorage.py`: 3 failed) + `tests/test_framing_by_name.py` 10 passed (on `main`'s
+  `estorage.py` with the empty allow-list: 1 failed); stream-local + neighbours
+  (`test_estorage_ids32 test_framing_by_name test_records32 test_manipulate_import_context
+  test_shard_list`) 72 passed / 1 xfailed, and `tests/test_estorage.py` 12 skipped (sample-backed, as on
+  a fresh clone); **whole merged CI shard** (`python3 tools/dev/shard_list.py --print`, 93 files incl.
+  the new drop-in) → **1900 passed, 134 skipped, 3 xfailed in 387 s** on the final tree (an earlier run
+  started before the /simplify edits read 1899 passed / 1 failed only because the test file was renamed
+  under the running child process — `T.seg32` → `T.SEG32`; re-run clean); `tools/sync_plugin.py` synced
+  1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2960 paths). Follow-up filed: #566.

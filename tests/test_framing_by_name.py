@@ -268,8 +268,8 @@ def test_no_by_value_copy_of_a_block_framing_name_outside_partitions():
     assert offenders == [], "by-value block-framing copies:\n" + "\n".join(offenders)
 
 
-#: outside #467's territory; filed as #548 (read-only ES walk) -- empties there
-KNOWN_RESIDUAL_IDS32 = {("src/rvt/estorage.py", "iter_records")}
+#: (rel_path, name) pairs knowingly exempt from the law below -- none
+KNOWN_RESIDUAL_IDS32: set = set()
 
 
 def test_every_module_level_copy_of_an_ids32_patched_name_is_a_listed_holder():

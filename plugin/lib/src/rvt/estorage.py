@@ -87,8 +87,9 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Optional
 
 from .encode import ObjectEncoder, Writer, EncodeError, _Pend
+from . import objects as O                      # O.iter_records at call time: ids32() rebinds it by name (#548)
 from .objects import (ObjectDecoder, Reader, DecodeError, DecodedObject,
-                      _Pending, _State, iter_records, field_key)
+                      _Pending, _State, field_key)
 from .schema import Schema
 
 ROOT = os.environ.get("TEKTON_ROOT") or os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))  # repo root; env TEKTON_ROOT overrides
@@ -530,7 +531,7 @@ def harvest_token_guids(seg: bytes, decoder: ObjectDecoder, limit: Optional[int]
     """
     out: Counter = Counter()
     n = 0
-    for r in iter_records(seg, 102):
+    for r in O.iter_records(seg, 102):
         if r.elem_id < 0:
             continue
         o = decoder.decode_record(r.class_id, r.payload)
@@ -1046,7 +1047,7 @@ def es_report(doc, catalog: Optional[ESSchemaCatalog] = None,
     walked: dict = defaultdict(lambda: {"classes": Counter(), "ids": [], "embedded": 0,
                                         "nested": Counter()})
     if walk:
-        for r in iter_records(doc.seg[102], 102):
+        for r in O.iter_records(doc.seg[102], 102):
             if r.elem_id < 0:
                 continue
             o = dec.decode_record(r.class_id, r.payload)
@@ -1168,7 +1169,7 @@ def verify_document(doc, catalog: Optional[ESSchemaCatalog] = None,
     by_schema: Counter = Counter()
     by_class: Counter = Counter()
     n = 0
-    for r in iter_records(seg, 102):
+    for r in O.iter_records(seg, 102):
         if r.elem_id < 0:
             continue
         if ids is not None:
@@ -1245,7 +1246,7 @@ def collect_entity_closures(doc, catalog: Optional[ESSchemaCatalog] = None,
     gbs = [guid_bytes(g) for g in cat.by_guid]
     out: list = []
     seg = doc.seg[102]
-    for r in iter_records(seg, 102):
+    for r in O.iter_records(seg, 102):
         if r.elem_id < 0:
             continue
         if ids is not None and r.elem_id not in ids:
