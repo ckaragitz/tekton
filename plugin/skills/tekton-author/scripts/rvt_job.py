@@ -49,8 +49,11 @@ STATUS GATE (recorded honestly, not an exit failure unless
     the reason names the open TRACKER gates G2/G3 + the residue; on an
     Autodesk sample everything inherited is the sample's.  Either way the
     honest status today is "PROOF-ONLY, NOT-DELIVERABLE" -- a LABEL, the
-    file is always delivered.  Only a base + build that pass the genesis
-    provenance check flip the status to DELIVERABLE.
+    file is always delivered.  The status flips to DELIVERABLE only on a
+    full G1 CERTIFICATION (all four ledger layers ran and none blocks --
+    never the element-only ``passes``) AND counsel's G3 clearance
+    (``G3_CLEARED``, #23); a zero-blocker census with G3 open is still
+    PROOF-ONLY (PG5).
 
 Exit codes: 0 = all hard gates passed (status may still be PROOF-ONLY);
 2 = planning / seed / spec failure; 3 = structural; 4 = validation;
@@ -422,6 +425,20 @@ def classify_base(base_path: Optional[str], base_doc: Any = None, *,
 
 #: TRACKER.md P0 gate G3 is a HUMAN gate (counsel) no instrument can read
 G3_COUNSEL = "G3 counsel (#23: C1 author string, C4 the two shipped schema corpora, C5 footer token) is a human gate, open"
+#: ... so its clearance is an explicit flag owned by #23: flipped only by the
+#: PR that records counsel's answer (and rewords ``G3_COUNSEL``), never by a
+#: ledger reading.  Until then NOTHING is labelled DELIVERABLE (PG5).
+G3_CLEARED = False
+
+
+def deliverable_now(g1: Dict[str, Any]) -> bool:
+    """The ONE condition under which the status LABEL flips to DELIVERABLE:
+    a full G1 certification (``certifies_G1``: all four ledger layers ran,
+    none blocks -- an element-only or element+identity ``passes`` is not
+    that, e.g. a zero-blocker census the day #21/#19 retire the residue and
+    re-mint the GUIDs) AND G3 cleared.  Everything short of it stays
+    PROOF-ONLY, NOT-DELIVERABLE; the file is delivered either way (rule 1)."""
+    return bool(g1.get("certifies_G1")) and G3_CLEARED
 
 
 def _pinned_reason(lin: Any, g1: Dict[str, Any], totals: Dict[str, int]) -> str:
@@ -521,8 +538,10 @@ def provenance_gate(out_path: str, base_path: Optional[str], *,
       nor descends from a pin: ledgered like a sample (nothing can be presumed
       ours), worded as unattributed.
 
-    G1 PASSES only when NO Autodesk-derived expression remains; the status is
-    a LABEL in the manifest -- the file is always delivered (hard rule 1).
+    G1 PASSES only when NO Autodesk-derived expression remains, and even then
+    the label flips to DELIVERABLE only under :func:`deliverable_now` (full
+    G1 certification AND G3 cleared); the status is a LABEL in the manifest
+    -- the file is always delivered (hard rule 1).
     """
     gate: Dict[str, Any] = {"status": "UNKNOWN", "deliverable": False,
                             "base": _abs(base_path)}
@@ -563,10 +582,13 @@ def provenance_gate(out_path: str, base_path: Optional[str], *,
         gate["provenance_totals"] = rep.get("provenance_totals")
         gate["created_elements"] = rep.get("created_elements")
         gate["modified_elements"] = rep.get("modified_elements")
-        if g1.get("passes"):
+        if deliverable_now(g1):
             gate["status"] = "DELIVERABLE"
             gate["deliverable"] = True
         else:
+            # incl. a G1 that PASSES on the layers run: the sentence then ends
+            # "G1 ledger: PASS (... layer(s) ONLY) — NOT a G1 certification"
+            # beside the open G3 -- the label stays PROOF-ONLY (PG5)
             gate["status"] = "PROOF-ONLY, NOT-DELIVERABLE"
             gate["reason"] = (_pinned_reason(lin, g1, rep.get("provenance_totals") or {})
                               if lin is not None else _gate_reason(kind, g1.get("verdict")))

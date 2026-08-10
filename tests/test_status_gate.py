@@ -23,13 +23,21 @@ Asserted here:
     is classified descends-from-pinned-genesis (byte descent test) and
     ledgered against the pin with the pin's census (same totals in kind as
     the build it edits, the reason names the pin), residue slots edited
-    upstream stay derived, and a file with no byte descent keeps user-base.
+    upstream stay derived, and a file with no byte descent keeps user-base;
+  * the hardening of issue #303: the census tool's laws ("changed => landed"
+    per rung, the phase-2 deletion reconciliation, chain == byte truth) void
+    the census when broken (exit 1, nothing written); the DELIVERABLE label
+    needs a CERTIFIED G1 and G3 cleared, never `g1.passes` alone; and a
+    STALE / UNAVAILABLE census is SAID in the front door's manifest.json +
+    MANIFEST.md instead of reading as a plain user-supplied base.
 """
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import os
+import re
 import shutil
 import sys
 
@@ -63,12 +71,29 @@ def census_tool():
 
 
 def _pinned(year: int) -> str:
+    """The certified PINNED base of ``year`` -- or a clean skip: the bundle may
+    be absent, and ``$RVT_GENESIS_BASE`` may point the resolver at a firm's
+    own (non-pinned) base, whose authorship these tests cannot speak to."""
     try:
         rb = B.resolve_base(target_release=year)
     except B.BaseError as e:                          # pragma: no cover - bundle absent
         pytest.skip(f"pinned base for {year} unavailable: {e}")
-    assert rb.pinned and rb.certified, year
+    if not (rb.pinned and rb.certified):              # pragma: no cover - override in force
+        pytest.skip(f"Revit {year}: the resolved base is not the certified pin "
+                    f"({rb.path}; $RVT_GENESIS_BASE / --base override) -- census tests are of the pin only")
     return rb.path
+
+
+@pytest.fixture(scope="module")
+def built(census_tool):
+    """(census, audit) from ONE deterministic un-patched ``build_census`` --
+    skipping, not erroring, when a base override is in force (the tool
+    refuses anything but the pins, by design)."""
+    audit: dict = {}
+    try:
+        return census_tool.build_census(audit), audit
+    except B.BaseError as e:                          # pragma: no cover - override in force
+        pytest.skip(str(e))
 
 
 CERTIFIED_YEARS = [y for y in B.PIN.release_years() if B.release_status(y)["certified"]]
@@ -77,12 +102,12 @@ CERTIFIED_YEARS = [y for y in B.PIN.release_years() if B.release_status(y)["cert
 # ---------------------------------------------------------------------------
 # 1. the census asset
 # ---------------------------------------------------------------------------
-def test_census_asset_is_current(census_tool):
+def test_census_asset_is_current(census_tool, built):
     """tools/genesis_census.py check: the shipped JSON rebuilds byte-identically
     from the tracked evidence (re-pin without rebuilding => red here)."""
-    built = census_tool.dumps(census_tool.build_census())
     with open(C.CENSUS_PATH) as fh:
-        assert fh.read() == built, "genesis_census.json is STALE — run tools/genesis_census.py build"
+        assert fh.read() == census_tool.dumps(built[0]), \
+            "genesis_census.json is STALE — run tools/genesis_census.py build"
 
 
 def test_census_covers_every_certified_pin():
@@ -99,17 +124,110 @@ def test_census_covers_every_certified_pin():
         assert c.never_authored_ids <= c.residue_ids
 
 
-def test_2026_chain_method_agrees_with_byte_ground_truth(census_tool):
+def test_2026_chain_method_agrees_with_byte_ground_truth(built):
     """The rung-chain derivation reproduces residue_c/census.json (seq-102
     compare vs the K4 ancestor) id for id: 422 identical, 11 never authored."""
     c = C.for_file(_pinned(2026))
     assert c is not None and c.base_id == "G_ABPD"
-    raw = census_tool.build_census()["bases"][c.sha256]
+    raw = built[0]["bases"][c.sha256]
     cc = raw["cross_check"]
     assert cc["agree"] is True
     assert cc["truth_identical"] == cc["chain_identical"] == len(c.residue_ids) == 422
     assert len(c.never_authored_ids) == 11 and c.landed_but_identical == 411
     assert c.by_disposition["MACHINERY"] == 349 and sum(c.by_disposition.values()) == 422
+
+
+# ---------------------------------------------------------------------------
+# 1b. the census tool's LAWS (issue #303): broken evidence voids the census
+# ---------------------------------------------------------------------------
+def test_census_laws_hold_and_reconcile_on_every_pin(census_tool, built):
+    """`check` exits 0 today: "changed => landed" holds on all rung reports of
+    the three chains, and every id a rung changed that is no longer aboard the
+    pin is a recorded phase-2 deletion (2026: 2,700 = 2,680 + 20; 2025:
+    2,392 = 2,391 + 1; 2024: 2,356 = 2,355 + 1) -- the count-level truth for
+    the two bases that have no byte-ground-truth census."""
+    census, audit = built
+    assert sorted(audit) == sorted(b["id"] for b in census["bases"].values()) == ["G_ABPD", "G_ABPD_2024", "G_ABPD_2025"]
+    for base_id, rec in audit.items():
+        assert rec["changed_in_chain"] == rec["changed_aboard"] + len(rec["changed_then_deleted"]), (base_id, rec)
+        assert rec["landed_in_chain"] >= rec["changed_in_chain"] > 2000 and rec["phase_2_deleted"] >= 17
+        b = next(v for v in census["bases"].values() if v["id"] == base_id)
+        assert b["ours_by_composition"] == rec["changed_aboard"]           # "ours" == changed-and-aboard
+    assert [len(audit[k]["changed_then_deleted"]) for k in ("G_ABPD", "G_ABPD_2025", "G_ABPD_2024")] == [20, 1, 1]
+    assert census_tool.main(["check"]) == 0
+
+
+@pytest.fixture(scope="module")
+def real_index(census_tool):
+    """The tracked evidence, globbed + parsed ONCE for every doctored variant."""
+    return census_tool.ReportIndex()
+
+
+def _doctored_index(real, mutate):
+    """A ReportIndex class whose parsed docs `mutate(index)` tampers with -- a
+    deep copy of the once-parsed real index; the tracked files are never touched."""
+
+    class Doctored(type(real)):                            # type: ignore[misc]
+        def __init__(self, *a, **kw):                      # no re-glob: copy, then tamper
+            self.docs = copy.deepcopy(real.docs)
+            self.by_out, self.truth = dict(real.by_out), dict(real.truth)
+            mutate(self)
+    return Doctored
+
+
+def _inplace_docs(index):
+    return [d for d in index.docs.values() if d.get("kind") == "inplace" and d.get("byte_delta")]
+
+
+def _stray_change(index):          # a rung "changed" a record its constructor never landed
+    for d in _inplace_docs(index):
+        landed = {int(r["slot"]) for r in d.get("landed_slots") or [] if "slot" in r}
+        bd = d["byte_delta"]
+        key = "records_changed_ids" if "records_changed_ids" in bd else "changed_ids"
+        if isinstance(bd.get(key), list) and landed:
+            bd[key] = list(bd[key]) + [max(landed) + 999_999]
+
+
+def _unexpected_flag(index):        # the rung's own certification recorded a stray change
+    for d in _inplace_docs(index):
+        d["byte_delta"]["unexpected_changed_ids"] = [424242]
+
+
+def _assertion_fails(index):        # the rung's byte_delta assertion did not hold
+    for d in _inplace_docs(index):
+        d["byte_delta"]["assertion_holds"] = False
+        d["byte_delta"]["problems"] = ["synthetic"]
+
+
+def _truth_loses_one(index):         # the byte-ground-truth census and the chain now differ by one id
+    for rp in index.truth.values():
+        index.docs[rp]["elements"] = index.docs[rp]["elements"][1:]
+
+
+@pytest.mark.parametrize("mutate,needle", [
+    (_stray_change, "did not land"),                                  # the id sets themselves
+    (_unexpected_flag, "unexpected_changed_ids = [424242]"),          # the rung report's own record
+    (_assertion_fails, "assertion_holds is False"),
+    (_truth_loses_one, "G_ABPD (2026): CHAIN vs BYTE TRUTH DISAGREE -- the chain says 422 identical"),
+])
+def test_census_tool_refuses_evidence_that_breaks_the_law(census_tool, real_index, monkeypatch, tmp_path,
+                                                          capsys, mutate, needle):
+    """'changed => landed by our constructor' (checked on the id sets AND on
+    each rung report's own unexpected_changed_ids / assertion_holds) and
+    'chain == byte ground truth where one exists' are LAWS of the tool: a
+    violation derives no census, `build` writes NOTHING and `check` exits 1 --
+    so the shipped asset stays the last census the evidence supported (a
+    changed pin then reads STALE in the gate = the conservative ledger)."""
+    _pinned(2026)
+    monkeypatch.setattr(census_tool, "ReportIndex", _doctored_index(real_index, mutate))
+    with pytest.raises(census_tool.LawViolation) as ei:
+        census_tool.build_census()
+    assert needle in str(ei.value)
+    out = tmp_path / "census.json"
+    assert census_tool.main(["build", "--out", str(out)]) == 1
+    assert not out.exists()                                          # nothing written
+    assert "LAW VIOLATED, no census derived (nothing written)" in capsys.readouterr().err
+    assert census_tool.main(["check"]) == 1
 
 
 def test_census_applies_only_to_exact_pinned_bytes(tmp_path):
@@ -225,6 +343,115 @@ def test_census_module_unavailable_is_said_in_the_gate(job, monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+# 2b. the DELIVERABLE flip (issue #303): certified G1 AND G3 cleared, only
+# ---------------------------------------------------------------------------
+def _passing_g1(certifies: bool):
+    """A gate_G1 stub that PASSES with zero blockers -- certified or not."""
+    layers = ["elements", "identity"] + (["streams", "strings"] if certifies else [])
+    verdict = ("PASS — G1 CERTIFIED: …" if certifies else
+               "PASS (elements+identity layer(s) ONLY) — NOT a G1 certification: streams, strings not ledgered")
+    return lambda report, strict=False: {"passes": True, "certifies_G1": certifies,
+                                         "layers": layers, "verdict": verdict, "blocking": []}
+
+
+def test_deliverable_flip_needs_certified_g1_and_g3_cleared(job, monkeypatch):
+    """The day #21/#19 zero the residue and re-mint the GUIDs, the element +
+    identity ledger will PASS with 0 blockers -- and the label must STILL read
+    PROOF-ONLY: an element-only pass is not a G1 certification, and G3
+    counsel (#23) is a human gate the flag `G3_CLEARED` records.  Only a
+    certified G1 with G3 cleared flips the LABEL; the file is delivered in
+    every case (hard rule 1 -- the gate never touches it)."""
+    assert job.G3_CLEARED is False                                    # owned by #23, open today
+    for certifies, g3, flips in ((False, False, False), (True, False, False),
+                                 (False, True, False), (True, True, True)):
+        monkeypatch.setattr(job, "G3_CLEARED", g3)
+        assert job.deliverable_now({"passes": True, "certifies_G1": certifies}) is flips, (certifies, g3)
+    monkeypatch.setattr(job, "G3_CLEARED", False)
+
+    path = _pinned(2026)
+    P = job._provenance_mod()
+    monkeypatch.setattr(P, "gate_G1", _passing_g1(certifies=False))
+    with V.reading(path):
+        g = job.provenance_gate(path, path)                           # a zero-blocker census, G3 open
+    assert g["g1"]["passes"] is True and g["g1"]["blocking"] == []
+    assert g["status"] == "PROOF-ONLY, NOT-DELIVERABLE" and g["deliverable"] is False
+    assert "NOT a G1 certification" in g["reason"] and "G3 counsel (#23" in g["reason"]
+    assert "is a human gate, open" in g["reason"] and "PROOF-ONLY is a label: the file is delivered" in g["reason"]
+    assert os.path.isfile(path)                                       # nothing withheld, ever
+
+    monkeypatch.setattr(P, "gate_G1", _passing_g1(certifies=True))
+    monkeypatch.setattr(job, "G3_CLEARED", True)                      # the flag IS the switch (#23's PR)
+    with V.reading(path):
+        g = job.provenance_gate(path, path)
+    assert g["status"] == "DELIVERABLE" and g["deliverable"] is True
+
+
+# ---------------------------------------------------------------------------
+# 2c. a STALE / UNAVAILABLE census REACHES the front door's manifests (#303)
+# ---------------------------------------------------------------------------
+def _walls_job(tmp_path, sub: str):
+    import rvt.frontdoor as FD
+    r = FD.author(prompt=WALLS_PROMPT, out=str(tmp_path / sub), no_handoff=True)
+    assert r.ok, (r.status, r.errors)
+    with open(os.path.join(str(tmp_path / sub), "MANIFEST.md")) as fh:
+        return r.manifest, fh.read()
+
+
+def test_census_unavailable_reaches_the_front_door_manifest(job, monkeypatch, tmp_path):
+    """The product path (frontdoor author --prompt): if the census lookup
+    cannot import, base_kind falls back to the name heuristic (user-base for
+    our own pin) -- and manifest.json / MANIFEST.md SAY the census was
+    UNAVAILABLE (status_gate.census, a build degradation, the base-authorship
+    line) instead of presenting our pin as a plain user-supplied base.  The
+    label stays PROOF-ONLY and the file is delivered."""
+    _pinned(2026)
+    monkeypatch.setitem(sys.modules, "rvt_job", job)                  # the module ifc_intent.status_gate imports
+    monkeypatch.setattr(job, "_census_mod", lambda: None)
+    monkeypatch.setitem(job.OPT.errors, "rvt.frontdoor.census", "ImportError: simulated")
+    man, md = _walls_job(tmp_path, "u")
+    assert os.path.isfile(man["build"]["files"]["combined"]["path"])   # delivered
+    sg = man["build"]["status_gate"]
+    assert sg["status"] == "PROOF-ONLY, NOT-DELIVERABLE" and sg["deliverable"] is False
+    assert sg["base_kind"] == "user-base" and "residue" not in sg   # the fail-safe fallback ...
+    assert sg["census"].startswith("UNAVAILABLE (ImportError: simulated)")   # ... SAID, not silent
+    deg = [d for d in man["build"]["degradations"] if "authorship census UNAVAILABLE" in d]
+    assert len(deg) == 1 and "conservative reading" in deg[0] and "hard rule 1" in deg[0]
+    assert "census **UNAVAILABLE (ImportError: simulated)" in md
+    assert "**degradation**: status-gate authorship census UNAVAILABLE" in md
+    assert "base authorship: **user-base** (no census" not in md       # never the plain user-base line
+    assert man["status"].startswith("PROOF-ONLY")
+    assert sg["provenance_totals"].get("autodesk-sample", 0) > 3000    # over-states, never under-states
+
+
+def test_stale_census_reaches_the_front_door_manifest(monkeypatch, tmp_path):
+    """A re-pin without `tools/genesis_census.py build`: the gate says STALE
+    and so do manifest.json (status_gate.census + a degradation) and
+    MANIFEST.md; base_kind stays pinned-composed-genesis."""
+    _pinned(2026)
+    monkeypatch.setattr(C, "lookup", lambda p: ("G_ABPD", None) if p and os.path.isfile(p) else (None, None))
+    man, md = _walls_job(tmp_path, "s")
+    sg = man["build"]["status_gate"]
+    assert sg["base_kind"] == "pinned-composed-genesis" and "residue" not in sg
+    assert sg["census"].startswith("STALE") and "genesis_census.py build" in sg["census"]
+    assert any("authorship census STALE" in d for d in man["build"]["degradations"])
+    assert "census **STALE" in md and "census asset STALE" in sg["reason"]
+    assert sg["status"] == "PROOF-ONLY, NOT-DELIVERABLE"
+
+
+def test_applied_census_adds_no_note(tmp_path_factory):
+    """The normal case (census applied, `residue` present): no census note,
+    no degradation about it -- manifest.json carries the residue block."""
+    from rvt.frontdoor.manifest import authorship_census_note
+    c, _e = _chain(2026, tmp_path_factory)
+    sg = c.manifest["build"]["status_gate"]
+    assert sg["base_kind"] == "pinned-composed-genesis" and sg["residue"]["base_id"] == "G_ABPD"
+    assert "census" not in sg and authorship_census_note(sg) is None
+    assert not any("authorship census" in d for d in c.manifest["build"]["degradations"])
+    assert authorship_census_note({"census": "STALE: x"}).startswith("status-gate authorship census STALE: x")
+    assert authorship_census_note(None) is None and authorship_census_note({}) is None
+
+
+# ---------------------------------------------------------------------------
 # 3. end to end: our created content on our base is OURS
 # ---------------------------------------------------------------------------
 def _catalog_ok() -> bool:
@@ -255,9 +482,10 @@ def test_frontdoor_prompt_job_gate_counts_only_the_residue(tmp_path):
     assert sg["base_kind"] == "pinned-composed-genesis"
     assert sg["base_is_autodesk_sample"] is False
     assert sg["status"] == "PROOF-ONLY, NOT-DELIVERABLE"
-    assert sg["residue"]["base_id"] == "G_ABPD"
+    pin = C.for_file(_pinned(2026))                     # expected numbers come from the census itself
+    assert sg["residue"]["base_id"] == pin.base_id == "G_ABPD" and "census" not in sg
     tot = sg["provenance_totals"]
-    assert tot["ours-composed"] == 2680 and tot["autodesk-sample"] == 422
+    assert tot["ours-composed"] == pin.ours_by_composition and tot["autodesk-sample"] == len(pin.residue_ids)
     assert tot.get("ours-created", 0) >= 100            # walls + instances + loaded families
     assert not tot.get("transitive-cloned"), sg["created_elements"][:3]
     elements = [b for b in sg["g1"]["blocking"] if b.get("layer") is None]
@@ -265,7 +493,15 @@ def test_frontdoor_prompt_job_gate_counts_only_the_residue(tmp_path):
     assert not cats & {"loadable-families", "placed-model-content", "embedded-family-documents"}
     assert 100 < sum(b["count"] for b in elements) < 1000
     assert "sample base" not in sg["reason"] and "residue (#21)" in sg["reason"]
-    assert "G2 identity (#19): 2 inherited lineage identifier(s)" in sg["reason"]   # measured
+    # G2 is MEASURED: the count the sentence gives == the identity fields it names,
+    # and every identity blocker the gate lists is among them
+    g2 = re.search(r"G2 identity \(#19\): (\d+) inherited lineage identifier\(s\) still aboard \(([^)]*)\)",
+                   sg["reason"])
+    assert g2, sg["reason"]
+    named = g2.group(2).split(", ")
+    assert int(g2.group(1)) == len(named) >= 1
+    ident = [b["category"].split(":", 1)[-1] for b in sg["g1"]["blocking"] if b.get("layer") == "identity"]
+    assert ident and set(ident) <= set(named), (ident, named)
     # the label reaches the honesty box and the human manifest
     assert "PROOF-ONLY, NOT-DELIVERABLE" in man["honesty"]["proof_only_stamps"]
     with open(man_path := os.path.join(str(tmp_path / "g1"), "MANIFEST.md")) as fh:
