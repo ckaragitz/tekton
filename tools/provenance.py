@@ -37,6 +37,19 @@ Usage:
   tools/provenance.py FILE.rvt --baseline self           # baseline == the file
   tools/provenance.py FILE.rvt --no-streams --no-strings --no-identity   # v1 (element layer only)
   tools/provenance.py FILE.rvt --no-baseline
+  tools/provenance.py FILE.rvt --composed-base auto      # vs the PINNED COMPOSED base it is / descends from
+
+``--composed-base auto`` (issues #143 / #284) ledgers FILE against the
+certified pinned composed genesis base it IS or DESCENDS FROM (found by
+bytes: exact sha256, else the census descent test), with that pin's
+authorship census: only the pin's residue is Autodesk-derived, its other
+slots are ours by composition, FILE's own elements are created / cloned by
+lineage into the residue.  It is also what a run falls back to when no
+sample baseline resolves -- a fresh clone has no ``samples/`` and the pinned
+base is its only available baseline -- so the pre-ship command above gives a
+reading there instead of "everything unbaselined".  Element + strings +
+identity layers; the byte-weighted STREAM ledger needs a sample corpus (the
+census is element-level) and is skipped, so such a run never certifies G1.
 
 Exit code: 0 = G1 certified PASS (all layers), 2 = fails, 3 = passes the
 ledgered layers but is NOT a full G1 certification, 1 = error.
@@ -63,6 +76,24 @@ def _open_own_release(path: str) -> Document:
     """``Document.from_file`` under the file's own release framing."""
     with reading_own_release(path):
         return Document.from_file(path)
+
+
+def composed_lineage(candidate: str, doc: Document, verbose: bool = True):
+    """The ``rvt.frontdoor.census.Lineage`` when ``candidate`` IS or DESCENDS
+    FROM a certified pinned composed base (else None): its ``pin_doc`` (or
+    ``doc`` itself when it IS the pin) is THE baseline and
+    ``composed_baseline()`` the pin's census (None = stale: ledgered
+    conservatively)."""
+    from rvt.frontdoor import census as C
+    with reading_own_release(candidate):
+        lin = C.lineage(candidate, doc)
+    if lin is not None and verbose:
+        how = "IS" if lin.exact else (f"descends from ({lin.evidence['probed_identical']:,}/"
+                                      f"{lin.evidence['pin_slots_probed']:,} composed slots identical)")
+        print(f"[composed-base] {os.path.basename(candidate)} {how} the pinned base {lin.pinned_id}; "
+              f"census {'STALE (run tools/genesis_census.py build)' if lin.census is None else 'current'}",
+              file=sys.stderr)
+    return lin
 
 
 def _elemtable_ids(path: str):
@@ -120,6 +151,11 @@ def main(argv=None) -> int:
                          "'self' = the file itself")
     ap.add_argument("--no-baseline", action="store_true",
                     help="ledger structurally with no baseline (everything unbaselined)")
+    ap.add_argument("--composed-base", choices=("auto", "off"), default=None,
+                    help="'auto' = ledger against the PINNED COMPOSED GENESIS BASE the file is / "
+                         "descends from, with its authorship census (only the pin's residue is "
+                         "Autodesk-derived; issues #143/#284); also the fallback when no sample "
+                         "baseline resolves (fresh clone). 'off' = never. Stream ledger skipped.")
     ap.add_argument("--streams", dest="streams", action="store_true", default=True,
                     help="ledger the STREAMS byte-weighted (default ON)")
     ap.add_argument("--no-streams", dest="streams", action="store_false",
@@ -150,8 +186,12 @@ def main(argv=None) -> int:
         print(f"error: {args.file}: no such file", file=sys.stderr)
         return 1
 
+    if args.composed_base == "auto" and (args.baseline or args.no_baseline):
+        print("error: --composed-base auto takes no --baseline / --no-baseline (the pin the "
+              "file descends from IS the baseline)", file=sys.stderr)
+        return 1
     base_paths: list = []
-    if not args.no_baseline:
+    if not args.no_baseline and args.composed_base != "auto":
         wanted = args.baseline or ["auto"]
         for w in wanted:
             if w == "all":
@@ -186,14 +226,41 @@ def main(argv=None) -> int:
         else:
             baselines.append(_open_own_release(bp))
 
+    # the pinned composed base as THE baseline: asked for, or the fallback when
+    # no sample resolves (a fresh clone's only available baseline is the pin)
+    composed = lineage = None
+    streams = args.streams and not args.no_baseline
+    if args.composed_base == "auto" or (not baselines and not args.no_baseline
+                                        and args.composed_base != "off"):
+        lineage = composed_lineage(args.file, doc, verbose=not args.quiet)
+        if lineage is not None:
+            composed = lineage.composed_baseline()
+            baselines = [doc if lineage.exact else lineage.pin_doc]
+            if streams and not args.quiet:
+                print("[composed-base] stream ledger skipped: it needs a SAMPLE corpus (the census "
+                      "is element-level) -- this run cannot certify G1", file=sys.stderr)
+            streams = False
+        elif args.composed_base == "auto":
+            print(f"error: {args.file} neither is nor descends from a certified pinned composed "
+                  "genesis base; give a sample --baseline instead", file=sys.stderr)
+            return 1
+        elif not args.quiet:
+            print("[composed-base] no sample baseline resolved and the file neither is nor "
+                  "descends from a pinned composed base: ledgering with no baseline", file=sys.stderr)
+
     with reading_own_release(args.file):
         report = provenance(doc, baselines[0] if baselines else None,
                             baselines=baselines or None,
                             examples=args.examples, with_units=not args.no_units,
-                            strict=args.strict,
-                            streams=args.streams and not args.no_baseline,
+                            strict=args.strict, streams=streams,
                             strings=args.strings, identity=args.identity,
-                            cache_dir=(args.cache_dir or None), verbose=not args.quiet)
+                            cache_dir=(args.cache_dir or None), verbose=not args.quiet,
+                            composed=composed)
+    if lineage is not None:
+        report["composed_base"] = {"kind": lineage.kind, "pinned_id": lineage.pinned_id,
+                                   "pin": os.path.relpath(lineage.pin_path, ROOT),
+                                   "census": "STALE" if lineage.census is None else "current",
+                                   "descent": dict(lineage.evidence) or None}
     report["elapsed_s"] = round(time.time() - t0, 1)
 
     if args.json:
