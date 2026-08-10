@@ -1561,10 +1561,10 @@ final head).
 
 ### 3. Findings
 
-1. The placeholder-in-`framing` shape costs one `if parts:` at two sites and
-   nothing else: every later read of the primary in `verify_manipulated` was
-   already guarded by `name in walked.names` or `pname not in framing` since #458,
-   which is why the 17-fixture identity holds with no special-casing downstream.
+1. The placeholder-in-`framing` shape costs one `if parts:` branch and nothing
+   else: every later read of the primary in `verify_manipulated` was already
+   guarded by `name in walked.names` or `pname not in framing` since #458, which
+   is why the 17-fixture identity holds with no special-casing downstream.
 2. `walker_errors 0` with a `framing_errors` entry is new (#458's entries each
    count one walker error). It is deliberate — nothing was walked — and harmless
    to the gate (`stamps_ok None` and `header_count None` each fail it alone); the
@@ -1582,3 +1582,89 @@ final head).
 * The edit doors still refuse a partition-less **input** at load with one FAILED
   line (rc 1, one JSON, nothing written) — graceful, input-side, unchanged, same
   as #458 noted for header-damaged inputs.
+* `/simplify` (reuse / simplification / efficiency / altitude, four reviewers) →
+  applied: ONE `if parts:` branch point (the header count is read inside it —
+  `rep` is pre-seeded, so key order cannot move; was a second guard 30 lines
+  down), the docstring's partition-less sentence stands alone instead of being
+  spliced into #458's parenthetical, `_primary_partition`'s docstring cut to the
+  fact, the placeholder's load-bearing role said once in a two-line comment; tests:
+  the two door-damage cases share `_damaged_job_report` (the scrub wrapper + the
+  delivery contract + "every reason the structural block names is the validator's
+  sentence at the same where"), the key pin is exact (`list(v) == VERIFY_KEYS +
+  ["framing_errors"]`), a re-assert through the derived report dropped. Filed from
+  the reuse + altitude findings: **#520** (the where/why pair owned once, in
+  `validate.py`, imported by both gates — `validate.py` was outside this territory).
+  Confirmed, not changed: `_primary_partition` raising (not `Optional[str]` — its
+  three other callers are writers with nothing to do but raise), reusing
+  `framing_errors` (a distinct key would not reach the manifest: `rvt_job`'s keep
+  list forwards only that one), no efficiency findings (the healthy path gained two
+  truthiness tests on an existing list; the partition-less path is strictly cheaper).
+  Identity probe re-run after the pass: 0 diff lines on all 17 fixtures, the new
+  fixture's dict identical to the pre-pass head's.
+
+### BRANCH STATE (eng #501)
+
+* Branch `cam/501-partitionless-verdict` from `main @ cd2d5a2`; PR #517 closes #501;
+  follow-up filed: **#520** (shared where/why constants in `validate.py`).
+* Files written: `src/rvt/manipulate.py` (`NO_PARTITION_WHERE` / `NO_PARTITION_WHY`
+  new, `_primary_partition`'s empty-list raise, `verify_manipulated`'s entry — the
+  `parts`-first branch + docstring; nothing else in the module: the dach
+  two-partition choice, `_header_count`, every plan/commit path, #455/#469's
+  `_emit_block` untouched), `tests/test_partition_header_verdict.py` (15 → 18 tests;
+  `_rewrite(drop=)`, `_damaged_job_report`; already in the shard via
+  `tests/ci_shard.d/458-partition-header-verdict.txt`, no new drop-in needed), this
+  record section. Generated mirror re-synced by `tools/sync_plugin.py`:
+  `plugin/lib/src/rvt/manipulate.py`.
+* Not touched: `src/rvt/validate.py`, `tools/rvt_job.py`, `tools/rvt_edit.py`,
+  `src/rvt/versions/**`, `tests/conftest.py`, any hot file, any NO-GO / fenced file
+  of this wave.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer (no
+  written byte changes — `commit_plans` is untouched; the three `rvt_edit.py
+  set-level` outputs, the `rvt_job` and front-door edit outputs validate 0 errors
+  exactly as on main).
+* Gates on the final head (post-`/simplify`): `tests/test_partition_header_verdict.py`
+  **18 passed** (5.1 s; against `main @ cd2d5a2`'s engine 3 failed / 15 passed);
+  neighbours + plugin tests (`test_gates_shared_walk test_manipulate
+  test_verify_manipulated_release test_edit_own_release test_validate_release
+  test_ecc_final_block test_validate_footer_blob test_bare_family_validate
+  test_records32 test_job test_go_edit test_modify_family_carrier
+  test_manipulate_import_context test_rvt_analyze test_plugin_sync test_bootstrap
+  test_coldstart`) → **252 passed, 9 skipped (samples absent), 1 xfailed, 0 failed**
+  (49 s, pre-simplify head; the stream file re-run post-simplify: 18 passed); whole
+  merged CI shard (`python3 tools/dev/shard_list.py --print`, `RVT_SKIP_LARGE=1 … -q
+  -p no:cacheprovider`) → **1759 passed, 139 skipped, 3 xfailed, 0 failed in 364 s**
+  (pre-simplify head; the pass changed one branch's position, two docstrings and the
+  test file — identity probe 0-diff and the stream file green after it);
+  `tools/sync_plugin.py` run → `--check`: *plugin in sync with source (deny-audit
+  clean, identity scan == allowlist, assets verified)*; `plugin/scripts/validate_plugin.py`
+  PASS; `tools/dev/check_portable_paths.py` ok (2932). `/verify` on the final head:
+  validator row — three bases `ok errors=0` (rc 0), partition-less **FAIL 1**
+  (`structure Partitions/<N>: no Partitions/<N> stream`, rc 1), header-zeroed
+  primary FAIL 4, 64 KiB truncation FAIL 11, non-CFB FAIL 1 (rc 1) — no traceback
+  anywhere; `rvt_edit.py <base> set-level --id 1351691 --elevation-ft 5 --json` on
+  all three bases → rc 0, stderr 0 B, `ok=True`, `structural PASS (crc_failures=0,
+  ecc_mismatches=0, walker_errors=0, stamps_ok=True) | validation PASS (0 errors)`,
+  "Revit N in, Revit N out", the three outputs `verdict: VALID (no errors)`;
+  `rvt_job.py edit <2025 base> --ops {set-level} --json` → rc 0, stderr 0 B, ONE
+  JSON == manifest on disk, `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`,
+  structural PASS (no `framing_errors` key) / validation PASS 0, 598,016 B, output
+  VALID; the same door with the output losing its partition after the write
+  (`probe/door.py`) → rc 3, `FAILED (structural, validation)`, structural report as
+  in §2, validation FAIL 1 with the same sentence at `Partitions/<N>`, 368,640 B
+  delivered and named, stderr clean; `rvt_edit._gates` on the partition-less fixture
+  → the §2 line, `hard_gates_passed False`; `frontdoor.py author --rvt <2025 base>
+  --edit "set level 1351691 elevation to 5 ft" --json` → rc 0, stderr 0 B, same
+  status, job manifest structural PASS (walker_errors 0) / validation PASS 0, output
+  VALID. **Latency** (S-2026-08-09-g): bare unzip of `tekton-plugin.zip` built from
+  `main @ cd2d5a2` ("before", 5,377,195 B) and from the final head ("after",
+  5,377,482 B) into paths with a space, `env -i PATH=/usr/bin:/bin` + dead proxies,
+  `/usr/bin/python3` 3.11.15, `go edit assets/genesis/G_ABPD_2025.rvt set-level --id
+  1351691 --elevation-ft 5 -o out/edited.rvt --json`, alternating 5+5 after a
+  `.pyc`-compiling first pair (1.065 / 0.963 s): every run rc 0, `go.ready true`,
+  `tekton: READY | python 3.11.15 | engine bundled | genesis verified …`, `ok true`,
+  structural PASS | validation PASS, structural report keys == the fixed 12, stderr
+  0 B; wall before 0.592 0.619 0.636 0.546 0.562 s (median **0.592**) · after 0.604
+  0.591 0.596 0.540 0.545 s (median **0.591**) — unchanged.
+* Probe artefacts (scratchpad, not committed): `probe/{make_fx,judge,door,gate_stage}.py`,
+  `probe/fx/*` (18 fixtures written by main's engine), `probe/{main,head,head2}/*.json`,
+  `probe/door_{main,head,final}/`, `bench.sh`, `before.zip` / `after.zip`, `shard.log`.

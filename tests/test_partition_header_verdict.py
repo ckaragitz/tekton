@@ -269,11 +269,10 @@ def test_partitionless_file_is_a_fail_verdict(job, tmp_path, edited):
     for k in BLOCK_DEPENDENT:
         assert v[k] is None, (k, v[k])
     assert v["edited"] == {} and (v["crc_failures"], v["ecc_mismatches"]) == (0, 0)
-    assert list(v)[:len(VERIFY_KEYS)] == VERIFY_KEYS         # no always-present key added
+    assert list(v) == VERIFY_KEYS + ["framing_errors"]        # the one conditional key, earned
     # the validator FAILs with the same words at the same where (its L1 finding)
     assert not rep["ok"] and _errors_at(rep, M.NO_PARTITION_WHERE) == [M.NO_PARTITION_WHY]
     assert structural["report"]["framing_errors"] == NO_PARTITION
-    assert structural["report"]["walker_errors"] == 0 and structural["report"]["stamps_ok"] is None
 
 
 def test_partitionless_file_without_elemtable_still_fails(job, tmp_path, edited):
@@ -336,54 +335,52 @@ def _job_edit_json(job, capsys, tmp_path, name):
     return rc, doc
 
 
-def test_job_json_structural_block_names_partition_and_reason(job, capsys, tmp_path, monkeypatch):
-    """A writer regression -- the primary's header broken right after the door
-    wrote (and scrubbed) the file: the case the self-check exists to label."""
-    pname = _partition(BASES[2025])
+def _damaged_job_report(job, capsys, tmp_path, monkeypatch, name, damage):
+    """A writer regression staged: ``damage(path)`` hits the file right after
+    the door wrote (and scrubbed) it -- the case the self-check exists to
+    label.  Asserts the delivery contract (rc ``EX_STRUCT``, ONE JSON, both
+    gates FAIL, the ``.rvt`` still delivered) and returns ``structural.report``
+    plus the validation gate's error messages by ``where``; every reason the
+    structural block names is the validator's sentence at the same where."""
     scrub = job.scrub_identity
 
     def scrub_then_damage(path, **kw):
         res = scrub(path, **kw)
-        _rewrite(path, path, {pname: _zero16})
+        damage(path)
         return res
     monkeypatch.setattr(job, "scrub_identity", scrub_then_damage)
-    rc, doc = _job_edit_json(job, capsys, tmp_path, "hdr0")
+    rc, doc = _job_edit_json(job, capsys, tmp_path, name)
     assert rc == job.EX_STRUCT and doc["exit_code"] == rc
-    structural = doc["gates"]["structural"]
-    assert structural["status"] == "FAIL" and structural["report"]["walker_errors"] == 1
-    why = structural["report"]["framing_errors"]
-    assert list(why) == [pname]
-    assert why[pname].startswith("partition header/framing: unexpected Partitions header")
-    # the validation gate FAILs on the same words; the file was still delivered
-    val = doc["gates"]["validation"]
-    assert val["status"] == "FAIL"
-    assert why[pname] in [f["message"] for f in val["top_findings"] if f["where"] == pname]
+    structural, val = doc["gates"]["structural"], doc["gates"]["validation"]
+    assert structural["status"] == "FAIL" and val["status"] == "FAIL"
     assert os.path.isfile(doc["output"]["path"]) and doc["hard_gates_passed"] is False
+    messages: dict = {}
+    for f in val["top_findings"]:
+        messages.setdefault(f["where"], []).append(f["message"])
+    for where, why in structural["report"]["framing_errors"].items():
+        assert why in messages[where]
+    return structural["report"], messages
+
+
+def test_job_json_structural_block_names_partition_and_reason(job, capsys, tmp_path, monkeypatch):
+    """The primary's header zeroed after the write: partition + reason named."""
+    pname = _partition(BASES[2025])
+    report, _ = _damaged_job_report(job, capsys, tmp_path, monkeypatch, "hdr0",
+                                    lambda path: _rewrite(path, path, {pname: _zero16}))
+    assert report["walker_errors"] == 1 and list(report["framing_errors"]) == [pname]
+    assert report["framing_errors"][pname].startswith(
+        "partition header/framing: unexpected Partitions header")
 
 
 def test_job_json_partitionless_output_is_delivered_and_labelled(job, capsys, tmp_path, monkeypatch):
     """The #501 shape through the door: the written file loses its partition
-    stream right after the write -- ONE JSON, FAIL on both gates with the
-    reason, the file still delivered, no traceback."""
+    stream right after the write -- labelled and delivered, no traceback."""
     pname = _partition(BASES[2025])
-    scrub = job.scrub_identity
-
-    def scrub_then_drop(path, **kw):
-        res = scrub(path, **kw)
-        _rewrite(path, path, {}, drop=[pname])
-        return res
-    monkeypatch.setattr(job, "scrub_identity", scrub_then_drop)
-    rc, doc = _job_edit_json(job, capsys, tmp_path, "nopart")
-    assert rc == job.EX_STRUCT and doc["exit_code"] == rc
-    structural = doc["gates"]["structural"]
-    assert structural["status"] == "FAIL" and structural["report"]["walker_errors"] == 0
-    assert structural["report"]["framing_errors"] == NO_PARTITION
-    assert structural["report"]["header_count"] is None
-    val = doc["gates"]["validation"]
-    assert val["status"] == "FAIL"
-    assert M.NO_PARTITION_WHY in [f["message"] for f in val["top_findings"]
-                                  if f["where"] == M.NO_PARTITION_WHERE]
-    assert os.path.isfile(doc["output"]["path"]) and doc["hard_gates_passed"] is False
+    report, messages = _damaged_job_report(job, capsys, tmp_path, monkeypatch, "nopart",
+                                           lambda path: _rewrite(path, path, {}, drop=[pname]))
+    assert report["walker_errors"] == 0 and report["header_count"] is None
+    assert report["framing_errors"] == NO_PARTITION
+    assert messages[M.NO_PARTITION_WHERE] == [M.NO_PARTITION_WHY]
 
 
 def test_job_json_healthy_structural_block_gains_no_key(job, capsys, tmp_path):
