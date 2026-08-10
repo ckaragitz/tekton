@@ -379,6 +379,15 @@ def build_intent(model: FI.IntentModel, opts: BuildOptions) -> BuildResult:
     t0 = time.time()
     res = BuildResult()
     out_dir = opts.out_dir
+    # an --out INSIDE this checkout's quarantine roots (or an Autodesk install
+    # dir) is refused UP FRONT with ONE line, before any stage: its outputs
+    # could not be told from the research inputs the armed build may never
+    # read (issue #425).  A dir merely NAMED samples/ elsewhere builds.
+    refusal = SA.out_dir_refusal(out_dir)
+    if refusal:
+        res.errors.append(refusal)
+        res.seconds = round(time.time() - t0, 1)
+        return res
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(os.path.join(out_dir, "_stages"), exist_ok=True)
 
@@ -437,9 +446,12 @@ def _build_intent_inner(model: FI.IntentModel, opts: BuildOptions, R,
     # the build -- research tooling running later in the same process is
     # its own business).  The RESOLVED base is always exempt (it went
     # through resolve_base's pin/sample gates -- a sanctioned input even
-    # when an explicit --base/$RVT_GENESIS_BASE lives under experiments/).
+    # when an explicit --base/$RVT_GENESIS_BASE lives under experiments/),
+    # and the job's OWN out dir holds outputs, not research inputs, wherever
+    # the user put it (still subject to the Autodesk-install ban; #425).
     SA.forbid_research_inputs(
-        allow=[p for p in (opts.base.path, opts.specimen_src) if p])
+        allow=[p for p in (opts.base.path, opts.specimen_src) if p],
+        outputs=[opts.out_dir])
     try:
         # ---- the degrade decision (placed instances of OUR families on OUR
         #      composed base = THE OPEN CELL).  Every base except a pristine

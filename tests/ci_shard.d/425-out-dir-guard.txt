@@ -1,0 +1,2 @@
+# stdlib + package only: the out-dir vs research-input tripwire law (#425)
+tests/test_out_dir_guard.py

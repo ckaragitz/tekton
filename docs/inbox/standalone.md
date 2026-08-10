@@ -619,3 +619,161 @@ pin-verified; re-opened output carries 1 Family + 1 FamilyInstance.
   7/7, acceptance scenario green on this exact zip. Other sessions also run
   tools/sync_plugin.py -- `--check` is the shared invariant, not this
   session's ledger.
+
+## eng #425 — 2026-08-10 (fresh cloud clone, no `samples/`, `origin/main` @ af15f6c): the job's `--out` is an OUTPUT, never a "research input"
+
+Issue #425 (Refs #373 / #374). On `main` a stranger whose `--out` merely lived under a directory *named* `samples/`
+(`vendor/`, `extracted/`, `experiments/genesis/`) — `~/samples/jobs/x` on their own laptop — got rc 3, ONE JSON
+`NO-OUTPUT (see build.degradations / errors)`, `files == {families_dir}` (empty), and six degradations, five of them
+`StandaloneError … touched a research-machine input: <out>/build.log | _stages/stage_P_identity.rvt |
+_stages/stage_L_loaded.rvt.load.json | prompt_room.rvt` — the tripwire of §7 calling the job's own **outputs**
+"inputs" (reproduced here first, uid nobody, 2.5 s). Nothing forbidden was read, nothing was delivered: rule 1 in
+spirit, PG3 for the stranger.
+
+### Decision: (a), with (b)'s one line for the only `--out` that (a) must not exempt — and why not (c)
+
+* **(c) is not sufficient on its own.** Policing only *read* opens sounds closest to the documented law, but the build
+  *re-reads its own outputs*: stage D opens `_stages/stage_P_identity.rvt`, stage L reads back `stage_L_loaded.rvt`
+  and its `.load.json`, the loader opens the `.rfa` files stage F just wrote, stage V validates the written `.rvt`.
+  Every one of those is a READ of a path carrying `/samples/`, so a mode-aware hook still ends in NO-OUTPUT (later,
+  with fewer notes) unless the out dir is *also* exempted — i.e. (c) needs (a) anyway, and then adds `r+`/`os.open`
+  flag parsing for no remaining benefit. Rejected.
+* **(b) alone withholds a deliverable from someone who did nothing wrong** (their disk, their directory name); the
+  deliverable rule prefers delivery whenever nothing forbidden is read. Rejected as the general answer.
+* **(a) — implemented:** `forbid_research_inputs(*, allow=…, outputs=[out_dir])`. Files under an `outputs` prefix are
+  the job's own outputs and are exempt from the *corpus* law (the `/samples/ | /vendor/ | /extracted/ |
+  /experiments/genesis/` segment match) — **never** from the Autodesk-install ban (the hook checks `allow` → Autodesk
+  markers → `outputs` → corpus markers, in that order, so `<out>/…/Family Templates/x.rft` still raises BANNED), and an
+  `outputs` entry that *equals, lies inside, or contains* a quarantine root of THIS checkout (`quarantine_roots()` =
+  `<repo>/{extracted,samples,vendor,experiments/genesis}`, abspath **and** realpath compared) is silently dropped, so
+  the corpus stays exactly as guarded no matter what a caller passes (`--out <repo>`, `--out <repo>/samples`,
+  `--out <repo>/samples/x` exempt nothing). Prefixes end in `os.sep`: `…/samples/jobs/x` does not exempt
+  `…/samples/jobs/xy/`.
+* **…plus (b)'s ONE line for `--out` INSIDE a real quarantine root** (or inside an Autodesk installation directory):
+  `out_dir_refusal(out_dir)` at the top of `build_intent`, before `makedirs`, before `install_schema`, before stage P:
+  `--out refused (nothing built): it lies inside this checkout's quarantined samples/ directory, whose files the build
+  may never read -- choose another --out than <abs out>` (reason first, path last, so `status`'s 160-char truncation
+  keeps the reason). Why refuse rather than "deliver without reading a sample": (i) exempting exactly the job's files
+  under `<repo>/samples/x` is not expressible as a prefix without also exempting `--out <repo>/samples` itself;
+  (ii) anything written under `<repo>/samples/` **is an Autodesk sample to `is_autodesk_sample()` ever after** —
+  measured: the edit route happily wrote `samples/e425/G_ABPD_2025.edited.rvt`, and `--base` on that file is then
+  refused as "an Autodesk sample project"; (iii) it is the git-ignored third-party quarantine — our outputs do not
+  belong among counsel-C4 material. Ancestors of a quarantine root (`--out <repo>`, `--out <repo>/experiments`) are
+  *not* refused (legal today, no marker on the path) and not exempted either.
+* **rc is 3, not 2, and that is deliberate for this PR.** The rc-2 mapping lives in `tools/frontdoor.py::cmd_author`
+  (hot, not this territory), and its only rc-2 path (`FrontDoorError`) prints the line on **stderr with no JSON** —
+  raising from `build.py` would have cost every surface the ONE JSON it parses (`go` would report `result: null`).
+  Returned as `BuildResult.errors == [line]` instead: ONE JSON, `status == "FAILED (<line>…)"`, `errors == [line]`,
+  `build.stages == []`, no `_stages`/`families`/`.rvt`/`build.log` created, rc 3 (`EX_INCOMPLETE`). If rc 2 is wanted,
+  the hot-file patch is one line in `cmd_author` after `_print_summary`/`json.dumps`:
+  `if r.errors and str(r.errors[0]).startswith("--out refused"): return EX_USAGE`.
+
+### Evidence (uid nobody unless noted; `--json`; this VM; every run ONE JSON on stdout, 0 B stderr, no traceback)
+
+| case | `main` @ af15f6c | this head |
+|---|---|---|
+| prompt `"…1 panel" --out <tmp>/samples/xN`, 3 runs | rc 3 · `NO-OUTPUT (…)` · files `{families_dir}` · manifest `json, md` · 6 degradations (5× `StandaloneError` on its own outputs) · 2.5 s | **rc 0** · `PROOF-ONLY (self-checks PASS; …)` · files `combined, families_dir` · manifest `build.log, json, md` · `errors []` · `degradations []` · 2.5 / 2.9 / 2.6 s |
+| same prompt `--out <tmp>/plain/c1` (control) | — | rc 0 · same status/files/stamps · 3.0 s · `prompt_room.rvt` 606,208 B **== the samples/x1 output byte count**; `rvt_validate` `ok: true` on both (1 known DataStorage decode warning each) |
+| ifc `usecases/chicago-plenum…/generated.ifc --out <tmp>/samples/i1` vs `--out <tmp>/plain/ci` | (NO-OUTPUT shape, not re-measured) | rc 0 both · identical status, files, stage list and all 11 degradations (plan refusals + census label, none guard-induced) · `combined` 749,568 B both |
+| prompt `--out <repo>/samples/x425` (root: nobody cannot mkdir in the checkout — `run()`'s `makedirs`, #209's envelope) | (NO-OUTPUT shape) | **rc 3** · status `FAILED (--out refused (nothing built): it lies inside this checkout's quarantined samples/ directory, whose files the build may never read -- choose another --out than )` (160-char cut) · `errors == [the full line]` · files `{}` · manifest `json, md` · `build.stages []`, `degradations []`, `log null` · on disk only the ROUTE's pre-build files (`intent.json`, handoff, manifest) — no `_stages`, no `families`, no `.rvt` |
+| ifc `--out <repo>/samples/i425` (root) | — | rc 3 · same one line · `stages []` · degradations = the IFC census label only (manifest-level, not a stage) · on disk `intent.json`, manifest |
+| edit `--rvt G_ABPD_2025.rvt --edit "set level 311 elevation to 5 ft" --out <tmp>/samples/e1` | rc 0 (arms no tripwire) | rc 0, unchanged |
+| edit `… --out <repo>/samples/e425` (root) | rc 0 | rc 0, **delivered into the quarantine dir**; that output `is_autodesk_sample() -> True` and is refused as a `--base` afterwards → follow-up below |
+| `route.py run --prompt … --output rvt --out <tmp>/samples/r2` | rc 3 NO-OUTPUT (same `build_intent`) | **rc 0** PROOF-ONLY, `combined` + handoff files (the router's prompt/ifc→rvt cells call `FD.author`, so they inherit both the exemption and the refusal) |
+| `route.py run --prompt "a 225 A panelboard …" --output rfa --out <tmp>/samples/r1` | rc 0 (no tripwire) | rc 0, unchanged |
+
+Guard strictness, proven in `tests/test_out_dir_guard.py` (25 tests, 0.1 s, sharded): armed with
+`outputs=[<tmp>/samples/jobs/x]` → its own `build.log` write + `_stages/*.rvt` write **and re-read** pass;
+`<tmp>/samples/jobs/other.rvt`, `<tmp>/samples/jobs/xy/a.rvt`, `<repo>/samples/rstbasicsampleproject.rvt`,
+`<repo>/vendor/…`, `<repo>/extracted/…/000.bin`, `<repo>/experiments/genesis/R5.rvt` all STILL raise;
+`<out>/ProgramData/Autodesk/RVT 2026/x.rft` and `<out>/Family Templates/x.rft` raise BANNED. Armed with
+`outputs=[<repo>/samples/x | <repo>/samples | <repo>/experiments/genesis/job | <repo> | <repo>/experiments]` →
+`open(<repo>/samples/some.rvt)`, `open(<repo>/samples/x/prompt_room.rvt)`, `open(<repo>/experiments/genesis/job/_stages/…)`
+STILL raise (the DONE's second bullet). `out_dir_refusal` refuses `<repo>/{samples,samples/x425,vendor/jobs/a,extracted/y,
+experiments/genesis/probe}` and four Autodesk-install shapes with one `\n`-free line ending in the path; returns `None`
+for `<tmp>/samples/x`, `<tmp>/vendor`, `<tmp>/experiments/genesis/y`, `<repo>/out/demo`, `<repo>/experiments/frontdoor/job-1`
+(the default out dir), `<repo>/samplesheet`, `<repo>`, `<repo>/experiments`. `tests/test_stagelog.py::
+test_tripwire_refusal_degrades_exactly_like_an_oserror` (arms with no `outputs`) is untouched and green: the observer's
+last resort stays.
+
+### Gates
+
+* `tests/test_out_dir_guard.py` 25 passed; `tests/test_frontdoor.py tests/test_stagelog.py tests/test_out_dir_guard.py`
+  108 passed / 6 skipped (2 `RVT_SKIP_LARGE`, 2 chmod-as-root, rst sample, pinned research base);
+  `tests/test_frontdoor_standalone.py` 10 passed / 1 skipped (research-machine donor hatch) — the two clean-env E2E
+  builds run with the guard armed the whole time.
+* Whole merged CI shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1 -p no:cacheprovider`, this exact head): **1531 passed /
+  134 skipped / 3 xfailed, 0 failed** in 442.68 s.
+* `tools/sync_plugin.py` → validation passed, zip rebuilt (5217 KB), `--check` clean; `plugin/scripts/validate_plugin.py`
+  PASS (25 assertions); `tools/dev/check_portable_paths.py` ok.
+* Full suite NOT run (SUITE-COORDINATION). Nothing staged for the viewer: no format byte changes (the delivered
+  `samples/x1` output is byte-count-identical to the plain-dir control and validates the same).
+
+### Findings / follow-ups (outside this territory — noted, not done)
+
+1. **The refusal belongs one level up, in `run()` (`src/rvt/frontdoor/__init__.py`), for all three routes.** Today the
+   prompt/ifc routes still write `intent.json` + the handoff package + the manifest into `<repo>/samples/x` before and
+   after `build_intent` refuses, and the `--rvt --edit` route (no tripwire at all) *delivers* into the quarantine dir —
+   an output that `is_autodesk_sample()` then classifies as an Autodesk sample forever. `__init__.py` is outside #425's
+   territory and `edit.py`/`router.py` are held by eng #448 this wave, so it is filed as **#452** (`Refs #425`) with
+   this patch, which makes the CLI answer rc 2 through the existing `FrontDoorError` path *and* keeps `build_intent`'s
+   check as the in-process backstop:
+   ```python
+   # src/rvt/frontdoor/__init__.py :: run()
+       route = req.route()
+       out_dir = _out_dir(req, route)
+   +   from .standalone import out_dir_refusal
+   +   line = out_dir_refusal(out_dir)
+   +   if line:
+   +       raise FrontDoorError(line)          # before makedirs: nothing lands in the quarantine dir
+       os.makedirs(out_dir, exist_ok=True)
+   ```
+   (whether the CLI should also print ONE JSON for `FrontDoorError` under `--json` is the same hot-file question as
+   `InputReleaseRefused`'s stderr-only answer, #176.) Should the edit route *arm* the tripwire too? No: its input is by
+   definition a user file that may live anywhere (including a dir named `samples/`), and it authors nothing from
+   bundled assets; the out-dir refusal is the only part of the law that applies to it.
+2. `manifest.build.errors` lists every build error **twice** (`build_manifest` concatenates `build["errors"]` with the
+   route's `errors`, which already did `errors += br.errors`); `AuthorResult.errors` has it once. Pre-existing,
+   cosmetic, `manifest.py`/`__init__.py` — noted here rather than filed.
+3. The corpus law is a path-*segment* heuristic, so a checkout or an unzipped plugin that itself lives under a
+   directory named `samples/` (`~/samples/tekton-plugin/…`) trips on its own engine files the moment the build lazily
+   imports one (`io.open_code` audits as `open` — verified: a module under `<tmp>/samples/pkg/` raises on import while
+   armed). Pre-existing and unchanged by this PR (the `outputs` exemption covers only the out dir); anchoring the four
+   corpus markers to `quarantine_roots()` instead of any segment would fix it but *is* a strictness change the issue
+   told this stream not to make (it would stop catching corpus copies outside the checkout) — recorded for whoever
+   next owns §7.
+4. "This checkout's quarantine" now has three definitions in `src/`: `base.is_autodesk_sample` (`samples/` only,
+   hot file), `convert.add_to_project.quarantined_input` (`vendor/` + `samples/`), and `quarantine_roots()` (all four).
+   The first two could call `quarantine_roots()`; both are outside this territory — noted for the reuse pass of
+   whoever next touches them.
+
+### `/simplify` (4 lenses) — applied / skipped
+
+Applied: one `_dirp()` prefix normaliser behind `_inside`/`_nested`/the `outputs` filter (the segment-boundary rule
+lived in five expressions); one `_is_autodesk_install()` predicate shared by the hook and `out_dir_refusal` (rule 2's
+test written once); the two refusal strings folded into one `f"--out refused (nothing built): it lies inside {why} --
+choose another --out than {ap}"`; the quarantine clause derives its `samples/`-style name from `_RESEARCH_DIRS`
+instead of a second `repo_root()` + `relpath`; `_GUARD["outputs"]` is a tuple so the hook does one
+`str.startswith(tuple)` C call per open (efficiency lens: the added per-open cost is ~0.3 µs × a few thousand opens ≈
+1 ms per build; nothing hoistable remains, no realpath/stat in the hook, no closure capture); the test fixture yields
+`forbid_research_inputs` directly. Skipped, with reasons: collapsing `allow=` and `outputs=` into ONE exemption lane
+(altitude #1) — it would change `allow`'s standing semantics (the resolved base under `experiments/genesis/` must
+stay exempt, and `allow` precedes the Autodesk check today) which is behaviour outside #425; moving the refusal to
+`run()` (altitude #2) — follow-up 1 above, out of territory; a shared `conftest.py` arm/disarm fixture for the three
+test files (reuse #3) — wider than this diff; findings 4 above (reuse #1) — out of territory.
+
+## BRANCH STATE (eng #425)
+
+* Branch `cam/425-out-dir-not-research-input` from `origin/main` @ af15f6c.
+* Files written: `src/rvt/frontdoor/standalone.py` (§7: `_RESEARCH_DIRS`, `quarantine_roots`, `out_dir_refusal`,
+  `forbid_research_inputs(outputs=)`), `src/rvt/frontdoor/build.py` (`build_intent` up-front refusal; arming call passes
+  `outputs=[opts.out_dir]`), `tests/test_out_dir_guard.py` (new, 25), `tests/ci_shard.d/425-out-dir-guard.txt` (new),
+  `tests/test_frontdoor.py` (quarantined-name test tightened to rc 0 + delivered; new refused-up-front twin),
+  `docs/inbox/standalone.md` (this section); regenerated mirrors `plugin/lib/src/rvt/frontdoor/{standalone,build}.py`.
+* Gates: as listed above (shard 1531 passed / 134 skipped / 3 xfailed); `sync_plugin.py --check` clean; `/verify`: bare-unzip
+  `go author --prompt "…6 panels" --out <tmp>/samples/j1 --json` (uid nobody, system python3) → READY, exit 0, PROOF-ONLY,
+  `combined` + `families_dir`, `build.log, json, md`, `errors []`; the 6-panel `.rvt` built into `<tmp>/samples/v1`
+  `rvt_validate` VALID (no errors; 1 known warning) and `provenance.py --baseline all --streams` shows exactly the
+  plain-dir control's rows (the standing G2/#19 identity + base-residue items), nothing new; nothing staged for the
+  viewer; nothing awaits a human.
+* Shipped vs staged: everything in this PR ships. Follow-up 1 filed as #452 (`Refs #425`).
