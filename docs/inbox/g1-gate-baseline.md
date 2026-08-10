@@ -948,3 +948,103 @@ RVT_SKIP_LARGE=1 .venv/bin/python -m pytest --setup-plan tests/test_gates_shared
   edit job and a prompt/IFC job holds ONE `rvt_job` copy (`load_job_module()` ≡ `sys.modules["rvt_job"]`; preferably
   `ifc_intent` goes through the engine loader), then the conftest alias line and `test_status_gate.py:380` are deleted.
 * Shipped vs staged: ships with the merge; test plumbing only, zero output-byte change — no viewer claim.
+
+## eng #477 — 2026-08-10 — ONE executed copy of `tools/rvt_job.py` per PRODUCT process: `load_job_module()` registers `rvt_job`, and `tools/ifc_intent.py`'s gates go through it
+
+Stream `eng477` (engineer session for #477, P2/XS, PG3/PG7; Refs #470, whose "Finding (product side) + patch"
+above is the charter). Decision: the issue's **preferred** shape, not the fallback patch — the engine loader owns
+the one name and `tools/ifc_intent.py` becomes a caller of it; no `setdefault`/adopt of a pre-existing
+`sys.modules["rvt_job"]` (with no by-name importer left, such an entry can only be a regression, and adopting it
+would bless exactly what the new test exists to catch — `/simplify` altitude agreed). Territory used, all inside
+the issue's: `src/rvt/frontdoor/edit.py` (`load_job_module` only: spec name `_frontdoor_rvt_job` → `rvt_job`,
+docstring), `tools/ifc_intent.py` (the two `sys.path.insert(0, HERE); import rvt_job` sites → one 4-line
+`_job_runner()` = lazy `rvt.frontdoor.edit.load_job_module()`; `_jdump`/#495 untouched) + its two regenerated
+mirrors, `tests/conftest.py` (the `job` fixture's alias line deleted, docstring), `tests/test_status_gate.py`
+(line 380's same-value `setitem` deleted), NEW `tests/test_one_job_module.py` + `tests/ci_shard.d/477-one-job-module.txt`,
+this section. Rebased on `main@4cc81dd` (after #495).
+
+### Result in one screen
+
+| the issue's probe — ONE process, `FD.author(rvt=G_ABPD_2025, edit=…)` + `FD.author(prompt="an electrical room with 6 panels")`, both orders | `main@4cc81dd` | this branch |
+|---|---|---|
+| live modules whose `__file__` ends in `rvt_job.py` (edit-first / prompt-first) | `['_frontdoor_rvt_job', 'rvt_job']`, 2 ids / same | **`['rvt_job']`, 1** / same |
+| `edit.load_job_module() is sys.modules["rvt_job"]` | `False` / `False` | **`True` / `True`** |
+| both jobs `ok` | True, True | True, True |
+| front-door manifests, `tools/frontdoor.py author` — 6-panel `--prompt` / `--rvt G_ABPD_2025 --edit "set level 694 elevation to 12"` / `--ifc inputs/ifc/electrical-room-2500a.ifc` (main run twice = noise class: content GUIDs, sha256/md5, `*.seconds`/gate timings, `generated_at`) | 2973 / 164 / 4482 flattened keys | **0 / 0 / 0 diffs outside the noise class**; the edited `.rvt` md5-identical (`d8c892e4…`); status_gate `PROOF-ONLY, NOT-DELIVERABLE`/`pinned-composed-genesis` ×3, identity `PASS`, all four outputs `rvt_validate` VALID 0 errors |
+| `python -X importtime -c "import rvt.frontdoor"` | 89 modules, no `rvt_job`, no `rvt.frontdoor.edit`; 50.9 ms | 89 modules, same absences (nothing eager added); 43.3 ms (noise) |
+| bare unzip of `tekton-plugin.zip`, system `python3` 3.11 (no numpy), `go author --prompt "…6 panels"` then `go edit assets/genesis/G_ABPD_2025.rvt set-level --id 694 --elevation-ft 12` | READY / rc 0 / stderr **0 B** / wall 5.54 s; rc 0 / gates structural+validation PASS / stderr 0 B / 0.67 s | READY / rc 0 / stderr **0 B** / 5.43 s; rc 0 / PASS / 0 B / 0.73 s (unchanged) |
+| neighbour files (`test_edit_own_release test_status_gate test_stagelog test_router test_router_load_release test_router_release test_frontdoor test_job test_history_head_guid test_gates_shared_walk test_manipulate test_frontdoor_json_strict test_ifc_intent`, `RVT_SKIP_LARGE=1 -rs`) | 395 passed / 28 skipped | 395 / 28 for the same 14 files (+3 = the new file → 398 / 28) |
+| WHOLE merged CI shard (`shard_list.py --print`, 83 files incl. the new one) | — | **1737 passed / 139 skipped / 3 xfailed**, rc 0, 7 m 28 s (re-run on the final post-`/simplify` tree: see BRANCH STATE) |
+| new `tests/test_one_job_module.py` on `main` (copied in) vs here | 3 failed (`['_frontdoor_rvt_job','rvt_job']`, ids 2) | 3 passed, 4.1 s (two ~1.9 s subprocess probes + one 30 ms structural check) |
+
+### What was built
+
+* `rvt.frontdoor.edit.load_job_module()` executes `tools/rvt_job.py` under the ONE name `rvt_job` (was the private
+  `_frontdoor_rvt_job`) and stays the process cache (`edit._JOB`). Nothing else about the loader changed: same
+  candidates (`<repo_root>/tools/rvt_job.py`, then `$RVT_PLUGIN_ROOT/skills/tekton-native/scripts/rvt_job.py`), same
+  ImportError. In the bundle `repo_root()` is `<plugin>/lib`, so `lib/tools/rvt_job.py` serves `go author --rvt … --edit`
+  and `go edit` exactly as before (driven, table above).
+* `tools/ifc_intent.py::identity_gate` / `status_gate` (the prompt + IFC routes' gates) obtain the module through
+  `_job_runner()` → `load_job_module()` — imported lazily inside the helper like every other `rvt.*` use in that file, so a
+  dev tool's `import ifc_intent` pays nothing extra at import and the front door (which already holds `rvt.frontdoor`)
+  pays a `sys.modules` hit. Side effect removed, not added: the old sites pushed `tools/` onto `sys.path` once per gate
+  call (a slow leak of duplicate entries); `rvt_job.py` still inserts its own `HERE`/`SRC` once at exec, so anything
+  that relied on `tools/` being importable after a gate ran still finds it.
+* Test side: conftest's `job` fixture is now just `load_job_module()` (the engine registers the name; the fixture no
+  longer can mask a regression by aliasing), and `test_status_gate.py`'s census-unavailable test patches `job` directly —
+  it IS the object `ifc_intent.status_gate` drives. `tests/test_one_job_module.py` pins (1) structure in-process:
+  `job is load_job_module() is sys.modules["rvt_job"]`, `__name__ == "rvt_job"`, and `build.load_ifc_room_module()._job_runner() is job`;
+  (2) behaviour per job ORDER in a fresh interpreter each (the cache is process-global, so only a subprocess can say who
+  loaded first): edit-then-prompt and prompt-then-edit on the bundled pins (2025 edit input, famgen-free walls prompt on
+  2026, `no_handoff=True`, `quiet=True`) → `names == ["rvt_job"]` and the loader's object is that entry. Shard drop-in
+  `tests/ci_shard.d/477-one-job-module.txt`.
+* `/simplify` (4 angles) applied: loader docstring no longer enumerates callers (rots); `_job_runner` docstring cut to why-lazy;
+  test reuses `conftest.ROOT`, the all-pins level id 1351691 (as `test_edit_own_release`) instead of a 2025-only id, drops the
+  derivable `ids` count and the retired-name changelog assert. Skipped with reason: hoisting `WALLS_PROMPT` into
+  `conftest.py` (outside this issue's one-line conftest territory; cross-importing `test_status_gate` is the #476 smell) and
+  dropping one parametrized order (the DONE names both; cost 1.9 s).
+
+### Findings
+
+* No second door remains in the product process: `grep` of `src/ tools/ tests/ plugin/skills/_shared/` finds no `import rvt_job`,
+  no `_frontdoor_rvt_job`, no other by-path exec of `rvt_job.py`; `tools/rvt_edit.py` and the router already used the loader.
+  (`python tools/rvt_job.py` as `__main__` is the classic script double-import and out of scope, as the issue says.)
+* Same disease elsewhere, follow-up-shaped, NOT this PR: `rvt.frontdoor.build.load_ifc_room_module()` registers
+  `tools/ifc_intent.py` as `_frontdoor_ifc_room` while dev tools `import ifc_intent` by name, and `src/rvt/famload_fix.py`
+  carries a scan-all-aliases workaround for that split; and `tools/rvt_job.py` loads `spec_to_rvt`/`seed_audit`/`ifc_to_spec`
+  under `_rvtjob_<name>` (eng #486's file this wave). Searched issues first (none); filed as **#507** (`Refs #477`, `ready` `P2` `area:frontdoor` `good-first-pick`).
+* `/verify` probe, pre-existing and already tracked as **#127** (reproduced identically on the `main` unzip): bare-unzip
+  `go author --ifc skills/tekton-author/examples/electrical-room-2500a.ifc` on system Python without numpy → rc 3,
+  `FAILED (IFC intent failed: ImportError: numpy is required here (IFC placement / geometry resolution))`, stderr 0 B — the
+  prompt and `--rvt` routes are READY on the same interpreter.
+
+### How to run
+
+```bash
+RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_one_job_module.py -q -rs          # 3 passed (~4 s)
+.venv/bin/python - <<'PY'                                                                # the issue's probe, one process
+import os, sys; sys.path.insert(0, "src"); import rvt.frontdoor as FD
+FD.author(rvt="plugin/assets/genesis/G_ABPD_2025.rvt", edit="set level 694 elevation to 12", out="out/p477/e", no_handoff=True, quiet=True)
+FD.author(prompt="an electrical room with 6 panels", out="out/p477/p", no_handoff=True, quiet=True)
+import rvt.frontdoor.edit as E
+print(sorted(k for k, m in sys.modules.items() if (getattr(m, "__file__", "") or "").endswith("rvt_job.py")), E.load_job_module() is sys.modules["rvt_job"])   # ['rvt_job'] True
+PY
+```
+
+### BRANCH STATE (eng #477)
+
+* Branch `cam/477-one-job-module` from `main@4cc81dd`; PR closes #477.
+* Files: `src/rvt/frontdoor/edit.py`, `tools/ifc_intent.py`, mirrors `plugin/lib/src/rvt/frontdoor/edit.py` +
+  `plugin/lib/tools/ifc_intent.py` + `plugin/skills/tekton-author/scripts/ifc_intent.py` (written by `tools/sync_plugin.py`,
+  byte-identical to source), `tests/conftest.py`, `tests/test_status_gate.py`, NEW `tests/test_one_job_module.py`,
+  NEW `tests/ci_shard.d/477-one-job-module.txt`, this section. No hot file, no asset, no `TRACKER.md`.
+* Gates: `tools/sync_plugin.py` then `--check` → in sync (deny-audit clean, identity scan == allowlist, assets verified);
+  `plugin/scripts/validate_plugin.py` PASS (25 assertions); `check_portable_paths.py` ok; new file 3 passed; neighbours
+  395/28 = 395/28 (+3); whole merged shard 1737 passed / 139 skipped / 3 xfailed (7 m 28 s) and re-run on the final tree
+  = **1737 / 139 / 3 xfailed** again (7 m 42 s); `/simplify` applied (above); `/verify` PASS — drove `frontdoor.py author` ×3 routes (rc 0, manifests
+  = main outside noise, VALID 0 errors ×4), the bare-unzip `go author --prompt`, `go author --rvt … --edit`, `go edit`
+  (READY / hard gates PASS / stderr 0 B each, wall unchanged) and `tools/ifc_intent.py --help` (imports clean).
+* Shipped vs staged: ships with the merge; loader/name plumbing only, zero output-byte change (edited `.rvt` md5-identical,
+  manifests identical outside noise) — no viewer claim, nothing staged.
+* Follow-up filed: **#507** (Refs #477) — the same one-name cure for `tools/ifc_intent.py` (`_frontdoor_ifc_room` vs
+  `import ifc_intent`, and `famload_fix`'s alias scan); `tools/rvt_job.py`'s `_rvtjob_<name>` loaders noted there.

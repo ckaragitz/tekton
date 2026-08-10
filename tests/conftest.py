@@ -77,14 +77,12 @@ def load_tool(name: str):
 def job():
     """``tools/rvt_job.py`` -- the front door's job runner -- via the engine's
     cached loader (``rvt.frontdoor.edit.load_job_module``: ONE module object
-    per process, the one the ``--rvt`` route drives; #470), also aliased as
-    ``sys.modules["rvt_job"]`` because ``tools/ifc_intent.py`` does ``import
-    rvt_job`` (until the engine registers that name itself, #477).  Patch it
-    through ``monkeypatch`` only -- it is shared by every test file."""
+    per process, registered as ``sys.modules["rvt_job"]`` by the engine
+    itself -- the one the ``--rvt`` route AND ``tools/ifc_intent.py``'s gates
+    drive; #470 / #477).  Patch it through ``monkeypatch`` only -- it is
+    shared by every test file."""
     from rvt.frontdoor.edit import load_job_module
-    mod = load_job_module()
-    sys.modules["rvt_job"] = mod
-    return mod
+    return load_job_module()
 
 
 #: the git-ignored research dirs: a FileNotFoundError under one of these

@@ -59,8 +59,10 @@ _JOB = None
 
 def load_job_module():
     """Import ``tools/rvt_job.py`` (the ONE existing edit front door) as a
-    module.  Cached; raises ImportError if the tools tree is absent (a
-    pip-installed engine without the repo checkout)."""
+    module.  Cached and registered as ``sys.modules["rvt_job"]``, so every
+    in-process caller shares one executed copy (#477); raises ImportError if
+    the tools tree is absent (a pip-installed engine without the repo
+    checkout)."""
     global _JOB
     if _JOB is not None:
         return _JOB
@@ -70,7 +72,7 @@ def load_job_module():
         cands.append(os.path.join(plugin_root, "skills", "tekton-native", "scripts", "rvt_job.py"))
     for p in cands:
         if os.path.isfile(p):
-            spec = importlib.util.spec_from_file_location("_frontdoor_rvt_job", p)
+            spec = importlib.util.spec_from_file_location("rvt_job", p)
             if spec and spec.loader:
                 mod = importlib.util.module_from_spec(spec)
                 sys.modules[spec.name] = mod

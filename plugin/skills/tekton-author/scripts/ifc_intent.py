@@ -1298,15 +1298,20 @@ def registry_census(path: str) -> Dict[str, Any]:
         return {"error": f"{type(e).__name__}: {e}"}
 
 
+def _job_runner():
+    """``tools/rvt_job.py`` via the engine's ONE cached loader (#477: never a
+    second ``import rvt_job`` copy); imported lazily like every ``rvt.*`` here."""
+    from rvt.frontdoor.edit import load_job_module
+    return load_job_module()
+
+
 def identity_gate(path: str) -> Dict[str, Any]:
     """The job runner's identity gate (rvt.identity policy): our author /
     client strings, scrubbed path / username, document GUID coherent with
     History[0].  rvt.commit already applied the scrub at write time; this
     PROVES it (the same gate tools/rvt_job.py records)."""
     try:
-        sys.path.insert(0, HERE)
-        import rvt_job as J  # type: ignore
-        g = J.identity_gate(path)
+        g = _job_runner().identity_gate(path)
         return {"status": g.get("status"), "issues": g.get("issues"),
                 "identity": g.get("identity"), "history_head_guid": g.get("history_head_guid")}
     except Exception as e:
@@ -1322,9 +1327,7 @@ def status_gate(out_path: str, base_path: str) -> Dict[str, Any]:
     residue #21); the honest status stays PROOF-ONLY, NOT-DELIVERABLE, a
     LABEL recorded beside the delivered file, never a refusal."""
     try:
-        sys.path.insert(0, HERE)
-        import rvt_job as J  # type: ignore
-        g = J.provenance_gate(out_path, base_path)
+        g = _job_runner().provenance_gate(out_path, base_path)
         return {k: g.get(k) for k in ("status", "deliverable", "base", "base_is_autodesk_sample",
                                        "base_kind", "residue", "census", "ledgered_against",
                                        "g1", "provenance_totals", "created_elements",

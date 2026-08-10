@@ -1,0 +1,2 @@
+# #477: one executed copy of tools/rvt_job.py per product process (bundled pins + walls prompt; fresh-clone safe)
+tests/test_one_job_module.py
