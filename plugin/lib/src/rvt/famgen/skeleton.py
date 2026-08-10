@@ -550,6 +550,49 @@ def new_classification_tables(ids, self_family_id: int) -> List[SkelElement]:
     return out
 
 
+def new_browser_organizations(ids, self_family_id: int) -> Tuple[int, int, List[SkelElement]]:
+    """The BROWSER-ORGANIZATION pair (issue #381: without them the Project
+    Browser lists the family's views FLAT -- no 'Floor Plans' / 'Ceiling
+    Plans' / '3D Views' folder headers).  Donor law (elements 907/908 +
+    AppInfo slot 75): the views organization ("all", folder by built-in
+    parameter -1012106 = the view's family/type, sorted by -1005112) and
+    the sheets organization ("all", sorted by -1007401), both default.
+    Returns ``(views_org_id, sheets_org_id, elements)``; famdoc_adoc wires
+    them into ``BrowserOrganizationTracking`` (slot 75).
+    """
+    from ..genesis.types import blank_object as _blank
+    fam = int(self_family_id)
+
+    def _org(eid: int, **fields) -> SkelElement:
+        o = _blank("BrowserOrganization")
+        o.update({"m_id": eid, "m_famId": fam,
+                  "m_docAccess": {"m_pDoc": _weak(1)},
+                  "m_assocLevelId": -1, "m_unplacedOwnerId": -1,
+                  "m_ownerDBViewId": -1, "m_createdPhaseId": -1,
+                  "m_demolishedPhaseId": -1, "m_designOptionId": -4,
+                  "m_symbolInfo": {"ptr_class": "SymbolInfo", "pid": -1,
+                                   "value": {"m_name": "all"}},
+                  "m_bDefault": True, "m_bSortOrderAsc": True})
+        o.update(fields)
+        hdr = element_header("BrowserOrganization", category=-1,
+                             deletion=[fam, eid], flags=26,
+                             visible_view_flags=-32768)
+        return SkelElement(eid, "BrowserOrganization", hdr, o, None,
+                           kind="browser-organization")
+
+    sheets_id = _alloc(ids)
+    views_id = _alloc(ids)
+    els = [
+        _org(sheets_id, m_type=1,
+             m_sortParameter={"m_paramIdPath": [-1007401]}),
+        _org(views_id,
+             m_folderDefinitions=[{"m_parameter": {"m_paramIdPath": [-1012106]},
+                                   "m_numCharsToUse": 0}],
+             m_sortParameter={"m_paramIdPath": [-1005112]}),
+    ]
+    return views_id, sheets_id, els
+
+
 def _dim_format_options(unit: str = "autodesk.unit.unit:meters-1.0.0", *,
                         symbol: str = "", accuracy: float = 1.0,
                         use_default: bool = True) -> dict:
@@ -2052,6 +2095,11 @@ def new_family_document(category, name: str, *, host: str = "none",
     # -- the classification-table singletons (issue #333 round 27: the
     # edit path's required-unique-elements check names them) ---------------
     for se in new_classification_tables(ids, fam.elem_id):
+        doc.add(se)
+    # -- the browser organizations (issue #381: folder headers in the
+    # Project Browser) -----------------------------------------------------
+    _vo, _so, _org_els = new_browser_organizations(ids, fam.elem_id)
+    for se in _org_els:
         doc.add(se)
     doc.types = []
     return doc

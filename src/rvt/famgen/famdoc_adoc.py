@@ -1149,6 +1149,22 @@ def author_family_adocument(source, *, mode: str = "candidate",
             {"first": 10, "second": by_class["DimensionStyle"]}]
         report["registries"]["SymbolIdMgr.m_defElementTypeMap"] = \
             f"key 10 -> {by_class['DimensionStyle']} (OUR default linear DimensionStyle)"
+    # 4d. BROWSER-ORGANIZATION REGISTRATION (issue #381): the Project
+    # Browser folders views only through the tracked default organizations
+    # (donor slot 75: type 0 -> the views org with folder defs, type 1 ->
+    # the sheets org).
+    borgs = sorted(int(e.elem_id) for e in (getattr(source, "elements", None) or [])
+                   if getattr(e, "class_name", None) == "BrowserOrganization")
+    bot = _appinfo_body(tree, "BrowserOrganizationTracking")
+    if isinstance(bot, dict) and len(borgs) == 2:
+        sheets_org, views_org = borgs                # allocation order (skeleton)
+        bot["m_elemIdSet"] = [sheets_org, views_org]
+        bot["m_currentBrOrgTypeToBrOrgMap"] = [
+            {"first": 0, "second": views_org},
+            {"first": 1, "second": sheets_org}]
+        bot["m_idMRU"] = -1
+        report["registries"]["BrowserOrganizationTracking"] = \
+            f"views -> {views_org}, sheets -> {sheets_org} (OURS)"
 
     # 5. authorship -------------------------------------------------------------
     tree["m_ownerFamilyId"] = int(inv.self_family_id)      # the family owns the document
