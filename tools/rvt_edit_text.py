@@ -21,7 +21,10 @@ The whole job runs under the INPUT file's own release (issue #116, the
 pattern rvt_edit.py uses since #70): a Revit 2025/2024 project is walked
 and re-framed with its release's block/trailer tags, read from
 ``rvt.partitions`` at call time -- never a module-level copy of the 2026
-tag. The output keeps the input's release.
+tag. The output keeps the input's release. A natively framed file enters
+nothing and imports nothing under ``rvt.frontdoor`` (``rvt.native_framing``,
+#575): the release is asked of the already-open container, and only a
+foreign or damaged one reaches the authoring context.
 
 The edit is SIZE-PRESERVING on purpose: same byte length keeps every
 record `psize`, every block boundary and every id offset valid without
@@ -55,7 +58,7 @@ from rvt import ecc  # noqa: E402
 from rvt import partitions as P  # noqa: E402
 from rvt.cfb_writer import write_cfb  # noqa: E402
 from rvt.container import open_rvt  # noqa: E402
-from rvt.frontdoor.release_ctx import enter_host_release  # noqa: E402
+from rvt.native_framing import enter_files_release  # noqa: E402
 from rvt.objects import iter_records  # noqa: E402
 from rvt.roundtrip import read_entries  # noqa: E402
 from rvt.writer import gzip_member  # noqa: E402
@@ -106,8 +109,9 @@ def main(argv=None) -> int:
         return 2
 
     # walk, edit, re-frame AND read back under the INPUT file's own release
+    # (a natively framed file enters nothing; a note, never a raise -- #535)
     with contextlib.ExitStack() as stack:
-        note = enter_host_release(stack, a.path)
+        note = enter_files_release(stack, doc, a.path, host=True)
         if note:
             print(f"warning: {note}", file=sys.stderr)
         return _edit(a, doc, old_b, new_b)
