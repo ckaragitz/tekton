@@ -15,7 +15,10 @@ promises for a file it cannot even PROBE (issue #535, Refs #518 / #70 / #116):
   detects its release);
 * the callers rely on it: the front door's ``--rvt --edit`` route answers a
   damaged-schema host with its normal FAILED envelope (exit 3, ONE JSON,
-  empty stderr), ``rvt_edit_text.py`` refuses in one line (exit 2), and
+  empty stderr), ``rvt_edit_text.py`` refuses in one line (exit 2: the
+  container is opened before the release is entered, as ``rvt_selfcheck``
+  does, so a text file is ONE line; a damaged schema is the warning + the
+  walker's line), and
   ``rvt_selfcheck.py`` -- its interim guard deleted -- still reaches FAIL.
 
 Damaged copies are built in-test from the tracked pins; nothing is checked in.
@@ -42,6 +45,7 @@ from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 from rvt.frontdoor import standalone as SA                     # noqa: E402
 from rvt.genesis import skeleton as GSK                        # noqa: E402
 
+NATIVE_LAST = sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE)   # a leak would break the native run
 FOREIGN = [y for y in CERTIFIED_YEARS if y != V.LATEST_RELEASE]     # the 2025/2024 pins
 LEVEL_EDIT = "set level 1351691 elevation to -9 ft"                 # GEN B1 - Basement, on every pin
 OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length
@@ -70,16 +74,13 @@ def _rewrite_stream(src: str, dst: str, name: str, damage) -> str:
     by ``damage(raw)`` (dropped when ``damage`` is None) -- every other entry
     byte-identical."""
     from rvt.cfb_writer import write_cfb
-    from rvt.container import open_rvt
     from rvt.roundtrip import read_entries
-    with open_rvt(src) as d:
-        raw = d.raw(name)
     entries = []
-    for e in read_entries(src):
+    for e in read_entries(src):                  # e.data IS the stream's raw bytes
         if e.entry_type == "stream" and e.path == name:
             if damage is None:
                 continue
-            e = dataclasses.replace(e, data=damage(raw))
+            e = dataclasses.replace(e, data=damage(e.data))
         entries.append(e)
     write_cfb(dst, entries)
     return dst
@@ -139,14 +140,14 @@ def test_enter_host_release_returns_its_note_never_raises(bad):
         assert cause in note and note.count(path) == 1, (name, note)     # the why, not the path twice
 
 
-@pytest.mark.parametrize("year", sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE))
+@pytest.mark.parametrize("year", NATIVE_LAST)
 def test_readable_pins_are_unchanged_controls(year):
     with contextlib.ExitStack() as stack:
         assert RC.enter_host_release(stack, pinned_base(year)) is None
         assert RC.active_release() == (None if year == V.LATEST_RELEASE else year)
 
 
-@pytest.mark.parametrize("year", sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE))
+@pytest.mark.parametrize("year", NATIVE_LAST)
 def test_a_host_without_basicfileinfo_is_still_readable(year, tmp_path):
     """``detect_release`` falls back to the schema signature; the context's
     identity strings come from OUR bundled base, never the host (rule 6)."""
@@ -226,12 +227,11 @@ def test_rvt_edit_text_refuses_in_one_line(bad, schema_dmg, edit_text, tmp_path,
     warning, error = cap.err.splitlines()                  # exactly two lines, no traceback
     assert warning.startswith("warning: no release context for ") and "Formats/Latest" in warning
     assert error.startswith("ERROR: input partition does not walk cleanly: ValueError: ")
-    for name in ("text", "trunc4k"):
+    for name in ("text", "trunc4k"):                    # not even a container: ONE line, before any release entry
         rc = edit_text.main([bad[name][0], "--old", OLD_NAME, "--new", NEW_NAME, "--utf16",
                              "-o", str(tmp_path / "never.rvt")])
-        cap = capsys.readouterr()
-        assert rc == 2 and "Traceback" not in cap.err, name
-        assert cap.err.splitlines()[-1].startswith("ERROR: cannot open as an .rvt container: "), name
+        (only_line,) = capsys.readouterr().err.splitlines()
+        assert rc == 2 and only_line.startswith("ERROR: cannot open as an .rvt container: "), name
 
 
 def test_rvt_selfcheck_reaches_its_verdict_without_a_local_guard(schema_dmg, selfcheck, tmp_path, capsys):

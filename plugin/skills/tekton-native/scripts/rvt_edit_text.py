@@ -99,21 +99,21 @@ def main(argv=None) -> int:
         return 2
     if not os.path.isfile(a.path):
         ap.error(f"input .rvt not found: {a.path}")
+    try:
+        doc = open_rvt(a.path)
+    except Exception as e:  # not CFB / not readable
+        print(f"ERROR: cannot open as an .rvt container: {e}", file=sys.stderr)
+        return 2
 
     # walk, edit, re-frame AND read back under the INPUT file's own release
     with contextlib.ExitStack() as stack:
         note = enter_host_release(stack, a.path)
         if note:
             print(f"warning: {note}", file=sys.stderr)
-        return _edit(a, old_b, new_b)
+        return _edit(a, doc, old_b, new_b)
 
 
-def _edit(a: argparse.Namespace, old_b: bytes, new_b: bytes) -> int:
-    try:
-        doc = open_rvt(a.path)
-    except Exception as e:  # not CFB / not readable
-        print(f"ERROR: cannot open as an .rvt container: {e}", file=sys.stderr)
-        return 2
+def _edit(a: argparse.Namespace, doc, old_b: bytes, new_b: bytes) -> int:
     with doc:
         pname = find_partition(doc, a.partition)
         logical = doc.logical(pname)

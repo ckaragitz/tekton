@@ -443,7 +443,9 @@ leaves `MU.CLASS_ELEMENT_HEADER == 1479` (the 2025 id) behind in the process
   wrong direction; and a `ValueError` base would be caught by unrelated `except
   ValueError` arms such as `rvt_edit._run_json`'s "unknown id" line. One parent,
   the one every caller already names.)
-* **Two guarded probes, nothing else moved:** `_classify_release` wraps
+* **Two guarded probes, nothing else moved:** `_detect_release(path)` (used by
+  `_classify_release` and by the exported `needs_release_context`, so the module
+  has no unguarded probe left — /simplify altitude finding) wraps
   `V.detect_release(path)` → `UnreadableHost(path, "not a Revit container tekton
   can open (<Exc>: <msg>)")`; `_codec_triple_from_base` wraps
   `global_framing.schema_of(base_path)` → `UnreadableHost(path, "its
@@ -462,8 +464,9 @@ leaves `MU.CLASS_ELEMENT_HEADER == 1479` (the 2025 id) behind in the process
   twice, as the pin-mismatch note already does today — left alone).
 * **Restore-before-yield (`_release_context`)**, minimal-diff: the `with
   V.reading(…) as ords, GF.bound(…)` line also opens a `contextlib.ExitStack()
-  as undo`; the three shared-dict snapshots (`GSK._SCHEMA_CACHE`, `port._STATE`,
-  `SA._SCHEMA_STATE`) are taken right there and one `@undo.callback _restore()`
+  as undo`; the three shared dicts (`GSK._SCHEMA_CACHE`, `port._STATE`,
+  `SA._SCHEMA_STATE`) are snapshotted right there as one `[(live, dict(live)), …]`
+  list and one `@undo.callback _restore()`
   (the old `finally:` body, verbatim in effect: `_ACTIVE` cleared, `saved`
   replayed LIFO, the three dicts reset) is registered **before the first
   `swap()`**; the trailing `try: yield / finally:` collapses to `yield info`. The
@@ -484,14 +487,18 @@ leaves `MU.CLASS_ELEMENT_HEADER == 1479` (the 2025 id) behind in the process
   its own refusal" — another stream's file, left for them; harmless).
 * **`tools/rvt_edit_text.py`** had no local catch around `enter_host_release`
   (the brief assumed one); what it lacked was its *own downstream guard*, which
-  the issue's DONE names ("warning + exit ≠ 0 at the walker, no traceback"):
-  `_edit` now opens the container with the exact two lines `rvt_selfcheck.main`
-  uses (`ERROR: cannot open as an .rvt container: <e>`, exit 2) and constructs
-  the walker under a `try` (`ERROR: input partition does not walk cleanly:
-  <Exc>: <msg>`, exit 2 — the same words its existing `w.errors` refusal prints).
-  `with open_rvt(a.path) as doc:` became `doc = open_rvt(…)` + `with doc:` so
-  the 70-line body is not re-indented. Happy path untouched (2025 edit from the
-  bare unzip: `SELF-CHECK PASS`).
+  the issue's DONE names ("warning + exit ≠ 0 at the walker, no traceback"). It
+  now has `rvt_selfcheck.main`'s exact order and words: `main()` opens the
+  container first (`ERROR: cannot open as an .rvt container: <e>`, exit 2 — a
+  text file / truncation is ONE line and never reaches the release entry; the
+  first head guarded inside `_edit` and printed warning + error, /simplify moved
+  it up), then enters the release, then hands `doc` to `_edit(a, doc, …)`, which
+  constructs the walker under a `try` (`ERROR: input partition does not walk
+  cleanly: <Exc>: <msg>`, exit 2 — the same words its existing `w.errors`
+  refusal prints; a damaged-schema host *does* open, so this is legitimately
+  `_edit`'s). `with open_rvt(a.path) as doc:` became `with doc:` so the 70-line
+  body is not re-indented. Happy path untouched (2025/2024 edit: `SELF-CHECK
+  PASS`, repo and bare unzip).
 * **`src/rvt/frontdoor/__init__.py`: no change needed** — checked first as the
   brief asked. `_route_rvt` already treats the return of `enter_host_release` as
   a note, then enters `global_framing.enter_own_release` (never raises) and
@@ -518,8 +525,8 @@ leaves `MU.CLASS_ELEMENT_HEADER == 1479` (the 2025 id) behind in the process
   disk; CLI `main([... --json])` → rc `EX_INCOMPLETE == 3`, **stderr `""`**,
   stdout parses as ONE JSON; `rvt_edit_text` on the damaged schema → rc 2,
   exactly two stderr lines (warning + `ERROR: input partition does not walk
-  cleanly: ValueError: …`), nothing written, and on text / truncation → rc 2, last
-  line `ERROR: cannot open as an .rvt container: …`; `rvt_selfcheck` on the
+  cleanly: ValueError: …`), nothing written, and on text / truncation → rc 2,
+  exactly ONE line `ERROR: cannot open as an .rvt container: …`; `rvt_selfcheck` on the
   damaged schema with the guard gone → rc 1, `FAIL`, `release_note`, walker 1, no
   traceback. An autouse fixture snapshots the framing table, `active_release()`,
   three `rvt.mutate` ids, two `genesis.skeleton` builders + cache keys, and
@@ -537,7 +544,7 @@ python3` 3.11.15):
 | `schema_dmg_2025` | **rc 3, 32-line JSON on stdout, stderr 0 lines**; `status: FAILED (edit did not complete: rc None)`; `errors[0]: cannot open/plan …/schema_dmg_2025.rvt: ParseError: parse error at 0x603b: … (no release context for …: its Formats/Latest class schema cannot be read (ParseError: …))`. † `go author --rvt … --edit … --json`: rc 3, `go.ready true`, `result.status FAILED (…)`, stderr **0** lines (main: rc 1, `result null`, 56 lines) | rc 2, stderr exactly: `warning: no release context for …: its Formats/Latest class schema cannot be read (ParseError: parse error at 0x603b: class marker != 0 (0x403c) …)` / `ERROR: input partition does not walk cleanly: ValueError: unexpected Partitions header: v=9 cls=0x391`; † identical | rc 1, `VERDICT : FAIL -> gzip CRC failures: 1; ECC page mismatches: 1 …; partition walker errors: 1; judged without its release context (…)`, one stderr warning (the helper's sentence); † identical |
 | `schema_dmg_2024` | rc 3, one JSON, stderr empty (`ParseError … 0x5c1b`) | — | — |
 | `schema_gone_2025` | rc 2 (#176 precheck, unchanged) | rc 2: warning `… cannot be read (OSError: file not found)` + `ERROR: input partition does not walk cleanly: ValueError: …` | rc 1 FAIL + warning |
-| `text.rvt` / `trunc4k_2025` | rc 2 (#176 precheck, unchanged) | rc 2: `warning: no release context for …: not a Revit container tekton can open (NotOleFileError: not an OLE2 structured storage file)` + `ERROR: cannot open as an .rvt container: not an OLE2 structured storage file` (resp. `OleFileError: incomplete OLE sector`); † identical | rc 2, one line (unchanged) |
+| `text.rvt` / `trunc4k_2025` | rc 2 (#176 precheck, unchanged) | rc 2, ONE line: `ERROR: cannot open as an .rvt container: not an OLE2 structured storage file` (resp. `incomplete OLE sector`) — opened before the release entry, like selfcheck; † identical | rc 2, one line (unchanged) |
 | `trunc64k_2025` | rc 3, one JSON (unchanged) | rc 2: pin-mismatch warning + `ERROR: input partition does not walk cleanly: ValueError: …` (main: traceback) | rc 1 FAIL (unchanged) |
 | `bfi_gone_2025` | rc 3 `edit not understood` for the placeholder sentence / proceeds for a real one (unchanged — readable) | — | — |
 
@@ -579,6 +586,17 @@ BRANCH STATE / PR body.
   18403/18404/18453, not classified as window false positives). Pre-existing, outside the
   shard (so no gate shows it), inside the #498 fence — filed, not touched; the other 165
   tests of those 12 files pass on head.
+* /simplify (4 angles) applied: the shared `_detect_release` probe (closes the
+  `needs_release_context` hole), the snapshot list in `_restore`, the trimmed
+  module docstring, `rvt_edit_text` open-before-enter (one line for a non-container),
+  test const hoist + single-open damaged-copy builder. Skipped with reason: hoisting
+  `_rewrite_stream` / the no-leak fixture into `tests/conftest.py` (that file is
+  another engineer's territory this wave, PR #558 — worth a follow-up sweep once it
+  lands: four test files now carry a copy); collapsing `enter_host_release`'s two
+  `except` arms into one `getattr(e, "why", e)` (explicit arms preferred; `.why` is
+  the documented field the brief asked for); dropping the 8-line selfcheck assertion
+  that overlaps #518's test (kept: it pins the helper's new wording, and #518's
+  docstring still describes the old guard).
 * Not filed (note for eng #533, above): `rvt_inspect.py` needs no local guard.
 * Not filed: `tests/test_selfcheck_release.py`'s docstring line "(#535: the
   helper raises past its own refusal)" is now history; whoever next touches that

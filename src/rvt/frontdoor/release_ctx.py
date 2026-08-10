@@ -67,15 +67,11 @@ the first swap, before anything was yielded; nesting is safe; nothing on
 disk changes.  Territory: this file + the two-line entry hook in
 ``rvt.frontdoor.build`` (documented in docs/inbox/build-2025.md).
 
-A file that cannot even be PROBED -- not a CFB container at all (a text file
-named ``.rvt``, a copy truncated mid-sector), or a foreign-release host whose
-``Formats/Latest`` class schema does not parse -- raises exactly one type,
-:class:`UnreadableHost` (a :class:`ReleaseContextError` carrying ``.path``,
-``.why`` and the container/parser error as ``__cause__``), never the raw
-``OleFileError`` / ``ParseError`` / ``struct.error`` of the layer that
-noticed (#535).  So ``with host_release_context(p)`` callers catch ONE typed
-exception, and :func:`enter_host_release` keeps its promise of a refusal
-NOTE for every file a survey/report lane is handed.
+A file that cannot even be PROBED (not a CFB container, truncated, or a
+foreign-release host whose ``Formats/Latest`` does not parse) raises exactly
+one type, :class:`UnreadableHost`, never the raw error of the layer that
+noticed (#535) -- so :func:`enter_host_release` keeps its promise of a
+refusal NOTE for every file a survey/report lane is handed.
 
 THE HOST-KEYED ENTRY (famload-2025-lane, issue #14).  The build context is
 keyed on the BASE the front door resolved.  Every lane that instead operates
@@ -143,13 +139,25 @@ def native_release() -> int:
 
 def needs_release_context(base_path: str) -> bool:
     """True when building on ``base_path`` requires the release context."""
-    rel = V.detect_release(base_path)
+    rel = _detect_release(base_path)
     return rel is not None and rel != native_release()
 
 
 # ---------------------------------------------------------------------------
 # small helpers
 # ---------------------------------------------------------------------------
+
+def _detect_release(path: str) -> Optional[int]:
+    """``V.detect_release`` for a file a USER handed us: a path that does not
+    even open as a CFB container (text, truncated mid-sector) is an
+    unreadable host, said once and typed -- not the container layer's raw
+    error."""
+    try:
+        return V.detect_release(path)
+    except Exception as e:               # noqa: BLE001 -- a container that does not open IS the finding
+        raise UnreadableHost(
+            path, f"not a Revit container tekton can open ({type(e).__name__}: {e})") from e
+
 
 def _port_module(year: int):
     """``rvt.genesis.port<year>`` -- the constructor portability layer."""
@@ -258,11 +266,7 @@ def _classify_release(path: str, *, host: bool):
     ``(year, None, None)`` when the file IS the native release.  Raises
     ``ReleaseContextError`` naming the one missing piece otherwise."""
     what = "host lane (load/place/edit)" if host else "build"
-    try:
-        year = V.detect_release(path)
-    except Exception as e:               # noqa: BLE001 -- a container that does not open IS the finding
-        raise UnreadableHost(
-            path, f"not a Revit container tekton can open ({type(e).__name__}: {e})") from e
+    year = _detect_release(path)
     if year is None:
         raise ReleaseContextError(
             f"cannot detect the Revit release of {path} -- refusing to "
@@ -395,18 +399,15 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
         # every swap below is undone LIFO when this block exits: after the
         # yield, or on a setup failure BEFORE it (#535) -- so the three
         # shared dicts are snapshotted and the restore registered up front
-        prev_cache = dict(GSK._SCHEMA_CACHE)
-        prev_port_state = dict(port._STATE)
-        prev_sa_state = dict(SA._SCHEMA_STATE)
+        snapshots = [(live, dict(live))
+                     for live in (GSK._SCHEMA_CACHE, port._STATE, SA._SCHEMA_STATE)]
 
         @undo.callback
         def _restore() -> None:
             _ACTIVE["info"] = None
             for obj, name, val in reversed(saved):
                 setattr(obj, name, val)
-            for live, prev in ((GSK._SCHEMA_CACHE, prev_cache),
-                               (port._STATE, prev_port_state),
-                               (SA._SCHEMA_STATE, prev_sa_state)):
+            for live, prev in snapshots:
                 live.clear()
                 live.update(prev)
 
