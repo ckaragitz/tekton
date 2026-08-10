@@ -827,6 +827,81 @@ def test_e2e_rename_and_set_mark_on_our_own_output(identity_job, tmp_path):
                     {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-7"}]
 
 
+@needs_catalog
+def test_prompted_receptacles_round_trip_through_our_ifc_as_outlets(tmp_path):
+    """prompt -> OUR IFC -> re-entry (#166 review): a wiring device is emitted
+    as an honest ``IfcOutlet`` (POWEROUTLET) with its DeviceSchedule pset --
+    never coerced into a fifth distribution board -- and reads back as
+    ``receptacle_device`` with the SAME planned make_device plan (kwargs from
+    the pset), the panel unaffected.  A no-device intent emits byte-for-byte
+    what it did before devices existed (same product / pset lines)."""
+    from rvt.frontdoor.ifc_out import write_intent_ifc
+    model, _ = PP.prompt_to_intent("an electrical room with a 100 A lighting panel "
+                                   "and 4 duplex receptacles at 44 in AFF")
+    path = write_intent_ifc(model, str(tmp_path / "rt.ifc"))
+    text = open(path, encoding="ascii").read()
+    assert text.count("IFCOUTLET(") == 4 and text.count(".POWEROUTLET.") == 4
+    assert text.count("IFCELECTRICDISTRIBUTIONBOARD(") == 1          # LP-1 only, no fake boards
+    assert text.count("'DeviceSchedule'") == 4 and "'MountingHeight'" in text and "'Load'" in text
+    back = FI.intent_from_ifc(path)
+    summ = FI.summarize(back)
+    assert summ["equipment_by_kind"] == {"lighting_panelboard": 1, "receptacle_device": 4}
+    assert summ["family_plans_by_status"] == {"resolved": 1, "planned": 4}
+    lp = back.plan_for("LP-1")
+    assert lp.status == "resolved" and lp.constructor.endswith("make_panelboard")
+    for tag in ("R-1", "R-2", "R-3", "R-4"):
+        eq, pl = back.by_tag(tag), back.plan_for(tag)
+        assert eq.ifc_class == "IfcOutlet" and eq.frame_kind == "upright"
+        assert abs(eq.insertion_m[2] - 44 * 0.0254) < 1e-3              # the AFF height survives
+        assert pl.constructor.endswith("make_device") and pl.status == "planned"
+        assert pl.kwargs == {"kind": "duplex-receptacle", "mounting_height_in": 44.0,
+                             "voltage": "120", "va": 180.0}
+        assert "#359" in (pl.refusal or "") and eq.disposition.startswith("generated-family")
+    # a device-free intent: the equipment / pset lines are exactly the pre-#166 shape
+    plain, _ = PP.prompt_to_intent("an electrical room with a 100 A lighting panel")
+    ptxt = open(write_intent_ifc(plain, str(tmp_path / "plain.ifc")), encoding="ascii").read()
+    assert ptxt.count("IFCOUTLET(") == 0 and ptxt.count("IFCELECTRICDISTRIBUTIONBOARD(") == 1
+    assert "'DeviceSchedule'" not in ptxt and "'PanelSchedule'" in ptxt
+
+
+@needs_catalog
+def test_e2e_prompted_receptacles_are_delivered_as_planned_devices(tmp_path):
+    """Issue #166's DONE prompt through the product path.  Electrical Fixtures
+    GENERATE (make_device) and load unplaced, but the front door does not load
+    or place the category yet (issue #359) -- so the job is DELIVERED (rule 1):
+    exit ok, the room's walls on the pinned base (project validator 0 errors),
+    the 4 receptacles as `receptacle_device` equipment planned with make_device
+    at the facts' 18 in AFF, and one degradation line per device naming the
+    follow-up -- never a not_built shrug, never a fake instance."""
+    if not os.path.isfile(PINNED[2026]):
+        pytest.skip("bundled genesis base missing")
+    r = FD.author(prompt="a room with 4 duplex receptacles", out=str(tmp_path / "rc"),
+                  no_handoff=True)
+    assert r.route == "prompt" and r.ok, (r.status, r.errors)
+    assert "PROOF-ONLY" in r.status
+    man = r.manifest
+    summ = man["intent"]["summary"]
+    assert summ["equipment_by_kind"] == {"receptacle_device": 4}
+    assert summ["family_plans_by_status"] == {"planned": 4}
+    assert {p["constructor"] for p in summ["family_plans"]} == {"make_device"}
+    assert {round(e["insertion_m"][2], 3) for e in summ["equipment"]} == {0.457}
+    assert man["prompt_coverage"]["not_built"] == []
+    build = man["build"]
+    assert build["errors"] == []
+    v = build["combination_verdict"]
+    assert v["mode"] == "single" and v["n_instances"] == 0 and v["n_walls"] == 4
+    kinds = [c["kind"] for c in build["elements_created"]]
+    assert kinds == ["wall"] * 4                     # no instance is faked
+    degr = build["degradations"]
+    assert len([d for d in degr if "receptacle_device" in d and "#359" in d]) == 4
+    combined = build["files"]["combined"]["path"]
+    assert os.path.isfile(combined)
+    assert build["validation"]["combined"]["validate"]["n_errors"] == 0
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        md = fh.read()
+    assert "receptacle_device×4" in md and "18 in AFF" in md
+
+
 # ===========================================================================
 # 9. stage D: the intent's levels bound to the base's two building-story
 #    datums (issue #147) -- rename + re-elevate (the certified modify shape),

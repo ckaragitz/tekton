@@ -19,6 +19,10 @@ Usage::
         --wattage 38 --lumens 4600 --cct 4000 --voltage 120-277 \
         -o out/troffer_2x4.rfa
 
+    python tools/make_family.py device --kind duplex-receptacle --height 18 \
+        --voltage 120 --va 180 -o out/duplex.rfa    # | switch | junction-box
+    python tools/make_family.py load-device --kind switch -o out/sw_loaded.rvt   # unplaced
+
     python tools/make_family.py proofs            # the three proof families
     python tools/make_family.py provenance <file.rfa>
     python tools/make_family.py loader            # loader readiness (no file)
@@ -104,6 +108,18 @@ def _types_flags(p, axis: str) -> None:
                         "= every parameter local")
 
 
+def _device_flags(p) -> None:
+    p.add_argument("--kind", default="duplex-receptacle", choices=sorted(F.DEVICE_KINDS),
+                   help="duplex-receptacle (5-15R) | duplex-receptacle-20a (5-20R) | "
+                        "switch (single-pole) | junction-box (4 in square)")
+    p.add_argument("--height", type=float, default=None, metavar="IN",
+                   help="mounting height above the floor (in); default = the record's "
+                        "convention (18 receptacle / 48 switch), flagged assumed")
+    p.add_argument("--voltage", default="120", help="connector system voltage (default 120)")
+    p.add_argument("--va", type=float, default=180.0,
+                   help="booked connector load (VA); 180 = NEC 220.14(I) receptacle unit load")
+
+
 def _emit(prod, ns) -> dict:
     """Write the optional type catalog, the .rfa (+ report), print, return."""
     out = ns.output or os.path.join(F.FACTORY_OUT, prod.file_stem + ".rfa")
@@ -187,6 +203,12 @@ def cmd_luminaire(ns) -> int:
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
+def cmd_device(ns) -> int:
+    prod = F.make_device(ns.kind, mounting_height_in=ns.height, voltage=ns.voltage,
+                         va=ns.va, solid=not ns.dummy, shared_params=ns.shared_params)
+    return 0 if _emit(prod, ns)["ok"] else 1
+
+
 def cmd_proofs(ns) -> int:
     return F.main([] if not ns.no_validate else ["--no-validate"])
 
@@ -195,6 +217,46 @@ def cmd_provenance(ns) -> int:
     rep = F.provenance_scan(ns.path)
     print(json.dumps(rep, indent=1, default=str))
     return 0 if rep.get("ok") else 1
+
+
+#: the follow-up that owns front-door load + PLACEMENT of Electrical Fixtures
+#: (#166 shipped generation + this unplaced load; #361 the famspec kind that
+#: makes ``route.py run --rfa '{"kind": "device", ...}' --output rvt`` this verb)
+DEVICE_PLACEMENT_FOLLOWUP = "issue #359 (front door loads + places Electrical Fixtures)"
+
+
+def cmd_load_device(ns) -> int:
+    """LOAD a generated device family UNPLACED through the certified
+    four-registry loader (``rvt.famload`` via ``famfrom_ifc.load_into_project``
+    -- exactly the famspec -> rvt lane; the stand-in for a famspec ``device``
+    kind, #361): the host elements carry the family's OWN category
+    (Electrical Fixtures).  Default host = the pinned certified genesis base
+    (bundled, runs anywhere).  Placement of this category is not built yet --
+    said out loud, never faked (rule 1: the file is delivered)."""
+    from functools import partial
+    from rvt.frontdoor.base import resolve_base
+    from rvt.ifc import famfrom_ifc as FFI
+    host = ns.host or resolve_base().path
+    print(f"note: placement of Electrical Fixtures is {DEVICE_PLACEMENT_FOLLOWUP}; "
+          "loading UNPLACED (family + symbol + registries, no instance)", file=sys.stderr)
+    build = partial(F.make_device, ns.kind, mounting_height_in=ns.height,
+                    voltage=ns.voltage, va=ns.va)
+    probe = build()                                   # name / stem / category of the family
+    rep = FFI.load_into_project(
+        host, ns.output, name=probe.file_stem,
+        builder=lambda start_id=100000: build(start_id=start_id).doc,
+        core_categories=(int(probe.doc.category_id),),
+        report_path=os.path.splitext(ns.output)[0] + ".json")
+    val = rep.validate_project_mode or {}
+    ok = bool(rep.ok) and val.get("verdict") == "VALID"
+    print(json.dumps({"ok": ok, "out": rep.out_path, "host": host, "loader": rep.loader,
+                      "family": probe.name, "category": probe.summary()["category"],
+                      "placed": False, "placement": DEVICE_PLACEMENT_FOLLOWUP,
+                      "validate": {k: val.get(k) for k in ("verdict", "n_errors", "n_warnings")},
+                      "plans": [{k: p.get(k) for k in ("family_name", "category", "host_family_id",
+                                                       "symbol_ids", "unit")} for p in rep.plans],
+                      "stop_reason": rep.stop_reason or rep.error}, indent=1, default=str))
+    return 0 if ok else 1
 
 
 def cmd_load(ns) -> int:
@@ -286,6 +348,16 @@ def main(argv=None) -> int:
     p.add_argument("--no-validate", action="store_true")
     p.set_defaults(func=cmd_luminaire)
 
+    p = sub.add_parser("device", help="generate a wiring-device family (Electrical Fixtures)")
+    _device_flags(p)
+    p.add_argument("--shared-params", default=None, metavar="FILE",
+                   help="OUR shared-parameter TXT (as for the panelboard)")
+    p.add_argument("--dummy", action="store_true")
+    p.add_argument("-o", "--output", default=None)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--no-validate", action="store_true")
+    p.set_defaults(func=cmd_device, types=None, type_catalog=False)
+
     p = sub.add_parser("proofs", help="build the three proof families")
     p.add_argument("--no-validate", action="store_true")
     p.set_defaults(func=cmd_proofs)
@@ -313,6 +385,13 @@ def main(argv=None) -> int:
                    help="leave the symbol geometry as a SerializedDummy (F4b)")
     p.add_argument("--no-validate", action="store_true")
     p.set_defaults(func=cmd_load)
+
+    p = sub.add_parser("load-device", help="LOAD a generated device family into a project "
+                                           "(.rvt), UNPLACED (four-registry famload lane)")
+    p.add_argument("-o", "--output", required=True, help="output .rvt path")
+    p.add_argument("--host", default=None, help="host .rvt (default: the pinned genesis base)")
+    _device_flags(p)
+    p.set_defaults(func=cmd_load_device)
 
     ns = ap.parse_args(argv)
     try:

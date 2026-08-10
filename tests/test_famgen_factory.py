@@ -27,6 +27,7 @@ projects skip when ``samples/`` is absent.
 """
 from __future__ import annotations
 
+import json
 import os
 import struct
 from functools import partial
@@ -329,6 +330,77 @@ def test_luminaire_family_composition():
     assert "http" in vals[doc.params["IES File (URL reference)"].elem_id]
 
 
+def test_device_facts_resolve_from_the_generic_record():
+    """Issue #166: every device kind resolves from generic/devices-and-mounting;
+    envelopes are 'assumed' and surfaced, the ADA reach envelope is the FACT,
+    the mounting height defaults to the record's convention (18 receptacle /
+    48 switch) unless given, and voltage / load are the job's ('given')."""
+    rec = F.resolve_device_facts("duplex-receptacle")
+    assert rec.variant == "duplex-receptacle-5-15R" and rec.catalog == "generic/devices-and-mounting"
+    assert rec.get("mounting_height_in") == 18.0 and rec.values["mounting_height_in"].kind == "assumed"
+    assert rec.get("ada_reach_range_in") == [15, 48] and rec.values["ada_reach_range_in"].kind == "fact"
+    assert (rec.get("voltage_v"), rec.get("load_va")) == (120.0, 180.0)
+    assert {rec.values[k].kind for k in ("voltage_v", "load_va")} == {"given"}
+    assert "NEC 220.14(I)" in rec.values["load_va"].note
+    for k in ("box_width_in", "box_height_in", "box_depth_in", "plate_width_in",
+              "plate_height_in", "plate_thickness_in"):
+        assert rec.get(k) > 0 and k in rec.assumed()
+    assert rec.get("manufacturer") == "generic"
+    sw = F.resolve_device_facts("switch")
+    assert sw.variant == "toggle-switch-single-pole" and sw.get("mounting_height_in") == 48.0
+    jb = F.resolve_device_facts("junction-box", mounting_height_in=96, voltage="277", va=0)
+    assert jb.variant == "box-4in-square" and jb.get("mounting_height_in") == 96.0
+    assert jb.values["mounting_height_in"].kind == "given" and jb.get("voltage_v") == 277.0
+    assert (jb.get("box_width_in"), jb.get("box_depth_in")) == (4.0, 1.5)
+    assert "box_width_in" not in jb.assumed()                # the 4 in square identity is a fact
+    assert F.device_kind("outlet") == "duplex-receptacle" and F.device_kind("jbox") == "junction-box"
+    with pytest.raises(F.FactoryError):
+        F.resolve_device_facts("toaster")
+
+
+@needs_schema
+@pytest.mark.parametrize("kind,variant,height", [
+    ("duplex-receptacle", "duplex-receptacle-5-15R", 18.0),
+    ("switch", "toggle-switch-single-pole", 48.0),
+    ("junction-box", "box-4in-square", 18.0)])
+def test_device_family_composition(kind, variant, height):
+    """make_device: an Electrical Fixtures work-plane family (no face-hosting
+    claim) = faceplate proud of the wall face + device box recessed behind
+    it, ONE 1-pole 120 V / 180 VA PRIMARY connector on the back of the box
+    bound to Voltage / Load, MountingHeight from the facts, Manufacturer
+    'generic' / Model = the record's member on the one type row."""
+    prod = F.make_device(kind)
+    doc = prod.doc
+    assert prod.kind == "device" and prod.facts.variant == variant
+    assert doc.category_id == SK.OST_ELECTRICAL_FIXTURES and doc.part_type == 0
+    assert doc.work_plane_based and doc.finalized
+    assert sorted(doc.params) == ["Load", "MountingHeight", "Voltage"]
+    assert [f.kind for f in prod.forms] == ["plate", "box"]
+    plate, box = prod.forms
+    assert plate.params["base_z_ft"] == 0.0 and box.params["base_z_ft"] == pytest.approx(
+        -prod.facts.get("box_depth_in") / 12)
+    assert box.params["width_ft"] == pytest.approx(prod.facts.get("box_width_in") / 12)
+    assert len(doc.connectors) == 1
+    con = doc.connectors[0]
+    dom = con.obj["m_pDomain"]["value"]
+    assert dom["m_nNumberOfPoles"] == 1 and dom["m_bIsConnectorPrimary"] is True
+    assert round(dom["m_dVoltage"] * 0.3048 ** 2) == 120
+    assert dom["m_dApparentLoadPhase1"] == pytest.approx(SK.voltamps(180.0))
+    assert dom["m_dApparentLoadPhase2"] == dom["m_dApparentLoadPhase3"] == dom["m_dApparentLoad"] == 0.0
+    assert dom["m_systemType"] == 31
+    assert any("bottom face" in n for n in con.notes)          # hosted on the back of the box
+    (tname, vals), = doc.types
+    assert vals[doc.params["MountingHeight"].elem_id] == pytest.approx(height / 12)
+    ident = {bip: vals[bip] for bip in (SK.BIP_TYPE_MANUFACTURER, SK.BIP_TYPE_MODEL,
+                                          SK.BIP_TYPE_DESCRIPTION)}
+    assert ident[SK.BIP_TYPE_MANUFACTURER] == "generic"
+    assert ident[SK.BIP_TYPE_MODEL] == variant
+    assert "in AFF" in ident[SK.BIP_TYPE_DESCRIPTION] and "120V" in tname
+    summ = prod.summary()
+    assert summ["category"] == "Electrical Fixtures" and summ["connectors"] == 1
+    assert "mounting_height_in" in summ["unverified_fields"]
+
+
 @needs_schema
 def test_composition_roundtrips_and_forms_a_closed_graph():
     prod = F.make_panelboard(mains_a=225, spaces=30, voltage="208Y/120", mcb=False)
@@ -382,6 +454,9 @@ ALL_KINDS = {
     "transformer": F.make_transformer,
     "troffer": partial(F.make_luminaire, kind="recessed-troffer"),
     "downlight": partial(F.make_luminaire, kind="downlight"),
+    "duplex-receptacle": partial(F.make_device, "duplex-receptacle"),
+    "switch": partial(F.make_device, "switch"),
+    "junction-box": partial(F.make_device, "junction-box"),
 }
 
 
@@ -667,6 +742,30 @@ CONTRACT_GUIDS = {
 }
 GEN_BASE = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
 needs_base = pytest.mark.skipif(not os.path.isfile(GEN_BASE), reason="bundled genesis base absent")
+
+
+@needs_schema
+def test_make_family_cli_device_verb_writes_a_valid_rfa(tmp_path, capsys):
+    """`make_family.py device --kind K` = the fresh-clone deliverable: exit 0,
+    family-mode VALID 0 errors, provenance clean, the connector decoding to
+    1-pole / 120 V / 180 VA / primary on the FILE."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "make_family_cli_dev", os.path.join(ROOT, "tools", "make_family.py"))
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)
+    out = tmp_path / "sw.rfa"
+    assert cli.main(["device", "--kind", "switch", "--height", "44", "-o", str(out), "--json"]) == 0
+    rep = json.loads(capsys.readouterr().out)
+    assert rep["ok"] and rep["validate"]["family_mode"]["n_errors"] == 0 and rep["provenance"]["ok"]
+    assert rep["family"]["category"] == "Electrical Fixtures"
+    assert rep["family"]["type_facts"][0]["values"]["MountingHeight"] == 44.0
+    (idx, dom), = _rfa_connector_domains(str(out))
+    assert (dom["m_nNumberOfPoles"], round(dom["m_dVoltage"] * 0.3048 ** 2),
+            round(dom["m_dApparentLoadPhase1"] * 0.3048 ** 2), dom["m_bIsConnectorPrimary"]) \
+        == (1, 120, 180, True)
+    with pytest.raises(SystemExit):                           # argparse: unknown --kind choice
+        cli.main(["device", "--kind", "toaster", "-o", str(tmp_path / "t.rfa")])
 
 
 def test_shared_parameter_file_parses_our_tracked_txt():

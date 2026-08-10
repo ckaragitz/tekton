@@ -56,7 +56,9 @@
       "dims_note": "Envelope of a standard single-gang device box + duplex strap for the family symbol (single-gang device box nominal 3 x 2 in opening, 2-1/2 in deep typical; wall plate 4-1/2 x 2-3/4 in nominal). These are OUR modelling envelope values, flagged 'assumed'.",
       "options": {
         "mounting_height_aff_in": {"typical": 18, "ada_min_to_operable_part": 15, "note": "18 in above finished floor to the box centerline is a common design convention (assumed); ADA sets only the 15 in minimum to the lowest operable part (fact)."},
-        "box": "single-gang device box or 4 in square box with single-gang mud ring"
+        "box": "single-gang device box or 4 in square box with single-gang mud ring",
+        "plate_in": {"w": 2.75, "h": 4.5, "t": 0.25, "note": "OUR modelling envelope of a nominal single-gang wall plate (2-3/4 x 4-1/2 in, ~1/4 in proud of the wall) for the family's faceplate solid - assumed, editable."},
+        "unit_load_va": {"value": 180, "code": "NEC 220.14(I)", "note": "180 VA per receptacle strap (yoke) for load calculation - recalled code figure, flagged 'assumed' until Article 220 is read directly; the family surfaces it as the editable Load parameter."}
       },
       "source": {"url": "https://www.ada.gov/law-and-regs/design-standards/2010-stds/", "doc": "2010 ADA Standards 308 (reach ranges) - mounting-height envelope; NEMA WD 6 for the 5-15R configuration name", "accessed": "2026-08-03"},
       "field_provenance": {
@@ -69,7 +71,9 @@
         "dims_in.h": "assumed",
         "dims_in.d": "assumed",
         "options.mounting_height_aff_in": "assumed",
-        "options.box": "assumed"
+        "options.box": "assumed",
+        "options.plate_in": "assumed",
+        "options.unit_load_va": "assumed"
       },
       "notes": "The NEMA 5-15R = 125 V / 15 A / 2-pole 3-wire mapping is standard NEMA WD 6 nomenclature but S3 was not read this session, so it is 'assumed' pending a verbatim read. Only the ADA reach-range envelope (line_facts) is a corroborated fact."
     },
@@ -79,7 +83,7 @@
       "role": "125 V, 20 A duplex receptacle (NEMA 5-20R)",
       "ratings": {"voltage_v": 125, "current_a": 20, "poles": 2, "wires": 3, "nema_config": "5-20R"},
       "dims_in": {"w": 1.9, "h": 4.19, "d": 2.5},
-      "options": {"mounting_height_aff_in": {"typical": 18, "ada_min_to_operable_part": 15}, "box": "single-gang device box or 4 in square box with single-gang mud ring"},
+      "options": {"mounting_height_aff_in": {"typical": 18, "ada_min_to_operable_part": 15}, "box": "single-gang device box or 4 in square box with single-gang mud ring", "plate_in": {"w": 2.75, "h": 4.5, "t": 0.25}, "unit_load_va": {"value": 180, "code": "NEC 220.14(I)"}},
       "source": {"url": "https://www.nema.org/standards/view/wiring-devices-dimensional-specifications", "doc": "NEMA WD 6 configuration naming (not read this session)", "accessed": null},
       "field_provenance": {
         "ratings.voltage_v": "assumed",
@@ -91,9 +95,11 @@
         "dims_in.h": "assumed",
         "dims_in.d": "assumed",
         "options.mounting_height_aff_in": "assumed",
-        "options.box": "assumed"
+        "options.box": "assumed",
+        "options.plate_in": "assumed",
+        "options.unit_load_va": "assumed"
       },
-      "notes": "All 'assumed' - see 5-15R notes."
+      "notes": "All 'assumed' - see 5-15R notes (plate envelope and the 180 VA unit load included)."
     },
     {
       "model": "toggle-switch-single-pole",
@@ -103,7 +109,8 @@
       "dims_in": {"w": 1.9, "h": 4.19, "d": 2.5},
       "options": {
         "mounting_height_aff_in": {"typical": 48, "ada_max_to_operable_part": 48, "note": "48 in AFF to the top of the switch operable part satisfies the ADA 308.2.1 48 in unobstructed forward-reach maximum (fact); centering at 48 in is the common convention (assumed)."},
-        "box": "single-gang device box"
+        "box": "single-gang device box",
+        "plate_in": {"w": 2.75, "h": 4.5, "t": 0.25, "note": "OUR single-gang wall-plate modelling envelope (assumed) - same as the receptacles."}
       },
       "source": {"url": "https://www.ada.gov/law-and-regs/design-standards/2010-stds/", "doc": "2010 ADA Standards 308.2.1 - reach ceiling", "accessed": "2026-08-03"},
       "field_provenance": {
@@ -114,7 +121,8 @@
         "dims_in.h": "assumed",
         "dims_in.d": "assumed",
         "options.mounting_height_aff_in": "assumed",
-        "options.box": "assumed"
+        "options.box": "assumed",
+        "options.plate_in": "assumed"
       },
       "notes": "The 48 in reach ceiling is the sourced fact (line_facts); device ratings and box envelope are 'assumed' conventions."
     },
@@ -124,7 +132,7 @@
       "role": "4 in square outlet / junction box, 1-1/2 in deep (21.0 in^3)",
       "ratings": {"volume_in3": 21.0},
       "dims_in": {"w": 4.0, "h": 4.0, "d": 1.5},
-      "options": {"deeper_variant_2_125in_volume_in3": 30.3, "note": "2-1/8 in deep 4 in square = 30.3 in^3 (NEC Table 314.16(A)) - recalled, flagged 'assumed' until the table is read directly."},
+      "options": {"deeper_variant_2_125in_volume_in3": 30.3, "note": "2-1/8 in deep 4 in square = 30.3 in^3 (NEC Table 314.16(A)) - recalled, flagged 'assumed' until the table is read directly.", "plate_in": {"w": 4.0, "h": 4.0, "t": 0.0625, "note": "flat 4 in square blank cover for the junction-box family's faceplate solid - OUR envelope (assumed)."}, "mounting_height_aff_in": {"typical": 18, "note": "no code height governs a junction box; the family defaults to the receptacle convention (18 in AFF, assumed) as an editable parameter."}},
       "source": {"url": "https://www.nfpa.org/codes-and-standards/nfpa-70-standard-development/70", "doc": "NEC Table 314.16(A) metal box volumes (4 x 1-1/2 square = 21.0 in^3 corroborated by search)", "accessed": "2026-08-03"},
       "field_provenance": {
         "ratings.volume_in3": "fact",
@@ -132,7 +140,9 @@
         "dims_in.h": "fact",
         "dims_in.d": "fact",
         "options.deeper_variant_2_125in_volume_in3": "assumed",
-        "options.note": "assumed"
+        "options.note": "assumed",
+        "options.plate_in": "assumed",
+        "options.mounting_height_aff_in": "assumed"
       },
       "notes": "The 4 x 4 x 1-1/2 in = 21.0 in^3 identity is the corroborated fact; nominal box outside dims equal the nominal 4 in / 1-1/2 in designation."
     }

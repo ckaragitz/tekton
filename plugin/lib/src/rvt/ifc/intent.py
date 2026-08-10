@@ -920,15 +920,19 @@ KIND_BY_CLASS = {
     "IfcSpace": "space",
     "IfcWall": "wall", "IfcWallStandardCase": "wall",
     "IfcLightFixture": "light_fixture",
+    "IfcOutlet": "receptacle_device",          # wiring devices -> make_device (issue #166)
 }
 
-#: equipment kinds that map to OUR generated content
+#: equipment kinds that map to OUR generated content (``receptacle_device``:
+#: rvt.famgen.factory.make_device -- generated + loadable, its front-door
+#: placement is issue #359)
 GENERATED_KINDS = ("switchboard", "distribution_panelboard", "lighting_panelboard",
-                   "receptacle_panelboard", "panelboard", "transformer")
+                   "receptacle_panelboard", "panelboard", "transformer",
+                   "receptacle_device")
 
 FLOOR_KINDS = ("switchboard", "transformer", "switchgear")
 WALL_KINDS = ("distribution_panelboard", "lighting_panelboard", "receptacle_panelboard",
-              "panelboard", "ground_bus")
+              "panelboard", "ground_bus", "receptacle_device")
 
 
 # ============================================================================

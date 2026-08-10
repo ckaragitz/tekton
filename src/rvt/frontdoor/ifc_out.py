@@ -21,11 +21,12 @@ proven on -- the worked ``inputs/ifc/electrical-room-2500a.ifc`` dialect:
   pset and per-wall box solids named ``wall_<i>`` (world-baked
   ``IfcTriangulatedFaceSet``; the resolver re-derives centerlines);
 * one product per equipment item (``IfcElectricDistributionBoard`` /
-  ``IfcTransformer`` / ...) with a body box named ``<tag>_body`` (floor
-  gear) or ``<tag>_enclosure`` (wall gear) plus a thin ``<tag>_nameplate``
-  front-feature plate so the resolver recovers the front normal, and the
-  tagging-contract pset (PanelSchedule / SwitchboardSchedule /
-  TransformerSchedule) as the join key;
+  ``IfcTransformer`` / ``IfcOutlet`` for wiring devices / ...) with a body
+  box named ``<tag>_body`` (floor gear) or ``<tag>_enclosure`` (wall gear)
+  plus a thin ``<tag>_nameplate`` front-feature plate so the resolver
+  recovers the front normal, and the tagging-contract pset (PanelSchedule /
+  SwitchboardSchedule / TransformerSchedule; a device's own DeviceSchedule)
+  as the join key;
 * deterministic GlobalIds (md5 of a stable seed) and a pinned header
   timestamp, so the same intent always yields byte-identical IFC.
 
@@ -54,6 +55,7 @@ _STAMP = "2026-08-04T00:00:00"
 _PSET_BY_KIND = {
     "switchboard": "SwitchboardSchedule",
     "transformer": "TransformerSchedule",
+    "receptacle_device": "DeviceSchedule",
 }
 _DEFAULT_PSET = "PanelSchedule"
 
@@ -64,7 +66,15 @@ _PDT_BY_KIND = {
     "lighting_panelboard": "DISTRIBUTIONBOARD",
     "receptacle_panelboard": "DISTRIBUTIONBOARD",
     "panelboard": "DISTRIBUTIONBOARD",
+    "receptacle_device": "POWEROUTLET",              # IfcOutletTypeEnum
 }
+
+#: the entity classes the emitter writes (all share the IfcElement attribute
+#: list ending in Tag + PredefinedType); an unknown class falls back to a board
+_CLASSES = ("ifcelectricdistributionboard", "ifctransformer", "ifcswitchingdevice",
+            "ifcbuildingelementproxy", "ifcoutlet")
+#: classes whose PredefinedType the emitter fills from :data:`_PDT_BY_KIND`
+_PDT_CLASSES = ("ifcelectricdistributionboard", "ifcoutlet")
 
 
 def _guid(seed: str) -> str:
@@ -314,27 +324,34 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
         items = [_faceset(w, _box_pts(cx, cy, wx, wy, wd / 2.0, dd / 2.0, zlo, zhi),
                           style, body_name)]
         # thin nameplate proud of the front face at 2/3 height: the resolver's
-        # front-normal vote
+        # front-normal vote (never wider / taller than a small device's face)
         pcx = cx + fx * (dd / 2.0 + 0.003)
         pcy = cy + fy * (dd / 2.0 + 0.003)
         pz = zlo + (zhi - zlo) * 2.0 / 3.0
-        items.append(_faceset(w, _box_pts(pcx, pcy, wx, wy, 0.12, 0.003,
-                                          pz - 0.022, pz + 0.022),
+        phw, phh = min(0.12, 0.4 * wd), min(0.022, 0.15 * hh)
+        items.append(_faceset(w, _box_pts(pcx, pcy, wx, wy, phw, 0.003,
+                                          pz - phh, pz + phh),
                               style, f"{tag}_nameplate"))
         shape = w.add(f"IFCSHAPEREPRESENTATION({sub},'Body','Tessellation',({','.join(items)}))")
         rep = w.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({shape}))")
         plc = w.add(f"IFCLOCALPLACEMENT({plc_sto},{a2p})")
         cls = str(getattr(eq, "ifc_class", "") or "IfcElectricDistributionBoard")
-        if cls.lower() not in ("ifcelectricdistributionboard", "ifctransformer",
-                               "ifcswitchingdevice", "ifcbuildingelementproxy"):
+        if cls.lower() not in _CLASSES:
             cls = "IfcElectricDistributionBoard"
-        pdt = _PDT_BY_KIND.get(kind) if cls.lower() == "ifcelectricdistributionboard" else None
+        pdt = _PDT_BY_KIND.get(kind) if cls.lower() in _PDT_CLASSES else None
         name = str(getattr(eq, "name", None) or tag)
         prod = w.add(f"{cls.upper()}({_s(_guid('eq:' + tag))},{oh},{_s(name)},$,$,"
                      f"{plc},{rep},{_s(tag)},{('.' + pdt + '.') if pdt else '$'})")
         products.setdefault(sto, []).append(prod)
         contract = {k: v for k, v in (getattr(eq, "contract", None) or {}).items()
                     if not str(k).startswith("_") and v not in (None, "")}
+        # a wiring device carries its OWN schedule pset verbatim (Load /
+        # MountingHeight / DeviceType are not tagging-contract keys, so the
+        # normalised contract alone would drop them on the round trip)
+        pset_name = _PSET_BY_KIND.get(kind, _DEFAULT_PSET)
+        own = (getattr(eq, "psets", None) or {}).get(pset_name) if kind in _PSET_BY_KIND else None
+        if kind == "receptacle_device" and own:
+            contract = {k: v for k, v in own.items() if v not in (None, "")}
         # the feeder tree rides as FedFrom (the reader rebuilds edges from it)
         fed = contract.get("FedFrom") or getattr(eq, "fed_from", None)
         if not fed:
@@ -346,7 +363,7 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
             contract["FedFrom"] = str(fed)
         man = {k: contract.pop(k) for k in ("Manufacturer", "ModelLabel")
                if k in contract}
-        _pset(w, oh, prod, _PSET_BY_KIND.get(kind, _DEFAULT_PSET), contract)
+        _pset(w, oh, prod, pset_name, contract)
         if man:
             _pset(w, oh, prod, "Pset_ManufacturerTypeInformation", man)
 

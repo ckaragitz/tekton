@@ -39,7 +39,7 @@ the skill's Setup):
 | `square-d/nq-nf-iline-panelboards` | 3 (NQ, NF, I-Line) | panelboard | NQ (240 Vac), NF (600Y/347), I-Line (600 V) — heights by branch spaces |
 | `lithonia/blt-led-troffer` | 2 (2BLT4-38W, 2BLT2) | luminaire | BLT recessed LED troffer (2×4, 2×2) |
 | `lithonia/ldn6-led-downlight` | 1 (LDN6-35/15-CP) | luminaire | 6 in LED downlight with the Chicago-plenum option (dims unsourced → `assumed`) |
-| `generic/devices-and-mounting` | 4 | device | NEMA duplex receptacles, single-pole switch, 4 in square box + code mounting heights (vendor-neutral) |
+| `generic/devices-and-mounting` | 4 | device (Electrical Fixtures) | NEMA 5-15R / 5-20R duplex receptacles, single-pole toggle switch, 4 in square box: device-box + faceplate modelling envelopes (`assumed`), the 180 VA NEC 220.14(I) receptacle unit load, typical mounting heights (18 in receptacle / 48 in switch, `assumed` conventions) inside the ADA 308.2.1 reach envelope 15..48 in (`fact`) |
 
 Query one member (the CLI is the fastest way to see the exact facts a
 family will be built from):
@@ -62,7 +62,8 @@ onto ONE constructor and runs the facts resolver:
 | distribution / lighting / receptacle panelboard | `rvt.famgen.factory.make_panelboard(vendor, line, amps, spaces, mcb=…, mounting=…)` | the Pow-R-Line member whose ampacity + space rows cover `BusRating` / `NumberOfCircuits`, voltage class by `Voltage` |
 | dry-type transformer | `rvt.famgen.factory.make_transformer(kva, vendor, primary, secondary)` | the DOE 2016 row for that kVA (dims + weight facts) |
 | 2500 A switchboard | `rvt.ifc.intent.make_house_switchboard(...)` | NO catalog member (panelboards tabulate 100/225/400/600 A mains): the factory REFUSES with `FactoryError`, and the house switchboard is composed from OUR OWN IFC-modeled lineup extents with the pset ratings as parameter VALUES; the manufacturer / model strings ride as *ifc-declared identity*, not as catalog facts |
-| downlight / troffer | `rvt.famgen.factory.make_lightfixture(...)` (via the IFC-family path) | the Lithonia member |
+| downlight / troffer | `rvt.famgen.factory.make_luminaire(...)` / `rvt.ifc.famfrom_ifc.make_downlight` (via the IFC-family path) | the Lithonia member |
+| duplex receptacle / switch / junction box (`receptacle_device`, prompt: “N duplex receptacles”, IFC: `IfcOutlet`) | `rvt.famgen.factory.make_device(kind, mounting_height_in=None, voltage=120, va=180)` — repo CLI `tools/make_family.py device --kind duplex-receptacle|switch|junction-box`; from this plugin call the constructor through the engine (`F.make_device('duplex-receptacle').write('out/duplex.rfa')`) until the famspec kind `device` lands (issue #361) | the `generic/devices-and-mounting` member: faceplate `plate` + device `box` at the record’s envelopes, ONE 1-pole 120 V primary connector (180 VA booked, bound to `Voltage` / `Load`), `MountingHeight` from the facts. **Honest status:** family-mode VALID + provenance clean and it LOADS unplaced (`make_family.py load-device`, four-registry, category Electrical Fixtures, project validator 0 errors); the room build PLANS + lays the devices out at the ADA/NEC height but does not load/place them yet (issue #359) — the manifest says so per device |
 
 The delivery report must repeat, per generated family, which figures are
 `fact` (cited) and which are `assumed` (to be confirmed), plus every
