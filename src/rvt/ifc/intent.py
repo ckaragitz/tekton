@@ -110,7 +110,7 @@ __all__ = [
     "compose_placement", "axis2placement3d_matrix", "identity_matrix",
     "is_identity", "analyze_product",
     "resolve_intent", "intent_to_json", "write_intent", "plan_families",
-    "plan_family_for", "DEVICE_PSET",
+    "plan_family_for", "DEVICE_PSET", "device_voltage", "parse_device_load",
     "level_elevation", "level_relative_z",
     "make_house_switchboard", "resolve_products",
 ]
@@ -946,6 +946,11 @@ DEVICE_PSET = "DeviceSchedule"
 DEFAULT_DEVICE_KIND = "duplex-receptacle"
 DEFAULT_DEVICE_VOLTAGE = "120"
 DEFAULT_DEVICE_VA = 180.0
+#: a booked load above this is a typo, not a wiring device (a 100 A, 480 V
+#: 3-pole pin-and-sleeve receptacle -- the largest catalogued -- is ~83 kVA)
+MAX_DEVICE_VA = 100_000.0
+#: '180', '180 VA', '180VA', '0.18 kVA', '1.5e2 va' (a person types the unit)
+_RE_LOAD_VA = re.compile(r"^\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)\s*(k?)(?:va)?\s*$", re.I)
 
 
 # ============================================================================
@@ -2096,13 +2101,15 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
     dims_mod = {k: eq.dims_m.get(k) for k in ("w", "d", "h") if eq.dims_m.get(k) is not None}
     if eq.kind == "receptacle_device":
         dev = (eq.psets or {}).get(DEVICE_PSET) or {}
-        volt = parse_voltage(dev.get("Voltage")).get("ll")
+        va, load_note = parse_device_load(dev.get("Load"))
         kwargs = dict(kind=DEFAULT_DEVICE_KIND, mounting_height_in=dev.get("MountingHeight"),
-                      voltage=f"{volt:g}" if volt else DEFAULT_DEVICE_VOLTAGE,
-                      va=float(dev.get("Load") or DEFAULT_DEVICE_VA))
+                      voltage=device_voltage(dev.get("Voltage"),
+                                             poles=dev.get("Poles") or dev.get("Phases")),
+                      va=va)
         fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
                         constructor="rvt.famgen.factory.make_device",
-                        kwargs=kwargs, dims_modeled_m=dims_mod)
+                        kwargs=kwargs, dims_modeled_m=dims_mod,
+                        notes=[load_note] if load_note else [])
         _resolve_device_facts(fp)
         return fp
     if eq.kind in ("distribution_panelboard", "lighting_panelboard",
@@ -2263,6 +2270,56 @@ def _resolve_xfmr_facts(fp: FamilyPlan) -> None:
     fp.dims_catalog_m = {"w": float(sheet.get("width_in")) / IN_PER_M,
                          "h": float(sheet.get("height_in")) / IN_PER_M,
                          "d": float(sheet.get("depth_in")) / IN_PER_M}
+
+
+def device_voltage(voltage: Any, poles: Any = None) -> str:
+    """The connector voltage a wiring device books from a schedule / clause
+    voltage.  A 1-pole device on a wye system takes the line-to-neutral leg
+    ('208Y/120' -> '120', '480Y/277' -> '277'); only a 2- or 3-pole device
+    (``Poles`` / ``Phases`` >= 2 on its schedule) takes the line-to-line
+    ('208Y/120' -> '208').  A plain figure rides as is ('277 V' -> '277');
+    nothing parseable -> the :data:`DEFAULT_DEVICE_VOLTAGE` row.  ONE rule
+    for the prompt route's clause voltage and the plan's schedule voltage."""
+    vs = parse_voltage(voltage)
+    try:
+        multi = int(float(poles)) >= 2
+    except (TypeError, ValueError):
+        multi = False
+    v = vs.get("ll") if multi else (vs.get("ln") or vs.get("ll"))
+    return f"{v:g}" if v else DEFAULT_DEVICE_VOLTAGE
+
+
+def parse_device_load(load: Any) -> Tuple[float, Optional[str]]:
+    """``DeviceSchedule.Load`` -> (booked VA, note).  A number rides as is; a
+    numeric text label with the unit a person types ('180 VA', '180VA',
+    '0.18 kVA') coerces to VA with ONE note saying so; an absent / zero load
+    books the NEC 220.14(I) unit load silently.  Anything unparseable,
+    negative, non-finite or above :data:`MAX_DEVICE_VA` degrades THIS device
+    to the default load with ONE note naming the property and the value --
+    recorded, never raised (rule 1: one bad cell must not withhold the file)."""
+    if load is None or (isinstance(load, str) and not load.strip()):
+        return DEFAULT_DEVICE_VA, None
+    va: Optional[float] = None
+    note: Optional[str] = None
+    if isinstance(load, (int, float)) and not isinstance(load, bool):
+        va = float(load)
+    elif isinstance(load, str):
+        m = _RE_LOAD_VA.match(load)
+        if m:
+            va = float(m.group(1)) * (1000.0 if m.group(2) else 1.0)
+            note = (f"{DEVICE_PSET}.Load {load!r} is a text label, not a measure -> "
+                    f"read as {va:g} VA")
+    if va == 0:
+        return DEFAULT_DEVICE_VA, None                  # 0 -> the unit load, as ever
+    if va is not None and math.isfinite(va) and 0 < va <= MAX_DEVICE_VA:
+        return va, note
+    why = ("not a number" if va is None else "not finite" if not math.isfinite(va)
+           else "negative" if va < 0
+           else f"above the {MAX_DEVICE_VA:g} VA sanity cap for one wiring device")
+    return DEFAULT_DEVICE_VA, (
+        f"{DEVICE_PSET}.Load {load!r} is not a usable apparent load ({why}) -> this "
+        f"device books the default {DEFAULT_DEVICE_VA:g} VA (NEC 220.14(I) receptacle "
+        "unit load) instead; fix the schedule cell to book another load")
 
 
 def _resolve_device_facts(fp: FamilyPlan) -> None:

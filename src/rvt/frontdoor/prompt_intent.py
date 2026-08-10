@@ -321,12 +321,11 @@ def _device_height_default() -> Tuple[float, str]:
 
 
 def _device_voltage(item: "PromptItem") -> str:
-    """A 1-pole device's connector voltage from the clause's voltage: the
-    line-to-neutral of a wye system ('277 V' parses as 480Y/277 -> 277), a
-    plain number as is, else the 120 V default."""
-    vs = I.parse_voltage(item.voltage) if item.voltage else {}
-    v = vs.get("ln") or vs.get("ll")
-    return f"{v:g}" if v else DEFAULT_DEVICE_VOLTAGE
+    """A prompted (1-pole duplex) device's connector voltage from the clause's
+    voltage -- the resolver's ONE rule (:func:`rvt.ifc.intent.device_voltage`:
+    the line-to-neutral of a wye system, '208Y/120' -> 120; a plain number
+    as is; else the 120 V default), so the contract and the plan agree."""
+    return I.device_voltage(item.voltage)
 
 
 # ============================================================================
