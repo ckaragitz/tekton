@@ -550,6 +550,49 @@ def new_classification_tables(ids, self_family_id: int) -> List[SkelElement]:
     return out
 
 
+def new_browser_organizations(ids, self_family_id: int) -> Tuple[int, int, List[SkelElement]]:
+    """The BROWSER-ORGANIZATION pair (issue #381: without them the Project
+    Browser lists the family's views FLAT -- no 'Floor Plans' / 'Ceiling
+    Plans' / '3D Views' folder headers).  Donor law (elements 907/908 +
+    AppInfo slot 75): the views organization ("all", folder by built-in
+    parameter -1012106 = the view's family/type, sorted by -1005112) and
+    the sheets organization ("all", sorted by -1007401), both default.
+    Returns ``(views_org_id, sheets_org_id, elements)``; famdoc_adoc wires
+    them into ``BrowserOrganizationTracking`` (slot 75).
+    """
+    from ..genesis.types import blank_object as _blank
+    fam = int(self_family_id)
+
+    def _org(eid: int, **fields) -> SkelElement:
+        o = _blank("BrowserOrganization")
+        o.update({"m_id": eid, "m_famId": fam,
+                  "m_docAccess": {"m_pDoc": _weak(1)},
+                  "m_assocLevelId": -1, "m_unplacedOwnerId": -1,
+                  "m_ownerDBViewId": -1, "m_createdPhaseId": -1,
+                  "m_demolishedPhaseId": -1, "m_designOptionId": -4,
+                  "m_symbolInfo": {"ptr_class": "SymbolInfo", "pid": -1,
+                                   "value": {"m_name": "all"}},
+                  "m_bDefault": True, "m_bSortOrderAsc": True})
+        o.update(fields)
+        hdr = element_header("BrowserOrganization", category=-1,
+                             deletion=[fam, eid], flags=26,
+                             visible_view_flags=-32768)
+        return SkelElement(eid, "BrowserOrganization", hdr, o, None,
+                           kind="browser-organization")
+
+    sheets_id = _alloc(ids)
+    views_id = _alloc(ids)
+    els = [
+        _org(sheets_id, m_type=1,
+             m_sortParameter={"m_paramIdPath": [-1007401]}),
+        _org(views_id,
+             m_folderDefinitions=[{"m_parameter": {"m_paramIdPath": [-1012106]},
+                                   "m_numCharsToUse": 0}],
+             m_sortParameter={"m_paramIdPath": [-1005112]}),
+    ]
+    return views_id, sheets_id, els
+
+
 def _dim_format_options(unit: str = "autodesk.unit.unit:meters-1.0.0", *,
                         symbol: str = "", accuracy: float = 1.0,
                         use_default: bool = True) -> dict:
@@ -2053,6 +2096,11 @@ def new_family_document(category, name: str, *, host: str = "none",
     # edit path's required-unique-elements check names them) ---------------
     for se in new_classification_tables(ids, fam.elem_id):
         doc.add(se)
+    # -- the browser organizations (issue #381: folder headers in the
+    # Project Browser) -----------------------------------------------------
+    _vo, _so, _org_els = new_browser_organizations(ids, fam.elem_id)
+    for se in _org_els:
+        doc.add(se)
     doc.types = []
     return doc
 
@@ -2096,7 +2144,19 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     vt = _gsk.new_view_type(_alloc(ids), "Floor Plan", "floor_plan")
     plan = _gsk.new_plan_view(ids, "Ref. Level", level_id, 0.0, vt.elem_id,
                               phase_id=-1, phase_filter_id=-1)
-    els = list(proj.elements()) + [vt] + list(plan.elements())
+    # -- the ceiling plan + the 3D view (issue #381, owner steer: generated
+    # families carry the family view set).  Donor law: the ceiling plan is a
+    # second "Ref. Level" DBViewPlan with m_planViewType 2 (same +Z view
+    # dir); the 3D view is "View 1" (donor 463).  Elevations (DBViewSection)
+    # are phase 2 -- no constructor yet.
+    vt_c = _gsk.new_view_type(_alloc(ids), "Ceiling Plan", "ceiling_plan")
+    cplan = _gsk.new_plan_view(ids, "Ref. Level", level_id, 0.0, vt_c.elem_id,
+                               phase_id=-1, phase_filter_id=-1)
+    cplan.view.obj["m_planViewType"] = 2
+    vt_3 = _gsk.new_view_type(_alloc(ids), "3D View", "3d")
+    v3d = _gsk.new_3d_view(ids, "View 1", vt_3.elem_id, ground_level_id=level_id)
+    els = (list(proj.elements()) + [vt] + list(plan.elements())
+           + [vt_c] + list(cplan.elements()) + [vt_3] + list(v3d.elements()))
     _apply_family_viewer_law(els, proj.view.elem_id)
     for e in els:
         # family-document elements: object design-option sentinel + famId
@@ -2111,6 +2171,8 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     doc.view_ids["project"] = proj.view.elem_id
     doc.view_ids["view_type_plan"] = vt.elem_id
     doc.view_ids["plan"] = plan.view.elem_id
+    doc.view_ids["ceiling"] = cplan.view.elem_id
+    doc.view_ids["view3d"] = v3d.view.elem_id
     return plan.view.elem_id
 
 
