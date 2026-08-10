@@ -371,17 +371,32 @@ def test_a_hand_typed_load_label_no_longer_fails_the_ifc_route(our_ifc, tmp_path
     assert len(notes) == 2, notes
     assert notes[0].startswith("DeviceSchedule.Load '180 VA' is a text label") and "read as 180 VA" in notes[0]
     assert notes[1].startswith("DeviceSchedule.Load 'abc' is not a usable apparent load (not a number)")
-    # the product path: delivered, stamped, 0 validator errors, no degradation, 4 placed devices
+    # the product path: delivered, stamped, 0 validator errors, 4 placed devices
     r = FD.author(ifc=bad, out=str(tmp_path / "job"))
     assert r.route == "ifc" and r.ok and r.errors == [], (r.status, r.errors)
     assert "PROOF-ONLY" in r.status
     combined = r.files.get("combined")
     assert combined and os.path.isfile(combined) and os.path.getsize(combined) > 0
     build = r.manifest["build"]
-    assert build["errors"] == [] and build["degradations"] == []
+    assert build["errors"] == []
     assert build["validation"]["combined"]["validate"]["n_errors"] == 0
     assert [c["kind"] for c in build["elements_created"]].count("fixture-instance") == 4
     assert r.manifest["intent"]["summary"]["family_plans_by_status"] == {"resolved": 5}
     with open(r.intent_json, encoding="utf-8") as fh:
         on_disk = json.load(fh)["familyMapping"]
     assert sorted(n for p in on_disk for n in p["notes"]) == notes       # the two notes ride into intent.json
+    # #465: ... AND into what a user actually opens: manifest.json's plan rows and MANIFEST.md's
+    # Intent section; the DROPPED cell ('abc' -> the default load) is also ONE build degradation
+    # naming its device, the coerced label ('180 VA') is informational only -- delivery unchanged
+    from rvt.frontdoor.manifest import DROPPED_CELL_MARK                # the seam: the resolver's wording
+    assert DROPPED_CELL_MARK in notes[1] and DROPPED_CELL_MARK not in notes[0]
+    plans = r.manifest["intent"]["summary"]["family_plans"]
+    assert sorted(n for p in plans for n in p["notes"]) == notes
+    dropped = [p for p in plans if notes[1] in p["notes"]]
+    assert len(dropped) == 1
+    assert build["degradations"] == [f"{dropped[0]['tag']}: {notes[1]}"]
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        md = fh.read()
+    assert md.count("  - note: ") == 2
+    assert f"  - note: `{dropped[0]['tag']}` — {notes[1]}\n" in md and f" — {notes[0]}\n" in md
+    assert f"- **degradation**: {dropped[0]['tag']}: {notes[1]}\n" in md

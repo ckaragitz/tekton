@@ -387,6 +387,17 @@ def test_a_hand_typed_mains_rating_no_longer_fails_the_ifc_route(our_ifc, tmp_pa
     with open(r.intent_json, encoding="utf-8") as fh:
         on_disk = {p["tag"]: p for p in json.load(fh)["familyMapping"]}
     assert on_disk["LP-1"]["notes"] == lp.notes and on_disk["LP-1"]["kwargs"]["mains_a"] == 100.0
+    # #465: the note is where a user reads caveats -- manifest.json's plan row and MANIFEST.md's
+    # Intent section -- not only intent.json; a coerced label is informational, not a degradation
+    from rvt.frontdoor.manifest import DROPPED_CELL_MARK
+    assert DROPPED_CELL_MARK not in lp.notes[0]                        # coerced, not dropped
+    plans = {p["tag"]: p for p in r.manifest["intent"]["summary"]["family_plans"]}
+    assert plans["LP-1"]["notes"] == lp.notes
+    assert [plans[f"R-{i}"]["notes"] for i in range(1, 5)] == [[]] * 4
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        md = fh.read()
+    assert f"- family plans: resolved 5\n  - note: `LP-1` — {lp.notes[0]}\n" in md
+    assert md.count("  - note: ") == 1
     # review of #457: a TEXT zero ('0 A') reads as an empty cell -- dropped from the contract,
     # never left as a raw string for a consumer to cast; LP-1 rates from its MainsRating, is
     # built and placed, and the file is delivered exactly as above
