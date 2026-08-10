@@ -135,3 +135,139 @@ The only numpy import on the route is `src/rvt/ifc/intent.py:84` (`np = lazy_imp
 - **Shipped vs staged:** everything ships with the plugin (hand-authored bootstrap + mirrored engine); nothing viewer-gated, no batch staged, no `.rvt` bytes committed.
 - **Gates:** stream-local 47 passed; frontdoor + ifc-intent units 89 passed / 5 skipped; sync `--check` clean; validate_plugin PASS; portable paths ok; merged shard on the final head **1810 passed, 133 skipped, 3 xfailed** (460 s; identical counts before the review fixes).
 - **Open:** the two follow-ups in §6 — #552 (option A behind the #498 fence) and #553 (bench BLOCKED classification in #113's file).
+
+---
+
+## eng #553 — 2026-08-10: `surface_bench` classifies the stated prerequisite as BLOCKED, not FAIL (issue #553)
+
+Stream: **bench-ifc-blocked** (engineer session `cse_011azwEpCuhAiKJMdbmyASiS`, branch
+`cam/553-bench-ifc-blocked` from `origin/main` @ 074af6b, started by the tech-lead session).
+This section is written by the #553 engineer; §1–§7 and the BRANCH STATE above are the #127
+engineer's and are left untouched.
+
+**Charter (issue #553 + the tech lead's brief):** teach `tools/surface_bench.py` that a job the
+surface refused to start *because it stated the prerequisite up front* — the `go` envelope's
+`go.prerequisite` (`ready:false`, `exit_code 3`, `result null`, since #550) or, for the bench's
+`run frontdoor.py author --ifc` job, preflight's `routes.ifc = {ok:false, needs, fix}` — is
+`BLOCKED` (an honest surface truth, bench exit 0), shown distinctly from `FAIL` and from a pass
+in the table and the JSON (`status:"BLOCKED"`, `prerequisite:{route,needs,fix}` copied through,
+`reason` = the preflight line / the stated prerequisite), while every other row's classification
+and every timing column stays as it was.  Territory: `tools/surface_bench.py` (classification +
+table/JSON rendering only — jobs are launched and timed exactly as before),
+`tests/test_surface_bench_reason.py`, this section.  Not touched: `tekton_env.py` (the envelope
+is #550's; consumed, not changed), the front door, `tests/ci_shard.txt` (no new test file; the
+reason test is already in the shard via `tests/ci_shard.d/287-bench-fail-reason.txt`).
+`tools/sync_plugin.py` does not mirror `surface_bench.py` into the plugin (checked: no match), so
+the rebuilt zip differs from `main`'s in nothing this PR wrote.
+
+### What was built
+
+| Where in `tools/surface_bench.py` | Change |
+|---|---|
+| `JobResult` | `prerequisite: dict` (empty by default); `blocked(reason, prerequisite=None)` stores it; `as_dict()` adds a `prerequisite` key **only when set** — so every PASS/FAIL/SKIPPED row's JSON key set is byte-for-byte what it was. |
+| `_prerequisite(res)` | the `go` envelope's own `go.prerequisite` when `go.ready` is false and it names `needs`; `None` for every other output (a READY envelope, a FAILED job, an environment-NOT-READY envelope *without* a prerequisite — that one stays FAIL: the surface itself is broken). |
+| `_needs_words(prereq)` | `needs numpy (python -m pip install numpy)` — the bootstrap's own wording (`tekton_env._route_words`), so table, JSON and the READY line say the same words. |
+| `job_preflight` | keeps `pf["routes"]` in `state["preflight"]` (`{}` on pre-#127 plugin builds); nothing of it reaches the report JSON's surface header (still `python_version` + `extras`). |
+| `_job_go_author` (both `go author` jobs) | after the pre-`go` SKIPPED probe and **before** the exit-code check: an envelope carrying `go.prerequisite` → `job.blocked(_why(inv), prerequisite=…)`; `_why` already resolves a `ready:false` envelope to its `preflight_line` (#287), so the reason is that line verbatim. |
+| `job_author_ifc` | after "built → PASS" and **before** the `ifcopenshell` special-case (issue DONE 1): `state.preflight.routes.ifc.ok is False` → `BLOCKED -- ifc route prerequisite stated by preflight: needs numpy (python -m pip install numpy)` + `prerequisite {route:"ifc", needs, fix}`; table absent (pre-#127 build / preflight job not run) or `ok:true` → the old path (any other non-ok ifc result is still `FAIL` with its own reason). A job that *built* is PASS whatever the table said. |
+| `_cell` | a row with `prerequisite.needs` renders `0.4s BLOCKED (needs numpy)`; a BLOCKED row without one (the `ifcopenshell` case) still renders `0.4s BLOCKED`; PASS/FAIL/skipped cells unchanged. |
+| `tests/test_surface_bench_reason.py` (+9 tests, already in the shard) | a `_FakeSurface` whose `run` hands back a canned `Invocation`; rows: synthetic `go` prerequisite envelope → BLOCKED, reason == the NOT-READY-for-`--ifc` line, `prerequisite` carried into `as_dict()`, timing keys present; FAILED envelope → still FAIL, no `prerequisite` key; READY+ok envelope → still PASS; `ready:false` **without** prerequisite → still FAIL; `job_author_ifc` × {routes.ifc not ok → BLOCKED with needs/fix, routes.ifc ok + failed job → FAIL, no routes table → FAIL (pre-#127 unchanged)}; a built ifc job → PASS regardless of the table; `_cell` / `markdown_table` wording (`0.1s BLOCKED (needs numpy)`, `Non-PASS detail: … BLOCKED -- tekton: NOT READY for --ifc …`, no `FAIL` anywhere). |
+
+### Evidence — this cloud VM, `/usr/bin/python3` 3.11.15 with **no numpy** as the bare interpreter, repo `.venv` (numpy present) as `local`
+
+`tools/surface_bench.py --zip <zip> --python-bare /usr/bin/python3 --json bench.json --md bench.md`, all
+three surfaces, all eight jobs.  **before** = `tools/surface_bench.py` + zip both from `origin/main` @ 074af6b;
+**after** = this branch's bench + the zip rebuilt by `tools/sync_plugin.py` on this head.
+
+Before (main) — bench **exit 1**:
+
+```
+| job | shell calls | cowork | codeexec | local |
+|---|---|---|---|---|
+| preflight | 1 | 0.1s | 0.1s (+0.2s extract) | 0.1s |
+| author-prompt | 1 | 2.5s | 2.4s (+0.2s extract) | 2.7s |
+| go-author-prompt | 1 | 1.9s | 2.6s (+0.2s extract) | 2.0s |
+| go-author-6panels | 1 | 4.0s | 4.6s (+0.1s extract) | 4.2s |
+| author-ifc | 1 | 0.3s FAIL | 0.5s (+0.2s extract) FAIL | 6.4s |
+| edit-roundtrip | 3 | 1.0s | 1.7s (+0.6s extract) | 1.0s |
+| go-edit | 1 | 0.6s | 0.9s (+0.2s extract) | 0.6s |
+| validate | 1 | 0.4s | 0.6s (+0.2s extract) | 0.4s |
+| **session total** |  | **10.7s / 10 calls** | **13.4s / 10 calls** (+1.8s extract) | **17.3s / 10 calls** |
+Non-PASS detail:
+- cowork / author-ifc: FAIL -- author --ifc failed: IFC intent failed: the --ifc route needs numpy, not installed on this interpreter -- one-time fix: python -m pip install numpy (--prompt / --rvt run without it)
+- codeexec / author-ifc: FAIL -- author --ifc failed: IFC intent failed: the --ifc route needs numpy, … (same)
+```
+
+After (head) — bench **exit 0**:
+
+```
+| job | shell calls | cowork | codeexec | local |
+|---|---|---|---|---|
+| preflight | 1 | 0.1s | 0.1s (+0.2s extract) | 0.1s |
+| author-prompt | 1 | 2.5s | 2.6s (+0.2s extract) | 2.0s |
+| go-author-prompt | 1 | 1.9s | 2.5s (+0.2s extract) | 2.0s |
+| go-author-6panels | 1 | 4.3s | 4.7s (+0.2s extract) | 4.1s |
+| author-ifc | 1 | 0.4s BLOCKED (needs numpy) | 0.5s (+0.1s extract) BLOCKED (needs numpy) | 6.1s |
+| edit-roundtrip | 3 | 1.0s | 1.7s (+0.5s extract) | 1.0s |
+| go-edit | 1 | 0.6s | 0.9s (+0.2s extract) | 0.5s |
+| validate | 1 | 0.4s | 0.8s (+0.2s extract) | 0.4s |
+| **session total** |  | **11.1s / 10 calls** | **13.7s / 10 calls** (+1.7s extract) | **16.3s / 10 calls** |
+Non-PASS detail:
+- cowork / author-ifc: BLOCKED -- ifc route prerequisite stated by preflight: needs numpy (python -m pip install numpy)
+- codeexec / author-ifc: BLOCKED -- ifc route prerequisite stated by preflight: needs numpy (python -m pip install numpy)
+```
+
+(Seconds are single runs on a shared VM and carry the usual ±0.3 s noise; nothing in how a job is
+launched or timed changed, so they are not a before/after claim — the classification is.)
+
+**JSON diff, before vs after** (`scratchpad/jsondiff.py`: per surface/job compare `status`+`reason`, the key
+set, and that `shell_calls / seconds / extract_seconds / invocations` are present): 22 of 24 rows *identical
+classification, same key set, timing keys present*; the two reclassified rows:
+
+```
+cowork    author-ifc   keys +['prerequisite'] -[] timing-missing=[]
+   before: status='FAIL'    reason='author --ifc failed: IFC intent failed: the --ifc route needs numpy, not installed on this interpreter -- one-time fix: python -m pip install numpy (--prompt / --rvt run without it)'
+   after : status='BLOCKED' reason='ifc route prerequisite stated by preflight: needs numpy (python -m pip install numpy)' prerequisite={'route': 'ifc', 'needs': ['numpy'], 'fix': 'python -m pip install numpy'}
+codeexec  author-ifc   (same)
+```
+
+**numpy present on the "bare" interpreter** (`--python-bare $PWD/.venv/bin/python --surfaces cowork,codeexec
+--jobs preflight,author-ifc`, same after-zip): `author-ifc` **8.5 s / 7.2 s (+0.3 s extract), PASS** on both,
+extras `numpy=yes`, bench exit 0 — the READY path is untouched, as before.
+
+### Findings
+
+1. The bench has no `go author --ifc` job (its ifc row is the `run frontdoor.py` path, which `go`'s gate
+   deliberately does not cover — #550 §2), so on today's job list the `go.prerequisite` branch in
+   `_job_go_author` is exercised by the unit rows and by `/verify` against the real envelope, not by a bench
+   row; the bare `author-ifc` row is reclassified through preflight's `routes.ifc`, exactly the issue's DONE 1.
+   Adding a `go-author-ifc` job (one call, the flow the SKILL actually documents) would make the envelope path a
+   measured row too — a job-list change, outside "classification only" → searched (no existing issue; #113 is
+   the `tekton-ifc` skill flow, a different surface) and filed as **#562** (`Refs #553 #127 #113`, `ready`,
+   `good-first-pick`).
+2. `go.ready:false` *without* `go.prerequisite` (engine / genesis base / out-dir broken) deliberately stays
+   FAIL: that is the surface itself being broken, which is what the bench exists to catch.
+3. Review pass (`/simplify`, four angles) — applied: `_d` (dict-or-empty) hoisted to module level so `_why`
+   and `_prerequisite` share one shape-check idiom; the "needs a + b" phrasing lives only in `_needs_words`
+   (`_cell` calls it with a fix-less dict); no defensive `dict()` copy in `blocked()`; the test fake lost its
+   dead `keep_artifact` and builds invocations through the file's existing `_inv`.  Skipped, on purpose:
+   unifying the two BLOCKED reason wordings (the brief asks for the preflight line verbatim on the envelope
+   path, the issue's DONE names the `author-ifc` wording); the `_why(inv)` re-parse of a 300-byte envelope
+   (off the clock, same as every `fail` path); a `_prerequisite` hook in `job_go_edit` (`go edit` is never
+   gated — `_gated_route` is front-door-only by design, hard rule 1).
+
+### Gates run (this session, final tree)
+
+- Stream-local: `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_surface_bench_reason.py -q -rs` → **18 passed** (0.09 s; 9 pre-existing + 9 new).
+- Neighbours: `tests/test_surface_bench_reason.py tests/test_surface_perf.py tests/test_bootstrap.py tests/test_coldstart.py tests/test_plugin_sync.py -q -rs` → **56 passed** (17.2 s).
+- `.venv/bin/python tools/sync_plugin.py` then `--check` → *plugin in sync with source (deny-audit clean, identity scan == allowlist, assets verified)*; `plugin/scripts/validate_plugin.py` → *RESULT: PASS*; `python3 tools/dev/check_portable_paths.py` → *ok: 2955 tracked paths are portable*.
+- `/verify` (drive the real surface, rebuilt zip): the full bench above (exit 0, two rows `BLOCKED (needs numpy)`, 22/24 rows identical classification + key set); and the real envelope — bare unzip, `env -i PATH=/usr/bin:/bin`, `/usr/bin/python3 skills/tekton-author/scripts/_bootstrap.py go author --ifc skills/tekton-author/examples/electrical-room-2500a.ifc --target-version 2025 --out out/i1 --json` → rc 3, 0 B stderr, `go.ready False, result None, exit_code 3`; fed through the bench: `_prerequisite → {route: ifc, needs: [numpy], fix: python -m pip install numpy}`, row `BLOCKED | tekton: NOT READY for --ifc | ifc-route needs numpy (python -m pip install numpy) -- one-time; the other routes are READY without it`, cell `0.1s BLOCKED (needs numpy)`, keys `[extract_seconds, invocations, job, prerequisite, reason, seconds, shell_calls, status]`.
+- Whole merged CI shard (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`): before the review fixes **1860 passed, 134 skipped, 3 xfailed** (421 s); on the final tree **1860 passed, 134 skipped, 3 xfailed** (406 s).
+
+### BRANCH STATE (eng #553)
+
+- **Branch:** `cam/553-bench-ifc-blocked` from `origin/main` @ 074af6b.
+- **Files written:** `tools/surface_bench.py`, `tests/test_surface_bench_reason.py`, `docs/inbox/bare-ifc-prereq.md` (this section only).
+- **Shipped vs staged:** dev tool only — `surface_bench.py` is not mirrored into the plugin (`tools/sync_plugin.py` has no entry for it); no plugin bytes change; nothing viewer-gated, no batch, no `.rvt` committed.
+- **Gates:** stream-local 18 passed; neighbours 56 passed; sync `--check` clean; validate_plugin PASS; portable paths ok; bench exit 0 with the two bare `author-ifc` rows BLOCKED; merged shard **1860 passed, 134 skipped, 3 xfailed** before the review fixes and **1860 passed, 134 skipped, 3 xfailed** (406 s) on the final tree.
+- **Open:** #562 (a `go-author-ifc` bench row so the envelope path is measured, not only unit-tested).
