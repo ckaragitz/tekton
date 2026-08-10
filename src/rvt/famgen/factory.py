@@ -1376,6 +1376,10 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                   voltage_v=vll, poles=poles, apparent_load_va=0.0,
                   power_factor=1.0, bind_voltage_param="Voltage",
                   load_class="Power", description="Panel Feed")
+    # -- parametric drive: editing Width/Height must MOVE the extrusion
+    #    (issue #372: side RefPlanes + Alignments + labeled dims, donor law)
+    from . import param_drive as PD
+    PD.wire_panelboard_drive(doc)
     doc.finalize()
     prod = FamilyProduct("panelboard", doc, facts, forms=[fb], types=rows,
                          file_stem=_slug(f"{vendor}_{facts.variant}_"
