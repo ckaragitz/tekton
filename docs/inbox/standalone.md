@@ -951,3 +951,120 @@ equality assert needs no string match, YAGNI until a handler wants it; dropping 
   the diff stashed; filed as **#476** (P1, one line, `tests/test_manipulate.py` — outside this territory).
 * Follow-ups filed: #473 (router `run()` refuses before its own `makedirs`), #474 (`_inside` judges the lexical spelling
   too — the outward-symlink shape). Nothing awaits a human; nothing staged vs shipped — everything in this PR ships.
+
+## eng #473 — 2026-08-10 (fresh cloud clone, no `samples/`, `origin/main` @ 6c2afd7): the router refuses the `--out` before its own `makedirs`, every cell, zero bytes
+
+Issue #473 (Refs #452, its follow-up 1; Refs #425). The permutation router sits one layer above `rvt.frontdoor.run()`:
+`router.route()` did `os.makedirs(out_dir)` and opened `route.log` (`_stage_stdout`) before dispatching, and wrote
+`route.json` + `ROUTE.md` after — so an `--out` under `<repo>/{samples,vendor,extracted,experiments/genesis}` or an
+Autodesk installation directory got the router's three files (rc 3) even when the front door refused, and the cells
+that never reach `FD.author` (`--output rfa`, rvt→ifc, rvt→rfa extract) *delivered* there (rc 0). Now judged in
+`route()` right after `_out_dir()` and before `os.makedirs`, in #452's exact shape: lazy
+`from .standalone import out_dir_refusal`; `line = out_dir_refusal(out_dir)`; `if line: raise RouteError(line)`.
+`RouteError` is the router's existing "bad arguments" class, so `tools/route.py::cmd_run` answers through its existing
+path — rc 2 (`EX_USAGE`), `[route] usage error: <the one line>` on stderr, 0 B on stdout, no traceback — and
+**`tools/route.py` is untouched** (as are `standalone.py`, `__init__.py`, `tools/frontdoor.py`). `route()`'s docstring
+gains one paragraph naming the predicate by reference. Cost per route call: a bare `import rvt.frontdoor.router`
+(what `tools/route.py` does) does **not** load `standalone`, so the first `route()` of a process pays its import once —
+measured 3.6 ms (stdlib-only module; the prompt/ifc→rvt cells imported it anyway via `build.py`) — then a `sys.modules`
+lookup; `out_dir_refusal` itself measured 0.08–0.11 ms per call, against 0.5–5 s routes. Kept function-local (as in
+`__init__.py`) so `route.py matrix`/`explain` and the router's import time do not pay it.
+
+Placement note: the check sits where the DONE says — after the cell lookup, so an UNSUPPORTED cell with a refused
+`--out` still answers UNSUPPORTED (that path returns before `_out_dir` and writes nothing either); every *supported*
+cell, single- or multi-input, passes through the one refusal before any byte is written.
+
+### Evidence (this VM; `--json`; BEFORE = `origin/main` @ 6c2afd7 run as root — uid nobody cannot `mkdir` in the checkout, #425's caveat; AFTER as uid nobody unless noted, root for the two roots nobody cannot reach; host = a copy of the bundled `G_ABPD_2025.rvt` outside the checkout)
+
+| cell / `--out` | `main` @ 6c2afd7 | this head |
+|---|---|---|
+| prompt→rvt `--prompt "an electrical room with 6 panels" --output rvt --out <tree>/samples/r473` | rc 3, ONE JSON (4473 B), status `FAILED (prompt->intent + intent->rvt: FrontDoorError: --out refused (nothing built): …)`, 0 B stderr; **on disk `samples/r473/{ROUTE.md, route.json, route.log}`** | **rc 2**, stdout 0 B, stderr exactly `[route] usage error: --out refused (nothing built): it lies inside this checkout's quarantined samples/ directory, whose files the build may never read -- choose another --out than /home/user/tekton/samples/r473` (212 B), no traceback; **`<tree>/samples` absent** |
+| ifc→rvt `--ifc tests/ifc_conformance/b_units_feet.ifc --output rvt --out <tree>/samples/i473` | rc 3, ONE JSON `FAILED (ifc->intent + intent->rvt: FrontDoorError: …)`; on disk `samples/i473/{ROUTE.md, route.json, route.log}` | rc 2, the one line (`… than /home/user/tekton/samples/i473`), `samples/` absent |
+| rvt→ifc `--rvt <host> --output ifc --out <tree>/vendor/v473` (never reaches the front door) | **rc 0 — DELIVERED into `vendor/`**: `OK (IFC4 exported; …)`, on disk `vendor/v473/{host2025.ifc, host2025.manifest.json, host2025.MANIFEST.md, ROUTE.md, route.json, route.log}` | rc 2, `… quarantined vendor/ directory … than /home/user/tekton/vendor/v473`, `vendor/` absent |
+| prompt→rfa `--prompt "a 100 A lighting panel" --output rfa --out <tree>/extracted/f473` (never reaches the front door) | **rc 0 — DELIVERED into `extracted/`**: `OK (1 family .rfa generated; …)`, on disk `extracted/f473/{intent.json, families/lp1_….rfa + .json, ROUTE.md, route.json, route.log}` | rc 2, `… quarantined extracted/ directory … than /home/user/tekton/extracted/f473`, `extracted/` absent |
+| rvt→rfa extract `--rvt <host> --output rfa --out <tree>/samples/x473` | (not run on main; same class as rvt→ifc) | rc 2, the one line, `samples/` absent |
+| prompt→rfa `--out experiments/genesis/g473` (root; the tracked `experiments/genesis/` exists in a clone) | (same class as prompt→rfa above) | rc 2, `… quarantined experiments/genesis/ directory … than /home/user/tekton/experiments/genesis/g473`; `g473` absent, the tracked dir untouched |
+| prompt→rvt `--out "/tmp/ProgramData/Autodesk/RVT 2026/r473"` (root) | rc 3, ONE JSON `FAILED (… FrontDoorError: --out refused …: it lies inside an Autodesk installation directory …)`; on disk `/tmp/ProgramData/Autodesk/RVT 2026/r473/{ROUTE.md, route.json, route.log}` | rc 2, `… it lies inside an Autodesk installation directory, which tekton never reads or writes -- choose another --out than /tmp/ProgramData/Autodesk/RVT 2026/r473`; `/tmp/ProgramData` absent |
+| **positive twins, uid nobody** (the user's own disk merely NAMED like a root): prompt→rfa `--out <tmp>/samples/x` · prompt→rvt `--out <tmp>/samples/r` · rvt→ifc `--out <tmp>/vendor/v` · ifc→rvt `--out <tmp>/extracted/i` | rc 0 (per #425) | **rc 0 all**, 0 B stderr, `errors []`, `route.json` written under each dir; prompt→rfa `OK (1 family .rfa generated; refusals honest)` 0.5 s; prompt→rvt `PROOF-ONLY (self-checks PASS; …)` 3.6 s, `combined` on disk, `rvt_validate` → ok, 0 errors / 1 (known DataStorage) warning; rvt→ifc `OK (IFC4 exported; …)` 0.5 s; ifc→rvt `PROOF-ONLY (self-checks PASS; …)` 2.6 s |
+| `tools/route.py matrix` | 3167 B, rc 0 | **byte-identical** (`cmp` clean), rc 0 |
+
+### The `--json` question (stated, not changed — `tools/route.py` untouched)
+
+Same answer and same open question as #452/#176: `cmd_run` maps every `RouteError` to rc 2 with the line on stderr and
+**no JSON on stdout**, `--json` or not, exactly as it already does for `--ifc file not found` and the other usage
+errors; the refusal joins that class rather than inventing a second shape. If #176 decides usage errors under `--json`
+print `{"ok": false, "status": "REFUSED (<line>)", "errors": [<line>], "files": {}, …}` with rc 2, it is one `except`
+branch in `cmd_run` and covers this line with no router change.
+
+### Tests
+
+`tests/test_router.py` (already in the shard via `tests/ci_shard.d/102-test-router.txt`, so no new drop-in), section 2b:
+`test_out_dir_inside_this_checkouts_quarantine_is_refused_before_it_exists` — **every single-input non-missing cell**
+(13: prompt/ifc/rvt/rfa/spec → rvt/rfa/ifc, from `MX.all_cells()`, so a cell added later is covered) × {`samples/r`,
+`ProgramData/Autodesk/RVT 2026/r`} = 26 cases, checkout root monkeypatched to `<tmp>/tree`, dummy inputs from the
+existing `_dummy_inputs`, each `pytest.raises(RouteError)` with **`str(exc) == out_dir_refusal(out)`** (the per-root
+wording stays `test_out_dir_guard`'s to pin) and **`not tree.exists()`** afterwards; fresh-clone safe, no skip marks,
+26 cases in < 0.1 s. `test_cli_refused_out_dir_is_exit_2_one_stderr_line_nothing_on_disk` — in-process
+`tools/route.py main(["run", "--prompt", …, "--output", "rfa", "--out", <tree>/vendor/r, "--json"])` via
+`conftest.load_tool` → rc 2, `capsys` stdout `""`, stderr `== "[route] usage error: " + line + "\n"`, tree absent.
+The positive twin rides on the existing `test_e2e_prompt_to_rfa` (`needs_catalog`), whose out dir becomes
+`<tmp>/samples/o`: `ok`, `errors == []`, every `.rfa` under that dir, `route.json` written — zero extra builds. The two
+new tests fail on `main`'s router (`DID NOT RAISE` / rc 0) and pass on this head.
+
+### `/simplify` (4 lenses) — applied / skipped
+
+Applied: the standalone positive-twin test (a second prompt→rfa build, 0.56 s per shard run) is folded into the
+existing `test_e2e_prompt_to_rfa`, whose out dir becomes `<tmp>/samples/o` (reuse + efficiency: zero extra builds, and
+it no longer silently skips where the e2e already runs); `route()`'s new docstring paragraph shrank from 7 lines to 4 and
+names the predicate by reference instead of restating its root list, saying "every *supported* cell" so the
+UNSUPPORTED-first order reads as deliberate (simplification + the altitude nit); the refusal test asserts plain
+`str(exc) == out_dir_refusal(out)` (the `endswith` conjunct copied from #478 was implied by it), takes its dummy inputs
+from `_dummy_inputs(…, tmp_path)` without a separate `in/` dir, and `load_tool` joins the file's existing top-level
+`conftest` import; the section is numbered 2c (2b was taken by the famspec contract). Skipped, with reasons: dropping
+the `cell` axis of the refusal test (simplification #1: "no per-cell variable — all 26 cases execute the same four
+lines") — true of today's `route()`, but the issue's DONE asks for the front-door cell *and* a non-front-door cell, the
+tech-lead brief says "for every cell", the axis is what fails if a later refactor moves `makedirs`/`route.log` into a
+per-impl path, and 26 cases cost < 0.1 s; a private `standalone._claim_out_dir(out_dir, exc)` refuse-or-create owner
+for the now **three** copies of the 4-line stanza (`build.py` #425, `__init__.py` #452, `router.py` #473 — altitude's
+one honest cost: a fourth entrypoint that computes an out dir will silently lack it) — `standalone.py` is outside this
+territory and #452 declined the exported form as new public API; noted here for whoever next holds `standalone.py`
+(#474 does) rather than filed again. Efficiency lens otherwise clean (check runs once per `route()`, after the free
+UNSUPPORTED returns, before any I/O; no import added to the router's module load).
+
+### Gates
+
+* Stream-local: `tests/test_router.py tests/test_out_dir_guard.py tests/test_router_release.py` (`RVT_SKIP_LARGE=1
+  -p no:cacheprovider`) → first head **178 passed / 12 skipped** (35.7 s), final tree **177 passed / 12 skipped**
+  (33.5 s; the twin folded into the e2e; skips: 10× `RVT_SKIP_LARGE`, worked `.rvt` absent, chmod-as-root).
+  `-k "quarantine or refused_out_dir"` with `router.py` stashed back to `main`: **fails** (`DID NOT RAISE RouteError`).
+* Whole merged CI shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1 -p no:cacheprovider`): first head **1688 passed /
+  139 skipped / 5 xfailed / 0 failed** in 333.9 s; final tree (after `/simplify`) **1687 passed / 139 skipped / 5 xfailed
+  / 0 failed** in 322.2 s.
+* `tools/sync_plugin.py` → synced 1 file (`plugin/lib/src/rvt/frontdoor/router.py`), deny-audit clean, validation
+  passed, zip rebuilt (5236 KB); `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2919 paths); `tests/test_plugin_sync.py test_bootstrap.py test_coldstart.py
+  test_surface_perf.py` → 28 passed / 5 skipped.
+* `/verify` (final tree): `route.py matrix` rc 0 and byte-identical to `main`'s (3167 B, `cmp` clean); `route.py explain
+  --output rvt --inputs prompt` rc 0; `route.py run --output ifc --rvt plugin/assets/genesis/G_ABPD_2025.rvt --out
+  {<tree>/samples/v473, <tree>/experiments/genesis/v473, "/tmp/Program Files/Autodesk/v473"} --json` → rc 2 each, 0 B
+  stdout, the one stderr line each, none of the three dirs created; `route.py run --output rvt --prompt "an electrical
+  room with 6 panels" --out out/verify/samples/r --json` → rc 0, `PROOF-ONLY (self-checks PASS; …)`, `errors []`,
+  `combined` = `out/verify/samples/r/prompt_room.rvt`, `rvt_validate` → ok, **0 errors** / 1 (known DataStorage)
+  warning — validates, not "loads" (rule 4); bare unzip of the rebuilt `tekton-plugin.zip`, system `python3`, no repo on
+  the path: `go author --prompt "an electrical room with 6 panels" --out out/j1 --json` → `go.ready true`, `exit_code 0`,
+  job 3.9 s, `PROOF-ONLY (self-checks PASS; …)`, `errors []`, `combined` delivered.
+* Full suite NOT run (SUITE-COORDINATION). Nothing staged for the viewer: no format byte changes.
+
+## BRANCH STATE (eng #473)
+
+* Branch `cam/473-router-out-refusal` from `origin/main` @ 6c2afd7.
+* Files written: `src/rvt/frontdoor/router.py` (`route()`: docstring paragraph + the 4-line refusal before `makedirs`),
+  `tests/test_router.py` (section 2c: the 13-cell × 2-root refusal test + the CLI rc-2 test; `test_e2e_prompt_to_rfa`
+  routes into `<tmp>/samples/o` as the positive twin; `load_tool` imported at top level), `docs/inbox/standalone.md`
+  (this section); regenerated mirror `plugin/lib/src/rvt/frontdoor/router.py`. `tools/route.py`, `standalone.py`,
+  `__init__.py`, `tools/frontdoor.py` untouched; no new test file, so no shard drop-in (`test_router.py` is already in
+  `tests/ci_shard.d/102-test-router.txt`).
+* Gates: as above. Staged vs shipped: nothing staged; everything in this PR ships.
+* Follow-ups: none filed. The `--json` shape of a usage error stays #176's question (now with `route.py`'s `RouteError`
+  as a third customer beside `frontdoor.py`'s `FrontDoorError`/`InputReleaseRefused`); the single private owner for the
+  three refuse-then-makedirs stanzas is a note for #474's holder of `standalone.py`. Nothing awaits a human.

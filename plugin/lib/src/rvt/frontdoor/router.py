@@ -1532,6 +1532,11 @@ def route(inputs: Dict[str, Any], output: str, **opts: Any) -> RouteResult:
     ``quiet=True`` (``tools/route.py run --json``): whatever the stages print
     goes to ``<out_dir>/route.log`` (``manifest_paths['route.log']``), never
     to the caller's stdout -- the front door build's convention (issue #188).
+
+    An ``out`` that :func:`standalone.out_dir_refusal` refuses is a
+    :class:`RouteError` (its ONE line) raised before the dir is created, for
+    every supported cell, so nothing -- not even ``route.log`` -- is written
+    there (issue #473; the front door's twin one layer down is #452).
     """
     t0 = time.time()
     inputs = _norm_inputs(inputs)
@@ -1560,6 +1565,10 @@ def route(inputs: Dict[str, Any], output: str, **opts: Any) -> RouteResult:
         return res
 
     out_dir = _out_dir(opts, inputs, output)
+    from .standalone import out_dir_refusal
+    line = out_dir_refusal(out_dir)
+    if line:
+        raise RouteError(line)              # before makedirs: nothing lands in the quarantine dir
     os.makedirs(out_dir, exist_ok=True)
     res.out_dir = out_dir
     res.route = cell.route
