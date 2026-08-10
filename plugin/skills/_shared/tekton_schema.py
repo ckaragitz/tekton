@@ -14,14 +14,19 @@ chokepoints during ``activate()``), but the EDIT path is not:
 warm local repo running the plugin's bundled engine.
 
 The fix: :func:`install` wraps ``rvt.schema.load_schema`` with a
-LAZY fallback --
+LAZY fallback that follows the one contract every chokepoint wrapper has
+(``rvt.frontdoor.standalone.default_schema_loader``, #315/#376) --
 
-  * an explicit path that exists on disk loads exactly as before;
-  * the default (or any missing) path triggers ONE activation of
-    ``rvt.frontdoor.standalone.install_schema()`` -- the proven chokepoint
-    reroute that parses the schema embedded in the bundled genesis base
-    (byte-identical to the corpus stream; sha256-pinned) -- and returns the
-    bundled schema.
+  * the default-path call (no arg, ``None``, or ``DEFAULT_PATH``) triggers
+    ONE activation of ``rvt.frontdoor.standalone.install_schema()`` -- the
+    proven chokepoint reroute that parses the schema embedded in the bundled
+    genesis base (byte-identical to the corpus stream; sha256-pinned) -- and
+    answers with the schema it installed;
+  * any other path is parsed verbatim by ``rvt.schema.load_schema_file`` --
+    it never activates the fallback, and a missing one raises
+    ``FileNotFoundError`` naming it.  Nothing here re-enters
+    ``rvt.schema.load_schema`` (which may be this wrapper itself when it was
+    armed after a completed ``install_schema()``).
 
 Cost model (measured): installing the wrapper is attribute assignment
 (~0 ms) plus one ``import rvt.schema`` (~16 ms); the schema parse itself
@@ -48,9 +53,10 @@ _FROM_IMPORTERS = ("rvt.objects", "rvt.encode", "rvt.adocument")
 
 def install() -> str:
     """Idempotently wrap the default-schema chokepoint.  Returns a one-word
-    status: ``installed`` | ``already`` | ``corpus-present`` (research
-    machine with the corpus on disk at an unwrapped DEFAULT_PATH -- the
-    wrapper is still installed but will simply never fire)."""
+    status: ``installed`` | ``already`` | ``corpus-present`` (the default
+    path is already a real file -- the research corpus, or the cache file a
+    completed ``install_schema()`` left as DEFAULT_PATH -- so the wrapper is
+    still installed but its fallback will simply never fire)."""
     import rvt.schema as _schema
 
     if getattr(_schema, _FLAG, False):
@@ -58,24 +64,31 @@ def install() -> str:
 
     orig_load = _schema.load_schema
     orig_default = _schema.DEFAULT_PATH
+    # the engine's verbatim leaf loader (#315); an engine older than it only
+    # has load_schema, which is verbatim for explicit paths and is not us
+    load_file = getattr(_schema, "load_schema_file", orig_load)
 
-    def _load_schema_lazy(path: str = orig_default, _orig=orig_load):
-        # 1. any path that actually exists loads exactly as before
-        if path and os.path.isfile(path):
-            return _orig(path)
-        # 2. default / missing path on a bare machine: activate the proven
-        #    standalone reroute ONCE, then answer from the bundled schema.
+    def _load_schema_lazy(path=None):
+        # any other path: parsed verbatim, never the fallback; a missing one
+        # raises FileNotFoundError naming it
+        if path is not None and path != orig_default and path != _schema.DEFAULT_PATH:
+            return load_file(path)
+        # the default path the wrapped loader can already answer (research
+        # corpus on disk, or armed over a completed install_schema())
+        if os.path.isfile(orig_default):
+            return orig_load(orig_default)
+        # the default path on a bare machine: activate the proven standalone
+        # reroute ONCE (it re-points every chokepoint past this wrapper) and
+        # answer with the schema it installed
         try:
             from rvt.frontdoor import standalone
             standalone.install_schema()
         except Exception as e:                                  # noqa: BLE001
             raise FileNotFoundError(
-                f"schema stream not found at {path!r} and the bundled-base "
-                f"fallback failed ({type(e).__name__}: {e}) -- the plugin "
+                f"schema stream not found at {orig_default!r} and the bundled-"
+                f"base fallback failed ({type(e).__name__}: {e}) -- the plugin "
                 "bundle is incomplete (assets/genesis/G_ABPD.rvt)") from e
-        # install_schema replaced rvt.schema.load_schema with the bundled
-        # loader; delegate so its default-path semantics answer.
-        return _schema.load_schema(path)
+        return standalone.bundled_schema()
 
     _schema.load_schema = _load_schema_lazy
     # re-point any from-importer that beat us to it

@@ -194,3 +194,64 @@ None.
   `tests/test_schema_gate.py` (untouched) is already first in the shard, and
   `tests/test_frontdoor_standalone.py` stays out of it as before (it carries two ~4–8 s
   subprocess E2E builds; the two contract tests themselves run in 0.25 s).
+
+---
+
+## eng #376 — 2026-08-10 — the plugin's lazy wrapper adopts the same contract
+
+Stream: `lazy-schema-wrapper` · issue #376 (the follow-up filed above) · PG3 · size XS ·
+territory: `plugin/skills/_shared/tekton_schema.py` (hand-authored source, not a mirror),
+`tests/test_lazy_schema_wrapper.py` (new) + `tests/ci_shard.d/376-lazy-schema-wrapper.txt`,
+this section. Not touched: `src/rvt/**` (reuses #315's `rvt.schema.load_schema_file` and
+`standalone.install_schema` / `bundled_schema` as they are), `tekton_env.py` (held by #267),
+any SKILL.md.
+
+### What was built
+
+* **`tekton_schema.install()`'s `_load_schema_lazy(path=None)`** now has exactly
+  `default_schema_loader`'s shape, with "the installed schema" meaning "activate
+  `install_schema()` once, then the schema it installed":
+  1. any path that is not `None` / the `DEFAULT_PATH` captured at arm time / the current
+     `rvt.schema.DEFAULT_PATH` → `rvt.schema.load_schema_file(path)` — verbatim, never
+     activates the fallback, a missing one raises `FileNotFoundError` with `.filename` = that
+     path (an engine that predates `load_schema_file` degrades to the wrapped `load_schema`,
+     which is verbatim for explicit paths and is not the wrapper);
+  2. the default path when the captured default is a real file (research corpus, **or the
+     cache file a completed `install_schema()` left as `DEFAULT_PATH` — the armed-after case**)
+     → the wrapped loader answers it directly (in memory for the bundled loader; no
+     `install_schema()` call, so a host that installed a *different* base is not re-seeded);
+  3. the default path on a bare machine → `standalone.install_schema()` once (it re-points
+     `rvt.schema/objects/encode/adocument.load_schema` past the wrapper, so the module-level
+     names never reach the wrapper again) and `return standalone.bundled_schema()` — the very
+     object it installed. **Nothing in the wrapper calls `rvt.schema.load_schema` any more**,
+     so there is no path back into itself whatever order it was armed in.
+  The signature lost its `path: str = orig_default, _orig=orig_load` defaults (closure
+  references instead; `None` is now a first-class default like every other chokepoint loader).
+* **Reproduced first** (this branch, before the change; in-process, corpus-less cloud clone):
+  `SA.install_schema()` → `tekton_schema.install()` (arms over the bundled loader; status
+  `corpus-present` because `DEFAULT_PATH` is the cache file) → `objects.load_schema(None)`
+  **and** `schema.load_schema('/nonexistent/x.bin')` both → ~1000 frames of
+  `_load_schema_lazy → _schema.load_schema(path)` → `RecursionError` inside
+  `bundled_base_path`'s `sha256_of` → reported as *"FileNotFoundError: schema stream not
+  found at None and the bundled-base fallback failed (RecursionError: …) — the plugin bundle
+  is incomplete"*. So the finding above understated it slightly: in the armed-after order the
+  `None` spelling of the default recursed too (only the no-arg call, whose default was the
+  existing cache file, escaped through the `isfile` branch). After the change: `None` /
+  no-arg / `DEFAULT_PATH` → the installed object (`is SA.bundled_schema()`), missing explicit
+  path → `FileNotFoundError('/nonexistent/x.bin')` in 0.000 s with `__cause__ None`.
+* **Tests** — new `tests/test_lazy_schema_wrapper.py` (2 tests, 0.20 s, in-process, only the
+  pinned plugin base's bytes; every swapped name — the four `load_schema`s, `DEFAULT_PATH`,
+  the arm flag, `_SCHEMA_STATE` — monkeypatch-restored, same scaffolding as #315's test):
+  `test_armed_after_a_completed_install` (DONE (b): install, then arm; default family `is`
+  the installed object through `schema`/`objects`/`adocument`; missing explicit path raises
+  `FileNotFoundError` with `.filename` and no `__cause__` through three module names; an
+  existing explicit copy parses verbatim to the same sha) and
+  `test_explicit_path_never_activates_the_fallback` (the `go` order made deterministic by
+  pointing `DEFAULT_PATH` at an absent tmp path: a missing explicit path raises and
+  `_SCHEMA_STATE` shows **no** install happened; the first `ObjectDecoder()` installs once,
+  re-points the module names past the wrapper, and a held reference to the wrapper keeps
+  answering the same object / raising for missing paths; re-arming says `already`). Both
+  tests **fail on `main`'s wrapper** (`RecursionError` → the false "bundle is incomplete"
+  `FileNotFoundError`) and pass on this branch; order-independent with
+  `test_schema_gate.py` and #315's two contract tests in either direction (8 passed both
+  ways). Shard drop-in `tests/ci_shard.d/376-lazy-schema-wrapper.txt`.
