@@ -180,3 +180,28 @@ file's fixture, no need — the query's input is `find_spec`, which the new test
   failed in 179.1 s**. Full suite NOT run (suite coordination). Nothing staged for the viewer; no
   `.rvt`/`.rfa` shipped (the scratch acceptance build and `out/verify/` were evidence only); no
   certification claim.
+
+## eng #382 — 2026-08-10 (non-`str` entries on `sys.path`)
+
+* `ifc_authoring_available()`'s "what would the shim stand down to" walk (`_fallback.py:103`) now
+  skips non-`str` `sys.path` entries (`isinstance(p, str) and _SHIM_MARK not in p`) — the way
+  CPython's `PathFinder` and the shim's own `_find_real_spec` already ignore them — instead of
+  raising `TypeError: argument of type 'PosixPath' is not iterable` when a tool had appended a
+  `pathlib.Path` and the shim was the first hit (the query runs at `conftest` import, so that raise
+  aborted collection). The sibling walks in `ensure_ifc_reader` only use `in` / `remove` against
+  the list (equality, never substring), so they were already safe and are unchanged.
+* Evidence: new `test_a_non_str_sys_path_entry_is_skipped_like_cpython_does[True|False]` (shim
+  first + a `PosixPath` appended, wheel simulated behind it or not → the boolean the two preceding
+  tests pin for the same path without the entry) — **red before** (2 failed / 9 passed, the TypeError above), **green after: 11 passed** in
+  `tests/test_ifc_authoring_gate.py` (this box has ifcopenshell in the venv; both shapes are
+  simulated so the file is fresh-clone either way). Probe: `PYTHONPATH=src/rvt/ifc/_ifcos_shim
+  python -c "sys.path.append(pathlib.Path('.')); …"` prints `True`, `'ifcopenshell' in sys.modules`
+  → `False` (nothing imported). `sync_plugin.py` run + `--check` clean, `validate_plugin.py` PASS,
+  portable paths ok. Already in the shard via `ci_shard.d/367-ifc-authoring-gate.txt`.
+
+### BRANCH STATE (eng #382)
+
+* Branch `cam/382-fallback-nonstr-syspath` from `main`@b253668. Files: `src/rvt/ifc/_fallback.py`
+  (one comprehension + 2-line comment), `plugin/lib/src/rvt/ifc/_fallback.py` (regenerated mirror),
+  `tests/test_ifc_authoring_gate.py` (+1 parametrised case, `import pathlib`), this section.
+* Gates: above. Full suite NOT run. Nothing staged, no `.rvt`/`.rfa` produced, no certification claim.
