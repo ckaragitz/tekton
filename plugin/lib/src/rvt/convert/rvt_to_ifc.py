@@ -355,10 +355,10 @@ def _family_contract(idx, unit: int, type_name: Optional[str]) -> Tuple[Dict[str
 
 
 def _classify(name: str, contract: Dict[str, Any]) -> str:
-    """Mirror of the resolver's OWN precedence (``rvt.ifc.intent.
-    _classify_equipment``), so the kind label the round trip re-derives from
-    the emitted IFC agrees with the label extracted from the RVT."""
-    from ..ifc.intent import parse_voltage
+    """The resolver's OWN precedence (``rvt.ifc.intent.panelboard_flavour``
+    -- called, not copied, #412), so the kind label the round trip re-derives
+    from the emitted IFC agrees with the label extracted from the RVT."""
+    from ..ifc.intent import panelboard_flavour, parse_voltage
     # hay mirrors the resolver's inputs: the product NAME + TAG (PanelName);
     # the Description deliberately stays out (the resolver does not hay it)
     hay = " ".join(str(x) for x in (name, contract.get("PanelName")) if x).lower()
@@ -377,15 +377,7 @@ def _classify(name: str, contract: Dict[str, Any]) -> str:
         bus = float(contract.get("BusRating")) if contract.get("BusRating") is not None else None
     except (TypeError, ValueError):
         pass
-    if re.search(r"receptacle|appliance", hay) or (ll is not None and ll <= 240):
-        return "receptacle_panelboard"
-    mains = str(contract.get("MainsType") or "").lower()
-    if re.search(r"lighting|lp-", hay) or (bus is not None and bus <= 225
-                                           and "lugs" in mains):
-        return "lighting_panelboard"
-    if re.search(r"distribution|dp-", hay) or (bus is not None and bus >= 250):
-        return "distribution_panelboard"
-    return "panelboard"
+    return panelboard_flavour(hay, ll=ll, bus=bus, mains=str(contract.get("MainsType") or ""))
 
 
 def _voltage_string(name: str, contract: Dict[str, Any]) -> None:

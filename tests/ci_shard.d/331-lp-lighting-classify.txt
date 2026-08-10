@@ -1,0 +1,4 @@
+# backend-free classifier table (#331): stub product, numpy only
+tests/test_ifc_classify_equipment.py
+# rvt->ifc extractor calls the same rule (#412): unit table + h-fixture round trip (skips w/o schema/base/catalog)
+tests/test_rvt_to_ifc_kind_agreement.py

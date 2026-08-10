@@ -436,9 +436,6 @@ def _fx_b() -> Model:
          "placed by NON-identity local placements with local (not world-baked) vertices",
          notes=["world = site o building o storey o product o local vertex: insertion_m proves the "
                 "chain composes (position_source = placement-chain + local geometry)",
-                "#331: LP-2 is named a lighting panel but classifies receptacle_panelboard: the "
-                "208Y/120 V (ll <= 240) rule fires before the lighting/LP- name rule in "
-                "_classify_equipment -- today's order, pinned; #331 decides bug vs intended",
                 "#156: level ids/elevations are pinned here; how they map onto the base's levels "
                 "at build time is #156's expectation to add"])
 def _fx_c() -> Model:
@@ -594,9 +591,7 @@ def _fx_g() -> Model:
          "one IfcRepresentationMap (enclosure + nameplate) reused by three panels through "
          "IfcMappedItem + IfcCartesianTransformationOperator3D (two translated, one rotated 90 deg)",
          notes=["each occurrence must resolve its OWN insertion and front normal from the shared map: "
-                "world = placement o target-operator o inverse(map origin) o vertex",
-                "#331: the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage "
-                "rule before name rule, as in fixture c) -- today's order, pinned"])
+                "world = placement o target-operator o inverse(map origin) o vertex"])
 def _fx_h() -> Model:
     m = Model("h_mapped_item_reuse")
     sto, plc_sto = m.storey("Level 1", 0.0)
