@@ -109,10 +109,19 @@ def main(argv=None) -> int:
 
 
 def _edit(a: argparse.Namespace, old_b: bytes, new_b: bytes) -> int:
-    with open_rvt(a.path) as doc:
+    try:
+        doc = open_rvt(a.path)
+    except Exception as e:  # not CFB / not readable
+        print(f"ERROR: cannot open as an .rvt container: {e}", file=sys.stderr)
+        return 2
+    with doc:
         pname = find_partition(doc, a.partition)
         logical = doc.logical(pname)
-        w = P.StreamWalker(logical, inflate=True, keep_data=True)
+        try:
+            w = P.StreamWalker(logical, inflate=True, keep_data=True)
+        except Exception as e:  # noqa: BLE001 -- a header no release in force parses: refuse, never trace back
+            print(f"ERROR: input partition does not walk cleanly: {type(e).__name__}: {e}", file=sys.stderr)
+            return 2
         if w.errors:
             print(f"ERROR: input partition does not walk cleanly: {w.errors[:3]}", file=sys.stderr)
             return 2
