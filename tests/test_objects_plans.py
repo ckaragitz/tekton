@@ -134,6 +134,52 @@ def test_hook_override_never_takes_the_plan_path(corpus, monkeypatch):
     assert NamesOnly(schema).decode_record(recs[0][1], recs[0][2]).class_name.isupper()
 
 
+def test_instance_patched_hook_takes_the_walk_and_sees_every_field(corpus, monkeypatch):
+    """Hooks are meant to be overridden by subclassing, but a hook assigned on
+    an *instance* must not be silently bypassed by the plans either (#449):
+    that instance drops to the reference walk -- whether patched before or
+    after its first decode -- and the patch sees exactly the fields a subclass
+    override sees.  Other instances and the class keep the plan path."""
+    schema, recs = corpus[2025]
+    sample = recs[:300]
+
+    def patch(dec):
+        seen = []
+        inner = dec._decode_value_class         # the bound original
+        def spy(rd, type_id, queue, state, path):
+            v = inner(rd, type_id, queue, state, path)
+            if type_id == dec.id_ElementId:
+                seen.append((path, v))
+            return v
+        dec._decode_value_class = spy
+        return seen
+
+    fresh = ObjectDecoder(schema)               # patched before any decode
+    seen_fresh = patch(fresh)
+    late = ObjectDecoder(schema)                # patched after plans were compiled and used
+    for _eid, cls, payload in sample[:50]:
+        assert late.decode_record(cls, payload).clean
+    assert late._plans and late._hooks_native
+    seen_late = patch(late)
+    assert not fresh._hooks_native and not late._hooks_native
+    assert ObjectDecoder._hooks_native and ObjectDecoder(schema)._hooks_native   # per instance only
+
+    monkeypatch.setattr(ObjectDecoder, "_decode_record_planned",
+                        lambda self, c, p: pytest.fail("plan path taken under an instance patch"))
+    hooked = _RefDecoder(schema)                # the subclass way (== the walk, pinned by test 1)
+    n_ids = 0
+    for eid, cls, payload in sample:
+        del seen_fresh[:], seen_late[:]
+        hooked.refs = []
+        ref = hooked.decode_record(cls, payload)
+        assert _same(fresh.decode_record(cls, payload), ref), eid
+        assert _same(late.decode_record(cls, payload), ref), eid
+        assert seen_fresh == seen_late == hooked.refs, (eid, ref.class_name)
+        n_ids += len(hooked.refs)
+    assert n_ids > 500                                        # the sample does exercise the hook
+    assert not fresh.plan_bails and not late.plan_bails       # they never tried (after the patch)
+
+
 def test_ids32_era_takes_the_walk(corpus, monkeypatch):
     """rvt.versions.records32 swaps Reader.element_id for a 32-bit read
     (Revit <= 2023).  Plans assume the 64-bit read, so while that patch is

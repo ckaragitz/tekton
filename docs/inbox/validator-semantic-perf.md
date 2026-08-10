@@ -1,7 +1,8 @@
 # validator-semantic-perf — the semantic layer's record decode, compiled (issue #427)
 
 Stream: `eng427` (engineer session under the tech-lead session; branch
-`cam/427-validator-semantic-perf` from `main @ f05db8b`). Closes #427; Refs #266
+`cam/427-validator-semantic-perf`, cut from `main @ f05db8b`, final head rebased on
+`main @ af15f6c`; merged as 1d63c6b). Closes #427; Refs #266
 (whose measurement located the time here), #110, #108 / S-2026-08-09-g.
 
 ## 1. What was built
@@ -249,3 +250,110 @@ from.
   → ok, in-call 0.33 s, structural PASS, validation PASS (0 errors, 0 warnings) in 0.1 s.
 - Nothing staged for the viewer (read path only; no written byte changes — pinned by the
   roundtrip/encode/manipulate suites and by the byte-identical edit outputs' reports).
+
+---
+
+## eng #449 — 2026-08-10: hooks are overridden by subclassing; an instance-patched hook now takes the walk too (issue #449, from the #447 review)
+
+Stream: `eng449` (engineer session under the tech-lead session; branch
+`cam/449-decoder-hook-guard` from `main @ 855f764`). Closes #449; Refs #427 #447.
+(The header of this record now says what #447's final head was actually rebased on —
+`af15f6c` — as the issue asked; nothing else above this line was touched.)
+
+### What was built
+
+1. **`ObjectDecoder` (`src/rvt/objects.py`, read path only).** The class docstring now
+   states the extension contract in full: override the `_HOOKS` methods **by
+   subclassing** (detected at class creation, `cls._hooks_native`); an *instance*-assigned
+   hook (`dec._decode_pointer = f`) is tolerated the same way — that instance drops to the
+   reference walk from then on; re-binding a hook on an already-created *class*
+   (`SomeDecoder._decode_pointer = f`, `monkeypatch.setattr(cls, …)`) is the one thing not
+   detected — subclass, or force the walk with `use_plans = False`. The detection chosen is
+   not a per-call guard in `decode_record` (which #447 measured to the microsecond) but a
+   four-line `__setattr__` on the class: assigning any name in `_HOOKS` (now a
+   `frozenset`) on an instance
+   also sets that instance's `_hooks_native = False`, which `decode_record` already reads
+   (`self._hooks_native` — the instance value now shadows the class value). So the plan
+   path's entry test is byte-for-byte the #447 one, a patch made *after* plans were
+   compiled and used is honoured from the next record on, other instances and the class
+   keep the plan path, and nothing in `src/ tools/ plugin/` changes behaviour (nothing
+   there instance-patches a decoder; every override is a subclass — `ESDecoder`
+   `_hooks_native False`, `ADocumentDecoder` True, `_RefDecoder`/remap decoders False, as
+   before).
+2. **`src/rvt/encode.py` comment text only** (module codebook + `Writer.bool`): the
+   decoder returns a Python `bool` for kind 0x01 on both paths (`Reader.bool`, and the plan
+   path's `"?"` struct char — any non-zero byte → True), so a decoded value re-encodes as
+   exactly 0/1 and a non-0/1 wire byte would come back as 1; the byte-for-byte round trips
+   the module cites met none. The old text ("the decoder returns the raw int for non-0/1
+   bytes") described neither main nor #447. No encoder logic touched; no written byte
+   changes.
+3. **`tests/test_objects_plans.py` 13 → 14**: `test_instance_patched_hook_takes_the_walk_and_sees_every_field`
+   — on the first 300 seq-102 records of the 2025 base, a plain decoder whose
+   `_decode_value_class` is patched on the instance *before any decode*, and one patched
+   *after* 50 plan-path decodes (plans compiled and cached), both: never enter
+   `_decode_record_planned` again (spy), return `_same()` objects as the `_RefDecoder`
+   *subclass* (== the walk on every record, test 1), and their patch sees exactly the
+   `(full path, id)` stream that subclass override sees (element for element, > 500 ids
+   over the sample); a third fresh instance and the class itself stay `_hooks_native`.
+   The test fails on `main @ 855f764` (the patched hook saw 0 fields), passes here.
+   `/simplify` pass folded in: the test's separate reference pre-pass and fourth decoder
+   dropped, the bool fact stated once in `encode.py` (docstring) and referenced from
+   `Writer.bool`, the class docstring tightened; skipped (outside territory, held by eng
+   #430, ≈0.1 ms): binding `dec.ref_sink` once before `_layer_semantic`'s loop instead of
+   per record.
+
+### Evidence
+
+- `tests/test_objects_plans.py`: **14 passed** (8.9 s). Without the `__setattr__` (same
+  tree, guard renamed away): the new test fails, 13 pass.
+- Per-record identity harness (the #447 `ab.py` idea, scratch script over
+  `tests/test_objects_plans._records`, all seq-102 records of the three bundled bases,
+  this head): 2024: 3,278 records, 2025: 3,316, 2026: 3,102 = **9,696 records; plan vs
+  walk 0 mismatches** (values+types, consumed/total, errors, n_deferred, stub, clean,
+  `ref_sink`); **instance-patched decoder vs walk 0 mismatches** and its spy's
+  `(leaf, id)` stream == the walk's `ref_sink` on every record; `plan_bails` = `{}` /
+  `{}` / `{'_Bail': 1}` (the 2026 DataStorage decode-gap record) — the same single bail
+  #447 recorded; the patched decoders' `plan_bails` empty (they never tried).
+- `validate_file(G_ABPD_2025.rvt)` in-process wall, one warm-up then medians of 11, three
+  rounds each, this venv (3.11): **after 146.3 / 136.6 / 141.5 ms; before (guard removed,
+  same tree, run alternately) 139.8 / 140.2 / 140.9 ms** — inside the run-to-run spread
+  (min 130–135, max 148–165 either way). The added cost is one Python-level `__setattr__`
+  per attribute assignment on a decoder: `timeit` 147 ns vs 17 ns per `dec.ref_sink = []`,
+  and the semantic layer does exactly one such assignment per record → 3,316 × 130 ns ≈
+  **0.43 ms per 2025 validate (0.3 %)**, below what the harness can resolve; `decode_record`
+  itself is unchanged.
+- Neighbours: `test_objects test_encode test_adocument test_estorage test_validate_release
+  test_validate_footer_blob test_bare_family_validate test_records32 test_mutate
+  test_manipulate test_roundtrip` + `test_objects_plans`: 126 passed / 71 skipped / 1
+  xfailed when `test_manipulate` runs *before* `test_objects_plans`; in the other order
+  `test_manipulate` shows 2 failed + 2 errors **on `main` too** — a pre-existing
+  first-import-inside-a-release-context bug in `rvt.manipulate` (by-value `BLOCK_TAG`
+  copy), root-caused and filed as **#455** (not this territory: `manipulate.py` is held by
+  eng #430). The merged shard runs the alphabetical order and is unaffected.
+
+### Findings
+
+- Why `__setattr__` and not the issue's `type(self)._decode_value_class is not
+  self._decode_value_class.__func__` once-per-instance probe: "once" needs a place to run
+  (first decode) and misses a patch applied after it; per call it costs a bound-method
+  construction per hook per record. Flipping the existing flag at assignment time costs
+  nothing on the decode path and catches the patch whenever it happens. Direct
+  `vars(dec)[...] = f` writes and class re-binding after creation remain undetected by
+  design (documented); a metaclass `__setattr__` could catch the latter but nothing does it
+  and pytest's `monkeypatch.setattr(ObjectDecoder, "_decode_record_planned", …)` in this
+  very test file shows class patching is a test idiom better left alone.
+- #455 is a real (loud, non-corrupting) product edge: a process that reads a ≤ 2023 file
+  through `reading32` *first* and edits a 2026 project later fails the edit's own re-walk.
+
+### BRANCH STATE
+
+- Branch `cam/449-decoder-hook-guard` from `main @ 855f764`; PR closes #449.
+- Files: `src/rvt/objects.py` (class docstring + `__setattr__`, 1 comment word),
+  `src/rvt/encode.py` (two comments), `tests/test_objects_plans.py` (+1 test), this record
+  (header fact + this section); mirrors `plugin/lib/src/rvt/{objects,encode}.py` via
+  `tools/sync_plugin.py`. No new test *file*, so no shard drop-in (the file is already in
+  the shard via `tests/ci_shard.d/427-objects-plans.txt`).
+- Gates: see the PR body for the final-head counts (stream-local, merged CI shard,
+  `sync_plugin --check`, `validate_plugin`, portable paths, `/verify`).
+- Nothing staged for the viewer: read path + comments only; no written byte changes.
+- Follow-up filed: #455 (`rvt.manipulate` by-value block tags; Refs #449).

@@ -10,10 +10,13 @@ record of racbasic + rmebasic and over whole seq-101/102/103 segments
 Codebook symmetry (decoder ``Reader``  <->  encoder ``Writer``)::
 
     u8/i16/u16/i32/u32/i64/u64/f32/f64  ->  struct pack, little-endian
-    bool                                ->  u8 (True=1, False=0; non-0/1 wire
-                                            bytes are preserved because the
-                                            decoder returns the raw int for
-                                            them -- see objects.Reader.bool)
+    bool                                ->  u8 (True=1, False=0).  The decoder
+                                            always yields a Python ``bool``
+                                            (any non-zero byte -> True, both
+                                            read paths), so a non-0/1 wire byte
+                                            would re-encode as 1 -- the round
+                                            trips above met none; a raw int in
+                                            a hand-built dict writes its low byte
     AString                             ->  u32 UTF-16 code-unit count +
                                             UTF-16LE; ``None`` -> the null
                                             sentinel 0xFFFFFFFF; ``""`` -> 0
@@ -93,9 +96,8 @@ class Writer:
         self.buf += struct.pack("<B", v & 0xFF if isinstance(v, int) else int(v))
 
     def bool(self, v):
-        # bool() flattening in the decoder is lossless only for wire bytes
-        # 0/1; the decoder therefore returns non-0/1 wire bytes as raw ints
-        # (objects.Reader.bool), which we write back unchanged.
+        # decoded values are always Python bools -> exactly 0/1 (module
+        # docstring: bool); the int branch only serves hand-built value dicts
         if isinstance(v, bool):
             self.buf.append(1 if v else 0)
         else:

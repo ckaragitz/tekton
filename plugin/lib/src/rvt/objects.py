@@ -292,25 +292,39 @@ class _Pending:
 class ObjectDecoder:
     """Decodes serialized objects using a parsed :class:`rvt.schema.Schema`.
 
-    Extension API: the reference walk's hook methods in ``_HOOKS``.  A
-    subclass overriding any of them (to observe or remap ids by path, to
-    ledger bodies...) is decoded by the reference walk only -- its override
-    sees every field exactly as before, at reference-walk speed
-    (``cls._hooks_native`` says which path a class takes).  To merely observe
-    ElementIds, prefer ``ref_sink`` and keep the plan path.
+    Extension API: the reference walk's hook methods in ``_HOOKS``.
+    Override them by **subclassing**: a subclass overriding any of them (to
+    observe or remap ids by path, to ledger bodies...) is detected when the
+    class is created and decoded by the reference walk only, so its override
+    sees every field exactly as before, at reference-walk speed.  A hook
+    assigned on an *instance* (``dec._decode_pointer = f``) is tolerated the
+    same way: that instance takes the walk from then on.  ``_hooks_native``
+    (class value, shadowed per patched instance) says which path is taken.
+    Re-binding a hook on an already created *class* (``monkeypatch.setattr(
+    cls, ...)``) is NOT detected and the plans never call hooks -- subclass,
+    patch the instance, or force the walk with ``use_plans = False``.  To
+    merely observe ElementIds, prefer ``ref_sink`` and keep the plan path.
     """
 
     # False forces every record through the reference walk (A/B switch for
     # the compiled plans; behaviour is identical either way by construction)
     use_plans = True
-    _HOOKS = ("_decode_class", "_decode_field", "_decode_scalar",
-              "_decode_value_class", "_decode_pointer", "class_name")
-    _hooks_native = True                     # recomputed per subclass below
+    _HOOKS = frozenset(("_decode_class", "_decode_field", "_decode_scalar",
+                        "_decode_value_class", "_decode_pointer", "class_name"))
+    _hooks_native = True                     # recomputed per subclass / patched instance below
 
     def __init_subclass__(cls, **kw):
         super().__init_subclass__(**kw)
         cls._hooks_native = all(getattr(cls, h) is getattr(ObjectDecoder, h)
                                 for h in ObjectDecoder._HOOKS)
+
+    def __setattr__(self, name, value):
+        # an instance-assigned hook is invisible to __init_subclass__: flag the
+        # instance so decode_record sends it down the walk instead of silently
+        # bypassing the patch; every other assignment passes straight through
+        if name in ObjectDecoder._HOOKS:
+            object.__setattr__(self, "_hooks_native", False)
+        object.__setattr__(self, name, value)
 
     def __init__(self, schema: Optional[Schema] = None):
         self.schema = schema or load_schema()
