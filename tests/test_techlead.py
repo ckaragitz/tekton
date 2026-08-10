@@ -488,6 +488,9 @@ def test_workflows_are_dispatch_only_and_the_session_pipeline_is_checked_in():
     brief = open(os.path.join(ROOT, "tools", "dev", "review_brief.md"), encoding="utf-8").read()
     for needle in ("VERDICT=approve|nits|changes", "claude-review:", "session-ci:", "same tick", "--kill-child"):
         assert needle in brief, needle
+    fanout = open(os.path.join(ROOT, ".claude", "commands", "fanout.md"), encoding="utf-8").read()
+    for needle in ("only the tech-lead session merges", "head SHA", "Write every wave into the ledger"):   # #342: engineers never merge; waves are reconstructible from GitHub alone
+        assert needle in fanout, needle
 
 
 # ───────────────────────── classify + board ─────────────────────────

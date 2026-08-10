@@ -483,3 +483,30 @@ lock, fatal export, fd hygiene, header), `.github/workflows/ci.yml` (shard step;
 `tests/test_techlead.py` (needles), `tests/ci_shard.txt` (header freeze notice only — no entry moved), `.github/prompts/worker.md`
 (one line), `CLAUDE.md` §4 one bullet sentence, `.github/pull_request_template.md` one line, this record. Gates as above. Shipped when merged; the tech lead exercises the modified `session_ci.sh` live on the next PR
 after switching its checkout to the merged `main`.
+
+## Only the tech lead merges; every wave is written into the ledger (steer #342), same session, 2026-08-10
+
+**What happened.** During the "merge everything" drive one engineer PR (#358) reached `main` outside the session
+pipeline (squash 3a44f6d under the shared `cam-karagitz` identity), and four engineer reports (wave 12: #312, #360,
+#315, #367 → PRs #374/#375/#377/#379) arrived at the tech-lead session from sessions it could no longer remember
+starting — the launch had been compacted out of its context. For one tick the loop treated its own wave as a second,
+unknown tech lead and paused fan-out to avoid a phantom collision; the sessions' archive records (`parent_session_id`
+= the tech-lead session, tag `wave-12`) settled it. Every affected head still got same-tick sandboxed CI + an
+independent verdict (post-merge for #358, recorded on the PR), so `main` was never unverified — but both gaps were
+process bugs, not luck to rely on.
+
+**What changed.** `.claude/commands/fanout.md`: the engineer prompt now says in terms that engineers never merge —
+not their own PR, not anyone's; only the tech-lead session merges, and only with same-tick CI + review evidence for the
+exact head — and step 2 obliges the tech lead to write every wave into GitHub the moment it starts it (one comment with
+`issue → engineer session id → territory` on the steer/board issue), because a session's memory can be compacted away
+mid-loop and GitHub alone must be enough to reconstruct who started what. The concurrency line states the standing
+exception (a "run continuously" steer such as #108 raises the cap from 3 to 5) and the same-file = overlap rule.
+`tests/test_techlead.py` pins the three phrases so a later edit cannot drop them silently. `docs/STEERING.md` gains
+S-2026-08-10-a — the owner's standing steer #381 (generated families carry the full Revit-born view set), logged by the
+collaborator session that received it and now visible to every session at start.
+
+**Evidence.** Wave 13 (#359/#294/#348/#376/#267) was launched under the new text and its ledger comment is on #342;
+`tests/test_techlead.py` green locally (count in the PR); no product code touched.
+
+BRANCH STATE (cam/342-fanout-never-merge): `.claude/commands/fanout.md`, `tests/test_techlead.py` (3 needles),
+`docs/STEERING.md` (+1 row), this record section. Docs/process only; shipped when merged through the session pipeline.
