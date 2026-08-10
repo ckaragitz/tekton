@@ -377,8 +377,7 @@ def test_census_unavailable_reaches_the_front_door_manifest(job, monkeypatch, tm
     line) instead of presenting our pin as a plain user-supplied base.  The
     label stays PROOF-ONLY and the file is delivered."""
     pinned_base(2026)
-    monkeypatch.setitem(sys.modules, "rvt_job", job)                  # the module ifc_intent.status_gate imports
-    monkeypatch.setattr(job, "_census_mod", lambda: None)
+    monkeypatch.setattr(job, "_census_mod", lambda: None)             # `job` IS the module ifc_intent.status_gate drives (#477)
     monkeypatch.setitem(job.OPT.errors, "rvt.frontdoor.census", "ImportError: simulated")
     man, md = _walls_job(tmp_path, "u")
     assert os.path.isfile(man["build"]["files"]["combined"]["path"])   # delivered
