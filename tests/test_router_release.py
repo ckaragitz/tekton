@@ -221,12 +221,17 @@ def test_spec_to_rfa_honours_the_target_too(tmp_path, year):
         assert ifc and os.path.isfile(ifc), "the spec's generated IFC rides beside the families"
 
 
-def test_wrong_release_base_is_refused_as_base_but_families_still_delivered(tmp_path):
-    """An explicit --base of another release is refused AS A BASE (the resolver's
-    verdict, relayed) -- the families need no base, so they are delivered at the
-    native release and the line says so (rule 1: never withheld)."""
+def test_wrong_release_base_is_refused_as_base_but_families_still_delivered(tmp_path, monkeypatch):
+    """An explicit FOREIGN --base of another release is refused AS A BASE (the
+    resolver's verdict, relayed) -- the families need no base, so they are
+    delivered at the native release and the line says so (rule 1: never
+    withheld).  The foreign 2025 file = the bundled 2025 bytes with the
+    registry match switched off (a copy of a certified slot itself is OUR base
+    arriving by path and resolves the target's slot, #472)."""
     if not os.path.isfile(BASE_2025) or RC.native_release() == 2025:
         pytest.skip("bundled 2025 base absent (or 2025 is the native release)")
+    from rvt.frontdoor import base as B
+    monkeypatch.setattr(B, "_certified_slot_for_digest", lambda digest, pin=B.PIN: None)
     native = RC.native_release()
     res = R.route({"prompt": PROMPT}, "rfa", out=str(tmp_path / "o"),
                   target_version=min(SUPPORTED), base=BASE_2025)
