@@ -74,7 +74,6 @@ import contextlib
 import dataclasses
 import hashlib
 import importlib.util
-import io
 import json
 import math
 import os
@@ -1471,17 +1470,6 @@ def _dispatch(args) -> int:
         return EX_ERR
 
 
-def _open_job_log(log_path: str):
-    """The --json progress sink: ``<out>.log``, line-buffered (a crashed run
-    keeps its progress); an unwritable path degrades to an in-memory sink --
-    logging never costs a delivery (the front door's build.log shape, #312)."""
-    try:
-        os.makedirs(os.path.dirname(log_path) or ".", exist_ok=True)
-        return open(log_path, "w", buffering=1, encoding="utf-8", errors="backslashreplace"), log_path
-    except OSError:
-        return io.StringIO(), None
-
-
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     want_json = "--json" in argv             # position-free: `go rvt_job.py …` appends it last
@@ -1490,16 +1478,24 @@ def main(argv=None) -> int:
     _RUN.update(log=None, manifest=None)     # per run (main() is also called in-process)
     if not want_json:
         return _dispatch(args)
+    # --json: progress -> <out>.log (named in output.log); an unopenable log = ONE
+    # note in the printed JSON, never a lost delivery.  The shared stdlib leaf,
+    # not rvt.frontdoor.stagelog: this door pays no package import (#424).
+    from rvt._logsink import stage_stdout
     out_abs = os.path.abspath(args.out)
-    sink, _RUN["log"] = _open_job_log(out_abs + ".log")
-    with sink, contextlib.redirect_stdout(sink):
+    notes: List[str] = []
+    with stage_stdout(os.path.dirname(out_abs), os.path.basename(out_abs) + ".log", quiet=True,
+                      on_open=lambda p: _RUN.__setitem__("log", p), on_degrade=notes.append):
         rc = _dispatch(args)
         if _RUN["manifest"] is None:         # died before any manifest (input / ops.json unusable)
             _write_stub_manifest(out_abs, {
                 "tool": "rvt_job", "tool_version": TOOL_VERSION, "mode": args.mode,
                 "status": f"FAILED (exit {rc}) before anything was written; "
                           "the reason is the one line on stderr"})
-    print(json.dumps(dict(_RUN["manifest"], exit_code=rc), indent=1, default=_jsonable))
+    doc = dict(_RUN["manifest"], exit_code=rc)
+    if notes:
+        doc["degradations"] = notes
+    print(json.dumps(doc, indent=1, default=_jsonable))
     return rc
 
 
