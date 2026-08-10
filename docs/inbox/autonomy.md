@@ -540,3 +540,55 @@ BRANCH STATE (cam/386-wave-ledger): `tools/dev/techlead.py` (ledger functions, `
 `fetch_board_issue` shared with `hello`), `tools/dev/coord.py` (`unquoted`), `tests/test_techlead.py` (+2 tests),
 `.claude/commands/fanout.md`, `docs/process/AUTONOMY.md` (§12c), this section. Process tooling only; shipped when
 merged through the session pipeline.
+
+## The loop survives its session: a lease register + a re-armed watchdog (#302 remainder), same session, 2026-08-10
+
+**What.** (1) The LEASE: issue #410's body (`lease.issue` in `.github/autonomy.json`) carries
+a visible `` `techlead-lease session=<id> until=<UTC iso>` `` line plus one human line (/verify found that MCP `issue_read` strips
+HTML comments from issue bodies — a comment marker would have made every token-less reader see 'no lease' and TAKE). `tools/dev/techlead.py lease renew --me <id>`
+judges it — HOLD (mine → renew), TAKE (none / garbled / released / expired → that holder is gone: write it in my name),
+STANDBY (another session, unexpired → exit 5, nothing written) — and writes it over the API, or with
+`--from-file <issue JSON | -> --dry-run` prints the judged body for MCP `issue_write` (fail closed: no `--from-file`,
+no body; a saved object without a `body` key is an error, never "empty → take"). `lease status` is the read-only view;
+`brief` shows the lease at 0 extra calls. One grammar (`LEASE_RE`), validity by round trip. (2) The WATCHDOG: instead of a
+fixed fresh-session cron (rejected on review — ~12 fresh CCR sessions a day, each a VM + clone + setup + ~15k tokens,
+only to print STANDBY, and ~80 dead sessions a week in the owner's list), a ONE-SHOT routine that spawns a fresh session
+is re-armed by every acting tick to now + `lease.minutes` (`update_trigger(run_once_at=…)`); it therefore never fires
+while a loop lives and fires exactly `lease.minutes` after the last tick of a dead one — takeover latency = the lease
+length (100 min), zero standby cost. The lease still earns its keep as the visible register and for the one case the
+watchdog cannot judge: a session presumed dead that comes back (it reads STANDBY and yields). (3) `.github/prompts/tick.md`
+is the standalone tick prompt: step 0 = one command (`issue_read` → `lease renew --from-file - --dry-run`; exit 5 →
+end the turn; else `issue_write` the body, re-read after a TAKE and yield to a same-minute earlier taker, post the
+take-over line on the board) + the watchdog push; then picture (incl. wave-ledger read-back), the session-hosted
+pipeline, fan-out by reference to `fanout.md`, backlog, build, report; long ticks re-run step 0 before merging or
+fanning out. Both routines' stored prompts are stubs pointing at the file, so edits ship by PR.
+
+**Review round (🛑 → fixed).** The independent review found two real holes: a STANDBY fire ended without re-arming the
+watchdog (an early fire at the expiry boundary would have left the loop dead), and the backticked marker plus "pipe the
+JSON" invited shell command substitution that erased the marker and yielded TAKE over a live holder. Now ONE invariant:
+every outcome (hold / take / standby / damaged) prints `ARM_WATCHDOG_AT` = the lease in force + `lease.watchdog_margin_minutes`
+(or now + `lease.minutes` when nothing is in force) and tick.md re-arms the watchdog with it before any turn may end;
+the marker is a plain `techlead-lease session=… until=…` line with no shell metacharacters; a body that mentions a lease
+without a parseable line (or with an impossible timestamp) is DAMAGED — exit 6, repaired, never taken; `none`/`-` are
+reserved; `cse_…` ($CLAUDE_CODE_REMOTE_SESSION_ID) and `session_…` spell one holder; a lapsed lease of my own is HOLD;
+`--release` hands back only your own lease (a watchdog-fired session does that at the end so the persistent one
+reclaims); `coord.unquoted` also drops MCP-escaped `&gt;` quotes; tick.md names the session-id source, the
+missing-routine branch, the prerequisites, and re-reads afresh before merges/fan-out/filing on long ticks.
+
+**Evidence.** `tests/test_techlead.py` (`test_loop_lease_decides_hold_take_standby_and_round_trips`,
+`test_lease_cli_is_offline_fail_closed_and_always_arms_the_watchdog`) pin the boundary (until − 1 s standby / at until
+take), own-lapsed hold, the three watchdog arm rules, quoted/escaped/fenced markers, damaged bodies, reserved ids,
+release rules, fail-closed dry-run; every path also driven by hand offline. /simplify: 4 angles,
+applied all but the optional config nesting (kept `lease.{issue,minutes}` top-level; the worker's label lease is a
+different substrate). After merge (recorded on #302): the lease written on #410 in this session's name through the
+token-less path; the hourly routine's prompt replaced by the stub; the watchdog routine created and armed.
+
+Second review 🟡 → also applied: empty saved input is refused (never "no lease"), the damage hint reads the RAW body (a lease
+wholly inside a fence/quote is DAMAGED, not takeable), the margin is clamped ≥ 2 min, a watchdog-fired session re-arms once
+more after its release, and the take-over board line skips routine hand-backs. Tests: `tests/test_techlead.py` +
+`tests/test_coord.py` 45 passed.
+
+BRANCH STATE (cam/302-loop-lease): `tools/dev/techlead.py` (lease grammar/functions/CLI, shared `body_of`/`load_saved`,
+brief line, config default), `tools/dev/coord.py` (`unquoted` drops MCP-escaped quotes), `.github/autonomy.json` (+`lease`),
+`.github/prompts/tick.md` (new), `tests/test_techlead.py` (+2), `docs/process/AUTONOMY.md` (§12c row), this section.
+Process tooling; shipped when merged.
