@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import importlib.machinery
 import os
+import pathlib
 import sys
 
 import pytest
@@ -91,6 +92,21 @@ def test_shim_ahead_of_a_wheel_answers_like_the_shim_stands_down(monkeypatch, tm
     F.ifc_authoring_available.cache_clear()
     monkeypatch.setenv(F.FORCE_ENV, "1")
     assert F.ifc_authoring_available() is False
+
+
+@pytest.mark.parametrize("wheel_behind", [True, False])
+def test_a_non_str_sys_path_entry_is_skipped_like_cpython_does(monkeypatch, tmp_path, wheel_behind):
+    """Some tools append a ``pathlib.Path`` to ``sys.path``; CPython's PathFinder
+    and the shim's own stand-down walk ignore non-``str`` entries, so the query
+    (which runs at conftest import -- a raise there aborts collection) must too:
+    same answer as without the entry (pinned by the two tests above) -- shim
+    first, wheel behind it or not (#382)."""
+    _finds(monkeypatch, _pkg_spec(os.path.join(MIRRORED_SHIM, "ifcopenshell")))
+    behind = [_fake_site(tmp_path, with_api=True)] if wheel_behind else []
+    monkeypatch.setattr(sys, "path", [MIRRORED_SHIM, pathlib.Path(tmp_path), *behind])
+    monkeypatch.setattr(sys, "path_importer_cache", {})
+    monkeypatch.delenv(F.FORCE_ENV, raising=False)
+    assert F.ifc_authoring_available() is wheel_behind
 
 
 def test_a_raising_finder_counts_as_absent(monkeypatch):

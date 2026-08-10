@@ -100,7 +100,9 @@ def ifc_authoring_available() -> bool:
     if spec is not None and _is_shim(spec):
         spec = None
         if not os.environ.get(FORCE_ENV):            # the shim would stand down to ...
-            behind = [p for p in sys.path if _SHIM_MARK not in p]
+            # non-str entries (a pathlib.Path some tool appended): skipped, as
+            # CPython's PathFinder and the shim's own stand-down walk skip them
+            behind = [p for p in sys.path if isinstance(p, str) and _SHIM_MARK not in p]
             try:
                 spec = importlib.machinery.PathFinder.find_spec("ifcopenshell", behind)
             except _FINDER_ERRORS:
