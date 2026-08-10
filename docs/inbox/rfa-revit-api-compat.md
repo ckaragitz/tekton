@@ -1224,3 +1224,50 @@ re-sent it once before building three probes on top of it.
 * written: no engine change -- diagnosis only
 * gates: unchanged (309 passed / 58 skipped, sync clean)
 * shipped for verdict: `probe_D_tall_centred.rfa`, `probe_E_hex_solo_again.rfa`
+
+## Iteration 26 — hex_solo was a viewing fluke; the N-gon prism is CONFIRMED
+
+**Owner opened both. BOTH RENDER.** `probe_E_hex_solo_again.rfa` -- the
+byte-identical rebuild of the file that appeared empty -- shows a clean tall
+hexagonal prism. `probe_D_tall_centred.rfa` shows control box + tall centred
+hexagon.
+
+**There was never a geometry bug.** The original `hex_solo` open was a
+mis-read: the owner's Revit screenshot shows ~14 open view tabs across
+several files (`Ref. Level` / `View 1` repeating), so the empty view was
+another document's. Iterations 23-25 cost three opens chasing it.
+
+**The rule this cost us, written down so it is not paid twice:** when a
+file that every computable check says is sound appears broken, RE-SEND THE
+SAME FILE ONCE before building probes on top of the observation. Iteration
+23 had already established that hex_solo was a strict structural subset of a
+rendering file with no computable defect -- that was the moment to suspect
+the observation, not the file. A negative result from a human's screen is a
+measurement, and measurements get repeated before they get theorised about.
+
+**What IS confirmed, and it is a lot.** The N-gon prism is now verified in
+Autodesk Revit 2026.4 across every axis that was ever in doubt:
+
+| axis | verified |
+|---|---|
+| sides | 4 (box), 6 (hex), and the concave 6-gon L; 3/5/8/12 build + pass `check_solid` |
+| convexity | convex AND concave both render |
+| position | centred exactly on the family origin, and offset into +x/+y |
+| aspect | flat slab (0.25 ft) and tall (1.0 ft on a 1.0 ft footprint) |
+| company | alone in the file, and beside boxes/cylinders |
+
+**And the finding from iteration 21 stands, because it had an in-file
+control:** the SerializedDummy "regeneration" rep draws NOTHING. In
+`concave_probe.rfa` the cylinder and cap (cached B-reps) rendered while the
+L (regeneration rep) did not -- same file, same view, same camera, one
+variable. That is why every form now ships a real cached solid.
+
+**Net from this arc:** two real findings (the regeneration rep is a myth;
+the N-gon prism is the box topology with N sides), two permanent
+instruments (`tools/famdiff.py`, `geometry.check_solid`), and one wasted
+ghost hunt.
+
+### BRANCH STATE (updated)
+* written: no engine change -- this iteration is the verdict + the lesson
+* gates: unchanged (309 passed / 58 skipped, sync clean)
+* status: arbitrary closed profiles are CONFIRMED shippable geometry
