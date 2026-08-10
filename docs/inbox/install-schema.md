@@ -194,3 +194,185 @@ None.
   `tests/test_schema_gate.py` (untouched) is already first in the shard, and
   `tests/test_frontdoor_standalone.py` stays out of it as before (it carries two ~4–8 s
   subprocess E2E builds; the two contract tests themselves run in 0.25 s).
+
+---
+
+## eng #376 — 2026-08-10 — the plugin's lazy wrapper adopts the same contract
+
+Stream: `lazy-schema-wrapper` · issue #376 (the follow-up filed above) · PG3 · size XS ·
+territory: `plugin/skills/_shared/tekton_schema.py` (hand-authored source, not a mirror),
+`tests/test_lazy_schema_wrapper.py` (new) + `tests/ci_shard.d/376-lazy-schema-wrapper.txt`,
+this section. Not touched: `src/rvt/**` (reuses #315's `rvt.schema.load_schema_file` and
+`standalone.install_schema` / `bundled_schema` as they are), `tekton_env.py` (held by #267),
+any SKILL.md.
+
+### What was built
+
+* **`tekton_schema.install()` decides at arm time** (final shape, after `/simplify`'s altitude
+  pass): if `rvt.schema.DEFAULT_PATH` is already a real file — the research corpus, **or the
+  cache file a completed `install_schema()` made `DEFAULT_PATH` (the armed-after case)** — it
+  sets its flag, **wraps nothing** and returns `corpus-present`: the loader in place (native, or
+  the installed `default_schema_loader`) already answers, so "armed after install cannot recurse"
+  is structural rather than arranged, and a host that installed a *different* base is never
+  re-seeded by the plugin. Otherwise (a bare, not-yet-installed process — the `go` order)
+  `rvt.schema.load_schema` and its from-imported copies become **`_load_schema_lazy(path=None)`**
+  with exactly `default_schema_loader`'s shape:
+  1. any path not in (`None`, the `DEFAULT_PATH` captured at arm time, the current
+     `rvt.schema.DEFAULT_PATH` = `install_schema()`'s cache file afterwards — the same pair
+     `default_schema_loader(schema, old_default, cache_file)` names) → `rvt.schema.load_schema_file(path)`:
+     verbatim, never activates the install, a missing one raises `FileNotFoundError` with
+     `.filename` = that path (an engine that predates `load_schema_file` degrades to the wrapped
+     `load_schema`, which is verbatim for explicit paths and is not the wrapper);
+  2. the default family → `rep = standalone.install_schema()` once (it re-points
+     `rvt.schema/objects/encode/adocument.load_schema` past the wrapper, so the module-level
+     names never reach it again) and `return standalone.bundled_schema(rep["from"])` — the very
+     object it installed, fetched from its cache without a second `bundled_base_path()` resolve
+     + sha256 (efficiency review: a held reference's repeat call measured 3.3 → 1.6 ms).
+  **Nothing in the module calls `rvt.schema.load_schema` any more**, so no arm order can
+  re-enter the wrapper. The signature lost its `path: str = orig_default, _orig=orig_load`
+  defaults (closure references; `None` is a first-class default like every other chokepoint
+  loader); the module docstring's founding premise ("the bare EDIT path dies with
+  `FileNotFoundError`") was rewritten to today's truth — the engine has its own default-path
+  fallback since #44/#298, and what the module still buys is the one-time escalation to
+  `install_schema()` (in-memory answers + seeded singletons) and cover for older engines.
+* **Reproduced first** (this branch, before the change; in-process, corpus-less cloud clone):
+  `SA.install_schema()` → `tekton_schema.install()` (arms over the bundled loader; status
+  `corpus-present` because `DEFAULT_PATH` is the cache file) → `objects.load_schema(None)`
+  **and** `schema.load_schema('/nonexistent/x.bin')` both → ~1000 frames of
+  `_load_schema_lazy → _schema.load_schema(path)` → `RecursionError` inside
+  `bundled_base_path`'s `sha256_of` → reported as *"FileNotFoundError: schema stream not
+  found at None and the bundled-base fallback failed (RecursionError: …) — the plugin bundle
+  is incomplete"*. So the finding above understated it slightly: in the armed-after order the
+  `None` spelling of the default recursed too (only the no-arg call, whose default was the
+  existing cache file, escaped through the `isfile` branch). After the change: `None` /
+  no-arg / `DEFAULT_PATH` → the installed object (`is SA.bundled_schema()`), missing explicit
+  path → `FileNotFoundError('/nonexistent/x.bin')` in 0.000 s with `__cause__ None`.
+* **Tests** — new `tests/test_lazy_schema_wrapper.py` (2 tests, 0.20 s, in-process, only the
+  pinned plugin base's bytes; every swapped name — the four `load_schema`s, `DEFAULT_PATH`,
+  the arm flag, `_SCHEMA_STATE` — monkeypatch-restored by one `lazy` fixture, same recipe as
+  #315's test): `test_armed_after_a_completed_install` (DONE (b): install, then arm →
+  `corpus-present`, the module names are still the installed loader; default family `is` the
+  installed object through `schema`/`objects`/`adocument`; missing explicit path raises
+  `FileNotFoundError` with `.filename` and no `__cause__` through three module names; an
+  existing explicit copy parses verbatim to the same sha; re-arm → `already`) and
+  `test_explicit_path_never_activates_the_fallback` (the `go` order made deterministic by
+  pointing `DEFAULT_PATH` at an absent tmp path: a missing explicit path raises and
+  `_SCHEMA_STATE` shows **no** install happened; the first `ObjectDecoder()` installs once,
+  re-points the module names past the wrapper, and a held reference to the wrapper keeps
+  answering the same object / raising for missing paths; re-arm → `already`). Both tests
+  **fail against `main`'s `tekton_schema.py`** (2 failed: `RecursionError` → the false "bundle
+  is incomplete" `FileNotFoundError`) and pass on this branch; order-independent with
+  `test_schema_gate.py` and #315's two contract tests in either direction (8 passed both
+  ways). Shard drop-in `tests/ci_shard.d/376-lazy-schema-wrapper.txt`.
+
+### Evidence — bare-surface before/after (`tools/surface_bench.py`; S-2026-08-09-g)
+
+Same VM (4 vCPU, Python 3.11.15), same procedure both sides: `tools/sync_plugin.py` builds
+`tekton-plugin.zip` from the tree (`origin/main` e5b7864's `tekton_schema.py` → *before*; this
+branch's final head → *after*), then `surface_bench.py --zip <zip> --jobs
+preflight,go-author-prompt,go-author-6panels,go-edit` **three full runs each**, machine otherwise
+idle (an earlier AFTER series that overlapped the review agents was discarded and re-run);
+medians of job wall time (runs in the session scratchpad `bench/{before,after}_N.json`). Every
+cell PASS on both sides; `go-edit` = structural PASS + validation PASS (0 errors) everywhere.
+
+| surface | job | BEFORE median (3 runs) | AFTER median (3 runs) | Δ |
+|---|---|---|---|---|
+| cowork | preflight | 0.085 s (0.090 / 0.085 / 0.082) | 0.087 s (0.095 / 0.087 / 0.082) | +0.00 |
+| cowork | go-author-prompt | 2.374 s (2.477 / 2.374 / 2.332) | 2.387 s (2.387 / 2.515 / 2.386) | +0.01 |
+| cowork | go-author-6panels | 3.913 s (3.913 / 4.056 / 3.722) | 3.872 s (3.911 / 3.872 / 3.834) | −0.04 |
+| cowork | go-edit | 0.766 s (0.766 / 0.725 / 0.774) | 0.743 s (0.747 / 0.733 / 0.743) | −0.02 |
+| codeexec | preflight | 0.080 s (0.085 / 0.078 / 0.080) | 0.080 s (0.080 / 0.083 / 0.080) | +0.00 |
+| codeexec | go-author-prompt | 2.309 s (2.560 / 2.309 / 2.262) | 2.415 s (2.415 / 2.479 / 2.404) | +0.11 |
+| codeexec | go-author-6panels | 4.266 s (4.372 / 4.266 / 4.191) | 4.375 s (4.375 / 4.502 / 4.270) | +0.11 |
+| codeexec | go-edit | 1.024 s (1.024 / 1.000 / 1.059) | 1.027 s (1.012 / 1.027 / 1.068) | +0.00 |
+| local | preflight | 0.058 s (0.072 / 0.058 / 0.056) | 0.055 s (0.055 / 0.057 / 0.055) | −0.00 |
+| local | go-author-prompt | 1.934 s (2.551 / 1.929 / 1.934) | 1.973 s (1.973 / 1.947 / 2.078) | +0.04 |
+| local | go-author-6panels | 3.951 s (4.039 / 3.951 / 3.776) | 3.798 s (3.914 / 3.785 / 3.798) | −0.15 |
+| local | go-edit | 0.740 s (0.729 / 0.740 / 0.742) | 0.738 s (0.843 / 0.716 / 0.738) | −0.00 |
+
+Read as: **no slowdown** — mixed signs, every Δ inside the run-to-run spread of its own row (the
+two codeexec +0.11 rows have BEFORE ranges 2.26–2.56 / 4.19–4.37 overlapping AFTER 2.40–2.48 /
+4.27–4.50, while local 6panels moves −0.15 the other way). And noise **by construction**: a probe
+copy of the unzipped `tekton_schema.py` that logs every wrapper entry recorded **0 calls** during a
+full `go author` (6 panels) and **0 calls** during `go edit … set-level` — the author path
+installs eagerly in `standalone.activate()` before any decoder exists, and the edit path decodes
+and validates against the file's *own* embedded schema, so neither shipped flow reaches
+`rvt.schema.load_schema` at all today (the wrapper stays armed for sibling scripts run through
+`_bootstrap.py run …` and any future no-arg decoder ahead of an install; whether it is still worth
+shipping is follow-up #392's bench to decide).
+
+### Gates (final head)
+
+* `RVT_SKIP_LARGE=1 pytest tests/test_schema_gate.py tests/test_lazy_schema_wrapper.py
+  tests/test_frontdoor_standalone.py tests/test_bootstrap.py tests/test_coldstart.py
+  tests/test_schema_memo.py tests/test_go_edit.py tests/test_surface_perf.py -q -rs` → **51 passed
+  / 6 skipped / 0 failed in 19.8 s** (skips: `test_frontdoor_standalone.py:316` "research machine
+  only" and five `test_surface_perf.py` cases "no bare python3 with numpy on this host" — both
+  pre-existing environment skips, unrelated to this change).
+* `tools/sync_plugin.py` → mirrors in sync (nothing under `src/`/`tools/` changed; the zip picks
+  up the hand-authored `_shared/tekton_schema.py`), deny-audit clean, identity scan == allowlist,
+  assets verified, zip rebuilt (5170 KB); `--check` → in sync; `plugin/scripts/validate_plugin.py`
+  → PASS (25 assertions); `tools/dev/check_portable_paths.py` → ok (2863 paths);
+  `tools/dev/shard_list.py --print` lists `tests/test_lazy_schema_wrapper.py`.
+* `/verify` from a **bare unzip of the rebuilt zip, `env -i PATH=/usr/bin:/bin`, system `python3`
+  3.11.15**, no repo on the path: `skills/tekton-author/scripts/_bootstrap.py go author --prompt
+  "an electrical room with 6 panels" --out out/j1 --json` → exit 0, one JSON document, preflight
+  `tekton: READY | python 3.11.15 | engine bundled | genesis verified (Revit 2026) | family-donor
+  missing | out-dir OK | 0.045s`, `go.ready true`, job 4.2 s, `result.ok true`, `errors []`, 6
+  `.rfa` + `prompt_room.rvt` delivered (PROOF-ONLY stamped, as always); `tools/rvt_validate.py`
+  on it → **VALID, 0 errors** / 1 warning (the known DataStorage Extensible-Storage decoder gap) /
+  2 info. `skills/tekton-edit/scripts/_bootstrap.py go edit assets/genesis/G_ABPD.rvt set-level
+  --id 1351691 --elevation-ft 12.0 -o out/e1/edited.rvt` → exit 0, READY, job 0.52 s, `result.ok
+  true`, gates `structural PASS (crc_failures=0, ecc_mismatches=0, walker_errors=0,
+  stamps_ok=True) | validation PASS (0 errors, 1 warnings)`, Revit 2026 in / 2026 out. DONE (a)
+  through the plugin's own bootstrap in that unzip (`tekton_env.ensure_engine()` arms the
+  wrapper; default path absent): `load_schema('/nonexistent/x.bin')` → **`FileNotFoundError
+  /nonexistent/x.bin` in 0.0000 s, `__cause__ None`, no install triggered**; `load_schema()` →
+  4690 classes, sha `6459a9a93ebde32c…`, source `assets/genesis/G_ABPD.rvt#Formats/Latest`,
+  0.057 s, install done, module name re-pointed past the wrapper, `objects.load_schema() is
+  load_schema()`, held reference `(None)` is the same object and raises for a missing path;
+  re-arming after that install → `corpus-present`, `rvt.schema.load_schema` left as
+  `default_schema_loader.<locals>.load_schema`, missing path → `FileNotFoundError`. **No
+  `RecursionError` anywhere.**
+* `/simplify` (4 angles): reuse — clean (each branch is a one-line delegation to an engine leaf;
+  `default_schema_loader` itself is an eager factory and cannot be armed before a schema exists);
+  efficiency — applied `bundled_schema(rep["from"])` (one resolve + sha256 instead of two on the
+  install branch), rest clean (per-call cost is one tuple test; closures capture nothing new);
+  simplification — applied: `path not in (None, orig_default, DEFAULT_PATH)`, dropped the noise
+  assertions (`is not None`, a sha pin owned by another test), prose stated once in the module
+  docstring with label comments inline; altitude — applied: the arm-time decision (wrap nothing
+  when the default already resolves) and the docstring's stale founding premise corrected; its
+  engine-side proposals filed as #392 rather than done here (`src/rvt/**` out of territory).
+
+### Findings / observations
+
+* **Follow-up #392** (`area:engine` + `area:plugin`): `standalone.bundled_schema()` re-resolves and
+  re-hashes the 580 KB base on every no-arg call before consulting its cache (so does
+  `install_schema()`'s "(already installed)" return); a public `installed_schema()` accessor is
+  missing (this PR reads `report["from"]`); and with 0 wrapper calls in both shipped flows the
+  bench there should decide whether `tekton_schema.py` is retired or kept as a documented shim.
+* Not filed (below task size, and the file is outside this territory): the `lazy` fixture here
+  and the inline setup block of `tests/test_frontdoor_standalone.py::test_install_schema_behind_the_plugins_lazy_wrapper`
+  are the same 7-line restore recipe; whoever next touches that file can make it consume the
+  fixture (or fold that test into `tests/test_lazy_schema_wrapper.py`, which now asserts a
+  superset of it).
+* GitHub check runs on the PR are meaningless under steer #302 (none or runner-less); the
+  tech-lead session runs the shard on the head SHA and an independent review.
+
+### Open questions
+
+None.
+
+### BRANCH STATE
+
+* Branch `cam/376-lazy-schema-contract` from `origin/main@e5b7864`; PR #389 `Closes #376`;
+  follow-up #392 filed (`Refs #376`).
+* Files: `plugin/skills/_shared/tekton_schema.py` (arm-time decision + the contract wrapper +
+  docstring), `tests/test_lazy_schema_wrapper.py` (new, 2 tests),
+  `tests/ci_shard.d/376-lazy-schema-wrapper.txt` (new), this section. No `src/rvt/**`, no
+  `tools/**`, no mirror regenerated (none needed), no SKILL.md, no hot file.
+* Gates: as above — 51 / 6 skipped / 0 failed; the 2 new tests fail against `main`'s module and
+  pass here; sync `--check` clean; validate_plugin PASS; portable paths ok; bare-unzip `go author`
+  READY + VALID 0 errors and `go edit` READY + 0 errors; before/after bench: no slowdown.
+* Shipped vs staged: everything ships with the merge; no `.rvt`/`.rfa` committed, no viewer
+  claim, no probe batch, `tekton-plugin.zip` regenerated locally only (git-ignored).

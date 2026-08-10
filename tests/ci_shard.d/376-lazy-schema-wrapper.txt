@@ -1,0 +1,2 @@
+# issue #376: the plugin lazy-schema wrapper contract (in-process, pinned plugin base only)
+tests/test_lazy_schema_wrapper.py
