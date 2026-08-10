@@ -2,8 +2,8 @@
 the ONE schema-availability gate (``HAVE_SCHEMA`` / ``needs_schema``), the
 ONE real-ifcopenshell gate (``HAVE_IFC_AUTHORING`` / ``needs_ifc_authoring``),
 the "certified pinned base of a year, or a clean skip" helper
-(``pinned_base`` / ``CERTIFIED_YEARS``) and a ``tools/<name>.py`` loader
-(``load_tool`` / the ``job`` fixture = ``tools/rvt_job.py``)."""
+(``pinned_base`` / ``CERTIFIED_YEARS``), a ``tools/<name>.py`` loader
+(``load_tool``) and the ``job`` fixture (``tools/rvt_job.py``)."""
 import importlib.util
 import os
 import sys
@@ -61,10 +61,11 @@ def pinned_base(year: int) -> str:
 
 def load_tool(name: str):
     """``tools/<name>.py`` executed as module ``name`` and registered in
-    ``sys.modules`` under that name (``tools/ifc_intent.py`` does ``import
-    rvt_job``; a test that drives it wants the module it patched).  A fresh
-    module per call: request it through a module-scoped fixture, as ``job``
-    below does, so one test file's patches never reach the next."""
+    ``sys.modules`` under that name.  A fresh module per call: request it
+    through a module-scoped fixture so one test file's patches never reach
+    the next."""
+    if name == "rvt_job":
+        raise ValueError("rvt_job is the `job` fixture (ONE module object per process, #470), not load_tool")
     spec = importlib.util.spec_from_file_location(name, os.path.join(ROOT, "tools", f"{name}.py"))
     m = importlib.util.module_from_spec(spec)
     sys.modules[name] = m
@@ -72,10 +73,18 @@ def load_tool(name: str):
     return m
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def job():
-    """``tools/rvt_job.py`` -- the front door's job runner -- as module ``rvt_job``."""
-    return load_tool("rvt_job")
+    """``tools/rvt_job.py`` -- the front door's job runner -- via the engine's
+    cached loader (``rvt.frontdoor.edit.load_job_module``: ONE module object
+    per process, the one the ``--rvt`` route drives; #470), also aliased as
+    ``sys.modules["rvt_job"]`` because ``tools/ifc_intent.py`` does ``import
+    rvt_job`` (until the engine registers that name itself, #477).  Patch it
+    through ``monkeypatch`` only -- it is shared by every test file."""
+    from rvt.frontdoor.edit import load_job_module
+    mod = load_job_module()
+    sys.modules["rvt_job"] = mod
+    return mod
 
 
 #: the git-ignored research dirs: a FileNotFoundError under one of these
