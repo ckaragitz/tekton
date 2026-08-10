@@ -1078,7 +1078,7 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
     rec_path = os.path.join(out_dir, "assembly-parts.json")
     try:
         with open(rec_path, "w", encoding="utf-8") as fh:
-            json.dump(model.to_json(), fh, indent=1)
+            _jsonsafe.dump(model.to_json(), fh, indent=1)
         res.files["assembly_parts"] = rec_path
     except OSError as e:                                        # delivery never blocks
         res.caveats.append(f"the measurement record could not be written ({e})")
