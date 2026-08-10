@@ -999,15 +999,12 @@ def test_cli_failing_edit_json_is_one_document_and_nothing_on_stderr(tmp_path):
 @needs_catalog
 @needs_pinned
 def test_out_dir_under_a_quarantined_name_is_still_one_json(tmp_path):
-    """The #374 review's edge: ``--out …/samples/x`` arms the standalone
-    tripwire against the job's OWN out dir, and its audit hook refuses
-    ``open(<out>/build.log)`` with StandaloneError (not OSError).  The shared
-    helper degrades that like any unwritable log, so the ENVELOPE holds: ONE
-    JSON on stdout, 0 B on stderr, a manifest on disk, never rc 1 + a
-    traceback (root or not: no chmod involved).  Only the envelope is pinned:
-    whether such an --out delivers or is refused up front is #425's decision
-    (today: rc 3 NO-OUTPUT + a ``build.log not writable (StandaloneError``
-    degradation, because the hook also refuses the job's own output writes)."""
+    """``--out …/samples/x`` on the user's OWN disk (a directory merely NAMED
+    like a quarantine root, nowhere near this checkout's ``samples/``) is the
+    job's output dir, not a research input: the armed tripwire exempts it and
+    the job DELIVERS -- rc 0, ONE JSON, 0 B on stderr, the ``.rvt`` on disk,
+    ``build.log`` named, and no ``StandaloneError`` note about its own outputs
+    (#425; #373 pinned only the envelope while this was rc 3 NO-OUTPUT)."""
     import subprocess
     out = tmp_path / "samples" / "x"
     p = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "frontdoor.py"), "author",
@@ -1015,12 +1012,38 @@ def test_out_dir_under_a_quarantined_name_is_still_one_json(tmp_path):
                         "--json"], capture_output=True, text=True, cwd=ROOT)
     assert p.stderr == "" and "Traceback" not in p.stdout
     doc = json.loads(p.stdout)                                   # ONE document
-    assert p.returncode in (0, 2, 3) and doc["route"] == "prompt" and doc["status"]
-    assert os.path.isfile(doc["manifest"]["json"])
+    assert p.returncode == 0 and doc["route"] == "prompt" and doc["ok"], doc["status"]
+    assert doc["errors"] == [] and os.path.isfile(doc["files"]["combined"])
+    assert doc["files"]["combined"].startswith(str(out) + os.sep)
+    assert doc["manifest"]["build.log"] == str(out / "build.log") and (out / "build.log").is_file()
     with open(doc["manifest"]["json"], encoding="utf-8") as fh:
         degr = (json.load(fh).get("build") or {}).get("degradations") or []
-    noted = [d for d in degr if d.startswith("build.log not writable")]
-    assert len(noted) <= 1 and not (noted and "build.log" in doc["manifest"])   # named or noted, once
+    assert not [d for d in degr if "StandaloneError" in d or "not writable" in d], degr
+
+
+@needs_catalog
+@needs_pinned
+def test_out_dir_inside_this_checkouts_quarantine_is_refused_up_front(tmp_path, monkeypatch):
+    """The twin: an ``--out`` INSIDE this checkout's real quarantine root
+    (``<repo>/samples/x``) is refused with ONE line before any stage runs --
+    ONE result, ``errors == [line]``, status ``FAILED (line…)``, a manifest,
+    no ``_stages``/families/``.rvt`` written, never NO-OUTPUT with per-stage
+    tripwire notes.  (The checkout root is pointed at ``tmp_path`` so the
+    test never writes into the repo's own ``samples/``.)"""
+    from rvt.frontdoor import standalone as SA
+    monkeypatch.setattr(SA, "repo_root", lambda: str(tmp_path))
+    out = tmp_path / "samples" / "x"
+    r = FD.author(prompt="an electrical room with 1 panel", out=str(out))
+    assert r.ok is False and len(r.errors) == 1, r.errors
+    line = r.errors[0]
+    assert line.startswith("--out refused (nothing built): ") and "\n" not in line
+    assert "quarantined samples" + os.sep in line and line.endswith(str(out))
+    assert r.status == "FAILED (" + line[:160] + ")" and r.files == {}
+    build = r.manifest["build"]
+    assert build["stages"] == [] and build["degradations"] == [] and build["log"] is None
+    assert os.path.isfile(r.manifest_paths["json"]) and "build.log" not in r.manifest_paths
+    assert not (out / "_stages").exists() and not (out / "families").exists()
+    assert not list(out.glob("*.rvt"))
 
 
 @needs_catalog

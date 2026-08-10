@@ -84,7 +84,8 @@ __all__ = [
     "family_instance_template", "swall_template", "electrical_system_template",
     "ConstructedSpecimens",
     "CONSTRUCTED", "make_specimens", "standalone_family_write", "activate",
-    "forbid_research_inputs", "author_standalone", "dependency_table",
+    "forbid_research_inputs", "quarantine_roots", "out_dir_refusal",
+    "author_standalone", "dependency_table",
 ]
 
 #: sentinel accepted wherever a specimen SOURCE PATH is expected: "construct
@@ -1022,11 +1023,12 @@ def standalone_family_write(product, path: str, *, validate: bool = True,
 # 7. the research-input tripwire
 # ===========================================================================
 
-#: path fragments that mean a build is reading research-machine inputs
-_RESEARCH_MARKERS = (os.sep + "extracted" + os.sep,
-                     os.sep + "samples" + os.sep,
-                     os.sep + "vendor" + os.sep)
-_R5_MARKER = os.sep + "experiments" + os.sep + "genesis" + os.sep
+#: the quarantined research directories (repo-relative): the git-ignored
+#: third-party corpus + the genesis specimen lineage.  A path SEGMENT run
+#: naming one of them anywhere means a build is reading research-machine
+#: inputs; under :func:`repo_root` they are THIS checkout's quarantine roots.
+_RESEARCH_DIRS = (("extracted",), ("samples",), ("vendor",), ("experiments", "genesis"))
+_RESEARCH_MARKERS = tuple(os.sep + os.sep.join(d) + os.sep for d in _RESEARCH_DIRS)
 
 #: Autodesk INSTALLATION directories -- reading these is banned outright
 _AUTODESK_INSTALL_MARKERS = ("programdata" + os.sep + "autodesk",
@@ -1034,7 +1036,86 @@ _AUTODESK_INSTALL_MARKERS = ("programdata" + os.sep + "autodesk",
                              os.sep + "applications" + os.sep + "autodesk",
                              "family templates")
 
-_GUARD: Dict[str, Any] = {"armed": False, "enabled": False, "hits": [], "allow": []}
+_GUARD: Dict[str, Any] = {"armed": False, "enabled": False, "hits": [], "allow": [],
+                          "outputs": ()}
+
+
+def _is_autodesk_install(low_path: str) -> bool:
+    """Hard rule 2's predicate on a LOWER-CASED absolute path."""
+    return any(m in low_path for m in _AUTODESK_INSTALL_MARKERS)
+
+
+def quarantine_roots() -> List[str]:
+    """THIS checkout's quarantine roots (absolute, in the checkout's own
+    spelling): ``<repo>/extracted``, ``<repo>/samples``, ``<repo>/vendor``,
+    ``<repo>/experiments/genesis`` -- where the research corpus actually
+    lives (present or not; inside the plugin bundle ``repo_root()`` is its
+    ``lib/`` dir and none exist).  Compare against them with :func:`_inside`
+    / :func:`_nested`, never with a raw ``startswith``."""
+    root = repo_root()
+    return [os.path.join(root, *d) for d in _RESEARCH_DIRS]
+
+
+def _spellings(path: str) -> List[str]:
+    """abspath and realpath of ``path`` (deduplicated) -- an ``open()`` may
+    reach the same directory under either spelling (macOS /tmp, symlinks)."""
+    ap = os.path.abspath(path)
+    rp = os.path.realpath(path)
+    return [ap] if rp == ap else [ap, rp]
+
+
+def _dirp(path: str) -> str:
+    """``path`` as a directory PREFIX (one trailing sep): ``…/samples/`` is a
+    prefix of ``…/samples/x``, never of ``…/samplesheet``."""
+    return path.rstrip(os.sep) + os.sep
+
+
+def _canon(path: str) -> str:
+    """The ONE spelling directories are compared in: symlinks resolved
+    (a checkout imported through a link, macOS ``/tmp``) and case folded
+    (``Samples`` IS ``samples`` on NTFS/APFS -- and the hook's segment law is
+    case-blind everywhere, so the overlap test is too), as a dir prefix."""
+    return _dirp(os.path.normcase(os.path.realpath(path)).lower())
+
+
+def _inside(path: str, root: str) -> bool:
+    """True when ``path`` equals or lies inside directory ``root`` (canonical
+    comparison: any spelling of either side)."""
+    return _canon(path).startswith(_canon(root))
+
+
+def _nested(a: str, b: str) -> bool:
+    """True when directory ``a`` equals, contains or lies inside ``b``."""
+    return _inside(a, b) or _inside(b, a)
+
+
+def out_dir_refusal(out_dir: str) -> Optional[str]:
+    """The ONE up-front refusal line for a job ``--out`` the build must not
+    run in, else ``None`` (issue #425):
+
+    * inside (or equal to) a quarantine root of THIS checkout -- the job's
+      outputs would sit among the research inputs the armed build may never
+      read (and anything under ``<repo>/samples`` is an Autodesk sample to
+      ``resolve_base`` ever after), so exempting it would unguard the corpus;
+    * inside an Autodesk installation directory (hard rule 2: never read,
+      let alone written).
+
+    A directory merely NAMED ``samples``/``vendor``/... anywhere else is the
+    user's own disk and is NOT refused: :func:`forbid_research_inputs`
+    exempts it as the job's own output dir."""
+    ap = os.path.abspath(out_dir)
+    why = None
+    if _is_autodesk_install(ap.lower()):
+        why = "an Autodesk installation directory, which tekton never reads or writes"
+    else:
+        hit = next((d for d, q in zip(_RESEARCH_DIRS, quarantine_roots()) if _inside(ap, q)),
+                   None)
+        if hit:
+            why = (f"this checkout's quarantined {os.path.join(*hit)}{os.sep} directory, "
+                   "whose files the build may never read")
+    if why is None:
+        return None
+    return f"--out refused (nothing built): it lies inside {why} -- choose another --out than {ap}"
 
 
 def allow_research_inputs() -> None:
@@ -1043,18 +1124,31 @@ def allow_research_inputs() -> None:
     _GUARD["enabled"] = False
 
 
-def forbid_research_inputs(*, allow: Sequence[str] = ()) -> None:
+def forbid_research_inputs(*, allow: Sequence[str] = (),
+                           outputs: Sequence[str] = ()) -> None:
     """Arm a process-wide audit hook: any file OPEN whose path names the
     research corpus (extracted/ | samples/ | vendor/ | experiments/genesis/)
     or an Autodesk installation directory raises ``StandaloneError`` --
     creation must run from bundled assets alone, and a regression fails RED
     instead of silently reading the research machine.  ``allow`` = absolute
-    path prefixes exempted (the resolved bundled base is always exempt)."""
+    path prefixes exempted (the resolved bundled base is always exempt).
+    ``outputs`` = the job's OWN output directories: files under them are the
+    job's outputs, not research inputs, so a directory merely NAMED
+    ``samples``/... on the user's disk does not trip the corpus law -- but
+    they are NEVER exempt from the Autodesk-install ban, and an output dir
+    that equals, contains or lies inside a quarantine root of THIS checkout
+    -- under ANY spelling: symlinked, or differing only in case -- exempts
+    nothing at all (the corpus stays exactly as guarded;
+    :func:`out_dir_refusal` refuses such an ``--out`` up front)."""
     _GUARD["allow"] = [os.path.abspath(a) for a in allow]
     try:
         _GUARD["allow"].append(os.path.abspath(bundled_base_path()))
     except Exception:
         pass
+    roots = quarantine_roots()
+    _GUARD["outputs"] = tuple(_dirp(sp) for o in outputs
+                              if not any(_nested(o, q) for q in roots)
+                              for sp in _spellings(o))
     _GUARD["enabled"] = True
     if _GUARD["armed"]:
         return
@@ -1072,11 +1166,13 @@ def forbid_research_inputs(*, allow: Sequence[str] = ()) -> None:
         low = ap.lower()
         if any(ap.startswith(a) for a in _GUARD["allow"]):
             return
-        if any(m in low for m in _AUTODESK_INSTALL_MARKERS):
+        if _is_autodesk_install(low):
             _GUARD["hits"].append(ap)
             raise StandaloneError(
                 f"BANNED: attempted read of an Autodesk installation path: {ap}")
-        if any(m in low for m in _RESEARCH_MARKERS) or _R5_MARKER in low:
+        if ap.startswith(_GUARD["outputs"]):
+            return                                  # the job's own output, not an input
+        if any(m in low for m in _RESEARCH_MARKERS):
             _GUARD["hits"].append(ap)
             raise StandaloneError(
                 f"standalone build touched a research-machine input: {ap} "

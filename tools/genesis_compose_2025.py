@@ -818,8 +818,8 @@ def finishline(*, full: bool = False, out_dir: Optional[str] = None,
         from rvt.frontdoor import standalone as SA
         orig_forbid = SA.forbid_research_inputs
 
-        def _forbid_with_base(*, allow=()):
-            return orig_forbid(allow=list(allow) + [g])
+        def _forbid_with_base(*, allow=(), **kw):
+            return orig_forbid(allow=list(allow) + [g], **kw)
 
         restore_sa.append((SA, "forbid_research_inputs", orig_forbid))
         SA.forbid_research_inputs = _forbid_with_base
