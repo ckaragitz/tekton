@@ -922,8 +922,9 @@ equality assert needs no string match, YAGNI until a handler wants it; dropping 
   → **135 passed / 7 skipped** (56.7 s; skips: pinned research base, rst sample, 2× `RVT_SKIP_LARGE`, 2× chmod-as-root,
   research-machine donor hatch).
 * Whole merged CI shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1 -p no:cacheprovider`, first head, before the `/simplify` test reshaping): **1627 passed / 139 skipped / 3 xfailed / 1 failed** in 295.5 s —
-  the one failure is `main`'s own (#476, below), reproduced with this diff stashed; re-run on the final head: see the
-  PR body.
+  the one failure is `main`'s own (#476, below), reproduced with this diff stashed; re-run on the final head (d06d1d2's
+  tree): stream-local **133 passed / 7 skipped** (55.4 s; 9→6 refusal cases + 1 backstop test), whole shard **1625 passed /
+  139 skipped / 3 xfailed / 1 failed (the same #476)** in 290.1 s.
 * `tools/sync_plugin.py` → synced 1 file (`plugin/lib/src/rvt/frontdoor/__init__.py`), deny-audit clean, validation
   passed, zip rebuilt (5231 KB); `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
   `tools/dev/check_portable_paths.py` ok (2911 paths).
