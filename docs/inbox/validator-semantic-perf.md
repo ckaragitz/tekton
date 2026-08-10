@@ -357,3 +357,135 @@ Stream: `eng449` (engineer session under the tech-lead session; branch
   `sync_plugin --check`, `validate_plugin`, portable paths, `/verify`).
 - Nothing staged for the viewer: read path + comments only; no written byte changes.
 - Follow-up filed: #455 (`rvt.manipulate` by-value block tags; Refs #449).
+
+---
+
+## eng #464 — 2026-08-10: `ref_sink` bound once, cleared per record; the #459 tax figure corrected (issue #464, from the #459 review)
+
+Stream: `eng464` (engineer session under the tech-lead session; branch
+`cam/464-hoist-ref-sink` from `main @ a1927c8`). Closes #464; Refs #449 #459 #447 #427,
+#108 / S-2026-08-09-g. Nothing above this line was touched; the correction the issue asks
+for is stated here, in this stream's voice.
+
+### Correction to the eng #449 section's "Evidence" (its 4th bullet)
+
+That bullet prices #459's `ObjectDecoder.__setattr__` guard at "3,316 × 130 ns ≈ **0.43 ms
+per 2025 validate (0.3 %)**, below what the harness can resolve". Measured, it is **≈ 1.0–1.5
+ms per `validate_file(G_ABPD_2025.rvt)` (≈ 1 % of the call, ≈ 1.5 % of the semantic
+layer)** — 2–3× the estimate, and resolvable:
+
+- the independent reviewer of PR #459 (sandboxed, `/usr/bin/python3`, 7 alternating rounds
+  of medians): wall 158.6 vs 157.6 ms (+0.7 %), semantic layer +1.7 %; a same-interpreter
+  paired A/B pinned the whole delta to the one per-record `dec.ref_sink = []` store in
+  `_layer_semantic` (≈ +1.0–1.3 ms; with no per-record store the delta is noise);
+- this session, same VM class (4 vCPU cloud session), `/usr/bin/python3` 3.11.15, no numpy,
+  vendored olefile: `timeit` per op `dec.ref_sink = []` **174–177 ns** through the guard vs
+  **21–22 ns** on a plain object (`sink.clear()` 18–19 ns, a bare `[]` 16–17 ns) → the naive
+  product is 3,316 × ~155 ns ≈ 0.5 ms, but the *paired decode loop* (below) loses **1.3–1.4
+  ms**, i.e. the store costs more in the hot loop than `timeit` of the bare statement shows
+  (the extra list allocation/free per record and the guard's frame on a warm loop are not
+  free either). The eng #449 whole-`validate_file` rounds (146.3/136.6/141.5 vs
+  139.8/140.2/140.9) were too few and too noisy to see it, which is why that section called
+  it unresolvable; it is not.
+
+`decode_record` itself is unchanged by #459 — that part of the bullet stands.
+
+### What was built
+
+`src/rvt/validate.py::_layer_semantic` — the decode loop only: the sink is created and bound
+to the decoder **once before the loop** (`sink = []; dec.ref_sink = sink`) and emptied in
+place per record (`sink.clear()`), instead of `sink = dec.ref_sink = []` per record. Nothing
+else in the function moves (#429/#447/#460 intact; `dec.ref_sink = None` after the loop
+kept). Safe because the decoder never replaces the list, only appends to it and, when the
+plan path bails, truncates it in place (`del sink[mark:]`, objects.py) — so "the ids of this
+record" is exactly what the cleared-then-filled list holds when `decode_record` returns, on
+success, on a walk fallback, and on the crash-guard `continue` (the next iteration clears
+whatever a crashed record left). Mirror `plugin/lib/src/rvt/validate.py` via
+`tools/sync_plugin.py`. Not `objects.py`.
+
+### Evidence
+
+**Report identity** — `validate_file(p).to_json()` minus `timings`, `json.dump(indent=1,
+sort_keys=True)`, `main @ a1927c8` (a detached worktree, "before") vs this branch ("after"),
+both under `/usr/bin/python3` with `PYTHONPATH=<tree>/src:plugin/skills/_shared/_vendor`:
+
+```
+$ diff -r rep_before/ rep_after/ ; echo "exit=$? lines=$(diff -r rep_before rep_after | wc -l)"
+exit=0 lines=0
+```
+
+| file | diff lines | errors / warnings (both) | refs_checked (both) |
+|---|---|---|---|
+| `G_ABPD.rvt` (2026 base) | **0** | 0 / 1 (the DataStorage decode-gap record) | 45872 |
+| `G_ABPD_2025.rvt` | **0** | 0 / 0 | 50759 |
+| `G_ABPD_2024.rvt` | **0** | 0 / 0 | 40579 |
+| set-level edit of the 2025 base (`set_level_elevation(1351691, 1.25)` + `commit_plans` in the base's release context) | **0** | 0 / 0 | 50759 |
+| dangling copy of the 2025 base (`DBViewPlan.m_assocLevelId` → 987654321) | **0** | 1 / 0 — `1 dangling ElementId reference(s) … (by field: m_assocLevelId x1). e.g. element 245443 DBViewPlan.m_assocLevelId=987654321` | 50759 |
+
+**Timing** — `/usr/bin/python3` 3.11.15, no numpy, vendored olefile, this 4-vCPU cloud VM,
+nothing else running. Two instruments:
+
+1. *Same-interpreter paired A/B of exactly the changed lines* (`micro.py`: the layer's decode
+   loop over all 3,316 seq-102 records of the 2025 base in the two spellings, one warmed
+   decoder each, alternating): **100 reps: re-bind median 65.87 ms (min 63.96) → clear
+   median 64.43 ms (min 62.63) = −1.44 ms median, −1.33 ms min; clear faster in 83/100
+   pairs** (a first 40-rep run: −1.87 median / −0.79 min, 27/40).
+2. *Whole `validate_file(G_ABPD_2025.rvt)`, before/after in separate processes, ALTERNATING
+   which goes first, one warm-up then 12 iterations per process* (`ab.py`):
+
+   | run | metric | before median (min) | after median (min) | Δ median | rounds after < before |
+   |---|---|---|---|---|---|
+   | 20 rounds × 12 = 240/240 samples | `validate_file` | 161.61 (153.33) | **159.17 (147.96)** | **−2.44 ms (−1.5 %)** | 15/20 (median round-delta −2.19) |
+   | | semantic layer | 102.38 (97.53) | **100.67 (94.54)** | **−1.72 ms (−1.7 %)** | 17/20 (median round-delta −2.65) |
+   | 10 rounds × 12 = 120/120 (first run) | `validate_file` | 161.09 (154.41) | 161.31 (151.84) | +0.22 ms | 6/10 (median round-delta −1.28) |
+   | | semantic layer | 102.37 (99.01) | 101.96 (95.50) | −0.41 ms | 7/10 (median round-delta −1.16) |
+
+   Honest reading: the effect (≈ 1–1.5 ms) is the size of this VM's run-to-run spread
+   (rounds jump 155 → 190 ms when the host hiccups), so a 10-round whole-call run does not
+   resolve it in the pooled median (only in the per-round pairing); 20 rounds do, and the
+   paired loop measurement — the one that varies nothing but the two lines — is unambiguous.
+   Net: **≈ −1.4 ms per 2025 `validate_file`, the semantic layer back to its pre-#459 cost;
+   the guard now costs the validator two attribute stores per file instead of 3,317.**
+
+- Tests: `tests/test_objects_plans.py tests/test_gates_shared_walk.py
+  tests/test_validate_release.py` **33 passed**; with neighbours `test_validate_footer_blob
+  test_bare_family_validate test_objects`: 85 passed / 10 skipped (corpus / `RVT_SKIP_LARGE`).
+- `tools/sync_plugin.py` synced 1 file, deny-audit clean, validation passed; `--check`: in
+  sync; `plugin/scripts/validate_plugin.py` PASS (25 assertions); `check_portable_paths` ok
+  (2908).
+
+### Findings
+
+- The remaining per-record Python work in the loop is now the dict iteration, the limit
+  test, `sink.clear()`, the `decode_record` call and the post-decode bookkeeping; the sink
+  handling is at the floor (one C-level method call). No further lever here without touching
+  `objects.py`.
+- General note for whoever adds state to a decoder inside a hot loop: since #459 every
+  instance attribute store on an `ObjectDecoder` (any name, not just the hooks) pays the
+  Python-level `__setattr__`; bind once outside the loop and mutate in place.
+- `/simplify` (four angles): reuse / efficiency / altitude — no findings (`sink.clear()`
+  measured cheapest correct reset: 70 ns vs `del s[:]` 89, `s[:] = ()` 99, the guarded store
+  222 in the venv; the in-place idiom is the decoder's own — `del sink[mark:]`); simplification
+  — the first draft's 3-line block comment folded into trailing comments (applied).
+
+### Open follow-up (out of territory — `objects.py` is not this stream's; patch offered, not applied)
+
+`src/rvt/objects.py` still *advertises* the per-record re-bind this change removed: the module
+docstring example (line ~60, `dec.ref_sink = []  # optional: …`) and the attribute comment
+(~343–345, "callers reset it per record"). Neither says that, since #459, an attribute store on a
+decoder runs the Python-level `__setattr__`. Suggested wording for whoever next holds
+`objects.py` (Refs #464): docstring example → `dec.ref_sink = sink = []  # bind once; sink.clear()
+per record (re-binding runs __setattr__)`; attribute comment → "callers bind one list and clear it
+in place per record (rvt.validate); re-binding per record goes through `__setattr__`". Cost of not
+doing it: the next `ref_sink` consumer copies the docstring pattern and re-pays ≈ 1.4 ms/file.
+Comment-only, so not filed as its own issue; fold into the next `objects.py` PR.
+
+### BRANCH STATE
+
+- Branch `cam/464-hoist-ref-sink` from `main @ a1927c8`; PR closes #464.
+- Files: `src/rvt/validate.py` (`_layer_semantic` decode loop: +4/−1 lines), its mirror
+  `plugin/lib/src/rvt/validate.py` (via `tools/sync_plugin.py`), this record (this section
+  only). No new test file → no shard drop-in (behaviour is identity-pinned by
+  `tests/test_objects_plans.py`, already in the shard).
+- Gates: see above + the PR body for the merged-shard count and `/verify`.
+- Nothing staged for the viewer: read path only; no written byte changes.

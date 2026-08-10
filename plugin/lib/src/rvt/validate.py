@@ -1440,11 +1440,14 @@ class Validator:
         inst_ids: Set[int] = set()                               # FamilyInstance-derived owners
         limit = self.decode_limit
         n = 0
+        sink: List[Tuple[str, int]] = []              # (field name, id) of this record: bound
+        dec.ref_sink = sink                           # once, cleared per record -- a store on
+                                                      # dec runs its __setattr__ (#459, #464)
         for eid, (cls, payload, unit) in recs102.items():
             if limit is not None and n >= limit:
                 break
             n += 1
-            sink = dec.ref_sink = []                  # (field name, id) of this record
+            sink.clear()
             try:
                 obj = dec.decode_record(cls, payload)
             except Exception as e:                    # decoder crash guard
