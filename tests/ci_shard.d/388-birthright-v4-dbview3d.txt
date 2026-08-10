@@ -1,0 +1,3 @@
+# the identity stream: v4 lane contracts + the lane over the three real
+# famgen products (bundled spec); evidence layers self-skip (fresh clone)
+tests/test_identity.py

@@ -4,7 +4,8 @@ identity forensics record, and the staged identity cells.
 Three layers, no viewer and no heavy builds:
 
 1. the v4 lane pure contracts (suffix re-mint / flags law / census /
-   pipeline dispatch / refusals) on toy documents;
+   pipeline dispatch / refusals) on toy documents, plus the lane over the
+   three real famgen products (bundled spec; #388);
 2. pins on the MEASURED forensic record
    (``experiments/identity/identity_diff.json``);
 3. pins on the built probes + staged batch
@@ -164,10 +165,38 @@ class TestBornIdentityLane:
         with pytest.raises(ValueError, match="no 'revit.local.family:'"):
             BR.apply_born_identity(_Doc([el]))
 
-    def test_refuses_dbview3d(self):
-        d = _Doc([_param(1), _El(2, "DBView3d",
-                                 header={"m_abFlags4Bytes": 10})])
-        with pytest.raises(ValueError, match="DBView3d"):
+    def test_accepts_dbview3d_and_splits_extent_role(self):
+        # since #381/#383 every generated family carries the "View 1"
+        # DBView3d: its ExtentElem satellite gets the born role value 10,
+        # plan/section satellites keep the table's 26 (specimen 26x6/10x1)
+        els = [_param(1),
+               _El(2, "DBViewPlan", header={"m_abFlags4Bytes": 10}),
+               _El(3, "DBView3d", header={"m_abFlags4Bytes": 10}),
+               _El(4, "ExtentElem", obj={"m_dbViewId": 2},
+                   header={"m_abFlags4Bytes": 10}),
+               _El(5, "ExtentElem", obj={"m_dbViewId": 3},
+                   header={"m_abFlags4Bytes": 26})]
+        d = _Doc(els)
+        rep = BR.apply_born_identity(d)
+        assert els[3].header["m_abFlags4Bytes"] == 26
+        assert els[4].header["m_abFlags4Bytes"] == BR.BORN_EXTENT_FLAGS_3D \
+            == 10
+        assert els[2].header["m_abFlags4Bytes"] == 10      # DBView3d untouched
+        assert rep["extent_roles"] == {"plan_section": 1, "view3d": 1}
+        assert rep["flags_classes"]["ExtentElem"] == 2
+        c = BR.identity_census(d)
+        assert c["identity_ok"] is True, c["flags_off"]
+        # the census applies the same split: a 3D satellite left at 26 is off
+        els[4].header["m_abFlags4Bytes"] = 26
+        c = BR.identity_census(d)
+        assert c["checks"]["born_header_flags"] is False
+        assert c["flags_off"] == [{"id": 5, "class": "ExtentElem",
+                                   "got": 26, "want": 10}]
+
+    def test_refuses_extent_naming_absent_view(self):
+        d = _Doc([_El(4, "ExtentElem", obj={"m_dbViewId": 99},
+                      header={"m_abFlags4Bytes": 26})])
+        with pytest.raises(ValueError, match="names view 99"):
             BR.apply_born_identity(d)
 
     def test_refuses_missing_flags_key(self):
@@ -210,6 +239,21 @@ class TestPipelineDispatch:
         assert rep["identity"]["applied"] is True
         assert rep["identity_census"]["identity_ok"] is True
 
+    def test_loader_half_states_native_verdict(self):
+        # tools/identity_probe.py DEMO v10 keys on 'native' (the loader
+        # authors the shape itself since #10, so 'applied' is False there)
+        def fam(names):
+            return _El(9, "Family", obj={"m_pFamilyTypes": {"value": {
+                "m_pairs": [{"name": n} for n in names], "m_idx": 0}}})
+        lawful = BR.apply_host_family_table_law(fam([" ", "225A"]))
+        assert (lawful["applied"], lawful["native"]) == (False, True)
+        stripped = BR.apply_host_family_table_law(fam([" ", " ", "225A"]))
+        assert (stripped["applied"], stripped["native"]) == (True, True)
+        off = BR.apply_host_family_table_law(fam(["225A"]))
+        assert (off["applied"], off["native"]) == (False, False)
+        assert off["why"]
+        assert BR.apply_host_family_table_law(fam([]))["native"] is False
+
     def test_apply_v4_refuses_red_census(self, monkeypatch):
         monkeypatch.setattr(BR, "apply_birthright_v3",
                             lambda doc, spec, lanes=None: {"version": 3})
@@ -219,6 +263,61 @@ class TestPipelineDispatch:
                                          "n_params": 0})
         with pytest.raises(ValueError, match="census not green"):
             BR.apply_birthright_v4(_Doc([_param(7)]), spec=None)
+
+
+SPEC = os.path.join(ROOT, "experiments", "birthright", "template_birth.json")
+
+
+@pytest.mark.skipif(not os.path.isfile(SPEC), reason="mined spec absent")
+class TestV4LaneOnRealProducts:
+    """The v4 lane over the REAL famgen products (fresh-clone safe: bundled
+    spec, no samples).  #388: every generated family carries the "View 1"
+    DBView3d since #381/#383, and the lane raised on all three products
+    while the toy-document tests stayed green -- so the products themselves
+    are pinned here, and the next view-constellation change trips a test."""
+
+    @pytest.fixture(scope="class")
+    def built(self):
+        from rvt.famgen import factory as F
+        out = {}
+        with BR.enabled(SPEC, version=4) as ctx:
+            for name in ("make_panelboard", "make_luminaire",
+                         "make_transformer"):
+                prod = getattr(F, name)(start_id=3000)
+                out[name] = (prod, ctx["reports"][-1])
+        return out
+
+    @pytest.mark.parametrize("name", ["make_panelboard", "make_luminaire",
+                                      "make_transformer"])
+    def test_builds_green_through_v4(self, built, name):
+        prod, entry = built[name]
+        rep = entry["report"]
+        assert rep["version"] == 4
+        assert rep["identity"]["applied"] is True
+        assert rep["identity_census"]["identity_ok"] is True
+        assert entry["verify"]["ok"] is True
+        assert BR.identity_census(prod.doc)["identity_ok"] is True
+
+    def test_extent_role_split_on_panelboard(self, built):
+        prod, entry = built["make_panelboard"]
+        els = prod.doc.elements
+        cls_of = {int(e.elem_id): e.class_name for e in els}
+        roles = {}
+        for e in els:
+            if e.class_name == "ExtentElem":
+                view_cls = cls_of[e.obj["m_dbViewId"]]
+                roles.setdefault(view_cls, set()).add(
+                    e.header["m_abFlags4Bytes"])
+        # the family view set: Ref. Level plan + ceiling plan (DBViewPlan)
+        # and "View 1" (DBView3d) -- satellites 26 / 26 / 10
+        assert roles == {"DBViewPlan": {26}, "DBView3d": {10}}, roles
+        assert entry["report"]["identity"]["extent_roles"] == \
+            {"plan_section": 2, "view3d": 1}
+        # every other covered class carries the table value uniformly
+        for e in els:
+            want = BR.BORN_HEADER_FLAGS.get(e.class_name)
+            if want is not None and e.class_name != "ExtentElem":
+                assert e.header["m_abFlags4Bytes"] == want, e.class_name
 
 
 class TestBornFlagsTable:

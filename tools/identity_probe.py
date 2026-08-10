@@ -1121,9 +1121,12 @@ def build_demo_v10() -> Dict[str, Any]:
         raise RuntimeError(f"DEMO v10: walked binds not self-contained: "
                            f"{unbound}")
     loader_reps = br_ctx.get("hostsym_loader") or []
-    if not loader_reps or not all(x.get("applied") for x in loader_reps):
-        raise RuntimeError(f"DEMO v10: loader-half hostsym did not apply "
-                           f"on every family: {loader_reps}")
+    # since #10 the loader authors the native single-leading-blank table
+    # itself: the v3 loader half VERIFIES (applied False, native True) --
+    # only an off-shape report (native False, with its 'why') is fatal
+    if not loader_reps or not all(x.get("native") for x in loader_reps):
+        raise RuntimeError(f"DEMO v10: loader-half hostsym shape not "
+                           f"native on every family: {loader_reps}")
     info["n_birthright_applications"] = len(reports)
     info["n_families"] = len({x.get("family") for x in reports})
     info["identity_per_family"] = [
