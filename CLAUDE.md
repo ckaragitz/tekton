@@ -245,7 +245,10 @@ clarity, not a ban.
 > a minute by a bot. As an **engineer session**: claim by assigning
 > yourself through the API (after reading that nobody holds the issue) + one plain 🔒 comment; run
 > your gates locally and paste counts; after pushing, **report the head SHA to the tech-lead session**
-> and fix on the same branch when findings come back. Issue/branch/PR/record discipline below is
+> and fix on the same branch when findings come back; and **you never merge** — not your own PR, not
+> anyone's, whatever label it carries: under this regime a merge is done only by a tech-lead session
+> holding same-tick sandboxed CI + an independent verdict for that exact head, and every "a session
+> squash-merges" line below means exactly that. Issue/branch/PR/record discipline below is
 > unchanged. Full description: `docs/process/AUTONOMY.md` §12c.
 
 
@@ -350,6 +353,8 @@ python3 tools/dev/techlead.py brief            # or /board: steers, queue vs flo
 gh pr list --author @me --state open           # 1. service your own PRs first (below) — and squash-merge any PR labelled `session-merge`
                                                #    (bots may not; a session can) IF it has a ✅/🟡 verdict for its exact head + green CI;
                                                #    prefer one you did not author; no verdict -> never merge a workflow-file PR
+                                               #    (regime #302: only a TECH-LEAD session merges, with same-tick sandboxed CI + verdict;
+                                               #     an engineer session never merges anything — see the banner above)
 #  2. your human said something directional this session? -> /steer "<their words>"  (before acting on it)
 #  3. untriaged steers, or ready&unassigned below the floor? -> /techlead  (≤10 min, charter-bounded)
 export TEKTON_SESSION=<tag>                    # 4. name THIS session once (laptop, phone, session_01ab…): locks are per SESSION,

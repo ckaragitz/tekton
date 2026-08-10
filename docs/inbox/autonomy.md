@@ -483,3 +483,29 @@ lock, fatal export, fd hygiene, header), `.github/workflows/ci.yml` (shard step;
 `tests/test_techlead.py` (needles), `tests/ci_shard.txt` (header freeze notice only — no entry moved), `.github/prompts/worker.md`
 (one line), `CLAUDE.md` §4 one bullet sentence, `.github/pull_request_template.md` one line, this record. Gates as above. Shipped when merged; the tech lead exercises the modified `session_ci.sh` live on the next PR
 after switching its checkout to the merged `main`.
+
+## Only the tech lead merges; every wave is written into the ledger (steer #342), same session, 2026-08-10
+
+**What happened.** (1) #358 (squash 3a44f6d, shared `cam-karagitz` identity) reached `main` outside the session
+pipeline; (2) the wave-12 reports (#374/#375/#377/#379) arrived after their launch had been compacted out of the tech
+lead's context and were read as another tech lead's wave for one tick — settled by the sessions' `parent_session_id` +
+tag `wave-12`. Every head still got same-tick sandboxed CI + a verdict (#358 post-merge, recorded on the PR).
+
+**What changed.** The two rules now live where every session loads them: `CLAUDE.md` §4 banner — an engineer session
+never merges (any label), a merge is only ever a tech-lead session holding same-tick CI + verdict for the exact head,
+which is also how the older "a session squash-merges" lines are to be read; `docs/process/AUTONOMY.md` §12c — the same
+in the Merge row and the engineer paragraph, and the fan-out row gains the ledger duty (one board-issue comment
+`issue → engineer session id → territory` per wave at launch, sessions tagged `wave-<k>`, read back at the start of every
+tick before an unfamiliar report is treated as foreign). `.claude/commands/fanout.md` shrinks to pointers: flat
+territory rule (no file in common) + one cap sentence, never-merge inside the engineer prompt's existing parenthetical,
+ledger-first as step 3 on the board issue (#56). `tests/test_techlead.py::test_engineers_never_merge_and_waves_are_ledgered`
+pins invariant tokens in all three files. (/simplify: 4 angles; applied all — right layer, one canonical place,
+ledger-first ordering, standalone test, this record trimmed; the unrelated #381 STEERING row split into its own PR.)
+Follow-up filed: a `techlead.py wave` subcommand that writes/reads the ledger as a marker so the duty is code, not prose.
+
+**Evidence.** Wave 13 (#359/#294/#348/#376/#267) launched under the new text, ledger comment on #342 (board from the
+next wave on); `tests/test_techlead.py` 30 passed.
+
+BRANCH STATE (cam/342-fanout-never-merge): `CLAUDE.md` (banner sentence), `docs/process/AUTONOMY.md` (§12c: 3 edits),
+`.claude/commands/fanout.md`, `tests/test_techlead.py` (+1 test), this section. Docs/process only; shipped when merged
+through the session pipeline.
