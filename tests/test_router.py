@@ -372,7 +372,7 @@ def test_famspec_schema_is_draft07_and_covers_every_kind():
     assert set(sch["definitions"]) >= set(FS.KINDS)
     # the DONE names router._FAMSPEC_KINDS: it IS the contract's kind list
     assert R._FAMSPEC_KINDS is FS.KINDS == ("panelboard", "transformer", "luminaire",
-                                            "device", "downlight")
+                                            "device", "downlight", "generic_model")
     assert [alt["$ref"].rsplit("/", 1)[-1] for alt in sch["oneOf"]] == list(FS.KINDS)
     assert os.path.samefile(FS.schema_path(), FAMSPEC_SCHEMA)
 

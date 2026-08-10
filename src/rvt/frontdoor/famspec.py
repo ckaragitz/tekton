@@ -48,7 +48,10 @@ __all__ = ["KINDS", "CATALOG_KINDS", "OWN_KIND_FIELD", "FamspecError", "schema_p
 #: measured product archetype, rvt.ifc.famfrom_ifc) needs the research
 #: corpus' family container until it emits on the bundled base
 CATALOG_KINDS: Tuple[str, ...] = ("panelboard", "transformer", "luminaire", "device")
-KINDS: Tuple[str, ...] = CATALOG_KINDS + ("downlight",)
+#: ``generic_model`` is NOT catalog-backed: its geometry is GIVEN by the
+#: caller (vertices + height, or width/depth + height) -- the route for an
+#: arbitrary 3D object, e.g. a Claude Design body (issue #498).
+KINDS: Tuple[str, ...] = CATALOG_KINDS + ("downlight", "generic_model")
 
 #: famspec fields that steer the ROUTE, not the constructor
 _ROUTE_FIELDS = ("target_version",)
