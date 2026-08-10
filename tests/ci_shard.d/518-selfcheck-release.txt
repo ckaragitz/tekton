@@ -1,0 +1,2 @@
+# fresh-clone safe: self-checks the three tracked genesis bases under plugin/assets/genesis (issue #518)
+tests/test_selfcheck_release.py

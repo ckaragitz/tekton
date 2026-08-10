@@ -184,6 +184,7 @@ def mappings():
         (_tool("rvt_validate.py"), "skills/tekton-native/scripts/rvt_validate.py"),
         (_tool("rvt_edit.py"), "skills/tekton-native/scripts/rvt_edit.py"),
         (_tool("rvt_edit_text.py"), "skills/tekton-native/scripts/rvt_edit_text.py"),
+        (_tool("rvt_selfcheck.py"), "skills/tekton-native/scripts/rvt_selfcheck.py"),
         (_tool("seed_audit.py"), "skills/tekton-native/scripts/seed_audit.py"),
         (_tool("panel_schedule.py"), "skills/tekton-native/scripts/panel_schedule.py"),
         # rvt.frontdoor's --rvt route imports the job runner from HERE when
