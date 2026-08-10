@@ -364,15 +364,27 @@ def test_slice_of_a_box_is_its_rectangle():
     assert AP._polygon_area(rings[0]) == pytest.approx(8.0, rel=1e-9)
 
 
-def test_slice_returns_none_when_the_section_is_ambiguous():
-    """Two boxes touching at exactly one point: the segments alone do not
-    determine the rings, so the slice must refuse rather than guess."""
+def test_two_regions_touching_at_a_point_resolve_into_two_rings():
+    """Two boxes meeting at exactly one corner. The segments alone do not say
+    which continues into which; the MATERIAL does -- the wedge between two
+    spokes is either inside the section or not. This used to be refused as
+    ambiguous, which cost the beam clamp (and every C-shape) its geometry."""
     p1, t1 = _box_mesh(1.0, 1.0, 2.0, ox=-0.5, oy=-0.5)
     p2, t2 = _box_mesh(1.0, 1.0, 2.0, ox=0.5, oy=0.5)
     pts = list(p1) + list(p2)
     tris = _tri0(t1) + [(a - 1 + len(p1), b - 1 + len(p1), c - 1 + len(p1))
                         for a, b, c in t2]
-    assert AP.slice_loops(pts, tris, 1.0) is None
+    rings = AP.slice_loops(pts, tris, 1.0)
+    assert rings is not None and len(rings) == 2
+    assert [round(AP._polygon_area(r), 6) for r in rings] == [1.0, 1.0]
+    assert AP.ring_nesting(rings) == [0, 0]        # two solids, neither a hole
+
+
+def test_an_open_chain_is_still_refused():
+    """A vertex of ODD degree cannot close: that is a broken slice, not a
+    junction, and must still be refused rather than guessed."""
+    segs = [((0.0, 0.0), (1.0, 0.0)), ((1.0, 0.0), (1.0, 1.0))]
+    assert AP._stitch(segs) is None
 
 
 def test_ring_nesting_marks_a_hole_odd_and_its_island_even():

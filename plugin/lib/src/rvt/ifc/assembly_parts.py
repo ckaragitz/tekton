@@ -468,13 +468,17 @@ def slice_loops(points: Sequence[Sequence[float]],
                             round(p[1] + t * (q[1] - p[1]), _WELD)))
         if len(hit) == 2 and hit[0] != hit[1]:
             segs.append((hit[0], hit[1]))
-    rings = _stitch(segs)
+    def inside(pt):                # robust at a junction: the 3D body itself
+        return abs(winding_number(points, triangles, (pt[0], pt[1], z))) >= 0.5
+
+    rings = _stitch(segs, inside)
     if rings is None:
         return None
     return rings
 
 
-def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
+def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]],
+            inside: Optional[Any] = None
             ) -> Optional[List[List[List[float]]]]:
     """Weld segments into closed rings, each segment used exactly once.
 
@@ -489,7 +493,10 @@ def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
     for i, (a, b) in enumerate(segs):
         adj[a].append(i)
         adj[b].append(i)
-    if any(len(v) != 2 for v in adj.values()):
+    if any(len(v) % 2 for v in adj.values()):
+        return None                                     # an open chain: refuse
+    pair_at = _junction_pairs(segs, adj, inside)
+    if pair_at is None:
         return None
     used = [False] * len(segs)
     rings: List[List[List[float]]] = []
@@ -500,14 +507,18 @@ def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
         a, b = segs[start_i]
         ring = [a, b]
         cur = b
+        prev = start_i
         while cur != a:
-            nxt = -1
-            for j in adj.get(cur, ()):                 # an unused segment at cur
-                if not used[j]:
-                    nxt = j
-                    break
+            nxt = pair_at.get((cur, prev), -1)          # the junction's own pairing
+            if nxt < 0 or used[nxt]:
+                nxt = -1
+                for j in adj.get(cur, ()):              # degree 2: the other one
+                    if not used[j]:
+                        nxt = j
+                        break
             if nxt < 0:
                 break                                   # open chain: not a ring
+            prev = nxt
             used[nxt] = True
             p, q = segs[nxt]
             cur = q if p == cur else p
@@ -515,6 +526,68 @@ def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
         if cur == a and len(ring) >= 4:                 # closed (last == first)
             rings.append([list(v) for v in ring[:-1]])
     return [_drop_collinear(r) for r in rings if len(r) >= 3]
+
+
+
+def _seg_inside(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]],
+                pt: Sequence[float]) -> bool:
+    """Even-odd test of a point against a slice's segment set (the section's
+    own boundary), used to tell a MATERIAL wedge from an empty one."""
+    x, y = float(pt[0]), float(pt[1])
+    inside = False
+    for (x1, y1), (x2, y2) in segs:
+        if (y1 > y) != (y2 > y):
+            xi = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
+            if xi > x:
+                inside = not inside
+    return inside
+
+
+def _junction_pairs(segs, adj, inside=None):
+    """Resolve vertices where more than two segments meet.
+
+    Two regions of a section can touch at a single point -- a C-clamp's throat
+    closing on itself, two slots meeting at a corner.  The segments alone do
+    not say which continues into which, and the older code refused the whole
+    slice for it.  They ARE determined by the material: sort the incident
+    directions by angle, and the two segments bounding a wedge that is INSIDE
+    the section belong to the same ring.  Returns ``{(vertex, from_seg):
+    to_seg}``, or None when a junction cannot be resolved consistently (every
+    segment must be paired exactly once).
+    """
+    pair_at: Dict[Tuple[Tuple[float, float], int], int] = {}
+    for v, inc in adj.items():
+        if len(inc) <= 2:
+            continue
+        spokes = []
+        for i in inc:
+            a, b = segs[i]
+            other = b if a == v else a
+            d = (other[0] - v[0], other[1] - v[1])
+            n = math.hypot(*d)
+            if n <= 0:
+                return None
+            spokes.append((math.atan2(d[1], d[0]), i, n))
+        spokes.sort()
+        eps = min(s[2] for s in spokes) * 0.05
+        taken: Dict[int, int] = {}
+        for k in range(len(spokes)):
+            a1, i1, _ = spokes[k]
+            a2, i2, _ = spokes[(k + 1) % len(spokes)]
+            mid = a1 + ((a2 - a1) % (2.0 * math.pi)) / 2.0
+            probe = (v[0] + eps * math.cos(mid), v[1] + eps * math.sin(mid))
+            hit = inside(probe) if inside is not None else _seg_inside(segs, probe)
+            if not hit:
+                continue                                # empty wedge
+            if i1 in taken or i2 in taken:
+                return None                             # inconsistent pairing
+            taken[i1] = i2
+            taken[i2] = i1
+        if len(taken) != len(inc):
+            return None                                 # not every spoke paired
+        for i1, i2 in taken.items():
+            pair_at[(v, i1)] = i2
+    return pair_at
 
 
 def _drop_collinear(ring: Sequence[Sequence[float]], eps: float = 1e-12
