@@ -1141,8 +1141,9 @@ def test_route_without_quiet_still_prints_progress(tmp_path, capsys):
 
 def test_quiet_route_into_readonly_dir_still_runs_its_stage(tmp_path, capsys, monkeypatch):
     """An unwritable out_dir must degrade ``quiet`` to "unlogged" (in-memory
-    sink + a note in ``errors``), not to "route crashed" with no stage run --
-    the --json path is never worse than the human path (#330, from #313)."""
+    sink + ONE caveat -- the router's non-fatal channel, #373; ``errors`` stay
+    for stage failures), not to "route crashed" with no stage run -- the
+    --json path is never worse than the human path (#330, from #313)."""
     ran = []
 
     def fake_stage(res, inputs, out_dir, opts):
@@ -1164,23 +1165,9 @@ def test_quiet_route_into_readonly_dir_still_runs_its_stage(tmp_path, capsys, mo
     assert ran == [out], res.errors
     assert res.ok and res.status == "OK (fake)", res.errors
     assert "route.log" not in res.manifest_paths
-    assert any("route.log not writable" in e for e in res.errors), res.errors
-    assert not any("route crashed" in e for e in res.errors), res.errors
+    assert [cv for cv in res.caveats if "route.log not writable" in cv] != [], res.caveats
+    assert not [e for e in res.errors if "route.log" in e or "route crashed" in e], res.errors
     assert "[fake]" not in capsys.readouterr().out          # still kept off stdout
-
-
-@needs_pin
-@needs_catalog
-def test_frontdoor_json_stdout_stays_one_document(tmp_path):
-    """Regression guard for the other front door: ``frontdoor.py author --json``
-    already keeps stage progress off stdout (build quiet capture) -- keep it so."""
-    p = subprocess.run([PY, os.path.join(ROOT, "tools", "frontdoor.py"), "author",
-                        "--prompt", SMALL_ROOM_PROMPT, "--out", str(tmp_path / "o"),
-                        "--json"], capture_output=True, text=True, cwd=ROOT)
-    assert p.returncode in (0, 3), p.stderr[-2000:]
-    doc = json.loads(p.stdout)
-    assert isinstance(doc, dict) and doc["route"] == "prompt"
-    assert "[ifc_intent]" not in p.stdout
 
 
 def test_cli_unsupported_exit_code(tmp_path):

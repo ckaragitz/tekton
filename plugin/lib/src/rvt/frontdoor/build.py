@@ -58,7 +58,6 @@ from __future__ import annotations
 
 import contextlib
 import importlib.util
-import io
 import json
 import os
 import shutil
@@ -74,6 +73,7 @@ from . import project_info as PI
 from . import release_ctx as RC
 from .base import ResolvedBase, repo_root, resolve_specimen_source
 from . import standalone as SA
+from .stagelog import stage_stdout
 
 __all__ = ["BuildError", "BuildOptions", "BuildResult", "load_ifc_room_module",
            "build_intent"]
@@ -201,31 +201,13 @@ class BuildResult:
 
 def _stage_stdout(res: BuildResult, out_dir: str, quiet: bool):
     """``quiet``: the stage chain's stdout streams into ``<out_dir>/build.log``
-    (line-buffered: a long build can be tailed, a crashed one keeps its
-    progress) and the path rides in ``res.build_log``; else untouched (live
-    on the caller's stdout, no file).  The log is opened HERE, at call time
-    (before the caller's stage ``try``): an unwritable ``out_dir`` degrades
-    to an unlogged run (in-memory sink + a note in ``res.degradations`` --
-    a label, never an error: logging can never cost a delivery), never to
-    "build crashed" with no stage run.  Capture is ``sys.stdout``-level only;
-    ``manifest.write_manifest`` names the file beside ``json`` / ``md``."""
-    if not quiet:
-        return contextlib.nullcontext()
-    log_p = os.path.join(out_dir, "build.log")
-    try:
-        fh = open(log_p, "w", buffering=1, encoding="utf-8", errors="backslashreplace")
-    except OSError as e:
-        res.degradations.append(f"build.log not writable ({type(e).__name__}: {e}); "
-                                "stage output not logged")
-        return _redirect_stdout_into(io.StringIO())
-    res.build_log = log_p
-    return _redirect_stdout_into(fh)
-
-
-@contextlib.contextmanager
-def _redirect_stdout_into(fh):
-    with fh, contextlib.redirect_stdout(fh):
-        yield
+    and the path rides in ``res.build_log`` (``manifest.write_manifest`` names
+    it beside ``json`` / ``md``); an unwritable ``out_dir`` costs the log (a
+    note in ``res.degradations`` -- ``errors`` would flip the rollup status to
+    FAILED), never the stages (:mod:`rvt.frontdoor.stagelog`, #373)."""
+    return stage_stdout(out_dir, "build.log", quiet=quiet,
+                        on_open=lambda p: setattr(res, "build_log", p),
+                        on_degrade=res.degradations.append)
 
 
 # ---------------------------------------------------------------------------
