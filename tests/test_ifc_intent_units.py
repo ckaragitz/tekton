@@ -24,6 +24,7 @@ neither ifcopenshell nor numpy.
 """
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import subprocess
@@ -212,3 +213,42 @@ def test_metre_file_reads_verbatim():
     for prod in f.by_type("IfcBuildingElementProxy") + f.by_type("IfcElectricDistributionBoard"):
         verbatim = {n: {k: v for k, v in ps.items() if k != "id"} for n, ps in ue.get_psets(prod).items()}
         assert I._psets(prod, unit_scales) == verbatim
+
+
+# ---------------------------------------------------------------------------
+# hard rule 1: a malformed unit never withholds the resolve
+# ---------------------------------------------------------------------------
+
+#: the same file with a schema-invalid conversion-based AREAUNIT (``$``
+#: ConversionFactor) and one property whose own Unit is equally broken
+BROKEN_IFC_TEXT = (
+    IFC_TEXT
+    .replace("#14=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);",
+             "#12=IFCDIMENSIONALEXPONENTS(2,0,0,0,0,0,0);\n"
+             "#14=IFCCONVERSIONBASEDUNIT(#12,.AREAUNIT.,'SQUARE FOOT',$);\n"
+             "#22=IFCCONVERSIONBASEDUNIT(#19,.LENGTHUNIT.,'BROKEN INCH',$);")
+    .replace("#53=IFCPROPERTYSINGLEVALUE('TrimDepth',$,IFCLENGTHMEASURE(4.),#21);",
+             "#53=IFCPROPERTYSINGLEVALUE('TrimDepth',$,IFCLENGTHMEASURE(4.),#22);"))
+
+
+@pytest.mark.skipif(importlib.util.find_spec("numpy") is None,
+                    reason="resolve_intent placement maths needs numpy (#127)")
+def test_unreadable_unit_falls_back_and_still_resolves(tmp_path):
+    """Reviewer's probe on PR #393: a ``$`` ConversionFactor must not turn a
+    delivered file into ``IFC intent failed`` -- the factor falls back to
+    1.0 (values left in file units), one note says so, lengths unaffected."""
+    assert BROKEN_IFC_TEXT != IFC_TEXT and BROKEN_IFC_TEXT.count("$);") >= 2
+    path = tmp_path / "broken_units.ifc"
+    path.write_text(BROKEN_IFC_TEXT, encoding="utf-8", newline="\n")
+    from rvt.ifc import intent as I
+    model = I.resolve_intent(str(path), plan_families_flag=False)      # must not raise
+    assert model.length_scale_m == pytest.approx(0.001)
+    assert any(n.startswith("AREAUNIT unreadable") for n in model.notes), model.notes
+    (board,) = [e for e in model.equipment if e.tag == "DP-1"]
+    info = board.psets["RoomInformation"]
+    assert info["ClearWidth"] == pytest.approx(5.8)          # project mm still applied
+    assert info["Width"] == pytest.approx(0.9)               # type-inherited, mm
+    assert info["TrimDepth"] == pytest.approx(4.0)           # own Unit unreadable -> left in file units
+    assert info["FloorArea"] == pytest.approx(24.94)         # AREAUNIT fell back to 1.0
+    assert info["RoomVolume"] == pytest.approx(74.82)        # VOLUMEUNIT (intact) still 1e-9
+    assert board.psets["BaseQuantities"]["Perimeter"] == pytest.approx(20.2)

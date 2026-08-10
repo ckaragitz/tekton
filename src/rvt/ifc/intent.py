@@ -970,7 +970,9 @@ def _si_factor(unit, power: int) -> float:
     SI prefix counts ``power`` times (MILLI on a SQUARE_METRE is 1e-6 --
     which is why ``calculate_unit_scale``, prefix-once on both backends, is
     not used for area / volume).  Anything else (derived / context-dependent
-    / absent) is taken as SI."""
+    / absent) is taken as SI.  Raises on a malformed unit (a ``$``
+    ConversionFactor); callers fall back to 1.0 -- values stay in file
+    units, the file still resolves (:func:`_length_scale`'s posture)."""
     k = 1.0
     while unit is not None and unit.is_a("IfcConversionBasedUnit"):
         factor = unit.ConversionFactor
@@ -981,19 +983,28 @@ def _si_factor(unit, power: int) -> float:
     return k
 
 
-def _unit_scales(f) -> Dict[str, float]:
+def _unit_scales(f, notes: Optional[List[str]] = None) -> Dict[str, float]:
     """{IfcUnitEnum: SI factor} for the project's dimensioned units.  Length
     is :func:`_length_scale` itself -- THE number applied to every vertex --
     so a pset length and a coordinate can never disagree; area and volume
     read their own assignment (a mm file routinely keeps SQUARE_METRE, so
-    they are NOT the length scale squared / cubed)."""
+    they are NOT the length scale squared / cubed).  An unreadable unit
+    never stops the resolve: its factor falls back to 1.0 and one line
+    saying so is appended to ``notes``."""
     proj = (f.by_type("IfcProject") or [None])[0]
     assigned: Dict[str, Any] = {}
     for unit in getattr(getattr(proj, "UnitsInContext", None), "Units", None) or ():
         assigned.setdefault(getattr(unit, "UnitType", None), unit)
-    return {"LENGTHUNIT": _length_scale(f),
-            "AREAUNIT": _si_factor(assigned.get("AREAUNIT"), 2),
-            "VOLUMEUNIT": _si_factor(assigned.get("VOLUMEUNIT"), 3)}
+    scales = {"LENGTHUNIT": _length_scale(f)}
+    for unit_type, power in (("AREAUNIT", 2), ("VOLUMEUNIT", 3)):
+        try:
+            scales[unit_type] = _si_factor(assigned.get(unit_type), power)
+        except Exception as exc:                                       # noqa: BLE001
+            scales[unit_type] = 1.0
+            if notes is not None:
+                notes.append(f"{unit_type} unreadable ({type(exc).__name__}: {exc}): pset "
+                             f"{unit_type[:-4].lower()} measures are left in file units")
+    return scales
 
 
 def _measure_factors(prod, unit_scales: Dict[str, float]) -> Dict[Tuple[str, str], float]:
@@ -1002,7 +1013,8 @@ def _measure_factors(prod, unit_scales: Dict[str, float]) -> Dict[Tuple[str, str
     walks the same definitions IN ITS ORDER -- the type's own sets, then the
     occurrence's -- and the last writer of a (pset, property) wins exactly
     as it does there; the two must move together (parity is pinned on both
-    backends by tests/test_ifc_intent_units.py's override rows)."""
+    backends by tests/test_ifc_intent_units.py's override rows).  A
+    property whose own ``Unit`` is unreadable keeps factor 1.0."""
     try:
         ptype = _ue.get_type(prod)
     except Exception:
@@ -1026,7 +1038,13 @@ def _measure_factors(prod, unit_scales: Dict[str, float]) -> Dict[Tuple[str, str
             if dim is not None:
                 unit_type, power = dim
                 own_unit = getattr(member, "Unit", None)
-                k = _si_factor(own_unit, power) if own_unit is not None else unit_scales[unit_type]
+                if own_unit is None:
+                    k = unit_scales[unit_type]
+                else:
+                    try:
+                        k = _si_factor(own_unit, power)
+                    except Exception:                                  # noqa: BLE001
+                        k = 1.0
             out[(pdef.Name, member.Name)] = k
     return out
 
@@ -1040,7 +1058,10 @@ def _psets(prod, unit_scales: Dict[str, float]) -> Dict[str, Dict[str, Any]]:
         raw = _ue.get_psets(prod) or {}
     except Exception:
         raw = {}
-    factors = _measure_factors(prod, unit_scales)
+    try:
+        factors = _measure_factors(prod, unit_scales)
+    except Exception:                              # noqa: BLE001 - a malformed pset graph
+        factors = {}                               # never withholds the read (values verbatim)
     for pname, props in raw.items():
         clean = {}
         for k, v in (props or {}).items():
@@ -2549,7 +2570,8 @@ def resolve_intent(ifc_path: str, *, plan_families_flag: bool = True) -> IntentM
     room_psets: Dict[str, Dict[str, Any]] = {}
     clearance_prods: List[Tuple[Any, ProductGeometry, str]] = []
     conduit_prods: List[Tuple[Any, ProductGeometry]] = []
-    unit_scales = _unit_scales(f)
+    unit_notes: List[str] = []
+    unit_scales = _unit_scales(f, unit_notes)
 
     # ---- pass 1: classify every product; equipment gets a full record
     for prod, plc, geom in products:
@@ -2661,7 +2683,7 @@ def resolve_intent(ifc_path: str, *, plan_families_flag: bool = True) -> IntentM
         "the tagging-contract Pset IS the join key: MSB / DP / LP / T1 map to OUR "
         "generated families with the Pset values as parameter VALUES; the 2500 A "
         "switchboard has NO catalog line -> house family from OUR IFC-modeled extents",
-    ]
+    ] + unit_notes
     return model
 
 

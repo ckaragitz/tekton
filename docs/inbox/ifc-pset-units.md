@@ -59,6 +59,16 @@ was off by ×1000 on a mm file and ×3.28 on a feet file.
   ifcopenshell value parity is inherited, not re-derived); each value is multiplied by its factor
   when that is ≠ 1. `resolve_intent` computes `_unit_scales(f)` once per file. The three existing
   `tests/test_ifc_intent.py` callers now pass `I._unit_scales(f)` (metre synth files: identity).
+* **Deliver, never withhold (review round 1, hard rule 1).** The reviewer's probe — a
+  conversion-based AREAUNIT whose `ConversionFactor` is `$` — made head 6911e35 exit 3
+  (`IFC intent failed: AttributeError … ValueComponent`) with NO `.rvt`, where `main` delivered.
+  Now every unit read keeps `_length_scale`'s posture: `_unit_scales(f, notes)` catches a
+  malformed AREAUNIT / VOLUMEUNIT per unit type → factor 1.0 + ONE intent note
+  (`"AREAUNIT unreadable (AttributeError: …): pset area measures are left in file units"`,
+  appended to `model.notes`); a property's own unreadable `Unit` → factor 1.0 for that property;
+  and `_psets` wraps `_measure_factors` exactly like the `get_psets` call above it (a malformed
+  pset graph → no factors, values verbatim). Pinned by
+  `test_unreadable_unit_falls_back_and_still_resolves` (red on 6911e35, green after, both backends).
 * Only `is_a(name)` / attribute reads that steplite already serves are used
   (`IfcPropertySingleValue.Unit`, `IfcPhysicalSimpleQuantity.Unit`, `IfcSIUnit.Prefix`,
   `IfcConversionBasedUnit.ConversionFactor`, `IfcMeasureWithUnit.{ValueComponent,UnitComponent}`
@@ -127,9 +137,10 @@ backend AND, when that is the real wheel, again in a child pinned to steplite:
 * stream-local set WITH the wheel — `tests/test_ifc_intent_units.py tests/test_ifc_conformance.py
   tests/test_ifc_intent.py tests/test_steplite.py tests/test_ifc_census.py
   tests/test_ifc_read_fallback.py tests/test_lazy_ifc_import.py tests/test_ifc_authoring_gate.py`
-  → **113 passed, 1 xfailed** (the pre-existing #159 parity xfail in test_ifc_conformance);
+  → **114 passed, 1 xfailed** (the pre-existing #159 parity xfail in test_ifc_conformance;
+  113 + 1 before the review-round test was added);
 * the same forced to steplite (`RVT_STEPLITE_FORCE=1`; `test_ifc_intent_units + test_ifc_conformance
-  + test_steplite + test_ifc_census`) → **44 passed, 23 skipped** (real-wheel parity legs skip);
+  + test_steplite + test_ifc_census`) → **45 passed, 23 skipped** (real-wheel parity legs skip);
 * `tools/dev/make_ifc_fixtures.py --check` → `ok: 10 fixtures checked`; `tests/test_plugin_sync.py`
   → **9 passed**;
 * `tools/sync_plugin.py` rebuilt, `--check` → "plugin in sync with source";
@@ -145,6 +156,12 @@ backend AND, when that is the real wheel, again in a child pinned to steplite:
   errors); warnings=0` (validates 0 errors — not a load claim). `b_units_feet.ifc` resolves
   `clearWidth_m 5.7999998808` (feet rounding in the fixture); `electrical-room-2500a.ifc` unchanged
   (`9.0 / 6.0 / 3.66`).
+* **/verify, review round 1:** the reviewer's malformed file (`BROKEN_IFC_TEXT` from the test,
+  written to `out/verify/broken_units.ifc`) through `frontdoor.py author --ifc … --target-version
+  2025` → **exit 0, `broken_units.rvt` delivered**, `intent.json.notes` carries the one
+  `AREAUNIT unreadable (…)` line, `rvt_validate` → `VALID (no errors)` (head 6911e35: exit 3, no
+  file). Portable paths ok 2864 (main moved); plugin re-synced, `--check` clean, validate PASS,
+  `test_plugin_sync` 9 passed.
 
 ## Findings / follow-ups
 
@@ -160,8 +177,10 @@ backend AND, when that is the real wheel, again in a child pinned to steplite:
 
 ## BRANCH STATE
 
-* Branch `cam/348-pset-length-units` from `main` @ e5b7864; PR opened ready (not draft),
-  `Closes #348`. Regime #302: GitHub check runs mean nothing; the tech-lead session runs the
+* Branch `cam/348-pset-length-units` cut from `main` @ e5b7864, rebased onto a34d545 before the
+  PR; PR #393 opened ready (not draft), `Closes #348`. Review round 1 (tech lead, head 6911e35):
+  sandboxed CI PASS 1276/128s/4xf, verdict 🟡 with one required fix (malformed-unit fallback) —
+  landed as the second commit on the same branch. Regime #302: GitHub check runs mean nothing; the tech-lead session runs the
   shard on the head SHA, obtains the independent review, and merges via API.
 * Files: `src/rvt/ifc/intent.py` (edited), `plugin/lib/src/rvt/ifc/intent.py` (regenerated
   mirror), `tools/dev/make_ifc_fixtures.py` (one registry note),
