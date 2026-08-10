@@ -1668,3 +1668,126 @@ final head).
 * Probe artefacts (scratchpad, not committed): `probe/{make_fx,judge,door,gate_stage}.py`,
   `probe/fx/*` (18 fixtures written by main's engine), `probe/{main,head,head2}/*.json`,
   `probe/door_{main,head,final}/`, `bench.sh`, `before.zip` / `after.zip`, `shard.log`.
+
+## eng #520 — 2026-08-10 — the partition-less placeholder is ONE where/why pair by construction: `rvt.validate` owns `NO_PARTITION_WHERE` / `NO_PARTITION_WHY`, `rvt.manipulate` re-exports them
+
+Stream: `eng520` (engineer session under the tech-lead session; branch
+`cam/520-partition-placeholder-once` from `main @ d75302b`, i.e. after #517 landed
+eng #501's verdict). Closes #520; Refs #501, #486, #458. No logic change, no report
+change, no written byte change anywhere: two string constants moved to their
+natural owner and imported back.
+
+### 1. What was built
+
+1. **`src/rvt/validate.py` owns the pair.** `NO_PARTITION_WHERE = "Partitions/<N>"`
+   / `NO_PARTITION_WHY = "no Partitions/<N> stream"` sit with the module's other
+   inventory constants (right after `REQUIRED_STREAMS` / `OPTIONAL_STREAMS`), and
+   `Validator._layer_structure`'s L1 finding on a container without any partition
+   stream is now `rep.error(L_STRUCTURE, NO_PARTITION_WHERE, NO_PARTITION_WHY)` —
+   the same two strings it inlined before, so the finding is byte-identical.
+2. **`src/rvt/manipulate.py` imports them** (`from .validate import
+   NO_PARTITION_WHERE, NO_PARTITION_WHY, enter_own_release, walk_file`, top-level,
+   next to its other engine imports — `verify_manipulated`'s function-local
+   `from .validate import enter_own_release, walk_file` joined that ONE import line
+   on `/simplify`'s advice, §3) **and its local copies are deleted** — nothing else
+   in the module touched: `_primary_partition`'s raise and `verify_manipulated`'s
+   placeholder branch and docstring stand as #517 left them. `rvt.manipulate.
+   NO_PARTITION_WHERE` / `NO_PARTITION_WHY` stay importable (re-export): the tests'
+   `M.NO_PARTITION_*` and any consumer keep working, and they now ARE the
+   validator's objects. **No cycle:** `rvt.validate` imports nothing from
+   `rvt.manipulate` (checked: its only mentions are docstrings), `rvt.manipulate`
+   already imported `rvt.validate` lazily; `python -c "import rvt.validate,
+   rvt.manipulate"` and `"import rvt.manipulate, rvt.validate"` both run and
+   `M.NO_PARTITION_WHERE is V.NO_PARTITION_WHERE` holds either way — so no shared
+   leaf module was needed. Import weight: `-X importtime` shows `rvt.validate` costs
+   **~3.4 ms** on top of `import rvt.manipulate` (85 ms) when nothing else had loaded
+   it; every top-level importer of `rvt.manipulate` in `src/` + `tools/`
+   (`mep/electrical_data`, `rvt_edit`, `genesis_substitute`) reaches the validator
+   anyway, and the bare-unzip `go edit` wall is unchanged (§2).
+3. **Test** — `tests/test_partition_header_verdict.py` 18 → **19**:
+   `test_partitionless_placeholder_is_the_validators_own_pair` asserts identity
+   (`M.NO_PARTITION_WHERE is rvt.validate.NO_PARTITION_WHERE`, same for `_WHY`) —
+   two literal copies in two modules are distinct objects in CPython (checked from
+   source and from `.pyc`: `False False`), so `is` pins "imported, not re-typed";
+   the module docstring gains a #520 parenthetical; every existing row untouched.
+
+### 2. Evidence
+
+**Identity probe, as #501's** (`scratchpad/probe/{make_fx,judge}.py`: 19 fixtures
+written ONCE by `main @ d75302b`'s engine — the three pinned bases copied, a
+`set-level` edit of the 2025 base under its own release, a verbatim twin, the smash
+set (primary 64 B @4096, `Global/Latest`, `Contents`, `Global/ElemTable`),
+header-zeroed primary / twin / both, lost ElemTable on the twin file, a memberless
+`Global/Orphan`, primary-zeroed + 10-byte twin, a 64 KiB truncation, the tracked
+eval-kit `.rfa`, AND the two partition-less fixtures (partition dropped; partition +
+`Global/ElemTable` dropped); judged by main (worktree) and by this head in separate
+`-I` interpreters with `sys.path` pinned to each tree (`M.__file__` confirmed per
+tree): `verify_manipulated` dict + `structural_gate_from_manipulated` + validator
+report (−timings), independent AND shared walk, + family mode on the `.rfa`;
+`json.tool --sort-keys | diff | grep -c '^[<>]'`):
+
+| fixture | verdicts (main == head) | diff lines main→head |
+|---|---|---|
+| `G_ABPD` / `_2025` / `_2024`, the edit, the verbatim twin | structural PASS · validator OK | **0** each |
+| primary smash / `Global/Latest` / `Contents` / `Global/ElemTable` / lost ElemTable on twin file / `Global/Orphan` / 64 KiB truncation | FAIL · FAIL 6 / 2 / (PASS · FAIL 1) / 3 / 3 / 1 / 11 | **0** each |
+| header-zeroed primary / twin / both, primary-zeroed + 10-byte twin | FAIL · FAIL 4 / 2 / 8 / 8 | **0** each |
+| `.rfa` (verify indep + shared, validator project + family) | PASS · project FAIL 3 / family OK | **0** |
+| partition-less / partition-less without ElemTable | FAIL · FAIL 1 / FAIL · FAIL 3; `framing_errors {"Partitions/<N>": "no Partitions/<N> stream"}`, the validator's error `structure Partitions/<N>: no Partitions/<N> stream` | **0** each |
+
+Total over the 19 JSON pairs: **0** diff lines.
+
+**Latency** (S-2026-08-09-g): bare unzip of `tekton-plugin.zip` built from `main @
+d75302b` ("before", 5,377,869 B) and from this head ("after", 5,377,960 B) into
+paths with a space, `env -i PATH=/usr/bin:/bin` + dead proxies, `/usr/bin/python3`
+3.11.15, `go edit assets/genesis/G_ABPD_2025.rvt set-level --id 1351691
+--elevation-ft 5 -o out/edited.rvt --json`, alternating 5+5 after a
+`.pyc`-compiling first pair (1.036 / 1.034 s): every run rc 0, `go.ready true`,
+`result.ok true`, structural PASS | validation PASS (0 errors), structural report
+keys == the fixed 12, stderr 0 B; wall before 0.649 0.627 0.657 0.676 0.664 s
+(median **0.657**) · after 0.635 0.641 0.668 0.670 0.642 s (median **0.642**) —
+unchanged.
+
+### 3. Findings / follow-ups
+
+* **Filed #534 (hot-file, Refs #520/#501):** `src/rvt/versions/records32.py::
+  verify_manipulated32` — the 2023 lane's tracker of the self-check — still opens
+  with `M._primary_partition(d, None)` and therefore **raises**
+  `ManipulationError: no Partitions/<N> stream` on a partition-less file (observed
+  on this probe's `nopart.rvt` under `ids32()`) instead of returning the #501
+  verdict; it also predates #458/#486's `framing_errors`. `versions/**` is a hot
+  file outside this territory, so it is an issue, not a touch.
+* `/simplify` (reuse / simplification / efficiency / altitude, four reviewers) →
+  applied: `verify_manipulated`'s function-local `from .validate import
+  enter_own_release, walk_file` hoisted into the ONE top-level `.validate` import
+  (three reviewers: with the constants imported eagerly the deferral bought nothing
+  and read as a cycle/weight worry that does not exist; nothing monkeypatches either
+  name — checked), a one-line cross-reference to the pair in
+  `WalkedFile.framing_error`'s docstring (altitude: the issue frames it as that
+  method's sibling), the test module docstring's #520 note cut to a parenthetical.
+  Confirmed, not changed: eager import over a module `__getattr__` / leaf module
+  (efficiency: ≤ 3.4 ms on paths that load the validator anyway — not worth the
+  indirection), constants over a `WalkedFile.framing_errors()` dict both gates would
+  consume (altitude: the structural version of this unification, but a logic change
+  to both gates' control flow — outside an XS no-logic-change issue; noted here, pairs
+  naturally with #534), the identity test kept as the mechanism pin (the contract pin
+  is `test_partitionless_file_is_a_fail_verdict`). Identity probe re-judged after
+  the pass: 19 fixtures, **0** diff lines main → head; stream file + import-context +
+  shared-walk files 35 passed.
+
+### BRANCH STATE (eng #520)
+
+* Branch `cam/520-partition-placeholder-once` from `main @ d75302b`; PR closes #520;
+  follow-up filed: **#534** (`verify_manipulated32` partition-less verdict, hot-file).
+* Files written: `src/rvt/validate.py` (the two constants + the one `rep.error`
+  line worded through them), `src/rvt/manipulate.py` (one import line added, the
+  local `NO_PARTITION_WHERE` / `NO_PARTITION_WHY` block deleted — nothing else),
+  `tests/test_partition_header_verdict.py` (18 → 19: the identity row + one docstring
+  sentence; already in the shard via `tests/ci_shard.d/458-partition-header-verdict.txt`,
+  no new drop-in), this record section. Generated mirrors re-synced by
+  `tools/sync_plugin.py`: `plugin/lib/src/rvt/manipulate.py`, `plugin/lib/src/rvt/validate.py`.
+* Not touched: `src/rvt/versions/**` (→ #534), `tools/rvt_job.py`, `tools/rvt_edit.py`,
+  `tests/conftest.py`, `tests/ci_shard.txt`, any hot file, any NO-GO / fenced file of
+  this wave.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer (no written
+  byte changes — no writer touched; the bare-unzip edit output validates 0 errors as
+  on main).
