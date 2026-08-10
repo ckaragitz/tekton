@@ -102,7 +102,12 @@ def _zero16(raw: bytearray) -> None:
     raw[0:16] = b"\x00" * 16
 
 
-def _smash64(raw: bytearray, off: int) -> None:
+#: inside the ONE gzip body of a Global/* stream: u64 prefix + gzip header + a bit
+_IN_GLOBAL_BODY = 8 + 10 + 200
+
+
+def _smash64(raw: bytearray, off: int = _IN_GLOBAL_BODY) -> None:
+    """Destroy 64 bytes at ``off`` -- far beyond CRCIO auto-repair."""
     raw[off:off + 64] = b"\xff" * 64
 
 
@@ -185,8 +190,7 @@ def test_both_headers_zeroed_count_two_walker_errors(job, tmp_path, edited):
 # ---------------------------------------------------------------------------
 def test_lost_elemtable_on_two_partition_file_is_a_verdict(job, tmp_path, edited):
     bad = str(tmp_path / "twin_et_lost.rvt")
-    _rewrite(edited, bad, {"Global/ElemTable": lambda raw: _smash64(raw, 8 + 10 + 200)},
-             extra=[_twin_entry(edited)])
+    _rewrite(edited, bad, {"Global/ElemTable": _smash64}, extra=[_twin_entry(edited)])
     v, structural, rep = _judged(job, bad)
     assert structural["status"] == "FAIL" and v["crc_failures"] >= 1
     assert v["elemtable_count"] is None and v["unit0_ids_equal_elemtable"] is None
@@ -238,7 +242,7 @@ def test_family_shape_is_inferred_by_the_walk():
 
 
 @pytest.mark.skipif(not os.path.isfile(FAMILY), reason="tracked eval-kit family missing")
-def test_family_partatom_is_unframed_and_costs_nothing(job):
+def test_family_partatom_is_unframed_and_costs_nothing():
     """A Revit-born ``.rfa``: its plain-XML ``PartAtom`` is unframed by the
     file's own shape, so the self-check reads 0 CRC failures on it without a
     private exemption list -- and the family-mode validator agrees."""

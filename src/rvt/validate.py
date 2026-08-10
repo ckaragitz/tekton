@@ -587,11 +587,9 @@ def _iter_seg_records(seg: bytes, seq: int, unit: int) -> Iterable[_Rec]:
 # ---------------------------------------------------------------------------
 
 def unframed_streams_of(names: Iterable[str]) -> FrozenSet[str]:
-    """The streams THIS file stores without CRCIO paging / gzip framing: the
-    project set, plus a family's plain-XML ``PartAtom`` when the inventory
-    carries one -- the family shape read off the file itself, so a walk built
-    without a caller's family flag applies the same inventory law the
-    validator's family mode does."""
+    """The streams THIS file stores without CRCIO paging / gzip framing:
+    ``UNFRAMED_STREAMS``, plus the plain-XML ``PartAtom`` when the inventory
+    has one (a family) -- the shape read off the file, not a caller's flag."""
     return UNFRAMED_STREAMS | ({"PartAtom"} & set(names))
 
 
@@ -637,8 +635,8 @@ class WalkedFile:
                  _shared: Optional["WalkedFile"] = None):
         self.path = path
         self.names: List[str] = list(names)              # stream inventory, OLE order
-        self.unframed = frozenset(unframed_streams_of(names) if unframed is None
-                                  else unframed)         # streams with NO CRCIO paging
+        self.unframed = (unframed_streams_of(names) if unframed is None
+                         else frozenset(unframed))       # streams with NO CRCIO paging
         self.repair = bool(repair)
         self._read_raw = read_raw
         # view-independent caches (shared between views of one file)

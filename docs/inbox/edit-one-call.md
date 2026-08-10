@@ -956,24 +956,33 @@ gaps). No written byte changes — only how the structural gate *reads* a file.
    only when earned — `rep["framing_errors"] = {<partition>: "partition
    header/framing: <exc>"}`, worded byte-for-byte as the validator's finding on
    the same partition (the tests pin `framing_errors[p] in errors_at(report, p)`).
-   Uniform for the primary and a twin. When it is the **primary**, no block was
-   enumerated, so every block-dependent fact stays `None` — `isize_identity_mismatches`,
-   `sentinel_last`, `stamps_ok`, `unit0_ids_equal_elemtable` (= "not checked",
-   never PASS: `structural_gate_from_manipulated` fails on `walker_errors ≥ 1`
-   *and* `bool(stamps_ok)`), `edited` stays `{}`; `header_count` is still the u32
-   at offset 14 when the stream has ≥ 18 bytes (else `None`), `crc_failures` /
-   `ecc_mismatches` / the ElemTable facts are read as before. When it is a
-   **twin**, the primary's facts are all intact (edited record clean, sentinels,
-   stamps, counts) and only `walker_errors`/`framing_errors` speak.
+   Uniform for the primary and a twin. The block-dependent facts —
+   `isize_identity_mismatches`, `sentinel_last`, `stamps_ok` (and
+   `unit0_ids_equal_elemtable`, as before) — now *start* `None` (= not checked,
+   never PASS) and are filled in by the ONE branch that walks the primary's
+   blocks; when the **primary**'s header does not parse that branch does not run,
+   so they stay `None` by construction (no compute-then-overwrite), `edited` stays
+   `{}`, and `structural_gate_from_manipulated` fails on `walker_errors ≥ 1` *and*
+   `bool(stamps_ok)`; `header_count` is still the u32 at offset 14 (`_header_count`,
+   `None` under 18 bytes), `crc_failures` / `ecc_mismatches` / the ElemTable facts
+   are read as before. When it is a **twin**, the primary's facts are all intact
+   (edited record clean, sentinels, stamps, counts) and only
+   `walker_errors`/`framing_errors` speak. On every healthy file the dict's keys,
+   order and values are identical to `main`'s (§2).
 2. **A lost `Global/ElemTable` on a multi-partition file is a verdict too.**
    `_primary_partition()` inflated the ElemTable to choose among several
    partitions and raised `ValueError: no gzip members` before #430's verdict
-   logic ran; it now falls back to the partition whose header declares the most
-   elements (the existing `best` rule) when the ElemTable will not inflate, so
-   `verify_manipulated` reaches its `payload() is None → counts None → FAIL`
-   path. (`_primary_partition` is named in the issue's Territory; the change is
-   the 5-line try/except, nothing else — flagged to the tech lead since the
-   engineer brief said "verify_manipulated ONLY".)
+   logic ran. It now reads every partition's declared count through one
+   `_header_count(doc, pn) -> Optional[int]` (shared with `verify_manipulated`;
+   `None` for a stream under 18 bytes) and treats the ElemTable count as an
+   optional input (any failure to read it → no match), so the existing tie-break
+   — the partition declaring the most elements — decides and `verify_manipulated`
+   reaches its `payload() is None → counts None → FAIL` path; on healthy files
+   the choice is the same first-match / first-max as before (`commit_plans` uses
+   it too: identical outputs, §2). (`_primary_partition` is named in the issue's
+   Territory but not in the engineer brief's "verify_manipulated ONLY" — flagged
+   to the tech lead.) `ecc_mismatches` skips an *absent* `Global/ElemTable`
+   instead of a `KeyError` (its loss is already the counts-`None` FAIL).
 3. **`rvt.validate.WalkedFile` reads the family shape off the file** (the #460
    review note / issue DONE 3, the part inside `WalkedFile`):
    `unframed_streams_of(names) = UNFRAMED_STREAMS | {"PartAtom"} ∩ names` is the
@@ -1119,17 +1128,89 @@ PASS, 598,016 B written.
   ```
   (`v.get()` → `None` on healthy files, so manifests of healthy jobs gain one
   `null` field; if byte-identity of healthy manifests matters more, keep it
-  conditional: `if v.get("framing_errors"): keep["framing_errors"] = …`.)
+  conditional: `if v.get("framing_errors"): keep["framing_errors"] = …`.) → in **#486**.
 * **Issue DONE 3, the validator half (design call, split as the issue allows):**
   `Validator.__init__` could default `family` from the file
   (`"PartAtom" in names`, i.e. `unframed_streams_of`) with the explicit flag still
   honoured, and `_layer_structure` could word its partition finding through
-  `walked.framing_error(pname)` (same string by construction). Both touch the
+  `walked.framing_error(pname)` (same string by construction; today the two agree
+  by convention, and differ for a partition under 18 bytes: validator "partition
+  stream too short" vs `framing_error`'s `struct.error` text). Both touch the
   validator proper, which the engineer brief kept out of this wave's territory
-  ("WalkedFile walker ONLY"); filed as a task-shaped follow-up (Refs #458).
-* `_primary_partition` on a multi-partition file whose partition stream is
-  shorter than 18 bytes still raises `struct.error` reading the header count — a
-  truncation no fixture or writer produces; noted, not chased.
+  ("WalkedFile walker ONLY"); filed together with the `rvt_job.py` line above as
+  **#486** (Refs #458).
+* The efficiency review measured the one latent cost of the inferred shape: a
+  project-mode `validate_file(walked=walk_file(x.rfa))` now takes a sibling view
+  (~12 ms on a 598 KB file; no caller does this today — the doors walk `.rvt`
+  outputs, `modify_family` passes no walk), while the family-mode pairing gains
+  `self`. #486's first bullet removes the mismatch at its source.
 * The edit doors refuse a header-damaged **input** at load with one FAILED line
   (graceful, rc 1, one JSON); whether such an input should instead be edited
   around is a product question nobody has asked — not filed.
+* `/simplify` (reuse / simplification / efficiency / altitude, four reviewers) →
+  applied: block facts start `None` and one `if pname not in framing:` branch fills
+  them (was: loop over empty segments then overwrite); one loop builds
+  `framing_errors` and `walker_errors` together over a hoisted `parts`; `_header_count`
+  shared by `_primary_partition` and `verify_manipulated` (was: guarded at one read
+  site, unguarded at its twin); the ElemTable count in `_primary_partition` is an
+  optional input (`except Exception`, was a two-type list that missed `KeyError`);
+  redundant `frozenset()` dropped; `unframed_streams_of` docstring cut to two lines;
+  the test's unused `job` fixture parameter dropped and the smash offset named.
+  Skipped, with reason: an always-present `"framing_errors": {}` key (would break the
+  0-diff identity on healthy files the brief asks for — the key stays conditional,
+  like `elemtable_count_expected`); `Validator` adopting `unframed_streams_of` /
+  `framing_error` (territory → #486); lifting the test helpers shared with
+  `test_gates_shared_walk.py` into `conftest.py` (both files are eng #470's this wave).
+
+### BRANCH STATE (eng #458)
+
+* Branch `cam/458-partition-header-verdict` from `main @ 2767197`; PR #482 closes #458;
+  follow-up filed: #486 (validator adopts `unframed_streams_of` / `framing_error`,
+  `rvt_job` keep-tuple gains `framing_errors`).
+* Files written: `src/rvt/manipulate.py` (`_header_count` new, `_primary_partition`,
+  `verify_manipulated` — nothing else in the module; #455/#469's `_emit_block` and
+  every plan/commit path untouched), `src/rvt/validate.py` (`unframed_streams_of`
+  new, `WalkedFile.__init__` default, `WalkedFile.framing_error` new,
+  `WalkedFile.crc_failures`, `_GZIP_BODIED` removed, one import line — the
+  `Validator` class, #429/#447's plan path, #466's ref_sink hoist untouched),
+  `tests/test_partition_header_verdict.py` (new, 11 tests),
+  `tests/ci_shard.d/458-partition-header-verdict.txt` (new), this record section.
+  Generated mirrors re-synced by `tools/sync_plugin.py`:
+  `plugin/lib/src/rvt/{manipulate,validate}.py`.
+* Not touched: `src/rvt/versions/**`, `tools/rvt_job.py`, `tools/rvt_edit.py`,
+  `tests/conftest.py`, `tests/test_gates_shared_walk.py`, any hot file.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer (no
+  written byte changes — `commit_plans` outputs byte-identical: the three
+  `rvt_edit.py set-level` outputs validate 0 errors exactly as on main).
+* Gates on the final head (post-`/simplify`): `tests/test_partition_header_verdict.py`
+  + `tests/test_gates_shared_walk.py` → **23 passed** (15 s); neighbours + plugin
+  tests (`test_manipulate test_verify_manipulated_release test_edit_own_release
+  test_go_edit test_job test_modify_family_carrier test_manipulate_import_context
+  test_bootstrap test_coldstart test_surface_perf test_plugin_sync`) → 84 passed,
+  14 skipped, 1 failed = #476 (pre-existing on main); whole merged CI shard
+  (`python3 tools/dev/shard_list.py --print`, `RVT_SKIP_LARGE=1 … -q -p
+  no:cacheprovider`, taken on the pre-simplify head whose behaviour the identity
+  probe shows unchanged by the pass) → **1628 passed, 139 skipped, 3 xfailed, 1
+  failed (#476) in 421 s**; sync `--check` clean, `validate_plugin` PASS (25),
+  portable paths ok (2913). Identity probe re-run on the final head: 0 diff lines
+  on every healthy / #460 fixture and on the eval-kit files, shared == independent
+  everywhere. `/verify` on the final head: `rvt_edit.py <base> set-level … --json`
+  on all three bases → rc 0, stderr 0 B, `ok=True`, structural PASS | validation
+  PASS (0 errors), "Revit N in, Revit N out"; `rvt_validate.py` on the three
+  outputs → OK errors=0; `frontdoor.py author --rvt <2025 base> --edit "set level
+  1351691 elevation to 5 ft" --json` → rc 0, stderr 0 B, `PROOF-ONLY,
+  NOT-DELIVERABLE (hard gates PASSED)`, job manifest structural PASS (walker_errors
+  0) / validation PASS (0), output validates 0 errors (an off-grammar phrasing →
+  rc 3, one clean `edit not understood` error, no traceback); validator row: three
+  bases OK 0/0/0 errors, 64 KiB truncation → FAIL 11 errors, non-CFB → FAIL 1
+  error, the header-zeroed / lost-ElemTable fixtures → FAIL 4 / 2 / 3 errors — no
+  traceback anywhere; `verify_manipulated` on those fixtures → dicts with
+  `walker_errors` 1 / 1 / 2 and `framing_errors` naming the partition(s), counts
+  `None` for the lost ElemTable. Bare unzip of the final `tekton-plugin.zip` vs
+  main's, `env -i /usr/bin/python3` 3.11.15, `go edit … set-level --json`,
+  alternating 4+4: every run rc 0, READY, both gates PASS, stderr 0 B; wall before
+  0.656 0.698 0.636 0.616 s vs after 0.651 0.644 0.661 s (+ the fresh unzip's
+  `.pyc`-compiling first run 1.030 s) — unchanged.
+* Probe artefacts (scratchpad, not committed): `probe/{make_fx,judge,rfa,rfa2}.py`,
+  `probe/fx/*.rvt` (written by main's engine), `probe/{main,head}/*.json`,
+  `door/gate_stage.py`, `bench.sh`, `before.zip` / `after.zip`.

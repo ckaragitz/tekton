@@ -1466,29 +1466,35 @@ def apply_edits_to_segment(seg: bytes, seq: int, removals: set,
     return bytes(out), st
 
 
+def _header_count(doc, pname: str) -> Optional[int]:
+    """The u32 elem_table_count in ``pname``'s stream header -- None when the
+    stream is too short to carry one.  ``doc``: an open ``RvtDocument`` or a
+    ``rvt.validate.WalkedFile``."""
+    logical = doc.logical(pname)
+    if len(logical) < PART_HDR_COUNT_OFF + 4:
+        return None
+    return struct.unpack_from("<I", logical, PART_HDR_COUNT_OFF)[0]
+
+
 def _primary_partition(doc, entries_by_path) -> str:
     """The partition stream holding the host document (unit 0 == ElemTable).
     ``doc``: an open ``RvtDocument`` or a ``rvt.validate.WalkedFile``."""
     parts = doc.partition_streams()
     if len(parts) == 1:
         return parts[0]
-    # dach carries a second, empty partition (0 elements); pick the stream
-    # whose header elem_table_count matches the ElemTable count -- the
-    # ElemTable lost (verify judges such a file, it must not raise choosing),
-    # the partition whose header declares the most elements.
+    # dach carries a second, empty partition (0 elements): pick the stream
+    # whose header count matches the ElemTable count; when the ElemTable is
+    # unreadable (verify must judge such a file, not raise while choosing)
+    # nothing matches and the partition declaring the most elements wins.
+    counts = {pn: _header_count(doc, pn) for pn in parts}
     try:
         et_count = struct.unpack_from("<HI", doc.inflate("Global/ElemTable"), 0)[1]
-    except (ValueError, struct.error):
+    except Exception:                       # noqa: BLE001 -- lost/absent/garbage: no match
         et_count = None
-    best = None
     for pn in parts:
-        hdr_count = struct.unpack_from("<I", doc.logical(pn), PART_HDR_COUNT_OFF)[0]
-        if hdr_count == et_count:
+        if et_count is not None and counts[pn] == et_count:
             return pn
-        if best is None or hdr_count > struct.unpack_from(
-                "<I", doc.logical(best), PART_HDR_COUNT_OFF)[0]:
-            best = pn
-    return best or parts[0]
+    return max(parts, key=lambda pn: -1 if counts[pn] is None else counts[pn])
 
 
 def commit_plans(src_rvt: str, out_path: str, plans: Sequence[Plan], *,
@@ -1651,10 +1657,12 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
     from .objects import ObjectDecoder
     from .validate import enter_own_release, walk_file
     from .versions import schema_of
+    # block-dependent facts start None = not checked (never PASS); the block
+    # walk of the primary partition fills them in
     rep: Dict[str, Any] = {"crc_failures": 0, "ecc_mismatches": 0,
-                           "walker_errors": 0, "isize_identity_mismatches": 0,
+                           "walker_errors": 0, "isize_identity_mismatches": None,
                            "elemtable_count": None, "header_count": None,
-                           "sentinel_last": {}, "stamps_ok": True,
+                           "sentinel_last": None, "stamps_ok": None,
                            "deleted_still_present": {}, "deleted_in_elemtable": [],
                            "edited": {}, "elemtable_ids_sorted": None,
                            "unit0_ids_equal_elemtable": None, "fallbacks": []}
@@ -1675,20 +1683,26 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                 f"own schema unreadable ({type(e).__name__}: {e}); edited "
                 "records decoded against the built-in latest-release schema")
         pname = _primary_partition(walked, None)
-        # a partition whose stream header does not parse enumerates no block:
-        # ONE walker error, its reason worded as the validator's L1 finding
-        framing = {p: walked.framing_error(p) for p in walked.partition_streams()}
-        framing = {p: why for p, why in framing.items() if why}
+        parts = walked.partition_streams()
+        # framing walker errors of every partition; one whose stream header
+        # does not parse enumerates no block: ONE walker error, its reason
+        # recorded as the validator words its L1 finding
+        framing: Dict[str, str] = {}
+        for p in parts:
+            why = walked.framing_error(p)
+            if why:
+                framing[p] = why
+                rep["walker_errors"] += 1
+            else:
+                rep["walker_errors"] += len(walked.walker(p).errors)
         if framing:
             rep["framing_errors"] = framing
-        w = None if pname in framing else walked.walker(pname)   # every block inflated ONCE
         # gzip CRC by each stream's FRAMING (every partition by its block
         # headers): a body that will not inflate counts wherever it sits
         rep["crc_failures"] = sum(walked.crc_failures(n) for n in walked.names)
-        rep["walker_errors"] = sum(1 if p in framing else len(walked.walker(p).errors)
-                                   for p in walked.partition_streams())
         for name in (pname, "Global/ElemTable"):
-            rep["ecc_mismatches"] += ecc.framing_mismatches(walked.raw(name))
+            if name in walked.names:
+                rep["ecc_mismatches"] += ecc.framing_mismatches(walked.raw(name))
         # the ElemTable CRC-verified, else None: a lost / CRC-bad body is
         # counted above and never parsed -- its counts stay None (-> FAIL)
         et_payload = walked.payload("Global/ElemTable")
@@ -1700,36 +1714,36 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
             rep["elemtable_ids_sorted"] = et_ids == sorted(et_ids)
             etset = set(et_ids)
             rep["deleted_in_elemtable"] = [i for i in deleted_ids if i in etset]
-        logical = walked.logical(pname)
-        if len(logical) >= PART_HDR_COUNT_OFF + 4:
-            rep["header_count"] = struct.unpack_from("<I", logical, PART_HDR_COUNT_OFF)[0]
-        rep["isize_identity_mismatches"] = None if w is None else sum(
-            1 for b in w.blocks if b.data is not None and b.intended_len != len(b.data))
-        segments = walked.segments(pname) if w is not None else {}
-        u0_102_ids = None
-        for seq in (101, 102, 103):
-            recs = list(iter_records(segments.get((0, seq), b""), seq))
-            rep["sentinel_last"][seq] = bool(recs) and recs[-1].elem_id == -1
-            ids_here = set()
-            for r in recs:
-                if r.elem_id >= 0:
-                    ids_here.add(r.elem_id)
-                if r.elem_id in deleted_ids:
-                    rep["deleted_still_present"].setdefault(seq, []).append(r.elem_id)
-                if r.elem_id in edited_ids:
-                    o = dec.decode_record(r.class_id, r.payload) if r.body_size >= 2 else None
-                    rep["edited"].setdefault(str(r.elem_id), {})[str(seq)] = {
-                        "class": (o.class_name if o else None),
-                        "clean": (bool(o.clean or o.stub) if o else None)}
-                if (seq != 101 and r.elem_id >= 0 and r.body_size >= 2
-                        and record_stamp(r.class_id, r.payload) != r.stamp):
-                    rep["stamps_ok"] = False
-            if seq == 102:
-                u0_102_ids = ids_here
-        if w is None:                  # no block was enumerated: not checked, never PASS
-            rep["sentinel_last"] = rep["stamps_ok"] = None
-        elif etset is not None:
-            rep["unit0_ids_equal_elemtable"] = (u0_102_ids == etset)
+        rep["header_count"] = _header_count(walked, pname)
+        if pname not in framing:                           # the primary's blocks, inflated ONCE
+            w = walked.walker(pname)
+            rep["isize_identity_mismatches"] = sum(
+                1 for b in w.blocks if b.data is not None and b.intended_len != len(b.data))
+            rep["sentinel_last"] = {}
+            rep["stamps_ok"] = True
+            segments = walked.segments(pname)
+            u0_102_ids = None
+            for seq in (101, 102, 103):
+                recs = list(iter_records(segments.get((0, seq), b""), seq))
+                rep["sentinel_last"][seq] = bool(recs) and recs[-1].elem_id == -1
+                ids_here = set()
+                for r in recs:
+                    if r.elem_id >= 0:
+                        ids_here.add(r.elem_id)
+                    if r.elem_id in deleted_ids:
+                        rep["deleted_still_present"].setdefault(seq, []).append(r.elem_id)
+                    if r.elem_id in edited_ids:
+                        o = dec.decode_record(r.class_id, r.payload) if r.body_size >= 2 else None
+                        rep["edited"].setdefault(str(r.elem_id), {})[str(seq)] = {
+                            "class": (o.class_name if o else None),
+                            "clean": (bool(o.clean or o.stub) if o else None)}
+                    if (seq != 101 and r.elem_id >= 0 and r.body_size >= 2
+                            and record_stamp(r.class_id, r.payload) != r.stamp):
+                        rep["stamps_ok"] = False
+                if seq == 102:
+                    u0_102_ids = ids_here
+            if etset is not None:
+                rep["unit0_ids_equal_elemtable"] = (u0_102_ids == etset)
     if expect_elemtable_count is not None:
         rep["elemtable_count_expected"] = expect_elemtable_count
     return rep
