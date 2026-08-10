@@ -136,7 +136,7 @@ def test_schema_cache_ships_in_plugin_and_matches_bundled_base():
 def test_cached_parse_hit_and_fallback_miss(plugin_copy, workdir):
     """install() serves a sha-matched stream from the cache and falls back to
     the REAL parser (which raises on junk) on a miss -- proven in a bare
-    subprocess so the wrapper never leaks into this test process."""
+    subprocess so the miss loader never leaks into this test process."""
     code = r"""
 import json, os, sys, hashlib
 boot_dir = os.path.dirname(sys.argv[1])
@@ -148,8 +148,8 @@ bs.ensure_engine()
 import rvt.schema as S
 from rvt.frontdoor import standalone as SA
 blob = SA._inflate_formats_latest(SA.bundled_base_path())
-sch = S.parse(blob)                       # wrapped: should hit the cache
-hit = getattr(S, "_schema_cache_installed", False)
+sch = S.parse(blob)                       # miss loader registered: should hit the cache
+hit = getattr(sch, "_from_cache", False)
 try:
     S.parse(b"definitely not a schema stream")
     miss = "no-error"

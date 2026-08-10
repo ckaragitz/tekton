@@ -8,8 +8,10 @@ fresh-clone (the only schema bytes used are the pinned plugin base's own):
 * ``parse(b) is parse(b)``; different bytes -> a distinct Schema; junk still
   raises ``ParseError`` (exceptions are never memoized as values);
 * N=5 parses of the same bytes run the REAL parser exactly once, and N=5
-  cache-served parses (``schema_cache.install``) hit ``load_cache_file``
-  exactly once (monkeypatched counters);
+  cache-served parses (``schema_cache.install`` = one miss loader registered
+  on ``rvt.schema``, nothing rebound) hit ``load_cache_file`` exactly once
+  and the parser never; a digest without a cache file still reaches the
+  real parser (monkeypatched counters);
 * the memo is bounded (``MEMO_MAX``) and evicts oldest-first;
 * sharing is safe: two ``ObjectDecoder`` s built on the one memoized schema
   decode the pinned G_ABPD base's ``Global/Latest`` to identical records and
@@ -118,7 +120,7 @@ def test_five_parses_run_the_real_parser_once(blob, real_parses):
     assert all(g is got[0] for g in got)
 
 
-def test_five_cached_parses_load_the_cache_file_once(blob, monkeypatch):
+def test_five_cached_parses_load_the_cache_file_once(blob, monkeypatch, real_parses):
     loads = []
     orig_lcf = SC.load_cache_file
 
@@ -127,20 +129,37 @@ def test_five_cached_parses_load_the_cache_file_once(blob, monkeypatch):
         return orig_lcf(path, source=source)
 
     monkeypatch.setattr(SC, "load_cache_file", counting_lcf)
-    # install() rebinds S.parse and flags the module; monkeypatch puts both back
-    monkeypatch.setattr(S, "parse", S.parse)
-    monkeypatch.setattr(S, "_schema_cache_installed", False, raising=False)
+    # install() registers on rvt.schema's miss-loader list; monkeypatch puts it back
+    monkeypatch.setattr(S, "_MISS_LOADERS", [])
+    parse_before = S.parse
     rep = SC.install()
-    assert S._schema_cache_installed and rep["dirs"], rep
+    assert S._MISS_LOADERS == [SC.disk_loader] and rep["dirs"], rep
+    assert S.parse is parse_before                             # nothing rebound
+    assert SC.install()["installed"] == "(already)" and len(S._MISS_LOADERS) == 1
     got = [S.parse(blob) for _ in range(5)]
     assert len(loads) == 1, loads
+    assert not real_parses                                     # the parser never ran
     assert all(g is got[0] for g in got)
     assert getattr(got[0], "_from_cache", False) is True      # served from the .tksc
-    # ... and the direct load_cached / plain-parser arms see the same object
-    assert SC.load_cached(got[0].sha256) is got[0]
-    assert S.parse.__name__ == "parse_cached"
-    assert S.parse._schema_cache_orig(blob) is got[0]
+    assert SC.load_cached(got[0].sha256) is got[0]             # the direct arm: same object
     assert len(loads) == 1
+    # a digest no cache file answers: the loader passes, the REAL parser runs once
+    other = S.parse(blob + b"\x00")
+    assert other is not got[0] and not getattr(other, "_from_cache", False)
+    assert len(real_parses) == 1 and len(loads) == 1
+    with pytest.raises(S.ParseError):
+        S.parse(b"definitely not a schema stream")
+
+
+def test_a_loader_answering_the_wrong_digest_is_refused(blob, monkeypatch, real_parses):
+    wrong = S.Schema()
+    wrong.sha256 = "0" * 64
+    asked = []
+    monkeypatch.setattr(S, "_MISS_LOADERS",
+                        [lambda digest, source: asked.append(digest) or wrong])
+    got = S.parse(blob)
+    assert got is not wrong and len(real_parses) == 1 and asked == [got.sha256]
+    assert S.parse(blob) is got and len(asked) == 1            # memoized: not asked again
 
 
 def test_load_cached_miss_is_not_memoized(tmp_path):

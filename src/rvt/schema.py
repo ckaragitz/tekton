@@ -508,6 +508,7 @@ def _is_ident(b: bytes) -> bool:
 # :func:`memoized`, so a cache-file load also happens at most once.
 MEMO_MAX = 8                       # distinct schemas held; a job touches 1-2
 _MEMO: dict[str, Schema] = {}      # sha256 hex -> Schema, insertion order
+_MISS_LOADERS: list = []           # register_miss_loader(): tried before the real parser
 
 
 def memoized(digest: str, build) -> Schema:
@@ -532,9 +533,31 @@ def memo_clear() -> None:
     _MEMO.clear()
 
 
+def register_miss_loader(loader) -> bool:
+    """The one interception point below the memo: on a memo MISS,
+    :func:`parse` asks each registered ``loader(digest, source)`` -- in
+    registration order, before the byte-level parser runs -- for a
+    ready-made :class:`Schema` of the stream whose sha256 hex is ``digest``
+    (``rvt.schema_cache.install`` registers the plugin's shipped ``.tksc``
+    cache this way).  ``digest`` is the only key -- ``source`` is a label
+    for ``Schema.source``, never something to look up by.  A loader answers
+    ``None`` for "not mine" and never raises; a Schema it returns is
+    memoized exactly like a parse result (one whose ``.sha256`` is not
+    ``digest`` is refused, so the memo's key stays the content hash), and
+    it is asked at most once per digest per process.  Because the hook
+    sits inside :func:`parse` itself, ``from rvt.schema import parse``
+    binders see it whatever their import order.  Idempotent: ``False`` if
+    ``loader`` is already registered."""
+    if loader in _MISS_LOADERS:
+        return False
+    _MISS_LOADERS.append(loader)
+    return True
+
+
 def parse_uncached(data: bytes, source: str = "") -> Schema:
     """Really parse a whole ``Formats/Latest`` inflated stream into a NEW
-    :class:`Schema`, bypassing the memo.  Raises ParseError."""
+    :class:`Schema`, bypassing the memo and the miss loaders.  Raises
+    ParseError."""
     p = _Parser(data)
     s = p.run()
     s.classes.sort(key=lambda c: c.type_id)   # id order (== definition order)
@@ -544,14 +567,24 @@ def parse_uncached(data: bytes, source: str = "") -> Schema:
     return s
 
 
+def _materialise(digest: str, data: bytes, source: str) -> Schema:
+    """The memo's miss path: a registered loader's Schema, else a real parse."""
+    for loader in _MISS_LOADERS:
+        s = loader(digest, source)
+        if s is not None and s.sha256.lower() == digest:
+            return s
+    return parse_uncached(data, source)
+
+
 def parse(data: bytes, source: str = "") -> Schema:
     """Parse a whole ``Formats/Latest`` inflated stream. Raises ParseError.
 
     Memoized per process by content sha256: the same bytes yield the SAME
     :class:`Schema` object (``source`` then names its first materialisation);
-    use :func:`parse_uncached` for a private copy."""
-    return memoized(hashlib.sha256(data).hexdigest(),
-                    lambda: parse_uncached(data, source))
+    use :func:`parse_uncached` for a private copy.  A miss consults the
+    loaders of :func:`register_miss_loader` before the real parser."""
+    digest = hashlib.sha256(data).hexdigest()
+    return memoized(digest, lambda: _materialise(digest, data, source))
 
 
 def schema_available() -> bool:

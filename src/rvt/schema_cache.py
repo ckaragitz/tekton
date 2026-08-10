@@ -13,13 +13,16 @@ the stream bytes.  This module moves that parse to PLUGIN BUILD time:
     deterministic cache file ``<schema-sha256>.tksc`` plus ``index.json``
     into ``plugin/assets/schema_cache/``.
   * RUNTIME (:func:`install`, wired by ``skills/_shared/tekton_env.py``'s
-    ``ensure_engine``): ``rvt.schema.parse`` first sha256-keys the input
-    bytes into the cache directory and reconstructs the parsed
-    :class:`rvt.schema.Schema` from the cache; ONLY on a miss does it fall
-    back to the real parser.  The key IS the content hash, so the cache can
-    never serve a schema for bytes it was not built from.  Within a process
-    both arms share ``rvt.schema``'s sha256-keyed memo (issue #183), so a
-    job pays at most ONE cache load per distinct schema, not one per
+    ``ensure_engine``): registers :func:`disk_loader` as a miss loader on
+    ``rvt.schema`` (``register_miss_loader``), so on a memo miss
+    ``rvt.schema.parse`` first looks the input's sha256 up in the cache
+    directory and reconstructs the parsed :class:`rvt.schema.Schema` from
+    the cache; ONLY when no cache file answers does the real parser run.
+    The key IS the content hash, so the cache can never serve a schema for
+    bytes it was not built from.  The hook lives inside ``parse`` under
+    ``rvt.schema``'s sha256-keyed memo (issue #183): nothing is rebound, the
+    import order of ``from rvt.schema import parse`` binders is irrelevant,
+    and a job pays at most ONE cache load per distinct schema, not one per
     decoder construction.
 
 FORMAT: ``TKSC`` magic + one marshal(version 2) payload of plain tuples /
@@ -52,7 +55,8 @@ ASSETS_REL = os.path.join("assets", "schema_cache")
 
 __all__ = [
     "schema_to_payload", "payload_to_schema", "dump_cache", "load_cache_file",
-    "cache_dirs", "load_cached", "install", "build_cache", "sync_assets",
+    "cache_dirs", "load_cached", "disk_loader", "install", "build_cache",
+    "sync_assets",
 ]
 
 
@@ -217,30 +221,25 @@ def load_cached(sha256_hex: str, dirs: Optional[Iterable[str]] = None,
 # runtime installation -- make rvt.schema.parse cache-aware
 # ---------------------------------------------------------------------------
 
-def install(dirs: Optional[Iterable[str]] = None) -> Dict[str, Any]:
-    """Wrap ``rvt.schema.parse`` with a sha256-keyed cache lookup (miss ->
-    the original parser).  ``load_schema`` picks the wrapper up through its
-    module-global call.  Idempotent; returns a small report.  Both arms go
-    through ``rvt.schema``'s in-process memo, so per process each distinct
-    stream costs at most ONE cache-file load (or one real parse)."""
-    from . import schema as S
-    if getattr(S, "_schema_cache_installed", False):
-        return {"installed": "(already)", "dirs": cache_dirs(dirs)}
-    orig_parse = S.parse
-    fixed_dirs = list(dirs) if dirs else None
+def disk_loader(digest: str, source: str = ""):
+    """The miss loader :func:`install` registers on ``rvt.schema``: the
+    Schema rebuilt from the first of :func:`cache_dirs` holding
+    ``<digest>.tksc``, or ``None`` (never raises) so the real parser runs."""
+    return _load_cached_from_disk(digest, None, source)
 
-    def parse_cached(data: bytes, source: str = ""):
-        digest = hashlib.sha256(data).hexdigest()
-        got = load_cached(digest, fixed_dirs, source=source)   # memo -> disk
-        if got is not None:
-            return got
-        return orig_parse(data, source=source)                  # memoizes itself
 
-    parse_cached._schema_cache_orig = orig_parse            # type: ignore[attr-defined]
-    S.parse = parse_cached
-    S._schema_cache_installed = True
-    return {"installed": "rvt.schema.parse (sha256-keyed, miss -> parser)",
-            "dirs": cache_dirs(fixed_dirs)}
+def install() -> Dict[str, Any]:
+    """Register :func:`disk_loader` with ``rvt.schema.register_miss_loader``
+    so every ``rvt.schema.parse`` miss tries the sha256-keyed cache (the
+    dirs of :func:`cache_dirs`; ``$RVT_SCHEMA_CACHE_DIR`` adds one) before
+    the byte-level parser.  Nothing is rebound; idempotent; returns a small
+    report.  Per process each distinct stream costs at most ONE cache-file
+    load (or one real parse) -- the memo above the hook sees to that."""
+    from .schema import register_miss_loader
+    fresh = register_miss_loader(disk_loader)
+    return {"installed": "rvt.schema miss loader (sha256-keyed .tksc, miss -> parser)"
+                         if fresh else "(already)",
+            "dirs": cache_dirs()}
 
 
 # ---------------------------------------------------------------------------
