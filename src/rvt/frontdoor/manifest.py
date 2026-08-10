@@ -27,7 +27,7 @@ from .base import ResolvedBase, PIN, repo_root
 
 __all__ = ["TOOL", "TOOL_VERSION", "file_facts", "crud_affordances",
            "coverage_cross_reference", "census_gaps", "authorship_census_note",
-           "build_manifest", "edit_manifest", "write_manifest"]
+           "status_gate_lines", "build_manifest", "edit_manifest", "write_manifest"]
 
 TOOL = "tekton frontdoor (rvt.frontdoor)"
 TOOL_VERSION = "1.0.0"
@@ -196,14 +196,19 @@ def _wall_rep_of(build: Optional[Dict[str, Any]]) -> str:
 
 def _honesty(build: Optional[Dict[str, Any]], verdict: Optional[Dict[str, Any]],
              version: Optional[Dict[str, Any]] = None, *,
+             status_gate: Optional[Dict[str, Any]] = None,
              extra_stamps: Sequence[str] = (),
              release_line: Optional[str] = None) -> Dict[str, Any]:
+    """The honesty box.  ``status_gate`` is the job runner's P0 gate for the
+    delivered file (create: ``build.status_gate``; edit: the job's
+    ``base_provenance`` gate): its PROOF-ONLY label is a STAMP wherever a
+    reader looks (hard rule 1) -- ONE rule for every route."""
     stamps: List[str] = []
     if verdict and verdict.get("stamp"):
         stamps.append(str(verdict["stamp"]))
-    status = (build or {}).get("status_gate") or {}
-    if status.get("status") and "PROOF-ONLY" in str(status.get("status")):
-        stamps.append(str(status.get("status")))
+    label = str((status_gate or {}).get("status") or "")
+    if "PROOF-ONLY" in label:
+        stamps.append(label)
     stamps += list(extra_stamps)
     return {
         "tiers": {
@@ -297,6 +302,73 @@ def authorship_census_note(status_gate: Optional[Dict[str, Any]]) -> Optional[st
             "delivered file are unaffected (hard rule 1)")
 
 
+#: the keys of each job-runner gate the EDIT route's manifest echoes under
+#: edit.gates.<name> (the full dicts stay one hop away in edit.job_manifest):
+#: the structural / validation / identity summaries, and for base_provenance
+#: what the create routes' build.status_gate shows -- what the base IS (kind,
+#: census block or why there is none, the pin a descendant was ledgered
+#: against) and the ledger totals, so an edit of our own output reads
+#: descends-from-pinned-genesis at the front door itself (#406)
+_EDIT_GATE_KEYS = ("status", "errors", "warnings", "verdict", "issues", "kind", "report",
+                   "identity", "reason", "deliverable", "base_is_autodesk_sample",
+                   "base_kind", "residue", "census", "ledgered_against", "provenance_totals")
+
+
+def status_gate_lines(sg: Optional[Dict[str, Any]], *, ledger_of: str = "this build") -> List[str]:
+    """The MANIFEST.md lines of a P0 status gate -- ONE wording for the create
+    routes' ``build.status_gate`` and the edit route's
+    ``edit.gates.base_provenance``: the deliverability label + reason, then
+    'base authorship (issue #143 census)': the pin (or the pin a descendant
+    descends from + the descent evidence + the file it was ledgered against),
+    the census numbers, the ledger totals; or the no-residue line (sample /
+    user base, or our pin with a STALE / UNAVAILABLE census -- said, never
+    silent, #303).  No authorship line when the gate recorded no base kind
+    (skipped / crashed before classifying); ``[]`` for no gate at all."""
+    sg = sg or {}
+    if not sg:
+        return []
+    lines = [f"- deliverability (P0 gate): {sg.get('status')}"
+             + (f" — {sg['reason']}" if sg.get("reason") else "")]
+    res = sg.get("residue")
+    if not res:
+        if sg.get("base_kind"):
+            why = f"census **{sg['census']}**" if sg.get("census") else "no census"
+            lines.append(f"- base authorship: **{sg['base_kind']}** ({why}: everything inherited "
+                         "from the base is ledgered as the base's)")
+        return lines
+    if res.get("descends_from"):                    # #284: NOT the pin's bytes, but grown on it
+        d = res.get("descent") or {}
+        pin = os.path.basename(str(sg.get("ledgered_against") or "")) or "the pin"
+        head = (f"**{sg['base_kind']}** — descends from {res['descends_from']} "
+                f"(Revit {res['revit_release']}; {d.get('probed_identical', 0):,} of "
+                f"{d.get('pin_slots_probed', 0):,} {d.get('probed', 'composed slots')} "
+                f"byte-identical, share {d.get('share')} ≥ {d.get('min_share')}), ledgered "
+                f"against the pin `{pin}` and its census")
+    else:
+        head = f"**{sg['base_kind']}** {res['base_id']} (Revit {res['revit_release']})"
+    disp = f"; recorded dispositions {res['by_disposition']}" if res.get("by_disposition") else ""
+    tot = sg.get("provenance_totals") or {}
+    lines.append(f"- base authorship (issue #143 census): {head} — {res['ours_by_composition']:,} "
+                 f"of {res['host_elements']:,} base elements ours by composition; residue "
+                 f"{res['identical_to_ancestor']:,} still byte-identical to the Autodesk ancestor "
+                 f"({res['never_authored']} never authored, {res['landed_but_identical']} "
+                 f"re-emitted identically by our constructors{disp})")
+    lines.append(f"- {ledger_of}: {tot.get('ours-created', 0)} created elements ours, "
+                 f"{tot.get('transitive-cloned', 0)} created with lineage into the residue"
+                 + (f", {tot['ours-modified']} residue slot(s) edited and still derived"
+                    if tot.get("ours-modified") else ""))
+    return lines
+
+
+def _honesty_lines(hon: Dict[str, Any]) -> List[str]:
+    """The MANIFEST.md 'Honesty' section (stamps, tiers, release), every route."""
+    lines = ["", "## Honesty"]
+    lines += [f"- **{s}** (a label: the file is delivered)" for s in hon.get("proof_only_stamps") or []]
+    lines += [f"- {k}: {t}" for k, t in (hon.get("tiers") or {}).items()]
+    lines.append(f"- release: {hon.get('release')}")
+    return lines
+
+
 # ---------------------------------------------------------------------------
 # create routes (prompt / ifc)
 # ---------------------------------------------------------------------------
@@ -373,7 +445,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
         m["build"]["degradations"].append(note)
     m["crud"] = crud_affordances(files, created, out_dir=out_dir)
     m["coverage_matrix"] = coverage_cross_reference(created)
-    m["honesty"] = _honesty(build, verdict, version)
+    m["honesty"] = _honesty(build, verdict, version, status_gate=m["build"]["status_gate"])
     m["status"] = _rollup_status(m)
     return m
 
@@ -410,7 +482,13 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
                   input_release: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     job = run.get("job_manifest") or {}
     out_rvt = run.get("out_rvt")
-    gates = job.get("gates") or {}
+    gates = {k: {kk: vv for kk, vv in (g or {}).items() if kk in _EDIT_GATE_KEYS}
+             for k, g in (job.get("gates") or {}).items()}
+    bp = gates.get("base_provenance") or {}       # the P0 gate: stamped + rendered like build's
+    degradations = list(run.get("degradations") or [])
+    note = authorship_census_note(bp)             # STALE / UNAVAILABLE census: said (#303)
+    if note:
+        degradations.append(note)
     # the INPUT's era / release, classified before anything opened it (#176):
     # a refused input's one line IS the status and the release story; an
     # unverified release stamps the honesty box and the status; known just rides
@@ -444,13 +522,9 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
             "job_validation_report": _relp(run.get("validation_json")),
             "job_status": job.get("status"),
             "hard_gates_passed": job.get("hard_gates_passed"),
-            "gates": {k: {kk: vv for kk, vv in (g or {}).items()
-                          if kk in ("status", "errors", "warnings", "verdict", "issues",
-                                    "kind", "report", "identity", "reason", "deliverable",
-                                    "base_is_autodesk_sample")}
-                      for k, g in gates.items()},
+            "gates": gates,
             "log": _relp(run.get("log_path")),           # the quiet edit's job log: a PATH, like
-            "degradations": list(run.get("degradations") or []),   # build.log (issue #373)
+            "degradations": degradations,                # build.log (issue #373)
             "rc": run.get("rc"),
         },
         "output": file_facts(out_rvt),
@@ -466,7 +540,7 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
                            "--edit \"<sentence | ops.json | inline JSON>\" --out <dir>"),
             "editables_before": editables_before,
         },
-        "honesty": _honesty(None, None, version,
+        "honesty": _honesty(None, None, version, status_gate=bp,
                             extra_stamps=([ir["stamp"]] if unverified else ()),
                             release_line=refused_line),
         "status": status,
@@ -550,9 +624,12 @@ def _render_md(m: Dict[str, Any]) -> str:
         for u in (e.get("spec") or {}).get("unparsed") or []:
             ap(f"- **unparsed**: {u}")
         ap(f"- job status: {e.get('job_status')} (hard gates passed: {e.get('hard_gates_passed')})")
-        for gk, gv in (e.get("gates") or {}).items():
+        gates = e.get("gates") or {}
+        for gk, gv in gates.items():
             ap(f"  - gate `{gk}`: {gv.get('status')}"
                + (f" (errors {gv.get('errors')}, warnings {gv.get('warnings')})" if 'errors' in gv else ""))
+        L.extend(status_gate_lines(gates.get("base_provenance"),
+                                   ledger_of="this file's ledger (everything the chain created)"))
         o = m.get("output") or {}
         if o:
             ap(f"- output: `{o.get('relpath')}` ({o.get('bytes')} bytes, sha256 `{str(o.get('sha256'))[:16]}…`)")
@@ -562,6 +639,7 @@ def _render_md(m: Dict[str, Any]) -> str:
             ap(f"- **degradation**: {d}")
         if e.get("log"):
             ap(f"- job log (plan / commit / gate progress): `{e['log']}`")
+        L.extend(_honesty_lines(m.get("honesty") or {}))
         ap("")
         ap("## CRUD (the result stays editable)")
         c = m.get("crud") or {}
@@ -716,43 +794,14 @@ def _render_md(m: Dict[str, Any]) -> str:
         ap(f"- self-checks **{role}**: validator {val.get('verdict')} "
            f"({val.get('n_errors')} errors, {val.get('n_warnings')} warnings); "
            f"registries coherent={cen.get('coherent')}; identity {idg.get('status')}")
-    sg = build.get("status_gate") or {}
-    if sg:
-        ap(f"- deliverability (P0 gate): {sg.get('status')}"
-           + (f" — {sg.get('reason')}" if sg.get("reason") else ""))
-        res = sg.get("residue")
-        if res:
-            disp = f"; recorded dispositions {res['by_disposition']}" if res.get("by_disposition") else ""
-            ap(f"- base authorship (issue #143 census): **{sg['base_kind']}** {res['base_id']} "
-               f"(Revit {res['revit_release']}) — {res['ours_by_composition']:,} of "
-               f"{res['host_elements']:,} base elements ours by composition; residue "
-               f"{res['identical_to_ancestor']:,} still byte-identical to the Autodesk ancestor "
-               f"({res['never_authored']} never authored, {res['landed_but_identical']} "
-               f"re-emitted identically by our constructors{disp})")
-            tot = sg.get("provenance_totals") or {}
-            ap(f"- this build: {tot.get('ours-created', 0)} created elements ours, "
-               f"{tot.get('transitive-cloned', 0)} created with lineage into the residue")
-        elif sg.get("base_kind"):
-            # no residue block: the base has no census (sample / user --base) -- or it is OUR
-            # pin and the census is STALE / UNAVAILABLE, which is said, never silent (#303)
-            why = f"census **{sg['census']}**" if sg.get("census") else "no census"
-            ap(f"- base authorship: **{sg['base_kind']}** ({why}: everything inherited "
-               "from the base is ledgered as the base's)")
+    L.extend(status_gate_lines(build.get("status_gate")))
     for d in (build.get("degradations") or []):
         ap(f"- **degradation**: {d}")
     for e in (build.get("errors") or []):
         ap(f"- **error**: {str(e)[:300]}")
     if build.get("log"):
         ap(f"- stage log (per-family / per-stage progress): `{build['log']}`")
-    hon = m.get("honesty") or {}
-    ap("")
-    ap("## Honesty")
-    for s in (hon.get("proof_only_stamps") or []):
-        ap(f"- **{s}**")
-    tiers = hon.get("tiers") or {}
-    for k, t in tiers.items():
-        ap(f"- {k}: {t}")
-    ap(f"- release: {hon.get('release')}")
+    L.extend(_honesty_lines(m.get("honesty") or {}))
     crud = m.get("crud") or {}
     ap("")
     ap("## CRUD — everything created is editable / deletable")
