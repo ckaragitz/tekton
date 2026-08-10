@@ -336,6 +336,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
         "validation": build.get("validation") or {},
         "status_gate": build.get("status_gate") or {},
         "seconds": build.get("seconds"),
+        "log": _relp(build.get("build_log")),          # the quiet stage log (issue #312)
         "errors": (build.get("errors") or []) + list(errors or []),
     }
     gaps = census_gaps((intent_summary or {}).get("census"))
@@ -461,7 +462,10 @@ def write_manifest(manifest: Dict[str, Any], out_dir: str) -> Dict[str, str]:
     mp = os.path.join(out_dir, "MANIFEST.md")
     with open(mp, "w") as fh:
         fh.write(_render_md(manifest))
-    return {"json": jp, "md": mp}
+    paths = {"json": jp, "md": mp}
+    if (manifest.get("build") or {}).get("log"):     # the quiet build's stage log opened (#312):
+        paths["build.log"] = os.path.join(out_dir, "build.log")   # named beside them, never a
+    return paths                                                  # deliverable in `files`
 
 
 def _render_md(m: Dict[str, Any]) -> str:
@@ -682,6 +686,8 @@ def _render_md(m: Dict[str, Any]) -> str:
         ap(f"- **degradation**: {d}")
     for e in (build.get("errors") or []):
         ap(f"- **error**: {str(e)[:300]}")
+    if build.get("log"):
+        ap(f"- stage log (per-family / per-stage progress): `{build['log']}`")
     hon = m.get("honesty") or {}
     ap("")
     ap("## Honesty")

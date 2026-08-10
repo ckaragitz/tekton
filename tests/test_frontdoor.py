@@ -827,6 +827,81 @@ def test_e2e_rename_and_set_mark_on_our_own_output(identity_job, tmp_path):
                     {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-7"}]
 
 
+# ===========================================================================
+# 8b. the quiet build's stage log (issue #312): --json keeps stdout to ONE
+#     document and stderr empty; the captured stage progress lands in
+#     <out>/build.log, named in the manifest -- never dropped, never a file role
+# ===========================================================================
+
+def test_quiet_build_writes_its_stage_log_and_names_it(identity_job):
+    r = identity_job
+    assert r.ok, (r.status, r.errors)
+    log_p = r.manifest_paths["build.log"]
+    assert log_p == os.path.join(r.out_dir, "build.log") and os.path.isfile(log_p)
+    with open(log_p, encoding="utf-8") as fh:
+        assert "[ifc_intent] F  " in fh.read()               # the per-family stage lines
+    assert r.manifest["build"]["log"] and r.manifest["build"]["log"].endswith("build.log")
+    assert "build.log" not in r.files and "log" not in r.files   # named, not delivered
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        assert "stage log" in fh.read()
+
+
+@needs_catalog
+@needs_pinned
+def test_cli_json_is_one_document_on_stdout_and_nothing_on_stderr(tmp_path):
+    """The plugin's ``go author`` contract at the front door itself: exactly
+    one JSON document on stdout, 0 bytes on stderr, the stage progress in the
+    named ``build.log``."""
+    import subprocess
+    out = tmp_path / "o"
+    p = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "frontdoor.py"), "author",
+                        "--prompt", "an electrical room with 1 panel", "--out", str(out),
+                        "--json"], capture_output=True, text=True, cwd=ROOT)
+    assert p.returncode in (0, 3), p.stderr[-2000:]
+    assert p.stderr == ""
+    doc = json.loads(p.stdout)                                   # ONE document, no prefix lines
+    assert doc["route"] == "prompt" and "[ifc_intent]" not in p.stdout
+    assert os.path.samefile(doc["manifest"]["build.log"], out / "build.log")
+
+
+def test_verbose_build_stays_live_on_stdout_and_writes_no_log(tmp_path, capsys):
+    """``--verbose`` (not quiet) is untouched: progress live on stdout, no
+    file, nothing for the manifest to name."""
+    from rvt.frontdoor import build as BLD
+    res = BLD.BuildResult()
+    with BLD._stage_stdout(res, str(tmp_path), quiet=False):
+        print("[fake] stage progress")
+    assert "[fake] stage progress" in capsys.readouterr().out
+    assert res.build_log is None and res.as_json()["build_log"] is None
+    assert not (tmp_path / "build.log").exists()
+    # the manifest names the log beside json / md ONLY when it opened
+    assert "build.log" not in MF.write_manifest({"build": {"log": None}}, str(tmp_path))
+    assert "build.log" in MF.write_manifest({"build": {"log": "job/build.log"}}, str(tmp_path))
+
+
+def test_unwritable_out_dir_degrades_to_an_unlogged_build_not_a_crash(tmp_path, capsys):
+    """The log opens before the stage ``try``: a read-only out dir costs the
+    log (a degradation note), never the stages -- and still nothing leaks to
+    the caller's stdout (the router's route.log shape, #330)."""
+    from rvt.frontdoor import build as BLD
+    ro = tmp_path / "ro"
+    ro.mkdir()
+    ro.chmod(0o555)
+    res, ran = BLD.BuildResult(), []
+    try:
+        if os.access(str(ro), os.W_OK):
+            pytest.skip("chmod 0555 did not make the dir read-only (running as root?)")
+        with BLD._stage_stdout(res, str(ro), quiet=True):
+            print("[fake] stage progress")
+            ran.append(1)
+    finally:
+        ro.chmod(0o755)
+    assert ran == [1] and not res.errors and res.build_log is None
+    assert any("build.log not writable" in d for d in res.degradations), res.degradations
+    assert "[fake]" not in capsys.readouterr().out
+    assert not (ro / "build.log").exists()
+
+
 @needs_catalog
 def test_prompted_receptacles_round_trip_through_our_ifc_as_outlets(tmp_path):
     """prompt -> OUR IFC -> re-entry (#166 review): a wiring device is emitted
