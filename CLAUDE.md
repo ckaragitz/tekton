@@ -353,6 +353,8 @@ python3 tools/dev/techlead.py brief            # or /board: steers, queue vs flo
 gh pr list --author @me --state open           # 1. service your own PRs first (below) — and squash-merge any PR labelled `session-merge`
                                                #    (bots may not; a session can) IF it has a ✅/🟡 verdict for its exact head + green CI;
                                                #    prefer one you did not author; no verdict -> never merge a workflow-file PR
+                                               #    (regime #302: only a TECH-LEAD session merges, with same-tick sandboxed CI + verdict;
+                                               #     an engineer session never merges anything — see the banner above)
 #  2. your human said something directional this session? -> /steer "<their words>"  (before acting on it)
 #  3. untriaged steers, or ready&unassigned below the floor? -> /techlead  (≤10 min, charter-bounded)
 export TEKTON_SESSION=<tag>                    # 4. name THIS session once (laptop, phone, session_01ab…): locks are per SESSION,

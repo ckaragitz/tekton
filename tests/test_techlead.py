@@ -499,6 +499,8 @@ def test_engineers_never_merge_and_waves_are_ledgered():
     claude, autonomy, fanout = low("CLAUDE.md"), low("docs", "process", "AUTONOMY.md"), low(".claude", "commands", "fanout.md")
     for text in (claude, autonomy, fanout):
         assert "never merge" in text                                     # engineers never merge; only a tech-lead session with same-tick evidence
+    assert "you never merge" in claude and "whatever label" in claude    # the banner sentence itself (main already said "never merge" once, about workflow-file PRs)
+    assert "engineer session never merges" in claude                    # …and the session-start checklist line every session copies
     for text in (autonomy, fanout):
         assert "issue → engineer session id → territory" in text         # the one ledger table a stranger session searches GitHub for
     assert "board issue (#56)" in fanout                                 # one canonical place, read back every tick
