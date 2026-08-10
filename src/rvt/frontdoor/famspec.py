@@ -248,7 +248,7 @@ def normalise(spec: Dict[str, Any]) -> Tuple[str, Dict[str, Any], Dict[str, Any]
     kw = {k: v for k, v in spec.items() if k != "kind" and k not in _ROUTE_FIELDS}
     ropts = {k: spec[k] for k in _ROUTE_FIELDS if spec.get(k) is not None}
     own = OWN_KIND_FIELD.get(kind)
-    if own in kw:
+    if own and own in kw:
         kw["kind"] = kw.pop(own)
     if str(kw.get("shared_params") or "").strip().lower() == "default":
         from ..famgen import factory as F
