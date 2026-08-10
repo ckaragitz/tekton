@@ -558,3 +558,43 @@ learned-famdoc-laws.md, plugin mirror.  Gates: famgen suites 112 passed /
 desktop-confirmed.  Follow-ups to file as issues: arc-sketch solver records
 (cylinders), LeaderStyle arrow-size warning, SketchGridAppearance UET[40],
 Save-As + Load-Family desktop verification sweep.
+
+## Iteration 13 — THE DONOR-LESS BUG (the ckaragitz12 report)
+
+**Report:** a second collaborator generated families from the merged plugin
+and they did not work -- while every file the owner desktop-confirmed in
+rounds 13-28 did.  The owner's diagnosis was right: every probe was built
+with `family_donor=<the owner's uploaded .rfa>`; a normal install has no
+donor.
+
+**Root cause:** with no donor the emitter takes the CONSTRUCTIVE path
+(`constructive_family_host_tree`), whose AppInfoManager carried **0 of 239
+manager slots populated** (a Revit-born famdoc fills 133).  Every registry
+wiring added in rounds 13-27 -- `UniqueElementsTracking` [10]/[60]/[64]/
+[65]/[85], `PenWidthTableInfo`, `SymbolIdMgr` key 10,
+`BrowserOrganizationTracking` -- is guarded by `if isinstance(body, dict)`
+and therefore **silently no-opped**.  Host `Global/Latest` shipped at
+**252 bytes** (donor path: 65,249) -- the exact stub Revit rejects with
+`Failed to load elemStream#0`.
+
+**Correction to round 14:** probe M's 252-byte host was blamed on calling
+`prod.write()` instead of `standalone_family_write`.  That was WRONG in an
+important way -- the donor-less path produces the same stub through either
+entry point.  Round 14's "instrument error" was really this product bug,
+seen early and misfiled.
+
+**Why no test caught it:** every famgen test reads the ELEMENT records
+(unit 0, seq 101/102/103).  Nothing looked at the host ADocument, so the
+element half of each law passed while the registry half was missing.
+
+**Fix:** `_populate_appinfo_managers` fills the constructive tree's manager
+slots from a measured index->class map
+(`assets/famdoc_appinfo_slots.json`, 133 entries -- class names and slot
+indices only, no donor content), each a schema-blank of its class with
+`m_pADoc` weakref 1; `UniqueElementsTracking.m_elemIds` is sized to the
+donor's 93 positional slots so the id writes land.  Donor-less output now:
+133/133 slots, all four registries wired, `Global/Latest` a real document.
+Guarded by `test_donorless_host_document_wires_every_registry` (the first
+test that reads the host ADocument).
+
+Desktop verdict pending on `donorless_fixed.rfa` / `donorless_troffer.rfa`.
