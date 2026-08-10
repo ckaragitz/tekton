@@ -200,17 +200,23 @@ def test_panelboard_family_composition():
     # geometry: one box at the true catalog dims
     assert len(prod.forms) == 1
     fp = prod.forms[0].params
+    # THE PANEL STANDS UP: W x D footprint, H tall (it used to trace W x H
+    # in plan and push the depth up +Z, which laid a 5 ft panel on the floor)
     assert fp["width_ft"] == pytest.approx(20.0 / 12)
-    assert fp["depth_ft"] == pytest.approx(60.0 / 12)   # H along family Y
-    assert fp["height_ft"] == pytest.approx(5.75 / 12)  # depth extruded +Z
-    # connector: hosted on the enclosure's +y (top) face = tag 2, edge tags
+    assert fp["depth_ft"] == pytest.approx(5.75 / 12)   # D along family Y
+    assert fp["height_ft"] == pytest.approx(60.0 / 12)  # H extruded +Z
+    # connector: hosted on the enclosure's top face = tag 2, edge tags
     # [3, 4, 8, 17] -- the real panelboard's convention
     assert len(doc.connectors) == 1
     con = doc.connectors[0].obj
     gr = con["m_oPlaneRef"]["value"]["m_geomRef"]
     ext = prod.forms[0].by_class("ExtrusionElem")[0]
-    assert gr["m_elemId"] == ext.elem_id and gr["m_geomTag"] == 2
-    assert con["m_oEdgeLoopRef"]["value"]["m_sortedTagArr"] == [3, 4, 8, 17]
+    # the feeder enters a STANDING panel from above, so the connector rides
+    # the +z cap (tag 1, edges [3, 6, 10, 14]) -- the same face and tags the
+    # transformer's connectors use.  It used to sit on +y, the face that
+    # pointed up only because the panel was lying on its back.
+    assert gr["m_elemId"] == ext.elem_id and gr["m_geomTag"] == 1
+    assert con["m_oEdgeLoopRef"]["value"]["m_sortedTagArr"] == [3, 6, 10, 14]
     dom = con["m_pDomain"]["value"]
     assert dom["m_dVoltage"] == pytest.approx(SK.volts(480))
     assert dom["m_nNumberOfPoles"] == 3

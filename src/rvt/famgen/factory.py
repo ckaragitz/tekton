@@ -1605,13 +1605,18 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
             f"(box {fx.get('width_in'):g} W x {fx.get('height_in'):g} H x "
             f"{fx.get('depth_in'):g} D in; generated from catalog facts)"))
     # -- geometry: the enclosure box -------------------------------------
-    # profile W (x) x H (y) in the family plane (the wall face); depth along
-    # +Z for surface mounting, recessed (-Z) for flush.
-    if mount.startswith("flush"):
-        base_z, height = -D, D          # box behind the face (z -D..0)
-    else:
-        base_z, height = 0.0, D         # box proud of the face (z 0..D)
-    fb = add_box_form(doc, W, H, height, base_z_ft=base_z, center=(0.0, 0.0),
+    # THE PANEL STANDS UP (owner: "it seems that the panel is laying down.
+    # it should be pointed up especially if its in those elevation views").
+    # This used to trace W (x) x H (y) in the family plane and push the
+    # DEPTH along +Z -- the convention of a FACE-HOSTED family, whose xy
+    # plane is the wall face.  A standalone Electrical Equipment family's
+    # xy plane is the Ref. Level floor plan, so that laid a 5 ft panel flat
+    # on the floor: right solid, wrong axis.  Footprint is W (x) x D (y),
+    # H tall from the reference level, like the transformer next door.
+    # Mounting shifts the box in Y about the wall face at y = 0: surface =
+    # proud of it (0..D), flush = recessed behind it (-D..0).
+    y_centre = -D / 2.0 if mount.startswith("flush") else D / 2.0
+    fb = add_box_form(doc, W, D, H, base_z_ft=0.0, center=(0.0, y_centre),
                       rep=G.REP_SOLID if solid else G.REP_DUMMY)
     fb.params.update({"role": "panelboard enclosure",
                       "dims_in": [facts.get("width_in"), facts.get("height_in"),
@@ -1619,16 +1624,23 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                       "mounting": mount})
     # -- connector: 3-pole power feed, top face centre (specimen convention)
     poles = 3 if int(facts.get("phases")) >= 3 else 1
-    add_connector(doc, host=fb, face="+y",
-                  location=(0.0, H / 2.0, base_z + height / 2.0),
-                  direction=(0.0, 0.0, -1.0), u_axis=(0.0, 1.0, 0.0),
+    # the feeder enters a standing panelboard from ABOVE, so the connector
+    # moves with the box to the top face (it used to sit on +y, the upward
+    # face of the panel while it lay on its back)
+    add_connector(doc, host=fb, face="top",
+                  location=(0.0, y_centre, H),
+                  direction=(0.0, 0.0, 1.0), u_axis=(1.0, 0.0, 0.0),
                   voltage_v=vll, poles=poles, apparent_load_va=0.0,
                   power_factor=1.0, bind_voltage_param="Voltage",
                   load_class="Power", description="Panel Feed")
-    # -- parametric drive: editing Width/Height must MOVE the extrusion
-    #    (issue #372: side RefPlanes + Alignments + labeled dims, donor law)
+    # -- parametric drive: editing the two SKETCH dimensions must MOVE the
+    #    extrusion (issue #372: side RefPlanes + Alignments + labeled dims).
+    #    Standing the panel up makes the footprint Width x Depth; Height is
+    #    now the extrusion depth, which needs a built-in-to-family parameter
+    #    association we do not author yet (filed) -- it is still a real
+    #    parameter and still sizes the geometry at generation time.
     from . import param_drive as PD
-    PD.wire_panelboard_drive(doc)
+    PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
     doc.finalize()
     prod = FamilyProduct("panelboard", doc, facts, forms=[fb], types=rows,
                          file_stem=_slug(f"{vendor}_{facts.variant}_"

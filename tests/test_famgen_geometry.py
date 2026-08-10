@@ -193,11 +193,14 @@ def test_box_bundle_schema_roundtrip(ctx, rep):
     assert rt["ok"], [(k, v) for k, v in rt["elements"].items() if not v["ok"]]
     ex = fb.by_class("ExtrusionElem")[0]
     assert (ex.rep is not None) == (rep == G.REP_SOLID)
-    # extrusion offsets: start (top) = 700 mm, end (bottom) = 0
+    # extrusion offsets are ordered by ELEVATION, not by the tracer's
+    # direction: Revit reads -1001800 as "Extrusion Start" and shows
+    # Depth = End - Start, so the box path's traced start (its TOP) belongs
+    # in END or every box reports a negative depth in the properties palette
     ps = {p["m_paramId"]: p["m_value"]
           for p in ex.obj["m_pParamValueSetDouble"]["value"]["m_paramSet"]}
-    assert abs(ps[G.BIP_EXTRUSION_START] - G.mm(700)) < 1e-12
-    assert ps[G.BIP_EXTRUSION_END] == 0.0
+    assert ps[G.BIP_EXTRUSION_START] == 0.0
+    assert abs(ps[G.BIP_EXTRUSION_END] - G.mm(700)) < 1e-12
     # the sketch feeds the extrusion; the extrusion's helper points at the sketch
     sk = fb.by_class("VarSketch")[0]
     assert sk.obj["m_userId"] == ex.elem_id

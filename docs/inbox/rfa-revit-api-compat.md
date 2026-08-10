@@ -713,3 +713,62 @@ views as deletion parents), which is a separate change.
   PASS
 * staged, not shipped: desktop verdict on `panel400_v6.rfa` /
   `hanger_v7.rfa`
+
+## Iteration 16 — three faults the owner found in the now-VISIBLE family
+
+The family-view law worked: `panel400_v6.rfa` renders shaded in View 1 and
+the four elevations are in the Project Browser. Three separate faults were
+visible only once the geometry could be seen.
+
+**1. The forms were hidden in Plan/RCP.**
+`ExtrusionElem.m_famElemVisibility` = 57398 was measured off the donor and
+adopted wholesale — but bit 0 is the "Plan/RCP" checkbox of Family Element
+Visibility Settings, and that donor's author had switched it OFF. We shipped
+that preference on every form, so a generated family drew nothing in its own
+plan and ceiling views regardless of what the views said [owner screenshot:
+"Display in 3D views and:" with Plan/RCP unticked, Front/Back and Left/Right
+ticked]. 57399 = 57398 | Plan/RCP, and a specimen-adopted value is now
+OR-ed with bit 0 too: the bitfield is a format field, but that one bit is a
+UI preference and must never be inherited.
+
+**2. Every box reported a NEGATIVE extrusion depth.**
+Revit reads -1001800 as "Extrusion Start", -1001801 as "Extrusion End", and
+shows Depth = End − Start. The box path traces extrude-DOWN, so its `start`
+IS the top, and writing the raw pair put the top in Start: the palette read
+Start 0'5 3/4", End 0'0", Depth −0'5 3/4". Now ordered by elevation, not by
+the tracer's direction. The B-rep is untouched — same solid, correct
+reported depth. (The cylinder path traces extrude-UP and was already right;
+the expression is a no-op there.)
+
+**3. The panel was lying on the floor.**
+`make_panelboard` traced W (x) × H (y) in the family plane and pushed the
+DEPTH along +Z — the convention of a FACE-HOSTED family, whose xy plane is
+the wall face. A standalone Electrical Equipment family's xy plane is the
+Ref. Level floor plan, so a 5 ft panel lay flat: right solid, wrong axis,
+and nonsense in the elevations. Footprint is now W × D with H extruded up,
+exactly like the transformer next door; mounting shifts the box in Y about
+the wall face at y = 0 (surface 0..D, flush −D..0). The feeder connector
+moves to the +z cap, where it lands on tag 1 / edges [3, 6, 10, 14] — byte
+for byte the transformer's convention.
+
+**Regression this creates, stated plainly:** the parametric drive now labels
+Width and **Depth** (the two sketch dimensions). Height became the extrusion
+depth, and driving that needs a built-in-to-family parameter association we
+do not author yet. Height is still a real parameter and still sizes the
+geometry at generation time, but editing it in Family Types will not move
+the box until that association exists. Filed as the next famgen task.
+
+**Still open from the same report:** the solid draws in Shaded but not in
+Wireframe, and the shaded solid has no edge lines at all — the cached
+B-rep's edges are not reaching the draw pass. Not diagnosed yet; the next
+measurement is our extrusion's edge `m_GInfo` / GStyle bindings against the
+donor's.
+
+### BRANCH STATE (updated)
+* written: `src/rvt/famgen/geometry.py` (visibility bit + elevation-ordered
+  extrusion offsets), `src/rvt/famgen/factory.py` (standing panelboard +
+  top-face connector + Width/Depth drive), `tests/test_famgen_geometry.py`,
+  `tests/test_famgen_factory.py`
+* gates: 14 stream-local files 295 passed / 58 skipped;
+  `tools/sync_plugin.py --check` clean
+* staged, not shipped: desktop verdict on `panel400_v7.rfa` / `hanger_v8.rfa`

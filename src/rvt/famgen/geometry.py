@@ -170,7 +170,16 @@ class FamilyDocContext:
     solid_control_command: int = 0
     extra_regen_ids: List[int] = dc_field(default_factory=list)
     embedded: bool = False            # project-embedded flavour (flag bits)
-    fam_elem_visibility: int = 57398  # ExtrusionElem.m_famElemVisibility [V rfa]
+    #: ``ExtrusionElem.m_famElemVisibility`` -- the Family Element Visibility
+    #: Settings bitfield.  Bit 0 is "Plan/RCP"; the value measured off the
+    #: donor (57398) has it CLEAR, i.e. that family's author had switched
+    #: Plan/RCP display OFF, and we inherited the choice on every form we
+    #: ship -- so a generated family drew nothing in its own plan and ceiling
+    #: views no matter what the views said [owner screenshot: "Display in 3D
+    #: views and:" with Plan/RCP unticked].  Revit's own default for a new
+    #: form has all three view boxes ticked; 57399 = 57398 | Plan/RCP.
+    FAM_ELEM_VISIBILITY_ALL_VIEWS = 57399
+    fam_elem_visibility: int = 57399  # ExtrusionElem.m_famElemVisibility
     #: Geometry.m_tessEpsCntrl.m_TessEpsCntrlVersion of the donor's own
     #: forms: 0 in the standalone sample .rfa, 1 in the rme-embedded
     #: panelboard family (both load) [V]; matched to the donor.
@@ -211,7 +220,11 @@ def context_from_rfa(path: str = SAMPLE_RFA) -> FamilyDocContext:
             te = geo.get("m_tessEpsCntrl") or {}
             ctx.tess_version = int(te.get("m_TessEpsCntrlVersion", ctx.tess_version))
         v = idx.value(unit, eid) or {}
-        ctx.fam_elem_visibility = int((v.get("m_famElemVisibility") or {}).get("m_flags", 57398))
+        # adopt the specimen's bitfield but never its "hidden in Plan/RCP"
+        # choice -- that is the author's UI preference, not a format law
+        ctx.fam_elem_visibility = int(
+            (v.get("m_famElemVisibility") or {}).get(
+                "m_flags", GeometryContext.FAM_ELEM_VISIBILITY_ALL_VIEWS)) | 1
         h = idx.value(unit, eid, 101) or {}
         regen = ((h.get("m_parents") or {}).get("value") or {}).get("m_regenOnly") or []
         ctx.extra_regen_ids = [int(r) for r in regen if r in refplanes]
@@ -1282,8 +1295,17 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
         raise ValueError("extrusions here are extrude-DOWN: start > end")
     obj = _base("ExtrusionElem", elem_id, family_id=ctx.family_id,
                 int_params={BIP_CURVE_ELEM_INT: 1},
-                double_params_ordered=[(BIP_EXTRUSION_END, float(end)),
-                                       (BIP_EXTRUSION_START, float(start))])
+                double_params_ordered=[
+                    # Revit reads -1001800 as "Extrusion Start" and -1001801
+                    # as "Extrusion End", and shows Depth = End - Start.  The
+                    # box path traces extrude-DOWN (its `start` IS the top),
+                    # so writing the raw pair put the top in Start and gave
+                    # every box a NEGATIVE depth in the properties palette
+                    # [owner screenshot: Start 0'5 3/4", End 0'0",
+                    # Depth -0'5 3/4"].  Order by elevation, not by the
+                    # tracer's direction; the B-rep is unaffected.
+                    (BIP_EXTRUSION_END, max(float(start), float(end))),
+                    (BIP_EXTRUSION_START, min(float(start), float(end)))])
     step = extrusion_gstep(n)
     obj["m_geomSteps"] = _gstep_list([_ptr("ExtrusionGStep", step)],
                                      latest=2, id_counter=2, flags=9)
@@ -2157,8 +2179,17 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
         raise ValueError("cylinder extrusions are extrude-UP: end > start")
     obj = _base("ExtrusionElem", elem_id, family_id=ctx.family_id,
                 int_params={BIP_CURVE_ELEM_INT: 1},
-                double_params_ordered=[(BIP_EXTRUSION_END, float(end)),
-                                       (BIP_EXTRUSION_START, float(start))])
+                double_params_ordered=[
+                    # Revit reads -1001800 as "Extrusion Start" and -1001801
+                    # as "Extrusion End", and shows Depth = End - Start.  The
+                    # box path traces extrude-DOWN (its `start` IS the top),
+                    # so writing the raw pair put the top in Start and gave
+                    # every box a NEGATIVE depth in the properties palette
+                    # [owner screenshot: Start 0'5 3/4", End 0'0",
+                    # Depth -0'5 3/4"].  Order by elevation, not by the
+                    # tracer's direction; the B-rep is unaffected.
+                    (BIP_EXTRUSION_END, max(float(start), float(end))),
+                    (BIP_EXTRUSION_START, min(float(start), float(end)))])
     step = extrusion_gstep_circles(k)
     obj["m_geomSteps"] = _gstep_list([_ptr("ExtrusionGStep", step)],
                                      latest=2, id_counter=2, flags=9)
