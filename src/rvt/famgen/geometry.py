@@ -460,11 +460,16 @@ class RectProfile:
 
     @property
     def width(self) -> float:
-        return abs(self.vertices[0][0] - self.vertices[1][0])
+        xs = [v[0] for v in self.vertices]
+        return abs(max(xs) - min(xs))          # bounding box: exact for a
+                                               # rectangle, meaningful for the
+                                               # arbitrary rings polygon_profile
+                                               # accepts (issue #498)
 
     @property
     def depth(self) -> float:
-        return abs(self.vertices[1][1] - self.vertices[2][1])
+        ys = [v[1] for v in self.vertices]
+        return abs(max(ys) - min(ys))
 
     def center(self) -> List[float]:
         xs = [v[0] for v in self.vertices]
@@ -500,6 +505,30 @@ def profile_from_vertices(vertices: Sequence[Vec]) -> RectProfile:
         raise ValueError("box profile needs exactly 4 vertices")
     if polygon_area_xy(vs) <= 0:
         raise ValueError("profile vertices must be counter-clockwise")
+    return RectProfile([[v[0], v[1], 0.0] for v in vs])
+
+
+def polygon_profile(vertices: Sequence[Vec]) -> RectProfile:
+    """An ARBITRARY closed planar profile (issue #498: any 3D object, not
+    just catalog boxes) -- N >= 3 vertices in the sketch plane, returned in
+    the counter-clockwise order Revit's extrusion loop tracer stores.
+
+    Clockwise input is reversed rather than refused (an IFC profile's
+    winding follows its own axis convention); the last vertex must not
+    repeat the first (a closed ring is implied, as ``prism_form`` wraps
+    modulo n).  ``RectProfile``'s width / depth / center read the bounding
+    box, so they stay meaningful for a non-rectangular ring.
+    """
+    vs = [_v(p) for p in vertices]
+    if len(vs) >= 2 and abs(vs[0][0] - vs[-1][0]) < 1e-12 \
+            and abs(vs[0][1] - vs[-1][1]) < 1e-12:
+        vs = vs[:-1]                              # drop a repeated closing point
+    if len(vs) < 3:
+        raise ValueError(f"a profile needs at least 3 distinct vertices (got {len(vs)})")
+    if polygon_area_xy(vs) < 0:
+        vs = list(reversed(vs))                   # normalise to counter-clockwise
+    if polygon_area_xy(vs) <= 0:
+        raise ValueError("profile vertices are collinear or zero-area")
     return RectProfile([[v[0], v[1], 0.0] for v in vs])
 
 

@@ -987,10 +987,13 @@ def standalone_family_write(product, path: str, *, validate: bool = True,
         rep.setdefault("caveats", []).append(
             "family ADocument authored CONSTRUCTIVELY (schema-built famdoc "
             "tree; the bundled container is a project, not a family "
-            "archetype). All registries ship empty and Revit regenerates "
-            "session state on open -- desktop-Revit acceptance of this "
-            "shape is tracked in issue #52; supply $RVT_FAMILY_DONOR "
-            "(any Revit-born .rfa) to author from a real family archetype.")
+            "archetype). This is the NORMAL, supported path -- no donor "
+            "file is needed: the tree populates the manager-slot set a "
+            "Revit-born family carries and wires every registry "
+            "(UniqueElementsTracking, PenWidthTableInfo, SymbolIdMgr, "
+            "BrowserOrganizationTracking) at OUR elements. Desktop Revit "
+            "2026 opens, navigates and edits families built this way "
+            "(issues #333/#480, owner-verified on two machines).")
     rep["verify"] = emit.get("verify")
     if validate:
         try:
