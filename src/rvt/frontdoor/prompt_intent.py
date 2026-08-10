@@ -55,6 +55,7 @@ from .._lazyimp import lazy_import
 
 np = lazy_import("numpy", globals(), "np", hint="prompt-intent numeric math")
 
+from .. import _jsonsafe
 from ..ifc import intent as I
 
 __all__ = [
@@ -1915,9 +1916,7 @@ def write_handoff(prompt: str, out_dir: str, *, parsed: Optional[ParsedPrompt] =
         model, parsed = prompt_to_intent(prompt)
     os.makedirs(out_dir, exist_ok=True)
     brief = scene_brief(prompt, parsed=parsed, model=model)
-    bp = os.path.join(out_dir, "scene-brief.json")
-    with open(bp, "w") as fh:
-        json.dump(brief, fh, indent=2, default=str)
+    bp = _jsonsafe.write(os.path.join(out_dir, "scene-brief.json"), brief, indent=2)
     # copy the shipped instructions beside the brief so the package is portable
     ip = os.path.join(out_dir, "PROMPT_TO_IFC.md")
     try:

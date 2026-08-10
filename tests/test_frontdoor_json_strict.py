@@ -9,6 +9,11 @@ ONE shared walk (``rvt._jsonsafe``) in front of every front-door writer --
 writers, ``standalone``'s report writer -- so a non-finite value from ANY
 source lands as text, and the dump runs with ``allow_nan=False`` so a value
 the walk missed fails HERE, never as an unparseable file in a user's run.
+#475 lands the path-owning ``_jsonsafe.write`` (parent dir + utf-8 + the walk)
+and routes the remaining job-dir sinks through it -- ``scene-brief.json``,
+the edit ``ops.json`` echo, ``tools/ifc_intent._jdump``, ``famfrom_ifc``'s
+reports, ``tools/rvt_job``'s manifests -- plus ``_jsonsafe.dumps`` for the
+``--json`` stdout documents of ``tools/rvt_job`` and ``tools/route``.
 
 Pinned below: the walk itself; that it is a byte-for-byte no-op on finite
 data (the 6-panel prompt's manifest must not move); a synthetic payload
@@ -21,6 +26,7 @@ in-repo catalog is all ``prompt_to_intent`` needs.
 """
 from __future__ import annotations
 
+import dataclasses
 import io
 import json
 import math
@@ -29,7 +35,9 @@ import re
 
 import pytest
 
+from conftest import load_tool
 from rvt import _jsonsafe as JS
+from rvt.frontdoor import edit as E
 from rvt.frontdoor import manifest as MF
 from rvt.frontdoor import prompt_intent as PP
 from rvt.frontdoor import router as R
@@ -91,20 +99,60 @@ def test_dump_refuses_loudly_if_the_walk_ever_misses_a_value(monkeypatch):
         JS.dump({"x": INF}, io.StringIO())
 
 
-def test_the_walk_is_a_byte_for_byte_no_op_on_finite_data(six_panels):
+def test_write_owns_the_whole_stanza_and_lands_strict_json(tmp_path):
+    """``write`` makes the parent dir, writes utf-8, walks, returns the path."""
+    target = tmp_path / "made" / "for" / "me" / "poison.json"
+    p = JS.write(str(target), _poison(), indent=2)
+    assert p == str(target) and target.is_file()
+    got = _strict_load(p)
+    assert got["seq"] == [["-inf", 2], ["nan", ["inf"]]] and got["fine"] == 1.5
+    JS.write(str(tmp_path / "bare.json"), {"u": "µm", "x": NAN})   # a bare filename's dir is '.'-safe too
+    assert _strict_load(str(tmp_path / "bare.json")) == {"u": "µm", "x": "nan"}
+    assert JS.dumps({"x": (INF, 1)}, indent=None) == '{"x": ["inf", 1]}'
+
+
+def test_a_default_hook_s_result_is_walked_too():
+    """``tools/rvt_job._jsonable`` expands a dataclass / ``to_json()`` object
+    at dump time; a non-finite float INSIDE that expansion must land as text,
+    not trip ``allow_nan=False`` mid-delivery (hard rule 1)."""
+    @dataclasses.dataclass
+    class Timing:
+        seconds: float
+        parts: tuple
+
+    def expand(o):
+        return dataclasses.asdict(o) if dataclasses.is_dataclass(o) else str(o)
+
+    doc = {"t": Timing(INF, (NAN, 2.5)), "nested": [Timing(1.0, (Timing(-INF, ()),))]}
+    buf = io.StringIO()
+    JS.dump(doc, buf, default=expand)
+    for text in (JS.dumps(doc, default=expand, indent=1), buf.getvalue()):
+        got = json.loads(text, parse_constant=_refuse_constant)
+        assert got["t"] == {"seconds": "inf", "parts": ["nan", 2.5]}
+        assert got["nested"][0]["parts"][0] == {"seconds": "-inf", "parts": []}
+    with pytest.raises(TypeError):               # default=None keeps json's own refusal of unknown types
+        JS.dumps({"t": Timing(1.0, ())}, default=None)
+
+
+def test_the_walk_is_a_byte_for_byte_no_op_on_finite_data(six_panels, tmp_path):
     """The 6-panel prompt's manifest carries no non-finite value, so routing it
     through the walk must not move one byte: same dict -> same text as the
-    plain ``json.dump(..., default=str)`` every writer used before."""
+    plain ``json.dump(..., default=str)`` every writer used before -- through
+    ``dump``, ``dumps`` and the file ``write`` lands alike."""
     model, parsed = six_panels
     timings = {"seconds": 0.16, "timings": {"validate": 0.28, "status_gate": 0.23}}
     payloads = [I.intent_to_json(model), parsed.coverage.as_json(),
-                {"a": 1, "b": [1.25, 2, {"c": (3, 4.0)}], "t": timings, "z": None}]
-    for obj in payloads:
+                PP.scene_brief(PROMPT, parsed=parsed, model=model),
+                {"a": 1, "b": [1.25, 2, {"c": (3, 4.0)}], "t": timings, "z": None, "u": "µ"}]
+    for n, obj in enumerate(payloads):
         for indent in (1, 2):                    # the two indents the writers use
             plain, walked = io.StringIO(), io.StringIO()
             json.dump(obj, plain, indent=indent, default=str)
             JS.dump(obj, walked, indent=indent)
-            assert walked.getvalue() == plain.getvalue()
+            assert walked.getvalue() == plain.getvalue() == JS.dumps(obj, indent=indent, default=str)
+            p = JS.write(str(tmp_path / f"p{n}-{indent}.json"), obj, indent=indent)
+            with open(p, encoding="utf-8") as fh:
+                assert fh.read() == plain.getvalue()
 
 
 # --- each writer -----------------------------------------------------------
@@ -145,25 +193,109 @@ def test_the_router_manifest_lands_strict_json(tmp_path):
     assert os.path.isfile(os.path.join(str(tmp_path), "ROUTE.md"))
 
 
+# --- the #475 sinks ---------------------------------------------------------
+
+def test_write_handoff_s_scene_brief_lands_strict_json(six_panels, tmp_path, monkeypatch):
+    model, parsed = six_panels
+    real = PP.scene_brief
+    monkeypatch.setattr(PP, "scene_brief", lambda *a, **k: dict(real(*a, **k), poison=_poison()))
+    paths = PP.write_handoff(PROMPT, str(tmp_path / "handoff"), parsed=parsed, model=model)
+    got = _strict_load(paths["scene_brief"])
+    assert got["poison"]["nested"]["deeper"]["deepest"] == [1.0, "inf", {"again": "nan"}]
+    assert os.path.isfile(paths["handoff"]) and os.path.isfile(paths["instructions"])
+
+
+def test_the_edit_ops_echo_lands_strict_json_before_the_job_runs(tmp_path):
+    """``run_edit`` echoes the normalised ops as ``ops.json`` FIRST; a missing
+    input then makes the job runner refuse in one line -- the echo is what
+    this pins, and it needs no .rvt."""
+    spec = E.EditSpec(ops=[{"op": "set-level", "id": 311, "elevation_ft": INF}],
+                      source="inline-json", understood=[{"op": "set-level", "ratio": NAN}])
+    res = E.run_edit(str(tmp_path / "missing.rvt"), spec, str(tmp_path / "e"), quiet=True)
+    assert res["rc"] != 0
+    got = _strict_load(str(tmp_path / "e" / "ops.json"))
+    assert got == {"ops": [{"op": "set-level", "id": 311, "elevation_ft": "inf"}],
+                   "source": "inline-json", "understood": [{"op": "set-level", "ratio": "nan"}]}
+
+
+def test_ifc_intent_jdump_lands_strict_json(tmp_path):
+    T = load_tool("ifc_intent")
+    p = tmp_path / "families" / "families_record.json"
+    T._jdump(str(p), {"families": [_poison()], "seconds": INF})
+    got = _strict_load(str(p))
+    assert got["seconds"] == "inf" and got["families"][0]["neg"] == "-inf"
+
+
+def test_rvt_job_manifests_and_its_one_json_stdout_document_are_strict(tmp_path, capsys):
+    """The ops door: ``write_manifest`` / the stub manifest go through
+    ``_jsonsafe.write`` keeping ``default=_jsonable`` (a dataclass inside is
+    expanded AND walked), and ``--json``'s ONE stdout object is the on-disk
+    manifest + ``exit_code`` (#456's contract), printed through ``dumps``."""
+    J = E.load_job_module()
+
+    @dataclasses.dataclass
+    class Gate:
+        status: str
+        elapsed_s: float
+
+    out = tmp_path / "job" / "edited.rvt"
+    out.parent.mkdir()
+    out.write_bytes(b"not really an rvt")
+    mp = J.write_manifest(str(out), {"mode": "edit", "gates": {"structural": Gate("PASS", INF)},
+                                     "timings": {"total": NAN}, "poison": _poison()})
+    got = _strict_load(mp)
+    assert got["gates"]["structural"] == {"status": "PASS", "elapsed_s": "inf"}
+    assert got["timings"] == {"total": "nan"} and got["output"]["bytes"] == len(b"not really an rvt")
+    stub = tmp_path / "job" / "never.rvt"
+    J._write_stub_manifest(str(stub), {"mode": "edit", "status": "unit", "ratio": -INF, "_t0": 1.0})
+    assert _strict_load(str(stub) + ".manifest.json")["ratio"] == "-inf"
+    capsys.readouterr()
+    # --json on a missing input: no manifest of its own -> main()'s stub IS the one document
+    ops = JS.write(str(tmp_path / "ops.json"), {"ops": [{"op": "set-level", "id": 311, "elevation_ft": 5.0}]})
+    gone = tmp_path / "j2" / "gone.rvt"
+    rc = J.main(["edit", str(tmp_path / "absent.rvt"), "--ops", ops, "-o", str(gone), "--json"])
+    printed = capsys.readouterr().out
+    doc = json.loads(printed, parse_constant=_refuse_constant)
+    assert rc != 0 and doc["exit_code"] == rc and doc["output"]["written"] is False
+    assert {k: v for k, v in doc.items() if k != "exit_code"} == _strict_load(str(gone) + ".manifest.json")
+
+
+def test_route_s_json_printer_is_strict(capsys):
+    T = load_tool("route")
+    T._print_json({"cell": _poison(), "seconds": INF})
+    doc = json.loads(capsys.readouterr().out, parse_constant=_refuse_constant)
+    assert doc["seconds"] == "inf" and doc["cell"]["seq"][1] == ["nan", ["inf"]]
+
+
 # --- tripwires ------------------------------------------------------------
 
-WRITERS = ("src/rvt/ifc/intent.py", "src/rvt/frontdoor/manifest.py",
-           "src/rvt/frontdoor/router.py", "src/rvt/frontdoor/standalone.py")
+#: every module #461 / #475 switched; the two ``--json`` doors additionally
+#: print their ONE stdout document through ``_jsonsafe.dumps``, so a bare
+#: ``json.dumps(`` is banned there too (elsewhere it still renders dev /
+#: progress output legitimately: prompt_intent's __main__, ifc_intent's echo).
+WRITERS = ("src/rvt/ifc/intent.py", "src/rvt/frontdoor/manifest.py", "src/rvt/frontdoor/router.py",
+           "src/rvt/frontdoor/standalone.py", "src/rvt/frontdoor/prompt_intent.py",
+           "src/rvt/frontdoor/edit.py", "src/rvt/ifc/famfrom_ifc.py", "tools/ifc_intent.py",
+           "tools/rvt_job.py", "tools/route.py")
+JSON_DOORS = ("tools/rvt_job.py", "tools/route.py")
 
 
 @pytest.mark.parametrize("rel", WRITERS)
-def test_no_touched_writer_dumps_to_a_file_around_the_walk(rel):
+def test_no_switched_module_dumps_around_the_walk(rel):
     """Coarse on purpose: the round trips above pin the behaviour; this only
-    catches a new ``json.dump(`` to a file handle re-appearing in a module
-    #461 switched (``json.dumps`` for strings / stdout is not a file writer)."""
+    catches a bare ``json.dump(`` (or, on a --json door, ``json.dumps(``)
+    re-appearing in a switched module, or the strict writer dropped from it."""
     src = open(os.path.join(ROOT, rel), encoding="utf-8").read()
     assert not re.search(r"\bjson\.dump\(", src), f"{rel}: a bare json.dump( bypasses rvt._jsonsafe"
-    assert "_jsonsafe.dump(" in src, rel
+    if rel in JSON_DOORS:
+        assert not re.search(r"\bjson\.dumps\(", src), f"{rel}: a bare json.dumps( bypasses rvt._jsonsafe"
+    assert re.search(r"\b_jsonsafe\b", src), f"{rel}: no longer goes through rvt._jsonsafe"
 
 
 def test_jsonsafe_is_a_stdlib_leaf():
-    """Imported by rvt.ifc.intent AND three rvt.frontdoor modules: it must
-    never pull either package (cycle) or anything third-party (bare surface)."""
+    """Imported by rvt.ifc AND rvt.frontdoor modules and by repo tools: it
+    must never pull either package (cycle) or anything third-party (bare
+    surface)."""
     src = open(JS.__file__, encoding="utf-8").read()
     imported = set(re.findall(r"^\s*(?:from|import)\s+([\w.]+)", src, re.M))
-    assert imported <= {"__future__", "json", "math", "typing"}, imported
+    assert imported <= {"__future__", "json", "math", "os", "typing"}, imported
