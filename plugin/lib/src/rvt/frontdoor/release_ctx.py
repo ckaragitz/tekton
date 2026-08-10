@@ -409,13 +409,7 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
         port._STATE[yy] = (dec, enc, schema)
         # rvt.schema default chokepoints (install_schema's reroute, but
         # scoped + restored; a mixed-release process may hold stale seeds)
-        orig_load = SCHEMA.load_schema
-        orig_default_path = SCHEMA.DEFAULT_PATH
-
-        def _load_schema_ctx(path: str = orig_default_path):
-            if path in (None, orig_default_path) or not os.path.isfile(path):
-                return schema
-            return orig_load(path)
+        _load_schema_ctx = SA.default_schema_loader(schema, SCHEMA.DEFAULT_PATH)
 
         from .. import adocument as ADOC
         from .. import objects as OBJECTS

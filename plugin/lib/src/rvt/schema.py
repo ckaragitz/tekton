@@ -583,9 +583,17 @@ def load_schema(path: str = DEFAULT_PATH) -> Schema:
     if path == DEFAULT_PATH and not os.path.isfile(path) and schema_available():
         from .frontdoor.standalone import bundled_schema
         return bundled_schema()
+    return load_schema_file(path)
+
+
+def load_schema_file(path: str) -> Schema:
+    """Parse the schema stream at ``path`` verbatim: no default-path
+    fallback, and not a name the chokepoint swaps replace
+    (``standalone.install_schema``, ``release_ctx``, the plugin's lazy
+    wrapper) -- so those wrappers delegate explicit paths here without
+    re-entering one another.  A missing path raises ``FileNotFoundError``."""
     with open(path, "rb") as fh:
-        data = fh.read()
-    return parse(data, source=path)
+        return parse(fh.read(), source=path)
 
 
 # ---------------------------------------------------------------------------
