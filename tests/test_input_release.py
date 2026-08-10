@@ -230,7 +230,9 @@ def test_route_known_release_proceeds_as_before_and_reports_the_block(tmp_path):
     assert r.ok, (r.status, r.errors)
     ir = r.manifest["input_release"]
     assert (ir["status"], ir["year"], ir["era"]) == ("known", 2026, "2019+")
-    assert "UNVERIFIED" not in r.status and not r.as_json()["stamps"]
+    # a KNOWN release carries no UNVERIFIED-RELEASE label anywhere; the edit's own
+    # P0 label (PROOF-ONLY, #406) is a stamp like on the create routes and may ride
+    assert "UNVERIFIED" not in r.status and not any("UNVERIFIED" in s for s in r.as_json()["stamps"])
     assert r.manifest["target_version"]["input_release"] == 2026     # the #24 block, unchanged
 
 

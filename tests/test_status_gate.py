@@ -673,7 +673,7 @@ def test_edit_manifest_surfaces_the_gate_like_the_create_routes(year, tmp_path_f
                  f"{tot['ours-composed']:,} of {fg['residue']['host_elements']:,} base elements ours by composition"):
         assert cite in lines[1], (cite, lines[1])
     assert lines[2].startswith(f"- {EDIT_LEDGER_OF}: {tot.get('ours-created', 0)} created elements ours, ")
-    assert "## Honesty\n- **PROOF-ONLY, NOT-DELIVERABLE** (a label: the file is delivered)" in md
+    assert "## Honesty\n- **PROOF-ONLY, NOT-DELIVERABLE** (a label, never a refusal)" in md
 
 
 def test_edit_manifest_words_a_foreign_base_and_a_downed_census_honestly(tmp_path):

@@ -509,11 +509,11 @@ used: `src/rvt/frontdoor/manifest.py` (`edit_manifest`, `_honesty`, the MANIFEST
 |---|---|---|
 | `manifest.json` → `edit.gates.base_provenance` keys | `base_is_autodesk_sample, deliverable, reason, status` | + `base_kind` **descends-from-pinned-genesis**, `residue` (the pin's census summary + `descends_from: G_ABPD` + `descent{share 0.9996, 2,679/2,680 composed slots byte-identical, min_share 0.95, history_head_guid_matches_pin true}`), `ledgered_against` = the bundled `…/assets/genesis/G_ABPD.rvt`, `provenance_totals` **422 / 2,680 / 118** — every echoed key `==` the job manifest's `gates.base_provenance`, totals `==` the create route's `build.status_gate.provenance_totals`; a `census` (STALE/UNAVAILABLE) note passes through too when the gate wrote one. NOT echoed (one hop away in `edit.job_manifest`, by design): `g1.blocking`, `created_elements`, `modified_elements`, `base`, `elapsed_s` |
 | `honesty.proof_only_stamps` / `--json` → `stamps` on the edit | `[]` / `[]` while `status` = `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)` | `["PROOF-ONLY, NOT-DELIVERABLE"]` both — the gate's label, the same string the create routes stamp (`_honesty(status_gate=…)` is now the ONE rule both routes use) |
-| `MANIFEST.md` of the edit | gate list only (`gate base_provenance: PROOF-ONLY, NOT-DELIVERABLE`), no reason, no authorship, no Honesty section | `- deliverability (P0 gate): PROOF-ONLY, NOT-DELIVERABLE — <the #284 sentence naming G_ABPD>` · `- base authorship (issue #143 census): **descends-from-pinned-genesis** — descends from G_ABPD (Revit 2026; 2,679 of 2,680 composed slots byte-identical, share 0.9996 ≥ 0.95), ledgered against the pin `G_ABPD.rvt` and its census — 2,680 of 3,102 base elements ours by composition; residue 422 still byte-identical to the Autodesk ancestor (11 never authored, 411 re-emitted identically by our constructors; recorded dispositions {…})` · `- this file's ledger (everything the chain created): 118 created elements ours, 0 created with lineage into the residue` · `## Honesty` with `- **PROOF-ONLY, NOT-DELIVERABLE** (a label: the file is delivered)` + tiers + release |
+| `MANIFEST.md` of the edit | gate list only (`gate base_provenance: PROOF-ONLY, NOT-DELIVERABLE`), no reason, no authorship, no Honesty section | `- deliverability (P0 gate): PROOF-ONLY, NOT-DELIVERABLE — <the #284 sentence naming G_ABPD>` · `- base authorship (issue #143 census): **descends-from-pinned-genesis** — descends from G_ABPD (Revit 2026; 2,679 of 2,680 composed slots byte-identical, share 0.9996 ≥ 0.95), ledgered against the pin `G_ABPD.rvt` and its census — 2,680 of 3,102 base elements ours by composition; residue 422 still byte-identical to the Autodesk ancestor (11 never authored, 411 re-emitted identically by our constructors; recorded dispositions {…})` · `- this file's ledger (everything the chain created): 118 created elements ours, 0 created with lineage into the residue` · `## Honesty` with `- **PROOF-ONLY, NOT-DELIVERABLE** (a label, never a refusal)` + tiers + release |
 | same chain on the 2025 pin (`--target-version 2025`, walls-only X) | — | `descends-from-pinned-genesis`, `descends_from G_ABPD_2025`, totals 925 / 2,391 / 4 transitive-cloned (F2), `ledgered_against G_ABPD_2025.rvt`, `target_version.output_release 2025`, MD line "descends from G_ABPD_2025 (Revit 2025; 2,390 of 2,391 …)" |
 | a foreign file (`tekton-eval-kit/TEST-KIT/02_*.rvt`, F5's non-descendant) edited | gate list only | `edit.gates.base_provenance.base_kind` **user-base**, totals 3,345 sample / 1 modified, no `ledgered_against`, MD `- base authorship: **user-base** (no census: everything inherited from the base is ledgered as the base's)`, stamped PROOF-ONLY, delivered |
 | an edit whose gate says `census: STALE …` / `UNAVAILABLE (…)` (synthetic job manifest) | dropped | `edit.gates.base_provenance.census` carried, ONE `edit.degradations` line via `authorship_census_note` ("… conservative reading … hard rule 1"), MD `- base authorship: **pinned-composed-genesis** (census **STALE …**…)` + `**degradation**: …` — the #303 behaviour of the create routes, now on the edit route (F11) |
-| create routes' `MANIFEST.md` | as #418 | byte-for-byte the same authorship lines (now emitted by the shared `status_gate_lines`); the Honesty stamps gain the suffix "(a label: the file is delivered)" — the only create-route wording change |
+| create routes' `MANIFEST.md` | as #418 | byte-for-byte the same authorship lines (now emitted by the shared `status_gate_lines`); the Honesty stamps gain the suffix "(a label, never a refusal)" — the only create-route wording change |
 | status / delivery | PROOF-ONLY, delivered | unchanged: `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`, `ok: true`, `files: [edited]`, `rvt_validate` ok / 0 errors / 1 warning (the standing DataStorage ES-blob gap) — rule 1: nothing withheld, nothing promoted |
 | `provenance_gate(pin, pin)` JSON, 2024 / 2025 / 2026 (`sort_keys`, `elapsed_s` dropped) | — | `diff` empty on all three (the gate is not touched; recorded for the ledger) |
 
@@ -569,6 +569,19 @@ used: `src/rvt/frontdoor/manifest.py` (`edit_manifest`, `_honesty`, the MANIFEST
   PASSED)") rather than the manifest's `honesty.proof_only_stamps` ("PROOF-ONLY, NOT-DELIVERABLE"), so
   `route run --rvt … --prompt "move …"` and `frontdoor author --rvt … --json` name the same label with and
   without the parenthesis (eng #424 holds `router.py`).
+* **F16 — a CREATE on `--base <a prior tekton output>` now prints the descendant wording too.** Because
+  `status_gate_lines` is shared, `frontdoor author --prompt … --base X` (X descends from the pin; #407 probed it:
+  `descends-from-pinned-genesis`, 422 / 2,680 / 122) renders "descends from G_ABPD (…, share …), ledgered against the
+  pin …" in the create route's MANIFEST.md instead of the pinned form `**descends-from-pinned-genesis** G_ABPD (Revit
+  2026)`. More honest, and it makes the plain pinned/sample/user forms the only ones that imply "these ARE the base's
+  bytes"; the reviewer of #435 flagged it as intended-but-worth-recording.
+* **F17 — one test contract updated deliberately (Refs #376).** `tests/test_input_release.py::
+  test_route_known_release_proceeds_as_before_and_reports_the_block` asserted "a KNOWN-release edit carries no stamps at
+  all" (`not r.as_json()["stamps"]`) as shorthand for "no UNVERIFIED-RELEASE label"; with #406 a PROOF-ONLY edit is
+  stamped like the create routes, so the clause now reads `not any("UNVERIFIED" in s for s in stamps)` — the intent
+  (#176/#376: known ⇒ unchanged, no UNVERIFIED anywhere) is kept, nothing else in that file loosened. Caught by the
+  tech-lead's sandboxed shard run, not by my neighbour list — lesson: run the merged shard
+  (`python3 tools/dev/shard_list.py --print`) before reporting, not only the stream-local neighbours.
 * **F15 — `history_head_guid` consolidation not done** (the issue's optional tidy-up): two of the three
   copies live in NO-GO files this wave (`tools/rvt_job.py`, and `rvt/mep/views_spaces.py` is nobody's but the
   third caller alone is not a consolidation). Filed as its own small task (#434, `Refs #406`) so it is picked up
@@ -587,7 +600,7 @@ RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_status_gate.py -q -rs
 ### BRANCH STATE (eng #406)
 
 * Branch `cam/406-edit-manifest-gate` from `main@b253668`; PR closes #406.
-* Files: `src/rvt/frontdoor/manifest.py`, `tests/test_status_gate.py`, this section; regenerated mirror
+* Files: `src/rvt/frontdoor/manifest.py`, `tests/test_status_gate.py`, `tests/test_input_release.py` (one clause, F17), this section; regenerated mirror
   `plugin/lib/src/rvt/frontdoor/manifest.py`. No hot file, no NO-GO file, no asset, no pinned-base byte touched.
 * Gates: `tests/test_status_gate.py` **33 passed / 1 skipped** (`RVT_SKIP_LARGE=1`, 27 s; the skip is the
   `@slow` 6-panel e2e, which passes alone without the flag: 1 passed, 6 s); stream-local + neighbours

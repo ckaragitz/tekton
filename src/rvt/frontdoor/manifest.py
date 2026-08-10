@@ -363,7 +363,7 @@ def status_gate_lines(sg: Optional[Dict[str, Any]], *, ledger_of: str = "this bu
 def _honesty_lines(hon: Dict[str, Any]) -> List[str]:
     """The MANIFEST.md 'Honesty' section (stamps, tiers, release), every route."""
     lines = ["", "## Honesty"]
-    lines += [f"- **{s}** (a label: the file is delivered)" for s in hon.get("proof_only_stamps") or []]
+    lines += [f"- **{s}** (a label, never a refusal)" for s in hon.get("proof_only_stamps") or []]
     lines += [f"- {k}: {t}" for k, t in (hon.get("tiers") or {}).items()]
     lines.append(f"- release: {hon.get('release')}")
     return lines
