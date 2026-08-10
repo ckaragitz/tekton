@@ -34,7 +34,19 @@ from __future__ import annotations
 import importlib
 from typing import Any, MutableMapping, Optional
 
-__all__ = ["LazyModule", "lazy_import"]
+__all__ = ["ExtraNotInstalled", "LazyModule", "lazy_import"]
+
+
+class ExtraNotInstalled(ImportError):
+    """The first USE of a lazy optional extra that is not installed.  An
+    ``ImportError`` (every existing handler still catches it) whose ``name``
+    is the missing top-level module and ``hint`` the operation that needed
+    it -- so a route boundary can word its own one-line prerequisite (#127)
+    without parsing the message or digging in ``__cause__``."""
+
+    def __init__(self, msg: str, *, name: str, hint: str = ""):
+        super().__init__(msg, name=name)
+        self.hint = hint
 
 
 class LazyModule:
@@ -56,12 +68,13 @@ class LazyModule:
             try:
                 mod = importlib.import_module(self._name)
             except ImportError as e:
-                raise ImportError(
+                raise ExtraNotInstalled(
                     f"{self._name} is required here"
                     + (f" ({self._hint})" if self._hint else "")
                     + f" but is not installed: {e}. One-time fix: "
                     f"python -m pip install {self._name} "
-                    "(or run the skill's doctor --install)") from e
+                    "(or run the skill's doctor --install)",
+                    name=self._name, hint=self._hint) from e
             self._mod = mod
             # steady state: the owner's global now IS the real module
             if self._owner is not None and self._binding:

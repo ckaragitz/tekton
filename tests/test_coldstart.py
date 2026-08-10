@@ -15,12 +15,17 @@ What is proven here:
   the prompt path never exercises it (the validator's ECC tier verifies on
   its stdlib decoder, never an import-time corpse; every family's own
   report validates ok -- issue #75);
+* the IFC ROUTE's one prerequisite (numpy) is stated UP FRONT on that bare
+  interpreter -- preflight's ``routes`` / ``ifc-route`` segment, and `go
+  author --ifc` answering ONE JSON with ``go.prerequisite``, exit 3, 0 B
+  stderr, no job attempted -- while numpy present means no gate (issue #127);
 * the four skill ``_bootstrap.py`` shims stay byte-identical.
 """
 from __future__ import annotations
 
 import glob
 import hashlib
+import importlib.util
 import json
 import os
 import shutil
@@ -211,6 +216,105 @@ def test_go_usage_error(plugin_copy, workdir):
     r = _run(BARE_PY + [_bootstrap(plugin_copy), "go"], cwd=workdir)
     assert r.returncode == 2
     assert "usage" in r.stderr.lower()
+
+
+# ---------------------------------------------------------------------------
+# per-route capability: the --ifc route's prerequisite is stated UP FRONT
+# (issue #127) -- READY never precedes a guaranteed FAILED
+# ---------------------------------------------------------------------------
+
+IFC_EXAMPLE_REL = os.path.join("skills", "tekton-author", "examples",
+                               "electrical-room-2500a.ifc")
+
+# the exact probe preflight uses -- and numpy is never imported into this process
+HAVE_NUMPY = importlib.util.find_spec("numpy") is not None
+
+
+def test_preflight_states_ifc_route_needs_numpy_when_absent(plugin_copy, workdir):
+    """Bare interpreter (-I -S, no numpy): the environment IS ready (prompt
+    and rvt routes build), and the ONE line + the JSON say the ifc route
+    needs numpy and how to get it -- before any job is started."""
+    r = _run(BARE_PY + [_bootstrap(plugin_copy), "--json"], cwd=workdir)
+    assert r.returncode == 0, r.stderr[-2000:]
+    assert r.stderr == ""
+    pf = json.loads(r.stdout)
+    assert pf["ok"] is True and pf["line"].startswith("tekton: READY")
+    routes = pf["routes"]
+    assert routes["prompt"] == {"ok": True, "needs": []}
+    assert routes["rvt"] == {"ok": True, "needs": []}
+    assert routes["ifc"]["ok"] is False
+    assert routes["ifc"]["needs"] == ["numpy"]
+    assert "pip install numpy" in routes["ifc"]["fix"]
+    assert "| ifc-route needs numpy" in pf["line"]
+
+
+@pytest.mark.skipif(not HAVE_NUMPY, reason="numpy not installed in this interpreter")
+def test_preflight_states_ifc_route_ok_when_numpy_present(plugin_copy, workdir):
+    r = _run([sys.executable, "-I", _bootstrap(plugin_copy), "--json"], cwd=workdir)
+    assert r.returncode == 0, r.stderr[-2000:]
+    pf = json.loads(r.stdout)
+    assert pf["routes"]["ifc"] == {"ok": True, "needs": []}
+    assert "| ifc-route OK |" in pf["line"]
+
+
+def test_go_author_ifc_without_numpy_states_prerequisite_once(plugin_copy, workdir):
+    """`go author --ifc` on a numpy-less interpreter: ONE JSON, exit 3,
+    0 B stderr, the prerequisite named up front (go.prerequisite + a
+    relayable NOT READY line), and the job never attempted (no half-built
+    out dir, no mid-job error)."""
+    out = os.path.join(workdir, "go-ifc-nonumpy")
+    r = _run(BARE_PY + [_bootstrap(plugin_copy), "go", "author",
+                        "--ifc", os.path.join(plugin_copy, IFC_EXAMPLE_REL),
+                        "--target-version", "2025", "--out", out, "--json"], cwd=workdir)
+    assert r.returncode == 3, r.stderr[-2000:]
+    assert r.stderr == ""
+    doc = json.loads(r.stdout)                     # stdout IS one JSON object
+    g = doc["go"]
+    assert g["ready"] is False and g["exit_code"] == 3
+    assert g["prerequisite"]["route"] == "ifc" and g["prerequisite"]["needs"] == ["numpy"]
+    assert "pip install numpy" in g["prerequisite"]["fix"]
+    assert g["preflight_line"].startswith("tekton: NOT READY for --ifc")
+    assert "numpy" in g["preflight_line"]
+    assert g["preflight"]["ok"] is True             # the ENVIRONMENT is fine
+    assert doc["result"] is None
+    assert "job_seconds" not in g and not os.path.exists(out)
+
+
+def test_ifc_route_prerequisite_table_matches_the_engine(plugin_copy, workdir):
+    """Drift guard for tekton_env.ROUTE_EXTRAS: run the front door itself
+    (no `go` gate) without numpy -- it must stop on exactly that missing
+    extra, named, with the fix, in ONE JSON and 0 B stderr.  If the ifc
+    route ever goes numpy-free this turns red and the table must follow."""
+    out = os.path.join(workdir, "run-ifc-nonumpy")
+    r = _run(BARE_PY + [_bootstrap(plugin_copy), "run", "frontdoor.py", "author",
+                        "--ifc", os.path.join(plugin_copy, IFC_EXAMPLE_REL),
+                        "--target-version", "2025", "--out", out, "--json"], cwd=workdir)
+    assert r.returncode == 3, r.stderr[-2000:]
+    assert r.stderr == ""
+    res = json.loads(r.stdout)
+    assert res["route"] == "ifc" and res["ok"] is False
+    assert len(res["errors"]) == 1
+    err = res["errors"][0]
+    assert err.startswith("IFC intent failed: the --ifc route needs numpy"), err
+    assert "pip install numpy" in err
+    assert res["status"] == f"FAILED ({err})"        # whole, not cut mid-sentence
+    assert os.path.isfile(res["manifest"]["json"])   # the manifest is still delivered
+
+
+@pytest.mark.skipif(not HAVE_NUMPY, reason="numpy not installed in this interpreter")
+def test_go_author_ifc_with_numpy_is_not_gated(plugin_copy, workdir):
+    """The gate only ever fires on a MISSING extra: with numpy importable the
+    same call runs the job (go.prerequisite absent, a result present)."""
+    out = os.path.join(workdir, "go-ifc-numpy")
+    r = _run([sys.executable, "-I", _bootstrap(plugin_copy), "go", "author",
+              "--ifc", os.path.join(plugin_copy, IFC_EXAMPLE_REL),
+              "--target-version", "2025", "--out", out, "--stages", "W", "--json"],
+             cwd=workdir, timeout=900)
+    doc = json.loads(r.stdout)
+    g = doc["go"]
+    assert g["ready"] is True and "prerequisite" not in g
+    assert doc["result"] is not None and doc["result"]["route"] == "ifc"
+    assert os.path.isfile(doc["result"]["intent_json"])
 
 
 # ---------------------------------------------------------------------------

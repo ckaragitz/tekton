@@ -48,6 +48,7 @@ import time
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, NoReturn, Optional
 
+from .._lazyimp import ExtraNotInstalled
 from . import base as _base
 from . import intent as _intent
 from .base import (BaseError, BaseNotCertified, ResolvedBase, PIN,
@@ -534,6 +535,12 @@ def _route_ifc(req: AuthorRequest, out_dir: str) -> AuthorResult:
         res.intent_json = intent_json
         inputs["intent_resolver"] = ("rvt.ifc.intent (placement chains + world geometry + "
                                      "tagging-contract Pset join key)")
+    except ExtraNotInstalled as e:         # a lazy optional extra (numpy) is absent (#127):
+        # ONE sentence, and short enough to ride whole in the manifest's
+        # `FAILED (<errors[0][:160]>)` status a skill relays verbatim
+        errors.append(f"IFC intent failed: the --ifc route needs {e.name}, not installed on "
+                      f"this interpreter -- one-time fix: python -m pip install {e.name} "
+                      "(--prompt / --rvt run without it)")
     except Exception as e:                                           # noqa: BLE001
         errors.append(f"IFC intent failed: {type(e).__name__}: {e}")
 
