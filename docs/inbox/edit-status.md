@@ -145,7 +145,7 @@ from the bare unzip rc 0, `PROOF-ONLY (self-checks PASS; …)`.
 
 ## BRANCH STATE
 
-* Branch `cam/559-edit-status` from `origin/main` @ 7d04c82; one issue, one PR (`Closes #559`).
+* Branch `cam/559-edit-status` from `origin/main` @ 7d04c82, rebased onto 6250424 (#563 merged meanwhile; its `tests/test_release_ctx_refusal.py` stays green here, 12 passed); one issue, one PR #568 (`Closes #559`).
 * Files: `src/rvt/frontdoor/manifest.py` (+`_STATUS_REASON_MAX`, `_status_reason`, the two-branch roll-up), `plugin/lib/src/rvt/frontdoor/manifest.py` (sync mirror, byte-identical), NEW `tests/test_edit_status.py`, NEW `tests/ci_shard.d/559-edit-status.txt`, NEW `docs/inbox/edit-status.md`.
-* Gates: `tests/test_edit_status.py` 7 passed; `tools/sync_plugin.py` rebuilt + `--check` clean ("plugin in sync with source"); `plugin/scripts/validate_plugin.py` PASS (25 assertions); `tools/dev/check_portable_paths.py` ok; whole merged shard (`shard_list.py --print`, 93 files, `RVT_SKIP_LARGE=1 -p no:cacheprovider`): SHARD_RESULT_PLACEHOLDER.
+* Gates: `tests/test_edit_status.py` 7 passed; `tools/sync_plugin.py` rebuilt + `--check` clean ("plugin in sync with source"); `plugin/scripts/validate_plugin.py` PASS (25 assertions); `tools/dev/check_portable_paths.py` ok; whole merged shard (`shard_list.py --print`, 93 files, `RVT_SKIP_LARGE=1 -p no:cacheprovider`): **1916 passed, 134 skipped, 3 xfailed, 0 failed in 494.85 s** on head 0cb943c (an earlier run that my own mid-run rebase disturbed showed one `test_selfcheck_release` failure with mixed old/new `release_ctx.py` frames — a voided reading, re-run clean above).
 * Nothing staged for the viewer (status wording only; no `.rvt` bytes change — md5 identity ×3 above). Shipped = the wording; PROOF-ONLY / refused / unverified paths byte-identical.
