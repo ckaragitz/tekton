@@ -53,6 +53,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "lib", "src"))     # plugin layout
 from rvt import ecc  # noqa: E402
 from rvt import partitions as P  # noqa: E402
 from rvt.container import open_rvt  # noqa: E402
+from rvt.native_framing import enter_files_release  # noqa: E402
 from rvt.objects import iter_records  # noqa: E402
 
 # Streams stored with NO CRCIO paging (their parsers consume every byte).
@@ -127,30 +128,6 @@ def check_partitions(doc, stamps: bool = True) -> tuple[dict, dict]:
             {"records_checked": checked, "stamps_valid": ok, "stamp_failures": checked - ok})
 
 
-def natively_framed(doc) -> bool:
-    """True when every Partitions/<N> header already parses with the
-    container class bound in ``rvt.partitions`` right now -- a native-release
-    file: nothing to enter, nothing more to import (the common path pays
-    nothing for release awareness). Anything else -- a foreign release, a
-    damaged header -- asks the version model."""
-    try:
-        for name in doc.partition_streams():
-            P.parse_stream_header(doc.logical(name))     # raises on any other container class
-    except Exception:  # noqa: BLE001
-        return False
-    return True
-
-
-def enter_files_release(stack: contextlib.ExitStack, doc, path: str) -> str | None:
-    """Put ``path``'s own release in force on ``stack`` when it is not the
-    native one; None when nothing had to be said, else the one sentence why
-    the file is being judged without its release context."""
-    if natively_framed(doc):
-        return None
-    from rvt.frontdoor.release_ctx import enter_host_release   # foreign files only: keep the native path light
-    return enter_host_release(stack, path)     # a note, never a raise -- even for a damaged schema (#535)
-
-
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("path", help="the .rvt file to validate")
@@ -169,10 +146,11 @@ def main(argv=None) -> int:
         print(f"ERROR: cannot open as an .rvt container: {e}", file=sys.stderr)
         return 2
 
-    # walk the partitions under the FILE's own release; a file whose release
-    # cannot be entered is still checked (release-blind) and fails honestly
+    # walk the partitions under the FILE's own release (a native file enters
+    # nothing); a file whose release cannot be entered is still checked
+    # (release-blind) and fails honestly -- a note, never a raise (#535)
     with contextlib.ExitStack() as stack, doc:
-        note = enter_files_release(stack, doc, a.path)
+        note = enter_files_release(stack, doc, a.path, host=True)
         if note:
             print(f"warning: {note}", file=sys.stderr)
         gz = check_gzip(doc)

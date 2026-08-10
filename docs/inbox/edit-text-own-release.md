@@ -879,3 +879,232 @@ pin is tracked, so the `records32` rung is wired (module-referenced
   two-line shim here goes).
 * Staged vs shipped: nothing staged for the viewer; the plugin zip is a
   regenerated, git-ignored artifact.
+
+---
+
+# eng #567 (2026-08-10) — one engine-side "already natively framed?" predicate + "enter the file's own release lazily, once, note-never-raise" helper (`rvt.native_framing`); `rvt_selfcheck.py` and `rvt_inspect.py` drop their word-for-word copies (issue #567, Refs #533 / #518 / #116)
+
+Stream: `natively-framed` (eng #567, engineer session started by the
+tech-lead session). Written under this stream's own header; nothing above is
+edited (eng #560 appends its own section to this same file this wave — if
+both PRs are open at once the tech lead settles the record conflict; neither
+touches the other's lines). Territory: `src/rvt/native_framing.py` (new, 70
+lines incl. docstring) + its generated mirror `plugin/lib/src/rvt/native_framing.py`,
+`tools/rvt_selfcheck.py` + `tools/rvt_inspect.py` (the two private copies →
+one import + one call each; nothing else) + their regenerated tekton-native
+mirrors, `tests/test_natively_framed.py` + `tests/ci_shard.d/567-natively-framed.txt`,
+this section. **Untouched:** `src/rvt/global_framing.py` (see 567.1 for why the
+helper did *not* land there although the brief named it first),
+`release_ctx.py`, `src/rvt/versions/**`, `tools/rvt_edit.py` (eng #560),
+`tools/rvt_edit_text.py` (checked: it imports `enter_host_release` eagerly at
+module level and calls it unconditionally — it never carried the
+`natively_framed` copy, so it is out of scope as the brief said), both
+neighbour test files (green **unchanged** — not even the one assertion the
+issue body offered to adapt), every hot file.
+
+## 567.0 The starting point (fresh cloud clone, `origin/main` @ 4bd7ecf — #572 merged — before any change)
+
+`tools/rvt_selfcheck.py:130-151` and `tools/rvt_inspect.py:56-76` each define
+`natively_framed(doc)` (11 identical lines: `P.parse_stream_header(doc.logical(name))`
+over `doc.partition_streams()`, any exception → False) and
+`enter_files_release(stack, doc, path)` (native → None; else a lazy import +
+one call), differing only in **which ladder** the second one imports:
+selfcheck enters the authoring context `release_ctx.enter_host_release`
+(#518/#538), inspect the read-side instrument ladder
+`global_framing.enter_own_release` (#533's scope note on the issue). That
+difference is load-bearing, not cosmetic — on a 2025 copy with 64 bytes of
+`Formats/Latest` zeroed the host context cannot be built and enters *nothing*
+(selfcheck's `warning: no release context for …`, walker 1 error, FAIL —
+`test_damaged_schema_stream_still_reaches_a_verdict` asserts that sentence),
+while the instrument ladder falls to the pinned table of the release
+`BasicFileInfo` declares and the partitions then *walk*. So "make selfcheck use
+the ladder inspect uses" would change a verdict; the shared helper has to
+offer both.
+
+Baseline captured before the change (kept for the diffs in 567.2): both tools,
+repo CLI **and** as nobody from a bare unzip of the `main` zip (`env -i
+PATH=/usr/bin:/bin HOME=<scratch> python3` 3.11, `_bootstrap.py run …`), on the
+three pins + a header-zeroed and a schema-zeroed copy of each (built with
+`read_entries` → replace one stream → `write_cfb`, nothing checked in): 45
+runs, stdout / stderr / exit code / `--json` saved; `-X importtime` module sets
+for both tools on the 2026 and 2025 pins, repo and bare.
+
+## 567.1 What was built
+
+* **`src/rvt/native_framing.py`** — two functions and one import
+  (`from . import partitions as P`):
+  `natively_framed(doc) -> bool` (the 11 lines, verbatim semantics: every
+  `Partitions/<N>` header of the *open* document parses with the container
+  class bound in `rvt.partitions` *right now* → True; a foreign release or a
+  damaged header → False; never raises; no `detect_release` re-open, no schema
+  parse) and `enter_files_release(stack, doc, path, *, host=False) -> str | None`
+  (native → None, nothing entered, nothing imported; else lazily import and
+  enter **once** on the caller's `ExitStack` either
+  `global_framing.enter_own_release` — the default, the instrument ladder — or,
+  with `host=True`, `release_ctx.enter_host_release`; returns that ladder's own
+  note, never raises). `enter_own_release` / `enter_host_release` themselves are
+  untouched, so every sentence either tool prints is the one it printed before.
+* **Why its own module and not `global_framing.py`** (the brief's first
+  choice, with exactly this fallback pre-authorised): the predicate has to be
+  imported on the *native* path to be asked, so wherever it lives is one module
+  more than `main` imports — "identical module set" is unreachable by
+  construction for any shared engine home the tools did not already import
+  (`rvt`, `container`, `partitions`, `objects`, `schema`, `ecc` — none in
+  territory). The choice is therefore *which* one module. `global_framing`
+  would cost about the same today (its top level is stdlib-only, 0.19 ms), but
+  (a) the brief's rule was "`rvt.global_framing` may only be imported when the
+  predicate says foreign", and (b) the `host=True` branch would make the
+  read-side leaf lazily import `frontdoor.release_ctx` — the module whose
+  docstring says it *composes* `global_framing`, i.e. an upward import. A
+  30-line dispatcher that sits above both ladders and imports only
+  `rvt.partitions` (which anyone about to walk a partition already holds) has
+  neither problem: measured **0.14–0.16 ms** to import (`-X importtime`, repo
+  and bare), pulls 0 new stdlib modules, 0 `rvt.frontdoor.*`, and no
+  `rvt.global_framing` on the native path.
+* **The tools**: `rvt_selfcheck.py` loses lines 130-151 and gains
+  `from rvt.native_framing import enter_files_release` + `enter_files_release(stack,
+  doc, a.path, host=True)`; `rvt_inspect.py` loses lines 56-76 and gains the
+  same import + `enter_files_release(stack, doc, a.path)`. Nothing else moved
+  (both still `import contextlib` for their `ExitStack`; both still reference
+  `P.StreamWalker` through the module). Mirrors regenerated by
+  `tools/sync_plugin.py` (3 files synced: the two scripts + the new
+  `plugin/lib/src/rvt/native_framing.py`).
+* **Test** `tests/test_natively_framed.py` (16 tests after `/simplify`, 0.7 s,
+  fresh-clone safe — pins via `conftest.CERTIFIED_YEARS` / `pinned_base`;
+  damaged copies built in-test; an autouse fixture snapshots the framing table +
+  `active_release()` around every test): predicate True on the 2026 pin, False
+  and no raise on a header-zeroed copy of **each** pin, False on each foreign
+  pin bare and True again *inside* the file's own release (it reads
+  `rvt.partitions` at call time); helper on the
+  native pin with **both** ladders monkeypatched to raise → None for `host` in
+  {False, True} (provably never reached); on each foreign pin the default enters
+  the read-side ladder once (`CONTAINER_CLASS` == that year's, `active_release()`
+  still None, a `StreamWalker` constructs, restored when the stack closes) and
+  `host=True` enters the authoring context once (`active_release() == year`,
+  restored); the schema-zeroed 2025 copy → `host=True` returns `no release
+  context for <path>: …` with nothing entered, default returns `own schema
+  unreadable (…); checked against the pinned Revit 2025 framing table (the
+  release BasicFileInfo declares)` and the header then parses — the two
+  sentences the two tools print; a subprocess `import rvt.native_framing` law
+  (no `rvt.frontdoor` / `global_framing` / `versions` / `schema` / `famgen` /
+  `genesis` in `sys.modules`); and the **AST law** on both tools: no
+  `FunctionDef` named `natively_framed` / `enter_files_release`, no call of
+  `.parse_stream_header`, and the `rvt.native_framing` import present (what
+  ships is the byte-identical mirror `tests/test_plugin_sync.py` + `--check`
+  already own, so the law covers the plugin too). In the shard via
+  `tests/ci_shard.d/567-natively-framed.txt`.
+* **`/simplify`** (four review angles on the diff): applied — module docstring
+  cut from 35 to 17 lines (issue archaeology lives here, not there) and the two
+  function docstrings to what a caller needs; `typing.Any` dropped (`doc`
+  untyped, as the tools had it); two redundant test rows removed (a foreign-pin
+  `False` row subsumed by the inside-its-own-release row; a mirror byte-compare
+  duplicating `test_plugin_sync.py`), `FOREIGN_FIRST` → `CERTIFIED_YEARS` where
+  order is irrelevant, a one-caller helper inlined, the two tools' import lines
+  made identical. Skipped, with reasons: (1) "`host: bool` → accept the
+  enter-callable" — the callable would have to be imported by the *tool*, either
+  eagerly (release_ctx back on selfcheck's native path, the +40 ms of 518.1) or
+  inside a private lazy wrapper (the very copy this issue deletes); the shared
+  lazy import *is* the value, so the switch stays, named after the engine's own
+  `enter_host_release` / `host_release_context`; (2) hoisting `_rewrite_stream`
+  / `_native_constants` / `_no_leak` into `tests/conftest.py` — right, but
+  `conftest.py` is outside this territory and the hoist across all six
+  `test_*_release.py` files is already filed as **#579**; this file's copies go
+  with it. Efficiency angle: nothing — `doc.logical()` is memoised
+  (`container.py` `_logical_cache`) and the walk that follows reuses the bytes,
+  exactly as before.
+
+## 567.2 Evidence (head of this branch vs the `main` baseline of 567.0; bare unzip of the rebuilt zip, as nobody, unless stated)
+
+| what | result |
+|---|---|
+| stdout, stderr, exit code and `--json` of `run rvt_selfcheck.py <f> --json …`, `run rvt_inspect.py <f> --records 20 --classes Wall` (bare) and the same two + `rvt_inspect.py <f>` (repo CLI), for `<f>` in {`G_ABPD.rvt`, `G_ABPD_2025.rvt`, `G_ABPD_2024.rvt`, header-zeroed copy of each, `Formats/Latest`-zeroed copy of each} = 45 runs, 153 captured out/err/rc/json files, captured twice (first head and the post-`/simplify` head, each from a fresh unzip of its own rebuilt zip) | **`diff` vs `main`: 0 of 153 files differ**, both times (the only normalisation: the scratch dir name inside the `json :` line). Exit codes identical run for run: pins 0/0/0; header-zeroed 1 (selfcheck, inspect `--records`) / 0 (inspect default); schema-zeroed 1 everywhere. |
+| `-X importtime` module set, **2026 pin** (native path), repo CLI: selfcheck / inspect `--records 5` | main 113 / 114 modules (`rvt.*`: 6 / 5, `rvt.frontdoor.*`: 0 / 0) → head 114 / 115 (`rvt.*`: 7 / 6, frontdoor **0 / 0**); `comm`: only-in-head = **`rvt.native_framing`**, only-in-main = ∅ — for both tools |
+| same, bare unzip (`PYTHONPROFILEIMPORTTIME=1 … _bootstrap.py run …`) | main 129 / 130 (`rvt.*` 10 / 9) → head 130 / 131 (`rvt.*` 11 / 10), frontdoor 0 → 0; delta = `rvt.native_framing` only; its own import line: 157 µs |
+| same, **2025 pin** (foreign path), repo and bare, both tools | delta = `rvt.native_framing` only (selfcheck keeps its 5 `rvt.frontdoor.*` via the host context; inspect keeps 0); no `rvt.global_framing` on selfcheck's path, no `release_ctx` on inspect's — each ladder is imported only by the tool that enters it |
+| wall, interleaved **7+7**, two fresh bare unzips (main zip / head zip) side by side, `env -i` python3, medians (sorted runs) | `selfcheck G_ABPD.rvt`: main **118** · head **114** ms (109 115 116 118 118 119 121 · 112 113 114 114 116 116 121); `inspect … --records 20`: **174 · 172** (171 173 174 174 175 175 212 · 165 168 170 172 181 192 194); `inspect` default: **167 · 163**; `selfcheck G_ABPD_2025.rvt`: **281 · 283**; `inspect 2025 --records 20`: **228 · 232**; `selfcheck` header-zeroed 2026 copy: **156 · 153** — parity everywhere, both directions inside the run-to-run spread |
+
+**Gates:** `tests/test_natively_framed.py` 20 passed (0.84 s) on the first
+head, **16 passed** after `/simplify`; `tests/test_selfcheck_release.py` +
+`tests/test_inspect_release.py` + `tests/test_edit_text_release.py` **26 passed,
+unchanged files** (3.1 s); with `tests/test_plugin_sync.py` + mine: 51 passed
+(4.3 s); `tools/sync_plugin.py` → synced 3 files (then 2 after `/simplify`),
+deny-audit clean, validation passed, zip rebuilt (5292 KB), identity scan 0
+mismatches; `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25
+assertions); `tools/dev/check_portable_paths.py` ok (2970 tracked paths); whole
+merged shard (`shard_list.py --print`, **97 files**, `RVT_SKIP_LARGE=1 … -p
+no:cacheprovider`): **1952 passed, 134 skipped, 3 xfailed** in 8 min 10 s on
+the first head (3ae176d; the `/simplify` commit on top only trims docstrings
+and removes test rows — its stream-local + neighbour files re-run green, 51
+passed, and the 153-file output diff was re-taken: 0 differ). `/verify` (the
+`tools/rvt_*` + plugin rows, from the bare unzip as nobody): the 45 runs above;
+`head -c 65536` truncations of the 2025 / 2026 pins → selfcheck exit 1 `VERDICT
+: FAIL -> partition walker errors: 1` (2025 adds `; judged without its release
+context (no release context for …: … schema sha256 e3b0c442… but the Revit 2025
+pin is c964f9aa… …)`), inspect `--records 5` exit 1 `schema (Formats/Latest):
+unreadable (ValueError: no classes in 0 inflated bytes) …`; a text file named
+`.rvt` → exit 2 `ERROR: cannot open as an .rvt container: not an OLE2
+structured storage file` from both — and for all six of those, **head output
+`cmp` main output: identical, exit codes identical**; `tools/surface_bench.py
+--zip tekton-plugin.zip`: cowork / codeexec / local `preflight` PASS ·
+`author-prompt` PASS (2.8 / 3.6 / 3.2 s) · `go-author-prompt` PASS (2.2 / 3.2 /
+2.4 s) · `go-author-6panels` PASS (4.5 / 6.0 / 4.8 s) · `edit-roundtrip` PASS ·
+`go-edit` PASS (0.7 / 1.2 / 0.7 s; structural PASS, validation 0 errors) ·
+`validate` PASS; the one non-PASS is the pre-existing numpy-less `author-ifc`
+BLOCKED on the two bare surfaces (#553's honest classification, PR #571's
+territory), untouched here.
+
+Not claimed: no output byte of either tool changes on any input measured, so
+nothing about viewer acceptance or the SKILL text moves; `enter_own_release` /
+`enter_host_release` semantics are untouched (their other callers —
+`rvt_analyze`, `seed_audit`, `provenance`, the two edit CLIs, `rvt_job` — are
+not re-measured because they are not re-wired).
+
+## 567.3 Findings / follow-ups
+
+* **The next read-side CLI gets release awareness in two lines**
+  (`from rvt.native_framing import enter_files_release`; `note =
+  enter_files_release(stack, doc, path[, host=True])`) — the point of the
+  issue. Candidates already named on GitHub: #560's plain `rvt_edit.py info`
+  (eng #560, this wave — not touched here; if it wants the fast path it is that
+  import) and #335's gate. No new issue needed: both exist.
+* **The two *edit* CLIs still pay the eager price on a native file** — measured
+  here in-process, three runs, after importing exactly `rvt_edit_text.py`'s own
+  header modules: `from rvt.frontdoor.release_ctx import enter_host_release`
+  costs **21–24 ms** (+10 `rvt.*` modules) and `enter_host_release(stack,
+  <2026 pin>)` another **18–19 ms** (+3 modules; it re-opens the container for
+  `detect_release`, then enters nothing) — ≈ 40 ms per native
+  `rvt_edit_text.py` run for a `None`, against **0.7 ms** for
+  `natively_framed(doc)` on the document the tool has already opened. Same
+  shape as 518.1's +40 ms on selfcheck, now fixable in two lines
+  (`enter_files_release(stack, doc, path, host=True)` after `open_rvt`, import
+  moved off the module header). Not done here: `rvt_edit_text.py` carries no
+  private copy so the brief put it out of scope, and `rvt_edit.py` is eng
+  #560's this wave. Searched ("enter_host_release native fast path",
+  "rvt_edit_text latency native", "detect_release re-open"): nothing open but
+  this issue (#252 is the reader-*object* cousin — readers remembering their
+  release — not the CLI entry); filed task-shaped as **#575** (`Refs #567 #518
+  #116`, `P2 ready area:plugin good-first-pick`) with the measurement above as its evidence and
+  "stdout/stderr/output bytes identical to main on the three pins + a damaged
+  copy; bare-unzip interleaved medians before/after" as its DONE.
+
+## 567 BRANCH STATE
+
+* Branch `cam/567-natively-framed` from `origin/main` @ 4bd7ecf; one PR
+  (#577), `Closes #567`.
+* Files: `src/rvt/native_framing.py` (new) + `plugin/lib/src/rvt/native_framing.py`
+  (generated mirror), `tools/rvt_selfcheck.py` + `tools/rvt_inspect.py` (copies
+  → import + call) + `plugin/skills/tekton-native/scripts/rvt_selfcheck.py` /
+  `rvt_inspect.py` (regenerated mirrors), `tests/test_natively_framed.py` (new),
+  `tests/ci_shard.d/567-natively-framed.txt` (new), this section. Untouched:
+  `global_framing.py`, `release_ctx.py`, `versions/**`, `rvt_edit.py`,
+  `rvt_edit_text.py`, both neighbour test files, every hot file.
+* Gates: listed in 567.2 (merged shard 1952 passed / 134 skipped / 3 xfailed;
+  stream-local 16 passed; neighbours 26 passed unchanged; sync `--check` clean;
+  validate_plugin PASS; portable paths ok; output diff vs `main` 0 of 153;
+  importtime delta = `rvt.native_framing` only, 0 `rvt.frontdoor.*` on the
+  native path; interleaved 7+7 medians at parity).
+* Follow-ups filed: #575 (the two edit CLIs' native path through
+  `native_framing`, ≈ −40 ms measured). Cited, not filed twice: #579 (test
+  scaffolding into `conftest.py`), #560 / #335 (the next callers).
+* Staged vs shipped: nothing staged for the viewer (no output byte of either
+  tool changes); the plugin zip is a regenerated, git-ignored artifact.
