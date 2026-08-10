@@ -1358,7 +1358,8 @@ class Validator:
             except Exception:
                 pass
 
-        dec = _RefDecoder(schema)
+        from .objects import ObjectDecoder
+        dec = ObjectDecoder(schema)             # compiled-plan path; ids via ref_sink
         # -- index every seq-102 record file-wide ---------------------------------------
         recs102: Dict[int, Tuple[int, bytes, int]] = {}      # id -> (class, payload, unit)
         universe: Set[int] = set(self.et_ids)
@@ -1392,10 +1393,12 @@ class Validator:
         clean: Set[int] = set()
         failures: Counter = Counter()
         fail_examples: Dict[str, str] = {}
-        refs: List[Tuple[int, str, int]] = []                     # (owner, field, target)
+        n_refs = 0                                               # ElementId values read
+        dangling_owners: List[int] = []                          # owners of >= 1 dangling id
         conns: Dict[int, Dict[int, List[Tuple[int, int, int]]]] = {}
         circuits: List[Tuple[int, dict]] = []
         typed_checks: List[Tuple[int, str, int, str]] = []       # (owner, field, target, need)
+        need_of: Dict[str, Optional[str]] = {}                   # field name -> Symbol|Level|None
         sym_family: Dict[int, int] = {}                          # FamilySymbol -> m_familyId
         fam_guids: Dict[int, Set[str]] = {}                      # host Family -> famdoc GUID(s)
         inst_ids: Set[int] = set()                               # FamilyInstance-derived owners
@@ -1405,7 +1408,7 @@ class Validator:
             if limit is not None and n >= limit:
                 break
             n += 1
-            dec.refs = []
+            sink = dec.ref_sink = []                  # (field name, id) of this record
             try:
                 obj = dec.decode_record(cls, payload)
             except Exception as e:                    # decoder crash guard
@@ -1419,16 +1422,20 @@ class Validator:
                     fail_examples.setdefault(cname, f"{eid}: {obj.errors[0]['error']}")
                 continue
             clean.add(eid)
-            for path, val in dec.refs:
-                refs.append((eid, path, val))
+            n_refs += len(sink)
             v = obj.value
-            for path, val in dec.refs:
-                fname = path.rsplit(".", 1)[-1].split("[", 1)[0]
-                if isinstance(val, int) and val > 0:
-                    if fname in ("m_symbolId", "m_masterSymbolId"):
-                        typed_checks.append((eid, fname, val, "Symbol"))
-                    elif "LevelId" in fname or fname == "m_levelId":
-                        typed_checks.append((eid, fname, val, "Level"))
+            dangles = False
+            for fname, val in sink:
+                if val > 0:
+                    if fname not in need_of:
+                        need_of[fname] = _typed_need(fname)
+                    need = need_of[fname]
+                    if need is not None:
+                        typed_checks.append((eid, fname, val, need))
+                    if val not in universe:
+                        dangles = True
+            if dangles:
+                dangling_owners.append(eid)
             cm = _connector_map(v)
             if cm is not None:
                 conns[eid] = cm
@@ -1447,6 +1454,7 @@ class Validator:
                     if guids:
                         fam_guids[eid] = guids
 
+        dec.ref_sink = None
         rep.stats["elements_decoded"] = n
         n_fail = sum(failures.values())
         rep.stats["decode_failures"] = n_fail
@@ -1460,8 +1468,18 @@ class Validator:
                      f"e.g. {ex}")
 
         # -- reference integrity ---------------------------------------------------------
-        dangling = find_dangling_refs(refs, universe)
-        rep.stats["refs_checked"] = len(refs)
+        # the message names each dangling id by its exact field PATH: re-read
+        # just the owners that hold one with the path-recording walk (none on
+        # a healthy file) -- same owner order, same field order as reading all
+        dangling: List[Tuple[int, str, int]] = []
+        if dangling_owners:
+            pdec = _RefDecoder(schema)
+            for eid in dangling_owners:
+                pdec.refs = []
+                pdec.decode_record(recs102[eid][0], recs102[eid][1])
+                dangling.extend(find_dangling_refs(
+                    ((eid, path, val) for path, val in pdec.refs), universe))
+        rep.stats["refs_checked"] = n_refs
         if dangling:
             byfield = Counter(p.rsplit(".", 1)[-1].split("[", 1)[0]
                               for _o, p, _t in dangling)
@@ -1632,7 +1650,6 @@ class Validator:
         for name, rows in targets.items():
             for eid, cls, payload in rows:
                 try:
-                    dec.refs = []
                     obj = dec.decode_record(cls, payload)
                 except Exception:
                     continue
@@ -1764,11 +1781,23 @@ class _Abort(Exception):
 _REF_DECODER_CLS = None
 
 
+def _typed_need(fname: str) -> Optional[str]:
+    """What an ElementId field of this NAME must resolve to, if anything:
+    instance symbol ids -> a Symbol, level ids -> a Level/DatumPlane."""
+    if fname in ("m_symbolId", "m_masterSymbolId"):
+        return "Symbol"
+    if "LevelId" in fname or fname == "m_levelId":
+        return "Level"
+    return None
+
+
 def _RefDecoder(schema):
     """Instantiate an ObjectDecoder subclass that records every
-    ElementId-typed value with its field path (schema-driven typing, not
-    field-name guessing).  Defined lazily so importing this module does not
-    load the object decoder."""
+    ElementId-typed value with its full field PATH (``Cls.m_a->Sub.m_id[2]``).
+    The semantic layer reads ids through the plain decoder's ``ref_sink``
+    (field name only, compiled-plan speed) and re-reads with this one just
+    the records whose message needs a path.  Defined lazily so importing
+    this module does not load the object decoder."""
     global _REF_DECODER_CLS
     if _REF_DECODER_CLS is None:
         from .objects import ObjectDecoder

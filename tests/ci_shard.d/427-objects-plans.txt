@@ -1,0 +1,2 @@
+# compiled-plan decode path == reference walk on the bundled bases (fresh-clone safe)
+tests/test_objects_plans.py
