@@ -468,7 +468,11 @@ def _build_intent_inner(model: FI.IntentModel, opts: BuildOptions, R,
         want_fams = ("L" in opts.stages) and len(plans) > 0
 
         for p in (model.family_plans or []):
-            if p.status not in ("resolved", "house"):
+            if p.status == "faulted":                   # a resolver bug, not missing facts (#462)
+                res.degradations.append(
+                    f"{p.tag} ({p.kind}): NOT built -- planning FAULT: {p.refusal} (a resolver "
+                    "bug; the file is delivered without this item -- please report it)")
+            elif p.status not in ("resolved", "house"):
                 res.degradations.append(
                     f"{p.tag} ({p.kind}): NOT built -- family plan {p.status}"
                     + (f": {p.refusal}" if p.refusal else "")
