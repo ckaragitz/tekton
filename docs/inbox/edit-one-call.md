@@ -426,3 +426,304 @@ missing input, empty ops) exercised by hand — one object each, exit 2/2/1/2.
   to `main`'s).
 * Bench artefacts (not committed): `out/bench267/{before,after,np_before,np_after}_{1,2,3}.{json,md,log}`,
   scratch `flow_{before,after}_{1,2,3}.json`.
+
+---
+
+## eng #266 — 2026-08-10 — one page walk, two gates (`walk_file` shared by `verify_manipulated` + `validate_file`)
+
+Stream: `eng266` (engineer session under the tech-lead session; branch
+`cam/266-shared-gate-walk` from `main @ 6d5b82b`). Closes #266; Refs #111
+(§3 finding 5 above is where this came from), #110, #108 / S-2026-08-09-g.
+Follow-ups filed: **#427** (the validator's *semantic* layer is where the
+edit-gate time actually is), **#428** (`release_ctx` calls
+`schema.stats()["sha256"]` 4× per edit call).
+
+### 1. What was built
+
+1. **`rvt.validate.WalkedFile` + `walk_file(path)`** — the written container
+   read ONCE: raw streams, the ECC pass (syndrome verify + auto-repair → the
+   logical bytes Revit's reader sees, its findings kept per stream), gzip
+   members with their CRC32/ISIZE verdicts *and payloads* (so a first
+   member is never inflated twice), the `Partitions/<N>` block walkers and
+   per-(unit, seq) segments; every fact computed on first use and cached.
+   Its read surface is `RvtDocument`'s vocabulary (`raw` / `logical` /
+   `members` → `container.Member` / `inflate` / `concat` /
+   `partition_streams`) plus the walk, so `_primary_partition(doc)` and
+   `versions.schema_of(doc)` take it as-is (no second open of the file for
+   the schema). Two **views** of the same bytes, `view(repair=…,
+   unframed=…)` converts and shares everything already read and verified:
+   `repair=True` (the validator's — ECC-repaired logical) and `repair=False`
+   (the writer self-check's — bytes exactly as stored, `container.depage`);
+   asked for the as-stored view, a repaired walk returns *itself* when its
+   ECC pass repaired no payload bit anywhere (every file we just wrote; the
+   new `_EccStreamResult.repaired_blocks` counter says so), else a sibling
+   over the same raw + ECC caches. Reading, ECC and the gzip scan are
+   release-independent, so `walk_file()` enters no context; walkers are
+   built on first use under the release the consumer has in force (both
+   gates enter the file's own). `close()` drops every cached byte — a
+   spent walk pins several times the file's size. `_gzip_members` now *is*
+   `container._inflate_at` in a loop (one scan law, one `Member` type).
+2. **`Validator` always draws from a `WalkedFile`**: the one handed in
+   (`validate_file(path, …, walked=…)` — new *keyword-only, optional*
+   parameter; positional signature unchanged) or one it builds lazily over
+   its own open container exactly as before (per-stream, so `--layers
+   consistency` still ECC-verifies only the streams it touches). ECC
+   findings are replayed into the report the first time any layer touches a
+   stream (`_logical()`), in the same order as before; `_payload()` /
+   `_walkers()` lost their private lazy-ECC copies. One code path ⇒ the
+   report is byte-identical with or without a shared walk (§2).
+3. **`rvt.manipulate.verify_manipulated(path, …, walked=None)`** consumes a
+   walk instead of an `RvtDocument` (`walked.view(repair=False)` when handed
+   one, else `walk_file(path, repair=False)` inside its own release context
+   — standalone cost ≈ before, no ECC syndrome pass added): partition CRC
+   from the shared block walker (every block inflated once — it used to
+   inflate the primary partition twice itself: `members()` magic-scan +
+   `StreamWalker`), other framed streams from the shared member scan,
+   unframed streams not scanned (they never carry gzip; the validator never
+   scanned them either), `framing_mismatches` still on the RAW bytes of the
+   two re-emitted streams (the exact re-encode law of #395 — reused, no
+   page walk re-derived), own schema via `schema_of(walked)` (memoized parse,
+   no re-open), ElemTable/header/sentinels/stamps/edited/deleted checks
+   unchanged. Because the as-stored view of a repaired walk is a sibling,
+   not the repaired object, a CRCIO-auto-repairable flip in a file we just
+   wrote still FAILs the self-check while the validator (the calibrated
+   arbiter) keeps rating it a WARNING. `_primary_partition(doc, …)` is
+   unchanged but duck-typed: an `RvtDocument` or a `WalkedFile`.
+4. **Wiring (`run_gates` only):** `tools/rvt_job.py` `_cmd_edit` →
+   `walked = walk_file(out)` → `verify_manipulated(…, walked=walked)` →
+   `run_gates(…, walked=walked)` → `validation_gate(…, walked=walked)` →
+   `validate_file(…, walked=walked)`, then `walked.close()` (identity and
+   provenance gates run after it; nothing below needs the bytes);
+   `tools/rvt_edit.py::_gates` the same for the `--json` door. `create` / `from-ifc` (whose structural gate is
+   `commit.verify_written`, outside this territory) pass no walk and behave
+   exactly as before. Nothing else in `rvt_job.py` touched (#396 `--json`,
+   #407 descent, #418 flip: rebased on, untouched).
+5. **`tests/test_gates_shared_walk.py`** (NEW, 8 tests, fresh-clone safe:
+   bundled bases + `tmp_path`; in the shard via
+   `tests/ci_shard.d/266-shared-gate-walk.txt`): on the three pinned bases,
+   on a front-door-style set-level edit of the 2025 base, on a **hard**-
+   damaged copy (64 payload bytes destroyed in the partition's first block)
+   and on a **soft**-damaged copy (ONE payload bit flipped — inside Revit's
+   auto-repair envelope, so the shared walk carries REPAIRED bytes), the
+   `verify_manipulated` dict, `structural_gate_from_manipulated`, the full
+   validator `Report.to_json()` (minus timings) and `validation_gate` (minus
+   `elapsed_s`/`report_json`) are **identical shared vs. two independent
+   walks**; the damaged copies FAIL (hard: both gates; soft: structural
+   FAIL `crc_failures ≥ 1`, validation PASS + the auto-repairable WARNING);
+   a spy on `WalkedFile.__init__` proves neither gate walks the file again
+   when handed the shared walk (and each still does standalone); and on the
+   soft-damaged copy the self-check's `view(repair=False)` is a sibling that
+   shares the very `raw`/`ecc` objects (nothing re-read or re-verified)
+   while its logical bytes differ from the repaired ones — on a clean file
+   it is the same object.
+
+### 2. Evidence
+
+**Verdicts unchanged — gate dicts, `main @ 6d5b82b` code vs this branch
+(shared walk), same interpreter, same files** (`out/gatedump/*.json`: the
+`verify_manipulated` dict + structural gate + the *whole* validator report,
+every finding and stat + validation gate; `diff` of `json.tool --sort-keys`):
+
+| file | main vs branch(shared) | branch independent vs shared | structural / validation (errors, warnings) |
+|---|---|---|---|
+| `G_ABPD.rvt` (2026) | **0 diff lines** | identical | PASS / PASS (0, 1) |
+| `G_ABPD_2025.rvt` | **0 diff lines** | identical | PASS / PASS (0, 0) |
+| `G_ABPD_2024.rvt` | **0 diff lines** | identical | PASS / PASS (0, 0) |
+| set-level edit of the 2025 base (written by *main's* `rvt_edit.py`) | **0 diff lines** | identical | PASS / PASS (0, 0) |
+| hard-damaged copy of that edit | 2 lines: `crc_failures` 0 → **1** (see below); every validator finding identical | identical | FAIL / FAIL (3, 1) — as on main |
+| soft-damaged copy (1 payload bit) | 2 lines: `crc_failures` 0 → **1**; validator identical | identical | FAIL / PASS (0, 1) — as on main |
+
+The one field that moved is a blind spot closing, not a verdict change:
+main's `crc_failures` came from `container.members()`, whose magic-scan
+*silently skips* a gzip member whose deflate body no longer inflates
+(`_inflate_at` → None → not counted), so a destroyed block read **0**; the
+block walker (and the validator: "1/15 block gzip member(s) fail
+CRC32/ISIZE", an ERROR it always raised) count it. Both damaged copies were
+and are structural **FAIL** through `ecc_mismatches = 1` +
+`isize_identity_mismatches = 1`; now `crc_failures` says so too and agrees
+with the validator's own count. `rvt_validate` on every output above: 0
+errors (the damaged copies excepted, by construction).
+
+**Latency — measured, and honestly: within noise on the bundled bases (`go
+edit` ≈ −40 ms, ~5 %; the ops door unchanged).** Host:
+this cloud VM (4 vCPU), `/usr/bin/python3` 3.11.15 without numpy (the
+venv, numpy 2.4, reads the same ±5 %), plugin = `tekton-plugin.zip` built by
+`tools/sync_plugin.py` from `main` ("before") and this branch ("after"),
+each unzipped to a temp path with spaces, `env -i` + dead proxies.
+
+*In-process, both gates on the set-level edit output of the 2025 base
+(598,016 B), medians of 15 iterations after one warm-up, two repeats:*
+
+| code | mode | both gates | = walk + verify_manipulated + validate_file |
+|---|---|---|---|
+| main | independent (the only mode) | 474–482 ms | 0 + 60–61 + 411 |
+| branch | independent (public API, no walk passed) | 450–466 ms | 0 + 55–63 + 398–408 |
+| branch | **shared** (`walk_file` once, both gates handed it) | 451–459 ms | 18 + 48–49 + 382–386 |
+
+(An earlier cut of this branch that entered the release inside `walk_file`
+and built walkers eagerly read `walk 29–31`, total 456–484 — the simplify
+pass below removed that third `enter_own_release` and the schema re-open.)
+
+*Bare unzip, whole `go` call, alternating before/after, 10 steady-state runs
+each (first run of each tree discarded — it compiles `.pyc`), final head:*
+
+| job (system python3, bare unzip) | before: wall median (min) · in-call | after: wall median (min) · in-call |
+|---|---|---|
+| `go edit <2025 base> set-level --id 1351691 --elevation-ft 5 -o out/edited.rvt` | 0.975 s (0.910) · `seconds` 0.661 | **0.921 s** (0.896) · 0.623 |
+| `go rvt_job.py edit <2025 base> --ops ops.json -o out/edited.rvt` | 1.145 s (1.098) · `elapsed_s` 0.8 | 1.144 s (1.101) · 0.8 |
+
+(runs, s — `go edit` before 0.99 0.98 0.97 0.95 0.93 0.96 0.99 0.98 0.98 0.91,
+after 0.98 0.95 0.91 0.92 0.90 0.91 1.01 0.92 0.95 0.92; ops door before
+1.15 1.12 1.17 1.12 1.19 1.11 1.18 1.15 1.10 1.14, after 1.14 1.12 1.11 1.14
+1.10 1.15 1.15 1.15 1.11 1.16.)
+
+*`tools/surface_bench.py --zip before|after --surfaces cowork,codeexec
+--jobs go-edit,validate,go-author-prompt --python-bare python3`, 3 runs each
+alternating, medians:* §2b below.
+
+#### 2b. `tools/surface_bench.py` (the harness of record) — 6 runs per tree, before/after alternating, `--python-bare python3` (taken on the pre-simplify cut; the final head only got cheaper, §2 table)
+
+| surface | job | calls | before: median (min) s · in-call job · edit+gates · validator | after: median (min) s · in-call job · edit+gates · validator | status |
+|---|---|---|---|---|---|
+| cowork | go-edit | 1 | 1.18 (0.98) · 1.00 · 0.68 · 0.45 | 1.25 (0.99) · 1.06 · 0.70 · 0.45 | PASS / PASS |
+| codeexec (fresh extract every call) | go-edit | 1 | 1.44 (1.29) · 1.21 · 0.73 · 0.50 | 1.39 (1.25) · 1.17 · 0.73 · 0.45 | PASS / PASS |
+| cowork | go-author-prompt (untouched path; noise reading) | 1 | 3.32 (2.82) · 3.14 | 3.52 (2.72) · 3.28 | PASS / PASS |
+| codeexec | go-author-prompt | 1 | 3.41 (3.09) · 3.21 | 3.48 (3.12) · 3.27 | PASS / PASS |
+| both | validate | 1 | SKIPPED (its input is a `samples/` file, absent in a cloud clone) | SKIPPED | — |
+
+Individual runs spread 0.98–3.06 s (`go-edit`, cowork) and 2.7–4.5 s
+(`go-author-prompt`) on this VM regardless of tree — the first job of a
+fresh workroot also compiles `.pyc` (runs 1–3 ran `go-edit` first, runs 4–6
+`go-author-prompt` first). Medians move both ways by less than that spread
+and the minima agree within 0.05 s: **no job changed**. The in-call
+`validator` field of `go-edit` (rounded to 0.1 s by `rvt_edit.py`) reads
+0.5 → 0.4 on some runs only because the ~30 ms of L1 work now happens in
+`walk_file` before the validator's stopwatch starts, not because the call got
+that much faster (§2 in-process table). Raw JSON: `out/bench_{before,after}_{1..6}.json`
+(not committed).
+
+Why the premise was off (finding 5 above estimated 150–250 ms): the
+validator's ~0.4 s inside `go edit` is **not** its L1 walk. Measured split of
+`validate_file` on these files: L1 `structure` (ECC syndromes of every page +
+gzip/CRC + block walker + record walk) ≈ 40 ms, L2 ≈ 26 ms, **L3 `semantic`
+≈ 360–390 ms** (decoding all 3,328 seq-102 records against the file's own
+schema for reference/connector/typing integrity). And `verify_manipulated`
+never ran the ECC *syndrome* pass at all (only the exact re-encode of two
+streams, ~10 ms), so "the CRC/ECC/ISIZE walk twice" was really "olefile read
++ inflate twice" ≈ 10–15 ms on a 600 KB container — which is what sharing
+removes, inside the run-to-run noise (±20 ms in-process, ±60 ms wall). The
+~260 ms once attributed to `verify_manipulated` was its *cold* first call
+paying the one-per-process schema parse (`schema.parse`, memoized by digest —
+in a real job `Document.from_file` has already paid it). cProfile of one whole
+`rvt_edit.py … --json` call, cumulative: `validate_file` 1.34 s of 2.2 s
+under the profiler, of which `_layer_semantic` 1.17 s (`objects.decode_record`
+0.99 s: `_decode_class` / `_decode_field` / `_decode_scalar` / `_unpack`);
+`verify_manipulated` 0.117 s; `enter_host_release` 0.48 s (schema parse
+0.29 s once + `schema.stats()` 4 × ~6 ms → #428). **The lever the epic wants
+is the semantic decode → #427** (task-shaped, with these numbers).
+
+What the shared walk still buys, unmeasured here because the clone has no
+large projects: `verify_manipulated` used to inflate the primary partition
+**twice** on its own (magic-scan + walker) and the validator a third time;
+now it is once per job when shared (twice standalone → once + the
+validator's). On the 600 KB bases that is ~8 ms of zlib; it scales linearly
+with partition size (a 30–100 MB user project: hundreds of MB of inflate
+avoided per edit). Stated as reasoning, not evidence.
+
+Gates run this session (all with `RVT_SKIP_LARGE=1`, `.venv/bin/python -m
+pytest … -q -rs`), final head: `tests/test_gates_shared_walk.py` **8
+passed**; `tests/test_go_edit.py tests/test_edit_own_release.py
+tests/test_verify_manipulated_release.py tests/test_validate_release.py
+tests/test_ecc_final_block.py tests/test_validate_footer_blob.py
+tests/test_bare_family_validate.py tests/test_gates_shared_walk.py
+tests/test_manipulate.py tests/test_records32.py tests/test_job.py` → **179
+passed, 9 skipped (samples absent), 1 xfailed**; `tests/test_plugin_sync.py
+tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py`
+→ 28 passed, 5 skipped; the whole merged CI shard (`python3
+tools/dev/shard_list.py --print`, 68 files, on the pre-simplify cut) → 1468
+passed, 133 skipped, 3 xfailed, 2 failed = `test_plugin_sync` drift before
+the sync — re-run on the final head: see the PR body; `tools/sync_plugin.py`
+→ `--check` clean (deny-audit clean, identity scan == allowlist);
+`plugin/scripts/validate_plugin.py` PASS; `tools/dev/check_portable_paths.py`
+ok (2886 paths).
+
+`/simplify` (four review lenses) → applied: `WalkedFile` speaks
+`RvtDocument`'s vocabulary and `_gzip_members` reuses `container._inflate_at`
++ `Member`; the whole-object repair fallback became `view()` (siblings share
+raw + ECC, nothing re-read); `walk_file` no longer enters the release or
+builds walkers eagerly (−1 `enter_own_release`, walk 30 → 18 ms);
+`schema_of(walked)` instead of re-opening the file (−1 open, −2 schema
+inflates); member payloads kept so `payload()`/`inflate()` never re-inflate;
+`Validator.unit_segments` derived instead of mirrored, passthroughs and
+type-checker asserts dropped, `WalkedFile.fallback` and the unused `family=`
+parameters removed; `close()` + `run_gates` closing the spent walk so it
+does not pin ~5× the file through the identity/provenance gates. Skipped
+(noted, not argued): moving ECC findings onto `_EccStreamResult` (would
+widen into the ECC classifier for little), letting `run_gates` own the walk
+for `verify_written` too (`commit.py`, outside this territory — §4).
+
+`/verify` (the repo's verify skill — edits + validator + plugin surfaces),
+final head: `rvt_edit.py <base> set-level … --json` on all three bases →
+`ok=True`, structural PASS, validation PASS (0 errors; 2026: 1 warning, the
+base's own), "Revit N in, Revit N out", 0.59–0.65 s; `rvt_job.py edit
+<2025 base> --ops {set-level, set-mark} --json` → `PROOF-ONLY,
+NOT-DELIVERABLE (hard gates PASSED)`, structural/validation/identity PASS,
+stderr 0 B, exit 0; a `delete` and a `set-mark` on our own edit output →
+both gates PASS; `rvt_validate.py` on the four outputs + the 2025 base → `OK
+errors=0` ×5, exit 0; on a 64 KB truncation → `FAIL errors=11` with a text
+report and no traceback, exit 1; on a non-CFB file → `FAIL errors=1`, exit 1;
+on the hard/soft damaged copies → FAIL 3 errors / OK 0 errors 1 warning;
+bare unzip of the rebuilt `tekton-plugin.zip` + `/usr/bin/python3`, `env
+-i`: `go edit …` rc 0 ×3 (structural PASS | validation PASS), `go rvt_job.py
+edit … --ops` rc 0 ×3 (hard gates PASSED, validator 0 errors).
+
+### 3. Findings
+
+1. The double page-walk was real but cheap; the validator's semantic layer is
+   ~80 % of the edit gates (§2) — #427 carries the numbers and candidate cuts.
+2. `verify_manipulated`'s old `crc_failures` (container magic-scan) could not
+   see a gzip member whose deflate body was destroyed — it skipped it and
+   reported 0 (§2 damaged rows). The verdict was still FAIL through the
+   ECC/ISIZE checks, so nothing shipped wrongly, but the field under-reported;
+   it now matches the validator's block-CRC count.
+3. `release_ctx` computes full schema statistics 4× per edit call to read a
+   digest it already has as an attribute (~25 ms) — #428.
+4. Single `surface_bench` runs differ by ±0.1 s run-to-run on this VM (the
+   first job of a fresh workroot also pays `.pyc` compilation): a latency
+   claim from one before/after pair is not evidence; alternate and take
+   medians (done here; worth a line in the bench's docstring — not this
+   territory).
+
+### 4. Open questions
+
+* `commit.verify_written` (the `create` / `from-ifc` structural gate) has the
+  same shape as `verify_manipulated` and could take the same `walked=`; left
+  alone (outside this territory, and §2 says it would not be measurable on
+  the bundled bases either). Worth doing only together with #427, when the
+  validator's share drops enough for the walk to matter.
+
+## BRANCH STATE
+
+* Branch `cam/266-shared-gate-walk` from `main @ 6d5b82b`; PR closes #266.
+* Files written: `src/rvt/validate.py` (+`WalkedFile`, `walk_file`,
+  `_EccStreamResult.repaired_blocks`; `_gzip_members` over
+  `container._inflate_at`/`Member`; `Validator` draws from a walk;
+  `validate_file(..., *, walked=None)`), `src/rvt/manipulate.py`
+  (`verify_manipulated(..., walked=None)` over a walk; `_primary_partition`
+  duck-typed), `tools/rvt_job.py` (`run_gates` / `validation_gate` `walked=`
+  wiring + close, and the two lines in `_cmd_edit` that produce and pass
+  it), `tools/rvt_edit.py` (`_gates`),
+  `tests/test_gates_shared_walk.py` (NEW), `tests/ci_shard.d/266-shared-gate-walk.txt`
+  (NEW), this record section. Generated mirrors re-synced by
+  `tools/sync_plugin.py`: `plugin/lib/src/rvt/{validate,manipulate}.py`,
+  `plugin/lib/tools/{rvt_job,rvt_edit}.py`,
+  `plugin/skills/tekton-{author,edit,native}/scripts/rvt_job.py`,
+  `plugin/skills/tekton-{edit,native}/scripts/rvt_edit.py`.
+* Not touched: any hot file; `src/rvt/ecc.py` (its #395 law reused as is);
+  `commit.py`; the NO-GO files of this wave.
+* Shipped vs staged: everything above ships with the PR; nothing staged for
+  the viewer — no written byte changes (the edit outputs are byte-identical
+  to `main`'s; only how the gates *read* them changed).
+* Bench artefacts (not committed): `out/gatedump/*.{json,rvt}`,
+  `out/bench_{before,after}_{1,2,3}.json`, `out/tekton-plugin.{before,after}.zip`,
+  `out/shard_after.log`.

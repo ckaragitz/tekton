@@ -117,6 +117,14 @@ ordinals resolved by name from the file's own schema -- any release, pinned
 in ``rvt.versions.KNOWN_RELEASES`` or not) -- see its docstring; callers
 need no ``reading`` wrap.
 
+One walk, two gates (#266): a caller that runs the structural gate AND the
+validator on the file it just wrote page-walks it ONCE --
+``walked = walk_file(out)`` (read + ECC pass + inflate/CRC walk, under the
+file's own release) -- and hands the :class:`WalkedFile` to both
+``verify_manipulated(out, ..., walked=walked)`` and
+``validate_file(out, walked=walked)``; each report is what it would be
+without it.
+
 CLI: ``tools/rvt_validate.py FILE.rvt [--json out.json] [--strict]``
 (exit 0 = no errors).
 """
@@ -138,6 +146,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set,
 import olefile
 
 from . import ecc, partitions
+from .container import GZIP_MAGIC, Member, _inflate_at, depage
 from .partitions import StreamWalker, record_header_len
 
 # ---------------------------------------------------------------------------
@@ -351,6 +360,7 @@ class _EccStreamResult:
     data_bits_repaired: int = 0
     trailer_bits_repaired: int = 0
     uncorrectable_blocks: int = 0
+    repaired_blocks: int = 0        # blocks whose auto-repaired PAYLOAD bytes went downstream
 
 
 def _repair_block(block: bytearray, syn_row: Sequence[int], geom_first: int,
@@ -415,6 +425,7 @@ def ecc_verify_stream(name: str, raw: bytes, rep: Report) -> _EccStreamResult:
                 # single-bit-per-lane repairs Revit itself performs: hand the
                 # repaired page to the downstream layers (what Revit sees)
                 pages_mut[k * ecc.PAGE_STRIDE:(k + 1) * ecc.PAGE_STRIDE] = blk
+                res.repaired_blocks += bool(nd)
             # else: beyond the auto-repair envelope — the "corrections" are
             # guesses (a zeroed/foreign trailer), so keep the ORIGINAL bytes
             res.lanes_corrected += nc
@@ -451,7 +462,9 @@ def ecc_verify_stream(name: str, raw: bytes, rep: Report) -> _EccStreamResult:
                 res.data_bits_repaired += nd
                 res.trailer_bits_repaired += nt
                 _classify_block(rep, where, "final block", nc, nd, nt, unc, res)
-                if not _correctable(nd, unc):
+                if _correctable(nd, unc):
+                    res.repaired_blocks += bool(nd)
+                else:
                     blk = bytearray(tail)      # keep original bytes downstream
             out += bytes(blk[:g.data_len])
             res.pages += 1
@@ -496,38 +509,31 @@ def _classify_block(rep: Report, where: str, blk: str, nc: int, nd: int,
 # L1 — gzip members of a logical stream
 # ---------------------------------------------------------------------------
 
-_GZIP_MAGIC = b"\x1f\x8b\x08"
-
-
-def _gzip_members(logical: bytes) -> List[Tuple[int, int, int, bool]]:
-    """[(offset, consumed, inflated_len, crc_ok)] of every gzip member."""
-    out = []
+def _gzip_members(logical: bytes, payloads: Optional[List[bytes]] = None) -> List[Member]:
+    """Every gzip member of a logical stream, by ``RvtDocument.members``' scan
+    law (strict gzip -> CRC32/ISIZE verified; else raw deflate ->
+    ``crc_ok=False``; else not a member, skip the magic).  ``payloads``, when
+    given, receives each member's inflated bytes in the same order."""
+    out: List[Member] = []
     pos = 0
     while True:
-        i = logical.find(_GZIP_MAGIC, pos)
+        i = logical.find(GZIP_MAGIC, pos)
         if i < 0:
             return out
-        d = zlib.decompressobj(16 + zlib.MAX_WBITS)
-        try:
-            payload = d.decompress(logical[i:]) + d.flush()
-            consumed = len(logical) - i - len(d.unused_data)
-            out.append((i, consumed, len(payload), True))
-            pos = i + max(consumed, 1)
-        except zlib.error:
-            # not inflatable with the strict wrapper: try raw (CRC not verified)
-            d2 = zlib.decompressobj(-zlib.MAX_WBITS)
-            try:
-                payload = d2.decompress(logical[i + 10:]) + d2.flush()
-                consumed = len(logical) - i - len(d2.unused_data)
-                out.append((i, consumed, len(payload), False))
-                pos = i + max(consumed, 1)
-            except zlib.error:
-                pos = i + 1
+        r = _inflate_at(logical, i)
+        if r is None:
+            pos = i + 1
+            continue
+        payload, consumed, crc_ok = r
+        out.append(Member(len(out), i, consumed, len(payload), crc_ok))
+        if payloads is not None:
+            payloads.append(payload)
+        pos = i + max(consumed, 1)
 
 
 def _inflate_first(logical: bytes) -> Optional[bytes]:
     """Payload of the FIRST gzip member (CRC verified) or None."""
-    i = logical.find(_GZIP_MAGIC)
+    i = logical.find(GZIP_MAGIC)
     if i < 0:
         return None
     d = zlib.decompressobj(16 + zlib.MAX_WBITS)
@@ -576,6 +582,230 @@ def _iter_seg_records(seg: bytes, seq: int, unit: int) -> Iterable[_Rec]:
 
 
 # ---------------------------------------------------------------------------
+# ONE read + ONE ECC pass + ONE inflate/CRC walk of a container (#266)
+# ---------------------------------------------------------------------------
+
+class WalkedFile:
+    """A container page-walked ONCE: raw streams, the ECC pass (syndrome
+    verify + auto-repair -> the logical bytes Revit's reader sees, plus its
+    findings), gzip members with their CRC32/ISIZE verdicts and payloads,
+    and the ``Partitions/<N>`` block walkers + per-(unit, seq) segments --
+    every byte-level fact the structural gate
+    (``rvt.manipulate.verify_manipulated``) and the validator's layers both
+    need, each computed on first use and cached.  Its read surface is
+    ``rvt.container.RvtDocument``'s (``raw`` / ``logical`` / ``members`` /
+    ``inflate`` / ``concat`` / ``partition_streams``) plus the walk.
+
+    The validator builds one lazily over its open container; a front-door
+    job that runs BOTH gates on the file it just wrote builds it once with
+    :func:`walk_file` and hands the same object to both, so the file is
+    read, ECC-verified and inflated once per job, not once per gate.
+    Verdicts are identical either way: there is one code path.
+
+    Two views of the same bytes, :meth:`view` converts (sharing everything
+    already read and verified): ``repair=True`` -- the validator's --
+    :meth:`logical` is the ECC-REPAIRED stream, what Revit's reader sees
+    after CRCIO auto-repair; ``repair=False`` -- the writer self-check's --
+    :meth:`logical` is the stream exactly as stored, page trailers stripped
+    (``container.depage``).  On a file the ECC pass repairs no payload bit in
+    -- every file we just wrote -- one object serves both.
+
+    Reading, the ECC pass and the gzip scan are release-independent; block
+    walkers read the partition-framing ordinals in force, so :meth:`walker`
+    / :meth:`segments` are built on first use and must first be used under
+    the file's own release (:func:`enter_own_release`) -- both gates do.
+    """
+
+    def __init__(self, path: str, names: Sequence[str],
+                 read_raw: Optional[Callable[[str], bytes]],
+                 unframed: Iterable[str] = UNFRAMED_STREAMS, *, repair: bool = True,
+                 _shared: Optional["WalkedFile"] = None):
+        self.path = path
+        self.names: List[str] = list(names)              # stream inventory, OLE order
+        self.unframed = frozenset(unframed)              # streams with NO CRCIO paging
+        self.repair = bool(repair)
+        self._read_raw = read_raw
+        # view-independent caches (shared between views of one file)
+        self._raw: Dict[str, bytes] = _shared._raw if _shared else {}
+        self._ecc: Dict[str, _EccStreamResult] = _shared._ecc if _shared else {}
+        self._findings: Dict[str, List[Finding]] = _shared._findings if _shared else {}
+        # view-dependent caches (over self.logical)
+        self._stored: Dict[str, bytes] = {}              # de-paged as stored (repair=False)
+        self._members: Dict[str, List[Member]] = {}
+        self._payloads: Dict[str, List[bytes]] = {}      # per member, in scan order
+        self._walkers: Dict[str, Any] = {}               # StreamWalker | the Exception it raised
+        self._segments: Dict[str, Dict[Tuple[int, int], bytes]] = {}
+
+    def partition_streams(self) -> List[str]:
+        return sorted(n for n in self.names if n.startswith("Partitions/"))
+
+    def view(self, *, repair: bool,
+             unframed: Optional[Iterable[str]] = None) -> "WalkedFile":
+        """This file seen as ``repair`` / ``unframed``: ``self`` when it
+        already answers that way -- same stream shape and either the same
+        mode or, asked for the as-stored view, an ECC pass that repaired no
+        payload bit anywhere -- else a sibling view over the SAME raw
+        streams and ECC results (nothing re-read or re-verified; members and
+        walkers recomputed on use, over the other logical bytes)."""
+        shape = self.unframed if unframed is None else frozenset(unframed)
+        if shape == self.unframed and (
+                repair == self.repair
+                or (not repair and not any(self.repaired(n) for n in self.names))):
+            return self
+        return WalkedFile(self.path, self.names, self._read_raw, shape,
+                          repair=repair, _shared=self)
+
+    # -- bytes ---------------------------------------------------------------
+    def raw(self, name: str) -> bytes:
+        """The stream exactly as stored (still paged)."""
+        b = self._raw.get(name)
+        if b is None:
+            if self._read_raw is None:
+                raise KeyError(name)
+            b = self._raw[name] = self._read_raw(name)
+        return b
+
+    def ecc(self, name: str) -> Optional[_EccStreamResult]:
+        """The ECC pass of a framed stream (None for an unframed one); its
+        findings are kept for :meth:`findings`."""
+        if name in self.unframed:
+            return None
+        res = self._ecc.get(name)
+        if res is None:
+            rep = Report(self.path)
+            res = self._ecc[name] = ecc_verify_stream(name, self.raw(name), rep)
+            self._findings[name] = rep.findings
+        return res
+
+    def findings(self, name: str) -> List[Finding]:
+        """The ECC findings of ``name`` (the consumer replays them into its
+        own report once)."""
+        return self._findings.get(name, []) if self.ecc(name) else []
+
+    def repaired(self, name: str) -> bool:
+        """True when the ECC pass handed auto-repaired PAYLOAD bytes of
+        ``name`` downstream, i.e. the repaired view differs from the stream
+        as stored (never on a file we just framed)."""
+        res = self.ecc(name)
+        return bool(res is not None and res.repaired_blocks)
+
+    def logical(self, name: str) -> bytes:
+        """The logical stream of this view: ECC-repaired (``repair=True``) or
+        exactly as stored, de-paged (``repair=False``); an unframed stream:
+        as stored."""
+        if name in self.unframed:
+            return self.raw(name)
+        if self.repair:
+            return self.ecc(name).logical                # type: ignore[union-attr]
+        b = self._stored.get(name)
+        if b is None:
+            b = self._stored[name] = depage(self.raw(name))
+        return b
+
+    # -- gzip members ----------------------------------------------------------
+    def members(self, name: str) -> List[Member]:
+        """Every gzip member of the logical stream (payloads kept)."""
+        m = self._members.get(name)
+        if m is None:
+            self._payloads[name] = []
+            m = self._members[name] = _gzip_members(self.logical(name), self._payloads[name])
+        return m
+
+    def inflate(self, name: str, index: int = 0) -> bytes:
+        """Payload of gzip member ``index`` the way a reader takes it
+        (``RvtDocument.inflate``: raw-deflate fallback included); no such
+        member -> ``ValueError`` / ``IndexError``."""
+        if not self.members(name):
+            raise ValueError(f"{name!r}: no gzip members (not compressed?)")
+        return self._payloads[name][index]
+
+    def concat(self, name: str) -> bytes:
+        """All members inflated and concatenated (``RvtDocument.concat``)."""
+        self.members(name)
+        return b"".join(self._payloads[name])
+
+    def payload(self, name: str) -> Optional[bytes]:
+        """The validator's stricter question: the payload of the FIRST gzip
+        magic of the stream, CRC32/ISIZE verified -- None when the stream is
+        absent or that member does not inflate cleanly (no fallback)."""
+        if name not in self.names:
+            return None
+        m = self.members(name)
+        logical = self.logical(name)
+        if m and m[0].crc_ok and m[0].offset == logical.find(GZIP_MAGIC):
+            return self._payloads[name][0]                # the common case, no re-inflate
+        return _inflate_first(logical)
+
+    # -- partitions (release-dependent: use under the file's own release) ------
+    def walker(self, pname: str) -> StreamWalker:
+        """The block walker of a ``Partitions/<N>`` stream (inflated, data
+        kept), built on first use under the framing ordinals then in force;
+        a framing failure raises -- the same exception every call."""
+        w = self._walkers.get(pname)
+        if w is None:
+            try:
+                w = StreamWalker(self.logical(pname), inflate=True, keep_data=True)
+            except Exception as e:                       # noqa: BLE001 -- the caller words it
+                w = e
+            self._walkers[pname] = w
+        if isinstance(w, Exception):
+            raise w
+        return w
+
+    def segments(self, pname: str) -> Dict[Tuple[int, int], bytes]:
+        """``{(unit, seq): bytes}`` -- the inflated blocks of the partition
+        joined per save unit and seq, in stream order."""
+        segs = self._segments.get(pname)
+        if segs is None:
+            acc: Dict[Tuple[int, int], bytearray] = defaultdict(bytearray)
+            for b in sorted(self.walker(pname).blocks, key=lambda x: x.hdr_offset):
+                if b.data:
+                    acc[(b.unit, b.seq)] += b.data
+            segs = self._segments[pname] = {k: bytes(v) for k, v in acc.items()}
+        return segs
+
+    # -- lifetime ------------------------------------------------------------------
+    def close(self) -> None:
+        """Drop every cached byte (raw, logical, payloads, walkers, segments)
+        -- a spent walk pins several times the file's size; unusable after."""
+        for cache in (self._raw, self._ecc, self._findings, self._stored, self._members,
+                      self._payloads, self._walkers, self._segments):
+            cache.clear()
+        self._read_raw = None
+
+
+def walk_file(path: str, *, repair: bool = True) -> WalkedFile:
+    """Read ``path`` ONCE and return the :class:`WalkedFile` both gates
+    consume: every stream read (then the file is closed), the framed ones
+    ECC-verified (``repair=True``) or de-paged (``repair=False``), the gzip
+    members of the non-partition streams inflated and CRC-checked.  Block
+    walkers follow on first use, under the release the consumer has in
+    force::
+
+        walked = walk_file(out)
+        v = verify_manipulated(out, edited_ids=ids, walked=walked)
+        rep = validate_file(out, walked=walked)
+        walked.close()
+
+    Not an OLE2/CFB file -> ``ValueError``.
+    """
+    if not olefile.isOleFile(path):
+        raise ValueError(f"{path}: not an OLE2/CFB compound file")
+    ole = olefile.OleFileIO(path)
+    try:
+        names = ["/".join(p) for p in ole.listdir(streams=True, storages=False)]
+        raw = {name: ole.openstream(name.split("/")).read() for name in names}
+    finally:
+        ole.close()
+    w = WalkedFile(path, names, raw.__getitem__, repair=repair)
+    for name in names:
+        w.logical(name)
+        if not (name in w.unframed or name.startswith("Partitions/")):
+            w.members(name)
+    return w
+
+
+# ---------------------------------------------------------------------------
 # the validator
 # ---------------------------------------------------------------------------
 
@@ -584,7 +814,7 @@ class Validator:
 
     def __init__(self, path: str, layers: Iterable[str] = ALL_LAYERS,
                  decode_limit: Optional[int] = None, strict: bool = False,
-                 family: bool = False):
+                 family: bool = False, walked: Optional[WalkedFile] = None):
         self.path = path
         self.layers = tuple(l for l in ALL_LAYERS if l in set(layers))
         self.decode_limit = decode_limit
@@ -605,13 +835,24 @@ class Validator:
         self.rep = Report(path, layers=self.layers)
         self.ole: Optional[olefile.OleFileIO] = None
         self.names: List[str] = []
-        self.logical: Dict[str, bytes] = {}          # ECC-repaired logical streams
+        # the ONE read/ECC/inflate walk every layer draws from (set by _open):
+        # the caller's, seen as this validator's repaired view of its stream
+        # shape (#266), else one built lazily over self.ole
+        self._given: Optional[WalkedFile] = (
+            walked.view(repair=True, unframed=self.unframed_streams)
+            if walked is not None else None)
+        self.walked: WalkedFile
+        self._replayed: Set[str] = set()              # streams whose ECC findings are in rep
         # decoded structures shared between layers
         self.elemtable: Optional[Dict[str, Any]] = None
         self.et_ids: List[int] = []
         self.part_walkers: Dict[str, StreamWalker] = {}
-        self.unit_segments: Dict[str, Dict[Tuple[int, int], bytes]] = {}
         self.schema = None
+
+    @property
+    def unit_segments(self) -> Dict[str, Dict[Tuple[int, int], bytes]]:
+        """``{pname: {(unit, seq): bytes}}`` of every partition walked so far."""
+        return {p: self.walked.segments(p) for p in self.part_walkers}
 
     # ------------------------------------------------------------------
     def run(self) -> Report:
@@ -639,23 +880,32 @@ class Validator:
     # -- container -----------------------------------------------------------
     def _open(self) -> None:
         rep = self.rep
-        if not olefile.isOleFile(self.path):
-            rep.error(L_STRUCTURE, "container", "not an OLE2/CFB compound file")
-            raise _Abort()
-        try:
-            self.ole = olefile.OleFileIO(self.path)
-        except Exception as e:                       # pragma: no cover
-            rep.error(L_STRUCTURE, "container", f"CFB open failed: {e}")
-            raise _Abort()
-        self.names = ["/".join(p) for p in self.ole.listdir(streams=True, storages=False)]
+        if self._given is not None:
+            self.walked = self._given
+        else:                                        # nobody walked it for us: open + walk lazily
+            if not olefile.isOleFile(self.path):
+                rep.error(L_STRUCTURE, "container", "not an OLE2/CFB compound file")
+                raise _Abort()
+            try:
+                self.ole = olefile.OleFileIO(self.path)
+            except Exception as e:                       # pragma: no cover
+                rep.error(L_STRUCTURE, "container", f"CFB open failed: {e}")
+                raise _Abort()
+            ole = self.ole
+            names = ["/".join(p) for p in ole.listdir(streams=True, storages=False)]
+            self.walked = WalkedFile(self.path, names,
+                                     lambda n: ole.openstream(n.split("/")).read(),
+                                     self.unframed_streams)
+        self.names = self.walked.names
         self.rep.stats["streams"] = len(self.names)
 
-    def raw(self, name: str) -> bytes:
-        assert self.ole is not None
-        return self.ole.openstream(name.split("/")).read()
-
-    def partition_names(self) -> List[str]:
-        return sorted(n for n in self.names if n.startswith("Partitions/"))
+    def _logical(self, name: str) -> bytes:
+        """The ECC-repaired logical stream; its ECC findings join the report
+        the first time any layer touches it."""
+        if name not in self._replayed:
+            self._replayed.add(name)
+            self.rep.findings.extend(self.walked.findings(name))
+        return self.walked.logical(name)
 
     # ==================================================================
     # L1 STRUCTURE
@@ -667,22 +917,20 @@ class Validator:
         for req in self.required_streams:
             if req not in names:
                 rep.error(L_STRUCTURE, req, "expected stream is missing")
-        if not self.partition_names():
+        if not self.walked.partition_streams():
             rep.error(L_STRUCTURE, "Partitions/<N>", "no Partitions/<N> stream")
         for opt in OPTIONAL_STREAMS:
             if opt not in names:
                 rep.info(L_STRUCTURE, opt, "optional stream absent (allowed)")
 
         # -- ECC + logical extraction for every stream --------------------------
+        walked = self.walked
         pages = 0
         for name in self.names:
-            raw = self.raw(name)
-            if name in self.unframed_streams:
-                self.logical[name] = raw
-                continue
-            res = ecc_verify_stream(name, raw, rep)
-            pages += res.pages
-            self.logical[name] = res.logical
+            self._logical(name)                          # ECC findings, in stream order
+            res = walked.ecc(name)
+            if res is not None:
+                pages += res.pages
         rep.stats["pages_checked"] = pages
 
         # -- gzip members ---------------------------------------------------------
@@ -690,17 +938,17 @@ class Validator:
         for name in self.names:
             if name in self.unframed_streams or name.startswith("Partitions/"):
                 continue
-            logical = self.logical[name]
-            members = _gzip_members(logical)
+            logical = self._logical(name)
+            members = walked.members(name)
             n_members += len(members)
             if not members:
                 rep.error(L_STRUCTURE, name, "no gzip member found in framed stream")
                 continue
-            bad = [m for m in members if not m[3]]
+            bad = [m for m in members if not m.crc_ok]
             if bad:
                 rep.error(L_STRUCTURE, name,
                           f"{len(bad)}/{len(members)} gzip member(s) fail CRC32/ISIZE "
-                          f"(first bad at logical offset {bad[0][0]})")
+                          f"(first bad at logical offset {bad[0].offset})")
             # Global/* prefix constants
             if name in GLOBAL_PREFIX_VALUE and len(logical) >= 8:
                 v = struct.unpack_from("<Q", logical, 0)[0]
@@ -711,8 +959,8 @@ class Validator:
         rep.stats["gzip_members"] = n_members
 
         # -- schema stream identity (informational) --------------------------------
-        if "Formats/Latest" in self.logical:
-            sch = _inflate_first(self.logical["Formats/Latest"])
+        if "Formats/Latest" in names:
+            sch = walked.payload("Formats/Latest")
             if sch is None:
                 rep.error(L_STRUCTURE, "Formats/Latest", "schema does not inflate")
             else:
@@ -735,13 +983,12 @@ class Validator:
         # -- partitions: block framing, gzip CRC, ISIZE identity, records --------
         n_blocks = 0
         n_records = 0
-        for pname in self.partition_names():
-            logical = self.logical.get(pname, b"")
-            if len(logical) < 18:
+        for pname in self.walked.partition_streams():
+            if len(self._logical(pname)) < 18:
                 rep.error(L_STRUCTURE, pname, "partition stream too short")
                 continue
             try:
-                w = StreamWalker(logical, inflate=True, keep_data=True)
+                w = walked.walker(pname)
             except Exception as e:
                 rep.error(L_STRUCTURE, pname, f"partition header/framing: {e}")
                 continue
@@ -824,12 +1071,7 @@ class Validator:
                      "101/102/103")
 
         # -- per unit, per seq: segments, record walk, sentinels, stamps ------------
-        seg: Dict[Tuple[int, int], bytearray] = defaultdict(bytearray)
-        for b in sorted(w.blocks, key=lambda x: x.hdr_offset):
-            if b.data:
-                seg[(b.unit, b.seq)] += b.data
-        segments = {k: bytes(v) for k, v in seg.items()}
-        self.unit_segments[pname] = segments
+        segments = self.walked.segments(pname)
         n_records = 0
         stamp_bad = 0
         rep_bad = 0
@@ -880,36 +1122,19 @@ class Validator:
     # ==================================================================
     def _payload(self, name: str) -> Optional[bytes]:
         """Inflated payload of a small framed stream (from the repaired logical)."""
-        logical = self.logical.get(name)
-        if logical is None:
-            if name not in self.names:
-                return None
-            raw = self.raw(name)
-            if name in self.unframed_streams:
-                self.logical[name] = raw
-            else:
-                self.logical[name] = ecc_verify_stream(name, raw, self.rep).logical
-            logical = self.logical[name]
-        return _inflate_first(logical)
+        if name not in self.names:
+            return None
+        self._logical(name)                              # its ECC findings, once
+        return self.walked.payload(name)
 
     def _walkers(self) -> Dict[str, StreamWalker]:
         if not self.part_walkers:
-            for pname in self.partition_names():
-                logical = self.logical.get(pname)
-                if logical is None:
-                    logical = ecc_verify_stream(pname, self.raw(pname), self.rep).logical
-                    self.logical[pname] = logical
+            for pname in self.walked.partition_streams():
+                self._logical(pname)
                 try:
-                    w = StreamWalker(logical, inflate=True, keep_data=True)
+                    self.part_walkers[pname] = self.walked.walker(pname)
                 except Exception as e:
                     self.rep.error(L_CONSISTENCY, pname, f"partition walker: {e}")
-                    continue
-                self.part_walkers[pname] = w
-                seg: Dict[Tuple[int, int], bytearray] = defaultdict(bytearray)
-                for b in sorted(w.blocks, key=lambda x: x.hdr_offset):
-                    if b.data:
-                        seg[(b.unit, b.seq)] += b.data
-                self.unit_segments[pname] = {k: bytes(v) for k, v in seg.items()}
         return self.part_walkers
 
     def _layer_consistency(self) -> None:
@@ -954,8 +1179,7 @@ class Validator:
         walkers = self._walkers()
         hdr_counts = {}
         for pname in walkers:
-            logical = self.logical[pname]
-            hdr_counts[pname] = struct.unpack_from("<I", logical, 14)[0]
+            hdr_counts[pname] = struct.unpack_from("<I", self._logical(pname), 14)[0]
         if et is not None and hdr_counts:
             best = max(hdr_counts.values())
             if best != len(et["records"]):
@@ -1037,7 +1261,7 @@ class Validator:
         bfi = None
         if "BasicFileInfo" in self.names:
             try:
-                bfi = decode_basic_file_info(self.raw("BasicFileInfo"))
+                bfi = decode_basic_file_info(self.walked.raw("BasicFileInfo"))
             except Exception as e:
                 rep.error(L_CONSISTENCY, "BasicFileInfo",
                           f"BasicFileInfo does not decode: {e}")
@@ -1741,7 +1965,8 @@ def enter_own_release(stack: ExitStack, path: str) -> Optional[str]:
 
 def validate_file(path: str, layers: Iterable[str] = ALL_LAYERS,
                   decode_limit: Optional[int] = None, strict: bool = False,
-                  family: bool = False) -> Report:
+                  family: bool = False, *,
+                  walked: Optional[WalkedFile] = None) -> Report:
     """Validate a .rvt file and return the layered Report.
 
     ``strict=True`` is the "circuit-ready" gate: one-way connector links
@@ -1749,6 +1974,10 @@ def validate_file(path: str, layers: Iterable[str] = ALL_LAYERS,
     errors.  ``family=True`` applies the TWO family-shape adjustments
     (PartAtom unframed; ProjectInformation not required) for ``.rfa``/
     ``.rft`` streams sets.  Everything else is identical in all modes.
+    ``walked`` (optional, :func:`walk_file`) is the file already page-walked
+    by a caller that also runs the structural gate on it: the layers draw
+    from that one read/ECC/inflate walk instead of repeating it (#266); the
+    report is the same with or without it.
 
     The file is judged under its OWN release (:func:`enter_own_release`:
     framing ordinals + id width from its own schema, else the detected
@@ -1756,7 +1985,7 @@ def validate_file(path: str, layers: Iterable[str] = ALL_LAYERS,
     is an INFO finding at ``release``, never an exception.
     """
     v = Validator(path, layers=layers, decode_limit=decode_limit, strict=strict,
-                  family=family)
+                  family=family, walked=walked)
     with ExitStack() as stack:
         fallback = enter_own_release(stack, path)
         if fallback:

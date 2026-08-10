@@ -366,11 +366,14 @@ def structural_gate_from_manipulated(v: dict) -> dict:
 # validation gate (rvt.validate — 0 errors REQUIRED)
 # ===========================================================================
 def validation_gate(path: str, out_json: str, *, layers: Optional[List[str]] = None,
-                    strict: bool = False) -> dict:
+                    strict: bool = False, walked=None) -> dict:
+    """``walked``: the file already page-walked for the structural gate
+    (``rvt.validate.walk_file``) -- the validator draws from that one walk
+    instead of repeating it (#266); the verdict is the same without it."""
     from rvt.validate import ALL_LAYERS, validate_file
     lay = list(layers) if layers else list(ALL_LAYERS)
     t0 = time.time()
-    rep = validate_file(path, layers=lay, strict=strict)
+    rep = validate_file(path, layers=lay, strict=strict, walked=walked)
     payload = rep.to_json()
     try:
         os.makedirs(os.path.dirname(os.path.abspath(out_json)) or ".", exist_ok=True)
@@ -710,7 +713,11 @@ def _print_summary(manifest: dict) -> None:
 # the shared gate runner (structural report already computed by the mode)
 # ===========================================================================
 def run_gates(mode: str, out_path: str, base_path: Optional[str], manifest: dict, *,
-              structural: dict, args) -> int:
+              structural: dict, args, walked=None) -> int:
+    """``walked``: the ONE read/ECC/inflate walk of ``out_path`` the
+    structural gate was computed from (``rvt.validate.walk_file``), so the
+    validation gate does not page-walk the written file a second time
+    (#266); it is spent (closed) once that gate has run."""
     gates = manifest.setdefault("gates", {})
     gates["structural"] = structural
 
@@ -722,7 +729,9 @@ def run_gates(mode: str, out_path: str, base_path: Optional[str], manifest: dict
         gates["validation"] = validation_gate(
             out_path, out_path + ".validation.json",
             layers=(args.layers.split(",") if getattr(args, "layers", None) else None),
-            strict=getattr(args, "strict_validate", False))
+            strict=getattr(args, "strict_validate", False), walked=walked)
+    if walked is not None:
+        walked.close()                  # several times the file's size; nothing below needs it
 
     # -- identity ------------------------------------------------------------
     gates["identity"] = identity_gate(out_path)
@@ -1252,6 +1261,7 @@ def _cmd_edit(args, in_path: str, release_note: Optional[str]) -> int:
     from rvt import manipulate as M
     from rvt import versions as V
     from rvt.mutate import Document
+    from rvt.validate import walk_file
     t0 = time.time()
     out_path = os.path.abspath(args.out)
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
@@ -1353,14 +1363,17 @@ def _cmd_edit(args, in_path: str, release_note: Optional[str]) -> int:
 
     # ---- structural proof -------------------------------------------------
     print("[rvt_job] structural verification...", flush=True)
-    v = M.verify_manipulated(out_path, deleted_ids=deleted, edited_ids=edited + new_ids)
+    walked = walk_file(out_path)            # ONE page walk, shared by both gates (#266)
+    v = M.verify_manipulated(out_path, deleted_ids=deleted, edited_ids=edited + new_ids,
+                             walked=walked)
     structural = structural_gate_from_manipulated(v)
     if add_verify:
         structural["create_stage"] = structural_gate_from_written(add_verify, new_ids)
         if structural["create_stage"]["status"] != "PASS":
             structural["status"] = "FAIL"
 
-    return run_gates("edit", out_path, in_path, manifest, structural=structural, args=args)
+    return run_gates("edit", out_path, in_path, manifest, structural=structural, args=args,
+                     walked=walked)
 
 
 # ===========================================================================

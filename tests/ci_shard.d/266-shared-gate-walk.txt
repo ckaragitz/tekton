@@ -1,0 +1,2 @@
+# one page walk shared by both edit gates (#266): bundled bases only, tmp_path outputs
+tests/test_gates_shared_walk.py
