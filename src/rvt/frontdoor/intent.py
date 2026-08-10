@@ -74,11 +74,12 @@ def intent_from_ifc(ifc_path: str) -> IntentModel:
     """The ``--ifc`` route: resolve an authored IFC into the placement-true,
     tagging-contract-mapped intent (spec v2) -- delegation to
     :func:`rvt.ifc.intent.resolve_intent` (the ifc-room stream's resolver),
-    then the front door's own plan for kinds it generates but does not place
-    yet (wiring devices read back from ``IfcOutlet``: the same ``planned``
-    make_device plan the prompt route authors, issue #166 / #359)."""
-    from .prompt_intent import plan_planned_devices
-    return plan_planned_devices(I.resolve_intent(ifc_path))
+    then the front door's own plan for the wiring devices read back from
+    ``IfcOutlet`` (the same resolved make_device plan the prompt route
+    authors, issue #166 / #359 -- until the branch moves into the resolver's
+    ``plan_family_for``)."""
+    from .prompt_intent import plan_devices
+    return plan_devices(I.resolve_intent(ifc_path))
 
 
 def write_intent_json(model: IntentModel, path: str) -> str:
@@ -225,12 +226,17 @@ def combination_check(model: IntentModel, *, strict: bool = False,
     ``composed_base`` defaults to True: a caller that cannot vouch for the
     host's lineage gets the conservative label (a stamp never withholds).
     ``loaded_tags``: None at plan time (every buildable plan is assumed to
-    load); after the L stage pass the tags that actually loaded and the
-    verdict follows the load result (nothing loaded -> nothing placed).
+    load); after the L stage pass the tags that actually loaded (stage L's
+    ``{tag: info}`` map counts a shared device family once) and the verdict
+    follows the load result (nothing loaded -> nothing placed).
     """
     n_walls = len(model.room.walls) if model.room else 0
-    n_fam = (len(buildable_family_plans(model)) if loaded_tags is None
-             else len(set(loaded_tags)))
+    if loaded_tags is None:
+        n_fam = len(buildable_family_plans(model))
+    elif isinstance(loaded_tags, dict):           # stage L's map: shared families count once
+        n_fam = len({(v or {}).get("shared_with") or t for t, v in loaded_tags.items()})
+    else:
+        n_fam = len(set(loaded_tags))
     has_w, has_f = n_walls > 0, n_fam > 0
     n_inst = (planned_instances(model, loaded_tags)
               if ("L" in stages and "E" in stages) else 0)

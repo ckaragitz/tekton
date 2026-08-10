@@ -75,6 +75,7 @@ DEFAULT_SPECIMEN_SRC = os.path.join(ROOT, "experiments", "genesis", "R5.rvt")
 
 #: OST built-ins
 OST_ELECTRICAL_EQUIPMENT = -2001040
+OST_ELECTRICAL_FIXTURES = -2001060
 OST_WALLS = -2000011
 OST_STRUCT_COLUMNS = -2001300
 
@@ -116,9 +117,18 @@ def _constructor_for(plan: I.FamilyPlan):
         return F.make_panelboard
     if plan.constructor.endswith("make_transformer"):
         return F.make_transformer
+    if plan.constructor.endswith("make_device"):
+        return F.make_device
     if plan.constructor.endswith("make_house_switchboard"):
         return I.make_house_switchboard
     raise KeyError(f"no constructor for {plan.tag}: {plan.constructor!r}")
+
+
+def _is_device_plan(plan: I.FamilyPlan) -> bool:
+    """A wiring-device plan (``make_device``, Electrical Fixtures): ONE
+    family per distinct kwargs shared by every device, loaded after the
+    equipment families, placed like the wall gear."""
+    return bool(plan.constructor) and plan.constructor.endswith("make_device")
 
 
 def build_product(plan: I.FamilyPlan, *, start_id: int = 1000, solid: bool = True,
@@ -138,7 +148,10 @@ def build_product(plan: I.FamilyPlan, *, start_id: int = 1000, solid: bool = Tru
 
 def _family_name_for(plan: I.FamilyPlan) -> str:
     """Per-BOARD family names so each board's tag rides in its own type
-    (the Pset values as parameter VALUES on that board's family)."""
+    (the Pset values as parameter VALUES on that board's family).  A wiring
+    device is the opposite law: its name carries NO tag -- kind, rating and
+    mounting height only -- so every device with the same kwargs shares ONE
+    family + type (:func:`family_key`)."""
     kw = plan.kwargs
     if plan.constructor.endswith("make_panelboard"):
         role = {"distribution_panelboard": "Distribution Panelboard",
@@ -148,27 +161,70 @@ def _family_name_for(plan: I.FamilyPlan) -> str:
                 f"{'MB' if kw['mcb'] else 'MLO'} {int(kw['spaces'])}sp")
     if plan.constructor.endswith("make_transformer"):
         return f"Dry Type Transformer {plan.tag} {kw['kva']:g}kVA {kw['primary_v']}-{kw['secondary_v']}"
+    if _is_device_plan(plan):
+        kind = str(kw.get("kind") or "device")
+        model = str(plan.variant or "")
+        words = [" ".join(w.capitalize() for w in kind.split("-")),
+                 model[len(kind) + 1:] if model.startswith(kind + "-") else "",
+                 f"{kw.get('voltage')}V", f"{float(kw.get('va') or 0):g}VA"]
+        if kw.get("mounting_height_in") is not None:
+            words.append(f"{float(kw['mounting_height_in']):g}in AFF")
+        return " ".join(w for w in words if w)
     return f"{plan.tag} family"
+
+
+def family_key(plan: I.FamilyPlan) -> Tuple[str, str]:
+    """Plans with the same key are ONE generated family (built once, loaded
+    once; every equipment item of the key is placed on its symbol).  Boards
+    and transformers carry their tag in the family name -> one family each,
+    as before; wiring devices do not -> N receptacles, one family."""
+    if plan.constructor.endswith("make_house_switchboard"):
+        return (plan.constructor, plan.tag)
+    return (plan.constructor, _family_name_for(plan))
+
+
+def family_groups(model: I.IntentModel) -> Dict[str, List[str]]:
+    """The buildable plans grouped into FAMILIES: ``{representative tag:
+    [every tag placed on that family]}`` in plan order (:func:`family_key`
+    -- one entry per board / transformer, one shared entry per distinct
+    wiring device)."""
+    reps: Dict[Tuple[str, str], str] = {}
+    groups: Dict[str, List[str]] = {}
+    for p in model.family_plans or []:
+        if p.status not in ("resolved", "house"):
+            continue
+        rep = reps.setdefault(family_key(p), p.tag)
+        groups.setdefault(rep, []).append(p.tag)
+    return groups
 
 
 def stage_families(model: I.IntentModel, out_dir: str) -> Dict[str, Any]:
     """Write one standalone, validated, provenance-scanned .rfa per mapped
-    equipment item.  Returns the stage record."""
+    FAMILY (:func:`family_groups`: a board's own family; ONE shared device
+    family whose entry lists every device tag under ``tags``).  Returns the
+    stage record."""
     fam_dir = os.path.join(out_dir, "families")
     os.makedirs(fam_dir, exist_ok=True)
     rec: Dict[str, Any] = {"stage": "F", "families": [], "dir": _relp(fam_dir)}
+    groups = family_groups(model)
+    members = {t for tags in groups.values() for t in tags[1:]}
     for plan in model.family_plans:
         if plan.status not in ("resolved", "house"):
             rec["families"].append({"tag": plan.tag, "kind": plan.kind, "built": False,
                                     "reason": plan.refusal or f"status {plan.status}"})
             continue
+        if plan.tag in members:
+            continue                                             # rides its group's family
         try:
             prod = build_product(plan, start_id=1000)
-            stem = f"{plan.tag.lower().replace('-', '')}_{prod.file_stem}"
+            shared = len(groups[plan.tag]) > 1
+            stem = (prod.file_stem if shared
+                    else f"{plan.tag.lower().replace('-', '')}_{prod.file_stem}")
             path = os.path.join(fam_dir, f"{stem}.rfa")
             rep = prod.write(path)
             entry = {
                 "tag": plan.tag, "kind": plan.kind, "built": True,
+                **({"tags": list(groups[plan.tag])} if shared else {}),
                 "path": _relp(path), "size": os.path.getsize(path),
                 "family_name": prod.name, "constructor": plan.constructor,
                 "kwargs": plan.kwargs, "catalog": plan.catalog, "variant": plan.variant,
@@ -223,10 +279,13 @@ def host_watermark(path: str) -> int:
 # STAGE L -- LOAD our families into the certified base
 # ===========================================================================
 
-#: load order = the feeder tree top-down (source before its loads)
+#: load order = the feeder tree top-down (source before its loads), one entry
+#: per FAMILY (the representative tag of :func:`family_groups`); the shared
+#: wiring-device families load LAST, so a device family that cannot be
+#: authored can only ever cost devices, never the equipment before it
 def _load_order(model: I.IntentModel) -> List[str]:
-    plans = {p.tag: p for p in model.family_plans if p.status in ("resolved", "house")}
-    order: List[str] = []
+    groups = family_groups(model)
+    plans = {t: model.plan_for(t) for t in groups}
     # roots first: equipment whose feeder source is external (UTILITY/SERVICE)
     fed_by = {ed.target: ed.source for ed in model.feeders}
     depth: Dict[str, int] = {}
@@ -243,8 +302,23 @@ def _load_order(model: I.IntentModel) -> List[str]:
 
     for t in plans:
         dep(t)
-    order = sorted(plans, key=lambda t: (depth[t], t))
-    return order
+    return sorted(plans, key=lambda t: (_is_device_plan(plans[t]), depth[t], t))
+
+
+def n_families(loaded: Dict[str, Any]) -> int:
+    """Distinct FAMILIES in a stage-L ``loaded`` map (members of a shared
+    device family count once)."""
+    return sum(1 for d in loaded.values() if not d.get("shared_with"))
+
+
+def _loaded_group(loaded: Dict[str, Any], groups: Dict[str, List[str]], rep: str,
+                  info: Dict[str, Any]) -> None:
+    """Record family ``rep`` as loaded for EVERY tag placed on it (stage E
+    looks instances up by equipment tag; members name their family's
+    representative under ``shared_with``)."""
+    loaded[rep] = info
+    for t in groups.get(rep, [rep])[1:]:
+        loaded[t] = {**info, "shared_with": rep}
 
 
 def stage_load(model: I.IntentModel, base_rvt: str, out_dir: str, *,
@@ -256,6 +330,7 @@ def stage_load(model: I.IntentModel, base_rvt: str, out_dir: str, *,
     rec: Dict[str, Any] = {"stage": "L", "base": _relp(base_rvt), "loads": [],
                            "final": None, "blocker": None}
     order = _load_order(model)
+    groups = family_groups(model)
     current = os.path.join(out_dir, "stage_L0_base.rvt")
     shutil.copyfile(base_rvt, current)
     rec["order"] = order
@@ -294,8 +369,11 @@ def stage_load(model: I.IntentModel, base_rvt: str, out_dir: str, *,
                 rec["blocker"] = f"{tag}: {entry['blocker']}"
                 _log(f"L  {tag} FAILED: {entry['blocker']}")
                 break
-            loaded[tag] = {"symbol_id": entry["symbol_id"], "family_id": entry["family_id"],
-                           "content_guid": entry["content_guid"], "product": prod}
+            if len(groups.get(tag, ())) > 1:
+                entry["tags"] = list(groups[tag])
+            _loaded_group(loaded, groups, tag,
+                          {"symbol_id": entry["symbol_id"], "family_id": entry["family_id"],
+                           "content_guid": entry["content_guid"], "product": prod})
             current = nxt
             _log(f"L  {tag} loaded -> {os.path.basename(nxt)} (symbol {entry['symbol_id']}, "
                  f"family {entry['family_id']}, {entry['elements_added']} host elements, "
@@ -310,9 +388,8 @@ def stage_load(model: I.IntentModel, base_rvt: str, out_dir: str, *,
             break
         rec["loads"].append(entry)
     rec["loaded"] = {t: {k: v for k, v in d.items() if k != "product"} for t, d in loaded.items()}
-    rec["final"] = _relp(current) if len(loaded) == len(order) and order else (
-        _relp(current) if loaded else None)
-    rec["n_loaded"] = len(loaded)
+    rec["final"] = _relp(current) if loaded else None
+    rec["n_loaded"] = n_families(loaded)
     rec["n_planned"] = len(order)
     rec["_products"] = products          # for stage E (not json-serialised)
     rec["_loaded"] = loaded
@@ -957,8 +1034,10 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
         out_edges: Dict[str, int] = {}
         for ed in model.feeders:
             out_edges[ed.source] = out_edges.get(ed.source, 0) + 1
+        from rvt.famgen.loader import product_category
         els = []
         placed: Dict[str, Any] = {}
+        categories: Dict[int, int] = {}                   # header category -> instances
         for eq in model.equipment:
             if eq.tag not in loaded:
                 continue
@@ -966,6 +1045,7 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
             sym = int(info["symbol_id"])
             fam = info.get("family_id")
             prod = info.get("product")
+            cat = product_category(prod) if prod is not None else OST_ELECTRICAL_EQUIPMENT
             ins = eq.insertion_m
             eq_lvl, datum_ft = resolve_level(level_ids, eq.level, (lvl, lvl_z))
             pos_ft = (ins[0] * FT_PER_M, ins[1] * FT_PER_M, ins[2] * FT_PER_M)   # world
@@ -982,13 +1062,15 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
             scrub = _scrub_instance(el, doc, our_symbol=sym, our_family=fam,
                                     spec_symbol=specimens.instance_symbol,
                                     spec_category=specimens.instance_category,
-                                    category=OST_ELECTRICAL_EQUIPMENT)
+                                    category=cat)
+            categories[cat] = categories.get(cat, 0) + 1
             dangling = doc.check_references(el)
             els.append(el)
             placed[eq.tag] = el
             rec["instances"].append({
-                "tag": eq.tag, "kind": eq.kind, "elem_id": el.elem_id, "symbol": sym,
-                "family": fam, "position_ft": [round(x, 3) for x in pos_ft],
+                "tag": eq.tag, "kind": eq.kind, "category": cat, "elem_id": el.elem_id,
+                "symbol": sym, "family": fam, "shared_with": info.get("shared_with"),
+                "position_ft": [round(x, 3) for x in pos_ft],
                 "position_m": [round(x, 4) for x in ins],
                 "level": eq.level, "level_id": eq_lvl,
                 "z_above_level_ft": round(pos_ft[2] - datum_ft, 3),
@@ -997,7 +1079,7 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                 "scrub": scrub, "dangling_refs": dangling[:16],
                 "n_dangling": len(dangling), "notes": el.notes,
             })
-            _log(f"E  {eq.tag:5s} elem {el.elem_id} symbol {sym} at "
+            _log(f"E  {eq.tag:5s} elem {el.elem_id} symbol {sym} cat {cat} at "
                  f"{[round(x,2) for x in pos_ft]} ft on level {eq_lvl} {eq.frame_kind} "
                  f"(dangling refs {len(dangling)}, dropped rows {scrub['param_rows_dropped']})")
         # the feeder CIRCUITS, wired onto the just-placed boards pre-serialise
@@ -1020,25 +1102,30 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
         ver = verify_written(out_path, ids)
         rec.update(_commit_summary(crep, ver, ids))
         rec["ok"] = bool(rec["structurally_valid"])
+        rec["instances_by_category"] = {str(k): v for k, v in sorted(categories.items())}
         rec["seconds"] = round(time.time() - t0, 1)
         rec["notes"] = [
             "placement = FREE-STANDING at the intent's insertion point with the intent's "
-            "full frame (wall panels stand upright via an explicit 3x3; the free-standing "
-            "wall-family precedent = the certified V23..V29 clones); FACE-HOSTING on the "
-            "created walls (rvt.hosting SketchPlane recipe, certified H2) is the fidelity "
-            "follow-up",
+            "full frame (wall panels AND wiring devices stand upright via an explicit 3x3, "
+            "the family XY on the wall's interior face; the free-standing wall-family "
+            "precedent = the certified V23..V29 clones); FACE-HOSTING on the created walls "
+            "(rvt.hosting SketchPlane recipe, certified H2 / rvt.mep.devices dummy planes) "
+            "is the fidelity follow-up",
             "each instance points at OUR loaded symbol (symbol == masterSymbol) with OUR "
-            "connector set (+ one 50000-series slot per outgoing feeder)",
+            "connector set (+ one 50000-series slot per outgoing feeder); devices sharing "
+            "one family point at the SAME symbol",
             f"feeder circuits in the SAME commit: {len(rec['circuits'])} RbsElectricalSystem "
             f"(template {rec.get('circuit_template')}), {len(rec['circuits_skipped'])} skipped"
             + ("" if circuits else f" -- {CIRCUITS_NOT_REQUESTED_REASON} (circuits=False)")
             + (f" -- blocker: {rec['circuits_blocker']}" if rec.get("circuits_blocker") else ""),
             f"specimen scaffolding: instance {tpl} (category {specimens.instance_category}) "
             f"cloned from the base's certified ancestor "
-            f"{os.path.basename(specimens.source_path)}; header category patched to "
-            f"Electrical Equipment ({OST_ELECTRICAL_EQUIPMENT}), specimen-symbol refs "
-            "repointed, param rows keyed by other-document ParamElems dropped, "
-            "structural-analysis leftovers reset (per-instance scrub log recorded)",
+            f"{os.path.basename(specimens.source_path)}; header category patched to each "
+            f"instance's OWN family category ({rec['instances_by_category']}: "
+            f"{OST_ELECTRICAL_EQUIPMENT} Electrical Equipment / {OST_ELECTRICAL_FIXTURES} "
+            "Electrical Fixtures), specimen-symbol refs repointed, param rows keyed by "
+            "other-document ParamElems dropped, structural-analysis leftovers reset "
+            "(per-instance scrub log recorded)",
         ]
         return rec, out_path if rec["ok"] else None
     except Exception as e:

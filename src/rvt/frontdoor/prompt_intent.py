@@ -60,7 +60,7 @@ from ..ifc import intent as I
 __all__ = [
     "PromptError", "PromptItem", "PromptRoom", "ParsedPrompt", "PromptCoverage",
     "parse_prompt", "layout_room", "prompt_to_intent", "scene_brief",
-    "write_handoff", "handoff_instructions_path", "plan_planned_devices", "FT_PER_M",
+    "write_handoff", "handoff_instructions_path", "plan_devices", "FT_PER_M",
 ]
 
 FT_PER_M = 3.280839895013123
@@ -108,9 +108,10 @@ _KIND_PATTERNS: List[Tuple[str, str, str]] = [
      r"(?:dry[\s-]*type\s+)?(?:step[\s-]*(?:down|up)\s+)?transformers?|(?P<abbr>\bxfmrs?\b)"),
     ("panelboard", "PP",
      r"panel\s*boards?|(?:electrical\s+|branch\s+)?panels?"),
-    # WIRING DEVICES (Electrical Fixtures, issue #166): our make_device family;
-    # planned + laid out at the ADA/NEC height, NOT yet loaded/placed by the
-    # room build (issue #359) -- said in coverage + the family plan, never dropped
+    # WIRING DEVICES (Electrical Fixtures, issue #166): our make_device family,
+    # laid out at the ADA/NEC height on the west/east interior faces; the room
+    # build loads ONE shared family per (kind, V, VA, height) and places every
+    # device on it (issue #359)
     ("receptacle_device", "R",
      r"(?:duplex\s+|convenience\s+|quad\s+|gfci\s+|general[\s-]*purpose\s+)?"
      r"(?:receptacles?|(?:power\s+|wall\s+)?outlets?)(?!\s+panel)"),
@@ -118,11 +119,6 @@ _KIND_PATTERNS: List[Tuple[str, str, str]] = [
 
 #: kinds that carry a MOUNTING HEIGHT attribute ('at 18 in AFF') in their clause
 _AFF_KINDS = ("receptacle_device",)
-
-#: kinds our factory GENERATES (family plan + layout) but the room build does
-#: not load / place yet: kind -> the issue that owns the placement (wording only)
-PLANNED_ONLY_KINDS = {"receptacle_device": "issue #359 (front door loads + places "
-                                           "Electrical Fixtures)"}
 
 #: recognised but NOT in the model build path today (coverage honesty)
 _UNBUILT_PATTERNS: List[Tuple[str, str]] = [
@@ -1051,10 +1047,10 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                    "reason": ("recognised, but this kind is outside today's model build "
                               "path (recorded in the intent, NOT modelled). Luminaires: "
                               "our make_luminaire family exists but the room build "
-                              "places electrical EQUIPMENT only (issue #150); conduit / "
-                              "doors belong to the conduit / hosting streams. (Receptacles "
-                              "are no longer here: they are parsed, planned and laid out "
-                              "as 'receptacle_device' equipment.)")}
+                              "places electrical equipment + wiring devices only (issue "
+                              "#150); conduit / doors belong to the conduit / hosting "
+                              "streams. (Receptacles are no longer here: they are parsed, "
+                              "laid out, loaded and placed as 'receptacle_device' equipment.)")}
             unbuilt.append(rec)
             cov.not_built.append(rec)
 
@@ -1522,11 +1518,12 @@ def _default_feeders(parsed: ParsedPrompt, equipment: List[I.Equipment]) -> List
 def _plan_device(eq: I.Equipment) -> I.FamilyPlan:
     """The family plan of a wiring device, shaped like every branch of
     ``rvt.ifc.intent.plan_family_for`` (kwargs from the equipment's own
-    contract / schedule pset, then a ``_resolve_*_facts`` step) so #359 can
-    move the pair there verbatim.  Until then the plan ships ``planned`` --
-    generated + loadable unplaced, NOT loaded / placed by the room build
-    (:data:`PLANNED_ONLY_KINDS`) -- said on the plan so the manifest's
-    degradations name the follow-up instead of a refusal."""
+    contract / schedule pset, then a ``_resolve_*_facts`` step) so the pair
+    can move there verbatim.  A resolved plan is ``buildable_family_plans``
+    material: the room build generates ONE family per distinct kwargs (every
+    device of a job normally shares it -- ``tools/ifc_intent.family_key``),
+    loads it with the Electrical Fixtures category and places one instance
+    per device (issue #359)."""
     dev = (eq.psets or {}).get(DEVICE_PSET) or {}
     volt = (I.parse_voltage(dev.get("Voltage")) or {}).get("ll")
     kwargs = dict(kind=DEFAULT_DEVICE_KIND, mounting_height_in=dev.get("MountingHeight"),
@@ -1536,24 +1533,17 @@ def _plan_device(eq: I.Equipment) -> I.FamilyPlan:
     fp = I.FamilyPlan(tag=eq.tag, kind=eq.kind, constructor="rvt.famgen.factory.make_device",
                       kwargs=kwargs, dims_modeled_m=dims_mod)
     _resolve_device_facts(fp)
-    if fp.status == "resolved":
-        fp.status = "planned"
-        fp.refusal = ("not a refusal: make_device generates it (VALID) and it loads unplaced "
-                      "(tools/make_family.py load-device); this route does not load/place "
-                      "Electrical Fixtures yet -- " + PLANNED_ONLY_KINDS["receptacle_device"])
     return fp
 
 
-def plan_planned_devices(model: I.IntentModel) -> I.IntentModel:
+def plan_devices(model: I.IntentModel) -> I.IntentModel:
     """Give every wiring device of ``model`` (prompt-built OR read back from
     an IFC's ``IfcOutlet`` + DeviceSchedule pset) the SAME family plan the
     prompt route authors (:func:`_plan_device`: constructor ``make_device``,
-    status ``planned``, the #359 pointer) in place of the resolver's generic
-    ``unmapped`` -- so disposition, plan and the manifest's degradation line
-    agree on both routes until #359 moves the branch into ``plan_family_for``.
-    A 'planned' plan is not ``buildable_family_plans`` material, so it never
-    enters (or sheds real equipment from) the batched load.  In place;
-    returns ``model``."""
+    catalog facts, status ``resolved``) in place of the resolver's generic
+    ``unmapped`` -- so disposition and plan agree on both routes until the
+    branch moves into ``rvt.ifc.intent.plan_family_for``.  In place; returns
+    ``model``."""
     devices = [e for e in (model.equipment or []) if e.kind == "receptacle_device"]
     if not devices:
         return model
@@ -1565,8 +1555,7 @@ def plan_planned_devices(model: I.IntentModel) -> I.IntentModel:
             plans[by_tag[eq.tag]] = fp
         else:
             plans.append(fp)
-        eq.disposition = ("generated-family (make_device); NOT loaded/placed by this route yet -- "
-                          + PLANNED_ONLY_KINDS[eq.kind])
+        eq.disposition = "generated-family"
     model.family_plans = plans
     if isinstance(model.audit, dict) and "family_plans" in model.audit:
         model.audit["family_plans"] = {p.tag: p.status for p in plans}
@@ -1658,7 +1647,7 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
                               "authored from the prompt, not surveyed)")
         eq.notes.append(f"dims {it.dims_source}")
         eq.fed_from = con.get("FedFrom") or it.fed_from
-        eq.disposition = "generated-family"          # devices: plan_planned_devices() below
+        eq.disposition = "generated-family"
         equipment.append(eq)
 
     # ---- room shell ---------------------------------------------------------
@@ -1759,7 +1748,7 @@ def prompt_to_intent(prompt: str) -> Tuple[I.IntentModel, ParsedPrompt]:
         "Psets, and the file re-enters through --ifc; this fallback exists so the front "
         "door WORKS with no external model call and no API key",
     ]
-    plan_planned_devices(model)             # devices: OUR make_device plan, 'planned' (#359)
+    plan_devices(model)                     # devices: OUR make_device plan (catalog facts)
     return model, parsed
 
 

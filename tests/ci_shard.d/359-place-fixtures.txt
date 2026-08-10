@@ -1,0 +1,2 @@
+# issue #359: front door loads + places Electrical Fixtures (bundled base + catalog only)
+tests/test_place_fixtures.py

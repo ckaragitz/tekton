@@ -219,21 +219,7 @@ def survey_host(host_rvt: str = DEFAULT_HOST, *,
         raise LoaderError(f"expected one partition stream, got {parts}")
     ctx = HostContext(path=host_rvt, doc=doc, fidx=fidx, watermark=wm,
                       episode=int(episode), partition_name=parts[0],
-                      category=int(category))
-    # category projection GStyle: the GStyleElem whose object m_categoryId
-    # == category and m_gstyleType == 1 (projection)          [V id 124 on rme]
-    best = None
-    for gid in doc.ids_of_class("GStyleElem"):
-        v = doc.value(gid) or {}
-        if v.get("m_categoryId") == category:
-            if v.get("m_gstyleType") == 1:
-                best = gid
-                break
-            best = best or gid
-    ctx.category_gstyle = best if best is not None else INVALID
-    if best is None:
-        ctx.notes.append(f"no host GStyleElem for category {category}: "
-                         "symbol geometry falls back to m_categoryId -1")
+                      category=INVALID)
     # named load classifications
     for lid in doc.ids_of_class("ElectricalLoadClassification"):
         v = doc.value(lid) or {}
@@ -245,22 +231,58 @@ def survey_host(host_rvt: str = DEFAULT_HOST, *,
     lps = sorted(doc.ids_of_class("LinePatternElem"))
     ctx.fill_pattern_solid = fps[0] if fps else INVALID
     ctx.line_pattern_solid = lps[0] if lps else INVALID
-    # levels + a specimen instance of the category (placement scaffolding)
     ctx.levels = doc.levels()
-    inst_by_cat = None
+    return bind_category(ctx, category)
+
+
+def bind_category(ctx: HostContext, category: int) -> HostContext:
+    """``ctx`` bound to ``category``: the category's projection
+    ``GStyleElem`` and a specimen instance of it (placement scaffolding)
+    resolved on the SAME surveyed host -- a new context (``ctx`` untouched)
+    unless ``ctx`` is already bound to ``category``.  The batched loader
+    binds one per distinct family category (a fixtures family among
+    equipment families must not inherit the equipment category on its
+    surrogates / symbol header / tracking rows)."""
+    category = int(category)
+    if ctx.category == category:
+        return ctx
+    doc = ctx.doc
+    notes = [n for n in ctx.notes if not n.startswith("no host ")]
+    # category projection GStyle: the GStyleElem whose object m_categoryId
+    # == category and m_gstyleType == 1 (projection)          [V id 124 on rme]
+    best = None
+    for gid in doc.ids_of_class("GStyleElem"):
+        v = doc.value(gid) or {}
+        if v.get("m_categoryId") == category:
+            if v.get("m_gstyleType") == 1:
+                best = gid
+                break
+            best = best or gid
+    if best is None:
+        notes.append(f"no host GStyleElem for category {category}: "
+                     "symbol geometry falls back to m_categoryId -1")
+    # a specimen instance of the category (placement scaffolding)
+    tpl, tpl_host = INVALID, INVALID
     for iid in doc.ids_of_class("FamilyInstance"):
         if doc.category_of(iid) == category:
-            inst_by_cat = iid
+            tpl = iid
+            h = (doc.value(iid) or {}).get("m_hostId", INVALID)
+            tpl_host = h if isinstance(h, int) else INVALID
             break
-    if inst_by_cat is not None:
-        ctx.template_instance = inst_by_cat
-        hv = doc.value(inst_by_cat) or {}
-        h = hv.get("m_hostId", INVALID)
-        ctx.template_host = h if isinstance(h, int) else INVALID
-    else:
-        ctx.notes.append(f"no host FamilyInstance of category {category}: "
-                         "placement scaffolding unavailable (family loads unplaced)")
-    return ctx
+    if tpl == INVALID:
+        notes.append(f"no host FamilyInstance of category {category}: "
+                     "placement scaffolding unavailable (family loads unplaced)")
+    return replace(ctx, category=category,
+                   category_gstyle=best if best is not None else INVALID,
+                   template_instance=tpl, template_host=tpl_host, notes=notes)
+
+
+def product_category(product, default: int = CAT_ELECTRICAL_EQUIPMENT) -> int:
+    """The built-in category a product's own family document declares
+    (``FamilyDoc.category_id``) -- what its host surrogates / symbol header /
+    ElementTrackingData row must carry; ``default`` for a product without one."""
+    cat = getattr(getattr(product, "doc", None), "category_id", None)
+    return int(cat) if isinstance(cat, int) and cat < 0 else int(default)
 
 
 # ---------------------------------------------------------------------------
@@ -1412,6 +1434,7 @@ class _AuthoredLoad:
     unit: dict                            # factory.build_family_save_unit(...)
     proofs: Dict[str, Any]
     elements_json: List[dict]
+    category: int = CAT_ELECTRICAL_EQUIPMENT   # the family's category (its tracking row)
 
     @property
     def max_host_id(self) -> int:
@@ -1451,7 +1474,8 @@ def _author_load(product, host: HostContext, *, place: bool, symbol_solid: bool,
                      "symbol_surrogates": list(plan.symbol_surrogate_ids),
                      "instance": plan.instance_id, "twins": len(plan.twin_of)},
         "type_names": list(plan.type_names),
-        "resolved": {"category_gstyle": host.category_gstyle,
+        "resolved": {"category": host.category,
+                     "category_gstyle": host.category_gstyle,
                      "load_classification": {"name": plan.load_class_name,
                                              "host_id": plan.load_class_host},
                      "core_ids": plan.core_ids,
@@ -1504,7 +1528,7 @@ def _author_load(product, host: HostContext, *, place: bool, symbol_solid: bool,
                       "rep": ("GElement" if e.rep is not None else "SerializedDummy"),
                       "notes": list(e.notes)} for e in els]
     return _AuthoredLoad(plan=plan, elements=els, adocument=ad, unit=unit,
-                         proofs=proofs, elements_json=elements_json)
+                         proofs=proofs, elements_json=elements_json, category=host.category)
 
 
 def _framed_load_records(loads: Sequence[_AuthoredLoad], encode_record):
@@ -1558,13 +1582,14 @@ def _load_family_into_project(host_rvt: str, out_path: Optional[str],
                               circuit_slots: int, report_path: Optional[str],
                               validate: bool) -> LoadResult:
     from . import factory as F
-    host = survey_host(host_rvt)
     if product is None:
+        host = survey_host(host_rvt)
         product = F.make_panelboard(vendor="eaton", line="pow-r-line",
                                    mains_a=400, spaces=42, voltage="480Y/277",
                                    mcb=True, mounting="surface",
                                    solid=True, start_id=host.watermark + 1)
     else:
+        host = survey_host(host_rvt, category=product_category(product))
         _require_ids_above(product, host.watermark)
     authored = _author_load(product, host, place=place, symbol_solid=symbol_solid,
                             circuit_slots=circuit_slots)
@@ -1727,11 +1752,15 @@ def _load_families_into_project(host_rvt: str, out_path: str, products: List[Any
     authored: List[_AuthoredLoad] = []
     auth_failure = ""                    # why the first un-authorable family failed
     cursor = int(host.watermark)
+    bound = {host.category: host}        # one category binding per distinct family category
     for i, item in enumerate(products):
         try:
             product = item(cursor + 1) if callable(item) else item
             _require_ids_above(product, cursor)
-            a = _author_load(product, replace(host, watermark=cursor),
+            cat = product_category(product)
+            if cat not in bound:
+                bound[cat] = bind_category(host, cat)
+            a = _author_load(product, replace(bound[cat], watermark=cursor),
                              place=False, symbol_solid=symbol_solid, circuit_slots=0)
         except Exception as exc:                                  # noqa: BLE001
             auth_failure = f"family {i + 1}/{len(products)}: {type(exc).__name__}: {exc}"
@@ -1809,7 +1838,7 @@ def _edit_host_registries(host_rvt: str, host: HostContext,
     regs = []
     for i, a in enumerate(authored):
         try:
-            regs.append(register_in_host_adocument(lv, a.plan, category=host.category,
+            regs.append(register_in_host_adocument(lv, a.plan, category=a.category,
                                                    unit_records=int(a.unit["record_count"])))
         except Exception as exc:                                  # noqa: BLE001
             raise _FamilyStepError(i, f"host ADocument registration failed: "

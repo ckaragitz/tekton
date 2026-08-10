@@ -907,9 +907,9 @@ def test_prompted_receptacles_round_trip_through_our_ifc_as_outlets(tmp_path):
     """prompt -> OUR IFC -> re-entry (#166 review): a wiring device is emitted
     as an honest ``IfcOutlet`` (POWEROUTLET) with its DeviceSchedule pset --
     never coerced into a fifth distribution board -- and reads back as
-    ``receptacle_device`` with the SAME planned make_device plan (kwargs from
-    the pset), the panel unaffected.  A no-device intent emits byte-for-byte
-    what it did before devices existed (same product / pset lines)."""
+    ``receptacle_device`` with the SAME resolved make_device plan (kwargs from
+    the pset, #359), the panel unaffected.  A no-device intent emits
+    byte-for-byte what it did before devices existed (same product / pset lines)."""
     from rvt.frontdoor.ifc_out import write_intent_ifc
     model, _ = PP.prompt_to_intent("an electrical room with a 100 A lighting panel "
                                    "and 4 duplex receptacles at 44 in AFF")
@@ -921,17 +921,17 @@ def test_prompted_receptacles_round_trip_through_our_ifc_as_outlets(tmp_path):
     back = FI.intent_from_ifc(path)
     summ = FI.summarize(back)
     assert summ["equipment_by_kind"] == {"lighting_panelboard": 1, "receptacle_device": 4}
-    assert summ["family_plans_by_status"] == {"resolved": 1, "planned": 4}
+    assert summ["family_plans_by_status"] == {"resolved": 5}
     lp = back.plan_for("LP-1")
     assert lp.status == "resolved" and lp.constructor.endswith("make_panelboard")
     for tag in ("R-1", "R-2", "R-3", "R-4"):
         eq, pl = back.by_tag(tag), back.plan_for(tag)
         assert eq.ifc_class == "IfcOutlet" and eq.frame_kind == "upright"
         assert abs(eq.insertion_m[2] - 44 * 0.0254) < 1e-3              # the AFF height survives
-        assert pl.constructor.endswith("make_device") and pl.status == "planned"
+        assert pl.constructor.endswith("make_device") and pl.status == "resolved"
         assert pl.kwargs == {"kind": "duplex-receptacle", "mounting_height_in": 44.0,
                              "voltage": "120", "va": 180.0}
-        assert "#359" in (pl.refusal or "") and eq.disposition.startswith("generated-family")
+        assert pl.refusal is None and eq.disposition == "generated-family"
     # a device-free intent: the equipment / pset lines are exactly the pre-#166 shape
     plain, _ = PP.prompt_to_intent("an electrical room with a 100 A lighting panel")
     ptxt = open(write_intent_ifc(plain, str(tmp_path / "plain.ifc")), encoding="ascii").read()
@@ -940,14 +940,14 @@ def test_prompted_receptacles_round_trip_through_our_ifc_as_outlets(tmp_path):
 
 
 @needs_catalog
-def test_e2e_prompted_receptacles_are_delivered_as_planned_devices(tmp_path):
-    """Issue #166's DONE prompt through the product path.  Electrical Fixtures
-    GENERATE (make_device) and load unplaced, but the front door does not load
-    or place the category yet (issue #359) -- so the job is DELIVERED (rule 1):
-    exit ok, the room's walls on the pinned base (project validator 0 errors),
-    the 4 receptacles as `receptacle_device` equipment planned with make_device
-    at the facts' 18 in AFF, and one degradation line per device naming the
-    follow-up -- never a not_built shrug, never a fake instance."""
+def test_e2e_prompted_receptacles_are_loaded_and_placed(tmp_path):
+    """Issue #359's DONE prompt through the product path: the 4 receptacles are
+    ONE generated Electrical Fixtures family (make_device, catalog facts),
+    LOADED once and PLACED four times at the facts' 18 in AFF on the room's
+    level -- the open cell, so the ONE combined file is delivered STAMPED
+    (rule 1), project validator 0 errors, no degradation, one schedule row per
+    device.  (Byte-level readback + the mixed / failure / strict cases live
+    in tests/test_place_fixtures.py.)"""
     if not os.path.isfile(PINNED[2026]):
         pytest.skip("bundled genesis base missing")
     r = FD.author(prompt="a room with 4 duplex receptacles", out=str(tmp_path / "rc"),
@@ -957,24 +957,34 @@ def test_e2e_prompted_receptacles_are_delivered_as_planned_devices(tmp_path):
     man = r.manifest
     summ = man["intent"]["summary"]
     assert summ["equipment_by_kind"] == {"receptacle_device": 4}
-    assert summ["family_plans_by_status"] == {"planned": 4}
+    assert summ["family_plans_by_status"] == {"resolved": 4}
     assert {p["constructor"] for p in summ["family_plans"]} == {"make_device"}
     assert {round(e["insertion_m"][2], 3) for e in summ["equipment"]} == {0.457}
     assert man["prompt_coverage"]["not_built"] == []
     build = man["build"]
-    assert build["errors"] == []
+    assert build["errors"] == [] and build["degradations"] == []
     v = build["combination_verdict"]
-    assert v["mode"] == "single" and v["n_instances"] == 0 and v["n_walls"] == 4
-    kinds = [c["kind"] for c in build["elements_created"]]
-    assert kinds == ["wall"] * 4                     # no instance is faked
-    degr = build["degradations"]
-    assert len([d for d in degr if "receptacle_device" in d and "#359" in d]) == 4
-    combined = build["files"]["combined"]["path"]
-    assert os.path.isfile(combined)
+    assert (v["mode"], v["n_walls"], v["n_loaded_families"], v["n_instances"]) == (
+        "stamp-proof-only", 4, 1, 4)
+    assert v["stamp"] == FI.OPEN_CELL_STAMP
+    created = build["elements_created"]
+    kinds = [c["kind"] for c in created]
+    assert kinds == ["family(.rfa)"] + ["wall"] * 4 + ["fixture-instance"] * 4 + ["loaded-family"]
+    devices = [c for c in created if c["kind"] == "fixture-instance"]
+    assert [c["tag"] for c in devices] == ["R-1", "R-2", "R-3", "R-4"]
+    assert {c["category"] for c in devices} == {-2001060}                # OST_ElectricalFixtures
+    assert {(c["level"], c["z_above_level_ft"], c["frame_kind"]) for c in devices} == {("L1", 1.5, "upright")}
+    assert len({c["symbol"] for c in devices}) == 1 and len({c["family"] for c in devices}) == 1
+    assert [c["schedule"]["MountingHeight"] for c in devices] == [18.0] * 4
+    fam = [c for c in created if c["kind"] == "loaded-family"]
+    assert len(fam) == 1 and fam[0]["tags"] == ["R-1", "R-2", "R-3", "R-4"]
+    assert build["load"]["n_loaded"] == build["load"]["n_planned"] == 1
     assert build["validation"]["combined"]["validate"]["n_errors"] == 0
+    assert [e["kind"] for e in man["crud"]["elements"]].count("fixture-instance") == 4
+    assert {"category": "electrical_devices", "verb": "create"} in man["coverage_matrix"]["cells_exercised"]
     with open(r.manifest_paths["md"], encoding="utf-8") as fh:
         md = fh.read()
-    assert "receptacle_device×4" in md and "18 in AFF" in md
+    assert "4 wiring devices" in md and "| R-4 |" in md and "18 in AFF" in md
 
 
 # ===========================================================================
