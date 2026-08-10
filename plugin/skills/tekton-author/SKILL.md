@@ -65,6 +65,34 @@ python <plugin>/skills/tekton-author/scripts/_bootstrap.py go author \
     --rvt their.rvt --edit "delete DP-1 with cascade; move LP-2 to 3,4" --out out/job3
 ```
 
+**A 3D OBJECT / SHAPE the user gives you (a Claude Design body, a sketch, a
+set of dimensions) is the FOURTH route — do not send it through `--prompt`,
+which only knows catalog electrical equipment and would refuse it.** Write
+the famspec JSON yourself from what they described and run the router:
+
+```bash
+# you author this file from their geometry -- footprint ring in FEET, then height
+cat > widget.famspec.json <<'JSON'
+{"kind": "generic_model", "name": "My Widget",
+ "vertices": [[0,0], [4,0], [4,1.5], [1.5,1.5], [1.5,3], [0,3]],
+ "height_ft": 2.5, "source": "claude-design"}
+JSON
+python <plugin>/skills/tekton-author/scripts/_bootstrap.py go route.py \
+    run --rfa widget.famspec.json --output rfa --out out/job4
+```
+
+`vertices` = the closed outline of the footprint (3+ points, feet, convex OR
+concave, either winding; do not repeat the first point). A box is
+`"width_ft"` + `"depth_ft"` instead. Always `"height_ft"`. Optional:
+`"target_version"`, `"category"` (default `generic_model`; e.g. `furniture`,
+`electrical_equipment`), `"base_z_ft"`, `"solid"`. NEVER invent
+manufacturer, model or rating values for a shape — the geometry is reported
+as GIVEN with its source, which is exactly what makes this route honest.
+
+If their object is curved, approximate the outline as a polygon and SAY you
+did. If they hand you a mesh/solid file (OBJ, glTF, STL, STEP) there is no
+reader yet — ask for an IFC export (`--ifc`) or the footprint dimensions.
+
 stdout is ONE JSON object: `go` {`ready`, `preflight_line`, `exit_code`,
 `inputs` = auto-detected release of any `.rvt`/`.rfa` you passed} and
 `result` {`status`, `files`, `release`, `stamps`, `errors`, `manifest`
@@ -106,7 +134,7 @@ caveat 3), `--handoff-only` (prompt route: only the AI-surface handoff),
    there). `result.manifest.md` has the long form; do not re-run anything
    to summarise it.
 
-## The three routes in one breath
+## The four routes in one breath
 
 - **`--prompt`** parses deterministically (no API key): rooms with
   dimensions and service rating; switchboards / distribution / lighting /
@@ -125,6 +153,14 @@ caveat 3), `--handoff-only` (prompt route: only the AI-surface handoff),
   is detected and KEPT (`result.release.input_release`; Revit 2026, 2025 and
   2024 project files open under their own release). Surgical id-based
   detail: the **tekton-edit** skill.
+- **a famspec via `route.py --rfa`** GENERATES one family from a structured
+  request: the catalog kinds (`panelboard`, `transformer`, `luminaire`,
+  `device`) by rating/voltage, or `generic_model` for ANY 3D body whose
+  geometry the user gives you (footprint `vertices` + `height_ft`, or
+  `width_ft`/`depth_ft`/`height_ft`). This is the route for "turn this
+  object/shape into a Revit family". Catalog kinds refuse facts they do not
+  have, by name; `generic_model` reports every dimension as GIVEN with its
+  source and claims no manufacturer identity.
 
 ## Honest caveats (state with the delivery, never instead of it)
 
