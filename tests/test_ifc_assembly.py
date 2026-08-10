@@ -590,17 +590,30 @@ def _inconsistent_sketches(parts, name="probe"):
             and len(e.obj.get("m_curveObjIdxMap") or []) > len(e.obj.get("m_elemRecs") or [])]
 
 
-def test_an_arc_sketch_still_ships_an_empty_solver_the_engine_bug():
-    """PINS THE DEFECT so the workaround below is not mistaken for a fix.
+def test_an_arc_sketch_now_carries_the_solver_records_it_promises():
+    """The engine fix (#589). add_cylinder_form used to author a VarSketch
+    naming 2 arcs in m_curveObjIdxMap with m_elemRecs EMPTY -- an out-of-range
+    read inside VarSketch::getCurveObj that survives OPEN and kills
+    Insert > Load Family (owner journal 0040: VarSketch.cpp:634 + 0xc0000005).
 
-    add_cylinder_form authors a VarSketch naming 2 arcs in m_curveObjIdxMap
-    with m_elemRecs EMPTY. Owner's desktop Revit 2026: a family containing one
-    crashes Insert > Load Family with "Invalid idx in VarSketch::getCurveObj
-    (VarSketch.cpp:634)" + 0xc0000005, while 103 boxes and 14 N-gons load. When
-    the arc solver state is authored and desktop-verified, this test flips.
+    STRUCTURE is fixed and asserted here; whether Revit accepts the arc
+    parameter vector is a DESKTOP question and #589 stays open until a verdict.
     """
-    assert _inconsistent_sketches(
-        [{"shape": "cylinder", "radius_ft": 0.5, "height_ft": 2.0}], "arc") != []
+    from rvt.frontdoor import famspec as FS
+    doc = FS.build("generic_model", {"parts": [
+        {"shape": "cylinder", "radius_ft": 0.5, "height_ft": 2.0}], "name": "arc"}).doc
+    sketches = [e for e in doc.elements if e.class_name == "VarSketch"
+                and e.obj.get("m_absorbedCurves")]
+    assert sketches, "the cylinder must author a curve sketch"
+    for e in sketches:
+        o = e.obj
+        recs = o.get("m_elemRecs") or []
+        assert len(recs) == len(o.get("m_curveObjIdxMap") or []) == len(o["m_absorbedCurves"])
+        assert all(r["ptr_class"] == "VarSketchArcObj" for r in recs)
+        # the guess cache must declare the same parameter vector the records do
+        guess = ((o.get("m_oGuessCache") or {}).get("value") or {}).get("m_guessArr") or []
+        n_params = sum(len(r["value"]["m_params"]) for r in recs)
+        assert guess and len(guess[0]["value"]["m_values"]) == n_params
 
 
 def test_line_based_shapes_carry_the_solver_records_they_promise():

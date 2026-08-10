@@ -43,3 +43,4 @@ out/
 
 # ifc-assembly loadcrash probe: write-reports carry machine-absolute paths
 experiments/ifc-assembly/loadcrash/*.report.json
+experiments/ifc-assembly/arcsolver/*.report.json

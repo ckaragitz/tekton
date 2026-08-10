@@ -2074,6 +2074,53 @@ def _arc_bbox(center: Vec, radius: float, ang0: float, ang1: float) -> List[List
             [_clean(max(xs)), _clean(max(ys)), 0.0]]
 
 
+
+#: The parameter vector a curve's solver record declares.  A LINE's four are
+#: its endpoint coordinates (x1, y1, x2, y2) -- the donor law #333 established.
+#: An ARC's degrees of freedom are its centre, radius and the two end angles;
+#: the schema's own ``VarSketchArcEndAngleConstrObj(m_angle, m_end)`` exists to
+#: pin an end angle, which only makes sense if the angles are parameters.
+#: Overridable so a desktop round can decide the layout empirically (#589).
+ARC_SOLVER_PARAMS = "center_radius_angles"
+
+
+def _curve_solver_params(curve: dict) -> List[float]:
+    """The numeric parameters of one absorbed curve token."""
+    v = (curve or {}).get("value") or {}
+    cls = (curve or {}).get("ptr_class")
+    if cls == "GArc":
+        cx, cy = float(v["m_center"][0]), float(v["m_center"][1])
+        r = float(v["m_radius"])
+        a0, a1 = (float(x) for x in v["m_endParams"])
+        if ARC_SOLVER_PARAMS == "center_radius":
+            return [cx, cy, r]
+        return [cx, cy, r, a0, a1]
+    if cls == "GLine":                      # origin + dirVec * endParams
+        ox, oy = float(v["m_origin"][0]), float(v["m_origin"][1])
+        dx, dy = float(v["m_dirVec"][0]), float(v["m_dirVec"][1])
+        t0, t1 = (float(x) for x in v["m_endParams"])
+        return [ox + dx * t0, oy + dy * t0, ox + dx * t1, oy + dy * t1]
+    return []
+
+
+def _curve_solver_obj(curve: dict, curve_id: int) -> dict:
+    """One ``m_elemRecs`` entry for an absorbed curve: the solver object
+    ``VarSketch::getCurveObj`` resolves that curve to (issue #589)."""
+    cls = (curve or {}).get("ptr_class")
+    body = {
+        "m_params": [_ptr("VarParam", {"m_refCt": 1, "m_val": float(c)})
+                     for c in _curve_solver_params(curve)],
+        "m_pSketch": _weak(2),
+        "m_objId": int(curve_id),
+        "m_angleCoef": 1.0,
+        "m_unbounded": False,
+    }
+    if cls == "GArc":
+        body["m_flipped"] = False
+        return _ptr("VarSketchArcObj", body)
+    return _ptr("VarSketchLineSegObj", body)
+
+
 def new_var_sketch_curves(elem_id: int, ctx: FamilyDocContext, *,
                           sketch_plane_id: int, user_id: int,
                           curves: Sequence[dict], curve_ids: Sequence[int],
@@ -2131,7 +2178,18 @@ def new_var_sketch_curves(elem_id: int, ctx: FamilyDocContext, *,
         _owned("CurveElemData", m_oUserData=None, m_oAssocProp=None) for _ in range(n)]
     obj["m_customDatumPlanes"] = []
     obj["m_pPlaneRef"] = None
-    obj["m_elemRecs"] = []
+    # SOLVER STATE for CURVE sketches (issue #589).  Leaving m_elemRecs empty
+    # while m_curveObjIdxMap names every curve is the very shape issue #333
+    # falsified for line sketches: VarSketch::getCurveObj indexes m_elemRecs
+    # THROUGH that map, so an empty array with a 2-entry map is an
+    # out-of-range read.  Revit 2026 survives OPENING such a family and dies
+    # inside Insert > Load Family -- "Invalid idx in VarSketch::getCurveObj
+    # (VarSketch.cpp:634)" + 0xc0000005 (owner journal 0040, 2026-08-10).
+    # One solver record per curve, of the class the file's own schema gives
+    # for that curve kind (GArc -> VarSketchArcObj, which extends
+    # VarSketchCurveObj -> VarSketchObj and adds m_flipped).
+    obj["m_elemRecs"] = [_curve_solver_obj(c, int(cid))
+                         for c, cid in zip(curves, curve_ids)]
     obj["m_curveObjIdxMap"] = [{"first": int(cid), "second": i}
                                for i, cid in enumerate(curve_ids)]
     obj["m_pointRecs"] = []
@@ -2139,7 +2197,9 @@ def new_var_sketch_curves(elem_id: int, ctx: FamilyDocContext, *,
     obj["m_constrRecs"] = []
     gc = blank_object("VarSketchGuessCache")
     gc["m_pSketch"] = _weak(2)
-    gc["m_guessArr"] = []
+    gc["m_guessArr"] = [_ptr("VarSketchGuess", {
+        "m_values": [v for c in curves for v in _curve_solver_params(c)],
+        "m_useCount": 29})] if curves else []
     gc["m_nPar"] = 0
     obj["m_oGuessCache"] = _ptr("VarSketchGuessCache", gc)
     obj["m_oParamPlane"] = plane([0, 0, 0], [1, 0, 0], [0, 1, 0],
