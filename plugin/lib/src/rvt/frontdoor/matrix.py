@@ -631,9 +631,11 @@ _CELL_LIST: List[Cell] = [
           "the type to 225A MCB 42ckt; set BusRating 225; set PanelName "
           "DP-7; set Width of type \"X\" 600 mm'), inline JSON ops or an "
           "ops.json path -- one vocabulary (rename-type | rename-family | "
-          "set-param, optionally type-scoped); values convert SPEC-DRIVEN "
-          "from the parameter's own m_specTypeId (amps as-is, volts, kVA; "
-          "lengths REQUIRE an explicit unit, never guessed)",
+          "set-param, optionally type-scoped); the value carrier follows the "
+          "parameter's STORAGE CLASS first (ParamDefString = text, "
+          "ParamDefInt = integer -- neither carries a spec), the m_specTypeId "
+          "of a ParamDefValue second, which also drives unit conversion (amps "
+          "as-is, volts, kVA; lengths REQUIRE an explicit unit, never guessed)",
           "proven on our generated families: family-mode validator VALID 0 "
           "errors, release preserved, every edit echoed back by a semantic "
           "RE-READ, PartAtom title/type kept in step (C1/C2/C4, edit-family)",

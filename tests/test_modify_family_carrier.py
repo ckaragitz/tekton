@@ -45,7 +45,7 @@ from rvt.convert import modify_family as MFAM                  # noqa: E402
     ("", "", "m_value"),
 ])
 def test_carrier_follows_storage_class_then_spec(def_class, spec, want):
-    assert MFAM._carrier_for_param(def_class, spec) == want
+    assert MFAM.carrier_for_param(def_class, spec) == want
 
 
 # ---------------------------------------------------------------------------

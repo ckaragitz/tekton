@@ -74,6 +74,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from ..global_framing import enter_own_release
 from .add_to_project import (ConvertError, TOOL, TOOL_VERSION, _jdump, _relp,
                              _sha256, quarantined_input)
+from .param_carrier import carrier_for_param
 
 __all__ = [
     "RvtReadError", "ExtractedEquipment", "ExtractedModel", "extract_intent",
@@ -274,31 +275,34 @@ _SPEC_POT = "autodesk.spec.aec.electrical:potential"
 _SPEC_APP = "electrical:apparent_power"
 
 
-def _family_param_defs(idx, unit: int) -> Dict[int, Tuple[str, str]]:
-    """{ParamElemFamily id: (caption, spec type id)} of one family unit."""
-    out: Dict[int, Tuple[str, str]] = {}
+def _family_param_defs(idx, unit: int) -> Dict[int, Tuple[str, str, str]]:
+    """{ParamElemFamily id: (caption, ParamDef class, spec type id)} of one
+    family unit (the class is the schema-resolved ``ptr_class``)."""
+    out: Dict[int, Tuple[str, str, str]] = {}
     for eid in idx.ids_of_class(unit, "ParamElemFamily"):
         v = idx.value(unit, eid) or {}
-        pd = ((v.get("m_pParamDef") or {}).get("value") or {})
+        ptr = v.get("m_pParamDef") or {}
+        pd = ptr.get("value") or {}
         cap = str(pd.get("m_caption") or "").strip()
-        spec = str(((pd.get("m_specTypeId") or {}) or {}).get("m_typeId") or "")
+        spec = str((pd.get("m_specTypeId") or {}).get("m_typeId") or "")
         if cap:
-            out[eid] = (cap, spec)
+            out[eid] = (cap, str(ptr.get("ptr_class") or ""), spec)
     return out
 
 
-def _param_value(row: dict, spec: str) -> Any:
-    """A type-table / family-param row -> a human-unit value, spec-driven."""
-    s = row.get("m_str") or ""
-    if s:
-        return s
-    iv = row.get("m_int")
-    if iv not in (None, 0) and "int64" in spec:
-        return int(iv)
-    if "spec.string" in spec:
-        return s or None
-    if "int64" in spec:
-        return int(iv or 0)
+def _param_value(row: dict, def_class: str, spec: str) -> Any:
+    """A type-table / family-param row -> a human-unit value: the carrier per
+    :func:`carrier_for_param` (class first, spec second), doubles
+    spec-converted."""
+    carrier = carrier_for_param(def_class, spec)
+    if carrier == "m_int":
+        return int(row.get("m_int") or 0)
+    if carrier == "m_str":
+        return row.get("m_str") or None
+    if row.get("m_str"):
+        # a definition class the rule does not name (ParamDefURL, ... on a
+        # FOREIGN family) that stores text: carry the text, not its 0.0
+        return row["m_str"]
     val = float(row.get("m_value") or 0.0)
     if _SPEC_LEN in spec:
         return round(val * M_PER_FT, 6)                 # ft -> m
@@ -338,13 +342,13 @@ def _family_contract(idx, unit: int, type_name: Optional[str]) -> Tuple[Dict[str
     out: Dict[str, Any] = {}
     for row in rows:
         pid = row.get("m_paramId")
-        cap, spec = defs.get(pid, (None, ""))
-        if cap is None:
+        cap, def_class, spec = defs.get(pid, (None, "", ""))
+        if cap is None:                   # the built-in ALL_MODEL_* texts
             cap = _BUILTIN_CAPTIONS.get(pid)
-            spec = "spec.string"
+            def_class = "ParamDefString"
         if cap is None:
             continue
-        val = _param_value(row, spec)
+        val = _param_value(row, def_class, spec)
         if val not in (None, ""):
             out[cap] = val
     return out, src
