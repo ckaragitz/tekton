@@ -43,6 +43,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from . import famspec as FS
 from . import matrix as MX
 from .base import repo_root
+from .. import _jsonsafe
 from .._logsink import stage_stdout
 
 __all__ = ["RouteError", "RouteResult", "route", "route_ids"]
@@ -668,7 +669,7 @@ def _r_extract_family(res, inputs, out_dir, opts):
         return
     listing = os.path.join(out_dir, "families.json")
     with open(listing, "w") as fh:
-        json.dump(rows, fh, indent=1, default=str)
+        _jsonsafe.dump(rows, fh, indent=1)
     res.files["families"] = listing
     selector = opts.get("family")
     if selector is None:
@@ -834,7 +835,7 @@ def _r_prompt_to_ifc(res, inputs, out_dir, opts):
     if cov:
         cov_p = os.path.join(out_dir, "prompt-coverage.json")
         with open(cov_p, "w") as fh:
-            json.dump(cov, fh, indent=1, default=str)
+            _jsonsafe.dump(cov, fh, indent=1)
         res.files["prompt_coverage"] = cov_p
     res.ok = True
     res.status = "OK (deterministic IFC4 of the resolved intent; version-agnostic)"
@@ -1112,7 +1113,7 @@ def _load_family(res: RouteResult, out_dir: str, opts: Dict[str, Any], *,
     res.files["loaded_rvt"] = out_rvt
     rep_json = os.path.join(out_dir, f"{name}_load-report.json")
     with open(rep_json, "w") as fh:
-        json.dump(rep.as_json(), fh, indent=1, default=str)
+        _jsonsafe.dump(rep.as_json(), fh, indent=1)
     res.files["load_report"] = rep_json
     ok = bool(rep.ok and os.path.isfile(out_rvt)
               and (rep.validate_project_mode or {}).get("verdict") == "VALID")
@@ -1633,7 +1634,7 @@ def _write_route_manifest(res: RouteResult, inputs: Dict[str, Any],
     }
     jp = os.path.join(res.out_dir, "route.json")
     with open(jp, "w") as fh:
-        json.dump(man, fh, indent=1, default=str)
+        _jsonsafe.dump(man, fh, indent=1)
     res.manifest_paths["route.json"] = jp
 
     lines = [f"# route: {'+'.join(sorted(inputs))} -> {output}", ""]
