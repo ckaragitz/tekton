@@ -196,6 +196,9 @@ class JobResult:
         # where an author job's time goes INSIDE the process (issue #124):
         # {"job_seconds", "build_seconds", "stages": [{"stage", "seconds", ...}]}
         self.breakdown: dict = {}
+        # BLOCKED by a prerequisite the surface stated up front (#127/#553):
+        # {"route", "needs", "fix"} -- copied through to the JSON row
+        self.prerequisite: dict = {}
 
     @property
     def seconds(self) -> float:
@@ -213,8 +216,9 @@ class JobResult:
         self.status, self.reason = "FAIL", reason
         return self
 
-    def blocked(self, reason: str) -> "JobResult":
+    def blocked(self, reason: str, prerequisite: dict | None = None) -> "JobResult":
         self.status, self.reason = "BLOCKED", reason
+        self.prerequisite = prerequisite or {}
         return self
 
     def skipped(self, reason: str) -> "JobResult":
@@ -228,6 +232,8 @@ class JobResult:
              "invocations": [i.as_dict() for i in self.invocations]}
         if self.breakdown:
             d["breakdown"] = self.breakdown
+        if self.prerequisite:
+            d["prerequisite"] = self.prerequisite
         return d
 
 
@@ -347,6 +353,11 @@ def _json_or_none(text: str):
 _JSON_PUNCT = frozenset("{}[],")
 
 
+def _d(v) -> dict:
+    """``v`` when it is a dict, else ``{}`` -- for walking parsed job JSON."""
+    return v if isinstance(v, dict) else {}
+
+
 def _why(inv: Invocation) -> str:
     """Why a job did not pass, in <= 200 chars, for its `reason` (issue #287).
 
@@ -356,9 +367,6 @@ def _why(inv: Invocation) -> str:
     then the last non-empty stderr line, then the last stdout line that is
     not bare JSON punctuation (a clean failure pretty-prints its JSON, so the
     literal last line is ``}``), then ``exit N``."""
-    def _d(v) -> dict:
-        return v if isinstance(v, dict) else {}
-
     res = _json_or_none(inv.stdout)
     if isinstance(res, dict):
         go, inner = _d(res.get("go")), _d(res.get("result")) or res
@@ -375,6 +383,25 @@ def _why(inv: Invocation) -> str:
             if line and not (is_stdout and set(line) <= _JSON_PUNCT):
                 return line[:200]
     return f"exit {inv.exit_code}"
+
+
+def _prerequisite(res) -> dict | None:
+    """The `go` envelope's own ``go.prerequisite`` ({route, needs, fix}) when
+    the surface stated -- up front, ``go.ready:false``, ``result:null``,
+    exit 3, no job attempted (#127) -- that the requested route needs an
+    extra this interpreter lacks; None for every other output.  Such a row
+    is BLOCKED (an honest surface truth), never FAIL (#553)."""
+    go = _d(_d(res).get("go"))
+    prereq = _d(go.get("prerequisite"))
+    return prereq if not go.get("ready", True) and prereq.get("needs") else None
+
+
+def _needs_words(prereq: dict) -> str:
+    """``needs numpy (python -m pip install numpy)`` (or ``needs numpy`` when
+    no ``fix`` is given) -- the bootstrap's own wording of a route capability
+    / prerequisite (tekton_env._route_words); the ONE phrasing here too."""
+    words = "needs " + " + ".join(str(n) for n in prereq.get("needs") or ["?"])
+    return f"{words} ({prereq['fix']})" if prereq.get("fix") else words
 
 
 def stage_breakdown(result: dict, envelope: dict | None = None) -> dict:
@@ -449,6 +476,9 @@ def job_preflight(s: Surface, state: dict) -> JobResult:
         return job.fail(f"preflight not READY: {_why(inv)}")
     state["preflight"] = {"python": pf["python"]["version"],
                           "extras": pf.get("extras", {}),
+                          # per-route capability stated up front (#127); absent
+                          # on plugin builds that predate it
+                          "routes": pf.get("routes", {}),
                           "internal_seconds": pf.get("seconds")}
     return job
 
@@ -500,6 +530,9 @@ def _job_go_author(s: Surface, state: dict, name: str, prompt: str, short: str) 
         # pre-`go` builds treat unknown argv as plain preflight (readiness
         # line, exit 0/3) or usage-error -- an absent feature, not a failure
         return job.skipped("`go` dispatch not in this plugin build yet")
+    prereq = _prerequisite(res)
+    if prereq:                               # stated up front, no job attempted (#553)
+        return job.blocked(_why(inv), prerequisite=prereq)   # = go.preflight_line
     if inv.exit_code != 0 or not res:
         return job.fail(f"go author failed: {_why(inv)}")
     # the combined JSON: accept either the front door result directly or a
@@ -526,6 +559,14 @@ def job_author_ifc(s: Surface, state: dict) -> JobResult:
     res = _json_or_none(inv.stdout)
     if inv.exit_code == 0 and res and res.get("ok"):
         return job
+    # preflight already stated this route cannot build here (routes.ifc,
+    # #127): an honest surface truth, not a regression (#553).  Absent table
+    # (pre-#127 plugin build, or preflight not run) -> classified as before.
+    cap = (state.get("preflight") or {}).get("routes", {}).get("ifc")
+    if isinstance(cap, dict) and not cap.get("ok", True):
+        prereq = {"route": "ifc", "needs": cap.get("needs") or [], "fix": cap.get("fix")}
+        return job.blocked(f"ifc route prerequisite stated by preflight: {_needs_words(prereq)}",
+                           prerequisite=prereq)
     blob = (inv.stdout or "") + (inv.stderr or "")
     if "ifcopenshell" in blob:
         return job.blocked("ifcopenshell not importable on this surface "
@@ -670,6 +711,9 @@ def _cell(jd: dict, surface: str) -> str:
     mark = {"PASS": "", "FAIL": " FAIL", "BLOCKED": " BLOCKED", "SKIPPED": " skipped"}[jd["status"]]
     if jd["status"] in ("SKIPPED",):
         return "skipped"
+    needs = (jd.get("prerequisite") or {}).get("needs")
+    if needs:                                # BLOCKED (needs numpy): the stated prerequisite
+        mark += f" ({_needs_words({'needs': needs})})"
     secs = f"{jd['seconds']:.1f}s"
     if surface == "codeexec" and jd["extract_seconds"]:
         secs += f" (+{jd['extract_seconds']:.1f}s extract)"
