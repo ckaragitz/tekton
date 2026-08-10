@@ -38,12 +38,13 @@ import os
 import numpy as np
 import pytest
 
+from conftest import HAVE_IFC_AUTHORING   # the builders AUTHOR IFC (ifcopenshell.file/.guid), #367
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOM_IFC = os.path.join(ROOT, "inputs", "ifc", "electrical-room-2500a.ifc")
 HAVE_ROOM = os.path.exists(ROOM_IFC)
 
-ifcopenshell = pytest.importorskip("ifcopenshell")
-if getattr(ifcopenshell, "IS_STEPLITE", False):      # the bundled shim, not the library
+if not HAVE_IFC_AUTHORING:
     pytest.skip("real ifcopenshell not installed (steplite shim on the path)",
                 allow_module_level=True)
 import ifcopenshell.guid  # noqa: E402

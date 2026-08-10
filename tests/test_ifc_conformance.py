@@ -14,7 +14,6 @@ diff in the PR that owns the behaviour change (#152 / #155 / #157 / ...).
 from __future__ import annotations
 
 import difflib
-import importlib.machinery
 import importlib.util
 import json
 import os
@@ -24,9 +23,10 @@ import sys
 
 import pytest
 
+from conftest import HAVE_IFC_AUTHORING   # real-library parity needs the real wheel, #367
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, "tools", "dev", "make_ifc_fixtures.py")
-SHIM_DIR = os.path.join(ROOT, "src", "rvt", "ifc", "_ifcos_shim")
 
 _spec = importlib.util.spec_from_file_location("make_ifc_fixtures", TOOL)
 M = importlib.util.module_from_spec(_spec)
@@ -36,18 +36,6 @@ FX = {fx["name"]: fx for fx in M.FIXTURES}
 NAMES = list(FX)
 PATHS = {n: os.path.join(M.FIXTURE_DIR, n + ".ifc") for n in NAMES}
 
-
-def _real_ifcopenshell_importable() -> bool:
-    """A REAL ifcopenshell (not the bundled shim) is on sys.path."""
-    paths = [p for p in sys.path if os.path.abspath(p or ".") != SHIM_DIR]
-    try:
-        spec = importlib.machinery.PathFinder.find_spec("ifcopenshell", paths)
-    except (ImportError, AttributeError, ValueError):
-        return False
-    return spec is not None and bool(spec.origin) and "_ifcos_shim" not in spec.origin
-
-
-HAVE_REAL_IFCOS = _real_ifcopenshell_importable()
 needs_numpy = pytest.mark.skipif(importlib.util.find_spec("numpy") is None,
                                  reason="intent placement / geometry maths needs numpy (#127)")
 
@@ -112,7 +100,7 @@ def lite_summaries():
 
 @pytest.fixture(scope="module")
 def real_summaries():
-    if not HAVE_REAL_IFCOS:
+    if not HAVE_IFC_AUTHORING:
         pytest.skip("real ifcopenshell not installed (optional extra .[ifc]); parity runs where it is")
     return _summaries(False, "ifcopenshell")
 

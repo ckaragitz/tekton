@@ -36,14 +36,15 @@ LIGHT_IFC = os.path.join(ROOT, "inputs", "ifc", "chicago-plenum-downlight.ifc")
 
 ifcopenshell = pytest.importorskip if False else None  # (per-test skips below)
 
-try:
-    import ifcopenshell as _ifcos          # noqa: F401
+# parity against the REAL library: the shim also answers ``import ifcopenshell``,
+# so importability proves nothing (#367)
+from conftest import HAVE_IFC_AUTHORING as HAVE_IFCOS
+
+if HAVE_IFCOS:
+    import ifcopenshell as _ifcos
     import ifcopenshell.util.element as _ue
     import ifcopenshell.util.placement as _up
     import ifcopenshell.util.unit as _uu
-    HAVE_IFCOS = not getattr(_ifcos, "IS_STEPLITE", False)
-except ImportError:                        # pragma: no cover - sandbox path
-    HAVE_IFCOS = False
 
 try:
     import numpy as _np                    # noqa: F401

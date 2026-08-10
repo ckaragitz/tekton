@@ -30,6 +30,8 @@ import sys
 
 import pytest
 
+from conftest import needs_ifc_authoring   # the ONE "real wheel here" gate, #367
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src")
 PLUGIN = os.path.join(ROOT, "plugin")
@@ -163,7 +165,7 @@ def test_force_puts_shim_first(no_real_ifcopenshell, monkeypatch):
     assert getattr(ifcopenshell, "IS_STEPLITE", False)
 
 
-@pytest.mark.skipif(REAL_SITE is None, reason="real ifcopenshell not installed here")
+@needs_ifc_authoring
 def test_real_install_wins_and_path_is_untouched(monkeypatch):
     monkeypatch.delenv(F.FORCE_ENV, raising=False)
     monkeypatch.setattr(sys, "path", [p for p in sys.path if p != SHIM])

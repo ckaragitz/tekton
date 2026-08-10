@@ -55,14 +55,6 @@ needs_genesis = pytest.mark.skipif(not os.path.exists(GENESIS),
                                    reason="pinned genesis base absent")
 
 
-def _have_ifcopenshell() -> bool:
-    try:
-        import ifcopenshell  # noqa: F401
-        return True
-    except Exception:
-        return False
-
-
 # ===========================================================================
 # TODAY: the guards (these flip meaning when 2025 certifies, so every one is
 # conditioned on the flag rather than hard-coding the present)
@@ -210,9 +202,10 @@ def test_frontdoor_2026_target_matches_no_addition(tmp_path):
 
 # ===========================================================================
 # TODAY: the IFC addition is REAL -- it round-trips through our own resolver
+# (no ifcopenshell gate: our own writer, read back through the bundled steplite
+# shim when no wheel is installed -- #130 / #367)
 # ===========================================================================
 
-@pytest.mark.skipif(not _have_ifcopenshell(), reason="ifcopenshell absent")
 def test_ifc_addition_roundtrips_the_intent(tmp_path):
     from rvt.frontdoor import prompt_intent as PP, ifc_out
     from rvt.frontdoor.intent import intent_from_ifc

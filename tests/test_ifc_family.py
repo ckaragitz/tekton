@@ -43,23 +43,19 @@ RST = os.path.join(ROOT, "samples", "rstbasicsampleproject.rvt")
 HAVE_IFC = os.path.exists(IFC)
 HAVE_RFA_DONOR = os.path.exists(RFA_DONOR)   # write_rfa's default container source
 HAVE_RST = os.path.exists(RST)
-try:
-    import ifcopenshell                                    # noqa: F401
-    HAVE_IOS = True
-except Exception:                                          # pragma: no cover
-    HAVE_IOS = False
+# (no ifcopenshell gate: product_facts READS the IFC and the bundled steplite
+# shim serves that when no wheel is installed -- #130 / #367)
 
 from rvt.ifc import product_facts as PF                  # noqa: E402
 from rvt.ifc import famfrom_ifc as FI                    # noqa: E402
 from rvt.famgen import skeleton as SK                    # noqa: E402
 
-needs_ifc = pytest.mark.skipif(not (HAVE_IFC and HAVE_IOS),
-                               reason="IFC input / ifcopenshell absent")
-needs_build = pytest.mark.skipif(not (HAVE_IFC and HAVE_IOS and HAVE_SCHEMA),
-                                 reason="IFC / ifcopenshell / schema absent")
-needs_emit = pytest.mark.skipif(not (HAVE_IFC and HAVE_IOS and HAVE_SCHEMA and HAVE_RFA_DONOR),
-                                reason="IFC / ifcopenshell / schema / archetype .rfa absent")
-needs_load = pytest.mark.skipif(not (HAVE_IFC and HAVE_IOS and HAVE_SCHEMA and HAVE_RST),
+needs_ifc = pytest.mark.skipif(not HAVE_IFC, reason="IFC input absent")
+needs_build = pytest.mark.skipif(not (HAVE_IFC and HAVE_SCHEMA),
+                                 reason="IFC / schema absent")
+needs_emit = pytest.mark.skipif(not (HAVE_IFC and HAVE_SCHEMA and HAVE_RFA_DONOR),
+                                reason="IFC / schema / archetype .rfa absent")
+needs_load = pytest.mark.skipif(not (HAVE_IFC and HAVE_SCHEMA and HAVE_RST),
                                 reason="IFC / schema / rst sample absent")
 
 

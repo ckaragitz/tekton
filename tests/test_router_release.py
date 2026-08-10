@@ -36,6 +36,8 @@ import sys
 
 import pytest
 
+from conftest import HAVE_IFC_AUTHORING   # spec->ifc AUTHORS through ifcopenshell.api, #367
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src")
 sys.path.insert(0, SRC)
@@ -82,15 +84,6 @@ def _has_numpy() -> bool:
         return False
 
 
-def _has_real_ifcopenshell() -> bool:
-    """spec->ifc AUTHORS an IFC (ifcopenshell.api) -- the steplite shim reads only."""
-    try:
-        import ifcopenshell
-        return not getattr(ifcopenshell, "IS_STEPLITE", False)
-    except Exception:
-        return False
-
-
 pytestmark = [
     pytest.mark.skipif(not _bases_present(), reason="pinned per-release genesis bases absent"),
     pytest.mark.skipif(not _catalog_ok(), reason="famgen catalog absent"),
@@ -99,7 +92,7 @@ needs_room_ifc = pytest.mark.skipif(
     not (os.path.isfile(ROOM_IFC) and _has_numpy()),
     reason="room IFC input or numpy absent")
 needs_spec_authoring = pytest.mark.skipif(
-    not (os.path.isfile(ROOM_SPEC) and _has_numpy() and _has_real_ifcopenshell()),
+    not (os.path.isfile(ROOM_SPEC) and _has_numpy() and HAVE_IFC_AUTHORING),
     reason="spec->ifc authoring needs the real ifcopenshell (optional `ifc` extra)")
 
 

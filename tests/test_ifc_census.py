@@ -22,6 +22,8 @@ import os
 
 import pytest
 
+from conftest import needs_ifc_authoring   # real-library parity needs the real wheel, #367
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, "tools", "dev", "make_ifc_fixtures.py")
 FIXTURE = os.path.join(ROOT, "tests", "ifc_conformance", "j_census_space_unreadable_body.ifc")
@@ -108,13 +110,8 @@ def test_census_invariants(lite, path):
     assert sum(b["unreadable_by_type"].values()) == b["unreadable"]
 
 
+@needs_ifc_authoring
 def test_census_identical_under_real_ifcopenshell(lite):
-    try:
-        import ifcopenshell                                     # noqa: F401
-    except ImportError:
-        pytest.skip("real ifcopenshell not installed (optional extra .[ifc]); parity runs where it is")
-    if getattr(ifcopenshell, "IS_STEPLITE", False):
-        pytest.skip("only the bundled steplite shim is importable here")
     real = _censuses(False, "ifcopenshell")
     assert real == lite
 
