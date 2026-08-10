@@ -156,9 +156,14 @@ def test_default_base_via_env_with_an_uncertified_target_still_falls_back(monkey
 
 
 @needs_bundled_bases
-def test_foreign_wrong_release_base_is_still_refused():
-    """A --base that is NOT our default pin (here: the 2025 base) combined
-    with a different target stays REFUSED -- never a wrong-release build."""
+def test_foreign_wrong_release_base_is_still_refused(monkeypatch):
+    """A --base that is NOT one of our certified pins (a firm's own 2025 file:
+    here the bundled 2025 bytes with the registry match switched off) combined
+    with a different target stays REFUSED -- never a wrong-release build.  (A
+    copy of ANY certified slot is our base arriving by path and resolves the
+    target's own slot instead, like the default copy above: #472,
+    tests/test_frontdoor_manifest_pin.py.)"""
+    monkeypatch.setattr(B, "_certified_slot_for_digest", lambda digest, pin=B.PIN: None)
     base, vb, errors = FD._resolve_base_and_version(
         FD.AuthorRequest(prompt="x", target_version=2024,
                          base=os.path.join(BUNDLED, "G_ABPD_2025.rvt")))

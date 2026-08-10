@@ -312,3 +312,193 @@ the day `output_release` follows the base. File: **21 passed, 2 xfailed** (was 9
 * Staged: nothing (labels only; no certification claim, no bytes changed). Shipped: via the PR that
   closes #439. Follow-ups: #472 (version block follows the base; + the `is_our_default` sibling), #479
   (main's red shard test).
+
+## eng #472 — 2026-08-10: the version block follows the base; one rule for every certified slot copy
+
+Stream: front door, issue #472 (P2, `area:frontdoor`, PG1; Refs #439). Territory used:
+`src/rvt/frontdoor/__init__.py` (`_resolve_base_and_version` + one 8-line private helper right above
+it, nothing else — `run()`/#478 untouched), its generated mirror `plugin/lib/src/rvt/frontdoor/__init__.py`
+(via `tools/sync_plugin.py`), `tests/test_frontdoor_manifest_pin.py` (the two #472-tagged tests replaced
+by a dated section: 39 passed, was 21 passed + 2 xfailed; already in the shard via
+`tests/ci_shard.d/264-manifest-pin-slot.txt`, so no new drop-in), this record section. NOT touched:
+`base.py` (hot; #483 done there), `tools/frontdoor.py` (hot), `release_ctx.py`, `manifest.py`,
+`target_status.py`, `versions/`.
+
+### Why
+
+Two halves of one function disagreed with the bytes they deliver:
+
+1. `target is None` branch wrote `output_release = PIN.revit_release` (2026) whatever base
+   `resolve_base(req.base)` returned. But `build_intent` runs inside `release_ctx.release_build_context(base.path)`
+   — the base's OWN release — so `--base <copy of G_ABPD_2025.rvt>` (or `$RVT_GENESIS_BASE=…`, or a
+   firm's own 2025 project) already delivered a **2025** file (`c589e33275daa235…`, byte-identical to the
+   `--target-version 2025` output) under `target_version.output_release 2026` / `release: "Revit 2026
+   target (the base and the schema are 2026)"` / `opens_in "Revit 2026 and newer"`. Since #483 the same
+   manifest's `base` block said `pinned true, pin.id G_ABPD_2025` — the truthful half.
+2. The wrong-release `except` branch asked "is this `--base` really OUR base arriving by path?" with
+   `sha256 == PIN.base_sha256` — the DEFAULT slot only. So `--base <2026 copy> --target-version 2024`
+   resolved the bundled 2024 slot (`match`, #24's path) while `--base <2025 copy> --target-version 2024`
+   was `refused` — same situation (our certified bytes named by path + a different target), two answers.
+
+### The rule chosen (and why it is the honest uniform one)
+
+* **No target:** `output_release = detect_release(base.path) or default` for whatever base resolved —
+  the release the build PRODUCES (the same idiom the fallback branch already used; both now share
+  `_release_of_base`). The note says where the release came from: *"…targets Revit 2025, the release of
+  the base named by --base (our certified Revit 2025 genesis base)"* / *"(accepted on its supplier's
+  authority)"* for a firm's file / *"the certified default release"* when nothing was supplied (source
+  `pinned-*`). `status`
+  stays `unspecified` (the recipient's year was not stated; `release_view` still relays the note as `ask`).
+  A detected-but-uncreatable year (a firm's 2022 file) is reported as what it is rather than as 2026 —
+  the build refuses in `release_build_context` in that case anyway, so nothing is over-claimed.
+* **A target the supplied base is not:** the discriminator is **whose bytes**, not **which slot**.
+  The named file is resolved once more *target-less* — `named = resolve_base(req.base)` (the same call
+  the no-target path makes; `req.base=None` falls to the env branch, so `--base`/env precedence is
+  `resolve_base`'s, not re-stated here) — and since #483 `named.pinned` IS "these bytes are a certified
+  slot's" (`_certified_slot_for_digest` under the hood, three-source rule), for 2026, 2025 and 2024 copies
+  alike. Pinned → our base arriving by path (the standalone plugin passes the bundled default explicitly; a
+  packager or a legacy env export can equally name `G_ABPD_2025.rvt`), so the TARGET's own pinned slot is
+  resolved (`match`), or, when the target has no certified slot, the honest FALLBACK delivers that
+  already-resolved copy in its own release + THE line + the IFC addition. Not pinned (a firm's own file, a
+  stale or pending slot's bytes) → `refused` as before: we cannot down-convert their bytes and must never
+  promise 2024 on a 2025 file. The alternative uniform rule — refuse every slot copy — would break the
+  standalone/`go --target-version` path (#24) and refuse a request the bundle beside the named file
+  satisfies; the previous rule (default copy degrades, 2025 copy refused) was neither. No private
+  `base.py` name is imported for this (the first draft called `_base._certified_slot_for_digest` directly;
+  `/simplify` replaced it with the public resolution, which also lets the fallback reuse `named` instead of
+  hashing the file a third time).
+
+### Evidence (cloud session = fresh clone; bases from `plugin/assets/genesis`; "before" = this branch's base `origin/main` @ 676916a, "after" = head; the same three byte-identical copies `copy_of_{2026,2025,2024}.rvt` in a temp dir; firm base = a front-door-built 2025 project `9e109bfd…`)
+
+Command per row: `tools/frontdoor.py author --prompt "a room with four walls" [--base <copy>] [--target-version Y] --out <tmp> --json`
+(env rows: `RVT_GENESIS_BASE=<copy>` instead of `--base`). Cells: `requested/status/output_release ·
+base.source pinned · base.pin.id · built prompt_room.rvt sha256[:12] · rvt.versions.detect_release(built)`.
+
+| case | before (main @ 676916a) | after (head) |
+|---|---|---|
+| no base, no target | None/unspecified/2026 · pinned-bundled True · G_ABPD · 45f1795250f5 det 2026 | **identical** (note reworded only) |
+| `--base` 2026 copy, no target | None/unspecified/2026 · explicit True · G_ABPD · 45f1795250f5 det 2026 | identical (note only) |
+| `--base` 2025 copy, no target | None/unspecified/**2026** · explicit True · G_ABPD_2025 · c589e33275da det **2025** | None/unspecified/**2025** · same base · **same bytes** c589e33275da det 2025 |
+| `--base` 2024 copy, no target | None/unspecified/**2026** · explicit True · G_ABPD_2024 · 1a97ab56bdb4 det **2024** | None/unspecified/**2024** · same · **same bytes** |
+| env 2025 copy, no target | None/unspecified/2026 · env True · c589e33275da det 2025 | None/unspecified/2025 · same bytes |
+| env 2024 copy, no target | None/unspecified/2026 · env True · 1a97ab56bdb4 det 2024 | None/unspecified/2024 · same bytes |
+| firm 2025 base, no target | None/unspecified/**2026** · explicit **False** · pin.id G_ABPD · 9e109bfd8b53 det 2025 | None/unspecified/**2025** · explicit False · pin.id **G_ABPD_2025** (resolved_pin follows the run's release for an unpinned base) · same bytes |
+| copies + matching target (2026/2025/2024), registry `--target-version 2025`, firm + tv 2025 | match | **0 differing manifest leaves**, same bytes (45f1…/c589…/1a97…/c589…/9e10…) |
+| `--base` 2026 copy + tv 2024 | 2024/match/2024 · pinned-bundled G_ABPD_2024 · 1a97ab56bdb4 | identical (note names `G_ABPD` instead of "the default base") |
+| `--base` **2025 copy + tv 2024** | 2024/**refused** · nothing built | 2024/**match**/2024 · pinned-bundled G_ABPD_2024 · 1a97ab56bdb4 det 2024 — manifest == the 2026-copy row's but for `out_dir` and the slot id in the note (2 leaves) |
+| `--base` 2024 copy + tv 2025 | refused | 2025/match/2025 · pinned-bundled G_ABPD_2025 · c589e33275da |
+| `--base` 2025 copy + tv 2026; 2024 copy + tv 2026 | refused | 2026/match/2026 · pinned-bundled G_ABPD · 45f1795250f5 |
+| env 2025 copy + tv 2024 | refused | 2024/match/2024 · 1a97ab56bdb4 (env restored after the slot resolution, as before) |
+| `--base` 2026 copy + tv 2023 (no slot) | 2023/fallback/2026 · explicit · 45f1795250f5 + IFC addition | identical, 0 leaves |
+| `--base` **2025 copy + tv 2023** | **refused** | 2023/**fallback**/2025 · explicit G_ABPD_2025 · c589e33275da det 2025 + IFC addition + THE line ("…no certified Revit 2023 creation base…; this file targets 2025…") — same shape as the 2026-copy row |
+| firm 2025 base + tv 2024 | refused | **refused** (unchanged, 0 leaves) |
+
+Bytes: every case that built before builds the **identical** file after (sha-equal; main only
+mislabelled them). The six formerly-refused slot-copy cases now build the target slot's file, byte-equal
+to that slot's registry build. Manifest leaf-diff before→after (timing/paths dropped): no-target supplied-base
+rows differ in exactly `target_version.output_release`, `target_version.note`, `honesty.release` (3 leaves;
+firm row +11 `base.pin.*` leaves as its pin block moves to the 2025 slot); n0/n26/x2624 in the note only;
+all `match`/firm/2026-fallback rows 0 leaves. `tools/rvt_validate.py` on all 14 built outputs after:
+`ok true`, **0 errors** each (1 warning on the 2026-base files = the known DataStorage decoder gap, 0 on
+2025/2024). Cost of the added `detect_release` on the no-target path: 0.5 ms warm per job (one
+BasicFileInfo read of the base; first call ~40 ms is import warm-up the build pays anyway).
+
+Tests (`tests/test_frontdoor_manifest_pin.py`, section "eng #472"): the strict-xfail tripwire is now a
+plain test over all three certified years (explicit) + the env twin (2025/2024): `output_release == year`,
+note names `--base`/`$RVT_GENESIS_BASE` and the year, `release_view` output/opens_in/ask agree,
+`_release_line` says "Revit {year} target", base still pinned for that slot; no base → default 2026 +
+"the certified default release"; a firm base (slot bytes with the registry match monkeypatched off) →
+its own release "on its supplier's authority", unpinned + warning; the cross matrix (all 6 ordered pairs
+of certified years) → `match` on the target's pinned slot, note names the recognised slot id; env cross
+pair incl. env restoration; slot copy + unsupported year → `fallback` delivering the copy in its own
+release with THE line, for 2026/2025/2024 alike; firm base + other target → `refused`, one error.
+**39 passed** (was 21 passed / 2 xfailed).
+
+### Findings / follow-ups
+
+* **Two one-line test re-anchors outside the named territory, forced by the DONE** (stated here so the
+  reviewer can veto): `tests/test_frontdoor.py::test_foreign_wrong_release_base_is_still_refused` and
+  `tests/test_router_release.py::test_wrong_release_base_is_refused_as_base_but_families_still_delivered`
+  both used the *bundled* `G_ABPD_2025.rvt` as their stand-in for "a foreign base" and asserted
+  `--target-version 2024` → `refused` — i.e. they pinned exactly the asymmetry #472 removes (their own
+  docstrings say "a --base that is NOT our default pin"). Each keeps its intent and every assertion; the
+  only change is a `monkeypatch` that switches the registry match off (`base._certified_slot_for_digest
+  → None`) so the same bytes read as a firm's own 2025 file, which is what the test claims to exercise
+  (+ the docstring says so and points at #472). Without this the merged shard is red by construction.
+  Neither file is on the NO-GO list; no other test in `tests/` pairs a bundled slot copy with a refusal.
+* Follow-up already named by #439 (base.py, hot — not filed twice): `ResolvedBase` should carry the
+  release/slot it matched (`.release`, `GenesisPin.slot_for_digest`), at which point `_release_of_base`'s
+  file read and the target-less re-resolution in the wrong-release branch both become field reads, and
+  the three test monkeypatches of a private name become a registry fixture. Not achievable inside this
+  territory; the interim seam uses only `resolve_base`'s public result.
+* Pre-existing, not mine, not in the shard, unchanged: `tests/test_target2024.py::test_cli_flag_parses_2024`
+  fails on `origin/main` @ 676916a too (expects argparse to reject `--target-version 2023`; #172 made any
+  year parse) — recorded by #439 already.
+* `/simplify` (4 angles). Applied: `_release_of_base(base)` takes one argument (does its own lazy
+  `versions` import + registry default) and replaces the fallback branch's inline try/except; the
+  no-target note is assembled from a `_NAMED_BY` source→flag map + one `trust` phrase instead of a nested
+  f-string; the wrong-release branch resolves the named file through public `resolve_base(req.base)` and
+  reads `.pinned` (no private `base._certified_slot_for_digest` import, no re-stated `--base`/env
+  precedence), and the FALLBACK reuses that `ResolvedBase` instead of hashing the file a third time;
+  `produced = target` indirection inlined; tests: `_no_target(req)` takes a built request, the two
+  cross pairs are named module constants (`OTHER_TO_OTHER`, `DEFAULT_TO_OTHER`), the firm-base
+  monkeypatch is one helper, `target_status` import moved to the top, env restoration compared to the
+  exact path. Re-ran the 21-case matrix after the refactor: 0 differing manifest leaves vs the
+  pre-refactor head except the reworded `match` note (6 cases), identical bytes everywhere. Skipped, with
+  reason: (efficiency) short-circuit `detect_release` for `pinned-*` sources on the no-target path —
+  measured 0.5 ms warm per job, reviewers themselves rated it not worth a special case against the uniform
+  "ask the file" rule; (altitude) report `None` instead of the default for an undetectable supplied base —
+  the issue's DONE specifies "else the registry default as today", and nothing is built in that case
+  (`release_build_context` refuses), so no delivered file is mislabelled; (altitude) moving the
+  wrong-release decision into `resolve_base` / a `ResolvedBase.release` field — base.py is hot and held;
+  it is the follow-up above.
+
+### `/verify` (final tree, after `/simplify`; the real surfaces)
+
+* `tools/frontdoor.py author --prompt "a room with four walls" --base <copy of G_ABPD_2025.rvt> --out out/verify/n25 --json`
+  → rc 0, `PROOF-ONLY (self-checks PASS …)`, `release {requested None, output 2025, resolution
+  unspecified, opens_in "Revit 2025 and newer -- never an older Revit"}`, base `explicit pinned True
+  pin.id G_ABPD_2025`, note *"no --target-version given: the output targets Revit 2025, the release of the
+  base named by --base (our certified Revit 2025 genesis base). Revit cannot open a newer file -- ask …"*;
+  built `prompt_room.rvt` `c589e33275daa235…`, `detect_release` 2025, `rvt_validate` ok / 0 errors / 0
+  warnings. Same for the 2024 copy (`output 2024`, `1a97ab56bdb44508…`, detect 2024, 0/0).
+* `… --base <2025 copy> --target-version 2024` → rc 0, `release {2024, 2024, match}`, base
+  `pinned-bundled G_ABPD_2024`, note *"…the file named by --base is our certified Revit 2025 genesis base;
+  the target's own release slot was used instead"*, built `1a97ab56bdb44508…` (== the registry 2024
+  build), detect 2024, validate 0/0.
+* `… --base <2025 copy> --target-version 2023` → rc 0, `release {2023, 2025, fallback}`, THE line
+  *"target 2023 requested: tekton has no certified Revit 2023 creation base (supported: 2024, 2025, 2026);
+  the nearest supported target is Revit 2024, which Revit 2023 cannot open either; this file targets 2025
+  …"*, `prompt_room.ifc` addition written, built `c589e33275daa235…`, validate 0/0.
+* `… --base <a front-door-built 2025 project>` (firm base, no target) → `release {None, 2025,
+  unspecified}`, base `explicit pinned False`, note *"(accepted on its supplier's authority)"*, built
+  `9e109bfd8b534c86…` (== main's), validate 0/0.
+* Bare unzip of the rebuilt `tekton-plugin.zip` (5,361,500 bytes) into `out/verify/pz`, system
+  `python3`, no repo on the path:
+  `python3 skills/tekton-author/scripts/_bootstrap.py go author --prompt "a room with four walls" --base <copy of G_ABPD_2025.rvt> --out out/j25 --json`
+  → `tekton: READY | python 3.11.15 | engine bundled | genesis verified (Revit 2026) | family-donor missing | out-dir OK | 0.057s`,
+  `ready true`, wall 1.81 s, `release.output 2025 / opens_in "Revit 2025 and newer" / ask = the note`,
+  base `explicit pinned True pin.id G_ABPD_2025`, built sha `c589e33275daa235…` (identical bytes to the
+  repo run and to main).
+
+### BRANCH STATE
+
+* Branch `cam/472-base-own-release` from `origin/main` @ 676916a. Files: `src/rvt/frontdoor/__init__.py`
+  (`_release_of_base` + `_NAMED_BY`; `_resolve_base_and_version`'s no-target branch, wrong-release branch
+  and fallback base — nothing else in the module), its mirror `plugin/lib/src/rvt/frontdoor/__init__.py`
+  via `tools/sync_plugin.py`, `tests/test_frontdoor_manifest_pin.py` (section "eng #472": 40 passed, was
+  21 passed / 2 xfailed; already in the shard via `tests/ci_shard.d/264-manifest-pin-slot.txt`, no new
+  drop-in), the two one-line re-anchors in `tests/test_frontdoor.py` / `tests/test_router_release.py`
+  (see Findings), this record section.
+* Gates: `tests/test_frontdoor_manifest_pin.py` **40 passed**; neighbours (`test_frontdoor
+  test_probe_batch test_frontdoor_standalone test_go_target_version test_target2024 test_target2025
+  test_target_version_first test_router_release test_router_load_release`): 203 passed / 26 skipped /
+  1 failed = the pre-existing `test_target2024.py::test_cli_flag_parses_2024` (red on main, not in the
+  shard); `tools/sync_plugin.py` synced 1 file, `--check` → "plugin in sync with source (deny-audit clean,
+  identity scan == allowlist, assets verified)"; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2917 paths). **Whole merged CI shard** on the final tree (79
+  files, `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`):
+  **1668 passed, 139 skipped, 3 xfailed, 0 failed in 433.53 s**.
+* Staged: nothing (no certification claim; the newly-buildable cross-release cases build the very bytes
+  of the already-certified registry runs). Shipped: via the PR that closes #472. Follow-ups: the base.py
+  `ResolvedBase.release` / `GenesisPin.slot_for_digest` promotion #439 already named (hot file).

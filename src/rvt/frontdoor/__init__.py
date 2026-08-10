@@ -220,6 +220,23 @@ def _stem(req: AuthorRequest, route: str) -> str:
 # the version target (--target-version): resolve + never-silent fallback
 # ============================================================================
 
+def _release_of_base(base: Optional[ResolvedBase]) -> int:
+    """The release the build on ``base`` PRODUCES: the base file's own detected
+    release (``build_intent`` runs inside that release's context, so a 2025
+    base yields a 2025 file whoever supplied it), else the registry default."""
+    default_release = int(PIN.revit_release)
+    if base is None:
+        return default_release
+    try:
+        from .. import versions as _V
+        return int(_V.detect_release(base.path) or default_release)
+    except Exception:                                                # noqa: BLE001
+        return default_release
+
+
+_NAMED_BY = {"explicit": "--base", "env": "$RVT_GENESIS_BASE"}    # ResolvedBase.source -> flag
+
+
 def _resolve_base_and_version(req: AuthorRequest):
     """Resolve the base honouring ``req.target_version``.
 
@@ -229,23 +246,35 @@ def _resolve_base_and_version(req: AuthorRequest):
     target still in certification degrades to the certified default base
     with ``status='fallback'`` and THE one clear line (the caller must
     surface the line and emit the version-agnostic IFC addition); a
-    user-supplied base of the wrong release is REFUSED outright.
+    user-supplied base of the wrong release is REFUSED outright -- unless its
+    bytes ARE one of our certified genesis slots arriving by path, which is
+    no user override at all: the target's own slot is resolved instead.  With
+    no target the version block reports the release the resolved base
+    actually produces (a supplied 2025 base = a 2025 file), never a default
+    the delivered bytes contradict (issue #472).
     """
     errors: List[str] = []
     base: Optional[ResolvedBase] = None
+    named: Optional[ResolvedBase] = None      # the --base / $RVT_GENESIS_BASE file, once resolved target-less
     target = req.target_version
-    default_release = int(PIN.revit_release)
     if target is None:
         try:
             base = resolve_base(req.base)
         except BaseError as e:
             errors.append(str(e))
+        produced = _release_of_base(base)
+        flag = _NAMED_BY.get(base.source) if base is not None else None
+        if flag:
+            trust = (f"our certified Revit {produced} genesis base" if base.certified
+                     else "accepted on its supplier's authority")
+            origin = f"the release of the base named by {flag} ({trust})"
+        else:
+            origin = "the certified default release"
         vb = {"requested": None, "status": "unspecified",
-              "output_release": default_release,
-              "note": ("no --target-version given: the output targets the certified "
-                       f"default release (Revit {default_release}). Revit cannot open a "
-                       "newer file -- ask the user's Revit version before promising a "
-                       ".rvt (the tekton-author skill asks first).")}
+              "output_release": produced,
+              "note": (f"no --target-version given: the output targets Revit {produced}, "
+                       f"{origin}. Revit cannot open a newer file -- ask the user's Revit "
+                       "version before promising a .rvt (the tekton-author skill asks first).")}
         return base, vb, errors
     target = int(target)
     try:
@@ -254,8 +283,7 @@ def _resolve_base_and_version(req: AuthorRequest):
         _V = None
     try:
         base = resolve_base(req.base, target_release=target)
-        produced = target
-        vb = {"requested": target, "status": "match", "output_release": produced,
+        vb = {"requested": target, "status": "match", "output_release": target,
               "note": f"Revit {target} target: certified Revit {target} genesis base resolved"}
         return base, vb, errors
     except BaseNotCertified as e:
@@ -266,27 +294,27 @@ def _resolve_base_and_version(req: AuthorRequest):
                       "output_release": None, "note": str(e)}, errors
     except Exception as e:                                           # VersionError etc.
         # An explicit --base / $RVT_GENESIS_BASE of the WRONG release.  When
-        # that file is byte-for-byte OUR pinned default genesis base (the
-        # standalone plugin path passes the bundled base explicitly), this is
-        # not a user override at all -- it is the default base arriving via a
-        # path, so degrade honestly like any pending target.  A genuinely
-        # user-supplied wrong-release base (or a mispinned slot) stays
-        # REFUSED -- never author a wrong-release file while promising the
-        # target.
-        is_our_default = False
-        cand = req.base or os.environ.get("RVT_GENESIS_BASE")
-        if cand and os.path.isfile(cand):
+        # that file is byte-for-byte one of OUR certified genesis slots (the
+        # standalone plugin path passes the bundled base explicitly; a
+        # packager or a legacy env export may name any per-release base), this
+        # is not a user override at all -- it is our base arriving via a path,
+        # whichever slot it is (issue #472: the default AND the 2025/2024
+        # copies alike), so the target's own slot decides and a pending target
+        # degrades honestly.  A genuinely user-supplied wrong-release base (a
+        # firm's file, a stale or mispinned slot) stays REFUSED -- never
+        # author a wrong-release file while promising the target.  Resolved
+        # target-less, ``pinned`` IS "these bytes are a certified slot's".
+        if req.base or os.environ.get("RVT_GENESIS_BASE"):
             try:
-                is_our_default = (_base.sha256_of(cand).lower()
-                                  == PIN.base_sha256.lower())
-            except Exception:                                        # pragma: no cover
-                is_our_default = False
-        if not is_our_default:
+                named = resolve_base(req.base)
+            except BaseError:                                        # pragma: no cover
+                named = None
+        if named is None or not named.pinned:
             errors.append(f"target {target}: {e}")
             return None, {"requested": target, "status": "refused",
                           "output_release": None, "note": str(e)}, errors
         pending_msg = str(e)
-        # Our own default base arrived via a path (plugin bundle / legacy
+        # One of our own bases arrived via a path (plugin bundle / legacy
         # `--env` exports): that is not a user override, so the target's OWN
         # certified slot (bundled beside it, sha-pinned) must win before any
         # degrade -- otherwise a 2025 recipient gets a 2026 file plus a false
@@ -296,9 +324,10 @@ def _resolve_base_and_version(req: AuthorRequest):
         try:
             base = resolve_base(None, target_release=target)
             vb = {"requested": target, "status": "match", "output_release": target,
-                  "note": (f"Revit {target} target: certified Revit {target} genesis "
-                           "base resolved (the default base named by --base / "
-                           "$RVT_GENESIS_BASE is ours; its release slot was used)")}
+                  "note": (f"Revit {target} target: certified Revit {target} genesis base "
+                           f"resolved (the file named by {_NAMED_BY[named.source]} is our "
+                           f"certified Revit {_release_of_base(named)} genesis base; the "
+                           "target's own release slot was used instead)")}
             return base, vb, errors
         except (BaseNotCertified, BaseError) as e2:
             pending_msg = str(e2)
@@ -308,17 +337,13 @@ def _resolve_base_and_version(req: AuthorRequest):
             if saved_env is not None:
                 os.environ["RVT_GENESIS_BASE"] = saved_env
     # ---- the honest FALLBACK: deliver the certified default + THE LINE -----
-    try:
-        base = resolve_base(req.base)
-    except BaseError as e:
-        errors.append(str(e))
-        base = None
-    produced = default_release
-    if base is not None and _V is not None:
+    base = named                              # our slot copy named by path (already resolved), else:
+    if base is None:
         try:
-            produced = int(_V.detect_release(base.path) or default_release)
-        except Exception:
-            produced = default_release
+            base = resolve_base(req.base)
+        except BaseError as e:
+            errors.append(str(e))
+    produced = _release_of_base(base)
     from . import target_status as _ts
     support = _ts.support_status(target)
     supported = _ts.supported_targets()

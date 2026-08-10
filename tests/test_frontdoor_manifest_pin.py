@@ -9,7 +9,10 @@ Before: ``build_manifest`` always embedded the DEFAULT (2026) pin, so a
 the lineage.  Now the pin block is the slot the base answers to: same relpath,
 same sha256, same certification entry; 2026 unchanged.  Issue #439 (section
 below) makes ``resolve_base``'s explicit / env branches agree: a ``--base`` copy
-of a certified slot's bytes reads ``pinned`` / certified for that slot.
+of a certified slot's bytes reads ``pinned`` / certified for that slot; issue
+#472 (last section) makes the front door's VERSION block agree too: with no
+``--target-version`` it reports the resolved base's own release, and a slot
+copy offered for another target resolves that target's slot for every slot.
 
 Fresh-clone safe: the three pinned bases ship in-repo under
 ``plugin/assets/genesis`` (sha-verified against the registry by
@@ -27,6 +30,7 @@ import pytest
 import rvt.frontdoor as FD
 from rvt.frontdoor import base as B
 from rvt.frontdoor import manifest as MF
+from rvt.frontdoor import target_status as TS
 
 from conftest import CERTIFIED_YEARS, pinned_base
 
@@ -260,24 +264,142 @@ def test_a_pending_slots_bytes_are_not_called_certified(tmp_path):
     assert any(NOT_PINNED in w for w in rb.warnings)
 
 
-@pytest.mark.parametrize("year", OTHER_CERTIFIED_YEARS)
-def test_no_target_explicit_slot_copy_resolves_pinned_but_reports_the_default_release(tmp_path, year):
-    """Honest statement of today's behaviour (#472): with NO --target-version the
-    front door's version block names the registry default release even when the
-    supplied base -- and therefore the delivered file -- is a 2025/2024 one.  The
-    base block is the truthful half (pinned, pin.id = that slot); the version
-    block is #472's to fix in rvt.frontdoor._resolve_base_and_version."""
-    base, vb, errors = FD._resolve_base_and_version(
-        FD.AuthorRequest(prompt="x", base=_slot_copy(tmp_path, year)))
-    assert errors == [] and base.pinned is True and base.certified is True
-    assert MF.resolved_pin(base, MF._version_release(vb))["id"] == B.PIN.release_slot(year)["id"]
+# ---------------------------------------------------------------------------
+# eng #472 -- 2026-08-10: the VERSION block follows the base.  With no
+# --target-version, ``_resolve_base_and_version`` reported the registry
+# default (2026) whatever base it resolved, so ``--base <copy of
+# G_ABPD_2025.rvt>`` delivered a 2025 file (build_intent runs in the base's
+# own release context) under ``output_release: 2026``.  Now the block names
+# the release the resolved base produces; and a copy of ANY certified slot
+# combined with a different --target-version is "our base arriving by path"
+# (the target's own slot decides), not only a copy of the default -- one rule
+# for 2026, 2025 and 2024 copies alike.  A firm's own base keeps its release
+# with no target and stays REFUSED against a different one.
+# ---------------------------------------------------------------------------
+
+CROSS = [(c, t) for c in CERTIFIED_YEARS for t in CERTIFIED_YEARS if c != t]   # (copy of, target)
+OTHER_TO_OTHER = [c for c in CROSS if DEFAULT_YEAR not in c][:1]   # e.g. (2024, 2025): refused before
+DEFAULT_TO_OTHER = [c for c in CROSS if c[0] == DEFAULT_YEAR][:1]  # e.g. (2026, 2024): #24's path
+UNSUPPORTED = min(B.PIN.release_years()) - 1                       # a year with no slot at all
+
+
+def _firm_bases(monkeypatch):
+    """Switch the registry match off: a slot's bytes then read as a firm's own
+    base -- same detectable release, no pin (nothing built, fresh-clone safe)."""
+    monkeypatch.setattr(B, "_certified_slot_for_digest", lambda digest, pin=B.PIN: None)
+
+
+def _no_target(req):
+    base, vb, errors = FD._resolve_base_and_version(req)
+    assert errors == [] and vb["requested"] is None
+    return base, vb
+
+
+def _assert_reports(vb, year, *, named_by):
     assert vb["requested"] is None and vb["status"] == "unspecified"
-
-
-@pytest.mark.xfail(strict=True, reason="#472: no --target-version -> output_release is the "
-                   "registry default (2026), not the supplied base's own release; flip when fixed")
-@pytest.mark.parametrize("year", OTHER_CERTIFIED_YEARS)
-def test_no_target_explicit_slot_copy_reports_its_own_release(tmp_path, year):
-    _, vb, _ = FD._resolve_base_and_version(
-        FD.AuthorRequest(prompt="x", base=_slot_copy(tmp_path, year)))
     assert vb["output_release"] == year
+    assert f"Revit {year}" in vb["note"] and named_by in vb["note"]
+    assert "ask the user" in vb["note"]                            # release_view relays it as `ask`
+    view = TS.release_view({"target_version": vb})
+    assert view["output"] == year and f"Revit {year}" in view["opens_in"]
+    assert view["resolution"] == "unspecified" and view.get("ask") == vb["note"]
+    assert f"Revit {year} target" in MF._release_line(vb)
+
+
+@pytest.mark.parametrize("year", CERTIFIED_YEARS)
+def test_no_target_explicit_slot_copy_reports_its_own_release(tmp_path, year):
+    """#472's tripwire (was xfail strict): a copy of G_ABPD_2025.rvt handed in by
+    --base with NO --target-version reports 2025 -- the release of the file the
+    build delivers -- and the base block still names that slot."""
+    base, vb = _no_target(FD.AuthorRequest(prompt="x", base=_slot_copy(tmp_path, year)))
+    assert base.source == "explicit" and base.pinned is True and base.certified is True
+    _assert_reports(vb, year, named_by="--base")
+    assert "our certified" in vb["note"]
+    assert MF.resolved_pin(base, MF._version_release(vb))["id"] == B.PIN.release_slot(year)["id"]
+
+
+@pytest.mark.parametrize("year", OTHER_CERTIFIED_YEARS)
+def test_no_target_env_slot_copy_reports_its_own_release(tmp_path, monkeypatch, year):
+    monkeypatch.setenv("RVT_GENESIS_BASE", _slot_copy(tmp_path, year))
+    base, vb = _no_target(FD.AuthorRequest(prompt="x"))
+    assert base.source == "env" and base.pinned is True
+    _assert_reports(vb, year, named_by="$RVT_GENESIS_BASE")
+
+
+def test_no_target_no_base_is_still_the_certified_default(monkeypatch):
+    monkeypatch.delenv("RVT_GENESIS_BASE", raising=False)
+    base, vb, errors = FD._resolve_base_and_version(FD.AuthorRequest(prompt="x"))
+    if base is None:                                              # pragma: no cover - bundle absent
+        pytest.skip(f"default pin not resolvable here: {errors}")
+    assert base.source.startswith("pinned") and errors == []
+    assert vb["output_release"] == DEFAULT_YEAR and vb["status"] == "unspecified"
+    assert "the certified default release" in vb["note"] and "--base" not in vb["note"]
+
+
+@pytest.mark.parametrize("year", OTHER_CERTIFIED_YEARS)
+def test_no_target_firm_base_reports_the_release_it_is(tmp_path, monkeypatch, year):
+    """A firm's own (unpinned) 2025 base with no target: the file built on it is
+    2025, so the block says 2025 -- on the supplier's authority, not certified.
+    (The firm base here = the slot's bytes with the registry match switched off:
+    same detectable release, no pin.)"""
+    _firm_bases(monkeypatch)
+    base, vb = _no_target(FD.AuthorRequest(prompt="x", base=_slot_copy(tmp_path, year)))
+    assert base.pinned is False and base.certified is False
+    assert any(NOT_PINNED in w for w in base.warnings)
+    _assert_reports(vb, year, named_by="--base")
+    assert "supplier's authority" in vb["note"] and "our certified" not in vb["note"]
+
+
+@pytest.mark.parametrize("copy_year,target", CROSS)
+def test_a_slot_copy_with_another_target_resolves_the_targets_own_slot(tmp_path, copy_year, target):
+    """The uniform rule (#472 sibling): --base <copy of ANY certified slot>
+    + --target-version <a different certified year> is our base arriving by
+    path, so the target's own pinned slot is resolved -- before, only a copy of
+    the DEFAULT degraded this way and a 2025/2024 copy was refused outright."""
+    base, vb, errors = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", base=_slot_copy(tmp_path, copy_year), target_version=target))
+    slot = B.PIN.release_slot(target)
+    assert errors == [] and vb["status"] == "match"
+    assert vb["requested"] == target and vb["output_release"] == target
+    assert base.source.startswith("pinned") and base.pinned is True and base.certified is True
+    assert base.sha256 == slot["sha256"]
+    assert f"--base is our certified Revit {copy_year} genesis base" in vb["note"]   # names what it recognised
+
+
+@pytest.mark.parametrize("copy_year,target", OTHER_TO_OTHER + DEFAULT_TO_OTHER)
+def test_an_env_slot_copy_with_another_target_resolves_the_targets_own_slot(
+        tmp_path, monkeypatch, copy_year, target):
+    env_copy = _slot_copy(tmp_path, copy_year)
+    monkeypatch.setenv("RVT_GENESIS_BASE", env_copy)
+    base, vb, errors = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", target_version=target))
+    assert errors == [] and vb["status"] == "match" and vb["output_release"] == target
+    assert base.pinned is True and base.sha256 == B.PIN.release_slot(target)["sha256"]
+    assert "$RVT_GENESIS_BASE is our certified" in vb["note"]
+    assert os.environ["RVT_GENESIS_BASE"] == env_copy               # popped for the slot resolution, restored
+
+
+@pytest.mark.parametrize("year", CERTIFIED_YEARS)
+def test_a_slot_copy_with_an_unsupported_target_falls_back_to_its_own_release(tmp_path, year):
+    """Same rule, no slot to resolve: the honest FALLBACK delivers the supplied
+    copy (its own release) + THE line -- for a 2025 copy exactly as for a 2026
+    one (before: 2026 copy fell back, 2025 copy was refused)."""
+    slot_copy = _slot_copy(tmp_path, year)
+    base, vb, errors = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", base=slot_copy, target_version=UNSUPPORTED))
+    assert errors == [] and vb["status"] == "fallback"
+    assert vb["requested"] == UNSUPPORTED and vb["output_release"] == year
+    assert base.source == "explicit" and os.path.samefile(base.path, slot_copy)
+    assert f"target {UNSUPPORTED}" in vb["line"] and f"targets {year}" in vb["line"]
+
+
+@pytest.mark.parametrize("copy_year,target", OTHER_TO_OTHER + DEFAULT_TO_OTHER)
+def test_a_firm_base_of_another_release_stays_refused(tmp_path, monkeypatch, copy_year, target):
+    """The other side of the rule: bytes that are NOT a certified slot's (a
+    firm's 2025 project) offered for a 2024 build are a genuine wrong-release
+    override -- refused, nothing built, one clear error."""
+    _firm_bases(monkeypatch)
+    base, vb, errors = FD._resolve_base_and_version(
+        FD.AuthorRequest(prompt="x", base=_slot_copy(tmp_path, copy_year), target_version=target))
+    assert base is None and vb["status"] == "refused" and vb["output_release"] is None
+    assert len(errors) == 1 and str(copy_year) in errors[0] and str(target) in errors[0]
