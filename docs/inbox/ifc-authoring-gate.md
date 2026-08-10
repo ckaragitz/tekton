@@ -169,8 +169,14 @@ file's fixture, no need — the query's input is `find_spec`, which the new test
 * Branch `cam/367-ifc-authoring-gate` from `main`@e54f13f. Files: `src/rvt/ifc/_fallback.py`,
   `src/rvt/ifc/__init__.py`, `plugin/lib/src/rvt/ifc/{_fallback,__init__}.py` (regenerated),
   `tests/conftest.py`, gate lines in `tests/test_{router,router_release,convert,ifc_family,
-  ifc_conformance,ifc_intent,steplite,ifc_census,engine,target2025}.py`, new
+  ifc_conformance,ifc_intent,steplite,ifc_census,engine,target2025,ifc_read_fallback}.py`, new
   `tests/test_ifc_authoring_gate.py` + `tests/ci_shard.d/367-ifc-authoring-gate.txt`, this record.
-* Gates: tables above; whole merged shard in shape A recorded in the PR body with the head SHA.
-  Full suite NOT run (suite coordination). Nothing staged for the viewer; no `.rvt`/`.rfa`
-  shipped (the scratch acceptance build was evidence only and deleted); no certification claim.
+  PR #379.
+* Gates: tables above. Whole merged CI shard (`shard_list.py --print`, 58 files,
+  `RVT_SKIP_LARGE=1 LANG=C.UTF-8 -q -p no:cacheprovider`) on the final code: **shape A (no wheel)
+  1235 passed / 138 skipped / 3 xfailed / 0 failed in 169.4 s** vs `main`@e54f13f measured the same
+  way in a worktree **1226 / 138 / 3 xf** (Δ = +9 passed = the new gate file; `test_engine.py` is
+  not in the shard); **shape B (ifcopenshell 0.8.5) 1261 passed / 111 skipped / 4 xfailed / 0
+  failed in 179.1 s**. Full suite NOT run (suite coordination). Nothing staged for the viewer; no
+  `.rvt`/`.rfa` shipped (the scratch acceptance build and `out/verify/` were evidence only); no
+  certification claim.
