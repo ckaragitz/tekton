@@ -1110,15 +1110,10 @@ def commit_elements(src_rvt: str, out_path: str, doc: Document,
     # History entry 0's GUID unless the caller passes document_guid=.
     identity = dict(identity or {})
     if "document_guid" not in identity:
-        try:
-            from ..container import open_rvt
-            from ..stream_encoders import decode_history
-            with open_rvt(src_rvt) as f:
-                hist = decode_history(f.inflate("Global/History"))
-            if hist.get("entries"):
-                identity["document_guid"] = str(hist["entries"][0][0])
-        except Exception:
-            pass
+        from ..stream_encoders import history_head_guid
+        hist0 = history_head_guid(src_rvt)
+        if hist0:
+            identity["document_guid"] = hist0
     records, plans = [], []
     for e in els:
         recs = doc.serialize(e)
