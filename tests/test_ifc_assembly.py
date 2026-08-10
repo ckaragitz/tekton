@@ -414,25 +414,20 @@ def test_the_budget_is_a_refusal_not_a_truncation():
     assert AP.decompose_slabs(pts, _tri0(tris), max_slabs=0) is None
 
 
-def test_a_body_whose_section_runs_sideways_keeps_its_prism(tmp_path):
-    """The C-channel case: a section constant along X cannot be expressed by
-    a Z-extruded part, so the reader must keep the honest envelope AND say
-    why -- never author a decomposition that lost material."""
-    # a U lying on its side: two flanges + a web, constant along X
-    parts = []
-    for oy, oz, d, h in ((-0.45, 0.0, 0.1, 1.0), (0.45, 0.0, 0.1, 1.0),
-                         (0.0, 0.0, 1.0, 0.1)):
-        parts.append(_box_mesh(4.0, d, h, oy=oy, oz=oz))
-    pts, tris = [], []
-    for p, t in parts:
-        n = len(pts)
-        pts += list(p)
-        tris += [(a - 1 + n, b - 1 + n, c - 1 + n) for a, b, c in t]
-    p = write_ifc(str(tmp_path / "u.ifc"), [("U Channel", "IFCMEMBER", (pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]))])
+def test_a_body_whose_section_runs_sideways_is_now_exact_not_an_envelope(tmp_path):
+    """Was the known gap: a C-section constant along X cannot be sliced into
+    Z slabs, so it used to keep a 0.20-fill envelope. It is a union of
+    axis-aligned boxes, so the box lane reproduces it exactly -- no rotation
+    in the part contract, none needed."""
+    pts, tris = _u_channel()
+    p = write_ifc(str(tmp_path / "u.ifc"),
+                  [("U Channel", "IFCMEMBER",
+                    (pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]))])
     m = AP.read_assembly(p)
-    assert len(m.parts) == 1                     # one prism, not a wrong stack
-    assert m.kept_prism and m.kept_prism[0]["name"] == "U Channel"
-    assert m.parts[0].fill is not None and m.parts[0].fill < 0.9
+    assert not m.kept_prism
+    assert m.decomposed and m.decomposed[0]["exact"] is True
+    assert m.decomposed[0]["fill_before"] < 0.6      # the envelope it replaced
+    assert m.decomposed[0]["fill_after"] == 1.0
 
 
 def test_decomposition_is_reported_per_product(tmp_path):
@@ -458,3 +453,106 @@ def test_decompose_can_be_switched_off(tmp_path):
     allt = list(tris) + [(a + n, b + n, c + n) for a, b, c in t2]
     p = write_ifc(str(tmp_path / "d2.ifc"), [("Stepped", "IFCBUILDINGELEMENTPROXY", (allp, allt))])
     assert len(AP.read_assembly(p, decompose=False).parts) == 1
+
+
+# ---------------------------------------------------------------------------
+# exact box decomposition (the C-channel answer -- no rotation needed)
+# ---------------------------------------------------------------------------
+
+def _u_channel(length=4.0, width=1.0, height=1.0, t=0.1):
+    """A C-section running along X: web on the -Z face, two flanges up +Z.
+
+    Its cross-section is constant along X, so no Z-slab decomposition can
+    express it -- but it IS a union of axis-aligned boxes.
+    """
+    boxes = [_box_mesh(length, width, t),                                   # web
+             _box_mesh(length, t, height - t, oy=-(width - t) / 2.0, oz=t),  # flange
+             _box_mesh(length, t, height - t, oy=(width - t) / 2.0, oz=t)]
+    pts, tris = [], []
+    for p, tr in boxes:
+        n = len(pts)
+        pts += list(p)
+        tris += [(a - 1 + n, b - 1 + n, c - 1 + n) for a, b, c in tr]
+    return pts, tris
+
+
+def test_a_cube_is_axis_aligned_a_prism_is_not():
+    assert AP.is_axis_aligned(*(lambda p, t: (p, _tri0(t)))(*_box_mesh(1, 1, 1)))
+    pts, tris = _prism_mesh(1.0, 1.0, 12)
+    assert not AP.is_axis_aligned(pts, _tri0(tris))
+
+
+def test_winding_number_is_one_inside_and_zero_outside():
+    pts, tris = _box_mesh(2.0, 2.0, 2.0)
+    t0 = _tri0(tris)
+    assert abs(AP.winding_number(pts, t0, (0.0, 0.0, 1.0))) == pytest.approx(1.0, abs=1e-6)
+    assert abs(AP.winding_number(pts, t0, (9.0, 9.0, 9.0))) == pytest.approx(0.0, abs=1e-6)
+
+
+def test_inside_does_not_depend_on_face_orientation():
+    """This IFC winds its triangles so that inside reads -1; the test must
+    read the magnitude, or every real body would classify as empty."""
+    pts, tris = _box_mesh(2.0, 2.0, 2.0)
+    fwd = _tri0(tris)
+    rev = [(c, b, a) for a, b, c in fwd]
+    assert AP._inside(pts, fwd, (0.0, 0.0, 1.0))
+    assert AP._inside(pts, rev, (0.0, 0.0, 1.0))
+
+
+def test_a_box_decomposes_to_exactly_one_box():
+    pts, tris = _box_mesh(2.0, 3.0, 4.0)
+    dec = AP.decompose_boxes(pts, _tri0(tris))
+    assert dec["n_boxes"] == 1
+    assert dec["exact"] is True
+    assert dec["volume_ft3"] == pytest.approx(24.0, rel=1e-9)
+
+
+def test_the_c_channel_decomposes_exactly_without_any_rotation():
+    """The headline case. A section running along X cannot be sliced into Z
+    slabs, but it IS a union of axis-aligned boxes -- each Z-extrudable."""
+    pts, tris = _u_channel()
+    dec = AP.decompose_boxes(pts, tris)
+    assert dec is not None and dec["exact"]
+    assert dec["volume_ft3"] == pytest.approx(AP.mesh_volume(pts, tris), rel=1e-9)
+    # and the single prism it replaces really was a poor envelope
+    assert AP.fit_solid(pts, AP.mesh_volume(pts, tris))["fill"] < 0.6
+
+
+def test_overlapping_shells_are_measured_as_a_union_not_counted_twice():
+    """Two boxes sharing half their volume: the mesh's divergence volume
+    counts the overlap twice, the decomposition must not."""
+    p1, t1 = _box_mesh(2.0, 2.0, 2.0)
+    p2, t2 = _box_mesh(2.0, 2.0, 2.0, ox=1.0)
+    pts = list(p1) + list(p2)
+    tris = _tri0(t1) + [(a - 1 + len(p1), b - 1 + len(p1), c - 1 + len(p1))
+                        for a, b, c in t2]
+    dec = AP.decompose_boxes(pts, tris)
+    assert dec is not None
+    assert dec["volume_ft3"] == pytest.approx(12.0, rel=1e-6)      # union
+    assert AP.mesh_volume(pts, tris) == pytest.approx(16.0, rel=1e-6)  # 8 + 8
+    assert dec["overlap_ft3"] == pytest.approx(4.0, rel=1e-6)
+    assert dec["volume_ft3"] + dec["overlap_ft3"] == pytest.approx(
+        AP.mesh_volume(pts, tris), rel=1e-6)
+
+
+def test_a_curved_body_is_not_box_decomposed_into_a_staircase():
+    pts, tris = _prism_mesh(1.0, 2.0, 24)
+    assert AP.decompose_boxes(pts, _tri0(tris)) is None
+
+
+def test_the_box_budget_is_a_refusal_not_a_truncation():
+    pts, tris = _u_channel()
+    assert AP.decompose_boxes(pts, tris, max_boxes=1) is None
+    assert AP.decompose_boxes(pts, tris, max_cells=1) is None
+
+
+def test_the_reader_prefers_the_exact_box_lane(tmp_path):
+    pts, tris = _u_channel()
+    p = write_ifc(str(tmp_path / "chan.ifc"),
+                  [("Channel", "IFCMEMBER", (pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]))])
+    m = AP.read_assembly(p)
+    assert m.decomposed and m.decomposed[0]["method"] == "boxes"
+    assert m.decomposed[0]["exact"] is True
+    assert m.decomposed[0]["fill_after"] == 1.0
+    assert all(x.fit == "box" for x in m.parts)
+    assert not m.kept_prism

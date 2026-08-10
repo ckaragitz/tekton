@@ -83,6 +83,7 @@ __all__ = [
     "AssemblyError", "PartSolid", "AssemblyModel", "FT_PER_M",
     "convex_hull_2d", "fit_solid", "read_assembly", "assembly_parts",
     "slice_loops", "ring_nesting", "mesh_volume", "decompose_slabs",
+    "is_axis_aligned", "decompose_boxes",
     "MIN_EXTENT_FT", "CYLINDER_TOLERANCE", "RECT_TOLERANCE", "MAX_HULL_POINTS",
 ]
 
@@ -115,6 +116,13 @@ MAX_DECOMPOSED_PARTS = 40
 
 #: A slice ring below this area (ft^2 ~ 0.0144 in^2) is a tessellation sliver.
 MIN_SLAB_AREA_FT2 = 1e-4
+
+#: Budget for the axis-aligned box grid (one inside-test per cell).
+MAX_GRID_CELLS = 20000
+
+#: An exact box decomposition may use more parts than a lossy slab one: a
+#: slotted channel is genuinely many boxes, and each is EXACT.
+MAX_BOXES = 120
 
 
 class AssemblyError(ValueError):
@@ -661,6 +669,179 @@ def _conserves(authored_ft3: float, mesh_ft3: float, tol: float = 0.02) -> bool:
     return authored_ft3 >= mesh_ft3 * (1.0 - tol)
 
 
+def is_axis_aligned(points: Sequence[Sequence[float]],
+                    triangles: Sequence[Sequence[int]],
+                    eps: float = 1e-4) -> bool:
+    """True when every face normal is parallel to X, Y or Z.
+
+    Such a body is an axis-aligned polyhedron, and :func:`decompose_boxes`
+    reproduces it EXACTLY out of boxes -- no envelope, no rotation.  A body
+    with one slanted or curved face is not, and box decomposition would
+    return a staircase, so it is not attempted.
+    """
+    for tri in triangles:
+        if len(tri) < 3:
+            continue
+        try:
+            p, q, r = points[tri[0]], points[tri[1]], points[tri[2]]
+        except IndexError:
+            continue
+        u = [q[i] - p[i] for i in range(3)]
+        v = [r[i] - p[i] for i in range(3)]
+        n = [u[1] * v[2] - u[2] * v[1],
+             u[2] * v[0] - u[0] * v[2],
+             u[0] * v[1] - u[1] * v[0]]
+        mag = math.sqrt(sum(x * x for x in n))
+        if mag <= 0:
+            continue                                    # degenerate triangle
+        if max(abs(x) / mag for x in n) < 1.0 - eps:
+            return False
+    return True
+
+
+def winding_number(points: Sequence[Sequence[float]],
+                   triangles: Sequence[Sequence[int]],
+                   pt: Sequence[float]) -> float:
+    """The generalised winding number of a triangle mesh about ``pt``.
+
+    The sum of the triangles' SIGNED solid angles / 4*pi (Van Oosterom &
+    Strackee): ~1 inside a correctly-oriented closed shell, ~0 outside.
+
+    This is used instead of parity ray-casting because real fabrication
+    meshes are not always clean closed manifolds -- the trapeze hanger's
+    "back-to-back" strut pair is two shells welded along a seam, with
+    INTERNAL faces and non-manifold edges.  A ray crossing an internal face
+    flips parity and reports solid material as empty; the winding number is
+    unaffected by internal faces and by which shell the point sits in.
+    """
+    total = 0.0
+    ox, oy, oz = float(pt[0]), float(pt[1]), float(pt[2])
+    for tri in triangles:
+        if len(tri) < 3:
+            continue
+        try:
+            p, q, r = points[tri[0]], points[tri[1]], points[tri[2]]
+        except IndexError:
+            continue
+        ax, ay, az = p[0] - ox, p[1] - oy, p[2] - oz
+        bx, by, bz = q[0] - ox, q[1] - oy, q[2] - oz
+        cx, cy, cz = r[0] - ox, r[1] - oy, r[2] - oz
+        la = math.sqrt(ax * ax + ay * ay + az * az)
+        lb = math.sqrt(bx * bx + by * by + bz * bz)
+        lc = math.sqrt(cx * cx + cy * cy + cz * cz)
+        if la <= 0.0 or lb <= 0.0 or lc <= 0.0:
+            continue                                    # point ON a vertex
+        num = (ax * (by * cz - bz * cy)
+               - ay * (bx * cz - bz * cx)
+               + az * (bx * cy - by * cx))
+        den = (la * lb * lc
+               + (ax * bx + ay * by + az * bz) * lc
+               + (ax * cx + ay * cy + az * cz) * lb
+               + (bx * cx + by * cy + bz * cz) * la)
+        total += 2.0 * math.atan2(num, den)
+    return total / (4.0 * math.pi)
+
+
+def _inside(points: Sequence[Sequence[float]], triangles: Sequence[Sequence[int]],
+            pt: Sequence[float]) -> bool:
+    """Is ``pt`` inside the body?  |winding number| at or above 1/2.
+
+    The MAGNITUDE, because face orientation is the exporter's choice, not a
+    fact about the solid: this IFC winds its triangles so that inside reads
+    -1, and :func:`mesh_volume` already takes the same absolute value.
+    """
+    return abs(winding_number(points, triangles, pt)) >= 0.5
+
+
+def decompose_boxes(points: Sequence[Sequence[float]],
+                    triangles: Sequence[Sequence[int]], *,
+                    max_cells: int = MAX_GRID_CELLS,
+                    max_boxes: int = MAX_BOXES
+                    ) -> Optional[Dict[str, Any]]:
+    """Reproduce an AXIS-ALIGNED body exactly as a set of axis-aligned boxes.
+
+    The body's own vertex coordinates cut space into a grid whose every cell
+    is wholly inside or wholly outside it (that is what axis-aligned means),
+    so testing one point per cell classifies the cell exactly.  Occupied cells
+    are then merged greedily into maximal boxes -- and every box is a plain
+    Z-extruded rectangle, which the part contract already expresses.
+
+    THIS IS WHY NO ROTATION IS NEEDED for the C-channel case: a channel is a
+    union of axis-aligned boxes (back plate + two walls), each of which is
+    Z-extrudable whatever direction the channel runs.  Returns
+    ``{parts, volume_ft3, n_boxes, cells}`` or None (not axis-aligned, or over
+    a budget -- reported by the caller, never silently truncated).
+    """
+    if not triangles or not is_axis_aligned(points, triangles):
+        return None
+    axes = [sorted({round(float(p[i]), _WELD) for p in points}) for i in range(3)]
+    dims = [len(a) - 1 for a in axes]
+    if min(dims) < 1 or dims[0] * dims[1] * dims[2] > max_cells:
+        return None
+
+    occ: Dict[Tuple[int, int, int], bool] = {}
+    overlap = 0.0            # volume the mesh counts twice (shells that overlap)
+    for i in range(dims[0]):
+        cx = (axes[0][i] + axes[0][i + 1]) / 2.0
+        for j in range(dims[1]):
+            cy = (axes[1][j] + axes[1][j + 1]) / 2.0
+            for k in range(dims[2]):
+                cz = (axes[2][k] + axes[2][k + 1]) / 2.0
+                w = abs(winding_number(points, triangles, (cx, cy, cz)))
+                if w >= 0.5:
+                    occ[(i, j, k)] = True
+                    if w >= 1.5:      # inside two shells at once
+                        overlap += ((axes[0][i + 1] - axes[0][i])
+                                    * (axes[1][j + 1] - axes[1][j])
+                                    * (axes[2][k + 1] - axes[2][k])) * (round(w) - 1)
+    if not occ:
+        return None
+
+    # greedy maximal boxes: grow in x, then y, then z
+    used: set = set()
+    boxes: List[Tuple[int, int, int, int, int, int]] = []
+    for k in range(dims[2]):
+        for j in range(dims[1]):
+            for i in range(dims[0]):
+                if (i, j, k) in used or (i, j, k) not in occ:
+                    continue
+                i1 = i
+                while (i1 + 1 < dims[0] and (i1 + 1, j, k) in occ
+                       and (i1 + 1, j, k) not in used):
+                    i1 += 1
+                j1 = j
+                while j1 + 1 < dims[1] and all(
+                        (x, j1 + 1, k) in occ and (x, j1 + 1, k) not in used
+                        for x in range(i, i1 + 1)):
+                    j1 += 1
+                k1 = k
+                while k1 + 1 < dims[2] and all(
+                        (x, y, k1 + 1) in occ and (x, y, k1 + 1) not in used
+                        for x in range(i, i1 + 1) for y in range(j, j1 + 1)):
+                    k1 += 1
+                for x in range(i, i1 + 1):
+                    for y in range(j, j1 + 1):
+                        for z in range(k, k1 + 1):
+                            used.add((x, y, z))
+                boxes.append((i, i1, j, j1, k, k1))
+                if len(boxes) > max_boxes:
+                    return None
+
+    parts: List[Dict[str, Any]] = []
+    volume = 0.0
+    for i, i1, j, j1, k, k1 in boxes:
+        x0, x1 = axes[0][i], axes[0][i1 + 1]
+        y0, y1 = axes[1][j], axes[1][j1 + 1]
+        z0, z1 = axes[2][k], axes[2][k1 + 1]
+        w, d, h = x1 - x0, y1 - y0, z1 - z0
+        parts.append({"shape": "box", "width_ft": w, "depth_ft": d,
+                      "height_ft": h, "base_z_ft": z0,
+                      "center": [(x0 + x1) / 2.0, (y0 + y1) / 2.0]})
+        volume += w * d * h
+    return {"parts": parts, "volume_ft3": volume, "n_boxes": len(parts),
+            "cells": len(occ), "overlap_ft3": overlap, "exact": True}
+
+
 def _same_section(a: Sequence[Sequence[Sequence[float]]],
                   b: Sequence[Sequence[Sequence[float]]]) -> bool:
     """Two slabs carry the same section (so they merge into one taller part)."""
@@ -871,7 +1052,21 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
         # Cut it into slabs when that would actually buy fidelity, and only
         # keep the result if it really is closer to the mesh.
         dec = None
-        if decompose and vol is not None and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
+        method = ""
+        # An AXIS-ALIGNED body reproduces EXACTLY as boxes -- try that first.
+        # This is the C-channel answer: a channel is a union of axis-aligned
+        # boxes, each Z-extrudable, whichever direction the channel runs.
+        if decompose and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
+            box = decompose_boxes(pts_ft, tris)
+            if box is not None:
+                dec, method = box, "boxes"
+                dec["fill_after"] = 1.0             # exact by construction
+                dec["n_slabs"] = 0
+                dec["holes_filled"] = 0
+                dec["dropped"] = 0
+        if dec is None and decompose and vol is not None \
+                and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
+            method = "slabs"
             dec = decompose_slabs(pts_ft, tris)
             if dec is not None:
                 dv = dec["volume_ft3"]
@@ -897,19 +1092,34 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                     "cannot express")})
         if dec is not None:
             n = len(dec["parts"])
+            after = (1.0 if dec.get("exact")
+                     else (vol / dec["volume_ft3"] if dec["volume_ft3"] else None))
             for k, part in enumerate(dec["parts"], 1):
-                parts.append(PartSolid(
-                    name=(f"{name} [{k}/{n}]" if n > 1 else name),
-                    fit="polygon", center_ft=(0.0, 0.0),
-                    height_ft=part["height_ft"], base_z_ft=part["base_z_ft"],
-                    vertices_ft=part["vertices"],
-                    fill=(dec["volume_ft3"] and vol / dec["volume_ft3"]),
-                    of_product=name, slabs=dec["n_slabs"], **common))
-            decomposed.append({
-                "name": name, "parts": n, "slabs": dec["n_slabs"],
+                nm = f"{name} [{k}/{n}]" if n > 1 else name
+                if part["shape"] == "box":
+                    parts.append(PartSolid(
+                        name=nm, fit="box", center_ft=tuple(part["center"]),
+                        height_ft=part["height_ft"], base_z_ft=part["base_z_ft"],
+                        width_ft=part["width_ft"], depth_ft=part["depth_ft"],
+                        fill=after, of_product=name, slabs=dec["n_slabs"], **common))
+                else:
+                    parts.append(PartSolid(
+                        name=nm, fit="polygon", center_ft=(0.0, 0.0),
+                        height_ft=part["height_ft"], base_z_ft=part["base_z_ft"],
+                        vertices_ft=part["vertices"],
+                        fill=after, of_product=name, slabs=dec["n_slabs"], **common))
+            rec = {
+                "name": name, "method": method, "parts": n,
+                "slabs": dec["n_slabs"], "exact": bool(dec.get("exact")),
                 "fill_before": round(float(fit.get("fill") or 0.0), 4),
-                "fill_after": round(vol / dec["volume_ft3"], 4) if dec["volume_ft3"] else None,
-                "holes_filled": dec["holes_filled"], "slivers_dropped": dec["dropped"]})
+                "fill_after": (round(after, 4) if after is not None else None),
+                "holes_filled": dec["holes_filled"], "slivers_dropped": dec["dropped"]}
+            if dec.get("overlap_ft3"):
+                rec["mesh_overlap_in3"] = round(dec["overlap_ft3"] * 1728.0, 4)
+                rec["note"] = ("the source mesh is SEVERAL SHELLS that overlap; its "
+                               "divergence volume counts that overlap twice, so the "
+                               "pre-decomposition fill was understated")
+            decomposed.append(rec)
             continue
 
         parts.append(PartSolid(

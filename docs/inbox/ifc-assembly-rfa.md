@@ -289,3 +289,117 @@ and the `_jsonsafe` fix CI caught), `tests/test_ifc_assembly.py`, this record.
 Still open, unchanged: no viewer certification is claimed; rotation and swept solids
 are follow-ups; the type-text-value question above is new and belongs to famgen, not
 to this lane.
+
+---
+
+# Round 3 — the strut channel's 0.20 fill is closed, and rotation was never needed
+
+Round 2 recorded per-part rotation as the fix for a section that runs along X, and said
+it needed a desktop Revit check to do safely. **That framing was wrong**, and the
+correction is the whole of this round.
+
+## The insight
+
+A C-channel is a **union of axis-aligned boxes** — a web plus two flanges. Every one of
+those boxes is a plain Z-extruded rectangle, which `add_generic_part` already expresses,
+*whichever direction the channel runs*. The extrusion axis of the individual box has
+nothing to do with the axis of the channel. So the fix needed no rotation, no
+non-identity 3×3 on a datum-bound sketch plane, and no desktop verification to be safe:
+it uses the same proven primitive the certified families already use.
+
+Checking the hanger's meshes bore this out immediately — the struts and end caps are
+axis-aligned polyhedra:
+
+```
+product                                    axis-aligned?   distinct X/Y/Z   grid cells
+Strut Channel P1000 (x2)                          True         38/ 6/ 4          555
+End Cap (x2)                                      True          2/ 2/ 2            1
+C-Type Beam Clamp / rod / nuts / weld            False           …                 …
+```
+
+## What was built
+
+`is_axis_aligned` (every face normal parallel to an axis) gates a new `decompose_boxes`:
+the body's own vertex coordinates cut space into a grid whose every cell is *wholly*
+inside or outside it — that is what axis-aligned means — so one point test per cell
+classifies it exactly. Occupied cells are merged greedily into maximal boxes. For a
+non-axis-aligned body the function returns None rather than a staircase.
+
+## Two real defects found on the way, both by disbelieving a good-looking number
+
+**1. Parity ray-casting is wrong for welded assemblies.** The first inside-test cast a
+skew ray and counted crossings. It reported the strut at ratio 1.139 — authoring less
+material than the mesh holds. The strut mesh has **2 non-manifold edges**: "back-to-back"
+is two shells welded along a seam, and a ray crossing an *internal* face flips parity, so
+solid material reads as empty. Replaced with the **generalised winding number** (sum of
+signed solid angles), which is unaffected by internal faces.
+
+**2. Face orientation is the exporter's choice.** With winding in place, *nothing*
+decomposed — including the End Cap that had been exact. This IFC winds its triangles so
+that inside reads **−1**, not +1. The test must use the magnitude, exactly as
+`mesh_volume` already does. One-line fix, total behavioural difference.
+
+## And a finding that changes numbers already shipped
+
+After both fixes the strut still read 1.065 — authored 17.670 in³ against a mesh volume
+of 18.820 in³. Bucketing every grid cell by winding number settled it:
+
+```
+cells by |winding|:   {0: 202,  1: 241,  2: 112}
+volume by bucket:     {0: 77.39, 1: 16.52, 2: 1.15}  in3
+union volume            = 17.6703 in3   <- exactly what the boxes authored
+sum with multiplicity   = 18.8202 in3   <- exactly what mesh_volume reports
+```
+
+The two shells genuinely **overlap** by 1.15 in³. `mesh_volume` is a
+multiplicity-weighted sum, **not a union measure** — so for any multi-shell mesh the
+`fill` ratios this stream has been reporting (including in the merged PR #556) are
+**understated**: their numerator double-counts the overlap. The strut was never really
+"20 % full"; its envelope was over-stated by the metric as well as by the massing.
+`decompose_boxes` now reports `overlap_ft3` so the discrepancy is visible per product
+rather than mysterious, and the box lane's own fill is 1.0 by construction.
+
+## Result on the hanger
+
+| product | before | after |
+|---|---|---|
+| Strut Channel P1000 - Top | 1 prism, fill 0.20 | **59 boxes, exact** |
+| Strut Channel P1000 - Bottom | 1 prism, fill 0.20 | **23 boxes, exact** |
+| End Cap ×2 | 1 box, fill 1.00 | unchanged (already exact) |
+| Rod Hardware ×2 | 5 slabs, 1.01 | unchanged |
+| Channel Nut ×2 | 1 prism, 0.49 | 2 slabs, 1.01 |
+| Beam Clamp ×2, Stitch Weld | envelope | unchanged, still labelled |
+
+13 products → **103 solids**, `.rfa` 408 KB, **VALID 0 errors**, provenance clean,
+release 2026, 7.2 s end to end. The two struts merge to different box counts (59 vs 23)
+because they are mirror images and the greedy merge runs in coordinate order; both
+reproduce the same exact union volume.
+
+Still honest envelopes, unchanged and still labelled: the C-Type beam clamps (a curved
+casting), the stitch weld (intermittent beads), the threaded rods (a cylinder at 0.98,
+which is right).
+
+## Evidence
+
+- `tests/test_ifc_assembly.py` — **43 passed** (was 34): axis-alignment, winding sign
+  independence, exact box decomposition, the C-channel case, overlapping shells measured
+  as a union, curved bodies refused, budgets refused not truncated.
+- `test_router + test_famgen_factory + test_frontdoor_json_strict + test_ifc_family +
+  test_ifc_intent + test_frontdoor + test_plugin_sync` — **380 passed, 22 skipped**
+- `sync_plugin --check` clean · `validate_plugin` PASS · portable paths ok (2957)
+
+One test was RETIRED rather than fixed: `test_a_body_whose_section_runs_sideways_keeps_
+its_prism` asserted the limitation this round removes. It is replaced by
+`..._is_now_exact_not_an_envelope`.
+
+## BRANCH STATE (round 3)
+
+Branch `claude/ifc-exact-box-decomposition`, cut from `main` at 152d009 (NOT stacked on
+the merged branch). Files: `src/rvt/ifc/assembly_parts.py` (winding number,
+`is_axis_aligned`, `decompose_boxes`, the box lane preferred over slabs),
+`tests/test_ifc_assembly.py`, this record.
+
+Unchanged and still open: swept/CSG bodies are skipped by name; the famgen type-row
+text-value question from round 2; **no viewer certification is claimed** (rule 4) — the
+`.rfa` is validator- and provenance-gated only, and a desktop or viewer check is still
+the only thing that can say "Revit opens it".
