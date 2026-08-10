@@ -870,6 +870,111 @@ def add_box_form(doc: SK.FamilyDoc, width_ft: float, depth_ft: float,
     return fb
 
 
+def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
+                     height_ft: float, *, base_z_ft: float = 0.0,
+                     rep: str = G.REP_SOLID) -> G.FormBundle:
+    """Author an ARBITRARY extruded form (issue #498): ``vertices`` = the
+    closed planar ring in the family plane (feet, any winding, >= 3 points),
+    extruded ``height_ft`` from ``base_z_ft``.  The rectangular case is
+    :func:`add_box_form`; this is the same cluster over an N-gon profile.
+    """
+    if doc.finalized:
+        raise FactoryError("document is finalized; add forms before finalize")
+    ctx = geometry_context(doc)
+    prof = G.polygon_profile(vertices)
+    if rep == G.REP_SOLID and len(prof.vertices) != 4:
+        # the CACHED six-face B-rep template (solid_box_brep) is the
+        # rectangular case only; a non-rectangular ring ships the
+        # regeneration rep instead -- the extrusion is fully defined by its
+        # sketch + depth and Revit rebuilds the solid on open (the variant
+        # already accepted for walls).  Generalising the cached rep to
+        # N-gons is issue #499.
+        rep = G.REP_DUMMY
+    fb = G.prism_form(prof, float(height_ft), ctx, doc.ids,
+                      base_z_ft=float(base_z_ft), rep=rep, kind="polygon")
+    doc.add(*fb.elements)
+    return fb
+
+
+def make_generic_model(*, height_ft: float,
+                       vertices: Optional[Sequence[Sequence[float]]] = None,
+                       width_ft: Optional[float] = None,
+                       depth_ft: Optional[float] = None,
+                       name: str = "Generic Model",
+                       category: str = "generic_model",
+                       base_z_ft: float = 0.0, solid: bool = True,
+                       source: str = "given", start_id: int = 1000,
+                       shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
+    """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
+    "when i go to claude design and ask it to build me a 3d object you
+    should be able to fully convert that to a rfa file").
+
+    Geometry is GIVEN, not catalog-resolved: either ``vertices`` (a closed
+    planar ring, feet -- any convex or concave polygon) or
+    ``width_ft``/``depth_ft`` for the rectangular case, extruded
+    ``height_ft``.  Every dimension is flagged ``given`` with ``source`` (an
+    IFC body, a prompt), never presented as a manufacturer fact -- the
+    honesty contract the catalog products keep.
+
+    Donor-free like every other constructor; carries the full famdoc law
+    set (settings singletons, views, browser folders, sketch solver).
+    """
+    if height_ft is None or float(height_ft) <= 0:
+        raise FactoryError("make_generic_model needs a positive height_ft")
+    if vertices is None and (width_ft is None or depth_ft is None):
+        raise FactoryError("make_generic_model needs vertices=[...] or "
+                           "width_ft + depth_ft")
+    H = float(height_ft)
+    prof = G.polygon_profile(vertices) if vertices is not None else None
+    W = float(prof.width) if prof is not None else float(width_ft)
+    D = float(prof.depth) if prof is not None else float(depth_ft)
+    fam_name = name or "Generic Model"
+    sheet = FactSheet(subject=f"generic model {fam_name}")
+    sheet.set("width_in", W * 12.0, kind="given", source=source)
+    sheet.set("depth_in", D * 12.0, kind="given", source=source)
+    sheet.set("height_in", H * 12.0, kind="given", source=source)
+    if prof is not None:
+        sheet.set("profile_points", len(prof.vertices), kind="given", source=source)
+    doc = SK.new_family_document(category, fam_name, work_plane_based=False,
+                                 start_id=start_id,
+                                 plane_length_ft=max(6.0, W * 2.0),
+                                 shared_params=shared_params)
+    doc.notes.append(f"generic model: geometry GIVEN ({source}); "
+                     f"{'arbitrary %d-point profile' % len(prof.vertices) if prof is not None else 'rectangular footprint'}")
+    for dim in ("Width", "Depth", "Height"):
+        _num(doc, dim, "length", "dimensions")
+    doc.add_type(_clean_name(fam_name), {
+        doc.params["Width"].elem_id: W,
+        doc.params["Depth"].elem_id: D,
+        doc.params["Height"].elem_id: H,
+        "description": (f"{fam_name}: {W * 12.0:g} W x {D * 12.0:g} D x "
+                        f"{H * 12.0:g} H in -- geometry GIVEN ({source}), "
+                        f"no catalog record claimed"),
+    })
+    r = G.REP_SOLID if solid else G.REP_DUMMY
+    if prof is not None:
+        fb = add_polygon_form(doc, prof.vertices, H, base_z_ft=base_z_ft, rep=r)
+        fb.params.update({"role": "given 3D body (arbitrary profile)",
+                          "profile_points": len(prof.vertices)})
+        if solid and len(prof.vertices) != 4:
+            prod_note = ("non-rectangular profile: the extrusion ships the "
+                         "REGENERATION rep (Revit rebuilds the solid from the "
+                         "sketch on open); the cached N-gon B-rep is issue #499")
+            doc.notes.append(prod_note)
+    else:
+        fb = add_box_form(doc, W, D, H, base_z_ft=base_z_ft, center=(0.0, 0.0), rep=r)
+        fb.params.update({"role": "given 3D body (rectangular)"})
+        # the drive only means something on a rectangle (issue #372)
+        from . import param_drive as PD
+        PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+    doc.finalize()
+    prod = FamilyProduct("generic_model", doc, sheet, forms=[fb],
+                         file_stem=_slug(fam_name))
+    prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
+                      "catalog facts; no manufacturer identity is claimed")
+    return prod
+
+
 def box_face(face: str) -> Dict[str, Any]:
     """The geometry-history TAG + edge-loop tags of a named face of the box
     template (rvt.famgen.geometry): 'top' = the start cap (z = base+height),
@@ -1068,14 +1173,20 @@ class FamilyProduct:
               timestamp: Optional[int] = 0, report_path: Optional[str] = None
               ) -> Dict[str, Any]:
         """Emit the standalone ``.rfa`` at ``path`` from BUNDLED assets
-        (container source = the certified genesis base; a user-supplied
-        ``$RVT_FAMILY_DONOR`` .rfa is the hidden escape hatch), then verify,
-        family-mode-validate and provenance-scan it."""
+        (container source = the certified genesis base), then verify,
+        family-mode-validate and provenance-scan it.
+
+        DONOR-FREE (issue #498, owner steer): no user file is read and no
+        ``$RVT_FAMILY_DONOR`` is consulted -- the family ADocument is
+        schema-authored, carries the full manager-slot set and wires every
+        registry itself.  A donor is only ever an explicit
+        ``standalone_family_write(family_donor=...)`` argument used by
+        format-parity experiments.
+        """
         from rvt.frontdoor.standalone import standalone_family_write
         return standalone_family_write(
             self, path, validate=validate, provenance=provenance,
-            timestamp=timestamp, report_path=report_path,
-            family_donor=os.environ.get("RVT_FAMILY_DONOR"))
+            timestamp=timestamp, report_path=report_path)
 
 
 # ---------------------------------------------------------------------------

@@ -282,10 +282,14 @@ def _supplied_or_bundled(env_var: str, bundled_dir: str, exts: tuple[str, ...]) 
 def family_donor_status(root: str | None = None) -> dict:
     """The family-format-donor input for the family build stage (F/L).
     ``bundled`` (a constructed donor shipped in ``assets/family/``),
-    ``user-supplied`` (``$RVT_FAMILY_DONOR``), or ``missing``.  When missing
-    the skill asks the user for ONE thing -- their Revit version and one
-    ``.rfa``/``.rvt`` of their own -- and NEVER goes looking for Autodesk
-    content on the machine."""
+    ``user-supplied`` (``$RVT_FAMILY_DONOR``), or ``missing``.
+
+    REPORTED ONLY -- ``missing`` is NOT a degradation and the skill must
+    never ask the user for a donor: family generation is donor-free (the
+    constructive famdoc tree carries the full manager-slot set and wires
+    every registry; desktop-verified, issues #333/#480).  A donor is an
+    expert override for format-parity experiments, nothing more.  We NEVER
+    go looking for Autodesk content on the machine."""
     r = plugin_root() if root is None else root
     return _supplied_or_bundled(FAMILY_DONOR_ENV, os.path.join(r, FAMILY_DONOR_DIR_REL),
                                 (".rfa", ".rvt"))
