@@ -1,0 +1,4 @@
+# #455: the edit layer reads block tags at call time; both files are fresh-clone safe
+# (bundled plugin/assets/genesis bases only; samples/ cases self-skip)
+tests/test_manipulate_import_context.py
+tests/test_manipulate.py
