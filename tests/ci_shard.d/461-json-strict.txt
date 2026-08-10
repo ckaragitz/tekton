@@ -1,0 +1,2 @@
+# #461: strict-JSON front-door writers; no samples/, no build, no viewer
+tests/test_frontdoor_json_strict.py

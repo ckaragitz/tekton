@@ -67,13 +67,14 @@ imports, never edits, ``rvt.famgen`` and the sibling ``rvt.ifc`` modules.
 """
 from __future__ import annotations
 
-import json
 import math
 import os
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+from .. import _jsonsafe
 
 # LAZY (perf-coldstart): numpy loads on first numeric use, so importing this
 # module -- which the whole front door does -- is instant and survives a
@@ -3260,7 +3261,7 @@ def intent_to_json(model: IntentModel, *, include_geometry_items: bool = True) -
 def write_intent(model: IntentModel, out_path: str, *, indent: int = 2) -> str:
     os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
     with open(out_path, "w") as fh:
-        json.dump(intent_to_json(model), fh, indent=indent, default=str)
+        _jsonsafe.dump(intent_to_json(model), fh, indent=indent)
     return out_path
 
 

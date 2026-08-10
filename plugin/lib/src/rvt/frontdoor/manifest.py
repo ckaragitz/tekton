@@ -24,6 +24,7 @@ import time
 from typing import Any, Dict, List, Optional, Sequence
 
 from .base import GenesisPin, ResolvedBase, PIN, repo_root
+from .. import _jsonsafe
 
 __all__ = ["TOOL", "TOOL_VERSION", "file_facts", "crud_affordances",
            "coverage_cross_reference", "census_gaps", "authorship_census_note",
@@ -601,7 +602,7 @@ def write_manifest(manifest: Dict[str, Any], out_dir: str) -> Dict[str, str]:
     os.makedirs(out_dir, exist_ok=True)
     jp = os.path.join(out_dir, "manifest.json")
     with open(jp, "w") as fh:
-        json.dump(manifest, fh, indent=1, default=str)
+        _jsonsafe.dump(manifest, fh, indent=1)
     mp = os.path.join(out_dir, "MANIFEST.md")
     with open(mp, "w") as fh:
         fh.write(_render_md(manifest))

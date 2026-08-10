@@ -77,6 +77,7 @@ import tempfile
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .base import PIN, BaseError, repo_root, sha256_of
+from .. import _jsonsafe
 
 __all__ = [
     "StandaloneError", "plugin_root", "bundled_base_path", "bundled_schema",
@@ -1014,7 +1015,7 @@ def standalone_family_write(product, path: str, *, validate: bool = True,
                      and (not provenance or rep["provenance"].get("ok")))
     rp = report_path or (os.path.splitext(path)[0] + ".json")
     with open(rp, "w") as fh:
-        json.dump(rep, fh, indent=1, default=str)
+        _jsonsafe.dump(rep, fh, indent=1)
     rep["report_path"] = rp
     return rep
 
