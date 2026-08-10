@@ -571,7 +571,7 @@ used: `src/rvt/frontdoor/manifest.py` (`edit_manifest`, `_honesty`, the MANIFEST
   without the parenthesis (eng #424 holds `router.py`).
 * **F15 — `history_head_guid` consolidation not done** (the issue's optional tidy-up): two of the three
   copies live in NO-GO files this wave (`tools/rvt_job.py`, and `rvt/mep/views_spaces.py` is nobody's but the
-  third caller alone is not a consolidation). Filed as its own small task (`Refs #406`) so it is picked up
+  third caller alone is not a consolidation). Filed as its own small task (#434, `Refs #406`) so it is picked up
   when `rvt_job.py` is free; the `scrub_identity(document_guid=…)` casing caveat is carried into it.
 
 ### How to run
