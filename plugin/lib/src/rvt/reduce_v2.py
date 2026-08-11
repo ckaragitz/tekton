@@ -51,6 +51,17 @@ field-by-field diff of the old emission against the solved grammar shows:
 
 No existing ``src/rvt/*`` module is edited: everything is imported.
 Run ``python -m rvt.reduce_v2 --probes`` to emit the B-probe set.
+
+Every path-taking public entry enters the file's OWN release itself (#671),
+the way every other engine entry does: the writer :func:`remove_units_v2`
+under ``rvt.frontdoor.release_ctx.host_release_context`` (joins a caller's
+same-release context; a native file enters none; an uncertified or
+unreadable file is its typed ``ReleaseContextError``), the read-only
+instruments :func:`verify_content_coherence` / :func:`family_units` /
+:func:`diff_old_vs_solved` on ``rvt.global_framing.enter_own_release``'s
+lenient ladder (the rung, if one was needed, reported as ``release_note``).
+:func:`exact_partition_logical` is CRCIO un-framing only -- release-agnostic;
+the B-probe driver reads its fixed native sample lineage (``R9`` / ``R9b``).
 """
 from __future__ import annotations
 
@@ -60,7 +71,10 @@ import json
 import os
 import sys
 import uuid
+from contextlib import ExitStack
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+
+from .global_framing import enter_own_release      # a leaf: binds the patched modules lazily, at entry
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
@@ -324,7 +338,24 @@ def remove_units_v2(doc, guids: Iterable[str], out_path: Optional[str] = None, *
     ``doc`` is a path or any object with ``.source_path`` (rvt.mutate
     .Document).  Every touched stream is re-framed with real CRCIO ECC.
     Returns the full report (also written next to ``out_path``).
+
+    Runs under the SOURCE's own release (``host_release_context``, joined
+    when a caller already holds it; a source it cannot enter is that
+    context's typed ``ReleaseContextError``, raised before anything is read).
     """
+    from .frontdoor.release_ctx import host_release_context
+    src = doc if isinstance(doc, str) else (getattr(doc, "source_path", None)
+                                               or getattr(doc, "path", None))
+    if not src or not os.path.exists(src):
+        raise ValueError(f"remove_units_v2: cannot resolve a source .rvt from {doc!r}")
+    with host_release_context(src):
+        return _remove_units_v2(src, guids, out_path, reconcile_adocument=reconcile_adocument,
+                                exact_tail=exact_tail, gzip_level=gzip_level)
+
+
+def _remove_units_v2(src: str, guids: Iterable[str], out_path: Optional[str], *,
+                     reconcile_adocument: bool, exact_tail: bool,
+                     gzip_level: int) -> Dict[str, Any]:
     from . import ecc
     from .adocument import decode_latest, encode_latest
     from .container import open_rvt
@@ -332,10 +363,6 @@ def remove_units_v2(doc, guids: Iterable[str], out_path: Optional[str] = None, *
     from .stream_encoders import global_prefix, wrap_global_stream
     from .writer import gzip_member
 
-    src = doc if isinstance(doc, str) else (getattr(doc, "source_path", None)
-                                               or getattr(doc, "path", None))
-    if not src or not os.path.exists(src):
-        raise ValueError(f"remove_units_v2: cannot resolve a source .rvt from {doc!r}")
     want = sorted({str(g).lower() for g in guids})
     if not want:
         raise ValueError("remove_units_v2: no GUIDs given")
@@ -414,7 +441,7 @@ def remove_units_v2(doc, guids: Iterable[str], out_path: Optional[str] = None, *
     # -- write ------------------------------------------------------------------
     rewrite_entries(src, out_path, new_streams)
     rep["file_size"] = os.path.getsize(out_path)
-    rep["post"] = verify_content_coherence(out_path)
+    rep["post"] = _verify_content_coherence(out_path)      # under the source's release already in force (same Formats/Latest)
     with open(os.path.splitext(out_path)[0] + "_v2report.json", "w") as fh:
         json.dump(rep, fh, indent=1, default=str)
     return rep
@@ -430,7 +457,19 @@ def verify_content_coherence(path: str) -> Dict[str, Any]:
     ContentTable records vs FamilyMgr loaded-family GUIDs, plus the partition
     end-record tail length (0 = canonical) and the CD grammar round-trip.
     A coherent file has all four GUID sets EQUAL and tail_junk == 0.
+
+    Read under the file's OWN release (``enter_own_release``, nest-safe in a
+    caller's context); ``release_note`` is None when the file's own schema
+    settled the framing, else the ladder's sentence naming the rung.
     """
+    with ExitStack() as stack:
+        note = enter_own_release(stack, path)
+        rep = _verify_content_coherence(path)
+    rep["release_note"] = note
+    return rep
+
+
+def _verify_content_coherence(path: str) -> Dict[str, Any]:
     from .adocument import decode_latest
     from .container import open_rvt
     from .famgen.factory import (CD_END_RECORD, assemble_content_documents,
@@ -484,7 +523,14 @@ def verify_content_coherence(path: str) -> Dict[str, Any]:
 def family_units(project: str) -> List[Dict[str, Any]]:
     """One row per embedded document unit of ``project`` (source of truth =
     the partition walker), joined with the host Family that names it (when the
-    host still exists) -- name, category, host id."""
+    host still exists) -- name, category, host id.  Walked under the
+    project's OWN release (``enter_own_release``; rows only, no rung note)."""
+    with ExitStack() as stack:
+        enter_own_release(stack, project)
+        return _family_units(project)
+
+
+def _family_units(project: str) -> List[Dict[str, Any]]:
     from . import families
     idx = families.FamilyIndex.open(project)
     rows: Dict[str, Dict[str, Any]] = {}
@@ -779,7 +825,23 @@ def _merge_probes_json(out_dir: str, manifest: Dict[str, Any]) -> None:
 
 def diff_old_vs_solved(old_out: str = R9B, base: str = R9, source: str = RST) -> Dict[str, Any]:
     """Field-by-field diff of the OLD reduction emission (R9b) against the
-    SOLVED grammar / the exact framing.  Prints and returns the evidence."""
+    SOLVED grammar / the exact framing.  Prints and returns the evidence.
+    Read under ``base``'s OWN release (``enter_own_release``): ``source`` ->
+    ``base`` -> ``old_out`` are one lineage and must be one release (checked,
+    not assumed); ``release_note`` as :func:`verify_content_coherence`."""
+    from .versions import detect_release
+    years = {p: detect_release(p) for p in (source, base, old_out)}
+    if len(set(years.values())) != 1:
+        raise ValueError("diff_old_vs_solved: source / base / old_out are not one release "
+                         f"({', '.join(f'{os.path.basename(p)}={y}' for p, y in years.items())})")
+    with ExitStack() as stack:
+        note = enter_own_release(stack, base)
+        ev = _diff_old_vs_solved(old_out, base, source)
+    ev["release_note"] = note
+    return ev
+
+
+def _diff_old_vs_solved(old_out: str, base: str, source: str) -> Dict[str, Any]:
     from .container import open_rvt
     from .famgen.factory import (CD_END_RECORD, assemble_content_documents,
                                  parse_content_documents)

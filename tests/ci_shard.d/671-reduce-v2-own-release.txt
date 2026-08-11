@@ -1,0 +1,2 @@
+# pinned genesis bases only (fresh-clone safe): reduce_v2's entries enter the file's own release, #671
+tests/test_reduce_v2_671.py
