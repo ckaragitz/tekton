@@ -112,5 +112,6 @@ now-unused `import os`), `tests/test_rewrite_entries_646.py` (one call), `tests/
 `tests/ci_shard.d/693-read-entries-pathlike.txt` (new), this fragment (new). Not touched: `src/rvt/cfb_writer.py`,
 `src/rvt/famgen/**`, `src/rvt/frontdoor/**`, `src/rvt/versions/**`, `tools/**`, any hot file, `tests/ci_shard.txt`, the stream
 index, `TRACKER.md` / `KNOWLEDGE.md`. Gates: the table and grep above; whole merged shard `RVT_SKIP_LARGE=1 .venv/bin/python -m
-pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)` on the branch: **SHARD_RESULT_PENDING**; `/simplify` RAN
-(above); `/verify` RAN (above). Nothing staged for the viewer; no certification claim; nothing generated committed.
+pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)` on the committed head: **2584 passed / 137 skipped / 3 xfailed** in 6:26 (expected = `main` + the new module's 9 ids;
+a first run taken while the mirror was one docstring behind `src/` showed the expected torn read -- `test_plugin_sync` 1 failed /
+2583 passed -- and was discarded, not reinterpreted); `/simplify` RAN (above); `/verify` RAN (above). Nothing staged for the viewer; no certification claim; nothing generated committed.
