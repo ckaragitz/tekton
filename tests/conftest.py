@@ -366,7 +366,7 @@ def twin_partition_entry(src, damage=None):
     through ``damage`` when one is given (the primary itself stays untouched)."""
     from rvt.roundtrip import read_entries
     pname = partition_of(src)
-    part = next(e for e in read_entries(os.fspath(src)) if e.entry_type == "stream" and e.path == pname)
+    part = next(e for e in read_entries(src) if e.entry_type == "stream" and e.path == pname)
     head, n = pname.rsplit("/", 1)
     return dataclasses.replace(part, path="%s/%d" % (head, int(n) + 1),
                                data=part.data if damage is None else damage(part.data))

@@ -36,7 +36,7 @@ def test_every_bytes_like_edit_lands_as_the_same_bytes(pin, tmp_path):
         out = rewrite_entries(pin, tmp_path / f"like{i}.rvt", {"Global/History": edit})
         assert Path(out).read_bytes() == ref
     assert C.streams(tmp_path / "bytes.rvt")["Global/History"] == payload
-    assert type(read_entries(str(tmp_path / "like1.rvt"))[1].data) is bytes            # stored as plain bytes
+    assert type(read_entries(tmp_path / "like1.rvt")[1].data) is bytes                 # stored as plain bytes
 
 
 @pytest.mark.parametrize("edit", ["text, not bytes", 5, lambda raw: raw.decode("latin-1"), lambda raw: None])

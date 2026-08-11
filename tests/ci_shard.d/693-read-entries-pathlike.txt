@@ -1,0 +1,2 @@
+# rvt.roundtrip.read_entries / catalog take str | os.PathLike themselves, on the pinned bases (fresh-clone safe)
+tests/test_read_entries_pathlike_693.py

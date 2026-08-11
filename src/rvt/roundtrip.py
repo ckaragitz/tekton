@@ -87,13 +87,15 @@ def _iter_direntries(ole: olefile.OleFileIO):
         yield e
 
 
-def read_entries(path: str, *, with_data: bool = True) -> List[CfbEntry]:
+def read_entries(path: str | os.PathLike[str], *, with_data: bool = True) -> List[CfbEntry]:
     """Read every directory entry (in original stream-id order) via olefile.
 
-    ``with_data=False`` skips stream bytes (fast metadata-only pass).
+    ``path`` is a ``str`` or any ``os.PathLike`` (``os.fspath``-ed here, once,
+    so no caller does it first).  ``with_data=False`` skips stream bytes
+    (fast metadata-only pass).
     """
     entries: List[CfbEntry] = []
-    with olefile.OleFileIO(path) as ole:
+    with olefile.OleFileIO(os.fspath(path)) as ole:
         paths = _sid_paths(ole)
         for e in _iter_direntries(ole):
             etype = ENTRY_TYPES.get(e.entry_type, "unknown")
@@ -124,7 +126,7 @@ def read_streams(path: str | os.PathLike[str]) -> Dict[str, bytes]:
     framed / paged) -- the before/after census of "which streams did this
     write touch".
     """
-    return {e.path: e.data for e in read_entries(os.fspath(path)) if e.is_stream}
+    return {e.path: e.data for e in read_entries(path) if e.is_stream}
 
 
 # --- catalog: metadata + per-stream digests --------------------------------------
@@ -162,8 +164,11 @@ def _read_header_fields(path: str) -> Dict[str, object]:
     }
 
 
-def catalog(path: str, *, hash_streams: bool = True) -> Dict[str, object]:
-    """Header parameters + every directory entry (order preserved) + digests."""
+def catalog(path: str | os.PathLike[str], *, hash_streams: bool = True) -> Dict[str, object]:
+    """Header parameters + every directory entry (order preserved) + digests
+    of the container at ``path`` (``str`` or ``os.PathLike``, as for
+    :func:`read_entries`)."""
+    path = os.fspath(path)
     header = _read_header_fields(path)
     rows: List[Dict[str, object]] = []
     with olefile.OleFileIO(path) as ole:
@@ -255,7 +260,7 @@ def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
     does.  Returns ``dst`` (as ``str``), the one thing every caller goes on
     to use.
     """
-    src, dst = os.fspath(src), os.fspath(dst)
+    dst = os.fspath(dst)
     out: List[CfbEntry] = []
     missing = set(replace)
     for e in read_entries(src):
@@ -271,7 +276,7 @@ def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
             e = dataclasses.replace(e, data=bytes(new))
         out.append(e)
     if missing:
-        raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), src))
+        raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), os.fspath(src)))
     out.extend(extra)
     if not (os.path.exists(dst) and os.path.samefile(src, dst)):
         write_cfb(dst, out)

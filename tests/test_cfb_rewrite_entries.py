@@ -8,7 +8,6 @@ table in the #640 record -- a test cannot re-run loops that no longer exist -- a
 now a plain call of the API, keeps its own rows in ``tests/test_conftest_scaffolding.py``."""
 from __future__ import annotations
 
-import os
 import shutil
 from pathlib import Path
 
@@ -25,7 +24,7 @@ pytestmark = pytest.mark.usefixtures("no_release_leak")       # build_variant's 
 def _directory(path) -> list:
     """Every entry's identity but its bytes: (path, type, clsid, state bits, ctime, mtime), in stream-id order."""
     return [(r["path"], r["type"], r["clsid"], r["state_bits"], r["ctime"], r["mtime"])
-            for r in catalog(os.fspath(path), hash_streams=False)["entries"]]
+            for r in catalog(path, hash_streams=False)["entries"]]
 
 
 def _paged_stream(path) -> str:
