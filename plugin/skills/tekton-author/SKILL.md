@@ -190,8 +190,8 @@ caveat 3), `--handoff-only` (prompt route: only the AI-surface handoff),
 
 1. **Build inputs all ship in the plugin**: the certified bases for 2026,
    2025 and 2024, the family container and the wall/instance templates. A
-   user file is only ever an expert override (`--base`, `--specimens`,
-   `$RVT_FAMILY_DONOR`).
+   user file is only ever an expert override (`--base`, `--specimens`);
+   families need none.
 2. **PROOF-ONLY provenance stamp.** The bases are viewer-certified as OURS
    but their lineage discloses Autodesk-derived residue
    (`references/GENESIS-BASE.md`), so the provenance gate stamps outputs

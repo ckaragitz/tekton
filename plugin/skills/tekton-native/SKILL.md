@@ -50,7 +50,7 @@ line verbatim. No pip install, no venv, no `eval`, no task boards, no
 exploratory shell. Never read, probe, list, or request access to any
 Autodesk installation directory (the Windows program / program-data
 Autodesk trees, /Applications/Autodesk, Autodesk family-template folders);
-any donor/template file comes from the plugin's own assets or from the user.
+any template file comes from the plugin's own assets.
 
 ## Step 2 — the job (ONE command; its output IS your report)
 
@@ -96,8 +96,8 @@ ECC mismatch means Autodesk's reader will reject the file.
 - **In progress**: wall render (LOAD vs RENDER); circuits on pre-existing
   elements. Full creation runs from bundled assets alone — the family
   container and the wall/instance templates come from the bundled genesis
-  base; no donor or specimen file is needed (`$RVT_FAMILY_DONOR` /
-  `--specimens` stay as expert overrides). State remaining caveats WITH
+  base; families are self-generated, no donor or specimen file is
+  needed (`--specimens` is an expert override). State the caveats WITH
   the file, never as a reason to hand over nothing.
 
 ## Engine facts for programmatic work (the load-bearing rules)
