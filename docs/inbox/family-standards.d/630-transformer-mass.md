@@ -18,7 +18,7 @@ Territory used: `src/rvt/famgen/factory.py` (the transformer constructor + `SPEC
 `plugin/lib` mirrors via `tools/sync_plugin.py`, NEW `tests/test_transformer_mass_630.py` +
 `tests/ci_shard.d/630-transformer-mass.txt`, six flipped expectations in
 `tests/test_famgen_factory.py` / `tests/test_famgen_standards.py` (listed below), this fragment.
-Not touched: `skeleton.py`, any other constructor, `SKILL.md`, `src/rvt/ifc/**`,
+Not touched beyond that one line: `skeleton.py`'s store points (#647), any other constructor, `SKILL.md`, `src/rvt/ifc/**`,
 `family_units.json` (mass was already there — see below).
 
 ## What was built
@@ -38,8 +38,8 @@ Not touched: `skeleton.py`, any other constructor, `SKILL.md`, `src/rvt/ifc/**`,
   API developer guide (Units: "seven base quantities, each with its own internal unit … Mass:
   kilogram") says the same; it was read, not copied. 1 lb = 0.45359237 kg is the international
   pound's *definition*, so the factor is exact. `pounds()` sits in `factory.py` next to
-  `_TO_INTERNAL` rather than beside `skeleton.volts` only because `skeleton.py` is #647's
-  territory this round (follow-up below).
+  `_TO_INTERNAL` rather than beside `skeleton.volts` because `skeleton.py`'s unit helpers are
+  #647's territory this round (moving it is part of follow-up #660).
 - **`TYPE_CATALOG_COLUMNS["mass"] = ("MASS", "POUNDS_MASS")`** → header
   **`Operating Weight##MASS##POUNDS_MASS`**, cell in lb. Why that token pair: every existing row of
   the table obeys one law — TYPE = the parameter data type in upper snake case (Autodesk's "Create a
@@ -119,7 +119,7 @@ fixed, readings retaken).
 
 | gate | before (main 697928f) | after |
 |---|---|---|
-| `RVT_SKIP_LARGE=1 pytest tests/test_transformer_mass_630.py tests/test_famgen_standards.py tests/test_famgen_factory.py tests/test_famgen_catalog.py tests/test_standards_apply_safe.py tests/test_rfa_load.py tests/test_place_fixtures.py -q -rs` | 245 passed, 5 skipped (rme/rst samples absent) | **254 passed, 5 skipped** (+9 = the new module) |
+| `RVT_SKIP_LARGE=1 pytest tests/test_transformer_mass_630.py tests/test_famgen_standards.py tests/test_famgen_factory.py tests/test_famgen_catalog.py tests/test_standards_apply_safe.py tests/test_rfa_load.py tests/test_place_fixtures.py -q -rs` | 245 passed, 5 skipped (rme/rst samples absent) | **254 passed, 5 skipped** (+9 = the new module) on d8b3caa; after the #658 fold-in (+2 tests) and with `tests/test_famgen_skeleton.py` + `tests/test_plugin_sync.py` added to the set: **278 passed, 14 skipped** (the 9 extra skips are skeleton's sample-.rfa cases) |
 | `python -m rvt.famgen.standards --check` | 27 categories, 35 synonym groups, 0 problems | 27 categories, 35 synonym groups, **0 problems** |
 | `tools/route.py matrix` | 3181 bytes, sha256 `7dae5d40eb461e9a…` | **byte-identical** (`cmp` clean) |
 | `tools/make_family.py transformer --types 30,45,75 --type-catalog --json` (Eaton) → `rvt_validate.py --family` / `make_family.py provenance` | VALID 0 / ok | **VALID (no errors), warnings 0** / **ok**; `Operating Weight` reads back mass, m_value 185.519… on the current (30 kVA) type |
@@ -168,19 +168,27 @@ behind them, i.e. the registry follow-up's job, not a rename PR's; hoisting `_wr
 read-back helpers into `tests/conftest.py` — shared test infrastructure outside this territory
 (three modules now copy them; noted for the registry follow-up).
 
-**Known edge this PR opens (flagged on the PR, filed as #658, P1):** the mass parameter is now
-authored on the constructor's own (unguarded) path, and `skeleton.SHARED_DATATYPE_SPECS` has no
-`MASS` token, so a *user* shared-parameter file with a row `Operating Weight / MASS` makes
+**The edge this PR opened, and closed in the same PR (#658, tech-lead ruling — territory extended to
+exactly one line of `skeleton.py` + its mirror + one test):** the mass parameter is now authored on
+the constructor's own (unguarded) path, and `skeleton.SHARED_DATATYPE_SPECS` had no `MASS` token,
+so a *user* shared-parameter file with a row `Operating Weight / MASS` made
 `make_transformer(shared_params=…)` raise `ValueError … declares DATATYPE 'MASS' but the family
-authors it as '…structural:mass-1.0.0'` (reproduced; on `main` the same file built because the
-parameter was `Weight`; `make_panelboard` with that file builds and skips the parameter with the
-same reason). No documented flow uses such a file (`DEFAULT_SHARED_PARAMS` names no weight); the
-fix is one vocabulary line in `skeleton.py`.
+authors it as '…structural:mass-1.0.0'` — a non-delivery (hard rule 1) even on an undocumented
+input (reproduced on the first head d8b3caa; `main` built the same file only because the parameter
+was `Weight`; `make_panelboard` built and *skipped* the parameter). Fix:
+`SHARED_DATATYPE_SPECS["MASS"] = ("autodesk.spec.aec.structural:mass",)`. After: the same file →
+`make_family.py transformer --types 30,45,75 --shared-params <file> --json` **ok, family-mode VALID
+0, provenance ok / 0 suspects, `rvt_validate --family` VALID warnings=0**, `shared_parameters`
+= `{Mounting, Operating Weight → the row's GUID, Phases, Voltage, Wires}`; on the file the
+`Operating Weight` `ParamElemExternal` decodes with `m_guidValue` = the row's GUID, `m_specTypeId`
+mass, `m_typeId` = `shared_param_type_id(guid)`; `make_panelboard` with the file promotes it too
+(no skip). A `NUMBER` row for the mass parameter still raises the datatype guard (kept). Default
+builds (no file) byte-identical: the sha table above re-taken after the line — unchanged.
 
 ## Follow-ups (searched first — none existed; filed task-shaped with `Refs #630`)
 
-- **#658** (P1, area:famgen) — `SHARED_DATATYPE_SPECS["MASS"]`: the edge above; one line in
-  `skeleton.py` after / with #647.
+- **#658** (P1, area:famgen) — filed for the edge above, then **closed by this PR** on the tech
+  lead's ruling (`Closes #658`).
 - **#659** (P1, area:engine) — the edit lane's `_convert_value` has no mass branch:
   `edit_family --set "Operating Weight=600 lb"` stores 600 (kg) with a false "dimensionless" note;
   reuse `KG_PER_LB`, refuse a unitless mass like a unitless length. P1 because this PR is what puts
@@ -191,10 +199,11 @@ fix is one vocabulary line in `skeleton.py`.
 
 ## BRANCH STATE (eng #630)
 
-- Branch `cam/630-transformer-mass` from `main` @ 697928f; one PR, `Closes #630`.
+- Branch `cam/630-transformer-mass` from `main` @ 697928f (rebased on 61988e3); PR #662, `Closes #630`, `Closes #658`.
 - Files written: `src/rvt/famgen/factory.py`, `src/rvt/famgen/standards.py`,
   `plugin/lib/src/rvt/famgen/{factory,standards}.py` (mirrors, via `tools/sync_plugin.py`),
-  `tests/test_transformer_mass_630.py` (new, 8 tests / 9 cases), `tests/ci_shard.d/630-transformer-mass.txt` (new),
+  `src/rvt/famgen/skeleton.py` (one `SHARED_DATATYPE_SPECS` line, #658) + its mirror,
+  `tests/test_transformer_mass_630.py` (new, 10 tests / 11 cases), `tests/ci_shard.d/630-transformer-mass.txt` (new),
   `tests/test_famgen_factory.py` (2 expectations), `tests/test_famgen_standards.py` (4 tests),
   `docs/inbox/family-standards.d/630-transformer-mass.md` (this fragment; the `.d/` is new, the
   index `docs/inbox/family-standards.md` is untouched).

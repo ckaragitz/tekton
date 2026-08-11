@@ -17,7 +17,10 @@ kilograms; (2) the document -- Eaton (catalog weight) and HPS (none) name the
 quantity identically, one entry per meaning, value converted / blank; (3) the
 type catalog header and its lb cells; (4) the WRITTEN ``.rfa`` -- family-mode
 VALID 0 errors, provenance clean, ``Weight`` gone, ``Operating Weight`` reads
-back with the mass spec id and the kg value on every type row.
+back with the mass spec id and the kg value on every type row; (5) a user's
+shared-parameter file naming ``Operating Weight / MASS`` (#658, folded in):
+``skeleton.SHARED_DATATYPE_SPECS`` knows ``MASS``, so the transformer is built
+and delivered with the parameter SHARED at the file's GUID instead of raising.
 
 Validator-green is necessary, NOT certification (hard rule 4): the mass
 parameter is one more measurable ``ParamDefValue`` of the kind the panelboard /
@@ -96,6 +99,14 @@ def test_pounds_convert_to_kilograms_by_the_definition_of_the_pound():
 def test_the_type_catalog_declares_mass_in_pounds_mass():
     assert F.TYPE_CATALOG_COLUMNS["mass"] == ("MASS", "POUNDS_MASS")
     assert F._catalog_header([("Operating Weight", "mass")]) == [MASS_COLUMN]
+
+
+def test_the_shared_parameter_vocabulary_knows_mass():
+    """#658 (folded into #630): a shared-parameter file row's DATATYPE ``MASS``
+    agrees with the mass spec -- else no user file could ever name Operating
+    Weight without the constructor raising."""
+    assert SK.shared_datatype_matches("MASS", MASS_SPEC)
+    assert not SK.shared_datatype_matches("NUMBER", MASS_SPEC)   # the guard itself is kept
 
 
 # ---------------------------------------------------------------------------
@@ -205,3 +216,48 @@ def test_the_written_transformer_reads_back_operating_weight_as_a_mass_in_kilogr
     ow = inventory_family(path).param_by_caption("Operating Weight")
     assert ow["spec"] == MASS_SPEC and ow["carrier"] == "m_value"
     assert ow["current"] == pytest.approx(primary_lb * F.KG_PER_LB)
+
+
+# ---------------------------------------------------------------------------
+# 5. a user's shared-parameter file naming Operating Weight / MASS (#658):
+#    the family is built and delivered, the parameter SHARED at the file's GUID
+# ---------------------------------------------------------------------------
+
+WEIGHT_GUID = "9f0e2c1a-1b2c-4d3e-8f90-123456789abc"           # a row of a hypothetical user file (ours)
+
+
+def _file_with_mass_row(tmp_path):
+    """The tracked panelboard contract file plus ONE user row: Operating Weight / MASS."""
+    src = open(F.DEFAULT_SHARED_PARAMS, encoding="utf-8").read()
+    path = tmp_path / "with_mass.txt"
+    path.write_text(src.rstrip("\n") + f"\nPARAM\t{WEIGHT_GUID}\tOperating Weight\tMASS\t\t1\t1"
+                    "\tunit operating weight\t1\t0\n", encoding="utf-8")
+    return str(path)
+
+
+@needs_schema
+def test_a_shared_file_naming_operating_weight_mass_builds_and_binds_the_guid(tmp_path):
+    """Before the MASS token: make_transformer raised ``ValueError ... declares
+    DATATYPE 'MASS' but the family authors it as '...mass-1.0.0'`` -- nothing
+    delivered (hard rule 1) -- and make_panelboard skipped the parameter."""
+    from rvt.families import FamilyIndex
+    spf = _file_with_mass_row(tmp_path)
+    xf = F.make_transformer(**EATON, shared_params=spf)
+    pe = xf.doc.params["Operating Weight"]
+    assert pe.class_name == "ParamElemExternal" and pe.refs["spec"] == MASS_SPEC
+    assert xf.shared_parameters()["Operating Weight"] == WEIGHT_GUID
+    assert _type_values(xf.doc, "Operating Weight")["75 kVA 480-208Y/120"] == pytest.approx(570 * F.KG_PER_LB)
+    # ON THE FILE: valid, provenance clean, the external key decodes to the row's GUID
+    path = str(tmp_path / "xfmr_shared.rfa")
+    _write_valid(xf, path)
+    idx = FamilyIndex(path)
+    ext = {v["m_pParamDef"]["value"]["m_caption"]: v for v in
+           (idx.value(0, eid) for eid in idx.ids_of_class(0, "ParamElemExternal"))}
+    ow = ext["Operating Weight"]
+    assert ow["m_externalParamKey"]["m_guidValue"] == WEIGHT_GUID
+    assert ow["m_pParamDef"]["value"]["m_specTypeId"]["m_typeId"] == MASS_SPEC
+    assert ow["m_pParamDef"]["value"]["m_typeId"]["m_typeId"] == SK.shared_param_type_id(WEIGHT_GUID)
+    # the table-driven path (every other equipment set) promotes it too -- no skip
+    pb = F.make_panelboard(shared_params=spf)
+    assert pb.shared_parameters()["Operating Weight"] == WEIGHT_GUID
+    assert "Operating Weight" not in {s["name"] for s in pb.standards["skipped"]}

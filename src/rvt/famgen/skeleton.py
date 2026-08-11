@@ -1029,6 +1029,7 @@ SHARED_DATATYPE_SPECS = {
     "ELECTRICAL_LUMINOUS_FLUX": ("autodesk.spec.aec.electrical:luminousFlux",),
     "ELECTRICAL_EFFICACY": ("autodesk.spec.aec.electrical:efficacy",),
     "COLOR_TEMPERATURE": ("autodesk.spec.aec.electrical:colorTemperature",),
+    "MASS": ("autodesk.spec.aec.structural:mass",),      # the equipment sets' Operating Weight (#630/#658)
 }
 
 
