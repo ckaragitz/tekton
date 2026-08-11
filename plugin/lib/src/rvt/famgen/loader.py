@@ -196,6 +196,25 @@ class HostContext:
 
 def survey_host(host_rvt: str = DEFAULT_HOST, *,
                 category: Optional[int] = CAT_ELECTRICAL_EQUIPMENT) -> HostContext:
+    """Enter ``host_rvt``'s OWN release, then survey it (#700).
+
+    A read-only instrument, so it takes ``rvt.global_framing.enter_own_release``'s
+    lenient ladder rather than the writer context ``load_family_into_project``
+    already uses (#14): a BARE call on a 2025 / 2024 host now surveys that host
+    instead of dying in the partition walker on the 2026 ``CONTAINER_CLASS``
+    (``ValueError: unexpected Partitions header: v=9 cls=0x391``).  Nest-safe
+    inside a caller's own context, so a survey made during a load is unchanged.
+    The survey itself is :func:`_survey_host_impl`, moved byte-for-byte.
+    """
+    from contextlib import ExitStack
+    from .. import global_framing as _GF
+    with ExitStack() as stack:
+        _GF.enter_own_release(stack, host_rvt)
+        return _survey_host_impl(host_rvt, category=category)
+
+
+def _survey_host_impl(host_rvt: str = DEFAULT_HOST, *,
+                      category: Optional[int] = CAT_ELECTRICAL_EQUIPMENT) -> HostContext:
     """Open the host and resolve the resources a family of ``category``
     binds to: the category's projection ``GStyleElem`` (the symbol
     geometry's line style), the named load classifications (a family's
