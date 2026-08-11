@@ -70,13 +70,12 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 from . import ecc
 from . import partitions as _P
 from ._clause import cause_clause
-from .cfb_writer import write_cfb
 from .commit import PART_HDR_COUNT_OFF
 from .container import open_rvt
 from .encode import ObjectEncoder, record_stamp
 from .objects import Record, iter_records
 from .partitions import StreamWalker, record_header_len
-from .roundtrip import read_entries
+from .roundtrip import rewrite_entries
 from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
 from .validate import NO_PARTITION_WHERE, NO_PARTITION_WHY, enter_own_release, walk_file
 from .writer import gzip_member
@@ -1471,7 +1470,7 @@ def _header_count(doc, pname: str) -> Optional[int]:
     return struct.unpack_from("<I", logical, PART_HDR_COUNT_OFF)[0]
 
 
-def _primary_partition(doc, entries_by_path) -> str:
+def _primary_partition(doc, entries_by_path=None) -> str:
     """The partition stream holding the host document (unit 0 == ElemTable).
     ``doc``: an open ``RvtDocument`` or a ``rvt.validate.WalkedFile``.
     No partition stream at all -> ``ManipulationError``."""
@@ -1523,10 +1522,9 @@ def commit_plans(src_rvt: str, out_path: str, plans: Sequence[Plan], *,
     for key in [k for k in replacements if k[1] in removals]:
         del replacements[key]
 
-    entries = read_entries(src_rvt)
     new_streams: Dict[str, bytes] = {}
     with open_rvt(src_rvt) as doc:
-        pname = _primary_partition(doc, entries)
+        pname = _primary_partition(doc)
 
         # ---------------- 1. Global/ElemTable -------------------------------
         model = decode_elemtable(doc.inflate("Global/ElemTable"))
@@ -1585,10 +1583,7 @@ def commit_plans(src_rvt: str, out_path: str, plans: Sequence[Plan], *,
         part_logical = bytes(out[:w2.end_offset + len(w2.end_record)])
         new_streams[pname] = ecc.frame_stream(part_logical)
 
-    out_entries = [dataclasses.replace(e, data=new_streams[e.path])
-                   if (e.entry_type == "stream" and e.path in new_streams) else e
-                   for e in entries]
-    write_cfb(out_path, out_entries)
+    rewrite_entries(src_rvt, out_path, new_streams)
     return ManipCommitReport(pname, sorted(removals),
                              sorted(replacements.keys()),
                              count_before, count_after, watermark,

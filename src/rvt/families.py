@@ -665,10 +665,8 @@ def emit_rfa(src: str, out: str, *, edits: Optional[list[dict]] = None,
     and the container is rebuilt by our CFB writer.  Returns a report
     including read-back verification (see ``verify_rfa``).
     """
-    import dataclasses as _dc
     from . import ecc
-    from .cfb_writer import write_cfb
-    from .roundtrip import read_entries
+    from .roundtrip import rewrite_entries
     from .writer import gzip_member
     idx = FamilyIndex(src)
     report: dict = {"src": src, "out": out, "streams": [], "edits": []}
@@ -681,7 +679,6 @@ def emit_rfa(src: str, out: str, *, edits: Optional[list[dict]] = None,
             type_name=e.get("type_name"),
             also_current_defaults=e.get("also_current_defaults", False))
         report["edits"].append(er)
-    entries = read_entries(src)
     new_data: dict[str, bytes] = {}
     with open_rvt(src) as f:
         pstreams = set(f.partition_streams())
@@ -705,11 +702,8 @@ def emit_rfa(src: str, out: str, *, edits: Optional[list[dict]] = None,
                 new_data[name] = ecc.frame_stream(logical)
                 report["streams"].append({"name": name, "action": "re-gzip + real ECC",
                                           "logical": len(logical), "size": len(new_data[name])})
-    out_entries = [_dc.replace(e, data=new_data[e.path])
-                   if e.entry_type == "stream" and e.path in new_data else e
-                   for e in entries]
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
-    write_cfb(out, out_entries)
+    rewrite_entries(src, out, new_data)
     report["size"] = os.path.getsize(out)
     report["verify"] = verify_rfa(out, src=src)
     return report

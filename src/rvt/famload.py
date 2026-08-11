@@ -1139,8 +1139,7 @@ def _load_family_documents(host_rvt: str, families: Sequence[FamilyLoad],
     from .commit import commit_new_elements
     from .container import open_rvt
     from .adocument import decode_latest, encode_latest
-    from .roundtrip import read_entries
-    from .cfb_writer import write_cfb
+    from .roundtrip import rewrite_entries
     from .stream_encoders import wrap_global_stream
     from . import ecc
 
@@ -1301,12 +1300,8 @@ def _load_family_documents(host_rvt: str, families: Sequence[FamilyLoad],
         "Global/Latest": ecc.frame_stream(
             wrap_global_stream("Global/Latest", new_latest, level=3)),
     }
-    entries = read_entries(tmp1)
-    out_entries = [dataclasses.replace(e, data=new_streams[e.path])
-                   if (e.entry_type == "stream" and e.path in new_streams) else e
-                   for e in entries]
     stage_out = tmp2 if repoints else out_rvt
-    write_cfb(stage_out, out_entries)
+    rewrite_entries(tmp1, stage_out, new_streams)
     try:
         os.remove(tmp1)
     except OSError:                                            # pragma: no cover

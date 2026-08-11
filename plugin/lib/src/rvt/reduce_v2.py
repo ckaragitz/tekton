@@ -317,9 +317,8 @@ def remove_units_v2(doc, guids: Iterable[str], out_path: Optional[str] = None, *
     """
     from . import ecc
     from .adocument import decode_latest, encode_latest
-    from .cfb_writer import write_cfb
     from .container import open_rvt
-    from .roundtrip import read_entries
+    from .roundtrip import rewrite_entries
     from .stream_encoders import global_prefix, wrap_global_stream
     from .writer import gzip_member
 
@@ -334,7 +333,6 @@ def remove_units_v2(doc, guids: Iterable[str], out_path: Optional[str] = None, *
     rep: Dict[str, Any] = {"source": src, "out": out_path, "guids": want,
                            "reconcile_adocument": bool(reconcile_adocument),
                            "exact_tail": bool(exact_tail), "streams_replaced": []}
-    entries = read_entries(src)
     new_streams: Dict[str, bytes] = {}
     with open_rvt(src) as f:
         parts = f.partition_streams()
@@ -404,10 +402,7 @@ def remove_units_v2(doc, guids: Iterable[str], out_path: Optional[str] = None, *
     rep["partition_table"] = "untouched (workset table -- no per-unit rows exist)"
 
     # -- write ------------------------------------------------------------------
-    out_entries = [dataclasses.replace(e, data=new_streams[e.path])
-                   if (e.entry_type == "stream" and e.path in new_streams) else e
-                   for e in entries]
-    write_cfb(out_path, out_entries)
+    rewrite_entries(src, out_path, new_streams)
     rep["file_size"] = os.path.getsize(out_path)
     rep["post"] = verify_content_coherence(out_path)
     with open(os.path.splitext(out_path)[0] + "_v2report.json", "w") as fh:

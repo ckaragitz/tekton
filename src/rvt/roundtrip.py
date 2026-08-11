@@ -9,7 +9,8 @@ regenerated (see docs/streams/00-cfb-container.md).
 :func:`rewrite_entries` is the same pass with chosen streams' raw bytes
 replaced or dropped and ready-made entries appended -- the ONE "re-emit this
 container with these streams changed, everything else byte-identical" loop
-for the engine (``rvt.writer``'s variant builders) and the test scaffolding
+for the engine's writers (every commit / edit / reduce / load path that
+re-emits an existing container) and the test scaffolding
 (``tests/conftest.rewrite_streams``) alike.
 
 CLI::
@@ -29,8 +30,10 @@ import dataclasses
 import hashlib
 import json
 import os
+import shutil
 import struct
 import sys
+import tempfile
 import time
 from typing import (Callable, Dict, List, Mapping, NamedTuple, Optional, Sequence,
                     Tuple)
@@ -200,9 +203,11 @@ def roundtrip(in_path: str, out_path: str) -> Tuple[CfbLayout, float, float]:
     return layout, t1 - t0, t2 - t1
 
 
-StreamEdit = bytes | Callable[[bytes], bytes] | None
-"""What to do with one stream: its new raw bytes outright, ``raw -> new raw``
-(``raw`` = its bytes exactly as stored, still paged), or ``None`` to drop it."""
+BytesLike = bytes | bytearray | memoryview
+StreamEdit = BytesLike | Callable[[bytes], BytesLike] | None
+"""What to do with one stream: its new raw bytes outright (any bytes-like),
+``raw -> new raw`` (``raw`` = its bytes exactly as stored, still paged), or
+``None`` to drop it."""
 
 
 def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
@@ -211,15 +216,27 @@ def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
     """Re-emit the container ``src`` as ``dst`` with chosen streams changed.
 
     For every ``{path: edit}`` in ``replace`` the stream at that '/'-joined
-    path has its raw bytes replaced -- by ``edit`` itself when it is bytes, by
-    ``edit(raw)`` when it is callable -- or is dropped when ``edit`` is
-    ``None``; the ready-made ``extra`` entries are appended after the
-    container's own; every other entry (order, bytes, CLSIDs, state bits,
+    path has its raw bytes replaced -- by ``bytes(edit)`` when it is
+    bytes-like (``bytes`` / ``bytearray`` / ``memoryview``), by ``edit(raw)``
+    when it is callable (its result held to the same bytes-like rule) -- or
+    is dropped when ``edit`` is ``None``; anything else is a ``TypeError``
+    naming the stream.  The ready-made ``extra`` entries are appended after
+    the container's own; every other entry (order, bytes, CLSIDs, state bits,
     FILETIMEs) is carried over exactly as :func:`roundtrip` would.  A path in
-    ``replace`` that names no *stream* of ``src`` is a ``KeyError`` raised
-    before anything is written -- never a silent verbatim copy.  ``src`` is
-    read fully before ``dst`` is opened, so ``src == dst`` rewrites in place.
-    Returns ``dst`` (as ``str``), the one thing every caller goes on to use.
+    ``replace`` that names no *stream* of ``src`` is a ``KeyError``.  Every
+    such error is raised before anything is written -- never a silent
+    verbatim copy, never a half-made ``dst``.
+
+    ``dst``'s directory must already exist (``FileNotFoundError`` otherwise,
+    as for :func:`write_cfb` -- the pass makes streams, never directory
+    trees; a caller that wants ``makedirs`` says so itself).  ``src`` is read
+    fully before anything is opened for writing, so ``src == dst`` (the same
+    file, however spelled or linked) rewrites in place -- through a sibling
+    temp file ``os.replace``-d over it only once complete (atomic on POSIX;
+    the file's permission bits kept), so a failure mid-write leaves the
+    source intact, not torn, and no temp behind.  A distinct ``dst`` is
+    written directly, exactly as :func:`write_cfb` does.  Returns ``dst``
+    (as ``str``), the one thing every caller goes on to use.
     """
     src, dst = os.fspath(src), os.fspath(dst)
     out: List[CfbEntry] = []
@@ -230,12 +247,29 @@ def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
             edit = replace[e.path]
             if edit is None:
                 continue
-            e = dataclasses.replace(e, data=edit if isinstance(edit, bytes) else edit(e.data))
+            new = edit(e.data) if callable(edit) else edit
+            if not isinstance(new, (bytes, bytearray, memoryview)):
+                raise TypeError("stream %r: an edit is bytes-like, a callable returning "
+                                "bytes-like, or None -- got %s" % (e.path, type(new).__name__))
+            e = dataclasses.replace(e, data=bytes(new))
         out.append(e)
     if missing:
         raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), src))
     out.extend(extra)
-    write_cfb(dst, out)
+    if not (os.path.exists(dst) and os.path.samefile(src, dst)):
+        write_cfb(dst, out)
+        return dst
+    real = os.path.realpath(dst)                 # in place: replace the file, not a link to it
+    fd, tmp = tempfile.mkstemp(prefix=os.path.basename(real) + ".", suffix=".tmp",
+                               dir=os.path.dirname(real))
+    os.close(fd)
+    try:
+        write_cfb(tmp, out)
+        shutil.copymode(real, tmp)               # mkstemp creates 0600; keep the file's own bits
+        os.replace(tmp, real)
+    except BaseException:
+        os.remove(tmp)
+        raise
     return dst
 
 

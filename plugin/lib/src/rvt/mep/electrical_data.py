@@ -68,7 +68,6 @@ from .. import ecc
 from .. import inventory as inv
 from .. import manipulate as M
 from .. import stream_encoders as SE
-from ..cfb_writer import write_cfb
 from ..commit import PART_HDR_COUNT_OFF
 from ..container import open_rvt
 from ..manipulate import (BLOCK_BUDGET, DeletePlan, FieldChange, ModifyPlan,
@@ -76,7 +75,7 @@ from ..manipulate import (BLOCK_BUDGET, DeletePlan, FieldChange, ModifyPlan,
 from ..mutate import (CLASS_GELEMENT, CLASS_SERIALIZED_DUMMY, Document,
                       ElemRecPlan, NewElement)
 from ..partitions import StreamWalker
-from ..roundtrip import read_entries
+from ..roundtrip import rewrite_entries
 from ..stream_encoders import global_prefix
 from ..streams_edit import elemtable_add_element
 from ..writer import gzip_member
@@ -1619,10 +1618,10 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
     for key in [k for k in replacements if k[1] in removals]:
         del replacements[key]
 
-    entries = read_entries(src_rvt)
     new_streams: Dict[str, bytes] = {}
     with open_rvt(src_rvt) as d:
-        pname = M._primary_partition(d, entries)
+        pname = M._primary_partition(d)
+        bfi = d.raw("BasicFileInfo") if d.has("BasicFileInfo") else None
 
         # ---- 1. Global/ElemTable ------------------------------------------------
         model = SE.decode_elemtable(d.inflate("Global/ElemTable"))
@@ -1690,20 +1689,15 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
     if own_identity:
         try:
             from ..identity import own_basic_file_info
-            bfi = next((e for e in entries
-                        if e.entry_type == "stream" and e.path == "BasicFileInfo"), None)
             if bfi is not None:
                 new_streams["BasicFileInfo"] = own_basic_file_info(
-                    bfi.data, out_path=out_path, **(identity or {}))
+                    bfi, out_path=out_path, **(identity or {}))
         except Exception as exc:                                    # pragma: no cover
             import warnings
             warnings.warn(f"identity scrub skipped: {exc}")
 
     # ---- 4. write -------------------------------------------------------------
-    out_entries = [dataclasses.replace(e, data=new_streams[e.path])
-                   if (e.entry_type == "stream" and e.path in new_streams) else e
-                   for e in entries]
-    write_cfb(out_path, out_entries)
+    rewrite_entries(src_rvt, out_path, new_streams)
     return ElectricalCommitReport(
         pname, sorted(e.elem_id for e in new_elements), sorted(removals),
         sorted(replacements.keys()), count_before, count_after, watermark,

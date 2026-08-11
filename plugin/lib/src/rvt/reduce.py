@@ -48,11 +48,10 @@ from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 from . import ecc
 from . import partitions as _P
-from .cfb_writer import write_cfb
 from .container import open_rvt
 from .objects import iter_records
 from .partitions import StreamWalker
-from .roundtrip import read_entries
+from .roundtrip import rewrite_entries
 from .stream_encoders import decode_elemtable, encode_elemtable, global_prefix
 from .writer import gzip_member
 
@@ -232,7 +231,6 @@ def delete_elements(src_rvt: str, out_path: str, delete_ids: Iterable[int], *,
     (save units 1..k) are copied byte-for-byte and never inspected.
     """
     delete = {int(i) for i in delete_ids}
-    entries = read_entries(src_rvt)
     new_streams: Dict[str, bytes] = {}
     with open_rvt(src_rvt) as doc:
         parts = doc.partition_streams()
@@ -284,10 +282,7 @@ def delete_elements(src_rvt: str, out_path: str, delete_ids: Iterable[int], *,
         new_streams[pname] = ecc.frame_stream(part_logical)
 
     # ---------------- 3. write ------------------------------------------------
-    out_entries = [dataclasses.replace(e, data=new_streams[e.path])
-                   if (e.entry_type == "stream" and e.path in new_streams) else e
-                   for e in entries]
-    write_cfb(out_path, out_entries)
+    rewrite_entries(src_rvt, out_path, new_streams)
     return ReduceReport(pname, len(delete), count_before, count_after, watermark,
                         removed, len(u0), sum(1 for b in w2.blocks if b.unit == 0),
                         len(logical), len(part_logical), out_path)

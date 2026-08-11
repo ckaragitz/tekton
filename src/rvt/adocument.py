@@ -688,27 +688,15 @@ def write_with_latest(src_rvt: str, out_rvt: str, payload: bytes) -> dict:
     ``payload`` is the full Latest payload (``encode_latest`` output:
     ``u16 class + object + u32 0``).  Compression + prefix + CRCIO page
     framing use the proven encoders; every other stream is copied verbatim.
-    Returns a small report.
+    A ``src_rvt`` without a Global/Latest stream is a ``KeyError`` (nothing
+    is written).  Returns a small report.
     """
-    import dataclasses
     from . import ecc
-    from .cfb_writer import write_cfb
-    from .roundtrip import read_entries
+    from .roundtrip import rewrite_entries
     from .stream_encoders import wrap_global_stream
     logical = wrap_global_stream(STREAM, payload, level=3)
     framed = ecc.frame_stream(logical)
-    entries = read_entries(src_rvt)
-    n = 0
-    out_entries = []
-    for e in entries:
-        if e.entry_type == "stream" and e.path == STREAM:
-            out_entries.append(dataclasses.replace(e, data=framed))
-            n += 1
-        else:
-            out_entries.append(e)
-    if n != 1:
-        raise RuntimeError(f"expected exactly one {STREAM} in {src_rvt}, replaced {n}")
-    write_cfb(out_rvt, out_entries)
+    rewrite_entries(src_rvt, out_rvt, {STREAM: framed})     # no such stream -> KeyError, nothing written
     return {"out": out_rvt, "payload": len(payload), "logical": len(logical),
             "framed": len(framed)}
 
