@@ -813,3 +813,168 @@ BRANCH STATE (cam/602-conftest-adoption): `tests/test_rvt_edit_refusal.py`, `tes
 `tests/test_edit_status.py` (helper adoption only), `tests/test_conftest_scaffolding.py` (the two `EXEMPT` deletions, `ADOPTERS` += the two refusal files, wording),
 this section. No `tests/conftest.py` change; nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed
 (all four files already in the merged shard); nothing staged for the viewer; no certification claim.
+
+---
+
+## 2026-08-11 — eng #604: `test_gates_shared_walk.py` adopts conftest's `rewrite_stream` / `partition_of`; the AST law's `EXEMPT` set is empty
+
+**Stream:** eng #604 (issue #604; Refs #602 #579, and #266 / #430 for the file's origin). Written in this engineer's
+voice under its own header; nothing above this rule was edited.
+
+### What landed — helper adoption only (no assertion, test id, parametrize axis or skip condition changed)
+
+1. **`tests/test_gates_shared_walk.py`** — the private in-place `_rewrite_stream(src, dst, name, mutate)` (`mutate(bytearray)
+   -> None`) and `_partition(path)` are gone; the five call sites go through conftest's pure
+   `rewrite_stream(src, dst, name, damage)` / `partition_of(path)`. The reshaping the issue asked for, and nothing else:
+   `_smash64(raw, off)` is now a pure damage (`raw[:off] + b"\xff" * 64 + raw[off + 64:]` instead of the slice
+   assignment), the two identical local `def flip(raw): raw[_IN_FIRST_MEMBER] ^= 0x04` closures become ONE module-level
+   pure damage `_flip_bit(raw)` (the "one tiny local adapter" the DONE allows — kept local, not in conftest, for THIS
+   issue: conftest was default-frozen here and the change is adoption-only; /simplify then found that both recipes DO have
+   byte-identical siblings elsewhere under `tests/` — see the /simplify section and follow-up #617, which hoists them),
+   the `lambda raw: _smash64(raw, _LOST_BODY[name])` keeps its spelling (it now *returns* the damaged bytes),
+   and `_with_second_partition` computes `data = _smash64(part.data) if damaged else part.data` instead of smashing a
+   `bytearray` in place. `bad = str(tmp_path / "x.rvt"); _rewrite_stream(edited, bad, …)` folds into
+   `bad = rewrite_stream(edited, tmp_path / "x.rvt", …)` — the helper returns `os.fspath(dst)`, the same `str` the tests
+   handed on before. `from rvt.container import open_rvt` left with `_partition`; `dataclasses` / `read_entries` /
+   `write_cfb` stay for `_with_second_partition` (it *adds* a stream — not a `rewrite_stream` shape). The hoisted helper's
+   one tightening (a missing stream name is a `KeyError`, never a silent verbatim copy) never fires here: the primary
+   partition, `Global/Latest`, `Global/ElemTable` and `Contents` exist in every pin and in the 2025 edit (the identity
+   table below built all of them).
+2. **`_constants_restored` — left exactly as it is** (DONE bullet 2, first option). Measured, not assumed: with the autouse
+   fixture deleted and `pytestmark = [pytest.mark.usefixtures("no_release_leak"), <the skipif>]` in its place the file is
+   **12 passed** in 9.13 s — the stricter before/after + `active_release() is None` guard holds on every test (the
+   module-scoped `edited` fixture enters `release_build_context` for 2025 and leaves it clean). Not switched here all the
+   same, because switching *adds* two assertions to twelve tests (this issue is adoption-only: ids, assertions, outcomes
+   identical) and an opt-in adopter belongs on the law's `ADOPTERS` ratchet, which is outside this issue's one-line
+   territory in the law file. The measurement is handed to **#605** (whose DONE already says "ADOPTERS covers every file
+   … or is derived: every non-exempt file that imports the scaffolding must request `no_release_leak`" — this file now
+   imports it and is known to pass under it) as a comment there, not a new issue. Experiment reverted; `git diff` shows
+   the fixture untouched.
+3. **`tests/test_conftest_scaffolding.py`** — `EXEMPT = set()`; its `#:` comment now says NONE since #604, stays empty, and
+   that a file growing a copy again is red in the law rather than a new entry; the module docstring's "minus a short,
+   shrinking `EXEMPT` list of files whose copy is not yet conftest-shaped" → "its `EXEMPT` set is empty since #604 and
+   must stay so (no file carries a copy of its own)". No law logic, `FORBIDDEN`, `ADOPTERS` or test body touched;
+   `test_the_exempt_list_only_names_files_that_exist_and_still_need_it` iterates an empty set and stays collected (15 ids
+   before, 15 after).
+
+### Evidence
+
+**`_with_second_partition` (and every other damaged copy) byte-identical, old builder vs new** — asserted BEFORE the old
+code was deleted: a throwaway script imported the untouched origin/main module (`OLD._rewrite_stream`, `OLD._partition`,
+`OLD._smash64`, `OLD._with_second_partition`, an in-place `flip`) next to the new pure damages on `conftest.rewrite_stream` /
+`partition_of`, built every copy the tests build from each pinned base **and** from the 2025 level edit the module fixture
+makes (`OLD._edit(2025, …)`), and compared sha256 (the returned second-partition name asserted equal too;
+`OLD._partition(src) == partition_of(src)` on all four sources). 28/28 identical:
+
+| source | copy | old sha256[:16] | new sha256[:16] | |
+|---|---|---|---|---|
+| 2026 | hard | `9fbf59a4bcee601c` | `9fbf59a4bcee601c` | == |
+| 2026 | soft | `a068cb52094d02b4` | `a068cb52094d02b4` | == |
+| 2026 | twin | `b3caa95661d85dd7` | `b3caa95661d85dd7` | == |
+| 2026 | twin_bad | `794d8803dcba8295` | `794d8803dcba8295` | == |
+| 2026 | lost-Contents | `16b3a993f9d51e1e` | `16b3a993f9d51e1e` | == |
+| 2026 | lost-Global-ElemTable | `72e752e0ec4f75a1` | `72e752e0ec4f75a1` | == |
+| 2026 | lost-Global-Latest | `46f717153e829857` | `46f717153e829857` | == |
+| 2025 | hard | `6a354496a2fdfff4` | `6a354496a2fdfff4` | == |
+| 2025 | soft | `8ef4e5306be3194c` | `8ef4e5306be3194c` | == |
+| 2025 | twin | `36ecd172dffac07b` | `36ecd172dffac07b` | == |
+| 2025 | twin_bad | `ca68a515dad6a7bd` | `ca68a515dad6a7bd` | == |
+| 2025 | lost-Contents | `b840bec9457738a9` | `b840bec9457738a9` | == |
+| 2025 | lost-Global-ElemTable | `8e109fa232eaf330` | `8e109fa232eaf330` | == |
+| 2025 | lost-Global-Latest | `4ef0d5071e3e5d0a` | `4ef0d5071e3e5d0a` | == |
+| 2024 | hard | `1dd9100bf896a48e` | `1dd9100bf896a48e` | == |
+| 2024 | soft | `ece08f369d7e021a` | `ece08f369d7e021a` | == |
+| 2024 | twin | `3a490b04169ceb24` | `3a490b04169ceb24` | == |
+| 2024 | twin_bad | `6a578e8267d3c7c7` | `6a578e8267d3c7c7` | == |
+| 2024 | lost-Contents | `c9691cc0c6caa7ac` | `c9691cc0c6caa7ac` | == |
+| 2024 | lost-Global-ElemTable | `8dee37646656a843` | `8dee37646656a843` | == |
+| 2024 | lost-Global-Latest | `8938c6c31564e270` | `8938c6c31564e270` | == |
+| edit2025 | hard | `3a20509796a4568c` | `3a20509796a4568c` | == |
+| edit2025 | soft | `77e0a8f3be00b873` | `77e0a8f3be00b873` | == |
+| edit2025 | twin | `de0df7f522bfa021` | `de0df7f522bfa021` | == |
+| edit2025 | twin_bad | `17859f5a2c971857` | `17859f5a2c971857` | == |
+| edit2025 | lost-Contents | `709dec4b62fc0ebe` | `709dec4b62fc0ebe` | == |
+| edit2025 | lost-Global-ElemTable | `66d94a534397d165` | `66d94a534397d165` | == |
+| edit2025 | lost-Global-Latest | `0ec638dc4722c661` | `0ec638dc4722c661` | == |
+
+(`ALL BYTE-IDENTICAL`; script and copies in the session scratchpad, not committed.)
+
+**Collected ids and outcomes, before (origin/main `15b6fbe`) → after** (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest
+tests/test_gates_shared_walk.py tests/test_conftest_scaffolding.py -q -rs -p no:cacheprovider`; `--collect-only -q` id
+lists `diff`ed → empty; the `-v` id+outcome lines `diff`ed → empty):
+
+| file | collected before | collected after | ids `diff` | run before | run after |
+|---|---|---|---|---|---|
+| `tests/test_gates_shared_walk.py` | 12 | 12 | empty | 12 passed | 12 passed |
+| `tests/test_conftest_scaffolding.py` | 15 | 15 | empty | 15 passed | 15 passed |
+| both (`-q -rs`) | 27 | 27 | empty; `-v` outcome diff empty | **27 passed, 0 skipped** in 10.51 s | **27 passed, 0 skipped** in 9.81 s |
+
+`RVT_DOCS_AUDIT=report` census of that run, before and after: `0 repo docs/ file(s) opened by this test process` — unchanged.
+`git diff -U0 -- tests/ | grep -E '^[-+]\s*assert'` → nothing: no `assert` line added, removed or reworded.
+`git grep -n "def _rewrite_stream" -- tests/` → nothing (exit 1). `git grep -n "_partition(" -- tests/test_gates_shared_walk.py` → nothing.
+
+**The law bites both ways with `EXEMPT` empty** (mutations, reverted, `git diff` clean of them afterwards): appending
+`def _rewrite_stream(src, dst, name, damage): …` to `tests/test_gates_shared_walk.py` → `test_no_module_carries_a_private_copy`
+FAILED with `{'test_gates_shared_walk': ['_rewrite_stream']} -- import the own-release scaffolding from conftest instead
+(#579)` (1 failed, 14 passed); putting `"test_gates_shared_walk"` back into `EXEMPT` →
+`test_the_exempt_list_only_names_files_that_exist_and_still_need_it` FAILED with `test_gates_shared_walk carries no copy any
+more: drop it from EXEMPT` (1 failed, 14 passed). Green again on revert (15 passed).
+
+`git diff --numstat`: `tests/test_gates_shared_walk.py` **+22 −45**, `tests/test_conftest_scaffolding.py` +4 −4. pyflakes
+clean on both. `python3 tools/dev/check_portable_paths.py` → `ok: 2989 tracked paths are portable`. Nothing under `src/ tools/ plugin/ skills/`
+touched (`sync_plugin.py --check`: `plugin in sync with source` at cloud-setup; moot for this diff). `/verify` skipped —
+tests-only diff, no runtime surface (commit trailer says so).
+
+**Whole merged shard** (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`,
+102 files, same 4-vCPU cloud VM, sequential runs, docs-read audit on — no section printed on either run = no offender):
+```
+origin/main 15b6fbe (worktree)     2045 passed, 134 skipped, 3 xfailed, 3 warnings in 435.58s
+this branch f908ac4                2045 passed, 134 skipped, 3 xfailed, 3 warnings in 442.15s   (= main, nothing moved)
+```
+The 3 warnings are main's (`PytestRemovedIn10Warning`); skips identical (134). The /simplify head (`e3bdab1`) and the record
+fill-in after it change one docstring line, one `#:` comment line and this file — no non-comment source line — so the branch
+run stands for the head (the two files re-run on the head all the same: 27 passed, ids identical).
+
+### /simplify pass (four independent angles) — taken / not taken
+
+Taken: **simplification** — two wording nits: the module docstring's new clause said edits *and* damaged copies are
+written "through conftest's `rewrite_stream` / `partition_of`", but the edit is written by `commit_plans`, the twin by
+`write_cfb`, and `partition_of` writes nothing → now "the damaged copies via conftest's `rewrite_stream`"; the two-line
+`#:` comment above `EXEMPT` restated the module docstring → one line ("none since #604; a regrown copy goes red in the law
+below, not in here"). Otherwise clean: every remaining import is live (`open_rvt` correctly gone; `dataclasses` /
+`read_entries` / `write_cfb` serve `_with_second_partition`, `P` / `V` the kept fixture), `pname` is a local only where it
+is reused after the rewrite and inlined where it is not, no `_partition` / `mutate` leftovers.
+**Efficiency** — clean, tallied per call site: container opens per test unchanged (1 `open_rvt` + 1 `read_entries` + 1
+`write_cfb` per damaged copy, exactly as before; nothing moved into a fixture); the old `bytearray(e.data)` + `bytes(raw)`
+pair becomes slice-concatenation of the same order (≈ equal on a ~MB stream, once per test), and
+`_with_second_partition(damaged=False)` drops from two full-stream copies to none (`part.data` by reference).
+**Reuse** — clean *for this diff* (no conftest recipe reproduces these bytes: `zero_partition_header` = 16 × `0x00` @ 0,
+`zero_schema_bytes` = 64 × `0x00` @ 2000, vs `_smash64` = 64 × `0xff` @ 280 / `_flip_bit` = `^ 0x04` @ 280, so local recipes
+are what byte-identity requires; import style matches the sibling adopters), but it and **altitude** both corrected one
+claim of my first draft — "no second caller exists" was wrong: `tests/test_partition_header_verdict.py:137` carries a
+byte-for-byte `_smash64` (in-place shape; its default `_IN_GLOBAL_BODY = 8+10+200` is the offset this file spells as
+`_LOST_BODY["Global/Latest"]`), `:142` `_twin_entry` is the `_with_second_partition` recipe, `:107` / `:112` are a
+`_partition` and a multi-stream `_rewrite`; `tests/test_ecc_final_block.py:49` `_flip(raw, at, bit)` is the general pure bit
+flip (`_flip_bit` = `_flip(raw, 280, 2)`) and `:130` `_variant` a third single-stream rewrite. None is callable from here
+without a cross-test-module import (no sibling does that) and hoisting them is a conftest change with two more adopting
+files — outside this adoption-only, conftest-frozen issue — so the right depth is a follow-up, filed as **#617** with those
+file:lines, and the record above no longer says "no second caller". Altitude also **agreed** with leaving
+`_constants_restored` (an opt-in without an `ADOPTERS` row would be an unratcheted guard; #605 owns that list; 12/12 under
+the stricter guard is measured and recorded) and noted that the now-empty `EXEMPT` machinery (a self-check iterating
+nothing) would normally be deleted — but #617 widens `FORBIDDEN` to the other spellings, at which point `EXEMPT` may
+briefly hold real members again, so keeping it is deliberate, not residue. After the two wording edits the two files are
+27 passed again, ids unchanged.
+
+### Follow-ups (searched first; task-shaped)
+
+- **#617** — conftest grows the offset damage recipes (`smash64(off)`, `flip_bit(at, bit)`) + a twin-partition entry
+  builder; `test_partition_header_verdict.py` / `test_ecc_final_block.py` / this file adopt them byte-identically and the law's
+  `FORBIDDEN` gains the retired spellings (`_partition`, `_rewrite`, `_variant`, `_smash64`, `_twin_entry`). Refs #604 #602 #579.
+- No new issue for the guard switch: that this file passes 12/12 under `no_release_leak` is left as a comment on the
+  existing **#605** (its `ADOPTERS` / derived-adopters bullet already covers "every file that imports the scaffolding").
+
+BRANCH STATE (cam/604-shared-walk-conftest): `tests/test_gates_shared_walk.py` (helper adoption only),
+`tests/test_conftest_scaffolding.py` (`EXEMPT = set()` + its comment and the docstring clause), this section. No
+`tests/conftest.py` change; nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed (both files
+already in the merged shard: `tests/ci_shard.d/266-shared-gate-walk.txt`, `579-scaffolding.txt`); nothing staged for the
+viewer; no certification claim.
