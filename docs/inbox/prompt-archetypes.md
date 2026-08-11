@@ -57,8 +57,9 @@ from a standards document held in this repo, and the module says so in its own d
 rather than implying a citation it cannot produce. No archetype family carries a
 manufacturer, model or part number — pinned by
 `test_no_archetype_family_claims_a_manufacturer` across every archetype. Ask for "an Eaton
-B-Line 24 in tray, part number X" and you still get a refusal, because that *is* a fact the
-catalog would have to hold.
+B-Line 24 in tray, part number X" and the guard fires — **see round 2 below: as first
+written this sentence claimed a refusal that was not implemented, and the fix is not a
+refusal but a delivery that says plainly the named item is not what you got.**
 
 ## The registry (DONE 5: one entry + one function)
 
@@ -126,7 +127,7 @@ It now checks them, which also closes the same hole for `standard_values` (#601)
 | gate | result |
 |---|---|
 | `python -m rvt.famgen.archetypes --check` | 5 archetypes, **0 problems** |
-| `tests/test_famgen_archetypes.py` | **46 passed** |
+| `tests/test_famgen_archetypes.py` | **46 passed** (round 1; 71 after round 2) |
 | `tests/test_router.py` | **138 passed, 8 skipped** |
 | `test_frontdoor + test_famgen_factory + test_famgen_standards + test_standards_apply_safe` | **461 passed, 18 skipped** (with the archetype suite) |
 | `tools/route.py matrix` self-audit | clean (the new `prompt->archetype` stage is declared with its evidence) |
