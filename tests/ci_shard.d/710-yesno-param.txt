@@ -1,0 +1,3 @@
+# #710: SPEC_YESNO authors a ParamDefYesNo with no spec id written (the #333
+# storage-class law extended to the boolean case); fresh-clone safe
+tests/test_yesno_param_710.py

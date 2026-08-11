@@ -153,6 +153,12 @@ SPEC_LENGTH = "autodesk.spec.aec:length-1.0.0"
 SPEC_NUMBER = "autodesk.spec.aec:number-1.0.0"
 SPEC_TEXT = "autodesk.spec:spec.string-1.0.0"
 SPEC_INTEGER = "autodesk.spec:spec.int64-1.0.0"
+#: SELECTOR ONLY for a Yes/No family parameter -- like SPEC_TEXT / SPEC_INTEGER
+#: it is never written into the file: ``ParamDefYesNo`` carries no
+#: ``m_specTypeId`` (schema: no own fields, same shape as ParamDefString).
+#: The storage-class law of #333 (Revit-2026-born specimen, desktop round 24)
+#: says a non-measurable parameter takes its own ParamDef class and no spec.
+SPEC_YESNO = "autodesk.spec:spec.bool-1.0.0"
 #: text/integer are NON-measurable specs: their family-parameter definition
 #: is a ParamDefString / ParamDefInt (no m_specTypeId), NOT a measurable
 #: ParamDefValue -- issue #333 round 24, byte-measured on a Revit-2026-born
@@ -927,7 +933,12 @@ def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
         "m_readOnly": bool(read_only),
         "m_userVisible": bool(user_visible),
     }
-    if spec_type_id == SPEC_TEXT:
+    if spec_type_id == SPEC_YESNO:
+        # ParamDefYesNo carries NO own fields (schema) -- the same shape as
+        # ParamDefString, and like it no m_specTypeId is written.  Extends the
+        # #333 storage-class law to the boolean case (#705).
+        o["m_pParamDef"] = _ptr("ParamDefYesNo", base_def)
+    elif spec_type_id == SPEC_TEXT:
         o["m_pParamDef"] = _ptr("ParamDefString", base_def)
     elif spec_type_id == SPEC_INTEGER:
         o["m_pParamDef"] = _ptr("ParamDefInt", dict(
