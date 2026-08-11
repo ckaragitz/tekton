@@ -54,7 +54,7 @@ which already authors the *union* of overlapping shells at 0° and credits the o
 (`test_overlapping_shells_are_measured_as_a_union_not_counted_twice`). The union makes the two lanes
 one law.
 
-Five private helpers, called from `decompose_slabs` between `slice_loops` and `ring_nesting`; nothing
+Six private helpers (the sixth added in round 2 below), called from `decompose_slabs` between `slice_loops` and `ring_nesting`; nothing
 else in the module moves (`slice_loops`, `_stitch`, `_junction_pairs`, `ring_nesting`,
 `_probe_clear_of`, `fit_solid`, `decompose_boxes`, every constant, `EXACT_REL_TOL`, the 2 % slack, the
 #652 budgets, the #666 caliper law: byte-intact):
@@ -209,6 +209,52 @@ router delivers the sunk pair `OK (3-part …)` with the merge caveat and no pri
 reference rows and the 984 + 205 contact runs read exactly as on `main`. Against `main`'s engine the
 module fails by `AttributeError` on the helpers and by behaviour on every sunk row.
 
+## Round 2 (after the tech lead's review of ac6800e): the credit is net of what a shell's own hole holds
+
+The independent review reproduced everything above and sent back one blocking point, taken as asked.
+`shared = area(a) + area(b) − area(union)` treats both crossing rings as solid discs; a shell whose
+section carries a ring of its own *inside* the common region — one that crosses nothing — was
+credited as double material there. Reviewer's body: a 1.4×0.7×0.2 m plate slotted THROUGH a 32-gon
+pipe (r 0.5, bore 0.3; wider than the bore, narrower than the skin, so it crosses the OUTER ring only
+and swallows the bore ring whole): merged, 3 parts, `holes_filled 3`, but `overlap_ft3` = 0.12703 m³
+against the true |w| ≥ 1.5 volume 0.07084 m³ — the excess is exactly the bore-in-plate, 8 % of the
+mesh handed to `_conserves`' authored side (no acceptance flipped, but unjustified credit per the
+#583 doctrine), and `fill_after` 0.669 for a true 0.735.
+
+**Fix, on the body's evidence** — `_enclosed_correction(a, b, others, twice)`, applied in
+`_first_crossing` where all the slice's rings are in hand: every OTHER ring whose interior probe lies
+inside both `a` and `b` is asked at that probe whether the body is doubled there, and its area enters
+the shared area with sign `[doubled here] − [doubled just outside it]` (outside = the smallest
+enclosed ring around it, else the common region itself, which the merge already verified as doubled).
+So a bore subtracts itself, an island of two shells inside that bore (a rod down the pipe, also
+through the plate) adds itself back, a third shell's ring changes nothing, and nothing enclosed means
+nothing to do — read from the body, never from the nesting being corrected. A hole ring that only
+*partly* overlaps the other shell must cross it and is therefore a crossing pair of its own (merged or
+refused there), so the piecewise reading is complete for the arrangement; the docstrings' "lower
+bound" wording is replaced by what it now is (holes discounted; a shell nested *whole* inside another
+crosses nothing and stays #613's). Cost: crossing path only — one `_interior_probe` + two
+point-in-ring tests per other ring of the slice, one oracle call per enclosed ring.
+
+| body (12 orders each unless noted) | ac6800e | this round |
+|---|---|---|
+| plate through pipe @ 12° (the review's probe) | overlap 0.12703 m³ ("7751.66 in3 shared"), fill_after 0.669 | **0.0708409 m³ = (∣skin∩plate∣ − ∣bore∣)·h to 1e-7** ("4322.98 in3"), fill_after **0.7354**; still 3 parts, holes 3, merged 1, every order |
+| same + a 16-gon rod down the bore, through the plate | — | overlap **0.076964 m³ = (∣skin∩plate∣ − ∣bore∣ + ∣rod∣)·h** exactly, 6 parts, 9/9 orders |
+| loss table (1476 sunk runs) · random 1200 · harder shapes · reference rows · #609 984 · #621 205 | as above | **identical** (0 lost / 0 kept; diff of the reference outputs still EMPTY; no enclosed ring exists in any of them, so no number moved) |
+| router: sunk 1 cm @ 12° / 2 cm @ −17° / base stud / bar through post | as above | identical transcripts (305.12 / 610.24 / 152.56 / 19527.60 in3); + `plate_through_pipe_12.ifc` → `OK (3-part …)`, `slab decomposition improved PlatePipe (3 solids, fill 0.58 -> 0.74)`, `1 crossing section(s) merged (PlatePipe: 1, 4322.98 in3 shared)`; all five VALID 0/0, provenance ok; matrix `7dae5d40…` unchanged |
+
+Two review nits also taken: the test module's `_SUNK` comment now says which row does what on `main`
+(the issue's named placement, 2 cm @ −17°, double-authors 41/41 on this generator; the 1 cm @ 12° and
+5 cm @ 5° rows are the 41/41 silent losses; the base stud rows mix losses/doubles with 17/41 prisms),
+matching the tables above; and the stream-local count is environment-dependent by one test
+(`test_router`'s read-only-dir case skips when running as root: 284 passed / 14 skipped here, 285 / 13
+in the tech lead's sandbox).
+
+Tests: `tests/test_ifc_assembly_637.py` 14 → **16** (`_enclosed_correction` on hand-made rings: empty /
+not enclosed / bore −4 / bore + rod −3 / third shell 0, and the merge carrying bore and rod along
+un-merged with shared 40 − 4 + 1; the plate-through-pipe body with and without the rod over 7 orders
+each, pinning `mesh_overlap_in3` to the geometric value at 1e-5 and `fill_after` to (mesh − doubled) ÷
+authored).
+
 ## Neighbouring cases NOT changed, on purpose (candidates for follow-ups, none filed as blocking)
 
 * **An island read as a hole** — a bolt passing clean through a plate with no crossing in the plate's
@@ -230,7 +276,7 @@ module fails by `AttributeError` on the helpers and by behaviour on every sunk r
 ## BRANCH STATE (eng #637)
 
 Branch `cam/637-crossing-rings` from `main` @ 6f33fb7; one issue, one PR (`Closes #637`). Files:
-`src/rvt/ifc/assembly_parts.py` (`_ring_cuts`, `_split_ring`, `_first_crossing`,
+`src/rvt/ifc/assembly_parts.py` (`_ring_cuts`, `_split_ring`, `_first_crossing`, `_enclosed_correction`,
 `_merge_crossing_rings`, `_union_of_crossing` new; `decompose_slabs` calls the merge, refuses `None`
 with its own reason and returns `crossings_merged` / `overlap_ft3`; `read_assembly`'s slab branch
 credits `overlap_ft3` in `_conserves` and `fill_after`, words the refusal, records `crossings_merged`

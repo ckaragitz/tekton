@@ -923,8 +923,10 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
     :func:`_probe_clear_of` starts trusting a probe beside the buried edge
     is the depth at which this takes over.  ``twice(x, y)`` is the body's
     own word that a point lies inside TWO shells at once; the shared area is
-    the material the mesh counts twice WHERE SECTIONS CROSSED (a second shell
-    nested whole inside the first crosses nothing and is not counted here).
+    the material the mesh counts twice WHERE SECTIONS CROSSED, net of any
+    ring either shell carries inside that region (a pipe's bore under a
+    plate slotted through it: :func:`_enclosed_correction`) -- a second
+    shell nested whole inside the first crosses nothing and is not counted.
 
     This is the third symptom (after the shared corner and the shared face)
     of one fact: rings cut from DIFFERENT shells are not a planar partition.
@@ -952,7 +954,9 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
 def _first_crossing(rings: List[List[List[float]]], twice: Any) -> Optional[Tuple]:
     """``(i, j, their union rings, shared area)`` for the first pair of
     ``rings`` that really cross; ``()`` when none do; None when a pair
-    crosses but :func:`_union_of_crossing` refuses to merge it."""
+    crosses but :func:`_union_of_crossing` refuses to merge it.  The shared
+    area is net of the other rings enclosed in the pair's common region
+    (:func:`_enclosed_correction`)."""
     boxes = [(min(v[0] for v in r), min(v[1] for v in r),
               max(v[0] for v in r), max(v[1] for v in r)) for r in rings]
     for i in range(len(rings)):
@@ -967,9 +971,44 @@ def _first_crossing(rings: List[List[List[float]]], twice: Any) -> Optional[Tupl
             got = _union_of_crossing(rings[i], rings[j], cuts, twice)
             if got is None:
                 return None
-            if got[0]:                                  # a real crossing, not contact
-                return (i, j) + got
+            union, shared = got
+            if union:                                   # a real crossing, not contact
+                others = [r for k, r in enumerate(rings) if k != i and k != j]
+                shared += _enclosed_correction(rings[i], rings[j], others, twice)
+                return i, j, union, max(0.0, shared)
     return ()
+
+
+def _enclosed_correction(a: Sequence[Sequence[float]], b: Sequence[Sequence[float]],
+                         others: Sequence[List[List[float]]], twice: Any) -> float:
+    """Signed area to add to ``area(a & b)`` so that it counts only material
+    the body holds TWICE inside the region rings ``a`` and ``b`` share.
+
+    ``area(a) + area(b) - area(union)`` treats both rings as solid discs, but
+    a shell's section may carry rings of its own inside that region which
+    cross nothing: a plate slotted through a pipe crosses the pipe's SKIN and
+    swallows its BORE whole, and the bore is one shell deep (the plate), not
+    two.  Every other ring whose interior lies inside both ``a`` and ``b`` is
+    asked at its own interior probe whether the body is doubled there; its
+    area enters with sign ``[doubled here] - [doubled just outside it]``
+    (outside = the smallest enclosed ring around it, else the shared region
+    itself, which the merge already verified as doubled): a bore subtracts
+    itself, an island of two shells inside that bore adds itself back, a
+    third shell's ring changes nothing.  Read from the body, never from the
+    nesting this corrects.
+    """
+    enclosed = []                                       # (ring, probe, area, doubled at probe)
+    for c in others:
+        p = _interior_probe(c)
+        if _point_in_ring(p, a) and _point_in_ring(p, b):
+            enclosed.append((c, p, _polygon_area(c), bool(twice(p[0], p[1]))))
+    correction = 0.0
+    for c, p, area_c, doubled in enclosed:
+        around = [(area_d, doubled_d) for d, _q, area_d, doubled_d in enclosed
+                  if d is not c and area_d > area_c and _point_in_ring(p, d)]
+        outside = min(around)[1] if around else True
+        correction += (int(doubled) - int(outside)) * area_c
+    return correction
 
 
 def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts, twice: Any
@@ -1113,10 +1152,12 @@ def decompose_slabs(points: Sequence[Sequence[float]],
     into each other) become one outline before anything is nested
     (:func:`_merge_crossing_rings`): ``crossings_merged`` counts them and
     ``overlap_ft3`` is the material the mesh counts twice where they crossed
-    -- a lower bound on the body's double-counted volume, for the caller's
-    conservation law to credit as it credits the box lane's.  Holes are not
-    expressible in the part contract: a ring at odd nesting depth is dropped
-    from the solid set and counted in ``holes_filled``.
+    (holes of either shell inside that region discounted on the body's word;
+    a shell nested WHOLE inside another crosses nothing and is not in it),
+    for the caller's conservation law to credit as it credits the box
+    lane's.  Holes are not expressible in the part contract: a ring at odd
+    nesting depth is dropped from the solid set and counted in
+    ``holes_filled``.
     """
     if not triangles:
         return _refuse(refusal, "no readable triangles")
