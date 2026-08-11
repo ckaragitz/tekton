@@ -19,7 +19,7 @@ this file's own location:
     so child processes inherit the same world.  ``RVT_GENESIS_BASE`` is
     the USER's override and is never exported by the plugin (#92).
   * :func:`preflight` -- ONE call, < 2 s, returning the readiness dict
-    {python, engine, genesis_base, family_donor, out_dir, ...} plus a
+    {python, engine, genesis_base, out_dir, routes, ...} plus a
     single human-readable line.  This replaces the old multi-command
     setup ceremony.
   * :func:`run_script` -- run a sibling skill script (frontdoor.py,
@@ -47,11 +47,12 @@ this file's own location:
 HARD RULE (non-negotiable): nothing in this module -- and nothing in any
 tekton skill -- reads, probes, lists, or requests access to an Autodesk
 installation directory (the Windows program / program-data Autodesk trees,
-/Applications/Autodesk, any Autodesk family-template folder).  The
-family-donor status below comes ONLY from a file bundled inside this
-plugin (``assets/family/``) or a file the user explicitly supplied
-(``$RVT_FAMILY_DONOR`` / a CLI argument).  tests/test_bootstrap.py
-enforces this with a source scan.
+/Applications/Autodesk, any Autodesk family-template folder).  Families
+are self-generated from the bundled assets on every release: there is no
+family-donor input any more (the donor path is retired, #498/#653) and the
+one optional build input still reported (the specimen ancestor) comes ONLY
+from a file bundled inside this plugin or a file the user explicitly
+supplied.  tests/test_bootstrap.py enforces this with a source scan.
 """
 from __future__ import annotations
 
@@ -66,7 +67,7 @@ import time
 
 __all__ = [
     "plugin_root", "ensure_engine", "ensure_rvt", "preflight",
-    "family_donor_status", "specimen_status", "run_script", "go", "doctor",
+    "specimen_status", "run_script", "go", "doctor",
     "cli",
 ]
 
@@ -77,9 +78,7 @@ MARKER_DIR = ".claude-plugin"                 # what makes a dir the plugin root
 GENESIS_REL = os.path.join("assets", "genesis", "G_ABPD.rvt")
 PIN_REL = os.path.join("lib", "src", "rvt", "frontdoor", "assets", "genesis_base.json")
 FACTS_REL = os.path.join("lib", "src", "rvt", "famgen", "facts")
-FAMILY_DONOR_DIR_REL = os.path.join("assets", "family")   # bundled constructed donors (.rfa/.rvt)
 SPECIMEN_ENV = "RVT_SPECIMEN_ANCESTOR"        # user-supplied specimen ancestor (reported only)
-FAMILY_DONOR_ENV = "RVT_FAMILY_DONOR"         # user-supplied family format donor (reported only)
 LINE_PREFIX = "tekton:"                       # every readiness line starts with this
 MIN_PY = (3, 9)
 #: front-door input routes that need an optional extra beyond the stdlib and
@@ -264,7 +263,7 @@ def ensure_rvt(root: str | None = None) -> str:
 
 
 # ---------------------------------------------------------------------------
-# donor / specimen status -- bundled path or user-supplied file ONLY
+# specimen status -- bundled path or user-supplied file ONLY
 # ---------------------------------------------------------------------------
 
 def _supplied_or_bundled(env_var: str, bundled_dir: str, exts: tuple[str, ...]) -> dict:
@@ -286,25 +285,10 @@ def _supplied_or_bundled(env_var: str, bundled_dir: str, exts: tuple[str, ...]) 
     return {"status": "missing", "path": None}
 
 
-def family_donor_status(root: str | None = None) -> dict:
-    """The family-format-donor input for the family build stage (F/L).
-    ``bundled`` (a constructed donor shipped in ``assets/family/``),
-    ``user-supplied`` (``$RVT_FAMILY_DONOR``), or ``missing``.
-
-    REPORTED ONLY -- ``missing`` is NOT a degradation and the skill must
-    never ask the user for a donor: family generation is donor-free (the
-    constructive famdoc tree carries the full manager-slot set and wires
-    every registry; desktop-verified, issues #333/#480).  A donor is an
-    expert override for format-parity experiments, nothing more.  We NEVER
-    go looking for Autodesk content on the machine."""
-    r = plugin_root() if root is None else root
-    return _supplied_or_bundled(FAMILY_DONOR_ENV, os.path.join(r, FAMILY_DONOR_DIR_REL),
-                                (".rfa", ".rvt"))
-
-
 def specimen_status(root: str | None = None) -> dict:
     """The specimen-ancestor input for the walls/equipment build stages
-    (``--specimens``).  Same three sources rule as the family donor."""
+    (``--specimens``): ``bundled``, ``user-supplied`` (``$RVT_SPECIMEN_ANCESTOR``)
+    or ``missing`` -- reported only, never a blocker."""
     r = plugin_root() if root is None else root
     return _supplied_or_bundled(SPECIMEN_ENV, os.path.join(r, "assets", "genesis"),
                                 (".specimen.rvt",))
@@ -361,9 +345,8 @@ def preflight(root: str | None = None) -> dict:
     """The whole environment story in one call.  Returns the readiness dict;
     ``result['line']`` is the single line to print/report.  READY means the
     four hard inputs are good: python, engine, verified genesis base,
-    writable output dir.  A missing family donor does NOT block readiness --
-    it degrades the family build stage and the skill asks the user for one
-    file instead.  ``result['routes']`` (and the line's ``ifc-route``
+    writable output dir.  Families are self-generated from the bundled
+    assets, so no family input is reported.  ``result['routes']`` (and the line's ``ifc-route``
     segment) says per input route whether it builds here or which extra it
     needs first (#127) -- READY never precedes a guaranteed FAILED."""
     t0 = time.time()
@@ -415,8 +398,7 @@ def preflight(root: str | None = None) -> dict:
         g["error"] = f"bundled genesis base missing: {base}"
     res["genesis_base"] = g
 
-    # optional build inputs (reported, never blocking, never probed elsewhere)
-    res["family_donor"] = family_donor_status(r)
+    # optional build input (reported, never blocking, never probed elsewhere)
     res["specimen"] = specimen_status(r)
 
     # optional python extras (numpy: the author/front-door intent model;
@@ -446,7 +428,6 @@ def preflight(root: str | None = None) -> dict:
         gated = " | ".join(f"{r}-route {_route_words(res['routes'][r])}" for r in ROUTE_EXTRAS)
         res["line"] = (f"{LINE_PREFIX} READY | python {res['python']['version']} | "
                        f"engine {eng} | genesis {gen} | "
-                       f"family-donor {res['family_donor']['status']} | "
                        f"{gated} | out-dir {outw} | {res['seconds']}s")
     else:
         bad = []
@@ -710,8 +691,8 @@ def doctor(install: bool = False) -> int:
     """Everything preflight checks, verbosely, plus the OPTIONAL extras --
     and the only place any install may happen (explicit ``--install``,
     IFC-route extras only).  Never touches an Autodesk installation
-    directory; the family donor question is answered by asking the USER for
-    a file, never by looking for one."""
+    directory; families are self-generated from the bundled assets, so no
+    family file is ever asked for or looked for."""
     pf = preflight()
     print(pf["line"])
     print()
@@ -725,19 +706,9 @@ def doctor(install: bool = False) -> int:
     g = pf["genesis_base"]
     print(f"  genesis base  : {'sha256-verified' if g.get('sha256_verified') else ('present, unverified' if g.get('present') else 'MISSING')}"
           + (f"  (Revit {g['revit_release']})" if g.get("revit_release") else ""))
-    fd_ = pf["family_donor"]
-    if fd_["status"] == "user-supplied":
-        print(f"  family container: user-supplied donor  ({fd_['path']})")
-    else:
-        print("  family container: bundled (genesis base)")
-        if fd_.get("note"):
-            print(f"                    NOTE: {fd_['note']}")
-        print("                    .rfa ADocument is authored CONSTRUCTIVELY (schema-built")
-        print("                    famdoc tree; empty registries -- desktop acceptance")
-        print("                    tracked in issue #52).")
-        print(f"                    (${FAMILY_DONOR_ENV} stays as an expert override, e.g. a")
-        print("                     non-2026 target release. We never look for Autodesk")
-        print("                     content on this machine.)")
+    print("  family container: bundled (genesis base)  (every family is self-generated: the .rfa")
+    print("                    ADocument is authored CONSTRUCTIVELY from the bundled schema; no donor")
+    print("                    and no user file is needed or read)")
     sp = pf["specimen"]
     print(f"  specimen      : {sp['status']}" + (f"  ({sp['path']})" if sp.get("path") else "")
           + ("" if sp["status"] != "missing"

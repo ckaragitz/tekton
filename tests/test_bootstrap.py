@@ -13,10 +13,13 @@ What is proven here (the problem-B kill list):
 * preflight is ONE call, one readiness line, < 2 s;
 * the ``run`` launcher executes a sibling skill script (the front door's
   prompt route) from the copied location with zero setup commands;
+* the retired family-donor variable changes nothing: families are
+  self-generated from the bundled assets, so preflight/doctor neither read
+  nor report ``RVT_FAMILY_DONOR`` (#653);
 * no tekton plugin file carries a probeable Autodesk-installation path
-  (the HARD RULE: family-donor status comes only from bundled assets or a
-  user-supplied file -- never from ProgramData/Program Files/Applications
-  Autodesk directories).
+  (the HARD RULE: every input comes from bundled assets or a user-supplied
+  file -- never from ProgramData/Program Files/Applications Autodesk
+  directories).
 """
 from __future__ import annotations
 
@@ -102,8 +105,10 @@ def test_preflight_json_from_copied_mountlike_path(plugin_copy, workdir):
     g = pf["genesis_base"]
     assert g["present"] and g["sha256_verified"] and g["ok"]
     assert g["revit_release"], "pin's revit_release feeds the version-first question"
-    # family donor is a reported status, never a blocker
-    assert pf["family_donor"]["status"] in ("bundled", "user-supplied", "missing")
+    # no family input is reported at all: families are self-generated (#653)
+    assert "family_donor" not in pf
+    assert "family-donor" not in pf["line"]
+    assert pf["specimen"]["status"] in ("bundled", "user-supplied", "missing")
     assert pf["out_dir"]["ok"] is True
     # optional extras are REPORTED (so skills point at `doctor --install`
     # instead of pip-installing on the hot path); under -S they read absent
@@ -158,38 +163,27 @@ def test_run_launcher_missing_script_is_one_clear_line(plugin_copy, workdir):
 
 
 # ---------------------------------------------------------------------------
-# family-donor status: bundled asset or user-supplied file ONLY
+# the retired family-donor variable changes nothing (#653)
 # ---------------------------------------------------------------------------
 
-def test_family_donor_user_supplied_env(plugin_copy, workdir, tmp_path):
+def test_retired_family_donor_env_changes_nothing(plugin_copy, workdir, tmp_path):
     donor = tmp_path / "their-panel.rfa"
-    donor.write_bytes(b"not a real family, presence is what preflight reports")
-    r = _run(NO_PIP_PY + [_bootstrap(plugin_copy), "--json"], cwd=workdir,
-             env_extra={"RVT_FAMILY_DONOR": str(donor)})
-    pf = json.loads(r.stdout)
-    assert pf["family_donor"]["status"] == "user-supplied"
-    assert os.path.realpath(pf["family_donor"]["path"]) == os.path.realpath(str(donor))
+    donor.write_bytes(b"a file the retired variable points at; nothing may read it")
+    env = {"RVT_FAMILY_DONOR": str(donor)}
+    plain = _run(NO_PIP_PY + [_bootstrap(plugin_copy), "--json"], cwd=workdir)
+    withenv = _run(NO_PIP_PY + [_bootstrap(plugin_copy), "--json"], cwd=workdir, env_extra=env)
+    assert plain.returncode == withenv.returncode == 0, withenv.stderr
+    a, b = json.loads(plain.stdout), json.loads(withenv.stdout)
+    for volatile in ("seconds", "line"):          # the line differs only by its timing tail
+        a.pop(volatile), b.pop(volatile)
+    assert a == b
+    assert "family_donor" not in b
 
-    r2 = _run(NO_PIP_PY + [_bootstrap(plugin_copy), "--json"], cwd=workdir,
-              env_extra={"RVT_FAMILY_DONOR": str(donor) + ".gone"})
-    pf2 = json.loads(r2.stdout)
-    assert pf2["family_donor"]["status"] == "missing"
-    assert "does not exist" in pf2["family_donor"].get("note", "")
-
-
-def test_family_donor_bundled_asset_dir(plugin_copy, workdir):
-    fam_dir = os.path.join(plugin_copy, "assets", "family")
-    os.makedirs(fam_dir, exist_ok=True)
-    marker = os.path.join(fam_dir, "constructed-donor.rfa")
-    with open(marker, "wb") as fh:
-        fh.write(b"constructed donor placeholder")
-    try:
-        r = _run(NO_PIP_PY + [_bootstrap(plugin_copy), "--json"], cwd=workdir)
-        pf = json.loads(r.stdout)
-        assert pf["family_donor"]["status"] == "bundled"
-        assert pf["family_donor"]["path"].endswith("constructed-donor.rfa")
-    finally:
-        shutil.rmtree(fam_dir)
+    doc = _run(NO_PIP_PY + [_bootstrap(plugin_copy), "doctor"], cwd=workdir, env_extra=env)
+    assert doc.returncode == 0, doc.stderr
+    assert "family container: bundled (genesis base)" in doc.stdout
+    for gone in ("FAMILY_DONOR", "family-donor", "user-supplied donor", "override, e.g."):
+        assert gone not in doc.stdout, gone
 
 
 # ---------------------------------------------------------------------------
@@ -241,5 +235,5 @@ def test_no_autodesk_install_paths_in_plugin():
                 if m:
                     hits.append(f"{os.path.relpath(p, ROOT)}: {m.group(0)!r}")
     assert not hits, ("Autodesk installation paths must never appear in the "
-                      "plugin (family donors come from bundled assets or a "
+                      "plugin (every input comes from bundled assets or a "
                       "user-supplied file only):\n" + "\n".join(hits))
