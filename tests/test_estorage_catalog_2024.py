@@ -18,8 +18,9 @@ file's own schema.  Rows:
 * GUID-free location and backward chaining on the OLDER layout, on bytes
   re-encoded by our own encoder around junk (no seed / a seed on the LAST
   entry only must recover the whole map and its count offset);
-* synthetic schemas: which layout wins when both pair classes exist, none
-  when neither does (and the empty-catalog note says what the file keeps).
+* synthetic schemas: the layout is the one the file's ``ESSchemaStorage``
+  holds (both pair classes may exist), none without it (and the empty-catalog
+  note says what the file keeps); both catalog value shapes unwrap.
 
 Bundled bases only (fresh-clone safe).
 Run: .venv/bin/python -m pytest tests/test_estorage_catalog_2024.py -q
@@ -74,14 +75,13 @@ def test_old_layout_pin_lists_its_schemas(year):
     lay = ES.catalog_layout(GF.schema_of(path))
     assert (lay.member, lay.pair_class, lay.tail) == ("m_storedSchemas", "std::pair< GUIDvalue, ESSchema >", 8)
     cat = _catalog(path)
-    assert cat.note == "" and cat.map_count == len(cat) == 2 and cat.map_offset > 0
+    assert (cat.note, cat.layout) == ("", "m_storedSchemas") and cat.map_count == len(cat) == 2 and cat.map_offset > 0
     assert cat.order == [AREX, DAYLIGHT]
     for s in cat:
         name, vendor, fields, tracked = EXPECTED[s.guid]
         assert (s.name, s.vendor_id) == (name, vendor)
         assert [(f.name, f.type_name) for f in s.fields] == fields
         assert s.used_in_host is None and s.content_docs_keys == []      # not recorded by this layout: absent, not invented
-        assert s.to_json()["usedInHost"] is None
         assert len(cat.tracking[s.guid]) == tracked
     assert cat.tracking[DAYLIGHT] == [1382860]
 
@@ -103,7 +103,7 @@ def test_new_layout_pins_read_exactly_as_before(year):
     path = pinned_base(year)
     assert ES.catalog_layout(GF.schema_of(path)).member == "m_schemaUsageMap"
     cat = _catalog(path)
-    assert cat.note == "" and all(s.used_in_host is True for s in cat)
+    assert (cat.note, cat.layout) == ("", "m_schemaUsageMap") and all(s.used_in_host is True for s in cat)
     assert (len(cat), cat.map_count, _digest(cat)) == MAIN_DIGEST[year], (
         f"the {year} pin's catalog no longer reads as main did -- if the pin was "
         f"re-composed on purpose, update MAIN_DIGEST from _digest(_catalog(path))")
@@ -147,8 +147,8 @@ USAGE, BARE = "std::pair< GUIDvalue, SchemaUsageInfo >", "std::pair< GUIDvalue, 
 
 def test_layout_is_read_off_the_files_own_ESSchemaStorage():
     # 2025 shape: both pair classes exist, ESSchemaStorage holds the usage map -> the usage layout
-    both = _schema(ESSchemaStorage=[("m_schemaUsageMap", USAGE), ("m_dirty", None)], **{USAGE: [], BARE: []})
-    assert (ES.catalog_layout(both).member, ES.catalog_layout(both).tail) == ("m_schemaUsageMap", 9)
+    new = ES.catalog_layout(_schema(ESSchemaStorage=[("m_schemaUsageMap", USAGE), ("m_dirty", None)], **{USAGE: [], BARE: []}))
+    assert (new.member, new.tail) == ("m_schemaUsageMap", 9)
     # 2024 shape
     old = _schema(ESSchemaStorage=[("m_storedSchemas", BARE), ("m_dirty", None)], **{BARE: []})
     lay = ES.catalog_layout(old)
@@ -158,9 +158,8 @@ def test_layout_is_read_off_the_files_own_ESSchemaStorage():
     stray = _schema(ESSchemaStorage=[("m_other", "std::pair< GUIDvalue, Mystery >")], **{BARE: []})
     assert ES.catalog_layout(stray) is None
     assert ES._no_map_reason(stray).endswith("-- its ESSchemaStorage keeps no ESSchema map at all")
-    # no ESSchemaStorage at all: the pair class alone still locates (corpus fragments)
-    assert ES.catalog_layout(_schema(**{BARE: []})).member == "m_storedSchemas"
-    assert ES.catalog_layout(_schema(Unrelated=[])) is None
+    # a pair class with no ESSchemaStorage to hold it is not a catalog either
+    assert ES.catalog_layout(_schema(**{BARE: []})) is None and ES.catalog_layout(_schema(Unrelated=[])) is None
 
 
 def test_entry_value_shapes():

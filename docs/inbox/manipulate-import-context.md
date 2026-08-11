@@ -808,3 +808,73 @@ no writer change, no byte any route writes can change, nothing sample-derived ch
 * Filed: `locate_tracking` verifies a table led by uncatalogued items (the 2024 base: 7 items @0xff92e, 5 internal GUIDs) so
   `tracking_offset` is the true count offset and the uncatalogued tracked GUIDs are reported rather than dropped — task-shaped,
   `Refs #576`, P2 · area:engine · S (number in BRANCH STATE below).
+
+### /simplify and /verify (eng #576)
+
+* `/simplify` — four review angles on the diff (reuse, simplification, efficiency, altitude), then applied: `_LAYOUTS` is a
+  tuple of `CatalogLayout` prototypes (`pair_id` filled by `dataclasses.replace` in `catalog_layout`; `tail_re` typed
+  `re.Pattern[bytes]`) instead of anonymous 4-tuples unpacked positionally in two places; the "pair class alone, no
+  `ESSchemaStorage`" third mode is gone (altitude: it re-admitted exactly the ambiguity the 2025 base's stray 0x1187 pair
+  shows — a schema without `ESSchemaStorage` now has no layout and the note says so); the backward walk is a
+  `_place_previous()` helper (`while _place_previous(...): pass` + one return, no while/else) with an **O(1) tail
+  pre-check** (`lay.tail_re.match(gl, first - tail)`) and a shared `_plausible_guid()` (also used by `_tail_scan_seeds`)
+  before any `bytes.find` — efficiency had measured the always-walk-back rule at +360 failing find+decode attempts /
+  +14 ms per `schemas()` on the 2025/2026 pins (the 16 bytes in front of the map are UTF-16 JSON text occurring 360× in
+  the window); with the pre-check `locate_schema_map` on the pins is back to **exactly `origin/main`'s 638 decode attempts,
+  36–38 ms best-of-5 (main 36 ms)**, and 651 attempts / 68 ms on 2024 (new capability); the older layout's anchor regex is
+  the consuming 8-byte pattern, not a zero-width lookahead (3× fewer candidates: 2024 no-seed path 1807 → 651 decodes,
+  149 → 68 ms, and `max_hits` covers the same stream length per hit density as the 9-byte pattern); `content_docs_keys`
+  needs no conditional; `map_span` hi is `entries[max(entries)][0]`; the print token is a plain conditional;
+  `ESSchemaCatalog.layout` (member name) records which layout a catalog was read with (data only — not printed in the
+  header and not in `to_json()`, so 2025/2026 stdout and digests stay identical); module docstring states both layouts up
+  front. Tests: the restated `to_json()["usedInHost"]` assertion dropped, layout bound once, `cat.layout` asserted, the
+  pair-alone row flipped to `None`. **Reviewed and kept, with the reason:** (altitude) `tail` stays a stated per-layout
+  constant rather than derived from field kinds — a wrong tail cannot produce a false entry (every entry is a full decode +
+  key == `m_guid`), it can only locate nothing, which is already an honest noted empty catalog; (altitude) `skip=(lo, hi)`
+  on `locate_tracking` is the correctly-oriented stopgap (tracking stays catalog-agnostic) until #595 verifies tables led
+  by uncatalogued items — its docstring says it removes the known false positive only; (simplification) the now-dead
+  `else:` branches of `tests/test_estorage_cli_release.py`'s two layout checks were NOT deleted — the tech lead authorised
+  exactly four hunks in that file (eng #579 is hoisting its scaffolding); patch for its next owner: drop
+  `_has_catalog_layout` and both `else:` arms, the absent-layout path is covered synthetically in
+  `tests/test_estorage_catalog_2024.py`; (simplification) `MAIN_DIGEST` keeps `(len, map_count, digest)` for a readable
+  failure message.
+* `/verify` on the final tree — the surface this diff reaches is `rvt.estorage`'s CLI and library: the three bases with
+  `--report --walk --roundtrip` → exit 0 ×3, no stderr, 2026/2025 stdout identical to `origin/main`'s (timing masked),
+  2024 the catalog lines quoted in Evidence; library digests as in Evidence; a 64 KiB truncation of the 2024 base →
+  `warning: own schema unreadable (ParseError …); checked against the pinned Revit 2024 framing table …` + `ERROR: cannot
+  load …: RuntimeError: Partitions/21: walker errors […]`, exit 1; a missing path → `ERROR: no such file`, exit 2. Because
+  `src/` changed: `tools/sync_plugin.py` (1 file synced, mirror `cmp`-identical, zip rebuilt 5299 KB), then a **bare unzip
+  of `tekton-plugin.zip`, `env -i` system `python3` 3.11**: `skills/tekton-author/scripts/_bootstrap.py go author --prompt
+  "an electrical room with 6 panels" --out out/j1 --json` → rc 0, `go.ready true`, preflight `tekton: READY | python
+  3.11.15 | engine bundled | genesis verified (Revit 2026) | …`, `result.ok true`, `PROOF-ONLY (self-checks PASS …)`,
+  4.4 s wall (estorage is not on that path; it shows the shipped mirror still boots); and the mirrored CLI itself from the
+  unzip (`PYTHONPATH=lib/src:skills/_shared/_vendor python3 -m rvt.estorage assets/genesis/<base>.rvt --report --walk
+  --roundtrip`) → rc 0 ×3, 2024 lists the 2 schemas, 2026 stdout identical to the repo run.
+
+## BRANCH STATE (eng #576)
+
+* Branch `cam/576-estorage-catalog-2024` from `origin/main` @ db32071; PR body starts `Closes #576`.
+* Files written — source: `src/rvt/estorage.py` (module docstring; `ESSchemaDef.used_in_host: Optional[bool]`;
+  `ESSchemaCatalog.layout`; `_entry_schema`; `_schema_from_pair` for both shapes; `CatalogLayout` + `_LAYOUTS` +
+  `catalog_layout` + `_plausible_guid`; `_decode_pair_at` / `_chain_map` (+ new `_place_previous`, `_run_length` gone) /
+  `_tail_scan_seeds` / `locate_schema_map` take the layout; `_PAIR_CLASS` and `_TAIL_RE` gone; `locate_tracking(skip=)`;
+  `schemas()` sets `layout` and passes the map span; `_no_map_reason`; `print_catalog`'s usage token — nothing in the entity
+  codec, `ESDecoder`/`ESEncoder`, `es_report`, `verify_document`, closures or the CLI flow); tests:
+  `tests/test_estorage_catalog_2024.py` (new, 9 tests), `tests/ci_shard.d/576-estorage-catalog-2024.txt` (new drop-in),
+  `tests/test_estorage_cli_release.py` (the four tech-lead-authorised hunks: predicate, two strings, docstring bullet);
+  docs: `docs/writer/extensible-storage.md` (§2.1b new, §2.2 two sentences, §2.4 two rows), this record (this section
+  only). Generated mirror re-synced: `plugin/lib/src/rvt/estorage.py`.
+* Not touched: `src/rvt/versions/**`, `objects.py`, `schema.py`, `tests/conftest.py`, every NO-GO / FENCED / hot file of
+  the brief, `tests/ci_shard.txt`, `TRACKER.md`, `KNOWLEDGE.md`.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer — read path of a forensic instrument only, no
+  byte any route writes can change (2026/2025 CLI stdout and catalog digests identical to `main`; the three bases validate
+  as before: VALID, warnings 1 / 0 / 0).
+* Follow-up filed: **#595** (`locate_tracking` verifies a table led by uncatalogued items; 2024 base: 7 items @0xff92e).
+* Gates on the final head (`RVT_SKIP_LARGE=1 -p no:cacheprovider`): stream-local
+  `tests/test_estorage_catalog_2024.py tests/test_estorage_cli_release.py tests/test_estorage_ids32.py tests/test_estorage.py`
+  → **24 passed, 12 skipped** (the 12 = `test_estorage.py`'s sample-backed cases + its `RVT_SKIP_LARGE` case, as on any
+  fresh clone; new file 9 passed — 9 failed against `main`'s `estorage.py`); **whole merged CI shard**
+  (`python3 tools/dev/shard_list.py --print`, 101 files incl. the new drop-in): first run on the pre-/simplify tree
+  **2021 passed, 134 skipped, 3 xfailed, 0 failed in 432 s**; canonical re-run on the frozen final tree: see the PR body;
+  `tools/sync_plugin.py` synced 1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2983 tracked paths); `tools/rvt_validate.py` on the three bases VALID 1/0/0 warnings.
