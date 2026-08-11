@@ -129,22 +129,53 @@ def test_unreadable_hosts_raise_one_typed_exception(bad):
         assert e.path == path and "\n" not in e.why, name            # .path: the path as handed in, for callers
         assert type(e.__cause__).__name__ == cause and cause in e.why, (name, e.why)
         assert str(e) == f"{path}: {e.why}"
-        assert e.why.endswith(f" ({RC.cause_clause(e.__cause__)})"), (name, e.why)   # the layer's error as a CLAUSE (#574)
+        # what could not be read, then the layer's error as a CLAUSE (#574/#587)
+        assert e.why == f"{e.what} ({RC.cause_clause(e.__cause__)})" and "(" not in e.what, (name, e.why)
 
 
-def test_cause_clause_is_type_plus_first_clause_the_error_itself_untouched():
-    """``.why`` / the note carry ``Type: <first clause>``; a parser's hex
-    context no longer rides in the sentence (it stays on ``__cause__``)."""
+def test_cause_clause_is_type_plus_words_the_error_itself_untouched():
+    """``.why`` / the note carry ``Type: <words>``: the schema parser's byte
+    dump is dropped by shape, long words are cut on a boundary, and the
+    exception object is never edited (``rvt._clause``, #574/#587)."""
+    from rvt import schema
+    from rvt._clause import CAUSE_MAX
     short = ValueError("Partitions/20: walker errors ['no trailer']")
     assert RC.cause_clause(short) == f"ValueError: {short}"            # fits: verbatim
     assert RC.cause_clause(OSError()) == "OSError"                     # no message: the type alone
-    hexy = RuntimeError("parse error at 0x603b: class marker != 0 (0x403c) @0x603b: "
-                        + " ".join(f"{b:02x}" for b in range(64)) + "\nsecond line")
-    clause = RC.cause_clause(hexy)
-    assert clause.startswith("RuntimeError: parse error at 0x603b: class marker != 0 (0x403c)")
-    assert clause.endswith("...") and "\n" not in clause and len(clause) <= len("RuntimeError: ") + RC._CAUSE_MAX
+    # a real parser error on damaged bytes: `parse error at 0x..: <words> @0x..: <24 hex> | <40 hex>`
+    with pytest.raises(schema.ParseError) as ei:
+        schema.parse(bytes(range(1, 200)))
+    dumped = str(ei.value)
+    assert " | " in dumped and len(dumped) > CAUSE_MAX                 # the dump IS there on the exception ...
+    clause = RC.cause_clause(ei.value)
+    assert clause == "ParseError: " + dumped[:dumped.index(" @0x")]    # ... and only its words ride
+    assert str(ei.value) == dumped                                     # the error itself untouched
+    # the engine's longest WORDED one-sentence error rides whole (#569's)
+    with pytest.raises(schema.ParseError) as ei:
+        schema.parse(b"")
+    assert RC.cause_clause(ei.value) == f"ParseError: {ei.value}" \
+        and str(ei.value).endswith("(an empty or truncated schema stream)")
+    # longer words: one line, cut on a word boundary within the budget, `...` marks it
+    wordy = RuntimeError("walker errors " + " ".join(f"['no trailer for block at {n}']" for n in range(40))
+                         + "\nsecond line")
+    clause = RC.cause_clause(wordy)
+    assert clause.endswith("...") and "\n" not in clause and len(clause) <= len("RuntimeError: ") + CAUSE_MAX
     kept = clause[len("RuntimeError: "):-3]
-    assert str(hexy).startswith(kept) and str(hexy)[len(kept)] == " "  # cut on a word boundary
+    assert str(wordy).startswith(kept) and str(wordy)[len(kept)] == " "
+
+
+def test_the_read_side_rung_names_its_cause_by_the_same_clause(schema_dmg):
+    """``global_framing.enter_own_release``'s lenient rung relays the schema
+    error through ``cause_clause`` too: no byte dump in the note the
+    instruments print / the front door's ``read side:`` (#587)."""
+    from rvt import global_framing as GF
+    with pytest.raises(Exception) as ei:              # the very error the rung swallows
+        GF.schema_of(schema_dmg)
+    with contextlib.ExitStack() as stack:
+        rung = GF.enter_own_release(stack, schema_dmg)
+    assert rung == (f"own schema unreadable ({RC.cause_clause(ei.value)}); checked against the pinned "
+                    f"Revit {FOREIGN[0]} framing table (the release BasicFileInfo declares)")
+    assert "@0x" not in rung and "..." not in rung and " @0x" in str(ei.value)
 
 
 def test_enter_host_release_returns_its_note_never_raises(bad):

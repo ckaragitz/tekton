@@ -80,7 +80,8 @@ def _open(path: str):
             open_rvt(path).close()
         except Exception as probe:                # noqa: BLE001 -- not even a CFB container: nothing in it can be read
             raise Unopenable(f"cannot open as an .rvt container: {probe}", EX_NOT_RVT) from probe
-        raise Unopenable(f"cannot open/plan {path}: {type(e).__name__}: {e}", EX_FAIL) from e
+        # the input by NAME, like every other door (#573): its path is --json `input.path` / argv
+        raise Unopenable(f"cannot open/plan {os.path.basename(path)}: {type(e).__name__}: {e}", EX_FAIL) from e
 
 
 def _report(rep, out):
