@@ -307,6 +307,11 @@ def _strut_channel(v: Dict[str, float]) -> List[Dict[str, Any]]:
         raise ArchetypeError(f"inturned lips ({lip / IN:g} in each, behind {g / IN:g} in "
                              f"webs) do not fit across a {Wd / IN:g} in channel")
     parts: List[Dict[str, Any]] = []
+    if (slot_l > 0) != (slot_s > 0):
+        raise ArchetypeError(
+            "a slotted back needs BOTH a slot length and a slot spacing; one "
+            f"without the other would report a slot the geometry does not have "
+            f"(got length={slot_l / IN:g} in, spacing={slot_s / IN:g} in)")
     if slot_l > 0 and slot_s > 0 and slot_l >= slot_s:
         raise ArchetypeError(
             f"a {slot_l / IN:g} in slot cannot repeat every {slot_s / IN:g} in -- the "
@@ -622,8 +627,18 @@ def archetype(product: str) -> Archetype:
 #: section and "a 480Y/277 wireway" as 277 in -- each reported `given` and
 #: quoted back with words the caller never used as a measurement, which is the
 #: provenance contract lying about itself.
-_NUM_CORE = r"(\d+(?:\.\d+)?(?:\s*[-/]\s*\d+(?:/\d+)?)?|\d+\s*/\s*\d+)"
-_NUM = r"(?<![A-Za-z0-9./-])" + _NUM_CORE
+_NUM_CORE = (r"(\d{1,3}(?:,\d{3})+(?:\.\d+)?"          # 1,200 -- grouped
+             r"|\d+(?:\.\d+)?(?:\s*[-/]\s*\d+(?:/\d+)?)?"
+             r"|\d+\s*/\s*\d+)")
+#: the comma in the class matters: without it "a 1,200 mm cable tray" matched
+#: the "200" and delivered a 7.9 in tray, quoted back as '200 mm cable tray'.
+_NUM = r"(?<![A-Za-z0-9.,/-])" + _NUM_CORE
+
+#: what may sit between a number, its unit and the word it qualifies.  English
+#: hyphenates these -- "a 24-inch-wide tray", "a 6-in-deep tray", "a 10-ft-long
+#: run" -- and a bare \s* dropped every one of those dimensions on the floor
+#: while reporting the value as NOMINAL, i.e. "we generated it".
+_SEP = r"[\s-]*"
 _UNITS = {
     "in": r"(?:in\b|in\.|inch(?:es)?\b|\")",
     "ft": r"(?:ft\b|ft\.|foot\b|feet\b|')",
@@ -634,7 +649,7 @@ _ANY_UNIT = "|".join(_UNITS.values())
 
 def _to_number(raw: str) -> Optional[float]:
     """'24' / '1.5' / '1-5/8' / '3/4' -> a float; None when it is not one."""
-    s = re.sub(r"\s+", "", raw)
+    s = re.sub(r"[\s,]+", "", raw)          # '1,200' is one thousand two hundred
     m = re.fullmatch(r"(\d+)-(\d+)/(\d+)", s)
     if m:
         return float(m.group(1)) + float(m.group(2)) / float(m.group(3))
@@ -689,6 +704,19 @@ _PART_PHRASE = re.compile(
 _PART_TOKEN = re.compile(r"\b(?=[A-Za-z0-9./-]*[A-Za-z])(?=[A-Za-z0-9./-]*\d)"
                          r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+){2,}\b")
 
+#: words that make a hyphenated token a MEASUREMENT, not a catalogue number.
+#: "6-in-deep", "12-inch-wide", "10-ft-long", "24-inch-wide" all fit the
+#: separator-bearing part-number shape exactly -- and hyphenated measurement
+#: adjectives are the commonest phrasing in this product's own domain, so
+#: firing on them put the loudest line in the product on the most ordinary
+#: request there is.
+_UNIT_WORDS = frozenset("""
+in inch inches ft foot feet mm cm m yd
+wide width long length deep depth tall high height thick thickness
+gang gangs pole poles way ways phase ph circuit circuits
+awg mcm kcmil gauge ga
+""".split())
+
 #: a bare catalogue designator with NO separator -- 'F66L120', '2BLT4'.  Needs
 #: at least two letters AND two digits and five characters, which is what keeps
 #: 'Cat6A', '480Y', '12x12', '120V' and '2x4' out of it.  A one-letter
@@ -701,9 +729,9 @@ _PART_BARE = re.compile(r"\b(?=(?:[A-Za-z]*\d){2})(?=(?:\d*[A-Za-z]){2})"
 #: this repo's own records name.  Sourced, never a guessed brand list -- and
 #: therefore INCOMPLETE by construction: a brand that is not here is caught only
 #: if the prompt also carries part-number phrasing or a catalogue-shaped token.
-#: "a Hoffman F66L120 wireway" fires on F66L120; "a Panduit 12 in cable tray"
-#: does NOT fire at all, and neither does a one-letter designator like
-#: Unistrut's P1000.  The guard reduces silent mis-identification; it does not
+#: "a Hoffman F66L120 wireway" fires on both the brand and F66L120.  A brand
+#: absent from the list and carrying no designator -- and a one-letter
+#: designator like Unistrut's P1000 on its own -- is NOT caught.  The guard reduces silent mis-identification; it does not
 #: eliminate it, and no text in this repo should say otherwise.
 _BRAND_HINTS = (
     # resolved by OUR catalog (rvt.famgen.catalog) -- these are sourced
@@ -745,9 +773,12 @@ def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
         tokens.append(tok)
         reasons.append(f"names a specific item: {m.group(0).strip()!r}")
     for m in _PART_TOKEN.finditer(text):
-        if m.group(0) not in tokens:
-            tokens.append(m.group(0))
-            reasons.append(f"{m.group(0)!r} is shaped like a catalogue number")
+        tok = m.group(0)
+        if any(g.lower() in _UNIT_WORDS for g in tok.split("-")):
+            continue                              # a measurement, not a part number
+        if tok not in tokens:
+            tokens.append(tok)
+            reasons.append(f"{tok!r} is shaped like a catalogue number")
     for b in _BRAND_HINTS:
         if re.search(rf"\b{re.escape(b)}\b", low):
             brands.append(b)
@@ -797,9 +828,9 @@ def _alias_patterns(p: Param) -> List[Tuple[int, str]]:
         a = re.escape(al).replace(r"\ ", r"\s+")
         n = len(al)
         # "rung spacing of 12 in", "width 24 inches", "depth = 6 in"
-        out.append((n, rf"{a}\s*(?:of|is|at|=|:)?\s*{_NUM}\s*(?P<u>{_ANY_UNIT})?"))
-        # "12 in rung spacing", "24 inch wide", "10 ft long"
-        out.append((n, rf"{_NUM}\s*(?P<u>{_ANY_UNIT})?\s*(?:-\s*)?{a}"))
+        out.append((n, rf"{a}{_SEP}(?:of|is|at|=|:)?{_SEP}{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?"))
+        # "12 in rung spacing", "24-inch-wide", "10-ft-long"
+        out.append((n, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}"))
     return out
 
 
@@ -873,8 +904,8 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 # only the FIRST number needs the left boundary; the 2nd/3rd
                 # are preceded by the 'x' of "12x12", which the lookbehind
                 # would otherwise reject
-                rf"{_NUM}\s*[x×]\s*{_NUM_CORE}(?:\s*[x×]\s*{_NUM_CORE})?\s*"
-                rf"(?P<u>{_ANY_UNIT})?\s*(?:-\s*)?(?:{pat})", low)
+                rf"{_NUM}\s*[x×]\s*{_NUM_CORE}(?:\s*[x×]\s*{_NUM_CORE})?{_SEP}"
+                rf"(?P<u>{_ANY_UNIT})?{_SEP}(?:{pat})", low)
             if not m or not free(m.start(), m.end()):
                 continue
             unit = _unit_of(m.group(0))
@@ -903,7 +934,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     prim = next((p for p in arch.params if p.primary), None)
     if prim is not None:
         for pat in _product_patterns(arch):
-            m = re.search(rf"{_NUM}\s*(?P<u>{_ANY_UNIT})?\s*(?:-\s*)?(?:{pat})", low)
+            m = re.search(rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}(?:{pat})", low)
             if not m or not free(m.start(), m.end()):
                 continue
             num = _to_number(m.group(1))

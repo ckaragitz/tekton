@@ -382,3 +382,68 @@ demotion correct live. All mirrors byte-identical.
 
 Four rounds, **seventeen** defects, every one found by a reader who had not written the code and
 every one after CI was green. The tests in this file are the record of what CI cannot see.
+
+---
+
+## Round 5 — hyphens, and a test that was lying about doing its job
+
+CI green again on the round-4 head (2511 passed). The fourth fresh reviewer returned **changes**
+with five findings. Two of them are one defect seen from both ends.
+
+### The commonest phrasing in this domain was broken both ways
+
+English hyphenates measurement adjectives, and electrical drawings do it constantly:
+*"a 24-inch-wide cable tray"*, *"a 6-in-deep tray"*, *"a 10-ft-long run"*. Every one of those:
+
+1. **had its dimension silently dropped** — the patterns put `\s*` between the number, its unit
+   and the word it qualifies, so a hyphen killed the match. `"a 24-inch-wide cable tray 20 feet
+   long"` delivered a **12 in** tray and reported the width `nominal` — i.e. *"we generated
+   it"* — for a number the caller had explicitly stated; **and**
+2. **tripped the manufacturer guard**, because `6-in-deep` fits the separator-bearing
+   part-number shape exactly. So the delivery led with `YOU NAMED A SPECIFIC PRODUCT
+   (6-in-deep) AND THIS FILE IS NOT IT`.
+
+The same request, wrong size *and* accused. Fourth instance of the guard class, and the second
+instance of a stated dimension being reported as generated.
+
+Fixed with `[\s-]*` around units and aliases everywhere a number is parsed, and by rejecting any
+hyphen group that is a unit or measurement adjective (`in`, `inch`, `ft`, `wide`, `deep`,
+`long`, `gang`, `pole`, `awg`, …) from the part-number shape.
+
+Also: `"a 1,200 mm cable tray"` matched the `200` and delivered a **7.9 in** tray, quoted back
+as `'200 mm cable tray'` — a truncated fragment that reads deliberate. Grouped numbers now parse,
+and `,` joined the lookbehind class.
+
+### The guard test was vacuous, and was proved so
+
+Round 4 added `test_no_shipped_text_claims_a_refusal_that_does_not_happen`. The reviewer copied
+the head, **reverted `matrix._CATALOG` to the exact round-4 regression**, ran the test — and it
+**passed**. The assertion was `"archetype" in text` over the whole file, and every file in its
+list mentions the word somewhere else.
+
+It is now sentence-local (the exception must appear within the same passage as the claim),
+scoped to the *blanket* claim so honest refusals stay sayable, and it covers
+`docs/product/PERMUTATION-MATRIX.md`. **Re-proved by the same method**: reintroducing the
+regression in a scratch copy now fails the test.
+
+### The product's own capability table still had the claim — and was never in the diff
+
+`docs/product/PERMUTATION-MATRIX.md` lines 57 and 66 still said *"anything without facts is
+refused by name"*, and the `rfa → rfa` row's kind enumeration omitted `archetype` although the
+schema had accepted it since round 1. `git diff --stat -- docs/product` was **empty** for four
+rounds. That is the surface PG1 names, and no reviewer had been pointed at it until now.
+
+### Round-5 evidence
+
+| gate | result |
+|---|---|
+| `tests/test_famgen_archetypes.py` | **150 passed** (46 → 71 → 104 → 131 → 150) |
+| the vacuity probe | regression reintroduced in a scratch copy → the test **fails** |
+| `test_router + test_frontdoor + test_famgen_factory` | **280 passed, 18 skipped** |
+| `archetypes --check` / `sync_plugin --check` / `validate_plugin` / portable paths | 5/0 / in sync / PASS / **3044** |
+
+**Five rounds, twenty-two defects.** The reviewer also fuzzed **65,168** override combinations
+(per-parameter extremes, pairwise, 3,000 random sets × 4 prompts, prompt+override mixed) for
+zero self-intersections and zero zero-volume parts, and confirmed `nominal` reaches every report
+surface. What keeps failing is not the geometry — it is the text and the parsing of ordinary
+English, and both now have tests that fail when they regress.

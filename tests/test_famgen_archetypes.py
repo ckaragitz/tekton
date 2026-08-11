@@ -29,6 +29,7 @@ Run: .venv/bin/python -m pytest tests/test_famgen_archetypes.py -q
 from __future__ import annotations
 
 import os
+import re
 import sys
 
 import pytest
@@ -571,7 +572,11 @@ def test_no_shipped_text_claims_a_refusal_that_does_not_happen():
     files = [root / "src/rvt/famgen/archetypes.py", root / "src/rvt/famgen/factory.py",
              root / "src/rvt/frontdoor/matrix.py", root / "src/rvt/frontdoor/router.py",
              root / "src/rvt/frontdoor/famspec.py", root / "spec/famspec.schema.json",
-             root / "plugin/skills/tekton-author/SKILL.md"]
+             root / "plugin/skills/tekton-author/SKILL.md",
+             # the RENDERED matrix is the product's honest capability table and
+             # is where the blanket claim survived four rounds. It is in
+             # ci_fresh.sh's SHARD_READS, so the shard may open it.
+             root / "docs/product/PERMUTATION-MATRIX.md"]
     for f in files:
         if not f.exists():
             continue
@@ -579,17 +584,32 @@ def test_no_shipped_text_claims_a_refusal_that_does_not_happen():
         for phrase in ("part is still refused", "still get a refusal",
                        "is still refused by name"):
             assert phrase not in text, f"{f.name} still claims a refusal that does not happen"
-        # The subtler version, and the one three reviewers had to find by hand:
+        # The subtler version, and the one four reviewers had to find by hand:
         # a surface may still say the router REFUSES what it has no facts for --
         # that is true of the catalog lanes -- but wherever it says so it must
-        # name the archetype lane as an exception, or it reads as a blanket
-        # refusal on the very deliveries the archetype lane makes.
-        for phrase in ("REFUSED by name, never invented",
-                       "refused BY NAME in one clear line, never invented"):
-            if phrase in text:
-                assert "archetype" in text, (
-                    f"{f.name} claims a blanket catalog refusal without naming the "
-                    f"archetype lane as an exception")
+        # name the archetype lane as an exception IN THE SAME SENTENCE, or it
+        # reads as a blanket refusal on the very deliveries that lane makes.
+        #
+        # SENTENCE-LOCAL ON PURPOSE.  The first version of this check asked
+        # `"archetype" in text` over the whole file and was VACUOUS: reverting
+        # matrix._CATALOG to its blanket wording left it passing, because these
+        # files all mention the word somewhere else. A reviewer proved that by
+        # reintroducing the exact regression; the test now fails on it.
+        # Target the BLANKET claim specifically -- "anything the catalog has no
+        # facts for is refused" -- not every honest "refused by name" in the
+        # repo (nested family documents, GraveyardRec footers and unknown
+        # famspec kinds really are refused by name, and must stay sayable).
+        blanket = (r"anything without facts is refused by name",
+                   r"facts the catalog (?:lacks|does not carry) are\s*\*{0,2}refused",
+                   r"refused BY NAME in one clear line, never invented",
+                   r"REFUSED by name, never invented")
+        for pat in blanket:
+            for m in re.finditer(pat, text, re.I):
+                window = text[max(0, m.start() - 600):m.end() + 600]
+                assert "archetype" in window.lower(), (
+                    f"{f.name} claims a catalog refusal near offset {m.start()} "
+                    f"without naming the archetype lane in the same passage: "
+                    f"...{text[max(0, m.start() - 120):m.end() + 120]}...")
 
 
 # ---------------------------------------------------------------------------
@@ -673,3 +693,76 @@ def test_a_slot_longer_than_its_own_pitch_is_refused_not_dropped():
 def test_a_rung_wider_than_the_section_is_refused():
     with pytest.raises(AR.ArchetypeError, match="section"):
         AR.resolve("cable_tray", {"length_ft": 0.2, "rung_width_in": 5}).parts()
+
+
+# ---------------------------------------------------------------------------
+# 10. regressions found by the FOURTH independent review of PR #674
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("prompt,key,want", [
+    ("a 24-inch-wide cable tray 20 feet long", "width_in", 24.0),
+    ("a 24-inch-wide cable tray 20 feet long", "length_ft", 20.0),
+    ("a 6-in-deep cable tray with 9-in rung spacing", "depth_in", 6.0),
+    ("a 6-in-deep cable tray with 9-in rung spacing", "rung_spacing_in", 9.0),
+    ("a 12-inch-wide cable tray", "width_in", 12.0),
+    ("a 10-ft-long cable tray", "length_ft", 10.0),
+    ("a 20-foot cable tray", "length_ft", 20.0),
+    ("a 3-1/2-in conduit", "diameter_in", 3.5),
+    ("a 1-5/8-in strut channel", "height_in", 1.625),
+    ("a 4-in junction box", "width_in", 4.0),
+])
+def test_a_hyphenated_measurement_is_read(prompt, key, want):
+    """English hyphenates measurement adjectives, and this domain does it
+    constantly. A bare `\\s*` between the number, its unit and the noun dropped
+    every one of them -- and then reported the value `nominal`, i.e. "we
+    generated it", when the caller had stated it."""
+    r = AR.resolve_prompt(prompt)
+    assert key in r.given(), (prompt, r.given())
+    assert r.values[key] == pytest.approx(want)
+
+
+@pytest.mark.parametrize("prompt", [
+    "a 24-inch-wide cable tray 20 feet long",
+    "a 6-in-deep cable tray with 9-in rung spacing",
+    "a 10-ft-long cable tray",
+    "an 18-in-wide ladder tray",
+    "a 2-gang junction box",
+    "a 4-pole wireway",
+])
+def test_a_hyphenated_measurement_is_not_a_catalogue_number(prompt):
+    """`6-in-deep` fits the separator-bearing part-number shape exactly, so the
+    loudest line in the product fired on the most ordinary request there is."""
+    assert AR.manufacturer_claim(prompt) is None
+
+
+def test_a_grouped_number_is_the_number_the_caller_wrote():
+    """"a 1,200 mm cable tray" matched the '200' and delivered a 7.9 in tray,
+    quoted back as '200 mm cable tray' -- a truncated fragment that reads
+    deliberate."""
+    r = AR.resolve_prompt("a 1,200 mm cable tray")
+    assert r.values["width_in"] == pytest.approx(1200 * AR.MM / AR.IN)
+    assert "width_in" in r.given()
+
+
+def test_a_slot_length_without_a_spacing_is_refused():
+    """It built a SOLID back while the report listed `Slot Length 1.125 in
+    (given)` -- a parameter the geometry does not have."""
+    with pytest.raises(AR.ArchetypeError, match="(?i)both"):
+        AR.resolve("strut_channel", {"slot_length_in": 1.125}).parts()
+    with pytest.raises(AR.ArchetypeError, match="(?i)both"):
+        AR.resolve("strut_channel", {"slot_spacing_in": 2.0}).parts()
+    # both together still build, and neither still means a solid back
+    assert len(AR.resolve("strut_channel", {"slot_length_in": 1.125,
+                                            "slot_spacing_in": 2.0}).parts()) > 10
+    assert len([p for p in AR.resolve("strut_channel", {}).parts()
+                if p["name"].startswith("back")]) == 1
+
+
+def test_the_rendered_matrix_names_the_archetype_lane():
+    """docs/product/PERMUTATION-MATRIX.md is the product's honest capability
+    table and is where the blanket-refusal claim survived four rounds -- it was
+    not even in the diff."""
+    import pathlib
+    doc = (pathlib.Path(ROOT) / "docs/product/PERMUTATION-MATRIX.md").read_text(encoding="utf-8")
+    assert "archetype" in doc.lower()
+    assert "make_archetype" in doc
