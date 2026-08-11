@@ -84,9 +84,11 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
     cable tray family") as a real LOD-400 family at standard `nominal` archetype dimensions —
     overridable by the prompt, never reported as a manufacturer fact — rather than refusing or
     asking; per steer #585 (S-2026-08-10-d) a family that fails in Revit is fixed on Revit's own
-    path, never by wrapping it in a project. *Done = #498's DONE (1)–(3): the structural
-    host-ADocument gate extended to the IFC route, desktop verdicts recorded, matrix rows honest;
-    plus #591's DONE (1)–(6).*
+    path, never by wrapping it in a project; per steer #601 (S-2026-08-11-a) every generated
+    family carries its category's standard Revit parameters from a category → standard-parameters
+    table sourced from the format itself, values filled only when known. *Done = #498's DONE
+    (1)–(3): the structural host-ADocument gate extended to the IFC route, desktop verdicts
+    recorded, matrix rows honest; plus #591's DONE (1)–(6) and #601's DONE (1)–(4).*
 
 ## Not goals (decided — do not re-propose without a new steer)
 
