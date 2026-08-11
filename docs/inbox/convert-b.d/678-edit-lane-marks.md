@@ -34,12 +34,20 @@ that line. `_UNIT_TOKENS['"'] = ("length", 1/12)` and `_UNIT_TOKENS["'"] = ("len
 `src/rvt/convert/modify_family.py` — the value normalisation in front of the regex only; `_UNIT_TOKENS`, `_SPEC_UNITS`,
 `_feet_specs`, `_converted_units()` and every refusal string are untouched.
 
-1. **`_unwrap_measure(txt)`** replaces the blanket strip for numeric carriers: quotes that WRAP the whole value come off
-   first (a matching pair at both ends: `"600 mm"` → `600 mm`, `'4"'` → `4"`, `"4"` → `4`), then any leading quotes,
-   then trailing quotes **unless the character before them (ignoring spaces) is a digit** — so `4"`, `2'`, `1'6"` and
-   the JSON-ops spelling `4 "` (`{"value": 4, "unit": "\""}` is normalised to `4 "` by `edit_family.normalize_ops`) keep
-   their mark and reach `_UNIT_TOKENS` like any unit word. `m_str` keeps the old `strip("\"'")` byte-for-byte
-   (`'DP-7'` → `DP-7`, and a text value ending in digit+quote still loses the quote exactly as on main).
+1. **`_unwrap_measure(txt)`** replaces the blanket strip for numeric carriers: ONE pair of quotes that cleanly WRAPS the
+   whole value comes off (`"600 mm"` → `600 mm`, `'4"'` → `4"`, `"2'"` → `2'`, `"4"` → `4`) and **nothing else is
+   stripped** — so `4"`, `2'`, `1'6"` and the JSON-ops spelling `4 "` (`{"value": 4, "unit": "\""}` is normalised to
+   `4 "` by `edit_family.normalize_ops`) reach the number/unit regex with their mark and hit `_UNIT_TOKENS` like any unit
+   word, while every other quote arrangement reaches the regex verbatim and is REFUSED: `4''` (two apostrophes typed
+   for an inch), `4'"`, `4""`, `600 mm"` name what they got (*Width is a length; got unit "''"* — the length row's
+   wrong-kind wording for an unknown token; *no conversion for unit "''" on spec …angle…* off the table), and `''4''`,
+   `'4''`, `"4""`, a stray `"600 mm` are *cannot read a number from …*. A pair whose inside starts or ends with the
+   same quote (`'4''`, `''4''`) is deliberately **not** a clean wrap, so two apostrophes are never re-read as one foot
+   mark. The first cut of this PR still carried main's leniency for stray quotes (leading quotes off, trailing quotes
+   off unless a digit preceded them) and thereby collapsed `4''` / `4'"` / `''4''` to `4'` = 4 **feet** — a 12× misread
+   the tech-lead review caught (S-2026-08-11-a); the leniency is gone, not patched. `m_str` keeps the old
+   `strip("\"'")` byte-for-byte (`'DP-7'` → `DP-7`, and a text value ending in digit+quote still loses the quote exactly
+   as on main).
 2. **Feet-and-inches** `_RE_FEET_INCHES = (-?)(\d+)\s*'\s*-?\s*(\d+(?:\.\d+)?)\s*"` — `1'6"`, `1' 6"`, `1'-6"`,
    `0'4.5"`, `-1'6"` — is folded to inches (`18`, unit `"`) before the ordinary path **wherever a unit means something**
    (`measurable`: not an integer carrier, not Revit's unitless `number`, not spec-less — the same predicate the generic
@@ -58,9 +66,10 @@ unit token on every measurable spec, so `BusRating=225"` (main: mark stripped, 2
 *BusRating is a current (amps); got unit '"'*; `Fitting Angle=45"` (`aec:angle`, no conversion here; main stored 45
 silently) is refused *no conversion for unit '"' on spec autodesk.spec.aec:angle …*; an `m_int` carrier notes *unit
 '"' ignored (integer parameter)* for `3"` where main said nothing (and stores 3, as main did). A merely WRAPPED number
-(`"4"`, `'2'`) is still a bare number and still refused on a length/size/mass with the pinned wording. `--set` refusals
-happen in `parse` before anything is written (exit 2, empty out dir) — rule 1 is untouched: a successful edit always
-delivers, stamped.
+(`"4"`, `'2'`) is still a bare number and still refused on a length/size/mass with the pinned wording. Stray unmatched
+quotes that main's blanket strip silently tolerated (`"600 mm`, `600 mm"`) are now refused by name instead — the price
+of never reading `''` as a foot. `--set` refusals happen in `parse` before anything is written (exit 2, empty out dir)
+— rule 1 is untouched: a successful edit always delivers, stamped.
 
 ## Evidence
 
@@ -75,25 +84,32 @@ argv value Python received: "Width=2'"        main: same refusal, exit=2        
 argv value Python received: 'Width=1\'6"'     main: ERROR: Width: cannot read a number from "1'6"   branch: VALID (0 errors); Width current=1.5
 argv value Python received: 'Tray Width=1\' 6"'   branch: VALID (0 errors); Tray Width current=1.5
 argv value Python received: 'Tray Width=4"'   main: ERROR: Tray Width is a LENGTH: …            branch: VALID (0 errors); Tray Width current=0.3333333333333333
+argv value Python received: "Width=4''"       branch: ERROR: Width is a length; got unit "''"            exit=2, 0 files  (never 4 ft)
+argv value Python received: 'Width=4\'"'      branch: ERROR: Width is a length; got unit '\'"'           exit=2, 0 files
+argv value Python received: "Width=''4''"     branch: ERROR: Width: cannot read a number from "''4''"    exit=2, 0 files
 ```
 Every edited `.rfa`: `tools/rvt_validate.py --family` → `verdict: VALID (no errors); warnings=0`, exit 0;
 `tools/make_family.py provenance` → `ok=True suspects=0`. **Control:** `--set 'Width=4 in'` and `--set 'Width=4"'`
 write byte-identical families — md5 `be215d7ae874baf8c8703786e4aa8d70` both (the manifests differ only in the note's
 `4 in` / `4"`); the test module re-asserts the identity on `Width` and on `Tray Width`.
 
-**Tests** — new module `tests/test_edit_family_marks_678.py` (45 tests) + drop-in `tests/ci_shard.d/678-edit-lane-marks.txt`
+**Tests** — new module `tests/test_edit_family_marks_678.py` (50 tests) + drop-in `tests/ci_shard.d/678-edit-lane-marks.txt`
 (`shard_list.py --print` lists it once, line 118). Tier 1 (pure converter): the eight forms (`4"`, `2'`, `1'6"`, `1' 6"`,
 `1'-6"`, `'4"'`, `"2'"`, `4 "`) × {`Width` length, `Tray Width` size} with the exact note; marks are the table's own
 tokens (`'"' == in`, `"'" == ft`); a mark / compound on a mass and on a current refused by name; bare and wrapped-bare
 refused with #659's / #668's pinned wording × {length, size}; the issue's DONE 2 controls (`'DP-7'` on `m_str`,
 `"600 mm"`) unchanged; `m_int` ignores a lone mark with a note; `1'6"` stays "cannot read a number" on an integer /
-`number` / spec-less parameter; unreadable junk (`6"1'`, `1'6`, `1' x 6"`) still says "cannot read a number". Helpers
+`number` / spec-less parameter; unreadable junk (`6"1'`, `1'6`, `1' x 6"`, `"600 mm`, `'4"`) still says "cannot read a
+number"; the ambiguous arrangements (`4''`, `4'"`, `4""`, `600 mm"` by name; `''4''`, `'4''`, `"4""`, `"1'6""`
+unreadable) × {length, size}, plus `45''` on an angle and `600''` on a mass, never yield a value; `_unwrap_measure`
+itself pinned (one clean pair off, everything else verbatim). Helpers
 (`_param`, `_cli_edit`, `_currents`, `_same_bytes`, `_assert_valid_and_ours`, `_write_fitting`,
 `_assert_refused_and_nothing_written`) and every pinned string are imported from the #659 / #668 modules, not copied.
 Tier 2 (on the written fitting through `edit_family.main`): `4"` / `2'` / `1'6"` / `1' 6"` × {length, size} read back in
 feet via `inventory_family`, the raw value verbatim in the manifest's `edit`, VALID 0/0 + release preserved + re-read +
-provenance clean, the neighbour of the other kind unmoved; the md5 identity control × 2; `Tray Width="4"` and
-`Fitting Angle=45"` refused before anything is written (exit 2, empty dir, refusal is the last line); `Tray Type='Ladder'`
+provenance clean, the neighbour of the other kind unmoved; the md5 identity control × 2; `Tray Width="4"`,
+`Fitting Angle=45"`, `Width=4''`, `Width=4'"` and `Width=''4''` refused before anything is written (exit 2, empty dir,
+the exact refusal is the last line); `Tray Type='Ladder'`
 lands as `Ladder`; the JSON ops route inline (`{"value": "4\""}`, `{"value": "1'6\""}`) and structured
 (`{"value": 2, "unit": "'"}` → `2 '` → 2.0 ft, note `2'`); the text grammar `set TrayWidth 4"` → 1/3 ft.
 
@@ -105,22 +121,28 @@ Gate counts: see BRANCH STATE and the PR body.
   it into `15` (a thousands-separator reading). The compound regex deliberately takes `.` decimals only for the inch
   part so it does not inherit that. Not filed — nobody has typed a comma yet; whoever touches the number regex next
   should decide thousands vs decimal explicitly.
-* `''` (two apostrophes as an inch mark) and `1'` `6"` given as two `--set`s are not supported and not asked for.
+* `''` (two apostrophes typed for an inch mark) is **refused by name** (*got unit "''"* / *no conversion for unit "''"*),
+  exit 2, nothing written — deliberately not mapped to inches (it is indistinguishable from a doubled foot mark, and a
+  silent choice either way is a guess); the user re-types `4"` or `4 in`. `1'` `6"` given as two `--set`s is two edits
+  of the same parameter (last wins), not a compound — not asked for.
 * The `rfa_modify` matrix cell wording still does not enumerate units (parked on #660 by #659/#668); `route.py matrix`
   is byte-identical here by this issue's DONE.
 
 ## BRANCH STATE
 
-* Branch `cam/678-edit-lane-marks` from `origin/main` @ ea6b875. Files: `src/rvt/convert/modify_family.py`,
+* Branch `cam/678-edit-lane-marks` from `origin/main` @ ea6b875, rebased onto 40fd512 (#695) after review — no overlap.
+  Files: `src/rvt/convert/modify_family.py`,
   `plugin/lib/src/rvt/convert/modify_family.py` (mirror via `tools/sync_plugin.py`), `tests/test_edit_family_marks_678.py`
   (new), `tests/ci_shard.d/678-edit-lane-marks.txt` (new), this fragment (new). The two existing edit-lane test modules
   are imported for helpers/pinned strings only, not edited.
 * Gates: stream-local suite (`test_edit_family_marks_678 + _size_668 + _mass_659 + modify_family_carrier + convert +
   convert_combo + records_layout`, `RVT_SKIP_LARGE=1 -q -rs`): `main` 78 passed / 17 skipped (without the new module) →
-  branch 123 passed / 17 skipped (the 17 skips are the pre-existing acceptance-fixture / `RVT_SKIP_LARGE` skips in
-  `test_convert*.py`; every #665/#680 row green untouched); whole merged CI shard: see PR body; `sync_plugin.py` run +
-  `--check` clean ("plugin in sync with source"); `validate_plugin.py` PASS (25 assertions); `check_portable_paths.py`
-  ok (3058 → 3061 tracked paths); `route.py matrix` md5 `e9e2cc8d7f15e6ce6b1d6c5a68e59502` on both sides.
+  branch 128 passed / 17 skipped after the review fix (123/17 at the first head; the 17 skips are the pre-existing
+  acceptance-fixture / `RVT_SKIP_LARGE` skips in `test_convert*.py`; every #665/#680 row green untouched); whole merged
+  CI shard: see PR body (2481 passed / 135 skipped / 3 xfailed / 0 failed on the first head 86e54fe; re-run on the
+  review-fix head reported there); `sync_plugin.py` run + `--check` clean ("plugin in sync with source");
+  `validate_plugin.py` PASS (25 assertions); `check_portable_paths.py` ok (3067 tracked paths after the rebase);
+  `route.py matrix` md5 `e9e2cc8d7f15e6ce6b1d6c5a68e59502` on both sides.
 * Shipped vs staged: engine + mirror + tests ship with the merge; nothing STAGED for the viewer (no certification claim —
   VALID is a fact about the file, rule 4); no hot file touched; famgen / frontdoor / `TRACKER.md` / `KNOWLEDGE.md`
   untouched; no follow-up issue needed (compound support landed here).

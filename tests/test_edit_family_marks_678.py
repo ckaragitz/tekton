@@ -10,12 +10,14 @@ refused as unitless lengths ("units are never guessed"), and ``1'6"`` could
 not be read at all.  Shell quoting was never the cause: the mark is lost at
 Python level, inside the converter (proven below without any CLI).
 
-Now quotes that WRAP a value still come off (``"600 mm"``, ``'4"'``,
-``'DP-7'``), a mark standing right after a digit stays and converts through
+Now ONE pair of quotes cleanly WRAPPING a value still comes off (``"600 mm"``,
+``'4"'``, ``'DP-7'``), nothing else is stripped, and a mark converts through
 the ONE length row (sizes included, #668): ``4"`` -> 1/3 ft, ``2'`` -> 2 ft,
 ``1'6"`` / ``1' 6"`` / ``1'-6"`` -> 1.5 ft; a mark on a non-length spec is
-refused BY NAME like any wrong-kind unit; a bare number is refused exactly as
-before.  ``4 in`` and ``4"`` write byte-identical families.
+refused BY NAME like any wrong-kind unit; every ambiguous quote arrangement
+(``4''`` -- two apostrophes typed for an inch --, ``4'"``, ``''4''``) is
+refused by name or as unreadable, never read as feet; a bare number is refused
+exactly as before.  ``4 in`` and ``4"`` write byte-identical families.
 
 Tiers: (1) the pure converter on synthetic parameter rows (no file);
 (2) ON A WRITTEN cable-tray fitting ``.rfa`` through the real CLI entry
@@ -129,9 +131,37 @@ def test_control_wrapping_quotes_still_come_off_text_and_unit_words():
 
 
 def test_what_cannot_be_read_is_still_said_plainly():
-    for raw in ("6\"1'", "1'6", "'\"", "1' x 6\""):
+    for raw in ("6\"1'", "1'6", "'\"", "1' x 6\"", '"600 mm', "'4\""):
         with pytest.raises(MFAM.FamilyEditError, match="Width: cannot read a number from"):
             MFAM._convert_value(_param("Width", LENGTH_SPEC), raw)
+
+
+#: quote arrangements that are NOT a mark: two apostrophes typed for an inch,
+#: mixed / doubled marks, a "wrap" whose inside starts or ends with the same
+#: quote.  Each names what it got; none is ever 4 ft / 4 in (a 12x misread).
+AMBIGUOUS_BY_NAME = {"4''": "''", "4'\"": "'\"", '4""': '""', "600 mm\"": 'mm"'}
+AMBIGUOUS_UNREADABLE = ("''4''", "'4''", '"4""', '"1\'6""')
+
+
+@_by_kind
+def test_an_ambiguous_quote_arrangement_is_refused_by_name_never_read_as_feet(caption, spec, refusal):
+    kind = refusal.split(" is a ")[0]                            # the caption, as the wrong-kind wording spells it
+    for raw, unit in AMBIGUOUS_BY_NAME.items():
+        with pytest.raises(MFAM.FamilyEditError) as ei:
+            MFAM._convert_value(_param(caption, spec), raw)
+        assert str(ei.value) == f"{kind} is a length; got unit {unit!r}", raw
+    for raw in AMBIGUOUS_UNREADABLE:
+        with pytest.raises(MFAM.FamilyEditError) as ei:
+            MFAM._convert_value(_param(caption, spec), raw)
+        assert str(ei.value) == f"{kind}: cannot read a number from {raw!r}", raw
+    # on a measurable spec outside the table (angle) and on a mass: still by name, still no value
+    with pytest.raises(MFAM.FamilyEditError, match="no conversion for unit \"''\" on spec autodesk.spec.aec:angle"):
+        MFAM._convert_value(_param("Fitting Angle", T668.ST.SPECS["angle"]), "45''")
+    with pytest.raises(MFAM.FamilyEditError, match="Operating Weight is a mass; got unit \"''\""):
+        MFAM._convert_value(_param("Operating Weight", T659.MASS_SPEC), "600''")
+    # the unwrap itself: one clean pair off, everything else verbatim
+    assert [MFAM._unwrap_measure(t) for t in ("'4\"'", '"2\'"', '"600 mm"', "4''", "''4''", "'4''", '4"')] == [
+        '4"', "2'", "600 mm", "4''", "''4''", "'4''", '4"']
 
 
 @pytest.mark.parametrize("caption, spec, carrier", [
@@ -209,6 +239,19 @@ def test_on_the_file_a_wrapped_bare_size_and_a_mark_on_a_non_length_are_refused_
     assert said.startswith("ERROR: Fitting Angle: no conversion for unit '\"' on spec autodesk.spec.aec:angle")
     assert said.endswith(T659.WAY_FORWARD)
     assert not os.path.isdir(str(out_dir)) or not os.listdir(str(out_dir))
+
+
+@needs_schema
+@pytest.mark.parametrize("raw, message", [
+    ("4''", "Width is a length; got unit \"''\""),                # two apostrophes: refused by name, never 4 ft
+    ("4'\"", "Width is a length; got unit '\\'\"'"),
+    ("''4''", "Width: cannot read a number from \"''4''\""),
+], ids=["two-apostrophes", "foot-inch-marks", "doubly-wrapped"])
+def test_on_the_file_an_ambiguous_quote_arrangement_is_refused_before_anything_is_written(
+        tray_rfa, tmp_path, capsys, raw, message):
+    out_dir = tmp_path / "amb"
+    T668._assert_refused_and_nothing_written(
+        *T659._cli_edit(tray_rfa, out_dir, f"Width={raw}"), out_dir, capsys, message)
 
 
 @needs_schema

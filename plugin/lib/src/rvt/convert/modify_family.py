@@ -42,8 +42,10 @@ A LENGTH here is every spec the format's own units table
 stores all of them in feet, so ``Tray Width=12 in`` converts and a bare
 ``Tray Width=12`` is refused exactly like ``Width=12`` (#668).  The trade's
 inch / foot MARKS are units too: ``Width=4"`` is 4 in, ``Depth=2'`` 2 ft,
-``1'6"`` / ``1' 6"`` / ``1'-6"`` feet-and-inches (18 in); quotes that WRAP a
-whole value (``"600 mm"``, ``'4"'``) still come off first (#678).
+``1'6"`` / ``1' 6"`` / ``1'-6"`` feet-and-inches (18 in); ONE pair of quotes
+cleanly WRAPPING a whole value (``"600 mm"``, ``'4"'``) still comes off first,
+and any other quote arrangement (``4''``, ``4'"``, ``''4''``) is refused by
+name, never read as feet or inches (#678).
 
 HONEST LIMIT: editing a DIMENSION parameter changes the type-table value
 only -- generated families carry no dimension-constraint graph, so the
@@ -302,16 +304,17 @@ _INCHES_PER_FOOT = _UNIT_TOKENS["'"][1] / _UNIT_TOKENS['"'][1]
 
 
 def _unwrap_measure(txt: str) -> str:
-    """Quotes that WRAP the value come off (``"600 mm"``, ``'4"'`` -> ``4"``);
-    a foot / inch MARK standing after a digit stays (``4"``, ``2'``, ``1'6"``,
-    ``4 "``) so it reaches ``_UNIT_TOKENS`` like any unit word; any other stray
-    quote at either end still comes off, as main's blanket strip did (#678)."""
-    if len(txt) >= 2 and txt[0] in "\"'" and txt[-1] == txt[0]:
-        txt = txt[1:-1].strip()
-    txt = txt.lstrip("\"'")
-    while txt and txt[-1] in "\"'" and not txt[:-1].rstrip()[-1:].isdigit():
-        txt = txt[:-1]
-    return txt.strip()
+    """ONE pair of quotes that cleanly WRAPS the value comes off (``"600 mm"``,
+    ``'4"'`` -> ``4"``, ``"2'"`` -> ``2'``); nothing else is stripped, so a
+    foot / inch MARK reaches ``_UNIT_TOKENS`` like any unit word (``4"``,
+    ``2'``, ``1'6"``, ``4 "``) and every other quote arrangement -- ``4''``
+    (two apostrophes), ``4'"``, ``''4''``, ``"4""``, a stray ``"600 mm`` -- is
+    left for the grammar to REFUSE by name, never read as a value (#678).  A
+    pair whose inside starts or ends with the same quote is not a clean wrap."""
+    q, inner = txt[:1], txt[1:-1].strip()
+    if len(txt) >= 2 and q in "\"'" and txt[-1] == q and q not in (inner[:1], inner[-1:]):
+        return inner
+    return txt
 
 
 def _convert_value(param: dict, raw: str) -> Tuple[Any, List[str]]:
