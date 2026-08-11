@@ -153,6 +153,71 @@ Worked example — rme entry 1 at `Global/Latest` +0x327614 (container count
 Entries are contiguous (entry 1 ends at 0x3276f1 exactly where entry 2's
 GUID begins) and the u32 before entry 1 equals the entry count. **[V]**
 
+### 2.1b The Revit ≤ 2024 layout: `m_storedSchemas` (#576) **[V on the bundled 2024 base]**
+
+A Revit 2024 file's own `Formats/Latest` has **no `SchemaUsageInfo` class**.
+Its `ESSchemaStorage` (0x537 in `G_ABPD_2024.rvt`) is, in field order,
+`m_storedForgeSchemas : pair<AString,AString>`, `m_storedParameterSchemas :
+pair<AString,AString>`, **`m_storedSchemas : container< std::pair< GUIDvalue,
+ESSchema > >`** (0x538), `m_dirty` — the catalog value IS the `ESSchema`
+(0x536, the same eight members as 2026's 0x56e; `ESField` 0x535 likewise),
+without the `m_contentDocsKeys` / `m_usedInHost` wrapper. So an entry is
+`key GUID(16) + ESSchema` and ends `… m_guid(16) read u32 write u32` — an
+**8-byte** tail after `m_guid` where the 2025+ entry has 9 (`+ usedInHost
+u8`). Everything else in §2.1/§2.2 holds: ordinary archive classes decoded by
+the generic decoder against the file's own schema, key GUID == decoded
+`m_guid`, entries contiguous, u32 count in front. `rvt.estorage.catalog_layout
+(schema)` reads which member the file's own `ESSchemaStorage` declares and the
+locator chains with that layout's tail length; `ESSchemaDef.used_in_host` is
+`None` and `content_docs_keys` `[]` for this layout (not recorded — reported
+absent, never invented; the CLI prints `usage-unrecorded`). The 2025 base
+already has the 2026 layout (`ESSchemaStorage` 0x554 `m_schemaUsageMap`,
+`SchemaUsageInfo` 0x556) — and *also* defines an unused `std::pair< GUIDvalue,
+ESSchema >` (0x1187), which is why the layout is read off `ESSchemaStorage`'s
+members, not off which pair class merely exists. Whether Revit ≤ 2023 files
+share the 2024 layout is unmeasured (no 2023 base in the bundle).
+
+Worked example — `G_ABPD_2024.rvt` entry 1 at `Global/Latest` +0xfe67d
+(count 2 at +0xfe679; entry 2, `DaylightingAnalysisInfo`, at +0xfe72f..0xfe83d):
+
+```
+0x0fe679  02 00 00 00                       m_storedSchemas count = 2
+0x0fe67d  59 79 81 4c 28 00 83 4a b3 e7 cd 1e 83 2a 45 9a   pair.first = 4c817959-0028-4a83-b3e7-cd1e832a459a
+0x0fe68d  00 00 00 00                       ESSchema.m_documentation = ""   (no SchemaUsageInfo.m_contentDocsKeys before it)
+0x0fe691  01 00 00 00                       m_fields count 1
+0x0fe695  00 00 00 00                       ESField.m_documentation = ""
+0x0fe699  08 00 00 00 "Identity"          m_fieldName
+0x0fe6ad  05 00 00 00 "TCHAR"             m_fieldTypeName
+0x0fe6bb  00 00 00 00                       m_specTypeId.m_typeId = ""
+0x0fe6bf  00 00 00 00  00 00 00 00          m_containerType = 0, m_entryIndex = 0
+0x0fe6c7  00*16                             m_subSchemaGUID = null
+0x0fe6d7  14 00 00 00 "AREXContentGenerator"  ESSchema.m_schemaName
+0x0fe703  00 00 00 00                       m_vendorId = ""
+0x0fe707  00*16                             m_applicationGUID = null
+0x0fe717  59 79 81 4c ... 2a 45 9a          m_guid = the SAME GUID as pair.first
+0x0fe727  01 00 00 00  01 00 00 00          m_readAccessLevel = 1, m_writeAccessLevel = 1
+0x0fe72f  ee 88 95 5d c7 e6 96 4c ...       entry 2 begins IMMEDIATELY (no usedInHost byte)
+```
+
+Two locator consequences, both handled: (a) the u32 in front of an *inner*
+entry is the previous entry's `m_writeAccessLevel` (1..3), so "leading u32 ==
+entries recovered so far" is not a stopping rule for the backward chain — the
+chain stops only when no previous entry decodes ending exactly at the current
+first entry; (b) an entry key followed by `m_documentation = ""` reads as a
+plausible *tracking* item with 0 ids, and the u32 before entry 2's key (entry
+1's write level, 1) would even "verify" it as a 1-item table — `locate_tracking`
+therefore skips candidates inside the catalog map's own byte span. The 2024
+base's real `EStorageTracking.m_trackingItems` is 7 items, count at +0xff92e:
+five leading items keyed by structured, uncatalogued GUIDs
+(`30000001-6e79-430c-adf9-634f716c5f5d`, `30000001-62e6-416d-a34a-bb3064350b62`,
+`20000002-6e79-…`, `20000002-62e6-…`, `10000005-db1a-45fc-9eed-810262792b5b`;
+0 or 1 ids each, element 49504) that occur nowhere in the 2025/2026 bases,
+then the two catalogued items at +0xff9a6 (`AREXContentGenerator`, 6 ids) and
++0xff9ea (`DaylightingAnalysisInfo`, id 1382860) — byte-identical to the
+2025 base's two items. Because only catalogued GUIDs anchor items, the 2024
+table is returned by the unverified-count fallback (longest catalogued run;
+`tracking_offset` = that run's start − 4 = 0xff9a2, not the true count offset).
+
 ### 2.2 Locating the map without decoding `ADocument` **[D]**
 
 The full `ADocument` graph is not decoded by the generic decoder (it fails
@@ -163,15 +228,17 @@ at `p` succeeds AND the decoded `ESSchema.m_guid` equals the 16 bytes at
 `p` (the map key). `locate_schema_map` then chains: forward (next entry
 starts where this one ends) and backward (the previous entry's `m_guid`
 sits 25 bytes before this entry's start — `m_guid(16) + read u32 + write u32
-+ usedInHost u8` — and that same GUID begins the previous entry), stopping
-when the u32 preceding the first entry equals the number of entries
-recovered. dach: 175 entries, `count 175 @0x391d2b` matched. Seeds:
++ usedInHost u8`; 24 on the ≤ 2024 layout, §2.1b — and that same GUID begins
+the previous entry, placed only if it decodes ending exactly here), stopping
+when no previous entry can be placed; the u32 then preceding the first entry
+is the container count. dach: 175 entries, `count 175 @0x391d2b` matched. Seeds:
 
 * **GUID-seeded** (any file with entities): the schema GUIDs read straight
   out of the entity tokens (a base-decoder failure at the token, or the ES
   decoder) — a handful of `bytes.find` calls.
 * **GUID-free** (`_tail_scan_seeds`): a regex over the distinctive entry
-  TAIL (`read u32 ∈ 0..4, write u32 ∈ 0..4, usedInHost u8 ∈ 0..1`) plus a
+  TAIL (`read u32 ∈ 0..4, write u32 ∈ 0..4, usedInHost u8 ∈ 0..1`; without
+  the last byte on the ≤ 2024 layout) plus a
   cheap check that a plausible `m_vendorId` AString ends 32 bytes before the
   tail's `m_guid`, then the same map-key/decode validation; one validated
   entry anchors the whole run. Verified to find the rme (0x327610) and
@@ -202,6 +269,8 @@ nested subschema entities (`Values`, `LoadCasesMap`,
 | rstbasic | 2 | 0xe9264 (2) | 0x16d7d5 | `AREXContentGenerator` (`Identity` TCHAR), `DaylightingAnalysisInfo` (ADSK; `AnalysisId` TCHAR + `ResultsInvalid` int) |
 | dach | 175 | 0x391d2b (175) | 0x42b3af | 173 used in host; vendors ADSK 146, HSB_ 8, SOFI 7, RPCA 5, none 9 (steel connections `flatbracing1` / `columnbeamseatt` / `railinganchor` / `singleeb*`) |
 | racbasic / racadv / rstadv | 0 | — | — | `ESSchemaStorage` present (100 Forge parameter schemas) but `m_schemaUsageMap` empty |
+| bundled `G_ABPD.rvt` (2026) / `G_ABPD_2025.rvt` | 2 | 0xe7a40 / 0xe690f (2) | 0x16bfb1 / 0x137e0a | the rstbasic pair (`AREXContentGenerator` 6 ids, `DaylightingAnalysisInfo` 1 id); `m_schemaUsageMap` layout |
+| bundled `G_ABPD_2024.rvt` | 2 | 0xfe679 (2) | 0xff9a2 (fallback; true count 7 @0xff92e, §2.1b) | same pair, same ids; **`m_storedSchemas` layout** (§2.1b) |
 
 ## 3 · The entity token **[V]**
 

@@ -1,0 +1,2 @@
+# fresh-clone safe: the ES catalog reader on the three tracked genesis bases + synthetic schemas (issue #576)
+tests/test_estorage_catalog_2024.py
