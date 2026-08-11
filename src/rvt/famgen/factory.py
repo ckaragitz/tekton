@@ -905,8 +905,8 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             start_id: int,
                             shared_params: SK.SharedParamsArg,
                             identity: Optional[Dict[str, str]] = None,
-                            text_params: Optional[Dict[str, str]] = None
-                            ) -> FamilyProduct:
+                            text_params: Optional[Dict[str, str]] = None,
+                            drive: bool = True) -> FamilyProduct:
     """A MULTI-PART generic model: several stacked / offset extrusions in one
     family (a canopy + a stem, a base + a body + a cap).  This is the LOD
     answer -- a real object is an assembly of solids, not one blob.  Overall
@@ -973,6 +973,24 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         if val:
             row[key] = str(val)
     doc.add_type(_clean_name(fam_name), row)
+    # PARAMETRIC DRIVE (#591, the owner's "edit anything after it's loaded"):
+    # wire Width/Depth so they actually MOVE the primary solid rather than just
+    # reporting it.  param_drive is the #372 donor law and needs a 4-line
+    # rectangular profile, so it applies when the FIRST part is a box; anything
+    # else keeps reporting-only parameters and says so.  Never fatal -- rule 1,
+    # the family is delivered either way.
+    drive_note = ("dimensions are REPORTED only: the parametric drive needs a "
+                  "rectangular first part")
+    if drive and built and str((parts[0] or {}).get("shape") or "box").lower() == "box":
+        try:
+            from . import param_drive as PD
+            info = PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+            drive_note = (f"Width/Depth DRIVE the first solid ({parts[0].get('name') or 'part 1'}): "
+                          f"{len(info.get('alignments') or [])} alignments on "
+                          f"{len(info.get('side_planes') or [])} reference planes")
+        except Exception as e:                       # never block delivery
+            drive_note = f"parametric drive not wired ({type(e).__name__}: {str(e)[:90]})"
+    doc.notes.append(drive_note)
     doc.notes.append(f"multi-part generic model: {len(built)} extrusions "
                      f"({', '.join(str(p.get('shape') or 'box') for p in parts)}); "
                      f"Width/Depth/Height report the assembly bounding box")
@@ -1098,8 +1116,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        source: str = "given", start_id: int = 1000,
                        shared_params: SK.SharedParamsArg = None,
                        identity: Optional[Dict[str, str]] = None,
-                       text_params: Optional[Dict[str, str]] = None
-                       ) -> FamilyProduct:
+                       text_params: Optional[Dict[str, str]] = None,
+                       drive: bool = True) -> FamilyProduct:
     """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
     "when i go to claude design and ask it to build me a 3d object you
     should be able to fully convert that to a rfa file").
@@ -1124,7 +1142,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                                        solid=solid, source=source,
                                        start_id=start_id,
                                        shared_params=shared_params,
-                                       identity=identity, text_params=text_params)
+                                       identity=identity, text_params=text_params,
+                                       drive=drive)
     if height_ft is None or float(height_ft) <= 0:
         raise FactoryError("make_generic_model needs a positive height_ft "
                            "(or parts=[...] for a multi-part assembly)")
