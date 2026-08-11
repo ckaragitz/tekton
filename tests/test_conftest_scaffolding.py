@@ -36,8 +36,7 @@ from rvt import versions as V                                   # noqa: E402
 #: names no test module may bind at top level any more: the private copies #579 removed, and shadows of their one home
 FORBIDDEN = {"_native_constants", "_no_leak", "_rewrite_stream", "_partition_of", "FOREIGN_FIRST", "FOREIGN",
              "NATIVE_LAST", "native_constants", "ladder_constants", "no_release_leak", "rewrite_stream", "partition_of"}
-#: files that still carry a copy of their own: NONE since #604 (the last, test_gates_shared_walk, adopted conftest's) --
-#: it stays empty; a file that grows a copy again is red in the law below, not a new entry here
+#: files still carrying a copy of their own -- none since #604; a regrown copy goes red in the law below, not in here
 EXEMPT = set()
 #: the files #579 / #602 relieved of an autouse leak guard of their own: each keeps conftest's switched on module-wide
 ADOPTERS = ["test_selfcheck_release", "test_inspect_release", "test_edit_text_release",

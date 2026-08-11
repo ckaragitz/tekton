@@ -16,7 +16,7 @@ lost gzip body off the primary partition (``Global/Latest``, ``Contents``,
 ``Global/ElemTable``, a second ``Partitions/<N>``) FAILs it as well.
 
 Fresh-clone runnable (tracked bundled bases only; edits and damaged copies are
-written to ``tmp_path`` through conftest's ``rewrite_stream`` / ``partition_of``,
+written to ``tmp_path``, the damaged copies via conftest's ``rewrite_stream``,
 #579 / #604); in the CI shard via tests/ci_shard.d/.
 
 Run: .venv/bin/python -m pytest tests/test_gates_shared_walk.py -q
