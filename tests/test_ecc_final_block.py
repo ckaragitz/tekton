@@ -12,8 +12,8 @@ one false ``ecc_mismatches`` -> the front door labelled a healthy edit
 
 Sample-free (CI shard): synthetic streams at every interesting length, plus
 end-to-end verify_written / verify_manipulated on variants of the tracked
-pinned genesis bases written into ``tmp_path`` (via conftest's
-``rewrite_stream`` and its ``flip_bit`` recipe, #617).
+pinned genesis bases written into ``tmp_path``; bits are flipped and variants
+written with conftest's ``flip_bit`` / ``rewrite_stream`` (#617).
 
 Run: .venv/bin/python -m pytest tests/test_ecc_final_block.py -q
 """

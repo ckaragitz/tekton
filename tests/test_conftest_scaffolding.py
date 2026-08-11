@@ -131,18 +131,22 @@ def pin() -> str:
     return C.pinned_base(C.FOREIGN_FIRST[0])
 
 
-def test_rewrite_stream_damages_one_stream_and_keeps_the_rest_byte_identical(pin, tmp_path):
+def _streams(path) -> dict:
+    """``{stream path: raw bytes}`` of the container at ``path``."""
     from rvt.roundtrip import read_entries
+    return {e.path: e.data for e in read_entries(path) if e.entry_type == "stream"}
+
+
+def test_rewrite_stream_damages_one_stream_and_keeps_the_rest_byte_identical(pin, tmp_path):
     pname = C.partition_of(pin)
     assert pname.startswith("Partitions/")
     out = C.rewrite_stream(pin, tmp_path / "hz.rvt", pname, C.zero_partition_header)
     assert out == str(tmp_path / "hz.rvt") and os.path.isfile(out)
-    before = {e.path: e.data for e in read_entries(pin) if e.entry_type == "stream"}
-    after = {e.path: e.data for e in read_entries(out) if e.entry_type == "stream"}
+    before, after = _streams(pin), _streams(out)
     assert set(after) == set(before)
     assert after[pname] == C.zero_partition_header(before[pname]) != before[pname]
     assert all(after[p] == before[p] for p in before if p != pname)
-    dropped = {e.path for e in read_entries(C.rewrite_stream(pin, tmp_path / "nolatest.rvt", "Formats/Latest", None))}
+    dropped = set(_streams(C.rewrite_stream(pin, tmp_path / "nolatest.rvt", "Formats/Latest", None)))
     assert "Formats/Latest" not in dropped and pname in dropped
     with pytest.raises(KeyError):
         C.rewrite_stream(pin, tmp_path / "never.rvt", "No/Such/Stream", C.zero_partition_header)
@@ -150,18 +154,17 @@ def test_rewrite_stream_damages_one_stream_and_keeps_the_rest_byte_identical(pin
 
 
 def test_rewrite_streams_damages_drops_and_appends_in_one_pass(pin, tmp_path):
-    from rvt.roundtrip import read_entries
     pname = C.partition_of(pin)
     twin = C.twin_partition_entry(pin, C.zero_partition_header)
     head, n = pname.rsplit("/", 1)
     assert twin.path == "%s/%d" % (head, int(n) + 1) and twin.entry_type == "stream"
-    before = {e.path: e.data for e in read_entries(pin) if e.entry_type == "stream"}
+    before = _streams(pin)
     assert twin.path not in before and twin.data == C.zero_partition_header(before[pname])
     assert C.twin_partition_entry(pin).data == before[pname]                          # no damage = verbatim
     out = C.rewrite_streams(pin, tmp_path / "multi.rvt",
                             {pname: lambda raw: C.smash64(raw, 280), "Formats/Latest": None}, extra=[twin])
     assert out == str(tmp_path / "multi.rvt")
-    after = {e.path: e.data for e in read_entries(out) if e.entry_type == "stream"}
+    after = _streams(out)
     assert set(after) == (set(before) - {"Formats/Latest"}) | {twin.path}
     assert after[pname] == C.smash64(before[pname], 280) and after[twin.path] == twin.data
     assert all(after[p] == before[p] for p in before if p not in (pname, "Formats/Latest"))

@@ -108,14 +108,14 @@ _IN_FIRST_MEMBER = 44 + 26 + 10 + 200
 
 
 def _hard(raw: bytes) -> bytes:
-    """A ``rewrite_stream`` damage: 64 payload bytes of the partition's first
-    block destroyed (conftest's ``smash64`` there) -- far beyond CRCIO auto-repair."""
+    """A ``rewrite_stream`` damage = ``smash64`` at ``_IN_FIRST_MEMBER``: 64 payload
+    bytes of the partition's first block destroyed -- far beyond CRCIO auto-repair."""
     return smash64(raw, _IN_FIRST_MEMBER)
 
 
 def _soft(raw: bytes) -> bytes:
-    """A ``rewrite_stream`` damage: ONE payload bit of the first block flipped
-    (conftest's ``flip_bit`` there) -- inside Revit's auto-repair envelope."""
+    """A ``rewrite_stream`` damage = ``flip_bit`` at ``_IN_FIRST_MEMBER``: ONE payload
+    bit of the first block flipped -- inside Revit's auto-repair envelope."""
     return flip_bit(raw, _IN_FIRST_MEMBER, 2)
 
 

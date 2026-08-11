@@ -11,7 +11,7 @@ test process open, checked at session end against ``tools/dev/ci_fresh.sh``'s
 and the shared own-release scaffolding of the ``test_*_release.py`` files (#579:
 ``FOREIGN_FIRST`` / ``FOREIGN``, ``native_constants`` / ``ladder_constants`` + the opt-in
 ``no_release_leak`` fixture, ``rewrite_stream(s)`` / ``partition_of`` / ``twin_partition_entry`` and the damaged-copy
-recipes -- the offset ones, ``smash64`` / ``flip_bit``, since #617)."""
+recipes, plus the offset recipes ``smash64`` / ``flip_bit`` (#617))."""
 import dataclasses
 import importlib.util
 import os
@@ -301,8 +301,7 @@ def rewrite_streams(src, dst, damages: dict, extra=()) -> str:
     bytes replaced by ``damage(raw)`` -- the stream dropped when its ``damage`` is None -- the ready-made ``extra``
     entries (``CfbEntry``, e.g. ``twin_partition_entry``) appended after the container's own, and every other entry
     byte-identical -> ``dst``.  ``src == dst`` rewrites in place.  A name the container does not hold is a KeyError,
-    never a silent verbatim copy (#617: the one loop the single-stream ``rewrite_stream`` and the add-a-partition /
-    drop-two-streams copies of the gate tests share)."""
+    never a silent verbatim copy (the ONE such loop under tests/, #579 / #617)."""
     from rvt.cfb_writer import write_cfb
     from rvt.roundtrip import read_entries
     src, dst = os.fspath(src), os.fspath(dst)
@@ -322,9 +321,7 @@ def rewrite_streams(src, dst, damages: dict, extra=()) -> str:
 
 
 def rewrite_stream(src, dst, name: str, damage) -> str:
-    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW (still paged) bytes replaced by ``damage(raw)`` --
-    the stream dropped when ``damage`` is None -- and every other entry byte-identical -> ``dst``.  A ``name`` the
-    container does not hold is a KeyError, never a silent verbatim copy."""
+    """The one-stream ``rewrite_streams``: ``name``'s raw bytes -> ``damage(raw)`` (dropped when None) -> ``dst``."""
     return rewrite_streams(src, dst, {name: damage})
 
 
@@ -361,9 +358,9 @@ def zero_schema_bytes(raw: bytes) -> bytes:
 
 def smash64(raw: bytes, off: int) -> bytes:
     """A ``rewrite_stream`` damage: the 64 bytes at ``off`` overwritten with ``0xff`` -- far beyond CRCIO auto-repair
-    wherever they land.  ``off`` is the caller's (no default: the two useful ones differ -- ``44 + 26 + 10 + …`` lands
-    in a partition's first block body, ``8 + 10 + …`` in the ONE gzip body of a ``Global/*`` stream), so a fixed
-    offset is spelled ``lambda raw: smash64(raw, OFF)`` at the call site, like every other damage taking a knob."""
+    wherever they land.  No default ``off``: the useful ones differ per stream kind (``44 + 26 + 10 + …`` = inside a
+    partition's first block body, ``8 + 10 + …`` = inside the ONE gzip body of a ``Global/*`` stream) and stay with
+    the caller, which fixes one as ``lambda raw: smash64(raw, OFF)``."""
     return raw[:off] + b"\xff" * 64 + raw[off + 64:]
 
 

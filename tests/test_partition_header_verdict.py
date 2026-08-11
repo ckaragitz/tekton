@@ -41,7 +41,6 @@ Run: .venv/bin/python -m pytest tests/test_partition_header_verdict.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import json
 import os
 
@@ -177,7 +176,7 @@ def test_validator_words_the_framing_finding_through_the_walk(tmp_path, edited):
     whose header does not parse IS ``WalkedFile.framing_error(p)``; a
     partition under 18 bytes keeps the validator's own pre-check wording."""
     pname = partition_of(edited)
-    short = dataclasses.replace(twin_partition_entry(edited), data=b"\x00" * 10)
+    short = twin_partition_entry(edited, lambda raw: b"\x00" * 10)
     bad = rewrite_streams(edited, tmp_path / "primary_hdr0_w.rvt", {pname: zero_partition_header}, extra=[short])
     walked = walk_file(bad)
     rep = validate_file(bad, layers=("structure",), walked=walked).to_json()
