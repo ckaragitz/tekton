@@ -123,6 +123,38 @@ accepted, and the sketch still had no frame.
   candidates are the extrusion's GStep sweep direction and the cached B-rep authored in
   world coordinates. After those, `RevolutionElem`.
 
+## ROUND 3 VERDICT: NEGATIVE — and three negatives make one shape
+
+Owner, Revit 2026.5: `R3_wheel_vecinplane` loads; 3D still shows a flat disc on a vertical
+axis. So:
+
+| round | what was changed | result |
+|---|---|---|
+| R1 | SketchPlane bound to a vertical `RefPlane` | flat disc |
+| R2 | `ExtrusionElem.m_alwaysRefPlaneNorm = True` | flat disc |
+| R3 | `OnDatumPlaneRef.m_vecInPlane` set to a real vector | flat disc |
+
+Three different edits to the SKETCH, three identical pictures. That is not three
+independent failures — it is one finding: **nothing in the sketch moves the geometry.**
+
+## Round 4: the cached B-rep, which has been saying "vertical" all along
+
+`cyl_surf` hard-writes `m_zVec = [0, 0, 1]`. Every cylinder this engine has ever authored
+declares a **vertical axis in world coordinates** inside its cached B-rep. If that B-rep is
+what Revit draws, it explains all three rounds at once — the sketch was never going to win
+an argument with it.
+
+`rotate_rep` rotates a cached B-rep's positions and directions together (5 field types,
+14 vectors in a cylinder: `m_xVec`, `m_yVec`, `m_zVec`, `m_origin`, `m_center`).
+`R4_wheel_rotated_brep` rotates ONLY the B-rep, 90° about X, and leaves the sketch alone.
+
+- **R4 lies on its side** → the B-rep drives the display. Wheels are reachable today, and
+  the parametric side must then be made to agree — or the form regenerates back to
+  vertical on the first edit, which is a trade to *measure* next, not to assume.
+- **R4 is still a flat disc** → the B-rep does not drive it either, and the honest
+  conclusion is that direction is fixed by the element kind itself. `RevolutionElem` is
+  then the only road — and a sphere needs it regardless.
+
 ## Rebuild
 
 ```bash

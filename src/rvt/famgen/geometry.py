@@ -1701,6 +1701,60 @@ def _number_graph(root: dict, registry: Dict[str, dict]) -> None:
     resolve(root)
 
 
+
+#: Fields of a cached B-rep that hold a POSITION (rotated about the pivot) and
+#: those that hold a DIRECTION (rotated in place).  Measured on the authored
+#: cylinder rep: m_xVec / m_yVec / m_zVec / m_origin / m_center and nothing else.
+_REP_POSITION_FIELDS = ("m_origin", "m_center")
+_REP_DIRECTION_FIELDS = ("m_xVec", "m_yVec", "m_zVec")
+
+
+def rotate_rep(value: Any, rot: Sequence[Sequence[float]],
+               pivot: Sequence[float] = (0.0, 0.0, 0.0)) -> Any:
+    """Rotate an authored cached B-rep in place by the 3x3 ``rot`` about
+    ``pivot`` (issue #591, rotation round 4).
+
+    Three rounds established that NOTHING in the sketch changes what Revit
+    draws for a form: not the sketch plane's datum, not
+    ``ExtrusionElem.m_alwaysRefPlaneNorm``, not ``OnDatumPlaneRef.m_vecInPlane``.
+    The remaining explanation is that the CACHED B-REP is what renders -- and
+    ``cyl_surf`` hard-writes ``m_zVec = [0, 0, 1]``, so every cylinder we have
+    ever authored says "vertical" in world coordinates no matter what its
+    sketch says.
+
+    This rotates the rep's positions and directions together, so a cylinder
+    B-rep can lie on its side.  It deliberately does NOT touch the sketch: if
+    the rotated body appears, the B-rep drives the display and the parametric
+    side must then be made to agree (or the form regenerates back to vertical
+    on the first edit -- a trade to measure, not to assume).
+    """
+    def rot3(v, translate):
+        x, y, z = float(v[0]), float(v[1]), float(v[2])
+        if translate:
+            x -= pivot[0]; y -= pivot[1]; z -= pivot[2]
+        out = [rot[i][0] * x + rot[i][1] * y + rot[i][2] * z for i in range(3)]
+        if translate:
+            out = [out[i] + pivot[i] for i in range(3)]
+        return out
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k, x in list(v.items()):
+                if (isinstance(x, list) and len(x) == 3
+                        and all(isinstance(n, (int, float)) for n in x)):
+                    if k in _REP_POSITION_FIELDS:
+                        v[k] = rot3(x, True)
+                        continue
+                    if k in _REP_DIRECTION_FIELDS:
+                        v[k] = rot3(x, False)
+                        continue
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+    walk(value)
+    return value
+
 def solid_cylinder_brep(circles: Sequence[CircleProfile], start: float, end: float,
                         *, element_id: int, geometry_style_id: int = -1,
                         control_command: int = 0,
