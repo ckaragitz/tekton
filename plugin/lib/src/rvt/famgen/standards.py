@@ -83,6 +83,7 @@ and edits no writer path).
 from __future__ import annotations
 
 import json
+import math
 import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -871,18 +872,24 @@ def coerce_value(spec_key: str, value: Any) -> Any:
     Index": 90}``) used to sit in the integer slot next to an ``m_value`` of
     0.0, which is what Revit shows (#642).  Here the ENTRY decides: ``text``
     -> str, ``integer`` -> int (a whole number only), every measurable spec
-    -> float.  A numeric string is read as the number it spells; anything
-    else raises ``ValueError`` / ``TypeError`` and :func:`apply` leaves that
-    parameter BLANK and names the value as unusable -- a value is coerced,
-    never guessed at."""
+    -> float.  A numeric string is read as the number it spells; a bool is a
+    0/1 flag for an ``integer`` spec only (``Emergency``, ``GFCI Protected``)
+    and never a quantity (``{"Wattage": True}`` is not 1 W); ``inf`` / ``nan``
+    are never a value.  Anything else raises ``ValueError`` / ``TypeError``
+    and :func:`apply` leaves that parameter BLANK and names the value as
+    unusable -- a value is coerced, never guessed at (S-2026-08-11-a)."""
     if spec_key == "text":
         return str(value)
     if isinstance(value, bool):
-        value = int(value)
-    elif isinstance(value, str):
+        if spec_key != "integer":
+            raise TypeError(f"a bool is a 0/1 flag, not a {spec_key} quantity")
+        return int(value)
+    if isinstance(value, str):
         value = float(value.strip())
     elif not isinstance(value, (int, float)):
         raise TypeError(f"a {type(value).__name__} is not a {spec_key} value")
+    if not math.isfinite(value):
+        raise ValueError(f"{value!r} is not a finite number")
     if spec_key == "integer":
         if float(value) != int(value):
             raise ValueError(f"{value!r} is not a whole number")
@@ -1021,12 +1028,12 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
         offered = sorted(_offered(values))
         if offered:
             doc.notes.append(f"standards off ({canonical_category(category)}): the "
-                             f"given {offered} are NOT authored (they are standard "
-                             f"parameters of the category)")
+                             f"given {offered} are NOT authored (no standard "
+                             f"parameters are applied, so nothing carries them)")
         return None
     try:
         return apply(doc, category, values=values, **kw)
-    except Exception as e:                            # pragma: no cover - never block delivery
+    except Exception as e:                            # never block delivery
         doc.notes.append(f"category standards NOT applied "
                          f"({type(e).__name__}: {str(e)[:120]})")
         return None

@@ -136,7 +136,8 @@ def test_standards_off_names_the_values_it_drops(label, make, category):
     assert len(notes) == 1, prod.doc.notes
     assert f"({category})" in notes[0]
     assert "'Not A Standard Thing'" in notes[0] and "'Warranty Duration'" in notes[0]
-    assert "NOT authored" in notes[0]
+    # names them; does not claim an arbitrary key is a standard parameter
+    assert "NOT authored" in notes[0] and "standard parameters of the category" not in notes[0]
 
 
 @needs_ifc
@@ -186,8 +187,9 @@ def test_apply_safe_on_is_apply():
 
 @pytest.mark.parametrize("spec,given,expect", [
     ("number", 90, 90.0), ("number", 90.5, 90.5), ("number", "0.85", 0.85),
-    ("number", True, 1.0), ("cct", 3000, 3000.0), ("length", 2, 2.0),
-    ("integer", 2, 2), ("integer", 2.0, 2), ("integer", " 4 ", 4), ("integer", False, 0),
+    ("cct", 3000, 3000.0), ("length", 2, 2.0),
+    ("integer", 2, 2), ("integer", 2.0, 2), ("integer", " 4 ", 4),
+    ("integer", False, 0), ("integer", True, 1),          # a 0/1 flag (Emergency, GFCI ...)
     ("text", 7, "7"), ("text", "Cat6A", "Cat6A"), ("text", 2.5, "2.5"),
 ])
 def test_coerce_value_by_spec(spec, given, expect):
@@ -195,13 +197,42 @@ def test_coerce_value_by_spec(spec, given, expect):
     assert got == expect and type(got) is type(expect)
 
 
+INF, NAN = float("inf"), float("nan")
+
+
 @pytest.mark.parametrize("spec,given", [
     ("integer", 2.5), ("integer", "2.5"), ("number", "warm"), ("cct", "3000K"),
     ("number", [90]), ("length", None),
+    # a bool is a flag, never a quantity: {"Wattage": True} is not 1 W (S-2026-08-11-a)
+    ("wattage", True), ("number", False), ("length", True),
+    # non-finite is never a value, on either storage class
+    ("integer", INF), ("integer", -INF), ("integer", NAN), ("integer", "inf"),
+    ("number", INF), ("number", -INF), ("number", NAN), ("cct", "nan"), ("length", "-inf"),
 ])
 def test_coerce_value_refuses_what_it_cannot_write_rather_than_guessing(spec, given):
     with pytest.raises((TypeError, ValueError)):
         ST.coerce_value(spec, given)
+
+
+@needs_schema
+def test_flags_and_non_finite_numbers_leave_blanks_and_the_full_set_is_still_authored():
+    """A bool for a measurable, and inf / nan anywhere, are unusable: the slot
+    stays blank, the value is named, and apply() finishes the WHOLE set (an
+    ``int(inf)`` OverflowError used to escape mid-loop and leave a partial
+    family behind an 'NOT applied' note)."""
+    doc = SK.new_family_document("lighting_fixtures", "Probe")
+    doc.add_type("Probe", {})
+    rep = ST.apply(doc, "lighting_fixtures",
+                   values={"Wattage": True, "Luminous Flux": INF, "Number of Lamps": NAN,
+                           "Light Loss Factor": -INF, "Emergency": True})
+    assert {p.name for p in ST.authored_params("lighting_fixtures")} <= set(doc.params)
+    v = _type_values(doc)
+    assert v["Wattage"] == 0.0 and v["Luminous Flux"] == 0.0 and v["Light Loss Factor"] == 0.0
+    assert v["Number of Lamps"] == 0 and v["Emergency"] == 1
+    assert rep["filled"] == ["Emergency"]
+    assert sorted(u["name"] for u in rep["values_unusable"]) == [
+        "Light Loss Factor", "Luminous Flux", "Number of Lamps", "Wattage"]
+    assert not any("NOT applied" in n for n in doc.notes)
 
 
 @needs_schema

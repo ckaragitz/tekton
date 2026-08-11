@@ -762,6 +762,24 @@ the catalog — #622 behaviour, unchanged). The unusable probe `{"Color Renderin
 and the note line says so. The switchboard room prompt on 2026/2025/2024 after the final diff: room
 `error 0` ×3, switchboard family 24 parameters, `standards.category == "switchboard"` ×3.
 
+**Review round (tech-lead verdict on b43c589: 🟡 nits, one fix commit):** (1) a `bool` for a
+*measurable* spec is refused → `values_unusable` (`{"Wattage": True}` no longer authors 1.0 W and
+reports it filled — S-2026-08-11-a); bool stays a 0/1 flag for `integer` specs (`Emergency`, `GFCI
+Protected`); the test row pinning `("number", True) → 1.0` flipped to a refusal. (2) non-finite numbers:
+`coerce_value` guards with `math.isfinite` before the integer/float split, so `inf`/`nan`/`-inf` (and
+their string spellings) are unusable on both storage classes — previously `int(inf)` raised
+`OverflowError` outside the `(TypeError, ValueError)` net, aborting `apply` mid-loop with a partial set
+behind a "NOT applied" note, and `nan`/`inf` floats went straight into `m_value`; a document-level test
+pins that the WHOLE set is still authored with those slots blank. (3) the standards-off note no longer
+claims every offered key "is a standard parameter of the category" (it never consulted the table): it
+reads `… are NOT authored (no standard parameters are applied, so nothing carries them)`. (4) stale
+`pragma: no cover` on `apply_safe`'s guard dropped. After the fix: the four standards/factory modules
+205 passed / 5 skipped; sha table identical to the AFTER column (all 10 rows); `--check` 35/0; the
+famspec surface with `{"Color Rendering Index": 90, "Wattage": true, "Light Loss Factor": "inf"}` →
+exit 0 / OK / VALID, `filled ['Color Rendering Index']`, `values_unusable ['Light Loss Factor' (inf is
+not a finite number)]`, `values_not_placed ['Wattage']` (the constructor's own parameter — the bool
+never reaches it).
+
 ## Follow-ups
 
 - Filed **#647**: `FamilyDoc` stores every type-row value in its parameter's storage class (the rule
