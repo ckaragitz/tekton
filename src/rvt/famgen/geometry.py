@@ -1306,7 +1306,8 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
                   sketch_plane_id: int, profile: RectProfile | Sequence[Vec],
                   start: float, end: float, rep: str = REP_SOLID,
                   category_id: int = INVALID, material_id: int = INVALID,
-                  notes=None) -> SkelElement:
+                  notes=None,
+                   always_ref_plane_norm: bool = False) -> SkelElement:
     """The ``ExtrusionElem`` form: start/end offsets (params -1001800 /
     -1001801, feet along the sketch normal), the ExtrusionGStep tag map,
     the per-tag geometry table, its private copy of the traced profile
@@ -1351,7 +1352,7 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
     obj["m_materialId"] = int(material_id)
     obj["m_famElemVisibility"] = {"m_flags": int(ctx.fam_elem_visibility)}
     obj["m_cutting"] = False
-    obj["m_alwaysRefPlaneNorm"] = False
+    obj["m_alwaysRefPlaneNorm"] = bool(always_ref_plane_norm)
     obj["m_sideRefPlaneCurveBased"] = False
     assign_pids(obj)
     if rep == REP_SOLID:
@@ -2258,7 +2259,8 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
                            sketch_plane_id: int, circles: Sequence[CircleProfile],
                            start: float, end: float, rep: str = REP_SOLID,
                            category_id: int = INVALID, material_id: int = INVALID,
-                           notes=None) -> SkelElement:
+                           notes=None,
+                   always_ref_plane_norm: bool = False) -> SkelElement:
     """The ``ExtrusionElem`` of a circle-profile form: start/end offsets
     (extrude-UP), the two-arc-loop ExtrusionGStep tag map, the per-tag
     geometry table, the private helper copy of each circle loop (traversal
@@ -2307,7 +2309,7 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
     obj["m_materialId"] = int(material_id)
     obj["m_famElemVisibility"] = {"m_flags": int(ctx.fam_elem_visibility)}
     obj["m_cutting"] = False
-    obj["m_alwaysRefPlaneNorm"] = False
+    obj["m_alwaysRefPlaneNorm"] = bool(always_ref_plane_norm)
     obj["m_sideRefPlaneCurveBased"] = False
     assign_pids(obj)
     if rep == REP_SOLID:

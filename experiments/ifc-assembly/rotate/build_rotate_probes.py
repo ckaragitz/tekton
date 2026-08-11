@@ -33,6 +33,7 @@ from rvt.frontdoor import famspec as FS
 
 OUT = os.path.dirname(os.path.abspath(__file__))
 rows = []
+ALWAYS_REF_NORM = os.environ.get("ROTATE_REF_NORM", "0") == "1"
 
 
 def write(prod, stem, note):
@@ -85,7 +86,8 @@ doc.add(G.new_arc_curve_elem(id_l, ctx, sketch_plane_id=id_plane, sketch_id=id_s
                              partner_id=id_u, tag=0))
 doc.add(G.new_cylinder_extrusion(id_ext, ctx, sketch_id=id_sk, sketch_plane_id=id_plane,
                                  circles=[c], start=-0.475, end=0.475, rep=G.REP_SOLID,
-                                 material_id=-1, category_id=int(doc.category_id)))
+                                 material_id=-1, category_id=int(doc.category_id),
+                                 always_ref_plane_norm=ALWAYS_REF_NORM))
 for dim in ("Width", "Depth", "Height"):
     doc.add_family_parameter(dim, F.SPEC["length"], F.GROUP["dimensions"])
 doc.add_type("R1 Wheel On RefPlane", {doc.params["Width"].elem_id: 3.44,
@@ -93,9 +95,11 @@ doc.add_type("R1 Wheel On RefPlane", {doc.params["Width"].elem_id: 3.44,
                                       doc.params["Height"].elem_id: 3.44,
                                       "description": "wheel drawn on a vertical RefPlane"})
 doc.finalize()
+stem = "R2_wheel_refnorm" if ALWAYS_REF_NORM else "R1_wheel_on_refplane"
 write(F.FamilyProduct("generic_model", doc, F.FactSheet(subject="rotate probe"),
-                      forms=[], file_stem="r1_wheel_on_refplane"),
-      "R1_wheel_on_refplane", "the experiment: profile on a VERTICAL RefPlane")
+                      forms=[], file_stem=stem.lower()),
+      stem, ("round 2: same wheel + ExtrusionElem.m_alwaysRefPlaneNorm = True"
+             if ALWAYS_REF_NORM else "round 1: profile on a VERTICAL RefPlane"))
 
 with open(os.path.join(OUT, "rotate.json"), "w") as fh:
     json.dump({"stamp": "PROOF-ONLY", "round": 1,

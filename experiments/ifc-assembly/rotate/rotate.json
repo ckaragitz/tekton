@@ -12,8 +12,8 @@
    "bytes": 225280
   },
   {
-   "rung": "R1_wheel_on_refplane",
-   "note": "the experiment: profile on a VERTICAL RefPlane",
+   "rung": "R2_wheel_refnorm",
+   "note": "round 2: same wheel + ExtrusionElem.m_alwaysRefPlaneNorm = True",
    "verdict": "VALID",
    "errors": 0,
    "provenance_ok": true,
