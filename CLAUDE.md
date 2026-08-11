@@ -167,7 +167,8 @@ repo's bots finish or re-queue it; nothing depends on the session staying up.
   description ≤ 1024 chars with **no `<`/`>`**; every plugin-relative path a
   skill/command references must exist; the zip has plugin contents at the
   archive root. `plugin/scripts/validate_plugin.py` checks all of this.
-- `docs/inbox/` — one record per workstream (see §4). `docs/product/` —
+- `docs/inbox/` — the workstream records — one file, or an index + per-PR
+  fragments (see §4). `docs/product/` —
   user-facing truth (`PERMUTATION-MATRIX.md`, `HONEST-STATUS`,
   `SURFACE-PLAYBOOK.md`, `MCP-PATH.md`, `COUNSEL-BRIEF.md`).
   `docs/writer/` — format facts per release. `docs/coverage/viewer-certified.json`
@@ -613,8 +614,8 @@ stop at READY, as before.
   (task-shaped, `Refs #<parent>`) — that is tech-lead work, not scope creep —
   and never by editing `TRACKER.md` in passing.
 - **Every stream writes a record in `docs/inbox/`** — `docs/inbox/<stream>.md`,
-  or, as soon as more than one PR feeds the stream, that file kept as a short
-  index plus **one fragment per PR, `docs/inbox/<stream>.d/<issue>-<slug>.md`,
+  or, as soon as more than one PR feeds the stream, that file kept as the
+  index (existing text left as is) plus **one fragment per PR, `docs/inbox/<stream>.d/<issue>-<slug>.md`,
   that nobody else ever appends to** (preferred; the convention and its small
   law live in `docs/inbox/README.md`, #636): what was built, the
   evidence (numbers, not adjectives), findings, open questions, and a

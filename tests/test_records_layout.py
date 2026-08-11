@@ -5,7 +5,8 @@ docs/inbox/<stream>.d/ (new files never conflict, shared ends of file do -- #328
 function over inbox-relative names so a names gate can host it later exactly like tools/dev/check_portable_paths.check:
   * every <stream>.d/*.md is named <digits>-<slug>.md (issue number first, portable slug after);
   * every <stream>.d/ that holds files has its index <stream>.md.
-Pinned on the real docs/inbox (this PR's own fragment makes it non-vacuous) and on a planted tmp_path tree that is
+Pinned on the real docs/inbox as it lies in the WORKING TREE (untracked files are judged too -- stricter than git
+locally, identical in CI; this PR's own fragment makes it non-vacuous) and on a planted tmp_path tree that is
 lawful first and lawless after. Names only, nothing under docs/ is opened: registered as such in
 tests/test_ci_fresh.py NAMES_NOT_READS. Fresh-clone runnable; stdlib only.
 """

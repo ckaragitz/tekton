@@ -19,15 +19,20 @@ applies the same shape to records and to per-surface tests.
    migrated) or that file kept as a short index plus one fragment per PR, `docs/inbox/<stream>.d/<issue>-<slug>.md`,
    never appended to by anyone else; preferred as soon as a second PR feeds a stream. Fragments carry their own
    `BRANCH STATE`; `learned-*.md` notes stay where they are.
-2. **`CLAUDE.md` §4 -- exactly three sentences** (the auto-loaded guide; diff kept minimal):
+2. **`CLAUDE.md` -- three sentences in §4 plus one clause in §3's map** (the auto-loaded guide; diff kept minimal;
+   the §3 clause was authorised by the tech-lead review of #643 to remove a stale "one record per workstream" reading):
    * "The PR **must** include the stream record ..." now reads `(docs/inbox/<stream>.md, or your own fragment
      docs/inbox/<stream>.d/<issue>-<slug>.md — either way with its closing BRANCH STATE)`;
    * "**Every stream writes `docs/inbox/<stream>.md`**" became "**Every stream writes a record in `docs/inbox/`** —
-     `docs/inbox/<stream>.md`, or, as soon as more than one PR feeds the stream, that file kept as a short index plus
-     one fragment per PR ... (preferred; the convention and its small law live in `docs/inbox/README.md`, #636)";
+     `docs/inbox/<stream>.md`, or, as soon as more than one PR feeds the stream, that file kept as the index (existing
+     text left as is) plus one fragment per PR ... (preferred; the convention and its small law live in
+     `docs/inbox/README.md`, #636)" -- "existing text left as is" spelled out after review so nobody reads it as
+     "trim the old record" (DONE 4: no migration);
    * one sentence appended to the CI-shard drop-in paragraph: tests for a shared surface go in a new module
      `tests/test_<surface>_<issue>.py` (+ drop-in) instead of being appended to a large shared file, unless the PR
-     genuinely edits existing tests.
+     genuinely edits existing tests;
+   * §3 map: "`docs/inbox/` — one record per workstream (see §4)" → "the workstream records — one file, or an index +
+     per-PR fragments (see §4)".
 3. **`.github/pull_request_template.md`** -- the *Stream record* line names the fragment form first (preferred) and the
    single file second, and points at the README.
 4. **`tests/ci_shard.d/README`** -- a paragraph "the same trick for the tests themselves" with the
@@ -101,8 +106,9 @@ applies the same shape to records and to per-surface tests.
 
 ## BRANCH STATE
 
-* Branch `cam/636-record-fragments` from `origin/main` @ ca74895; one PR, `Closes #636`.
-* Files: `CLAUDE.md` (3 sentences in §4), `.github/pull_request_template.md` (record line), `tests/ci_shard.d/README`,
+* Branch `cam/636-record-fragments`, cut from `origin/main` @ ca74895, rebased onto 6d95f32 (#633) before review;
+  PR #643, `Closes #636`; review 🟡 nits @ 41bc442 answered by one wording-only commit (N1–N3 + the two optionals).
+* Files: `CLAUDE.md` (3 sentences in §4 + 1 clause in §3), `.github/pull_request_template.md` (record line), `tests/ci_shard.d/README`,
   `docs/inbox/README.md` (new), `docs/inbox/process-friction.md` (new index), this fragment,
   `tests/test_records_layout.py` (new) + `tests/ci_shard.d/636-records-layout.txt`, `tests/test_ifc_assembly.py`
   (header comment only), `tests/test_ci_fresh.py` (one `NAMES_NOT_READS` registry line). No engine, tools, plugin,
