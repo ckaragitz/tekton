@@ -39,7 +39,16 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 import rvt.versions as V                       # noqa: E402
 from rvt.frontdoor import base as B            # noqa: E402
 import rvt.frontdoor as FD                     # noqa: E402
-from conftest import pinned_base               # noqa: E402
+from conftest import context_constants, pinned_base   # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")     # the release_ctx rows enter the 2025 context in-process
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
+    return context_constants
+
 
 PANEL_PROMPT = "a 400 A distribution panel"
 ROOM_PROMPT = ("an electrical room 30x20 ft rated for 2500 A service with a main "

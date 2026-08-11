@@ -28,6 +28,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
 import rvt.versions as V                                   # noqa: E402
+from conftest import context_constants, ladder_constants   # noqa: E402
 from rvt import partitions as P                            # noqa: E402
 from rvt.frontdoor import release_ctx as RC                # noqa: E402
 
@@ -36,27 +37,32 @@ BASE25 = os.path.join(GEN, "G_ABPD_2025.rvt")
 BASE26 = os.path.join(GEN, "G_ABPD.rvt")
 BASE24 = os.path.join(GEN, "G_ABPD_2024.rvt")
 
-pytestmark = pytest.mark.skipif(
-    not (os.path.isfile(BASE25) and os.path.isfile(BASE26)
-         and 2025 in V.SUPPORTED_CREATION_RELEASES),
-    reason="bundled certified 2025/2026 genesis bases missing")
+pytestmark = [pytest.mark.skipif(not (os.path.isfile(BASE25) and os.path.isfile(BASE26)
+                                      and 2025 in V.SUPPORTED_CREATION_RELEASES),
+                                 reason="bundled certified 2025/2026 genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]  # every test leaves the process at the native release
 
 
 # ---------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------
 
-def _native_state():
-    """The module singletons a release context swaps -- snapshot to prove
-    LIFO restoration (the framing table, the Global-stream tokens, the
-    ADocument decoder, mutate's class ids, the constructor codec state)."""
-    from rvt import adocument as ADOC, mutate as MU
-    from rvt.famgen import factory as FF, famdoc_adoc as FDA, skeleton as FSK
-    from rvt.genesis import skeleton as GSK, types as GT
-    return (P.BLOCK_TAG, P.CONTAINER_CLASS, P.TERMINATOR, FF.CD_SEPARATOR,
-            FF.CD_END_RECORD, FDA.FAMILY_END_RECORD, GSK.EMPTY_CONTENT_DOCUMENTS,
-            ADOC._DECODER, MU.CLASS_FAMILY_INSTANCE, FSK.FOOTER_TAG,
-            tuple(sorted(GT._STATE)), FF.FORMATS_LATEST_SHA256_PREFIX)
+def _lane_constants() -> dict:
+    """The module singletons this lane's contexts swap, past the framing table conftest's guard always watches: the
+    ladder's and the write side's lists, plus the four this file snapshotted before it took the shared guard that
+    neither list carries yet -- ``versions.activate``'s derived ``P.TERMINATOR`` and three ``_release_context`` swaps
+    (the family-writer framing copy, the constructor codec state, the family Formats/Latest pin; #706 folds them)."""
+    from rvt.famgen import factory as FF, skeleton as FSK
+    from rvt.genesis import types as GT
+    return dict(ladder_constants(), **context_constants(),
+                **{"P.TERMINATOR": P.TERMINATOR, "FSK.FOOTER_TAG": FSK.FOOTER_TAG, "GT._STATE": sorted(GT._STATE),
+                   "FF.FORMATS_LATEST_SHA256_PREFIX": FF.FORMATS_LATEST_SHA256_PREFIX})
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches everything this lane swaps, not the framing table alone."""
+    return _lane_constants
 
 
 def _assert_2025_file(path: str, *, loaded_families: int) -> dict:
@@ -88,15 +94,6 @@ def _assert_2025_file(path: str, *, loaded_families: int) -> dict:
     assert census["contentdocs_entries"] == loaded_families, census
     assert census["save_units"] == loaded_families + 1, census
     return census
-
-
-@pytest.fixture(autouse=True)
-def _restored():
-    """Every test leaves the process at the native release."""
-    before = _native_state()
-    yield
-    assert RC.active_release() is None
-    assert _native_state() == before
 
 
 @pytest.fixture(scope="module")

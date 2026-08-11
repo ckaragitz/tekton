@@ -30,6 +30,7 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
+from conftest import ladder_constants                                # noqa: E402
 import rvt.versions as V                                             # noqa: E402
 from rvt.versions import KNOWN_RELEASES, records32 as R32           # noqa: E402
 from rvt import elemtable as ET                                     # noqa: E402
@@ -44,6 +45,13 @@ from rvt.schema import ClassDef, Field, Schema                      # noqa: E402
 G24 = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2024.rvt")
 needs_g24 = pytest.mark.skipif(not os.path.exists(G24),
                                reason="plugin genesis base G_ABPD_2024.rvt absent")
+pytestmark = pytest.mark.usefixtures("no_release_leak")             # the reading32 rows enter it in-process
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``reading32`` swaps the record readers too, not the framing table alone: watch them."""
+    return ladder_constants
 
 
 # ---------------------------------------------------------------------------

@@ -35,6 +35,7 @@ needs_rungs = pytest.mark.skipif(not os.path.exists(os.path.join(RUNGS, "B2025_K
                                  reason="2025 ladder artifacts not built")
 needs_facts = pytest.mark.skipif(not os.path.exists(FACTS),
                                  reason="2025 format facts not collected")
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the rung rows enter versions.reading in-process
 
 R_RUNGS = ["R5_2025", "R6_2025", "R7_2025", "R8_2025", "R9_2025"]
 ALL_RUNGS = R_RUNGS + ["K3_2025", "B2025_K4"]

@@ -29,6 +29,7 @@ from rvt.genesis.types import INVALID                                # noqa: E40
 RST24 = os.path.join(ROOT, "samples", "2024", "rstbasicsampleproject.rvt")
 needs_sample = pytest.mark.skipif(not os.path.exists(RST24),
                                   reason="quarantined 2024 samples not present")
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the sample rows enter versions.reading in-process
 
 
 # ---------------------------------------------------------------------------

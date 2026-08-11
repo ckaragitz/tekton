@@ -42,6 +42,7 @@ from rvt import versions as V
 
 SRC = os.path.join(ROOT, "src", "rvt")
 LEVEL_ID = 1351691                     # "GEN B1 - Basement", present in every G_ABPD base
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the unit rows enter versions.reading in-process
 
 
 def _tags(raw: bytes) -> tuple:

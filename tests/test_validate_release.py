@@ -14,6 +14,7 @@ import os
 
 import pytest
 
+from conftest import ladder_constants
 from rvt import partitions as P
 from rvt import versions as V
 from rvt.validate import main, validate_file
@@ -24,21 +25,19 @@ BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
          2025: os.path.join(GEN, "G_ABPD_2025.rvt"),
          2024: os.path.join(GEN, "G_ABPD_2024.rvt")}
 
-pytestmark = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
+pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()),
+                                 reason="bundled genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]      # after every test the native framing is back
+
+
+@pytest.fixture
+def release_leak_extra():
+    """The release-aware validator climbs the instrument ladder in-process: watch what it swaps, too."""
+    return ladder_constants
 
 
 def _msgs(findings):
     return [f"[{f.layer}] {f.where}: {f.message}" for f in findings]
-
-
-@pytest.fixture(autouse=True)
-def _constants_restored():
-    """After every test the built-in (latest-release) framing is back."""
-    yield
-    latest = V.framing_table(V.LATEST_RELEASE)
-    assert {k: getattr(P, k) for k in latest} == latest
 
 
 @pytest.mark.parametrize("year", sorted(BASES))

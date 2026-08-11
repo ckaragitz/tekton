@@ -38,6 +38,7 @@ LADDER = ["Y1_2025", "Y2_2025", "Y3_2025", "Y4_2025", "Y5_2025", "Y6_2025",
 SINGLES = ["Y1s_2025", "Y6s_2025"]
 ALL = LADDER + SINGLES
 
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the rung rows enter versions.reading in-process
 needs_base = pytest.mark.skipif(not os.path.exists(BASE),
                                 reason="certified 2025 base not on this machine")
 needs_rungs = pytest.mark.skipif(

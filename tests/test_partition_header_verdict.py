@@ -46,8 +46,8 @@ import os
 
 import pytest
 
-from conftest import (partition_of, rewrite_stream, rewrite_streams, smash64, twin_partition_entry,
-                      zero_partition_header)
+from conftest import (context_constants, partition_of, rewrite_stream, rewrite_streams, smash64,
+                      twin_partition_entry, zero_partition_header)
 from rvt import manipulate as M
 from rvt.cfb_writer import CfbEntry
 from rvt.container import open_rvt
@@ -62,9 +62,16 @@ BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
 FAMILY = os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT", "08_eaton_panelboard_family.rfa")
 LEVEL_ID = 1351691                     # "GEN B1 - Basement", present in all three bases
 
-pytestmark = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
+pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()),
+                                 reason="bundled genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]   # ``edited`` is authored under release_build_context
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
+    return context_constants
+
 
 #: the block-dependent facts of the primary partition: not checked -> None
 BLOCK_DEPENDENT = ("isize_identity_mismatches", "sentinel_last", "stamps_ok",

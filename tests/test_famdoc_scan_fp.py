@@ -28,11 +28,19 @@ BUNDLED_BASE = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
 BUNDLED_2025 = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2025.rvt")
 GA_TOOL = os.path.join(ROOT, "tools", "genesis_assemble.py")
 
-pytestmark = pytest.mark.skipif(
-    not (os.path.isfile(BUNDLED_BASE) and os.path.isfile(GA_TOOL)),
-    reason="plugin bundle base or the genesis-2 assembler absent")
+pytestmark = [pytest.mark.skipif(not (os.path.isfile(BUNDLED_BASE) and os.path.isfile(GA_TOOL)),
+                                 reason="plugin bundle base or the genesis-2 assembler absent"),
+              pytest.mark.usefixtures("no_release_leak")]   # one row enters release_build_context in-process
 
+from conftest import context_constants                     # noqa: E402
 from rvt.famgen import famdoc_adoc as FA                    # noqa: E402
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
+    return context_constants
+
 
 #: our family's element ids start here, so the self-Family id (== START_ID)
 #: is >= the scan's 4700 floor and is serialized as an i64 ElementId leaf

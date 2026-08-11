@@ -28,11 +28,10 @@ import os
 
 import pytest
 
-from conftest import flip_bit, partition_of, rewrite_stream, rewrite_streams, smash64, twin_partition_entry
+from conftest import (context_constants, flip_bit, partition_of, rewrite_stream, rewrite_streams, smash64,
+                      twin_partition_entry)
 from rvt import ecc
 from rvt import manipulate as M
-from rvt import partitions as P
-from rvt import versions as V
 from rvt.validate import WalkedFile, validate_file, walk_file
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,17 +41,15 @@ BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
          2024: os.path.join(GEN, "G_ABPD_2024.rvt")}
 LEVEL_ID = 1351691                     # "GEN B1 - Basement", present in all three bases
 
-pytestmark = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
+pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()),
+                                 reason="bundled genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]   # after every test the native framing is back
 
 
-@pytest.fixture(autouse=True)
-def _constants_restored():
-    """After every test the built-in (latest-release) framing is back."""
-    yield
-    latest = V.framing_table(V.LATEST_RELEASE)
-    assert {k: getattr(P, k) for k in latest} == latest
+@pytest.fixture
+def release_leak_extra():
+    """The ``edited`` builds enter release_build_context in-process: watch the names it swaps, too."""
+    return context_constants
 
 
 def _report_json(rep) -> dict:

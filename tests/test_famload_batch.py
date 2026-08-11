@@ -36,14 +36,22 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import rvt.versions as V                                    # noqa: E402
+from conftest import context_constants                      # noqa: E402
 
 GEN = os.path.join(ROOT, "plugin", "assets", "genesis")
 BASE26 = os.path.join(GEN, "G_ABPD.rvt")
 BASE25 = os.path.join(GEN, "G_ABPD_2025.rvt")
 
-pytestmark = pytest.mark.skipif(
-    not (os.path.isfile(BASE26) and os.path.isfile(BASE25)),
-    reason="bundled certified genesis bases missing")
+pytestmark = [pytest.mark.skipif(not (os.path.isfile(BASE26) and os.path.isfile(BASE25)),
+                                 reason="bundled certified genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]   # the 2025 rows enter host_release_context in-process
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
+    return context_constants
+
 
 SPECS = [
     dict(vendor="eaton", line="pow-r-line", mains_a=400, spaces=42, voltage="480Y/277",

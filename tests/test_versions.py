@@ -41,6 +41,7 @@ HAVE_2024 = os.path.isfile(S24)
 need26 = pytest.mark.skipif(not HAVE_2026, reason="2026 dev samples absent")
 need25 = pytest.mark.skipif(not HAVE_2025, reason="2025 dev samples absent")
 need24 = pytest.mark.skipif(not HAVE_2024, reason="2024 dev samples absent")
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the reading() rows enter it in-process: none may leak
 
 
 # ---------------------------------------------------------------------------

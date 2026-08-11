@@ -37,6 +37,16 @@ from rvt.frontdoor import edit as E          # noqa: E402
 from rvt.frontdoor import manifest as MF     # noqa: E402
 from rvt.frontdoor import prompt_intent as PP  # noqa: E402
 import rvt.frontdoor as FD                   # noqa: E402
+from conftest import context_constants       # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # foreign-pin rows enter release_build_context in-process
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
+    return context_constants
+
 
 PROMPT = ("an electrical room 30x20 ft rated for 2500 A service with a main switchboard, "
           "two 400 A distribution panels and four lighting panels")

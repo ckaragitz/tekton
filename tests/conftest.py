@@ -265,24 +265,35 @@ def native_constants() -> dict:
 
 def ladder_constants() -> dict:
     """What the read-side instrument ladder (``global_framing.enter_own_release``) swaps on top of the framing table:
-    records32's ``iter_records``, the default ADocument decoder, famdoc's ``FAMILY_END_RECORD``.  A separate callable
-    so only the files that climb the ladder pay for the famgen import (hand it to ``release_leak_extra``); the ONE
-    list to grow when the ladder learns to swap another name."""
+    records32's ``iter_records``, the default ADocument decoder, and the four Global-stream tokens
+    ``global_framing.bound`` rebinds (famdoc's ``FAMILY_END_RECORD``, factory's ``CD_SEPARATOR`` / ``CD_END_RECORD``,
+    genesis.skeleton's ``EMPTY_CONTENT_DOCUMENTS`` -- its ``saved`` list, #707).  A separate callable so only the files
+    that climb the ladder pay for the famgen import (hand it to ``release_leak_extra``); the ONE list to grow when the
+    ladder learns to swap another name."""
     from rvt import adocument as ADOC
     from rvt import objects as O
+    from rvt.famgen import factory as FF
     from rvt.famgen import famdoc_adoc as FDA
-    return {"iter_records": O.iter_records, "adoc_decoder": ADOC._DECODER, "family_end_record": FDA.FAMILY_END_RECORD}
+    from rvt.genesis import skeleton as GSK
+    return {"iter_records": O.iter_records, "adoc_decoder": ADOC._DECODER, "family_end_record": FDA.FAMILY_END_RECORD,
+            "cd_separator": FF.CD_SEPARATOR, "cd_end_record": FF.CD_END_RECORD,
+            "empty_content_documents": GSK.EMPTY_CONTENT_DOCUMENTS}
 
 
 def context_constants() -> dict:
     """What the write side (``release_ctx.host_release_context`` / ``release_build_context``) swaps by name on top of
     the framing table and would leave rebound if its LIFO restore ever missed one: mutate's class ids, the
-    fresh-document model constructors + schema-cache keys of ``genesis.skeleton``, standalone's active-base resolver /
-    specimen template / schema state, and the refusal registry ``enter_host_release`` keeps -- keyed ``MODULE.name`` so
-    a red teardown names the constant.  A separate callable so only the files that enter a context in-process pay for
-    the imports (hand it to ``release_leak_extra``); the ONE list to grow when ``host_release_context`` learns to swap
-    another name (it mirrors ``release_ctx._release_context``'s ``swap(...)`` calls by hand: past these, the honest
-    move is one exported table in ``release_ctx`` both its restore and this guard read)."""
+    fresh-document model constructors of ``genesis.skeleton``, standalone's active-base resolver / specimen template,
+    and the refusal registry ``enter_host_release`` keeps -- keyed ``MODULE.name`` so a red teardown names the constant.
+    NOT the live dicts the context merely snapshots and restores (``standalone._SCHEMA_STATE``,
+    ``genesis.skeleton._SCHEMA_CACHE``, the port layer's ``_STATE``): those are lazy caches the NATIVE path fills or
+    re-points by design (a first ``bundled_schema()`` on a corpus-less machine, an ``install_schema(target)``, a first
+    skeleton build), so "equal after every test" is the wrong contract for them -- watching them convicted five
+    test_frontdoor rows run one per fresh process and none of 578 others (#707); #706's export is where swapped
+    constants and snapshotted caches get classified properly.  A separate callable so only the files that enter a
+    context in-process pay for the imports (hand it to ``release_leak_extra``); the ONE list to grow when
+    ``host_release_context`` learns to swap another name (it mirrors ``release_ctx._release_context``'s ``swap(...)``
+    calls by hand: past these, the honest move is that exported table, read by both its restore and this guard)."""
     from rvt import mutate as MU
     from rvt.frontdoor import release_ctx as RC
     from rvt.frontdoor import standalone as SA
@@ -291,9 +302,7 @@ def context_constants() -> dict:
             "MU.CLASS_ELEMENT_HEADER": MU.CLASS_ELEMENT_HEADER, "MU.CLASS_SWALL": MU.CLASS_SWALL,
             "MU.CLASS_FAMILY_INSTANCE": MU.CLASS_FAMILY_INSTANCE,
             "GSK.minimal_history": GSK.minimal_history, "GSK.minimal_elemtable": GSK.minimal_elemtable,
-            "GSK._SCHEMA_CACHE": sorted(GSK._SCHEMA_CACHE),
-            "SA.bundled_base_path": SA.bundled_base_path, "SA.family_instance_template": SA.family_instance_template,
-            "SA._SCHEMA_STATE": dict(SA._SCHEMA_STATE)}
+            "SA.bundled_base_path": SA.bundled_base_path, "SA.family_instance_template": SA.family_instance_template}
 
 
 @pytest.fixture

@@ -27,7 +27,7 @@ from contextlib import ExitStack
 
 import pytest
 
-from conftest import rewrite_stream
+from conftest import ladder_constants, rewrite_stream
 from rvt import ecc
 from rvt import partitions as P
 from rvt import validate as VA
@@ -41,9 +41,15 @@ BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
          2025: os.path.join(GEN, "G_ABPD_2025.rvt"),
          2024: os.path.join(GEN, "G_ABPD_2024.rvt")}
 
-pytestmark = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
+pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()),
+                                 reason="bundled genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]   # census / rewrite / the rule rows climb the ladder in-process
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``enter_own_release`` climbs the instrument ladder: watch what it swaps, too."""
+    return ladder_constants
 
 
 def _msgs(findings):
