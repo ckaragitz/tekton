@@ -1,0 +1,335 @@
+# 689 — the driver tables, and the parametric spine that declares them
+
+Refs #689. Stream: `param-drive`.
+
+## The finding that opened this
+
+`param_drive` (#372) authors what a flexing family appears to need — side reference
+planes, alignments binding the solid's sketch to them, a labelled `LinearDimString`
+whose segment carries `m_paramId`. It validates 0 errors. On the owner's Revit 2026 it
+*"did not work what so ever"*: the family opened, the parameter was there, changing it
+moved nothing.
+
+The cause is not a donor and not the dimension. Every family this engine writes carries
+
+```python
+mgr = blank_object("FamDimConstrMgrImpl")     # skeleton.new_self_family
+```
+
+with **every table empty**. `genesis/residue_c` even names it *"the corpus-lawful EMPTY
+`Family.m_oFamDimConstrMgr`"*, and `skeleton.py:1736` already said the quiet part —
+*"formulas live in the FamDimConstrMgrImpl expression tables which this skeleton leaves
+empty"* — written about formulas, but it is the flex as well. Revit is handed a
+labelled dimension and an empty driver table: nothing tells it the parameter *drives*
+the geometry.
+
+## Which table is the drive — settled by reading the schema, no specimen
+
+The first cut of this ladder enumerated table combinations because the field *names* look
+ambiguous. Their **types** are not, and every file carries its own class schema — so this
+needed no donor and no specimen, only reading what was already in hand:
+
+| table | value type | what it actually expresses |
+|---|---|---|
+| `m_paramExprs` | `ParamExpr{m_entries:[{m_coef, m_paramId}], m_elemId}` | a linear expression **in parameters**, owned by the element `m_elemId` names — *"this segment = 1.0 × Width"*. **This is the parameter drive.** |
+| `m_drivenDimSegs` | `DimValueExpr{m_entries:[{m_coeff, m_dimId, m_seg, …}]}` | an expression in **other dimension segments** — dimension-to-dimension equality, *not* parameter drive |
+| `m_dimSegDataMap` | `DimSegData{m_dimDir, m_grefArr:[GeomRef], m_coefArr}` | **which geometry** the segment spans, and with what signs |
+
+That exposed two real bugs in the first cut, both now fixed:
+
+1. **The opening rung was aimed at the wrong table.** Old D1 populated `m_drivenDimSegs`
+   alone — dim-to-dim equality, which cannot make a parameter move geometry.
+2. **`m_paramExprs` was keyed by the parameter.** Backwards: `ParamExpr` is an expression
+   *in* parameters, so the key is the segment whose value is computed and `m_elemId` is
+   the dimension that owns it. The parameter appears only inside `m_entries`.
+3. **`m_dimSegDataMap` was never populated at all** — so even a correct expression would
+   have told the solver a number with nothing to move.
+
+## What remains a ladder, and what it now is
+
+The reasoning fixes *which* tables and *how they are keyed*. It does not prove Revit's
+solver is satisfied by the minimum, so the rungs now vary only how much is declared:
+
+| rung | adds | a PASS proves |
+|---|---|---|
+| **P0** | nothing (the control — must NOT flex) | the premise is wrong if it flexes |
+| **P1** | `m_paramExprs` | the solver-side binding is the whole missing piece |
+| **P2** | + `m_dimSegDataMap` | the span must be declared in the manager too |
+| **P3** | + `m_fixedRefs` | the solver needs an anchor |
+| **P4** | + `m_drivenDimSegs` | that table doubles as a registry (schema says it is the wrong axis, so it is last) |
+
+**The default is now P2**, the reasoned candidate — the smallest set that tells the
+solver both what the value is and what moves — not the empty control. That is a
+derivation, **not a verdict**: no rung has been confirmed in Revit and nothing claims a
+family flexes (hard rule 4).
+
+### Built and round-tripped at every rung
+
+On a real panelboard document (2 labelled dims, each with exactly 2 witness refs,
+directions +X and +Y):
+
+```
+P0 {}                                             P0: VALID (0 errors)
+P1 {'m_paramExprs': 2}                            P1: VALID (0 errors)
+P2 {'m_paramExprs': 2, 'm_dimSegDataMap': 2}      P2: VALID (0 errors)
+P3 (= P2 + pins when given)                       P3: VALID (0 errors)
+P4 {+ 'm_drivenDimSegs': 2}                       P4: VALID (0 errors)
+```
+
+Read back out of the written `.rfa`, P2 carries exactly the reasoned model:
+key `(dim 1113, seg 0)`, expression `1.0 × param 1082` with `m_elemId = 1113` (the
+dimension), and segment data spanning ref planes `1105`/`1106` with coefficients
+`[-1.0, +1.0]` along `[1, 0, 0]`.
+
+Two encoding facts, each of which cost a build: `m_oDimValueExpr` is a **pointer** field
+(kind 14), so it needs `{"ptr_class": …, "pid": -1, "value": …}`; and
+`Element.m_constrInfo` is an **array** (kind 14, flags 81), not an int.
+
+## The templates do not answer this
+
+Revit's 108 default `.rft` templates (`docs/inbox/rft-mining.md`) all carry an **empty**
+`FamDimConstrMgr`, and `m_constrInfo` is `[]` on every dimension in every one of them. A
+template has no user geometry, so it has recorded no flex. Negative result, worth
+stating: **the thing that would settle the rungs by direct reading is a Revit-born
+`.rfa` with a working parametric flex** — any parametric family from Revit's own
+library. Reading its self-Family's populated tables settles all four unknowns at once
+and replaces the ladder with a measurement.
+
+## The spine (`src/rvt/famgen/parametric.py`)
+
+Fixing the tables alone would have left the real limitation in place: `param_drive`'s
+only entry point is `wire_panelboard_drive`, which assumes two axes *named* Width and
+Height on a four-line axis-aligned rectangle. A third axis, a channel profile, a tray
+with a rung pitch, or a parameter added later had nowhere to go — so "build anything at
+LOD 400 and associate any parameter at any time" was not expressible.
+
+The spine is the missing declaration in the middle. You say what the product is
+parametric *in*; the planes, parameters, dimensions, alignments and driver tables are
+derived, and the result is bound to the category's own Revit template:
+
+```python
+model = ParametricModel(
+    category="cable_tray",
+    axes=(DrivenAxis("width",  "Width",  (1, 0, 0), value=2.0),
+          DrivenAxis("height", "Height", (0, 1, 0), value=0.5)),
+    params=(FreeParam("Rung Spacing", value=0.75),
+            FreeParam("Load Rating", spec=SPEC_NUMBER)))
+plan(model)          # the whole authoring plan, no document in hand
+wire(doc, model)     # author it
+```
+
+Adding a parameter at any time is `model.with_param(...)` / `.with_axis(...)`: the model
+is immutable, the plan is recomputed, nothing is hand-wired. `plan()` needs **no
+document**, so a caller can see exactly what a parameter would add before authoring
+anything — and `check_model()` says up front whether it is authorable.
+
+**The template binding** (`template_binding`) ties a model to the category's own Revit
+template through `category_facts` when present, falling back to the resolver table and
+reporting which. It never raises on an unknown category — a caller must still be able to
+deliver (hard rule 1). The import is soft, so this branch does not stack on #698; the
+`rft` evidence tier lights up automatically once that merges.
+
+## What is refused, and why refusing is the point
+
+An axis parallel to the **extrusion direction** is named, not authored
+(`OUT_OF_PLANE_GAP`). Revit drives extrusion depth from the form's extrusion end — a
+different binding this module does not author. Authoring a sketch-style drive for it
+would produce a parameter that changes nothing, which is *exactly the failure #689 was
+opened for*. Likewise `symmetric=False` (one plane moving from a fixed origin) needs the
+opposite reference pinned in `m_fixedRefs`, which is unsettled rung P3, so it is refused
+with that reason rather than silently authored.
+
+`wire(strict=False)` authors what it can and returns the problems, for callers that must
+deliver regardless and will carry the caveat.
+
+## Open questions
+
+- Which rung solves. Needs a desktop verdict or a born specimen (above).
+- `m_constrInfo`'s array element type — unnamed in the schema.
+- The out-of-plane (extrusion-end) binding, and non-rectangular profiles: both need
+  their own measured wiring. Neither is invented here.
+
+## BRANCH STATE
+
+**Files written**
+- `src/rvt/famgen/famdim.py` — the driver tables: the reasoned `RUNGS` P0–P4,
+  `labelled_dims` (now also extracting witness `GeomRef`s and the dimension direction),
+  `driver_tables`, `apply_to_doc`. Opt-in; default rung P2 is the reasoned candidate,
+  P0 the control.
+- `src/rvt/famgen/parametric.py` — new: `DrivenAxis`, `FreeParam`, `ParametricModel`,
+  `check_model`, `template_binding`, `plan`, `explain`, `wire`, `box_model`.
+- `tests/test_famgen_parametric.py` (25 tests) + `tests/ci_shard.d/689-parametric.txt`.
+- this record.
+
+**Gates**
+- `tests/test_famgen_parametric.py` — **25 passed**.
+- `tests/test_famgen_parametric.py tests/test_famgen_factory.py` — **82 passed, 5 skipped**.
+- `tools/sync_plugin.py` — deny-audit clean, validation passed.
+- A test-matcher bug caught in review of my own run: `test_a_z_axis_is_not_reported_as_
+  parallel` matched the bare word "parallel", which `OUT_OF_PLANE_GAP` itself contains,
+  so it passed for the wrong reason. Tightened to the exact complaint. The underlying
+  code bug it was written to catch was real — `check_model` used only the z component of
+  the cross product, which reads any z axis as parallel to both in-plane axes.
+
+**Staged vs shipped:** shipped, and inert by default. No route calls `wire()` yet; the
+default rung is the control. Nothing claims a family flexes until a verdict says so.
+
+## Round 3 — any parameter, from any prompt
+
+Owner: *"you should be able to add any parameter to any of the users prompts — for
+instance if i say generate me a panel with a parameter to toggle the door swinging open
+and close you should be able to do this for everything."*
+
+The spine as built had exactly two kinds: a driven length axis, and a "free parameter
+with no geometry behind it". A Yes/No that toggles a door swing is neither, so the
+request had nowhere to land.
+
+**The kind taxonomy** (`PARAM_KINDS`) makes every request expressible, and each kind
+says what it binds to and whether that binding is authored:
+
+| kind | binds to | authored |
+|---|---|---|
+| `length` | a labelled dimension between two reference planes | **yes** |
+| `data` / `text` / `integer` | nothing — the parameter is the deliverable | **yes** |
+| `angle` | a labelled angular dimension | no |
+| `yesno` | an element's visibility | no |
+| `material` | an element's material property | no |
+
+`classify_request()` reads the request's own words; `request_param()` returns a real,
+typed, grouped parameter plus the note that must ride with it; `add_requested()` puts it
+on the model — and a `length` request with a value becomes a **real driven axis** if an
+in-plane direction is free. Nothing is ever refused (hard rule 1): an unbindable request
+still yields a parameter the user can see and bind by hand in the family editor.
+
+**The three unauthored kinds share ONE missing mechanism**, recorded once as
+`ASSOCIATION_GAP`: binding a family parameter to an element *property* rather than to a
+dimension segment. `m_paramExprs` is that mechanism for dimensions; the schema exposes
+no per-form visibility-parameter field, so the property-association table has still to be
+located. Reading the schema did settle two neighbouring questions: `ConstraintInfo` is
+`{m_constrId: ElementId}` — so `Element.m_constrInfo` is the back-reference to an
+element's constraints and is no longer "needs a specimen" — and `FamElemVisibility` /
+`ExtrusionElemVisibility` are `{m_flags}` bitfields (the detail-level/view bits), which
+is *static* visibility, not the parameter-driven kind.
+
+### I invented five spec ids, and three were wrong
+
+Writing plausible-looking Forge ids is exactly how #516 and #601 happened, and the first
+cut of `PARAM_KINDS` did it again: `spec.number`, `spec.int`, `spec.bool`,
+`spec.reference`, `spec.string`. Checked against the format's own units table and
+`skeleton`'s constants, only `spec.string` was right.
+
+Now every id is either **in the units table** (`length`, `number`, `angle`) or a
+**`skeleton` constant** (`text`, `integer`) — imported, not re-spelled. And the two
+storage classes this repo holds **no verified spelling** for, boolean and
+material-reference, carry `spec=None` with `spec_verified: False` rather than an
+invention. A `None` spec is the honest state; it does not block delivery.
+
+
+## Round 4 — testing it on a panel, which found three bugs
+
+Owner: *"can we test this on a panel to make sure it works?"* Doing so found three
+things that reading the code had not.
+
+1. **`wire()` never authored the free parameters at all.** It planned them, listed them,
+   and wrote none of them into the document. Declaring is not authoring — the plan and
+   the file had silently diverged. Now `wire()` calls `doc.add_family_parameter` per
+   free parameter and reports the count.
+2. **`strict=False` did not mean what it said.** It is documented as "authors what it
+   can and returns the problems", but `param_drive`'s precondition (no `VarSketch` yet)
+   escaped as a bare `ValueError`. Now caught and recorded as `drive_skipped`.
+3. **A finalized document raised from two frames down.** `make_panelboard` finalizes
+   internally, so wiring after it surfaced `RuntimeError: param_drive: document is
+   finalized` — true but unhelpful. `wire()` now checks first and says the caller handed
+   it a finished product.
+
+Verified on an open panel document: `Number Poles` and `Service Clearance` are authored
+and present; `Door` and `Finish Material` are skipped with the reason (no verified Forge
+spec id for boolean / material-reference in this repo). `Service Clearance` arrived as a
+free parameter rather than a driven axis because both in-plane axes were already taken by
+Width and Height — the documented behaviour, and reported rather than silent.
+
+### The integration gap this exposed
+
+**`parametric.wire()` has no supported entry point in the product factories.** Every
+constructor (`make_panelboard`, `make_generic_model`, …) builds *and finalizes*
+internally, so there is no moment at which a caller can hand it a `ParametricModel`. The
+spine is therefore reachable only by assembling a document by hand. Until a constructor
+takes `model=`, a user prompt cannot actually reach any of this — which is the difference
+between the machinery existing and the feature working.
+
+Also recorded: the standalone `.rfa` emitter needs the certified genesis base
+(`plugin/assets/genesis/`), a git-ignored artifact absent from a fresh clone, so a
+single file carrying BOTH the driven axes and the newly requested parameters has **not**
+been produced here. What has been produced and validated (0 errors) is the driver-table
+ladder on a real panel (`out/p2/panel_P*.rfa`).
+
+## Round 5 — hunting the association mechanism (owner's choice)
+
+Asked which to chase first, the owner chose the parameter-to-property association over
+building more geometry. Reading the schema splits `ASSOCIATION_GAP` into **two
+different gaps**, one of which is nearly closed already.
+
+**FSDO is the association mechanism** — "family symbol data object", carried in the
+self-Family's `m_fsdos`. Each subclass binds a family parameter to one kind of property:
+
+```
+MaterialFSDO     { m_categoryId, m_materialId, m_famParamId }
+FillPatternFSDO  { m_fillPatternId, m_famParamId }
+RefToFamSymFSDO  { m_famSymId, m_instParams, m_small2BigFamParamIds }
+AtomElementParamFSDO { m_paramId }        AtomFSDO { m_elemId }
+```
+
+`ConnectorDataCell.m_propId2FamParamIdBindings: pair<ElementId, ElementId>` shows the
+same idea spelled out for connectors — property id → family parameter id.
+
+* **MATERIAL parameters are all but solved.** `MaterialFSDO` is exactly the binding, and
+  `famgen/catprobe.py` **already authors one** as its `materials` residue recipe
+  (`fsdo {category, material, famParam -1005500}`, mined 2026-08-05). What is missing is
+  only pointing `m_famParamId` at a *user* parameter instead of the material BIP, and
+  giving `parametric` a verified Forge spec id for a material-reference parameter.
+* **VISIBILITY is NOT an FSDO.** There is no `VisibilityFSDO` in the schema. So the door
+  swing does not ride this mechanism, and the two must stop being tracked as one gap.
+  Remaining candidates, in order: `Element.m_cellList` (per-element cells — the same
+  place `SketchMembership` and the order cell live), and a param-driven pairing with
+  `FamElemVisibility{m_flags}` / `ExtrusionElemVisibility{m_flags}`, which are the
+  static detail-level bitfields rather than the parameter binding itself.
+
+Practical consequence for the panel the owner asked for: a **material** parameter on the
+door or bus is reachable soon; the **swing toggle** is not, and its next step is
+`m_cellList`, not more searching in FSDO.
+
+## Round 6 — the parameter vocabulary, mined (self-test loop, iteration 1)
+
+Owner: *"make your own environment to test out rfa workings. learn every parameter that
+[is] possible."*
+
+**Revit declares 268 `ParamDef` subclasses.** That is the complete parameter storage
+vocabulary, and it is in every file's own class schema — it needed no specimen and no
+donor, only asking. The storage-class law `skeleton` already recorded for text and
+integer (#333 round 24: `SPEC_TEXT` selects `ParamDefString`, `SPEC_INTEGER` a
+`ParamDefInt`) generalises: **the parameter's kind selects its `ParamDef` subclass.**
+
+That closes two gaps I had recorded as blocked, and corrects one conclusion:
+
+| gap | resolution |
+|---|---|
+| no verified boolean parameter | **`ParamDefYesNo`** |
+| no verified material parameter | **`ParamDefMaterial{m_unassignedString, m_includeParams}`** |
+| visibility association "is not an FSDO, next candidate `m_cellList`" | **wrong — it is `ParamDefGeomVisibility`** |
+
+**The door-swing toggle is not an association problem at all.** It is a parameter whose
+*definition class* is `ParamDefGeomVisibility` (with `ParamDefCurveVisibility`,
+`ParamDefPointVisibility` and `ParamDefOptionVisibility` alongside it for the other
+geometry kinds). Round 5's conclusion — that visibility rides some binding table still
+to be found — was looking in the wrong place; `MaterialFSDO` is how a material parameter
+reaches a *material asset*, not how a parameter reaches an element's visibility.
+
+`ASSOCIATION_GAP` as written is therefore obsolete and must be rewritten rather than
+left to mislead the next session.
+
+### Still to establish
+
+The subclass is named; what has NOT been established is the Forge spec id (if any) each
+takes, and whether `ParamDefGeomVisibility` needs the solids it governs named on it or
+carries only the flag. Both are readable the same way — the classes' own fields and a
+template that uses one — so neither is a specimen request.
