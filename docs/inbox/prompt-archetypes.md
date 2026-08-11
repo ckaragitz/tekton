@@ -202,3 +202,59 @@ Gates: all green (table above). Plugin re-synced and re-zipped.
 Staged vs shipped: everything is **shipped** on the branch; nothing staged for a viewer
 batch. The desktop question (do these open and load) is the open work and needs the
 owner's machine.
+
+---
+
+## Round 2 — the independent review found six real defects
+
+PR #674's first head (`b05b238`) went through the session-hosted gate: sandboxed CI **pass**
+(2362 passed / 162 skipped), then a fresh reviewer context that had not seen the code.
+Verdict: **🛑 changes requested**, six blocking findings. All six were real; every one now has
+a regression test that fails on the code as first written.
+
+| # | defect | how it showed |
+|---|---|---|
+| 1 | **A regression I introduced.** Teaching the famspec validator schema-valued `additionalProperties` made `standard_values: {"Voltage": null}` a hard refusal — but `standards.py` documents `None` as *"no value: the slot stays blank"*, and a list value used to be reported as `values_unusable`. A delivered family became a refusal. | `main` normalised it fine; the head raised `FamspecError` |
+| 2 | **A short alias swallowed a longer one.** `length` sits inside `slot length`; parameters were scanned in declaration order and the winner locked the region. `"a strut channel with slot spacing 2 in and slot length 1.125 in"` built a **1.1-inch-long** channel reporting a slot spacing it did not have. | word-order dependent: the same prompt with `10 ft long` first resolved correctly |
+| 3 | **The manufacturer guard did not exist.** Five places — the matrix caveat, the schema, the SKILL, the module docstring, this record — asserted that a named manufacturer's part is *refused*. `route({"prompt": "an Eaton B-Line 24 in cable tray part number 24A-09-120"})` returned `ok=True` and a delivered `.rfa`; the tokens only appeared in an `Ignored words:` line. | a user-facing claim about a guard that was not implemented — exactly the overclaim PG1 forbids |
+| 4 | **A foot measurement bound an inch dimension.** `"a 10 ft cable tray"` → `width_in = 120` — a ten-foot-**wide** tray. | reported `given` with the user's words, so it looked deliberate |
+| 5 | **Two guard sets incomplete.** `depth_in: 0.15` gave overlapping tray flanges (no `D > 2t` guard, which both siblings have); `lip_in: 0.8` passed `2·lip < Wd` but the lips overlapped **0.185 in** through the centreline, because each starts behind its own web. | self-intersecting solids, no raise |
+| 6 | **The reported rung spacing was not the built one.** Rungs were spread `L/(n-1)`, so 9 in asked for became **9.23 in** built, and even the default had 11.5 in end bays. | a parameter lying about its own geometry |
+
+Plus hygiene the reviewer flagged and this round took: the `Fact` docstring now lists `nominal`;
+the route's caveat label says *generated / assumed / user-given* rather than *assumed / user-given*;
+and the "we hold no standards document" disclaimer moved out of the module docstring into the
+**printed** caveat, since the caveat is what names "NEMA VE 1" to a user.
+
+### What #3 became
+
+Not a refusal. Hard rule 1 says output is never withheld, and steer #591's own wording is that a
+named part *"must not **silently** become a generic nominal tray wearing that part number"* — the
+objection is to the silence, not to the building. So `manufacturer_claim()` detects three things —
+part/catalog/model-number phrasing, a token *shaped* like a part number, and the brand names our
+catalog actually resolves (Eaton, Schneider Electric, Lithonia … sourced from the corpus, not a
+guessed list) — and when it fires:
+
+- the family is still built and delivered;
+- the status line gains **"-- NOT the product you named"**;
+- the **first** caveat is `YOU NAMED A SPECIFIC PRODUCT (…) AND THIS FILE IS NOT IT`, with the two
+  honest routes (give the real dimensions, or send the manufacturer's IFC);
+- the identity block still carries no manufacturer, model or part number — pinned by a test that
+  greps the whole type row and the family name for the token.
+
+The detector is deliberately narrow on the token pattern (letters **and** digits **and** two
+separators) so `1-5/8`, `12x12`, `480Y/277` and `2x4` do not trip it; six ordinary prompts are
+pinned as *not* flagged, because a false positive would put a scary line on every honest delivery.
+
+### Round-2 evidence
+
+| gate | result |
+|---|---|
+| `tests/test_famgen_archetypes.py` | **71 passed** (46 → 71: one regression test per finding, plus the guard's true/false-positive sets) |
+| `test_router + test_frontdoor + test_famgen_factory + test_famgen_standards + test_standards_apply_safe + test_famgen_archetypes` | **490 passed, 18 skipped** |
+| `python -m rvt.famgen.archetypes --check` | 5 archetypes, **0 problems** |
+| `sync_plugin.py` + `--check`, `validate_plugin.py`, `check_portable_paths.py` | clean / PASS (25) / ok, **3044** paths |
+
+The reviewer also verified, with no finding: mirrors byte-identical for all seven mirrored files;
+the `res.errors[mark:]` demotion correct in all four paths; the slotted-back material removal exact
+(60 slots × 1.125 in over 10 ft); `viewer-certified.json` untouched; no other open PR closes #591.

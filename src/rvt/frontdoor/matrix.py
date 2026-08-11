@@ -449,8 +449,10 @@ _CELL_LIST: List[Cell] = [
           "standard NOMINAL sizes for that product class when no catalog "
           "record applies: every dimension is reported nominal (generated) or "
           "given (you stated it), and no manufacturer / model / part number is "
-          "ever claimed -- asking for a named manufacturer's part is still "
-          "refused (rvt.famgen.archetypes, issue #591)"),
+          "ever claimed. A prompt that names a SPECIFIC manufacturer's item "
+          "still gets a family (output is never withheld), and the status line "
+          "and report say in the first line that the named item is NOT what was "
+          "delivered (rvt.famgen.archetypes:manufacturer_claim, issue #591)"),
          hint=("catalog facts win when the prompt names a catalog product; the "
                "archetype lane is the fallback, not the first choice")),
     # ---------------- singles: ifc ----------------

@@ -30,7 +30,16 @@ which dimensions were generated rather than sourced.  **The nominals here are
 standard industry practice for the product class -- they are not read from a
 standards document held in this repo**, and each parameter says which practice
 it follows in its ``basis``.  Ask for "an Eaton B-Line 24 in tray, part number
-X" and you still get a refusal, because that is a manufacturer claim.
+X" and :func:`manufacturer_claim` catches it: the generic family is still
+delivered (hard rule 1 -- output is never withheld), carrying no manufacturer,
+model or part number, and the delivery says in its status line and its report
+that THE NAMED ITEM IS NOT WHAT YOU RECEIVED.  That is what steer #591's "must
+not SILENTLY become a generic nominal tray wearing that part number" asks for:
+not a refusal to build, a refusal to pretend.
+
+__all__ ordering note: :func:`manufacturer_claim` is part of the public surface
+for exactly that reason -- any caller building an archetype family from user
+text must be able to ask the question before it hands the file over.
 
 LOD 400 MEANS THE PARTS ARE THE REAL PARTS.  A ladder tray is two side rails
 and rungs at the standard spacing, not a box labelled "cable tray"; a strut
@@ -56,7 +65,8 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 __all__ = [
     "ArchetypeError", "Param", "Archetype", "Resolved", "ARCHETYPES",
     "NOMINAL", "GIVEN", "archetype", "keys", "resolve_prompt", "resolve",
-    "build_parts", "describe", "table", "check_registry",
+    "build_parts", "describe", "table", "check_registry", "manufacturer_claim",
+    "MAX_PARTS",
 ]
 
 #: the provenance tiers this module writes (``factory.Fact.kind`` values)
@@ -68,6 +78,10 @@ class ArchetypeError(ValueError):
     """An archetype request that cannot be honestly built (unknown product, a
     parameter outside the range the geometry is defined for)."""
 
+
+#: one family is one .rfa: a part list past this is a runaway parameter (a
+#: 20 ft tray at 0.1 in rung spacing), refused by name rather than built.
+MAX_PARTS = 400
 
 IN = 1.0 / 12.0                      # inches -> feet
 MM = 1.0 / 304.8                     # millimetres -> feet
@@ -162,6 +176,9 @@ class Resolved:
     #: what the prompt said for each given key, verbatim
     quoted: Dict[str, str] = dc_field(default_factory=dict)
     name: str = ""
+    #: set when the prompt named a SPECIFIC manufacturer's item that this
+    #: generic family is not (:func:`manufacturer_claim`)
+    claim: Optional[Dict[str, Any]] = None
 
     def given(self) -> List[str]:
         return sorted(k for k, v in self.provenance.items() if v == GIVEN)
@@ -191,6 +208,7 @@ class Resolved:
                 for p in self.arch.params],
             "given": self.given(),
             "nominal": self.nominal(),
+            "manufacturer_claim": self.claim,
         }
 
 
@@ -222,6 +240,14 @@ def _ladder_tray(v: Dict[str, float]) -> List[Dict[str, Any]]:
     if fl * 2.0 >= W:
         raise ArchetypeError(f"rail flanges ({fl / IN:g} in each) do not fit inside a "
                              f"{W / IN:g} in tray")
+    # the two flanges + the rung between them have to fit in the rail height, or
+    # the "solid" is two slabs intersecting each other
+    if D <= 2.0 * t:
+        raise ArchetypeError(f"a {D / IN:g} in loading depth is not deeper than the "
+                             f"two {t / IN:g} in rail flanges it has to hold")
+    if rt > D - 2.0 * t:
+        raise ArchetypeError(f"a {rt / IN:g} in rung does not fit between the flanges "
+                             f"of a {D / IN:g} in deep rail")
     parts: List[Dict[str, Any]] = []
     for sign, side in ((1.0, "left"), (-1.0, "right")):
         y_web = sign * (W / 2.0 + t / 2.0)
@@ -229,13 +255,22 @@ def _ladder_tray(v: Dict[str, float]) -> List[Dict[str, Any]]:
         y_fl = sign * (W / 2.0 - fl / 2.0)              # flanges turn INWARD
         parts.append(_box(f"side rail {side} - bottom flange", L, fl, t, 0.0, y_fl, 0.0))
         parts.append(_box(f"side rail {side} - top flange", L, fl, t, 0.0, y_fl, D - t))
-    n = max(2, int(math.floor(L / S + 1e-9)) + 1)
-    step = L / (n - 1)
+    # RUNGS SIT AT THE STATED PITCH.  Spreading them evenly over the length
+    # (L/(n-1)) made the achieved spacing differ from the spacing the family
+    # reports -- 9 in asked for, 9.23 in built -- which is a parameter lying
+    # about its own geometry.  They are laid from the first rung at the stated
+    # S, and whatever length does not divide by S is left as a shorter END BAY,
+    # which is what a real section does at a splice.
+    n = max(2, int(math.floor((L - rw) / S + 1e-9)) + 1)
+    if n > MAX_PARTS:
+        raise ArchetypeError(
+            f"{n} rungs at {S / IN:g} in over {L:g} ft is past the {MAX_PARTS}-part "
+            f"budget for one family; ask for a longer spacing or a shorter section")
+    # the run of rungs is CENTRED on the section, so the two end bays are equal
+    # and short -- the pitch between rungs is exactly S everywhere
+    x0 = -(n - 1) * S / 2.0
     for i in range(n):
-        x = -L / 2.0 + i * step
-        # the end rungs sit fully inside the section rather than half over its end
-        x = min(max(x, -L / 2.0 + rw / 2.0), L / 2.0 - rw / 2.0)
-        parts.append(_box(f"rung {i + 1}/{n}", rw, W, rt, x, 0.0, t))
+        parts.append(_box(f"rung {i + 1}/{n}", rw, W, rt, x0 + i * S, 0.0, t))
     return parts
 
 
@@ -254,12 +289,18 @@ def _strut_channel(v: Dict[str, float]) -> List[Dict[str, Any]]:
     if H <= 2 * g or Wd <= 2 * g or L <= 0:
         raise ArchetypeError("a strut channel needs a section larger than twice its "
                              "material thickness and a positive length")
-    if lip * 2.0 >= Wd:
-        raise ArchetypeError(f"inturned lips ({lip / IN:g} in each) do not fit across a "
-                             f"{Wd / IN:g} in channel")
+    # each lip starts INSIDE its web, so the web material counts twice as well:
+    # 2*(lip + g) is what actually has to fit across the section
+    if 2.0 * (lip + g) >= Wd:
+        raise ArchetypeError(f"inturned lips ({lip / IN:g} in each, behind {g / IN:g} in "
+                             f"webs) do not fit across a {Wd / IN:g} in channel")
     parts: List[Dict[str, Any]] = []
     if slot_s > 0 and slot_l > 0 and slot_l < slot_s:
         n = max(1, int(math.floor(L / slot_s + 1e-9)))
+        if n > MAX_PARTS:
+            raise ArchetypeError(
+                f"{n} slots at {slot_s / IN:g} in over {L:g} ft is past the "
+                f"{MAX_PARTS}-part budget for one family")
         pitch = L / n
         solid = pitch - slot_l
         if solid <= 0:
@@ -603,15 +644,100 @@ def _unit_of(text: str) -> Optional[str]:
     return None
 
 
-def _alias_patterns(p: Param) -> List[str]:
-    """Every way a prompt states this parameter, built from its aliases."""
-    out: List[str] = []
+# ---------------------------------------------------------------------------
+# THE MANUFACTURER GUARD -- steer #591's "Still refused"
+# ---------------------------------------------------------------------------
+
+#: phrasings that name a specific catalog item
+_PART_PHRASE = re.compile(
+    r"\b(?:part|catalog|catalogue|cat\.?|model|item|sku|p/?n)\s*"
+    r"(?:number|numbers|no\.?|nos\.?|#)?\s*[:#]?\s*"
+    r"(?P<tok>[A-Za-z0-9][A-Za-z0-9./-]{2,})", re.I)
+
+#: a bare token SHAPED like a part number: letters AND digits, with a separator,
+#: e.g. 24A-09-120, B22SH-12-120.  Deliberately narrow -- '1-5/8', '12x12',
+#: '480Y/277' and '2x4' must NOT trip it, so a separator plus both a letter and
+#: a digit outside any fraction is required.
+_PART_TOKEN = re.compile(r"\b(?=[A-Za-z0-9./-]*[A-Za-z])(?=[A-Za-z0-9./-]*\d)"
+                         r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+){2,}\b")
+
+#: the brand names OUR catalog actually resolves.  Sourced from the corpus
+#: (rvt.famgen.catalog), never a guessed brand list -- and the guard does not
+#: depend on it being complete: the phrasing and token patterns catch the rest.
+_KNOWN_BRANDS = ("eaton", "schneider electric", "schneider", "square d", "square-d",
+                 "lithonia", "acuity", "hammond", "hps", "b-line", "b line",
+                 "cooper", "unistrut", "cablofil")
+
+
+def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
+    """Does this prompt name a SPECIFIC manufacturer's item?
+
+    Steer #591 draws the line here: generating a generic product at standard
+    nominal sizes is honest, and "an Eaton B-Line 24 in tray, part number
+    24A-09-120" *"must not silently become a generic nominal tray wearing that
+    part number"*.  We hold no such record, so we cannot build it -- but hard
+    rule 1 says never withhold output.  So the family is still delivered, and
+    this is what makes the delivery not silent: the caller is told, in the
+    status line and the report, that the named item is NOT what they received.
+
+    Returns ``None`` when the prompt names no specific item, else
+    ``{"tokens": [...], "brands": [...], "reasons": [...]}``.
+    """
+    text = str(prompt or "")
+    low = text.lower()
+    tokens: List[str] = []
+    brands: List[str] = []
+    reasons: List[str] = []
+    for m in _PART_PHRASE.finditer(text):
+        tok = m.group("tok")
+        if tok.lower() in ("of", "is", "the", "a", "an"):
+            continue
+        tokens.append(tok)
+        reasons.append(f"names a specific item: {m.group(0).strip()!r}")
+    for m in _PART_TOKEN.finditer(text):
+        if m.group(0) not in tokens:
+            tokens.append(m.group(0))
+            reasons.append(f"{m.group(0)!r} is shaped like a part number")
+    for b in _KNOWN_BRANDS:
+        if re.search(rf"\b{re.escape(b)}\b", low):
+            brands.append(b)
+            reasons.append(f"names a manufacturer our catalog knows: {b!r}")
+    if not tokens and not brands:
+        return None
+    return {"tokens": tokens, "brands": sorted(set(brands)), "reasons": reasons,
+            "line": (
+                "YOU NAMED A SPECIFIC PRODUCT ("
+                + ", ".join(sorted(set(brands)) + tokens)
+                + ") AND THIS FILE IS NOT IT. tekton holds no catalog record for "
+                  "it, and a generated family must never wear a manufacturer's "
+                  "identity it cannot back: what you have is a GENERIC family at "
+                  "standard nominal sizes for the product class, carrying no "
+                  "manufacturer, model or part number. Give the real dimensions "
+                  "and they are recorded as yours, or send the manufacturer's IFC "
+                  "and they are measured from it.")}
+
+
+def _alias_patterns(p: Param) -> List[Tuple[int, str]]:
+    """``(alias length, pattern)`` for every way a prompt states this
+    parameter, built from its aliases.
+
+    The LENGTH matters and is why this returns pairs: aliases nest -- ``length``
+    sits inside ``slot length``, ``width`` inside ``section width``. Scanned in
+    declaration order, the short one wins the region and the long one is then
+    locked out, so "slot spacing 2 in and slot length 1.125 in" bound the
+    channel's LENGTH to 1.125 in and left the slots off (a 1.1-inch channel
+    reporting a slot spacing it does not have). :func:`resolve_prompt` sorts
+    every candidate across ALL parameters longest-alias-first, so the most
+    specific reading always claims its text first.
+    """
+    out: List[Tuple[int, str]] = []
     for al in p.aliases:
         a = re.escape(al).replace(r"\ ", r"\s+")
+        n = len(al)
         # "rung spacing of 12 in", "width 24 inches", "depth = 6 in"
-        out.append(rf"{a}\s*(?:of|is|at|=|:)?\s*{_NUM}\s*(?P<u>{_ANY_UNIT})?")
+        out.append((n, rf"{a}\s*(?:of|is|at|=|:)?\s*{_NUM}\s*(?P<u>{_ANY_UNIT})?"))
         # "12 in rung spacing", "24 inch wide", "10 ft long"
-        out.append(rf"{_NUM}\s*(?P<u>{_ANY_UNIT})?\s*(?:-\s*)?{a}")
+        out.append((n, rf"{_NUM}\s*(?P<u>{_ANY_UNIT})?\s*(?:-\s*)?{a}"))
     return out
 
 
@@ -649,25 +775,31 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     def free(s: int, e: int) -> bool:
         return not any(s < ue and e > us for us, ue in used)
 
-    for p in arch.params:
-        for pat in _alias_patterns(p):
-            for m in re.finditer(pat, low):
-                if not free(m.start(), m.end()):
-                    continue
-                num = _to_number(m.group(1))
-                if num is None:
-                    continue
-                unit = _unit_of(m.group(0)) or p.unit
-                conv = _convert(num, unit, p)
-                if conv is None or conv <= p.minimum:
-                    continue
-                vals[p.key] = conv
-                prov[p.key] = GIVEN
-                quoted[p.key] = text[m.start():m.end()].strip()
-                used.append((m.start(), m.end()))
-                break
-            if prov[p.key] == GIVEN:
-                break
+    # LONGEST ALIAS FIRST, across every parameter -- not parameter by parameter.
+    # Aliases nest ('length' inside 'slot length'), and whoever matches first
+    # locks the region, so the specific reading has to go first or the generic
+    # one silently steals it (see _alias_patterns).
+    candidates = sorted(((n, pat, p) for p in arch.params
+                         for n, pat in _alias_patterns(p)),
+                        key=lambda c: -c[0])
+    for _n, pat, p in candidates:
+        if prov[p.key] == GIVEN:
+            continue
+        for m in re.finditer(pat, low):
+            if not free(m.start(), m.end()):
+                continue
+            num = _to_number(m.group(1))
+            if num is None:
+                continue
+            unit = _unit_of(m.group(0)) or p.unit
+            conv = _convert(num, unit, p)
+            if conv is None or conv <= p.minimum:
+                continue
+            vals[p.key] = conv
+            prov[p.key] = GIVEN
+            quoted[p.key] = text[m.start():m.end()].strip()
+            used.append((m.start(), m.end()))
+            break
 
     # "a 12x12 wireway", "a 4 x 4 x 6 in box": a cross-dimension immediately
     # before the product noun sets width x height (x depth) in one go
@@ -698,9 +830,13 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 break
 
     # "a 24 inch cable tray" / "a 1-5/8 in strut": a bare measurement immediately
-    # before the product noun sets the PRIMARY dimension when nothing else claimed it
+    # before the product noun sets the PRIMARY dimension when nothing else
+    # claimed it -- but ONLY when the UNIT agrees with what that dimension is
+    # measured in.  "a 10 ft cable tray" means a ten-foot-LONG tray, not a
+    # ten-foot-WIDE one: a section dimension is quoted in inches and a run in
+    # feet, so a foot measurement in front of the noun binds the length.
     prim = next((p for p in arch.params if p.primary), None)
-    if prim is not None and prov[prim.key] == NOMINAL:
+    if prim is not None:
         for pat in _product_patterns(arch):
             m = re.search(rf"{_NUM}\s*(?P<u>{_ANY_UNIT})?\s*(?:-\s*)?(?:{pat})", low)
             if not m or not free(m.start(), m.end()):
@@ -708,17 +844,28 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
             num = _to_number(m.group(1))
             if num is None:
                 continue
-            conv = _convert(num, _unit_of(m.group(0)) or prim.unit, prim)
-            if conv is None or conv <= prim.minimum:
+            unit = _unit_of(m.group(0))
+            target = prim
+            if unit is not None and unit != prim.unit:
+                # the unit names a different dimension of this product: take the
+                # first parameter measured in it that nobody has claimed
+                target = next((q for q in arch.params
+                               if q.unit == unit and prov[q.key] == NOMINAL), None)
+                if target is None:
+                    continue                      # no honest home for it: leave it alone
+            if prov[target.key] == GIVEN:
                 continue
-            vals[prim.key] = conv
-            prov[prim.key] = GIVEN
-            quoted[prim.key] = text[m.start():m.end()].strip()
+            conv = _convert(num, unit or target.unit, target)
+            if conv is None or conv <= target.minimum:
+                continue
+            vals[target.key] = conv
+            prov[target.key] = GIVEN
+            quoted[target.key] = text[m.start():m.end()].strip()
             used.append((m.start(), m.end()))
             break
     _apply_follows(arch, vals, prov, quoted)
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
-                    name=_name(arch, vals, prov))
+                    name=_name(arch, vals, prov), claim=manufacturer_claim(text))
 
 
 def _apply_follows(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str],
@@ -764,7 +911,8 @@ def resolve(product: str, overrides: Optional[Dict[str, Any]] = None,
         quoted.pop(k, None)
     _apply_follows(arch, vals, prov, quoted)
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
-                    name=_name(arch, vals, prov))
+                    name=_name(arch, vals, prov),
+                    claim=(base.claim if base else manufacturer_claim(prompt)))
 
 
 def _name(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str]) -> str:
@@ -796,6 +944,8 @@ def build_parts(res: Resolved) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
         "A nominal dimension is standard practice for this product class, NOT a "
         "manufacturer's catalog record -- no manufacturer, model or part number is "
         "claimed. Pass any dimension to override it.")
+    if res.claim:
+        rep["note"] = res.claim["line"] + " " + rep["note"]
     return parts, rep
 
 

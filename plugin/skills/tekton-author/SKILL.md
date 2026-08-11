@@ -110,11 +110,14 @@ how a prompt resolves *before* you build. For full control use the famspec
 **Report the provenance, it is the point.** Every dimension comes back
 `nominal` (generated from standard practice for the product class) or `given`
 (the user stated it — the report quotes their words). Say which are which and
-say plainly that **no manufacturer, model or part number is claimed**. A
-request for a *named manufacturer's* part ("an Eaton B-Line 24 in tray, part
-number X") is still refused by name — that is a fact the catalog would have to
-hold, and a generic tray must never silently wear a manufacturer's part
-number.
+say plainly that **no manufacturer, model or part number is claimed**. If the user
+names a **specific manufacturer's item** ("an Eaton B-Line 24 in tray, part
+number X"), they still get a file — output is never withheld — but the result's
+first caveat says the named item is NOT what was delivered. **Relay that line
+verbatim, first, before you hand the file over.** The family carries no
+manufacturer, model or part number; offer the two honest routes instead: give
+the real dimensions (recorded as theirs) or send the manufacturer's IFC
+(measured from it).
 
 **Anything with more than one solid uses `"parts"`** instead of the single
 outline: a list of prisms in the family's frame, each with its own `shape`

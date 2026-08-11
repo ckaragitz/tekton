@@ -1073,9 +1073,18 @@ def _archetype_rfa(res: RouteResult, prompt: str, out_dir: str,
     res.status = (f"OK ({req.arch.title}: {len(req.parts())}-part .rfa generated at "
                   f"standard nominal sizes; {n_giv} dimension(s) from the prompt, "
                   f"{n_nom} nominal)")
+    # THE NAMED-PRODUCT GUARD (steer #591 "Still refused").  The file is still
+    # delivered -- hard rule 1 -- but a prompt that named a specific item must
+    # never be answered SILENTLY with a generic one, so the claim leads both the
+    # status line and the caveats.
+    if req.claim:
+        res.status += " -- NOT the product you named"
+        res.caveats.insert(0, req.claim["line"])
     res.caveats.append(
         f"ARCHETYPE LANE: this family was GENERATED, not read from a catalog. "
-        f"{n_nom} dimension(s) are NOMINAL -- {req.arch.basis} -- and "
+        f"{n_nom} dimension(s) are NOMINAL -- {req.arch.basis}; the practice is "
+        f"named to say WHICH convention the sizes follow, not to claim conformance "
+        f"with a standards document (tekton holds none) -- and "
         f"{n_giv} came from your prompt"
         + (": " + "; ".join(f"{k} = {req.quoted[k]!r}" for k in req.given()
                             if k in req.quoted) if req.quoted else "")
@@ -1522,7 +1531,7 @@ def _famspec_rfa(res: RouteResult, kind: str, kw: Dict[str, Any], out_dir: str,
     res.caveats.extend(str(c) for c in rep.get("caveats") or [])
     unver = fam.get("unverified_fields") or []
     if unver:
-        res.caveats.append("assumed / user-given fact fields (surfaced in the report, not "
+        res.caveats.append("generated / assumed / user-given fact fields (nominal = generated standard practice, given = you stated it, assumed = a rule off a fact) (surfaced in the report, not "
                            f"silently trusted): {', '.join(map(str, unver))}")
     if FAMSPEC_STAMP not in res.stamps:
         res.stamps.append(FAMSPEC_STAMP)

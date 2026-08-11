@@ -158,7 +158,9 @@ def test_a_ladder_tray_is_rails_and_rungs_not_a_box():
     rails = [p for p in parts if "rail" in p["name"]]
     rungs = [p for p in parts if p["name"].startswith("rung")]
     assert len(rails) == 6                    # two channels: web + two flanges each
-    assert len(rungs) == 11                   # 10 ft at 12 in centres, both ends
+    # 10 ft at a TRUE 12 in pitch = 10 rungs spanning 9 ft, centred, with equal
+    # 6 in end bays -- the pitch is the one the family reports, not L/(n-1)
+    assert len(rungs) == 10
     assert len(parts) == len(rails) + len(rungs)
     # the rungs span the usable width, and sit on the bottom flange
     assert all(p["depth_ft"] == pytest.approx(1.0) for p in rungs)
@@ -169,7 +171,7 @@ def test_the_rung_count_follows_the_rung_spacing():
     def rungs(spacing):
         r = AR.resolve("cable_tray", {"rung_spacing_in": spacing, "length_ft": 10})
         return len([p for p in r.parts() if p["name"].startswith("rung")])
-    assert rungs(18) == 7 and rungs(12) == 11 and rungs(9) == 14 and rungs(6) == 21
+    assert rungs(18) == 7 and rungs(12) == 10 and rungs(9) == 14 and rungs(6) == 20
 
 
 def test_a_slotted_strut_back_is_the_material_between_the_slots():
@@ -315,3 +317,142 @@ def test_every_archetype_emits_a_valid_provenance_clean_rfa(key, tmp_path):
     assert fam["verdict"] == "VALID" and fam["n_errors"] == 0, fam.get("errors")
     assert rep["provenance"]["ok"] and rep["provenance"]["suspects"] == []
     assert rep["family"]["archetype"]["product"] == key
+
+
+# ---------------------------------------------------------------------------
+# 6. regressions found by the independent review of PR #674 -- one test per
+#    finding, each failing on the code as first written
+# ---------------------------------------------------------------------------
+
+def test_a_longer_alias_is_not_swallowed_by_a_shorter_one():
+    """`length` sits inside `slot length`. Scanned parameter-by-parameter the
+    short alias won the region and locked the long one out, so this prompt
+    built a 1.1-INCH channel that reported a slot spacing it did not have."""
+    r = AR.resolve_prompt("a strut channel with slot spacing 2 in and slot length 1.125 in")
+    assert r.values["slot_length_in"] == pytest.approx(1.125)
+    assert r.values["slot_spacing_in"] == pytest.approx(2.0)
+    assert r.values["length_ft"] == 10.0                      # the nominal, untouched
+    assert "length_ft" not in r.given()
+    # ... and the slots are really built from the prompt alone
+    assert len([p for p in r.parts() if p["name"].startswith("back")]) > 10
+    # word order must not change the reading
+    r2 = AR.resolve_prompt("a strut channel 10 ft long with slot spacing 2 in "
+                           "and slot length 1.125 in")
+    assert r2.values["length_ft"] == 10.0 and r2.values["slot_length_in"] == pytest.approx(1.125)
+
+
+@pytest.mark.parametrize("prompt", ["a 10 ft cable tray", "a 10 foot cable tray",
+                                    "a 20 ft cable tray"])
+def test_a_foot_measurement_before_the_noun_is_a_length_not_a_width(prompt):
+    """"a 10 ft cable tray" is a ten-foot-LONG tray. The bare-measurement path
+    bound it to the primary (Width, measured in inches) and produced a
+    ten-foot-WIDE tray."""
+    r = AR.resolve_prompt(prompt)
+    want = float(prompt.split()[1])
+    assert r.values["length_ft"] == pytest.approx(want) and "length_ft" in r.given()
+    assert r.values["width_in"] == 12.0 and "width_in" in r.nominal()
+    # the inch form still means the width
+    r2 = AR.resolve_prompt("a 24 in cable tray")
+    assert r2.values["width_in"] == 24.0 and r2.values["length_ft"] == 10.0
+
+
+def test_the_rungs_sit_at_the_spacing_the_family_reports():
+    """Spreading rungs evenly over the length made the ACHIEVED pitch differ
+    from the reported one (9 in asked, 9.23 in built) -- a parameter lying
+    about its own geometry."""
+    for spacing in (6.0, 9.0, 12.0, 18.0):
+        r = AR.resolve("cable_tray", {"length_ft": 10, "rung_spacing_in": spacing})
+        xs = sorted(p["center"][0] for p in r.parts() if p["name"].startswith("rung"))
+        gaps = [b - a for a, b in zip(xs, xs[1:])]
+        assert gaps, spacing
+        assert all(g == pytest.approx(spacing * AR.IN, abs=1e-9) for g in gaps), spacing
+        assert all(-5.0 <= x <= 5.0 for x in xs)              # inside the section
+
+
+@pytest.mark.parametrize("product,dims", [
+    ("cable_tray", {"depth_in": 0.15}),                       # flanges overlap
+    ("cable_tray", {"rung_thickness_in": 9}),                 # rung taller than the rail
+    ("strut_channel", {"lip_in": 0.8}),                       # lips meet through the middle
+    ("wireway", {"thickness_in": 9}),
+    ("junction_box", {"thickness_in": 9}),
+])
+def test_self_intersecting_geometry_is_refused_not_built(product, dims):
+    with pytest.raises(AR.ArchetypeError):
+        AR.resolve(product, dims).parts()
+
+
+@pytest.mark.parametrize("product,dims", [
+    ("cable_tray", {"length_ft": 20, "rung_spacing_in": 0.1}),
+    ("strut_channel", {"length_ft": 20, "slot_length_in": 0.01, "slot_spacing_in": 0.02}),
+])
+def test_a_runaway_part_count_is_refused_by_name(product, dims):
+    with pytest.raises(AR.ArchetypeError, match=str(AR.MAX_PARTS)):
+        AR.resolve(product, dims).parts()
+
+
+# ---------------------------------------------------------------------------
+# 7. the named-product guard (#591 "Still refused")
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("prompt", [
+    "an Eaton B-Line 24 in cable tray part number 24A-09-120",
+    "a cable tray, catalog number 24A-09-120",
+    "a Unistrut P1000 strut channel",
+    "a cable tray p/n 24A-09-120",
+])
+def test_a_named_manufacturer_item_is_caught(prompt):
+    claim = AR.manufacturer_claim(prompt)
+    assert claim and claim["reasons"]
+    assert "NOT IT" in claim["line"]
+
+
+@pytest.mark.parametrize("prompt", [
+    "create a cable tray family",
+    "a 24 inch cable tray 20 ft long with 6 in rung spacing",
+    "a 1-5/8 in strut channel 10 ft long",
+    "a 12x12 wireway 3 ft long",
+    "a 480Y/277 panel and a 2x4 troffer near the cable tray",
+    "a 3/4 in EMT conduit run",
+])
+def test_an_ordinary_generic_request_is_not_flagged(prompt):
+    """False positives would put a scary line on every honest delivery."""
+    assert AR.manufacturer_claim(prompt) is None
+
+
+@needs_schema
+def test_a_named_product_still_delivers_but_never_silently(tmp_path):
+    """Hard rule 1 and steer #591 together: the file is delivered, and the
+    FIRST thing said about it is that the named item is not what it is."""
+    from rvt.frontdoor import router as R
+    res = R.route({"prompt": "an Eaton B-Line 24 in cable tray part number 24A-09-120"},
+                  "rfa", out=str(tmp_path / "mfr"))
+    assert res.ok and os.path.isfile(res.files["rfa"])        # delivered
+    assert "NOT the product you named" in res.status
+    assert "AND THIS FILE IS NOT IT" in res.caveats[0]
+    assert "24A-09-120" in res.caveats[0] and "eaton" in res.caveats[0].lower()
+
+
+@needs_schema
+def test_the_named_product_never_reaches_the_family_identity():
+    """The file must not WEAR the name, whatever the prompt said."""
+    prod = F.make_archetype(product="cable_tray",
+                            prompt="an Eaton B-Line 24 in tray part number 24A-09-120")
+    (_tname, vals), = prod.doc.types
+    for bip in (SK.BIP_TYPE_MANUFACTURER, SK.BIP_TYPE_MODEL):
+        assert not str(vals.get(bip, "")).strip()
+    blob = " ".join(str(v) for v in vals.values()) + " " + prod.doc.name
+    assert "24A-09-120" not in blob and "Eaton" not in blob
+    assert prod.archetype["manufacturer_claim"]["tokens"] == ["24A-09-120"]
+
+
+def test_a_null_standard_value_is_not_a_refusal():
+    """The schema-valued additionalProperties check newly REJECTED famspecs the
+    engine documents as valid: `None` means 'no value, leave the slot blank'."""
+    from rvt.frontdoor import famspec as FS
+    for values in ({"Voltage": None}, {"Ports": [1, 2]}, {"Material": "steel"}):
+        spec = {"kind": "generic_model", "width_ft": 1, "depth_ft": 1,
+                "height_ft": 1, "standard_values": values}
+        assert FS.validate(spec) == [], values
+    # ... while a dimension that is not a number is still refused by name
+    assert FS.validate({"kind": "archetype", "product": "cable_tray",
+                        "dimensions": {"width_in": "wide"}}) != []
