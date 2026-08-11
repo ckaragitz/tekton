@@ -1,0 +1,2 @@
+# #630: the transformer weight is Operating Weight (mass, lb -> kg), MASS type-catalog column -- fresh-clone safe (bundled base)
+tests/test_transformer_mass_630.py
