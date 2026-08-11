@@ -21,15 +21,23 @@ dependencies = ["olefile>=0.47"]
 #                docs/writer/dependency-audit.md). Pins mirror
 #                skills/tekton-ifc/scripts/requirements.txt -- keep them equal
 #                (tests/test_pyproject_extras.py checks it).
+#   pdf       -- pdfplumber, for reading a user-supplied SPEC SHEET (#688).
+#                Optional for the same reason as ifc: a text-layer sheet
+#                reads with NOTHING installed through the stdlib reader
+#                rvt.specsheet.pdftext, and the wheel only buys better
+#                extraction on awkward layouts. RVT_PDFLITE_FORCE=1 forces
+#                the stdlib reader even when the wheel is present (the
+#                backend A/B, mirroring RVT_STEPLITE_FORCE).
 #   dev       -- test + geometry: everything a coding session needs, without
 #                the heavy optional IFC authoring backend.
-#   all       -- dev + ifc.
+#   all       -- dev + ifc + pdf.
 [project.optional-dependencies]
 test = ["pytest>=7", "numpy>=1.26,<3"]
 geometry = ["numpy>=1.26,<3"]
 ifc = ["ifcopenshell==0.8.5", "numpy>=1.26,<3"]
+pdf = ["pdfplumber>=0.11"]
 dev = ["pytest>=7", "numpy>=1.26,<3"]
-all = ["pytest>=7", "numpy>=1.26,<3", "ifcopenshell==0.8.5"]
+all = ["pytest>=7", "numpy>=1.26,<3", "ifcopenshell==0.8.5", "pdfplumber>=0.11"]
 
 [project.scripts]
 rvtinspect = "rvt.cli:main"

@@ -1,0 +1,7 @@
+# stdlib + package only: the spec-sheet INPUT lane -- a user-supplied PDF
+# read into CITED facts, with the stdlib PDF reader and the value gate that
+# refuses ranges, lists, qualified figures and prose placeholders (#688).
+# No optional wheel needed: the fixtures are built in tmp_path and the
+# stdlib reader serves them.
+tests/test_specsheet_values.py
+tests/test_specsheet_read.py

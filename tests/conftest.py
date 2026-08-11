@@ -20,6 +20,7 @@ import re
 import shutil
 import subprocess
 import sys
+import zlib
 
 import pytest
 
@@ -392,6 +393,66 @@ def cfb_header_zeroed_copy(src, dst) -> str:
     shutil.copyfile(src, dst)
     with open(dst, "r+b") as fh:
         fh.write(bytes(512))
+    return os.fspath(dst)
+
+
+def build_specsheet_pdf(dst, rows, compress: bool = True, pages=None) -> str:
+    """A minimal text-layer PDF for the spec-sheet lane's tests (#688).
+
+    ``rows`` is ``[(x, y, text), ...]`` in PDF user space (origin
+    bottom-left), which is exactly what ``rvt.specsheet.pdftext`` reads
+    back; ``pages`` (a list of such row lists) builds a multi-page sheet and
+    an EMPTY row list is a page with no text layer -- the "scanned page"
+    case.  ``compress`` selects a ``FlateDecode`` content stream (the shape
+    a real exporter emits) or a plain one, so both decode paths are
+    exercised from the same fixture.
+
+    Written here rather than in a test module because two ``test_specsheet_*``
+    modules build sheets: the scaffolding lives once (#579 / #670).
+    """
+    sheets = pages if pages is not None else [rows]
+    objs, page_refs = [], []
+    # object 1 = catalog, 2 = pages tree, then per page: page + content
+    next_num = 3
+    per_page = []
+    for sheet in sheets:
+        parts = ["BT", "/F1 10 Tf"]
+        for x, y, text in sheet:
+            esc = str(text).replace("\\", r"\\").replace("(", r"\(").replace(")", r"\)")
+            parts.append(f"1 0 0 1 {x} {y} Tm ({esc}) Tj")
+        parts.append("ET")
+        content = ("\n".join(parts)).encode("latin-1")
+        if compress:
+            content, filt = zlib.compress(content), b"/Filter /FlateDecode "
+        else:
+            filt = b""
+        page_num, content_num = next_num, next_num + 1
+        next_num += 2
+        page_refs.append(page_num)
+        per_page.append((page_num, content_num, content, filt))
+    font_num = next_num
+
+    objs.append((1, b"<< /Type /Catalog /Pages 2 0 R >>"))
+    kids = b" ".join(b"%d 0 R" % n for n in page_refs)
+    objs.append((2, b"<< /Type /Pages /Kids [" + kids + b"] /Count %d >>"
+                 % len(page_refs)))
+    for page_num, content_num, content, filt in per_page:
+        objs.append((page_num,
+                     b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+                     b"/Resources << /Font << /F1 %d 0 R >> >> /Contents %d 0 R >>"
+                     % (font_num, content_num)))
+        objs.append((content_num,
+                     b"<< " + filt + b"/Length %d >>\nstream\n" % len(content)
+                     + content + b"\nendstream"))
+    objs.append((font_num,
+                 b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"))
+
+    out = bytearray(b"%PDF-1.4\n")
+    for num, body in objs:
+        out += b"%d 0 obj\n" % num + body + b"\nendobj\n"
+    out += b"trailer\n<< /Size %d /Root 1 0 R >>\n%%%%EOF\n" % (font_num + 1)
+    with open(dst, "wb") as fh:
+        fh.write(bytes(out))
     return os.fspath(dst)
 
 
