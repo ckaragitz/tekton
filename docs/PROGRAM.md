@@ -110,13 +110,15 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
     user-supplied PDF/spec sheet is read into `fact`-tier values cited to the sheet (page/row) —
     the honest source for the manufacturer data O12 may not recall — and resolved to a famspec
     that builds, with everything the sheet does not state left `nominal`/blank and an unreadable
-    sheet said so while the archetype lane still delivers; and "functional" is met surface by
+    sheet says so while the archetype lane still delivers; and "functional" is met surface by
     surface, each with its own desktop-Revit verdict before any route claims it: parameters that
     genuinely drive the geometry (the #372 constraint chain, re-opened as a probe ladder after
     its desktop failure), visibility/detail-level control per solid, and tag families with
-    labels bound to the family's parameters. Four separate streams; the sheet reader is the
-    highest-value and unblocked one, the constraint chain the highest-risk. *Done = #687's DONE
-    (1)–(6), each item's desktop verdict recorded per hard rule 4.*
+    labels bound to the family's parameters. Four separate streams (today: no sheet reader, no
+    visibility or tag authoring; the #372 constraint chain validates but failed on the owner's
+    desktop and ships off by default); the sheet reader is the highest-value and unblocked one,
+    the constraint chain the highest-risk. *Done = #687's DONE (1)–(6), each item's desktop
+    verdict recorded per hard rule 4.*
 
 ## Not goals (decided — do not re-propose without a new steer)
 
