@@ -297,3 +297,39 @@ same idea spelled out for connectors — property id → family parameter id.
 Practical consequence for the panel the owner asked for: a **material** parameter on the
 door or bus is reachable soon; the **swing toggle** is not, and its next step is
 `m_cellList`, not more searching in FSDO.
+
+## Round 6 — the parameter vocabulary, mined (self-test loop, iteration 1)
+
+Owner: *"make your own environment to test out rfa workings. learn every parameter that
+[is] possible."*
+
+**Revit declares 268 `ParamDef` subclasses.** That is the complete parameter storage
+vocabulary, and it is in every file's own class schema — it needed no specimen and no
+donor, only asking. The storage-class law `skeleton` already recorded for text and
+integer (#333 round 24: `SPEC_TEXT` selects `ParamDefString`, `SPEC_INTEGER` a
+`ParamDefInt`) generalises: **the parameter's kind selects its `ParamDef` subclass.**
+
+That closes two gaps I had recorded as blocked, and corrects one conclusion:
+
+| gap | resolution |
+|---|---|
+| no verified boolean parameter | **`ParamDefYesNo`** |
+| no verified material parameter | **`ParamDefMaterial{m_unassignedString, m_includeParams}`** |
+| visibility association "is not an FSDO, next candidate `m_cellList`" | **wrong — it is `ParamDefGeomVisibility`** |
+
+**The door-swing toggle is not an association problem at all.** It is a parameter whose
+*definition class* is `ParamDefGeomVisibility` (with `ParamDefCurveVisibility`,
+`ParamDefPointVisibility` and `ParamDefOptionVisibility` alongside it for the other
+geometry kinds). Round 5's conclusion — that visibility rides some binding table still
+to be found — was looking in the wrong place; `MaterialFSDO` is how a material parameter
+reaches a *material asset*, not how a parameter reaches an element's visibility.
+
+`ASSOCIATION_GAP` as written is therefore obsolete and must be rewritten rather than
+left to mislead the next session.
+
+### Still to establish
+
+The subclass is named; what has NOT been established is the Forge spec id (if any) each
+takes, and whether `ParamDefGeomVisibility` needs the solids it governs named on it or
+carries only the flag. Both are readable the same way — the classes' own fields and a
+template that uses one — so neither is a specimen request.
