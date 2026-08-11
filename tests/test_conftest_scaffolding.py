@@ -52,7 +52,8 @@ def _tree(stem: str) -> ast.Module:
 
 
 def _top_level_names(tree: ast.Module) -> set[str]:
-    """Every name the module binds at top level by ``def`` / ``class`` / assignment."""
+    """Every name the module binds at top level by ``def`` / ``class`` / assignment (``tree.body`` only, where every
+    copy ever lived: a copy nested inside a class or function slips past this ratchet -- widen it the day one does)."""
     names = {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
     for n in tree.body:
         targets = n.targets if isinstance(n, ast.Assign) else [n.target] if isinstance(n, (ast.AnnAssign, ast.AugAssign)) else []

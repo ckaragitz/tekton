@@ -453,8 +453,9 @@ file in the same wave — different lines).
 ### What landed
 
 1. **`tests/conftest.py` — one new section, "the shared own-release scaffolding (#579)"**, placed after the `job`
-   fixture; every pre-existing gate, fixture and hook is byte-intact (the module docstring gained one clause and
-   `import dataclasses`; `from rvt import versions as _V` is a name for a module `frontdoor.base` had already loaded —
+   fixture; every pre-existing gate, fixture and hook is byte-intact — the ONE place pre-existing bytes changed is the
+   module docstring (2 lines: its closing clause now also names this section's exports) — plus two new import lines
+   (`import dataclasses`; `from rvt import versions as _V`, a name for a module `frontdoor.base` had already loaded —
    `python -c "import conftest"` lists the same twelve `rvt.*` modules before and after). Exports:
    - `FOREIGN_FIRST` = `CERTIFIED_YEARS` with the native release **last** (a context leaked by a 2025/2024 run breaks
      the native run after it, in-process, instead of hiding), `FOREIGN` = the foreign pins alone, same order — the
@@ -508,7 +509,9 @@ file in the same wave — different lines).
    a top-level shadow of the conftest names — minus a shrinking `EXEMPT` = {`test_rvt_edit_refusal`,
    `test_release_ctx_refusal` (eng #587's, the follow-up below), `test_gates_shared_walk` (a `_rewrite_stream(…, mutate)`
    of another shape)}, itself checked (every exempt file exists and still binds a forbidden name, so the list cannot
-   go stale silently); the six adopters keep `no_release_leak` in their `pytestmark` (read from the AST); plus
+   go stale silently). Scope, stated: the law inspects `tree.body` only — module-level `def`/`class`/assignments, which is
+   where every copy ever lived; a copy nested inside a class or function would slip past it (acceptable for a ratchet;
+   widen to `ast.walk` the day one does). The six adopters keep `no_release_leak` in their `pytestmark` (read from the AST); plus
    behaviour rows: `FOREIGN_FIRST` ordering (native last; `FOREIGN` in the legacy order); `native_constants() ==
    dict(framing_table, active_release=None)` and `ladder_constants()` = exactly the three swaps, disjoint from it; the
    two damage recipes touch exactly their window; `rewrite_stream` on a real pin damages one stream, keeps every other
