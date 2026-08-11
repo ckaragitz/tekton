@@ -1484,6 +1484,19 @@ def _clean_name(*parts: Any) -> str:
 # TYPES -- one family, N catalog selections (type-table rows)
 # ---------------------------------------------------------------------------
 
+def _figure(v: Any, fmt: str = "g", unknown: str = "?") -> str:
+    """A numeric fact for a human-readable description, or ``unknown``.
+
+    A catalog member may carry no value for a figure (the 2x2 troffer has
+    no wattage / lumens / CCT on record).  The description says so instead
+    of raising on ``{None:g}`` or printing a fabricated number -- steer
+    S-2026-08-11-a: an unknown value is left unknown, never invented.
+    """
+    if v is None:
+        return unknown
+    return format(float(v), fmt)
+
+
 def _number(v: Any) -> float:
     """'225' / '225A' / '45 kVA' / 38 -> the leading number."""
     if isinstance(v, (int, float)):
@@ -2069,12 +2082,13 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
             ("Voltage", "voltage", volt),
             ("Photometric Web File", "text", str(fx.get("photometry_url") or "")),
         ] + [(caption, "length", fx.get(key)) for caption, key in dims], description=(
-            (f"Recessed LED troffer {j_size}, {j_watt:g} W, {fx.get('lumens_lm'):g} lm, "
-             f"{int(fx.get('cct_k'))} K, {voltage} V "
-             f"({fx.get('length_in'):g} L x {fx.get('width_in'):g} W x "
-             f"{fx.get('height_in'):g} H in; generated from catalog facts)")
+            (f"Recessed LED troffer {j_size}, {_figure(j_watt)} W, "
+             f"{_figure(fx.get('lumens_lm'))} lm, "
+             f"{_figure(fx.get('cct_k'), '.0f')} K, {voltage} V "
+             f"({_figure(fx.get('length_in'))} L x {_figure(fx.get('width_in'))} W x "
+             f"{_figure(fx.get('height_in'))} H in; generated from catalog facts)")
             if shape == "box" else
-            (f"Recessed downlight, {fx.get('aperture_in'):g} in aperture, "
+            (f"Recessed downlight, {_figure(fx.get('aperture_in'))} in aperture, "
              f"{fx.get('lumens_lm') or '?'} lm, {fx.get('cct_k') or '?'} K, "
              f"{voltage} V; OUR parametric housing (manufacturer housing dims not "
              f"sourced); IES referenced by URL")))
