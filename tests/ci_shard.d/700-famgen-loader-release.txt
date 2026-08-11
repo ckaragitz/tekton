@@ -1,0 +1,3 @@
+# #700: famgen's host survey enters the host's own release, so a bare call
+# works on the 2025/2024 certified bases; fresh-clone safe (bases are tracked)
+tests/test_famgen_loader_release_700.py
