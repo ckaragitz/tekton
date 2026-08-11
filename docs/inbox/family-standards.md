@@ -186,3 +186,125 @@ Gates: all green (table above). Plugin re-synced and re-zipped.
 Staged vs shipped: everything here is **shipped** in the branch — nothing is staged for a
 viewer batch. The desktop question (do the enlarged sets open and load, and are the
 convention spellings right) is the open work, and it needs the owner's machine.
+
+---
+
+# eng #624 (2026-08-11): the author skill's honesty after #583 — inferred category ids, drawn-only lying cylinders, the revolve docstring
+
+*Written by engineer session eng #624 (issue #624). Add-only: the sections above are the
+author's and untouched.* Territory: `plugin/skills/tekton-author/SKILL.md` (hot file, the
+smallest diff that carries the two statements), a new
+`plugin/skills/tekton-author/references/FAMSPEC-CAVEATS.md`, the module docstring of
+`src/rvt/famgen/revolve.py` + its `plugin/lib` mirror, this section. No code changed.
+
+## What was wrong, and what the code actually says today
+
+1. **Category ids.** #583's SKILL.md hunk listed `door` and `window` among the categories to
+   set. `_resolve_category` (`src/rvt/famgen/skeleton.py`) tags only five ids DESKTOP-VERIFIED
+   (`furniture`, `generic_model`, `lighting_fixture`, `electrical_equipment`,
+   `electrical_fixture`); every id of the wider set — doors and windows included — is
+   `[INFERRED]` from Revit's published constants until a family of ours opens in that branch
+   (#516). Doors/windows carry a second gap the others do not: Revit's own are wall-hosted
+   families that cut an opening, ours are free-standing (`new_family_doc(host='none')`; hosted
+   scaffolding is `[UNKNOWN]` and not built), and `standards door` is 6 authored parameters +
+   11 "Revit provides it" built-ins that Revit provides only if it really treats the family as
+   a Door. `standards.py` itself keeps real `door` / `window` tables, so the match for "what
+   the code says today" is **mark, not drop**: the skill's example list no longer names them,
+   and one sentence says every id beyond the verified five — `door`/`window` too, also
+   unhosted — ships as "category id inferred, not desktop-verified", with the full
+   verified/inferred table and the door/window note in the new reference.
+2. **`cylinder_x` / `cylinder_y`.** `factory._add_part` authors the form vertical and
+   `geometry.rotate_rep` rotates only the cached B-rep frame (desktop round 4, #591: Front
+   elevation a clean circle). `rotate_rep`'s own docstring says the sketch is deliberately
+   untouched and the form may "regenerate back to vertical on the first edit — a trade to
+   measure, not to assume". The skill now says exactly that in one sentence: true lying
+   cylinders AS DRAWN, over a still-vertical sketch, may stand upright on edit, never promise
+   those forms stay editable; the reference carries the per-shape wording.
+3. **`revolve.py` "always UNDER-fill".** Measured with the module's own `_authored_volume`
+   against `_TRUE_VOLUME` (r = 1, cone h = 2, lying cylinder L = 3):
+
+   | segments | sphere | dome | cone | lying cylinder (chord boxes) |
+   |---:|---:|---:|---:|---:|
+   | 4 | 1.0313 | 1.0078 | 0.9844 | 1.0375 |
+   | 16 | 1.0020 | 1.0005 | 0.9990 | 1.0048 |
+   | 64 | 1.0001 | 1.0000 | 0.9999 | 1.0006 |
+
+   A mid-sampled slab is neither inscribed nor circumscribed; where the squared radius (or
+   chord) is concave in z the midpoint over-estimates, so sphere/dome/lying-cylinder stacks
+   OVER-fill and only the cone under-fills. Docstring reworded to say so with the 16-segment
+   numbers; wording only, no code path touched; mirror re-synced byte-identical.
+
+## Before → after wording (quoted)
+
+- SKILL.md, parts paragraph — before: *"… size, `center` and `base_z_ft`. That is how a cable
+  tray (rails + rungs), a cart (body + four wheels) or any LOD-400 assembly is expressed — one
+  family, many solids, no catalog entry and no donor."* → after: *"… size, `center` and
+  `base_z_ft` — a cable tray (rails + rungs), a cart (body + four wheels), any LOD-400
+  assembly: one family, many solids, no catalog entry, no donor. `cylinder_x`/`_y` DRAW as
+  true lying cylinders (a rotated cached B-rep) over a still-vertical sketch, so Revit may
+  stand them upright on edit — never promise those forms stay editable (wording per shape and
+  category: `references/FAMSPEC-CAVEATS.md`)."*
+- SKILL.md, category paragraph — before: *"… `furniture`, `casework`, `door`, `window`,
+  `structural_framing`, … — and not the `generic_model` default. The category picks the
+  family's place in Revit's category tree AND its standard parameter set: …"* → after:
+  *"… `furniture`, `casework`, `structural_framing`, … — not the `generic_model` default. Five
+  ids are desktop-verified (same reference); the rest — `door`/`window` too, also unhosted —
+  ship as "category id inferred, not desktop-verified". It sets the place in Revit's category
+  tree AND the standard parameter set (…)"*; the rest of that paragraph (standard values
+  blank unless given, `"standards": false`, `go make_family.py standards <category>`) is the
+  same content re-flowed tighter to pay for the two new sentences.
+- SKILL.md reference table: `references/FAMSPEC-CAVEATS.md` added to the references row.
+- `revolve.py` docstring — before: *"A stack always UNDER-fills a convex body (each slab is
+  sized at its mid-height), which is why the ratio is reported rather than assumed away."* →
+  after: *"Each slab is sized at its mid-height, so a stack is neither inscribed nor
+  circumscribed: half of every slab pokes outside the true surface and half falls inside, and
+  the net volume can land on EITHER side of the true one -- mid-sampled discs slightly
+  OVER-fill a sphere or dome (1.002 / 1.0005 at 16 segments) and the chord boxes over-fill a
+  lying cylinder (1.005), while a cone comes out slightly under (0.999).  Which is why the
+  ratio is reported rather than assumed away."*
+
+## SKILL.md weight (S-2026-08-09-g)
+
+| | before (`main` @ dcda26e) | after |
+|---|---:|---:|
+| `wc -c` bytes | 13 997 | 14 078 (+81, +0.6 %) |
+| `wc -w` words | 1 953 | 1 952 |
+| ≈ tokens (bytes / 4) | 3 499 | 3 519 (+20) |
+| frontmatter `description` | 861 chars, no `<`/`>` | 861 chars, unchanged |
+
+Not quite flat: the two required statements plus the pointer cost ~330 bytes; ~250 of them
+were paid for by tightening #583's own paragraph (no content dropped except one redundant
+`standard_values` example key and the spelled-out data-device parameter list, which the
+`standards` verb prints exactly). All detail — the verified/inferred table, the door/window
+hosting note, the per-shape "what to say" table with the measured ratios — lives in the new
+reference (3.6 KB), which a session reads only when a famspec uses one of those categories or
+shapes.
+
+## Evidence
+
+| gate | before | after |
+|---|---|---|
+| `.venv/bin/python plugin/scripts/validate_plugin.py` | PASS, 25 assertions (85 referenced paths resolve) | PASS, 25 assertions (86 referenced paths resolve — the new reference + its `lib/` pointer are checked, not skipped) |
+| `.venv/bin/python tools/sync_plugin.py` then `--check` | — | synced 1 file (`plugin/lib/src/rvt/famgen/revolve.py`), deny-audit clean, identity scan == allowlist; `--check`: in sync |
+| `RVT_SKIP_LARGE=1 pytest tests/test_plugin_validate.py tests/test_plugin_sync.py -q -rs` (no `tests/test_skill_*.py` exist) | 15 passed | 15 passed |
+| `python3 tools/dev/check_portable_paths.py` | ok, 3012 paths | ok, 3013 paths |
+| `cmp src/rvt/famgen/revolve.py plugin/lib/src/rvt/famgen/revolve.py` | — | identical; module imports, `ast.parse` clean |
+| merged CI shard | not run here (docs/docstring-only diff; the tech lead's sandbox runs it) | — |
+
+`/simplify`: a re-read only (prose + docstring). `/verify`: skipped — skill prose, a reference
+file and a docstring have no runtime surface to drive; the commit carries the
+`No-Verification-Needed:` trailer.
+
+## BRANCH STATE (eng #624)
+
+- Branch `cam/624-skill-honesty` from `main` @ dcda26e; one PR, `Closes #624`.
+- Files written: `plugin/skills/tekton-author/SKILL.md` (+18/−17 inside #583's hunk + the
+  references-table row), `plugin/skills/tekton-author/references/FAMSPEC-CAVEATS.md` (new),
+  `src/rvt/famgen/revolve.py` (docstring only) + `plugin/lib/src/rvt/famgen/revolve.py`
+  (regenerated mirror, byte-identical), this section.
+- Not touched, on purpose: `standards.py` (eng #622 holds it), `factory.py` / `geometry.py` /
+  `skeleton.py`, other skills' SKILL.md, `tools/`, the manifest, the matrix, the ledger.
+- Staged vs shipped: everything is shipped in the branch; nothing staged for a viewer batch
+  (no output bytes change). The zip is a regenerated, git-ignored artifact.
+- Follow-ups: none new — the desktop questions these labels describe are already #516
+  (category branches) and the "Edit anything after loading" row of `ifc-assembly-rfa.md`.

@@ -91,26 +91,27 @@ as GIVEN with its source, which is exactly what makes this route honest.
 **Anything with more than one solid uses `"parts"`** instead of the single
 outline: a list of prisms in the family's frame, each with its own `shape`
 (`box`, `cylinder`, `cylinder_x`, `cylinder_y`, `polygon`, `sphere`, `dome`,
-`cone`), size, `center` and `base_z_ft`. That is how a cable tray (rails +
-rungs), a cart (body + four wheels) or any LOD-400 assembly is expressed —
-one family, many solids, no catalog entry and no donor.
+`cone`), size, `center` and `base_z_ft` — a cable tray (rails + rungs), a
+cart (body + four wheels), any LOD-400 assembly: one family, many solids,
+no catalog entry, no donor. `cylinder_x`/`_y` DRAW as true lying cylinders
+(a rotated cached B-rep) over a still-vertical sketch, so Revit may stand
+them upright on edit — never promise those forms stay editable (wording
+per shape and category: `references/FAMSPEC-CAVEATS.md`).
 
 **ALWAYS set `"category"` to what the thing actually is** — `data_devices`,
 `lighting_fixture`, `electrical_equipment`, `mechanical_equipment`,
 `plumbing_fixture`, `fire_alarm_devices`, `cable_tray_fitting`, `furniture`,
-`casework`, `door`, `window`, `structural_framing`, … — and not the
-`generic_model` default. The category picks the family's place in Revit's
-category tree AND its **standard parameter set**: a data device comes out
-with Device Type / Mounting / Mounting Height / Number of Ports / Cable
-Category / Backbox Size / Voltage / Apparent Load / Load Classification, a
-luminaire with its photometrics, a mechanical equipment with airflow and
-MCA/MOCP. Fill the ones the user actually told you with
-`"standard_values": {"Number of Ports": 2, "Cable Category": "Cat6A"}` (feet
-for lengths) — every other standard parameter is authored BLANK on purpose,
-which is honest; never guess one. `"standards": false` turns the set off.
-`python <plugin>/skills/tekton-author/scripts/_bootstrap.py go make_family.py
-standards <category>` prints the exact set for a category before you write
-the famspec, and says plainly when a category has no table yet.
+`casework`, `structural_framing`, … — not the `generic_model` default. Five
+ids are desktop-verified (same reference); the rest — `door`/`window` too,
+also unhosted — ship as "category id inferred, not desktop-verified". It
+sets the place in Revit's category tree AND the **standard parameter set**
+(a data device's ports / cable category / mounting height / load …, a
+luminaire's photometrics, mechanical equipment's airflow). Fill only what
+the user told you, feet for lengths (e.g.
+`"standard_values": {"Number of Ports": 2}`); the rest stay BLANK on
+purpose, never guessed. `"standards": false` drops the set; `go
+make_family.py standards <category>` prints a category's exact set, or
+plainly that it has none yet — run it first.
 
 If their object is curved, approximate the outline as a polygon and SAY you
 did. If they hand you a mesh/solid file (OBJ, glTF, STL, STEP) there is no
@@ -216,6 +217,6 @@ caveat 3), `--handoff-only` (prompt route: only the AI-surface handoff),
 | `scripts/ifc_intent.py` · `scripts/rvt_validate.py` · `scripts/rvt_job.py` | IFC → intent resolver · the validation gate · the gated job runner |
 | `references/REVIT-VERSIONS.md` | per-release honest status, the one-way rule, what to say per case |
 | `references/TAGGING-CONTRACT.md` · `references/CATALOG-FACTS.md` | Pset join key · manufacturer facts store |
-| `references/PROMPT-TO-IFC.md` · `references/GENESIS-BASE.md` · `references/CRUD-COVERAGE.md` | prompt→IFC flow · the bases + stamps · the capability matrix |
+| `references/PROMPT-TO-IFC.md` · `references/GENESIS-BASE.md` · `references/CRUD-COVERAGE.md` · `references/FAMSPEC-CAVEATS.md` | prompt→IFC flow · the bases + stamps · the capability matrix · famspec caveats |
 | `examples/electrical-room-2500a.ifc` · `examples/chicago-plenum-downlight.ifc` | worked IFC inputs (our own authoring) |
 | sibling skills | **tekton-edit** (change an existing file) · **tekton-inspect** (validate/QA) · **tekton-ifc** (IFC authoring/hardening) |

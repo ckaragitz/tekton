@@ -29,8 +29,13 @@ the writer.
 THE APPROXIMATION IS MEASURED, NOT DESCRIBED.  ``segments`` controls the stack
 and every generator reports the volume it authored against the true volume of
 the body it approximates, so the error is a number in the report rather than
-an adjective.  A stack always UNDER-fills a convex body (each slab is sized at
-its mid-height), which is why the ratio is reported rather than assumed away.
+an adjective.  Each slab is sized at its mid-height, so a stack is neither
+inscribed nor circumscribed: half of every slab pokes outside the true surface
+and half falls inside, and the net volume can land on EITHER side of the true
+one -- mid-sampled discs slightly OVER-fill a sphere or dome (1.002 / 1.0005
+at 16 segments) and the chord boxes over-fill a lying cylinder (1.005), while
+a cone comes out slightly under (0.999).  Which is why the ratio is reported
+rather than assumed away.
 
 Territory: famgen (new module; emits part dicts only, edits no writer path).
 """
