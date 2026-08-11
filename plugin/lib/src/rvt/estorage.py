@@ -38,7 +38,11 @@ Schema catalog (WHERE the schemas live)
     the two the file uses is read off its own ``ESSchemaStorage`` class
     (:func:`catalog_layout`) and located the same way.  A sibling AppInfo,
     ``EStorageTracking``, holds ``m_trackingItems`` = per schema GUID the set
-    of ElementIds carrying an entity of it (the source of :func:`es_report`).
+    of ElementIds carrying an entity of it (the source of :func:`es_report`);
+    :func:`locate_tracking` verifies that table by its leading item count
+    even when items keyed by GUIDs absent from the catalog lead it (the
+    bundled 2024 base: 7 items, 5 uncatalogued Revit-internal GUIDs, then
+    the 2 catalogued ones) and reports those items as what they are.
 
 Entity token (WHY class 0x2314 does not exist)
     ``ESEntity.m_blob`` is a pointer field, but the pointed-to object is a
@@ -100,6 +104,7 @@ import struct
 import sys
 from collections import Counter, defaultdict, deque
 from dataclasses import dataclass, field as dc_field, replace
+from itertools import takewhile
 from typing import Optional
 
 from .encode import ObjectEncoder, Writer, EncodeError, _Pend
@@ -210,8 +215,11 @@ class ESSchemaCatalog:
         self.layout: str = ""              # the ESSchemaStorage member the map was read from (CatalogLayout.member)
         self.map_offset: int = -1          # u32 count offset in Global/Latest
         self.map_count: int = 0            # declared entry count
-        self.tracking: dict[str, list[int]] = {}   # schema guid -> element ids
-        self.tracking_offset: int = -1
+        self.tracking: dict[str, list[int]] = {}   # catalogued schema guid -> element ids (EStorageTracking)
+        self.tracking_uncatalogued: dict[str, list[int]] = {}   # tracked guids absent from the catalog, table order
+        self.tracking_offset: int = -1     # u32 item-count offset in Global/Latest (unverified: run start - 4; -1 none)
+        self.tracking_count: int = 0       # declared item count; 0 = no table verified (tracking = longest catalogued run)
+        self.tracking_note: str = ""       # why no tracking table was read, when none was
         self.source: str = ""
         self.note: str = ""                # why the catalog is empty, when it is
 
@@ -237,6 +245,8 @@ class ESSchemaCatalog:
             "map_count": self.map_count,
             "schemas": [s.to_json() for s in self],
             "tracking": {g: len(v) for g, v in self.tracking.items()},
+            "tracking_count": self.tracking_count,
+            "tracking_uncatalogued": {g: len(v) for g, v in self.tracking_uncatalogued.items()},
         }
 
 
@@ -483,30 +493,67 @@ def locate_schema_map(gl: bytes, dec: ObjectDecoder,
 
 # -- EStorageTracking (schema GUID -> element id set) -----------------------
 
-def locate_tracking(gl: bytes, guids: list[str],
-                    skip: tuple[int, int] = (0, 0)) -> tuple[int, dict[str, list[int]]]:
-    """Locate ``EStorageTracking.m_trackingItems`` and read every item.
+_MAX_ID = 1 << 47                # an ElementId is a small non-negative i64
+_MAX_IDS = 5_000_000             # ids in one item's m_elemIdSet
+_TRACKING_BUDGET = 20_000        # candidate items one backward walk may generate before it stops expanding
+TRACKING_ITEM = (("m_schemaGuid", "GUIDvalue"), ("m_elemIdSet", "ElementId"))   # EStorageTrackingItem, 2024..2026
 
-    Item = GUIDvalue m_schemaGuid + container<ElementId> m_elemIdSet
-    (u32 count + count x i64).  Items are contiguous; the u32 preceding the
-    first item equals the item count.  Anchored on any known schema GUID
-    occurrence outside ``skip`` = [lo, hi) (the catalog map's own span: a
-    map key followed by an empty AString reads as an item with no ids) that
-    is followed by a plausible id list.
+
+def tracking_layout_known(schema: Schema) -> bool:
+    """Does the file's own ``EStorageTrackingItem`` have exactly the two
+    members :func:`locate_tracking` reads (GUIDvalue + container<ElementId>)?"""
+    item = schema.by_name.get("EStorageTrackingItem")
+    return item is not None and tuple((f.name, f.type_name) for f in item.fields) == TRACKING_ITEM
+
+
+def locate_tracking(gl: bytes, guids: list[str],
+                    skip: tuple[int, int] = (0, 0)) -> tuple[int, int, dict[str, list[int]]]:
+    """Locate ``EStorageTracking.m_trackingItems``, read and VERIFY every item.
+
+    Item = ``EStorageTrackingItem`` = GUIDvalue m_schemaGuid + container<
+    ElementId> m_elemIdSet (u32 count + count x i64); items are contiguous;
+    the u32 preceding the first item is the item count.  Anchors are
+    occurrences of the catalogued schema ``guids`` outside ``skip`` = [lo, hi)
+    that read as an item (``skip`` = the catalog map's own span, permanently:
+    a map key followed by an empty AString reads as a 0-id item, and on the
+    older layout the previous entry's write level in front of it would even
+    count-verify it).  From an anchor the table is chained forward through
+    items of ANY guid and walked BACKWARD through items of any guid: the item
+    with ``k`` ids ending where the first known item starts begins at ``q =
+    first - 20 - 8k`` and is one iff the u32 at ``q + 16`` equals ``k``, its
+    ids are plausible and its GUID is not low-entropy filler.  More than one
+    ``k`` can pass (a 1-id item's own tail reads as a 0-id pseudo-item --
+    twice on the bundled 2024 base), so the walk is breadth-first and a table
+    is accepted only when the u32 in front of its first item equals the
+    number of items it then holds (every walked-back item + at least every
+    forward item up to the last catalogued one; forward items beyond the
+    count are cut).  Two count-verified tilings on one level resolve to the
+    one starting earlier -- that settles the tail-carved pseudo-item family
+    (a real item out-spans its own tail); any other wrong tiling needs the
+    u32 in front of it to equal its exact item count, the single 2^-32
+    coincidence the count check has always accepted.
+
+    Returns ``(count_offset, count, {schema guid: element ids})``, items in
+    table order, catalogued or not.  ``count`` is the declared item count of
+    a VERIFIED table; ``0`` means no table verified and the dict is the
+    longest run of catalogued items read forward from an anchor, offset =
+    that run's start - 4 (the pre-#595 reading, kept -- and now labelled by
+    the caller -- so a table this walk cannot explain still reports its
+    catalogued ids); ``(-1, 0, {})`` when no anchor reads as an item.
     """
     def item_at(p: int):
         if p + 20 > len(gl) or skip[0] <= p < skip[1]:
             return None
         n = struct.unpack_from("<I", gl, p + 16)[0]
         end = p + 20 + 8 * n
-        if n > 5_000_000 or end > len(gl):
+        if n > _MAX_IDS or end > len(gl):
             return None
         ids = list(struct.unpack_from(f"<{n}q", gl, p + 20)) if n else []
-        if any(i < 0 or i >= (1 << 47) for i in ids):
+        if any(i < 0 or i >= _MAX_ID for i in ids):
             return None
         return end, guid_str(gl[p:p + 16]), ids
 
-    starts: dict[int, tuple[int, str, list[int]]] = {}
+    starts: dict[int, tuple[int, str, list[int]]] = {}     # item offset -> (end, guid, ids)
     for g in guids:
         raw = guid_bytes(g)
         i = gl.find(raw)
@@ -514,46 +561,66 @@ def locate_tracking(gl: bytes, guids: list[str],
             if i not in starts:
                 r = item_at(i)
                 if r is not None:
-                    # forward chain
                     starts[i] = r
                     p = r[0]
-                    while p not in starts:
+                    while p not in starts:            # forward chain, any guid
                         r2 = item_at(p)
                         if r2 is None:
                             break
-                        # a random GUID could false-positive; the count check
-                        # below plus catalog membership filters that
                         starts[p] = r2
                         p = r2[0]
             i = gl.find(raw, i + 1)
-    if not starts:
-        return -1, {}
-    # choose the run whose leading u32 count matches its length and whose
-    # guids are all catalogued
     known = set(guids)
-    best = (-1, {})
+
+    def previous_starts(first: int):
+        """Offsets of every self-checking item that ends exactly at ``first``."""
+        k = 0
+        while (q := first - 20 - 8 * k) >= 4 and k <= _MAX_IDS:      # >= 4: room for the count u32 in front
+            if k and not 0 <= struct.unpack_from("<q", gl, first - 8 * k)[0] < _MAX_ID:
+                return                                 # ids are contiguous: one implausible word ends every longer k too
+            if (struct.unpack_from("<I", gl, q + 16)[0] == k and _plausible_guid(gl[q:q + 16])
+                    and not skip[0] <= q < skip[1]):
+                yield q
+            k += 1
+
+    def verified(fwd: list[int]):
+        """(first item offset, declared count) of the count-verified table
+        holding the forward chain ``fwd`` (item offsets, a catalogued anchor
+        first), or None.  A walk state is just an item offset: an item has
+        one end, so every offset reaches the anchor by exactly one chain."""
+        need = 1 + max(i for i, p in enumerate(fwd) if starts[p][1] in known)  # forward items the table MUST hold
+        level, back, budget = [fwd[0]], 0, _TRACKING_BUDGET   # breadth-first: fewest walked-back items first
+        while level and budget >= 0:
+            for first in sorted(level):                # earliest start first (docstring: the tail-carved family)
+                cnt = struct.unpack_from("<I", gl, first - 4)[0] if first >= 4 else 0   # walked-back items sit >= 4; an anchor may not
+                if need <= cnt - back <= len(fwd):
+                    return first, cnt
+            level = [q for first in level for q in previous_starts(first)]
+            back += 1
+            budget -= len(level)
+        return None
+
+    best = fallback = (-1, 0, {})
+    covered: set[int] = set()                          # item offsets some verified table already holds
     for s in sorted(starts):
-        run, p, table = [], s, {}
-        while p in starts and starts[p][1] in known:
-            run.append(p)
-            table[starts[p][1]] = starts[p][2]
-            p = starts[p][0]
-        if not run:
+        if starts[s][1] not in known or s in covered:
             continue
-        cnt = struct.unpack_from("<I", gl, s - 4)[0] if s >= 4 else -1
-        if cnt == len(run) and len(run) >= len(best[1]):
-            best = (s - 4, table)
-    if best[0] < 0 and starts:
-        # unverified count: still return the longest catalogued run
-        for s in sorted(starts):
-            run, p, table = [], s, {}
-            while p in starts and starts[p][1] in known:
-                table[starts[p][1]] = starts[p][2]
-                run.append(p)
-                p = starts[p][0]
-            if len(table) > len(best[1]):
-                best = (s - 4, table)
-    return best
+        fwd = _run(starts, s)
+        v = verified(fwd)
+        if v is None:                                  # remember the longest catalogued run, offset = its start - 4
+            run = list(takewhile(lambda p: starts[p][1] in known, fwd))
+            if len(run) > len(fallback[2]):
+                fallback = (s - 4, 0, {starts[p][1]: starts[p][2] for p in run})
+            continue
+        p, cnt = v
+        table: dict[str, list[int]] = {}
+        for _ in range(cnt):                           # re-read the accepted table front to back
+            covered.add(p)
+            p, g, ids = starts.get(p) or item_at(p)
+            table[g] = ids
+        if len(table) > len(best[2]):
+            best = (v[0] - 4, cnt, table)
+    return best if best[1] else fallback
 
 
 # ---------------------------------------------------------------------------
@@ -642,10 +709,16 @@ def schemas(source, decoder: Optional[ObjectDecoder] = None,
         except Exception as e:                       # pragma: no cover
             raise ESSchemaError(f"catalog entry @{k:#x}: {e}")
     if with_tracking and len(cat):
-        map_span = (cat.map_offset, entries[max(entries)][0])         # count u32 .. end of the last entry
-        toff, table = locate_tracking(gl, list(cat.by_guid), skip=map_span)
-        cat.tracking_offset = toff
-        cat.tracking = table
+        if not tracking_layout_known(base.schema):
+            cat.tracking_note = ("this file's EStorageTrackingItem is not "
+                                 + " + ".join(f"{n} : {t}" for n, t in TRACKING_ITEM))
+            return cat
+        map_span = (cat.map_offset, entries[max(entries)][0])         # count u32 .. end of the last entry: never an item
+        cat.tracking_offset, cat.tracking_count, items = locate_tracking(gl, list(cat.by_guid), skip=map_span)
+        for g, ids in items.items():
+            (cat.tracking if g in cat.by_guid else cat.tracking_uncatalogued)[g] = ids
+        if cat.tracking_offset < 0:
+            cat.tracking_note = "no EStorageTracking item keyed by a catalogued schema GUID in Global/Latest"
     return cat
 
 
@@ -1127,7 +1200,10 @@ def es_report(doc, catalog: Optional[ESSchemaCatalog] = None,
         "schema_count": len(cat),
         "map_offset": cat.map_offset,
         "tracking_offset": cat.tracking_offset,
+        "tracking_count": cat.tracking_count,          # 0 = no table verified (element_ids = the catalogued run)
         "schemas": [],
+        "tracking_uncatalogued": [{"guid": g, "element_ids": ids}      # tracked, but no catalog entry (2024 base, #595)
+                                  for g, ids in cat.tracking_uncatalogued.items()],
     }
     walked: dict = defaultdict(lambda: {"classes": Counter(), "ids": [], "embedded": 0,
                                         "nested": Counter()})
@@ -1414,8 +1490,17 @@ def print_catalog(cat: ESSchemaCatalog, stream=None):
     if not len(cat) and cat.note:
         P(f"ES schema catalog: 0 schemas ({cat.note})")
         return
+    if cat.tracking_offset < 0:
+        tracked = f"not read ({cat.tracking_note})" if cat.tracking_note else "not read"
+    elif not cat.tracking_count:
+        tracked = f"@{cat.tracking_offset:#x} (count unverified)"
+    elif cat.tracking_uncatalogued:        # a verified table holding more than the catalogued schemas: say so
+        tracked = (f"@{cat.tracking_offset:#x}, {cat.tracking_count} items, "
+                   f"{len(cat.tracking_uncatalogued)} uncatalogued")
+    else:                                  # the all-catalogued verified table, worded as it always was
+        tracked = f"@{cat.tracking_offset:#x}"
     P(f"ES schema catalog: {len(cat)} schemas (map count {cat.map_count} "
-      f"@{cat.map_offset:#x} in Global/Latest; tracking @{cat.tracking_offset:#x})")
+      f"@{cat.map_offset:#x} in Global/Latest; tracking {tracked})")
     for s in cat:
         ids = cat.tracking.get(s.guid)
         used = "usage-unrecorded" if s.used_in_host is None else "used" if s.used_in_host else "unused"
@@ -1430,6 +1515,10 @@ def print_catalog(cat: ESSchemaCatalog, stream=None):
             spec = f" ({f.spec_type_id})" if f.spec_type_id else ""
             doc_s = f'  "{f.documentation}"' if f.documentation else ""
             P(f"      [{f.entry_index:2d}] {f.name}: {f.type_name}{ct}{sub}{spec}{doc_s}")
+    if cat.tracking_uncatalogued:
+        P("  uncatalogued schema GUIDs tracked by EStorageTracking (no catalog entry; name and fields unknown):")
+        for g, ids in cat.tracking_uncatalogued.items():
+            P(f"    {g}  tracked_elements={len(ids)}" + (f" {ids[:5]}" if ids else ""))
 
 
 def main(argv=None):

@@ -208,15 +208,104 @@ plausible *tracking* item with 0 ids, and the u32 before entry 2's key (entry
 1's write level, 1) would even "verify" it as a 1-item table — `locate_tracking`
 therefore skips candidates inside the catalog map's own byte span. The 2024
 base's real `EStorageTracking.m_trackingItems` is 7 items, count at +0xff92e:
-five leading items keyed by structured, uncatalogued GUIDs
-(`30000001-6e79-430c-adf9-634f716c5f5d`, `30000001-62e6-416d-a34a-bb3064350b62`,
-`20000002-6e79-…`, `20000002-62e6-…`, `10000005-db1a-45fc-9eed-810262792b5b`;
-0 or 1 ids each, element 49504) that occur nowhere in the 2025/2026 bases,
-then the two catalogued items at +0xff9a6 (`AREXContentGenerator`, 6 ids) and
-+0xff9ea (`DaylightingAnalysisInfo`, id 1382860) — byte-identical to the
-2025 base's two items. Because only catalogued GUIDs anchor items, the 2024
-table is returned by the unverified-count fallback (longest catalogued run;
-`tracking_offset` = that run's start − 4 = 0xff9a2, not the true count offset).
+five leading items keyed by structured, uncatalogued GUIDs, then the two
+catalogued items — until #595 it came back only through the unverified-count
+fallback (offset reported 0xff9a2 = the catalogued run's start − 4, the five
+dropped); §2.1c is how it is located and verified now, byte for byte.
+
+### 2.1c The tracking table led by uncatalogued items — `G_ABPD_2024.rvt` (#595) **[V on the bundled 2024 base]**
+
+`EStorageTracking` (0x539 in this file; base `AppInfo` 0x1b = one weak
+`m_pADoc`) has the same single member in every release read here,
+`m_trackingItems : container<EStorageTrackingItem>` with `EStorageTrackingItem`
+(0x53a) = `m_schemaGuid : GUIDvalue` + `m_elemIdSet : container<ElementId>`
+— so an item is `GUID(16) + u32 n + n × i64`, exactly the 2025/2026 shape.
+The whole object in `Global/Latest`, +0xff92a..0xffa06 (220 bytes):
+
+```
+0x0ff92a  01 00 00 00                                   AppInfo.m_pADoc = weak ref 1 (the ADocument)
+0x0ff92e  07 00 00 00                                   m_trackingItems count = 7        <- tracking_offset
+0x0ff932  01 00 00 30 79 6e 0c 43 ad f9 63 4f 71 6c 5f 5d  00 00 00 00                            item 1  30000001-6e79-430c-adf9-634f716c5f5d  0 ids
+0x0ff946  01 00 00 30 e6 62 6d 41 a3 4a bb 30 64 35 0b 62  01 00 00 00  60 c1 00 00 00 00 00 00   item 2  30000001-62e6-416d-a34a-bb3064350b62  {49504}
+0x0ff962  02 00 00 20 79 6e 0c 43 ad f9 63 4f 71 6c 5f 5d  00 00 00 00                            item 3  20000002-6e79-430c-adf9-634f716c5f5d  0 ids
+0x0ff976  02 00 00 20 e6 62 6d 41 a3 4a bb 30 64 35 0b 62  01 00 00 00  60 c1 00 00 00 00 00 00   item 4  20000002-62e6-416d-a34a-bb3064350b62  {49504}
+0x0ff992  05 00 00 10 1a db fc 45 9e ed 81 02 62 79 2b 5b  00 00 00 00                            item 5  10000005-db1a-45fc-9eed-810262792b5b  0 ids
+0x0ff9a6  59 79 81 4c 28 00 83 4a b3 e7 cd 1e 83 2a 45 9a  06 00 00 00  84 f0 14 00 … 68 05 15 00 …  item 6  4c817959-…  AREXContentGenerator {1372292, 1372482, 1375817, 1376990, 1377250, 1377640}
+0x0ff9ea  ee 88 95 5d c7 e6 96 4c 87 dc df 2a 5f be 66 13  01 00 00 00  cc 19 15 00 00 00 00 00   item 7  5d9588ee-…  DaylightingAnalysisInfo {1382860}
+0x0ffa06  (next AppInfo)                                items 6–7 are byte-identical to the 2025/2026 bases' whole 2-item table
+```
+
+**Locating it.** Anchors are still catalogued-GUID occurrences that read as
+an item (item 6 here); the table is chained forward through items of any
+GUID and, since #595, walked *backward* through items of any GUID: the item
+with `k` ids that ends where the first known item starts begins at
+`q = first − 20 − 8k` and is self-checking — the u32 at `q+16` must equal
+`k`, the `k` words must be plausible ElementIds, the 16 bytes at `q` must not
+be low-entropy filler. That admits false tilings: from item 5 (@0xff992) both
+`k=1` → item 4 @0xff976 (real) and `k=0` → a 20-byte pseudo-item @0xff97e made
+of item 4's own tail (`a3 4a … 0b 62 | 01 00 00 00 | 60 c1 00 00`, "count" =
+the high dword of id 49504 = 0) pass, and the same happens again from item 3
+(@0xff94e). So the walk is breadth-first with backtracking and a table is
+accepted only when the u32 in front of its first item equals the items it
+then holds (every walked-back item + at least every forward item up to the
+last catalogued one; forward items beyond the count are cut). On this base:
+level 1 = {0xff992}, level 2 = {0xff97e ✗ (u32 in front 0x416d62e6, no
+predecessor), 0xff976}, level 3 = {0xff962}, level 4 = {0xff94e ✗, 0xff946},
+level 5 = {0xff932}: u32 in front = **7** = 5 walked back + 2 forward →
+verified, `tracking_offset = 0xff92e`, `tracking_count = 7`; seven candidate
+states in all, `locate_tracking` 0.72 → 0.75 ms best-of-9 (a walk state is just
+an item offset — an item has one end, so an offset reaches the anchor by
+exactly one chain — and the accepted table is re-read front to back once).
+Two count-verified tilings on one level resolve to the one starting earlier;
+that settles exactly the tail-carved pseudo-item family (a real item
+out-spans its own tail) and claims no more: any other wrong tiling, on that
+level or an earlier one, needs the u32 in front of it to equal its exact item
+count — the single 2⁻³² coincidence the pre-#595 count check already
+accepted. The catalog map's own span stays excluded (`skip`) *permanently*,
+not as a stopgap: entry 2's key + its empty `m_documentation`, fronted by
+entry 1's write level 1, would now count-verify as a confident 1-item table
+whenever the real table did not. Nothing verified → the old fallback, now
+*labelled*: `tracking @0x… (count unverified)`, `tracking_count` 0, catalogued
+run only; a file whose own `EStorageTrackingItem` is not `{m_schemaGuid :
+GUIDvalue, m_elemIdSet : ElementId}` (`tracking_layout_known`) is not walked
+at all and the header says `tracking not read (<why>)`. Cross-check: the
+generic `ObjectDecoder` reading class
+0x539 at `tracking_offset − 4` against the file's own `Formats/Latest`
+decodes `{m_pADoc: weak 1, m_trackingItems: [the same 7 (guid, ids)]}` with
+no error and ends at 0xffa06, where the byte walk ends (2025/2026: the same
+2 items, object 0x137e06..0x137e6e / 0x16bfad..0x16c015) — `tests/test_estorage_catalog_2024.py`.
+
+**What the five are, as far as the bytes say.** They are ordinary
+`EStorageTrackingItem`s of the file's own class — nothing but their GUIDs
+distinguishes them from items 6–7 — whose schema GUIDs have **no entry in
+`m_storedSchemas`** (count 2, §2.1b), so name, vendor and fields are unknown
+and the module says exactly that (`uncatalogued schema GUIDs tracked by
+EStorageTracking (no catalog entry; name and fields unknown)`), listing GUID
++ ids once, in the catalog section; `ESSchemaCatalog.tracking_uncatalogued`,
+`to_json()["tracking_uncatalogued"]` / `["tracking_count"]` and `es_report()
+["tracking_uncatalogued"]` / `["tracking_count"]` carry them unconditionally
+(empty / 2 on the 2025/2026 bases — a JSON consumer can always tell verified
+from unverified), `tracking` stays catalogued-only.
+Each GUID occurs exactly **once** in the whole container (this table) — in no
+partition, no other Global stream, not as UTF-16/ASCII text, and nowhere in
+the 2025/2026 bases, whose tables are items 6–7 alone. The GUIDs are
+structured, not random: three "families" `xxxxxxxx-6e79-430c-adf9-634f716c5f5d`,
+`xxxxxxxx-62e6-416d-a34a-bb3064350b62`, `xxxxxxxx-db1a-45fc-9eed-810262792b5b`
+whose last 12 bytes keep valid version-4 / RFC-variant bits (`430c`/`adf9`,
+`416d`/`a34a`, `45fc`/`9eed`) while `Data1` is overwritten with a small
+tagged counter (`0x30000001`, `0x20000002`, `0x10000005`) — i.e. derived
+from three random base GUIDs by stamping the first dword. The two items that
+track anything both track element **49504 = the `ProjectInfo` element**
+(seq-102 class `ProjectInfo`, category −2003101), which carries **no**
+`m_cellList` / `ESEntityCell` at all in this base — the registry remembers a
+schema→element association whose entity is not (or no longer) serialized on
+the element. That is consistent with Revit-internal (not add-in) schemas of
+the 2024 era registered against Project Information and gone by the 2025
+upgrade of the same seed, but *which* Revit feature owns them is not in the
+bytes: no catalog entry, no string, no entity body. Whether Autodesk's own
+2024 samples carry the same five is unmeasured here (no `samples/` in a
+cloud clone) — one `python -m rvt.estorage <2024 sample> --report` on the
+owner's machine answers it.
 
 ### 2.2 Locating the map without decoding `ADocument` **[D]**
 
@@ -255,7 +344,10 @@ elements carrying an entity of it. rme at +0x3ab9f7: count 2 →
 `{762a2314-…, count 657, ids 392203, 393086, 393092, …}`, `{1b022a2b-…,
 count 514, …}` — exactly the 657 + 514 = 1,171 failing FamilyInstances.
 `locate_tracking` finds it (items contiguous; the u32 before the first
-item = item count; every GUID must be catalogued) and it drives
+item = item count; anchored on a catalogued GUID, chained forward and
+walked backward through items of *any* GUID and verified by that count —
+§2.1c; items whose GUID is not in the catalog are reported as
+`tracking_uncatalogued`, never dropped) and it drives
 `es_report`. It tracks TOP-LEVEL entities of the host document only:
 nested subschema entities (`Values`, `LoadCasesMap`,
 `MeasurementDescription`, …) and embedded-document entities are not in it
@@ -270,7 +362,7 @@ nested subschema entities (`Values`, `LoadCasesMap`,
 | dach | 175 | 0x391d2b (175) | 0x42b3af | 173 used in host; vendors ADSK 146, HSB_ 8, SOFI 7, RPCA 5, none 9 (steel connections `flatbracing1` / `columnbeamseatt` / `railinganchor` / `singleeb*`) |
 | racbasic / racadv / rstadv | 0 | — | — | `ESSchemaStorage` present (100 Forge parameter schemas) but `m_schemaUsageMap` empty |
 | bundled `G_ABPD.rvt` (2026) / `G_ABPD_2025.rvt` | 2 | 0xe7a40 / 0xe690f (2) | 0x16bfb1 / 0x137e0a | the rstbasic pair (`AREXContentGenerator` 6 ids, `DaylightingAnalysisInfo` 1 id); `m_schemaUsageMap` layout |
-| bundled `G_ABPD_2024.rvt` | 2 | 0xfe679 (2) | 0xff9a2 (fallback; true count 7 @0xff92e, §2.1b) | same pair, same ids; **`m_storedSchemas` layout** (§2.1b) |
+| bundled `G_ABPD_2024.rvt` | 2 | 0xfe679 (2) | 0xff92e (7 items: 5 uncatalogued Revit-internal GUIDs, then the same pair, same ids — §2.1c) | **`m_storedSchemas` layout** (§2.1b) |
 
 ## 3 · The entity token **[V]**
 
@@ -398,7 +490,7 @@ Element classes seen carrying entities: `FamilyInstance` (rme 1,171; dach
 
 | API | purpose |
 |---|---|
-| `schemas(source)` → `ESSchemaCatalog` | locate + decode the catalog (source = `Document`, `.rvt` path or corpus project); `.by_guid`, iteration in map order, `.tracking` (§2.3), `.to_json()` |
+| `schemas(source)` → `ESSchemaCatalog` | locate + decode the catalog (source = `Document`, `.rvt` path or corpus project); `.by_guid`, iteration in map order, `.tracking` / `.tracking_uncatalogued` / `.tracking_offset` / `.tracking_count` (§2.3, §2.1c; count 0 = unverified fallback), `.to_json()` |
 | `ESSchemaDef` / `ESFieldDef` | guid, name, vendorId, applicationGuid, documentation, read/write access, `used_in_host`, `content_docs_keys`, `fields` **in serialization (`entryIndex`) order** |
 | `decode_entity_blob(blob, cat, guid)` | pure decode of an entity body (+ its nested bodies contiguous, breadth-first — the layout an entity closure has when nothing but its descendants follow); returns `{schema_guid, schema, pid, fields, consumed, total, errors}` |
 | `encode_entity_blob(entity, cat)` | byte-exact inverse |
@@ -480,6 +572,7 @@ writes the token, the `encode_object` loop writes queued entity bodies);
 | body = field values in `entryIndex` order, no header | **V** (record-end delimited bodies; whole-record byte-exact re-encode of 2,921 records) |
 | type table (§4.2) | **V** for every type in the corpus; `short`/`float`/`int64`/`unsigned*` are codebook extrapolations **[H]** (no sample) |
 | `EStorageTracking` = top-level schema → host element ids | **V** (rme 657/514 == the failing records) |
+| the tracking table can hold GUIDs the catalog does not (2024 base: 5 of 7), verified by count + the file's own class decode | **V** (§2.1c); *which* Revit feature owns those five GUIDs is **unknown** (U7) |
 | entity-free files have an empty map (not an unfound one) | **V** (no schema/type strings anywhere in their `Global/Latest`; GUID-free scan proven on rme/rstbasic) |
 | a null entity (pid 0) is 4 bytes with no GUID | **V** (`AnalysisResult.LoadCase`, `LARData.AnalysisInfoPending`) |
 
@@ -495,7 +588,11 @@ tracking table beyond partition elements; the ADocument's own
 `m_pAppInfoManager` graph was not decoded here. U5 Authoring a NEW schema
 (map + tracking append, §7) — not implemented, not required for edit
 fidelity. U6 The GUID-free locator's regex is bounded (`max_hits`); a
-pathological file could need the seeded path.
+pathological file could need the seeded path. U7 The five structured,
+uncatalogued schema GUIDs the 2024 base's tracking table leads with (§2.1c:
+two of them → the `ProjectInfo` element, which carries no entity; absent by
+2025): Revit-internal by every sign, owner feature unnamed in the bytes;
+whether Autodesk's 2024 samples carry them too is unmeasured.
 
 ## 9 · Reproduction
 

@@ -20,7 +20,18 @@ file's own schema.  Rows:
   entry only must recover the whole map and its count offset);
 * synthetic schemas: the layout is the one the file's ``ESSchemaStorage``
   holds (both pair classes may exist), none without it (and the empty-catalog
-  note says what the file keeps); both catalog value shapes unwrap.
+  note says what the file keeps); both catalog value shapes unwrap;
+* the ``EStorageTracking`` table (issue #595): on the 2024 pin it is 7 items
+  led by 5 GUIDs that are in no catalog -- ``locate_tracking`` walks back
+  over them and VERIFIES the table by its leading count (offset = the count
+  u32, ``tracking_count == 7``), the five are exposed as
+  ``tracking_uncatalogued`` with their ids and named by the CLI, the generic
+  decoder reading the file's own ``EStorageTracking`` class over the same
+  bytes agrees item for item; the 2025/2026 pins' tracking reads exactly as
+  on ``main`` (2 items, nothing uncatalogued, header unchanged); synthetic
+  tables: leading/trailing uncatalogued items, a false backward tiling that
+  even meets the count, a wrong count (the unverified fallback), are each
+  read for what they are.
 
 Bundled bases only (fresh-clone safe).
 Run: .venv/bin/python -m pytest tests/test_estorage_catalog_2024.py -q
@@ -28,8 +39,10 @@ Run: .venv/bin/python -m pytest tests/test_estorage_catalog_2024.py -q
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
+import struct
 import sys
 from types import SimpleNamespace
 
@@ -54,8 +67,22 @@ EXPECTED = {
     AREX: ("AREXContentGenerator", "", [("Identity", "TCHAR")], 6),
     DAYLIGHT: ("DaylightingAnalysisInfo", "ADSK", [("AnalysisId", "TCHAR"), ("ResultsInvalid", "int")], 1),
 }
-# 2025+/2026 catalogs as `main` read them: (schemas, map count, sha256[:16] of to_json() minus 'source')
-MAIN_DIGEST = {2025: (2, 2, "43f8ad756ff22977"), 2026: (2, 2, "2d621ae50133432e")}
+# 2025+/2026 catalogs as `main` read them: (schemas, map count, sha256[:16] of to_json() minus 'source').
+# #595 added two keys to to_json() ('tracking_count', 'tracking_uncatalogued'); PRE_595 is the digest with
+# those two keys removed and must stay what #599 pinned -- everything main read, it still reads byte for byte
+MAIN_DIGEST = {2025: (2, 2, "787646f8f1bbe113"), 2026: (2, 2, "786987e13fdb4bd7")}
+PRE_595_DIGEST = {2025: "43f8ad756ff22977", 2026: "2d621ae50133432e"}
+NEW_IN_595 = ("tracking_count", "tracking_uncatalogued")
+# the 2024 pin's EStorageTracking table (#595): count u32 @0xff92e in Global/Latest, 7 items -- these
+# five (in no catalog, nowhere else in the file; 49504 = the ProjectInfo element) lead the two catalogued ones
+TRACKING_2024 = (0xff92e, 7)
+UNCATALOGUED_2024 = [
+    ("30000001-6e79-430c-adf9-634f716c5f5d", []),
+    ("30000001-62e6-416d-a34a-bb3064350b62", [49504]),
+    ("20000002-6e79-430c-adf9-634f716c5f5d", []),
+    ("20000002-62e6-416d-a34a-bb3064350b62", [49504]),
+    ("10000005-db1a-45fc-9eed-810262792b5b", []),
+]
 
 
 def _catalog(path: str) -> ES.ESSchemaCatalog:
@@ -63,9 +90,10 @@ def _catalog(path: str) -> ES.ESSchemaCatalog:
         return ES.schemas(path)
 
 
-def _digest(cat: ES.ESSchemaCatalog) -> str:
+def _digest(cat: ES.ESSchemaCatalog, drop=()) -> str:
     j = cat.to_json()
-    j.pop("source")
+    for k in ("source", *drop):
+        j.pop(k)
     return hashlib.sha256(json.dumps(j, sort_keys=True).encode()).hexdigest()[:16]
 
 
@@ -96,6 +124,116 @@ def test_old_layout_pin_cli_lists_its_schemas(year, capsys):
     assert f"  {AREX}  'AREXContentGenerator' vendor='' usage-unrecorded fields=1 read=Public write=Public tracked_elements=6\n" in out
     assert f"  {DAYLIGHT}  'DaylightingAnalysisInfo' vendor='ADSK' usage-unrecorded fields=2 read=Public write=Vendor tracked_elements=1\n" in out
     assert "\nES report: 2 schemas\n" in out
+    # the tracking table is verified, and what leads it is named -- once (#595)
+    off, n = TRACKING_2024
+    assert f" in Global/Latest; tracking @{off:#x}, {n} items, {len(UNCATALOGUED_2024)} uncatalogued)\n" in out
+    assert "\n  uncatalogued schema GUIDs tracked by EStorageTracking (no catalog entry; name and fields unknown):\n" in out
+    for g, ids in UNCATALOGUED_2024:
+        assert f"\n    {g}  tracked_elements={len(ids)}" + (f" {ids}\n" if ids else "\n") in out
+        assert out.count(g) == 1
+
+
+def _tracking_object(path: str, cat: ES.ESSchemaCatalog):
+    """The whole ``EStorageTracking`` AppInfo read by the GENERIC decoder against
+    the file's own class: it begins one u32 (``AppInfo.m_pADoc``, a weak ref)
+    before the item count.  -> (decoded object, its end offset in Global/Latest)."""
+    gl, _ = ES._global_latest_bytes(path)
+    dec = ES._decoder_for(path)
+    start = cat.tracking_offset - 4
+    o = dec.decode_record(dec.schema.by_name["EStorageTracking"].type_id, gl[start:])
+    assert not o.errors, o.errors
+    return o.value, start + o.consumed
+
+
+def _table_end(cat: ES.ESSchemaCatalog) -> int:
+    """Where the byte walk says the table ends: count u32 + items of 20 + 8*ids bytes."""
+    items = list(cat.tracking.values()) + list(cat.tracking_uncatalogued.values())
+    return cat.tracking_offset + 4 + sum(20 + 8 * len(ids) for ids in items)
+
+
+@pytest.mark.parametrize("year", OLD)
+def test_old_layout_pin_tracking_table_is_verified_not_guessed(year):
+    """7 items @0xff92e: the five uncatalogued items are walked back over and
+    kept (GUIDs + ids, table order), the count in front verifies the table,
+    and the file's own ``EStorageTracking`` class decodes the same bytes to
+    the same seven ``EStorageTrackingItem``s, ending where the walk ends."""
+    path = pinned_base(year)
+    cat = _catalog(path)
+    gl, _ = ES._global_latest_bytes(path)
+    assert (cat.tracking_offset, cat.tracking_count) == TRACKING_2024, (
+        "the 2024 pin's tracking table moved -- if the pin was re-composed on purpose, update TRACKING_2024")
+    assert struct.unpack_from("<I", gl, cat.tracking_offset)[0] == cat.tracking_count \
+        == len(cat.tracking) + len(cat.tracking_uncatalogued) == 7
+    assert list(cat.tracking_uncatalogued.items()) == UNCATALOGUED_2024
+    assert {g: len(v) for g, v in cat.tracking.items()} == {AREX: 6, DAYLIGHT: 1} and cat.tracking[DAYLIGHT] == [1382860]
+    for g, _ids in UNCATALOGUED_2024:                     # what the bytes say: once each in the whole stream, in no catalog
+        assert gl.count(ES.guid_bytes(g)) == 1 and cat.get(g) is None
+    # classified against the file's own schema: EStorageTracking{AppInfo.m_pADoc, m_trackingItems[7]}
+    obj, end = _tracking_object(path, cat)
+    items = [(it["m_schemaGuid"], it["m_elemIdSet"]) for it in obj["m_trackingItems"]]
+    assert items == UNCATALOGUED_2024 + list(cat.tracking.items())
+    assert end == _table_end(cat) == 0xffa06
+    j = cat.to_json()
+    assert (j["tracking_uncatalogued"], j["tracking"], j["tracking_count"]) == ({g: len(i) for g, i in UNCATALOGUED_2024}, {AREX: 6, DAYLIGHT: 1}, 7)
+
+
+@pytest.mark.parametrize("year", NEW)
+def test_new_layout_pins_tracking_reads_exactly_as_before(year):
+    """2 catalogued items, verified by the count as on main; nothing
+    uncatalogued, so header, JSON and report carry no new token."""
+    path = pinned_base(year)
+    cat = _catalog(path)
+    gl, _ = ES._global_latest_bytes(path)
+    assert cat.tracking_count == struct.unpack_from("<I", gl, cat.tracking_offset)[0] == len(cat.tracking) == 2
+    assert (cat.tracking_uncatalogued, cat.tracking_note) == ({}, "")
+    obj, end = _tracking_object(path, cat)
+    assert [(it["m_schemaGuid"], it["m_elemIdSet"]) for it in obj["m_trackingItems"]] == list(cat.tracking.items())
+    assert end == _table_end(cat)
+    buf = io.StringIO()
+    ES.print_catalog(cat, buf)
+    assert buf.getvalue().startswith(f"ES schema catalog: 2 schemas (map count 2 @{cat.map_offset:#x} "
+                                     f"in Global/Latest; tracking @{cat.tracking_offset:#x})\n")
+    assert "uncatalogued" not in buf.getvalue() and "unverified" not in buf.getvalue()
+
+
+def _item(guid: str, ids: list[int]) -> bytes:
+    return ES.guid_bytes(guid) + struct.pack(f"<I{len(ids)}q", len(ids), *ids)
+
+
+U1, U2, U3 = "9d1c2b3a-4e5f-4a6b-8c7d-0e1f2a3b4c5d", "0a9b8c7d-6e5f-4d3c-9b1a-2f3e4d5c6b7a", "77665544-3322-4100-8fee-ddccbbaa9988"
+HEAD = b"\x07junk-before-the-table" * 3
+GARBAGE = bytes(range(0x40, 0x50)) + b"\x00\x00\x00\x00" + b"\x03trailing"   # reads as one more 0-id "item", then junk
+
+
+def _locate(count: int, *items: bytes, skip=(0, 0)):
+    gl = HEAD + struct.pack("<I", count) + b"".join(items) + GARBAGE
+    return ES.locate_tracking(gl, [AREX, DAYLIGHT], skip=skip)
+
+
+def test_tracking_walk_reads_synthetic_tables_for_what_they_are():
+    C1, C2 = _item(AREX, [10, 11, 12]), _item(DAYLIGHT, [13])
+    table = {U1: [7], U2: [], AREX: [10, 11, 12], DAYLIGHT: [13]}
+    # (a) two uncatalogued items lead: walked back over, verified by the count, kept in table order;
+    #     the garbage "item" that chains after the last real one is cut off by the count
+    got = _locate(4, _item(U1, [7]), _item(U2, []), C1, C2)
+    assert got == (len(HEAD), 4, table) and list(got[2]) == list(table)
+    # (b) the false backward tiling: U1's own tail (guid[8:16] + count 1 + low id word) reads as a 0-id
+    #     item ending where U2 starts, and here the u32 in front of it (guid[4:8]) is forged to EQUAL the
+    #     count that tiling would need -- the real, longer tiling of the same level still wins
+    forged = ES.guid_str(ES.guid_bytes(U1)[:4] + struct.pack("<I", 4) + ES.guid_bytes(U1)[8:])
+    got = _locate(4, _item(forged, [7]), _item(U2, []), C1, C2)
+    assert got == (len(HEAD), 4, {forged: [7], U2: [], AREX: [10, 11, 12], DAYLIGHT: [13]})
+    # (c) a trailing uncatalogued item is in the table iff the count says so
+    assert _locate(3, C1, C2, _item(U3, [21, 22])) == (len(HEAD), 3, {AREX: [10, 11, 12], DAYLIGHT: [13], U3: [21, 22]})
+    assert _locate(2, C1, C2, _item(U3, [21, 22])) == (len(HEAD), 2, {AREX: [10, 11, 12], DAYLIGHT: [13]})
+    # (d) a count no tiling meets: nothing verified -> the longest catalogued run, offset = its start - 4, count 0
+    lead = _item(U1, [7]) + _item(U2, [])
+    assert _locate(9, lead, C1, C2) == (len(HEAD) + 4 + len(lead) - 4, 0, {AREX: [10, 11, 12], DAYLIGHT: [13]})
+    # (e) an anchor inside `skip` is no anchor; no anchor at all is the documented triple
+    assert _locate(4, lead, C1, C2, skip=(0, 1 << 30)) == (-1, 0, {})
+    assert ES.locate_tracking(HEAD + GARBAGE, [AREX, DAYLIGHT]) == (-1, 0, {})
+    # (f) an anchor at the very start of the stream has no count in front: unverifiable, never a wrapped read
+    assert ES.locate_tracking(C1 + C2 + GARBAGE, [AREX, DAYLIGHT])[1:] == (0, {AREX: [10, 11, 12], DAYLIGHT: [13]})
 
 
 @pytest.mark.parametrize("year", NEW)
@@ -107,6 +245,7 @@ def test_new_layout_pins_read_exactly_as_before(year):
     assert (len(cat), cat.map_count, _digest(cat)) == MAIN_DIGEST[year], (
         f"the {year} pin's catalog no longer reads as main did -- if the pin was "
         f"re-composed on purpose, update MAIN_DIGEST from _digest(_catalog(path))")
+    assert _digest(cat, drop=NEW_IN_595) == PRE_595_DIGEST[year]         # minus #595's two keys: exactly what #599 pinned
 
 
 @pytest.mark.parametrize("year", CERTIFIED_YEARS)
@@ -160,6 +299,27 @@ def test_layout_is_read_off_the_files_own_ESSchemaStorage():
     assert ES._no_map_reason(stray).endswith("-- its ESSchemaStorage keeps no ESSchema map at all")
     # a pair class with no ESSchemaStorage to hold it is not a catalog either
     assert ES.catalog_layout(_schema(**{BARE: []})) is None and ES.catalog_layout(_schema(Unrelated=[])) is None
+
+
+def test_tracking_item_layout_is_read_off_the_files_own_schema():
+    """The three pins declare the EStorageTrackingItem the walk reads; a file
+    that does not gets no walk and a header that says why (never ``@-0x1``)."""
+    for year in CERTIFIED_YEARS:
+        assert ES.tracking_layout_known(GF.schema_of(pinned_base(year)))
+    assert ES.tracking_layout_known(_schema(EStorageTrackingItem=list(ES.TRACKING_ITEM)))
+    assert not ES.tracking_layout_known(_schema(EStorageTrackingItem=[("m_schemaGuid", "GUIDvalue"), ("m_elemIds", "int")]))
+    assert not ES.tracking_layout_known(_schema(Unrelated=[]))
+    cat = ES.ESSchemaCatalog()
+    cat.add(ES._schema_from_pair({"first": AREX, "second": {"m_guid": AREX, "m_schemaName": "S", "m_vendorId": "", "m_fields": []}}))
+    cat.map_offset, cat.map_count, cat.tracking_note = 36, 1, "this file's EStorageTrackingItem is not ..."
+    buf = io.StringIO()
+    ES.print_catalog(cat, buf)
+    assert buf.getvalue().startswith("ES schema catalog: 1 schemas (map count 1 @0x24 in Global/Latest; "
+                                     "tracking not read (this file's EStorageTrackingItem is not ...))\n")
+    cat.tracking_offset, cat.tracking = 100, {AREX: [5]}                # located but count 0: the labelled fallback
+    buf = io.StringIO()
+    ES.print_catalog(cat, buf)
+    assert "; tracking @0x64 (count unverified))\n" in buf.getvalue()
 
 
 def test_entry_value_shapes():
