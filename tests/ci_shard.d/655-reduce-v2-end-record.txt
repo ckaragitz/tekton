@@ -1,0 +1,2 @@
+# pinned genesis bases only (fresh-clone safe): reduce_v2 end record by name, #655
+tests/test_reduce_v2_655.py

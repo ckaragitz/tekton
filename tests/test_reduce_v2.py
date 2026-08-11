@@ -26,11 +26,12 @@ needs_r9 = pytest.mark.skipif(not (os.path.exists(R9) and os.path.exists(R9B_JSO
 @needs_rst
 def test_partition_end_record_is_canonical_10_bytes():
     """Autodesk's own logical partition stream ends EXACTLY with the 10-byte
-    end record (u16 0x3a3, i32 0, i32 -1) -- ECC-exact, no trailing junk."""
+    end record (u16 ContentMarker = 0x3a3 on this 2026 sample, i32 0, i32 -1)
+    -- ECC-exact, no trailing junk."""
     ex = RV.exact_partition_logical(RST, "Partitions/21")
     _rngs, w = RV.unit_ranges(ex)
-    assert ex[w.end_offset:] == RV.PART_END_RECORD
-    assert len(RV.PART_END_RECORD) == 10
+    assert ex[w.end_offset:] == RV.part_end_record()
+    assert len(RV.part_end_record()) == 10
 
 
 @needs_rst
