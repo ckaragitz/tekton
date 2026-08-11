@@ -704,11 +704,12 @@ of `clip`'s contract → one line stating the adoption and the regression (`== F
 boundary check; the fixture returns a path, not a `(year, path)` tuple. Efficiency: clean (top-level import of the leaf is
 0 modules on every tool path, ~0.25 ms on a bare import; a local import in the `except` would save nothing observable and
 contradict #597). Altitude: clean (per-site `cause_clause` is the right depth — `str(e)` keeps its dump for the ~60 JSON
-`error` fields that want it; the sentence sites drop it). Skipped, with reason — territory (`_rollup_status` only):
-(a) hoisting `_STATUS_REASON_MAX` / `_status_reason` above `_rollup_status` as a route-neutral "status sentence" block —
-today `_rollup_status` forward-references them under the `# the --rvt (edit) route` banner, which now mislabels a shared
-helper (an in-file move of #597's lines; §4.2); (b) `src/rvt/frontdoor/__init__.py:540`'s comment still says
-`` `FAILED (<errors[0][:160]>)` `` (read-only for this pass; §4.2).
+`error` fields that want it; the sentence sites drop it). First skipped as out-of-territory, then **applied on the tech
+lead's ruling** (review of head 925031c): `_STATUS_REASON_MAX` + `_status_reason` moved VERBATIM (function, docstring and
+comment, zero byte change inside — checked: every removed line reappears added) up above `_rollup_status` under a neutral
+`# shared: the one-line status reason (create + edit routes)` banner, so the create path no longer forward-references a
+helper sitting under the `# the --rvt (edit) route` banner (which stays where the edit-only code starts). Still skipped:
+`src/rvt/frontdoor/__init__.py:540`'s comment says `` `FAILED (<errors[0][:160]>)` `` (read-only for this pass; §4.2).
 
 ### 4. Findings / follow-ups
 
@@ -742,10 +743,9 @@ helper (an in-file move of #597's lines; §4.2); (b) `src/rvt/frontdoor/__init__
    report's JSON keys do not change; `tests/test_parity*.py` pins to re-check: none pin these strings today —
    `grep -rn "schema_parse\|error_samples\|\.fatal" tests/` finds only key-presence checks.) Issue #596 stays open for it
    (this PR `Refs #596`).
-2. `manifest.py`: `_STATUS_REASON_MAX` + `_status_reason` now serve both routes but sit under the `# the --rvt (edit) route`
-   banner below their first caller; and `frontdoor/__init__.py:540`'s comment still describes the create status as
-   `errors[0][:160]`. A two-hunk tidy (move the block above `_rollup_status`, reword the comment to "`FAILED (<errors[0],
-   clipped to 160>)`") for the next pass that holds `manifest.py` / `__init__.py` — wording/layout only, no behaviour.
+2. `src/rvt/frontdoor/__init__.py:540`'s comment still describes the create status as `` `FAILED (<errors[0][:160]>)` ``;
+   it is now `FAILED (<errors[0], clipped to 160 at a word boundary>)` — a one-line comment reword for the next pass that
+   holds `frontdoor/__init__.py` (read-only here); no behaviour.
 3. `frontdoor author --ifc <garbage>` with the `ifc` extra installed prints ifcopenshell's `Exception ignored in: <function
    file.__del__ …> KeyError` (302 B) on stderr at interpreter exit, on `main` as on this branch — the front door's "stderr
    0 B" promise holds only without ifcopenshell. Not filed from here before searching; noted for the tech lead (a
@@ -754,7 +754,7 @@ helper (an in-file move of #597's lines; §4.2); (b) `src/rvt/frontdoor/__init__
 ### BRANCH STATE
 
 * Branch `cam/596-clause-relays` from `origin/main` @ b526ab5; one issue, one PR (`Refs #596` — the issue stays open for its fourth site, `versions/parity.py`, §4.1; the three sites in this pass's territory are done).
-* Files: `src/rvt/frontdoor/manifest.py` (`_rollup_status`: one line), `src/rvt/frontdoor/input_release.py` (import + the refusal line), `src/rvt/manipulate.py` (import + the note line), their sync mirrors `plugin/lib/src/rvt/frontdoor/manifest.py`, `plugin/lib/src/rvt/frontdoor/input_release.py`, `plugin/lib/src/rvt/manipulate.py`; NEW `tests/test_clause_relays.py` + `tests/ci_shard.d/596-clause-relays.txt`; this section. No existing test edited.
-* Gates: `tests/test_clause_relays.py` 5 passed in 0.26 s; stream-local neighbours (10 files, §2) 197 passed, 10 skipped in 64 s; `tools/sync_plugin.py` "synced 3 file(s)" then `--check` "plugin in sync with source (deny-audit clean, identity scan == allowlist, assets verified)"; `plugin/scripts/validate_plugin.py` "assertions passed: 25 / RESULT: PASS"; `tools/dev/check_portable_paths.py` "ok: 2989 tracked paths are portable"; whole merged shard (`shard_list.py --print` incl. the new drop-in, `RVT_SKIP_LARGE=1 -p no:cacheprovider`) on the final `src/` tree: **2043 passed, 134 skipped, 3 xfailed, 0 failed in 372.56 s** (the new test file ran there in its pre-/simplify form and passed; its final form is the 5-passed run above — the `src/` bytes are identical in both).
+* Files: `src/rvt/frontdoor/manifest.py` (`_rollup_status`: one line; `_STATUS_REASON_MAX` + `_status_reason` moved verbatim above it under a `# shared: …` banner, per the tech lead's review), `src/rvt/frontdoor/input_release.py` (import + the refusal line), `src/rvt/manipulate.py` (import + the note line), their sync mirrors `plugin/lib/src/rvt/frontdoor/manifest.py`, `plugin/lib/src/rvt/frontdoor/input_release.py`, `plugin/lib/src/rvt/manipulate.py`; NEW `tests/test_clause_relays.py` + `tests/ci_shard.d/596-clause-relays.txt`; this section. No existing test edited.
+* Gates: `tests/test_clause_relays.py` 5 passed in 0.26 s; after the verbatim hoist (review round 1): `tests/test_clause_relays.py tests/test_edit_status.py tests/test_frontdoor.py` 99 passed, 5 skipped in 52 s, `sync_plugin.py` synced 1 file + `--check` in sync, `validate_plugin.py` PASS; stream-local neighbours (10 files, §2) 197 passed, 10 skipped in 64 s; `tools/sync_plugin.py` "synced 3 file(s)" then `--check` "plugin in sync with source (deny-audit clean, identity scan == allowlist, assets verified)"; `plugin/scripts/validate_plugin.py` "assertions passed: 25 / RESULT: PASS"; `tools/dev/check_portable_paths.py` "ok: 2989 tracked paths are portable"; whole merged shard (`shard_list.py --print` incl. the new drop-in, `RVT_SKIP_LARGE=1 -p no:cacheprovider`) on the final `src/` tree: **2043 passed, 134 skipped, 3 xfailed, 0 failed in 372.56 s** (the new test file ran there in its pre-/simplify form and passed; its final form is the 5-passed run above — the `src/` bytes are identical in both).
 * /verify on the final tree: front-door CLI before/after rows exactly as tabled in §2 (rc, key sets, stderr sizes, `errors` compared by script); bare unzip of the rebuilt `tekton-plugin.zip` with system Python 3.11.15 (`env -u PYTHONPATH -u TEKTON_ROOT -u VIRTUAL_ENV /usr/bin/python3 skills/tekton-author/scripts/_bootstrap.py go author …`): `--prompt "…6 panels"` rc 0, preflight `tekton: READY | … | genesis verified (Revit 2026) | …`, `PROOF-ONLY (self-checks PASS; …)`, stderr 0 B, combined `.rvt` validates 0 errors; `--rvt unread_schema_dmg.rvt --edit …` rc 2, the one 384 B stderr line == the CLI's after-line byte-for-byte; `--prompt … --base <long dir>/no_such_base.rvt` rc 3, `status` == the CLI's after-status byte-for-byte, stderr 0 B; the three good edited outputs `rvt_validate.py --json`: `ok=True errors=0` each under its own release; `-X importtime` native selfcheck 115 = 115.
 * Nothing staged for the viewer (failure-sentence wording only; every readable output byte-identical). Shipped = the three clauses; deferred = `parity.py` (patch in §4.1).
