@@ -65,7 +65,6 @@ plugin_root = _env.plugin_root
 ensure_engine = _env.ensure_engine
 ensure_rvt = _env.ensure_engine
 preflight = _env.preflight
-family_donor_status = _env.family_donor_status
 go = _env.go
 
 

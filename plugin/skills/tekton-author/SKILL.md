@@ -121,7 +121,7 @@ stdout is ONE JSON object: `go` {`ready`, `preflight_line`, `exit_code`,
 `inputs` = auto-detected release of any `.rvt`/`.rfa` you passed} and
 `result` {`status`, `files`, `release`, `stamps`, `errors`, `manifest`
 paths, `handoff`}. `go.ready:false` → relay `preflight_line` verbatim (it
-names the one thing wrong; `family-donor missing` is fine — everything is
+names the one thing wrong; no family file is ever needed — everything is
 built from the bundled bases). Exit 0 = route completed (PROOF-ONLY is
 still 0); 2 = usage; 3 = build incomplete (JSON says what stopped and what
 was still written); 4 = our own validator failed (deliver the file WITH
