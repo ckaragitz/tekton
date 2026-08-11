@@ -153,6 +153,12 @@ AUTHOR_SCRIPTS = ("frontdoor.py",            # OPTIONAL: the unified router (fro
                   # prints the category's standard parameter set (#601), which
                   # a skill session reads BEFORE writing a famspec
                   "make_family.py",
+                  # the QUESTION ENGINE (#684): `run interview.py ask "<prompt>"`
+                  # is what a skill session asks with when a prompt is too broad
+                  # to build from, and `run interview.py build …` delivers the
+                  # file whether or not anything was answered. It ships because
+                  # a skill flow is not a flow if the bundle cannot run it.
+                  "interview.py",
                   "probe_batch.py", "rvt_validate.py")
 # tekton-edit (manipulate an existing .rvt) — rvt_job.py for the batch/ops door
 EDIT_SCRIPTS = ("rvt_edit.py", "rvt_validate.py", "rvt_job.py")
