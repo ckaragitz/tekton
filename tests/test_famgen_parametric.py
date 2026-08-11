@@ -160,7 +160,7 @@ def test_asymmetric_axis_is_refused_with_its_reason():
     m = ParametricModel(
         category="generic_model",
         axes=(DrivenAxis("w", "W", (1, 0, 0), 1.0, symmetric=False),))
-    assert any("m_fixedRefs" in t and "D3" in t for t in check_model(m))
+    assert any("m_fixedRefs" in t and "P3" in t for t in check_model(m))
 
 
 def test_below_minimum_is_rejected():
@@ -221,3 +221,55 @@ def test_specs_and_groups_are_format_vocabulary():
     assert GROUP_DIMENSIONS.startswith("autodesk.parameter.group:")
     p = plan(_box())
     assert all(q["spec"].startswith("autodesk.") for q in p["parameters"])
+
+
+# ---------------------------------------------------------------------------
+# the driver tables themselves (#689): WHICH table, and HOW it is keyed
+# ---------------------------------------------------------------------------
+
+def test_the_ladder_is_the_p_series_with_a_control():
+    assert set(famdim.RUNGS) == {"P0", "P1", "P2", "P3", "P4"}
+    assert famdim.DEFAULT_RUNG == "P2"
+    assert famdim.LADDER[0] == "P2"          # most-likely first
+    assert famdim.LADDER[-1] == "P0"         # the control
+    assert "CONTROL" in famdim.RUNGS["P0"][1]
+
+
+def test_p0_is_empty_and_p1_is_the_parameter_binding():
+    # P0 must add nothing: it is the control that must NOT flex.
+    assert "nothing" in famdim.RUNGS["P0"][0]
+    assert "m_paramExprs" in famdim.RUNGS["P1"][0]
+
+
+def test_the_drive_lives_in_param_exprs_not_driven_dim_segs():
+    # read off the schema: m_drivenDimSegs is an expression in OTHER DIMENSION
+    # SEGMENTS (dim-to-dim equality), m_paramExprs is the expression in
+    # PARAMETERS.  A ladder that opens on m_drivenDimSegs is aimed at the
+    # wrong table -- that was the first cut's mistake and must not come back.
+    assert "m_drivenDimSegs" not in famdim.RUNGS["P1"][0]
+    assert "m_drivenDimSegs" not in famdim.RUNGS["P2"][0]
+    assert "m_drivenDimSegs" in famdim.RUNGS["P4"][0]
+
+
+def test_param_expr_is_keyed_by_the_element_not_the_parameter():
+    # ParamExpr is an expression IN parameters, owned by the element whose
+    # value it computes.  Keying it by the parameter had the relation
+    # backwards; m_elemId must be the dimension.
+    expr = famdim._param_expr(param_id=77, elem_id=42)
+    assert expr["m_elemId"] == 42
+    assert expr["m_elemId"] != 77
+    assert expr["m_entries"] == [{"m_coef": 1.0, "m_paramId": 77}]
+
+
+def test_unknown_rung_is_rejected():
+    class _Doc:
+        elements = []
+    with pytest.raises(ValueError):
+        famdim.driver_tables(_Doc(), rung="D1")   # the retired name
+
+
+def test_the_constr_info_unknown_is_still_recorded():
+    # the templates did NOT settle it, and the note must say so rather than
+    # implying the question is closed.
+    assert famdim.UNKNOWN_NEEDS_SPECIMEN
+    assert any("m_constrInfo" in t for t in famdim.UNKNOWN_NEEDS_SPECIMEN)

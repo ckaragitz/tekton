@@ -39,7 +39,7 @@ WHAT IS FACT AND WHAT IS NOT.
   VarSketch registration) are DONOR-MEASURED in ``param_drive`` -- fact.
 * The category/template binding is TEMPLATE-VERIFIED via ``category_facts``
   where a row exists -- fact.
-* The DRIVER TABLE VALUES are a hypothesis ladder (``famdim.RUNGS`` D0-D4).
+* The DRIVER TABLE VALUES are a hypothesis ladder (``famdim.RUNGS`` P0-P4).
   Nothing here claims a family flexes in Revit. Until a desktop verdict or a
   Revit-born parametric ``.rfa`` settles a rung, ``wire`` defaults to
   ``famdim.DEFAULT_RUNG`` and every surface stays silent about editability
@@ -105,7 +105,7 @@ class DrivenAxis:
     ``symmetric`` mirrors Revit's own template convention: two side planes at
     +-value/2 about the centre reference. ``symmetric=False`` (one plane
     moving away from a fixed origin plane) is NOT authored yet -- it needs the
-    fixed reference pinned in ``m_fixedRefs``, which is rung D3.
+    fixed reference pinned in ``m_fixedRefs``, which is rung P3.
     """
     key: str
     parameter: str
@@ -251,7 +251,7 @@ def check_model(model: ParametricModel) -> List[str]:
                        f"sketch plane. {OUT_OF_PLANE_GAP}")
         if not a.symmetric:
             bad.append(f"{where}: symmetric=False needs the opposite "
-                       f"reference pinned in m_fixedRefs (famdim rung D3), "
+                       f"reference pinned in m_fixedRefs (famdim rung P3), "
                        f"which is not a settled rung -- use symmetric=True")
     for p in model.params:
         if not p.name:
