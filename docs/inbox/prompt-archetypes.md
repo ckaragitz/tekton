@@ -162,7 +162,7 @@ Two pinned expectations updated, both because the contract grew a kind:
 
 ## Open questions
 
-1. Desktop: do the 17-part tray, the slotted strut and the X-axis conduit open **and load**?
+1. Desktop: do the 16-part tray, the slotted strut and the X-axis conduit open **and load**?
 2. Should a room prompt that mentions cable tray also emit the tray family? Today it stays
    an honest `recognised-but-unbuilt` line in the room build; only a family-shaped prompt
    reaches the archetype lane.
@@ -303,3 +303,82 @@ going wrong and prose had no test.
 | false-positive set for the guard | 12 ordinary prompts pinned as NOT flagged |
 | true-positive set | 5 real designators pinned as caught |
 | `python -m rvt.famgen.archetypes --check` | 5 archetypes, **0 problems** |
+
+---
+
+## Round 4 — a third reviewer, and the worst bug of the four rounds
+
+CI passed on the round-3 head (2474 tests). The third fresh reviewer returned **changes** with
+five findings. One of them had been in the code since round 1 and three reviewers had to look
+for it before it was found.
+
+### `_NUM` had no left boundary
+
+The dimension patterns matched digits **inside** an alphanumeric token:
+
+| prompt | read as | delivered |
+|---|---|---|
+| `"an IP65 junction box"` | `width_in = 65`, `height_in` follows | a 65 × 65 × 4 in box |
+| `"a Unistrut P1000 strut"` | `height_in = width_in = 1000` | an 83 ft section |
+| `"a 480Y/277 wireway"` | `277 in` | — |
+| `"a T8 wireway"` | `8 in` | — |
+| `"a Hoffman F66L120 wireway"` | `120 in` | — |
+
+Every one reported `provenance: given` and quoted back `from_prompt = "65 junction box"` — words
+the caller never wrote as a measurement. That is the provenance contract lying about itself,
+which is the one thing this whole module exists to get right, and it shipped through three
+rounds of review that were all looking at the provenance logic. Fixed with a
+`(?<![A-Za-z0-9./-])` lookbehind on every leading number; the cross-dimension path keeps the raw
+form for its 2nd and 3rd numbers, which sit behind the `x` of `12x12`.
+
+### The guard's third false-positive class
+
+Round 3's bare-designator rule ("two letters and two digits, five characters") is **exactly the
+shape of a wire gauge**: `12AWG`, `500MCM`, `200A3P`, `THHN12`, `NFPA70`, `480V3PH`, `4C10AWG`
+all tripped it, so `"a cable tray for 12AWG conductors"` delivered with `YOU NAMED A SPECIFIC
+PRODUCT (12AWG) AND THIS FILE IS NOT IT` as its first caveat. Third instance of this class in
+three rounds.
+
+The fix is a change of principle rather than another pattern tweak: **a bare designator alone no
+longer accuses anyone.** It is a catalogue number only when the prompt *also* names a
+manufacturer or uses part-number phrasing. `_KNOWN_BRANDS` became `_BRAND_HINTS`, widened with
+the containment/enclosure manufacturers and relabelled as what it is — hand-written, certainly
+incomplete, and only ever raising a designator from "ambiguous" to "specific".
+
+### Two more surfaces claiming a blanket refusal
+
+`matrix._CATALOG` and the schema's top description both said facts the catalog lacks are
+"REFUSED by name, never invented" with `generic_model` as the *only* exception — and
+`_CATALOG` prints **first** on the archetype lane's own deliveries, immediately before the
+caveat that contradicts it. Both now name `archetype` as the second exception.
+
+`test_no_shipped_text_claims_a_refusal_that_does_not_happen` was real but too narrow: it matched
+three literal phrases and did not scan `router.py` or `famspec.py`. It now also asserts that any
+surface claiming the blanket catalog refusal names the archetype lane as an exception — the
+subtler form, and the one three reviewers had to find by hand.
+
+Plus: a slot longer than its own pitch returned a **solid** back while reporting both slot values
+as `given` (now refused, as its sibling condition already was), and a rung wider than its section
+is refused.
+
+### What the reviewer verified clean
+
+24,768 override combinations fuzzed across all five archetypes for pairwise AABB intersection and
+non-positive dimensions: **0 self-intersections, 0 zero-volume parts** — the geometry class that
+rounds 2 and 3 both found is now closed. `nominal` reaches every surface (`unverified()`,
+`summary()`, the written `.report.json`, the route caveats, the CLI). Lane order and the error
+demotion correct live. All mirrors byte-identical.
+
+### Round-4 evidence
+
+| gate | result |
+|---|---|
+| `tests/test_famgen_archetypes.py` | **131 passed** (46 → 71 → 104 → 131) |
+| `test_famgen_archetypes + test_router + test_frontdoor` | **354 passed, 13 skipped** |
+| `python -m rvt.famgen.archetypes --check` | 5 archetypes, **0 problems** |
+| `sync_plugin --check` / `validate_plugin` / portable paths | clean / PASS / **3044** |
+
+### The count that matters
+
+Four rounds, **seventeen** defects, every one found by a reader who had not written the code and
+every one after CI was green. The tests in this file are the record of what CI cannot see.

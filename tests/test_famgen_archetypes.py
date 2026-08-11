@@ -569,7 +569,8 @@ def test_no_shipped_text_claims_a_refusal_that_does_not_happen():
     # open one (tools/dev/ci_fresh.sh SHARD_READS, #523), and it is the code and
     # the user-facing surfaces that must not lie.
     files = [root / "src/rvt/famgen/archetypes.py", root / "src/rvt/famgen/factory.py",
-             root / "src/rvt/frontdoor/matrix.py", root / "spec/famspec.schema.json",
+             root / "src/rvt/frontdoor/matrix.py", root / "src/rvt/frontdoor/router.py",
+             root / "src/rvt/frontdoor/famspec.py", root / "spec/famspec.schema.json",
              root / "plugin/skills/tekton-author/SKILL.md"]
     for f in files:
         if not f.exists():
@@ -578,3 +579,97 @@ def test_no_shipped_text_claims_a_refusal_that_does_not_happen():
         for phrase in ("part is still refused", "still get a refusal",
                        "is still refused by name"):
             assert phrase not in text, f"{f.name} still claims a refusal that does not happen"
+        # The subtler version, and the one three reviewers had to find by hand:
+        # a surface may still say the router REFUSES what it has no facts for --
+        # that is true of the catalog lanes -- but wherever it says so it must
+        # name the archetype lane as an exception, or it reads as a blanket
+        # refusal on the very deliveries the archetype lane makes.
+        for phrase in ("REFUSED by name, never invented",
+                       "refused BY NAME in one clear line, never invented"):
+            if phrase in text:
+                assert "archetype" in text, (
+                    f"{f.name} claims a blanket catalog refusal without naming the "
+                    f"archetype lane as an exception")
+
+
+# ---------------------------------------------------------------------------
+# 9. regressions found by the THIRD independent review of PR #674
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("prompt", [
+    "an IP65 junction box",              # 'IP65' -> a 65 in box
+    "a Unistrut P1000 strut",            # 'P1000' -> an 83 ft section
+    "a 480Y/277 wireway",                # '277'  -> a 277 in wireway
+    "a T8 wireway",
+    "a NEMA 3R junction box",
+    "a cable tray for 12AWG conductors",
+    "a THHN12 cable tray",
+])
+def test_digits_inside_a_token_are_not_a_caller_given_dimension(prompt):
+    """`_NUM` had no LEFT boundary, so the digits inside an alphanumeric token
+    became a dimension -- reported `given` and quoted back with words the
+    caller never used as a measurement. The provenance contract lying about
+    itself, and it survived three rounds."""
+    r = AR.resolve_prompt(prompt)
+    assert r is not None
+    assert r.given() == [], {k: r.values[k] for k in r.given()}
+
+
+@pytest.mark.parametrize("prompt,key,want", [
+    ("a 24 inch cable tray 20 ft long with 6 in rung spacing", "width_in", 24.0),
+    ("a 600 mm cable tray", "width_in", 600 * AR.MM / AR.IN),
+    ("a 12x12 wireway 3 ft long", "height_in", 12.0),
+    ("a 4x4x6 in junction box", "depth_in", 6.0),
+    ("a 1-5/8 in strut channel", "height_in", 1.625),
+    ("a 10 ft cable tray", "length_ft", 10.0),
+])
+def test_the_left_boundary_does_not_cost_a_real_measurement(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert key in r.given(), r.given()
+    assert r.values[key] == pytest.approx(want)
+
+
+@pytest.mark.parametrize("prompt", [
+    "a cable tray for 12AWG conductors",
+    "500MCM feeders in a wireway",
+    "a 200A3P junction box",
+    "a 480V3PH wireway",
+    "a THHN12 cable tray",
+    "an IP65 junction box",
+    "a NFPA70 compliant cable tray",
+    "a 4C10AWG run in a wireway",
+])
+def test_electrical_shorthand_is_not_a_manufacturer_claim(prompt):
+    """'two letters and two digits' is exactly a wire gauge. A bare designator
+    now needs a manufacturer or part-number phrasing beside it before the
+    loudest line in the product fires."""
+    assert AR.manufacturer_claim(prompt) is None
+
+
+@pytest.mark.parametrize("prompt,token", [
+    ("a Hoffman F66L120 wireway", "F66L120"),
+    ("an Eaton B-Line tray part number 24A-09-120", "24A-09-120"),
+    ("a model 2BLT4 troffer style tray", "2BLT4"),
+])
+def test_a_bare_designator_beside_a_brand_still_fires(prompt, token):
+    claim = AR.manufacturer_claim(prompt)
+    assert claim and token in claim["tokens"], claim
+
+
+def test_a_brand_alone_still_fires_even_with_no_designator():
+    claim = AR.manufacturer_claim("a Panduit 12 in cable tray")
+    assert claim and claim["brands"]
+
+
+def test_a_slot_longer_than_its_own_pitch_is_refused_not_dropped():
+    """It returned a SOLID back while the report said both slot values were
+    `given` -- the same physical impossibility its sibling condition raises on."""
+    with pytest.raises(AR.ArchetypeError, match="slot"):
+        AR.resolve("strut_channel", {"slot_length_in": 2.0, "slot_spacing_in": 1.5}).parts()
+    with pytest.raises(AR.ArchetypeError):
+        AR.resolve("strut_channel", {"slot_length_in": 2.0, "slot_spacing_in": 2.0}).parts()
+
+
+def test_a_rung_wider_than_the_section_is_refused():
+    with pytest.raises(AR.ArchetypeError, match="section"):
+        AR.resolve("cable_tray", {"length_ft": 0.2, "rung_width_in": 5}).parts()

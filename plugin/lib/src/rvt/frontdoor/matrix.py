@@ -337,7 +337,7 @@ _CIRCUITS = ("feeder CIRCUITS are AUTHORED natively on the genesis base "
              "manifest with the resolved plan, never faked")
 _CATALOG = ("family generation covers the catalog-backed kinds (panelboard / "
             "transformer / luminaire / wiring device / the honest house switchboard); "
-            "anything without facts is REFUSED by name, never invented -- EXCEPT kind='generic_model', where the caller SUPPLIES the geometry and every dimension is reported as GIVEN with its source")
+            "anything without facts is REFUSED by name, never invented -- EXCEPT two lanes: kind='generic_model', where the caller SUPPLIES the geometry and every dimension is reported as GIVEN with its source, and kind='archetype' (a prompt naming a product the registry generates), where the geometry is GENERATED at standard nominal sizes for the product class and every dimension is reported nominal or given")
 # --- caveats shared by the rvt.convert cells (issue #5) --------------------
 _INTO_GATES = ("INTO-AN-EXISTING-FILE gates: validator 0 errors required to "
                "claim, four-registry census coherent, the target's release "

@@ -241,6 +241,8 @@ def _ladder_tray(v: Dict[str, float]) -> List[Dict[str, Any]]:
     if W <= 0 or D <= 0 or L <= 0 or S <= 0:
         raise ArchetypeError("a ladder tray needs a positive width, depth, length "
                              "and rung spacing")
+    if rw >= L:
+        raise ArchetypeError(f"a {rw / IN:g} in rung does not fit in a {L:g} ft section")
     if rw >= S:
         raise ArchetypeError(f"a {rw / IN:g} in rung does not fit in a {S / IN:g} in "
                              f"rung spacing -- the rungs would run through each other")
@@ -305,6 +307,10 @@ def _strut_channel(v: Dict[str, float]) -> List[Dict[str, Any]]:
         raise ArchetypeError(f"inturned lips ({lip / IN:g} in each, behind {g / IN:g} in "
                              f"webs) do not fit across a {Wd / IN:g} in channel")
     parts: List[Dict[str, Any]] = []
+    if slot_l > 0 and slot_s > 0 and slot_l >= slot_s:
+        raise ArchetypeError(
+            f"a {slot_l / IN:g} in slot cannot repeat every {slot_s / IN:g} in -- the "
+            f"slots would run into each other, leaving no back material between them")
     if slot_s > 0 and slot_l > 0 and slot_l < slot_s:
         n = max(1, int(math.floor(L / slot_s + 1e-9)))
         if n + 5 > MAX_PARTS:                    # + the webs and lips still to come
@@ -610,7 +616,14 @@ def archetype(product: str) -> Archetype:
 # reading a request out of a prompt
 # ---------------------------------------------------------------------------
 
-_NUM = r"(\d+(?:\.\d+)?(?:\s*[-/]\s*\d+(?:/\d+)?)?|\d+\s*/\s*\d+)"
+#: A NUMBER THE CALLER WROTE AS A NUMBER.  The left lookbehind is load-bearing:
+#: without it the digits INSIDE a token became a dimension, so "an IP65 junction
+#: box" was read as a 65-inch box, "a Unistrut P1000 strut" as an 83-foot
+#: section and "a 480Y/277 wireway" as 277 in -- each reported `given` and
+#: quoted back with words the caller never used as a measurement, which is the
+#: provenance contract lying about itself.
+_NUM_CORE = r"(\d+(?:\.\d+)?(?:\s*[-/]\s*\d+(?:/\d+)?)?|\d+\s*/\s*\d+)"
+_NUM = r"(?<![A-Za-z0-9./-])" + _NUM_CORE
 _UNITS = {
     "in": r"(?:in\b|in\.|inch(?:es)?\b|\")",
     "ft": r"(?:ft\b|ft\.|foot\b|feet\b|')",
@@ -692,9 +705,18 @@ _PART_BARE = re.compile(r"\b(?=(?:[A-Za-z]*\d){2})(?=(?:\d*[A-Za-z]){2})"
 #: does NOT fire at all, and neither does a one-letter designator like
 #: Unistrut's P1000.  The guard reduces silent mis-identification; it does not
 #: eliminate it, and no text in this repo should say otherwise.
-_KNOWN_BRANDS = ("eaton", "schneider electric", "schneider", "square d", "square-d",
-                 "lithonia", "acuity", "hammond", "hps", "b-line", "b line",
-                 "cooper", "unistrut", "cablofil")
+_BRAND_HINTS = (
+    # resolved by OUR catalog (rvt.famgen.catalog) -- these are sourced
+    "eaton", "schneider electric", "schneider", "square d", "square-d",
+    "lithonia", "acuity", "hammond", "hps",
+    # common manufacturers of the products this registry generates.  A HINT
+    # LIST, not a claim of coverage: it is hand-written, certainly incomplete,
+    # and its only job is to raise a bare designator from "ambiguous" to "the
+    # caller means a specific product".  A brand absent here is caught only by
+    # part-number phrasing or a separator-bearing token.
+    "b-line", "b line", "cooper", "unistrut", "cablofil", "hoffman", "panduit",
+    "nvent", "thomas & betts", "superstrut", "chalfant", "mono-systems",
+    "wiremold", "legrand", "atkore", "allied tube")
 
 
 def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
@@ -722,15 +744,26 @@ def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
             continue
         tokens.append(tok)
         reasons.append(f"names a specific item: {m.group(0).strip()!r}")
-    for rx in (_PART_TOKEN, _PART_BARE):
-        for m in rx.finditer(text):
-            if m.group(0) not in tokens:
-                tokens.append(m.group(0))
-                reasons.append(f"{m.group(0)!r} is shaped like a catalogue number")
-    for b in _KNOWN_BRANDS:
+    for m in _PART_TOKEN.finditer(text):
+        if m.group(0) not in tokens:
+            tokens.append(m.group(0))
+            reasons.append(f"{m.group(0)!r} is shaped like a catalogue number")
+    for b in _BRAND_HINTS:
         if re.search(rf"\b{re.escape(b)}\b", low):
             brands.append(b)
-            reasons.append(f"names a manufacturer our catalog knows: {b!r}")
+            reasons.append(f"names a manufacturer: {b!r}")
+    # A BARE designator (no separators) is only a catalogue number when the
+    # prompt ALSO names a manufacturer or uses part-number phrasing.  On its own
+    # it is far more often ordinary electrical shorthand -- 12AWG, 500MCM,
+    # 200A3P, THHN12, NFPA70, 480V3PH all fit "two letters and two digits", and
+    # accusing the caller of naming a product because they specified a wire
+    # gauge puts the loudest line in the product on an honest delivery.
+    if brands or tokens:
+        for m in _PART_BARE.finditer(text):
+            if m.group(0) not in tokens:
+                tokens.append(m.group(0))
+                reasons.append(f"{m.group(0)!r} is shaped like a catalogue number "
+                               f"and the prompt names a manufacturer")
     if not tokens and not brands:
         return None
     return {"tokens": tokens, "brands": sorted(set(brands)), "reasons": reasons,
@@ -837,7 +870,10 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     if len(cross) >= 2 and all(prov[k] == NOMINAL for k in cross[:2]):
         for pat in _product_patterns(arch):
             m = re.search(
-                rf"{_NUM}\s*[x×]\s*{_NUM}(?:\s*[x×]\s*{_NUM})?\s*"
+                # only the FIRST number needs the left boundary; the 2nd/3rd
+                # are preceded by the 'x' of "12x12", which the lookbehind
+                # would otherwise reject
+                rf"{_NUM}\s*[x×]\s*{_NUM_CORE}(?:\s*[x×]\s*{_NUM_CORE})?\s*"
                 rf"(?P<u>{_ANY_UNIT})?\s*(?:-\s*)?(?:{pat})", low)
             if not m or not free(m.start(), m.end()):
                 continue
