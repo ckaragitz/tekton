@@ -430,7 +430,8 @@ before writing code.
   them) rather than `--delete-branch`. The `coord` bot warns on stacked PRs
   and its hourly sweep retargets/reopens stranded ones, but that is a safety
   net, not a workflow.
-- The PR **must** include the stream record `docs/inbox/<stream>.md` (with
+- The PR **must** include the stream record (`docs/inbox/<stream>.md`, or your
+  own fragment `docs/inbox/<stream>.d/<issue>-<slug>.md` — either way with
   its closing `BRANCH STATE`), the stream-local tests you ran (counts), and
   `tools/sync_plugin.py --check` clean if you touched `src/`/`tools/`/`skills/`.
   Link the issue (`Closes #n`). The PR template carries the checklist.
@@ -445,6 +446,10 @@ before writing code.
   never append to `tests/ci_shard.txt`** (every PR editing that one spot
   conflicted with every other, #328); `python3 tools/dev/shard_list.py --print`
   prints the merged list both CI paths run (`tests/ci_shard.d/README`).
+  For the same reason a PR that adds tests for a shared surface puts them in
+  a **new module `tests/test_<surface>_<issue>.py`** (+ its drop-in) instead
+  of appending to a large shared test file such as `tests/test_ifc_assembly.py`,
+  unless it genuinely edits existing tests (#636).
 
 **Git cadence on your laptop (several engineers, sessions that come and go):**
 ```bash
@@ -607,7 +612,11 @@ stop at READY, as before.
   issue is the charter. Streams file their own follow-ups as task issues
   (task-shaped, `Refs #<parent>`) — that is tech-lead work, not scope creep —
   and never by editing `TRACKER.md` in passing.
-- **Every stream writes `docs/inbox/<stream>.md`**: what was built, the
+- **Every stream writes a record in `docs/inbox/`** — `docs/inbox/<stream>.md`,
+  or, as soon as more than one PR feeds the stream, that file kept as a short
+  index plus **one fragment per PR, `docs/inbox/<stream>.d/<issue>-<slug>.md`,
+  that nobody else ever appends to** (preferred; the convention and its small
+  law live in `docs/inbox/README.md`, #636): what was built, the
   evidence (numbers, not adjectives), findings, open questions, and a
   closing **`BRANCH STATE`** block (files written, gates, what's staged vs
   shipped). Durable lessons go to `docs/inbox/learned-<slug>.md`; the

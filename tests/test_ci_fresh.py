@@ -288,6 +288,7 @@ def _portable_ere():
 # by construction: the scanner's fixtures and the rig's committed file names ARE docs/ paths.
 NAMES_NOT_READS = {
     "tests/test_ci_fresh.py": "the instrument itself: scanner fixtures + names committed to throwaway repos in tmp_path",
+    "tests/test_records_layout.py": "the record-layout law (#636): walks docs/inbox for file NAMES, judges them, opens none",
 }
 OPENERS = {"open", "read_text", "read_bytes"}
 

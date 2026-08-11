@@ -8,7 +8,7 @@ Closes #
 <!-- 2-5 lines. What the change does, not how you found it. -->
 
 ## Stream record
-- Record: `docs/inbox/<stream>.md` (ends with a `BRANCH STATE` block) — [ ] included / updated in this PR
+- Record: `docs/inbox/<stream>.d/<issue>-<slug>.md` fragment (preferred — a new file nobody else appends to; index `docs/inbox/<stream>.md` exists) or `docs/inbox/<stream>.md`, ending with a `BRANCH STATE` block (`docs/inbox/README.md`) — [ ] included / updated in this PR
 - Learnings for KNOWLEDGE.md (if any): `docs/inbox/learned-<slug>.md` — [ ] included  [ ] n/a
 
 ## After opening
