@@ -1,0 +1,23 @@
+{
+ "stamp": "PROOF-ONLY",
+ "round": 1,
+ "question": "can a form extrude along a vertical RefPlane's normal",
+ "rows": [
+  {
+   "rung": "R0_vertical_cylinder",
+   "note": "control: cylinder on the level datum (known good)",
+   "verdict": "VALID",
+   "errors": 0,
+   "provenance_ok": true,
+   "bytes": 225280
+  },
+  {
+   "rung": "R3_wheel_vecinplane",
+   "note": "round 3: + OnDatumPlaneRef.m_vecInPlane, the in-plane orientation",
+   "verdict": "VALID",
+   "errors": 0,
+   "provenance_ok": true,
+   "bytes": 225280
+  }
+ ]
+}

@@ -40,3 +40,8 @@ tests/out/
 
 # Job output written by every documented command (frontdoor --out out/..., benches, scout scratch) — never commit
 out/
+
+# ifc-assembly loadcrash probe: write-reports carry machine-absolute paths
+experiments/ifc-assembly/loadcrash/*.report.json
+experiments/ifc-assembly/arcsolver/*.report.json
+experiments/ifc-assembly/rotate/*.report.json

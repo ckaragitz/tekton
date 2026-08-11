@@ -1,0 +1,40 @@
+{
+ "stamp": "PROOF-ONLY",
+ "question": "arc solver parameter layout",
+ "rows": [
+  {
+   "rung": "A5_cylinder",
+   "layout": "center_radius_angles",
+   "elemRecs": [
+    2
+   ],
+   "params_per_arc": [
+    5
+   ],
+   "verdict": "VALID",
+   "errors": 0
+  },
+  {
+   "rung": "A3_cylinder",
+   "layout": "center_radius",
+   "elemRecs": [
+    2
+   ],
+   "params_per_arc": [
+    3
+   ],
+   "verdict": "VALID",
+   "errors": 0
+  },
+  {
+   "rung": "A0_cylinder",
+   "layout": "EMPTY (pre-fix control)",
+   "elemRecs": [
+    0
+   ],
+   "params_per_arc": [],
+   "verdict": "VALID",
+   "errors": 0
+  }
+ ]
+}

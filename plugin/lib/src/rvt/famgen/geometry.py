@@ -964,34 +964,55 @@ def _base(cls: str, elem_id: int, *, family_id: int, int_params=None,
 
 
 def new_sketch_plane(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
-                     z: float = 0.0, notes=None) -> SkelElement:
-    """A ``SketchPlane`` ON the family's 'Ref. Level' datum
-    (``OnDatumPlaneRef.m_datumPlaneId = level``), identity transform.
+                     z: float = 0.0, datum_id: Optional[int] = None,
+                     trf3x3: Optional[Sequence[Sequence[float]]] = None,
+                     origin: Optional[Sequence[float]] = None,
+                     vec_in_plane: Optional[Sequence[float]] = None,
+                     notes=None) -> SkelElement:
+    """A ``SketchPlane`` ON a DATUM (``OnDatumPlaneRef.m_datumPlaneId``),
+    by default the family's horizontal 'Ref. Level'.
 
     This is the family author's "pick the reference level as the sketch
     plane" and is what makes the profile follow the level datum -- the
     reference-plane-driven hook of a form. [V both specimens]
+
+    ``datum_id`` points the sketch at a DIFFERENT datum -- a vertical
+    ``RefPlane`` -- so the profile is drawn on that plane and the form
+    extrudes along ITS normal instead of straight up.  That is the only way
+    the part contract can express a body whose axis is not vertical: a wheel,
+    an axle, a strut channel's own C-profile.  UNVERIFIED against Autodesk's
+    reader: the sketch's 2D frame on a vertical plane, the transform below and
+    the cached B-rep all have to agree, and only a desktop round can say they
+    do (probe: experiments/ifc-assembly/rotate).
     """
     obj = _base("SketchPlane", elem_id, family_id=ctx.family_id)
     ref = blank_object("OnDatumPlaneRef")
     ref["m_geomRef"] = _geomref_blank()
-    ref["m_vecInPlane"] = [0.0, 0.0, 0.0]
+    # OnDatumPlaneRef inherits m_vecInPlane from OneElementMovablePlaneRef: the
+    # vector IN the plane that orients the sketch on it.  Zero is harmless on the
+    # horizontal level (there is only one sensible frame) but says NOTHING on a
+    # vertical RefPlane -- a candidate reason rounds 1 and 2 kept extruding up.
+    ref["m_vecInPlane"] = ([0.0, 0.0, 0.0] if vec_in_plane is None
+                           else [float(c) for c in vec_in_plane])
     ref["m_rotation"] = 0.0
-    ref["m_datumPlaneId"] = int(ctx.level_id)
+    ref["m_datumPlaneId"] = int(ctx.level_id if datum_id is None else datum_id)
     ref["m_mirror"] = False
     obj["m_oPlaneRef"] = _ptr("OnDatumPlaneRef", ref)
     trf = blank_object("Trf")
-    trf["m_3x3"] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-    trf["m_or"] = [0.0, 0.0, float(z)]
+    trf["m_3x3"] = ([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+                    if trf3x3 is None else [[float(c) for c in row] for row in trf3x3])
+    trf["m_or"] = ([0.0, 0.0, float(z)] if origin is None
+                   else [float(c) for c in origin])
     obj["m_oTrf"] = _ptr("Trf", trf)
     obj["m_userId"] = int(sketch_id)              # the VarSketch on this plane [V]
     obj["m_flipZ"] = False
     assign_pids(obj)
+    datum = int(ctx.level_id if datum_id is None else datum_id)
     hdr = _hdr("SketchPlane", ctx, elem_id,
-               deletion=[ctx.family_id, ctx.level_id, sketch_id])
+               deletion=[ctx.family_id, datum, sketch_id])
     return SkelElement(elem_id, "SketchPlane", hdr, obj, None, kind="sketch_plane",
                        owner_id=ctx.family_id,
-                       refs={"level": ctx.level_id, "sketch": sketch_id},
+                       refs={"level": datum, "sketch": sketch_id},
                        notes=list(notes or []))
 
 
@@ -1291,7 +1312,8 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
                   sketch_plane_id: int, profile: RectProfile | Sequence[Vec],
                   start: float, end: float, rep: str = REP_SOLID,
                   category_id: int = INVALID, material_id: int = INVALID,
-                  notes=None) -> SkelElement:
+                  notes=None,
+                   always_ref_plane_norm: bool = False) -> SkelElement:
     """The ``ExtrusionElem`` form: start/end offsets (params -1001800 /
     -1001801, feet along the sketch normal), the ExtrusionGStep tag map,
     the per-tag geometry table, its private copy of the traced profile
@@ -1336,7 +1358,7 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
     obj["m_materialId"] = int(material_id)
     obj["m_famElemVisibility"] = {"m_flags": int(ctx.fam_elem_visibility)}
     obj["m_cutting"] = False
-    obj["m_alwaysRefPlaneNorm"] = False
+    obj["m_alwaysRefPlaneNorm"] = bool(always_ref_plane_norm)
     obj["m_sideRefPlaneCurveBased"] = False
     assign_pids(obj)
     if rep == REP_SOLID:
@@ -1678,6 +1700,61 @@ def _number_graph(root: dict, registry: Dict[str, dict]) -> None:
 
     resolve(root)
 
+
+
+#: Fields of a cached B-rep that hold a POSITION (rotated about the pivot) and
+#: those that hold a DIRECTION (rotated in place).  Measured on the authored
+#: cylinder rep: m_xVec / m_yVec / m_zVec / m_origin / m_center and nothing else.
+_REP_POSITION_FIELDS = ("m_origin", "m_center")
+_REP_DIRECTION_FIELDS = ("m_xVec", "m_yVec", "m_zVec")
+
+
+def rotate_rep(value: Any, rot: Sequence[Sequence[float]],
+               pivot: Sequence[float] = (0.0, 0.0, 0.0),
+               translate: Sequence[float] = (0.0, 0.0, 0.0)) -> Any:
+    """Rotate an authored cached B-rep in place by the 3x3 ``rot`` about
+    ``pivot`` (issue #591, rotation round 4).
+
+    Three rounds established that NOTHING in the sketch changes what Revit
+    draws for a form: not the sketch plane's datum, not
+    ``ExtrusionElem.m_alwaysRefPlaneNorm``, not ``OnDatumPlaneRef.m_vecInPlane``.
+    The remaining explanation is that the CACHED B-REP is what renders -- and
+    ``cyl_surf`` hard-writes ``m_zVec = [0, 0, 1]``, so every cylinder we have
+    ever authored says "vertical" in world coordinates no matter what its
+    sketch says.
+
+    This rotates the rep's positions and directions together, so a cylinder
+    B-rep can lie on its side.  It deliberately does NOT touch the sketch: if
+    the rotated body appears, the B-rep drives the display and the parametric
+    side must then be made to agree (or the form regenerates back to vertical
+    on the first edit -- a trade to measure, not to assume).
+    """
+    def rot3(v, translate_pos):
+        x, y, z = float(v[0]), float(v[1]), float(v[2])
+        if translate:
+            x -= pivot[0]; y -= pivot[1]; z -= pivot[2]
+        out = [rot[i][0] * x + rot[i][1] * y + rot[i][2] * z for i in range(3)]
+        if translate_pos:
+            out = [out[i] + pivot[i] + translate[i] for i in range(3)]
+        return out
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k, x in list(v.items()):
+                if (isinstance(x, list) and len(x) == 3
+                        and all(isinstance(n, (int, float)) for n in x)):
+                    if k in _REP_POSITION_FIELDS:
+                        v[k] = rot3(x, True)
+                        continue
+                    if k in _REP_DIRECTION_FIELDS:
+                        v[k] = rot3(x, False)
+                        continue
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+    walk(value)
+    return value
 
 def solid_cylinder_brep(circles: Sequence[CircleProfile], start: float, end: float,
                         *, element_id: int, geometry_style_id: int = -1,
@@ -2074,6 +2151,53 @@ def _arc_bbox(center: Vec, radius: float, ang0: float, ang1: float) -> List[List
             [_clean(max(xs)), _clean(max(ys)), 0.0]]
 
 
+
+#: The parameter vector a curve's solver record declares.  A LINE's four are
+#: its endpoint coordinates (x1, y1, x2, y2) -- the donor law #333 established.
+#: An ARC's degrees of freedom are its centre, radius and the two end angles;
+#: the schema's own ``VarSketchArcEndAngleConstrObj(m_angle, m_end)`` exists to
+#: pin an end angle, which only makes sense if the angles are parameters.
+#: Overridable so a desktop round can decide the layout empirically (#589).
+ARC_SOLVER_PARAMS = "center_radius_angles"
+
+
+def _curve_solver_params(curve: dict) -> List[float]:
+    """The numeric parameters of one absorbed curve token."""
+    v = (curve or {}).get("value") or {}
+    cls = (curve or {}).get("ptr_class")
+    if cls == "GArc":
+        cx, cy = float(v["m_center"][0]), float(v["m_center"][1])
+        r = float(v["m_radius"])
+        a0, a1 = (float(x) for x in v["m_endParams"])
+        if ARC_SOLVER_PARAMS == "center_radius":
+            return [cx, cy, r]
+        return [cx, cy, r, a0, a1]
+    if cls == "GLine":                      # origin + dirVec * endParams
+        ox, oy = float(v["m_origin"][0]), float(v["m_origin"][1])
+        dx, dy = float(v["m_dirVec"][0]), float(v["m_dirVec"][1])
+        t0, t1 = (float(x) for x in v["m_endParams"])
+        return [ox + dx * t0, oy + dy * t0, ox + dx * t1, oy + dy * t1]
+    return []
+
+
+def _curve_solver_obj(curve: dict, curve_id: int) -> dict:
+    """One ``m_elemRecs`` entry for an absorbed curve: the solver object
+    ``VarSketch::getCurveObj`` resolves that curve to (issue #589)."""
+    cls = (curve or {}).get("ptr_class")
+    body = {
+        "m_params": [_ptr("VarParam", {"m_refCt": 1, "m_val": float(c)})
+                     for c in _curve_solver_params(curve)],
+        "m_pSketch": _weak(2),
+        "m_objId": int(curve_id),
+        "m_angleCoef": 1.0,
+        "m_unbounded": False,
+    }
+    if cls == "GArc":
+        body["m_flipped"] = False
+        return _ptr("VarSketchArcObj", body)
+    return _ptr("VarSketchLineSegObj", body)
+
+
 def new_var_sketch_curves(elem_id: int, ctx: FamilyDocContext, *,
                           sketch_plane_id: int, user_id: int,
                           curves: Sequence[dict], curve_ids: Sequence[int],
@@ -2131,7 +2255,18 @@ def new_var_sketch_curves(elem_id: int, ctx: FamilyDocContext, *,
         _owned("CurveElemData", m_oUserData=None, m_oAssocProp=None) for _ in range(n)]
     obj["m_customDatumPlanes"] = []
     obj["m_pPlaneRef"] = None
-    obj["m_elemRecs"] = []
+    # SOLVER STATE for CURVE sketches (issue #589).  Leaving m_elemRecs empty
+    # while m_curveObjIdxMap names every curve is the very shape issue #333
+    # falsified for line sketches: VarSketch::getCurveObj indexes m_elemRecs
+    # THROUGH that map, so an empty array with a 2-entry map is an
+    # out-of-range read.  Revit 2026 survives OPENING such a family and dies
+    # inside Insert > Load Family -- "Invalid idx in VarSketch::getCurveObj
+    # (VarSketch.cpp:634)" + 0xc0000005 (owner journal 0040, 2026-08-10).
+    # One solver record per curve, of the class the file's own schema gives
+    # for that curve kind (GArc -> VarSketchArcObj, which extends
+    # VarSketchCurveObj -> VarSketchObj and adds m_flipped).
+    obj["m_elemRecs"] = [_curve_solver_obj(c, int(cid))
+                         for c, cid in zip(curves, curve_ids)]
     obj["m_curveObjIdxMap"] = [{"first": int(cid), "second": i}
                                for i, cid in enumerate(curve_ids)]
     obj["m_pointRecs"] = []
@@ -2139,7 +2274,9 @@ def new_var_sketch_curves(elem_id: int, ctx: FamilyDocContext, *,
     obj["m_constrRecs"] = []
     gc = blank_object("VarSketchGuessCache")
     gc["m_pSketch"] = _weak(2)
-    gc["m_guessArr"] = []
+    gc["m_guessArr"] = [_ptr("VarSketchGuess", {
+        "m_values": [v for c in curves for v in _curve_solver_params(c)],
+        "m_useCount": 29})] if curves else []
     gc["m_nPar"] = 0
     obj["m_oGuessCache"] = _ptr("VarSketchGuessCache", gc)
     obj["m_oParamPlane"] = plane([0, 0, 0], [1, 0, 0], [0, 1, 0],
@@ -2183,7 +2320,8 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
                            sketch_plane_id: int, circles: Sequence[CircleProfile],
                            start: float, end: float, rep: str = REP_SOLID,
                            category_id: int = INVALID, material_id: int = INVALID,
-                           notes=None) -> SkelElement:
+                           notes=None,
+                   always_ref_plane_norm: bool = False) -> SkelElement:
     """The ``ExtrusionElem`` of a circle-profile form: start/end offsets
     (extrude-UP), the two-arc-loop ExtrusionGStep tag map, the per-tag
     geometry table, the private helper copy of each circle loop (traversal
@@ -2232,7 +2370,7 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
     obj["m_materialId"] = int(material_id)
     obj["m_famElemVisibility"] = {"m_flags": int(ctx.fam_elem_visibility)}
     obj["m_cutting"] = False
-    obj["m_alwaysRefPlaneNorm"] = False
+    obj["m_alwaysRefPlaneNorm"] = bool(always_ref_plane_norm)
     obj["m_sideRefPlaneCurveBased"] = False
     assign_pids(obj)
     if rep == REP_SOLID:

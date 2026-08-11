@@ -289,3 +289,605 @@ and the `_jsonsafe` fix CI caught), `tests/test_ifc_assembly.py`, this record.
 Still open, unchanged: no viewer certification is claimed; rotation and swept solids
 are follow-ups; the type-text-value question above is new and belongs to famgen, not
 to this lane.
+
+---
+
+# Round 3 — the strut channel's 0.20 fill is closed, and rotation was never needed
+
+Round 2 recorded per-part rotation as the fix for a section that runs along X, and said
+it needed a desktop Revit check to do safely. **That framing was wrong**, and the
+correction is the whole of this round.
+
+## The insight
+
+A C-channel is a **union of axis-aligned boxes** — a web plus two flanges. Every one of
+those boxes is a plain Z-extruded rectangle, which `add_generic_part` already expresses,
+*whichever direction the channel runs*. The extrusion axis of the individual box has
+nothing to do with the axis of the channel. So the fix needed no rotation, no
+non-identity 3×3 on a datum-bound sketch plane, and no desktop verification to be safe:
+it uses the same proven primitive the certified families already use.
+
+Checking the hanger's meshes bore this out immediately — the struts and end caps are
+axis-aligned polyhedra:
+
+```
+product                                    axis-aligned?   distinct X/Y/Z   grid cells
+Strut Channel P1000 (x2)                          True         38/ 6/ 4          555
+End Cap (x2)                                      True          2/ 2/ 2            1
+C-Type Beam Clamp / rod / nuts / weld            False           …                 …
+```
+
+## What was built
+
+`is_axis_aligned` (every face normal parallel to an axis) gates a new `decompose_boxes`:
+the body's own vertex coordinates cut space into a grid whose every cell is *wholly*
+inside or outside it — that is what axis-aligned means — so one point test per cell
+classifies it exactly. Occupied cells are merged greedily into maximal boxes. For a
+non-axis-aligned body the function returns None rather than a staircase.
+
+## Two real defects found on the way, both by disbelieving a good-looking number
+
+**1. Parity ray-casting is wrong for welded assemblies.** The first inside-test cast a
+skew ray and counted crossings. It reported the strut at ratio 1.139 — authoring less
+material than the mesh holds. The strut mesh has **2 non-manifold edges**: "back-to-back"
+is two shells welded along a seam, and a ray crossing an *internal* face flips parity, so
+solid material reads as empty. Replaced with the **generalised winding number** (sum of
+signed solid angles), which is unaffected by internal faces.
+
+**2. Face orientation is the exporter's choice.** With winding in place, *nothing*
+decomposed — including the End Cap that had been exact. This IFC winds its triangles so
+that inside reads **−1**, not +1. The test must use the magnitude, exactly as
+`mesh_volume` already does. One-line fix, total behavioural difference.
+
+## And a finding that changes numbers already shipped
+
+After both fixes the strut still read 1.065 — authored 17.670 in³ against a mesh volume
+of 18.820 in³. Bucketing every grid cell by winding number settled it:
+
+```
+cells by |winding|:   {0: 202,  1: 241,  2: 112}
+volume by bucket:     {0: 77.39, 1: 16.52, 2: 1.15}  in3
+union volume            = 17.6703 in3   <- exactly what the boxes authored
+sum with multiplicity   = 18.8202 in3   <- exactly what mesh_volume reports
+```
+
+The two shells genuinely **overlap** by 1.15 in³. `mesh_volume` is a
+multiplicity-weighted sum, **not a union measure** — so for any multi-shell mesh the
+`fill` ratios this stream has been reporting (including in the merged PR #556) are
+**understated**: their numerator double-counts the overlap. The strut was never really
+"20 % full"; its envelope was over-stated by the metric as well as by the massing.
+`decompose_boxes` now reports `overlap_ft3` so the discrepancy is visible per product
+rather than mysterious, and the box lane's own fill is 1.0 by construction.
+
+## Result on the hanger
+
+| product | before | after |
+|---|---|---|
+| Strut Channel P1000 - Top | 1 prism, fill 0.20 | **59 boxes, exact** |
+| Strut Channel P1000 - Bottom | 1 prism, fill 0.20 | **23 boxes, exact** |
+| End Cap ×2 | 1 box, fill 1.00 | unchanged (already exact) |
+| Rod Hardware ×2 | 5 slabs, 1.01 | unchanged |
+| Channel Nut ×2 | 1 prism, 0.49 | 2 slabs, 1.01 |
+| Beam Clamp ×2, Stitch Weld | envelope | unchanged, still labelled |
+
+13 products → **103 solids**, `.rfa` 408 KB, **VALID 0 errors**, provenance clean,
+release 2026, 7.2 s end to end. The two struts merge to different box counts (59 vs 23)
+because they are mirror images and the greedy merge runs in coordinate order; both
+reproduce the same exact union volume.
+
+Still honest envelopes, unchanged and still labelled: the C-Type beam clamps (a curved
+casting), the stitch weld (intermittent beads), the threaded rods (a cylinder at 0.98,
+which is right).
+
+## Evidence
+
+- `tests/test_ifc_assembly.py` — **43 passed** (was 34): axis-alignment, winding sign
+  independence, exact box decomposition, the C-channel case, overlapping shells measured
+  as a union, curved bodies refused, budgets refused not truncated.
+- `test_router + test_famgen_factory + test_frontdoor_json_strict + test_ifc_family +
+  test_ifc_intent + test_frontdoor + test_plugin_sync` — **380 passed, 22 skipped**
+- `sync_plugin --check` clean · `validate_plugin` PASS · portable paths ok (2957)
+
+One test was RETIRED rather than fixed: `test_a_body_whose_section_runs_sideways_keeps_
+its_prism` asserted the limitation this round removes. It is replaced by
+`..._is_now_exact_not_an_envelope`.
+
+## BRANCH STATE (round 3)
+
+Branch `claude/ifc-exact-box-decomposition`, cut from `main` at 152d009 (NOT stacked on
+the merged branch). Files: `src/rvt/ifc/assembly_parts.py` (winding number,
+`is_axis_aligned`, `decompose_boxes`, the box lane preferred over slabs),
+`tests/test_ifc_assembly.py`, this record.
+
+Unchanged and still open: swept/CSG bodies are skipped by name; the famgen type-row
+text-value question from round 2; **no viewer certification is claimed** (rule 4) — the
+`.rfa` is validator- and provenance-gated only, and a desktop or viewer check is still
+the only thing that can say "Revit opens it".
+
+## DESKTOP VERDICT (owner, 2026-08-10) — it opens, and the slots are there
+
+The owner opened `Back-to-Back_Trapeze_Pipe_Hanger_-_LOD_400.rfa` (the round-3 build:
+13 IFC products → 103 solids, 408 KB, release 2026) in **desktop Revit** and reports,
+verbatim:
+
+> "it opened and all the slots for the channel are in"
+
+This is the arbiter, not our validator (hard rule 4). What it establishes:
+
+1. **A donor-free, self-generated multi-solid family opens in desktop Revit.** Not a
+   loaded project, not a catalog family — a `generic_model` composed entirely from a
+   caller's IFC mesh, with `PRODUCT_AUTHOR_PLACEHOLDER` identity and zero donor bytes.
+   That is #498 / S-2026-08-10-c's own goal demonstrated on a real vendor file.
+2. **The exact box decomposition is right in the only way that counts.** The strut's
+   punched slots are *visible in Revit* — those slots exist only because
+   `decompose_boxes` classified 555 grid cells with a winding-number test and merged the
+   occupied ones into 59 (and 23) maximal boxes. A parity ray-cast would have filled
+   them in; the round-2 envelope would have been a solid bar. The geometry a human sees
+   matches the geometry the numbers claimed.
+3. **103 solids in one family is a workable size** — it opened, rather than choking.
+
+What it does NOT establish, and must not be written up as if it did:
+
+* it is **not** a ledger certification. `docs/coverage/viewer-certified.json` records
+  `probe_batch` rounds — a certified base plus a byte-identical control per batch — and
+  this was a single hand-opened file with no control. The ledger stays untouched.
+* the Revit **year** of the desktop that opened it is not yet recorded here, and the
+  file is a 2026 build; nor is it recorded whether Revit raised warnings on open, or
+  whether the family loads into a *project* and places (a separate step from opening).
+  Those are asked, not assumed.
+
+Recorded because it is the first desktop confirmation this stream has, and because it
+retires the one remaining reason to doubt the box lane: the slots are the visible
+signature of a correct decomposition.
+
+## RETRACTION + a confounded ladder (owner, 2026-08-10) — steer #585
+
+Two things I got wrong, recorded before anything is built on top of them.
+
+### 1. The loader-built `.rvt` was not "a working path today". Retracted.
+
+I sent a project our own four-registry loader had built with the family in it, and called
+it a working path that bypasses `Insert > Load Family`. The owner's verdict: **it did not
+open**, and:
+
+> "stop that thats not the way we solve these issues"
+
+Two failures in that, not one:
+
+* **Routing around Revit's own path is not a fix.** It hides the defect behind a lane the
+  user did not ask for. Logged as steer #585.
+* **I called a file usable on the strength of `VALID / 0 errors`.** That is hard rule 4
+  restated the hard way — our validator is not the arbiter — and I broke it on a file I
+  handed over as a solution. The project-validator result stands as a fact; "so it works"
+  never followed from it.
+
+The loader lane's own failure to open is **negative evidence against that lane**, and
+belongs with the open cell rather than being quietly dropped.
+
+### 2. The crash ladder was CONFOUNDED. My own README's claim was false.
+
+`build_ladder.py` says "the only difference between L1 and L2 is the NUMBER OF SOLIDS".
+It is not:
+
+| rung | solids | shape mix |
+|---|---|---|
+| L1 | 13 | 9 box + 4 cylinder — **no polygons** |
+| L2 | 103 | 87 box + 2 cylinder + **14 polygon** |
+
+L1 → L2 varies solid count **and** introduces N-gon parts. The repo's own evidence
+discipline is single-variable experiments with matched pairs, and this was neither.
+
+Owner's results: **L0 (1), L1b (4), L1 (13) all load. L2 (103) crashes.** That is real and
+useful — but it narrows the cause to *"something that appears between 13 and 103 solids"*,
+which is **count or N-gon parts or both**, not "it is scale" as the README's decision table
+asserts. That table is wrong as written and must not be read as settled.
+
+Measured while checking (no Revit needed):
+
+```
+rung   solids  elements  id range      classes at L2
+L0        1       102    1000..1101    CurveElem 588, SketchPlane 109,
+L1b       4       113    1000..1112    VarSketch 103, ExtrusionElem 103
+L1       13       168    1000..1167
+L2      103       982    1000..1981
+```
+
+One hypothesis is already weakened by reading the code rather than guessing: N-gon parts
+do **not** ship the regeneration representation any more (#515 removed that fallback), so
+polygons and boxes both carry a cached B-rep. That makes shape mix less likely than count
+— but "less likely" is not "excluded", and the ladder as built cannot tell them apart.
+
+A clean pair would be **N boxes only** at rising N (13 / 40 / 87 / 103, one shape type
+throughout), which isolates count with nothing else moving. Not built here: the owner has
+called a halt to how this was being approached, and the next step is theirs to set.
+
+## THE CRASH, NAMED (Revit journals 0040/0041/0042, owner, 2026-08-10)
+
+Revit 2026.5 (Build 20260731_1210) journals. Journal **0040** carries the crash:
+
+```
+'onCommand Load a family into the project
+'inTransaction MFCdocUI_1:-1 Load Family
+'C 10-Aug-2026 18:48:00.888;  DBG_WARN: Invalid idx in VarSketch::getCurveObj:
+    line 634 of F:\Ship_5_0\2026_px64\Source\Essentials\EssentialsDB\Sketch\VarSketch.cpp.
+'C 10-Aug-2026 18:48:00.889;  captureTryCrash 0xc0000005
+```
+
+`0xc0000005` is an access violation, one millisecond after the warning. The file is the
+103-solid hanger; it had already **opened** fine in the same session
+(`FormOrAbandon::openFromModelPath` succeeded, views drew) — the crash is on `Load Family`
+only, exactly as reported.
+
+### We have met this error before, and our own source says so
+
+`src/rvt/famgen/geometry.py` (`new_var_sketch`) already documents this signature verbatim:
+
+> SOLVER STATE (issue #333, desktop round 26 -- the value-edit law): regen resolves each
+> curve through `VarSketch::getCurveObj`, which indexes `m_elemRecs`; an empty solver
+> "[H: Revit re-solves on edit]" is FALSIFIED -- editing any family parameter raised
+> "Invalid idx in VarSketch::getCurveObj (VarSketch.cpp:634)" + the serious-error dialog.
+
+Round 26 hit it by **editing a parameter**; this hits it via **Load Family**. Same
+function, same line, same index failure. So this is not a new mystery — it is the #333
+law being violated again by some sketch in this document, on a second trigger.
+
+### What the journals also settle: the matched pair was NOT load-tested
+
+Journals 0041 and 0042 record `onCommand Open an existing project` **only** — no
+`Load Family`, no `captureTryCrash`:
+
+| journal | files | operation | result |
+|---|---|---|---|
+| 0040 | hanger 103 solids | open, then **Load Family** | **CRASH** |
+| 0041 | L0, L1b, L1, and the loaded .rvt | open only | no crash |
+| 0042 | `P_boxes103`, `P_polys14` | open only | no crash |
+
+So **count vs N-gon is still unanswered** — the deciding operation was never run on the
+pair. (The `..._loaded.rvt` also appears in 0041 with no crash recorded, which does not
+match "it did not open"; worth a second look, but the steer stands regardless.)
+
+### Ruled out from the file side, with evidence rather than guesses
+
+Chased and eliminated, each by direct measurement on the crashing document versus the
+loading one:
+
+* **the hard-coded solver pid layout** (`seg_pid = 4 + n + i`) — verified against
+  `assign_pids` for rectangles and 3/5/7/12/24/48-gons: pids match and every constraint
+  weakref lands on a `VarSketchLineSegObj`. Holds at every shape and count.
+* **duplicate element ids** — none, in either document.
+* **curve references dangling** — every `m_curveObjIdxMap` entry names a `CurveElem` that
+  exists in the document.
+* **spurious PP joins from coincidence detection** — `_corner_joins` pairs *any*
+  coincident endpoints including non-adjacent edges, which a sliced ring could plausibly
+  trigger; measured across all 14 polygon parts of the hanger: **0** non-adjacent
+  coincidences.
+* **the arc/cylinder sketch quirk** (`m_absorbedCurves != m_elemRecs` on cylinder sketches,
+  2 findings per cylinder) — present in the 13-solid document too, which loads. Not
+  sufficient to crash.
+* **`TRUSTED_MAX_ID = 1450`**, which sits temptingly between the max element id of the
+  loading document (1167) and the crashing one (1981) — it is a **class-id** heuristic in
+  a name table, unrelated to element ids. Coincidence, not mechanism.
+
+Also read off the journal, incidentally: `Rvt.Attr.Username: rvt-writer` — the placeholder
+identity survives into the shipped file as intended — and Revit's expected third-party
+dialog ("saved by an application that was not developed or licensed by Autodesk").
+
+### Where this goes next
+
+The failing structure is named (`m_elemRecs` indexing inside a `VarSketch`) and the
+governing law is already written down (#333). What is not yet known is **which** of the
+103 sketches violates it. Two cheap next moves, in order: run `Load Family` on the
+existing pair (it costs two clicks and separates count from N-gon), and bisect the hanger
+by halves if the pair comes back inconclusive.
+
+## ROOT CAUSE: an arc sketch promises curves its solver does not hold (#589)
+
+The matched pair came back — both loaded, confirmed present in the family browser, with
+only Revit's expected "saved by an application not developed or licensed by Autodesk"
+warning. That exonerates the two hypotheses the pair was built to test and leaves exactly
+one difference:
+
+| family | sketches whose curve index map is LONGER than its solver records | Load Family |
+|---|---|---|
+| `P_boxes103` — 103 boxes | 0 | **loads** |
+| `P_polys14` — 14 N-gons | 0 | **loads** |
+| hanger — 87 box + 14 polygon + **2 cylinder** | **2** | **CRASH** |
+| hanger 13-solid — 9 box + **4 cylinder** | **4** | never load-tested |
+
+**Count is exonerated** (103 solids load). **N-gons are exonerated** (they load). The two
+cylinders are the whole difference, and the structure is unambiguous:
+
+| shape | absorbed curves | `m_elemRecs` | `m_curveObjIdxMap` | constraints | serFlags |
+|---|---|---|---|---|---|
+| box | 4 | **4** | 4 | 8 | 32 |
+| polygon | 5 | **5** | 5 | 10 | 32 |
+| **cylinder** | 2 | **0** | **2** | 0 | 1 |
+
+`VarSketch::getCurveObj` indexes `m_elemRecs` through that map. The map names indices 0
+and 1; the array is empty; the read goes out of range. That is `VarSketch.cpp:634` —
+**the exact law issue #333 established for line sketches, which the arc path never got.**
+#333 reached it by editing a parameter; `Load Family` reaches it too. Filed as **#589**.
+
+### The correction to my own earlier reading
+
+I had written "1, 4 and 13 solids load" into the record and into a decision table. The
+journals show journals 0041/0042 ran `Open an existing project` **only** — L0, L1b and L1
+were opened, never load-tested. The 13-solid family contains **four** cylinders, so on this
+mechanism it should crash too. "It opens" was never evidence about loading, and I treated
+it as if it were.
+
+### The fix shipped here, and its boundary
+
+`CYLINDER_AS_POLYGON`: a round profile is still **measured** as a cylinder — the report
+still says "cylinder, ⌀0.500 in", the honesty of the measurement is untouched — but it is
+**authored** as the mesh's own N-gon hull, which travels the proven line-segment path. It
+is also *closer to the source* than an idealised circle, because a tessellated rod arrives
+as an N-gon in the first place. The hanger now emits 87 box + 16 polygon, **0** sketches
+promising more than they hold, `.rfa` VALID 0 errors, provenance clean.
+
+This is a workaround at the lane, not a fix at the engine. #589 owns the real fix
+(author the arc solver records) and needs a desktop verdict to close; the interim is
+pinned by two tests so it cannot be mistaken for one:
+
+* `test_an_arc_sketch_still_ships_an_empty_solver_the_engine_bug` — PINS the defect and
+  flips when #589 lands.
+* `test_the_assembly_lane_never_emits_a_sketch_revit_cannot_load` — the invariant that
+  would have caught this before a human ever opened Revit: whatever this lane measures,
+  the family it hands the factory must not contain a sketch promising curves its solver
+  cannot resolve.
+
+Still unproven until desktop says so (rule 4): that the rebuilt hanger actually loads.
+
+## DESKTOP VERDICT on the arc solver (owner, Revit 2026, 2026-08-10) — #589 mechanism CONFIRMED
+
+| rung | `m_params` per arc | Load Family into a new project |
+|---|---|---|
+| `A5_cylinder` | `[cx, cy, r, ang0, ang1]` | **loads** |
+| `A3_cylinder` | `[cx, cy, r]` | **loads** |
+| `A0_cylinder` | *(empty — pre-fix control)* | **CRASHES** |
+
+**The control is what makes this a result.** A0 is the old empty solver and it still dies,
+so the two passes cannot be credited to anything else that changed between builds: the
+mechanism is exactly the one the journal named — `m_elemRecs` empty while
+`m_curveObjIdxMap` names the arcs, an out-of-range read in
+`VarSketch::getCurveObj` (`VarSketch.cpp:634`).
+
+### What the pair does NOT settle, and I am not going to pretend otherwise
+
+**Both layouts load, so loading does not discriminate between them.** What the parameter
+vector actually governs is how the sketch *flexes* — and that is precisely how #333
+surfaced in round 26: not on load, but on **editing a parameter**. A wrong-but-well-formed
+vector can load perfectly and misbehave the moment the family is driven.
+
+`ARC_SOLVER_PARAMS` therefore stays at **`center_radius_angles`** (A5) on principle rather
+than on this evidence: it matches the arc's real degrees of freedom, and the schema carries
+`VarSketchArcEndAngleConstrObj(m_angle, m_end)`, a constraint that only means something if
+the end angles ARE parameters. A3 is recorded as an equally load-clean alternative. The
+test that would separate them is a **parameter-driven flex on a cylinder**, which is the
+#333 trigger and is filed, not fudged.
+
+### Result
+
+`CYLINDER_AS_POLYGON` is back to **False** — the N-gon stand-in was only ever there because
+arcs crashed. The hanger is authored as measured again: **87 box + 2 cylinder + 14 polygon**,
+0 sketches promising more than their solver holds, `.rfa` VALID 0 errors, provenance clean.
+The rods are true cylinders rather than 40-gons.
+
+Two laws are now written down where the next session will hit them:
+
+* `new_var_sketch_curves` carries one solver record per curve, of the class the file's own
+  schema gives (`GArc` → `VarSketchArcObj`, `GLine` → `VarSketchLineSegObj`), with the
+  guess cache declaring the same parameter vector.
+* `test_the_assembly_lane_never_emits_a_sketch_revit_cannot_load` is the invariant: a map
+  longer than its records is an out-of-range read inside Revit, and no lane may ship one.
+
+## DESKTOP VERDICT: the parametric drive does NOT work on a generic family — stopped here
+
+Owner, Revit 2026: `parametric_cart` (a driven box deck plus four true cylinder wheels)
+— *"parametric cart did not work what so ever"*. The family builds, validates VALID with
+0 errors and carries the whole #372 chain (4 side RefPlanes, 4 Alignments registered in
+`VarSketch.m_dimIds` / `m_dimData`, labeled Width/Height `LinearDimString`s at the type's
+values) — and none of that makes it editable in Revit.
+
+**Structural validity is not behaviour.** That is hard rule 4 for the third time today, and
+the third time it was worth having: the validator cannot tell us a family flexes, only
+Autodesk's reader can.
+
+`drive` is therefore **off by default** again. Generated families keep exactly the shape
+that IS desktop-verified — they open, and they load into a project. The hook stays
+(`make_generic_model(drive=True)`) as the starting point for whoever picks this up, along
+with what is now known:
+
+* the drive chain applies to a one-box generic model *structurally* — `param_drive` needs
+  a 4-line rectangular profile and a plain box already is one, so nothing had to be
+  generalised to attach it;
+* attaching it is not sufficient. What is missing is behavioural and unmeasured: whether
+  the labeled dimension needs a different witness geometry in a family with several
+  forms, whether the alignments must name a different sketch plane, or whether a
+  multi-solid family needs each solid constrained rather than one.
+
+## Where the four requirements actually stand
+
+| requirement | state |
+|---|---|
+| Round bodies — wheels, axles, rotated profiles | **DONE, desktop-verified.** True cylinders on a horizontal axis; Front elevation a clean circle. The cached B-rep is what Revit draws (rounds 1–4). |
+| Detail by default | **DONE.** Detail is the parts a model emits; the contract carries multi-part objects and refuses bad ones by name. |
+| Anything from a prompt | **Contract done.** `parts` in the famspec schema; a 40 ft bus with named solids builds donor-free. The *interview* that turns "make a bus" into that spec is designed, not written. |
+| Edit anything after loading | **NOT DONE, and now known to be harder than attaching the drive.** See above. |
+| True spheres | **NOT DONE.** `SphereData` is a geometry fingerprint, not a primitive, and the schema has no sphere surface — so it needs `RevolutionElem`, a new element class with no donor to measure. Stacked discs remain, honestly labelled. |
+
+# tech-lead pre-merge fix (eng #609) — 2026-08-11
+
+*Written by engineer session eng #609 (issue #609), on top of `a3506ad`, at the tech lead's
+request so #583 can be squash-merged with its author's attribution. Add-only: the sections
+above are the author's and untouched.*
+
+The independent merge review of #583 cleared phases 2–4 and found two reproducible PG1
+regressions in phase 1 (`assembly_parts.py`): wrong geometry stamped `exact` / "improved".
+Both reproduce through `read_assembly` and `route.py run --output rfa` with the test file's
+own generators; both are closed here and pinned by tests.
+
+## 1. The box lane called itself exact without checking — now it is held to the mesh
+
+`is_axis_aligned(eps=1e-4)` is an *angle budget* of 0.8°: 1 − cos 0.1° = 1.5e-6 sailed
+under it. A 900 mm strut (41 × 41 × 2.5 mm) yawed about Z then cut a grid out of its own
+*rotated* vertex coordinates and came back as sliver boxes:
+
+| yaw | a3506ad | this fix |
+|---|---|---|
+| 0.0° | boxes, 3 parts, authored/mesh 1.000, `exact` | **unchanged** (boxes, 3, 1.000, `exact`) |
+| 0.1° | boxes, **13** parts (9 < `MIN_EXTENT_FT`), 1.013, `exact` | slabs, 3 rotated rectangles, 1.000 |
+| 0.2° | boxes, **11** parts (8 < MIN), **0.499**, `exact` | slabs, 3, 1.000 |
+| 0.5° | boxes, 9 parts (6 < MIN), **1.769**, `exact` | slabs, 3, 1.000 |
+| 0.8° | boxes, 10 parts (2 < MIN), **3.037**, `exact` | slabs, 3, 1.000 |
+
+(min authored extent 1.3e-5 ft on head vs 0.0082 ft = the wall after; `main` authors every
+yawed case as the same 3 exact slabs.) Three guards, each sufficient for this case, because
+"exact" is a claim worth over-determining:
+
+* `is_axis_aligned` eps **1e-9** — float noise, not an angle: an aligned face has two normal
+  components that are exactly zero.
+* `decompose_boxes` refuses a grid with **any cell thinner than `MIN_EXTENT_FT`** in any axis
+  — the signature of a nearly-aligned body, and a box Revit could not keep anyway.
+* `read_assembly` accepts the box lane only when `vol is not None` and
+  **|boxes + overlap − mesh| ≤ 1e-6 · mesh** (`EXACT_REL_TOL`); otherwise it falls through to
+  slabs, then the prism — always delivered (rule 1). The cell guard bounds the welding noise
+  this check can see: coordinates weld to 1e-9 ft, so a cell ≥ 0.0013 ft is perturbed by at
+  most 2 × 0.5e-9 / 0.0013 = 7.7e-7 < 1e-6 relative; measured residual on the fixtures 3–5e-8.
+
+## 2. A solid ring read as a hole — `ring_nesting` no longer trusts a vertex
+
+Junction resolution (round 3's `_junction_pairs`) lets two solids touch at a point, so a
+ring's first vertex can be the *shared* corner; `_point_in_ring(rings[i][0], other)` then
+read a SOLID ring as depth 1 and `decompose_slabs` dropped it as a hole. `_conserves`' 2 %
+slack hid any member under 2 % of the body. Sweep (7 corner configs × yaws × triangle
+orders, which move the stitch start): **head 55 / 1085 runs authored less than the mesh with
+no `kept_prism` and no caveat** (e.g. 6 m cube + 1×1×2 m member, yaw 5°: the member vanishes,
+7628 vs 7699 ft³); `main` 0 / 1085.
+
+* `ring_nesting` now probes with `_interior_probe`: the midpoint of the ring's longest edge
+  nudged inward by 1e-6 of its length — strictly inside its own ring, outside every disjoint
+  neighbour, never a vertex, and hugging the boundary so a ring that contains others is still
+  not counted inside them. **After: 0 / 3360** (7 configs × 8 yaws incl. 0°, 45°, 0.05° × 60
+  orders); every run decomposes (420 boxes, 2940 slabs), authored = mesh to 1e-6, zero prisms.
+* Backstop: `decompose_slabs` reports `section_volume_ft3` (the sliced sections *before* the
+  48-vertex cap) and `read_assembly` **refuses a slab set that filled no hole yet holds less
+  than the mesh by more than 1e-6** → honest prism + "dropped material" caveat. Judging the
+  undecimated sections keeps a capped 72-gon from being mistaken for a lost ring; the 2 %
+  `_conserves` slack still applies on top (main parity for filled holes / overlapping shells).
+
+## 3. Found on the way: the measurements were origin-relative
+
+Tightening to 1e-6 exposed that `mesh_volume` summed tetrahedra about the **world origin** and
+`_polygon_area` shoelaced about it too. Decomposition runs *before* `recentre`, i.e. at site
+coordinates: an aligned strut placed 500 m out missed the box check (residual 2.7e-6), at 5 km
+`mesh_volume` itself was 0.6 % off, at 50 km every lane collapsed to a 5.6× prism. Both now
+sum about a local vertex (the theorem holds about any apex); the strut takes the same lane
+with the same residual (3e-8) at 0 m, 500 m, 50 km and UTM-scale (500 km, 4800 km) offsets.
+Same signatures, same tests, strictly more accurate.
+
+## 4. The caveat names the lane
+
+`router.py` (the one wording line): `box decomposition improved …` when `method == "boxes"`,
+`slab decomposition improved …` otherwise — per record, so a mixed assembly reads right.
+
+## Evidence
+
+* Repros through `tools/route.py run --ifc … --output rfa --json`: strut 0.0/0.1/0.2/0.5/0.8°
+  and the corner pair (yaw −5°, an order that lost the member on head) → 6 × `OK (3-part
+  generic_model .rfa)`, methods boxes/slabs×5, **6 × `rvt_validate --family` VALID 0 errors
+  (0 warnings), 6 × `make_family.py provenance` ok, 0 hits.** No certification claimed (rule 4).
+* `tests/test_ifc_assembly.py`: **68 passed** (55 the author's, all green incl. the 0.0°
+  exact-box tests, + 13 added: alignment eps, sliver grid, yawed channel ×4, box lane takes
+  the unyawed strut AND is held to the mesh volume, shared-vertex nesting, interior probe,
+  corner pair over 100 vertex orders × 2 yaws, no-hole loss refused, precision at site
+  coordinates, caveat wording on a mixed assembly). All 13 fail on a3506ad's engine.
+* Stream-local gate `test_ifc_assembly + test_router + test_famgen_factory + test_frontdoor`
+  (`RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1`): a3506ad **329 passed / 24 skipped** → see BRANCH
+  STATE for the after count and the merged shard.
+* `route.py matrix` byte-identical to a3506ad (39 lines); `sync_plugin` synced 2 files then
+  `--check` clean; `validate_plugin` PASS (25 assertions); portable paths ok (2981).
+
+## Not touched, on purpose
+
+famgen/**, standards, SKILL.md, the PR body, the author's tests and record sections. Still open
+and filed elsewhere per #609's context list (#564 target-version fallback, `fit_solid` cylinder
+misfit of yawed thin bars, face-contact loss on main too, duplicate-meaning standard params).
+One thing this session could not measure: the real hanger sample is absent from a cloud clone,
+so "Strut Channel P1000 → 59 exact boxes" was not re-run; by the noise bound above its
+union + overlap should sit ~1e-7 from `mesh_volume` if its two shells are each closed — if they
+are not, the box lane now declines the `exact` stamp and the strut goes to slabs/prism with a
+caveat, which is the honest outcome.
+
+## BRANCH STATE (eng #609)
+
+Branch `claude/ifc-exact-box-decomposition` (PR #583), commits added ON TOP of `a3506ad` — no
+rebase, no force-push, no merge of main. Files: `src/rvt/ifc/assembly_parts.py` (+ its
+`plugin/lib` mirror via `sync_plugin`), `src/rvt/frontdoor/router.py` (the one caveat statement, +
+mirror), `tests/test_ifc_assembly.py` (13 tests appended, none of the author's touched), this section.
+
+Gates on the final tree (cloud session, fresh clone, no `samples/`):
+* `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest test_ifc_assembly test_router test_famgen_factory
+  test_frontdoor`: a3506ad **329 passed / 24 skipped → 342 passed / 24 skipped** (0 failed).
+* Whole merged shard `pytest -q -p no:cacheprovider $(tools/dev/shard_list.py --print)`:
+  **1986 passed / 134 skipped / 3 xfailed, 0 failed** (8 min 31 s).
+* `/verify` (drive the router): strut 0.0/0.2/0.5° + corner pair → 4 × OK, boxes/slabs/slabs/slabs,
+  caveat names the lane, authored/mesh = 1.0000000, VALID 0 errors, provenance ok. `/simplify` run on
+  this diff (reuse `_conserves`/`_tri0`, simpler probe, one route run in the caveat test).
+* `route.py matrix` unchanged · `sync_plugin --check` clean · `validate_plugin` PASS · portable paths ok.
+
+Shipped vs staged: engine + tests shipped on the branch; nothing staged for the viewer, no ledger
+entry, no certification claimed. Follow-up filed separately (per-lane volume ledger so a body that
+DID fill a hole cannot hide a lost member inside the 2 % slack; `MIN_EXTENT_FT` handled three ways in
+one file) — `Refs #609`.
+
+## Round 2 (eng #609, after the tech lead's delta review of fc69382)
+
+The independent review re-measured and accepted the substance (strut → 3 conserved slabs at
+0.1–0.8°, boxes at 0.0°; 0 silent corner-pair losses; the local-apex sums; caveat wording; rule 1)
+and sent back **two over-broad guards** — both the belt-and-braces parts, not the root-cause
+fixes — plus a test nit. All three taken as asked:
+
+1. **The strict no-hole slab backstop is REMOVED** (and `section_volume_ft3` with it); the slab
+   lane keeps main's `_conserves(dv, vol)` 2 % envelope exactly. It had treated the lane's own
+   declared approximations as lost rings — midpoint under-integration of a taper, skipped hairline
+   Z levels, dropped slivers. Reviewer's cases, base a3506ad / fc69382 / this round:
+   8-band reducer frustum: 8 slabs (0.9994) / **1 prism** / 8 slabs (0.9994) · 12-band cone: 12 /
+   **1** / 12 · square pyramid frustum: 6 / **1** / 6 · U-strut with a 50 µm flange mismatch at 0°:
+   3 exact boxes / **1 bar** / 3 exact boxes, at 12°: 3 slabs / **1 bar** / 3 slabs · plate + 6 mm²
+   pin yawed: plate (+sliver dropped) / **35 mm block** / plate. The by-construction identity that
+   would make a lost ring impossible without penalising approximations stays with #613 (extended
+   there: sliver / thin-level accounting).
+2. **The box-lane extent guard moved from raw grid cells to the MERGED boxes**: a hairline grid
+   step that merges away (the 50 µm mismatch) keeps the exact lane; only a produced box thinner
+   than `MIN_EXTENT_FT` refuses it. eps 1e-9 + the 1e-6 volume identity still stop the yawed-strut
+   regression on their own (0.1–0.8° → 3 slabs, 1.000).
+3. **The e2e corner-pair test now permutes triangle ORDER** (seeded `rng.shuffle`) on the member
+   positions that actually trip a3506ad — (−3.5, +3.5) at 5°/12°/33°, (−3.5, −3.5) at −5°: 21 of
+   its 160 runs lose the member on a3506ad (verified by running the file against that engine:
+   `(-3.5, 3.5, 5.0)` → 2 parts, 7628 < 7699 ft³, no `kept_prism`), 0 on this head.
+
+Tests (13 of mine, reshaped; the author's 55 untouched): the strict-backstop test is replaced by
+`test_the_slab_lane_keeps_its_declared_approximations` (reducer ⇒ 8-solid stack; mismatch strut ⇒
+boxes ×3 exact at 0°, 3 slabs at 12°) and the grid test by
+`test_a_sliver_box_refuses_the_box_lane_a_hairline_step_does_not`. Cross-checked by swapping engines
+under the same test file: **a3506ad 12 fail / 56 pass** (all by behaviour), **fc69382 2 fail**
+(exactly findings 1 and 2), **this round 68 pass**.
+
+Evidence on the final tree: `route.py run --output rfa` on strut 0.0/0.2/0.5°, mismatch 0°/12°,
+frustum, cone, corner pair (an order that loses the member on a3506ad) → 8 × OK; parts
+3/3/3/3/3/8/12/3; methods boxes/slabs/slabs/boxes/slabs/slabs/slabs/slabs; authored÷mesh
+1.0000/1.0000/1.0000/1.0000/0.9996/0.9994/0.9983/1.0000; 8 × VALID 0 errors 0 warnings; 8 ×
+provenance ok. Sweeps unchanged: strut 0.1–0.8° → slabs ×3 at 1.000; 3360 pair runs (half with
+order shuffles) → 0 silent losses, |authored − mesh| ≤ 1e-6 every run; placements at 500 m / 50 km /
+UTM → same lanes incl. the mismatch strut's 3 boxes. `test_ifc_assembly + test_router` 200 passed /
+14 skipped; 4-file gate 342 passed / 24 skipped; `sync_plugin` → `--check` clean; `validate_plugin`
+PASS; portable paths ok; `route.py matrix` identical to a3506ad.
+
+## BRANCH STATE (eng #609, round 2)
+
+Second add-only commit on `claude/ifc-exact-box-decomposition` on top of fc69382 (parent chain
+a3506ad ← fc69382 ← this); no rebase, no force-push, no merge of main. Files this round:
+`src/rvt/ifc/assembly_parts.py` (+ `plugin/lib` mirror), `tests/test_ifc_assembly.py` (my section
+only), this record. `router.py` untouched this round. Nothing staged for the viewer; no
+certification claimed.

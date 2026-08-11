@@ -291,7 +291,9 @@ def test_to_parts_is_the_factory_contract(tmp_path):
         ("Box", "IFCBUILDINGELEMENTPROXY", _box_mesh(1.0, 2.0, 3.0)),
         ("Rod", "IFCMEMBER", _prism_mesh(0.2, 1.0, 24, ox=3.0)),
     ])
-    parts = AP.assembly_parts(p)
+    m = AP.read_assembly(p)
+    assert {x.fit for x in m.parts} == {"box", "cylinder"}
+    parts = m.to_parts()
     assert {q["shape"] for q in parts} == {"box", "cylinder"}
     for q in parts:
         assert q["height_ft"] > 0
@@ -364,15 +366,27 @@ def test_slice_of_a_box_is_its_rectangle():
     assert AP._polygon_area(rings[0]) == pytest.approx(8.0, rel=1e-9)
 
 
-def test_slice_returns_none_when_the_section_is_ambiguous():
-    """Two boxes touching at exactly one point: the segments alone do not
-    determine the rings, so the slice must refuse rather than guess."""
+def test_two_regions_touching_at_a_point_resolve_into_two_rings():
+    """Two boxes meeting at exactly one corner. The segments alone do not say
+    which continues into which; the MATERIAL does -- the wedge between two
+    spokes is either inside the section or not. This used to be refused as
+    ambiguous, which cost the beam clamp (and every C-shape) its geometry."""
     p1, t1 = _box_mesh(1.0, 1.0, 2.0, ox=-0.5, oy=-0.5)
     p2, t2 = _box_mesh(1.0, 1.0, 2.0, ox=0.5, oy=0.5)
     pts = list(p1) + list(p2)
     tris = _tri0(t1) + [(a - 1 + len(p1), b - 1 + len(p1), c - 1 + len(p1))
                         for a, b, c in t2]
-    assert AP.slice_loops(pts, tris, 1.0) is None
+    rings = AP.slice_loops(pts, tris, 1.0)
+    assert rings is not None and len(rings) == 2
+    assert [round(AP._polygon_area(r), 6) for r in rings] == [1.0, 1.0]
+    assert AP.ring_nesting(rings) == [0, 0]        # two solids, neither a hole
+
+
+def test_an_open_chain_is_still_refused():
+    """A vertex of ODD degree cannot close: that is a broken slice, not a
+    junction, and must still be refused rather than guessed."""
+    segs = [((0.0, 0.0), (1.0, 0.0)), ((1.0, 0.0), (1.0, 1.0))]
+    assert AP._stitch(segs) is None
 
 
 def test_ring_nesting_marks_a_hole_odd_and_its_island_even():
@@ -414,25 +428,20 @@ def test_the_budget_is_a_refusal_not_a_truncation():
     assert AP.decompose_slabs(pts, _tri0(tris), max_slabs=0) is None
 
 
-def test_a_body_whose_section_runs_sideways_keeps_its_prism(tmp_path):
-    """The C-channel case: a section constant along X cannot be expressed by
-    a Z-extruded part, so the reader must keep the honest envelope AND say
-    why -- never author a decomposition that lost material."""
-    # a U lying on its side: two flanges + a web, constant along X
-    parts = []
-    for oy, oz, d, h in ((-0.45, 0.0, 0.1, 1.0), (0.45, 0.0, 0.1, 1.0),
-                         (0.0, 0.0, 1.0, 0.1)):
-        parts.append(_box_mesh(4.0, d, h, oy=oy, oz=oz))
-    pts, tris = [], []
-    for p, t in parts:
-        n = len(pts)
-        pts += list(p)
-        tris += [(a - 1 + n, b - 1 + n, c - 1 + n) for a, b, c in t]
-    p = write_ifc(str(tmp_path / "u.ifc"), [("U Channel", "IFCMEMBER", (pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]))])
+def test_a_body_whose_section_runs_sideways_is_now_exact_not_an_envelope(tmp_path):
+    """Was the known gap: a C-section constant along X cannot be sliced into
+    Z slabs, so it used to keep a 0.20-fill envelope. It is a union of
+    axis-aligned boxes, so the box lane reproduces it exactly -- no rotation
+    in the part contract, none needed."""
+    pts, tris = _u_channel()
+    p = write_ifc(str(tmp_path / "u.ifc"),
+                  [("U Channel", "IFCMEMBER",
+                    (pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]))])
     m = AP.read_assembly(p)
-    assert len(m.parts) == 1                     # one prism, not a wrong stack
-    assert m.kept_prism and m.kept_prism[0]["name"] == "U Channel"
-    assert m.parts[0].fill is not None and m.parts[0].fill < 0.9
+    assert not m.kept_prism
+    assert m.decomposed and m.decomposed[0]["exact"] is True
+    assert m.decomposed[0]["fill_before"] < 0.6      # the envelope it replaced
+    assert m.decomposed[0]["fill_after"] == 1.0
 
 
 def test_decomposition_is_reported_per_product(tmp_path):
@@ -458,3 +467,548 @@ def test_decompose_can_be_switched_off(tmp_path):
     allt = list(tris) + [(a + n, b + n, c + n) for a, b, c in t2]
     p = write_ifc(str(tmp_path / "d2.ifc"), [("Stepped", "IFCBUILDINGELEMENTPROXY", (allp, allt))])
     assert len(AP.read_assembly(p, decompose=False).parts) == 1
+
+
+# ---------------------------------------------------------------------------
+# exact box decomposition (the C-channel answer -- no rotation needed)
+# ---------------------------------------------------------------------------
+
+def _u_channel(length=4.0, width=1.0, height=1.0, t=0.1):
+    """A C-section running along X: web on the -Z face, two flanges up +Z.
+
+    Its cross-section is constant along X, so no Z-slab decomposition can
+    express it -- but it IS a union of axis-aligned boxes.
+    """
+    boxes = [_box_mesh(length, width, t),                                   # web
+             _box_mesh(length, t, height - t, oy=-(width - t) / 2.0, oz=t),  # flange
+             _box_mesh(length, t, height - t, oy=(width - t) / 2.0, oz=t)]
+    pts, tris = [], []
+    for p, tr in boxes:
+        n = len(pts)
+        pts += list(p)
+        tris += [(a - 1 + n, b - 1 + n, c - 1 + n) for a, b, c in tr]
+    return pts, tris
+
+
+def test_a_cube_is_axis_aligned_a_prism_is_not():
+    assert AP.is_axis_aligned(*(lambda p, t: (p, _tri0(t)))(*_box_mesh(1, 1, 1)))
+    pts, tris = _prism_mesh(1.0, 1.0, 12)
+    assert not AP.is_axis_aligned(pts, _tri0(tris))
+
+
+def test_winding_number_is_one_inside_and_zero_outside():
+    pts, tris = _box_mesh(2.0, 2.0, 2.0)
+    t0 = _tri0(tris)
+    assert abs(AP.winding_number(pts, t0, (0.0, 0.0, 1.0))) == pytest.approx(1.0, abs=1e-6)
+    assert abs(AP.winding_number(pts, t0, (9.0, 9.0, 9.0))) == pytest.approx(0.0, abs=1e-6)
+
+
+def test_inside_does_not_depend_on_face_orientation():
+    """This IFC winds its triangles so that inside reads -1; the test must
+    read the magnitude, or every real body would classify as empty."""
+    pts, tris = _box_mesh(2.0, 2.0, 2.0)
+    fwd = _tri0(tris)
+    rev = [(c, b, a) for a, b, c in fwd]
+    assert AP._inside(pts, fwd, (0.0, 0.0, 1.0))
+    assert AP._inside(pts, rev, (0.0, 0.0, 1.0))
+
+
+def test_a_box_decomposes_to_exactly_one_box():
+    pts, tris = _box_mesh(2.0, 3.0, 4.0)
+    dec = AP.decompose_boxes(pts, _tri0(tris))
+    assert dec["n_boxes"] == 1
+    assert dec["exact"] is True
+    assert dec["volume_ft3"] == pytest.approx(24.0, rel=1e-9)
+
+
+def test_the_c_channel_decomposes_exactly_without_any_rotation():
+    """The headline case. A section running along X cannot be sliced into Z
+    slabs, but it IS a union of axis-aligned boxes -- each Z-extrudable."""
+    pts, tris = _u_channel()
+    dec = AP.decompose_boxes(pts, tris)
+    assert dec is not None and dec["exact"]
+    assert dec["volume_ft3"] == pytest.approx(AP.mesh_volume(pts, tris), rel=1e-9)
+    # and the single prism it replaces really was a poor envelope
+    assert AP.fit_solid(pts, AP.mesh_volume(pts, tris))["fill"] < 0.6
+
+
+def test_overlapping_shells_are_measured_as_a_union_not_counted_twice():
+    """Two boxes sharing half their volume: the mesh's divergence volume
+    counts the overlap twice, the decomposition must not."""
+    p1, t1 = _box_mesh(2.0, 2.0, 2.0)
+    p2, t2 = _box_mesh(2.0, 2.0, 2.0, ox=1.0)
+    pts = list(p1) + list(p2)
+    tris = _tri0(t1) + [(a - 1 + len(p1), b - 1 + len(p1), c - 1 + len(p1))
+                        for a, b, c in t2]
+    dec = AP.decompose_boxes(pts, tris)
+    assert dec is not None
+    assert dec["volume_ft3"] == pytest.approx(12.0, rel=1e-6)      # union
+    assert AP.mesh_volume(pts, tris) == pytest.approx(16.0, rel=1e-6)  # 8 + 8
+    assert dec["overlap_ft3"] == pytest.approx(4.0, rel=1e-6)
+    assert dec["volume_ft3"] + dec["overlap_ft3"] == pytest.approx(
+        AP.mesh_volume(pts, tris), rel=1e-6)
+
+
+def test_a_curved_body_is_not_box_decomposed_into_a_staircase():
+    pts, tris = _prism_mesh(1.0, 2.0, 24)
+    assert AP.decompose_boxes(pts, _tri0(tris)) is None
+
+
+def test_the_box_budget_is_a_refusal_not_a_truncation():
+    pts, tris = _u_channel()
+    assert AP.decompose_boxes(pts, tris, max_boxes=1) is None
+    assert AP.decompose_boxes(pts, tris, max_cells=1) is None
+
+
+def test_the_reader_prefers_the_exact_box_lane(tmp_path):
+    pts, tris = _u_channel()
+    p = write_ifc(str(tmp_path / "chan.ifc"),
+                  [("Channel", "IFCMEMBER", (pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]))])
+    m = AP.read_assembly(p)
+    assert m.decomposed and m.decomposed[0]["method"] == "boxes"
+    assert m.decomposed[0]["exact"] is True
+    assert m.decomposed[0]["fill_after"] == 1.0
+    assert all(x.fit == "box" for x in m.parts)
+    assert not m.kept_prism
+
+
+# ---------------------------------------------------------------------------
+# the Load Family crash law (#333 / VarSketch.cpp:634)
+# ---------------------------------------------------------------------------
+
+def _inconsistent_sketches(parts, name="probe"):
+    """Sketches whose curve index map promises more curves than the solver
+    records hold.  ``VarSketch::getCurveObj`` indexes ``m_elemRecs`` through
+    that map, so a map longer than the records is an out-of-range read inside
+    Revit -- it survives OPEN and kills ``Insert > Load Family``."""
+    from rvt.frontdoor import famspec as FS
+    doc = FS.build("generic_model", {"parts": parts, "name": name}).doc
+    return [e.elem_id for e in doc.elements
+            if e.class_name == "VarSketch"
+            and len(e.obj.get("m_curveObjIdxMap") or []) > len(e.obj.get("m_elemRecs") or [])]
+
+
+def test_an_arc_sketch_now_carries_the_solver_records_it_promises():
+    """The engine fix (#589). add_cylinder_form used to author a VarSketch
+    naming 2 arcs in m_curveObjIdxMap with m_elemRecs EMPTY -- an out-of-range
+    read inside VarSketch::getCurveObj that survives OPEN and kills
+    Insert > Load Family (owner journal 0040: VarSketch.cpp:634 + 0xc0000005).
+
+    STRUCTURE is fixed and asserted here; whether Revit accepts the arc
+    parameter vector is a DESKTOP question and #589 stays open until a verdict.
+    """
+    from rvt.frontdoor import famspec as FS
+    doc = FS.build("generic_model", {"parts": [
+        {"shape": "cylinder", "radius_ft": 0.5, "height_ft": 2.0}], "name": "arc"}).doc
+    sketches = [e for e in doc.elements if e.class_name == "VarSketch"
+                and e.obj.get("m_absorbedCurves")]
+    assert sketches, "the cylinder must author a curve sketch"
+    for e in sketches:
+        o = e.obj
+        recs = o.get("m_elemRecs") or []
+        assert len(recs) == len(o.get("m_curveObjIdxMap") or []) == len(o["m_absorbedCurves"])
+        assert all(r["ptr_class"] == "VarSketchArcObj" for r in recs)
+        # the guess cache must declare the same parameter vector the records do
+        guess = ((o.get("m_oGuessCache") or {}).get("value") or {}).get("m_guessArr") or []
+        n_params = sum(len(r["value"]["m_params"]) for r in recs)
+        assert guess and len(guess[0]["value"]["m_values"]) == n_params
+
+
+def test_line_based_shapes_carry_the_solver_records_they_promise():
+    for shape in ({"shape": "box", "width_ft": 1.0, "depth_ft": 1.0, "height_ft": 1.0},
+                  {"shape": "polygon", "height_ft": 1.0,
+                   "vertices": [[0, 0], [1, 0], [1, 1], [0.5, 1.4], [0, 1]]}):
+        assert _inconsistent_sketches([shape], "line") == []
+
+
+def test_the_assembly_lane_never_emits_a_sketch_revit_cannot_load(tmp_path):
+    """THE INVARIANT. Whatever this lane measures -- round, boxy or N-gon --
+    the family it hands the factory must not contain a sketch that promises
+    curves its solver cannot resolve. This is the check that would have caught
+    the crash before a human opened Revit."""
+    pts, tris = _prism_mesh(0.5, 3.0, 40)          # measured as a CYLINDER
+    box_p, box_t = _box_mesh(1.0, 1.0, 1.0, ox=4.0)
+    n = len(pts)
+    allp = list(pts) + list(box_p)
+    allt = [(a + 1, b + 1, c + 1) for a, b, c in _tri0(tris)] + \
+           [(a + n, b + n, c + n) for a, b, c in box_t]
+    p = write_ifc(str(tmp_path / "mix.ifc"),
+                  [("Rod", "IFCMEMBER", (allp[:n], [(a + 1, b + 1, c + 1) for a, b, c in _tri0(tris)])),
+                   ("Block", "IFCBUILDINGELEMENTPROXY", (list(box_p), list(box_t)))])
+    m = AP.read_assembly(p)
+    assert any(x.fit == "cylinder" for x in m.parts)        # it IS measured round
+    assert _inconsistent_sketches(m.to_parts(), "mix") == []  # and still loadable
+
+
+def test_a_round_profile_is_measured_round_and_authored_round():
+    """With #589's arc solver records desktop-verified (A5/A3 load, the empty
+    A0 control crashes), a measured cylinder is authored as a real cylinder
+    again -- not as the N-gon stand-in the crash forced."""
+    pts, _ = _prism_mesh(0.5, 3.0, 40)
+    fit = AP.fit_solid(pts)
+    assert fit["fit"] == "cylinder"
+    assert fit["radius_ft"] == pytest.approx(0.5, rel=0.02)
+    part = AP.PartSolid(name="r", ifc_class="IfcMember", tag="", guid="",
+                        fit="cylinder", center_ft=tuple(fit["center"]),
+                        height_ft=fit["height_ft"], base_z_ft=fit["base_z_ft"],
+                        radius_ft=fit["radius_ft"], vertices_ft=fit["vertices"]).to_part()
+    assert part["shape"] == "cylinder"
+    assert part["radius_ft"] == pytest.approx(0.5, rel=0.02)
+
+
+# ---------------------------------------------------------------------------
+# round and rotated bodies (rvt.famgen.revolve, #591)
+# ---------------------------------------------------------------------------
+
+def test_a_sphere_becomes_a_stack_whose_volume_converges():
+    """The part contract extrudes along Z only, so a sphere is sliced. More
+    slices must get CLOSER to the real volume -- if they do not, the stack is
+    not approximating anything."""
+    from rvt.famgen import revolve as RV
+    errs = []
+    for seg in (8, 16, 32, 64):
+        _, rep = RV.expand_parts([{"shape": "sphere", "radius_ft": 1.0, "segments": seg}])
+        errs.append(abs(rep[0]["ratio"] - 1.0))
+    assert errs == sorted(errs, reverse=True), f"error must fall with slices: {errs}"
+    assert errs[-1] < 0.005
+
+
+def test_a_wheel_is_a_TRUE_cylinder_not_a_stack():
+    """Desktop round 4 (#591) settled it: the cached B-rep is what Revit draws,
+    so a wheel is authored as a real cylinder whose B-rep is rotated onto a
+    horizontal axis -- verified round in the Front elevation. The old stack of
+    boxes is retired, and the expander must leave these shapes alone."""
+    from rvt.famgen import revolve as RV
+    from rvt.frontdoor import famspec as FS
+    part = {"shape": "cylinder_y", "radius_ft": 1.72, "length_ft": 0.95,
+            "center": [2.0, 3.0], "name": "wheel"}
+    made, rep = RV.expand_parts([part])
+    assert [p["shape"] for p in made] == ["cylinder_y"] and rep == []
+
+    doc = FS.build("generic_model", {"parts": [part], "name": "W"}).doc
+    axes = []
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k, x in v.items():
+                if k == "m_zVec" and isinstance(x, list):
+                    axes.append([round(n, 6) for n in x])
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+    for e in doc.elements:
+        if e.class_name == "ExtrusionElem" and e.rep is not None:
+            walk(e.rep)
+    assert axes, "the wheel must author a cylinder surface"
+    assert all(a == [0.0, 1.0, 0.0] for a in axes), f"axis must be +Y, got {axes}"
+
+
+def test_a_horizontal_cylinder_is_refused_without_its_length():
+    from rvt.famgen import factory as F
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("generic_model", "x", work_plane_based=False,
+                                 start_id=1000)
+    with pytest.raises(F.FactoryError) as e:
+        F.add_generic_part(doc, {"shape": "cylinder_y", "radius_ft": 1.0})
+    assert "length_ft" in str(e.value)
+
+
+def test_a_round_body_rests_on_its_base_z_not_centred_on_it():
+    from rvt.famgen import revolve as RV
+    made, _ = RV.expand_parts([{"shape": "sphere", "radius_ft": 2.0, "base_z_ft": 10.0}])
+    assert min(p["base_z_ft"] for p in made) == pytest.approx(10.0, abs=1e-9)
+    tops = [p["base_z_ft"] + p["height_ft"] for p in made]
+    assert max(tops) == pytest.approx(14.0, abs=1e-9)                 # 10 + 2r
+
+
+def test_composites_expand_only_where_asked():
+    from rvt.famgen import revolve as RV
+    plain = {"shape": "box", "width_ft": 1, "depth_ft": 1, "height_ft": 1}
+    made, rep = RV.expand_parts([plain, {"shape": "dome", "radius_ft": 1.0}])
+    assert made[0] == plain                       # untouched, same object
+    assert rep and rep[0]["shape"] == "dome"
+
+
+def test_a_round_body_without_its_dimension_is_refused_by_name():
+    from rvt.famgen import revolve as RV
+    for part, want in (({"shape": "sphere", "radius_ft": 0}, "positive radius"),
+                       ({"shape": "dome", "radius_ft": 0}, "positive radius"),
+                       ({"shape": "sphere", "radius_ft": 1.0, "segments": 2}, "too few")):
+        with pytest.raises(RV.RevolveError) as e:
+            RV.expand_parts([part])
+        assert want in str(e.value)
+
+
+def test_the_detailed_bus_builds_and_never_ships_an_unloadable_sketch():
+    """End to end for 'make a bus': round wheels, a dome, and the sketch
+    invariant that Load Family depends on."""
+    parts = [{"shape": "box", "width_ft": 40, "depth_ft": 8.5, "height_ft": 7.2,
+              "base_z_ft": 1.9, "name": "body"},
+             {"shape": "dome", "radius_ft": 1.5, "base_z_ft": 9.4, "segments": 8,
+              "name": "roof pod"}]
+    for x, y in ((-14.5, -3.55), (-14.5, 3.55), (11.0, -3.55), (11.0, 3.55)):
+        parts.append({"shape": "cylinder_y", "radius_ft": 1.72, "length_ft": 0.95,
+                      "center": [x, y], "segments": 12, "name": f"wheel {x},{y}"})
+    from rvt.frontdoor import famspec as FS
+    spec = {"kind": "generic_model", "name": "Bus", "parts": parts}
+    assert FS.validate(spec) == []
+    assert _inconsistent_sketches(parts, "bus") == []
+
+
+# ---------------------------------------------------------------------------
+# tech-lead pre-merge fix (#609): "exact" is checked, never assumed, and a
+# solid ring is never dropped as a hole
+# ---------------------------------------------------------------------------
+
+def _yaw(pts, deg):
+    a = math.radians(deg)
+    c, s = math.cos(a), math.sin(a)
+    return [(x * c - y * s, x * s + y * c, z) for x, y, z in pts]
+
+
+def _strut(deg):
+    """A 900 mm strut, 41 x 41 mm section, 2.5 mm wall, yawed about Z --
+    1-based triangles, ready for write_ifc."""
+    pts, tris = _u_channel(length=0.9, width=0.041, height=0.041, t=0.0025)
+    return _yaw(pts, deg), [(a + 1, b + 1, c + 1) for a, b, c in tris]
+
+
+def _strut_mismatch(deg, dz=50e-6):
+    """The same strut with its two flanges dz metres different in height --
+    the hairline disagreement two CAD shells routinely have along a seam."""
+    length, width, height, t = 0.9, 0.041, 0.041, 0.0025
+    pts, tris = [], []
+    for p, tr in (_box_mesh(length, width, t),
+                  _box_mesh(length, t, height - t, oy=-(width - t) / 2.0, oz=t),
+                  _box_mesh(length, t, height - t - dz, oy=(width - t) / 2.0, oz=t)):
+        n = len(pts)
+        pts += list(p)
+        tris += [(a + n, b + n, c + n) for a, b, c in tr]
+    return _yaw(pts, deg), tris
+
+
+def _frustum(r0=0.10, r1=0.05, h=0.20, bands=8, sides=32):
+    """A tessellated reducer: `bands` latitude rings on a linear taper."""
+    pts, tris = [], []
+    for b in range(bands + 1):
+        z, r = h * b / bands, r0 + (r1 - r0) * b / bands
+        pts += [(r * math.cos(2 * math.pi * i / sides), r * math.sin(2 * math.pi * i / sides), z)
+                for i in range(sides)]
+    for b in range(bands):
+        for i in range(sides):
+            j = (i + 1) % sides
+            a, b2, c, d = b * sides + i, b * sides + j, (b + 1) * sides + j, (b + 1) * sides + i
+            tris += [(a, b2, c), (a, c, d)]
+    top = bands * sides
+    for i in range(1, sides - 1):
+        tris += [(0, i + 1, i), (top, top + i, top + i + 1)]
+    return pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]
+
+
+def _authored_ft3(model):
+    v = 0.0
+    for p in model.parts:
+        if p.fit == "box":
+            v += p.width_ft * p.depth_ft * p.height_ft
+        elif p.fit == "polygon":
+            v += AP._polygon_area(p.vertices_ft) * p.height_ft
+        else:
+            v += math.pi * p.radius_ft ** 2 * p.height_ft
+    return v
+
+
+def _mesh_ft3(pts_m, tris1):
+    return AP.mesh_volume([(x * FT, y * FT, z * FT) for x, y, z in pts_m], _tri0(tris1))
+
+
+def test_axis_alignment_is_float_noise_not_an_angle_budget():
+    """1 - cos(0.1 deg) = 1.5e-6 sailed under the old 1e-4 and turned a strut
+    into a dozen sliver boxes.  Aligned means ALIGNED."""
+    pts, tris = _strut(0.0)
+    assert AP.is_axis_aligned(pts, _tri0(tris))
+    for deg in (0.05, 0.1, 0.2, 0.8):
+        pts, tris = _strut(deg)
+        assert not AP.is_axis_aligned(pts, _tri0(tris)), deg
+
+
+def test_a_sliver_box_refuses_the_box_lane_a_hairline_step_does_not():
+    """A MERGED box thinner than MIN_EXTENT_FT is a sliver Revit cannot keep
+    (and the signature of a nearly-aligned body): no box lane.  A hairline
+    grid step that merges away -- two flanges 50 um different in height, the
+    multi-shell CAD noise real exports carry -- must NOT cost the lane."""
+    p1, t1 = _box_mesh(1.0, 1.0, 1.0)
+    shim, _ = _box_mesh(0.5, 0.5, AP.MIN_EXTENT_FT / 2.0, oz=1.0)      # a real 0.2 mm film
+    tris = _tri0(t1) + [(a + len(p1), b + len(p1), c + len(p1)) for a, b, c in _tri0(t1)]
+    assert AP.is_axis_aligned(list(p1) + list(shim), tris)          # aligned, and still refused:
+    assert AP.decompose_boxes(list(p1) + list(shim), tris) is None
+    pts, tris1 = _strut_mismatch(0.0)                               # 50 um step between flanges
+    dec = AP.decompose_boxes([(x * FT, y * FT, z * FT) for x, y, z in pts], _tri0(tris1))
+    assert dec is not None and dec["n_boxes"] == 3
+    assert min(min(q["width_ft"], q["depth_ft"], q["height_ft"]) for q in dec["parts"]) > AP.MIN_EXTENT_FT
+
+
+@pytest.mark.parametrize("deg", [0.1, 0.2, 0.5, 0.8])
+def test_a_yawed_channel_is_exact_slabs_never_sliver_boxes(tmp_path, deg):
+    """THE REGRESSION.  A strut yawed a fraction of a degree is not an
+    axis-aligned polyhedron; head authored it as ~10 'exact' boxes, most
+    thinner than MIN_EXTENT_FT, at 50-300 % of the mesh's volume.  It must
+    fall through to the slab lane, which authors its three rotated rectangles
+    exactly -- as main always did."""
+    pts, tris = _strut(deg)
+    p = write_ifc(str(tmp_path / f"strut_{deg}.ifc"), [("Strut", "IFCMEMBER", (pts, tris))])
+    m = AP.read_assembly(p)
+    assert not m.kept_prism
+    assert m.decomposed and m.decomposed[0]["method"] == "slabs"
+    assert m.decomposed[0]["exact"] is False
+    assert len(m.parts) == 3 and all(x.fit == "polygon" for x in m.parts)
+    assert min(x.height_ft for x in m.parts) > AP.MIN_EXTENT_FT
+    mesh, authored = _mesh_ft3(pts, tris), _authored_ft3(m)
+    assert AP._conserves(authored, mesh, AP.EXACT_REL_TOL)   # nothing lost
+    assert authored == pytest.approx(mesh, rel=1e-3)         # nothing invented
+
+
+def test_the_box_lane_is_held_to_the_mesh_volume(tmp_path, monkeypatch):
+    """'Exact' is a claim about volume and is checked as one.  Unyawed, the
+    strut takes the box lane and gives the mesh's volume back to 1e-6; a box
+    set that does not is not accepted, whatever is_axis_aligned thought of
+    the faces."""
+    pts, tris = _strut(0.0)
+    p = write_ifc(str(tmp_path / "s.ifc"), [("Strut", "IFCMEMBER", (pts, tris))])
+    mesh = _mesh_ft3(pts, tris)
+    m = AP.read_assembly(p)
+    assert m.decomposed and m.decomposed[0]["method"] == "boxes"
+    assert m.decomposed[0]["exact"] is True and len(m.parts) == 3
+    assert _authored_ft3(m) == pytest.approx(mesh, rel=AP.EXACT_REL_TOL)
+
+    real = AP.decompose_boxes
+
+    def short(points, triangles, **kw):
+        d = real(points, triangles, **kw)
+        d["volume_ft3"] *= 0.999                          # a tenth of a percent off
+        return d
+    monkeypatch.setattr(AP, "decompose_boxes", short)
+    m = AP.read_assembly(p)
+    assert not (m.decomposed and m.decomposed[0]["method"] == "boxes")
+    assert AP._conserves(_authored_ft3(m), mesh, AP.EXACT_REL_TOL)
+
+
+def test_ring_nesting_survives_a_shared_vertex():
+    """Two solids meeting at a corner SHARE that vertex.  Testing containment
+    with rings[i][0] read ring A as a hole in B whenever the stitch happened to
+    start A at the shared corner -- and the slab silently lost a member."""
+    a = [[1, 1], [-1, 1], [-1, -1], [1, -1]]           # starts AT the shared corner
+    b = [[1, 1], [3, 1], [3, 3], [1, 3]]
+    assert AP.ring_nesting([a, b]) == [0, 0]
+    assert AP.ring_nesting([b, a]) == [0, 0]
+    # and a real hole whose first vertex touches nothing is still a hole
+    outer = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    hole = [[2, 2], [8, 2], [8, 8], [2, 8]]
+    assert AP.ring_nesting([hole, outer]) == [1, 0]
+
+
+def test_the_interior_probe_is_inside_its_ring_and_is_not_a_vertex():
+    for ring in ([[0, 0], [4, 0], [4, 1], [0, 1]],
+                 [[0, 0], [2, 0], [2, 2], [1, 3], [0, 2]],
+                 [[0, 0], [3, 0], [3, 3], [2, 3], [2, 1], [1, 1], [1, 3], [0, 3]]):   # a U
+        pt = AP._interior_probe(ring)
+        assert AP._point_in_ring(pt, ring)
+        assert all(math.hypot(pt[0] - v[0], pt[1] - v[1]) > 1e-9 for v in ring)
+
+
+def _corner_pair(ox, oy, yaw_deg):
+    """A 6 m cube and a 1 x 1 x 2 m member touching it along ONE corner
+    edge at (ox, oy), yawed -- 1-based triangles."""
+    big_p, big_t = _box_mesh(6.0, 6.0, 6.0)
+    small_p, small_t = _box_mesh(1.0, 1.0, 2.0, ox=ox, oy=oy)
+    n = len(big_p)
+    return (_yaw(list(big_p) + list(small_p), yaw_deg),
+            list(big_t) + [(a + n, b + n, c + n) for a, b, c in small_t])
+
+
+def _triangle_orders(tris, seeds=40):
+    """Seeded permutations of the triangle ORDER plus each triangle's start
+    vertex.  Which segment the stitch starts from -- and so which vertex was
+    the old rings[i][0] -- depends on exactly this; on a3506ad 21 of the 160
+    runs below start a ring at the shared corner and lose the member."""
+    import random
+    yield list(tris)
+    for seed in range(seeds):
+        rng = random.Random(seed)
+        out = [t[s:] + t[:s] for t, s in ((t, rng.randrange(3)) for t in tris)]
+        rng.shuffle(out)
+        yield out
+
+
+def test_a_corner_touching_pair_never_loses_its_member(tmp_path):
+    """THE OTHER REGRESSION, over triangle orders that DO move the stitch
+    start onto the shared corner: the small member -- 0.9 % of the body, so
+    inside the 2 % conservation slack -- must never vanish without a word.
+    The law: material is conserved or the body is kept as one honest prism
+    that says so.  The outcome, now: both solids, always."""
+    for ox, oy, yaw_deg in ((-3.5, 3.5, 5.0), (-3.5, 3.5, 12.0), (-3.5, 3.5, 33.0),
+                            (-3.5, -3.5, -5.0)):
+        pts, base = _corner_pair(ox, oy, yaw_deg)
+        mesh = _mesh_ft3(pts, base)                      # order-invariant
+        for tris in _triangle_orders(base):
+            p = write_ifc(str(tmp_path / "pair.ifc"),
+                          [("Pair", "IFCBUILDINGELEMENTPROXY", (pts, tris))])
+            m = AP.read_assembly(p)
+            authored = _authored_ft3(m)
+            assert authored >= mesh * (1.0 - 1e-6) or m.kept_prism, (ox, oy, yaw_deg, len(m.parts))
+            assert m.decomposed and len(m.parts) >= 2, (ox, oy, yaw_deg)
+            assert authored == pytest.approx(mesh, rel=1e-4)
+
+
+def test_the_slab_lane_keeps_its_declared_approximations(tmp_path):
+    """The slab lane makes no exactness claim: midpoint sections under-integrate
+    a taper by a hair, hairline Z levels are skipped, slivers dropped -- all
+    inside the 2 % envelope, all better than one fat prism.  A reducer must
+    stay a stack and a strut with 50 um of flange mismatch must stay a
+    channel (exact boxes unyawed, three slabs yawed), exactly as on main."""
+    cases = [("Reducer", _frustum(), None, 8),
+             ("Strut0", _strut_mismatch(0.0), "boxes", 3),
+             ("Strut12", _strut_mismatch(12.0), "slabs", 3)]
+    for name, (pts, tris), method, n_parts in cases:
+        p = write_ifc(str(tmp_path / f"{name}.ifc"), [(name, "IFCBUILDINGELEMENTPROXY", (pts, tris))])
+        m = AP.read_assembly(p)
+        assert not m.kept_prism, (name, m.kept_prism)
+        assert m.decomposed and len(m.parts) == n_parts, (name, len(m.parts))
+        if method:
+            assert m.decomposed[0]["method"] == method, name
+            assert m.decomposed[0]["exact"] is (method == "boxes")
+        assert _authored_ft3(m) == pytest.approx(_mesh_ft3(pts, tris), rel=2e-3), name
+
+
+def test_volume_and_area_do_not_lose_precision_at_site_coordinates(tmp_path):
+    """The exactness checks compare to 1e-6, so the measurements must be good
+    to far better than that wherever the body sits: tetrahedra and shoelaces
+    are summed about a LOCAL vertex, not the world origin (at 5 km out the
+    origin-based sum was 0.6 % off and every aligned body missed its lane)."""
+    # (rel 1e-7, not 1e-9: the INPUT is already quantised -- float spacing at
+    # 4.8e6 is ~1e-9, so '+ 0.03' itself carries 3e-8; the sums add nothing)
+    pts, tris = _box_mesh(0.02, 0.03, 0.05, ox=5.0e5, oy=4.8e6, oz=300.0)   # UTM-ish
+    assert AP.mesh_volume(pts, _tri0(tris)) == pytest.approx(3e-5, rel=1e-7)
+    ring = [[5.0e5 + x, 4.8e6 + y] for x, y in ((0, 0), (0.02, 0), (0.02, 0.03), (0, 0.03))]
+    assert AP._polygon_area(ring) == pytest.approx(6e-4, rel=1e-7)
+    for deg, method in ((0.0, "boxes"), (0.5, "slabs")):
+        s_pts, s_tris = _strut(deg)
+        p = write_ifc(str(tmp_path / f"far_{deg}.ifc"), [("Strut", "IFCMEMBER", (s_pts, s_tris))],
+                      placements={"Strut": (50000.0, 80000.0, 100.0)})
+        m = AP.read_assembly(p)
+        assert m.decomposed and m.decomposed[0]["method"] == method, deg
+        assert len(m.parts) == 3 and not m.kept_prism
+
+
+def test_the_route_caveat_names_the_lane_that_ran(tmp_path):
+    """A box decomposition must not be reported as a slab decomposition: one
+    assembly holding an aligned strut and a yawed one names each lane."""
+    from rvt.frontdoor import router as R
+    p = write_ifc(str(tmp_path / "two.ifc"),
+                  [("Aligned", "IFCMEMBER", _strut(0.0)), ("Yawed", "IFCMEMBER", _strut(0.5))],
+                  placements={"Yawed": (0.0, 0.5, 0.0)})
+    res = R.route({"ifc": p}, "rfa", out=str(tmp_path / "o"), quiet=True)
+    assert res.ok and os.path.isfile(res.files["rfa"])
+    caveat = next(c for c in res.caveats if "decomposition improved" in c)
+    assert "box decomposition improved Aligned" in caveat
+    assert "slab decomposition improved Yawed" in caveat

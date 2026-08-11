@@ -83,7 +83,9 @@ __all__ = [
     "AssemblyError", "PartSolid", "AssemblyModel", "FT_PER_M",
     "convex_hull_2d", "fit_solid", "read_assembly", "assembly_parts",
     "slice_loops", "ring_nesting", "mesh_volume", "decompose_slabs",
+    "is_axis_aligned", "decompose_boxes",
     "MIN_EXTENT_FT", "CYLINDER_TOLERANCE", "RECT_TOLERANCE", "MAX_HULL_POINTS",
+    "EXACT_REL_TOL",
 ]
 
 FT_PER_M = 1.0 / 0.3048
@@ -115,6 +117,40 @@ MAX_DECOMPOSED_PARTS = 40
 
 #: A slice ring below this area (ft^2 ~ 0.0144 in^2) is a tessellation sliver.
 MIN_SLAB_AREA_FT2 = 1e-4
+
+#: Budget for the axis-aligned box grid (one inside-test per cell).
+MAX_GRID_CELLS = 20000
+
+#: An exact box decomposition may use more parts than a lossy slab one: a
+#: slotted channel is genuinely many boxes, and each is EXACT.
+MAX_BOXES = 120
+
+#: "Exact" is a claim about VOLUME, so it is checked as one: the box lane's
+#: boxes, plus the overlap the mesh counts twice, must reproduce the mesh's
+#: own volume to this relative tolerance or the lane is refused.  1e-6 is far
+#: above the noise of welding coordinates to 1e-9 ft (a box no thinner than
+#: MIN_EXTENT_FT is perturbed by at most 7.7e-7) and far below any real
+#: sliver.  The slab lane makes no exactness claim and keeps its 2 % envelope
+#: (:func:`_conserves`): its midpoint sections legitimately under-integrate a
+#: taper, skip hairline Z levels and drop slivers.
+EXACT_REL_TOL = 1e-6
+
+#: Author a measured-round profile as its N-gon hull instead of an ARC-based
+#: cylinder.  This existed because ``add_cylinder_form`` emitted a VarSketch
+#: whose ``m_curveObjIdxMap`` named 2 arcs while ``m_elemRecs`` (the solver
+#: records ``VarSketch::getCurveObj`` indexes) was EMPTY -- an out-of-range
+#: read that survived OPENING a family and killed ``Insert > Load Family``
+#: with "Invalid idx in VarSketch::getCurveObj (VarSketch.cpp:634)" + an
+#: access violation.
+#:
+#: RESOLVED 2026-08-10 (#589).  The arc records are authored now
+#: (:func:`rvt.famgen.geometry._curve_solver_obj`) and the owner's desktop
+#: settled it on Revit 2026: BOTH parameter layouts load and the pre-fix
+#: empty-solver control CRASHED, which is what makes it the mechanism rather
+#: than a coincidence.  So round profiles are authored as real cylinders
+#: again; this switch stays as the documented way back if an arc regression
+#: ever appears.
+CYLINDER_AS_POLYGON = False
 
 
 class AssemblyError(ValueError):
@@ -164,6 +200,12 @@ class PartSolid:
             "height_ft": self.height_ft, "base_z_ft": self.base_z_ft,
         }
         if self.fit == "cylinder":
+            if CYLINDER_AS_POLYGON and self.vertices_ft:
+                # measured round, authored as the mesh's own N-gon: the arc
+                # sketch ships an empty solver and crashes Load Family.
+                part["shape"] = "polygon"
+                part["vertices"] = self.vertices_ft
+                return part
             part["radius_ft"] = self.radius_ft
             part["center"] = list(self.center_ft)
         elif self.fit == "polygon":
@@ -343,11 +385,18 @@ def convex_hull_2d(points: Sequence[Sequence[float]]) -> List[List[float]]:
 
 
 def _polygon_area(ring: Sequence[Sequence[float]]) -> float:
+    """Shoelace area, summed about the ring's first vertex rather than the
+    origin for the same reason :func:`mesh_volume` uses a local apex: a
+    section at site coordinates must still measure to better than the
+    exactness checks' 1e-6."""
     a = 0.0
     n = len(ring)
+    if not n:
+        return 0.0
+    ox, oy = float(ring[0][0]), float(ring[0][1])
     for i in range(n):
-        x1, y1 = ring[i][0], ring[i][1]
-        x2, y2 = ring[(i + 1) % n][0], ring[(i + 1) % n][1]
+        x1, y1 = ring[i][0] - ox, ring[i][1] - oy
+        x2, y2 = ring[(i + 1) % n][0] - ox, ring[(i + 1) % n][1] - oy
         a += x1 * y2 - x2 * y1
     return abs(a) / 2.0
 
@@ -410,7 +459,9 @@ def fit_solid(points_ft: Sequence[Sequence[float]],
         radii = [math.hypot(v[0] - cx, v[1] - cy) for v in hull]
         mean_r = sum(radii) / len(radii)
         if mean_r > 0 and (max(radii) - min(radii)) / mean_r <= CYLINDER_TOLERANCE:
+            ring = _decimate(hull, MAX_HULL_POINTS) if len(hull) > MAX_HULL_POINTS else hull
             return dict(common, fit="cylinder", center=(cx, cy), radius_ft=mean_r,
+                        vertices=ring,      # the mesh's own outline, for authoring
                         fill=_fill(math.pi * mean_r * mean_r * height))
 
     hull_area = _polygon_area(hull) if len(hull) >= 3 else 0.0
@@ -460,13 +511,17 @@ def slice_loops(points: Sequence[Sequence[float]],
                             round(p[1] + t * (q[1] - p[1]), _WELD)))
         if len(hit) == 2 and hit[0] != hit[1]:
             segs.append((hit[0], hit[1]))
-    rings = _stitch(segs)
+    def inside(pt):                # robust at a junction: the 3D body itself
+        return abs(winding_number(points, triangles, (pt[0], pt[1], z))) >= 0.5
+
+    rings = _stitch(segs, inside)
     if rings is None:
         return None
     return rings
 
 
-def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
+def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]],
+            inside: Optional[Any] = None
             ) -> Optional[List[List[List[float]]]]:
     """Weld segments into closed rings, each segment used exactly once.
 
@@ -481,7 +536,10 @@ def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
     for i, (a, b) in enumerate(segs):
         adj[a].append(i)
         adj[b].append(i)
-    if any(len(v) != 2 for v in adj.values()):
+    if any(len(v) % 2 for v in adj.values()):
+        return None                                     # an open chain: refuse
+    pair_at = _junction_pairs(segs, adj, inside)
+    if pair_at is None:
         return None
     used = [False] * len(segs)
     rings: List[List[List[float]]] = []
@@ -492,14 +550,18 @@ def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
         a, b = segs[start_i]
         ring = [a, b]
         cur = b
+        prev = start_i
         while cur != a:
-            nxt = -1
-            for j in adj.get(cur, ()):                 # an unused segment at cur
-                if not used[j]:
-                    nxt = j
-                    break
+            nxt = pair_at.get((cur, prev), -1)          # the junction's own pairing
+            if nxt < 0 or used[nxt]:
+                nxt = -1
+                for j in adj.get(cur, ()):              # degree 2: the other one
+                    if not used[j]:
+                        nxt = j
+                        break
             if nxt < 0:
                 break                                   # open chain: not a ring
+            prev = nxt
             used[nxt] = True
             p, q = segs[nxt]
             cur = q if p == cur else p
@@ -507,6 +569,68 @@ def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]]
         if cur == a and len(ring) >= 4:                 # closed (last == first)
             rings.append([list(v) for v in ring[:-1]])
     return [_drop_collinear(r) for r in rings if len(r) >= 3]
+
+
+
+def _seg_inside(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]],
+                pt: Sequence[float]) -> bool:
+    """Even-odd test of a point against a slice's segment set (the section's
+    own boundary), used to tell a MATERIAL wedge from an empty one."""
+    x, y = float(pt[0]), float(pt[1])
+    inside = False
+    for (x1, y1), (x2, y2) in segs:
+        if (y1 > y) != (y2 > y):
+            xi = x1 + (y - y1) * (x2 - x1) / (y2 - y1)
+            if xi > x:
+                inside = not inside
+    return inside
+
+
+def _junction_pairs(segs, adj, inside=None):
+    """Resolve vertices where more than two segments meet.
+
+    Two regions of a section can touch at a single point -- a C-clamp's throat
+    closing on itself, two slots meeting at a corner.  The segments alone do
+    not say which continues into which, and the older code refused the whole
+    slice for it.  They ARE determined by the material: sort the incident
+    directions by angle, and the two segments bounding a wedge that is INSIDE
+    the section belong to the same ring.  Returns ``{(vertex, from_seg):
+    to_seg}``, or None when a junction cannot be resolved consistently (every
+    segment must be paired exactly once).
+    """
+    pair_at: Dict[Tuple[Tuple[float, float], int], int] = {}
+    for v, inc in adj.items():
+        if len(inc) <= 2:
+            continue
+        spokes = []
+        for i in inc:
+            a, b = segs[i]
+            other = b if a == v else a
+            d = (other[0] - v[0], other[1] - v[1])
+            n = math.hypot(*d)
+            if n <= 0:
+                return None
+            spokes.append((math.atan2(d[1], d[0]), i, n))
+        spokes.sort()
+        eps = min(s[2] for s in spokes) * 0.05
+        taken: Dict[int, int] = {}
+        for k in range(len(spokes)):
+            a1, i1, _ = spokes[k]
+            a2, i2, _ = spokes[(k + 1) % len(spokes)]
+            mid = a1 + ((a2 - a1) % (2.0 * math.pi)) / 2.0
+            probe = (v[0] + eps * math.cos(mid), v[1] + eps * math.sin(mid))
+            hit = inside(probe) if inside is not None else _seg_inside(segs, probe)
+            if not hit:
+                continue                                # empty wedge
+            if i1 in taken or i2 in taken:
+                return None                             # inconsistent pairing
+            taken[i1] = i2
+            taken[i2] = i1
+        if len(taken) != len(inc):
+            return None                                 # not every spoke paired
+        for i1, i2 in taken.items():
+            pair_at[(v, i1)] = i2
+    return pair_at
 
 
 def _drop_collinear(ring: Sequence[Sequence[float]], eps: float = 1e-12
@@ -534,25 +658,56 @@ def _point_in_ring(pt: Sequence[float], ring: Sequence[Sequence[float]]) -> bool
     return inside
 
 
+def _interior_probe(ring: Sequence[Sequence[float]]) -> Tuple[float, float]:
+    """A point STRICTLY inside ``ring``, just off the midpoint of its longest
+    edge -- never a vertex.
+
+    Junction resolution (:func:`_junction_pairs`) lets two solid regions
+    touch at a point, so a ring's vertex may be SHARED with its neighbour and
+    says nothing about which contains which.  An edge midpoint nudged inward
+    by a millionth of the edge is inside this ring, outside every disjoint
+    neighbour, and too close to the boundary to fall into a hole ring nested
+    within.  A ring too degenerate to have an inside (zero area to within
+    that nudge) falls back to its first vertex; such slivers are dropped by
+    area anyway.
+    """
+    n = len(ring)
+    edges = [(ring[i], ring[(i + 1) % n]) for i in range(n)]
+    a, b = max(edges, key=lambda e: math.hypot(e[1][0] - e[0][0], e[1][1] - e[0][1]))
+    length = math.hypot(b[0] - a[0], b[1] - a[1])
+    if length > 0.0:
+        mx, my = (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
+        k = 1e-6                                        # nudge, as a fraction of the edge
+        nx, ny = -(b[1] - a[1]) * k, (b[0] - a[0]) * k
+        for cand in ((mx + nx, my + ny), (mx - nx, my - ny)):
+            if _point_in_ring(cand, ring):
+                return cand
+    return (float(ring[0][0]), float(ring[0][1]))
+
+
 def ring_nesting(rings: Sequence[Sequence[Sequence[float]]]) -> List[int]:
     """Even-odd nesting depth per ring: 0 = solid outer, 1 = a hole in it,
     2 = an island inside that hole, ...
 
-    Containment is tested with a ring's own VERTEX, not its interior point: a
-    slice's rings are disjoint (the ambiguous case is refused upstream), so a
-    boundary point of A lies in B exactly when A lies in B -- whereas an
-    interior point of a ring that CONTAINS others is inside those others and
-    would count them as its own parents.
+    Containment is tested with :func:`_interior_probe`, never with a vertex
+    (see there for why: a shared corner read a SOLID ring as a hole).
     """
+    probes = [_interior_probe(r) for r in rings]
     return [sum(1 for j, other in enumerate(rings)
-                if j != i and _point_in_ring(rings[i][0], other))
+                if j != i and _point_in_ring(probes[i], other))
             for i in range(len(rings))]
 
 
 def mesh_volume(points: Sequence[Sequence[float]],
                 triangles: Sequence[Sequence[int]]) -> float:
     """The enclosed volume of a CLOSED triangle mesh (divergence theorem:
-    the signed tetrahedra a face makes with the origin).
+    the signed tetrahedra a face makes with a fixed apex).
+
+    The apex is the mesh's own first vertex, not the world origin: the
+    theorem holds about any point, and a body at site coordinates (hundreds
+    of feet out) summed about the origin cancels twelve-digit tetrahedra down
+    to a two-digit volume -- 3e-6 relative error at 500 m, 0.6 % at 5 km --
+    which is more than the exactness checks downstream are allowed to miss.
 
     A mesh that is not watertight gives a meaningless number, so callers use
     this only for the ``fill`` ratio -- a reported measurement, never a
@@ -560,6 +715,9 @@ def mesh_volume(points: Sequence[Sequence[float]],
     """
     total = 0.0
     n = len(points)
+    if not n:
+        return 0.0
+    ox, oy, oz = float(points[0][0]), float(points[0][1]), float(points[0][2])
     for tri in triangles:
         if len(tri) < 3:
             continue
@@ -567,9 +725,12 @@ def mesh_volume(points: Sequence[Sequence[float]],
         if not (0 <= a < n and 0 <= b < n and 0 <= c < n):
             continue
         p, q, r = points[a], points[b], points[c]
-        total += (p[0] * (q[1] * r[2] - q[2] * r[1])
-                  - p[1] * (q[0] * r[2] - q[2] * r[0])
-                  + p[2] * (q[0] * r[1] - q[1] * r[0])) / 6.0
+        px, py, pz = p[0] - ox, p[1] - oy, p[2] - oz
+        qx, qy, qz = q[0] - ox, q[1] - oy, q[2] - oz
+        rx, ry, rz = r[0] - ox, r[1] - oy, r[2] - oz
+        total += (px * (qy * rz - qz * ry)
+                  - py * (qx * rz - qz * rx)
+                  + pz * (qx * ry - qy * rx)) / 6.0
     return abs(total)
 
 
@@ -659,6 +820,195 @@ def _conserves(authored_ft3: float, mesh_ft3: float, tol: float = 0.02) -> bool:
     region went missing -- the decomposition is wrong and must be discarded,
     however good its fill ratio looks."""
     return authored_ft3 >= mesh_ft3 * (1.0 - tol)
+
+
+def is_axis_aligned(points: Sequence[Sequence[float]],
+                    triangles: Sequence[Sequence[int]],
+                    eps: float = 1e-9) -> bool:
+    """True when every face normal is parallel to X, Y or Z.
+
+    Such a body is an axis-aligned polyhedron, and :func:`decompose_boxes`
+    reproduces it EXACTLY out of boxes -- no envelope, no rotation.  A body
+    with one slanted or curved face is not, and box decomposition would
+    return a staircase, so it is not attempted.
+
+    ``eps`` is float noise, not an angle budget: a genuinely aligned face has
+    two normal components that are exactly zero, while a strut yawed a tenth
+    of a degree (1 - cos = 1.5e-6) passed the old 1e-4 and came back as a
+    dozen sliver boxes at half the mesh's volume, stamped exact.
+    """
+    for tri in triangles:
+        if len(tri) < 3:
+            continue
+        try:
+            p, q, r = points[tri[0]], points[tri[1]], points[tri[2]]
+        except IndexError:
+            continue
+        u = [q[i] - p[i] for i in range(3)]
+        v = [r[i] - p[i] for i in range(3)]
+        n = [u[1] * v[2] - u[2] * v[1],
+             u[2] * v[0] - u[0] * v[2],
+             u[0] * v[1] - u[1] * v[0]]
+        mag = math.sqrt(sum(x * x for x in n))
+        if mag <= 0:
+            continue                                    # degenerate triangle
+        if max(abs(x) / mag for x in n) < 1.0 - eps:
+            return False
+    return True
+
+
+def winding_number(points: Sequence[Sequence[float]],
+                   triangles: Sequence[Sequence[int]],
+                   pt: Sequence[float]) -> float:
+    """The generalised winding number of a triangle mesh about ``pt``.
+
+    The sum of the triangles' SIGNED solid angles / 4*pi (Van Oosterom &
+    Strackee): ~1 inside a correctly-oriented closed shell, ~0 outside.
+
+    This is used instead of parity ray-casting because real fabrication
+    meshes are not always clean closed manifolds -- the trapeze hanger's
+    "back-to-back" strut pair is two shells welded along a seam, with
+    INTERNAL faces and non-manifold edges.  A ray crossing an internal face
+    flips parity and reports solid material as empty; the winding number is
+    unaffected by internal faces and by which shell the point sits in.
+    """
+    total = 0.0
+    ox, oy, oz = float(pt[0]), float(pt[1]), float(pt[2])
+    for tri in triangles:
+        if len(tri) < 3:
+            continue
+        try:
+            p, q, r = points[tri[0]], points[tri[1]], points[tri[2]]
+        except IndexError:
+            continue
+        ax, ay, az = p[0] - ox, p[1] - oy, p[2] - oz
+        bx, by, bz = q[0] - ox, q[1] - oy, q[2] - oz
+        cx, cy, cz = r[0] - ox, r[1] - oy, r[2] - oz
+        la = math.sqrt(ax * ax + ay * ay + az * az)
+        lb = math.sqrt(bx * bx + by * by + bz * bz)
+        lc = math.sqrt(cx * cx + cy * cy + cz * cz)
+        if la <= 0.0 or lb <= 0.0 or lc <= 0.0:
+            continue                                    # point ON a vertex
+        num = (ax * (by * cz - bz * cy)
+               - ay * (bx * cz - bz * cx)
+               + az * (bx * cy - by * cx))
+        den = (la * lb * lc
+               + (ax * bx + ay * by + az * bz) * lc
+               + (ax * cx + ay * cy + az * cz) * lb
+               + (bx * cx + by * cy + bz * cz) * la)
+        total += 2.0 * math.atan2(num, den)
+    return total / (4.0 * math.pi)
+
+
+def _inside(points: Sequence[Sequence[float]], triangles: Sequence[Sequence[int]],
+            pt: Sequence[float]) -> bool:
+    """Is ``pt`` inside the body?  |winding number| at or above 1/2.
+
+    The MAGNITUDE, because face orientation is the exporter's choice, not a
+    fact about the solid: this IFC winds its triangles so that inside reads
+    -1, and :func:`mesh_volume` already takes the same absolute value.
+    """
+    return abs(winding_number(points, triangles, pt)) >= 0.5
+
+
+def decompose_boxes(points: Sequence[Sequence[float]],
+                    triangles: Sequence[Sequence[int]], *,
+                    max_cells: int = MAX_GRID_CELLS,
+                    max_boxes: int = MAX_BOXES
+                    ) -> Optional[Dict[str, Any]]:
+    """Reproduce an AXIS-ALIGNED body exactly as a set of axis-aligned boxes.
+
+    The body's own vertex coordinates cut space into a grid whose every cell
+    is wholly inside or wholly outside it (that is what axis-aligned means),
+    so testing one point per cell classifies the cell exactly.  Occupied cells
+    are then merged greedily into maximal boxes -- and every box is a plain
+    Z-extruded rectangle, which the part contract already expresses.
+
+    THIS IS WHY NO ROTATION IS NEEDED for the C-channel case: a channel is a
+    union of axis-aligned boxes (back plate + two walls), each of which is
+    Z-extrudable whatever direction the channel runs.  Returns
+    ``{parts, volume_ft3, n_boxes, cells}`` or None (not axis-aligned, a
+    MERGED box thinner than :data:`MIN_EXTENT_FT` in any axis -- a sliver
+    Revit cannot keep, and the signature of a nearly-aligned body -- or over
+    a budget; reported by the caller, never silently truncated).  A hairline
+    grid step is fine as long as no box ends up that thin: two flanges whose
+    heights differ by 50 um still merge into three real boxes.
+
+    The LAW that makes the result exact is checked by the caller, which holds
+    the mesh volume: boxes + overlap must give it back to
+    :data:`EXACT_REL_TOL`.  The alignment eps and the sliver-box refusal
+    here have their own meaning (the definition of aligned; authorability).
+    """
+    if not triangles or not is_axis_aligned(points, triangles):
+        return None
+    axes = [sorted({round(float(p[i]), _WELD) for p in points}) for i in range(3)]
+    dims = [len(a) - 1 for a in axes]
+    if min(dims) < 1 or dims[0] * dims[1] * dims[2] > max_cells:
+        return None
+
+    occ: Dict[Tuple[int, int, int], bool] = {}
+    overlap = 0.0            # volume the mesh counts twice (shells that overlap)
+    for i in range(dims[0]):
+        cx = (axes[0][i] + axes[0][i + 1]) / 2.0
+        for j in range(dims[1]):
+            cy = (axes[1][j] + axes[1][j + 1]) / 2.0
+            for k in range(dims[2]):
+                cz = (axes[2][k] + axes[2][k + 1]) / 2.0
+                w = abs(winding_number(points, triangles, (cx, cy, cz)))
+                if w >= 0.5:
+                    occ[(i, j, k)] = True
+                    if w >= 1.5:      # inside two shells at once
+                        overlap += ((axes[0][i + 1] - axes[0][i])
+                                    * (axes[1][j + 1] - axes[1][j])
+                                    * (axes[2][k + 1] - axes[2][k])) * (round(w) - 1)
+    if not occ:
+        return None
+
+    # greedy maximal boxes: grow in x, then y, then z
+    used: set = set()
+    boxes: List[Tuple[int, int, int, int, int, int]] = []
+    for k in range(dims[2]):
+        for j in range(dims[1]):
+            for i in range(dims[0]):
+                if (i, j, k) in used or (i, j, k) not in occ:
+                    continue
+                i1 = i
+                while (i1 + 1 < dims[0] and (i1 + 1, j, k) in occ
+                       and (i1 + 1, j, k) not in used):
+                    i1 += 1
+                j1 = j
+                while j1 + 1 < dims[1] and all(
+                        (x, j1 + 1, k) in occ and (x, j1 + 1, k) not in used
+                        for x in range(i, i1 + 1)):
+                    j1 += 1
+                k1 = k
+                while k1 + 1 < dims[2] and all(
+                        (x, y, k1 + 1) in occ and (x, y, k1 + 1) not in used
+                        for x in range(i, i1 + 1) for y in range(j, j1 + 1)):
+                    k1 += 1
+                for x in range(i, i1 + 1):
+                    for y in range(j, j1 + 1):
+                        for z in range(k, k1 + 1):
+                            used.add((x, y, z))
+                boxes.append((i, i1, j, j1, k, k1))
+                if len(boxes) > max_boxes:
+                    return None
+
+    parts: List[Dict[str, Any]] = []
+    volume = 0.0
+    for i, i1, j, j1, k, k1 in boxes:
+        x0, x1 = axes[0][i], axes[0][i1 + 1]
+        y0, y1 = axes[1][j], axes[1][j1 + 1]
+        z0, z1 = axes[2][k], axes[2][k1 + 1]
+        w, d, h = x1 - x0, y1 - y0, z1 - z0
+        if min(w, d, h) < MIN_EXTENT_FT:
+            return None                                 # a sliver box: not this lane
+        parts.append({"shape": "box", "width_ft": w, "depth_ft": d,
+                      "height_ft": h, "base_z_ft": z0,
+                      "center": [(x0 + x1) / 2.0, (y0 + y1) / 2.0]})
+        volume += w * d * h
+    return {"parts": parts, "volume_ft3": volume, "n_boxes": len(parts),
+            "cells": len(occ), "overlap_ft3": overlap, "exact": True}
 
 
 def _same_section(a: Sequence[Sequence[Sequence[float]]],
@@ -871,7 +1221,25 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
         # Cut it into slabs when that would actually buy fidelity, and only
         # keep the result if it really is closer to the mesh.
         dec = None
+        method = ""
+        # An AXIS-ALIGNED body reproduces EXACTLY as boxes -- try that first.
+        # This is the C-channel answer: a channel is a union of axis-aligned
+        # boxes, each Z-extrudable, whichever direction the channel runs.
+        # "Exact" is then CHECKED, not assumed: the boxes plus the overlap the
+        # mesh counts twice must give back the mesh's own volume, or the body
+        # was not the aligned polyhedron it looked like and goes to slabs.
         if decompose and vol is not None and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
+            box = decompose_boxes(pts_ft, tris)
+            if (box is not None
+                    and abs(box["volume_ft3"] + box["overlap_ft3"] - vol) <= EXACT_REL_TOL * vol):
+                dec, method = box, "boxes"
+                dec["fill_after"] = 1.0             # exact, and verified so
+                dec["n_slabs"] = 0
+                dec["holes_filled"] = 0
+                dec["dropped"] = 0
+        if dec is None and decompose and vol is not None \
+                and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
+            method = "slabs"
             dec = decompose_slabs(pts_ft, tris)
             if dec is not None:
                 dv = dec["volume_ft3"]
@@ -897,19 +1265,34 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                     "cannot express")})
         if dec is not None:
             n = len(dec["parts"])
+            after = (1.0 if dec.get("exact")
+                     else (vol / dec["volume_ft3"] if dec["volume_ft3"] else None))
             for k, part in enumerate(dec["parts"], 1):
-                parts.append(PartSolid(
-                    name=(f"{name} [{k}/{n}]" if n > 1 else name),
-                    fit="polygon", center_ft=(0.0, 0.0),
-                    height_ft=part["height_ft"], base_z_ft=part["base_z_ft"],
-                    vertices_ft=part["vertices"],
-                    fill=(dec["volume_ft3"] and vol / dec["volume_ft3"]),
-                    of_product=name, slabs=dec["n_slabs"], **common))
-            decomposed.append({
-                "name": name, "parts": n, "slabs": dec["n_slabs"],
+                nm = f"{name} [{k}/{n}]" if n > 1 else name
+                if part["shape"] == "box":
+                    parts.append(PartSolid(
+                        name=nm, fit="box", center_ft=tuple(part["center"]),
+                        height_ft=part["height_ft"], base_z_ft=part["base_z_ft"],
+                        width_ft=part["width_ft"], depth_ft=part["depth_ft"],
+                        fill=after, of_product=name, slabs=dec["n_slabs"], **common))
+                else:
+                    parts.append(PartSolid(
+                        name=nm, fit="polygon", center_ft=(0.0, 0.0),
+                        height_ft=part["height_ft"], base_z_ft=part["base_z_ft"],
+                        vertices_ft=part["vertices"],
+                        fill=after, of_product=name, slabs=dec["n_slabs"], **common))
+            rec = {
+                "name": name, "method": method, "parts": n,
+                "slabs": dec["n_slabs"], "exact": bool(dec.get("exact")),
                 "fill_before": round(float(fit.get("fill") or 0.0), 4),
-                "fill_after": round(vol / dec["volume_ft3"], 4) if dec["volume_ft3"] else None,
-                "holes_filled": dec["holes_filled"], "slivers_dropped": dec["dropped"]})
+                "fill_after": (round(after, 4) if after is not None else None),
+                "holes_filled": dec["holes_filled"], "slivers_dropped": dec["dropped"]}
+            if dec.get("overlap_ft3"):
+                rec["mesh_overlap_in3"] = round(dec["overlap_ft3"] * 1728.0, 4)
+                rec["note"] = ("the source mesh is SEVERAL SHELLS that overlap; its "
+                               "divergence volume counts that overlap twice, so the "
+                               "pre-decomposition fill was understated")
+            decomposed.append(rec)
             continue
 
         parts.append(PartSolid(

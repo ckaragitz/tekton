@@ -4,108 +4,322 @@
   "title": "tekton famspec -- a structured request to GENERATE one family (.rfa)",
   "description": "A famspec is the `rfa` INPUT of the permutation router (tools/route.py run --rfa FAMSPEC.json | '{...inline...}'): a request to generate ONE Revit family from catalog facts with tekton's own constructors (rvt.famgen.factory.make_panelboard / make_transformer / make_luminaire / make_device; rvt.ifc.famfrom_ifc.make_downlight), never a copied family. `kind` selects the constructor; every other field mirrors that constructor's keyword arguments and is optional (the constructor's default applies). `--output rfa` delivers the standalone .rfa (family-mode validator + provenance scan in the manifest); `--output rvt` additionally LOADS it into a host project (default: the pinned certified genesis base; `--rvt yours.rvt` for your own) through the four-registry loader. Facts the catalog does not carry are refused BY NAME in one clear line, never invented. Every output is stamped PROOF-ONLY until the deliverability gates clear -- delivered regardless.",
   "type": "object",
-  "required": ["kind"],
+  "required": [
+    "kind"
+  ],
   "properties": {
-    "kind": {"enum": ["panelboard", "transformer", "luminaire", "device", "downlight", "generic_model"]}
+    "kind": {
+      "enum": [
+        "panelboard",
+        "transformer",
+        "luminaire",
+        "device",
+        "downlight",
+        "generic_model"
+      ]
+    }
   },
   "oneOf": [
-    {"$ref": "#/definitions/panelboard"},
-    {"$ref": "#/definitions/transformer"},
-    {"$ref": "#/definitions/luminaire"},
-    {"$ref": "#/definitions/device"},
-    {"$ref": "#/definitions/downlight"},
-    {"$ref": "#/definitions/generic_model"}
+    {
+      "$ref": "#/definitions/panelboard"
+    },
+    {
+      "$ref": "#/definitions/transformer"
+    },
+    {
+      "$ref": "#/definitions/luminaire"
+    },
+    {
+      "$ref": "#/definitions/device"
+    },
+    {
+      "$ref": "#/definitions/downlight"
+    },
+    {
+      "$ref": "#/definitions/generic_model"
+    }
   ],
   "definitions": {
     "common": {
       "description": "Fields every kind accepts (documentation only; each kind lists them explicitly because draft-07 additionalProperties does not see through $ref).",
       "type": "object",
       "properties": {
-        "name": {"type": "string", "minLength": 1, "description": "Family name override (default: composed from the facts, e.g. 'Panelboard 480Y/277 400A MCB 42ckt Surface')."},
-        "solid": {"type": "boolean", "description": "true (default) = author the enclosure/housing solid at the catalog dimensions; false = the parametric skeleton without the solid (a diagnostic sibling)."},
-        "target_version": {"type": "integer", "minimum": 2019, "maximum": 2099, "description": "The recipient's Revit year. Same meaning as route.py --target-version (the CLI flag wins when both are given): 2026/2025/2024 emit the .rfa AS that release; an uncertified or unknown year is delivered at the default release with THE one line saying which Revit opens it. Revit cannot open a newer file -- ask the recipient's year."},
-        "shared_params": {"type": "string", "minLength": 1, "description": "Path to OUR shared-parameter TXT (or the word 'default' = usecases/eaton-panelboard/panelboard-shared-parameters.txt): every parameter it names is authored SHARED at that file's GUID so schedules/tags bind by GUID; omitted = every parameter local."}
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Family name override (default: composed from the facts, e.g. 'Panelboard 480Y/277 400A MCB 42ckt Surface')."
+        },
+        "solid": {
+          "type": "boolean",
+          "description": "true (default) = author the enclosure/housing solid at the catalog dimensions; false = the parametric skeleton without the solid (a diagnostic sibling)."
+        },
+        "target_version": {
+          "type": "integer",
+          "minimum": 2019,
+          "maximum": 2099,
+          "description": "The recipient's Revit year. Same meaning as route.py --target-version (the CLI flag wins when both are given): 2026/2025/2024 emit the .rfa AS that release; an uncertified or unknown year is delivered at the default release with THE one line saying which Revit opens it. Revit cannot open a newer file -- ask the recipient's year."
+        },
+        "shared_params": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path to OUR shared-parameter TXT (or the word 'default' = usecases/eaton-panelboard/panelboard-shared-parameters.txt): every parameter it names is authored SHARED at that file's GUID so schedules/tags bind by GUID; omitted = every parameter local."
+        },
+        "standards": {
+          "type": "boolean",
+          "description": "Author the CATEGORY STANDARD PARAMETERS (rvt.famgen.standards): the parameters a family of this category/product is expected to carry -- a data device gets Device Type / Mounting / Mounting Height / Number of Ports / Cable Category ..., a lighting fixture its photometrics, a mechanical equipment its airflow and MCA/MOCP. Default true. Every parameter's spec and group id is verified against the units table the format itself ships; the NAMES of the convention-sourced ones are INFERRED and the report says which. A parameter the constructor already authored is left exactly as it was. A category with no table yet is reported as an honest gap, never a silent bare family."
+        },
+        "standard_values": {
+          "type": "object",
+          "description": "Values for the standard parameters, by parameter NAME, in internal units (feet for lengths). Supply only the ones actually known -- every other standard parameter is authored BLANK, which is the honest state of a fact nobody supplied. A name matching no standard parameter of the category comes back in the report as 'values_not_placed'.",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean"
+            ]
+          }
+        }
       }
     },
     "typeSelector": {
       "description": "One family TYPE (type-table row): a rating along the product's axis (mains A / kVA / W) as a number or a '225A' / '45kVA' / '38W' string, or an object over the kind's per-type fields plus an optional explicit 'type_name'.",
       "anyOf": [
-        {"type": "number", "exclusiveMinimum": 0},
-        {"type": "string", "minLength": 1},
-        {"type": "object", "properties": {"type_name": {"type": "string", "minLength": 1}}}
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type_name": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
       ]
     },
     "types": {
       "type": "array",
       "minItems": 1,
-      "items": {"$ref": "#/definitions/typeSelector"},
+      "items": {
+        "$ref": "#/definitions/typeSelector"
+      },
       "description": "MULTI-TYPE family: one type-table row per selector; the first is the primary type (the one authored solid is built at its dimensions). Omitted = the single type the scalar fields describe."
     },
     "voltage": {
       "description": "A system voltage: '480Y/277', '208Y/120', '120-277', or a bare line voltage number (480).",
-      "anyOf": [{"type": "string", "minLength": 1}, {"type": "number", "exclusiveMinimum": 0}]
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      ]
     },
     "panelboard": {
       "title": "kind = panelboard -> rvt.famgen.factory.make_panelboard(**fields)",
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind"],
+      "required": [
+        "kind"
+      ],
       "properties": {
-        "kind": {"const": "panelboard"},
-        "vendor": {"type": "string", "minLength": 1, "description": "Catalog vendor key (facts on file today: 'eaton', 'square-d'); anything else is refused by name."},
-        "line": {"type": "string", "minLength": 1, "description": "Product line key ('pow-r-line' / 'prl' for eaton; 'nq' / 'nf' for square-d)."},
-        "mains_a": {"type": "number", "exclusiveMinimum": 0, "description": "Mains rating in amperes (default 400); must sit on the member's tabulated sizing rows."},
-        "spaces": {"type": "integer", "minimum": 1, "description": "Branch-circuit spaces (default 42)."},
-        "voltage": {"$ref": "#/definitions/voltage"},
-        "mcb": {"type": "boolean", "description": "true = main circuit breaker (default), false = main lugs only."},
-        "mounting": {"enum": ["surface", "flush"]},
-        "panel_name": {"type": "string", "minLength": 1, "description": "PanelName parameter value (the schedule tag, e.g. 'DP-7'); default 'PANEL'."},
-        "sccr_ka": {"type": "number", "exclusiveMinimum": 0, "description": "Short-circuit current rating in kA; omitted = the low end of the member's fully-rated range for the voltage (a fact), flagged as such."},
-        "neutral_rating": {"type": "string", "minLength": 1, "description": "'100%' (default) or '200%'."},
-        "types": {"$ref": "#/definitions/types"},
-        "name": {"$ref": "#/definitions/common/properties/name"},
-        "solid": {"$ref": "#/definitions/common/properties/solid"},
-        "target_version": {"$ref": "#/definitions/common/properties/target_version"},
-        "shared_params": {"$ref": "#/definitions/common/properties/shared_params"}
+        "kind": {
+          "const": "panelboard"
+        },
+        "vendor": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Catalog vendor key (facts on file today: 'eaton', 'square-d'); anything else is refused by name."
+        },
+        "line": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Product line key ('pow-r-line' / 'prl' for eaton; 'nq' / 'nf' for square-d)."
+        },
+        "mains_a": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Mains rating in amperes (default 400); must sit on the member's tabulated sizing rows."
+        },
+        "spaces": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Branch-circuit spaces (default 42)."
+        },
+        "voltage": {
+          "$ref": "#/definitions/voltage"
+        },
+        "mcb": {
+          "type": "boolean",
+          "description": "true = main circuit breaker (default), false = main lugs only."
+        },
+        "mounting": {
+          "enum": [
+            "surface",
+            "flush"
+          ]
+        },
+        "panel_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "PanelName parameter value (the schedule tag, e.g. 'DP-7'); default 'PANEL'."
+        },
+        "sccr_ka": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Short-circuit current rating in kA; omitted = the low end of the member's fully-rated range for the voltage (a fact), flagged as such."
+        },
+        "neutral_rating": {
+          "type": "string",
+          "minLength": 1,
+          "description": "'100%' (default) or '200%'."
+        },
+        "types": {
+          "$ref": "#/definitions/types"
+        },
+        "name": {
+          "$ref": "#/definitions/common/properties/name"
+        },
+        "solid": {
+          "$ref": "#/definitions/common/properties/solid"
+        },
+        "target_version": {
+          "$ref": "#/definitions/common/properties/target_version"
+        },
+        "shared_params": {
+          "$ref": "#/definitions/common/properties/shared_params"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
+        }
       }
     },
     "transformer": {
       "title": "kind = transformer -> rvt.famgen.factory.make_transformer(**fields)",
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind"],
+      "required": [
+        "kind"
+      ],
       "properties": {
-        "kind": {"const": "transformer"},
-        "kva": {"type": "number", "exclusiveMinimum": 0, "description": "Rating in kVA (default 75); a rating whose dimensions the catalog does not publish is refused by name."},
-        "vendor": {"type": "string", "minLength": 1, "description": "Catalog vendor key (facts on file today: 'eaton', 'hps')."},
-        "primary_v": {"$ref": "#/definitions/voltage"},
-        "secondary_v": {"$ref": "#/definitions/voltage"},
-        "types": {"$ref": "#/definitions/types"},
-        "name": {"$ref": "#/definitions/common/properties/name"},
-        "solid": {"$ref": "#/definitions/common/properties/solid"},
-        "target_version": {"$ref": "#/definitions/common/properties/target_version"},
-        "shared_params": {"$ref": "#/definitions/common/properties/shared_params"}
+        "kind": {
+          "const": "transformer"
+        },
+        "kva": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Rating in kVA (default 75); a rating whose dimensions the catalog does not publish is refused by name."
+        },
+        "vendor": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Catalog vendor key (facts on file today: 'eaton', 'hps')."
+        },
+        "primary_v": {
+          "$ref": "#/definitions/voltage"
+        },
+        "secondary_v": {
+          "$ref": "#/definitions/voltage"
+        },
+        "types": {
+          "$ref": "#/definitions/types"
+        },
+        "name": {
+          "$ref": "#/definitions/common/properties/name"
+        },
+        "solid": {
+          "$ref": "#/definitions/common/properties/solid"
+        },
+        "target_version": {
+          "$ref": "#/definitions/common/properties/target_version"
+        },
+        "shared_params": {
+          "$ref": "#/definitions/common/properties/shared_params"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
+        }
       }
     },
     "luminaire": {
       "title": "kind = luminaire -> rvt.famgen.factory.make_luminaire(kind=fixture, **fields)",
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind"],
+      "required": [
+        "kind"
+      ],
       "properties": {
-        "kind": {"const": "luminaire"},
-        "fixture": {"type": "string", "minLength": 1, "description": "The luminaire archetype = make_luminaire's own `kind` argument, renamed here because `kind` selects the constructor: 'recessed-troffer' (default) / 'troffer', or 'recessed-downlight' / 'downlight' (OUR parametric can)."},
-        "size": {"type": "string", "minLength": 1, "description": "Troffer module: '2x4' (default) or '2x2'."},
-        "wattage": {"type": "number", "exclusiveMinimum": 0},
-        "lumens": {"type": "number", "exclusiveMinimum": 0},
-        "cct": {"type": "number", "exclusiveMinimum": 0, "description": "Colour temperature in kelvin."},
-        "voltage": {"$ref": "#/definitions/voltage"},
-        "aperture_in": {"type": "number", "exclusiveMinimum": 0, "description": "Downlight aperture in inches (OUR parametric value, flagged 'given')."},
-        "types": {"$ref": "#/definitions/types"},
-        "name": {"$ref": "#/definitions/common/properties/name"},
-        "solid": {"$ref": "#/definitions/common/properties/solid"},
-        "target_version": {"$ref": "#/definitions/common/properties/target_version"},
-        "shared_params": {"$ref": "#/definitions/common/properties/shared_params"}
+        "kind": {
+          "const": "luminaire"
+        },
+        "fixture": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The luminaire archetype = make_luminaire's own `kind` argument, renamed here because `kind` selects the constructor: 'recessed-troffer' (default) / 'troffer', or 'recessed-downlight' / 'downlight' (OUR parametric can)."
+        },
+        "size": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Troffer module: '2x4' (default) or '2x2'."
+        },
+        "wattage": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "lumens": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "cct": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Colour temperature in kelvin."
+        },
+        "voltage": {
+          "$ref": "#/definitions/voltage"
+        },
+        "aperture_in": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Downlight aperture in inches (OUR parametric value, flagged 'given')."
+        },
+        "types": {
+          "$ref": "#/definitions/types"
+        },
+        "name": {
+          "$ref": "#/definitions/common/properties/name"
+        },
+        "solid": {
+          "$ref": "#/definitions/common/properties/solid"
+        },
+        "target_version": {
+          "$ref": "#/definitions/common/properties/target_version"
+        },
+        "shared_params": {
+          "$ref": "#/definitions/common/properties/shared_params"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
+        }
       }
     },
     "device": {
@@ -113,17 +327,53 @@
       "description": "A duplex receptacle (NEMA 5-15R / 5-20R), a single-pole switch or a 4 in square junction box from the `generic/devices-and-mounting` facts: faceplate proud of the family XY plane (the wall face of a work-plane-based family; no face-hosting claim) + the device box recessed behind it, ONE 1-pole primary power connector bound to the `Voltage` / `Load` parameters, `MountingHeight` from the facts. One type per family (no `types` list): the envelope figures are 'assumed' on the record and surface as such in the report.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind"],
+      "required": [
+        "kind"
+      ],
       "properties": {
-        "kind": {"const": "device"},
-        "device": {"enum": ["duplex-receptacle", "duplex-receptacle-20a", "switch", "junction-box"], "description": "The wiring device = make_device's own `kind` argument, renamed here because `kind` selects the constructor (rvt.famgen.factory.DEVICE_KINDS): 'duplex-receptacle' (default, NEMA 5-15R), 'duplex-receptacle-20a' (NEMA 5-20R), 'switch' (single-pole toggle), 'junction-box' (4 in square)."},
-        "mounting_height_in": {"type": "number", "exclusiveMinimum": 0, "description": "Height above the finished floor in inches ('given'); omitted = the record's convention (18 in receptacles / junction boxes, 48 in switches, 'assumed') inside the ADA 15..48 in reach range, which is the sourced FACT."},
-        "voltage": {"$ref": "#/definitions/voltage"},
-        "va": {"type": "number", "minimum": 0, "description": "Booked connector load in volt-amperes (default 180 = the NEC 220.14(I) receptacle unit load; 0 for a switch / junction box that books none)."},
-        "name": {"$ref": "#/definitions/common/properties/name"},
-        "solid": {"$ref": "#/definitions/common/properties/solid"},
-        "target_version": {"$ref": "#/definitions/common/properties/target_version"},
-        "shared_params": {"$ref": "#/definitions/common/properties/shared_params"}
+        "kind": {
+          "const": "device"
+        },
+        "device": {
+          "enum": [
+            "duplex-receptacle",
+            "duplex-receptacle-20a",
+            "switch",
+            "junction-box"
+          ],
+          "description": "The wiring device = make_device's own `kind` argument, renamed here because `kind` selects the constructor (rvt.famgen.factory.DEVICE_KINDS): 'duplex-receptacle' (default, NEMA 5-15R), 'duplex-receptacle-20a' (NEMA 5-20R), 'switch' (single-pole toggle), 'junction-box' (4 in square)."
+        },
+        "mounting_height_in": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Height above the finished floor in inches ('given'); omitted = the record's convention (18 in receptacles / junction boxes, 48 in switches, 'assumed') inside the ADA 15..48 in reach range, which is the sourced FACT."
+        },
+        "voltage": {
+          "$ref": "#/definitions/voltage"
+        },
+        "va": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Booked connector load in volt-amperes (default 180 = the NEC 220.14(I) receptacle unit load; 0 for a switch / junction box that books none)."
+        },
+        "name": {
+          "$ref": "#/definitions/common/properties/name"
+        },
+        "solid": {
+          "$ref": "#/definitions/common/properties/solid"
+        },
+        "target_version": {
+          "$ref": "#/definitions/common/properties/target_version"
+        },
+        "shared_params": {
+          "$ref": "#/definitions/common/properties/shared_params"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
+        }
       }
     },
     "downlight": {
@@ -131,40 +381,236 @@
       "description": "This lane emits on the family container archetype, which lives in the git-ignored research corpus: it runs on the owner machine only until famfrom_ifc emits on the bundled base (a fresh clone answers with one clear line). The catalog kinds (panelboard / transformer / luminaire / device) run anywhere.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind"],
+      "required": [
+        "kind"
+      ],
       "properties": {
-        "kind": {"const": "downlight"},
-        "ifc_path": {"type": "string", "minLength": 1, "description": "The product IFC to measure (default: inputs/ifc/chicago-plenum-downlight.ifc)."},
-        "voltage": {"type": "number", "exclusiveMinimum": 0},
-        "wattage": {"type": "number", "exclusiveMinimum": 0},
-        "lumens": {"type": "number", "exclusiveMinimum": 0},
-        "cct": {"type": "number", "exclusiveMinimum": 0},
-        "photometric_web": {"type": "string", "minLength": 1, "description": "IES reference (a URL/file NAME parameter value; no photometric file is bundled)."},
-        "detail": {"enum": ["standard", "envelope"], "description": "'standard' = can + trim + lens + frame + boxes + hangers; 'envelope' = can + trim ring only."},
-        "name": {"$ref": "#/definitions/common/properties/name"},
-        "solid": {"$ref": "#/definitions/common/properties/solid"},
-        "target_version": {"$ref": "#/definitions/common/properties/target_version"}
+        "kind": {
+          "const": "downlight"
+        },
+        "ifc_path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The product IFC to measure (default: inputs/ifc/chicago-plenum-downlight.ifc)."
+        },
+        "voltage": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "wattage": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "lumens": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "cct": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "photometric_web": {
+          "type": "string",
+          "minLength": 1,
+          "description": "IES reference (a URL/file NAME parameter value; no photometric file is bundled)."
+        },
+        "detail": {
+          "enum": [
+            "standard",
+            "envelope"
+          ],
+          "description": "'standard' = can + trim + lens + frame + boxes + hangers; 'envelope' = can + trim ring only."
+        },
+        "name": {
+          "$ref": "#/definitions/common/properties/name"
+        },
+        "solid": {
+          "$ref": "#/definitions/common/properties/solid"
+        },
+        "target_version": {
+          "$ref": "#/definitions/common/properties/target_version"
+        }
       }
     },
     "generic_model": {
-      "title": "kind = generic_model -> rvt.famgen.factory.make_generic_model(**fields): an ARBITRARY 3D body, geometry GIVEN by the caller",
-      "description": "NOT catalog-backed: the caller supplies the geometry (a Claude Design body, an IFC solid, a measured object) and every dimension is flagged GIVEN with its source in the report -- never presented as a manufacturer fact. Either 'vertices' (a closed planar ring in feet, 3+ points, any winding, convex or concave) or 'width_ft' + 'depth_ft', extruded 'height_ft'. A non-rectangular ring ships the regeneration rep (Revit rebuilds the solid on open; cached N-gon B-rep is issue #504).",
+      "title": "kind = generic_model -> rvt.famgen.factory.make_generic_model(**fields): an ARBITRARY 3D object, geometry GIVEN by the caller",
+      "description": "NOT catalog-backed: the caller supplies the geometry (a Claude Design body, an IFC solid, a measured object, or a model's own decomposition of 'a bus') and every dimension is flagged GIVEN with its source in the report -- never presented as a manufacturer fact. ONE solid: 'vertices' (a closed planar ring in feet) or 'width_ft' + 'depth_ft', extruded 'height_ft'. MANY solids: 'parts', which is how an arbitrary object is expressed -- each part is its own prism placed in the family's frame, so a bus is a body plus wheels plus windows rather than one block. 'height_ft' is required for the single-solid form; with 'parts' it is each part that carries its own height.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["kind", "height_ft"],
+      "required": [
+        "kind"
+      ],
       "properties": {
-        "kind": {"const": "generic_model"},
-        "height_ft": {"type": "number", "exclusiveMinimum": 0, "description": "Extrusion height in feet."},
-        "vertices": {"type": "array", "minItems": 3, "description": "Closed planar ring in the family plane, feet: [[x, y], ...]. Mutually exclusive with width_ft/depth_ft.",
-                     "items": {"type": "array", "minItems": 2, "maxItems": 3, "items": {"type": "number"}}},
-        "width_ft": {"type": "number", "exclusiveMinimum": 0, "description": "Rectangular footprint width (with depth_ft)."},
-        "depth_ft": {"type": "number", "exclusiveMinimum": 0, "description": "Rectangular footprint depth (with width_ft)."},
-        "base_z_ft": {"type": "number", "description": "Base elevation of the extrusion in the family (default 0)."},
-        "category": {"type": "string", "minLength": 1, "description": "Family category (default 'generic_model'; e.g. 'furniture', 'electrical_equipment')."},
-        "source": {"type": "string", "minLength": 1, "description": "Where the geometry came from, recorded on every GIVEN dimension (e.g. 'claude-design', 'ifc:body')."},
-        "name": {"$ref": "#/definitions/common/properties/name"},
-        "solid": {"$ref": "#/definitions/common/properties/solid"},
-        "target_version": {"$ref": "#/definitions/common/properties/target_version"}
+        "kind": {
+          "const": "generic_model"
+        },
+        "height_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Extrusion height in feet."
+        },
+        "vertices": {
+          "type": "array",
+          "minItems": 3,
+          "description": "Closed planar ring in the family plane, feet: [[x, y], ...]. Mutually exclusive with width_ft/depth_ft.",
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "width_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Rectangular footprint width (with depth_ft)."
+        },
+        "depth_ft": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Rectangular footprint depth (with width_ft)."
+        },
+        "base_z_ft": {
+          "type": "number",
+          "description": "Base elevation of the extrusion in the family (default 0)."
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Family category (default 'generic_model'; e.g. 'furniture', 'electrical_equipment', 'data_devices'). The category also selects the STANDARD PARAMETER SET the family carries -- see 'standards'."
+        },
+        "standards": {
+          "type": "boolean",
+          "description": "Author the CATEGORY STANDARD PARAMETERS (rvt.famgen.standards): the parameters a family of this category is expected to carry -- a data device gets Device Type / Mounting / Mounting Height / Number of Ports / Cable Category ..., a lighting fixture gets its photometrics, a mechanical equipment its airflow and MCA/MOCP. Default true. Every parameter's spec and group id is verified against the units table the format itself ships; the NAMES of the convention-sourced ones are INFERRED, and the report says which. A category with no table yet is reported as an honest gap, never a silent bare family."
+        },
+        "standard_values": {
+          "type": "object",
+          "description": "Values for the category's standard parameters, by parameter NAME, in internal units (feet for lengths). Supply only the ones actually known -- every other standard parameter is authored BLANK, which is the honest state of a fact nobody supplied. A name matching no standard parameter of the category comes back in the report as 'values_not_placed'.",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean"
+            ]
+          }
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where the geometry came from, recorded on every GIVEN dimension (e.g. 'claude-design', 'ifc:body')."
+        },
+        "name": {
+          "$ref": "#/definitions/common/properties/name"
+        },
+        "solid": {
+          "$ref": "#/definitions/common/properties/solid"
+        },
+        "target_version": {
+          "$ref": "#/definitions/common/properties/target_version"
+        },
+        "parts": {
+          "type": "array",
+          "minItems": 1,
+          "description": "The object as a list of SOLIDS, each authored in the family's frame (feet). This is the general form: anything that can be described as prisms -- a cable tray's rails and rungs, a bus's body, wheels and windows -- is expressible here without a catalog entry, an IFC or a donor. Overall Width/Depth/Height parameters report the assembly's bounding box. When 'parts' is given, the single-solid fields (height_ft / vertices / width_ft / depth_ft) are ignored.",
+          "items": {
+            "type": "object",
+            "required": [
+              "shape"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "shape": {
+                "enum": [
+                  "box",
+                  "cylinder",
+                  "polygon",
+                  "sphere",
+                  "dome",
+                  "cone",
+                  "cylinder_x",
+                  "cylinder_y"
+                ],
+                "description": "PRISMS authored directly: box = width_ft x depth_ft; cylinder = radius_ft (or diameter_ft) about the VERTICAL axis; polygon = vertices, a closed ring, convex or concave. cylinder_x / cylinder_y = a TRUE cylinder lying along X or Y -- a WHEEL, an axle, a pipe run -- from radius_ft + length_ft; its vertical extent is the diameter, so it needs no height_ft. STACKED approximations, still sliced because the part contract extrudes along Z: sphere and dome = radius_ft; cone = radius_ft + height_ft (+ optional top_radius_ft for a frustum). A stack reports its authored-vs-true volume ratio and 'segments' tunes it; the true cylinders do not need it."
+              },
+              "height_ft": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "Extrusion height in feet (the part's Z extent)."
+              },
+              "base_z_ft": {
+                "type": "number",
+                "description": "Base elevation of this part in the family (default 0), so parts STACK into a real object instead of one blob."
+              },
+              "center": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Plan centre [x, y] in feet (box / cylinder). A polygon's ring already carries its position; center offsets it."
+              },
+              "width_ft": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "box only."
+              },
+              "depth_ft": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "box only."
+              },
+              "radius_ft": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "cylinder only."
+              },
+              "diameter_ft": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "cylinder only; an alternative to radius_ft."
+              },
+              "vertices": {
+                "type": "array",
+                "minItems": 3,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "description": "polygon only: a closed planar ring in feet, any winding."
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "What this part IS ('body', 'front wheel left', 'rung 3'). Carried into the family so the object reads as its parts."
+              },
+              "length_ft": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "cylinder_x / cylinder_y only: the length ALONG the horizontal axis."
+              },
+              "top_radius_ft": {
+                "type": "number",
+                "minimum": 0,
+                "description": "cone only: a non-zero value makes it a frustum (0 = a true cone tip)."
+              },
+              "segments": {
+                "type": "integer",
+                "minimum": 3,
+                "maximum": 64,
+                "description": "Slices a STACKED round body (sphere / dome / cone) is built from: default 16, capped at 64. Higher = closer to the true body and MORE SOLIDS; the report carries the authored/true volume ratio so the trade is measured. Ignored by cylinder_x / cylinder_y, which are real cylinders rather than stacks."
+              }
+            },
+            "description": "One solid. 'height_ft' is required for box / cylinder / polygon and for cone; sphere / dome / cylinder_x / cylinder_y derive their extent from radius_ft (and length_ft)."
+          }
+        }
       }
     }
   }

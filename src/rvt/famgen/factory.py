@@ -905,7 +905,10 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             start_id: int,
                             shared_params: SK.SharedParamsArg,
                             identity: Optional[Dict[str, str]] = None,
-                            text_params: Optional[Dict[str, str]] = None
+                            text_params: Optional[Dict[str, str]] = None,
+                            drive: bool = False,
+                            standards: bool = True,
+                            standard_values: Optional[Dict[str, Any]] = None
                             ) -> FamilyProduct:
     """A MULTI-PART generic model: several stacked / offset extrusions in one
     family (a canopy + a stem, a base + a body + a cap).  This is the LOD
@@ -922,10 +925,18 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         fb = add_generic_part(doc, part, solid=solid)
         built.append(fb)
         base = float(part.get("base_z_ft") or 0.0)
-        h = float(part["height_ft"])
-        cx, cy = tuple(part.get("center") or (0.0, 0.0))
         shape = str(part.get("shape") or "box").lower()
-        if shape == "cylinder":
+        if shape in ("cylinder_x", "cylinder_y"):
+            _r = float(part["radius_ft"] if part.get("radius_ft") is not None
+                       else float(part["diameter_ft"]) / 2.0)
+            h = 2.0 * _r                       # vertical extent = the diameter
+        else:
+            h = float(part["height_ft"])
+        cx, cy = tuple(part.get("center") or (0.0, 0.0))
+        if shape in ("cylinder_x", "cylinder_y"):
+            L = float(part["length_ft"])
+            hw, hd = ((L / 2.0, _r) if shape == "cylinder_x" else (_r, L / 2.0))
+        elif shape == "cylinder":
             r = float(part.get("radius_ft") if part.get("radius_ft") is not None
                       else float(part["diameter_ft"]) / 2.0)
             hw = hd = r
@@ -965,14 +976,45 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         if val:
             row[key] = str(val)
     doc.add_type(_clean_name(fam_name), row)
+    # CATEGORY STANDARDS (#601): the parameters a family of this category is
+    # expected to carry.  Applied AFTER add_type so every one lands on the
+    # type row at its own storage class's blank ("" / 0 / 0.0) rather than
+    # add_type's numeric 0.0 -- and skipped wherever the constructor already
+    # authored that name (Width/Depth/Height, a caller's text parameter).
+    std_report = None
+    if standards:
+        from . import standards as ST
+        std_report = ST.apply(doc, category, values=standard_values)
+    # PARAMETRIC DRIVE -- OFF BY DEFAULT, and that is a desktop verdict, not
+    # caution.  Wiring the #372 chain (side RefPlanes + Alignments + labeled
+    # dimensions) onto a multi-part generic model builds and validates cleanly
+    # here, and on the owner's Revit 2026 it "did not work what so ever": the
+    # family did not become editable.  Structural validity is not behaviour
+    # (hard rule 4), so this stays opt-in until a desktop round says otherwise
+    # -- generated families keep exactly the shape that IS verified to open and
+    # load.  drive=True is the hook the next experiment starts from.
+    drive_note = ("dimensions are REPORTED only: the parametric drive needs a "
+                  "rectangular first part")
+    if drive and built and str((parts[0] or {}).get("shape") or "box").lower() == "box":
+        try:
+            from . import param_drive as PD
+            info = PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+            drive_note = (f"Width/Depth DRIVE the first solid ({parts[0].get('name') or 'part 1'}): "
+                          f"{len(info.get('alignments') or [])} alignments on "
+                          f"{len(info.get('side_planes') or [])} reference planes")
+        except Exception as e:                       # never block delivery
+            drive_note = f"parametric drive not wired ({type(e).__name__}: {str(e)[:90]})"
+    doc.notes.append(drive_note)
     doc.notes.append(f"multi-part generic model: {len(built)} extrusions "
                      f"({', '.join(str(p.get('shape') or 'box') for p in parts)}); "
                      f"Width/Depth/Height report the assembly bounding box")
     doc.finalize()
     prod = FamilyProduct("generic_model", doc, sheet, forms=built,
-                         file_stem=_slug(fam_name))
+                         file_stem=_slug(fam_name), standards=std_report)
     prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
                       "catalog facts; no manufacturer identity is claimed")
+    if std_report:
+        prod.notes.append(_standards_note(std_report))
     return prod
 
 
@@ -993,7 +1035,8 @@ def add_cylinder_form(doc: SK.FamilyDoc, radius_ft: float, height_ft: float, *,
 
 #: the shapes one PART of a multi-part generic model may take (issue #498
 #: LOD follow-up): every one is an extrusion this engine already emits.
-GENERIC_PART_SHAPES = ("box", "cylinder", "polygon")
+GENERIC_PART_SHAPES = ("box", "cylinder", "polygon",
+                       "cylinder_x", "cylinder_y")
 
 
 def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
@@ -1012,13 +1055,47 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
     if shape not in GENERIC_PART_SHAPES:
         raise FactoryError(f"unknown part shape {shape!r}: "
                            f"one of {', '.join(GENERIC_PART_SHAPES)}")
-    h = part.get("height_ft")
+    if shape in ("cylinder_x", "cylinder_y"):
+        # its vertical extent is the DIAMETER, derived -- not a caller field
+        _r = part.get("radius_ft")
+        if _r is None and part.get("diameter_ft") is not None:
+            _r = float(part["diameter_ft"]) / 2.0
+        h = (2.0 * float(_r)) if _r else None
+    else:
+        h = part.get("height_ft")
     if h is None or float(h) <= 0:
-        raise FactoryError(f"part {shape!r} needs a positive height_ft")
+        raise FactoryError(f"part {shape!r} needs a positive "
+                           + ("radius_ft (its height is the diameter)"
+                              if shape in ("cylinder_x", "cylinder_y") else "height_ft"))
     base = float(part.get("base_z_ft") or 0.0)
     center = tuple(part.get("center") or (0.0, 0.0))
     rep = G.REP_SOLID if solid else G.REP_DUMMY
-    if shape == "cylinder":
+    if shape in ("cylinder_x", "cylinder_y"):
+        # A cylinder about a HORIZONTAL axis -- a wheel, an axle, a pipe run.
+        # Desktop round 4 (#591) established that the CACHED B-REP is what Revit
+        # draws: three rounds of editing the sketch moved nothing, and rotating
+        # the B-rep alone produced a true cylinder on its side (Front elevation a
+        # clean circle, 3D a barrel).  So the form is authored vertically and its
+        # rep is rotated onto the requested axis.
+        r = part.get("radius_ft")
+        if r is None and part.get("diameter_ft") is not None:
+            r = float(part["diameter_ft"]) / 2.0
+        L = part.get("length_ft")
+        if r is None or float(r) <= 0 or L is None or float(L) <= 0:
+            raise FactoryError(f"a {shape!r} part needs radius_ft (or diameter_ft) "
+                               "and a positive length_ft")
+        r, L = float(r), float(L)
+        fb = add_cylinder_form(doc, r, L, base_z_ft=-L / 2.0, center=(0.0, 0.0), rep=rep)
+        rot = ([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]]
+               if shape == "cylinder_y" else
+               [[0.0, 0.0, -1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
+        for el in fb.elements:
+            if el.rep is not None:
+                G.rotate_rep(el.rep, rot, pivot=(0.0, 0.0, 0.0),
+                             translate=(center[0], center[1], base + r))
+        fb.params.update({"axis": shape[-1], "radius_ft": r, "length_ft": L,
+                          "rotated_brep": True})
+    elif shape == "cylinder":
         r = part.get("radius_ft")
         if r is None and part.get("diameter_ft") is not None:
             r = float(part["diameter_ft"]) / 2.0
@@ -1055,7 +1132,10 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        source: str = "given", start_id: int = 1000,
                        shared_params: SK.SharedParamsArg = None,
                        identity: Optional[Dict[str, str]] = None,
-                       text_params: Optional[Dict[str, str]] = None
+                       text_params: Optional[Dict[str, str]] = None,
+                       drive: bool = False,
+                       standards: bool = True,
+                       standard_values: Optional[Dict[str, Any]] = None
                        ) -> FamilyProduct:
     """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
     "when i go to claude design and ask it to build me a 3d object you
@@ -1072,11 +1152,18 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     set (settings singletons, views, browser folders, sketch solver).
     """
     if parts:
+        # composite bodies (sphere / dome / cone / a cylinder about a
+        # horizontal axis) expand into the prisms this factory authors
+        # directly -- rvt.famgen.revolve, issue #591
+        from . import revolve as RV
+        parts, _revolve_report = RV.expand_parts(parts)
         return _make_generic_multipart(parts, name=name, category=category,
                                        solid=solid, source=source,
                                        start_id=start_id,
                                        shared_params=shared_params,
-                                       identity=identity, text_params=text_params)
+                                       identity=identity, text_params=text_params,
+                                       drive=drive, standards=standards,
+                                       standard_values=standard_values)
     if height_ft is None or float(height_ft) <= 0:
         raise FactoryError("make_generic_model needs a positive height_ft "
                            "(or parts=[...] for a multi-part assembly)")
@@ -1110,6 +1197,10 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                         f"{H * 12.0:g} H in -- geometry GIVEN ({source}), "
                         f"no catalog record claimed"),
     })
+    std_report = None
+    if standards:                                    # category standards, #601
+        from . import standards as ST
+        std_report = ST.apply(doc, category, values=standard_values)
     r = G.REP_SOLID if solid else G.REP_DUMMY
     if prof is not None:
         fb = add_polygon_form(doc, prof.vertices, H, base_z_ft=base_z_ft, rep=r)
@@ -1128,9 +1219,11 @@ def make_generic_model(*, height_ft: Optional[float] = None,
         PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
     doc.finalize()
     prod = FamilyProduct("generic_model", doc, sheet, forms=[fb],
-                         file_stem=_slug(fam_name))
+                         file_stem=_slug(fam_name), standards=std_report)
     prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
                       "catalog facts; no manufacturer identity is claimed")
+    if std_report:
+        prod.notes.append(_standards_note(std_report))
     return prod
 
 
@@ -1277,6 +1370,11 @@ class FamilyProduct:
     notes: List[str] = dc_field(default_factory=list)
     types: List[TypeRow] = dc_field(default_factory=list)
     type_catalog: Optional[Dict[str, Any]] = None      # set by write_type_catalog()
+    #: the category-standards report (rvt.famgen.standards.apply): which of the
+    #: category's standard parameters this family carries, which were filled
+    #: from known facts and which are honest blanks.  None = standards were not
+    #: applied to this product.
+    standards: Optional[Dict[str, Any]] = None
 
     @property
     def name(self) -> str:
@@ -1319,6 +1417,11 @@ class FamilyProduct:
         }
         if self.type_catalog:
             summ["type_catalog"] = dict(self.type_catalog)
+        if self.standards is not None:
+            # the category-standards report (#601): WHICH standard parameters
+            # this family carries, which were filled from known facts, which
+            # are honest blanks, and where each name came from
+            summ["standards"] = dict(self.standards)
         return summ
 
     def write_type_catalog(self, rfa_path: str) -> Dict[str, Any]:
@@ -1351,6 +1454,39 @@ class FamilyProduct:
 # ---------------------------------------------------------------------------
 # family assembly helpers shared by the three product constructors
 # ---------------------------------------------------------------------------
+
+def _std(doc: SK.FamilyDoc, category: Any, on: bool,
+         values: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+    """Apply the category's standard parameters (#601) if asked, and never let
+    that step block delivery (hard rule 1)."""
+    if not on:
+        return None
+    from . import standards as ST
+    try:
+        return ST.apply(doc, category, values=values)
+    except Exception as e:                            # pragma: no cover
+        doc.notes.append(f"category standards NOT applied "
+                         f"({type(e).__name__}: {str(e)[:120]})")
+        return None
+
+
+def _standards_note(rep: Dict[str, Any]) -> str:
+    """The one line a product carries about its category standards (#601):
+    what it got, and -- when the names are the content convention rather than
+    a verified contract -- that they are INFERRED spellings."""
+    from . import standards as ST
+    if not rep.get("covered"):
+        return f"category standards: {ST.NO_TABLE_NOTE}"
+    applied = rep.get("applied") or []
+    filled = rep.get("filled") or []
+    conv = sum(1 for p in (rep.get("authored") or [])
+               if p.get("origin") == ST.ORIGIN_CONVENTION)
+    return (f"category standards ({rep['category']}): {len(applied)} standard "
+            f"parameters authored ({len(filled)} filled from given facts, the "
+            f"rest honest blanks); spec + group ids are format-verified, and "
+            f"{conv} of the category's names are the content CONVENTION "
+            f"(INFERRED spelling, see rvt.famgen.standards)")
+
 
 def _text(doc: SK.FamilyDoc, name: str, group: str = "identity") -> SK.SkelElement:
     return doc.add_family_parameter(name, SPEC["text"], GROUP[group])
@@ -1534,7 +1670,9 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                     solid: bool = True, name: Optional[str] = None,
                     start_id: int = 1000,
                     types: Optional[Sequence[Any]] = None,
-                    shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
+                    shared_params: SK.SharedParamsArg = None,
+                    standards: bool = True,
+                    standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
     """Compose a PANELBOARD family from catalog facts.
 
     Geometry: the enclosure box at TRUE catalog dimensions (width x height
@@ -1673,8 +1811,10 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     #    parameter and still sizes the geometry at generation time.
     from . import param_drive as PD
     PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+    std_report = _std(doc, "panelboard", standards, standard_values)
     doc.finalize()
     prod = FamilyProduct("panelboard", doc, facts, forms=[fb], types=rows,
+                         standards=std_report,
                          file_stem=_slug(f"{vendor}_{facts.variant}_"
                                          f"{_joined([int(j['mains_a']) for j in jobs], 'A')}_"
                                          f"{_joined([int(j['spaces']) for j in jobs], 'sp')}_"
@@ -1718,7 +1858,9 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                      solid: bool = True, name: Optional[str] = None,
                      start_id: int = 1000,
                      types: Optional[Sequence[Any]] = None,
-                     shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
+                     shared_params: SK.SharedParamsArg = None,
+                     standards: bool = True,
+                     standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
     """Compose a DRY-TYPE TRANSFORMER family from catalog facts: the
     enclosure box at the catalog W x D footprint x H tall standing on the
     Reference Level (free-standing, floor-mounted), with TWO 3-pole power
@@ -1809,8 +1951,10 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                   bind_voltage_param="Secondary Voltage",
                   bind_load_param="kVA Rating",
                   load_class="Power", description="Secondary", primary=False)
+    std_report = _std(doc, "transformer", standards, standard_values)
     doc.finalize()
     prod = FamilyProduct("transformer", doc, facts, forms=[fb], types=rows,
+                         standards=std_report,
                          file_stem=_slug(f"xfmr_{_joined([float(j['kva']) for j in jobs], 'kVA')}"
                                          f"_{int(vp)}-{secondary_v}"))
     prod.notes.append("two connectors on the top face: the primary winding is the "
@@ -1831,7 +1975,9 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                    solid: bool = True, name: Optional[str] = None,
                    start_id: int = 1000,
                    types: Optional[Sequence[Any]] = None,
-                   shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
+                   shared_params: SK.SharedParamsArg = None,
+                   standards: bool = True,
+                   standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
     """Compose a LUMINAIRE family: a recessed TROFFER (rectangular housing at
     the catalog dimensions) or a recessed DOWNLIGHT (OUR parametric can --
     the flagship record's housing dims are not sourced).  One single-phase
@@ -1943,12 +2089,14 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
         # parametric drive (issue #372): the troffer sketch is X=Length, Y=Width
         from . import param_drive as PD
         PD.wire_panelboard_drive(doc, x_caption="Length", y_caption="Width")
+    std_report = _std(doc, "lighting_fixture", standards, standard_values)
     doc.finalize()
     stem = ("troffer_" + _slug(size) + "_recessed") if shape == "box" \
         else _slug(f"downlight_{facts.get('aperture_in'):g}in")
     if len(rows) > 1:
         stem += "_" + _slug(_joined([w for w in watts_all if w], "W") or f"{len(rows)}types")
-    prod = FamilyProduct("luminaire", doc, facts, forms=[fb], file_stem=stem, types=rows)
+    prod = FamilyProduct("luminaire", doc, facts, forms=[fb], file_stem=stem, types=rows,
+                         standards=std_report)
     prod.notes.append("apparent load = the input wattage (power factor 0.95 booked "
                       "on the connector); bound to the Wattage parameter")
     _multi_type_notes(prod)
@@ -1967,7 +2115,9 @@ def make_device(kind: str = "duplex-receptacle", *,
                 voltage: Any = 120, va: float = 180,
                 solid: bool = True, name: Optional[str] = None,
                 start_id: int = 1000,
-                shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
+                shared_params: SK.SharedParamsArg = None,
+                standards: bool = True,
+                standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
     """Compose a WIRING DEVICE family (``OST_ElectricalFixtures``): a duplex
     receptacle (NEMA 5-15R / 5-20R), a single-pole switch or a 4 in square
     junction box from ``generic/devices-and-mounting`` -- the faceplate
@@ -2021,8 +2171,10 @@ def make_device(kind: str = "duplex-receptacle", *,
                   bind_voltage_param="Voltage", bind_load_param="Load",
                   load_class="Receptacle" if "Receptacle" in label else "Power",
                   description="Power Connection", primary=True)
+    std_report = _std(doc, "electrical_fixture", standards, standard_values)
     doc.finalize()
     prod = FamilyProduct("device", doc, facts, forms=[plate, box], types=rows,
+                         standards=std_report,
                          file_stem=_slug(f"{label}_{config}_{volt:g}v"))
     prod.notes.append("one 1-pole primary connector on the back of the device box, voltage "
                       "-> Voltage, load -> Load (Power-Unbalanced, load on phase 1)")
