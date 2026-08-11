@@ -14,7 +14,6 @@ Pinned genesis bases only (fresh-clone safe); foreign pins under ``release_build
 writers' whole outputs before == after the fold (three pins) is in the #657 record."""
 from __future__ import annotations
 
-import os
 import uuid
 import warnings
 
@@ -24,7 +23,6 @@ import conftest as C
 from rvt import identity as I
 from rvt.container import open_rvt
 from rvt.frontdoor.release_ctx import release_build_context
-from rvt.roundtrip import read_entries
 from rvt.stream_encoders import decode_basic_file_info, decode_increment_table
 
 pytestmark = pytest.mark.usefixtures("no_release_leak")
@@ -33,25 +31,14 @@ FIXED = uuid.UUID("00000657-0657-4657-8657-000000000657")
 BAD_BFI = b"\x00\x01\x02"
 
 
-@pytest.fixture(scope="module")
-def pin() -> str:
-    if not C.CERTIFIED_YEARS:
-        pytest.skip("no certified pinned base")
-    return C.pinned_base(C.FOREIGN_FIRST[0])
-
-
 @pytest.fixture
 def fixed_uuid4(monkeypatch):
     monkeypatch.setattr(uuid, "uuid4", lambda: FIXED)
     return str(FIXED)
 
 
-def _streams(path) -> dict:
-    return {e.path: e.data for e in read_entries(os.fspath(path)) if e.entry_type == "stream"}
-
-
 def _bfi(path) -> dict:
-    return decode_basic_file_info(_streams(path)[I.BFI_STREAM])
+    return decode_basic_file_info(C.streams(path)[I.BFI_STREAM])
 
 
 # --- the blocks the three writers carried before #657 (main @ d0d70af), re-implemented verbatim -------------------
@@ -164,7 +151,7 @@ def _element(base):
 
 
 def _only_these_moved(base, out, moved: set) -> dict:
-    b, o = _streams(base), _streams(out)
+    b, o = C.streams(base), C.streams(out)
     assert set(b) == set(o)
     assert {k for k in b if b[k] != o[k]} == moved
     return o
@@ -181,7 +168,7 @@ def test_commit_new_elements_owns_basicfileinfo_and_the_increment_table_exactly_
         rep = commit_new_elements(base, out, [recs], [el.elemrec], identity=ident)
         o = _only_these_moved(base, out, {rep.partition, "Global/ElemTable", I.BFI_STREAM, I.INCREMENT_TABLE_STREAM})
         assert o[I.INCREMENT_TABLE_STREAM] == old_commit_increment_table(base, ident)
-    assert o[I.BFI_STREAM] == old_commit_bfi(_streams(base)[I.BFI_STREAM], out, ident)
+    assert o[I.BFI_STREAM] == old_commit_bfi(C.streams(base)[I.BFI_STREAM], out, ident)
     assert _bfi(out)["unique_document_guid"] == _bfi(base)["unique_document_guid"]
 
 
@@ -194,7 +181,7 @@ def test_conduit_commit_created_owns_basicfileinfo_exactly_as_before(year, tmp_p
         doc, el, _ = _element(base)
         rep = commit_created(base, out, doc, [ConduitPlan("conduit", curves=[el])])
     o = _only_these_moved(base, out, {rep["partition"], "Global/ElemTable", I.BFI_STREAM})
-    assert o[I.BFI_STREAM] == old_conduit_bfi(_streams(base)[I.BFI_STREAM], out)
+    assert o[I.BFI_STREAM] == old_conduit_bfi(C.streams(base)[I.BFI_STREAM], out)
 
 
 @pytest.mark.parametrize("year", C.CERTIFIED_YEARS)
@@ -208,7 +195,7 @@ def test_commit_electrical_touches_no_identity_stream_unless_asked_and_then_exac
         rep = commit_electrical(base, off, doc, new_elements=[el])
         commit_electrical(base, on, doc, new_elements=[el], own_identity=True)
         commit_electrical(base, given, doc, new_elements=[el], own_identity=True, identity=ident)
-    raw = _streams(base)[I.BFI_STREAM]
+    raw = C.streams(base)[I.BFI_STREAM]
     _only_these_moved(base, off, {rep.partition, "Global/ElemTable"})
     o = _only_these_moved(base, on, {rep.partition, "Global/ElemTable", I.BFI_STREAM})
     assert o[I.BFI_STREAM] == old_electrical_bfi(raw, on)

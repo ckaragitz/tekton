@@ -26,17 +26,6 @@ from rvt.roundtrip import read_entries, rewrite_entries
 pytestmark = pytest.mark.usefixtures("no_release_leak")
 
 
-@pytest.fixture(scope="module")
-def pin() -> str:
-    if not C.CERTIFIED_YEARS:
-        pytest.skip("no certified pinned base")
-    return C.pinned_base(C.FOREIGN_FIRST[0])
-
-
-def _streams(path) -> dict:
-    return {e.path: e.data for e in read_entries(os.fspath(path)) if e.entry_type == "stream"}
-
-
 # --- (2) bytes-like edits ---------------------------------------------------------------------------------------
 
 def test_every_bytes_like_edit_lands_as_the_same_bytes(pin, tmp_path):
@@ -46,7 +35,7 @@ def test_every_bytes_like_edit_lands_as_the_same_bytes(pin, tmp_path):
                               lambda raw: bytearray(payload), lambda raw: memoryview(payload))):
         out = rewrite_entries(pin, tmp_path / f"like{i}.rvt", {"Global/History": edit})
         assert Path(out).read_bytes() == ref
-    assert _streams(tmp_path / "bytes.rvt")["Global/History"] == payload
+    assert C.streams(tmp_path / "bytes.rvt")["Global/History"] == payload
     assert type(read_entries(str(tmp_path / "like1.rvt"))[1].data) is bytes            # stored as plain bytes
 
 
@@ -191,8 +180,8 @@ def test_write_with_latest_replaces_only_global_latest_and_refuses_a_file_withou
         rep = write_with_latest(pin, out, encode_latest(lat.value, trailer=lat.trailer))
         with open_rvt(out) as f:
             assert decode_latest(f.inflate(STREAM)).clean
-    assert rep["out"] == out and rep["framed"] == len(_streams(out)[STREAM])
-    before, after = _streams(pin), _streams(out)
+    assert rep["out"] == out and rep["framed"] == len(C.streams(out)[STREAM])
+    before, after = C.streams(pin), C.streams(out)
     assert list(after) == list(before) and all(after[p] == before[p] for p in before if p != STREAM)
     headless = rewrite_entries(pin, tmp_path / "headless.rvt", {STREAM: None})
     with pytest.raises(KeyError, match="no stream 'Global/Latest'"):
@@ -204,12 +193,12 @@ def test_patch_partatom_renames_in_place_and_touches_nothing_else(pin, tmp_path)
     from rvt.convert.modify_family import _patch_partatom
     xml = '<?xml version="1.0"?><entry><title>PANEL A</title><family><title>PANEL A</title></family></entry>'
     fam = rewrite_entries(pin, tmp_path / "withatom.rfa", {}, extra=[CfbEntry("PartAtom", "stream", data=xml.encode())])
-    before = _streams(fam)
+    before = C.streams(fam)
     assert _patch_partatom(fam, [("NOT THERE", "X")])["changed"] is False
-    assert _streams(fam) == before                                                 # unchanged => not rewritten
+    assert C.streams(fam) == before                                                # unchanged => not rewritten
     rep = _patch_partatom(fam, [("PANEL A", "PANEL B-646"), ("", "ignored")])
     assert rep["changed"] is True and rep["replaced"] == [{"old": "PANEL A", "new": "PANEL B-646", "occurrences": 2}]
-    after = _streams(fam)
+    after = C.streams(fam)
     assert after["PartAtom"] == xml.replace("PANEL A", "PANEL B-646").encode() and rep["bytes"] == len(after["PartAtom"])
     assert list(after) == list(before) and all(after[p] == before[p] for p in before if p != "PartAtom")
     assert sorted(os.listdir(tmp_path)) == ["withatom.rfa"]                        # in place, no temp behind

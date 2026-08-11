@@ -11,7 +11,8 @@ test process open, checked at session end against ``tools/dev/ci_fresh.sh``'s
 and the shared own-release scaffolding of the ``test_*_release.py`` files (#579:
 ``FOREIGN_FIRST`` / ``FOREIGN``, ``native_constants`` / ``ladder_constants`` + the opt-in
 ``no_release_leak`` fixture, ``rewrite_stream(s)`` / ``partition_of`` / ``twin_partition_entry`` and the damaged-copy
-recipes, plus the offset recipes ``smash64`` / ``flip_bit`` (#617))."""
+recipes, plus the offset recipes ``smash64`` / ``flip_bit`` (#617), the ``pin`` fixture and the ``streams``
+container reader (#670))."""
 import dataclasses
 import importlib.util
 import os
@@ -294,6 +295,24 @@ def no_release_leak(release_leak_extra):
     assert before["active_release"] is None
     yield
     assert snapshot() == before
+
+
+@pytest.fixture(scope="module")
+def pin() -> str:
+    """The first of ``FOREIGN_FIRST`` via ``pinned_base`` (a foreign pin when one is certified, so a by-value native
+    assumption shows), resolved once per test module; a clean skip when no pin is certified.  Enters no release
+    context -- a test that decodes framing enters ``host_release_context(pin)`` itself (#670)."""
+    if not CERTIFIED_YEARS:
+        pytest.skip("no certified pinned base")
+    return pinned_base(FOREIGN_FIRST[0])
+
+
+def streams(path) -> dict:
+    """``{stream path: raw (still paged) bytes}`` of every stream of the container at ``path`` (str or PathLike), in
+    directory order -- the before/after census of a ``rewrite_stream(s)`` output (``rvt.roundtrip.read_entries``
+    minus the storages)."""
+    from rvt.roundtrip import read_entries
+    return {e.path: e.data for e in read_entries(os.fspath(path)) if e.entry_type == "stream"}
 
 
 def rewrite_streams(src, dst, damages: dict, extra=()) -> str:

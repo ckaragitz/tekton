@@ -16,22 +16,10 @@ import pytest
 
 import conftest as C
 from rvt.container import PAGE_STRIDE, PAGE_TRAILER, depage, open_rvt
-from rvt.roundtrip import catalog, read_entries, rewrite_entries, roundtrip
+from rvt.roundtrip import catalog, rewrite_entries, roundtrip
 from rvt import writer as W
 
 pytestmark = pytest.mark.usefixtures("no_release_leak")       # build_variant's partition lane enters a host context
-
-
-@pytest.fixture(scope="module")
-def pin() -> str:
-    if not C.CERTIFIED_YEARS:
-        pytest.skip("no certified pinned base")
-    return C.pinned_base(C.FOREIGN_FIRST[0])
-
-
-def _streams(path) -> dict:
-    """``{stream path: raw bytes}`` of the container at ``path``, in directory order."""
-    return {e.path: e.data for e in read_entries(os.fspath(path)) if e.entry_type == "stream"}
 
 
 def _directory(path) -> list:
@@ -57,13 +45,13 @@ def test_no_edits_is_the_plain_roundtrip_byte_for_byte(pin, tmp_path):
 
 
 def test_an_edit_sees_the_raw_bytes_and_changes_only_its_stream(pin, tmp_path):
-    before = _streams(pin)
+    before = C.streams(pin)
     name = C.partition_of(pin)
     seen = []
     out = rewrite_entries(pin, tmp_path / "hz.rvt",
                           {name: lambda raw: seen.append(raw) or C.zero_partition_header(raw)})
     assert seen == [before[name]]                                                # the edit is handed the stored bytes
-    after = _streams(out)
+    after = C.streams(out)
     assert list(after) == list(before)                                           # entry order preserved
     assert after[name] == C.zero_partition_header(before[name]) != before[name]
     assert all(after[p] == before[p] for p in before if p != name)
@@ -71,11 +59,11 @@ def test_an_edit_sees_the_raw_bytes_and_changes_only_its_stream(pin, tmp_path):
 
 
 def test_bytes_replace_none_drops_and_extra_lands_after_the_containers_own_entries(pin, tmp_path):
-    before = _streams(pin)
+    before = C.streams(pin)
     twin = C.twin_partition_entry(pin)
     out = rewrite_entries(pin, tmp_path / "multi.rvt",
                           {"Formats/Latest": None, "Global/History": b"ours now"}, extra=[twin])
-    after = _streams(out)
+    after = C.streams(out)
     assert list(after) == [p for p in before if p != "Formats/Latest"] + [twin.path]
     assert after["Global/History"] == b"ours now" and after[twin.path] == twin.data
     assert all(after[p] == before[p] for p in after if p not in ("Global/History", twin.path))
@@ -102,10 +90,10 @@ def test_src_equal_dst_rewrites_in_place(pin, tmp_path):
 
 def test_zero_full_trailers_only_keeps_every_logical_byte(pin, tmp_path):
     name = _paged_stream(pin)
-    before = _streams(pin)
+    before = C.streams(pin)
     rep = W.zero_full_trailers_only(pin, str(tmp_path / "v8.rvt"), [name])
     assert rep == {"streams": [name], "mode": "orig_bytes_zero_trailers"}
-    after = _streams(tmp_path / "v8.rvt")
+    after = C.streams(tmp_path / "v8.rvt")
     assert len(after[name]) == len(before[name]) and after[name] != before[name]
     assert depage(after[name]) == depage(before[name])                           # payload: Revit's own bytes
     assert all(t == bytes(PAGE_TRAILER) for t in W.orig_full_trailers(after[name]))
@@ -114,11 +102,11 @@ def test_zero_full_trailers_only_keeps_every_logical_byte(pin, tmp_path):
 
 def test_corrupt_trailer_bytes_flips_exactly_those_bytes(pin, tmp_path):
     name = _paged_stream(pin)
-    before = _streams(pin)
+    before = C.streams(pin)
     rep = W.corrupt_trailer_bytes(pin, str(tmp_path / "v9.rvt"), name, page=0, count=3)
     at = PAGE_STRIDE - PAGE_TRAILER
     assert rep == {"stream": name, "page": 0, "flipped_bytes": 3, "at_raw_offset": at}
-    after = _streams(tmp_path / "v9.rvt")
+    after = C.streams(tmp_path / "v9.rvt")
     diff = [i for i, (x, y) in enumerate(zip(before[name], after[name])) if x != y]
     assert diff == [at, at + 1, at + 2] and all(after[name][i] == before[name][i] ^ 0xFF for i in diff)
     assert all(after[p] == before[p] for p in before if p != name)
@@ -134,7 +122,7 @@ def test_regzip_streams_variant_keeps_the_payload(pin, tmp_path, keep_tail):
     name = "Global/History"                                                      # sub-page, single member: batch 2's V10/V11
     out = str(tmp_path / "v10.rvt")
     rep = W.regzip_streams_variant(pin, out, [name], keep_tail_bytes=keep_tail)
-    before, after = _streams(pin), _streams(out)
+    before, after = C.streams(pin), C.streams(out)
     assert rep == {"streams": [{"name": name, "raw_size": len(before[name]), "full_page_trailers": 0,
                                "keep_tail_bytes": keep_tail}]}
     assert len(after[name]) == len(before[name]) and after[name] != before[name]  # our deflate, their geometry
@@ -157,7 +145,7 @@ def test_build_variant_regzips_streams_and_partitions_onto_the_api(pin, tmp_path
             parts = doc.partition_streams()
         rep = W.build_variant(pin, out, [name], W.trailer_zero, partition_streams=parts)
         assert [s["name"] for s in rep["streams"]] == [name] + parts
-        before, after = _streams(pin), _streams(out)
+        before, after = C.streams(pin), C.streams(out)
         assert list(after) == list(before) and all(after[p] == before[p] for p in before if p not in [name] + parts)
         with open_rvt(pin) as a, open_rvt(out) as b:
             assert b.inflate(name, 0) == a.inflate(name, 0) and len(b.raw(name)) == len(a.raw(name))
