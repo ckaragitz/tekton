@@ -40,23 +40,33 @@ that does not hold is the STALE reason:
      an import statement would (façade re-exports included); on anything else -- a variable, a join, an f-string --
      it, like every directory or module walk (glob / iglob / rglob / listdir / scandir / walk / fwalk / iterdir /
      pkgutil.iter_modules / walk_packages, a `git ls-files` / `ls-tree` sweep), reaches EVERYTHING the other side
-     changed, narrowed only when the call itself spells a literal repo prefix: the run of literal pieces after ROOT/HERE
-     up to the first non-literal argument or wildcard, never across one (os.path.join(ROOT, "tools", "x.py") ->
-     tools/x.py; (ROOT, "plugin", "skills", skill, "scripts") -> plugin/skills; import_module(f"rvt.mep.{mod}") ->
-     rvt.mep.), kept only when it starts at a tracked top-level directory of either tree or in the rvt. namespace;
-     loaders and walkers reached through an alias (`from glob import glob as g`, `im = importlib.import_module`) count,
-     one fetched with getattr or spelled some way the ast does not see as a call reaches everything; a templated
-     literal anywhere in the file that looks like a module or repo path (f"rvt.genesis.port{year}", "tools/%s.py")
-     reaches what its literal head spells under the same law, or everything ("genesis_%d", f"{tool}.py");
+     changed, narrowed only when the call itself spells a literal repo prefix: the run of literal pieces up to the
+     first non-literal argument or wildcard, never across one; a run PROVEN to start at the repo root (its only leading
+     gap is a recognised root name -- ROOT, REPO_ROOT, repo_root() -- and it begins with a tracked top-level directory
+     of either tree or in the rvt. namespace) anchors there (os.path.join(ROOT, "tools", "x.py") -> tools/x.py; (ROOT,
+     "plugin", "skills", skill, "scripts") -> plugin/skills; import_module(f"rvt.mep.{mod}") -> rvt.mep.), a run that
+     starts below anything else (PLUGIN = join(ROOT, "plugin"); HERE; base) matches at ANY directory boundary
+     ((PLUGIN, "skills", skill) reaches plugin/skills/…; (base, "tools", "dev", name) reaches plugin/lib/tools/dev/…);
+     the by-path loaders (spec_from_file_location, SourceFileLoader & co.) are read by their PATH argument, unittest's
+     discover is a walk and loadTestsFromName(s) a loader; a loader named by keyword is read by that keyword
+     (importorskip(reason=…, modname=NAME)); a relative literal (import_module(".low", package=…)) reaches everything;
+     loaders and walkers reached through an alias (`from glob import glob as g`, `im = importlib.import_module`) are
+     read as what they are, and one MENTIONED any other way -- mapped, partial'd, re-bound in a tuple, annotation or
+     walrus, fetched with getattr -- or an exec / eval / compile of anything, or a callee token the text spells more
+     often than the ast accounts for, reaches everything; a templated literal anywhere in the file that looks like a
+     module or repo path (f"rvt.genesis.port{year}", "tools/%s.py", f"{ROOT}/tools/{n}.py") reaches what its literal
+     head spells under the same law, or everything ("genesis_%d", f"{tool}.py"); a compiled module (.so/.pyd/.pyc)
+     changed on either side is judged by nobody: STALE;
   6. clean: `git merge-tree --write-tree N H` (git >= 2.38: the merge happens in the object store -- no checkout, no
      worktree; older git cannot judge) reports no conflict, and the merged tree's full name list still passes
      tools/dev/check_portable_paths.py's own check() (a case-only twin across the two sides merges "cleanly" in git).
 Unjudged, stated: coupling THROUGH an unchanged third file (main changes rvt.x; the PR changes a caller of rvt.y;
-rvt.y uses rvt.x); names assembled at run time by plain concatenation or os.path.join pieces and handed to open(),
-subprocess or exec with no loader or walk call in the changed file itself; a loader smuggled past both the ast and the
-token backstop (exec of an encoded string -- review, not this judge, is the boundary against a hostile PR); references
-living in files neither side changed. Both parents were green with their
-own change in place; the rule bets that a semantic collision between file-disjoint, import-disjoint, name-disjoint
+rvt.y uses rvt.x); a path assembled by plain concatenation or os.path.join pieces and handed to open() or a subprocess
+(python tools/<name>.py) with no loader, walk, exec or root-anchored template in the changed file itself; a loader or
+walker this list does not know by name (a third-party finder, a C extension's own dlopen); code reached through
+sys.path / PYTHONPATH / .pth manipulation at run time; references living in files neither side changed. A hostile PR
+can always hide a load from a static reader -- review, not this judge, is that boundary. Both parents were green with
+their own change in place; the rule bets that a semantic collision between file-disjoint, import-disjoint, name-disjoint
 changes is rarer than a re-run is cheap -- and everything it CAN see wrong is STALE. (An exact alternative -- refuse
 whenever the two changes share one test's import cone -- was measured and rejected for now: tests/conftest.py imports
 rvt.frontdoor at start-up, so every shard cone is ~170 files and the rule degenerates to "always STALE"; it becomes
@@ -86,7 +96,8 @@ GATES = {"tests/conftest.py", "tests/ci_shard.txt", "tools/dev/shard_list.py", "
          "tests/test_portable_paths.py"}                                                                                     # sweep the tree with them
 GATE_DIRS = ("plugin/assets/", "src/rvt/frontdoor/assets/", "plugin/lib/src/rvt/frontdoor/assets/", "plugin/.claude-plugin/")   # pinned bases, manifests
 RUNNER_FILES = {"conftest.py", "pytest.ini", ".pytest.ini", "pytest.toml", ".pytest.toml", "pyproject.toml", "tox.ini", "setup.cfg", "setup.py",   # picked up by name, in ANY directory
-                "sitecustomize.py", "usercustomize.py"}                                                                        # (pytest 9 reads [.]pytest.toml/.ini ahead of pyproject)
+                "sitecustomize.py", "usercustomize.py", ".gitattributes", ".gitmodules"}   # (pytest 9 reads [.]pytest.toml/.ini ahead of pyproject; git attributes rewrite bytes tree-wide on export)
+COMPILED = (".so", ".pyd", ".pyc", ".pyo", ".dll", ".dylib")     # a compiled module is imported by a name no text spells the same way: not judged
 REGULAR = (b"100644", b"100755")                                # git modes of a regular file; 120000 (symlink) and 160000 (gitlink) are not argued about
 SHA = re.compile(r"[0-9a-f]{40}")
 PLAIN = re.compile(r"^[A-Za-z0-9_./+-]+$")                       # a name this judge argues about (git quotes most others anyway)
@@ -96,8 +107,11 @@ ALIAS = re.compile(r"([A-Za-z_][\w.]*)(?:[ \t]+as[ \t]+\w+)?")     # one item of
 # loader whose deciding arguments are plain string literals names a module (judged like an import statement); every
 # other loader call, and every discovery call, BUILDS names whose reach is the literal repo prefix its own arguments spell
 # (or everything). The regex is the backstop: a callee token the ast did not account for as a call reaches everything.
-LOADERS = {"import_module", "__import__", "importorskip", "load_tool", "spec_from_file_location", "run_path", "run_module"}
-WALKERS = {"glob", "iglob", "rglob", "listdir", "scandir", "walk", "fwalk", "iterdir", "iter_modules", "walk_packages"}
+PATH_LOADERS = {"spec_from_file_location", "SourceFileLoader", "SourcelessFileLoader", "ExtensionFileLoader"}   # (name, PATH): the path decides
+LOADERS = PATH_LOADERS | {"import_module", "__import__", "importorskip", "load_tool", "run_path", "run_module", "loadTestsFromName", "loadTestsFromNames"}
+WALKERS = {"glob", "iglob", "rglob", "listdir", "scandir", "walk", "fwalk", "iterdir", "iter_modules", "walk_packages", "discover"}
+ROOT_NAMES = {"ROOT", "REPO", "REPO_ROOT", "TEKTON_ROOT", "repo_root"}   # what this repo calls its own root; any other name (HERE, PLUGIN, base) proves nothing
+ROOT_FIELD = re.compile(r"^\{(?:%s)(?:\(\))?\}/+" % "|".join(sorted(ROOT_NAMES)))   # f"{ROOT}/…" at the head of a templated literal
 BUILDER = re.compile(r"\b(%s)\s*\(" % "|".join(sorted(LOADERS | WALKERS, key=len, reverse=True)))
 GIT_WALK = re.compile(r"\bls-(?:files|tree)\b")                     # `git ls-files` / `ls-tree` driven from a .py: this repo's own whole-tree sweep idiom
 # A templated literal that looks like a module or repo path: quote to quote with no blank inside (a name has none; a
@@ -163,7 +177,7 @@ def changed(a, b, label, reads):
             raise Stale("%s %s %s; deletions, renames and type changes are re-run, not judged" % (label, {"D": "deletes", "T": "retypes"}.get(st, st + "s"), path))
         if new_mode not in REGULAR or (st == "M" and old_mode not in REGULAR):
             raise Stale("%s changes %s, %s (mode %s): only regular files are judged" % (label, path, {b"120000": "a symlink", b"160000": "a submodule entry"}.get(new_mode, "not a regular file"), new_mode.decode()))
-        why = gate(path) or ("a docs file the shard reads (SHARD_READS)" if reads.match(path) else None)
+        why = gate(path) or ("a docs file the shard reads (SHARD_READS)" if reads.match(path) else "a compiled module: judged by nobody" if path.endswith(COMPILED) else None)
         if why:
             raise Stale("%s changes %s, %s" % (label, path, why))
         if not path.startswith("docs/"):
@@ -176,7 +190,7 @@ def gate(path):
     if path in GATES or path.startswith(GATE_DIRS):
         return "a gate: shard machinery, a whole-tree checker or its law data"
     if os.path.basename(path) in RUNNER_FILES or path.endswith(".pth") or (path.startswith("tests/") and os.path.basename(path) == "__init__.py"):
-        return "a file pytest or the interpreter picks up by name, wherever it lies"
+        return "a file pytest, git or the interpreter picks up by name, wherever it lies"
     if path.startswith(SHARD.DROPIN_DIR + "/") and not SHARD.DROPIN_NAME.match(path[len(SHARD.DROPIN_DIR) + 1:]):
         return "shard machinery"
     return None
@@ -294,43 +308,59 @@ def names_of(path):
 
 def callee(node):
     """The bare name a Call invokes (`glob`, `import_module`, …) or ''."""
-    f = node.func
-    return f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else ""
+    return refname(node.func)
+
+
+def refname(node):
+    """The bare name a Name or Attribute spells (`glob` for glob and for glob.glob), or ''."""
+    return node.id if isinstance(node, ast.Name) else node.attr if isinstance(node, ast.Attribute) else ""
 
 
 def literal(node):
     return node.value if isinstance(node, ast.Constant) and isinstance(node.value, str) else None
 
 
+ROOT_GAP, CALL_GAP = 0, 1                                       # gaps that say WHERE a run starts: a repo-root name / the callee slot of a join-like call
+
+
 def pieces(node):
-    """A path/name expression flattened left to right into literal pieces (str) and gaps (None = not a literal): string
-    constants (cut at a %-conversion or f-field, which opens a gap), f-strings, `+` / `/` / `%` chains, and the
-    arguments of any call inside it (os.path.join(ROOT, "tools", name), Path(ROOT, "tests")) after a gap for the callee."""
+    """A path/name expression flattened left to right into literal pieces (str) and gaps: None = something unknown,
+    ROOT_GAP = a recognised repo-root name (ROOT, REPO_ROOT, repo_root()), CALL_GAP = the callee slot of a call whose
+    arguments follow (os.path.join(ROOT, "tools", name) -> [CALL_GAP, ROOT_GAP, "tools", None]). String constants are
+    cut at a %-conversion or f-field (which opens a gap); f-strings and `+` / `/` / `%` chains are walked."""
     text = literal(node)
     if text is not None:
         head = FIELD.split(text, maxsplit=1)[0]
         return [head, None] if head != text else [text]
     if isinstance(node, ast.JoinedStr):
-        return [x for part in node.values for x in (pieces(part) if isinstance(part, ast.Constant) else [None])]
+        return [x for part in node.values for x in (pieces(part) if isinstance(part, ast.Constant) else pieces(part.value) if isinstance(part, ast.FormattedValue) and refname(part.value) in ROOT_NAMES else [None])]
     if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Div, ast.Mod)):
         return pieces(node.left) + ([None] if isinstance(node.op, ast.Mod) else pieces(node.right))
     if isinstance(node, ast.Call):
-        return [None] + [x for arg in [*node.args, *(k.value for k in node.keywords)] for x in pieces(arg)]
+        own = [ROOT_GAP] if callee(node) in ROOT_NAMES else [CALL_GAP]
+        return own + [x for arg in [*node.args, *(k.value for k in node.keywords)] for x in pieces(arg)]
+    if refname(node) in ROOT_NAMES:
+        return [ROOT_GAP]
     return [None]
 
 
-def run_prefix(elements, tops):
-    """The literal repo prefix a flattened expression spells, or '' (= reaches everything): leading gaps skipped (ROOT,
-    HERE, the callee), then the run of literal pieces up to the FIRST gap or wildcard -- never across one: (ROOT,
-    "plugin", "skills", skill, "scripts") spells plugin/skills, not plugin/skills/scripts -- joined with '/', and kept
-    only when it starts at a tracked top-level directory of either tree or in the rvt. namespace (a run that starts
-    anywhere else proves nothing about where the walk begins)."""
-    lead = []
+def run_prefix(elements):
+    """(anchored, prefix): the literal repo prefix a flattened expression spells and whether it is PROVEN to start at
+    the repo root -- or (False, '') = reaches everything. Leading gaps are read, not skipped blindly: callee slots are
+    ignored, a repo-root name anchors the run, any other gap (PLUGIN = join(ROOT, "plugin"); HERE; base) un-anchors it;
+    then the run of literal pieces up to the FIRST gap or wildcard, never across one: (ROOT, "plugin", "skills",
+    skill, "scripts") spells plugin/skills anchored; (PLUGIN, "skills", skill) spells skills UN-anchored, which must
+    then match at any directory boundary (plugin/skills/…), not only at the root."""
+    lead, anchored = [], True
     for element in elements:
-        if element is None:
+        if not isinstance(element, str):
             if lead:
-                break                                            # the run ends at the first gap after it started...
-            continue                                             # ...gaps before it (ROOT, HERE, the callee) are skipped
+                break                                            # the run ends at the first gap of any kind after it started
+            if element is None:
+                anchored = False                                 # it starts below something unknown: no claim about the root
+            elif element == ROOT_GAP:
+                anchored = True
+            continue
         head = re.split(r"[*?\[]", element, maxsplit=1)[0]       # a glob pattern counts up to its first wildcard
         clean = head.strip("/")
         if not clean or clean.startswith("."):                   # "", "/", "./x", "..": nothing certain from here on
@@ -338,56 +368,89 @@ def run_prefix(elements, tops):
         lead.append(clean)
         if head != element:
             break                                                # the wildcard ended the run inside this piece
-    prefix = "/".join(lead)
-    return prefix if prefix and (prefix.split("/", 1)[0] in tops or prefix.startswith("rvt.")) else ""
+    return anchored, "/".join(lead)
 
 
-def builds(tree, text, tops):
-    """(the literal prefixes of the names a .py file BUILDS or DISCOVERS at run time -- '' among them = anything --,
-    the modules its loader calls name by plain literal), rule 5c. Loaders: import_module("pkg") & co. with literal
-    deciding arguments name "pkg" like an import statement would (façades included, via related()); any other loader
-    call builds from its name/path expression. Walkers (glob & co., pkgutil, os.[f]walk, Path().iterdir/rglob) build
-    from receiver + arguments. Backstops: a callee token the ast saw fewer times as a call than the text spells it, and
-    any `ls-files`/`ls-tree` token (a git-driven sweep), reach everything. Templated literals elsewhere in the file that
-    look like a module or repo path reach what their literal head spells under the same prefix law."""
+def reach(anchored, prefix, tops):
+    """The reach test for one spelled prefix: '' (falsy) = everything; an anchored run must start at a tracked top-level
+    directory of either tree or in the rvt. namespace (else it names nothing in the repo: everything); an un-anchored run
+    matches at any directory boundary."""
+    if not prefix or (anchored and not (prefix.split("/", 1)[0] in tops or prefix.startswith("rvt."))):
+        return ""
+    return prefix if anchored else "*/" + prefix
+
+
+def reaches(spelled, name):
+    """Can a name spelled at run time (reach()'s value) be `name` (a path, dotted module or stem token)?"""
+    return not spelled or (("/" + spelled[2:]) in ("/" + name) if spelled.startswith("*/") else name.startswith(spelled))
+
+
+def deciding_argument(node, name):
+    """The expression that decides WHAT a loader call loads: the path for the by-path loaders, else the module name --
+    positional, or by its keyword NAME (never "the first keyword": importorskip(reason=…, modname=NAME))."""
+    if name in PATH_LOADERS:
+        return node.args[1] if len(node.args) > 1 else next((k.value for k in node.keywords if k.arg in ("location", "path")), None)
+    return node.args[0] if node.args else next((k.value for k in node.keywords if k.arg in ("name", "modname", "mod_name", "path_name")), None)
+
+
+def builds(path, tree, text, tops):
+    """(the reach of every name a .py file BUILDS or DISCOVERS at run time -- '' among them = anything --, the modules
+    its loader calls name by plain literal), rule 5c. Loaders on a plain literal name that module like an import
+    statement (façades included, via related(); a relative ".mod" or a literal PATH is not a module name: the former
+    reaches everything, the latter is left to the name scan); any other loader call, and every walker (receiver +
+    arguments), builds from its expression under run_prefix()'s law. Backstops that reach everything: a loader or
+    walker REFERENCED but not called right there (map(import_module, …), partial(load_tool), an annotated or tuple or
+    walrus binding), one fetched with getattr, exec/eval/compile of anything, a callee token the text spells more often
+    than the ast accounts for, and any `ls-files`/`ls-tree` token (a git-driven sweep). Templated literals anywhere in
+    the file that look like a module or repo path reach what their literal head spells, anchored."""
+    every = LOADERS | WALKERS
     prefixes, named, seen, alias = set(), set(), collections.Counter(), {}
     nodes = list(ast.walk(tree))
+    accounted = set()                                            # id()s of the Name/Attribute nodes whose mention of a loader/walker is understood
     for node in nodes:                                           # first: the names a loader/walker goes by in THIS file
         if isinstance(node, (ast.Import, ast.ImportFrom)):
-            alias.update((a.asname, a.name.rsplit(".", 1)[-1]) for a in node.names if a.asname and a.name.rsplit(".", 1)[-1] in LOADERS | WALKERS)   # from glob import glob as g
-        elif isinstance(node, ast.Assign) and isinstance(node.value, (ast.Name, ast.Attribute)):
-            was = ast.Call(func=node.value, args=[], keywords=[])
-            if alias.get(callee(was), callee(was)) in LOADERS | WALKERS:
-                alias.update((t.id, alias.get(callee(was), callee(was))) for t in node.targets if isinstance(t, ast.Name))   # im = importlib.import_module
-        elif isinstance(node, ast.Call) and callee(node) == "getattr" and any(literal(a) in LOADERS | WALKERS for a in node.args[1:2]):
-            prefixes.add("")                                     # a loader fetched reflectively: anything
+            alias.update((a.asname, a.name.rsplit(".", 1)[-1]) for a in node.names if a.asname and a.name.rsplit(".", 1)[-1] in every)   # from glob import glob as g
+        elif isinstance(node, ast.Assign) and isinstance(node.value, (ast.Name, ast.Attribute)) and all(isinstance(t, ast.Name) for t in node.targets):
+            real = alias.get(refname(node.value), refname(node.value))
+            if real in every:
+                alias.update((t.id, real) for t in node.targets)   # im = importlib.import_module: calls of im are read as calls of it
+                accounted.add(id(node.value))
     for node in nodes:
         if not isinstance(node, ast.Call):
             continue
+        accounted.add(id(node.func))
         name = alias.get(callee(node), callee(node))
-        if name in LOADERS:
-            seen[name] += 1
-            if name == "spec_from_file_location":                # its PATH decides what is loaded; the name argument says nothing
-                arg = node.args[1] if len(node.args) > 1 else next((k.value for k in node.keywords if k.arg == "location"), None)
-                if arg is not None and literal(arg) is not None:
-                    continue                                     # a literal path: the needle scan reads it
-            else:
-                arg = node.args[0] if node.args else next((k.value for k in node.keywords), None)
-                if arg is not None and literal(arg) is not None:
-                    named.add(literal(arg).replace("/", "."))    # import_module("pkg") names pkg like `import pkg`; load_tool("dev/x") -> dev.x
-                    continue
-            prefixes.add(run_prefix(pieces(arg), tops) if arg is not None else "")   # no visible argument (*args, a bare spec): anything
+        seen[name] += 1
+        if name in ("exec", "eval", "compile") or (name == "getattr" and any(literal(a) in every for a in node.args[1:2])):
+            prefixes.add("")                                     # code from text, or a loader/walker fetched reflectively: anything
+        elif name in LOADERS:
+            arg = deciding_argument(node, name)
+            lit = literal(arg) if arg is not None else None
+            if lit is not None and name in PATH_LOADERS:
+                continue                                         # a literal path: the needle scan reads it
+            if lit is not None and not lit.startswith("."):
+                named.add(lit.replace("/", "."))                 # import_module("pkg") names pkg like `import pkg`; load_tool("dev/x") -> dev.x
+                continue
+            prefixes.add(reach(*run_prefix(pieces(arg)), tops) if arg is not None and lit is None else "")   # a relative ".mod", or no visible argument: anything
         elif name in WALKERS:
-            seen[name] += 1
             receiver = pieces(node.func.value) if isinstance(node.func, ast.Attribute) else []
-            prefixes.add(run_prefix(receiver + [x for arg in [*node.args, *(k.value for k in node.keywords)] for x in pieces(arg)], tops))
+            prefixes.add(reach(*run_prefix(receiver + [x for arg in [*node.args, *(k.value for k in node.keywords)] for x in pieces(arg)]), tops))
+    for node in nodes:                                           # a loader/walker mentioned any other way (mapped, partial'd, re-bound, walrus'd): anything
+        if isinstance(node, ast.Attribute) and not node.attr.startswith("__"):
+            accounted.add(id(node.value))                        # `glob` in glob.glob is the module, not a reference to the walker (but import_module.__call__ is)
+        if isinstance(node, (ast.Name, ast.Attribute)) and isinstance(node.ctx, ast.Load) and id(node) not in accounted and alias.get(refname(node), refname(node)) in every:
+            prefixes.add("")
+        elif literal(node) in LOADERS:
+            prefixes.add("")                                     # a loader named in a STRING (globals()["__import__"], vars(importlib)[…]): anything
     spelled = collections.Counter(m.group(1) for m in BUILDER.finditer(text))
     if any(spelled[n] > seen[n] for n in spelled) or GIT_WALK.search(text):
-        prefixes.add("")                                         # called some way the ast did not classify (getattr, alias, exec'd text), or a git sweep
-    for m in QUOTED.finditer(text):                             # templated literals anywhere: "tools/%s.py", f"rvt.genesis.port{year}", "genesis_%d"
-        body = m.group(1)
+        prefixes.add("")                                         # called some way the ast did not classify, or a git sweep
+    for m in QUOTED.finditer(text):                             # templated literals anywhere: "tools/%s.py", f"rvt.genesis.port{year}", f"{ROOT}/x/{n}", "genesis_%d"
+        body = ROOT_FIELD.sub("", m.group(1))                    # a leading {ROOT}/ is the anchor itself, not a gap
         if FIELD.search(body) and (LOOKS_LIKE_NAME.search(body) or body.split("/", 1)[0] in tops):
-            prefixes.add(run_prefix(pieces(ast.Constant(body)), tops))
+            prefixes.add(reach(*run_prefix(pieces(ast.Constant(body))), tops))
+        elif body != m.group(1):
+            prefixes.add(reach(*run_prefix([body]), tops))       # f"{ROOT}/tools/x.py": a plain repo path once the anchor is read
     return prefixes, named
 
 
@@ -404,9 +467,9 @@ def coupling(x, y, modules, tops):
         text = x.texts[f]
         if f.endswith(".py"):
             tree = parse(f, text)
-            prefixes, loaded = builds(tree, text, tops)
-            for prefix in sorted(prefixes):                      # a name built or discovered at run time reaches every changed path its literal prefix allows
-                hit = next((q for q, _, names in targets if any(n.startswith(prefix) for n in names)), None)
+            prefixes, loaded = builds(f, tree, text, tops)
+            for prefix in sorted(prefixes):                      # a name built or discovered at run time reaches every changed path its spelled prefix allows
+                hit = next((q for q, _, names in targets if any(reaches(prefix, n) for n in names)), None)
                 if hit:
                     return "%s's %s builds or discovers names at run time (\"%s…\") that can reach %s, changed on %s" % (x.label, f, prefix[:40], hit, y.label)
             named = sorted(imports(f, tree, text, modules) | loaded)

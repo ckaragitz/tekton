@@ -329,6 +329,49 @@ merger's own bar stays "no false FRESH"). All four fixed, each a red→green row
 Evidence: `tests/test_ci_fresh.py` 65 → 77 collected (75 passed / 2 skipped); the five stream-local files 144 passed /
 3 skipped; portable paths ok (2983); `bash -n` clean; replay unchanged (1 FRESH #578 / 11 STALE, same reasons).
 
+## Fix round 3 (declared the last) — third adversarial pass on `ec53709`, same session
+
+F1–F6 of round 2 confirmed by the reviewer's rigs; a third pass found one more layer under `CI_FRESH_JUDGE=1`. All
+five items fixed, each with red→green rows; plus two shapes my own pass added (a dunder call, a loader named in a string):
+
+1. **(blocking) Anchoring.** A literal run is anchored at the repo root only when PROVEN to start there: its only
+   leading gap is a recognised root name (`ROOT`, `REPO_ROOT`, `repo_root()`, also as the head field of an f-string) —
+   the flattener now emits distinct gaps for a root name, a callee slot and "unknown". A run that starts below anything
+   else (`PLUGIN = join(ROOT, "plugin")`, `HERE`, `base`, a module receiver) is UN-anchored and matches at any directory
+   boundary (`"/" + prefix in "/" + name`). `(PLUGIN, "skills", skill, "scripts", "*.py")` → `*/skills` reaches
+   `plugin/skills/tekton-author/scripts/rvt_inspect.py`; `(PLUGIN / "skills").rglob` the same; `(base, "tools", "dev",
+   name)` → `*/tools/dev` reaches `plugin/lib/tools/dev/x.py`; `(HERE, "tools", "*.json")` → `*/tools` reaches
+   `tests/tools/x.json`; `(ROOT, "tools", …)` and `f"{ROOT}/tools/…"` stay anchored (`tools`, `tools/gen_`). Four rows.
+2. **(blocking) Bare references.** After alias resolution, any `Name`/`Attribute` (Load) that resolves to a loader or
+   walker and is not a call's `.func`, not the value of a simple alias assignment, and not a non-dunder attribute's
+   receiver reaches everything: `map(importlib.import_module, NAMES)`, `ex.map(load_tool, …)`, `im: Callable = …`,
+   `im, g = …, glob.glob`, `(im := …)`, `functools.partial(importlib.import_module)`, `importlib.import_module.__call__(…)`;
+   `exec`/`eval`/`compile` of ANYTHING reaches everything (plain-string `exec("from pkg import low")` was FRESH); and a
+   loader named in a string constant anywhere (`getattr(importlib, "import_module")`, `globals()[…]["__import__"]`)
+   likewise. Nine rows.
+3. `.gitattributes` / `.gitmodules` at any depth are runner files (an `eol=crlf` on main rewrites bytes tree-wide on the
+   export session_ci runs); row on the main side.
+4. The deciding argument of a by-name loader is picked by keyword NAME (`name`/`modname`/`mod_name`/`path_name`),
+   never "the first keyword" (`importorskip(reason="x", modname=NAME)` took `"x"`); a relative literal
+   (`import_module(".low", package="pkg")`) is no top-level module name and reaches everything. Two rows.
+5. Stated AND fixed: `SourceFileLoader` / `SourcelessFileLoader` / `ExtensionFileLoader` join `spec_from_file_location`
+   as by-PATH loaders (2nd argument / `path=`); unittest's `discover` is a walker and `loadTestsFromName(s)` a loader; a
+   compiled module (`.so/.pyd/.pyc/.pyo/.dll/.dylib`) changed on either side is STALE outright ("judged by nobody").
+   Rows: `SourceFileLoader("m", p)`, `discover(join(ROOT, "tests"))` reaching a main-added test, `src/fastmod.so`. The
+   header's "unjudged, stated" paragraph was rewritten to claim no more than the code does: what remains is coupling
+   through an unchanged third file; a path assembled by plain concatenation/`join` and handed to `open()` or a
+   subprocess (`python tools/<name>.py`, `-m <name>`) with no loader, walk, exec or root-anchored template in the changed
+   file; a loader or walker the list does not know by name (a third-party finder, a C extension's own dlopen); code
+   reached through `sys.path`/`PYTHONPATH`/`.pth` manipulation at run time; references living in files neither side
+   changed — and the standing sentence that a hostile PR can always hide a load from a static reader (review is that
+   boundary).
+
+Conservatism measured on the real tree after the round: of 405 `.py` files under `src/rvt`, `tests`, `tools`, 140 would
+reach everything if changed, 23 spell a narrowed prefix, 242 build nothing, 0 unparsable — the judge still has room to
+say FRESH, and every widening this round was toward STALE. Evidence: `tests/test_ci_fresh.py` 77 → 96 collected (94
+passed / 2 skipped); five stream-local files 161 passed / 3 skipped; portable paths ok (2990); `bash -n` clean; replay
+unchanged (1 FRESH #578 / 11 STALE).
+
 ## Follow-ups (searched: none filed)
 
 - F1 — fold the docs-ADD collision heredoc of `ci_fresh.sh` into the judge as a second entry point (one loader, one
@@ -347,6 +390,8 @@ BRANCH STATE
 - gates, first head (545e3da): stream-local four files 85 passed / 3 skipped; whole merged shard 2035 passed / 134
   skipped / 3 xfailed on the committed tree (the earlier 1 failed = the gates meta-test reading `git ls-files` before the
   judge was tracked); tech-lead CI on that head 2042 / 131 / 3xf pass; review 🛑 (round 1 above)
+- gates, fix round 3: tests/test_ci_fresh.py 94 passed / 2 skipped; five stream-local files 161 passed / 3 skipped;
+  portable paths ok 2990; bash -n clean; rebased on the current origin/main before the push
 - gates, fix round 2: tests/test_ci_fresh.py 75 passed / 2 skipped; five stream-local files 144 passed / 3 skipped;
   portable paths ok 2983; bash -n clean; rebased on origin/main 828bdae; whole shard left to the tech lead's sandbox
   this round (optional per the review)

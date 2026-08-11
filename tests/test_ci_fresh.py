@@ -202,7 +202,7 @@ def test_a_path_changed_on_both_sides_is_stale(rig):
     ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": "if True: from pkg import low\n\ndef f():\n    import os\n"},
      "PR 9's src/user.py imports pkg.low (src/pkg/low.py), changed on main"),                          # an inline suite -- c4
     ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nM = importlib.import_module(PREFIX + "a")\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),   # a loader fed an expression reaches anything...
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"*/a…\") that can reach src/a.py, changed on main"),   # a loader fed an expression reaches what its literal tail can be, at any depth...
     ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nM = importlib.import_module(name)\n'},
      "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),   # ...fed a plain variable too (its literal may live in an unchanged caller)
     ({"tools/genesis_2031.py": "G = 1\n"}, {"tests/test_g.py": 'from conftest import load_tool\nYEAR = 2031\nNAME = "genesis_%d" % YEAR\nG = load_tool(NAME)\n'},
@@ -233,6 +233,48 @@ def test_a_path_changed_on_both_sides_is_stale(rig):
      "PR 9's tests/test_alias.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),   # an aliased walker counts...
     ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nload = getattr(importlib, "import_module")\nM = load(NAME)\n'},
      "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),           # ...and a loader fetched with getattr reaches everything
+    # round 3, R1: a run that starts below anything but the repo root is NOT anchored at the root -- it matches at any directory boundary
+    ({"plugin/skills/tekton-author/scripts/rvt_inspect.py": "I = 1\n"},
+     {"tests/test_walk.py": 'import glob, os\nPLUGIN = os.path.join(ROOT, "plugin")\nfor skill in SKILLS:\n    G = glob.glob(os.path.join(PLUGIN, "skills", skill, "scripts", "*.py"))\n'},
+     "PR 9's tests/test_walk.py builds or discovers names at run time (\"*/skills…\") that can reach plugin/skills/tekton-author/scripts/rvt_inspect.py, changed on main"),
+    ({"plugin/skills/tekton-author/scripts/rvt_inspect.py": "I = 1\n"},
+     {"tests/test_walk.py": 'from pathlib import Path\nPLUGIN = Path(ROOT) / "plugin"\nG = sorted((PLUGIN / "skills").rglob("*.py"))\n'},
+     "PR 9's tests/test_walk.py builds or discovers names at run time (\"*/skills…\") that can reach plugin/skills/tekton-author/scripts/rvt_inspect.py, changed on main"),
+    ({"plugin/lib/tools/dev/x.py": "X = 1\n"},
+     {"tests/test_walk.py": 'import glob, os\nfor base in BASES:\n    G = glob.glob(os.path.join(base, "tools", "dev", "*.py"))\n'},
+     "PR 9's tests/test_walk.py builds or discovers names at run time (\"*/tools/dev…\") that can reach plugin/lib/tools/dev/x.py, changed on main"),
+    ({"tests/tools/x.json": "{}\n"},
+     {"tests/test_walk.py": 'import glob, os\nHERE = os.path.dirname(__file__)\nG = glob.glob(os.path.join(HERE, "tools", "*.json"))\n'},
+     "PR 9's tests/test_walk.py builds or discovers names at run time (\"*/tools…\") that can reach tests/tools/x.json, changed on main"),
+    # R2: a loader or walker MENTIONED but not called right there reaches everything, and so does exec of anything
+    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nM = list(map(importlib.import_module, NAMES))\n'},
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
+    ({"tools/t.py": "T = 1\n"}, {"tests/test_pool.py": 'from conftest import load_tool\nR = list(ex.map(load_tool, NAMES))\n'},
+     "PR 9's tests/test_pool.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),
+    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nfrom typing import Callable\nim: Callable = importlib.import_module\nM = im(NAME)\n'},
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
+    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import glob, importlib\nim, g = importlib.import_module, glob.glob\n'},
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
+    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nf = (im := importlib.import_module)\n'},
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
+    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import functools, importlib\np = functools.partial(importlib.import_module)\n'},
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
+    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": 'exec("from pkg import low")\n'},
+     "PR 9's src/user.py builds or discovers names at run time (\"…\") that can reach src/pkg/low.py, changed on main"),
+    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nM = importlib.import_module.__call__(NAME)\n'},
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
+    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'M = globals()["__builtins__"]["__import__"](NAME)\n'},
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
+    # R4: the deciding argument is picked by keyword NAME; a relative literal is no top-level module name
+    ({"src/a.py": "A = 2\n"}, {"tests/test_kw.py": 'import pytest\nP = pytest.importorskip(reason="x", modname=NAME)\n'},
+     "PR 9's tests/test_kw.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
+    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/pkg/high.py": 'import importlib\nL = importlib.import_module(".low", package="pkg")\n'},
+     "PR 9's src/pkg/high.py builds or discovers names at run time (\"…\") that can reach src/pkg/low.py, changed on main"),
+    # R5: the by-path loaders and unittest's discovery
+    ({"tools/t.py": "T = 1\n"}, {"tests/test_sfl.py": 'from importlib.machinery import SourceFileLoader\nM = SourceFileLoader("m", p).load_module()\n'},
+     "PR 9's tests/test_sfl.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),
+    ({"tests/test_z.py": "Z = 1\n", "tests/ci_shard.d/9-z.txt": "tests/test_z.py\n"}, {"tests/test_disc.py": 'import os, unittest\nS = unittest.defaultTestLoader.discover(os.path.join(ROOT, "tests"))\n'},
+     "PR 9's tests/test_disc.py builds or discovers names at run time (\"tests…\") that can reach tests/test_z.py, changed on main"),
 ])
 def test_disjoint_but_coupled_changes_are_stale(rig, main_files, pr_files, reason):
     head = rig.pr(9, dict(PR_ADDS, **pr_files))
@@ -248,12 +290,14 @@ def test_disjoint_but_coupled_changes_are_stale(rig, main_files, pr_files, reaso
     ({"src/a.py": "A = 2\n"}, {"tests/ci_shard.d/README": "words\n"}, "PR 10 changes tests/ci_shard.d/README, shard machinery"),
     ({"src/a.py": "A = 2\n"}, {"docs/coverage/viewer-certified.json": '{"x": 1}\n'}, "PR 10 changes docs/coverage/viewer-certified.json, a docs file the shard reads (SHARD_READS)"),
     ({"src/a.py": "A = 2\n"}, {"tests/ci_shard.d/10-x.txt": "tests/test_old.py\n"}, "PR 10's tests/ci_shard.d/10-x.txt enrols tests/test_old.py, a test PR 10 does not change (never run with the other side's change)"),
-    ({"src/a.py": "A = 2\n"}, {"tests/pyproject.toml": "[tool.pytest.ini_options]\n"}, "PR 10 changes tests/pyproject.toml, a file pytest or the interpreter picks up by name, wherever it lies"),   # a nested inifile -- e4...
-    ({"tests/pytest.toml": "[pytest]\n"}, {}, "main changes tests/pytest.toml, a file pytest or the interpreter picks up by name, wherever it lies"),                                # ...pytest 9 reads [.]pytest.toml / .pytest.ini AHEAD of pyproject (round 2, F2)
-    ({"src/a.py": "A = 2\n"}, {"tests/.pytest.toml": "[pytest]\n"}, "PR 10 changes tests/.pytest.toml, a file pytest or the interpreter picks up by name, wherever it lies"),
-    ({"tests/sub/.pytest.ini": "[pytest]\n"}, {}, "main changes tests/sub/.pytest.ini, a file pytest or the interpreter picks up by name, wherever it lies"),
-    ({"src/a.py": "A = 2\n"}, {"tests/sub/__init__.py": ""}, "PR 10 changes tests/sub/__init__.py, a file pytest or the interpreter picks up by name, wherever it lies"),                     # rootdir/package discovery -- e5
-    ({"tools/sitecustomize.py": "import os\n"}, {}, "main changes tools/sitecustomize.py, a file pytest or the interpreter picks up by name, wherever it lies"),
+    ({"src/a.py": "A = 2\n"}, {"tests/pyproject.toml": "[tool.pytest.ini_options]\n"}, "PR 10 changes tests/pyproject.toml, a file pytest, git or the interpreter picks up by name, wherever it lies"),   # a nested inifile -- e4...
+    ({"tests/pytest.toml": "[pytest]\n"}, {}, "main changes tests/pytest.toml, a file pytest, git or the interpreter picks up by name, wherever it lies"),                                # ...pytest 9 reads [.]pytest.toml / .pytest.ini AHEAD of pyproject (round 2, F2)
+    ({"src/a.py": "A = 2\n"}, {"tests/.pytest.toml": "[pytest]\n"}, "PR 10 changes tests/.pytest.toml, a file pytest, git or the interpreter picks up by name, wherever it lies"),
+    ({"tests/sub/.pytest.ini": "[pytest]\n"}, {}, "main changes tests/sub/.pytest.ini, a file pytest, git or the interpreter picks up by name, wherever it lies"),
+    ({"src/a.py": "A = 2\n"}, {"tests/sub/__init__.py": ""}, "PR 10 changes tests/sub/__init__.py, a file pytest, git or the interpreter picks up by name, wherever it lies"),                     # rootdir/package discovery -- e5
+    ({"tools/sitecustomize.py": "import os\n"}, {}, "main changes tools/sitecustomize.py, a file pytest, git or the interpreter picks up by name, wherever it lies"),
+    ({"tests/.gitattributes": "*.txt eol=crlf\n"}, {}, "main changes tests/.gitattributes, a file pytest, git or the interpreter picks up by name, wherever it lies"),   # bytes rewritten tree-wide on export (round 3)
+    ({"src/fastmod.so": "ELF\n"}, {}, "main changes src/fastmod.so, a compiled module: judged by nobody"),
 ])
 def test_gates_shard_reads_and_dropins_enrolling_unchanged_tests_are_stale_on_either_side(rig, main_files, pr_files, reason):
     head = rig.pr(10, dict(PR_ADDS, **pr_files))
