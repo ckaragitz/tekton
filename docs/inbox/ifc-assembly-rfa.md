@@ -1346,14 +1346,19 @@ order. Engine swap under the same file: **dcda26e → 4 fail (2 by behaviour: `[
 
 ## BRANCH STATE (eng #621)
 
-Branch `cam/621-face-contact-loss` from `main` @ dcda26e; one issue, one PR (`Closes #621`). Files:
+Branch `cam/621-face-contact-loss` from `main` @ dcda26e, rebased onto 8ec94d8 (after #627/#629) and again
+onto ca74895 (after #632) — each time the only conflicts were the expected keep-both appends at the end of this
+record and of the test file (theirs as landed, then ours; `assembly_parts.py` + mirror byte-identical across
+the rebases); one issue, one PR (#635, `Closes #621`). Files:
 `src/rvt/ifc/assembly_parts.py` (`_interior_probes`, `_interior_probe` now its first element,
 `_clearance`, `_probe_clear_of`, `ring_nesting`; nothing else in the module touched) + its `plugin/lib`
 mirror via `sync_plugin.py`; `tests/test_ifc_assembly.py` (appended section only); this record section.
 Not touched: `router.py` (#627), `fit_solid` (#626), famgen, `route.py`, SKILL.md, any hot file, earlier
 sections of this record. Gates: `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_ifc_assembly.py
-tests/test_router.py -q -rs` main **214 passed / 14 skipped** (test_ifc_assembly 82) → branch **220 passed
-/ 14 skipped** (test_ifc_assembly 88); whole merged CI shard — count in the PR body for the final head;
+tests/test_router.py -q -rs` main @ ca74895 **222 passed / 14 skipped** (test_ifc_assembly 90) → branch
+**228 passed / 14 skipped** (test_ifc_assembly 96; on the earlier bases: 218/14 → 224/14, 214/14 → 220/14); whole
+merged CI shard on the pre-rebase head **2139 passed / 165 skipped / 2 xfailed, 0 failed (7 min 27 s)** —
+re-run on the rebased head, count in the PR body;
 `/simplify` run on the diff (stable `reverse=True` sort, two plain loops in `_probe_clear_of`, squared
 distances in `_clearance`, dead test locals removed; skipped: hoisting `convert/rvt_to_ifc._point_seg_dist`
 into a shared helper — outside territory — and folding `_corner_pair` into `_face_pair` — would perturb
