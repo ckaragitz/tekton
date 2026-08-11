@@ -2,8 +2,10 @@
 
 **Issue:** #670 (filed by eng #657's /simplify reuse pass; Refs #657, #646, #451, #579). **Date:** 2026-08-11.
 **Session:** eng #670 (cloud, `cse_01C82apjgTbhcgWYnzvAZPBv`), started by the tech-lead session. **Base:** `main` @
-`345493c` (#669) for every measurement below; #673 (`reduce_v2`, its own new test module + drop-in, disjoint from every file
-here) was announced as landing first -- see BRANCH STATE for the rebase note. Index: `docs/inbox/shard-docs-audit.md` (left
+`345493c` (#669) for the per-adopter before/after measurements; rebased onto `77e31f3` once #673 (`reduce_v2`, its own new
+test module `tests/test_reduce_v2_655.py` + drop-in -- disjoint from every file here, and carrying no `pin`/`_streams` copy:
+it parametrizes `C.FOREIGN_FIRST` and calls `C.pinned_base(year)` directly) merged; the law module, the four adopters and
+`test_reduce_v2_655` re-run green there and the whole-shard figures below are from that head. Index: `docs/inbox/shard-docs-audit.md` (left
 untouched -- the README makes the index line optional). Written in this engineer's voice; no other record edited.
 
 ## Why
@@ -118,6 +120,6 @@ deleted, `C.streams(...)`, dead imports dropped -- adoption only), `tests/test_c
 `plugin/**`, `skills/**`, `tests/ci_shard*`, the collaborator's `tests/test_prompt*` / `test_router*` / `test_famgen_*`,
 `tests/test_reduce_v2_655.py` (#673's, carries no copy), any hot file, the stream index. Gates: the table above; mutation
 proofs above; whole merged shard `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3
-tools/dev/shard_list.py --print)` on the branch: **SHARD_RESULT_PLACEHOLDER**; `/simplify` RAN on the diff (result on the PR);
+tools/dev/shard_list.py --print)` on the branch @ `4d079c9`-equivalent tree (rebased onto `77e31f3`, #673 merged): **2407 passed / 135 skipped / 3 xfailed** in 7:52 -- `origin/main` @ `77e31f3` expected 2406 / 135 / 3 (the one new law row; main's measured figure is on the PR thread); `/simplify` RAN on the diff (result on the PR);
 `/verify` NOT RUN -- tests-only diff with no runtime surface to drive (`No-Verification-Needed: tests-only` trailer).
 Nothing staged for the viewer; no certification claim; nothing generated committed.
