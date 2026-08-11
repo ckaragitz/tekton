@@ -309,10 +309,10 @@ def pin() -> str:
 
 def streams(path) -> dict:
     """``{stream path: raw (still paged) bytes}`` of every stream of the container at ``path`` (str or PathLike), in
-    directory order -- the before/after census of a ``rewrite_stream(s)`` output (``rvt.roundtrip.read_entries``
-    minus the storages)."""
-    from rvt.roundtrip import read_entries
-    return {e.path: e.data for e in read_entries(os.fspath(path)) if e.entry_type == "stream"}
+    directory order -- the before/after census of a ``rewrite_stream(s)`` output (= ``rvt.roundtrip.read_streams``,
+    #677)."""
+    from rvt.roundtrip import read_streams
+    return read_streams(path)
 
 
 def rewrite_streams(src, dst, damages: dict, extra=()) -> str:

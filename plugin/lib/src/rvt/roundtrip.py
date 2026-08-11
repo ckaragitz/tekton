@@ -117,6 +117,16 @@ def read_entries(path: str, *, with_data: bool = True) -> List[CfbEntry]:
     return entries
 
 
+def read_streams(path: str | os.PathLike[str]) -> Dict[str, bytes]:
+    """``{stream path: raw bytes}`` of every *stream* of the container at
+    ``path``, in :func:`read_entries` (stream-id) order; the root and the
+    storages are dropped.  Raw = exactly as stored (a Revit stream is still
+    framed / paged) -- the before/after census of "which streams did this
+    write touch".
+    """
+    return {e.path: e.data for e in read_entries(os.fspath(path)) if e.is_stream}
+
+
 # --- catalog: metadata + per-stream digests --------------------------------------
 
 def _read_header_fields(path: str) -> Dict[str, object]:

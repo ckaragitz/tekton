@@ -189,7 +189,7 @@ def test_chain_and_batch_are_logically_identical(tmp_path, monkeypatch):
     last-save NAME and the final-page ECC trailer bytes each rewrite re-frames
     past the end record (the chain accumulates one per rewrite)."""
     from rvt.famgen import loader as L
-    from rvt.roundtrip import read_entries
+    from rvt.roundtrip import read_entries, read_streams
     from rvt.container import open_rvt
     from rvt.partitions import StreamWalker
     from rvt.identity import identity_report
@@ -215,9 +215,7 @@ def test_chain_and_batch_are_logically_identical(tmp_path, monkeypatch):
            [(p.guid, p.fam_doc_guid, p.host_family_id, p.symbol_id, sorted(p.twin_of.values()))
             for p in bplans]
 
-    def streams(p):
-        return {e.path: e.data for e in read_entries(p) if e.entry_type == "stream"}
-    cs, bs = streams(cur), streams(bout)
+    cs, bs = read_streams(cur), read_streams(bout)
     assert set(cs) == set(bs)
     differ = sorted(k for k in cs if cs[k] != bs[k])
     part = [k for k in cs if k.startswith("Partitions/")]
