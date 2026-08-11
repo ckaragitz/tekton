@@ -125,12 +125,14 @@ MAX_GRID_CELLS = 20000
 #: slotted channel is genuinely many boxes, and each is EXACT.
 MAX_BOXES = 120
 
-#: "Exact" is a claim about VOLUME, so it is checked as one: a decomposition
-#: that calls itself exact (the box lane), or that filled no hole and so had
-#: no licence to differ (the slab lane), must reproduce the mesh's own volume
-#: to this relative tolerance or it is refused.  1e-6 is far above the noise
-#: of welding coordinates to 1e-9 ft and far below any real sliver or lost
-#: member.
+#: "Exact" is a claim about VOLUME, so it is checked as one: the box lane's
+#: boxes, plus the overlap the mesh counts twice, must reproduce the mesh's
+#: own volume to this relative tolerance or the lane is refused.  1e-6 is far
+#: above the noise of welding coordinates to 1e-9 ft (a box no thinner than
+#: MIN_EXTENT_FT is perturbed by at most 7.7e-7) and far below any real
+#: sliver.  The slab lane makes no exactness claim and keeps its 2 % envelope
+#: (:func:`_conserves`): its midpoint sections legitimately under-integrate a
+#: taper, skip hairline Z levels and drop slivers.
 EXACT_REL_TOL = 1e-6
 
 #: Author a measured-round profile as its N-gon hull instead of an ARC-based
@@ -752,15 +754,11 @@ def decompose_slabs(points: Sequence[Sequence[float]],
     section did not change are merged, so a plain rod stays ONE part while a
     C-channel becomes its back plate plus its two walls.
 
-    Returns ``{parts, volume_ft3, section_volume_ft3, n_slabs, holes_filled,
-    dropped}``, or None when the body does not decompose usefully (one level,
-    or the result would blow the budgets -- a cap the caller REPORTS rather
-    than hides).  ``section_volume_ft3`` is the volume of the sections as
-    SLICED, before any ring is decimated to the vertex cap: that is the number
-    the conservation law judges, so a capped tessellation is not mistaken for
-    lost material.  Holes are not expressible in the part contract: a ring at
-    odd nesting depth is dropped from the solid set and counted in
-    ``holes_filled``.
+    Returns ``{parts, volume_ft3, n_slabs, holes_filled, dropped}``, or None
+    when the body does not decompose usefully (one level, or the result would
+    blow the budgets -- a cap the caller REPORTS rather than hides).  Holes
+    are not expressible in the part contract: a ring at odd nesting depth is
+    dropped from the solid set and counted in ``holes_filled``.
     """
     if not triangles:
         return None
@@ -804,18 +802,16 @@ def decompose_slabs(points: Sequence[Sequence[float]],
         return None
 
     parts: List[Dict[str, Any]] = []
-    volume = section_volume = 0.0
+    volume = 0.0
     for z0, z1, rings in merged:
         h = z1 - z0
         for ring in rings:
             out = _decimate(ring, MAX_HULL_POINTS) if len(ring) > MAX_HULL_POINTS else ring
             parts.append({"shape": "polygon", "vertices": out,
                           "height_ft": h, "base_z_ft": z0})
-            area = _polygon_area(out)
-            volume += area * h
-            section_volume += (area if out is ring else _polygon_area(ring)) * h
-    return {"parts": parts, "volume_ft3": volume, "section_volume_ft3": section_volume,
-            "n_slabs": len(merged), "holes_filled": holes, "dropped": dropped}
+            volume += _polygon_area(out) * h
+    return {"parts": parts, "volume_ft3": volume, "n_slabs": len(merged),
+            "holes_filled": holes, "dropped": dropped}
 
 
 def _conserves(authored_ft3: float, mesh_ft3: float, tol: float = 0.02) -> bool:
@@ -931,16 +927,17 @@ def decompose_boxes(points: Sequence[Sequence[float]],
     THIS IS WHY NO ROTATION IS NEEDED for the C-channel case: a channel is a
     union of axis-aligned boxes (back plate + two walls), each of which is
     Z-extrudable whatever direction the channel runs.  Returns
-    ``{parts, volume_ft3, n_boxes, cells}`` or None (not axis-aligned, a grid
-    cell thinner than :data:`MIN_EXTENT_FT` in any axis -- the signature of a
-    NEARLY aligned body, whose boxes would be slivers Revit cannot keep -- or
-    over a budget; reported by the caller, never silently truncated).
+    ``{parts, volume_ft3, n_boxes, cells}`` or None (not axis-aligned, a
+    MERGED box thinner than :data:`MIN_EXTENT_FT` in any axis -- a sliver
+    Revit cannot keep, and the signature of a nearly-aligned body -- or over
+    a budget; reported by the caller, never silently truncated).  A hairline
+    grid step is fine as long as no box ends up that thin: two flanges whose
+    heights differ by 50 um still merge into three real boxes.
 
     The LAW that makes the result exact is checked by the caller, which holds
     the mesh volume: boxes + overlap must give it back to
-    :data:`EXACT_REL_TOL`.  The alignment eps and the sliver-cell refusal
-    here are cheap early-outs with their own meaning (the definition of
-    aligned; authorability), taken before the winding-number grid is paid for.
+    :data:`EXACT_REL_TOL`.  The alignment eps and the sliver-box refusal
+    here have their own meaning (the definition of aligned; authorability).
     """
     if not triangles or not is_axis_aligned(points, triangles):
         return None
@@ -948,8 +945,6 @@ def decompose_boxes(points: Sequence[Sequence[float]],
     dims = [len(a) - 1 for a in axes]
     if min(dims) < 1 or dims[0] * dims[1] * dims[2] > max_cells:
         return None
-    if any(b - a < MIN_EXTENT_FT for ax in axes for a, b in zip(ax, ax[1:])):
-        return None                                     # a sliver cell: not aligned
 
     occ: Dict[Tuple[int, int, int], bool] = {}
     overlap = 0.0            # volume the mesh counts twice (shells that overlap)
@@ -1006,6 +1001,8 @@ def decompose_boxes(points: Sequence[Sequence[float]],
         y0, y1 = axes[1][j], axes[1][j1 + 1]
         z0, z1 = axes[2][k], axes[2][k1 + 1]
         w, d, h = x1 - x0, y1 - y0, z1 - z0
+        if min(w, d, h) < MIN_EXTENT_FT:
+            return None                                 # a sliver box: not this lane
         parts.append({"shape": "box", "width_ft": w, "depth_ft": d,
                       "height_ft": h, "base_z_ft": z0,
                       "center": [(x0 + x1) / 2.0, (y0 + y1) / 2.0]})
@@ -1247,12 +1244,7 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
             if dec is not None:
                 dv = dec["volume_ft3"]
                 before = fit.get("fill") or 0.0
-                # With no hole filled the sliced sections had no licence to
-                # hold less than the mesh: any shortfall is a lost ring, not
-                # an approximation, whatever the 2 % envelope slack says.
-                lost = (not dec["holes_filled"]
-                        and not _conserves(dec["section_volume_ft3"], vol, EXACT_REL_TOL))
-                if dv <= 0 or lost or not _conserves(dv, vol):
+                if dv <= 0 or not _conserves(dv, vol):
                     # authored less material than the mesh holds: a ring was
                     # mis-nested or a region was lost. A better-looking fill
                     # ratio does not make that solid right.

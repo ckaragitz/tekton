@@ -774,6 +774,38 @@ def _strut(deg):
     return _yaw(pts, deg), [(a + 1, b + 1, c + 1) for a, b, c in tris]
 
 
+def _strut_mismatch(deg, dz=50e-6):
+    """The same strut with its two flanges dz metres different in height --
+    the hairline disagreement two CAD shells routinely have along a seam."""
+    length, width, height, t = 0.9, 0.041, 0.041, 0.0025
+    pts, tris = [], []
+    for p, tr in (_box_mesh(length, width, t),
+                  _box_mesh(length, t, height - t, oy=-(width - t) / 2.0, oz=t),
+                  _box_mesh(length, t, height - t - dz, oy=(width - t) / 2.0, oz=t)):
+        n = len(pts)
+        pts += list(p)
+        tris += [(a + n, b + n, c + n) for a, b, c in tr]
+    return _yaw(pts, deg), tris
+
+
+def _frustum(r0=0.10, r1=0.05, h=0.20, bands=8, sides=32):
+    """A tessellated reducer: `bands` latitude rings on a linear taper."""
+    pts, tris = [], []
+    for b in range(bands + 1):
+        z, r = h * b / bands, r0 + (r1 - r0) * b / bands
+        pts += [(r * math.cos(2 * math.pi * i / sides), r * math.sin(2 * math.pi * i / sides), z)
+                for i in range(sides)]
+    for b in range(bands):
+        for i in range(sides):
+            j = (i + 1) % sides
+            a, b2, c, d = b * sides + i, b * sides + j, (b + 1) * sides + j, (b + 1) * sides + i
+            tris += [(a, b2, c), (a, c, d)]
+    top = bands * sides
+    for i in range(1, sides - 1):
+        tris += [(0, i + 1, i), (top, top + i, top + i + 1)]
+    return pts, [(a + 1, b + 1, c + 1) for a, b, c in tris]
+
+
 def _authored_ft3(model):
     v = 0.0
     for p in model.parts:
@@ -800,16 +832,20 @@ def test_axis_alignment_is_float_noise_not_an_angle_budget():
         assert not AP.is_axis_aligned(pts, _tri0(tris)), deg
 
 
-def test_a_sliver_grid_refuses_the_box_lane():
-    """Two vertex coordinates closer than MIN_EXTENT_FT are the signature of a
-    NEARLY aligned body (or a feature Revit cannot keep): no box lane."""
+def test_a_sliver_box_refuses_the_box_lane_a_hairline_step_does_not():
+    """A MERGED box thinner than MIN_EXTENT_FT is a sliver Revit cannot keep
+    (and the signature of a nearly-aligned body): no box lane.  A hairline
+    grid step that merges away -- two flanges 50 um different in height, the
+    multi-shell CAD noise real exports carry -- must NOT cost the lane."""
     p1, t1 = _box_mesh(1.0, 1.0, 1.0)
-    p2, _ = _box_mesh(1.0, 1.0, 1.0, ox=2.0, oz=AP.MIN_EXTENT_FT / 2.0)
+    shim, _ = _box_mesh(0.5, 0.5, AP.MIN_EXTENT_FT / 2.0, oz=1.0)      # a real 0.2 mm film
     tris = _tri0(t1) + [(a + len(p1), b + len(p1), c + len(p1)) for a, b, c in _tri0(t1)]
-    assert AP.is_axis_aligned(list(p1) + list(p2), tris)      # aligned, and still refused:
-    assert AP.decompose_boxes(list(p1) + list(p2), tris) is None
-    p3, _ = _box_mesh(1.0, 1.0, 1.0, ox=2.0, oz=0.25)          # the same pair, a real step
-    assert AP.decompose_boxes(list(p1) + list(p3), tris)["n_boxes"] == 2
+    assert AP.is_axis_aligned(list(p1) + list(shim), tris)          # aligned, and still refused:
+    assert AP.decompose_boxes(list(p1) + list(shim), tris) is None
+    pts, tris1 = _strut_mismatch(0.0)                               # 50 um step between flanges
+    dec = AP.decompose_boxes([(x * FT, y * FT, z * FT) for x, y, z in pts], _tri0(tris1))
+    assert dec is not None and dec["n_boxes"] == 3
+    assert min(min(q["width_ft"], q["depth_ft"], q["height_ft"]) for q in dec["parts"]) > AP.MIN_EXTENT_FT
 
 
 @pytest.mark.parametrize("deg", [0.1, 0.2, 0.5, 0.8])
@@ -880,71 +916,68 @@ def test_the_interior_probe_is_inside_its_ring_and_is_not_a_vertex():
         assert all(math.hypot(pt[0] - v[0], pt[1] - v[1]) > 1e-9 for v in ring)
 
 
-def _corner_pair(yaw_deg):
+def _corner_pair(ox, oy, yaw_deg):
     """A 6 m cube and a 1 x 1 x 2 m member touching it along ONE corner
-    edge, yawed -- 1-based triangles."""
+    edge at (ox, oy), yawed -- 1-based triangles."""
     big_p, big_t = _box_mesh(6.0, 6.0, 6.0)
-    small_p, small_t = _box_mesh(1.0, 1.0, 2.0, ox=3.5, oy=3.5)
+    small_p, small_t = _box_mesh(1.0, 1.0, 2.0, ox=ox, oy=oy)
     n = len(big_p)
     return (_yaw(list(big_p) + list(small_p), yaw_deg),
             list(big_t) + [(a + n, b + n, c + n) for a, b, c in small_t])
 
 
-def _vertex_orders(tris, scrambles=51):
-    """Every way of choosing which vertex each triangle STARTS at that this
-    test sweeps: as given, each single triangle rotated by 1 and by 2, then
-    seeded whole-mesh scrambles.  The stitch start -- and so the old
-    rings[i][0] -- depends on exactly this."""
-    yield list(tris)
-    for k in range(len(tris)):
-        for r in (1, 2):
-            yield [t[r:] + t[:r] if i == k else t for i, t in enumerate(tris)]
+def _triangle_orders(tris, seeds=40):
+    """Seeded permutations of the triangle ORDER plus each triangle's start
+    vertex.  Which segment the stitch starts from -- and so which vertex was
+    the old rings[i][0] -- depends on exactly this; on a3506ad 21 of the 160
+    runs below start a ring at the shared corner and lose the member."""
     import random
-    for seed in range(scrambles):
+    yield list(tris)
+    for seed in range(seeds):
         rng = random.Random(seed)
-        yield [t[s:] + t[:s] for t, s in ((t, rng.randrange(3)) for t in tris)]
+        out = [t[s:] + t[:s] for t, s in ((t, rng.randrange(3)) for t in tris)]
+        rng.shuffle(out)
+        yield out
 
 
 def test_a_corner_touching_pair_never_loses_its_member(tmp_path):
-    """THE OTHER REGRESSION, over every vertex order that can move the stitch
-    start onto the shared corner (100 per yaw): the small member -- 0.9 % of
-    the body, so inside the 2 % conservation slack -- must never vanish
-    without a word.  The law: material is conserved or the body is kept as
-    one honest prism that says so.  The outcome, now: both solids, always."""
-    for yaw_deg in (-5.0, 12.0):
-        pts, base = _corner_pair(yaw_deg)
-        mesh = _mesh_ft3(pts, base)                      # order- and yaw-invariant
-        for tris in _vertex_orders(base):
+    """THE OTHER REGRESSION, over triangle orders that DO move the stitch
+    start onto the shared corner: the small member -- 0.9 % of the body, so
+    inside the 2 % conservation slack -- must never vanish without a word.
+    The law: material is conserved or the body is kept as one honest prism
+    that says so.  The outcome, now: both solids, always."""
+    for ox, oy, yaw_deg in ((-3.5, 3.5, 5.0), (-3.5, 3.5, 12.0), (-3.5, 3.5, 33.0),
+                            (-3.5, -3.5, -5.0)):
+        pts, base = _corner_pair(ox, oy, yaw_deg)
+        mesh = _mesh_ft3(pts, base)                      # order-invariant
+        for tris in _triangle_orders(base):
             p = write_ifc(str(tmp_path / "pair.ifc"),
                           [("Pair", "IFCBUILDINGELEMENTPROXY", (pts, tris))])
             m = AP.read_assembly(p)
             authored = _authored_ft3(m)
-            assert AP._conserves(authored, mesh, AP.EXACT_REL_TOL) or m.kept_prism, (yaw_deg, tris)
-            assert m.decomposed and len(m.parts) >= 2, (yaw_deg, tris)
+            assert authored >= mesh * (1.0 - 1e-6) or m.kept_prism, (ox, oy, yaw_deg, len(m.parts))
+            assert m.decomposed and len(m.parts) >= 2, (ox, oy, yaw_deg)
             assert authored == pytest.approx(mesh, rel=1e-4)
 
 
-def test_a_no_hole_slab_set_that_lost_volume_is_refused(tmp_path, monkeypatch):
-    """With no hole filled the sliced sections had no licence to hold less
-    than the mesh; a shortfall the 2 % envelope slack would wave through is a
-    lost ring and goes back to the honest prism, with the reason."""
-    pts, tris = _box_mesh(4.0, 4.0, 1.0)
-    p2, t2 = _box_mesh(1.0, 1.0, 1.0, oz=1.0)
-    n = len(pts)
-    allp, allt = list(pts) + list(p2), list(tris) + [(a + n, b + n, c + n) for a, b, c in t2]
-    p = write_ifc(str(tmp_path / "step.ifc"), [("Stepped", "IFCBUILDINGELEMENTPROXY", (_yaw(allp, 10.0), allt))])
-    assert AP.read_assembly(p).decomposed               # honest input: decomposes
-    real = AP.decompose_slabs
-
-    def lossy(points, triangles, **kw):
-        d = real(points, triangles, **kw)
-        d["section_volume_ft3"] *= 0.99                  # 1 %: inside the old slack
-        d["volume_ft3"] *= 0.99
-        return d
-    monkeypatch.setattr(AP, "decompose_slabs", lossy)
-    m = AP.read_assembly(p)
-    assert not m.decomposed and len(m.parts) == 1
-    assert m.kept_prism and "dropped material" in m.kept_prism[0]["reason"]
+def test_the_slab_lane_keeps_its_declared_approximations(tmp_path):
+    """The slab lane makes no exactness claim: midpoint sections under-integrate
+    a taper by a hair, hairline Z levels are skipped, slivers dropped -- all
+    inside the 2 % envelope, all better than one fat prism.  A reducer must
+    stay a stack and a strut with 50 um of flange mismatch must stay a
+    channel (exact boxes unyawed, three slabs yawed), exactly as on main."""
+    cases = [("Reducer", _frustum(), None, 8),
+             ("Strut0", _strut_mismatch(0.0), "boxes", 3),
+             ("Strut12", _strut_mismatch(12.0), "slabs", 3)]
+    for name, (pts, tris), method, n_parts in cases:
+        p = write_ifc(str(tmp_path / f"{name}.ifc"), [(name, "IFCBUILDINGELEMENTPROXY", (pts, tris))])
+        m = AP.read_assembly(p)
+        assert not m.kept_prism, (name, m.kept_prism)
+        assert m.decomposed and len(m.parts) == n_parts, (name, len(m.parts))
+        if method:
+            assert m.decomposed[0]["method"] == method, name
+            assert m.decomposed[0]["exact"] is (method == "boxes")
+        assert _authored_ft3(m) == pytest.approx(_mesh_ft3(pts, tris), rel=2e-3), name
 
 
 def test_volume_and_area_do_not_lose_precision_at_site_coordinates(tmp_path):

@@ -840,3 +840,54 @@ Shipped vs staged: engine + tests shipped on the branch; nothing staged for the 
 entry, no certification claimed. Follow-up filed separately (per-lane volume ledger so a body that
 DID fill a hole cannot hide a lost member inside the 2 % slack; `MIN_EXTENT_FT` handled three ways in
 one file) — `Refs #609`.
+
+## Round 2 (eng #609, after the tech lead's delta review of fc69382)
+
+The independent review re-measured and accepted the substance (strut → 3 conserved slabs at
+0.1–0.8°, boxes at 0.0°; 0 silent corner-pair losses; the local-apex sums; caveat wording; rule 1)
+and sent back **two over-broad guards** — both the belt-and-braces parts, not the root-cause
+fixes — plus a test nit. All three taken as asked:
+
+1. **The strict no-hole slab backstop is REMOVED** (and `section_volume_ft3` with it); the slab
+   lane keeps main's `_conserves(dv, vol)` 2 % envelope exactly. It had treated the lane's own
+   declared approximations as lost rings — midpoint under-integration of a taper, skipped hairline
+   Z levels, dropped slivers. Reviewer's cases, base a3506ad / fc69382 / this round:
+   8-band reducer frustum: 8 slabs (0.9994) / **1 prism** / 8 slabs (0.9994) · 12-band cone: 12 /
+   **1** / 12 · square pyramid frustum: 6 / **1** / 6 · U-strut with a 50 µm flange mismatch at 0°:
+   3 exact boxes / **1 bar** / 3 exact boxes, at 12°: 3 slabs / **1 bar** / 3 slabs · plate + 6 mm²
+   pin yawed: plate (+sliver dropped) / **35 mm block** / plate. The by-construction identity that
+   would make a lost ring impossible without penalising approximations stays with #613 (extended
+   there: sliver / thin-level accounting).
+2. **The box-lane extent guard moved from raw grid cells to the MERGED boxes**: a hairline grid
+   step that merges away (the 50 µm mismatch) keeps the exact lane; only a produced box thinner
+   than `MIN_EXTENT_FT` refuses it. eps 1e-9 + the 1e-6 volume identity still stop the yawed-strut
+   regression on their own (0.1–0.8° → 3 slabs, 1.000).
+3. **The e2e corner-pair test now permutes triangle ORDER** (seeded `rng.shuffle`) on the member
+   positions that actually trip a3506ad — (−3.5, +3.5) at 5°/12°/33°, (−3.5, −3.5) at −5°: 21 of
+   its 160 runs lose the member on a3506ad (verified by running the file against that engine:
+   `(-3.5, 3.5, 5.0)` → 2 parts, 7628 < 7699 ft³, no `kept_prism`), 0 on this head.
+
+Tests (13 of mine, reshaped; the author's 55 untouched): the strict-backstop test is replaced by
+`test_the_slab_lane_keeps_its_declared_approximations` (reducer ⇒ 8-solid stack; mismatch strut ⇒
+boxes ×3 exact at 0°, 3 slabs at 12°) and the grid test by
+`test_a_sliver_box_refuses_the_box_lane_a_hairline_step_does_not`. Cross-checked by swapping engines
+under the same test file: **a3506ad 12 fail / 56 pass** (all by behaviour), **fc69382 2 fail**
+(exactly findings 1 and 2), **this round 68 pass**.
+
+Evidence on the final tree: `route.py run --output rfa` on strut 0.0/0.2/0.5°, mismatch 0°/12°,
+frustum, cone, corner pair (an order that loses the member on a3506ad) → 8 × OK; parts
+3/3/3/3/3/8/12/3; methods boxes/slabs/slabs/boxes/slabs/slabs/slabs/slabs; authored÷mesh
+1.0000/1.0000/1.0000/1.0000/0.9996/0.9994/0.9983/1.0000; 8 × VALID 0 errors 0 warnings; 8 ×
+provenance ok. Sweeps unchanged: strut 0.1–0.8° → slabs ×3 at 1.000; 3360 pair runs (half with
+order shuffles) → 0 silent losses, |authored − mesh| ≤ 1e-6 every run; placements at 500 m / 50 km /
+UTM → same lanes incl. the mismatch strut's 3 boxes. `test_ifc_assembly + test_router` 200 passed /
+14 skipped; 4-file gate 342 passed / 24 skipped; `sync_plugin` → `--check` clean; `validate_plugin`
+PASS; portable paths ok; `route.py matrix` identical to a3506ad.
+
+## BRANCH STATE (eng #609, round 2)
+
+Second add-only commit on `claude/ifc-exact-box-decomposition` on top of fc69382 (parent chain
+a3506ad ← fc69382 ← this); no rebase, no force-push, no merge of main. Files this round:
+`src/rvt/ifc/assembly_parts.py` (+ `plugin/lib` mirror), `tests/test_ifc_assembly.py` (my section
+only), this record. `router.py` untouched this round. Nothing staged for the viewer; no
+certification claimed.
