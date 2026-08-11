@@ -1072,6 +1072,11 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     set (settings singletons, views, browser folders, sketch solver).
     """
     if parts:
+        # composite bodies (sphere / dome / cone / a cylinder about a
+        # horizontal axis) expand into the prisms this factory authors
+        # directly -- rvt.famgen.revolve, issue #591
+        from . import revolve as RV
+        parts, _revolve_report = RV.expand_parts(parts)
         return _make_generic_multipart(parts, name=name, category=category,
                                        solid=solid, source=source,
                                        start_id=start_id,

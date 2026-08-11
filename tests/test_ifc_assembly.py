@@ -654,3 +654,77 @@ def test_a_round_profile_is_measured_round_and_authored_round():
                         radius_ft=fit["radius_ft"], vertices_ft=fit["vertices"]).to_part()
     assert part["shape"] == "cylinder"
     assert part["radius_ft"] == pytest.approx(0.5, rel=0.02)
+
+
+# ---------------------------------------------------------------------------
+# round and rotated bodies (rvt.famgen.revolve, #591)
+# ---------------------------------------------------------------------------
+
+def test_a_sphere_becomes_a_stack_whose_volume_converges():
+    """The part contract extrudes along Z only, so a sphere is sliced. More
+    slices must get CLOSER to the real volume -- if they do not, the stack is
+    not approximating anything."""
+    from rvt.famgen import revolve as RV
+    errs = []
+    for seg in (8, 16, 32, 64):
+        _, rep = RV.expand_parts([{"shape": "sphere", "radius_ft": 1.0, "segments": seg}])
+        errs.append(abs(rep[0]["ratio"] - 1.0))
+    assert errs == sorted(errs, reverse=True), f"error must fall with slices: {errs}"
+    assert errs[-1] < 0.005
+
+
+def test_a_wheel_is_a_cylinder_about_a_HORIZONTAL_axis():
+    """The bus case. A wheel cannot be a vertical cylinder -- that is a disc
+    lying flat. Sliced horizontally it is boxes whose width follows the chord,
+    so the round silhouette shows in the view that matters."""
+    from rvt.famgen import revolve as RV
+    made, rep = RV.expand_parts([{"shape": "cylinder_y", "radius_ft": 1.7,
+                                  "length_ft": 0.95, "segments": 20, "name": "wheel"}])
+    assert all(p["shape"] == "box" for p in made)
+    assert all(p["depth_ft"] == pytest.approx(0.95) for p in made)   # length along Y
+    widths = [p["width_ft"] for p in made]
+    assert widths[0] < widths[len(widths) // 2] > widths[-1]          # a chord profile
+    assert max(widths) == pytest.approx(2 * 1.7, rel=0.02)            # widest = diameter
+    assert rep[0]["ratio"] == pytest.approx(1.0, abs=0.02)
+
+
+def test_a_round_body_rests_on_its_base_z_not_centred_on_it():
+    from rvt.famgen import revolve as RV
+    made, _ = RV.expand_parts([{"shape": "sphere", "radius_ft": 2.0, "base_z_ft": 10.0}])
+    assert min(p["base_z_ft"] for p in made) == pytest.approx(10.0, abs=1e-9)
+    tops = [p["base_z_ft"] + p["height_ft"] for p in made]
+    assert max(tops) == pytest.approx(14.0, abs=1e-9)                 # 10 + 2r
+
+
+def test_composites_expand_only_where_asked():
+    from rvt.famgen import revolve as RV
+    plain = {"shape": "box", "width_ft": 1, "depth_ft": 1, "height_ft": 1}
+    made, rep = RV.expand_parts([plain, {"shape": "dome", "radius_ft": 1.0}])
+    assert made[0] == plain                       # untouched, same object
+    assert rep and rep[0]["shape"] == "dome"
+
+
+def test_a_round_body_without_its_dimension_is_refused_by_name():
+    from rvt.famgen import revolve as RV
+    for part, want in (({"shape": "sphere", "radius_ft": 0}, "positive radius"),
+                       ({"shape": "cylinder_x", "radius_ft": 1.0, "length_ft": 0}, "length_ft"),
+                       ({"shape": "sphere", "radius_ft": 1.0, "segments": 2}, "too few")):
+        with pytest.raises(RV.RevolveError) as e:
+            RV.expand_parts([part])
+        assert want in str(e.value)
+
+
+def test_the_detailed_bus_builds_and_never_ships_an_unloadable_sketch():
+    """End to end for 'make a bus': round wheels, a dome, and the sketch
+    invariant that Load Family depends on."""
+    parts = [{"shape": "box", "width_ft": 40, "depth_ft": 8.5, "height_ft": 7.2,
+              "base_z_ft": 1.9, "name": "body"},
+             {"shape": "dome", "radius_ft": 1.5, "base_z_ft": 9.4, "segments": 8,
+              "name": "roof pod"}]
+    for x, y in ((-14.5, -3.55), (-14.5, 3.55), (11.0, -3.55), (11.0, 3.55)):
+        parts.append({"shape": "cylinder_y", "radius_ft": 1.72, "length_ft": 0.95,
+                      "center": [x, y], "segments": 12, "name": f"wheel {x},{y}"})
+    from rvt.frontdoor import famspec as FS
+    spec = {"kind": "generic_model", "name": "Bus", "parts": parts}
+    assert FS.validate(spec) == []
+    assert _inconsistent_sketches(parts, "bus") == []
