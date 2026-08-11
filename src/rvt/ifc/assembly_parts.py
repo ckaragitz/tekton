@@ -586,9 +586,11 @@ def slice_loops(points: Sequence[Sequence[float]],
 
     Rings come back unordered and un-nested; :func:`ring_nesting` says which
     are solid and which are holes.  None means the slice is AMBIGUOUS (see
-    :func:`_stitch`) -- not "no rings", which is an empty list.
+    :func:`_stitch`) even shell by shell (:func:`_stitch_bands`) -- not "no
+    rings", which is an empty list.
     """
     segs: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
+    cut_from: List[Tuple[Any, Any]] = []                # per segment: the two mesh edges it was cut from
     for tri in triangles:
         if len(tri) < 3:
             continue
@@ -596,21 +598,22 @@ def slice_loops(points: Sequence[Sequence[float]],
             P = [points[tri[0]], points[tri[1]], points[tri[2]]]
         except IndexError:
             continue
-        hit: List[Tuple[float, float]] = []
+        hit: List[Tuple[Tuple[float, float], Any]] = []  # (2-D point, the cut edge (p, q)) per crossing edge
         for i in range(3):
             p, q = P[i], P[(i + 1) % 3]
             if (p[2] - z) * (q[2] - z) < 0.0:
                 t = (z - p[2]) / (q[2] - p[2])
-                hit.append((round(p[0] + t * (q[0] - p[0]), _WELD),
-                            round(p[1] + t * (q[1] - p[1]), _WELD)))
-        if len(hit) == 2 and hit[0] != hit[1]:
-            segs.append((hit[0], hit[1]))
+                hit.append(((round(p[0] + t * (q[0] - p[0]), _WELD),
+                             round(p[1] + t * (q[1] - p[1]), _WELD)), (p, q)))
+        if len(hit) == 2 and hit[0][0] != hit[1][0]:
+            segs.append((hit[0][0], hit[1][0]))
+            cut_from.append((hit[0][1], hit[1][1]))
     def inside(pt):                # robust at a junction: the 3D body itself
         return abs(winding_number(points, triangles, (pt[0], pt[1], z))) >= 0.5
 
     rings = _stitch(segs, inside)
-    if rings is None:
-        return None
+    if rings is None:                                   # the weld alone cannot say: ask each band
+        return _stitch_bands(segs, cut_from, inside)
     return rings
 
 
@@ -663,6 +666,66 @@ def _stitch(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]],
         if cur == a and len(ring) >= 4:                 # closed (last == first)
             rings.append([list(v) for v in ring[:-1]])
     return [_drop_collinear(r) for r in rings if len(r) >= 3]
+
+
+def _stitch_bands(segs: Sequence[Tuple[Tuple[float, float], Tuple[float, float]]],
+                  cut_from: Sequence[Sequence[Tuple[Sequence[float], Sequence[float]]]],
+                  inside: Optional[Any] = None
+                  ) -> Optional[List[List[List[float]]]]:
+    """The rings of a slice :func:`_stitch` found AMBIGUOUS, stitched one
+    shell band at a time -- or None when that does not settle it either.
+
+    Two shells in CONTACT can meet at a welded slice vertex with two
+    COINCIDENT spokes -- a lug flush with a block's edge (each shell's own
+    copy of that one boundary direction), or two touching faces whose
+    triangulation diagonals cross at this height.  The zero-width wedge
+    between the copies lies ON the doubled face, reads as material, both
+    neighbouring wedges claim one spoke, and :func:`_junction_pairs` refuses:
+    the whole body used to ship as one prism for it (#634).  The mesh knows
+    which copy is whose: a closed shell's triangles straddling the plane
+    form closed BANDS, consecutive triangles sharing the mesh edge the plane
+    cuts between them.  ``cut_from[i]`` names the two edges segment ``i``
+    was cut from (by their 3-D end points, welded here so an STL-style soup
+    of unshared vertices still joins up); segments are grouped by the cut
+    edges they share and each band goes through the same :func:`_stitch`.
+    A band meets itself two segments to a cut edge, and the two copies of a
+    flush boundary are different edges of different bands, so the coincident
+    spokes never meet; the touching rings that come out share an edge or a
+    corner, which :func:`ring_nesting` (#609, #621) already judges from the
+    body and :func:`_merge_crossing_rings` leaves alone as contact.
+
+    Only asked where the welded stitch refused, so whatever settles without
+    it settles unchanged.  None -- the honest single prism -- when the slice
+    is one band (nothing to tell apart: a shell touching ITSELF that way, a
+    shell exported twice, bands fused through a shared edge) or when any
+    band does not stitch on its own.  Never a guess between the copies.
+    """
+    from collections import defaultdict
+    parent = list(range(len(segs)))
+
+    def find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    first_cut: Dict[tuple, int] = {}                    # welded edge -> first segment cut from it
+    for i, edges in enumerate(cut_from):
+        for edge in edges:
+            key = tuple(sorted(tuple(round(c, _WELD) for c in end[:3]) for end in edge))
+            parent[find(i)] = find(first_cut.setdefault(key, i))     # one edge: one band
+    bands: Dict[int, List[Tuple[Tuple[float, float], Tuple[float, float]]]] = defaultdict(list)
+    for i, seg in enumerate(segs):
+        bands[find(i)].append(seg)
+    if len(bands) < 2:
+        return None                                     # one band: nothing to tell apart
+    rings: List[List[List[float]]] = []
+    for band in bands.values():
+        got = _stitch(band, inside)
+        if got is None:
+            return None                                 # a band ambiguous on its own: not guessed
+        rings += got
+    return rings
 
 
 

@@ -140,8 +140,9 @@ def test_slab_lane_refusals_are_attributed_and_the_contract_is_still_None():
     assert AP.decompose_slabs(flat, _tri0(tris), refusal=why) is None
     assert why[0].startswith("one Z level")
     assert AP.decompose_slabs(pts, [], refusal=why) is None and why[-1] == "no readable triangles"
-    # the flush lug (#634's case): an ambiguous slice, and it says WHERE
-    fp, ft = _face_pair((2.0, 6.0, 3.0), (0.5, 1.0, 0.5), (-1.25, 2.5, 1.25), 12.0)
+    # a lug exported TWICE against a block (a duplicated shell): an ambiguous slice, and it says WHERE
+    # (was #634's flush lug, which decomposes since #634 -- fixture swapped BY DESIGN, assertion unchanged)
+    fp, ft = _dup_lug()
     why = []
     assert AP.decompose_slabs([(x * FT, y * FT, z * FT) for x, y, z in fp], _tri0(ft), refusal=why) is None
     assert why[0].startswith("ambiguous slice at z = ")
@@ -187,11 +188,23 @@ def test_a_yawed_body_the_slab_lane_rescues_reports_no_refusal(tmp_path):
     assert not m.kept_prism
 
 
+def _dup_lug(off=(-1.25, 0.969, 1.25), yaw=12.0):
+    """#621's block + lug (`_face_pair`, lug at ``off``) with the lug shell
+    exported TWICE: every vertex of the doubled ring is a junction of two
+    coincident spoke pairs of ONE welded band, which no stitch can tell apart
+    -- genuinely ambiguous, the honest prism before and after #634 (whose
+    flush lug, the fixture these two tests used to borrow, now decomposes)."""
+    fp, ft = _face_pair((2.0, 6.0, 3.0), (0.5, 1.0, 0.5), off, yaw)
+    n = len(fp) // 2                                     # _face_pair: block's 8 points, then the lug's 8
+    lug_t = ft[len(ft) // 2:]                            # ... and its 12 triangles, then the lug's 12
+    return list(fp) + list(fp[n:]), list(ft) + [(a + n, b + n, c + n) for a, b, c in lug_t]
+
+
 def test_an_undecomposable_yawed_body_names_both_lanes(tmp_path):
-    """The flush lug both lanes refuse: the box lane because it is yawed, the
+    """The doubled lug both lanes refuse: the box lane because it is yawed, the
     slab lane on its ambiguous slice -- and the reason says both, in order."""
-    fp, ft = _face_pair((2.0, 6.0, 3.0), (0.5, 1.0, 0.5), (-1.25, 2.5, 1.25), 12.0)
-    p = write_ifc(str(tmp_path / "flush.ifc"), [("Flush", "IFCBUILDINGELEMENTPROXY", (fp, ft))])
+    fp, ft = _dup_lug()
+    p = write_ifc(str(tmp_path / "dup.ifc"), [("Dup", "IFCBUILDINGELEMENTPROXY", (fp, ft))])
     m = AP.read_assembly(p)
     assert len(m.parts) == 1 and len(m.kept_prism) == 1
     reason = m.kept_prism[0]["reason"]

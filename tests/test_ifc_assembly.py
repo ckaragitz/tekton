@@ -1442,14 +1442,17 @@ def test_face_sharing_at_zero_yaw_is_still_the_exact_box_lane(tmp_path):
         assert _authored_ft3(m) == pytest.approx(_mesh_ft3(pts, base), rel=AP.EXACT_REL_TOL)
 
 
-def test_a_flush_face_pair_is_kept_as_one_honest_prism_not_lost(tmp_path):
-    """The neighbouring case this fix does NOT change, pinned so nobody
-    mistakes it for a regression: a lug FLUSH with the block's edge shares a
-    corner line as well as a face, its ring meets the block's at a junction
-    with two COINCIDENT spokes, `_junction_pairs` cannot pair those from the
-    material alone and refuses the slice -- so the body is delivered as one
-    prism that says so (rule 1), on main and here alike, at every triangle
-    order.  Never a silent loss; #634 owns resolving it."""
+def test_a_flush_face_pair_is_block_plus_lug_not_one_prism(tmp_path):
+    """INVERTED BY DESIGN by #634 (was `test_a_flush_face_pair_is_kept_as_
+    one_honest_prism_not_lost`).  It pinned the neighbouring case #621 did
+    NOT change: a lug FLUSH with the block's edge shares a corner line as
+    well as a face, its ring meets the block's at a junction with two
+    COINCIDENT spokes, `_junction_pairs` cannot pair those from the material
+    alone and refused the slice -- so the body shipped as one prism that said
+    so.  #634 stitches such a slice one shell band at a time (`_stitch_bands`):
+    the same two pairs, at the same orders, are now the block's slabs plus
+    the lug, exactly -- never the prism, never a loss
+    (tests/test_ifc_assembly_634.py has the sweep)."""
     big, lug = (2.0, 6.0, 3.0), (0.5, 1.0, 0.5)
     for off, yaw in (((-1.25, 2.5, 1.25), 12.0), ((1.25, 2.5, 0.0), 33.0)):   # lug's +y face flush with the block's
         pts, base = _face_pair(big, lug, off, yaw)
@@ -1457,5 +1460,6 @@ def test_a_flush_face_pair_is_kept_as_one_honest_prism_not_lost(tmp_path):
         for tris in _triangle_orders(base, seeds=10):
             p = write_ifc(str(tmp_path / "flush.ifc"), [("Flush", "IFCBUILDINGELEMENTPROXY", (pts, tris))])
             m = AP.read_assembly(p)
-            assert m.kept_prism and "ambiguous slice" in m.kept_prism[0]["reason"], (off, yaw)
-            assert len(m.parts) == 1 and _authored_ft3(m) > mesh
+            assert not m.kept_prism and m.decomposed[0]["method"] == "slabs", (off, yaw)
+            assert m.decomposed[0]["holes_filled"] == 0 and len(m.parts) >= 3, (off, yaw)
+            assert _authored_ft3(m) == pytest.approx(mesh, rel=1e-5), (off, yaw)
