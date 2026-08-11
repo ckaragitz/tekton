@@ -69,6 +69,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from . import ecc
 from . import partitions as _P
+from ._clause import cause_clause
 from .cfb_writer import write_cfb
 from .commit import PART_HDR_COUNT_OFF
 from .container import open_rvt
@@ -1680,7 +1681,7 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
         except Exception as e:                             # noqa: BLE001
             dec = ObjectDecoder()
             rep["fallbacks"].append(
-                f"own schema unreadable ({type(e).__name__}: {e}); edited "
+                f"own schema unreadable ({cause_clause(e)}); edited "
                 "records decoded against the built-in latest-release schema")
         parts = walked.partition_streams()
         # framing walker errors of every partition; one whose stream header

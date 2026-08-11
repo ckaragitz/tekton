@@ -521,7 +521,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
 def _rollup_status(m: Dict[str, Any]) -> str:
     b = m.get("build") or {}
     if b.get("errors"):
-        return "FAILED (" + str((b.get("errors") or ["error"])[0])[:160] + ")"
+        return "FAILED (" + _status_reason(b["errors"][0]) + ")"
     files = b.get("files") or {}
     if not files:
         return "NO-OUTPUT (see build.degradations / errors)"
