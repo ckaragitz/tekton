@@ -2309,6 +2309,17 @@ def _resolve_category(category) -> int:
              #   cable_tray_fitting -2008131 -> -2008126  (OST_CableTrayFitting)
              #   conduit_fitting    -2008133 -> -2008128  (OST_ConduitFitting)
              #   communication_device -2008012 -> -2008077
+             #   nurse_call_device  -2008084 -> -2008081  (-2008084 is Data
+             #                      Device TAGS by its own template, so this
+             #                      filed devices under a tag category)
+             #
+             # THE DEVICE/TAG BAND (category_facts.DEVICE_TAG_PAIRING): the
+             # low-voltage band alternates device, then that device's own tag
+             # category, tag == device - 1 -- VERIFIED on three matched
+             # template pairs (telephone -2008075/76, data -2008083/84, fire
+             # alarm -2008085/86).  Devices therefore sit on the odd slots
+             # -2008075/77/79/81/83/85.  That is what resolved inventory's
+             # assumed block, which had Fire Alarm and Nurse Call swapped.
              #
              # NOT proven by a template: that a family WE author with the id
              # lands in the expected branch of Revit's category list -- that
@@ -2333,8 +2344,31 @@ def _resolve_category(category) -> int:
                  "data_device": -2008083, "data_devices": -2008083,
                  "communication_device": -2008077,          # [INFERRED inv]
                  "security_device": -2008079,               # [INFERRED inv]
-                 "nurse_call_device": -2008084,             # [INFERRED]
+                 "nurse_call_device": -2008081,             # [INFERRED band]
                  "telephone_device": -2008075,              # [VERIFIED rft]
+                 # -- conceptual mass + the ANNOTATION species (part type -1,
+                 # view-owned instances; see category_facts.ANNOTATION_KINDS
+                 # and rvt.famgen.heads) ------------------------------------
+                 "mass": -2003400,                          # [VERIFIED rft]
+                 "titleblock": -2000280,                    # [VERIFIED rft]
+                 "generic_annotation": -2000150,            # [VERIFIED rft]
+                 "generic_tag": -2005013,                   # [VERIFIED rft]
+                 "multicategory_tag": -2005022,             # [VERIFIED rft]
+                 "room_tag": -2000480,                      # [VERIFIED rft]
+                 "door_tag": -2000460,                      # [VERIFIED rft]
+                 "window_tag": -2000450,                    # [VERIFIED rft]
+                 "electrical_equipment_tag": -2005003,      # [VERIFIED rft]
+                 "electrical_device_tag": -2005004,         # [VERIFIED rft]
+                 "data_device_tag": -2008084,               # [VERIFIED rft]
+                 "fire_alarm_device_tag": -2008086,         # [VERIFIED rft]
+                 "telephone_device_tag": -2008076,          # [VERIFIED rft]
+                 "level_head": -2006020,                    # [VERIFIED rft]
+                 "grid_head": -2006040,                     # [VERIFIED rft]
+                 "section_head": -2000400,                  # [VERIFIED rft]
+                 "callout_head": -2000538,                  # [VERIFIED rft]
+                 "elevation_mark": -2006045,                # [VERIFIED rft]
+                 "spot_elevation_symbol": -2005100,         # [VERIFIED rft]
+                 "view_title": -2000515,                    # [VERIFIED rft]
                  "structural_framing": -2001320,            # [VERIFIED rft]
                  "structural_column": -2001330,             # [VERIFIED rft]
                  "structural_foundation": -2001300,         # [VERIFIED rft]
@@ -2353,6 +2387,16 @@ def _resolve_category(category) -> int:
                  "railing_support": -2000948,               # [VERIFIED rft]
                  "railing_termination": -2000949,           # [VERIFIED rft]
                  "duct_fitting": -2008010,                  # [VERIFIED rft]
+                 "duct_elbow": -2008010,                    # [VERIFIED rft]
+                 "duct_tee": -2008010,                      # [VERIFIED rft]
+                 "duct_transition": -2008010,               # [VERIFIED rft]
+                 "duct_cross": -2008010,                    # [VERIFIED rft]
+                 "column": -2000100,                        # [VERIFIED rft]
+                 "data_panel": -2001040,                    # [VERIFIED rft]
+                 "division_profile": -2008165,              # [VERIFIED rft]
+                 "structural_truss": -2009600,              # [VERIFIED rft]
+                 "rebar_coupler": -2009060,                 # [VERIFIED rft]
+                 "rebar_shape": -2009013,                   # [VERIFIED rft]
              }.items()}}
     if key not in table:
         raise KeyError(f"unknown family category {category!r}")

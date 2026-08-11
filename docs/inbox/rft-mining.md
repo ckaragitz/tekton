@@ -15,12 +15,12 @@ desktop Revit.
 ## Fragments
 
 - `516-category-facts.md` — family category ids + part types per category, mined from
-  82 templates; seven shipped ids were wrong and silently built the wrong kind of
+  108 templates; seven shipped ids were wrong and silently built the wrong kind of
   family. Removed the `needs-revit-desktop` gate from #516.
 
 ## Standing summary
 
-- **82 templates decode clean** through our codec (`load_rft_elements`), 1686–2194
+- **108 templates decode clean** through our codec (`load_rft_elements`), 1686–2194
   elements each.
 - **Category id per family kind: settled.** `src/rvt/famgen/category_facts.py`.
 - **Part types: mostly −1 or 0.** The exceptions are Electrical Equipment 14, Data

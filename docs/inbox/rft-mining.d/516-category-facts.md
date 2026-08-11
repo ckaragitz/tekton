@@ -68,17 +68,57 @@ than a verification.
   and we emit them today. Settling that needs a real panelboard/transformer `.rfa`,
   not a template. Follow-up filed; behaviour deliberately unchanged in this PR.
 
+## Second round — the annotation, mass and titleblock templates
+
+The owner then supplied the annotation set (tags, heads, marks), `Mass.rft` and the
+titleblocks: **108 templates total, 59 mined rows**, all still clean.
+
+**The device/tag pairing law [VERIFIED on three matched pairs].** A low-voltage device
+category is immediately followed by its own tag category, `tag == device − 1`:
+
+| device | | tag | |
+|---|---|---|---|
+| Telephone Devices | −2008075 | Telephone Device Tags | −2008076 |
+| Data Devices | −2008083 | Data Device Tags | −2008084 |
+| Fire Alarm Devices | −2008085 | Fire Alarm Device Tags | −2008086 |
+
+So the band **alternates**, and devices sit on the odd slots −2008075/77/79/81/83/85.
+That is why inventory's assumed list looked contiguous when it is actually every
+other slot.
+
+**This resolved the open conflict, and exposed an eighth wrong id.**
+`nurse_call_device` mapped to **−2008084 — which `Data_Device_Tag.rft` proves is Data
+Device *Tags***: asking for a nurse-call device produced a family filed under a tag
+category. Corrected to −2008081, the only device slot left once Data and Fire Alarm
+are template-pinned. It stays `[INFERRED]` — no nurse-call template exists, so this is
+the band law plus elimination, not a direct reading. The pairing law also independently
+**confirms** the `security_device` −2008079 and `communication_device` −2008077 choices
+made in the first round: both land on device slots.
+
+inventory's assumed block had **Fire Alarm and Nurse Call swapped**. Its own −2008085
+row still reads `OST_NurseCallDevices`; correcting that table is a different territory
+and was left alone.
+
+**19 annotation kinds are now resolvable** and marked as a distinct species
+(`category_facts.ANNOTATION_KINDS`, part type −1, view-owned instances): titleblock
+−2000280 (all six sheet sizes share it), generic annotation −2000150, generic tag
+−2005013, multicategory tag −2005022, room/door/window tags −2000480/−2000460/−2000450,
+electrical equipment/device tags −2005003/−2005004, level/grid/section/callout heads
+−2006020/−2006040/−2000400/−2000538, elevation mark −2006045, spot elevation symbol
+−2005100, view title −2000515. Plus **conceptual mass −2003400** (the one mined row
+with `work_plane_based=True` — caught by the mining gate after I typed False).
+
+Two gates earned their keep this round: `check_facts()` caught ten kinds present in the
+mined table but missing from the resolver, and `rft_facts.py check` caught the Mass
+work-plane flag.
+
 ## Open questions
 
-- **The low-voltage band is offset somewhere.** inventory's ASSUMED block reads it as
-  Communication −2008077 / Security −2008079 / Fire Alarm −2008081 / Data −2008083 /
-  Nurse Call −2008085. The templates agree on Data but put **Fire Alarm at −2008085**
-  and **Telephone at −2008075**. So `nurse_call_device` (−2008084) and
-  `security_device` rest on a band known to be wrong somewhere. Recorded as
-  `category_facts.INVENTORY_ASSUMED_BAND_CONFLICT` and pinned by a test rather than
-  quietly picked. Needs a nurse-call/security template or a sample element.
-- inventory's own −2008085 row still reads `OST_NurseCallDevices`; correcting that
-  table is a different territory and was left alone.
+- `nurse_call_device`, `security_device`, `communication_device` sit on the band law
+  plus elimination, not a direct reading. A nurse-call or security template would
+  settle them outright.
+- Annotation categories are verified as **ids**; we have not built a tag family in each
+  and watched Revit accept it. #691 is where that gets tested.
 
 ## Provenance / rule 3
 
@@ -98,20 +138,20 @@ scan reports 0 mismatches. `tools/rft_facts.py` emits values only — never cont
   reading and that 15/16 remain guesses; new `DUCT_FITTING_PART_TYPE`.
 - `tools/rft_facts.py` — new: `mine` / `check` / `params`. Exits 0 with a plain
   message when no templates are present (a fresh clone has none).
-- `tests/test_category_facts.py` — new, 37 tests; `tests/ci_shard.d/516-category-facts.txt`.
+- `tests/test_category_facts.py` — new, 64 tests; `tests/ci_shard.d/516-category-facts.txt`.
 - `plugin/skills/tekton-author/references/FAMSPEC-CAVEATS.md` — the four evidence
   tiers, and the note that families built in the seven wrong categories should be
   regenerated.
 - this record + `docs/inbox/rft-mining.md` (new stream index).
 
 **Gates**
-- `tests/test_category_facts.py` — **37 passed**.
+- `tests/test_category_facts.py` — **64 passed** (37 after round 1, 64 after the annotation round).
 - `tests/test_famgen_standards.py tests/test_famgen_factory.py` — **137 passed, 5 skipped**.
 - full CI shard — **2464 passed, 160 skipped, 2 xfailed, 1 failed** (the failure was
   `test_plugin_sync` drift from the `src/` edit, cleared by running `sync_plugin.py`).
 - `tools/sync_plugin.py` — synced 2 files, **deny-audit clean**, assets verified, zip
   rebuilt; `plugin/scripts/validate_plugin.py` — **PASS, 25 assertions**.
-- `tools/rft_facts.py check` — **clean, 39 rows match the templates on disk**.
+- `tools/rft_facts.py check` — **clean, 59 rows match the 108 templates on disk**.
 - Anti-vacuity check: reverting two corrections in `skeleton.py` was confirmed to fail
   3 tests, and the file was restored (the round-5 lesson from #674 — a pinning test
   that cannot fail is worse than none).

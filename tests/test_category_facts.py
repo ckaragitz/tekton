@@ -117,11 +117,66 @@ def test_inventory_tier_corrections_match_inventory():
         assert c["now"] in INV.BUILTIN_CATEGORIES_VERIFIED, c["key"]
 
 
-def test_the_unresolved_band_conflict_is_recorded():
-    # the templates and inventory's ASSUMED block disagree about -2008085;
-    # the conflict must stay visible rather than be quietly picked.
+def test_the_band_conflict_and_its_resolution_are_recorded():
+    # the templates and inventory's ASSUMED block disagreed about -2008085;
+    # the reasoning must stay visible rather than the answer just appearing.
     assert "-2008085" in CF.INVENTORY_ASSUMED_BAND_CONFLICT
+    assert "RESOLVED" in CF.INVENTORY_ASSUMED_BAND_CONFLICT
+    # resolved by a law, but still inferred -- no nurse-call template exists
     assert "nurse_call_device" in CF.STILL_INFERRED
+
+
+# ---------------------------------------------------------------------------
+# the device/tag band, and the annotation species
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("dev_key,dev_id,tag_key,tag_id", CF.DEVICE_TAG_PAIRING,
+                         ids=[p[0] for p in CF.DEVICE_TAG_PAIRING])
+def test_device_tag_pairing_law(dev_key, dev_id, tag_key, tag_id):
+    assert tag_id == dev_id - 1
+    assert SK._resolve_category(dev_key) == dev_id
+    assert SK._resolve_category(tag_key) == tag_id
+
+
+def test_nurse_call_is_no_longer_a_tag_category():
+    # -2008084 is Data Device TAGS, template-verified: a nurse-call device
+    # was being filed under a tag category.
+    assert CF.category_of("data_device_tag") == -2008084
+    got = SK._resolve_category("nurse_call_device")
+    assert got != -2008084
+    assert got == -2008081
+    # and it must not collide with any other device on the band
+    devices = [SK._resolve_category(k) for k in
+               ("telephone_device", "communication_device", "security_device",
+                "nurse_call_device", "data_device", "fire_alarm_device")]
+    assert len(set(devices)) == len(devices), devices
+
+
+def test_device_band_is_the_odd_slots():
+    for key in ("telephone_device", "communication_device", "security_device",
+                "nurse_call_device", "data_device", "fire_alarm_device"):
+        cid = SK._resolve_category(key)
+        assert -2008086 <= cid <= -2008075, (key, cid)
+        assert cid % 2 != 0, (key, cid)   # devices on odd slots, tags even
+
+
+@pytest.mark.parametrize("key", CF.ANNOTATION_KINDS)
+def test_annotation_kinds_resolve_and_are_part_type_minus_one(key):
+    f = CF.fact(key)
+    assert f is not None and f.part_type == -1
+    assert SK._resolve_category(key) == f.category
+
+
+def test_no_category_key_resolves_to_two_different_ids():
+    # every mined row must agree with the resolver, so the two tables can
+    # never drift apart silently
+    for key, f in CF.CATEGORY_FACTS.items():
+        assert SK._resolve_category(key) == f.category, key
+
+
+def test_titleblock_and_mass():
+    assert SK._resolve_category("titleblock") == -2000280
+    assert SK._resolve_category("mass") == -2003400
 
 
 def test_fire_alarm_and_telephone_no_longer_collide():

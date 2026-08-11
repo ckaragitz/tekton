@@ -118,7 +118,64 @@ CATEGORY_FACTS: Dict[str, CatFact] = {
     # -- rebar -------------------------------------------------------------
     "rebar_coupler":           CatFact(-2009060,  -1, False, "Rebar_Coupler_Template.rft"),
     "rebar_shape":             CatFact(-2009013,  -1, False, "Rebar_Shape_Template.rft"),
+    # -- conceptual mass ---------------------------------------------------
+    "mass":                    CatFact(-2003400,  -1, True,  "Mass.rft"),
+    # -- ANNOTATION species: tags, heads, marks, titleblocks ---------------
+    # A tag/annotation template is a family document too, so its category is
+    # verified the same way -- but these are ANNOTATION families (part type
+    # -1, view-owned instances), a different species from the model families
+    # above.  See ANNOTATION_KINDS.
+    "titleblock":              CatFact(-2000280,  -1, False, "A__11_x_8.5.rft"),
+    "generic_annotation":      CatFact(-2000150,  -1, False, "Generic_Annotation.rft"),
+    "generic_tag":             CatFact(-2005013,  -1, False, "Generic_Tag.rft"),
+    "multicategory_tag":       CatFact(-2005022,  -1, False, "MultiCategory_Tag.rft"),
+    "room_tag":                CatFact(-2000480,  -1, False, "Room_Tag.rft"),
+    "door_tag":                CatFact(-2000460,  -1, False, "Door_Tag.rft"),
+    "window_tag":              CatFact(-2000450,  -1, False, "Window_Tag.rft"),
+    "electrical_equipment_tag": CatFact(-2005003, -1, False, "Electrical_Equipment_Tag.rft"),
+    "electrical_device_tag":   CatFact(-2005004,  -1, False, "Electrical_Device_Tag.rft"),
+    "data_device_tag":         CatFact(-2008084,  -1, False, "Data_Device_Tag.rft"),
+    "fire_alarm_device_tag":   CatFact(-2008086,  -1, False, "Fire_Alarm_Device_Tag.rft"),
+    "telephone_device_tag":    CatFact(-2008076,  -1, False, "Telephone_Device_Tag.rft"),
+    "level_head":              CatFact(-2006020,  -1, False, "Level_Head.rft"),
+    "grid_head":               CatFact(-2006040,  -1, False, "Grid_Head.rft"),
+    "section_head":            CatFact(-2000400,  -1, False, "Section_Head.rft"),
+    "callout_head":            CatFact(-2000538,  -1, False, "Callout_Head.rft"),
+    "elevation_mark":          CatFact(-2006045,  -1, False, "Elevation_Mark_Body.rft"),
+    "spot_elevation_symbol":   CatFact(-2005100,  -1, False, "Spot_Elevation_Symbol.rft"),
+    "view_title":              CatFact(-2000515,  -1, False, "View_Title.rft"),
 }
+
+#: Keys in :data:`CATEGORY_FACTS` that are ANNOTATION families, not model
+#: families.  They differ in kind: part type -1, view-owned instances
+#: (``m_ownerDBViewId``, no level), and the annotation-head machinery in
+#: ``rvt.famgen.heads`` rather than the model constructors.  Callers that
+#: build model geometry should not reach for these.
+ANNOTATION_KINDS: Tuple[str, ...] = (
+    "titleblock", "generic_annotation", "generic_tag", "multicategory_tag",
+    "room_tag", "door_tag", "window_tag", "electrical_equipment_tag",
+    "electrical_device_tag", "data_device_tag", "fire_alarm_device_tag",
+    "telephone_device_tag", "level_head", "grid_head", "section_head",
+    "callout_head", "elevation_mark", "spot_elevation_symbol", "view_title",
+)
+
+#: THE LOW-VOLTAGE DEVICE/TAG PAIRING LAW [VERIFIED on three matched
+#: template pairs]: a systems device category is immediately followed by its
+#: own tag category, ``tag == device - 1``.
+#:
+#:     Telephone Devices -2008075 / Telephone Device Tags -2008076
+#:     Data Devices      -2008083 / Data Device Tags      -2008084
+#:     Fire Alarm Devices -2008085 / Fire Alarm Device Tags -2008086
+#:
+#: The band therefore alternates device / tag, and the DEVICE categories sit
+#: on the odd slots -2008075, -2008077, -2008079, -2008081, -2008083,
+#: -2008085.  Two of those are template-pinned (Data -2008083, Fire Alarm
+#: -2008085), which is what resolved the conflict recorded below.
+DEVICE_TAG_PAIRING = (
+    ("telephone_device", -2008075, "telephone_device_tag", -2008076),
+    ("data_device", -2008083, "data_device_tag", -2008084),
+    ("fire_alarm_device", -2008085, "fire_alarm_device_tag", -2008086),
+)
 
 #: Host variants that share a kind's category.  ``True`` = that template's
 #: ``m_isWorkPlaneBased``; note only the *face*-hosted flavours set it --
@@ -194,7 +251,15 @@ CORRECTIONS: Tuple[Dict[str, object], ...] = (
     {"key": "communication_device", "was": -2008012, "now": -2008077,
      "evidence": "inv?", "source": "inventory OST_CommunicationDevices",
      "note": "-2008012 appears in no in-repo table; -2008077 is the public "
-             "constant and stays [INFERRED]"},
+             "constant, and the device/tag band law puts a DEVICE on that "
+             "odd slot. Stays [INFERRED]"},
+    {"key": "nurse_call_device", "was": -2008084, "now": -2008081,
+     "evidence": "inv?", "source": "DEVICE_TAG_PAIRING + elimination",
+     "note": "-2008084 is Data Device TAGS by its own template, so this "
+             "filed nurse-call devices under a tag category. The band "
+             "alternates device/tag and Data/Fire Alarm are template-pinned, "
+             "leaving -2008081 as the nurse-call device slot. Stays "
+             "[INFERRED]: no nurse-call template exists to read directly."},
 )
 
 #: Keys this round could NOT settle: no default template declares them and
@@ -206,18 +271,29 @@ STILL_INFERRED: Tuple[str, ...] = (
     "communication_device", "nurse_call_device", "security_device",
 )
 
-#: A conflict this round exposed and did NOT resolve.  ``inventory``'s
-#: ASSUMED block reads the low-voltage device band as Communication -2008077
-#: / Security -2008079 / Fire Alarm -2008081 / Data -2008083 / Nurse Call
-#: -2008085.  The templates agree on Data (-2008083) but put FIRE ALARM at
-#: -2008085 (where inventory assumes Nurse Call) and TELEPHONE at -2008075.
-#: So the assumed band is offset somewhere, and ``nurse_call_device``
-#: (-2008084) rests on it.  Settling it needs a nurse-call/security template
-#: or a sample element -- not another guess.
+#: RESOLVED (second mining round, the annotation/tag templates).
+#:
+#: ``inventory``'s ASSUMED block reads the low-voltage band as Communication
+#: -2008077 / Security -2008079 / Fire Alarm -2008081 / Data -2008083 /
+#: Nurse Call -2008085.  The templates pin Data at -2008083 (agreeing) but
+#: FIRE ALARM at -2008085, where inventory assumes Nurse Call -- so those two
+#: assumed names are SWAPPED.  :data:`DEVICE_TAG_PAIRING` then explains the
+#: whole band: devices sit on the odd slots and each is followed by its own
+#: tag category, which is why the assumed list looked contiguous when it is
+#: actually every other slot.
+#:
+#: Consequence, and it was a live bug: ``nurse_call_device`` mapped to
+#: -2008084, which ``Data_Device_Tag.rft`` shows is Data Device TAGS -- a tag
+#: category, so asking for a nurse-call device produced a family filed under
+#: data-device tags.  Corrected to -2008081, the remaining device slot once
+#: Data and Fire Alarm are pinned.  Still [INFERRED]: no nurse-call template
+#: exists, so this is the band law plus elimination, not a direct reading.
 INVENTORY_ASSUMED_BAND_CONFLICT = (
-    "inventory assumes -2008085 = OST_NurseCallDevices, but "
-    "Fire_Alarm_Device.rft carries -2008085; the assumed low-voltage band is "
-    "offset and nurse_call_device / security_device rest on it")
+    "RESOLVED: inventory assumed -2008085 = OST_NurseCallDevices, but "
+    "Fire_Alarm_Device.rft carries -2008085 -- Fire Alarm and Nurse Call are "
+    "swapped in that assumed block. The band alternates device/tag "
+    "(DEVICE_TAG_PAIRING), so the devices are -2008075/77/79/81/83/85 and "
+    "nurse_call_device is -2008081, not -2008084 (= Data Device Tags)")
 
 
 def fact(kind: str) -> Optional[CatFact]:
@@ -284,6 +360,22 @@ def check_facts() -> List[str]:
         elif key in CATEGORY_FACTS:
             bad.append(f"{key}: corrected on the {ev!r} tier but also present "
                        f"in the template-mined table -- use the rft tier")
+    for dev_key, dev_id, tag_key, tag_id in DEVICE_TAG_PAIRING:
+        if category_of(dev_key) != dev_id:
+            bad.append(f"{dev_key}: DEVICE_TAG_PAIRING says {dev_id} but the "
+                       f"table says {category_of(dev_key)}")
+        if category_of(tag_key) != tag_id:
+            bad.append(f"{tag_key}: DEVICE_TAG_PAIRING says {tag_id} but the "
+                       f"table says {category_of(tag_key)}")
+        if tag_id != dev_id - 1:
+            bad.append(f"{dev_key}/{tag_key}: pairing broken -- tag {tag_id} "
+                       f"is not device {dev_id} - 1")
+    for key in ANNOTATION_KINDS:
+        if key not in CATEGORY_FACTS:
+            bad.append(f"{key}: listed ANNOTATION_KINDS but has no fact row")
+        elif CATEGORY_FACTS[key].part_type != -1:
+            bad.append(f"{key}: annotation family with part type "
+                       f"{CATEGORY_FACTS[key].part_type}, expected -1")
     for key, variants in sorted(HOST_VARIANTS.items()):
         if key not in CATEGORY_FACTS:
             bad.append(f"{key}: HOST_VARIANTS names a kind with no fact row")
