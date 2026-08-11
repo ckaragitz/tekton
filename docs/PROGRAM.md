@@ -89,6 +89,15 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
     table sourced from the format itself, values filled only when known. *Done = #498's DONE
     (1)–(3): the structural host-ADocument gate extended to the IFC route, desktop verdicts
     recorded, matrix rows honest; plus #591's DONE (1)–(6) and #601's DONE (1)–(4).*
+12. **O12 A prompt interviews its way to a specific family** (P0 steer #684, S-2026-08-11-b): a
+    bare product prompt ("a transformer") returns an ordered, branching series of questions —
+    vendor and line first where the catalog holds several, then the rating that identifies the
+    member, then progressive disclosure of the rest — derived at runtime from the catalog, the
+    #591 archetype registry and the #601 standards tables rather than written per product; the
+    answers resolve to a famspec the router already accepts, each value carrying the provenance
+    of the source that answered it; stopping early still delivers a file with the assumed answers
+    stated; the `tekton-author` skill asks conversationally, a few questions at a time, and knows
+    when it has enough to build. *Done = #684's DONE (1)–(6).*
 
 ## Not goals (decided — do not re-propose without a new steer)
 
