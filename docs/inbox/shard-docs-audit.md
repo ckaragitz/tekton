@@ -926,10 +926,14 @@ touched (`sync_plugin.py --check`: `plugin in sync with source` at cloud-setup; 
 tests-only diff, no runtime surface (commit trailer says so).
 
 **Whole merged shard** (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`,
-102 files, same 4-vCPU cloud VM, sequential runs):
+102 files, same 4-vCPU cloud VM, sequential runs, docs-read audit on — no section printed on either run = no offender):
 ```
-SHARD_TABLE_TBD
+origin/main 15b6fbe (worktree)     2045 passed, 134 skipped, 3 xfailed, 3 warnings in 435.58s
+this branch f908ac4                2045 passed, 134 skipped, 3 xfailed, 3 warnings in 442.15s   (= main, nothing moved)
 ```
+The 3 warnings are main's (`PytestRemovedIn10Warning`); skips identical (134). The /simplify head (`e3bdab1`) and the record
+fill-in after it change one docstring line, one `#:` comment line and this file — no non-comment source line — so the branch
+run stands for the head (the two files re-run on the head all the same: 27 passed, ids identical).
 
 ### /simplify pass (four independent angles) — taken / not taken
 
