@@ -143,7 +143,13 @@ def test_the_panel_only_parameters_are_not_on_every_electrical_equipment():
     assert {"PanelName", "BusRating", "NumberOfCircuits", "NeutralRating"} <= panel
     assert not {"PanelName", "BusRating", "NumberOfCircuits"} & xfmr
     assert not {"PanelName", "BusRating", "NumberOfCircuits"} & common
-    assert common <= panel and common <= xfmr        # both extend the category set
+    # both extend the category set, QUANTITY for quantity (#622: the
+    # transformer carries the common Operating Weight as its legacy 'Weight',
+    # one entry per meaning -- so the law is stated over meaning keys)
+    mk = ST.meaning_key
+    assert common <= panel
+    assert {mk(n) for n in common} <= {mk(n) for n in xfmr}
+    assert common - xfmr == {"Operating Weight"} and "Weight" in xfmr
     assert {"kVA Rating", "Primary Voltage", "Secondary Voltage", "Impedance"} <= xfmr
 
 
@@ -159,6 +165,80 @@ def test_the_data_device_set_is_what_an_engineer_would_schedule_it_by():
     assert by_name["Apparent Load"].spec == "apparent_power"
     # Panel / Circuit Number are Revit's own once the device is circuited
     assert by_name["Panel"].origin == ST.ORIGIN_BUILTIN and not by_name["Panel"].authored
+
+
+# ---------------------------------------------------------------------------
+# 2b. one entry per meaning (#622) -- no two standard parameters of one
+#     category are two spellings of the same quantity
+# ---------------------------------------------------------------------------
+
+def test_meaning_key_folds_spelling_and_the_trade_synonyms_but_keeps_distinct_quantities_apart():
+    mk = ST.meaning_key
+    # the three pairs the review of #601 found, plus the folding itself
+    assert mk("Lumens") == mk("Luminous Flux") == mk("luminous_flux")
+    assert mk("MountingHeight") == mk("Mounting Height") == mk("mounting height")
+    assert mk("Weight") == mk("Operating Weight")
+    assert mk("Color Temperature") == mk("Initial Color Temperature") == mk("CCT")
+    assert mk("Load") == mk("Apparent Load") and mk("Enclosure") == mk("Enclosure Rating")
+    # ... and what is NOT the same quantity stays apart (a synonym list that
+    # swallowed these would delete real parameters)
+    assert mk("Wattage") != mk("Apparent Load")               # W is not VA
+    assert mk("Load Classification") != mk("Apparent Load")
+    assert mk("Voltage") != mk("Primary Voltage") != mk("Secondary Voltage")
+    assert mk("Full Load Amps") != mk("Apparent Load")
+    assert mk("Lamp") != mk("Number of Lamps") != mk("Luminous Flux")
+    assert mk("K-Factor") == "kfactor"                          # punctuation folds, nothing else
+
+
+def test_the_synonym_vocabulary_is_itself_consistent():
+    assert ST._SYNONYM_CLASHES == []                 # no spelling claimed by two groups
+    canon = [ST.meaning_key(g[0]) for g in ST.SYNONYM_GROUPS]
+    assert len(canon) == len(set(canon))             # one group per quantity
+    for g in ST.SYNONYM_GROUPS:
+        assert len(g) >= 2 and len({ST.meaning_key(s) for s in g}) == 1, g
+
+
+def test_no_category_lists_two_spellings_of_one_quantity():
+    """The self-check, restated independently of check_specs: within every
+    category (built-ins included -- a user sees those side by side with ours
+    too) no two names share a meaning key."""
+    for key, rows in ST.CATEGORY_STANDARDS.items():
+        seen = {}
+        for p in rows:
+            m = ST.meaning_key(p.name)
+            assert m not in seen or seen[m] == p.name, (key, seen.get(m), p.name)
+            seen[m] = p.name
+
+
+@pytest.mark.parametrize("a,b", [
+    (ST._P("Lumens", "luminous_flux", "photometrics"),
+     ST._P("Luminous Flux", "luminous_flux", "photometrics")),
+    (ST._P("MountingHeight", "length", "constraints", instance=True),
+     ST._P("Mounting Height", "length", "constraints", instance=True)),
+    (ST._P("Weight", "mass", "identity"), ST._P("Operating Weight", "mass", "identity")),
+])
+def test_a_planted_duplicate_meaning_fails_the_table_check(monkeypatch, a, b):
+    """The shipped table passes (section 1); a planted pair does not."""
+    monkeypatch.setitem(ST.CATEGORY_STANDARDS, "zz_planted_probe",
+                        (ST._P("Device Type"), a, b))
+    probs = ST.check_specs()
+    assert len(probs) == 1, probs
+    assert probs[0].startswith(f"zz_planted_probe/{a.name} + {b.name}: 2 spellings of one quantity")
+
+
+def test_the_transformer_keeps_weight_as_its_single_weight_entry_with_a_stated_reason():
+    """Per-pair decision (#622): the transformer's catalog weight is a plain
+    number in lb that make_transformer fills; converting it to the category's
+    Operating Weight (mass) is a unit change, so the legacy name is KEPT as
+    the one entry and its row says why.  Every other electrical equipment set
+    keeps Operating Weight (mass)."""
+    xf = {p.name: p for p in ST.standard_params("transformer")}
+    assert "Weight" in xf and "Operating Weight" not in xf
+    assert xf["Weight"].spec == "number" and "Operating Weight" in xf["Weight"].note
+    for other in ("electrical_equipment", "panelboard", "switchboard",
+                  "mechanical_equipment", "lighting_fixture"):
+        by = {p.name: p for p in ST.standard_params(other)}
+        assert by["Operating Weight"].spec == "mass" and "Weight" not in by, other
 
 
 # ---------------------------------------------------------------------------
@@ -209,6 +289,49 @@ def test_a_parameter_the_constructor_already_authored_is_never_redefined():
     assert doc.params["Mounting Height"] is mine
     assert [s["name"] for s in rep["skipped"]] == ["Mounting Height"]
     assert "already authored" in rep["skipped"][0]["why"]
+
+
+@needs_schema
+def test_apply_never_authors_a_blank_twin_of_a_quantity_already_on_the_document():
+    """#622 through apply(): a constructor's (or a caller's) 'Lumens' /
+    'MountingHeight' means the table's 'Luminous Flux' / 'Mounting Height' is
+    NOT added blank next to it; the skip names the spelling carrying the
+    quantity, and a value offered for the skipped spelling is reported as not
+    placed rather than silently dropped."""
+    doc = SK.new_family_document("lighting_fixtures", "Probe")
+    doc.add_type("Probe", {})
+    mine = doc.add_family_parameter("Lumens", SK.SPEC_LUMINOUS_FLUX, SK.PGROUP_ELECTRICAL)
+    rep = ST.apply(doc, "lighting_fixtures", values={"Luminous Flux": 3200.0})
+    assert "Luminous Flux" not in doc.params and doc.params["Lumens"] is mine
+    why = {s["name"]: s["why"] for s in rep["skipped"]}
+    assert list(why) == ["Luminous Flux"]
+    assert "already authored" in why["Luminous Flux"] and "'Lumens'" in why["Luminous Flux"]
+    assert rep["values_not_placed"] == ["Luminous Flux"]     # its slot is the constructor's
+    keys = [ST.meaning_key(n) for n in doc.params]
+    assert len(keys) == len(set(keys))
+    # the folded-spelling case needs no synonym row at all
+    dev = SK.new_family_document("electrical_fixtures", "Probe")
+    dev.add_family_parameter("MountingHeight", SK.SPEC_LENGTH, SK.PGROUP_CONSTRAINTS)
+    rep = ST.apply(dev, "electrical_fixtures")
+    assert "Mounting Height" not in dev.params
+    assert [s["name"] for s in rep["skipped"]] == ["Mounting Height"]
+
+
+@needs_schema
+def test_a_value_offered_under_any_spelling_of_the_quantity_fills_the_tables_spelling():
+    """The same key on the way IN: standard_values={'Lumens': ...} (a famspec
+    written before the rename, an IFC pset's 'CCT') fills 'Luminous Flux' /
+    'Initial Color Temperature' rather than being reported as not placed."""
+    doc = SK.new_family_document("lighting_fixtures", "Probe")
+    doc.add_type("Probe", {})
+    rep = ST.apply(doc, "lighting_fixtures", values={"Lumens": 3200.0, "CCT": 3500.0,
+                                                     "Beam Angle": 40})
+    assert rep["filled"] == ["Initial Color Temperature", "Luminous Flux"]
+    assert rep["values_not_placed"] == ["Beam Angle"]
+    (_n, vals), = doc.types
+    assert vals[doc.params["Luminous Flux"].elem_id] == pytest.approx(3200.0)
+    assert vals[doc.params["Initial Color Temperature"].elem_id] == pytest.approx(3500.0)
+    assert "Lumens" not in doc.params and "CCT" not in doc.params
 
 
 @needs_schema
@@ -280,6 +403,70 @@ def test_every_catalog_constructor_applies_its_product_standards(maker, expect):
     # the constructor's own parameters are left exactly as it made them
     for s in prod.standards["skipped"]:
         assert "already authored" in s["why"]
+
+
+@needs_schema
+@pytest.mark.parametrize("maker,kwargs,filled,gone", [
+    # lighting fixture: the photometric facts land under the table's spelling
+    ("make_luminaire", {}, {"Luminous Flux", "Initial Color Temperature", "Wattage"},
+     {"Lumens", "Color Temperature"}),
+    # electrical fixture: the connector-bound load and the placement height
+    ("make_device", {}, {"Apparent Load", "Mounting Height", "Voltage"},
+     {"Load", "MountingHeight"}),
+    # electrical equipment: the NEMA class renamed, the weight KEPT as 'Weight'
+    ("make_transformer", {}, {"Weight", "Enclosure Rating", "kVA Rating"},
+     {"Enclosure", "Operating Weight"}),
+    ("make_panelboard", {}, {"PanelName", "BusRating"}, set()),
+    # mechanical equipment goes down the anything route
+    ("make_generic_model", {"parts": [{"shape": "box", "width_ft": 3.0, "depth_ft": 2.5,
+                                        "height_ft": 4.0}],
+                            "name": "RTU-1", "category": "mechanical_equipment"},
+     {"Width", "Depth", "Height"}, set()),
+])
+def test_every_generated_family_lists_each_quantity_once_and_the_values_still_land(
+        maker, kwargs, filled, gone):
+    """#622 DONE 3: one entry per meaning on the generated family, and the
+    value the constructor used to put under the legacy name is under the
+    surviving one (blank standard parameters stay blank -- never invented)."""
+    prod = getattr(F, maker)(**kwargs)
+    doc = prod.doc
+    names = list(doc.params)
+    by_key = {}
+    for n in names:
+        by_key.setdefault(ST.meaning_key(n), []).append(n)
+    twins = {k: v for k, v in by_key.items() if len(v) > 1}
+    assert twins == {}, twins
+    assert not gone & set(names), gone & set(names)
+    _tname, vals = doc.types[0]
+    for n in filled:
+        assert n in doc.params, n
+        assert vals[doc.params[n].elem_id] not in (None, "", 0, 0.0), n
+    # nothing the standards layer skipped was skipped for any reason but
+    # "the constructor already carries it" (by name or by meaning)
+    for s in (prod.standards or {}).get("skipped", []):
+        assert "already authored" in s["why"], s
+
+
+@needs_schema
+def test_the_transformer_connector_and_catalog_follow_the_renamed_enclosure_but_keep_weight():
+    xf = F.make_transformer(kva=75)
+    _t, vals = xf.doc.types[0]
+    assert vals[xf.doc.params["Enclosure Rating"].elem_id] == "NEMA 2 (indoor)"
+    assert vals[xf.doc.params["Weight"].elem_id] == pytest.approx(570.0)
+    header = F.type_catalog_text(xf).splitlines()[0]
+    assert "Enclosure Rating##OTHER##" in header and "Weight##OTHER##" in header
+    # a vendor with no catalog weight still gets ONE weight entry, blank
+    hps = F.make_transformer(kva=75, vendor="hps")
+    assert "Weight" in hps.doc.params and "Operating Weight" not in hps.doc.params
+    _t, hv = hps.doc.types[0]
+    assert hv[hps.doc.params["Weight"].elem_id] == 0.0
+    # the device's connector is bound to the renamed load parameter
+    dev = F.make_device("duplex-receptacle")
+    dom = dev.doc.connectors[0].obj["m_pDomain"]["value"]
+    assert dom["m_dApparentLoadPhase1"] == pytest.approx(SK.voltamps(180.0))
+    _t, dv = dev.doc.types[0]
+    assert dv[dev.doc.params["Apparent Load"].elem_id] == pytest.approx(SK.voltamps(180.0))
+    assert dv[dev.doc.params["Mounting Height"].elem_id] == pytest.approx(1.5)
 
 
 @needs_schema

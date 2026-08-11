@@ -324,7 +324,7 @@
     },
     "device": {
       "title": "kind = device -> rvt.famgen.factory.make_device(kind=device, **fields): a WIRING DEVICE family (category Electrical Fixtures, OST -2001060)",
-      "description": "A duplex receptacle (NEMA 5-15R / 5-20R), a single-pole switch or a 4 in square junction box from the `generic/devices-and-mounting` facts: faceplate proud of the family XY plane (the wall face of a work-plane-based family; no face-hosting claim) + the device box recessed behind it, ONE 1-pole primary power connector bound to the `Voltage` / `Load` parameters, `MountingHeight` from the facts. One type per family (no `types` list): the envelope figures are 'assumed' on the record and surface as such in the report.",
+      "description": "A duplex receptacle (NEMA 5-15R / 5-20R), a single-pole switch or a 4 in square junction box from the `generic/devices-and-mounting` facts: faceplate proud of the family XY plane (the wall face of a work-plane-based family; no face-hosting claim) + the device box recessed behind it, ONE 1-pole primary power connector bound to the `Voltage` / `Apparent Load` parameters, `Mounting Height` from the facts. One type per family (no `types` list): the envelope figures are 'assumed' on the record and surface as such in the report.",
       "type": "object",
       "additionalProperties": false,
       "required": [

@@ -48,6 +48,18 @@ spec and the right group.  Values are filled ONLY when the caller knows them
 (hard rule 1's honesty: a blank standard parameter is an honest slot, an
 invented value is a lie).
 
+ONE ENTRY PER MEANING (#622).  A Revit user reads ``Lumens`` next to a blank
+``Luminous Flux`` as two spellings of one quantity, one of them always empty --
+which is worse than either alone.  So names are compared by :func:`meaning_key`
+(case / spaces / underscores / hyphens folded, plus the hand-authored trade
+synonyms in :data:`SYNONYM_GROUPS`), and that one key is used three times:
+:func:`check_specs` fails a category that lists two spellings of one quantity,
+:func:`apply` never authors a blank standard parameter next to a constructor's
+(or a caller's) parameter of the same meaning, and the constructors fill the
+table's spelling rather than a legacy one.  Where a legacy spelling is KEPT it
+is the category's single entry and its row says why (the transformer's
+``Weight``).
+
 STRUCTURAL STATUS.  Authoring N family parameters is the same machinery,
 repeated, that the desktop-verified panelboard (11 contract parameters) and the
 generated generic models already ship; nothing new is written to the file.  The
@@ -73,6 +85,7 @@ __all__ = [
     "CATEGORY_STANDARDS", "CATEGORY_ALIASES", "canonical_category",
     "standard_params", "authored_params", "describe", "apply", "table",
     "check_specs", "units_spec_ids", "NO_TABLE_NOTE",
+    "SYNONYM_GROUPS", "meaning_key",
 ]
 
 
@@ -232,6 +245,103 @@ def _B(name, note="") -> StdParam:
     return StdParam(name, "text", "identity", False, ORIGIN_BUILTIN, note)
 
 
+def _without(block: Sequence[StdParam], *names: str) -> Tuple[StdParam, ...]:
+    """``block`` minus the named rows -- for a product set that deliberately
+    keeps its OWN spelling of one of the block's quantities (see the
+    transformer's ``Weight``); greppable, unlike a silent merge rule."""
+    return tuple(p for p in block if p.name not in names)
+
+
+# ---------------------------------------------------------------------------
+# one quantity, one entry (#622): names compare by MEANING, not spelling
+# ---------------------------------------------------------------------------
+
+#: Spellings a Revit user reads as ONE quantity.  Hand-authored trade
+#: synonyms and abbreviations -- no vendor table, no Autodesk-authored list.
+#: The FIRST spelling of each group is the one this table standardises on; the
+#: rest are legacy constructor names, manufacturer-content habits and IFC-pset
+#: style keys.  Spellings that differ only by case / spaces / underscores /
+#: hyphens need no row: :func:`meaning_key` folds those by itself
+#: (``MountingHeight`` == ``Mounting Height``, ``Airflow`` == ``Air Flow``).
+SYNONYM_GROUPS: Tuple[Tuple[str, ...], ...] = (
+    # photometric
+    ("Luminous Flux", "Lumens", "Lamp Lumens", "Luminaire Lumens",
+     "Initial Luminous Flux", "Light Output", "Lumen Output"),
+    ("Initial Color Temperature", "Color Temperature", "Colour Temperature",
+     "CCT", "Correlated Color Temperature"),
+    ("Color Rendering Index", "CRI"),
+    ("Efficacy", "Luminous Efficacy", "Lumens per Watt"),
+    ("Light Loss Factor", "LLF"),
+    # electrical
+    ("Apparent Load", "Load", "Apparent Power", "Load VA"),
+    ("Wattage", "Watts", "Input Watts", "Rated Wattage"),
+    ("Voltage", "Volts", "Nominal Voltage", "Rated Voltage"),
+    ("Phases", "Number of Phases"),
+    ("Wires", "Number of Wires"),
+    ("Number of Poles", "Poles"),
+    ("Frequency", "Rated Frequency", "Hz"),
+    ("kVA Rating", "kVA", "Rated kVA"),
+    ("ShortCircuitRatingkA", "Short Circuit Rating", "SCCR",
+     "Short Circuit Current Rating", "AIC Rating"),
+    ("NumberOfCircuits", "Number of Circuits", "Circuit Count"),
+    ("Enclosure Rating", "Enclosure", "Enclosure Type", "NEMA Rating", "NEMA Type"),
+    ("Full Load Amps", "FLA", "Full Load Current"),
+    ("Minimum Circuit Ampacity", "MCA"),
+    ("Maximum Overcurrent Protection", "MOCP", "MOP"),
+    ("Temperature Rise", "Temp Rise"),
+    # placement / identity
+    ("Mounting Height", "Mounting Height AFF", "Height AFF"),
+    ("Operating Weight", "Weight", "Unit Weight"),
+    ("Warranty Duration", "Warranty", "Warranty Period"),
+    ("Sound Level", "Noise Level", "Sound Pressure Level"),
+    ("Fire Rating", "Fire Resistance Rating"),
+    # mechanical / plumbing / envelope
+    ("Air Flow", "CFM"),
+    ("External Static Pressure", "ESP"),
+    ("Total Cooling Capacity", "Cooling Capacity"),
+    ("Total Heating Capacity", "Heating Capacity"),
+    ("Flow Rate", "Flow", "GPM"),
+    ("Nominal Diameter", "Nominal Size", "Trade Size"),
+    ("U-Factor", "U Value", "Thermal Transmittance"),
+    ("Solar Heat Gain Coefficient", "SHGC"),
+    ("Visible Transmittance", "VT", "VLT"),
+)
+
+
+def _fold(name: Any) -> str:
+    """Case / space / underscore / hyphen / punctuation-insensitive form."""
+    return "".join(ch for ch in str(name).lower() if ch.isalnum())
+
+
+def _build_synonym_key(groups: Sequence[Sequence[str]]) -> Tuple[Dict[str, str], List[str]]:
+    """folded spelling -> folded canonical spelling for every group member,
+    plus any spelling claimed by two groups (a table bug :func:`check_specs`
+    reports)."""
+    key: Dict[str, str] = {}
+    clashes: List[str] = []
+    for group in groups:
+        canon = _fold(group[0])
+        for spelling in group:
+            f = _fold(spelling)
+            if key.get(f, canon) != canon:
+                clashes.append(f"synonym {spelling!r} is claimed by two groups "
+                               f"({key[f]!r} and {canon!r})")
+            key[f] = canon
+    return key, clashes
+
+
+_SYNONYM_KEY, _SYNONYM_CLASHES = _build_synonym_key(SYNONYM_GROUPS)
+
+
+def meaning_key(name: Any) -> str:
+    """The key two parameter names share iff a Revit user would read them as
+    the same quantity: the folded spelling, mapped through
+    :data:`SYNONYM_GROUPS` (``'Lumens'`` -> ``'luminousflux'``,
+    ``'MountingHeight'`` -> ``'mountingheight'`` == ``'Mounting Height'``)."""
+    f = _fold(name)
+    return _SYNONYM_KEY.get(f, f)
+
+
 # ---------------------------------------------------------------------------
 # what EVERY model family already has, from Revit, whatever its category
 # ---------------------------------------------------------------------------
@@ -369,7 +479,15 @@ CATEGORY_STANDARDS: Dict[str, Tuple[StdParam, ...]] = {
         _P("Taps", "text", "electrical", note="e.g. 2 x 2.5% FCAN, 4 x 2.5% FCBN"),
         _P("Sound Level", "number", "identity", note="dBA"),
         _P("K-Factor", "number", "electrical"),
-    ), _EE_COMMON),
+        # #622: the transformer's ONE weight entry, kept under its legacy name so
+        # every transformer (catalog weight or none) names it the same way;
+        # _EE_COMMON's ``Operating Weight`` is dropped for this product only.
+        _P("Weight", "number", "identity",
+           note="lb as a plain number: the catalog weight make_transformer fills; "
+                "stands in for the category's Operating Weight (mass) -- one name on "
+                "every transformer -- until the factory has a verified lb -> mass "
+                "unit path (#630)"),
+    ), _without(_EE_COMMON, "Operating Weight")),
 
     "electrical_fixture": (
         _P("Device Type", "text", "identity"),
@@ -731,24 +849,29 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
           instance_params: bool = True) -> Dict[str, Any]:
     """Author ``category``'s standard parameters into ``doc``.
 
-    ``values`` fills the ones the caller actually knows (by parameter name, in
-    INTERNAL units -- feet for lengths, the same convention
+    ``values`` fills the ones the caller actually knows (by parameter name --
+    or any spelling of the same meaning, ``Lumens`` filling ``Luminous Flux``
+    -- in INTERNAL units: feet for lengths, the same convention
     ``FamilyDoc.add_family_parameter``'s ``default`` takes); every other
     parameter is authored BLANK, which is the honest state of a fact nobody
-    supplied.  A name already on the document (``Width`` on a generic model, a
-    constructor's own ``Voltage``) is left exactly as the constructor made it
-    and reported as ``already_present`` -- this never redefines a parameter.
+    supplied.  A quantity already on the document -- by name (``Width`` on a
+    generic model, a constructor's own ``Voltage``) or by MEANING
+    (:func:`meaning_key`, #622: a constructor's or a caller's ``Lumens``) -- is
+    left exactly as it was made and reported as skipped, naming the spelling
+    that carries it; this never redefines a parameter and never adds a blank
+    twin.
 
     Returns the report: what was authored, what was skipped and why, and the
     category's note.  Never raises for a merely unknown category (hard rule 1:
     a family still gets built and delivered).
     """
     rep = describe(category)
-    vals = {str(k): v for k, v in (values or {}).items()}
+    vals = {meaning_key(k): (str(k), v) for k, v in (values or {}).items()}
     skipped: List[Dict[str, str]] = []
     authored: List[Dict[str, Any]] = []
     if doc.finalized:
         raise ValueError("document is finalized; apply standards before finalize")
+    present = {meaning_key(n): n for n in doc.params}    # meaning -> the spelling carrying it
     for p in standard_params(category):
         if not p.authored:
             continue
@@ -758,24 +881,29 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
         if not instance_params and p.instance:
             skipped.append({"name": p.name, "why": "instance parameters were not requested"})
             continue
-        if p.name in doc.params:
-            skipped.append({"name": p.name, "why": "already authored by the constructor"})
+        mk = meaning_key(p.name)
+        twin = present.get(mk)
+        if twin is not None:
+            skipped.append({"name": p.name, "why": "already authored by the constructor"
+                            + ("" if twin == p.name else f" as {twin!r} (the same quantity)")})
             continue
         try:
-            val = vals.get(p.name, _blank(p.spec))
+            val = vals[mk][1] if mk in vals else _blank(p.spec)
             doc.add_family_parameter(p.name, p.spec_id, p.group_id,
                                      is_instance=p.instance, default=val)
         except Exception as e:                     # never block delivery
             skipped.append({"name": p.name,
                             "why": f"{type(e).__name__}: {str(e)[:120]}"})
             continue
+        present[mk] = p.name
         authored.append({"name": p.name, "spec": p.spec, "group": p.group,
                          "instance": p.instance, "origin": p.origin,
-                         "value": "given" if p.name in vals else "blank"})
+                         "value": "given" if mk in vals else "blank"})
     rep["applied"] = authored
     rep["skipped"] = skipped
     rep["filled"] = sorted(a["name"] for a in authored if a["value"] == "given")
-    unknown = sorted(n for n in vals if n not in {a["name"] for a in authored})
+    filled_keys = {meaning_key(n) for n in rep["filled"]}
+    unknown = sorted(name for mk, (name, _v) in vals.items() if mk not in filled_keys)
     if unknown:
         rep["values_not_placed"] = unknown
     doc.notes.append(
@@ -810,14 +938,18 @@ def check_specs() -> List[str]:
 
     (1) every spec/group key a row uses exists; (2) every MEASURABLE spec id
     is in the format's own units table; (3) no category authors two parameters
-    of the same name; (4) no authored name collides with a common built-in.
+    of the same name; (4) no authored name collides with a common built-in;
+    (5) no category lists two SPELLINGS of one quantity (#622: ``Lumens`` next
+    to ``Luminous Flux`` -- compared by :func:`meaning_key`), and no spelling
+    is claimed by two synonym groups.
     """
-    problems: List[str] = []
+    problems: List[str] = list(_SYNONYM_CLASHES)
     known = set(units_spec_ids())
     common = {p.name for p in COMMON_BUILTINS}
     for key, rows in CATEGORY_STANDARDS.items():
-        seen: Dict[str, int] = {}
+        by_meaning: Dict[str, List[str]] = {}         # meaning key -> names, repeats kept
         for p in rows:
+            by_meaning.setdefault(meaning_key(p.name), []).append(p.name)
             if p.spec not in SPECS:
                 problems.append(f"{key}/{p.name}: unknown spec key {p.spec!r}")
                 continue
@@ -827,15 +959,18 @@ def check_specs() -> List[str]:
                 problems.append(
                     f"{key}/{p.name}: spec id {SPECS[p.spec]} is not in the format's "
                     f"own units table -- unsourced, remove it or find its id")
-            seen[p.name] = seen.get(p.name, 0) + 1
             if p.authored and p.name in common:
                 problems.append(f"{key}/{p.name}: collides with the common built-in "
                                 f"of the same name -- mark it origin={ORIGIN_BUILTIN}")
             if p.origin not in (ORIGIN_BUILTIN, ORIGIN_CONTRACT, ORIGIN_CONVENTION):
                 problems.append(f"{key}/{p.name}: unknown origin {p.origin!r}")
-        for name, n in seen.items():
-            if n > 1:
-                problems.append(f"{key}/{name}: listed {n} times")
+        for mk, names in by_meaning.items():
+            distinct = list(dict.fromkeys(names))
+            if len(distinct) > 1:
+                problems.append(f"{key}/{' + '.join(distinct)}: {len(distinct)} spellings "
+                                f"of one quantity ({mk!r}) -- keep ONE")
+            elif len(names) > 1:
+                problems.append(f"{key}/{names[0]}: listed {len(names)} times")
     for alias, key in CATEGORY_ALIASES.items():
         if key not in CATEGORY_STANDARDS:
             problems.append(f"alias {alias!r} points at {key!r}, which has no table")
@@ -849,7 +984,8 @@ if __name__ == "__main__":                            # pragma: no cover
         probs = check_specs()
         for p in probs:
             print(p)
-        print(f"{len(CATEGORY_STANDARDS)} categories, {len(probs)} problems")
+        print(f"{len(CATEGORY_STANDARDS)} categories, {len(SYNONYM_GROUPS)} "
+              f"synonym groups, {len(probs)} problems")
         sys.exit(1 if probs else 0)
     if args:
         print(json.dumps(describe(args[0]), indent=1))

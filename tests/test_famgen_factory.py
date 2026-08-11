@@ -336,8 +336,8 @@ def test_luminaire_family_composition():
     assert fp["width_ft"] == pytest.approx(47.75 / 12)     # length along X
     assert fp["depth_ft"] == pytest.approx(23.75 / 12)
     assert fp["height_ft"] == pytest.approx(2.375 / 12)
-    for pname in ("Wattage", "Lumens", "Color Temperature", "Voltage",
-                  "IES File (URL reference)"):
+    for pname in ("Wattage", "Luminous Flux", "Initial Color Temperature", "Voltage",
+                  "IES File (URL reference)"):     # the lighting table's spelling (#622)
         assert pname in doc.params
     _t, vals = doc.types[0]
     assert "http" in vals[doc.params["IES File (URL reference)"].elem_id]
@@ -380,7 +380,7 @@ def test_device_family_composition(kind, variant, height):
     """make_device: an Electrical Fixtures work-plane family (no face-hosting
     claim) = faceplate proud of the wall face + device box recessed behind
     it, ONE 1-pole 120 V / 180 VA PRIMARY connector on the back of the box
-    bound to Voltage / Load, MountingHeight from the facts, Manufacturer
+    bound to Voltage / Apparent Load, Mounting Height from the facts, Manufacturer
     'generic' / Model = the record's member on the one type row."""
     prod = F.make_device(kind, standards=False)
     doc = prod.doc
@@ -389,7 +389,7 @@ def test_device_family_composition(kind, variant, height):
     assert doc.work_plane_based and doc.finalized
     # standards=False = the constructor's OWN parameters, nothing else (the
     # regression control for the category-standards layer, #601)
-    assert sorted(doc.params) == ["Load", "MountingHeight", "Voltage"]
+    assert sorted(doc.params) == ["Apparent Load", "Mounting Height", "Voltage"]   # the table's spelling (#622)
     assert prod.standards is None
     assert [f.kind for f in prod.forms] == ["plate", "box"]
     plate, box = prod.forms
@@ -406,7 +406,7 @@ def test_device_family_composition(kind, variant, height):
     assert dom["m_systemType"] == 31
     assert any("bottom face" in n for n in con.notes)          # hosted on the back of the box
     (tname, vals), = doc.types
-    assert vals[doc.params["MountingHeight"].elem_id] == pytest.approx(height / 12)
+    assert vals[doc.params["Mounting Height"].elem_id] == pytest.approx(height / 12)
     ident = {bip: vals[bip] for bip in (SK.BIP_TYPE_MANUFACTURER, SK.BIP_TYPE_MODEL,
                                           SK.BIP_TYPE_DESCRIPTION)}
     assert ident[SK.BIP_TYPE_MANUFACTURER] == "generic"
@@ -775,7 +775,7 @@ def test_make_family_cli_device_verb_writes_a_valid_rfa(tmp_path, capsys):
     rep = json.loads(capsys.readouterr().out)
     assert rep["ok"] and rep["validate"]["family_mode"]["n_errors"] == 0 and rep["provenance"]["ok"]
     assert rep["family"]["category"] == "Electrical Fixtures"
-    assert rep["family"]["type_facts"][0]["values"]["MountingHeight"] == 44.0
+    assert rep["family"]["type_facts"][0]["values"]["Mounting Height"] == 44.0
     (idx, dom), = _rfa_connector_domains(str(out))
     assert (dom["m_nNumberOfPoles"], round(dom["m_dVoltage"] * 0.3048 ** 2),
             round(dom["m_dApparentLoadPhase1"] * 0.3048 ** 2), dom["m_bIsConnectorPrimary"]) \
