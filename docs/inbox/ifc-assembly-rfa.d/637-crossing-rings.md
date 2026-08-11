@@ -368,6 +368,29 @@ crossing and ships as the honest prism` (plate 0.7 @ 12/45, 0.5 @ 12/0/45/77, 0.
 two pipes — each ×7: 1 part, `kept_prism` with the reason, no `decomposed`, authored ≥ mesh); the
 oracle-numbers test keeps 0.63513466612 / 0.0708409 / 0.0434946 pinned as #715's acceptance values.
 
+## Round 5 (last point before merge): "clean" is judged against the common region itself, so stitch order cannot decide
+
+Round-4 review (all doctrine rows met) found one determinism hole: the clean test clipped each other
+ring against `a` and then `b`, and `_clip(c, a)` is `[]` when `c` HOLDS `a` whole — so a third SOLID
+section containing one partner read CLEAN as (boss, bar) and NESTED as (bar, boss), and `_first_crossing`
+feeds pairs in stitch order: block 2×2×2 + 16-gon boss r 0.2 inside it + bar 3.0×0.3 through both → 30/41
+orders merged (3 parts, 2 merges, overlap 0.216738 m³ = exact) vs 11/41 kept prism; square boss 18/23;
+11/600 random all-solid rectangle sets flipped by permutation. **Fix (the reviewer's verified what-if,
+taken as is):** every other ring is clipped against the **stitched common region** `_closed(inside)` —
+symmetric in (a, b); a ring holding the region whole draws nothing in it either way round and leaves the
+pair clean; a ring nested in it or crossing it makes it nested either way round. Re-measured: block +
+16-gon boss + bar @ 12 / 0.05 / 33 / 77° → **41/41 merged, one outcome, overlap 0.2167377 m³ =
+(∣block∩bar∣ + ∣boss∣)·h by inclusion–exclusion (two merges: boss∪bar, then block∪that)**; square boss
+41/41 at 0.2280003 (truth 0.228); a rod r 0.1 *narrower* than the bar (nested whole in the common
+region) → refused 41/41; 300 random 3–4-rectangle sets × 4 permutations → **0 order-dependent**; every
+ruling row unchanged (nested pipe bodies refuse ×7, clean bodies exact, loss table 0/0, reference rows
+diff EMPTY, matrix identical); router `block_boss_bar_12.ifc` → `OK (3-part …)`, `2 crossing section(s)
+merged (BossBar: 2, 13226.16 in3 shared)`, VALID 0/0, provenance ok. Test 20: the block+boss+bar body
+(16-gon at three yaws, square) over 13 orders each — merged, 2 merges, 3 parts, overlap == closed form at
+1e-5, one number; the narrow rod refused ×7; four permutations of a planar all-solid set merge
+identically (8 + 44). Left for #715 as noted by the review: `_clip`'s whole-nesting decision still rests
+on a single `_interior_probe`.
+
 ## Neighbouring cases NOT changed, on purpose (candidates for follow-ups, none filed as blocking)
 
 * **An island read as a hole** — a bolt passing clean through a plate with no crossing in the plate's
@@ -404,12 +427,13 @@ Gates (cloud session, fresh clone, no `samples/`; the PR body carries the same n
 stream-local gate `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_ifc_assembly_637.py
 tests/test_ifc_assembly.py tests/test_ifc_assembly_623.py tests/test_ifc_assembly_628.py
 tests/test_router.py tests/test_records_layout.py -q -rs`: main @ 6f33fb7 **270 passed / 14 skipped**
-→ round 1 284/14 → round 2 286/14 → round 3 (rebased on de292a8) 288/14 → round 4 **289 passed / 14
-skipped**, 0 failed (one of the 14 skips is `test_router`'s read-only-dir case, which only skips as root
-— a non-root sandbox reads one more pass and one fewer skip); whole merged CI shard `RVT_SKIP_LARGE=1
-pytest -q -p no:cacheprovider $(tools/dev/shard_list.py --print)` on the round-4 tree: **2610 passed /
-137 skipped / 3 xfailed, 0 failed (8 min 11 s)** (round 1: 2613, round 2: 2615 pre-rebase / 2607
-post-rebase — #711 re-parametrised shard tests, round 3: 2609); `/simplify` on the diff (round 1);
+→ round 1 284/14 → round 2 286/14 → round 3 (rebased on de292a8) 288/14 → round 4 289/14 → round 5
+**290 passed / 14 skipped**, 0 failed (one of the 14 skips is `test_router`'s read-only-dir case, which
+only skips as root — a non-root sandbox reads one more pass and one fewer skip); whole merged CI shard
+`RVT_SKIP_LARGE=1 pytest -q -p no:cacheprovider $(tools/dev/shard_list.py --print)` on the round-5 tree:
+**2611 passed / 137 skipped / 3 xfailed, 0 failed (10 min 03 s)** (round 1: 2613, round 2: 2615
+pre-rebase / 2607 post-rebase — #711 re-parametrised shard tests, round 3: 2609, round 4: 2610);
+`/simplify` on the diff (round 1);
 `/verify` = the router driven on the six IFCs above, every round; `tools/sync_plugin.py` → `--check` clean; `plugin/scripts/validate_plugin.py` PASS;
 `tools/dev/check_portable_paths.py` ok (3098); drop-in resolves in `tools/dev/shard_list.py --print`;
 `tools/route.py matrix` byte-identical (`7dae5d40…`, 39 lines). Nothing staged for the viewer, no

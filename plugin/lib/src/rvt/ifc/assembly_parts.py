@@ -1073,9 +1073,12 @@ def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts,
     inside the other ring is interior to the union and dropped, the rest is
     welded back into rings by the same :func:`_stitch`.  CLEAN means two
     things, both checked: no OTHER ring of the slice reaches into the common
-    region (every :func:`_clip` against it comes back empty -- a pipe's bore
-    under or across the bar through it does not, and such a nested crossing
-    is the follow-up's, not this lane's), and the body itself reads two
+    region (every :func:`_clip` against that region -- the dropped pieces,
+    stitched -- comes back empty: a pipe's bore under or across the bar
+    through it does not, and such a nested crossing is the follow-up's, not
+    this lane's; a third solid section HOLDING the whole region draws
+    nothing in it and leaves the pair clean, whichever way round the pair is
+    read, so stitch order cannot decide), and the body itself reads two
     shells deep there, asked :func:`_beside` the dropped piece standing
     clearest -- at least :data:`MIN_EXTENT_FT` -- of the partner and of
     every other ring's boundary (a bar tangent to a bore is still asked from
@@ -1086,15 +1089,13 @@ def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts,
     if depth < MIN_EXTENT_FT:
         return [], 0.0                                  # contact, not a crossing
     union = _closed(outside)
-    if union is None:
+    common = _closed(inside)                            # the common region itself, as rings
+    if union is None or common is None:
         return None                                     # not a set of closed outlines
     for c in others:                                    # clean: nothing else in the common region
-        parts = _clip(c, a)
-        if parts is None:
-            return None
-        for part in parts:
-            pieces = _clip(part, b)
-            if pieces is None:
+        for region in common:
+            pieces = _clip(c, region)                   # symmetric in (a, b): a ring HOLDING the
+            if pieces is None:                          # region whole draws nothing in it, either way
                 return None
             if pieces:
                 return None, 0.0                        # a nested crossing: not merged by this lane

@@ -399,6 +399,45 @@ def test_a_clean_crossing_of_a_hollow_member_is_credited_exactly(tmp_path):
         assert max(seen) - min(seen) <= 1e-6 * max(seen), (name, seen)      # every order, one number
 
 
+def test_a_third_section_holding_the_whole_common_region_leaves_the_pair_clean_in_every_order(tmp_path):
+    """The last review point on #713: a bar through a block with a boss
+    standing inside the block across the bar's path.  (boss, bar) is a clean
+    crossing -- the block HOLDS their whole common region and draws nothing
+    in it -- but the old clean test clipped against `a` then `b`, read []
+    only when the third ring held `a`, and so said CLEAN as (boss, bar) and
+    NESTED as (bar, boss): 30/41 orders merged, 11 refused.  Clipping every
+    other ring against the stitched common region itself is symmetric: one
+    outcome at every order and yaw -- two merges (boss & bar, then block &
+    their union), three parts, overlap (|block & bar| + |boss|) x height by
+    inclusion-exclusion, exact against the closed form."""
+    boss16 = 0.5 * 16 * 0.2 ** 2 * math.sin(2 * math.pi / 16)
+    rows = [("16-gon boss", _prism_mesh(0.2, 0.3, 16, oz=0.85), (2.0 * 0.3 + boss16) * 0.3, (12.0, 0.05, 77.0)),
+            ("square boss", _box_mesh(0.4, 0.4, 0.3, oz=0.85), (2.0 * 0.3 + 0.16) * 0.3, (12.0,))]
+    for name, boss, doubled_m3, yaws in rows:
+        for yaw in yaws:
+            pts, base = _shells([_box_mesh(2, 2, 2), boss, _box_mesh(3.0, 0.3, 0.3, oz=0.85)], yaw)
+            seen = set()
+            for tris in _triangle_orders(base, seeds=12):
+                m = _read(tmp_path, pts, tris, "Boss")
+                assert m.decomposed and not m.kept_prism, (name, yaw, m.kept_prism)
+                d = m.decomposed[0]
+                assert d["crossings_merged"] == 2 and len(m.parts) == 3 and d["fill_after"] == pytest.approx(1.0), (name, d)
+                assert d["mesh_overlap_in3"] / 1728.0 == pytest.approx(doubled_m3 * FT3, rel=1e-5), (name, yaw)
+                seen.add(d["mesh_overlap_in3"])
+            assert max(seen) - min(seen) <= 1e-6 * max(seen), (name, yaw, seen)
+    # a rod NARROWER than the bar lies whole inside the common region: nested, refused in every order
+    pts, base = _shells([_box_mesh(2, 2, 2), _prism_mesh(0.1, 0.3, 16, oz=0.85), _box_mesh(3.0, 0.3, 0.3, oz=0.85)], 12.0)
+    for tris in _triangle_orders(base, seeds=6):
+        m = _read(tmp_path, pts, tris, "Rod")
+        assert len(m.parts) == 1 and "slab lane: crossing rings at z = " in m.kept_prism[0]["reason"]
+    # and in the plane: permuting an all-solid ring set never changes what merges
+    plate = [[-2, 3], [12, 3], [12, 7], [-2, 7]]
+    boss = [[4, 2], [6, 2], [6, 8], [4, 8]]                       # crosses the plate inside BIG
+    for order in ([BIG, boss, plate], [plate, BIG, boss], [boss, plate, BIG], [plate, boss, BIG]):
+        rings, merged, shared = AP._merge_crossing_rings(order, BOTH)
+        assert merged == 2 and len(rings) == 1 and shared == pytest.approx(8.0 + 44.0), order
+
+
 def test_a_bar_through_a_pipes_bore_is_a_nested_crossing_and_ships_as_the_honest_prism(tmp_path):
     """The #713 review's bodies: a 1.4 m plate 0.2 m thick through a 32-gon
     pipe (r 0.5, bore 0.3) at widths 0.7 (swallows the bore ring whole), 0.5
