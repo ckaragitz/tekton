@@ -305,7 +305,9 @@ def test_apply_never_authors_a_blank_twin_of_a_quantity_already_on_the_document(
     assert "Luminous Flux" not in doc.params and doc.params["Lumens"] is mine
     why = {s["name"]: s["why"] for s in rep["skipped"]}
     assert list(why) == ["Luminous Flux"]
-    assert "already authored" in why["Luminous Flux"] and "'Lumens'" in why["Luminous Flux"]
+    # by MEANING the carrier may be a constructor's or a caller's parameter, so
+    # the skip says what is on the document rather than who put it there
+    assert why["Luminous Flux"] == "already on the document as 'Lumens' (the same quantity)"
     assert rep["values_not_placed"] == ["Luminous Flux"]     # its slot is the constructor's
     keys = [ST.meaning_key(n) for n in doc.params]
     assert len(keys) == len(set(keys))
@@ -331,6 +333,28 @@ def test_a_value_offered_under_any_spelling_of_the_quantity_fills_the_tables_spe
     (_n, vals), = doc.types
     assert vals[doc.params["Luminous Flux"].elem_id] == pytest.approx(3200.0)
     assert vals[doc.params["Initial Color Temperature"].elem_id] == pytest.approx(3500.0)
+
+
+@needs_schema
+def test_two_spellings_of_one_quantity_in_values_fill_it_once_and_report_the_loser():
+    """{'Lumens': .., 'Luminous Flux': ..} cannot both land on one parameter:
+    the table's own spelling wins whatever the order, else the first given;
+    the other is named in values_not_placed instead of vanishing last-wins."""
+    for given in ({"Lumens": 3200.0, "Luminous Flux": 4600.0},
+                  {"Luminous Flux": 4600.0, "Lumens": 3200.0}):
+        doc = SK.new_family_document("lighting_fixtures", "Probe")
+        doc.add_type("Probe", {})
+        rep = ST.apply(doc, "lighting_fixtures", values=given)
+        (_n, vals), = doc.types
+        assert vals[doc.params["Luminous Flux"].elem_id] == pytest.approx(4600.0)
+        assert "Luminous Flux" in rep["filled"] and rep["values_not_placed"] == ["Lumens"]
+    # neither spelling is the table's: the first given wins, the second is reported
+    doc = SK.new_family_document("lighting_fixtures", "Probe")
+    doc.add_type("Probe", {})
+    rep = ST.apply(doc, "lighting_fixtures", values={"CCT": 3500.0, "Colour Temperature": 3000.0})
+    (_n, vals), = doc.types
+    assert vals[doc.params["Initial Color Temperature"].elem_id] == pytest.approx(3500.0)
+    assert rep["values_not_placed"] == ["Colour Temperature"]
     assert "Lumens" not in doc.params and "CCT" not in doc.params
 
 
@@ -442,9 +466,9 @@ def test_every_generated_family_lists_each_quantity_once_and_the_values_still_la
         assert n in doc.params, n
         assert vals[doc.params[n].elem_id] not in (None, "", 0, 0.0), n
     # nothing the standards layer skipped was skipped for any reason but
-    # "the constructor already carries it" (by name or by meaning)
+    # "the document already carries it" (by name or by meaning)
     for s in (prod.standards or {}).get("skipped", []):
-        assert "already authored" in s["why"], s
+        assert s["why"].startswith(("already authored", "already on the document")), s
 
 
 @needs_schema

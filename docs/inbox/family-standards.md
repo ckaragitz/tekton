@@ -387,14 +387,14 @@ synonym list keeps them apart on purpose and a test pins that it does.
 |---|---|---|
 | `python -m rvt.famgen.standards --check` | `27 categories, 0 problems` | `27 categories, 34 synonym groups, 0 problems` |
 | planted duplicate (`Lumens`+`Luminous Flux`, `MountingHeight`+`Mounting Height`, `Weight`+`Operating Weight` in a probe category) | — | check reports exactly 1 problem each (`test_a_planted_duplicate_meaning_fails_the_table_check`, 3 cases) |
-| `RVT_SKIP_LARGE=1 pytest tests/test_famgen_standards.py tests/test_famgen_factory.py tests/test_rfa_load.py tests/test_place_fixtures.py tests/test_rvt_to_ifc_param_carrier.py -q -rs` | 156 passed, 5 skipped (rme/rst samples absent) | **171 passed, 5 skipped** (+15 new in `test_famgen_standards.py`, one of them from the `/simplify` pass: values fill by meaning) |
-| whole merged CI shard (`shard_list.py --print`) | — | see BRANCH STATE |
+| `RVT_SKIP_LARGE=1 pytest tests/test_famgen_standards.py tests/test_famgen_factory.py tests/test_rfa_load.py tests/test_place_fixtures.py tests/test_rvt_to_ifc_param_carrier.py -q -rs` | 156 passed, 5 skipped (rme/rst samples absent) | **172 passed, 5 skipped** (+16 new in `test_famgen_standards.py`: 14 with the change, one from the `/simplify` pass — values fill by meaning — and one from the review round — two spellings in `values` fill once, loser reported) |
+| whole merged CI shard (`shard_list.py --print`, 104 files) | — | **2182 passed, 134 skipped, 3 xfailed, 0 failed** in 602 s on `e34b517` (the reviewed head); the review-round delta (`apply()` wording + the `values` collision report, record) re-ran the five gate files: 172 passed / 5 skipped |
 | every produced `.rfa` (troffer, receptacle, transformer, panelboard, RTU generic) `tools/rvt_validate.py --family` | VALID 0 errors | **VALID 0 errors**, warnings 0 |
 | `tools/make_family.py provenance` on the same five | ok / clean | **ok / clean** |
 | `tools/route.py matrix` | 3181 bytes | **byte-identical** to a fresh `origin/main` worktree (sha256 prefix `7dae5d40eb461e9a`; nothing in famgen/standards is read by the matrix) |
 | `tools/sync_plugin.py` then `--check` | — | 3 files synced (the two mirrors + the famspec example); in sync, deny-audit clean, identity scan == allowlist |
 | `plugin/scripts/validate_plugin.py` | — | PASS, 25 assertions |
-| `tools/dev/check_portable_paths.py` | — | ok, 3012 paths |
+| `tools/dev/check_portable_paths.py` | — | ok, 3013 paths (after the rebase onto `main` @ ca74895, which added eng #624's `FAMSPEC-CAVEATS.md`; 3012 before it) |
 | `/verify` (this repo's build-and-drive recipe): `tools/make_family.py luminaire` / `device --height 18` / `transformer --kva 75` `--json` | — | exit 0 each; family-mode **VALID 0 errors**; provenance ok; `type_facts` carry `Luminous Flux` 4600 / `Initial Color Temperature` 4000, `Apparent Load` 180 / `Mounting Height` 18, `Weight` 570 / `Enclosure Rating` "NEMA 2 (indoor)"; captions read back off each `.rfa`: 23 / 13 / 24, zero meaning twins, zero legacy names |
 | bare unzip of the rebuilt `tekton-plugin.zip`, **system** `python3`, no repo on the path: `skills/tekton-author/scripts/_bootstrap.py go route.py run --rfa lum.famspec.json --output rfa` | — | preflight `tekton: READY … 0.067s`, job 1.36 s, exit 0, result `OK (… validator family-mode VALID 0 errors; provenance ok=True)`; the delivered `troffer_2x4_recessed.rfa` reads back 23 captions, zero twins, `Luminous Flux` + `Initial Color Temperature` present |
 
@@ -428,6 +428,12 @@ carries that one common quantity under its kept legacy name.
 - The synonym list is a hand list; a spelling it does not know is compared by folding only.
   The check is a floor, not an oracle — a new pair it misses is one row away from being caught.
 
+## Review round (tech-lead verdict on e34b517: 🟡 nits, all four judgment calls accepted)
+
+- Applied: (2) two spellings of one quantity in `standard_values` (`{"Lumens": …, "Luminous Flux": …}`) no longer collapse last-wins silently — the table's own spelling wins, else the first given, and the loser is named in `values_not_placed` (pinned by `test_two_spellings_of_one_quantity_in_values_fill_it_once_and_report_the_loser`); (3) the by-meaning skip now reads `already on the document as '<name>' (the same quantity)` because the carrier may be a caller's text parameter, not the constructor's — the by-name skip keeps `already authored by the constructor`.
+- Kept as is, noted: (4) the `ShortCircuitRatingkA` synonym row lists `AIC Rating` beside `SCCR`. Strictly, AIC is a protective device's interrupting capacity and SCCR the assembly's withstand rating; on a panelboard/switchboard *family* they are quoted as the one kA figure a user schedules, so the row treats them as one slot rather than authoring both — a category that genuinely needs the two apart drops `AIC Rating` from the row and the check stays green.
+- Mechanical: rebased onto `main` @ ca74895; the record conflict with eng #624's section resolved by keeping both (theirs as landed, then this one); the doubled `---` before this section is gone.
+
 ## Follow-ups filed
 
 - **#630** — transformer weight as `Operating Weight` (mass) with a verified lb → mass path; retires the kept exception.
@@ -435,13 +441,14 @@ carries that one common quantity under its kept legacy name.
 
 ## BRANCH STATE
 
-Branch `cam/622-standards-dedup` from `main` @ dcda26e.
+Branch `cam/622-standards-dedup`, cut from `main` @ dcda26e, rebased onto `main` @ ca74895 for the review round
+(the only conflict was this file: eng #624's section had landed at the same EOF — kept as landed, this section after it).
 
 Files written: `src/rvt/famgen/standards.py` (synonym vocabulary, `meaning_key`, `_without`,
 transformer row, `apply` guard, `check_specs` rule 5, `--check` line, docstring),
 `src/rvt/famgen/factory.py` (luminaire `Lumens`/`Color Temperature`, device `Load`/`MountingHeight`
 + its connector binding / docstring / note / one comment, transformer `Enclosure` — the
-legacy-name lines only), `tests/test_famgen_standards.py` (+15 tests, one law restated over
+legacy-name lines only), `tests/test_famgen_standards.py` (+16 tests, one law restated over
 meaning keys), `tests/test_famgen_factory.py` (5 caption expectations), `spec/famspec.schema.json`
 (one description string), mirrors via `tools/sync_plugin.py` (`plugin/lib/src/rvt/famgen/{standards,factory}.py`,
 `plugin/skills/tekton-native/examples/famspec.schema.json`), this section.

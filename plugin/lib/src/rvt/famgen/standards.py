@@ -859,20 +859,38 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
     (:func:`meaning_key`, #622: a constructor's or a caller's ``Lumens``) -- is
     left exactly as it was made and reported as skipped, naming the spelling
     that carries it; this never redefines a parameter and never adds a blank
-    twin.
+    twin.  Two spellings of one quantity in ``values`` fill it once (the
+    table's spelling wins, else the first given) and the other is listed in
+    ``values_not_placed``.
 
     Returns the report: what was authored, what was skipped and why, and the
     category's note.  Never raises for a merely unknown category (hard rule 1:
     a family still gets built and delivered).
     """
     rep = describe(category)
-    vals = {meaning_key(k): (str(k), v) for k, v in (values or {}).items()}
+    rows = standard_params(category)
+    table_names = {p.name for p in rows}
+    # meaning -> (the caller's spelling, value).  Two spellings of ONE quantity
+    # in ``values`` ({"Lumens": .., "Luminous Flux": ..}) cannot both land: the
+    # table's own spelling wins, else the first given; the loser is reported in
+    # ``values_not_placed`` -- nothing vanishes unannounced.
+    vals: Dict[str, Tuple[str, Any]] = {}
+    shadowed: List[str] = []
+    for k, v in (values or {}).items():
+        name, mk = str(k), meaning_key(k)
+        if mk not in vals:
+            vals[mk] = (name, v)
+        elif name in table_names and vals[mk][0] not in table_names:
+            shadowed.append(vals[mk][0])
+            vals[mk] = (name, v)
+        else:
+            shadowed.append(name)
     skipped: List[Dict[str, str]] = []
     authored: List[Dict[str, Any]] = []
     if doc.finalized:
         raise ValueError("document is finalized; apply standards before finalize")
     present = {meaning_key(n): n for n in doc.params}    # meaning -> the spelling carrying it
-    for p in standard_params(category):
+    for p in rows:
         if not p.authored:
             continue
         if p.name in skip:
@@ -884,8 +902,11 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
         mk = meaning_key(p.name)
         twin = present.get(mk)
         if twin is not None:
+            # by name it is the constructor's own parameter; by meaning it may be
+            # a constructor's OR a caller's text parameter -- say what is there
             skipped.append({"name": p.name, "why": "already authored by the constructor"
-                            + ("" if twin == p.name else f" as {twin!r} (the same quantity)")})
+                            if twin == p.name else
+                            f"already on the document as {twin!r} (the same quantity)"})
             continue
         try:
             val = vals[mk][1] if mk in vals else _blank(p.spec)
@@ -903,7 +924,8 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
     rep["skipped"] = skipped
     rep["filled"] = sorted(a["name"] for a in authored if a["value"] == "given")
     filled_keys = {meaning_key(n) for n in rep["filled"]}
-    unknown = sorted(name for mk, (name, _v) in vals.items() if mk not in filled_keys)
+    unknown = sorted([name for mk, (name, _v) in vals.items() if mk not in filled_keys]
+                     + shadowed)
     if unknown:
         rep["values_not_placed"] = unknown
     doc.notes.append(
