@@ -192,7 +192,9 @@ def test_a_path_changed_on_both_sides_is_stale(rig):
     ({"src/pkg/__init__.py": "from .low import LOW\n", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": "from pkg import LOW\n"},
      "PR 9's src/user.py imports pkg, on one import chain with pkg.low (src/pkg/low.py), changed on main"),   # ...a façade import names the whole package
     ({"tools/t.py": "T = 1\n"}, {"tests/test_t.py": 'from conftest import load_tool\nT = load_tool("t")\n'},
-     "PR 9's tests/test_t.py names tools/t.py, changed on main"),                                      # loaded by bare name, not imported
+     "PR 9's tests/test_t.py imports t (tools/t.py), changed on main"),                                # loaded by bare literal name = an import of that module
+    ({"tools/t.py": "T = 1\n"}, {"tests/test_run.py": 'import subprocess, sys\nR = subprocess.run([sys.executable, "tools/t.py", "--check"])\n'},
+     "PR 9's tests/test_run.py names tools/t.py, changed on main"),                                    # named as a path (a subprocess), not imported: the name scan
     ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": "from pkg import high, \\\n    low\n"},
      "PR 9's src/user.py imports pkg.low (src/pkg/low.py), changed on main"),                          # a backslash-continued list is read whole (ast) -- c3
     ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": "import os; from pkg import low\nif os.sep:\n    pass\n"},
@@ -213,6 +215,24 @@ def test_a_path_changed_on_both_sides_is_stale(rig):
      "PR 9's tests/test_spec.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),   # spec_from_file_location's PATH argument counts -- j5
     ({"tools/t.py": "T = 1\n"}, {"tests/test_spec.py": 'import importlib.util, os\nS = importlib.util.spec_from_file_location("mod", os.path.join(ROOT, "tools", "t.py"))\n'},
      "PR 9's tests/test_spec.py builds or discovers names at run time (\"tools/t.py…\") that can reach tools/t.py, changed on main"),   # ...narrowed to the path its literal pieces spell
+    ({"plugin/skills/tekton-author/scripts/rvt_inspect.py": "I = 1\n"},
+     {"tests/test_walk.py": 'import glob, os\nfor skill in SKILLS:\n    G = glob.glob(os.path.join(ROOT, "plugin", "skills", skill, "scripts", "*.py"))\n'},
+     "PR 9's tests/test_walk.py builds or discovers names at run time (\"plugin/skills…\") that can reach plugin/skills/tekton-author/scripts/rvt_inspect.py, changed on main"),   # the piece run stops at the first non-literal argument, never joins across it (round 2, F1)
+    ({"plugin/skills/tekton-author/scripts/rvt_inspect.py": "I = 1\n"},
+     {"tests/test_walk.py": 'from pathlib import Path\nG = sorted(Path(ROOT, "plugin", "skills").rglob("*.py"))\n'},
+     "PR 9's tests/test_walk.py builds or discovers names at run time (\"plugin/skills…\") that can reach plugin/skills/tekton-author/scripts/rvt_inspect.py, changed on main"),   # a walker's receiver spells the start
+    ({"src/pkg/__init__.py": "from .low import LOW\n", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": 'import importlib\nP = importlib.import_module("pkg")\n'},
+     "PR 9's src/user.py imports pkg, on one import chain with pkg.low (src/pkg/low.py), changed on main"),          # a literal loader argument is judged like an import statement, façade and all (F3)...
+    ({"src/pkg/__init__.py": "from .low import LOW\n", "src/pkg/low.py": "LOW = 1\n"}, {"tests/test_p.py": 'import pytest\npkg = pytest.importorskip("pkg")\n'},
+     "PR 9's tests/test_p.py imports pkg, on one import chain with pkg.low (src/pkg/low.py), changed on main"),      # ...importorskip included
+    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"tests/test_p.py": 'import pkgutil\nimport pkg\nM = [m.name for m in pkgutil.iter_modules(PATHS)]\n'},
+     "PR 9's tests/test_p.py builds or discovers names at run time (\"…\") that can reach src/pkg/low.py, changed on main"),   # module walks are walks (F4)...
+    ({"tools/t.py": "T = 1\n"}, {"tests/test_sweep.py": 'import subprocess\nNAMES = subprocess.run(["git", "ls-files", "-z"], capture_output=True).stdout\n'},
+     "PR 9's tests/test_sweep.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),   # ...and so is a `git ls-files` sweep driven from a test
+    ({"tools/t.py": "T = 1\n"}, {"tests/test_alias.py": 'from glob import glob as every\nG = every(PATTERN)\n'},
+     "PR 9's tests/test_alias.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),   # an aliased walker counts...
+    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nload = getattr(importlib, "import_module")\nM = load(NAME)\n'},
+     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),           # ...and a loader fetched with getattr reaches everything
 ])
 def test_disjoint_but_coupled_changes_are_stale(rig, main_files, pr_files, reason):
     head = rig.pr(9, dict(PR_ADDS, **pr_files))
@@ -228,7 +248,10 @@ def test_disjoint_but_coupled_changes_are_stale(rig, main_files, pr_files, reaso
     ({"src/a.py": "A = 2\n"}, {"tests/ci_shard.d/README": "words\n"}, "PR 10 changes tests/ci_shard.d/README, shard machinery"),
     ({"src/a.py": "A = 2\n"}, {"docs/coverage/viewer-certified.json": '{"x": 1}\n'}, "PR 10 changes docs/coverage/viewer-certified.json, a docs file the shard reads (SHARD_READS)"),
     ({"src/a.py": "A = 2\n"}, {"tests/ci_shard.d/10-x.txt": "tests/test_old.py\n"}, "PR 10's tests/ci_shard.d/10-x.txt enrols tests/test_old.py, a test PR 10 does not change (never run with the other side's change)"),
-    ({"src/a.py": "A = 2\n"}, {"tests/pyproject.toml": "[tool.pytest.ini_options]\n"}, "PR 10 changes tests/pyproject.toml, a file pytest or the interpreter picks up by name, wherever it lies"),   # a nested inifile -- e4
+    ({"src/a.py": "A = 2\n"}, {"tests/pyproject.toml": "[tool.pytest.ini_options]\n"}, "PR 10 changes tests/pyproject.toml, a file pytest or the interpreter picks up by name, wherever it lies"),   # a nested inifile -- e4...
+    ({"tests/pytest.toml": "[pytest]\n"}, {}, "main changes tests/pytest.toml, a file pytest or the interpreter picks up by name, wherever it lies"),                                # ...pytest 9 reads [.]pytest.toml / .pytest.ini AHEAD of pyproject (round 2, F2)
+    ({"src/a.py": "A = 2\n"}, {"tests/.pytest.toml": "[pytest]\n"}, "PR 10 changes tests/.pytest.toml, a file pytest or the interpreter picks up by name, wherever it lies"),
+    ({"tests/sub/.pytest.ini": "[pytest]\n"}, {}, "main changes tests/sub/.pytest.ini, a file pytest or the interpreter picks up by name, wherever it lies"),
     ({"src/a.py": "A = 2\n"}, {"tests/sub/__init__.py": ""}, "PR 10 changes tests/sub/__init__.py, a file pytest or the interpreter picks up by name, wherever it lies"),                     # rootdir/package discovery -- e5
     ({"tools/sitecustomize.py": "import os\n"}, {}, "main changes tools/sitecustomize.py, a file pytest or the interpreter picks up by name, wherever it lies"),
 ])

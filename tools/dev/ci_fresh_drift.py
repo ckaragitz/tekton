@@ -17,8 +17,8 @@ that does not hold is the STALE reason:
      nobody: STALE), was ADDED or MODIFIED (a deletion, rename or type change can be felt through a name computed at
      run time -- load_tool("genesis_%d" % year) -- so it is re-run, never argued), is at most BLOB_LIMIT bytes, and
      there are at most LIMIT of them per side;
-  3. neither side touches a GATE: the shard machinery (conftest -- any conftest.py, pytest.ini, pyproject.toml & co.
-     wherever they lie, any __init__.py under tests/ -- the shard list and its reader, session_ci, this judge and its
+  3. neither side touches a GATE: the shard machinery (conftest -- any conftest.py, [.]pytest.ini, [.]pytest.toml,
+     pyproject.toml & co. wherever they lie, any __init__.py under tests/ -- the shard list and its reader, session_ci, this judge and its
      caller, the portable-paths law, the setup script), a whole-tree checker session_ci.sh runs or its law data
      (sync_plugin and its identity allowlist, validate_plugin, the tests that sweep the tree with them, the pinned assets
      and manifests), or a docs file the shard reads (SHARD_READS, handed in by ci_fresh.sh from its one line); a shard
@@ -34,21 +34,28 @@ that does not hold is the STALE reason:
      either tree, so façade re-exports are covered), plus a line-regex reading of the same statements as a backstop;
      (b) no changed text file of one side NAMES a path the other side changed (repo-relative path, basename, dotted
      module name; for tools/, tests/ and scripts/ files also the bare stem as a word: load_tool("x"), `python
-     tools/x.py`, `-m x`); (c) no changed .py file of one side BUILDS or DISCOVERS names that can reach a path the other
-     side changed: a loader call (import_module / __import__ / load_tool / spec_from_file_location -- name AND path --
-     / run_path / run_module) whose deciding arguments are not plain string literals, and any directory walk (glob /
-     iglob / rglob / listdir / scandir / walk / iterdir), reaches EVERYTHING the other side changed -- narrowed only
-     when the call itself spells a literal repo prefix (a tracked top-level directory: os.path.join(ROOT, "tools",
-     "x.py") -> tools/x.py; or the rvt. namespace: import_module(f"rvt.mep.{mod}") -> rvt.mep.) to the changed paths
-     that prefix begins; a templated literal anywhere in the file that looks like a module or repo path
-     (f"rvt.genesis.port{year}", "tools/%s.py") reaches what its literal prefix begins, or everything when that prefix
-     is not such a repo prefix ("genesis_%d", f"{tool}.py");
+     tools/x.py`, `-m x`); (c) no changed .py file of one side LOADS, BUILDS or DISCOVERS names that can reach a path
+     the other side changed, read from the ast: a loader call (import_module / __import__ / importorskip / load_tool /
+     run_path / run_module, and spec_from_file_location's PATH) on a plain string literal names that module exactly as
+     an import statement would (façade re-exports included); on anything else -- a variable, a join, an f-string --
+     it, like every directory or module walk (glob / iglob / rglob / listdir / scandir / walk / fwalk / iterdir /
+     pkgutil.iter_modules / walk_packages, a `git ls-files` / `ls-tree` sweep), reaches EVERYTHING the other side
+     changed, narrowed only when the call itself spells a literal repo prefix: the run of literal pieces after ROOT/HERE
+     up to the first non-literal argument or wildcard, never across one (os.path.join(ROOT, "tools", "x.py") ->
+     tools/x.py; (ROOT, "plugin", "skills", skill, "scripts") -> plugin/skills; import_module(f"rvt.mep.{mod}") ->
+     rvt.mep.), kept only when it starts at a tracked top-level directory of either tree or in the rvt. namespace;
+     loaders and walkers reached through an alias (`from glob import glob as g`, `im = importlib.import_module`) count,
+     one fetched with getattr or spelled some way the ast does not see as a call reaches everything; a templated
+     literal anywhere in the file that looks like a module or repo path (f"rvt.genesis.port{year}", "tools/%s.py")
+     reaches what its literal head spells under the same law, or everything ("genesis_%d", f"{tool}.py");
   6. clean: `git merge-tree --write-tree N H` (git >= 2.38: the merge happens in the object store -- no checkout, no
      worktree; older git cannot judge) reports no conflict, and the merged tree's full name list still passes
      tools/dev/check_portable_paths.py's own check() (a case-only twin across the two sides merges "cleanly" in git).
 Unjudged, stated: coupling THROUGH an unchanged third file (main changes rvt.x; the PR changes a caller of rvt.y;
-rvt.y uses rvt.x); names assembled at run time by plain concatenation or os.path.join pieces with no loader or walk
-call in the changed file itself; references living in files neither side changed. Both parents were green with their
+rvt.y uses rvt.x); names assembled at run time by plain concatenation or os.path.join pieces and handed to open(),
+subprocess or exec with no loader or walk call in the changed file itself; a loader smuggled past both the ast and the
+token backstop (exec of an encoded string -- review, not this judge, is the boundary against a hostile PR); references
+living in files neither side changed. Both parents were green with their
 own change in place; the rule bets that a semantic collision between file-disjoint, import-disjoint, name-disjoint
 changes is rarer than a re-run is cheap -- and everything it CAN see wrong is STALE. (An exact alternative -- refuse
 whenever the two changes share one test's import cone -- was measured and rejected for now: tests/conftest.py imports
@@ -78,23 +85,26 @@ GATES = {"tests/conftest.py", "tests/ci_shard.txt", "tools/dev/shard_list.py", "
          "tests/test_plugin_sync.py", "tests/test_plugin_validate.py", "tests/test_ci_fresh.py", "tests/test_shard_list.py",  # data, and the tests that
          "tests/test_portable_paths.py"}                                                                                     # sweep the tree with them
 GATE_DIRS = ("plugin/assets/", "src/rvt/frontdoor/assets/", "plugin/lib/src/rvt/frontdoor/assets/", "plugin/.claude-plugin/")   # pinned bases, manifests
-RUNNER_FILES = {"conftest.py", "pytest.ini", "pyproject.toml", "tox.ini", "setup.cfg", "setup.py", "sitecustomize.py", "usercustomize.py"}   # picked up by name, in ANY directory
+RUNNER_FILES = {"conftest.py", "pytest.ini", ".pytest.ini", "pytest.toml", ".pytest.toml", "pyproject.toml", "tox.ini", "setup.cfg", "setup.py",   # picked up by name, in ANY directory
+                "sitecustomize.py", "usercustomize.py"}                                                                        # (pytest 9 reads [.]pytest.toml/.ini ahead of pyproject)
 REGULAR = (b"100644", b"100755")                                # git modes of a regular file; 120000 (symlink) and 160000 (gitlink) are not argued about
 SHA = re.compile(r"[0-9a-f]{40}")
 PLAIN = re.compile(r"^[A-Za-z0-9_./+-]+$")                       # a name this judge argues about (git quotes most others anyway)
 IMPORT = re.compile(r"^[ \t]*(?:from[ \t]+([.\w]+)[ \t]+import[ \t]+([^#\n]*)|import[ \t]+([^#\n]*))", re.M)   # the line-regex backstop to the ast reading
 ALIAS = re.compile(r"([A-Za-z_][\w.]*)(?:[ \t]+as[ \t]+\w+)?")     # one item of an import list
-# Calls that load code by name/path or discover files: unless their deciding arguments are plain string literals, the
-# names they produce are BUILT at run time (rule 5c). Group 1 = the callee, so spec_from_file_location can demand two literals.
-BUILDER = re.compile(r"\b(import_module|__import__|load_tool|spec_from_file_location|run_path|run_module|i?glob|rglob|listdir|scandir|walk|iterdir)\s*\(")
-LOADERS = {"import_module", "__import__", "load_tool", "spec_from_file_location", "run_path", "run_module"}   # the BUILDER callees that load (the rest discover)
-LITERAL_ARG = re.compile(r"""\s*['"]([\w./-]+)['"]\s*([,)])""")   # one plain string-literal argument and what follows it
-PIECE = re.compile(r"""[fF]?[rRbB]{0,2}['"]([\w./*?-]*)['"%{]""")   # the literal head of a string (up to its end, a %-conversion or an f-field)
+# Calls that LOAD code by name/path, and calls that DISCOVER files or modules (rule 5c). They are read from the ast: a
+# loader whose deciding arguments are plain string literals names a module (judged like an import statement); every
+# other loader call, and every discovery call, BUILDS names whose reach is the literal repo prefix its own arguments spell
+# (or everything). The regex is the backstop: a callee token the ast did not account for as a call reaches everything.
+LOADERS = {"import_module", "__import__", "importorskip", "load_tool", "spec_from_file_location", "run_path", "run_module"}
+WALKERS = {"glob", "iglob", "rglob", "listdir", "scandir", "walk", "fwalk", "iterdir", "iter_modules", "walk_packages"}
+BUILDER = re.compile(r"\b(%s)\s*\(" % "|".join(sorted(LOADERS | WALKERS, key=len, reverse=True)))
+GIT_WALK = re.compile(r"\bls-(?:files|tree)\b")                     # `git ls-files` / `ls-tree` driven from a .py: this repo's own whole-tree sweep idiom
 # A templated literal that looks like a module or repo path: quote to quote with no blank inside (a name has none; a
 # message -- f"tools/x.py not found at {p}" -- has), bounded so a quote-poor megabyte line costs O(n), holding a
 # %-conversion or an f-string field. Output paths ("out/%s.rvt") do not look like one and stay unflagged.
 QUOTED = re.compile(r"""[fF]?[rRbB]{0,2}['"]([^'"\s]{2,240})['"]""")
-LOOKS_LIKE_NAME = re.compile(r"\brvt\.|\.py$|\.py\b|^(?:tools|tests|src|plugin|skills)/|\btest_|\bgenesis_")
+LOOKS_LIKE_NAME = re.compile(r"\brvt\.|\.py\b|\btest_|\bgenesis_")           # ...or starts at a tracked top-level directory (checked against the live tree)
 FIELD = re.compile(r"%[-+0-9.]*[sdixr]|\{[\w.\[\]!:]*\}")
 PY_ROOTS = ("plugin/lib/src/", "plugin/lib/tools/", "src/", "tests/", "tools/")   # stripped to get a file's importable dotted name
 BY_STEM = ("tools/", "tests/", "plugin/lib/tools/")                # .py files there (and under any scripts/) are also loaded by bare name
@@ -178,15 +188,17 @@ def blobs(side_label, tip, paths):
     out = {}
     if not paths:
         return out
-    buf, i = git("cat-file", "--batch", stdin="".join("%s:%s\n" % (tip, q) for q in paths).encode()).stdout, 0
+    ask = "".join("%s:%s\n" % (tip, q) for q in paths).encode()
+    for q, line in zip(paths, git("cat-file", "--batch-check", stdin=ask).stdout.splitlines()):   # sizes first: a dump is refused before it is read
+        head = line.split()
+        if len(head) != 3 or head[1] != b"blob":
+            raise CannotJudge("%s:%s is not a blob (%s)" % (tip[:12], q, line.decode("utf-8", "replace")[:60]))
+        if int(head[2]) > BLOB_LIMIT:
+            raise Stale("%s's %s is %s bytes, over the %d this judge reads" % (side_label, q, head[2].decode(), BLOB_LIMIT))
+    buf, i = git("cat-file", "--batch", stdin=ask).stdout, 0
     for q in paths:
         nl = buf.index(b"\n", i)
-        head = buf[i:nl].split()
-        if len(head) != 3 or head[1] != b"blob":
-            raise CannotJudge("%s:%s is not a blob (%s)" % (tip[:12], q, buf[i:nl].decode("utf-8", "replace")[:60]))
-        size = int(head[2])
-        if size > BLOB_LIMIT:
-            raise Stale("%s's %s is %d bytes, over the %d this judge reads" % (side_label, q, size, BLOB_LIMIT))
+        size = int(buf[i:nl].split()[2])
         out[q] = buf[nl + 1:nl + 1 + size].decode("utf-8", "replace")
         i = nl + 1 + size + 1
     return out
@@ -228,17 +240,20 @@ def import_items(text):
     return [m.group(1) for m in matches] if matches and all(matches) else None
 
 
-def imports(path, text, modules):
-    """Every module name a .py file's import statements name, absolute (relative ones resolved against the file's own
-    dotted name). Read twice and united: with ast over the whole file (every statement wherever it sits -- inline
-    suites, `;` chains, backslash or parenthesised continuations, function bodies; a file that does not parse cannot be
-    read, so it is STALE), and with a line regex as a backstop. `from X import a, b`: an item that is a module of either
-    tree (`modules`) names X.a; any other item (a re-exported attribute) or a `*` names the package X itself -- which
-    related() then couples to EVERY changed module under X."""
+def parse(path, text):
+    """The ast of a changed .py blob (data: parsed, never compiled to run). A file that does not parse cannot be read: STALE."""
     try:
-        tree = ast.parse(text, path)
+        return ast.parse(text, path)
     except (SyntaxError, ValueError, RecursionError, MemoryError) as e:
-        raise Stale("%s does not parse, so its imports cannot be read (%s: %s)" % (path, type(e).__name__, str(e).splitlines()[0][:80] if str(e) else "-"))
+        raise Stale("%s does not parse, so its imports and calls cannot be read (%s: %s)" % (path, type(e).__name__, str(e).splitlines()[0][:80] if str(e) else "-"))
+
+
+def imports(path, tree, text, modules):
+    """Every module name a .py file's import statements name, absolute (relative ones resolved against the file's own
+    dotted name). Read twice and united: from the ast (every statement wherever it sits -- inline suites, `;` chains,
+    backslash or parenthesised continuations, function bodies), and with a line regex as a backstop. `from X import a,
+    b`: an item that is a module of either tree (`modules`) names X.a; any other item (a re-exported attribute) or a `*`
+    names the package X itself -- which related() then couples to EVERY changed module under X."""
     found = []                                                   # (absolute package/module, [item names] or None for a plain `import`)
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -277,49 +292,103 @@ def names_of(path):
     return dotted, names
 
 
-def call_args(text, start, limit=400):
-    """The argument text of the call whose `(` ends just before `start`, up to its matching `)` (or `limit` chars)."""
-    depth, i = 1, start
-    while i < len(text) and i - start < limit:
-        c = text[i]
-        depth += (c == "(") - (c == ")")
-        i += 1
-        if not depth:
-            break
-    return text[start:i]                                         # the closing `)` included when it was found
+def callee(node):
+    """The bare name a Call invokes (`glob`, `import_module`, …) or ''."""
+    f = node.func
+    return f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else ""
 
 
-def repo_prefix(pieces, tops):
-    """The literal path/module prefix a call or template spells, or '' (= reaches everything): the leading plain pieces
-    joined with '/', kept only when they start at a tracked top-level directory or in the rvt. namespace -- a piece
-    from the middle of an os.path.join (base, "gen", name) proves nothing about where the walk starts."""
+def literal(node):
+    return node.value if isinstance(node, ast.Constant) and isinstance(node.value, str) else None
+
+
+def pieces(node):
+    """A path/name expression flattened left to right into literal pieces (str) and gaps (None = not a literal): string
+    constants (cut at a %-conversion or f-field, which opens a gap), f-strings, `+` / `/` / `%` chains, and the
+    arguments of any call inside it (os.path.join(ROOT, "tools", name), Path(ROOT, "tests")) after a gap for the callee."""
+    text = literal(node)
+    if text is not None:
+        head = FIELD.split(text, maxsplit=1)[0]
+        return [head, None] if head != text else [text]
+    if isinstance(node, ast.JoinedStr):
+        return [x for part in node.values for x in (pieces(part) if isinstance(part, ast.Constant) else [None])]
+    if isinstance(node, ast.BinOp) and isinstance(node.op, (ast.Add, ast.Div, ast.Mod)):
+        return pieces(node.left) + ([None] if isinstance(node.op, ast.Mod) else pieces(node.right))
+    if isinstance(node, ast.Call):
+        return [None] + [x for arg in [*node.args, *(k.value for k in node.keywords)] for x in pieces(arg)]
+    return [None]
+
+
+def run_prefix(elements, tops):
+    """The literal repo prefix a flattened expression spells, or '' (= reaches everything): leading gaps skipped (ROOT,
+    HERE, the callee), then the run of literal pieces up to the FIRST gap or wildcard -- never across one: (ROOT,
+    "plugin", "skills", skill, "scripts") spells plugin/skills, not plugin/skills/scripts -- joined with '/', and kept
+    only when it starts at a tracked top-level directory of either tree or in the rvt. namespace (a run that starts
+    anywhere else proves nothing about where the walk begins)."""
     lead = []
-    for piece in pieces:
-        literal = re.split(r"[*?\[]", piece, maxsplit=1)[0]      # a glob pattern counts up to its first wildcard
-        if not literal or literal.startswith((".", "/")):
+    for element in elements:
+        if element is None:
+            if lead:
+                break                                            # the run ends at the first gap after it started...
+            continue                                             # ...gaps before it (ROOT, HERE, the callee) are skipped
+        head = re.split(r"[*?\[]", element, maxsplit=1)[0]       # a glob pattern counts up to its first wildcard
+        clean = head.strip("/")
+        if not clean or clean.startswith("."):                   # "", "/", "./x", "..": nothing certain from here on
             break
-        lead.append(literal.strip("/"))
-        if literal != piece:
-            break
+        lead.append(clean)
+        if head != element:
+            break                                                # the wildcard ended the run inside this piece
     prefix = "/".join(lead)
     return prefix if prefix and (prefix.split("/", 1)[0] in tops or prefix.startswith("rvt.")) else ""
 
 
-def builds(text, tops):
-    """The literal prefixes of the names a .py text BUILDS or DISCOVERS at run time (rule 5c); '' among them = anything."""
-    prefixes = set()
-    for call in BUILDER.finditer(text):
-        args = call_args(text, call.end())
-        loader, first = call.group(1) in LOADERS, LITERAL_ARG.match(args)
-        if loader and first and (first.group(2) == ")" or call.group(1) != "spec_from_file_location" or LITERAL_ARG.match(args, first.end())):
-            continue                                             # plain literals: the needle scan reads them
-        skip = first.end() if first and call.group(1) == "spec_from_file_location" else 0   # its NAME argument says nothing about the PATH being built
-        prefixes.add(repo_prefix(PIECE.findall(args, skip), tops))
-    for m in QUOTED.finditer(text):
+def builds(tree, text, tops):
+    """(the literal prefixes of the names a .py file BUILDS or DISCOVERS at run time -- '' among them = anything --,
+    the modules its loader calls name by plain literal), rule 5c. Loaders: import_module("pkg") & co. with literal
+    deciding arguments name "pkg" like an import statement would (façades included, via related()); any other loader
+    call builds from its name/path expression. Walkers (glob & co., pkgutil, os.[f]walk, Path().iterdir/rglob) build
+    from receiver + arguments. Backstops: a callee token the ast saw fewer times as a call than the text spells it, and
+    any `ls-files`/`ls-tree` token (a git-driven sweep), reach everything. Templated literals elsewhere in the file that
+    look like a module or repo path reach what their literal head spells under the same prefix law."""
+    prefixes, named, seen, alias = set(), set(), collections.Counter(), {}
+    nodes = list(ast.walk(tree))
+    for node in nodes:                                           # first: the names a loader/walker goes by in THIS file
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            alias.update((a.asname, a.name.rsplit(".", 1)[-1]) for a in node.names if a.asname and a.name.rsplit(".", 1)[-1] in LOADERS | WALKERS)   # from glob import glob as g
+        elif isinstance(node, ast.Assign) and isinstance(node.value, (ast.Name, ast.Attribute)):
+            was = ast.Call(func=node.value, args=[], keywords=[])
+            if alias.get(callee(was), callee(was)) in LOADERS | WALKERS:
+                alias.update((t.id, alias.get(callee(was), callee(was))) for t in node.targets if isinstance(t, ast.Name))   # im = importlib.import_module
+        elif isinstance(node, ast.Call) and callee(node) == "getattr" and any(literal(a) in LOADERS | WALKERS for a in node.args[1:2]):
+            prefixes.add("")                                     # a loader fetched reflectively: anything
+    for node in nodes:
+        if not isinstance(node, ast.Call):
+            continue
+        name = alias.get(callee(node), callee(node))
+        if name in LOADERS:
+            seen[name] += 1
+            if name == "spec_from_file_location":                # its PATH decides what is loaded; the name argument says nothing
+                arg = node.args[1] if len(node.args) > 1 else next((k.value for k in node.keywords if k.arg == "location"), None)
+                if arg is not None and literal(arg) is not None:
+                    continue                                     # a literal path: the needle scan reads it
+            else:
+                arg = node.args[0] if node.args else next((k.value for k in node.keywords), None)
+                if arg is not None and literal(arg) is not None:
+                    named.add(literal(arg).replace("/", "."))    # import_module("pkg") names pkg like `import pkg`; load_tool("dev/x") -> dev.x
+                    continue
+            prefixes.add(run_prefix(pieces(arg), tops) if arg is not None else "")   # no visible argument (*args, a bare spec): anything
+        elif name in WALKERS:
+            seen[name] += 1
+            receiver = pieces(node.func.value) if isinstance(node.func, ast.Attribute) else []
+            prefixes.add(run_prefix(receiver + [x for arg in [*node.args, *(k.value for k in node.keywords)] for x in pieces(arg)], tops))
+    spelled = collections.Counter(m.group(1) for m in BUILDER.finditer(text))
+    if any(spelled[n] > seen[n] for n in spelled) or GIT_WALK.search(text):
+        prefixes.add("")                                         # called some way the ast did not classify (getattr, alias, exec'd text), or a git sweep
+    for m in QUOTED.finditer(text):                             # templated literals anywhere: "tools/%s.py", f"rvt.genesis.port{year}", "genesis_%d"
         body = m.group(1)
-        if FIELD.search(body) and LOOKS_LIKE_NAME.search(body):
-            prefixes.add(repo_prefix([re.split(r"%|\{", body, maxsplit=1)[0]], tops))
-    return prefixes
+        if FIELD.search(body) and (LOOKS_LIKE_NAME.search(body) or body.split("/", 1)[0] in tops):
+            prefixes.add(run_prefix(pieces(ast.Constant(body)), tops))
+    return prefixes, named
 
 
 def coupling(x, y, modules, tops):
@@ -334,11 +403,13 @@ def coupling(x, y, modules, tops):
     for f in x.files:
         text = x.texts[f]
         if f.endswith(".py"):
-            for prefix in sorted(builds(text, tops)):            # a name built or discovered at run time reaches every changed path its literal prefix allows
+            tree = parse(f, text)
+            prefixes, loaded = builds(tree, text, tops)
+            for prefix in sorted(prefixes):                      # a name built or discovered at run time reaches every changed path its literal prefix allows
                 hit = next((q for q, _, names in targets if any(n.startswith(prefix) for n in names)), None)
                 if hit:
                     return "%s's %s builds or discovers names at run time (\"%s…\") that can reach %s, changed on %s" % (x.label, f, prefix[:40], hit, y.label)
-            named = sorted(imports(f, text, modules))
+            named = sorted(imports(f, tree, text, modules) | loaded)
             for q, dotted, _ in targets:
                 hit = (dotted if dotted in named else next((i for i in named if related(i, dotted)), None)) if dotted else None
                 if hit:

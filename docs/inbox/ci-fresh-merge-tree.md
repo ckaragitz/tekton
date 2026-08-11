@@ -290,6 +290,45 @@ the scratch clone (`origin` = a bare copy whose `main` is moved to the historica
 == opt-in, "head": "HEAD" in the JSON:  STALE was=# now=# changed=…same… (the recorded head 'HEAD' is not a 40-hex commit id) -> re-run tools/dev/session_ci.sh 578   exit=4
 ```
 
+## Fix round 2 — delta review of `cc6ae80` (default path confirmed exact; the opt-in judge still had holes), same session
+
+The reviewer confirmed the standing gate byte-identical against `origin/main`'s script in the same rig, docs-only
+unchanged, fixes 0/1/3/5/6/7/8 by code + rigs — and found four more false-FRESH shapes inside the OPT-IN judge (the
+merger's own bar stays "no false FRESH"). All four fixed, each a red→green row under `CI_FRESH_JUDGE=1`; two nits taken:
+
+- **F1 (blocking) — the piece run never crosses a gap.** Loader/walker calls are now read from the ast, not a text
+  window: a call's name/path expression is flattened left to right into literal pieces and gaps (constants cut at a
+  `%`/f-field, f-strings, `+` `/` `%` chains, the arguments of an inner `os.path.join(…)` / `Path(…)` after a gap for
+  its callee, a walker's receiver first); leading gaps (ROOT, HERE, the callee) are skipped and the run ends at the FIRST
+  gap or wildcard after it started. `glob(os.path.join(ROOT, "plugin", "skills", skill, "scripts", "*.py"))` now spells
+  `plugin/skills` (reaches everything under it) instead of the fabricated `plugin/skills/scripts` that matched nothing;
+  the wildcard control and `Path(ROOT, "plugin", "skills").rglob("*.py")` spell the same. Rows: both shapes vs main
+  changing `plugin/skills/tekton-author/scripts/rvt_inspect.py`.
+- **F2 (blocking) — pytest 9's other inifiles.** `pytest.toml`, `.pytest.toml`, `.pytest.ini` joined `RUNNER_FILES` (any
+  depth; pytest reads them ahead of `pyproject.toml`); rows for all three next to e4.
+- **F3 — a literal loader argument is an import.** `import_module("pkg")`, `__import__("pkg")`, `pytest.importorskip("pkg")`
+  (new in LOADERS), `load_tool("dev/x")` (→ `dev.x`), `run_module("…")` with a plain literal now name that module in the
+  import set, so `related()`'s façade/package logic applies (`import_module("pkg")` vs main's `src/pkg/low.py` behind an
+  unchanged `pkg/__init__.py` was FRESH; the statement `import pkg` was already STALE). A literal
+  `spec_from_file_location` PATH stays with the name scan. Rows: `import_module("pkg")`, `importorskip("pkg")`; the old
+  `load_tool("t")` row now reads "imports t (tools/t.py)" and a new subprocess row keeps the name scan pinned.
+- **F4 — discovery outside the list.** `pkgutil.iter_modules` / `walk_packages` and `os.fwalk` are walkers; a `git
+  ls-files` / `ls-tree` token in a changed `.py` (this repo's own sweep idiom) is a walk with no literal start = reaches
+  everything. Also, since the ast is now the reader: loaders/walkers reached through an alias (`from glob import glob as
+  g`, `im = importlib.import_module`) are resolved to what they are; one fetched with `getattr(importlib,
+  "import_module")`, or a callee token the text spells more often than the ast sees it called, reaches everything. The
+  header's "unjudged, stated" paragraph now names what is left: names joined by plain concatenation/`os.path.join` and
+  handed to `open()`/subprocess/exec with no loader or walk call in the changed file, and a loader smuggled past both the
+  ast and the token backstop (exec of an encoded string — review, not this judge, is the boundary against a hostile PR).
+  Rows: `iter_modules`, a `git ls-files` subprocess, an aliased `glob`, a `getattr` loader.
+- Nits taken: F5 — the O(matches × 400) text window is gone with the ast reader (1.8 MB of real `router.py` × 20: parse
+  1.2 s + builds 0.5 s; 750 KB of `glob(` is a SyntaxError → STALE in 0.00 s), and the templated-literal prefilter takes
+  its directory names from the live tree (`tops`) instead of a hard-coded list; F6 — `git cat-file --batch-check` sizes
+  every changed blob BEFORE `--batch` reads any, so a dump on either side is refused unread.
+
+Evidence: `tests/test_ci_fresh.py` 65 → 77 collected (75 passed / 2 skipped); the five stream-local files 144 passed /
+3 skipped; portable paths ok (2983); `bash -n` clean; replay unchanged (1 FRESH #578 / 11 STALE, same reasons).
+
 ## Follow-ups (searched: none filed)
 
 - F1 — fold the docs-ADD collision heredoc of `ci_fresh.sh` into the judge as a second entry point (one loader, one
@@ -308,6 +347,9 @@ BRANCH STATE
 - gates, first head (545e3da): stream-local four files 85 passed / 3 skipped; whole merged shard 2035 passed / 134
   skipped / 3 xfailed on the committed tree (the earlier 1 failed = the gates meta-test reading `git ls-files` before the
   judge was tracked); tech-lead CI on that head 2042 / 131 / 3xf pass; review 🛑 (round 1 above)
+- gates, fix round 2: tests/test_ci_fresh.py 75 passed / 2 skipped; five stream-local files 144 passed / 3 skipped;
+  portable paths ok 2983; bash -n clean; rebased on origin/main 828bdae; whole shard left to the tech lead's sandbox
+  this round (optional per the review)
 - gates, fix round 1: `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_ci_fresh.py tests/test_shard_list.py
   tests/test_portable_paths.py tests/test_docs_read_audit.py tests/test_techlead.py -q -rs` → 132 passed / 3 skipped
   (gawk, busybox, the audit's self-test reader); `python3 tools/dev/check_portable_paths.py` → ok: 2983;
