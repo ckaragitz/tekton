@@ -1073,10 +1073,13 @@ def _read_prompt(prompt: str, questions: Sequence[Question]) -> Dict[str, Tuple[
                 out[q.key] = (c.value, m.group(0).strip())
                 break
 
+    # A MEASUREMENT IS ONE BECAUSE OF ITS KEY, NOT ITS DEFAULT.  Requiring a
+    # numeric default made every optional dimension unreadable: a device's
+    # `mounting_height_in` defaults to None (the record's convention fills it),
+    # so "at 18 in" was dropped and reported as an assumption.
     numeric = [q for q in questions
                if q.key not in out and _unit_pattern(q.key) is not None
-               and isinstance(q.default, (int, float))
-               and not isinstance(q.default, bool)]
+               and not isinstance(q.default, (bool, str))]
     numeric.sort(key=lambda q: (q.rank, q.key))
     spans: List[Tuple[int, int]] = []
 
@@ -1316,8 +1319,13 @@ def plan(prompt: str = "", kind: Optional[str] = None,
     # knows that a tray's bare "24 inch" is its WIDTH and that "6-in-deep"
     # is its loading depth, and duplicating that reader here would be a second
     # thing to get wrong.
-    pre = _archetype_prompt(mods, chosen, prompt, qs)
-    pre.update(_read_prompt(prompt, [q for q in qs if q.key not in pre]))
+    # ONE READER PER PRODUCT FAMILY: running the generic reader after the
+    # archetype's own let a bare "24 inch", already spent on the tray's width,
+    # be spent a second time on its loading depth.
+    if mods.get("archetypes") is not None and chosen in _archetype_keys(mods["archetypes"]):
+        pre = _archetype_prompt(mods, chosen, prompt, qs)
+    else:
+        pre = _read_prompt(prompt, qs)
     resolved: Dict[str, Answered] = {}
     for q in qs:
         if q.key in given:
