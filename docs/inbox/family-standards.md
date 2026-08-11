@@ -455,3 +455,156 @@ meaning keys), `tests/test_famgen_factory.py` (5 caption expectations), `spec/fa
 
 Gates: table above; whole merged shard result in the PR body. Staged vs shipped: everything
 **shipped** on the branch; nothing staged for a viewer batch (no writer path or base touched).
+
+---
+
+# eng #631 — the IFC luminaire route carries the table too (2026-08-11)
+
+*Section author: eng #631 (cam-karagitz's engineer session for issue #631, filed by eng #622).
+Everything above this line is untouched; this section speaks only for #631.*
+
+Issue #631 (Refs #622 #601 #498): after #622/#633 the factory's `make_luminaire` fills the
+Lighting Fixtures table's spelling (`Luminous Flux` / `Initial Color Temperature`), but the
+IFC → family route `rvt.ifc.famfrom_ifc.make_downlight` still authored its own `Lumens` /
+`Color Temperature` **and applied no category standards at all** — so the same luminaire,
+born from an IFC instead of a prompt, named the photometric pair differently and carried none
+of the 19 authored Lighting Fixtures standard parameters. The author-skill reference
+`CATALOG-FACTS.md` L66 also still described the device family with the retired `Load` /
+`MountingHeight`.
+
+Territory used: `src/rvt/ifc/famfrom_ifc.py` (+ its `plugin/lib` mirror), `tests/test_ifc_family.py`
+(the pinned captions/counts), NEW `tests/test_famfrom_ifc_standards.py` + `tests/ci_shard.d/631-famfrom-ifc-standards.txt`,
+`plugin/skills/tekton-author/references/CATALOG-FACTS.md` (that one sentence), this section.
+**One line outside the listed territory, flagged for the reviewer:** `spec/famspec.schema.json`
+— the `downlight` kind gains the two `$ref`s to `common.standards` / `common.standard_values`
+every catalog kind already lists (string-only schema; without them the famspec surface would
+refuse `{"kind":"downlight","standards":false}` as INVALID-FAMSPEC although the constructor now
+accepts it, breaking the schema's own promise that fields mirror the constructor's kwargs);
+its `plugin/skills/tekton-native/examples/` copy follows via `sync_plugin`. Not touched:
+`standards.py`, `factory.py`, `router.py`, `src/rvt/ifc/*` other than `famfrom_ifc.py`,
+any `SKILL.md`, the tracked `tekton-eval-kit/` snapshot (it carries an older copy of
+`CATALOG-FACTS.md`; a frozen kit, not the plugin source).
+
+## What was built
+
+- `make_downlight(..., standards=True, standard_values=None)` — the same two switches every
+  factory constructor takes. The constructor **no longer authors the photometric pair itself**:
+  it hands the `lumens` / `cct` job values it actually has (None = not sourced = not offered)
+  to the factory's own standards step, `factory._std(doc, "lighting_fixture", standards, values)`
+  → `rvt.famgen.standards.apply` — the exact call `make_luminaire` makes, hard-rule-1 guard
+  included (a standards fault becomes a note, never a failed delivery) — keyed by the table's spelling
+  (`PHOTOMETRIC_JOB_VALUES = (("lumens_lm", "Luminous Flux"), ("cct_k", "Initial Color Temperature"))`).
+  The table owns the parameter (spelling, spec `luminousFlux` / `colorTemperature`, group
+  `lightPhotometrics` — identical to what the constructor used to author), so there is one code
+  path deciding how a standard parameter is spelled, and `apply`'s meaning guard (#622) makes a
+  second name for the same quantity impossible: a caller's `standard_values={"CCT": 2700}` or
+  `{"Lamp Lumens": 650}` (IFC-pset habits) fills the table's entry instead of growing a twin.
+  `standard_values` fills any other entry the caller knows; everything else is an honest blank.
+- The four parameters the constructor still authors itself because it binds or fills them
+  (`Wattage`, `Voltage` — the connector's bindings; `Lamp`, `Mounting` — CCEA pset strings) are
+  exactly the four `apply` reports skipped `already authored by the constructor`; the other 15
+  authored rows are added → the standard downlight carries **33** parameters (18 own + 15), was 20.
+- `DownlightProduct.standards` carries the `apply` report and `summary()["standards"]` exposes
+  it, the same shape `factory.FamilyProduct` has — so the route manifest says which standard
+  parameters an IFC-born family got, which were filled, which are blanks.
+- `standards=False` = the IFC contract + connector parameters only (18; no photometric pair —
+  they are standard parameters of the category and arrive with the table; a `lumens=` / `cct=`
+  the caller gave is then named in a `doc.notes` line, never silently dropped). Nobody calls it;
+  it is the regression control, as in the factory.
+- Docstrings (module, `make_downlight`) say all of the above; `CATALOG-FACTS.md` L66 now reads
+  "bound to `Voltage` / `Apparent Load`), `Mounting Height` from the facts".
+
+## Evidence
+
+Instrument for the caption lists: build the family, write it with
+`rvt.frontdoor.standalone.standalone_family_write` (bundled genesis base — the donor-free
+product path; `DownlightProduct.write_rfa`'s default container is the git-ignored vendor
+archetype, absent here, which is issue #94's territory, not this one), then read every
+`ParamElemFamily` caption back off the `.rfa` with `rvt.families.FamilyIndex` — the
+`test_famgen_standards.py` method. Fresh cloud clone, no `samples/` / `vendor/`, steplite reader.
+
+**IFC-born luminaire** (`make_downlight`, `inputs/ifc/chicago-plenum-downlight.ifc`) — 20 → 33 captions,
+family-mode VALID 0 errors, provenance ok/clean before and after:
+
+- before (main @ ca74895): Aperture, Aperture Diameter, Bar Hanger Span, CCEA Rating, **Color Temperature**, Frame Length, Frame Width, Housing, Housing Diameter, Housing Height, Lamp, Lens Diameter, **Lumens**, Mounting, Overall Height, Photometric Web File, Trim, Trim Diameter, Voltage, Wattage
+- after: Aperture, Aperture Diameter, Apparent Load, Bar Hanger Span, CCEA Rating, Color Rendering Index, Dimming Protocol, Driver Type, Efficacy, Emergency, Frame Length, Frame Width, Housing, Housing Diameter, Housing Height, IP Rating, **Initial Color Temperature**, Lamp, Lens Diameter, Light Loss Factor, Load Classification, **Luminous Flux**, Mounting, Number of Lamps, Operating Weight, Overall Height, Photometric Web File, Switch ID, Trim, Trim Diameter, Voltage, Warranty Duration, Wattage
+
+**Prompt-born luminaire** (`factory.make_luminaire()`, 2x4 troffer) — 25 on main (pre-#633, with the
+`Lumens`/`Luminous Flux` + `Color Temperature`/`Initial Color Temperature` twins) → 23 after #633, unchanged by this PR:
+
+- after: Apparent Load, Color Rendering Index, Dimming Protocol, Driver Type, Efficacy, Emergency, Height, IES File (URL reference), IP Rating, Initial Color Temperature, Lamp, Length, Light Loss Factor, Load Classification, Luminous Flux, Mounting, Number of Lamps, Operating Weight, Switch ID, Voltage, Warranty Duration, Wattage, Width
+
+**Shared quantities** (captions on both files): before — 6 (`Color Temperature`, `Lamp`, `Lumens`,
+`Mounting`, `Voltage`, `Wattage`, i.e. the IFC-born file shared only the *legacy* names with the
+prompt-born file's twins); after — 19, every one spelled identically on both: Apparent Load, Color
+Rendering Index, Dimming Protocol, Driver Type, Efficacy, Emergency, IP Rating, Initial Color
+Temperature, Lamp, Light Loss Factor, Load Classification, Luminous Flux, Mounting, Number of Lamps,
+Operating Weight, Switch ID, Voltage, Warranty Duration, Wattage. Only-on-IFC-born = its 9 measured
+dimensions + 4 CCEA strings + `Photometric Web File`; only-on-prompt-born = `Length`/`Width`/`Height`
++ `IES File (URL reference)`. Meaning keys pairwise distinct on both files (zero twins).
+
+| Gate | Before (main @ ca74895) | After |
+|---|---|---|
+| `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_famgen_standards.py tests/test_famgen_factory.py tests/test_famfrom_ifc_standards.py tests/test_ifc_family.py tests/test_ifc_assembly.py tests/test_router.py -q -rs` | 359 passed, 22 skipped (new module absent) | see PR body (same files + the new module) |
+| `python -m rvt.famgen.standards --check` | `27 categories, 0 problems` (main) / `… 34 synonym groups, 0 problems` (#633) | `27 categories, 34 synonym groups, 0 problems` |
+| `tools/route.py matrix` | 3181 bytes, sha256 `7dae5d40eb461e9a…` | byte-identical (`cmp` clean) |
+| `tools/rvt_validate.py --family` on the IFC-born and prompt-born `.rfa` | VALID 0 errors, 0 warnings | VALID 0 errors, 0 warnings |
+| `tools/make_family.py provenance` on both | `ok: true`, `clean: true` | `ok: true`, `clean: true` |
+| `tools/route.py run --ifc inputs/ifc/chicago-plenum-downlight.ifc --output rfa` (fresh clone) | exit 0, ASSEMBLY lane after the archetype lane's `rfa-emit` FileNotFoundError (vendor container absent — #94) | identical behaviour; this PR does not touch the emit path |
+| `tools/sync_plugin.py` → `--check`; `plugin/scripts/validate_plugin.py`; `tools/dev/check_portable_paths.py` | — | in sync (2–3 files mirrored), PASS (25 assertions), ok |
+
+**Pinned expectations that moved, and why:** `tests/test_ifc_family.py` — the caption list of
+`test_downlight_parameters_and_type` (the two photometric names → the table's; plus
+`not {"Lumens","Color Temperature"} & caps` and `len == N_PARAMS`), the blank-value asserts
+(`Luminous Flux` / `Initial Color Temperature` == 0.0 — unsourced, never invented), the caption
+set now asserted as `OWN_PARAMS | authored_params("lighting_fixture")` (derived, so a row added
+to the table by another stream does not red this file), and the two counts that were the literal
+`20`: `ParamElemFamily` in the read-back test and `len(plan["twin_of"])` in the slow rst-load test
+now compare against `len(product.doc.params)` (33 today). **Those last two tests are `needs_emit` /
+`needs_load` (vendor archetype / rst sample) and SKIP on this surface — the fresh-clone read-back in
+`test_famfrom_ifc_standards.py` (33 captions off the bundled-base `.rfa` == the document's set) is
+what observes the number here, not those two tests.**
+
+**`/simplify` round (4 agents):** applied — `factory._std` instead of a bare `standards.apply` (reuse: the hard-rule-1 guard lives in one place and both luminaire routes fail the same way); the `standards=False` + given-`lumens` case says so in a note instead of dropping the value silently (altitude); the explanation kept once in `make_downlight`'s docstring, one-liners elsewhere; `N_PARAMS = 33` replaced by derived sets/counts; the new tests share `_twins` / `_differing` helpers, the two value tests are one parametrized test, the on-file test reuses the module fixtures. Declined — appending `factory._standards_note` to `prod.notes` (`make_luminaire` does not either; `apply` already writes the `doc.notes` line); hoisting `_std` into `standards` and applying the table in the one model-family constructor that still applies none (`intent.make_house_switchboard`; `famgen.heads` builds annotation heads, which have no table by design) — shared infrastructure outside this territory → follow-up below.
+
+## What is NOT claimed
+
+- No desktop round, no viewer batch: 13 more `ParamElemFamily` records + 2 renamed captions on a
+  family document whose classes, specs, connector and geometry are unchanged; VALID 0 errors and
+  provenance clean is a fact about the file, not evidence Revit opens it (rule 4). The certified
+  `L_downlight_loaded.rvt` in the ledger predates this and is not re-certified by it.
+- `Photometric Web File` (this route) and `IES File (URL reference)` (the factory) are one
+  quantity under two captions and are **still** two captions: neither is in the category table,
+  no synonym row folds them, and converging them needs a row in `standards.SYNONYM_GROUPS` plus
+  one caption change — `standards.py` is outside this territory → follow-up #641.
+- The famspec `downlight` lane and the ifc → rfa *archetype* lane still cannot emit on a fresh
+  clone (vendor container default in `write_rfa`) — pre-existing, tracked by #94; the evidence
+  above shows the same document emits VALID + provenance-clean through `standalone_family_write`
+  on the bundled base, which is the fact #94 needs.
+
+## Follow-ups
+
+- Filed **#642**: one shared standards step for every family constructor (`standards.apply_safe` = today's `factory._std`, used by factory / famfrom_ifc / `intent.make_house_switchboard` — the last one, an Electrical Equipment switchboard, applies no table today although `standards` has a `switchboard` set) — area:famgen, Refs #631 #601.
+- Filed **#641**: the photometric-web reference caption (`Photometric Web File` vs `IES File (URL reference)`)
+  as one synonym group + one surviving caption (area:famgen, Refs #631).
+- Existing: #94 (fresh-clone rfa-emit for the downlight/famspec lanes on the bundled base).
+
+## BRANCH STATE (eng #631)
+
+Branch `cam/631-famfrom-ifc-standards`, cut from `main` after #633's squash landed (developed
+against `origin/cam/622-standards-dedup` read-only while #633 was in the tech lead's CI; never
+stacked on it).
+
+Files written: `src/rvt/ifc/famfrom_ifc.py` (import `standards`, `STD_CATEGORY`,
+`PHOTOMETRIC_JOB_VALUES`, `DownlightProduct.standards` + `summary()`, `make_downlight`
+signature/docstring, the photometric pair routed through `factory._std` → `standards.apply`,
+module docstring),
+`tests/test_famfrom_ifc_standards.py` (new, 9 tests / 10 cases), `tests/ci_shard.d/631-famfrom-ifc-standards.txt`
+(new), `tests/test_ifc_family.py` (captions + derived `OWN_PARAMS` / counts), `spec/famspec.schema.json` (two `$ref`s
+on the downlight kind — flagged above), `plugin/skills/tekton-author/references/CATALOG-FACTS.md`
+(one sentence), mirrors via `tools/sync_plugin.py` (`plugin/lib/src/rvt/ifc/famfrom_ifc.py`,
+`plugin/skills/tekton-native/examples/famspec.schema.json`), this section.
+
+Gates: table above + the whole merged CI shard count in the PR body. Staged vs shipped:
+everything **shipped** on the branch; nothing staged for a viewer batch (no writer path, base
+or certified file touched).

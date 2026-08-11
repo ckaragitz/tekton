@@ -26,8 +26,12 @@ clusters sized by the IFC facts --
 
 -- with the CCEA rating / aperture / housing / trim / mounting / lamp as
 family PARAMETERS by NAME, the measured dimensions as dimension parameters,
-and a photometric-web parameter left as an unset REFERENCE (a URL / path the
-user supplies; never an embedded ``.ies``).  One single-phase LIGHTING
+a photometric-web parameter left as an unset REFERENCE (a URL / path the
+user supplies; never an embedded ``.ies``), and the Lighting Fixtures
+STANDARD parameter set exactly as the factory's ``make_luminaire`` carries it
+(``rvt.famgen.standards``, #601/#631 -- see :func:`make_downlight`), so an
+IFC-born and a prompt-born luminaire name every shared quantity the same
+way.  One single-phase LIGHTING
 connector sits on the junction box's TOP face -- where the branch-circuit
 conductors actually enter (knockouts / conduit connector) -- using the
 factory's face-referenced connector (the box template; ``factory.add_
@@ -62,8 +66,9 @@ Public API::
 
 TERRITORY: this module + ``rvt.ifc.product_facts`` + ``tests/test_ifc_family.py``
 + ``experiments/families/ifc/**`` + ``docs/inbox/ifc-family.md``.  Composes
-(never edits) ``rvt.famgen.{skeleton, geometry, factory, famdoc_adoc}`` /
-``rvt.famload`` / ``rvt.validate`` public constructors and codecs.
+(never edits) ``rvt.famgen.{skeleton, geometry, factory, famdoc_adoc,
+standards}`` / ``rvt.famload`` / ``rvt.validate`` public constructors and
+codecs.
 """
 from __future__ import annotations
 
@@ -126,6 +131,18 @@ DIM_PARAMS = (
     ("Trim Diameter", "trim_diameter_ft", "dimensions"),
     ("Lens Diameter", "lens_diameter_ft", "dimensions"),
     ("Bar Hanger Span", "hanger_span_ft", "dimensions"),
+)
+
+#: the STANDARD parameter table (``rvt.famgen.standards``) the downlight
+#: carries -- the same one the factory's ``make_luminaire`` names (#631)
+STD_CATEGORY = "lighting_fixture"
+
+#: photometric JOB fact key -> the table quantity its value fills through
+#: ``standards.apply(values=...)`` (a values KEY, folded by ``meaning_key``;
+#: the table authors the parameter itself -- see :func:`make_downlight`)
+PHOTOMETRIC_JOB_VALUES = (
+    ("lumens_lm", "Luminous Flux"),
+    ("cct_k", "Initial Color Temperature"),
 )
 
 
@@ -254,13 +271,17 @@ class DownlightProduct:
     detail: str = "standard"
     file_stem: str = "chicago_plenum_downlight"
     notes: List[str] = dc_field(default_factory=list)
+    #: the category-standards report (``rvt.famgen.standards.apply``), the
+    #: same shape ``factory.FamilyProduct.standards`` carries; None = the
+    #: caller switched standards off
+    standards: Optional[Dict[str, Any]] = None
 
     @property
     def name(self) -> str:
         return self.doc.name
 
     def summary(self) -> Dict[str, Any]:
-        return {
+        summ = {
             "kind": "luminaire/recessed-downlight (IFC-derived)",
             "family_name": self.doc.name,
             "category": SK.category_label(self.doc.category_id),
@@ -279,6 +300,9 @@ class DownlightProduct:
             "unverified_fields": self.facts.unverified(),
             "notes": list(self.notes),
         }
+        if self.standards is not None:
+            summ["standards"] = dict(self.standards)
+        return summ
 
     def write_rfa(self, path: str, *, mode: str = "candidate",
                   footer_mode: str = "nonce", validate: bool = True,
@@ -377,7 +401,9 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
                    lumens: Optional[float] = None, cct: Optional[float] = None,
                    photometric_web: Optional[str] = None,
                    detail: str = "standard", solid: bool = True,
-                   name: Optional[str] = None, start_id: int = 1000) -> DownlightProduct:
+                   name: Optional[str] = None, start_id: int = 1000,
+                   standards: bool = True,
+                   standard_values: Optional[Dict[str, Any]] = None) -> DownlightProduct:
     """Compose OUR recessed-downlight family from the IFC product facts.
 
     Geometry (the FAMILY frame): the insertion origin is the CAN AXIS (the
@@ -395,10 +421,22 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
 
     Parameters by NAME: the CCEA specification strings (``CCEA Rating``,
     ``Aperture``, ``Housing``, ``Trim``, ``Mounting``, ``Lamp``), the
-    dimension set (:data:`DIM_PARAMS`), ``Wattage`` / ``Voltage`` /
-    ``Lumens`` / ``Color Temperature`` (unset = 0 when not sourced) and the
-    ``Photometric Web File`` REFERENCE (a URL/path text, never an .ies
-    payload).  One single-phase Lighting connector on the junction box top.
+    dimension set (:data:`DIM_PARAMS`), ``Wattage`` / ``Voltage`` (the
+    connector's bindings; unset = 0 when not sourced), the ``Photometric
+    Web File`` REFERENCE (a URL/path text, never an .ies payload) and --
+    ``standards`` on, the default -- the Lighting Fixtures STANDARD set,
+    applied by the factory's own step (``factory._std`` ->
+    ``rvt.famgen.standards.apply``): the TABLE authors those parameters
+    (spelling, spec, group), the ``lumens`` / ``cct`` job values fill its
+    ``Luminous Flux`` / ``Initial Color Temperature``
+    (:data:`PHOTOMETRIC_JOB_VALUES`), ``standard_values`` fills any other
+    entry the caller knows (any spelling ``standards.meaning_key`` folds --
+    a pset's ``CCT`` lands, never twins), everything else is an honest
+    BLANK, and the four this constructor authors itself (``Wattage``,
+    ``Voltage``, ``Lamp``, ``Mounting``) are left as made.
+    ``standards=False`` = the IFC contract + connector parameters only (the
+    regression control; given lumens/cct are then noted, not authored).
+    One single-phase Lighting connector on the junction box top.
     """
     if detail not in ("standard", "envelope"):
         raise FamFromIfcError(f"detail must be 'standard' or 'envelope', got {detail!r}")
@@ -431,8 +469,6 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
         p_txt[caption] = doc.add_family_parameter(caption, F.SPEC[spec_k], F.GROUP[grp_k])
     p_watt = _num(doc, "Wattage", "wattage", "electrical")
     p_volt = _num(doc, "Voltage", "voltage", "electrical")
-    p_lm = _num(doc, "Lumens", "luminous_flux", "photometrics")
-    p_cct = _num(doc, "Color Temperature", "cct", "photometrics")
     p_ies = _txt(doc, "Photometric Web File", "photometrics")
 
     # -- the type row: facts as parameter VALUES ------------------------------------
@@ -449,8 +485,6 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
         values[p_txt[caption].elem_id] = str(v) if v is not None else ""
     values[p_watt.elem_id] = SK.watts(watt) if watt else 0.0
     values[p_volt.elem_id] = SK.volts(volt)
-    values[p_lm.elem_id] = float(g("lumens_lm") or 0.0)
-    values[p_cct.elem_id] = float(g("cct_k") or 0.0)
     values[p_ies.elem_id] = str(g("photometric_web") or "")
     values["model"] = model
     values["description"] = str(g("description") or "")
@@ -575,11 +609,21 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
                                      description="Power Connection")
         con_note = ("envelope variant: datum-hosted connector (Ref. Level, tag 0 -- the S0e "
                     "pattern) at the can top; the standard variant hosts it on the J-box face")
+
+    # -- the category's STANDARD parameters (#601/#631): the factory's own step --
+    std_values = {caption: v for key, caption in PHOTOMETRIC_JOB_VALUES
+                  if (v := g(key)) is not None}
+    if std_values and not standards:
+        doc.notes.append(f"standards off: the given {sorted(std_values)} are NOT "
+                         f"authored (they are standard parameters of the category)")
+    std_values.update(standard_values or {})
+    std_report = F._std(doc, STD_CATEGORY, standards, std_values)
     doc.finalize()
     prod = DownlightProduct(doc=doc, facts=fs, product_facts=pf, forms=forms,
                             detail=detail,
                             file_stem=("chicago_plenum_downlight" if detail == "standard"
-                                       else "chicago_plenum_downlight_min"))
+                                       else "chicago_plenum_downlight_min"),
+                            standards=std_report)
     prod.notes.append(con_note)
     prod.notes.append(f"{len(forms)} form clusters composed from rvt.famgen.geometry "
                       f"({sum(len(fb.elements) for fb in forms)} form elements) sized by the "
