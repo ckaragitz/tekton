@@ -271,6 +271,27 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                       ("RelatedObjects", "RelatedObjectsType")),
     "IFCRELASSIGNSTOGROUP": ("IfcRelAssignsToGroup", "IFCRELASSIGNS",
                              ("RelatingGroup",)),
+    # material association: by_type() already finds these (the class names are
+    # parsed), but without their attribute rows every read of .RelatingMaterial
+    # / .RelatedObjects raised "outside the read-path attribute subset", so an
+    # IFC's own material assignment was unreadable under the stdlib reader.
+    "IFCRELASSOCIATES": ("IfcRelAssociates", "IFCRELATIONSHIP", ("RelatedObjects",)),
+    "IFCRELASSOCIATESMATERIAL": ("IfcRelAssociatesMaterial", "IFCRELASSOCIATES",
+                                 ("RelatingMaterial",)),
+    "IFCMATERIALDEFINITION": ("IfcMaterialDefinition", None, ()),
+    "IFCMATERIAL": ("IfcMaterial", "IFCMATERIALDEFINITION",
+                    ("Name", "Description", "Category")),
+    "IFCMATERIALLAYER": ("IfcMaterialLayer", "IFCMATERIALDEFINITION",
+                         ("Material", "LayerThickness", "IsVentilated", "Name",
+                          "Description", "Category", "Priority")),
+    "IFCMATERIALLAYERSET": ("IfcMaterialLayerSet", "IFCMATERIALDEFINITION",
+                            ("MaterialLayers", "LayerSetName", "Description")),
+    "IFCMATERIALCONSTITUENT": ("IfcMaterialConstituent", "IFCMATERIALDEFINITION",
+                               ("Name", "Description", "Material", "Fraction",
+                                "Category")),
+    "IFCMATERIALCONSTITUENTSET": ("IfcMaterialConstituentSet", "IFCMATERIALDEFINITION",
+                                  ("Name", "Description", "MaterialConstituents")),
+    "IFCMATERIALLIST": ("IfcMaterialList", None, ("Materials",)),
     "IFCRELDEFINES": ("IfcRelDefines", "IFCRELATIONSHIP", ()),
     "IFCRELDEFINESBYPROPERTIES": ("IfcRelDefinesByProperties", "IFCRELDEFINES",
                                   ("RelatedObjects", "RelatingPropertyDefinition")),
@@ -351,6 +372,13 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                                          "IFCINDEXEDPOLYGONALFACE",
                                          ("InnerCoordIndices",)),
     "IFCSOLIDMODEL": ("IfcSolidModel", "IFCGEOMETRICREPRESENTATIONITEM", ()),
+    # a round rod / wire / conduit: a disk of Radius swept along Directrix.
+    # How wire-mesh trays, bent rod and small-bore pipe are exported.
+    "IFCSWEPTDISKSOLID": ("IfcSweptDiskSolid", "IFCSOLIDMODEL",
+                          ("Directrix", "Radius", "InnerRadius",
+                           "StartParam", "EndParam")),
+    "IFCSWEPTDISKSOLIDPOLYGONAL": ("IfcSweptDiskSolidPolygonal",
+                                   "IFCSWEPTDISKSOLID", ("FilletRadius",)),
     "IFCMANIFOLDSOLIDBREP": ("IfcManifoldSolidBrep", "IFCSOLIDMODEL", ("Outer",)),
     "IFCFACETEDBREP": ("IfcFacetedBrep", "IFCMANIFOLDSOLIDBREP", ()),
     # geometry: swept solids + the profiles / planar curves they sweep (#152)
