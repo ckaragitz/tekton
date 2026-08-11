@@ -59,6 +59,40 @@ R1; that is the whole point of the round.
 Two precedents for how long this takes: the value-edit law (#333) took 26 desktop rounds;
 the arc solver (#589) took one. This is round 1.
 
+## ROUND 1 VERDICT (owner, Revit 2026.5, 2026-08-10): NEGATIVE — the extrusion did not rotate
+
+| rung | result |
+|---|---|
+| `R0_vertical_cylinder` | **loads, renders as a proper cylinder in 3D** — the control holds |
+| `R1_wheel_on_refplane` | **loads, no crash — but the profile is still drawn in PLAN on Ref. Level** |
+
+R1's screenshot is the Ref. Level plan with the Work Plane ribbon active and the circle
+lying flat in it. So pointing `OnDatumPlaneRef.m_datumPlaneId` at a vertical `RefPlane`,
+even with a rotated `Trf.m_3x3` on the SketchPlane, **does not move the form's work
+plane**. The file is accepted; the geometry is unchanged.
+
+That is the second of the four outcomes this README listed, and it costs one hypothesis:
+the sketch plane's datum reference alone is not what orients an extrusion. Something else
+carries the work plane — candidates, in the order worth testing:
+
+1. **`ExtrusionElem.m_alwaysRefPlaneNorm`** — its own field, and the name says exactly
+   this: extrude along the reference plane's normal. Round 2 is one boolean.
+2. The extrusion's `m_geomSteps` / GStep, which may carry the sweep direction
+   independently of the sketch.
+3. The cached B-rep, which is authored in world coordinates and may simply be overriding
+   what the sketch implies.
+
+Only when all three are exhausted does `RevolutionElem` become the answer, and a sphere
+needs it regardless — no stack of extrusions, rotated or not, is a sphere.
+
+### A second observation from the same screenshots, not yet explained
+
+Both files draw their circle **faceted** (roughly 12–16 segments) in plan, while R0's 3D
+view shows a smooth cylinder. That is consistent with Revit's coarse-detail arc display
+rather than with our geometry — the arcs are true `GArc` tokens and the 3D render is
+smooth — but it is worth confirming at Fine detail before anyone reads it as a defect in
+the arc path.
+
 ## Rebuild
 
 ```bash
