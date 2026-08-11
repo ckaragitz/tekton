@@ -1,0 +1,4 @@
+# #692: the MEP taxonomy + vendor directory and its --check gate.  Reads only
+# src/rvt/famgen/facts/** (shipped in-repo) plus the standards/skeleton tables;
+# no samples/, no ifcopenshell, no built ladders -- fresh-clone safe.
+tests/test_famgen_taxonomy_692.py
