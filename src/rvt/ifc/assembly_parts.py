@@ -703,43 +703,100 @@ def _point_in_ring(pt: Sequence[float], ring: Sequence[Sequence[float]]) -> bool
     return inside
 
 
-def _interior_probe(ring: Sequence[Sequence[float]]) -> Tuple[float, float]:
-    """A point STRICTLY inside ``ring``, just off the midpoint of its longest
-    edge -- never a vertex.
+def _interior_probes(ring: Sequence[Sequence[float]]):
+    """Points STRICTLY inside ``ring``, one per usable edge, longest edge
+    first: the edge's midpoint nudged inward by a millionth of the edge --
+    never a vertex.
 
     Junction resolution (:func:`_junction_pairs`) lets two solid regions
     touch at a point, so a ring's vertex may be SHARED with its neighbour and
     says nothing about which contains which.  An edge midpoint nudged inward
-    by a millionth of the edge is inside this ring, outside every disjoint
-    neighbour, and too close to the boundary to fall into a hole ring nested
-    within.  A ring too degenerate to have an inside (zero area to within
-    that nudge) falls back to its first vertex; such slivers are dropped by
-    area anyway.
+    is inside this ring, outside every disjoint neighbour, and too close to
+    the boundary to fall into a hole ring nested within.  The first probe is
+    the one :func:`ring_nesting` uses; the rest exist because an EDGE can be
+    shared too (:func:`_probe_clear_of`).  A ring too degenerate to have an
+    inside (zero area to within that nudge) yields its first vertex; such
+    slivers are dropped by area anyway.
     """
     n = len(ring)
-    edges = [(ring[i], ring[(i + 1) % n]) for i in range(n)]
-    a, b = max(edges, key=lambda e: math.hypot(e[1][0] - e[0][0], e[1][1] - e[0][1]))
-    length = math.hypot(b[0] - a[0], b[1] - a[1])
-    if length > 0.0:
+    k = 1e-6                                            # nudge, as a fraction of the edge
+    edges = sorted(((ring[i], ring[(i + 1) % n]) for i in range(n)), reverse=True,
+                   key=lambda e: math.hypot(e[1][0] - e[0][0], e[1][1] - e[0][1]))
+    found = False
+    for a, b in edges:
         mx, my = (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
-        k = 1e-6                                        # nudge, as a fraction of the edge
         nx, ny = -(b[1] - a[1]) * k, (b[0] - a[0]) * k
-        for cand in ((mx + nx, my + ny), (mx - nx, my - ny)):
-            if _point_in_ring(cand, ring):
-                return cand
-    return (float(ring[0][0]), float(ring[0][1]))
+        cand = next((c for c in ((mx + nx, my + ny), (mx - nx, my - ny))
+                     if (nx or ny) and _point_in_ring(c, ring)), None)
+        if cand is not None:
+            found = True
+            yield cand
+    if not found:
+        yield (float(ring[0][0]), float(ring[0][1]))
+
+
+def _interior_probe(ring: Sequence[Sequence[float]]) -> Tuple[float, float]:
+    """The first of :func:`_interior_probes` -- just inside the longest edge."""
+    return next(_interior_probes(ring))
+
+
+def _clearance(pt: Sequence[float], ring: Sequence[Sequence[float]]) -> float:
+    """Distance from ``pt`` to the nearest point of ``ring``'s boundary."""
+    x, y = float(pt[0]), float(pt[1])
+    best = float("inf")
+    n = len(ring)
+    for i in range(n):
+        x1, y1 = ring[i][0], ring[i][1]
+        x2, y2 = ring[(i + 1) % n][0], ring[(i + 1) % n][1]
+        dx, dy = x2 - x1, y2 - y1
+        l2 = dx * dx + dy * dy
+        t = 0.0 if l2 <= 0.0 else max(0.0, min(1.0, ((x - x1) * dx + (y - y1) * dy) / l2))
+        best = min(best, (x - x1 - t * dx) ** 2 + (y - y1 - t * dy) ** 2)
+    return math.sqrt(best)
+
+
+def _probe_clear_of(other: Sequence[Sequence[float]], probes, found: List) -> Tuple[float, float]:
+    """The first interior probe of a ring that does not sit ON ``other``'s
+    boundary -- i.e. is at least :data:`MIN_EXTENT_FT` clear of it.
+
+    Two shells sharing a FACE slice into two rings sharing an EDGE, each
+    written with its own rounding: the small ring's edge lies a micron or so
+    to either side of the big ring's.  A probe hugging that edge then reads
+    the small SOLID ring as inside the big one -- a hole -- or not, on the
+    toss of that micron, and the member vanished in a third of all triangle
+    orders (#621).  Which of two coincident boundaries is outermost is not a
+    question about the body: containment is only ever judged from a probe
+    standing clear of the other ring, and a ring's other edges supply one.
+    Two boundaries closer than the thinnest authorable extent everywhere (a
+    duplicated shell, a hairline tube) have no such probe; the first probe
+    answers then, as it always did.  ``found`` caches the probes drawn from
+    the ``probes`` generator so each ring's edges are walked at most once.
+    """
+    for probe in found:
+        if _clearance(probe, other) >= MIN_EXTENT_FT:
+            return probe
+    for probe in probes:
+        found.append(probe)
+        if _clearance(probe, other) >= MIN_EXTENT_FT:
+            return probe
+    return found[0]
 
 
 def ring_nesting(rings: Sequence[Sequence[Sequence[float]]]) -> List[int]:
     """Even-odd nesting depth per ring: 0 = solid outer, 1 = a hole in it,
     2 = an island inside that hole, ...
 
-    Containment is tested with :func:`_interior_probe`, never with a vertex
-    (see there for why: a shared corner read a SOLID ring as a hole).
+    Containment is tested with an interior probe, never with a vertex (a
+    shared corner read a SOLID ring as a hole: :func:`_interior_probes`) and
+    never from ON the other ring's boundary (a shared edge did the same:
+    :func:`_probe_clear_of`).  Rings of a section nest or are disjoint, so
+    every interior point of a ring answers "is it inside that one" alike --
+    which is what lets each pair pick its own well-placed probe.
     """
-    probes = [_interior_probe(r) for r in rings]
+    gens = [_interior_probes(r) for r in rings]
+    found = [[next(g)] for g in gens]
     return [sum(1 for j, other in enumerate(rings)
-                if j != i and _point_in_ring(probes[i], other))
+                if j != i and _point_in_ring(_probe_clear_of(other, gens[i], found[i]), other))
             for i in range(len(rings))]
 
 
