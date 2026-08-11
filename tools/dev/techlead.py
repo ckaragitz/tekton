@@ -967,11 +967,13 @@ def hygiene_findings(model: dict) -> list:
     return out[:40]
 
 
-def recent_records(days=14) -> list:
+def recent_records(days=14, cap=30) -> list:
+    """docs/inbox paths (records and <stream>.d/ fragments alike: a directory pathspec) touched in the last `days`,
+    most recently touched first (git log order), each named once, at most `cap` -- the cap drops the oldest (#638)."""
     try:
         r = subprocess.run(["git", "-C", ROOT, "log", f"--since={days} days ago", "--name-only", "--pretty=format:", "--", "docs/inbox"],
                            capture_output=True, text=True, timeout=10)
-        return sorted({ln.strip() for ln in r.stdout.splitlines() if ln.strip()})[:30]
+        return list(dict.fromkeys(ln.strip() for ln in r.stdout.splitlines() if ln.strip()))[:cap]
     except (OSError, subprocess.SubprocessError):
         return []
 
