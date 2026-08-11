@@ -372,6 +372,13 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                                          "IFCINDEXEDPOLYGONALFACE",
                                          ("InnerCoordIndices",)),
     "IFCSOLIDMODEL": ("IfcSolidModel", "IFCGEOMETRICREPRESENTATIONITEM", ()),
+    # a round rod / wire / conduit: a disk of Radius swept along Directrix.
+    # How wire-mesh trays, bent rod and small-bore pipe are exported.
+    "IFCSWEPTDISKSOLID": ("IfcSweptDiskSolid", "IFCSOLIDMODEL",
+                          ("Directrix", "Radius", "InnerRadius",
+                           "StartParam", "EndParam")),
+    "IFCSWEPTDISKSOLIDPOLYGONAL": ("IfcSweptDiskSolidPolygonal",
+                                   "IFCSWEPTDISKSOLID", ("FilletRadius",)),
     "IFCMANIFOLDSOLIDBREP": ("IfcManifoldSolidBrep", "IFCSOLIDMODEL", ("Outer",)),
     "IFCFACETEDBREP": ("IfcFacetedBrep", "IFCMANIFOLDSOLIDBREP", ()),
     # geometry: swept solids + the profiles / planar curves they sweep (#152)
