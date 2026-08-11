@@ -63,6 +63,22 @@
           "type": "string",
           "minLength": 1,
           "description": "Path to OUR shared-parameter TXT (or the word 'default' = usecases/eaton-panelboard/panelboard-shared-parameters.txt): every parameter it names is authored SHARED at that file's GUID so schedules/tags bind by GUID; omitted = every parameter local."
+        },
+        "standards": {
+          "type": "boolean",
+          "description": "Author the CATEGORY STANDARD PARAMETERS (rvt.famgen.standards): the parameters a family of this category/product is expected to carry -- a data device gets Device Type / Mounting / Mounting Height / Number of Ports / Cable Category ..., a lighting fixture its photometrics, a mechanical equipment its airflow and MCA/MOCP. Default true. Every parameter's spec and group id is verified against the units table the format itself ships; the NAMES of the convention-sourced ones are INFERRED and the report says which. A parameter the constructor already authored is left exactly as it was. A category with no table yet is reported as an honest gap, never a silent bare family."
+        },
+        "standard_values": {
+          "type": "object",
+          "description": "Values for the standard parameters, by parameter NAME, in internal units (feet for lengths). Supply only the ones actually known -- every other standard parameter is authored BLANK, which is the honest state of a fact nobody supplied. A name matching no standard parameter of the category comes back in the report as 'values_not_placed'.",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean"
+            ]
+          }
         }
       }
     },
@@ -182,6 +198,12 @@
         },
         "shared_params": {
           "$ref": "#/definitions/common/properties/shared_params"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
         }
       }
     },
@@ -226,6 +248,12 @@
         },
         "shared_params": {
           "$ref": "#/definitions/common/properties/shared_params"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
         }
       }
     },
@@ -285,6 +313,12 @@
         },
         "shared_params": {
           "$ref": "#/definitions/common/properties/shared_params"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
         }
       }
     },
@@ -333,6 +367,12 @@
         },
         "shared_params": {
           "$ref": "#/definitions/common/properties/shared_params"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
         }
       }
     },
@@ -439,7 +479,23 @@
         "category": {
           "type": "string",
           "minLength": 1,
-          "description": "Family category (default 'generic_model'; e.g. 'furniture', 'electrical_equipment')."
+          "description": "Family category (default 'generic_model'; e.g. 'furniture', 'electrical_equipment', 'data_devices'). The category also selects the STANDARD PARAMETER SET the family carries -- see 'standards'."
+        },
+        "standards": {
+          "type": "boolean",
+          "description": "Author the CATEGORY STANDARD PARAMETERS (rvt.famgen.standards): the parameters a family of this category is expected to carry -- a data device gets Device Type / Mounting / Mounting Height / Number of Ports / Cable Category ..., a lighting fixture gets its photometrics, a mechanical equipment its airflow and MCA/MOCP. Default true. Every parameter's spec and group id is verified against the units table the format itself ships; the NAMES of the convention-sourced ones are INFERRED, and the report says which. A category with no table yet is reported as an honest gap, never a silent bare family."
+        },
+        "standard_values": {
+          "type": "object",
+          "description": "Values for the category's standard parameters, by parameter NAME, in internal units (feet for lengths). Supply only the ones actually known -- every other standard parameter is authored BLANK, which is the honest state of a fact nobody supplied. A name matching no standard parameter of the category comes back in the report as 'values_not_placed'.",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean"
+            ]
+          }
         },
         "source": {
           "type": "string",

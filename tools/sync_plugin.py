@@ -149,6 +149,10 @@ AUTHOR_SCRIPTS = ("frontdoor.py",            # OPTIONAL: the unified router (fro
                   "route.py",
                   "rvt_job.py", "spec_to_rvt.py", "ifc_to_spec.py", "ifc_intent.py",
                   "seed_audit.py", "panel_schedule.py", "genesis_compose.py",
+                  # the FAMILY CLI: `go make_family.py standards <category>`
+                  # prints the category's standard parameter set (#601), which
+                  # a skill session reads BEFORE writing a famspec
+                  "make_family.py",
                   "probe_batch.py", "rvt_validate.py")
 # tekton-edit (manipulate an existing .rvt) — rvt_job.py for the batch/ops door
 EDIT_SCRIPTS = ("rvt_edit.py", "rvt_validate.py", "rvt_job.py")

@@ -124,8 +124,16 @@ def test_family_contract_reads_integers_and_texts_of_a_law_built_family(law_rfa)
     assert contract["BusRating"] == 225.0                      # amps as-is
     assert contract["Voltage"] == 208.0                        # internal -> V
     assert abs(contract["Width"] - 0.508) < 1e-6               # ft -> m
-    # nothing in the contract degraded to the old tell-tale float 0.0
-    assert [k for k, v in contract.items() if isinstance(v, float) and v == 0.0] == []
+    # nothing the constructor FILLED degraded to the old tell-tale float 0.0.
+    # (A blank category-standard parameter, #601, IS 0.0 on purpose: a fact
+    # nobody supplied is an honest blank, not a guessed value -- so the check
+    # is over the parameters that carry values, not over every key.)
+    filled = {k: v for k, v in contract.items()
+              if k in ("NumberOfCircuits", "Phases", "Wires", "PanelName",
+                       "MainsType", "MainsRating", "BusRating", "Voltage",
+                       "ShortCircuitRatingkA", "NeutralRating", "Mounting",
+                       "Manufacturer", "Width", "Height", "Depth")}
+    assert [k for k, v in filled.items() if isinstance(v, float) and v == 0.0] == []
 
 
 # ---------------------------------------------------------------------------

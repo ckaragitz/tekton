@@ -185,7 +185,15 @@ def test_load_our_rfa_onto_the_pinned_base_validates_zero_errors(panel_rfa, tmp_
     assert rec["rebase"]["start_id"] == wm + 1                     # T2a's allocation law
     lo, hi = rec["ids"]["doc_id_range"]
     assert lo == wm + 1 and rec["ids"]["host_family"] == hi + 1
-    assert rec["ids"]["twins"] == 14                                # one twin per family parameter
+    # one twin per family parameter -- counted off the FILE, not pinned to a
+    # number, so the loader keeps proving the law when the family carries more
+    # parameters (the category standards, #601, took a panelboard 14 -> 21)
+    from rvt.families import FamilyIndex
+    idx = FamilyIndex(panel_rfa)
+    n_params = sum(len(idx.ids_of_class(0, c))
+                   for c in ("ParamElemFamily", "ParamElemExternal"))
+    assert n_params >= 14
+    assert rec["ids"]["twins"] == n_params
     # independent gates on the written file
     assert _validator_errors(out) == 0
     census = four_registry_census(out)

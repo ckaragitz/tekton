@@ -239,7 +239,13 @@ def test_done_prompt_delivers_one_stamped_file_with_four_placed_devices(done_job
     assert {c["provenance"] for c in sg["created_elements"]} == {"ours-created"}
     assert (classes.count("Family"), classes.count("FamilySymbol"), classes.count("FamilyInstance"),
             classes.count("SWall")) == (1, 1, 4, 4)
-    assert sg["provenance_totals"]["ours-created"] == len(classes) == 15
+    # every created element is ours; the count is the fixed structure (Family,
+    # FamilySymbol, 4 instances, 4 walls, the 2 surrogates) plus ONE param twin
+    # per family parameter -- which the category standards (#601) grew, so the
+    # twins are counted rather than pinned to yesterday's number
+    assert sg["provenance_totals"]["ours-created"] == len(classes)
+    twins = classes.count("ParamElemFamily") + classes.count("ParamElemExternal")
+    assert twins >= 3 and len(classes) == 12 + twins
     # one family file, one loaded family shared by the four tags, four device rows
     created = build["elements_created"]
     rfa = [c for c in created if c["kind"] == "family(.rfa)"]

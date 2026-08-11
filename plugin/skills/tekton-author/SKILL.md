@@ -84,10 +84,33 @@ python <plugin>/skills/tekton-author/scripts/_bootstrap.py go route.py \
 `vertices` = the closed outline of the footprint (3+ points, feet, convex OR
 concave, either winding; do not repeat the first point). A box is
 `"width_ft"` + `"depth_ft"` instead. Always `"height_ft"`. Optional:
-`"target_version"`, `"category"` (default `generic_model`; e.g. `furniture`,
-`electrical_equipment`), `"base_z_ft"`, `"solid"`. NEVER invent
+`"target_version"`, `"category"`, `"base_z_ft"`, `"solid"`. NEVER invent
 manufacturer, model or rating values for a shape — the geometry is reported
 as GIVEN with its source, which is exactly what makes this route honest.
+
+**Anything with more than one solid uses `"parts"`** instead of the single
+outline: a list of prisms in the family's frame, each with its own `shape`
+(`box`, `cylinder`, `cylinder_x`, `cylinder_y`, `polygon`, `sphere`, `dome`,
+`cone`), size, `center` and `base_z_ft`. That is how a cable tray (rails +
+rungs), a cart (body + four wheels) or any LOD-400 assembly is expressed —
+one family, many solids, no catalog entry and no donor.
+
+**ALWAYS set `"category"` to what the thing actually is** — `data_devices`,
+`lighting_fixture`, `electrical_equipment`, `mechanical_equipment`,
+`plumbing_fixture`, `fire_alarm_devices`, `cable_tray_fitting`, `furniture`,
+`casework`, `door`, `window`, `structural_framing`, … — and not the
+`generic_model` default. The category picks the family's place in Revit's
+category tree AND its **standard parameter set**: a data device comes out
+with Device Type / Mounting / Mounting Height / Number of Ports / Cable
+Category / Backbox Size / Voltage / Apparent Load / Load Classification, a
+luminaire with its photometrics, a mechanical equipment with airflow and
+MCA/MOCP. Fill the ones the user actually told you with
+`"standard_values": {"Number of Ports": 2, "Cable Category": "Cat6A"}` (feet
+for lengths) — every other standard parameter is authored BLANK on purpose,
+which is honest; never guess one. `"standards": false` turns the set off.
+`python <plugin>/skills/tekton-author/scripts/_bootstrap.py go make_family.py
+standards <category>` prints the exact set for a category before you write
+the famspec, and says plainly when a category has no table yet.
 
 If their object is curved, approximate the outline as a polygon and SAY you
 did. If they hand you a mesh/solid file (OBJ, glTF, STL, STEP) there is no

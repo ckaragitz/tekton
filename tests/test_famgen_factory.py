@@ -382,12 +382,15 @@ def test_device_family_composition(kind, variant, height):
     it, ONE 1-pole 120 V / 180 VA PRIMARY connector on the back of the box
     bound to Voltage / Load, MountingHeight from the facts, Manufacturer
     'generic' / Model = the record's member on the one type row."""
-    prod = F.make_device(kind)
+    prod = F.make_device(kind, standards=False)
     doc = prod.doc
     assert prod.kind == "device" and prod.facts.variant == variant
     assert doc.category_id == SK.OST_ELECTRICAL_FIXTURES and doc.part_type == 0
     assert doc.work_plane_based and doc.finalized
+    # standards=False = the constructor's OWN parameters, nothing else (the
+    # regression control for the category-standards layer, #601)
     assert sorted(doc.params) == ["Load", "MountingHeight", "Voltage"]
+    assert prod.standards is None
     assert [f.kind for f in prod.forms] == ["plate", "box"]
     plate, box = prod.forms
     assert plate.params["base_z_ft"] == 0.0 and box.params["base_z_ft"] == pytest.approx(
@@ -823,8 +826,11 @@ def test_shared_parameter_file_grammar_edges(tmp_path):
 
 @needs_schema
 def test_shared_params_flag_makes_the_eleven_contract_params_shared_rest_local():
+    # standards=False: this test pins the SHARED-parameter mechanism, so the
+    # family carries the constructor's own parameters and nothing else (the
+    # category-standards layer is exercised by its own tests, #601)
     prod = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True,
-                              shared_params=SHARED_FILE)
+                              shared_params=SHARED_FILE, standards=False)
     assert prod.shared_parameters() == CONTRACT_GUIDS
     assert prod.summary()["shared_parameters"] == CONTRACT_GUIDS
     classes = {n: pe.class_name for n, pe in prod.doc.params.items()}
@@ -844,10 +850,20 @@ def test_shared_params_flag_makes_the_eleven_contract_params_shared_rest_local()
     assert prod.doc.roundtrip()["failed"] == 0
     # parsed rows are accepted too; other products share only what matches by caption + datatype
     rows = SK.read_shared_parameter_file(SHARED_FILE)
-    assert F.make_transformer(kva=75, shared_params=rows).shared_parameters() == \
+    assert F.make_transformer(kva=75, shared_params=rows, standards=False).shared_parameters() == \
         {"Phases": CONTRACT_GUIDS["Phases"]}
-    assert F.make_luminaire(wattage=38, lumens=4600, cct=4000, shared_params=rows).shared_parameters() \
+    assert F.make_luminaire(wattage=38, lumens=4600, cct=4000, shared_params=rows,
+                            standards=False).shared_parameters() \
         == {"Voltage": CONTRACT_GUIDS["Voltage"]}
+    # ... and the CATEGORY STANDARDS (#601) go through the same promotion: a
+    # transformer's standard Voltage / Wires / Mounting are the file's rows, so
+    # they land SHARED at the file's GUIDs, while the panel-only schedule
+    # parameters (PanelName, BusRating, NumberOfCircuits ...) are not on a
+    # transformer at all -- the product set, not one category-wide list.
+    xf = F.make_transformer(kva=75, shared_params=rows).shared_parameters()
+    assert set(xf) == {"Phases", "Voltage", "Wires", "Mounting"}
+    assert all(xf[n] == CONTRACT_GUIDS[n] for n in xf)
+    assert not {"PanelName", "BusRating", "NumberOfCircuits"} & set(xf)
     # a datatype disagreement is refused, never papered over with a second GUID
     clash = dict(rows, Width=SK.SharedParamDef(guid=CONTRACT_GUIDS["PanelName"], name="Width",
                                               datatype="TEXT"))
@@ -881,7 +897,7 @@ def test_shared_panelboard_rfa_is_valid_clean_and_decodes_the_file_guids(tmp_pat
     ParamElemExternal records decode back GUID-for-GUID to OUR file."""
     from rvt.families import FamilyIndex
     prod = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True,
-                              shared_params=SHARED_FILE)
+                              shared_params=SHARED_FILE, standards=False)
     rep = prod.write(str(tmp_path / "panel_shared.rfa"), validate=True, provenance=True)
     assert rep["ok"], rep.get("caveats")
     fam = rep["validate"]["family_mode"]
@@ -912,14 +928,16 @@ def test_loader_twins_keep_the_shared_identity_verbatim():
     SA.install_schema(GEN_BASE)
     host = L.survey_host(GEN_BASE)
     prod = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True,
-                              shared_params=SHARED_FILE, start_id=host.watermark + 1)
+                              shared_params=SHARED_FILE, start_id=host.watermark + 1,
+                              standards=False)
     plan = L.plan_load(prod, host, place=False)
     twins = L.author_param_twins(prod, plan)
     _assert_twins(twins, plan, prod.doc)
     # famload (the document loader) -- same law
     fhost = FL.survey_host(GEN_BASE)
     prod2 = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True,
-                               shared_params=SHARED_FILE, start_id=fhost.watermark + 1)
+                               shared_params=SHARED_FILE, start_id=fhost.watermark + 1,
+                               standards=False)
     fplan, _next = FL._plan_family(FL.FamilyLoad(key="p", doc=prod2.doc), prod2.doc, fhost,
                                    fhost.watermark + 1)
     _assert_twins(FL.author_param_twins(prod2.doc, fplan), fplan, prod2.doc)

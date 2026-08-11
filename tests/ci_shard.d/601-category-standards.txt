@@ -1,0 +1,4 @@
+# The category -> standard parameters table (#601): fresh-clone safe -- it
+# reads the units-table asset shipped in src/, builds families from the
+# bundled base, and touches no samples/ file.
+tests/test_famgen_standards.py
