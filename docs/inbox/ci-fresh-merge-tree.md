@@ -1,4 +1,13 @@
-# ci_fresh: `FRESH(disjoint drift)` — a merge-time judge for code drift that provably cannot meet the PR (#539)
+# ci_fresh: `FRESH(disjoint drift)` — a merge-time judge for code drift that provably cannot meet the PR (#539) — PARKED
+
+> **Outcome (2026-08-11): the judge is parked; only its default-path improvement shipped.** After three fix rounds a
+> fourth adversarial pass still found false FRESH under `CI_FRESH_JUDGE=1`, and per the tech lead's ruling the PR was
+> descoped: `tools/dev/ci_fresh_drift.py`, its rig rows, the `CI_FRESH_JUDGE`/timeout plumbing and the opt-in doc
+> clauses were removed on the branch; what merged is the rewritten-trunk check on every path of `ci_fresh.sh` (a recorded
+> `main` that `origin/main` no longer descends from is STALE / cannot judge) with its two rows, one sentence in AUTONOMY
+> §12c / tick.md §2 pointing here, and this record — kept whole because it says where static judging stops. The judge's
+> code lives in this branch's history (`cam/539-ci-fresh-disjoint-drift`, PR #590 commits up to `fe25c59`); the classes
+> that still defeated it are listed verbatim in "Parked" at the end; the follow-up issue is #610.
 
 Stream record of engineer session eng #539 (session `session_01SAGYNTERz4vwLy5LfaXUbH`, wave 27, branch
 `cam/539-ci-fresh-disjoint-drift`). Territory: `tools/dev/ci_fresh.sh` (the code-drift branch + header), NEW
@@ -372,7 +381,56 @@ say FRESH, and every widening this round was toward STALE. Evidence: `tests/test
 passed / 2 skipped); five stream-local files 161 passed / 3 skipped; portable paths ok (2990); `bash -n` clean; replay
 unchanged (1 FRESH #578 / 11 STALE).
 
-## Follow-ups (searched: none filed)
+## Parked — the fourth pass on `fe25c59`, and the descoping
+
+The reviewer's fourth adversarial pass confirmed all 17 round-3 shapes STALE and the standing gate byte-identical, then
+found one more root cause and three smaller classes of false FRESH under `CI_FRESH_JUDGE=1`. That was past the last
+round the ruling allowed, so the judge is parked rather than patched again. **Remaining false-FRESH classes, verbatim,
+for whoever picks this up** (each was reproduced on a rig by the reviewer):
+
+- **Receiver dropping in `pieces()`.** On a `Call`, the flattener drops the METHOD RECEIVER and treats every callee
+  slot as transparent, so ALL-LITERAL chains read as anchored-at-nothing or as narrower than they are:
+  `Path("tests").joinpath("tools").glob("*.json")` vs main's `tests/tools/x.json` → FRESH; likewise
+  `Path(__file__).parent.joinpath("tools").glob(...)`, `HERE.joinpath(...)`, `PLUGIN.joinpath("skills").glob("*/scripts/*.py")`,
+  `LIB.joinpath("tools").rglob("*.py")`, `run_path(str(Path(ROOT).joinpath("plugin","lib").joinpath("tools","dev",name)))`,
+  and zero-argument helpers `join(plugin_dir(), "skills", "*", "scripts", "*.py")` / `join(here(), …)` (a call with no
+  arguments contributes only a callee slot, which un-anchors nothing). The fix direction is known — a receiver is a
+  path prefix (flatten `func.value` for `joinpath`/`glob`/`rglob`/`iterdir`/`/` chains) and a callee slot with no
+  literal before it must count as an UNKNOWN gap unless the callee is a recognised root — but it is a fourth rewrite of
+  the same function, which is the signal to stop.
+- **`root_dir=` / `dir_fd=` keywords.** `glob("tools/*.json", root_dir=TESTS_DIR)` — the keyword root never
+  un-anchors the pattern, so the run reads as repo-root `tools/` while it walks `tests/tools/`.
+- **`..` segments.** `join(ROOT, "tests/../tools", "gen_*.py")` keeps the interior `..` inside a literal piece as lead
+  (`tests/../tools`), matching nothing, while the walk lands in `tools/`.
+- **Blank-containing shell templates.** `check_call("python3 tools/%s.py --check" % tool, shell=True)` — `QUOTED`
+  excludes blanks (to skip messages), so a shell command template is never read although rule 5 claims templates.
+- **Unlisted discovery.** `shutil.copytree` / archive extraction (`tarfile`, `zipfile`, `shutil.unpack_archive`) of a
+  repo subtree, and child `pytest` / `python -m pytest <dir>` runs started from a test, discover files with no walker
+  the list knows.
+- **Header over-claims.** After each round the "unjudged, stated" paragraph had claimed slightly more than the code did
+  (bare references and plain-string `exec` in round 2; the receiver case in round 3). A parked judge must not be revived
+  without first making that paragraph the test oracle: every sentence in it a row.
+
+Why parked and not "one more round": the honest reading of four passes is that a static reader of Python call
+expressions converges on the real thing only asymptotically — each round closed the reported shapes and every widening
+was toward STALE, but each new pass found the next layer at the same place (how a path expression is spelled). The exact
+alternative — refuse whenever the two changes share one test's import/read cone — needs real per-test cones, and today
+`tests/conftest.py`'s start-up imports make every shard cone ≈ 170 files (measured by the reviewer), so it degenerates
+to "always STALE". **The judge becomes worth reviving the day a runtime import/read audit (the #523 machinery already
+records docs reads per test; extending it to modules and repo files is the natural route) can supply those cones**; the
+follow-up issue below is filed `blocked` on exactly that. Until then code drift = STALE, and the queue cost that
+motivated #539 is better attacked by making `session_ci.sh` cheaper or by batching merges per tick.
+
+What the branch history holds for a reviver: the judge at `fe25c59` (ast-based import reading incl. relative levels and
+façades; loader/walker classification with alias, bare-reference, exec/getattr/string backstops; the anchored vs
+boundary-matched prefix law; modes, sizes, gates, drop-in enrolment, merge-tree + portable-paths over the merged tree;
+`timeout` + opt-in plumbing in `ci_fresh.sh`) and 94 rig rows that pin every shape the four passes produced — start by
+restoring those rows, then add the "Parked" shapes above as red rows before touching the flattener.
+
+Follow-up filed: "disjoint-drift judge (parked)" — P2, area:process, `blocked` on a runtime import/read audit that can
+supply real per-test cones: **#610**.
+
+## Follow-ups (searched: none filed before this stream; F1–F3 are superseded by the parking — kept as history)
 
 - F1 — fold the docs-ADD collision heredoc of `ci_fresh.sh` into the judge as a second entry point (one loader, one
   place that runs `check()` over a name set, one findings format). Keep its no-merge approximation there rather than
@@ -390,7 +448,12 @@ BRANCH STATE
 - gates, first head (545e3da): stream-local four files 85 passed / 3 skipped; whole merged shard 2035 passed / 134
   skipped / 3 xfailed on the committed tree (the earlier 1 failed = the gates meta-test reading `git ls-files` before the
   judge was tracked); tech-lead CI on that head 2042 / 131 / 3xf pass; review 🛑 (round 1 above)
-- gates, fix round 3: tests/test_ci_fresh.py 94 passed / 2 skipped; five stream-local files 161 passed / 3 skipped;
+- DESCOPED per the tech lead's ruling after the fourth pass (see "Parked"): the branch now carries only the
+  rewritten-trunk check in tools/dev/ci_fresh.sh (+ header sentence), two rows in tests/test_ci_fresh.py, one sentence
+  each in AUTONOMY §12c / tick.md §2, and this record; tools/dev/ci_fresh_drift.py and all judge rows removed.
+  Gates on the descoped tree: five stream-local files 92 passed / 3 skipped (test_ci_fresh.py: main's 23 + 2 new);
+  portable paths ok 2989; bash -n clean
+- gates, fix round 3 (history): tests/test_ci_fresh.py 94 passed / 2 skipped; five stream-local files 161 passed / 3 skipped;
   portable paths ok 2990; bash -n clean; rebased on the current origin/main before the push
 - gates, fix round 2: tests/test_ci_fresh.py 75 passed / 2 skipped; five stream-local files 144 passed / 3 skipped;
   portable paths ok 2983; bash -n clean; rebased on origin/main 828bdae; whole shard left to the tech lead's sandbox

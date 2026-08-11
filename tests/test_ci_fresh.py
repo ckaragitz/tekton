@@ -3,15 +3,11 @@
 Incident #476: two PRs, each green against the origin/main of its own session_ci.sh run, collided semantically once
 both landed. So session_ci.sh records that trunk as "main" in its one-line JSON, and the tick merges only when
 ci_fresh.sh says FRESH against the origin/main re-fetched right before the merge. Tolerated drift = added/modified
-docs/** that no shard test opens; the ledger/matrix/AUTONOMY docs, a docs deletion, a docs file added on main that
-case-twins a path the PR adds (#496) are STALE; CODE drift is STALE -- and, only when the tech lead opted in with
-CI_FRESH_JUDGE=1, handed to the disjoint-drift judge (tools/dev/ci_fresh_drift.py, #539), which may show from git objects
-alone that main's change and the PR's are disjoint, uncoupled (no import, no name, no run-time-built or directory-walked
-name either way), gate-free and merge-clean -> FRESH(disjoint drift).
+docs/** that no shard test opens; everything else (code, the ledger/matrix/AUTONOMY docs, a docs deletion, a docs
+file added on main that case-twins a path the PR adds -- #496) is STALE.
 Pinned here on a throwaway `git init` repo, plus the JSON field itself, the optional <head-sha> refusal, that every
-awk on this machine gives the same quiet answer, that helper and judge stay on the trusted side, and (meta) that the
-helper's SHARD_READS list still covers every docs/ path the real CI shard reads. Fresh-clone runnable: stdlib + git +
-bash only (skips where bash or git is absent).
+awk on this machine gives the same quiet answer, and (meta) that the helper's SHARD_READS list still covers every
+docs/ path the real CI shard reads. Fresh-clone runnable: stdlib + git + bash only (skips where bash or git is absent).
 """
 import ast
 import json
@@ -28,9 +24,7 @@ from conftest import GIT_ENV, HAVE_GIT, ci_shard_files, git, git_commit, git_ini
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HELPER = os.path.join(ROOT, "tools", "dev", "ci_fresh.sh")
-JUDGE = os.path.join(ROOT, "tools", "dev", "ci_fresh_drift.py")           # the disjoint-drift judge the helper hands code drift to (#539)...
-CHECKER = os.path.join(ROOT, "tools", "dev", "check_portable_paths.py")   # ...the names-only gate both re-run at merge time (#522)...
-SHARD_LIST = os.path.join(ROOT, "tools", "dev", "shard_list.py")          # ...and the drop-in law the judge loads by path
+CHECKER = os.path.join(ROOT, "tools", "dev", "check_portable_paths.py")   # the names-only gate the helper re-runs at merge time (#522)
 SESSION_CI = os.path.join(ROOT, "tools", "dev", "session_ci.sh")
 
 pytestmark = pytest.mark.skipif(not (shutil.which("bash") and HAVE_GIT), reason="needs bash + git")
@@ -44,60 +38,39 @@ def _verdict(ci_dir, pr, **fields):
         json.dump({"pr": pr, **fields}, fh)
 
 
-def stale(was, now, changed, pr=7):
-    """The standing gate's answer to code drift, byte-identical to before #539: exit 4, no reason, re-run."""
-    return (4, "STALE was=%s now=%s changed=%s -> re-run tools/dev/session_ci.sh %d" % (was, now, changed, pr))
-
-
-def stale_reason(result, was, now, changed, pr=7):
-    """Assert `result` (rc, line) is the code-drift STALE line -- exit 4, `changed=` naming exactly `changed`, the re-run
-    instruction last -- and return the parenthesised reason the disjoint-drift judge (#539) gave for not tolerating it."""
-    rc, line = result
-    head, tail = "STALE was=%s now=%s changed=%s (" % (was, now, changed), ") -> re-run tools/dev/session_ci.sh %d" % pr
-    assert rc == 4 and line.startswith(head) and line.endswith(tail), result
-    return line[len(head):-len(tail)]
-
-
 @pytest.fixture
 def rig(tmp_path):
-    """An upstream repo + a clone of it that carries a COPY of the helper, of the disjoint-drift judge and of the checker
-    they re-run at tools/dev/ (so the script's own `dirname $0/../..` resolution is what is tested), a real PR head in
-    the clone (branch pr7 = origin/main + PR_ADDS, what session_ci.sh would have fetched as refs/pr/7) and a stored
-    pass verdict for PR 7 against the clone's origin/main."""
+    """An upstream repo + a clone of it that carries a COPY of the helper and of the checker it re-runs at tools/dev/ (so
+    the script's own `dirname $0/../..` resolution is what is tested), a real PR head in the clone (branch pr7 =
+    origin/main + PR_ADDS, what session_ci.sh would have fetched as refs/pr/7) and a stored pass verdict for PR 7
+    against the clone's origin/main."""
     up, clone = git_init(str(tmp_path / "upstream")), str(tmp_path / "clone")
     git_commit(up, {"src/a.py": "a\n", "docs/x.md": "d\n", "docs/inbox/old.md": "o\n", "docs/coverage/viewer-certified.json": "{}\n"}, "one")
     git(tmp_path, "clone", "-q", up, clone)
     was = git(clone, "rev-parse", "origin/main")
     os.makedirs(os.path.join(clone, "tools", "dev"))
-    for tool in (HELPER, JUDGE, CHECKER, SHARD_LIST):
+    for tool in (HELPER, CHECKER):
         shutil.copy(tool, os.path.join(clone, "tools", "dev"))
     ci = os.path.join(clone, ".git", "session-ci", "ci")
     os.makedirs(ci)
-    ns = types.SimpleNamespace(up=up, clone=clone, ci=ci, was=was, err=None)
+    ns = types.SimpleNamespace(up=up, ci=ci, was=was, err=None)
 
-    def pr(n, files, delete=(), base=None):
-        """A PR head in the clone the way session_ci.sh leaves it (`base` -- default: the clone's ORIGINAL origin/main,
-        `was`, whatever the helper has fetched since -- plus `files` minus `delete`; committed, not left checked out)
-        and a stored pass verdict for it against `was` -> the head SHA."""
-        git(clone, "switch", "-q", "-c", "pr%d" % n, base or was)
-        head = git_commit(clone, files, "PR %d" % n, delete=delete)   # those paths only: the untracked helper copies never ride along
-        git(clone, "switch", "-q", "--detach", was)
+    def pr(n, files):
+        """A PR head in the clone the way session_ci.sh leaves it (origin/main + `files`, fetched, not checked out)
+        and a stored pass verdict for it against the clone's origin/main -> the head SHA."""
+        git(clone, "switch", "-q", "-c", "pr%d" % n, "origin/main")
+        head = git_commit(clone, files, "PR %d" % n)                  # those paths only: the untracked helper copies never ride along
+        git(clone, "switch", "-q", "--detach", "origin/main")
         _verdict(ci, n, head=head, main=was, verdict="pass")
         return head
 
-    def fresh(*argv, path=None, env=None):
-        env = dict(GIT_ENV, **(env or {}))
-        if path:
-            env["PATH"] = path
+    def fresh(*argv, path=None):
+        env = dict(GIT_ENV, PATH=path) if path else GIT_ENV
         out = subprocess.run(["bash", os.path.join(clone, "tools", "dev", "ci_fresh.sh"), *(map(str, argv or (7,)))],
                              cwd=clone, env=env, capture_output=True, text=True, timeout=60)
         ns.err = out.stderr
         return out.returncode, out.stdout.strip()
-
-    def judged(*argv, path=None, env=None):
-        """fresh() the way a tech lead who OPTED IN to the disjoint-drift judge runs it (CI_FRESH_JUDGE=1)."""
-        return fresh(*argv, path=path, env=dict(env or {}, CI_FRESH_JUDGE="1"))
-    ns.pr, ns.fresh, ns.judged = pr, fresh, judged
+    ns.pr, ns.fresh = pr, fresh
     ns.head = pr(7, PR_ADDS)
     return ns
 
@@ -116,313 +89,20 @@ def test_docs_only_drift_is_fresh_and_says_so(rig):
 def test_code_drift_is_stale_names_the_first_three_paths_and_exits_4(rig):
     now = git_commit(rig.up, {"docs/x.md": "more\n", "src/a.py": "b\n", "tests/ci_shard.d/9-x.txt": "tests/test_b.py\n",
                            "tools/t.py": "t\n", "src/z.py": "z\n"}, "code moved under the verdict")
-    assert rig.fresh() == stale(rig.was, now, "src/a.py,src/z.py,tests/ci_shard.d/9-x.txt,…")       # docs/x.md is not counted; 4 blocking paths -> 3 named + ellipsis
-    reason = stale_reason(rig.judged(), rig.was, now, "src/a.py,src/z.py,tests/ci_shard.d/9-x.txt,…")  # opted in, the judge declines it too, saying why
-    assert reason == "main's tests/ci_shard.d/9-x.txt enrols tests/test_b.py, a test main does not change (never run with the other side's change)"
+    rc, line = rig.fresh()
+    assert rc == 4, line
+    assert line == "STALE was=%s now=%s changed=src/a.py,src/z.py,tests/ci_shard.d/9-x.txt,… -> re-run tools/dev/session_ci.sh 7" % (rig.was, now), line   # docs/x.md is not counted; 4 blocking paths -> 3 named + ellipsis
 
 
-READS = "main changes %s, a docs file the shard reads (SHARD_READS)"
-
-
-@pytest.mark.parametrize("files,delete,blocking,reason", [
-    ({"docs/coverage/viewer-certified.json": " \n"}, (), "docs/coverage/viewer-certified.json", READS),         # tests/test_router.py + test_probe_batch.py open the ledger
-    ({"docs/product/PERMUTATION-MATRIX.md": "| cell |\n"}, (), "docs/product/PERMUTATION-MATRIX.md", READS),    # test_router.py compares the rendered matrix
-    ({"docs/process/AUTONOMY.md": "words\n"}, (), "docs/process/AUTONOMY.md", READS),                           # test_techlead.py pins needles in it
-    ({"docs/x.md": "more\n"}, ("docs/inbox/old.md",), "docs/inbox/old.md",
-     "main deletes %s; deletions, renames and type changes are re-run, not judged"),                             # matrix.py cites records by existence: a deletion is drift
+@pytest.mark.parametrize("files,delete,blocking", [
+    ({"docs/coverage/viewer-certified.json": " \n"}, (), "docs/coverage/viewer-certified.json"),        # tests/test_router.py + test_probe_batch.py open the ledger
+    ({"docs/product/PERMUTATION-MATRIX.md": "| cell |\n"}, (), "docs/product/PERMUTATION-MATRIX.md"),   # test_router.py compares the rendered matrix
+    ({"docs/process/AUTONOMY.md": "words\n"}, (), "docs/process/AUTONOMY.md"),                          # test_techlead.py pins needles in it
+    ({"docs/x.md": "more\n"}, ("docs/inbox/old.md",), "docs/inbox/old.md"),                              # matrix.py cites records by existence: a deletion is drift
 ])
-def test_docs_the_shard_reads_and_docs_deletions_are_stale(rig, files, delete, blocking, reason):
+def test_docs_the_shard_reads_and_docs_deletions_are_stale(rig, files, delete, blocking):
     now = git_commit(rig.up, files, "docs the gates can feel", delete=delete)
-    assert rig.fresh() == stale(rig.was, now, blocking)
-    assert stale_reason(rig.judged(), rig.was, now, blocking) == reason % blocking
-
-
-# ---- code drift, OPT-IN: the disjoint-drift judge, tools/dev/ci_fresh_drift.py (#539) --------------------------------
-# Every row below moves CODE on main under PR 7's verdict (PR 7 = docs/inbox/foo.md + src/new.py) and runs the helper
-# the way a tech lead who exported CI_FRESH_JUDGE=1 does (rig.judged). The one shape the judge tolerates is pinned once
-# (FRESH(disjoint drift), both counts named); every way the two changes could meet is pinned as STALE with the judge's
-# own reason, so a rule quietly dropped from the judge turns a row red here; and without the variable the standing
-# gate's byte-identical pre-#539 STALE line is pinned next to it.
-
-def fresh_disjoint(was, now, nmain, npr, pr=7):
-    """The one FRESH line the code-drift path can print: both non-docs file counts named."""
-    return (0, "FRESH(disjoint drift) was=%s now=%s main=%d pr=%d (disjoint from the %d non-docs path%s PR %d changes: not imported or named "
-               "either way, no gate touched, merge clean)" % (was, now, nmain, npr, npr, "" if npr == 1 else "s", pr))
-
-
-def test_disjoint_uncoupled_clean_code_drift_is_fresh_and_names_both_counts(rig):
-    """main gains a modified module, a new tool, a new test WITH the drop-in that enrols it, and docs; PR 7 touches none
-    of them, imports none of them, names none of them, and merges clean: the one tolerated shape."""
-    now = git_commit(rig.up, {"src/a.py": "A = 2\n", "tools/t.py": "import os\n", "tests/test_m.py": "import a\n",
-                              "tests/ci_shard.d/12-m.txt": "# fresh-clone safe\ntests/test_m.py\n", "docs/x.md": "more\n"}, "disjoint code")
-    assert rig.judged(7, rig.head) == fresh_disjoint(rig.was, now, 4, 1)
-    assert rig.judged() == fresh_disjoint(rig.was, now, 4, 1)             # the head comes from the JSON either way
-    assert rig.err == ""
-    assert rig.fresh(7, rig.head) == stale(rig.was, now, "src/a.py,tests/ci_shard.d/12-m.txt,tests/test_m.py,…")   # the standing gate: not opted in, not judged
-
-
-def test_the_judge_is_opt_in_and_a_built_name_reaches_only_what_its_repo_prefix_begins(rig):
-    """Two edges of the same rule: only CI_FRESH_JUDGE=1 -- exactly -- hands code drift to the judge (anything else is
-    the pre-#539 answer), and a name built at run time inside the rvt. namespace or under a tracked top-level directory
-    couples a file only to what that literal prefix can reach (f"rvt.zz.{n}" and tools/*.py reach no src/a.py), so
-    precision is pinned from the FRESH side too."""
-    head = rig.pr(15, dict(PR_ADDS, **{"tools/dyn.py": 'import glob, importlib, os\nM = importlib.import_module(f"rvt.zz.{N}")\n'
-                                                       'G = glob.glob(os.path.join(ROOT, "tools", "*.py"))\n'}))
-    now = git_commit(rig.up, {"src/a.py": "A = 2\n"}, "code")
-    assert rig.judged(15, head) == fresh_disjoint(rig.was, now, 1, 2, pr=15)
-    for value in ("", "0", "yes", "true"):
-        assert rig.fresh(15, head, env={"CI_FRESH_JUDGE": value}) == stale(rig.was, now, "src/a.py", pr=15), value
-
-
-def test_a_path_changed_on_both_sides_is_stale(rig):
-    head = rig.pr(8, {"src/a.py": "# PR side\n", "docs/inbox/eight.md": "e\n"})
-    now = git_commit(rig.up, {"src/a.py": "# main side\n"}, "main edits the same module")
-    assert stale_reason(rig.judged(8, head), rig.was, now, "src/a.py", pr=8) == "PR 8 also changes src/a.py"
-
-
-@pytest.mark.parametrize("main_files,pr_files,reason", [
-    ({"src/a.py": "A = 2\n"}, {"src/uses_a.py": "import os, a as alpha\n"},
-     "PR 9's src/uses_a.py imports a (src/a.py), changed on main"),                                   # PR imports what main changed
-    ({"tools/t.py": "from new import thing\n"}, {},
-     "main's tools/t.py imports new (src/new.py), changed on PR 9"),                                   # ...and the reverse direction
-    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/pkg/high.py": "from .low import LOW\n"},
-     "PR 9's src/pkg/high.py imports pkg.low (src/pkg/low.py), changed on main"),                      # relative imports are resolved
-    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/pkg/high.py": "from . import low\n"},
-     "PR 9's src/pkg/high.py imports pkg.low (src/pkg/low.py), changed on main"),                      # `from . import mod` names the module...
-    ({"src/pkg/__init__.py": "from .low import LOW\n", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": "from pkg import LOW\n"},
-     "PR 9's src/user.py imports pkg, on one import chain with pkg.low (src/pkg/low.py), changed on main"),   # ...a façade import names the whole package
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_t.py": 'from conftest import load_tool\nT = load_tool("t")\n'},
-     "PR 9's tests/test_t.py imports t (tools/t.py), changed on main"),                                # loaded by bare literal name = an import of that module
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_run.py": 'import subprocess, sys\nR = subprocess.run([sys.executable, "tools/t.py", "--check"])\n'},
-     "PR 9's tests/test_run.py names tools/t.py, changed on main"),                                    # named as a path (a subprocess), not imported: the name scan
-    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": "from pkg import high, \\\n    low\n"},
-     "PR 9's src/user.py imports pkg.low (src/pkg/low.py), changed on main"),                          # a backslash-continued list is read whole (ast) -- c3
-    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": "import os; from pkg import low\nif os.sep:\n    pass\n"},
-     "PR 9's src/user.py imports pkg.low (src/pkg/low.py), changed on main"),                          # a `;` chain on one line -- c4
-    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": "if True: from pkg import low\n\ndef f():\n    import os\n"},
-     "PR 9's src/user.py imports pkg.low (src/pkg/low.py), changed on main"),                          # an inline suite -- c4
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nM = importlib.import_module(PREFIX + "a")\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"*/a…\") that can reach src/a.py, changed on main"),   # a loader fed an expression reaches what its literal tail can be, at any depth...
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nM = importlib.import_module(name)\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),   # ...fed a plain variable too (its literal may live in an unchanged caller)
-    ({"tools/genesis_2031.py": "G = 1\n"}, {"tests/test_g.py": 'from conftest import load_tool\nYEAR = 2031\nNAME = "genesis_%d" % YEAR\nG = load_tool(NAME)\n'},
-     "PR 9's tests/test_g.py builds or discovers names at run time (\"…\") that can reach tools/genesis_2031.py, changed on main"),   # a template outside the repo prefixes reaches anything
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_walk.py": 'import os\nfrom conftest import load_tool\nfor f in os.listdir(TOOLS):\n    n = f[:-3]\n    load_tool(n)\n'},
-     "PR 9's tests/test_walk.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),   # a directory walk with no literal start reaches anything -- j3
-    ({"tools/gen_x.py": "T = 1\n"}, {"tests/test_walk.py": 'import glob, os, subprocess, sys\nfor p in glob.glob(os.path.join(ROOT, "tools", "gen_*.py")):\n    subprocess.run([sys.executable, p])\n'},
-     "PR 9's tests/test_walk.py builds or discovers names at run time (\"tools/gen_…\") that can reach tools/gen_x.py, changed on main"),   # ...one with a literal start reaches what it begins -- j4
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_spec.py": 'import importlib.util\nS = importlib.util.spec_from_file_location("mod", path)\n'},
-     "PR 9's tests/test_spec.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),   # spec_from_file_location's PATH argument counts -- j5
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_spec.py": 'import importlib.util, os\nS = importlib.util.spec_from_file_location("mod", os.path.join(ROOT, "tools", "t.py"))\n'},
-     "PR 9's tests/test_spec.py builds or discovers names at run time (\"tools/t.py…\") that can reach tools/t.py, changed on main"),   # ...narrowed to the path its literal pieces spell
-    ({"plugin/skills/tekton-author/scripts/rvt_inspect.py": "I = 1\n"},
-     {"tests/test_walk.py": 'import glob, os\nfor skill in SKILLS:\n    G = glob.glob(os.path.join(ROOT, "plugin", "skills", skill, "scripts", "*.py"))\n'},
-     "PR 9's tests/test_walk.py builds or discovers names at run time (\"plugin/skills…\") that can reach plugin/skills/tekton-author/scripts/rvt_inspect.py, changed on main"),   # the piece run stops at the first non-literal argument, never joins across it (round 2, F1)
-    ({"plugin/skills/tekton-author/scripts/rvt_inspect.py": "I = 1\n"},
-     {"tests/test_walk.py": 'from pathlib import Path\nG = sorted(Path(ROOT, "plugin", "skills").rglob("*.py"))\n'},
-     "PR 9's tests/test_walk.py builds or discovers names at run time (\"plugin/skills…\") that can reach plugin/skills/tekton-author/scripts/rvt_inspect.py, changed on main"),   # a walker's receiver spells the start
-    ({"src/pkg/__init__.py": "from .low import LOW\n", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": 'import importlib\nP = importlib.import_module("pkg")\n'},
-     "PR 9's src/user.py imports pkg, on one import chain with pkg.low (src/pkg/low.py), changed on main"),          # a literal loader argument is judged like an import statement, façade and all (F3)...
-    ({"src/pkg/__init__.py": "from .low import LOW\n", "src/pkg/low.py": "LOW = 1\n"}, {"tests/test_p.py": 'import pytest\npkg = pytest.importorskip("pkg")\n'},
-     "PR 9's tests/test_p.py imports pkg, on one import chain with pkg.low (src/pkg/low.py), changed on main"),      # ...importorskip included
-    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"tests/test_p.py": 'import pkgutil\nimport pkg\nM = [m.name for m in pkgutil.iter_modules(PATHS)]\n'},
-     "PR 9's tests/test_p.py builds or discovers names at run time (\"…\") that can reach src/pkg/low.py, changed on main"),   # module walks are walks (F4)...
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_sweep.py": 'import subprocess\nNAMES = subprocess.run(["git", "ls-files", "-z"], capture_output=True).stdout\n'},
-     "PR 9's tests/test_sweep.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),   # ...and so is a `git ls-files` sweep driven from a test
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_alias.py": 'from glob import glob as every\nG = every(PATTERN)\n'},
-     "PR 9's tests/test_alias.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),   # an aliased walker counts...
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nload = getattr(importlib, "import_module")\nM = load(NAME)\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),           # ...and a loader fetched with getattr reaches everything
-    # round 3, R1: a run that starts below anything but the repo root is NOT anchored at the root -- it matches at any directory boundary
-    ({"plugin/skills/tekton-author/scripts/rvt_inspect.py": "I = 1\n"},
-     {"tests/test_walk.py": 'import glob, os\nPLUGIN = os.path.join(ROOT, "plugin")\nfor skill in SKILLS:\n    G = glob.glob(os.path.join(PLUGIN, "skills", skill, "scripts", "*.py"))\n'},
-     "PR 9's tests/test_walk.py builds or discovers names at run time (\"*/skills…\") that can reach plugin/skills/tekton-author/scripts/rvt_inspect.py, changed on main"),
-    ({"plugin/skills/tekton-author/scripts/rvt_inspect.py": "I = 1\n"},
-     {"tests/test_walk.py": 'from pathlib import Path\nPLUGIN = Path(ROOT) / "plugin"\nG = sorted((PLUGIN / "skills").rglob("*.py"))\n'},
-     "PR 9's tests/test_walk.py builds or discovers names at run time (\"*/skills…\") that can reach plugin/skills/tekton-author/scripts/rvt_inspect.py, changed on main"),
-    ({"plugin/lib/tools/dev/x.py": "X = 1\n"},
-     {"tests/test_walk.py": 'import glob, os\nfor base in BASES:\n    G = glob.glob(os.path.join(base, "tools", "dev", "*.py"))\n'},
-     "PR 9's tests/test_walk.py builds or discovers names at run time (\"*/tools/dev…\") that can reach plugin/lib/tools/dev/x.py, changed on main"),
-    ({"tests/tools/x.json": "{}\n"},
-     {"tests/test_walk.py": 'import glob, os\nHERE = os.path.dirname(__file__)\nG = glob.glob(os.path.join(HERE, "tools", "*.json"))\n'},
-     "PR 9's tests/test_walk.py builds or discovers names at run time (\"*/tools…\") that can reach tests/tools/x.json, changed on main"),
-    # R2: a loader or walker MENTIONED but not called right there reaches everything, and so does exec of anything
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nM = list(map(importlib.import_module, NAMES))\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_pool.py": 'from conftest import load_tool\nR = list(ex.map(load_tool, NAMES))\n'},
-     "PR 9's tests/test_pool.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nfrom typing import Callable\nim: Callable = importlib.import_module\nM = im(NAME)\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import glob, importlib\nim, g = importlib.import_module, glob.glob\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nf = (im := importlib.import_module)\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import functools, importlib\np = functools.partial(importlib.import_module)\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
-    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/user.py": 'exec("from pkg import low")\n'},
-     "PR 9's src/user.py builds or discovers names at run time (\"…\") that can reach src/pkg/low.py, changed on main"),
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'import importlib\nM = importlib.import_module.__call__(NAME)\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
-    ({"src/a.py": "A = 2\n"}, {"tools/dyn.py": 'M = globals()["__builtins__"]["__import__"](NAME)\n'},
-     "PR 9's tools/dyn.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
-    # R4: the deciding argument is picked by keyword NAME; a relative literal is no top-level module name
-    ({"src/a.py": "A = 2\n"}, {"tests/test_kw.py": 'import pytest\nP = pytest.importorskip(reason="x", modname=NAME)\n'},
-     "PR 9's tests/test_kw.py builds or discovers names at run time (\"…\") that can reach src/a.py, changed on main"),
-    ({"src/pkg/__init__.py": "", "src/pkg/low.py": "LOW = 1\n"}, {"src/pkg/high.py": 'import importlib\nL = importlib.import_module(".low", package="pkg")\n'},
-     "PR 9's src/pkg/high.py builds or discovers names at run time (\"…\") that can reach src/pkg/low.py, changed on main"),
-    # R5: the by-path loaders and unittest's discovery
-    ({"tools/t.py": "T = 1\n"}, {"tests/test_sfl.py": 'from importlib.machinery import SourceFileLoader\nM = SourceFileLoader("m", p).load_module()\n'},
-     "PR 9's tests/test_sfl.py builds or discovers names at run time (\"…\") that can reach tools/t.py, changed on main"),
-    ({"tests/test_z.py": "Z = 1\n", "tests/ci_shard.d/9-z.txt": "tests/test_z.py\n"}, {"tests/test_disc.py": 'import os, unittest\nS = unittest.defaultTestLoader.discover(os.path.join(ROOT, "tests"))\n'},
-     "PR 9's tests/test_disc.py builds or discovers names at run time (\"tests…\") that can reach tests/test_z.py, changed on main"),
-])
-def test_disjoint_but_coupled_changes_are_stale(rig, main_files, pr_files, reason):
-    head = rig.pr(9, dict(PR_ADDS, **pr_files))
-    now = git_commit(rig.up, main_files, "main side")
-    assert stale_reason(rig.judged(9, head), rig.was, now, ",".join(sorted(main_files)), pr=9) == reason
-
-
-@pytest.mark.parametrize("main_files,pr_files,reason", [
-    ({"tests/conftest.py": "import os\n"}, {}, "main changes tests/conftest.py, a gate: shard machinery, a whole-tree checker or its law data"),
-    ({"src/a.py": "A = 2\n"}, {"tests/ci_shard.txt": "tests/test_x.py\n"}, "PR 10 changes tests/ci_shard.txt, a gate: shard machinery, a whole-tree checker or its law data"),
-    ({"tools/dev/session_ci.sh": "#\n"}, {}, "main changes tools/dev/session_ci.sh, a gate: shard machinery, a whole-tree checker or its law data"),
-    ({"tools/sync_plugin.py": "#\n"}, {}, "main changes tools/sync_plugin.py, a gate: shard machinery, a whole-tree checker or its law data"),
-    ({"src/a.py": "A = 2\n"}, {"tests/ci_shard.d/README": "words\n"}, "PR 10 changes tests/ci_shard.d/README, shard machinery"),
-    ({"src/a.py": "A = 2\n"}, {"docs/coverage/viewer-certified.json": '{"x": 1}\n'}, "PR 10 changes docs/coverage/viewer-certified.json, a docs file the shard reads (SHARD_READS)"),
-    ({"src/a.py": "A = 2\n"}, {"tests/ci_shard.d/10-x.txt": "tests/test_old.py\n"}, "PR 10's tests/ci_shard.d/10-x.txt enrols tests/test_old.py, a test PR 10 does not change (never run with the other side's change)"),
-    ({"src/a.py": "A = 2\n"}, {"tests/pyproject.toml": "[tool.pytest.ini_options]\n"}, "PR 10 changes tests/pyproject.toml, a file pytest, git or the interpreter picks up by name, wherever it lies"),   # a nested inifile -- e4...
-    ({"tests/pytest.toml": "[pytest]\n"}, {}, "main changes tests/pytest.toml, a file pytest, git or the interpreter picks up by name, wherever it lies"),                                # ...pytest 9 reads [.]pytest.toml / .pytest.ini AHEAD of pyproject (round 2, F2)
-    ({"src/a.py": "A = 2\n"}, {"tests/.pytest.toml": "[pytest]\n"}, "PR 10 changes tests/.pytest.toml, a file pytest, git or the interpreter picks up by name, wherever it lies"),
-    ({"tests/sub/.pytest.ini": "[pytest]\n"}, {}, "main changes tests/sub/.pytest.ini, a file pytest, git or the interpreter picks up by name, wherever it lies"),
-    ({"src/a.py": "A = 2\n"}, {"tests/sub/__init__.py": ""}, "PR 10 changes tests/sub/__init__.py, a file pytest, git or the interpreter picks up by name, wherever it lies"),                     # rootdir/package discovery -- e5
-    ({"tools/sitecustomize.py": "import os\n"}, {}, "main changes tools/sitecustomize.py, a file pytest, git or the interpreter picks up by name, wherever it lies"),
-    ({"tests/.gitattributes": "*.txt eol=crlf\n"}, {}, "main changes tests/.gitattributes, a file pytest, git or the interpreter picks up by name, wherever it lies"),   # bytes rewritten tree-wide on export (round 3)
-    ({"src/fastmod.so": "ELF\n"}, {}, "main changes src/fastmod.so, a compiled module: judged by nobody"),
-])
-def test_gates_shard_reads_and_dropins_enrolling_unchanged_tests_are_stale_on_either_side(rig, main_files, pr_files, reason):
-    head = rig.pr(10, dict(PR_ADDS, **pr_files))
-    now = git_commit(rig.up, main_files, "main side")
-    assert stale_reason(rig.judged(10, head), rig.was, now, ",".join(sorted(main_files)), pr=10) == reason
-
-
-def test_symlinks_submodule_entries_oversized_files_and_a_non_sha_head_are_not_judged(rig):
-    """Rule 2's other refusals: a symlink (mode 120000) or a gitlink (160000) is judged by its target by nobody; a file
-    over the 2 MB the judge reads is not scanned; a recorded head that is not a 40-hex id (a ref name in the JSON) is
-    not argued about even though git could resolve it -- m12, m2, h2."""
-    git(rig.clone, "switch", "-q", "-c", "pr16", rig.was)              # PR 16 by hand: git_commit writes regular files only
-    os.makedirs(os.path.join(rig.clone, "tests"))
-    os.symlink("test_helper.py", os.path.join(rig.clone, "tests", "test_link.py"))
-    git(rig.clone, "add", "--", "tests/test_link.py")
-    git(rig.clone, "commit", "-qm", "PR 16: a symlinked test")
-    head = git(rig.clone, "rev-parse", "HEAD")
-    git(rig.clone, "switch", "-q", "--detach", rig.was)
-    _verdict(rig.ci, 16, head=head, main=rig.was, verdict="pass")
-    now = git_commit(rig.up, {"tools/t.py": "T = 1\n"}, "code")
-    assert stale_reason(rig.judged(16, head), rig.was, now, "tools/t.py", pr=16) == "PR 16 changes tests/test_link.py, a symlink (mode 120000): only regular files are judged"
-    git(rig.up, "update-index", "--add", "--cacheinfo", "160000,%s,vendor/sub" % rig.was)
-    git(rig.up, "commit", "-qm", "a submodule entry")
-    now = git(rig.up, "rev-parse", "HEAD")
-    assert stale_reason(rig.judged(7, rig.head), rig.was, now, "tools/t.py,vendor/sub") == "main changes vendor/sub, a submodule entry (mode 160000): only regular files are judged"
-    git(rig.up, "rm", "-q", "--cached", "vendor/sub")
-    now = git_commit(rig.up, {"tools/big.py": "#" * 2_000_001}, "a dump, not a source file")
-    assert stale_reason(rig.judged(7, rig.head), rig.was, now, "tools/big.py,tools/t.py") == "main's tools/big.py is 2000001 bytes, over the 2000000 this judge reads"
-    _verdict(rig.ci, 18, head="HEAD", main=rig.was, verdict="pass")     # git resolves "HEAD" happily; the judge must not
-    assert stale_reason(rig.judged(18), rig.was, now, "tools/big.py,tools/t.py", pr=18) == "the recorded head 'HEAD' is not a 40-hex commit id"
-
-
-def test_deletions_and_renames_on_either_side_are_stale_both_names_counted(rig):
-    """--no-renames: a rename is a deletion plus an addition, so both its names are in the set -- and the deletion half
-    alone makes it STALE (a vanished path can be reached through a name computed at run time)."""
-    git(rig.up, "mv", "src/a.py", "src/b.py")
-    git(rig.up, "commit", "-qm", "main renames a module")
-    now = git(rig.up, "rev-parse", "HEAD")
-    assert stale_reason(rig.judged(7, rig.head), rig.was, now, "src/a.py,src/b.py") == "main deletes src/a.py; deletions, renames and type changes are re-run, not judged"
-    head = rig.pr(11, {"docs/inbox/renamed.md": "o\n"}, delete=("docs/inbox/old.md",))
-    now = git_commit(rig.up, {"tools/t.py": "T = 1\n"}, "and some code")
-    assert stale_reason(rig.judged(11, head), rig.was, now, "src/a.py,src/b.py,tools/t.py", pr=11) == "main deletes src/a.py; deletions, renames and type changes are re-run, not judged"
-    _verdict(rig.ci, 11, head=head, main=now, verdict="pass")           # re-run against that main: now only the PR's own rename is left to object to
-    later = git_commit(rig.up, {"tools/u.py": "U = 1\n"}, "more code")
-    assert stale_reason(rig.judged(11, head), now, later, "tools/u.py", pr=11) == "PR 11 deletes docs/inbox/old.md; deletions, renames and type changes are re-run, not judged"
-
-
-def test_merge_conflicts_are_stale_even_between_disjoint_or_docs_only_sets(rig):
-    """Disjoint path SETS can still collide in the merge (a file where the other side needs a directory), and docs set
-    aside as inert can still conflict textually (the same record edited on both sides): merge-tree says so, from objects."""
-    head = rig.pr(12, {"lib/x.py": "X = 1\n", "docs/x.md": "PR's words\n"})
-    now = git_commit(rig.up, {"lib": "a file where the PR has a directory\n"}, "file vs directory")
-    assert stale_reason(rig.judged(12, head), rig.was, now, "lib", pr=12).startswith("merging PR 12 into origin/main conflicts on lib~")   # git parks the file as lib~<side>
-    head = rig.pr(13, {"docs/x.md": "PR's words\n"})
-    now = git_commit(rig.up, {"docs/x.md": "main's words\n", "tools/t.py": "T = 1\n"}, "the same doc, differently", delete=("lib",))
-    assert stale_reason(rig.judged(13, head), rig.was, now, "tools/t.py", pr=13) == "merging PR 13 into origin/main conflicts on docs/x.md"
-
-
-def test_a_case_twin_across_the_two_sides_of_code_drift_is_stale_by_the_checker_itself(rig):
-    """git merges src/NEW.py (main) and src/new.py (PR 7) without a word; tools/dev/check_portable_paths.py over the
-    MERGED tree's names does not -- the same law the docs-only path applies, felt on the code path."""
-    now = git_commit(rig.up, {"src/NEW.py": "TWIN = 1\n", "tools/t.py": "T = 1\n"}, "a twin of the PR's module")
-    assert stale_reason(rig.judged(7, rig.head), rig.was, now, "src/NEW.py,tools/t.py") == \
-        "tools/dev/check_portable_paths.py rejects the merged tree: case-only collision (breaks case-insensitive filesystems): ['src/NEW.py', 'src/new.py']"
-
-
-def test_more_than_200_changed_paths_a_side_are_not_judged(rig):
-    now = git_commit(rig.up, {"gen/f%03d.txt" % i: "x\n" for i in range(201)}, "a big sweep")
-    assert stale_reason(rig.judged(7, rig.head), rig.was, now, "gen/f000.txt,gen/f001.txt,gen/f002.txt,…") == "main changes more than 200 paths, over what this judge reads"
-
-
-def test_a_head_based_past_the_recorded_main_or_missing_here_is_stale(rig):
-    """Shape: the judge only argues about a head whose merge base is at or below the recorded main (what session_ci
-    really merged); and code drift with a head this clone never fetched cannot be judged at all -- both STALE."""
-    now = git_commit(rig.up, {"tools/t.py": "T = 1\n"}, "code")
-    git(rig.clone, "fetch", "-q")
-    head = rig.pr(14, {"src/late.py": "L = 1\n"}, base="origin/main")   # branched from the NEW origin/main, verdict recorded against the old one
-    reason = stale_reason(rig.judged(14, head), rig.was, now, "tools/t.py", pr=14)
-    assert reason.startswith("PR 14's merge base ") and reason.endswith(" is not an ancestor of the recorded main (head rebased past the run)")
-    _verdict(rig.ci, 17, head=E40, main=rig.was, verdict="pass")
-    assert stale_reason(rig.judged(17), rig.was, now, "tools/t.py", pr=17) == "the recorded head %s is not a commit in this clone, so PR 17's own change cannot be read" % E40[:12]
-
-
-def shim_path(where, exe, refuse, action):
-    """A PATH string that puts a shim of `exe` first: it runs the shell snippet `action` (say something on stderr and
-    exit, or sleep) when any argument matches the shell pattern `refuse`, and hands everything else to the real program."""
-    where.mkdir(exist_ok=True)
-    shim = where / exe
-    shim.write_text('#!/bin/sh\nfor a in "$@"; do case "$a" in %s) %s;; esac; done\nexec "%s" "$@"\n' % (refuse, action, shutil.which(exe)))
-    shim.chmod(0o755)
-    return str(where) + os.pathsep + os.environ.get("PATH", "")
-
-
-@pytest.mark.parametrize("exe,refuse,action,line", [
-    ("python3", "*/ci_fresh_drift.py", 'echo "shim says no" >&2; exit 1',
-     "cannot judge PR 7: the disjoint-drift judge failed (rc=1; was=%(was)s now=%(now)s changed=tools/t.py)"),        # the judge's interpreter dies: no payload
-    ("python3", "*/ci_fresh_drift.py", 'sleep 5',
-     "cannot judge PR 7: the disjoint-drift judge failed (rc=124; was=%(was)s now=%(now)s changed=tools/t.py)"),      # ...or outlives its budget (CI_FRESH_JUDGE_TIMEOUT=1 below): timeout's 124
-    ("git", "merge-tree", 'echo "shim says no" >&2; exit 129',
-     "cannot judge PR 7: git merge-tree --write-tree failed (129) -- `git merge-tree --write-tree` needs git >= 2.38: "
-     "shim says no (was=%(was)s now=%(now)s changed=tools/t.py)"),                                                     # a git too old for --write-tree (usage = 129)
-    ("git", "--is-ancestor", 'echo "shim says no" >&2; exit 128',
-     "cannot judge PR 7: git merge-base %(was)s failed"),                                                             # git failing under the helper's own ancestry check
-    ("git", "--all", 'echo "shim says no" >&2; exit 128',
-     "cannot judge PR 7: git merge-base --all failed (128): shim says no (was=%(was)s now=%(now)s changed=tools/t.py)"),   # any other git failure under the judge
-])
-def test_the_judge_fails_closed_when_git_or_its_interpreter_fails_or_stalls(rig, tmp_path, exe, refuse, action, line):
-    """cannot judge (exit 2), never FRESH -- with the reason on the one line the tick posts."""
-    now = git_commit(rig.up, {"tools/t.py": "T = 1\n"}, "code")
-    assert rig.judged(7, rig.head) == fresh_disjoint(rig.was, now, 1, 1)              # the ground truth for this drift
-    got = rig.judged(7, rig.head, path=shim_path(tmp_path / "shim", exe, refuse, action), env={"CI_FRESH_JUDGE_TIMEOUT": "1"})
-    assert got == (2, (line % {"was": rig.was, "now": now}).replace("merge-base %s failed" % rig.was, "merge-base %s %s failed" % (rig.was, now)))
-
-
-def test_a_rewritten_trunk_is_stale_even_when_the_difference_is_docs_only(rig):
-    """Drift is was..now only while origin/main still DESCENDS from the recorded main: an amended/rewritten trunk whose
-    tree differs by nothing but a record is not "docs-only drift" -- the run merged with a commit that no longer leads
-    to main. STALE, on the standing gate, no judge involved."""
-    with open(os.path.join(rig.up, "docs", "inbox", "later.md"), "w", encoding="utf-8") as fh:
-        fh.write("a record\n")
-    git(rig.up, "add", "--", "docs/inbox/later.md")
-    git(rig.up, "commit", "-q", "--amend", "--no-edit")
-    now = git(rig.up, "rev-parse", "HEAD")
-    assert rig.fresh(7, rig.head) == (4, "STALE was=%s now=%s changed=? (%s is not an ancestor of origin/main: main rewritten under the verdict) -> re-run tools/dev/session_ci.sh 7" % (rig.was, now, rig.was))
-    assert rig.err == ""
+    assert rig.fresh() == (4, "STALE was=%s now=%s changed=%s -> re-run tools/dev/session_ci.sh 7" % (rig.was, now, blocking))
 
 
 TWIN_LINE = ("STALE was=%s now=%s changed=%s (added on main; PR 7 adds the same name or a case-twin of it: an add/add conflict or a "
@@ -456,7 +136,12 @@ def test_the_collision_check_fails_closed_when_its_interpreter_fails(rig, tmp_pa
     and any other failure -- a git call, the checker import -- lands here), the answer is "cannot judge", exit 2 --
     not FRESH. A python3 shim that dies only for that one program (the one handed tools/dev/check_portable_paths.py,
     #522) proves it; the JSON read before it goes through the real interpreter."""
-    path = shim_path(tmp_path / "py-shim", "python3", "*/check_portable_paths.py", 'echo "shim: refusing the collision check" >&2; exit 1')
+    shim = tmp_path / "py-shim"
+    shim.mkdir()
+    (shim / "python3").write_text('#!/bin/sh\nfor a in "$@"; do case "$a" in */check_portable_paths.py) echo "shim: refusing the collision check" >&2; exit 1;; esac; done\n'
+                                  'exec "%s" "$@"\n' % shutil.which("python3"))
+    (shim / "python3").chmod(0o755)
+    path = str(shim) + os.pathsep + os.environ.get("PATH", "")
     now = git_commit(rig.up, {"docs/inbox/Foo.md": "twin\n"}, "main adds a twin")
     assert rig.fresh(7, rig.head) == (4, TWIN_LINE % (rig.was, now, "docs/inbox/Foo.md"))          # the real interpreter sees it
     assert rig.fresh(7, rig.head, path=path) == (2, "cannot judge PR 7: the collision check against the names PR 7 adds failed")
@@ -488,8 +173,7 @@ def test_a_blocking_path_whose_name_is_all_blanks_is_still_named_and_stale(rig):
     """The join helper counts lines by length, not awk NF: a top-level file literally named " " is untolerated drift
     and must keep main's answer (STALE, the blank name after changed=), never vanish into FRESH(docs-only drift)."""
     now = git_commit(rig.up, {" ": "z\n", "docs/x.md": "more\n"}, "a file named blank")
-    assert rig.fresh() == stale(rig.was, now, " ")
-    assert stale_reason(rig.judged(), rig.was, now, " ") == "main changes a path this judge does not argue about: ' '"   # and the opt-in judge refuses to reason about such a name
+    assert rig.fresh() == (4, "STALE was=%s now=%s changed=  -> re-run tools/dev/session_ci.sh 7" % (rig.was, now))
 
 
 @pytest.mark.parametrize("flavour", [pytest.param(f, marks=pytest.mark.skipif(not shutil.which(f), reason="%s is not installed on this machine" % f))
@@ -508,7 +192,7 @@ def test_every_installed_awk_gives_the_same_quiet_answers(rig, tmp_path, flavour
     assert rig.err == "", (flavour, rig.err)
     # ...the real name is not, and the blocking list is joined the same way
     now = git_commit(rig.up, {"docs/product/PERMUTATION-MATRIX.md": "| cell |\n", "src/a.py": "b\n", "src/b.py": "b\n", "src/c.py": "c\n"}, "the real thing")
-    assert rig.fresh(path=path) == stale(rig.was, now, "docs/product/PERMUTATION-MATRIX.md,src/a.py,src/b.py,…"), flavour
+    assert rig.fresh(path=path) == (4, "STALE was=%s now=%s changed=docs/product/PERMUTATION-MATRIX.md,src/a.py,src/b.py,… -> re-run tools/dev/session_ci.sh 7" % (rig.was, now)), flavour
     assert rig.err == "", (flavour, rig.err)
 
 
@@ -541,6 +225,35 @@ def test_unknown_recorded_main_fails_closed(rig):
     assert rc == 4 and line.startswith("STALE was=%s now=" % ("1" * 40)) and "changed=?" in line
 
 
+def test_a_rewritten_trunk_is_stale_even_when_the_difference_is_docs_only(rig):
+    """#539 (the part that shipped): drift is was..now only while origin/main still DESCENDS from the recorded main. An
+    amended/rewritten trunk whose tree differs by nothing but a record is not "docs-only drift" -- the run merged with
+    a commit that no longer leads to main -- so it is STALE; and the ancestry probe itself failing is "cannot judge"."""
+    with open(os.path.join(rig.up, "docs", "inbox", "later.md"), "w", encoding="utf-8") as fh:
+        fh.write("a record\n")
+    git(rig.up, "add", "--", "docs/inbox/later.md")
+    git(rig.up, "commit", "-q", "--amend", "--no-edit")
+    now = git(rig.up, "rev-parse", "HEAD")
+    assert rig.fresh(7, rig.head) == (4, "STALE was=%s now=%s changed=? (%s is not an ancestor of origin/main: main rewritten under the verdict) "
+                                     "-> re-run tools/dev/session_ci.sh 7" % (rig.was, now, rig.was))
+    assert rig.err == ""
+
+
+def test_the_ancestry_probe_fails_closed(rig, tmp_path):
+    """A git that cannot answer `merge-base --is-ancestor` (anything but exit 0/1) is "cannot judge", exit 2 -- never
+    read as "not rewritten" and waved through to the docs-only path."""
+    now = git_commit(rig.up, {"docs/x.md": "more\n"}, "docs only")
+    assert rig.fresh() == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))       # the ground truth
+    shim = tmp_path / "git-shim"
+    shim.mkdir()
+    (shim / "git").write_text('#!/bin/sh\nfor a in "$@"; do case "$a" in --is-ancestor) echo "shim: no ancestry" >&2; exit 128;; esac; done\n'
+                              'exec "%s" "$@"\n' % shutil.which("git"))
+    (shim / "git").chmod(0o755)
+    path = str(shim) + os.pathsep + os.environ.get("PATH", "")
+    assert rig.fresh(path=path) == (2, "cannot judge PR 7: git merge-base %s %s failed" % (rig.was, now))
+    assert "shim: no ancestry" in rig.err
+
+
 def test_session_ci_records_the_main_it_merged_and_the_helper_stays_trusted_side():
     # session_ci.sh's other needles (sandbox, locks, shard reader, the merge with "$MAIN") are pinned in tests/test_techlead.py
     src = open(SESSION_CI, encoding="utf-8").read()
@@ -555,31 +268,8 @@ def test_session_ci_records_the_main_it_merged_and_the_helper_stays_trusted_side
     assert os.access(HELPER, os.X_OK) and helper.startswith("#!/usr/bin/env bash")
     assert "SESSION_CI_DIR:-$REPO/.git/session-ci" in helper and "SESSION_CI_DIR:-$REPO/.git/session-ci" in src           # one scratch layout, two readers
     for needle in ("git checkout", "git switch", "worktree add", "pytest", "refs/pr/", "cat-file -p", "cat-file blob", "git show", "git archive"):
-        assert needle not in helper, needle          # it never touches PR code: our own JSON + git plumbing (names, never contents) only...
-    assert 'python3 -IB "$REPO/tools/dev/ci_fresh_drift.py"' in helper                    # ...and hands code drift to THIS checkout's judge, which
-    judge = open(JUDGE, encoding="utf-8").read()                                             # READS blob text as data (cat-file --batch); same deny-list, minus its one loader:
-    code = "\n".join(ln.split("  # ")[0] for ln in re.sub(r'"""[\s\S]*?"""', '""', judge).splitlines() if not ln.lstrip().startswith("#")).replace("spec.loader.exec_module(module)", "")
-    for needle in ("checkout", "switch", "worktree", "-m pytest", "pytest.main", "git show", "archive", "exec(", "eval(", " compile(", "os.system", "shell=True", "import_module(", "sys.path"):
-        assert needle not in code, needle
-    assert 'os.path.join(HERE, name + ".py")' in code and sorted(re.findall(r'trusted\("(\w+)"\)', code)) == ["check_portable_paths", "shard_list"]   # the only code it loads: two trusted neighbours, by path
+        assert needle not in helper, needle          # it never touches PR code: our own JSON + git plumbing (names, never contents) only
     assert r"\." not in _portable_ere()              # [.] is the portable literal dot inside an awk -v string (gawk degrades \. to . with a warning)
-
-
-def test_every_gate_the_judge_names_exists_and_everything_session_ci_executes_is_a_gate():
-    """GATES/GATE_DIRS in the judge are a hand list, and a stale entry fails OPEN (a renamed checker would silently stop
-    being a gate). So: every named gate is a tracked path (or a prefix of one), every file tools/dev/session_ci.sh
-    executes -- this checkout's trusted helpers and the whole-tree steps it runs on the PR (`step <name> "$PY" <path>`)
-    -- is a gate, and the drop-in law is shard_list.py's own (loaded, not copied)."""
-    from conftest import load_tool
-    judge_mod, tracked = load_tool("dev/ci_fresh_drift"), set(git(ROOT, "ls-files").splitlines())
-    assert not [g for g in judge_mod.GATES if g not in tracked], [g for g in judge_mod.GATES if g not in tracked]
-    assert all(any(t.startswith(d) for t in tracked) for d in judge_mod.GATE_DIRS), judge_mod.GATE_DIRS
-    src = open(SESSION_CI, encoding="utf-8").read()
-    executed = set(re.findall(r'\$REPO/(tools/[\w./-]+\.(?:py|sh))', src)) | set(re.findall(r'step \w+ "\$PY" ([\w./-]+\.py)', src))
-    assert {"tools/dev/check_portable_paths.py", "tools/dev/shard_list.py", "tools/sync_plugin.py", "plugin/scripts/validate_plugin.py"} <= executed   # the scrape still sees them
-    assert executed <= judge_mod.GATES, executed - judge_mod.GATES
-    assert {"tools/dev/session_ci.sh", "tools/dev/ci_fresh.sh", "tools/dev/ci_fresh_drift.py", "tests/conftest.py", "tests/ci_shard.txt"} <= judge_mod.GATES
-    assert judge_mod.SHARD is None and "DROPIN_NAME" not in vars(judge_mod)                # no private copy of the drop-in law: it comes from shard_list.py at run time
 
 
 # ---- meta: SHARD_READS must cover every docs/ path the real CI shard reads (#496) --------------------------------------
