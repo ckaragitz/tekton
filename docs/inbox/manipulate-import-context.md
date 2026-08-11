@@ -878,3 +878,185 @@ no writer change, no byte any route writes can change, nothing sample-derived ch
   **2021 passed, 134 skipped, 3 xfailed, 0 failed in 432 s**; canonical re-run on the frozen final tree: see the PR body;
   `tools/sync_plugin.py` synced 1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
   `tools/dev/check_portable_paths.py` ok (2983 tracked paths); `tools/rvt_validate.py` on the three bases VALID 1/0/0 warnings.
+
+## eng #595 — 2026-08-11 — `locate_tracking` verifies the `EStorageTracking` table even when uncatalogued items lead it: the 2024 base reports `tracking @0xff92e, 7 items, 5 uncatalogued`
+
+Stream: eng #595 (issue #595, `Refs #576 #566`; branch `cam/595-tracking-2024` from `main` @ 59a89d8).
+Written in eng #595's voice; the sections above are untouched. Read-only forensic capability on our own bundled
+base: no writer change, no byte any route writes can change, nothing sample-derived checked in (the worked bytes
+in the writer doc are from OUR OWN composed 2024 base).
+
+### What was built (all inside `src/rvt/estorage.py`'s tracking locate / verify / report path; catalog code from #599 untouched, harvest / entity codec / verify_document / closures untouched)
+
+1. **`locate_tracking(gl, guids, skip)` walks backward and verifies by count.** Anchors are unchanged (catalogued
+   GUID occurrences outside `skip` that read as an item, chained forward through items of ANY guid). New: from an
+   anchor the table is walked *backward* through items of any guid — the item with `k` ids ending at `first` starts
+   at `q = first − 20 − 8k` and is self-checking (u32 at `q+16 == k`; the `k` words plausible ElementIds — one
+   implausible word ends every longer `k` too, so a step costs the plausible-id run in front of `first`, not the
+   stream; GUID not low-entropy; `q` outside `skip`). Several `k` can pass (a 1-id item's own tail reads as a 0-id
+   pseudo-item — twice on the 2024 base), so the walk is breadth-first (a state is just an item offset: an item has
+   one end, so an offset reaches the anchor by exactly one chain; `_TRACKING_BUDGET` = 20 000 generated candidates
+   bounds it) and a table is accepted only when the u32 in front of its first item equals the items it then holds:
+   every walked-back item + at least every forward item up to the last catalogued one, forward items beyond the
+   count cut off; the accepted table is then re-read front to back once. Two count-verified tilings on one level →
+   the one starting earlier — that settles exactly the tail-carved pseudo-item family (a real item out-spans its own
+   tail; a synthetic row forges the u32 in front of the pseudo-item to the very count it needs and the real table
+   still wins) and claims no more: any other wrong tiling needs the u32 in front of it to equal its exact item count,
+   the single 2⁻³² coincidence the old count check already accepted. Verified tables win over unverified as before
+   (most items; anchors inside an accepted table are not re-walked); nothing verified → the pre-existing reading
+   (longest catalogued run, offset = run start − 4) returned with `count 0` so the caller can *label* it. Return
+   shape `(count_offset, count, {guid: ids})` in table order, catalogued or not (was `(offset, {catalogued guid:
+   ids})`; the only caller is `schemas()`); the forward chain reuses `_run`.
+2. **The item layout is read off the file's own schema, like the catalog's.** `TRACKING_ITEM` /
+   `tracking_layout_known(schema)`: the walk runs only when the file's own `EStorageTrackingItem` is exactly
+   `{m_schemaGuid : GUIDvalue, m_elemIdSet : ElementId container}` (true on all three pins, member-for-member the
+   same class 2024..2026); otherwise nothing is walked and `cat.tracking_note` says why — the header then reads
+   `tracking not read (<why>)` instead of the old `tracking @-0x1`. `skip` (the catalog map's own span) stays, and is
+   now documented as **permanent**, not the stopgap eng #576 called it: with verification in place, entry 2's key +
+   its empty `m_documentation` fronted by entry 1's write level 1 would count-verify as a confident 1-item table
+   whenever the real one did not.
+3. **`ESSchemaCatalog`** gains `tracking_count` (declared item count; 0 = unverified), `tracking_uncatalogued :
+   {guid: ids}` (table order) and `tracking_note`; `tracking` stays catalogued-only (what `es_report`,
+   `verify_document().by_schema` and `tests/test_estorage.py` mean by it) and `schemas()` splits the located items by
+   catalog membership. `to_json()` and `es_report()` carry `tracking_count` and `tracking_uncatalogued`
+   **unconditionally** (`2` / empty on 2025/2026) so a JSON consumer can always tell verified from unverified — which
+   re-pins the two `to_json()` digests of #599 by exactly those two keys: the test now pins the new digests AND that
+   the digest with the two keys removed is still #599's `43f8ad756ff22977` / `2d621ae50133432e` (it is; 2024's is eng
+   #576's `2f5ede2e29d13ec4` likewise).
+4. **Report lines (stdout stays terse: 2025/2026 byte-identical to `main`).** `print_catalog` header: `tracking
+   @0xff92e, 7 items, 5 uncatalogued` for a verified table holding uncatalogued items, `tracking @0x… (count
+   unverified)` for the fallback (silent before), `tracking not read (…)` when none, else exactly the old `tracking
+   @0x…`; plus ONE block `uncatalogued schema GUIDs tracked by EStorageTracking (no catalog entry; name and fields
+   unknown):` listing GUID + `tracked_elements=n [ids]` — the five are named once in the CLI output (a first draft also
+   echoed them in the ES-report section; /simplify removed that as saying one thing twice).
+5. **Classification against the file's own schema (finding, tested, documented).** `EStorageTracking` 0x539 (base
+   `AppInfo` 0x1b = one weak `m_pADoc`) / `EStorageTrackingItem` 0x53a: the generic `ObjectDecoder` reading class
+   0x539 at `tracking_offset − 4` against the file's own `Formats/Latest` decodes `{m_pADoc: weak 1,
+   m_trackingItems: [the same 7 (guid, ids)]}` with no error and ends at 0xffa06 exactly where the byte walk ends
+   (2025: object 0x137e06..0x137e6e, 2026: 0x16bfad..0x16c015, 2 items) — a test row on all three pins. So the five
+   leading items ARE plain `EStorageTrackingItem`s; what makes them different is only that their GUIDs have no
+   `m_storedSchemas` entry, and the module says exactly that. The byte walk stays the *locator* because the
+   `ADocument` graph is not decodable front-to-back (writer doc §2.2): the count must be found before any class can
+   be read there, and a single item's class adds no constraint the byte reader lacks.
+6. **What the five GUIDs are, as far as the bytes say** (`docs/writer/extensible-storage.md` §2.1c, new — the whole
+   220-byte object hexdumped with offsets, the level-by-level walk, the cross-check; §2.1b's last sentence now points
+   there; §2.3 / §2.4 / §5 / §8 + U7 updated): each occurs exactly once in the whole 2024 container (this table) — no
+   partition, no other stream, not as text — and nowhere in the 2025/2026 bases; three families sharing their last 12
+   bytes (valid v4/variant bits kept) with `Data1` stamped `0x30000001` / `0x20000002` / `0x10000005`, i.e. derived
+   from random base GUIDs; the two that track anything track element **49504 = the `ProjectInfo` element**, which
+   carries no `m_cellList` / entity in this base. Consistent with Revit-internal 2024-era schemas registered against
+   Project Information and gone by the 2025 upgrade of the same seed; the owning feature is not in the bytes (no
+   catalog entry, no string, no body) and is recorded as unknown U7, not guessed. Whether Autodesk's 2024 samples
+   carry them is unmeasured (no `samples/` in a cloud clone).
+
+### Evidence (numbers)
+
+* **`python -m rvt.estorage plugin/assets/genesis/<base>.rvt --report --walk --roundtrip`, main @59a89d8 → head**
+  (final tree; stdout+stderr transcripts kept in the scratchpad, exit 0 ×6, stderr empty ×6). `G_ABPD_2024`, the whole
+  `diff` against main: line 2 `ES schema catalog: 2 schemas (map count 2 @0xfe679 in Global/Latest; tracking @0xff9a2)`
+  → `… ; tracking @0xff92e, 7 items, 5 uncatalogued)`, and six added lines after the second schema's fields:
+  `  uncatalogued schema GUIDs tracked by EStorageTracking (no catalog entry; name and fields unknown):` /
+  `    30000001-6e79-430c-adf9-634f716c5f5d  tracked_elements=0` / `    30000001-62e6-416d-a34a-bb3064350b62  tracked_elements=1 [49504]` /
+  `    20000002-6e79-430c-adf9-634f716c5f5d  tracked_elements=0` / `    20000002-62e6-416d-a34a-bb3064350b62  tracked_elements=1 [49504]` /
+  `    10000005-db1a-45fc-9eed-810262792b5b  tracked_elements=0`; nothing else differs (schema lines `tracked_elements=6`
+  / `=1`, ES report, `round-trip: examined 0 records`). `G_ABPD_2025` / `G_ABPD`: stdout **byte-identical to main** with
+  the `in N.NNs` timing masked (`diff` empty), stderr identical (empty).
+* **Library seam** (`schemas(path)` under `global_framing.reading(path)`): 2024 → `tracking_offset 0xff92e`,
+  `tracking_count 7` == u32 at that offset == `len(tracking) + len(tracking_uncatalogued)` = 2 + 5, `tracking`
+  `{4c817959…: 6 ids, 5d9588ee…: [1382860]}` (unchanged), `tracking_uncatalogued` the five in table order with ids
+  `[] / [49504] / [] / [49504] / []`, `tracking_note ""`; 2025 → `0x137e0a`, count 2, `{}`; 2026 → `0x16bfb1`, count 2,
+  `{}`. sha256[:16] of `to_json()` minus `source`: with the two new keys 2025 `787646f8f1bbe113`, 2026
+  `786987e13fdb4bd7`, 2024 `1e4bb69e4eeb6561`; **minus the two new keys** 2025 `43f8ad756ff22977`, 2026
+  `2d621ae50133432e` (== #599's pins), 2024 `2f5ede2e29d13ec4` (== eng #576's) — everything `main` read, read
+  identically. `locate_tracking` best-of-9 wall on the final tree, main → head: 2024 0.72 → 0.75 ms, 2025 0.90 → 0.90,
+  2026 1.02 → 1.03 (7 backward states on 2024, ≤ 3 on the others; the cost is the anchors' `bytes.find`).
+* **New rows** in `tests/test_estorage_catalog_2024.py` (9 → 14 tests, 1.1 s; bundled bases + synthetic bytes only):
+  [2024] tracking `(offset, count) == (0xff92e, 7)` (with a re-compose hint like `MAIN_DIGEST`), u32 at the offset ==
+  count == 2 + 5, the five uncatalogued (guid, ids) in order, catalogued 6 / `[1382860]`, each of the five occurs once
+  in the stream and is in no catalog, the file's own `EStorageTracking` class decodes the same 7 items and ends at
+  `0xffa06` == the walk's end, `to_json()` carries both maps + count 7; [2024] CLI: the header token, the block's five
+  lines verbatim, each GUID exactly once in the output; [2025][2026] count 2 == u32 == len(tracking), uncatalogued `{}`,
+  note `""`, own-class decode == `tracking` and ends where the walk ends, `print_catalog` header is the old
+  `; tracking @0x…)` with no `uncatalogued` / `unverified` token, digests as above (new pins + the pre-#595 identity);
+  synthetic bytes: (a) two leading uncatalogued items walked back and kept in order, the garbage pseudo-item chained
+  after the table cut by the count, (b) the false backward tiling with the u32 in front of it FORGED to the count it
+  needs → the real table still (**fails if the per-level tie-break is removed — checked by deleting `sorted(...)`**),
+  (c) a trailing uncatalogued item is in the table iff the count says so (3 → in, 2 → out), (d) a count no tiling
+  meets → `(run start − 4, 0, catalogued run)`, (e) anchor inside `skip` / no anchor → `(-1, 0, {})`, (f) an anchor at stream offset 0 has no count in front → unverifiable (`count 0`), never a wrapped `unpack_from(-4)` read; layout: the three
+  pins declare the item the walk reads, a renamed member or a schema without the class does not, and a catalog with
+  `tracking_note` / with a count-0 table prints `tracking not read (…)` / `(count unverified)`. **Against `main`'s
+  `estorage.py`: 8 of the 14 fail**; on the head 14 pass. `tests/test_estorage_cli_release.py` untouched and green
+  (its `" schemas (map count " in out` holds).
+* Validator on the three bases (estorage is not on `rvt.validate`'s import path; run anyway): `G_ABPD` VALID
+  warnings=1, `G_ABPD_2025` VALID 0, `G_ABPD_2024` VALID 0 — unchanged.
+
+### Follow-ups (searched first: "EStorageTracking", "tracking_uncatalogued", "30000001", "2024 sample estorage" → only #595 / #576)
+
+* None filed. The one open question (U7: do Autodesk's own 2024 samples carry the five GUIDs, and which feature owns
+  them) is an owner-machine one-liner (`python -m rvt.estorage <2024 sample> --report`) recorded in the writer doc; it
+  changes no behaviour — the reader reports whatever a table holds — so it is a note, not a task. Noted, not acted on
+  (outside territory): `_MAX_ID = 1 << 47` is a fourth private "plausible ElementId" bound next to the `< (1 << 40)`
+  inlined in `partitions.py` / `validate.py` / `objects.py`; a shared constant would be a cross-module cleanup.
+
+### /simplify and /verify (eng #595)
+
+* `/simplify` — four review angles on the diff (reuse, simplification, efficiency, altitude), then applied:
+  the BFS state is an item offset only (the `back` path lists, the `seen` set and the `(offset, item)` tuple
+  juggling are gone — an item has one end, so paths and de-duplication were derivable/dead; the accepted table is
+  re-read once from its first item), `previous_starts` yields offsets and no longer re-unpacks the ids it just
+  validated word by word, the budget bounds generated candidates with a defined meaning, the forward chain is the
+  existing `_run(starts, s)`, verified + fallback are computed in ONE pass over the catalogued anchors and anchors
+  inside an accepted table are skipped (`covered` — the per-anchor re-walk was O(n²) on a many-schema corpus table),
+  the unreachable `p < 0` guard went, the ES-report echo of the five went (named once), the tests' `_item` takes a
+  str and the `skip` row uses `(0, 1 << 30)`; altitude: the item layout is now read off the file's own schema
+  (`tracking_layout_known`, with a stated `tracking_note` / `not read (…)` header instead of a silent degrade), the
+  JSON keys are unconditional with re-pinned digests + a pre-#595 identity digest (data-model stability over digest
+  optics; stdout stays terse), the tie-break and `skip` are described for exactly what they cover. **Reviewed and
+  kept, with the reason:** `tracking` / `tracking_uncatalogued` stay two plain dicts rather than one ordered
+  `tracking_items` with derived views — `tracking` catalogued-only is the contract three callers rely on, order is
+  kept within each, and the interleaved order is one `locate_tracking` call away for whoever needs it; `tracking_count
+  == 0` stays the unverified flag (the three states `(-1,0)` / `(off,0)` / `(off,n)` are disjoint and now visible in
+  JSON); the labelled fallback stays (its ids are individually self-checked reads; only offset/count are unproven, and
+  they are now labelled).
+* `/verify` on the final tree — the surface this diff reaches is `rvt.estorage`'s CLI and library: the three bases with
+  `--report --walk --roundtrip` → exit 0 ×3, no stderr, 2026/2025 stdout identical to `origin/main`'s (timing masked),
+  2024 the header + block quoted in Evidence; a 64 KiB truncation of the 2024 base → `warning: own schema unreadable
+  (ParseError …); checked against the pinned Revit 2024 framing table …` + `ERROR: cannot load …: RuntimeError:
+  Partitions/21: walker errors […]`, exit 1; a missing path → `ERROR: no such file`, exit 2; `tools/rvt_validate.py` on
+  the three bases VALID, warnings 1 / 0 / 0 (validates 0 errors — a fact about the files, not a Revit verdict). Because
+  `src/` changed: `tools/sync_plugin.py` (1 file synced, mirror `cmp`-identical, zip rebuilt 5302 KB), then a **bare
+  unzip of `tekton-plugin.zip`, `env -i` system `python3`**: the mirrored CLI (`PYTHONPATH=lib/src:skills/_shared/_vendor
+  python3 -m rvt.estorage assets/genesis/G_ABPD_2024.rvt --report --walk --roundtrip`) → rc 0, `tracking @0xff92e, 7
+  items, 5 uncatalogued` + the five lines; the 2026 base from the unzip → stdout identical to the repo run; and
+  `skills/tekton-author/scripts/_bootstrap.py go author --prompt "an electrical room with 6 panels" --out out/j1 --json`
+  → rc 0, `go.ready true`, `result.ok true`, `PROOF-ONLY (self-checks PASS …)`, 3.9 s wall (estorage is not on that
+  path; it shows the shipped mirror still boots).
+
+## BRANCH STATE (eng #595)
+
+* Branch `cam/595-tracking-2024` from `origin/main` @ 59a89d8; PR body starts `Closes #595`.
+* Files written — source: `src/rvt/estorage.py` (module docstring; `ESSchemaCatalog.tracking_uncatalogued` /
+  `tracking_count` / `tracking_note` + `to_json()` keys; `_MAX_ID` / `_MAX_IDS` / `_TRACKING_BUDGET` /
+  `TRACKING_ITEM`; `tracking_layout_known()`; `locate_tracking()` rewritten (anchors + forward chain as before,
+  `previous_starts` / `verified` backward walk, one-pass verified-or-fallback, `(offset, count, items)` return);
+  `schemas()` layout guard + split + notes; `es_report()` two keys; `print_catalog()` header tokens + the uncatalogued
+  block — nothing in the catalog locator of #599, the entity codec, `ESDecoder`/`ESEncoder`, `verify_document`,
+  closures, `main`/`_report` flow beyond the removed echo); tests: `tests/test_estorage_catalog_2024.py` (docstring,
+  constants, `_digest(drop=)`, MAIN_DIGEST re-pinned + PRE_595 identity, 5 new tests, CLI row extended; 9 → 14); docs:
+  `docs/writer/extensible-storage.md` (§2.1b last sentence, §2.1c new, §2.3, §2.4 row, §5 row, §8 row + U7), this
+  record (this section only). Generated mirror re-synced: `plugin/lib/src/rvt/estorage.py`. No new shard drop-in
+  needed (`tests/ci_shard.d/576-estorage-catalog-2024.txt` already lists the file).
+* Not touched: `src/rvt/versions/**`, `objects.py`, `schema.py`, `tests/test_estorage_cli_release.py`,
+  `tests/conftest.py`, every NO-GO / FENCED / hot file of the brief, `tests/ci_shard.txt`, `TRACKER.md`, `KNOWLEDGE.md`.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer — read path of a forensic instrument only, no
+  byte any route writes can change (2026/2025 CLI stdout identical to `main`; the three bases validate as before).
+* Follow-ups filed: none (U7 is an owner-machine one-liner recorded in the writer doc; the `_MAX_ID` constant family is
+  noted above).
+* Gates on the final head (`RVT_SKIP_LARGE=1 -p no:cacheprovider`): stream-local
+  `tests/test_estorage_catalog_2024.py tests/test_estorage_cli_release.py tests/test_estorage_ids32.py tests/test_estorage.py`
+  → **29 passed, 12 skipped** (the 12 = `test_estorage.py`'s sample-backed cases + its `RVT_SKIP_LARGE` case, as on any
+  fresh clone; main: 24 passed / 12 skipped); **whole merged CI shard** (`python3 tools/dev/shard_list.py --print`):
+  pre-/simplify tree 2040 passed, 134 skipped, 3 xfailed, 0 failed in 362 s; final tree (re-run after the last source line changed): counts pasted in the PR body;
+  `tools/sync_plugin.py` synced 1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok (2988 tracked paths); `tools/rvt_validate.py` on the three bases VALID 1/0/0
+  warnings.
