@@ -1,0 +1,2 @@
+# fit_solid circle verdict is yaw-invariant (#628): in-memory meshes + synthesised IFC4 text only
+tests/test_ifc_assembly_628.py

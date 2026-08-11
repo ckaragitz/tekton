@@ -97,8 +97,8 @@ FT_PER_M = 1.0 / 0.3048
 MIN_EXTENT_FT = 0.0013
 
 #: Hull radii within +/- this fraction of their mean read as a circle -- and
-#: the circle's radius may exceed the body's smaller plan half-extent by no
-#: more than this (a regular 8-gon's circumradius is 8.2 % over its apothem).
+#: the circle's radius may exceed half the hull's minimum width by no more
+#: than this (a regular 8-gon's circumradius is 8.2 % over its apothem).
 CYLINDER_TOLERANCE = 0.12
 
 #: A circle is only the body's outline if the hull FILLS it: hull area over
@@ -439,7 +439,41 @@ def _decimate(ring: List[List[float]], limit: int) -> List[List[float]]:
     return ring
 
 
-def _fit_circle(hull: Sequence[Sequence[float]], ext: Sequence[float],
+def _min_caliper_width(hull: Sequence[Sequence[float]]) -> float:
+    """Minimum width of a counter-clockwise convex ring: the closest pair of
+    parallel lines that hold it between them (rotating calipers).  One of
+    the two lines always lies flush with an edge, so each edge is measured
+    against its farthest vertex -- which only ever moves forward round the
+    ring as the edge does, hence the single two-pointer walk.  A property of
+    the outline itself: the same number at every yaw, unlike the extent of
+    the world bounding box.  Fewer than 3 points -> 0; collinear or
+    coincident points measure 0."""
+    n = len(hull)
+    if n < 3:
+        return 0.0
+    width = float("inf")
+    j = 0
+    for i in range(n):
+        (ax, ay), (bx, by) = hull[i], hull[(i + 1) % n]
+        ex, ey = bx - ax, by - ay
+        edge = math.hypot(ex, ey)
+        if edge <= 0.0:
+            continue
+
+        def reach(k: int) -> float:         # distance of vertex k from this edge, times its length
+            px, py = hull[k % n]
+            return abs(ex * (py - ay) - ey * (px - ax))
+
+        j = max(j, i + 2)
+        far, ahead = reach(j), reach(j + 1)
+        while ahead > far:
+            j += 1
+            far, ahead = ahead, reach(j + 1)
+        width = min(width, far / edge)
+    return width if width != float("inf") else 0.0
+
+
+def _fit_circle(hull: Sequence[Sequence[float]],
                 hull_area: float) -> Optional[Tuple[float, float, float]]:
     """``(cx, cy, r)`` when the hull reads as a CIRCLE, else None.
 
@@ -450,13 +484,16 @@ def _fit_circle(hull: Sequence[Sequence[float]], ext: Sequence[float],
     "fitted" an r = 2.05 m cylinder holding 8 % of it and a 900 x 41 mm strut
     an r = 1.48 ft one holding 1 % (#620).  So the circle must also BE the
     outline, by two laws: the hull must fill it the way a real tessellation
-    does (:data:`CYLINDER_MIN_PLAN_FILL` -- the intrinsic roundness test,
-    the same at every yaw), and its radius may not reach past the body's
-    smaller plan half-extent (:data:`CYLINDER_TOLERANCE` -- the authoring
-    bound in the family's frame: the solid never outgrows the mesh's own
-    bounding box, which a two-flat shaft filling 90 % of its circle still
-    would).  A hull refused here is authored as itself -- the oriented box /
-    N-gon envelope -- never as that cylinder.
+    does (:data:`CYLINDER_MIN_PLAN_FILL` -- the intrinsic roundness test),
+    and its radius may not reach past half the hull's own minimum width
+    (:data:`CYLINDER_TOLERANCE` over :func:`_min_caliper_width` -- the solid
+    never outgrows the body across its narrowest flats, which a two-flat
+    shaft filling 90 % of its circle still would).  Both laws read the
+    outline alone, so neither turns with the body (#628: measured against
+    the world bounding box instead, a chamfered square was its octagon
+    facing north and a cylinder turned 10 degrees).  A hull refused
+    here is authored as itself -- the oriented box / N-gon envelope -- never
+    as that cylinder.
     """
     if len(hull) < 8:
         return None
@@ -468,7 +505,7 @@ def _fit_circle(hull: Sequence[Sequence[float]], ext: Sequence[float],
         return None                                 # not equidistant: not round
     if hull_area < CYLINDER_MIN_PLAN_FILL * math.pi * mean_r * mean_r:
         return None                                 # the outline does not fill it
-    if mean_r > (1.0 + CYLINDER_TOLERANCE) * min(ext[0], ext[1]) / 2.0:
+    if mean_r > (1.0 + CYLINDER_TOLERANCE) * _min_caliper_width(hull) / 2.0:
         return None                                 # wider than the body itself
     return cx, cy, mean_r
 
@@ -515,7 +552,7 @@ def fit_solid(points_ft: Sequence[Sequence[float]],
     hull_area = _polygon_area(hull) if len(hull) >= 3 else 0.0
 
     # -- circle? equidistant hull points that really are the outline -------
-    circle = _fit_circle(hull, ext, hull_area)
+    circle = _fit_circle(hull, hull_area)
     if circle is not None:
         cx, cy, mean_r = circle
         ring = _decimate(hull, MAX_HULL_POINTS) if len(hull) > MAX_HULL_POINTS else hull
