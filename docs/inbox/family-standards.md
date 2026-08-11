@@ -308,3 +308,150 @@ file and a docstring have no runtime surface to drive; the commit carries the
   (no output bytes change). The zip is a regenerated, git-ignored artifact.
 - Follow-ups: none new — the desktop questions these labels describe are already #516
   (category branches) and the "Edit anything after loading" row of `ifc-assembly-rfa.md`.
+
+---
+
+# eng #622 — one entry per meaning (2026-08-11)
+
+*Section author: eng #622 (cam-karagitz's engineer session for issue #622). Everything above
+this line — the #601 author's record and eng #624's section — is untouched; this section
+speaks only for #622.*
+
+Issue #622: the independent review of #601's table found quantities a Revit user would see
+**twice** in one family — the constructor's filled legacy name next to the table's blank
+standard spelling (`Lumens` / `Luminous Flux`, `MountingHeight` / `Mounting Height`,
+`Weight` / `Operating Weight`). Steer S-2026-08-11-a wants one parameter per meaning, values
+only when known; two spellings of one quantity, one always empty, is worse than either.
+
+Territory used: `src/rvt/famgen/standards.py` (+ mirror), the `factory.py` lines that
+author/fill the legacy names (luminaire, device, transformer — nothing else), `tests/test_famgen_standards.py`,
+five pinned legacy-name expectations in `tests/test_famgen_factory.py` (listed below — the
+unavoidable consequence of the renames), one description string in `spec/famspec.schema.json`
+(the device kind's prose named `Load` / `MountingHeight`; string only), this section.
+
+## Every pair found (grep of the table + the five constructors, then a build of one family per category)
+
+Built one family per affected category on `main` and read the `ParamElemFamily` captions back
+off the written `.rfa` with `rvt.families.FamilyIndex` (the reader `test_famgen_standards.py`
+already uses). Six pairs, all constructor-vs-table; the table itself had **no** internal pair
+(`--check` with the new rule: 0 problems before any row changed). Panelboard and the
+mechanical-equipment generic route were already clean.
+
+| category / constructor | legacy (filled) | table spelling (blank twin) | decision | why |
+|---|---|---|---|---|
+| lighting_fixture / `make_luminaire` | `Lumens` | `Luminous Flux` | **constructor renamed** → fills `Luminous Flux` | same spec (`luminous_flux`) and group; a caption rename is structurally inert (same class, deterministic local GUID re-derives from the caption) |
+| lighting_fixture / `make_luminaire` | `Color Temperature` | `Initial Color Temperature` | **constructor renamed** | same spec (`cct`); found by the grep, not named in the issue |
+| electrical_fixture / `make_device` | `MountingHeight` | `Mounting Height` | **constructor renamed** (type parameter, value 18/44/48 in lands as before) | same spec (`length`, constraints). Counter-consideration recorded: `MountingHeight` is also the IFC-side `DeviceSchedule` pset key (`rvt.ifc.intent.DEVICE_PSET`, prompt_intent / ifc_out / manifest); nothing joins the family caption to that key (grep: no reader of the family's `MountingHeight` outside factory + its tests), so the pset keeps its CamelCase key and the family takes the table's spelling like every other device category |
+| electrical_fixture / `make_device` | `Load` | `Apparent Load` | **constructor renamed**; the connector's `bind_load_param` follows (`m_dApparentLoadPhase1` still 180 VA) | same spec (`apparent_power`, electrical_loads); found by the grep. The docstring called `Load` "the receptacle specimen's own binding" — the binding (connector load ↔ a family parameter) is kept, only our caption changes; `Apparent Load` is the connector field's own name and the spelling 12 table categories share |
+| transformer / `make_transformer` | `Enclosure` (= "NEMA 2 (indoor)") | `Enclosure Rating` (note: NEMA / IP class) | **constructor renamed** → fills `Enclosure Rating` | same storage (text, identity); the value *is* the NEMA class; found by the grep |
+| transformer / `make_transformer` | `Weight` (number, lb) | `Operating Weight` (mass) | **legacy KEPT as the transformer set's single entry, reason in the row's note**; `_EE_COMMON`'s `Operating Weight` dropped for this product only via the greppable `_without(...)` | the specs differ: filling `Operating Weight` means a lb → internal-mass conversion + a mass type-catalog column the factory does not have (`SPEC`, `_TO_INTERNAL`, `TYPE_CATALOG_COLUMNS`; the catalog test pins `Weight##OTHER##`) — a unit change DONE 4 fences off. A vendor with no catalog weight (HPS) now gets ONE blank `Weight` instead of a blank `Operating Weight`, so every transformer names its weight the same way. Follow-up **#630** retires the exception properly |
+
+Observed and deliberately **not** changed (DONE 4 — other table content): a transformer still
+lists the common `Voltage` (blank) beside `Primary Voltage` / `Secondary Voltage`, and a
+receptacle lists `Wattage` (blank) beside `Apparent Load`. Those are related but distinct
+quantities (system voltage vs winding voltages; W vs VA), not two spellings of one, so the
+synonym list keeps them apart on purpose and a test pins that it does.
+
+## What was built
+
+- `standards.SYNONYM_GROUPS` — 34 hand-authored groups of trade spellings (rule 3: generic
+  industry terms and abbreviations only, no vendor or Autodesk-authored list), first spelling =
+  the table's; `standards.meaning_key(name)` folds case / spaces / underscores / hyphens /
+  punctuation and maps through the groups (`MountingHeight` == `Mounting Height` needs no row).
+- `check_specs()` rule 5: a category listing two spellings of one meaning key is a problem line
+  naming both; a spelling claimed by two groups is one too. `python -m rvt.famgen.standards --check`
+  → `27 categories, 34 synonym groups, 0 problems`.
+- `apply()` guard: a standard parameter whose *meaning* is already on the document (a
+  constructor's, or a caller's `text_params` — e.g. an IFC's `CCT`) is skipped with
+  `already authored by the constructor as 'CCT' (the same quantity)` — one lookup serves the
+  exact-name and the synonym case — and a value offered for a quantity the constructor already
+  carries surfaces in `values_not_placed` instead of vanishing. The same key works on the way
+  in: `standard_values={"Lumens": 3200}` (a famspec written before the rename) fills
+  `Luminous Flux`. This is the belt to the renames' braces: a future constructor or an IFC pset
+  cannot reintroduce a blank twin.
+- `/simplify` pass (4 review agents): applied — the import-time loop became `_build_synonym_key()`
+  (no leaked module names), `apply()`'s exact-name branch folded into the meaning lookup (key
+  computed once), `check_specs()` rules 3 and 5 share one bucket dict, messages shortened, the
+  transformer rationale stated once in the row note. Declined, with reasons: making `_merge`
+  meaning-aware (reuse agent) — it would hide exactly the synonyms the check exists to surface;
+  dropping the transformer row in favour of the `apply()` guard alone (altitude agent) — that
+  names the weight `Weight` on an Eaton transformer and `Operating Weight` on an HPS one, and
+  DONE 1 asks for the kept legacy name to carry its reason *in the table*; #630 removes the row
+  either way.
+- `_merge` left exact-name on purpose: a meaning-aware merge would *hide* a synonym between a
+  product row and a block row instead of letting the check surface it.
+
+## Evidence
+
+| gate | before (main dcda26e) | after |
+|---|---|---|
+| `python -m rvt.famgen.standards --check` | `27 categories, 0 problems` | `27 categories, 34 synonym groups, 0 problems` |
+| planted duplicate (`Lumens`+`Luminous Flux`, `MountingHeight`+`Mounting Height`, `Weight`+`Operating Weight` in a probe category) | — | check reports exactly 1 problem each (`test_a_planted_duplicate_meaning_fails_the_table_check`, 3 cases) |
+| `RVT_SKIP_LARGE=1 pytest tests/test_famgen_standards.py tests/test_famgen_factory.py tests/test_rfa_load.py tests/test_place_fixtures.py tests/test_rvt_to_ifc_param_carrier.py -q -rs` | 156 passed, 5 skipped (rme/rst samples absent) | **172 passed, 5 skipped** (+16 new in `test_famgen_standards.py`: 14 with the change, one from the `/simplify` pass — values fill by meaning — and one from the review round — two spellings in `values` fill once, loser reported) |
+| whole merged CI shard (`shard_list.py --print`, 104 files) | — | **2182 passed, 134 skipped, 3 xfailed, 0 failed** in 602 s on `e34b517` (the reviewed head); the review-round delta (`apply()` wording + the `values` collision report, record) re-ran the five gate files: 172 passed / 5 skipped |
+| every produced `.rfa` (troffer, receptacle, transformer, panelboard, RTU generic) `tools/rvt_validate.py --family` | VALID 0 errors | **VALID 0 errors**, warnings 0 |
+| `tools/make_family.py provenance` on the same five | ok / clean | **ok / clean** |
+| `tools/route.py matrix` | 3181 bytes | **byte-identical** to a fresh `origin/main` worktree (sha256 prefix `7dae5d40eb461e9a`; nothing in famgen/standards is read by the matrix) |
+| `tools/sync_plugin.py` then `--check` | — | 3 files synced (the two mirrors + the famspec example); in sync, deny-audit clean, identity scan == allowlist |
+| `plugin/scripts/validate_plugin.py` | — | PASS, 25 assertions |
+| `tools/dev/check_portable_paths.py` | — | ok, 3013 paths (after the rebase onto `main` @ ca74895, which added eng #624's `FAMSPEC-CAVEATS.md`; 3012 before it) |
+| `/verify` (this repo's build-and-drive recipe): `tools/make_family.py luminaire` / `device --height 18` / `transformer --kva 75` `--json` | — | exit 0 each; family-mode **VALID 0 errors**; provenance ok; `type_facts` carry `Luminous Flux` 4600 / `Initial Color Temperature` 4000, `Apparent Load` 180 / `Mounting Height` 18, `Weight` 570 / `Enclosure Rating` "NEMA 2 (indoor)"; captions read back off each `.rfa`: 23 / 13 / 24, zero meaning twins, zero legacy names |
+| bare unzip of the rebuilt `tekton-plugin.zip`, **system** `python3`, no repo on the path: `skills/tekton-author/scripts/_bootstrap.py go route.py run --rfa lum.famspec.json --output rfa` | — | preflight `tekton: READY … 0.067s`, job 1.36 s, exit 0, result `OK (… validator family-mode VALID 0 errors; provenance ok=True)`; the delivered `troffer_2x4_recessed.rfa` reads back 23 captions, zero twins, `Luminous Flux` + `Initial Color Temperature` present |
+
+**Parameter captions read back off the written `.rfa`** (sorted; `FamilyIndex`, `ParamElemFamily`):
+
+- lighting_fixture (`make_luminaire` 2x4 troffer) 25 → 23: gone `Lumens`, `Color Temperature`; the type row now carries `Luminous Flux` = 4600 lm, `Initial Color Temperature` = 4000 K, `Wattage` unchanged.
+  after: Apparent Load, Color Rendering Index, Dimming Protocol, Driver Type, Efficacy, Emergency, Height, IES File (URL reference), IP Rating, Initial Color Temperature, Lamp, Length, Light Loss Factor, Load Classification, Luminous Flux, Mounting, Number of Lamps, Operating Weight, Switch ID, Voltage, Warranty Duration, Wattage, Width
+- electrical_fixture (`make_device` duplex receptacle) 15 → 13: gone `Load`, `MountingHeight`; `Apparent Load` = 180 VA (connector-bound), `Mounting Height` = 1.5 ft.
+  after: Apparent Load, Backbox Size, Device Type, Faceplate Color, GFCI Protected, Load Classification, Mounting, Mounting Height, NEMA Configuration, Number of Gangs, Number of Poles, Voltage, Wattage
+- transformer (`make_transformer` 75 kVA Eaton) 26 → 24: gone `Enclosure`, `Operating Weight`; `Enclosure Rating` = "NEMA 2 (indoor)", `Weight` = 570 (lb, number — the kept exception).
+  after: Apparent Load, Depth, Enclosure Rating, Frame, Frequency, Height, Impedance, Insulation Class, K-Factor, Load Classification, Mounting, Phases, Primary Voltage, Secondary Voltage, Service Clearance, Sound Level, Taps, Temperature Rise, Voltage, Warranty Duration, Weight, Width, Wires, kVA Rating
+- panelboard 21 → 21 and mechanical_equipment (generic RTU box) 21 → 21: unchanged, no pair before or after.
+
+Every family: meaning keys of its captions pairwise distinct (pinned by
+`test_every_generated_family_lists_each_quantity_once_and_the_values_still_land`, 5 cases).
+
+**Expectations that flipped, and why** — all five are lines that pinned a legacy *caption*,
+nothing structural: `tests/test_famgen_factory.py` L339 (`Lumens`, `Color Temperature` →
+the table's two spellings), L383/L392 (device docstring + `sorted(doc.params) ==
+["Apparent Load", "Mounting Height", "Voltage"]`), L409 and L778 (`MountingHeight` →
+`Mounting Height` as the type-row / `type_facts` key). In `test_famgen_standards.py` the
+`common <= xfmr` law became a meaning-key subset plus an explicit
+`common - xfmr == {"Operating Weight"} and "Weight" in xfmr`, because the transformer now
+carries that one common quantity under its kept legacy name.
+
+## What is NOT claimed
+
+- No desktop round and no viewer batch: caption renames and one dropped row are structurally
+  inert (same classes, same specs, VALID 0 errors, provenance clean) — that is a reason to
+  expect the verified lineage to hold, not evidence that Revit opened these files (rule 4).
+- The synonym list is a hand list; a spelling it does not know is compared by folding only.
+  The check is a floor, not an oracle — a new pair it misses is one row away from being caught.
+
+## Review round (tech-lead verdict on e34b517: 🟡 nits, all four judgment calls accepted)
+
+- Applied: (2) two spellings of one quantity in `standard_values` (`{"Lumens": …, "Luminous Flux": …}`) no longer collapse last-wins silently — the table's own spelling wins, else the first given, and the loser is named in `values_not_placed` (pinned by `test_two_spellings_of_one_quantity_in_values_fill_it_once_and_report_the_loser`); (3) the by-meaning skip now reads `already on the document as '<name>' (the same quantity)` because the carrier may be a caller's text parameter, not the constructor's — the by-name skip keeps `already authored by the constructor`.
+- Kept as is, noted: (4) the `ShortCircuitRatingkA` synonym row lists `AIC Rating` beside `SCCR`. Strictly, AIC is a protective device's interrupting capacity and SCCR the assembly's withstand rating; on a panelboard/switchboard *family* they are quoted as the one kA figure a user schedules, so the row treats them as one slot rather than authoring both — a category that genuinely needs the two apart drops `AIC Rating` from the row and the check stays green.
+- Mechanical: rebased onto `main` @ ca74895; the record conflict with eng #624's section resolved by keeping both (theirs as landed, then this one); the doubled `---` before this section is gone.
+
+## Follow-ups filed
+
+- **#630** — transformer weight as `Operating Weight` (mass) with a verified lb → mass path; retires the kept exception.
+- **#631** — the IFC luminaire route (`famfrom_ifc`, outside this territory) still authors `Lumens` / `Color Temperature` and applies no standards; plus the author-skill reference `CATALOG-FACTS.md` L66 still cites the device's `Load` / `MountingHeight` (prose; SKILL.md untouched, eng #624's area).
+
+## BRANCH STATE
+
+Branch `cam/622-standards-dedup`, cut from `main` @ dcda26e, rebased onto `main` @ ca74895 for the review round
+(the only conflict was this file: eng #624's section had landed at the same EOF — kept as landed, this section after it).
+
+Files written: `src/rvt/famgen/standards.py` (synonym vocabulary, `meaning_key`, `_without`,
+transformer row, `apply` guard, `check_specs` rule 5, `--check` line, docstring),
+`src/rvt/famgen/factory.py` (luminaire `Lumens`/`Color Temperature`, device `Load`/`MountingHeight`
++ its connector binding / docstring / note / one comment, transformer `Enclosure` — the
+legacy-name lines only), `tests/test_famgen_standards.py` (+16 tests, one law restated over
+meaning keys), `tests/test_famgen_factory.py` (5 caption expectations), `spec/famspec.schema.json`
+(one description string), mirrors via `tools/sync_plugin.py` (`plugin/lib/src/rvt/famgen/{standards,factory}.py`,
+`plugin/skills/tekton-native/examples/famspec.schema.json`), this section.
+
+Gates: table above; whole merged shard result in the PR body. Staged vs shipped: everything
+**shipped** on the branch; nothing staged for a viewer batch (no writer path or base touched).

@@ -788,7 +788,7 @@ def resolve_device_facts(kind: str = "duplex-receptacle", *,
                      ("plate_thickness_in", "t")):
         sheet.set(key, float(plate[sub]), kind=pkind, source=sheet.variant,
                   note="OUR faceplate modelling envelope")
-    # mounting height above the finished floor -> the MountingHeight parameter
+    # mounting height above the finished floor -> the Mounting Height parameter
     mh = (variant.get("options") or {}).get("mounting_height_aff_in") or {}
     if mounting_height_in is not None:
         sheet.set("mounting_height_in", float(mounting_height_in), kind="given")
@@ -1902,9 +1902,9 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     _num(doc, "Temperature Rise", "number", "electrical")
     has_weight = any(fx.get("weight_lb") for fx in sheets)
     if has_weight:
-        _num(doc, "Weight", "number", "identity")
+        _num(doc, "Weight", "number", "identity")     # the transformer set's ONE weight entry (standards, #622)
     _text(doc, "Frame")
-    _text(doc, "Enclosure")
+    _text(doc, "Enclosure Rating")                    # the NEMA class, under the table's spelling (#622: was 'Enclosure')
     rows: List[TypeRow] = []
     for job, fx in zip(jobs, sheets):
         j_kva = float(job["kva"])
@@ -1919,7 +1919,7 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
             ("Temperature Rise", "number", float(fx.get("temp_rise_c") or 0.0)),
         ] + ([("Weight", "number", float(fx.get("weight_lb") or 0.0))] if has_weight else []) + [
             ("Frame", "text", str(fx.get("frame") or "")),
-            ("Enclosure", "text", str(fx.get("enclosure") or "")),
+            ("Enclosure Rating", "text", str(fx.get("enclosure") or "")),
         ], description=(
             f"{j_kva:g} kVA, {int(fx.get('phases') or 3)}-phase, "
             f"{primary_v} - {secondary_v} V dry-type transformer, "
@@ -2016,10 +2016,12 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
     doc.notes.append("luminaire: work-plane-based (ceiling face); NO ImposterLight "
                      "light-source element (skeleton exposes no constructor) -- "
                      "photometrics ride as parameters; IES = URL reference only")
-    # parameters
+    # parameters -- the photometric two under the category table's spelling
+    # (rvt.famgen.standards, #622: 'Lumens' / 'Color Temperature' were ours,
+    # and left a blank standard twin next to the filled legacy name)
     _num(doc, "Wattage", "wattage", "electrical")
-    _num(doc, "Lumens", "luminous_flux", "photometrics")
-    _num(doc, "Color Temperature", "cct", "photometrics")
+    _num(doc, "Luminous Flux", "luminous_flux", "photometrics")
+    _num(doc, "Initial Color Temperature", "cct", "photometrics")
     _num(doc, "Voltage", "voltage", "electrical")
     _text(doc, "IES File (URL reference)", "photometrics")
     if shape == "box":
@@ -2043,8 +2045,8 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
             f"{int(fx.get('cct_k'))}K" if fx.get("cct_k") else "")
         _add_type_row(doc, rows, type_name, fx, [
             ("Wattage", "wattage", float(j_watt) if j_watt else 0.0),
-            ("Lumens", "luminous_flux", float(fx.get("lumens_lm") or 0.0)),
-            ("Color Temperature", "cct", float(fx.get("cct_k") or 0.0)),
+            ("Luminous Flux", "luminous_flux", float(fx.get("lumens_lm") or 0.0)),
+            ("Initial Color Temperature", "cct", float(fx.get("cct_k") or 0.0)),
             ("Voltage", "voltage", volt),
             ("IES File (URL reference)", "text", str(fx.get("photometry_url") or "")),
         ] + [(caption, "length", fx.get(key)) for caption, key in dims], description=(
@@ -2125,10 +2127,14 @@ def make_device(kind: str = "duplex-receptacle", *,
     work-plane-based family, the panelboard's law; NO face-hosting claim) and
     the device ``box`` recessed behind it, both at the record's envelope
     dimensions ('assumed', surfaced).  ONE 1-pole power connector on the back
-    of the box, primary, voltage / load bound to the ``Voltage`` / ``Load``
-    parameters (the receptacle specimen's own bindings); ``MountingHeight`` =
-    the height above the floor the placement law uses (given, else the
-    18 in / 48 in convention inside the ADA 15..48 in reach FACT)."""
+    of the box, primary, voltage / load bound to the ``Voltage`` /
+    ``Apparent Load`` parameters (the receptacle specimen binds the same two
+    connector fields); ``Mounting Height`` = the height above the floor the
+    placement law uses (given, else the 18 in / 48 in convention inside the
+    ADA 15..48 in reach FACT).  Both names are the Electrical Fixtures
+    table's spelling (rvt.famgen.standards, #622) -- the legacy ``Load`` /
+    ``MountingHeight`` left a blank standard twin beside each; the IFC-side
+    ``DeviceSchedule`` pset keeps its own keys."""
     facts = resolve_device_facts(kind, mounting_height_in=mounting_height_in,
                                  voltage=voltage, va=va)
     label, config = facts.get("label"), facts.get("configuration")
@@ -2142,14 +2148,14 @@ def make_device(kind: str = "duplex-receptacle", *,
     doc.notes.append("device: work-plane-based (the family XY = the wall face, the "
                      "panelboard's law); not a face-/wall-HOSTED family")
     _num(doc, "Voltage", "voltage", "electrical")
-    _num(doc, "Load", "apparent_power", "electrical_loads")
-    _num(doc, "MountingHeight", "length", "constraints")
+    _num(doc, "Apparent Load", "apparent_power", "electrical_loads")
+    _num(doc, "Mounting Height", "length", "constraints")
     rows: List[TypeRow] = []
     plate_in = [facts.get(k) for k in ("plate_width_in", "plate_height_in", "plate_thickness_in")]
     box_in = [facts.get(k) for k in ("box_width_in", "box_height_in", "box_depth_in")]
     _add_type_row(doc, rows, _clean_name(config, f"{volt:g}V"), facts, [
-        ("Voltage", "voltage", volt), ("Load", "apparent_power", load),
-        ("MountingHeight", "length", facts.get("mounting_height_in")),
+        ("Voltage", "voltage", volt), ("Apparent Load", "apparent_power", load),
+        ("Mounting Height", "length", facts.get("mounting_height_in")),
     ], description=(
         f"{label} ({config}), {volt:g} V 1-pole, {load:g} VA booked, mounted "
         f"{facts.get('mounting_height_in'):g} in AFF (box {box_in[0]:g} W x {box_in[1]:g} H x "
@@ -2168,7 +2174,7 @@ def make_device(kind: str = "duplex-receptacle", *,
     add_connector(doc, host=box, face="bottom", location=(0.0, 0.0, -bd),
                   direction=(0.0, 0.0, -1.0), u_axis=(1.0, 0.0, 0.0),
                   voltage_v=volt, poles=1, apparent_load_va=load, power_factor=1.0,
-                  bind_voltage_param="Voltage", bind_load_param="Load",
+                  bind_voltage_param="Voltage", bind_load_param="Apparent Load",
                   load_class="Receptacle" if "Receptacle" in label else "Power",
                   description="Power Connection", primary=True)
     std_report = _std(doc, "electrical_fixture", standards, standard_values)
@@ -2177,7 +2183,7 @@ def make_device(kind: str = "duplex-receptacle", *,
                          standards=std_report,
                          file_stem=_slug(f"{label}_{config}_{volt:g}v"))
     prod.notes.append("one 1-pole primary connector on the back of the device box, voltage "
-                      "-> Voltage, load -> Load (Power-Unbalanced, load on phase 1)")
+                      "-> Voltage, load -> Apparent Load (Power-Unbalanced, load on phase 1)")
     _multi_type_notes(prod)
     return prod
 
