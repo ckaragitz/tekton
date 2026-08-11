@@ -16,17 +16,15 @@ against page content? See tools/make_acceptance.py.
 """
 from __future__ import annotations
 
-import dataclasses
 import random
 import struct
 import zlib
 from typing import Callable, Iterable, List, Optional
 
 from . import partitions as _P
-from .cfb_writer import CfbEntry, write_cfb
 from .container import (PAGE_PAYLOAD, PAGE_STRIDE, PAGE_TRAILER,
-                        RvtDocument, open_rvt)
-from .roundtrip import read_entries
+                        RvtDocument, depage, open_rvt)
+from .roundtrip import rewrite_entries
 
 
 def __getattr__(name: str):
@@ -241,21 +239,20 @@ def regzip_logical(doc: RvtDocument, name: str, level: int = 6,
     return out
 
 
+def _zero_full_trailers(raw: bytes) -> bytes:
+    """``raw`` with every FULL page's 353-byte trailer zeroed, payload untouched."""
+    return repage_like(depage(raw), raw, trailer_zero)
+
+
 def zero_full_trailers_only(in_path: str, out_path: str, streams: Iterable[str]) -> dict:
     """Keep every logical byte IDENTICAL; zero only the full-page trailers.
 
     The purest test of trailer verification: compressed bytes are Revit's
     own, untouched — only the 353-byte inter-page trailer records change.
     """
-    entries = read_entries(in_path)
-    new_data = {}
-    with open_rvt(in_path) as doc:
-        for name in streams:
-            new_data[name] = repage_like(doc.logical(name), doc.raw(name), trailer_zero)
-    write_cfb(out_path, [dataclasses.replace(e, data=new_data[e.path])
-                         if e.entry_type == "stream" and e.path in new_data else e
-                         for e in entries])
-    return {"streams": list(streams), "mode": "orig_bytes_zero_trailers"}
+    streams = list(streams)
+    rewrite_entries(in_path, out_path, dict.fromkeys(streams, _zero_full_trailers))
+    return {"streams": streams, "mode": "orig_bytes_zero_trailers"}
 
 
 def corrupt_trailer_bytes(in_path: str, out_path: str, stream: str,
@@ -266,18 +263,17 @@ def corrupt_trailer_bytes(in_path: str, out_path: str, stream: str,
     (and does any auto-repair rescue it)? Trailer of full page ``page`` lives
     at raw offset (page+1)*PAGE_STRIDE - PAGE_TRAILER.
     """
-    entries = read_entries(in_path)
-    with open_rvt(in_path) as doc:
-        raw = bytearray(doc.raw(stream))
     start = (page + 1) * PAGE_STRIDE - PAGE_TRAILER
-    if start + count > len(raw):
-        raise ValueError(f"{stream!r} has no full-page trailer #{page}")
-    for i in range(count):
-        raw[start + i] ^= 0xFF
-    new = bytes(raw)
-    write_cfb(out_path, [dataclasses.replace(e, data=new)
-                         if e.entry_type == "stream" and e.path == stream else e
-                         for e in entries])
+
+    def flip(raw: bytes) -> bytes:
+        if start + count > len(raw):
+            raise ValueError(f"{stream!r} has no full-page trailer #{page}")
+        out = bytearray(raw)
+        for i in range(count):
+            out[start + i] ^= 0xFF
+        return bytes(out)
+
+    rewrite_entries(in_path, out_path, {stream: flip})
     return {"stream": stream, "page": page, "flipped_bytes": count, "at_raw_offset": start}
 
 
@@ -289,7 +285,6 @@ def regzip_streams_variant(in_path: str, out_path: str, streams: Iterable[str],
     'does Autodesk's inflater accept our deflate' question from the ECC one.
     ``keep_tail_bytes`` preserves the original short final trailer.
     """
-    entries = read_entries(in_path)
     new_data = {}
     rep = []
     with open_rvt(in_path) as doc:
@@ -300,9 +295,7 @@ def regzip_streams_variant(in_path: str, out_path: str, streams: Iterable[str],
             rep.append({"name": name, "raw_size": len(raw),
                         "full_page_trailers": len(doc.raw(name)) // PAGE_STRIDE,
                         "keep_tail_bytes": keep_tail_bytes})
-    write_cfb(out_path, [dataclasses.replace(e, data=new_data[e.path])
-                         if e.entry_type == "stream" and e.path in new_data else e
-                         for e in entries])
+    rewrite_entries(in_path, out_path, new_data)
     return {"streams": rep}
 
 
@@ -317,9 +310,10 @@ def build_variant(in_path: str, out_path: str, streams: Iterable[str],
     recompressed with consistent block framing, then freshly page-framed
     (raw size shrinks). Every other stream is copied byte-for-byte. Returns
     a report dict. Directory metadata (CLSIDs, timestamps, order) is kept
-    via cfb_writer, so only stream *contents* differ.
+    via ``rewrite_entries``, so only stream *contents* differ.  The new bytes
+    are computed up front, singles then partitions in sorted order: a
+    stateful ``trailer_fn`` (``trailer_random_factory``) depends on it.
     """
-    entries: List[CfbEntry] = read_entries(in_path)
     report = {"in": in_path, "out": out_path, "streams": []}
     want = set(streams)
     want_part = set(partition_streams)
@@ -352,13 +346,7 @@ def build_variant(in_path: str, out_path: str, streams: Iterable[str],
                 "orig_logical_size": len(doc.logical(name)),
                 "blocks": len(doc.members(name)),
             })
-    out_entries = []
-    for e in entries:
-        if e.entry_type == "stream" and e.path in new_data:
-            out_entries.append(dataclasses.replace(e, data=new_data[e.path]))
-        else:
-            out_entries.append(e)
-    write_cfb(out_path, out_entries)
+    rewrite_entries(in_path, out_path, new_data)
     return report
 
 
