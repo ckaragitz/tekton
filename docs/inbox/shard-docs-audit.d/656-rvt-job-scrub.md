@@ -147,9 +147,11 @@ write as before, +~6 metadata syscalls). Applied: the docstring no longer restat
 FAILED-line row asserts the phrase not `_failed`'s exact format, and the "no private loop" tripwire inspects
 `scrub_identity`'s own source instead of grepping the whole 1,500-line runner. Skipped, with the reason: dropping the
 dying-write and read-only rows as duplicates of #646's (the brief and the issue's DONE ask for exactly those rows through
-the tool); moving the now five-fold `pin` fixture / four-fold `_bfi` helper into `tests/conftest.py` (shared file, not this
-territory -- noted here as the pattern it has become rather than filed: it is a two-line consolidation for whoever next
-touches conftest's own-release scaffolding, #579).
+the tool); moving the then five-fold `pin` fixture into `tests/conftest.py` (shared file, not this territory) -- which #679 (#670)
+did on `main` while this PR was in review, naming `pin` in the scaffolding law's reserved names; after the rebase onto
+`ea6b875` the module's private `pin` copy is deleted and conftest's (identical: module scope, `pinned_base(FOREIGN_FIRST[0])`,
+clean skip) is used by name -- `tests/test_conftest_scaffolding.py` + this module: 28 passed / 1 skipped. The module's
+`_bfi` is a one-stream *decoder* through `open_rvt(...).raw`, not a copy of conftest's `streams()` census, so it stays.
 
 ## Findings / follow-ups
 
@@ -160,7 +162,10 @@ rewritten behind their back.
 
 ## BRANCH STATE
 
-- **Branch:** `cam/656-rvt-job-scrub` from `main` @ `345493c`; PR opened ready (not draft), `Closes #656`.
+- **Branch:** `cam/656-rvt-job-scrub` from `main` @ `345493c`, rebased onto `77e31f3` (#673) and then `ea6b875` (#679);
+  PR #681 opened ready (not draft), `Closes #656`. Review @ `70fd971`: approve in substance (bytes rebuilt independently),
+  one merged-tree CI failure (`test_conftest_scaffolding::test_no_module_carries_a_private_copy` -- the private `pin`) fixed
+  by the test-only follow-up commit above.
 - **Files written:** `tools/rvt_job.py` (`scrub_identity` body + docstring only; −16/+12), its four generated mirrors via
   `tools/sync_plugin.py` (`plugin/lib/tools/rvt_job.py`, `plugin/skills/tekton-{author,edit,native}/scripts/rvt_job.py`),
   `tests/test_rvt_job_scrub_656.py` (new), `tests/ci_shard.d/656-rvt-job-scrub.txt` (new), this fragment (new). Not
@@ -170,7 +175,8 @@ rewritten behind their back.
   268/7 (+ new module 10/1, + plugin sync/coldstart 25/0 → 303/8); whole merged CI shard on the final tree
   (`RVT_SKIP_LARGE=1 … $(shard_list.py --print)`, 116 files): **2406 passed / 136 skipped / 3 xfailed** in 7 m 56 s (run
   twice, identical) -- `main` @ `345493c` is therefore expected at 2396 / 135 / 3 (the new module is the only delta:
-  +10 passed, +1 root-skip); `tools/sync_plugin.py` rebuilt (4 files synced, deny-audit clean, identity scan 82 hits / 0
+  +10 passed, +1 root-skip); on the head rebased onto `77e31f3` (117 files): 2416 / 136 / 3; the tech-lead session's
+  sandboxed CI on the exact head is the verdict of record; `tools/sync_plugin.py` rebuilt (4 files synced, deny-audit clean, identity scan 82 hits / 0
   mismatches == allowlist) then `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
   `tools/dev/check_portable_paths.py` ok; drop-in resolves (`shard_list.py --print` line 114); bare-unzip surface:
   `tools/surface_bench.py --zip tekton-plugin.zip --surfaces local --jobs preflight,go-author-6panels,go-edit`: **PASS /

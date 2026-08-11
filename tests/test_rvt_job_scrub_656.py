@@ -40,13 +40,7 @@ pytestmark = pytest.mark.usefixtures("no_release_leak")
 
 FIXED = "00000656-0656-4656-8656-000000000656"
 LEVEL_ID = 1351691                                   # "GEN B1 - Basement", present in all three pins
-
-
-@pytest.fixture(scope="module")
-def pin() -> str:
-    if not C.CERTIFIED_YEARS:
-        pytest.skip("no certified pinned base")
-    return C.pinned_base(C.FOREIGN_FIRST[0])
+# ``pin`` (the first of FOREIGN_FIRST, module-scoped, a clean skip when none is certified) is conftest's fixture (#679).
 
 
 def _bfi(path) -> dict:
