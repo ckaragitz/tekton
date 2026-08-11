@@ -1,14 +1,14 @@
 """test_conftest_scaffolding.py -- the own-release test scaffolding lives ONCE,
 in ``tests/conftest.py`` (issue #579, Refs #566 / #533 / #518 / #451):
 
-* the law, over EVERY ``tests/test_*.py``: no module binds a private
-  ``_native_constants`` / ``_no_leak`` / ``_rewrite_stream`` / ``_partition_of``,
-  its own ``FOREIGN_FIRST`` / ``FOREIGN`` / ``NATIVE_LAST`` axis, a private
-  stream-rewrite / damage recipe under the spellings #617 retired (``_rewrite``,
-  ``_variant``, ``_partition``, ``_smash64``, ``_twin_entry``, …), or a shadow of
-  the conftest names at top level (an AST law, so a seventh copy cannot creep
-  back anywhere) -- its ``EXEMPT`` set is empty since #604 and must stay so
-  (no file carries a copy of its own); and the ``ADOPTERS`` keep the leak guard on;
+* the law, over EVERY ``tests/test_*.py`` (AST, so a copy cannot creep back
+  anywhere): no module hand-rolls the container-rewrite PASS -- entries read out
+  of a container (``read_entries``) and a container written (``write_cfb``) in
+  one module is that pass whatever its helpers are called, and its one home is
+  conftest's ``rewrite_stream(s)`` (= ``rvt.roundtrip.rewrite_entries``; #639);
+  no module shadows a conftest scaffolding name at top level or binds one of the
+  private spellings #579 / #617 retired (``FORBIDDEN``); and the ``ADOPTERS``
+  keep the leak guard on;
 * the hoisted helpers behave as the copies did: ``FOREIGN_FIRST`` = the
   certified years with the native release last; ``native_constants`` /
   ``ladder_constants`` snapshot the framing table / the ladder's swaps;
@@ -24,6 +24,7 @@ Run: .venv/bin/python -m pytest tests/test_conftest_scaffolding.py -q
 from __future__ import annotations
 
 import ast
+import functools
 import glob
 import os
 import sys
@@ -36,15 +37,19 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 import conftest as C                                            # noqa: E402
 from rvt import versions as V                                   # noqa: E402
 
-#: names no test module may bind at top level any more: the private copies #579 removed, the stream-rewrite / damage
-#: recipe spellings #617 retired (``_flip`` alone left out: too generic a word to forbid tree-wide), and shadows of
-#: their one home
-FORBIDDEN = {"_native_constants", "_no_leak", "_rewrite_stream", "_partition_of", "FOREIGN_FIRST", "FOREIGN",
-             "NATIVE_LAST", "native_constants", "ladder_constants", "no_release_leak", "rewrite_stream", "partition_of",
-             "_partition", "_rewrite", "_variant", "_zero16", "_smash64", "_flip_bit", "_twin_entry",
-             "_with_second_partition", "rewrite_streams", "twin_partition_entry", "smash64", "flip_bit"}
-#: files still carrying a copy of their own -- none since #604; a regrown copy goes red in the law below, not in here
-EXEMPT = set()
+#: the hand-rolled container-rewrite pass by SHAPE: a module calling both reads a container's entries and writes a
+#: container -- "read the entries, replace some, write_cfb" under whatever names (#639).  A builder (``write_cfb`` on
+#: entries it authored) or a reader (``read_entries`` for a census) alone is not the pass and stays green.
+REWRITE_PASS = {"read_entries", "write_cfb"}
+#: conftest's own-release scaffolding: no test module may shadow one of these at top level (checked below to still BE
+#: conftest names, so the list cannot outlive a rename)
+SHADOWS = {"FOREIGN_FIRST", "FOREIGN", "native_constants", "ladder_constants", "no_release_leak", "rewrite_streams",
+           "rewrite_stream", "partition_of", "twin_partition_entry", "zero_partition_header", "zero_schema_bytes",
+           "smash64", "flip_bit", "truncated_copy", "cfb_header_zeroed_copy"}
+#: + the retired per-file spellings that actually existed and that the shape rule cannot see: the ``NATIVE_LAST`` axis
+#: and #579's private copies, and #617's bytes-damage / extra-entry recipe names (they write no container)
+FORBIDDEN = SHADOWS | {"NATIVE_LAST", "_native_constants", "_no_leak", "_rewrite_stream", "_partition_of",
+                       "_zero16", "_smash64", "_flip_bit", "_twin_entry"}
 #: the files #579 / #602 relieved of an autouse leak guard of their own: each keeps conftest's switched on module-wide
 ADOPTERS = ["test_selfcheck_release", "test_inspect_release", "test_edit_text_release",
             "test_natively_framed", "test_estorage_cli_release", "test_edit_own_release",
@@ -52,6 +57,7 @@ ADOPTERS = ["test_selfcheck_release", "test_inspect_release", "test_edit_text_re
 TEST_FILES = sorted(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(ROOT, "tests", "test_*.py")))
 
 
+@functools.cache                     # two law rows walk every module: parse each once per session
 def _tree(stem: str) -> ast.Module:
     path = os.path.join(ROOT, "tests", f"{stem}.py")
     with open(path, encoding="utf-8") as fh:
@@ -68,16 +74,30 @@ def _top_level_names(tree: ast.Module) -> set[str]:
     return names
 
 
+def _called_names(tree: ast.Module) -> set[str]:
+    """Every name the module CALLS anywhere, nested code included -- ``f(…)`` and ``mod.f(…)`` alike.  Calls, not
+    references, on purpose: a seam that rebinds ``CW.write_cfb`` to count writes next to a ``read_entries`` census
+    (test_famload_batch) is no rewrite pass; the price is that a call through an alias (``w = write_cfb; w(…)``) is
+    not seen -- a ratchet against the habit, not against intent."""
+    funcs = (n.func for n in ast.walk(tree) if isinstance(n, ast.Call))
+    return {f.id if isinstance(f, ast.Name) else f.attr for f in funcs if isinstance(f, (ast.Name, ast.Attribute))}
+
+
+def test_no_module_hand_rolls_the_container_rewrite_pass():
+    offenders = [stem for stem in TEST_FILES if REWRITE_PASS <= _called_names(_tree(stem))]
+    assert offenders == [], (f"{offenders} pair read_entries() with write_cfb() -- the hand-rolled 'read the entries, "
+                             "replace some, write the container' pass: damage / drop / append streams through "
+                             "conftest.rewrite_stream(s) (= rvt.roundtrip.rewrite_entries) instead; a module that "
+                             "genuinely only BUILDS containers from entries it authored and separately censuses "
+                             "another file splits the two, or is allow-listed here with its reason (#639)")
+
+
 def test_no_module_carries_a_private_copy():
-    clashes = {stem: sorted(_top_level_names(_tree(stem)) & FORBIDDEN) for stem in TEST_FILES if stem not in EXEMPT}
+    clashes = {stem: sorted(_top_level_names(_tree(stem)) & FORBIDDEN) for stem in TEST_FILES}
     clashes = {stem: names for stem, names in clashes.items() if names}
     assert clashes == {}, f"{clashes} -- import the own-release scaffolding from conftest instead (#579)"
-
-
-def test_the_exempt_list_only_names_files_that_exist_and_still_need_it():
-    for stem in EXEMPT:
-        assert stem in TEST_FILES, stem
-        assert _top_level_names(_tree(stem)) & FORBIDDEN, f"{stem} carries no copy any more: drop it from EXEMPT"
+    stale = sorted(SHADOWS - set(vars(C)))
+    assert stale == [], f"{stale} are no conftest names any more: drop them from SHADOWS"
 
 
 @pytest.mark.parametrize("stem", ADOPTERS)

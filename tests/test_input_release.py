@@ -18,13 +18,13 @@ INPUT's era on every job (issue #176).
 The containers are built in ``tmp_path`` with OUR OWN CFB writer; the
 "unverified" input is our tracked, certified 2026 genesis base with its
 ``BasicFileInfo`` re-encoded (by our encoder) to declare a year tekton has
-never read.  Fresh-clone runnable (listed in tests/ci_shard.txt).
+never read (re-emitted through conftest's ``rewrite_stream``, #639).
+Fresh-clone runnable (listed in tests/ci_shard.txt).
 
 Run: .venv/bin/python -m pytest tests/test_input_release.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import importlib.util
 import json
 import os
@@ -35,6 +35,7 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
+from conftest import rewrite_stream                         # noqa: E402
 from rvt import meta                                        # noqa: E402
 from rvt import versions as V                              # noqa: E402
 from rvt.cfb_writer import CfbEntry, write_cfb              # noqa: E402
@@ -125,18 +126,12 @@ def _cfb(path, bfi: bytes | None, schema: bytes | None = b"\x00" * 64) -> str:
 def _base_declaring(path, year: int) -> str:
     """Our certified 2026 base, byte-identical except that its BasicFileInfo
     (re-encoded by OUR encoder) declares ``year``."""
-    from rvt.roundtrip import read_entries
     from rvt.stream_encoders import decode_basic_file_info, encode_basic_file_info
 
-    def redate(e):
-        if e.path != "BasicFileInfo":
-            return e
-        model = decode_basic_file_info(e.data)
-        model["format"] = str(year)
-        return dataclasses.replace(e, data=encode_basic_file_info(model))
+    def redate(raw: bytes) -> bytes:
+        return encode_basic_file_info(dict(decode_basic_file_info(raw), format=str(year)))
 
-    write_cfb(str(path), [redate(e) for e in read_entries(BASE_2026)])
-    return str(path)
+    return rewrite_stream(BASE_2026, path, "BasicFileInfo", redate)
 
 
 def test_floor_is_derived_from_the_version_model():
