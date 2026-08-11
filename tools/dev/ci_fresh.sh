@@ -19,27 +19,32 @@
 # approximation of the merged tree's names that needs no merge; a name added on both sides stays in twice = add/add).
 # A case-only twin of a path the PR adds would redden portable_paths only after the merge (#496); any other law the
 # checker has or gains is felt the same way. If main added docs files and the recorded head is not in this clone, none
-# of that can be ruled out — STALE too.
-# Anything else (code, a docs deletion, a SHARD_READS doc) is drift the shard could feel: STALE — unless
-# tools/dev/ci_fresh_drift.py (#539; read its header once: the numbered rules and what it leaves unjudged) can show
-# from objects alone that no test can meet both changes at once: main's drift and the PR's own change are DISJOINT
-# path sets of plain added/modified names, neither touches the shard machinery, a whole-tree checker or a SHARD_READS
-# doc (a shard drop-in only when it enrols nothing but the side's own changed tests), no changed .py file of either
-# side imports a module the other side changed or builds module/path names at run time, no changed file names a path
-# the other side changed, `git merge-tree --write-tree` (git >= 2.38, a merge in the object store, no checkout) is
-# clean, and the merged tree's names pass check_portable_paths.check() — then FRESH(disjoint drift), naming both file
-# counts. Any doubt on that path (a deletion or rename, > 200 files a side, an odd name, the head not in this clone)
-# is STALE; git failing under it is "cannot judge"; CI_FRESH_STRICT=1 in the environment switches the whole path off
-# (code drift = STALE, as before #539). A filter or interpreter failing anywhere is "cannot judge", never FRESH.
+# of that can be ruled out — STALE too. Drift is only "was..now" while origin/main still descends from the recorded
+# main; a rewritten trunk is STALE whatever the difference looks like.
+# Anything else (code, a docs deletion, a SHARD_READS doc) is drift the shard could feel: STALE. That is the standing
+# gate. OPT-IN only (CI_FRESH_JUDGE=1 exported by the tech lead, deliberately, on a queue-heavy tick), such drift is
+# handed to tools/dev/ci_fresh_drift.py (#539; read its header once: the numbered rules and what it leaves unjudged),
+# which may show from objects alone that no test can meet both changes at once: main's drift and the PR's own change
+# are DISJOINT sets of plain, regular, added/modified paths, neither touches the shard machinery, a whole-tree checker
+# or a SHARD_READS doc (a shard drop-in only when it enrols nothing but the side's own changed tests), no changed .py
+# file of either side (parsed with ast, never executed) imports a module the other side changed or builds/discovers
+# names at run time (loader and directory-walk calls on anything but plain literals) that could reach one, no changed
+# file names a path the other side changed, `git merge-tree --write-tree` (git >= 2.38, a merge in the object store, no
+# checkout) is clean, and the merged tree's names pass check_portable_paths.check() — then FRESH(disjoint drift),
+# naming both file counts. Any doubt on that path (a deletion, rename, symlink or submodule entry, > 200 files or a
+# > 2 MB file a side, an odd name, the head not in this clone) is STALE; git failing under it, or the judge outliving
+# `timeout` (CI_FRESH_JUDGE_TIMEOUT, default 120 s), is "cannot judge". A filter or interpreter failing anywhere is
+# "cannot judge", never FRESH.
 # With <head-sha> (what `git ls-remote` says the PR head is right now) it also refuses a JSON computed for another
 # head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.
 #
 # Trusted side only: git plumbing on THIS checkout (main, plus the file NAMES the recorded PR head adds and deletes —
-# the same names-only reading session_ci.sh's portable_paths step does — and, on the code-drift path only, the TEXT of
-# the files each side changed, read out of git blobs as data by the judge: regex over import lines and names, never
-# imported, never executed), this checkout's own check_portable_paths.py, and a stdlib read of our own JSON. It never
-# checks out or runs anything from the PR. Needs git (>= 2.38 for the disjoint-drift path; older git cannot judge it),
-# python3, awk (POSIX: mawk, gawk and busybox agree), and network to `git fetch origin main`.
+# the same names-only reading session_ci.sh's portable_paths step does — and, on the opt-in code-drift path only, the
+# TEXT of the files each side changed, read out of git blobs as data by the judge: parsed with ast and regex for import
+# statements and names, never imported, never executed), this checkout's own check_portable_paths.py and shard_list.py,
+# and a stdlib read of our own JSON. It never checks out or runs anything from the PR. Needs git (>= 2.38 for the
+# disjoint-drift path; older git cannot judge it), python3, coreutils timeout (that path only), awk (POSIX: mawk, gawk
+# and busybox agree), and network to `git fetch origin main`.
 # Prints one line. Exit 0 FRESH / FRESH(docs-only drift) / FRESH(disjoint drift) | 4 STALE (main moved under the
 # verdict in a way the shard could feel, or the recorded main is unknown here) | 5 the JSON is for another head / not
 # a pass | 3 MISSING (no JSON, or one from before "main" was recorded) | 2 bad PR number / cannot judge (fetch, diff
@@ -62,13 +67,16 @@ git fetch -q origin main || { echo "cannot judge PR $PR: git fetch origin main f
 NOW=$(git rev-parse --verify -q origin/main) || { echo "cannot judge PR $PR: no origin/main"; exit 2; }
 [ "$WAS" = "$NOW" ] && { echo "FRESH main=$NOW"; exit 0; }
 git cat-file -e "$WAS^{commit}" 2>/dev/null || { echo "STALE was=$WAS now=$NOW changed=? ($WAS is not in this clone: main rewritten, or a JSON from another checkout)"; exit 4; }
+git merge-base --is-ancestor "$WAS" "$NOW"; case $? in 0) ;;   # drift is only WAS..NOW when NOW descends from WAS; a rewritten trunk with a docs-only difference is not "docs-only drift"
+  1) echo "STALE was=$WAS now=$NOW changed=? ($WAS is not an ancestor of origin/main: main rewritten under the verdict) -> re-run tools/dev/session_ci.sh $PR"; exit 4;;
+  *) echo "cannot judge PR $PR: git merge-base $WAS $NOW failed"; exit 2;; esac
 DRIFT=$(git diff --name-status --no-renames "$WAS" "$NOW" --) || { echo "cannot judge PR $PR: git diff $WAS $NOW failed"; exit 2; }
 # Everything below fails CLOSED: a filter/interpreter that errors is "cannot judge" (exit 2), never an empty list read as FRESH.
 name3() { awk 'BEGIN {n=0; s=""} length($0) {n++; if (n<=3) s=s (n>1?",":"") $0} END {if (n>3) s=s ",…"; print s}'; }   # paths, one per line -> first three named, the rest counted as an ellipsis (length, not NF: a name made of blanks still counts)
 BLOCK=$(awk -F'\t' -v reads="$SHARD_READS" '!($1 ~ /^[AM]$/ && $2 ~ /^docs\// && $2 !~ reads) {print $2}' <<<"$DRIFT" | name3) || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # every path that is NOT tolerated drift
-if [ -n "$BLOCK" ]; then   # code drift: STALE -- unless the disjoint-drift judge can show, from objects only, that nothing the shard runs meets both changes (#539; its header states the rules and what stays unjudged); it prints ONE payload line, this script owns the envelope
-  [ -z "${CI_FRESH_STRICT:-}" ] || { echo "STALE was=$WAS now=$NOW changed=$BLOCK (CI_FRESH_STRICT is set: code drift is never judged, only re-run) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
-  SAYS=$(python3 -IB "$REPO/tools/dev/ci_fresh_drift.py" "$WAS" "$NOW" "$HEAD" "$PR" "$SHARD_READS"); RC=$?
+if [ -n "$BLOCK" ]; then   # code drift: STALE, exactly as before #539 -- unless the tech lead OPTED IN (CI_FRESH_JUDGE=1) to the disjoint-drift judge, which may show from objects only that nothing the shard runs meets both changes (its header states the rules and what stays unjudged); it prints ONE payload line, this script owns the envelope
+  [ "${CI_FRESH_JUDGE:-}" = 1 ] || { echo "STALE was=$WAS now=$NOW changed=$BLOCK -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
+  SAYS=$(timeout "${CI_FRESH_JUDGE_TIMEOUT:-120}" python3 -IB "$REPO/tools/dev/ci_fresh_drift.py" "$WAS" "$NOW" "$HEAD" "$PR" "$SHARD_READS"); RC=$?   # bounded: a judge that outlives its budget (rc 124), or no `timeout` at all (rc 127), is "cannot judge" below
   SAYS=${SAYS%%$'\n'*}   # one line, whatever it printed
   case "$RC" in
     0) [ -n "$SAYS" ] && { echo "FRESH(disjoint drift) was=$WAS now=$NOW $SAYS"; exit 0; };;

@@ -35,14 +35,21 @@ header and here: **coupling through an unchanged third file** (main changes `rvt
 replay: #563 (`release_ctx.py`) after #565 (`tools/surface_bench.py` + its tests) reads FRESH(disjoint drift);
 `surface_bench` drives `go author` in a subprocess, which executes `release_ctx` — no import, no name links them, only
 behaviour. It was in fact safe (565 reclassified a prerequisite message), but the judge cannot know that; it bets.
-The tech lead can refuse the bet wholesale without a code change: `CI_FRESH_STRICT=1` in the environment makes code
-drift STALE exactly as before.
+**Since the review of `545e3da` the bet is OPT-IN, not opt-out** (ruling below): the standing gate keeps its pre-#539
+guarantee — code drift is STALE, byte-identical line — and only a tech lead who exports `CI_FRESH_JUDGE=1`, deliberately,
+on a queue-heavy tick, hands code drift to the judge. Why default-off is the right shape *for now*, in one sentence: the
+exact alternative — refuse whenever the two changes share one test's import cone — was measured by the reviewer and
+degenerates to "always STALE" because `tests/conftest.py` imports `rvt.frontdoor` at start-up (every shard cone ≈ 170
+files); it becomes viable the day a runtime import/read audit supplies real per-test cones, and until then a heuristic
+that bets belongs behind a switch the merger flips knowingly. (An earlier draft had the inverse switch,
+`CI_FRESH_STRICT=1`; every mention of it below is history.)
 
 ## What was built
 
 `tools/dev/ci_fresh_drift.py` (stdlib, ~320 lines incl. a 50-line header that states the rules once), run by
 `ci_fresh.sh` as `python3 -IB "$REPO/tools/dev/ci_fresh_drift.py" WAS NOW HEAD PR SHARD_READS` only on the code-drift
-branch (the awk `BLOCK` list non-empty) and never when `CI_FRESH_STRICT` is set. Division of labour after /simplify:
+branch (the awk `BLOCK` list non-empty) and — since the fix round — only when `CI_FRESH_JUDGE=1` is exported, under
+`timeout ${CI_FRESH_JUDGE_TIMEOUT:-120}`. Division of labour after /simplify:
 the judge prints ONE payload line and exits 0/4/2; the shell owns the one envelope (`FRESH(disjoint drift) was=… now=…
 <payload>` / `STALE was=… now=… changed=<name3> (<payload>) -> re-run …` / `cannot judge PR n: <payload> (was=… now=…
 changed=…)`) and treats anything else — a traceback (rc 1), an empty payload, a killed interpreter — as `cannot judge …
@@ -212,6 +219,77 @@ follow-up sized); `CI_FRESH_STRICT` defaulting from `.github/autonomy.json` (out
 says when it fired, and tick.md names the switch); one `ROOTS` table behind `TEMPLATED`/`PY_ROOTS`/`BY_STEM` (low value,
 regex readability cost).
 
+## Fix round 1 — review of `545e3da` (🛑, an adversarial reviewer with its own rigs), same session
+
+**Ruling adopted (reviewer's option C): the judge ships default-OFF.** `ci_fresh.sh` answers code drift with the
+pre-#539 line, byte-identical (`STALE was=… now=… changed=… -> re-run …`, exit 4) unless `CI_FRESH_JUDGE=1` — exactly
+`1` — is in the environment; `CI_FRESH_STRICT` is gone; AUTONOMY §12c and tick.md §2 now say "opt-in, taken deliberately
+by the tech lead on queue-heavy ticks; the standing gate keeps its pre-#539 guarantee". The seven pre-existing rows the
+first round had moved onto `stale_reason()` are back to asserting the byte-identical line (helper `stale()`), each with
+the opted-in reason pinned next to it. Then the eight findings, each a real false FRESH or an unbounded cost inside the
+rule's own claims, each now a red→green rig row:
+
+1. **Imports are read with `ast`** over the whole blob (data; nothing compiled to run): every `Import`/`ImportFrom`
+   wherever it sits — backslash-continued lists (`from pkg import high, \⏎ low` was FRESH: c3), `;` chains and inline
+   suites (`import os; from b import B`, `if x: from pkg import low` — c4 — survived only through the name backstop),
+   function-level imports; relative levels resolved from `node.level`. A file that does not parse
+   (SyntaxError/ValueError/RecursionError/MemoryError) is STALE. The line regex stays as a backstop, united with it.
+2. **"Builds names at run time" became "builds OR DISCOVERS"**: `glob/iglob/rglob/listdir/scandir/walk/iterdir` calls,
+   `spec_from_file_location`'s PATH (2nd) argument, and every loader call whose deciding argument is not a plain string
+   literal — *including a plain variable*, whose exemption the first draft justified with "its literal is in the caller"
+   (true only when the caller is a changed file; finding 7) — reach EVERYTHING the other side changed; narrowed only when
+   the call spells a literal repo prefix itself: leading literal pieces that start at a tracked top-level directory of
+   either tree (`os.path.join(ROOT, "tools", "gen_*.py")` → `tools/gen_`, a glob counting up to its first wildcard;
+   `spec_from_file_location("m", os.path.join(ROOT, "tools", "t.py"))` → `tools/t.py`, the NAME argument skipped) or
+   in the `rvt.` namespace (`import_module(f"rvt.mep.{mod}")` → `rvt.mep.`). A piece from the middle of a join
+   (`base, "gen", name`) proves nothing about where the walk starts and narrows nothing. Templated literals elsewhere in
+   the file follow the same prefix law (`"genesis_%d"` and `f"{tool}.py"` now reach everything; `f"rvt.genesis.port{y}"`
+   still only `rvt.genesis.port*`). Stated in the header as unjudged: plain concatenation / `os.path.join` pieces with
+   no loader or walk call in the changed file. Rows j3 (`for f in os.listdir(TOOLS): n = f[:-3]; load_tool(n)`), j4
+   (glob + subprocess, narrowed to `tools/gen_…`), j5 (spec path variable; spec path from literal pieces).
+3. **Modes are read** (`git diff --raw -z`): an entry whose new (or, for M, old) mode is not 100644/100755 — a symlink
+   120000, a gitlink 160000 — is STALE on either side (m12: a symlinked test importing main's module was judged by its
+   target string).
+4. **Runner files at any depth**: `pyproject.toml` joined `RUNNER_FILES` (a nested pytest inifile `tests/pyproject.toml`
+   was FRESH: e4) and any `__init__.py` under `tests/` is a gate (e5), not only `tests/__init__.py`.
+5. **Bounded**: `timeout ${CI_FRESH_JUDGE_TIMEOUT:-120}` around the judge in `ci_fresh.sh` (124, or 127 without
+   coreutils, lands in "the disjoint-drift judge failed (rc=…)", exit 2 — k-timeout row with a sleeping python3 shim
+   and a 1 s budget); a 2 MB cap per changed blob (`BLOB_LIMIT`, m2 row); and the templated-literal scan is now
+   quote-to-quote with a bounded body (`[^'"\s]{2,240}`) checked in two cheap steps instead of one backtracking
+   pattern — the reviewer's ~800 KB quote-less `%s%s…` line that hung ~1 h now costs 0.09 s (2 MB of prose 0.17 s,
+   1.4 MB of short literals 0.22 s; `ast` on 2 MB ≈ 0.02–2 s).
+6. **The recorded head must be a 40-hex id** in the judge (as the docs-ADD arm already demanded); so must `was`/`now`.
+   `"head": "HEAD"` in a JSON was argued about — git resolves it — and is now STALE (h2).
+7. Wording aligned everywhere (header rule 5, `ci_fresh.sh` header, AUTONOMY, tick): "loader and directory-walk calls
+   on anything but plain literals reach everything".
+8. **Adjacent pre-existing hole closed**: the docs-only arm never checked `WAS ⊑ NOW`; a rewritten trunk whose tree
+   differed by a record read `FRESH(docs-only drift)`. One `git merge-base --is-ancestor` before `DRIFT`: rc 1 → `STALE
+   … changed=? (<was> is not an ancestor of origin/main: main rewritten under the verdict)`, other rc → cannot judge
+   (row: `commit --amend` of the upstream root adding only `docs/inbox/later.md`).
+
+What held, per the reviewer, recorded for the next reader: exit table intact, ranges right, fail-closed on judge
+failure, trusted side never executes PR content, GATES / drop-in / rename / conflict / rewritten-trunk rows correct,
+replay reproduced.
+
+**Evidence after the round.** `tests/test_ci_fresh.py` 52 → 65 collected (63 passed / 2 skipped: gawk, busybox);
+stream-local five files 132 passed / 3 skipped; portable paths ok (2983); `bash -n` clean. Replay over the same 12 PRs
+with the hardened judge: **1 FRESH (#578) / 11 STALE** — #563 flipped to STALE (`release_ctx.py`'s `import_module(name)`
+on a plain variable now reaches everything main changed), which is the honest price of finding 7 and exactly the case
+the honesty section above worried about. Timings unchanged (≈ 100 ms on the FRESH path). Drive of the real script in
+the scratch clone (`origin` = a bare copy whose `main` is moved to the historical trunk; run JSON hand-written):
+
+```
+== PR 578, recorded main 4bd7ecff, origin/main now 59c8d0a
+   standing gate:      STALE was=# now=# changed=tests/test_surface_bench_reason.py,tests/test_surface_perf.py,tools/surface_bench.py -> re-run tools/dev/session_ci.sh 578        exit=4
+   CI_FRESH_JUDGE=1:   FRESH(disjoint drift) was=# now=# main=3 pr=3 (disjoint from the 3 non-docs paths PR 578 changes: not imported or named either way, no gate touched, merge clean)   exit=0
+== PR 571, recorded main 37aa9c47, origin/main now 4bd7ecf
+   standing gate:      STALE was=# now=# changed=plugin/lib/src/rvt/frontdoor/manifest.py,plugin/skills/tekton-native/scripts/rvt_inspect.py,src/rvt/frontdoor/manifest.py,… -> re-run tools/dev/session_ci.sh 571   exit=4
+   CI_FRESH_JUDGE=1:   STALE was=# now=# changed=…same… (main changes tools/sync_plugin.py, a gate: shard machinery, a whole-tree checker or its law data) -> re-run tools/dev/session_ci.sh 571   exit=4
+== wrong expected head:  WRONG-HEAD json=# now=# (the stored run is for another head: run tools/dev/session_ci.sh 578)   exit=5
+== opt-in, judge stalls (CI_FRESH_JUDGE_TIMEOUT=0.01):  cannot judge PR 578: the disjoint-drift judge failed (rc=124; was=# now=# changed=tests/test_surface_bench_reason.py,tests/test_surface_perf.py,tools/surface_bench.py)   exit=2
+== opt-in, "head": "HEAD" in the JSON:  STALE was=# now=# changed=…same… (the recorded head 'HEAD' is not a 40-hex commit id) -> re-run tools/dev/session_ci.sh 578   exit=4
+```
+
 ## Follow-ups (searched: none filed)
 
 - F1 — fold the docs-ADD collision heredoc of `ci_fresh.sh` into the judge as a second entry point (one loader, one
@@ -220,20 +298,19 @@ regex readability cost).
   body's original bullet 1 and accept that floor. Kept out of this PR to leave the docs-only rows byte-identical.
 - F2 — `sync_plugin.py` as a hard gate is today's dominant STALE; a finer rule ("the other side touches nothing under a
   mirrored root") is possible but needs the mirror map out of `sync_plugin.py` as data.
-- F3 — `CI_FRESH_STRICT`'s default could live in `.github/autonomy.json` (`pipeline.judge_code_drift`) with the env var
+- F3 — (superseded by the ruling: the switch is `CI_FRESH_JUDGE`, default off) its default could live in `.github/autonomy.json` (`pipeline.judge_code_drift`) with the env var
   as the in-tick override, so the policy is visible in the ledger (S-2026-08-09-b).
 
 BRANCH STATE
-- branch: cam/539-ci-fresh-disjoint-drift (from origin/main 6ee6f27)
+- branch: cam/539-ci-fresh-disjoint-drift (rebased on origin/main 5f38b00 for round 1; head reported to the tech lead)
 - files: tools/dev/ci_fresh_drift.py (new), tools/dev/ci_fresh.sh, tests/test_ci_fresh.py, docs/process/AUTONOMY.md
-  (one sentence, §12c Merge row), .github/prompts/tick.md (one clause, §2), docs/inbox/ci-fresh-merge-tree.md (this)
-- gates: `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_ci_fresh.py tests/test_shard_list.py
-  tests/test_portable_paths.py tests/test_docs_read_audit.py -q -rs` → 85 passed / 3 skipped (gawk, busybox, the audit's
-  self-test reader); + `tests/test_techlead.py` → 116 passed / 3 skipped for the five files; `python3
-  tools/dev/check_portable_paths.py` → ok: 2981 tracked paths; `bash -n tools/dev/ci_fresh.sh` clean (no shellcheck on
-  this VM); `tools/sync_plugin.py --check` in sync, `validate_plugin.py` PASS (tools/dev is not mirrored; run for the
-  template); whole merged shard `pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)` on the rebased
-  tree (origin/main fa797d4): 2034 passed / 134 skipped / 3 xfailed / **1 failed = the new gates meta-test, only because
-  `tools/dev/ci_fresh_drift.py` was still untracked when that run read `git ls-files`**; staged and re-run: passes (a
-  clean whole-shard count follows in the PR thread)
+  (one clause, §12c Merge row), .github/prompts/tick.md (one clause, §2), docs/inbox/ci-fresh-merge-tree.md (this)
+- gates, first head (545e3da): stream-local four files 85 passed / 3 skipped; whole merged shard 2035 passed / 134
+  skipped / 3 xfailed on the committed tree (the earlier 1 failed = the gates meta-test reading `git ls-files` before the
+  judge was tracked); tech-lead CI on that head 2042 / 131 / 3xf pass; review 🛑 (round 1 above)
+- gates, fix round 1: `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_ci_fresh.py tests/test_shard_list.py
+  tests/test_portable_paths.py tests/test_docs_read_audit.py tests/test_techlead.py -q -rs` → 132 passed / 3 skipped
+  (gawk, busybox, the audit's self-test reader); `python3 tools/dev/check_portable_paths.py` → ok: 2983;
+  `bash -n tools/dev/ci_fresh.sh` clean (no shellcheck on this VM); whole merged shard re-run on the round-1 tree — count
+  in the PR thread with the new head
 - staged vs shipped: nothing staged; no viewer batch; no plugin/src change

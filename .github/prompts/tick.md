@@ -64,8 +64,10 @@ reviewer said approve/nits for the exact head you re-read (`git ls-remote`) just
 `tools/dev/ci_fresh.sh <n> <that head>` — run right before the merge — says FRESH (exit 0: the JSON is a pass for
 that head and its `main` is still `origin/main`, or differs only by added/modified `docs/**` no shard test opens
 whose names, with the PR's, still pass `tools/dev/check_portable_paths.py` — e.g. no add/add or case-twin collision — or,
-`FRESH(disjoint drift)`, by code its judge `tools/dev/ci_fresh_drift.py` shows to be path-disjoint from the PR's change,
-not imported or named by it either way, gate-free and merge-clean; export `CI_FRESH_STRICT=1` to refuse that last kind);
+OPT-IN and only then (`export CI_FRESH_JUDGE=1`, taken deliberately on a queue-heavy tick; the standing gate keeps its
+pre-#539 guarantee that code drift is STALE), `FRESH(disjoint drift)`: by code its judge `tools/dev/ci_fresh_drift.py` shows to
+be path-disjoint from the PR's change, neither imported, named nor reachable through a run-time-built or directory-walked name
+by it either way, gate-free and merge-clean — a fail-closed bet, not a proof: read the judge's header before exporting it);
 anything else (STALE: `main` moved under the verdict since the run, #476; WRONG-HEAD; MISSING; cannot judge) → re-run
 `session_ci.sh <n>` and merge on the new JSON, never on the old one (this serialises merges behind CI runs;
 reviews stay parallel, they are diff-scoped). Markers from
