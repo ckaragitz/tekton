@@ -1216,7 +1216,7 @@ Gates: `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_router.py tests/
 tests/test_router_load_release.py tests/test_frontdoor.py -q -rs` → **before 324 passed / 19 skipped,
 after 328 passed / 19 skipped** (the 4 new; skips = RVT_SKIP_LARGE, absent samples / ifcopenshell, root chmod —
 unchanged); whole merged shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1 -p no:cacheprovider`) →
-**(running at first push; counts recorded in the next commit of this section and the PR body)**; `tools/sync_plugin.py` → `--check` clean ("plugin in sync with source");
+**2171 passed / 134 skipped / 3 xfailed, 0 failed** (7 m 27 s, on the tree of e6a26fd = this head but for this one line); `tools/sync_plugin.py` → `--check` clean ("plugin in sync with source");
 `validate_plugin.py` PASS (25 assertions); `check_portable_paths.py` ok (3012 paths). `/simplify` ran on
 the diff (4 reviewers): applied — the degrade guard raises *before* calling the real constructor (no
 wasted build once #241 closes; the assertions never read the reason), a call-site comment that restated
