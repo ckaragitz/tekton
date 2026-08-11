@@ -241,27 +241,47 @@ GUID and, since #595, walked *backward* through items of any GUID: the item
 with `k` ids that ends where the first known item starts begins at
 `q = first − 20 − 8k` and is self-checking — the u32 at `q+16` must equal
 `k`, the `k` words must be plausible ElementIds, the 16 bytes at `q` must not
-be low-entropy filler. That admits false tilings: from item 5 (@0xff992) both
+be low-entropy filler. That admits false candidates: from item 5 (@0xff992) both
 `k=1` → item 4 @0xff976 (real) and `k=0` → a 20-byte pseudo-item @0xff97e made
 of item 4's own tail (`a3 4a … 0b 62 | 01 00 00 00 | 60 c1 00 00`, "count" =
 the high dword of id 49504 = 0) pass, and the same happens again from item 3
-(@0xff94e). So the walk is breadth-first with backtracking and a table is
-accepted only when the u32 in front of its first item equals the items it
-then holds (every walked-back item + at least every forward item up to the
-last catalogued one; forward items beyond the count are cut). On this base:
-level 1 = {0xff992}, level 2 = {0xff97e ✗ (u32 in front 0x416d62e6, no
-predecessor), 0xff976}, level 3 = {0xff962}, level 4 = {0xff94e ✗, 0xff946},
-level 5 = {0xff932}: u32 in front = **7** = 5 walked back + 2 forward →
-verified, `tracking_offset = 0xff92e`, `tracking_count = 7`; seven candidate
-states in all, `locate_tracking` 0.72 → 0.75 ms best-of-9 (a walk state is just
-an item offset — an item has one end, so an offset reaches the anchor by
-exactly one chain — and the accepted table is re-read front to back once).
-Two count-verified tilings on one level resolve to the one starting earlier;
-that settles exactly the tail-carved pseudo-item family (a real item
-out-spans its own tail) and claims no more: any other wrong tiling, on that
-level or an earlier one, needs the u32 in front of it to equal its exact item
-count — the single 2⁻³² coincidence the pre-#595 count check already
-accepted. The catalog map's own span stays excluded (`skip`) *permanently*,
+(@0xff94e). The candidates ending at one item are *nested* — `q = first − 20 −
+8k`, so a shorter one is byte for byte the tail of every longer one — and the
+last 20 bytes of any real item whose last id is < 2³² read as such a 0-id
+pseudo-item; so (since #614) **only the longest self-checking item ending at a
+node is walked to**, a pseudo-item carved from a real item's tail is never a
+candidate on any level, and the walk is one chain, not a tree. A table is
+accepted at the first (fewest walked-back items) node whose leading u32 equals
+the items it then holds (every walked-back item + at least every forward item
+up to the last catalogued one; forward items beyond the count are cut). On
+this base the chain is 0xff9a6 (anchor, item 6) → 0xff992 → 0xff976 → 0xff962
+→ 0xff946 → 0xff932: u32 in front = **7** = 5 walked back + 2 forward →
+verified, `tracking_offset = 0xff92e`, `tracking_count = 7`; five predecessor
+scans of ≤ 3 id-word probes each, `locate_tracking` ≈ 0.7 ms best-of-9,
+unchanged (the accepted table is re-read front to back once, by the same
+`item_at` reader that built the forward chain). What this rules out that the
+#612 breadth-first walk (earliest start wins *within* a level) did not: a
+pseudo-item verifying on a *shallower* level than the real item it is carved
+from — for a non-first item with ≥ 3 ids the u32 in front of its tail
+pseudo-item is the low dword of its third-from-last id, and if that id equals
+`1 + items after it` the truncated tiling count-verified one level before the
+real chain reached the true first item (synthetic repro `[U1{7}, U2{3,…,…},
+AREX, DAYLIGHT]`, count 4: main read offset 118 / count 3 with a phantom
+`00000000-…` "uncatalogued" GUID; now 66 / 4). What remains accepted: a wrong
+table needs the u32 in front of a *real* item boundary to equal that exact
+item count — the 2⁻³² coincidence the pre-#595 count check already accepted —
+and a real item can lose to a longer false candidate only if bytes of its own
+GUID (bytes 8..12 as that candidate's id count — which RFC-4122 variant bits
+exclude for every count < 128 — or bytes 0..4, with 4..12 also reading as an
+ElementId) or the bytes in front of it spell that candidate's count and ids;
+the outcome then is the labelled unverified fallback, not a wrong table. Every
+candidate `k` probed backward (one per id word walked over) is charged to
+`_TRACKING_BUDGET` (100 000 probes ≈ 70 ms worst case per anchor, spent only on
+a long run of plausible id words in front of a node; this base spends 17, so
+walked-back items totalling more than ~100 000 ids are the one legitimate shape
+that degrades to the fallback); a walk that spends it names no predecessor and
+verifies nothing — never a shorter "verified" table. The catalog map's own
+span stays excluded (`skip`) *permanently*,
 not as a stopgap: entry 2's key + its empty `m_documentation`, fronted by
 entry 1's write level 1, would now count-verify as a confident 1-item table
 whenever the real table did not. Nothing verified → the old fallback, now
