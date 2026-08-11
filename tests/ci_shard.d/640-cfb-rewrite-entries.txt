@@ -1,0 +1,2 @@
+# issue #640: rvt.roundtrip.rewrite_entries -- the ONE entry-rewrite pass -- and the four rvt.writer variant builders folded onto it (tracked pins only)
+tests/test_cfb_rewrite_entries.py

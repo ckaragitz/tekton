@@ -6,6 +6,12 @@ bits and creation/modified FILETIMEs are carried over unchanged; only the
 physical sector layout, the red/black sibling links and slack bytes are
 regenerated (see docs/streams/00-cfb-container.md).
 
+:func:`rewrite_entries` is the same pass with chosen streams' raw bytes
+replaced or dropped and ready-made entries appended -- the ONE "re-emit this
+container with these streams changed, everything else byte-identical" loop
+for the engine (``rvt.writer``'s variant builders) and the test scaffolding
+(``tests/conftest.rewrite_streams``) alike.
+
 CLI::
 
     python -m rvt.roundtrip <in.rvt> <out.rvt> [--verify] [--byte-report]
@@ -19,13 +25,15 @@ if not, categorises the differences.
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import hashlib
 import json
 import os
 import struct
 import sys
 import time
-from typing import Dict, Iterable, List, NamedTuple, Optional, Tuple
+from typing import (Callable, Dict, Iterable, List, Mapping, NamedTuple, Optional,
+                    Sequence, Tuple, Union)
 
 import olefile
 
@@ -190,6 +198,45 @@ def roundtrip(in_path: str, out_path: str) -> Tuple[CfbLayout, float, float]:
     layout = write_cfb(out_path, entries)
     t2 = time.time()
     return layout, t1 - t0, t2 - t1
+
+
+StreamEdit = Optional[Callable[[bytes], bytes]]
+"""``raw -> new raw`` for one stream (its bytes exactly as stored, still paged),
+or ``None`` to drop the stream from the output."""
+
+
+def rewrite_entries(src: Union[str, "os.PathLike[str]"],
+                    dst: Union[str, "os.PathLike[str]"],
+                    replace: Mapping[str, StreamEdit],
+                    extra: Sequence[CfbEntry] = ()) -> str:
+    """Re-emit the container ``src`` as ``dst`` with chosen streams changed.
+
+    For every ``{path: edit}`` in ``replace`` the stream at that '/'-joined
+    path has its raw bytes replaced by ``edit(raw)`` -- or is dropped when
+    ``edit`` is ``None``; the ready-made ``extra`` entries are appended after
+    the container's own; every other entry (order, bytes, CLSIDs, state bits,
+    FILETIMEs) is carried over exactly as :func:`roundtrip` would.  A path in
+    ``replace`` that names no *stream* of ``src`` is a ``KeyError`` raised
+    before anything is written -- never a silent verbatim copy.  ``src`` is
+    read fully before ``dst`` is opened, so ``src == dst`` rewrites in place.
+    Returns ``dst`` (as ``str``), the one thing every caller goes on to use.
+    """
+    src, dst = os.fspath(src), os.fspath(dst)
+    out: List[CfbEntry] = []
+    missing = set(replace)
+    for e in read_entries(src):
+        if e.entry_type == "stream" and e.path in replace:
+            missing.discard(e.path)
+            edit = replace[e.path]
+            if edit is None:
+                continue
+            e = dataclasses.replace(e, data=edit(e.data))
+        out.append(e)
+    if missing:
+        raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), src))
+    out.extend(extra)
+    write_cfb(dst, out)
+    return dst
 
 
 # --- verification ---------------------------------------------------------------
