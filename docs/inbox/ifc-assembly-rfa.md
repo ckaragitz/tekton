@@ -891,3 +891,129 @@ a3506ad ← fc69382 ← this); no rebase, no force-push, no merge of main. Files
 `src/rvt/ifc/assembly_parts.py` (+ `plugin/lib` mirror), `tests/test_ifc_assembly.py` (my section
 only), this record. `router.py` untouched this round. Nothing staged for the viewer; no
 certification claimed.
+
+## eng #620 (2026-08-11): a yawed thin bar is never a giant cylinder in `fit_solid`
+
+**The defect (pre-existing on `main` at e621ab6, found by two reviews of #583).** `fit_solid` read a
+hull as a CIRCLE on one test only: 8+ hull points whose radii about their centroid agree to ±12 %.
+The corners of any long thin bar are all half a diagonal from its centre, so the moment a yaw's
+rounding noise (hull weld at 1e-9, `%.6f` STEP text) keeps a few near-collinear points on the hull,
+the bar has 8 "equidistant" hull points and fits a cylinder of r = half its LENGTH:
+
+* in memory (`_yaw(_u_channel())`, `_strut(deg)`): the 4 × 1 × 1 m U at 5°/30° → **cylinder
+  r = 6.73 ft (2.05 m), fill 0.085**; the 900 × 41 × 41 mm strut at 0.1°/12° → **cylinder
+  r = 1.48 ft, fill 0.010**;
+* through the IFC path (`write_ifc` → `read_assembly`, 0.25°…45° in 0.25° steps, both bodies):
+  **72 of 360 reads (20 %) mis-fit as that cylinder** on `main`; which yaws hit depends only on
+  coordinate noise;
+* usually the slab lane rescues it (fill 0.01 → 1.00, three exact rotated rectangles), but when both
+  lanes refuse **the cylinder is what ships**: a 2 m × 100 mm rail of 70 stacked plates (widths
+  alternating by 2 mm → 70 Z levels > `MAX_SLABS`, yawed 10° → no box lane) routes on `main` to a
+  1-part `.rfa` whose only solid is **an r = 3.28 ft drum, 6 % full, wider than the body's own
+  bounding box** (`ASSEMBLY LANE: … (cylinder x1)`, `Rail 6%` envelope, `kept as a single prism`).
+
+**The law now (`_fit_circle`, the only helper `fit_solid` gained; nothing else in the module
+touched).** Equidistant hull points are necessary, not sufficient — the circle must also BE the
+outline:
+
+1. 8+ hull points with radii spread ≤ `CYLINDER_TOLERANCE` (0.12) — unchanged (the ≥ 8 guard just
+   moved inside the helper);
+2. **hull area ≥ `CYLINDER_MIN_PLAN_FILL` (0.85) × πr²** — the intrinsic roundness law, identical at
+   every yaw: a regular 8-gon fills 90.0 % of its circle, a 12-gon 95.5 %, a 16-gon 97.4 %; the
+   4 × 1 bar's corners fill 30 %, a 2 × 1 bar's 51 %, a chamfered square's 64 %;
+3. **radius ≤ (1 + `CYLINDER_TOLERANCE`) × the body's smaller plan half-extent** — the authoring
+   bound in the family's frame (the fitted solid never outgrows the mesh's own bounding box): a
+   regular 8-gon's circumradius is 8.2 % over its apothem, so every real tessellation passes; the
+   U's r = 6.73 ft against a 2.2 ft half-extent and the strut's 1.48 ft against 0.07 ft do not. Not
+   redundant with law 2: a two-flat shaft fills 90 % of its circle yet is 25 % wider than its
+   flats; and not sufficient alone: a 2 × 1 bar at 45° has a square bounding box and slips past it
+   at 1.05 — law 2 refuses that one (51 %).
+
+A hull refused as a circle falls through to the existing box / N-gon branches untouched, i.e. it is
+authored as its own oriented envelope (the rotated rectangle, exact in plan).
+
+**Why the floor is on PLAN fill and not on fill against the mesh volume** (the issue offered
+"e.g. < 0.5"; it said choose and document, this is the choice). Law 3 *is* a fill floor — since the
+cylinder and the hull prism share the height, `hull_area / πr²` equals the cylinder's volume fill
+divided by the hull prism's, so a cylinder can never again hold less than 85 % of what its own hull
+would — but it is deliberately not a floor on raw `mesh volume / cylinder volume`. That number
+cannot tell a false cylinder from a hollow true one: a thin-wall conduit or copper tube is a genuine
+cylinder holding 0.12–0.25 of its envelope (EMT ¾″ ≈ 0.20, type-M copper ≈ 0.12), the yawed U a false
+one holding 0.085 — no threshold parts them, and 0.5 would have re-authored every hollow pipe,
+today a true `cylinder` part, as a 32/48-gon extrusion of the same volume (the slab lane fills the
+bore and is then "no closer than the single prism", so the kept prism is what ships for tubes).
+The plan laws refuse both repros at every yaw with or without a mesh volume (`fill=None` inputs are
+covered too) and leave every round outline alone.
+
+**Before / after** (`fit_solid` on the fixture meshes in feet with their real `mesh_volume`;
+"half-ext" = smaller plan half-extent of the bbox):
+
+| body | e621ab6 (main) | this branch |
+|---|---|---|
+| U-channel 4×1×1 m, t = 0.1, yaw 5° | **cylinder r = 6.7276 ft, fill 0.0848** (half-ext 2.21 ft) | polygon (rotated 4×1 rect), fill 0.2800 |
+| U-channel, yaw 30° | **cylinder r = 6.7276 ft, fill 0.0848** (half-ext 4.70 ft) | polygon, fill 0.2800 |
+| U-channel, yaw 0° / 0.3° / 12° / 45° | box / polygon ×3, fill 0.28 | unchanged |
+| strut 900×41×41 mm, t = 2.5, yaw 0.1° | **cylinder r = 1.4777 ft, fill 0.0102** (half-ext 0.070 ft) | polygon, fill 0.1755 |
+| strut, yaw 12° | **cylinder r = 1.4777 ft, fill 0.0102** (half-ext 0.373 ft) | polygon, fill 0.1755 |
+| strut, yaw 0° / 0.2° / 0.5° / 0.8° / 45° | box / polygon ×4, fill 0.1755 | unchanged |
+| CONTROL pipe r = 50 mm, h = 1 m, 12-gon, yaw 0° / 7° / 13° / 22.5° | cylinder r = 0.1640 ft, fill 0.9549 | identical |
+| CONTROL pipe 16-gon, yaw 0° / 7° / 13° / 22.5° | cylinder r = 0.1640 ft, fill 0.9745 | identical |
+| rod r = 0.5, 40-gon · reducer frustum 32-gon | cylinder 0.9959 · cylinder 0.5796 | identical |
+| regular N-gon prisms, N = 8/9/10/12/24/64/200 × yaw 0/5/11.25/22.5/30° | cylinder | cylinder (35/35) |
+| chamfered 2×1 bar, chamfered 1×1 square (8 hull pts), yaw 0/20/45° | cylinder | box at 0°, polygon yawed |
+| yaw sweep 0…90° × 0.25°, U + strut, in memory (722 fits) | cylinder at the noise-selected yaws | **0 cylinders**; fill ≥ 0.1755 / 0.28 at every yaw |
+
+**Through the router** (`RVT_STEPLITE_FORCE=1 tools/route.py run --ifc X --output rfa --json`,
+same IFC bytes on both trees; every branch output `rvt_validate --family` VALID 0 errors 0 warnings,
+`make_family.py provenance` ok, findings []):
+
+| IFC | e621ab6 | this branch |
+|---|---|---|
+| `strut_yaw2.ifc` (900 mm strut, 2°) | OK 3-part; `slab decomposition improved Strut (3 solids, fill 0.01 -> 1.00)` — the 0.01 is the phantom cylinder | OK 3-part, polygon ×3; `… fill 0.18 -> 1.00`; parts byte-for-byte the same three rectangles |
+| `u_yaw4.ifc` (4×1 m U, 4°) | OK 3-part; `… U (3 solids, fill 0.08 -> 1.00)` | OK 3-part; `… fill 0.28 -> 1.00` |
+| `tower_yaw10.ifc` (2 m × 100 mm rail, 70 plates, 10°) | OK **1-part (cylinder x1)**, `Rail 6%` ENVELOPE, kept as a single prism (slab lane over budget) — ships an r = 3.28 ft drum | OK **1-part (polygon x1), fill 0.99**, no envelope caveat, no decomposition attempted (0.99 ≥ `DECOMPOSE_FILL`) |
+| `strut_yaw12.ifc`, `strut_yaw01.ifc`, `u_yaw30.ifc` | 3 slabs each (these yaws happen not to hit through `%.6f`) | identical parts; `fill_before` 0.1755 / 0.1755 / 0.28 |
+| `pipe16_yaw7.ifc` (control) | 1-part cylinder r = 0.164 ft, fill 0.9745 | identical |
+
+Transcript of the strut run on this branch (trimmed to the assembly caveats):
+```
+$ RVT_STEPLITE_FORCE=1 .venv/bin/python tools/route.py run --ifc strut_yaw2.ifc --output rfa --out br_strut_yaw2 --json
+ok= True | OK (3-part generic_model .rfa measured from strut_yaw2.ifc)
+  caveat: ASSEMBLY LANE: 3 IFC product(s) measured into prisms (polygon x3), overall 35.47 x 2.85 x 1.61 in; every dimension is GIVEN by your mesh …
+  caveat: slab decomposition improved Strut (3 solids, fill 0.18 -> 1.00)
+  parts: Strut [1/3] polygon 1.0 · Strut [2/3] polygon 1.0 · Strut [3/3] polygon 1.0   decomposed: Strut slabs 0.1755 -> 1.0   kept_prism: []
+  validate: VALID (no errors); warnings=0 info=2      provenance: ok, findings []
+```
+
+**Knock-on, checked rather than assumed.** `fill_before` feeds two decisions in `read_assembly`:
+whether to decompose at all (`< DECOMPOSE_FILL`) and whether the slab result beat the single prism
+(`vol/dv < before + 0.02`). Both now compare against the body's real best prism instead of a
+phantom 1–8 %, which is the intended meaning; every existing lane test is unchanged and green
+(strut 0.1–0.8° → 3 slabs at 1.000, mismatch strut boxes/slabs, reducer 8 slabs, corner pairs, site
+coordinates, caveat wording). No caveat text, no lane, no budget, no nesting code was edited.
+
+**Tests** — appended to `tests/test_ifc_assembly.py` only (a new `eng #620` section; the 68
+existing tests untouched): the two repros in memory (U at 5°/30°, strut at 0.1°/12° ⇒ polygon, no
+`radius_ft`, fill = the unyawed body's), a 0…90° × 0.25° sweep of both bodies (never a cylinder,
+envelope inside its own bbox), the control pipe (12/16-gon × yaw 0/7/22.5° ⇒ cylinder, r exact,
+fill ≈ 1 and = N/(2π)·sin(2π/N)), the two refusals in isolation (chamfered 2×1 / 1×1 vs a regular
+octagon), the lanes-off delivery of the U at 4° — a yaw that mis-fits through the IFC path on e621ab6 —
+(polygon 0.28; lanes on ⇒ still 3 exact slabs), and
+the end-to-end rail both lanes refuse (ships polygon 0.99, no `kept_prism`). Swapping engines under
+the same file: **e621ab6 → 8 of the 14 new tests fail, all by behaviour (the 6 control-pipe
+cases pass on both engines, as a control must), this head → 82 passed.**
+
+## BRANCH STATE (eng #620)
+
+Branch `cam/620-cylinder-fit-floor` from `main` @ 47296f1; one issue, one PR (`Closes #620`).
+Files: `src/rvt/ifc/assembly_parts.py` (`CYLINDER_MIN_PLAN_FILL`, `_fit_circle`, the cylinder
+branch of `fit_solid`, docstrings; +`__all__` entry) + its `plugin/lib` mirror via `sync_plugin.py`;
+`tests/test_ifc_assembly.py` (appended section); this record section. Not touched: `router.py`
+(eng #564), famgen, `route.py`, SKILL.md, any hot file, earlier sections of this record.
+Gates: `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_ifc_assembly.py tests/test_router.py -q -rs`
+main **200 passed / 14 skipped** (test_ifc_assembly 68) → branch **214 passed / 14 skipped**
+(test_ifc_assembly 82); whole merged CI shard (`shard_list.py --print`) — see the PR body for the
+count on the final head; `route.py matrix` byte-identical to main (sha256 7dae5d40…); 6 routed
+`.rfa` VALID 0 errors + provenance ok; `sync_plugin.py` → `--check` clean; `validate_plugin.py`
+PASS; `check_portable_paths.py` ok. Nothing staged for the viewer, no ledger entry, no
+certification claimed (rule 4): "VALID" above is a fact about the files, not about Revit.
