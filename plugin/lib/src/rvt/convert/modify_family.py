@@ -35,6 +35,12 @@ feet and masses to kilograms (lb x ``KG_PER_LB``, the factory's one
 constant) -- an explicit unit is REQUIRED for lengths and masses, never
 guessed; a unit on a measurable spec this lane has no conversion for is
 refused by name; only a dimensionless ``number`` ignores a unit suffix.
+A LENGTH here is every spec the format's own units table
+(``famgen/assets/family_units.json``) displays in a plain length unit --
+``aec:length`` and Revit's discipline SIZE specs alike (``cableTraySize``,
+``conduitSize``, ``ductSize``, ``pipeSize``, ``wireDiameter`` ...): Revit
+stores all of them in feet, so ``Tray Width=12 in`` converts and a bare
+``Tray Width=12`` is refused exactly like ``Width=12`` (#668).
 
 HONEST LIMIT: editing a DIMENSION parameter changes the type-table value
 only -- generated families carry no dimension-constraint graph, so the
@@ -53,15 +59,17 @@ Territory: ``src/rvt/convert/`` (convert-B stream).
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import os
 import re
 import time
 import traceback
 from dataclasses import dataclass, field as dc_field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Sequence, Tuple
 
 from .. import versions as V
+from ..famgen import standards as ST
 from ..famgen.factory import KG_PER_LB
 from .add_to_project import (ConvertError, P0_STAMP, QUARANTINE_STAMP, TOOL,
                              TOOL_VERSION, _jdump, _relp, _sha256,
@@ -253,6 +261,36 @@ def _converted_units() -> str:
     return "; ".join(f"{kind} {' / '.join(toks)}" for kind, toks in kinds.items())
 
 
+#: the ``autodesk.unit.unit:*`` DISPLAY units that format a plain length.  A
+#: spec the units table displays in one of these is a length by dimension,
+#: and Revit's internal unit for the length dimension is the foot whatever
+#: the discipline calls the spec -- so this short list of unit names, not a
+#: second hand-kept list of spec ids, decides "stored in feet" (#668).  The
+#: four imperial names are every plain-length unit our table uses, the two
+#: metric ones the ids the repo already sources; compound units that merely
+#: mention feet or inches (feetPerMinute, squareInches, inchesOfWater ...)
+#: are other dimensions and deliberately absent.
+_LENGTH_DISPLAY_UNITS = ("feet", "feetFractionalInches", "inches", "fractionalInches",
+                         "meters", "millimeters")
+
+
+def _unversioned(type_id: str) -> str:
+    """``autodesk.spec.aec:length-1.0.0`` -> ``autodesk.spec.aec:length``."""
+    return str(type_id or "").rsplit("-", 1)[0]
+
+
+@functools.lru_cache(maxsize=1)
+def _feet_specs() -> FrozenSet[str]:
+    """Spec ids (version-less) the format's OWN units table displays in a
+    plain length unit = every spec Revit stores in feet; read once, lazily."""
+    with open(ST._UNITS_ASSET, encoding="utf-8") as fh:
+        fmap = json.load(fh).get("m_formatOptionsMap") or []
+    return frozenset(
+        _unversioned(e["first"]["m_typeId"]) for e in fmap
+        if _unversioned(e["second"]["m_unitTypeId"]["m_typeId"]).rpartition(":")[2]
+        in _LENGTH_DISPLAY_UNITS)
+
+
 def _convert_value(param: dict, raw: str) -> Tuple[Any, List[str]]:
     """Turn the prompt's value into the carrier's internal value, spec-driven.
     Returns (value, notes)."""
@@ -289,8 +327,9 @@ def _convert_value(param: dict, raw: str) -> Tuple[Any, List[str]]:
             raise FamilyEditError(f"{param['caption']} is apparent power; got unit {unit!r}")
         notes.append(f"{param['caption']}: {num:g} {unit or 'kVA'} -> internal")
         return float(num) * factor, notes
+    key = ":length" if _unversioned(spec) in _feet_specs() else spec   # SIZE specs are feet (#668)
     for marker, kind, offer, internal, caveat in _SPEC_UNITS:
-        if marker not in spec:
+        if marker not in key:
             continue
         if not unit:
             if offer is None:

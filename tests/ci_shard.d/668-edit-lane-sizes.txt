@@ -1,0 +1,2 @@
+# the size-spec rows of the family edit lane (#668): pure converter + two written fittings, fresh-clone safe (bundled base)
+tests/test_edit_family_size_668.py
