@@ -393,3 +393,116 @@ def apply_to_doc(doc: Any, *, rung: str = DEFAULT_RUNG,
                      f"segment(s), {rep['param_exprs']} param expr(s), "
                      f"{rep['fixed_refs']} fixed ref(s) -- NOT verified to flex")
     return rep
+
+
+# ---------------------------------------------------------------------------
+# THE BACK-REFERENCES: m_constrInfo
+# ---------------------------------------------------------------------------
+#
+# DESKTOP VERDICT (owner, 2026-08-11): clicking the extrusion in a generated
+# panelboard FAILED in Revit.  Inspecting the document explains why, and it is
+# not the rung.  The panel carries four Alignments locking each profile curve
+# to a reference plane, and two labelled dimensions spanning those planes --
+# and EVERY element's ``m_constrInfo`` is ``[]``.  Nothing points back.
+#
+# So the constraint graph is authored in one direction only: the constraints
+# name their elements, the elements deny having any constraint.  Selecting an
+# element makes Revit resolve that element's constraint set, and an element
+# whose set is empty while four alignments reference it is an inconsistency,
+# not merely an omission.
+#
+# ``ConstraintInfo`` is ``{m_constrId: ElementId}`` -- read off the schema
+# (:data:`UNKNOWN_NEEDS_SPECIMEN` used to call this unauthorable; it is not,
+# and that entry is now wrong).  So the back-edge IS authorable, and this
+# function authors it.
+#
+# [HYPOTHESIS, not a verdict]: this is the click failure.  It is testable the
+# usual way -- the same family with and without the back-edges, everything
+# else equal.
+
+#: Classes that CONSTRAIN other elements, and therefore owe a back-edge to
+#: everything they reference.
+CONSTRAINING_CLASSES = ("Alignment", "LinearDimString")
+
+
+def _constraint_info(constr_id: int) -> Dict[str, Any]:
+    """One ``m_constrInfo`` entry.
+
+    ``m_constrInfo`` is an ARRAY OF POINTERS (kind 14, flags 81), not of
+    inline structs, so each entry is a pointer token wrapping a
+    ``ConstraintInfo`` -- ``{"ptr_class", "pid": -1, "value"}``.  An inline
+    dict raises ``EncodeError: bad pointer token``.
+
+    This is the THIRD field in this campaign where kind 14 meant pointer and
+    the first attempt wrote the struct inline (``m_oDimValueExpr``, then
+    ``m_constrInfo`` as a scalar, now this).  The rule, written down so it
+    stops costing a build: in this schema **kind 14 is a pointer or an array
+    of pointers -- never an inline value** -- so anything with a declared
+    class type gets wrapped.
+    """
+    return {"ptr_class": "ConstraintInfo", "pid": -1,
+            "value": {"m_constrId": int(constr_id)}}
+
+
+def _constr_id_of(entry: Any) -> int:
+    """The constraint id out of an ``m_constrInfo`` entry, pointer-wrapped or
+    (defensively) inline."""
+    if not isinstance(entry, dict):
+        return -1
+    v = entry.get("value") if "ptr_class" in entry else entry
+    return int((v or {}).get("m_constrId", -1))
+
+
+def constraint_back_edges(doc: Any) -> Dict[int, List[int]]:
+    """``{element id: [constraint element ids]}`` -- who constrains what,
+    read from each constraint's own witness references.
+
+    This is derived, never guessed: a constraint's witnesses ARE the elements
+    it constrains, so the back-edge is exactly the inverse of the edge the
+    constraint already carries.
+    """
+    edges: Dict[int, List[int]] = {}
+    for el in getattr(doc, "elements", []):
+        if el.class_name not in CONSTRAINING_CLASSES:
+            continue
+        for gref in _witness_geom_refs(el):
+            target = int(gref.get("m_elemId", -1))
+            if target > 0:
+                bucket = edges.setdefault(target, [])
+                if el.elem_id not in bucket:
+                    bucket.append(int(el.elem_id))
+    return edges
+
+
+def apply_constraint_back_edges(doc: Any) -> Dict[str, Any]:
+    """Write the ``m_constrInfo`` back-edges onto every constrained element.
+
+    Idempotent: an element that already lists a constraint keeps one entry for
+    it.  Returns a report naming exactly what changed, so a probe pair differs
+    in this and nothing else.
+    """
+    edges = constraint_back_edges(doc)
+    by_id = {e.elem_id: e for e in getattr(doc, "elements", [])}
+    touched: List[Dict[str, Any]] = []
+    for elem_id, constr_ids in sorted(edges.items()):
+        el = by_id.get(elem_id)
+        if el is None:
+            continue
+        existing = el.obj.get("m_constrInfo")
+        if not isinstance(existing, list):
+            existing = []
+        have = {_constr_id_of(r) for r in existing}
+        added = [c for c in constr_ids if c not in have]
+        if not added:
+            continue
+        el.obj["m_constrInfo"] = existing + [_constraint_info(c) for c in added]
+        touched.append({"element": elem_id, "class": el.class_name,
+                        "constraints_added": added})
+    rep = {"elements_touched": len(touched), "detail": touched,
+           "claim": ("NONE. The back-edges are authored; whether they are what "
+                     "Revit wanted when selecting an element is what the next "
+                     "desktop round decides (hard rule 4).")}
+    if hasattr(doc, "notes"):
+        doc.notes.append(f"constraint back-edges: {len(touched)} element(s) now "
+                         f"list the constraints that constrain them")
+    return rep
