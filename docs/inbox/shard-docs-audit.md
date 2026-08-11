@@ -978,3 +978,282 @@ BRANCH STATE (cam/604-shared-walk-conftest): `tests/test_gates_shared_walk.py` (
 `tests/conftest.py` change; nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed (both files
 already in the merged shard: `tests/ci_shard.d/266-shared-gate-walk.txt`, `579-scaffolding.txt`); nothing staged for the
 viewer; no certification claim.
+
+## 2026-08-11 — eng #617: conftest grows `rewrite_streams` / `twin_partition_entry` / `smash64` / `flip_bit`; `test_partition_header_verdict.py`, `test_ecc_final_block.py` and `test_gates_shared_walk.py` drop their private recipes; the AST law forbids the retired spellings
+
+**Stream:** eng #617 (issue #617; Refs #604 #602 #579, and #458 / #501, #294, #266 / #430 for the three files' origins).
+Written in this engineer's voice under its own header; nothing above this rule was edited. (The `.d/` fragment
+convention of #636 had not landed on `main` (`ca74895`) when this was written, hence a dated section here.)
+
+### What landed — helper adoption only in the three files (no test id, parametrize axis, skip condition or outcome changed)
+
+1. **`tests/conftest.py`** (the own-release scaffolding section only) grows four names, and nothing else changes meaning:
+   - `rewrite_streams(src, dst, damages: dict, extra=()) -> str` — the general form of `rewrite_stream`: every
+     `{name: damage}` re-emitted as `damage(raw)`, a `None` damage **drops** the stream (the vocabulary
+     `rewrite_stream(name, None)` already had — so "drop" is not a second kwarg but the same contract, and a dropped
+     name now sits under the same missing-name `KeyError`, which the retired `_rewrite(..., drop=[...])` silently
+     lacked), the ready-made `extra` entries appended after the container's own, everything else byte-identical,
+     `src == dst` rewrites in place. `rewrite_stream(src, dst, name, damage)` is now literally
+     `rewrite_streams(src, dst, {name: damage})` — same signature, same return, same `KeyError`, its scaffolding row
+     green unchanged, and the sha table below proves the old body and the new one-loop form emit the same bytes.
+   - `twin_partition_entry(src, damage=None) -> CfbEntry` — the first partition renamed to `Partitions/<N+1>` (a
+     NON-primary partition once handed to `rewrite_streams(..., extra=[it])`), its raw bytes through `damage` when
+     given. This ONE builder replaces `test_partition_header_verdict._twin_entry(src, mutate)` and
+     `test_gates_shared_walk._with_second_partition(src, dst, damaged=)` (which was builder + writer in one).
+   - `smash64(raw, off) -> bytes` — 64 × `0xff` at `off`. **Shape chosen: a pure `bytes -> bytes` with a required
+     `off`, no default and no callable-factory.** Why: the two retired copies disagreed on the default (`280` = inside a
+     partition's first block body in shared_walk, `218` = inside a `Global/*` gzip body in header_verdict), so any
+     default in conftest would be wrong for one caller; the offsets are framing-layout knowledge that stays with the
+     caller (altitude review agreed: if a third file ever needs one, promote a constant built from engine symbols, not
+     `44 + 26 + 10 + 200`); and every other conftest recipe is a plain `bytes -> bytes`, so a fixed offset is spelled
+     `lambda raw: smash64(raw, OFF)` — the spelling shared_walk's `_LOST_BODY` site already used.
+   - `flip_bit(raw, at, bit=0) -> bytes` — `test_ecc_final_block._flip` verbatim (bytearray copy, `^= 1 << bit`), so
+     it indexes like `raw[at]` (negative from the end, out of range raises) and serves both the synthetic-stream
+     asserts that call it directly and the `rewrite_stream` damages; shared_walk's `_flip_bit(raw)` was
+     `flip_bit(raw, 280, 2)`.
+2. **`tests/test_partition_header_verdict.py`** — `_partition`, `_rewrite`, `_zero16`, `_smash64`, `_twin_entry` deleted
+   (−76 / +27); the 13 call sites go through `partition_of` / `rewrite_stream` / `rewrite_streams` /
+   `twin_partition_entry` / `zero_partition_header` / `lambda raw: smash64(raw, _IN_GLOBAL_BODY)`. `_IN_GLOBAL_BODY`
+   (the offset, with its comment) stays; `import dataclasses`, `write_cfb`, `read_entries` leave; `CfbEntry` (the
+   orphan-stream test) and `open_rvt` (the partitionless test opens the copy) stay. `bad = str(tmp_path / …);
+   _rewrite(edited, bad, …)` folds into `bad = rewrite_stream(s)(edited, tmp_path / …, …)` (returns the same `str`).
+   The `dataclasses.replace(_twin_entry(edited), data=b"\x00" * 10)` short partition is `twin_partition_entry(edited,
+   lambda raw: b"\x00" * 10)` — the same entry (/simplify).
+3. **`tests/test_ecc_final_block.py`** — `_flip` and `_variant` deleted (−36 / +15); `flip_bit` is called where `_flip`
+   was, `rewrite_stream` where `_variant` was, and the inline `with open_rvt(base) as d: pname =
+   d.partition_streams()[0]` is `partition_of(base)`; `import dataclasses` leaves.
+4. **`tests/test_gates_shared_walk.py`** — `_smash64`, `_flip_bit`, `_with_second_partition` deleted (−35 / +20); two
+   thin local adapters remain, `_hard(raw) = smash64(raw, _IN_FIRST_MEMBER)` and `_soft(raw) = flip_bit(raw,
+   _IN_FIRST_MEMBER, 2)` — one-line partial applications (the file's *choice of offset*), each used twice, no byte
+   surgery of their own; altitude review: "exactly what the law should permit, not a regrown recipe". The twin tests
+   build `twin_partition_entry(edited[, _hard])` and write it with `rewrite_streams(edited, dst, {}, extra=[it])`;
+   `second = damaged.path` keeps the one assert that names the second partition textually unchanged. `dataclasses`,
+   `write_cfb`, `read_entries` leave. **On territory:** the tech-lead brief named two adopting files; the issue's title,
+   DONE and Territory name this third one too, #604's record hands exactly these three recipes to #617, and no open PR
+   touches the file — so it is adopted here rather than left as the one place `_smash64` survives (which would have kept
+   that spelling out of `FORBIDDEN`). Flagged in the PR for the reviewer to overrule.
+5. **`tests/test_conftest_scaffolding.py`** — DATA + wording + behaviour rows, no law logic: `FORBIDDEN` gains the retired
+   spellings `_partition _rewrite _variant _zero16 _smash64 _flip_bit _twin_entry _with_second_partition` and the shadows
+   `rewrite_streams twin_partition_entry smash64 flip_bit`; **`_flip` is deliberately left out** — too generic a word to
+   forbid tree-wide (its `#:` comment says so; see Findings for the honest caveat that `_partition` / `_rewrite` /
+   `_variant` are hardly less generic — none collides today, checked over every `tests/test_*.py`); `EXEMPT` stays
+   `set()`; `ADOPTERS` untouched; the module docstring names the new clause. Two behaviour rows:
+   `test_offset_damage_recipes_are_what_their_names_say` (pure: `smash64` lands 64 × `0xff` at `off` and only there,
+   two offsets differ; `flip_bit` flips exactly bit `bit` of byte `at`, default bit 0, negative `at`, involution,
+   `IndexError` out of range) and `test_rewrite_streams_damages_drops_and_appends_in_one_pass` (pin-backed: damage +
+   drop + append in one call, every other stream byte-identical, `twin_partition_entry`'s path / verbatim data /
+   damaged data, `rewrite_streams(pin, dst, {})` byte-identical to `rewrite_stream(pin, dst, pname, identity)`,
+   `KeyError` before anything is written). A local `_streams(path)` map dedupes the four `{e.path: e.data …}`
+   comprehensions the two pin-backed rows would otherwise spell (/simplify reuse).
+
+### Evidence
+
+**Every damaged copy byte-identical, old private recipe vs new conftest helper** — asserted BEFORE the old code was
+deleted (first run against the untouched on-disk modules, 84/84), and re-run on the final head against
+`git show origin/main:tests/<file>` copies of the three modules + origin/main's `conftest.py` (loaded under other module
+names; shared_walk's copy was given origin/main's `rewrite_stream` for the load, asserted `SW.rewrite_stream is
+OLDC.rewrite_stream`). Sources: the three pins + the 2025 level edit both module fixtures make (`OLD._edit(2025, …)`).
+Every copy each file builds, including the two **in-place** `rewrite_stream(path, path, …)` shapes the job tests stage
+and the `Global/Orphan` extra; the returned second-partition name compared too; `OLD._partition(src) ==
+partition_of(src) == OLDC.partition_of(src)` on all four sources; plus 9/9 pure-recipe checks on the synthetic streams
+`test_genuinely_corrupted_blocks_still_count` frames (`_flip` vs `flip_bit` at its six (at, bit) pairs, in-place
+`_smash64` / `_zero16` vs `smash64(raw, 218)` / `zero_partition_header`, shared_walk's `_smash64` / `_flip_bit` vs
+`smash64(raw, 280)` / `flip_bit(raw, 280, 2)`). **84/84 identical, `ALL BYTE-IDENTICAL`** (the `sw.*` rows reproduce
+#604's recorded digests, e.g. edit2025 `sw.hard` `3a20509796a4568c`; `hv.twin_ok` == `sw.twin` on every source, as
+two spellings of one recipe should):
+
+| source | copy | old sha256[:16] | new sha256[:16] | | second partition (old / new) |
+|---|---|---|---|---|---|
+| 2026 | hv.primary_hdr0 | `0bc5d18be84103c6` | `0bc5d18be84103c6` | == | |
+| 2026 | hv.twin_hdr0 | `3b32a21715b5a8c2` | `3b32a21715b5a8c2` | == | Partitions/22 / Partitions/22 |
+| 2026 | hv.both_hdr0 | `e298eb6e963d25ee` | `e298eb6e963d25ee` | == | |
+| 2026 | hv.primary_hdr0_w | `d4a621e4b13b6b57` | `d4a621e4b13b6b57` | == | |
+| 2026 | hv.twin_et_lost | `c11d06d39023a86d` | `c11d06d39023a86d` | == | |
+| 2026 | hv.nopart | `6c061b8abb737237` | `6c061b8abb737237` | == | |
+| 2026 | hv.nopart_noet | `09a5c4928bbe6c0f` | `09a5c4928bbe6c0f` | == | |
+| 2026 | hv.twin_ok | `b3caa95661d85dd7` | `b3caa95661d85dd7` | == | Partitions/22 / Partitions/22 |
+| 2026 | hv.job_hdr0_inplace | `0bc5d18be84103c6` | `0bc5d18be84103c6` | == | |
+| 2026 | hv.job_nopart_inplace | `6c061b8abb737237` | `6c061b8abb737237` | == | |
+| 2026 | hv.orphan | `bb80d0a23e64dd20` | `bb80d0a23e64dd20` | == | |
+| 2026 | ec.et_band | `66dfdb986d2a059e` | `66dfdb986d2a059e` | == | |
+| 2026 | ec.trailer_flip | `d019aac99b50a2a8` | `d019aac99b50a2a8` | == | |
+| 2026 | ec.final_flip | `dacc2738d0b249b2` | `dacc2738d0b249b2` | == | |
+| 2026 | sw.hard | `9fbf59a4bcee601c` | `9fbf59a4bcee601c` | == | |
+| 2026 | sw.soft | `a068cb52094d02b4` | `a068cb52094d02b4` | == | |
+| 2026 | sw.lost-Contents | `16b3a993f9d51e1e` | `16b3a993f9d51e1e` | == | |
+| 2026 | sw.lost-Global-ElemTable | `72e752e0ec4f75a1` | `72e752e0ec4f75a1` | == | |
+| 2026 | sw.lost-Global-Latest | `46f717153e829857` | `46f717153e829857` | == | |
+| 2026 | sw.twin | `b3caa95661d85dd7` | `b3caa95661d85dd7` | == | Partitions/22 / Partitions/22 |
+| 2026 | sw.twin_bad | `794d8803dcba8295` | `794d8803dcba8295` | == | Partitions/22 / Partitions/22 |
+| 2025 | hv.primary_hdr0 | `75a6590e32c32a89` | `75a6590e32c32a89` | == | |
+| 2025 | hv.twin_hdr0 | `bddf57c0f3b46de9` | `bddf57c0f3b46de9` | == | Partitions/21 / Partitions/21 |
+| 2025 | hv.both_hdr0 | `e6875a0505f4ae07` | `e6875a0505f4ae07` | == | |
+| 2025 | hv.primary_hdr0_w | `f8bbb544a84a64aa` | `f8bbb544a84a64aa` | == | |
+| 2025 | hv.twin_et_lost | `18b36b247ca89825` | `18b36b247ca89825` | == | |
+| 2025 | hv.nopart | `123b3e5150f6ddc9` | `123b3e5150f6ddc9` | == | |
+| 2025 | hv.nopart_noet | `12de6396c5632cc8` | `12de6396c5632cc8` | == | |
+| 2025 | hv.twin_ok | `36ecd172dffac07b` | `36ecd172dffac07b` | == | Partitions/21 / Partitions/21 |
+| 2025 | hv.job_hdr0_inplace | `75a6590e32c32a89` | `75a6590e32c32a89` | == | |
+| 2025 | hv.job_nopart_inplace | `123b3e5150f6ddc9` | `123b3e5150f6ddc9` | == | |
+| 2025 | hv.orphan | `12ddb8c28a82f8ff` | `12ddb8c28a82f8ff` | == | |
+| 2025 | ec.et_band | `50cde01980b107fa` | `50cde01980b107fa` | == | |
+| 2025 | ec.trailer_flip | `7a4ce61e592b838e` | `7a4ce61e592b838e` | == | |
+| 2025 | ec.final_flip | `4a72feb8deef6ce6` | `4a72feb8deef6ce6` | == | |
+| 2025 | sw.hard | `6a354496a2fdfff4` | `6a354496a2fdfff4` | == | |
+| 2025 | sw.soft | `8ef4e5306be3194c` | `8ef4e5306be3194c` | == | |
+| 2025 | sw.lost-Contents | `b840bec9457738a9` | `b840bec9457738a9` | == | |
+| 2025 | sw.lost-Global-ElemTable | `8e109fa232eaf330` | `8e109fa232eaf330` | == | |
+| 2025 | sw.lost-Global-Latest | `4ef0d5071e3e5d0a` | `4ef0d5071e3e5d0a` | == | |
+| 2025 | sw.twin | `36ecd172dffac07b` | `36ecd172dffac07b` | == | Partitions/21 / Partitions/21 |
+| 2025 | sw.twin_bad | `ca68a515dad6a7bd` | `ca68a515dad6a7bd` | == | Partitions/21 / Partitions/21 |
+| 2024 | hv.primary_hdr0 | `34f183c444a19702` | `34f183c444a19702` | == | |
+| 2024 | hv.twin_hdr0 | `fca9fa06d1c003c0` | `fca9fa06d1c003c0` | == | Partitions/22 / Partitions/22 |
+| 2024 | hv.both_hdr0 | `03c3703466b707ba` | `03c3703466b707ba` | == | |
+| 2024 | hv.primary_hdr0_w | `61cea479db4bfc6a` | `61cea479db4bfc6a` | == | |
+| 2024 | hv.twin_et_lost | `d61841cd35e3861d` | `d61841cd35e3861d` | == | |
+| 2024 | hv.nopart | `bf2fe57825db9ae1` | `bf2fe57825db9ae1` | == | |
+| 2024 | hv.nopart_noet | `0b6628712d039841` | `0b6628712d039841` | == | |
+| 2024 | hv.twin_ok | `3a490b04169ceb24` | `3a490b04169ceb24` | == | Partitions/22 / Partitions/22 |
+| 2024 | hv.job_hdr0_inplace | `34f183c444a19702` | `34f183c444a19702` | == | |
+| 2024 | hv.job_nopart_inplace | `bf2fe57825db9ae1` | `bf2fe57825db9ae1` | == | |
+| 2024 | hv.orphan | `4e1d3a098940a561` | `4e1d3a098940a561` | == | |
+| 2024 | ec.et_band | `3bbc49568f043f3a` | `3bbc49568f043f3a` | == | |
+| 2024 | ec.trailer_flip | `5cdc8d271777c8d7` | `5cdc8d271777c8d7` | == | |
+| 2024 | ec.final_flip | `b65b26cb16a9d79c` | `b65b26cb16a9d79c` | == | |
+| 2024 | sw.hard | `1dd9100bf896a48e` | `1dd9100bf896a48e` | == | |
+| 2024 | sw.soft | `ece08f369d7e021a` | `ece08f369d7e021a` | == | |
+| 2024 | sw.lost-Contents | `c9691cc0c6caa7ac` | `c9691cc0c6caa7ac` | == | |
+| 2024 | sw.lost-Global-ElemTable | `8dee37646656a843` | `8dee37646656a843` | == | |
+| 2024 | sw.lost-Global-Latest | `8938c6c31564e270` | `8938c6c31564e270` | == | |
+| 2024 | sw.twin | `3a490b04169ceb24` | `3a490b04169ceb24` | == | Partitions/22 / Partitions/22 |
+| 2024 | sw.twin_bad | `6a578e8267d3c7c7` | `6a578e8267d3c7c7` | == | Partitions/22 / Partitions/22 |
+| edit2025 | hv.primary_hdr0 | `336e3cd6bb2b5344` | `336e3cd6bb2b5344` | == | |
+| edit2025 | hv.twin_hdr0 | `4655bfce39f69b75` | `4655bfce39f69b75` | == | Partitions/21 / Partitions/21 |
+| edit2025 | hv.both_hdr0 | `e8b3937f1eb618ef` | `e8b3937f1eb618ef` | == | |
+| edit2025 | hv.primary_hdr0_w | `0baf62ba51c3d5ef` | `0baf62ba51c3d5ef` | == | |
+| edit2025 | hv.twin_et_lost | `102e422ab3ac82ae` | `102e422ab3ac82ae` | == | |
+| edit2025 | hv.nopart | `123b3e5150f6ddc9` | `123b3e5150f6ddc9` | == | |
+| edit2025 | hv.nopart_noet | `12de6396c5632cc8` | `12de6396c5632cc8` | == | |
+| edit2025 | hv.twin_ok | `de0df7f522bfa021` | `de0df7f522bfa021` | == | Partitions/21 / Partitions/21 |
+| edit2025 | hv.job_hdr0_inplace | `336e3cd6bb2b5344` | `336e3cd6bb2b5344` | == | |
+| edit2025 | hv.job_nopart_inplace | `123b3e5150f6ddc9` | `123b3e5150f6ddc9` | == | |
+| edit2025 | hv.orphan | `1aab52ba54d3b995` | `1aab52ba54d3b995` | == | |
+| edit2025 | ec.et_band | `fb178104b785cbf2` | `fb178104b785cbf2` | == | |
+| edit2025 | ec.trailer_flip | `5c320ee48d668174` | `5c320ee48d668174` | == | |
+| edit2025 | ec.final_flip | `bf74a2582ef6840f` | `bf74a2582ef6840f` | == | |
+| edit2025 | sw.hard | `3a20509796a4568c` | `3a20509796a4568c` | == | |
+| edit2025 | sw.soft | `77e0a8f3be00b873` | `77e0a8f3be00b873` | == | |
+| edit2025 | sw.lost-Contents | `709dec4b62fc0ebe` | `709dec4b62fc0ebe` | == | |
+| edit2025 | sw.lost-Global-ElemTable | `66d94a534397d165` | `66d94a534397d165` | == | |
+| edit2025 | sw.lost-Global-Latest | `0ec638dc4722c661` | `0ec638dc4722c661` | == | |
+| edit2025 | sw.twin | `de0df7f522bfa021` | `de0df7f522bfa021` | == | Partitions/21 / Partitions/21 |
+| edit2025 | sw.twin_bad | `17859f5a2c971857` | `17859f5a2c971857` | == | Partitions/21 / Partitions/21 |
+
+(`hv.*` = `test_partition_header_verdict.py`, `ec.*` = `test_ecc_final_block.py`, `sw.*` = `test_gates_shared_walk.py`;
+script and copies in the session scratchpad, not committed.)
+
+**Collected ids and outcomes, before (origin/main `ca74895`) → after (head)** — `RVT_SKIP_LARGE=1 .venv/bin/python -m
+pytest <the four files> -q -rs -p no:cacheprovider`; `--collect-only -q` id lists `diff`ed per file; the `-v`
+id+outcome lines `diff`ed:
+
+| file | collected before | collected after | ids `diff` | run before | run after |
+|---|---|---|---|---|---|
+| `tests/test_partition_header_verdict.py` | 19 | 19 | empty | 19 passed | 19 passed |
+| `tests/test_ecc_final_block.py` | 39 | 39 | empty | 39 passed | 39 passed |
+| `tests/test_gates_shared_walk.py` | 12 | 12 | empty | 12 passed | 12 passed |
+| `tests/test_conftest_scaffolding.py` | 15 | 17 | + the two new rows, nothing else | 15 passed | 17 passed |
+| all four (`-q -rs`) | 85 | 87 | `-v` outcome diff = exactly the two new rows `PASSED` | **85 passed, 0 skipped** in 15.58 s | **87 passed, 0 skipped** in 16.30 s |
+
+`RVT_DOCS_AUDIT=report` census of that run, before and after: `0 repo docs/ file(s) opened by this test process` — unchanged.
+
+**`git diff -U0 origin/main -- tests/ | grep -E '^[-+]\s*assert'`** — in the three adopting files: **no assertion added,
+removed or changed in meaning; six lines differ by the helper's name only** (five in
+`test_ecc_final_block.py::test_genuinely_corrupted_blocks_still_count`: `_flip(` → `flip_bit(` — the same function body,
+9/9 pure checks above on those exact inputs; one in `test_partition_header_verdict.py::test_twin_header_zeroed_is_a_fail_verdict`:
+`_errors_at(rep, _partition(edited))` → `_errors_at(rep, partition_of(edited))` — the same `open_rvt(...).partition_streams()[0]`),
+and one `-assert` that was no test assertion: `_variant`'s own `assert any(... e.path == stream ...)` missing-name guard,
+now `rewrite_streams`' `KeyError`. Every other `+assert` in the diff is in the two new scaffolding rows.
+`git grep -n "def _smash64\|def _twin_entry\|def _variant\|def _rewrite(\|def _partition(\|def _flip\|def _with_second_partition\|def _zero16" -- tests/` → nothing (exit 1).
+
+**The law bites with the widened `FORBIDDEN`** (mutation, reverted, `git status` clean of it afterwards): appending a
+`def _smash64(raw, off=280): …` to `tests/test_gates_shared_walk.py` and `def _rewrite(…)` / `def _twin_entry(…)` stubs to
+`tests/test_partition_header_verdict.py` → `test_no_module_carries_a_private_copy` FAILED with
+`{'test_gates_shared_walk': ['_smash64'], 'test_partition_header_verdict': ['_rewrite', '_twin_entry']} -- import the
+own-release scaffolding from conftest instead (#579)` (1 failed, 16 passed); green again on revert (17 passed).
+
+`git diff --numstat origin/main -- tests/`: `conftest.py` +49 −11, `test_conftest_scaffolding.py` +58 −10,
+`test_ecc_final_block.py` +15 −36, `test_gates_shared_walk.py` +20 −35, `test_partition_header_verdict.py` +27 −76
+(net −1 line for four new shared helpers and two new tests). pyflakes clean on all five.
+`python3 tools/dev/check_portable_paths.py` → `ok: 3013 tracked paths are portable`. `tools/sync_plugin.py --check` →
+`plugin in sync with source` (moot: nothing under `src/ tools/ plugin/ skills/` touched). `/verify` skipped — tests-only
+diff, no runtime surface (commit trailer says so).
+
+**Whole merged shard** (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`,
+same 4-vCPU cloud VM, sequential runs, docs-read audit on — no audit section printed on either = no offender):
+```
+origin/main ca74895 (worktree)     2171 passed, 134 skipped, 3 xfailed, 3 warnings in 457.46s
+this branch on ca74895 (d03646f)   2173 passed, 134 skipped, 3 xfailed, 3 warnings in 470.37s   (= main + the 2 new law rows)
+```
+= main + the two new scaffolding rows, nothing else moved (run on the /simplify head's tree at base `ca74895`; the record commit after it
+touches only this file, and the later rebase onto `6d95f32` — #633, famgen only, no file in common with this diff —
+changed nothing under these five files: the four re-run there, 87 passed, ids identical); the 3 warnings are main's (pytest's class-scoped-fixture
+deprecation notice); skips identical (134).
+
+### Findings / limits, stated
+
+- **`FORBIDDEN` is a lexical ratchet, and this issue made that more visible, not less.** It now forbids words as generic as
+  `_partition` / `_rewrite` / `_variant` tree-wide (the issue's title asked for exactly these; no `tests/test_*.py` binds any
+  of them today) while `_flip` is left out for being generic — consistent only as an admission that the mechanism matches
+  spellings, not the primitive. The altitude pass named the primitive-level rule ("no test module outside an allow-list
+  pairs `read_entries` with `write_cfb`") and two files such a rule would make someone classify once
+  (`tests/test_validate_footer_blob.py::strip_footer_blob`, `tests/test_input_release.py`'s synthetic-container builders —
+  per the reuse pass neither is byte-for-byte a `rewrite_stream(s)`: one re-frames *logical* bytes, the other builds
+  containers). That is law LOGIC, outside this issue's data-lines-only territory in the law file → **#639**.
+- **The permanently empty `EXEMPT` set** and its self-check were kept by #604 in case #617 needed a non-empty `EXEMPT`
+  again; it did not (nothing was left private that the law can see). Deleting the machinery is also law logic → folded
+  into #639's DONE rather than done here.
+- **The loop's real home is the engine.** `src/rvt/writer.py:244-361` hand-rolls the same `read_entries` →
+  `dataclasses.replace` → `write_cfb` pass four times (`corrupt_trailer_bytes` is a damage recipe living in `src/`), and
+  `rvt.cfb_writer` / `rvt.roundtrip` export no rewrite API for either side to call. Out of a tests-only charter → **#640**
+  (`area:engine`), with conftest's `rewrite_streams` to become its thin caller.
+- Two inline single-bit flips on synthetic ECC blocks in `tests/test_bare_family_validate.py:130-132, 200-202` are
+  `flip_bit(blk, p >> 3, p & 7)` / `flip_bit(raw, off, 3)` byte-for-byte (reuse pass). Not module-level helpers, so not the
+  law's concern and outside the three files; three lines each — noted here, not worth an issue of their own (#639's
+  classification pass will meet them).
+- Efficiency, tallied per call site against origin/main (pins are ~0.58 MB; `read_entries` ≈ 1.5 ms, `open_rvt` ≈ 0.3 ms,
+  `write_cfb` ≈ 0.7 ms warm): header_verdict and ecc identical opens/reads/writes per test (origin/main's `_twin_entry`
+  already did its own open + read); shared_walk's twin test pays **+2 `read_entries` (≈ 3 ms)** because
+  `_with_second_partition` reused one entry list for builder and writer while `twin_partition_entry` + `rewrite_streams`
+  each read — noise against a test that spends hundreds of ms in the gates, and not worth an `entries=` wrinkle on the
+  helper; the new pin-backed scaffolding row costs ≈ 20 ms. Net: a wash.
+
+### /simplify pass (four independent angles) — taken / not taken
+
+Taken: **reuse** — a `_streams(path)` map in the scaffolding file instead of four identical comprehensions (the existing
+`rewrite_stream` row's two included; its `dropped` set is now the stream paths rather than every entry path — the assertion
+on it reads the same). **Simplification** — `rewrite_stream`'s docstring no longer restates `rewrite_streams`' (one line:
+"the one-stream `rewrite_streams`"); `rewrite_streams`' history tail cut to `(the ONE such loop under tests/, #579 / #617)`;
+`smash64`'s no-default rationale tightened (kept — the issue asked the shape's *why* to be stated, and the docstring is where
+the next caller looks); the short partition built through `twin_partition_entry`'s own `damage` instead of
+`dataclasses.replace` around it (drops header_verdict's last `dataclasses` use); `_hard` / `_soft` docstrings say
+"= `smash64` / `flip_bit` at `_IN_FIRST_MEMBER`"; the ecc and conftest module-docstring clauses reworded so `flip_bit` does
+not read as belonging to `rewrite_stream`. Not taken: dropping `second = damaged.path` (kept on purpose — it is what leaves
+that assert line textually identical); trimming the new rows' "second offset differs", "path is N+1" and "one loop behind
+both" asserts (each states a piece of the contract independently of the implementation; ≈ 6 lines, kept); forbidding or
+un-forbidding the generic words (→ #639, above). **Efficiency** — nothing to fix (above). **Altitude** — (1) drop-as-`None`,
+(2) offsets per file, (3) `_hard`/`_soft`: right depth; (4) lexical law and (5) empty `EXEMPT`: → #639; (6) engine API: → #640.
+
+### Follow-ups (searched first — `search_issues` on the law / on a cfb rewrite API: none open or closed; task-shaped)
+
+- **#639** — the scaffolding AST law forbids the private stream-rewrite loop structurally, drops the generic words from
+  `FORBIDDEN`, retires the empty `EXEMPT` machinery. Refs #617 #604 #579. P2 · area:process.
+- **#640** — `rvt.cfb_writer` grows ONE entry-rewrite API; `writer.py`'s four loops fold onto it; conftest's
+  `rewrite_streams` becomes its caller. Refs #617. P2 · area:engine.
+
+BRANCH STATE (cam/617-recipe-hoist): `tests/conftest.py` (scaffolding section: `rewrite_streams`, `twin_partition_entry`,
+`smash64`, `flip_bit`; `rewrite_stream` a one-line call of the general form; module docstring clause),
+`tests/test_partition_header_verdict.py` / `tests/test_ecc_final_block.py` / `tests/test_gates_shared_walk.py` (helper
+adoption only), `tests/test_conftest_scaffolding.py` (`FORBIDDEN` widened + its comment, docstring clause, two behaviour rows,
+`_streams`), this section. Nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed (all four files
+already in the merged shard: `tests/ci_shard.d/458-partition-header-verdict.txt`, `294-final-block-law.txt`,
+`266-shared-gate-walk.txt`, `579-scaffolding.txt`); nothing staged for the viewer; no certification claim.

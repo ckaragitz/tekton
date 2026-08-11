@@ -33,23 +33,24 @@ header count and every block fact stay ``None``, and both gates say FAIL
 ``rvt.manipulate`` re-exports it).
 
 Fresh-clone runnable (tracked bundled bases + the tracked eval-kit family;
-edits and damaged copies go to ``tmp_path``); in the CI shard via
-tests/ci_shard.d/458-partition-header-verdict.txt.
+edits and damaged copies go to ``tmp_path``, the damaged copies via conftest's
+``rewrite_stream(s)`` / ``twin_partition_entry`` and its damage recipes, #617);
+in the CI shard via tests/ci_shard.d/458-partition-header-verdict.txt.
 
 Run: .venv/bin/python -m pytest tests/test_partition_header_verdict.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import json
 import os
 
 import pytest
 
+from conftest import (partition_of, rewrite_stream, rewrite_streams, smash64, twin_partition_entry,
+                      zero_partition_header)
 from rvt import manipulate as M
-from rvt.cfb_writer import CfbEntry, write_cfb
+from rvt.cfb_writer import CfbEntry
 from rvt.container import open_rvt
-from rvt.roundtrip import read_entries
 from rvt.validate import (UNFRAMED_STREAMS, Validator, unframed_streams_of, validate_file,
                           walk_file)
 
@@ -104,51 +105,8 @@ def _errors_at(rep, where):
             if f["severity"] == "error" and f["where"] == where]
 
 
-def _partition(path: str) -> str:
-    with open_rvt(path) as doc:
-        return doc.partition_streams()[0]
-
-
-def _rewrite(src: str, dst: str, mutate_by_name: dict, extra=(), drop=()) -> None:
-    """Copy ``src`` to ``dst`` with the RAW bytes of each named stream passed
-    through its ``mutate(bytearray)``; ``extra`` entries appended verbatim,
-    streams named in ``drop`` left out."""
-    out = []
-    for e in read_entries(src):
-        if e.entry_type == "stream" and e.path in drop:
-            continue
-        if e.entry_type == "stream" and e.path in mutate_by_name:
-            raw = bytearray(e.data)
-            mutate_by_name[e.path](raw)
-            e = dataclasses.replace(e, data=bytes(raw))
-        out.append(e)
-    write_cfb(dst, out + list(extra))
-
-
-def _zero16(raw: bytearray) -> None:
-    """Zero the first 16 bytes: the 18-byte stream header no longer parses."""
-    raw[0:16] = b"\x00" * 16
-
-
 #: inside the ONE gzip body of a Global/* stream: u64 prefix + gzip header + a bit
 _IN_GLOBAL_BODY = 8 + 10 + 200
-
-
-def _smash64(raw: bytearray, off: int = _IN_GLOBAL_BODY) -> None:
-    """Destroy 64 bytes at ``off`` -- far beyond CRCIO auto-repair."""
-    raw[off:off + 64] = b"\xff" * 64
-
-
-def _twin_entry(src: str, mutate=None) -> CfbEntry:
-    """``src``'s partition duplicated under the next stream number (a
-    NON-primary partition), its raw bytes passed through ``mutate``."""
-    pname = _partition(src)
-    part = next(e for e in read_entries(src) if e.entry_type == "stream" and e.path == pname)
-    raw = bytearray(part.data)
-    if mutate:
-        mutate(raw)
-    return dataclasses.replace(part, path=f"Partitions/{int(pname.split('/')[1]) + 1}",
-                               data=bytes(raw))
 
 
 @pytest.fixture(scope="module")
@@ -169,9 +127,8 @@ def edited(tmp_path_factory):
 # 1. the primary partition's header zeroed: a verdict, block facts None
 # ---------------------------------------------------------------------------
 def test_primary_header_zeroed_is_a_fail_verdict(job, tmp_path, edited):
-    pname = _partition(edited)
-    bad = str(tmp_path / "primary_hdr0.rvt")
-    _rewrite(edited, bad, {pname: _zero16})
+    pname = partition_of(edited)
+    bad = rewrite_stream(edited, tmp_path / "primary_hdr0.rvt", pname, zero_partition_header)
     v, structural, rep = _judged(job, bad)                    # no exception
     assert structural["status"] == "FAIL"
     assert v["walker_errors"] == 1 and structural["report"]["walker_errors"] == 1
@@ -191,9 +148,8 @@ def test_primary_header_zeroed_is_a_fail_verdict(job, tmp_path, edited):
 # 2. a twin partition's header zeroed: FAIL, the primary's facts intact
 # ---------------------------------------------------------------------------
 def test_twin_header_zeroed_is_a_fail_verdict(job, tmp_path, edited):
-    bad = str(tmp_path / "twin_hdr0.rvt")
-    twin = _twin_entry(edited, _zero16)
-    _rewrite(edited, bad, {}, extra=[twin])
+    twin = twin_partition_entry(edited, zero_partition_header)
+    bad = rewrite_streams(edited, tmp_path / "twin_hdr0.rvt", {}, extra=[twin])
     v, structural, rep = _judged(job, bad)                    # no exception
     assert structural["status"] == "FAIL"
     assert v["walker_errors"] == 1 and list(v["framing_errors"]) == [twin.path]
@@ -202,14 +158,13 @@ def test_twin_header_zeroed_is_a_fail_verdict(job, tmp_path, edited):
     assert v["elemtable_count"] == v["header_count"] and v["unit0_ids_equal_elemtable"]
     assert v["edited"][str(LEVEL_ID)]["102"] == {"class": "Level", "clean": True}
     assert not rep["ok"] and v["framing_errors"][twin.path] in _errors_at(rep, twin.path)
-    assert not _errors_at(rep, _partition(edited))
+    assert not _errors_at(rep, partition_of(edited))
     assert structural["report"]["framing_errors"] == v["framing_errors"]
 
 
 def test_both_headers_zeroed_count_two_walker_errors(job, tmp_path, edited):
-    pname = _partition(edited)
-    bad = str(tmp_path / "both_hdr0.rvt")
-    _rewrite(edited, bad, {pname: _zero16}, extra=[_twin_entry(edited, _zero16)])
+    bad = rewrite_streams(edited, tmp_path / "both_hdr0.rvt", {partition_of(edited): zero_partition_header},
+                          extra=[twin_partition_entry(edited, zero_partition_header)])
     v, structural, rep = _judged(job, bad)
     assert structural["status"] == "FAIL" and v["walker_errors"] == 2
     assert len(v["framing_errors"]) == 2 and v["stamps_ok"] is None
@@ -220,10 +175,9 @@ def test_validator_words_the_framing_finding_through_the_walk(tmp_path, edited):
     """ONE wording by construction: the validator's L1 error on a partition
     whose header does not parse IS ``WalkedFile.framing_error(p)``; a
     partition under 18 bytes keeps the validator's own pre-check wording."""
-    pname = _partition(edited)
-    bad = str(tmp_path / "primary_hdr0_w.rvt")
-    short = dataclasses.replace(_twin_entry(edited), data=b"\x00" * 10)
-    _rewrite(edited, bad, {pname: _zero16}, extra=[short])
+    pname = partition_of(edited)
+    short = twin_partition_entry(edited, lambda raw: b"\x00" * 10)
+    bad = rewrite_streams(edited, tmp_path / "primary_hdr0_w.rvt", {pname: zero_partition_header}, extra=[short])
     walked = walk_file(bad)
     rep = validate_file(bad, layers=("structure",), walked=walked).to_json()
     l1 = {f["where"]: f["message"] for f in rep["findings"]      # the LAST structure error per where
@@ -239,8 +193,9 @@ def test_validator_words_the_framing_finding_through_the_walk(tmp_path, edited):
 #    inflates it -> the #430 verdict (counts None -> FAIL), not a raise
 # ---------------------------------------------------------------------------
 def test_lost_elemtable_on_two_partition_file_is_a_verdict(job, tmp_path, edited):
-    bad = str(tmp_path / "twin_et_lost.rvt")
-    _rewrite(edited, bad, {"Global/ElemTable": _smash64}, extra=[_twin_entry(edited)])
+    bad = rewrite_streams(edited, tmp_path / "twin_et_lost.rvt",
+                          {"Global/ElemTable": lambda raw: smash64(raw, _IN_GLOBAL_BODY)},
+                          extra=[twin_partition_entry(edited)])
     v, structural, rep = _judged(job, bad)
     assert structural["status"] == "FAIL" and v["crc_failures"] >= 1
     assert v["elemtable_count"] is None and v["unit0_ids_equal_elemtable"] is None
@@ -267,8 +222,7 @@ def test_partitionless_placeholder_is_the_validators_own_pair():
 
 
 def test_partitionless_file_is_a_fail_verdict(job, tmp_path, edited):
-    bad = str(tmp_path / "nopart.rvt")
-    _rewrite(edited, bad, {}, drop=[_partition(edited)])
+    bad = rewrite_stream(edited, tmp_path / "nopart.rvt", partition_of(edited), None)
     with open_rvt(bad) as doc:
         assert doc.partition_streams() == []
         with pytest.raises(M.ManipulationError, match=M.NO_PARTITION_WHY):
@@ -289,8 +243,7 @@ def test_partitionless_file_is_a_fail_verdict(job, tmp_path, edited):
 def test_partitionless_file_without_elemtable_still_fails(job, tmp_path, edited):
     """Both counts ``None`` compare equal -- the verdict is still FAIL
     (``stamps_ok`` / ``sentinel_last`` never checked -> never PASS)."""
-    bad = str(tmp_path / "nopart_noet.rvt")
-    _rewrite(edited, bad, {}, drop=[_partition(edited), "Global/ElemTable"])
+    bad = rewrite_streams(edited, tmp_path / "nopart_noet.rvt", {partition_of(edited): None, "Global/ElemTable": None})
     v, structural, rep = _judged(job, bad)
     assert structural["status"] == "FAIL" and not rep["ok"]
     assert v["elemtable_count"] is None and v["header_count"] is None
@@ -322,8 +275,7 @@ def test_undamaged_bases_unchanged(job, year):
 
 def test_undamaged_edit_and_verbatim_twin_unchanged(job, tmp_path, edited):
     _assert_healthy_shape(*_judged(job, edited))
-    twin = str(tmp_path / "twin_ok.rvt")
-    _rewrite(edited, twin, {}, extra=[_twin_entry(edited)])
+    twin = rewrite_streams(edited, tmp_path / "twin_ok.rvt", {}, extra=[twin_partition_entry(edited)])
     v, structural, rep = _judged(job, twin)
     _assert_healthy_shape(v, structural, rep)
     assert v["walker_errors"] == 0
@@ -375,9 +327,9 @@ def _damaged_job_report(job, capsys, tmp_path, monkeypatch, name, damage):
 
 def test_job_json_structural_block_names_partition_and_reason(job, capsys, tmp_path, monkeypatch):
     """The primary's header zeroed after the write: partition + reason named."""
-    pname = _partition(BASES[2025])
+    pname = partition_of(BASES[2025])
     report, _ = _damaged_job_report(job, capsys, tmp_path, monkeypatch, "hdr0",
-                                    lambda path: _rewrite(path, path, {pname: _zero16}))
+                                    lambda path: rewrite_stream(path, path, pname, zero_partition_header))
     assert report["walker_errors"] == 1 and list(report["framing_errors"]) == [pname]
     assert report["framing_errors"][pname].startswith(
         "partition header/framing: unexpected Partitions header")
@@ -386,9 +338,9 @@ def test_job_json_structural_block_names_partition_and_reason(job, capsys, tmp_p
 def test_job_json_partitionless_output_is_delivered_and_labelled(job, capsys, tmp_path, monkeypatch):
     """The #501 shape through the door: the written file loses its partition
     stream right after the write -- labelled and delivered, no traceback."""
-    pname = _partition(BASES[2025])
+    pname = partition_of(BASES[2025])
     report, messages = _damaged_job_report(job, capsys, tmp_path, monkeypatch, "nopart",
-                                           lambda path: _rewrite(path, path, {}, drop=[pname]))
+                                           lambda path: rewrite_stream(path, path, pname, None))
     assert report["walker_errors"] == 0 and report["header_count"] is None
     assert report["framing_errors"] == NO_PARTITION
     assert messages[M.NO_PARTITION_WHERE] == [M.NO_PARTITION_WHY]
@@ -468,8 +420,7 @@ def test_memberless_framed_stream_fails_both_gates_alike(job, tmp_path, edited):
     has lost its body wherever it sits in the inventory -- the self-check
     counts it (structural FAIL) exactly where the validator errors."""
     extra = CfbEntry(path="Global/Orphan", entry_type="stream", data=b"\x00" * 64)
-    bad = str(tmp_path / "orphan.rvt")
-    _rewrite(edited, bad, {}, extra=[extra])
+    bad = rewrite_streams(edited, tmp_path / "orphan.rvt", {}, extra=[extra])
     v, structural, rep = _judged(job, bad)
     assert v["crc_failures"] == 1 and structural["status"] == "FAIL"
     assert "no gzip member found in framed stream" in _errors_at(rep, "Global/Orphan")
