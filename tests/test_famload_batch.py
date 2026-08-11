@@ -52,6 +52,7 @@ def release_leak_extra():
     """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
     return context_constants
 
+
 SPECS = [
     dict(vendor="eaton", line="pow-r-line", mains_a=400, spaces=42, voltage="480Y/277",
          mcb=True, mounting="surface", name="Distribution Panelboard DP-1 480Y/277 400A"),

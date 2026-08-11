@@ -66,10 +66,12 @@ pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values
                                  reason="bundled genesis bases missing"),
               pytest.mark.usefixtures("no_release_leak")]   # ``edited`` is authored under release_build_context
 
+
 @pytest.fixture
 def release_leak_extra():
     """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
     return context_constants
+
 
 #: the block-dependent facts of the primary partition: not checked -> None
 BLOCK_DEPENDENT = ("isize_identity_mismatches", "sentinel_last", "stamps_ok",

@@ -34,6 +34,7 @@ from conftest import CERTIFIED_YEARS, context_constants, pinned_base   # noqa: E
 
 pytestmark = pytest.mark.usefixtures("no_release_leak")   # the readers enter release_build_context in-process
 
+
 @pytest.fixture
 def release_leak_extra():
     """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""

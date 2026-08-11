@@ -44,10 +44,12 @@ pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values
                                  reason="bundled genesis bases missing"),
               pytest.mark.usefixtures("no_release_leak")]   # the corpus climbs the ladder; one row authors damage
 
+
 @pytest.fixture
 def release_leak_extra():
     """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
     return context_constants
+
 
 # the plan path's only legitimate exits: it declines (_Bail) or runs out of
 # bytes (struct.error); any other exception type there is a plan bug

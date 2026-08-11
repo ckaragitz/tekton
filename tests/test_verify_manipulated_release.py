@@ -37,6 +37,7 @@ pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values
                                  reason="bundled genesis bases missing"),
               pytest.mark.usefixtures("no_release_leak")]   # after every test the native framing is back
 
+
 @pytest.fixture
 def release_leak_extra():
     """``no_release_leak`` watches the names the authoring context swaps too -- minus its two lazy schema caches: this

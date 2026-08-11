@@ -59,14 +59,16 @@ SHADOWS = {"FOREIGN_FIRST", "FOREIGN", "native_constants", "ladder_constants", "
 FORBIDDEN = SHADOWS | {"NATIVE_LAST", "_native_constants", "_no_leak", "_rewrite_stream", "_partition_of",
                        "_zero16", "_smash64", "_flip_bit", "_twin_entry", "_streams"}
 #: + the private leak guards / snapshots #707 folded into conftest's (an after-only framing check, an ``active_release``
-#: check, two tuple-shaped snapshots): a module that wants one back requests ``no_release_leak`` instead
-FORBIDDEN |= {"_constants_restored", "_no_release_leak", "_restored", "_native_state"}
+#: check, the tuple-shaped ``_native_state`` snapshots): a module that wants one back requests ``no_release_leak`` instead
+FORBIDDEN |= {"_constants_restored", "_no_release_leak", "_native_state"}
 #: the engine's release-context ENTRY POINTS, by call name (#707): the write side (``release_ctx.host_release_context`` /
 #: ``release_build_context`` / ``enter_host_release``), the read-side ladder (``enter_own_release`` -- global_framing's
 #: and validate's alike) and the bare framing contexts (``versions.reading`` / ``global_framing.reading`` /
 #: ``records32.reading32``).  A module that CALLS one enters a context in THIS process, so it keeps conftest's leak
 #: guard on -- derived below by call, not by import (importing a damage recipe enters nothing) and not by mention (the
-#: name inside a subprocess script literal is a string, not a call, and that interpreter's constants are not ours)
+#: name inside a subprocess script literal is a string, not a call, and that interpreter's constants are not ours).
+#: Matched by bare call name: an unrelated ``x.reading(...)`` would count too -- the safe direction (it asks that module
+#: for a cheap guard, loudly; it can never hide a leak), and no such receiver exists in tests/ today
 CONTEXT_ENTRY_POINTS = {"host_release_context", "release_build_context", "enter_host_release", "enter_own_release",
                         "reading", "reading32"}
 #: the adopters the call-scan CANNOT see: each enters a context only inside the tool / front-door call it drives, so it
@@ -95,7 +97,7 @@ def release_leak_extra():
     return C.context_constants
 
 
-@functools.cache                     # three law rows walk every module: parse each once per session
+@functools.cache                     # four law rows walk every module: parse each once per session
 def _tree(stem: str) -> ast.Module:
     path = os.path.join(ROOT, "tests", f"{stem}.py")
     with open(path, encoding="utf-8") as fh:
@@ -112,6 +114,7 @@ def _top_level_names(tree: ast.Module) -> set[str]:
     return names
 
 
+@functools.cache                     # ...and three of them ask this of every module: walk each once (trees are cached, so stable keys)
 def _called_names(tree: ast.Module) -> set[str]:
     """Every name the module CALLS anywhere, nested code included -- ``f(…)`` and ``mod.f(…)`` alike.  Calls, not
     references, on purpose: a seam that rebinds ``CW.write_cfb`` to count writes next to a ``read_entries`` census
@@ -145,9 +148,11 @@ def _requests_the_leak_guard(tree: ast.Module) -> bool:
     return any(isinstance(c, ast.Constant) and c.value == "no_release_leak" for m in marks for c in ast.walk(m.value))
 
 
-def _context_callers() -> set[str]:
-    """Every module that CALLS a release-context entry point somewhere in its own code (= enters one in-process)."""
-    return {stem for stem in TEST_FILES if CONTEXT_ENTRY_POINTS & _called_names(_tree(stem))}
+def _context_callers() -> dict[str, list[str]]:
+    """``{module: [the release-context entry points it CALLS]}`` for every module that calls one somewhere in its own
+    code (= enters a context in-process); modules that call none are absent."""
+    hits = {stem: sorted(CONTEXT_ENTRY_POINTS & _called_names(_tree(stem))) for stem in TEST_FILES}
+    return {stem: names for stem, names in hits.items() if names}
 
 
 def test_every_in_process_context_caller_keeps_the_leak_guard_on():
@@ -155,7 +160,7 @@ def test_every_in_process_context_caller_keeps_the_leak_guard_on():
     watched constant as found -- conftest's ``no_release_leak``, module-wide -- or stands in ``EXPECTED_UNGUARDED``
     with the measured reason.  A red here after adding a context call is the point: take the guard with the call."""
     callers = _context_callers()
-    unguarded = {stem: sorted(CONTEXT_ENTRY_POINTS & _called_names(_tree(stem))) for stem in sorted(callers)
+    unguarded = {stem: names for stem, names in callers.items()
                  if stem not in EXPECTED_UNGUARDED and not _requests_the_leak_guard(_tree(stem))}
     assert unguarded == {}, (f"{unguarded} enter a release context in-process without conftest's leak guard: add "
                              "pytestmark = pytest.mark.usefixtures('no_release_leak') (+ a release_leak_extra "
@@ -180,11 +185,11 @@ def test_every_module_on_the_leak_guard_enters_a_context():
     guarded = {stem for stem in TEST_FILES if _requests_the_leak_guard(_tree(stem))}
     dead = sorted(stem for stem in TEST_FILES if "release_leak_extra" in _top_level_names(_tree(stem)) and stem not in guarded)
     assert dead == [], f"{dead} override release_leak_extra but never request no_release_leak: the watch never runs"
-    unexplained = sorted(guarded - callers - set(ADOPTERS))
+    unexplained = sorted(guarded - set(callers) - set(ADOPTERS))
     assert unexplained == [], (f"{unexplained} request no_release_leak but call no context entry point: add the stem to "
                                "ADOPTERS with the tool / front-door call it enters a context through, so dropping the "
                                "guard later is red (#605 / #707)")
-    seen = sorted(callers & set(ADOPTERS))
+    seen = sorted(set(callers) & set(ADOPTERS))
     assert seen == [], f"{seen} call an entry point themselves now -- the by-call row holds them: drop them from ADOPTERS"
 
 

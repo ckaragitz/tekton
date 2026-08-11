@@ -36,6 +36,7 @@ pytestmark = [pytest.mark.skipif(set(PINS) != {2026, 2025, 2024},
                                  reason="bundled genesis bases missing (or not ledger-certified)"),
               pytest.mark.usefixtures("no_release_leak")]  # no release context leaks out of the tool
 
+
 @pytest.fixture
 def release_leak_extra():
     """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
