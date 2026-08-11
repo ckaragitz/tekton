@@ -1017,3 +1017,139 @@ count on the final head; `route.py matrix` byte-identical to main (sha256 7dae5d
 `.rfa` VALID 0 errors + provenance ok; `sync_plugin.py` → `--check` clean; `validate_plugin.py`
 PASS; `check_portable_paths.py` ok. Nothing staged for the viewer, no ledger entry, no
 certification claimed (rule 4): "VALID" above is a fact about the files, not about Revit.
+
+# eng #564 — `--target-version` survives the archetype → assembly hand-off (2026-08-11)
+
+*Written by engineer session eng #564 (issue #564) on branch `cam/564-assembly-target-version`,
+cut from `main` at 47296f1 (after #583's squash e621ab6). Add-only: every section above is
+another author's and untouched.*
+
+## The bug, reproduced on this head's parent
+
+Fresh clone, `RVT_STEPLITE_FORCE=1`, no `samples/`. Two fixtures from this test file's own
+generator: `one.ifc` = one 1.0 × 1.0 × 0.1 m box; `two.ifc` = that box + a 24-gon post.
+`tools/route.py run --ifc X --output rfa [--target-version N] --json`, then `releases`, the
+`target_version` block and `rvt.versions.detect_release` on the delivered bytes:
+
+| input | flag | `main` 47296f1 | this branch |
+|---|---|---|---|
+| one.ifc | 2025 | `releases.rfa` **2026**, block `fallback`/2026, bytes 2026; caveat "target 2025 requested: this family emit cannot run at Revit 2025 yet (facts->rfa: FamFromIfcError: the IFC facts lack required housing geometry …)" — **twice** | `releases.rfa` **2025**, block `match`/2025, bytes **2025**; no "cannot run" caveat; status `OK (1-part generic_model .rfa measured from one.ifc) by the ASSEMBLY lane, after the archetype lane failed at facts->rfa` |
+| one.ifc | 2024 | 2026 / `fallback` / bytes 2026, same dead-lane caveat twice | **2024** / `match` / bytes **2024** |
+| one.ifc | (none) | 2026 / `unspecified` | 2026 / `unspecified` (unchanged but for the status suffix) |
+| two.ifc | 2025 | 2025 / `match` / bytes 2025 | 2025 / `match` / bytes 2025 |
+| two.ifc | 2024 | 2026 / `fallback` / bytes 2026, line names `famspec->rfa: KeyError: "class 'ArcElemCell' not in the archive class map"` | identical — a **genuine** fallback of the lane that DID produce the file (the post is an arc sketch; 2024 has no `ArcElemCell` port: already filed as #241, not re-filed) |
+| two.ifc | (none) | 2026 / `unspecified` | 2026 / `unspecified` |
+
+All six branch outputs: `tools/rvt_validate.py --family` VALID, 0 errors, 0 warnings, 2 info
+(a fact about the files, not a claim that Revit opens them — rule 4; nothing certified here).
+
+## Mechanism (confirmed, one correction to the issue text)
+
+`_r_ifc_to_rfa` tries the archetype lane (`_product_rfa`) and, on `_StepFailed`, falls
+through to `_assembly_rfa`. For a single product `ifc->facts` succeeds, so the failure
+happens *inside* `_emit_at_target`: the Revit-N attempt raises, the degrade branch rewrites
+the memoised block in place to `status: fallback / output_release: 2026`, re-points
+`res._bases[N]` at the default base, appends its line as a caveat, copies the IFC beside as
+the "version-agnostic addition" — and then the native re-run raises **too**. The lane
+produced nothing, but its fallback story stayed behind. The assembly lane's own
+`_emit_at_target` got the memo hit, saw `fallback`, skipped the release context, appended the
+same line again and emitted native. With two products the archetype lane dies at
+`ifc->facts`, *before* any release context, so nothing was poisoned — which is why that case
+was right. Correction: on today's `main` the in-context failure is `facts->rfa:
+FamFromIfcError` (a box has no downlight housing), not the vendor-donor lookup the issue
+quotes from the #556 review sandbox; the mechanism is the same either way.
+
+## The fix: `_emit_at_target` commits its version story only once the lane delivered
+
+Of the two fixes the DONE allows I took the one inside `_emit_at_target` (the invariant "a lane
+that delivered nothing leaves no version state behind" belongs to the function that mutates
+that state; clearing it from `_r_ifc_to_rfa` would reach into four private effects and the
+next multi-lane route would re-learn #564). First cut restored the state on a double failure;
+the pre-commit review pointed out that nothing `emit()` runs reads the block, the memo, the
+caveat or the IFC copy — the memo re-point only serves a LOAD that runs *after* the function
+returns — so the final form is simpler: the degrade branch now only labels the failed attempt
+and prepares the story (`status: fallback`, `output_release`, `pending`, the line); the native
+`emit()` runs; **then** the memo is re-pointed at the default base, the block updated in place,
+the IFC addition written, the clause settled and the line appended. If the native run raises,
+none of that happens: no stale `fallback`, no dead lane's caveat, no orphan IFC copied into
+`--out` (on `main` `one.ifc` was copied beside a file that then matched). The `refused` shim
+follows the same order. A degrade whose native re-run succeeds ends in the identical state as
+before (`test_famspec_target_version_field_and_flag`'s 2023 case, green); the assembly lane's
+own genuine degrade (the arc post at 2024) still tells its own `fallback` line, once. `router.py`
+as a whole: −14 / +24 lines, docstring sentence and the status suffix below included. The "target line twice"
+of finding 6 was this bug's echo and is gone with it.
+
+Finding 2, the half that fits these lines: the demotion now rides on `res.status` (`… by the
+ASSEMBLY lane, after the archetype lane failed at <stage>`), the one line a skill relays, not
+only in a caveat. The other half — "restrict the fall-through to `ifc->facts` failures" — is
+deliberately **not** taken: the very case this issue is about fails at `facts->rfa` (a body
+the archetype does not model), so that allow-list would turn the 1-product box back into a
+refusal; telling a legitimate "not a downlight" apart from a downlight regression needs a
+typed refusal from `famfrom_ifc`, which is `src/rvt/ifc/**` — outside this territory and
+eng #620's live file. Findings 3–6 untouched (not mine; #241 covers the 2024 arc gap seen above).
+
+## Evidence
+
+Tests added to `tests/test_ifc_assembly.py` (my section at the end, the generators reused):
+`test_a_single_product_ifc_is_emitted_at_the_target_release[2025|2024]` (releases ==
+detect_release == N, block `match`, no dead-lane caveat, no `ifc` role, status names both
+lanes), `test_a_single_product_ifc_without_a_target_stays_native`,
+`test_a_two_product_ifc_at_2025_stays_2025`. Against `main`'s `router.py` under the same test
+file: 3 fail / 1 pass (the two single-product cases on the release itself; the 2-product case
+only on the new status suffix); on this head 4 pass.
+
+Driven by hand on the final tree (`.claude/skills/verify`, router surface), all from a fresh
+cloud clone with `RVT_STEPLITE_FORCE=1`: the six `route.py run --output rfa` transcripts in the
+table above (status / `releases` / block / `detect_release` on the bytes); every one of the six
+`.rfa` → `tools/rvt_validate.py --family`: `VALID (no errors); warnings=0 info=2`, and their emit
+reports' provenance scan `ok: true, suspects []` (the standalone `make_family.py provenance`
+still refuses a 2025/2024 family — "unexpected Partitions header: v=9" — that is #408/#94, not
+new). No orphan IFC beside a matched file: `--out` of `one.ifc @2025` now holds `T.rfa`,
+`T.report.json`, `assembly-parts.json`, `product-facts.json`, `route.json`, `route.log`,
+`ROUTE.md` and nothing else. Neighbouring lanes through the changed function: famspec
+`rfa → rfa @2025` → `match`/2025, no line; `@2023` (resolver fallback, the story committed after
+the native emit) → delivered 2026 + the resolver's line once, "no IFC rides" clause, 0
+duplicate caveats; `ifc → rvt --via family @2025` on `one.ifc` (archetype-only chain) → `FAILED
+(facts->rfa: …)` rc 3, no traceback, nothing delivered and — new — nothing promised either (on
+`main` that failure still copied `one.ifc` into `--out` and left a "cannot run at 2025 … the IFC
+alongside" line for a lane that produced no file). `route.py explain --output rfa --inputs ifc`
+unchanged; `route.py matrix` byte-identical to `main` (3181 bytes, sha256 7dae5d40eb46…).
+
+Gates: `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_router.py
+tests/test_ifc_assembly.py tests/test_frontdoor.py -q -rs` → **before 285 passed / 19 skipped,
+after 289 passed / 19 skipped** (the 4 new; skips = RVT_SKIP_LARGE, absent samples/ifcopenshell,
+root-chmod, unchanged); whole merged shard (`shard_list.py --print`) → first run **1 failed /
+2146 passed / 134 skipped / 3 xfailed**, the one failure being
+`test_router_load_release.py::test_ifc_family_chain_honours_and_states_the_year`, whose
+fresh-clone branch pinned the very artefact this issue removes (`status == "fallback"` +
+`pending` for the `ifc → rvt --via family` chain that writes **no** file on a clone, #94) — under
+either variant of the DONE's option (b) that assertion flips, so its three fresh-clone lines now
+pin what is true (block stays the resolver's `match`, the Revit-N attempt is in the trace
+labelled `attempt`, no "cannot run" caveat, no `ifc` role); the owner-machine branch of that test
+and `test_degraded_emit_loads_onto_the_default_base_it_names` (degrade + successful native → the
+full fallback story + LOAD on the default base) are untouched and green (file: 21 passed). **That
+test file is the one touch outside the named territory — flagged for the reviewer; the alternative
+is option (a), which keeps it green by leaving the dead lane's promise + orphan IFC on that chain.**
+Shard re-run on the final tree → **2147 passed / 134 skipped / 3 xfailed, 0 failed** (6 m 57 s);
+`tools/sync_plugin.py` → `--check` clean ("plugin in sync with source"); `validate_plugin.py`
+PASS (25 assertions); `check_portable_paths.py` ok (3010 paths). `/simplify` ran on the diff (4
+reviewers; the altitude + efficiency findings are the reorder described above, the rest were
+"clean" or cosmetic and skipped); `/verify` = the drives in this section.
+
+## Follow-up filed
+
+**#625** — the assembly lane's *genuine* fallback (the arc post at 2024) says "no IFC rides beside a
+FAMILY request" although the user supplied an IFC: `_famspec_rfa` never forwards `source_ifc`.
+Three lines in `router.py`, outside this DONE; task-shaped, `Refs #564`, P2 / good-first-pick.
+Nothing filed for findings 3–6 (not mine; searched: the 2024 arc gap is #241).
+
+## BRANCH STATE (eng #564)
+
+Branch `cam/564-assembly-target-version` from `main` 47296f1; one PR, `Closes #564`. Files:
+`src/rvt/frontdoor/router.py` (`_emit_at_target` reorder + the `_r_ifc_to_rfa` status suffix;
++24 / −14) and its `plugin/lib/src/rvt/frontdoor/router.py` mirror via `sync_plugin.py`;
+`tests/test_ifc_assembly.py` (one appended section, 4 tests, generators reused, nothing above it
+edited); `tests/test_router_load_release.py` (3 assertions + docstring of ONE test's fresh-clone
+branch, see Gates — outside the named territory, flagged); this record section. No matrix / cell / SKILL.md / hot-file change; nothing staged for
+the viewer; no certification claimed — "VALID 0 errors" above is a validator fact, not a Revit
+verdict (rule 4). Merge is the tech lead's (regime #302); this session never merges.

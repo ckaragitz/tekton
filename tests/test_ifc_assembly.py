@@ -1150,3 +1150,58 @@ def test_when_both_lanes_refuse_the_shipped_solid_is_the_rail_not_a_1m_drum(tmp_
     ext = [rail.bbox_ft[1][i] - rail.bbox_ft[0][i] for i in range(2)]
     assert AP._polygon_area(rail.vertices_ft) <= ext[0] * ext[1]  # inside its own box, unlike r = 3.28 ft
     assert m.fit_counts() == {"polygon": 1}
+
+
+# ---------------------------------------------------------------------------
+# --target-version across the archetype -> assembly hand-off (#564)
+# ---------------------------------------------------------------------------
+
+def _one_box(tmp_path):
+    return write_ifc(str(tmp_path / "one.ifc"),
+                     [("Plate", "IFCBUILDINGELEMENTPROXY", _box_mesh(1.0, 1.0, 0.1))])
+
+
+@pytest.mark.parametrize("year", [2025, 2024])
+def test_a_single_product_ifc_is_emitted_at_the_target_release(tmp_path, year):
+    """ONE box fails the archetype lane INSIDE its Revit-N release context (a
+    box carries no downlight housing) and again natively; that dead lane's
+    'fallback' story must not leak into the assembly lane, which makes its
+    own attempt at Revit N -- and a box emits there.  Red on 152d009: the
+    .rfa detected as 2026 under a caveat blaming a lane that produced nothing."""
+    from rvt import versions as V
+    from rvt.frontdoor import router as R
+    res = R.route({"ifc": _one_box(tmp_path)}, "rfa", out=str(tmp_path / "o"),
+                  quiet=True, target_version=year)
+    assert res.ok, res.errors + [res.status]
+    assert res.releases["rfa"] == year == V.detect_release(res.files["rfa"])
+    assert res.target_version["status"] == "match"
+    assert res.target_version["output_release"] == year
+    assert not any("cannot run at Revit" in c for c in res.caveats)   # the dead lane's line is gone
+    assert "ifc" not in res.files                 # no version-agnostic IFC beside a MATCH
+    assert "ASSEMBLY lane" in res.status and "facts->rfa" in res.status   # who built it, who failed
+    assert any("measured-archetype lane did not apply" in c for c in res.caveats)
+
+
+def test_a_single_product_ifc_without_a_target_stays_native(tmp_path):
+    from rvt.frontdoor import release_ctx as RC
+    from rvt.frontdoor import router as R
+    res = R.route({"ifc": _one_box(tmp_path)}, "rfa", out=str(tmp_path / "o"), quiet=True)
+    assert res.ok, res.errors + [res.status]
+    assert res.releases["rfa"] == RC.native_release()
+    assert res.target_version["status"] == "unspecified"
+
+
+def test_a_two_product_ifc_at_2025_stays_2025(tmp_path):
+    """The case that was already right (the archetype lane fails at ifc->facts,
+    BEFORE any release context) must stay right."""
+    from rvt import versions as V
+    from rvt.frontdoor import router as R
+    p = write_ifc(str(tmp_path / "two.ifc"), [
+        ("Plate", "IFCBUILDINGELEMENTPROXY", _box_mesh(1.0, 1.0, 0.1)),
+        ("Post A", "IFCMEMBER", _prism_mesh(0.05, 1.0, 24, ox=-0.4, oz=0.1)),
+    ])
+    res = R.route({"ifc": p}, "rfa", out=str(tmp_path / "o"), quiet=True, target_version=2025)
+    assert res.ok, res.errors + [res.status]
+    assert res.releases["rfa"] == 2025 == V.detect_release(res.files["rfa"])
+    assert res.target_version["status"] == "match"
+    assert "ifc->facts" in res.status

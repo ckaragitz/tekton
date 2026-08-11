@@ -888,7 +888,11 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
     and the memoised base (:func:`_target_base`) is re-pointed at the
     default so a LOAD that follows (rfa -> rvt, the ifc family chain) hosts
     on the very release the block now names, not on the year the family
-    could not be built for."""
+    could not be built for.  The whole version story (block update, memo
+    re-point, IFC addition, caveat) is committed only once the native emit
+    has DELIVERED: a lane whose native run raises too produced nothing and
+    states nothing, so the next lane of the same route (ifc -> rfa:
+    archetype, then assembly -- #564) makes its own attempt at Revit N."""
     from . import release_ctx as RC
     from . import target_status as TS
     native = RC.native_release()
@@ -903,6 +907,7 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
     from . import _emit_ifc_addition
     target = int(target)
     base, vb = _target_base(res, opts, "family route")
+    story: Dict[str, Any] = {}         # what THIS lane adds to the block, once it delivered
     if vb.get("status") == "match" and target != native:      # match => base resolved
         n_err, n_steps = len(res.errors), len(res.steps)
         try:
@@ -924,25 +929,28 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
                 # the failed attempt stays in the trace, labelled -- the native
                 # re-run below records its own step, so the two never blur
                 rec["attempt"] = f"Revit {target} release context (degraded to native)"
-            vb.update({"status": "fallback", "output_release": native, "pending": reason,
-                       "line": (f"target {target} requested: this family emit cannot run "
-                                f"at Revit {target} yet ({reason}); this file targets "
-                                f"{native} -- your Revit {target} cannot open it; the "
-                                "IFC alongside is version-agnostic (links into Revit "
-                                "2019+)")})
-            res._bases[target] = (_resolve(res, opts, "family route", None)[0], vb)
+            story = {"status": "fallback", "output_release": native, "pending": reason,
+                     "line": (f"target {target} requested: this family emit cannot run "
+                              f"at Revit {target} yet ({reason}); this file targets "
+                              f"{native} -- your Revit {target} cannot open it; the "
+                              "IFC alongside is version-agnostic (links into Revit "
+                              "2019+)")}
     elif vb.get("status") == "refused":
         # interim shim: a wrong-release --base is refused AS A BASE by the
         # resolver; a family emit needs no base, so deliver native + say so
-        vb.update({"output_release": native,
-                   "line": (f"{vb.get('note')}; the family .rfa are delivered at "
-                            f"Revit {native} (open in {TS.opens_in(native)})")})
+        story = {"output_release": native,
+                 "line": (f"{vb.get('note')}; the family .rfa are delivered at "
+                          f"Revit {native} (open in {TS.opens_in(native)})")}
+    out = emit()        # native; raises -> this lane delivered nothing and states nothing
+    if story.get("status") == "fallback":
+        res._bases[target] = (_resolve(res, opts, "family route", None)[0], vb)
+    vb.update(story)    # in place: the memo and res.target_version hold this dict
     _emit_ifc_addition(vb, res, out_dir, _slug(opts.get("stem") or "prompt_intent"),
                        model=model, source_ifc=source_ifc, errors=res.errors)
     _settle_ifc_clause(vb)
     if vb.get("line"):
         res.caveats.append(str(vb["line"]))
-    return emit()
+    return out
 
 
 def _settle_ifc_clause(vb: Dict[str, Any]) -> None:
@@ -1036,8 +1044,8 @@ def _r_ifc_to_rfa(res, inputs, out_dir, opts):
     try:
         _product_rfa(res, inputs["ifc"], out_dir, opts)
         return
-    except _StepFailed:
-        pass
+    except _StepFailed as sf:
+        failed_at = str(sf.args[0])
     # The archetype lane could not measure this IFC (several products, or a
     # body it does not model).  Rather than end at the refusal, measure every
     # product's mesh into prisms and author ONE multi-part family (#498).
@@ -1047,6 +1055,8 @@ def _r_ifc_to_rfa(res, inputs, out_dir, opts):
         res.caveats.append(f"the measured-archetype lane did not apply here ({e}) "
                            "-- fell through to the ASSEMBLY lane below")
     _assembly_rfa(res, inputs["ifc"], out_dir, opts)
+    if res.files.get("rfa"):       # the demotion rides on the status line, not only a caveat
+        res.status += f" by the ASSEMBLY lane, after the archetype lane failed at {failed_at}"
 
 
 def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
