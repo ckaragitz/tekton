@@ -26,7 +26,6 @@ Run: .venv/bin/python -m pytest tests/test_edit_status.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import json
 import os
 import subprocess
@@ -37,7 +36,7 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import pinned_base                             # noqa: E402
+from conftest import pinned_base, rewrite_stream, truncated_copy, zero_schema_bytes   # noqa: E402
 import rvt.frontdoor as FD                                   # noqa: E402
 from rvt import versions as V                                # noqa: E402
 from rvt.frontdoor import input_release as IR                # noqa: E402
@@ -60,19 +59,12 @@ def long_dir(tmp_path_factory):
     return d
 
 
-def _cut_at_64k(year: int, dst: str) -> str:
-    """The pin of ``year`` cut at 64 KB: a valid CFB header, its release
-    still detected, broken streams."""
-    with open(pinned_base(year), "rb") as fh, open(dst, "wb") as out:
-        out.write(fh.read(64 * 1024))
-    return dst
-
-
 @pytest.fixture(scope="module")
 def trunc64k(long_dir):
-    """The NATIVE pin cut at 64 KB -- no release context is involved for a
+    """The NATIVE pin cut at 64 KB (a valid CFB header, its release still
+    detected, broken streams) -- no release context is involved for a
     native host, so the walker's finding is the whole reason on its own."""
-    return _cut_at_64k(V.LATEST_RELEASE, os.path.join(long_dir, "trunc64k.rvt"))
+    return truncated_copy(pinned_base(V.LATEST_RELEASE), os.path.join(long_dir, "trunc64k.rvt"), 65536)
 
 
 @pytest.fixture(scope="module")
@@ -80,23 +72,14 @@ def trunc64k_2025(long_dir):
     """The 2025 pin cut at 64 KB: the open fails on the walker AND the host
     cannot be probed (its ``Formats/Latest`` inflates to nothing) -- two
     findings, both owed inside the cut (#587)."""
-    return _cut_at_64k(2025, os.path.join(long_dir, "trunc64k_2025.rvt"))
+    return truncated_copy(pinned_base(2025), os.path.join(long_dir, "trunc64k_2025.rvt"), 65536)
 
 
 @pytest.fixture(scope="module")
 def schema_dmg(long_dir):
     """The 2025 pin re-emitted with 64 bytes of its ``Formats/Latest`` zeroed
-    -- every other entry byte-identical (built like test_release_ctx_refusal's)."""
-    from rvt.cfb_writer import write_cfb
-    from rvt.roundtrip import read_entries
-    entries = []
-    for e in read_entries(pinned_base(2025)):
-        if e.entry_type == "stream" and e.path == "Formats/Latest":
-            e = dataclasses.replace(e, data=e.data[:2000] + bytes(64) + e.data[2064:])
-        entries.append(e)
-    dst = os.path.join(long_dir, "schema_dmg.rvt")
-    write_cfb(dst, entries)
-    return dst
+    -- every other entry byte-identical."""
+    return rewrite_stream(pinned_base(2025), os.path.join(long_dir, "schema_dmg.rvt"), "Formats/Latest", zero_schema_bytes)
 
 
 def _assert_named_not_pathed(man: dict, src: str, *reason_words: str):

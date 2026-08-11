@@ -36,9 +36,8 @@ from rvt import versions as V                                   # noqa: E402
 #: names no test module may bind at top level any more: the private copies #579 removed, and shadows of their one home
 FORBIDDEN = {"_native_constants", "_no_leak", "_rewrite_stream", "_partition_of", "FOREIGN_FIRST", "FOREIGN",
              "NATIVE_LAST", "native_constants", "ladder_constants", "no_release_leak", "rewrite_stream", "partition_of"}
-#: files that still carry a copy another stream owns this wave -- delete a line here when that file adopts conftest's
-EXEMPT = {"test_rvt_edit_refusal", "test_release_ctx_refusal",   # eng #587's territory (#579's follow-up)
-          "test_gates_shared_walk"}                               # a `_rewrite_stream(…, mutate)` of its own shape
+#: files that still carry a copy of their own -- delete the entry when that file adopts conftest's (then: an empty set)
+EXEMPT = {"test_gates_shared_walk"}                               # a `_rewrite_stream(…, mutate)` of its own shape (#604)
 #: the six files #579 relieved of their copies: each keeps conftest's leak guard switched on for the whole module
 ADOPTERS = ["test_selfcheck_release", "test_inspect_release", "test_edit_text_release",
             "test_natively_framed", "test_estorage_cli_release", "test_edit_own_release"]
