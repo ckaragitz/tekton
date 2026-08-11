@@ -89,18 +89,34 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
     table sourced from the format itself, values filled only when known. *Done = #498's DONE
     (1)–(3): the structural host-ADocument gate extended to the IFC route, desktop verdicts
     recorded, matrix rows honest; plus #591's DONE (1)–(6) and #601's DONE (1)–(4).*
-12. **O12 A prompt interviews its way to a specific family** (P0 steer #684, S-2026-08-11-b): a
-    bare product prompt ("a transformer") returns an ordered, branching series of questions —
-    vendor and line where the catalog holds several, the rating that identifies the member, then
-    the rest (the exact spine, and whether the question set is derived live or from a generated,
-    reviewable snapshot, are #684's open questions to settle while building) — derived from the
-    catalog, the #591 archetype registry and the #601 standards tables rather than written per
-    product; the answers resolve to a famspec the router already accepts, each value carrying the
-    provenance of the source that answered it; the `tekton-author` skill asks conversationally, a
-    few questions at a time, and knows when it has enough to build. The interview never gates
-    delivery, which is how it coexists with O11: answering nothing (or stopping early) still
-    yields the file O11 describes — nominal archetype dimensions, assumed answers stated — so a
-    no-dimension prompt is neither refused nor blocked on questions. *Done = #684's DONE (1)–(6).*
+12. **O12 One prompt in, a specific family out — questions only for the residue** (P0 steers
+    #685 and #684, S-2026-08-11-c superseding the emphasis of S-2026-08-11-b): one descriptive
+    prompt resolves kind, Revit category, vendor/line, dimensions and standard parameters and
+    builds immediately (`route run --prompt "…" --output rfa` is the whole interface); an
+    ordered, branching series of questions — derived from the catalog, the #591 archetype
+    registry and the #601 standards tables, never written per product — appears only for what
+    the prompt left undetermined and the engine cannot default honestly, few and most-decisive
+    first (vendor and line where the catalog holds several); the breadth behind it is data, not
+    code: an MEP taxonomy (kind → category → standard parameters → catalog-backed /
+    archetype-generable / neither) and a vendor directory (maker → lines → which we hold sourced
+    facts for), with the standing line that model knowledge supplies taxonomy and standard
+    practice but never a manufacturer's dimensions as a `fact`; where standards compete the
+    result names the one it followed and offers the other; every value carries its tier and the
+    `tekton-author` skill asks conversationally and knows when it has enough. Neither the
+    questions nor a thin prompt ever gate delivery, which is how this coexists with O11:
+    answering nothing still yields O11's nominal-archetype file with the assumed answers stated.
+    *Done = #685's DONE (1)–(6) and #684's DONE (1)–(6).*
+13. **O13 A spec sheet in, a functional family out** (P0 steer #687, S-2026-08-11-d): a
+    user-supplied PDF/spec sheet is read into `fact`-tier values cited to the sheet (page/row) —
+    the honest source for the manufacturer data O12 may not recall — and resolved to a famspec
+    that builds, with everything the sheet does not state left `nominal`/blank and an unreadable
+    sheet said so while the archetype lane still delivers; and "functional" is met surface by
+    surface, each with its own desktop-Revit verdict before any route claims it: parameters that
+    genuinely drive the geometry (the #372 constraint chain, re-opened as a probe ladder after
+    its desktop failure), visibility/detail-level control per solid, and tag families with
+    labels bound to the family's parameters. Four separate streams; the sheet reader is the
+    highest-value and unblocked one, the constraint chain the highest-risk. *Done = #687's DONE
+    (1)–(6), each item's desktop verdict recorded per hard rule 4.*
 
 ## Not goals (decided — do not re-propose without a new steer)
 
