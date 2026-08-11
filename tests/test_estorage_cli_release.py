@@ -5,11 +5,12 @@ every certified pinned base (issue #566, Refs #548 / #533):
 * ``--report --walk --roundtrip`` exits 0 with its four sections on the 2024,
   2025 and 2026 pins (main: ``unexpected Partitions header: v=9 cls=0x391 /
   0x37b`` on 2025/2024, before any walk);
-* a pin whose archive schema has no ``std::pair< GUIDvalue, SchemaUsageInfo >``
-  (the 2024 base keeps ``ESSchemaStorage.m_storedSchemas`` instead) reports an
-  honest ``0 schemas (reason)`` -- from the library too: ``schemas()`` returns
-  an empty catalog carrying the reason, ``locate_schema_map`` its documented
-  "nothing located" triple -- instead of raising ``ESSchemaError``;
+* a pin whose archive schema declares no catalog layout the module reads would
+  report an honest ``0 schemas (reason)`` -- from the library too: ``schemas()``
+  returns an empty catalog carrying the reason, ``locate_schema_map`` its
+  documented "nothing located" triple -- instead of raising ``ESSchemaError``
+  (since #576 the 2024 pin's older ``m_storedSchemas`` layout is read, so every
+  certified pin lists its schemas; tests/test_estorage_catalog_2024.py);
 * the native pin enters no release context at all, a foreign one (via
   ``rvt.native_framing``) the instrument ladder ``global_framing.enter_own_release``
   -- and the real ``-m`` door agrees;
@@ -73,10 +74,11 @@ def _run(capsys, *argv):
     return rc, cap.out, cap.err
 
 
-def _has_usage_map_class(path: str) -> bool:
-    """Does ``path``'s own archive schema carry the schema-usage map's pair
-    class (Revit 2025+), or the older ``m_storedSchemas`` layout (2024)?"""
-    return ES._PAIR_CLASS in GF.schema_of(path).by_name
+def _has_catalog_layout(path: str) -> bool:
+    """Does ``path``'s own archive schema declare an ES catalog layout the
+    module reads (2025+ ``m_schemaUsageMap``, or the older ``m_storedSchemas``
+    since #576 -- every certified pin today)?"""
+    return ES.catalog_layout(GF.schema_of(path)) is not None
 
 
 def _assert_full_report(rc: int, out: str, err: str, path: str) -> None:
@@ -84,11 +86,10 @@ def _assert_full_report(rc: int, out: str, err: str, path: str) -> None:
     assert err == ""                                          # certified pin: no release warning
     name = os.path.splitext(os.path.basename(path))[0]
     assert out.startswith(f"loaded {name}: ") and " host elements\nES schema catalog: " in out
-    if _has_usage_map_class(path):
+    if _has_catalog_layout(path):
         assert " schemas (map count " in out
     else:                                                     # honest, and it says why
-        assert f"\nES schema catalog: 0 schemas (this file's archive schema has no {ES._PAIR_CLASS!r}" in out
-        assert "m_storedSchemas : std::pair< GUIDvalue, ESSchema >" in out
+        assert "\nES schema catalog: 0 schemas (this file's archive schema has no ES schema catalog class" in out
     assert "\nES report: " in out and "\nround-trip: examined " in out
     assert "DECODE FAIL" not in out and "ROUNDTRIP FAIL" not in out
 
@@ -114,10 +115,10 @@ def test_library_reports_an_absent_map_instead_of_raising(year):
     path = pinned_base(year)
     with GF.reading(path):
         cat = ES.schemas(path)
-    if _has_usage_map_class(path):
+    if _has_catalog_layout(path):
         assert len(cat) and cat.map_offset > 0 and cat.note == ""
     else:
-        assert len(cat) == 0 and cat.note.startswith(f"this file's archive schema has no {ES._PAIR_CLASS!r}")
+        assert len(cat) == 0 and cat.note.startswith("this file's archive schema has no ES schema catalog class")
         gl, _ = ES._global_latest_bytes(path)
         assert ES.locate_schema_map(gl, ES._decoder_for(path)) == (-1, 0, {})   # the documented "nothing located" triple
 

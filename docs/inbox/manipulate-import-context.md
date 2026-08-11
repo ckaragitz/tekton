@@ -713,3 +713,98 @@ i.e. after #570 / #548 and #572 / #533 had merged). Written in eng #566's voice;
   mirror and the `-m` subprocess door catching the tree mid-edit (`NameError: _load_doc`); both artefacts of editing
   under a running shard, the mistake #548's record also confesses — the canonical run above was taken on the frozen
   final tree.)
+
+## eng #576 — 2026-08-11 — `rvt.estorage` reads the Revit ≤ 2024 catalog layout (`ESSchemaStorage.m_storedSchemas`): the 2024 base lists its 2 schemas
+
+Stream: eng #576 (issue #576, `Refs #566 #548`; branch `cam/576-estorage-catalog-2024` from `main` @ db32071).
+Written in eng #576's voice; the sections above are untouched. Read-only forensic capability on our own bundled base:
+no writer change, no byte any route writes can change, nothing sample-derived checked in.
+
+### What was built (all inside `src/rvt/estorage.py`'s catalog locate/decode section; harvest / entity codec / verify / closures / CLI untouched)
+
+1. **The layout is read off the file's own `ESSchemaStorage`.** New `CatalogLayout` (frozen dataclass: `member`,
+   `pair_class`, `pair_id` in THIS file's schema, `tail` = bytes of one entry after `ESSchema.m_guid`, `tail_re` =
+   the GUID-free anchor pattern) and `catalog_layout(schema) -> CatalogLayout | None`: of the two layouts the module
+   chains — `m_schemaUsageMap : std::pair< GUIDvalue, SchemaUsageInfo >` (2025+, tail 9 = read u32 + write u32 +
+   usedInHost u8) and `m_storedSchemas : std::pair< GUIDvalue, ESSchema >` (≤ 2024, tail 8, the value IS the schema)
+   — the first whose pair class exists in the file's schema **and** is the type of an `ESSchemaStorage` member wins
+   (membership matters: the 2025 base defines an unused `std::pair< GUIDvalue, ESSchema >` 0x1187 next to its real
+   `m_schemaUsageMap`; a schema with no `ESSchemaStorage` at all still accepts the pair class alone, as before). The
+   module constant `_PAIR_CLASS` and the module-level `_TAIL_RE` are gone (folded into the `_LAYOUTS` table).
+   `locate_schema_map` / `_decode_pair_at` / `_chain_map` / `_tail_scan_seeds` take the layout instead of a bare
+   `pair_id`; the entries are still decoded by the generic `ObjectDecoder` against the file's own `Formats/Latest` —
+   no hand-written byte layout anywhere. `_entry_schema(v)` returns `(ESSchema dict, SchemaUsageInfo dict | None)`
+   for either value shape; `_schema_from_pair` builds the same `ESSchemaDef` from both, with `used_in_host = None`
+   (type widened to `Optional[bool]`) and `content_docs_keys = []` on the older layout — absent, never invented;
+   `print_catalog` prints `usage-unrecorded` for `None` (2025/2026 lines unchanged: `used` / `unused`).
+   `_no_map_reason` names `ESSchemaStorage.<member>` when a layout exists but nothing was located, else lists both
+   known pair classes and what the file's `ESSchemaStorage` keeps. `ESSchemaCatalog`'s shape is unchanged (`note`
+   is `""` on all three pins now).
+2. **Two locator laws the older layout exposed** (both measured on the 2024 base, both fixed for both layouts, both
+   provably output-neutral on 2025/2026 — below): (a) `_chain_map`'s backward walk no longer stops on "u32 before the
+   first recovered entry == entries recovered so far" — on the older layout the u32 before an *inner* entry is the
+   previous entry's `m_writeAccessLevel` (1..3), so a seed on entry 2 alone returned a 1-entry "map" (count 1
+   "verified" by entry 1's write level); it now places the previous entry whenever one decodes ending exactly at the
+   current first entry (GUID taken `16 + tail` bytes back, low-entropy GUIDs skipped) and stops only when none does —
+   the u32 then in front is the container count (`_run_length` went with the old rule); (b) `locate_tracking(gl,
+   guids, skip=(lo, hi))`: `schemas()` passes the catalog map's own byte span, because an entry key followed by
+   `m_documentation = ""` reads as a tracking item with 0 ids and, on the older layout, the u32 before entry 2's key
+   (entry 1's write level = 1) "verified" it as a 1-item table at 0xfe72b — which beat the real, unverifiable table.
+3. **Finding (documented, not coded around):** the 2024 base's real `EStorageTracking.m_trackingItems` has **7**
+   items (count @0xff92e): five leading items keyed by structured GUIDs that are in no catalog and occur nowhere in
+   the 2025/2026 bases (`30000001-6e79-430c-adf9-634f716c5f5d`, `30000001-62e6-416d-a34a-bb3064350b62`,
+   `20000002-6e79-…`, `20000002-62e6-…`, `10000005-db1a-45fc-9eed-810262792b5b`; 0/1 ids each, element 49504), then
+   the two catalogued items — byte-identical to the 2025 base's two. Only catalogued GUIDs anchor items, so the 2024
+   table comes back through the pre-existing unverified-count fallback (right ids: 6 / 1; `tracking_offset` = run
+   start − 4 = 0xff9a2, not the count offset) — written up with offsets in `docs/writer/extensible-storage.md` §2.1b
+   and filed as a follow-up rather than widening this stream into the tracking reader.
+4. `docs/writer/extensible-storage.md`: new §2.1b (the ≤ 2024 layout, class ids, the 8-byte tail, a byte-for-byte
+   worked hexdump of `G_ABPD_2024` entry 1 @0xfe67d with count 2 @0xfe679, the two locator consequences, the 7-item
+   tracking table), §2.2's chain/tail sentences generalised, §2.4 gains the three bundled bases' rows. Whether Revit
+   ≤ 2023 shares the 2024 layout is **unmeasured** (no 2023 base in the bundle) and the doc says so.
+5. **Tech-lead-authorised territory extension** (asked and answered in-session before pushing):
+   `tests/test_estorage_cli_release.py` hard-coded the old 2024 verdict (`ES._PAIR_CLASS`, "0 schemas (…)",
+   `len(cat) == 0`) and would be 6-red on this head whatever the new file says; issue #576's own DONE bullet 3 says its
+   2024 branch flips. Exactly four hunks changed there — the predicate (`_has_usage_map_class` →
+   `_has_catalog_layout()` = `ES.catalog_layout(schema) is not None`), the two else-branch strings, the docstring
+   bullet — and nothing in the scaffolding helpers eng #579 is hoisting. All new rows live in the new file.
+
+### Evidence (numbers)
+
+* **`python -m rvt.estorage plugin/assets/genesis/<base>.rvt --report --walk --roundtrip`, before → after** (stdout+stderr,
+  scratch transcripts kept): `G_ABPD_2024` — main @db32071: exit 0, `ES schema catalog: 0 schemas (this file's archive
+  schema has no 'std::pair< GUIDvalue, SchemaUsageInfo >' -- its ESSchemaStorage keeps m_storedSchemas : std::pair<
+  GUIDvalue, ESSchema >, an older catalog layout this module does not read yet, #576)`, `ES report: 0 schemas`;
+  head: exit 0, no stderr,
+  `ES schema catalog: 2 schemas (map count 2 @0xfe679 in Global/Latest; tracking @0xff9a2)` /
+  `  4c817959-0028-4a83-b3e7-cd1e832a459a  'AREXContentGenerator' vendor='' usage-unrecorded fields=1 read=Public write=Public tracked_elements=6` / `      [ 0] Identity: TCHAR` /
+  `  5d9588ee-e6c7-4c96-87dc-df2a5fbe6613  'DaylightingAnalysisInfo' vendor='ADSK' usage-unrecorded fields=2 read=Public write=Vendor tracked_elements=1` / `      [ 0] AnalysisId: TCHAR` / `      [ 1] ResultsInvalid: int` /
+  `ES report: 2 schemas` with `'AREXContentGenerator' …: tracked elements 6 (first [1372292, 1372482, 1375817, 1376990, 1377250])` and
+  `'DaylightingAnalysisInfo' …: tracked elements 1 (first [1382860])`, `round-trip: examined 0 records` (0 ES entity records in this
+  base, as on 2025). `G_ABPD` (2026) and `G_ABPD_2025`: exit 0 both sides, stdout+stderr **byte-identical to main** with the
+  `in N.NNs` timing masked (`diff` empty; 2026: 2 schemas, walk host 1 `DataStorage`, round-trip examined 1 / clean 1 / byte-exact 1;
+  2025: 2 schemas @0xe690f, tracking @0x137e0a, 0 ES records).
+* **Library seam:** `schemas(path)` under `global_framing.reading(path)`: 2024 → 2 entries, `.note == ""`, `.order == [4c817959…,
+  5d9588ee…]`, `used_in_host is None` ×2, tracking `{…459a: 6 ids, …6613: [1382860]}`; sha256[:16] of `to_json()` minus `source`,
+  head vs main: 2026 `2d621ae50133432e` == `2d621ae50133432e`, 2025 `43f8ad756ff22977` == `43f8ad756ff22977` (entry count 2 / map
+  count 2 / map offset / tracking offset identical), 2024 `2f5ede2e29d13ec4` (main: empty catalog `67430599e05e72ac`).
+* **New doors** — `tests/test_estorage_catalog_2024.py` (9 tests, 1.2 s; bundled bases + synthetic schemas only; in the shard via
+  `tests/ci_shard.d/576-estorage-catalog-2024.txt`): [2024] layout `m_storedSchemas`/tail 8, catalog = the two expected schemas
+  (GUIDs, names, vendor, field names/types), note empty, `used_in_host None` / `contentDocsKeys []`, tracking 6 / `[1382860]`;
+  [2024] CLI `--report` lists both lines verbatim, no `0 schemas`; [2025][2026] layout `m_schemaUsageMap`, `used_in_host is True`,
+  `(len, map_count, digest) == MAIN_DIGEST`; [2024][2025][2026] the map **re-encoded by our own `ObjectEncoder`** between junk →
+  GUID-free scan finds it at the exact count offset AND a seed on the LAST entry alone chains back to the first (the row that was
+  red until law (a): `(214, 1) != (36, 2)` on the 2024 layout), junk alone → `(-1, 0, {})`; synthetic schemas: both pair classes +
+  `ESSchemaStorage{m_schemaUsageMap}` → usage layout, `ESSchemaStorage{m_storedSchemas}` → older layout (tail 8, its pair id), a
+  pair class `ESSchemaStorage` does not hold → `None` + the note names what it keeps, pair class with no `ESSchemaStorage` → still a
+  layout, neither → `None`; `_entry_schema` / `_schema_from_pair` on both value shapes. **Against `main`'s `estorage.py`: 9 failed**
+  (the 2024 rows on the behaviour, the rest on the missing seam); on the head 9 passed. `tests/test_estorage_cli_release.py`
+  (the four authorised hunks): 10 passed on the head (6 failed before the hunks, on `ES._PAIR_CLASS` / the old 2024 strings).
+* Validator on the three bases (estorage is not on `rvt.validate`'s import path; run anyway): `G_ABPD` VALID warnings=1 (the known
+  `DataStorage x1` ES decoder-gap warning, element 1382860), `G_ABPD_2025` VALID 0, `G_ABPD_2024` VALID 0 — unchanged.
+
+### Follow-ups (searched first: "EStorageTracking", "locate_tracking", "m_trackingItems", "uncatalogued" → nothing open)
+
+* Filed: `locate_tracking` verifies a table led by uncatalogued items (the 2024 base: 7 items @0xff92e, 5 internal GUIDs) so
+  `tracking_offset` is the true count offset and the uncatalogued tracked GUIDs are reported rather than dropped — task-shaped,
+  `Refs #576`, P2 · area:engine · S (number in BRANCH STATE below).

@@ -28,7 +28,13 @@ Schema catalog (WHERE the schemas live)
     the generic ``ObjectDecoder`` decodes every catalog entry as-is; the only
     work is LOCATING the map (self-validating: an entry's map key GUID must
     equal its decoded ``ESSchema.m_guid``; entries are contiguous; the u32
-    before the first entry equals the entry count).  A sibling AppInfo,
+    before the first entry equals the entry count).  Revit <= 2024 files
+    (the bundled 2024 base; ``SchemaUsageInfo`` does not exist in their
+    schema) keep the catalog in ``ESSchemaStorage.m_storedSchemas :
+    container< std::pair< GUIDvalue, ESSchema > >`` instead -- the value IS
+    the ``ESSchema``, with no usedInHost / contentDocsKeys wrapper; which of
+    the two the file uses is read off its own ``ESSchemaStorage`` class
+    (:func:`catalog_layout`) and located the same way.  A sibling AppInfo,
     ``EStorageTracking``, holds ``m_trackingItems`` = per schema GUID the set
     of ElementIds carrying an entity of it (the source of :func:`es_report`).
 
@@ -169,10 +175,10 @@ class ESSchemaDef:
     read_access: int
     write_access: int
     fields: list[ESFieldDef]              # SERIALIZATION order (entry_index)
-    used_in_host: bool = False
+    used_in_host: Optional[bool] = False  # None: the file's layout does not record it (m_storedSchemas)
     content_docs_keys: list[str] = dc_field(default_factory=list)
     offset: int = -1                       # map-entry offset in Global/Latest (or -1)
-    raw: Optional[dict] = None             # the decoded pair<GUIDvalue,SchemaUsageInfo>
+    raw: Optional[dict] = None             # the decoded catalog pair (either layout)
 
     def field(self, name: str) -> Optional[ESFieldDef]:
         for f in self.fields:
@@ -231,10 +237,21 @@ class ESSchemaCatalog:
         }
 
 
+def _entry_schema(v: dict) -> tuple[dict, Optional[dict]]:
+    """(ESSchema dict, SchemaUsageInfo dict or None) of a decoded catalog pair:
+    the 2025+ value wraps the schema (``SchemaUsageInfo.m_schema``), the older
+    ``m_storedSchemas`` value IS the schema."""
+    su = v.get("second") or {}
+    if "m_schema" in su:
+        return su.get("m_schema") or {}, su
+    return su, None
+
+
 def _schema_from_pair(v: dict, offset: int = -1) -> ESSchemaDef:
-    """Build an ESSchemaDef from a decoded pair<GUIDvalue, SchemaUsageInfo>."""
-    su = v["second"]
-    sch = su["m_schema"]
+    """Build an ESSchemaDef from a decoded catalog pair (either layout); what
+    the older layout does not record (usedInHost, contentDocsKeys) is
+    reported absent (None / []), never invented."""
+    sch, su = _entry_schema(v)
     fields = []
     for f in sch["m_fields"]:
         spec = f.get("m_specTypeId") or {}
@@ -257,8 +274,8 @@ def _schema_from_pair(v: dict, offset: int = -1) -> ESSchemaDef:
         read_access=int(sch.get("m_readAccessLevel") or 0),
         write_access=int(sch.get("m_writeAccessLevel") or 0),
         fields=fields,
-        used_in_host=bool(su.get("m_usedInHost")),
-        content_docs_keys=list(su.get("m_contentDocsKeys") or []),
+        used_in_host=bool(su.get("m_usedInHost")) if su is not None else None,
+        content_docs_keys=list(su.get("m_contentDocsKeys") or []) if su is not None else [],
         offset=offset,
         raw=v,
     )
@@ -268,70 +285,96 @@ def _schema_from_pair(v: dict, offset: int = -1) -> ESSchemaDef:
 # Catalog location inside Global/Latest
 # ---------------------------------------------------------------------------
 
-_PAIR_CLASS = "std::pair< GUIDvalue, SchemaUsageInfo >"
 _MAX_ENTRY = 400_000        # generous bound on one catalog entry's byte size
 
 
-def _decode_pair_at(dec: ObjectDecoder, gl: bytes, p: int, pair_id: int):
+@dataclass(frozen=True)
+class CatalogLayout:
+    """Where a file keeps its ES schema catalog, read off its own schema."""
+    member: str        # the ESSchemaStorage member holding the map
+    pair_class: str    # that container's element class (an ordinary archive class)
+    pair_id: int       # ... its type id in THIS file's schema
+    tail: int          # bytes of one entry after ESSchema.m_guid (read u32 + write u32 [+ usedInHost u8])
+    tail_re: Any       # GUID-free anchor: the entry tail as a byte pattern
+
+
+# newest first; an entry ends ... m_guid(16) read(u32) write(u32) [usedInHost(u8)]
+_LAYOUTS = (
+    ("m_schemaUsageMap", "std::pair< GUIDvalue, SchemaUsageInfo >", 9,       # Revit 2025+
+     re.compile(rb"[\x00-\x04]\x00\x00\x00[\x00-\x04]\x00\x00\x00[\x00\x01]", re.S)),
+    ("m_storedSchemas", "std::pair< GUIDvalue, ESSchema >", 8,               # Revit <= 2024: bare ESSchema value
+     re.compile(rb"(?=[\x00-\x04]\x00\x00\x00[\x00-\x04]\x00\x00\x00)", re.S)),
+)
+
+
+def catalog_layout(schema: Schema) -> Optional[CatalogLayout]:
+    """The catalog layout ``schema``'s own ``ESSchemaStorage`` declares (the
+    member whose container element class is one this module chains), or None."""
+    ess = schema.by_name.get("ESSchemaStorage")
+    held = {f.type_name for f in ess.fields} if ess is not None else None
+    for member, pair, tail, tail_re in _LAYOUTS:
+        cd = schema.by_name.get(pair)
+        if cd is not None and (held is None or pair in held):
+            return CatalogLayout(member, pair, cd.type_id, tail, tail_re)
+    return None
+
+
+def _decode_pair_at(dec: ObjectDecoder, gl: bytes, p: int, lay: CatalogLayout):
     """Decode one map entry at ``p``; return (end, value) if self-consistent."""
     if p < 0 or p + 26 > len(gl):
         return None
-    o = dec.decode_record(pair_id, gl[p:p + _MAX_ENTRY])
+    o = dec.decode_record(lay.pair_id, gl[p:p + _MAX_ENTRY])
     if o.errors:
         return None
-    su = o.value.get("second") or {}
-    sch = su.get("m_schema") or {}
-    if sch.get("m_guid") != guid_str(gl[p:p + 16]):
+    if _entry_schema(o.value)[0].get("m_guid") != guid_str(gl[p:p + 16]):
         return None
     return p + o.consumed, o.value
 
 
-def _chain_map(dec: ObjectDecoder, gl: bytes, seeds: list[int], pair_id: int):
+def _chain_map(dec: ObjectDecoder, gl: bytes, seeds: list[int], lay: CatalogLayout):
     """From validated entry offsets, recover the whole contiguous map.
 
     Forward: the next entry starts where this one ends.  Backward: the
-    previous entry's ``ESSchema.m_guid`` sits 25 bytes before this entry's
-    start (m_guid(16) + read u32 + write u32 + usedInHost u8) and that same
-    GUID begins the previous entry.  Stop when the u32 preceding the first
-    entry equals the number of entries recovered (the container count).
+    previous entry's ``ESSchema.m_guid`` sits ``16 + lay.tail`` bytes before
+    this entry's start (m_guid(16) + read u32 + write u32 [+ usedInHost u8])
+    and that same GUID begins the previous entry -- placed only when it
+    decodes and ends exactly where this one starts.  Stop when no previous
+    entry can be placed: the u32 then preceding the first entry is the
+    container count.  (Checking "count == entries so far" first is not a
+    stopping rule: in the older layout the u32 before an inner entry is the
+    previous entry's write access level, 1..3.)
     """
     entries: dict[int, tuple[int, dict]] = {}
     for s in sorted(set(seeds)):
         if s in entries:
             continue
-        r = _decode_pair_at(dec, gl, s, pair_id)
+        r = _decode_pair_at(dec, gl, s, lay)
         if not r:
             continue
         entries[s] = r
         p = r[0]
         while p not in entries:            # forward chain
-            r2 = _decode_pair_at(dec, gl, p, pair_id)
+            r2 = _decode_pair_at(dec, gl, p, lay)
             if not r2:
                 break
             entries[p] = r2
             p = r2[0]
     if not entries:
         return -1, 0, {}
-    # backward chain from the earliest entry until the count field matches
-    while True:
+    while True:                            # backward chain from the earliest entry
         first = min(entries)
-        count = struct.unpack_from("<I", gl, first - 4)[0] if first >= 4 else 0
-        n = _run_length(entries, first)
-        if count == n:
-            return first - 4, count, dict((k, entries[k]) for k in _run(entries, first))
-        prev_guid = gl[first - 25:first - 9]
-        q = gl.find(prev_guid, max(0, first - _MAX_ENTRY), first - 25)
-        placed = False
+        g0 = first - 16 - lay.tail         # the previous entry's m_guid, if there is one
+        prev_guid = gl[g0:g0 + 16] if g0 >= 0 else b""
+        q = gl.find(prev_guid, max(0, first - _MAX_ENTRY), g0) if len(set(prev_guid)) >= 4 else -1
         while q >= 0:
-            r = _decode_pair_at(dec, gl, q, pair_id)
+            r = _decode_pair_at(dec, gl, q, lay)
             if r and r[0] == first:
                 entries[q] = r
-                placed = True
                 break
-            q = gl.find(prev_guid, q + 1, first - 25)
-        if not placed:
-            # cannot walk further back; return the run we have (count unverified)
-            return first - 4, n, dict((k, entries[k]) for k in _run(entries, first))
+            q = gl.find(prev_guid, q + 1, g0)
+        else:
+            run = _run(entries, first)
+            return first - 4, len(run), {k: entries[k] for k in run}
 
 
 def _run(entries: dict, start: int) -> list[int]:
@@ -343,27 +386,20 @@ def _run(entries: dict, start: int) -> list[int]:
     return out
 
 
-def _run_length(entries: dict, start: int) -> int:
-    return len(_run(entries, start))
-
-
-# tail of an ESSchema + SchemaUsageInfo: read u32, write u32, usedInHost u8
-_TAIL_RE = re.compile(rb"[\x00-\x04]\x00\x00\x00[\x00-\x04]\x00\x00\x00[\x00\x01]", re.S)
-
-
-def _tail_scan_seeds(dec: ObjectDecoder, gl: bytes, pair_id: int,
+def _tail_scan_seeds(dec: ObjectDecoder, gl: bytes, lay: CatalogLayout,
                      max_hits: int = 200_000) -> list[int]:
     """GUID-free anchor: find a catalog entry by its distinctive TAIL.
 
     An entry ends ``... m_vendorId(AString) m_applicationGUID(16) m_guid(16)
-    read(u32) write(u32) usedInHost(u8)`` and BEGINS with the same 16 bytes as
-    m_guid.  For each candidate tail we require a plausible vendorId AString
-    just before the two GUIDs, then locate the map key (first occurrence of
-    the m_guid bytes shortly before) and fully validate by decoding.
+    read(u32) write(u32) [usedInHost(u8)]`` and BEGINS with the same 16 bytes
+    as m_guid.  For each candidate tail we require a plausible vendorId
+    AString just before the two GUIDs, then locate the map key (first
+    occurrence of the m_guid bytes shortly before) and fully validate by
+    decoding.
     """
     seeds: list[int] = []
     n = 0
-    for m in _TAIL_RE.finditer(gl):
+    for m in lay.tail_re.finditer(gl):
         n += 1
         if n > max_hits:
             break
@@ -386,8 +422,8 @@ def _tail_scan_seeds(dec: ObjectDecoder, gl: bytes, pair_id: int,
             continue
         s = gl.find(g, max(0, t - _MAX_ENTRY), t - 16)
         while s >= 0:
-            r = _decode_pair_at(dec, gl, s, pair_id)
-            if r and r[0] == t + 9:
+            r = _decode_pair_at(dec, gl, s, lay)
+            if r and r[0] == t + lay.tail:
                 seeds.append(s)
                 break
             s = gl.find(g, s + 1, t - 16)
@@ -398,50 +434,53 @@ def _tail_scan_seeds(dec: ObjectDecoder, gl: bytes, pair_id: int,
 
 def locate_schema_map(gl: bytes, dec: ObjectDecoder,
                       seed_guids: Optional[list[str]] = None):
-    """Locate + decode ``ESSchemaStorage.m_schemaUsageMap`` in Global/Latest.
+    """Locate + decode the file's ES schema catalog map (``ESSchemaStorage.
+    m_schemaUsageMap``, or the older ``m_storedSchemas``) in Global/Latest.
 
     Seeds are catalog-entry offsets validated by decoding.  With ``seed_guids``
     (schema GUIDs seen in entity tokens) the map-key occurrences of those
     GUIDs seed the chain; otherwise (or in addition, when that finds nothing)
     a GUID-free structural scan finds one entry.  Returns
     ``(count_offset, count, {entry_offset: (end, value)})`` -- ``(-1, 0, {})``
-    when no entry can be located or the archive schema lacks the pair class
-    (the older ``m_storedSchemas`` layout, #576; :func:`schemas` then names
-    the reason in ``cat.note``).
+    when no entry can be located or the archive schema declares no catalog
+    layout this module reads (:func:`schemas` then names the reason in
+    ``cat.note``).
     """
-    pair_cd = dec.schema.by_name.get(_PAIR_CLASS)
-    if pair_cd is None:
+    lay = catalog_layout(dec.schema)
+    if lay is None:
         return -1, 0, {}
-    pair_id = pair_cd.type_id
     seeds: list[int] = []
     for g in seed_guids or []:
         raw = guid_bytes(g) if isinstance(g, str) else bytes(g)
         i = gl.find(raw)
         while i >= 0:
-            r = _decode_pair_at(dec, gl, i, pair_id)
+            r = _decode_pair_at(dec, gl, i, lay)
             if r:
                 seeds.append(i)
                 break
             i = gl.find(raw, i + 1)
     if not seeds:
-        seeds = _tail_scan_seeds(dec, gl, pair_id)
+        seeds = _tail_scan_seeds(dec, gl, lay)
     if not seeds:
         return -1, 0, {}
-    return _chain_map(dec, gl, seeds, pair_id)
+    return _chain_map(dec, gl, seeds, lay)
 
 
 # -- EStorageTracking (schema GUID -> element id set) -----------------------
 
-def locate_tracking(gl: bytes, guids: list[str]) -> tuple[int, dict[str, list[int]]]:
+def locate_tracking(gl: bytes, guids: list[str],
+                    skip: tuple[int, int] = (0, 0)) -> tuple[int, dict[str, list[int]]]:
     """Locate ``EStorageTracking.m_trackingItems`` and read every item.
 
     Item = GUIDvalue m_schemaGuid + container<ElementId> m_elemIdSet
     (u32 count + count x i64).  Items are contiguous; the u32 preceding the
     first item equals the item count.  Anchored on any known schema GUID
-    occurrence that is followed by a plausible id list.
+    occurrence outside ``skip`` = [lo, hi) (the catalog map's own span: a
+    map key followed by an empty AString reads as an item with no ids) that
+    is followed by a plausible id list.
     """
     def item_at(p: int):
-        if p + 20 > len(gl):
+        if p + 20 > len(gl) or skip[0] <= p < skip[1]:
             return None
         n = struct.unpack_from("<I", gl, p + 16)[0]
         end = p + 20 + 8 * n
@@ -586,22 +625,25 @@ def schemas(source, decoder: Optional[ObjectDecoder] = None,
         except Exception as e:                       # pragma: no cover
             raise ESSchemaError(f"catalog entry @{k:#x}: {e}")
     if with_tracking and len(cat):
-        toff, table = locate_tracking(gl, list(cat.by_guid))
+        map_span = (cat.map_offset, max(end for end, _v in entries.values()))
+        toff, table = locate_tracking(gl, list(cat.by_guid), skip=map_span)
         cat.tracking_offset = toff
         cat.tracking = table
     return cat
 
 
 def _no_map_reason(schema: Schema) -> str:
-    """One sentence on why no schema-usage map was read from a file carrying
+    """One sentence on why no schema catalog was read from a file carrying
     ``schema`` -- the catalog is then honestly empty, never guessed."""
-    if _PAIR_CLASS in schema.by_name:
-        return "no ESSchemaStorage.m_schemaUsageMap entry could be located in Global/Latest"
+    lay = catalog_layout(schema)
+    if lay is not None:
+        return f"no ESSchemaStorage.{lay.member} entry could be located in Global/Latest"
     ess = schema.by_name.get("ESSchemaStorage")
     kept = ", ".join(f"{f.name} : {f.type_name}" for f in (ess.fields if ess else ())
                      if f.type_name and "ESSchema" in f.type_name) or "no ESSchema map at all"
-    return (f"this file's archive schema has no {_PAIR_CLASS!r} -- its ESSchemaStorage "
-            f"keeps {kept}, an older catalog layout this module does not read yet, #576")
+    known = " / ".join(repr(pair) for _m, pair, _t, _re in _LAYOUTS)
+    return (f"this file's archive schema has no ES schema catalog class this module reads "
+            f"({known}) -- its ESSchemaStorage keeps {kept}")
 
 
 def _decoder_for(source) -> ObjectDecoder:
@@ -1359,7 +1401,7 @@ def print_catalog(cat: ESSchemaCatalog, stream=None):
       f"@{cat.map_offset:#x} in Global/Latest; tracking @{cat.tracking_offset:#x})")
     for s in cat:
         ids = cat.tracking.get(s.guid)
-        used = "used" if s.used_in_host else "unused"
+        used = {True: "used", False: "unused"}.get(s.used_in_host, "usage-unrecorded")
         P(f"  {s.guid}  {s.name!r} vendor={s.vendor_id!r} {used} "
           f"fields={len(s.fields)} read={ACCESS_LEVELS.get(s.read_access, s.read_access)} "
           f"write={ACCESS_LEVELS.get(s.write_access, s.write_access)}"
