@@ -627,12 +627,15 @@ def archetype(product: str) -> Archetype:
 #: section and "a 480Y/277 wireway" as 277 in -- each reported `given` and
 #: quoted back with words the caller never used as a measurement, which is the
 #: provenance contract lying about itself.
-_NUM_CORE = (r"(\d{1,3}(?:,\d{3})+(?:\.\d+)?"          # 1,200 -- grouped
+_NUM_CORE = (r"(\d+\s+\d+/\d+"                            # 2 1/2 -- mixed, spaced
+             r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?"              # 1,200 -- grouped
              r"|\d+(?:\.\d+)?(?:\s*[-/]\s*\d+(?:/\d+)?)?"
              r"|\d+\s*/\s*\d+)")
 #: the comma in the class matters: without it "a 1,200 mm cable tray" matched
 #: the "200" and delivered a 7.9 in tray, quoted back as '200 mm cable tray'.
-_NUM = r"(?<![A-Za-z0-9.,/-])" + _NUM_CORE
+#: ... and the lookbehind excludes a preceding DIGIT+SPACE too, or "2 1/2 in"
+#: matched its trailing "1/2" alone and delivered a conduit 5x too small.
+_NUM = r"(?<![A-Za-z0-9.,/-])(?<!\d )" + _NUM_CORE
 
 #: what may sit between a number, its unit and the word it qualifies.  English
 #: hyphenates these -- "a 24-inch-wide tray", "a 6-in-deep tray", "a 10-ft-long
@@ -650,12 +653,17 @@ _ANY_UNIT = "|".join(_UNITS.values())
 def _to_number(raw: str) -> Optional[float]:
     """'24' / '1.5' / '1-5/8' / '3/4' -> a float; None when it is not one."""
     s = re.sub(r"[\s,]+", "", raw)          # '1,200' is one thousand two hundred
-    m = re.fullmatch(r"(\d+)-(\d+)/(\d+)", s)
+    m = re.fullmatch(r"(\d+)[-\s]?(\d+)/(\d+)", s)
     if m:
-        return float(m.group(1)) + float(m.group(2)) / float(m.group(3))
+        den = float(m.group(3))
+        return float(m.group(1)) + float(m.group(2)) / den if den else None
     m = re.fullmatch(r"(\d+)/(\d+)", s)
     if m:
-        return float(m.group(1)) / float(m.group(2))
+        den = float(m.group(2))
+        # "3/0" and "4/0" are everyday AWG sizes for this product class, and a
+        # ZeroDivisionError here escaped ArchetypeError, crashed the route and
+        # WITHHELD THE FILE -- a hard rule 1 violation caused by a parser.
+        return float(m.group(1)) / den if den else None
     m = re.fullmatch(r"\d+(?:\.\d+)?", s)
     return float(m.group(0)) if m else None
 
@@ -715,6 +723,8 @@ in inch inches ft foot feet mm cm m yd
 wide width long length deep depth tall high height thick thickness
 gang gangs pole poles way ways phase ph circuit circuits
 awg mcm kcmil gauge ga
+degree degrees deg
+nema ul iec ip class div division type rated rating listed zone group
 """.split())
 
 #: a bare catalogue designator with NO separator -- 'F66L120', '2BLT4'.  Needs
@@ -934,8 +944,20 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     prim = next((p for p in arch.params if p.primary), None)
     if prim is not None:
         for pat in _product_patterns(arch):
-            m = re.search(rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}(?:{pat})", low)
+            # THE UNIT IS REQUIRED HERE.  A bare integer in front of the noun is
+            # far more often a COUNT or a RATING than a size: "3 cable trays"
+            # built one 3-INCH tray, "a NEMA 12 wireway" a 12 in one, "a Type 1
+            # junction box" a 1 in one -- each quoting the user's own words back
+            # as if they had given a width.  Every example in #591's DONE 4
+            # carries a unit ("a 24 inch cable tray 20 ft long").
+            m = re.search(rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT}){_SEP}(?:{pat})", low)
             if not m or not free(m.start(), m.end()):
+                continue
+            # ... and a rating/classification word in front of the number means
+            # the number belongs to that scheme, not to the product's size
+            lead = low[max(0, m.start() - 24):m.start()]
+            if re.search(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|"
+                         r"grid|zone|group|phase|pole)\s*$", lead):
                 continue
             num = _to_number(m.group(1))
             if num is None:

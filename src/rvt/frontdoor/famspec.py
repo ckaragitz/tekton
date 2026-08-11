@@ -302,4 +302,5 @@ def is_refusal(exc: BaseException) -> bool:
     field it does not take) rather than failing to emit."""
     from ..famgen.factory import FactoryError
     from ..famgen.catalog import CatalogError
-    return isinstance(exc, (FactoryError, CatalogError, TypeError))
+    from ..famgen.archetypes import ArchetypeError
+    return isinstance(exc, (FactoryError, CatalogError, ArchetypeError, TypeError))

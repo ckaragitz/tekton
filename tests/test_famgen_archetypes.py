@@ -605,8 +605,16 @@ def test_no_shipped_text_claims_a_refusal_that_does_not_happen():
                    r"REFUSED by name, never invented")
         for pat in blanket:
             for m in re.finditer(pat, text, re.I):
-                window = text[max(0, m.start() - 600):m.end() + 600]
-                assert "archetype" in window.lower(), (
+                # the ENCLOSING SENTENCE, not a fixed character window: the
+                # 600-char window let the schema's leg pass because
+                # "make_archetype" appears in its constructor list earlier in
+                # the same paragraph (a reviewer proved that too).
+                lo = max((text.rfind(c, 0, m.start()) for c in ".!?\n"), default=-1) + 1
+                hi = min((h for h in (text.find(c, m.end()) for c in ".!?\n")
+                          if h != -1), default=len(text)) + 1
+                window = text[lo:hi].lower()
+                assert ("kind='archetype'" in window or "archetype lane" in window
+                        or "`archetype`" in window or "the archetype" in window), (
                     f"{f.name} claims a catalog refusal near offset {m.start()} "
                     f"without naming the archetype lane in the same passage: "
                     f"...{text[max(0, m.start() - 120):m.end() + 120]}...")
@@ -766,3 +774,77 @@ def test_the_rendered_matrix_names_the_archetype_lane():
     doc = (pathlib.Path(ROOT) / "docs/product/PERMUTATION-MATRIX.md").read_text(encoding="utf-8")
     assert "archetype" in doc.lower()
     assert "make_archetype" in doc
+
+
+# ---------------------------------------------------------------------------
+# 11. regressions found by the FIFTH independent review of PR #674
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("raw", ["3/0", "4/0", "250/0", "0/0"])
+def test_a_zero_denominator_never_reaches_the_router(raw):
+    """`_to_number("3/0")` raised ZeroDivisionError, which escaped
+    ArchetypeError, crashed the route and WITHHELD THE FILE -- hard rule 1
+    broken by a number parser. 3/0 and 4/0 AWG are everyday phrasing here."""
+    assert AR._to_number(raw) is None
+
+
+@needs_schema
+def test_a_resolver_crash_costs_the_lane_not_the_delivery(tmp_path, monkeypatch):
+    """Whatever the resolver does, the route must still answer. A parser bug
+    may cost the archetype lane; it may never cost the file."""
+    from rvt.frontdoor import router as R
+    from rvt.famgen import archetypes as _AR
+
+    def boom(_prompt, **_kw):
+        raise ZeroDivisionError("float division by zero")
+
+    monkeypatch.setattr(_AR, "resolve_prompt", boom)
+    res = R.route({"prompt": "a 3/0 cable tray"}, "rfa", out=str(tmp_path / "z"))
+    # the archetype lane declined; the route still ends honestly rather than
+    # crashing, and says why
+    assert any("could not read this prompt" in c for c in res.caveats)
+
+
+@pytest.mark.parametrize("prompt", [
+    "3 cable trays", "6 junction boxes", "a NEMA 12 wireway",
+    "a Type 1 junction box", "level 2 cable tray", "a Class 2 wireway",
+    "a 3/0 cable tray", "a 4/0 tray",
+])
+def test_a_bare_number_before_the_noun_is_not_a_dimension(prompt):
+    """A bare integer in front of the noun is far more often a COUNT or a
+    RATING than a size: "3 cable trays" built one 3-INCH tray and quoted the
+    user's own words back as if they had given a width."""
+    r = AR.resolve_prompt(prompt)
+    assert r is not None and r.given() == [], {k: r.values[k] for k in r.given()}
+
+
+@pytest.mark.parametrize("prompt,key,want", [
+    ("a 2 1/2 in conduit", "diameter_in", 2.5),
+    ("a 1 1/2 in conduit", "diameter_in", 1.5),
+    ("a 4 1/2 in strut channel", "height_in", 4.5),
+    ("a 2-1/2 in conduit", "diameter_in", 2.5),
+])
+def test_a_spaced_mixed_fraction_keeps_its_whole_number(prompt, key, want):
+    """"a 2 1/2 in conduit" matched the trailing "1/2" alone and delivered a
+    0.5 in run -- 5x too small, reported `given`, quoted '1/2 in conduit'."""
+    r = AR.resolve_prompt(prompt)
+    assert key in r.given(), r.given()
+    assert r.values[key] == pytest.approx(want)
+
+
+@pytest.mark.parametrize("prompt", [
+    "a Class-I-Div-2 junction box",
+    "a NEMA-4X-rated junction box",
+    "a 90-degree-elbow-ready cable tray",
+    "a UL-listed wireway",
+])
+def test_a_rating_or_classification_is_not_a_catalogue_number(prompt):
+    assert AR.manufacturer_claim(prompt) is None
+
+
+def test_an_archetype_refusal_is_classified_as_a_refusal_by_name():
+    """`famspec.is_refusal` did not list ArchetypeError, so a geometry that
+    could not close reported as an opaque emit failure instead of the clear
+    one-line refusal the contract promises."""
+    from rvt.frontdoor import famspec as FS
+    assert FS.is_refusal(AR.ArchetypeError("nope"))

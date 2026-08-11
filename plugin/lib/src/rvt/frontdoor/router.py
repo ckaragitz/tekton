@@ -1046,7 +1046,14 @@ def _archetype_rfa(res: RouteResult, prompt: str, out_dir: str,
     from ..famgen import archetypes as AR
     try:
         req = AR.resolve_prompt(prompt)
-    except AR.ArchetypeError:
+    except Exception as e:                                   # noqa: BLE001
+        # NOT just ArchetypeError.  A ZeroDivisionError in the number parser
+        # ("a 3/0 cable tray") escaped, crashed the route and withheld the file
+        # -- hard rule 1 broken by a parser. A resolver bug now costs the
+        # archetype lane, never the delivery.
+        res.caveats.append(f"the archetype lane could not read this prompt "
+                           f"({type(e).__name__}: {str(e)[:120]}) -- it named no "
+                           f"product that could be resolved")
         return False
     if req is None:
         return False

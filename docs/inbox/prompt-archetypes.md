@@ -447,3 +447,68 @@ rounds. That is the surface PG1 names, and no reviewer had been pointed at it un
 zero self-intersections and zero zero-volume parts, and confirmed `nominal` reaches every report
 surface. What keeps failing is not the geometry — it is the text and the parsing of ordinary
 English, and both now have tests that fail when they regress.
+
+---
+
+## Round 6 — a parser bug withheld a file
+
+Fifth fresh reviewer, four blocking findings. One breaks a hard rule.
+
+### `"a 3/0 cable tray"` returned no file at all
+
+`_to_number("3/0")` divided by zero. `ZeroDivisionError` is not `ArchetypeError`, so it escaped
+`_archetype_rfa`'s handler, crashed the route, and the manifest came back with **no `rfa` in
+`files`** — exit 3, logs only. **Hard rule 1 broken by a number parser**, on `3/0` and `4/0`,
+which are everyday AWG sizes for exactly this product class.
+
+Two fixes, because one of them is the general lesson: `_to_number` returns `None` on a zero
+denominator, **and** `_archetype_rfa` now catches `Exception` rather than `ArchetypeError`. A
+resolver bug may cost the archetype lane; it may never cost the delivery. There is a test that
+monkeypatches the resolver to raise and asserts the route still answers.
+
+### A bare number in front of the noun is a count or a rating, not a size
+
+| prompt | delivered before |
+|---|---|
+| `"3 cable trays"` | one **3-inch** tray, `width_in` quoted back as `'3 cable trays'` |
+| `"a NEMA 12 wireway"` | a 12 in wireway |
+| `"a Type 1 junction box"` | a **1-inch** box |
+| `"6 junction boxes"` | a 6 in box |
+
+The bare-primary rule now **requires a unit** — every example in #591's DONE 4 carries one
+(`"a 24 inch cable tray 20 ft long"`) — and rejects a number preceded by `nema|ul|iec|ip|type|
+class|div|level|grid|zone|group|phase|pole`.
+
+### `"a 2 1/2 in conduit"` was half an inch
+
+`_NUM_CORE` accepted `2-1/2` but not `2 1/2`, and the lookbehind did not exclude a preceding
+digit+space, so the trailing `1/2` matched alone: a **5× undersized** run, reported `given`,
+quoted `'1/2 in conduit'`. On the strut the same parse then raised, and because
+`famspec.is_refusal` did not list `ArchetypeError`, `"a 4 1/2 in strut"` produced **no file**.
+Both fixed: the spaced mixed fraction parses, and `ArchetypeError` is classified as the
+refusal-by-name it is.
+
+### The guard's fifth false-positive class
+
+`Class-I-Div-2`, `NEMA-4X-rated`, `90-degree-elbow-ready` all fit the separator-bearing
+part-number shape. Rating and classification words joined the reject list.
+
+### The vacuity probe, tightened again
+
+The reviewer re-ran the round-5 probe on two files: reverting `matrix._CATALOG` **failed** the
+test (good), but reverting the schema's exception **passed**, because `make_archetype` appears in
+its constructor list earlier in the same paragraph and landed inside the ±600-char window. The
+check is now the **enclosing sentence** and requires the exception phrasing rather than the bare
+word.
+
+### Round-6 evidence
+
+| gate | result |
+|---|---|
+| `tests/test_famgen_archetypes.py` | **172 passed** (46 → 71 → 104 → 131 → 150 → 172) |
+| `test_router + test_frontdoor` | **223 passed, 13 skipped** |
+| `archetypes --check` / `sync_plugin --check` / portable paths | 5/0 / in sync / **3044** |
+
+**Six rounds, twenty-six defects.** The reviewer also re-measured every part count off the head
+rather than trusting the record (tray 16, worked example 46 with 5 nominal / 3 given, slotted
+strut 65) and confirmed the catalog lane still runs first with `errors: []` on a fallthrough.
