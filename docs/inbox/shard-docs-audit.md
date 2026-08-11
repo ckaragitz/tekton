@@ -758,7 +758,13 @@ skills/` touched (`sync_plugin.py --check`: `plugin in sync with source` at clou
 skipped — tests-only diff, no runtime surface (commit trailer says so).
 
 **Whole merged shard** (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`,
-102 files, same cloud VM, sequential runs): *pending at this commit — filled in below once the branch and origin/main runs finish.*
+102 files, same 4-vCPU cloud VM, sequential runs, docs-read audit on — no section printed on any run = no offender):
+```
+origin/main 59a89d8 (worktree)     2036 passed, 134 skipped, 3 xfailed, 3 warnings in 570.91s
+this branch, first cut             2036 passed, 134 skipped, 3 xfailed, 3 warnings in 557.22s
+this branch, final head (bc73d8d)  2036 passed, 134 skipped, 3 xfailed, 3 warnings in 558.41s   (post-/simplify; = main, nothing moved)
+```
+The 3 warnings are main's (`PytestRemovedIn10Warning`); skips identical (134).
 
 ### The optional stretch — not taken, and why (each is more than a rename)
 
