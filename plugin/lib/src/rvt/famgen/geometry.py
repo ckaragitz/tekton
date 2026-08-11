@@ -967,6 +967,7 @@ def new_sketch_plane(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
                      z: float = 0.0, datum_id: Optional[int] = None,
                      trf3x3: Optional[Sequence[Sequence[float]]] = None,
                      origin: Optional[Sequence[float]] = None,
+                     vec_in_plane: Optional[Sequence[float]] = None,
                      notes=None) -> SkelElement:
     """A ``SketchPlane`` ON a DATUM (``OnDatumPlaneRef.m_datumPlaneId``),
     by default the family's horizontal 'Ref. Level'.
@@ -987,7 +988,12 @@ def new_sketch_plane(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
     obj = _base("SketchPlane", elem_id, family_id=ctx.family_id)
     ref = blank_object("OnDatumPlaneRef")
     ref["m_geomRef"] = _geomref_blank()
-    ref["m_vecInPlane"] = [0.0, 0.0, 0.0]
+    # OnDatumPlaneRef inherits m_vecInPlane from OneElementMovablePlaneRef: the
+    # vector IN the plane that orients the sketch on it.  Zero is harmless on the
+    # horizontal level (there is only one sensible frame) but says NOTHING on a
+    # vertical RefPlane -- a candidate reason rounds 1 and 2 kept extruding up.
+    ref["m_vecInPlane"] = ([0.0, 0.0, 0.0] if vec_in_plane is None
+                           else [float(c) for c in vec_in_plane])
     ref["m_rotation"] = 0.0
     ref["m_datumPlaneId"] = int(ctx.level_id if datum_id is None else datum_id)
     ref["m_mirror"] = False

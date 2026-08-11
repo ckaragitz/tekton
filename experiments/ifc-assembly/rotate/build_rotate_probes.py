@@ -34,6 +34,7 @@ from rvt.frontdoor import famspec as FS
 OUT = os.path.dirname(os.path.abspath(__file__))
 rows = []
 ALWAYS_REF_NORM = os.environ.get("ROTATE_REF_NORM", "0") == "1"
+VEC_IN_PLANE = ([0.0, 1.0, 0.0] if os.environ.get("ROTATE_VEC", "0") == "1" else None)
 
 
 def write(prod, stem, note):
@@ -68,8 +69,9 @@ id_plane = G._alloc(doc.ids); id_sk = G._alloc(doc.ids)
 id_u = G._alloc(doc.ids); id_l = G._alloc(doc.ids); id_ext = G._alloc(doc.ids)
 c = G.circle_profile((0.0, 1.72), 1.72)
 sp = G.new_sketch_plane(id_plane, ctx, sketch_id=id_sk, datum_id=rp_id,
-                        trf3x3=[[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]],
-                        origin=[0.0, 0.0, 0.0])
+                        trf3x3=[[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]],
+                        origin=[0.0, 0.0, 0.0],
+                        vec_in_plane=VEC_IN_PLANE)
 arc_u = G.garc(c.center, c.radius, *G.CircleProfile.ANG_U, tag=0, flags=ctx.gline_flags)
 arc_l = G.garc(c.center, c.radius, *G.CircleProfile.ANG_L, tag=1, flags=ctx.gline_flags)
 doc.add(sp)
@@ -95,11 +97,14 @@ doc.add_type("R1 Wheel On RefPlane", {doc.params["Width"].elem_id: 3.44,
                                       doc.params["Height"].elem_id: 3.44,
                                       "description": "wheel drawn on a vertical RefPlane"})
 doc.finalize()
-stem = "R2_wheel_refnorm" if ALWAYS_REF_NORM else "R1_wheel_on_refplane"
+stem = ("R3_wheel_vecinplane" if VEC_IN_PLANE
+        else ("R2_wheel_refnorm" if ALWAYS_REF_NORM else "R1_wheel_on_refplane"))
 write(F.FamilyProduct("generic_model", doc, F.FactSheet(subject="rotate probe"),
                       forms=[], file_stem=stem.lower()),
-      stem, ("round 2: same wheel + ExtrusionElem.m_alwaysRefPlaneNorm = True"
-             if ALWAYS_REF_NORM else "round 1: profile on a VERTICAL RefPlane"))
+      stem, ("round 3: + OnDatumPlaneRef.m_vecInPlane, the in-plane orientation"
+             if VEC_IN_PLANE else
+             ("round 2: same wheel + ExtrusionElem.m_alwaysRefPlaneNorm = True"
+              if ALWAYS_REF_NORM else "round 1: profile on a VERTICAL RefPlane")))
 
 with open(os.path.join(OUT, "rotate.json"), "w") as fh:
     json.dump({"stamp": "PROOF-ONLY", "round": 1,

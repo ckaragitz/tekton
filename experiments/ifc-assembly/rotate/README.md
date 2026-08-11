@@ -93,6 +93,36 @@ rather than with our geometry — the arcs are true `GArc` tokens and the 3D ren
 smooth — but it is worth confirming at Fine detail before anyone reads it as a defect in
 the arc path.
 
+## ROUND 2 VERDICT: NEGATIVE — `m_alwaysRefPlaneNorm` does not orient it either
+
+Owner, Revit 2026.5: `R2_wheel_refnorm` loads; the 3D view still shows a flat disc on a
+vertical axis and the plan still shows the circle lying in Ref. Level. Setting
+`ExtrusionElem.m_alwaysRefPlaneNorm = True` changes nothing about the sweep direction.
+
+Two hypotheses dead. What round 2 rules out is worth stating plainly: the orientation is
+**not** carried by the extrusion element's own flags, and **not** by the sketch plane's
+choice of datum alone.
+
+## Round 3: the vector we have been writing as zero
+
+`OnDatumPlaneRef` inherits from `OneElementMovablePlaneRef`, whose fields are
+`m_vecInPlane`, `m_rotation`, `m_datumPlaneId`, `m_mirror`. We have always written
+**`m_vecInPlane = [0, 0, 0]`**.
+
+On the horizontal level that is harmless — there is only one sensible frame, so Revit
+supplies it. On a VERTICAL plane a zero vector says nothing about which way the sketch's
+u axis points, and a reader with no orientation has every reason to fall back to the
+level. That would explain rounds 1 and 2 exactly: the datum was accepted, the flag was
+accepted, and the sketch still had no frame.
+
+`R3_wheel_vecinplane` sets it to a real in-plane vector (and a consistent `Trf.m_3x3`).
+
+- **R3 rotates** → the frame was the missing piece; wheels, axles and the strut channel's
+  C-profile all follow.
+- **R3 does not** → orientation is not in the sketch plane at all, and the remaining
+  candidates are the extrusion's GStep sweep direction and the cached B-rep authored in
+  world coordinates. After those, `RevolutionElem`.
+
 ## Rebuild
 
 ```bash

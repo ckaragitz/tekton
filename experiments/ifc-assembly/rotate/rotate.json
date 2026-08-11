@@ -12,8 +12,8 @@
    "bytes": 225280
   },
   {
-   "rung": "R2_wheel_refnorm",
-   "note": "round 2: same wheel + ExtrusionElem.m_alwaysRefPlaneNorm = True",
+   "rung": "R3_wheel_vecinplane",
+   "note": "round 3: + OnDatumPlaneRef.m_vecInPlane, the in-plane orientation",
    "verdict": "VALID",
    "errors": 0,
    "provenance_ok": true,
