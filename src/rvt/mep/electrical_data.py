@@ -70,6 +70,7 @@ from .. import manipulate as M
 from .. import stream_encoders as SE
 from ..commit import PART_HDR_COUNT_OFF
 from ..container import open_rvt
+from ..identity import own_streams
 from ..manipulate import (BLOCK_BUDGET, DeletePlan, FieldChange, ModifyPlan,
                           apply_edits_to_segment, chunk_segment)
 from ..mutate import (CLASS_GELEMENT, CLASS_SERIALIZED_DUMMY, Document,
@@ -1587,13 +1588,14 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
     both re-emitted streams are re-paged with real CRCIO ECC.
 
     ``own_identity`` (default False): also rewrite ``BasicFileInfo`` with
-    the writer's identity (:mod:`rvt.identity`, gate G2).  OFF by default
-    because the identity scrub as of 2026-08-03 replaces the Unique Document
-    GUID WITHOUT prepending the matching ``Global/History`` episode, which
-    breaks the verified cross-stream invariant ``BasicFileInfo GUID ==
-    History entry[0] GUID`` and makes ``rvt_validate`` FAIL (L2) — the same
-    conflict any post-2026-08-03 ``commit_new_elements`` output hits.  Flip it
-    on once the identity path records the episode (see the stream record).
+    the writer's identity (``rvt.identity.own_streams(keep_document_guid=
+    False)``, gate G2).  OFF by default because this site's policy takes a
+    FRESH Unique Document GUID (unless ``identity`` names one) WITHOUT
+    prepending the matching ``Global/History`` episode, which breaks the
+    verified cross-stream invariant ``BasicFileInfo GUID == History entry[0]
+    GUID`` and makes ``rvt_validate`` FAIL (L2); ``commit_new_elements`` /
+    ``commit_created`` keep the GUID instead.  Flip it on once the identity
+    path records the episode coherently (#195).
     """
     # ---- gather ---------------------------------------------------------------
     recs_by_element: List[Dict[int, bytes]] = []
@@ -1621,7 +1623,6 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
     new_streams: Dict[str, bytes] = {}
     with open_rvt(src_rvt) as d:
         pname = M._primary_partition(d)
-        bfi = d.raw("BasicFileInfo") if own_identity and d.has("BasicFileInfo") else None
 
         # ---- 1. Global/ElemTable ------------------------------------------------
         model = SE.decode_elemtable(d.inflate("Global/ElemTable"))
@@ -1685,16 +1686,11 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
         part_logical = bytes(out[:w2.end_offset + len(w2.end_record)])
         new_streams[pname] = ecc.frame_stream(part_logical)
 
-    # ---- 3. identity (gate G2) — opt-in, see docstring ---------------------------
-    if own_identity:
-        try:
-            from ..identity import own_basic_file_info
-            if bfi is not None:
-                new_streams["BasicFileInfo"] = own_basic_file_info(
-                    bfi, out_path=out_path, **(identity or {}))
-        except Exception as exc:                                    # pragma: no cover
-            import warnings
-            warnings.warn(f"identity scrub skipped: {exc}")
+        # ---- 3. identity (gate G2) — opt-in, see docstring: this site's policy
+        # takes a FRESH document GUID unless ``identity`` names one ---------------
+        if own_identity:
+            new_streams.update(own_streams(d, out_path, identity=identity,
+                                           keep_document_guid=False))
 
     # ---- 4. write -------------------------------------------------------------
     rewrite_entries(src_rvt, out_path, new_streams)
