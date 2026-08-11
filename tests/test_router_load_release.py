@@ -374,7 +374,9 @@ def test_ifc_family_chain_honours_and_states_the_year(tmp_path):
     machine); on a fresh clone the emit stops on the container gap (#94) --
     by then the facts were measured ONCE (release-independent, outside the
     context), the year resolved, the Revit-2025 context entered and the
-    block STATED, which is what this pins there."""
+    failed attempt kept in the trace -- but NO version story of its own: a
+    lane that wrote no file states no 'fallback', promises no IFC alongside
+    and copies none (#564), which is what this pins there."""
     year = max(OLDER)
     res = R.route({"ifc": PRODUCT_IFC}, "rvt", via="family", out=str(tmp_path / "o"),
                   target_version=year)
@@ -387,7 +389,10 @@ def test_ifc_family_chain_honours_and_states_the_year(tmp_path):
     assert not any("Traceback" in e for e in res.errors)
     if not _famcontainer_present():
         assert res.ok is False and "family container" in res.status      # #94, pre-existing
-        assert tv.get("status") == "fallback" and "family container" in str(tv.get("pending"))
+        assert tv.get("status") == "match" and "pending" not in tv, tv   # the resolver's block, untouched
+        tried = [s for s in res.steps if s.get("attempt")]              # the Revit-N attempt, labelled
+        assert tried and tried[-1]["stage"] == "rfa-emit" and tried[-1]["ok"] is False
+        assert not any("cannot run at Revit" in c for c in res.caveats) and "ifc" not in res.files
         return
     assert res.ok, res.errors + [res.status, res.line]
     out = int(tv["output_release"])
