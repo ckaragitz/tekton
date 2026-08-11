@@ -1,0 +1,2 @@
+# a member SUNK into a block never vanishes: crossing slice rings are one outline (#637); synthesised IFC4 text only
+tests/test_ifc_assembly_637.py
