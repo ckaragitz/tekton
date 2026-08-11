@@ -914,32 +914,28 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
     is the depth at which this takes over.  ``twice(x, y)`` is the body's
     own word that a point lies inside TWO shells at once.
     """
-    rings = [[list(v) for v in r] for r in rings]
+    from itertools import combinations
+    rings = list(rings)
     merged, shared = 0, 0.0
-    most = len(rings) * len(rings)                      # more merges than pairs: not converging
-    while merged <= most:                               # a merge a round, or done
+    for _round in range(len(rings) * len(rings) + 1):   # more merges than pairs: not converging
         boxes = [(min(v[0] for v in r), min(v[1] for v in r),
                   max(v[0] for v in r), max(v[1] for v in r)) for r in rings]
-        union: List[List[List[float]]] = []
-        for i in range(len(rings)):
-            for j in range(i + 1, len(rings)):
-                bi, bj = boxes[i], boxes[j]
-                if min(bi[2], bj[2]) - max(bi[0], bj[0]) < MIN_EXTENT_FT \
-                        or min(bi[3], bj[3]) - max(bi[1], bj[1]) < MIN_EXTENT_FT:
-                    continue                            # apart, or side by side
-                cuts = _ring_cuts(rings[i], rings[j])
-                if not cuts:
-                    continue                            # nested or disjoint: not crossing
-                got = _union_of_crossing(rings[i], rings[j], cuts, twice)
-                if got is None:
-                    return None
-                if got[0]:                              # a real crossing, now one outline
-                    union, area = got
-                    break
-            if union:
+        for i, j in combinations(range(len(rings)), 2):
+            bi, bj = boxes[i], boxes[j]
+            if min(bi[2], bj[2]) - max(bi[0], bj[0]) < MIN_EXTENT_FT \
+                    or min(bi[3], bj[3]) - max(bi[1], bj[1]) < MIN_EXTENT_FT:
+                continue                                # apart, or side by side
+            cuts = _ring_cuts(rings[i], rings[j])
+            if not cuts:
+                continue                                # nested or disjoint: not crossing
+            got = _union_of_crossing(rings[i], rings[j], cuts, twice)
+            if got is None:
+                return None
+            union, area = got
+            if union:                                   # a real crossing, now one outline
                 break
-        if not union:
-            return rings, merged, shared
+        else:
+            return rings, merged, shared                # no pair crosses (any more)
         rings = [r for k, r in enumerate(rings) if k != i and k != j] + union
         merged += 1
         shared += area
@@ -973,29 +969,22 @@ def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts, twice: 
         at_a.setdefault(i, []).append((t, pt))
         at_b.setdefault(j, []).append((u, pt))
     kept: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
-    runs: List[Tuple[float, Tuple[float, float]]] = []  # per dropped run: its deepest probe
+    runs: List[List[Any]] = []                          # per dropped run: [depth, piece, its ring] at its deepest
     for ring, at, other in ((a, at_a, b), (b, at_b, a)):
-        run: Optional[Tuple[float, Tuple[float, float]]] = None
+        run: Optional[List[Any]] = None
         for p, q in _split_ring(ring, at):
-            mx, my = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
-            if not _point_in_ring((mx, my), other):
+            mid = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)
+            if not _point_in_ring(mid, other):
                 kept.append((p, q))
-                if run is not None:
-                    runs.append(run)
                 run = None
                 continue
-            # interior to the union: dropped -- and probed just inside its
-            # own ring, where two shells should overlap if this IS a crossing
-            k = 1e-7 / (math.hypot(q[0] - p[0], q[1] - p[1]) or 1.0)
-            nx, ny = -(q[1] - p[1]) * k, (q[0] - p[0]) * k
-            probe = next((c for c in ((mx + nx, my + ny), (mx - nx, my - ny))
-                          if _point_in_ring(c, ring)), (mx, my))
-            deep = _clearance((mx, my), other)
-            if run is None or deep > run[0]:
-                run = (deep, probe)
-        if run is not None:
-            runs.append(run)
-    if max((deep for deep, _ in runs), default=0.0) < MIN_EXTENT_FT:
+            deep = _clearance(mid, other)               # interior to the union: dropped
+            if run is None:
+                run = [deep, (p, q), ring]
+                runs.append(run)
+            elif deep > run[0]:
+                run[:2] = [deep, (p, q)]
+    if max((run[0] for run in runs), default=0.0) < MIN_EXTENT_FT:
         return [], 0.0                                  # contact, not a crossing
     ends: Dict[Tuple[float, float], int] = {}
     for p, q in kept:
@@ -1003,8 +992,16 @@ def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts, twice: 
         ends[q] = ends.get(q, 0) + 1
     if not kept or any(d != 2 for d in ends.values()):
         return None                                     # not a set of closed outlines
-    if not all(twice(x, y) for _, (x, y) in runs):
-        return None                                     # dropped boundary the body does not cover twice
+    for _deep, (p, q), ring in runs:
+        # the deepest dropped piece of each run, probed just inside its own
+        # ring: two shells must overlap there if this IS a crossing
+        mx, my = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
+        k = 1e-7 / (math.hypot(q[0] - p[0], q[1] - p[1]) or 1.0)
+        nx, ny = -(q[1] - p[1]) * k, (q[0] - p[0]) * k
+        x, y = next((c for c in ((mx + nx, my + ny), (mx - nx, my - ny))
+                     if _point_in_ring(c, ring)), (mx, my))
+        if not twice(x, y):
+            return None                                 # dropped boundary the body does not hold twice
     union = _stitch(kept)
     if not union:
         return None
@@ -1636,22 +1633,22 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                 # (checked against the body when it was merged) is material,
                 # exactly as the box lane's overlap is -- so the law compares
                 # like with like: authored + counted-twice against the mesh.
-                twice = dec.get("overlap_ft3", 0.0)
-                if dv <= 0 or not _conserves(dv + twice, vol):
+                doubled = dec.get("overlap_ft3", 0.0)
+                if dv <= 0 or not _conserves(dv + doubled, vol):
                     # authored less material than the mesh holds: a ring was
                     # mis-nested or a region was lost. A better-looking fill
                     # ratio does not make that solid right.
                     refused.append(
                         f"slab lane: slab decomposition dropped material "
                         f"({dv * 1728:.3f} in3 authored vs {vol * 1728:.3f} in3 in the mesh"
-                        + (f", {twice * 1728:.3f} in3 of which the mesh counts twice where "
+                        + (f", {doubled * 1728:.3f} in3 of which the mesh counts twice where "
                            f"{dec['crossings_merged']} crossing section(s) were merged"
                            if dec.get("crossings_merged") else "") + ")")
                     dec = None
-                elif (vol - twice) / dv < before + 0.02:
+                elif (vol - doubled) / dv < before + 0.02:
                     refused.append(
                         f"slab lane: slab decomposition was no closer than the single "
-                        f"prism (fill {(vol - twice) / dv:.2f} vs {before:.2f})")
+                        f"prism (fill {(vol - doubled) / dv:.2f} vs {before:.2f})")
                     dec = None
         if dec is None and refused:         # router joins products with ';'
             kept_prism.append({"name": name, "reason": ", then ".join(refused)})
@@ -1680,17 +1677,17 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                 "fill_before": round(float(fit.get("fill") or 0.0), 4),
                 "fill_after": (round(after, 4) if after is not None else None),
                 "holes_filled": dec["holes_filled"], "slivers_dropped": dec["dropped"]}
-            if dec.get("overlap_ft3"):
+            if dec.get("crossings_merged"):            # the slab lane's overlap: merged crossings
+                rec["crossings_merged"] = dec["crossings_merged"]
+            if dec.get("overlap_ft3"):                  # either lane: shells sharing material
                 rec["mesh_overlap_in3"] = round(dec["overlap_ft3"] * 1728.0, 4)
                 rec["note"] = ("the source mesh is SEVERAL SHELLS that overlap; its "
                                "divergence volume counts that overlap twice, so the "
-                               "pre-decomposition fill was understated")
-            if dec.get("crossings_merged"):
-                rec["crossings_merged"] = dec["crossings_merged"]
-                rec["note"] = ("the source mesh is SEVERAL SHELLS that interpenetrate; "
-                               "where their sections crossed they were authored as ONE "
-                               "outline (their union), and the material the mesh counts "
-                               "twice there (mesh_overlap_in3) is credited, not authored")
+                               "pre-decomposition fill was understated"
+                               + (" -- where their sections crossed they were authored as "
+                                  "ONE outline (their union) and the shared material was "
+                                  "credited (mesh_overlap_in3), never authored twice"
+                                  if dec.get("crossings_merged") else ""))
             decomposed.append(rec)
             continue
 
