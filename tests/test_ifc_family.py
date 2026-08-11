@@ -58,6 +58,12 @@ needs_emit = pytest.mark.skipif(not (HAVE_IFC and HAVE_SCHEMA and HAVE_RFA_DONOR
 needs_load = pytest.mark.skipif(not (HAVE_IFC and HAVE_SCHEMA and HAVE_RST),
                                 reason="IFC / schema / rst sample absent")
 
+#: the parameters the constructor authors itself (6 CCEA contract strings + 9
+#: dimensions + the connector's two + the photometric-web reference); the
+#: Lighting Fixtures standard set (rvt.famgen.standards, #631) rides on top
+OWN_PARAMS = ({c for c, *_r in FI.CCEA_CONTRACT_PARAMS} | {c for c, *_r in FI.DIM_PARAMS}
+              | {"Wattage", "Voltage", "Photometric Web File"})
+
 
 # ---------------------------------------------------------------------------
 # fixtures (expensive builds, module-scoped)
@@ -266,13 +272,19 @@ def test_downlight_parameters_and_type(product):
     assert doc.part_type == SK.PART_TYPE["normal"]
     assert doc.work_plane_based is True
     caps = set(doc.params)
-    # the CCEA specification contract + dimensions + electrical / photometric
-    for want in ("CCEA Rating", "Aperture", "Housing", "Trim", "Mounting", "Lamp",
-                 "Aperture Diameter", "Housing Diameter", "Housing Height",
-                 "Overall Height", "Frame Length", "Frame Width", "Trim Diameter",
-                 "Lens Diameter", "Bar Hanger Span", "Wattage", "Voltage",
-                 "Lumens", "Color Temperature", "Photometric Web File"):
-        assert want in caps
+    # the CCEA specification contract + dimensions + electrical, and the
+    # Lighting Fixtures standard set on top (#631: the photometric two under
+    # the table's spelling -- 'Lumens' / 'Color Temperature' gone)
+    from rvt.famgen import standards as ST
+    standard = {p.name for p in ST.authored_params(FI.STD_CATEGORY)}
+    assert {"CCEA Rating", "Aperture", "Housing", "Trim", "Mounting", "Lamp",
+            "Aperture Diameter", "Housing Diameter", "Housing Height",
+            "Overall Height", "Frame Length", "Frame Width", "Trim Diameter",
+            "Lens Diameter", "Bar Hanger Span", "Wattage", "Voltage",
+            "Photometric Web File"} == OWN_PARAMS
+    assert {"Luminous Flux", "Initial Color Temperature"} <= standard
+    assert caps == OWN_PARAMS | standard
+    assert not {"Lumens", "Color Temperature"} & caps
     assert len(doc.types) == 1
     tname, vals = doc.types[0]
     assert tname == "CP-6-LED"
@@ -285,10 +297,11 @@ def test_downlight_parameters_and_type(product):
     assert "CCEA" in vals[doc.params["CCEA Rating"].elem_id]
     assert vals[doc.params["Lamp"].elem_id] == "Integrated LED module"
     assert vals[doc.params["Aperture"].elem_id] == "6 in (152 mm) round"
-    # photometric web is an unset REFERENCE; unsourced numbers are 0
+    # photometric web is an unset REFERENCE; unsourced numbers are 0 / blank
     assert vals[doc.params["Photometric Web File"].elem_id] == ""
     assert vals[doc.params["Wattage"].elem_id] == 0.0
-    assert vals[doc.params["Lumens"].elem_id] == 0.0
+    assert vals[doc.params["Luminous Flux"].elem_id] == 0.0
+    assert vals[doc.params["Initial Color Temperature"].elem_id] == 0.0
     assert vals[doc.params["Voltage"].elem_id] == pytest.approx(SK.volts(120.0))
     # identity: model + description written, manufacturer NOT invented
     assert vals[SK.BIP_TYPE_MODEL] == "CP-6-LED"
@@ -402,9 +415,9 @@ def test_rfa_emits_clean_validates_and_is_provenance_clean(rfa):
 
 
 @needs_emit
-def test_rfa_reads_back_the_authored_family(rfa):
-    """Decode the family document back out of the file: 8 forms, the 20
-    parameter captions, the single type row, one connector."""
+def test_rfa_reads_back_the_authored_family(product, rfa):
+    """Decode the family document back out of the file: 8 forms, every
+    authored parameter caption, the single type row, one connector."""
     from collections import Counter
     from rvt.families import FamilyIndex, unit_segments
     from rvt.objects import iter_records
@@ -428,9 +441,10 @@ def test_rfa_reads_back_the_authored_family(rfa):
     assert cnt["CurveElem"] == 26          # 5 boxes x 4 lines + 3 cylinders x 2 arcs
     assert cnt["VarSketch"] == 8
     assert cnt["ConnectorElem"] == 1
-    assert cnt["ParamElemFamily"] == 20
+    assert cnt["ParamElemFamily"] == len(product.doc.params)
     for want in ("CCEA Rating", "Aperture Diameter", "Photometric Web File",
-                 "Bar Hanger Span", "Lamp", "Mounting"):
+                 "Bar Hanger Span", "Lamp", "Mounting", "Luminous Flux",
+                 "Initial Color Temperature"):
         assert want in captions
     ftt = ((fam.get("m_pFamilyTypes") or {}).get("value") or {})
     assert [pr.get("name") for pr in (ftt.get("m_pairs") or [])] == ["CP-6-LED"]
@@ -442,7 +456,7 @@ def test_rfa_reads_back_the_authored_family(rfa):
 
 @needs_load
 @pytest.mark.slow
-def test_family_loads_into_the_certified_rst_base(tmp_path):
+def test_family_loads_into_the_certified_rst_base(product, tmp_path):
     if os.environ.get("RVT_SKIP_LARGE"):
         pytest.skip("RVT_SKIP_LARGE")
     out = str(tmp_path / "L_downlight_loaded.rvt")
@@ -461,7 +475,7 @@ def test_family_loads_into_the_certified_rst_base(tmp_path):
     assert plan["category"] == SK.OST_LIGHTING_FIXTURES
     assert plan["part_type"] == 0
     assert len(plan["symbol_ids"]) == 1
-    assert len(plan["twin_of"]) == 20
+    assert len(plan["twin_of"]) == len(product.doc.params)     # one twin per parameter
     assert plan["core_ids"], "the host's category style row should bind as a core id"
     # the written project validates in project mode with ZERO errors
     assert lr.validate_project_mode.get("verdict") == "VALID"

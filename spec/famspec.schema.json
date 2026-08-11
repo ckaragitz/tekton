@@ -429,6 +429,12 @@
         },
         "target_version": {
           "$ref": "#/definitions/common/properties/target_version"
+        },
+        "standards": {
+          "$ref": "#/definitions/common/properties/standards"
+        },
+        "standard_values": {
+          "$ref": "#/definitions/common/properties/standard_values"
         }
       }
     },

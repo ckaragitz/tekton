@@ -1,0 +1,3 @@
+# #631: the IFC -> family route applies the Lighting Fixtures standard set like the
+# factory -- fresh-clone safe (tracked IFC input, steplite reader, bundled base)
+tests/test_famfrom_ifc_standards.py
