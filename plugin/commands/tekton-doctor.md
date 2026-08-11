@@ -1,5 +1,5 @@
 ---
-description: One-time tekton environment check/setup (off the hot path) — verify engine, genesis base, family-donor status and optional IFC extras; never touches Autodesk installs
+description: One-time tekton environment check/setup (off the hot path) — verify engine, genesis base, family container and optional IFC extras; never touches Autodesk installs
 argument-hint: [--install]
 allowed-tools: Bash Read
 ---
@@ -21,7 +21,7 @@ Input: `$ARGUMENTS`
 
 2. Relay the report as printed: plugin root, python, engine source,
    facts store, genesis base verification (+ its Revit release — the
-   version any NEW file will target), family-donor status, specimen
+   version any NEW file will target), family container, specimen
    status, output dir, and the optional IFC extras (`ifcopenshell`,
    `numpy` — needed only for the `--ifc` input route).
 
@@ -31,15 +31,19 @@ Input: `$ARGUMENTS`
    `--install` nothing is installed; the report just says what to run
    later if the IFC route is wanted.
 
-4. `family container: bundled (genesis base)` is the normal state — the
-   family build needs NO donor file and no user file. Only a non-2026
-   target release needs one file from the user (their Revit version plus
-   one `.rfa`/`.rvt` of their own; set `$RVT_FAMILY_DONOR` or pass the
-   file to the job command). NEVER read, probe, list, or request access
-   to any Autodesk installation directory (the Windows program /
+4. `family container: bundled (genesis base)` is the normal state — every
+   family is self-generated from bundled assets on every release; no
+   donor and no user file is needed or read (the donor path is retired;
+   any leftover donor/override wording in the report changes nothing in
+   the build — never ask for one). A non-2026 recipient needs only their
+   Revit YEAR (`--target-version`): 2026 / 2025 / 2024 emit the `.rfa` AS
+   that release (validator-gated per release, not viewer-certified,
+   PROOF-ONLY stamped); 2023 or an unknown year is still delivered — at
+   2026, with the one line "your Revit N cannot open it"; no year given →
+   2026 and the job JSON says to ask. NEVER read, probe, list, or request
+   access to any Autodesk installation directory (the Windows program /
    program-data Autodesk trees, /Applications/Autodesk, Autodesk
-   family-template folders) — a donor comes only from the plugin's
-   bundled assets or a file the user supplies.
+   family-template folders).
 
 Finish with the doctor's final readiness line verbatim
 (`tekton: READY | …` or `tekton: NOT READY | …`).

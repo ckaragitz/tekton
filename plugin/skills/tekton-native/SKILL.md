@@ -96,8 +96,8 @@ ECC mismatch means Autodesk's reader will reject the file.
 - **In progress**: wall render (LOAD vs RENDER); circuits on pre-existing
   elements. Full creation runs from bundled assets alone — the family
   container and the wall/instance templates come from the bundled genesis
-  base; no donor or specimen file is needed (`$RVT_FAMILY_DONOR` /
-  `--specimens` stay as expert overrides). State remaining caveats WITH
+  base; families are self-generated, no donor or specimen file is
+  needed (`--specimens` is an expert override). State the caveats WITH
   the file, never as a reason to hand over nothing.
 
 ## Engine facts for programmatic work (the load-bearing rules)
