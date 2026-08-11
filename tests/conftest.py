@@ -10,7 +10,8 @@ test process open, checked at session end against ``tools/dev/ci_fresh.sh``'s
 (``GIT_ENV`` / ``git`` / ``git_init`` / ``git_commit`` / ``HAVE_GIT`` / the ``git_repo`` fixture)
 and the shared own-release scaffolding of the ``test_*_release.py`` files (#579:
 ``FOREIGN_FIRST`` / ``FOREIGN``, ``native_constants`` / ``ladder_constants`` + the opt-in
-``no_release_leak`` fixture, ``rewrite_stream`` / ``partition_of`` and the damaged-copy recipes)."""
+``no_release_leak`` fixture, ``rewrite_stream(s)`` / ``partition_of`` / ``twin_partition_entry`` and the damaged-copy
+recipes -- the offset ones, ``smash64`` / ``flip_bit``, since #617)."""
 import dataclasses
 import importlib.util
 import os
@@ -295,25 +296,36 @@ def no_release_leak(release_leak_extra):
     assert snapshot() == before
 
 
-def rewrite_stream(src, dst, name: str, damage) -> str:
-    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW (still paged) bytes replaced by ``damage(raw)`` --
-    the stream dropped when ``damage`` is None -- and every other entry byte-identical -> ``dst``.  A ``name`` the
-    container does not hold is a KeyError, never a silent verbatim copy."""
+def rewrite_streams(src, dst, damages: dict, extra=()) -> str:
+    """``src`` re-emitted as ``dst`` with, for every ``{name: damage}`` in ``damages``, that stream's RAW (still paged)
+    bytes replaced by ``damage(raw)`` -- the stream dropped when its ``damage`` is None -- the ready-made ``extra``
+    entries (``CfbEntry``, e.g. ``twin_partition_entry``) appended after the container's own, and every other entry
+    byte-identical -> ``dst``.  ``src == dst`` rewrites in place.  A name the container does not hold is a KeyError,
+    never a silent verbatim copy (#617: the one loop the single-stream ``rewrite_stream`` and the add-a-partition /
+    drop-two-streams copies of the gate tests share)."""
     from rvt.cfb_writer import write_cfb
     from rvt.roundtrip import read_entries
     src, dst = os.fspath(src), os.fspath(dst)
-    entries, found = [], False
+    entries, missing = [], set(damages)
     for e in read_entries(src):                               # e.data IS the stream's raw bytes
-        if e.entry_type == "stream" and e.path == name:
-            found = True
+        if e.entry_type == "stream" and e.path in damages:
+            missing.discard(e.path)
+            damage = damages[e.path]
             if damage is None:
                 continue
             e = dataclasses.replace(e, data=damage(e.data))
         entries.append(e)
-    if not found:
-        raise KeyError("no stream %r in %s" % (name, src))
-    write_cfb(dst, entries)
+    if missing:
+        raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), src))
+    write_cfb(dst, entries + list(extra))
     return dst
+
+
+def rewrite_stream(src, dst, name: str, damage) -> str:
+    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW (still paged) bytes replaced by ``damage(raw)`` --
+    the stream dropped when ``damage`` is None -- and every other entry byte-identical -> ``dst``.  A ``name`` the
+    container does not hold is a KeyError, never a silent verbatim copy."""
+    return rewrite_streams(src, dst, {name: damage})
 
 
 def partition_of(path) -> str:
@@ -321,6 +333,18 @@ def partition_of(path) -> str:
     from rvt.container import open_rvt
     with open_rvt(os.fspath(path)) as d:
         return d.partition_streams()[0]
+
+
+def twin_partition_entry(src, damage=None):
+    """``src``'s first partition stream as a ``CfbEntry`` renamed to the NEXT ``Partitions/<N+1>`` -- a second,
+    NON-primary partition once handed to ``rewrite_streams(src, dst, {}, extra=[it])`` -- its raw bytes passed
+    through ``damage`` when one is given (the primary itself stays untouched)."""
+    from rvt.roundtrip import read_entries
+    pname = partition_of(src)
+    part = next(e for e in read_entries(os.fspath(src)) if e.entry_type == "stream" and e.path == pname)
+    head, n = pname.rsplit("/", 1)
+    return dataclasses.replace(part, path="%s/%d" % (head, int(n) + 1),
+                               data=part.data if damage is None else damage(part.data))
 
 
 def zero_partition_header(raw: bytes) -> bytes:
@@ -333,6 +357,23 @@ def zero_schema_bytes(raw: bytes) -> bytes:
     """A ``rewrite_stream`` damage for ``Formats/Latest``: 64 bytes zeroed inside its deflate body -- container and
     stream survive, the file's own class schema no longer inflates (#518's repro)."""
     return raw[:2000] + bytes(64) + raw[2064:]
+
+
+def smash64(raw: bytes, off: int) -> bytes:
+    """A ``rewrite_stream`` damage: the 64 bytes at ``off`` overwritten with ``0xff`` -- far beyond CRCIO auto-repair
+    wherever they land.  ``off`` is the caller's (no default: the two useful ones differ -- ``44 + 26 + 10 + …`` lands
+    in a partition's first block body, ``8 + 10 + …`` in the ONE gzip body of a ``Global/*`` stream), so a fixed
+    offset is spelled ``lambda raw: smash64(raw, OFF)`` at the call site, like every other damage taking a knob."""
+    return raw[:off] + b"\xff" * 64 + raw[off + 64:]
+
+
+def flip_bit(raw: bytes, at: int, bit: int = 0) -> bytes:
+    """A ``rewrite_stream`` damage (and a plain bytes recipe): bit ``bit`` of byte ``at`` flipped, nothing else --
+    ONE payload bit inside a page is within Revit's auto-repair envelope; on an ECC trailer / parity byte it is one
+    genuine framing mismatch.  ``at`` indexes like ``raw[at]`` (negative counts from the end, out of range raises)."""
+    out = bytearray(raw)
+    out[at] ^= 1 << bit
+    return bytes(out)
 
 
 def truncated_copy(src, dst, size: int) -> str:

@@ -16,25 +16,23 @@ lost gzip body off the primary partition (``Global/Latest``, ``Contents``,
 ``Global/ElemTable``, a second ``Partitions/<N>``) FAILs it as well.
 
 Fresh-clone runnable (tracked bundled bases only; edits and damaged copies are
-written to ``tmp_path``, the damaged copies via conftest's ``rewrite_stream``,
-#579 / #604); in the CI shard via tests/ci_shard.d/.
+written to ``tmp_path``, the damaged copies via conftest's ``rewrite_stream(s)``
+/ ``twin_partition_entry`` and its ``smash64`` / ``flip_bit`` recipes, #579 /
+#604 / #617); in the CI shard via tests/ci_shard.d/.
 
 Run: .venv/bin/python -m pytest tests/test_gates_shared_walk.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import os
 
 import pytest
 
-from conftest import partition_of, rewrite_stream
+from conftest import flip_bit, partition_of, rewrite_stream, rewrite_streams, smash64, twin_partition_entry
 from rvt import ecc
 from rvt import manipulate as M
 from rvt import partitions as P
 from rvt import versions as V
-from rvt.cfb_writer import write_cfb
-from rvt.roundtrip import read_entries
 from rvt.validate import WalkedFile, validate_file, walk_file
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -109,16 +107,16 @@ def _edit(year: int, out_dir) -> str:
 _IN_FIRST_MEMBER = 44 + 26 + 10 + 200
 
 
-def _smash64(raw: bytes, off: int = _IN_FIRST_MEMBER) -> bytes:
-    """A ``rewrite_stream`` damage: 64 bytes at ``off`` destroyed -- far
-    beyond CRCIO auto-repair."""
-    return raw[:off] + b"\xff" * 64 + raw[off + 64:]
+def _hard(raw: bytes) -> bytes:
+    """A ``rewrite_stream`` damage: 64 payload bytes of the partition's first
+    block destroyed (conftest's ``smash64`` there) -- far beyond CRCIO auto-repair."""
+    return smash64(raw, _IN_FIRST_MEMBER)
 
 
-def _flip_bit(raw: bytes) -> bytes:
-    """A ``rewrite_stream`` damage: ONE payload bit flipped in the first
-    block's body -- inside Revit's auto-repair envelope."""
-    return raw[:_IN_FIRST_MEMBER] + bytes([raw[_IN_FIRST_MEMBER] ^ 0x04]) + raw[_IN_FIRST_MEMBER + 1:]
+def _soft(raw: bytes) -> bytes:
+    """A ``rewrite_stream`` damage: ONE payload bit of the first block flipped
+    (conftest's ``flip_bit`` there) -- inside Revit's auto-repair envelope."""
+    return flip_bit(raw, _IN_FIRST_MEMBER, 2)
 
 
 # ---------------------------------------------------------------------------
@@ -155,7 +153,7 @@ def test_edit_output_gates_identical_shared_or_not(job, tmp_path, edited):
 def test_hard_damage_fails_both_gates_identically(job, tmp_path, edited):
     """64 payload bytes destroyed in the partition's first block: far beyond
     the CRCIO auto-repair envelope -> validator ERROR, structural FAIL."""
-    bad = rewrite_stream(edited, tmp_path / "hard.rvt", partition_of(edited), _smash64)
+    bad = rewrite_stream(edited, tmp_path / "hard.rvt", partition_of(edited), _hard)
     v, structural, report, vg = _assert_sharing_is_invisible(
         job, bad, tmp_path, "hard", edited=[LEVEL_ID])
     assert structural["status"] == "FAIL"
@@ -170,7 +168,7 @@ def test_soft_damage_is_judged_as_stored_by_the_self_check(job, tmp_path, edited
     carries REPAIRED bytes -- yet the writer self-check keeps judging OUR
     bytes as stored (gzip CRC broken -> FAIL), shared walk or not."""
     pname = partition_of(edited)
-    bad = rewrite_stream(edited, tmp_path / "soft.rvt", pname, _flip_bit)
+    bad = rewrite_stream(edited, tmp_path / "soft.rvt", pname, _soft)
     walked = walk_file(bad)
     assert walked.repaired(pname), "the ECC pass should have auto-repaired the flipped bit"
     assert ecc.PAGE_STRIDE < len(walked.raw(pname)), "the flip must sit in a full page"
@@ -200,7 +198,7 @@ def test_lost_body_off_the_primary_partition_fails_the_self_check(job, tmp_path,
     stream's framing the body is missing -> ``crc_failures`` >= 1 ->
     structural FAIL, exactly like the validator's L1 error on it.  A lost
     ``Global/ElemTable`` is a verdict (counts None -> FAIL), not a raise."""
-    bad = rewrite_stream(edited, tmp_path / "lost.rvt", name, lambda raw: _smash64(raw, _LOST_BODY[name]))
+    bad = rewrite_stream(edited, tmp_path / "lost.rvt", name, lambda raw: smash64(raw, _LOST_BODY[name]))
     v, structural, report, vg = _assert_sharing_is_invisible(
         job, bad, tmp_path, "lost-" + name.replace("/", "-"), edited=[LEVEL_ID])
     assert v["crc_failures"] >= 1 and structural["status"] == "FAIL", v
@@ -211,33 +209,20 @@ def test_lost_body_off_the_primary_partition_fails_the_self_check(job, tmp_path,
         assert isinstance(v["header_count"], int)
 
 
-def _with_second_partition(src: str, dst: str, *, damaged: bool) -> str:
-    """Copy ``src`` to ``dst`` with its partition duplicated under the next
-    stream number (a NON-primary partition; the primary stays untouched),
-    the copy's first block body destroyed when ``damaged``."""
-    entries = read_entries(src)
-    pname = partition_of(src)
-    part = next(e for e in entries if e.entry_type == "stream" and e.path == pname)
-    data = _smash64(part.data) if damaged else part.data
-    second = f"Partitions/{int(pname.split('/')[1]) + 1}"
-    write_cfb(dst, entries + [dataclasses.replace(part, path=second, data=data)])
-    return second
-
-
 def test_non_primary_partition_is_walked_by_framing(job, tmp_path, edited):
     """A second partition is judged by its block headers like the primary:
     verbatim copy -> both gates PASS, dicts unchanged by sharing; its first
     block destroyed -> ``crc_failures`` >= 1, structural FAIL (the primary,
     the ElemTable and every edit check still clean)."""
-    twin = str(tmp_path / "twin.rvt")
-    _with_second_partition(edited, twin, damaged=False)
+    twin = rewrite_streams(edited, tmp_path / "twin.rvt", {}, extra=[twin_partition_entry(edited)])
     v, structural, report, vg = _assert_sharing_is_invisible(
         job, twin, tmp_path, "twin", edited=[LEVEL_ID])
     assert structural["status"] == "PASS" and vg["status"] == "PASS", (structural, vg)
     assert (v["crc_failures"], v["walker_errors"]) == (0, 0)
 
-    bad = str(tmp_path / "twin_bad.rvt")
-    second = _with_second_partition(edited, bad, damaged=True)
+    damaged = twin_partition_entry(edited, _hard)
+    second = damaged.path
+    bad = rewrite_streams(edited, tmp_path / "twin_bad.rvt", {}, extra=[damaged])
     v, structural, report, vg = _assert_sharing_is_invisible(
         job, bad, tmp_path, "twin-bad", edited=[LEVEL_ID])
     assert v["crc_failures"] >= 1 and structural["status"] == "FAIL", v
@@ -278,7 +263,7 @@ def test_soft_damage_view_shares_what_was_read(tmp_path, edited):
     clean = walk_file(edited)
     assert clean.view(repair=False) is clean
     pname = partition_of(edited)
-    bad = rewrite_stream(edited, tmp_path / "soft2.rvt", pname, _flip_bit)
+    bad = rewrite_stream(edited, tmp_path / "soft2.rvt", pname, _soft)
     repaired = walk_file(bad)
     stored = repaired.view(repair=False)
     assert stored is not repaired and not stored.repair

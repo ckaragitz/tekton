@@ -12,18 +12,19 @@ one false ``ecc_mismatches`` -> the front door labelled a healthy edit
 
 Sample-free (CI shard): synthetic streams at every interesting length, plus
 end-to-end verify_written / verify_manipulated on variants of the tracked
-pinned genesis bases written into ``tmp_path``.
+pinned genesis bases written into ``tmp_path`` (via conftest's
+``rewrite_stream`` and its ``flip_bit`` recipe, #617).
 
 Run: .venv/bin/python -m pytest tests/test_ecc_final_block.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import os
 import random
 
 import pytest
 
+from conftest import flip_bit, partition_of, rewrite_stream
 from rvt import ecc
 from rvt import reduce as R
 from rvt.container import PAGE_PAYLOAD, PAGE_STRIDE, open_rvt
@@ -44,12 +45,6 @@ LENGTHS = [0, 1, 7, 300, 5081, 5082, 64387, BAND[0], IN_BAND, BAND[1], PAGE_PAYL
 
 def _rand(n: int, seed: int = 7) -> bytes:
     return random.Random(seed * 1_000_003 + n).randbytes(n)
-
-
-def _flip(raw: bytes, at: int, bit: int = 0) -> bytes:
-    b = bytearray(raw)
-    b[at] ^= 1 << bit
-    return bytes(b)
 
 
 # --------------------------------------------------------------------------
@@ -98,17 +93,17 @@ def test_unframe_round_trip_and_zero_mismatches(n):
 
 def test_genuinely_corrupted_blocks_still_count():
     raw = ecc.frame_stream(_rand(3 * PAGE_PAYLOAD - 1))                  # page, page, padded final
-    assert ecc.framing_mismatches(_flip(raw, PAGE_PAYLOAD + 5)) == 1        # page 0 trailer
-    assert ecc.framing_mismatches(_flip(raw, PAGE_STRIDE + 100, 3)) == 1    # page 1 payload
-    assert ecc.framing_mismatches(_flip(raw, len(raw) - 1, 7)) == 1         # final block parity
-    assert ecc.framing_mismatches(_flip(raw, 2 * PAGE_STRIDE + 10)) == 1    # final block data
-    two = _flip(_flip(raw, PAGE_PAYLOAD + 5), len(raw) - 2)
+    assert ecc.framing_mismatches(flip_bit(raw, PAGE_PAYLOAD + 5)) == 1        # page 0 trailer
+    assert ecc.framing_mismatches(flip_bit(raw, PAGE_STRIDE + 100, 3)) == 1    # page 1 payload
+    assert ecc.framing_mismatches(flip_bit(raw, len(raw) - 1, 7)) == 1         # final block parity
+    assert ecc.framing_mismatches(flip_bit(raw, 2 * PAGE_STRIDE + 10)) == 1    # final block data
+    two = flip_bit(flip_bit(raw, PAGE_PAYLOAD + 5), len(raw) - 2)
     assert ecc.framing_mismatches(two) == 2
     whole = ecc.frame_stream(_rand(2 * PAGE_PAYLOAD))                    # last block IS a full page
     assert ecc.framing_mismatches(whole) == 0
-    assert ecc.framing_mismatches(_flip(whole, len(whole) - 1)) == 1     # its trailer, judged as final
+    assert ecc.framing_mismatches(flip_bit(whole, len(whole) - 1)) == 1     # its trailer, judged as final
     with pytest.raises(ValueError):
-        ecc.unframe_stream(_flip(raw, len(raw) - 1, 7))
+        ecc.unframe_stream(flip_bit(raw, len(raw) - 1, 7))
     junk = b"<?xml version='1.0'?><entry/>" * 20                          # not framed at all
     assert ecc.framing_mismatches(junk) == 1
     with pytest.raises(ValueError):
@@ -125,17 +120,6 @@ def test_one_deframer_in_the_engine():
 needs_bases = pytest.mark.skipif(
     not all(os.path.isfile(p) for p in BASES.values()),
     reason="bundled genesis bases missing")
-
-
-def _variant(src: str, dst: str, stream: str, fn) -> None:
-    """Copy ``src`` to ``dst`` with ``stream``'s raw bytes replaced by fn(raw)."""
-    from rvt.cfb_writer import write_cfb
-    from rvt.roundtrip import read_entries
-    entries = [dataclasses.replace(e, data=fn(e.data))
-               if (e.entry_type == "stream" and e.path == stream) else e
-               for e in read_entries(src)]
-    assert any(e.entry_type == "stream" and e.path == stream for e in entries), stream
-    write_cfb(dst, entries)
 
 
 def _pad_into_band(raw: bytes) -> bytes:
@@ -155,8 +139,7 @@ def test_verify_manipulated_zero_false_mismatches_on_a_stride_sized_final_block(
     base = BASES[release]
     ref = verify_manipulated(base)
     assert ref["ecc_mismatches"] == 0 and ref["crc_failures"] == 0, ref
-    out = str(tmp_path / f"et_band_{release}.rvt")
-    _variant(base, out, "Global/ElemTable", _pad_into_band)
+    out = rewrite_stream(base, tmp_path / f"et_band_{release}.rvt", "Global/ElemTable", _pad_into_band)
     with open_rvt(out) as d:
         assert len(d.raw("Global/ElemTable")) == PAGE_STRIDE
     rep = verify_manipulated(out)
@@ -173,19 +156,15 @@ def test_verify_written_zero_false_mismatches_and_real_ones_still_count(tmp_path
     base = BASES[2026]                                           # built-in framing: no release ctx needed
     ref = verify_written(base, [])
     assert ref["ecc_mismatches"] == 0, ref
-    band = str(tmp_path / "et_band.rvt")
-    _variant(base, band, "Global/ElemTable", _pad_into_band)
+    band = rewrite_stream(base, tmp_path / "et_band.rvt", "Global/ElemTable", _pad_into_band)
     rep = verify_written(band, [])
     assert rep["ecc_mismatches"] == 0, rep                       # 1 before #294
     assert rep["elemtable_count"] == ref["elemtable_count"] == rep["header_count"]
     # a genuinely damaged full-page trailer of the partition: exactly one, in both gates
-    with open_rvt(base) as d:
-        pname = d.partition_streams()[0]
-    bad = str(tmp_path / "trailer_flip.rvt")
-    _variant(base, bad, pname, lambda raw: _flip(raw, PAGE_PAYLOAD + 7))
+    pname = partition_of(base)
+    bad = rewrite_stream(base, tmp_path / "trailer_flip.rvt", pname, lambda raw: flip_bit(raw, PAGE_PAYLOAD + 7))
     assert verify_written(bad, [])["ecc_mismatches"] == 1
     assert verify_manipulated(bad)["ecc_mismatches"] == 1
     # and a damaged final block is no longer invisible to the gate
-    badf = str(tmp_path / "final_flip.rvt")
-    _variant(base, badf, pname, lambda raw: _flip(raw, len(raw) - 1, 7))
+    badf = rewrite_stream(base, tmp_path / "final_flip.rvt", pname, lambda raw: flip_bit(raw, len(raw) - 1, 7))
     assert verify_written(badf, [])["ecc_mismatches"] == 1
