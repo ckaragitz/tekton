@@ -1,0 +1,2 @@
+# the assembly lane refusal attribution + work budget (#623); synthesised IFC only, fresh-clone safe
+tests/test_ifc_assembly_623.py

@@ -55,11 +55,13 @@ trust rather than merely impressive:
   the decomposition is discarded however good its fill ratio looks.
 
 Either way the caller keeps the single prism and is told which body it was
-and why (``AssemblyModel.kept_prism``).  The unfixable case is a section that
-runs along X or Y -- a strut channel's C-profile -- because
-``add_generic_part`` extrudes along Z only: no rotation is expressible in the
-part contract, so that body is honestly an envelope until the contract grows
-one.
+and why (``AssemblyModel.kept_prism``): each lane names its OWN refusal --
+not axis-aligned, a cell / work / box / slab / part budget, a sliver box, a
+volume mismatch, an ambiguous slice (the lanes' ``refusal`` argument,
+:func:`_refuse`) -- so a lattice that outran a budget is never described as
+a section that runs sideways.  A section that runs along X or Y
+-- a strut channel's C-profile -- is the box lane's case
+(:func:`decompose_boxes`): a union of axis-aligned boxes needs no rotation.
 
 IDENTITY.  ``Pset_ManufacturerTypeInformation`` (part numbers, references,
 manufacturer) is read per product into a bill of materials and authored onto
@@ -85,7 +87,7 @@ __all__ = [
     "slice_loops", "ring_nesting", "mesh_volume", "decompose_slabs",
     "is_axis_aligned", "decompose_boxes",
     "MIN_EXTENT_FT", "CYLINDER_TOLERANCE", "CYLINDER_MIN_PLAN_FILL",
-    "RECT_TOLERANCE", "MAX_HULL_POINTS", "EXACT_REL_TOL",
+    "RECT_TOLERANCE", "MAX_HULL_POINTS", "EXACT_REL_TOL", "MAX_GRID_WORK",
 ]
 
 FT_PER_M = 1.0 / 0.3048
@@ -131,6 +133,16 @@ MIN_SLAB_AREA_FT2 = 1e-4
 
 #: Budget for the axis-aligned box grid (one inside-test per cell).
 MAX_GRID_CELLS = 20000
+
+#: ... and for the WORK that grid costs: every cell's inside-test sums a solid
+#: angle over EVERY triangle, so the pass is ``cells x triangles`` evaluations
+#: at ~1 us each in pure Python.  The cell budget alone let a 9 x 9 x 9 lattice
+#: of cubes (4913 cells x 8748 triangles = 4.3e7) spend 44 s to be refused on
+#: the box budget afterwards (#623); checked BEFORE the pass, this caps it near
+#: 4 s while keeping ~5x headroom over the largest exact body on record (the
+#: slotted P1000 strut: 555 cells).  Over budget is a refusal the caller
+#: reports, like every other budget here -- the body goes to the next lane.
+MAX_GRID_WORK = 4_000_000
 
 #: An exact box decomposition may use more parts than a lossy slab one: a
 #: slotted channel is genuinely many boxes, and each is EXACT.
@@ -840,11 +852,26 @@ def mesh_volume(points: Sequence[Sequence[float]],
 # slab decomposition -- the honest answer to "one prism is an envelope"
 # ---------------------------------------------------------------------------
 
+def _refuse(refusal: Optional[List[str]], reason: str) -> None:
+    """A lane's ``return None`` that also says WHY, to a caller that asked.
+
+    The decomposition lanes answer None for every refusal so that ``is None``
+    keeps meaning "keep the single prism"; a caller that passes a ``refusal``
+    list gets the reason appended to it -- which budget, which slice -- and
+    :func:`read_assembly` threads that into ``kept_prism`` instead of one
+    catch-all sentence that blamed every refusal on a sideways section.
+    """
+    if refusal is not None:
+        refusal.append(reason)
+    return None
+
+
 def decompose_slabs(points: Sequence[Sequence[float]],
                     triangles: Sequence[Sequence[int]], *,
                     max_slabs: int = MAX_SLABS,
                     max_parts: int = MAX_DECOMPOSED_PARTS,
-                    min_area_ft2: float = MIN_SLAB_AREA_FT2
+                    min_area_ft2: float = MIN_SLAB_AREA_FT2,
+                    refusal: Optional[List[str]] = None
                     ) -> Optional[Dict[str, Any]]:
     """Cut a mesh into horizontal slabs and author each slab's REAL
     cross-section, so a body whose section changes with height stops being
@@ -857,25 +884,36 @@ def decompose_slabs(points: Sequence[Sequence[float]],
     C-channel becomes its back plate plus its two walls.
 
     Returns ``{parts, volume_ft3, n_slabs, holes_filled, dropped}``, or None
-    when the body does not decompose usefully (one level, or the result would
-    blow the budgets -- a cap the caller REPORTS rather than hides).  Holes
-    are not expressible in the part contract: a ring at odd nesting depth is
-    dropped from the solid set and counted in ``holes_filled``.
+    when the body does not decompose usefully -- one Z level, the slab budget,
+    an ambiguous slice (and where), no solid ring, or the part budget: a cap
+    the caller REPORTS rather than hides, and the reason is appended to
+    ``refusal`` when one is given (:func:`_refuse`).  Sections are merged as
+    they are sliced and the solid count only grows, so the lane refuses at
+    the slab that crosses the part budget rather than slice and nest every
+    remaining slab first.  Holes are not expressible in the part contract: a
+    ring at odd nesting depth is dropped from the solid set and counted in
+    ``holes_filled``.
     """
     if not triangles:
-        return None
+        return _refuse(refusal, "no readable triangles")
     levels = sorted({round(float(p[2]), _WELD) for p in points})
     slabs_z = [(levels[i], levels[i + 1]) for i in range(len(levels) - 1)
                if levels[i + 1] - levels[i] > MIN_EXTENT_FT]
-    if not slabs_z or len(slabs_z) > max_slabs:
-        return None
+    if not slabs_z:
+        return _refuse(refusal, "one Z level (no two vertex levels more than "
+                                f"{MIN_EXTENT_FT * 12.0:.3f} in apart)")
+    if len(slabs_z) > max_slabs:
+        return _refuse(refusal, f"slab budget ({len(slabs_z)} Z slabs, over the "
+                                f"{max_slabs} allowed)")
 
-    raw: List[Tuple[float, float, List[List[List[float]]]]] = []
-    holes = dropped = 0
+    merged: List[List[Any]] = []                # [z0, z1, solid rings] per distinct section
+    holes = dropped = n_solids = 0
     for z0, z1 in slabs_z:
-        rings = slice_loops(points, triangles, (z0 + z1) / 2.0)
+        zm = (z0 + z1) / 2.0
+        rings = slice_loops(points, triangles, zm)
         if rings is None:
-            return None                                 # ambiguous slice
+            return _refuse(refusal, f"ambiguous slice at z = {zm:.4f} ft (regions touch at a "
+                                    "point or an edge; the ring set is not guessed)")
         if not rings:
             continue
         solid: List[List[List[float]]] = []
@@ -887,21 +925,20 @@ def decompose_slabs(points: Sequence[Sequence[float]],
                 dropped += 1
                 continue
             solid.append(r)
-        if solid:
-            raw.append((z0, z1, solid))
-    if not raw:
-        return None
-
-    merged: List[List[Any]] = []
-    for z0, z1, rings in raw:
+        if not solid:
+            continue
         if merged and abs(merged[-1][1] - z0) <= 10.0 ** -_WELD \
-                and _same_section(merged[-1][2], rings):
+                and _same_section(merged[-1][2], solid):
             merged[-1][1] = z1                          # the section continues
-        else:
-            merged.append([z0, z1, rings])
-
-    if sum(len(r) for _, _, r in merged) > max_parts:
-        return None
+            continue
+        merged.append([z0, z1, solid])
+        n_solids += len(solid)                          # only grows: refuse as soon as it is over
+        if n_solids > max_parts:
+            return _refuse(refusal, f"part budget ({n_solids} solids by the slab at z = "
+                                    f"{zm:.4f} ft, over the {max_parts} allowed)")
+    if not merged:
+        return _refuse(refusal, "no slab held a solid ring (every section was a hole "
+                                "or a sliver)")
 
     parts: List[Dict[str, Any]] = []
     volume = 0.0
@@ -1016,7 +1053,9 @@ def _inside(points: Sequence[Sequence[float]], triangles: Sequence[Sequence[int]
 def decompose_boxes(points: Sequence[Sequence[float]],
                     triangles: Sequence[Sequence[int]], *,
                     max_cells: int = MAX_GRID_CELLS,
-                    max_boxes: int = MAX_BOXES
+                    max_boxes: int = MAX_BOXES,
+                    max_work: int = MAX_GRID_WORK,
+                    refusal: Optional[List[str]] = None
                     ) -> Optional[Dict[str, Any]]:
     """Reproduce an AXIS-ALIGNED body exactly as a set of axis-aligned boxes.
 
@@ -1032,21 +1071,35 @@ def decompose_boxes(points: Sequence[Sequence[float]],
     ``{parts, volume_ft3, n_boxes, cells}`` or None (not axis-aligned, a
     MERGED box thinner than :data:`MIN_EXTENT_FT` in any axis -- a sliver
     Revit cannot keep, and the signature of a nearly-aligned body -- or over
-    a budget; reported by the caller, never silently truncated).  A hairline
-    grid step is fine as long as no box ends up that thin: two flanges whose
-    heights differ by 50 um still merge into three real boxes.
+    the cell, WORK or box budget; the reason is appended to ``refusal`` when
+    one is given, and reported by the caller, never silently truncated).  The
+    work budget (``cells x triangles``, :data:`MAX_GRID_WORK`) is judged
+    before a single inside-test runs.  A hairline grid step is fine as long
+    as no box ends up that thin: two flanges whose heights differ by 50 um
+    still merge into three real boxes.
 
     The LAW that makes the result exact is checked by the caller, which holds
     the mesh volume: boxes + overlap must give it back to
     :data:`EXACT_REL_TOL`.  The alignment eps and the sliver-box refusal
     here have their own meaning (the definition of aligned; authorability).
     """
-    if not triangles or not is_axis_aligned(points, triangles):
-        return None
+    if not triangles:
+        return _refuse(refusal, "no readable triangles")
+    if not is_axis_aligned(points, triangles):
+        return _refuse(refusal, "not axis-aligned (a slanted or curved face; boxes "
+                                "would be a staircase)")
     axes = [sorted({round(float(p[i]), _WELD) for p in points}) for i in range(3)]
     dims = [len(a) - 1 for a in axes]
-    if min(dims) < 1 or dims[0] * dims[1] * dims[2] > max_cells:
-        return None
+    cells = dims[0] * dims[1] * dims[2]
+    if min(dims) < 1:
+        return _refuse(refusal, "flat vertex grid (one coordinate level along an axis)")
+    if cells > max_cells:
+        return _refuse(refusal, f"cell budget ({dims[0]} x {dims[1]} x {dims[2]} = "
+                                f"{cells} grid cells, over the {max_cells} allowed)")
+    if cells * len(triangles) > max_work:
+        return _refuse(refusal, f"work budget ({cells} grid cells x {len(triangles)} "
+                                f"triangles = {cells * len(triangles):.1e} inside-tests, "
+                                f"over the {float(max_work):.1e} allowed)")
 
     occ: Dict[Tuple[int, int, int], bool] = {}
     overlap = 0.0            # volume the mesh counts twice (shells that overlap)
@@ -1064,7 +1117,8 @@ def decompose_boxes(points: Sequence[Sequence[float]],
                                     * (axes[1][j + 1] - axes[1][j])
                                     * (axes[2][k + 1] - axes[2][k])) * (round(w) - 1)
     if not occ:
-        return None
+        return _refuse(refusal, "no grid cell lies inside the body (an open or "
+                                "inverted shell)")
 
     # greedy maximal boxes: grow in x, then y, then z
     used: set = set()
@@ -1094,7 +1148,7 @@ def decompose_boxes(points: Sequence[Sequence[float]],
                             used.add((x, y, z))
                 boxes.append((i, i1, j, j1, k, k1))
                 if len(boxes) > max_boxes:
-                    return None
+                    return _refuse(refusal, f"box budget (more than {max_boxes} merged boxes)")
 
     parts: List[Dict[str, Any]] = []
     volume = 0.0
@@ -1103,8 +1157,10 @@ def decompose_boxes(points: Sequence[Sequence[float]],
         y0, y1 = axes[1][j], axes[1][j1 + 1]
         z0, z1 = axes[2][k], axes[2][k1 + 1]
         w, d, h = x1 - x0, y1 - y0, z1 - z0
-        if min(w, d, h) < MIN_EXTENT_FT:
-            return None                                 # a sliver box: not this lane
+        if min(w, d, h) < MIN_EXTENT_FT:               # a sliver box: not this lane
+            return _refuse(refusal, f"sliver box ({w * 12.0:.4g} x {d * 12.0:.4g} x "
+                                    f"{h * 12.0:.4g} in, thinner than the "
+                                    f"{MIN_EXTENT_FT * 12.0:.3f} in a solid needs)")
         parts.append({"shape": "box", "width_ft": w, "depth_ft": d,
                       "height_ft": h, "base_z_ft": z0,
                       "center": [(x0 + x1) / 2.0, (y0 + y1) / 2.0]})
@@ -1324,6 +1380,7 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
         # keep the result if it really is closer to the mesh.
         dec = None
         method = ""
+        refused: List[str] = []             # each lane's own reason, in order
         # An AXIS-ALIGNED body reproduces EXACTLY as boxes -- try that first.
         # This is the C-channel answer: a channel is a union of axis-aligned
         # boxes, each Z-extrudable, whichever direction the channel runs.
@@ -1331,18 +1388,29 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
         # mesh counts twice must give back the mesh's own volume, or the body
         # was not the aligned polyhedron it looked like and goes to slabs.
         if decompose and vol is not None and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
-            box = decompose_boxes(pts_ft, tris)
-            if (box is not None
-                    and abs(box["volume_ft3"] + box["overlap_ft3"] - vol) <= EXACT_REL_TOL * vol):
+            why: List[str] = []
+            box = decompose_boxes(pts_ft, tris, refusal=why)
+            refused += [f"box lane: {w}" for w in why]
+            if box is None:
+                pass                                # refused, and `why` said so
+            elif abs(box["volume_ft3"] + box["overlap_ft3"] - vol) <= EXACT_REL_TOL * vol:
                 dec, method = box, "boxes"
                 dec["fill_after"] = 1.0             # exact, and verified so
                 dec["n_slabs"] = 0
                 dec["holes_filled"] = 0
                 dec["dropped"] = 0
+            else:
+                refused.append(
+                    f"box lane: volume mismatch ({box['n_boxes']} boxes "
+                    f"{box['volume_ft3'] * 1728:.4f} in3 + overlap "
+                    f"{box['overlap_ft3'] * 1728:.4f} in3 vs {vol * 1728:.4f} in3 in the "
+                    f"mesh, off by more than {EXACT_REL_TOL:.0e} of it)")
         if dec is None and decompose and vol is not None \
                 and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
             method = "slabs"
-            dec = decompose_slabs(pts_ft, tris)
+            why = []
+            dec = decompose_slabs(pts_ft, tris, refusal=why)
+            refused += [f"slab lane: {w}" for w in why]
             if dec is not None:
                 dv = dec["volume_ft3"]
                 before = fit.get("fill") or 0.0
@@ -1350,21 +1418,17 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                     # authored less material than the mesh holds: a ring was
                     # mis-nested or a region was lost. A better-looking fill
                     # ratio does not make that solid right.
-                    kept_prism.append({"name": name, "reason": (
-                        f"slab decomposition dropped material "
-                        f"({dv * 1728:.3f} in3 authored vs {vol * 1728:.3f} in3 in the mesh)")})
+                    refused.append(
+                        f"slab lane: slab decomposition dropped material "
+                        f"({dv * 1728:.3f} in3 authored vs {vol * 1728:.3f} in3 in the mesh)")
                     dec = None
                 elif vol / dv < before + 0.02:
-                    kept_prism.append({"name": name, "reason": (
-                        f"slab decomposition was no closer than the single prism "
-                        f"(fill {vol / dv:.2f} vs {before:.2f})")})
+                    refused.append(
+                        f"slab lane: slab decomposition was no closer than the single "
+                        f"prism (fill {vol / dv:.2f} vs {before:.2f})")
                     dec = None
-            else:
-                kept_prism.append({"name": name, "reason": (
-                    "not decomposable into horizontal slabs (an ambiguous slice, "
-                    "one Z level, or over the part budget) -- its section most "
-                    "likely runs along X or Y, which the Z-extruded part contract "
-                    "cannot express")})
+        if dec is None and refused:         # router joins products with ';'
+            kept_prism.append({"name": name, "reason": ", then ".join(refused)})
         if dec is not None:
             n = len(dec["parts"])
             after = (1.0 if dec.get("exact")
