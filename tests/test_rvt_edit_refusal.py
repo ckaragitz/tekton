@@ -27,7 +27,6 @@ Run: .venv/bin/python -m pytest tests/test_rvt_edit_refusal.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import json
 import os
 import sys
@@ -37,48 +36,20 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import CERTIFIED_YEARS, load_tool, pinned_base    # noqa: E402
-from rvt import partitions as P                                # noqa: E402
+from conftest import (CERTIFIED_YEARS, FOREIGN, FOREIGN_FIRST, load_tool, pinned_base,   # noqa: E402
+                      rewrite_stream, truncated_copy, zero_schema_bytes)
 from rvt import versions as V                                  # noqa: E402
-from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 
-NATIVE_LAST = sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE)   # a leaked context would break the native run
-FOREIGN = [y for y in CERTIFIED_YEARS if y != V.LATEST_RELEASE]
 LEVEL_ID = 1351691                                     # "GEN B1 - Basement", on every pin
 SET_LEVEL = ["set-level", "--id", str(LEVEL_ID), "--elevation-ft", "5"]
 NO_RELEASE = {"input": None, "output": None, "opens_in": None, "line": None}
 NOT_A_CONTAINER = "cannot open as an .rvt container: "
-
-
-@pytest.fixture(autouse=True)
-def _no_leak():
-    before = ({k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}, RC.active_release())
-    assert before[1] is None
-    yield
-    assert ({k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}, RC.active_release()) == before
+pytestmark = pytest.mark.usefixtures("no_release_leak")             # a leaked context would break the native run
 
 
 @pytest.fixture(scope="module")
 def edit():
     return load_tool("rvt_edit")
-
-
-def _rewrite_stream(src: str, dst: str, name: str, damage) -> str:
-    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW bytes replaced
-    by ``damage(raw)`` (dropped when ``damage`` is None) -- every other entry
-    byte-identical.  (A copy of test_release_ctx_refusal's helper; #579 folds
-    these into conftest.)"""
-    from rvt.cfb_writer import write_cfb
-    from rvt.roundtrip import read_entries
-    entries = []
-    for e in read_entries(src):
-        if e.entry_type == "stream" and e.path == name:
-            if damage is None:
-                continue
-            e = dataclasses.replace(e, data=damage(e.data))
-        entries.append(e)
-    write_cfb(dst, entries)
-    return dst
 
 
 @pytest.fixture(scope="module")
@@ -87,26 +58,22 @@ def bad(tmp_path_factory):
     input the tool must refuse; ``warned`` = the release entry has a note for
     it (plain mode prints it first; ``--json`` carries it as release_note)."""
     d = tmp_path_factory.mktemp("bad560")
+    any_pin = pinned_base(CERTIFIED_YEARS[0])
     out = {}
     text = d / "text.rvt"
     text.write_text("this is not a Revit file\n" * 8, encoding="utf-8")
     out["text"] = (str(text), 2, NOT_A_CONTAINER, None, True)
-    with open(pinned_base(CERTIFIED_YEARS[0]), "rb") as fh:
-        (d / "trunc4k.rvt").write_bytes(fh.read(4096))
-    out["trunc4k"] = (str(d / "trunc4k.rvt"), 2, NOT_A_CONTAINER, None, True)
+    out["trunc4k"] = (truncated_copy(any_pin, d / "trunc4k.rvt", 4096), 2, NOT_A_CONTAINER, None, True)
     for year in CERTIFIED_YEARS:                 # still a container; its partitions / schema are cut
-        p = d / f"trunc64k_{year}.rvt"
-        with open(pinned_base(year), "rb") as fh:
-            p.write_bytes(fh.read(65536))
-        out[f"trunc64k_{year}"] = (str(p), 1, f"cannot open/plan {p.name}: ", year, year != V.LATEST_RELEASE)
+        p = truncated_copy(pinned_base(year), d / f"trunc64k_{year}.rvt", 65536)
+        out[f"trunc64k_{year}"] = (p, 1, f"cannot open/plan trunc64k_{year}.rvt: ", year, year != V.LATEST_RELEASE)
     # a container that opens, enters its release fine, but lacks the element table:
     # "cannot open/plan" (1), NOT "not a container" (2) -- although olefile says OSError for it
     year = CERTIFIED_YEARS[-1]
-    p = _rewrite_stream(pinned_base(year), str(d / "no_elemtable.rvt"), "Global/ElemTable", None)
+    p = rewrite_stream(pinned_base(year), d / "no_elemtable.rvt", "Global/ElemTable", None)
     out["no_elemtable"] = (p, 1, "cannot open/plan no_elemtable.rvt: OSError: ", year, False)
     if FOREIGN:                                  # a NATIVE host never parses its schema to enter (nothing to swap)
-        p = _rewrite_stream(pinned_base(FOREIGN[0]), str(d / "schema_dmg.rvt"), "Formats/Latest",
-                            lambda raw: raw[:2000] + bytes(64) + raw[2064:])       # #518's repro
+        p = rewrite_stream(pinned_base(FOREIGN[0]), d / "schema_dmg.rvt", "Formats/Latest", zero_schema_bytes)  # #518's repro
         out["schema_dmg"] = (p, 1, "cannot open/plan schema_dmg.rvt: ValueError: unexpected Partitions header",
                              FOREIGN[0], True)
     return out
@@ -183,7 +150,7 @@ def test_an_impossible_edit_is_one_line_in_plain_mode_too(edit, tmp_path, capsys
 # controls: the three readable pins behave exactly as before
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("year", NATIVE_LAST)
+@pytest.mark.parametrize("year", FOREIGN_FIRST)
 def test_info_on_a_readable_pin_is_unchanged(year, edit, capsys):
     pin = pinned_base(year)
     assert edit.main([pin, "info"]) == 0
@@ -196,7 +163,7 @@ def test_info_on_a_readable_pin_is_unchanged(year, edit, capsys):
     assert doc["release"]["input"] == year and any(lv["id"] == LEVEL_ID for lv in doc["levels"])
 
 
-@pytest.mark.parametrize("year", NATIVE_LAST)
+@pytest.mark.parametrize("year", FOREIGN_FIRST)
 def test_set_level_on_a_readable_pin_is_unchanged(year, edit, tmp_path, capsys):
     pin = pinned_base(year)
     out = tmp_path / f"j{year}.rvt"

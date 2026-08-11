@@ -37,53 +37,32 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import CERTIFIED_YEARS, load_tool, pinned_base    # noqa: E402
+from conftest import (CERTIFIED_YEARS, FOREIGN, FOREIGN_FIRST, load_tool, native_constants,   # noqa: E402
+                      pinned_base, rewrite_stream, truncated_copy, zero_schema_bytes)
 from rvt import mutate as MU                                   # noqa: E402
-from rvt import partitions as P                                # noqa: E402
 from rvt import versions as V                                  # noqa: E402
 from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 from rvt.frontdoor import standalone as SA                     # noqa: E402
 from rvt.genesis import skeleton as GSK                        # noqa: E402
 
-NATIVE_LAST = sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE)   # a leak would break the native run
-FOREIGN = [y for y in CERTIFIED_YEARS if y != V.LATEST_RELEASE]     # the 2025/2024 pins
 LEVEL_EDIT = "set level 1351691 elevation to -9 ft"                 # GEN B1 - Basement, on every pin
 OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length
+pytestmark = pytest.mark.usefixtures("no_release_leak")             # foreign pins run first: a leak breaks the native run
 
 
 def _constants() -> dict:
-    """Everything a leaked release context would leave behind."""
-    snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
-    snap.update(active=RC.active_release(), refused=dict(RC._REFUSED),
+    """Everything a leaked release context would leave behind: conftest's ``native_constants()`` plus the
+    refusal registry and the mutate / skeleton / standalone names ``host_release_context`` swaps."""
+    return dict(native_constants(), refused=dict(RC._REFUSED),
                 mu=(MU.CLASS_ELEMENT_HEADER, MU.CLASS_SWALL, MU.CLASS_FAMILY_INSTANCE),
                 gsk=(GSK.minimal_history, GSK.minimal_elemtable, sorted(GSK._SCHEMA_CACHE)),
                 sa=(SA.bundled_base_path, SA.family_instance_template, dict(SA._SCHEMA_STATE)))
-    return snap
 
 
-@pytest.fixture(autouse=True)
-def _no_leak():
-    before = _constants()
-    assert before["active"] is None
-    yield
-    assert _constants() == before
-
-
-def _rewrite_stream(src: str, dst: str, name: str, damage) -> str:
-    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW bytes replaced
-    by ``damage(raw)`` (dropped when ``damage`` is None) -- every other entry
-    byte-identical."""
-    from rvt.cfb_writer import write_cfb
-    from rvt.roundtrip import read_entries
-    entries = []
-    for e in read_entries(src):                  # e.data IS the stream's raw bytes
-        if e.entry_type == "stream" and e.path == name:
-            if damage is None:
-                continue
-            e = dataclasses.replace(e, data=damage(e.data))
-        entries.append(e)
-    write_cfb(dst, entries)
-    return dst
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the swapped engine names too, not the framing table alone."""
+    return _constants
 
 
 @pytest.fixture(scope="module")
@@ -95,16 +74,11 @@ def bad(tmp_path_factory):
     text = d / "text.rvt"
     text.write_text("this is not a Revit file\n" * 8, encoding="utf-8")
     out["text"] = (str(text), "NotOleFileError")
-    trunc = d / "trunc4k.rvt"
-    with open(any_pin, "rb") as fh:
-        trunc.write_bytes(fh.read(4096))
-    out["trunc4k"] = (str(trunc), "OleFileError")
+    out["trunc4k"] = (truncated_copy(any_pin, d / "trunc4k.rvt", 4096), "OleFileError")
     if FOREIGN:                      # a NATIVE host never parses its schema to enter (nothing to swap)
         pin = pinned_base(FOREIGN[0])
-        out["schema_dmg"] = (_rewrite_stream(pin, str(d / "schema_dmg.rvt"), "Formats/Latest",
-                                             lambda raw: raw[:2000] + bytes(64) + raw[2064:]), "ParseError")
-        out["schema_gone"] = (_rewrite_stream(pin, str(d / "schema_gone.rvt"), "Formats/Latest", None),
-                              "OSError")
+        out["schema_dmg"] = (rewrite_stream(pin, d / "schema_dmg.rvt", "Formats/Latest", zero_schema_bytes), "ParseError")
+        out["schema_gone"] = (rewrite_stream(pin, d / "schema_gone.rvt", "Formats/Latest", None), "OSError")
     return out
 
 
@@ -210,18 +184,18 @@ def test_a_release_we_cannot_author_into_is_refused_but_not_unreadable(monkeypat
     assert RC.refused(path) is None
 
 
-@pytest.mark.parametrize("year", NATIVE_LAST)
+@pytest.mark.parametrize("year", FOREIGN_FIRST)
 def test_readable_pins_are_unchanged_controls(year):
     with contextlib.ExitStack() as stack:
         assert RC.enter_host_release(stack, pinned_base(year)) is None
         assert RC.active_release() == (None if year == V.LATEST_RELEASE else year)
 
 
-@pytest.mark.parametrize("year", NATIVE_LAST)
+@pytest.mark.parametrize("year", FOREIGN_FIRST)
 def test_a_host_without_basicfileinfo_is_still_readable(year, tmp_path):
     """``detect_release`` falls back to the schema signature; the context's
     identity strings come from OUR bundled base, never the host (rule 6)."""
-    host = _rewrite_stream(pinned_base(year), str(tmp_path / "no_bfi.rvt"), "BasicFileInfo", None)
+    host = rewrite_stream(pinned_base(year), tmp_path / "no_bfi.rvt", "BasicFileInfo", None)
     with RC.host_release_context(host) as info:
         if year == V.LATEST_RELEASE:
             assert info is None

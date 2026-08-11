@@ -6,7 +6,7 @@ in ``tests/conftest.py`` (issue #579, Refs #566 / #533 / #518 / #451):
   its own ``FOREIGN_FIRST`` / ``FOREIGN`` / ``NATIVE_LAST`` axis, or a shadow of
   the conftest names at top level (an AST law, so a seventh copy cannot creep
   back anywhere) -- minus a short, shrinking ``EXEMPT`` list of files whose
-  copies another stream still owns; and the six adopters keep the leak guard on;
+  copy is not yet conftest-shaped; and the ``ADOPTERS`` keep the leak guard on;
 * the hoisted helpers behave as the copies did: ``FOREIGN_FIRST`` = the
   certified years with the native release last; ``native_constants`` /
   ``ladder_constants`` snapshot the framing table / the ladder's swaps;
@@ -36,12 +36,12 @@ from rvt import versions as V                                   # noqa: E402
 #: names no test module may bind at top level any more: the private copies #579 removed, and shadows of their one home
 FORBIDDEN = {"_native_constants", "_no_leak", "_rewrite_stream", "_partition_of", "FOREIGN_FIRST", "FOREIGN",
              "NATIVE_LAST", "native_constants", "ladder_constants", "no_release_leak", "rewrite_stream", "partition_of"}
-#: files that still carry a copy another stream owns this wave -- delete a line here when that file adopts conftest's
-EXEMPT = {"test_rvt_edit_refusal", "test_release_ctx_refusal",   # eng #587's territory (#579's follow-up)
-          "test_gates_shared_walk"}                               # a `_rewrite_stream(…, mutate)` of its own shape
-#: the six files #579 relieved of their copies: each keeps conftest's leak guard switched on for the whole module
+#: files that still carry a copy of their own -- delete the entry when that file adopts conftest's (then: an empty set)
+EXEMPT = {"test_gates_shared_walk"}                               # a `_rewrite_stream(…, mutate)` of its own shape (#604)
+#: the files #579 / #602 relieved of an autouse leak guard of their own: each keeps conftest's switched on module-wide
 ADOPTERS = ["test_selfcheck_release", "test_inspect_release", "test_edit_text_release",
-            "test_natively_framed", "test_estorage_cli_release", "test_edit_own_release"]
+            "test_natively_framed", "test_estorage_cli_release", "test_edit_own_release",
+            "test_rvt_edit_refusal", "test_release_ctx_refusal"]
 TEST_FILES = sorted(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(ROOT, "tests", "test_*.py")))
 
 
