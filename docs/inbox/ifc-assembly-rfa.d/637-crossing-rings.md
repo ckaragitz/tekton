@@ -255,6 +255,63 @@ un-merged with shared 40 − 4 + 1; the plate-through-pipe body with and without
 each, pinning `mesh_overlap_in3` to the geometric value at 1e-5 and `fill_after` to (mesh − doubled) ÷
 authored).
 
+## Round 3 (after the delta review of 8a679e3): the common region is read face by face, and a bore against a bar is passed over, not merged or refused
+
+The delta review confirmed the wide-plate class exact and found the hole in round 2's completeness claim: a
+bar **narrower than the bore** (plate 1.4×0.5×0.2 through the r 0.5 / bore 0.3 pipe) makes the BORE ring
+cross the plate ring too. Round 2 admitted an "other" ring by ONE interior probe and, depending on which
+pair the stitch listed first, credited the whole disc overlap (probe outside the strip: 0.0953 m³, +8 % of
+the mesh unjustified), subtracted the whole bore (probe inside: 0.0391, under), or refused ((bore, plate)
+visited first: the deepest dropped run lies in the void) — three outcomes for one body; truth 0.0434946.
+
+**What changed** (same territory; `_enclosed_correction` is gone, its job done properly inside the merge):
+
+* `_overlay(a, b, cuts)` — both boundaries cut and sided against the other ring → (outside pieces, inside
+  pieces, depth); the one loop `_union_of_crossing` and `_clip` share. `_closed(pieces)` — the degree-2
+  check + `_stitch`, shared likewise.
+* `_clip(c, other)` — the part of ring `c` inside `other`, as rings: itself when nested whole, nothing
+  when apart / in mere contact (depth < `MIN_EXTENT_FT`) / holding `other` inside itself (it draws no
+  boundary in there), the stitched lens when they cross; `None` if a real crossing will not close.
+* `_union_of_crossing(a, b, cuts, others, twice)` now reads the shared area **face by face**: every
+  other ring of the slice is clipped to the common region (`_clip(c, a)` then `_clip(·, b)`) and asked at
+  its own interior probe whether two shells overlap there; the common region itself is asked `_beside`
+  the dropped piece standing clearest (≥ `MIN_EXTENT_FT`) of the partner and of everything clipped in —
+  never at a point inside a clipped piece, which is what made round 2's deepest-run probe land in the
+  bore by tessellation luck. `shared = |a∩b| + Σ ([doubled in piece] − [doubled just outside it])·|piece|`.
+  If no clear standpoint exists or the body is NOT two deep there, the pair is **passed over**
+  (`(None, 0.0)`): a bore ring against the bar through it is not a merge to make — the bar's crossing
+  with the SKIN is, and once that is made the bore crosses nothing. `_first_crossing` returns `None`
+  (refuse → attributed prism) only when pieces do not close, or when pairs cross yet none is two shells
+  deep where they overlap (a bar lodged across the bore *inside* the wall; a shell wound the other way).
+  So the listing order can no longer change an outcome: the only order-dependent step left is which
+  backed pair merges first, and union is associative.
+
+**Re-measured against an independent Sutherland–Hodgman clip** (four half-plane clips in the test /
+probe script, no engine code), 7 triangle orders per cell:
+
+| body | truth (m³) | 8a679e3 | this round |
+|---|---|---|---|
+| plate 1.4×0.7 through pipe, yaws 0/5/12/33/45/77 | 0.0708409 | exact | **exact, every yaw and order** (0.0708408–0.0708410) |
+| plate 1.4×**0.5** (the review's counter-example), yaws 0/5/12/33/45/77 | 0.0434946 | 0.0953 / 0.0391 / refusal by order | **0.0434945–0.0434947 at every yaw, all 7 orders one number**; fill_after 0.7223 (= truth) |
+| plate 1.4×**0.3** (narrower than the bore itself), same yaws | 0.0245747 | (refused by probe luck) | **exact everywhere** |
+| 0.5 plate + 16-gon rod down the bore | 0.0496175 | — | 0.0496176, 6 parts |
+| pin 0.5×0.1×0.1 driven through the wall 0.1 INTO the bore | 0.0020000 | refused (documented) | **merged, 0.0020000** = its buried wall length, 9/9 orders |
+| pin in the wall only · two pipes under one plate | 0.0009754 · 0.1416818 | exact · exact | exact · exact (5 parts, merged 2) |
+| bar 0.8 long lodged across the bore inside the skin · lug shell wound the other way | — | — · refused | **refused ×7** (attributed `crossing rings at z = …`, prism delivered) · refused ×7 |
+| loss table 1476 · random 1200 · harder shapes · reference rows (diff vs main) · #609 984 · #621 205 | | | **identical** (0/0; EMPTY diff; no other ring reaches into any of their crossings) |
+| router: the four round-1 IFCs + plate_through_pipe_12 | | | identical transcripts; + `narrow_plate_through_pipe_12.ifc` → `OK (3-part …)`, `fill 0.58 -> 0.72`, `1 crossing section(s) merged (PlatePipe: 1, 2654.21 in3 shared)` (= 0.0434946 m³); all six VALID 0/0 + provenance ok; matrix `7dae5d40…` unchanged |
+
+Timing (best of 5, ms, main → now): sunk lug 1.03 → 1.7 (it merges and now clips), face pair 1.04 → 1.05,
+corner pair 1.05 → 1.3, frustum 8 13.2 → 12.0, strut 1.13 → 0.96, lattice 3³ 38 → 33, 64-gon tube 9.3 →
+8.5 — noise either way off the crossing path. Tests 16 → **18**: `_clip` (nested / holding / apart /
+grazing / crossing / unclosable), the face-wise shared area on hand-made rings incl. the narrow-bore lens,
+the passed-over bore pair, three listing orders settling identically, the lodged bar refusing; the review's
+literal numbers pinned against the test's own Sutherland–Hodgman (0.63513466612 m², 0.0708409, 0.0434946);
+the pipe bodies end to end — plate 0.7 / 0.5 (four yaws) / 0.3, rod add-back, pin into bore — each over 7
+orders asserting `mesh_overlap_in3` == oracle at 1e-5, `fill_after` == (mesh − doubled)/authored, and one
+number across orders; the refusal test now uses the lodged bar (the pin into the bore merges correctly).
+BRANCH STATE counts refreshed below (the second nit).
+
 ## Neighbouring cases NOT changed, on purpose (candidates for follow-ups, none filed as blocking)
 
 * **An island read as a hole** — a bolt passing clean through a plate with no crossing in the plate's
@@ -265,8 +322,10 @@ authored).
   rings the body reads as |w| ≥ 1.5) — not re-filed; a note on #613 says the crossing case now feeds
   `overlap_ft3` through the same `read_assembly` credit, so #613 should add to that key rather than
   invent a second one.
-* **A pin driven through a tube wall into its bore** refuses (above). Resolving it means verifying
-  dropped runs piecewise instead of at their deepest point; not needed for any body on record.
+* ~~A pin driven through a tube wall into its bore refuses~~ — resolved in round 3 (merged, credited its
+  buried wall length exactly). What still refuses by design: a bar lodged across a bore *inside* the
+  wall (it crosses only the bore ring; no pair is two shells deep where it overlaps), and a shell wound
+  the other way.
 * **`fit_solid`'s `fill` for overlapping shells can exceed 1** (two 1 m cubes half-merged: mesh 2.0
   m³ over a 1.875 m³ envelope → fill 1.07 ≥ `DECOMPOSE_FILL`, so no decomposition is attempted and the
   envelope ships). Pre-existing, harmless (an envelope is delivered and called one), outside territory.
@@ -276,8 +335,8 @@ authored).
 ## BRANCH STATE (eng #637)
 
 Branch `cam/637-crossing-rings` from `main` @ 6f33fb7; one issue, one PR (`Closes #637`). Files:
-`src/rvt/ifc/assembly_parts.py` (`_ring_cuts`, `_split_ring`, `_first_crossing`, `_enclosed_correction`,
-`_merge_crossing_rings`, `_union_of_crossing` new; `decompose_slabs` calls the merge, refuses `None`
+`src/rvt/ifc/assembly_parts.py` (`_ring_cuts`, `_split_ring`, `_merge_crossing_rings`, `_first_crossing`,
+`_overlay`, `_closed`, `_clip`, `_beside`, `_union_of_crossing` new; `decompose_slabs` calls the merge, refuses `None`
 with its own reason and returns `crossings_merged` / `overlap_ft3`; `read_assembly`'s slab branch
 credits `overlap_ft3` in `_conserves` and `fill_after`, words the refusal, records `crossings_merged`
 (zero-filled on the box lane too) + the shared-material note, adds the model note) + its `plugin/lib`
@@ -285,12 +344,17 @@ mirror via `tools/sync_plugin.py`; `tests/test_ifc_assembly_637.py` (new);
 `tests/ci_shard.d/637-crossing-rings.txt` (new); this fragment (new). Not touched: `router.py`,
 `famgen/**`, `steplite`, `frontdoor/**`, `tests/test_ifc_assembly.py`, any hot file, the stream index.
 
-Gates (cloud session, fresh clone, no `samples/`): see the PR body for the exact counts on the final
-head — stream-local gate `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_ifc_assembly_637.py
+Gates (cloud session, fresh clone, no `samples/`; the PR body carries the same numbers per head) —
+stream-local gate `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_ifc_assembly_637.py
 tests/test_ifc_assembly.py tests/test_ifc_assembly_623.py tests/test_ifc_assembly_628.py
-tests/test_router.py tests/test_records_layout.py -q -rs` main **270 passed / 14 skipped** → branch
-**284 passed / 14 skipped**; whole merged CI shard; `/simplify` on the diff; `/verify` = the router
-driven on the sunk pair at −17° and 12° (above); `tools/sync_plugin.py` → `--check` clean;
-`plugin/scripts/validate_plugin.py` PASS; `tools/dev/check_portable_paths.py` ok; drop-in resolves in
-`tools/dev/shard_list.py --print`; `tools/route.py matrix` byte-identical. Nothing staged for the
-viewer, no ledger entry, no certification claimed.
+tests/test_router.py tests/test_records_layout.py -q -rs`: main @ 6f33fb7 **270 passed / 14 skipped**
+→ round 1 284/14 → round 2 286/14 → round 3 (rebased on de292a8) **288 passed / 14 skipped**, 0 failed
+(one of the 14 skips is `test_router`'s read-only-dir case, which only skips as root — a non-root sandbox
+reads one more pass and one fewer skip); whole merged CI shard `RVT_SKIP_LARGE=1 pytest -q -p
+no:cacheprovider $(tools/dev/shard_list.py --print)` on the round-3 tree: **2609 passed / 137 skipped /
+3 xfailed, 0 failed (7 min 03 s)** (round 1: 2613, round 2: 2615 pre-rebase / 2607 post-rebase — #711
+re-parametrised shard tests); `/simplify` on the diff (round 1); `/verify` = the router driven on the
+six IFCs above; `tools/sync_plugin.py` → `--check` clean; `plugin/scripts/validate_plugin.py` PASS;
+`tools/dev/check_portable_paths.py` ok (3098); drop-in resolves in `tools/dev/shard_list.py --print`;
+`tools/route.py matrix` byte-identical (`7dae5d40…`, 39 lines). Nothing staged for the viewer, no
+ledger entry, no certification claimed.

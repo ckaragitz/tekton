@@ -923,10 +923,11 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
     :func:`_probe_clear_of` starts trusting a probe beside the buried edge
     is the depth at which this takes over.  ``twice(x, y)`` is the body's
     own word that a point lies inside TWO shells at once; the shared area is
-    the material the mesh counts twice WHERE SECTIONS CROSSED, net of any
-    ring either shell carries inside that region (a pipe's bore under a
-    plate slotted through it: :func:`_enclosed_correction`) -- a second
-    shell nested whole inside the first crosses nothing and is not counted.
+    the material the mesh counts twice WHERE SECTIONS CROSSED, read face by
+    face so a ring either shell carries in that region (a pipe's bore under
+    or across a bar passing through it) counts only where the body says two
+    -- a second shell nested whole inside the first crosses nothing and is
+    not counted.
 
     This is the third symptom (after the shared corner and the shared face)
     of one fact: rings cut from DIFFERENT shells are not a planar partition.
@@ -953,12 +954,21 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
 
 def _first_crossing(rings: List[List[List[float]]], twice: Any) -> Optional[Tuple]:
     """``(i, j, their union rings, shared area)`` for the first pair of
-    ``rings`` that really cross; ``()`` when none do; None when a pair
-    crosses but :func:`_union_of_crossing` refuses to merge it.  The shared
-    area is net of the other rings enclosed in the pair's common region
-    (:func:`_enclosed_correction`)."""
+    ``rings`` that really cross and whose common region the body holds
+    twice; ``()`` when no pair crosses; None when a crossing cannot be
+    settled -- its pieces do not close, or pairs cross yet none of them is
+    two shells deep where they overlap (a bar lodged across a bore inside
+    the wall, a shell wound the other way): refused, not guessed.
+
+    A pair the body does NOT hold twice where it overlaps -- a pipe's bore
+    ring against a bar passing through it -- is passed over, not refused:
+    the bar's crossing with the pipe's SKIN is the merge that settles it,
+    and once that is made the bore no longer crosses anything.  Which pair
+    the stitch happens to list first therefore never changes the outcome.
+    """
     boxes = [(min(v[0] for v in r), min(v[1] for v in r),
               max(v[0] for v in r), max(v[1] for v in r)) for r in rings]
+    passed_over = False
     for i in range(len(rings)):
         for j in range(i + 1, len(rings)):
             bi, bj = boxes[i], boxes[j]
@@ -968,104 +978,150 @@ def _first_crossing(rings: List[List[List[float]]], twice: Any) -> Optional[Tupl
             cuts = _ring_cuts(rings[i], rings[j])
             if not cuts:
                 continue                                # nested or disjoint: not crossing
-            got = _union_of_crossing(rings[i], rings[j], cuts, twice)
+            others = [r for k, r in enumerate(rings) if k != i and k != j]
+            got = _union_of_crossing(rings[i], rings[j], cuts, others, twice)
             if got is None:
-                return None
+                return None                             # pieces that do not close
             union, shared = got
-            if union:                                   # a real crossing, not contact
-                others = [r for k, r in enumerate(rings) if k != i and k != j]
-                shared += _enclosed_correction(rings[i], rings[j], others, twice)
-                return i, j, union, max(0.0, shared)
-    return ()
+            if union is None:
+                passed_over = True                      # crossing, but not two shells deep here
+            elif union:                                 # a real crossing, not contact
+                return i, j, union, shared
+    return None if passed_over else ()
 
 
-def _enclosed_correction(a: Sequence[Sequence[float]], b: Sequence[Sequence[float]],
-                         others: Sequence[List[List[float]]], twice: Any) -> float:
-    """Signed area to add to ``area(a & b)`` so that it counts only material
-    the body holds TWICE inside the region rings ``a`` and ``b`` share.
-
-    ``area(a) + area(b) - area(union)`` treats both rings as solid discs, but
-    a shell's section may carry rings of its own inside that region which
-    cross nothing: a plate slotted through a pipe crosses the pipe's SKIN and
-    swallows its BORE whole, and the bore is one shell deep (the plate), not
-    two.  Every other ring whose interior lies inside both ``a`` and ``b`` is
-    asked at its own interior probe whether the body is doubled there; its
-    area enters with sign ``[doubled here] - [doubled just outside it]``
-    (outside = the smallest enclosed ring around it, else the shared region
-    itself, which the merge already verified as doubled): a bore subtracts
-    itself, an island of two shells inside that bore adds itself back, a
-    third shell's ring changes nothing.  Read from the body, never from the
-    nesting this corrects.
-    """
-    enclosed = []                                       # (ring, probe, area, doubled at probe)
-    for c in others:
-        p = _interior_probe(c)
-        if _point_in_ring(p, a) and _point_in_ring(p, b):
-            enclosed.append((c, p, _polygon_area(c), bool(twice(p[0], p[1]))))
-    correction = 0.0
-    for c, p, area_c, doubled in enclosed:
-        around = [(area_d, doubled_d) for d, _q, area_d, doubled_d in enclosed
-                  if d is not c and area_d > area_c and _point_in_ring(p, d)]
-        outside = min(around)[1] if around else True
-        correction += (int(doubled) - int(outside)) * area_c
-    return correction
-
-
-def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts, twice: Any
-                       ) -> Optional[Tuple[List[List[List[float]]], float]]:
-    """``(union outline(s), area a and b share)`` for two rings that cross at
-    ``cuts`` -- the outline plus any pocket the two enclose (a ring of its
-    own, nested later as the hole it is); ``([], 0.0)`` when neither
-    boundary reaches :data:`MIN_EXTENT_FT` into the other (CONTACT: both
-    stay as they are); None when the merge is refused -- a dropped run of
-    boundary the body does not hold twice (a ring bounding a hole, a shell
-    wound the other way, a piece mis-sided by rounding), or kept pieces that
-    do not meet exactly two to a vertex.  The shared area is derived only
-    from a union that passed both checks."""
-    at_a: Dict[int, List[Tuple[float, Tuple[float, float]]]] = {}
-    at_b: Dict[int, List[Tuple[float, Tuple[float, float]]]] = {}
+def _overlay(a: Sequence[Sequence[float]], b: Sequence[Sequence[float]], cuts):
+    """Both rings' boundaries cut at ``cuts`` and sided against the other
+    ring: ``(outside, inside, depth)`` -- the pieces ``(p, q, own ring)``
+    lying outside / inside the other ring, and how far in the deepest inside
+    piece reaches (its midpoint's clearance from the other boundary; under
+    :data:`MIN_EXTENT_FT` the two are in CONTACT, not crossing)."""
+    at: Tuple[Dict[int, list], Dict[int, list]] = ({}, {})
     for i, t, j, u, pt in cuts:
-        at_a.setdefault(i, []).append((t, pt))
-        at_b.setdefault(j, []).append((u, pt))
-    kept: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
-    runs: List[Tuple[float, Any, Any, Any]] = []        # each dropped run at its deepest: (depth, p, q, own ring)
-    for ring, at, other in ((a, at_a, b), (b, at_b, a)):
-        in_run = False
-        for p, q in _split_ring(ring, at):
+        at[0].setdefault(i, []).append((t, pt))
+        at[1].setdefault(j, []).append((u, pt))
+    outside, inside, depth = [], [], 0.0
+    for ring, own_at, other in ((a, at[0], b), (b, at[1], a)):
+        for p, q in _split_ring(ring, own_at):
             mid = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)
-            if not _point_in_ring(mid, other):
-                kept.append((p, q))
-                in_run = False
-                continue
-            deep = _clearance(mid, other)               # interior to the union: dropped
-            if not in_run:
-                runs.append((deep, p, q, ring))
-                in_run = True
-            elif deep > runs[-1][0]:
-                runs[-1] = (deep, p, q, ring)
-    if max((run[0] for run in runs), default=0.0) < MIN_EXTENT_FT:
-        return [], 0.0                                  # contact, not a crossing
+            if _point_in_ring(mid, other):
+                inside.append((p, q, ring))
+                depth = max(depth, _clearance(mid, other))
+            else:
+                outside.append((p, q, ring))
+    return outside, inside, depth
+
+
+def _closed(pieces) -> Optional[List[List[List[float]]]]:
+    """The pieces welded into rings by :func:`_stitch` -- or None unless they
+    meet exactly two to a vertex (closed outlines, nothing dangling)."""
     ends: Dict[Tuple[float, float], int] = {}
-    for p, q in kept:
+    for p, q, _ring in pieces:
         ends[p] = ends.get(p, 0) + 1
         ends[q] = ends.get(q, 0) + 1
-    if not kept or any(d != 2 for d in ends.values()):
-        return None                                     # not a set of closed outlines
-    for _deep, p, q, ring in runs:
-        # probed just inside its own ring (the midpoint-nudge idiom of
-        # _interior_probes, at a fixed 1e-7 ft): two shells must overlap there
-        mx, my = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
-        k = 1e-7 / (math.hypot(q[0] - p[0], q[1] - p[1]) or 1.0)
-        nx, ny = -(q[1] - p[1]) * k, (q[0] - p[0]) * k
-        x, y = next((c for c in ((mx + nx, my + ny), (mx - nx, my - ny))
-                     if _point_in_ring(c, ring)), (mx, my))
-        if not twice(x, y):
-            return None                                 # dropped boundary the body does not hold twice
-    union = _stitch(kept)
-    if not union:
+    if not pieces or any(d != 2 for d in ends.values()):
         return None
+    return _stitch([(p, q) for p, q, _ring in pieces]) or None
+
+
+def _clip(c: List[List[float]], other: Sequence[Sequence[float]]
+          ) -> Optional[List[List[List[float]]]]:
+    """The part of ring ``c`` lying inside ring ``other``, as rings: ``[c]``
+    when it nests there whole, ``[]`` when it lies apart, merely touches, or
+    holds ``other`` inside itself (then it draws no boundary in there), the
+    stitched common region when the two cross; None when a real crossing's
+    pieces do not close."""
+    if min(max(v[0] for v in c), max(v[0] for v in other)) - max(min(v[0] for v in c), min(v[0] for v in other)) \
+            < MIN_EXTENT_FT or min(max(v[1] for v in c), max(v[1] for v in other)) \
+            - max(min(v[1] for v in c), min(v[1] for v in other)) < MIN_EXTENT_FT:
+        return []                                       # boxes apart
+    cuts = _ring_cuts(c, other)
+    if not cuts:
+        return [c] if _point_in_ring(_interior_probe(c), other) else []
+    _outside, inside, depth = _overlay(c, other, cuts)
+    if depth < MIN_EXTENT_FT:
+        return []                                       # contact: nothing worth an area
+    return _closed(inside)
+
+
+def _beside(p: Sequence[float], q: Sequence[float], ring: Sequence[Sequence[float]]
+            ) -> Tuple[float, float]:
+    """A point 1e-7 ft inside ``ring`` beside the midpoint of its boundary
+    piece ``p``-``q`` (the midpoint-nudge idiom of :func:`_interior_probes`
+    at a fixed reach; the midpoint itself for a piece too short to side)."""
+    mx, my = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
+    k = 1e-7 / (math.hypot(q[0] - p[0], q[1] - p[1]) or 1.0)
+    nx, ny = -(q[1] - p[1]) * k, (q[0] - p[0]) * k
+    return next((c for c in ((mx + nx, my + ny), (mx - nx, my - ny))
+                 if _point_in_ring(c, ring)), (mx, my))
+
+
+def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts,
+                       others: Sequence[List[List[float]]], twice: Any
+                       ) -> Optional[Tuple[Optional[List[List[List[float]]]], float]]:
+    """``(union outline(s), area the body holds TWICE where a and b overlap)``
+    for two rings that cross at ``cuts`` -- the outline plus any pocket the
+    two enclose (a ring of its own, nested later as the hole it is);
+    ``([], 0.0)`` when neither boundary reaches :data:`MIN_EXTENT_FT` into
+    the other (CONTACT: both stay as they are); ``(None, 0.0)`` when they do
+    cross but the body is not two shells deep in their common region (a
+    bore ring against the bar passing through it: not this pair's merge to
+    make); None when boundary pieces do not meet exactly two to a vertex.
+
+    Each ring is cut at the crossings; a piece of either boundary lying
+    inside the other ring is interior to the union and dropped, the rest is
+    welded back into rings by the same :func:`_stitch`.  The shared area is
+    read off the body face by face, never off the nesting this corrects:
+    every OTHER ring of the slice is clipped to the common region
+    (:func:`_clip` -- a pipe's bore under a plate slotted through it, whole
+    when the plate is wider than the bore, the lens they share when it is
+    narrower) and asked at its own interior probe whether two shells overlap
+    there; the common region itself is asked beside a dropped piece standing
+    :data:`MIN_EXTENT_FT` clear of the partner and of everything clipped
+    into it.  Then ``shared = area(a & b) + sum([doubled in piece] - [doubled
+    just outside it]) * area(piece)``, outside being the smallest clipped
+    piece around it, else the common region: a bore subtracts itself (or its
+    lens), a rod of two shells down that bore adds itself back, a third
+    shell's ring changes nothing.
+    """
+    outside, inside, depth = _overlay(a, b, cuts)
+    if depth < MIN_EXTENT_FT:
+        return [], 0.0                                  # contact, not a crossing
+    union = _closed(outside)
+    if union is None:
+        return None                                     # not a set of closed outlines
+    within = []                                         # (piece ring, area, probe, doubled there)
+    for c in others:
+        parts = _clip(c, a)
+        if parts is None:
+            return None
+        for part in parts:
+            pieces = _clip(part, b)
+            if pieces is None:
+                return None
+            for r in pieces:
+                pr = _interior_probe(r)
+                within.append((r, _polygon_area(r), pr, bool(twice(pr[0], pr[1]))))
+    # the common region itself: two shells deep?  Asked beside the dropped
+    # piece standing clearest of the partner and of everything clipped in.
+    best: Optional[Tuple[float, Tuple[float, float]]] = None
+    for p, q, ring in inside:
+        pt = _beside(p, q, ring)
+        if any(_point_in_ring(pt, r) for r, _s, _p, _d in within):
+            continue
+        clear = min([_clearance(pt, b if ring is a else a)]
+                    + [_clearance(pt, r) for r, _s, _p, _d in within])
+        if clear >= MIN_EXTENT_FT and (best is None or clear > best[0]):
+            best = (clear, pt)
+    if best is None or not twice(best[1][0], best[1][1]):
+        return None, 0.0                                # crossing, but not this pair's merge to make
     areas = sorted(_polygon_area(r) for r in union)     # pockets, then the outline holding them
     shared = _polygon_area(a) + _polygon_area(b) - (areas[-1] - sum(areas[:-1]))
+    for r, area_r, pr, doubled in within:
+        around = [(area_d, doubled_d) for d, area_d, _q, doubled_d in within
+                  if d is not r and area_d > area_r and _point_in_ring(pr, d)]
+        doubled_outside = min(around)[1] if around else True
+        shared += (int(doubled) - int(doubled_outside)) * area_r
     return union, max(0.0, shared)
 
 

@@ -87,21 +87,21 @@ def test_ring_cuts_are_proper_crossings_and_nothing_else():
 def test_the_union_of_two_crossing_rings_is_their_outline_and_their_shared_area():
     lug = [[9, 4], [12, 4], [12, 5], [9, 5]]
     for a, b in ((BIG, lug), (lug, BIG)):
-        rings, shared = AP._union_of_crossing(a, b, AP._ring_cuts(a, b), BOTH)
+        rings, shared = AP._union_of_crossing(a, b, AP._ring_cuts(a, b), [], BOTH)
         assert len(rings) == 1 and len(rings[0]) == 8
         assert AP._polygon_area(rings[0]) == pytest.approx(102.0)     # 100 + 3 - 1
         assert shared == pytest.approx(1.0)                            # counted twice by the mesh
     # a plus: no vertex of either bar lies inside the other, yet they cross
     h = [[-3, -1], [3, -1], [3, 1], [-3, 1]]
     v = [[-1, -3], [1, -3], [1, 3], [-1, 3]]
-    rings, shared = AP._union_of_crossing(h, v, AP._ring_cuts(h, v), BOTH)
+    rings, shared = AP._union_of_crossing(h, v, AP._ring_cuts(h, v), [], BOTH)
     assert len(rings) == 1 and len(rings[0]) == 12
     assert AP._polygon_area(rings[0]) == pytest.approx(20.0) and shared == pytest.approx(4.0)
     # a bar closing a C: the union has a POCKET, which comes back as its own
     # ring (nested later as the hole it is) and is not part of the shared area
     C = [[0, 0], [10, 0], [10, 2], [2, 2], [2, 8], [10, 8], [10, 10], [0, 10]]
     bar = [[8, 1], [12, 1], [12, 9], [8, 9]]
-    rings, shared = AP._union_of_crossing(C, bar, AP._ring_cuts(C, bar), BOTH)
+    rings, shared = AP._union_of_crossing(C, bar, AP._ring_cuts(C, bar), [], BOTH)
     assert sorted(AP._polygon_area(r) for r in rings) == pytest.approx([36.0, 116.0])
     assert shared == pytest.approx(4.0)                                 # 52 + 32 - (116 - 36)
     assert sorted(AP.ring_nesting(rings)) == [0, 1]
@@ -114,7 +114,7 @@ def test_contact_is_not_a_crossing_and_is_left_to_ring_nesting():
     other.  That is contact: no merge, both rings exactly as they were."""
     lug = [[10 - 2e-6, 4], [12, 4], [12, 5], [10 + 1e-6, 5]]
     assert AP._ring_cuts(BIG, lug)                                       # the premise: cuts exist
-    assert AP._union_of_crossing(BIG, lug, AP._ring_cuts(BIG, lug), BOTH) == ([], 0.0)
+    assert AP._union_of_crossing(BIG, lug, AP._ring_cuts(BIG, lug), [], BOTH) == ([], 0.0)
     rings, merged, shared = AP._merge_crossing_rings([lug, BIG], BOTH)
     assert merged == 0 and shared == 0.0 and rings == [lug, [list(map(float, v)) for v in BIG]]
     assert AP.ring_nesting(rings) == [0, 0]                              # and #621's law still answers
@@ -130,13 +130,13 @@ def test_a_merge_the_body_does_not_back_is_refused_not_guessed():
     cuts = AP._ring_cuts(BIG, lug)
     # the dropped boundary must lie where TWO shells overlap -- a ring bounding
     # a hole, or a shell wound the other way, does not, and is never merged away
-    assert AP._union_of_crossing(BIG, lug, cuts, NEITHER) is None
-    assert AP._merge_crossing_rings([BIG, lug], NEITHER) is None
+    assert AP._union_of_crossing(BIG, lug, cuts, [], NEITHER) == (None, 0.0)   # not this pair's merge ...
+    assert AP._merge_crossing_rings([BIG, lug], NEITHER) is None                # ... and nobody else's: refused
     # kept pieces that do not close (an edge of one ring lying ON the other's,
     # exactly) are not an outline: refused
     flush = [[9, 5], [12, 5], [12, 10], [9, 10]]
     assert AP._ring_cuts(BIG, flush)
-    assert AP._union_of_crossing(BIG, flush, AP._ring_cuts(BIG, flush), BOTH) is None
+    assert AP._union_of_crossing(BIG, flush, AP._ring_cuts(BIG, flush), [], BOTH) is None
     # nothing crossing: nothing to do, whatever the body would have said
     hole = [[2, 2], [8, 2], [8, 8], [2, 8]]
     assert AP._merge_crossing_rings([BIG, hole], NEITHER) == (
@@ -151,32 +151,64 @@ def test_several_rings_crossing_one_are_all_merged():
     assert AP._polygon_area(rings[0]) == pytest.approx(104.0) and shared == pytest.approx(2.0)
 
 
-def test_the_shared_area_is_net_of_rings_swallowed_whole_on_the_bodys_word():
-    """A plate slotted through a pipe crosses the SKIN and swallows the BORE
-    whole: the bore is one shell deep (the plate), so it is not shared
-    material -- ``area(a) + area(b) - area(union)`` alone credited it (the
-    #713 review's probe: 8 % of the mesh).  Every ring enclosed in the common
-    region is asked at its own probe; a bore subtracts itself, an island of
-    two shells inside that bore adds itself back, a third shell changes
-    nothing -- and nothing enclosed means nothing to correct."""
-    plate = [[-2, 3], [12, 3], [12, 7], [-2, 7]]                 # through BIG, 10 x 4 = 40 shared as discs
-    bore = [[4, 4], [6, 4], [6, 6], [4, 6]]                       # BIG's own hole, under the plate: area 4
-    rod = [[4.5, 4.5], [5.5, 4.5], [5.5, 5.5], [4.5, 5.5]]       # a second shell down that bore: area 1
-    beside = [[20, 20], [21, 20], [21, 21], [20, 21]]             # not enclosed: never asked
+def test_clip_is_the_part_of_a_ring_inside_another():
+    plate = [[-2, 3], [12, 3], [12, 7], [-2, 7]]                 # crosses BIG: common region 10 x 4
+    bore = [[4, 4], [6, 4], [6, 6], [4, 6]]                       # whole inside BIG
+    apart = [[20, 20], [21, 20], [21, 21], [20, 21]]
+    graze = [[10 - 2e-6, 4], [12, 4], [12, 5], [10 + 1e-6, 5]]   # #621 contact: cuts, but microns deep
+    got = AP._clip(plate, BIG)
+    assert len(got) == 1 and AP._polygon_area(got[0]) == pytest.approx(40.0)
+    got = AP._clip(BIG, plate)
+    assert len(got) == 1 and AP._polygon_area(got[0]) == pytest.approx(40.0)
+    assert AP._clip(bore, BIG) == [bore]                          # nested whole: itself
+    assert AP._clip(BIG, bore) == []                              # holds the other: draws nothing in there
+    assert AP._clip(apart, BIG) == [] and AP._clip(graze, BIG) == []
+    flush = [[9, 5], [12, 5], [12, 10], [9, 10]]                  # exactly ON BIG's edge: pieces do not close
+    assert AP._clip(flush, BIG) is None
 
-    def body(x, y):                                               # doubled everywhere but in the empty bore
-        in_bore = 4 < x < 6 and 4 < y < 6
-        in_rod = 4.5 < x < 5.5 and 4.5 < y < 5.5
-        return (not in_bore) or in_rod
 
-    assert AP._enclosed_correction(BIG, plate, [], body) == 0.0
-    assert AP._enclosed_correction(BIG, plate, [beside], NEITHER) == 0.0
-    assert AP._enclosed_correction(BIG, plate, [bore], body) == pytest.approx(-4.0)
-    assert AP._enclosed_correction(BIG, plate, [rod, bore, beside], body) == pytest.approx(-3.0)
-    assert AP._enclosed_correction(BIG, plate, [bore], BOTH) == 0.0     # a third shell's ring: no change
-    rings, merged, shared = AP._merge_crossing_rings([bore, BIG, plate, rod], body)
-    assert merged == 1 and shared == pytest.approx(40.0 - 4.0 + 1.0)
-    assert len(rings) == 3                                             # bore and rod ride along, un-merged
+def test_the_shared_area_is_read_off_the_body_face_by_face():
+    """A plate slotted through a pipe crosses the SKIN; the BORE lies under
+    it whole (plate wider than the bore) or crosses it (narrower) -- either
+    way that part is one shell deep, not two, and ``area(a) + area(b) -
+    area(union)`` alone credited it (the #713 review's probes: 8 % of the
+    mesh, and by triangle order).  Every other ring is clipped to the common
+    region and asked at its own probe; a bore (or its lens) subtracts itself,
+    a rod of two shells down that bore adds itself back, a third shell's ring
+    changes nothing, and the pair the bore itself makes with the plate is
+    passed over, so the outcome is the same whichever pair is listed first."""
+    plate = [[-2, 3], [12, 3], [12, 7], [-2, 7]]                 # through BIG: 40 shared as solid discs
+    bore = [[4, 4], [6, 4], [6, 6], [4, 6]]                       # BIG's own hole under the plate: 4
+    wide_bore = [[4, 1], [6, 1], [6, 9], [4, 9]]                  # a hole the plate is NARROWER than: lens 2 x 4 = 8
+    rod = [[4.5, 4.5], [5.5, 4.5], [5.5, 5.5], [4.5, 5.5]]       # a second shell down the bore: 1
+    beside = [[20, 20], [21, 20], [21, 21], [20, 21]]             # nowhere near: contributes nothing
+
+    def body(x, y):                                               # two shells deep except in the empty bore
+        return not (4 < x < 6 and 4 < y < 6) or (4.5 < x < 5.5 and 4.5 < y < 5.5)
+
+    def wide_body(x, y):
+        return not (4 < x < 6 and 1 < y < 9)
+
+    cuts = AP._ring_cuts(BIG, plate)
+    assert AP._union_of_crossing(BIG, plate, cuts, [], body)[1] == pytest.approx(40.0)
+    assert AP._union_of_crossing(BIG, plate, cuts, [beside], body)[1] == pytest.approx(40.0)
+    assert AP._union_of_crossing(BIG, plate, cuts, [bore], body)[1] == pytest.approx(36.0)
+    assert AP._union_of_crossing(BIG, plate, cuts, [rod, bore, beside], body)[1] == pytest.approx(37.0)
+    assert AP._union_of_crossing(BIG, plate, cuts, [bore], BOTH)[1] == pytest.approx(40.0)   # a third shell's ring
+    assert AP._union_of_crossing(BIG, plate, cuts, [wide_bore], wide_body)[1] == pytest.approx(32.0)
+    # the bore's own crossing with the plate is not a merge to make -- passed over
+    assert AP._union_of_crossing(wide_bore, plate, AP._ring_cuts(wide_bore, plate), [BIG], wide_body) == (None, 0.0)
+    # so every listing order of the slice settles the same way
+    for order in ([bore, BIG, plate, rod], [rod, plate, bore, BIG], [BIG, rod, plate, bore]):
+        rings, merged, shared = AP._merge_crossing_rings(order, body)
+        assert merged == 1 and shared == pytest.approx(37.0) and len(rings) == 3   # bore and rod ride along
+    for order in ([wide_bore, BIG, plate], [plate, wide_bore, BIG], [BIG, plate, wide_bore]):
+        rings, merged, shared = AP._merge_crossing_rings(order, wide_body)
+        assert merged == 1 and shared == pytest.approx(32.0) and len(rings) == 2   # the bore no longer crosses
+    # a bar lodged across the bore INSIDE the skin crosses only the bore: no
+    # pair is two shells deep where it overlaps -> refused, not guessed
+    lodged = [[3, 4.5], [7, 4.5], [7, 5.5], [3, 5.5]]
+    assert AP._merge_crossing_rings([BIG, wide_bore, lodged], wide_body) is None
 
 
 # ---------------------------------------------------------------------------
@@ -295,40 +327,80 @@ def test_a_curved_member_and_a_hollow_one_merge_too(tmp_path):
     assert d["crossings_merged"] == 1 and d["holes_filled"] == 3 and len(m.parts) == 3
 
 
-def test_a_plate_slotted_through_a_pipe_credits_the_wall_it_crosses_never_the_bore_it_swallows(tmp_path):
-    """The #713 review's body: a 1.4 x 0.7 x 0.2 m plate through a 32-gon pipe
-    (r 0.5, bore 0.3) -- wider than the bore, narrower than the skin, so it
-    crosses the OUTER ring only and the bore ring lies whole inside it.  The
-    credit is (|skin & plate| - |bore|) x plate height, read from the body;
-    with a 16-gon rod down the bore the rod's section is two shells deep
-    again and comes back: (|skin & plate| - |bore| + |rod|) x height."""
+def _ngon(r, n, ox=0.0):
+    return [[ox + r * math.cos(2 * math.pi * i / n), r * math.sin(2 * math.pi * i / n)] for i in range(n)]
+
+
+def _rect_clip_area(poly, w, d):
+    """|poly & the axis rectangle w x d about the origin| by Sutherland-Hodgman
+    -- four half-plane clips: an oracle sharing no code with the engine."""
+    for axis, lim, sgn in ((0, w / 2.0, 1.0), (0, -w / 2.0, -1.0), (1, d / 2.0, 1.0), (1, -d / 2.0, -1.0)):
+        out = []
+        for i in range(len(poly)):
+            P, Q = poly[i - 1], poly[i]
+            p_in, q_in = sgn * P[axis] <= sgn * lim, sgn * Q[axis] <= sgn * lim
+            if p_in != q_in:
+                t = (lim - P[axis]) / (Q[axis] - P[axis])
+                out.append([P[0] + t * (Q[0] - P[0]), P[1] + t * (Q[1] - P[1])])
+            if q_in:
+                out.append(Q)
+        poly = out
+        if len(poly) < 3:
+            return 0.0
+    return AP._polygon_area(poly)
+
+
+def test_the_oracle_and_the_reviews_numbers_agree():
+    assert _rect_clip_area(_ngon(0.5, 32), 1.4, 0.7) == pytest.approx(0.63513466612, rel=1e-9)   # |skin & 0.7 plate|
+    bore = 0.5 * 32 * 0.3 ** 2 * math.sin(2 * math.pi / 32)
+    assert (_rect_clip_area(_ngon(0.5, 32), 1.4, 0.7) - bore) * 0.2 == pytest.approx(0.0708409, rel=1e-6)
+    assert (_rect_clip_area(_ngon(0.5, 32), 1.4, 0.5)
+            - _rect_clip_area(_ngon(0.3, 32), 1.4, 0.5)) * 0.2 == pytest.approx(0.0434946, rel=1e-6)
+
+
+def test_a_bar_through_a_pipe_is_credited_the_wall_it_crosses_never_the_bore(tmp_path):
+    """The #713 review's bodies: a 1.4 m plate 0.2 m thick through a 32-gon
+    pipe (r 0.5, bore 0.3).  0.7 wide it crosses the SKIN only and swallows
+    the bore ring whole; 0.5 and 0.3 wide the BORE ring crosses it too, and
+    which pair the stitch listed first used to decide between an 8 %
+    over-credit, an under-credit and a refusal.  Now every width, yaw and
+    triangle order reads (|skin & plate| - |bore & plate|) x height off the
+    body; a 16-gon rod down the bore is two shells deep again and comes back;
+    a pin driven through the wall INTO the bore is credited its buried wall
+    length and no more.  Truth is an independent Sutherland-Hodgman clip."""
     tp, tt = _tube(r_out=0.5, r_in=0.3, h=1.0, sides=32)
     tube = (tp, [(a + 1, b + 1, c + 1) for a, b, c in tt])
-    skin = [[0.5 * math.cos(2 * math.pi * i / 32), 0.5 * math.sin(2 * math.pi * i / 32)] for i in range(32)]
-    rect = [[-0.7, -0.35], [0.7, -0.35], [0.7, 0.35], [-0.7, 0.35]]
-    _rings, cap = AP._union_of_crossing(skin, rect, AP._ring_cuts(skin, rect), BOTH)   # |skin & plate|, m2
-    bore = 0.5 * 32 * 0.3 ** 2 * math.sin(2 * math.pi / 32)
-    rod = 0.5 * 16 * 0.1 ** 2 * math.sin(2 * math.pi / 16)
-    for bodies, doubled_m3, n_parts in (
-            ([tube, _box_mesh(1.4, 0.7, 0.2, oz=0.4)], (cap - bore) * 0.2, 3),
-            ([tube, _box_mesh(1.4, 0.7, 0.2, oz=0.4), _prism_mesh(0.1, 1.0, 16)], (cap - bore + rod) * 0.2, 6)):
-        pts, base = _shells(bodies, 12.0)
+    skin, bore, rod = _ngon(0.5, 32), _ngon(0.3, 32), AP._polygon_area(_ngon(0.1, 16))
+    rows = []
+    for w in (0.7, 0.5, 0.3):
+        doubled = (_rect_clip_area(skin, 1.4, w) - _rect_clip_area(bore, 1.4, w)) * 0.2
+        for yaw in ((12.0, 0.0, 45.0, 77.0) if w == 0.5 else (12.0,)):
+            rows.append((f"plate {w} @ {yaw}", [tube, _box_mesh(1.4, w, 0.2, oz=0.4)], yaw, doubled, 3))
+    rows.append(("0.5 plate + rod down the bore", [tube, _box_mesh(1.4, 0.5, 0.2, oz=0.4), _prism_mesh(0.1, 1.0, 16)],
+                 12.0, (_rect_clip_area(skin, 1.4, 0.5) - _rect_clip_area(bore, 1.4, 0.5) + rod) * 0.2, 6))
+    rows.append(("pin 0.1 into the bore", [tube, _box_mesh(0.5, 0.1, 0.1, ox=0.4, oz=0.45)], 12.0,
+                 (_rect_clip_area(_ngon(0.5, 32, -0.4), 0.5, 0.1) - _rect_clip_area(_ngon(0.3, 32, -0.4), 0.5, 0.1)) * 0.1, 3))
+    for name, bodies, yaw, doubled_m3, n_parts in rows:
+        pts, base = _shells(bodies, yaw)
         mesh = _mesh_ft3(pts, base)
+        seen = set()
         for tris in _triangle_orders(base, seeds=6):
             m = _read(tmp_path, pts, tris, "PlatePipe")
-            assert m.decomposed and not m.kept_prism
+            assert m.decomposed and not m.kept_prism, (name, m.kept_prism)
             d = m.decomposed[0]
-            assert d["crossings_merged"] == 1 and d["holes_filled"] == 3 and len(m.parts) == n_parts
-            assert d["mesh_overlap_in3"] / 1728.0 == pytest.approx(doubled_m3 * FT3, rel=1e-5)
-            assert d["fill_after"] == pytest.approx((mesh - doubled_m3 * FT3) / _authored_ft3(m), rel=1e-4)
+            assert d["crossings_merged"] == 1 and d["holes_filled"] == 3 and len(m.parts) == n_parts, (name, d)
+            assert d["mesh_overlap_in3"] / 1728.0 == pytest.approx(doubled_m3 * FT3, rel=1e-5), name
+            assert d["fill_after"] == pytest.approx((mesh - doubled_m3 * FT3) / _authored_ft3(m), rel=1e-4), name
+            seen.add(d["mesh_overlap_in3"])
+        assert max(seen) - min(seen) <= 1e-6 * max(seen), (name, seen)      # every order, one number
 
 
 def test_a_crossing_the_body_does_not_back_keeps_the_honest_prism_and_says_where(tmp_path):
     """Two things the merge refuses rather than guess, each ATTRIBUTED and
-    delivered as the single prism (rule 1): a shell wound the other way (the
-    dropped boundary does not read as two overlapping shells), and a pin
-    driven through a tube wall into its BORE (the deepest dropped boundary
-    lies in the void)."""
+    delivered as the single prism (rule 1): a shell wound the other way (no
+    pair is two shells deep where it overlaps), and a bar lodged across a
+    pipe's bore INSIDE its wall (it crosses the bore ring only, and a bore
+    against a bar is never a merge to make)."""
     blk, lug = _box_mesh(2, 6, 3), _box_mesh(0.5, 1.0, 0.5, ox=1.23, oy=-1.668, oz=1.024)
     pts, base = _shells([blk, lug], 12.0, flip_last=True)
     why = []
@@ -339,10 +411,10 @@ def test_a_crossing_the_body_does_not_back_keeps_the_honest_prism_and_says_where
     reason = m.kept_prism[0]["reason"]
     assert reason.startswith("box lane: not axis-aligned (") and ", then slab lane: crossing rings at z = " in reason
     tp, tt = _tube(r_out=0.5, r_in=0.3, h=1.0, sides=32)
-    pts, base = _shells([(tp, [(a + 1, b + 1, c + 1) for a, b, c in tt]),
-                         _box_mesh(0.5, 0.1, 0.1, ox=0.45, oz=0.45)], 12.0)      # 0.1 into the bore
-    m = _read(tmp_path, pts, base)
-    assert len(m.parts) == 1 and "slab lane: crossing rings at z = " in m.kept_prism[0]["reason"]
+    pts, base = _shells([(tp, [(a + 1, b + 1, c + 1) for a, b, c in tt]), _box_mesh(0.8, 0.1, 0.1, oz=0.45)], 12.0)
+    for tris in _triangle_orders(base, seeds=4):
+        m = _read(tmp_path, pts, tris)
+        assert len(m.parts) == 1 and "slab lane: crossing rings at z = " in m.kept_prism[0]["reason"]
 
 
 def test_the_merge_holds_at_site_coordinates(tmp_path):
