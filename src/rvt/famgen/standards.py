@@ -57,9 +57,8 @@ synonyms in :data:`SYNONYM_GROUPS`), and that one key is used three times:
 :func:`check_specs` fails a category that lists two spellings of one quantity,
 :func:`apply` never authors a blank standard parameter next to a constructor's
 (or a caller's) parameter of the same meaning, and the constructors fill the
-table's spelling rather than a legacy one.  Where a legacy spelling is KEPT it
-is the category's single entry and its row says why (the transformer's
-``Weight``).
+table's spelling rather than a legacy one; no product set carves an exception
+out of its category's block.
 
 ONE STEP FOR EVERY CONSTRUCTOR (#642).  :func:`apply_safe` is the guarded
 call every model-family constructor makes (the factory's five, the IFC-born
@@ -254,13 +253,6 @@ def _P(name, spec="text", group="identity", *, instance=False,
 def _B(name, note="") -> StdParam:
     """A parameter Revit itself provides -- reported, never authored."""
     return StdParam(name, "text", "identity", False, ORIGIN_BUILTIN, note)
-
-
-def _without(block: Sequence[StdParam], *names: str) -> Tuple[StdParam, ...]:
-    """``block`` minus the named rows -- for a product set that deliberately
-    keeps its OWN spelling of one of the block's quantities (see the
-    transformer's ``Weight``); greppable, unlike a silent merge rule."""
-    return tuple(p for p in block if p.name not in names)
 
 
 # ---------------------------------------------------------------------------
@@ -494,15 +486,9 @@ CATEGORY_STANDARDS: Dict[str, Tuple[StdParam, ...]] = {
         _P("Taps", "text", "electrical", note="e.g. 2 x 2.5% FCAN, 4 x 2.5% FCBN"),
         _P("Sound Level", "number", "identity", note="dBA"),
         _P("K-Factor", "number", "electrical"),
-        # #622: the transformer's ONE weight entry, kept under its legacy name so
-        # every transformer (catalog weight or none) names it the same way;
-        # _EE_COMMON's ``Operating Weight`` is dropped for this product only.
-        _P("Weight", "number", "identity",
-           note="lb as a plain number: the catalog weight make_transformer fills; "
-                "stands in for the category's Operating Weight (mass) -- one name on "
-                "every transformer -- until the factory has a verified lb -> mass "
-                "unit path (#630)"),
-    ), _without(_EE_COMMON, "Operating Weight")),
+        # the weight is _EE_COMMON's ``Operating Weight`` (mass), which
+        # make_transformer itself authors and fills from the catalog's lb (#630)
+    ), _EE_COMMON),
 
     "electrical_fixture": (
         _P("Device Type", "text", "identity"),

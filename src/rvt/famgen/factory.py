@@ -125,6 +125,7 @@ SPEC = {
     "luminous_flux": SK.SPEC_LUMINOUS_FLUX,                      # corpus
     "cct": SK.SPEC_COLOR_TEMPERATURE,                           # corpus
     "efficacy": "autodesk.spec.aec.electrical:efficacy-1.0.0",   # corpus
+    "mass": ST.SPECS["mass"],        # structural:mass-1.0.0 -- OUR units table formats it in poundsMass (#630)
 }
 GROUP = {
     "dimensions": SK.PGROUP_DIMENSIONS,
@@ -1539,9 +1540,23 @@ def _common(values: Sequence[Any]) -> str:
     return str(values[0]) if len(vals) == 1 else ""
 
 
+#: lb -> kg, exact by the pound's definition.  Revit's internal mass unit is
+#: the kilogram -- the (kg, ft, s) basis ``genesis.settings`` uses, and the one
+#: ``skeleton.volts``' VERIFIED factor 1/0.3048**2 implies (V = kg*m^2/(s^3*A):
+#: volts rescale by the length factor alone only on a kg basis) -- not the
+#: units table's DISPLAY unit poundsMass (#630).
+KG_PER_LB = 0.45359237
+
+
+def pounds(lb: float) -> float:
+    """pounds-mass -> Revit internal mass units (kilograms)."""
+    return float(lb) * KG_PER_LB
+
+
 #: engineering value -> internal units, per SPEC key (else the value as is)
 _TO_INTERNAL = {"length": inches, "voltage": SK.volts,
-                "apparent_power": SK.voltamps, "wattage": SK.watts}
+                "apparent_power": SK.voltamps, "wattage": SK.watts,
+                "mass": pounds}
 
 
 def _add_type_row(doc: SK.FamilyDoc, rows: List[TypeRow], name: str, facts: FactSheet,
@@ -1568,6 +1583,11 @@ def _add_type_row(doc: SK.FamilyDoc, rows: List[TypeRow], name: str, facts: Fact
 #: in inches, electrical ratings in their engineering units, text/counts as
 #: OTHER).  The catalog is OURS: one row per type from the same facts the
 #: type table carries -- never a copied manufacturer catalog file.
+#: The law every row obeys: TYPE = the parameter data type in upper snake
+#: case (engineering types as ``DISCIPLINE_DATATYPE``, structural / common
+#: ones bare, like the documented ``FORCE##KIPS``), UNITS = the unit id our
+#: units table (``assets/family_units.json``) names for that spec, upper
+#: snake case (``voltAmperes`` -> ``VOLT_AMPERES``).
 TYPE_CATALOG_COLUMNS = {
     "length": ("LENGTH", "INCHES"),
     "voltage": ("ELECTRICAL_POTENTIAL", "VOLTS"),
@@ -1576,10 +1596,17 @@ TYPE_CATALOG_COLUMNS = {
     "wattage": ("ELECTRICAL_WATTAGE", "WATTS"),
     "luminous_flux": ("ELECTRICAL_LUMINOUS_FLUX", "LUMENS"),
     "cct": ("COLOR_TEMPERATURE", "KELVIN"),
+    "mass": ("MASS", "POUNDS_MASS"),   # structural:mass in unit:poundsMass, cell in lb [INFERRED by the law, #630]
     "number": ("OTHER", ""),
     "integer": ("OTHER", ""),
     "text": ("OTHER", ""),
 }
+
+#: SPEC keys whose catalog declaration is INFERRED by the law above rather
+#: than read off a Revit-born catalog: :func:`write_type_catalog` names their
+#: columns in its report, so a rejected catalog import in Revit is explained
+#: where a user looks (the family's own stored value is never at stake).
+INFERRED_CATALOG_SPECS = ("mass",)
 
 
 def _catalog_cell(v: Any) -> str:
@@ -1626,14 +1653,24 @@ def type_catalog_text(product: "FamilyProduct") -> str:
 
 
 def write_type_catalog(product: "FamilyProduct", path: str) -> Dict[str, Any]:
-    """Write :func:`type_catalog_text` to ``path``; returns a small report."""
+    """Write :func:`type_catalog_text` to ``path``; returns a small report
+    (``inferred_columns`` appears only when a column's declaration is
+    inferred, see :data:`INFERRED_CATALOG_SPECS`)."""
     text = type_catalog_text(product)
     os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write(text)
-    return {"path": path, "types": [t.name for t in product.types],
-            "columns": _catalog_header(_catalog_columns(product)),
-            "bytes": len(text.encode("utf-8"))}
+    cols = _catalog_columns(product)
+    rep = {"path": path, "types": [t.name for t in product.types],
+           "columns": _catalog_header(cols), "bytes": len(text.encode("utf-8"))}
+    inferred = _catalog_header([c for c in cols if c[1] in INFERRED_CATALOG_SPECS])
+    if inferred:
+        rep["inferred_columns"] = inferred
+        rep["note"] = (f"{inferred}: the ##TYPE##UNITS declaration is inferred from the "
+                       "catalog vocabulary's naming law, not read off a Revit-born catalog; "
+                       "if Revit's catalog import rejects that column, the family itself "
+                       "(and its stored value) is unaffected")
+    return rep
 
 
 # ---------------------------------------------------------------------------
@@ -1879,9 +1916,7 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     _num(doc, "Secondary Voltage", "voltage", "electrical")
     _num(doc, "Phases", "integer", "electrical")
     _num(doc, "Temperature Rise", "number", "electrical")
-    has_weight = any(fx.get("weight_lb") for fx in sheets)
-    if has_weight:
-        _num(doc, "Weight", "number", "identity")     # the transformer set's ONE weight entry (standards, #622)
+    _num(doc, "Operating Weight", "mass", "identity")  # the category's weight entry: catalog lb -> internal kg; blank when unpublished (HPS)
     _text(doc, "Frame")
     _text(doc, "Enclosure Rating")                    # the NEMA class, under the table's spelling (#622: was 'Enclosure')
     rows: List[TypeRow] = []
@@ -1889,6 +1924,9 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
         j_kva = float(job["kva"])
         type_name = job.get("type_name") or _clean_name(f"{j_kva:g} kVA",
                                                         f"{int(vp)}-{secondary_v}")
+        # a PUBLISHED weight only (lb; the type table stores kg): a row without
+        # one stays blank / has no catalog cell, never an invented 0 lb
+        weight = [("Operating Weight", "mass", float(fx.get("weight_lb")))] if fx.get("weight_lb") else []
         _add_type_row(doc, rows, type_name, fx, [
             ("Width", "length", fx.get("width_in")), ("Height", "length", fx.get("height_in")),
             ("Depth", "length", fx.get("depth_in")),
@@ -1896,7 +1934,7 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
             ("Primary Voltage", "voltage", vp), ("Secondary Voltage", "voltage", vs),
             ("Phases", "integer", int(fx.get("phases") or 3)),
             ("Temperature Rise", "number", float(fx.get("temp_rise_c") or 0.0)),
-        ] + ([("Weight", "number", float(fx.get("weight_lb") or 0.0))] if has_weight else []) + [
+        ] + weight + [
             ("Frame", "text", str(fx.get("frame") or "")),
             ("Enclosure Rating", "text", str(fx.get("enclosure") or "")),
         ], description=(

@@ -607,7 +607,8 @@ def test_multi_type_rows_carry_per_type_facts():
     assert len(set(models)) == 3                                       # per-type Model
     widths = [t.facts.get("width_in") for t in x.types]
     assert widths[0] == widths[1] != widths[2]                          # FR940 / FR940 / FR942
-    assert [round(v["Weight"]) for v in (t.as_json()["values"] for t in x.types)] == [409, 416, 570]
+    # the catalog rows carry the weight in lb (the type table converts it to kg, #630)
+    assert [round(v["Operating Weight"]) for v in (t.as_json()["values"] for t in x.types)] == [409, 416, 570]
 
 
 @needs_schema
@@ -677,7 +678,7 @@ def test_write_type_catalog_lands_beside_the_rfa_and_in_the_report(tmp_path):
     rep = prod.write(str(tmp_path / "t.rfa"), validate=False, provenance=False)
     tc = rep["family"]["type_catalog"]
     assert tc["path"] == str(tmp_path / "t.txt") and os.path.isfile(tc["path"])
-    assert tc["types"] == MULTI["transformer"][1] and "Weight##OTHER##" in tc["columns"]
+    assert tc["types"] == MULTI["transformer"][1] and "Operating Weight##MASS##POUNDS_MASS" in tc["columns"]
     import json as _json
     on_disk = _json.load(open(rep["report_path"]))
     assert on_disk["family"]["type_catalog"]["path"] == tc["path"]     # the sidecar report too

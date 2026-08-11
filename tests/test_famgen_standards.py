@@ -146,13 +146,10 @@ def test_the_panel_only_parameters_are_not_on_every_electrical_equipment():
     assert {"PanelName", "BusRating", "NumberOfCircuits", "NeutralRating"} <= panel
     assert not {"PanelName", "BusRating", "NumberOfCircuits"} & xfmr
     assert not {"PanelName", "BusRating", "NumberOfCircuits"} & common
-    # both extend the category set, QUANTITY for quantity (#622: the
-    # transformer carries the common Operating Weight as its legacy 'Weight',
-    # one entry per meaning -- so the law is stated over meaning keys)
-    mk = ST.meaning_key
-    assert common <= panel
-    assert {mk(n) for n in common} <= {mk(n) for n in xfmr}
-    assert common - xfmr == {"Operating Weight"} and "Weight" in xfmr
+    # both extend the category set, name for name (#630: the transformer's
+    # weight is the common Operating Weight too -- no product carves an exception)
+    assert common <= panel and common <= xfmr
+    assert "Weight" not in xfmr
     assert {"kVA Rating", "Primary Voltage", "Secondary Voltage", "Impedance"} <= xfmr
 
 
@@ -229,19 +226,16 @@ def test_a_planted_duplicate_meaning_fails_the_table_check(monkeypatch, a, b):
     assert probs[0].startswith(f"zz_planted_probe/{a.name} + {b.name}: 2 spellings of one quantity")
 
 
-def test_the_transformer_keeps_weight_as_its_single_weight_entry_with_a_stated_reason():
-    """Per-pair decision (#622): the transformer's catalog weight is a plain
-    number in lb that make_transformer fills; converting it to the category's
-    Operating Weight (mass) is a unit change, so the legacy name is KEPT as
-    the one entry and its row says why.  Every other electrical equipment set
-    keeps Operating Weight (mass)."""
-    xf = {p.name: p for p in ST.standard_params("transformer")}
-    assert "Weight" in xf and "Operating Weight" not in xf
-    assert xf["Weight"].spec == "number" and "Operating Weight" in xf["Weight"].note
-    for other in ("electrical_equipment", "panelboard", "switchboard",
-                  "mechanical_equipment", "lighting_fixture"):
-        by = {p.name: p for p in ST.standard_params(other)}
-        assert by["Operating Weight"].spec == "mass" and "Weight" not in by, other
+def test_every_equipment_set_names_its_one_weight_entry_operating_weight_mass():
+    """#622 kept the transformer's legacy ``Weight`` (a plain number in lb) as
+    its single weight entry because the factory had no lb -> mass path; #630
+    gave it one, so the transformer names the quantity exactly as every other
+    equipment set does -- ``Operating Weight`` (mass) -- and no set lists a
+    ``Weight`` beside it (inverted from the #622 pin, not loosened)."""
+    for key in ("transformer", "electrical_equipment", "panelboard", "switchboard",
+                "mechanical_equipment", "lighting_fixture"):
+        by = {p.name: p for p in ST.standard_params(key)}
+        assert by["Operating Weight"].spec == "mass" and "Weight" not in by, key
 
 
 # ---------------------------------------------------------------------------
@@ -440,9 +434,10 @@ def test_every_catalog_constructor_applies_its_product_standards(maker, expect):
     # electrical fixture: the connector-bound load and the placement height
     ("make_device", {}, {"Apparent Load", "Mounting Height", "Voltage"},
      {"Load", "MountingHeight"}),
-    # electrical equipment: the NEMA class renamed, the weight KEPT as 'Weight'
-    ("make_transformer", {}, {"Weight", "Enclosure Rating", "kVA Rating"},
-     {"Enclosure", "Operating Weight"}),
+    # electrical equipment: the NEMA class renamed (#622), the catalog weight
+    # under the category's Operating Weight as a mass (#630)
+    ("make_transformer", {}, {"Operating Weight", "Enclosure Rating", "kVA Rating"},
+     {"Enclosure", "Weight"}),
     ("make_panelboard", {}, {"PanelName", "BusRating"}, set()),
     # mechanical equipment goes down the anything route
     ("make_generic_model", {"parts": [{"shape": "box", "width_ft": 3.0, "depth_ft": 2.5,
@@ -475,18 +470,19 @@ def test_every_generated_family_lists_each_quantity_once_and_the_values_still_la
 
 
 @needs_schema
-def test_the_transformer_connector_and_catalog_follow_the_renamed_enclosure_but_keep_weight():
+def test_the_transformer_type_row_and_catalog_follow_the_renamed_enclosure_and_the_mass_weight():
     xf = F.make_transformer(kva=75)
     _t, vals = xf.doc.types[0]
     assert vals[xf.doc.params["Enclosure Rating"].elem_id] == "NEMA 2 (indoor)"
-    assert vals[xf.doc.params["Weight"].elem_id] == pytest.approx(570.0)
+    # 570 lb stored as internal mass (kg); the catalog cell stays in lb (#630)
+    assert vals[xf.doc.params["Operating Weight"].elem_id] == pytest.approx(570.0 * F.KG_PER_LB)
     header = F.type_catalog_text(xf).splitlines()[0]
-    assert "Enclosure Rating##OTHER##" in header and "Weight##OTHER##" in header
-    # a vendor with no catalog weight still gets ONE weight entry, blank
+    assert "Enclosure Rating##OTHER##" in header and "Operating Weight##MASS##POUNDS_MASS" in header
+    # a vendor with no catalog weight still gets the ONE weight entry, blank
     hps = F.make_transformer(kva=75, vendor="hps")
-    assert "Weight" in hps.doc.params and "Operating Weight" not in hps.doc.params
+    assert "Operating Weight" in hps.doc.params and "Weight" not in hps.doc.params
     _t, hv = hps.doc.types[0]
-    assert hv[hps.doc.params["Weight"].elem_id] == 0.0
+    assert hv[hps.doc.params["Operating Weight"].elem_id] == 0.0
     # the device's connector is bound to the renamed load parameter
     dev = F.make_device("duplex-receptacle")
     dom = dev.doc.connectors[0].obj["m_pDomain"]["value"]
