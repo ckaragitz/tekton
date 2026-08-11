@@ -1012,3 +1012,141 @@ def test_the_route_caveat_names_the_lane_that_ran(tmp_path):
     caveat = next(c for c in res.caveats if "decomposition improved" in c)
     assert "box decomposition improved Aligned" in caveat
     assert "slab decomposition improved Yawed" in caveat
+
+
+# ---------------------------------------------------------------------------
+# eng #620: a yawed thin bar is never a giant cylinder
+# ---------------------------------------------------------------------------
+
+def _fit_m(pts_m, tris0):
+    """fit_solid on a model-unit mesh, in feet, with its real mesh volume."""
+    p = [(x * FT, y * FT, z * FT) for x, y, z in pts_m]
+    return AP.fit_solid(p, AP.mesh_volume(p, tris0))
+
+
+def _strut0(deg):
+    """`_strut` with 0-based triangles, for the in-memory fits."""
+    pts, tris = _strut(deg)
+    return pts, _tri0(tris)
+
+
+@pytest.mark.parametrize("deg", [5.0, 30.0])
+def test_a_yawed_u_channel_is_its_rotated_rectangle_not_a_2m_cylinder(deg):
+    """THE REPRO.  Yaw keeps a few near-collinear points on the hull, all of
+    them half a diagonal from the centre, and the 4 x 1 m U 'fitted' an
+    r = 2.05 m (6.73 ft) cylinder holding 8 % of it.  Its honest single prism
+    is the rotated 4 x 1 rectangle: 28 % full, whatever the yaw."""
+    pts, tris = _u_channel()
+    fit = _fit_m(_yaw(pts, deg), tris)
+    assert fit["fit"] == "polygon" and "radius_ft" not in fit
+    assert fit["fill"] == pytest.approx(0.28, rel=1e-6)          # 1.12 m3 in 4 m3
+    assert fit["fill"] == pytest.approx(_fit_m(pts, tris)["fill"], rel=1e-6)   # = unyawed
+
+
+@pytest.mark.parametrize("deg", [0.1, 12.0])
+def test_a_yawed_strut_is_its_rotated_rectangle_not_an_18in_cylinder(deg):
+    """The other repro: 900 x 41 x 41 mm, yawed a tenth of a degree, was an
+    r = 1.48 ft cylinder holding 1 % of it."""
+    fit = _fit_m(*_strut0(deg))
+    assert fit["fit"] == "polygon" and "radius_ft" not in fit
+    assert fit["fill"] == pytest.approx(_fit_m(*_strut0(0.0))["fill"], rel=1e-6)
+    assert fit["fill"] > 0.17                                     # was 0.0102
+
+
+def test_no_yaw_of_a_thin_bar_ever_fits_a_cylinder():
+    """The law, not the two angles that happened to be reported: at no yaw is
+    a fitted circle allowed to reach past the body or to hold an outline that
+    does not fill it."""
+    u_pts, u_tris = _u_channel()
+    for k in range(0, 361):
+        deg = k / 4.0                                             # 0 .. 90 by 0.25
+        for pts, tris in ((_yaw(u_pts, deg), u_tris), _strut0(deg)):
+            fit = _fit_m(pts, tris)
+            assert fit["fit"] != "cylinder", (deg, fit.get("radius_ft"))
+            assert fit["fill"] > 0.17, (deg, fit["fill"])
+            if fit["fit"] == "polygon":                           # the envelope stays inside the body's box
+                ext = [fit["bbox"][1][i] - fit["bbox"][0][i] for i in range(2)]
+                assert AP._polygon_area(fit["vertices"]) <= ext[0] * ext[1] * (1 + 1e-9)
+
+
+@pytest.mark.parametrize("sides", [12, 16])
+@pytest.mark.parametrize("deg", [0.0, 7.0, 22.5])
+def test_a_real_pipe_still_fits_a_cylinder_upright_and_yawed(sides, deg):
+    """THE CONTROL.  A 12/16-band tessellated pipe is a cylinder at any yaw,
+    with the radius of its bands and a fill of ~1 (the N-gon in its circle)."""
+    pts, tris = _prism_mesh(0.05, 1.0, sides)
+    fit = _fit_m(_yaw(pts, deg), _tri0(tris))
+    assert fit["fit"] == "cylinder"
+    assert fit["radius_ft"] == pytest.approx(0.05 * FT, rel=1e-6)
+    assert fit["fill"] == pytest.approx(1.0, abs=0.05)
+    assert fit["fill"] == pytest.approx(sides / (2 * math.pi) * math.sin(2 * math.pi / sides), rel=1e-6)
+
+
+def test_a_circle_must_be_the_outline_not_just_equidistant_corners():
+    """The two refusals in isolation: a chamfered 2 x 1 bar (8 hull points, all
+    one radius out) reaches past its own half-width; a chamfered square does
+    not, but fills only 64 % of its circle.  A regular octagon fills 90 % and
+    is the coarsest outline that still reads as round."""
+    def chamfered(l, w, c=0.02):
+        ring = [(-l / 2 + c, -w / 2), (l / 2 - c, -w / 2), (l / 2, -w / 2 + c), (l / 2, w / 2 - c),
+                (l / 2 - c, w / 2), (-l / 2 + c, w / 2), (-l / 2, w / 2 - c), (-l / 2, -w / 2 + c)]
+        return [(x, y, 0.0) for x, y in ring] + [(x, y, 1.0) for x, y in ring]
+    bar, square = chamfered(2.0, 1.0), chamfered(1.0, 1.0)
+    octagon, _ = _prism_mesh(1.0, 1.0, 8)
+    for deg in (0.0, 20.0, 45.0):
+        assert AP.fit_solid(_yaw(bar, deg))["fit"] != "cylinder", deg
+        assert AP.fit_solid(_yaw(square, deg))["fit"] != "cylinder", deg
+        assert AP.fit_solid(_yaw(octagon, deg))["fit"] == "cylinder", deg
+
+
+def test_with_the_lanes_off_the_delivered_envelope_is_the_prism_not_the_cylinder(tmp_path):
+    """When no decomposition runs (or both lanes refuse), the single prism IS
+    what ships.  For the U at 4 deg -- a yaw that mis-fits through the IFC
+    path on e621ab6 (r = 6.73 ft) -- that is now its rotated rectangle."""
+    pts, tris = _u_channel()
+    yawed, one = _yaw(pts, 4.0), [(a + 1, b + 1, c + 1) for a, b, c in tris]
+    p = write_ifc(str(tmp_path / "u4.ifc"), [("U", "IFCMEMBER", (yawed, one))])
+    m = AP.read_assembly(p, decompose=False)
+    assert len(m.parts) == 1 and m.parts[0].fit == "polygon"
+    assert m.parts[0].radius_ft is None
+    assert m.parts[0].fill == pytest.approx(0.28, rel=1e-4)          # %.6f STEP text
+    assert m.fit_counts() == {"polygon": 1}
+    # and with the lanes on, the slab lane still authors it exactly, as before
+    m = AP.read_assembly(p)
+    assert m.decomposed and m.decomposed[0]["method"] == "slabs" and not m.kept_prism
+    assert _authored_ft3(m) == pytest.approx(_mesh_ft3(yawed, one), rel=1e-4)
+
+
+def _plate_tower(deg, n=70, length=2.0, width=0.10, step=0.01):
+    """A 2 m x 100 mm rail built of `n` stacked 10 mm plates whose width
+    alternates by 2 mm, yawed: more Z levels than MAX_SLABS (the slab lane
+    refuses on budget) and not axis-aligned (no box lane) -- so the single
+    prism is what ships.  1-based triangles."""
+    pts, tris = [], []
+    for k in range(n):
+        p, t = _box_mesh(length, width if k % 2 == 0 else width - 0.002, step, oz=k * step)
+        b = len(pts)
+        pts += list(p)
+        tris += [(a + b, b2 + b, c + b) for a, b2, c in t]
+    return _yaw(pts, deg), tris
+
+
+def test_when_both_lanes_refuse_the_shipped_solid_is_the_rail_not_a_1m_drum(tmp_path):
+    """End to end, the case the lanes do NOT rescue.  On e621ab6 this rail,
+    yawed 10 deg, shipped as ONE cylinder of r = 3.28 ft (a 2 m drum for a
+    100 mm rail, 6 % full, wider than the body's own bounding box) because the
+    slab lane was over budget and the kept prism was that cylinder.  Now the
+    kept prism is the rail's rotated rectangle, 99 % full -- so full that no
+    decomposition is even attempted."""
+    assert 70 > AP.MAX_SLABS                                     # the premise
+    pts, tris = _plate_tower(10.0)
+    p = write_ifc(str(tmp_path / "rail.ifc"), [("Rail", "IFCMEMBER", (pts, tris))])
+    m = AP.read_assembly(p)
+    assert len(m.parts) == 1
+    rail = m.parts[0]
+    assert rail.fit == "polygon" and rail.radius_ft is None
+    assert rail.fill == pytest.approx(0.99, abs=0.002)           # half the plates are 98 mm
+    assert not m.kept_prism and not m.decomposed                 # nothing to rescue any more
+    ext = [rail.bbox_ft[1][i] - rail.bbox_ft[0][i] for i in range(2)]
+    assert AP._polygon_area(rail.vertices_ft) <= ext[0] * ext[1]  # inside its own box, unlike r = 3.28 ft
+    assert m.fit_counts() == {"polygon": 1}

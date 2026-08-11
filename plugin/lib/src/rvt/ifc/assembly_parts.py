@@ -84,8 +84,8 @@ __all__ = [
     "convex_hull_2d", "fit_solid", "read_assembly", "assembly_parts",
     "slice_loops", "ring_nesting", "mesh_volume", "decompose_slabs",
     "is_axis_aligned", "decompose_boxes",
-    "MIN_EXTENT_FT", "CYLINDER_TOLERANCE", "RECT_TOLERANCE", "MAX_HULL_POINTS",
-    "EXACT_REL_TOL",
+    "MIN_EXTENT_FT", "CYLINDER_TOLERANCE", "CYLINDER_MIN_PLAN_FILL",
+    "RECT_TOLERANCE", "MAX_HULL_POINTS", "EXACT_REL_TOL",
 ]
 
 FT_PER_M = 1.0 / 0.3048
@@ -94,8 +94,19 @@ FT_PER_M = 1.0 / 0.3048
 #: ~1/64 in in any direction cannot be extruded into a solid Revit will keep.
 MIN_EXTENT_FT = 0.0013
 
-#: Hull radii within +/- this fraction of their mean read as a circle.
+#: Hull radii within +/- this fraction of their mean read as a circle -- and
+#: the circle's radius may exceed the body's smaller plan half-extent by no
+#: more than this (a regular 8-gon's circumradius is 8.2 % over its apothem).
 CYLINDER_TOLERANCE = 0.12
+
+#: A circle is only the body's outline if the hull FILLS it: hull area over
+#: fitted-circle area must reach this floor.  A regular 8-gon fills 90.0 % of
+#: its circumcircle, a 12-gon 95.5 %, a 16-gon 97.4 %; the equidistant corners
+#: of a 4 x 1 bar fill 30 %, of a 2 x 1 bar 51 %, of a chamfered square 64 %.
+#: The floor is on PLAN fill, not on fill against the mesh volume, on purpose:
+#: a thin-wall conduit is a true cylinder holding 12-25 % of its envelope and
+#: a yawed U-channel a false one holding 8 %, and no volume floor parts those.
+CYLINDER_MIN_PLAN_FILL = 0.85
 
 #: Hull area within this fraction of its bounding box reads as a rectangle.
 RECT_TOLERANCE = 0.98
@@ -416,6 +427,40 @@ def _decimate(ring: List[List[float]], limit: int) -> List[List[float]]:
     return ring
 
 
+def _fit_circle(hull: Sequence[Sequence[float]], ext: Sequence[float],
+                hull_area: float) -> Optional[Tuple[float, float, float]]:
+    """``(cx, cy, r)`` when the hull reads as a CIRCLE, else None.
+
+    Fewer than 8 points is a polygon the caller drew (a hexagon stays one).
+    Equal radii alone do not make a circle either: the corners of a long thin
+    bar are all half a diagonal from its centre, and once a yaw's rounding
+    noise keeps a few near-collinear points on the hull a 4 x 1 m channel
+    "fitted" an r = 2.05 m cylinder holding 8 % of it and a 900 x 41 mm strut
+    an r = 1.48 ft one holding 1 % (#620).  So the circle must also BE the
+    outline, by two laws: the hull must fill it the way a real tessellation
+    does (:data:`CYLINDER_MIN_PLAN_FILL` -- the intrinsic roundness test,
+    the same at every yaw), and its radius may not reach past the body's
+    smaller plan half-extent (:data:`CYLINDER_TOLERANCE` -- the authoring
+    bound in the family's frame: the solid never outgrows the mesh's own
+    bounding box, which a two-flat shaft filling 90 % of its circle still
+    would).  A hull refused here is authored as itself -- the oriented box /
+    N-gon envelope -- never as that cylinder.
+    """
+    if len(hull) < 8:
+        return None
+    cx = sum(v[0] for v in hull) / len(hull)
+    cy = sum(v[1] for v in hull) / len(hull)
+    radii = [math.hypot(v[0] - cx, v[1] - cy) for v in hull]
+    mean_r = sum(radii) / len(radii)
+    if mean_r <= 0 or (max(radii) - min(radii)) / mean_r > CYLINDER_TOLERANCE:
+        return None                                 # not equidistant: not round
+    if hull_area < CYLINDER_MIN_PLAN_FILL * math.pi * mean_r * mean_r:
+        return None                                 # the outline does not fill it
+    if mean_r > (1.0 + CYLINDER_TOLERANCE) * min(ext[0], ext[1]) / 2.0:
+        return None                                 # wider than the body itself
+    return cx, cy, mean_r
+
+
 def fit_solid(points_ft: Sequence[Sequence[float]],
               mesh_volume_ft3: Optional[float] = None) -> Dict[str, Any]:
     """Fit ONE prism to a mesh's world points (feet).
@@ -427,6 +472,9 @@ def fit_solid(points_ft: Sequence[Sequence[float]],
     to be 1.0).  Raises :class:`AssemblyError` when the mesh is degenerate in
     any axis (no solid can be authored from it, and inventing a thickness is
     forbidden).
+
+    A ``cylinder`` is returned only for an outline that IS round, never for
+    equidistant corners (:func:`_fit_circle` states the two laws).
     """
     if not points_ft:
         raise AssemblyError("no points")
@@ -452,19 +500,16 @@ def fit_solid(points_ft: Sequence[Sequence[float]],
             return None
         return float(mesh_volume_ft3) / prism_vol
 
-    # -- circle? radii about the hull centroid all within tolerance ---------
-    if len(hull) >= 8:
-        cx = sum(v[0] for v in hull) / len(hull)
-        cy = sum(v[1] for v in hull) / len(hull)
-        radii = [math.hypot(v[0] - cx, v[1] - cy) for v in hull]
-        mean_r = sum(radii) / len(radii)
-        if mean_r > 0 and (max(radii) - min(radii)) / mean_r <= CYLINDER_TOLERANCE:
-            ring = _decimate(hull, MAX_HULL_POINTS) if len(hull) > MAX_HULL_POINTS else hull
-            return dict(common, fit="cylinder", center=(cx, cy), radius_ft=mean_r,
-                        vertices=ring,      # the mesh's own outline, for authoring
-                        fill=_fill(math.pi * mean_r * mean_r * height))
-
     hull_area = _polygon_area(hull) if len(hull) >= 3 else 0.0
+
+    # -- circle? equidistant hull points that really are the outline -------
+    circle = _fit_circle(hull, ext, hull_area)
+    if circle is not None:
+        cx, cy, mean_r = circle
+        ring = _decimate(hull, MAX_HULL_POINTS) if len(hull) > MAX_HULL_POINTS else hull
+        return dict(common, fit="cylinder", center=(cx, cy), radius_ft=mean_r,
+                    vertices=ring,      # the mesh's own outline, for authoring
+                    fill=_fill(math.pi * mean_r * mean_r * height))
 
     # -- axis-aligned rectangle, or a hull too thin to author as an N-gon --
     if bbox_area <= 0 or hull_area <= 0 or len(hull) < 3 \
