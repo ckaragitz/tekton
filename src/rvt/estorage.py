@@ -495,7 +495,8 @@ def locate_schema_map(gl: bytes, dec: ObjectDecoder,
 
 _MAX_ID = 1 << 47                # an ElementId is a small non-negative i64
 _MAX_IDS = 5_000_000             # ids in one item's m_elemIdSet
-_TRACKING_BUDGET = 20_000        # candidate items one backward walk may generate before it stops expanding
+_TRACKING_BUDGET = 100_000       # candidate probes (one per id word walked over) a backward walk may spend, so walked-back
+                                 # items totalling more ids stay unverified; keep < _MAX_IDS (item_at re-reads them)
 TRACKING_ITEM = (("m_schemaGuid", "GUIDvalue"), ("m_elemIdSet", "ElementId"))   # EStorageTrackingItem, 2024..2026
 
 
@@ -521,17 +522,25 @@ def locate_tracking(gl: bytes, guids: list[str],
     items of ANY guid and walked BACKWARD through items of any guid: the item
     with ``k`` ids ending where the first known item starts begins at ``q =
     first - 20 - 8k`` and is one iff the u32 at ``q + 16`` equals ``k``, its
-    ids are plausible and its GUID is not low-entropy filler.  More than one
-    ``k`` can pass (a 1-id item's own tail reads as a 0-id pseudo-item --
-    twice on the bundled 2024 base), so the walk is breadth-first and a table
-    is accepted only when the u32 in front of its first item equals the
-    number of items it then holds (every walked-back item + at least every
-    forward item up to the last catalogued one; forward items beyond the
-    count are cut).  Two count-verified tilings on one level resolve to the
-    one starting earlier -- that settles the tail-carved pseudo-item family
-    (a real item out-spans its own tail); any other wrong tiling needs the
-    u32 in front of it to equal its exact item count, the single 2^-32
-    coincidence the count check has always accepted.
+    ids are plausible and its GUID is not low-entropy filler.  Several ``k``
+    can pass, and those candidates are nested -- a shorter one is byte for
+    byte the tail of every longer one, and the last 20 bytes of any real
+    item whose last id is < 2^32 read as such a 0-id pseudo-item -- so ONLY
+    THE LONGEST self-checking item ending at an item is walked to: the walk
+    is a single chain and a pseudo-item carved from a real item's tail is
+    never a candidate on any level.  The table is accepted at the first --
+    fewest walked-back items -- item whose leading u32 equals the number of
+    items it then holds (every walked-back item + at least every forward
+    item up to the last catalogued one; forward items beyond the count are
+    cut).  A wrong table therefore needs the u32 in front of a real item
+    boundary to equal that exact count (the 2^-32 coincidence the count
+    check has always accepted); a real item shadowed by a longer false
+    candidate (its own GUID bytes, or the bytes in front of it, spelling
+    that candidate's id count) kills the chain, so this anchor verifies
+    nothing and a later catalogued anchor or the labelled fallback below
+    answers instead.  Every candidate probed backward is charged to
+    ``_TRACKING_BUDGET``; a walk that spends it likewise verifies nothing --
+    never a shorter "verified" table.
 
     Returns ``(count_offset, count, {schema guid: element ids})``, items in
     table order, catalogued or not.  ``count`` is the declared item count of
@@ -572,32 +581,37 @@ def locate_tracking(gl: bytes, guids: list[str],
             i = gl.find(raw, i + 1)
     known = set(guids)
 
-    def previous_starts(first: int):
-        """Offsets of every self-checking item that ends exactly at ``first``."""
-        k = 0
-        while (q := first - 20 - 8 * k) >= 4 and k <= _MAX_IDS:      # >= 4: room for the count u32 in front
-            if k and not 0 <= struct.unpack_from("<q", gl, first - 8 * k)[0] < _MAX_ID:
-                return                                 # ids are contiguous: one implausible word ends every longer k too
-            if (struct.unpack_from("<I", gl, q + 16)[0] == k and _plausible_guid(gl[q:q + 16])
-                    and not skip[0] <= q < skip[1]):
-                yield q
-            k += 1
-
     def verified(fwd: list[int]):
         """(first item offset, declared count) of the count-verified table
         holding the forward chain ``fwd`` (item offsets, a catalogued anchor
-        first), or None.  A walk state is just an item offset: an item has
-        one end, so every offset reaches the anchor by exactly one chain."""
+        first), or None: walk back one longest predecessor at a time and
+        accept the first item whose leading u32 counts exactly the items
+        behind it."""
+        budget = _TRACKING_BUDGET
+
+        def previous_start(first: int) -> Optional[int]:
+            """Offset of the LONGEST self-checking item ending exactly at
+            ``first``; None if there is none or the budget ran out (every
+            shorter candidate is this one's tail, i.e. a pseudo-item)."""
+            nonlocal budget
+            best, k = None, 0
+            while budget > 0 and (q := first - 20 - 8 * k) >= 4:      # >= 4: room for the count u32 in front
+                budget -= 1
+                if k and not 0 <= struct.unpack_from("<q", gl, first - 8 * k)[0] < _MAX_ID:
+                    break                              # ids are contiguous: one implausible word ends every longer k too
+                if (struct.unpack_from("<I", gl, q + 16)[0] == k and _plausible_guid(gl[q:q + 16])
+                        and not skip[0] <= q < skip[1]):
+                    best = q
+                k += 1
+            return best if budget > 0 else None        # a scan the budget cut short names no predecessor at all
+
         need = 1 + max(i for i, p in enumerate(fwd) if starts[p][1] in known)  # forward items the table MUST hold
-        level, back, budget = [fwd[0]], 0, _TRACKING_BUDGET   # breadth-first: fewest walked-back items first
-        while level and budget >= 0:
-            for first in sorted(level):                # earliest start first (docstring: the tail-carved family)
-                cnt = struct.unpack_from("<I", gl, first - 4)[0] if first >= 4 else 0   # walked-back items sit >= 4; an anchor may not
-                if need <= cnt - back <= len(fwd):
-                    return first, cnt
-            level = [q for first in level for q in previous_starts(first)]
-            back += 1
-            budget -= len(level)
+        first, back = fwd[0], 0
+        while first is not None:
+            cnt = struct.unpack_from("<I", gl, first - 4)[0] if first >= 4 else 0   # walked-back items sit >= 4; an anchor may not
+            if need <= cnt - back <= len(fwd):
+                return first, cnt
+            first, back = previous_start(first), back + 1
         return None
 
     best = fallback = (-1, 0, {})
@@ -614,9 +628,9 @@ def locate_tracking(gl: bytes, guids: list[str],
             continue
         p, cnt = v
         table: dict[str, list[int]] = {}
-        for _ in range(cnt):                           # re-read the accepted table front to back
-            covered.add(p)
-            p, g, ids = starts.get(p) or item_at(p)
+        for _ in range(cnt):                           # re-read the accepted table front to back: walked-back and
+            covered.add(p)                             # forward items alike pass item_at by construction
+            p, g, ids = item_at(p)
             table[g] = ids
         if len(table) > len(best[2]):
             best = (v[0] - 4, cnt, table)

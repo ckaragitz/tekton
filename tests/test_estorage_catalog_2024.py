@@ -236,6 +236,40 @@ def test_tracking_walk_reads_synthetic_tables_for_what_they_are():
     assert ES.locate_tracking(C1 + C2 + GARBAGE, [AREX, DAYLIGHT])[1:] == (0, {AREX: [10, 11, 12], DAYLIGHT: [13]})
 
 
+def test_tracking_walk_never_verifies_a_tail_carved_pseudo_item(monkeypatch):
+    """#614: only the LONGEST self-checking item ending at a node is walked to,
+    so a pseudo-item carved from a real item's tail cannot count-verify on a
+    shallower level than that item; the backward id scan is charged to
+    ``_TRACKING_BUDGET`` and a walk that spends it verifies nothing."""
+    known = {AREX: [10, 11, 12], DAYLIGHT: [13]}
+    C1, C2 = (_item(g, ids) for g, ids in known.items())
+
+    def unverified(lead: bytes):                                    # the labelled fallback: C1's start - 4, count 0
+        return len(HEAD) + len(lead), 0, known
+    # (g) the issue's repro: U2's last 20 bytes read as a 0-id pseudo-item ending where C1 starts and the u32 in
+    #     front of THAT is the low dword of U2's third-from-last id -- 3 = exactly the count the pseudo-tiling
+    #     [pseudo, C1, C2] needs, one level before the walk through U2 itself reaches U1 and the real count 4.
+    #     main read (118, 3, {<phantom 00000000-... GUID>: [], AREX, DAYLIGHT}); any other small id there (40)
+    #     always read right
+    for third in (3, 40):
+        table = {U1: [7], U2: [third, 1372292, 1372482], **known}
+        got = _locate(4, *(_item(g, ids) for g, ids in table.items()))
+        assert got == (len(HEAD), 4, table) and list(got[2]) == list(table)
+    #     and when the real chain does NOT verify (count 9), the pseudo-tiling still must not: labelled fallback
+    lead = _item(U1, [7]) + _item(U2, [3, 1372292, 1372482])
+    assert _locate(9, lead, C1, C2) == unverified(lead)
+    # (h) the k scan is charged to the budget: U2 with 100 ids fronts C1; its tail again reads as a pseudo-item
+    #     whose leading u32 (3) would verify [pseudo, C1, C2].  Full budget: U2 is the longest candidate, the
+    #     real 3-item table verifies.  A budget smaller than U2's id run: the scan stops before reaching U2's
+    #     start and names NO predecessor -- the labelled unverified fallback, never the shorter "verified" table
+    many = list(range(500, 597)) + [3, 1372292, 1372482]
+    big = _item(U2, many)
+    assert _locate(3, big, C1, C2) == (len(HEAD), 3, {U2: many, **known})
+    for budget, expected in ((40, unverified(big)), (400, (len(HEAD), 3, {U2: many, **known}))):   # 400: 100 id words + slack
+        monkeypatch.setattr(ES, "_TRACKING_BUDGET", budget)
+        assert _locate(3, big, C1, C2) == expected
+
+
 @pytest.mark.parametrize("year", NEW)
 def test_new_layout_pins_read_exactly_as_before(year):
     path = pinned_base(year)

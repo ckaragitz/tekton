@@ -1060,3 +1060,156 @@ in the writer doc are from OUR OWN composed 2024 base).
   `tools/sync_plugin.py` synced 1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
   `tools/dev/check_portable_paths.py` ok (2988 tracked paths); `tools/rvt_validate.py` on the three bases VALID 1/0/0
   warnings.
+
+## eng #614 — 2026-08-11 — `locate_tracking` never count-verifies a pseudo-item carved from a real item's tail: only the longest self-checking predecessor is walked to, the id scan is charged to `_TRACKING_BUDGET`
+
+Stream: eng #614 (issue #614, `Refs #595 #612 #576`; branch `cam/614-tracking-pseudo-item` from `main` @ 15b6fbe).
+Written in eng #614's voice; the sections above are untouched. Read-only forensic instrument, hardening only: no
+writer change, no byte any route writes can change; every test byte is synthetic or our own bundled base.
+
+### The defect, reproduced on `main` @ 15b6fbe (= ad63097 for `estorage.py`)
+
+#612's walk was breadth-first over *every* self-checking item ending at a node and accepted the first count-verified
+tiling per level, earliest start first. The candidates ending at one node are nested (`q = first − 20 − 8k`: a shorter
+one is byte for byte the tail of every longer one), and the last 20 bytes of any real item whose last id is < 2³²
+read as a 0-id pseudo-item ("count" = that id's high dword = 0). The per-level tie-break only beats a pseudo-item that
+verifies on the *same* level as its real container. For a **non-first** item `A` with ≥ 3 ids the u32 in front of its
+tail pseudo-item is the low dword of `A`'s third-from-last id; when that id equals `1 + items after A` the truncated
+tiling `[pseudo, …forward items]` count-verifies one level *before* the chain through `A` reaches the true first item.
+Synthetic table `[U1{7}, U2{3, 1372292, 1372482}, AREX{10,11,12}, DAYLIGHT{13}]`, count 4, junk around
+(`tests/test_estorage_catalog_2024.py`'s `HEAD` / `GARBAGE`):
+
+```
+main:  third-from-last id=3  -> offset=118 count=3 items=[00000000-…(phantom, 0 ids), AREX, DAYLIGHT]   truncated, labelled VERIFIED
+       third-from-last id=40 -> offset=66  count=4 items=[U1, U2, AREX, DAYLIGHT]                          correct
+head:  both                  -> offset=66  count=4 items=[U1, U2, AREX, DAYLIGHT]
+```
+
+### What was built (all inside `locate_tracking`'s closures + its docstring; anchors, forward chain, `covered`, fallback, catalog code untouched)
+
+1. **Rule: only the LONGEST self-checking item ending at a node is its predecessor** (`previous_start`, was the
+   generator `previous_starts`). Every shorter candidate is the tail of that one, i.e. a pseudo-item, and is dropped on
+   *every* level — so a pseudo-item carved from a real item's tail is never a candidate at all, which is DONE bullet 1's
+   "refused" option taken literally (not "deferred": deferring would re-admit the pseudo-tiling whenever the real chain
+   fails to verify — wrong count, budget spent — and DONE bullet 3 forbids exactly that outcome). With one predecessor
+   per node the walk is a **single chain**, so `verified` is now a plain loop: check the leading u32 of the current
+   node (`need <= cnt − back <= len(fwd)`, unchanged), else step to the longest predecessor; the BFS level list, the
+   per-level `sorted()` tie-break and the "candidate states" budget semantics are gone because nothing branches. What a
+   real item needs to lose to a longer *false* candidate: its own GUID bytes 8..12 read as u32 must equal that
+   candidate's id count (RFC-4122 variant byte ∈ 0x80..0xbf excludes every count < 128; the 2024 base's Revit-internal
+   `30000001-…` GUIDs have 0xad / 0x9e there), or GUID bytes 0..4 must equal it with bytes 4..12 also reading as an
+   ElementId (< 2⁴⁷: bytes 10–11 zero), or the same coincidences in the bytes in front of it — and the outcome then is
+   the labelled unverified fallback, not a wrong table. What still yields a wrong *verified* table: the u32 in front of a
+   **real** item boundary equalling that exact item count — the 2⁻³² coincidence the pre-#595 count check always
+   accepted; a tiling of pseudo-items no longer can.
+2. **The `k` scan is charged to `_TRACKING_BUDGET`** (DONE bullet 3). The constant now means *candidate probes one
+   backward walk may spend* — one per candidate `k`, i.e. per id word walked over, the only unit of work the walk has
+   (a node costs at least its `k = 0` probe, so nodes need no separate charge) — owned by `verified` and spent by its
+   nested `previous_start` (`nonlocal`); it is 100 000 (measured ≈ 0.7 µs per probe in this venv → ≈ 70 ms worst case
+   per anchor, spent only when a long run of plausible id words fronts a node; the 2024 base spends 17 — five scans of
+   3/4/3/4/3 — and 2025/2026 verify on the anchor itself, spending none). A scan the budget cuts short names **no**
+   predecessor (`best if budget > 0 else None`) — never the longest-so-far, which could be a pseudo-item shorter than
+   the real item the scan had not reached yet — so exhausting it yields `verified() → None` → the labelled `(count
+   unverified)` fallback. The old `k <= _MAX_IDS` loop guard went: with the budget (100 000) below `_MAX_IDS`
+   (5 000 000) it could no longer bind, and keeping it read as if it did; the consequence — walked-back items totalling
+   more than ~100 000 ids degrade to the labelled fallback — is stated at the constant and in the writer doc.
+3. **One reader for the accepted table** (DONE bullet 4): the front-to-back re-read is `item_at(p)` for every item,
+   with the reason in the comment — a walked-back item passes `item_at`'s four checks by construction (room, not in
+   `skip`, `n ≤ _MAX_IDS`, plausible ids ending exactly at its successor), and a forward item is in `starts`, which holds
+   nothing but `item_at`'s own results — instead of `starts.get(p) or item_at(p)` and its unstated identity.
+4. **Docs.** `locate_tracking`'s docstring states the nesting argument, the longest-only rule, the single-chain walk,
+   what a wrong table now needs, and the budget semantics; `docs/writer/extensible-storage.md` §2.1c's "false tilings"
+   paragraph is rewritten to match: the 2024 chain `0xff9a6 → 0xff992 → 0xff976 → 0xff962 → 0xff946 → 0xff932` (five
+   predecessor scans of ≤ 3 id-word probes each; the two pseudo-items @0xff97e / @0xff94e are simply never candidates),
+   what #614 rules out that #612 did not (with the repro), the corrected residual-risk sentence (the old "single 2⁻³²
+   coincidence" claim was false for the shallower-level pseudo family), and the budget.
+
+### Evidence (numbers)
+
+* **The repro** (scratchpad `probe.py`, same bytes as the new test row): main `third=3 → (118, 3, [00000000-…, AREX,
+  DAYLIGHT])`; head `→ (66, 4, [U1, U2, AREX, DAYLIGHT])`; `third=40` → `(66, 4, …)` on both.
+* **`python -m rvt.estorage plugin/assets/genesis/<base>.rvt --report`, main → head, all three bases: stdout+stderr
+  `cmp`-identical** (exit 0 ×6; `--report` prints no timing line, nothing to mask). 2024 line 2 still `ES schema
+  catalog: 2 schemas (map count 2 @0xfe679 in Global/Latest; tracking @0xff92e, 7 items, 5 uncatalogued)` + the five
+  uncatalogued lines; 2026 `tracking @0x16bfb1`, 2025 `tracking @0x137e0a`.
+* **Library seam**: sha256[:16] of `to_json()` minus `source`, main → head: 2026 `786987e13fdb4bd7` → same, 2025
+  `787646f8f1bbe113` → same, 2024 `1e4bb69e4eeb6561` → same (the test's `MAIN_DIGEST` / `PRE_595_DIGEST` pins hold
+  untouched). `locate_tracking` on the three bases, main's module vs head's loaded side by side, best-of-60:
+  2026 0.96 → 0.97 ms, 2025 0.81 → 0.82, 2024 0.71 → 0.71; returned `(offset, count, items)` identical (2 / 2 / 7 items).
+* **Tests** `tests/test_estorage_catalog_2024.py` 14 → 15 (one new function, existing rows byte-untouched):
+  `test_tracking_walk_never_verifies_a_tail_carved_pseudo_item` — (g) the issue's table with third-from-last id 3 and
+  40 → `(66, 4, table)` in table order (**fails against main's `estorage.py`: `(118, 3, {'00…` — checked by stashing the
+  source change**); the same table with count 9 (real chain cannot verify) → the labelled fallback `(C1 − 4, 0,
+  {AREX, DAYLIGHT})`, i.e. the pseudo-tiling does not get to verify when the real one does not; (h) `U2` with 100 ids
+  (its tail again a pseudo-item whose leading u32 3 would verify `[pseudo, C1, C2]`): default budget → the real 3-item
+  table `(66, 3, {U2: 100 ids, AREX, DAYLIGHT})`; `_TRACKING_BUDGET` monkeypatched to 40 (< the id run) → the labelled
+  fallback `(C1 − 4, 0, {AREX, DAYLIGHT})`, never the shorter "verified" table; monkeypatched to 400 → verified again.
+* Validator on the three bases: `G_ABPD` VALID warnings=1, `G_ABPD_2025` VALID 0, `G_ABPD_2024` VALID 0 — unchanged
+  (a fact about the files, not a Revit verdict; estorage is not on `rvt.validate`'s path anyway).
+
+### Follow-ups (searched first: "locate_tracking", "EStorageTracking pseudo", "tracking budget" → #595 / #612 / #614 only)
+
+* None filed. Noted, not acted on (pre-existing, outside this issue's DONE): forward-chained items (`item_at`) are not
+  held to `_plausible_guid` while walked-back ones are; harmless today (a forward item beyond the count is cut, and a
+  low-entropy GUID inside a verified table would be a real item's real GUID), so a note, not a task.
+
+### /simplify and /verify (eng #614)
+
+* `/simplify` — four review angles on the diff (reuse, simplification, efficiency, altitude), then applied: the
+  budget has ONE owner (`verified`) and is spent by a nested `previous_start` via `nonlocal` — no `(offset, budget)`
+  tuple threading, one charge per probe (a first draft billed each node twice: once at the call site, once as its
+  `k = 0` probe), one exit `best if budget > 0 else None`; the `k <= _MAX_IDS` conjunct went (dead under a 100 000
+  budget, and it read as the governing bound — the constant's comment now says what the budget bounds and that it must
+  stay below `_MAX_IDS` because `item_at` re-reads walked-back items); the machine-specific "≈ 0.7 µs" left the constant's
+  comment for this record; the docstring lost the 2024-base anecdote and a repeated pseudo-item clause and gained the
+  one sentence that is the safety argument (a real item shadowed by a longer false candidate kills the chain → this
+  anchor verifies nothing → a later anchor or the labelled fallback answers); the re-read comment is one line; the new
+  test names `known` / `big` once, derives the fallback offset as `len(HEAD) + len(lead)` like row (d) instead of
+  hand-summed `4 + 28 + 44 − 4`, and folds the two budget monkeypatches into one loop. Altitude verdict from the
+  review: *right altitude* — "candidates at a node are nested, take the maximal one" is a structural fact about the
+  byte layout and the single chain is its honest consequence, not a filter bolted onto the BFS. **Reviewed and kept,
+  with the reason:** (i) on the *unverified* path every later catalogued anchor of the same forward chain re-runs the
+  walk with a fresh budget (worst case anchors × 70 ms on adversarial bytes; the real bases verify on the first anchor
+  and `covered` skips the rest) — skipping suffix anchors needs the argument that a suffix anchor can never verify where
+  its head failed, which holds only while no false longer candidate shadows a forward item, so the bound is stated here
+  rather than encoded; (ii) "budget exhausted" and "no table explains these bytes" both surface as the same labelled
+  `(count unverified)` — a distinct note would live in `schemas()` / `tracking_note`, catalog code outside this issue's
+  territory, and the walk's contract (`count 0` = unverified) is what #595 pinned; (iii) `item_at` re-parses forward
+  items already in `starts` during the re-read — total-ids × tens of ns, below noise, bought for one reader.
+* `/verify` on the final tree — the surface this diff reaches is `rvt.estorage`'s CLI and library seam: the three bases
+  with `--report --walk --roundtrip` → exit 0 ×3, stderr empty ×3, stdout **`cmp`-identical to `origin/main`'s run of
+  the same command ×3** (the round-trip line's `in 0.0s` is the only timing token and it did not differ); a 64 KiB
+  truncation of the 2024 base → `warning: own schema unreadable (ParseError …); checked against the pinned Revit 2024
+  framing table …` + `ERROR: cannot load …: RuntimeError: Partitions/21: walker errors […]`, exit 1; a missing path →
+  `ERROR: no such file`, exit 2; `tools/rvt_validate.py` on the three bases VALID, warnings 1 / 0 / 0 (validates 0
+  errors — a fact about the files, not a Revit verdict; estorage is not on the validator's path). Because `src/` changed:
+  `tools/sync_plugin.py` (1 file synced, mirror `cmp`-identical to source, zip rebuilt 5302 KB), then a **bare unzip of
+  `tekton-plugin.zip`, `env -i` system `python3`**: the mirrored CLI (`PYTHONPATH=lib/src:skills/_shared/_vendor python3
+  -m rvt.estorage assets/genesis/G_ABPD_2024.rvt --report`) → rc 0, `tracking @0xff92e, 7 items, 5 uncatalogued` + the
+  five lines; and `skills/tekton-author/scripts/_bootstrap.py go author --prompt "an electrical room with 6 panels" --out
+  out/j1 --json` → rc 0, `go.ready true`, `result.ok true`, `PROOF-ONLY (self-checks PASS …)`, 6.4 s wall (estorage is
+  not on that path; it shows the shipped mirror still boots).
+
+## BRANCH STATE (eng #614)
+
+* Branch `cam/614-tracking-pseudo-item` from `origin/main` @ 15b6fbe; PR body starts `Closes #614`.
+* Files written — source: `src/rvt/estorage.py` (`_TRACKING_BUDGET` value + meaning; `locate_tracking` docstring;
+  `previous_starts` generator → `previous_start` nested in `verified`, longest candidate only, budget-charged;
+  `verified` BFS → single-chain loop; the accepted table re-read by `item_at` alone — nothing else: anchors, forward
+  chain, `covered`, fallback, `item_at`, catalog code, report path untouched); tests: `tests/test_estorage_catalog_2024.py`
+  (+1 function `test_tracking_walk_never_verifies_a_tail_carved_pseudo_item`, rows (g)/(h); existing rows and pins
+  byte-untouched; 14 → 15); docs: `docs/writer/extensible-storage.md` §2.1c "false candidates" paragraph only; this record
+  (this section only). Generated mirror re-synced: `plugin/lib/src/rvt/estorage.py`. No shard drop-in needed
+  (`tests/ci_shard.d/576-estorage-catalog-2024.txt` already lists the file).
+* Not touched: `src/rvt/versions/**`, `objects.py`, `schema.py`, `tests/test_estorage_cli_release.py`, every NO-GO /
+  FENCED / hot file of the brief, `tests/ci_shard.txt`, `TRACKER.md`, `KNOWLEDGE.md`.
+* Shipped vs staged: everything ships with the PR; nothing for the viewer — read path of a forensic instrument only, no
+  byte any route writes can change (all three bases' CLI output identical to `main`; they validate as before).
+* Follow-ups filed: none (two notes above: forward items not held to `_plausible_guid`; per-anchor re-spend bound).
+* Gates on the final head (`RVT_SKIP_LARGE=1 -p no:cacheprovider`): stream-local
+  `tests/test_estorage_catalog_2024.py tests/test_estorage_cli_release.py tests/test_estorage_ids32.py tests/test_estorage.py`
+  → **30 passed, 12 skipped** (main: 29 / 12; the 12 = `test_estorage.py`'s sample-backed cases + its `RVT_SKIP_LARGE`
+  case, as on any fresh clone); **whole merged CI shard** (`python3 tools/dev/shard_list.py --print`): counts pasted in
+  the PR body; `tools/sync_plugin.py` synced 1 file, `--check` clean; `plugin/scripts/validate_plugin.py` PASS (25
+  assertions); `tools/dev/check_portable_paths.py` ok (2989 tracked paths); `tools/rvt_validate.py` on the three bases
+  VALID 1/0/0 warnings.
