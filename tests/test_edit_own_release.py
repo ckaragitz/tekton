@@ -33,6 +33,7 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
+from conftest import context_constants                     # noqa: E402
 from rvt import partitions as P                            # noqa: E402
 from rvt import versions as V                              # noqa: E402
 from rvt.frontdoor import release_ctx as RC                # noqa: E402
@@ -46,8 +47,14 @@ EDIT_TEXT = f"set level {LEVEL_ID} elevation to 5 ft"
 
 pytestmark = [
     pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()), reason="bundled genesis bases missing"),
-    pytest.mark.usefixtures("no_release_leak"),      # the framing table is back after every test: no leak past a 2025/2024 edit
+    pytest.mark.usefixtures("no_release_leak"),      # every watched constant is back after every test: no leak past a 2025/2024 edit
 ]
+
+
+@pytest.fixture
+def release_leak_extra():
+    """All three surfaces enter ``host_release_context`` in-process: watch the names it swaps, not the framing table alone."""
+    return context_constants
 
 
 def _rvt_edit():

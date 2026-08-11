@@ -36,7 +36,7 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import pinned_base, rewrite_stream, truncated_copy, zero_schema_bytes   # noqa: E402
+from conftest import context_constants, pinned_base, rewrite_stream, truncated_copy, zero_schema_bytes   # noqa: E402
 import rvt.frontdoor as FD                                   # noqa: E402
 from rvt import versions as V                                # noqa: E402
 from rvt.frontdoor import input_release as IR                # noqa: E402
@@ -46,6 +46,13 @@ GRAMMAR_MISS = "set level L1 elevation 3.5"          # no `to`, no unit: not in 
 GOOD_EDIT = "set level 311 elevation to 1 ft"        # "L1 - Ground Floor", on every pin
 GOOD_STATUS = "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)"   # main's, verbatim
 LONG_DIR_MIN = 120                                   # a cloud / tmp upload path is about this long
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the in-process route enters the 2025 host's context: nothing leaks past it
+
+
+@pytest.fixture
+def release_leak_extra():
+    """Watch the names ``host_release_context`` swaps too, not the framing table alone."""
+    return context_constants
 
 
 @pytest.fixture(scope="module")

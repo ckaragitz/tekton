@@ -36,8 +36,8 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import (CERTIFIED_YEARS, FOREIGN, FOREIGN_FIRST, load_tool, pinned_base,   # noqa: E402
-                      rewrite_stream, truncated_copy, zero_schema_bytes)
+from conftest import (CERTIFIED_YEARS, FOREIGN, FOREIGN_FIRST, context_constants, load_tool,   # noqa: E402
+                      pinned_base, rewrite_stream, truncated_copy, zero_schema_bytes)
 from rvt import versions as V                                  # noqa: E402
 
 LEVEL_ID = 1351691                                     # "GEN B1 - Basement", on every pin
@@ -45,6 +45,12 @@ SET_LEVEL = ["set-level", "--id", str(LEVEL_ID), "--elevation-ft", "5"]
 NO_RELEASE = {"input": None, "output": None, "opens_in": None, "line": None}
 NOT_A_CONTAINER = "cannot open as an .rvt container: "
 pytestmark = pytest.mark.usefixtures("no_release_leak")             # a leaked context would break the native run
+
+
+@pytest.fixture
+def release_leak_extra():
+    """The tool enters ``host_release_context`` in-process: watch the names it swaps, not the framing table alone."""
+    return context_constants
 
 
 @pytest.fixture(scope="module")
