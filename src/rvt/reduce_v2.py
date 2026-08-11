@@ -35,8 +35,9 @@ field-by-field diff of the old emission against the solved grammar shows:
 
 * ``Partitions/<N>``  -- the EXACT logical stream (ECC pad-count decoded,
   no junk) with the removed units spliced out and the canonical 10-byte end
-  record ``u16 0x3a3, i32 0, i32 -1`` (the form every Autodesk sample has,
-  verified via the solved ECC on all six);
+  record ``u16 ContentMarker, i32 0, i32 -1`` (the form every Autodesk sample
+  has, verified via the solved ECC on all six; ContentMarker = 0x3a3 on 2026
+  and read per release at call time, :func:`part_end_record`);
 * ``Global/ContentDocuments``  -- re-BUILT by the solved grammar
   (:mod:`rvt.famgen.factory`): ``u64 1`` stream prefix + GUID-sorted entries
   ``separator(u16 0x3a3, i32 -1, u16 0x3a2, i32 -1) + GUID(16, bytes_le) +
@@ -57,22 +58,29 @@ import argparse
 import dataclasses
 import json
 import os
-import struct
 import sys
 import uuid
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
-#: canonical partition-stream end record: u16 0x3a3, i32 0, i32 -1
-#: (10 bytes; the Autodesk-written logical stream ends EXACTLY here on all
-#: six 2026 samples -- the "u32 0 + zero pad + high-entropy tail" of older
-#: notes is the final CRCIO block's pad+parity, not stream content).
-PART_END_RECORD = struct.pack("<Hii", 0x3A3, 0, -1)
 PART_HDR_LEN = 18
 UNIT_SEPARATOR_LEN = 28
 CD_STREAM = "Global/ContentDocuments"
 LATEST_STREAM = "Global/Latest"
+
+
+def part_end_record() -> bytes:
+    """The canonical 10-byte partition-stream end record ``u16 ContentMarker,
+    i32 0, i32 -1`` under the release IN FORCE: ContentMarker is
+    ``rvt.partitions.CONTAINER_CLASS`` read at CALL time (2026 0x3a3, 2025
+    0x391, 2024 0x37b -- bound by name by ``rvt.versions.reading`` /
+    ``host_release_context``, the value the ``StreamWalker`` that found
+    ``end_offset`` used), as :func:`rvt.global_framing.tokens` derives it (its
+    ``FAMILY_END_RECORD`` key is this same universal stream end record; #93).
+    Never a by-value copy (#467, #655)."""
+    from .global_framing import tokens
+    return tokens()["FAMILY_END_RECORD"]
 
 
 # ---------------------------------------------------------------------------
@@ -156,9 +164,11 @@ def splice_units(logical: bytes, remove: Iterable[str], *,
         kept.append({"unit": r.index, "guid": r.guid, "counter": r.counter})
         parts.append(bytes(logical[r.start:r.end]))
     tail_src = bytes(logical[w.end_offset:])
-    if not tail_src.startswith(PART_END_RECORD):
-        raise RuntimeError(f"unexpected partition end record: {tail_src[:14].hex()}")
-    tail = PART_END_RECORD if exact_tail else tail_src
+    end_record = part_end_record()
+    if not tail_src.startswith(end_record):
+        raise RuntimeError(f"unexpected partition end record: {tail_src[:14].hex()} "
+                           f"(expected {end_record.hex()} under the release in force)")
+    tail = end_record if exact_tail else tail_src
     new = b"".join(parts) + tail
     w2 = StreamWalker(new, inflate=False, keep_data=False)
     if w2.errors:
@@ -169,7 +179,7 @@ def splice_units(logical: bytes, remove: Iterable[str], *,
             "units_before": len(ranges), "units_after": len(w2.units),
             "logical_before": len(logical), "logical_after": len(new),
             "tail_before": len(tail_src), "tail_after": len(tail),
-            "junk_after_end_record_dropped": len(tail_src) - len(PART_END_RECORD)
+            "junk_after_end_record_dropped": len(tail_src) - len(end_record)
             if exact_tail else 0}
 
 
@@ -435,9 +445,10 @@ def verify_content_coherence(path: str) -> Dict[str, Any]:
     ranges, w = unit_ranges(exact)
     unit_guids = {r.guid for r in ranges if r.index != 0 and r.guid}
     tail = exact[w.end_offset:]
+    end_record = part_end_record()
     rep["partition_units"] = len(ranges)
-    rep["partition_end_record_ok"] = tail.startswith(PART_END_RECORD)
-    rep["partition_tail_junk_bytes"] = len(tail) - len(PART_END_RECORD)
+    rep["partition_end_record_ok"] = tail.startswith(end_record)
+    rep["partition_tail_junk_bytes"] = len(tail) - len(end_record)
     # per-unit separator counter == its own real record count (all seqs)
     ents, cd_tail = parse_content_documents(cd)
     cd_guids = {str(g).lower() for g, _ in ents}
@@ -810,13 +821,14 @@ def diff_old_vs_solved(old_out: str = R9B, base: str = R9, source: str = RST) ->
     wsrc = StreamWalker(exsrc, inflate=False, keep_data=False)
     w9 = StreamWalker(ex9, inflate=False, keep_data=False)
     w9b = StreamWalker(ex9b, inflate=False, keep_data=False)
+    n_end = len(part_end_record())
     ev["partition"] = {
-        "old_output_units_equal_v2_splice_prefix": ex9b.startswith(sp["logical"][:-len(PART_END_RECORD)]),
-        "old_output_tail_after_units": len(ex9b) - (len(sp["logical"]) - len(PART_END_RECORD)),
+        "old_output_units_equal_v2_splice_prefix": ex9b.startswith(sp["logical"][:-n_end]),
+        "old_output_tail_after_units": len(ex9b) - (len(sp["logical"]) - n_end),
         "source_end_record_tail_hex": exsrc[wsrc.end_offset:].hex(),
-        "source_junk_after_end_record": len(exsrc) - wsrc.end_offset - len(PART_END_RECORD),
-        "R9_junk_after_end_record": len(ex9) - w9.end_offset - len(PART_END_RECORD),
-        "R9b_junk_after_end_record": len(ex9b) - w9b.end_offset - len(PART_END_RECORD),
+        "source_junk_after_end_record": len(exsrc) - wsrc.end_offset - n_end,
+        "R9_junk_after_end_record": len(ex9) - w9.end_offset - n_end,
+        "R9b_junk_after_end_record": len(ex9b) - w9b.end_offset - n_end,
         "verdict": ("DISCREPANCY: the old path writes the parent's de-paged ECC "
                     "tail as stream content after the end record; Autodesk's own "
                     "logical stream ends exactly at the 10-byte end record"),
