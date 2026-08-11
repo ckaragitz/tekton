@@ -708,7 +708,8 @@ def doctor(install: bool = False) -> int:
           + (f"  (Revit {g['revit_release']})" if g.get("revit_release") else ""))
     print("  family container: bundled (genesis base)  (every family is self-generated: the .rfa")
     print("                    ADocument is authored CONSTRUCTIVELY from the bundled schema; no donor")
-    print("                    and no user file is needed or read)")
+    print("                    and no user file is needed or read; nothing under an Autodesk")
+    print("                    installation is ever read or probed)")
     sp = pf["specimen"]
     print(f"  specimen      : {sp['status']}" + (f"  ({sp['path']})" if sp.get("path") else "")
           + ("" if sp["status"] != "missing"

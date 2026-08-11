@@ -21,7 +21,9 @@ the retired `$RVT_FAMILY_DONOR`:
 2. **`doctor()`** prints `family container: bundled (genesis base)` unconditionally with a two-line
    constructive-ADocument note in the words `plugin/commands/tekton-doctor.md` item 4 (#654) already
    uses -- "(every family is self-generated: the .rfa ADocument is authored CONSTRUCTIVELY from the
-   bundled schema; no donor and no user file is needed or read)". The `($RVT_FAMILY_DONOR stays as an
+   bundled schema; no donor and no user file is needed or read; nothing under an Autodesk installation
+   is ever read or probed)" -- the last clause restored on review so doctor's stdout keeps main's
+   never-read-Autodesk assurance (test asserts `"Autodesk" in doc.stdout`). The `($RVT_FAMILY_DONOR stays as an
    expert override, e.g. a non-2026 target release …)` paragraph, the `user-supplied donor (<path>)`
    branch and the stale "empty registries -- desktop acceptance tracked in issue #52" clause are gone
    (the per-release / `--target-version` policy text stays in tekton-doctor.md item 4 only, so the two

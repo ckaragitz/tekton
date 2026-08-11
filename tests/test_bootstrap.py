@@ -182,6 +182,7 @@ def test_retired_family_donor_env_changes_nothing(plugin_copy, workdir, tmp_path
     doc = _run(NO_PIP_PY + [_bootstrap(plugin_copy), "doctor"], cwd=workdir, env_extra=env)
     assert doc.returncode == 0, doc.stderr
     assert "family container: bundled (genesis base)" in doc.stdout
+    assert "Autodesk" in doc.stdout          # the never-read-an-install assurance stays printed
     for gone in ("FAMILY_DONOR", "family-donor", "user-supplied donor", "override, e.g."):
         assert gone not in doc.stdout, gone
 
