@@ -224,3 +224,41 @@ storage classes this repo holds **no verified spelling** for, boolean and
 material-reference, carry `spec=None` with `spec_verified: False` rather than an
 invention. A `None` spec is the honest state; it does not block delivery.
 
+
+## Round 4 — testing it on a panel, which found three bugs
+
+Owner: *"can we test this on a panel to make sure it works?"* Doing so found three
+things that reading the code had not.
+
+1. **`wire()` never authored the free parameters at all.** It planned them, listed them,
+   and wrote none of them into the document. Declaring is not authoring — the plan and
+   the file had silently diverged. Now `wire()` calls `doc.add_family_parameter` per
+   free parameter and reports the count.
+2. **`strict=False` did not mean what it said.** It is documented as "authors what it
+   can and returns the problems", but `param_drive`'s precondition (no `VarSketch` yet)
+   escaped as a bare `ValueError`. Now caught and recorded as `drive_skipped`.
+3. **A finalized document raised from two frames down.** `make_panelboard` finalizes
+   internally, so wiring after it surfaced `RuntimeError: param_drive: document is
+   finalized` — true but unhelpful. `wire()` now checks first and says the caller handed
+   it a finished product.
+
+Verified on an open panel document: `Number Poles` and `Service Clearance` are authored
+and present; `Door` and `Finish Material` are skipped with the reason (no verified Forge
+spec id for boolean / material-reference in this repo). `Service Clearance` arrived as a
+free parameter rather than a driven axis because both in-plane axes were already taken by
+Width and Height — the documented behaviour, and reported rather than silent.
+
+### The integration gap this exposed
+
+**`parametric.wire()` has no supported entry point in the product factories.** Every
+constructor (`make_panelboard`, `make_generic_model`, …) builds *and finalizes*
+internally, so there is no moment at which a caller can hand it a `ParametricModel`. The
+spine is therefore reachable only by assembling a document by hand. Until a constructor
+takes `model=`, a user prompt cannot actually reach any of this — which is the difference
+between the machinery existing and the feature working.
+
+Also recorded: the standalone `.rfa` emitter needs the certified genesis base
+(`plugin/assets/genesis/`), a git-ignored artifact absent from a fresh clone, so a
+single file carrying BOTH the driven axes and the newly requested parameters has **not**
+been produced here. What has been produced and validated (0 errors) is the driver-table
+ladder on a real panel (`out/p2/panel_P*.rfa`).

@@ -396,20 +396,70 @@ def wire(doc: Any, model: ParametricModel, *,
     from . import param_drive as PD
 
     authored: Dict[str, Any] = {"planes": 0, "dimensions": 0, "alignments": 0,
+                                "parameters": 0, "parameters_skipped": [],
                                 "driver": None, "delegated_to": None}
+
+    # A finalized document cannot take new elements.  Say so HERE, rather than
+    # letting param_drive's own guard surface as a bare RuntimeError from two
+    # frames down -- the caller's mistake is "you handed me a finished
+    # product", not anything about dimensions.
+    if getattr(doc, "finalized", False):
+        raise RuntimeError(
+            "parametric.wire: this document is already finalized, so no "
+            "elements can be added. Wire the model while the document is "
+            "still open -- build the family with the constructor's own hooks "
+            "and call wire() before finalize().")
+
+    # THE FREE PARAMETERS.  Declaring them is not authoring them: without this
+    # the plan listed parameters that were never in the file (found by testing
+    # a panel, which is the only reason it is here).
+    for fp in model.params:
+        if fp.name in getattr(doc, "params", {}):
+            authored["parameters_skipped"].append(
+                {"name": fp.name, "why": "the family already has a parameter "
+                                         "of that name"})
+            continue
+        if not fp.spec:
+            authored["parameters_skipped"].append(
+                {"name": fp.name,
+                 "why": "no VERIFIED Forge spec id exists in this repo for "
+                        "that storage class, and inventing one is how #516 "
+                        "and #601 happened. The request is on the record; "
+                        "the parameter is not in the file.",
+                 "note": fp.note})
+            continue
+        try:
+            doc.add_family_parameter(fp.name, spec_type_id=fp.spec,
+                                     group_type_id=fp.group,
+                                     is_instance=fp.instance,
+                                     default=fp.value if fp.value is not None else 0.0)
+            authored["parameters"] += 1
+        except Exception as exc:                                  # noqa: BLE001
+            authored["parameters_skipped"].append(
+                {"name": fp.name, "why": f"{type(exc).__name__}: {exc}"})
     in_plane = [a for a in model.axes if a.in_plane]
     if len(in_plane) == 2 and not p["problems"]:
         # the two-in-plane-axes case is exactly what param_drive's
         # donor-measured wiring authors; use it rather than re-deriving it.
         x_axis = min(in_plane, key=lambda a: abs(a.unit_direction[1]))
         y_axis = next(a for a in in_plane if a is not x_axis)
-        summary = PD.wire_panelboard_drive(doc, x_caption=x_axis.parameter,
-                                           y_caption=y_axis.parameter)
-        authored["delegated_to"] = "param_drive.wire_panelboard_drive"
-        authored["planes"] = 4
-        authored["dimensions"] = 2
-        authored["alignments"] = 4
-        authored["summary"] = summary
+        try:
+            summary = PD.wire_panelboard_drive(doc, x_caption=x_axis.parameter,
+                                               y_caption=y_axis.parameter)
+        except Exception as exc:                                  # noqa: BLE001
+            # strict=False promises "authors what it can and returns the
+            # problems"; letting param_drive's precondition escape broke that
+            # promise (found by testing a panel with no solid yet).
+            authored["drive_skipped"] = f"{type(exc).__name__}: {exc}"
+            if strict:
+                raise
+            summary = None
+        if summary is not None:
+            authored["delegated_to"] = "param_drive.wire_panelboard_drive"
+            authored["planes"] = 4
+            authored["dimensions"] = 2
+            authored["alignments"] = 4
+            authored["summary"] = summary
     else:
         authored["notes"] = [
             "no wiring authored: param_drive's donor-measured chain covers "
