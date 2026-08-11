@@ -1031,15 +1031,33 @@ def _unit_pattern(key: str) -> Optional[str]:
     return None
 
 
+#: what may sit between a number, its unit and the word it qualifies.  English
+#: hyphenates these -- "a 24-inch-wide tray" -- and a bare ``\s*`` dropped every
+#: one of them.
+_SEP = r"[\s-]*"
+
+#: how far either side of a measurement its own word may sit
+_ANCHOR_WINDOW = 30
+
+
 def _read_prompt(prompt: str, questions: Sequence[Question]) -> Dict[str, Tuple[Any, str]]:
     """``{key: (value, quoted words)}`` for everything the prompt states.
 
-    Two readers, both driven by the question metadata rather than by a list of
+    Both readers are driven by the question metadata rather than by a list of
     products: a CHOICE question is answered when one of its own choice labels
     appears as a word (the vendor names come from the catalog, so a new vendor
     is recognised the day its record lands), and a NUMERIC question is answered
-    when a number carries the unit its key implies.  Anything else is left
-    unanswered -- an interview that guesses is worse than one that asks.
+    when a number carries the unit its key implies.
+
+    ONE MEASUREMENT ANSWERS ONE QUESTION.  The first version of this bound
+    every ``_in`` question to the same "24 inch", so a ladder tray came out 24
+    in wide, 24 in deep, with 24 in rungs 24 in thick -- and the report quoted
+    the caller's three words back at eight dimensions they never gave.  So a
+    measurement is consumed when it is used, a number is bound to a question
+    only when one of THAT question's own words sits beside it, and an
+    unanchored measurement goes to the single most decisive question of its
+    unit and to nothing else.  Everything left over stays a question, which is
+    the honest direction to fail in.
     """
     text = " " + str(prompt or "") + " "
     out: Dict[str, Tuple[Any, str]] = {}
@@ -1047,23 +1065,80 @@ def _read_prompt(prompt: str, questions: Sequence[Question]) -> Dict[str, Tuple[
         for c in q.choices:
             if not isinstance(c.value, str):
                 continue
-            pat = r"(?<![A-Za-z0-9])" + re.escape(str(c.value)).replace(r"\-", r"[\s-]?") \
-                  + r"(?![A-Za-z0-9])"
+            pat = (r"(?<![A-Za-z0-9])"
+                   + re.escape(str(c.value)).replace(r"\-", r"[\s-]?")
+                   + r"(?![A-Za-z0-9])")
             m = re.search(pat, text, re.I)
             if m:
                 out[q.key] = (c.value, m.group(0).strip())
                 break
-        if q.key in out:
-            continue
-        unit = _unit_pattern(q.key)
-        if unit is None or q.default is None or isinstance(q.default, (bool, str)):
-            continue
-        m = re.search(_NUM + r"[\s-]*" + unit, text, re.I)
-        if m:
+
+    numeric = [q for q in questions
+               if q.key not in out and _unit_pattern(q.key) is not None
+               and isinstance(q.default, (int, float))
+               and not isinstance(q.default, bool)]
+    numeric.sort(key=lambda q: (q.rank, q.key))
+    spans: List[Tuple[int, int]] = []
+
+    def _free(span: Tuple[int, int]) -> bool:
+        return all(span[1] <= a or span[0] >= b for a, b in spans)
+
+    def _take(q: Question, anchored: bool) -> bool:
+        for m in re.finditer(_NUM + _SEP + str(_unit_pattern(q.key)), text, re.I):
+            if not _free(m.span()):
+                continue
+            if anchored:
+                lo = max(0, m.start() - _ANCHOR_WINDOW)
+                hi = min(len(text), m.end() + _ANCHOR_WINDOW)
+                window = text[lo:hi].lower()
+                if not any(re.search(r"(?<![a-z])" + re.escape(w) + r"(?![a-z])", window)
+                           for w in q.words if len(w) > 2):
+                    continue
             try:
                 out[q.key] = (float(m.group(1).replace(",", "")), m.group(0).strip())
             except ValueError:                       # pragma: no cover
-                pass
+                return False
+            spans.append(m.span())
+            return True
+        return False
+
+    for q in numeric:                                # pass 1: its own word beside it
+        _take(q, anchored=True)
+    claimed_units: set = set()
+    for q in numeric:                                # pass 2: one bare measurement
+        if q.key in out:
+            claimed_units.add(_unit_pattern(q.key))
+            continue
+        unit = _unit_pattern(q.key)
+        if unit in claimed_units:
+            continue                                 # that unit is spoken for
+        if _take(q, anchored=False):
+            claimed_units.add(unit)
+    return out
+
+
+def _archetype_prompt(mods: Dict[str, Optional[Any]], kind: str, prompt: str,
+                      questions: Sequence[Question]) -> Dict[str, Tuple[Any, str]]:
+    """What the archetype registry's own resolver read out of the prompt.
+
+    Empty for a catalog kind, for a checkout without the registry, or for a
+    prompt it declines -- in every one of those the generic reader stands.
+    """
+    arch = mods.get("archetypes")
+    if arch is None or not prompt or kind not in _archetype_keys(arch):
+        return {}
+    try:
+        res = arch.resolve_prompt(str(prompt), product=kind)
+    except Exception:                                # pragma: no cover
+        return {}
+    if res is None:
+        return {}
+    keys = {q.key for q in questions}
+    out: Dict[str, Tuple[Any, str]] = {}
+    for k, prov in (getattr(res, "provenance", None) or {}).items():
+        if prov != GIVEN or k not in keys:
+            continue
+        out[k] = (res.values[k], str((getattr(res, "quoted", None) or {}).get(k, "")))
     return out
 
 
@@ -1236,8 +1311,13 @@ def plan(prompt: str = "", kind: Optional[str] = None,
                     note=_no_question_set_note(chosen, available, mods))
 
     qs = _questions_for(mods, chosen, given)
-    # the prompt speaks before any question is asked
-    pre = _read_prompt(prompt, qs)
+    # THE PROMPT SPEAKS BEFORE ANY QUESTION IS ASKED (steers #685 / #687).
+    # An archetype reads its own prompt: `archetypes.resolve_prompt` already
+    # knows that a tray's bare "24 inch" is its WIDTH and that "6-in-deep"
+    # is its loading depth, and duplicating that reader here would be a second
+    # thing to get wrong.
+    pre = _archetype_prompt(mods, chosen, prompt, qs)
+    pre.update(_read_prompt(prompt, [q for q in qs if q.key not in pre]))
     resolved: Dict[str, Answered] = {}
     for q in qs:
         if q.key in given:

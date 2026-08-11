@@ -513,6 +513,32 @@ def test_a_number_with_its_unit_is_read():
     assert IV.plan(prompt="a 42 circuit panelboard").answers["spaces"].value == 42.0
 
 
+def test_one_measurement_answers_one_question():
+    """The bug this rule exists for: a single "24 inch" was bound to every
+    question whose key ends in ``_in``, so eight dimensions were reported as
+    'you said so' off three words the caller wrote once."""
+    p = IV.plan(prompt="a duplex receptacle at 18 in")
+    from_prompt = [k for k, a in p.answers.items() if a.source == "prompt"
+                   and a.quoted.replace(" ", "").lower() == "18in"]
+    assert from_prompt == ["mounting_height_in"], from_prompt
+
+
+def test_the_generic_reader_binds_a_bare_measurement_to_one_key_only():
+    """Directly on the reader, so the law holds for any registry that grows a
+    second question sharing a unit."""
+    qs = [IV.Question(key="width_in", ask="", rank=IV.RANK_SELECTOR,
+                      source="t", default=12.0, words=("width", "wide")),
+          IV.Question(key="depth_in", ask="", rank=IV.RANK_SIZED,
+                      source="t", default=4.0, words=("depth", "deep")),
+          IV.Question(key="rung_thickness_in", ask="", rank=IV.RANK_OPEN,
+                      source="t", default=0.1, words=("rung thickness",))]
+    read = IV._read_prompt("a 24 inch tray", qs)
+    assert list(read) == ["width_in"] and read["width_in"][0] == 24.0
+    both = IV._read_prompt("a 24 in wide tray 6 in deep", qs)
+    assert both["width_in"][0] == 24.0 and both["depth_in"][0] == 6.0
+    assert "rung_thickness_in" not in both
+
+
 def test_the_kind_is_read_from_the_registries_vocabulary():
     assert IV.plan(prompt="make me a duplex receptacle").kind == "device"
     assert IV.plan(prompt="a recessed troffer for the office").kind == "luminaire"
@@ -600,6 +626,22 @@ def test_archetype_kinds_get_their_questions_from_the_archetype_registry():
         r = IV.resolve(p)
         assert r.famspec["kind"] == "archetype" and r.famspec["product"] == key
         assert FS.validate(r.famspec) == []
+
+
+def test_an_archetype_reads_its_own_prompt():
+    """The registry's own resolver is the reader for its own products: one
+    "24 inch" is the tray's WIDTH and nothing else's."""
+    arch = IV.load_source("archetypes")
+    if arch is None:
+        pytest.skip("rvt.famgen.archetypes is not on this checkout (PR #674)")
+    p = IV.plan(prompt="a 24 inch cable tray 20 ft long")
+    assert p.kind == "cable_tray"
+    given = {k: a.value for k, a in p.answers.items() if a.source == "prompt"}
+    assert given == {"width_in": 24.0, "length_ft": 20.0}, given
+    r = IV.resolve(p)
+    assert r.famspec["dimensions"]["width_in"] == 24.0
+    assert r.values["depth_in"].tier == IV.NOMINAL      # NOT "you said 24"
+    assert FS.validate(r.famspec) == []
 
 
 # ---------------------------------------------------------------------------
