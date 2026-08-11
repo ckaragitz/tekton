@@ -116,9 +116,23 @@ REF_NAME = {
 #: INFERRED names = Revit's PartType enum]: 0 normal (furniture / generic /
 #: lighting), 5 = duct/pipe fittings ..., 14 = electrical panelboard,
 #: 15 = transformer / other electrical equipment [H], 16 = switchboard [H].
+#:
+#: TEMPLATE READING (issue #516, rvt.famgen.category_facts): Revit's default
+#: templates carry -1 (no part type) or 0 everywhere EXCEPT
+#: Electrical_Equipment.rft = 14, Data_Panel.rft = 17, and the duct fittings,
+#: which enumerate by fitting kind -- elbow 5, tee 6, transition 7, cross 8.
+#: So 14 is what the ELECTRICAL EQUIPMENT CATEGORY'S OWN template carries,
+#: not something specific to panelboards; 15/16 stay [H] guesses that no
+#: template or specimen supports, and we still emit them for transformers and
+#: switchboards (issue filed -- needs a real panelboard/transformer .rfa to
+#: settle, not a template).
 PART_TYPE = {
     "normal": 0, "panelboard": 14, "electrical_equipment": 15, "switchboard": 16,
 }
+
+#: Duct-fitting part types by fitting kind [VERIFIED on the default duct
+#: templates; one category (-2008010) with the part type carrying the kind].
+DUCT_FITTING_PART_TYPE = {"elbow": 5, "tee": 6, "transition": 7, "cross": 8}
 
 #: BuiltInParameters used by the family skeleton [VERIFIED ids on specimens]
 BIP_ELEM_TYPE_PARAM = -1012201            # Level/RefPlane element-type param (-> -1)
@@ -2262,33 +2276,83 @@ def _resolve_category(category) -> int:
              # -- the wider category set (owner steer: "a panel goes under
              # electrical equipment and a receptacle goes under electrical
              # fixtures" -- nothing real belongs in Generic Models by
-             # default).  The five above are DESKTOP-VERIFIED; the ids below
-             # are Revit's published BuiltInCategory constants and are
-             # [INFERRED] until a family in each opens in the right branch
-             # of Revit's category list (issue #516).  An explicit integer
-             # OST id always passes straight through.
+             # default).
+             #
+             # PROVENANCE (issue #516).  The ids below were Revit's published
+             # BuiltInCategory constants, [INFERRED].  Two independent
+             # in-repo sources now settle most of them, in this order:
+             #
+             #   [VERIFIED rft]  Revit's own default family template for that
+             #       category -- a template named for a category IS a family
+             #       document of that category, so its self-Family
+             #       m_categoryId is the id Revit itself assigns
+             #       (rvt.famgen.category_facts, mined from samples/rft/).
+             #   [VERIFIED inv]  rvt.inventory.BUILTIN_CATEGORIES_VERIFIED --
+             #       ids corroborated by real sample ELEMENTS carrying them.
+             #   [INFERRED inv]  rvt.inventory.BUILTIN_CATEGORIES_ASSUMED --
+             #       public constants no sample exercises: adopted only where
+             #       the previous value was DEMONSTRABLY another category.
+             #   [INFERRED]      unchanged; nothing settles it yet.
+             #
+             # Corrections this made -- every one of these silently built the
+             # WRONG KIND of family before:
+             #   casework           -2000079 -> -2001000  (-2000079 is Room
+             #                      Separation, per residue_a.PARENT_LABELS)
+             #   fire_alarm_device  -2008013 -> -2008085  (-2008013 is
+             #                      OST_DuctTerminal, Air Terminals: asking
+             #                      for a fire alarm built an air terminal)
+             #   telephone_device   -2008086 -> -2008075
+             #   security_device    -2008085 -> -2008079  (-2008085 is Fire
+             #                      Alarm Devices by its own template, so
+             #                      this built fire-alarm families)
+             #   lighting_device    -2008080 -> -2008087  (OST_LightingDevices)
+             #   cable_tray_fitting -2008131 -> -2008126  (OST_CableTrayFitting)
+             #   conduit_fitting    -2008133 -> -2008128  (OST_ConduitFitting)
+             #   communication_device -2008012 -> -2008077
+             #
+             # NOT proven by a template: that a family WE author with the id
+             # lands in the expected branch of Revit's category list -- that
+             # is a Revit-side observation (category_facts
+             # .BROWSER_PLACEMENT_UNVERIFIED, hard rule 4).  An explicit
+             # integer OST id always passes straight through.
              **{k: v for k, v in {
-                 "mechanical_equipment": -2001140,
+                 "mechanical_equipment": -2001140,          # [VERIFIED rft]
                  "plumbing_fixture": -2001160, "plumbing_fixtures": -2001160,
-                 "specialty_equipment": -2001350,
-                 "casework": -2000079,
+                 "specialty_equipment": -2001350,           # [VERIFIED rft]
+                 "casework": -2001000,                      # [VERIFIED rft]
                  "pipe_accessory": -2008055, "pipe_accessories": -2008055,
                  "duct_accessory": -2008016, "duct_accessories": -2008016,
                  "cable_tray": -2008130, "cable_trays": -2008130,
                  "conduit": -2008132, "conduits": -2008132,
-                 "cable_tray_fitting": -2008131,
-                 "conduit_fitting": -2008133,
-                 "lighting_device": -2008080, "lighting_devices": -2008080,
-                 "fire_alarm_device": -2008013, "fire_alarm_devices": -2008013,
+                 "cable_tray_fitting": -2008126,            # [VERIFIED inv]
+                 "conduit_fitting": -2008128,               # [VERIFIED inv]
+                 "lighting_device": -2008087,               # [VERIFIED inv]
+                 "lighting_devices": -2008087,
+                 "fire_alarm_device": -2008085,             # [VERIFIED rft]
+                 "fire_alarm_devices": -2008085,
                  "data_device": -2008083, "data_devices": -2008083,
-                 "communication_device": -2008012,
-                 "security_device": -2008085,
-                 "nurse_call_device": -2008084,
-                 "telephone_device": -2008086,
-                 "structural_framing": -2001320,
-                 "structural_column": -2001330,
-                 "door": -2000023, "doors": -2000023,
-                 "window": -2000014, "windows": -2000014,
+                 "communication_device": -2008077,          # [INFERRED inv]
+                 "security_device": -2008079,               # [INFERRED inv]
+                 "nurse_call_device": -2008084,             # [INFERRED]
+                 "telephone_device": -2008075,              # [VERIFIED rft]
+                 "structural_framing": -2001320,            # [VERIFIED rft]
+                 "structural_column": -2001330,             # [VERIFIED rft]
+                 "structural_foundation": -2001300,         # [VERIFIED rft]
+                 "structural_stiffener": -2001354,          # [VERIFIED rft]
+                 "door": -2000023, "doors": -2000023,       # [VERIFIED rft]
+                 "window": -2000014, "windows": -2000014,   # [VERIFIED rft]
+                 "furniture_system": -2001100,              # [VERIFIED rft]
+                 "entourage": -2001370,                     # [VERIFIED rft]
+                 "planting": -2001360,                      # [VERIFIED rft]
+                 "parking": -2001180,                       # [VERIFIED rft]
+                 "site": -2001260,                          # [VERIFIED rft]
+                 "detail_item": -2002000,                   # [VERIFIED rft]
+                 "profile": -2003000,                       # [VERIFIED rft]
+                 "curtain_wall_panel": -2000170,            # [VERIFIED rft]
+                 "baluster": -2000127,                      # [VERIFIED rft]
+                 "railing_support": -2000948,               # [VERIFIED rft]
+                 "railing_termination": -2000949,           # [VERIFIED rft]
+                 "duct_fitting": -2008010,                  # [VERIFIED rft]
              }.items()}}
     if key not in table:
         raise KeyError(f"unknown family category {category!r}")
