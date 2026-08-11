@@ -1,0 +1,3 @@
+# #642: one shared standards step (standards.apply_safe) for every model-family
+# constructor + given values coerced by spec -- fresh-clone safe (bundled base)
+tests/test_standards_apply_safe.py

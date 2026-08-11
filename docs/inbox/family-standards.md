@@ -608,3 +608,193 @@ on the downlight kind — flagged above), `plugin/skills/tekton-author/reference
 Gates: table above + the whole merged CI shard count in the PR body. Staged vs shipped:
 everything **shipped** on the branch; nothing staged for a viewer batch (no writer path, base
 or certified file touched).
+
+# eng #642 — one standards step for every constructor; given values land in their storage class (2026-08-11)
+
+Issue #642 (Refs #631 #622 #601; steer S-2026-08-11-a "standard parameters everywhere, values
+only when known"). Branch `cam/642-standards-apply-safe` from `main` @ 3f18806 (#633 and #644
+merged). Territory as chartered: `src/rvt/famgen/standards.py`, the `_std` definition + call
+lines of `src/rvt/famgen/factory.py`, the standards call of `src/rvt/ifc/famfrom_ifc.py`, the
+standards application of `intent.make_house_switchboard`, mirrors via `sync_plugin`, a new test
+module + shard drop-in, this section. Nothing geometric, no writer path, no SKILL.md, no router.
+
+## What was built
+
+- **`standards.apply_safe(doc, category, on=True, values=None, **kw) -> report | None`** — today's
+  `factory._std` body, hoisted next to `apply`: `on` False → `None` (and see below); `on` True →
+  `apply(...)`; a fault inside the standards module → a `doc.notes` line
+  `category standards NOT applied (<Exc>: …)` and `None`, never a failed build (rule 1).
+  `factory._std` is **removed** (grep: nothing outside `factory.py` / `famfrom_ifc.py` imported it;
+  the one prose mention left is `tests/test_famfrom_ifc_standards.py`'s module docstring, untouched).
+  Every model-family constructor now makes this one call: `make_panelboard`, `make_transformer`,
+  `make_luminaire`, `make_device`, `make_generic_model` (both bodies — it used a *bare*
+  `standards.apply` before, so a table fault there raised instead of noting), `famfrom_ifc.make_downlight`,
+  and `intent.make_house_switchboard`. `factory` imports `standards` at module level (it is a table;
+  the four lazy in-function imports went with `_std`).
+- **Coercion by spec (#642 comment (a))** — `standards.coerce_value(spec_key, value)`: `text` → `str`,
+  `integer` → `int` (whole numbers only: `2`, `2.0`, `" 4 "`; `2.5` refused), every measurable spec →
+  `float`; a numeric string is the number it spells; anything else raises. `apply` runs every given
+  value through it before `add_family_parameter(default=…)`, so `skeleton.family_param_value` files
+  `90` for the number-spec `Color Rendering Index` in `m_value` (90.0), not `m_int` beside a 0.0.
+  A value that cannot be written leaves the parameter **blank** and is named in a new report key
+  `values_unusable` (`[{"name", "why"}]`) and in the `doc.notes` line — coerced, never guessed
+  (`"3000K"` is *not* read as 3000). A `None` value is no value (blank, unreported). No change to
+  `skeleton.family_param_value` was needed: the entry's spec is known in `apply`, which is where the
+  storage class is decided; `skeleton` stays type-driven for every other caller.
+- **`standards=False` + offered values (#642 comment (b))** — `apply_safe(on=False, values)` writes ONE
+  note naming every non-None offered key: `standards off (<category>): the given [...] are NOT
+  authored (they are standard parameters of the category)`. That subsumes the downlight's own
+  #644 note (removed from `famfrom_ifc` — job values and caller values now land in the same line,
+  which is what `test_famfrom_ifc_standards::test_standards_false_is_the_regression_control` keeps
+  asserting) and gives the factory constructors, the generic model and the switchboard the same
+  behaviour they lacked.
+- **The house switchboard carries the Electrical Equipment `switchboard` set** —
+  `make_house_switchboard(..., standards=True, standard_values=None)`; `apply_safe(doc, "switchboard", …)`
+  before `finalize`; `FamilyProduct(standards=report)` so `summary()["standards"]` reaches the route
+  manifest like every other family. Its nine pset ratings (`BusRating`, `MainsType`, `MainsRating`,
+  `ShortCircuitRatingkA`, `Sections`, `Voltage`, `Phases`, `Wires`, `Mounting`) are exactly the nine
+  the report skips `already authored by the constructor`; eight rows are added blank (`Bus Material`,
+  `Frequency`, `Enclosure Rating`, `Apparent Load` (instance), `Load Classification`,
+  `Service Clearance`, `Operating Weight`, `Warranty Duration`) → 16 → **24** parameters, `filled == []`
+  (the intent holds no value for any of them; nothing invented).
+- **Table row moved to the contract spelling** — the switchboard set listed `Number of Sections`
+  (convention, identity group) while the constructor authors and fills `Sections`, which is a key of
+  the tekton-ifc tagging contract (`rvt.ifc.intent.CONTRACT_KEYS`, `SwitchboardSchedule.Sections`
+  written by `prompt_intent` / `ifc_out`). By this module's own doctrine (#622: one entry per meaning;
+  a contract name beats a convention) the row is now `Sections` (integer, electrical,
+  `origin=contract`) and `("Sections", "Number of Sections", "Section Count")` is a synonym group, so
+  a caller's `Number of Sections` folds onto it instead of growing a twin. No other caller names the
+  `switchboard` table (grep), so no existing family's bytes moved. The module docstring's `contract`
+  definition now also names `rvt.ifc.intent.CONTRACT_KEYS`.
+
+## Evidence
+
+**Instrument for byte identity.** `standalone_family_write(product, <fixed path>, timestamp=0)` on the
+bundled base, then a sha256 over every CFB stream (name + length + bytes) with two nondeterministic
+fields neutralised the same way on both sides: the per-document `uuid4` GUID (`skeleton.new_family_document`,
+#9) pinned to a counter, and `PartAtom`'s wall-clock `<updated>` stamps blanked. Two consecutive runs
+of unchanged `main` agree on all ten rows (checked before trusting it). The standalone `.rfa` lane
+emits on the 2026 base only (`RVT_GENESIS_BASE=` the 2025/2024 pins → `EncodeError: missing field
+'m_steelModelLastSTC_hash'` on main already — pre-existing, not this issue), so "per pinned base" for
+families is the 2026 column; the three releases are covered by the room build below.
+
+| constructor (defaults unless noted) | before (main @ 3f18806) | after | family-mode / provenance (after) | params |
+|---|---|---|---|---|
+| `make_panelboard` | `afa6c53c758bcb27` | `afa6c53c758bcb27` SAME | VALID 0 err / ok | 21 → 21 |
+| `make_transformer` | `78d1cef1f19d4adb` | `78d1cef1f19d4adb` SAME | VALID 0 err / ok | 24 → 24 |
+| `make_luminaire` (troffer) | `f42d879b7ed5ac40` | `f42d879b7ed5ac40` SAME | VALID 0 err / ok | 23 → 23 |
+| `make_luminaire(kind="downlight", aperture_in=6)` | `ffbad173dff31c42` | `ffbad173dff31c42` SAME | VALID 0 err / ok | 23 → 23 |
+| `make_device` | `bb4496e33488ee8a` | `bb4496e33488ee8a` SAME | VALID 0 err / ok | 13 → 13 |
+| `make_generic_model` (box) | `6ca41f0ba943b755` | `6ca41f0ba943b755` SAME | VALID 0 err / ok | 6 → 6 |
+| `make_generic_model(parts, category="data_devices", standard_values={ports 2, "Cat6A"})` | `bebbe5b60c61f350` | `bebbe5b60c61f350` SAME | VALID 0 err / ok | 16 → 16 |
+| `famfrom_ifc.make_downlight` (tracked IFC) | `b3cba4c559b065c5` | `b3cba4c559b065c5` SAME | VALID 0 err / ok | 33 → 33 |
+| `intent.make_house_switchboard` (2500 A 480Y/277) | `1f90a61923c67d2a` | `b76695f0b1a4733b` **DIFF — intended, DONE (4)** | VALID 0 err / ok | 16 → 24 |
+| `make_luminaire(standard_values={"Color Rendering Index": 90})` | `2bc80a435d7944f7` | `3605601a05b8f360` **DIFF — intended, DONE (2)** | VALID 0 err / ok | 23 → 23 |
+
+**CRI read-back off the written `.rfa`** (`FamilyIndex`: the `Color Rendering Index` `ParamElemFamily`
+id → its `FamilyParamValue` on the type row and in `m_familyParams`):
+before `{'2x4 38W 4000K': m_value 0.0, m_int 90; <current>: m_value 0.0, m_int 90}` →
+after `{'2x4 38W 4000K': m_value 90.0, m_int 0; <current>: m_value 90.0, m_int 0}`. Pinned by
+`test_the_written_luminaire_reads_back_cri_90_as_the_value`.
+
+**The room build with a switchboard**, `frontdoor author --prompt "an electrical room with a 2500A
+main switchboard, a 75 kVA transformer and 4 panels" --target-version {2026,2025,2024}` then
+`rvt_validate` on `prompt_room.rvt`: before and after identical — 2026 `error 0 / warning 1 / info 2`,
+2025 `0/0/2`, 2024 `0/0/2`, status PROOF-ONLY (self-checks PASS), `errors: []`; the built
+`msb_switchboard_msb_2500a_480y_277.rfa` family-mode VALID 0 errors, provenance ok, 24 parameters,
+`standards.category == "switchboard"`, loads and circuits (`F MSB … OK`, `E MSB elem …`, `C circuit … MSB slot …`)
+on all three. (The issue's literal prompt "an electrical room with 6 panels" plans no switchboard —
+12 panelboards — so it cannot observe DONE (4); it validates 0 errors on all three releases before and
+after as well.)
+
+| Gate | Before (main @ 3f18806) | After |
+|---|---|---|
+| `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_famgen_standards.py tests/test_famgen_factory.py tests/test_famfrom_ifc_standards.py tests/test_ifc_family.py tests/test_intent*.py tests/test_rfa_load.py tests/test_place_fixtures.py -q -rs` | 230 passed, 8 skipped | + `tests/test_standards_apply_safe.py` (46) + `tests/test_ifc_intent.py` (module-skips here: samples): **276 passed, 9 skipped** |
+| `python -m rvt.famgen.standards --check` | 27 categories, 34 synonym groups, 0 problems | 27 categories, **35** synonym groups, 0 problems |
+| `tools/route.py matrix` | 3181 bytes | byte-identical (`cmp` clean) |
+| `tools/sync_plugin.py` → `--check`; `validate_plugin.py`; `check_portable_paths.py` | — | 4 mirrors written, in sync; PASS (25 assertions); ok (3015 paths) |
+| whole merged CI shard `pytest $(tools/dev/shard_list.py --print)` | — | see PR body |
+
+**Pinned expectation that moved, and why:** `tests/test_famgen_standards.py::test_the_contract_origin_is_only_used_for_names_the_repo_really_carries`
+took `factory.PANEL_CONTRACT_PARAMS` as the whole contract; the switchboard's `Sections` is a
+contract key of `rvt.ifc.intent.CONTRACT_KEYS` (the pset join keys), so the test's contract set is now
+the union of the two — the assertion (every `origin=contract` name is really in an in-repo contract)
+is unchanged in intent and stricter sources were not loosened.
+
+## What is NOT claimed
+
+- No desktop round, no viewer batch: the switchboard gains 8 `ParamElemFamily` records of the kind
+  the certified panelboard lineage already carries; the CRI fix changes which slot of an existing
+  `FamilyParamValue` holds the number. VALID 0 errors + provenance clean + loads-and-circuits in our
+  own loader are facts about the files, not evidence Revit opens them (rule 4).
+- `coerce_value` does not parse units or suffixes (`"65 kA"`, `"3000K"`, `"480Y/277"`): such a value is
+  reported unusable and the slot stays blank. Values are still expected in internal units, as `apply`'s
+  docstring has always said; a famspec that wants unit-bearing strings needs the schedule-scalar parser
+  (`intent.parse_schedule_scalar`) in front of it — not built here.
+- `FeederEntry` (also a `CONTRACT_KEYS` member the switchboard authors) is not added to the table; the
+  row set was touched only where a twin would otherwise have grown.
+- The storage class is decided in `standards.apply` (where the entry's spec is known), not in
+  `skeleton` — by charter. Constructor literals and famspec fields that bypass the table still depend
+  on the author writing `90.0`, not `90` → follow-up #647 moves the rule into `FamilyDoc`'s store points.
+
+**`/simplify` round (4 agents):** applied — the coercion block unpacks the caller's `(spelling, value)`
+once; the "placed" meanings are tracked in the loop instead of re-derived afterwards; the "a `None`
+value is no value" rule lives once (`_offered`, used by `apply` and `apply_safe`); in the new tests the
+identity lambdas went, one `_type_values` and one `_write_valid` helper replaced three inline copies,
+the change-detector shrank to "`factory._std` is gone", and the CRI read-back is additionally asserted
+in the edit lane's own vocabulary (`convert.modify_family.inventory_family(path).param_by_caption(...)`
+→ `carrier == "m_value"`, `current == 90.0`). Declined — editing the stale `factory._std` mention in
+`tests/test_famfrom_ifc_standards.py`'s docstring and hoisting the write/read-back helpers into
+`conftest.py` (outside this territory); a `CONTRACT_NAME_SOURCES` constant in `standards.py` (it would
+make `famgen` import `rvt.ifc` — the wrong direction; the docstring names the sources instead); a shared
+storage-class map for `_blank` / `coerce_value` (three lines, one file). The altitude finding is #647.
+
+**`/verify` (the product surface, final diff):** `tools/route.py run --output rfa --rfa '{"kind":
+"luminaire", "standard_values": {"Color Rendering Index": 90, "CCT": 3500}}'` → exit 0, `status: OK (…
+provenance ok=True; validator family-mode VALID 0 errors)`; `rvt_validate --family` on the delivered
+`troffer_2x4_recessed.rfa` VALID, `make_family.py provenance` `ok: true / clean: true`;
+`inventory_family` reads `Color Rendering Index: carrier=m_value current=90.0` (raw type row
+`{'m_value': 90.0, 'm_int': 0}`); the report lists `filled ['Color Rendering Index']`,
+`values_not_placed ['CCT']` (its slot is the constructor's own `Initial Color Temperature`, 4000 K from
+the catalog — #622 behaviour, unchanged). The unusable probe `{"Color Rendering Index": "ninety",
+"Driver Type": 5}` → still exit 0 / OK / VALID (rule 1), `filled ['Driver Type']`,
+`values_unusable [{'name': 'Color Rendering Index', 'why': "'ninety' cannot be written as number …"}]`
+and the note line says so. The switchboard room prompt on 2026/2025/2024 after the final diff: room
+`error 0` ×3, switchboard family 24 parameters, `standards.category == "switchboard"` ×3.
+
+**Review round (tech-lead verdict on b43c589: 🟡 nits, one fix commit):** (1) a `bool` for a
+*measurable* spec is refused → `values_unusable` (`{"Wattage": True}` no longer authors 1.0 W and
+reports it filled — S-2026-08-11-a); bool stays a 0/1 flag for `integer` specs (`Emergency`, `GFCI
+Protected`); the test row pinning `("number", True) → 1.0` flipped to a refusal. (2) non-finite numbers:
+`coerce_value` guards with `math.isfinite` before the integer/float split, so `inf`/`nan`/`-inf` (and
+their string spellings) are unusable on both storage classes — previously `int(inf)` raised
+`OverflowError` outside the `(TypeError, ValueError)` net, aborting `apply` mid-loop with a partial set
+behind a "NOT applied" note, and `nan`/`inf` floats went straight into `m_value`; a document-level test
+pins that the WHOLE set is still authored with those slots blank. (3) the standards-off note no longer
+claims every offered key "is a standard parameter of the category" (it never consulted the table): it
+reads `… are NOT authored (no standard parameters are applied, so nothing carries them)`. (4) stale
+`pragma: no cover` on `apply_safe`'s guard dropped. After the fix: the four standards/factory modules
+205 passed / 5 skipped; sha table identical to the AFTER column (all 10 rows); `--check` 35/0; the
+famspec surface with `{"Color Rendering Index": 90, "Wattage": true, "Light Loss Factor": "inf"}` →
+exit 0 / OK / VALID, `filled ['Color Rendering Index']`, `values_unusable ['Light Loss Factor' (inf is
+not a finite number)]`, `values_not_placed ['Wattage']` (the constructor's own parameter — the bool
+never reaches it).
+
+## Follow-ups
+
+- Filed **#647**: `FamilyDoc` stores every type-row value in its parameter's storage class (the rule
+  moves from `standards.apply` into `skeleton`'s store points) — area:famgen, Refs #642.
+
+## BRANCH STATE (eng #642)
+
+Branch `cam/642-standards-apply-safe` from `main` @ 3f18806. Files written:
+`src/rvt/famgen/standards.py` (`apply_safe`, `coerce_value`, coercion + `values_unusable` in `apply`,
+switchboard `Sections` row + synonym group, docstrings), `src/rvt/famgen/factory.py` (`_std` removed,
+six call lines → `ST.apply_safe`, module-level import), `src/rvt/ifc/famfrom_ifc.py` (the call line +
+its now-subsumed off-note, import, docstring), `src/rvt/ifc/intent.py` (`make_house_switchboard`:
+two kwargs, one call, `standards=` on the product, docstring), `tests/test_standards_apply_safe.py`
+(new, 46 cases), `tests/ci_shard.d/642-standards-apply-safe.txt` (new), `tests/test_famgen_standards.py`
+(the one contract-set expectation above), mirrors via `tools/sync_plugin.py`
+(`plugin/lib/src/rvt/{famgen/factory,famgen/standards,ifc/famfrom_ifc,ifc/intent}.py`), this section.
+Everything **shipped** on the branch; nothing staged for a viewer batch (no writer path, base or
+certified file touched).

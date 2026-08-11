@@ -81,6 +81,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from .. import _jsonsafe
 from ..famgen import factory as F
 from ..famgen import skeleton as SK
+from ..famgen import standards as ST
 from ..famgen import geometry as G
 from ..genesis.types import inches
 from . import product_facts as PF
@@ -425,8 +426,8 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
     connector's bindings; unset = 0 when not sourced), the ``Photometric
     Web File`` REFERENCE (a URL/path text, never an .ies payload) and --
     ``standards`` on, the default -- the Lighting Fixtures STANDARD set,
-    applied by the factory's own step (``factory._std`` ->
-    ``rvt.famgen.standards.apply``): the TABLE authors those parameters
+    applied by the one shared step (``rvt.famgen.standards.apply_safe``):
+    the TABLE authors those parameters
     (spelling, spec, group), the ``lumens`` / ``cct`` job values fill its
     ``Luminous Flux`` / ``Initial Color Temperature``
     (:data:`PHOTOMETRIC_JOB_VALUES`), ``standard_values`` fills any other
@@ -610,14 +611,13 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
         con_note = ("envelope variant: datum-hosted connector (Ref. Level, tag 0 -- the S0e "
                     "pattern) at the can top; the standard variant hosts it on the J-box face")
 
-    # -- the category's STANDARD parameters (#601/#631): the factory's own step --
+    # -- the category's STANDARD parameters (#601/#631): the one shared step
+    # (rvt.famgen.standards.apply_safe, #642) -- given values it cannot author
+    # because standards are off are named there, job values and the caller's alike
     std_values = {caption: v for key, caption in PHOTOMETRIC_JOB_VALUES
                   if (v := g(key)) is not None}
-    if std_values and not standards:
-        doc.notes.append(f"standards off: the given {sorted(std_values)} are NOT "
-                         f"authored (they are standard parameters of the category)")
     std_values.update(standard_values or {})
-    std_report = F._std(doc, STD_CATEGORY, standards, std_values)
+    std_report = ST.apply_safe(doc, STD_CATEGORY, standards, std_values)
     doc.finalize()
     prod = DownlightProduct(doc=doc, facts=fs, product_facts=pf, forms=forms,
                             detail=detail,

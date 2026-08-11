@@ -2566,7 +2566,9 @@ def make_house_switchboard(*, tag: str = "MSB", name: str = "Switchboard",
                           mounting: str = "floor", feeder_entry: str = "top",
                           manufacturer: str = "", model_label: str = "",
                           width_m: float, depth_m: float, height_m: float,
-                          solid: bool = True, start_id: int = 1000):
+                          solid: bool = True, start_id: int = 1000,
+                          standards: bool = True,
+                          standard_values: Optional[Dict[str, Any]] = None):
     """Compose OUR floor-standing SWITCHBOARD family (Electrical Equipment,
     part type 16 = switchboard) from OUR OWN IFC-modeled dimensions -- the
     honest fallback when no catalog line covers the rating.  Same building
@@ -2579,10 +2581,18 @@ def make_house_switchboard(*, tag: str = "MSB", name: str = "Switchboard",
     Every dimension is flagged 'given' (source = our IFC), never a catalog
     fact; ``manufacturer`` / ``model_label`` are the IFC-DECLARED identity
     strings carried as parameter values, flagged 'ifc-declared'.
+
+    ``standards`` (on by default) applies the Electrical Equipment
+    ``switchboard`` STANDARD set through the one shared step
+    (``rvt.famgen.standards.apply_safe``, #642) like every other constructor:
+    the pset ratings this constructor authors and fills itself are left as
+    made, every other entry is an honest BLANK unless ``standard_values``
+    carries it -- nothing here invents a value the intent did not hold.
     """
     from ..famgen import factory as F
     from ..famgen import skeleton as SK
     from ..famgen import geometry as G
+    from ..famgen import standards as ST
 
     W = float(width_m) * FT_PER_M
     D = float(depth_m) * FT_PER_M
@@ -2675,8 +2685,9 @@ def make_house_switchboard(*, tag: str = "MSB", name: str = "Switchboard",
     # X=Width, Y=Depth in the plan sketch
     from ..famgen import param_drive as PD
     PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+    std_report = ST.apply_safe(doc, "switchboard", standards, standard_values)
     doc.finalize()
-    prod = F.FamilyProduct("switchboard", doc, sheet, forms=[fb],
+    prod = F.FamilyProduct("switchboard", doc, sheet, forms=[fb], standards=std_report,
                            file_stem=re.sub(r"[^a-z0-9_]+", "_",
                                              f"switchboard_{tag}_{mains_a:g}A_{vs.get('system') or 'v'}".lower()))
     prod.notes.append("house switchboard from OUR IFC-modeled dimensions (no catalog "

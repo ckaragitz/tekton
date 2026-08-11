@@ -77,6 +77,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 from . import catalog as C
 from . import skeleton as SK
 from . import geometry as G
+from . import standards as ST
 from ..genesis.types import inches, mm
 
 _ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -981,10 +982,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # type row at its own storage class's blank ("" / 0 / 0.0) rather than
     # add_type's numeric 0.0 -- and skipped wherever the constructor already
     # authored that name (Width/Depth/Height, a caller's text parameter).
-    std_report = None
-    if standards:
-        from . import standards as ST
-        std_report = ST.apply(doc, category, values=standard_values)
+    std_report = ST.apply_safe(doc, category, standards, standard_values)
     # PARAMETRIC DRIVE -- OFF BY DEFAULT, and that is a desktop verdict, not
     # caution.  Wiring the #372 chain (side RefPlanes + Alignments + labeled
     # dimensions) onto a multi-part generic model builds and validates cleanly
@@ -1197,10 +1195,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                         f"{H * 12.0:g} H in -- geometry GIVEN ({source}), "
                         f"no catalog record claimed"),
     })
-    std_report = None
-    if standards:                                    # category standards, #601
-        from . import standards as ST
-        std_report = ST.apply(doc, category, values=standard_values)
+    std_report = ST.apply_safe(doc, category, standards, standard_values)   # category standards, #601
     r = G.REP_SOLID if solid else G.REP_DUMMY
     if prof is not None:
         fb = add_polygon_form(doc, prof.vertices, H, base_z_ft=base_z_ft, rep=r)
@@ -1455,26 +1450,10 @@ class FamilyProduct:
 # family assembly helpers shared by the three product constructors
 # ---------------------------------------------------------------------------
 
-def _std(doc: SK.FamilyDoc, category: Any, on: bool,
-         values: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
-    """Apply the category's standard parameters (#601) if asked, and never let
-    that step block delivery (hard rule 1)."""
-    if not on:
-        return None
-    from . import standards as ST
-    try:
-        return ST.apply(doc, category, values=values)
-    except Exception as e:                            # pragma: no cover
-        doc.notes.append(f"category standards NOT applied "
-                         f"({type(e).__name__}: {str(e)[:120]})")
-        return None
-
-
 def _standards_note(rep: Dict[str, Any]) -> str:
     """The one line a product carries about its category standards (#601):
     what it got, and -- when the names are the content convention rather than
     a verified contract -- that they are INFERRED spellings."""
-    from . import standards as ST
     if not rep.get("covered"):
         return f"category standards: {ST.NO_TABLE_NOTE}"
     applied = rep.get("applied") or []
@@ -1811,7 +1790,7 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     #    parameter and still sizes the geometry at generation time.
     from . import param_drive as PD
     PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
-    std_report = _std(doc, "panelboard", standards, standard_values)
+    std_report = ST.apply_safe(doc, "panelboard", standards, standard_values)
     doc.finalize()
     prod = FamilyProduct("panelboard", doc, facts, forms=[fb], types=rows,
                          standards=std_report,
@@ -1951,7 +1930,7 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                   bind_voltage_param="Secondary Voltage",
                   bind_load_param="kVA Rating",
                   load_class="Power", description="Secondary", primary=False)
-    std_report = _std(doc, "transformer", standards, standard_values)
+    std_report = ST.apply_safe(doc, "transformer", standards, standard_values)
     doc.finalize()
     prod = FamilyProduct("transformer", doc, facts, forms=[fb], types=rows,
                          standards=std_report,
@@ -2091,7 +2070,7 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
         # parametric drive (issue #372): the troffer sketch is X=Length, Y=Width
         from . import param_drive as PD
         PD.wire_panelboard_drive(doc, x_caption="Length", y_caption="Width")
-    std_report = _std(doc, "lighting_fixture", standards, standard_values)
+    std_report = ST.apply_safe(doc, "lighting_fixture", standards, standard_values)
     doc.finalize()
     stem = ("troffer_" + _slug(size) + "_recessed") if shape == "box" \
         else _slug(f"downlight_{facts.get('aperture_in'):g}in")
@@ -2177,7 +2156,7 @@ def make_device(kind: str = "duplex-receptacle", *,
                   bind_voltage_param="Voltage", bind_load_param="Apparent Load",
                   load_class="Receptacle" if "Receptacle" in label else "Power",
                   description="Power Connection", primary=True)
-    std_report = _std(doc, "electrical_fixture", standards, standard_values)
+    std_report = ST.apply_safe(doc, "electrical_fixture", standards, standard_values)
     doc.finalize()
     prod = FamilyProduct("device", doc, facts, forms=[plate, box], types=rows,
                          standards=std_report,

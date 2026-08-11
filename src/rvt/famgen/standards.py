@@ -29,8 +29,9 @@ WHAT IS AND IS NOT VERIFIED -- read this before adding a row.
                    the authored set never duplicates one.
   - ``contract``   the name comes from an in-repo tagging contract
                    (``skills/tekton-ifc/references/shared-parameters-mapping.md``,
-                   ``factory.PANEL_CONTRACT_PARAMS``) -- a name a tekton
-                   schedule/tag already binds to.
+                   ``factory.PANEL_CONTRACT_PARAMS``, the pset keys
+                   ``rvt.ifc.intent.CONTRACT_KEYS`` joins on) -- a name a
+                   tekton schedule/tag already binds to.
   - ``convention`` the name is the industry content convention for that
                    category.  **INFERRED**: no in-repo verified source says
                    Revit spells it exactly this way.  The parameter is real,
@@ -60,6 +61,15 @@ table's spelling rather than a legacy one.  Where a legacy spelling is KEPT it
 is the category's single entry and its row says why (the transformer's
 ``Weight``).
 
+ONE STEP FOR EVERY CONSTRUCTOR (#642).  :func:`apply_safe` is the guarded
+call every model-family constructor makes (the factory's five, the IFC-born
+downlight, the intent's house switchboard): standards off -> no report, and any
+values the caller offered are NAMED as not authored; standards on -> :func:`apply`,
+and a fault in this module becomes a note on the document, never a failed
+delivery (hard rule 1).  A given value is written in its parameter's own storage
+class (:func:`coerce_value`): ``90`` for a number-spec ``Color Rendering Index``
+lands as the double 90.0 Revit reads, not in the integer slot beside a 0.0.
+
 STRUCTURAL STATUS.  Authoring N family parameters is the same machinery,
 repeated, that the desktop-verified panelboard (11 contract parameters) and the
 generated generic models already ship; nothing new is written to the file.  The
@@ -73,6 +83,7 @@ and edits no writer path).
 from __future__ import annotations
 
 import json
+import math
 import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -83,8 +94,8 @@ __all__ = [
     "StdParam", "ORIGIN_BUILTIN", "ORIGIN_CONTRACT", "ORIGIN_CONVENTION",
     "SPECS", "GROUPS", "NON_MEASURABLE", "COMMON_BUILTINS",
     "CATEGORY_STANDARDS", "CATEGORY_ALIASES", "canonical_category",
-    "standard_params", "authored_params", "describe", "apply", "table",
-    "check_specs", "units_spec_ids", "NO_TABLE_NOTE",
+    "standard_params", "authored_params", "describe", "apply", "apply_safe",
+    "coerce_value", "table", "check_specs", "units_spec_ids", "NO_TABLE_NOTE",
     "SYNONYM_GROUPS", "meaning_key",
 ]
 
@@ -284,6 +295,7 @@ SYNONYM_GROUPS: Tuple[Tuple[str, ...], ...] = (
     ("ShortCircuitRatingkA", "Short Circuit Rating", "SCCR",
      "Short Circuit Current Rating", "AIC Rating"),
     ("NumberOfCircuits", "Number of Circuits", "Circuit Count"),
+    ("Sections", "Number of Sections", "Section Count"),
     ("Enclosure Rating", "Enclosure", "Enclosure Type", "NEMA Rating", "NEMA Type"),
     ("Full Load Amps", "FLA", "Full Load Current"),
     ("Minimum Circuit Ampacity", "MCA"),
@@ -466,7 +478,10 @@ CATEGORY_STANDARDS: Dict[str, Tuple[StdParam, ...]] = {
         _P("MainsRating", "current", "electrical", origin=ORIGIN_CONTRACT),
         _P("ShortCircuitRatingkA", "number", "electrical", origin=ORIGIN_CONTRACT),
         _P("Bus Material", "text", "materials", note="copper / aluminium bus"),
-        _P("Number of Sections", "integer", "identity"),
+        # the lineup's section count under the tagging contract's spelling
+        # (SwitchboardSchedule.Sections, rvt.ifc.intent.CONTRACT_KEYS) -- the
+        # one make_house_switchboard authors and fills; #642
+        _P("Sections", "integer", "electrical", origin=ORIGIN_CONTRACT),
     ), _EE_COMMON),
 
     "transformer": _merge((
@@ -843,6 +858,45 @@ def _blank(spec_key: str) -> Any:
     return 0.0
 
 
+def _offered(values: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """The values a caller actually offered: a ``None`` value is no value."""
+    return {str(k): v for k, v in (values or {}).items() if v is not None}
+
+
+def coerce_value(spec_key: str, value: Any) -> Any:
+    """A given value in the storage class its parameter is WRITTEN in.
+
+    ``skeleton.family_param_value`` files a value by its Python type -- str
+    -> ``m_str``, int -> ``m_int``, float -> ``m_value`` -- so an int handed
+    to a double-spec parameter (JSON ``{"CCT": 3000}``, ``{"Color Rendering
+    Index": 90}``) used to sit in the integer slot next to an ``m_value`` of
+    0.0, which is what Revit shows (#642).  Here the ENTRY decides: ``text``
+    -> str, ``integer`` -> int (a whole number only), every measurable spec
+    -> float.  A numeric string is read as the number it spells; a bool is a
+    0/1 flag for an ``integer`` spec only (``Emergency``, ``GFCI Protected``)
+    and never a quantity (``{"Wattage": True}`` is not 1 W); ``inf`` / ``nan``
+    are never a value.  Anything else raises ``ValueError`` / ``TypeError``
+    and :func:`apply` leaves that parameter BLANK and names the value as
+    unusable -- a value is coerced, never guessed at (S-2026-08-11-a)."""
+    if spec_key == "text":
+        return str(value)
+    if isinstance(value, bool):
+        if spec_key != "integer":
+            raise TypeError(f"a bool is a 0/1 flag, not a {spec_key} quantity")
+        return int(value)
+    if isinstance(value, str):
+        value = float(value.strip())
+    elif not isinstance(value, (int, float)):
+        raise TypeError(f"a {type(value).__name__} is not a {spec_key} value")
+    if not math.isfinite(value):
+        raise ValueError(f"{value!r} is not a finite number")
+    if spec_key == "integer":
+        if float(value) != int(value):
+            raise ValueError(f"{value!r} is not a whole number")
+        return int(value)
+    return float(value)
+
+
 def apply(doc: "SK.FamilyDoc", category: Any, *,
           values: Optional[Dict[str, Any]] = None,
           skip: Sequence[str] = (),
@@ -861,7 +915,10 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
     that carries it; this never redefines a parameter and never adds a blank
     twin.  Two spellings of one quantity in ``values`` fill it once (the
     table's spelling wins, else the first given) and the other is listed in
-    ``values_not_placed``.
+    ``values_not_placed``.  Each value is written in its entry's storage
+    class (:func:`coerce_value`); one that cannot be (``"warm"`` for a colour
+    temperature) leaves the parameter BLANK and is named in
+    ``values_unusable``.  A ``None`` value is no value: the slot stays blank.
 
     Returns the report: what was authored, what was skipped and why, and the
     category's note.  Never raises for a merely unknown category (hard rule 1:
@@ -876,8 +933,8 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
     # ``values_not_placed`` -- nothing vanishes unannounced.
     vals: Dict[str, Tuple[str, Any]] = {}
     shadowed: List[str] = []
-    for k, v in (values or {}).items():
-        name, mk = str(k), meaning_key(k)
+    for name, v in _offered(values).items():
+        mk = meaning_key(name)
         if mk not in vals:
             vals[mk] = (name, v)
         elif name in table_names and vals[mk][0] not in table_names:
@@ -887,6 +944,8 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
             shadowed.append(name)
     skipped: List[Dict[str, str]] = []
     authored: List[Dict[str, Any]] = []
+    unusable: List[Dict[str, str]] = []
+    placed: set = set()                                  # meanings whose given value is accounted for
     if doc.finalized:
         raise ValueError("document is finalized; apply standards before finalize")
     present = {meaning_key(n): n for n in doc.params}    # meaning -> the spelling carrying it
@@ -908,8 +967,17 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
                             if twin == p.name else
                             f"already on the document as {twin!r} (the same quantity)"})
             continue
+        val = _blank(p.spec)
+        given = vals.get(mk)                       # (the caller's spelling, value) or None
+        if given:
+            gname, gv = given
+            try:
+                val = coerce_value(p.spec, gv)
+            except (TypeError, ValueError) as e:   # the slot stays BLANK, the value is named
+                unusable.append({"name": gname, "why": f"{gv!r} cannot be written as {p.spec} ({e})"})
+                placed.add(mk)
+                given = None
         try:
-            val = vals[mk][1] if mk in vals else _blank(p.spec)
             doc.add_family_parameter(p.name, p.spec_id, p.group_id,
                                      is_instance=p.instance, default=val)
         except Exception as e:                     # never block delivery
@@ -917,24 +985,58 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
                             "why": f"{type(e).__name__}: {str(e)[:120]}"})
             continue
         present[mk] = p.name
+        if given:
+            placed.add(mk)
         authored.append({"name": p.name, "spec": p.spec, "group": p.group,
                          "instance": p.instance, "origin": p.origin,
-                         "value": "given" if mk in vals else "blank"})
+                         "value": "given" if given else "blank"})
     rep["applied"] = authored
     rep["skipped"] = skipped
     rep["filled"] = sorted(a["name"] for a in authored if a["value"] == "given")
-    filled_keys = {meaning_key(n) for n in rep["filled"]}
-    unknown = sorted([name for mk, (name, _v) in vals.items() if mk not in filled_keys]
+    unknown = sorted([name for mk, (name, _v) in vals.items() if mk not in placed]
                      + shadowed)
     if unknown:
         rep["values_not_placed"] = unknown
+    if unusable:
+        rep["values_unusable"] = unusable
     doc.notes.append(
         f"category standards ({rep['category']}): {len(authored)} standard "
         f"parameters authored, {len(rep['filled'])} filled from given facts, "
         f"{len(skipped)} skipped"
+        + (f", {len(unusable)} given values unusable ({[u['name'] for u in unusable]})"
+           if unusable else "")
         if rep["covered"] else
         f"category standards ({rep['category']}): {NO_TABLE_NOTE}")
     return rep
+
+
+def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
+               values: Optional[Dict[str, Any]] = None,
+               **kw: Any) -> Optional[Dict[str, Any]]:
+    """The standards step EVERY model-family constructor calls (#642) --
+    :func:`apply` under the two guarantees a constructor needs.
+
+    ``on`` False (the caller's ``standards=False``, the regression control):
+    nothing is authored and ``None`` comes back -- but ``values`` the caller
+    offered are standard parameters that will now NOT exist, and that is said
+    on the document, naming them, never dropped silently.  ``on`` True: the
+    report of :func:`apply`; if this module itself faults, the family is still
+    built and delivered with a note saying the standards were not applied and
+    why (hard rule 1: a status is a label, never refusal logic).  ``kw`` passes
+    ``skip`` / ``instance_params`` through."""
+    if not on:
+        offered = sorted(_offered(values))
+        if offered:
+            doc.notes.append(f"standards off ({canonical_category(category)}): the "
+                             f"given {offered} are NOT authored (no standard "
+                             f"parameters are applied, so nothing carries them)")
+        return None
+    try:
+        return apply(doc, category, values=values, **kw)
+    except Exception as e:                            # never block delivery
+        doc.notes.append(f"category standards NOT applied "
+                         f"({type(e).__name__}: {str(e)[:120]})")
+        return None
 
 
 # ---------------------------------------------------------------------------
