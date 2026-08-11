@@ -714,8 +714,12 @@ engineer's voice under its own header; nothing above this rule was edited.
    none of the forbidden names and has no leak guard; none was added (adoption only — a guard would be a new assertion).
 4. **`tests/test_conftest_scaffolding.py`** — `EXEMPT` loses `test_rvt_edit_refusal` and `test_release_ctx_refusal`;
    it is now `{"test_gates_shared_walk"}` alone, and the `#:` comment on it no longer says "a copy another stream owns"
-   (the survivor is exempt for its `mutate`-shaped helper, #604). No law logic touched; `ADOPTERS` deliberately NOT
-   extended here (territory = the EXEMPT lines; see follow-ups / #605).
+   (the survivor is exempt for its `mutate`-shaped helper, #604); and — on the tech lead's ruling in review, since it is
+   list data, not law logic — `ADOPTERS` gains `test_rvt_edit_refusal` and `test_release_ctx_refusal`, so
+   `test_adopter_keeps_the_leak_guard_on` ratchets the two files this PR turned from an **autouse** guard into a one-line
+   `pytestmark` opt-in (the module docstring's "six adopters" / "copies another stream still owns" wording follows).
+   That is the ONE intended collection change of the PR: the law file goes 13 → 15 ids (+ the two `[stem]` rows); no
+   law logic touched.
 
 ### Evidence
 
@@ -727,8 +731,8 @@ engineer's voice under its own header; nothing above this rule was edited.
 | `tests/test_rvt_edit_refusal.py` | 11 | 11 | empty | 11 passed | 11 passed |
 | `tests/test_release_ctx_refusal.py` | 15 | 15 | empty | 15 passed | 15 passed |
 | `tests/test_edit_status.py` | 9 | 9 | empty | 9 passed | 9 passed |
-| `tests/test_conftest_scaffolding.py` | 13 | 13 | empty | 13 passed | 13 passed |
-| the four together (`-q -rs`) | 48 | 48 | — | **48 passed, 0 skipped** in 5.06 s | **48 passed, 0 skipped** in 5.38 s |
+| `tests/test_conftest_scaffolding.py` | 13 | 15 | +2: `test_adopter_keeps_the_leak_guard_on[test_rvt_edit_refusal]` / `[test_release_ctx_refusal]`, nothing else | 13 passed | 15 passed |
+| the four together (`-q -rs`) | 48 | 50 | the `-v` id+outcome `diff` = exactly those two added `PASSED` rows | **48 passed, 0 skipped** in 5.06 s | **50 passed, 0 skipped** in 5.48 s |
 
 `RVT_DOCS_AUDIT=report` census of that run, before and after: `0 repo docs/ file(s) opened by this test process` — unchanged.
 
@@ -747,7 +751,8 @@ dropped by the override); in `test_rvt_edit_refusal.py` the framing rebind → `
 **The law bites both ways** (mutations, reverted): appending `def _rewrite_stream(src, dst, name, damage): …` to
 `test_rvt_edit_refusal.py` → `test_no_module_carries_a_private_copy` FAILED naming the file; re-adding
 `"test_release_ctx_refusal"` to `EXEMPT` → `test_the_exempt_list_only_names_files_that_exist_and_still_need_it` FAILED
-with `test_release_ctx_refusal carries no copy any more: drop it from EXEMPT`.
+with `test_release_ctx_refusal carries no copy any more: drop it from EXEMPT`; deleting the `pytestmark = …usefixtures("no_release_leak")`
+line from `test_rvt_edit_refusal.py` → `test_adopter_keeps_the_leak_guard_on[test_rvt_edit_refusal]` FAILED (the new ratchet bites).
 
 `git grep -n "def _rewrite_stream\|def _no_leak\|^NATIVE_LAST\|^FOREIGN" -- tests/` → `tests/conftest.py:250-251`
 (`FOREIGN_FIRST` / `FOREIGN`) and `tests/test_gates_shared_walk.py:106` (the exempt `_rewrite_stream(…, mutate)`) only.
@@ -762,8 +767,9 @@ skipped — tests-only diff, no runtime surface (commit trailer says so).
 ```
 origin/main 59a89d8 (worktree)     2036 passed, 134 skipped, 3 xfailed, 3 warnings in 570.91s
 this branch, first cut             2036 passed, 134 skipped, 3 xfailed, 3 warnings in 557.22s
-this branch, final head (bc73d8d)  2036 passed, 134 skipped, 3 xfailed, 3 warnings in 558.41s   (post-/simplify; = main, nothing moved)
+this branch, bc73d8d              2036 passed, 134 skipped, 3 xfailed, 3 warnings in 558.41s   (post-/simplify; = main, nothing moved)
 ```
+The review-round head adds only the two `ADOPTERS` rows in the law file (four files re-run: 50 passed; expected shard = main + 2).
 The 3 warnings are main's (`PytestRemovedIn10Warning`); skips identical (134).
 
 ### The optional stretch — not taken, and why (each is more than a rename)
@@ -795,14 +801,15 @@ damaged copy, same pin reads, every `bad` / `trunc64k*` / `schema_dmg` fixture s
 used is the designed one; three deeper placements surfaced, all outside this territory, filed as #605: a conftest
 `context_constants()` (the write-side sibling of `ladder_constants()` — today three in-process context callers watch three
 different subsets of what `host_release_context` swaps), the law's `ADOPTERS` ratchet extended to the two files this PR
-turned from an autouse guard into a one-line opt-in, and `test_edit_status.py` opting into the guard at all.
+turned from an autouse guard into a one-line opt-in (since pulled INTO this PR on the tech lead's ruling — above), and
+`test_edit_status.py` opting into the guard at all.
 
 ### Follow-ups (filed, task-shaped)
 
 - **#604** — `test_gates_shared_walk.py` adopts `rewrite_stream` / `partition_of` (mutate → damage reshaping) and `EXEMPT` becomes empty. Refs #602 #579.
-- **#605** — conftest `context_constants()`; the in-process context callers hand it to `release_leak_extra`; `ADOPTERS` covers every adopter; `test_edit_status.py` opts in. Refs #602 #579.
+- **#605** — conftest `context_constants()`; the in-process context callers hand it to `release_leak_extra`; `test_edit_status.py` opts in (its `ADOPTERS` bullet is already done here for the two refusal files; what remains of it is "derive the list"). Refs #602 #579.
 
 BRANCH STATE (cam/602-conftest-adoption): `tests/test_rvt_edit_refusal.py`, `tests/test_release_ctx_refusal.py`,
-`tests/test_edit_status.py` (helper adoption only), `tests/test_conftest_scaffolding.py` (the two `EXEMPT` deletions only),
+`tests/test_edit_status.py` (helper adoption only), `tests/test_conftest_scaffolding.py` (the two `EXEMPT` deletions, `ADOPTERS` += the two refusal files, wording),
 this section. No `tests/conftest.py` change; nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed
 (all four files already in the merged shard); nothing staged for the viewer; no certification claim.
