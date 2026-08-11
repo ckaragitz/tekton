@@ -155,6 +155,42 @@ an argument with it.
   conclusion is that direction is fixed by the element kind itself. `RevolutionElem` is
   then the only road — and a sphere needs it regardless.
 
+## ROUND 4 VERDICT: THE B-REP DRIVES THE DISPLAY
+
+Owner, Revit 2026.5, `R4_wheel_rotated_brep` — sketch untouched, cached B-rep rotated 90°
+about X:
+
+| view | rounds 1–3 (flat disc) | round 4 | a cylinder along Y should show |
+|---|---|---|---|
+| Plan (Ref. Level) | circle | **rectangle** | rectangle 3.44 (X) × 0.95 (Y) ✓ |
+| Left elevation | wide flat rectangle | **narrow, tall rectangle** | 0.95 wide × 3.44 tall ✓ |
+
+Both views moved, and moved the way a cylinder lying along Y moves. **The cached B-rep is
+what Revit draws** — which is why three rounds of editing the sketch changed nothing, and
+why `cyl_surf`'s hard-wired `m_zVec = [0, 0, 1]` was the whole story.
+
+### Still to confirm: round or boxy
+
+The decisive view is the **Front elevation** (or 3D), which must show a **CIRCLE** — the
+wheel's round face. A rectangle there would mean the rotation moved the solid but mangled
+its curved surfaces, and the `CylSurf` frame needs more than a rigid rotation.
+
+### The consequence nobody should skip
+
+The sketch and the B-rep now **disagree**: the sketch still describes a vertical extrusion,
+the B-rep a horizontal cylinder. Revit is showing the B-rep, but a **regeneration** — any
+parameter edit, a flex, possibly a reload — may rebuild from the sketch and snap the wheel
+upright. That is the next thing to MEASURE (open the family, change a dimension, look),
+not to assume in either direction. A wheel that is round until someone touches it is worth
+knowing about before it ships.
+
+Two roads from here, and the choice depends on that measurement:
+
+* the B-rep alone is enough for *display-only* content → wheels ship now, with the
+  regeneration caveat recorded honestly in the matrix;
+* regeneration snaps it back → the parametric side has to agree, which means the
+  extrusion's own sweep direction, and if that has no expression, `RevolutionElem`.
+
 ## Rebuild
 
 ```bash
