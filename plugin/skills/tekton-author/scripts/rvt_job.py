@@ -237,25 +237,19 @@ def scrub_identity(path: str, *, document_guid: Optional[str] = None) -> dict:
     """Rewrite ``path``'s BasicFileInfo with OUR identity (in place).
 
     Used after a manipulate commit (commit_plans does not touch
-    BasicFileInfo).  Reads the CFB, replaces the ONE unframed stream via
-    rvt.identity.own_basic_file_info, re-writes the container.
+    BasicFileInfo).  The ONE unframed stream goes through
+    rvt.identity.own_basic_file_info; the container is re-emitted in place
+    by rvt.roundtrip.rewrite_entries (its atomicity, mode and permission
+    law).  A file without the stream is "identity not scrubbed" -- a
+    RuntimeError from the API's KeyError, before a byte is written.
     """
-    from rvt.cfb_writer import write_cfb
-    from rvt.identity import own_basic_file_info
-    from rvt.roundtrip import read_entries
-    entries = read_entries(path)
-    out_entries, done = [], False
-    for e in entries:
-        if e.entry_type == "stream" and e.path == "BasicFileInfo":
-            e = dataclasses.replace(e, data=own_basic_file_info(
-                e.data, out_path=path, document_guid=document_guid))
-            done = True
-        out_entries.append(e)
-    if not done:
-        raise RuntimeError("BasicFileInfo stream not found; identity not scrubbed")
-    tmp = path + ".idtmp"
-    write_cfb(tmp, out_entries)
-    os.replace(tmp, path)
+    from rvt.identity import BFI_STREAM, own_basic_file_info
+    from rvt.roundtrip import rewrite_entries
+    try:
+        rewrite_entries(path, path, {BFI_STREAM: lambda raw: own_basic_file_info(
+            raw, out_path=path, document_guid=document_guid)})
+    except KeyError as exc:
+        raise RuntimeError("BasicFileInfo stream not found; identity not scrubbed") from exc
     return {"scrubbed": True, "document_guid": document_guid}
 
 

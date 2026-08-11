@@ -1,0 +1,2 @@
+# tools/rvt_job.py::scrub_identity folded onto rewrite_entries: contract + the edit lane on the pinned bases (fresh-clone safe)
+tests/test_rvt_job_scrub_656.py
