@@ -441,3 +441,179 @@ BRANCH STATE (cam/557-portable-paths-conftest-helpers): `tests/test_portable_pat
 section. No `tests/conftest.py` change, nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed
 (the file is already in the merged shard); nothing staged for the viewer; no certification claim. Whole merged shard on
 the final head: `RVT_SKIP_LARGE=1 … -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)` → **2012 passed, 134 skipped, 3 xfailed** in 491 s (docs-read audit on, no section printed = no offender), exit 0.
+
+---
+
+## 2026-08-10 — eng #579: the own-release test scaffolding lives once, in `tests/conftest.py`
+
+**Stream:** tests-release-scaffolding, eng #579 (issue #579; Refs #566, #533, #518, #451). Written in this
+engineer's voice under its own header; nothing above this rule was edited (eng #557 adds its own header to this
+file in the same wave — different lines).
+
+### What landed
+
+1. **`tests/conftest.py` — one new section, "the shared own-release scaffolding (#579)"**, placed after the `job`
+   fixture; every pre-existing gate, fixture and hook is byte-intact (the module docstring gained one clause and
+   `import dataclasses`; `from rvt import versions as _V` is a name for a module `frontdoor.base` had already loaded —
+   `python -c "import conftest"` lists the same twelve `rvt.*` modules before and after). Exports:
+   - `FOREIGN_FIRST` = `CERTIFIED_YEARS` with the native release **last** (a context leaked by a 2025/2024 run breaks
+     the native run after it, in-process, instead of hiding), `FOREIGN` = the foreign pins alone, same order — the
+     exact expressions five files carried (`sorted(…, key=lambda y: y == V.LATEST_RELEASE)`; stable sort ⇒ `FOREIGN`
+     is also `[y for y in CERTIFIED_YEARS if y != LATEST]`, the spelling `test_natively_framed` / `test_edit_text_release` used — pinned by the law file);
+   - `native_constants()` — the framing table (`V.framing_table(LATEST)` keys read off `rvt.partitions`) +
+     `release_ctx.active_release()`; and `ladder_constants()` — what the instrument ladder swaps on top
+     (`objects.iter_records`, `adocument._DECODER`, `famdoc_adoc.FAMILY_END_RECORD`), a separate callable so only a
+     file that climbs the ladder pays for the famgen import (the issue's ask) and the ONE list to grow when the ladder
+     learns another name. Every engine import inside both is lazy: conftest's import-time footprint is unchanged;
+   - the leak guard as two fixtures, pytest's own override idiom instead of a parameter smuggled through a module
+     global — and **additive**, so no override can drop the base watch: `release_leak_extra` (function-scoped, `None`
+     by default; a file overrides it with a zero-arg callable returning more `{name: value}` — `return ladder_constants`)
+     and `no_release_leak(release_leak_extra)` (opt-in: `snapshot() = native_constants()` updated with the extra;
+     `before = snapshot(); assert before["active_release"] is None; yield; assert snapshot() == before`). Files opt in
+     with `pytestmark = pytest.mark.usefixtures("no_release_leak")`, so nothing else in the suite pays for it and no
+     file defines a `_no_leak` of its own; set-up/tear-down order relative to the tests' `capsys`/`tmp_path`/`monkeypatch`
+     is what the autouse copy had (pytest builds the closure as `autouse, usefixtures, argnames` —
+     `_pytest/fixtures.py: deduplicate_names(autousenames, usefixturesnames, argnames)`; the guard is still first);
+   - `rewrite_stream(src, dst, name, damage) -> dst` — the superset of the two variants in the tree: `damage(raw)`
+     replaces the stream's raw (still paged) bytes, `damage=None` drops the stream (the refusal files' form), every
+     other entry byte-identical, `dst` returned as `str` (accepts `Path`); one deliberate tightening: a `name` the
+     container lacks is a `KeyError`, where the six-file variant raised from `open_rvt(src).raw(name)` and the
+     refusal variant wrote a silent verbatim copy. `read_entries()`' `e.data` **is** `RvtDocument.raw(name)` (both
+     `ole.openstream(...).read()`), so dropping the extra `open_rvt` pass changes no byte;
+   - `partition_of(path)` (first `Partitions/<N>`), and the damaged-copy recipes by name: `zero_partition_header`
+     (`bytes(16) + raw[16:]`, ×5 in the tree), `zero_schema_bytes` (`raw[:2000] + bytes(64) + raw[2064:]`, #518's
+     repro, ×6), `truncated_copy(src, dst, size)` (64 KiB / 4 KiB heads), `cfb_header_zeroed_copy(src, dst)` (first
+     sector zeroed: same size, not a container).
+2. **The six adopters** — helper adoption only; no assertion, test id, parametrize axis or skip condition changed:
+   `test_selfcheck_release.py`, `test_inspect_release.py`, `test_edit_text_release.py`, `test_natively_framed.py`,
+   `test_estorage_cli_release.py`, `test_edit_own_release.py`. Each lost its `_native_constants` + autouse `_no_leak`
+   (→ `pytestmark = usefixtures("no_release_leak")`; `test_inspect_release` / `test_estorage_cli_release` override
+   `release_leak_extra` with `return ladder_constants` — exactly the three extra keys their copies watched;
+   `test_edit_text_release` overrides it to keep watching `W.BLOCK_TRL_TAG` on top, as its copy did — redundant with
+   `TRAILER_TAG` since #467 made it a module `__getattr__`, kept so the assertion is literally the same;
+   `test_edit_own_release`'s `pytestmark` became a list: its `skipif` + the `usefixtures`), its `FOREIGN_FIRST`/`FOREIGN`,
+   `_rewrite_stream`, `_partition_of`, the two damage lambdas, the inline 64 KiB truncation and the two
+   copy-then-zero-512 stanzas; imports that only served the copies (`dataclasses`, `shutil`, `rvt.partitions`,
+   `release_ctx` where nothing else used them) went with them (pyflakes clean on all eight files).
+   **`test_estorage_cli_release.py` and eng #576:** the tech lead's coordination note (eng #576 flips that file's
+   `_has_usage_map_class()` predicate, the two 2024 else-branch strings and one docstring bullet on their head) is
+   honoured by construction — this PR touches only its import block, the `FOREIGN_FIRST`/`FOREIGN`/`ALL_FLAGS` lines,
+   the `_native_constants`/`_no_leak` block, the `_rewrite_stream`/`_partition_of` block and the two-line body of
+   `test_damaged_partition_is_a_stated_verdict`; the docstring, `_has_usage_map_class`, `_assert_full_report` and
+   `test_library_reports_an_absent_map_instead_of_raising` are byte-intact, so the two PRs touch disjoint hunks and
+   whoever lands second rebases mechanically.
+3. **`tests/test_conftest_scaffolding.py`** (new, 13 tests, in the shard via `tests/ci_shard.d/579-scaffolding.txt`) —
+   the AST law, **over every `tests/test_*.py`** rather than a list of six (post-/simplify altitude): no module binds
+   `_native_constants`/`_no_leak`/`_rewrite_stream`/`_partition_of`, its own `FOREIGN_FIRST`/`FOREIGN`/`NATIVE_LAST`, or
+   a top-level shadow of the conftest names — minus a shrinking `EXEMPT` = {`test_rvt_edit_refusal`,
+   `test_release_ctx_refusal` (eng #587's, the follow-up below), `test_gates_shared_walk` (a `_rewrite_stream(…, mutate)`
+   of another shape)}, itself checked (every exempt file exists and still binds a forbidden name, so the list cannot
+   go stale silently); the six adopters keep `no_release_leak` in their `pytestmark` (read from the AST); plus
+   behaviour rows: `FOREIGN_FIRST` ordering (native last; `FOREIGN` in the legacy order); `native_constants() ==
+   dict(framing_table, active_release=None)` and `ladder_constants()` = exactly the three swaps, disjoint from it; the
+   two damage recipes touch exactly their window; `rewrite_stream` on a real pin damages one stream, keeps every other
+   stream byte-identical, drops on `None`, `KeyError`s (and writes nothing) on a missing name; `truncated_copy` /
+   `cfb_header_zeroed_copy` produce what their names say. Pin-backed rows skip cleanly without a certified pin
+   (tracked assets, so they do run in CI).
+4. `docs/inbox/tests-release-scaffolding.md` — the record path issue #579's Territory names: a short pointer to this
+   section (the wave brief asked for the record here, next to the two earlier conftest hoists), so both hold.
+
+### Evidence
+**Per-file collected ids, before → after** (`.venv/bin/python -m pytest <file> -q -rs --collect-only -p no:cacheprovider | tail -1`,
+and the id lists themselves `diff`ed — every id identical, no rename, no re-parametrisation):
+
+| file | collected before | collected after | ids `diff` | run before | run after |
+|---|---|---|---|---|---|
+| `tests/test_selfcheck_release.py` | 9 tests collected | 9 tests collected | empty | 9 passed | 9 passed |
+| `tests/test_inspect_release.py` | 13 | 13 | empty | 13 passed | 13 passed |
+| `tests/test_edit_text_release.py` | 7 | 7 | empty | 7 passed | 7 passed |
+| `tests/test_natively_framed.py` | 17 | 17 | empty | 17 passed | 17 passed |
+| `tests/test_estorage_cli_release.py` | 10 | 10 | empty | 10 passed | 10 passed |
+| `tests/test_edit_own_release.py` | 11 | 11 | empty | 11 passed | 11 passed |
+| the six together (`RVT_SKIP_LARGE=1 RVT_DOCS_AUDIT=report … -q -rs`) | 67 | 67 | — | **67 passed, 0 skipped** in 10.02 s | **67 passed, 0 skipped** in 9.92 s |
+| + `tests/test_conftest_scaffolding.py` (new) | — | 13 | — | — | 80 passed in 11.13 s |
+
+Docs-read census of that run: `0 repo docs/ file(s) opened by this test process` before and after.
+
+**The guard still bites** (a throwaway `tests/test_zz_scratch_leak.py`, never committed, `usefixtures("no_release_leak")`
+module-wide): a test that rebinds `P.BLOCK_TAG` → `ERROR at teardown`; under a class overriding `release_leak_extra`
+with `ladder_constants`, a test that rebinds `objects.iter_records` → `ERROR at teardown` **and** one that rebinds
+`P.BLOCK_TAG` → `ERROR at teardown` (the extra cannot drop the base watch); without the extra an `iter_records` rebind
+passes, exactly as the four plain copies behaved. **The law bites:** appending `FOREIGN = []` + `def _rewrite_stream(): …`
+to `tests/test_selfcheck_release.py` → `test_no_module_carries_a_private_copy` red naming the file and both names
+(reverted; `git diff` clean afterwards).
+
+**`git diff origin/main --stat -- tests/`:** conftest + the six adopters `+164 −237` (net **−73** lines; conftest +113
+of docstring-heavy helpers, the six files −186); with the new law file (+139) and the one-line drop-in the tests tree
+is `+305 −237`. `grep -n "def _native_constants\|def _rewrite_stream" tests/` → `tests/test_release_ctx_refusal.py:72`
+and `tests/test_rvt_edit_refusal.py:65` only (eng #587's two, exempt above) — none in the six, none in conftest under
+the private names.
+
+**Whole merged shard** (`RVT_SKIP_LARGE=1 RVT_DOCS_AUDIT=report .venv/bin/python -m pytest -q -rs -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)`,
+same 4-vCPU cloud VM, sequential runs, 101 files on the branch = main's 100 + the law file):
+```
+origin/main db32071            2012 passed, 134 skipped, 3 xfailed, 3 warnings in 398.35s
+this branch, first cut         2024 passed, 134 skipped, 3 xfailed, 3 warnings in 416.47s   (+12 = the law file as first written)
+this branch, final head        2025 passed, 134 skipped, 3 xfailed, 3 warnings in 405.96s   (+13 = the law file, post-/simplify; = main + 13, nothing else moved)
+```
+Skips identical (134, the same `-rs` list: samples/experiments absent, gawk/busybox absent, root chmod, the inert
+self-test reader); the 3 warnings are main's (`PytestRemovedIn10Warning: Class-scoped fixture defined as instance
+method`). Docs-read census identical on all three runs: `3 repo docs/ file(s) opened…` — `docs/coverage/viewer-certified.json`,
+`docs/process/AUTONOMY.md`, `docs/product/PERMUTATION-MATRIX.md`, all `ok`, no `--`/`FAIL` rows.
+
+**Gates:** `python3 tools/dev/check_portable_paths.py` → `ok: 2981 tracked paths are portable` (2984 with the three new
+files); nothing under `src/ tools/ skills/ plugin/` touched (`sync_plugin.py --check` moot; `scripts/cloud-setup.sh`
+reported `plugin in sync with source` at session start); pyflakes clean on the eight touched test files; `/verify`
+skipped — tests-only diff, no runtime surface (commit trailer says so).
+
+### /simplify pass (four angles) — taken / not taken
+
+Taken: **altitude** — the snapshot override became *additive* (`release_leak_extra` merged onto `native_constants()`
+inside `no_release_leak`) instead of a replace-the-whole-callable `release_leak_snapshot`, so an override can no longer
+forget the framing table, and `native_constants(ladder=True)` (a flag that would have wanted a third sibling for the
+refusal files' `RC._REFUSED`/`MU`/`GSK`/`SA` watches) became `native_constants()` + `ladder_constants()` — the refusal
+files slot in later as one `release_leak_extra` override each without touching conftest; the AST law runs over every
+`tests/test_*.py` with a self-checking `EXEMPT` set instead of enumerating six adopters and special-casing
+`test_edit_own_release`, and reads `pytestmark` from the AST instead of substring-matching `ast.unparse`.
+**Simplification** — one `os.fspath` per helper instead of eleven; the law's derivable `EXPORTS` list and its restated
+`FOREIGN` assertion dropped; one `FORBIDDEN` set over all top-level bound names; the two ladder adopters lost their
+`import functools` + `partial` (a one-line `return ladder_constants`); the `test_edit_own_release` comment is one line.
+**Efficiency** — clean against "no more work than before" (one *fewer* container open per damaged copy: the old helper
+did `open_rvt(src).raw(name)` and then `read_entries(src)`; conftest import time unchanged — `rvt.versions` was already
+in `sys.modules` via `_B.release_status`, everything else lazy). **Reuse** — clean: no engine or test helper already did
+any of this (nearest are private dev-probe helpers in `tools/regcorner_probe.py` / `tools/terminal_diff.py`).
+Not taken, with reason: deriving the watch list from the engine's own rebinding tables (`records32._patch_table()`,
+`global_framing`'s inline `saved` list) so it cannot drift — needs an exported table in `src/rvt/`, outside this
+tests-only territory (follow-up below); an engine-level `rvt.roundtrip.rewrite(src, dst, replace=…, drop=…)` that
+conftest and the ~5 tool/test re-implementations would share — `src/` again (follow-up); a module-scoped `before`
+snapshot in the law file to save one 580 KB read — pennies, left simple.
+
+### Follow-ups
+
+- **The three files left alone this wave (eng #587's territory): adopt conftest's scaffolding** — `tests/test_rvt_edit_refusal.py`
+  (`NATIVE_LAST`/`FOREIGN` → `FOREIGN_FIRST`/`FOREIGN`; its tuple `_no_leak` → `usefixtures("no_release_leak")`;
+  `_rewrite_stream` → `rewrite_stream` (same signature incl. `damage=None`, already returns `dst`); the `raw[:2000]…`
+  lambda → `zero_schema_bytes`; its `trunc4k`/64 KiB writes → `truncated_copy`), `tests/test_release_ctx_refusal.py`
+  (same four, plus `_constants()`' extras — `RC._REFUSED`, the `MU` class ids, `GSK` minimal_* + `_SCHEMA_CACHE` keys,
+  `SA` template fns + `_SCHEMA_STATE` — as one `release_leak_extra` override; note its key is `active`, conftest's is
+  `active_release`), `tests/test_edit_status.py` (its 64 KB truncation and Formats/Latest-zeroed builders →
+  `truncated_copy` / `rewrite_stream(…, zero_schema_bytes)`); then delete their two lines from `EXEMPT` — the law's
+  self-check turns red if you forget. To be filed as a task issue `Refs #579 #587` once #587's PR lands (filing it now
+  would only collide with their open territory).
+- Candidates outside the issue's list, for whoever next touches them: `tests/test_gates_shared_walk.py`
+  (`_rewrite_stream(src, dst, name, mutate: bytearray -> None)` + `_partition` — a `lambda raw: …` away from
+  `rewrite_stream`/`partition_of`; exempt today), `tests/test_partition_header_verdict.py` (`_partition`, `_rewrite`),
+  `tests/test_readers_own_release.py` (a tuple-shaped `_no_leak` watching FF tokens → `release_leak_extra`),
+  `tests/test_validate_release.py` / `tests/test_verify_manipulated_release.py` (inline `framing_table(LATEST)` snapshots).
+- Engine altitude (needs `src/`, so not here): export the set of names a release context rebinds (one table the guard
+  could read instead of a hand list), and a `rvt.roundtrip` "re-emit with these streams replaced/dropped" primitive.
+
+BRANCH STATE (cam/579-release-scaffolding): `tests/conftest.py` (+ the "shared own-release scaffolding (#579)" section:
+`FOREIGN_FIRST`, `FOREIGN`, `native_constants`, `ladder_constants`, fixtures `release_leak_extra` / `no_release_leak`,
+`rewrite_stream`, `partition_of`, `zero_partition_header`, `zero_schema_bytes`, `truncated_copy`, `cfb_header_zeroed_copy`;
+docstring clause, `import dataclasses`, `from rvt import versions as _V`; every earlier gate/fixture/hook byte-intact),
+the six adopters (helper adoption only): `tests/test_selfcheck_release.py`, `tests/test_inspect_release.py`,
+`tests/test_edit_text_release.py`, `tests/test_natively_framed.py`, `tests/test_estorage_cli_release.py`,
+`tests/test_edit_own_release.py`; new `tests/test_conftest_scaffolding.py` + `tests/ci_shard.d/579-scaffolding.txt`;
+`docs/inbox/tests-release-scaffolding.md` (pointer) and this section. No `src/`, `tools/`, `plugin/`, `skills/`;
+`tests/ci_shard.txt` untouched; nothing staged for the viewer; no certification claim.

@@ -6,8 +6,12 @@ the "certified pinned base of a year, or a clean skip" helper
 (``load_tool``) and the ``job`` fixture (``tools/rvt_job.py``); plus the
 runtime docs-read audit (``DOCS_AUDIT``: which repo ``docs/`` files did this
 test process open, checked at session end against ``tools/dev/ci_fresh.sh``'s
-``SHARD_READS``, #523) and the shared throwaway-git-repo helpers
-(``GIT_ENV`` / ``git`` / ``git_init`` / ``git_commit`` / ``HAVE_GIT`` / the ``git_repo`` fixture)."""
+``SHARD_READS``, #523), the shared throwaway-git-repo helpers
+(``GIT_ENV`` / ``git`` / ``git_init`` / ``git_commit`` / ``HAVE_GIT`` / the ``git_repo`` fixture)
+and the shared own-release scaffolding of the ``test_*_release.py`` files (#579:
+``FOREIGN_FIRST`` / ``FOREIGN``, ``native_constants`` / ``ladder_constants`` + the opt-in
+``no_release_leak`` fixture, ``rewrite_stream`` / ``partition_of`` and the damaged-copy recipes)."""
+import dataclasses
 import importlib.util
 import os
 import re
@@ -167,6 +171,7 @@ if DOCS_AUDIT_MODE != "off":
         sys.addaudithook(DOCS_AUDIT)
         setattr(sys, AUDIT_SENTINEL, DOCS_AUDIT)
 
+from rvt import versions as _V                                # noqa: E402  (already loaded by frontdoor.base)
 from rvt.frontdoor import base as _B                          # noqa: E402
 from rvt.ifc._fallback import ifc_authoring_available            # noqa: E402
 from rvt.schema import schema_available                       # noqa: E402
@@ -235,6 +240,115 @@ def job():
     shared by every test file."""
     from rvt.frontdoor.edit import load_job_module
     return load_job_module()
+
+
+# ---- the shared own-release scaffolding (#579): one home for what every "under the file's OWN release" test needs --
+
+#: The certified years with the NATIVE release LAST (``from conftest import FOREIGN_FIRST, FOREIGN``): parametrize
+#: over ``FOREIGN_FIRST`` and a release context leaked by a 2025/2024 run breaks the native run that follows it in
+#: the same process instead of hiding; ``FOREIGN`` = the foreign (2025/2024) pins alone, in the same order.
+FOREIGN_FIRST = sorted(CERTIFIED_YEARS, key=lambda y: y == _V.LATEST_RELEASE)
+FOREIGN = [y for y in FOREIGN_FIRST if y != _V.LATEST_RELEASE]
+
+
+def native_constants() -> dict:
+    """Everything a leaked release context would leave rebound: the native partition framing table (the one place
+    the block tags live, #467) + ``release_ctx.active_release()`` (None outside any context)."""
+    from rvt import partitions as P
+    from rvt.frontdoor import release_ctx as RC
+    snap = {k: getattr(P, k) for k in _V.framing_table(_V.LATEST_RELEASE)}
+    snap["active_release"] = RC.active_release()
+    return snap
+
+
+def ladder_constants() -> dict:
+    """What the read-side instrument ladder (``global_framing.enter_own_release``) swaps on top of the framing table:
+    records32's ``iter_records``, the default ADocument decoder, famdoc's ``FAMILY_END_RECORD``.  A separate callable
+    so only the files that climb the ladder pay for the famgen import (hand it to ``release_leak_extra``); the ONE
+    list to grow when the ladder learns to swap another name."""
+    from rvt import adocument as ADOC
+    from rvt import objects as O
+    from rvt.famgen import famdoc_adoc as FDA
+    return {"iter_records": O.iter_records, "adoc_decoder": ADOC._DECODER, "family_end_record": FDA.FAMILY_END_RECORD}
+
+
+@pytest.fixture
+def release_leak_extra():
+    """MORE for ``no_release_leak`` to watch, on top of ``native_constants()`` (which no override can drop): a
+    zero-argument callable returning ``{name: value}`` -- override this fixture in a test file
+    (``return ladder_constants``); None = nothing extra."""
+    return None
+
+
+@pytest.fixture
+def no_release_leak(release_leak_extra):
+    """Opt-in per file (``pytestmark = pytest.mark.usefixtures("no_release_leak")``): the test starts outside any
+    release context and leaves every watched constant exactly as it found it -- or it is red at teardown."""
+    def snapshot():
+        snap = native_constants()
+        if release_leak_extra is not None:
+            snap.update(release_leak_extra())
+        return snap
+    before = snapshot()
+    assert before["active_release"] is None
+    yield
+    assert snapshot() == before
+
+
+def rewrite_stream(src, dst, name: str, damage) -> str:
+    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW (still paged) bytes replaced by ``damage(raw)`` --
+    the stream dropped when ``damage`` is None -- and every other entry byte-identical -> ``dst``.  A ``name`` the
+    container does not hold is a KeyError, never a silent verbatim copy."""
+    from rvt.cfb_writer import write_cfb
+    from rvt.roundtrip import read_entries
+    src, dst = os.fspath(src), os.fspath(dst)
+    entries, found = [], False
+    for e in read_entries(src):                               # e.data IS the stream's raw bytes
+        if e.entry_type == "stream" and e.path == name:
+            found = True
+            if damage is None:
+                continue
+            e = dataclasses.replace(e, data=damage(e.data))
+        entries.append(e)
+    if not found:
+        raise KeyError("no stream %r in %s" % (name, src))
+    write_cfb(dst, entries)
+    return dst
+
+
+def partition_of(path) -> str:
+    """The first ``Partitions/<N>`` stream of the container at ``path``."""
+    from rvt.container import open_rvt
+    with open_rvt(os.fspath(path)) as d:
+        return d.partition_streams()[0]
+
+
+def zero_partition_header(raw: bytes) -> bytes:
+    """A ``rewrite_stream`` damage for a ``Partitions/<N>`` stream: its first 16 bytes zeroed -- the stream header
+    then parses under no release and page 0's ECC trailer no longer matches."""
+    return bytes(16) + raw[16:]
+
+
+def zero_schema_bytes(raw: bytes) -> bytes:
+    """A ``rewrite_stream`` damage for ``Formats/Latest``: 64 bytes zeroed inside its deflate body -- container and
+    stream survive, the file's own class schema no longer inflates (#518's repro)."""
+    return raw[:2000] + bytes(64) + raw[2064:]
+
+
+def truncated_copy(src, dst, size: int) -> str:
+    """The first ``size`` bytes of ``src`` written as ``dst`` -> ``dst`` (64 KiB of a pin still opens as CFB with an
+    empty schema; 4 KiB does not open at all)."""
+    with open(src, "rb") as fh, open(dst, "wb") as out:
+        out.write(fh.read(size))
+    return os.fspath(dst)
+
+
+def cfb_header_zeroed_copy(src, dst) -> str:
+    """``src`` copied to ``dst`` with its first sector (the CFB header) zeroed: same size, no longer a container."""
+    shutil.copyfile(src, dst)
+    with open(dst, "r+b") as fh:
+        fh.write(bytes(512))
+    return os.fspath(dst)
 
 
 #: the git-ignored research dirs: a FileNotFoundError under one of these

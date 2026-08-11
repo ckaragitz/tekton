@@ -17,10 +17,8 @@ Run: .venv/bin/python -m pytest tests/test_selfcheck_release.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import json
 import os
-import shutil
 import sys
 
 import pytest
@@ -28,14 +26,12 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import CERTIFIED_YEARS, load_tool, pinned_base    # noqa: E402
-from rvt import partitions as P                                # noqa: E402
+from conftest import (FOREIGN, FOREIGN_FIRST, cfb_header_zeroed_copy, load_tool, partition_of,   # noqa: E402
+                      pinned_base, rewrite_stream, zero_partition_header, zero_schema_bytes)
 from rvt import versions as V                                  # noqa: E402
-from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 
-FOREIGN_FIRST = sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE)
-FOREIGN = [y for y in FOREIGN_FIRST if y != V.LATEST_RELEASE]      # the 2025/2024 pins
 OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length, on every pin
+pytestmark = pytest.mark.usefixtures("no_release_leak")             # foreign pins run first: a leak breaks the native run
 
 
 @pytest.fixture(scope="module")
@@ -46,20 +42,6 @@ def selfcheck():
 @pytest.fixture(scope="module")
 def edit_text():
     return load_tool("rvt_edit_text")
-
-
-def _native_constants() -> dict:
-    snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
-    snap["active_release"] = RC.active_release()
-    return snap
-
-
-@pytest.fixture(autouse=True)
-def _no_leak():
-    before = _native_constants()
-    assert before["active_release"] is None
-    yield
-    assert _native_constants() == before
 
 
 def _run(selfcheck, capsys, path: str, json_out: str):
@@ -111,32 +93,12 @@ def test_edit_output_passes_the_gate(year, selfcheck, edit_text, tmp_path, capsy
     _assert_pass(rc, rep, cap.out)
 
 
-def _rewrite_stream(src: str, dst: str, name: str, damage) -> None:
-    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW bytes replaced
-    by ``damage(raw)`` -- every other entry byte-identical."""
-    from rvt.cfb_writer import write_cfb
-    from rvt.container import open_rvt
-    from rvt.roundtrip import read_entries
-    with open_rvt(src) as d:
-        raw = d.raw(name)
-    write_cfb(dst, [dataclasses.replace(e, data=damage(raw))
-                    if (e.entry_type == "stream" and e.path == name) else e
-                    for e in read_entries(src)])
-
-
-def _partition_of(path: str) -> str:
-    from rvt.container import open_rvt
-    with open_rvt(path) as d:
-        return d.partition_streams()[0]
-
-
 def test_damaged_partition_is_a_fail_verdict_not_a_traceback(selfcheck, tmp_path, capsys):
     """First 16 bytes of Partitions/<N> zeroed: page 0's ECC trailer no longer
     matches and the stream header parses under no release."""
     src = pinned_base(FOREIGN_FIRST[0])
-    pname = _partition_of(src)
-    bad = str(tmp_path / "hdr_zeroed.rvt")
-    _rewrite_stream(src, bad, pname, lambda raw: bytes(16) + raw[16:])
+    pname = partition_of(src)
+    bad = rewrite_stream(src, tmp_path / "hdr_zeroed.rvt", pname, zero_partition_header)
     rc, rep, cap = _run(selfcheck, capsys, bad, str(tmp_path / "sc.json"))
     assert rc == 1 and rep["verdict"] == "FAIL", cap.out[-800:]
     assert rep["walker"]["walker_errors"] == 1
@@ -151,9 +113,7 @@ def test_damaged_schema_stream_still_reaches_a_verdict(selfcheck, tmp_path, caps
     says so on stderr and still FAILs the file on its own evidence."""
     if not FOREIGN:
         pytest.skip("no certified foreign-release pin")
-    bad = str(tmp_path / "schema_dmg.rvt")
-    _rewrite_stream(pinned_base(FOREIGN[0]), bad, "Formats/Latest",
-                    lambda raw: raw[:2000] + bytes(64) + raw[2064:])
+    bad = rewrite_stream(pinned_base(FOREIGN[0]), tmp_path / "schema_dmg.rvt", "Formats/Latest", zero_schema_bytes)
     rc, rep, cap = _run(selfcheck, capsys, bad, str(tmp_path / "sc.json"))
     assert rc == 1 and rep["verdict"] == "FAIL", cap.out[-800:]
     assert cap.err.startswith("warning: no release context for ")
@@ -163,11 +123,7 @@ def test_damaged_schema_stream_still_reaches_a_verdict(selfcheck, tmp_path, caps
 
 
 def test_non_container_exits_2(selfcheck, tmp_path, capsys):
-    src = pinned_base(FOREIGN_FIRST[0])
-    bad = str(tmp_path / "cfb_zeroed.rvt")
-    shutil.copyfile(src, bad)
-    with open(bad, "r+b") as fh:
-        fh.write(bytes(512))                                  # the CFB header sector
+    bad = cfb_header_zeroed_copy(pinned_base(FOREIGN_FIRST[0]), tmp_path / "cfb_zeroed.rvt")
     assert selfcheck.main([bad]) == 2
     cap = capsys.readouterr()
     assert "cannot open as an .rvt container" in cap.err and "Traceback" not in cap.err

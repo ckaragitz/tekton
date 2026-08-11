@@ -44,9 +44,10 @@ BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
 LEVEL_ID = 1351691                     # "GEN B1 - Basement", present in all three
 EDIT_TEXT = f"set level {LEVEL_ID} elevation to 5 ft"
 
-pytestmark = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
+pytestmark = [
+    pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()), reason="bundled genesis bases missing"),
+    pytest.mark.usefixtures("no_release_leak"),      # the framing table is back after every test: no leak past a 2025/2024 edit
+]
 
 
 def _rvt_edit():
@@ -61,23 +62,6 @@ def _rvt_edit():
     sys.modules[key] = mod
     spec.loader.exec_module(mod)
     return mod
-
-
-def _native_constants() -> dict:
-    """The framing table a release context rebinds (the one place block tags
-    live -- no module keeps a copy, #467): snapshot to prove nothing leaks
-    past an edit of a 2025/2024 file."""
-    snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
-    snap["active_release"] = RC.active_release()
-    return snap
-
-
-@pytest.fixture(autouse=True)
-def _no_leak():
-    before = _native_constants()
-    assert before["active_release"] is None
-    yield
-    assert _native_constants() == before
 
 
 def _assert_own_release_output(path: str, year: int) -> None:

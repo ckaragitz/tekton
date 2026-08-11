@@ -1,0 +1,2 @@
+# issue #579: the own-release scaffolding lives once in tests/conftest.py -- the AST law over its six adopters + the helpers (tracked pins only)
+tests/test_conftest_scaffolding.py

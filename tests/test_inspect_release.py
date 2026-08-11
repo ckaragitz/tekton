@@ -19,9 +19,7 @@ Run: .venv/bin/python -m pytest tests/test_inspect_release.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import os
-import shutil
 import sys
 
 import pytest
@@ -29,16 +27,21 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import CERTIFIED_YEARS, load_tool, pinned_base    # noqa: E402
+from conftest import (CERTIFIED_YEARS, FOREIGN, FOREIGN_FIRST, cfb_header_zeroed_copy, load_tool,   # noqa: E402
+                      ladder_constants, partition_of, pinned_base, rewrite_stream, truncated_copy,
+                      zero_partition_header, zero_schema_bytes)
 from rvt import global_framing as GF                           # noqa: E402
-from rvt import partitions as P                                # noqa: E402
 from rvt import versions as V                                  # noqa: E402
-from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 
-FOREIGN_FIRST = sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE)
-FOREIGN = [y for y in FOREIGN_FIRST if y != V.LATEST_RELEASE]      # the 2025/2024 pins
 OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length, on every pin
 N = 20
+pytestmark = pytest.mark.usefixtures("no_release_leak")             # foreign pins run first: a leak breaks the native walk
+
+
+@pytest.fixture
+def release_leak_extra():
+    """This tool climbs the instrument ladder: watch what it swaps, too."""
+    return ladder_constants
 
 
 @pytest.fixture(scope="module")
@@ -49,27 +52,6 @@ def inspect_tool():
 @pytest.fixture(scope="module")
 def edit_text():
     return load_tool("rvt_edit_text")
-
-
-def _native_constants() -> dict:
-    """Everything a leaked context would leave rebound: the partition framing
-    table, plus what the instrument ladder swaps on top of it (records32's
-    ``iter_records``, the default ADocument decoder, a Global-stream token)."""
-    from rvt import adocument as ADOC
-    from rvt import objects as O
-    from rvt.famgen import famdoc_adoc as FDA
-    snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
-    snap.update(active_release=RC.active_release(), iter_records=O.iter_records,
-                adoc_decoder=ADOC._DECODER, family_end_record=FDA.FAMILY_END_RECORD)
-    return snap
-
-
-@pytest.fixture(autouse=True)
-def _no_leak():
-    before = _native_constants()
-    assert before["active_release"] is None
-    yield
-    assert _native_constants() == before
 
 
 def _run(inspect_tool, capsys, *argv):
@@ -129,32 +111,12 @@ def test_edit_output_inspects_cleanly(year, inspect_tool, edit_text, tmp_path, c
     _assert_records_clean(*_run(inspect_tool, capsys, edited, "--records", str(N)))
 
 
-def _rewrite_stream(src: str, dst: str, name: str, damage) -> None:
-    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW bytes replaced
-    by ``damage(raw)`` -- every other entry byte-identical."""
-    from rvt.cfb_writer import write_cfb
-    from rvt.container import open_rvt
-    from rvt.roundtrip import read_entries
-    with open_rvt(src) as d:
-        raw = d.raw(name)
-    write_cfb(dst, [dataclasses.replace(e, data=damage(raw))
-                    if (e.entry_type == "stream" and e.path == name) else e
-                    for e in read_entries(src)])
-
-
-def _partition_of(path: str) -> str:
-    from rvt.container import open_rvt
-    with open_rvt(path) as d:
-        return d.partition_streams()[0]
-
-
 def test_damaged_partition_is_reported_not_raised(inspect_tool, tmp_path, capsys):
     """First 16 bytes of Partitions/<N> zeroed: the stream header parses under
     no release -- the walk says so on its own line and in the summary."""
     src = pinned_base(FOREIGN_FIRST[0])
-    pname = _partition_of(src)
-    bad = str(tmp_path / "hdr_zeroed.rvt")
-    _rewrite_stream(src, bad, pname, lambda raw: bytes(16) + raw[16:])
+    pname = partition_of(src)
+    bad = rewrite_stream(src, tmp_path / "hdr_zeroed.rvt", pname, zero_partition_header)
     rc, out, err = _run(inspect_tool, capsys, bad, "--records", str(N))
     assert rc == 1, out[-800:]
     assert "schema (Formats/Latest, " in out                # everything release-agnostic still reported
@@ -168,9 +130,7 @@ def test_damaged_partition_is_reported_not_raised(inspect_tool, tmp_path, capsys
 def test_damaged_schema_stream_is_reported_not_raised(inspect_tool, tmp_path, capsys):
     """Formats/Latest mangled: the class map IS the tool's subject, so it says
     the schema is unreadable after the stream listing and stops (exit 1)."""
-    bad = str(tmp_path / "schema_dmg.rvt")
-    _rewrite_stream(pinned_base(FOREIGN_FIRST[0]), bad, "Formats/Latest",
-                    lambda raw: raw[:2000] + bytes(64) + raw[2064:])
+    bad = rewrite_stream(pinned_base(FOREIGN_FIRST[0]), tmp_path / "schema_dmg.rvt", "Formats/Latest", zero_schema_bytes)
     rc, out, err = _run(inspect_tool, capsys, bad, "--records", str(N))
     assert rc == 1 and "streams (" in out
     assert "\nschema (Formats/Latest): unreadable (ParseError: " in out
@@ -180,19 +140,13 @@ def test_damaged_schema_stream_is_reported_not_raised(inspect_tool, tmp_path, ca
 def test_truncated_file_is_reported_not_raised(inspect_tool, tmp_path, capsys):
     """A 64 KiB head of a pin still opens as CFB but its schema inflates to
     nothing: reported as unreadable, exit 1."""
-    bad = str(tmp_path / "truncated.rvt")
-    with open(pinned_base(FOREIGN_FIRST[0]), "rb") as fh, open(bad, "wb") as out_fh:
-        out_fh.write(fh.read(65536))
+    bad = truncated_copy(pinned_base(FOREIGN_FIRST[0]), tmp_path / "truncated.rvt", 65536)
     rc, out, err = _run(inspect_tool, capsys, bad, "--records", str(N))
     assert rc == 1 and "\nschema (Formats/Latest): unreadable (" in out and err == ""
 
 
 def test_non_container_exits_2(inspect_tool, tmp_path, capsys):
-    src = pinned_base(FOREIGN_FIRST[0])
-    bad = str(tmp_path / "cfb_zeroed.rvt")
-    shutil.copyfile(src, bad)
-    with open(bad, "r+b") as fh:
-        fh.write(bytes(512))                                  # the CFB header sector
+    bad = cfb_header_zeroed_copy(pinned_base(FOREIGN_FIRST[0]), tmp_path / "cfb_zeroed.rvt")
     rc, out, err = _run(inspect_tool, capsys, bad, "--records", str(N))
     assert rc == 2 and "cannot open as an .rvt container" in err and out == ""
     rc, out, err = _run(inspect_tool, capsys, str(tmp_path / "missing.rvt"))

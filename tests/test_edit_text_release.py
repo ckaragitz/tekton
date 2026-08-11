@@ -26,38 +26,26 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import CERTIFIED_YEARS, load_tool, pinned_base    # noqa: E402
-from rvt import partitions as P                                # noqa: E402
+from conftest import FOREIGN, FOREIGN_FIRST, load_tool, pinned_base    # noqa: E402
 from rvt import versions as V                                  # noqa: E402
 from rvt import writer as W                                    # noqa: E402
 from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 
 LEVEL_ID = 1351691                     # "GEN B1 - Basement", present on every pin
 OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length
-FOREIGN_FIRST = sorted(CERTIFIED_YEARS, key=lambda y: y == V.LATEST_RELEASE)
-FOREIGN = [y for y in CERTIFIED_YEARS if y != V.LATEST_RELEASE]      # the 2025/2024 pins
+pytestmark = pytest.mark.usefixtures("no_release_leak")             # foreign pins run first: a leak breaks the native edit
+
+
+@pytest.fixture
+def release_leak_extra():
+    """The writer's trailer-tag alias a release context swaps, watched on top
+    of the framing table: nothing may leak past an edit of a 2025/2024 file."""
+    return lambda: {"W.BLOCK_TRL_TAG": W.BLOCK_TRL_TAG}
 
 
 @pytest.fixture(scope="module")
 def edit_text():
     return load_tool("rvt_edit_text")
-
-
-def _native_constants() -> dict:
-    """The framing table + the writer's trailer-tag copy a release context
-    swaps: snapshot to prove nothing leaks past an edit of a 2025/2024 file."""
-    snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
-    snap["W.BLOCK_TRL_TAG"] = W.BLOCK_TRL_TAG
-    snap["active_release"] = RC.active_release()
-    return snap
-
-
-@pytest.fixture(autouse=True)
-def _no_leak():
-    before = _native_constants()
-    assert before["active_release"] is None
-    yield
-    assert _native_constants() == before
 
 
 def _level_name(path: str, level_id: int) -> str | None:
