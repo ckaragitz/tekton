@@ -26,9 +26,8 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import FOREIGN, FOREIGN_FIRST, load_tool, pinned_base    # noqa: E402
+from conftest import FOREIGN, FOREIGN_FIRST, context_constants, load_tool, pinned_base    # noqa: E402
 from rvt import versions as V                                  # noqa: E402
-from rvt import writer as W                                    # noqa: E402
 from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 
 LEVEL_ID = 1351691                     # "GEN B1 - Basement", present on every pin
@@ -38,9 +37,9 @@ pytestmark = pytest.mark.usefixtures("no_release_leak")             # foreign pi
 
 @pytest.fixture
 def release_leak_extra():
-    """The writer's trailer-tag alias a release context swaps, watched on top
-    of the framing table: nothing may leak past an edit of a 2025/2024 file."""
-    return lambda: {"W.BLOCK_TRL_TAG": W.BLOCK_TRL_TAG}
+    """The names the AUTHORING context swaps, watched on top of the framing table (whose trailer tag the writer's
+    ``BLOCK_TRL_TAG`` alias reads): nothing may leak past an edit of a 2025/2024 file."""
+    return context_constants
 
 
 @pytest.fixture(scope="module")

@@ -37,13 +37,11 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import (CERTIFIED_YEARS, FOREIGN, FOREIGN_FIRST, load_tool, native_constants,   # noqa: E402
-                      pinned_base, rewrite_stream, truncated_copy, zero_schema_bytes)
+from conftest import (CERTIFIED_YEARS, FOREIGN, FOREIGN_FIRST, context_constants, load_tool,   # noqa: E402
+                      native_constants, pinned_base, rewrite_stream, truncated_copy, zero_schema_bytes)
 from rvt import mutate as MU                                   # noqa: E402
 from rvt import versions as V                                  # noqa: E402
 from rvt.frontdoor import release_ctx as RC                    # noqa: E402
-from rvt.frontdoor import standalone as SA                     # noqa: E402
-from rvt.genesis import skeleton as GSK                        # noqa: E402
 
 LEVEL_EDIT = "set level 1351691 elevation to -9 ft"                 # GEN B1 - Basement, on every pin
 OLD_NAME, NEW_NAME = "GEN B1 - Basement", "OUR B1 - Basement"      # same length
@@ -51,18 +49,15 @@ pytestmark = pytest.mark.usefixtures("no_release_leak")             # foreign pi
 
 
 def _constants() -> dict:
-    """Everything a leaked release context would leave behind: conftest's ``native_constants()`` plus the
-    refusal registry and the mutate / skeleton / standalone names ``host_release_context`` swaps."""
-    return dict(native_constants(), refused=dict(RC._REFUSED),
-                mu=(MU.CLASS_ELEMENT_HEADER, MU.CLASS_SWALL, MU.CLASS_FAMILY_INSTANCE),
-                gsk=(GSK.minimal_history, GSK.minimal_elemtable, sorted(GSK._SCHEMA_CACHE)),
-                sa=(SA.bundled_base_path, SA.family_instance_template, dict(SA._SCHEMA_STATE)))
+    """Everything a leaked release context would leave behind -- exactly what ``no_release_leak`` watches for this
+    file: conftest's ``native_constants()`` plus its ``context_constants()`` (the names ``host_release_context`` swaps)."""
+    return dict(native_constants(), **context_constants())
 
 
 @pytest.fixture
 def release_leak_extra():
     """``no_release_leak`` watches the swapped engine names too, not the framing table alone."""
-    return _constants
+    return context_constants
 
 
 @pytest.fixture(scope="module")
@@ -222,7 +217,7 @@ def test_setup_failure_after_the_first_swap_restores_everything(monkeypatch):
             pytest.fail("entered despite the setup failure")
     assert _constants() == before                 # main leaked MU.CLASS_ELEMENT_HEADER here
     with RC.host_release_context(pinned_base(FOREIGN[0])) as info:      # and the next job still works
-        assert info["release"] == FOREIGN[0] and MU.CLASS_ELEMENT_HEADER != before["mu"][0]
+        assert info["release"] == FOREIGN[0] and MU.CLASS_ELEMENT_HEADER != before["MU.CLASS_ELEMENT_HEADER"]
 
 
 # ---------------------------------------------------------------------------

@@ -7,11 +7,13 @@ in ``tests/conftest.py`` (issue #579, Refs #566 / #533 / #518 / #451):
   one module is that pass whatever its helpers are called, and its one home is
   conftest's ``rewrite_stream(s)`` (= ``rvt.roundtrip.rewrite_entries``; #639);
   no module shadows a conftest scaffolding name at top level or binds one of the
-  private spellings #579 / #617 retired (``FORBIDDEN``); and the ``ADOPTERS``
-  keep the leak guard on;
+  private spellings #579 / #617 retired (``FORBIDDEN``); the ``ADOPTERS``
+  keep the leak guard on, and every module on the guard is an adopter (#605);
 * the hoisted helpers behave as the copies did: ``FOREIGN_FIRST`` = the
   certified years with the native release last; ``native_constants`` /
-  ``ladder_constants`` snapshot the framing table / the ladder's swaps;
+  ``ladder_constants`` / ``context_constants`` snapshot the framing table /
+  the ladder's swaps / the names the authoring context swaps (and a foreign
+  context really moves the latter and puts them back, #605);
   ``rewrite_stream(s)`` re-emit a pin with the named stream(s) damaged or dropped,
   ready-made entries appended, and every other stream byte-identical (a missing
   name is a KeyError); ``twin_partition_entry`` is the primary partition under the
@@ -46,22 +48,27 @@ REWRITE_PASS = {"read_entries", "write_cfb"}
 #: conftest's own-release scaffolding (+ #670's pinned-base ``pin`` fixture and ``streams`` reader): no test module
 #: may shadow one of these at top level (checked below to still BE conftest names, so the list cannot outlive a rename);
 #: a module that needs another pin axis takes another fixture name (``params=`` on a private ``pin`` is still a copy)
-SHADOWS = {"FOREIGN_FIRST", "FOREIGN", "native_constants", "ladder_constants", "no_release_leak", "rewrite_streams",
-           "rewrite_stream", "partition_of", "twin_partition_entry", "zero_partition_header", "zero_schema_bytes",
-           "smash64", "flip_bit", "truncated_copy", "cfb_header_zeroed_copy", "pin", "streams"}
+SHADOWS = {"FOREIGN_FIRST", "FOREIGN", "native_constants", "ladder_constants", "context_constants", "no_release_leak",
+           "rewrite_streams", "rewrite_stream", "partition_of", "twin_partition_entry", "zero_partition_header",
+           "zero_schema_bytes", "smash64", "flip_bit", "truncated_copy", "cfb_header_zeroed_copy", "pin", "streams"}
 #: + the retired per-file spellings that actually existed and that the shape rule cannot see: the ``NATIVE_LAST`` axis
 #: and #579's private copies, #617's bytes-damage / extra-entry recipe names (they write no container), and the
 #: four-fold ``_streams`` census #670 hoisted (its ``pin`` twin is caught as a shadow)
 FORBIDDEN = SHADOWS | {"NATIVE_LAST", "_native_constants", "_no_leak", "_rewrite_stream", "_partition_of",
                        "_zero16", "_smash64", "_flip_bit", "_twin_entry", "_streams"}
-#: the files #579 / #602 relieved of an autouse leak guard of their own: each keeps conftest's switched on module-wide
+#: every module that keeps conftest's leak guard switched on module-wide -- the files #579 / #602 relieved of an autouse
+#: guard of their own, the ones born on it since, and #605's in-process context callers: a hand list on purpose (the
+#: ratchet: none of these may drop the guard again), kept complete by the law itself (a module that requests the guard,
+#: or overrides ``release_leak_extra``, without standing here is red until it enlists -- so the list derives forward)
 ADOPTERS = ["test_selfcheck_release", "test_inspect_release", "test_edit_text_release",
             "test_natively_framed", "test_estorage_cli_release", "test_edit_own_release",
-            "test_rvt_edit_refusal", "test_release_ctx_refusal"]
+            "test_rvt_edit_refusal", "test_release_ctx_refusal", "test_edit_status",
+            "test_cfb_rewrite_entries", "test_rewrite_entries_646", "test_identity_helper_657",
+            "test_reduce_v2_655", "test_reduce_v2_671", "test_rvt_job_scrub_656"]
 TEST_FILES = sorted(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(ROOT, "tests", "test_*.py")))
 
 
-@functools.cache                     # two law rows walk every module: parse each once per session
+@functools.cache                     # three law rows walk every module: parse each once per session
 def _tree(stem: str) -> ast.Module:
     path = os.path.join(ROOT, "tests", f"{stem}.py")
     with open(path, encoding="utf-8") as fh:
@@ -104,12 +111,26 @@ def test_no_module_carries_a_private_copy():
     assert stale == [], f"{stale} are no conftest names any more: drop them from SHADOWS"
 
 
+def _requests_the_leak_guard(tree: ast.Module) -> bool:
+    """The module's top-level ``pytestmark`` names the ``no_release_leak`` fixture (a bare mark or a list of marks)."""
+    marks = [n for n in tree.body if isinstance(n, ast.Assign)
+             and any(isinstance(t, ast.Name) and t.id == "pytestmark" for t in n.targets)]
+    return any(isinstance(c, ast.Constant) and c.value == "no_release_leak" for m in marks for c in ast.walk(m.value))
+
+
 @pytest.mark.parametrize("stem", ADOPTERS)
 def test_adopter_keeps_the_leak_guard_on(stem):
-    marks = [n for n in _tree(stem).body if isinstance(n, ast.Assign)
-             and any(isinstance(t, ast.Name) and t.id == "pytestmark" for t in n.targets)]
-    assert any(isinstance(c, ast.Constant) and c.value == "no_release_leak" for m in marks for c in ast.walk(m.value)), \
-        f"tests/{stem}.py: pytestmark must request the no_release_leak fixture"
+    assert _requests_the_leak_guard(_tree(stem)), f"tests/{stem}.py: pytestmark must request the no_release_leak fixture"
+
+
+def test_every_module_on_the_leak_guard_is_an_adopter():
+    """The other direction, so ``ADOPTERS`` cannot fall behind: a module that switches the guard on, or overrides
+    ``release_leak_extra`` (an override the guard never calls is a watch that never runs), stands on the list."""
+    guarded = {stem for stem in TEST_FILES
+               if _requests_the_leak_guard(_tree(stem)) or "release_leak_extra" in _top_level_names(_tree(stem))}
+    unlisted = sorted(guarded - set(ADOPTERS))
+    assert unlisted == [], (f"{unlisted} request no_release_leak / override release_leak_extra but are not on ADOPTERS: "
+                            "add the stem there, so dropping the guard later is red (#605)")
 
 
 def test_foreign_first_puts_the_native_release_last():
@@ -124,6 +145,23 @@ def test_native_and_ladder_constants_snapshot_what_a_context_rebinds():
     table = V.framing_table(V.LATEST_RELEASE)
     assert plain == dict(table, active_release=None)
     assert set(ladder) == {"iter_records", "adoc_decoder", "family_end_record"} and not set(ladder) & set(plain)
+
+
+def test_context_constants_snapshot_what_the_write_side_swaps(pin):
+    from rvt.frontdoor import release_ctx as RC
+    before = C.context_constants()                                # spelled out like the ladder row: a dropped watch is red HERE
+    assert set(before) == {"RC._REFUSED", "MU.CLASS_ELEMENT_HEADER", "MU.CLASS_SWALL", "MU.CLASS_FAMILY_INSTANCE",
+                           "GSK.minimal_history", "GSK.minimal_elemtable", "GSK._SCHEMA_CACHE",
+                           "SA.bundled_base_path", "SA.family_instance_template", "SA._SCHEMA_STATE"}
+    assert not set(before) & (set(C.native_constants()) | set(C.ladder_constants()))   # additive: nothing shadowed
+    with RC.host_release_context(pin) as info:                    # a foreign pin swaps them; the native pin enters nothing
+        inside = C.context_constants()
+        swapped = {k for k in before if inside[k] != before[k]}
+        if info is None:
+            assert swapped == set()
+        else:                                                     # every swapped NAME moves (the two registries need not)
+            assert swapped >= set(before) - {"RC._REFUSED", "GSK._SCHEMA_CACHE"}, sorted(set(before) - swapped)
+    assert C.context_constants() == before                        # and the LIFO restore puts every one back
 
 
 def test_damage_recipes_are_what_their_names_say():

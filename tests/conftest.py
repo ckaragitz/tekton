@@ -9,7 +9,7 @@ test process open, checked at session end against ``tools/dev/ci_fresh.sh``'s
 ``SHARD_READS``, #523), the shared throwaway-git-repo helpers
 (``GIT_ENV`` / ``git`` / ``git_init`` / ``git_commit`` / ``HAVE_GIT`` / the ``git_repo`` fixture)
 and the shared own-release scaffolding of the ``test_*_release.py`` files (#579:
-``FOREIGN_FIRST`` / ``FOREIGN``, ``native_constants`` / ``ladder_constants`` + the opt-in
+``FOREIGN_FIRST`` / ``FOREIGN``, ``native_constants`` / ``ladder_constants`` / ``context_constants`` (#605) + the opt-in
 ``no_release_leak`` fixture, ``rewrite_stream(s)`` / ``partition_of`` / ``twin_partition_entry`` and the damaged-copy
 recipes, plus the offset recipes ``smash64`` / ``flip_bit`` (#617), the ``pin`` fixture and the ``streams``
 container reader (#670))."""
@@ -272,6 +272,28 @@ def ladder_constants() -> dict:
     from rvt import objects as O
     from rvt.famgen import famdoc_adoc as FDA
     return {"iter_records": O.iter_records, "adoc_decoder": ADOC._DECODER, "family_end_record": FDA.FAMILY_END_RECORD}
+
+
+def context_constants() -> dict:
+    """What the write side (``release_ctx.host_release_context`` / ``release_build_context``) swaps by name on top of
+    the framing table and would leave rebound if its LIFO restore ever missed one: mutate's class ids, the
+    fresh-document model constructors + schema-cache keys of ``genesis.skeleton``, standalone's active-base resolver /
+    specimen template / schema state, and the refusal registry ``enter_host_release`` keeps -- keyed ``MODULE.name`` so
+    a red teardown names the constant.  A separate callable so only the files that enter a context in-process pay for
+    the imports (hand it to ``release_leak_extra``); the ONE list to grow when ``host_release_context`` learns to swap
+    another name (it mirrors ``release_ctx._release_context``'s ``swap(...)`` calls by hand: past these, the honest
+    move is one exported table in ``release_ctx`` both its restore and this guard read)."""
+    from rvt import mutate as MU
+    from rvt.frontdoor import release_ctx as RC
+    from rvt.frontdoor import standalone as SA
+    from rvt.genesis import skeleton as GSK
+    return {"RC._REFUSED": dict(RC._REFUSED),
+            "MU.CLASS_ELEMENT_HEADER": MU.CLASS_ELEMENT_HEADER, "MU.CLASS_SWALL": MU.CLASS_SWALL,
+            "MU.CLASS_FAMILY_INSTANCE": MU.CLASS_FAMILY_INSTANCE,
+            "GSK.minimal_history": GSK.minimal_history, "GSK.minimal_elemtable": GSK.minimal_elemtable,
+            "GSK._SCHEMA_CACHE": sorted(GSK._SCHEMA_CACHE),
+            "SA.bundled_base_path": SA.bundled_base_path, "SA.family_instance_template": SA.family_instance_template,
+            "SA._SCHEMA_STATE": dict(SA._SCHEMA_STATE)}
 
 
 @pytest.fixture
