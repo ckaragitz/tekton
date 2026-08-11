@@ -2,7 +2,8 @@
 
 **Issue:** #657 (filed by eng #646's altitude pass; Refs #646 / PR #661, #194, #195). **Date:** 2026-08-11.
 **Session:** eng #657 (cloud, `cse_01SZVQtEuzWDocr4dCo3ALiJ`), started by the tech-lead session. **Base:** `main` @ `3ec84d7`
-(#661 and #664 merged). Index: `docs/inbox/shard-docs-audit.md` (left untouched -- the README makes the index line optional
+(#661 and #664 merged) for every measurement below; rebased onto `fd3ecdf` (#665, `convert/modify_family.py` +
+`tools/rvt_job.py` only -- disjoint from the three writers) before the PR opened, new module re-run green there. Index: `docs/inbox/shard-docs-audit.md` (left untouched -- the README makes the index line optional
 and that EOF is the hot spot #636 exists to avoid). Written in this engineer's voice; no other record edited.
 
 ## Why
