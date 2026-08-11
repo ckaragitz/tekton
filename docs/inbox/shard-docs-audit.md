@@ -383,3 +383,61 @@ report wording; `git_commit` stages named paths only; docstrings), `tests/test_c
 `tests/test_shard_list.py` (helper adoption only, incl. its two read-only `git -C ROOT` calls), `tests/test_docs_read_audit.py` (+3 rows, 2 extended, one child-pytest launcher), this section.
 No `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed (all four files already in the merged shard);
 nothing staged for the viewer; no certification claim.
+
+---
+
+## 2026-08-10 — eng #557: `tests/test_portable_paths.py` adopts conftest's helpers (the last private `GIT_ENV` under `tests/`)
+
+**Stream:** shard-docs-audit, continued by eng #557 (issue #557; Refs #542, #523, #487 (c)). Own header, own voice;
+nothing above this rule was edited.
+
+### What landed
+
+`tests/test_portable_paths.py` — helper adoption only: `from conftest import HAVE_GIT, ROOT, git, git_commit, load_tool`.
+Its private `GIT_ENV` (byte-identical to conftest's), its own `ROOT`, the module-level `importlib` stanza for
+`tools/dev/check_portable_paths.py` (→ `load_tool("dev/check_portable_paths")`, the same shape as
+`tests/test_shard_list.py`'s `load_tool("dev/shard_list")`), both `shutil.which("git")` gates (→ `HAVE_GIT`, reason text
+`"needs git"` kept so `-rs` reads the same), the raw `git ls-files -z` subprocess (→ `git(ROOT, "ls-files", "-z")`,
+NUL-split and filtered exactly as before — `strip()` never eats a NUL) and the mkdir/write + `git init / add -A / commit`
+loop of the exit-1 row (→ the `git_repo` fixture + one `git_commit(git_repo, {rel: "x\n" …}, "bad")`; the CLI then runs
+in `git_repo` instead of `tmp_path`) are gone; `import importlib.util / os / shutil / subprocess` with them. Every
+assertion, test id, skip condition and skip reason is unchanged; the only behavioural nuance is that the throwaway
+repo is now born on branch `main` under the hermetic identity (what `git_repo` is for), which the checker never looks at.
+
+### Evidence
+
+- `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_portable_paths.py -q -rs`: **3 passed → 3 passed**;
+  `--collect-only -q` ids before/after: `diff` empty (`test_check_reports_every_law_with_the_names_involved_in_cli_order`,
+  `test_the_cli_is_check_over_git_ls_files_and_this_checkout_passes`, `test_the_cli_names_every_problem_and_exits_1`).
+- `git diff --stat origin/main -- tests/test_portable_paths.py`: 9 insertions, 22 deletions (net −13);
+  `git diff origin/main -- tests/test_portable_paths.py | grep "^-" | grep -c assert` → **0** (no assertion line touched).
+- The issue's grep: `grep -rn "GIT_ENV = " tests/test_*.py` → nothing (conftest holds the only one);
+  `spec_from_file_location` no longer appears in this file. It still appears in ~30 other test files — engine/tool
+  loaders outside this family, plus two *process* tests (`tests/test_coord.py` → `tools/dev/coord.py`,
+  `tests/test_techlead.py` → `tools/dev/techlead.py`) that are the same `load_tool("dev/…")` swap; outside this
+  territory, filed as a follow-up (below) rather than widened here.
+- Gates: the four stream-local files (`test_portable_paths`, `test_shard_list`, `test_ci_fresh`, `test_docs_read_audit`)
+  `-q -rs -p no:cacheprovider`: **56 passed, 3 skipped** (gawk / busybox absent on this image; the inert self-test
+  reader) — identical to eng #542's after-counts; `python3 tools/dev/check_portable_paths.py` → `ok: 2981 tracked paths
+  are portable`; whole merged shard: see BRANCH STATE. Nothing under `src/ tools/ plugin/ skills/` touched
+  (`sync_plugin.py --check` clean at setup, moot for this diff).
+- /simplify (reuse · simplification · efficiency · altitude, four independent passes): clean, nothing to apply. Noted,
+  not actionable here: `git_commit` ends with a `rev-parse HEAD` this row discards (one extra ~5 ms git call versus the
+  hand-rolled loop — the price of the shared helper); the `skipif(not HAVE_GIT, reason="needs git")` kept on the row that
+  now takes the self-skipping `git_repo` fixture is redundant as a *gate* but is what keeps the `-rs` reason identical —
+  a shared `needs_git` marker in conftest (as `needs_schema` / `needs_ifc_authoring` already exist; #523 deferred it for
+  want of a user — there are three now) would let adopters drop it. Conftest is another engineer's this wave: an option
+  for the tech lead, not done.
+
+### Follow-ups
+
+- Filed as #593: `tests/test_coord.py` + `tests/test_techlead.py` load their tool through `conftest.load_tool("dev/coord")` /
+  `load_tool("dev/techlead")` instead of private `importlib` stanzas (their `COORD` / `PATH` constants stay — both files
+  also run the tool as a child process). XS, tests-only, same evidence shape as this issue.
+- Optional (conftest, tech lead's call): a `needs_git = pytest.mark.skipif(not HAVE_GIT, reason="needs git")` marker
+  and the `git_repo` fixture's skip reason aligned to it.
+
+BRANCH STATE (cam/557-portable-paths-conftest-helpers): `tests/test_portable_paths.py` (helper adoption only), this
+section. No `tests/conftest.py` change, nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed
+(the file is already in the merged shard); nothing staged for the viewer; no certification claim. Whole merged shard on
+the final head: `RVT_SKIP_LARGE=1 … -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)` → **2012 passed, 134 skipped, 3 xfailed** in 491 s (docs-read audit on, no section printed = no offender), exit 0.
