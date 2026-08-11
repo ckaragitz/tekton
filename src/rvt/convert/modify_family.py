@@ -29,12 +29,12 @@ own schema names: ``ParamDefString`` -> ``m_str``, ``ParamDefInt`` ->
 ``m_int``; those two carry no ``m_specTypeId`` at all, #333/#336) and the
 ``m_specTypeId`` of a ``ParamDefValue`` otherwise -- the one rule shared
 with rvt_to_ifc, :mod:`rvt.convert.param_carrier`.  Unit conversion is
-SPEC-DRIVEN: amperes as-is, volts x 1/0.3048^2, kVA x 1000 x 1/0.3048^2,
-lengths to feet and masses to kilograms (lb x ``KG_PER_LB``, the factory's
-one constant) -- an explicit unit is REQUIRED for lengths and masses, never
+SPEC-DRIVEN: amperes as-is, volts / W / kW x 1/0.3048^2, kVA x 1000 x
+1/0.3048^2, Hz / lm / K as-is (they ARE Revit's internal units), lengths to
+feet and masses to kilograms (lb x ``KG_PER_LB``, the factory's one
+constant) -- an explicit unit is REQUIRED for lengths and masses, never
 guessed; a unit on a measurable spec this lane has no conversion for is
-refused by name (a bare number there is stored as Revit internal units);
-only a dimensionless ``number`` ignores a unit suffix.
+refused by name; only a dimensionless ``number`` ignores a unit suffix.
 
 HONEST LIMIT: editing a DIMENSION parameter changes the type-table value
 only -- generated families carry no dimension-constraint graph, so the
@@ -213,18 +213,33 @@ _UNIT_TOKENS = {
     "mm": ("length", 1.0 / 304.8), "m": ("length", 1.0 / 0.3048),
     "kva": ("apparent_power", 1000.0 * _ELEC_FACTOR),
     "va": ("apparent_power", _ELEC_FACTOR),
+    "w": ("wattage", _ELEC_FACTOR),      # the factory's watts factor (skeleton.watts)
+    "kw": ("wattage", 1000.0 * _ELEC_FACTOR),
+    "hz": ("frequency", 1.0),            # Hz, lm and K ARE Revit's internal units:
+    "lm": ("luminous_flux", 1.0),        # the factory stores them as given, so does
+    "k": ("color_temperature", 1.0),     # the edit lane
     "kg": ("mass", 1.0),                 # Revit's internal mass unit IS the kilogram
     "lb": ("mass", KG_PER_LB), "lbs": ("mass", KG_PER_LB), "lbm": ("mass", KG_PER_LB),
     "ka": ("number", 1.0),               # ShortCircuitRatingkA is dimensionless kA
 }
 
-#: measurable specs converted from an explicit unit ONLY (never guessed):
-#: (spec marker, unit kind, the units a refusal offers, internal unit, caveat)
-_EXPLICIT_UNIT_SPECS = (
+_INTERNAL_AS_GIVEN = "(Revit's internal unit -- stored as given)"
+
+#: measurable specs converted by ONE table-driven branch:
+#: (spec marker, unit kind, bare-number refusal offer | None, internal unit
+#: named in the note, caveat).  An ``offer`` means the unit is REQUIRED --
+#: a bare number is refused listing those units (never guessed); ``None``
+#: means a bare number is stored as given, exactly as before this table.
+_SPEC_UNITS = (
     (":length", "length", "in / ft / mm / m", "ft",
      " (CAVEAT: type-table value only; the authored solid is not re-derived -- "
      "regenerate from the facts sidecar for geometry-true resizing)"),
     (":mass-", "mass", "lb / kg", "kg", ""),
+    ("electrical:wattage", "wattage", None, "internal (W x 1/0.3048^2)", ""),
+    ("electrical:frequency", "frequency", None, f"Hz {_INTERNAL_AS_GIVEN}", ""),
+    ("electrical:luminousFlux", "luminous_flux", None, f"lm {_INTERNAL_AS_GIVEN}", ""),
+    ("electrical:colorTemperature", "color_temperature", None,
+     f"K {_INTERNAL_AS_GIVEN}", ""),
 )
 
 
@@ -274,24 +289,29 @@ def _convert_value(param: dict, raw: str) -> Tuple[Any, List[str]]:
             raise FamilyEditError(f"{param['caption']} is apparent power; got unit {unit!r}")
         notes.append(f"{param['caption']}: {num:g} {unit or 'kVA'} -> internal")
         return float(num) * factor, notes
-    for marker, kind, offer, internal, caveat in _EXPLICIT_UNIT_SPECS:
+    for marker, kind, offer, internal, caveat in _SPEC_UNITS:
         if marker not in spec:
             continue
         if not unit:
+            if offer is None:
+                return float(num), notes               # bare number stored as given, as before
             raise FamilyEditError(
                 f"{param['caption']} is a {kind.upper()}: give an explicit unit "
                 f"({offer}) -- units are never guessed")
         got, factor = _UNIT_TOKENS.get(unit, ("", 0.0))
         if got != kind:
-            raise FamilyEditError(f"{param['caption']} is a {kind}; got unit {unit!r}")
+            raise FamilyEditError(f"{param['caption']} is a {kind.replace('_', ' ')}; "
+                                  f"got unit {unit!r}")
         notes.append(f"{param['caption']}: {num:g} {unit} -> {num * factor:g} "
                      f"{internal}{caveat}")
         return float(num) * factor, notes
     if unit and spec and ":number" not in spec:        # measurable, merely unconverted here
         raise FamilyEditError(
             f"{param['caption']}: no conversion for unit {unit!r} on spec {spec} "
-            f"(this lane converts {_converted_units()}) -- give the value in "
-            "Revit internal units with no unit suffix; units are never guessed")
+            f"(this lane converts: {_converted_units()}) -- give a supported "
+            "unit, or a bare number ONLY if it is already in Revit internal "
+            "units (internal is not the display unit for most specs); units "
+            "are never guessed")
     if unit:                                           # spec-less or Revit's unitless number
         notes.append(f"{param['caption']}: unit {unit!r} ignored (dimensionless spec "
                      f"{spec})")

@@ -12,19 +12,23 @@ LENGTH is refused ("units are never guessed").
 
 Now: ``lb`` / ``lbs`` / ``lbm`` -> x ``rvt.famgen.factory.KG_PER_LB`` (the ONE
 constant, imported -- no second literal), ``kg`` -> as is, no unit -> refused
-exactly like a length, and a unit on a measurable spec the lane merely lacks a
-conversion for (``Frequency=60 Hz``) is refused BY NAME instead of being
-stored under the false "dimensionless" note; only Revit's unitless ``number``
-(and a spec-less double) still ignores a unit suffix.  Lengths and
-dimensionless numbers behave byte-for-byte as before (control rows pin the
-exact strings ``main`` produced).
+exactly like a length.  The units ``main`` stored CORRECTLY by luck under that
+false note keep working, now through their own branch with an honest note:
+``Hz`` / ``lm`` / ``K`` ARE Revit's internal units (the factory stores them as
+given), ``W`` / ``kW`` convert by the factory's watts factor; a bare number on
+those specs is stored as given, as before.  A unit on a measurable spec the
+lane still has no conversion for (``Efficacy=100 lpw``) is refused BY NAME --
+never called "dimensionless", never told "just drop the suffix"; only Revit's
+unitless ``number`` (and a spec-less double) still ignores a unit suffix.
+Lengths and dimensionless numbers behave byte-for-byte as before (control rows
+pin the exact strings ``main`` produced).
 
 Tiers: (1) the pure converter on synthetic parameter rows (no file);
-(2) ON A WRITTEN #630 transformer ``.rfa`` through the real CLI entry
-(``rvt.convert.edit_family.main``): read-back via ``inventory_family``,
-family-mode VALID 0 errors, provenance clean after every successful edit.
-Validator-green is a fact about the file, never evidence that Revit opens it
-(hard rule 4); no certification is claimed.
+(2) ON A WRITTEN #630 transformer and a luminaire ``.rfa`` through the real
+CLI entry (``rvt.convert.edit_family.main``): read-back via
+``inventory_family``, family-mode VALID 0 errors, provenance clean after every
+successful edit.  Validator-green is a fact about the file, never evidence
+that Revit opens it (hard rule 4); no certification is claimed.
 
 Run: .venv/bin/python -m pytest tests/test_edit_family_mass_659.py -q
 """
@@ -45,12 +49,17 @@ from conftest import needs_schema                              # noqa: E402
 from rvt.convert import edit_family as EF                      # noqa: E402
 from rvt.convert import modify_family as MFAM                  # noqa: E402
 from rvt.famgen import factory as F                            # noqa: E402
+from rvt.famgen import skeleton as SK                          # noqa: E402
 from rvt.famgen import standards as ST                         # noqa: E402
 
 MASS_SPEC = "autodesk.spec.aec.structural:mass-1.0.0"          # pinned literally: the id #630 writes
 LENGTH_SPEC = ST.SPECS["length"]
 NUMBER_SPEC = ST.SPECS["number"]
 FREQ_SPEC = ST.SPECS["frequency"]
+FLUX_SPEC = ST.SPECS["luminous_flux"]
+CCT_SPEC = ST.SPECS["cct"]
+WATTAGE_SPEC = ST.SPECS["wattage"]
+EFFICACY_SPEC = ST.SPECS["efficacy"]
 MASS_PER_LENGTH_SPEC = ST.SPECS["mass_per_length"]
 
 #: the exact strings ``main`` produced before #659 -- control rows must not move
@@ -63,8 +72,13 @@ DIMLESS_NOTE_115C = f"Temperature Rise: unit 'c' ignored (dimensionless spec {NU
 #: the wording #659 picked (pinned): a MASS refuses like a length ...
 MASS_REFUSAL = ("Operating Weight is a MASS: give an explicit unit (lb / kg) -- "
                 "units are never guessed")
-#: ... and a measurable spec without a conversion is refused BY NAME
-NO_CONVERSION = "no conversion for unit 'hz' on spec " + FREQ_SPEC
+#: ... and a measurable spec without a conversion is refused BY NAME, with a
+#: way forward that never implies "internal units == the display unit"
+NO_CONVERSION = "no conversion for unit 'lpw' on spec " + EFFICACY_SPEC
+WAY_FORWARD = ("give a supported unit, or a bare number ONLY if it is already in Revit "
+               "internal units (internal is not the display unit for most specs); units "
+               "are never guessed")
+AS_GIVEN = "(Revit's internal unit -- stored as given)"
 
 #: (raw --set value, stored kg, the manifest note) -- shared by the pure and the on-file tiers
 MASS_ROWS = {
@@ -147,18 +161,62 @@ def test_control_a_dimensionless_number_still_ignores_a_unit_suffix(spec):
     assert MFAM._convert_value(_param("ShortCircuitRatingkA", spec), "65 kA")[0] == 65.0
 
 
+#: (caption, spec, raw, stored, note) -- the units main stored CORRECTLY by luck
+#: under the false "dimensionless" note: identity units get their own branch
+IDENTITY_ROWS = [
+    ("Frequency", FREQ_SPEC, "60 Hz", 60.0, f"Frequency: 60 hz -> 60 Hz {AS_GIVEN}"),
+    ("Luminous Flux", FLUX_SPEC, "3000 lm", 3000.0,
+     f"Luminous Flux: 3000 lm -> 3000 lm {AS_GIVEN}"),
+    ("Initial Color Temperature", CCT_SPEC, "3500 K", 3500.0,
+     f"Initial Color Temperature: 3500 k -> 3500 K {AS_GIVEN}"),
+]
+
+
+@pytest.mark.parametrize("caption, spec, raw, stored, note", IDENTITY_ROWS,
+                         ids=["Hz", "lm", "K"])
+def test_hz_lm_k_are_internal_units_stored_as_given_with_an_honest_note(
+        caption, spec, raw, stored, note):
+    assert MFAM._convert_value(_param(caption, spec), raw) == (stored, [note])
+    # a bare number on these specs is stored as given with no note -- exactly as on main
+    assert MFAM._convert_value(_param(caption, spec), raw.split()[0]) == (stored, [])
+
+
+def test_watts_convert_by_the_factorys_watts_factor_not_a_new_literal():
+    """``Wattage=40 W`` reads back what ``make_luminaire(wattage=40)`` stores
+    (``skeleton.watts``); ``kW`` x 1000; a bare number stays as given (main's
+    behaviour, not newly refused)."""
+    p = _param("Wattage", WATTAGE_SPEC)
+    assert MFAM._UNIT_TOKENS["w"] == ("wattage", SK.watts(1.0))
+    assert MFAM._UNIT_TOKENS["kw"][1] == pytest.approx(SK.watts(1000.0))
+    val, notes = MFAM._convert_value(p, "40 W")
+    assert val == SK.watts(40) and notes == ["Wattage: 40 w -> 430.556 internal (W x 1/0.3048^2)"]
+    assert MFAM._convert_value(p, "0.04 kW")[0] == pytest.approx(SK.watts(40))
+    assert MFAM._convert_value(p, "40") == (40.0, [])
+    with pytest.raises(MFAM.FamilyEditError, match="Wattage is a wattage; got unit 'lm'"):
+        MFAM._convert_value(p, "40 lm")
+    with pytest.raises(MFAM.FamilyEditError, match="Luminous Flux is a luminous flux; got unit 'w'"):
+        MFAM._convert_value(_param("Luminous Flux", FLUX_SPEC), "3000 W")
+
+
 def test_a_measurable_spec_without_a_conversion_is_refused_by_name_not_called_dimensionless():
-    """``Frequency=60 Hz``: main stored 60.0 under *unit 'hz' ignored
-    (dimensionless spec ...frequency...)* -- false, a frequency is measurable.
-    The lane now says it has no conversion and how to proceed; a bare number
-    is still stored as Revit internal units, as before."""
+    """``Efficacy=100 lpw`` (lm/W -- no conversion here): main stored 100.0
+    under *unit 'lpw' ignored (dimensionless spec ...efficacy...)* -- false, an
+    efficacy is measurable.  The lane now names the spec, lists what it DOES
+    convert (drawn from ``_UNIT_TOKENS``), and words the way forward so it never
+    implies internal units are the display unit; a bare number is still stored
+    as given, as before."""
     with pytest.raises(MFAM.FamilyEditError) as ei:
-        MFAM._convert_value(_param("Frequency", FREQ_SPEC), "60 Hz")
+        MFAM._convert_value(_param("Efficacy", EFFICACY_SPEC), "100 lpw")
     msg = str(ei.value)
-    assert msg.startswith("Frequency: " + NO_CONVERSION)
-    assert "dimensionless" not in msg and "units are never guessed" in msg
-    assert "no unit suffix" in msg                              # the way forward is named
-    assert MFAM._convert_value(_param("Frequency", FREQ_SPEC), "60") == (60.0, [])
+    assert msg.startswith("Efficacy: " + NO_CONVERSION) and msg.endswith(WAY_FORWARD)
+    assert "dimensionless" not in msg and "no unit suffix" not in msg
+    offer = MFAM._converted_units()
+    assert f"(this lane converts: {offer})" in msg
+    assert offer == ("current a / amp / amps; potential v / volt / volts; "
+                     "length ft / feet / foot / ' / in / inch / inches / \" / mm / m; "
+                     "apparent power kva / va; wattage w / kw; frequency hz; "
+                     "luminous flux lm; color temperature k; mass kg / lb / lbs / lbm")
+    assert MFAM._convert_value(_param("Efficacy", EFFICACY_SPEC), "100") == (100.0, [])
 
 
 def test_mass_per_unit_length_is_not_mistaken_for_a_mass():
@@ -265,15 +323,75 @@ def test_a_unitless_operating_weight_is_refused_and_nothing_half_written(xfmr_rf
     assert not any(f.endswith(".rfa") for f in os.listdir(str(tmp_path)))
 
 
+def _same_bytes(a, b):
+    with open(a, "rb") as fa, open(b, "rb") as fb:
+        return fa.read() == fb.read()
+
+
 @needs_schema
-def test_hz_on_the_transformers_frequency_is_refused_by_name(xfmr_rfa, tmp_path, capsys):
-    rc, _man, out = _cli_edit(xfmr_rfa, tmp_path, "Frequency=60 Hz")
-    assert rc == 2 and out is None
+def test_hz_on_the_transformers_frequency_is_stored_as_given_with_an_honest_note(xfmr_rfa, tmp_path):
+    """main stored ``Frequency=60 Hz`` as 60.0 (right, by luck) under the false
+    dimensionless note; now the same bytes land through the frequency branch
+    with an honest note -- byte-identical to the bare ``Frequency=60`` edit,
+    which is unchanged from main."""
+    rc, man, out = _cli_edit(xfmr_rfa, tmp_path / "hz", "Frequency=60 Hz")
+    assert rc == 0 and _current(out, "Frequency") == 60.0
+    assert man["degradations"] == [IDENTITY_ROWS[0][4]]
+    _assert_valid_and_ours(man, out)
+    rc, man_bare, bare = _cli_edit(xfmr_rfa, tmp_path / "bare", "Frequency=60")
+    assert rc == 0 and man_bare["degradations"] == [] and _same_bytes(out, bare)
+
+
+# ---------------------------------------------------------------------------
+# 2b. ON A LUMINAIRE: lm / K as given, W by the factory's factor, lm/W refused
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(scope="module")
+def lum_rfa(tmp_path_factory):
+    """A 2x4 troffer (38 W / 4600 lm / 4000 K) written the product's way."""
+    from rvt.frontdoor.standalone import standalone_family_write
+    path = str(tmp_path_factory.mktemp("lum659") / "lum.rfa")
+    rep = standalone_family_write(F.make_luminaire(wattage=38, lumens=4600, cct=4000), path)
+    fam = (rep.get("validate") or {}).get("family_mode") or {}
+    assert fam.get("verdict") == "VALID" and fam.get("n_errors") == 0, fam.get("errors")
+    assert (rep.get("provenance") or {}).get("ok") is True, rep["provenance"].get("suspects")
+    assert _currents(path, "Wattage", "Luminous Flux", "Initial Color Temperature") == [
+        SK.watts(38), 4600.0, 4000.0]                          # the factory: W converted, lm / K as given
+    return path
+
+
+@needs_schema
+def test_lm_and_k_on_the_written_luminaire_are_stored_as_given(lum_rfa, tmp_path):
+    rc, man, out = _cli_edit(lum_rfa, tmp_path / "u", "Luminous Flux=3000 lm",
+                             "Initial Color Temperature=3500 K")
+    assert rc == 0 and _currents(out, "Luminous Flux", "Initial Color Temperature") == [3000.0, 3500.0]
+    assert man["degradations"] == [IDENTITY_ROWS[1][4], IDENTITY_ROWS[2][4]]
+    _assert_valid_and_ours(man, out)
+    rc, man_bare, bare = _cli_edit(lum_rfa, tmp_path / "b", "Luminous Flux=3000",
+                                   "Initial Color Temperature=3500")
+    assert rc == 0 and man_bare["degradations"] == [] and _same_bytes(out, bare)
+
+
+@needs_schema
+def test_watts_on_the_written_luminaire_read_back_what_the_factory_stores_for_the_same_watts(
+        lum_rfa, tmp_path):
+    rc, man, out = _cli_edit(lum_rfa, tmp_path, "Wattage=40 W")
+    assert rc == 0 and man["degradations"] == ["Wattage: 40 w -> 430.556 internal (W x 1/0.3048^2)"]
+    factory_40w = F.make_luminaire(wattage=40, lumens=4600, cct=4000).doc
+    pid = factory_40w.params["Wattage"].elem_id
+    assert _current(out, "Wattage") == factory_40w.types[0][1][pid] == SK.watts(40)
+    _assert_valid_and_ours(man, out)
+
+
+@needs_schema
+def test_lumens_per_watt_on_the_luminaires_efficacy_is_refused_by_name(lum_rfa, tmp_path, capsys):
+    rc, man, out = _cli_edit(lum_rfa, tmp_path, "Efficacy=100 lpw")
+    assert rc == 2 and man is None and out is None
     printed = capsys.readouterr().out.strip()
-    assert printed.startswith("ERROR: Frequency: " + NO_CONVERSION) and "dimensionless" not in printed
-    # the bare number is stored as internal units, exactly as on main
-    rc, man, out = _cli_edit(xfmr_rfa, tmp_path / "bare", "Frequency=60")
-    assert rc == 0 and _current(out, "Frequency") == 60.0 and man["degradations"] == []
+    assert printed.startswith("ERROR: Efficacy: " + NO_CONVERSION) and printed.endswith(WAY_FORWARD)
+    assert "dimensionless" not in printed
+    rc, man, out = _cli_edit(lum_rfa, tmp_path / "bare", "Efficacy=100")     # bare: as given, as on main
+    assert rc == 0 and _current(out, "Efficacy") == 100.0 and man["degradations"] == []
 
 
 @needs_schema
