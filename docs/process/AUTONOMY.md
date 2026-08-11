@@ -51,7 +51,7 @@ stories … we can steer you."*
 | **Task issues** | the backlog: title = checkable DONE; body = Why / DONE / Territory / Evidence / Context; labels = priority + area + state + provenance | tech leads (`from-steer`, `planned`), sessions mid-work (follow-ups) | via `/next`, brief |
 | **The board** (issue labelled `board`, pinned) | rendered live view: in progress · in review + exact merge blocker · next up · waiting on a human · steers · done · health | `board.yml` → `tools/dev/techlead.py board`, hourly + on events | `/board`, SessionStart banner |
 | Planning notes | one comment per planner pass on the board issue: what was triaged/filed/closed and why | the tech lead that ran the pass | — |
-| `docs/inbox/<stream>.md` | per-workstream record with evidence and `BRANCH STATE` | the engineer | on demand |
+| `docs/inbox/<stream>.md`, or that index + one `docs/inbox/<stream>.d/<issue>-<slug>.md` fragment per PR (`docs/inbox/README.md`) | per-workstream record with evidence and `BRANCH STATE` | the engineer | on demand |
 | `TRACKER.md`, `KNOWLEDGE.md` | curated roadmap summary; institutional memory (hot files) | tech leads via small PRs | `KNOWLEDGE.md` on demand |
 | `.github/autonomy.json` | the knobs (§11) | anyone via PR (bot-mergeable) | read at run time by every bot |
 

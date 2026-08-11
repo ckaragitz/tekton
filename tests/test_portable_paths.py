@@ -1,8 +1,9 @@
 """tools/dev/check_portable_paths.py -- the portable-paths gate as a pure function plus a CLI over `git ls-files`.
 
 `check(names)` is the seam tools/dev/ci_fresh.sh imports at merge time to re-run THE gate over the post-merge name
-set (#522), so its contract is pinned here: every law (per-name and the cross-file case-twin law) reported as
-(problem line, names involved) in the order the CLI prints them, no git and no filesystem behind it. The CLI is
+set (#522), so its contract is pinned here: every portability law (per-name and the cross-file case-twin law) reported
+as (problem line, names involved) in the order the CLI prints them, no git and no filesystem behind it (the docs/inbox
+record-layout law check() also carries since #638 is pinned in tests/test_records_layout.py, same shape). The CLI is
 pinned too -- its output did not change when the seam went in. Fresh-clone runnable: stdlib (+ git for the CLI rows).
 """
 import sys

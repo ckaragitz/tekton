@@ -21,7 +21,7 @@ import re
 import subprocess
 import sys
 
-from conftest import ROOT, load_tool
+from conftest import ROOT, git_commit, load_tool
 
 PATH = os.path.join(ROOT, "tools", "dev", "techlead.py")
 WF = os.path.join(ROOT, ".github", "workflows")
@@ -557,6 +557,23 @@ def test_brief_lists_untriaged_steer_text_and_hygiene_findings():
     assert "### #54 — Steer: coding sessions are the tech leads" in brief and "> Hi ..." in brief
     assert "#52 has no priority label" in brief and "#6 has no area:* label" not in brief   # #6 has area:perf
     assert "at most 5 new issues" in brief
+
+
+def test_recent_records_lists_the_most_recently_touched_first_deduped_and_capped(git_repo, monkeypatch):
+    """#638: the brief's "records touched" line comes from `git log -- docs/inbox` (a directory pathspec, so record
+    fragments docs/inbox/<stream>.d/*.md count like single-file records). It keeps git-log order -- most recently
+    touched first -- names each path once, and caps AFTER that, so the cap drops the oldest, never the newest (the
+    alphabetical sorted()[:30] it replaces stopped at `c...` on the real repo and hid every fragment). The record
+    names are literal fiction on purpose: tests/test_ci_fresh.py's docs-reads scanner treats a computed docs/inbox/
+    name in this file as a read of the whole directory."""
+    git_commit(git_repo, {"docs/inbox/rig-alpha.md": "a\n", "docs/inbox/rig-beta.md": "b\n", "docs/inbox/rig-gamma.md": "c\n"}, "three old records")
+    git_commit(git_repo, {"docs/inbox/zeta.md": "z\n", "docs/inbox/rig-alpha.md": "again\n", "src/x.py": "code\n"}, "an old record touched again")
+    git_commit(git_repo, {"docs/inbox/zeta.d/638-x.md": "fragment\n"}, "the newest: a fragment")
+    monkeypatch.setattr(tl, "ROOT", str(git_repo))
+    got = tl.recent_records()
+    assert got == ["docs/inbox/zeta.d/638-x.md", "docs/inbox/rig-alpha.md", "docs/inbox/zeta.md",   # newest commit first; within one commit git's own (path) order;
+                   "docs/inbox/rig-beta.md", "docs/inbox/rig-gamma.md"]                            # rig-alpha once (deduped at its NEWEST touch); src/ is outside the pathspec
+    assert tl.recent_records(cap=4) == got[:4]                                                       # the cap drops the tail = the oldest, never the fragment
 
 
 # ───────────────────────── worker pick ─────────────────────────

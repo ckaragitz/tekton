@@ -55,11 +55,11 @@ def rig(tmp_path):
     os.makedirs(ci)
     ns = types.SimpleNamespace(up=up, ci=ci, was=was, err=None)
 
-    def pr(n, files):
-        """A PR head in the clone the way session_ci.sh leaves it (origin/main + `files`, fetched, not checked out)
-        and a stored pass verdict for it against the clone's origin/main -> the head SHA."""
+    def pr(n, files, delete=()):
+        """A PR head in the clone the way session_ci.sh leaves it (origin/main + `files` - `delete`, fetched, not
+        checked out) and a stored pass verdict for it against the clone's origin/main -> the head SHA."""
         git(clone, "switch", "-q", "-c", "pr%d" % n, "origin/main")
-        head = git_commit(clone, files, "PR %d" % n)                  # those paths only: the untracked helper copies never ride along
+        head = git_commit(clone, files, "PR %d" % n, delete=delete)   # those paths only: the untracked helper copies never ride along
         git(clone, "switch", "-q", "--detach", "origin/main")
         _verdict(ci, n, head=head, main=was, verdict="pass")
         return head
@@ -165,6 +165,20 @@ def test_the_merge_time_gate_is_the_checker_itself_not_a_rederived_twin_law(rig)
     assert rig.fresh(8, head) == (4, "STALE was=%s now=%s changed=docs/aux.md (tools/dev/check_portable_paths.py rejects the post-merge name set: "
                                     "reserved device name on Windows: 'docs/aux.md') -> re-run tools/dev/session_ci.sh 8" % (rig.was, now))
     assert rig.fresh(7, rig.head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))
+    assert rig.err == ""
+
+
+def test_an_index_the_pr_deletes_while_main_adds_a_fragment_beside_it_is_stale(rig):
+    """#638: the record-layout law (docs/inbox/README.md: every docs/inbox/<stream>.d/ has its index <stream>.md) lives
+    inside tools/dev/check_portable_paths.check(), so the post-merge re-run above feels it with no line of its own in
+    the helper. A PR deleting docs/inbox/old.md was green against a main without old.d/; main docs-only-adding
+    docs/inbox/old.d/1-x.md is lawful on its own; only the merged name set is lawless -- STALE, named by the fragment
+    and worded by the checker. For a PR that keeps the index the very same drift is plain tolerated docs drift."""
+    head = rig.pr(9, {}, delete=("docs/inbox/old.md",))
+    now = git_commit(rig.up, {"docs/inbox/old.d/1-x.md": "fragment\n"}, "main adds a fragment of the record PR 9 deletes")
+    assert rig.fresh(9, head) == (4, "STALE was=%s now=%s changed=docs/inbox/old.d/1-x.md (tools/dev/check_portable_paths.py rejects the post-merge name set: "
+                                    "record layout (docs/inbox/README.md): old.d/ has no index old.md beside it) -> re-run tools/dev/session_ci.sh 9" % (rig.was, now))
+    assert rig.fresh(7, rig.head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # PR 7 keeps old.md: the same drift merges lawfully
     assert rig.err == ""
 
 

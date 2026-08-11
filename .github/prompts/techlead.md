@@ -84,7 +84,8 @@ best first:
 1. children of open epics and of triaged steers that have no issue yet;
 2. `docs/PROGRAM.md` current objectives with no open issue driving them;
 3. unchecked items in `TRACKER.md`; "open questions", "follow-ups" and `BRANCH STATE` leftovers
-   in recent `docs/inbox/*.md` records; findings sections of merged PRs;
+   in recent `docs/inbox/*.md` records and `docs/inbox/*.d/*.md` fragments (`techlead.py brief` lists
+   the recently touched ones); findings sections of merged PRs;
 4. red/skipped tests, TODO/FIXME in `src/` and `tools/`, docs that contradict the code;
 5. process friction you observed in this very pass (file it under `area:process`).
 

@@ -22,7 +22,9 @@ nobody watching. Follow the section for your MODE.
 3. **Do the work** inside the Territory, the way CLAUDE.md says: small logical commits with plain
    messages; new modules over edits to hot files; if you touch `src/`, `tools/` or `skills/` run
    `.venv/bin/python tools/sync_plugin.py` and commit the regenerated mirrors; write/extend the
-   stream record `docs/inbox/<stream>.md` ending in a `BRANCH STATE` block; add or extend
+   stream record — your own fragment `docs/inbox/<stream>.d/<issue>-<slug>.md` when the stream
+   already has a record, else `docs/inbox/<stream>.md` (`docs/inbox/README.md`) — ending in a
+   `BRANCH STATE` block; add or extend
    stream-local tests. Never run the full suite; never weaken a gate or delete a test to go green;
    never touch `.github/workflows/**` (you could not merge it anyway).
 4. **Run the gates** and keep the outputs for the PR body:
