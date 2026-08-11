@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import ast
 import contextlib
-import dataclasses
 import os
 import subprocess
 import sys
@@ -34,7 +33,8 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import CERTIFIED_YEARS, pinned_base                # noqa: E402
+from conftest import (CERTIFIED_YEARS, FOREIGN, partition_of, pinned_base, rewrite_stream,   # noqa: E402
+                      zero_partition_header, zero_schema_bytes)
 from rvt import global_framing as GF                           # noqa: E402
 from rvt import native_framing as NF                           # noqa: E402
 from rvt import partitions as P                                # noqa: E402
@@ -42,40 +42,14 @@ from rvt import versions as V                                  # noqa: E402
 from rvt.container import open_rvt                             # noqa: E402
 from rvt.frontdoor import release_ctx as RC                    # noqa: E402
 
-FOREIGN = [y for y in CERTIFIED_YEARS if y != V.LATEST_RELEASE]    # the 2025/2024 pins
 TOOLS = ["rvt_selfcheck", "rvt_inspect", "rvt_edit_text"]      # every CLI that enters via rvt.native_framing
-
-
-def _native_constants() -> dict:
-    snap = {k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)}
-    snap["active_release"] = RC.active_release()
-    return snap
-
-
-@pytest.fixture(autouse=True)
-def _no_leak():
-    before = _native_constants()
-    assert before["active_release"] is None
-    yield
-    assert _native_constants() == before
+pytestmark = pytest.mark.usefixtures("no_release_leak")
 
 
 def _native_pin() -> str:
     if V.LATEST_RELEASE not in CERTIFIED_YEARS:
         pytest.skip("no certified native-release pin")
     return pinned_base(V.LATEST_RELEASE)
-
-
-def _rewrite_stream(src: str, dst: str, name: str, damage) -> None:
-    """``src`` re-emitted as ``dst`` with stream ``name``'s RAW bytes replaced
-    by ``damage(raw)`` -- every other entry byte-identical."""
-    from rvt.cfb_writer import write_cfb
-    from rvt.roundtrip import read_entries
-    with open_rvt(src) as d:
-        raw = d.raw(name)
-    write_cfb(dst, [dataclasses.replace(e, data=damage(raw))
-                    if (e.entry_type == "stream" and e.path == name) else e
-                    for e in read_entries(src)])
 
 
 def _never(*_a, **_k):
@@ -92,10 +66,7 @@ def test_native_pin_is_natively_framed():
 @pytest.mark.parametrize("year", CERTIFIED_YEARS)
 def test_header_zeroed_copy_is_not_natively_framed_and_never_raises(year, tmp_path):
     src = pinned_base(year)
-    with open_rvt(src) as d:
-        pname = d.partition_streams()[0]
-    bad = str(tmp_path / "hdr_zeroed.rvt")
-    _rewrite_stream(src, bad, pname, lambda raw: bytes(16) + raw[16:])
+    bad = rewrite_stream(src, tmp_path / "hdr_zeroed.rvt", partition_of(src), zero_partition_header)
     with open_rvt(bad) as doc:
         assert NF.natively_framed(doc) is False
 
@@ -158,9 +129,7 @@ def test_damaged_schema_is_each_ladders_own_note_never_a_raise(tmp_path):
     if not FOREIGN:
         pytest.skip("no certified foreign-release pin")
     year = FOREIGN[0]
-    src = pinned_base(year)
-    bad = str(tmp_path / "schema_dmg.rvt")
-    _rewrite_stream(src, bad, "Formats/Latest", lambda raw: raw[:2000] + bytes(64) + raw[2064:])
+    bad = rewrite_stream(pinned_base(year), tmp_path / "schema_dmg.rvt", "Formats/Latest", zero_schema_bytes)
     with open_rvt(bad) as doc:
         with contextlib.ExitStack() as stack:
             note = NF.enter_files_release(stack, doc, bad, host=True)
