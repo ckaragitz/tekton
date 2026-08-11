@@ -1,3 +1,8 @@
+# DO NOT APPEND NEW TESTS HERE (#636). Every assembly-lane PR used to add its tests to the end of this file, so any
+# two of them in flight conflicted at the EOF and one paid a rebase + a full CI re-run (#583/#626/#627/#632/#635).
+# A PR that adds tests for this lane creates its OWN module, tests/test_ifc_assembly_<issue>.py, plus a drop-in
+# tests/ci_shard.d/<issue>-<slug>.txt (see tests/ci_shard.d/README), reusing fixtures via tests/conftest.py or an
+# import from this module. Touch this file only to genuinely edit the tests already in it.
 """The ASSEMBLY lane: an arbitrary-geometry IFC -> one multi-part .rfa.
 
 Covers :mod:`rvt.ifc.assembly_parts` (hull, prism fit, mesh volume, the

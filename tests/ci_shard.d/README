@@ -23,6 +23,20 @@ Rules -- enforced by tools/dev/shard_list.py, which tools/dev/session_ci.sh
   * only list files that are green in a FRESH CLONE (no samples/, extracted/,
     vendor/, viewer login, ifcopenshell) -- see the header of tests/ci_shard.txt.
 
+The same trick for the tests themselves (#636): a PR that adds tests for a
+SHARED surface (the ifc -> rfa assembly lane, famgen, the router, ...) puts
+them in a NEW module named after the surface and the issue,
+
+    tests/test_<surface>_<issue>.py            e.g.  tests/test_ifc_assembly_625.py
+
+plus its drop-in here, instead of appending to a large shared file such as
+tests/test_ifc_assembly.py (1,300 lines, appended to by every assembly PR and
+therefore a rebase for every second one). Reuse shared fixtures/helpers
+through tests/conftest.py (or import them from the big module) rather than
+copying them. Only a PR that genuinely EDITS existing tests touches the shared
+file. Stream records follow suit: one fragment per PR,
+docs/inbox/<stream>.d/<issue>-<slug>.md (docs/inbox/README.md).
+
 See the merged list:   python3 tools/dev/shard_list.py --print
 Run it like CI does:   .venv/bin/python -m pytest -q -- $(python3 tools/dev/shard_list.py --print)
 tests/test_shard_list.py pins these rules and that every listed path exists.

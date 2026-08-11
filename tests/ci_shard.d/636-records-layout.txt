@@ -1,0 +1,2 @@
+# #636: the stream-record layout law (docs/inbox/<stream>.d/<issue>-<slug>.md fragments + their index); stdlib, lists names only
+tests/test_records_layout.py
