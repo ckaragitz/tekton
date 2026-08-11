@@ -1556,6 +1556,35 @@ GEOMETRY_FLAGS_CURVED = 6
 #: 0.125 ft) [V]; mechanism (why 7 vs 6 for equal spans) [H].
 ARC_CHORDS_FIRST_HALF = 7
 ARC_CHORDS_SECOND_HALF = 6
+#: the ONLY radius at which the 7/6 split above is observed -- specimen 614's
+#: legs.  The counts are applied at every radius, but WHY Revit chose 7 and 6
+#: for two equal spans is [H]: if it sized them from a chord tolerance, they do
+#: not transfer to another radius.  No second-radius specimen is on record, so
+#: :func:`arc_tessellation_facts` MEASURES the extrapolation instead of
+#: guessing a law -- an unverified number stays labelled, never invented (#530).
+ARC_CHORDS_VERIFIED_RADIUS_FT = 0.125
+
+
+def arc_tessellation_facts(radius_ft: float) -> dict:
+    """What the fixed 7/6 chord split costs at ``radius_ft`` (#530).
+
+    ``chords`` per full circle, the worst-half ``sagitta_ft`` (chord-to-arc
+    deviation -- the amount by which the stored edge NODES, and therefore the
+    solid's ``m_bBox``/``m_tightbBox``, sit inside the true circle), and
+    ``specimen_ratio`` = radius / the one verified radius.  ``verified`` is
+    True only AT that radius; anywhere else the tessellation is an
+    extrapolation of an [H] mechanism and says so.
+    """
+    r = float(radius_ft)
+    chords = ARC_CHORDS_FIRST_HALF + ARC_CHORDS_SECOND_HALF
+    widest = math.pi / min(ARC_CHORDS_FIRST_HALF, ARC_CHORDS_SECOND_HALF)
+    ratio = r / ARC_CHORDS_VERIFIED_RADIUS_FT if ARC_CHORDS_VERIFIED_RADIUS_FT else 0.0
+    return {
+        "chords": chords,
+        "sagitta_ft": r * (1.0 - math.cos(widest / 2.0)),
+        "specimen_ratio": ratio,
+        "verified": math.isclose(r, ARC_CHORDS_VERIFIED_RADIUS_FT, rel_tol=1e-9),
+    }
 
 
 def cylsurf(center: Vec, radius: float, theta0: float, theta1: float,
@@ -2462,9 +2491,25 @@ def cylinder(radius_ft: float, height_ft: float, ctx: FamilyDocContext, ids: Any
     Revit sketches a circle -- two half arcs -- and extruded UP.
 
     E.g. a 6 in. recessed can: ``cylinder(inches(3), inches(7.5), ctx, ids)``.
+
+    The bundle carries :func:`arc_tessellation_facts` for ``radius_ft``: the
+    curved rails are tessellated with a FIXED 7/6 chord split observed at one
+    radius only (specimen 614, 0.125 ft), so away from it the stored edge
+    nodes -- and the ``m_bBox``/``m_tightbBox`` taken from them -- are an
+    extrapolation.  Measured and labelled, not silently applied (#530).
     """
-    return cylinder_form(circle_profile(center, radius_ft), height_ft, ctx, ids,
-                         base_z_ft=base_z_ft, rep=rep)
+    fb = cylinder_form(circle_profile(center, radius_ft), height_ft, ctx, ids,
+                       base_z_ft=base_z_ft, rep=rep)
+    tess = arc_tessellation_facts(radius_ft)
+    fb.params["tessellation"] = tess
+    if not tess["verified"]:
+        fb.notes.append(
+            f"curved rails tessellated with the FIXED {tess['chords']}-chord split "
+            f"verified only at r={ARC_CHORDS_VERIFIED_RADIUS_FT} ft; this radius is "
+            f"{tess['specimen_ratio']:.1f}x that, so the stored edge nodes (and the "
+            f"solid bbox taken from them) sit up to {tess['sagitta_ft']:.5f} ft "
+            f"inside the true circle -- extrapolated, mechanism [H] (#530)")
+    return fb
 
 
 # ---------------------------------------------------------------------------
