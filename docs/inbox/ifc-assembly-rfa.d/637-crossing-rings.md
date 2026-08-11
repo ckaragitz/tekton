@@ -54,7 +54,7 @@ which already authors the *union* of overlapping shells at 0° and credits the o
 (`test_overlapping_shells_are_measured_as_a_union_not_counted_twice`). The union makes the two lanes
 one law.
 
-Four private helpers, called from `decompose_slabs` between `slice_loops` and `ring_nesting`; nothing
+Five private helpers, called from `decompose_slabs` between `slice_loops` and `ring_nesting`; nothing
 else in the module moves (`slice_loops`, `_stitch`, `_junction_pairs`, `ring_nesting`,
 `_probe_clear_of`, `fit_solid`, `decompose_boxes`, every constant, `EXACT_REL_TOL`, the 2 % slack, the
 #652 budgets, the #666 caliper law: byte-intact):
@@ -76,7 +76,9 @@ else in the module moves (`slice_loops`, `_stitch`, `_junction_pairs`, `ring_nes
   hole, a shell wound the other way, a piece mis-sided by rounding is never merged away; (3)
   **closure** — the kept pieces must meet exactly two to a vertex, or `None`. Only then is the shared
   area `area(a) + area(b) − area(union)` reported.
-* **`_merge_crossing_rings(rings, twice)`** — repeat over bbox-gated pairs until no pair crosses
+* **`_first_crossing(rings, twice)`** — the first bbox-gated pair that really crosses, with its union;
+  `()` when none does; `None` when a pair crosses but the union is refused.
+* **`_merge_crossing_rings(rings, twice)`** — merge that pair and look again until no pair crosses
   (a merged outline can cross a third ring: two lugs in one band, lugs crossing each other); returns
   `(rings, pairs merged, shared area)` or `None`; bounded by the square of the ring count.
 
@@ -91,7 +93,9 @@ divergence volume counts interpenetrating shells' shared material twice; the uni
 `read_assembly` already accepts the box lane only when `boxes + overlap_ft3` reproduces the mesh; the
 slab branch now checks `_conserves(authored + overlap_ft3, mesh)` with the **same 2 % slack**, reports
 `fill_after = (mesh − overlap) ÷ authored` (so an honest merge reads 1.00, never the tell-tale 1.01),
-and the record carries `crossings_merged`, `mesh_overlap_in3` and a note; a model note (`N crossing
+and every decomposed record now carries `crossings_merged` (0 for the box lane and for slabs that
+merged nothing — a stable shape, like `holes_filled`) plus, when material was shared, the existing
+`mesh_overlap_in3` + note (one mechanism for both lanes, the slab wording appended); a model note (`N crossing
 section(s) merged (Pair: 1, 610.24 in3 shared): those shells INTERPENETRATE …`) rides `model.notes`,
 which the router already relays as a caveat — so `router.py` is untouched and the matrix byte-identical.
 Why this is not the backstop #583 round 2 removed, nor the tautology #613 warns about: the credit only
@@ -141,13 +145,24 @@ rings at z = …`. Site coordinates: the sunk pair placed at (500, 300), (50 000
 (5e5, 4.8e6) m merges identically (3 parts, authored = union to 1e-7) — the 1e-7 ft nudge is ~30 ulp at
 1.6e7 ft. Total decompositions run for this record ≈ 9 000, all on 24–400-triangle bodies (seconds).
 
-**Cost.** The no-crossing path pays one bbox test per ring pair per slice and `_ring_cuts` only for
-pairs whose boxes overlap; measured best-of-5 `read_assembly`, `main` → branch: sunk lug 1.03 → 1.32
-ms (it now merges), #621 face pair 1.04 → 1.21, #609 corner pair 1.05 → 1.12, strut 1.13 → 1.15,
-8-band frustum 13.2 → 13.7, 24-band 64-side frustum 121.5 → 121.6, lattice 3³ 38.1 → 37.0, lattice 9³
-176.0 → 176.5, 64-gon tube (nested rings, boxes overlap, 64×64 cut tests per slice, no cut) 9.3 →
-12.4 ms. The oracle (one `winding_number` per dropped run, two per merged pair) is paid only where a
-crossing was found.
+**Cost.** The no-crossing path pays one bbox test per ring pair per slice, and `_ring_cuts` only for
+pairs whose boxes overlap — inside which an edge pair whose extents miss skips the arithmetic (that is
+what keeps nested round rings cheap: a tube's bore in its skin overlaps by bbox at every slab yet no
+edge pair's extents meet). Measured best-of-5 `read_assembly`, `main` → branch: sunk lug 1.03 → 1.29
+ms (it now merges), #621 face pair 1.04 → 1.21, #609 corner pair 1.05 → 1.25, strut 1.13 → 1.16,
+8-band frustum 13.2 → 13.5, 24-band 64-side frustum 121 → 122–132 (noise), lattice 3³ 38 → 39,
+lattice 9³ 176 → 178–195 (single runs, noise), 64-gon tube with nested bore ring 9.3 → 10.2 ms (12.4
+before the extent gate). The oracle (one `winding_number` per dropped run, i.e. two per merged pair per
+slab) is paid only where a crossing was found.
+
+**Layer, and why not deeper (asked in review).** All three contact/crossing defects (#609 corner, #621
+face, #637 buried face) are one fact: rings cut from *different* shells are not a planar partition. The
+general cure — keep a slice segment only where the body's winding number differs across it — is two
+solid-angle sums over every triangle per segment per slab, exactly the #623 blow-up's shape (tens of
+seconds on a lattice); detecting the crossing in 2D and asking the body once per dropped run is the
+affordable form of the same question, and the docstring says a fourth symptom should buy the general
+one. Teaching `ring_nesting` to treat crossers as non-nesting was the rejected "author both" option
+above and would still need `_ring_cuts`.
 
 **Router, end to end** (`RVT_STEPLITE_FORCE=1 .venv/bin/python tools/route.py run --ifc X --output rfa
 --out D --json`, same IFC bytes, `main`'s engine swapped in by stashing the one file):
@@ -173,7 +188,7 @@ All four branch outputs: `tools/rvt_validate.py --family` **VALID (no errors); w
 a fact about the files, not about Revit. `tools/route.py matrix`: sha256 `7dae5d40…`, 39 lines, on both
 trees — **byte-identical**.
 
-**Tests** — new module `tests/test_ifc_assembly_637.py` (14 tests, ~3.5 s) + drop-in
+**Tests** — new module `tests/test_ifc_assembly_637.py` (14 tests, ~4 s) + drop-in
 `tests/ci_shard.d/637-crossing-rings.txt`; generators imported from `tests/test_ifc_assembly.py`
 (`_face_pair`, `_corner_pair`, `_FACE_PAIRS`, `_triangle_orders`, `_strut`, `_strut_mismatch`,
 `_frustum`, `_u_channel`, `_box_mesh`, `_prism_mesh`, `_yaw`, …), `_623` (`_lattice`) and `_628`
@@ -200,8 +215,10 @@ module fails by `AttributeError` on the helpers and by behaviour on every sunk r
   slab (its ring nested inside the plate's): even-odd depth 1 → "hole" → filled. The authored geometry
   is *correct* (the plate ring covers it), but the bolt-in-plate volume is double-counted by the mesh
   and not credited, so a fat enough bolt (> 2 % of the body inside the plate) is refused as "dropped
-  material" and ships as one prism. Same accounting question as here, different detector (nesting, not
-  crossing); left alone because crediting it needs the same body-backed check applied to nested pairs.
+  material" and ships as one prism. That is exactly **#613's DONE 1** (`shell_overlap_ft3` for odd-depth
+  rings the body reads as |w| ≥ 1.5) — not re-filed; a note on #613 says the crossing case now feeds
+  `overlap_ft3` through the same `read_assembly` credit, so #613 should add to that key rather than
+  invent a second one.
 * **A pin driven through a tube wall into its bore** refuses (above). Resolving it means verifying
   dropped runs piecewise instead of at their deepest point; not needed for any body on record.
 * **`fit_solid`'s `fill` for overlapping shells can exceed 1** (two 1 m cubes half-merged: mesh 2.0
@@ -213,11 +230,12 @@ module fails by `AttributeError` on the helpers and by behaviour on every sunk r
 ## BRANCH STATE (eng #637)
 
 Branch `cam/637-crossing-rings` from `main` @ 6f33fb7; one issue, one PR (`Closes #637`). Files:
-`src/rvt/ifc/assembly_parts.py` (`_ring_cuts`, `_split_ring`, `_merge_crossing_rings`,
-`_union_of_crossing` new; `decompose_slabs` calls the merge, refuses `None` with its own reason and
-returns `crossings_merged` / `overlap_ft3`; `read_assembly`'s slab branch credits `overlap_ft3` in
-`_conserves` and `fill_after`, words the refusal, records `crossings_merged` + note, adds the model
-note) + its `plugin/lib` mirror via `tools/sync_plugin.py`; `tests/test_ifc_assembly_637.py` (new);
+`src/rvt/ifc/assembly_parts.py` (`_ring_cuts`, `_split_ring`, `_first_crossing`,
+`_merge_crossing_rings`, `_union_of_crossing` new; `decompose_slabs` calls the merge, refuses `None`
+with its own reason and returns `crossings_merged` / `overlap_ft3`; `read_assembly`'s slab branch
+credits `overlap_ft3` in `_conserves` and `fill_after`, words the refusal, records `crossings_merged`
+(zero-filled on the box lane too) + the shared-material note, adds the model note) + its `plugin/lib`
+mirror via `tools/sync_plugin.py`; `tests/test_ifc_assembly_637.py` (new);
 `tests/ci_shard.d/637-crossing-rings.txt` (new); this fragment (new). Not touched: `router.py`,
 `famgen/**`, `steplite`, `frontdoor/**`, `tests/test_ifc_assembly.py`, any hot file, the stream index.
 

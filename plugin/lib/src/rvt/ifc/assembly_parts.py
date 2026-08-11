@@ -858,12 +858,22 @@ def _ring_cuts(a: Sequence[Sequence[float]], b: Sequence[Sequence[float]]
     (#621) is contact, and contact is :func:`ring_nesting`'s to judge."""
     cuts: List[Tuple[int, float, int, float, Tuple[float, float]]] = []
     na, nb = len(a), len(b)
+    # b's edges with their extents, once: two edges whose extents miss cannot
+    # cross, and for the nested round rings that never do (a tube's bore in
+    # its skin) that spares nearly every pair the arithmetic below
+    edges_b = []
+    for j in range(nb):
+        cx, cy = b[j][0], b[j][1]
+        dx, dy = b[(j + 1) % nb][0], b[(j + 1) % nb][1]
+        edges_b.append((min(cx, dx), max(cx, dx), min(cy, dy), max(cy, dy), cx, cy, dx - cx, dy - cy))
     for i in range(na):
         ax, ay = a[i][0], a[i][1]
-        rx, ry = a[(i + 1) % na][0] - ax, a[(i + 1) % na][1] - ay
-        for j in range(nb):
-            cx, cy = b[j][0], b[j][1]
-            sx, sy = b[(j + 1) % nb][0] - cx, b[(j + 1) % nb][1] - cy
+        bx, by = a[(i + 1) % na][0], a[(i + 1) % na][1]
+        x0, x1, y0, y1 = min(ax, bx), max(ax, bx), min(ay, by), max(ay, by)
+        rx, ry = bx - ax, by - ay
+        for j, (ex0, ex1, ey0, ey1, cx, cy, sx, sy) in enumerate(edges_b):
+            if ex0 > x1 or ex1 < x0 or ey0 > y1 or ey1 < y0:
+                continue                                # extents miss
             den = rx * sy - ry * sx
             if den == 0.0:
                 continue                                # parallel or collinear
@@ -912,15 +922,41 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
     before (#609 / #621 own that case): the depth at which
     :func:`_probe_clear_of` starts trusting a probe beside the buried edge
     is the depth at which this takes over.  ``twice(x, y)`` is the body's
-    own word that a point lies inside TWO shells at once.
+    own word that a point lies inside TWO shells at once; the shared area is
+    the material the mesh counts twice WHERE SECTIONS CROSSED (a second shell
+    nested whole inside the first crosses nothing and is not counted here).
+
+    This is the third symptom (after the shared corner and the shared face)
+    of one fact: rings cut from DIFFERENT shells are not a planar partition.
+    The general cure -- keep a slice segment only where the body's winding
+    differs across it -- costs two solid-angle sums per segment per slab, the
+    #623 blow-up's own shape; detecting the crossing in 2D and asking the
+    body once per dropped run is the affordable form of the same question.
+    A fourth symptom should buy the general one.
     """
-    from itertools import combinations
     rings = list(rings)
     merged, shared = 0, 0.0
     for _round in range(len(rings) * len(rings) + 1):   # more merges than pairs: not converging
-        boxes = [(min(v[0] for v in r), min(v[1] for v in r),
-                  max(v[0] for v in r), max(v[1] for v in r)) for r in rings]
-        for i, j in combinations(range(len(rings)), 2):
+        crossing = _first_crossing(rings, twice)
+        if crossing is None:
+            return None                                 # a crossing the body does not back
+        if not crossing:
+            return rings, merged, shared                # no pair crosses (any more)
+        i, j, union, area = crossing
+        rings = [r for k, r in enumerate(rings) if k != i and k != j] + union
+        merged += 1
+        shared += area
+    return None                                         # never settles: not guessed
+
+
+def _first_crossing(rings: List[List[List[float]]], twice: Any) -> Optional[Tuple]:
+    """``(i, j, their union rings, shared area)`` for the first pair of
+    ``rings`` that really cross; ``()`` when none do; None when a pair
+    crosses but :func:`_union_of_crossing` refuses to merge it."""
+    boxes = [(min(v[0] for v in r), min(v[1] for v in r),
+              max(v[0] for v in r), max(v[1] for v in r)) for r in rings]
+    for i in range(len(rings)):
+        for j in range(i + 1, len(rings)):
             bi, bj = boxes[i], boxes[j]
             if min(bi[2], bj[2]) - max(bi[0], bj[0]) < MIN_EXTENT_FT \
                     or min(bi[3], bj[3]) - max(bi[1], bj[1]) < MIN_EXTENT_FT:
@@ -931,59 +967,43 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
             got = _union_of_crossing(rings[i], rings[j], cuts, twice)
             if got is None:
                 return None
-            union, area = got
-            if union:                                   # a real crossing, now one outline
-                break
-        else:
-            return rings, merged, shared                # no pair crosses (any more)
-        rings = [r for k, r in enumerate(rings) if k != i and k != j] + union
-        merged += 1
-        shared += area
-    return None                                         # never settles: not guessed
+            if got[0]:                                  # a real crossing, not contact
+                return (i, j) + got
+    return ()
 
 
 def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts, twice: Any
                        ) -> Optional[Tuple[List[List[List[float]]], float]]:
     """``(union outline(s), area a and b share)`` for two rings that cross at
-    ``cuts``; ``([], 0.0)`` when neither boundary reaches
-    :data:`MIN_EXTENT_FT` into the other (contact, not a crossing: both stay
-    as they are); None when the union cannot be had honestly.
-
-    Each ring is cut at the crossings; a piece of either boundary lying
-    inside the other ring is interior to the union and dropped, the rest is
-    welded back into rings by the same :func:`_stitch` -- the union's
-    outline, plus any pocket the two enclose between them (a ring of its own,
-    nested later as the hole it is).  Two things are CHECKED, not assumed,
-    and refuse the merge (None) when they fail: every dropped run of boundary
-    must lie where the body says two shells overlap (``twice`` -- so a ring
-    that bounds a hole, or a piece mis-sided by rounding, is never merged
-    away), and the kept pieces must meet in exactly two at every vertex
-    (closed outlines, nothing dangling).  Only then is the shared area --
-    ``area(a) + area(b) - area(union)``, material the mesh counts twice --
-    reported for the conservation law to credit, as the box lane credits its
-    overlap: a number backed by the body, not by the nesting it corrects.
-    """
+    ``cuts`` -- the outline plus any pocket the two enclose (a ring of its
+    own, nested later as the hole it is); ``([], 0.0)`` when neither
+    boundary reaches :data:`MIN_EXTENT_FT` into the other (CONTACT: both
+    stay as they are); None when the merge is refused -- a dropped run of
+    boundary the body does not hold twice (a ring bounding a hole, a shell
+    wound the other way, a piece mis-sided by rounding), or kept pieces that
+    do not meet exactly two to a vertex.  The shared area is derived only
+    from a union that passed both checks."""
     at_a: Dict[int, List[Tuple[float, Tuple[float, float]]]] = {}
     at_b: Dict[int, List[Tuple[float, Tuple[float, float]]]] = {}
     for i, t, j, u, pt in cuts:
         at_a.setdefault(i, []).append((t, pt))
         at_b.setdefault(j, []).append((u, pt))
     kept: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
-    runs: List[List[Any]] = []                          # per dropped run: [depth, piece, its ring] at its deepest
+    runs: List[Tuple[float, Any, Any, Any]] = []        # each dropped run at its deepest: (depth, p, q, own ring)
     for ring, at, other in ((a, at_a, b), (b, at_b, a)):
-        run: Optional[List[Any]] = None
+        in_run = False
         for p, q in _split_ring(ring, at):
             mid = ((p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0)
             if not _point_in_ring(mid, other):
                 kept.append((p, q))
-                run = None
+                in_run = False
                 continue
             deep = _clearance(mid, other)               # interior to the union: dropped
-            if run is None:
-                run = [deep, (p, q), ring]
-                runs.append(run)
-            elif deep > run[0]:
-                run[:2] = [deep, (p, q)]
+            if not in_run:
+                runs.append((deep, p, q, ring))
+                in_run = True
+            elif deep > runs[-1][0]:
+                runs[-1] = (deep, p, q, ring)
     if max((run[0] for run in runs), default=0.0) < MIN_EXTENT_FT:
         return [], 0.0                                  # contact, not a crossing
     ends: Dict[Tuple[float, float], int] = {}
@@ -992,9 +1012,9 @@ def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts, twice: 
         ends[q] = ends.get(q, 0) + 1
     if not kept or any(d != 2 for d in ends.values()):
         return None                                     # not a set of closed outlines
-    for _deep, (p, q), ring in runs:
-        # the deepest dropped piece of each run, probed just inside its own
-        # ring: two shells must overlap there if this IS a crossing
+    for _deep, p, q, ring in runs:
+        # probed just inside its own ring (the midpoint-nudge idiom of
+        # _interior_probes, at a fixed 1e-7 ft): two shells must overlap there
         mx, my = (p[0] + q[0]) / 2.0, (p[1] + q[1]) / 2.0
         k = 1e-7 / (math.hypot(q[0] - p[0], q[1] - p[1]) or 1.0)
         nx, ny = -(q[1] - p[1]) * k, (q[0] - p[0]) * k
@@ -1092,10 +1112,11 @@ def decompose_slabs(points: Sequence[Sequence[float]],
     nest every remaining slab first.  Rings that CROSS (two shells running
     into each other) become one outline before anything is nested
     (:func:`_merge_crossing_rings`): ``crossings_merged`` counts them and
-    ``overlap_ft3`` is the material the mesh counts twice there, for the
-    caller's conservation law to credit as the box lane's overlap is.  Holes
-    are not expressible in the part contract: a ring at odd nesting depth is
-    dropped from the solid set and counted in ``holes_filled``.
+    ``overlap_ft3`` is the material the mesh counts twice where they crossed
+    -- a lower bound on the body's double-counted volume, for the caller's
+    conservation law to credit as it credits the box lane's.  Holes are not
+    expressible in the part contract: a ring at odd nesting depth is dropped
+    from the solid set and counted in ``holes_filled``.
     """
     if not triangles:
         return _refuse(refusal, "no readable triangles")
@@ -1121,7 +1142,7 @@ def decompose_slabs(points: Sequence[Sequence[float]],
         if not rings:
             continue
         union = _merge_crossing_rings(
-            rings, lambda x, y, zm=zm: abs(winding_number(points, triangles, (x, y, zm))) >= 1.5)
+            rings, lambda x, y: abs(winding_number(points, triangles, (x, y, zm))) >= 1.5)
         if union is None:
             return _refuse(refusal, f"crossing rings at z = {zm:.4f} ft (sections that cross "
                                     "where the body does not hold two overlapping shells, "
@@ -1613,6 +1634,7 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                 dec["n_slabs"] = 0
                 dec["holes_filled"] = 0
                 dec["dropped"] = 0
+                dec["crossings_merged"] = 0
             else:
                 refused.append(
                     f"box lane: volume mismatch ({box['n_boxes']} boxes "
@@ -1654,9 +1676,9 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
             kept_prism.append({"name": name, "reason": ", then ".join(refused)})
         if dec is not None:
             n = len(dec["parts"])
+            doubled = dec["overlap_ft3"]            # material the mesh counts twice, either lane
             after = (1.0 if dec.get("exact")
-                     else ((vol - dec.get("overlap_ft3", 0.0)) / dec["volume_ft3"]
-                           if dec["volume_ft3"] else None))
+                     else ((vol - doubled) / dec["volume_ft3"] if dec["volume_ft3"] else None))
             for k, part in enumerate(dec["parts"], 1):
                 nm = f"{name} [{k}/{n}]" if n > 1 else name
                 if part["shape"] == "box":
@@ -1676,18 +1698,17 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                 "slabs": dec["n_slabs"], "exact": bool(dec.get("exact")),
                 "fill_before": round(float(fit.get("fill") or 0.0), 4),
                 "fill_after": (round(after, 4) if after is not None else None),
-                "holes_filled": dec["holes_filled"], "slivers_dropped": dec["dropped"]}
-            if dec.get("crossings_merged"):            # the slab lane's overlap: merged crossings
-                rec["crossings_merged"] = dec["crossings_merged"]
-            if dec.get("overlap_ft3"):                  # either lane: shells sharing material
-                rec["mesh_overlap_in3"] = round(dec["overlap_ft3"] * 1728.0, 4)
+                "holes_filled": dec["holes_filled"], "slivers_dropped": dec["dropped"],
+                "crossings_merged": dec["crossings_merged"]}
+            if doubled:                             # shells sharing material, either lane
+                rec["mesh_overlap_in3"] = round(doubled * 1728.0, 4)
                 rec["note"] = ("the source mesh is SEVERAL SHELLS that overlap; its "
                                "divergence volume counts that overlap twice, so the "
                                "pre-decomposition fill was understated"
                                + (" -- where their sections crossed they were authored as "
                                   "ONE outline (their union) and the shared material was "
                                   "credited (mesh_overlap_in3), never authored twice"
-                                  if dec.get("crossings_merged") else ""))
+                                  if dec["crossings_merged"] else ""))
             decomposed.append(rec)
             continue
 
@@ -1725,7 +1746,7 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
             f"bodies -- the authored prism is larger than the mesh it came from "
             f"(fill = mesh volume / prism volume): "
             + ", ".join(f"{p.name} {p.fill * 100:.0f}%" for p in envelopes[:6]))
-    crossed = [r for r in decomposed if r.get("crossings_merged")]
+    crossed = [r for r in decomposed if r["crossings_merged"]]
     if crossed:
         model.notes.append(
             f"{sum(r['crossings_merged'] for r in crossed)} crossing section(s) merged ("
