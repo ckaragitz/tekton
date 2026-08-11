@@ -167,48 +167,49 @@ def test_clip_is_the_part_of_a_ring_inside_another():
     assert AP._clip(flush, BIG) is None
 
 
-def test_the_shared_area_is_read_off_the_body_face_by_face():
-    """A plate slotted through a pipe crosses the SKIN; the BORE lies under
-    it whole (plate wider than the bore) or crosses it (narrower) -- either
-    way that part is one shell deep, not two, and ``area(a) + area(b) -
-    area(union)`` alone credited it (the #713 review's probes: 8 % of the
-    mesh, and by triangle order).  Every other ring is clipped to the common
-    region and asked at its own probe; a bore (or its lens) subtracts itself,
-    a rod of two shells down that bore adds itself back, a third shell's ring
-    changes nothing, and the pair the bore itself makes with the plate is
-    passed over, so the outcome is the same whichever pair is listed first."""
-    plate = [[-2, 3], [12, 3], [12, 7], [-2, 7]]                 # through BIG: 40 shared as solid discs
-    bore = [[4, 4], [6, 4], [6, 6], [4, 6]]                       # BIG's own hole under the plate: 4
-    wide_bore = [[4, 1], [6, 1], [6, 9], [4, 9]]                  # a hole the plate is NARROWER than: lens 2 x 4 = 8
-    rod = [[4.5, 4.5], [5.5, 4.5], [5.5, 5.5], [4.5, 5.5]]       # a second shell down the bore: 1
-    beside = [[20, 20], [21, 20], [21, 21], [20, 21]]             # nowhere near: contributes nothing
+def test_only_clean_crossings_merge_and_nested_ones_are_passed_over_then_refused():
+    """The #713 ruling.  A plate slotted through a pipe crosses the SKIN,
+    and the BORE lies under it whole (plate wider than the bore) or crosses
+    it too (narrower): a third ring inside the common region.  Reading such
+    a region's doubledness by probes was exact one nesting level down and
+    wrong the next (a rod down the bore, wider than the bar), so this lane
+    merges only CLEAN crossings -- nothing else reaches into the common
+    region and the body reads two deep there, shared = |a & b| exactly --
+    and passes a nested one over; a slice left with an unmerged crossing
+    refuses (None -> the attributed prism), whichever pair is listed first."""
+    plate = [[-2, 3], [12, 3], [12, 7], [-2, 7]]                 # through BIG: |BIG & plate| = 40
+    bore = [[4, 4], [6, 4], [6, 6], [4, 6]]                       # BIG's own hole under the plate
+    wide_bore = [[4, 1], [6, 1], [6, 9], [4, 9]]                  # a hole the plate is NARROWER than
+    beside = [[20, 20], [21, 20], [21, 21], [20, 21]]             # nowhere near the common region
+    tangent = [[4, 7], [6, 7], [6, 9], [4, 9]]                    # a hole whose edge lies ON the plate's: contact
 
     def body(x, y):                                               # two shells deep except in the empty bore
-        return not (4 < x < 6 and 4 < y < 6) or (4.5 < x < 5.5 and 4.5 < y < 5.5)
+        return not (4 < x < 6 and 4 < y < 6)
 
     def wide_body(x, y):
         return not (4 < x < 6 and 1 < y < 9)
 
     cuts = AP._ring_cuts(BIG, plate)
-    assert AP._union_of_crossing(BIG, plate, cuts, [], body)[1] == pytest.approx(40.0)
-    assert AP._union_of_crossing(BIG, plate, cuts, [beside], body)[1] == pytest.approx(40.0)
-    assert AP._union_of_crossing(BIG, plate, cuts, [bore], body)[1] == pytest.approx(36.0)
-    assert AP._union_of_crossing(BIG, plate, cuts, [rod, bore, beside], body)[1] == pytest.approx(37.0)
-    assert AP._union_of_crossing(BIG, plate, cuts, [bore], BOTH)[1] == pytest.approx(40.0)   # a third shell's ring
-    assert AP._union_of_crossing(BIG, plate, cuts, [wide_bore], wide_body)[1] == pytest.approx(32.0)
-    # the bore's own crossing with the plate is not a merge to make -- passed over
+    for others in ([], [beside], [tangent]):                     # clean: merged, |a & b| exactly
+        union, shared = AP._union_of_crossing(BIG, plate, cuts, others, body)
+        assert union and shared == pytest.approx(40.0), others
+    for others, oracle in (([bore], body), ([bore], BOTH), ([wide_bore], wide_body), ([beside, bore], body)):
+        assert AP._union_of_crossing(BIG, plate, cuts, others, oracle) == (None, 0.0)   # nested: passed over
+    assert AP._union_of_crossing(BIG, plate, cuts, [], NEITHER) == (None, 0.0)           # not two deep: passed over
+    # the bore's own crossing with the narrow plate is passed over as well (BIG
+    # holds the bore, so BIG draws nothing in there -- but the body is one deep)
     assert AP._union_of_crossing(wide_bore, plate, AP._ring_cuts(wide_bore, plate), [BIG], wide_body) == (None, 0.0)
-    # so every listing order of the slice settles the same way
-    for order in ([bore, BIG, plate, rod], [rod, plate, bore, BIG], [BIG, rod, plate, bore]):
-        rings, merged, shared = AP._merge_crossing_rings(order, body)
-        assert merged == 1 and shared == pytest.approx(37.0) and len(rings) == 3   # bore and rod ride along
-    for order in ([wide_bore, BIG, plate], [plate, wide_bore, BIG], [BIG, plate, wide_bore]):
-        rings, merged, shared = AP._merge_crossing_rings(order, wide_body)
-        assert merged == 1 and shared == pytest.approx(32.0) and len(rings) == 2   # the bore no longer crosses
-    # a bar lodged across the bore INSIDE the skin crosses only the bore: no
-    # pair is two shells deep where it overlaps -> refused, not guessed
+    # so a slice holding a nested crossing refuses in EVERY listing order ...
+    for order in ([bore, BIG, plate], [plate, bore, BIG], [BIG, plate, bore],
+                  [wide_bore, BIG, plate], [plate, wide_bore, BIG], [BIG, plate, wide_bore]):
+        assert AP._merge_crossing_rings(order, wide_body if wide_bore in order else body) is None
+    # ... a bar lodged across the bore inside the skin (it crosses the bore only) too ...
     lodged = [[3, 4.5], [7, 4.5], [7, 5.5], [3, 5.5]]
     assert AP._merge_crossing_rings([BIG, wide_bore, lodged], wide_body) is None
+    # ... while a clean one merges in every order, the far ring riding along
+    for order in ([beside, BIG, plate], [plate, beside, BIG], [BIG, plate, beside]):
+        rings, merged, shared = AP._merge_crossing_rings(order, body)
+        assert merged == 1 and shared == pytest.approx(40.0) and len(rings) == 2
 
 
 # ---------------------------------------------------------------------------
@@ -291,9 +292,6 @@ def test_interpenetration_beyond_the_slack_is_credited_on_the_bodys_evidence_not
         ("two lugs, one band", [_box_mesh(2, 6, 3), _box_mesh(0.5, 1.0, 0.5, ox=1.23, oy=-1.668, oz=1.024),
                                 _box_mesh(0.5, 1.0, 0.5, ox=-1.23, oy=0.969, oz=1.024)], 12.0,
          36.5 - 0.02, 3, 2),
-        ("lugs crossing each other too", [_box_mesh(2, 6, 3), _box_mesh(0.6, 1.0, 0.5, ox=1.2, oz=1.0),
-                                          _box_mesh(1.0, 0.3, 0.3, ox=1.3, oy=0.3, oz=1.1)], 12.0,
-         None, 5, 4),
     ]
     for name, bodies, yaw, union_m3, n_parts, n_merged in cases:
         pts, base = _shells(bodies, yaw)
@@ -303,8 +301,14 @@ def test_interpenetration_beyond_the_slack_is_credited_on_the_bodys_evidence_not
             d = m.decomposed[0]
             assert d["crossings_merged"] == n_merged and len(m.parts) == n_parts, (name, d)
             assert d["fill_after"] == pytest.approx(1.0, abs=1e-3), (name, d)
-            if union_m3 is not None:
-                assert _authored_ft3(m) == pytest.approx(union_m3 * FT3, rel=1e-5), name
+            assert _authored_ft3(m) == pytest.approx(union_m3 * FT3, rel=1e-5), name
+    # two lugs that also cross EACH OTHER inside the block: three shells deep,
+    # a nested crossing -> the honest prism, one outcome at every order
+    pts, base = _shells([_box_mesh(2, 6, 3), _box_mesh(0.6, 1.0, 0.5, ox=1.2, oz=1.0),
+                         _box_mesh(1.0, 0.3, 0.3, ox=1.3, oy=0.3, oz=1.1)], 12.0)
+    for tris in _triangle_orders(base, seeds=6):
+        m = _read(tmp_path, pts, tris, "Nested")
+        assert len(m.parts) == 1 and "slab lane: crossing rings at z = " in m.kept_prism[0]["reason"]
     # the plus really is a plus: ONE outline holding both bars less their shared square
     pts, base = _shells(cases[1][1], cases[1][2])
     m = _read(tmp_path, pts, base)
@@ -351,6 +355,9 @@ def _rect_clip_area(poly, w, d):
 
 
 def test_the_oracle_and_the_reviews_numbers_agree():
+    """The follow-up's acceptance numbers, pinned by an oracle that shares no
+    code with the engine (what the nested bodies below must read once the
+    general cure lets them merge)."""
     assert _rect_clip_area(_ngon(0.5, 32), 1.4, 0.7) == pytest.approx(0.63513466612, rel=1e-9)   # |skin & 0.7 plate|
     bore = 0.5 * 32 * 0.3 ** 2 * math.sin(2 * math.pi / 32)
     assert (_rect_clip_area(_ngon(0.5, 32), 1.4, 0.7) - bore) * 0.2 == pytest.approx(0.0708409, rel=1e-6)
@@ -358,41 +365,67 @@ def test_the_oracle_and_the_reviews_numbers_agree():
             - _rect_clip_area(_ngon(0.3, 32), 1.4, 0.5)) * 0.2 == pytest.approx(0.0434946, rel=1e-6)
 
 
-def test_a_bar_through_a_pipe_is_credited_the_wall_it_crosses_never_the_bore(tmp_path):
-    """The #713 review's bodies: a 1.4 m plate 0.2 m thick through a 32-gon
-    pipe (r 0.5, bore 0.3).  0.7 wide it crosses the SKIN only and swallows
-    the bore ring whole; 0.5 and 0.3 wide the BORE ring crosses it too, and
-    which pair the stitch listed first used to decide between an 8 %
-    over-credit, an under-credit and a refusal.  Now every width, yaw and
-    triangle order reads (|skin & plate| - |bore & plate|) x height off the
-    body; a 16-gon rod down the bore is two shells deep again and comes back;
-    a pin driven through the wall INTO the bore is credited its buried wall
-    length and no more.  Truth is an independent Sutherland-Hodgman clip."""
+def _tube32():
     tp, tt = _tube(r_out=0.5, r_in=0.3, h=1.0, sides=32)
-    tube = (tp, [(a + 1, b + 1, c + 1) for a, b, c in tt])
-    skin, bore, rod = _ngon(0.5, 32), _ngon(0.3, 32), AP._polygon_area(_ngon(0.1, 16))
-    rows = []
-    for w in (0.7, 0.5, 0.3):
-        doubled = (_rect_clip_area(skin, 1.4, w) - _rect_clip_area(bore, 1.4, w)) * 0.2
-        for yaw in ((12.0, 0.0, 45.0, 77.0) if w == 0.5 else (12.0,)):
-            rows.append((f"plate {w} @ {yaw}", [tube, _box_mesh(1.4, w, 0.2, oz=0.4)], yaw, doubled, 3))
-    rows.append(("0.5 plate + rod down the bore", [tube, _box_mesh(1.4, 0.5, 0.2, oz=0.4), _prism_mesh(0.1, 1.0, 16)],
-                 12.0, (_rect_clip_area(skin, 1.4, 0.5) - _rect_clip_area(bore, 1.4, 0.5) + rod) * 0.2, 6))
-    rows.append(("pin 0.1 into the bore", [tube, _box_mesh(0.5, 0.1, 0.1, ox=0.4, oz=0.45)], 12.0,
-                 (_rect_clip_area(_ngon(0.5, 32, -0.4), 0.5, 0.1) - _rect_clip_area(_ngon(0.3, 32, -0.4), 0.5, 0.1)) * 0.1, 3))
-    for name, bodies, yaw, doubled_m3, n_parts in rows:
-        pts, base = _shells(bodies, yaw)
+    return tp, [(a + 1, b + 1, c + 1) for a, b, c in tt]
+
+
+def test_a_clean_crossing_of_a_hollow_member_is_credited_exactly(tmp_path):
+    """A pin sunk into a pipe's WALL, and a bar through the wall lying
+    TANGENT to the bore (its face on the bore's crown -- the bore ring's top
+    vertex sits ON the bar's edge): the bore does not reach into either
+    common region, so both are clean and read |skin & bar| x height against
+    the independent Sutherland-Hodgman clip, one number at every order; the
+    standpoint that asks the body is kept clear of the bore's boundary, so
+    the tangent bar is asked from inside the wall, never from its crown."""
+    rows = [
+        ("pin in the wall", [_tube32(), _box_mesh(0.3, 0.1, 0.1, ox=0.55, oz=0.45)],
+         _rect_clip_area(_ngon(0.5, 32, -0.55), 0.3, 0.1) * 0.1),
+        ("bar tangent to the bore", [_tube32(), _box_mesh(1.4, 0.15, 0.2, oy=0.375, oz=0.4)],
+         _rect_clip_area([[x, y - 0.375] for x, y in _ngon(0.5, 32)], 1.4, 0.15) * 0.2),
+    ]
+    for name, bodies, doubled_m3 in rows:
+        pts, base = _shells(bodies, 12.0)
         mesh = _mesh_ft3(pts, base)
         seen = set()
         for tris in _triangle_orders(base, seeds=6):
-            m = _read(tmp_path, pts, tris, "PlatePipe")
+            m = _read(tmp_path, pts, tris, "Hollow")
             assert m.decomposed and not m.kept_prism, (name, m.kept_prism)
             d = m.decomposed[0]
-            assert d["crossings_merged"] == 1 and d["holes_filled"] == 3 and len(m.parts) == n_parts, (name, d)
+            assert d["crossings_merged"] == 1 and d["holes_filled"] == 3 and len(m.parts) == 3, (name, d)
             assert d["mesh_overlap_in3"] / 1728.0 == pytest.approx(doubled_m3 * FT3, rel=1e-5), name
             assert d["fill_after"] == pytest.approx((mesh - doubled_m3 * FT3) / _authored_ft3(m), rel=1e-4), name
             seen.add(d["mesh_overlap_in3"])
         assert max(seen) - min(seen) <= 1e-6 * max(seen), (name, seen)      # every order, one number
+
+
+def test_a_bar_through_a_pipes_bore_is_a_nested_crossing_and_ships_as_the_honest_prism(tmp_path):
+    """The #713 review's bodies: a 1.4 m plate 0.2 m thick through a 32-gon
+    pipe (r 0.5, bore 0.3) at widths 0.7 (swallows the bore ring whole), 0.5
+    and 0.3 (the bore ring crosses it too), several yaws; a 16-gon rod down
+    the bore under that plate; a pin driven through the wall INTO the bore;
+    two pipes under one plate.  In each the bore reaches into the crossing's
+    common region: NESTED, so this lane does not merge it -- one outcome at
+    every triangle order, the attributed single prism, delivered (rule 1).
+    Their true doubled volumes (0.0708409 / 0.0434946 / 0.0245747 m3 ...) are
+    the follow-up's acceptance table, not this lane's claim."""
+    rows = []
+    for w, yaws in ((0.7, (12.0, 45.0)), (0.5, (12.0, 0.0, 45.0, 77.0)), (0.3, (12.0,))):
+        rows += [(f"plate {w} @ {yaw}", [_tube32(), _box_mesh(1.4, w, 0.2, oz=0.4)], yaw) for yaw in yaws]
+    rows.append(("0.5 plate + rod down the bore",
+                 [_tube32(), _box_mesh(1.4, 0.5, 0.2, oz=0.4), _prism_mesh(0.1, 1.0, 16)], 12.0))
+    rows.append(("pin 0.1 into the bore", [_tube32(), _box_mesh(0.5, 0.1, 0.1, ox=0.4, oz=0.45)], 12.0))
+    tp, tt = _tube32()
+    rows.append(("two pipes under one plate",
+                 [(tp, tt), ([(x + 1.2, y, z) for x, y, z in tp], tt), _box_mesh(3.8, 0.7, 0.2, ox=0.6, oz=0.4)], 12.0))
+    for name, bodies, yaw in rows:
+        pts, base = _shells(bodies, yaw)
+        mesh = _mesh_ft3(pts, base)
+        for tris in _triangle_orders(base, seeds=6):
+            m = _read(tmp_path, pts, tris, "PlatePipe")
+            assert len(m.parts) == 1 and len(m.kept_prism) == 1 and not m.decomposed, (name, m.decomposed)
+            assert "slab lane: crossing rings at z = " in m.kept_prism[0]["reason"], name
+            assert _authored_ft3(m) >= mesh, name                                # the envelope: nothing lost
 
 
 def test_a_crossing_the_body_does_not_back_keeps_the_honest_prism_and_says_where(tmp_path):

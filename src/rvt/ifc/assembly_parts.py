@@ -922,27 +922,32 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
     before (#609 / #621 own that case): the depth at which
     :func:`_probe_clear_of` starts trusting a probe beside the buried edge
     is the depth at which this takes over.  ``twice(x, y)`` is the body's
-    own word that a point lies inside TWO shells at once; the shared area is
-    the material the mesh counts twice WHERE SECTIONS CROSSED, read face by
-    face so a ring either shell carries in that region (a pipe's bore under
-    or across a bar passing through it) counts only where the body says two
-    -- a second shell nested whole inside the first crosses nothing and is
-    not counted.
+    own word that a point lies inside TWO shells at once.
+
+    Only CLEAN crossings merge (the #713 ruling): a pair whose common region
+    no other ring of the slice reaches into, and where the body confirms two
+    shells -- the sunk lug, the bar through a post, two bars crossing, a pin
+    in a pipe's wall.  There the shared area is ``area(a & b)`` exactly.  A
+    NESTED crossing -- a third ring inside the common region: a pipe's bore
+    under or across the bar passing through it, a rod down that bore -- is
+    passed over, and a slice left with an unmerged crossing refuses, so the
+    body ships as its honest single prism: reading such a region's
+    doubledness face by face was exact one nesting level down and wrong the
+    next, and this lane does not guess.
 
     This is the third symptom (after the shared corner and the shared face)
     of one fact: rings cut from DIFFERENT shells are not a planar partition.
     The general cure -- keep a slice segment only where the body's winding
-    differs across it -- costs two solid-angle sums per segment per slab, the
-    #623 blow-up's own shape; detecting the crossing in 2D and asking the
-    body once per dropped run is the affordable form of the same question.
-    A fourth symptom should buy the general one.
+    differs across it -- reads doubledness where it lives instead of probing
+    for it, and is what lets nested crossings merge too; it is filed as the
+    follow-up, with the pipe bodies that refuse here as its acceptance table.
     """
     rings = list(rings)
     merged, shared = 0, 0.0
     for _round in range(len(rings) * len(rings) + 1):   # more merges than pairs: not converging
         crossing = _first_crossing(rings, twice)
         if crossing is None:
-            return None                                 # a crossing the body does not back
+            return None                                 # a crossing this lane does not merge
         if not crossing:
             return rings, merged, shared                # no pair crosses (any more)
         i, j, union, area = crossing
@@ -954,17 +959,13 @@ def _merge_crossing_rings(rings: List[List[List[float]]], twice: Any
 
 def _first_crossing(rings: List[List[List[float]]], twice: Any) -> Optional[Tuple]:
     """``(i, j, their union rings, shared area)`` for the first pair of
-    ``rings`` that really cross and whose common region the body holds
-    twice; ``()`` when no pair crosses; None when a crossing cannot be
-    settled -- its pieces do not close, or pairs cross yet none of them is
-    two shells deep where they overlap (a bar lodged across a bore inside
-    the wall, a shell wound the other way): refused, not guessed.
-
-    A pair the body does NOT hold twice where it overlaps -- a pipe's bore
-    ring against a bar passing through it -- is passed over, not refused:
-    the bar's crossing with the pipe's SKIN is the merge that settles it,
-    and once that is made the bore no longer crosses anything.  Which pair
-    the stitch happens to list first therefore never changes the outcome.
+    ``rings`` that cross CLEANLY (:func:`_union_of_crossing`); ``()`` when
+    no pair crosses; None when a pair's pieces do not close, or when pairs
+    cross yet none of them cleanly -- a third ring reaches into every common
+    region (a bar through a pipe, over or across its bore), or the body is
+    not two shells deep there (a shell wound the other way): refused, not
+    guessed.  A pair passed over does not stop the scan, so which pair the
+    stitch happens to list first never changes the outcome.
     """
     boxes = [(min(v[0] for v in r), min(v[1] for v in r),
               max(v[0] for v in r), max(v[1] for v in r)) for r in rings]
@@ -984,7 +985,7 @@ def _first_crossing(rings: List[List[List[float]]], twice: Any) -> Optional[Tupl
                 return None                             # pieces that do not close
             union, shared = got
             if union is None:
-                passed_over = True                      # crossing, but not two shells deep here
+                passed_over = True                      # crossing, but not a clean one
             elif union:                                 # a real crossing, not contact
                 return i, j, union, shared
     return None if passed_over else ()
@@ -1059,30 +1060,27 @@ def _beside(p: Sequence[float], q: Sequence[float], ring: Sequence[Sequence[floa
 def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts,
                        others: Sequence[List[List[float]]], twice: Any
                        ) -> Optional[Tuple[Optional[List[List[List[float]]]], float]]:
-    """``(union outline(s), area the body holds TWICE where a and b overlap)``
-    for two rings that cross at ``cuts`` -- the outline plus any pocket the
-    two enclose (a ring of its own, nested later as the hole it is);
-    ``([], 0.0)`` when neither boundary reaches :data:`MIN_EXTENT_FT` into
-    the other (CONTACT: both stay as they are); ``(None, 0.0)`` when they do
-    cross but the body is not two shells deep in their common region (a
-    bore ring against the bar passing through it: not this pair's merge to
-    make); None when boundary pieces do not meet exactly two to a vertex.
+    """``(union outline(s), area(a & b))`` for two rings that cross CLEANLY
+    at ``cuts`` -- the outline plus any pocket the two enclose (a ring of
+    its own, nested later as the hole it is); ``([], 0.0)`` when neither
+    boundary reaches :data:`MIN_EXTENT_FT` into the other (CONTACT: both
+    stay as they are); ``(None, 0.0)`` when they cross but not cleanly --
+    passed over, for :func:`_first_crossing` to refuse the slice if nothing
+    else settles it; None when boundary pieces do not meet exactly two to a
+    vertex.
 
     Each ring is cut at the crossings; a piece of either boundary lying
     inside the other ring is interior to the union and dropped, the rest is
-    welded back into rings by the same :func:`_stitch`.  The shared area is
-    read off the body face by face, never off the nesting this corrects:
-    every OTHER ring of the slice is clipped to the common region
-    (:func:`_clip` -- a pipe's bore under a plate slotted through it, whole
-    when the plate is wider than the bore, the lens they share when it is
-    narrower) and asked at its own interior probe whether two shells overlap
-    there; the common region itself is asked beside a dropped piece standing
-    :data:`MIN_EXTENT_FT` clear of the partner and of everything clipped
-    into it.  Then ``shared = area(a & b) + sum([doubled in piece] - [doubled
-    just outside it]) * area(piece)``, outside being the smallest clipped
-    piece around it, else the common region: a bore subtracts itself (or its
-    lens), a rod of two shells down that bore adds itself back, a third
-    shell's ring changes nothing.
+    welded back into rings by the same :func:`_stitch`.  CLEAN means two
+    things, both checked: no OTHER ring of the slice reaches into the common
+    region (every :func:`_clip` against it comes back empty -- a pipe's bore
+    under or across the bar through it does not, and such a nested crossing
+    is the follow-up's, not this lane's), and the body itself reads two
+    shells deep there, asked :func:`_beside` the dropped piece standing
+    clearest -- at least :data:`MIN_EXTENT_FT` -- of the partner and of
+    every other ring's boundary (a bar tangent to a bore is still asked from
+    well inside the wall).  Only then is ``area(a & b)`` -- ``area(a) +
+    area(b) - area(union)`` -- material the mesh counts twice, exactly.
     """
     outside, inside, depth = _overlay(a, b, cuts)
     if depth < MIN_EXTENT_FT:
@@ -1090,8 +1088,7 @@ def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts,
     union = _closed(outside)
     if union is None:
         return None                                     # not a set of closed outlines
-    within = []                                         # (piece ring, area, probe, doubled there)
-    for c in others:
+    for c in others:                                    # clean: nothing else in the common region
         parts = _clip(c, a)
         if parts is None:
             return None
@@ -1099,30 +1096,18 @@ def _union_of_crossing(a: List[List[float]], b: List[List[float]], cuts,
             pieces = _clip(part, b)
             if pieces is None:
                 return None
-            for r in pieces:
-                pr = _interior_probe(r)
-                within.append((r, _polygon_area(r), pr, bool(twice(pr[0], pr[1]))))
-    # the common region itself: two shells deep?  Asked beside the dropped
-    # piece standing clearest of the partner and of everything clipped in.
+            if pieces:
+                return None, 0.0                        # a nested crossing: not merged by this lane
     best: Optional[Tuple[float, Tuple[float, float]]] = None
-    for p, q, ring in inside:
+    for p, q, ring in inside:                           # the standpoint to ask the body from
         pt = _beside(p, q, ring)
-        if any(_point_in_ring(pt, r) for r, _s, _p, _d in within):
-            continue
-        clear = min([_clearance(pt, b if ring is a else a)]
-                    + [_clearance(pt, r) for r, _s, _p, _d in within])
+        clear = min([_clearance(pt, b if ring is a else a)] + [_clearance(pt, c) for c in others])
         if clear >= MIN_EXTENT_FT and (best is None or clear > best[0]):
             best = (clear, pt)
     if best is None or not twice(best[1][0], best[1][1]):
-        return None, 0.0                                # crossing, but not this pair's merge to make
+        return None, 0.0                                # not two shells deep here: not merged
     areas = sorted(_polygon_area(r) for r in union)     # pockets, then the outline holding them
-    shared = _polygon_area(a) + _polygon_area(b) - (areas[-1] - sum(areas[:-1]))
-    for r, area_r, pr, doubled in within:
-        around = [(area_d, doubled_d) for d, area_d, _q, doubled_d in within
-                  if d is not r and area_d > area_r and _point_in_ring(pr, d)]
-        doubled_outside = min(around)[1] if around else True
-        shared += (int(doubled) - int(doubled_outside)) * area_r
-    return union, max(0.0, shared)
+    return union, max(0.0, _polygon_area(a) + _polygon_area(b) - (areas[-1] - sum(areas[:-1])))
 
 
 def mesh_volume(points: Sequence[Sequence[float]],
@@ -1206,13 +1191,13 @@ def decompose_slabs(points: Sequence[Sequence[float]],
     refuses at the slab that crosses the part budget rather than slice and
     nest every remaining slab first.  Rings that CROSS (two shells running
     into each other) become one outline before anything is nested
-    (:func:`_merge_crossing_rings`): ``crossings_merged`` counts them and
-    ``overlap_ft3`` is the material the mesh counts twice where they crossed
-    (holes of either shell inside that region discounted on the body's word;
-    a shell nested WHOLE inside another crosses nothing and is not in it),
-    for the caller's conservation law to credit as it credits the box
-    lane's.  Holes are not expressible in the part contract: a ring at odd
-    nesting depth is dropped from the solid set and counted in
+    (:func:`_merge_crossing_rings` -- clean crossings only; a nested one
+    refuses the lane): ``crossings_merged`` counts them and ``overlap_ft3``
+    is the material the mesh counts twice where they crossed, ``area(a & b)``
+    per merge exactly (a shell nested WHOLE inside another crosses nothing
+    and is not in it), for the caller's conservation law to credit as it
+    credits the box lane's.  Holes are not expressible in the part contract:
+    a ring at odd nesting depth is dropped from the solid set and counted in
     ``holes_filled``.
     """
     if not triangles:
@@ -1241,9 +1226,11 @@ def decompose_slabs(points: Sequence[Sequence[float]],
         union = _merge_crossing_rings(
             rings, lambda x, y: abs(winding_number(points, triangles, (x, y, zm))) >= 1.5)
         if union is None:
-            return _refuse(refusal, f"crossing rings at z = {zm:.4f} ft (sections that cross "
-                                    "where the body does not hold two overlapping shells, "
-                                    "or do not merge into closed outlines; not guessed)")
+            return _refuse(refusal, f"crossing rings at z = {zm:.4f} ft (interpenetrating shells "
+                                    "whose crossing is nested -- a third section inside it, "
+                                    "e.g. a bar through a hollow member's bore -- or not two "
+                                    "shells deep, or whose outlines do not close; only clean "
+                                    "crossings are merged, the rest is not guessed)")
         rings, n_merged, shared = union
         crossings += n_merged
         overlap += shared * (z1 - z0)                   # material the mesh counts twice here

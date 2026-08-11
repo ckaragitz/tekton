@@ -44,6 +44,13 @@ are 41/41.) Sunk by *less* than `MIN_EXTENT_FT` (0.2 / 0.3 mm): 41/41 conserved 
 
 ## What was built — the union, checked against the body (territory: the slice → nesting path of `assembly_parts.py` only)
 
+> **Where this landed after four review rounds (read the round sections below for the path):** clean
+> crossings — nothing else of the slice inside the pair's common region, the body two shells deep there —
+> merge into one outline with `shared = ∣a∩b∣` credited exactly; nested crossings (a bar through a hollow
+> member's bore, a rod down it) refuse honestly to the single prism and are #715's to merge. The helper
+> set that ships: `_ring_cuts`, `_split_ring`, `_overlay`, `_closed`, `_clip`, `_beside`,
+> `_union_of_crossing`, `_first_crossing`, `_merge_crossing_rings`.
+
 **Chosen handling: UNION (the issue's preferred), with the attributed refusal as the fallback inside
 it — not refuse-only.** Refuse-only was measured first and rejected: it turns every interpenetration
 whose shared volume exceeds the 2 % slack (a bar run through a post, two equal bars crossing, two lugs
@@ -312,6 +319,55 @@ orders asserting `mesh_overlap_in3` == oracle at 1e-5, `fill_after` == (mesh −
 number across orders; the refusal test now uses the lodged bar (the pin into the bore merges correctly).
 BRANCH STATE counts refreshed below (the second nit).
 
+## Round 4 — the ruling: clean crossings merge exactly; nested ones refuse honestly (follow-up #715)
+
+The round-3 review (recorded publicly with the ruling at
+https://github.com/ckaragitz/tekton/pull/713#issuecomment-5258619255) confirmed everything with at most
+one nesting level exact and order-free (plate 0.7/0.5/0.3, rod, pin, two pipes, grazing to the floor,
+three-plate star, plus + square; lodged bar / flipped shell refused) and found the same flaw one level
+further down: pipe + a rod r 0.22 down the bore + a bar 0.3 wide (the rod *wider* than the bar) → 12/15
+orders credited ∣skin∩bar∣·h (+21.7 % of the overlap), 3/15 the truth, both accepted; pipe-in-pipe + bar
+likewise. Cause: each clipped piece's doubledness was still read at ONE interior probe, which can sit
+inside a smaller piece nested in it. That is the fourth symptom the docstring said should buy the general
+cure, and the tech lead **ruled** the scope for this PR: **merge only CLEAN crossings** — a pair whose
+common region no other ring of the slice reaches into (every `_clip` against it empty) and where the
+standpoint confirms two shells; `shared = ∣a∩b∣` exactly. Any pair with a third ring clipped into its
+common region is **passed over**; a slice left with an unmerged crossing **refuses** → attributed
+`kept_prism` → the honest single prism, delivered (#637 DONE 2 allows the refusal). The face-by-face sign
+bookkeeping is removed from the shipped path; `_overlay` / `_closed` / `_clip` stay (they decide "clean"
+and serve the follow-up). Both non-blocking items are in: the standpoint is kept `MIN_EXTENT_FT` clear
+of *every* other ring's boundary, not only of clipped pieces (so a bar lying tangent to a bore — whose
+crown vertex sits ON the bar's edge — is asked from inside the wall and merges, 0.0192639 m³ exact ×7,
+instead of refusing needlessly), and the vertex-on-edge case is noted below. The follow-up is filed as
+**#715** — read doubledness by winding across slice segments so nested crossings merge — with today's
+oracle bodies and numbers as its acceptance table (Refs #637 #613).
+
+| body (7 orders each) | round 3 (dc7dbbb) | this round |
+|---|---|---|
+| CLEAN — sunk lug rows (1476), random sunk boxes (1200), bar through post, equal / thin bars crossing, two lugs one band, lug sunk + flush top / flush side, 16-gon boss on a plate edge, pin in a pipe WALL (0.0009754 m³), bar tangent to the bore's crown (0.0192639) | merged, exact | **identical** — merged, exact, one number per body |
+| NESTED — plate 0.7 / 0.5 / 0.3 through the pipe × yaws 0/5/12/33/45/77 · 0.5 plate + rod · pin driven INTO the bore · two pipes under one plate · block + two lugs crossing EACH OTHER (three deep) · bar 1 cm into the bore | merged (exact at this level; wrong one level down per the review) | **refused ×7 each, one outcome**: `slab lane: crossing rings at z = … (interpenetrating shells whose crossing is nested -- a third section inside it, e.g. a bar through a hollow member's bore -- or not two shells deep, or whose outlines do not close; only clean crossings are merged, the rest is not guessed)` → 1-part prism ≥ mesh |
+| not two deep anywhere — bar lodged across the bore inside the skin · lug shell wound the other way | refused | refused (same reason) |
+| reference rows (diff vs main) · #609 984 · #621 205 · matrix | EMPTY · identical · `7dae5d40…` | **EMPTY · identical · `7dae5d40…`** |
+| router: sunk 1 cm / 2 cm / stud / bar through post | 305.12 / 610.24 / 152.56 / 19527.60 in³ merged | identical |
+| router: `plate_through_pipe_12.ifc` · `narrow_plate_through_pipe_12.ifc` | `OK (3-part …)` 4322.98 · 2654.21 in³ | **`OK (1-part generic_model .rfa …)` + `kept as a single prism (the decomposition was refused, never silently accepted): PlatePipe -- box lane: not axis-aligned (…), then slab lane: crossing rings at z = 1.6404 ft (interpenetrating shells whose crossing is nested …)`**; both VALID 0/0, provenance ok |
+
+**Known limits, stated (per the review's note):** a vertex of one ring lying exactly ON another ring's
+edge is not a proper cut (`_ring_cuts` takes both parameters strictly inside (0, 1)); with the µm noise
+two independently written shells carry that is a measure-zero coincidence, and where it does happen
+(the tangent bar's bore crown) the pair is judged by `_interior_probe` containment — clean and merged
+in that case, or, if two such vertices made pieces fail to close, refused. Contact below `MIN_EXTENT_FT`
+is never a crossing (unchanged since round 1).
+
+Tests 18 → **19**: `only clean crossings merge …` (clean with nothing / a far ring / a tangent hole →
+∣a∩b∣; a bore under, a bore across, a bore + far ring, any oracle → passed over `(None, 0.0)`; not two
+deep → passed over; the bore's own pair passed over; six listing orders of a nested slice all `None`;
+the lodged bar `None`; three orders of a clean slice all merge); the interpenetration test's mutual-lug
+row now asserts the refusal ×7; `a clean crossing of a hollow member is credited exactly` (pin in wall,
+tangent bar vs the test's Sutherland–Hodgman, one number ×7); `a bar through a pipe's bore is a nested
+crossing and ships as the honest prism` (plate 0.7 @ 12/45, 0.5 @ 12/0/45/77, 0.3, rod, pin into bore,
+two pipes — each ×7: 1 part, `kept_prism` with the reason, no `decomposed`, authored ≥ mesh); the
+oracle-numbers test keeps 0.63513466612 / 0.0708409 / 0.0434946 pinned as #715's acceptance values.
+
 ## Neighbouring cases NOT changed, on purpose (candidates for follow-ups, none filed as blocking)
 
 * **An island read as a hole** — a bolt passing clean through a plate with no crossing in the plate's
@@ -322,10 +378,10 @@ BRANCH STATE counts refreshed below (the second nit).
   rings the body reads as |w| ≥ 1.5) — not re-filed; a note on #613 says the crossing case now feeds
   `overlap_ft3` through the same `read_assembly` credit, so #613 should add to that key rather than
   invent a second one.
-* ~~A pin driven through a tube wall into its bore refuses~~ — resolved in round 3 (merged, credited its
-  buried wall length exactly). What still refuses by design: a bar lodged across a bore *inside* the
-  wall (it crosses only the bore ring; no pair is two shells deep where it overlaps), and a shell wound
-  the other way.
+* **Every NESTED crossing refuses** under the round-4 ruling (a bar through a hollow member's bore, a
+  rod down it, members crossing each other inside a third): honest prism today, exact merge is #715's.
+  A bar lodged across a bore *inside* the wall and a shell wound the other way refuse too (not two deep
+  anywhere).
 * **`fit_solid`'s `fill` for overlapping shells can exceed 1** (two 1 m cubes half-merged: mesh 2.0
   m³ over a 1.875 m³ envelope → fill 1.07 ≥ `DECOMPOSE_FILL`, so no decomposition is attempted and the
   envelope ships). Pre-existing, harmless (an envelope is delivered and called one), outside territory.
@@ -348,13 +404,13 @@ Gates (cloud session, fresh clone, no `samples/`; the PR body carries the same n
 stream-local gate `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_ifc_assembly_637.py
 tests/test_ifc_assembly.py tests/test_ifc_assembly_623.py tests/test_ifc_assembly_628.py
 tests/test_router.py tests/test_records_layout.py -q -rs`: main @ 6f33fb7 **270 passed / 14 skipped**
-→ round 1 284/14 → round 2 286/14 → round 3 (rebased on de292a8) **288 passed / 14 skipped**, 0 failed
-(one of the 14 skips is `test_router`'s read-only-dir case, which only skips as root — a non-root sandbox
-reads one more pass and one fewer skip); whole merged CI shard `RVT_SKIP_LARGE=1 pytest -q -p
-no:cacheprovider $(tools/dev/shard_list.py --print)` on the round-3 tree: **2609 passed / 137 skipped /
-3 xfailed, 0 failed (7 min 03 s)** (round 1: 2613, round 2: 2615 pre-rebase / 2607 post-rebase — #711
-re-parametrised shard tests); `/simplify` on the diff (round 1); `/verify` = the router driven on the
-six IFCs above; `tools/sync_plugin.py` → `--check` clean; `plugin/scripts/validate_plugin.py` PASS;
+→ round 1 284/14 → round 2 286/14 → round 3 (rebased on de292a8) 288/14 → round 4 **289 passed / 14
+skipped**, 0 failed (one of the 14 skips is `test_router`'s read-only-dir case, which only skips as root
+— a non-root sandbox reads one more pass and one fewer skip); whole merged CI shard `RVT_SKIP_LARGE=1
+pytest -q -p no:cacheprovider $(tools/dev/shard_list.py --print)` on the round-4 tree: **2610 passed /
+137 skipped / 3 xfailed, 0 failed (8 min 11 s)** (round 1: 2613, round 2: 2615 pre-rebase / 2607
+post-rebase — #711 re-parametrised shard tests, round 3: 2609); `/simplify` on the diff (round 1);
+`/verify` = the router driven on the six IFCs above, every round; `tools/sync_plugin.py` → `--check` clean; `plugin/scripts/validate_plugin.py` PASS;
 `tools/dev/check_portable_paths.py` ok (3098); drop-in resolves in `tools/dev/shard_list.py --print`;
 `tools/route.py matrix` byte-identical (`7dae5d40…`, 39 lines). Nothing staged for the viewer, no
 ledger entry, no certification claimed.
