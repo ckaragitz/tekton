@@ -15,25 +15,24 @@ viewer round:
 
 Fresh-clone runnable: the inputs are the tracked bundled genesis bases and
 a one-panel prompt build onto the pinned base (~6 s, built once per module);
-the violations are synthesised by rewriting one unit footer in place.
+the violations are synthesised by rewriting one unit footer.
 
 Run: .venv/bin/python -m pytest tests/test_validate_footer_blob.py -q
 """
 from __future__ import annotations
 
-import dataclasses
 import os
 import struct
 from contextlib import ExitStack
 
 import pytest
 
+from conftest import rewrite_stream
 from rvt import ecc
 from rvt import partitions as P
 from rvt import validate as VA
-from rvt.cfb_writer import write_cfb
+from rvt.container import open_rvt
 from rvt.partitions import StreamWalker
-from rvt.roundtrip import read_entries
 from rvt.validate import UNIT_FOOTER_BLOB_LEN, Validator, main, validate_file
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -59,46 +58,40 @@ def _footer_errors(rep):
     return [f for f in rep.errors if f.where == "unit-footer"]
 
 
-def _entries(path):
-    """Yield (entry, logical, walker) per CFB entry of ``path`` under the
-    file's own release; logical/walker are None for non-partition entries."""
-    with ExitStack() as stack:
-        VA.enter_own_release(stack, path)
-        for e in read_entries(path):
-            if e.entry_type == "stream" and e.path.startswith("Partitions/"):
-                logical = ecc.unframe_stream(e.data)
-                w = StreamWalker(logical, inflate=False, keep_data=False)
-                assert not w.errors, (path, e.path, w.errors)
-                yield e, logical, w
-            else:
-                yield e, None, None
+def _walk(raw):
+    """The save-unit walker over one RAW (paged) ``Partitions/*`` stream; its
+    logical bytes are ``w.raw``.  Call it under the file's own release."""
+    w = StreamWalker(ecc.unframe_stream(raw), inflate=False, keep_data=False)
+    assert not w.errors, w.errors
+    return w
 
 
 def census(path):
     """[(stream, unit index, blob len)] for every save unit of ``path``."""
-    return [(e.path, u.index, len(u.footer_blob))
-            for e, _l, w in _entries(path) if w is not None for u in w.units]
+    with ExitStack() as stack, open_rvt(path) as d:
+        VA.enter_own_release(stack, path)
+        return [(s, u.index, len(u.footer_blob)) for s in d.partition_streams() for u in _walk(d.raw(s)).units]
 
 
 def strip_footer_blob(src, dst, unit_index, new_len=0):
     """Copy ``src`` to ``dst`` with save unit ``unit_index``'s 0x0f3f blob cut
     to ``new_len`` bytes (default: the empty form our writers once emitted).
     Only the one footer changes; the stream is re-framed (CRCIO) and the
-    container rewritten, so every other validator check stays green."""
-    out, patched_streams = [], 0
-    for e, logical, w in _entries(src):
-        if w is not None:
-            p = w.units[unit_index].footer_offset + len(P.TERMINATOR)
-            tag, blen = struct.unpack_from("<HI", logical, p)
-            assert tag == P.FOOTER_TAG and blen == UNIT_FOOTER_BLOB_LEN, (tag, blen)
-            patched = (logical[:p] + struct.pack("<HI", P.FOOTER_TAG, new_len)
-                       + logical[p + 6:p + 6 + new_len] + logical[p + 6 + blen:])
-            e = dataclasses.replace(e, data=ecc.frame_stream(patched))
-            patched_streams += 1
-        out.append(e)
-    assert patched_streams == 1, f"expected exactly one Partitions stream in {src}"
-    write_cfb(dst, out)
-    return dst
+    container re-emitted around it (conftest's ``rewrite_stream``, #639), so
+    every other validator check stays green."""
+    def cut(raw):
+        w = _walk(raw)
+        p = w.units[unit_index].footer_offset + len(P.TERMINATOR)
+        tag, blen = struct.unpack_from("<HI", w.raw, p)
+        assert tag == P.FOOTER_TAG and blen == UNIT_FOOTER_BLOB_LEN, (tag, blen)
+        return ecc.frame_stream(w.raw[:p] + struct.pack("<HI", P.FOOTER_TAG, new_len)
+                                + w.raw[p + 6:p + 6 + new_len] + w.raw[p + 6 + blen:])
+
+    with open_rvt(src) as d:
+        (stream,) = d.partition_streams()                 # exactly one Partitions stream expected
+    with ExitStack() as stack:
+        VA.enter_own_release(stack, src)                  # cut() reads P.* framing constants as src's release's
+        return rewrite_stream(src, dst, stream, cut)
 
 
 # ---------------------------------------------------------------------------
