@@ -275,6 +275,13 @@ SYNONYM_GROUPS: Tuple[Tuple[str, ...], ...] = (
     ("Color Rendering Index", "CRI"),
     ("Efficacy", "Luminous Efficacy", "Lumens per Watt"),
     ("Light Loss Factor", "LLF"),
+    # the photometric-web REFERENCE (a path / URL text the user fills; never an
+    # embedded .ies).  Revit's own caption for it is 'Photometric Web File', so
+    # both luminaire routes author THAT spelling themselves (#641); it is not a
+    # Lighting Fixtures table row because in Revit it belongs to a family's
+    # light source, which not every lighting-fixture family defines.
+    ("Photometric Web File", "Photometric Web", "Photometric File",
+     "IES File (URL reference)", "IES File", "IES Photometric File"),
     # electrical
     ("Apparent Load", "Load", "Apparent Power", "Load VA"),
     ("Wattage", "Watts", "Input Watts", "Rated Wattage"),

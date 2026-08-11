@@ -2035,12 +2035,14 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                      "photometrics ride as parameters; IES = URL reference only")
     # parameters -- the photometric two under the category table's spelling
     # (rvt.famgen.standards, #622: 'Lumens' / 'Color Temperature' were ours,
-    # and left a blank standard twin next to the filled legacy name)
+    # and left a blank standard twin next to the filled legacy name); the IES
+    # reference under Revit's own caption, the one the IFC-born downlight
+    # already carries (#641: 'IES File (URL reference)' was ours alone)
     _num(doc, "Wattage", "wattage", "electrical")
     _num(doc, "Luminous Flux", "luminous_flux", "photometrics")
     _num(doc, "Initial Color Temperature", "cct", "photometrics")
     _num(doc, "Voltage", "voltage", "electrical")
-    _text(doc, "IES File (URL reference)", "photometrics")
+    _text(doc, "Photometric Web File", "photometrics")
     if shape == "box":
         dims = (("Length", "length_in"), ("Width", "width_in"), ("Height", "height_in"))
         L = inches(facts.get("length_in")); Wd = inches(facts.get("width_in"))
@@ -2065,7 +2067,7 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
             ("Luminous Flux", "luminous_flux", float(fx.get("lumens_lm") or 0.0)),
             ("Initial Color Temperature", "cct", float(fx.get("cct_k") or 0.0)),
             ("Voltage", "voltage", volt),
-            ("IES File (URL reference)", "text", str(fx.get("photometry_url") or "")),
+            ("Photometric Web File", "text", str(fx.get("photometry_url") or "")),
         ] + [(caption, "length", fx.get(key)) for caption, key in dims], description=(
             (f"Recessed LED troffer {j_size}, {j_watt:g} W, {fx.get('lumens_lm'):g} lm, "
              f"{int(fx.get('cct_k'))} K, {voltage} V "
