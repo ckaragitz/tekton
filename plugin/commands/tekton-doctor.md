@@ -38,7 +38,9 @@ Input: `$ARGUMENTS`
    the build — never ask for one). A non-2026 recipient needs only their
    Revit YEAR (`--target-version`): 2026 / 2025 / 2024 emit the `.rfa` AS
    that release (validator-gated per release, not viewer-certified,
-   PROOF-ONLY stamped); 2023 or an unknown year is still delivered — at
+   PROOF-ONLY stamped; a family needing a class the older schema lacks —
+   arc profiles at 2024, #241 — is delivered at 2026 with the one line
+   instead); 2023 or an unknown year is still delivered — at
    2026, with the one line "your Revit N cannot open it"; no year given →
    2026 and the job JSON says to ask. NEVER read, probe, list, or request
    access to any Autodesk installation directory (the Windows program /

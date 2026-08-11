@@ -21,9 +21,13 @@ nothing), and `docs/product/PERMUTATION-MATRIX.md` had no donor-free line on the
    Autodesk-directory prohibition kept verbatim. The frontmatter description and item 2 say
    "family container" instead of "family-donor status". The variable is not named (so the line
    stays true after #653 lands).
-2. **SKILL.md ×2 (hot):** pure removals of the `$RVT_FAMILY_DONOR` token, frontmatter untouched.
-   `wc -c` before → after: tekton-author 14078 → 14077, tekton-native 8421 → 8419 (S-2026-08-09-g:
+2. **SKILL.md ×2 (hot):** pure removals of the `$RVT_FAMILY_DONOR` token, plus (review nit)
+   `tekton-native/SKILL.md:53` "any donor/template file comes from the plugin's own assets or from
+   the user" → "any template file comes from the plugin's own assets"; frontmatter untouched.
+   `wc -c` before → after: tekton-author 14078 → 14077, tekton-native 8421 → 8396 (S-2026-08-09-g:
    weight not increased; descriptions unchanged, so no `surface_bench` token run needed).
+   Review nit also folded into doctor item 4: the degrade-once case (a family needing a class the
+   older schema lacks — arc profiles at 2024, #241 — is delivered at 2026 with the one line).
 3. **PERMUTATION-MATRIX.md** prompt → rfa and ifc → rfa caveat cells open with **donor-free
    (self-generated)** + evidence pointers, stated no higher than the records: #480 (record
    `rfa-revit-api-compat.md` iteration 13, guard `test_donorless_host_document_wires_every_registry`),

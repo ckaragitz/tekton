@@ -1,6 +1,6 @@
 # Learned: the donor-less host-ADocument law (#480), and why no test saw it coming
 
-One-line context: for a whole campaign every generated `.rfa` the owner
+One-line context: through desktop rounds 13-28 every generated `.rfa` the owner
 desktop-confirmed had been built with `family_donor=<the owner's own .rfa>`,
 while every install without that file took a different, untested code path
 and produced families Revit rejected. Written from `docs/inbox/rfa-revit-api-compat.md`
@@ -42,8 +42,8 @@ does not touch KNOWLEDGE.md itself).
    positional slots so the id writes land. Donor-less output: 133/133 slots,
    all four registries wired, `Global/Latest` a real document.
 5. **The process consequence (#505, steer #498 / S-2026-08-10-c).** Because a
-   donor on the owner's machine had masked the bug for 28 rounds, the
-   implicit donor was removed outright: `FamilyProduct.write` no longer reads
+   donor on the owner's machine had masked the bug through desktop rounds
+   13-28, the implicit donor was removed outright: `FamilyProduct.write` no longer reads
    `$RVT_FAMILY_DONOR`; a donor survives only as the explicit
    `standalone_family_write(family_donor=...)` argument for format-parity
    experiments, and the shipped plugin text no longer offers one (#511).

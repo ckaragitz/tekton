@@ -50,7 +50,7 @@ line verbatim. No pip install, no venv, no `eval`, no task boards, no
 exploratory shell. Never read, probe, list, or request access to any
 Autodesk installation directory (the Windows program / program-data
 Autodesk trees, /Applications/Autodesk, Autodesk family-template folders);
-any donor/template file comes from the plugin's own assets or from the user.
+any template file comes from the plugin's own assets.
 
 ## Step 2 — the job (ONE command; its output IS your report)
 
