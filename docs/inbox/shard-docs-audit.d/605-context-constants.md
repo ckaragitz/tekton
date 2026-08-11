@@ -121,8 +121,9 @@ copy; `git status` afterwards shows only the seven intended modifications):
 process` before (71 passed) and after (80 passed) -- unchanged.
 
 **Whole merged CI shard** (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3
-tools/dev/shard_list.py --print)`, 125 files): `main` @ `0cbf7e1` (worktree, same interpreter) → SHARD_MAIN_PLACEHOLDER;
-this branch → SHARD_BRANCH_PLACEHOLDER.
+tools/dev/shard_list.py --print)`, 125 files): `main` @ `0cbf7e1` (worktree, same interpreter) → **2575 passed, 137 skipped,
+3 xfailed** in 575 s; this branch → **2584 passed, 137 skipped, 3 xfailed** in 592 s = main + exactly the 9 new law rows,
+no failure, no skip moved.
 
 Other gates: `python3 tools/dev/check_portable_paths.py` → `ok: 3091 tracked paths are portable` (3090 + this fragment); `.venv/bin/python
 plugin/scripts/validate_plugin.py` → `RESULT: PASS — plugin structure is valid` (25 assertions) (sanity; nothing under `plugin/` touched); pyflakes clean on the
