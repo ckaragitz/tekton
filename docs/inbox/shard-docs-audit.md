@@ -620,3 +620,8 @@ the six adopters (helper adoption only): `tests/test_selfcheck_release.py`, `tes
 `tests/test_edit_own_release.py`; new `tests/test_conftest_scaffolding.py` + `tests/ci_shard.d/579-scaffolding.txt`;
 `docs/inbox/tests-release-scaffolding.md` (pointer) and this section. No `src/`, `tools/`, `plugin/`, `skills/`;
 `tests/ci_shard.txt` untouched; nothing staged for the viewer; no certification claim.
+Rebased once onto `280ec51` (after #594 = eng #557's section above, kept as landed, and #599 = eng #576's four hunks in
+`tests/test_estorage_cli_release.py`, which git merged conflict-free with this branch's disjoint ones — `git diff
+origin/main -- tests/test_estorage_cli_release.py` touches no `_has_catalog_layout` / catalog-string / docstring line);
+on the rebased head the six adopters + the law file + `tests/test_estorage_cli_release.py` + `tests/test_estorage_catalog_2024.py`
+→ **89 passed** (67 + 13 + #599's 9), docs census 0, portable paths ok (2986).
