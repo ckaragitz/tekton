@@ -680,3 +680,38 @@ Two laws are now written down where the next session will hit them:
   guess cache declaring the same parameter vector.
 * `test_the_assembly_lane_never_emits_a_sketch_revit_cannot_load` is the invariant: a map
   longer than its records is an out-of-range read inside Revit, and no lane may ship one.
+
+## DESKTOP VERDICT: the parametric drive does NOT work on a generic family — stopped here
+
+Owner, Revit 2026: `parametric_cart` (a driven box deck plus four true cylinder wheels)
+— *"parametric cart did not work what so ever"*. The family builds, validates VALID with
+0 errors and carries the whole #372 chain (4 side RefPlanes, 4 Alignments registered in
+`VarSketch.m_dimIds` / `m_dimData`, labeled Width/Height `LinearDimString`s at the type's
+values) — and none of that makes it editable in Revit.
+
+**Structural validity is not behaviour.** That is hard rule 4 for the third time today, and
+the third time it was worth having: the validator cannot tell us a family flexes, only
+Autodesk's reader can.
+
+`drive` is therefore **off by default** again. Generated families keep exactly the shape
+that IS desktop-verified — they open, and they load into a project. The hook stays
+(`make_generic_model(drive=True)`) as the starting point for whoever picks this up, along
+with what is now known:
+
+* the drive chain applies to a one-box generic model *structurally* — `param_drive` needs
+  a 4-line rectangular profile and a plain box already is one, so nothing had to be
+  generalised to attach it;
+* attaching it is not sufficient. What is missing is behavioural and unmeasured: whether
+  the labeled dimension needs a different witness geometry in a family with several
+  forms, whether the alignments must name a different sketch plane, or whether a
+  multi-solid family needs each solid constrained rather than one.
+
+## Where the four requirements actually stand
+
+| requirement | state |
+|---|---|
+| Round bodies — wheels, axles, rotated profiles | **DONE, desktop-verified.** True cylinders on a horizontal axis; Front elevation a clean circle. The cached B-rep is what Revit draws (rounds 1–4). |
+| Detail by default | **DONE.** Detail is the parts a model emits; the contract carries multi-part objects and refuses bad ones by name. |
+| Anything from a prompt | **Contract done.** `parts` in the famspec schema; a 40 ft bus with named solids builds donor-free. The *interview* that turns "make a bus" into that spec is designed, not written. |
+| Edit anything after loading | **NOT DONE, and now known to be harder than attaching the drive.** See above. |
+| True spheres | **NOT DONE.** `SphereData` is a geometry fingerprint, not a primitive, and the schema has no sphere surface — so it needs `RevolutionElem`, a new element class with no donor to measure. Stacked discs remain, honestly labelled. |

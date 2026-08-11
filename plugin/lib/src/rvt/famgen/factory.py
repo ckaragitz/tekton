@@ -906,7 +906,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             shared_params: SK.SharedParamsArg,
                             identity: Optional[Dict[str, str]] = None,
                             text_params: Optional[Dict[str, str]] = None,
-                            drive: bool = True) -> FamilyProduct:
+                            drive: bool = False) -> FamilyProduct:
     """A MULTI-PART generic model: several stacked / offset extrusions in one
     family (a canopy + a stem, a base + a body + a cap).  This is the LOD
     answer -- a real object is an assembly of solids, not one blob.  Overall
@@ -973,12 +973,14 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         if val:
             row[key] = str(val)
     doc.add_type(_clean_name(fam_name), row)
-    # PARAMETRIC DRIVE (#591, the owner's "edit anything after it's loaded"):
-    # wire Width/Depth so they actually MOVE the primary solid rather than just
-    # reporting it.  param_drive is the #372 donor law and needs a 4-line
-    # rectangular profile, so it applies when the FIRST part is a box; anything
-    # else keeps reporting-only parameters and says so.  Never fatal -- rule 1,
-    # the family is delivered either way.
+    # PARAMETRIC DRIVE -- OFF BY DEFAULT, and that is a desktop verdict, not
+    # caution.  Wiring the #372 chain (side RefPlanes + Alignments + labeled
+    # dimensions) onto a multi-part generic model builds and validates cleanly
+    # here, and on the owner's Revit 2026 it "did not work what so ever": the
+    # family did not become editable.  Structural validity is not behaviour
+    # (hard rule 4), so this stays opt-in until a desktop round says otherwise
+    # -- generated families keep exactly the shape that IS verified to open and
+    # load.  drive=True is the hook the next experiment starts from.
     drive_note = ("dimensions are REPORTED only: the parametric drive needs a "
                   "rectangular first part")
     if drive and built and str((parts[0] or {}).get("shape") or "box").lower() == "box":
@@ -1117,7 +1119,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        shared_params: SK.SharedParamsArg = None,
                        identity: Optional[Dict[str, str]] = None,
                        text_params: Optional[Dict[str, str]] = None,
-                       drive: bool = True) -> FamilyProduct:
+                       drive: bool = False) -> FamilyProduct:
     """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
     "when i go to claude design and ask it to build me a 3d object you
     should be able to fully convert that to a rfa file").
