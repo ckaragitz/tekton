@@ -964,34 +964,49 @@ def _base(cls: str, elem_id: int, *, family_id: int, int_params=None,
 
 
 def new_sketch_plane(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
-                     z: float = 0.0, notes=None) -> SkelElement:
-    """A ``SketchPlane`` ON the family's 'Ref. Level' datum
-    (``OnDatumPlaneRef.m_datumPlaneId = level``), identity transform.
+                     z: float = 0.0, datum_id: Optional[int] = None,
+                     trf3x3: Optional[Sequence[Sequence[float]]] = None,
+                     origin: Optional[Sequence[float]] = None,
+                     notes=None) -> SkelElement:
+    """A ``SketchPlane`` ON a DATUM (``OnDatumPlaneRef.m_datumPlaneId``),
+    by default the family's horizontal 'Ref. Level'.
 
     This is the family author's "pick the reference level as the sketch
     plane" and is what makes the profile follow the level datum -- the
     reference-plane-driven hook of a form. [V both specimens]
+
+    ``datum_id`` points the sketch at a DIFFERENT datum -- a vertical
+    ``RefPlane`` -- so the profile is drawn on that plane and the form
+    extrudes along ITS normal instead of straight up.  That is the only way
+    the part contract can express a body whose axis is not vertical: a wheel,
+    an axle, a strut channel's own C-profile.  UNVERIFIED against Autodesk's
+    reader: the sketch's 2D frame on a vertical plane, the transform below and
+    the cached B-rep all have to agree, and only a desktop round can say they
+    do (probe: experiments/ifc-assembly/rotate).
     """
     obj = _base("SketchPlane", elem_id, family_id=ctx.family_id)
     ref = blank_object("OnDatumPlaneRef")
     ref["m_geomRef"] = _geomref_blank()
     ref["m_vecInPlane"] = [0.0, 0.0, 0.0]
     ref["m_rotation"] = 0.0
-    ref["m_datumPlaneId"] = int(ctx.level_id)
+    ref["m_datumPlaneId"] = int(ctx.level_id if datum_id is None else datum_id)
     ref["m_mirror"] = False
     obj["m_oPlaneRef"] = _ptr("OnDatumPlaneRef", ref)
     trf = blank_object("Trf")
-    trf["m_3x3"] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-    trf["m_or"] = [0.0, 0.0, float(z)]
+    trf["m_3x3"] = ([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+                    if trf3x3 is None else [[float(c) for c in row] for row in trf3x3])
+    trf["m_or"] = ([0.0, 0.0, float(z)] if origin is None
+                   else [float(c) for c in origin])
     obj["m_oTrf"] = _ptr("Trf", trf)
     obj["m_userId"] = int(sketch_id)              # the VarSketch on this plane [V]
     obj["m_flipZ"] = False
     assign_pids(obj)
+    datum = int(ctx.level_id if datum_id is None else datum_id)
     hdr = _hdr("SketchPlane", ctx, elem_id,
-               deletion=[ctx.family_id, ctx.level_id, sketch_id])
+               deletion=[ctx.family_id, datum, sketch_id])
     return SkelElement(elem_id, "SketchPlane", hdr, obj, None, kind="sketch_plane",
                        owner_id=ctx.family_id,
-                       refs={"level": ctx.level_id, "sketch": sketch_id},
+                       refs={"level": datum, "sketch": sketch_id},
                        notes=list(notes or []))
 
 
