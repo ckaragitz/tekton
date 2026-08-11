@@ -715,3 +715,128 @@ with what is now known:
 | Anything from a prompt | **Contract done.** `parts` in the famspec schema; a 40 ft bus with named solids builds donor-free. The *interview* that turns "make a bus" into that spec is designed, not written. |
 | Edit anything after loading | **NOT DONE, and now known to be harder than attaching the drive.** See above. |
 | True spheres | **NOT DONE.** `SphereData` is a geometry fingerprint, not a primitive, and the schema has no sphere surface — so it needs `RevolutionElem`, a new element class with no donor to measure. Stacked discs remain, honestly labelled. |
+
+# tech-lead pre-merge fix (eng #609) — 2026-08-11
+
+*Written by engineer session eng #609 (issue #609), on top of `a3506ad`, at the tech lead's
+request so #583 can be squash-merged with its author's attribution. Add-only: the sections
+above are the author's and untouched.*
+
+The independent merge review of #583 cleared phases 2–4 and found two reproducible PG1
+regressions in phase 1 (`assembly_parts.py`): wrong geometry stamped `exact` / "improved".
+Both reproduce through `read_assembly` and `route.py run --output rfa` with the test file's
+own generators; both are closed here and pinned by tests.
+
+## 1. The box lane called itself exact without checking — now it is held to the mesh
+
+`is_axis_aligned(eps=1e-4)` is an *angle budget* of 0.8°: 1 − cos 0.1° = 1.5e-6 sailed
+under it. A 900 mm strut (41 × 41 × 2.5 mm) yawed about Z then cut a grid out of its own
+*rotated* vertex coordinates and came back as sliver boxes:
+
+| yaw | a3506ad | this fix |
+|---|---|---|
+| 0.0° | boxes, 3 parts, authored/mesh 1.000, `exact` | **unchanged** (boxes, 3, 1.000, `exact`) |
+| 0.1° | boxes, **13** parts (9 < `MIN_EXTENT_FT`), 1.013, `exact` | slabs, 3 rotated rectangles, 1.000 |
+| 0.2° | boxes, **11** parts (8 < MIN), **0.499**, `exact` | slabs, 3, 1.000 |
+| 0.5° | boxes, 9 parts (6 < MIN), **1.769**, `exact` | slabs, 3, 1.000 |
+| 0.8° | boxes, 10 parts (2 < MIN), **3.037**, `exact` | slabs, 3, 1.000 |
+
+(min authored extent 1.3e-5 ft on head vs 0.0082 ft = the wall after; `main` authors every
+yawed case as the same 3 exact slabs.) Three guards, each sufficient for this case, because
+"exact" is a claim worth over-determining:
+
+* `is_axis_aligned` eps **1e-9** — float noise, not an angle: an aligned face has two normal
+  components that are exactly zero.
+* `decompose_boxes` refuses a grid with **any cell thinner than `MIN_EXTENT_FT`** in any axis
+  — the signature of a nearly-aligned body, and a box Revit could not keep anyway.
+* `read_assembly` accepts the box lane only when `vol is not None` and
+  **|boxes + overlap − mesh| ≤ 1e-6 · mesh** (`EXACT_REL_TOL`); otherwise it falls through to
+  slabs, then the prism — always delivered (rule 1). The cell guard bounds the welding noise
+  this check can see: coordinates weld to 1e-9 ft, so a cell ≥ 0.0013 ft is perturbed by at
+  most 2 × 0.5e-9 / 0.0013 = 7.7e-7 < 1e-6 relative; measured residual on the fixtures 3–5e-8.
+
+## 2. A solid ring read as a hole — `ring_nesting` no longer trusts a vertex
+
+Junction resolution (round 3's `_junction_pairs`) lets two solids touch at a point, so a
+ring's first vertex can be the *shared* corner; `_point_in_ring(rings[i][0], other)` then
+read a SOLID ring as depth 1 and `decompose_slabs` dropped it as a hole. `_conserves`' 2 %
+slack hid any member under 2 % of the body. Sweep (7 corner configs × yaws × triangle
+orders, which move the stitch start): **head 55 / 1085 runs authored less than the mesh with
+no `kept_prism` and no caveat** (e.g. 6 m cube + 1×1×2 m member, yaw 5°: the member vanishes,
+7628 vs 7699 ft³); `main` 0 / 1085.
+
+* `ring_nesting` now probes with `_interior_probe`: the midpoint of the ring's longest edge
+  nudged inward by 1e-6 of its length — strictly inside its own ring, outside every disjoint
+  neighbour, never a vertex, and hugging the boundary so a ring that contains others is still
+  not counted inside them. **After: 0 / 3360** (7 configs × 8 yaws incl. 0°, 45°, 0.05° × 60
+  orders); every run decomposes (420 boxes, 2940 slabs), authored = mesh to 1e-6, zero prisms.
+* Backstop: `decompose_slabs` reports `section_volume_ft3` (the sliced sections *before* the
+  48-vertex cap) and `read_assembly` **refuses a slab set that filled no hole yet holds less
+  than the mesh by more than 1e-6** → honest prism + "dropped material" caveat. Judging the
+  undecimated sections keeps a capped 72-gon from being mistaken for a lost ring; the 2 %
+  `_conserves` slack still applies on top (main parity for filled holes / overlapping shells).
+
+## 3. Found on the way: the measurements were origin-relative
+
+Tightening to 1e-6 exposed that `mesh_volume` summed tetrahedra about the **world origin** and
+`_polygon_area` shoelaced about it too. Decomposition runs *before* `recentre`, i.e. at site
+coordinates: an aligned strut placed 500 m out missed the box check (residual 2.7e-6), at 5 km
+`mesh_volume` itself was 0.6 % off, at 50 km every lane collapsed to a 5.6× prism. Both now
+sum about a local vertex (the theorem holds about any apex); the strut takes the same lane
+with the same residual (3e-8) at 0 m, 500 m, 50 km and UTM-scale (500 km, 4800 km) offsets.
+Same signatures, same tests, strictly more accurate.
+
+## 4. The caveat names the lane
+
+`router.py` (the one wording line): `box decomposition improved …` when `method == "boxes"`,
+`slab decomposition improved …` otherwise — per record, so a mixed assembly reads right.
+
+## Evidence
+
+* Repros through `tools/route.py run --ifc … --output rfa --json`: strut 0.0/0.1/0.2/0.5/0.8°
+  and the corner pair (yaw −5°, an order that lost the member on head) → 6 × `OK (3-part
+  generic_model .rfa)`, methods boxes/slabs×5, **6 × `rvt_validate --family` VALID 0 errors
+  (0 warnings), 6 × `make_family.py provenance` ok, 0 hits.** No certification claimed (rule 4).
+* `tests/test_ifc_assembly.py`: **68 passed** (55 the author's, all green incl. the 0.0°
+  exact-box tests, + 13 added: alignment eps, sliver grid, yawed channel ×4, box lane takes
+  the unyawed strut AND is held to the mesh volume, shared-vertex nesting, interior probe,
+  corner pair over 100 vertex orders × 2 yaws, no-hole loss refused, precision at site
+  coordinates, caveat wording on a mixed assembly). All 13 fail on a3506ad's engine.
+* Stream-local gate `test_ifc_assembly + test_router + test_famgen_factory + test_frontdoor`
+  (`RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1`): a3506ad **329 passed / 24 skipped** → see BRANCH
+  STATE for the after count and the merged shard.
+* `route.py matrix` byte-identical to a3506ad (39 lines); `sync_plugin` synced 2 files then
+  `--check` clean; `validate_plugin` PASS (25 assertions); portable paths ok (2981).
+
+## Not touched, on purpose
+
+famgen/**, standards, SKILL.md, the PR body, the author's tests and record sections. Still open
+and filed elsewhere per #609's context list (#564 target-version fallback, `fit_solid` cylinder
+misfit of yawed thin bars, face-contact loss on main too, duplicate-meaning standard params).
+One thing this session could not measure: the real hanger sample is absent from a cloud clone,
+so "Strut Channel P1000 → 59 exact boxes" was not re-run; by the noise bound above its
+union + overlap should sit ~1e-7 from `mesh_volume` if its two shells are each closed — if they
+are not, the box lane now declines the `exact` stamp and the strut goes to slabs/prism with a
+caveat, which is the honest outcome.
+
+## BRANCH STATE (eng #609)
+
+Branch `claude/ifc-exact-box-decomposition` (PR #583), commits added ON TOP of `a3506ad` — no
+rebase, no force-push, no merge of main. Files: `src/rvt/ifc/assembly_parts.py` (+ its
+`plugin/lib` mirror via `sync_plugin`), `src/rvt/frontdoor/router.py` (the one caveat statement, +
+mirror), `tests/test_ifc_assembly.py` (13 tests appended, none of the author's touched), this section.
+
+Gates on the final tree (cloud session, fresh clone, no `samples/`):
+* `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest test_ifc_assembly test_router test_famgen_factory
+  test_frontdoor`: a3506ad **329 passed / 24 skipped → 342 passed / 24 skipped** (0 failed).
+* Whole merged shard `pytest -q -p no:cacheprovider $(tools/dev/shard_list.py --print)`:
+  **1986 passed / 134 skipped / 3 xfailed, 0 failed** (8 min 31 s).
+* `/verify` (drive the router): strut 0.0/0.2/0.5° + corner pair → 4 × OK, boxes/slabs/slabs/slabs,
+  caveat names the lane, authored/mesh = 1.0000000, VALID 0 errors, provenance ok. `/simplify` run on
+  this diff (reuse `_conserves`/`_tri0`, simpler probe, one route run in the caveat test).
+* `route.py matrix` unchanged · `sync_plugin --check` clean · `validate_plugin` PASS · portable paths ok.
+
+Shipped vs staged: engine + tests shipped on the branch; nothing staged for the viewer, no ledger
+entry, no certification claimed. Follow-up filed separately (per-lane volume ledger so a body that
+DID fill a hole cannot hide a lost member inside the 2 % slack; `MIN_EXTENT_FT` handled three ways in
+one file) — `Refs #609`.

@@ -85,6 +85,7 @@ __all__ = [
     "slice_loops", "ring_nesting", "mesh_volume", "decompose_slabs",
     "is_axis_aligned", "decompose_boxes",
     "MIN_EXTENT_FT", "CYLINDER_TOLERANCE", "RECT_TOLERANCE", "MAX_HULL_POINTS",
+    "EXACT_REL_TOL",
 ]
 
 FT_PER_M = 1.0 / 0.3048
@@ -123,6 +124,14 @@ MAX_GRID_CELLS = 20000
 #: An exact box decomposition may use more parts than a lossy slab one: a
 #: slotted channel is genuinely many boxes, and each is EXACT.
 MAX_BOXES = 120
+
+#: "Exact" is a claim about VOLUME, so it is checked as one: a decomposition
+#: that calls itself exact (the box lane), or that filled no hole and so had
+#: no licence to differ (the slab lane), must reproduce the mesh's own volume
+#: to this relative tolerance or it is refused.  1e-6 is far above the noise
+#: of welding coordinates to 1e-9 ft and far below any real sliver or lost
+#: member.
+EXACT_REL_TOL = 1e-6
 
 #: Author a measured-round profile as its N-gon hull instead of an ARC-based
 #: cylinder.  This existed because ``add_cylinder_form`` emitted a VarSketch
@@ -374,11 +383,18 @@ def convex_hull_2d(points: Sequence[Sequence[float]]) -> List[List[float]]:
 
 
 def _polygon_area(ring: Sequence[Sequence[float]]) -> float:
+    """Shoelace area, summed about the ring's first vertex rather than the
+    origin for the same reason :func:`mesh_volume` uses a local apex: a
+    section at site coordinates must still measure to better than the
+    exactness checks' 1e-6."""
     a = 0.0
     n = len(ring)
+    if not n:
+        return 0.0
+    ox, oy = float(ring[0][0]), float(ring[0][1])
     for i in range(n):
-        x1, y1 = ring[i][0], ring[i][1]
-        x2, y2 = ring[(i + 1) % n][0], ring[(i + 1) % n][1]
+        x1, y1 = ring[i][0] - ox, ring[i][1] - oy
+        x2, y2 = ring[(i + 1) % n][0] - ox, ring[(i + 1) % n][1] - oy
         a += x1 * y2 - x2 * y1
     return abs(a) / 2.0
 
@@ -640,25 +656,56 @@ def _point_in_ring(pt: Sequence[float], ring: Sequence[Sequence[float]]) -> bool
     return inside
 
 
+def _interior_probe(ring: Sequence[Sequence[float]]) -> Tuple[float, float]:
+    """A point STRICTLY inside ``ring``, just off the midpoint of its longest
+    edge -- never a vertex.
+
+    Junction resolution (:func:`_junction_pairs`) lets two solid regions
+    touch at a point, so a ring's vertex may be SHARED with its neighbour and
+    says nothing about which contains which.  An edge midpoint nudged inward
+    by a millionth of the edge is inside this ring, outside every disjoint
+    neighbour, and too close to the boundary to fall into a hole ring nested
+    within.  A ring too degenerate to have an inside (zero area to within
+    that nudge) falls back to its first vertex; such slivers are dropped by
+    area anyway.
+    """
+    n = len(ring)
+    edges = [(ring[i], ring[(i + 1) % n]) for i in range(n)]
+    a, b = max(edges, key=lambda e: math.hypot(e[1][0] - e[0][0], e[1][1] - e[0][1]))
+    length = math.hypot(b[0] - a[0], b[1] - a[1])
+    if length > 0.0:
+        mx, my = (a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0
+        k = 1e-6                                        # nudge, as a fraction of the edge
+        nx, ny = -(b[1] - a[1]) * k, (b[0] - a[0]) * k
+        for cand in ((mx + nx, my + ny), (mx - nx, my - ny)):
+            if _point_in_ring(cand, ring):
+                return cand
+    return (float(ring[0][0]), float(ring[0][1]))
+
+
 def ring_nesting(rings: Sequence[Sequence[Sequence[float]]]) -> List[int]:
     """Even-odd nesting depth per ring: 0 = solid outer, 1 = a hole in it,
     2 = an island inside that hole, ...
 
-    Containment is tested with a ring's own VERTEX, not its interior point: a
-    slice's rings are disjoint (the ambiguous case is refused upstream), so a
-    boundary point of A lies in B exactly when A lies in B -- whereas an
-    interior point of a ring that CONTAINS others is inside those others and
-    would count them as its own parents.
+    Containment is tested with :func:`_interior_probe`, never with a vertex
+    (see there for why: a shared corner read a SOLID ring as a hole).
     """
+    probes = [_interior_probe(r) for r in rings]
     return [sum(1 for j, other in enumerate(rings)
-                if j != i and _point_in_ring(rings[i][0], other))
+                if j != i and _point_in_ring(probes[i], other))
             for i in range(len(rings))]
 
 
 def mesh_volume(points: Sequence[Sequence[float]],
                 triangles: Sequence[Sequence[int]]) -> float:
     """The enclosed volume of a CLOSED triangle mesh (divergence theorem:
-    the signed tetrahedra a face makes with the origin).
+    the signed tetrahedra a face makes with a fixed apex).
+
+    The apex is the mesh's own first vertex, not the world origin: the
+    theorem holds about any point, and a body at site coordinates (hundreds
+    of feet out) summed about the origin cancels twelve-digit tetrahedra down
+    to a two-digit volume -- 3e-6 relative error at 500 m, 0.6 % at 5 km --
+    which is more than the exactness checks downstream are allowed to miss.
 
     A mesh that is not watertight gives a meaningless number, so callers use
     this only for the ``fill`` ratio -- a reported measurement, never a
@@ -666,6 +713,9 @@ def mesh_volume(points: Sequence[Sequence[float]],
     """
     total = 0.0
     n = len(points)
+    if not n:
+        return 0.0
+    ox, oy, oz = float(points[0][0]), float(points[0][1]), float(points[0][2])
     for tri in triangles:
         if len(tri) < 3:
             continue
@@ -673,9 +723,12 @@ def mesh_volume(points: Sequence[Sequence[float]],
         if not (0 <= a < n and 0 <= b < n and 0 <= c < n):
             continue
         p, q, r = points[a], points[b], points[c]
-        total += (p[0] * (q[1] * r[2] - q[2] * r[1])
-                  - p[1] * (q[0] * r[2] - q[2] * r[0])
-                  + p[2] * (q[0] * r[1] - q[1] * r[0])) / 6.0
+        px, py, pz = p[0] - ox, p[1] - oy, p[2] - oz
+        qx, qy, qz = q[0] - ox, q[1] - oy, q[2] - oz
+        rx, ry, rz = r[0] - ox, r[1] - oy, r[2] - oz
+        total += (px * (qy * rz - qz * ry)
+                  - py * (qx * rz - qz * rx)
+                  + pz * (qx * ry - qy * rx)) / 6.0
     return abs(total)
 
 
@@ -699,11 +752,15 @@ def decompose_slabs(points: Sequence[Sequence[float]],
     section did not change are merged, so a plain rod stays ONE part while a
     C-channel becomes its back plate plus its two walls.
 
-    Returns ``{parts, volume_ft3, n_slabs, holes_filled, dropped}``, or None
-    when the body does not decompose usefully (one level, or the result would
-    blow the budgets -- a cap the caller REPORTS rather than hides).  Holes
-    are not expressible in the part contract: a ring at odd nesting depth is
-    dropped from the solid set and counted in ``holes_filled``.
+    Returns ``{parts, volume_ft3, section_volume_ft3, n_slabs, holes_filled,
+    dropped}``, or None when the body does not decompose usefully (one level,
+    or the result would blow the budgets -- a cap the caller REPORTS rather
+    than hides).  ``section_volume_ft3`` is the volume of the sections as
+    SLICED, before any ring is decimated to the vertex cap: that is the number
+    the conservation law judges, so a capped tessellation is not mistaken for
+    lost material.  Holes are not expressible in the part contract: a ring at
+    odd nesting depth is dropped from the solid set and counted in
+    ``holes_filled``.
     """
     if not triangles:
         return None
@@ -747,16 +804,18 @@ def decompose_slabs(points: Sequence[Sequence[float]],
         return None
 
     parts: List[Dict[str, Any]] = []
-    volume = 0.0
+    volume = section_volume = 0.0
     for z0, z1, rings in merged:
         h = z1 - z0
         for ring in rings:
             out = _decimate(ring, MAX_HULL_POINTS) if len(ring) > MAX_HULL_POINTS else ring
             parts.append({"shape": "polygon", "vertices": out,
                           "height_ft": h, "base_z_ft": z0})
-            volume += _polygon_area(out) * h
-    return {"parts": parts, "volume_ft3": volume, "n_slabs": len(merged),
-            "holes_filled": holes, "dropped": dropped}
+            area = _polygon_area(out)
+            volume += area * h
+            section_volume += (area if out is ring else _polygon_area(ring)) * h
+    return {"parts": parts, "volume_ft3": volume, "section_volume_ft3": section_volume,
+            "n_slabs": len(merged), "holes_filled": holes, "dropped": dropped}
 
 
 def _conserves(authored_ft3: float, mesh_ft3: float, tol: float = 0.02) -> bool:
@@ -769,13 +828,18 @@ def _conserves(authored_ft3: float, mesh_ft3: float, tol: float = 0.02) -> bool:
 
 def is_axis_aligned(points: Sequence[Sequence[float]],
                     triangles: Sequence[Sequence[int]],
-                    eps: float = 1e-4) -> bool:
+                    eps: float = 1e-9) -> bool:
     """True when every face normal is parallel to X, Y or Z.
 
     Such a body is an axis-aligned polyhedron, and :func:`decompose_boxes`
     reproduces it EXACTLY out of boxes -- no envelope, no rotation.  A body
     with one slanted or curved face is not, and box decomposition would
     return a staircase, so it is not attempted.
+
+    ``eps`` is float noise, not an angle budget: a genuinely aligned face has
+    two normal components that are exactly zero, while a strut yawed a tenth
+    of a degree (1 - cos = 1.5e-6) passed the old 1e-4 and came back as a
+    dozen sliver boxes at half the mesh's volume, stamped exact.
     """
     for tri in triangles:
         if len(tri) < 3:
@@ -867,8 +931,16 @@ def decompose_boxes(points: Sequence[Sequence[float]],
     THIS IS WHY NO ROTATION IS NEEDED for the C-channel case: a channel is a
     union of axis-aligned boxes (back plate + two walls), each of which is
     Z-extrudable whatever direction the channel runs.  Returns
-    ``{parts, volume_ft3, n_boxes, cells}`` or None (not axis-aligned, or over
-    a budget -- reported by the caller, never silently truncated).
+    ``{parts, volume_ft3, n_boxes, cells}`` or None (not axis-aligned, a grid
+    cell thinner than :data:`MIN_EXTENT_FT` in any axis -- the signature of a
+    NEARLY aligned body, whose boxes would be slivers Revit cannot keep -- or
+    over a budget; reported by the caller, never silently truncated).
+
+    The LAW that makes the result exact is checked by the caller, which holds
+    the mesh volume: boxes + overlap must give it back to
+    :data:`EXACT_REL_TOL`.  The alignment eps and the sliver-cell refusal
+    here are cheap early-outs with their own meaning (the definition of
+    aligned; authorability), taken before the winding-number grid is paid for.
     """
     if not triangles or not is_axis_aligned(points, triangles):
         return None
@@ -876,6 +948,8 @@ def decompose_boxes(points: Sequence[Sequence[float]],
     dims = [len(a) - 1 for a in axes]
     if min(dims) < 1 or dims[0] * dims[1] * dims[2] > max_cells:
         return None
+    if any(b - a < MIN_EXTENT_FT for ax in axes for a, b in zip(ax, ax[1:])):
+        return None                                     # a sliver cell: not aligned
 
     occ: Dict[Tuple[int, int, int], bool] = {}
     overlap = 0.0            # volume the mesh counts twice (shells that overlap)
@@ -1154,11 +1228,15 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
         # An AXIS-ALIGNED body reproduces EXACTLY as boxes -- try that first.
         # This is the C-channel answer: a channel is a union of axis-aligned
         # boxes, each Z-extrudable, whichever direction the channel runs.
-        if decompose and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
+        # "Exact" is then CHECKED, not assumed: the boxes plus the overlap the
+        # mesh counts twice must give back the mesh's own volume, or the body
+        # was not the aligned polyhedron it looked like and goes to slabs.
+        if decompose and vol is not None and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
             box = decompose_boxes(pts_ft, tris)
-            if box is not None:
+            if (box is not None
+                    and abs(box["volume_ft3"] + box["overlap_ft3"] - vol) <= EXACT_REL_TOL * vol):
                 dec, method = box, "boxes"
-                dec["fill_after"] = 1.0             # exact by construction
+                dec["fill_after"] = 1.0             # exact, and verified so
                 dec["n_slabs"] = 0
                 dec["holes_filled"] = 0
                 dec["dropped"] = 0
@@ -1169,7 +1247,12 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
             if dec is not None:
                 dv = dec["volume_ft3"]
                 before = fit.get("fill") or 0.0
-                if dv <= 0 or not _conserves(dv, vol):
+                # With no hole filled the sliced sections had no licence to
+                # hold less than the mesh: any shortfall is a lost ring, not
+                # an approximation, whatever the 2 % envelope slack says.
+                lost = (not dec["holes_filled"]
+                        and not _conserves(dec["section_volume_ft3"], vol, EXACT_REL_TOL))
+                if dv <= 0 or lost or not _conserves(dv, vol):
                     # authored less material than the mesh holds: a ring was
                     # mis-nested or a region was lost. A better-looking fill
                     # ratio does not make that solid right.

@@ -754,3 +754,228 @@ def test_the_detailed_bus_builds_and_never_ships_an_unloadable_sketch():
     spec = {"kind": "generic_model", "name": "Bus", "parts": parts}
     assert FS.validate(spec) == []
     assert _inconsistent_sketches(parts, "bus") == []
+
+
+# ---------------------------------------------------------------------------
+# tech-lead pre-merge fix (#609): "exact" is checked, never assumed, and a
+# solid ring is never dropped as a hole
+# ---------------------------------------------------------------------------
+
+def _yaw(pts, deg):
+    a = math.radians(deg)
+    c, s = math.cos(a), math.sin(a)
+    return [(x * c - y * s, x * s + y * c, z) for x, y, z in pts]
+
+
+def _strut(deg):
+    """A 900 mm strut, 41 x 41 mm section, 2.5 mm wall, yawed about Z --
+    1-based triangles, ready for write_ifc."""
+    pts, tris = _u_channel(length=0.9, width=0.041, height=0.041, t=0.0025)
+    return _yaw(pts, deg), [(a + 1, b + 1, c + 1) for a, b, c in tris]
+
+
+def _authored_ft3(model):
+    v = 0.0
+    for p in model.parts:
+        if p.fit == "box":
+            v += p.width_ft * p.depth_ft * p.height_ft
+        elif p.fit == "polygon":
+            v += AP._polygon_area(p.vertices_ft) * p.height_ft
+        else:
+            v += math.pi * p.radius_ft ** 2 * p.height_ft
+    return v
+
+
+def _mesh_ft3(pts_m, tris1):
+    return AP.mesh_volume([(x * FT, y * FT, z * FT) for x, y, z in pts_m], _tri0(tris1))
+
+
+def test_axis_alignment_is_float_noise_not_an_angle_budget():
+    """1 - cos(0.1 deg) = 1.5e-6 sailed under the old 1e-4 and turned a strut
+    into a dozen sliver boxes.  Aligned means ALIGNED."""
+    pts, tris = _strut(0.0)
+    assert AP.is_axis_aligned(pts, _tri0(tris))
+    for deg in (0.05, 0.1, 0.2, 0.8):
+        pts, tris = _strut(deg)
+        assert not AP.is_axis_aligned(pts, _tri0(tris)), deg
+
+
+def test_a_sliver_grid_refuses_the_box_lane():
+    """Two vertex coordinates closer than MIN_EXTENT_FT are the signature of a
+    NEARLY aligned body (or a feature Revit cannot keep): no box lane."""
+    p1, t1 = _box_mesh(1.0, 1.0, 1.0)
+    p2, _ = _box_mesh(1.0, 1.0, 1.0, ox=2.0, oz=AP.MIN_EXTENT_FT / 2.0)
+    tris = _tri0(t1) + [(a + len(p1), b + len(p1), c + len(p1)) for a, b, c in _tri0(t1)]
+    assert AP.is_axis_aligned(list(p1) + list(p2), tris)      # aligned, and still refused:
+    assert AP.decompose_boxes(list(p1) + list(p2), tris) is None
+    p3, _ = _box_mesh(1.0, 1.0, 1.0, ox=2.0, oz=0.25)          # the same pair, a real step
+    assert AP.decompose_boxes(list(p1) + list(p3), tris)["n_boxes"] == 2
+
+
+@pytest.mark.parametrize("deg", [0.1, 0.2, 0.5, 0.8])
+def test_a_yawed_channel_is_exact_slabs_never_sliver_boxes(tmp_path, deg):
+    """THE REGRESSION.  A strut yawed a fraction of a degree is not an
+    axis-aligned polyhedron; head authored it as ~10 'exact' boxes, most
+    thinner than MIN_EXTENT_FT, at 50-300 % of the mesh's volume.  It must
+    fall through to the slab lane, which authors its three rotated rectangles
+    exactly -- as main always did."""
+    pts, tris = _strut(deg)
+    p = write_ifc(str(tmp_path / f"strut_{deg}.ifc"), [("Strut", "IFCMEMBER", (pts, tris))])
+    m = AP.read_assembly(p)
+    assert not m.kept_prism
+    assert m.decomposed and m.decomposed[0]["method"] == "slabs"
+    assert m.decomposed[0]["exact"] is False
+    assert len(m.parts) == 3 and all(x.fit == "polygon" for x in m.parts)
+    assert min(x.height_ft for x in m.parts) > AP.MIN_EXTENT_FT
+    mesh, authored = _mesh_ft3(pts, tris), _authored_ft3(m)
+    assert AP._conserves(authored, mesh, AP.EXACT_REL_TOL)   # nothing lost
+    assert authored == pytest.approx(mesh, rel=1e-3)         # nothing invented
+
+
+def test_the_box_lane_is_held_to_the_mesh_volume(tmp_path, monkeypatch):
+    """'Exact' is a claim about volume and is checked as one.  Unyawed, the
+    strut takes the box lane and gives the mesh's volume back to 1e-6; a box
+    set that does not is not accepted, whatever is_axis_aligned thought of
+    the faces."""
+    pts, tris = _strut(0.0)
+    p = write_ifc(str(tmp_path / "s.ifc"), [("Strut", "IFCMEMBER", (pts, tris))])
+    mesh = _mesh_ft3(pts, tris)
+    m = AP.read_assembly(p)
+    assert m.decomposed and m.decomposed[0]["method"] == "boxes"
+    assert m.decomposed[0]["exact"] is True and len(m.parts) == 3
+    assert _authored_ft3(m) == pytest.approx(mesh, rel=AP.EXACT_REL_TOL)
+
+    real = AP.decompose_boxes
+
+    def short(points, triangles, **kw):
+        d = real(points, triangles, **kw)
+        d["volume_ft3"] *= 0.999                          # a tenth of a percent off
+        return d
+    monkeypatch.setattr(AP, "decompose_boxes", short)
+    m = AP.read_assembly(p)
+    assert not (m.decomposed and m.decomposed[0]["method"] == "boxes")
+    assert AP._conserves(_authored_ft3(m), mesh, AP.EXACT_REL_TOL)
+
+
+def test_ring_nesting_survives_a_shared_vertex():
+    """Two solids meeting at a corner SHARE that vertex.  Testing containment
+    with rings[i][0] read ring A as a hole in B whenever the stitch happened to
+    start A at the shared corner -- and the slab silently lost a member."""
+    a = [[1, 1], [-1, 1], [-1, -1], [1, -1]]           # starts AT the shared corner
+    b = [[1, 1], [3, 1], [3, 3], [1, 3]]
+    assert AP.ring_nesting([a, b]) == [0, 0]
+    assert AP.ring_nesting([b, a]) == [0, 0]
+    # and a real hole whose first vertex touches nothing is still a hole
+    outer = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    hole = [[2, 2], [8, 2], [8, 8], [2, 8]]
+    assert AP.ring_nesting([hole, outer]) == [1, 0]
+
+
+def test_the_interior_probe_is_inside_its_ring_and_is_not_a_vertex():
+    for ring in ([[0, 0], [4, 0], [4, 1], [0, 1]],
+                 [[0, 0], [2, 0], [2, 2], [1, 3], [0, 2]],
+                 [[0, 0], [3, 0], [3, 3], [2, 3], [2, 1], [1, 1], [1, 3], [0, 3]]):   # a U
+        pt = AP._interior_probe(ring)
+        assert AP._point_in_ring(pt, ring)
+        assert all(math.hypot(pt[0] - v[0], pt[1] - v[1]) > 1e-9 for v in ring)
+
+
+def _corner_pair(yaw_deg):
+    """A 6 m cube and a 1 x 1 x 2 m member touching it along ONE corner
+    edge, yawed -- 1-based triangles."""
+    big_p, big_t = _box_mesh(6.0, 6.0, 6.0)
+    small_p, small_t = _box_mesh(1.0, 1.0, 2.0, ox=3.5, oy=3.5)
+    n = len(big_p)
+    return (_yaw(list(big_p) + list(small_p), yaw_deg),
+            list(big_t) + [(a + n, b + n, c + n) for a, b, c in small_t])
+
+
+def _vertex_orders(tris, scrambles=51):
+    """Every way of choosing which vertex each triangle STARTS at that this
+    test sweeps: as given, each single triangle rotated by 1 and by 2, then
+    seeded whole-mesh scrambles.  The stitch start -- and so the old
+    rings[i][0] -- depends on exactly this."""
+    yield list(tris)
+    for k in range(len(tris)):
+        for r in (1, 2):
+            yield [t[r:] + t[:r] if i == k else t for i, t in enumerate(tris)]
+    import random
+    for seed in range(scrambles):
+        rng = random.Random(seed)
+        yield [t[s:] + t[:s] for t, s in ((t, rng.randrange(3)) for t in tris)]
+
+
+def test_a_corner_touching_pair_never_loses_its_member(tmp_path):
+    """THE OTHER REGRESSION, over every vertex order that can move the stitch
+    start onto the shared corner (100 per yaw): the small member -- 0.9 % of
+    the body, so inside the 2 % conservation slack -- must never vanish
+    without a word.  The law: material is conserved or the body is kept as
+    one honest prism that says so.  The outcome, now: both solids, always."""
+    for yaw_deg in (-5.0, 12.0):
+        pts, base = _corner_pair(yaw_deg)
+        mesh = _mesh_ft3(pts, base)                      # order- and yaw-invariant
+        for tris in _vertex_orders(base):
+            p = write_ifc(str(tmp_path / "pair.ifc"),
+                          [("Pair", "IFCBUILDINGELEMENTPROXY", (pts, tris))])
+            m = AP.read_assembly(p)
+            authored = _authored_ft3(m)
+            assert AP._conserves(authored, mesh, AP.EXACT_REL_TOL) or m.kept_prism, (yaw_deg, tris)
+            assert m.decomposed and len(m.parts) >= 2, (yaw_deg, tris)
+            assert authored == pytest.approx(mesh, rel=1e-4)
+
+
+def test_a_no_hole_slab_set_that_lost_volume_is_refused(tmp_path, monkeypatch):
+    """With no hole filled the sliced sections had no licence to hold less
+    than the mesh; a shortfall the 2 % envelope slack would wave through is a
+    lost ring and goes back to the honest prism, with the reason."""
+    pts, tris = _box_mesh(4.0, 4.0, 1.0)
+    p2, t2 = _box_mesh(1.0, 1.0, 1.0, oz=1.0)
+    n = len(pts)
+    allp, allt = list(pts) + list(p2), list(tris) + [(a + n, b + n, c + n) for a, b, c in t2]
+    p = write_ifc(str(tmp_path / "step.ifc"), [("Stepped", "IFCBUILDINGELEMENTPROXY", (_yaw(allp, 10.0), allt))])
+    assert AP.read_assembly(p).decomposed               # honest input: decomposes
+    real = AP.decompose_slabs
+
+    def lossy(points, triangles, **kw):
+        d = real(points, triangles, **kw)
+        d["section_volume_ft3"] *= 0.99                  # 1 %: inside the old slack
+        d["volume_ft3"] *= 0.99
+        return d
+    monkeypatch.setattr(AP, "decompose_slabs", lossy)
+    m = AP.read_assembly(p)
+    assert not m.decomposed and len(m.parts) == 1
+    assert m.kept_prism and "dropped material" in m.kept_prism[0]["reason"]
+
+
+def test_volume_and_area_do_not_lose_precision_at_site_coordinates(tmp_path):
+    """The exactness checks compare to 1e-6, so the measurements must be good
+    to far better than that wherever the body sits: tetrahedra and shoelaces
+    are summed about a LOCAL vertex, not the world origin (at 5 km out the
+    origin-based sum was 0.6 % off and every aligned body missed its lane)."""
+    # (rel 1e-7, not 1e-9: the INPUT is already quantised -- float spacing at
+    # 4.8e6 is ~1e-9, so '+ 0.03' itself carries 3e-8; the sums add nothing)
+    pts, tris = _box_mesh(0.02, 0.03, 0.05, ox=5.0e5, oy=4.8e6, oz=300.0)   # UTM-ish
+    assert AP.mesh_volume(pts, _tri0(tris)) == pytest.approx(3e-5, rel=1e-7)
+    ring = [[5.0e5 + x, 4.8e6 + y] for x, y in ((0, 0), (0.02, 0), (0.02, 0.03), (0, 0.03))]
+    assert AP._polygon_area(ring) == pytest.approx(6e-4, rel=1e-7)
+    for deg, method in ((0.0, "boxes"), (0.5, "slabs")):
+        s_pts, s_tris = _strut(deg)
+        p = write_ifc(str(tmp_path / f"far_{deg}.ifc"), [("Strut", "IFCMEMBER", (s_pts, s_tris))],
+                      placements={"Strut": (50000.0, 80000.0, 100.0)})
+        m = AP.read_assembly(p)
+        assert m.decomposed and m.decomposed[0]["method"] == method, deg
+        assert len(m.parts) == 3 and not m.kept_prism
+
+
+def test_the_route_caveat_names_the_lane_that_ran(tmp_path):
+    """A box decomposition must not be reported as a slab decomposition: one
+    assembly holding an aligned strut and a yawed one names each lane."""
+    from rvt.frontdoor import router as R
+    p = write_ifc(str(tmp_path / "two.ifc"),
+                  [("Aligned", "IFCMEMBER", _strut(0.0)), ("Yawed", "IFCMEMBER", _strut(0.5))],
+                  placements={"Yawed": (0.0, 0.5, 0.0)})
+    res = R.route({"ifc": p}, "rfa", out=str(tmp_path / "o"), quiet=True)
+    assert res.ok and os.path.isfile(res.files["rfa"])
+    caveat = next(c for c in res.caveats if "decomposition improved" in c)
+    assert "box decomposition improved Aligned" in caveat
+    assert "slab decomposition improved Yawed" in caveat

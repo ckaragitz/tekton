@@ -1119,10 +1119,10 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
         "manufacturer identity, no donor bytes")
     res.caveats.extend(model.notes)
     if model.decomposed:
-        res.caveats.append(
-            "slab decomposition improved " + ", ".join(
-                f"{r['name']} ({r['parts']} solids, fill {r['fill_before']:.2f} -> "
-                f"{r['fill_after']:.2f})" for r in model.decomposed[:6]))
+        res.caveats.append(", ".join(
+            f"{'box' if r.get('method') == 'boxes' else 'slab'} decomposition improved "
+            f"{r['name']} ({r['parts']} solids, fill {r['fill_before']:.2f} -> "
+            f"{r['fill_after']:.2f})" for r in model.decomposed[:6]))
     if model.kept_prism:
         res.caveats.append(
             "kept as a single prism (the decomposition was refused, never "
