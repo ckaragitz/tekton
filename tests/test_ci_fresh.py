@@ -225,6 +225,35 @@ def test_unknown_recorded_main_fails_closed(rig):
     assert rc == 4 and line.startswith("STALE was=%s now=" % ("1" * 40)) and "changed=?" in line
 
 
+def test_a_rewritten_trunk_is_stale_even_when_the_difference_is_docs_only(rig):
+    """#539 (the part that shipped): drift is was..now only while origin/main still DESCENDS from the recorded main. An
+    amended/rewritten trunk whose tree differs by nothing but a record is not "docs-only drift" -- the run merged with
+    a commit that no longer leads to main -- so it is STALE; and the ancestry probe itself failing is "cannot judge"."""
+    with open(os.path.join(rig.up, "docs", "inbox", "later.md"), "w", encoding="utf-8") as fh:
+        fh.write("a record\n")
+    git(rig.up, "add", "--", "docs/inbox/later.md")
+    git(rig.up, "commit", "-q", "--amend", "--no-edit")
+    now = git(rig.up, "rev-parse", "HEAD")
+    assert rig.fresh(7, rig.head) == (4, "STALE was=%s now=%s changed=? (%s is not an ancestor of origin/main: main rewritten under the verdict) "
+                                     "-> re-run tools/dev/session_ci.sh 7" % (rig.was, now, rig.was))
+    assert rig.err == ""
+
+
+def test_the_ancestry_probe_fails_closed(rig, tmp_path):
+    """A git that cannot answer `merge-base --is-ancestor` (anything but exit 0/1) is "cannot judge", exit 2 -- never
+    read as "not rewritten" and waved through to the docs-only path."""
+    now = git_commit(rig.up, {"docs/x.md": "more\n"}, "docs only")
+    assert rig.fresh() == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))       # the ground truth
+    shim = tmp_path / "git-shim"
+    shim.mkdir()
+    (shim / "git").write_text('#!/bin/sh\nfor a in "$@"; do case "$a" in --is-ancestor) echo "shim: no ancestry" >&2; exit 128;; esac; done\n'
+                              'exec "%s" "$@"\n' % shutil.which("git"))
+    (shim / "git").chmod(0o755)
+    path = str(shim) + os.pathsep + os.environ.get("PATH", "")
+    assert rig.fresh(path=path) == (2, "cannot judge PR 7: git merge-base %s %s failed" % (rig.was, now))
+    assert "shim: no ancestry" in rig.err
+
+
 def test_session_ci_records_the_main_it_merged_and_the_helper_stays_trusted_side():
     # session_ci.sh's other needles (sandbox, locks, shard reader, the merge with "$MAIN") are pinned in tests/test_techlead.py
     src = open(SESSION_CI, encoding="utf-8").read()

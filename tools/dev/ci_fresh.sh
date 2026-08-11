@@ -19,8 +19,11 @@
 # approximation of the merged tree's names that needs no merge; a name added on both sides stays in twice = add/add).
 # A case-only twin of a path the PR adds would redden portable_paths only after the merge (#496); any other law the
 # checker has or gains is felt the same way. If main added docs files and the recorded head is not in this clone, none
-# of that can be ruled out — STALE too. Anything else is STALE. A filter or interpreter failing on the way is "cannot
-# judge", never FRESH.
+# of that can be ruled out — STALE too. Drift is only "was..now" while origin/main still descends from the recorded
+# main: a rewritten trunk is STALE whatever the difference looks like. Anything else (code) is STALE; a "disjoint
+# drift" judge that would tolerate provably unrelated code drift was explored in #539 and parked — see
+# docs/inbox/ci-fresh-merge-tree.md for where static judging stops. A filter or interpreter failing on the way is
+# "cannot judge", never FRESH.
 # With <head-sha> (what `git ls-remote` says the PR head is right now) it also refuses a JSON computed for another
 # head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.
 #
@@ -49,6 +52,9 @@ git fetch -q origin main || { echo "cannot judge PR $PR: git fetch origin main f
 NOW=$(git rev-parse --verify -q origin/main) || { echo "cannot judge PR $PR: no origin/main"; exit 2; }
 [ "$WAS" = "$NOW" ] && { echo "FRESH main=$NOW"; exit 0; }
 git cat-file -e "$WAS^{commit}" 2>/dev/null || { echo "STALE was=$WAS now=$NOW changed=? ($WAS is not in this clone: main rewritten, or a JSON from another checkout)"; exit 4; }
+git merge-base --is-ancestor "$WAS" "$NOW"; case $? in 0) ;;   # drift is only WAS..NOW while NOW descends from WAS; a rewritten trunk with a docs-only difference is not "docs-only drift" (#539)
+  1) echo "STALE was=$WAS now=$NOW changed=? ($WAS is not an ancestor of origin/main: main rewritten under the verdict) -> re-run tools/dev/session_ci.sh $PR"; exit 4;;
+  *) echo "cannot judge PR $PR: git merge-base $WAS $NOW failed"; exit 2;; esac
 DRIFT=$(git diff --name-status --no-renames "$WAS" "$NOW" --) || { echo "cannot judge PR $PR: git diff $WAS $NOW failed"; exit 2; }
 # Everything below fails CLOSED: a filter/interpreter that errors is "cannot judge" (exit 2), never an empty list read as FRESH.
 name3() { awk 'BEGIN {n=0; s=""} length($0) {n++; if (n<=3) s=s (n>1?",":"") $0} END {if (n>3) s=s ",…"; print s}'; }   # paths, one per line -> first three named, the rest counted as an ellipsis (length, not NF: a name made of blanks still counts)

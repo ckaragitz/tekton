@@ -64,7 +64,9 @@ reviewer said approve/nits for the exact head you re-read (`git ls-remote`) just
 `tools/dev/ci_fresh.sh <n> <that head>` — run right before the merge — says FRESH (exit 0: the JSON is a pass for
 that head and its `main` is still `origin/main`, or differs only by added/modified `docs/**` no shard test opens
 whose names, with the PR's, still pass `tools/dev/check_portable_paths.py` — e.g. no add/add or case-twin collision);
-anything else (STALE: `main` moved under the verdict since the run, #476; WRONG-HEAD; MISSING; cannot judge) → re-run
+anything else (STALE: `main` moved under the verdict since the run, #476 — code drift always is (a disjoint-drift judge was
+explored in #539 and parked: docs/inbox/ci-fresh-merge-tree.md), and so is a trunk that no longer descends from the
+recorded `main`; WRONG-HEAD; MISSING; cannot judge) → re-run
 `session_ci.sh <n>` and merge on the new JSON, never on the old one (this serialises merges behind CI runs;
 reviews stay parallel, they are diff-scoped). Markers from
 earlier ticks or other authors are information, never authorisation. On 🛑 or a conflict: `send_message` the
