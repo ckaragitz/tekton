@@ -913,6 +913,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             shared_params: SK.SharedParamsArg,
                             identity: Optional[Dict[str, str]] = None,
                             text_params: Optional[Dict[str, str]] = None,
+                            numeric_params: Optional[Dict[str, Any]] = None,
                             drive: bool = False,
                             standards: bool = True,
                             standard_values: Optional[Dict[str, Any]] = None
@@ -969,6 +970,13 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # the family SCHEDULES, carried verbatim, never parsed into a catalog claim.
     for cap in (text_params or {}):
         _text(doc, cap, "identity")
+    # Caller-supplied NUMERIC parameters (e.g. an IFC's own property sets):
+    # {name: (spec_key, value)} -- authored with the right storage class so a
+    # length reads as a length in Revit, not a bare number.  Every value is
+    # GIVEN by the caller's file; none is a catalog fact (#711).
+    for cap, spec_val in (numeric_params or {}).items():
+        spec_key = spec_val[0] if isinstance(spec_val, (tuple, list)) else "number"
+        _num(doc, cap, spec_key, "dimensions")
     row: Dict[Any, Any] = {
         doc.params["Width"].elem_id: W,
         doc.params["Depth"].elem_id: D,
@@ -979,6 +987,12 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     }
     for cap, val in (text_params or {}).items():
         row[doc.params[cap].elem_id] = str(val)
+    for cap, spec_val in (numeric_params or {}).items():
+        v = spec_val[1] if isinstance(spec_val, (tuple, list)) else spec_val
+        try:
+            row[doc.params[cap].elem_id] = float(v)
+        except (TypeError, ValueError):
+            pass
     for key, val in (identity or {}).items():          # manufacturer/model/url
         if val:
             row[key] = str(val)
@@ -1137,6 +1151,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        shared_params: SK.SharedParamsArg = None,
                        identity: Optional[Dict[str, str]] = None,
                        text_params: Optional[Dict[str, str]] = None,
+                       numeric_params: Optional[Dict[str, Any]] = None,
                        drive: bool = False,
                        standards: bool = True,
                        standard_values: Optional[Dict[str, Any]] = None
@@ -1166,6 +1181,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                                        start_id=start_id,
                                        shared_params=shared_params,
                                        identity=identity, text_params=text_params,
+                                       numeric_params=numeric_params,
                                        drive=drive, standards=standards,
                                        standard_values=standard_values)
     if height_ft is None or float(height_ft) <= 0:
