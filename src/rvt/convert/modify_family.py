@@ -512,11 +512,10 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
 
 def _patch_partatom(path: str, renames: Sequence[Tuple[str, str]]) -> Dict[str, Any]:
     """Rewrite name occurrences inside the PartAtom stream (plain XML,
-    unframed) and rebuild the container."""
-    import dataclasses as _dc
-    from ..cfb_writer import write_cfb
+    unframed) and rebuild the container in place (the rebuilt bytes reach
+    ``path`` by an atomic replace, so a failed write cannot tear the file)."""
     from ..container import open_rvt
-    from ..roundtrip import read_entries
+    from ..roundtrip import rewrite_entries
     with open_rvt(path) as f:
         xml = f.raw("PartAtom").decode("utf-8")
     out_xml = xml
@@ -531,14 +530,9 @@ def _patch_partatom(path: str, renames: Sequence[Tuple[str, str]]) -> Dict[str, 
     if out_xml == xml:
         return {"changed": False, "replaced": replaced,
                 "note": "no PartAtom occurrence of the renamed strings"}
-    entries = read_entries(path)
-    new_entries = [
-        _dc.replace(e, data=out_xml.encode("utf-8"))
-        if e.entry_type == "stream" and e.path == "PartAtom" else e
-        for e in entries]
-    write_cfb(path, new_entries)
-    return {"changed": True, "replaced": replaced,
-            "bytes": len(out_xml.encode("utf-8"))}
+    data = out_xml.encode("utf-8")
+    rewrite_entries(path, path, {"PartAtom": data})
+    return {"changed": True, "replaced": replaced, "bytes": len(data)}
 
 
 # ---------------------------------------------------------------------------

@@ -28,10 +28,9 @@ from typing import Dict, List, Sequence, Tuple
 
 from . import ecc
 from . import partitions as _P
-from .cfb_writer import write_cfb
 from .container import open_rvt
 from .partitions import StreamWalker
-from .roundtrip import read_entries
+from .roundtrip import rewrite_entries
 from .stream_encoders import (decode_elemtable, encode_elemtable,
                               global_prefix)
 from .streams_edit import elemtable_add_element
@@ -90,13 +89,13 @@ def commit_new_elements(src_rvt: str, out_path: str,
     (need .elem_id, .original_id, .owner_id, .partition_id). ``creation_ep``
     defaults to the current maximum modified episode in the ElemTable.
     """
-    entries = read_entries(src_rvt)
     new_streams: Dict[str, bytes] = {}
     with open_rvt(src_rvt) as doc:
         parts = doc.partition_streams()
         if len(parts) != 1:
             raise NotImplementedError(f"expected one partition stream, got {parts}")
         pname = parts[0]
+        bfi = doc.raw("BasicFileInfo") if doc.has("BasicFileInfo") else None
 
         # ---------------- 1. ElemTable ------------------------------------
         et_payload = doc.inflate("Global/ElemTable")
@@ -184,15 +183,13 @@ def commit_new_elements(src_rvt: str, out_path: str,
     # kept by default pending counsel decision C1.
     try:
         from .identity import own_basic_file_info
-        bfi = next((e for e in entries
-                    if e.entry_type == "stream" and e.path == "BasicFileInfo"), None)
         if bfi is not None:
             from .stream_encoders import decode_basic_file_info as _dbfi
-            _cur_guid = _dbfi(bfi.data).get("unique_document_guid")
+            _cur_guid = _dbfi(bfi).get("unique_document_guid")
             _ident = dict(identity or {})
             _ident.setdefault("document_guid", _cur_guid)   # keeps History[0] coherence
             new_streams["BasicFileInfo"] = own_basic_file_info(
-                bfi.data, out_path=out_path, **_ident)
+                bfi, out_path=out_path, **_ident)
     except Exception as exc:                 # never let identity break a commit
         import warnings
         warnings.warn(f"identity scrub skipped: {exc}")
@@ -214,10 +211,7 @@ def commit_new_elements(src_rvt: str, out_path: str,
             warnings.warn(f"increment-table identity scrub skipped: {exc}")
 
     # ---------------- 4. write ------------------------------------------------
-    out_entries = [dataclasses.replace(e, data=new_streams[e.path])
-                   if (e.entry_type == "stream" and e.path in new_streams) else e
-                   for e in entries]
-    write_cfb(out_path, out_entries)
+    rewrite_entries(src_rvt, out_path, new_streams)
     return CommitReport(pname, new_ids, count_before, count_after,
                         watermark_after, added_bytes, out_path)
 

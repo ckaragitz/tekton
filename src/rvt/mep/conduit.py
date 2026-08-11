@@ -77,7 +77,6 @@ objects (write with :func:`commit_created`, prove with
 from __future__ import annotations
 
 import copy
-import dataclasses
 import math
 import struct
 import sys
@@ -1458,12 +1457,11 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
     Returns a report dict; ``verify=True`` appends ``rvt.commit
     .verify_written`` results.
     """
-    from ..cfb_writer import write_cfb
     from ..container import open_rvt
     from .. import ecc
     from .. import partitions as _P
     from ..partitions import StreamWalker
-    from ..roundtrip import read_entries
+    from ..roundtrip import rewrite_entries
     from ..stream_encoders import decode_elemtable, encode_elemtable, global_prefix
     from ..streams_edit import elemtable_add_element
     from ..writer import gzip_member
@@ -1492,13 +1490,13 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
         # large by 4*A on the touched blocks — the validator's counter warning.)
         return 16 if seq == 101 else 20
 
-    entries = read_entries(src_rvt)
     new_streams: Dict[str, bytes] = {}
     with open_rvt(src_rvt) as f:
         parts = f.partition_streams()
         if len(parts) != 1:
             raise NotImplementedError(f"expected one partition stream, got {parts}")
         pname = parts[0]
+        bfi = f.raw("BasicFileInfo") if f.has("BasicFileInfo") else None
         # -- ElemTable (rows with owners) ------------------------------------
         model = decode_elemtable(f.inflate("Global/ElemTable"))
         count_before = len(model["records"])
@@ -1577,19 +1575,14 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
     try:
         from ..identity import own_basic_file_info
         from ..stream_encoders import decode_basic_file_info
-        bfi = next((e for e in entries
-                    if e.entry_type == "stream" and e.path == "BasicFileInfo"), None)
         if bfi is not None:
-            cur = decode_basic_file_info(bfi.data).get("unique_document_guid")
+            cur = decode_basic_file_info(bfi).get("unique_document_guid")
             new_streams["BasicFileInfo"] = own_basic_file_info(
-                bfi.data, out_path=out_path, document_guid=cur)
+                bfi, out_path=out_path, document_guid=cur)
     except Exception as exc:                       # pragma: no cover
         import warnings
         warnings.warn(f"identity scrub skipped: {exc}")
-    out_entries = [dataclasses.replace(e, data=new_streams[e.path])
-                   if (e.entry_type == "stream" and e.path in new_streams) else e
-                   for e in entries]
-    write_cfb(out_path, out_entries)
+    rewrite_entries(src_rvt, out_path, new_streams)
     report = {"partition": pname, "new_element_ids": [e.elem_id for e in elements],
               "elemtable_count_before": count_before,
               "elemtable_count_after": count_after,
