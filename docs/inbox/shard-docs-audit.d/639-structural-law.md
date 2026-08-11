@@ -165,5 +165,7 @@ BRANCH STATE (cam/639-structural-law): `tests/test_conftest_scaffolding.py` (str
 `docs/inbox/shard-docs-audit.d/`, index untouched). Nothing under `src/`, `tools/`, `plugin/`, `skills/`, `tests/conftest.py`;
 no shard drop-in needed (all three test files already in the merged shard: `579-scaffolding.txt`, `ci_shard.txt`);
 nothing staged for the viewer; no certification claim; no hot file. Whole merged shard (107 files, sequential): branch tree
-before the /simplify reshaping **2218 passed, 134 skipped, 3 xfailed, 3 warnings** in 436 s; the exact-head run and a
-`main` `006121f` worktree run are appended below when they finish (expected equal: one law row swapped, nothing added).
+before the /simplify reshaping **2218 passed, 134 skipped, 3 xfailed, 3 warnings** in 436 s; on the exact code head
+(`8d37b73` content = PR head, the later commits are this fragment only) **2218 passed, 134 skipped, 3 xfailed, 3 warnings**
+in 426 s; `main` `006121f` in a worktree, same interpreter, run side by side: **2218 passed, 134 skipped, 3 xfailed,
+3 warnings** in 432 s -- equal, as expected (one law row swapped, nothing added or removed).
