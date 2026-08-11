@@ -673,19 +673,45 @@ def test_a_sphere_becomes_a_stack_whose_volume_converges():
     assert errs[-1] < 0.005
 
 
-def test_a_wheel_is_a_cylinder_about_a_HORIZONTAL_axis():
-    """The bus case. A wheel cannot be a vertical cylinder -- that is a disc
-    lying flat. Sliced horizontally it is boxes whose width follows the chord,
-    so the round silhouette shows in the view that matters."""
+def test_a_wheel_is_a_TRUE_cylinder_not_a_stack():
+    """Desktop round 4 (#591) settled it: the cached B-rep is what Revit draws,
+    so a wheel is authored as a real cylinder whose B-rep is rotated onto a
+    horizontal axis -- verified round in the Front elevation. The old stack of
+    boxes is retired, and the expander must leave these shapes alone."""
     from rvt.famgen import revolve as RV
-    made, rep = RV.expand_parts([{"shape": "cylinder_y", "radius_ft": 1.7,
-                                  "length_ft": 0.95, "segments": 20, "name": "wheel"}])
-    assert all(p["shape"] == "box" for p in made)
-    assert all(p["depth_ft"] == pytest.approx(0.95) for p in made)   # length along Y
-    widths = [p["width_ft"] for p in made]
-    assert widths[0] < widths[len(widths) // 2] > widths[-1]          # a chord profile
-    assert max(widths) == pytest.approx(2 * 1.7, rel=0.02)            # widest = diameter
-    assert rep[0]["ratio"] == pytest.approx(1.0, abs=0.02)
+    from rvt.frontdoor import famspec as FS
+    part = {"shape": "cylinder_y", "radius_ft": 1.72, "length_ft": 0.95,
+            "center": [2.0, 3.0], "name": "wheel"}
+    made, rep = RV.expand_parts([part])
+    assert [p["shape"] for p in made] == ["cylinder_y"] and rep == []
+
+    doc = FS.build("generic_model", {"parts": [part], "name": "W"}).doc
+    axes = []
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k, x in v.items():
+                if k == "m_zVec" and isinstance(x, list):
+                    axes.append([round(n, 6) for n in x])
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+    for e in doc.elements:
+        if e.class_name == "ExtrusionElem" and e.rep is not None:
+            walk(e.rep)
+    assert axes, "the wheel must author a cylinder surface"
+    assert all(a == [0.0, 1.0, 0.0] for a in axes), f"axis must be +Y, got {axes}"
+
+
+def test_a_horizontal_cylinder_is_refused_without_its_length():
+    from rvt.famgen import factory as F
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("generic_model", "x", work_plane_based=False,
+                                 start_id=1000)
+    with pytest.raises(F.FactoryError) as e:
+        F.add_generic_part(doc, {"shape": "cylinder_y", "radius_ft": 1.0})
+    assert "length_ft" in str(e.value)
 
 
 def test_a_round_body_rests_on_its_base_z_not_centred_on_it():
@@ -707,7 +733,7 @@ def test_composites_expand_only_where_asked():
 def test_a_round_body_without_its_dimension_is_refused_by_name():
     from rvt.famgen import revolve as RV
     for part, want in (({"shape": "sphere", "radius_ft": 0}, "positive radius"),
-                       ({"shape": "cylinder_x", "radius_ft": 1.0, "length_ft": 0}, "length_ft"),
+                       ({"shape": "dome", "radius_ft": 0}, "positive radius"),
                        ({"shape": "sphere", "radius_ft": 1.0, "segments": 2}, "too few")):
         with pytest.raises(RV.RevolveError) as e:
             RV.expand_parts([part])

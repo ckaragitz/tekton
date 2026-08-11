@@ -477,7 +477,7 @@
                   "cylinder_x",
                   "cylinder_y"
                 ],
-                "description": "PRISMS authored directly: box = width_ft x depth_ft; cylinder = radius_ft (or diameter_ft), about the VERTICAL axis; polygon = vertices, a closed ring, convex or concave. ROUND/ROTATED bodies, expanded into stacks of those prisms by rvt.famgen.revolve because the contract extrudes along Z only: sphere and dome = radius_ft; cone = radius_ft + height_ft (+ optional top_radius_ft for a frustum); cylinder_x / cylinder_y = a cylinder lying along X or Y (a WHEEL, an axle, a pipe run) = radius_ft + length_ft. A stack is an approximation and its authored-vs-true volume ratio is reported; 'segments' tunes it."
+                "description": "PRISMS authored directly: box = width_ft x depth_ft; cylinder = radius_ft (or diameter_ft) about the VERTICAL axis; polygon = vertices, a closed ring, convex or concave. cylinder_x / cylinder_y = a TRUE cylinder lying along X or Y -- a WHEEL, an axle, a pipe run -- from radius_ft + length_ft; its vertical extent is the diameter, so it needs no height_ft. STACKED approximations, still sliced because the part contract extrudes along Z: sphere and dome = radius_ft; cone = radius_ft + height_ft (+ optional top_radius_ft for a frustum). A stack reports its authored-vs-true volume ratio and 'segments' tunes it; the true cylinders do not need it."
               },
               "height_ft": {
                 "type": "number",
@@ -549,7 +549,7 @@
                 "type": "integer",
                 "minimum": 3,
                 "maximum": 64,
-                "description": "Slices a round body is built from (default 16, capped at 64). Higher = closer to the true body and MORE SOLIDS in the family; the report carries the authored/true volume ratio so the trade is measured, not guessed."
+                "description": "Slices a STACKED round body (sphere / dome / cone) is built from: default 16, capped at 64. Higher = closer to the true body and MORE SOLIDS; the report carries the authored/true volume ratio so the trade is measured. Ignored by cylinder_x / cylinder_y, which are real cylinders rather than stacks."
               }
             },
             "description": "One solid. 'height_ft' is required for box / cylinder / polygon and for cone; sphere / dome / cylinder_x / cylinder_y derive their extent from radius_ft (and length_ft)."

@@ -1710,7 +1710,8 @@ _REP_DIRECTION_FIELDS = ("m_xVec", "m_yVec", "m_zVec")
 
 
 def rotate_rep(value: Any, rot: Sequence[Sequence[float]],
-               pivot: Sequence[float] = (0.0, 0.0, 0.0)) -> Any:
+               pivot: Sequence[float] = (0.0, 0.0, 0.0),
+               translate: Sequence[float] = (0.0, 0.0, 0.0)) -> Any:
     """Rotate an authored cached B-rep in place by the 3x3 ``rot`` about
     ``pivot`` (issue #591, rotation round 4).
 
@@ -1728,13 +1729,13 @@ def rotate_rep(value: Any, rot: Sequence[Sequence[float]],
     side must then be made to agree (or the form regenerates back to vertical
     on the first edit -- a trade to measure, not to assume).
     """
-    def rot3(v, translate):
+    def rot3(v, translate_pos):
         x, y, z = float(v[0]), float(v[1]), float(v[2])
         if translate:
             x -= pivot[0]; y -= pivot[1]; z -= pivot[2]
         out = [rot[i][0] * x + rot[i][1] * y + rot[i][2] * z for i in range(3)]
-        if translate:
-            out = [out[i] + pivot[i] for i in range(3)]
+        if translate_pos:
+            out = [out[i] + pivot[i] + translate[i] for i in range(3)]
         return out
 
     def walk(v):

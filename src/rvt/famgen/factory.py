@@ -922,10 +922,18 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         fb = add_generic_part(doc, part, solid=solid)
         built.append(fb)
         base = float(part.get("base_z_ft") or 0.0)
-        h = float(part["height_ft"])
-        cx, cy = tuple(part.get("center") or (0.0, 0.0))
         shape = str(part.get("shape") or "box").lower()
-        if shape == "cylinder":
+        if shape in ("cylinder_x", "cylinder_y"):
+            _r = float(part["radius_ft"] if part.get("radius_ft") is not None
+                       else float(part["diameter_ft"]) / 2.0)
+            h = 2.0 * _r                       # vertical extent = the diameter
+        else:
+            h = float(part["height_ft"])
+        cx, cy = tuple(part.get("center") or (0.0, 0.0))
+        if shape in ("cylinder_x", "cylinder_y"):
+            L = float(part["length_ft"])
+            hw, hd = ((L / 2.0, _r) if shape == "cylinder_x" else (_r, L / 2.0))
+        elif shape == "cylinder":
             r = float(part.get("radius_ft") if part.get("radius_ft") is not None
                       else float(part["diameter_ft"]) / 2.0)
             hw = hd = r
@@ -993,7 +1001,8 @@ def add_cylinder_form(doc: SK.FamilyDoc, radius_ft: float, height_ft: float, *,
 
 #: the shapes one PART of a multi-part generic model may take (issue #498
 #: LOD follow-up): every one is an extrusion this engine already emits.
-GENERIC_PART_SHAPES = ("box", "cylinder", "polygon")
+GENERIC_PART_SHAPES = ("box", "cylinder", "polygon",
+                       "cylinder_x", "cylinder_y")
 
 
 def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
@@ -1012,13 +1021,47 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
     if shape not in GENERIC_PART_SHAPES:
         raise FactoryError(f"unknown part shape {shape!r}: "
                            f"one of {', '.join(GENERIC_PART_SHAPES)}")
-    h = part.get("height_ft")
+    if shape in ("cylinder_x", "cylinder_y"):
+        # its vertical extent is the DIAMETER, derived -- not a caller field
+        _r = part.get("radius_ft")
+        if _r is None and part.get("diameter_ft") is not None:
+            _r = float(part["diameter_ft"]) / 2.0
+        h = (2.0 * float(_r)) if _r else None
+    else:
+        h = part.get("height_ft")
     if h is None or float(h) <= 0:
-        raise FactoryError(f"part {shape!r} needs a positive height_ft")
+        raise FactoryError(f"part {shape!r} needs a positive "
+                           + ("radius_ft (its height is the diameter)"
+                              if shape in ("cylinder_x", "cylinder_y") else "height_ft"))
     base = float(part.get("base_z_ft") or 0.0)
     center = tuple(part.get("center") or (0.0, 0.0))
     rep = G.REP_SOLID if solid else G.REP_DUMMY
-    if shape == "cylinder":
+    if shape in ("cylinder_x", "cylinder_y"):
+        # A cylinder about a HORIZONTAL axis -- a wheel, an axle, a pipe run.
+        # Desktop round 4 (#591) established that the CACHED B-REP is what Revit
+        # draws: three rounds of editing the sketch moved nothing, and rotating
+        # the B-rep alone produced a true cylinder on its side (Front elevation a
+        # clean circle, 3D a barrel).  So the form is authored vertically and its
+        # rep is rotated onto the requested axis.
+        r = part.get("radius_ft")
+        if r is None and part.get("diameter_ft") is not None:
+            r = float(part["diameter_ft"]) / 2.0
+        L = part.get("length_ft")
+        if r is None or float(r) <= 0 or L is None or float(L) <= 0:
+            raise FactoryError(f"a {shape!r} part needs radius_ft (or diameter_ft) "
+                               "and a positive length_ft")
+        r, L = float(r), float(L)
+        fb = add_cylinder_form(doc, r, L, base_z_ft=-L / 2.0, center=(0.0, 0.0), rep=rep)
+        rot = ([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]]
+               if shape == "cylinder_y" else
+               [[0.0, 0.0, -1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
+        for el in fb.elements:
+            if el.rep is not None:
+                G.rotate_rep(el.rep, rot, pivot=(0.0, 0.0, 0.0),
+                             translate=(center[0], center[1], base + r))
+        fb.params.update({"axis": shape[-1], "radius_ft": r, "length_ft": L,
+                          "rotated_brep": True})
+    elif shape == "cylinder":
         r = part.get("radius_ft")
         if r is None and part.get("diameter_ft") is not None:
             r = float(part["diameter_ft"]) / 2.0

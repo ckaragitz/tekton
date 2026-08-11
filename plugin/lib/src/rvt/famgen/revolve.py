@@ -59,7 +59,11 @@ DEFAULT_SEGMENTS = 16
 MAX_SEGMENTS = 64
 
 #: The shapes this module expands into ordinary prisms.
-COMPOSITE_SHAPES = ("sphere", "dome", "cone", "cylinder_x", "cylinder_y")
+COMPOSITE_SHAPES = ("sphere", "dome", "cone")
+#: cylinder_x / cylinder_y are NO LONGER expanded here.  Desktop round 4 (#591)
+#: showed the cached B-rep is what Revit draws, so the factory authors a TRUE
+#: rotated cylinder for them -- a real wheel, verified round in the Front
+#: elevation, instead of the stack of boxes this module used to emit.
 
 
 def _segments(n: Optional[int]) -> int:
