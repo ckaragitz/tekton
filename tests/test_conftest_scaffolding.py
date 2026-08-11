@@ -7,8 +7,10 @@ in ``tests/conftest.py`` (issue #579, Refs #566 / #533 / #518 / #451):
   one module is that pass whatever its helpers are called, and its one home is
   conftest's ``rewrite_stream(s)`` (= ``rvt.roundtrip.rewrite_entries``; #639);
   no module shadows a conftest scaffolding name at top level or binds one of the
-  private spellings #579 / #617 retired (``FORBIDDEN``); the ``ADOPTERS``
-  keep the leak guard on, and every module on the guard is an adopter (#605);
+  private spellings #579 / #617 / #707 retired (``FORBIDDEN``); every module
+  that CALLS a release-context entry point keeps the leak guard on (derived
+  by call, #707), the ``ADOPTERS`` -- the callers the scan cannot see -- do
+  too, and every module on the guard is one or the other (#605);
 * the hoisted helpers behave as the copies did: ``FOREIGN_FIRST`` = the
   certified years with the native release last; ``native_constants`` /
   ``ladder_constants`` / ``context_constants`` snapshot the framing table /
@@ -56,16 +58,41 @@ SHADOWS = {"FOREIGN_FIRST", "FOREIGN", "native_constants", "ladder_constants", "
 #: four-fold ``_streams`` census #670 hoisted (its ``pin`` twin is caught as a shadow)
 FORBIDDEN = SHADOWS | {"NATIVE_LAST", "_native_constants", "_no_leak", "_rewrite_stream", "_partition_of",
                        "_zero16", "_smash64", "_flip_bit", "_twin_entry", "_streams"}
-#: every module that keeps conftest's leak guard switched on module-wide -- the files #579 / #602 relieved of an autouse
-#: guard of their own, the ones born on it since, and #605's in-process context callers: a hand list on purpose (the
-#: ratchet: none of these may drop the guard again), kept complete by the law itself (a module that requests the guard,
-#: or overrides ``release_leak_extra``, without standing here is red until it enlists -- so the list derives forward)
-ADOPTERS = ["test_selfcheck_release", "test_inspect_release", "test_edit_text_release",
-            "test_natively_framed", "test_estorage_cli_release", "test_edit_own_release",
-            "test_rvt_edit_refusal", "test_release_ctx_refusal", "test_edit_status",
-            "test_cfb_rewrite_entries", "test_rewrite_entries_646", "test_identity_helper_657",
-            "test_reduce_v2_655", "test_reduce_v2_671", "test_rvt_job_scrub_656"]
+#: + the private leak guards / snapshots #707 folded into conftest's (an after-only framing check, an ``active_release``
+#: check, two tuple-shaped snapshots): a module that wants one back requests ``no_release_leak`` instead
+FORBIDDEN |= {"_constants_restored", "_no_release_leak", "_restored", "_native_state"}
+#: the engine's release-context ENTRY POINTS, by call name (#707): the write side (``release_ctx.host_release_context`` /
+#: ``release_build_context`` / ``enter_host_release``), the read-side ladder (``enter_own_release`` -- global_framing's
+#: and validate's alike) and the bare framing contexts (``versions.reading`` / ``global_framing.reading`` /
+#: ``records32.reading32``).  A module that CALLS one enters a context in THIS process, so it keeps conftest's leak
+#: guard on -- derived below by call, not by import (importing a damage recipe enters nothing) and not by mention (the
+#: name inside a subprocess script literal is a string, not a call, and that interpreter's constants are not ours)
+CONTEXT_ENTRY_POINTS = {"host_release_context", "release_build_context", "enter_host_release", "enter_own_release",
+                        "reading", "reading32"}
+#: the adopters the call-scan CANNOT see: each enters a context only inside the tool / front-door call it drives, so it
+#: stands here by hand, saying through what -- the ratchet for these (none may drop the guard); every other module on
+#: the guard is a caller by the scan and needs no list.  A module here that starts calling an entry point itself moves
+#: off this list (the law says so), so the dict stays exactly "the indirect ones"
+ADOPTERS = {
+    "test_selfcheck_release": "load_tool('rvt_selfcheck') judges every foreign pin under its own release (the ladder)",
+    "test_inspect_release": "load_tool('rvt_inspect') walks every foreign pin under its own release (the ladder)",
+    "test_edit_own_release": "E.main([...]) / FD.author(rvt=...) enter host_release_context inside the edit tools",
+    "test_rvt_edit_refusal": "load_tool('rvt_edit').main([...]) enters host_release_context at its one open boundary",
+    "test_edit_status": "FD.author(rvt=<2025 pin / damaged 2025 host>) enters host_release_context in the front door",
+    "test_genesis_identity": "GI.build_release(year) re-authors the foreign pins under release_build_context",
+}
+#: in-process callers that do NOT take the function-scoped guard as is, with the measured reason (#707) -- a
+#: module-scoped fixture that holds a context open across its tests by design would go here; so would a file another
+#: session holds in the round that finds it.  Measured on every caller 2026-08-11: none needed it
+EXPECTED_UNGUARDED: dict[str, str] = {}
 TEST_FILES = sorted(os.path.splitext(os.path.basename(p))[0] for p in glob.glob(os.path.join(ROOT, "tests", "test_*.py")))
+pytestmark = pytest.mark.usefixtures("no_release_leak")        # the context_constants row enters host_release_context
+
+
+@pytest.fixture
+def release_leak_extra():
+    """That row swaps the write side's names in THIS process: watch them, as every other in-process caller does."""
+    return C.context_constants
 
 
 @functools.cache                     # three law rows walk every module: parse each once per session
@@ -118,19 +145,47 @@ def _requests_the_leak_guard(tree: ast.Module) -> bool:
     return any(isinstance(c, ast.Constant) and c.value == "no_release_leak" for m in marks for c in ast.walk(m.value))
 
 
-@pytest.mark.parametrize("stem", ADOPTERS)
+def _context_callers() -> set[str]:
+    """Every module that CALLS a release-context entry point somewhere in its own code (= enters one in-process)."""
+    return {stem for stem in TEST_FILES if CONTEXT_ENTRY_POINTS & _called_names(_tree(stem))}
+
+
+def test_every_in_process_context_caller_keeps_the_leak_guard_on():
+    """Derived by call (#707): whoever enters a release context in this process starts outside any and leaves every
+    watched constant as found -- conftest's ``no_release_leak``, module-wide -- or stands in ``EXPECTED_UNGUARDED``
+    with the measured reason.  A red here after adding a context call is the point: take the guard with the call."""
+    callers = _context_callers()
+    unguarded = {stem: sorted(CONTEXT_ENTRY_POINTS & _called_names(_tree(stem))) for stem in sorted(callers)
+                 if stem not in EXPECTED_UNGUARDED and not _requests_the_leak_guard(_tree(stem))}
+    assert unguarded == {}, (f"{unguarded} enter a release context in-process without conftest's leak guard: add "
+                             "pytestmark = pytest.mark.usefixtures('no_release_leak') (+ a release_leak_extra "
+                             "override returning context_constants where it enters the write side, ladder_constants "
+                             "where it only climbs the read-side ladder), or name the module in EXPECTED_UNGUARDED "
+                             "with the measured reason it cannot take a function-scoped guard (#707)")
+    stale = sorted(stem for stem in EXPECTED_UNGUARDED if stem not in callers or _requests_the_leak_guard(_tree(stem)))
+    assert stale == [], f"{stale} are guarded (or call no entry point) now: drop them from EXPECTED_UNGUARDED"
+
+
+@pytest.mark.parametrize("stem", sorted(ADOPTERS))
 def test_adopter_keeps_the_leak_guard_on(stem):
     assert _requests_the_leak_guard(_tree(stem)), f"tests/{stem}.py: pytestmark must request the no_release_leak fixture"
 
 
-def test_every_module_on_the_leak_guard_is_an_adopter():
-    """The other direction, so ``ADOPTERS`` cannot fall behind: a module that switches the guard on, or overrides
-    ``release_leak_extra`` (an override the guard never calls is a watch that never runs), stands on the list."""
-    guarded = {stem for stem in TEST_FILES
-               if _requests_the_leak_guard(_tree(stem)) or "release_leak_extra" in _top_level_names(_tree(stem))}
-    unlisted = sorted(guarded - set(ADOPTERS))
-    assert unlisted == [], (f"{unlisted} request no_release_leak / override release_leak_extra but are not on ADOPTERS: "
-                            "add the stem there, so dropping the guard later is red (#605)")
+def test_every_module_on_the_leak_guard_enters_a_context():
+    """The other direction, so neither list can fall behind: a module on the guard enters a context by call (the row
+    above holds it) or stands on ``ADOPTERS`` saying through what it enters one -- never neither, or dropping its guard
+    later would be silent; ``ADOPTERS`` names only what the call-scan cannot see; and a ``release_leak_extra`` override
+    in a module that never requests the guard is a watch that never runs."""
+    callers = _context_callers()
+    guarded = {stem for stem in TEST_FILES if _requests_the_leak_guard(_tree(stem))}
+    dead = sorted(stem for stem in TEST_FILES if "release_leak_extra" in _top_level_names(_tree(stem)) and stem not in guarded)
+    assert dead == [], f"{dead} override release_leak_extra but never request no_release_leak: the watch never runs"
+    unexplained = sorted(guarded - callers - set(ADOPTERS))
+    assert unexplained == [], (f"{unexplained} request no_release_leak but call no context entry point: add the stem to "
+                               "ADOPTERS with the tool / front-door call it enters a context through, so dropping the "
+                               "guard later is red (#605 / #707)")
+    seen = sorted(callers & set(ADOPTERS))
+    assert seen == [], f"{seen} call an entry point themselves now -- the by-call row holds them: drop them from ADOPTERS"
 
 
 def test_foreign_first_puts_the_native_release_last():

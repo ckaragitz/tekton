@@ -32,6 +32,7 @@ ELEVATION_FT = 12.0
 needs_bases = pytest.mark.skipif(
     not (os.path.isfile(BASE_2026) and os.path.isfile(BASE_2024)),
     reason="bundled genesis bases missing")
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the unit row enters versions.reading in THIS process
 
 #: the three doors a non-2026 context is entered through before the first
 #: import (each sets ``inside`` = the BLOCK_TAG in force around that import)

@@ -30,7 +30,14 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from rvt import stream_encoders as SE                 # noqa: E402
 from rvt.frontdoor import census as C                  # noqa: E402
 from rvt.frontdoor.release_ctx import release_build_context   # noqa: E402
-from conftest import CERTIFIED_YEARS, pinned_base       # noqa: E402  (and the `job` fixture)
+from conftest import CERTIFIED_YEARS, context_constants, pinned_base   # noqa: E402  (and the `job` fixture)
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the readers enter release_build_context in-process
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
+    return context_constants
 
 
 def _independent_history0(path: str) -> str:

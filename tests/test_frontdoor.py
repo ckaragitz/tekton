@@ -37,6 +37,19 @@ from rvt.frontdoor import edit as E          # noqa: E402
 from rvt.frontdoor import manifest as MF     # noqa: E402
 from rvt.frontdoor import prompt_intent as PP  # noqa: E402
 import rvt.frontdoor as FD                   # noqa: E402
+from conftest import context_constants       # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # foreign-pin rows enter release_build_context in-process
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too -- minus its two lazy schema caches: this
+    file's NATIVE builds fill / re-point ``SA._SCHEMA_STATE`` and ``GSK._SCHEMA_CACHE`` by design (a first
+    ``bundled_schema()`` on a corpus-less machine, an ``install_schema(target)``), which is no release leak (#707's
+    finding; #706 re-aims those two watches at the release-relevant bit, and this trim goes)."""
+    return lambda: {k: v for k, v in context_constants().items() if k not in ("SA._SCHEMA_STATE", "GSK._SCHEMA_CACHE")}
+
 
 PROMPT = ("an electrical room 30x20 ft rated for 2500 A service with a main switchboard, "
           "two 400 A distribution panels and four lighting panels")

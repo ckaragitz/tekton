@@ -53,6 +53,8 @@ from rvt.frontdoor import census as C        # noqa: E402
 from rvt import versions as V                 # noqa: E402
 from conftest import CERTIFIED_YEARS, load_tool, pinned_base   # noqa: E402  (and the `job` fixture)
 
+pytestmark = pytest.mark.usefixtures("no_release_leak")        # the walk rows enter versions.reading in-process
+
 
 @pytest.fixture(scope="module")
 def census_tool():

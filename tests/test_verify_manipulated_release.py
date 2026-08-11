@@ -20,6 +20,7 @@ import struct
 
 import pytest
 
+from conftest import context_constants
 from rvt import manipulate as M
 from rvt import partitions as P
 from rvt import versions as V
@@ -32,17 +33,17 @@ BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
          2025: os.path.join(GEN, "G_ABPD_2025.rvt"),
          2024: os.path.join(GEN, "G_ABPD_2024.rvt")}
 
-pytestmark = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
+pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()),
+                                 reason="bundled genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]   # after every test the native framing is back
 
-
-@pytest.fixture(autouse=True)
-def _constants_restored():
-    """After every test the built-in (latest-release) framing is back."""
-    yield
-    latest = V.framing_table(V.LATEST_RELEASE)
-    assert {k: getattr(P, k) for k in latest} == latest
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too -- minus its two lazy schema caches: this
+    file's NATIVE builds fill / re-point ``SA._SCHEMA_STATE`` and ``GSK._SCHEMA_CACHE`` by design (a first
+    ``bundled_schema()`` on a corpus-less machine, an ``install_schema(target)``), which is no release leak (#707's
+    finding; #706 re-aims those two watches at the release-relevant bit, and this trim goes)."""
+    return lambda: {k: v for k, v in context_constants().items() if k not in ("SA._SCHEMA_STATE", "GSK._SCHEMA_CACHE")}
 
 
 def _tamper_102(*, extra: bytes = b"", stamp_delta: int = 0):

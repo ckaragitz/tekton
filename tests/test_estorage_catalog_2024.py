@@ -51,11 +51,20 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from conftest import CERTIFIED_YEARS, pinned_base                # noqa: E402
+from conftest import CERTIFIED_YEARS, ladder_constants, pinned_base   # noqa: E402
 from rvt import estorage as ES                                    # noqa: E402
 from rvt import global_framing as GF                              # noqa: E402
 from rvt.encode import ObjectEncoder                              # noqa: E402
 from rvt.schema import Schema                                     # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")           # every catalog is read under GF.reading in-process
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``GF.reading`` climbs the instrument ladder: watch what it swaps, too."""
+    return ladder_constants
+
 
 OLD = [y for y in CERTIFIED_YEARS if y <= 2024]
 NEW = [y for y in CERTIFIED_YEARS if y >= 2025]

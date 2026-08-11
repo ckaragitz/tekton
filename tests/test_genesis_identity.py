@@ -22,8 +22,8 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 
 import genesis_identity as GI                               # noqa: E402
+from conftest import context_constants                     # noqa: E402
 from rvt import identity as ID                             # noqa: E402
-from rvt.frontdoor import release_ctx as RC                # noqa: E402
 from rvt.provenance import identity_report                 # noqa: E402
 from rvt.roundtrip import read_entries                     # noqa: E402
 
@@ -32,15 +32,14 @@ IDENTITY_STREAMS = {"BasicFileInfo", "Global/DocumentIncrementTable",
                     "ProjectInformation", "TransmissionData"}
 LEDGER_2026 = "experiments/genesis/subst_k4/compose/G_ABPD.rvt"
 
-pytestmark = pytest.mark.skipif(set(PINS) != {2026, 2025, 2024},
-                                reason="bundled genesis bases missing (or not ledger-certified)")
+pytestmark = [pytest.mark.skipif(set(PINS) != {2026, 2025, 2024},
+                                 reason="bundled genesis bases missing (or not ledger-certified)"),
+              pytest.mark.usefixtures("no_release_leak")]  # no release context leaks out of the tool
 
-
-@pytest.fixture(autouse=True)
-def _no_release_leak():
-    assert RC.active_release() is None
-    yield
-    assert RC.active_release() is None, "a release context leaked out of the tool"
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
+    return context_constants
 
 
 @pytest.fixture(scope="module")

@@ -27,7 +27,7 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from rvt import adocument as ADOC                          # noqa: E402
+from conftest import ladder_constants                       # noqa: E402
 from rvt import partitions as P                            # noqa: E402
 from rvt import versions as V                              # noqa: E402
 from rvt.famgen import factory as FF                       # noqa: E402
@@ -39,24 +39,15 @@ BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
 YEARS = sorted(BASES)
 ROOM_PROMPT = "an electrical room with 6 panels"
 
-pytestmark = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
+pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()),
+                                 reason="bundled genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]  # every entry point restores the native state
 
 
-def _native_state():
-    """What the ladder swaps: framing table, Global-stream tokens, decoder."""
-    return ({k: getattr(P, k) for k in V.framing_table(V.LATEST_RELEASE)},
-            FF.CD_SEPARATOR, FF.CD_END_RECORD, ADOC._DECODER)
-
-
-@pytest.fixture(autouse=True)
-def _constants_restored():
-    """Every entry point restores the built-in (latest-release) state."""
-    before = _native_state()
-    yield
-    assert _native_state() == before
-    assert before[0] == V.framing_table(V.LATEST_RELEASE)
+@pytest.fixture
+def release_leak_extra():
+    """The readers climb the instrument ladder: watch what it swaps too -- its Global-stream tokens included."""
+    return lambda: dict(ladder_constants(), **{"FF.CD_SEPARATOR": FF.CD_SEPARATOR, "FF.CD_END_RECORD": FF.CD_END_RECORD})
 
 
 def _seed_audit():

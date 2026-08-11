@@ -14,8 +14,8 @@ breaks any layer, or the 2025/2024 framing ordinals, goes red before merge:
 
 Every case reads its base under ``rvt.versions.records32.reading32`` (the
 file's OWN framing ordinals; the 32-bit record layer would switch in for a
-<= 2023 file) and an autouse fixture proves the latest-release constants
-are back afterwards.  No record counts are hard-coded (bases get re-pinned,
+<= 2023 file) and conftest's leak guard proves the native constants (and
+what ``reading32`` swaps) are back afterwards.  No record counts are hard-coded (bases get re-pinned,
 #19) -- only structural minima.  A failing assertion here is a FINDING to
 file, never a bound to loosen.
 
@@ -30,6 +30,7 @@ import sys
 
 import pytest
 
+from conftest import ladder_constants
 from rvt import adocument as ad
 from rvt import ecc
 from rvt import partitions as P
@@ -53,17 +54,15 @@ BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
          2024: os.path.join(GEN, "G_ABPD_2024.rvt")}
 SEQS = (101, 102, 103)
 
-pytestmark = pytest.mark.skipif(
-    not all(os.path.isfile(p) for p in BASES.values()),
-    reason="bundled genesis bases missing")
+pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values()),
+                                 reason="bundled genesis bases missing"),
+              pytest.mark.usefixtures("no_release_leak")]      # every case enters reading32 in-process
 
 
-@pytest.fixture(autouse=True)
-def _constants_restored():
-    """After every case the built-in (latest-release) framing is back."""
-    yield
-    latest = V.framing_table(V.LATEST_RELEASE)
-    assert {k: getattr(P, k) for k in latest} == latest
+@pytest.fixture
+def release_leak_extra():
+    """``reading32`` swaps the record readers too, not the framing table alone: watch them."""
+    return ladder_constants
 
 
 @pytest.fixture(params=sorted(BASES, reverse=True))

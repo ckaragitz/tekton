@@ -32,6 +32,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
 
+from conftest import ladder_constants  # noqa: E402
 from rvt import versions as V  # noqa: E402
 from rvt.versions import KNOWN_RELEASES, records32, schema_2023  # noqa: E402
 
@@ -43,6 +44,13 @@ HAVE_2026 = os.path.isfile(S26)
 
 need23 = pytest.mark.skipif(not HAVE_2023, reason="2023 dev samples absent")
 need26 = pytest.mark.skipif(not HAVE_2026, reason="2026 dev samples absent")
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the sample rows enter versions.reading / reading32 in-process
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``reading32`` swaps the record readers too, not the framing table alone: watch them."""
+    return ladder_constants
 
 
 # ---------------------------------------------------------------------------
