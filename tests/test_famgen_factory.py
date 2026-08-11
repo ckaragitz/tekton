@@ -337,10 +337,10 @@ def test_luminaire_family_composition():
     assert fp["depth_ft"] == pytest.approx(23.75 / 12)
     assert fp["height_ft"] == pytest.approx(2.375 / 12)
     for pname in ("Wattage", "Luminous Flux", "Initial Color Temperature", "Voltage",
-                  "IES File (URL reference)"):     # the lighting table's spelling (#622)
+                  "Photometric Web File"):     # the lighting table's spelling (#622), Revit's IES caption (#641)
         assert pname in doc.params
     _t, vals = doc.types[0]
-    assert "http" in vals[doc.params["IES File (URL reference)"].elem_id]
+    assert "http" in vals[doc.params["Photometric Web File"].elem_id]
 
 
 def test_device_facts_resolve_from_the_generic_record():
