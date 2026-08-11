@@ -4,7 +4,8 @@ replaced / dropped and these entries appended, everything else byte-identical" p
 ``regzip_streams_variant``, ``build_variant``: their documented tools/make_acceptance.py / make_batch2.py uses,
 adapted to a pinned base's stream geometry).  Runs on the pinned genesis bases alone (fresh-clone safe); the
 byte-identity of the fold itself (old hand-rolled loops vs the API, 39 outputs over three pins) is the sha256
-table in the #640 record -- a test cannot re-run loops that no longer exist."""
+table in the #640 record -- a test cannot re-run loops that no longer exist -- and ``tests/conftest.rewrite_streams``,
+now a plain call of the API, keeps its own rows in ``tests/test_conftest_scaffolding.py``."""
 from __future__ import annotations
 
 import os
@@ -69,14 +70,15 @@ def test_an_edit_sees_the_raw_bytes_and_changes_only_its_stream(pin, tmp_path):
     assert _directory(out) == _directory(pin)                                    # CLSIDs, state bits, FILETIMEs kept
 
 
-def test_none_drops_and_extra_lands_after_the_containers_own_entries(pin, tmp_path):
+def test_bytes_replace_none_drops_and_extra_lands_after_the_containers_own_entries(pin, tmp_path):
     before = _streams(pin)
     twin = C.twin_partition_entry(pin)
-    out = rewrite_entries(pin, tmp_path / "multi.rvt", {"Formats/Latest": None}, extra=[twin])
+    out = rewrite_entries(pin, tmp_path / "multi.rvt",
+                          {"Formats/Latest": None, "Global/History": b"ours now"}, extra=[twin])
     after = _streams(out)
     assert list(after) == [p for p in before if p != "Formats/Latest"] + [twin.path]
-    assert after[twin.path] == twin.data
-    assert all(after[p] == before[p] for p in after if p != twin.path)
+    assert after["Global/History"] == b"ours now" and after[twin.path] == twin.data
+    assert all(after[p] == before[p] for p in after if p not in ("Global/History", twin.path))
 
 
 def test_a_name_that_is_no_stream_is_a_keyerror_before_anything_is_written(pin, tmp_path):
@@ -91,18 +93,9 @@ def test_a_name_that_is_no_stream_is_a_keyerror_before_anything_is_written(pin, 
 def test_src_equal_dst_rewrites_in_place(pin, tmp_path):
     name = C.partition_of(pin)
     inplace = shutil.copyfile(pin, tmp_path / "inplace.rvt")
-    assert rewrite_entries(inplace, inplace, {name: C.zero_partition_header}) == str(inplace)
+    rewrite_entries(inplace, inplace, {name: C.zero_partition_header})
     apart = rewrite_entries(pin, tmp_path / "apart.rvt", {name: C.zero_partition_header})
     assert Path(inplace).read_bytes() == Path(apart).read_bytes()
-
-
-def test_conftest_rewrite_streams_is_the_engine_pass(pin, tmp_path):
-    name = C.partition_of(pin)
-    twin = C.twin_partition_entry(pin, C.zero_partition_header)
-    edits = {name: lambda raw: C.smash64(raw, 280), "Formats/Latest": None}
-    a = C.rewrite_streams(pin, tmp_path / "a.rvt", edits, extra=[twin])
-    b = rewrite_entries(pin, tmp_path / "b.rvt", edits, extra=[twin])
-    assert Path(a).read_bytes() == Path(b).read_bytes()
 
 
 # --- rvt.writer's variant builders, now callers of the API ------------------------------------------------------

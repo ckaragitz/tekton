@@ -301,23 +301,10 @@ def rewrite_streams(src, dst, damages: dict, extra=()) -> str:
     bytes replaced by ``damage(raw)`` -- the stream dropped when its ``damage`` is None -- the ready-made ``extra``
     entries (``CfbEntry``, e.g. ``twin_partition_entry``) appended after the container's own, and every other entry
     byte-identical -> ``dst``.  ``src == dst`` rewrites in place.  A name the container does not hold is a KeyError,
-    never a silent verbatim copy (the ONE such loop under tests/, #579 / #617)."""
-    from rvt.cfb_writer import write_cfb
-    from rvt.roundtrip import read_entries
-    src, dst = os.fspath(src), os.fspath(dst)
-    entries, missing = [], set(damages)
-    for e in read_entries(src):                               # e.data IS the stream's raw bytes
-        if e.entry_type == "stream" and e.path in damages:
-            missing.discard(e.path)
-            damage = damages[e.path]
-            if damage is None:
-                continue
-            e = dataclasses.replace(e, data=damage(e.data))
-        entries.append(e)
-    if missing:
-        raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), src))
-    write_cfb(dst, entries + list(extra))
-    return dst
+    never a silent verbatim copy (the ONE such loop under tests/, #579 / #617 -- and since #640 not even that: it is
+    the engine's ``rvt.roundtrip.rewrite_entries``, called here under the test-side names)."""
+    from rvt.roundtrip import rewrite_entries
+    return rewrite_entries(src, dst, damages, extra)
 
 
 def rewrite_stream(src, dst, name: str, damage) -> str:

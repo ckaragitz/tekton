@@ -19,12 +19,12 @@ from __future__ import annotations
 import random
 import struct
 import zlib
-from typing import Callable, Dict, Iterable, List, Optional
+from typing import Callable, Iterable, List, Optional
 
 from . import partitions as _P
 from .container import (PAGE_PAYLOAD, PAGE_STRIDE, PAGE_TRAILER,
                         RvtDocument, depage, open_rvt)
-from .roundtrip import StreamEdit, rewrite_entries
+from .roundtrip import rewrite_entries
 
 
 def __getattr__(name: str):
@@ -239,14 +239,6 @@ def regzip_logical(doc: RvtDocument, name: str, level: int = 6,
     return out
 
 
-def _swap_in(new_data: Dict[str, bytes]) -> Dict[str, StreamEdit]:
-    """A ``rewrite_entries`` replace-map that swaps in raw bytes computed up
-    front (the variant builders derive them from the ``RvtDocument`` view, in
-    an order a stateful ``trailer_fn`` depends on -- not from each entry as
-    the container walk reaches it)."""
-    return {name: (lambda _old, new=new: new) for name, new in new_data.items()}
-
-
 def _zero_full_trailers(raw: bytes) -> bytes:
     """``raw`` with every FULL page's 353-byte trailer zeroed, payload untouched."""
     return repage_like(depage(raw), raw, trailer_zero)
@@ -303,7 +295,7 @@ def regzip_streams_variant(in_path: str, out_path: str, streams: Iterable[str],
             rep.append({"name": name, "raw_size": len(raw),
                         "full_page_trailers": len(doc.raw(name)) // PAGE_STRIDE,
                         "keep_tail_bytes": keep_tail_bytes})
-    rewrite_entries(in_path, out_path, _swap_in(new_data))
+    rewrite_entries(in_path, out_path, new_data)
     return {"streams": rep}
 
 
@@ -318,7 +310,9 @@ def build_variant(in_path: str, out_path: str, streams: Iterable[str],
     recompressed with consistent block framing, then freshly page-framed
     (raw size shrinks). Every other stream is copied byte-for-byte. Returns
     a report dict. Directory metadata (CLSIDs, timestamps, order) is kept
-    via cfb_writer, so only stream *contents* differ.
+    via ``rewrite_entries``, so only stream *contents* differ.  The new bytes
+    are computed up front, singles then partitions in sorted order: a
+    stateful ``trailer_fn`` (``trailer_random_factory``) depends on it.
     """
     report = {"in": in_path, "out": out_path, "streams": []}
     want = set(streams)
@@ -352,7 +346,7 @@ def build_variant(in_path: str, out_path: str, streams: Iterable[str],
                 "orig_logical_size": len(doc.logical(name)),
                 "blocks": len(doc.members(name)),
             })
-    rewrite_entries(in_path, out_path, _swap_in(new_data))
+    rewrite_entries(in_path, out_path, new_data)
     return report
 
 

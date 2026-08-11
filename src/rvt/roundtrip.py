@@ -33,7 +33,7 @@ import struct
 import sys
 import time
 from typing import (Callable, Dict, List, Mapping, NamedTuple, Optional, Sequence,
-                    Tuple, Union)
+                    Tuple)
 
 import olefile
 
@@ -200,21 +200,21 @@ def roundtrip(in_path: str, out_path: str) -> Tuple[CfbLayout, float, float]:
     return layout, t1 - t0, t2 - t1
 
 
-StreamEdit = Optional[Callable[[bytes], bytes]]
-"""``raw -> new raw`` for one stream (its bytes exactly as stored, still paged),
-or ``None`` to drop the stream from the output."""
+StreamEdit = bytes | Callable[[bytes], bytes] | None
+"""What to do with one stream: its new raw bytes outright, ``raw -> new raw``
+(``raw`` = its bytes exactly as stored, still paged), or ``None`` to drop it."""
 
 
-def rewrite_entries(src: Union[str, "os.PathLike[str]"],
-                    dst: Union[str, "os.PathLike[str]"],
+def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
                     replace: Mapping[str, StreamEdit],
                     extra: Sequence[CfbEntry] = ()) -> str:
     """Re-emit the container ``src`` as ``dst`` with chosen streams changed.
 
     For every ``{path: edit}`` in ``replace`` the stream at that '/'-joined
-    path has its raw bytes replaced by ``edit(raw)`` -- or is dropped when
-    ``edit`` is ``None``; the ready-made ``extra`` entries are appended after
-    the container's own; every other entry (order, bytes, CLSIDs, state bits,
+    path has its raw bytes replaced -- by ``edit`` itself when it is bytes, by
+    ``edit(raw)`` when it is callable -- or is dropped when ``edit`` is
+    ``None``; the ready-made ``extra`` entries are appended after the
+    container's own; every other entry (order, bytes, CLSIDs, state bits,
     FILETIMEs) is carried over exactly as :func:`roundtrip` would.  A path in
     ``replace`` that names no *stream* of ``src`` is a ``KeyError`` raised
     before anything is written -- never a silent verbatim copy.  ``src`` is
@@ -230,7 +230,7 @@ def rewrite_entries(src: Union[str, "os.PathLike[str]"],
             edit = replace[e.path]
             if edit is None:
                 continue
-            e = dataclasses.replace(e, data=edit(e.data))
+            e = dataclasses.replace(e, data=edit if isinstance(edit, bytes) else edit(e.data))
         out.append(e)
     if missing:
         raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), src))
