@@ -549,8 +549,9 @@ def test_reference_rows_read_exactly_as_on_main(tmp_path):
         ("U-channel 30", (_yaw(up, 30.0), ut1), (3, "slabs", 1.000003)),
         ("chamfered square 22.5 (#628)", (_yaw(ch, 22.5), ch_t), (1, "prism", 1.000001)),
         ("lattice 3x3x3 (#623)", _lattice(3), (27, "boxes", 1.0)),
+        # inverted BY DESIGN by #634 (was (1, "kept", 1.137931): the honest prism); every other row as on main
         ("flush lug 12 (#634)", _face_pair((2.0, 6.0, 3.0), (0.5, 1.0, 0.5), (-1.25, 2.5, 1.25), 12.0),
-         (1, "kept", 1.137931)),
+         (4, "slabs", 1.0)),
     ]
     for name, (pts, tris), expect in rows:
         got = _row(tmp_path, pts, tris)

@@ -1,0 +1,2 @@
+# a member FLUSH with another member's edge decomposes into its slabs (#634); synthesised IFC4 text only
+tests/test_ifc_assembly_634.py
