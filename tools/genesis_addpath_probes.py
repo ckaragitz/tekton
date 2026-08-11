@@ -149,7 +149,7 @@ from rvt.objects import ObjectDecoder, iter_records                # noqa: E402
 from rvt.partitions import StreamWalker                              # noqa: E402
 from rvt.reduce import (Rec, reblock, split_records, unframe_exact, # noqa: E402
                         verify_reduced, PART_HDR_LEN, PART_HDR_COUNT_OFF)
-from rvt.roundtrip import read_entries                              # noqa: E402
+from rvt.roundtrip import read_entries, read_streams                # noqa: E402
 from rvt.streams_edit import elemtable_add_element, INVALID_ID      # noqa: E402
 from rvt.writer import gzip_member                                  # noqa: E402
 
@@ -1191,7 +1191,7 @@ def certify(out: str, pr: Probe, mats: Dict[str, Material], build_info: dict) ->
     k1, x0, x0k = mats["K1"], mats["X0"], mats["X0k"]
     tmpl = mats[pr.template]
     eid = _target_id(pr.factors["id"])
-    probe_raw = {e.path: e.data for e in read_entries(out) if e.entry_type == "stream"}
+    probe_raw = read_streams(out)
     pmat = load_material(out)
 
     # (1) per-stream byte diff tables

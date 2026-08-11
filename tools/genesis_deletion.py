@@ -95,7 +95,7 @@ from rvt.reduce import delete_elements, verify_reduced             # noqa: E402 
 from rvt.mutate import Document                                    # noqa: E402
 from rvt.validate import validate_file                             # noqa: E402
 from rvt import famload                                            # noqa: E402  (four_registry_census)
-from rvt.roundtrip import read_entries                             # noqa: E402
+from rvt.roundtrip import read_streams                             # noqa: E402
 from rvt.genesis import residue_a as RA                            # noqa: E402  (curtain_constellation + residue census)
 
 # ---------------------------------------------------------------------------
@@ -932,8 +932,7 @@ def stream_identity(base: str, out: str) -> dict:
     re-emits ONLY the element partition + Global/ElemTable; everything else
     (Global/Latest, ContentDocuments, PartitionTable, History, DIT, identity)
     must be byte-identical."""
-    a = {e.path: e.data for e in read_entries(base) if e.entry_type == "stream"}
-    b = {e.path: e.data for e in read_entries(out) if e.entry_type == "stream"}
+    a, b = read_streams(base), read_streams(out)
     same, diff = [], []
     for p in sorted(set(a) | set(b)):
         (same if a.get(p) == b.get(p) else diff).append(p)

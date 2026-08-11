@@ -1,0 +1,2 @@
+# rvt.roundtrip.read_streams contract on the pinned bases (fresh-clone safe)
+tests/test_read_streams_677.py
