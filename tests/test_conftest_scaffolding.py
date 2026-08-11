@@ -15,7 +15,9 @@ in ``tests/conftest.py`` (issue #579, Refs #566 / #533 / #518 / #451):
   ``rewrite_stream(s)`` re-emit a pin with the named stream(s) damaged or dropped,
   ready-made entries appended, and every other stream byte-identical (a missing
   name is a KeyError); ``twin_partition_entry`` is the primary partition under the
-  next stream number; the damaged-copy recipes produce what their names say.
+  next stream number; the damaged-copy recipes produce what their names say; the
+  ``pin`` fixture is the first ``FOREIGN_FIRST`` pin and ``streams`` is the
+  container's every stream, raw, by path (#670).
 
 Fresh-clone safe: the pins are tracked assets; no pin -> the pin-backed rows skip.
 
@@ -41,15 +43,17 @@ from rvt import versions as V                                   # noqa: E402
 #: container -- "read the entries, replace some, write_cfb" under whatever names (#639).  A builder (``write_cfb`` on
 #: entries it authored) or a reader (``read_entries`` for a census) alone is not the pass and stays green.
 REWRITE_PASS = {"read_entries", "write_cfb"}
-#: conftest's own-release scaffolding: no test module may shadow one of these at top level (checked below to still BE
-#: conftest names, so the list cannot outlive a rename)
+#: conftest's own-release scaffolding (+ #670's pinned-base ``pin`` fixture and ``streams`` reader): no test module
+#: may shadow one of these at top level (checked below to still BE conftest names, so the list cannot outlive a rename);
+#: a module that needs another pin axis takes another fixture name (``params=`` on a private ``pin`` is still a copy)
 SHADOWS = {"FOREIGN_FIRST", "FOREIGN", "native_constants", "ladder_constants", "no_release_leak", "rewrite_streams",
            "rewrite_stream", "partition_of", "twin_partition_entry", "zero_partition_header", "zero_schema_bytes",
-           "smash64", "flip_bit", "truncated_copy", "cfb_header_zeroed_copy"}
+           "smash64", "flip_bit", "truncated_copy", "cfb_header_zeroed_copy", "pin", "streams"}
 #: + the retired per-file spellings that actually existed and that the shape rule cannot see: the ``NATIVE_LAST`` axis
-#: and #579's private copies, and #617's bytes-damage / extra-entry recipe names (they write no container)
+#: and #579's private copies, #617's bytes-damage / extra-entry recipe names (they write no container), and the
+#: four-fold ``_streams`` census #670 hoisted (its ``pin`` twin is caught as a shadow)
 FORBIDDEN = SHADOWS | {"NATIVE_LAST", "_native_constants", "_no_leak", "_rewrite_stream", "_partition_of",
-                       "_zero16", "_smash64", "_flip_bit", "_twin_entry"}
+                       "_zero16", "_smash64", "_flip_bit", "_twin_entry", "_streams"}
 #: the files #579 / #602 relieved of an autouse leak guard of their own: each keeps conftest's switched on module-wide
 ADOPTERS = ["test_selfcheck_release", "test_inspect_release", "test_edit_text_release",
             "test_natively_framed", "test_estorage_cli_release", "test_edit_own_release",
@@ -144,17 +148,14 @@ def test_offset_damage_recipes_are_what_their_names_say():
         C.flip_bit(raw, len(raw))
 
 
-@pytest.fixture(scope="module")
-def pin() -> str:
-    if not C.CERTIFIED_YEARS:
-        pytest.skip("no certified pinned base")
-    return C.pinned_base(C.FOREIGN_FIRST[0])
-
-
-def _streams(path) -> dict:
-    """``{stream path: raw bytes}`` of the container at ``path``."""
-    from rvt.roundtrip import read_entries
-    return {e.path: e.data for e in read_entries(path) if e.entry_type == "stream"}
+def test_pin_is_the_first_foreign_first_pin_and_streams_is_its_every_stream_raw(pin):
+    from rvt.container import open_rvt
+    assert pin == C.pinned_base(C.FOREIGN_FIRST[0])                                   # what the four copies resolved
+    got = C.streams(pin)
+    with open_rvt(pin) as doc:                                                        # the container reader as oracle
+        names = [s.name for s in doc.streams()]
+        assert sorted(got) == sorted(names)                                           # every stream, no storage
+        assert all(got[n] == doc.raw(n) for n in names)                               # raw = still paged
 
 
 def test_rewrite_stream_damages_one_stream_and_keeps_the_rest_byte_identical(pin, tmp_path):
@@ -162,11 +163,11 @@ def test_rewrite_stream_damages_one_stream_and_keeps_the_rest_byte_identical(pin
     assert pname.startswith("Partitions/")
     out = C.rewrite_stream(pin, tmp_path / "hz.rvt", pname, C.zero_partition_header)
     assert out == str(tmp_path / "hz.rvt") and os.path.isfile(out)
-    before, after = _streams(pin), _streams(out)
+    before, after = C.streams(pin), C.streams(out)
     assert set(after) == set(before)
     assert after[pname] == C.zero_partition_header(before[pname]) != before[pname]
     assert all(after[p] == before[p] for p in before if p != pname)
-    dropped = set(_streams(C.rewrite_stream(pin, tmp_path / "nolatest.rvt", "Formats/Latest", None)))
+    dropped = set(C.streams(C.rewrite_stream(pin, tmp_path / "nolatest.rvt", "Formats/Latest", None)))
     assert "Formats/Latest" not in dropped and pname in dropped
     with pytest.raises(KeyError):
         C.rewrite_stream(pin, tmp_path / "never.rvt", "No/Such/Stream", C.zero_partition_header)
@@ -178,13 +179,13 @@ def test_rewrite_streams_damages_drops_and_appends_in_one_pass(pin, tmp_path):
     twin = C.twin_partition_entry(pin, C.zero_partition_header)
     head, n = pname.rsplit("/", 1)
     assert twin.path == "%s/%d" % (head, int(n) + 1) and twin.entry_type == "stream"
-    before = _streams(pin)
+    before = C.streams(pin)
     assert twin.path not in before and twin.data == C.zero_partition_header(before[pname])
     assert C.twin_partition_entry(pin).data == before[pname]                          # no damage = verbatim
     out = C.rewrite_streams(pin, tmp_path / "multi.rvt",
                             {pname: lambda raw: C.smash64(raw, 280), "Formats/Latest": None}, extra=[twin])
     assert out == str(tmp_path / "multi.rvt")
-    after = _streams(out)
+    after = C.streams(out)
     assert set(after) == (set(before) - {"Formats/Latest"}) | {twin.path}
     assert after[pname] == C.smash64(before[pname], 280) and after[twin.path] == twin.data
     assert all(after[p] == before[p] for p in before if p not in (pname, "Formats/Latest"))
