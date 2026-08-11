@@ -30,7 +30,6 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from conftest import ladder_constants                       # noqa: E402
 from rvt import partitions as P                            # noqa: E402
 from rvt import versions as V                              # noqa: E402
-from rvt.famgen import factory as FF                       # noqa: E402
 
 GEN = os.path.join(ROOT, "plugin", "assets", "genesis")
 BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
@@ -46,8 +45,8 @@ pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values
 
 @pytest.fixture
 def release_leak_extra():
-    """The readers climb the instrument ladder: watch what it swaps too -- its Global-stream tokens included."""
-    return lambda: dict(ladder_constants(), **{"FF.CD_SEPARATOR": FF.CD_SEPARATOR, "FF.CD_END_RECORD": FF.CD_END_RECORD})
+    """The readers climb the instrument ladder: watch what it swaps, too."""
+    return ladder_constants
 
 
 def _seed_audit():

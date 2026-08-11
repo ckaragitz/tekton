@@ -4,7 +4,8 @@
 **Session:** eng #707 (cloud, `cse_01VagXDwxJmZZw2Qu9UQQZF9`), started by the tech-lead session. **Base:** `main` @
 `6f33fb7` (#708; #709 = `86af708` is in). Index: `docs/inbox/shard-docs-audit.md` (left untouched, as #605's fragment
 did). Written in this engineer's voice; no other record edited. Tests + this record only: **nothing under `src/`,
-`tools/`, `plugin/`, `skills/`, and `tests/conftest.py` untouched** (the call-scan helper stays in the law module).
+`tools/`, `plugin/`, `skills/`**; `tests/conftest.py` touched only for the two-list re-aim of round 2, per the tech-lead ruling
+recorded on #711 (https://github.com/ckaragitz/tekton/pull/711#issuecomment-5257584194) -- the call-scan helper stays in the law module.
 
 ## Why
 
@@ -45,19 +46,19 @@ autouse `_no_release_leak`).** By the issue's four names alone: 21 callers / 9 g
 | `test_famdoc_scan_fp` | `RC.release_build_context` (278) | **no** | adopted, `context_constants` |
 | `test_famload_2025` | `RC.host_release_context` ×5, `RC.release_build_context`, `GF.reading`, `V.reading` (+ `GF.bound`) | **no** (private autouse `_restored` over a 12-tuple `_native_state`) | adopted; private guard folded into its `release_leak_extra` (below) |
 | `test_famload_batch` | `RC.host_release_context` (401) | **no** | adopted, `context_constants` |
-| `test_frontdoor` | `RC.release_build_context` (753, 1215), `enter_own_release` (1682) | **no** | adopted, `context_constants` **minus the two lazy schema caches** (finding below) |
+| `test_frontdoor` | `RC.release_build_context` (753, 1215), `enter_own_release` (1682) | **no** | adopted, `context_constants` (round 1: minus the two lazy schema caches -- finding below; round 2: plain, the caches left `context_constants()` itself) |
 | `test_gates_shared_walk` | `release_build_context` (98) | **no** (after-only autouse `_constants_restored`) | adopted, `context_constants`; private guard deleted |
 | `test_history_head_guid` | `release_build_context` (54, 98) | **no** | adopted, `context_constants` |
 | `test_objects_plans` | `enter_own_release` (54), `release_build_context` (319) | **no** | adopted, `context_constants` (see "corpus" note) |
 | `test_partition_header_verdict` | `release_build_context` (119, module fixture `edited` -- enters and exits inside) | **no** | adopted, `context_constants` |
 | `test_target2025` | `RC.release_build_context` (363, 384), `V.reading` (287, 330) | **no** | adopted, `context_constants` |
-| `test_verify_manipulated_release` | `release_build_context` (73), `V.reading` (116) | **no** (after-only `_constants_restored`) | adopted, `context_constants` **minus the two lazy schema caches**; private guard deleted |
+| `test_verify_manipulated_release` | `release_build_context` (73), `V.reading` (116) | **no** (after-only `_constants_restored`) | adopted, `context_constants` (plain since round 2, as above); private guard deleted |
 | `test_validate_footer_blob` | `VA.enter_own_release` (72, 93, 223) | **no** | adopted, `ladder_constants` |
 | `test_codec_bases` | `reading32` (73, the `base` fixture) | **no** (after-only `_constants_restored`) | adopted, `ladder_constants`; private guard deleted |
 | `test_estorage_catalog_2024` | `GF.reading` (89) | **no** | adopted, `ladder_constants` |
 | `test_genesis_2023` | `V.reading` (158, 179), `records32.reading32` (226) | **no** | adopted, `ladder_constants` (rows sample-gated here) |
 | `test_records32` | `R32.reading32` (496, 511, 529) | **no** | adopted, `ladder_constants` |
-| `test_readers_own_release` | `V.reading` (141); its readers climb the ladder inside `python -m rvt.census` etc. in-process | **no** (private `_constants_restored` over a `_native_state` tuple: framing + `FF.CD_SEPARATOR` / `CD_END_RECORD` + `ADOC._DECODER`) | adopted, `ladder_constants` + the two `FF.CD_*` tokens it already watched; private guard deleted |
+| `test_readers_own_release` | `V.reading` (141); its readers climb the ladder inside `python -m rvt.census` etc. in-process | **no** (private `_constants_restored` over a `_native_state` tuple: framing + `FF.CD_SEPARATOR` / `CD_END_RECORD` + `ADOC._DECODER`) | adopted, `ladder_constants` (which carries the two `FF.CD_*` tokens it already watched since round 2); private guard deleted |
 | `test_validate_release` | `V.reading` (62); `validate_file` climbs the ladder in-process | **no** (after-only `_constants_restored`) | adopted, `ladder_constants`; private guard deleted |
 | `test_framing_by_name` | `V.reading` (69, 82, 109) -- the `enter_own_release` at 139/170 is inside a subprocess literal | **no** | adopted, no extra (bare framing context = exactly `native_constants()`) |
 | `test_manipulate_import_context` | `V.reading` (157) -- the three doors at 41-58 are subprocess literals | **no** | adopted, no extra |
@@ -100,14 +101,18 @@ law's `test_native_and_ladder_constants_snapshot_what_a_context_rebinds` (`nativ
 `_restored` is left out on /simplify's advice (it would convict an unrelated cwd/env-restoring fixture one day, and the
 by-call row already catches the regression that matters -- dropping the guard).
 
-**Two hand-adds that are really gaps in conftest's lists** (recorded for the same conftest follow-up, not fixed here):
-`GF.bound()` swaps `FF.CD_SEPARATOR`, `FF.CD_END_RECORD` and `GSK.EMPTY_CONTENT_DOCUMENTS` (`global_framing.py:114-124`)
-but `ladder_constants()` -- "the ONE list to grow when the ladder learns to swap another name" -- lists none of the
-three, which is the only reason `test_readers_own_release` and `test_famload_2025` carry their extra keys; likewise
-`FSK.FOOTER_TAG`, `GT._STATE`, `FF.FORMATS_LATEST_SHA256_PREFIX` are `_release_context` swaps outside
-`context_constants()`'s ten, and `P.TERMINATOR` / `P._find_block_header` are `versions.activate` rebinds outside
-`native_constants()`. Grow the three lists (or read them from #706's export) and both files collapse to
-`return ladder_constants` / a plain union.
+**Two hand-adds that were really a gap in conftest's ladder list -- closed in round 2 (per the tech-lead ruling
+recorded on #711).** `GF.bound()` swaps `FF.CD_SEPARATOR`, `FF.CD_END_RECORD` and `GSK.EMPTY_CONTENT_DOCUMENTS`
+(`global_framing.py:114-124`) but `ladder_constants()` -- "the ONE list to grow when the ladder learns to swap another
+name" -- listed none of the three, which was the only reason `test_readers_own_release` and `test_famload_2025`
+hand-added keys in round 1. `ladder_constants()` now carries all six (`iter_records`, `adoc_decoder`,
+`family_end_record`, `cd_separator`, `cd_end_record`, `empty_content_documents`; its docstring names `bound`'s `saved`
+list as the source), so `test_readers_own_release` hands plain `ladder_constants` (its `FF` import went) and
+`test_famload_2025`'s `_lane_constants()` = ladder ∪ context ∪ exactly the **four** keys neither list carries yet:
+`P.TERMINATOR` (`versions.activate`'s derived rebind, outside `native_constants()`) and three `_release_context` swaps
+outside `context_constants()`'s names -- `FSK.FOOTER_TAG` (the family writer's framing copy), `GT._STATE` (the
+constructor codec state), `FF.FORMATS_LATEST_SHA256_PREFIX` (the family Formats/Latest pin). Those four (and
+`P._find_block_header`) are #706's to fold when the lists derive from the engine's own tables.
 
 ## Finding: two of `context_constants()`'s ten watches are lazy NATIVE caches, and convict a first native build (not a leak)
 
@@ -138,15 +143,22 @@ appear on the first native skeleton build in a process (`genesis/skeleton.py:188
 tripped either because their rows only drive foreign pins or edits; the isolation sweep below shows which of the new
 adopters would.
 
-**What this PR does about it (territory: not `conftest.py`, not `src/`):** the two modules measured red take
-`context_constants` minus those two cache keys through their own `release_leak_extra` (a dict comprehension over
-`context_constants()`, docstring naming this finding) -- the other eight write-side names stay watched there, and every
-other adopter keeps the full ten (isolation sweep below: none of them trips). **What should happen next (noted on #706,
-whose export is where the list stops being hand-picked):** the export classifies what `_release_context` *swaps* (a
+**What this PR does about it.** Round 1 (territory then: not `conftest.py`) trimmed the two cache keys per file in the
+two modules measured red. Round 2, per the tech-lead ruling recorded on #711 (territory extended to exactly this
+`tests/conftest.py` change): **`context_constants()` itself drops `SA._SCHEMA_STATE` and `GSK._SCHEMA_CACHE`** (ten →
+the eight swapped names; its docstring says why -- native caches `_release_context` snapshots-and-restores, not swapped
+constants; cites the 668-process sweep and #706), the per-file trims are gone, and every write-side adopter --
+`test_frontdoor` and `test_verify_manipulated_release` included -- hands plain `context_constants`. The law's #605
+behaviour row follows truthfully: its spelled-out key set is the eight, and inside `host_release_context(<foreign pin>)`
+every name but the refusal registry must move (`swapped ⊇ set(before) − {"RC._REFUSED"}`; measured on the 2024 pin: all
+seven move, `RC._REFUSED` stands), all eight equal their before after exit; #579's ladder row now spells out the six
+ladder keys and gained the same kind of engine pin (inside `GF.reading(<foreign pin>)` every token + the decoder move --
+`iter_records` only for a ≤ 2023 file -- on the native pin only the decoder is re-bound; `bound()`'s restore puts all
+six back). **What should still happen in #706 (noted there):** the export classifies what `_release_context` *swaps* (a
 constant outside any context: equality is the contract) apart from the three live dicts it *snapshots and restores*
 (`GSK._SCHEMA_CACHE`, `port._STATE`, `SA._SCHEMA_STATE` -- caches: the only contract is "back to the pre-context value
 when a context was entered", never absolute equality across a native test), and `context_constants()` reads that
-classification; then the two per-file trims here are a pure delete. (A tempting one-liner -- watch
+classification, so the eight stop being hand-mirrored too. (A tempting one-liner -- watch
 `SA._SCHEMA_STATE.get("is_corpus_constant", True)` instead of the dict -- only moves the false positive to the owner's
 machine: it is a sha proxy, and a native `install_schema()` on any 2026 host whose `Formats/Latest` is not the corpus
 sha flips it with no context entered. /simplify's altitude pass caught that; not proposed.)
@@ -280,19 +292,34 @@ for the two identical cache trims (no in-territory home: conftest is out of boun
 another drags its collection along; both copies cite #706, which deletes them). `/verify` skipped -- tests + a record
 only (`No-Verification-Needed: tests-only`).
 
+**Round 2 (the conftest re-aim, per the ruling on #711) -- re-measured.** File order, `RVT_SKIP_LARGE=1 -q -rs`:
+every ladder / context adopter identical to round 1 and to `main` -- `test_conftest_scaffolding` 19 passed (ids
+unchanged from round 1), `test_frontdoor` 85p 5s, `test_verify_manipulated_release` 7p, `test_readers_own_release` 22p,
+`test_famload_2025` 8p, `test_release_ctx_refusal` 15p (ids identical for all five), and `test_codec_bases` 39p 1x,
+`test_edit_own_release` 11p, `test_edit_status` 9p, `test_edit_text_release` 7p, `test_estorage_catalog_2024` 15p,
+`test_estorage_cli_release` 10p, `test_genesis_2023` 14p 13s, `test_inspect_release` 13p, `test_records32` 32p 1x,
+`test_reduce_v2_655` 10p, `test_reduce_v2_671` 13p, `test_rvt_edit_refusal` 11p, `test_validate_footer_blob` 10p,
+`test_validate_release` 7p. One test per fresh process over the six re-aimed modules (161 processes): **0 red** in
+`test_frontdoor` (90), `test_verify_manipulated_release` (7), `test_readers_own_release` (22), `test_famload_2025` (8),
+`test_conftest_scaffolding` (19), `test_release_ctx_refusal` (15). Mutations (reverted): M1 / M2 red as in round 1; **M9**
+`ladder_constants()` loses `cd_separator` → `test_native_and_ladder_constants_snapshot_what_a_context_rebinds` red;
+**M10** `context_constants()` regains `SA._SCHEMA_STATE` → `test_context_constants_snapshot_what_the_write_side_swaps`
+red; clean = 10 passed. **Whole merged shard on the round-2 tree: 2591 passed, 137 skipped, 3 xfailed** = main − 8
+again (the law's id count did not change in round 2: two rows re-spelled, none added or removed).
+
 ## Follow-ups (searched first)
 
 * **#706** (existing) gets a comment with the finding and the two list gaps above -- that export is where
   `context_constants()` / `ladder_constants()` stop being hand-picked and where the cache/constant classification
   belongs; no new issue needed for it.
-* No new issue for `test_famdoc_scan_fp`'s red row: it is #12's known false-positive class on the real bundled universe
-  (the test's own docstring says "any window collision is named, not fatal" -- the assertion disagrees with the
-  docstring today); left to the famgen sessions that hold that territory, flagged in the report.
+* No new issue for `test_famdoc_scan_fp`'s red row: it is #12's false-positive class on the real bundled universe and
+  already tracked as open **#561** (same test, same three ids); a one-line pointer went on #12; left to the famgen
+  sessions that hold that territory.
 
 ## Open questions
 
-One, for the tech lead: allow the three-list widening / cache re-aim in `tests/conftest.py` in THIS PR (then the two
-trims and the two hand-added key sets go), or keep it for #706 as written. Either is a small commit on this branch.
+None. Round 1's question (do the conftest re-aim here or in #706?) is answered by the tech-lead ruling recorded on #711:
+here; done in round 2.
 
 ## BRANCH STATE
 
@@ -300,11 +327,12 @@ trims and the two hand-added key sets go), or keep it for #706 as written. Eithe
 * **Files written:** 28 test modules = the 26 unguarded callers named in the census table + `test_genesis_identity`
   (guard wiring only: `pytestmark`, `release_leak_extra`, imports; six private guards removed) + `tests/test_conftest_scaffolding.py` (a caller too, and the law:
   `CONTEXT_ENTRY_POINTS`, `ADOPTERS` dict, `EXPECTED_UNGUARDED`, `_context_callers`, two rows, `FORBIDDEN`, docstring,
-  its own guard), this fragment. NOT `tests/conftest.py`, nothing under `src/` `tools/` `plugin/` `skills/`, none of the
-  other sessions' test files. No CI-shard drop-in needed (no new test module).
-* **Gates:** as above -- ids identical per module (law 27 → 19 explained), outcomes identical, isolation sweep clean,
-  probe bites, eight law mutations red/green as designed, merged shard = main − 8 law ids, portable ok, validate_plugin
-  PASS.
+  its own guard; the two behaviour rows re-aimed in round 2), `tests/conftest.py` (round 2 only, per the ruling on #711:
+  `context_constants()` 10 → 8 keys, `ladder_constants()` 3 → 6 keys, two docstrings -- nothing else), this fragment.
+  Nothing under `src/` `tools/` `plugin/` `skills/`, none of the other sessions' test files. No CI-shard drop-in needed.
+* **Gates:** as above -- ids identical per module (law 27 → 19 explained), outcomes identical, isolation sweeps clean in
+  both rounds, probe bites, law mutations red/green as designed (+ the two conftest-list mutations of round 2), merged
+  shard = main − 8 law ids in both rounds, portable ok, validate_plugin PASS.
 * **Staged vs shipped:** nothing staged (no viewer claim, no output files).
 * **Not merged by this session** (regime #302): head SHA reported to the tech-lead session for sandboxed CI + independent
   review; fixes, if any, land on this branch.

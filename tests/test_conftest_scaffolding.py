@@ -15,7 +15,7 @@ in ``tests/conftest.py`` (issue #579, Refs #566 / #533 / #518 / #451):
   certified years with the native release last; ``native_constants`` /
   ``ladder_constants`` / ``context_constants`` snapshot the framing table /
   the ladder's swaps / the names the authoring context swaps (and a foreign
-  context really moves the latter and puts them back, #605);
+  pin really moves the latter two and puts them back, #605 / #707);
   ``rewrite_stream(s)`` re-emit a pin with the named stream(s) damaged or dropped,
   ready-made entries appended, and every other stream byte-identical (a missing
   name is a KeyError); ``twin_partition_entry`` is the primary partition under the
@@ -200,27 +200,35 @@ def test_foreign_first_puts_the_native_release_last():
         assert C.FOREIGN_FIRST[-1] == V.LATEST_RELEASE
 
 
-def test_native_and_ladder_constants_snapshot_what_a_context_rebinds():
+def test_native_and_ladder_constants_snapshot_what_a_context_rebinds(pin):
+    from rvt import global_framing as GF
     plain, ladder = C.native_constants(), C.ladder_constants()
     table = V.framing_table(V.LATEST_RELEASE)
     assert plain == dict(table, active_release=None)
-    assert set(ladder) == {"iter_records", "adoc_decoder", "family_end_record"} and not set(ladder) & set(plain)
+    assert set(ladder) == {"iter_records", "adoc_decoder", "family_end_record",      # spelled out: a dropped watch is red HERE
+                           "cd_separator", "cd_end_record", "empty_content_documents"} and not set(ladder) & set(plain)
+    with GF.reading(pin):                                         # the ladder's top rung on a foreign pin moves every token
+        inside = C.ladder_constants()                             # + the decoder (iter_records only for a <= 2023 file);
+        swapped = {k for k in ladder if inside[k] != ladder[k]}   # on the native pin only the decoder is re-bound
+        floor = {"adoc_decoder"} if V.detect_release(pin) == V.LATEST_RELEASE else set(ladder) - {"iter_records"}
+        assert swapped >= floor, sorted(floor - swapped)
+    assert C.ladder_constants() == ladder                         # and bound()'s restore puts every one back
 
 
 def test_context_constants_snapshot_what_the_write_side_swaps(pin):
     from rvt.frontdoor import release_ctx as RC
     before = C.context_constants()                                # spelled out like the ladder row: a dropped watch is red HERE
     assert set(before) == {"RC._REFUSED", "MU.CLASS_ELEMENT_HEADER", "MU.CLASS_SWALL", "MU.CLASS_FAMILY_INSTANCE",
-                           "GSK.minimal_history", "GSK.minimal_elemtable", "GSK._SCHEMA_CACHE",
-                           "SA.bundled_base_path", "SA.family_instance_template", "SA._SCHEMA_STATE"}
+                           "GSK.minimal_history", "GSK.minimal_elemtable",
+                           "SA.bundled_base_path", "SA.family_instance_template"}       # the eight swapped names, no cache (#707)
     assert not set(before) & (set(C.native_constants()) | set(C.ladder_constants()))   # additive: nothing shadowed
     with RC.host_release_context(pin) as info:                    # a foreign pin swaps them; the native pin enters nothing
         inside = C.context_constants()
         swapped = {k for k in before if inside[k] != before[k]}
         if info is None:
             assert swapped == set()
-        else:                                                     # every swapped NAME moves (the two registries need not)
-            assert swapped >= set(before) - {"RC._REFUSED", "GSK._SCHEMA_CACHE"}, sorted(set(before) - swapped)
+        else:                                                     # every swapped NAME moves (the refusal registry need not)
+            assert swapped >= set(before) - {"RC._REFUSED"}, sorted(set(before) - swapped)
     assert C.context_constants() == before                        # and the LIFO restore puts every one back
 
 

@@ -48,15 +48,14 @@ pytestmark = [pytest.mark.skipif(not (os.path.isfile(BASE25) and os.path.isfile(
 # ---------------------------------------------------------------------------
 
 def _lane_constants() -> dict:
-    """The module singletons this lane's contexts swap, past the framing table conftest's guard always
-    watches: the ladder's and the write side's lists, plus the Global-stream tokens, the constructor
-    codec state and the family-writer constants this file snapshotted before it took the shared guard."""
+    """The module singletons this lane's contexts swap, past the framing table conftest's guard always watches: the
+    ladder's and the write side's lists, plus the four this file snapshotted before it took the shared guard that
+    neither list carries yet -- ``versions.activate``'s derived ``P.TERMINATOR`` and three ``_release_context`` swaps
+    (the family-writer framing copy, the constructor codec state, the family Formats/Latest pin; #706 folds them)."""
     from rvt.famgen import factory as FF, skeleton as FSK
-    from rvt.genesis import skeleton as GSK, types as GT
+    from rvt.genesis import types as GT
     return dict(ladder_constants(), **context_constants(),
-                **{"P.TERMINATOR": P.TERMINATOR, "FF.CD_SEPARATOR": FF.CD_SEPARATOR,
-                   "FF.CD_END_RECORD": FF.CD_END_RECORD, "GSK.EMPTY_CONTENT_DOCUMENTS": GSK.EMPTY_CONTENT_DOCUMENTS,
-                   "FSK.FOOTER_TAG": FSK.FOOTER_TAG, "GT._STATE": sorted(GT._STATE),
+                **{"P.TERMINATOR": P.TERMINATOR, "FSK.FOOTER_TAG": FSK.FOOTER_TAG, "GT._STATE": sorted(GT._STATE),
                    "FF.FORMATS_LATEST_SHA256_PREFIX": FF.FORMATS_LATEST_SHA256_PREFIX})
 
 

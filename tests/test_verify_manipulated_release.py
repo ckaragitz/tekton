@@ -40,11 +40,8 @@ pytestmark = [pytest.mark.skipif(not all(os.path.isfile(p) for p in BASES.values
 
 @pytest.fixture
 def release_leak_extra():
-    """``no_release_leak`` watches the names the authoring context swaps too -- minus its two lazy schema caches: this
-    file's NATIVE builds fill / re-point ``SA._SCHEMA_STATE`` and ``GSK._SCHEMA_CACHE`` by design (a first
-    ``bundled_schema()`` on a corpus-less machine, an ``install_schema(target)``), which is no release leak (#707's
-    finding; #706 re-aims those two watches at the release-relevant bit, and this trim goes)."""
-    return lambda: {k: v for k, v in context_constants().items() if k not in ("SA._SCHEMA_STATE", "GSK._SCHEMA_CACHE")}
+    """``no_release_leak`` watches the names the authoring context swaps too, not the framing table alone."""
+    return context_constants
 
 
 def _tamper_102(*, extra: bytes = b"", stamp_delta: int = 0):
