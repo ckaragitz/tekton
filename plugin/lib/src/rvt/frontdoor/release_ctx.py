@@ -98,17 +98,12 @@ import struct
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple
 
 from .. import versions as V
+from .._clause import cause_clause          # re-exported: the front door's callers import it from here
 
 __all__ = ["ReleaseContextError", "UnreadableHost", "native_release",
            "needs_release_context", "release_build_context",
            "host_release_context", "enter_host_release", "refused",
            "active_release", "cause_clause"]
-
-#: a layer's own error rides in ``.why`` / a refusal note as a CLAUSE at most
-#: this long (the exception stays whole where it is chained or listed): a
-#: parser's hex context is noise in a sentence a skill relays verbatim, and
-#: in front of the reason it pushes the reason out of a status cut (#574)
-_CAUSE_MAX = 80
 
 
 class ReleaseContextError(RuntimeError):
@@ -120,33 +115,29 @@ class UnreadableHost(ReleaseContextError):
     """The file cannot be probed for its release at all: it is not a readable
     CFB container (text, truncated mid-sector), or its own ``Formats/Latest``
     class schema does not parse.  ``.path`` is the file (as handed in),
-    ``.why`` the one sentence a caller relays -- the layer's error named by
-    type and its first clause; the whole error is ``__cause__``."""
+    ``.what`` names what could not be read, the layer's whole error is
+    ``__cause__``, and ``.why`` is the one sentence a caller relays: ``.what``
+    plus that error as a clause (``rvt._clause.cause_clause``, #574)."""
 
-    def __init__(self, path: str, why: str):
+    def __init__(self, path: str, what: str, cause: BaseException):
         self.path = str(path)
-        self.why = why
-        super().__init__(f"{self.path}: {why}")
+        self.what = what
+        self.__cause__ = cause                  # also what `raise ... from` records; set now so .why reads it
+        super().__init__(f"{self.path}: {self.why}")
 
+    @property
+    def why(self) -> str:
+        return f"{self.what} ({cause_clause(self.__cause__)})"
 
-def _clip(text: str, limit: int) -> str:
-    """``text`` as one line, whole when it fits ``limit``, else cut at the
-    last word boundary that keeps at least a third of it, ``...`` marking the
-    cut (the status sentence's rule, ``manifest._status_reason``)."""
-    text = " ".join(text.split())
-    if len(text) <= limit:
-        return text
-    keep = limit - len("...")
-    cut = text.rfind(" ", 0, keep + 1)
-    return text[:cut if cut >= limit // 3 else keep].rstrip(" ,;:-(") + "..."
-
-
-def cause_clause(e: BaseException) -> str:
-    """``Type: first clause`` of ``e`` for a sentence (the bare type name when
-    there is no message).  The exception itself is not touched -- keep it
-    chained / listed whole next to the sentence."""
-    text = _clip(str(e), _CAUSE_MAX)
-    return f"{type(e).__name__}: {text}" if text else type(e).__name__
+    def why_with(self, primary: BaseException) -> str:
+        """``.why`` for a caller whose own attempt on the file died on
+        ``primary``: said once when that IS the layer's error (a damaged
+        schema fails the probe and the open alike), else ``.what`` and the
+        primary as a second clause -- two findings, e.g. a truncated foreign
+        host: an empty schema stream AND a partition that does not walk
+        (#587).  Not ``what (primary)``: that would read as the cause."""
+        clause = cause_clause(primary)
+        return self.why if clause == cause_clause(self.__cause__) else f"{self.what}; {clause}"
 
 
 #: the info dict of the ACTIVE non-default release context (None outside one).
@@ -187,8 +178,7 @@ def _detect_release(path: str) -> Optional[int]:
     try:
         return V.detect_release(path)
     except Exception as e:               # noqa: BLE001 -- a container that does not open IS the finding
-        raise UnreadableHost(
-            path, f"not a Revit container tekton can open ({cause_clause(e)})") from e
+        raise UnreadableHost(path, "not a Revit container tekton can open", e) from e
 
 
 def _port_module(year: int):
@@ -212,8 +202,7 @@ def _codec_triple_from_base(base_path: str, year: int):
         schema = schema_of(base_path)
     except Exception as e:               # noqa: BLE001 -- a schema stream that does not read IS the finding
         raise UnreadableHost(
-            base_path, "its Formats/Latest class schema cannot be read "
-            f"({cause_clause(e)})") from e
+            base_path, "its Formats/Latest class schema cannot be read", e) from e
     want = V.KNOWN_RELEASES[year].schema_sha256
     got = schema.sha256
     if want and got != want:
@@ -302,8 +291,8 @@ def _classify_release(path: str, *, host: bool):
     year = _detect_release(path)
     if year is None:
         raise ReleaseContextError(
-            f"cannot detect the Revit release of {path} -- refusing to "
-            "guess the emit framing")
+            f"cannot detect the Revit release of {os.path.basename(path)} "
+            "-- refusing to guess the emit framing")
     if year == native_release():
         return year, None, None
     rel = V.KNOWN_RELEASES.get(year)
@@ -400,8 +389,8 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
             return
         raise ReleaseContextError(
             f"a Revit {active['release']} release context is active; cannot "
-            f"enter a Revit {year} context for {path} inside it (one release "
-            "per process scope -- exit the outer context first)")
+            f"enter a Revit {year} context for {os.path.basename(path)} inside "
+            "it (one release per process scope -- exit the outer context first)")
     dec, enc, schema = _codec_triple_from_base(path, year)
 
     saved: List[Tuple[Any, str, Any]] = []

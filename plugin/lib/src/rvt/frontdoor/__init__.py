@@ -655,18 +655,20 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
     except Exception as e:                                           # noqa: BLE001
         # errors[0] is the sentence the status relays: the input by NAME (#573;
         # its path is inputs.rvt) and the reason as a clause -- a host the
-        # release context could not even probe says THAT (the open failure is
-        # the same fact, illegibly); errors[1] keeps every layer's words (#574)
+        # release context could not even probe says THAT first, then what
+        # stopped the open unless it is the same error (#587); errors[1]
+        # keeps every layer's whole words (#574)
         from .release_ctx import UnreadableHost, cause_clause, refused
         named = f"cannot open/plan {os.path.basename(rvt_path)}: "
         tail = f" ({ctx_note})" if ctx_note else ""
-        unreadable, clause = refused(rvt_path), cause_clause(e)
+        unreadable = refused(rvt_path)
         if isinstance(unreadable, UnreadableHost):
-            errors.append(named + unreadable.why + ("" if clause in unreadable.why else f" ({clause})"))
+            sentence = named + unreadable.why_with(e)
         else:
-            errors.append(named + clause + tail)
+            sentence = named + cause_clause(e) + tail
+        errors.append(sentence)
         full = f"{named}{type(e).__name__}: {e}{tail}"
-        if full != errors[0]:
+        if full != sentence:
             errors.append(full)
 
     run: Dict[str, Any] = {}

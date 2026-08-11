@@ -25,6 +25,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from .base import GenesisPin, ResolvedBase, PIN, repo_root
 from .. import _jsonsafe
+from .._clause import clip
 
 __all__ = ["TOOL", "TOOL_VERSION", "file_facts", "crud_affordances",
            "coverage_cross_reference", "census_gaps", "authorship_census_note",
@@ -546,18 +547,9 @@ _STATUS_REASON_MAX = 160        # errors[0] rides whole in `FAILED (...)` up to 
 
 def _status_reason(error: Any) -> str:
     """One line of ``error`` for the status sentence a skill relays verbatim:
-    whole when it fits :data:`_STATUS_REASON_MAX`, else cut at the last word
-    boundary that keeps at least a third of it (never mid-word unless one
-    token is that long), trailing clause punctuation dropped, ``...`` marking
-    the cut."""
-    text = " ".join(str(error).split())
-    if len(text) <= _STATUS_REASON_MAX:
-        return text
-    keep = _STATUS_REASON_MAX - len("...")
-    cut = text.rfind(" ", 0, keep + 1)                # a boundary at or before `keep`
-    if cut < _STATUS_REASON_MAX // 3:
-        cut = keep
-    return text[:cut].rstrip(" ,;:-(") + "..."
+    whole when it fits :data:`_STATUS_REASON_MAX`, else cut at a word
+    boundary with ``...`` (``rvt._clause.clip`` -- the one rule)."""
+    return clip(str(error), _STATUS_REASON_MAX)
 
 
 def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,

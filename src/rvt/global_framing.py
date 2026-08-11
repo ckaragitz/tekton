@@ -44,6 +44,8 @@ from collections import OrderedDict
 from contextlib import ExitStack, contextmanager
 from typing import Any, Dict, Iterator, Mapping, Optional
 
+from ._clause import cause_clause
+
 __all__ = ["tokens", "bound", "reading", "enter_own_release", "schema_of"]
 
 #: ``versions.schema_of`` results by (abspath, size, mtime_ns).  NOT a parse
@@ -154,7 +156,7 @@ def enter_own_release(stack: ExitStack, path: str) -> Optional[str]:
         stack.enter_context(reading(path))
         return None
     except Exception as e:                           # corrupt / schema-less input
-        cause = f"{type(e).__name__}: {e}"
+        cause = cause_clause(e)                      # words, not the parser's byte dump (#587)
     try:
         year = V.detect_release(path)
         ords = stack.enter_context(V.reading(year=year))   # UnknownRelease if None

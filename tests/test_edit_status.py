@@ -10,13 +10,15 @@ whole, ``edit.rc`` unchanged; a job that DID run and returned rc != 0 keeps
 composition and every successful (PROOF-ONLY) status are byte-identical.
 
 Sample-free: the "cannot open" inputs are a 64 KB truncation of the tracked
-native-release genesis pin and a schema-damaged copy of the certified 2025
-pin, written under a deliberately long (>= 100 character) tmp directory: the
-sentence names the input by basename so the reason survives the status cut,
-while the absolute path stays in the manifest's ``inputs.rvt`` (issue #573);
-the reason itself rides as short clauses -- a host whose own class schema
-cannot be read says THAT inside the cut, and the layers' whole errors follow
-in ``errors[1]`` (issue #574).  The grammar miss and the good edit run on the
+native-release genesis pin, the same truncation of the certified 2025 pin,
+and a schema-damaged copy of the 2025 pin, written under a deliberately long
+(>= 120 character) tmp directory: the sentence names the input by basename
+so the reason survives the status cut, while the absolute path stays in the
+manifest's ``inputs.rvt`` (issue #573); the reason itself rides as short
+clauses -- a host whose own class schema cannot be read says THAT inside the
+cut (the open failure once when it is the same error, as a second finding
+after it when it is not, #587), and the layers' whole errors follow in
+``errors[1]`` (issue #574).  The grammar miss and the good edit run on the
 2025 pin itself.  Fresh-clone runnable (CI shard drop-in
 tests/ci_shard.d/559-edit-status.txt).
 
@@ -44,7 +46,7 @@ from rvt.frontdoor import manifest as MF                     # noqa: E402
 GRAMMAR_MISS = "set level L1 elevation 3.5"          # no `to`, no unit: not in the grammar
 GOOD_EDIT = "set level 311 elevation to 1 ft"        # "L1 - Ground Floor", on every pin
 GOOD_STATUS = "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)"   # main's, verbatim
-LONG_DIR_MIN = 100                                   # a cloud / tmp path is about this long
+LONG_DIR_MIN = 120                                   # a cloud / tmp upload path is about this long
 
 
 @pytest.fixture(scope="module")
@@ -58,15 +60,27 @@ def long_dir(tmp_path_factory):
     return d
 
 
-@pytest.fixture(scope="module")
-def trunc64k(long_dir):
-    """The NATIVE pin cut at 64 KB: a valid CFB header, its release still
-    detected, broken streams -- no release context is involved for a native
-    host, so the walker's finding is the whole reason on its own."""
-    dst = os.path.join(long_dir, "trunc64k.rvt")
-    with open(pinned_base(V.LATEST_RELEASE), "rb") as fh, open(dst, "wb") as out:
+def _cut_at_64k(year: int, dst: str) -> str:
+    """The pin of ``year`` cut at 64 KB: a valid CFB header, its release
+    still detected, broken streams."""
+    with open(pinned_base(year), "rb") as fh, open(dst, "wb") as out:
         out.write(fh.read(64 * 1024))
     return dst
+
+
+@pytest.fixture(scope="module")
+def trunc64k(long_dir):
+    """The NATIVE pin cut at 64 KB -- no release context is involved for a
+    native host, so the walker's finding is the whole reason on its own."""
+    return _cut_at_64k(V.LATEST_RELEASE, os.path.join(long_dir, "trunc64k.rvt"))
+
+
+@pytest.fixture(scope="module")
+def trunc64k_2025(long_dir):
+    """The 2025 pin cut at 64 KB: the open fails on the walker AND the host
+    cannot be probed (its ``Formats/Latest`` inflates to nothing) -- two
+    findings, both owed inside the cut (#587)."""
+    return _cut_at_64k(2025, os.path.join(long_dir, "trunc64k_2025.rvt"))
 
 
 @pytest.fixture(scope="module")
@@ -139,6 +153,9 @@ def test_long_reason_is_cut_at_a_word_boundary_within_the_limit():
     assert len(reason) == MF._STATUS_REASON_MAX
     # multi-line reasons ride as one line
     assert _edit_manifest(errors=["a\nb  c"])["status"] == "FAILED (a b c)"
+    # and the cut is THE clip rule (rvt._clause), not a copy that can drift again (#587)
+    from rvt._clause import clip
+    assert MF._status_reason(words) == clip(words, MF._STATUS_REASON_MAX)
 
 
 def test_job_that_ran_and_failed_keeps_its_rc_sentence():
@@ -209,14 +226,34 @@ def test_schema_damaged_host_status_says_its_schema_cannot_be_read(schema_dmg, t
     assert r.ok is False and not r.files
     man = json.loads((tmp_path / "s" / "manifest.json").read_text())
     assert (r.status, r.errors) == (man["status"], man["errors"])
-    # the host could not even be probed: THAT is the sentence, legible inside the cut ...
+    # the host could not even be probed: THAT is the sentence, whole, in words (no byte dump) ...
     _assert_named_not_pathed(man, schema_dmg, "its Formats/Latest class schema cannot be read",
                              "(ParseError: parse error at 0x")
+    assert man["status"] == f"FAILED ({r.errors[0]})" and "@0x" not in r.errors[0]
     whole, = r.errors[1:]                       # ... and every layer's words ride whole, once, behind it
-    assert whole.startswith("cannot open/plan schema_dmg.rvt: ParseError: parse error at 0x")
+    assert whole.startswith("cannot open/plan schema_dmg.rvt: ParseError: parse error at 0x") and " | " in whole
     assert "(no release context for schema_dmg.rvt: its Formats/Latest class schema cannot be read " \
-        "(ParseError: " in whole and "; read side: own schema unreadable (" in whole
+        "(ParseError: " in whole and "; read side: own schema unreadable (ParseError: " in whole
     assert f"**Status:** {r.status}" in (tmp_path / "s" / "MANIFEST.md").read_text()
+
+
+def test_truncated_foreign_host_status_carries_both_findings(trunc64k_2025, tmp_path):
+    """The open fails on the walker; the release probe fails on the (empty)
+    schema stream: the status leads with what could not be read and names
+    the error that stopped the open after it -- both inside the cut -- and
+    every layer's whole words (the empty/truncated-schema sentence included)
+    ride once behind it in ``errors[1]`` (#587)."""
+    r = FD.author(rvt=trunc64k_2025, edit=GOOD_EDIT, out=str(tmp_path / "t"))
+    assert r.ok is False and not r.files
+    man = json.loads((tmp_path / "t" / "manifest.json").read_text())
+    assert (r.status, r.errors) == (man["status"], man["errors"])
+    _assert_named_not_pathed(man, trunc64k_2025, "its Formats/Latest class schema cannot be read; ",
+                             "RuntimeError: ", "walker errors")
+    whole, = r.errors[1:]
+    assert whole.startswith("cannot open/plan trunc64k_2025.rvt: RuntimeError: Partitions/")
+    assert "(no release context for trunc64k_2025.rvt: its Formats/Latest class schema cannot be read " \
+        "(ParseError: " in whole and "; read side: own schema unreadable (ParseError: " in whole
+    assert "truncated schema stream)" in whole and "..." not in whole   # the parser's one sentence, whole (#569)
 
 
 def test_good_edit_status_unchanged(tmp_path):

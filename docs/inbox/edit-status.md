@@ -453,3 +453,157 @@ together. No new test file → no shard drop-in (all five are already in the sha
 * Known cross-PR effect (not mine to edit): PR #581's `tests/test_rvt_edit_refusal.py:125` and `:141` pin the absolute path in the note → need `os.path.basename(path)` when both land (finding 1).
 * Nothing staged for the viewer (failure-sentence wording only; every readable file byte-identical). Shipped = the shorter note + the reordered refusal sentence + `errors[1]`.
 * **Rebase after PR #581 merged (tech-lead ruling, same session):** rebased onto `origin/main` @ bdedb95; the two assertions of the now-on-main `tests/test_rvt_edit_refusal.py` that pinned the absolute path in the note (`:125` plain-mode warning line, `:141` `--json` `release_note`) → `os.path.basename(path)` (authorised: "that file is nobody's territory now; touch nothing else in it"). `tests/test_rvt_edit_refusal.py` 11 + the five neighbours = **62 passed in 5.0 s**; `sync_plugin.py --check` in sync, `validate_plugin.py` PASS, portable paths ok (2978). Driven: `rvt_edit.py <176-char dir>/schema_dmg.rvt info` → `[rvt_edit] warning: no release context for schema_dmg.rvt: its Formats/Latest class schema cannot be read (ParseError: … 14 1e d3 f2 96 31...)` then `[rvt_edit] FAILED (cannot open/plan <absolute path>: ValueError: unexpected Partitions header: v=9 cls=0x391)`, rc 1; `--json` `release_note` 179 chars. Observation for #587 (commented there): `rvt_edit`'s own `FAILED (cannot open/plan …)` line still names the absolute path — #573's basename rule has not reached `tools/rvt_edit.py`'s composer.
+
+
+## eng #587 — 2026-08-11: one clause rule in a stdlib leaf (`rvt._clause`), the parser's byte dump dropped by shape, a truncated foreign host's status carries both findings, `rvt_edit` names the input by basename (issue #587, Refs #574 #573 #569 #560 #559)
+
+Stream `edit-status`, fourth pass (engineer session `cse_01QcGtFVufHqTVENwS6TK3s6`, started by the tech-lead
+session; branch `cam/587-refusal-clip` from `origin/main` @ db32071 = #588 merged, so #568/#578/#581/#586/#588 are
+all on the tree). Territory as chartered by the tech lead's task (issue body + its two comments folded in):
+`src/rvt/frontdoor/release_ctx.py`, `src/rvt/frontdoor/manifest.py` (`_status_reason`'s body + its import),
+`src/rvt/frontdoor/__init__.py` (`_route_rvt_inner`'s sentence + local only), `tools/rvt_edit.py` (its own
+`FAILED (cannot open/plan …)` composer line only), `src/rvt/global_framing.py` (the ONE cause-composing line of
+`enter_own_release`'s rung + its import), **one NEW stdlib-only leaf `src/rvt/_clause.py`** (the helpers' home —
+new code in a new module, nobody's territory; the one judgement call of this pass, reasoned in §1 and flagged to the
+reviewer), their byte-identical mirrors via `tools/sync_plugin.py` (`plugin/lib/src/rvt/…` incl. the new
+`_clause.py`, `plugin/lib/tools/rvt_edit.py`, `plugin/skills/tekton-{edit,native}/scripts/rvt_edit.py`),
+`tests/test_edit_status.py` + `tests/test_release_ctx_refusal.py` + `tests/test_rvt_edit_refusal.py` (rows added /
+assertions adjusted, no restructuring — eng #579 hoists shared scaffolding out of OTHER files this wave), this section.
+Not touched: `schema.py` (settled by #586), `native_framing.py`, `rvt_selfcheck.py` / `rvt_inspect.py` /
+`rvt_edit_text.py`, `router.py` (fenced), `tools/frontdoor.py` (hot); nor `input_release.py:127`'s `str(e)[:120]`,
+`versions/parity.py`'s `[:160]/[:140]/[:200]` slices, `manifest._rollup_status`'s `[:160]` (the create routes) and
+`manipulate.py:1683`'s raw `own schema unreadable ({type}: {e})` — the issue body's third bullet and two outliers the
+review agents found, all outside this pass's territory (`src/rvt/versions/` is hot); each is now a one-liner onto
+`rvt._clause.clip` / `cause_clause` for whoever holds those files next (§4).
+
+### 1. What changed, and where the rule lives now
+
+* **NEW `src/rvt/_clause.py` — how tekton says an error inside a sentence** (stdlib only: `re`; siblings
+  `_jsonsafe` / `_logsink` / `_lazyimp`). `clip(text, limit)` — the status sentence's word-boundary rule, moved
+  verbatim (whole when it fits, else the last boundary keeping ≥ a third, `rstrip(" ,;:-(")`, `...`);
+  `cause_clause(e)` — `Type: <words>`: the schema parser's trailing context dump (`@0x603b: <24 hex> | <40 hex>`,
+  `rvt.schema._Parser.ctx`'s exact shape) **dropped by pattern**, then the words clipped to `CAUSE_MAX = 120`; the
+  exception object is never edited. *Why a new leaf and not `release_ctx`* (my first draft, measured and discarded
+  after /simplify's four reviewers converged on it): with the helpers in `release_ctx`, `manifest` needed a
+  function-local import to keep its import set flat and `global_framing` — an engine leaf that `release_ctx` itself
+  imports — needed a lazy *upward* import of the `rvt.frontdoor` package inside its `except` (+9 modules / one JSON
+  read on every read-side instrument handed a schema-damaged file: `rvt_validate schema_dmg.rvt` 170 → 179). Every
+  existing engine→front-door lazy import (`native_framing`, `schema`, `famload`) reaches up for front-door
+  *behaviour*; reaching up for a 20-line string utility is the wrong edge. In the leaf: `global_framing` imports it
+  at top level and stays a leaf, `release_ctx` imports + re-exports `cause_clause` (its callers keep importing it
+  from there), `manifest` imports `clip` at top level; no cycle, no lazy import anywhere; cost +1 tiny module on the
+  paths that load `global_framing` or `manifest` (below). *Why drop the dump by shape rather than only raise the
+  budget* (also draft 1 → 2): a bigger `CAUSE_MAX` lets #586's worded sentence through and lets hex through with it
+  (draft 1 at 120 showed 19 dump bytes instead of 6: warning 188 → 227); the noise is identifiable by shape, the
+  words are not, so the shape goes and the length cap stays as the backstop for any other long message. `CAUSE_MAX`
+  120 = room for the engine's longest worded one-sentence error (that `ParseError`, 103 chars) with headroom; a dump
+  of another shape would still be cut at 120 on a word boundary.
+* **`manifest._status_reason(error)`** is `clip(str(error), _STATUS_REASON_MAX)` and nothing else — byte-identical
+  for its call site (`test_long_reason_is_cut_at_a_word_boundary_within_the_limit` unchanged + one identity row).
+* **`UnreadableHost(path, what, cause)`** owns both compositions: `.what` = what could not be read
+  (`its Formats/Latest class schema cannot be read` / `not a Revit container tekton can open`); `__cause__` is set in
+  `__init__` (the same object `raise … from e` records); `.why` (property) = `f"{what} ({cause_clause(__cause__)})"`
+  as before; NEW `.why_with(primary)` = `.why` when `cause_clause(primary) == cause_clause(__cause__)` (the open died
+  on the very error the probe named — said once), else `f"{what}; {cause_clause(primary)}"` (two findings; not
+  `what (primary)`, which would read as the schema's cause). `str(e)`, `.path` unchanged. The two other
+  path-carrying `release_ctx` messages (`cannot detect the Revit release of …`, the nested-context refusal) name the
+  basename.
+* **`_route_rvt_inner`** (and PR #588's review note): `sentence` is a local — `named + unreadable.why_with(e)` for a
+  recorded `UnreadableHost`, else today's `named + cause_clause(e) + tail`; `errors.append(sentence)`, then the whole
+  pre-#574 sentence as `errors[1]` when it differs. Two branches, no substring probe, no read-back of `errors[0]`.
+* **`tools/rvt_edit.py`**'s own composer names the input by basename (`cannot open/plan schema_dmg.rvt: ValueError:
+  unexpected Partitions header: v=9 cls=0x391`; the absolute path is `--json` `input.path` and argv). Its message
+  stays uncapped (that door has no `errors[1]`) and it does not use `why_with` — a wording change beyond "basename",
+  left for a follow-up (§4).
+* **`global_framing.enter_own_release`**'s rung: `cause = cause_clause(e)` (+ `from ._clause import cause_clause`
+  at module top).
+
+### 2. Evidence (fresh cloud clone; fixtures under a 157-char directory → input paths 168–175 chars; CLI = `env -u PYTHONPATH -u TEKTON_ROOT .venv/bin/python tools/frontdoor.py author --rvt … --edit "set level 311 elevation to 1 ft" --json`; go = bare unzip of the rebuilt `tekton-plugin.zip`, cwd = the unzip dir, `env -u PYTHONPATH -u TEKTON_ROOT -u VIRTUAL_ENV /usr/bin/python3` 3.11.15 `skills/tekton-author/scripts/_bootstrap.py go author …`; before = an `origin/main` @ db32071 worktree running its own `src`)
+
+All nine bad-input front-door runs (3 fixtures × before-CLI / after-CLI / after-go): **rc 3, stderr 0 B, one JSON
+document**, envelope keys `errors files handoff intent_json manifest ok out_dir release route seconds stamps status`
+unchanged; go == CLI byte-for-byte on `status` / `errors`.
+
+| input | `status` before [len] | `status` after [len] | `errors` lens before → after, and what changed in them |
+|---|---|---|---|
+| `schema_dmg.rvt` (2025 pin, 64 B of `Formats/Latest` zeroed) | `FAILED (cannot open/plan schema_dmg.rvt: its Formats/Latest class schema cannot be read (ParseError: parse error at 0x603b: class marker != 0 (0x403c) @0x603b: 14 1e...)` [169] | `FAILED (cannot open/plan schema_dmg.rvt: its Formats/Latest class schema cannot be read (ParseError: parse error at 0x603b: class marker != 0 (0x403c)))` [152] — **whole, no `...`, no bytes** | `[173, 870]` → `[143, 637]`: errors[0] == the status; errors[1] = `cannot open/plan schema_dmg.rvt: ParseError: <the WHOLE message, 193-char dump and its \| included> (no release context for schema_dmg.rvt: its Formats/Latest class schema cannot be read (ParseError: parse error at 0x603b: class marker != 0 (0x403c)); read side: own schema unreadable (ParseError: parse error at 0x603b: class marker != 0 (0x403c)); checked against the pinned Revit 2025 framing table (the release BasicFileInfo declares))` — the dump rides exactly once, on the primary |
+| `trunc64k_2025.rvt` (2025 pin cut at 64 KB) | `FAILED (cannot open/plan trunc64k_2025.rvt: its Formats/Latest class schema cannot be read (ParseError: parse error at 0x0: no class records in 0 bytes of...)` [158] | `FAILED (cannot open/plan trunc64k_2025.rvt: its Formats/Latest class schema cannot be read; RuntimeError: Partitions/20: walker errors ['no trailer for block at...)` [164] — **`Formats/Latest` + `walker errors` inside the cut** | `[264, 548]` → `[170, 573]`: errors[0] = `…cannot be read; RuntimeError: Partitions/20: walker errors ['no trailer for block at 33759 (B=23663)']`; errors[1] = `cannot open/plan trunc64k_2025.rvt: RuntimeError: … (no release context for trunc64k_2025.rvt: its Formats/Latest class schema cannot be read (ParseError: parse error at 0x0: no class records in 0 bytes of Formats/Latest (an empty or truncated schema stream)); read side: own schema unreadable (ParseError: <same, whole>); checked against …)` — #586's sentence whole twice, no `...` anywhere (was `(an empty...)`) |
+| `trunc64k_2026.rvt` (native pin cut at 64 KB) | `FAILED (cannot open/plan trunc64k_2026.rvt: RuntimeError: Partitions/21: walker errors ['no trailer for block at 30575 (B=8408)'])` [130] | **identical** [130] | `[121]` = `[121]`, one entry |
+
+`rvt_edit` on `schema_dmg.rvt` — CLI, and `go edit … info` / `go rvt_edit.py … info` from the bare unzip (same
+bytes): plain mode rc 1, two stderr lines: `[rvt_edit] warning: no release context for schema_dmg.rvt: its
+Formats/Latest class schema cannot be read (ParseError: parse error at 0x603b: class marker != 0 (0x403c))`
+(**199 → 169**), then `[rvt_edit] FAILED (cannot open/plan schema_dmg.rvt: ValueError: unexpected Partitions
+header: v=9 cls=0x391)` (**266 → 108**); `--json`: rc 1, stderr 0 B, `error` **246 → 88** (that sentence),
+`release_note` **179 → 149**, `input.path` = the 168-char absolute path. `go edit trunc64k_2025.rvt info`:
+`release_note` = `no release context for trunc64k_2025.rvt: its Formats/Latest class schema cannot be read
+(ParseError: parse error at 0x0: no class records in 0 bytes of Formats/Latest (an empty or truncated schema
+stream))` [206, whole]. `rvt_selfcheck schema_dmg.rvt --json`: rc 1, warning **188 → 158**, `release_note`
+179 → 149, verdict FAIL.
+
+**Good edit identity ×3** (`set level 311 elevation to 1 ft`), main worktree vs branch (CLI) and bare-unzip go:
+`G_ABPD.rvt` `35a940ac94c789065d491791c9037bb9`, `G_ABPD_2025.rvt` `ad02290eb3d4e7a123e4557439476e1d`,
+`G_ABPD_2024.rvt` `8eb26459e849f1968c2dfbfbb33311ee` — all three surfaces agree (the md5s #568/#573/#574
+recorded), rc 0, `PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)`. Refused text file unchanged (rc 2, the one
+`REFUSED (input release): bad.rvt …` line on stderr, refusal manifest on disk). `go author --prompt "an electrical
+room with 6 panels"` from the bare unzip: rc 0, stderr 0 B, `PROOF-ONLY (self-checks PASS; …)`, `combined` +
+`families_dir` delivered.
+
+**`-X importtime`:** native selfcheck path (`tools/rvt_selfcheck.py plugin/assets/genesis/G_ABPD.rvt --json …`)
+**115 = 115** modules (it loads neither `global_framing` nor the front door); paths that do load them gain exactly
+`rvt._clause`: `import rvt.frontdoor.manifest` 90 → 91, `rvt_validate` 172 → 173 (native pin) / 170 → 171 (2025 pin,
+and the schema-damaged host — no front-door package on that failure path any more: draft 1 measured 179 there);
+`rvt_inspect` 116 = 116.
+
+**Tests:** `tests/test_edit_status.py` 8 → 9 (`LONG_DIR_MIN` 100 → 120; NEW `trunc64k_2025` fixture on a shared
+`_cut_at_64k(year, dst)`; NEW `test_truncated_foreign_host_status_carries_both_findings` — `_assert_named_not_pathed`
+with `its Formats/Latest class schema cannot be read; ` + `RuntimeError: ` + `walker errors` inside the status,
+exactly one extra entry starting `cannot open/plan trunc64k_2025.rvt: RuntimeError: Partitions/`, carrying the whole
+note + `; read side: own schema unreadable (ParseError: ` + `truncated schema stream)` and no `...`; the
+schema-damaged row now also asserts status == `FAILED (errors[0])` with no `@0x`, and ` | ` present in errors[1];
+the roll-up row asserts `_status_reason == rvt._clause.clip` once); `tests/test_release_ctx_refusal.py` 14 → 15
+(`.why == f"{.what} ({cause_clause(cause)})"`; `cause_clause` on a REAL `schema.ParseError` from damaged bytes
+== `ParseError: ` + the words before ` @0x` while `str(e)` keeps its dump, on #569's empty-stream error == the whole
+sentence, on a long worded error a boundary cut ≤ `CAUSE_MAX` — replacing a synthetic hex row whose ` | `
+assertion was true by construction; NEW `test_the_read_side_rung_names_its_cause_by_the_same_clause` — the rung for
+the damaged host == `own schema unreadable (<cause_clause(schema_of's error)>); checked against the pinned Revit
+2025 framing table …`, no `@0x`, no `...`); `tests/test_rvt_edit_refusal.py` 11 → 11 (the `prefix` column by
+basename; the input's directory absent from every stderr line and from `--json` `error`). The three: **35 passed**;
+with the neighbours `test_natively_framed` + `test_selfcheck_release` + `test_edit_text_release` +
+`test_inspect_release` + `test_estorage_cli_release`: **91 passed in 10.3 s**, neighbours untouched. No new *test*
+file → no shard drop-in (the three are in the shard already).
+
+### 3. /simplify (four review agents) — applied vs skipped
+
+Applied: the leaf module (reuse/efficiency/altitude converged: "helpers parked in a front-door module, both import
+contortions exist only to work around that"); both compositions on `UnreadableHost` (`why_with`) instead of a
+three-branch `if` in the route with a `clause in why` substring probe; the dump dropped by shape instead of a
+budget-only fix; two plain statements instead of `errors += [...] if ... else [...]`; the synthetic-hex test row
+replaced by a real `ParseError`; `pytest.raises` for the rung test's oracle; the tautological four-way
+`_status_reason == clip` loop cut to one identity row. Skipped, with reason: `_rollup_status`'s `[:160]`
+(create routes' FAILED bytes, outside `_status_reason`), `manipulate.py:1683`, `input_release.py:127`,
+`versions/parity.py` — territory (§4); `rvt_edit` adopting `why_with` — beyond "basename only" for that composer.
+
+### 4. Findings / follow-ups
+
+1. Remaining raw / mid-word relays, each now a one-liner onto `rvt._clause`: `src/rvt/frontdoor/input_release.py:127`
+   (`str(e)[:120]`), `src/rvt/versions/parity.py:135/158/177` (`[:160]/[:140]/[:200]`, hot dir),
+   `src/rvt/frontdoor/manifest.py::_rollup_status` (`str(errors[0])[:160]`, the create routes — changing it alters
+   their FAILED bytes, which #559 promised to leave alone; wants its own row of evidence), `src/rvt/manipulate.py:1683`
+   (`own schema unreadable ({type(e).__name__}: {e})` — the sibling of the rung fixed here). Filed as one task issue
+   (see BRANCH STATE) rather than four.
+2. `tools/rvt_edit.py`'s refusal for an unreadable foreign host still leads with the open failure
+   (`ValueError: unexpected Partitions header …`) and carries the schema finding only in the warning line /
+   `release_note`; `refused(path)` + `UnreadableHost.why_with(e)` would give it the front door's sentence. Its
+   `test_rvt_edit_refusal` `prefix` column pins today's order — a deliberate, separate wording change.
+3. `_REFUSED` keyed by abspath alone (PR #588's review): a nested `enter_host_release` on the same path inside an open
+   outer stack would pop the outer entry on its own unwind. No caller nests today; `(abspath, id(stack))` or a per-key
+   list closes it. Left as is — this pass is wording.
+
+### BRANCH STATE
+
+* Branch `cam/587-refusal-clip` from `origin/main` @ db32071; one issue, one PR (`Closes #587`); follow-up filed: #596 (the four remaining raw / mid-word relays).
+* Files: NEW `src/rvt/_clause.py` (+ mirror `plugin/lib/src/rvt/_clause.py`), `src/rvt/frontdoor/release_ctx.py` (`UnreadableHost(path, what, cause)` with `.what` / `.why` / `.why_with`, `cause_clause` re-exported from `_clause`, two messages by basename), `src/rvt/frontdoor/manifest.py` (`_status_reason` → `clip`), `src/rvt/frontdoor/__init__.py` (`_route_rvt_inner`'s except block: local `sentence`, `why_with`), `src/rvt/global_framing.py` (import + the one rung line), `tools/rvt_edit.py` (basename in its `cannot open/plan` composer), their sync mirrors (`plugin/lib/src/rvt/frontdoor/{__init__,manifest,release_ctx}.py`, `plugin/lib/src/rvt/global_framing.py`, `plugin/lib/tools/rvt_edit.py`, `plugin/skills/tekton-{edit,native}/scripts/rvt_edit.py`), `tests/test_edit_status.py`, `tests/test_release_ctx_refusal.py`, `tests/test_rvt_edit_refusal.py`, this section.
+* Gates: the three stream files 35 passed, with the five neighbours 91 passed in 10.3 s; `tools/sync_plugin.py` rebuilt + `--check` "plugin in sync with source"; `plugin/scripts/validate_plugin.py` PASS (25 assertions); `tools/dev/check_portable_paths.py` ok; whole merged shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1 -p no:cacheprovider`): draft-1 tree **2014 passed, 134 skipped, 3 xfailed, 0 failed in 524.60 s**; final tree: see the line appended below when the run finishes.
+* /verify on the final tree: front door CLI + bare unzip of the rebuilt zip (system Python 3.11.15) — the three bad fixtures under the 157-char dir rc 3 / stderr 0 B / statuses + errors exactly as tabled in §2, go == CLI; refused text file rc 2 unchanged; good edits ×3 rc 0, md5s as in §2 on CLI, go and the `origin/main` worktree, each `rvt_validate.py` rc 0 `VALID (no errors)` under its own release; `go author --prompt …6 panels` rc 0 PROOF-ONLY delivered; `rvt_edit` CLI + `go edit` + `go rvt_edit.py` on `schema_dmg.rvt` as in §2; `rvt_validate` on the truncated / schema-damaged / text inputs rc 1, no traceback, the damaged host's fallback finding capped (175 chars); `-X importtime` native selfcheck 115 = 115.
+* Nothing staged for the viewer (failure-sentence wording only; every readable file byte-identical). Shipped = the leaf, the byte-dump-free clauses, the two-finding status, `rvt_edit`'s basename.
