@@ -1309,3 +1309,148 @@ def test_a_famspec_only_fallback_still_says_no_ifc_rides(tmp_path):
     assert not any(n.endswith(".ifc") for n in os.listdir(str(out)))
     line = tv["line"]
     assert "cannot open it" in line and "IFC alongside" not in line and "no IFC rides" in line
+
+
+# ---------------------------------------------------------------------------
+# eng #621: two members sharing a FACE never lose the smaller one -- nesting
+# is never judged from ON the other ring's boundary
+# ---------------------------------------------------------------------------
+
+def _face_pair(big, lug, off, yaw_deg):
+    """A ``big`` = (w, d, h) m block on the origin and a ``lug`` = (w, d, h)
+    block at ``off`` = (ox, oy, oz) with one lug face lying IN a block face
+    (coplanar and overlapping -- not merely a corner line), yawed about Z.
+    Two shells, 1-based triangles, coordinates rounded to the micron exactly
+    as ``write_ifc``'s ``%.6f`` keeps them (so a mesh volume computed here IS
+    the volume of the file's mesh)."""
+    big_p, big_t = _box_mesh(*big)
+    lug_p, lug_t = _box_mesh(*lug, ox=off[0], oy=off[1], oz=off[2])
+    n = len(big_p)
+    pts = _yaw(list(big_p) + list(lug_p), yaw_deg)
+    return ([tuple(round(c, 6) for c in p) for p in pts],
+            list(big_t) + [(a + n, b + n, c + n) for a, b, c in lug_t])
+
+
+#: (block, lug, lug offset, yaw): a 1 x 4 x 4 m upright slab carrying a 0.5 m
+#: cube stud, and a 2 x 6 x 3 m block carrying a 0.5 x 1 x 0.5 m lug -- studs
+#: and lugs of 0.7-0.8 % of the body, so the 2 % conservation slack could not
+#: see them go.  Every row loses the small member on dcda26e (main before this
+#: fix) in 17 to 41 of its 41 triangle orders: 140 silent losses in 205 runs,
+#: each authoring 0.9922-0.9931 of the mesh with no kept_prism and no caveat.
+_FACE_PAIRS = [
+    ((1.0, 4.0, 4.0), (0.5, 0.5, 0.5), (0.75, 0.0, 0.0), 5.0),        # stud at the base, mid-face
+    ((1.0, 4.0, 4.0), (0.5, 0.5, 0.5), (-0.75, 0.0, 1.024), -5.0),    # stud up the other face
+    ((1.0, 4.0, 4.0), (0.5, 0.5, 0.5), (0.75, -0.75, 1.75), 20.0),    # off-centre, mid-height
+    ((2.0, 6.0, 3.0), (0.5, 1.0, 0.5), (-1.25, 0.969, 1.25), 12.0),   # lug half-way up the -x face
+    ((2.0, 6.0, 3.0), (0.5, 1.0, 0.5), (1.25, -1.668, 1.024), 12.0),  # lug on the +x face
+]
+
+
+def test_ring_nesting_survives_a_shared_edge():
+    """Two shells sharing a face slice into two rings sharing an EDGE, each
+    written with its own rounding.  When the small ring's copy of that edge
+    lands a micron INSIDE the big ring and the probe hugs it, the small SOLID
+    ring read as a hole.  Containment is now judged from a probe standing
+    clear of the other ring -- and either way round the answer is: two
+    solids, side by side."""
+    big = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    for dx in (-2e-6, 0.0, 2e-6):                       # inside big / exactly on it / outside
+        x = 10.0 + dx
+        lug = [[x, 5], [x, 4], [10.5, 4], [10.5, 5]]      # starts with the shared edge, its longest
+        assert AP.ring_nesting([lug, big]) == [0, 0], dx
+        assert AP.ring_nesting([big, lug]) == [0, 0], dx
+        assert AP.ring_nesting([lug[2:] + lug[:2], big]) == [0, 0], dx
+    # a hole is still a hole -- also one hugging the outer ring closer than
+    # MIN_EXTENT_FT along its longest side (the probe moves to another edge)
+    hole = [[0.0005, 8], [0.0005, 2], [5, 2], [5, 8]]
+    assert AP.ring_nesting([hole, big]) == [1, 0]
+    assert AP.ring_nesting([big, hole]) == [0, 1]
+    island = [[1, 4], [1, 3], [2, 3], [2, 4]]             # solid inside that hole
+    assert sorted(AP.ring_nesting([island, hole, big])) == [0, 1, 2]
+
+
+def test_interior_probes_are_one_per_edge_longest_first_and_never_a_vertex():
+    ring = [[0, 0], [4, 0], [4, 1], [3, 1], [3, 3], [0, 3]]          # an L
+    probes = list(AP._interior_probes(ring))
+    assert len(probes) == len(ring)
+    assert probes[0] == AP._interior_probe(ring)                    # the primary is unchanged
+    assert 0 < probes[0][1] < 1e-5                                  # just inside the 4-long base
+    for pt in probes:
+        assert AP._point_in_ring(pt, ring)
+        assert all(math.hypot(pt[0] - v[0], pt[1] - v[1]) > 1e-9 for v in ring)
+    # a zero-area sliver has no inside: its first vertex, as before
+    assert list(AP._interior_probes([[0, 0], [1, 0], [2, 0]])) == [(0.0, 0.0)]
+
+
+def test_a_probe_on_the_other_boundary_is_never_the_one_asked():
+    big = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    lug = [[10 - 2e-6, 5], [10 - 2e-6, 4], [10.5, 4], [10.5, 5]]
+    gen = AP._interior_probes(lug)
+    found = [next(gen)]
+    assert AP._clearance(found[0], big) < AP.MIN_EXTENT_FT             # the primary hugs big's edge
+    probe = AP._probe_clear_of(big, gen, found)
+    assert AP._clearance(probe, big) >= AP.MIN_EXTENT_FT and AP._point_in_ring(probe, lug)
+    assert not AP._point_in_ring(probe, big)
+    assert len(found) >= 2 and found[0] != probe                       # drawn lazily, cached
+    # no edge clear of the other ring (a duplicated shell): the first probe answers
+    gen = AP._interior_probes(big)
+    found = [next(gen)]
+    assert AP._probe_clear_of(big, gen, found) == found[0]
+
+
+def test_a_face_sharing_pair_never_loses_its_member(tmp_path):
+    """THE REGRESSION (present on main since the slab lane existed): a stud or
+    lug whose face lies IN a bigger member's face vanished without a word --
+    authored volume 0.7 % under the mesh, no kept_prism, no caveat -- in the
+    triangle orders that start the small ring on the shared edge with the
+    rounding falling inward.  Over 205 seeded orders of five such pairs: the
+    material is conserved (or the body is honestly kept as one prism), and in
+    fact every run decomposes into the block's slabs plus the member."""
+    runs = 0
+    for big, lug, off, yaw in _FACE_PAIRS:
+        pts, base = _face_pair(big, lug, off, yaw)
+        mesh = _mesh_ft3(pts, base)                          # order-invariant
+        lug_share = (lug[0] * lug[1] * lug[2]) / (big[0] * big[1] * big[2] + lug[0] * lug[1] * lug[2])
+        assert lug_share < 0.02                              # the premise: inside _conserves' slack
+        for tris in _triangle_orders(base):
+            p = write_ifc(str(tmp_path / "pair.ifc"), [("Pair", "IFCBUILDINGELEMENTPROXY", (pts, tris))])
+            m = AP.read_assembly(p)
+            authored = _authored_ft3(m)
+            runs += 1
+            assert authored >= mesh * (1.0 - 1e-6) or m.kept_prism, (big, off, yaw, len(m.parts), authored / mesh)
+            assert m.decomposed and m.decomposed[0]["method"] == "slabs", (big, off, yaw)
+            assert m.decomposed[0]["holes_filled"] == 0, (big, off, yaw)
+            assert len(m.parts) >= 3, (big, off, yaw, len(m.parts))   # block below/above + block & member
+            assert authored == pytest.approx(mesh, rel=1e-5), (big, off, yaw)
+    assert runs == 41 * len(_FACE_PAIRS)
+
+
+def test_face_sharing_at_zero_yaw_is_still_the_exact_box_lane(tmp_path):
+    """Control: unyawed, the same pairs are axis-aligned polyhedra and take
+    the box lane exactly (block + member = 2 boxes) -- untouched by this fix."""
+    for big, lug, off, _yaw_unused in (_FACE_PAIRS[0], _FACE_PAIRS[3]):
+        pts, base = _face_pair(big, lug, off, 0.0)
+        p = write_ifc(str(tmp_path / "pair0.ifc"), [("Pair", "IFCBUILDINGELEMENTPROXY", (pts, base))])
+        m = AP.read_assembly(p)
+        assert m.decomposed and m.decomposed[0]["method"] == "boxes" and m.decomposed[0]["exact"]
+        assert len(m.parts) == 2 and not m.kept_prism
+        assert _authored_ft3(m) == pytest.approx(_mesh_ft3(pts, base), rel=AP.EXACT_REL_TOL)
+
+
+def test_a_flush_face_pair_is_kept_as_one_honest_prism_not_lost(tmp_path):
+    """The neighbouring case this fix does NOT change, pinned so nobody
+    mistakes it for a regression: a lug FLUSH with the block's edge shares a
+    corner line as well as a face, its ring meets the block's at a junction
+    with two COINCIDENT spokes, `_junction_pairs` cannot pair those from the
+    material alone and refuses the slice -- so the body is delivered as one
+    prism that says so (rule 1), on main and here alike, at every triangle
+    order.  Never a silent loss; #634 owns resolving it."""
+    big, lug = (2.0, 6.0, 3.0), (0.5, 1.0, 0.5)
+    for off, yaw in (((-1.25, 2.5, 1.25), 12.0), ((1.25, 2.5, 0.0), 33.0)):   # lug's +y face flush with the block's
+        pts, base = _face_pair(big, lug, off, yaw)
+        mesh = _mesh_ft3(pts, base)
+        for tris in _triangle_orders(base, seeds=10):
+            p = write_ifc(str(tmp_path / "flush.ifc"), [("Flush", "IFCBUILDINGELEMENTPROXY", (pts, tris))])
+            m = AP.read_assembly(p)
+            assert m.kept_prism and "ambiguous slice" in m.kept_prism[0]["reason"], (off, yaw)
+            assert len(m.parts) == 1 and _authored_ft3(m) > mesh

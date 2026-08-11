@@ -1242,3 +1242,121 @@ alongside" clause before knowing whether an IFC is written, so `_settle_ifc_clau
 is already named as a follow-up in `_settle_ifc_clause`'s docstring and lives in
 `rvt.frontdoor._resolve_base_and_version` = `base.py`, a hot file. Merge is the tech lead's (regime
 #302); this session never merges.
+
+## eng #621 (2026-08-11): two members sharing a FACE never lose the smaller one
+
+**The defect (pre-existing on `main` at dcda26e; measured by #583's merge review as "~15/41 triangle
+orders", not a merge blocker then, filed as #621).** Two shells sharing a face — a stud, lug or plate
+whose face lies IN a bigger member's face — slice into two rings sharing an EDGE. Each shell's copy of
+that edge is written with its own rounding (`%.6f` STEP text, then the reader's own float path), so
+the small ring's edge lands 0.6–2 µm (measured: 6.4e-7 … 2.05e-6 ft) to one side or the other of
+the big ring's. `ring_nesting` probed each ring from just inside its LONGEST edge (eng #609's
+`_interior_probe`, nudged inward by 1e-6 of the edge = 3.3e-6 ft for a 1 m edge — the same size as
+the noise). Whenever the stitch happened to make the shared edge the small ring's first longest edge
+AND the rounding fell inward, the small SOLID ring read as depth 1 — a hole — and `decompose_slabs`
+dropped it (`holes_filled: 1`); a member under 2 % of the body sits inside `_conserves`' slack, so
+the slab set was accepted: **authored 0.9922–0.9931 of the mesh, no `kept_prism`, no caveat, and the
+route said `slab decomposition improved Pair (3 solids, fill 0.88 -> 1.01)`** — the `1.01` being the
+only tell. Which (placement × yaw) pairs lose is decided by sub-micron rounding, which orders lose by
+where the stitch starts: exactly the corner-contact mechanism of #609 moved from a shared vertex to a
+shared edge.
+
+Reproduction (this record's numbers are all `RVT_STEPLITE_FORCE=1`, fresh cloud clone, engine swapped
+under one script via `PYTHONPATH`, mesh volume taken from the micron-rounded coordinates the file
+actually carries — an unrounded reference reads a 1.3e-6 phantom "loss" into every yawed body):
+
+| set | dcda26e (main) | this branch |
+|---|---|---|
+| the test's 5 face pairs (1×4×4 m slab + 0.5 m stud ×3, 2×6×3 m block + 0.5×1×0.5 m lug ×2; yaws 5/−5/20/12/12) × 41 seeded triangle orders = 205 runs | **140 silent losses** (23/41, 18/41, 41/41, 17/41, 41/41), authored÷mesh 0.9922..0.9931; the other 65 runs slabs ×3/×4 at 1.000000 | **0 / 205**; 41 × slabs ×3 + 164 × slabs ×4, authored÷mesh 1.000000 every run, `holes_filled 0` |
+| block + lug, grid of 27 offsets × yaws {5,12,33,−5,−20,20} × 21 orders = 7560 | 219 lost (11 offset×yaw cells, all at 12°), rest slabs ×3/×4 | 0 lost, 0 kept — see BRANCH STATE |
+| slab + stud, 30 offsets × same yaws × 21 = 7560 | 249 lost (14 cells at 5°, −5°, ±20°) | 0 lost, 0 kept |
+| randomised face-sharing pairs (big ∈ {1..6}³ m, member 0.5–2 m, ±x/±y/top faces, centred / flush / random offsets, base / mid / top-flush / taller), 3 seeds × ~300 configs × yaws {0,5,12,33,−5} × 41 orders = **184 090 runs** | **40 silent losses** (17 + 23 + 0 per seed) + 102 honest "dropped material" prisms (the same mis-nesting when the member is > 2 %) + 32 636 "not decomposable" prisms | **0 silent losses, 0 "dropped material"** (those 102 now decompose and conserve); "not decomposable" **32 636 — identical per seed (10 619 / 10 865 / 11 152)**, see *the neighbouring case* below |
+| 10 named placements (mid-face, flush, off-centre, ±x/±y, plinth + tall member, member ON the top face) × yaws {0,5,12,33} × 41 = 1640 | 0 lost · boxes 369 (every 0° case, exact) · slabs 779 · single prism 164 (fill 0.92 ≥ `DECOMPOSE_FILL`) · kept 328 | byte-for-byte the same classes and ratios (boxes 1.000000, slabs 1.000000..1.000001, kept 1.18..2.08) |
+
+**The law now.** Containment of ring *i* in ring *j* is never judged from a probe standing ON *j*'s
+boundary. `_interior_probes(ring)` yields one strictly-interior probe per edge, longest first (the
+first is eng #609's probe, unchanged — `_interior_probe` returns it); `_probe_clear_of(other, …)`
+takes the first of them at least `MIN_EXTENT_FT` clear of the other ring (`_clearance` = distance to
+its nearest edge), drawing further probes lazily and caching them per ring; `ring_nesting` sums
+`_point_in_ring` over the other rings with that per-pair probe. Why this is the mechanism and not a
+patch: two boundaries closer than the thinnest authorable extent are ONE boundary as far as authoring
+goes — "which of them is outermost" is a question about rounding, not about the body — and rings of a
+section nest or are disjoint, so every interior point of *i* answers "is *i* inside *j*" alike, which
+is what makes a per-pair choice of probe legitimate. `MIN_EXTENT_FT` is the module's existing feature
+floor (the slab lane already skips Z levels closer than it), four orders above the noise and below any
+wall the lane could author. When no edge of *i* is clear of *j* (a duplicated shell, a hairline tube)
+the first probe answers, exactly as before — so nothing main resolves changes. **No volume backstop, no
+tolerance on `_conserves`, no change to `slice_loops` / `_stitch` / `_junction_pairs` / `fit_solid` /
+`read_assembly`**: the slab lane's declared approximations (frustum, cone, hairline mismatch, sliver
+pin) are untouched by construction, and re-measured so:
+
+| reference row | dcda26e | this branch |
+|---|---|---|
+| 900 mm strut 0.0° / 0.1 / 0.2 / 0.5 / 0.8° | boxes ×3 1.0000 / slabs ×3 1.0000 ×4 | identical |
+| 50 µm-mismatch strut 0° / 12° | boxes ×3 1.0000 / slabs ×3 0.9996 | identical |
+| 8-band reducer frustum · 12-band cone | slabs ×8 0.9994 · slabs ×12 0.9985 | identical |
+| plate + 6 mm² pin 7° · U-channel 4° · 70-plate rail 10° | slabs ×1 0.9998 · slabs ×3 1.0000 · prism ×1 1.0101 | identical |
+| eng #609 corner pairs, 4 positions × yaws {5,12,33,−5,45,0.05} × 41 orders = 984 | 984 × slabs ×3, max ∣authored−mesh∣/mesh 4.1e-11 | identical |
+| eng #620 fit rows (its 14 tests) | green | green, `fit_solid` byte-intact |
+
+**The neighbouring case this does NOT change, on purpose (pinned by a test, filed as a follow-up).**
+A member FLUSH with the block's edge (its side face coplanar with the block's end face) shares a corner
+LINE as well as a face; so does a member whose face triangulation's diagonal coincides with the big
+face's (same aspect, centred). Their rings meet at a welded vertex with two COINCIDENT spokes — the two
+shells' copies of one boundary direction. `_junction_pairs` sorts spokes by angle and probes each
+wedge's bisector; the zero-width wedge between coincident spokes probes ON the double face, where the
+winding number reads ≈ 0.5 + 0.5 = 1 reliably, so both neighbours claim the same spoke and the
+junction is refused (`None`) → the slice is AMBIGUOUS → the whole body is **kept as one honest prism
+with the "not decomposable" caveat, at every triangle order, on main and here alike** (the 32 636 runs
+above; 328/1640 of the named placements — every flush one at yaw ≠ 0; at 0° the box lane takes them
+exactly). Never a silent loss, always delivered (rule 1) — but a flush lug is the commonest assembly
+there is, and today it costs the whole decomposition. Resolving it means telling the two coincident
+spokes apart (the shorter one peels off toward its own shell's side at its far end) or stitching each
+shell's segments separately before nesting; either is a change to junction resolution with its own
+sweep, not a rider on this fix → filed as **#634** (P2, `Refs #621`).
+
+**Router, end to end** (`tools/route.py run --ifc <pair> --output rfa --json`, same IFC bytes):
+
+```
+face_pair_4.ifc (block + lug on +x, yaw 12°; loses at all 41 orders on main)
+  dcda26e: OK (3-part generic_model .rfa …) · slab decomposition improved Pair (3 solids, fill 0.88 -> 1.01)
+           parts h = 3.360 / 1.640 / 4.843 ft (the 1.640 ft lug band authored as the BLOCK ring only)
+           decomposed: parts 3, slabs 3, holes_filled 1, fill_after 1.0069 · kept_prism []
+  branch:  OK (4-part generic_model .rfa …) · slab decomposition improved Pair (4 solids, fill 0.88 -> 1.00)
+           parts h = 3.360 / 1.640 / 1.640 / 4.843 ft · holes_filled 0, fill_after 1.0 · kept_prism []
+face_pair_3_order2.ifc (block + lug half-way up −x, yaw 12°, an order that loses on main): same story, 3 → 4 parts.
+face_pair_0.ifc (slab + stud, order 0 — conserved on both): 3 parts, identical.
+```
+All six branch outputs (pairs 0–4 + 3_order2): `rvt_validate --family` **VALID (no errors), warnings=0**;
+`make_family.py provenance` **ok, findings []**. No certification claimed (rule 4): VALID is a fact
+about the files, not about Revit. `route.py matrix` byte-identical to main (sha256 `7dae5d40…`, 39 lines).
+
+**Tests** — appended to `tests/test_ifc_assembly.py` (a new `eng #621` section; the 82 existing tests
+untouched; `_face_pair` is deliberately a sibling of `_corner_pair`, not a rewrite of it, so eng #609's
+fixtures keep their exact coordinates): shared-edge nesting with the small ring's edge a micron
+inside / exactly on / outside the big ring, in every ring order, plus a hole hugging the outer ring
+closer than `MIN_EXTENT_FT` on its longest side (still a hole) and an island in it; `_interior_probes`
+(one per edge, longest first, all strictly inside, never a vertex, primary == `_interior_probe`,
+sliver → first vertex); `_probe_clear_of` (skips the hugging probe, draws lazily, falls back to the
+first for a duplicated ring); **the five face pairs over 41 seeded orders each (205 runs) ⇒ conserved
+or `kept_prism`, and in fact slabs with ≥ 3 parts, `holes_filled 0`, authored = mesh to 1e-5**; the
+0° control (box lane, 2 exact boxes); and the flush pair pinned as an honest single prism at every
+order. Engine swap under the same file: **dcda26e → 4 fail (2 by behaviour: `[1, 0] != [0, 0]` and
+`565.03 >= 569.45·(1−1e-6)`; 2 by missing symbol), 84 pass; this head → 88 pass.**
+
+## BRANCH STATE (eng #621)
+
+Branch `cam/621-face-contact-loss` from `main` @ dcda26e; one issue, one PR (`Closes #621`). Files:
+`src/rvt/ifc/assembly_parts.py` (`_interior_probes`, `_interior_probe` now its first element,
+`_clearance`, `_probe_clear_of`, `ring_nesting`; nothing else in the module touched) + its `plugin/lib`
+mirror via `sync_plugin.py`; `tests/test_ifc_assembly.py` (appended section only); this record section.
+Not touched: `router.py` (#627), `fit_solid` (#626), famgen, `route.py`, SKILL.md, any hot file, earlier
+sections of this record. Gates: `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_ifc_assembly.py
+tests/test_router.py -q -rs` main **214 passed / 14 skipped** (test_ifc_assembly 82) → branch **220 passed
+/ 14 skipped** (test_ifc_assembly 88); whole merged CI shard — count in the PR body for the final head;
+`/simplify` run on the diff (stable `reverse=True` sort, two plain loops in `_probe_clear_of`, squared
+distances in `_clearance`, dead test locals removed; skipped: hoisting `convert/rvt_to_ifc._point_seg_dist`
+into a shared helper — outside territory — and folding `_corner_pair` into `_face_pair` — would perturb
+eng #609's fixture coordinates); `/verify` = the router driven on the losing pairs above; `sync_plugin.py`
+→ `--check` clean; `validate_plugin.py` PASS (25); `check_portable_paths.py` ok (3012). Nothing staged for
+the viewer, no ledger entry, no certification claimed.
