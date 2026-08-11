@@ -61,17 +61,24 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from . import famdim
 
-#: Forge spec ids, all VERIFIED present in the format's own units table
-#: (``famgen/assets/family_units.json``) and observed on Revit's default
-#: family templates.
-SPEC_LENGTH = "autodesk.spec.aec:length-1.0.0"
-SPEC_ANGLE = "autodesk.spec.aec:angle-1.0.0"
-SPEC_NUMBER = "autodesk.spec:spec.number-1.0.0"
+#: Forge spec ids.  These are NOT re-spelled here: they are the constants
+#: ``skeleton`` already carries and ``standards.SPECS`` already gates against
+#: the format's own units table.  Writing a fresh plausible-looking spec id is
+#: exactly how #516 and #601 happened -- the first cut of this module invented
+#: five, three of which were wrong.
+from .skeleton import (                                            # noqa: E402
+    SPEC_INTEGER, SPEC_LENGTH, SPEC_NUMBER, SPEC_TEXT,
+    PGROUP_DIMENSIONS as _PG_DIM, PGROUP_MATERIALS as _PG_MAT,
+)
 
-#: Parameter groups observed on the default templates [VERIFIED rft].
-GROUP_DIMENSIONS = "autodesk.parameter.group:dimensions-1.0.0"
-GROUP_MATERIALS = "autodesk.parameter.group:materials-1.0.0"
-GROUP_MECHANICAL = "autodesk.parameter.group:mechanical-1.0.0"
+SPEC_ANGLE = "autodesk.spec.aec:angle-1.0.0"   # standards.SPECS['angle'], in
+                                               # the units table [VERIFIED]
+
+#: Parameter groups observed on the default templates [VERIFIED rft], taken
+#: from skeleton's constants rather than re-spelled.
+GROUP_DIMENSIONS = _PG_DIM
+GROUP_MATERIALS = _PG_MAT
+GROUP_MECHANICAL = "autodesk.parameter.group:mechanical-1.0.0"   # [VERIFIED rft]
 
 #: Why an axis along the extrusion direction is refused rather than authored.
 OUT_OF_PLANE_GAP = (
@@ -138,7 +145,7 @@ class FreeParam:
     correct -- an invented value is not (steer S-2026-08-11-a).
     """
     name: str
-    spec: str = SPEC_LENGTH
+    spec: Optional[str] = SPEC_LENGTH
     group: str = GROUP_DIMENSIONS
     instance: bool = False
     value: Optional[float] = None
@@ -428,3 +435,226 @@ def box_model(category: str, *, width: float, height: float,
         axes=(DrivenAxis("width", width_param, (1.0, 0.0, 0.0), float(width)),
               DrivenAxis("height", height_param, (0.0, 1.0, 0.0), float(height))),
         params=tuple(params), lod=lod, note=note)
+
+
+# ---------------------------------------------------------------------------
+# ANY PARAMETER, FROM A PROMPT -- the kind taxonomy
+# ---------------------------------------------------------------------------
+#
+# A user does not ask for "a driven length axis".  They ask for "a parameter to
+# toggle the door swinging open and closed", "a parameter for the finish", "an
+# angle for the blade pitch".  Every one of those is a family parameter bound to
+# SOMETHING; what differs is what it binds to:
+#
+#   length   -> a labelled dimension between two reference planes   (AUTHORED)
+#   angle    -> a labelled ANGULAR dimension about a reference      (gap)
+#   yesno    -> an element's visibility                             (gap)
+#   material -> an element's material property                      (gap)
+#   data     -> nothing; the parameter is the deliverable           (AUTHORED)
+#
+# The first and last are authored today.  The middle three all need the SAME
+# missing piece -- the table that associates a family parameter with an
+# element PROPERTY rather than a dimension segment.  ``m_paramExprs`` is that
+# mechanism for dimensions; the schema shows no per-form visibility-parameter
+# field, so visibility/material/angle association is the same shape of problem
+# and is tracked as one gap, not three.
+#
+# Hard rule 1 governs the whole table: an unauthorable request is DELIVERED as
+# a real, correctly typed, correctly grouped family parameter with an honest
+# note that nothing is bound to it yet -- never refused, never silently
+# dropped, and never described as working.
+
+#: kind -> (Forge spec, what it binds to, authorable today, the honest note)
+#: ``spec`` is None where THIS REPO HOLDS NO VERIFIED SPELLING for that
+#: storage class.  A None spec is not a bug and never blocks delivery -- it is
+#: the honest state, and inventing an id to fill it is the thing that must not
+#: happen (the first cut of this table invented five ids, three of which were
+#: measurably wrong and two of which -- bool and reference -- have no verified
+#: spelling anywhere in the repo).
+PARAM_KINDS: Dict[str, Tuple[Optional[str], str, bool, str]] = {
+    "length": (SPEC_LENGTH, "a labelled dimension between two reference planes",
+               True, ""),
+    "data": (SPEC_NUMBER, "nothing -- the parameter itself is the deliverable",
+             True, ""),
+    "text": (SPEC_TEXT, "nothing -- the parameter itself is the deliverable",
+             True, ""),
+    "integer": (SPEC_INTEGER,
+                "nothing -- the parameter itself is the deliverable", True, ""),
+    "angle": (SPEC_ANGLE, "a labelled angular dimension about a reference",
+              False,
+              "typed as an angle (a verified spec), but no angular dimension "
+              "is bound to it yet: changing it will not rotate anything"),
+    "yesno": (None, "an element's visibility", False,
+              "requested as a Yes/No. Two things are missing and both are "
+              "stated rather than faked: this repo holds no VERIFIED Forge "
+              "spec id for a boolean parameter, and the "
+              "family-parameter-to-visibility association is not authored. "
+              "The request is recorded and delivered; toggling it will not "
+              "show or hide anything yet"),
+    "material": (None, "an element's material property", False,
+                 "requested as a material. This repo holds no VERIFIED Forge "
+                 "spec id for a material-reference parameter, and no "
+                 "association to a solid's material is authored. The request "
+                 "is recorded and delivered; changing it will not restyle "
+                 "anything yet"),
+}
+
+#: The one missing mechanism behind every unauthorable kind above.  Recorded
+#: once, as one gap, because it is one gap.
+ASSOCIATION_GAP = (
+    "binding a family parameter to an element PROPERTY (visibility, material, "
+    "an angle) rather than to a dimension segment. m_paramExprs is that "
+    "mechanism for dimensions; the schema exposes no per-form "
+    "visibility-parameter field, so the association table for properties has "
+    "still to be located. Until it is, these parameters are authored, typed "
+    "and grouped correctly but drive nothing -- and say so.")
+
+#: Words a prompt uses for each kind, longest-first so "yes/no" beats "no".
+_KIND_WORDS: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
+    ("yesno", ("toggle", "yes/no", "yes no", "on/off", "on off", "switch",
+               "show/hide", "show or hide", "visible", "visibility", "boolean",
+               "checkbox", "open and close", "open/close", "swing")),
+    ("angle", ("angle", "rotation", "rotate", "pitch", "tilt", "degrees",
+               "swing angle")),
+    ("material", ("material", "finish", "colour", "color")),
+    ("length", ("width", "height", "depth", "length", "thickness", "diameter",
+                "radius", "spacing", "clearance", "size", "offset")),
+    ("integer", ("count", "number of", "quantity", "poles", "gangs", "ways")),
+    ("text", ("name", "label", "note", "description", "mark", "model number")),
+)
+
+
+#: Where each kind's parameter belongs when the caller does not say.  A
+#: Yes/No visibility toggle is not a dimension, and filing it under Dimensions
+#: is the kind of small wrongness a user sees immediately in Revit's dialog.
+_DEFAULT_GROUP: Dict[str, str] = {
+    "length": GROUP_DIMENSIONS,
+    "angle": GROUP_DIMENSIONS,
+    "material": GROUP_MATERIALS,
+    "yesno": "autodesk.parameter.group:visibility-1.0.0",   # [INFERRED]
+    "text": "autodesk.parameter.group:text-1.0.0",          # [VERIFIED skeleton]
+    "integer": "autodesk.parameter.group:text-1.0.0",
+    "data": GROUP_DIMENSIONS,
+}
+
+#: Filler a request phrases itself with -- stripped so the PARAMETER NAME is
+#: what Revit's dialog should show ("Door Swing"), not the sentence the user
+#: typed ("a parameter to toggle the door swinging open and close").
+_REQUEST_FILLER = (
+    "a parameter to", "a parameter for", "parameter to", "parameter for",
+    "add a parameter", "a param for", "a param to", "give me a", "i want a",
+    "toggle the", "toggle", "control the", "control", "set the", "the ",
+    "a ", "an ",
+)
+
+#: Words that describe the MECHANISM rather than the thing, dropped from the
+#: end of a derived name ("door swinging open and close" -> "Door Swing").
+_NAME_TAIL = ("open and close", "open and closed", "open or close",
+              "open/close", "on and off", "yes or no", "swinging", "swing")
+
+
+def _param_name(text: str) -> str:
+    """A short Title Case parameter name from a request sentence.
+
+    Deliberately simple and reversible: a caller who wants an exact name
+    passes ``name=``.  Getting this wrong is cosmetic -- getting it wrong
+    SILENTLY is not, so the full request is always kept on the record as
+    ``requested``.
+    """
+    t = " ".join(str(text or "").strip().lower().split())
+    if not t:
+        return ""
+    changed = True
+    while changed:
+        changed = False
+        for f in _REQUEST_FILLER:
+            if t.startswith(f):
+                t = t[len(f):].strip()
+                changed = True
+    for tail in _NAME_TAIL:
+        if t.endswith(tail):
+            t = t[: -len(tail)].strip()
+    t = t.rstrip(" ,.;:")
+    if not t:
+        return ""
+    words = [w for w in t.split() if w not in ("the", "a", "an", "of", "to")]
+    return " ".join(w.capitalize() for w in words[:4])
+
+
+def classify_request(text: str) -> str:
+    """The parameter KIND a user's words are asking for.
+
+    Deliberately small and explainable -- it reads the request's own words and
+    falls back to ``data`` rather than guessing something specific.  Callers
+    that know better pass ``kind=`` explicitly.
+    """
+    t = " " + str(text or "").strip().lower() + " "
+    for kind, words in _KIND_WORDS:
+        if any(w in t for w in words):
+            return kind
+    return "data"
+
+
+def request_param(text: str, *, kind: Optional[str] = None,
+                  name: Optional[str] = None,
+                  group: Optional[str] = None,
+                  instance: bool = False,
+                  value: Optional[float] = None) -> Dict[str, Any]:
+    """Turn a user's request for a parameter into a declaration plus the
+    honest note that must ride with it.
+
+        request_param("a parameter to toggle the door swinging open and close")
+        -> kind 'yesno', authorable False, a real Yes/No parameter + the note
+           that nothing is bound to it yet
+
+    Never refuses: an unbindable request still yields a correctly typed,
+    correctly grouped family parameter, because a delivered parameter the user
+    can see and bind by hand in the family editor beats no file (hard rule 1).
+    """
+    k = kind or classify_request(text)
+    if k not in PARAM_KINDS:
+        raise ValueError(f"unknown parameter kind {k!r}; "
+                         f"known: {', '.join(sorted(PARAM_KINDS))}")
+    spec, binds_to, authorable, note = PARAM_KINDS[k]
+    grp = group or _DEFAULT_GROUP.get(k, GROUP_DIMENSIONS)
+    label = name or _param_name(text) or k.title()
+    return {
+        "kind": k,
+        "requested": text,
+        "spec_verified": spec is not None,
+        "param": FreeParam(name=label, spec=spec, group=grp,
+                           instance=instance, value=value, note=note),
+        "binds_to": binds_to,
+        "authorable": authorable,
+        "note": note,
+        "gap": None if authorable else ASSOCIATION_GAP,
+    }
+
+
+def add_requested(model: ParametricModel, text: str,
+                  **kw: Any) -> Tuple[ParametricModel, Dict[str, Any]]:
+    """``model`` + the parameter a user just asked for, and the request record.
+
+    A ``length`` request with a ``value`` becomes a real DRIVEN axis when the
+    model has room for one; everything else becomes a declared parameter with
+    its note.  Either way the model comes back with the parameter on it.
+    """
+    req = request_param(text, **kw)
+    p = req["param"]
+    if req["kind"] == "length" and kw.get("value"):
+        used = {a.unit_direction for a in model.axes}
+        for d in _IN_PLANE:
+            if d not in used:
+                axis = DrivenAxis(key=p.name.lower().replace(" ", "_"),
+                                  parameter=p.name, direction=d,
+                                  value=float(kw["value"]), spec=p.spec,
+                                  group=p.group, instance=p.instance)
+                if not check_model(model.with_axis(axis)):
+                    req["authorable"] = True
+                    req["binds_to"] = ("a labelled dimension along "
+                                       f"{d} (newly driven)")
+                    return model.with_axis(axis), req
+        req["note"] = ("both in-plane axes are already driven, so this length "
+                       "is authored as a parameter without a dimension")
+        req["authorable"] = False
+    return model.with_param(p), req

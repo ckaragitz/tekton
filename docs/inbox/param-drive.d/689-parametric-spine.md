@@ -173,3 +173,54 @@ deliver regardless and will carry the caveat.
 
 **Staged vs shipped:** shipped, and inert by default. No route calls `wire()` yet; the
 default rung is the control. Nothing claims a family flexes until a verdict says so.
+
+## Round 3 — any parameter, from any prompt
+
+Owner: *"you should be able to add any parameter to any of the users prompts — for
+instance if i say generate me a panel with a parameter to toggle the door swinging open
+and close you should be able to do this for everything."*
+
+The spine as built had exactly two kinds: a driven length axis, and a "free parameter
+with no geometry behind it". A Yes/No that toggles a door swing is neither, so the
+request had nowhere to land.
+
+**The kind taxonomy** (`PARAM_KINDS`) makes every request expressible, and each kind
+says what it binds to and whether that binding is authored:
+
+| kind | binds to | authored |
+|---|---|---|
+| `length` | a labelled dimension between two reference planes | **yes** |
+| `data` / `text` / `integer` | nothing — the parameter is the deliverable | **yes** |
+| `angle` | a labelled angular dimension | no |
+| `yesno` | an element's visibility | no |
+| `material` | an element's material property | no |
+
+`classify_request()` reads the request's own words; `request_param()` returns a real,
+typed, grouped parameter plus the note that must ride with it; `add_requested()` puts it
+on the model — and a `length` request with a value becomes a **real driven axis** if an
+in-plane direction is free. Nothing is ever refused (hard rule 1): an unbindable request
+still yields a parameter the user can see and bind by hand in the family editor.
+
+**The three unauthored kinds share ONE missing mechanism**, recorded once as
+`ASSOCIATION_GAP`: binding a family parameter to an element *property* rather than to a
+dimension segment. `m_paramExprs` is that mechanism for dimensions; the schema exposes
+no per-form visibility-parameter field, so the property-association table has still to be
+located. Reading the schema did settle two neighbouring questions: `ConstraintInfo` is
+`{m_constrId: ElementId}` — so `Element.m_constrInfo` is the back-reference to an
+element's constraints and is no longer "needs a specimen" — and `FamElemVisibility` /
+`ExtrusionElemVisibility` are `{m_flags}` bitfields (the detail-level/view bits), which
+is *static* visibility, not the parameter-driven kind.
+
+### I invented five spec ids, and three were wrong
+
+Writing plausible-looking Forge ids is exactly how #516 and #601 happened, and the first
+cut of `PARAM_KINDS` did it again: `spec.number`, `spec.int`, `spec.bool`,
+`spec.reference`, `spec.string`. Checked against the format's own units table and
+`skeleton`'s constants, only `spec.string` was right.
+
+Now every id is either **in the units table** (`length`, `number`, `angle`) or a
+**`skeleton` constant** (`text`, `integer`) — imported, not re-spelled. And the two
+storage classes this repo holds **no verified spelling** for, boolean and
+material-reference, carry `spec=None` with `spec_verified: False` rather than an
+invention. A `None` spec is the honest state; it does not block delivery.
+
