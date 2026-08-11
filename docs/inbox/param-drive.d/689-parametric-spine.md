@@ -262,3 +262,38 @@ Also recorded: the standalone `.rfa` emitter needs the certified genesis base
 single file carrying BOTH the driven axes and the newly requested parameters has **not**
 been produced here. What has been produced and validated (0 errors) is the driver-table
 ladder on a real panel (`out/p2/panel_P*.rfa`).
+
+## Round 5 — hunting the association mechanism (owner's choice)
+
+Asked which to chase first, the owner chose the parameter-to-property association over
+building more geometry. Reading the schema splits `ASSOCIATION_GAP` into **two
+different gaps**, one of which is nearly closed already.
+
+**FSDO is the association mechanism** — "family symbol data object", carried in the
+self-Family's `m_fsdos`. Each subclass binds a family parameter to one kind of property:
+
+```
+MaterialFSDO     { m_categoryId, m_materialId, m_famParamId }
+FillPatternFSDO  { m_fillPatternId, m_famParamId }
+RefToFamSymFSDO  { m_famSymId, m_instParams, m_small2BigFamParamIds }
+AtomElementParamFSDO { m_paramId }        AtomFSDO { m_elemId }
+```
+
+`ConnectorDataCell.m_propId2FamParamIdBindings: pair<ElementId, ElementId>` shows the
+same idea spelled out for connectors — property id → family parameter id.
+
+* **MATERIAL parameters are all but solved.** `MaterialFSDO` is exactly the binding, and
+  `famgen/catprobe.py` **already authors one** as its `materials` residue recipe
+  (`fsdo {category, material, famParam -1005500}`, mined 2026-08-05). What is missing is
+  only pointing `m_famParamId` at a *user* parameter instead of the material BIP, and
+  giving `parametric` a verified Forge spec id for a material-reference parameter.
+* **VISIBILITY is NOT an FSDO.** There is no `VisibilityFSDO` in the schema. So the door
+  swing does not ride this mechanism, and the two must stop being tracked as one gap.
+  Remaining candidates, in order: `Element.m_cellList` (per-element cells — the same
+  place `SketchMembership` and the order cell live), and a param-driven pairing with
+  `FamElemVisibility{m_flags}` / `ExtrusionElemVisibility{m_flags}`, which are the
+  static detail-level bitfields rather than the parameter binding itself.
+
+Practical consequence for the panel the owner asked for: a **material** parameter on the
+door or bus is reachable soon; the **swing toggle** is not, and its next step is
+`m_cellList`, not more searching in FSDO.
