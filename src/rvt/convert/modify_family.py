@@ -40,7 +40,12 @@ A LENGTH here is every spec the format's own units table
 ``aec:length`` and Revit's discipline SIZE specs alike (``cableTraySize``,
 ``conduitSize``, ``ductSize``, ``pipeSize``, ``wireDiameter`` ...): Revit
 stores all of them in feet, so ``Tray Width=12 in`` converts and a bare
-``Tray Width=12`` is refused exactly like ``Width=12`` (#668).
+``Tray Width=12`` is refused exactly like ``Width=12`` (#668).  The trade's
+inch / foot MARKS are units too: ``Width=4"`` is 4 in, ``Depth=2'`` 2 ft,
+``1'6"`` / ``1' 6"`` / ``1'-6"`` feet-and-inches (18 in); ONE pair of quotes
+cleanly WRAPPING a whole value (``"600 mm"``, ``'4"'``) still comes off first,
+and any other quote arrangement (``4''``, ``4'"``, ``''4''``) is refused by
+name, never read as feet or inches (#678).
 
 HONEST LIMIT: editing a DIMENSION parameter changes the type-table value
 only -- generated families carry no dimension-constraint graph, so the
@@ -291,21 +296,50 @@ def _feet_specs() -> FrozenSet[str]:
         in _LENGTH_DISPLAY_UNITS)
 
 
+_RE_NUMBER_UNIT = re.compile(r"(-?\d+(?:[.,]\d+)?)\s*([A-Za-z\"']*)")
+#: feet-and-inches -- 1'6"  1' 6"  1'-6" -- read as inches through the
+#: table's own two marks (#678)
+_RE_FEET_INCHES = re.compile(r"(-?)(\d+)\s*'\s*-?\s*(\d+(?:\.\d+)?)\s*\"")
+_INCHES_PER_FOOT = _UNIT_TOKENS["'"][1] / _UNIT_TOKENS['"'][1]
+
+
+def _unwrap_measure(txt: str) -> str:
+    """ONE pair of quotes that cleanly WRAPS the value comes off (``"600 mm"``,
+    ``'4"'`` -> ``4"``, ``"2'"`` -> ``2'``); nothing else is stripped, so a
+    foot / inch MARK reaches ``_UNIT_TOKENS`` like any unit word (``4"``,
+    ``2'``, ``1'6"``, ``4 "``) and every other quote arrangement -- ``4''``
+    (two apostrophes), ``4'"``, ``''4''``, ``"4""``, a stray ``"600 mm`` -- is
+    left for the grammar to REFUSE by name, never read as a value (#678).  A
+    pair whose inside starts or ends with the same quote is not a clean wrap."""
+    q, inner = txt[:1], txt[1:-1].strip()
+    if len(txt) >= 2 and q in "\"'" and txt[-1] == q and q not in (inner[:1], inner[-1:]):
+        return inner
+    return txt
+
+
 def _convert_value(param: dict, raw: str) -> Tuple[Any, List[str]]:
     """Turn the prompt's value into the carrier's internal value, spec-driven.
     Returns (value, notes)."""
     notes: List[str] = []
     spec = param["spec"]
     carrier = param["carrier"]
-    txt = str(raw).strip().strip("\"'")
+    txt = str(raw).strip()
     if carrier == "m_str":
-        return txt, notes
-    m = re.fullmatch(r"(-?\d+(?:[.,]\d+)?)\s*([A-Za-z\"']*)", txt)
-    if not m:
+        return txt.strip("\"'"), notes
+    txt = _unwrap_measure(txt)
+    measurable = carrier != "m_int" and bool(spec) and ":number" not in spec   # a unit MEANS something here
+    if measurable and (fi := _RE_FEET_INCHES.fullmatch(txt)):
+        # 1'6" == 18": converts on a length, refused by name anywhere else; where a
+        # unit is ignored there is no ONE number written, so it stays unreadable
+        sign, feet, inch = fi.groups()
+        num = int(feet) * _INCHES_PER_FOOT + float(inch)
+        num, unit = (-num if sign else num), '"'
+    elif (m := _RE_NUMBER_UNIT.fullmatch(txt)):
+        num = float(m.group(1).replace(",", ""))
+        unit = m.group(2).lower()
+    else:
         raise FamilyEditError(
             f"{param['caption']}: cannot read a number from {txt!r}")
-    num = float(m.group(1).replace(",", ""))
-    unit = (m.group(2) or "").lower()
     if carrier == "m_int":
         if unit:
             notes.append(f"{param['caption']}: unit {unit!r} ignored (integer parameter)")
@@ -341,10 +375,11 @@ def _convert_value(param: dict, raw: str) -> Tuple[Any, List[str]]:
         if got != kind:
             raise FamilyEditError(f"{param['caption']} is a {kind.replace('_', ' ')}; "
                                   f"got unit {unit!r}")
-        notes.append(f"{param['caption']}: {num:g} {unit} -> {num * factor:g} "
+        sep = " " if unit.isalpha() else ""            # 600 mm / 4" / 2' -- a mark hugs its number
+        notes.append(f"{param['caption']}: {num:g}{sep}{unit} -> {num * factor:g} "
                      f"{internal}{caveat}")
         return float(num) * factor, notes
-    if unit and spec and ":number" not in spec:        # measurable, merely unconverted here
+    if unit and measurable:                            # measurable, merely unconverted here
         raise FamilyEditError(
             f"{param['caption']}: no conversion for unit {unit!r} on spec {spec} "
             f"(this lane converts: {_converted_units()}) -- give a supported "

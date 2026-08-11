@@ -1,0 +1,2 @@
+# fresh-clone safe: writes its own fitting on the bundled base (needs_schema self-skips otherwise)
+tests/test_edit_family_marks_678.py
