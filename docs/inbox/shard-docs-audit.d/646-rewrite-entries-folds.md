@@ -31,11 +31,18 @@ callable branch, (c) `rewrite_entries` does not `makedirs`.
      dir=<dir of realpath(dst)>)`, the file's own permission bits are copied onto the temp (`mkstemp` creates 0600),
      and `os.replace(tmp, realpath(dst))` swaps it in only once `write_cfb` returned -- POSIX-atomic because the temp is
      a sibling (same directory => same filesystem). Any exception (the injected `OSError` in the test, a
-     `KeyboardInterrupt`) removes the temp and propagates; the source is byte-for-byte what it was. `realpath` so a
-     `dst` that is a *link* to `src` rewrites the file and leaves the link a link (the old `open(dst, "wb")` wrote
-     through the link too). A distinct `dst` is written directly, exactly as before and as `write_cfb` does -- no temp,
-     no rename -- so every non-in-place caller's filesystem behaviour (symlinked outputs, directory permissions) is
-     unchanged; the case that gets the extra `rename` is the one where a torn write destroys the *input*.
+     `KeyboardInterrupt`) removes the temp -- under `contextlib.suppress(FileNotFoundError)`, so a temp already gone can
+     never mask the original error (review of `feb5c00`, pinned by a row) -- and propagates; the source is byte-for-byte
+     what it was. The replace's exact semantics are documented and each pinned by a row (review of `feb5c00`, decided
+     "document", except read-only where main's behaviour is *kept*): the file gets a new inode with the old permission
+     bits; a `dst` that is a *symlink* to `src` has its target rewritten (`realpath`) and stays a link; a second *hard
+     link* keeps the OLD bytes (severed -- the one departure from a write through the file, stated as such); a file the
+     caller may not open for writing is a `PermissionError` with nothing written and no temp created, exactly as main's
+     direct `open(dst, "wb")` was -- the in-place branch opens the file `"r+b"` (no truncation) as its first act, which
+     is the OS's own gate rather than an `os.access` guess. A distinct `dst` is written directly, exactly as before and
+     as `write_cfb` does -- no temp, no rename -- so every non-in-place caller's filesystem behaviour (symlinked outputs,
+     directory permissions) is unchanged; the case that gets the extra `rename` is the one where a torn write destroys
+     the *input*.
    - *(c) `dst`'s directory, decided "must exist", documented:* the pass creates streams, not directory trees; a
      mistyped `dst` is a `FileNotFoundError` from `open`, raised before a byte is written, rather than a silently
      materialised tree; `roundtrip()` and the two callers that want `makedirs` (`families.emit_rfa`,
@@ -52,7 +59,7 @@ callable branch, (c) `rewrite_entries` does not `makedirs`.
    | `famload.py::_load_family_documents` (pass 2) | `rewrite_entries(tmp1, stage_out, new_streams)` | keys all read from `tmp1` in the same function. |
    | `families.py::emit_rfa` | `rewrite_entries(src, out, new_data)` | keys are `f.streams()` names of `src`; its own `os.makedirs` line kept. |
    | `mep/conduit.py::commit_created` | `rewrite_entries(src_rvt, out_path, new_streams)` | same `BasicFileInfo`-via-`f.raw` move as `commit.py`; `import dataclasses` dropped (nothing else used it). |
-   | `mep/electrical_data.py::commit_electrical` | `rewrite_entries(src_rvt, out_path, new_streams)` | same two moves (`_primary_partition(d, None)`, `bfi = d.raw(...)`), both `own_identity` branches in the sha table. |
+   | `mep/electrical_data.py::commit_electrical` | `rewrite_entries(src_rvt, out_path, new_streams)` | same two moves (`_primary_partition(d)`, `bfi = d.raw(...)` -- read only when `own_identity` is on, review of `feb5c00`), both `own_identity` branches in the sha table. |
    | `adocument.py::write_with_latest` | `rewrite_entries(src_rvt, out_rvt, {STREAM: framed})` | the replaced-exactly-once check went: zero is the API's `KeyError` (was `RuntimeError`; docstring says so, test pins it, no caller catches either), twice cannot happen (paths are unique per `write_cfb`). |
    | `convert/modify_family.py::_patch_partatom` | `rewrite_entries(path, path, {"PartAtom": out_xml.encode("utf-8")})` | THE in-place product site (a user's `.rfa`): now atomic per 1(a); docstring says so. |
 
@@ -70,7 +77,7 @@ callable branch, (c) `rewrite_entries` does not `makedirs`.
    - `regadd.py:604` -- holds `self.entries` across many edits (a fold re-reads the file per write); not this shape.
    - `famgen/famdoc_adoc.py:1832`, `famgen/skeleton.py:3185`, `convert/rfa_assemble.py:175` -- entry lists built from
      scratch, no source container; `famgen/geometry.py:3022` -- donor-lineage dev path. Not this shape (as #640 said).
-4. **`tests/test_rewrite_entries_646.py`** (new, 13 rows, pinned bases only, `no_release_leak` module-wide) + drop-in
+4. **`tests/test_rewrite_entries_646.py`** (new, 16 rows -- 13 + the three review rows: vanished temp does not mask the cause, hard link severed, read-only refused (skips under root: root may open a 0444 file for writing; run green as uid nobody) -- pinned bases only, `no_release_leak` module-wide) + drop-in
    `tests/ci_shard.d/646-rewrite-entries-folds.txt`: every bytes-like edit form lands as the same bytes and is stored as
    plain `bytes`; four non-bytes-like edits → `TypeError` naming the stream, no file; **an injected `write_cfb` that
    writes half the real output then raises `OSError(28)`**: in place → source byte-identical to before, directory holds
@@ -193,10 +200,10 @@ edits / `TypeError`, atomic in-place branch, `dst`-dir contract; module docstrin
 the ten folds -- `src/rvt/{commit,manipulate,reduce,reduce_v2,famload,families,adocument}.py`,
 `src/rvt/mep/{conduit,electrical_data}.py`, `src/rvt/convert/modify_family.py` (minimal hunks + import trims;
 `manipulate._primary_partition`'s second parameter defaulted), their eleven `plugin/lib/src/rvt/**` mirrors via
-`tools/sync_plugin.py`, `tests/test_rewrite_entries_646.py` (new, 13), `tests/ci_shard.d/646-rewrite-entries-folds.txt`
+`tools/sync_plugin.py`, `tests/test_rewrite_entries_646.py` (new, 16), `tests/ci_shard.d/646-rewrite-entries-folds.txt`
 (new), this fragment (new). Not touched: `tests/conftest.py`, `src/rvt/versions/**`, `src/rvt/frontdoor/base.py`,
 `famgen/**`, `src/rvt/ifc/**`, `cfb_writer.py`, any hot file, the stream index. Gates: sha table 36/36 equal; gate
-suites 210/176 → 223/176; whole merged shard 2293 passed / 134 skipped / 3 xfailed; `/simplify` RAN (above); `/verify` RAN -- front door
+suites 210/176 → 223/176 at `feb5c00` (+3 rows since: the three requested files 28 passed / 13 skipped, the new file 15 passed / 1 skipped as root and its 4 permission-sensitive rows 4/4 as uid nobody; sha table re-run on the review delta 36/36 equal); whole merged shard 2293 passed / 134 skipped / 3 xfailed at `feb5c00` vs main `697928f` measured 2280 / 134 / 3; `/simplify` RAN (above); `/verify` RAN -- front door
 `author --rvt <pin> --edit 'set level "GEN B1 - Basement" elevation to -12 ft'` on all three pins, branch vs an
 `origin/main` worktree: output `.rvt` md5 **equal** per pin (`6a0ea9b1…` 2026, `aea6aa7a…` 2025, `0bee95d2…` 2024; the
 2025 run repeated on the branch: same md5), each `VALID (no errors)` under its own release (2026: the known DataStorage

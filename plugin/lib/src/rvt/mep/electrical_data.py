@@ -1621,7 +1621,7 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
     new_streams: Dict[str, bytes] = {}
     with open_rvt(src_rvt) as d:
         pname = M._primary_partition(d)
-        bfi = d.raw("BasicFileInfo") if d.has("BasicFileInfo") else None
+        bfi = d.raw("BasicFileInfo") if own_identity and d.has("BasicFileInfo") else None
 
         # ---- 1. Global/ElemTable ------------------------------------------------
         model = SE.decode_elemtable(d.inflate("Global/ElemTable"))

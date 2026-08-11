@@ -1,7 +1,10 @@
 """``rvt.roundtrip.rewrite_entries`` after #646: bytes-like edits (``bytes`` / ``bytearray`` / ``memoryview``,
 outright or returned by a callable) all land as the same bytes and anything else is a ``TypeError`` before a
 byte is written; ``src == dst`` goes through a sibling temp file + ``os.replace`` so a write that dies half way
-leaves the source intact and no temp behind; ``dst``'s directory is required, never created; and the engine
+leaves the source intact and no temp behind (a temp already gone never masks the original error), with the
+replace's exact semantics pinned (mode kept; symlink target rewritten, link kept; a second hard link severed;
+a read-only file refused with ``PermissionError`` before any temp exists); ``dst``'s directory is required,
+never created; and the engine
 sites folded onto the pass in #646 keep their contracts (``adocument.write_with_latest``'s missing-stream
 error, ``convert.modify_family._patch_partatom``'s in-place PartAtom rewrite, ``manipulate.commit_plans`` in
 place == apart).  Pinned genesis bases only (fresh-clone safe); the byte identity of the folds themselves (old
@@ -88,6 +91,23 @@ def test_a_write_that_dies_half_way_leaves_the_in_place_source_intact_and_no_tem
     assert os.path.dirname(full.paths[0]) == str(tmp_path)                         # sibling => same filesystem
 
 
+class _VanishingTemp(Exception):
+    """What an injected ``write_cfb`` raises after deleting the very temp it was handed."""
+
+
+def test_a_temp_already_gone_does_not_mask_the_original_error(pin, tmp_path, monkeypatch):
+    victim = Path(shutil.copyfile(pin, tmp_path / "victim.rvt"))
+    before = victim.read_bytes()
+
+    def vanishing(path, entries, *a, **kw):
+        os.remove(path)                                                            # the temp is gone ...
+        raise _VanishingTemp(path)                                                 # ... and THIS is the cause
+    monkeypatch.setattr(RT, "write_cfb", vanishing)
+    with pytest.raises(_VanishingTemp):                                            # not the cleanup's FileNotFoundError
+        rewrite_entries(victim, victim, {})
+    assert victim.read_bytes() == before and sorted(os.listdir(tmp_path)) == ["victim.rvt"]
+
+
 def test_a_distinct_dst_is_written_directly_as_before(pin, tmp_path, monkeypatch):
     full = _DiskFull(monkeypatch)
     with pytest.raises(OSError, match="injected"):
@@ -119,6 +139,37 @@ def test_a_dst_that_links_to_src_rewrites_the_file_not_the_link(pin, tmp_path):
     assert link.is_symlink() and os.readlink(link) == str(real)
     apart = rewrite_entries(pin, tmp_path / "apart.rvt", {name: C.zero_partition_header})
     assert real.read_bytes() == Path(apart).read_bytes()
+
+
+@pytest.mark.skipif(not hasattr(os, "link"), reason="no hard links on this platform")
+def test_a_second_hard_link_keeps_the_old_bytes_the_documented_departure(pin, tmp_path):
+    inplace = Path(shutil.copyfile(pin, tmp_path / "inplace.rvt"))
+    other = tmp_path / "other-name.rvt"
+    try:
+        os.link(inplace, other)
+    except OSError:                                                                # pragma: no cover
+        pytest.skip("cannot create a hard link here")
+    before = inplace.read_bytes()
+    rewrite_entries(inplace, inplace, {C.partition_of(pin): C.zero_partition_header})
+    assert inplace.read_bytes() != before                                          # the file: new inode, new bytes
+    assert other.read_bytes() == before                                            # the other name: severed, old bytes
+    assert os.stat(inplace).st_nlink == 1 and os.stat(other).st_nlink == 1
+    assert sorted(os.listdir(tmp_path)) == ["inplace.rvt", "other-name.rvt"]
+
+
+@pytest.mark.skipif(not hasattr(os, "geteuid") or os.geteuid() == 0,
+                    reason="root may open a read-only file for writing; the gate is the OS's, not ours")
+def test_a_read_only_file_is_a_permissionerror_with_nothing_written_as_the_direct_write_was(pin, tmp_path):
+    ro = Path(shutil.copyfile(pin, tmp_path / "readonly.rvt"))
+    before = ro.read_bytes()
+    os.chmod(ro, 0o444)
+    try:
+        with pytest.raises(PermissionError):
+            rewrite_entries(ro, ro, {C.partition_of(pin): C.zero_partition_header})
+        assert ro.read_bytes() == before and stat.S_IMODE(os.stat(ro).st_mode) == 0o444
+        assert sorted(os.listdir(tmp_path)) == ["readonly.rvt"]                    # refused before any temp existed
+    finally:
+        os.chmod(ro, 0o644)
 
 
 def test_dsts_directory_is_required_never_created(pin, tmp_path):

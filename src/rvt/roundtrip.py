@@ -26,6 +26,7 @@ if not, categorises the differences.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import dataclasses
 import hashlib
 import json
@@ -231,12 +232,18 @@ def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
     as for :func:`write_cfb` -- the pass makes streams, never directory
     trees; a caller that wants ``makedirs`` says so itself).  ``src`` is read
     fully before anything is opened for writing, so ``src == dst`` (the same
-    file, however spelled or linked) rewrites in place -- through a sibling
-    temp file ``os.replace``-d over it only once complete (atomic on POSIX;
-    the file's permission bits kept), so a failure mid-write leaves the
-    source intact, not torn, and no temp behind.  A distinct ``dst`` is
-    written directly, exactly as :func:`write_cfb` does.  Returns ``dst``
-    (as ``str``), the one thing every caller goes on to use.
+    file, however spelled) rewrites in place -- through a sibling temp file
+    ``os.replace``-d over it only once complete (atomic on POSIX), so a
+    failure mid-write leaves the source intact, not torn, and no temp behind.
+    Exactly what that replace means: the file gets a NEW inode carrying the
+    old permission bits; a ``dst`` that is a *symlink* to ``src`` has its
+    target rewritten and stays a link; a second *hard link* to the file keeps
+    the OLD bytes (that link is severed -- the one departure from a write
+    through the file); a file the caller may not open for writing is a
+    ``PermissionError`` with nothing written, as the direct write always was.
+    A distinct ``dst`` is written directly, exactly as :func:`write_cfb`
+    does.  Returns ``dst`` (as ``str``), the one thing every caller goes on
+    to use.
     """
     src, dst = os.fspath(src), os.fspath(dst)
     out: List[CfbEntry] = []
@@ -260,6 +267,8 @@ def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
         write_cfb(dst, out)
         return dst
     real = os.path.realpath(dst)                 # in place: replace the file, not a link to it
+    with open(real, "r+b"):                      # the direct write's own gate: PermissionError on a
+        pass                                     # file we may not write, before any temp exists
     fd, tmp = tempfile.mkstemp(prefix=os.path.basename(real) + ".", suffix=".tmp",
                                dir=os.path.dirname(real))
     os.close(fd)
@@ -268,7 +277,8 @@ def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
         shutil.copymode(real, tmp)               # mkstemp creates 0600; keep the file's own bits
         os.replace(tmp, real)
     except BaseException:
-        os.remove(tmp)
+        with contextlib.suppress(FileNotFoundError):   # a temp already gone must not mask the cause
+            os.remove(tmp)
         raise
     return dst
 
