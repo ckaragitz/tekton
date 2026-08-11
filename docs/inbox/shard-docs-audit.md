@@ -1257,3 +1257,163 @@ adoption only), `tests/test_conftest_scaffolding.py` (`FORBIDDEN` widened + its 
 `_streams`), this section. Nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in needed (all four files
 already in the merged shard: `tests/ci_shard.d/458-partition-header-verdict.txt`, `294-final-block-law.txt`,
 `266-shared-gate-walk.txt`, `579-scaffolding.txt`); nothing staged for the viewer; no certification claim.
+
+## 2026-08-11 — eng #640: the engine grows ONE entry-rewrite pass (`rvt.roundtrip.rewrite_entries`); `writer.py`'s four variant builders fold onto it byte-identically; conftest's `rewrite_streams` becomes its caller
+
+**Stream:** eng #640 (session `eed919cf`). **Issue:** #640 (Refs #617; #579 for the scaffolding, #294 / #236 for
+`writer.py`'s variant builders). **Territory used:** `src/rvt/roundtrip.py` (new function), `src/rvt/writer.py` (folds
+only), their `plugin/lib` mirrors via `tools/sync_plugin.py`, `tests/conftest.py` (`rewrite_streams` body only), new
+`tests/test_cfb_rewrite_entries.py` + `tests/ci_shard.d/640-cfb-rewrite-entries.txt`, this section (appended at the end;
+`docs/inbox/README.md` / the `.d/` fragment convention of #643 had not landed on main when this was written). Not touched:
+`commit.py` / `manipulate.py` / `reduce.py` and the other same-shape sites (measured below → #646), `src/rvt/versions/**`,
+`cfb_writer.py`, `tests/test_conftest_scaffolding.py`, the three #617 adopters.
+
+### What landed
+
+1. **`rvt.roundtrip.rewrite_entries(src, dst, replace, extra=()) -> str`**, `replace: Mapping[str, StreamEdit]` with
+   `StreamEdit = bytes | Callable[[bytes], bytes] | None`: for every `{path: edit}` the *stream* at that path gets `edit`
+   itself (bytes), `edit(raw)` (callable; raw = the bytes exactly as stored, still paged), or is dropped (`None`); `extra`
+   (`CfbEntry`s) appended after the container's own entries; every other entry — order, bytes, CLSIDs, state bits, FILETIMEs
+   — carried over exactly as `roundtrip()` does; a path naming no stream of `src` (absent, or a storage) →
+   `KeyError("no stream … in …")` raised after the read and **before `dst` is opened**; `src` is read fully (olefile closed)
+   before the write, so `src == dst` rewrites in place; PathLike accepted, `str(dst)` returned.
+   - **Why `roundtrip.py`, not `cfb_writer.py`** (the issue said pick one and say why): the pass *is* `read_entries` + filter
+     + `write_cfb`; `read_entries` (olefile-backed) lives in `roundtrip`, and `cfb_writer` is the leaf, stdlib-only [MS-CFB]
+     writer that `roundtrip` already imports and whose docstring promises "no dependencies outside the standard library" —
+     the rewrite there would invert that arrow (circular) or drag olefile into the leaf. `roundtrip` already pairs *their*
+     reader with *our* writer (`roundtrip()` is `rewrite_entries(src, dst, {})` plus timing and `makedirs`) and re-exports
+     `CfbEntry` / `write_cfb` / `read_entries`, so a caller keeps one import line.
+   - **Why `-> str`, not `CfbLayout`** (either was allowed): every existing caller uses the path (conftest's helpers and their
+     adopters chain `open(rewrite_streams(…))`; `writer.py`'s builders return their own report dicts) and none uses the
+     layout; the day one does, it is a one-line change.
+   - **Why `bytes` values, a superset of the issue's `Callable | None` signature — the one deliberate deviation, for the
+     reviewer to rule on.** Two of the four folded builders (and all eleven measured candidates, #646) hold *precomputed* bytes:
+     `build_variant`'s `trailer_fn` can be stateful across streams (`trailer_random_factory`'s RNG is consumed singles-then-
+     partitions in sorted order, not directory order), so its bytes must be computed eagerly in the old order, and
+     `regzip_*` need the `RvtDocument` view. The first cut kept the literal signature and shipped a private
+     `writer._swap_in({name: bytes}) → {name: lambda _old, new=new: new}` adaptor; the /simplify altitude pass called that
+     what it is — a special case layered on the shared pass to satisfy a type — and the widening (`edit if
+     isinstance(edit, bytes) else edit(e.data)`, one line) deletes the adaptor outright while conftest's contract stays a
+     strict subset (its rows green unchanged). If overruled: restore `_swap_in` (6 lines) — bytes on disk identical either way
+     (sha table run on both cuts).
+2. **`src/rvt/writer.py` — all four hand-rolled passes folded, none left.**
+   - `zero_full_trailers_only` → `rewrite_entries(in, out, dict.fromkeys(streams, _zero_full_trailers))`,
+     `_zero_full_trailers(raw) = repage_like(depage(raw), raw, trailer_zero)` — a pure function of the stored bytes
+     (`doc.logical(name)` *is* `depage(doc.raw(name))`, and `doc.raw` *is* the olefile stream = `CfbEntry.data`), so its
+     `open_rvt` pass went too. `streams` is listed once up front (the old body iterated it and then `list()`-ed it again for
+     the report — a generator would have reported `[]`; lists, the only documented use, unchanged).
+   - `corrupt_trailer_bytes` → `rewrite_entries(in, out, {stream: flip})`, `flip` closing over `start` / `count` / `page` and
+     raising the same `ValueError` for a stream with no such full-page trailer — inside the pass, i.e. still before any write
+     (the new test asserts no file appears). Its `open_rvt` pass went (same identity).
+   - `regzip_streams_variant`, `build_variant` → keep their `open_rvt` block (recompression needs members / prefix / inflate /
+     the block walker) and hand the finished `{name: bytes}` map to the pass. `build_variant`'s docstring now states the
+     ordering law its stateful `trailer_fn` depends on; its own up-front `KeyError("streams not in file: …")` stays (fires
+     before any recompression, with the message `tools/make_acceptance.py` users know).
+   - The issue's "name the ones whose shape does NOT match (per-stream state threaded across entries) and leave them":
+     **none of the four threads state across *entries*.** The only cross-item state is `trailer_fn`'s across the *streams it
+     recompresses*, preserved by computing those bytes eagerly in the old order — the sha table is what proves it. So all four
+     fold and nothing was forced. `writer.py` no longer imports `dataclasses`, `CfbEntry`, `write_cfb`, `read_entries`
+     (nothing imported those *through* `rvt.writer`: `git grep` over `src/ tools/ tests/` empty).
+3. **`tests/conftest.py::rewrite_streams`** — body is `return rewrite_entries(src, dst, damages, extra)`; signature and the
+   test-side wording kept, one clause added naming the engine pass. `rewrite_stream`, `twin_partition_entry`, the damage
+   recipes, `tests/test_conftest_scaffolding.py` (17 rows green unchanged) and the three #617 adopters: untouched.
+4. **`tests/test_cfb_rewrite_entries.py`** (new; pinned bases only; `no_release_leak` on module-wide because the
+   `build_variant` row enters a host release context for a foreign pin's partition lane): 5 contract rows (no-edit pass ==
+   `roundtrip()` byte-for-byte, PathLike in / `str` back; a callable edit is handed the stored bytes and changes only its stream,
+   entry order and directory metadata kept; bytes value replaces, `None` drops, `extra` lands last; absent name / storage name /
+   bad name beside a good one → `KeyError` and no file; `src == dst` in place == apart) and 5 rows that are the four builders'
+   first direct tests (logical bytes identical + every full trailer zero; exactly the flipped bytes at the documented offset,
+   `ValueError` / `KeyError` write nothing; payload identical under our deflate with and without the kept tail; single +
+   partition lanes payload-identical per block under the host context, `verify_readback` 0 CRC failures). Shard drop-in
+   `tests/ci_shard.d/640-cfb-rewrite-entries.txt`.
+
+### Evidence
+
+**Byte identity of the fold** — origin/main's hand-rolled loops vs the folded functions: sha256 of each public function's
+documented use (`tools/make_acceptance.py` V1–V7, `tools/make_batch2.py` V8–V11, adapted to the pins' geometry —
+`Global/ElemTable` is sub-page on the pins, so the trailer probes use `Global/Latest` (1 full page) and `Formats/Latest` (2) —
+plus an in-place `src == dst` case), per pinned base, foreign pins under `host_release_context` so the partition lanes frame by
+name. Driver kept in the session scratchpad (`sha_table.py <outdir> before|after`); the two JSONs compared key by key:
+**39/39 EQUAL** — asserted before the old loops left the branch, re-asserted after the rebase onto `6fd74ee` and again after
+the `bytes`-value widening (three "after" runs, all equal to "before").
+
+| case \ base (sha256, first 16 hex) | G_ABPD (2026) | G_ABPD_2025 | G_ABPD_2024 |
+|---|---|---|---|
+| V1 `build_variant(["Global/Latest"], trailer_zero)` | d8c0c31cc2617896 | 13af1abbd4f62952 | e2485918f5fa4c17 |
+| V2 `build_variant(["Global/Latest"], trailer_copy)` | f91cbe086608a6f7 | 7f208046fa44f249 | 9f2d342907fa26b2 |
+| V3 `build_variant(all single-member gz, trailer_zero)` | 60a497a663329e9c | ae58c2ac139a8c8c | b13da400ce2fbd3c |
+| V4 `build_variant(["Formats/Latest"], trailer_zero)` | b4e2b48910d03ad2 | e1fc11a6f3ee5187 | 8f277318852ae2a3 |
+| V5 `build_variant(all gz, trailer_random_factory())` | 207290531d72261d | 239dcf276a9fd09b | 0900b351b6e02fe6 |
+| V6 `build_variant([], trailer_zero, partition_streams=parts)` | da537172f8f90fbd | 6ff3f7650b21ba96 | 91edf1ee551a8f7e |
+| V7 `build_variant(all gz, trailer_zero, partition_streams=parts)` | ae78fe9b7e3ec3ff | b934ba81cb30683c | 81e1d3e2d01b12be |
+| V8 `zero_full_trailers_only(["Global/Latest", "Formats/Latest"])` | ee899d8444d5be29 | 1af57818b194071b | d4a0cf5ce6ee1690 |
+| V9 `corrupt_trailer_bytes("Global/Latest", 0, 1)` | c709ad20174b6407 | 971eda8995218bfd | d1a7b45ee0360a16 |
+| V9b `corrupt_trailer_bytes("Formats/Latest", 1, 3)` | d4074ec9dccb89df | 8033fe665294b136 | 9d9ebb1f0de48e35 |
+| V10 `regzip_streams_variant(["Global/History"], keep_tail_bytes=128)` | 696a58fd63b3f545 | 7d672ad620b6bc25 | df8dd2ae68c858e6 |
+| V11 `regzip_streams_variant(["Global/History"], keep_tail_bytes=0)` | 9677873f6e9b86d8 | bd8e7e975a6bcb57 | a16819dc61778b6c |
+| V12 `build_variant([])` then `corrupt_trailer_bytes(p, p, "Global/Latest", 0, 2)` in place | a06fa543863a21b2 | 6061b0a750742b8a | d0241ca69541b954 |
+
+- `git grep -n "read_entries" -- src/rvt/writer.py`: before **5** (the import + lines 250, 269, 292, 322) → after **0**;
+  `write_cfb` / `dataclasses` in `writer.py`: 5 / 5 → 0 / 0. `write_cfb(` occurrences over `src/rvt` (defs, docs, calls): 25 → 21.
+- Gate suites, `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest tests/test_cfb_rewrite_entries.py tests/test_conftest_scaffolding.py
+  tests/test_partition_header_verdict.py tests/test_ecc_final_block.py tests/test_gates_shared_walk.py tests/test_roundtrip.py -q
+  -rs -p no:cacheprovider` (of the issue's globs only `tests/test_roundtrip.py` exists — no `test_writer*`, no other `test_cfb*`):
+  origin/main `6fd74ee` (worktree, new file absent) **90 passed, 12 skipped** → branch **100 passed, 12 skipped** (= main + the
+  10 new rows; the 12 skips are `test_roundtrip.py`'s absent samples / `RVT_SKIP_LARGE` / no `compoundfiles`, identical).
+- Whole merged shard, sequential, same VM (`RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q -p no:cacheprovider $(python3
+  tools/dev/shard_list.py --print)`): branch **2214 passed, 134 skipped, 3 xfailed, 3 warnings** in 345 s — the shard now includes the new file's 10 rows, so main `6fd74ee` is expected at 2204 passed with the same skips/xfails (a worktree run of main was started after this line was written; the PR thread carries its measured figure).
+- `/verify` (RAN): `python -m rvt.roundtrip plugin/assets/genesis/<pin>.rvt out/verify/rt_<pin>.rvt --verify --byte-report` on
+  all three pins → `VERIFY: OK` + `byte-identical: YES` ×3; `tools/rvt_validate.py` on the variant outputs, old loop vs new
+  API side by side → identical verdict lines per pair (V10 / V8 / V1: the ECC-damage **errors these damage probes exist to
+  produce** — "a zeroed/foreign trailer looks exactly like this" — V9: the 8-parity-bit trailer *warning*, exit 0; V7 2024: the
+  known non-CRCIO final block error), i.e. the fold changed what no probe does; `writer.verify_readback` on V10 / V1 / V7 →
+  `crc_failures: 0`; bare-unzip surface `tools/surface_bench.py --zip tekton-plugin.zip --json out/verify/bench.json` (42 s wall) → `local` 9/9 PASS (`go author` prompt 1.5 s / 6 panels 3.3 s / ifc 6.1 s READY, `go edit` structural PASS + validation PASS 0 errors), `cowork` / `codeexec` 7 PASS + the same 2 BLOCKED each (the IFC route's stated numpy prerequisite on the simulated no-numpy surfaces — pre-existing, untouched by this diff).
+- `tools/sync_plugin.py` → rebuilt, deny-audit clean, identity scan == allowlist; `--check` → `plugin in sync with source`;
+  `plugin/scripts/validate_plugin.py` → `RESULT: PASS`; `tools/dev/check_portable_paths.py` → `ok: 3017 tracked paths`.
+- pyflakes: `writer.py`, the new test, `conftest.py` clean; `roundtrip.py` reports only the two names already unused on main
+  (`sys`, the `clsid_to_str` re-export) — `Iterable` left with the import line this change rewrote anyway.
+
+### Measured candidates NOT folded (territory) → #646
+
+`git grep -n "write_cfb(\|read_entries("` over `src/rvt/` minus the two container modules: 15 modules. **Exactly
+`rewrite_entries(src, out, new_streams)`** (precomputed `{path: bytes}`, everything else verbatim, every key just read from the
+same container): `commit.py:217-220`, `manipulate.py:1588-1591`, `reduce.py:287-290`, `reduce_v2.py:406-409`,
+`famload.py:1304-1309`, `famgen/loader.py:1945-1947`, `families.py:709-712`, `mep/conduit.py:1589-1592`,
+`mep/electrical_data.py:1703-1706` — three lines each. **Plus a replaced-exactly-once check:** `adocument.py:700-711` (the API's
+`KeyError` covers zero; twice cannot happen). **In place on one stream:** `convert/modify_family.py:534-539`. The one semantic
+difference to state per site: today a key that is not a stream of the source is silently not written; under the API it is a
+`KeyError`. `reduce*.py`'s outputs are gated by `assert_edit_free` in the genesis lanes (`y2024_b.py` / `y2025_b.py`, rule 5) —
+the pass changes no byte, but the fold's sha table must include those lanes. **Not this shape, leave:** `famgen/famdoc_adoc.py:1832`,
+`famgen/skeleton.py:3185`, `convert/rfa_assemble.py:175` (entry lists built from scratch), `famgen/geometry.py:2940-3022`
+(donor-lineage dev path), `regadd.py:368/604` (holds `self.entries` across many edits; a fold re-reads the file). Searched first
+(`search_issues`: only #640 itself); filed **#646** — task-shaped, Refs #640, P2 · area:engine · M.
+
+### /simplify pass (four independent angles) — taken / not taken
+
+Taken: **altitude / simplification** — `replace` accepts `bytes` values and `writer._swap_in` (the constant-lambda adaptor)
+is deleted (above, 1·third bullet); `build_variant`'s docstring carries the ordering law the adaptor's docstring used to;
+`Union[str, "os.PathLike[str]"]` ×2 → `str | os.PathLike[str]` (3.11 floor), `Union` import gone. **Reuse / simplification** —
+`test_conftest_rewrite_streams_is_the_engine_pass` deleted (with `rewrite_streams` a plain call of the API it compared a
+function with itself; the scaffolding file's two rows are the delegation's tests) and the second "returns `str`" assert dropped.
+Not taken: hoisting the new test's `_streams(path)` / `pin` fixture — verbatim twins of `tests/test_conftest_scaffolding.py:127-136`
+— into `conftest.py` (right call, wrong PR: this issue's territory is `rewrite_streams`' *body* and explicitly not the scaffolding
+file; two 4-line helpers, noted for #639's classification pass rather than an issue of their own); `verify_pair` instead of the
+test's `_directory()` (it also fails on the edited stream's digest, so it cannot express "everything but this stream").
+**Efficiency** — nothing to fix: per builder the fold is a wash or cheaper (`zero_full_trailers_only` / `corrupt_trailer_bytes`
+lose an `open_rvt` + a duplicate read of the touched stream; the other two do the same opens in a different order; `flip`
+captures three ints and a str, for the call's duration).
+
+### Findings / limits, stated
+
+- Error type on a *missing* stream changed for the two builders that lost their `open_rvt` pass: they used to surface olefile's
+  `OSError` from `doc.raw(missing)`; they now raise the API's `KeyError` (what `build_variant` already raised). No documented use
+  passes a missing name; the new test pins the `KeyError`.
+- The sha table and the validator lines are instruments on pins, not Autodesk's reader (rule 4): they prove the fold changed no
+  byte of what these dev probes emit and certify nothing; nothing here claims a file loads.
+
+BRANCH STATE (cam/640-rewrite-entries): `src/rvt/roundtrip.py` (+`rewrite_entries`, `StreamEdit`, module-docstring clause,
+`dataclasses` / typing imports), `src/rvt/writer.py` (four folds, `_zero_full_trailers`, `build_variant` docstring, imports),
+`plugin/lib/src/rvt/{roundtrip,writer}.py` (sync mirrors), `tests/conftest.py` (`rewrite_streams` body → delegation + one
+docstring clause), `tests/test_cfb_rewrite_entries.py` (new), `tests/ci_shard.d/640-cfb-rewrite-entries.txt` (new), this
+section. No hot file; nothing staged for the viewer; no certification claim; `tekton-plugin.zip` regenerated locally, not
+committed; follow-up #646 filed.
