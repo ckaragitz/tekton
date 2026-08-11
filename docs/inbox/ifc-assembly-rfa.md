@@ -1153,3 +1153,92 @@ edited); `tests/test_router_load_release.py` (3 assertions + docstring of ONE te
 branch, see Gates — outside the named territory, flagged); this record section. No matrix / cell / SKILL.md / hot-file change; nothing staged for
 the viewer; no certification claimed — "VALID 0 errors" above is a validator fact, not a Revit
 verdict (rule 4). Merge is the tech lead's (regime #302); this session never merges.
+
+# eng #625 — the assembly lane's genuine fallback carries the source IFC beside the `.rfa` (2026-08-11)
+
+*Written by engineer session eng #625 (issue #625, filed by eng #564 above) on branch
+`cam/625-assembly-fallback-ifc`, cut from `main` at 55cc977 (= #627's squash). Add-only: every
+section above is another author's and untouched.*
+
+## The gap, reproduced on 55cc977
+
+Fresh cloud clone, `RVT_STEPLITE_FORCE=1`, no `samples/`; `one.ifc` / `two.ifc` from this test
+file's generator (box; box + 24-gon post); `tools/route.py run --ifc X --output rfa
+--target-version N --json` and, for the famspec-only lane, `--rfa spec/examples/famspec-luminaire.json`:
+
+| input @ year | `main` 55cc977 | this branch |
+|---|---|---|
+| two.ifc @2024 | ok, `releases.rfa` 2026, block `fallback`/2026, `pending` = `famspec->rfa: KeyError: "class 'ArcElemCell' not in the archive class map"` (#241); `ifc_addition: null` ("no intent resolved: nothing to emit"); line ends **"… your Revit 2024 cannot open it; no IFC rides beside a FAMILY request (it resolves no room intent) -- state the recipient's Revit year and re-run"**; `files` = assembly_parts, rfa, rfa_report; `--out` = ROUTE.md, T.report.json, T.rfa, assembly-parts.json, route.json, route.log | ok, 2026, `fallback`/2026, same `pending`; `ifc_addition` = `<out>/two.ifc` ("the input IFC, copied beside the build (already version-agnostic)"); line ends **"… your Revit 2024 cannot open it; the IFC alongside is version-agnostic (links into Revit 2019+)"** — the archetype lane's wording, byte for byte, because it is the same `_emit_at_target` branch; `files` gains `ifc`; `--out` gains `two.ifc` (byte-identical to the input); the line is ONE caveat, as before |
+| two.ifc @2023 | (resolver fallback, uncertified year) delivered 2026 + the resolver's line ending "no IFC rides…" | delivered 2026 + the resolver's line ending "the IFC alongside is version-agnostic…", `two.ifc` beside, `files.ifc` set — the same mechanism covers both fallback sources |
+| two.ifc @2025 | `match`/2025, bytes 2025, no line, no `ifc` role | identical (nothing copied, nothing said) |
+| one.ifc @2025 | `match`/2025 by the ASSEMBLY lane after the archetype lane failed at facts->rfa; no `ifc` role | identical |
+| famspec luminaire @2023 | `fallback`/2026, line ends "no IFC rides beside a FAMILY request…", no `ifc` role | identical — a famspec-only request still has no IFC and says so |
+| famspec luminaire @2024 | `match`/2024 | identical |
+| one.ifc → rvt `--via family` @2025 (#627's dead-lane case) | `FAILED (facts->rfa: …)` rc 3, block stays `match`, no line, no IFC copied, `--out` = ROUTE.md, product-facts.json, route.json, route.log | identical — #627's "a lane that delivered nothing states nothing and copies nothing" is untouched: the copy still happens only inside `_emit_at_target` after the native emit returned |
+
+Status lines unchanged in every row. `tools/route.py matrix` byte-identical to `main` (3181 bytes,
+sha256 7dae5d40eb46…). Every `.rfa` above (six) → `tools/rvt_validate.py --family`: `VALID (no
+errors); warnings=0 info=2` — a validator fact about the files, not evidence that Revit opens them
+(rule 4; nothing certified or staged here).
+
+## The change
+
+`router.py`, plumbing only (+10 / −4, docstring lines included): `_famspec_rfa` grows a keyword-only
+`source_ifc: Optional[str] = None` and forwards it to `_emit_at_target(..., source_ifc=source_ifc)`;
+`_assembly_rfa` passes `source_ifc=ifc_path`. The two famspec-only callers (`_r_rfa_generate`,
+`_r_rfa_load`) pass nothing, so `_emit_ifc_addition` still finds no IFC and no model there and
+`_settle_ifc_clause` still rewrites their line to "no IFC rides…". No wording, matrix, cell or
+resolver change: the assembly lane now simply reaches the branch of `_emit_ifc_addition` the
+archetype lane (`_product_rfa`, which already passed `source_ifc=ifc_path`) always reached. On a
+`match` `_emit_ifc_addition` returns at its first line, so forwarding the path costs nothing there.
+
+## Evidence
+
+Tests appended to `tests/test_ifc_assembly.py` (a new section at the end; nothing above it edited,
+the generators reused):
+`test_an_assembly_fallback_carries_the_source_ifc_beside_the_rfa[2024|2023]` (block `fallback`,
+`.rfa` delivered native and detected as such, `files["ifc"]` inside `--out`, basename `two.ifc`,
+bytes == the input, `ifc_addition` names it, line keeps "IFC alongside is version-agnostic" and never
+says "no IFC rides", stated exactly once, status names the ASSEMBLY lane),
+`test_an_assembly_match_copies_no_ifc_and_says_nothing_extra` (two.ifc @2025: `match`, no `ifc`
+role, no `two.ifc` in `--out`, no line), `test_a_famspec_only_fallback_still_says_no_ifc_rides`
+(a donor-free `generic_model` famspec @2023: delivered native, no `ifc` role, no `.ifc` in `--out`,
+line "cannot open it … no IFC rides"). The 2024 case carries a guard so it outlives #241: the famspec
+constructor is wrapped to refuse inside any non-native release context (today the arc post already
+raises there by itself; once 2024 gains `ArcElemCell` the guard keeps the test about this plumbing,
+not about that gap); the 2023 case needs no guard (resolver fallback). Against `main`'s `router.py`
+under the same test file: **2 failed / 2 passed** (both fallback years red on `KeyError: 'ifc'`; the
+match and famspec-only pins already true); on this head **4 passed**. The famspec-only wording is
+also pinned independently by `test_router.py::test_famspec_target_version_field_and_flag` and
+`test_router_load_release.py` (both untouched, green).
+
+Gates: `RVT_SKIP_LARGE=1 RVT_STEPLITE_FORCE=1 pytest tests/test_router.py tests/test_ifc_assembly.py
+tests/test_router_load_release.py tests/test_frontdoor.py -q -rs` → **before 324 passed / 19 skipped,
+after 328 passed / 19 skipped** (the 4 new; skips = RVT_SKIP_LARGE, absent samples / ifcopenshell, root chmod —
+unchanged); whole merged shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1 -p no:cacheprovider`) →
+**(running at first push; counts recorded in the next commit of this section and the PR body)**; `tools/sync_plugin.py` → `--check` clean ("plugin in sync with source");
+`validate_plugin.py` PASS (25 assertions); `check_portable_paths.py` ok (3012 paths). `/simplify` ran on
+the diff (4 reviewers): applied — the degrade guard raises *before* calling the real constructor (no
+wasted build once #241 closes; the assertions never read the reason), a call-site comment that restated
+the docstring dropped (`_product_rfa` passes the same keyword bare), the famspec-only test says why it
+exists beside `test_router`'s catalog-gated pin; skipped — folding the match test's four negative
+assertions into eng #564's `test_a_two_product_ifc_at_2025_stays_2025` and pointing that test at the new
+`_two_products` helper (both would edit another author's section; the cost kept is one extra ~1 s route
+per run — a later fold is welcome); altitude: "clean — the explicit keyword is the pattern
+`_families_from_model` and `_product_rfa` already use". `/verify` = the router drives above re-run on the
+final tree (same numbers), plus a junk `--ifc README.md @2024` probe: rc 4, `FAILED (ifc->parts: … not an
+ISO-10303-21 (STEP) file)`, two one-line errors, no traceback, nothing copied into `--out`; emit reports'
+provenance `ok: true, suspects []` on two24 / two25 / fam23.
+
+## BRANCH STATE (eng #625)
+
+Branch `cam/625-assembly-fallback-ifc` from `main` 55cc977; one PR, `Closes #625`. Files:
+`src/rvt/frontdoor/router.py` (`_famspec_rfa` keyword + forward, `_assembly_rfa` call; +10 / −4) and
+its `plugin/lib/src/rvt/frontdoor/router.py` mirror via `sync_plugin.py`; `tests/test_ifc_assembly.py`
+(one appended section, 4 tests); this record section. Nothing else: no `src/rvt/ifc/**` (eng #621),
+no famgen, no `tools/route.py`, no matrix / cell / SKILL.md / hot file; nothing staged for the viewer;
+no certification claimed. No follow-up filed: the one adjacent wart (the resolver adds the "IFC
+alongside" clause before knowing whether an IFC is written, so `_settle_ifc_clause` has to strip it)
+is already named as a follow-up in `_settle_ifc_clause`'s docstring and lives in
+`rvt.frontdoor._resolve_base_and_version` = `base.py`, a hot file. Merge is the tech lead's (regime
+#302); this session never merges.

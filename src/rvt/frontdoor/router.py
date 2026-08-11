@@ -1115,7 +1115,7 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
     }
     sub = dict(opts)
     sub.setdefault("stem", _slug(name))
-    _famspec_rfa(res, "generic_model", kw, out_dir, sub)
+    _famspec_rfa(res, "generic_model", kw, out_dir, sub, source_ifc=ifc_path)
     if not res.files.get("rfa"):
         return
     d = model.dims_ft()
@@ -1393,12 +1393,16 @@ def _famspec_request(res: RouteResult, famspec: Dict[str, Any], opts: Dict[str, 
 
 
 def _famspec_rfa(res: RouteResult, kind: str, kw: Dict[str, Any], out_dir: str,
-                 opts: Dict[str, Any]) -> Optional[Tuple[Any, str]]:
+                 opts: Dict[str, Any], *,
+                 source_ifc: Optional[str] = None) -> Optional[Tuple[Any, str]]:
     """famspec -> OUR standalone .rfa: run the kind's constructor, emit at
     the ``--target-version`` release (:func:`_emit_at_target`), fold the
     write report (family-mode validator, provenance scan) into ``res``.
     Returns ``(product, stem)`` -- ``product.doc`` is the FamilyDoc -- or
-    None when nothing was delivered; sets ``res.ok`` / ``res.status``."""
+    None when nothing was delivered; sets ``res.ok`` / ``res.status``.
+    ``source_ifc`` is the IFC the famspec was measured from, if any (the
+    assembly lane): on a genuine version fallback it is copied beside the
+    delivered ``.rfa``; a famspec-only request has none and says so."""
     steps = _Steps(res)
     ctor = FS.constructor_name(kind)
 
@@ -1412,7 +1416,7 @@ def _famspec_rfa(res: RouteResult, kind: str, kw: Dict[str, Any], out_dir: str,
         return prod, stem, rep
 
     try:
-        prod, stem, rep = _emit_at_target(res, opts, out_dir, emit)
+        prod, stem, rep = _emit_at_target(res, opts, out_dir, emit, source_ifc=source_ifc)
     except _StepFailed as sf:
         res.ok = False
         msg = str(sf.__cause__)[:400]

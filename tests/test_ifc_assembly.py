@@ -1205,3 +1205,107 @@ def test_a_two_product_ifc_at_2025_stays_2025(tmp_path):
     assert res.releases["rfa"] == 2025 == V.detect_release(res.files["rfa"])
     assert res.target_version["status"] == "match"
     assert "ifc->facts" in res.status
+
+
+# ---------------------------------------------------------------------------
+# eng #625: on the assembly lane's GENUINE fallback the source IFC rides beside
+# the delivered .rfa (the archetype lane already did this; the famspec-only
+# lane has no IFC and keeps saying so)
+# ---------------------------------------------------------------------------
+
+def _two_products(tmp_path):
+    return write_ifc(str(tmp_path / "two.ifc"), [
+        ("Plate", "IFCBUILDINGELEMENTPROXY", _box_mesh(1.0, 1.0, 0.1)),
+        ("Post A", "IFCMEMBER", _prism_mesh(0.05, 1.0, 24, ox=-0.4, oz=0.1)),
+    ])
+
+
+def _cannot_run_below_native(monkeypatch):
+    """Guarantee the degrade this test observes: the famspec constructor
+    refuses inside any non-native release context (today the 24-gon post's
+    arc sketch already does at 2024 -- no ArcElemCell port, #241; the guard
+    keeps the test about the IFC-beside-the-fallback plumbing once that closes)."""
+    from rvt.frontdoor import release_ctx as RC
+    from rvt.frontdoor import router as R
+    real = R.FS.build
+
+    def build(kind, kw, **k):
+        if RC.active_release() is not None:
+            raise KeyError(f"simulated: no port for this family at Revit {RC.active_release()}")
+        return real(kind, kw, **k)
+    monkeypatch.setattr(R.FS, "build", build)
+
+
+@pytest.mark.parametrize("year", [2024, 2023])
+def test_an_assembly_fallback_carries_the_source_ifc_beside_the_rfa(tmp_path, monkeypatch, year):
+    """two.ifc at a year the emit cannot serve (2024: the lane degrades inside
+    the release context; 2023: no certified base, the resolver's fallback):
+    the .rfa is DELIVERED native (rule 1), the block says `fallback`, and --
+    red on 55cc977 -- the IFC the user supplied is copied beside it, named in
+    `files['ifc']` / `ifc_addition`, and the line keeps its 'IFC alongside'
+    clause instead of claiming 'no IFC rides beside a FAMILY request'."""
+    from rvt import versions as V
+    from rvt.frontdoor import release_ctx as RC
+    from rvt.frontdoor import router as R
+    if year == 2024:
+        _cannot_run_below_native(monkeypatch)
+    src = _two_products(tmp_path)
+    out = tmp_path / "o"
+    res = R.route({"ifc": src}, "rfa", out=str(out), quiet=True, target_version=year)
+    assert res.ok, res.errors + [res.status]
+    native = RC.native_release()
+    assert res.releases["rfa"] == native == V.detect_release(res.files["rfa"])
+    tv = res.target_version
+    assert tv["requested"] == year and tv["status"] == "fallback"
+    assert tv["output_release"] == native
+    ifc = res.files["ifc"]                                   # the addition rides beside the .rfa
+    assert os.path.dirname(os.path.abspath(ifc)) == os.path.abspath(str(out))
+    assert os.path.basename(ifc) == "two.ifc"
+    with open(ifc, "rb") as a, open(src, "rb") as b:
+        assert a.read() == b.read()                          # the input verbatim, nothing authored
+    assert str(tv["ifc_addition"]).endswith("two.ifc")
+    assert "input IFC" in tv["ifc_addition_source"]
+    line = tv["line"]
+    assert f"target {year} requested" in line and "cannot open it" in line
+    assert "IFC alongside is version-agnostic" in line and "no IFC rides" not in line
+    assert res.caveats.count(line) == 1                      # stated once, after delivery
+    assert "ASSEMBLY lane" in res.status
+
+
+def test_an_assembly_match_copies_no_ifc_and_says_nothing_extra(tmp_path):
+    """The forwarded source IFC only matters on a fallback: two.ifc at 2025
+    matches, so no IFC role, no addition, no version line."""
+    from rvt import versions as V
+    from rvt.frontdoor import router as R
+    out = tmp_path / "o"
+    res = R.route({"ifc": _two_products(tmp_path)}, "rfa", out=str(out), quiet=True,
+                  target_version=2025)
+    assert res.ok, res.errors + [res.status]
+    assert res.releases["rfa"] == 2025 == V.detect_release(res.files["rfa"])
+    tv = res.target_version
+    assert tv["status"] == "match" and not tv.get("line") and not tv.get("ifc_addition")
+    assert "ifc" not in res.files
+    assert "two.ifc" not in os.listdir(str(out))
+    assert not any("IFC alongside" in c or "no IFC rides" in c for c in res.caveats)
+
+
+def test_a_famspec_only_fallback_still_says_no_ifc_rides(tmp_path):
+    """rfa -> rfa from a famspec has no IFC to forward: at an uncertified year
+    the family is delivered native and the line keeps today's honest clause.
+    (test_router pins the same on a catalog kind; this is the catalog-free
+    generic_model pin, beside the lane it contrasts with.)"""
+    from rvt.frontdoor import release_ctx as RC
+    from rvt.frontdoor import router as R
+    spec = {"kind": "generic_model", "name": "Crate",
+            "parts": [{"shape": "box", "width_ft": 2.0, "depth_ft": 1.5, "height_ft": 1.0,
+                       "name": "body"}]}
+    out = tmp_path / "o"
+    res = R.route({"rfa": spec}, "rfa", out=str(out), quiet=True, target_version=2023)
+    assert res.ok and os.path.isfile(res.files["rfa"]), res.errors + [res.status]
+    assert res.releases["rfa"] == RC.native_release()
+    tv = res.target_version
+    assert tv["status"] == "fallback" and not tv.get("ifc_addition")
+    assert "ifc" not in res.files
+    assert not any(n.endswith(".ifc") for n in os.listdir(str(out)))
+    line = tv["line"]
+    assert "cannot open it" in line and "IFC alongside" not in line and "no IFC rides" in line
