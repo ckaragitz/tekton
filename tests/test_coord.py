@@ -7,17 +7,15 @@ the earlier one and stay quiet on the unrelated seeded queue; `refs`/`rivals`
 must read PR bodies the way GitHub's issue linker does, including the
 "does not close #N" trap that closes #N anyway.
 """
-import importlib.util
 import json
 import os
 import subprocess
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from conftest import ROOT, load_tool
+
 COORD = os.path.join(ROOT, "tools", "dev", "coord.py")
-_spec = importlib.util.spec_from_file_location("coord", COORD)
-coord = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(coord)
+coord = load_tool("dev/coord")
 
 TITLES = {
     1: 'Front door: restore wall derivation from room prompts + add rating-class voltage vocabulary ("250V")',

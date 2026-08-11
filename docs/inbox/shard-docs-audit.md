@@ -625,3 +625,55 @@ Rebased once onto `280ec51` (after #594 = eng #557's section above, kept as land
 origin/main -- tests/test_estorage_cli_release.py` touches no `_has_catalog_layout` / catalog-string / docstring line);
 on the rebased head the six adopters + the law file + `tests/test_estorage_cli_release.py` + `tests/test_estorage_catalog_2024.py`
 → **89 passed** (67 + 13 + #599's 9), docs census 0, portable paths ok (2986).
+
+---
+
+## 2026-08-11 — eng #593: `tests/test_coord.py` and `tests/test_techlead.py` load their tool through `conftest.load_tool`
+
+The last two *process* tests still carried the private module-level loader that #523 gave one home
+(`tests/conftest.py::load_tool`) and that #542 / #557 already retired from `test_shard_list.py` / `test_portable_paths.py`:
+`tests/test_coord.py` L10–20 (`spec_from_file_location("coord", COORD)` + `module_from_spec` + `exec_module`) and
+`tests/test_techlead.py` L18–30 (the same for `tools/dev/techlead.py`). Both are now `from conftest import ROOT, load_tool`
+plus `coord = load_tool("dev/coord")` / `tl = load_tool("dev/techlead")` at module level — the exact shape the two earlier
+adopters use (neither file monkeypatches the loaded module, so no module-scoped fixture is needed). Their own `ROOT`
+computation is dropped for conftest's identical one; `import importlib.util` goes with the stanza. `COORD` / `PATH` / `WF`
+stay: both files also run the tool as a child process (`subprocess.run([sys.executable, COORD|PATH, …])`), and
+`test_techlead.py` reads `PATH`'s source and globs `WF`. Helper adoption only: every assertion, test id and outcome is
+unchanged.
+
+The one nuance the issue asked to check: `load_tool` registers the module as `sys.modules["dev/coord"]` /
+`sys.modules["dev/techlead"]` (the private stanzas registered nothing). Neither tool looks itself up by name —
+`tools/dev/techlead.py` loads `coord.py` by *path* (its own `spec_from_file_location("coord", HERE/coord.py)`, L54), and
+`coord.py`'s only `__name__` use is the `__main__` guard — and no test refers to `sys.modules["coord"|"techlead"]`; the
+after-run below is the proof.
+
+### Evidence
+
+- Per file, `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest <file> -q -rs -p no:cacheprovider`, before → after:
+  `tests/test_coord.py` **11 passed → 11 passed**; `tests/test_techlead.py` **34 passed → 34 passed** (45 collected, as the
+  issue counted; no skips in either, so `-rs` prints no reasons before or after). `--collect-only -q` id lists before/after:
+  `diff` empty for both files (11 + 34 ids).
+- The issue's gate set, `tests/test_coord.py tests/test_techlead.py tests/test_shard_list.py tests/test_portable_paths.py -q -rs`:
+  **71 passed → 71 passed**.
+- `grep -n spec_from_file_location tests/test_coord.py tests/test_techlead.py` → nothing.
+  `git diff origin/main -- tests/test_coord.py tests/test_techlead.py | grep "^-" | grep -v "^---" | grep -c assert` → **0**.
+  `git diff --stat` (tests only): 6 insertions, 10 deletions — net −4 (−2 per file: five stanza/`ROOT` lines out, one
+  `from conftest import …` + one `load_tool(…)` line in, `importlib.util` import gone).
+- `python3 tools/dev/check_portable_paths.py` → `ok: 2981 tracked paths are portable`. Nothing under `src/ tools/ plugin/
+  skills/` touched (`sync_plugin.py --check` clean at cloud-setup; moot for this diff). No other conftest helper is
+  duplicated in either file: the three `env = {**os.environ, "GH_TOKEN": "", …}` dicts in `test_techlead.py` scrub tokens
+  for the CLI smoke rows — they are not `GIT_ENV` and have no conftest equivalent.
+- /simplify: two-line mechanical swap per file; nothing to fold further without leaving the territory.
+
+### Follow-ups
+
+None new. `spec_from_file_location` remains in ~30 engine/tool test files outside the process-test family (each loads a
+different `tools/*.py`, several through fixtures that patch the module) — a wider `load_tool` sweep is a separate,
+larger call for the tech lead, deliberately not filed as one issue per file.
+
+BRANCH STATE (cam/593-coord-techlead-load-tool): `tests/test_coord.py`, `tests/test_techlead.py` (helper adoption only),
+this section. No `tests/conftest.py` change; nothing under `src/`, `tools/`, `plugin/`, `skills/`; no shard drop-in
+needed (both files are already in the merged shard, rows 14 and 18 of `shard_list.py --print`); nothing staged for the
+viewer; no certification claim. Whole merged shard on the test head (100 files):
+`RVT_SKIP_LARGE=1 … -q -p no:cacheprovider $(python3 tools/dev/shard_list.py --print)` → **2012 passed, 134 skipped,
+3 xfailed** in 343 s (docs-read audit on, no section printed = no offender), exit 0 — identical counts to eng #557's run.

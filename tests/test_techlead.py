@@ -15,19 +15,17 @@ only be kept in step by tests like these.
 """
 import datetime as dt
 import glob
-import importlib.util
 import json
 import os
 import re
 import subprocess
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from conftest import ROOT, load_tool
+
 PATH = os.path.join(ROOT, "tools", "dev", "techlead.py")
 WF = os.path.join(ROOT, ".github", "workflows")
-_spec = importlib.util.spec_from_file_location("techlead", PATH)
-tl = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(tl)
+tl = load_tool("dev/techlead")
 
 NOW = dt.datetime(2026, 8, 9, 6, 0, tzinfo=dt.timezone.utc)
 CFG = tl.load_config(text="{}")
