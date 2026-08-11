@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import os
 import uuid
+import warnings
 from typing import Optional
 
 from . import stream_encoders as se
@@ -73,6 +74,60 @@ def own_basic_file_info(raw_bfi: bytes, *, out_path: str = "", **kw) -> bytes:
     model = se.decode_basic_file_info(raw_bfi)
     ours = own_identity_model(model, out_path=out_path, **kw)
     return se.encode_basic_file_info(ours, regenerate_mirror=True)
+
+
+BFI_STREAM = "BasicFileInfo"
+INCREMENT_TABLE_STREAM = "Global/DocumentIncrementTable"
+
+
+def own_streams(doc, out_path: str = "", *,
+                identity: Optional[dict] = None,
+                keep_document_guid: bool = True,
+                increment_table: bool = False) -> dict:
+    """The identity streams a minimal commit owns, computed from the OPEN source
+    document ``doc`` (``rvt.container.open_rvt``) as ``{stream: new_raw}`` for
+    the writer's ``rewrite_entries`` map -- the one home of the "writer owns
+    the identity block, keeps the document GUID, never lets identity break a
+    commit" policy of ``commit.commit_new_elements`` / ``mep.conduit
+    .commit_created`` / ``mep.electrical_data.commit_electrical``:
+
+      * ``BasicFileInfo`` (when present) -> :func:`own_basic_file_info` with
+        ``out_path`` and ``**identity`` (:func:`own_identity_model`'s kwargs).
+        ``keep_document_guid``: the file's CURRENT Unique Document GUID is the
+        default ``document_guid`` (no ``Global/History`` episode is recorded
+        here, so the GUID pairing with History[0] stays; an explicit
+        ``identity["document_guid"]`` wins); False = whatever ``identity``
+        carries, else a fresh uuid4 (``commit_electrical``'s legacy opt-in).
+      * ``Global/DocumentIncrementTable`` (when ``increment_table`` -- the norm
+        for a deliverable; off only where a writer never owned it) -> every
+        save-episode username := ``identity["username"]`` (default ``""``).
+
+    Never raises: a stream that cannot be read, decoded or re-encoded is left
+    out (the writer carries it verbatim) with a ``warnings.warn`` --
+    ``identity scrub skipped: <exc>`` (BasicFileInfo) /
+    ``increment-table identity scrub skipped: <exc>``.
+    """
+    identity = dict(identity or {})
+    streams: dict = {}
+    try:
+        if doc.has(BFI_STREAM):
+            bfi = doc.raw(BFI_STREAM)
+            if keep_document_guid:
+                identity.setdefault("document_guid",
+                                    se.decode_basic_file_info(bfi).get("unique_document_guid"))
+            streams[BFI_STREAM] = own_basic_file_info(bfi, out_path=out_path, **identity)
+    except Exception as exc:                 # never let identity break a commit
+        warnings.warn(f"identity scrub skipped: {exc}")
+    if increment_table:
+        try:
+            prefix = doc.prefix(INCREMENT_TABLE_STREAM)
+            inflated = doc.inflate(INCREMENT_TABLE_STREAM, 0)
+            streams[INCREMENT_TABLE_STREAM] = own_increment_table_stream(
+                doc.raw(INCREMENT_TABLE_STREAM), prefix, inflated,
+                username=identity.get("username", ""))
+        except Exception as exc:
+            warnings.warn(f"increment-table identity scrub skipped: {exc}")
+    return streams
 
 
 def identity_report(raw_bfi: bytes) -> dict:

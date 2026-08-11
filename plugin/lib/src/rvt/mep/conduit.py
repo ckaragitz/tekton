@@ -1460,6 +1460,7 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
     from ..container import open_rvt
     from .. import ecc
     from .. import partitions as _P
+    from ..identity import own_streams
     from ..partitions import StreamWalker
     from ..roundtrip import rewrite_entries
     from ..stream_encoders import decode_elemtable, encode_elemtable, global_prefix
@@ -1496,7 +1497,6 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
         if len(parts) != 1:
             raise NotImplementedError(f"expected one partition stream, got {parts}")
         pname = parts[0]
-        bfi = f.raw("BasicFileInfo") if f.has("BasicFileInfo") else None
         # -- ElemTable (rows with owners) ------------------------------------
         model = decode_elemtable(f.inflate("Global/ElemTable"))
         count_before = len(model["records"])
@@ -1567,21 +1567,9 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
             raise RuntimeError(f"walker errors after splice: {w2.errors[:3]}")
         part_logical = bytes(out[:w2.end_offset + len(w2.end_record)])
         new_streams[pname] = ecc.frame_stream(part_logical)
-    # -- identity (the writer owns BasicFileInfo) --------------------------------
-    # This is a MINIMAL commit (no new History episode is recorded), so the
-    # document GUID that pairs with History[0] must stay coherent: scrub the
-    # provenance strings but KEEP the existing document GUID (a fresh GUID
-    # belongs to a full record_save() that also prepends the History episode).
-    try:
-        from ..identity import own_basic_file_info
-        from ..stream_encoders import decode_basic_file_info
-        if bfi is not None:
-            cur = decode_basic_file_info(bfi).get("unique_document_guid")
-            new_streams["BasicFileInfo"] = own_basic_file_info(
-                bfi, out_path=out_path, document_guid=cur)
-    except Exception as exc:                       # pragma: no cover
-        import warnings
-        warnings.warn(f"identity scrub skipped: {exc}")
+        # -- identity: the writer owns BasicFileInfo; a MINIMAL commit (no new
+        # History episode), so the document GUID is kept -- rvt.identity's policy
+        new_streams.update(own_streams(f, out_path))
     rewrite_entries(src_rvt, out_path, new_streams)
     report = {"partition": pname, "new_element_ids": [e.elem_id for e in elements],
               "elemtable_count_before": count_before,

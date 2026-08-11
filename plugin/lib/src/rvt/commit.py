@@ -14,11 +14,12 @@ ElemRec plan), it:
   3. Bumps the partition stream header's elem_table_count to match.
   4. Re-frames both streams with real CRCIO ECC and rebuilds the container.
 
-Save-history streams (DocumentIncrementTable / History / BasicFileInfo /
-Contents) are deliberately NOT modified in this minimal commit: the new
-ElemRecs reuse an EXISTING episode so the History invariant
-(count == max(modified_ep) + 1) still holds. A full record_save() can be
-layered on later (see rvt.streams_edit).
+No new save episode is recorded in this minimal commit (History / Contents
+untouched, no DocumentIncrementTable row added): the new ElemRecs reuse an
+EXISTING episode so the History invariant (count == max(modified_ep) + 1)
+still holds; the identity block (BasicFileInfo, the increment table's
+usernames) is OWNED via ``rvt.identity.own_streams`` with the document GUID
+kept. A full record_save() can be layered on later (see rvt.streams_edit).
 """
 from __future__ import annotations
 
@@ -29,6 +30,7 @@ from typing import Dict, List, Sequence, Tuple
 from . import ecc
 from . import partitions as _P
 from .container import open_rvt
+from .identity import own_streams
 from .partitions import StreamWalker
 from .roundtrip import rewrite_entries
 from .stream_encoders import (decode_elemtable, encode_elemtable,
@@ -95,7 +97,6 @@ def commit_new_elements(src_rvt: str, out_path: str,
         if len(parts) != 1:
             raise NotImplementedError(f"expected one partition stream, got {parts}")
         pname = parts[0]
-        bfi = doc.raw("BasicFileInfo") if doc.has("BasicFileInfo") else None
 
         # ---------------- 1. ElemTable ------------------------------------
         et_payload = doc.inflate("Global/ElemTable")
@@ -177,38 +178,12 @@ def commit_new_elements(src_rvt: str, out_path: str,
         part_logical = bytes(out[:w2.end_offset + len(w2.end_record)])
         new_streams[pname] = ecc.frame_stream(part_logical)
 
-    # ---------------- 3. identity: the writer OWNS BasicFileInfo (gate G2) ---
-    # A generated file never inherits the template's identity (an Autodesk
-    # employee's local path + the sample GUIDs). author/client strings are
-    # kept by default pending counsel decision C1.
-    try:
-        from .identity import own_basic_file_info
-        if bfi is not None:
-            from .stream_encoders import decode_basic_file_info as _dbfi
-            _cur_guid = _dbfi(bfi).get("unique_document_guid")
-            _ident = dict(identity or {})
-            _ident.setdefault("document_guid", _cur_guid)   # keeps History[0] coherence
-            new_streams["BasicFileInfo"] = own_basic_file_info(
-                bfi, out_path=out_path, **_ident)
-    except Exception as exc:                 # never let identity break a commit
-        import warnings
-        warnings.warn(f"identity scrub skipped: {exc}")
-
-    # ---------------- 3b. identity: own the DocumentIncrementTable usernames --
-    # Every save-episode row carries the saving user's name; a clone inherits
-    # Autodesk employees' usernames. Rewrite them (same identity policy).
-    if "Global/DocumentIncrementTable" not in new_streams:
-        try:
-            from .identity import own_increment_table_stream
-            with open_rvt(src_rvt) as _doc:
-                _pref = _doc.prefix("Global/DocumentIncrementTable")
-                _infl = _doc.inflate("Global/DocumentIncrementTable", 0)
-                _raw = _doc.raw("Global/DocumentIncrementTable")
-            new_streams["Global/DocumentIncrementTable"] = own_increment_table_stream(
-                _raw, _pref, _infl, username=(identity or {}).get("username", ""))
-        except Exception as exc:
-            import warnings
-            warnings.warn(f"increment-table identity scrub skipped: {exc}")
+        # ---------------- 3. identity (gate G2): the writer OWNS BasicFileInfo
+        # (document GUID kept -- no History episode is recorded here) and the
+        # DocumentIncrementTable usernames; never lets identity break a commit.
+        # The helper's streams win over anything already in new_streams.
+        new_streams.update(own_streams(doc, out_path, identity=identity,
+                                       increment_table=True))
 
     # ---------------- 4. write ------------------------------------------------
     rewrite_entries(src_rvt, out_path, new_streams)
