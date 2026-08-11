@@ -81,8 +81,11 @@ def test_every_origin_is_one_of_the_three_and_builtins_are_never_authored():
 
 def test_the_contract_origin_is_only_used_for_names_the_repo_really_carries():
     """origin='contract' claims the name comes from an in-repo tagging
-    contract -- so every one of them must actually be in it."""
-    contract_names = {n for n, _s, _g in F.PANEL_CONTRACT_PARAMS}
+    contract -- so every one of them must actually be in it: the factory's
+    panelboard set, or the pset keys the IFC intent joins on (#642: the
+    switchboard's ``Sections`` is ``SwitchboardSchedule.Sections``)."""
+    from rvt.ifc.intent import CONTRACT_KEYS
+    contract_names = {n for n, _s, _g in F.PANEL_CONTRACT_PARAMS} | set(CONTRACT_KEYS)
     used = {p.name for rows in ST.CATEGORY_STANDARDS.values() for p in rows
             if p.origin == ST.ORIGIN_CONTRACT}
     assert used <= contract_names, used - contract_names
