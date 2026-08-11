@@ -128,6 +128,15 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
           "switchboard; zero donors)",
           ("test:tests/test_famgen_factory.py",
            "worked:experiments/frontdoor/prompt-electrical-room/families")),
+    Stage("prompt->archetype", "rvt.famgen.archetypes:resolve_prompt",
+          "a prompt naming a product the ARCHETYPE registry GENERATES (cable "
+          "tray, strut channel, wireway, junction box, conduit) -> the LOD-400 "
+          "part list at standard NOMINAL sizes for that product class, every "
+          "dimension reported nominal (generated) or given (the prompt stated "
+          "it); no manufacturer identity is ever attached, so a named "
+          "manufacturer's part is still refused",
+          ("test:tests/test_famgen_archetypes.py",
+           "record:docs/inbox/prompt-archetypes.md")),
     Stage("rvt-edit", "rvt.frontdoor.edit:run_edit",
           "the certified edit pipeline (tools/rvt_job.py edit via "
           "rvt.manipulate + rvt.mutate): modify / move / retype / delete / "
@@ -430,10 +439,20 @@ _CELL_LIST: List[Cell] = [
          ("the IFC is version-agnostic and re-enters via the ifc input "
           "(round-trip proven by tests/test_target2025.py)",)),
     Cell(("prompt",), "rfa", STATUS_WORKS, "prompt_to_rfa",
-         ("prompt->intent", "intent->rfa"),
+         ("prompt->intent", "intent->rfa", "prompt->archetype"),
          ("worked:experiments/frontdoor/prompt-electrical-room/families",
-          "test:tests/test_famgen_factory.py", "test:tests/test_frontdoor.py"),
-         (_CATALOG, _PROOF_ONLY)),
+          "test:tests/test_famgen_factory.py", "test:tests/test_frontdoor.py",
+          "test:tests/test_famgen_archetypes.py"),
+         (_CATALOG, _PROOF_ONLY,
+          "a prompt naming a product the ARCHETYPE registry generates (cable "
+          "tray, strut channel, wireway, junction box, conduit) is built at "
+          "standard NOMINAL sizes for that product class when no catalog "
+          "record applies: every dimension is reported nominal (generated) or "
+          "given (you stated it), and no manufacturer / model / part number is "
+          "ever claimed -- asking for a named manufacturer's part is still "
+          "refused (rvt.famgen.archetypes, issue #591)"),
+         hint=("catalog facts win when the prompt names a catalog product; the "
+               "archetype lane is the fallback, not the first choice")),
     # ---------------- singles: ifc ----------------
     Cell(("ifc",), "rvt", STATUS_WORKS, "ifc_to_rvt",
          ("ifc->intent", "intent->rvt"),

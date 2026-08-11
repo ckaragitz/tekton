@@ -996,22 +996,96 @@ def _families_from_model(res: RouteResult, model, out_dir: str, opts: Dict[str, 
 
 
 def _r_prompt_to_rfa(res, inputs, out_dir, opts):
+    """A prompt -> family .rfa, in the order the honesty contract sets:
+
+    1. CATALOG facts first (steer #591 DONE 6): "a 225 A Eaton panelboard" is a
+       real record and must route to it, never to a generated approximation.
+    2. Otherwise the ARCHETYPE lane: a named product this engine generates
+       ("create a cable tray family") is built at standard nominal sizes.
+    3. Otherwise the honest refusal the intent parser already writes.
+    """
     from . import prompt_intent as PP
     from . import intent as FI
+    prompt = str(inputs["prompt"])
     steps = _Steps(res)
-    model, _parsed = steps.run("prompt->intent",
-                               "rvt.frontdoor.prompt_intent:prompt_to_intent",
-                               lambda: PP.prompt_to_intent(str(inputs["prompt"])))
-    intent_json = os.path.join(out_dir, "intent.json")
-    FI.write_intent_json(model, intent_json)
-    res.files["intent"] = intent_json
-    frec = _families_from_model(res, model, out_dir, opts)
+    mark = len(res.errors)
+    model = None
+    try:
+        model, _parsed = steps.run("prompt->intent",
+                                   "rvt.frontdoor.prompt_intent:prompt_to_intent",
+                                   lambda: PP.prompt_to_intent(prompt))
+    except _StepFailed:
+        pass
+    frec: Dict[str, Any] = {}
+    if model is not None:
+        intent_json = os.path.join(out_dir, "intent.json")
+        FI.write_intent_json(model, intent_json)
+        res.files["intent"] = intent_json
+        frec = _families_from_model(res, model, out_dir, opts)
     built = int(frec.get("built") or 0)
-    res.ok = built > 0
-    res.status = (f"OK ({built} family .rfa generated; refusals honest)"
-                  if res.ok else
-                  "FAILED (no family plan in this prompt could be built -- "
+    if built:
+        res.ok = True
+        res.status = f"OK ({built} family .rfa generated; refusals honest)"
+        return
+    # nothing catalog-backed came out of it: is this a product we GENERATE?
+    if _archetype_rfa(res, prompt, out_dir, opts, demote=res.errors[mark:]):
+        return
+    res.ok = False
+    res.status = ("FAILED (no family plan in this prompt could be built -- "
                   "see caveats for every refusal)")
+
+
+def _archetype_rfa(res: RouteResult, prompt: str, out_dir: str,
+                   opts: Dict[str, Any], *,
+                   demote: Optional[List[Any]] = None) -> bool:
+    """The ARCHETYPE lane (steer #591): a prompt naming a product this engine
+    generates -> ONE .rfa at standard nominal sizes.  Returns True when it
+    delivered (or tried and failed loudly), False when the prompt names no
+    generated product, so the caller can keep its own refusal.
+    """
+    from ..famgen import archetypes as AR
+    try:
+        req = AR.resolve_prompt(prompt)
+    except AR.ArchetypeError:
+        return False
+    if req is None:
+        return False
+    # the catalog lane's refusal is no longer the answer -- keep it as context
+    for e in (demote or []):
+        res.caveats.append(f"the catalog lane did not apply here ({e}) -- fell "
+                           "through to the ARCHETYPE lane below")
+    del res.errors[len(res.errors) - len(demote or []):]
+    kw: Dict[str, Any] = {"product": req.arch.key, "prompt": prompt}
+    sub = dict(opts)
+    sub.setdefault("stem", _slug(req.name))
+    _famspec_rfa(res, "archetype", kw, out_dir, sub)
+    if not res.files.get("rfa"):
+        return True
+    rep = req.to_json()
+    rec_path = os.path.join(out_dir, "archetype.json")
+    try:
+        with open(rec_path, "w", encoding="utf-8") as fh:
+            _jsonsafe.dump(rep, fh, indent=1)
+        res.files["archetype"] = rec_path
+    except OSError as e:                                     # delivery never blocks
+        res.caveats.append(f"the archetype record could not be written ({e})")
+    n_nom, n_giv = len(req.nominal()), len(req.given())
+    res.status = (f"OK ({req.arch.title}: {len(req.parts())}-part .rfa generated at "
+                  f"standard nominal sizes; {n_giv} dimension(s) from the prompt, "
+                  f"{n_nom} nominal)")
+    res.caveats.append(
+        f"ARCHETYPE LANE: this family was GENERATED, not read from a catalog. "
+        f"{n_nom} dimension(s) are NOMINAL -- {req.arch.basis} -- and "
+        f"{n_giv} came from your prompt"
+        + (": " + "; ".join(f"{k} = {req.quoted[k]!r}" for k in req.given()
+                            if k in req.quoted) if req.quoted else "")
+        + ". No manufacturer, model or part number is claimed; every nominal "
+          "dimension is listed in the report's unverified_fields and any of them "
+          "can be overridden by naming it in the prompt or in a famspec's "
+          "'dimensions'.")
+    res.caveats.append(f"LOD: {req.arch.lod_note}. NOT modelled: "
+                       + "; ".join(req.arch.limits or ("--",)))
+    return True
 
 
 def _r_ifc_to_rfa(res, inputs, out_dir, opts):

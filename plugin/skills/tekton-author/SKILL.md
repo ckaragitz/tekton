@@ -88,6 +88,34 @@ concave, either winding; do not repeat the first point). A box is
 manufacturer, model or rating values for a shape — the geometry is reported
 as GIVEN with its source, which is exactly what makes this route honest.
 
+**A NAMED PRODUCT with no dimensions — "create a cable tray family", "make me
+a strut channel" — is generated, not refused.** Send the prompt straight
+through; the router builds it at standard nominal sizes for that product
+class, LOD 400 (a ladder tray is two side rails plus a rung at every standard
+spacing, not a box with a label):
+
+```bash
+python <plugin>/skills/tekton-author/scripts/_bootstrap.py go route.py \
+    run --prompt "create a cable tray family" --output rfa --out out/job5
+# dimensions the user states override the nominals and are re-labelled "given":
+#   "a 24 inch cable tray 20 ft long with 6 in rung spacing"
+```
+
+Generated products today: `cable_tray` (ladder), `strut_channel`, `wireway`,
+`junction_box`, `conduit`. `go make_family.py archetypes` lists them with
+every parameter and the practice each nominal follows; `--prompt "…"` shows
+how a prompt resolves *before* you build. For full control use the famspec
+`{"kind": "archetype", "product": "cable_tray", "dimensions": {"width_in": 24}}`.
+
+**Report the provenance, it is the point.** Every dimension comes back
+`nominal` (generated from standard practice for the product class) or `given`
+(the user stated it — the report quotes their words). Say which are which and
+say plainly that **no manufacturer, model or part number is claimed**. A
+request for a *named manufacturer's* part ("an Eaton B-Line 24 in tray, part
+number X") is still refused by name — that is a fact the catalog would have to
+hold, and a generic tray must never silently wear a manufacturer's part
+number.
+
 **Anything with more than one solid uses `"parts"`** instead of the single
 outline: a list of prisms in the family's frame, each with its own `shape`
 (`box`, `cylinder`, `cylinder_x`, `cylinder_y`, `polygon`, `sphere`, `dome`,

@@ -1,0 +1,3 @@
+# Named products generated at standard nominal sizes (#591): fresh-clone safe --
+# it builds from the bundled base and reads no samples/ file.
+tests/test_famgen_archetypes.py
