@@ -276,7 +276,7 @@ def rewrite_entries(src: str | os.PathLike[str], dst: str | os.PathLike[str],
             e = dataclasses.replace(e, data=bytes(new))
         out.append(e)
     if missing:
-        raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), src))
+        raise KeyError("no stream %s in %s" % (" / ".join(map(repr, sorted(missing))), os.fspath(src)))
     out.extend(extra)
     if not (os.path.exists(dst) and os.path.samefile(src, dst)):
         write_cfb(dst, out)

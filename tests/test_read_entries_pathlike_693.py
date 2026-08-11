@@ -5,10 +5,10 @@ sits at the olefile touchpoint, so ``read_streams``, ``rewrite_entries``' ``src`
 
 * a ``pathlib.Path``, a bare ``__fspath__`` object and the ``str`` give the same entries, field by field, and the
   same catalog;
-* anything that is not a path is the ``TypeError`` ``os.fspath`` (and ``open``) give -- the type is pinned, not
-  the wording;
+* anything that is not a path -- an ``int`` included, which a bare ``open`` would take for a file descriptor -- is
+  the ``TypeError`` ``os.fspath`` gives, before anything is opened (the type is pinned, not the wording);
 * every documented ``rewrite_entries`` use is unchanged with a ``PathLike`` ``src``: same bytes out, ``str`` back,
-  the same ``KeyError`` text for a stream the container does not hold;
+  the same ``KeyError`` text (naming ``src``'s path, whatever its spelling) for a stream the container does not hold;
 * ``conftest.twin_partition_entry`` takes the ``PathLike`` too."""
 from __future__ import annotations
 
@@ -50,11 +50,12 @@ def test_catalog_pathlike_equals_str(pin, spell):
 
 
 @pytest.mark.parametrize("call", [R.read_entries, R.catalog, R.read_streams], ids=["read_entries", "catalog", "read_streams"])
-def test_a_non_path_is_the_typeerror_fspath_gives(call):
+@pytest.mark.parametrize("thing", [5, 5.0, object()], ids=["int", "float", "object"])
+def test_a_non_path_is_the_typeerror_fspath_gives(call, thing):
+    # the ``int`` row is the one this boundary changes: handed straight to olefile it reached ``open(5, "rb")`` --
+    # a live file DESCRIPTOR read and closed (``OSError`` at best) -- where ``os.fspath(5)`` refuses before any open
     with pytest.raises(TypeError):
-        call(object())
-    with pytest.raises(TypeError):
-        call(5.0)
+        call(thing)
 
 
 def test_rewrite_entries_with_a_pathlike_src_is_unchanged(pin, tmp_path):
@@ -66,7 +67,9 @@ def test_rewrite_entries_with_a_pathlike_src_is_unchanged(pin, tmp_path):
         R.rewrite_entries(pin, tmp_path / "never.rvt", {"No/Such": b""})
     with pytest.raises(KeyError) as by_path:
         R.rewrite_entries(Path(pin), tmp_path / "never.rvt", {"No/Such": b""})
-    assert by_path.value.args == by_str.value.args                                            # same message, src named
+    with pytest.raises(KeyError) as by_bare:
+        R.rewrite_entries(_Spelled(pin), tmp_path / "never.rvt", {"No/Such": b""})
+    assert by_path.value.args == by_bare.value.args == by_str.value.args                     # same message, src's PATH named
     assert pin in by_path.value.args[0]
     assert not (tmp_path / "never.rvt").exists()
 
