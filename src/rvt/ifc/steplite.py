@@ -271,6 +271,27 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                       ("RelatedObjects", "RelatedObjectsType")),
     "IFCRELASSIGNSTOGROUP": ("IfcRelAssignsToGroup", "IFCRELASSIGNS",
                              ("RelatingGroup",)),
+    # material association: by_type() already finds these (the class names are
+    # parsed), but without their attribute rows every read of .RelatingMaterial
+    # / .RelatedObjects raised "outside the read-path attribute subset", so an
+    # IFC's own material assignment was unreadable under the stdlib reader.
+    "IFCRELASSOCIATES": ("IfcRelAssociates", "IFCRELATIONSHIP", ("RelatedObjects",)),
+    "IFCRELASSOCIATESMATERIAL": ("IfcRelAssociatesMaterial", "IFCRELASSOCIATES",
+                                 ("RelatingMaterial",)),
+    "IFCMATERIALDEFINITION": ("IfcMaterialDefinition", None, ()),
+    "IFCMATERIAL": ("IfcMaterial", "IFCMATERIALDEFINITION",
+                    ("Name", "Description", "Category")),
+    "IFCMATERIALLAYER": ("IfcMaterialLayer", "IFCMATERIALDEFINITION",
+                         ("Material", "LayerThickness", "IsVentilated", "Name",
+                          "Description", "Category", "Priority")),
+    "IFCMATERIALLAYERSET": ("IfcMaterialLayerSet", "IFCMATERIALDEFINITION",
+                            ("MaterialLayers", "LayerSetName", "Description")),
+    "IFCMATERIALCONSTITUENT": ("IfcMaterialConstituent", "IFCMATERIALDEFINITION",
+                               ("Name", "Description", "Material", "Fraction",
+                                "Category")),
+    "IFCMATERIALCONSTITUENTSET": ("IfcMaterialConstituentSet", "IFCMATERIALDEFINITION",
+                                  ("Name", "Description", "MaterialConstituents")),
+    "IFCMATERIALLIST": ("IfcMaterialList", None, ("Materials",)),
     "IFCRELDEFINES": ("IfcRelDefines", "IFCRELATIONSHIP", ()),
     "IFCRELDEFINESBYPROPERTIES": ("IfcRelDefinesByProperties", "IFCRELDEFINES",
                                   ("RelatedObjects", "RelatingPropertyDefinition")),
