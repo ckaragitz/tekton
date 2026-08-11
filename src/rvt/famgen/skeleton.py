@@ -153,6 +153,12 @@ SPEC_LENGTH = "autodesk.spec.aec:length-1.0.0"
 SPEC_NUMBER = "autodesk.spec.aec:number-1.0.0"
 SPEC_TEXT = "autodesk.spec:spec.string-1.0.0"
 SPEC_INTEGER = "autodesk.spec:spec.int64-1.0.0"
+#: SENTINEL (not a real Forge spec id): selects the ElementId-valued MATERIAL
+#: parameter definition ``ParamDefMaterialBrowse``.  A material parameter has
+#: no measurable spec -- Revit stores none -- so this names the storage class
+#: the way :data:`SPEC_INTEGER` does, and :func:`new_family_parameter` never
+#: writes it into the file.
+SPEC_MATERIAL = "tekton.storage:material-browse"
 #: text/integer are NON-measurable specs: their family-parameter definition
 #: is a ParamDefString / ParamDefInt (no m_specTypeId), NOT a measurable
 #: ParamDefValue -- issue #333 round 24, byte-measured on a Revit-2026-born
@@ -932,6 +938,20 @@ def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
     elif spec_type_id == SPEC_INTEGER:
         o["m_pParamDef"] = _ptr("ParamDefInt", dict(
             base_def, m_lowBound=_INT32_LOW, m_upBound=_INT32_HIGH))
+    elif spec_type_id == SPEC_MATERIAL:
+        # STORAGE-CLASS LAW, material lane: an ElementId-valued MATERIAL
+        # parameter is a ``ParamDefMaterialBrowse`` -- like String/Int it
+        # carries NO m_specTypeId / m_restriction / m_boundless, and it adds
+        # three fields of its own.  [MEASURED byte-for-byte on a Revit-2026-born
+        # specimen: a Generic Model family with one Material parameter, whose
+        # three Length params in the same file are ParamDefValue.]
+        # The value side needs no new machinery: the per-type row carries the
+        # MaterialElem id in ``m_elemId`` (see :func:`param_row`).
+        o["m_pParamDef"] = _ptr("ParamDefMaterialBrowse", dict(
+            base_def,
+            m_unassignedString=0,
+            m_extraButtonFlag=-1,
+            m_includeParams=False))
     else:
         o["m_pParamDef"] = _ptr("ParamDefValue", dict(
             base_def,
