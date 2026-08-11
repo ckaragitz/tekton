@@ -518,10 +518,24 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
     return m
 
 
+# ---------------------------------------------------------------------------
+# shared: the one-line status reason (create + edit routes)
+# ---------------------------------------------------------------------------
+
+_STATUS_REASON_MAX = 160        # errors[0] rides whole in `FAILED (...)` up to this
+
+
+def _status_reason(error: Any) -> str:
+    """One line of ``error`` for the status sentence a skill relays verbatim:
+    whole when it fits :data:`_STATUS_REASON_MAX`, else cut at a word
+    boundary with ``...`` (``rvt._clause.clip`` -- the one rule)."""
+    return clip(str(error), _STATUS_REASON_MAX)
+
+
 def _rollup_status(m: Dict[str, Any]) -> str:
     b = m.get("build") or {}
     if b.get("errors"):
-        return "FAILED (" + str((b.get("errors") or ["error"])[0])[:160] + ")"
+        return "FAILED (" + _status_reason(b["errors"][0]) + ")"
     files = b.get("files") or {}
     if not files:
         return "NO-OUTPUT (see build.degradations / errors)"
@@ -541,16 +555,6 @@ def _rollup_status(m: Dict[str, Any]) -> str:
 # ---------------------------------------------------------------------------
 # the --rvt (edit) route
 # ---------------------------------------------------------------------------
-
-_STATUS_REASON_MAX = 160        # errors[0] rides whole in `FAILED (...)` up to this
-
-
-def _status_reason(error: Any) -> str:
-    """One line of ``error`` for the status sentence a skill relays verbatim:
-    whole when it fits :data:`_STATUS_REASON_MAX`, else cut at a word
-    boundary with ``...`` (``rvt._clause.clip`` -- the one rule)."""
-    return clip(str(error), _STATUS_REASON_MAX)
-
 
 def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
                   edit_spec: Dict[str, Any], run: Dict[str, Any],

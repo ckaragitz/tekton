@@ -1,0 +1,2 @@
+# the three late rvt._clause adopters (#596): bundled pins + our CFB writer only, fresh-clone safe
+tests/test_clause_relays.py

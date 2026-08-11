@@ -607,3 +607,154 @@ replaced by a real `ParseError`; `pytest.raises` for the rung test's oracle; the
 * Gates: the three stream files 35 passed, with the five neighbours 91 passed in 10.3 s; `tools/sync_plugin.py` rebuilt + `--check` "plugin in sync with source"; `plugin/scripts/validate_plugin.py` PASS (25 assertions); `tools/dev/check_portable_paths.py` ok; whole merged shard (`shard_list.py --print`, `RVT_SKIP_LARGE=1 -p no:cacheprovider`): final tree (the code exactly as committed in 7d0bbed) **2014 passed, 134 skipped, 3 xfailed, 0 failed in 513.24 s** (draft-1 tree earlier: the same counts in 524.60 s).
 * /verify on the final tree: front door CLI + bare unzip of the rebuilt zip (system Python 3.11.15) — the three bad fixtures under the 157-char dir rc 3 / stderr 0 B / statuses + errors exactly as tabled in §2, go == CLI; refused text file rc 2 unchanged; good edits ×3 rc 0, md5s as in §2 on CLI, go and the `origin/main` worktree, each `rvt_validate.py` rc 0 `VALID (no errors)` under its own release; `go author --prompt …6 panels` rc 0 PROOF-ONLY delivered; `rvt_edit` CLI + `go edit` + `go rvt_edit.py` on `schema_dmg.rvt` as in §2; `rvt_validate` on the truncated / schema-damaged / text inputs rc 1, no traceback, the damaged host's fallback finding capped (175 chars); `-X importtime` native selfcheck 115 = 115.
 * Nothing staged for the viewer (failure-sentence wording only; every readable file byte-identical). Shipped = the leaf, the byte-dump-free clauses, the two-finding status, `rvt_edit`'s basename.
+
+## eng #596 — 2026-08-11: the create routes' `FAILED (…)`, the refused-input line and `verify_manipulated`'s decode note adopt `rvt._clause`; `versions/parity.py` deferred to a hot-file slot (issue #596, Refs #587 #574 #559)
+
+Stream `edit-status`, fifth pass (engineer session `cse_019UARkg6T7DnGvgvXve7HQN`, started by the tech-lead session; branch
+`cam/596-clause-relays` from `origin/main` @ b526ab5 = #590 merged, so #597 (`rvt._clause`) and #598/#600 (conftest
+scaffolding) are on the tree). Territory as chartered: the three call sites only (+ one import line each) —
+`src/rvt/frontdoor/manifest.py::_rollup_status`, `src/rvt/frontdoor/input_release.py:127`, `src/rvt/manipulate.py:1683` —
+their byte-identical mirrors via `tools/sync_plugin.py` (`plugin/lib/src/rvt/{frontdoor/manifest,frontdoor/input_release,manipulate}.py`),
+one NEW test file `tests/test_clause_relays.py` + its shard drop-in `tests/ci_shard.d/596-clause-relays.txt` (the natural home,
+`tests/test_edit_status.py`, is PR #606's this wave; no existing test pinned any of the three flipped strings, so nothing was
+adjusted — checked: `test_coldstart.py:300` pins a 152-char create-route reason *whole*, unchanged; `test_input_release.py:151`
+pins only the needle `schema does not parse`; `test_verify_manipulated_release.py:159` pins `synthetic schema damage` /
+`latest-release schema` substrings, both still present), this section. Not touched: `src/rvt/versions/parity.py` (hot, §4),
+`release_ctx.py` / `_clause.py` / `frontdoor/__init__.py` (read-only, #597's), `tools/rvt_edit.py`, every fenced file.
+
+### 1. What changed
+
+* **`manifest._rollup_status`** (the create routes' status): `"FAILED (" + str((b.get("errors") or ["error"])[0])[:160] + ")"`
+  → `"FAILED (" + _status_reason(b["errors"][0]) + ")"` — the very function the edit route's `FAILED (…)` already uses
+  (`clip(str(error), _STATUS_REASON_MAX=160)`), so both routes now share one budget and one rule instead of a raw slice next
+  to a word-boundary cut. The `or ["error"]` default was dead (the branch is guarded by `if b.get("errors")`). **Behaviour
+  flip for the prompt/ifc routes** (the bytes #559 promised to leave alone, hence its own rows in §2): a reason longer than
+  160 is cut at a word boundary and marked `...` (was: cut mid-word at 160, unmarked); a reason with a newline / run of
+  spaces rides as one line (`FAILED (a\nb  c)` → `FAILED (a b c)`); a reason that fits is byte-identical (every create-route
+  reason observed on the real doors today fits — §2).
+* **`input_release`'s refusal** for a 2019+ year outside the roster whose own schema does not parse:
+  `({type(e).__name__}: {str(e)[:120]})` → `({cause_clause(e)})` (+ `from .._clause import cause_clause` at module top).
+  On the real `ParseError` the 120-slice used to land *inside* the parser's hex dump (`… @0x603b: 14 1e d3 … 7f aa 4`); now
+  the words ride whole and the dump is dropped by shape.
+* **`manipulate.verify_manipulated`**'s decode-fallback note: `own schema unreadable ({type(e).__name__}: {e}); edited records
+  decoded against the built-in latest-release schema` → `own schema unreadable ({cause_clause(e)}); …` (+ `from ._clause
+  import cause_clause` at module top) — the same clause its sibling framing rung (`global_framing.enter_own_release`, #597)
+  carries one line above it in `fallbacks`; the 355-char note with the full 193-char dump becomes 152 chars of words.
+* Imports at module top, not in the `except` branches: #597 measured and chose "no lazy import anywhere" for this leaf;
+  the cost is +1 module (`rvt._clause`, ~0.25 ms, `re` already resident) on a *bare* `import rvt.manipulate` (158 → 159) /
+  `import rvt.frontdoor.input_release` (135 → 136) and **0 on every tool path measured** (§2) because `global_framing` /
+  `release_ctx` already load it there.
+
+### 2. Evidence (fresh cloud clone; fixtures under a 193-char directory; before = an `origin/main` @ b526ab5 worktree running its own `src`, after = this branch; CLI = `env -u PYTHONPATH -u TEKTON_ROOT .venv/bin/python tools/…`)
+
+Fixtures (built by `tests/conftest.py`'s recipes, our CFB writer, no samples): `schema_dmg.rvt` = the 2025 pin with 64 B of
+`Formats/Latest` zeroed (`rewrite_stream` + `zero_schema_bytes`); `unread_schema_dmg.rvt` = the same file with `BasicFileInfo`
+re-encoded by our encoder to declare Revit 2027 (a year tekton never read → `input_release`'s schema probe is reached);
+`bad.ifc` = 24 bytes of text; `no_such_base.rvt` = a path that does not exist under the long directory.
+
+| site / real input | before [len] | after [len] | rc · keys · stderr |
+|---|---|---|---|
+| **1** `frontdoor author --prompt "…6 panels" --base <193-char dir>/no_such_base.rvt --json` (create route, a 233-char one-token reason) | `status` = `FAILED (--base file not found: /tmp/…/fixtures-under-a-directory-of-at-least-one-hundred-and-tw)` [169] — cut mid-token, unmarked | `FAILED (--base file not found: /tmp/…/fixtures-under-a-directory-of-at-least-one-hundred-and...)` [169] — `clip`'s documented single-long-token case: no boundary keeps a third, so cut at 157 + `...` | rc 3 = 3; envelope keys `errors files handoff intent_json manifest ok out_dir release route seconds stamps status` unchanged; `errors` == `[233]` byte-identical (the whole path stays in `errors[0]`); stderr 0 B; `manifest.json` `status` == the envelope's |
+| **1** in process, a 273-char *worded* reason (`MF._rollup_status({"build": {"errors": [r]}})`, r = `IFC intent failed: ValueError: the storey 'Level 02 - Mechanical Mezzanine' carries 14 IfcFlowSegment runs whose IfcLocalPlacement chains never reach the site placement, so no room-relative coordinates …`) | `FAILED (…chains never reach the site p)` [169] — mid-word | `FAILED (…chains never reach the...)` [165] — word boundary + `...` | n/a (no real door yields a > 160-char worded create-route reason today: `--ifc bad.ifc` gives the 56-char `IFC intent failed: Error: Unable to parse IFC SPF header`, the numpy gate's sentence is 152) |
+| **1** `frontdoor author --ifc bad.ifc --target-version 2025 --json` (short reason) | `FAILED (IFC intent failed: Error: Unable to parse IFC SPF header)` [65] | **identical** [65] | rc 3 = 3, keys / `errors` identical; stderr 302 B **both sides** = ifcopenshell 0.8.5's `Exception ignored in: <function file.__del__>` at interpreter exit (this venv has the `ifc` extra; pre-existing, not this PR — §4) |
+| **2** `frontdoor author --rvt unread_schema_dmg.rvt --edit "set level 311 elevation to 1 ft" --json` | rc 2, the ONE stderr line [455 B]: `[frontdoor] usage error: REFUSED (input release): unread_schema_dmg.rvt is a Revit 2027 file (its own Formats/Latest schema does not parse (ParseError: parse error at 0x603b: class marker != 0 (0x403c) @0x603b: 14 1e d3 f2 96 31 b0 8a 94 42 91 9f 18 51 c1 c2 6a 2c 7f aa 4)); tekton reads Revit 2023+ and edits Revit 2024+ (2024, 2025, 2026) -- re-save it in Revit 2023 or newer, or hand over an IFC export of it instead (frontdoor author --ifc FILE.ifc)` — the 120-slice ends inside the dump (`7f aa 4`) | rc 2, [384 B]: `… is a Revit 2027 file (its own Formats/Latest schema does not parse (ParseError: parse error at 0x603b: class marker != 0 (0x403c))); tekton reads Revit 2023+ …` — words whole, no bytes | rc 2 = 2; block keys `era floor line path reason status year` unchanged; `line` 429 → 358 chars, `reason` 172 → 101; refusal manifest on disk both sides |
+| **3** `M.verify_manipulated(schema_dmg.rvt, edited_ids=[])` in process (no CLI surfaces `fallbacks` for a damaged *host*: an edit of it never reaches the structural gate, and `structural_gate_from_manipulated` does not carry `fallbacks`) | `fallbacks[1]` [355] = `own schema unreadable (ParseError: parse error at 0x603b: class marker != 0 (0x403c) @0x603b: 14 1e d3 f2 96 31 b0 8a 94 42 91 9f 18 51 c1 c2 6a 2c 7f aa 43 6d 97 1b \| 3c 40 ac ed 45 6a 91 72 32 84 69 73 74 6f 41 50 49 61 67 65 72 0e 02 00 1b 63 56 65 72 73 65 78 65 63 6e 66 6f 41 72 72); edited records decoded against the built-in latest-release schema` | [152] = `own schema unreadable (ParseError: parse error at 0x603b: class marker != 0 (0x403c)); edited records decoded against the built-in latest-release schema` | report keys (14) unchanged; `fallbacks[0]` (the framing rung, #597's) identical [175]; `len(fallbacks)` 2 = 2 |
+
+No ` @0x…: … | …` dump and no mid-word cut in any of the three after-outputs (the one-token path row is `clip`'s stated exception, now marked).
+
+**Unchanged neighbours, checked on the same fixtures:** the edit route on `schema_dmg.rvt` (`--rvt … --edit`): rc 3, `status`
+[152] and `errors` `[143, 637]` byte-identical to #597's row (this PR touches neither); `rvt_selfcheck schema_dmg.rvt --json`:
+rc 1, the 159 B warning line, `release_note`, verdict FAIL, keys — identical.
+
+**GOOD outputs byte-identical:** good edit ×3 (`set level 311 elevation to 1 ft`), before vs after: `G_ABPD.rvt`
+`35a940ac94c789065d491791c9037bb9`, `G_ABPD_2025.rvt` `ad02290eb3d4e7a123e4557439476e1d`, `G_ABPD_2024.rvt`
+`8eb26459e849f1968c2dfbfbb33311ee` (the md5s #568/#573/#574/#587 recorded), rc 0, `PROOF-ONLY, NOT-DELIVERABLE (hard gates
+PASSED)`, keys identical. `author --prompt "an electrical room with 6 panels"`: rc 0, stderr 0 B, `status` == `manifest.status`
+== `PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)` on both sides (md5 of the status
+`eb608abd468359bda35f6db3a97bb2e9`), `combined` + `families_dir` delivered; the combined file's own md5 differs run-to-run on
+ONE tree (`c13dec5a…` vs `2acbc664…` on two consecutive branch runs) — the prompt route's known non-determinism (#9), which
+is why the status, not the file, is the identity oracle for that route.
+
+**`-X importtime` (module counts, before = after unless noted):** native selfcheck path
+`tools/rvt_selfcheck.py plugin/assets/genesis/G_ABPD.rvt --json …` **115 = 115**; the 2025 pin 185 = 185; `schema_dmg.rvt`
+169 = 169; `tools/rvt_edit.py schema_dmg.rvt info` 176 = 176; `import rvt.frontdoor.manifest` 91 = 91 (it imported
+`rvt._clause` since #597); bare `import rvt.manipulate` 158 → 159 and bare `import rvt.frontdoor.input_release` 135 → 136
+(+`rvt._clause` only).
+
+**Tests:** NEW `tests/test_clause_relays.py` — 5: the create status carries a fitting 152-char reason whole (and never
+`errors[1]`); a 200-char worded reason == `FAILED (clip(r, 160))` != the old `[:160]` slice, ends `...`, the cut sits on a
+space; `a\nb  c` → `FAILED (a b c)`; the refused-input block for the redated damaged pin: `reason ==
+f"its own Formats/Latest schema does not parse ({cause_clause(<the real ParseError>)})"`, the clause starts `ParseError: `
+with no `@0x` / `...`, the line starts `REFUSED (input release): unread_schema_dmg.rvt is a Revit 2027 file (<reason>); ` and
+holds no `@0x`, ` | ` or newline, while `str(e)` itself still carries ` @0x` and ` | `; `verify_manipulated` on the damaged
+pin: exactly two fallbacks, the decode rung == the new sentence verbatim, the framing rung starts with the identical
+`own schema unreadable (<clause>); `, no dump / `...` in either — **5 passed in 0.26 s**. Stream-local neighbours
+(`test_edit_status test_frontdoor test_input_release test_manipulate test_manipulate_import_context test_go_edit
+test_selfcheck_release test_verify_manipulated_release test_release_ctx_refusal test_natively_framed`, `RVT_SKIP_LARGE=1`):
+**197 passed, 10 skipped in 64 s** (skips = the `@slow` large case, the root-cannot-chmod case, 5 × `samples/` absent,
+3 pre-existing). Whole merged shard: see BRANCH STATE.
+
+### 3. /simplify (four review agents) — applied vs skipped
+
+Applied: the test's hand-rolled `read_entries`/`dataclasses.replace`/`write_cfb` redate loop (a third copy of
+`test_input_release._base_declaring`) → one `conftest.rewrite_stream(dmg, …, "BasicFileInfo", <re-encode>)` call; the framing
+rung no longer pinned verbatim here (its wording is `global_framing`'s and `test_release_ctx_refusal` pins it) — only that it
+opens with the identical clause; the roll-up test's tautological `reason == _status_reason == clip` chain and hand re-derivation
+of `clip`'s contract → one line stating the adoption and the regression (`== FAILED (clip(…))  != FAILED (r[:160])`) plus the
+boundary check; the fixture returns a path, not a `(year, path)` tuple. Efficiency: clean (top-level import of the leaf is
+0 modules on every tool path, ~0.25 ms on a bare import; a local import in the `except` would save nothing observable and
+contradict #597). Altitude: clean (per-site `cause_clause` is the right depth — `str(e)` keeps its dump for the ~60 JSON
+`error` fields that want it; the sentence sites drop it). First skipped as out-of-territory, then **applied on the tech
+lead's ruling** (review of head 925031c): `_STATUS_REASON_MAX` + `_status_reason` moved VERBATIM (function, docstring and
+comment, zero byte change inside — checked: every removed line reappears added) up above `_rollup_status` under a neutral
+`# shared: the one-line status reason (create + edit routes)` banner, so the create path no longer forward-references a
+helper sitting under the `# the --rvt (edit) route` banner (which stays where the edit-only code starts). Still skipped:
+`src/rvt/frontdoor/__init__.py:540`'s comment says `` `FAILED (<errors[0][:160]>)` `` (read-only for this pass; §4.2).
+
+### 4. Findings / follow-ups
+
+1. **`src/rvt/versions/parity.py` — deferred, byte-intact** (the issue's fourth site; `src/rvt/versions/` is a hot directory
+   and this pass holds no `hot-file` slot). The wanted patch, for whoever takes that slot (three exception relays onto
+   `cause_clause`, the validator-finding sample onto `clip`; `rvt.versions.parity` → `from .._clause import …` is a
+   sibling-package import of the stdlib leaf, no cycle):
+
+   ```diff
+   --- a/src/rvt/versions/parity.py
+   +++ b/src/rvt/versions/parity.py
+   @@
+    from . import (KNOWN_RELEASES, describe, detect_release, ordinals_from_schema,
+   @@
+   +from .._clause import cause_clause, clip
+   @@ def parity_row(…)
+   -            row.schema_parse = f"ERROR {type(e).__name__}: {e}"[:160]
+   +            row.schema_parse = f"ERROR {cause_clause(e)}"
+   @@
+   -                        row.error_samples.append(f"{pn}: walker {type(e).__name__}: {e}"[:140])
+   +                        row.error_samples.append(clip(f"{pn}: walker {cause_clause(e)}", 140))
+   @@
+   -                    row.error_samples.append(f"[{f.layer}] {f.where}: {f.message}"[:160])
+   +                    row.error_samples.append(clip(f"[{f.layer}] {f.where}: {f.message}", 160))
+   @@
+   -        row.fatal = f"{type(e).__name__}: {e}"[:200]
+   +        row.fatal = cause_clause(e)          # words <= CAUSE_MAX (120): the 200 budget was room for the dump
+   ```
+   (`schema_parse` on the schema-damaged pin would go from `ERROR ParseError: parse error at 0x603b: class marker != 0
+   (0x403c) @0x603b: 14 1e …`[:160] to `ERROR ParseError: parse error at 0x603b: class marker != 0 (0x403c)`; the parity
+   report's JSON keys do not change; `tests/test_parity*.py` pins to re-check: none pin these strings today —
+   `grep -rn "schema_parse\|error_samples\|\.fatal" tests/` finds only key-presence checks.) Issue #596 stays open for it
+   (this PR `Refs #596`).
+2. `src/rvt/frontdoor/__init__.py:540`'s comment still describes the create status as `` `FAILED (<errors[0][:160]>)` ``;
+   it is now `FAILED (<errors[0], clipped to 160 at a word boundary>)` — a one-line comment reword for the next pass that
+   holds `frontdoor/__init__.py` (read-only here); no behaviour.
+3. `frontdoor author --ifc <garbage>` with the `ifc` extra installed prints ifcopenshell's `Exception ignored in: <function
+   file.__del__ …> KeyError` (302 B) on stderr at interpreter exit, on `main` as on this branch — the front door's "stderr
+   0 B" promise holds only without ifcopenshell. Not filed from here before searching; noted for the tech lead (a
+   `steplite`-first probe of a non-IFC file, or closing the ifcopenshell handle explicitly, would silence it).
+
+### BRANCH STATE
+
+* Branch `cam/596-clause-relays` from `origin/main` @ b526ab5; one issue, one PR (`Refs #596` — the issue stays open for its fourth site, `versions/parity.py`, §4.1; the three sites in this pass's territory are done).
+* Files: `src/rvt/frontdoor/manifest.py` (`_rollup_status`: one line; `_STATUS_REASON_MAX` + `_status_reason` moved verbatim above it under a `# shared: …` banner, per the tech lead's review), `src/rvt/frontdoor/input_release.py` (import + the refusal line), `src/rvt/manipulate.py` (import + the note line), their sync mirrors `plugin/lib/src/rvt/frontdoor/manifest.py`, `plugin/lib/src/rvt/frontdoor/input_release.py`, `plugin/lib/src/rvt/manipulate.py`; NEW `tests/test_clause_relays.py` + `tests/ci_shard.d/596-clause-relays.txt`; this section. No existing test edited.
+* Gates: `tests/test_clause_relays.py` 5 passed in 0.26 s; after the verbatim hoist (review round 1): `tests/test_clause_relays.py tests/test_edit_status.py tests/test_frontdoor.py` 99 passed, 5 skipped in 52 s, `sync_plugin.py` synced 1 file + `--check` in sync, `validate_plugin.py` PASS; stream-local neighbours (10 files, §2) 197 passed, 10 skipped in 64 s; `tools/sync_plugin.py` "synced 3 file(s)" then `--check` "plugin in sync with source (deny-audit clean, identity scan == allowlist, assets verified)"; `plugin/scripts/validate_plugin.py` "assertions passed: 25 / RESULT: PASS"; `tools/dev/check_portable_paths.py` "ok: 2989 tracked paths are portable"; whole merged shard (`shard_list.py --print` incl. the new drop-in, `RVT_SKIP_LARGE=1 -p no:cacheprovider`) on the final `src/` tree: **2043 passed, 134 skipped, 3 xfailed, 0 failed in 372.56 s** (the new test file ran there in its pre-/simplify form and passed; its final form is the 5-passed run above — the `src/` bytes are identical in both).
+* /verify on the final tree: front-door CLI before/after rows exactly as tabled in §2 (rc, key sets, stderr sizes, `errors` compared by script); bare unzip of the rebuilt `tekton-plugin.zip` with system Python 3.11.15 (`env -u PYTHONPATH -u TEKTON_ROOT -u VIRTUAL_ENV /usr/bin/python3 skills/tekton-author/scripts/_bootstrap.py go author …`): `--prompt "…6 panels"` rc 0, preflight `tekton: READY | … | genesis verified (Revit 2026) | …`, `PROOF-ONLY (self-checks PASS; …)`, stderr 0 B, combined `.rvt` validates 0 errors; `--rvt unread_schema_dmg.rvt --edit …` rc 2, the one 384 B stderr line == the CLI's after-line byte-for-byte; `--prompt … --base <long dir>/no_such_base.rvt` rc 3, `status` == the CLI's after-status byte-for-byte, stderr 0 B; the three good edited outputs `rvt_validate.py --json`: `ok=True errors=0` each under its own release; `-X importtime` native selfcheck 115 = 115.
+* Nothing staged for the viewer (failure-sentence wording only; every readable output byte-identical). Shipped = the three clauses; deferred = `parity.py` (patch in §4.1).

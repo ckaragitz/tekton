@@ -35,6 +35,7 @@ import os
 from typing import Any, Dict, List
 
 from .. import versions as V
+from .._clause import cause_clause
 from ..meta import BFI_ERA_2008, BFI_ERA_2019, BFI_ERA_UNKNOWN, classify_bfi_era
 from .target_status import supported_targets
 
@@ -123,8 +124,7 @@ def input_release_block(path: str) -> Dict[str, Any]:
         from ..global_framing import schema_of
         V.ordinals_from_schema(schema_of(path))
     except Exception as e:                                           # noqa: BLE001
-        return refuse(f"its own Formats/Latest schema does not parse "
-                      f"({type(e).__name__}: {str(e)[:120]})")
+        return refuse(f"its own Formats/Latest schema does not parse ({cause_clause(e)})")
     side = "older" if year < floor["read"][0] else "newer"
     blk.update(status="unverified", stamp=UNVERIFIED_STAMP,
                note=(f"Revit {year} is {side} than any release tekton has read "
