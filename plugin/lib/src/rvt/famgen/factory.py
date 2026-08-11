@@ -1256,8 +1256,11 @@ def make_archetype(*, product: str,
     archetype, reported as generated, and NEVER a manufacturer claim (no
     manufacturer / model / part number is attached, and every nominal field is
     listed in ``unverified_fields``).  Every dimension the caller did state is
-    ``given`` with its source.  Asking for a manufacturer's part is still
-    refused, because that is a fact we would have to hold.
+    ``given`` with its source.  Naming a manufacturer's part does NOT withhold
+    the file (hard rule 1): it is delivered as the generic product it is, with
+    no manufacturer identity on it, and
+    :func:`rvt.famgen.archetypes.manufacturer_claim` puts "the named item is not
+    what this is" in front of the caller.
     """
     from . import archetypes as AR
     res = AR.resolve(product, dimensions or {}, prompt=prompt)

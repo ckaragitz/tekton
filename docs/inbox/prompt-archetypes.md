@@ -69,8 +69,8 @@ note and — required — what it does **not** model.
 
 | product | category | parts at its nominals | LOD 400 means |
 |---|---|---|---|
-| `cable_tray` (ladder) | Cable Tray Fittings | **17** | two side rails, each a channel with flanges turned inward, plus a rung at every standard spacing |
-| `strut_channel` | Generic Models | 5 (solid back) / 25+ (slotted) | back, two webs, two inturned lips; with a slot spacing the back is the material **between** the slots |
+| `cable_tray` (ladder) | Cable Tray Fittings | **16** | two side rails, each a channel with flanges turned inward, plus a rung at every standard spacing |
+| `strut_channel` | Generic Models | 5 (solid back) / 65 (slotted at 2 in) | back, two webs, two inturned lips; with a slot spacing the back is the material **between** the slots |
 | `wireway` (lay-in) | Electrical Equipment | 4 | bottom, two sides, removable cover — an open-ended trough |
 | `junction_box` | Electrical Fixtures | 6 | back, four walls, screw cover |
 | `conduit` | Conduit Fittings | 1 | one cylinder about the run axis |
@@ -102,7 +102,7 @@ Cable Tray - Ladder  (cable_tray, category cable_tray_fitting)
   Length                    20 ft   GIVEN   <- '20 ft long'
   Rung Spacing               6 in   GIVEN   <- '6 in rung spacing'
   ...
-  -> 47 parts; 5 nominal, 3 given. No manufacturer identity is claimed.
+  -> 46 parts; 5 nominal, 3 given. No manufacturer identity is claimed.
 ```
 
 ## Lane order (DONE 6)
@@ -140,7 +140,7 @@ The headline, on `main` before and after:
 
 ```
 before: FAILED (prompt->intent: PromptError ... Recognised-but-unbuilt kinds: cable_tray)
-after:  OK (Cable Tray - Ladder: 17-part .rfa generated at standard nominal sizes;
+after:  OK (Cable Tray - Ladder: 16-part .rfa generated at standard nominal sizes;
             0 dimension(s) from the prompt, 8 nominal)
 ```
 
@@ -259,3 +259,47 @@ pinned as *not* flagged, because a false positive would put a scary line on ever
 The reviewer also verified, with no finding: mirrors byte-identical for all seven mirrored files;
 the `res.errors[mark:]` demotion correct in all four paths; the slotted-back material removal exact
 (60 slots × 1.125 in over 10 ft); `viewer-certified.json` untouched; no other open PR closes #591.
+
+---
+
+## Round 3 — a second fresh reviewer, six more defects
+
+The round-2 head passed sandboxed CI (2433 passed) and then failed a SECOND independent
+reviewer, which was told explicitly not to take round 2's list on trust. It was right to be
+told that: three of its six findings are in the code round 2 wrote.
+
+| # | defect | how it showed |
+|---|---|---|
+| 1 | **The manufacturer guard fired on ordinary English.** `_PART_PHRASE` had no word boundary after the keyword: *"a junction box on the **part**ition wall"* → token `'ition'`, *"above the **cat**walk"* → `'walk'`, *"a generic **model** family"* → `'family'`. End-to-end that put `YOU NAMED A SPECIFIC PRODUCT (ition) AND THIS FILE IS NOT IT` as the first caveat of an honest delivery — the line the SKILL tells a session to relay verbatim, first. Round 2's own claim that six ordinary prompts were pinned as not-flagged was true and useless: all six happened to avoid `part`/`cat`/`model`. |
+| 2 | **Rungs wider than their spacing interpenetrated.** `rung_width_in: 24` at 12 in centres → 8 overlapping pairs, no raise — the exact class round 2 said it had closed. Reachable by prompt (`"rung width 2 in"` resolves). |
+| 3 | **`max(2, …)` put rungs outside the section.** A spacing wider than the length gave two rungs a foot past both ends of the rails, attached to nothing, status still `OK`. |
+| 4 | **Two more stale "still refused" texts** — the `prompt->archetype` **stage description** (which `route matrix --json` prints verbatim) and `make_archetype`'s docstring. Round 2 fixed five places and missed two. |
+| 5 | **A bare metric measurement was silently dropped.** `"a 600 mm cable tray"` → nothing given, width left at the nominal, no word to the user — while this record advertised `600 mm` as read. |
+| 6 | **A zero dimension passed every guard**, authoring zero-volume solids (`thickness_in: 0`). |
+
+Plus two nits taken: the budget compared the RUNG count to `MAX_PARTS` so 401- and 405-part
+families slipped past a stated 400 limit (it now counts parts); and the guard's docstring
+claimed the patterns "catch the rest" while `"a Hoffman F66L120 wireway"` was not caught — a
+bare-designator rule now catches it, and the docstring states the remaining gap by name
+(a one-letter designator like Unistrut's `P1000` is below the bar).
+
+**The part counts in round 1 were stale** and are corrected above: the tray builds **16**
+parts at its nominals, not 17; the worked example **46**, not 47; the slotted strut **65**.
+Those moved when round 2 changed the rung pitch, and nobody re-measured them.
+
+### The lesson worth keeping
+
+Three of six round-3 findings were introduced by round-2 fixes, and one was a claim that
+survived a whole round of "fix the overclaim" work in two of seven places. A fix is not a
+fix until an adversarial reader has run it: **`test_no_shipped_text_claims_a_refusal_that_does_not_happen`**
+now greps the shipped surfaces for that class of sentence, because prose is where this kept
+going wrong and prose had no test.
+
+### Round-3 evidence
+
+| gate | result |
+|---|---|
+| `tests/test_famgen_archetypes.py` | **104 passed** (46 → 71 → 104) |
+| false-positive set for the guard | 12 ordinary prompts pinned as NOT flagged |
+| true-positive set | 5 real designators pinned as caught |
+| `python -m rvt.famgen.archetypes --check` | 5 archetypes, **0 problems** |

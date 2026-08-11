@@ -382,7 +382,7 @@ def test_self_intersecting_geometry_is_refused_not_built(product, dims):
 
 
 @pytest.mark.parametrize("product,dims", [
-    ("cable_tray", {"length_ft": 20, "rung_spacing_in": 0.1}),
+    ("cable_tray", {"length_ft": 20, "rung_spacing_in": 0.6, "rung_width_in": 0.5}),
     ("strut_channel", {"length_ft": 20, "slot_length_in": 0.01, "slot_spacing_in": 0.02}),
 ])
 def test_a_runaway_part_count_is_refused_by_name(product, dims):
@@ -456,3 +456,125 @@ def test_a_null_standard_value_is_not_a_refusal():
     # ... while a dimension that is not a number is still refused by name
     assert FS.validate({"kind": "archetype", "product": "cable_tray",
                         "dimensions": {"width_in": "wide"}}) != []
+
+
+# ---------------------------------------------------------------------------
+# 8. regressions found by the SECOND independent review of PR #674
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("prompt", [
+    "a junction box on the partition wall",       # 'part' inside 'partition'
+    "a cable tray above the catwalk",             # 'cat' inside 'catwalk'
+    "a partial run of cable tray",
+    "create a generic model family for a strut channel",   # 'model family'
+    "a cable tray with particular rung spacing of 9 in",
+    "a Cat6A data outlet on a cable tray",
+    "a 480Y/277 panel beside a cable tray",
+    "a 12x12 wireway 3 ft long",
+    "a 2x4 troffer above the cable tray",
+    "a 120V junction box",
+    "a 5-15R device beside a wireway",
+    "a 1-5/8 in strut channel 10 ft long",
+])
+def test_the_manufacturer_guard_does_not_fire_on_ordinary_english(prompt):
+    """Without a word boundary after the keyword, 'partition' produced the
+    token 'ition' and every honest delivery got the loudest line in the
+    product -- which the skill is told to relay verbatim, first."""
+    assert AR.manufacturer_claim(prompt) is None
+
+
+@pytest.mark.parametrize("prompt,token", [
+    ("an Eaton B-Line 24 in cable tray part number 24A-09-120", "24A-09-120"),
+    ("a cable tray, catalog number 24A-09-120", "24A-09-120"),
+    ("a cable tray p/n 24A-09-120", "24A-09-120"),
+    ("a model 2BLT4 troffer style tray", "2BLT4"),
+    ("a Hoffman F66L120 wireway", "F66L120"),
+])
+def test_the_manufacturer_guard_still_catches_a_real_designator(prompt, token):
+    claim = AR.manufacturer_claim(prompt)
+    assert claim and token in claim["tokens"], claim
+
+
+def test_a_rung_wider_than_its_spacing_is_refused():
+    """rung_width was never compared to rung_spacing: 24 in rungs at 12 in
+    centres built 8 pairs of interpenetrating solids with no raise."""
+    with pytest.raises(AR.ArchetypeError, match="rung"):
+        AR.resolve("cable_tray", {"rung_width_in": 24}).parts()
+    with pytest.raises(AR.ArchetypeError):
+        AR.resolve("cable_tray", {"rung_width_in": 24, "rung_spacing_in": 6}).parts()
+
+
+@pytest.mark.parametrize("spacing,length,want", [(144, 10, 1), (240, 20, 1), (120, 10, 1)])
+def test_a_spacing_wider_than_the_section_gives_one_rung_inside_it(spacing, length, want):
+    """max(2, ...) put two rungs a foot past both ends of the rails."""
+    r = AR.resolve("cable_tray", {"rung_spacing_in": spacing, "length_ft": length})
+    parts = r.parts()
+    rungs = [p for p in parts if p["name"].startswith("rung")]
+    assert len(rungs) == want
+    half = length / 2.0
+    for p in rungs:
+        assert -half <= p["center"][0] - p["width_ft"] / 2.0
+        assert p["center"][0] + p["width_ft"] / 2.0 <= half
+
+
+@pytest.mark.parametrize("prompt,key,want_in", [
+    ("a 600 mm cable tray", "width_in", 600 * AR.MM / AR.IN),
+    ("a 300 mm wireway", "width_in", 300 * AR.MM / AR.IN),
+])
+def test_a_metric_measurement_before_the_noun_is_read_not_dropped(prompt, key, want_in):
+    """The unit redirect looked for a parameter measured in mm, found none and
+    silently dropped the number -- while the record advertised '600 mm'."""
+    r = AR.resolve_prompt(prompt)
+    assert key in r.given(), r.given()
+    assert r.values[key] == pytest.approx(want_in)
+
+
+@pytest.mark.parametrize("product,dims", [
+    ("strut_channel", {"thickness_in": 0}),
+    ("wireway", {"thickness_in": 0}),
+    ("junction_box", {"thickness_in": 0}),
+    ("cable_tray", {"rail_thickness_in": 0}),
+    ("cable_tray", {"rail_flange_in": 0}),
+    ("cable_tray", {"width_in": 0}),
+])
+def test_a_zero_dimension_is_refused_not_authored_as_a_zero_volume_solid(product, dims):
+    with pytest.raises(AR.ArchetypeError):
+        AR.resolve(product, dims)
+
+
+def test_zero_is_still_a_meaning_where_it_is_one():
+    """The strut's slot parameters mean 'solid back' at 0 -- the blanket
+    zero-refusal must not take that away."""
+    r = AR.resolve("strut_channel", {"slot_length_in": 0, "slot_spacing_in": 0})
+    assert len([p for p in r.parts() if p["name"].startswith("back")]) == 1
+
+
+@pytest.mark.parametrize("product,dims", [
+    ("cable_tray", {"rung_spacing_in": 0.6, "rung_width_in": 0.5, "length_ft": 20}),
+    ("strut_channel", {"slot_spacing_in": 0.3, "slot_length_in": 0.1}),
+])
+def test_the_part_budget_counts_parts_not_rungs(product, dims):
+    """The budget compared the RUNG count to MAX_PARTS, so 401 and 405 part
+    families slipped past a stated 400-part limit."""
+    with pytest.raises(AR.ArchetypeError, match=str(AR.MAX_PARTS)):
+        AR.resolve(product, dims).parts()
+
+
+def test_no_shipped_text_claims_a_refusal_that_does_not_happen():
+    """Two rounds of review found this claim in seven places. It is a fact
+    about the CODE, so it is pinned as one."""
+    import pathlib
+    root = pathlib.Path(ROOT)
+    # SHIPPED text only -- deliberately no docs/ file here: the CI shard may not
+    # open one (tools/dev/ci_fresh.sh SHARD_READS, #523), and it is the code and
+    # the user-facing surfaces that must not lie.
+    files = [root / "src/rvt/famgen/archetypes.py", root / "src/rvt/famgen/factory.py",
+             root / "src/rvt/frontdoor/matrix.py", root / "spec/famspec.schema.json",
+             root / "plugin/skills/tekton-author/SKILL.md"]
+    for f in files:
+        if not f.exists():
+            continue
+        text = f.read_text(encoding="utf-8")
+        for phrase in ("part is still refused", "still get a refusal",
+                       "is still refused by name"):
+            assert phrase not in text, f"{f.name} still claims a refusal that does not happen"

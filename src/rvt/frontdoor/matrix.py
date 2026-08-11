@@ -133,8 +133,10 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
           "tray, strut channel, wireway, junction box, conduit) -> the LOD-400 "
           "part list at standard NOMINAL sizes for that product class, every "
           "dimension reported nominal (generated) or given (the prompt stated "
-          "it); no manufacturer identity is ever attached, so a named "
-          "manufacturer's part is still refused",
+          "it); no manufacturer identity is ever attached, and a prompt naming "
+          "a SPECIFIC manufacturer's item is still DELIVERED -- as the generic "
+          "product it is, with the first line of the status and the report "
+          "saying the named item is not what was built",
           ("test:tests/test_famgen_archetypes.py",
            "record:docs/inbox/prompt-archetypes.md")),
     Stage("rvt-edit", "rvt.frontdoor.edit:run_edit",

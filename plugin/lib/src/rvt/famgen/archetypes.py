@@ -112,6 +112,10 @@ class Param:
     aliases: Tuple[str, ...] = ()
     choices: Tuple[float, ...] = ()
     minimum: float = 0.0
+    #: 0 is a MEANING for this parameter (a solid strut back), not a degenerate
+    #: size.  Everywhere else 0 is refused: a zero thickness authored boxes of
+    #: zero volume that passed every other guard.
+    allow_zero: bool = False
     primary: bool = False                       # "a 24 inch cable tray" -> this one
     #: this dimension FOLLOWS another when the caller states that one and not
     #: this one -- a square wireway asked for at 12 in is 12 in tall.  The
@@ -237,6 +241,9 @@ def _ladder_tray(v: Dict[str, float]) -> List[Dict[str, Any]]:
     if W <= 0 or D <= 0 or L <= 0 or S <= 0:
         raise ArchetypeError("a ladder tray needs a positive width, depth, length "
                              "and rung spacing")
+    if rw >= S:
+        raise ArchetypeError(f"a {rw / IN:g} in rung does not fit in a {S / IN:g} in "
+                             f"rung spacing -- the rungs would run through each other")
     if fl * 2.0 >= W:
         raise ArchetypeError(f"rail flanges ({fl / IN:g} in each) do not fit inside a "
                              f"{W / IN:g} in tray")
@@ -261,11 +268,14 @@ def _ladder_tray(v: Dict[str, float]) -> List[Dict[str, Any]]:
     # about its own geometry.  They are laid from the first rung at the stated
     # S, and whatever length does not divide by S is left as a shorter END BAY,
     # which is what a real section does at a splice.
-    n = max(2, int(math.floor((L - rw) / S + 1e-9)) + 1)
-    if n > MAX_PARTS:
+    # a spacing wider than the section gives ONE centred rung -- max(2, ...)
+    # put two rungs a foot past both ends of the rails, attached to nothing
+    n = max(1, int(math.floor((L - rw) / S + 1e-9)) + 1)
+    if n + len(parts) > MAX_PARTS:                # parts, not rungs (the rails count)
         raise ArchetypeError(
-            f"{n} rungs at {S / IN:g} in over {L:g} ft is past the {MAX_PARTS}-part "
-            f"budget for one family; ask for a longer spacing or a shorter section")
+            f"{n} rungs plus {len(parts)} rail parts at {S / IN:g} in over {L:g} ft is "
+            f"past the {MAX_PARTS}-part budget for one family; ask for a longer "
+            f"spacing or a shorter section")
     # the run of rungs is CENTRED on the section, so the two end bays are equal
     # and short -- the pitch between rungs is exactly S everywhere
     x0 = -(n - 1) * S / 2.0
@@ -297,10 +307,10 @@ def _strut_channel(v: Dict[str, float]) -> List[Dict[str, Any]]:
     parts: List[Dict[str, Any]] = []
     if slot_s > 0 and slot_l > 0 and slot_l < slot_s:
         n = max(1, int(math.floor(L / slot_s + 1e-9)))
-        if n > MAX_PARTS:
+        if n + 5 > MAX_PARTS:                    # + the webs and lips still to come
             raise ArchetypeError(
-                f"{n} slots at {slot_s / IN:g} in over {L:g} ft is past the "
-                f"{MAX_PARTS}-part budget for one family")
+                f"{n} back segments at {slot_s / IN:g} in slot spacing over {L:g} ft is "
+                f"past the {MAX_PARTS}-part budget for one family")
         pitch = L / n
         solid = pitch - slot_l
         if solid <= 0:
@@ -478,10 +488,10 @@ _register(Archetype(
               aliases=("lip",)),
         Param("slot_length_in", "Slot Length", 0.0, "in",
               "0 = a solid back; a slotted back uses the standard 1-1/8 in slot",
-              aliases=("slot length",)),
+              aliases=("slot length",), allow_zero=True),
         Param("slot_spacing_in", "Slot Spacing", 0.0, "in",
               "0 = a solid back; the standard slotted pattern is on 2 in centres",
-              aliases=("slot spacing", "slot centers", "slot centres")),
+              aliases=("slot spacing", "slot centers", "slot centres"), allow_zero=True),
     ),
     build=_strut_channel,
     standard_values=lambda v: {"Material": "steel"},
@@ -648,11 +658,16 @@ def _unit_of(text: str) -> Optional[str]:
 # THE MANUFACTURER GUARD -- steer #591's "Still refused"
 # ---------------------------------------------------------------------------
 
-#: phrasings that name a specific catalog item
+#: phrasings that name a specific catalog item.  TWO guards, both learned the
+#: hard way: the keyword needs a WORD BOUNDARY (without it "partition" gave
+#: 'ition', "catwalk" gave 'walk' and every honest delivery got the loudest
+#: line in the product), and the token must contain a DIGIT (without it "generic
+#: model family" read 'family' as a part number).  A designator without a digit
+#: is a word, not a catalogue number.
 _PART_PHRASE = re.compile(
-    r"\b(?:part|catalog|catalogue|cat\.?|model|item|sku|p/?n)\s*"
-    r"(?:number|numbers|no\.?|nos\.?|#)?\s*[:#]?\s*"
-    r"(?P<tok>[A-Za-z0-9][A-Za-z0-9./-]{2,})", re.I)
+    r"\b(?:part|catalog|catalogue|cat|model|item|sku|p/?n)\b\.?\s*"
+    r"(?:numbers?|nos?\.?|#)?\s*[:#]?\s*"
+    r"(?P<tok>(?=[A-Za-z0-9./-]*\d)[A-Za-z0-9][A-Za-z0-9./-]{2,})", re.I)
 
 #: a bare token SHAPED like a part number: letters AND digits, with a separator,
 #: e.g. 24A-09-120, B22SH-12-120.  Deliberately narrow -- '1-5/8', '12x12',
@@ -661,9 +676,22 @@ _PART_PHRASE = re.compile(
 _PART_TOKEN = re.compile(r"\b(?=[A-Za-z0-9./-]*[A-Za-z])(?=[A-Za-z0-9./-]*\d)"
                          r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+){2,}\b")
 
-#: the brand names OUR catalog actually resolves.  Sourced from the corpus
-#: (rvt.famgen.catalog), never a guessed brand list -- and the guard does not
-#: depend on it being complete: the phrasing and token patterns catch the rest.
+#: a bare catalogue designator with NO separator -- 'F66L120', '2BLT4'.  Needs
+#: at least two letters AND two digits and five characters, which is what keeps
+#: 'Cat6A', '480Y', '12x12', '120V' and '2x4' out of it.  A one-letter
+#: designator like Unistrut's 'P1000' is BELOW this bar and is not caught: a
+#: stated gap, not a silent one.
+_PART_BARE = re.compile(r"\b(?=(?:[A-Za-z]*\d){2})(?=(?:\d*[A-Za-z]){2})"
+                        r"[A-Za-z0-9]{5,}\b")
+
+#: the brand names OUR catalog actually resolves, plus the containment brands
+#: this repo's own records name.  Sourced, never a guessed brand list -- and
+#: therefore INCOMPLETE by construction: a brand that is not here is caught only
+#: if the prompt also carries part-number phrasing or a catalogue-shaped token.
+#: "a Hoffman F66L120 wireway" fires on F66L120; "a Panduit 12 in cable tray"
+#: does NOT fire at all, and neither does a one-letter designator like
+#: Unistrut's P1000.  The guard reduces silent mis-identification; it does not
+#: eliminate it, and no text in this repo should say otherwise.
 _KNOWN_BRANDS = ("eaton", "schneider electric", "schneider", "square d", "square-d",
                  "lithonia", "acuity", "hammond", "hps", "b-line", "b line",
                  "cooper", "unistrut", "cablofil")
@@ -694,10 +722,11 @@ def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
             continue
         tokens.append(tok)
         reasons.append(f"names a specific item: {m.group(0).strip()!r}")
-    for m in _PART_TOKEN.finditer(text):
-        if m.group(0) not in tokens:
-            tokens.append(m.group(0))
-            reasons.append(f"{m.group(0)!r} is shaped like a part number")
+    for rx in (_PART_TOKEN, _PART_BARE):
+        for m in rx.finditer(text):
+            if m.group(0) not in tokens:
+                tokens.append(m.group(0))
+                reasons.append(f"{m.group(0)!r} is shaped like a catalogue number")
     for b in _KNOWN_BRANDS:
         if re.search(rf"\b{re.escape(b)}\b", low):
             brands.append(b)
@@ -846,13 +875,14 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 continue
             unit = _unit_of(m.group(0))
             target = prim
-            if unit is not None and unit != prim.unit:
-                # the unit names a different dimension of this product: take the
-                # first parameter measured in it that nobody has claimed
+            if unit == "ft" and prim.unit == "in":
+                # FEET in front of the noun names the RUN, not the section: "a
+                # 10 ft cable tray" is ten feet long, not ten feet wide.  Only
+                # this pair redirects -- every other unit (mm, in) is a section
+                # measurement and is CONVERTED into the primary's own unit
+                # rather than dropped ("a 600 mm cable tray" is a 23.6 in tray).
                 target = next((q for q in arch.params
-                               if q.unit == unit and prov[q.key] == NOMINAL), None)
-                if target is None:
-                    continue                      # no honest home for it: leave it alone
+                               if q.unit == "ft" and prov[q.key] == NOMINAL), prim)
             if prov[target.key] == GIVEN:
                 continue
             conv = _convert(num, unit or target.unit, target)
@@ -903,9 +933,12 @@ def resolve(product: str, overrides: Optional[Dict[str, Any]] = None,
         except (TypeError, ValueError):
             raise ArchetypeError(f"{arch.key}.{k}: {v!r} is not a number "
                                  f"({p.label}, in {p.unit})")
-        if not math.isfinite(fv) or fv < p.minimum:
+        if not math.isfinite(fv) or fv < p.minimum or (fv <= 0.0 and not p.allow_zero):
             raise ArchetypeError(f"{arch.key}.{k}: {v!r} is not a usable "
-                                 f"{p.label} (in {p.unit})")
+                                 f"{p.label} (in {p.unit})"
+                                 + ("" if p.allow_zero else
+                                    " -- a dimension of zero authors a solid of zero "
+                                    "volume, which is not a smaller product"))
         vals[k] = fv
         prov[k] = GIVEN
         quoted.pop(k, None)
