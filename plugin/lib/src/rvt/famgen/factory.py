@@ -1401,9 +1401,13 @@ class FamilyProduct:
             "types": [n for n, _v in self.doc.types],
             "parameters": sorted(pes),
             "shared_parameters": self.shared_parameters(),
+            # radius_ft / tessellation ride along so a CYLINDER's report is not
+            # silent about its own extents (a cylinder has no width/depth) nor
+            # about the fixed-chord extrapolation the nodes carry (#530)
             "forms": [{"kind": f.kind, **{k: v for k, v in f.params.items()
                                           if k in ("width_ft", "depth_ft", "height_ft",
-                                                   "base_z_ft", "rep")}}
+                                                   "base_z_ft", "rep", "radius_ft",
+                                                   "tessellation")}}
                       for f in self.forms],
             "connectors": len(self.doc.connectors),
             "assumed_fields": self.assumed(),
