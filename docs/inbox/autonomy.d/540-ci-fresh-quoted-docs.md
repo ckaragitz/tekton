@@ -59,7 +59,7 @@ JSON for the never-fetched head `eeee…`. Each `up` step is one more commit on 
 --- same, head unknown here (pr 17):
     BEFORE  STALE … changed="docs/inbox/caf\303\251 notes.md","docs/\303\274n\303\257code.md" -> re-run tools/dev/session_ci.sh 17   exit=4
     AFTER   STALE … changed=docs/inbox/café notes.md,docs/inbox/record.md,docs/ünïcode.md (main added docs files and the recorded head "eeee…" is not a commit in this clone, so a collision with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17   exit=4
---- non-ASCII docs MODIFIED, head unknown (17):    same pair as the row above (the earlier ADDs are still inside was..now)   exit=4 both
+--- non-ASCII docs MODIFIED after those ADDs (17):  same pair as the row above (the earlier ADDs are still inside was..now)   exit=4 both
 --- docs names git still quotes (" and TAB):
     BEFORE  STALE … changed="docs/inbox/caf\303\251 notes.md","docs/inbox/we\"ird.md","docs/tab\there.md",… -> re-run tools/dev/session_ci.sh 7   exit=4
     AFTER   STALE … changed="docs/inbox/we\"ird.md","docs/tab\there.md" -> re-run tools/dev/session_ci.sh 7   exit=4
@@ -70,7 +70,17 @@ JSON for the never-fetched head `eeee…`. Each `up` step is one more commit on 
 
 `diff BEFORE AFTER`: rows 1–3 byte-identical; rows 4–8 differ exactly as above — row 4 is the fix; rows 5–6 keep their
 (correct, #496) STALE but now for the stated reason and with `docs/inbox/record.md` no longer hidden behind the misread
-names; rows 7–8 keep STALE and merely stop mis-naming the café record. No exit code changed except row 4's `4 → 0`.
+names; rows 7–8 keep STALE and merely stop mis-naming the café record. In that table the only exit code that changes is
+row 4's `4 → 0` — because its one MODIFY happens after ADDs. The other `4 → 0` this issue is about, **a non-ASCII record
+MODIFIED alone** (nothing docs-ADDED inside `was..now`), needs the record to exist at `was`, so it was measured on a
+second deterministic rig seeded with `docs/inbox/résumé.md`, for the head-unknown PR 17 (the strictest caller — no
+collision program can rescue it) — and is what `tests/test_ci_fresh.py`'s non-ASCII row now opens with:
+
+```
+--- non-ASCII record MODIFIED alone, head unknown (17):
+    BEFORE  STALE was=7cf2634c… now=b01edcae… changed="docs/inbox/r\303\251sum\303\251.md" -> re-run tools/dev/session_ci.sh 17   exit=4
+    AFTER   FRESH(docs-only drift) was=7cf2634c… now=b01edcae…   exit=0
+```
 
 ## Verification — the CLI driven, and probed around the change
 
@@ -93,8 +103,9 @@ one-liners, no tracebacks.
   (+1 test), this fragment (new; index `docs/inbox/autonomy.md` untouched). Both test modules are already in the shard
   (`tests/ci_shard.d/487-ci-fresh.txt`, `tests/ci_shard.d/522-portable-paths.txt`); no new drop-in.
 - No `src/`, `plugin/`, `skills/`, workflow or hot file touched. Gates: `bash -n tools/dev/ci_fresh.sh` OK;
-  `tests/test_ci_fresh.py` + `tests/test_portable_paths.py` + `tests/test_records_layout.py` green (counts in the PR
-  body for the pushed head); `check_portable_paths.py` ok, 3109 tracked paths with this fragment;
+  `tests/test_ci_fresh.py` + `tests/test_portable_paths.py` + `tests/test_records_layout.py` + `tests/test_techlead.py`
+  → 71 passed, 2 skipped locally on every pushed head (the sandboxed shard's counts for the merged head are in the PR's
+  merge comment); `check_portable_paths.py` ok, 3109 tracked paths with this fragment;
   `tools/sync_plugin.py --check` in sync (nothing under `src/` moved).
 - Follow-ups surfaced by the `/simplify` altitude pass, filed as their own issues: **#722** the drift reader unified onto
   the NUL-clean `-z` + `check()` program (retiring the awk layer); **#723** `tools/dev/coord.py:459` (fail-open batch
@@ -107,4 +118,8 @@ one-liners, no tracebacks.
   name above, the follow-up numbers here, a pinned MODIFIED non-ASCII row, and the invalid-UTF-8 sentence. The
   reviewer also ran the module under gawk 5.2.1 and busybox 1.36.1 shims (28 passed each; `name3` output byte-identical
   across flavour × locale, and gawk without `LC_ALL=C` does warn on such input — the prefix is load-bearing).
+  Round 2 on `7a406c5`: 🟡 nits, taken — the MODIFIED-alone BEFORE/AFTER pair above (the reviewer measured the same
+  pair independently), the docstring naming both cases, and `rig.fresh` decoding the helper's stdout as UTF-8 explicitly
+  (`text=True` alone uses the locale codec, which would mismatch the raw `café` expectations under cp1252 the day O2's
+  Windows job runs this module). Gate counts for the merged head are in the PR's merge comment (same-tick evidence).
 - Shipped on merge; nothing staged.

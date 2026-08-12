@@ -68,7 +68,7 @@ def rig(tmp_path):
     def fresh(*argv, path=None):
         env = dict(GIT_ENV, PATH=path) if path else GIT_ENV
         out = subprocess.run(["bash", os.path.join(clone, "tools", "dev", "ci_fresh.sh"), *(map(str, argv or (7,)))],
-                             cwd=clone, env=env, capture_output=True, text=True, timeout=60)
+                             cwd=clone, env=env, capture_output=True, text=True, encoding="utf-8", timeout=60)   # utf-8, not the locale codec: raw non-ASCII names must compare equal under cp1252 too (#540)
         ns.err = out.stderr
         return out.returncode, out.stdout.strip()
     ns.pr, ns.fresh = pr, fresh
@@ -193,9 +193,10 @@ def test_a_blocking_path_whose_name_is_all_blanks_is_still_named_and_stale(rig):
 
 
 def test_a_docs_file_with_a_non_ascii_name_is_tolerated_drift_like_an_ascii_one(rig):
-    """#540 (mechanism: the helper's header): a docs name holding non-ASCII bytes added on main is tolerated docs drift
-    exactly like an ASCII one, and where the same drift is refused for another reason (docs ADDED while the recorded
-    head is unknown here, #496) the names are spelled raw. The rig's GIT_CONFIG_GLOBAL=/dev/null means no user config
+    """#540 (mechanism: the helper's header): a docs name holding non-ASCII bytes MODIFIED on main (résumé.md, seeded at
+    `was`) is tolerated docs drift even for a head this clone lacks, one ADDED on main is tolerated exactly like an ASCII
+    one, and where the same drift is refused for another reason (docs ADDED while the recorded head is unknown here,
+    #496) the names are spelled raw. The rig's GIT_CONFIG_GLOBAL=/dev/null means no user config
     can be supplying core.quotePath=false -- only the helper's own -c makes this pass."""
     _verdict(rig.ci, 17, head=E40, main=rig.was, verdict="pass")
     now = git_commit(rig.up, {"docs/inbox/résumé.md": "more\n"}, "a non-ASCII record MODIFIED on main")
