@@ -18,12 +18,16 @@ hence P2 — but records are free-form names.
   Non-ASCII names now print raw and classify exactly like ASCII ones (tolerated when added/modified under `docs/**`
   outside `SHARD_READS`; named raw where the drift is refused for another reason). Names git quotes *regardless* of
   that flag — holding `"`, `\`, TAB, LF or another control character — still arrive as `"docs/…"`, still fail `^docs/`
-  and stay STALE — fail-closed exactly as before, and nearly always informative: `tools/dev/check_portable_paths.py`
-  (`BAD = [<>:"|?*\\\x00-\x1f]`) refuses those names, so the re-run such a name costs is the run that shows `main` went
-  red. **One byte is the exception, found by probing (see Verification below): DEL (0x7f)** — git C-quotes it even with
-  quotePath off, the checker lets it through, so a docs name holding a DEL added on `main` still costs one needless
-  re-run (never a wrong FRESH). The header comment states the rule and the exception. The merge-time collision program
-  was already NUL-clean (`git … -z`, #522) and needed nothing.
+  and stay STALE — fail-closed exactly as before, and now always informative: `tools/dev/check_portable_paths.py`
+  refuses exactly those names, so the re-run such a name costs is the run that shows `main` went red. **Probing found
+  the one byte on which that was not yet true: DEL (0x7f)** — git C-quotes it even with quotePath off, while the
+  checker's `BAD = [<>:"|?*\\\x00-\x1f]` stopped at 0x1f and let it through. Fixed at the layer that owns the law
+  (territory extended on #540 first, https://github.com/ckaragitz/tekton/issues/540#issuecomment-5271411810):
+  `BAD` gains `\x7f`, and `tests/test_portable_paths.py` pins the whole class — TAB, 0x1f, DEL, `"`, `\` refused;
+  café, ü, NBSP accepted — so the two gates agree byte for byte. The three awk calls now run under `LC_ALL=C`: with
+  quotePath off they see raw 8-bit names, and byte semantics keep mawk/gawk/busybox agreeing (gawk warns on invalid
+  multibyte input in a UTF-8 locale; `^docs/` and `[AM]` are ASCII, so nothing is lost). The merge-time collision
+  program was already NUL-clean (`git … -z`, #522) and needed nothing.
 - `tests/test_ci_fresh.py`: two rows. (1) `docs/inbox/café notes.md` + `docs/ünïcode.md` added on main → `FRESH(docs-only
   drift)` for PR 7 (called with its expected head, the tick's real call shape); the same drift for PR 17, whose recorded
   head this clone lacks, stays STALE (docs ADDED, collision cannot be ruled out — #496's rule, untouched) and names both
@@ -74,18 +78,24 @@ The final tree's outcome table is byte-identical to AFTER above (the `/simplify`
 in a throwaway repo with `git -c core.quotePath=false diff --cached --name-status | cat -A` beside the checker's own
 `check()` on the same name: backslash → `"docs/back\\slash.md"` (quoted → STALE) and refused by the checker (consistent);
 NBSP 0xa0 → `docs/nbsp<C2><A0> x.md` raw (tolerated) and accepted (consistent); **DEL 0x7f → `"docs/del\177name.md"`
-(quoted → STALE) yet accepted by the checker** — the one name on which the two gates disagree, recorded above and in the
-header rather than hidden. The live helper in this checkout: `ci_fresh.sh 702 56e260d8…` → `NOT-PASS verdict=fail …`
+(quoted → STALE) yet accepted by the checker** — the one name on which the two gates disagreed; fixed in the checker (above)
+rather than excused in prose. The live helper in this checkout: `ci_fresh.sh 702 56e260d8…` → `NOT-PASS verdict=fail …`
 exit 5 (that PR's stored run is red); `ci_fresh.sh 9999` → `MISSING …` exit 3; `ci_fresh.sh x` → usage, exit 2 — clean
 one-liners, no tracebacks.
 
 ## BRANCH STATE
 
 - Branch `cam/540-ci-fresh-quoted-docs` from `main` @ `54228cb`; files: `tools/dev/ci_fresh.sh` (one `-c
-  core.quotePath=false` on the `DRIFT` diff with a short pointer comment + four header lines), `tests/test_ci_fresh.py`
-  (+2 tests; `UNKNOWN_HEAD_LINE` defined beside `TWIN_LINE` and used by the new row and #496's row), this fragment (new;
-  index `docs/inbox/autonomy.md` untouched). Already in the shard via `tests/ci_shard.d/487-ci-fresh.txt`; no new drop-in.
+  core.quotePath=false` on the `DRIFT` diff with a short pointer comment, `LC_ALL=C` on the three awk calls, header
+  lines), `tools/dev/check_portable_paths.py` (`\x7f` into `BAD` + docstring; territory extended on the issue first),
+  `tests/test_ci_fresh.py` (+2 tests; `UNKNOWN_HEAD_LINE` defined beside `TWIN_LINE` and used by the new row and #496's
+  row), `tests/test_portable_paths.py` (+1 test), this fragment (new; index `docs/inbox/autonomy.md` untouched). Both
+  test modules are already in the shard (`tests/ci_shard.d/487-ci-fresh.txt`, `522-portable-paths-seam.txt`); no new drop-in.
 - No `src/`, `plugin/`, `skills/`, workflow or hot file touched. Gates: `bash -n tools/dev/ci_fresh.sh` OK;
-  `tests/test_ci_fresh.py` 26 passed / 2 skipped; `tests/test_records_layout.py` green; `check_portable_paths.py` ok,
-  3109 tracked paths with this fragment; `tools/sync_plugin.py --check` in sync (nothing under `src/` moved).
+  `tests/test_ci_fresh.py` + `tests/test_portable_paths.py` + `tests/test_records_layout.py` green (counts in the PR
+  body for the pushed head); `check_portable_paths.py` ok, 3109 tracked paths with this fragment;
+  `tools/sync_plugin.py --check` in sync (nothing under `src/` moved).
+- Follow-ups surfaced by the `/simplify` altitude pass, filed as their own issues (numbers in the PR body): the drift
+  reader unified onto the NUL-clean `-z` + `check()` program (retiring the awk layer); `tools/dev/coord.py:459` /
+  `tools/dev/techlead.py:974` line-wise readers of git name output; an encoding/normalisation law for the checker.
 - Shipped on merge; nothing staged.

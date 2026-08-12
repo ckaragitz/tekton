@@ -29,6 +29,16 @@ def test_check_reports_every_law_with_the_names_involved_in_cli_order():
     assert checker.check(["w/a.md", "src/b.py", "w/console/aux-iliary.md"]) == []   # reserved names are whole stems (up to the first dot), not prefixes
 
 
+def test_control_characters_and_DEL_are_illegal_while_non_ascii_names_are_portable():
+    """The illegal-character class is exactly the byte set git C-quotes even with core.quotePath=false (0x00-0x1f,
+    DEL 0x7f, the double quote, the backslash) plus Windows' own <>:|?* -- so tools/dev/ci_fresh.sh may read any docs
+    name git still quotes as one this gate refuses (#540; DEL was the one byte the two disagreed on). Bytes above 0x7f
+    are somebody's alphabet, not a portability problem: café, ü and a no-break space pass."""
+    for bad in ("w/tab\there.md", "w/unit\x1fsep.md", "w/del\x7fete.md", 'w/we"ird.md', "w/back\\slash.md"):
+        assert checker.check([bad]) == [("illegal character for Windows: %r" % bad, [bad])], bad
+    assert checker.check(["w/inbox/café notes.md", "w/ünïcode.md", "w/nbsp\xa0x.md"]) == []   # w/, not docs/: a docs/ literal here would read as a docs reference to test_ci_fresh.py's SHARD_READS scanner
+
+
 @pytest.mark.skipif(not HAVE_GIT, reason="needs git")
 def test_the_cli_is_check_over_git_ls_files_and_this_checkout_passes(monkeypatch, capsys):
     tracked = [p for p in git(ROOT, "ls-files", "-z").split("\0") if p]
