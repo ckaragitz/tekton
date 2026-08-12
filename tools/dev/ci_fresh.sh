@@ -23,7 +23,16 @@
 # main: a rewritten trunk is STALE whatever the difference looks like. Anything else (code) is STALE; a "disjoint
 # drift" judge that would tolerate provably unrelated code drift was explored in #539 and parked — see
 # docs/inbox/ci-fresh-merge-tree.md for where static judging stops. A filter or interpreter failing on the way is
-# "cannot judge", never FRESH.
+# "cannot judge", never FRESH. The drift is read with core.quotePath=false so a docs name carrying non-ASCII bytes
+# (docs/inbox/café notes.md) arrives raw and classifies exactly like an ASCII one (#540); a name git quotes even then —
+# one holding ", \, TAB, LF, DEL or another control character — arrives as "docs/…", fails the ^docs/ test and stays
+# STALE, fail-closed as before and for a reason: tools/dev/check_portable_paths.py's illegal-character class contains
+# that whole byte set (pinned there), so the one re-run such a name costs is the run that shows main went red. High
+# bytes that are not valid UTF-8 print raw too and are, today, names the checker accepts — so such a docs name is now
+# tolerated drift by this helper's own definition (it cannot change a gate's outcome); giving the checker an encoding /
+# normalisation law is #724, and this helper feels it the day it lands. The awk filters run under LC_ALL=C so the raw
+# 8-bit names this lets through are bytes to every awk flavour alike (gawk warns on invalid multibyte input in a UTF-8
+# locale; the ^docs/ prefix and the [AM] status are ASCII, so byte semantics lose nothing).
 # With <head-sha> (what `git ls-remote` says the PR head is right now) it also refuses a JSON computed for another
 # head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.
 #
@@ -55,12 +64,12 @@ git cat-file -e "$WAS^{commit}" 2>/dev/null || { echo "STALE was=$WAS now=$NOW c
 git merge-base --is-ancestor "$WAS" "$NOW"; case $? in 0) ;;   # drift is only WAS..NOW while NOW descends from WAS; a rewritten trunk with a docs-only difference is not "docs-only drift" (#539)
   1) echo "STALE was=$WAS now=$NOW changed=? ($WAS is not an ancestor of origin/main: main rewritten under the verdict) -> re-run tools/dev/session_ci.sh $PR"; exit 4;;
   *) echo "cannot judge PR $PR: git merge-base $WAS $NOW failed"; exit 2;; esac
-DRIFT=$(git diff --name-status --no-renames "$WAS" "$NOW" --) || { echo "cannot judge PR $PR: git diff $WAS $NOW failed"; exit 2; }
+DRIFT=$(git -c core.quotePath=false diff --name-status --no-renames "$WAS" "$NOW" --) || { echo "cannot judge PR $PR: git diff $WAS $NOW failed"; exit 2; }   # quotePath=false: non-ASCII names must reach the ^docs/ filter below unquoted (#540, header)
 # Everything below fails CLOSED: a filter/interpreter that errors is "cannot judge" (exit 2), never an empty list read as FRESH.
-name3() { awk 'BEGIN {n=0; s=""} length($0) {n++; if (n<=3) s=s (n>1?",":"") $0} END {if (n>3) s=s ",…"; print s}'; }   # paths, one per line -> first three named, the rest counted as an ellipsis (length, not NF: a name made of blanks still counts)
-BLOCK=$(awk -F'\t' -v reads="$SHARD_READS" '!($1 ~ /^[AM]$/ && $2 ~ /^docs\// && $2 !~ reads) {print $2}' <<<"$DRIFT" | name3) || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # every path that is NOT tolerated drift
+name3() { LC_ALL=C awk 'BEGIN {n=0; s=""} length($0) {n++; if (n<=3) s=s (n>1?",":"") $0} END {if (n>3) s=s ",…"; print s}'; }   # paths, one per line -> first three named, the rest counted as an ellipsis (length, not NF: a name made of blanks still counts)
+BLOCK=$(LC_ALL=C awk -F'\t' -v reads="$SHARD_READS" '!($1 ~ /^[AM]$/ && $2 ~ /^docs\// && $2 !~ reads) {print $2}' <<<"$DRIFT" | name3) || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # every path that is NOT tolerated drift
 [ -n "$BLOCK" ] && { echo "STALE was=$WAS now=$NOW changed=$BLOCK -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
-ADDS=$(awk -F'\t' '$1=="A" {print $2}' <<<"$DRIFT") || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # docs files main ADDED: new names, harmless unless the post-merge name set now fails the names-only gate (below; needs the head's names)
+ADDS=$(LC_ALL=C awk -F'\t' '$1=="A" {print $2}' <<<"$DRIFT") || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # docs files main ADDED: new names, harmless unless the post-merge name set now fails the names-only gate (below; needs the head's names)
 if [ -n "$ADDS" ]; then
   { [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "$HEAD^{commit}" 2>/dev/null; } || { echo "STALE was=$WAS now=$NOW changed=$(name3 <<<"$ADDS") (main added docs files and the recorded head \"$HEAD\" is not a commit in this clone, so a collision with a path PR $PR adds cannot be ruled out) -> re-run tools/dev/session_ci.sh $PR"; exit 4; }
   # The program below (stdin carries it, argv the checker's path + three SHAs + the PR number; it re-reads the names it needs with

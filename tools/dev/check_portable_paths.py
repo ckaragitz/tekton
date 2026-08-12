@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Fail if any tracked path is not portable to Windows/macOS checkouts (or breaks the docs/inbox record layout).
 
-Checks: characters illegal on Windows (<>:"|?* backslash, control chars),
-trailing dot/space in any component, reserved device names (CON, NUL, ...),
+Checks: characters illegal on Windows (<>:"|?* backslash, control chars incl.
+DEL 0x7f -- a class that contains the whole byte set git C-quotes even with
+core.quotePath=false, which is what lets tools/dev/ci_fresh.sh read every quoted
+docs name as a name this gate refuses, #540), trailing dot/space in any component, reserved device names (CON, NUL, ...),
 paths longer than 240 chars, and case-only collisions. Run in CI and before
 pushing:  python tools/dev/check_portable_paths.py
 `check(paths)` is the whole gate as a pure function; callers run it over name sets
@@ -17,7 +19,7 @@ ci_fresh.sh loads it by path, so it must never import a sibling module.
 """
 import collections, re, subprocess, sys
 
-BAD = re.compile(r'[<>:"|?*\\\x00-\x1f]')
+BAD = re.compile(r'[<>:"|?*\\\x00-\x1f\x7f]')
 RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
 MAXLEN = 240
 INBOX = "docs/inbox/"                                                # stream records: <stream>.md, or that index + <stream>.d/<issue>-<slug>.md fragments
