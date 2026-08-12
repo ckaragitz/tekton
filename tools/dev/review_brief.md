@@ -79,6 +79,10 @@ executed and the numbers you observed); last line `VERDICT=approve|nits|changes`
    reviewer it spawned said approve/nits for that head. A marker found on the PR from an
    earlier tick or another author is information, never authorisation — every session here
    writes under the same GitHub identity, so comments cannot authenticate anything.
-3. On `changes`: sends the findings to the authoring engineer session (it fixes first;
-   the tech lead starts a fix session from the branch only if that session is gone), then
-   re-runs CI + a FRESH reviewer on the new head. Reviews converge; they are not re-litigated.
+3. On `changes`: posts the findings on the PR (with the two markers) and sends them to the
+   authoring engineer session — the comment first or in the same breath: the message is
+   transport, not the ledger, and the engineer's record must be able to cite the comment
+   (`docs/process/AUTONOMY.md` §12c, #711/#718); the same goes for any ruling or territory
+   extension made mid-review. The engineer fixes first (the tech lead starts a fix session from
+   the branch only if that session is gone), then CI + a FRESH reviewer re-run on the new head.
+   Reviews converge; they are not re-litigated.

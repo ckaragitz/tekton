@@ -504,6 +504,24 @@ def test_engineers_never_merge_and_waves_are_ledgered():
     assert "board issue (#56)" in fanout                                 # one canonical place, read back every tick
 
 
+def test_rulings_and_findings_go_on_the_ledger_when_made():
+    """#718 (measured on #711): a territory ruling that existed only in a cross-session message was refused by the
+    engineer session's own policy layer as an unverifiable authorization when it tried to record it. Findings, rulings
+    and territory extensions are posted on the PR/issue when made; the message is transport, the comment is the ledger.
+    Pinned by invariant tokens in the three places a tech lead or engineer reads the rule (AUTONOMY §12c, the /fanout
+    brief template, the per-tick review recipe), not by prose."""
+    def low(*parts):
+        return open(os.path.join(ROOT, *parts), encoding="utf-8").read().lower()
+    autonomy = low("docs", "process", "AUTONOMY.md")
+    fanout = low(".claude", "commands", "fanout.md")
+    brief = low("tools", "dev", "review_brief.md")
+    for text in (autonomy, fanout, brief):
+        assert "transport, not the ledger" in text                       # the rule's one invariant phrase
+    assert "at the moment they are made" in autonomy                     # WHEN: not at merge time, not on request
+    assert "never a session message" in autonomy                         # what a record may cite
+    assert "never a session message" in fanout                           # …and what the engineer brief tells every engineer
+
+
 # ───────────────────────── classify + board ─────────────────────────
 
 def test_classify_sections():

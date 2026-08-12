@@ -276,7 +276,7 @@ What an **engineer session** does differently: claims by self-assigning; ignores
 (there are none, or instantly-failed ones with `runner_id 0` — meaningless either way); runs its gates locally and pastes counts;
 after pushing, REPORTS the head SHA to the tech-lead session instead of waiting for bots; fixes on
 the same branch when findings come back — acting on a finding or ruling only once it is visible on the
-PR or issue, and citing that comment (not the message that relayed it) in its record; and never merges —
+PR or issue, and citing the comment that shows it (not the message that relayed it) in its record; and never merges —
 not its own PR, not anyone's (#342: one
 engineer PR reached `main` outside the pipeline under the shared identity; its head was verified after
 the fact, which is luck, not process). Everything else in `CLAUDE.md` §4 (one issue = one branch =
