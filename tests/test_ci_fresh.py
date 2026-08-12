@@ -45,7 +45,8 @@ def rig(tmp_path):
     origin/main + PR_ADDS, what session_ci.sh would have fetched as refs/pr/7) and a stored pass verdict for PR 7
     against the clone's origin/main."""
     up, clone = git_init(str(tmp_path / "upstream")), str(tmp_path / "clone")
-    git_commit(up, {"src/a.py": "a\n", "docs/x.md": "d\n", "docs/inbox/old.md": "o\n", "docs/coverage/viewer-certified.json": "{}\n"}, "one")
+    git_commit(up, {"src/a.py": "a\n", "docs/x.md": "d\n", "docs/inbox/old.md": "o\n", "docs/coverage/viewer-certified.json": "{}\n",
+                    "docs/inbox/résumé.md": "r\n"}, "one")   # résumé: a non-ASCII record that already exists at `was`, so a test can MODIFY one (#540)
     git(tmp_path, "clone", "-q", up, clone)
     was = git(clone, "rev-parse", "origin/main")
     os.makedirs(os.path.join(clone, "tools", "dev"))
@@ -196,10 +197,12 @@ def test_a_docs_file_with_a_non_ascii_name_is_tolerated_drift_like_an_ascii_one(
     exactly like an ASCII one, and where the same drift is refused for another reason (docs ADDED while the recorded
     head is unknown here, #496) the names are spelled raw. The rig's GIT_CONFIG_GLOBAL=/dev/null means no user config
     can be supplying core.quotePath=false -- only the helper's own -c makes this pass."""
-    now = git_commit(rig.up, {"docs/inbox/café notes.md": "n\n", "docs/ünïcode.md": "u\n", "docs/x.md": "more\n"}, "non-ASCII docs names added on main")
+    _verdict(rig.ci, 17, head=E40, main=rig.was, verdict="pass")
+    now = git_commit(rig.up, {"docs/inbox/résumé.md": "more\n"}, "a non-ASCII record MODIFIED on main")
+    assert rig.fresh(17) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # M alone: tolerated even for a head this clone lacks (its name existed at `was`), exactly as docs/x.md is above
+    now = git_commit(rig.up, {"docs/inbox/café notes.md": "n\n", "docs/ünïcode.md": "u\n", "docs/x.md": "more\n"}, "non-ASCII docs names ADDED on main")
     assert rig.fresh(7, rig.head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))
     assert rig.err == ""
-    _verdict(rig.ci, 17, head=E40, main=rig.was, verdict="pass")
     assert rig.fresh(17) == (4, UNKNOWN_HEAD_LINE % (rig.was, now, "docs/inbox/café notes.md,docs/ünïcode.md", E40))
 
 

@@ -89,13 +89,22 @@ one-liners, no tracebacks.
   core.quotePath=false` on the `DRIFT` diff with a short pointer comment, `LC_ALL=C` on the three awk calls, header
   lines), `tools/dev/check_portable_paths.py` (`\x7f` into `BAD` + docstring; territory extended on the issue first),
   `tests/test_ci_fresh.py` (+2 tests; `UNKNOWN_HEAD_LINE` defined beside `TWIN_LINE` and used by the new row and #496's
-  row), `tests/test_portable_paths.py` (+1 test), this fragment (new; index `docs/inbox/autonomy.md` untouched). Both
-  test modules are already in the shard (`tests/ci_shard.d/487-ci-fresh.txt`, `522-portable-paths-seam.txt`); no new drop-in.
+  row; the rig's seed gains `docs/inbox/résumé.md` so a MODIFIED non-ASCII record can be pinned), `tests/test_portable_paths.py`
+  (+1 test), this fragment (new; index `docs/inbox/autonomy.md` untouched). Both test modules are already in the shard
+  (`tests/ci_shard.d/487-ci-fresh.txt`, `tests/ci_shard.d/522-portable-paths.txt`); no new drop-in.
 - No `src/`, `plugin/`, `skills/`, workflow or hot file touched. Gates: `bash -n tools/dev/ci_fresh.sh` OK;
   `tests/test_ci_fresh.py` + `tests/test_portable_paths.py` + `tests/test_records_layout.py` green (counts in the PR
   body for the pushed head); `check_portable_paths.py` ok, 3109 tracked paths with this fragment;
   `tools/sync_plugin.py --check` in sync (nothing under `src/` moved).
-- Follow-ups surfaced by the `/simplify` altitude pass, filed as their own issues (numbers in the PR body): the drift
-  reader unified onto the NUL-clean `-z` + `check()` program (retiring the awk layer); `tools/dev/coord.py:459` /
-  `tools/dev/techlead.py:974` line-wise readers of git name output; an encoding/normalisation law for the checker.
+- Follow-ups surfaced by the `/simplify` altitude pass, filed as their own issues: **#722** the drift reader unified onto
+  the NUL-clean `-z` + `check()` program (retiring the awk layer); **#723** `tools/dev/coord.py:459` (fail-open batch
+  reader) / `tools/dev/techlead.py:974` line-wise readers of git name output; **#724** an encoding/normalisation law for
+  the checker (invalid UTF-8, NFC/NFD twins) — until it lands, a docs name whose high bytes are not valid UTF-8 is
+  tolerated drift here (raw now, accepted by `check()`), which the helper's header states.
+- Independent review of `d99b55b` (PR #725): 🟡 nits, all taken on the same branch — "contains that byte set" (the
+  checker's class is a strict superset of git's quoting set: git quotes `01-1f,22,5c,7f`, `check()` refuses those plus
+  `<>:|?*`, measured by the reviewer over every byte 0x01–0xff; zero quoted-but-accepted names), the drop-in's real
+  name above, the follow-up numbers here, a pinned MODIFIED non-ASCII row, and the invalid-UTF-8 sentence. The
+  reviewer also ran the module under gawk 5.2.1 and busybox 1.36.1 shims (28 passed each; `name3` output byte-identical
+  across flavour × locale, and gawk without `LC_ALL=C` does warn on such input — the prefix is load-bearing).
 - Shipped on merge; nothing staged.

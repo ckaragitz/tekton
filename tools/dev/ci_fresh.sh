@@ -26,10 +26,13 @@
 # "cannot judge", never FRESH. The drift is read with core.quotePath=false so a docs name carrying non-ASCII bytes
 # (docs/inbox/café notes.md) arrives raw and classifies exactly like an ASCII one (#540); a name git quotes even then —
 # one holding ", \, TAB, LF, DEL or another control character — arrives as "docs/…", fails the ^docs/ test and stays
-# STALE, fail-closed as before and for a reason: tools/dev/check_portable_paths.py's illegal-character class is that same
-# byte set (pinned there), so the one re-run such a name costs is the run that shows main went red. The awk filters run
-# under LC_ALL=C so the raw 8-bit names this lets through are bytes to every awk flavour alike (gawk warns on invalid
-# multibyte input in a UTF-8 locale; the ^docs/ prefix and the [AM] status are ASCII, so byte semantics lose nothing).
+# STALE, fail-closed as before and for a reason: tools/dev/check_portable_paths.py's illegal-character class contains
+# that whole byte set (pinned there), so the one re-run such a name costs is the run that shows main went red. High
+# bytes that are not valid UTF-8 print raw too and are, today, names the checker accepts — so such a docs name is now
+# tolerated drift by this helper's own definition (it cannot change a gate's outcome); giving the checker an encoding /
+# normalisation law is #724, and this helper feels it the day it lands. The awk filters run under LC_ALL=C so the raw
+# 8-bit names this lets through are bytes to every awk flavour alike (gawk warns on invalid multibyte input in a UTF-8
+# locale; the ^docs/ prefix and the [AM] status are ASCII, so byte semantics lose nothing).
 # With <head-sha> (what `git ls-remote` says the PR head is right now) it also refuses a JSON computed for another
 # head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.
 #

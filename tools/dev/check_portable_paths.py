@@ -2,9 +2,9 @@
 """Fail if any tracked path is not portable to Windows/macOS checkouts (or breaks the docs/inbox record layout).
 
 Checks: characters illegal on Windows (<>:"|?* backslash, control chars incl.
-DEL 0x7f -- the byte set git C-quotes even with core.quotePath=false, which is
-what lets tools/dev/ci_fresh.sh read every quoted docs name as a name this gate
-refuses, #540), trailing dot/space in any component, reserved device names (CON, NUL, ...),
+DEL 0x7f -- a class that contains the whole byte set git C-quotes even with
+core.quotePath=false, which is what lets tools/dev/ci_fresh.sh read every quoted
+docs name as a name this gate refuses, #540), trailing dot/space in any component, reserved device names (CON, NUL, ...),
 paths longer than 240 chars, and case-only collisions. Run in CI and before
 pushing:  python tools/dev/check_portable_paths.py
 `check(paths)` is the whole gate as a pure function; callers run it over name sets
