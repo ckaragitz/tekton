@@ -107,6 +107,8 @@ def test_docs_the_shard_reads_and_docs_deletions_are_stale(rig, files, delete, b
 
 TWIN_LINE = ("STALE was=%s now=%s changed=%s (added on main; PR 7 adds the same name or a case-twin of it: an add/add conflict or a "
              "portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 7")
+UNKNOWN_HEAD_LINE = ('STALE was=%s now=%s changed=%s (main added docs files and the recorded head "%s" is not a commit in this clone, '
+                     'so a collision with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17')
 
 
 @pytest.mark.parametrize("added", ["docs/inbox/Foo.md", "docs/inbox/FOO.MD", "docs/inbox/foo.md"])
@@ -125,8 +127,7 @@ def test_docs_added_on_main_with_a_head_this_clone_lacks_fail_closed_but_modifie
     now = git_commit(rig.up, {"docs/x.md": "more\n"}, "docs modified only")
     assert rig.fresh(17) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # a MODIFIED docs file existed at `was`: session_ci already saw its name
     now = git_commit(rig.up, {"docs/inbox/record.md": "new\n", "docs/inbox/note.md": "n\n"}, "docs added")
-    assert rig.fresh(17) == (4, 'STALE was=%s now=%s changed=docs/inbox/note.md,docs/inbox/record.md (main added docs files and the recorded head "%s" '
-                             'is not a commit in this clone, so a collision with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17' % (rig.was, now, E40))
+    assert rig.fresh(17) == (4, UNKNOWN_HEAD_LINE % (rig.was, now, "docs/inbox/note.md,docs/inbox/record.md", E40))
     assert rig.fresh(7) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))    # the same drift with a known head: no twin, tolerated
 
 
@@ -188,6 +189,29 @@ def test_a_blocking_path_whose_name_is_all_blanks_is_still_named_and_stale(rig):
     and must keep main's answer (STALE, the blank name after changed=), never vanish into FRESH(docs-only drift)."""
     now = git_commit(rig.up, {" ": "z\n", "docs/x.md": "more\n"}, "a file named blank")
     assert rig.fresh() == (4, "STALE was=%s now=%s changed=  -> re-run tools/dev/session_ci.sh 7" % (rig.was, now))
+
+
+def test_a_docs_file_with_a_non_ascii_name_is_tolerated_drift_like_an_ascii_one(rig):
+    """#540 (mechanism: the helper's header): a docs name holding non-ASCII bytes added on main is tolerated docs drift
+    exactly like an ASCII one, and where the same drift is refused for another reason (docs ADDED while the recorded
+    head is unknown here, #496) the names are spelled raw. The rig's GIT_CONFIG_GLOBAL=/dev/null means no user config
+    can be supplying core.quotePath=false -- only the helper's own -c makes this pass."""
+    now = git_commit(rig.up, {"docs/inbox/café notes.md": "n\n", "docs/ünïcode.md": "u\n", "docs/x.md": "more\n"}, "non-ASCII docs names added on main")
+    assert rig.fresh(7, rig.head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))
+    assert rig.err == ""
+    _verdict(rig.ci, 17, head=E40, main=rig.was, verdict="pass")
+    assert rig.fresh(17) == (4, UNKNOWN_HEAD_LINE % (rig.was, now, "docs/inbox/café notes.md,docs/ünïcode.md", E40))
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason='a name holding " or TAB cannot be created on Windows -- tools/dev/check_portable_paths.py refuses it everywhere')
+def test_docs_names_git_quotes_even_with_quotepath_off_stay_stale_and_are_named_as_git_spells_them(rig):
+    """#540's other half: a docs name holding a double quote or a control character is still printed C-quoted by git,
+    so it stays blocking drift (see the helper's header for why that is wanted) and the blocking list names it as git
+    spells it; a non-ASCII docs name in the same drift is tolerated and NOT named."""
+    now = git_commit(rig.up, {'docs/inbox/we"ird.md': "w\n", "docs/tab\there.md": "t\n", "docs/inbox/café notes.md": "n\n", "docs/x.md": "more\n"},
+                     "docs names git quotes regardless")
+    assert rig.fresh(7, rig.head) == (4, r'STALE was=%s now=%s changed="docs/inbox/we\"ird.md","docs/tab\there.md" -> re-run tools/dev/session_ci.sh 7' % (rig.was, now))
+    assert rig.err == ""
 
 
 @pytest.mark.parametrize("flavour", [pytest.param(f, marks=pytest.mark.skipif(not shutil.which(f), reason="%s is not installed on this machine" % f))

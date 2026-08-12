@@ -23,7 +23,11 @@
 # main: a rewritten trunk is STALE whatever the difference looks like. Anything else (code) is STALE; a "disjoint
 # drift" judge that would tolerate provably unrelated code drift was explored in #539 and parked — see
 # docs/inbox/ci-fresh-merge-tree.md for where static judging stops. A filter or interpreter failing on the way is
-# "cannot judge", never FRESH.
+# "cannot judge", never FRESH. The drift is read with core.quotePath=false so a docs name carrying non-ASCII bytes
+# (docs/inbox/café notes.md) arrives raw and classifies exactly like an ASCII one (#540); a name git quotes even then —
+# one holding ", \, TAB, LF or another control character — arrives as "docs/…", fails the ^docs/ test and stays STALE,
+# fail-closed as before: tools/dev/check_portable_paths.py refuses those names (all but a DEL byte, 0x7f, which it lets
+# through and git still quotes), so the one re-run such a name costs is normally the run that shows main went red.
 # With <head-sha> (what `git ls-remote` says the PR head is right now) it also refuses a JSON computed for another
 # head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.
 #
@@ -55,7 +59,7 @@ git cat-file -e "$WAS^{commit}" 2>/dev/null || { echo "STALE was=$WAS now=$NOW c
 git merge-base --is-ancestor "$WAS" "$NOW"; case $? in 0) ;;   # drift is only WAS..NOW while NOW descends from WAS; a rewritten trunk with a docs-only difference is not "docs-only drift" (#539)
   1) echo "STALE was=$WAS now=$NOW changed=? ($WAS is not an ancestor of origin/main: main rewritten under the verdict) -> re-run tools/dev/session_ci.sh $PR"; exit 4;;
   *) echo "cannot judge PR $PR: git merge-base $WAS $NOW failed"; exit 2;; esac
-DRIFT=$(git diff --name-status --no-renames "$WAS" "$NOW" --) || { echo "cannot judge PR $PR: git diff $WAS $NOW failed"; exit 2; }
+DRIFT=$(git -c core.quotePath=false diff --name-status --no-renames "$WAS" "$NOW" --) || { echo "cannot judge PR $PR: git diff $WAS $NOW failed"; exit 2; }   # quotePath=false: non-ASCII names must reach the ^docs/ filter below unquoted (#540, header)
 # Everything below fails CLOSED: a filter/interpreter that errors is "cannot judge" (exit 2), never an empty list read as FRESH.
 name3() { awk 'BEGIN {n=0; s=""} length($0) {n++; if (n<=3) s=s (n>1?",":"") $0} END {if (n>3) s=s ",…"; print s}'; }   # paths, one per line -> first three named, the rest counted as an ellipsis (length, not NF: a name made of blanks still counts)
 BLOCK=$(awk -F'\t' -v reads="$SHARD_READS" '!($1 ~ /^[AM]$/ && $2 ~ /^docs\// && $2 !~ reads) {print $2}' <<<"$DRIFT" | name3) || { echo "cannot judge PR $PR: drift filter failed"; exit 2; }   # every path that is NOT tolerated drift
