@@ -971,7 +971,7 @@ def recent_records(days=14, cap=30) -> list:
     """docs/inbox paths (records and <stream>.d/ fragments alike: a directory pathspec) touched in the last `days`,
     most recently touched first (git log order), each named once, at most `cap` -- the cap drops the oldest (#638)."""
     try:
-        r = subprocess.run(["git", "-C", ROOT, "log", f"--since={days} days ago", "--name-only", "--pretty=format:", "--", "docs/inbox"],
+        r = subprocess.run(["git", "-C", ROOT, "-c", "core.quotePath=false", "log", f"--since={days} days ago", "--name-only", "--pretty=format:", "--", "docs/inbox"],   # quotePath off: a record named café shows raw on the brief (#723)
                            capture_output=True, text=True, timeout=10)
         return list(dict.fromkeys(ln.strip() for ln in r.stdout.splitlines() if ln.strip()))[:cap]
     except (OSError, subprocess.SubprocessError):
