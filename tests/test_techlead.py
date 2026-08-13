@@ -594,6 +594,19 @@ def test_recent_records_lists_the_most_recently_touched_first_deduped_and_capped
     assert tl.recent_records(cap=4) == got[:4]                                                       # the cap drops the tail = the oldest, never the fragment
 
 
+def test_recent_records_names_a_non_ascii_record_raw(git_repo, monkeypatch):
+    """#723 (#540's name class): git C-quotes a non-ASCII name under the default core.quotePath, so a record named
+    café reached the planner brief as "docs/inbox/caf\\303\\251 notes.md". The reader now runs git with quotePath
+    off and decodes UTF-8 explicitly. recent_records() spawns git under the ambient environment, so the test blanks
+    the user/system git config itself: only the tool's own -c can then be supplying quotePath=false (without this the
+    row is vacuous on a machine whose ~/.gitconfig already sets it)."""
+    git_commit(git_repo, {"docs/inbox/rig-café notes.md": "n\n", "docs/inbox/rig-plain.md": "p\n"}, "a record with a non-ASCII name")
+    monkeypatch.setattr(tl, "ROOT", str(git_repo))
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", os.devnull)
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+    assert tl.recent_records() == ["docs/inbox/rig-café notes.md", "docs/inbox/rig-plain.md"]
+
+
 # ───────────────────────── worker pick ─────────────────────────
 
 def test_pick_prefers_retry_then_queue_head_with_auto_and_skips_hot_files():

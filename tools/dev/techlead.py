@@ -969,10 +969,11 @@ def hygiene_findings(model: dict) -> list:
 
 def recent_records(days=14, cap=30) -> list:
     """docs/inbox paths (records and <stream>.d/ fragments alike: a directory pathspec) touched in the last `days`,
-    most recently touched first (git log order), each named once, at most `cap` -- the cap drops the oldest (#638)."""
+    most recently touched first (git log order), each named once and spelled raw (git runs with core.quotePath=false,
+    so a record named café is not C-quoted, #723), at most `cap` -- the cap drops the oldest (#638)."""
     try:
-        r = subprocess.run(["git", "-C", ROOT, "log", f"--since={days} days ago", "--name-only", "--pretty=format:", "--", "docs/inbox"],
-                           capture_output=True, text=True, timeout=10)
+        r = subprocess.run(["git", "-C", ROOT, "-c", "core.quotePath=false", "log", f"--since={days} days ago", "--name-only", "--pretty=format:", "--", "docs/inbox"],
+                           capture_output=True, encoding="utf-8", errors="replace", timeout=10)   # raw UTF-8 out, so decode as UTF-8 whatever the locale (cp1252 would crash on it)
         return list(dict.fromkeys(ln.strip() for ln in r.stdout.splitlines() if ln.strip()))[:cap]
     except (OSError, subprocess.SubprocessError):
         return []

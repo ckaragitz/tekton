@@ -61,8 +61,11 @@ The parts of the workflow that bash + jq do badly:
              python tools/dev/coord.py batchjudge --tree tree.txt --registry reg.json --prs prs.json  -> JSON
 
 issues.json / prs.json are `gh issue list --json number,title,state,assignees,labels` and
-`gh pr list --json number,author,body[,files]` output; tree.txt is one default-branch path per
-line (`git ls-tree -r --name-only HEAD experiments/`); reg.json / comments.json are
+`gh pr list --json number,author,body[,files]` output; tree.txt holds the default-branch paths
+NUL-separated (`git fetch -q origin main && git ls-tree -r -z --name-only origin/main -- experiments/ > tree.txt`
+— the freshly fetched DEFAULT branch, whatever is checked out: a stale origin/main is the likeliest way to hand out
+a taken number; the older one-per-line `--name-only` output is still read, C-quoted names included, #723);
+reg.json / comments.json are
 `gh api repos/R/issues/N/comments` output.
 """
 import argparse, json, math, re, sys
@@ -272,7 +275,7 @@ def standing_locks(comments: list, assignees) -> list:
 
 
 # ---- viewer batch numbers (#285) -------------------------------------------------------------
-BATCH_FILE_RE = re.compile(r"^experiments/(?:.*/)?batch_(\d+)\.json$")   # numbers are campaign-global
+BATCH_FILE_RE = re.compile(r"^experiments/(?:.*/)?batch_(\d+)\.json\Z", re.S)   # numbers are campaign-global; re.S/\Z: a NUL-fed name may hold a newline (#723)
 RESERVE_RE = re.compile(r"<!-- batches by=([A-Za-z0-9_.\[\]-]+) lo=(\d+) hi=(\d+) issue=(\d+) token=([A-Za-z0-9_-]+) -->")
 MAX_RESERVE = 9        # per request; a viewer round is one batch per release, so 3 is typical
 BATCH_FLOOR = 14       # == tools/probe_batch.py HISTORICAL_ROUNDS: rounds 1..14 predate the manifests (a test pins the pair)
@@ -281,6 +284,17 @@ BATCH_FLOOR = 14       # == tools/probe_batch.py HISTORICAL_ROUNDS: rounds 1..14
 def batch_numbers(paths) -> set:
     """{n} for every experiments/**/batch_<n>.json repo path in `paths`."""
     return {int(m.group(1)) for m in map(BATCH_FILE_RE.match, map(str, paths or [])) if m}
+
+
+def tree_names(text: str) -> list:
+    """Names in a `--tree` file: NUL-separated if it holds a NUL (`git ls-tree -z`, the documented recipe), else one per
+    line — split on "\\n" exactly (git's own terminator; str.splitlines() would also cut a raw U+2028/U+0085 inside a
+    name), a CRLF producer's "\\r" dropped, and git's surrounding C-quotes stripped: only the ASCII batch_<n>.json tail is
+    read downstream and `(?:.*/)?` swallows an escaped middle, so no full unquoting is needed. Never per blank:
+    `experiments/w x/batch_57.json` is one name, and a name lost here is a number `reserve` hands out twice (#723)."""
+    if "\0" in text:
+        return [n for n in text.split("\0") if n]
+    return [n for n in (ln.rstrip("\r").strip('"') for ln in text.split("\n")) if n]
 
 
 def reservations(comments: list) -> list:
@@ -433,7 +447,7 @@ def main(argv=None) -> int:
     for name, h in (("reserve", "print JSON: the /batches decision {lo, hi, seen, registry_body, reply}"),
                     ("batchjudge", "print JSON: open PRs that must renumber viewer batches [{pr, nums, key, message}]")):
         b = sub.add_parser(name, help=h)
-        b.add_argument("--tree", required=True, help="text file: default-branch paths, one per line (git ls-tree -r --name-only)")
+        b.add_argument("--tree", required=True, help="text file: default-branch paths, NUL-separated (git fetch -q origin main && git ls-tree -r -z --name-only origin/main -- experiments/); one-per-line output is read too")
         b.add_argument("--registry", required=True, help="JSON file: the batch-registry issue's comments ([] when none)")
         b.add_argument("--prs", required=True, help="JSON file: gh pr list --json number,author,body,files")
         if name == "reserve":
@@ -455,8 +469,8 @@ def main(argv=None) -> int:
         print(json.dumps(standing_locks(comments, [x for x in a.assignees.split(",") if x])))
         return 0
     if a.cmd in ("reserve", "batchjudge"):
-        with open(a.tree, encoding="utf-8") as fh:
-            on_main = batch_numbers(fh.read().split())
+        with open(a.tree, encoding="utf-8", errors="surrogateescape", newline="") as fh:   # bytes-faithful: no universal newlines, no decode crash on a non-UTF-8 name (#723)
+            on_main = batch_numbers(tree_names(fh.read()))
         with open(a.registry, encoding="utf-8") as fh:
             reserved = reservations(json.load(fh))
         with open(a.prs, encoding="utf-8") as fh:

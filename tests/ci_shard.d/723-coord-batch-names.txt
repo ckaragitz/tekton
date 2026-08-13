@@ -1,0 +1,2 @@
+# #723: coord.py batch reader NUL-clean; stdlib + git only, fresh-clone safe
+tests/test_coord_723.py
