@@ -25,33 +25,54 @@ Second reader, cosmetic: `tools/dev/techlead.py recent_records()` (`git log --na
 
 ## What changed
 
-- `tools/dev/coord.py`: `tree_names(text)` reads the `--tree` file NUL-separated when a NUL is present, else one
-  name per **line** — never per blank; `batch_numbers()` drops a surrounding pair of git C-quotes before matching
-  (only the ASCII `batch_<n>.json` tail carries the number, `(?:.*/)?` swallows the escaped middle, so no full
-  unquoting is needed). Both CLI consumers (`reserve`, `batchjudge`) go through it. Net effect: the documented `-z`
-  recipe, the older line recipe, quoted or raw names — every producer yields the same `on_main`. The module docstring
-  and the `--tree` help now document `git ls-tree -r -z --name-only HEAD -- experiments/ > tree.txt` as the recipe.
-- `tools/dev/techlead.py`: `recent_records()` runs git with `-c core.quotePath=false` (the #540 fix, one token).
-- **Recipe location (DONE 3):** the tech-lead session runs `coord.py reserve` by hand over API-fetched inputs plus a
-  local `git ls-tree` (AUTONOMY.md §12c "Claims" row; CLAUDE.md §2), and the recipe text it follows is `coord.py`'s
-  own docstring/help — updated here. `.github/workflows/coord.yml` (dispatch-only reference design under #302) is
-  **not** touched: its line-form `ls-tree` output is now read correctly anyway, quoted names included, so the
-  reference stops being fail-open without a workflow-file edit.
-- Tests: new `tests/test_coord_723.py` (8 rows; drop-in `tests/ci_shard.d/723-coord-batch-names.txt`) feeds the reader
-  REAL `git ls-tree` output in both shapes from a throwaway repo — `on_main == {56, 57, 58}` for `-z` and line form;
-  the mechanism pinned (a whitespace reading of the same line output still loses 57); end to end through the CLI,
-  `reserve --k 2` answers 59..60 for both shapes and `batchjudge` does not call a PR that *edits* the existing
-  `experiments/w x/batch_57.json` a clash with the issue 57..58 was reserved for; `tree_names` unit row (NUL wins over
-  newline; a NUL-separated name may itself hold a newline; unbalanced quotes are left alone). One row in
-  `tests/test_techlead.py`: a `docs/inbox/rig-café notes.md` record is listed raw. **Engine swap:** all 8 coord rows
-  and the techlead row FAIL over `origin/main`'s tools (the first draft of the end-to-end row passed over main — an
-  open PR adding `batch_59` masked the misread by setting the ceiling — and was reworked until it failed for the
-  bug's own reason); all pass over the fix.
+- `tools/dev/coord.py`: `tree_names(text)` reads the `--tree` file NUL-separated when a NUL is present; otherwise one
+  name per git **line** — split on `"\n"` exactly (git's own terminator: `str.splitlines()` would also cut a raw
+  U+2028/U+2029/U+0085 inside a name, which the path gate admits and a `core.quotePath=false` producer emits raw), a
+  CRLF producer's `"\r"` dropped, git's surrounding C-quotes stripped there (only the ASCII `batch_<n>.json` tail is
+  read downstream and `(?:.*/)?` swallows an escaped middle, so no full unquoting is needed; `batch_numbers()` itself
+  stays producer-agnostic because the `gh` API paths it also sees are never quoted). Never per blank. The CLI opens the
+  file bytes-faithfully (`newline=""`, `errors="surrogateescape"`) and `BATCH_FILE_RE` gained `re.S`/`\Z`, so a
+  `-z`-fed name holding a raw CR/LF or a non-UTF-8 byte is neither dropped nor a `UnicodeDecodeError`. Both CLI
+  consumers (`reserve`, `batchjudge`) go through it: the documented `-z` recipe, the older line recipe under either
+  quoting setting, quoted or raw — every producer yields the same `on_main`.
+- **Recipe (DONE 3):** the tech-lead session runs `coord.py reserve` by hand over API-fetched inputs plus a local
+  `git ls-tree` (AUTONOMY.md §12c "Claims" row; CLAUDE.md §2), following `coord.py`'s own module docstring and
+  `--tree` help — both now say `git ls-tree -r -z --name-only origin/main -- experiments/ > tree.txt` (`origin/main`,
+  not `HEAD`: a session asks about the default branch from whatever it has checked out). `.github/workflows/coord.yml`
+  (dispatch-only reference design under #302) is **not** touched: its line-form output is now read correctly anyway,
+  quoted names included, so the reference stops being fail-open without a workflow-file edit; give it `-z` whenever
+  that file is next opened for another reason.
+- `tools/dev/techlead.py`: `recent_records()` runs git with `-c core.quotePath=false` (the #540 fix, one token; the
+  why lives in its docstring).
+- Tests: new `tests/test_coord_723.py` (12 rows; drop-in `tests/ci_shard.d/723-coord-batch-names.txt`) feeds the reader
+  REAL `git ls-tree` output of a throwaway repo (`experiments/acceptance/batch_56.json`, `experiments/w x/batch_57.json`,
+  `experiments/métier/batch_54.json`, `experiments/ls<U+2028>sep/batch_58.json`) in three shapes — `-z`, line form
+  under default quoting, line form under `core.quotePath=false` — and asserts `on_main == {54, 56, 57, 58}` for each;
+  pins the mechanism (a whitespace reading of the same line output keeps only 56); end to end through the CLI,
+  `reserve --k 2` answers 59..60 for every shape and `batchjudge` does not call a PR that *edits* the existing
+  `experiments/w x/batch_57.json` a clash with the issue 57..58 was reserved for; a git-free byte-level CLI row (a `-z`
+  tree holding a raw CR, a raw LF and a Latin-1 byte: all three numbers counted, exit 0); a `tree_names` unit row (NUL
+  wins; CRLF dropped; quotes stripped; U+2028 is not a line end; an unbalanced quote errs towards "taken"). One row in
+  `tests/test_techlead.py`: a `docs/inbox/rig-café notes.md` record is listed raw. **Engine swaps:** 11 of the 12 coord
+  rows and the techlead row FAIL over `origin/main`'s tools (the 12th is the mechanism pin, which asserts main's own
+  arithmetic by design); 5 rows also fail over this branch's first head `5facefb` (`splitlines()` + a plain UTF-8
+  `open()`), which is how the review pass's residual findings were pinned before being fixed. Two vacuity traps met on
+  the way and removed: an open PR adding `batch_59` masked the misread by setting the ceiling, and the top number
+  sitting under a directory the raw-line misreading happens to keep gave the right answer for the wrong reason — the
+  top number now sits under the U+2028 directory every misreading loses.
+- `/simplify` pass (reuse / simplification / efficiency / altitude, four independent reviewers) — taken: quote-stripping
+  moved out of `batch_numbers()` into the line branch (no `_unquoted` helper left to collide by name with the existing
+  `coord.unquoted`), `split("\n")` for `splitlines()`, the bytes-faithful `open()` + `re.S`/`\Z`, `origin/main` in the
+  recipe, techlead's why-comment moved into the docstring, the redundant module-level git skip and a dead fixture entry
+  dropped, the CLI test helper writes the three input files itself; skipped: module-scoping the `trees` fixture
+  (~0.17 s and 36 git processes saved per run, judged not worth leaving the shared function-scoped `git_repo`
+  primitive), and unifying the three test modules' 2-line coord-CLI runners into `conftest.py` (the #636 convention
+  prefers not touching shared test files for that little).
 
 ## BRANCH STATE
 
-- Branch `cam/723-coord-batch-names` from `main` @ `3df18e4`; files: `tools/dev/coord.py` (`_unquoted`,
-  `tree_names`, `batch_numbers` un-quotes, CLI reader, docstring + `--tree` help), `tools/dev/techlead.py` (one `-c`),
+- Branch `cam/723-coord-batch-names` from `main` @ `3df18e4`; files: `tools/dev/coord.py` (`tree_names`,
+  `BATCH_FILE_RE` flags, CLI reader + `open()`, docstring + `--tree` help), `tools/dev/techlead.py` (one `-c` + docstring),
   `tests/test_coord_723.py` (new), `tests/ci_shard.d/723-coord-batch-names.txt` (new), `tests/test_techlead.py`
   (+1 test), this fragment (new; index untouched).
 - No `src/`, `plugin/`, `skills/`, workflow or hot file touched. Gates: `tests/test_coord_723.py` +
