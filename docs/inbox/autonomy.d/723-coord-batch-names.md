@@ -68,6 +68,15 @@ Second reader, cosmetic: `tools/dev/techlead.py recent_records()` (`git log --na
   (~0.17 s and 36 git processes saved per run, judged not worth leaving the shared function-scoped `git_repo`
   primitive), and unifying the three test modules' 2-line coord-CLI runners into `conftest.py` (the #636 convention
   prefers not touching shared test files for that little).
+- Independent review of head `07b1d50` (fresh context, told the author is the would-be merger): 🟡 nits only, all
+  four taken in the next head — `recent_records()` decodes git's now-raw UTF-8 output explicitly
+  (`encoding="utf-8", errors="replace"`; the locale codec would have crashed a cp1252 Windows `brief` on a non-ASCII
+  record, a regression class main's C-quoted ASCII could not hit), its test blanks `GIT_CONFIG_GLOBAL`/system config so
+  the row is not vacuous on a machine whose own gitconfig sets `quotePath=false` (verified: fails over main's
+  `techlead.py` under such a config), the recipe fetches before it reads (`git fetch -q origin main && …` — a stale
+  `origin/main` is the likeliest real way to hand out a taken number), and the `trees` fixture docstring no longer
+  claims byte-exactness it does not have. The reviewer's own break attempt (28 hostile batch paths + 9 decoys, six
+  producer shapes): head 0 lost / 0 extra in every shape; main loses 25/28 (line form) and 28/28 (`-z`).
 
 ## BRANCH STATE
 

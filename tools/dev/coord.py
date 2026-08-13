@@ -62,9 +62,10 @@ The parts of the workflow that bash + jq do badly:
 
 issues.json / prs.json are `gh issue list --json number,title,state,assignees,labels` and
 `gh pr list --json number,author,body[,files]` output; tree.txt holds the default-branch paths
-NUL-separated (`git ls-tree -r -z --name-only origin/main -- experiments/ > tree.txt` — the DEFAULT
-branch, whatever is checked out; the older one-per-line `--name-only` output is still read, C-quoted
-names included, #723); reg.json / comments.json are
+NUL-separated (`git fetch -q origin main && git ls-tree -r -z --name-only origin/main -- experiments/ > tree.txt`
+— the freshly fetched DEFAULT branch, whatever is checked out: a stale origin/main is the likeliest way to hand out
+a taken number; the older one-per-line `--name-only` output is still read, C-quoted names included, #723);
+reg.json / comments.json are
 `gh api repos/R/issues/N/comments` output.
 """
 import argparse, json, math, re, sys
@@ -446,7 +447,7 @@ def main(argv=None) -> int:
     for name, h in (("reserve", "print JSON: the /batches decision {lo, hi, seen, registry_body, reply}"),
                     ("batchjudge", "print JSON: open PRs that must renumber viewer batches [{pr, nums, key, message}]")):
         b = sub.add_parser(name, help=h)
-        b.add_argument("--tree", required=True, help="text file: default-branch paths, NUL-separated (git ls-tree -r -z --name-only origin/main -- experiments/); one-per-line output is read too")
+        b.add_argument("--tree", required=True, help="text file: default-branch paths, NUL-separated (git fetch -q origin main && git ls-tree -r -z --name-only origin/main -- experiments/); one-per-line output is read too")
         b.add_argument("--registry", required=True, help="JSON file: the batch-registry issue's comments ([] when none)")
         b.add_argument("--prs", required=True, help="JSON file: gh pr list --json number,author,body,files")
         if name == "reserve":

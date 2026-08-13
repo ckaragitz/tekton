@@ -33,9 +33,10 @@ SHAPES = ["z", "lines", "lines_raw"]
 
 @pytest.fixture
 def trees(git_repo):
-    """-> {shape: text of `git ls-tree … -- experiments/` exactly as `> tree.txt` leaves it}: "z" = the documented -z
-    recipe, "lines" = --name-only under git's default quoting (really C-quoted here: GIT_CONFIG_GLOBAL is /dev/null in
-    the rig), "lines_raw" = the same from a machine with core.quotePath=false (non-ASCII arrives raw)."""
+    """-> {shape: `git ls-tree … -- experiments/` output as conftest.git() returns it (decoded, trailing terminator
+    stripped -- the unit row below covers trailing "\n"/CRLF)}: "z" = the documented -z recipe, "lines" = --name-only
+    under git's default quoting (really C-quoted here: GIT_CONFIG_GLOBAL is /dev/null in the rig's GIT_ENV),
+    "lines_raw" = the same from a machine with core.quotePath=false (non-ASCII arrives raw)."""
     git_commit(git_repo, ODD, "batches under awkward stream directories")
     out = {"z": git(git_repo, "ls-tree", "-r", "-z", "--name-only", "HEAD", "--", "experiments/"),
            "lines": git(git_repo, "ls-tree", "-r", "--name-only", "HEAD", "--", "experiments/"),
