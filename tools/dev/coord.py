@@ -62,13 +62,13 @@ The parts of the workflow that bash + jq do badly:
 
 issues.json / prs.json are `gh issue list --json number,title,state,assignees,labels` and
 `gh pr list --json number,author,body[,files]` output; tree.txt holds the default-branch paths
-NUL-separated (TREE_RECIPE: `git fetch -q origin main && git ls-tree --full-tree -r -z --name-only origin/main
--- experiments/ > tree.txt` — the freshly fetched DEFAULT branch, whatever is checked out and from whatever
-subdirectory: a stale origin/main is the likeliest way to hand out a taken number; the older one-per-line
-`--name-only` output is still read, C-quoted names included, #723). A tree.txt that is not empty yet names nothing
-under experiments/ — a UTF-16 file from Windows PowerShell `>`, the wrong tree — is refused, never read as "nothing
-on main" (#727); reg.json / comments.json are `gh api repos/R/issues/N/comments` output. A missing or unparseable
-input file is a one-line error and exit 2, for every subcommand.
+NUL-separated by the one recipe, TREE_RECIPE (`reserve --help` prints it): `git ls-tree -z` of the freshly fetched
+DEFAULT branch — whatever is checked out, from whatever subdirectory (`--full-tree`) — since a stale origin/main is
+the likeliest way to hand out a taken number; the older one-per-line `--name-only` output is still read, C-quoted
+names included (#723). A tree.txt that is not empty yet names nothing under experiments/ — a UTF-16 file from
+Windows PowerShell `>`, the wrong tree — is refused, never read as "nothing on main" (#727); reg.json /
+comments.json are `gh api repos/R/issues/N/comments` output. A missing or unparseable input file is a one-line
+error and exit 2, for every subcommand.
 """
 import argparse, json, math, re, sys
 from collections import Counter
@@ -300,38 +300,35 @@ def tree_names(text: str) -> list:
     line — split on "\\n" exactly (git's own terminator; str.splitlines() would also cut a raw U+2028/U+0085 inside a
     name), a CRLF producer's "\\r" dropped, and git's surrounding C-quotes stripped: only the ASCII batch_<n>.json tail is
     read downstream and `(?:.*/)?` swallows an escaped middle, so no full unquoting is needed. Never per blank:
-    `experiments/w x/batch_57.json` is one name, and a name lost here is a number `reserve` hands out twice (#723)."""
+    `experiments/w x/batch_57.json` is one name, and a name lost here is a number `reserve` hands out twice (#723).
+    A leading UTF-8 BOM (Windows PowerShell's `Out-File -Encoding utf8`) is dropped, not left glued to the first name."""
+    text = text.removeprefix("\ufeff")
     if "\0" in text:
         return [n for n in text.split("\0") if n]
     return [n for n in (ln.rstrip("\r").strip('"') for ln in text.split("\n")) if n]
 
 
-def on_main_batches(text: str) -> set:
+def on_main_batches(text: str, src: str = "--tree") -> set:
     """The batch numbers on the default branch, from a `--tree` file's text -- failing CLOSED: a text that is not empty
     yet names nothing under experiments/ is never git's answer to TREE_RECIPE (that prints experiments/... names or
-    nothing) but exactly what an unreadable producer decodes to -- UTF-16 from Windows PowerShell 5 `>` (one name per
-    NUL-separated byte), a listing of the wrong tree -- and reading it as an empty on_main is a floor answer: numbers
-    already on main handed out again (#727; before #723's bytes-faithful open() such a file at least crashed). A
-    leading UTF-8 BOM (Windows PowerShell's `Out-File -Encoding utf8`, the producer the refusal recommends there) is dropped
-    rather than left to hide the first name. An EMPTY text stays legal: a repository with no experiments/ yet."""
-    names = tree_names(text.removeprefix("\ufeff"))
+    nothing) but exactly what an unreadable producer decodes to -- UTF-16 from Windows PowerShell 5 `>` (one "name"
+    per NUL-separated byte), a listing of the wrong tree -- and reading it as an empty on_main is a floor answer:
+    numbers already on main handed out again (#727; before #723's bytes-faithful open() such a file at least crashed).
+    An EMPTY text stays legal: a repository with no experiments/ yet. `src` labels the refusal (the CLI: the file)."""
+    names = tree_names(text)
     if names and not any(n.startswith("experiments/") for n in names):
-        raise InputError(f"{len(names)} name(s), none under experiments/ -- not readable `git ls-tree` output of the default "
-                         f"branch (UTF-16 from Windows PowerShell `>`? the wrong tree?); regenerate it with `{TREE_RECIPE}` from "
-                         f"bash or cmd (PowerShell: `git ls-tree ... | Out-File -Encoding utf8 tree.txt`, whose BOM is fine); an EMPTY "
-                         f"file is how to say 'no experiments/ on main yet'")
+        raise InputError(f"{src}: {len(names)} name(s), none under experiments/ -- that is not the recipe's output (UTF-16 from "
+                         f"Windows PowerShell `>`? the wrong tree?); regenerate it with `{TREE_RECIPE}` from bash or cmd "
+                         f"(PowerShell: `git ls-tree ... | Out-File -Encoding utf8 tree.txt`); an EMPTY file is how to say "
+                         f"'no experiments/ on main yet'")
     return batch_numbers(names)
 
 
 def tree_input(path: str) -> set:
     """on_main from a `--tree` file: opened bytes-faithfully (no universal newlines, no decode crash on a non-UTF-8 name,
-    #723), read fail-closed (on_main_batches, #727), a refusal naming the file."""
+    #723) and read fail-closed, a refusal naming the file (#727)."""
     with open(path, encoding="utf-8", errors="surrogateescape", newline="") as fh:
-        text = fh.read()
-    try:
-        return on_main_batches(text)
-    except InputError as e:
-        raise InputError(f"--tree {path}: {e}") from None
+        return on_main_batches(fh.read(), f"--tree {path}")
 
 
 def json_input(path: str):
@@ -397,7 +394,8 @@ def reserve(k: int, by: str, issue: int, token: str, url: str, registry: int,
     return {
         "lo": lo, "hi": hi, "seen": seen,
         "registry_body": f"🔢 batches **{_rng(lo, hi)}** → @{by} for #{int(issue)} (requested in {url}). {marker}",
-        "reply": (f"🔢 @{by} — reserved viewer batch number(s) **{_rng(lo, hi)}** for #{int(issue)} (registry: #{registry}). "
+        "reply": (f"🔢 @{by} — reserved viewer batch number(s) **{_rng(lo, hi)}** for #{int(issue)} (registry: #{registry}; "
+                  f"highest batch on main: {max(on_main) if on_main else 'none'}). "
                   f"Stage with `tools/probe_batch.py stage … --batch {lo}`{then}; tools that number batches "
                   f"themselves honour `RVT_BATCH_FLOOR={lo}` in the environment. Name the numbers in your record "
                   "and upload instructions. Nobody else can be handed them, and `coord` flags any open PR that "
@@ -511,7 +509,7 @@ def main(argv=None) -> int:
     except OSError as e:                 # a missing/unreadable input file: one line, not a traceback (#727)
         if not e.filename:
             raise
-        print(f"coord.py {a.cmd}: cannot read {e.filename}: {e.strerror or e}", file=sys.stderr)
+        print(f"coord.py {a.cmd}: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
     return 2
 
 

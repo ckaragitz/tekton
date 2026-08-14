@@ -30,19 +30,31 @@ session on the bash recipe — hence P2 — but a collision guard has to fail cl
 ## What changed
 
 - `tools/dev/coord.py`
-  - `on_main_batches(text)` is the law: the `--tree` text is either **empty** (nothing under `experiments/` on the
-    default branch yet — legal) or names **at least one** path under `experiments/`; a non-empty text with none is
-    never git's answer to the recipe but exactly what an unreadable producer decodes to (UTF-16 with or without BOM,
-    a listing of the wrong tree), and is refused with `InputError` — never read as an empty `on_main`. A leading UTF-8
-    BOM (Windows PowerShell's `Out-File -Encoding utf8`, the producer the refusal recommends there because it exists on
-    5.1 and 7 alike) is dropped instead of being left glued to the first name. `tree_input(path)` = the bytes-faithful
-    `open()` from #723 + that law + the file's name in the refusal; `json_input(path)` = `json.load` whose failure
-    (garbage, truncated, HTML, UTF-16 — the same PowerShell `>` writes `reg.json`/`prs.json` that way too) names the
-    file. `main()` now runs the parsed subcommand through `run(a)` and turns `InputError` and any `OSError` carrying a
-    filename into **one stderr line + exit 2** — for every subcommand (`reserve`, `batchjudge`, `queue`, `locks`,
-    `similar`, `rivals`, `reqfile`), one mechanism rather than a `reserve`-only special case; stdout stays empty so a
-    caller's `out=$(…)` gets no half-answer, and the dispatch-only `coord.yml` reference (bash `-e`) would fail its step
-    loudly instead of posting a floor answer.
+  - `on_main_batches(text, src)` is the law: the `--tree` text is either **empty** (nothing under `experiments/` on
+    the default branch yet — legal) or names **at least one** path under `experiments/`; a non-empty text with none is
+    never git's answer to the recipe but exactly what an unreadable producer decodes to (UTF-16 with or without BOM —
+    every ASCII character carries a NUL, so no NUL-split chunk can spell `experiments/` — a listing of the wrong tree,
+    an OEM code page, HTML), and is refused with `InputError` — never read as an empty `on_main`. No encoding sniffing:
+    the invariant catches every such producer structurally, where BOM/NUL-pattern detection would be one special case
+    per producer and still miss BOM-less UTF-16BE (the altitude reviewer probed the edges: a cp1252/Latin-1 producer
+    passes *correctly* — ASCII prefix and `batch_N.json` tail survive `surrogateescape`; PowerShell 7's `-z` output
+    through a pipeline gains a trailing `\r\n` pseudo-name, which is why the law is "any", not "all"; a PS5 `>` of an
+    *empty* listing — `FF FE` alone — is refused rather than read as empty: erring closed, and the message names the fix).
+    `tree_names()` (the tokenizer every `--tree` caller uses) drops a leading UTF-8 BOM (Windows PowerShell's `Out-File
+    -Encoding utf8`, the producer the refusal recommends there because it exists on 5.1 and 7 alike) instead of leaving
+    it glued to the first name. `tree_input(path)` = the bytes-faithful `open()` from #723 + the law labelled with the
+    file; `json_input(path)` = `json.load` whose failure (garbage, truncated, HTML, UTF-16 — the same PowerShell `>`
+    writes `reg.json`/`prs.json` that way too) names the file. `main()` now runs the parsed subcommand through `run(a)`
+    and turns `InputError` and any `OSError` carrying a filename into **one stderr line + exit 2** — for every
+    subcommand (`reserve`, `batchjudge`, `queue`, `locks`, `similar`, `rivals`, `reqfile`), one mechanism rather than a
+    `reserve`-only special case (no caller distinguishes exit 1 from 2; `techlead.py` imports functions, never the CLI);
+    stdout stays empty so a caller's `out=$(…)` gets no half-answer, and the dispatch-only `coord.yml` reference (its
+    call sites run under `set -euo pipefail`, `local` declared on its own line) would abort the step before any comment
+    instead of posting a floor answer. Two residues named, not fixed: `coord.yml`'s own `2>/dev/null || : > tree.txt`
+    fallback and any `> tree.txt` whose git fails leave a 0-byte — legal — file (reference design, untouched under #302;
+    and the tool is deliberately repo-blind), so `reserve`'s reply now **states what it saw** — `(registry: #N; highest
+    batch on main: 62)` / `…: none` — making a floor answer visible to the human reading it; and `reqfile`'s plain-text
+    `open().read()` would still traceback on a non-UTF-8 requirements file (legacy drop-box lane, out of territory).
   - The recipe is one constant, `TREE_RECIPE`, used by the module docstring, the `--tree` help and the refusal text, and
     it gained `--full-tree`: `git ls-tree -r … -- experiments/` run from a subdirectory (say `tools/`) matches nothing and
     prints an EMPTY tree — which the law must keep legal — so the recipe itself now yields the full listing from any cwd
@@ -53,24 +65,38 @@ session on the bash recipe — hence P2 — but a collision guard has to fail cl
   comment and `docs/inbox/autonomy.d/723-coord-batch-names.md` say cp1252 would *garble* (`café`→`cafÃ©`) or crash
   (only on 0x81/0x8D/0x8F/0x90/0x9D, e.g. `č` = C4 8D) — both measured in this session — instead of "would crash".
   The 723 fragment is this stream's and this author's own; the correction is marked as made under #727.
-- Tests: new `tests/test_coord_727.py`, 25 rows, stdlib only (drop-in `tests/ci_shard.d/727-coord-tree-unreadable.txt`):
+- Tests: new `tests/test_coord_727.py`, 28 rows, stdlib only (drop-in `tests/ci_shard.d/727-coord-tree-unreadable.txt`):
   UTF-16 / UTF-16LE / UTF-16BE trees × {`reserve`, `batchjudge`} → exit 2, empty stdout, ONE stderr line naming
   `--tree <path>`, "none under experiments/", the recipe and the PowerShell producer; the mechanism pin (bytes-faithful
   decoding of UTF-16 yields names, none under `experiments/`, and the pre-law arithmetic answers `BATCH_FLOOR+1`);
   UTF-8-BOM trees in line / CRLF / `-z` shape with the top number on the first line → `lo == 61` (a lost first line
-  answers 58); empty / `\n` / `\r\n` trees → `BATCH_FLOOR+1`, exit 0, silent stderr; a listing of the wrong tree →
+  answers 58) and the reply says `highest batch on main: 60`; empty / `\n` / `\r\n` / BOM+`\r\n` trees →
+  `BATCH_FLOOR+1`, exit 0, silent stderr, reply `highest batch on main: none`; a listing of the wrong tree →
   refused, message pointing at the EMPTY-file convention; a missing `--tree`/`--registry`/`--prs` → one line
   `cannot read <path>: No such file or directory`; garbage / UTF-16 / empty JSON in `--registry`/`--prs` → one line
   `<path>: not readable JSON (…)`; `queue`/`locks`/`reqfile` word a missing file the same way; `on_main_batches` unit
-  row (BOM stripped, `-z` and line shapes agree, `InputError` is a `ValueError`, a whole-repo listing that does hold an
-  `experiments/` name is read, not refused). **Engine swap:** over `origin/main`'s `coord.py` 21 of the 25 rows FAIL;
-  the 4 that pass there are the three empty-tree rows (legal before and after, by design) and the mechanism pin (which
-  asserts main's own arithmetic, by design).
+  row (the tokenizer drops the BOM in both shapes, `-z` and line shapes agree, the refusal carries its label,
+  `InputError` is a `ValueError`, a whole-repo listing that does hold an `experiments/` name is read, not refused).
+  **Engine swap:** over `origin/main`'s `coord.py` 27 of the 28 rows FAIL; the one that passes there is the mechanism
+  pin, which asserts main's own arithmetic by design.
+- `/simplify` pass (reuse / simplification / efficiency / altitude, four independent reviewers) — taken: the module
+  docstring no longer re-spells the recipe beside `TREE_RECIPE` (two hand-maintained copies had already drifted once
+  per PR); the BOM strip moved from the law into `tree_names()` (a property of `--tree` text, so every tokenizer caller
+  is BOM-safe); the law takes a `src` label instead of `tree_input` catching and re-wrapping its exception; the refusal
+  lost ~50 redundant characters; `e.strerror or e` lost its dead fallback; the reply's "highest batch on main" clause
+  (altitude's mitigation for the 0-byte residue); in the tests an invisible literal U+FEFF became `\ufeff`, `run()`
+  defaults its inputs so the missing/garbage rows stop restating them, one `cli()` runner, the other-subcommands row is
+  parametrized, an implied assertion dropped. Measured clean by the efficiency reviewer: over the real 1448-name tree
+  the law costs 0.49 ms vs 0.47 ms before (`removeprefix` without a BOM returns the same object; `any()` stops at the
+  first name); over the UTF-16 copy it is *faster* (6.9 vs 11.6 ms — the raise skips the regex pass); the module runs
+  in ~1 s (one ~36 ms subprocess per row). Skipped: `encoding="utf-8-sig"` on the open instead of the text-level strip
+  (would take the BOM out of the unit-testable law's reach), and a `text_input()` for `reqfile` (above).
 
 ## BRANCH STATE
 
 - Branch `cam/727-coord-tree-unreadable` from `main` @ `b30c868`; files: `tools/dev/coord.py` (`TREE_RECIPE`,
-  `InputError`, `on_main_batches`, `tree_input`, `json_input`, `main()`→`run()` split, docstring + `--tree` help),
+  `InputError`, `on_main_batches`, `tree_input`, `json_input`, `main()`→`run()` split, BOM strip in `tree_names`, the
+  reply clause, docstring + `--tree` help),
   `tools/dev/techlead.py` (one comment), `tests/test_coord_727.py` (new), `tests/ci_shard.d/727-coord-tree-unreadable.txt`
   (new), `tests/test_coord_723.py` (fixture docstring only), `docs/inbox/autonomy.d/723-coord-batch-names.md` (one
   sentence, marked), this fragment (new; index untouched).
