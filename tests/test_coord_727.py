@@ -102,6 +102,16 @@ def test_an_unparseable_json_input_is_one_line_naming_the_file(tmp_path, which, 
     refused(run(tmp_path, ["batchjudge"], **{which: bad}), f"{tmp_path / which}: not readable JSON (")
 
 
+def test_bom_led_json_inputs_read_like_plain_utf8(tmp_path):
+    """`Out-File -Encoding utf8` -- the producer the tree refusal recommends on Windows PowerShell -- BOMs reg.json and
+    prs.json too when applied to all three files; utf-8-sig reads them instead of refusing 'Unexpected UTF-8 BOM'."""
+    bom = b"\xef\xbb\xbf"
+    registry = bom + json.dumps([{"user": {"login": "github-actions[bot]"}, "body": "<!-- batches by=cam lo=63 hi=65 issue=700 token=t0 -->"}]).encode()
+    r = run(tmp_path, RESERVE, tree=bom + TREE.encode(), registry=registry, prs=bom + b"[]")
+    assert r.returncode == 0 and r.stderr == "", r.stderr
+    assert json.loads(r.stdout)["lo"] == 66                      # 63..65 reserved (read through the BOM) lifts it past main's 60
+
+
 @pytest.mark.parametrize("argv", [["queue", "--issues", "nope.json", "--prs", "nope.json"], ["locks", "--comments", "nope.json"],
                                   ["reqfile", "--path", "nope.md"]], ids=["queue", "locks", "reqfile"])
 def test_the_other_subcommands_word_a_missing_file_the_same_way(tmp_path, argv):

@@ -65,7 +65,7 @@ session on the bash recipe — hence P2 — but a collision guard has to fail cl
   comment and `docs/inbox/autonomy.d/723-coord-batch-names.md` say cp1252 would *garble* (`café`→`cafÃ©`) or crash
   (only on 0x81/0x8D/0x8F/0x90/0x9D, e.g. `č` = C4 8D) — both measured in this session — instead of "would crash".
   The 723 fragment is this stream's and this author's own; the correction is marked as made under #727.
-- Tests: new `tests/test_coord_727.py`, 28 rows, stdlib only (drop-in `tests/ci_shard.d/727-coord-tree-unreadable.txt`):
+- Tests: new `tests/test_coord_727.py`, 29 rows, stdlib only (drop-in `tests/ci_shard.d/727-coord-tree-unreadable.txt`):
   UTF-16 / UTF-16LE / UTF-16BE trees × {`reserve`, `batchjudge`} → exit 2, empty stdout, ONE stderr line naming
   `--tree <path>`, "none under experiments/", the recipe and the PowerShell producer; the mechanism pin (bytes-faithful
   decoding of UTF-16 yields names, none under `experiments/`, and the pre-law arithmetic answers `BATCH_FLOOR+1`);
@@ -77,8 +77,9 @@ session on the bash recipe — hence P2 — but a collision guard has to fail cl
   `<path>: not readable JSON (…)`; `queue`/`locks`/`reqfile` word a missing file the same way; `on_main_batches` unit
   row (the tokenizer drops the BOM in both shapes, `-z` and line shapes agree, the refusal carries its label,
   `InputError` is a `ValueError`, a whole-repo listing that does hold an `experiments/` name is read, not refused).
-  **Engine swap:** over `origin/main`'s `coord.py` 27 of the 28 rows FAIL; the one that passes there is the mechanism
-  pin, which asserts main's own arithmetic by design.
+  **Engine swap:** over `origin/main`'s `coord.py` 28 of the 29 rows FAIL (the BOM-led-JSON row included: main's
+  plain `json.load` tracebacks on the BOM); the one that passes there is the mechanism pin, which asserts main's own
+  arithmetic by design.
 - `/simplify` pass (reuse / simplification / efficiency / altitude, four independent reviewers) — taken: the module
   docstring no longer re-spells the recipe beside `TREE_RECIPE` (two hand-maintained copies had already drifted once
   per PR); the BOM strip moved from the law into `tree_names()` (a property of `--tree` text, so every tokenizer caller
@@ -89,8 +90,19 @@ session on the bash recipe — hence P2 — but a collision guard has to fail cl
   parametrized, an implied assertion dropped. Measured clean by the efficiency reviewer: over the real 1448-name tree
   the law costs 0.49 ms vs 0.47 ms before (`removeprefix` without a BOM returns the same object; `any()` stops at the
   first name); over the UTF-16 copy it is *faster* (6.9 vs 11.6 ms — the raise skips the regex pass); the module runs
-  in ~1 s (one ~36 ms subprocess per row). Skipped: `encoding="utf-8-sig"` on the open instead of the text-level strip
-  (would take the BOM out of the unit-testable law's reach), and a `text_input()` for `reqfile` (above).
+  in ~1 s (one ~36 ms subprocess per row). Skipped: `encoding="utf-8-sig"` on the *tree* open instead of the text-level
+  strip (would take the BOM out of the unit-testable law's reach), and a `text_input()` for `reqfile` (above).
+- Independent review of head `1636f27` (fresh context, told the author is the would-be merger; sandboxed CI on that head:
+  pass, shard 2689 passed / 132 skipped / 3 xfailed in 438 s): 🟡 nits only — taken in the next head: `json_input()`
+  reads `utf-8-sig`, so a BOM-led `reg.json` / `prs.json` written by the very producer the tree refusal recommends is
+  read like plain UTF-8 instead of being refused for its BOM (measured by the reviewer: `locks --comments <EF BB BF[]>`
+  → rc 2 before), plus one test row for it; this block's gate list named a test module that does not exist
+  (`tests/test_shard_list.py` is meant). Left as ruled: whitespace-only tree text (`"   \n"`) is refused as one name
+  rather than read as empty — errs closed, no producer emits it. The reviewer's own law probe (24 files + 31 synthesized
+  texts, PR vs main): all 8 legitimate shapes of main's real tree → 36 batches, top 62 on both; every UTF-16/-32 copy →
+  main empty `on_main`, PR refused; C-quoted / Latin-1 / cp1252 names counted; other subcommands byte-identical to main
+  on good input; accepted the beyond-territory pieces (`main()`→`run()`, the reply clause, `--full-tree`) as verified
+  harmless — recorded here as the merge note asks.
 
 ## BRANCH STATE
 
@@ -102,6 +114,6 @@ session on the bash recipe — hence P2 — but a collision guard has to fail cl
   sentence, marked), this fragment (new; index untouched).
 - No `src/`, `plugin/`, `skills/`, workflow or hot file touched. Gates: see the PR body for the pushed head's counts
   (`tests/test_coord_727.py`, `tests/test_coord_723.py`, `tests/test_coord.py`, `tests/test_techlead.py`,
-  `tests/test_records_layout.py`, `tests/test_ci_shard*.py`; `check_portable_paths.py`; `sync_plugin.py --check`); the
+  `tests/test_records_layout.py`, `tests/test_shard_list.py`; `check_portable_paths.py`; `sync_plugin.py --check`); the
   sandboxed shard's counts go in the merge comment.
 - Shipped on merge; nothing staged.

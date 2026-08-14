@@ -332,8 +332,10 @@ def tree_input(path: str) -> set:
 
 
 def json_input(path: str):
-    """json.load() of a CLI input file, an unparseable one (truncated, HTML, UTF-16) being an InputError that names it."""
-    with open(path, encoding="utf-8") as fh:
+    """json.load() of a CLI input file, an unparseable one (truncated, HTML, UTF-16) being an InputError that names it.
+    utf-8-sig: a BOM-led file (Windows PowerShell's `Out-File -Encoding utf8`, the producer the --tree refusal recommends
+    there, applied to reg.json / prs.json too) reads like plain UTF-8 instead of being refused for its BOM."""
+    with open(path, encoding="utf-8-sig") as fh:
         try:
             return json.load(fh)
         except ValueError as e:          # json.JSONDecodeError, or UnicodeDecodeError on a non-UTF-8 file
