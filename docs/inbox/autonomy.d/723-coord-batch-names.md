@@ -70,8 +70,10 @@ Second reader, cosmetic: `tools/dev/techlead.py recent_records()` (`git log --na
   prefers not touching shared test files for that little).
 - Independent review of head `07b1d50` (fresh context, told the author is the would-be merger): 🟡 nits only, all
   four taken in the next head — `recent_records()` decodes git's now-raw UTF-8 output explicitly
-  (`encoding="utf-8", errors="replace"`; the locale codec would have crashed a cp1252 Windows `brief` on a non-ASCII
-  record, a regression class main's C-quoted ASCII could not hit), its test blanks `GIT_CONFIG_GLOBAL`/system config so
+  (`encoding="utf-8", errors="replace"`; the locale codec would have garbled a non-ASCII record on a cp1252 Windows
+  `brief` — `café` → `cafÃ©` — or crashed it outright on a name carrying one of the five bytes cp1252 leaves undefined
+  (0x81 0x8D 0x8F 0x90 0x9D, e.g. `č` = C4 8D); a regression class main's C-quoted ASCII could not hit — wording
+  corrected under #727 after measurement), its test blanks `GIT_CONFIG_GLOBAL`/system config so
   the row is not vacuous on a machine whose own gitconfig sets `quotePath=false` (verified: fails over main's
   `techlead.py` under such a config), the recipe fetches before it reads (`git fetch -q origin main && …` — a stale
   `origin/main` is the likeliest real way to hand out a taken number), and the `trees` fixture docstring no longer

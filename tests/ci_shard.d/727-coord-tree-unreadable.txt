@@ -1,0 +1,2 @@
+# #727: coord.py fails closed on an unreadable --tree / missing input files; stdlib only, fresh-clone safe
+tests/test_coord_727.py

@@ -973,7 +973,7 @@ def recent_records(days=14, cap=30) -> list:
     so a record named café is not C-quoted, #723), at most `cap` -- the cap drops the oldest (#638)."""
     try:
         r = subprocess.run(["git", "-C", ROOT, "-c", "core.quotePath=false", "log", f"--since={days} days ago", "--name-only", "--pretty=format:", "--", "docs/inbox"],
-                           capture_output=True, encoding="utf-8", errors="replace", timeout=10)   # raw UTF-8 out, so decode as UTF-8 whatever the locale (cp1252 would crash on it)
+                           capture_output=True, encoding="utf-8", errors="replace", timeout=10)   # raw UTF-8 out, so decode as UTF-8 whatever the locale (cp1252 would garble it, café -> cafÃ©, or crash on a byte it leaves undefined)
         return list(dict.fromkeys(ln.strip() for ln in r.stdout.splitlines() if ln.strip()))[:cap]
     except (OSError, subprocess.SubprocessError):
         return []
