@@ -62,11 +62,13 @@ The parts of the workflow that bash + jq do badly:
 
 issues.json / prs.json are `gh issue list --json number,title,state,assignees,labels` and
 `gh pr list --json number,author,body[,files]` output; tree.txt holds the default-branch paths
-NUL-separated (`git fetch -q origin main && git ls-tree -r -z --name-only origin/main -- experiments/ > tree.txt`
-— the freshly fetched DEFAULT branch, whatever is checked out: a stale origin/main is the likeliest way to hand out
-a taken number; the older one-per-line `--name-only` output is still read, C-quoted names included, #723);
-reg.json / comments.json are
-`gh api repos/R/issues/N/comments` output.
+NUL-separated (TREE_RECIPE: `git fetch -q origin main && git ls-tree --full-tree -r -z --name-only origin/main
+-- experiments/ > tree.txt` — the freshly fetched DEFAULT branch, whatever is checked out and from whatever
+subdirectory: a stale origin/main is the likeliest way to hand out a taken number; the older one-per-line
+`--name-only` output is still read, C-quoted names included, #723). A tree.txt that is not empty yet names nothing
+under experiments/ — a UTF-16 file from Windows PowerShell `>`, the wrong tree — is refused, never read as "nothing
+on main" (#727); reg.json / comments.json are `gh api repos/R/issues/N/comments` output. A missing or unparseable
+input file is a one-line error and exit 2, for every subcommand.
 """
 import argparse, json, math, re, sys
 from collections import Counter
@@ -286,6 +288,13 @@ def batch_numbers(paths) -> set:
     return {int(m.group(1)) for m in map(BATCH_FILE_RE.match, map(str, paths or [])) if m}
 
 
+TREE_RECIPE = "git fetch -q origin main && git ls-tree --full-tree -r -z --name-only origin/main -- experiments/ > tree.txt"
+
+
+class InputError(ValueError):
+    """An input file the CLI cannot trust; main() prints it as one line and exits 2 instead of a traceback (#727)."""
+
+
 def tree_names(text: str) -> list:
     """Names in a `--tree` file: NUL-separated if it holds a NUL (`git ls-tree -z`, the documented recipe), else one per
     line — split on "\\n" exactly (git's own terminator; str.splitlines() would also cut a raw U+2028/U+0085 inside a
@@ -295,6 +304,43 @@ def tree_names(text: str) -> list:
     if "\0" in text:
         return [n for n in text.split("\0") if n]
     return [n for n in (ln.rstrip("\r").strip('"') for ln in text.split("\n")) if n]
+
+
+def on_main_batches(text: str) -> set:
+    """The batch numbers on the default branch, from a `--tree` file's text -- failing CLOSED: a text that is not empty
+    yet names nothing under experiments/ is never git's answer to TREE_RECIPE (that prints experiments/... names or
+    nothing) but exactly what an unreadable producer decodes to -- UTF-16 from Windows PowerShell 5 `>` (one name per
+    NUL-separated byte), a listing of the wrong tree -- and reading it as an empty on_main is a floor answer: numbers
+    already on main handed out again (#727; before #723's bytes-faithful open() such a file at least crashed). A
+    leading UTF-8 BOM (Windows PowerShell's `Out-File -Encoding utf8`, the producer the refusal recommends there) is dropped
+    rather than left to hide the first name. An EMPTY text stays legal: a repository with no experiments/ yet."""
+    names = tree_names(text.removeprefix("\ufeff"))
+    if names and not any(n.startswith("experiments/") for n in names):
+        raise InputError(f"{len(names)} name(s), none under experiments/ -- not readable `git ls-tree` output of the default "
+                         f"branch (UTF-16 from Windows PowerShell `>`? the wrong tree?); regenerate it with `{TREE_RECIPE}` from "
+                         f"bash or cmd (PowerShell: `git ls-tree ... | Out-File -Encoding utf8 tree.txt`, whose BOM is fine); an EMPTY "
+                         f"file is how to say 'no experiments/ on main yet'")
+    return batch_numbers(names)
+
+
+def tree_input(path: str) -> set:
+    """on_main from a `--tree` file: opened bytes-faithfully (no universal newlines, no decode crash on a non-UTF-8 name,
+    #723), read fail-closed (on_main_batches, #727), a refusal naming the file."""
+    with open(path, encoding="utf-8", errors="surrogateescape", newline="") as fh:
+        text = fh.read()
+    try:
+        return on_main_batches(text)
+    except InputError as e:
+        raise InputError(f"--tree {path}: {e}") from None
+
+
+def json_input(path: str):
+    """json.load() of a CLI input file, an unparseable one (truncated, HTML, UTF-16) being an InputError that names it."""
+    with open(path, encoding="utf-8") as fh:
+        try:
+            return json.load(fh)
+        except ValueError as e:          # json.JSONDecodeError, or UnicodeDecodeError on a non-UTF-8 file
+            raise InputError(f"{path}: not readable JSON ({e})") from None
 
 
 def reservations(comments: list) -> list:
@@ -447,7 +493,7 @@ def main(argv=None) -> int:
     for name, h in (("reserve", "print JSON: the /batches decision {lo, hi, seen, registry_body, reply}"),
                     ("batchjudge", "print JSON: open PRs that must renumber viewer batches [{pr, nums, key, message}]")):
         b = sub.add_parser(name, help=h)
-        b.add_argument("--tree", required=True, help="text file: default-branch paths, NUL-separated (git fetch -q origin main && git ls-tree -r -z --name-only origin/main -- experiments/); one-per-line output is read too")
+        b.add_argument("--tree", required=True, help=f"text file: default-branch paths, NUL-separated ({TREE_RECIPE}); one-per-line output is read too; refused if non-empty with nothing under experiments/")
         b.add_argument("--registry", required=True, help="JSON file: the batch-registry issue's comments ([] when none)")
         b.add_argument("--prs", required=True, help="JSON file: gh pr list --json number,author,body,files")
         if name == "reserve":
@@ -458,23 +504,29 @@ def main(argv=None) -> int:
             b.add_argument("--url", default="", help="html url of the requesting comment")
             b.add_argument("--registry-number", type=int, default=0)
     a = ap.parse_args(argv)
+    try:
+        return run(a)
+    except InputError as e:
+        print(f"coord.py {a.cmd}: {e}", file=sys.stderr)
+    except OSError as e:                 # a missing/unreadable input file: one line, not a traceback (#727)
+        if not e.filename:
+            raise
+        print(f"coord.py {a.cmd}: cannot read {e.filename}: {e.strerror or e}", file=sys.stderr)
+    return 2
+
+
+def run(a) -> int:
+    """The parsed subcommand; input trouble surfaces as InputError / OSError for main() to word."""
     if a.cmd == "refs":
         print(json.dumps(refs(sys.stdin.read())))
         return 0
     if a.cmd == "taskshape":
         return 0 if is_task_shaped(sys.stdin.read()) else 1
     if a.cmd == "locks":
-        with open(a.comments, encoding="utf-8") as fh:
-            comments = json.load(fh)
-        print(json.dumps(standing_locks(comments, [x for x in a.assignees.split(",") if x])))
+        print(json.dumps(standing_locks(json_input(a.comments), [x for x in a.assignees.split(",") if x])))
         return 0
     if a.cmd in ("reserve", "batchjudge"):
-        with open(a.tree, encoding="utf-8", errors="surrogateescape", newline="") as fh:   # bytes-faithful: no universal newlines, no decode crash on a non-UTF-8 name (#723)
-            on_main = batch_numbers(tree_names(fh.read()))
-        with open(a.registry, encoding="utf-8") as fh:
-            reserved = reservations(json.load(fh))
-        with open(a.prs, encoding="utf-8") as fh:
-            prs = json.load(fh)
+        on_main, reserved, prs = tree_input(a.tree), reservations(json_input(a.registry)), json_input(a.prs)
         if a.cmd == "reserve":
             print(json.dumps(reserve(a.k, a.by, a.issue, a.token, a.url, a.registry_number, on_main, reserved, prs)))
         else:
@@ -485,15 +537,10 @@ def main(argv=None) -> int:
             print(json.dumps(reqfile(fh.read(), a.path)))
         return 0
     if a.cmd == "queue":
-        with open(a.issues, encoding="utf-8") as fh:
-            issues = json.load(fh)
-        with open(a.prs, encoding="utf-8") as fh:
-            prs = json.load(fh)
-        for i in queue(issues, prs):
+        for i in queue(json_input(a.issues), json_input(a.prs)):
             print(i["number"])
         return 0
-    with open(a.issues if a.cmd == "similar" else a.prs, encoding="utf-8") as fh:
-        data = json.load(fh)
+    data = json_input(a.issues if a.cmd == "similar" else a.prs)
     if a.cmd == "similar":
         for hit in similar(a.title, data, a.self):
             print(_fmt_hit(*hit))
