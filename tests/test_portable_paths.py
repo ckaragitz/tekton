@@ -7,7 +7,6 @@ record-layout law check() also carries since #638 is pinned in tests/test_record
 pinned too -- its output did not change when the seam went in. Fresh-clone runnable: stdlib (+ git for the CLI rows).
 Non-ASCII names below are spelled with escapes on purpose: an NFC/NFD pair is invisible in source (#724).
 """
-import os
 import sys
 
 import pytest
@@ -58,18 +57,20 @@ def test_names_a_macOS_checkout_folds_together_are_refused_once_per_law_they_bre
     assert checker.check([UPPER, NFD]) == [case([UPPER, NFD])]
     assert checker.check([NFC, UPPER, NFD]) == [case([NFC, UPPER, NFD]), norm([NFC, NFD])]
     assert checker.check([NFC]) == checker.check([NFD]) == checker.check([NFC, "w/cafe.md"]) == []
-    assert checker.check([NFD, NFD]) == [case([NFD, NFD])]                       # a repeat stays the case law's group, exactly as for ASCII names
+    assert checker.check([NFD, NFD]) == [case([NFD, NFD])]                       # a repeat stays the case law's group, exactly as for ASCII names...
+    assert checker.check([NFC, NFC, NFD]) == [norm([NFC, NFC, NFD])]             # ...unless a form-twin rides along: then the whole group is the normalisation law's, once
+    assert checker.check(["w/J\u030c.md", "w/\u01f0.md"]) == [case(["w/J\u030c.md", "w/\u01f0.md"])]   # fold on the DEcomposed form: capital J + caron has no precomposed spelling, the small letter has
+    assert checker.check(["w/stra\u00dfe.md", "w/strasse.md"]) == []            # lower(), not casefold(): these are two files on every filesystem in use here
 
 
 def test_a_name_that_is_not_valid_utf8_is_refused_however_the_gatherer_decoded_it():
     """#724: git stores bytes; a name written by a cp1252 tool cannot be checked out sanely on macOS or by most Windows
     tooling. This CLI decodes `git ls-files -z` with surrogateescape (the law then spells the real bytes);
     tools/dev/ci_fresh.sh decodes with `replace` and is deliberately left alone, so the U+FFFD it leaves behind is
-    recognised too and worded for what it is. Somebody's alphabet in valid UTF-8 stays portable (row above)."""
+    refused too -- worded as the property of the name it is, since check() cannot know who replaced the byte."""
     assert checker.check([LATIN1]) == [("not valid UTF-8: b'w/latin1\\xe9.md'", [LATIN1])]
     replaced = b"w/latin1\xe9.md".decode("utf-8", "replace")
-    assert checker.check([replaced]) == [("not valid UTF-8 (U+FFFD where a reader replaced an undecodable byte): 'w/latin1\\ufffd.md'", [replaced])]
-    assert checker.check(["w/inbox/caf\u00e9 notes.md", "w/\u00fcn\u00efcode.md"]) == []
+    assert checker.check([replaced]) == [("replacement character U+FFFD in name (an undecodable byte was replaced somewhere upstream): 'w/latin1\\ufffd.md'", [replaced])]
 
 
 @pytest.mark.skipif(not HAVE_GIT, reason="needs git")
@@ -100,7 +101,7 @@ def test_the_cli_reads_names_bytes_faithfully_and_names_both_new_laws(git_repo, 
     """End to end through `git ls-files -z`: the gatherer must hand check() the NFD twin unchanged and the Latin-1 name
     un-mangled (surrogateescape), and printing the verdict must not die on that name (#724)."""
     git_commit(git_repo, {NFC: "c\n", NFD: "d\n", LATIN1: "l\n", "w/ok.md": "o\n"}, "names a macOS checkout cannot hold")
-    if len(os.listdir(os.path.join(git_repo, "w"))) < 4:
+    if len(git(git_repo, "ls-files").splitlines()) < 4:      # ASCII-safe: under the rig's default core.quotePath git C-quotes all three names
         pytest.skip("this filesystem folded the twins or refused a name: nothing to gather")
     monkeypatch.chdir(git_repo)
     assert checker.main() == 1

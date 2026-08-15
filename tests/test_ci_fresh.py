@@ -106,8 +106,11 @@ def test_docs_the_shard_reads_and_docs_deletions_are_stale(rig, files, delete, b
     assert rig.fresh() == (4, "STALE was=%s now=%s changed=%s -> re-run tools/dev/session_ci.sh 7" % (rig.was, now, blocking))
 
 
-TWIN_LINE = ("STALE was=%s now=%s changed=%s (added on main; PR 7 adds the same name or a case-twin of it: an add/add conflict or a "
-             "portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 7")
+def twin_line(was, now, changed, pr=7):
+    """The helper's add/add-twin verdict (#496's wording, kept for message continuity) for `pr`."""
+    return ("STALE was=%s now=%s changed=%s (added on main; PR %d adds the same name or a case-twin of it: an add/add conflict or a "
+            "portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh %d" % (was, now, changed, pr, pr))
+
 UNKNOWN_HEAD_LINE = ('STALE was=%s now=%s changed=%s (main added docs files and the recorded head "%s" is not a commit in this clone, '
                      'so a collision with a path PR 17 adds cannot be ruled out) -> re-run tools/dev/session_ci.sh 17')
 
@@ -119,7 +122,7 @@ def test_a_docs_file_added_on_main_that_case_twins_a_pr_added_path_is_stale(rig,
     computed against the older main cannot have seen it. (The very same name is an add/add conflict: not mergeable on
     the old verdict either.) Other docs adds in the same drift stay tolerated and unnamed."""
     now = git_commit(rig.up, {added: "twin\n", "docs/inbox/record.md": "new\n", "docs/x.md": "more\n"}, "main adds a twin of the PR's docs/inbox/foo.md")
-    assert rig.fresh(7, rig.head) == (4, TWIN_LINE % (rig.was, now, added))
+    assert rig.fresh(7, rig.head) == (4, twin_line(rig.was, now, added))
     assert rig.err == ""
 
 
@@ -145,7 +148,7 @@ def test_the_collision_check_fails_closed_when_its_interpreter_fails(rig, tmp_pa
     (shim / "python3").chmod(0o755)
     path = str(shim) + os.pathsep + os.environ.get("PATH", "")
     now = git_commit(rig.up, {"docs/inbox/Foo.md": "twin\n"}, "main adds a twin")
-    assert rig.fresh(7, rig.head) == (4, TWIN_LINE % (rig.was, now, "docs/inbox/Foo.md"))          # the real interpreter sees it
+    assert rig.fresh(7, rig.head) == (4, twin_line(rig.was, now, "docs/inbox/Foo.md"))          # the real interpreter sees it
     assert rig.fresh(7, rig.head, path=path) == (2, "cannot judge PR 7: the collision check against the names PR 7 adds failed")
     assert "shim: refusing" in rig.err
     now = git_commit(rig.up, {"docs/x.md": "more\n"}, "and a modified doc", delete=("docs/inbox/Foo.md",))
@@ -217,8 +220,7 @@ def test_main_adding_the_NFD_twin_of_a_docs_name_the_pr_adds_as_NFC_is_stale(rig
     nfc, nfd = "docs/inbox/caf\u00e9.md", "docs/inbox/cafe\u0301.md"
     head = rig.pr(24, {nfc: "c\n"})
     now = git_commit(rig.up, {nfd: "d\n", "docs/x.md": "more\n"}, "main adds the NFD twin of PR 24's NFC record")
-    assert rig.fresh(24, head) == (4, "STALE was=%s now=%s changed=%s (added on main; PR 24 adds the same name or a case-twin of it: an add/add "
-                                     "conflict or a portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 24" % (rig.was, now, nfd))
+    assert rig.fresh(24, head) == (4, twin_line(rig.was, now, nfd, pr=24))
     assert rig.fresh(7, rig.head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # a PR adding neither spelling is untouched by the same drift
     assert rig.err == ""
 
