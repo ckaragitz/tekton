@@ -5,8 +5,12 @@ Checks: characters illegal on Windows (<>:"|?* backslash, control chars incl.
 DEL 0x7f -- a class that contains the whole byte set git C-quotes even with
 core.quotePath=false, which is what lets tools/dev/ci_fresh.sh read every quoted
 docs name as a name this gate refuses, #540), trailing dot/space in any component, reserved device names (CON, NUL, ...),
-paths longer than 240 chars, and case-only collisions. Run in CI and before
-pushing:  python tools/dev/check_portable_paths.py
+paths longer than 240 chars, names whose bytes are not valid UTF-8, and the two
+cross-file laws of the filesystems collaborators check out onto: case-only
+collisions (NTFS, APFS) and normalisation-only collisions -- `café.md` spelled NFC
+(precomposed é) and NFD (e + combining acute) are two names to git and ONE file to
+APFS/HFS+, exactly like case twins (#724). Run in CI and before pushing:
+  python tools/dev/check_portable_paths.py
 `check(paths)` is the whole gate as a pure function; callers run it over name sets
 other than the work tree (tools/dev/ci_fresh.sh: the post-merge names, at merge
 time, #522), so keep every law inside check() and main() a gatherer of names only.
@@ -17,7 +21,7 @@ while main adds a fragment beside it is refused at merge time, not found on main
 Stdlib only and self-contained: session_ci.sh runs this file with `python3 -I` and
 ci_fresh.sh loads it by path, so it must never import a sibling module.
 """
-import collections, re, subprocess, sys
+import collections, re, subprocess, sys, unicodedata
 
 BAD = re.compile(r'[<>:"|?*\\\x00-\x1f\x7f]')
 RESERVED = {"con", "prn", "aux", "nul", *(f"com{i}" for i in range(1, 10)), *(f"lpt{i}" for i in range(1, 10))}
@@ -43,16 +47,27 @@ def layout_violations(names) -> list[tuple[str, list[str]]]:
             out[f"{n} is not named <issue>-<slug>.md"].add(n)
     return sorted((line, sorted(involved)) for line, involved in out.items())
 
+def nfc(p: str) -> str:
+    return unicodedata.normalize("NFC", p)
+
 def check(paths: list[str]) -> list[tuple[str, list[str]]]:
     """Every problem in a list of repo-relative names -> [(problem line, the names involved)], in the order the CLI
     prints them. Pure: no git, no filesystem, so the same list means the same verdict wherever it is judged. Names
-    may repeat (both sides of a merge adding one name): a repeat is a case-only collision group like any other twin."""
+    may repeat (both sides of a merge adding one name): a repeat is a case-only collision group like any other twin.
+    Names arrive as str: a gatherer that read bytes git could not vouch for decodes them with surrogateescape (this
+    CLI) or replace (tools/dev/ci_fresh.sh) -- either residue is what the not-valid-UTF-8 law recognises (#724)."""
     findings = []
-    seen = collections.defaultdict(list)
+    seen = collections.defaultdict(list)          # case law:          key = NFC(name).lower() -- what a case-insensitive APFS/NTFS checkout folds together
+    forms = collections.defaultdict(list)         # normalisation law: key = NFC(name)         -- what ANY APFS/HFS+ checkout folds together
     for p in paths:
-        seen[p.lower()].append(p)
+        seen[nfc(p).lower()].append(p)
+        forms[nfc(p)].append(p)
         if BAD.search(p):
             findings.append((f"illegal character for Windows: {p!r}", [p]))
+        if any("\udc80" <= c <= "\udcff" for c in p):                                   # surrogateescape residue: the offending bytes, spelled as bytes
+            findings.append((f"not valid UTF-8: {p.encode('utf-8', 'surrogateescape')!r}", [p]))
+        elif "\ufffd" in p:                                                                # `replace` residue (ci_fresh.sh's reader): the byte is already gone, say so
+            findings.append((f"not valid UTF-8 (U+FFFD where a reader replaced an undecodable byte): {ascii(p)}", [p]))
         if len(p) > MAXLEN:
             findings.append((f"path too long ({len(p)} > {MAXLEN}): {p[:100]}...", [p]))
         for comp in p.split("/"):
@@ -60,18 +75,22 @@ def check(paths: list[str]) -> list[tuple[str, list[str]]]:
                 findings.append((f"trailing dot/space in component: {p!r}", [p])); break
             if comp.split(".")[0].lower() in RESERVED:
                 findings.append((f"reserved device name on Windows: {p!r}", [p])); break
-    for group in seen.values():
-        if len(group) > 1:
+    for group in seen.values():        # differ by case once normalised (or not at all: a repeated name); a group that differs ONLY by normalisation form is the next law's, not this one's
+        if len(group) > 1 and not (len(set(group)) > 1 and len({nfc(p) for p in group}) == 1):
             findings.append((f"case-only collision (breaks case-insensitive filesystems): {group}", group))
+    for group in forms.values():       # equal under NFC yet not byte-equal: one file on a macOS checkout, and phantom `git status` changes on HFS+ (#724)
+        if len(set(group)) > 1:
+            findings.append((f"normalisation-only collision (breaks macOS checkouts): {ascii(group)}", group))   # ascii(): the twins print identically otherwise
     for line, involved in layout_violations(p[len(INBOX):] for p in paths if p.startswith(INBOX)):
         findings.append((f"record layout ({INBOX}README.md): {line}", [INBOX + n for n in involved]))
     return findings
 
 def main() -> int:
     out = subprocess.run(["git", "ls-files", "-z"], capture_output=True, check=True).stdout
-    paths = [p.decode("utf-8", "replace") for p in out.split(b"\0") if p]
+    paths = [p.decode("utf-8", "surrogateescape") for p in out.split(b"\0") if p]   # bytes-faithful: a name that is not UTF-8 reaches check() (and its law) instead of arriving pre-mangled
     problems = [line for line, _ in check(paths)]
     if problems:
+        sys.stdout.reconfigure(errors="backslashreplace")                          # a problem line may quote such a name raw (the record-layout law does); print it, never die on it
         print("NON-PORTABLE PATHS:\n  " + "\n  ".join(problems))
         return 1
     print(f"ok: {len(paths)} tracked paths are portable")

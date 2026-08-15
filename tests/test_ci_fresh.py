@@ -207,6 +207,22 @@ def test_a_docs_file_with_a_non_ascii_name_is_tolerated_drift_like_an_ascii_one(
     assert rig.fresh(17) == (4, UNKNOWN_HEAD_LINE % (rig.was, now, "docs/inbox/café notes.md,docs/ünïcode.md", E40))
 
 
+@pytest.mark.skipif(sys.platform == "darwin", reason="git on macOS precomposes an NFD name to NFC when adding it (core.precomposeUnicode), so `main` cannot add the NFD spelling there")
+def test_main_adding_the_NFD_twin_of_a_docs_name_the_pr_adds_as_NFC_is_stale(rig):
+    """#724 through the merge-time gate, which needs no change to feel it: the PR adds docs/inbox/café.md precomposed
+    (NFC), `main` adds the same word as e + combining acute (NFD) -- two names to git, one file to an APFS checkout.
+    tools/dev/check_portable_paths.py's normalisation law puts both names in one finding, that finding holds a name
+    the PR adds, so the helper answers with its add/add-twin line naming main's spelling (spelled with escapes here on
+    purpose: the pair is invisible in source). Before #724 the same drift was FRESH(docs-only drift)."""
+    nfc, nfd = "docs/inbox/caf\u00e9.md", "docs/inbox/cafe\u0301.md"
+    head = rig.pr(24, {nfc: "c\n"})
+    now = git_commit(rig.up, {nfd: "d\n", "docs/x.md": "more\n"}, "main adds the NFD twin of PR 24's NFC record")
+    assert rig.fresh(24, head) == (4, "STALE was=%s now=%s changed=%s (added on main; PR 24 adds the same name or a case-twin of it: an add/add "
+                                     "conflict or a portable_paths failure after the merge) -> re-run tools/dev/session_ci.sh 24" % (rig.was, now, nfd))
+    assert rig.fresh(7, rig.head) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now))   # a PR adding neither spelling is untouched by the same drift
+    assert rig.err == ""
+
+
 @pytest.mark.skipif(sys.platform == "win32", reason='a name holding " or TAB cannot be created on Windows -- tools/dev/check_portable_paths.py refuses it everywhere')
 def test_docs_names_git_quotes_even_with_quotepath_off_stay_stale_and_are_named_as_git_spells_them(rig):
     """#540's other half: a docs name holding a double quote or a control character is still printed C-quoted by git,
