@@ -487,7 +487,9 @@ git config pull.rebase true && git config rebase.autoStash true   # once per clo
   first rather than guessing. Never "resolve" by reverting their change.
 - **Portable paths:** collaborators are on Windows and macOS — no filenames
   containing `? : * " < > |` or backslashes, no trailing dots/spaces, no
-  `CON`/`NUL`-style names, keep paths < 240 chars, no case-only twins.
+  `CON`/`NUL`-style names, keep paths < 240 chars, no case-only twins, names
+  in valid UTF-8 only, and no two names that differ only by Unicode
+  normalisation form (NFC vs NFD `café.md` are one file on a Mac).
   `python tools/dev/check_portable_paths.py` checks the tracked tree (CI
   runs it); scripts that write `<name>.json` must never run with an empty name.
 - **Never:** commit directly to `main`; force-push `main`; rewrite history
