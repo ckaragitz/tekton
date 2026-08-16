@@ -45,6 +45,7 @@ import contextlib
 import os
 import re
 import time
+import traceback
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, NoReturn, Optional
 
@@ -185,14 +186,50 @@ def run(req: AuthorRequest) -> AuthorResult:
     if line:
         raise FrontDoorError(line)          # before makedirs: nothing lands in the quarantine dir
     os.makedirs(out_dir, exist_ok=True)
-    if route == "rvt":
-        res = _route_rvt(req, out_dir)
-    elif route == "ifc":
-        res = _route_ifc(req, out_dir)
-    else:
-        res = _route_prompt(req, out_dir)
+    res = AuthorResult(route=route, ok=False, status="", out_dir=out_dir)   # ours, so it outlives a dying route
+    try:
+        if route == "rvt":
+            _route_rvt(req, out_dir, res)
+        elif route == "ifc":
+            _route_ifc(req, out_dir, res)
+        else:
+            _route_prompt(req, out_dir, res)
+    except (FrontDoorError, BaseError):
+        raise                                    # a REFUSED request keeps its one line (CLI exit 2), as ever
+    except Exception as e:                       # noqa: BLE001 -- anything else, however late: rule 1 (#209)
+        _failed_late(res, e)
     res.seconds = round(time.time() - t0, 1)
     return res
+
+
+def _failed_late(res: AuthorResult, exc: Exception) -> None:
+    """Rule 1 when the route itself broke (#209).  Whatever throws AFTER bytes
+    landed in ``out_dir`` -- an encoding error writing ``MANIFEST.md`` on a
+    non-UTF-8 locale (#29), a full disk, a read-only subdirectory -- used to
+    leave :func:`run` by traceback: the CLI returned 1 with NO ``--json``
+    document, ``go`` reported ``result: null``, and the skill told its user
+    the job failed while ``<stem>.rvt`` and its families sat in ``--out``:
+    delivered to disk, withheld from the conversation.  ``res`` is the result
+    :func:`run` handed the route, so everything the route recorded before it
+    died survives as recorded -- ``files`` (named by the build itself, never
+    re-guessed from disk), ``intent_json``, ``handoff``, the manifest dict
+    (hence the release line and the PROOF-ONLY stamps of ``as_json()``), the
+    errors gathered so far -- and only the verdict is overwritten:
+    ``FAILED (post-build error: Type: message; delivered anyway: <names>)``,
+    or ``FAILED (Type: message; no output file was recorded)`` when the route had
+    recorded no file, with one relayable sentence plus the traceback tail
+    appended to ``errors`` (inside the document, instead of replacing it)."""
+    from .._clause import cause_clause
+    if res.files:
+        names = ", ".join(os.path.basename(str(p).rstrip("/")) + "/" * d      # the file(s) first, `families/` last
+                          for d, k, p in sorted((k.endswith("_dir"), k, p) for k, p in res.files.items()))
+        res.status = f"FAILED (post-build error: {cause_clause(exc)}; delivered anyway: {names})"
+    else:
+        res.status = f"FAILED ({cause_clause(exc)}; no output file was recorded)"
+    res.ok = False
+    res.errors.append(f"{res.route} route raised {type(exc).__name__}: {exc}")
+    res.errors.append("".join(traceback.format_exception(type(exc), exc, exc.__traceback__,   # 3-arg form: py3.9
+                                                         limit=-6)).rstrip())                # floor (#207)
 
 
 def _out_dir(req: AuthorRequest, route: str) -> str:
@@ -429,12 +466,11 @@ def _emit_ifc_addition(vb: Optional[Dict[str, Any]], res: "AuthorResult",
 # route: --prompt
 # ============================================================================
 
-def _route_prompt(req: AuthorRequest, out_dir: str) -> AuthorResult:
+def _route_prompt(req: AuthorRequest, out_dir: str, res: AuthorResult) -> AuthorResult:
     from . import prompt_intent as PP
     from . import build as B
     from . import manifest as MF
 
-    res = AuthorResult(route="prompt", ok=False, status="", out_dir=out_dir)
     text = str(req.prompt or "").strip()
     if not text:
         res.errors.append("empty --prompt")
@@ -445,7 +481,7 @@ def _route_prompt(req: AuthorRequest, out_dir: str) -> AuthorResult:
     model = parsed = None
     intent_json = None
     coverage = None
-    errors: List[str] = []
+    errors: List[str] = res.errors            # gathered ON the result: they outlive a dying route (#209)
 
     # ---- (b) the built-in fallback parse (also renders the handoff) --------
     try:
@@ -505,7 +541,6 @@ def _route_prompt(req: AuthorRequest, out_dir: str) -> AuthorResult:
     res.manifest = manifest
     res.manifest_paths = MF.write_manifest(manifest, out_dir)
     res.status = str(manifest.get("status"))
-    res.errors = list(errors)
     res.ok = _ok_from_status(res.status)
     return res
 
@@ -514,14 +549,13 @@ def _route_prompt(req: AuthorRequest, out_dir: str) -> AuthorResult:
 # route: --ifc
 # ============================================================================
 
-def _route_ifc(req: AuthorRequest, out_dir: str) -> AuthorResult:
+def _route_ifc(req: AuthorRequest, out_dir: str, res: AuthorResult) -> AuthorResult:
     from . import build as B
     from . import manifest as MF
 
-    res = AuthorResult(route="ifc", ok=False, status="", out_dir=out_dir)
     ifc_path = os.path.abspath(str(req.ifc))
     inputs: Dict[str, Any] = {"ifc": ifc_path}
-    errors: List[str] = []
+    errors: List[str] = res.errors            # gathered ON the result: they outlive a dying route (#209)
     model = None
     intent_json = None
     if not os.path.isfile(ifc_path):
@@ -574,7 +608,6 @@ def _route_ifc(req: AuthorRequest, out_dir: str) -> AuthorResult:
     res.manifest = manifest
     res.manifest_paths = MF.write_manifest(manifest, out_dir)
     res.status = str(manifest.get("status"))
-    res.errors = list(errors)
     res.ok = _ok_from_status(res.status)
     return res
 
@@ -583,8 +616,7 @@ def _route_ifc(req: AuthorRequest, out_dir: str) -> AuthorResult:
 # route: --rvt + --edit
 # ============================================================================
 
-def _route_rvt(req: AuthorRequest, out_dir: str) -> AuthorResult:
-    res = AuthorResult(route="rvt", ok=False, status="", out_dir=out_dir)
+def _route_rvt(req: AuthorRequest, out_dir: str, res: AuthorResult) -> AuthorResult:
     rvt_path = os.path.abspath(str(req.rvt))
     if not os.path.isfile(rvt_path):
         res.errors.append(f"--rvt file not found: {req.rvt}")
@@ -638,7 +670,7 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
     from . import manifest as MF
 
     inputs: Dict[str, Any] = {"rvt": rvt_path, "edit": req.edit}
-    errors: List[str] = []
+    errors: List[str] = res.errors            # gathered ON the result: they outlive a dying route (#209)
     # open the project (file-driven) and normalise the edit into ops
     editables_before = None
     spec = None
@@ -701,7 +733,6 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
     res.manifest = manifest
     res.manifest_paths = MF.write_manifest(manifest, out_dir)
     res.status = str(manifest.get("status"))
-    res.errors = list(errors)
     res.ok = (run.get("rc") == 0 and bool(run.get("out_rvt")) and not errors)
     return res
 
