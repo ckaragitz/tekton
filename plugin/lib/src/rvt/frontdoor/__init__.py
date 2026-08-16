@@ -216,7 +216,7 @@ def _failed_late(res: AuthorResult, exc: Exception) -> None:
     (hence the release line and the PROOF-ONLY stamps of ``as_json()``), the
     errors gathered so far -- and only the verdict is overwritten:
     ``FAILED (post-build error: Type: message; delivered anyway: <names>)``,
-    or ``FAILED (Type: message; nothing was built)`` when the route had
+    or ``FAILED (Type: message; no output file was recorded)`` when the route had
     recorded no file, with one relayable sentence plus the traceback tail
     appended to ``errors`` (inside the document, instead of replacing it)."""
     from .._clause import cause_clause
@@ -225,7 +225,7 @@ def _failed_late(res: AuthorResult, exc: Exception) -> None:
                           for d, k, p in sorted((k.endswith("_dir"), k, p) for k, p in res.files.items()))
         res.status = f"FAILED (post-build error: {cause_clause(exc)}; delivered anyway: {names})"
     else:
-        res.status = f"FAILED ({cause_clause(exc)}; nothing was built)"
+        res.status = f"FAILED ({cause_clause(exc)}; no output file was recorded)"
     res.ok = False
     res.errors.append(f"{res.route} route raised {type(exc).__name__}: {exc}")
     res.errors.append("".join(traceback.format_exception(type(exc), exc, exc.__traceback__,   # 3-arg form: py3.9

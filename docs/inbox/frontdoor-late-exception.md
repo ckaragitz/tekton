@@ -2,7 +2,8 @@
 
 Stream: `cam/209-frontdoor-late-exception` · issue #209 (P1, `area:frontdoor` `area:plugin`, from steer #108's
 requirements sweep, program goal PG1) · territory `src/rvt/frontdoor/__init__.py`, `tests/test_frontdoor_209.py`
-(+ `tests/ci_shard.d/209-frontdoor-late-exception.txt`), this record. `tools/frontdoor.py` (hot) untouched — it
+(+ `tests/ci_shard.d/209-frontdoor-late-exception.txt`, one `ADOPTERS` line in `tests/test_conftest_scaffolding.py`),
+this record. `tools/frontdoor.py` (hot) untouched — it
 already prints `r.as_json()` for whatever `run()` returns.
 
 ## What was wrong (hard rule 1, seen from the stranger's side)
@@ -29,7 +30,7 @@ way), and the routes gather their `errors` directly on it. Then it guards the ca
   `-equipment.rvt` both hold), `intent_json`, `handoff`, the manifest dict (so `as_json()` still carries the release
   line and the PROOF-ONLY `stamps`), the errors gathered so far — and only the verdict is overwritten:
   `FAILED (post-build error: <Type>: <message>; delivered anyway: prompt_room.rvt, families/)` (files first,
-  directories last), or `FAILED (<Type>: <message>; nothing was built)` when the route had recorded no file. The cause
+  directories last), or `FAILED (<Type>: <message>; no output file was recorded)` when the route had recorded no file. The cause
   clause is `rvt._clause.cause_clause` (the engine's one clip rule, #587); `errors` gains one relayable sentence
   (`prompt route raised UnicodeEncodeError: …`) plus the traceback's last six frames — inside the document instead of
   replacing it. `KeyboardInterrupt`/`SystemExit` are not `Exception`s and still propagate.
@@ -37,7 +38,7 @@ way), and the routes gather their `errors` directly on it. Then it guards the ca
 Why not the first draft (a table of per-route deliverable names re-read from disk with an mtime filter): the
 `/simplify` pass (reuse + simplification + altitude, independently) showed it was a second copy of the naming law and
 wrong on arrival — the `--rvt` route names its output from the *raw* stem while the table predicted the sanitised one
-(`Office Tower.rvt` → looks for `Office_Tower.edited.rvt`, reports "nothing was built" with the file on disk: #209
+(`Office Tower.rvt` → looks for `Office_Tower.edited.rvt`, reports "no output file was recorded" with the file on disk: #209
 reintroduced), the `--ifc` fallback copy is `basename(source)`, not `<stem>.ifc`, and the scan dropped the manifest
 the route already held (no stamps/release in the FAILED document). Passing `res` in needs no names and no mtimes.
 
@@ -89,10 +90,24 @@ The delivered `out/jascii/prompt_room.rvt` validates: `tools/rvt_validate.py …
 `{error: 0, warning: 1, info: 2}` (the warning is the known Extensible-Storage decoder gap), 3402 elements decoded —
 "validates 0 errors", not "loads" (rule 4).
 
+## CI / review rounds (session-hosted, regime #302)
+
+* head `52de9df`: sandboxed CI **fail** — `1 failed, 2701 passed, 132 skipped, 3 xfailed` (571 s): `tests/test_conftest_scaffolding.py::test_every_module_on_the_leak_guard_enters_a_context` — the new module requested
+  `no_release_leak` while entering no release context (a native 2026 build enters none; law #605/#707). Independent
+  review 🟡 nits only (aliasing verified success-path neutral, refusals verified to propagate, mirror byte-identical);
+  nits: the empty-files wording could over-claim in the sliver before `res.files` is assigned; status may exceed the
+  160-char reason convention (bounded by `cause_clause`); the guard exercised no real unwind.
+* fix-up head: the one real-build row now builds for the FIRST FOREIGN certified pin (`target_version=2024` here), so
+  the front door enters `release_build_context` before the manifest write dies and the guard (with the write-side
+  `context_constants` watch) proves nothing stayed entered — `release.requested == release.output == 2024` in the
+  FAILED document; the module stands in the scaffolding law's `ADOPTERS` with that reason; empty-files wording is now
+  `FAILED (<Type>: <message>; no output file was recorded)`. `tests/test_frontdoor_209.py
+  tests/test_conftest_scaffolding.py` → 28 passed (6.0 s).
+
 ## Gates run
 
 * `tests/test_frontdoor_209.py`: 8 passed (3.0 s) — real build + manifest crash (files, stamps, release, traceback
-  tail); crash before the build ("nothing was built", a stale `prompt_room.rvt` in a reused `--out` never named);
+  tail); crash before the build ("no output file was recorded", a stale `prompt_room.rvt` in a reused `--out` never named);
   verdict overwritten while earlier errors survive (ENOSPC wording); the `--rvt` route's raw-basename `edited` file;
   `FrontDoorError`/`BaseError` propagate; the router relays the salvaged result; the CLI child prints the document
   with exit 3 and no traceback on stderr.
@@ -114,8 +129,8 @@ The delivered `out/jascii/prompt_room.rvt` validates: `tools/rvt_validate.py …
 
 * files: `src/rvt/frontdoor/__init__.py` (`run()` owns and passes the result; `_failed_late`; routes take `res` and
   gather errors on it), its mirror `plugin/lib/src/rvt/frontdoor/__init__.py` (generated by `tools/sync_plugin.py`),
-  `tests/test_frontdoor_209.py`, `tests/ci_shard.d/209-frontdoor-late-exception.txt`,
-  `docs/inbox/frontdoor-late-exception.md`.
+  `tests/test_frontdoor_209.py`, `tests/ci_shard.d/209-frontdoor-late-exception.txt`, `tests/test_conftest_scaffolding.py`
+  (one `ADOPTERS` line), `docs/inbox/frontdoor-late-exception.md`.
 * gates: as listed above (module 8 passed; stream-local 330 passed / 18 skipped; plugin sync/structure/records/portable
   green); session-hosted CI + independent review recorded on the PR by the tech-lead loop.
 * staged vs shipped: nothing viewer-facing; no ledger change; no new dependency.

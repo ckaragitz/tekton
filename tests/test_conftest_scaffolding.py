@@ -82,6 +82,8 @@ ADOPTERS = {
     "test_rvt_edit_refusal": "load_tool('rvt_edit').main([...]) enters host_release_context at its one open boundary",
     "test_edit_status": "FD.author(rvt=<2025 pin / damaged 2025 host>) enters host_release_context in the front door",
     "test_genesis_identity": "GI.build_release(year) re-authors the foreign pins under release_build_context",
+    "test_frontdoor_209": "FD.author(prompt=..., target_version=<first foreign pin>) enters release_build_context in the "
+                          "front door's build, then the route dies late (#209): the guard proves nothing stayed entered",
 }
 #: in-process callers that do NOT take the function-scoped guard as is, with the measured reason (#707) -- a
 #: module-scoped fixture that holds a context open across its tests by design would go here; so would a file another

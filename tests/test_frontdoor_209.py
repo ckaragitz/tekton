@@ -8,8 +8,9 @@ sat in ``--out``.  ``run()`` now hands the route a result object it owns, so wha
 before dying (files as the build named them, intent, handoff, manifest, errors) comes back as an honest
 ``FAILED (post-build error: ...)`` document; refused requests keep their one line.
 
-Fresh-clone safe: the one real build uses the bundled certified 2026 pin (a clean skip when it is absent);
-every other row stubs the route.
+Fresh-clone safe: the one real build runs on the FIRST FOREIGN certified pin (2024/2025 when bundled, else the
+native one; a clean skip when none is), so the front door enters ``release_build_context`` before the route dies
+and conftest's leak guard proves the dying route left no release entered; every other row stubs the route.
 """
 from __future__ import annotations
 
@@ -28,9 +29,16 @@ import rvt.frontdoor as FD                    # noqa: E402
 from rvt.frontdoor import base as B           # noqa: E402
 from rvt.frontdoor import manifest as MF      # noqa: E402
 from rvt.frontdoor import router as R         # noqa: E402
-from conftest import pinned_base              # noqa: E402
+from conftest import FOREIGN_FIRST, context_constants, pinned_base   # noqa: E402
 
 pytestmark = pytest.mark.usefixtures("no_release_leak")   # a route that dies mid-way must not leave a release entered
+
+
+@pytest.fixture
+def release_leak_extra():
+    """The foreign-target build enters the WRITE side (``release_build_context``): watch the names it swaps too."""
+    return context_constants
+
 
 PROMPT = "an electrical room with 2 panels"
 ASCII_CRASH = ("UnicodeEncodeError: 'ascii' codec can't encode character '\\u2014' in position 0: "
@@ -65,11 +73,17 @@ def _raise(exc):
 
 # --------------------------------------------------------------------------- the real thing, once
 
-def test_a_late_exception_hands_back_the_built_file_with_its_stamps(tmp_path, monkeypatch):
-    pinned_base(2026)
+def test_a_late_exception_hands_back_the_built_file_with_its_stamps_and_release_story(tmp_path, monkeypatch):
+    """The real thing once, on a foreign certified target when one is bundled: the build runs inside
+    ``release_build_context(year)``, the manifest write then dies as it did on an ASCII locale (#29) -- and the result
+    still names the file, keeps the PROOF-ONLY stamps and the honest release story, and leaves no release entered."""
+    if not FOREIGN_FIRST:
+        pytest.skip("no certified pinned base")
+    year = FOREIGN_FIRST[0]
+    pinned_base(year)
     monkeypatch.setattr(MF, "write_manifest", _ascii_locale_crash)
     out = tmp_path / "job"
-    r = FD.author(prompt=PROMPT, out=str(out), no_handoff=True)
+    r = FD.author(prompt=PROMPT, out=str(out), no_handoff=True, target_version=year)
 
     assert r.ok is False
     assert r.status == f"FAILED (post-build error: {ASCII_CRASH}; delivered anyway: prompt_room.rvt, families/)"
@@ -82,8 +96,9 @@ def test_a_late_exception_hands_back_the_built_file_with_its_stamps(tmp_path, mo
     assert r.errors[-1].startswith("Traceback (most recent call last):") and "write_manifest" in r.errors[-1]
     doc = r.as_json()
     assert doc["manifest"] == {}                                     # no manifest PATHS: none was written ...
-    assert doc["stamps"] and doc["release"]                          # ... but the manifest the route had built still
-    json.dumps(doc)                                                  # yields the stamps + release story, and it dumps
+    assert doc["stamps"] and all(s.startswith("PROOF-ONLY") for s in doc["stamps"])   # ... but the manifest the route
+    assert doc["release"]["requested"] == doc["release"]["output"] == year            # had built still yields the stamps
+    json.dumps(doc)                                                                    # + release story, and it dumps
 
 
 # --------------------------------------------------------------------------- the mechanism, without builds
@@ -103,7 +118,7 @@ def test_an_exception_before_the_build_says_nothing_was_built_and_never_names_a_
     r = FD.author(prompt=PROMPT, out=str(out), no_handoff=True)
 
     assert r.ok is False and r.files == {}
-    assert r.status == "FAILED (RuntimeError: boom; nothing was built)"
+    assert r.status == "FAILED (RuntimeError: boom; no output file was recorded)"
     assert r.intent_json == str(out / "intent.json")              # the parse DID record it before the crash
     assert r.errors[0] == "prompt route raised RuntimeError: boom" and "in boom" in r.errors[1] and len(r.errors) == 2
     assert stale.read_bytes() == b"an earlier job's bytes"
