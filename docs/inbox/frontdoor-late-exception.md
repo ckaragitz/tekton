@@ -102,7 +102,11 @@ The delivered `out/jascii/prompt_room.rvt` validates: `tools/rvt_validate.py …
   `context_constants` watch) proves nothing stayed entered — `release.requested == release.output == 2024` in the
   FAILED document; the module stands in the scaffolding law's `ADOPTERS` with that reason; empty-files wording is now
   `FAILED (<Type>: <message>; no output file was recorded)`. `tests/test_frontdoor_209.py
-  tests/test_conftest_scaffolding.py` → 28 passed (6.0 s).
+  tests/test_conftest_scaffolding.py` → 28 passed (6.0 s). Sandboxed CI of head `ddcae5d`: **pass** — `2703 passed, 132 skipped,
+  3 xfailed` (579 s), merge with main clean; delta review 🟡 (verified: the context is entered for 2024 and exits normally before
+  the crash, so the guard proves the END STATE — a foreign enter/exit plus a late crash leaves nothing entered — not an exception
+  unwinding *through* the context; two stale wordings in the test name / drop-in comment) → fixed in the next head (comment +
+  rename only).
 
 ## Gates run
 

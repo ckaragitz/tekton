@@ -103,7 +103,7 @@ def test_a_late_exception_hands_back_the_built_file_with_its_stamps_and_release_
 
 # --------------------------------------------------------------------------- the mechanism, without builds
 
-def test_an_exception_before_the_build_says_nothing_was_built_and_never_names_a_stale_file(tmp_path, monkeypatch):
+def test_an_exception_before_the_build_records_no_output_file_and_never_names_a_stale_file(tmp_path, monkeypatch):
     """Only what THIS route recorded is ever named: a ``prompt_room.rvt`` an earlier job left in a reused ``--out``
     is not this prompt's output."""
     out = tmp_path / "reused"
