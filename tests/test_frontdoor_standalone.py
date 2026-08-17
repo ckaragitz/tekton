@@ -221,13 +221,14 @@ def test_schema_identity_class_for_class():
 
 def test_install_schema_seeds_every_chokepoint(tmp_path):
     from rvt.frontdoor import standalone as SA
-    SA.install_schema()
     from rvt import adocument, encode, objects, schema
+    default_before = schema.DEFAULT_PATH
+    SA.install_schema()
     s = objects.load_schema()                    # no-arg: must NOT touch extracted/
     assert s.sha256 == SA.SCHEMA_2026_SHA256
     assert encode.load_schema() is s
     assert adocument.load_schema() is s
-    assert os.path.isfile(schema.DEFAULT_PATH)
+    assert schema.DEFAULT_PATH == default_before  # in memory: no cache file, no re-point (#208)
     from rvt.genesis import skeleton as gsk
     assert gsk._SCHEMA_CACHE.get("dec") is not None
     # the contract (#315): only the default-path family answers with the
@@ -238,9 +239,11 @@ def test_install_schema_seeds_every_chokepoint(tmp_path):
     with pytest.raises(FileNotFoundError) as ei:
         objects.load_schema(missing)
     assert ei.value.filename == missing
-    copy = str(tmp_path / "Formats_Latest_copy.bin")
-    shutil.copyfile(schema.DEFAULT_PATH, copy)
-    assert schema.load_schema(copy).sha256 == s.sha256
+    copy = tmp_path / "Formats_Latest_copy.bin"
+    from rvt.container import open_rvt
+    with open_rvt(SA.bundled_base_path()) as f:  # the installed base's own stream, verbatim
+        copy.write_bytes(f.inflate("Formats/Latest", 0))
+    assert schema.load_schema(str(copy)).sha256 == s.sha256
 
 
 def test_install_schema_behind_the_plugins_lazy_wrapper(tmp_path, monkeypatch):

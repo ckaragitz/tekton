@@ -1,0 +1,3 @@
+# #208: install_schema() is in-memory only (no cache file, DEFAULT_PATH untouched) -- one booby-trapped
+# install row plus ONE real prompt build on the native pin
+tests/test_install_schema_208.py

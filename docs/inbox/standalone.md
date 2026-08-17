@@ -128,8 +128,10 @@ named phase 86961, which does not exist in G_ABPD — the constructed ones are
   the package itself (works wherever Cowork mounts the plugin).
 * `bundled_schema()` / `install_schema()` — parse the base's embedded
   `Formats/Latest`; reroute `rvt.schema.load_schema` (and the from-imported
-  copies in `rvt.objects` / `rvt.encode` / `rvt.adocument`), point
-  `rvt.schema.DEFAULT_PATH` at a materialised cache file, seed
+  copies in `rvt.objects` / `rvt.encode` / `rvt.adocument`), ~~point
+  `rvt.schema.DEFAULT_PATH` at a materialised cache file~~ (retired by the
+  #208 stream, 2026-08-17: served in memory, `DEFAULT_PATH` untouched — see
+  `docs/inbox/schema-cache-peruser.md`), seed
   `rvt.genesis.skeleton._SCHEMA_CACHE`, `rvt.encode._DEFAULT_ENCODER`,
   `rvt.adocument._DECODER`.
 * `schema_identity_report()` — the byte + class-for-class proof (above).

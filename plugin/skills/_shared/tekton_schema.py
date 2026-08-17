@@ -16,10 +16,12 @@ singleton codecs are seeded -- and it covers an engine that predates the
 native fallback.
 
 :func:`install` decides at arm time: if the default path is already a real
-file (the research corpus, or the cache file a completed ``install_schema()``
-made ``DEFAULT_PATH``) nothing is wrapped -- the loader in place answers.
-Otherwise ``rvt.schema.load_schema`` (and its from-imported copies) become a
-wrapper with the one contract every chokepoint loader has
+file (the research corpus) or the host process has already completed
+``install_schema()`` (its loaders answer in memory; since #208 it leaves
+``DEFAULT_PATH`` alone, so that is asked of its state, not of the path)
+nothing is wrapped -- the loader in place answers.  Otherwise
+``rvt.schema.load_schema`` (and its from-imported copies) become a wrapper
+with the one contract every chokepoint loader has
 (``standalone.default_schema_loader``, #315/#376):
 
   * the default-path call (no arg, ``None``, or ``DEFAULT_PATH``) activates
@@ -57,9 +59,10 @@ _FROM_IMPORTERS = ("rvt.objects", "rvt.encode", "rvt.adocument")
 
 def install() -> str:
     """Idempotently arm the lazy install.  Returns ``installed`` |
-    ``already`` | ``corpus-present`` (the default path is already a real
-    file -- research corpus or ``install_schema()``'s cache file -- so
-    nothing was wrapped)."""
+    ``already`` | ``corpus-present`` (the default path is a real file: the
+    research corpus) | ``host-installed`` (``install_schema()`` already ran
+    in this process: its in-memory loaders are in place) -- the last two
+    wrap nothing."""
     import rvt.schema as _schema
 
     if getattr(_schema, _FLAG, False):
@@ -68,6 +71,9 @@ def install() -> str:
     orig_default = _schema.DEFAULT_PATH
     if os.path.isfile(orig_default):
         return "corpus-present"
+    host = sys.modules.get("rvt.frontdoor.standalone")     # never imported FOR this check (cold start)
+    if (getattr(host, "_SCHEMA_STATE", None) or {}).get("installed"):   # engine-skew safe, as below
+        return "host-installed"
 
     orig_load = _schema.load_schema
     # the engine's verbatim leaf loader (#315); an engine older than it only
@@ -75,8 +81,8 @@ def install() -> str:
     load_file = getattr(_schema, "load_schema_file", orig_load)
 
     def _load_schema_lazy(path=None):
-        # explicit path: verbatim (the default family also holds the cache
-        # file install_schema() makes DEFAULT_PATH, as default_schema_loader's)
+        # explicit path: verbatim (the default family = no arg, None, the
+        # arm-time default and the live DEFAULT_PATH, as default_schema_loader's)
         if path not in (None, orig_default, _schema.DEFAULT_PATH):
             return load_file(path)
         # default path: install once, answer with what it installed
