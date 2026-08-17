@@ -205,7 +205,7 @@ def bundled_schema(base_path: Optional[str] = None):
 
 def default_schema_loader(schema, *default_paths: str):
     """The ``load_schema`` replacement every chokepoint swap installs
-    (:func:`install_schema` step (b), ``release_ctx``): the no-arg call and
+    (:func:`install_schema` step (a), ``release_ctx``): the no-arg call and
     ``default_paths`` answer with ``schema`` -- the installed base's own class
     map, in memory; any other path is parsed verbatim by the engine, so a
     missing one raises ``FileNotFoundError`` instead of being answered with

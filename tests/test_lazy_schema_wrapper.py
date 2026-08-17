@@ -41,11 +41,13 @@ def lazy(monkeypatch):
     return tekton_schema
 
 
-def test_armed_after_a_completed_install(lazy, tmp_path):
+def test_armed_after_a_completed_install(lazy, tmp_path, monkeypatch):
+    # a bare machine, deterministically (a corpus machine would answer "corpus-present" first)
+    monkeypatch.setattr(schema, "DEFAULT_PATH", str(tmp_path / "absent" / "000.bin"))
     SA.install_schema()
     installed, loader = SA.bundled_schema(), schema.load_schema
     # the host installed already (in memory, DEFAULT_PATH untouched: #208): nothing is wrapped
-    assert lazy.install() == ("corpus-present" if os.path.isfile(schema.DEFAULT_PATH) else "host-installed")
+    assert lazy.install() == "host-installed"
     assert schema.load_schema is loader and objects.load_schema is loader
     # the default-path family answers with the installed object ...
     assert schema.load_schema() is installed

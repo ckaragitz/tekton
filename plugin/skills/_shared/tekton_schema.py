@@ -19,8 +19,9 @@ native fallback.
 file (the research corpus) or the host process has already completed
 ``install_schema()`` (its loaders answer in memory; since #208 it leaves
 ``DEFAULT_PATH`` alone, so that is asked of its state, not of the path)
-nothing is wrapped -- the loader in place answers.  Otherwise ``rvt.schema.load_schema`` (and its from-imported copies) become a
-wrapper with the one contract every chokepoint loader has
+nothing is wrapped -- the loader in place answers.  Otherwise
+``rvt.schema.load_schema`` (and its from-imported copies) become a wrapper
+with the one contract every chokepoint loader has
 (``standalone.default_schema_loader``, #315/#376):
 
   * the default-path call (no arg, ``None``, or ``DEFAULT_PATH``) activates
@@ -71,7 +72,7 @@ def install() -> str:
     if os.path.isfile(orig_default):
         return "corpus-present"
     host = sys.modules.get("rvt.frontdoor.standalone")     # never imported FOR this check (cold start)
-    if host is not None and host._SCHEMA_STATE.get("installed"):
+    if (getattr(host, "_SCHEMA_STATE", None) or {}).get("installed"):   # engine-skew safe, as below
         return "host-installed"
 
     orig_load = _schema.load_schema

@@ -23,9 +23,9 @@ BUNDLED_BASE = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
 
 #: the engine's own ``load_schema``, bound at collection time -- i.e. before
 #: any test in the run can call ``standalone.install_schema()``, which swaps
-#: ``rvt.schema.load_schema`` (and re-points ``DEFAULT_PATH``) for the rest
-#: of the process.  The fallback rule under test lives in the real function,
-#: called with the live ``S.DEFAULT_PATH``.
+#: ``rvt.schema.load_schema`` for the rest of the process (it no longer
+#: re-points ``DEFAULT_PATH``, #208).  The fallback rule under test lives in
+#: the real function, called with the live ``S.DEFAULT_PATH``.
 LOAD_SCHEMA = S.load_schema
 
 
