@@ -16,11 +16,11 @@ shard see the process exactly as they would without this file.
 from __future__ import annotations
 
 import os
-import shutil
 
 import pytest
 
 from rvt import adocument, encode, objects, schema
+from rvt.container import open_rvt
 from rvt.frontdoor import standalone as SA
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,8 +44,8 @@ def lazy(monkeypatch):
 def test_armed_after_a_completed_install(lazy, tmp_path):
     SA.install_schema()
     installed, loader = SA.bundled_schema(), schema.load_schema
-    # the default path is install_schema()'s cache file: nothing is wrapped
-    assert lazy.install() == "corpus-present"
+    # the host installed already (in memory, DEFAULT_PATH untouched: #208): nothing is wrapped
+    assert lazy.install() == ("corpus-present" if os.path.isfile(schema.DEFAULT_PATH) else "host-installed")
     assert schema.load_schema is loader and objects.load_schema is loader
     # the default-path family answers with the installed object ...
     assert schema.load_schema() is installed
@@ -58,9 +58,10 @@ def test_armed_after_a_completed_install(lazy, tmp_path):
             load(missing)
         assert ei.value.filename == missing and ei.value.__cause__ is None
     # ... and an existing explicit path is that file, parsed verbatim
-    copy = str(tmp_path / "Formats_Latest_copy.bin")
-    shutil.copyfile(schema.DEFAULT_PATH, copy)
-    assert schema.load_schema(copy).sha256 == installed.sha256
+    copy = tmp_path / "Formats_Latest_copy.bin"
+    with open_rvt(SA.bundled_base_path()) as f:          # the installed base's own stream, verbatim
+        copy.write_bytes(f.inflate("Formats/Latest", 0))
+    assert schema.load_schema(str(copy)).sha256 == installed.sha256
     assert lazy.install() == "already"
 
 

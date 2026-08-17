@@ -73,7 +73,6 @@ import hashlib
 import json
 import os
 import sys
-import tempfile
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .base import PIN, BaseError, repo_root, sha256_of
@@ -199,7 +198,7 @@ def bundled_schema(base_path: Optional[str] = None):
     digest = hashlib.sha256(blob).hexdigest()
     schema = parse_schema(blob, source=f"{bp}#Formats/Latest")
     _SCHEMA_STATE.update({"schema": schema, "from": bp, "sha256": digest,
-                          "bytes": len(blob), "blob": blob,
+                          "bytes": len(blob),
                           "is_corpus_constant": digest == SCHEMA_2026_SHA256})
     return schema
 
@@ -226,15 +225,19 @@ def install_schema(base_path: Optional[str] = None) -> Dict[str, Any]:
 
     * ``rvt.schema.load_schema`` (and the from-imported copies in
       ``rvt.objects`` / ``rvt.encode`` / ``rvt.adocument``) -- the no-arg /
-      default-path call returns THIS base's schema; an explicit path is
-      loaded verbatim (:func:`default_schema_loader`);
-    * ``rvt.schema.DEFAULT_PATH`` -- pointed at a materialised cache file of
-      the same bytes (for any code comparing/opening the path directly);
+      default-path call returns THIS base's schema, in memory; an explicit
+      path is loaded verbatim (:func:`default_schema_loader`);
     * the singleton caches: ``rvt.genesis.skeleton._SCHEMA_CACHE`` (used by
       ``rvt.famgen.skeleton.build_unit_segments``), ``rvt.encode
       ._DEFAULT_ENCODER``, ``rvt.adocument._DECODER``.
 
-    Idempotent; returns a report of what was installed."""
+    Nothing touches the filesystem and ``rvt.schema.DEFAULT_PATH`` is left
+    alone -- the contract ``release_ctx`` installs for the foreign releases.
+    (Until #208 the bytes were ALSO materialised under one fixed, shared
+    ``<tmp>/tekton-schema-cache`` and ``DEFAULT_PATH`` re-pointed at the
+    file: nothing on the product path ever read it back, and the second OS
+    account on a box died on the first one's directory before building
+    anything.)  Idempotent; returns a report of what was installed."""
     from .. import schema as _schema
     schema = bundled_schema(base_path)
     report: Dict[str, Any] = {"schema_sha256": _SCHEMA_STATE["sha256"],
@@ -246,23 +249,14 @@ def install_schema(base_path: Optional[str] = None) -> Dict[str, Any]:
         report["installed"] = ["(already installed)"]
         return report
 
-    # (a) a real file for DEFAULT_PATH consumers
-    cache_dir = os.path.join(tempfile.gettempdir(), "tekton-schema-cache")
-    os.makedirs(cache_dir, exist_ok=True)
-    cache_file = os.path.join(cache_dir, f"Formats_Latest_{_SCHEMA_STATE['sha256'][:16]}.bin")
-    if not (os.path.isfile(cache_file)
-            and os.path.getsize(cache_file) == _SCHEMA_STATE["bytes"]):
-        with open(cache_file, "wb") as fh:
-            fh.write(_SCHEMA_STATE["blob"])
-    old_default = _schema.DEFAULT_PATH
-    _schema.DEFAULT_PATH = cache_file
-    report["installed"].append(f"rvt.schema.DEFAULT_PATH -> {cache_file}")
-
-    # (b) load_schema in every module that from-imported it -- kept beside
-    # the engine's native fallback on purpose: that serves the pinned 2026
+    # (a) load_schema in every module that from-imported it, answered in
+    # memory (no cache file, DEFAULT_PATH untouched: #208) -- kept beside the
+    # engine's native fallback on purpose: that serves the pinned 2026
     # constant, this serves THIS base's schema (docs/inbox/install-schema.md)
-    _load_schema_bundled = default_schema_loader(schema, old_default, cache_file)
+    _load_schema_bundled = default_schema_loader(schema, _schema.DEFAULT_PATH)
     _schema.load_schema = _load_schema_bundled
+    report["installed"].append("rvt.schema.load_schema default path -> installed schema, in memory "
+                               "(DEFAULT_PATH untouched)")
     from .. import objects as _objects
     from .. import encode as _encode
     from .. import adocument as _adocument
@@ -270,7 +264,7 @@ def install_schema(base_path: Optional[str] = None) -> Dict[str, Any]:
         mod.load_schema = _load_schema_bundled
         report["installed"].append(f"{mod.__name__}.load_schema -> bundled")
 
-    # (c) the singleton caches
+    # (b) the singleton caches
     dec = _objects.ObjectDecoder(schema)
     enc = _encode.ObjectEncoder(decoder=dec)
     try:

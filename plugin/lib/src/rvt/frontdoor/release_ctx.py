@@ -588,7 +588,7 @@ def _release_context(path: str, *, host: bool) -> Iterator[Optional[Dict[str, An
         SA._SCHEMA_STATE.update({
             "schema": schema, "from": path_abs,
             "sha256": schema.sha256,
-            "bytes": schema.total_size, "blob": b"",
+            "bytes": schema.total_size,
             "is_corpus_constant": False,
             "installed": True, "installed_from": path_abs,
             "decoder": dec, "encoder": enc,

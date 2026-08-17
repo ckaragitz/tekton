@@ -376,3 +376,16 @@ None.
   READY + VALID 0 errors and `go edit` READY + 0 errors; before/after bench: no slowdown.
 * Shipped vs staged: everything ships with the merge; no `.rvt`/`.rfa` committed, no viewer
   claim, no probe batch, `tekton-plugin.zip` regenerated locally only (git-ignored).
+
+## Note from the #208 stream — 2026-08-17 — step (a) retired, (b)+(c) kept
+
+The decision table above measured "retire (b), keep (a)" and "retire (a)+(b)", never **"retire (a), keep
+(b)+(c)"** — the variant #208 ships (`docs/inbox/schema-cache-peruser.md`): `install_schema()` no longer
+materialises the stream or re-points `rvt.schema.DEFAULT_PATH`; it installs
+`default_schema_loader(schema, DEFAULT_PATH)` in memory exactly as `release_ctx` does for the foreign releases.
+All three reasons for keeping (b) stand as written (the installed base's schema, ~1 µs/call, correct release).
+Row 5's hazard is gone rather than worked around: with the module global never re-pointed, a held original
+`load_schema()` on a bare machine takes the bundled fallback instead of `open()`ing the absent corpus. Trigger:
+step (a)'s fixed shared `<tmp>/tekton-schema-cache` failed every job of the second OS account on a box, and nothing
+on the product path ever read the file back.
+
