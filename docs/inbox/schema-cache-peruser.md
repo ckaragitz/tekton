@@ -114,15 +114,17 @@ trapped `makedirs` raises straight through the old step (a); row 2: `DEFAULT_PAT
   per-call sha256 of the base — pre-existing, filed below). `/verify` surfaces: bare-unzip `go` (above), validator on
   the delivered file, the front door via the suites.
 
-## Follow-ups (filed as issues, `Refs #208`)
+## Follow-ups (issues, `Refs #208`)
 
-* `install_schema()`'s idempotent re-entry still costs ~1.7 ms because `bundled_schema()` → `bundled_base_path()`
-  re-hashes the 581 KB pinned base on every call before the "(already installed)" early-out; a job re-enters it from
-  several callers. Cheap to fix (check `_SCHEMA_STATE` before resolving), perf-stream shaped (S-2026-08-09-g wants a
-  bench before/after).
-* Test scaffolding: the "reinstall the schema chokepoints and restore them" fixture now exists in three test modules
-  (`test_frontdoor_standalone` inline, `test_lazy_schema_wrapper::lazy`, `test_install_schema_208::reinstall`) — a
-  `schema_reinstall` fixture in `tests/conftest.py` is the third-copy consolidation (`area:process`, P2).
+* **#392 (pre-existing, open)** already charters the first: `install_schema()`'s idempotent re-entry still costs
+  ~1.7 ms because `bundled_schema()` → `bundled_base_path()` re-hashes the 581 KB pinned base on every call before
+  the "(already installed)" early-out, and a job re-enters it from several callers — this stream's efficiency pass
+  re-measured it; nothing new filed.
+* **#733 (filed by this stream)**: the "reinstall the schema chokepoints and restore them" fixture now exists in
+  three test modules (`test_frontdoor_standalone` inline, `test_lazy_schema_wrapper::lazy`,
+  `test_install_schema_208::reinstall`, only the last restoring the codec singletons) — one `schema_reinstall`
+  fixture in `tests/conftest.py`, the copies adopt it, the scaffolding law forbids a fourth (`area:process`, P2,
+  `good-first-pick`).
 
 ## BRANCH STATE
 
