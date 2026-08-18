@@ -8,8 +8,8 @@ Stream: #210 (test-only; territory `tests/`, this record, one comment on #29). A
 
 - `tests/test_coldstart_locale_210.py` — three tests on the bare surface (`plugin/` copy driven by
   `sys.executable -I -S`, the fixtures `tests/test_coldstart.py` already builds, imported per
-  `tests/ci_shard.d/README`), all under a child environment of `LC_ALL=C LANG=C PYTHONCOERCECLOCALE=0
-  PYTHONUTF8=0` plus argv `-X utf8=0`:
+  `tests/ci_shard.d/README`), all under a child environment carrying the one load-bearing knob `LC_ALL=C` plus argv
+  `-X utf8=0`:
   1. `test_preflight_is_ready_under_ascii_locale` — passes today.
   2. `test_go_author_delivers_cleanly_under_ascii_locale` — **the #29 gate**, `xfail(strict=True)`:
      ASCII prompt, `--out "…/job 1 (ascii locale)"`; requires exit 0/4, a non-`FAILED` status, no
@@ -21,21 +21,24 @@ Stream: #210 (test-only; territory `tests/`, this record, one comment on #29). A
      out dir created.
 - `tests/ci_shard.d/210-locale-gate.txt` — puts the module in the per-PR shard (never edited
   `tests/ci_shard.txt`).
-- A `ascii_locale` module fixture probes the child first and **skips** with the measured value when the
-  interpreter cannot be forced to an ASCII preferred encoding (a libc that pins UTF-8; Windows' cp1252 —
-  Windows gets the real thing through #122).
+- An autouse `ascii_locale` module fixture probes the child first; when the interpreter cannot be forced
+  to an ASCII preferred encoding it **fails loudly on glibc** (the CI reference platform, where this is
+  measured to work — a silent skip there would retire the gate unnoticed) and **skips** elsewhere with the
+  measured value (a libc that pins UTF-8; Windows' cp1252 — Windows gets the real thing through #122).
 
 ## The physics, measured (why the gate looks the way it does)
 
 | probe (system CPython 3.11.15, glibc; same env as the tests) | result |
 |---|---|
 | `codecs.lookup(locale.getpreferredencoding(False)).name`, `sys.getfilesystemencoding()`, `sys.flags.utf8_mode` | `ascii ascii 0` |
-| same without `-X utf8=0` (only `PYTHONUTF8=0` in env, under `-I`) | UTF-8 mode switches itself **on** for the C locale — `-I` ignores `PYTHONUTF8`; `PYTHONCOERCECLOCALE=0` IS honoured under `-I` |
+| same without `-X utf8=0` | `utf-8 utf-8 1` — UTF-8 mode switches itself **on** for the C locale; `-I` ignores `PYTHONUTF8`, only the `-X` flag turns it off |
+| `LANG=C PYTHONCOERCECLOCALE=0` (no `LC_ALL`) under `-I` / without `-I` | `utf-8` (coerced to C.UTF-8) / `ascii` — `-I` ignores `PYTHONCOERCECLOCALE` too; what defeats PEP 538 coercion in the tests is that **`LC_ALL` is set** (coercion is skipped whenever it is), so `LC_ALL=C` is the single load-bearing env knob and the `PYTHON*` spellings were dropped as inert |
 | `sys.argv[1]` for argv `Größe – 5×4` | `'Gr\udcc3\udcb6\udcc3\udc9fe \udce2\udc80\udc93 5\udcc3\udc974'` — surrogate-escaped, undecodable by construction |
 | child `sys.stdout.errors` / `sys.stderr.errors` | `surrogateescape` / `backslashreplace` |
 
-So an ASCII locale is *stricter* than cp1252 for everything the product writes itself (`—`, `“…”`, `→`
-fail in both), but it adds one thing Windows does not have: non-ASCII **argv** cannot be decoded at all
+So an ASCII locale is *stricter* than cp1252 for everything the product writes itself (cp1252 encodes
+`—`, `“ ”`, `…`, `·`, `×` and dies only on `→`; ASCII dies on all of them — a strict superset, the right
+direction for a gate whose fix is codec-independent), but it adds one thing Windows does not have: non-ASCII **argv** cannot be decoded at all
 (Windows argv is UTF-16). A German prompt in argv therefore can never round-trip into a strict UTF-8
 manifest under this simulation, whatever #29 does — which is why the issue's literal DONE ("MANIFEST.md
 … contain the prompt text" for `Elektroraum – Größe 5×4 m`) was split: the **flip condition uses an
@@ -72,11 +75,33 @@ passes; without them it cannot.
 ## Gates run
 
 - `.venv/bin/python -m pytest tests/test_coldstart_locale_210.py -q -rxs` → **2 passed, 1 xfailed in 6.09s**
+  (first version); **2 passed, 1 xfailed in 5.31s** (final)
 - with the neighbours sharing fixtures/laws: `tests/test_coldstart_locale_210.py tests/test_coldstart.py
-  tests/test_conftest_scaffolding.py tests/test_shard_list.py` → **61 passed, 1 xfailed in 27.04s**
+  tests/test_conftest_scaffolding.py tests/test_shard_list.py` → **61 passed, 1 xfailed in 27.04s** (first version), **61 passed, 1 xfailed in 14.80s** (final)
 - `python3 tools/dev/shard_list.py --print` lists `tests/test_coldstart_locale_210.py` (entry 60)
 - `tools/sync_plugin.py --check` → in sync (nothing under `src/`/`tools/`/`skills/` touched)
 - cost in the shard: one plugin copy + one preflight + two ~3 s prompt builds (≈ 6 s here)
+
+## Review passes before the PR left draft
+
+`/simplify` (four independent reviewers: reuse, simplification, efficiency, altitude) on the first
+version (139 lines) → applied: the env dict shrank to `LC_ALL=C` and the two mis-attributed causal
+sentences were corrected (measured: `PYTHONCOERCECLOCALE`/`PYTHONUTF8` are inert under `-I`; cp1252
+fails only on `→`); assertions implied by a neighbour dropped (wrapper `exception` ⇒ exit 1, `FAILED…`
+⇒ exit 3, empty manifest ⇒ the content check); a 7-line `_go_author` helper replaced the copy-paste
+between the two build tests; the manifest loop unrolled; the probe became an autouse fixture with no
+dead return, failing loudly on glibc / skipping elsewhere (altitude); `xfail(strict=True,
+raises=AssertionError)` so only the asserted contract counts as the expected failure (altitude); one
+`timeout=180` literal instead of 60/120/600 plumbing (efficiency: a hung bare build now fails
+diagnosably inside `session_ci.sh`'s 1500 s shard cap instead of consuming 2×600 s of it); the flip
+note stated once (in the xfail reason, which is what prints on the day); test 3's delivery check made
+a hard assertion. Kept on the reviewers' advice: both builds (different variable under test; folding
+the must-pass into the xfail body would silence it), the module's own plugin copy (<0.5 s; a
+session-scoped shared copy for all five bare-surface modules is a separate `area:process` cleanup, not
+this PR's), the exit-code literals (same convention as the sibling module). Result: 101 lines; both
+directions re-proven on the rewritten body — simulated fix → `[XPASS(strict)] … 1 failed, 2 passed in
+5.30s`; probe variant without `-X utf8=0` on glibc → `Failed: cannot force an ASCII locale on this
+interpreter (probe said b'utf-8\n', exit 0)` at setup.
 
 ## Deviations from the issue text (and why)
 
