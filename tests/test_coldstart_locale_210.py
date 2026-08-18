@@ -41,7 +41,8 @@ def _run_ascii(args, cwd):
 def ascii_locale(workdir):
     """Every test here needs a child that REALLY has an ASCII preferred encoding.  On glibc (the
     CI reference platform, where this is measured to work) anything else is news and fails loudly;
-    elsewhere (a libc that pins UTF-8, Windows' cp1252 -- #122 covers Windows for real) it skips."""
+    where ASCII cannot be forced (a libc that pins UTF-8; Windows' cp1252 -- #122 covers Windows
+    for real) it skips; a platform that can force it (e.g. a ``US-ASCII`` codeset) runs the gate."""
     probe = "import codecs, locale; print(codecs.lookup(locale.getpreferredencoding(False)).name)"
     r = _run_ascii(ASCII_PY + ["-c", probe], cwd=workdir)
     if r.stdout.strip() != b"ascii":
@@ -73,8 +74,11 @@ def test_preflight_is_ready_under_ascii_locale(plugin_copy, workdir):
 
 
 @pytest.mark.xfail(strict=True, raises=AssertionError,
-                   reason="#29 open: the MANIFEST.md write and the handoff-notes read lack "
-                          "encoding= -- delete this marker in the PR that fixes #29")
+                   reason="#29 open: five encoding-less sites on this lane -- the manifest.json/"
+                          "MANIFEST.md writes (frontdoor/manifest.py) and the handoff package's "
+                          "PROMPT_TO_IFC.md read + two writes (frontdoor/prompt_intent.py); ALL five "
+                          "must carry encoding= for this to pass -- delete this marker in the PR "
+                          "that fixes #29")
 def test_go_author_delivers_cleanly_under_ascii_locale(plugin_copy, workdir):
     out = os.path.join(workdir, "job 1 (ascii locale)")             # spaces + parens, on purpose
     code, res = _go_author(plugin_copy, workdir, "an electrical room 5x4 m with 2 panels", out)

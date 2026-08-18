@@ -103,6 +103,20 @@ directions re-proven on the rewritten body — simulated fix → `[XPASS(strict)
 5.30s`; probe variant without `-X utf8=0` on glibc → `Failed: cannot force an ASCII locale on this
 interpreter (probe said b'utf-8\n', exit 0)` at setup.
 
+Independent review (fresh context, executed the module in the nobody/no-network sandbox from
+`git archive` of head `a753912`) → 🟡 nits: `18 passed, 1 xfailed in 13.21 s` together with
+`test_coldstart.py` (no double collection through the import), `61 passed, 1 xfailed` with the law
+modules, still `2 passed / 1 xfailed` under a hostile parent env (`PYTHONUTF8=1 LC_ALL=C.UTF-8`) and
+`-W error::pytest.PytestWarning`; the flip re-verified independently (`[XPASS(strict)]` with the five
+sites patched in the sandbox copy) **and refined: a manifest-only fix leaves exit 3 on the handoff
+read, so the gate stays XFAIL until all five sites carry `encoding=`** — and on real cp1252 that read
+does not raise at all (all 129 non-ASCII bytes of `PROMPT_TO_IFC.md` decode as mojibake), so a
+Windows-only validation of #29 stage 1 could pass without flipping this gate. Applied: the xfail reason
+now names all five sites and says all five are required (the #29 comment already lists the lines); the
+probe docstring no longer says every non-glibc platform skips (one whose C locale reports `US-ASCII`
+runs the gate). Sandboxed shard on `a753912`: `2707 passed, 132 skipped, 4 xfailed in 501.43 s`, pass
+(main's 2705/3 xfailed plus exactly these three tests).
+
 ## Deviations from the issue text (and why)
 
 - New module + drop-in instead of appending to `tests/test_coldstart.py`: the #636 convention in
