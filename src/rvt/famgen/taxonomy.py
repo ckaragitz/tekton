@@ -366,15 +366,16 @@ def by_discipline(discipline: Optional[str] = None) -> Dict[str, Tuple[Kind, ...
 
 # --------------------------------------------------------------------------- authorities
 
-def archetype_registry() -> Optional[Tuple[str, ...]]:
-    """Keys of ``rvt.famgen.archetypes.ARCHETYPES`` when that module is on this build, else
-    None -- probed on every call, never imported at module load (#674 is not merged)."""
+def archetype_registry() -> Optional[Dict[str, Any]]:
+    """``rvt.famgen.archetypes.ARCHETYPES`` (key -> archetype, each with a ``category``) when
+    that module is on this build, else None -- probed on every call, never imported at module
+    load (#674 is not merged at the time of writing)."""
     try:
         mod = importlib.import_module("rvt.famgen.archetypes")
     except ImportError:
         return None
     reg = getattr(mod, "ARCHETYPES", None)
-    return tuple(sorted(reg)) if isinstance(reg, dict) else None
+    return reg if isinstance(reg, dict) else None
 
 
 def category_status(row: Kind) -> Tuple[str, str]:
@@ -401,29 +402,59 @@ def category_status(row: Kind) -> Tuple[str, str]:
     if other:
         return "conflict", (f"the resolver maps {row.category!r} to {cid} but Revit-written "
                             f"files put {want!r} at {other[0]} ({RESOLVER_ISSUE})")
-    assumed = _INV.BUILTIN_CATEGORIES_ASSUMED.get(cid)
-    hint = (f"; the published-constant table agrees" if assumed and assumed[1] == want else
-            f"; the published-constant table names {cid} {assumed[1]!r}" if assumed else "")
+    assumed = {i: lab for i, (_ost, lab) in _INV.BUILTIN_CATEGORIES_ASSUMED.items()}
+    if assumed.get(cid) == want:
+        hint = "; the published-constant table agrees"
+    else:
+        parts = ([f"names {cid} {assumed[cid]!r}"] if cid in assumed else []) + \
+                [f"puts {want!r} at {i}" for i, lab in assumed.items() if lab == want]
+        hint = f"; the published-constant table {' and '.join(parts)}" if parts else ""
     return "inferred", (f"{want} = {cid} is the resolver's [INFERRED] id, not yet corroborated "
                         f"by a Revit-written file ({RESOLVER_ISSUE}){hint}")
 
 
-def facts_tier(kind: str) -> Tuple[Optional[str], List[Tuple[str, str]]]:
-    """(tier, records) for a kind's catalog records: ``fact`` when at least one record carries
-    a fact-tier field, ``assumed`` when records exist but every value is search-summary /
-    assumed, None when no record is held.  Computed from ``catalog.provenance_report``."""
-    from . import catalog as _C, vendors as _V
-    records = _V.records_for_kind(kind)
+def _famspec_parts(row: Kind) -> Tuple[Optional[str], Optional[str]]:
+    """(famspec kind, sub-kind) of the row's first famspec mechanism, or (None, None)."""
+    for m in row.via:
+        kind, arg = _mech(m)
+        if kind == "famspec":
+            fam, _, sub = arg.partition("/")
+            return fam, (sub or None)
+    return None, None
+
+
+def _member_model(row: Kind) -> Optional[str]:
+    """The catalog variant ``model`` the row's sub-kind selects, or None (= every variant of
+    the kind's records is the member, e.g. a luminaire line holds only that fixture).  Device
+    sub-kinds share ONE record, so the member is the factory's own ``DEVICE_KINDS`` mapping --
+    imported lazily, only for those rows, so the selection is never a second copy."""
+    fam, sub = _famspec_parts(row)
+    if fam == "device" and sub:
+        from . import factory as _F
+        return _F.DEVICE_KINDS[_F.device_kind(sub)]["model"]
+    return None
+
+
+def facts_tier(kind: Any) -> Tuple[Optional[str], List[Tuple[str, str]], int, Optional[str]]:
+    """(tier, records, fact_fields, model) for THE MEMBER a kind builds: ``fact`` when the variant(s)
+    the kind selects carry at least one fact-tier field, ``assumed`` when a record is held but
+    every one of the member's values is search-summary / assumed, None when no record is held.
+    Counted from the records' own ``field_provenance`` (``vendors.record_tier``).  ``kind``
+    is a key or a :class:`Kind` row."""
+    from . import vendors as _V
+    row = kind if isinstance(kind, Kind) else _BY_KEY[kind]
+    records = _V.records_for_kind(row.key)
     if not records:
-        return None, []
-    facts = sum(_C.provenance_report(v, ln)["fields_fact"] for v, ln in records)
-    return ("fact" if facts else "assumed"), records
+        return None, [], 0, None
+    model = _member_model(row)
+    facts = sum(_V.record_tier(v, ln, model=model)["fields_fact"] for v, ln in records)
+    return ("fact" if facts else "assumed"), records, facts, model
 
 
 def _mechanism_available(row: Kind, mech: str, strict: bool) -> Tuple[bool, str]:
     kind, arg = _mech(mech)
     if kind == "famspec":
-        tier, records = facts_tier(row.key)
+        tier, records, n_fact, model = facts_tier(row)
         if not records:
             return False, f"no catalog record is held for {row.key!r} (rvt.famgen.vendors)"
         if strict:
@@ -431,10 +462,12 @@ def _mechanism_available(row: Kind, mech: str, strict: bool) -> Tuple[bool, str]
             if _import_attr(_FS.constructor_name(arg.partition("/")[0])) is None:
                 return False, f"constructor for famspec kind {arg!r} is not importable"
         recs = ", ".join(f"{v}/{ln}" for v, ln in records)
+        member = f"variant {model} carries" if model else (
+            "the record carries" if len(records) == 1 else "the records carry")
         if tier == "fact":
-            return True, f"catalog lane from {recs} (record carries fact-tier fields)"
-        return True, (f"catalog lane from {recs} -- a record with NO fact-tier field: its "
-                      f"values are search-summary `assumed`, and the family says so")
+            return True, f"catalog lane from {recs} ({member} {n_fact} fact-tier fields)"
+        return True, (f"catalog lane from {recs} -- {member} NO fact-tier field: the values "
+                      f"are search-summary `assumed`, and the family says so")
     if kind == "archetype":
         reg = archetype_registry()
         if reg is None:
@@ -442,6 +475,10 @@ def _mechanism_available(row: Kind, mech: str, strict: bool) -> Tuple[bool, str]
                            "build -- the kind is known but cannot be generated here yet")
         if arg not in reg:
             return False, f"archetype {arg!r} is not in the registry on this build"
+        cat = getattr(reg[arg], "category", row.category)
+        if cat != row.category:
+            return False, (f"archetype {arg!r} builds category {cat!r}, the row says "
+                           f"{row.category!r}")
         return True, f"archetype lane ({arg}) at the registry's nominal sizes, overridable"
     if kind == "house":
         mod, _, fn = arg.rpartition(":")
@@ -498,11 +535,13 @@ def describe(text: Any) -> Dict[str, Any]:
               "category_status": status, "category_detail": detail, "available": ok,
               "availability": why, "standards_count": n_std})
     head = f"{row.label}: {row.revit_category}"
+    # pending/conflict rows already lead with the category finding (why == detail); an
+    # inferred id is caveated whichever way availability went
+    caveat = f" [category id {status}: {detail}]" if status == "inferred" else ""
     if ok:
-        caveat = "" if status == "confirmed" else f" [category id {status}: {detail}]"
         d["line"] = f"{head}; {why}; {n_std} standard parameters{caveat}"
     else:
-        d["line"] = f"{head}; NOT buildable here -- {why}"
+        d["line"] = f"{head}; NOT buildable here -- {why}{caveat}"
     return d
 
 
@@ -516,7 +555,7 @@ def table() -> Dict[str, Any]:
             "by_category_status": {s: [r["key"] for r in rows if r["category_status"] == s]
                                    for s in ("confirmed", "inferred", "conflict", "pending")},
             "available": [r["key"] for r in rows if r["available"]],
-            "archetype_registry": None if reg is None else list(reg)}
+            "archetype_registry": None if reg is None else sorted(reg)}
 
 
 # --------------------------------------------------------------------------- the gate
@@ -555,15 +594,26 @@ def check_row(row: Kind) -> List[str]:
             continue
         if kind == "famspec":
             fam, _, sub = arg.partition("/")
+            bad = None
             if fam not in _FS.CATALOG_KINDS:
-                problems.append(f"{tag}: famspec kind {fam!r} not in {_FS.CATALOG_KINDS}")
+                bad = f"famspec kind {fam!r} not in {_FS.CATALOG_KINDS}"
             elif bool(sub) != (fam in _FS.OWN_KIND_FIELD):
-                problems.append(f"{tag}: famspec kind {fam!r} "
-                                f"{'needs' if fam in _FS.OWN_KIND_FIELD else 'takes no'} sub-kind")
+                bad = f"famspec kind {fam!r} {'needs' if fam in _FS.OWN_KIND_FIELD else 'takes no'} sub-kind"
+            elif sub and sub not in _sub_kinds(fam):
+                bad = f"famspec sub-kind {sub!r} is not one make_{fam} knows {sorted(_sub_kinds(fam))}"
+            if bad:
+                problems.append(f"{tag}: {bad}")
+                continue
         ok, why = _mechanism_available(row, mech, strict=True)
-        if not ok and kind != "archetype":            # an absent registry is #674, not a lie
-            problems.append(f"{tag}: {why}")
+        if not ok and not (kind == "archetype" and archetype_registry() is None):
+            problems.append(f"{tag}: {why}")          # an ABSENT registry is #674, not a lie
     return problems
+
+
+def _sub_kinds(fam: str) -> Tuple[str, ...]:
+    """The sub-kinds a famspec constructor accepts -- read from the factory's own tables."""
+    from . import factory as _F
+    return tuple({"device": _F.DEVICE_KINDS, "luminaire": _F._LUM_KINDS}.get(fam, {}))
 
 
 def check() -> List[str]:

@@ -334,13 +334,18 @@ def records_for_kind(kind: str) -> List[Tuple[str, str]]:
     return [(v.key, ln.key) for v, ln in lines_for_kind(kind) if ln.record]
 
 
-def record_tier(vendor: str, line: str) -> Dict[str, Any]:
-    """What a held record is worth, from the catalog's own provenance report: ``tier`` is
-    ``fact`` when at least one field is fact-tier, else ``assumed`` (search-summary values)."""
+def record_tier(vendor: str, line: str, *, model: Optional[str] = None) -> Dict[str, Any]:
+    """What a held record is worth, counted from its own ``field_provenance`` flags: ``tier``
+    is ``fact`` when at least one field is fact-tier, else ``assumed`` (search-summary values).
+    ``model`` narrows the count to that one variant (the member a device sub-kind selects);
+    None counts every variant of the line."""
     from . import catalog as _C
-    rep = _C.provenance_report(vendor, line)
-    n_fact, n_assumed = rep["fields_fact"], rep["fields_assumed"]
-    return {"vendor": vendor, "line": line, "fields_fact": n_fact, "fields_assumed": n_assumed,
+    variants = [x for x in _C.load_line(vendor, line).get("variants") or []
+                if model is None or x.get("model") == model]
+    flags = [f for x in variants for f in (x.get("field_provenance") or {}).values()]
+    n_fact, n_assumed = flags.count("fact"), flags.count("assumed")
+    return {"vendor": vendor, "line": line, "model": model, "variants": len(variants),
+            "fields_fact": n_fact, "fields_assumed": n_assumed,
             "tier": "fact" if n_fact else "assumed"}
 
 
@@ -358,6 +363,26 @@ def _held_phrase(v: Vendor, ln: Line) -> str:
         return f"{ln.label} (sourced facts: {t['fields_fact']} fact-tier fields)"
     return (f"{ln.label} (a catalog record with NO fact-tier field: {t['fields_assumed']} "
             f"search-summary `assumed` values -- the family says so)")
+
+
+def _buildability(v: Vendor, lines: List[Line], kind: Optional[str]) -> str:
+    """What the engine can do here for the kinds these NAMED-ONLY lines cover -- computed from
+    the taxonomy row's availability, never asserted; and never phrased as building this maker's
+    product from someone else's record (the silent substitution steer #685 forbids)."""
+    keys = [kind] if kind else sorted({k for ln in lines for k in ln.kinds})
+    parts = []
+    for k in keys:
+        row = TX.get(k)
+        ok, why = TX.builder_available(row)
+        if not ok:
+            parts.append(f"{row.label}: not buildable here yet -- {why}")
+        elif row.lane == "catalog":
+            parts.append(f"{row.label}: buildable here only from the records held ({why}) -- "
+                         f"never presented as a {v.name} product")
+        else:
+            parts.append(f"{row.label}: generated without member data and says so ({why}) -- "
+                         f"not a {v.name} model")
+    return " ".join(parts)
 
 
 def describe(text: Any, kind: Optional[str] = None) -> Dict[str, Any]:
@@ -379,9 +404,8 @@ def describe(text: Any, kind: Optional[str] = None) -> Dict[str, Any]:
                 (f"; known by name only (no member data): {', '.join(ln.label for ln in named)}"
                  if named else ""))
     elif lines:
-        line = (f"{v.name}{what}: known lines {', '.join(ln.label for ln in lines)} -- no "
-                f"member data is held, so a family is generated at nominal/standard "
-                f"dimensions and says so; supply a spec sheet for true dimensions")
+        line = (f"{v.name}{what}: known by name only -- {', '.join(ln.label for ln in lines)}; "
+                f"no member data is held for any of them. " + _buildability(v, lines, kind))
     else:
         line = f"{v.name} makes nothing the directory lists{what}"
     return {"known": True, "key": v.key, "name": v.name, "parent": v.parent,
@@ -422,12 +446,26 @@ def check_line(v: Vendor, ln: Line) -> List[str]:
     if (data.get("vendor"), data.get("line")) != (v.key, ln.key):
         problems.append(f"{tag}: record names {data.get('vendor')}/{data.get('line')}")
     cat = data.get("category")
+    ost_label = _ost_label(data.get("revit_category"))
     for row in rows:
         fams = [TX._mech(m)[1].partition("/")[0] for m in row.via if m.startswith("famspec:")]
         if cat not in fams:
             problems.append(f"{tag}: record category {cat!r} but kind {row.key!r} builds "
                             f"through famspec {fams or 'nothing'} (lane {row.lane})")
+        if ost_label and row.category and ost_label != row.revit_category:
+            problems.append(f"{tag}: record is {data.get('revit_category')} ({ost_label}) but "
+                            f"kind {row.key!r} is filed under {row.revit_category!r}")
     return problems
+
+
+def _ost_label(ost_name: Any) -> Optional[str]:
+    """'OST_ElectricalFixtures' -> 'Electrical Fixtures' via rvt.inventory's tables."""
+    from .. import inventory as _INV
+    for tab in (_INV.BUILTIN_CATEGORIES_VERIFIED, _INV.BUILTIN_CATEGORIES_ASSUMED):
+        for _cid, (ost, label) in tab.items():
+            if ost == ost_name:
+                return label
+    return None
 
 
 def check() -> List[str]:

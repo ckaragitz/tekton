@@ -28,10 +28,15 @@ Stream index: `docs/inbox/mep-taxonomy.md`. Issue #692 (P0, from steer #685). Br
    family templates; the day it merges the 13 rows flip with no change here — the tests pin the
    mechanism (a monkeypatched verified table turns `panelboard` into a conflict and back), not
    today's counts.
-2. **Facts tier** — a catalog row's worth comes from `catalog.provenance_report`: `fact` when a
-   held record carries at least one fact-tier field, `assumed` when every value is
-   search-summary. Finding: `lithonia/ldn6-led-downlight` holds **0 fact-tier fields** (11
-   `assumed`), so `describe("downlight")` says "a record with NO fact-tier field: its values are
+2. **Facts tier, per member** — a catalog row's worth is counted from the `field_provenance`
+   flags of the variant(s) the kind actually builds (`vendors.record_tier(vendor, line,
+   model=)`; a device sub-kind selects its variant through the factory's own `DEVICE_KINDS`,
+   imported lazily for those four rows only): `fact` when that member carries at least one
+   fact-tier field, `assumed` when every one of its values is search-summary. Findings:
+   `lithonia/ldn6-led-downlight` holds **0 fact-tier fields** (11 `assumed`); in
+   `generic/devices-and-mounting` all 4 fact fields sit on `box-4in-square`, so the two
+   receptacles and the switch are `assumed`-tier members while the junction box is `fact` —
+   `describe()` says "variant duplex-receptacle-5-15R carries NO fact-tier field: the values are
    search-summary `assumed`, and the family says so" instead of "sourced facts".
 3. **Availability** — the first mechanism in `via` that is available wins; `describe()` probes
    cheaply (`importlib.util.find_spec`, registry probe, record presence) so a surface can describe
@@ -47,23 +52,28 @@ Stream index: `docs/inbox/mep-taxonomy.md`. Issue #692 (P0, from steer #685). Br
   0 problems`; `standards --check` → `27 categories, 0 problems` (unchanged, now via `_gate`).
 - Taxonomy: 82 rows — electrical 25, lighting 12, fire_alarm 6, technology 7, mechanical 17
   (2 pending), plumbing 13 (2 pending), fire_protection 2 (1 pending); lanes catalog 8,
-  archetype 5, none 69. **Buildable on `main` today (9):** panelboard, transformer_dry,
-  receptacle, receptacle_20a, light_switch, junction_box, troffer (fact-tier records), downlight
-  (assumed-only record, said so), switchboard (house model, "prompt-default or given dimensions —
-  no manufacturer member"). With a #674-shaped registry present, wireway and strut_channel light
-  up; cable_tray and conduit stay blocked by their category conflict until #698.
+  archetype 5, none 69. **Buildable on `main` today (9):** panelboard (138 fact fields across
+  its two records), transformer_dry (155), junction_box (4), troffer (11) at `fact` tier;
+  receptacle, receptacle_20a, light_switch, downlight from `assumed`-only members (said so);
+  switchboard as the house model ("prompt-default or given dimensions — no manufacturer member").
+  With a #674-shaped registry present, wireway and strut_channel light up; cable_tray and conduit
+  stay blocked by their category conflict until #698.
 - Vendors: 50 makers, 118 lines, 59 of 82 kinds have at least one maker listed; records held for
-  exactly the 7 catalog lines, tiers: 6 `fact` (Eaton ×2, Square D, HPS, generic devices,
-  Lithonia BLT) + 1 `assumed` (Lithonia LDN6).
+  exactly the 7 catalog lines (line-level tiers: 6 `fact` — Eaton ×2, Square D, HPS, generic
+  devices, Lithonia BLT — and 1 `assumed`, Lithonia LDN6). A maker with no record never reads as
+  if its product were built: `describe("siemens", kind="panelboard")` → "known by name only …
+  Panelboard: buildable here only from the records held (eaton/…, square-d/…) — never presented
+  as a Siemens product"; `describe("carrier", kind="chiller")` → "Chiller: not buildable here yet
+  — no lane builds it".
 - Import weight (efficiency review, `-X importtime`, warm stdlib): taxonomy 2.1 ms, vendors
   1.9 ms; nothing from standards/skeleton/catalog/factory/ifc is imported at module load.
-- Tests: `tests/test_taxonomy_692.py` 38 passed / 0.52 s (CLI verbs in-process via
-  `make_family.main`, one real-process smoke); neighbours `test_famgen_standards` 80,
-  `test_famgen_catalog` 28, `test_plugin_sync` + `test_bootstrap` 16, `test_records_layout` — 129
-  passed together. `sync_plugin.py --check` clean; `validate_plugin.py` PASS; portable paths ok
-  (3133). `/verify`: `make_family.py device --kind switch` still writes a 229,376-byte `.rfa`,
-  provenance ok on all 11 checks, validator `VALID (no errors)` in `--family` mode (a fact about
-  the file, not a claim that Revit opens it).
+- Tests: `tests/test_taxonomy_692.py` 44 passed / 0.5 s (CLI verbs in-process via
+  `make_family.main`, one real-process smoke); neighbours `test_famgen_standards`,
+  `test_famgen_catalog`, `test_famgen_factory`, `test_plugin_sync`, `test_bootstrap`,
+  `test_records_layout` — 186 passed, 5 skipped together. `sync_plugin.py --check` clean; `validate_plugin.py` PASS; portable paths ok
+  (3133). `/verify`: `make_family.py device --kind switch` and `--kind duplex-receptacle` still write
+  their `.rfa` (229,376 bytes each), provenance ok on all 11 checks, validator `VALID (no errors)`
+  in `--family` mode (a fact about the file, not a claim that Revit opens it).
 
 ## Review passes and what they changed
 
@@ -80,6 +90,19 @@ became the computed category status above; six of the prompt grammar's kind name
 (all but `luminaire`, a family rather than a kind — pinned by a test); tests pin mechanisms with
 negative cases (`check_row` / `check_line` on broken rows) instead of content counts, and the
 "no numbers" guard uses `typing.get_type_hints`.
+
+The independent review of head `a75e8e0` (🛑, PR #735 comment) found six honesty gaps, all fixed
+on the next head: the vendor line for a maker with no record asserted "a family is generated"
+even for kinds nothing builds → now computed per kind from `taxonomy.builder_available` (and
+never phrased as building that maker's product from another maker's record); `check_row`
+forgave every archetype failure → it forgives only an ABSENT registry, and with a registry
+present it checks the key exists and its `category` matches the row; famspec sub-kinds were
+checked for presence, not value → validated against the factory's `DEVICE_KINDS` /
+`_LUM_KINDS`, and a record's `revit_category` (OST name) must be the row's intended label;
+the facts tier was per line → per member (above); `category_status` now also hints where the
+published-constant table puts the label, and an `inferred` id is caveated whether or not the
+kind builds; `taxonomy --check` runs the gate before touching `table()` so a broken row yields
+its message, not a traceback.
 
 ## What this does NOT do yet (slice 2 = DONE 3 relay + DONE 5)
 

@@ -40,9 +40,10 @@ def make_family():
     return mod
 
 
-def _fake_registry(monkeypatch, keys):
+def _fake_registry(monkeypatch, categories):
+    """A #674-shaped registry: key -> object with a ``category``."""
     fake = types.ModuleType("rvt.famgen.archetypes")
-    fake.ARCHETYPES = {k: object() for k in keys}
+    fake.ARCHETYPES = {k: types.SimpleNamespace(key=k, category=c) for k, c in categories.items()}
     monkeypatch.setitem(sys.modules, "rvt.famgen.archetypes", fake)
 
 
@@ -61,6 +62,8 @@ def test_both_gates_are_clean_on_the_real_tables():
     (TX._k("x", "X", "electrical", "electrical_equipment", ["famspec:switchgear"]), "not in"),
     (TX._k("x", "X", "electrical", "electrical_equipment", ["famspec:device"]), "needs sub-kind"),
     (TX._k("x", "X", "electrical", "electrical_equipment", ["famspec:panelboard/extra"]), "takes no"),
+    (TX._k("x", "X", "electrical", "electrical_fixture", ["famspec:device/teleporter"]), "sub-kind"),
+    (TX._k("x", "X", "lighting", "lighting_fixture", ["famspec:luminaire/no-such-fixture"]), "sub-kind"),
     (TX._k("x", "X", "electrical", "electrical_equipment", ["famspec:transformer"]), "no catalog record"),
     (TX._k("x", "X", "electrical", "electrical_equipment", ["house:rvt.nowhere:fn"]), "not on this build"),
     (TX._k("x", "X", "electrical", "electrical_equipment", ["teleport:now"]), "malformed"),
@@ -68,6 +71,16 @@ def test_both_gates_are_clean_on_the_real_tables():
 def test_taxonomy_gate_fires_on_a_broken_row(row, needle):
     problems = TX.check_row(row)
     assert any(needle in p for p in problems), problems
+
+
+def test_taxonomy_gate_checks_archetype_keys_once_the_registry_exists(monkeypatch):
+    row = TX._k("x", "X", "electrical", "electrical_equipment", ["archetype:hoverboard"])
+    monkeypatch.setitem(sys.modules, "rvt.famgen.archetypes", None)
+    assert TX.check_row(row) == []                                   # absent registry: #674, not a lie
+    _fake_registry(monkeypatch, {"wireway": "electrical_equipment"})
+    assert any("not in the registry" in p for p in TX.check_row(row))
+    _fake_registry(monkeypatch, {"hoverboard": "generic_model"})     # key exists, wrong category
+    assert any("builds category" in p for p in TX.check_row(row))
 
 
 def test_vendor_gate_fires_on_a_broken_line():
@@ -79,6 +92,8 @@ def test_vendor_gate_fires_on_a_broken_line():
     # a real record claimed for a kind that does not build through its category
     assert any("record category" in p
                for p in V.check_line(v, V._L("pow-r-line-panelboards", "L", ["chiller"], record=True)))
+    assert any("filed under" in p                                    # OST_ElectricalEquipment vs a fixture
+               for p in V.check_line(v, V._L("pow-r-line-panelboards", "L", ["receptacle"], record=True)))
 
 
 def test_alias_index_reports_a_clash():
@@ -112,6 +127,12 @@ def test_category_status_follows_the_verified_evidence(monkeypatch):
     assert not ok and why == detail                    # a conflicting row never claims to build
 
 
+def test_an_inferred_id_is_caveated_whether_or_not_the_kind_builds():
+    for row in TX.kinds():
+        if TX.category_status(row)[0] == "inferred":
+            assert "[category id inferred:" in TX.describe(row.key)["line"], row.key
+
+
 def test_conflict_and_pending_rows_are_never_available():
     t = TX.table()
     blocked = set(t["by_category_status"]["conflict"]) | set(t["by_category_status"]["pending"])
@@ -129,10 +150,23 @@ def test_catalog_rows_are_exactly_what_the_famspec_lane_builds():
     for row in cat_rows:
         ok, why = TX.builder_available(row, strict=True)
         assert ok, (row.key, why)
-        tier, records = TX.facts_tier(row.key)
-        assert records and tier in ("fact", "assumed")
-        facts = sum(catalog.provenance_report(v, ln)["fields_fact"] for v, ln in records)
-        assert (tier == "fact") == (facts > 0), row.key
+        tier, records, n_fact, model = TX.facts_tier(row.key)
+        assert records and tier in ("fact", "assumed") and (tier == "fact") == (n_fact > 0)
+        # counted on the MEMBER: the variant a device sub-kind selects, else the whole record
+        flags = [f for v, ln in records for x in catalog.load_line(v, ln)["variants"]
+                 if model in (None, x["model"]) for f in x["field_provenance"].values()]
+        assert flags and n_fact == flags.count("fact"), row.key
+
+
+def test_a_device_member_with_no_fact_field_is_not_called_fact():
+    """The generic device record holds its 4 fact fields on the 4-in box; the receptacle
+    variants hold none -- the tier follows the member, not the line."""
+    per_model = {x["model"]: list(x["field_provenance"].values()).count("fact")
+                 for x in catalog.load_line("generic", "devices-and-mounting")["variants"]}
+    for row in (r for r in TX.kinds() if any(m.startswith("famspec:device/") for m in r.via)):
+        tier, _recs, n_fact, model = TX.facts_tier(row.key)
+        assert model in per_model and n_fact == per_model[model], row.key
+        assert (tier == "fact") == (per_model[model] > 0), row.key
 
 
 def test_lane_none_row_says_which_lane_is_missing():
@@ -153,7 +187,7 @@ def test_archetype_rows_degrade_without_the_registry_and_light_up_with_it(monkey
         ok, why = TX.builder_available(row)
         assert not ok and "#674" in why, (key, why)
     assert TX.check() == []                                               # absence is not a lie
-    _fake_registry(monkeypatch, arch)
+    _fake_registry(monkeypatch, {k: r.category for k, r in arch.items()})
     assert set(TX.archetype_registry()) == set(arch)
     for key, row in only.items():
         ok, why = TX.builder_available(row)
@@ -212,6 +246,22 @@ def test_lines_for_kind_puts_records_first_and_names_the_rest():
     d = V.describe(named_only.name)
     assert d["known"] and d["records"] == [] and "no member data is held" in d["line"]
     assert V.describe("acme corp")["known"] is False
+
+
+def test_a_named_only_line_never_claims_what_the_taxonomy_cannot_build():
+    """The vendor line is computed from the kind's availability (review of #735)."""
+    for v in V.vendors():
+        for ln in v.lines:
+            if ln.record:
+                continue
+            for k in ln.kinds:
+                ok, why = TX.builder_available(TX.get(k))
+                line = V.describe(v.key, kind=k)["line"]
+                assert why in line, (v.key, k)
+                if not ok:
+                    assert "not buildable here yet" in line and "generated" not in line, (v.key, k)
+                elif TX.get(k).lane == "catalog":
+                    assert f"never presented as a {v.name} product" in line, (v.key, k)
 
 
 def test_an_assumed_only_record_is_reported_as_such():

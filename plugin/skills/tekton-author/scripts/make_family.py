@@ -257,12 +257,13 @@ def cmd_taxonomy(ns) -> int:
     free text narrows to one row; --discipline filters; --check runs the gate."""
     from rvt.famgen import taxonomy as TX
     if ns.check:
-        t = TX.table()
-        conflicts = t["by_category_status"]["conflict"]
-        if conflicts:
-            print(f"warning: {len(conflicts)} kinds sit on category ids Revit-written files "
-                  f"contradict ({TX.RESOLVER_ISSUE}): {', '.join(conflicts)}")
-        return _gate(TX.check(), f"{len(TX.kinds())} kinds")
+        problems = TX.check()
+        if not problems:                     # the table is well-formed: say what #516 blocks
+            conflicts = TX.table()["by_category_status"]["conflict"]
+            if conflicts:
+                print(f"warning: {len(conflicts)} kinds sit on category ids Revit-written "
+                      f"files contradict ({TX.RESOLVER_ISSUE}): {', '.join(conflicts)}")
+        return _gate(problems, f"{len(TX.kinds())} kinds")
     if ns.kind:
         d = TX.describe(ns.kind)
         print(json.dumps(d, indent=1, default=str) if ns.json else d["line"])
