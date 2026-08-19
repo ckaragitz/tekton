@@ -1,0 +1,2 @@
+# #692 slice 1: MEP taxonomy + vendor directory tables and their --check gates
+tests/test_taxonomy_692.py
