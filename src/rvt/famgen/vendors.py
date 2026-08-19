@@ -367,22 +367,23 @@ def _held_phrase(v: Vendor, ln: Line) -> str:
 
 def _buildability(v: Vendor, lines: List[Line], kind: Optional[str]) -> str:
     """What the engine can do here for the kinds these NAMED-ONLY lines cover -- computed from
-    the taxonomy row's availability, never asserted; and never phrased as building this maker's
-    product from someone else's record (the silent substitution steer #685 forbids)."""
+    the taxonomy row's availability, never asserted; never phrased as building this maker's
+    product from someone else's record (the silent substitution steer #685 forbids); and
+    carrying the taxonomy's own category caveat."""
     keys = [kind] if kind else sorted({k for ln in lines for k in ln.kinds})
     parts = []
     for k in keys:
         row = TX.get(k)
         ok, why = TX.builder_available(row)
         if not ok:
-            parts.append(f"{row.label}: not buildable here yet -- {why}")
+            parts.append(f"{row.label}: not buildable here yet -- {why}{TX.caveat(row)}")
         elif row.lane == "catalog":
             parts.append(f"{row.label}: buildable here only from the records held ({why}) -- "
-                         f"never presented as a {v.name} product")
+                         f"never presented as a product of {v.name}{TX.caveat(row)}")
         else:
             parts.append(f"{row.label}: generated without member data and says so ({why}) -- "
-                         f"not a {v.name} model")
-    return " ".join(parts)
+                         f"not a model of {v.name}{TX.caveat(row)}")
+    return "; ".join(parts)
 
 
 def describe(text: Any, kind: Optional[str] = None) -> Dict[str, Any]:

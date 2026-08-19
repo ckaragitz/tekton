@@ -73,6 +73,15 @@ def test_taxonomy_gate_fires_on_a_broken_row(row, needle):
     assert any(needle in p for p in problems), problems
 
 
+def test_taxonomy_gate_reconciles_directory_records_with_the_constructor():
+    """describe() must never report the tier of a record the build does not read (#735 review)."""
+    import dataclasses
+    swapped = dataclasses.replace(TX.get("downlight"), via=("famspec:luminaire/recessed-troffer",))
+    assert any("reads" in p for p in TX.check_row(swapped)), TX.check_row(swapped)
+    wrong_fam = dataclasses.replace(TX.get("panelboard"), via=("famspec:transformer",))
+    assert any("record" in p for p in TX.check_row(wrong_fam)), TX.check_row(wrong_fam)
+
+
 def test_taxonomy_gate_checks_archetype_keys_once_the_registry_exists(monkeypatch):
     row = TX._k("x", "X", "electrical", "electrical_equipment", ["archetype:hoverboard"])
     monkeypatch.setitem(sys.modules, "rvt.famgen.archetypes", None)
@@ -80,6 +89,10 @@ def test_taxonomy_gate_checks_archetype_keys_once_the_registry_exists(monkeypatc
     _fake_registry(monkeypatch, {"wireway": "electrical_equipment"})
     assert any("not in the registry" in p for p in TX.check_row(row))
     _fake_registry(monkeypatch, {"hoverboard": "generic_model"})     # key exists, wrong category
+    assert any("builds category" in p for p in TX.check_row(row))
+    shapeless = types.ModuleType("rvt.famgen.archetypes")            # entry without .category
+    shapeless.ARCHETYPES = {"hoverboard": {"category": "electrical_equipment"}}
+    monkeypatch.setitem(sys.modules, "rvt.famgen.archetypes", shapeless)
     assert any("builds category" in p for p in TX.check_row(row))
 
 
@@ -205,7 +218,7 @@ def test_the_house_switchboard_states_its_tier_honestly():
 
 @pytest.mark.parametrize("text, key", [
     ("MSB", "switchboard"), ("xfmr", "transformer_dry"), ("Dry-Type Transformer", "transformer_dry"),
-    ("J-Box", "junction_box"), ("2x4 troffer", "troffer"), ("RTU", "rooftop_unit"),
+    ("J-Box", "junction_box"), ("LED troffer", "troffer"), ("RTU", "rooftop_unit"),
     ("5-20R", "receptacle_20a"), ("diffuser", "air_terminal"), ("FACP", "fire_alarm_control_panel"),
 ])
 def test_resolve_folds_case_space_and_hyphen(text, key):
@@ -261,7 +274,8 @@ def test_a_named_only_line_never_claims_what_the_taxonomy_cannot_build():
                 if not ok:
                     assert "not buildable here yet" in line and "generated" not in line, (v.key, k)
                 elif TX.get(k).lane == "catalog":
-                    assert f"never presented as a {v.name} product" in line, (v.key, k)
+                    assert f"never presented as a product of {v.name}" in line, (v.key, k)
+                assert TX.caveat(TX.get(k)) in line, (v.key, k)     # the category caveat travels
 
 
 def test_an_assumed_only_record_is_reported_as_such():
@@ -293,8 +307,10 @@ def test_taxonomy_verb_in_process(make_family, capsys):
     capsys.readouterr()
 
 
-def test_vendors_verb_in_process(make_family, capsys):
-    assert make_family.main(["vendors", "--check"]) == 0
+def test_vendors_verb_in_process(make_family, capsys, monkeypatch):
+    with monkeypatch.context() as m:                 # the gate speaks before any record is loaded
+        m.setattr(V, "table", lambda: (_ for _ in ()).throw(AssertionError("table() before the gate")))
+        assert make_family.main(["vendors", "--check"]) == 0
     assert capsys.readouterr().out.rstrip().endswith("0 problems")
     assert make_family.main(["vendors", "--json"]) == 0
     assert json.loads(capsys.readouterr().out)["record_count"] == len(catalog.list_lines())

@@ -40,7 +40,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tupl
 
 __all__ = ["Kind", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LABEL", "kinds", "keys", "get",
            "resolve", "by_discipline", "archetype_registry", "category_status", "facts_tier",
-           "builder_available", "describe", "table", "check_row", "check"]
+           "builder_available", "caveat", "describe", "table", "check_row", "check"]
 
 LANES = ("catalog", "archetype", "none")
 MECHANISMS = ("famspec", "archetype", "house")
@@ -175,8 +175,7 @@ _ROWS: Tuple[Kind, ...] = (
     # ---------------------------------------------------------------- lighting
     _k("troffer", "Recessed LED troffer", "lighting", "lighting_fixture",
        ["famspec:luminaire/recessed-troffer"],
-       aliases=("2x4 troffer", "2x2 troffer", "recessed troffer", "lay-in fixture", "lay-in",
-                "recessed fixture")),
+       aliases=("recessed troffer", "led troffer", "lay-in fixture", "lay-in", "recessed fixture")),
     _k("downlight", "Recessed LED downlight", "lighting", "lighting_fixture",
        ["famspec:luminaire/downlight"],
        aliases=("can light", "recessed downlight", "recessed can", "pot light")),
@@ -475,7 +474,7 @@ def _mechanism_available(row: Kind, mech: str, strict: bool) -> Tuple[bool, str]
                            "build -- the kind is known but cannot be generated here yet")
         if arg not in reg:
             return False, f"archetype {arg!r} is not in the registry on this build"
-        cat = getattr(reg[arg], "category", row.category)
+        cat = getattr(reg[arg], "category", None)      # a shape without .category is drift too
         if cat != row.category:
             return False, (f"archetype {arg!r} builds category {cat!r}, the row says "
                            f"{row.category!r}")
@@ -518,6 +517,13 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
     return False, "; ".join(whys)
 
 
+def caveat(row: Kind) -> str:
+    """The bracketed category caveat every surface appends for an [INFERRED] id (pending and
+    conflicting rows lead with their finding instead, confirmed ones need none)."""
+    status, detail = category_status(row)
+    return f" [category id {status}: {detail}]" if status == "inferred" else ""
+
+
 def describe(text: Any) -> Dict[str, Any]:
     """One kind as a JSON-able dict with availability computed live and the ONE honest line
     a surface relays (``line``).  Unknown text -> ``{"known": False, "line": ...}``."""
@@ -535,13 +541,10 @@ def describe(text: Any) -> Dict[str, Any]:
               "category_status": status, "category_detail": detail, "available": ok,
               "availability": why, "standards_count": n_std})
     head = f"{row.label}: {row.revit_category}"
-    # pending/conflict rows already lead with the category finding (why == detail); an
-    # inferred id is caveated whichever way availability went
-    caveat = f" [category id {status}: {detail}]" if status == "inferred" else ""
     if ok:
-        d["line"] = f"{head}; {why}; {n_std} standard parameters{caveat}"
+        d["line"] = f"{head}; {why}; {n_std} standard parameters{caveat(row)}"
     else:
-        d["line"] = f"{head}; NOT buildable here -- {why}{caveat}"
+        d["line"] = f"{head}; NOT buildable here -- {why}{caveat(row)}"
     return d
 
 
@@ -604,6 +607,7 @@ def check_row(row: Kind) -> List[str]:
             if bad:
                 problems.append(f"{tag}: {bad}")
                 continue
+            problems.extend(f"{tag}: {p}" for p in _record_problems(row, fam, sub or None))
         ok, why = _mechanism_available(row, mech, strict=True)
         if not ok and not (kind == "archetype" and archetype_registry() is None):
             problems.append(f"{tag}: {why}")          # an ABSENT registry is #674, not a lie
@@ -614,6 +618,39 @@ def _sub_kinds(fam: str) -> Tuple[str, ...]:
     """The sub-kinds a famspec constructor accepts -- read from the factory's own tables."""
     from . import factory as _F
     return tuple({"device": _F.DEVICE_KINDS, "luminaire": _F._LUM_KINDS}.get(fam, {}))
+
+
+def _constructor_records(fam: str, sub: Optional[str]) -> set:
+    """The (vendor, line) records the famspec constructor for ``fam``/``sub`` actually reads,
+    from the factory's own registries (strict path only: the factory is already imported)."""
+    from . import factory as _F
+    if fam == "panelboard":
+        return set(_F._PANEL_LINES.values())
+    if fam == "transformer":
+        return set(_F._XFMR_LINES.values())
+    if fam == "luminaire":
+        return {_F._LUM_KINDS[sub]} if sub in _F._LUM_KINDS else set()
+    if fam == "device":
+        return {_F._DEVICE_LINE}
+    return set()
+
+
+def _record_problems(row: Kind, fam: str, sub: Optional[str]) -> List[str]:
+    """The directory's records for the kind must be exactly the ones the constructor reads,
+    and each must be a record OF that famspec kind -- else describe() would report the tier of
+    a record the build never touches (review of #735)."""
+    from . import catalog as _C, vendors as _V
+    held = set(_V.records_for_kind(row.key))
+    reads = _constructor_records(fam, sub)
+    out = []
+    if held != reads:
+        out.append(f"directory records {sorted(held)} != the records make_{fam}"
+                   f"{'/' + sub if sub else ''} reads {sorted(reads)}")
+    for v, ln in sorted(held):
+        cat = _C.load_line(v, ln).get("category")
+        if cat != fam:
+            out.append(f"record {v}/{ln} is a {cat!r} record, the row builds through {fam!r}")
+    return out
 
 
 def check() -> List[str]:

@@ -295,10 +295,11 @@ def cmd_vendors(ns) -> int:
     once; the record's worth -- fact-tier fields or search-summary only -- is
     computed from the catalog's provenance report)."""
     from rvt.famgen import vendors as V
-    if ns.check:
-        t = V.table()
-        return _gate(V.check(), f"{t['count']} vendors, {t['lines']} lines, "
-                                f"{t['record_count']} with a catalog record")
+    if ns.check:                         # the gate first: table() would load every record
+        vs = V.vendors()
+        n_lines = sum(len(v.lines) for v in vs)
+        n_rec = sum(1 for v in vs for ln in v.lines if ln.record)
+        return _gate(V.check(), f"{len(vs)} vendors, {n_lines} lines, {n_rec} with a catalog record")
     if ns.vendor:
         d = V.describe(ns.vendor, kind=ns.kind)
         print(json.dumps(d, indent=1, default=str) if ns.json else d["line"])
