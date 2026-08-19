@@ -245,6 +245,85 @@ def cmd_standards(ns) -> int:
     return 0
 
 
+def cmd_taxonomy(ns) -> int:
+    """The MEP TAXONOMY (#692): every equipment kind the product speaks about ->
+    its Revit category, its standard-parameter table, and the lane that can build
+    it here today (catalog = fact, archetype = nominal, none = say so).  A kind or
+    free text narrows to one row; --discipline filters; --check runs the gate."""
+    from rvt.famgen import taxonomy as TX
+    if ns.check:
+        problems = TX.check()
+        for line in problems:
+            print(line)
+        print(f"{len(TX.kinds())} kinds, {len(problems)} problems")
+        return 1 if problems else 0
+    if ns.kind:
+        d = TX.describe(ns.kind)
+        print(json.dumps(d, indent=1, default=str) if ns.json else d["line"])
+        return 0 if (d.get("known") or d.get("not_yet")) else 1
+    if ns.json:
+        print(json.dumps(TX.table(), indent=1, default=str))
+        return 0
+    groups = TX.by_discipline(ns.discipline)
+    for disc, rows in groups.items():
+        print(f"== {disc} ({len(rows)})")
+        for row in rows:
+            ok, _why = TX.builder_available(row)
+            print(f"   {row.key:<26} {row.revit_category:<22} {row.lane:<9} "
+                  f"{'BUILDS' if ok else '-':<6} {row.label}")
+    t = TX.table()
+    print(f"{t['count']} kinds; buildable here: {', '.join(t['available']) or 'none'}; "
+          f"archetype registry: {'present' if t['archetype_registry'] is not None else 'absent (#674)'}")
+    if not ns.discipline:
+        print("pending (category not in the resolver yet): " +
+              "; ".join(f"{n['label']} -> {n['revit_category']}" for n in t["not_yet"]))
+    return 0
+
+
+def cmd_vendors(ns) -> int:
+    """The VENDOR DIRECTORY (#692): manufacturer -> product lines -> taxonomy kinds,
+    and whether sourced FACTS are held for the line (never an opinion: --check loads
+    every claimed facts file and confirms every catalog line is claimed exactly once)."""
+    from rvt.famgen import vendors as V
+    if ns.check:
+        problems = V.check()
+        for line in problems:
+            print(line)
+        t = V.table()
+        print(f"{t['count']} vendors, {t['lines']} lines, {t['facts_held_count']} with facts held, "
+              f"{len(problems)} problems")
+        return 1 if problems else 0
+    if ns.vendor:
+        d = V.describe(ns.vendor, kind=ns.kind)
+        print(json.dumps(d, indent=1, default=str) if ns.json else d["line"])
+        return 0 if d.get("known") else 1
+    if ns.kind:
+        pairs = V.lines_for_kind(ns.kind)
+        if ns.json:
+            print(json.dumps([{"vendor": v.key, "line": ln.key, "label": ln.label,
+                                "facts_held": ln.facts_held, "facts": ln.facts}
+                               for v, ln in pairs], indent=1))
+        else:
+            for v, ln in pairs:
+                print(f"   {v.name:<34} {ln.label:<58} {'FACTS: ' + ln.facts if ln.facts_held else '(name only)'}")
+            print(f"{len(pairs)} lines make {ns.kind!r}; "
+                  f"{sum(1 for _, ln in pairs if ln.facts_held)} with sourced facts held")
+        return 0 if pairs else 1
+    if ns.json:
+        print(json.dumps(V.table(), indent=1, default=str))
+        return 0
+    for v in V.vendors():
+        held = [ln for ln in v.lines if ln.facts_held]
+        print(f"== {v.name} ({v.key}){' -- ' + v.parent if v.parent else ''}")
+        for ln in v.lines:
+            print(f"   {ln.key:<26} {'FACTS' if ln.facts_held else '-':<6} {ln.label}  "
+                  f"[{', '.join(ln.kinds)}]")
+    t = V.table()
+    print(f"{t['count']} vendors, {t['lines']} lines, {t['facts_held_count']} with sourced facts held: "
+          + ", ".join(f"{a}/{b}" for a, b in t["facts_held"]))
+    return 0
+
+
 def cmd_provenance(ns) -> int:
     rep = F.provenance_scan(ns.path)
     print(json.dumps(rep, indent=1, default=str))
@@ -402,6 +481,24 @@ def main(argv=None) -> int:
     p.add_argument("--check", action="store_true",
                    help="verify every spec id against the format's own units table")
     p.set_defaults(func=cmd_standards)
+
+    p = sub.add_parser("taxonomy", help="the MEP taxonomy: kind -> category -> standards -> lane (#692)")
+    p.add_argument("kind", nargs="?", default=None,
+                   help="one kind or free text (e.g. transformer_dry, 'MSB', chiller); omitted = the table")
+    p.add_argument("--discipline", choices=None, default=None,
+                   help="filter: electrical, lighting, fire_alarm, technology, mechanical, plumbing, fire_protection")
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--check", action="store_true",
+                   help="the gate: categories resolve, standards tables exist, catalog rows have facts")
+    p.set_defaults(func=cmd_taxonomy)
+
+    p = sub.add_parser("vendors", help="the vendor directory: maker -> lines -> kinds -> facts held (#692)")
+    p.add_argument("vendor", nargs="?", default=None, help="one manufacturer (key, name or alias)")
+    p.add_argument("--kind", default=None, help="narrow to one taxonomy kind (e.g. panelboard)")
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--check", action="store_true",
+                   help="the gate: every facts claim loads, every catalog line is claimed exactly once")
+    p.set_defaults(func=cmd_vendors)
 
     p = sub.add_parser("provenance", help="provenance-scan an existing .rfa")
     p.add_argument("path")
