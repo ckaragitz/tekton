@@ -305,13 +305,18 @@ def cmd_vendors(ns) -> int:
         print(json.dumps(d, indent=1, default=str) if ns.json else d["line"])
         return 0 if d["known"] else 1
     if ns.kind:
+        from rvt.famgen import taxonomy as TX
         pairs = V.lines_for_kind(ns.kind)
+        # a record's worth is counted on the MEMBER the kind selects (a device sub-kind is
+        # one variant of a shared record), exactly as taxonomy.describe() counts it
+        model = TX._member_model(TX.get(ns.kind)) if ns.kind in TX.keys() else None
         if ns.json:
-            print(json.dumps([V._line_dict(v, ln) for v, ln in pairs], indent=1))
+            print(json.dumps([V._line_dict(v, ln, model) for v, ln in pairs], indent=1))
         else:
             for v, ln in pairs:
-                worth = (f"RECORD ({V.record_tier(v.key, ln.key)['tier']})" if ln.record
-                         else "(name only)")
+                worth = (f"RECORD ({V.record_tier(v.key, ln.key, model=model)['tier']}"
+                         + (f", variant {model}" if model else "") + ")"
+                         if ln.record else "(name only)")
                 print(f"   {v.name:<34} {ln.label:<58} {worth}")
             print(f"{len(pairs)} lines make {ns.kind!r}; "
                   f"{sum(1 for _, ln in pairs if ln.record)} with a catalog record")

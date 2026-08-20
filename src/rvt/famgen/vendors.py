@@ -15,17 +15,21 @@ says so (:func:`describe`) -- never a silent substitution, never a recalled numb
 
 No dimensions, ratings, prices or part numbers live here.  Adding a manufacturer or a line
 is adding a row.  ``python tools/make_family.py vendors [VENDOR] [--kind K] [--check]
-[--json]`` prints it.
+[--json]`` prints it.  :func:`scan` finds the makers a prompt names (the taxonomy's scanner
+over this table's names) and :func:`record_for` says which held record a NAMED maker selects
+for a kind -- what the plan resolver (``rvt.ifc.intent``) reads instead of a hard-coded
+"eaton" (#692 DONE 5).
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 from . import taxonomy as TX
 
-__all__ = ["Vendor", "Line", "vendors", "get", "resolve", "lines_for_kind", "records_for_kind",
-           "record_tier", "describe", "table", "check_line", "check"]
+__all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "vendors", "get", "resolve",
+           "scan", "lines_for_kind", "records_for_kind", "record_for", "declared", "record_tier",
+           "describe", "table", "check_line", "check"]
 
 
 @dataclass(frozen=True)
@@ -323,6 +327,22 @@ def resolve(text: Any) -> Optional[Vendor]:
     return _BY_KEY.get(_ALIAS.get(TX._fold(text), ""))
 
 
+#: maker names that are also plain English ('1200 watts', 'a cable carrier', 'unit price'):
+#: :func:`scan` accepts them alone only when Capitalised as written.  The ``generic``
+#: pseudo-vendor (standards-derived records) is never a maker a prompt can name.
+AMBIGUOUS_ALONE: FrozenSet[str] = frozenset({
+    "price", "cook", "taco", "york", "watts", "carrier", "halo", "est", "ge", "jci",
+    "peerless", "simplex"})
+_NEVER_NAMED = ("generic",)
+_SCAN_INDEX: Dict[str, str] = {f: k for f, k in _ALIAS.items() if k not in _NEVER_NAMED}
+
+
+def scan(text: Any) -> List[TX.Mention]:
+    """Every maker ``text`` names (key / name / alias; whole words, longest first) as
+    :class:`rvt.famgen.taxonomy.Mention` s -- ``Mention.key`` is the vendor key."""
+    return TX._scan(text, _SCAN_INDEX, ambiguous=AMBIGUOUS_ALONE, proper=True)
+
+
 def lines_for_kind(kind: str) -> List[Tuple[Vendor, Line]]:
     """Every (vendor, line) that makes the taxonomy kind, catalog records first."""
     out = [(v, ln) for v in _ROWS for ln in v.lines if kind in ln.kinds]
@@ -332,6 +352,52 @@ def lines_for_kind(kind: str) -> List[Tuple[Vendor, Line]]:
 def records_for_kind(kind: str) -> List[Tuple[str, str]]:
     """(catalog vendor, catalog line) pairs held for the kind."""
     return [(v.key, ln.key) for v, ln in lines_for_kind(kind) if ln.record]
+
+
+def record_for(vendor: str, kind: str) -> Optional[Tuple[str, str]]:
+    """The (catalog vendor, catalog line) this maker's HELD record for the taxonomy kind is,
+    or None -- the maker is unknown, or known by name only for that kind (say so, never
+    substitute silently: :func:`describe` has the line)."""
+    v = _BY_KEY.get(vendor) or resolve(vendor)
+    if v is None:
+        return None
+    return next(((v.key, ln.key) for ln in v.lines if ln.record and kind in ln.kinds), None)
+
+
+#: the phrase every maker-SUBSTITUTION sentence ends with (a declared maker whose record is
+#: not held, or whose record refused the member): the manifest promotes plan notes carrying
+#: it to top-level degradations (``rvt.frontdoor.manifest.plan_note_degradations``)
+NOT_THAT_MAKER = "never presented as that maker's product"
+
+
+def declared(text: Any, kind: str) -> Dict[str, Any]:
+    """What a DECLARED maker ('six Eaton panels', an IFC's Pset_ManufacturerTypeInformation)
+    means for one taxonomy kind: ``record`` is the held (vendor, line) the build should read
+    instead of its default, or None; ``line`` is the ONE sentence every surface relays -- the
+    prompt coverage and the plan resolver (``rvt.ifc.intent.declared_maker``) both use it, so
+    a family built from someone else's record is never presented as the declared maker's
+    product (steer #685).  ``kind`` is a taxonomy key."""
+    named = str(text or "").strip()
+    v = _BY_KEY.get(named) or resolve(named)
+    label = TX.get(kind).label if kind in TX._BY_KEY else kind
+    if v is None:
+        return {"known": False, "vendor": None, "name": named, "record": None,
+                "line": (f"manufacturer {named!r} is declared, but it is not a maker the vendor "
+                         f"directory knows -- built from what tekton holds for {label} and "
+                         f"reported as such; {NOT_THAT_MAKER}")}
+    rec = record_for(v.key, kind)
+    if rec is not None:
+        model = TX._member_model(TX.get(kind)) if kind in TX._BY_KEY else None
+        ln = next(x for x in v.lines if x.key == rec[1])
+        line = (f"manufacturer {v.name} declared -> its own catalog record {rec[0]}/{rec[1]}: "
+                + _held_phrase(v, ln, model))
+    elif any(kind in x.kinds for x in v.lines):     # named only: describe() says what IS buildable
+        line = (describe(v.key, kind=kind)["line"]
+                + f" -- built here from what tekton holds instead; {NOT_THAT_MAKER}")
+    else:
+        line = (f"{v.name} is in the vendor directory, but not as a maker of {label} -- built "
+                f"from what tekton holds for it and reported as such; {NOT_THAT_MAKER}")
+    return {"known": True, "vendor": v.key, "name": v.name, "record": rec, "line": line}
 
 
 def record_tier(vendor: str, line: str, *, model: Optional[str] = None) -> Dict[str, Any]:
@@ -349,19 +415,22 @@ def record_tier(vendor: str, line: str, *, model: Optional[str] = None) -> Dict[
             "tier": "fact" if n_fact else "assumed"}
 
 
-def _line_dict(v: Vendor, ln: Line) -> Dict[str, Any]:
+def _line_dict(v: Vendor, ln: Line, model: Optional[str] = None) -> Dict[str, Any]:
     d = asdict(ln)
     d["vendor"] = v.key
     if ln.record:
-        d.update(record_tier(v.key, ln.key))
+        d.update(record_tier(v.key, ln.key, model=model))
     return d
 
 
-def _held_phrase(v: Vendor, ln: Line) -> str:
-    t = record_tier(v.key, ln.key)
+def _held_phrase(v: Vendor, ln: Line, model: Optional[str] = None) -> str:
+    """What one held record is worth -- counted on the MEMBER (``model``) when a kind selects
+    one variant of a shared record, else over the whole line."""
+    t = record_tier(v.key, ln.key, model=model)
+    member = f"variant {model}: " if model else ""
     if t["tier"] == "fact":
-        return f"{ln.label} (sourced facts: {t['fields_fact']} fact-tier fields)"
-    return (f"{ln.label} (a catalog record with NO fact-tier field: {t['fields_assumed']} "
+        return f"{ln.label} ({member}sourced facts: {t['fields_fact']} fact-tier fields)"
+    return (f"{ln.label} ({member}a catalog record with NO fact-tier field: {t['fields_assumed']} "
             f"search-summary `assumed` values -- the family says so)")
 
 
@@ -399,9 +468,10 @@ def describe(text: Any, kind: Optional[str] = None) -> Dict[str, Any]:
     held = [ln for ln in lines if ln.record]
     named = [ln for ln in lines if not ln.record]
     what = f" for {kind}" if kind else ""
+    model = TX._member_model(TX.get(kind)) if kind in TX._BY_KEY else None
     if held:
         line = (f"{v.name}{what}: catalog records held for " +
-                "; ".join(_held_phrase(v, ln) for ln in held) +
+                "; ".join(_held_phrase(v, ln, model) for ln in held) +
                 (f"; known by name only (no member data): {', '.join(ln.label for ln in named)}"
                  if named else ""))
     elif lines:
@@ -410,7 +480,7 @@ def describe(text: Any, kind: Optional[str] = None) -> Dict[str, Any]:
     else:
         line = f"{v.name} makes nothing the directory lists{what}"
     return {"known": True, "key": v.key, "name": v.name, "parent": v.parent,
-            "aliases": list(v.aliases), "lines": [_line_dict(v, ln) for ln in lines],
+            "aliases": list(v.aliases), "lines": [_line_dict(v, ln, model) for ln in lines],
             "records": [ln.key for ln in held], "line": line}
 
 
@@ -479,6 +549,10 @@ def check() -> List[str]:
     problems = list(_ALIAS_CLASHES)
     if len(_BY_KEY) != len(_ROWS):
         problems.append("vendors: duplicate vendor keys")
+    problems.extend(f"vendors: AMBIGUOUS_ALONE word {w!r} is not a name any vendor carries"
+                    for w in sorted(AMBIGUOUS_ALONE) if w not in _ALIAS)
+    problems.extend(f"vendors: _NEVER_NAMED {k!r} is not a vendor key"
+                    for k in _NEVER_NAMED if k not in _BY_KEY)
     claimed: Dict[Tuple[str, str], str] = {}
     for v in _ROWS:
         line_keys = [ln.key for ln in v.lines]

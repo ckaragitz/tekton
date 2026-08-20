@@ -320,14 +320,18 @@ DROPPED_CELL_MARK = " is not a usable "
 def plan_note_degradations(intent_summary: Optional[Dict[str, Any]]) -> List[str]:
     """One degradation line per family plan whose notes say a schedule cell
     was dropped or defaulted (``'LP-1: PanelSchedule.MainsRating '4OO A' is
-    not a usable current rating (not a number) -> ...'``); ``[]`` when no plan
-    carries such a note (every prompt job, every clean IFC)."""
-    out: List[str] = []
+    not a usable current rating (not a number) -> ...'``) or that a DECLARED
+    maker's product was not what got built (no record of that maker is held,
+    or its record refused the member -- ``rvt.famgen.vendors.NOT_THAT_MAKER``,
+    #692); ``[]`` when no plan carries such a note."""
+    from ..famgen.vendors import NOT_THAT_MAKER
+    by_text: Dict[str, List[str]] = {}          # plans saying the very same thing share ONE line
     for p in (intent_summary or {}).get("family_plans") or []:
-        dropped = [n for n in p.get("notes") or [] if DROPPED_CELL_MARK in n]
-        if dropped:
-            out.append(f"{p.get('tag')}: " + "; ".join(dropped))
-    return out
+        said = [n for n in p.get("notes") or []
+                if DROPPED_CELL_MARK in n or NOT_THAT_MAKER in n]
+        if said:
+            by_text.setdefault("; ".join(said), []).append(str(p.get("tag")))
+    return [f"{', '.join(tags)}: {text}" for text, tags in by_text.items()]
 
 
 #: the keys of each job-runner gate the EDIT route's manifest echoes under
@@ -814,6 +818,9 @@ def _render_md(m: Dict[str, Any]) -> str:
         if cov.get("not_built"):
             ap("- **recognised, NOT modelled**: " + ", ".join(f"{n.get('text')} ({n.get('kind')})"
                                                            for n in cov["not_built"]))
+            for n in cov["not_built"][:16]:      # the MEP taxonomy's line per kind (#692 DONE 3)
+                if n.get("label"):               # the reason leads with 'Label: Revit category'
+                    ap(f"  - “{n.get('text')}” → {n.get('reason')}")
         if cov.get("ignored_words"):
             ap("- **ignored words**: " + ", ".join(cov["ignored_words"][:24]))
         for d in (cov.get("defaults_applied") or [])[:24]:

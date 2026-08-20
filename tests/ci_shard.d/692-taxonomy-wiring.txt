@@ -1,0 +1,2 @@
+# 692 slice 2: taxonomy + vendor directory wired into the prompt grammar and the plan resolver
+tests/test_taxonomy_wiring_692.py

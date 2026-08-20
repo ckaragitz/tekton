@@ -30,17 +30,28 @@ This module is TAXONOMY: **no dimensions, ratings or part numbers live here** (s
 dimensions).  Manufacturers and lines are the sibling table :mod:`rvt.famgen.vendors`.
 Adding a kind is adding a row to ``_ROWS``.  ``python tools/make_family.py taxonomy [KIND]
 [--discipline D] [--check] [--json]`` prints it.
+
+Two readers sit on top of the table (#692 DONE 3 / 5): :func:`resolve` maps ONE phrase (an
+interview answer, a famspec word) to a row, and :func:`scan` finds every kind a free-text prompt
+names -- whole words, plural-tolerant, longest phrase first -- so the prompt grammar
+(:mod:`rvt.frontdoor.prompt_intent`) reports each recognised-but-not-built kind with this
+table's honest line instead of keeping a product list of its own.  ``INTENT_KINDS`` maps the
+intent schema's equipment kinds (``rvt.ifc.intent`` ``Equipment.kind``) onto rows, so the plan
+resolver and the vendor directory speak about the same kind.
 """
 from __future__ import annotations
 
 import importlib
 import importlib.util
+import re
 from dataclasses import dataclass, asdict
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import (Any, Callable, Dict, FrozenSet, Iterable, List, NamedTuple, Optional,
+                    Sequence, Tuple)
 
-__all__ = ["Kind", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LABEL", "kinds", "keys", "get",
-           "resolve", "by_discipline", "archetype_registry", "category_status", "facts_tier",
-           "builder_available", "caveat", "describe", "table", "check_row", "check"]
+__all__ = ["Kind", "Mention", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LABEL",
+           "INTENT_KINDS", "AMBIGUOUS_ALONE", "kinds", "keys", "get", "resolve", "scan",
+           "for_intent_kind", "by_discipline", "archetype_registry", "category_status",
+           "facts_tier", "builder_available", "caveat", "describe", "table", "check_row", "check"]
 
 LANES = ("catalog", "archetype", "none")
 MECHANISMS = ("famspec", "archetype", "house")
@@ -77,6 +88,8 @@ class Kind:
     aliases: Tuple[str, ...] = ()
     pending: str = ""                 # the Revit category a pending row waits for
     note: str = ""
+    refine: Tuple[str, ...] = ()      # a GENERIC word ("light fixture"): the specific rows it
+                                      # must be narrowed to before anything is built
 
     @property
     def lane(self) -> str:
@@ -93,8 +106,10 @@ def _mech(m: str) -> Tuple[str, str]:
     return kind, arg
 
 
-def _k(key, label, discipline, category, via=(), *, aliases=(), pending="", note="") -> Kind:
-    return Kind(key, label, discipline, category, tuple(via), tuple(aliases), pending, note)
+def _k(key, label, discipline, category, via=(), *, aliases=(), pending="", note="",
+       refine=()) -> Kind:
+    return Kind(key, label, discipline, category, tuple(via), tuple(aliases), pending, note,
+                tuple(refine))
 
 
 _HOUSE_SWBD = "house:rvt.ifc.intent:make_house_switchboard"
@@ -173,6 +188,14 @@ _ROWS: Tuple[Kind, ...] = (
     _k("floor_box", "Floor box", "electrical", "electrical_fixture",
        aliases=("poke-through", "floor outlet")),
     # ---------------------------------------------------------------- lighting
+    # the GENERIC word first: "light fixtures" names a category, not a buildable type -- the
+    # row says which types it narrows to (the interview's first question, #684) instead of
+    # pretending a generic fixture can be generated
+    _k("luminaire", "Luminaire (type not named)", "lighting", "lighting_fixture",
+       refine=("troffer", "downlight", "high_bay", "linear_luminaire", "wall_pack",
+               "wall_sconce", "exit_sign", "emergency_light", "pole_light"),
+       aliases=("light fixture", "lighting fixture", "light fitting", "led fixture",
+                "led luminaire")),
     _k("troffer", "Recessed LED troffer", "lighting", "lighting_fixture",
        ["famspec:luminaire/recessed-troffer"],
        aliases=("recessed troffer", "led troffer", "lay-in fixture", "lay-in", "recessed fixture")),
@@ -349,10 +372,107 @@ def get(key: str) -> Kind:
 
 
 def resolve(text: Any) -> Optional[Kind]:
-    """Free text -> row by key, label or alias (case/space/hyphen-insensitive); None when the
-    taxonomy does not know the words.  Exact-phrase on purpose: the prompt grammar decides
-    what a phrase is, this table decides what a KIND is."""
-    return _BY_KEY.get(_ALIAS.get(_fold(text), ""))
+    """Free text -> row by key, label or alias (case/space/hyphen/plural-insensitive); None
+    when the taxonomy does not know the words.  Whole-phrase on purpose: the prompt grammar
+    decides what a phrase is (:func:`scan` finds phrases), this table decides what a KIND is."""
+    key = next((_ALIAS[c] for c in _singulars(_fold(text)) if c in _ALIAS), "")
+    return _BY_KEY.get(key)
+
+
+#: the intent schema's equipment kinds (``rvt.ifc.intent`` ``Equipment.kind`` -- what the IFC
+#: resolver and the prompt grammar both emit) -> the row that IS that kind.  The plan resolver
+#: reads the vendor directory through it; the prompt grammar inverts it to know which rows the
+#: room build models.  A grammar kind absent here has no row (walls, doors, pads: not equipment).
+INTENT_KINDS: Dict[str, str] = {
+    "panelboard": "panelboard", "distribution_panelboard": "panelboard",
+    "lighting_panelboard": "panelboard", "receptacle_panelboard": "panelboard",
+    "switchboard": "switchboard", "transformer": "transformer_dry",
+    "receptacle_device": "receptacle", "luminaire": "luminaire",
+}
+
+
+def for_intent_kind(kind: Any) -> Optional[Kind]:
+    """The row an intent equipment kind ('lighting_panelboard', 'transformer', ...) stands for."""
+    return _BY_KEY.get(INTENT_KINDS.get(str(kind), ""))
+
+
+#: single words that ARE a kind when they are the whole answer (:func:`resolve`) but are not
+#: evidence of one inside a sentence (:func:`scan`): 'box', 'switch', 'drive', 'meter' ... read
+#: as English far more often than as equipment, and 'panel' / 'outlet' belong to the prompt
+#: grammar's own clauses.  A longer phrase containing them ('pull box', 'transfer switch',
+#: 'meter socket') is matched as always.
+AMBIGUOUS_ALONE: FrozenSet[str] = frozenset({
+    "box", "switch", "drive", "smoke", "register", "wrap", "gutter", "meter", "panel", "outlet",
+    "duct", "pipe", "horn"})
+
+
+class Mention(NamedTuple):
+    """One kind (or vendor) a text names: ``text[start:end]`` is the phrase as written."""
+    start: int
+    end: int
+    key: str
+    text: str
+
+
+_WORD = re.compile(r"[a-z0-9]+(?:[-'./&][a-z0-9]+)*")
+_MAX_WORDS = 5
+
+
+def _singulars(word: str) -> Iterable[str]:
+    """The word and its plausible singulars ('trays' -> 'tray', 'boxes' -> 'box', 'assemblies'
+    -> 'assembly'); every candidate is tried against the index, so a wrong guess costs nothing."""
+    yield word
+    if len(word) > 3:
+        if word.endswith("ies"):
+            yield word[:-3] + "y"
+        if word.endswith("es"):
+            yield word[:-2]
+        if word.endswith("s") and not word.endswith("ss"):
+            yield word[:-1]
+
+
+def _scan(text: Any, index: Dict[str, str], *, ambiguous: FrozenSet[str] = frozenset(),
+          proper: bool = False) -> List[Mention]:
+    """Every phrase of ``text`` (up to five words) whose folded form is a name in ``index``:
+    whole words only, plural-tolerant, longest phrase first, left to right, non-overlapping.
+    A one-word hit whose folded form is in ``ambiguous`` is skipped -- unless ``proper`` and
+    the word is Capitalised as written (a maker's name is a proper noun: 'Carrier', 'Watts').
+    Shared with :mod:`rvt.famgen.vendors`."""
+    text = str(text or "")
+    toks = [(m.start(), m.end(), m.group()) for m in _WORD.finditer(text.lower())]
+    out: List[Mention] = []
+    i = 0
+    while i < len(toks):
+        hit: Optional[Mention] = None
+        width = 0
+        for n in range(min(_MAX_WORDS, len(toks) - i), 0, -1):
+            words = [t[2] for t in toks[i:i + n]]
+            head = "".join(words[:-1])
+            for last in _singulars(words[-1]):
+                folded = _fold(head + last)
+                key = index.get(folded)
+                if key is None:
+                    continue
+                if n == 1 and folded in ambiguous and not (proper and text[toks[i][0]].isupper()):
+                    continue
+                start, end = toks[i][0], toks[i + n - 1][1]
+                hit, width = Mention(start, end, key, text[start:end]), n
+                break
+            if hit is not None:
+                break
+        if hit is None:
+            i += 1
+        else:
+            out.append(hit)
+            i += width
+    return out
+
+
+def scan(text: Any) -> List[Mention]:
+    """Every kind ``text`` names, as :class:`Mention` s in text order (see :func:`_scan`).  The
+    prompt grammar decides what to DO with a mention (build it, shield it from the panel
+    grammar, record it as not built); this table only says what kind the words are."""
+    return _scan(text, _ALIAS, ambiguous=AMBIGUOUS_ALONE)
 
 
 def by_discipline(discipline: Optional[str] = None) -> Dict[str, Tuple[Kind, ...]]:
@@ -453,7 +573,11 @@ def facts_tier(kind: Any) -> Tuple[Optional[str], List[Tuple[str, str]], int, Op
 def _mechanism_available(row: Kind, mech: str, strict: bool) -> Tuple[bool, str]:
     kind, arg = _mech(mech)
     if kind == "famspec":
-        tier, records, n_fact, model = facts_tier(row)
+        try:
+            tier, records, n_fact, model = facts_tier(row)
+        except Exception as e:                # noqa: BLE001 -- a record that fails to load is
+            return False, (f"a catalog record held for {row.key!r} does not load "   # a finding,
+                           f"({type(e).__name__}: {e})")                 # never a traceback
         if not records:
             return False, f"no catalog record is held for {row.key!r} (rvt.famgen.vendors)"
         if strict:
@@ -481,9 +605,17 @@ def _mechanism_available(row: Kind, mech: str, strict: bool) -> Tuple[bool, str]
         return True, f"archetype lane ({arg}) at the registry's nominal sizes, overridable"
     if kind == "house":
         mod, _, fn = arg.rpartition(":")
-        ok = (_import_attr(arg) is not None) if strict else (importlib.util.find_spec(mod) is not None)
+        if not (mod == "rvt" or mod.startswith("rvt.")):
+            return False, f"house builder {arg} is not one of ours (an rvt. module is required)"
+        if strict:
+            ok = callable(_import_attr(arg))
+        else:
+            try:
+                ok = importlib.util.find_spec(mod) is not None
+            except (ImportError, ValueError):
+                ok = False
         if not ok:
-            return False, f"house builder {arg} is not on this build"
+            return False, f"house builder {arg} is not on this build (no such callable)"
         return True, (f"house model ({fn}) at the prompt lane's default dimensions or the "
                       f"ones the prompt gives (nominal / given) -- no manufacturer member")
     return False, f"unknown mechanism {mech!r}"
@@ -505,6 +637,14 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
     status, detail = category_status(row)
     if status in ("pending", "conflict"):
         return False, detail
+    if row.refine:
+        fine = [(_BY_KEY[k], builder_available(_BY_KEY[k], strict=strict)[0]) for k in row.refine]
+        yes = [r.label for r, ok in fine if ok]
+        no = [r.label for r, ok in fine if not ok]
+        return False, ("a generic word -- name the type: "
+                       + (f"{', '.join(yes)} (buildable here)" if yes else "")
+                       + ("; " if yes and no else "")
+                       + (f"{', '.join(no)} (known, not buildable here yet)" if no else ""))
     if not row.via:
         return False, (f"{row.label} is placed under {row.revit_category}, but no lane builds "
                        f"it yet: no catalog record is held and no archetype generates it")
@@ -539,7 +679,7 @@ def describe(text: Any) -> Dict[str, Any]:
     d = asdict(row)
     d.update({"known": True, "lane": row.lane, "revit_category": row.revit_category,
               "category_status": status, "category_detail": detail, "available": ok,
-              "availability": why, "standards_count": n_std})
+              "availability": why, "standards_count": n_std, "generic": bool(row.refine)})
     head = f"{row.label}: {row.revit_category}"
     if ok:
         d["line"] = f"{head}; {why}; {n_std} standard parameters{caveat(row)}"
@@ -574,11 +714,35 @@ def check_row(row: Kind) -> List[str]:
     if row.category is None:
         if not row.pending:
             problems.append(f"{tag}: neither a category key nor a pending category label")
-        if row.via:
-            problems.append(f"{tag}: a pending row cannot declare build mechanisms {row.via}")
+        elif row.pending in INTENDED_LABEL.values():
+            keys = sorted(k for k, v in INTENDED_LABEL.items() if v == row.pending)
+            problems.append(f"{tag}: pending label {row.pending!r} is a category the resolver "
+                            f"already carries ({', '.join(keys)}) -- give the row that key")
+        else:
+            try:
+                _SK._resolve_category(row.pending)
+                problems.append(f"{tag}: pending label {row.pending!r} resolves through "
+                                f"skeleton._resolve_category -- the row is not pending, key it")
+            except Exception:                            # noqa: BLE001 -- unresolvable = pending
+                pass
+        if row.via or row.refine:
+            problems.append(f"{tag}: a pending row cannot declare build mechanisms {row.via} "
+                            f"or refinements {row.refine}")
         return problems
     if row.pending:
         problems.append(f"{tag}: has a category key AND a pending label -- pick one")
+    if row.refine:
+        if row.via:
+            problems.append(f"{tag}: a generic (refine) row cannot declare build mechanisms")
+        for k in row.refine:
+            fine = _BY_KEY.get(k)
+            if fine is None:
+                problems.append(f"{tag}: refines to unknown kind {k!r}")
+            elif fine.refine or fine.key == row.key:
+                problems.append(f"{tag}: refines to {k!r}, which is itself generic")
+            elif fine.category != row.category:
+                problems.append(f"{tag}: refines to {k!r} of category {fine.category!r}, not "
+                                f"{row.category!r} -- a generic word never changes category")
     if row.category not in INTENDED_LABEL:
         problems.append(f"{tag}: category {row.category!r} has no INTENDED_LABEL entry")
     try:
@@ -646,10 +810,23 @@ def _record_problems(row: Kind, fam: str, sub: Optional[str]) -> List[str]:
     if held != reads:
         out.append(f"directory records {sorted(held)} != the records make_{fam}"
                    f"{'/' + sub if sub else ''} reads {sorted(reads)}")
+    model = _member_model(row)
     for v, ln in sorted(held):
-        cat = _C.load_line(v, ln).get("category")
+        try:
+            rec = _C.load_line(v, ln)
+            n_variants = _V.record_tier(v, ln, model=model)["variants"]
+        except Exception as e:                           # noqa: BLE001 -- report, don't raise
+            out.append(f"record {v}/{ln} does not load ({type(e).__name__}: {e})")
+            continue
+        cat = rec.get("category")
         if cat != fam:
             out.append(f"record {v}/{ln} is a {cat!r} record, the row builds through {fam!r}")
+        if n_variants < 1:
+            out.append(f"record {v}/{ln} holds no variant" + (f" {model!r}" if model else "")
+                       + " -- the member this row builds does not exist in it")
+        ost = _V._ost_label(rec.get("revit_category"))
+        if ost is not None and ost != row.revit_category:
+            out.append(f"record {v}/{ln} files under {ost!r}, the row says {row.revit_category!r}")
     return out
 
 
@@ -663,6 +840,10 @@ def check() -> List[str]:
     problems = list(_ALIAS_CLASHES)
     if len(_BY_KEY) != len(_ROWS):
         problems.append("taxonomy: duplicate row keys")
+    problems.extend(f"taxonomy: INTENT_KINDS[{ik!r}] -> unknown row {rk!r}"
+                    for ik, rk in INTENT_KINDS.items() if rk not in _BY_KEY)
+    problems.extend(f"taxonomy: AMBIGUOUS_ALONE word {w!r} is not a name any row carries"
+                    for w in sorted(AMBIGUOUS_ALONE) if w not in _ALIAS)
     for row in _ROWS:
         problems.extend(check_row(row))
     return problems
