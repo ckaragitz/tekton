@@ -100,7 +100,7 @@ check), moved every spliced error through `rvt._clause` (`cause_clause` / `clip`
 recognised kind FIRST in the `PromptError` so the manifest's 160-character status cut keeps it,
 made the directory's default record an explicit `default=True` per line (exactly one per kind
 with records, cross-checked against the factory constructors' own signature defaults in
-`taxonomy --check`), and dropped two tests that only repeated slice 1. Left as a follow-up (filed): unbuilt kinds are *shielded spans*,
+`taxonomy --check`), and dropped two tests that only repeated slice 1. Left as a follow-up, filed as **#737**: unbuilt kinds are *shielded spans*,
 not clauses, so a rating/tag written next to one (`a 400 A automatic transfer switch beside two
 panels`) can still bleed into the neighbouring clause exactly as before this slice — parsing them
 as full `PromptItem(buildable=False)` clauses is the deeper fix and what O12 needs.
@@ -141,6 +141,8 @@ as full `PromptItem(buildable=False)` clauses is the deeper fix and what O12 nee
 
 ## Open questions / follow-ups
 
+- #737 — unbuilt kinds parsed as full clauses (their own count / rating / tags / maker) instead
+  of shielded spans; also what O12's `prompt → rfa` parse needs.
 - The router could echo `not_built` kinds and maker sentences as `res.caveats` on the prompt
   routes; left out here because #674 rewrites `_r_prompt_to_rfa` — a three-line follow-up once
   #674 lands. Today they ride in the manifest (degradations, coverage) and, when nothing is
