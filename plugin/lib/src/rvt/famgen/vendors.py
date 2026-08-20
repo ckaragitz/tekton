@@ -97,7 +97,7 @@ _ROWS: Tuple[Vendor, ...] = (
         _L("safety-switches", "General-duty / heavy-duty safety switches",
            ["disconnect_switch"]),
     ]),
-    _V("abb", "ABB (incl. former GE Industrial Solutions)", [
+    _V("abb", "ABB", [                     # incl. the former GE Industrial Solutions lines
         _L("reliagear-panelboards", "ReliaGear lighting / power panelboards", ["panelboard"]),
         _L("reliagear-switchboards", "ReliaGear switchboards", ["switchboard"]),
         _L("acs-drives", "ACS-family variable frequency drives", ["variable_frequency_drive"]),
@@ -134,7 +134,7 @@ _ROWS: Tuple[Vendor, ...] = (
            ["receptacle", "light_switch", "dimmer_switch"]),
         _L("occupancy-sensors", "Occupancy / vacancy sensors", ["occupancy_sensor"]),
     ]),
-    _V("legrand", "Legrand (Pass & Seymour / Wattstopper / Wiremold)", [
+    _V("legrand", "Legrand", [              # Pass & Seymour / Wattstopper / Wiremold brands
         _L("pass-seymour-devices", "Pass & Seymour spec-grade devices",
            ["receptacle", "light_switch"]),
         _L("wattstopper-controls", "Wattstopper occupancy sensors and lighting controls",
@@ -176,7 +176,7 @@ _ROWS: Tuple[Vendor, ...] = (
         _L("truealarm", "TrueAlarm detectors", ["smoke_detector", "heat_detector"]),
         _L("truealert", "TrueAlert notification appliances", ["horn_strobe", "pull_station"]),
     ], aliases=("simplexgrinnell", "jci fire"), parent="Johnson Controls"),
-    _V("edwards", "Edwards (EST)", [
+    _V("edwards", "Edwards", [              # EST
         _L("panels", "EST addressable fire alarm control panels", ["fire_alarm_control_panel"]),
         _L("signature-detectors", "Signature Series detectors",
            ["smoke_detector", "heat_detector"]),
@@ -337,7 +337,8 @@ def resolve(text: Any) -> Optional[Vendor]:
 #: pseudo-vendor (standards-derived records) is never a maker a prompt can name.
 AMBIGUOUS_ALONE: FrozenSet[str] = frozenset({
     "price", "cook", "taco", "york", "watts", "carrier", "halo", "est", "ge", "jci",
-    "peerless", "simplex"})
+    "peerless", "simplex",
+    "squared"})           # 'twenty feet squared' folds to the same letters as 'Square D'
 _NEVER_NAMED = ("generic",)
 _SCAN_INDEX: Dict[str, str] = {f: k for f, k in _ALIAS.items() if k not in _NEVER_NAMED}
 
@@ -367,7 +368,8 @@ NOT_THAT_MAKER = "never presented as that maker's product"
 
 #: manufacturer cells that DECLARE nothing (blank, placeholder): no maker is read from them
 UNNAMED_MAKERS: FrozenSet[str] = frozenset({
-    "", "unspecified", "generic", "n/a", "na", "none", "-", "tbd", "by others", "varies"})
+    "", "unspecified", "generic", "n/a", "n.a.", "na", "none", "null", "-", "$", "tbd",
+    "by others", "varies", "unknown", "notdefined", "not defined", "undefined"})
 
 
 def default_record(kind: str) -> Optional[Tuple[str, str]]:
@@ -411,7 +413,13 @@ def _declared(text: str, kind: str, _generation: int = 0
     """:func:`declared` memoised on its two words: the plan resolver asks once per equipment
     ITEM, and every answer costs a record parse (review of #736).  Keyed on the catalog's
     reload generation too, so ``catalog.reload()`` after an in-process record edit is seen."""
-    d = describe(text, kind=kind)
+    # the cell as written on an IFC ('Eaton Corporation', 'Square D by Schneider Electric')
+    # names its maker by the longest maker mention in it when it is not a name outright
+    v = _BY_KEY.get(text) or resolve(text)
+    if v is None:
+        mentions = scan(text)
+        v = _BY_KEY[max(mentions, key=lambda m: m.end - m.start).key] if mentions else None
+    d = describe(v.key if v else text, kind=kind)
     rec = record_for(d["key"], kind) if d["known"] else None
     line = d["line"]
     # a maker the directory names for this kind already had its say (describe -> _buildability);

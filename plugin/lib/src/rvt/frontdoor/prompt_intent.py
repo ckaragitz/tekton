@@ -665,10 +665,13 @@ def _kind_record(m: TX.Mention, *, maker: Optional[str] = None) -> Dict[str, Any
     return rec
 
 
-#: an explicit cue that a maker applies to the WHOLE job, not to one clause: '... by Eaton',
-#: 'from Square D' just before the name, or 'Eaton gear / equipment / throughout' just after
+#: an explicit cue that a maker applies to the WHOLE job, not to one clause: 'all gear by
+#: Eaton' / 'everything from Square D' just before the name, or 'Eaton gear / equipment /
+#: throughout' just after.  A bare 'by X' / 'from X' is item-level ('a fire alarm panel by
+#: Notifier') and goes to the nearest noun like any other mention.
 _RE_MAKER_CUE_BEFORE = re.compile(
-    r"\b(?:all\s+(?:the\s+)?(?:gear|equipment|products?|hardware)\s+)?(?:by|from)\s*$", re.I)
+    r"\b(?:all\s+(?:the\s+)?(?:gear|equipment|products?|hardware)|everything)\s+(?:by|from)\s*$",
+    re.I)
 _RE_MAKER_CUE_AFTER = re.compile(
     r"^\s*(?:(?:gear|equipment|products?|hardware|brand)\b(?:\s+throughout\b)?|throughout\b)", re.I)
 
@@ -678,40 +681,70 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                    unbuilt_anchors: Sequence[TX.Mention], items: List["PromptItem"],
                    clause_window, mark, cov: "PromptCoverage",
                    ) -> Tuple[Dict[TX.Mention, str], Optional[str], str]:
-    """Attach every maker the prompt names (review of #736):
+    """Attach every maker the prompt names (reviews of #736):
 
-    * to the NEAREST equipment noun inside its clause window -- a built item group or a
-      not-built kind ('a 500 kW Cummins generator' names the generator's maker; the panels
-      in the same sentence keep none); two different makers on one noun apply neither and a
-      warning says so;
-    * a maker with no equipment noun in its clause applies to every built item that named
-      none ONLY on an explicit cue ('all gear by Eaton', 'Square D equipment'); exactly one
-      such maker may; without the cue it applies to nothing -- said in a warning, unless the
-      word is plain English standing alone ('New York', 'Price out ...'), which is left to the
-      ignored words as before.
+    * a maker with a whole-job CUE ('all gear by Eaton', 'everything from Square D', 'Eaton
+      equipment throughout') applies to every built item that names none of its own -- exactly
+      one such maker may, wherever it stands in the prompt; a bare 'by X' is item-level;
+    * every other maker goes to the NEAREST equipment noun inside its clause window -- a built
+      item group or a not-built kind ('a 500 kW Cummins generator' names the generator's
+      maker; the panels in the same sentence keep none); two different makers on one noun
+      apply neither and a warning says so;
+    * a maker's name that is also plain English ('York', 'Price', 'Watts', 'Simplex',
+      'squared' -- ``vendors.AMBIGUOUS_ALONE``) counts only where that maker actually makes
+      the noun's kind (the whole job's kinds, for a cue); anywhere else it stays an ignored
+      word, as it always was;
+    * a real maker's name with no equipment noun in its clause and no cue applies to nothing,
+      and a warning says so.
 
-    Returns ({not-built mention: maker name}, the global maker's vendor key or None, the names
-    named outside every clause -- for the nothing-buildable message)."""
+    Returns ({not-built mention: maker name}, the whole-job maker's vendor key or None, the
+    names that applied to nothing -- for the nothing-buildable message)."""
     anchors: List[Tuple[Tuple[int, int], Optional[List["PromptItem"]], Optional[TX.Mention]]] = (
         [(span, its, None) for span, its in noun_groups]
         + [((m.start, m.end), None, m) for m in unbuilt_anchors])
+
+    def anchor_kind(i: int) -> str:                    # the taxonomy row an anchor stands for
+        _span, its, unbuilt = anchors[i]
+        return TX.for_intent_kind(its[0].kind).key if its else unbuilt.key
+
+    def makes(mm: TX.Mention, kind_key: str) -> bool:
+        return any(kind_key in ln.kinds for ln in VD.get(mm.key).lines)
+
+    def plain_word(mm: TX.Mention) -> bool:            # 'York', 'Price', 'Watts', 'squared'
+        return TX._fold(mm.text) in VD.AMBIGUOUS_ALONE
+
+    built_kinds = {TX.for_intent_kind(it.kind).key for it in items}
+    cued: List[TX.Mention] = []
     on_anchor: Dict[int, List[TX.Mention]] = {}
-    loose: List[TX.Mention] = []
+    unplaced: List[TX.Mention] = []                    # a real maker's name, nothing to hang it on
     for mm in maker_mentions:
+        before = _RE_MAKER_CUE_BEFORE.search(text[:mm.start])
+        after = _RE_MAKER_CUE_AFTER.search(text[mm.end:])
+        if before or after:                            # the whole-job cue wins wherever it stands
+            if plain_word(mm) and not any(makes(mm, k) for k in built_kinds):
+                continue                               # 'designed by York Engineering': a word
+            cued.append(mm)
+            mark((before.start(), mm.start) if before else (mm.end, mm.end + after.end()))
+            mark((mm.start, mm.end))
+            continue
         ws, we = clause_window(mm.start, mm.end)
-        cands = [i for i, a in enumerate(anchors) if ws <= a[0][0] and a[0][1] <= we]
+        cands = [i for i, a in enumerate(anchors) if a[0][0] < we and a[0][1] > ws]  # overlaps:
+        if plain_word(mm):                             # a tag list reads across 'and'
+            cands = [i for i in cands if makes(mm, anchor_kind(i))]
+            if not cands:
+                continue                               # 'our New York office', '1200 Watts'
         if not cands:
-            loose.append(mm)
+            unplaced.append(mm)
+            mark((mm.start, mm.end))
             continue
 
-        def gap(i: int) -> float:               # distance to the anchor; the FOLLOWING noun
-            a_start, a_end = anchors[i][0]        # wins a tie ('Cummins generator')
+        def gap(i: int) -> float:                     # distance to the anchor; the FOLLOWING
+            a_start, a_end = anchors[i][0]             # noun wins a tie ('Cummins generator')
             return (a_start - mm.end) if a_start >= mm.end else (mm.start - a_end) + 0.5
         on_anchor.setdefault(min(cands, key=gap), []).append(mm)
+        mark((mm.start, mm.end))
     unbuilt_makers: Dict[TX.Mention, str] = {}
     for i, mms in on_anchor.items():
-        for mm in mms:
-            mark((mm.start, mm.end))
         names = sorted({VD.get(mm.key).name for mm in mms})
         _span, its, unbuilt = anchors[i]
         if len(names) > 1:
@@ -726,18 +759,6 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
             cov.understood.append({"clause": names[0], "as": "manufacturer",
                                    "vendor": mms[0].key, "kind": unbuilt.key,
                                    "applies_to": unbuilt.text, "record": None})
-    # makers outside every clause: global only on a cue, and only one of them
-    cued: List[TX.Mention] = []
-    for mm in loose:
-        before = _RE_MAKER_CUE_BEFORE.search(text[:mm.start])
-        after = _RE_MAKER_CUE_AFTER.search(text[mm.end:])
-        if before or after:
-            cued.append(mm)
-            mark((before.start(), mm.start) if before else (mm.end, mm.end + after.end()))
-    plain = [mm for mm in loose if mm not in cued
-             and TX._fold(mm.text) not in VD.AMBIGUOUS_ALONE]      # 'New York' stays ignored
-    for mm in cued + plain:
-        mark((mm.start, mm.end))
     cued_keys = sorted({mm.key for mm in cued})
     global_maker: Optional[str] = None
     if len(cued_keys) == 1 and items:
@@ -748,12 +769,12 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
         cov.warnings.append("makers " + ", ".join(VD.get(k).name for k in cued_keys)
                             + " are all named for the whole job -- applied to nothing; name one, "
                               "or name each inside its clause ('six Eaton panels')")
-    if plain:
-        cov.warnings.append("maker " + ", ".join(sorted({VD.get(mm.key).name for mm in plain}))
+    if unplaced:
+        cov.warnings.append("maker " + ", ".join(sorted({VD.get(mm.key).name for mm in unplaced}))
                             + " is named outside any equipment clause -- applied to nothing; "
                               "write 'by <maker>' for the whole job or name it inside the "
                               "clause ('six Eaton panels')")
-    loose_names = ", ".join(sorted({VD.get(mm.key).name for mm in cued + plain}))
+    loose_names = ", ".join(sorted({VD.get(mm.key).name for mm in cued + unplaced}))
     return unbuilt_makers, global_maker, loose_names
 
 
@@ -1180,7 +1201,8 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             items.append(it)
         if item_ref is not None:
             item_ref["tags"] += [x.tag for x in items[-cnt:]]
-        noun_groups.append(((km.start(), km.end()), items[-cnt:]))
+        # the noun AND its tag list ('panels LP-1 and LP-2 by Eaton': the maker follows the tags)
+        noun_groups.append(((km.start(), max(km.end(), tag_span[1] if tag_span else 0)), items[-cnt:]))
         taken.append((km.start(), km.end()))
         mark((km.start(), km.end()))
         if tag_span is not None:
@@ -1231,15 +1253,26 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # ------------------------------------------------------------------
     # 3. recognised-but-unbuilt kinds (coverage honesty)
     # ------------------------------------------------------------------
+    def built_nearby(m: TX.Mention) -> bool:
+        """A scene-kind word standing in the clause that DID build that kind ('four 5-20R
+        receptacles': the receptacle clause read it) is an attribute of it, not a miss."""
+        lo, hi = clause_window(m.start, m.end)
+        return any(lo <= span[0] and span[1] <= hi
+                   and _SCENE_KIND.get(TX.for_intent_kind(its[0].kind).key) == _SCENE_KIND[m.key]
+                   for span, its in noun_groups)
+
     found: List[Tuple[int, Dict[str, Any]]] = []
     for m in kind_mentions:
-        # a shielded mention is reported; a scene-kind mention only when its clause did not
-        # build it ('a load center': a panelboard by the taxonomy, not a phrasing the panel
-        # clause reads) -- never twice for one span
+        # a shielded mention is reported; a scene-kind mention only when no clause built it
+        # ('a load center': a panelboard by the taxonomy, not a phrasing the panel clause
+        # reads) -- never twice for one span, never for a word of the clause that built it
         if m.key in _SCENE_KIND:
             if overlaps(m.start, m.end):
                 continue
             taken.append((m.start, m.end))
+            if built_nearby(m):
+                mark((m.start, m.end))
+                continue
         mark((m.start, m.end))
         found.append((m.start, _kind_record(m, maker=unbuilt_makers.get(m))))
     for kind, pat, why in _CONTEXT_PATTERNS:

@@ -124,12 +124,28 @@ seen; the not-built line for a famspec-buildable kind names the request that bui
 route that just did not; the house-model sentence says the name rides only as the declared
 Manufacturer value; bookkeeping below corrected. Regression tests for each reviewer prompt.
 
+**Second independent review (head `3e1b5d4`) — 🛑 on one remaining hole, fixed.** A Capitalised
+common word *inside* a clause still became a maker (`Supply 4 panels for our New York office`,
+`Price out 4 panels`, `1200 Watts`, `4 Simplex receptacles`, and `twenty feet squared` — the
+letters of "Square D"). Now a maker's name that is also plain English (`vendors.AMBIGUOUS_ALONE`,
+`squared` added) counts only where that maker actually **makes the noun's kind** (or, for a
+whole-job cue, one of the job's kinds) — everywhere else it stays an ignored word, as on `main`.
+The whole-job cue is evaluated first and needs `all gear/equipment … by X`, `everything from X`
+or `X equipment/gear (throughout)`; a bare `by X` is item-level (`a fire alarm panel by
+Notifier`, `panels LP-1 and LP-2 by Eaton` — noun groups now span their tag lists). Nits taken:
+`vendors.declared` reads a cell the way an IFC writes it (`Eaton Corporation`, `Square D by
+Schneider Electric` → the maker's record; `Unknown`/`NOTDEFINED`/… declare nothing);
+`_fall_back` words a double refusal as one ("… and so did the default record: NOT built"); a
+scene-kind word inside the clause that built it (`four 5-20R receptacles`) is no longer reported
+"not in this phrasing"; vendor display names are clean identity values (`ABB`, `Legrand`,
+`Edwards`).
+
 ## Evidence
 
 - Gates: `make_family.py taxonomy --check` → `83 kinds, 0 problems` (13 `#516` conflict rows
   warned, unchanged); `vendors --check` → `50 vendors, 118 lines, 7 with a catalog record, 0
   problems`; `standards --check` unchanged.
-- Tests: new `tests/test_taxonomy_wiring_692.py` — 64 tests, 0.4 s (scanner, generic rows,
+- Tests: new `tests/test_taxonomy_wiring_692.py` — 48 test functions / 90 cases, 0.4 s (scanner, generic rows,
   nits, `declared` / `default_record` / placeholders, intent-kind + refine gates, grammar
   shield/records/error relay, maker attach/global/ambiguous, plan resolver
   held/refused-fallback/named-only with structured degradations, `declared_maker` never raises,

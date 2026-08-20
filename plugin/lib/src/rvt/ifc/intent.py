@@ -2466,13 +2466,17 @@ def _fall_back(fp: FamilyPlan, resolve, **default_kwargs: Any) -> None:
     from ..famgen.vendors import NOT_THAT_MAKER
     was = "/".join(str(fp.kwargs.get(k)) for k in default_kwargs)
     now = "/".join(str(v) for v in default_kwargs.values())
-    fp.degradations.append(f"the declared maker's record ({was}) REFUSED this member -- "
-                           f"{clip(str(fp.refusal), CAUSE_MAX)} -- so it is built from the "
-                           f"default record ({now}) instead and reported as such; {NOT_THAT_MAKER}")
+    first = clip(str(fp.refusal), CAUSE_MAX)
     fp.kwargs.update(default_kwargs)
     fp.refusal = None
     fp.status = "planned"
-    resolve(fp)
+    resolve(fp)                                     # the outcome decides how it is said
+    fp.degradations.append(
+        f"the declared maker's record ({was}) REFUSED this member -- {first} -- "
+        + (f"so it is built from the default record ({now}) instead and reported as such; "
+           f"{NOT_THAT_MAKER}" if fp.status != "refused" else
+           f"and so did the default record ({now}): {clip(str(fp.refusal), CAUSE_MAX)} -- "
+           "NOT built (recorded with both refusals)"))
 
 
 def _resolve_panel_facts(fp: FamilyPlan) -> None:

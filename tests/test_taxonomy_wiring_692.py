@@ -518,3 +518,95 @@ def test_famspec_hint_names_the_smallest_request_that_builds_the_kind():
     assert TX.famspec_hint("receptacle") == '{"kind": "device", "device": "duplex-receptacle"}'
     assert TX.famspec_hint("panelboard") == '{"kind": "panelboard"}'
     assert TX.famspec_hint("vav_box") is None and TX.famspec_hint("switchboard") is None
+
+
+# --------------------------------------------------------------------------- review of #736, round 2
+
+@pytest.mark.parametrize("prompt,word", [
+    ("Supply 4 panels for our New York office", "York"),
+    ("Price out 4 panels and a 75 kVA transformer", "Price"),
+    ("Price out a 2000 A switchboard and 4 panels", "Price"),
+    ("two panels rated 1200 Watts", "Watts"),
+    ("4 Simplex receptacles at 18 in AFF", "Simplex"),
+    ("4 panels 208Y/120 V for a room twenty feet squared", "squared"),
+    ("designed by York Engineering with 4 panels and a 75 kVA transformer", "York"),
+    ("a GE transformer and two panels", "GE"),
+])
+def test_a_plain_word_inside_a_clause_is_a_maker_only_where_that_maker_makes_the_kind(prompt, word):
+    p = PP.parse_prompt(prompt)
+    assert {it.manufacturer for it in p.items} == {None}, prompt
+    assert word in p.coverage.ignored_words and not p.coverage.warnings, prompt
+    model, _parsed = PP.prompt_to_intent(prompt)
+    assert not any(e.contract.get("Manufacturer") for e in model.equipment), prompt
+    assert not any(fp.kwargs.get("manufacturer") for fp in model.family_plans), prompt
+
+
+@pytest.mark.parametrize("prompt,expect", [
+    ("All gear by Eaton: two panels and a 75 kVA transformer", {"Eaton"}),
+    ("Eaton equipment throughout: two panels and a 75 kVA transformer", {"Eaton"}),
+    ("4 panels for the New York office, all gear by Siemens", {"Siemens"}),
+    ("two Square D panels and a transformer by Eaton", {"Square D", "Eaton"}),
+])
+def test_the_whole_job_cue_wins_wherever_it_stands(prompt, expect):
+    p = PP.parse_prompt(prompt)
+    assert {it.manufacturer for it in p.items} == expect, prompt
+    assert not {"gear", "throughout"} & set(p.coverage.ignored_words)
+
+
+def test_each_maker_lands_on_its_own_noun_in_a_comma_free_sentence():
+    p = PP.parse_prompt("a Cummins generator feeding two Eaton panels and a Kohler transfer switch")
+    assert [(it.tag, it.manufacturer) for it in p.items] == [("PP-1", "Eaton"), ("PP-2", "Eaton")]
+    assert [(n["text"], n.get("manufacturer")) for n in p.coverage.not_built] == [
+        ("generator", "Cummins Power Generation"), ("transfer switch", "Kohler")]
+
+
+def test_a_scene_kind_word_inside_the_clause_that_built_it_is_not_reported():
+    p = PP.parse_prompt("four 5-20R receptacles at 18 in AFF and 2 panels")
+    assert p.coverage.not_built == [] and p.coverage.ignored_words == []
+    q = PP.parse_prompt("a load center and a 75 kVA transformer")      # no panel clause: said
+    assert [n["kind"] for n in q.coverage.not_built] == ["panelboard"]
+
+
+@pytest.mark.parametrize("cell,vendor,record", [
+    ("Eaton Corporation", "eaton", ("eaton", "pow-r-line-panelboards")),
+    ("Square D by Schneider Electric", "square-d", ("square-d", "nq-nf-iline-panelboards")),
+    ("EATON", "eaton", ("eaton", "pow-r-line-panelboards")),
+    ("tekton house", None, None),
+])
+def test_declared_reads_a_cell_as_an_ifc_writes_it(cell, vendor, record):
+    d = V.declared(cell, "panelboard")
+    assert (d["vendor"], d["record"]) == (vendor, record)
+
+
+@pytest.mark.parametrize("cell", ["Unknown", "NOTDEFINED", "not defined", "n.a."])
+def test_more_placeholder_cells_declare_nothing(cell):
+    assert V.declared(cell, "panelboard") is None
+
+
+def test_a_double_refusal_is_worded_as_one():
+    plans, _m, _p = _plans("a Square D 5000 A distribution panel and a Hammond 5000 kVA transformer")
+    for tag in ("DP-1", "T1"):
+        fp = plans[tag]
+        assert fp.status == "refused"
+        said = " ".join(fp.degradations)
+        assert "and so did the default record" in said and "NOT built" in said
+        assert "instead and reported as such" not in said
+
+
+def test_vendor_display_names_are_clean_identity_values():
+    assert V.get("abb").name == "ABB" and V.get("legrand").name == "Legrand"
+    assert all("(" not in v.name for v in V.vendors() if v.key != "generic")
+
+
+def test_a_maker_after_a_tag_list_still_lands_on_that_noun():
+    p = PP.parse_prompt("panels LP-1 and LP-2 by Eaton and a 75 kVA transformer")
+    assert [(it.tag, it.manufacturer) for it in p.items] == [
+        ("T1", None), ("LP-1", "Eaton"), ("LP-2", "Eaton")]
+    assert p.coverage.warnings == [] and p.coverage.ignored_words == []
+
+
+def test_a_bare_by_is_item_level_not_whole_job():
+    p = PP.parse_prompt("an electrical room with two panels and a Fire Alarm Panel by Notifier")
+    assert {it.manufacturer for it in p.items} == {None}
+    assert [(n["text"], n["manufacturer"]) for n in p.coverage.not_built] == [
+        ("Fire Alarm Panel", "NOTIFIER")]
