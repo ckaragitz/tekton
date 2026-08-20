@@ -22,14 +22,15 @@ for a kind -- what the plan resolver (``rvt.ifc.intent``) reads instead of a har
 """
 from __future__ import annotations
 
+import functools
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 from . import taxonomy as TX
 
-__all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "vendors", "get", "resolve",
-           "scan", "lines_for_kind", "records_for_kind", "record_for", "declared", "record_tier",
-           "describe", "table", "check_line", "check"]
+__all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "UNNAMED_MAKERS", "vendors",
+           "get", "resolve", "scan", "lines_for_kind", "records_for_kind", "default_record",
+           "record_for", "declared", "record_tier", "describe", "table", "check_line", "check"]
 
 
 @dataclass(frozen=True)
@@ -354,6 +355,18 @@ def records_for_kind(kind: str) -> List[Tuple[str, str]]:
     return [(v.key, ln.key) for v, ln in lines_for_kind(kind) if ln.record]
 
 
+#: manufacturer cells that DECLARE nothing (blank, placeholder): no maker is read from them
+UNNAMED_MAKERS: FrozenSet[str] = frozenset({
+    "", "unspecified", "generic", "n/a", "na", "none", "-", "tbd", "by others", "varies"})
+
+
+def default_record(kind: str) -> Optional[Tuple[str, str]]:
+    """The record a kind is built from when the input names no maker (or one nothing is held
+    for): the first held record in directory order -- the ONE place that default lives."""
+    recs = records_for_kind(kind)
+    return recs[0] if recs else None
+
+
 def record_for(vendor: str, kind: str) -> Optional[Tuple[str, str]]:
     """The (catalog vendor, catalog line) this maker's HELD record for the taxonomy kind is,
     or None -- the maker is unknown, or known by name only for that kind (say so, never
@@ -364,40 +377,35 @@ def record_for(vendor: str, kind: str) -> Optional[Tuple[str, str]]:
     return next(((v.key, ln.key) for ln in v.lines if ln.record and kind in ln.kinds), None)
 
 
-#: the phrase every maker-SUBSTITUTION sentence ends with (a declared maker whose record is
-#: not held, or whose record refused the member): the manifest promotes plan notes carrying
-#: it to top-level degradations (``rvt.frontdoor.manifest.plan_note_degradations``)
+#: how every maker-SUBSTITUTION sentence ends (a declared maker whose record is not held, or
+#: whose record refused the member) -- prose, kept in one place so both routes say it alike
 NOT_THAT_MAKER = "never presented as that maker's product"
 
 
-def declared(text: Any, kind: str) -> Dict[str, Any]:
+def declared(text: Any, kind: str) -> Optional[Dict[str, Any]]:
     """What a DECLARED maker ('six Eaton panels', an IFC's Pset_ManufacturerTypeInformation)
-    means for one taxonomy kind: ``record`` is the held (vendor, line) the build should read
-    instead of its default, or None; ``line`` is the ONE sentence every surface relays -- the
-    prompt coverage and the plan resolver (``rvt.ifc.intent.declared_maker``) both use it, so
-    a family built from someone else's record is never presented as the declared maker's
-    product (steer #685).  ``kind`` is a taxonomy key."""
+    means for one taxonomy kind -- None when the cell declares nothing (``UNNAMED_MAKERS``).
+    ``record`` is the held (vendor, line) the build should read instead of
+    :func:`default_record`, or None; ``line`` is the ONE sentence every surface relays -- what
+    :func:`describe` says of the maker for that kind, plus, whenever no record of the maker is
+    read, the substitution said out loud (``NOT_THAT_MAKER``).  The prompt coverage and the
+    plan resolver (``rvt.ifc.intent.declared_maker``) both use it (steer #685)."""
     named = str(text or "").strip()
-    v = _BY_KEY.get(named) or resolve(named)
-    label = TX.get(kind).label if kind in TX._BY_KEY else kind
-    if v is None:
-        return {"known": False, "vendor": None, "name": named, "record": None,
-                "line": (f"manufacturer {named!r} is declared, but it is not a maker the vendor "
-                         f"directory knows -- built from what tekton holds for {label} and "
-                         f"reported as such; {NOT_THAT_MAKER}")}
-    rec = record_for(v.key, kind)
-    if rec is not None:
-        model = TX._member_model(TX.get(kind)) if kind in TX._BY_KEY else None
-        ln = next(x for x in v.lines if x.key == rec[1])
-        line = (f"manufacturer {v.name} declared -> its own catalog record {rec[0]}/{rec[1]}: "
-                + _held_phrase(v, ln, model))
-    elif any(kind in x.kinds for x in v.lines):     # named only: describe() says what IS buildable
-        line = (describe(v.key, kind=kind)["line"]
-                + f" -- built here from what tekton holds instead; {NOT_THAT_MAKER}")
-    else:
-        line = (f"{v.name} is in the vendor directory, but not as a maker of {label} -- built "
-                f"from what tekton holds for it and reported as such; {NOT_THAT_MAKER}")
-    return {"known": True, "vendor": v.key, "name": v.name, "record": rec, "line": line}
+    if named.lower() in UNNAMED_MAKERS:
+        return None
+    known, vendor, name, rec, line = _declared(named, kind)
+    return {"known": known, "vendor": vendor, "name": name, "record": rec, "line": line}
+
+
+@functools.lru_cache(maxsize=256)
+def _declared(text: str, kind: str) -> Tuple[bool, Optional[str], str, Optional[Tuple[str, str]], str]:
+    """:func:`declared` memoised on its two words: the plan resolver asks once per equipment
+    ITEM, and every answer costs a record parse (review of #736)."""
+    d = describe(text, kind=kind)
+    rec = record_for(d["key"], kind) if d["known"] else None
+    line = d["line"] if rec else (f"{d['line']} -- built here from what tekton holds for the "
+                                  f"kind instead and reported as such; {NOT_THAT_MAKER}")
+    return d["known"], d.get("key"), d.get("name", text), rec, line
 
 
 def record_tier(vendor: str, line: str, *, model: Optional[str] = None) -> Dict[str, Any]:
@@ -468,7 +476,7 @@ def describe(text: Any, kind: Optional[str] = None) -> Dict[str, Any]:
     held = [ln for ln in lines if ln.record]
     named = [ln for ln in lines if not ln.record]
     what = f" for {kind}" if kind else ""
-    model = TX._member_model(TX.get(kind)) if kind in TX._BY_KEY else None
+    model = TX.member_model(kind)
     if held:
         line = (f"{v.name}{what}: catalog records held for " +
                 "; ".join(_held_phrase(v, ln, model) for ln in held) +

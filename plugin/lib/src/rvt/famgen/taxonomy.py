@@ -35,9 +35,10 @@ Two readers sit on top of the table (#692 DONE 3 / 5): :func:`resolve` maps ONE 
 interview answer, a famspec word) to a row, and :func:`scan` finds every kind a free-text prompt
 names -- whole words, plural-tolerant, longest phrase first -- so the prompt grammar
 (:mod:`rvt.frontdoor.prompt_intent`) reports each recognised-but-not-built kind with this
-table's honest line instead of keeping a product list of its own.  ``INTENT_KINDS`` maps the
-intent schema's equipment kinds (``rvt.ifc.intent`` ``Equipment.kind``) onto rows, so the plan
-resolver and the vendor directory speak about the same kind.
+table's honest line instead of keeping a product list of its own.  ``Kind.intent`` names the
+intent schema's equipment kinds (``rvt.ifc.intent`` ``Equipment.kind``) a row stands for, so the
+plan resolver, the prompt grammar and the vendor directory speak about the same kind
+(:func:`for_intent_kind`; gated against that schema's vocabulary by :func:`check`).
 """
 from __future__ import annotations
 
@@ -49,9 +50,10 @@ from typing import (Any, Callable, Dict, FrozenSet, Iterable, List, NamedTuple, 
                     Sequence, Tuple)
 
 __all__ = ["Kind", "Mention", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LABEL",
-           "INTENT_KINDS", "AMBIGUOUS_ALONE", "kinds", "keys", "get", "resolve", "scan",
+           "AMBIGUOUS_ALONE", "kinds", "keys", "get", "resolve", "scan",
            "for_intent_kind", "by_discipline", "archetype_registry", "category_status",
-           "facts_tier", "builder_available", "caveat", "describe", "table", "check_row", "check"]
+           "member_model", "facts_tier", "builder_available", "caveat", "describe", "table",
+           "check_row", "check"]
 
 LANES = ("catalog", "archetype", "none")
 MECHANISMS = ("famspec", "archetype", "house")
@@ -90,6 +92,9 @@ class Kind:
     note: str = ""
     refine: Tuple[str, ...] = ()      # a GENERIC word ("light fixture"): the specific rows it
                                       # must be narrowed to before anything is built
+    intent: Tuple[str, ...] = ()      # the intent schema's equipment kinds this row stands for
+                                      # (rvt.ifc.intent Equipment.kind); first row listed wins
+
 
     @property
     def lane(self) -> str:
@@ -107,9 +112,9 @@ def _mech(m: str) -> Tuple[str, str]:
 
 
 def _k(key, label, discipline, category, via=(), *, aliases=(), pending="", note="",
-       refine=()) -> Kind:
+       refine=(), intent=()) -> Kind:
     return Kind(key, label, discipline, category, tuple(via), tuple(aliases), pending, note,
-                tuple(refine))
+                tuple(refine), tuple(intent))
 
 
 _HOUSE_SWBD = "house:rvt.ifc.intent:make_house_switchboard"
@@ -117,17 +122,28 @@ _HOUSE_SWBD = "house:rvt.ifc.intent:make_house_switchboard"
 _ROWS: Tuple[Kind, ...] = (
     # ---------------------------------------------------------------- electrical distribution
     _k("panelboard", "Panelboard", "electrical", "panelboard", ["famspec:panelboard"],
+       intent=("panelboard", "distribution_panelboard", "lighting_panelboard",
+               "receptacle_panelboard"),
        aliases=("panel", "branch panel", "lighting panel", "power panel", "distribution panel",
                 "load center", "distribution panelboard", "lighting panelboard",
                 "receptacle panelboard", "appliance panelboard")),
     _k("switchboard", "Switchboard", "electrical", "switchboard", [_HOUSE_SWBD],
+       intent=("switchboard",),
        aliases=("main switchboard", "msb", "service switchboard", "distribution switchboard"),
        note="no manufacturer member is held for switchboards: the house model is built at the "
             "prompt lane's default dimensions or the ones the prompt gives"),
+    # a switchgear LINEUP is carried as the intent schema's 'switchboard' kind and built as the
+    # same house lineup model -- a sectioned enclosure at prompt/default dimensions, no draw-out
+    # or metal-clad construction modelled -- and says so; the IFC route's own 'switchgear' kind
+    # is IfcSwitchingDevice (a switching DEVICE), which this row does not claim
     _k("switchgear", "Low-voltage switchgear", "electrical", "electrical_equipment",
-       aliases=("lv switchgear", "metal-enclosed switchgear", "metal-clad switchgear")),
+       [_HOUSE_SWBD], intent=("switchboard",),
+       aliases=("lv switchgear", "metal-enclosed switchgear", "metal-clad switchgear"),
+       note="built as the house service-board lineup (sections x section width), the same "
+            "generic model a switchboard gets: draw-out / metal-clad construction is not "
+            "modelled and no manufacturer member is held"),
     _k("transformer_dry", "Dry-type distribution transformer", "electrical", "transformer",
-       ["famspec:transformer"],
+       ["famspec:transformer"], intent=("transformer",),
        aliases=("transformer", "dry type transformer", "step-down transformer", "xfmr",
                 "distribution transformer")),
     _k("motor_control_center", "Motor control center", "electrical", "electrical_equipment",
@@ -172,11 +188,12 @@ _ROWS: Tuple[Kind, ...] = (
        aliases=("strut", "unistrut", "channel strut", "trapeze strut")),
     # ---------------------------------------------------------------- wiring devices
     _k("receptacle", "Duplex receptacle", "electrical", "electrical_fixture",
-       ["famspec:device/duplex-receptacle"],
+       ["famspec:device/duplex-receptacle"], intent=("receptacle_device",),
        aliases=("outlet", "duplex", "convenience receptacle", "5-15r", "wall outlet",
                 "power outlet", "receptacle device")),
     _k("receptacle_20a", "Duplex receptacle, 20 A", "electrical", "electrical_fixture",
-       ["famspec:device/duplex-receptacle-20a"], aliases=("5-20r", "20a receptacle")),
+       ["famspec:device/duplex-receptacle-20a"], intent=("receptacle_device",),
+       aliases=("5-20r", "20a receptacle")),
     _k("light_switch", "Wall switch", "electrical", "electrical_fixture",
        ["famspec:device/switch"],
        aliases=("switch", "toggle switch", "single pole switch", "wall switch")),
@@ -192,6 +209,7 @@ _ROWS: Tuple[Kind, ...] = (
     # row says which types it narrows to (the interview's first question, #684) instead of
     # pretending a generic fixture can be generated
     _k("luminaire", "Luminaire (type not named)", "lighting", "lighting_fixture",
+       intent=("light_fixture",),
        refine=("troffer", "downlight", "high_bay", "linear_luminaire", "wall_pack",
                "wall_sconce", "exit_sign", "emergency_light", "pole_light"),
        aliases=("light fixture", "lighting fixture", "light fitting", "led fixture",
@@ -379,21 +397,20 @@ def resolve(text: Any) -> Optional[Kind]:
     return _BY_KEY.get(key)
 
 
-#: the intent schema's equipment kinds (``rvt.ifc.intent`` ``Equipment.kind`` -- what the IFC
-#: resolver and the prompt grammar both emit) -> the row that IS that kind.  The plan resolver
-#: reads the vendor directory through it; the prompt grammar inverts it to know which rows the
-#: room build models.  A grammar kind absent here has no row (walls, doors, pads: not equipment).
-INTENT_KINDS: Dict[str, str] = {
-    "panelboard": "panelboard", "distribution_panelboard": "panelboard",
-    "lighting_panelboard": "panelboard", "receptacle_panelboard": "panelboard",
-    "switchboard": "switchboard", "transformer": "transformer_dry",
-    "receptacle_device": "receptacle", "luminaire": "luminaire",
-}
+#: intent equipment kind -> the row that stands for it (``Kind.intent``; the first row in table
+#: order wins, so 'receptacle_device' is the plain receptacle although the 20 A member also
+#: rides that kind).  The prompt grammar derives from it which rows the room build models; the
+#: plan resolver reads the vendor directory through it.
+_BY_INTENT: Dict[str, Kind] = {}
+for _row in _ROWS:
+    for _ik in _row.intent:
+        _BY_INTENT.setdefault(_ik, _row)
 
 
 def for_intent_kind(kind: Any) -> Optional[Kind]:
-    """The row an intent equipment kind ('lighting_panelboard', 'transformer', ...) stands for."""
-    return _BY_KEY.get(INTENT_KINDS.get(str(kind), ""))
+    """The row an intent equipment kind ('lighting_panelboard', 'transformer', 'light_fixture')
+    stands for; None for kinds that are not equipment rows (walls, room shells, supports)."""
+    return _BY_INTENT.get(str(kind))
 
 
 #: single words that ARE a kind when they are the whole answer (:func:`resolve`) but are not
@@ -431,6 +448,24 @@ def _singulars(word: str) -> Iterable[str]:
             yield word[:-1]
 
 
+def _match_at(text: str, toks: Sequence[Tuple[int, int, str]], i: int, index: Dict[str, str],
+              ambiguous: FrozenSet[str], proper: bool) -> Optional[Tuple[Mention, int]]:
+    """The longest name in ``index`` starting at token ``i`` -> (mention, tokens used)."""
+    for n in range(min(_MAX_WORDS, len(toks) - i), 0, -1):
+        words = [t[2] for t in toks[i:i + n]]
+        head = "".join(words[:-1])
+        for last in _singulars(words[-1]):
+            folded = _fold(head + last)
+            key = index.get(folded)
+            if key is None:
+                continue
+            if n == 1 and folded in ambiguous and not (proper and text[toks[i][0]].isupper()):
+                continue
+            start, end = toks[i][0], toks[i + n - 1][1]
+            return Mention(start, end, key, text[start:end]), n
+    return None
+
+
 def _scan(text: Any, index: Dict[str, str], *, ambiguous: FrozenSet[str] = frozenset(),
           proper: bool = False) -> List[Mention]:
     """Every phrase of ``text`` (up to five words) whose folded form is a name in ``index``:
@@ -443,28 +478,12 @@ def _scan(text: Any, index: Dict[str, str], *, ambiguous: FrozenSet[str] = froze
     out: List[Mention] = []
     i = 0
     while i < len(toks):
-        hit: Optional[Mention] = None
-        width = 0
-        for n in range(min(_MAX_WORDS, len(toks) - i), 0, -1):
-            words = [t[2] for t in toks[i:i + n]]
-            head = "".join(words[:-1])
-            for last in _singulars(words[-1]):
-                folded = _fold(head + last)
-                key = index.get(folded)
-                if key is None:
-                    continue
-                if n == 1 and folded in ambiguous and not (proper and text[toks[i][0]].isupper()):
-                    continue
-                start, end = toks[i][0], toks[i + n - 1][1]
-                hit, width = Mention(start, end, key, text[start:end]), n
-                break
-            if hit is not None:
-                break
+        hit = _match_at(text, toks, i, index, ambiguous, proper)
         if hit is None:
             i += 1
         else:
-            out.append(hit)
-            i += width
+            out.append(hit[0])
+            i += hit[1]
     return out
 
 
@@ -542,11 +561,15 @@ def _famspec_parts(row: Kind) -> Tuple[Optional[str], Optional[str]]:
     return None, None
 
 
-def _member_model(row: Kind) -> Optional[str]:
-    """The catalog variant ``model`` the row's sub-kind selects, or None (= every variant of
-    the kind's records is the member, e.g. a luminaire line holds only that fixture).  Device
-    sub-kinds share ONE record, so the member is the factory's own ``DEVICE_KINDS`` mapping --
-    imported lazily, only for those rows, so the selection is never a second copy."""
+def member_model(kind: Any) -> Optional[str]:
+    """The catalog variant ``model`` the kind's sub-kind selects, or None (= every variant of
+    the kind's records is the member, e.g. a luminaire line holds only that fixture; also None
+    for a key the table does not know).  Device sub-kinds share ONE record, so the member is
+    the factory's own ``DEVICE_KINDS`` mapping -- imported lazily, only for those rows, so the
+    selection is never a second copy.  ``kind`` is a key or a :class:`Kind` row."""
+    row = kind if isinstance(kind, Kind) else _BY_KEY.get(str(kind))
+    if row is None:
+        return None
     fam, sub = _famspec_parts(row)
     if fam == "device" and sub:
         from . import factory as _F
@@ -565,7 +588,7 @@ def facts_tier(kind: Any) -> Tuple[Optional[str], List[Tuple[str, str]], int, Op
     records = _V.records_for_kind(row.key)
     if not records:
         return None, [], 0, None
-    model = _member_model(row)
+    model = member_model(row)
     facts = sum(_V.record_tier(v, ln, model=model)["fields_fact"] for v, ln in records)
     return ("fact" if facts else "assumed"), records, facts, model
 
@@ -638,13 +661,12 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
     if status in ("pending", "conflict"):
         return False, detail
     if row.refine:
-        fine = [(_BY_KEY[k], builder_available(_BY_KEY[k], strict=strict)[0]) for k in row.refine]
-        yes = [r.label for r, ok in fine if ok]
-        no = [r.label for r, ok in fine if not ok]
-        return False, ("a generic word -- name the type: "
-                       + (f"{', '.join(yes)} (buildable here)" if yes else "")
-                       + ("; " if yes and no else "")
-                       + (f"{', '.join(no)} (known, not buildable here yet)" if no else ""))
+        fine = [(_BY_KEY[k].label, builder_available(_BY_KEY[k], strict=strict)[0])
+                for k in row.refine]
+        groups = (([lb for lb, ok in fine if ok], "buildable here"),
+                  ([lb for lb, ok in fine if not ok], "known, not buildable here yet"))
+        return False, "a generic word -- name the type: " + "; ".join(
+            f"{', '.join(labels)} ({what})" for labels, what in groups if labels)
     if not row.via:
         return False, (f"{row.label} is placed under {row.revit_category}, but no lane builds "
                        f"it yet: no catalog record is held and no archetype generates it")
@@ -679,7 +701,7 @@ def describe(text: Any) -> Dict[str, Any]:
     d = asdict(row)
     d.update({"known": True, "lane": row.lane, "revit_category": row.revit_category,
               "category_status": status, "category_detail": detail, "available": ok,
-              "availability": why, "standards_count": n_std, "generic": bool(row.refine)})
+              "availability": why, "standards_count": n_std})
     head = f"{row.label}: {row.revit_category}"
     if ok:
         d["line"] = f"{head}; {why}; {n_std} standard parameters{caveat(row)}"
@@ -810,7 +832,7 @@ def _record_problems(row: Kind, fam: str, sub: Optional[str]) -> List[str]:
     if held != reads:
         out.append(f"directory records {sorted(held)} != the records make_{fam}"
                    f"{'/' + sub if sub else ''} reads {sorted(reads)}")
-    model = _member_model(row)
+    model = member_model(row)
     for v, ln in sorted(held):
         try:
             rec = _C.load_line(v, ln)
@@ -840,8 +862,20 @@ def check() -> List[str]:
     problems = list(_ALIAS_CLASHES)
     if len(_BY_KEY) != len(_ROWS):
         problems.append("taxonomy: duplicate row keys")
-    problems.extend(f"taxonomy: INTENT_KINDS[{ik!r}] -> unknown row {rk!r}"
-                    for ik, rk in INTENT_KINDS.items() if rk not in _BY_KEY)
+    from ..ifc import intent as _I                       # check-only import: the schema's kinds
+    vocabulary = set(_I.GENERATED_KINDS) | set(_I.KIND_BY_CLASS.values())
+    problems.extend(f"taxonomy[{r.key}]: intent kind {ik!r} is not one rvt.ifc.intent emits "
+                    f"({sorted(vocabulary)})"
+                    for r in _ROWS for ik in r.intent if ik not in vocabulary)
+    for row in _ROWS:                                     # a generic word names EVERY type of it
+        if not row.refine:
+            continue
+        named = {k for g in _ROWS if g.refine and g.category == row.category for k in g.refine}
+        missing = [r.key for r in _ROWS if r.category == row.category and not r.refine
+                   and not r.pending and r.key not in named]
+        if missing:
+            problems.append(f"taxonomy[{row.key}]: generic for {row.category!r} but these rows "
+                            f"of that category are in no refine list: {missing}")
     problems.extend(f"taxonomy: AMBIGUOUS_ALONE word {w!r} is not a name any row carries"
                     for w in sorted(AMBIGUOUS_ALONE) if w not in _ALIAS)
     for row in _ROWS:

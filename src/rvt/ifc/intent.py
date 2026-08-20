@@ -2233,6 +2233,10 @@ class FamilyPlan:
     dims_modeled_m: Dict[str, float] = dc_field(default_factory=dict)
     refusal: Optional[str] = None
     notes: List[str] = dc_field(default_factory=list)
+    # said LOUDER than a note: the plan is built, but not as the input asked (a declared maker
+    # whose record is not held or refused the member, #692) -- the manifest lists these among
+    # the build's degradations, structurally, not by phrase
+    degradations: List[str] = dc_field(default_factory=list)
 
     def as_json(self) -> dict:
         d = {"tag": self.tag, "kind": self.kind, "constructor": self.constructor,
@@ -2244,7 +2248,7 @@ class FamilyPlan:
                       "delta_m": {k: _f(self.dims_catalog_m[k] - self.dims_modeled_m[k])
                                   for k in self.dims_catalog_m
                                   if k in self.dims_modeled_m}},
-             "notes": list(self.notes)}
+             "notes": list(self.notes), "degradations": list(self.degradations)}
         if self.refusal:
             d["refusal"] = self.refusal
         return d
@@ -2257,32 +2261,43 @@ def _mounting_word(eq: Equipment) -> str:
     return "surface"
 
 
-#: the catalog record each constructor reads when the input names no maker (or names one
-#: the catalog holds nothing for): unchanged defaults, now merely the fallback (#692)
-_DEFAULT_PANEL_RECORD = ("eaton", "pow-r-line")
-_DEFAULT_XFMR_VENDOR = "eaton"
-_UNNAMED_MAKERS = ("", "unspecified", "generic", "n/a", "na", "none", "-", "tbd", "by others")
-
-
-def declared_maker(con: Dict[str, Any], kind_key: str
+def declared_maker(con: Dict[str, Any], kind: str
                    ) -> Tuple[Optional[Tuple[str, str]], Optional[str]]:
     """What the input DECLARES as manufacturer (``Pset_ManufacturerTypeInformation`` on the
     IFC route, 'six Eaton panels' on the prompt route), read through the vendor directory
-    (:func:`rvt.famgen.vendors.declared`) for the taxonomy kind ``kind_key``: ``(record,
-    note)``.  ``record`` is the (catalog vendor, catalog line) that maker's HELD record is --
-    the plan reads it instead of the default; None when nothing is declared, the maker is not
-    in the directory, or it is known by name only for this kind.  ``note`` is the directory's
-    one honest sentence, so a family built from someone else's record is never presented as
-    the declared maker's product (steer #685: no silent substitution).  Never raises."""
-    named = str(con.get("Manufacturer") or "").strip()
-    if named.lower() in _UNNAMED_MAKERS:
-        return None, None
+    (:func:`rvt.famgen.vendors.declared`) for the equipment ``kind`` (an intent kind,
+    'lighting_panelboard', mapped to its taxonomy row by ``taxonomy.for_intent_kind``):
+    ``(record, sentence)``.  ``record`` is the (catalog vendor, catalog line) that maker's
+    HELD record is -- the plan reads it instead of the default; None when nothing is
+    declared, the maker is not in the directory, or it is known by name only for this kind.
+    ``sentence`` is the directory's one honest line (None when nothing is declared): a NOTE
+    when the maker's own record is read, a DEGRADATION otherwise (:func:`_say_maker`), so a
+    family built from someone else's record is never presented as the declared maker's
+    product (steer #685: no silent substitution).  Never raises."""
     try:
-        from ..famgen import vendors as VD
-        d = VD.declared(named, kind_key)
-        return d["record"], d["line"]
+        from ..famgen import taxonomy as TX, vendors as VD
+        row = TX.for_intent_kind(kind)
+        d = VD.declared(con.get("Manufacturer"), row.key if row else str(kind))
+        return (None, None) if d is None else (d["record"], d["line"])
     except Exception as e:                    # noqa: BLE001 -- the directory never costs a plan
-        return None, f"manufacturer {named!r} declared; the vendor directory could not be read ({e})"
+        return None, (f"manufacturer {con.get('Manufacturer')!r} declared; the vendor "
+                      f"directory could not be read ({type(e).__name__}: {e})")
+
+
+def _default_record(kind: str) -> Tuple[Optional[str], Optional[str]]:
+    """The (vendor, line) a kind's constructor reads when no maker's own record is: the
+    vendor directory's default record for the row (``vendors.default_record``)."""
+    from ..famgen import taxonomy as TX, vendors as VD
+    row = TX.for_intent_kind(kind)
+    rec = VD.default_record(row.key) if row else None
+    return rec if rec else (None, None)
+
+
+def _say_maker(fp: FamilyPlan, rec: Optional[Tuple[str, str]], sentence: Optional[str]) -> None:
+    """The declared-maker sentence rides the plan: a note when that maker's own record was
+    read, a degradation when it was not (the plan is built from something else and says so)."""
+    if sentence:
+        (fp.notes if rec else fp.degradations).append(sentence)
 
 
 def plan_family_for(eq: Equipment) -> FamilyPlan:
@@ -2321,11 +2336,11 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
                       voltage=device_voltage(dev.get("Voltage"),
                                              poles=dev.get("Poles") or dev.get("Phases")),
                       va=va)
-        _rec, maker_note = declared_maker(con, "receptacle")
         fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
                         constructor="rvt.famgen.factory.make_device",
                         kwargs=kwargs, dims_modeled_m=dims_mod,
-                        notes=notes + [n for n in (load_note, height_note, maker_note) if n])
+                        notes=notes + [n for n in (load_note, height_note) if n])
+        _say_maker(fp, *declared_maker(con, eq.kind))
         _resolve_device_facts(fp)
         return fp
     if eq.kind in ("distribution_panelboard", "lighting_panelboard",
@@ -2335,35 +2350,35 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
         mains_a = cell("MainsRating") or cell("BusRating", 0.0)
         spaces = cell("NumberOfCircuits", 42)
         voltage = str(v.get("system") or con.get("Voltage") or "480Y/277").replace(" V", "")
-        rec, maker_note = declared_maker(con, "panelboard")
-        vendor, line = rec or _DEFAULT_PANEL_RECORD
+        rec, sentence = declared_maker(con, eq.kind)
+        vendor, line = rec or _default_record(eq.kind)
         kwargs = dict(vendor=vendor, line=line, mains_a=mains_a, spaces=spaces,
                       voltage=voltage, mcb=mcb, mounting=_mounting_word(eq),
                       panel_name=str(con.get("PanelName") or eq.tag),
                       sccr_ka=cell("ShortCircuitRatingkA"))
         fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
                         constructor="rvt.famgen.factory.make_panelboard",
-                        kwargs=kwargs, dims_modeled_m=dims_mod,
-                        notes=notes + ([maker_note] if maker_note else []))
+                        kwargs=kwargs, dims_modeled_m=dims_mod, notes=notes)
+        _say_maker(fp, rec, sentence)
         _resolve_panel_facts(fp)
         if fp.status == "refused" and rec:
-            _fall_back(fp, _resolve_panel_facts, vendor=_DEFAULT_PANEL_RECORD[0],
-                       line=_DEFAULT_PANEL_RECORD[1])
+            dv, dl = _default_record(eq.kind)
+            _fall_back(fp, _resolve_panel_facts, vendor=dv, line=dl)
         return fp
     if eq.kind == "transformer":
         kva = cell("RatingkVA", 0.0)
         prim = parse_voltage(con.get("Primary")).get("ll") or 480.0
         sec = str(con.get("Secondary") or "208Y/120").replace(" V", "")
-        rec, maker_note = declared_maker(con, "transformer_dry")
-        kwargs = dict(kva=kva, vendor=rec[0] if rec else _DEFAULT_XFMR_VENDOR,
+        rec, sentence = declared_maker(con, eq.kind)
+        kwargs = dict(kva=kva, vendor=(rec or _default_record(eq.kind))[0],
                       primary_v=int(prim), secondary_v=sec)
         fp = FamilyPlan(tag=eq.tag, kind=eq.kind,
                         constructor="rvt.famgen.factory.make_transformer",
-                        kwargs=kwargs, dims_modeled_m=dims_mod,
-                        notes=notes + ([maker_note] if maker_note else []))
+                        kwargs=kwargs, dims_modeled_m=dims_mod, notes=notes)
+        _say_maker(fp, rec, sentence)
         _resolve_xfmr_facts(fp)
         if fp.status == "refused" and rec:
-            _fall_back(fp, _resolve_xfmr_facts, vendor=_DEFAULT_XFMR_VENDOR)
+            _fall_back(fp, _resolve_xfmr_facts, vendor=_default_record(eq.kind)[0])
         return fp
     if eq.kind == "switchboard":
         # the panelboard factory covers Eaton Pow-R-Line PANELBOARDS (<= 600 A
@@ -2372,14 +2387,11 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
         # plan the HOUSE switchboard from our own IFC-modeled dimensions.
         mains_a = cell("MainsRating") or cell("BusRating", 2500.0)
         voltage = str(v.get("system") or con.get("Voltage") or "480Y/277").replace(" V", "")
-        probe = dict(vendor="eaton", line="pow-r-line", mains_a=mains_a,
+        probe = dict(zip(("vendor", "line"), _default_record("panelboard")), mains_a=mains_a,
                      spaces=cell("NumberOfCircuits", 42),
                      voltage=voltage, mcb=True, mounting="surface",
                      panel_name=str(con.get("PanelName") or eq.tag))
         refusal = _probe_panel_refusal(probe)
-        _rec, maker_note = declared_maker(con, "switchboard")
-        if maker_note:
-            notes.append(maker_note)
         kwargs = dict(
             tag=eq.tag, name="Switchboard " + eq.tag, mains_a=mains_a, voltage=voltage,
             phases=cell("Phases") or int(v.get("phases") or 3),
@@ -2399,6 +2411,7 @@ def plan_family_for(eq: Equipment) -> FamilyPlan:
                         constructor="rvt.ifc.intent.make_house_switchboard",
                         kwargs=kwargs, status="house", refusal=refusal,
                         dims_modeled_m=dims_mod, dims_catalog_m=dict(dims_mod), notes=notes)
+        _say_maker(fp, *declared_maker(con, eq.kind))
         fp.notes.append(
             "NO catalog record covers a 2500 A switchboard (the Pow-R-Line "
             "panelboard members top out at 600 / 800 / 1200 A) and no switchboard "
@@ -2446,14 +2459,14 @@ def _probe_panel_refusal(kwargs: dict) -> str:
 
 def _fall_back(fp: FamilyPlan, resolve, **default_kwargs: Any) -> None:
     """The DECLARED maker's record refused this member (a rating / voltage it holds no table
-    for): deliver from the default record instead (hard rule 1) and say so on the plan --
-    the refusal is kept verbatim, the substitution is never silent."""
+    for): deliver from the default record instead (hard rule 1) and say so on the plan as a
+    degradation -- the refusal is kept verbatim, the substitution is never silent."""
     from ..famgen.vendors import NOT_THAT_MAKER
     was = "/".join(str(fp.kwargs.get(k)) for k in default_kwargs)
     now = "/".join(str(v) for v in default_kwargs.values())
-    fp.notes.append(f"the declared maker's record ({was}) REFUSED this member -- {fp.refusal} "
-                    f"-- so it is built from the default record ({now}) instead and reported "
-                    f"as such; {NOT_THAT_MAKER}")
+    fp.degradations.append(f"the declared maker's record ({was}) REFUSED this member -- "
+                           f"{fp.refusal} -- so it is built from the default record ({now}) "
+                           f"instead and reported as such; {NOT_THAT_MAKER}")
     fp.kwargs.update(default_kwargs)
     fp.refusal = None
     fp.status = "planned"

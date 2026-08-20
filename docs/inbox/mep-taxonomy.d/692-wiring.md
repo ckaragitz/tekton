@@ -25,9 +25,16 @@ is also the interview's first question for that word (#684) with no interview co
 rejects a refine row that declares mechanisms, refines to an unknown/generic kind, or crosses
 category; a pending row may not refine.
 
-**`taxonomy.INTENT_KINDS`**: the intent schema's equipment kinds (`Equipment.kind`, shared by
-the IFC and prompt routes) → rows. The prompt grammar inverts it (`_SCENE_KIND`) to know which
-rows the room build models; the plan resolver reads the vendor directory through it.
+**`Kind.intent`** (row-side): the intent schema's equipment kinds (`rvt.ifc.intent`
+`Equipment.kind`, shared by the IFC and prompt routes) each row stands for — `panelboard` carries
+the four panel flavours, `receptacle` and `receptacle_20a` both ride `receptacle_device` (first
+row wins for `for_intent_kind`), `luminaire` is the IFC route's `light_fixture`, and the
+`switchgear` row now says in data what the grammar always did: a switchgear lineup is carried as
+the `switchboard` kind and built as the same house lineup model (`via=[house switchboard]`, note:
+no draw-out / metal-clad construction modelled). The prompt grammar *derives* `_SCENE_KIND` from
+it (no literal says "switchgear → switchboard"), the plan resolver reads the directory through
+`for_intent_kind(eq.kind)`, and `check()` gates every named intent kind against the schema's own
+vocabulary (`GENERATED_KINDS ∪ KIND_BY_CLASS`).
 
 **The prompt grammar reads the taxonomy** (`prompt_intent.parse_prompt`): `_UNBUILT_PATTERNS`
 (a hand list of nine regexes) is gone. Every kind the scanner finds that the room build does not
@@ -50,19 +57,25 @@ with no router change — #674 rewrites that route function and must not conflic
   every item that named none; two such makers ride nothing and a warning says so. The name goes
   into the tagging contract as `Pset_ManufacturerTypeInformation.Manufacturer` — exactly the cell
   the IFC route reads — so both routes meet in one place:
-- `rvt.ifc.intent.declared_maker(con, kind)` → `vendors.declared(text, kind)`: the maker's own
+- `rvt.ifc.intent.declared_maker(con, eq.kind)` → `vendors.declared(text, kind)`: the maker's own
   **held** record for that kind (`vendors.record_for`) replaces the plan's default record
   (`Square D` panelboards → `square-d/nq-nf-iline-panelboards`, `Hammond` transformers →
   `hps/sentinel-g-transformers`; before this slice every panelboard/transformer plan said
-  `vendor="eaton"` whatever the input declared). A maker known by name only (`Siemens`), not a
-  maker of that kind (`Trane` panels), or unknown, keeps the default record and the plan carries
-  the directory's one sentence ending in `vendors.NOT_THAT_MAKER` (*"never presented as that
-  maker's product"*); if the maker's record **refuses** the member (HPS holds no 45 kVA unit; NF
-  has no sizing table at 480Y/277) `_fall_back` rebuilds from the default record, keeps the
-  refusal verbatim and carries the same phrase. `manifest.plan_note_degradations` promotes every
-  note carrying the phrase to the build's top-level degradations (identical notes share one line),
-  next to the existing dropped-cell notes; the prompt coverage carries the same sentence as a
-  warning and an `understood: manufacturer` entry per (maker, kind) with the record it selected.
+  `vendor="eaton"` whatever the input declared). The default itself now lives in ONE place —
+  `vendors.default_record(kind)`, the directory's first held record — instead of literals in the
+  resolver, and placeholder cells (`unspecified`, `by others`, …; `vendors.UNNAMED_MAKERS`) declare
+  nothing on either route. A maker known by name only (`Siemens`), not a maker of that kind
+  (`Trane` panels), or unknown, keeps the default record and the plan carries the directory's one
+  sentence (ending *"never presented as that maker's product"*) as a **`FamilyPlan.degradations`**
+  entry — a new structured field, emitted by `as_json` / `summarize`, listed by
+  `manifest.plan_note_degradations` among the build's top-level degradations (identical sentences
+  share one line) and rendered per plan as **said**; no phrase-grepping. If the maker's record
+  **refuses** the member (HPS holds no 45 kVA unit; NF has no sizing table at 480Y/277)
+  `_fall_back` rebuilds from the default record, keeps the refusal verbatim, and says so the same
+  way. When the maker's own record *is* read the sentence is a plain note. The prompt coverage
+  carries the same sentence as a warning plus an `understood: manufacturer` entry per (maker,
+  kind) with the record it selected; `vendors.declared` is memoised (one record parse per (maker,
+  kind), not per item — review measurement: 26–40 % of parse time on maker-heavy prompts).
 
 **Nits from #735**: (1) `vendors.describe(vendor, kind=)` and `make_family.py vendors --kind K`
 count the tier on the *member* the kind selects (`variant box-4in-square: sourced facts: 4
@@ -74,14 +87,28 @@ pending label may be neither a category the resolver carries nor one of `INTENDE
 values, and `_record_problems` also requires the member's variant to exist and the record's OST
 label to agree with the row. Nit 4 waits for #698 as agreed.
 
+**Review passes before the PR left draft**: `/simplify` (four angles) folded in — bookkeeping in
+`parse_prompt` collapsed (one maker field on `PromptItem`, mentions marked once, `_SCENE_KIND`
+derived), `declared()` reduced to `describe()`'s line + one substitution tail, `member_model()`
+made public and key-tolerant, the scanner's inner search extracted (`_match_at`), the not-built
+records sorted once by offset; the altitude review moved intent kinds row-side, the default
+record into the directory, and the substitution sentence into a structured plan field (above),
+and added the refine-completeness gate (a non-generic row of a category that has a generic row
+must appear in a `refine` list). Left as a follow-up (filed): unbuilt kinds are *shielded spans*,
+not clauses, so a rating/tag written next to one (`a 400 A automatic transfer switch beside two
+panels`) can still bleed into the neighbouring clause exactly as before this slice — parsing them
+as full `PromptItem(buildable=False)` clauses is the deeper fix and what O12 needs.
+
 ## Evidence
 
 - Gates: `make_family.py taxonomy --check` → `83 kinds, 0 problems` (13 `#516` conflict rows
   warned, unchanged); `vendors --check` → `50 vendors, 118 lines, 7 with a catalog record, 0
   problems`; `standards --check` unchanged.
-- Tests: new `tests/test_taxonomy_wiring_692.py` — 48 tests, 0.3 s (scanner, generic rows,
-  nits, `declared`, grammar shield/records/error relay, maker attach/global/ambiguous, plan
-  resolver held/refused-fallback/named-only, `declared_maker` never raises, `route()` relay);
+- Tests: new `tests/test_taxonomy_wiring_692.py` — 56 tests, 0.3 s (scanner, generic rows,
+  nits, `declared` / `default_record` / placeholders, intent-kind + refine gates, grammar
+  shield/records/error relay, maker attach/global/ambiguous, plan resolver
+  held/refused-fallback/named-only with structured degradations, `declared_maker` never raises,
+  `route()` relay);
   drop-in `tests/ci_shard.d/692-taxonomy-wiring.txt`. Two existing assertions that pinned the
   generic word `luminaire` for `LED troffers` now expect the taxonomy's `troffer`
   (`tests/test_prompt_intent.py`, `tests/test_frontdoor.py`). Stream-local: `test_taxonomy_692`,

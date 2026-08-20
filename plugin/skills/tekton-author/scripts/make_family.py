@@ -309,7 +309,7 @@ def cmd_vendors(ns) -> int:
         pairs = V.lines_for_kind(ns.kind)
         # a record's worth is counted on the MEMBER the kind selects (a device sub-kind is
         # one variant of a shared record), exactly as taxonomy.describe() counts it
-        model = TX._member_model(TX.get(ns.kind)) if ns.kind in TX.keys() else None
+        model = TX.member_model(ns.kind)
         if ns.json:
             print(json.dumps([V._line_dict(v, ln, model) for v, ln in pairs], indent=1))
         else:

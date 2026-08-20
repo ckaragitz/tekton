@@ -320,15 +320,14 @@ DROPPED_CELL_MARK = " is not a usable "
 def plan_note_degradations(intent_summary: Optional[Dict[str, Any]]) -> List[str]:
     """One degradation line per family plan whose notes say a schedule cell
     was dropped or defaulted (``'LP-1: PanelSchedule.MainsRating '4OO A' is
-    not a usable current rating (not a number) -> ...'``) or that a DECLARED
-    maker's product was not what got built (no record of that maker is held,
-    or its record refused the member -- ``rvt.famgen.vendors.NOT_THAT_MAKER``,
-    #692); ``[]`` when no plan carries such a note."""
-    from ..famgen.vendors import NOT_THAT_MAKER
-    by_text: Dict[str, List[str]] = {}          # plans saying the very same thing share ONE line
+    not a usable current rating (not a number) -> ...'``), plus every plan's own
+    ``degradations`` (built, but not as the input asked: a declared maker whose
+    record is not held or refused the member, #692); ``[]`` when no plan carries
+    either.  Plans saying the very same thing share one line."""
+    by_text: Dict[str, List[str]] = {}
     for p in (intent_summary or {}).get("family_plans") or []:
-        said = [n for n in p.get("notes") or []
-                if DROPPED_CELL_MARK in n or NOT_THAT_MAKER in n]
+        said = ([n for n in p.get("notes") or [] if DROPPED_CELL_MARK in n]
+                + list(p.get("degradations") or []))
         if said:
             by_text.setdefault("; ".join(said), []).append(str(p.get("tag")))
     return [f"{', '.join(tags)}: {text}" for text, tags in by_text.items()]
@@ -769,6 +768,8 @@ def _render_md(m: Dict[str, Any]) -> str:
         for p in it.get("family_plans") or []:      # each plan's notes (#465); nothing when none
             for n in p.get("notes") or []:
                 ap(f"  - note: `{p.get('tag')}` — {n}")
+            for n in p.get("degradations") or []:  # built, not as asked (#692) -- also up top
+                ap(f"  - **said**: `{p.get('tag')}` — {n}")
         ap(f"- feeder edges: {len(it.get('feeder_edges') or [])}")
         ops = it.get("other_products") or []
         if ops:                                # prompt-route entries carry no ifcClass: kind only

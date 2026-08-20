@@ -127,15 +127,17 @@ _KIND_PATTERNS: List[Tuple[str, str, str]] = [
 #: kinds that carry a MOUNTING HEIGHT attribute ('at 18 in AFF') in their clause
 _AFF_KINDS = ("receptacle_device",)
 
-#: taxonomy row -> the grammar kind above that MODELS it in the room build (the inverse of
-#: ``taxonomy.INTENT_KINDS`` over this grammar's kinds; 'switchgear' too, because the
-#: switchboard clause reads a switchgear lineup as the service board).  Every other row the
-#: taxonomy recognises in a prompt is recorded NOT built, with the table's own line (#692).
+#: taxonomy row -> the grammar kind above that MODELS it in the room build: every row whose
+#: intent kinds (``Kind.intent``) include one of this grammar's kinds -- derived, so the table
+#: alone says that a switchgear lineup rides the switchboard clause and the 20 A receptacle the
+#: receptacle clause.  Every other row the taxonomy recognises in a prompt is recorded NOT
+#: built, with the table's own line (#692).
+_GRAMMAR_KINDS = frozenset(k for k, _p, _r in _KIND_PATTERNS)
 _SCENE_KIND: Dict[str, str] = {
-    **{TX.INTENT_KINDS[k]: k for k in ("panelboard", "switchboard", "transformer",
-                                       "receptacle_device")},
-    "receptacle_20a": "receptacle_device", "switchgear": "switchboard",
-}
+    row.key: next(ik for ik in row.intent if ik in _GRAMMAR_KINDS)
+    for row in TX.kinds() if any(ik in _GRAMMAR_KINDS for ik in row.intent)}
+#: how a not-built line names what this route DOES model (the modelled rows' labels)
+_MODELLED_PROSE = "switchboards, panelboards, transformers and receptacles"
 #: an example clause per grammar kind, quoted when a prompt names a modelled kind in words
 #: the grammar does not parse ('a load center')
 _SCENE_EXAMPLE = {"panelboard": "two 225 A panels", "switchboard": "a 2000 A switchboard",
@@ -363,9 +365,9 @@ class PromptItem:
     height_in: Optional[float] = None      # device mounting height AFF (receptacle_device)
     fed_from: Optional[str] = None
     name: Optional[str] = None
-    manufacturer: Optional[str] = None     # a maker the prompt NAMED for this item -- carried as
-    manufacturer_key: Optional[str] = None  # DECLARED identity; the plan resolver says whether
-                                           # a record of that maker is held (rvt.famgen.vendors)
+    manufacturer: Optional[str] = None     # a maker the prompt NAMED for this item (its directory
+                                           # name, rvt.famgen.vendors) -- carried as DECLARED
+                                           # identity; the plan resolver says what is held
     level: Optional[int] = None            # storey number (1 = Level 1); None -> the room's
     source_text: str = ""
     buildable: bool = True
@@ -631,6 +633,10 @@ def _resolve_levels(room: Optional[PromptRoom], items: List[PromptItem], n_level
             for i in range(n_levels)]
 
 
+#: the taxonomy.describe() fields a not-built record carries verbatim
+_NOT_BUILT_FIELDS = ("label", "revit_category", "discipline", "lane", "category_status")
+
+
 def _kind_record(m: TX.Mention) -> Dict[str, Any]:
     """The NOT-BUILT record of one kind the taxonomy recognised: that table's honest line
     (Revit category, the lane that builds it or the lane that is missing, the category-id
@@ -643,36 +649,33 @@ def _kind_record(m: TX.Mention) -> Dict[str, Any]:
                 f"e.g. '{_SCENE_EXAMPLE[scene]}' and it is built")
     elif d["available"]:
         tail = ("a family this engine generates (route prompt -> rfa, or a famspec), but the "
-                "room build places switchboards, panelboards, transformers and receptacles "
-                "only: recorded in the intent, NOT modelled")
+                f"room build places {_MODELLED_PROSE} only: recorded in the intent, NOT modelled")
     else:
         tail = "recorded in the intent, NOT modelled"
-    return {"text": m.text, "kind": m.key, "label": d["label"],
-            "revit_category": d["revit_category"], "discipline": d["discipline"],
-            "lane": d["lane"], "category_status": d["category_status"],
-            "family_buildable_here": bool(d["available"]), "generic": bool(d["generic"]),
+    return {"text": m.text, "kind": m.key, **{k: d[k] for k in _NOT_BUILT_FIELDS},
+            "family_buildable_here": d["available"], "generic": bool(d["refine"]),
             "reason": f"{d['line']} -- {tail}"}
 
 
-def _maker_coverage(items: List["PromptItem"], loose: Sequence[TX.Mention],
+def _maker_coverage(items: List["PromptItem"], loose_key: Optional[str],
                     cov: "PromptCoverage") -> None:
     """One 'understood' entry per (maker, kind) the prompt named, and ONE warning wherever no
     record of that maker is held for the kind -- the vendor directory's own sentence
     (``vendors.declared``), the same one the plan resolver puts on the family plan: those
     items are built from the records that ARE held (or as our house model) and say so;
-    nothing is presented as that maker's product (steer #685)."""
+    nothing is presented as that maker's product (steer #685).  ``loose_key`` is the maker
+    that was named outside every clause, if one was."""
     groups: Dict[Tuple[str, str], List["PromptItem"]] = {}
     for it in items:
-        if it.manufacturer_key:
-            groups.setdefault((it.manufacturer_key, it.kind), []).append(it)
-    for (vkey, kind), its in groups.items():
-        row = TX.for_intent_kind(kind)
-        d = VD.declared(vkey, row.key if row else kind)
+        if it.manufacturer:
+            groups.setdefault((it.manufacturer, it.kind), []).append(it)
+    for (name, kind), its in groups.items():
+        d = VD.declared(name, TX.for_intent_kind(kind).key)
         tags = [it.tag for it in its]
-        entry: Dict[str, Any] = {"clause": its[0].manufacturer, "as": "manufacturer",
-                                 "vendor": vkey, "kind": kind, "tags": tags,
+        entry: Dict[str, Any] = {"clause": name, "as": "manufacturer", "vendor": d["vendor"],
+                                 "kind": kind, "tags": tags,
                                  "record": "/".join(d["record"]) if d["record"] else None}
-        if loose:
+        if d["vendor"] == loose_key:
             entry["scope"] = "named outside any clause: applied to every item without its own"
         cov.understood.append(entry)
         if d["record"] is None:
@@ -915,11 +918,13 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # panelboard by its last word; it is recorded NOT built in section 3, with the
     # taxonomy's own line.  Kinds the build models are left to their clauses.
     kind_mentions = [m for m in TX.scan(text) if not overlaps(m.start, m.end)]
-    shielded = [m for m in kind_mentions if m.key not in _SCENE_KIND]
-    taken += [(m.start, m.end) for m in shielded]
-    # every MAKER named (rvt.famgen.vendors) -- attached to the equipment clause it sits in
+    taken += [(m.start, m.end) for m in kind_mentions if m.key not in _SCENE_KIND]
+    # every MAKER named (rvt.famgen.vendors) -- attached to the equipment clause it sits in;
+    # a maker's name is never an 'ignored word', whatever it ends up applied to
     maker_mentions = [m for m in VD.scan(text) if not overlaps(m.start, m.end)]
-    makers_used: set = set()
+    for m in maker_mentions:
+        mark((m.start, m.end))
+    makers_in_clause: set = set()
 
     counters: Dict[str, int] = {}                     # items issued per tag prefix
     used_tags: set = set()
@@ -1061,15 +1066,13 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         in_win = [m for m in maker_mentions if ws <= m.start and m.end <= we]
         maker_m = next((m for m in reversed(in_win) if m.end <= km.start()),
                        in_win[0] if in_win else None)
-        maker = VD.get(maker_m.key) if maker_m is not None else None
         if maker_m is not None:
-            makers_used.add((maker_m.start, maker_m.end))
-            mark((maker_m.start, maker_m.end))
+            makers_in_clause.add(maker_m)
         for j in range(cnt):
             tag, idx = issue_tag(prefix, tags[j] if j < len(tags) else None)
             it = PromptItem(kind=kind, tag=tag, count_index=idx, source_text=window.strip())
-            if maker is not None:
-                it.manufacturer, it.manufacturer_key = maker.name, maker.key
+            if maker_m is not None:
+                it.manufacturer = VD.get(maker_m.key).name
             if amp:
                 it.rating_a = _clean_num(amp.group(1))
             if kva:
@@ -1121,20 +1124,17 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # a maker named OUTSIDE every equipment clause ('all gear by Eaton') applies to every
     # item that named none -- when exactly one such maker is named; several are ambiguous
     # and applied to nothing (said, not guessed)
-    loose = [m for m in maker_mentions if (m.start, m.end) not in makers_used]
-    loose_keys = sorted({m.key for m in loose})
-    for m in loose:
-        mark((m.start, m.end))
-    if len(loose_keys) == 1 and items:
-        gv = VD.get(loose_keys[0])
+    loose_keys = sorted({m.key for m in maker_mentions if m not in makers_in_clause})
+    loose_names = ", ".join(VD.get(k).name for k in loose_keys)
+    loose_key = loose_keys[0] if len(loose_keys) == 1 else None
+    if loose_key is not None:
         for it in items:
-            if it.manufacturer is None:
-                it.manufacturer, it.manufacturer_key = gv.name, gv.key
-    elif len(loose_keys) > 1:
-        cov.warnings.append("makers " + ", ".join(VD.get(k).name for k in loose_keys)
-                            + " are named outside any equipment clause -- applied to nothing; "
-                              "name the maker inside the clause ('six Eaton panels')")
-    _maker_coverage(items, [m for m in loose if len(loose_keys) == 1 and items], cov)
+            it.manufacturer = it.manufacturer or loose_names
+    elif loose_keys:
+        cov.warnings.append(f"makers {loose_names} are named outside any equipment clause -- "
+                            "applied to nothing; name the maker inside the clause ('six Eaton "
+                            "panels')")
+    _maker_coverage(items, loose_key, cov)
 
     # room service voltage: the service clause's own voltage, else a
     # switchboard's, else the default -- NEVER a branch panel's own system
@@ -1147,29 +1147,27 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # ------------------------------------------------------------------
     # 3. recognised-but-unbuilt kinds (coverage honesty)
     # ------------------------------------------------------------------
-    unbuilt: List[Dict[str, Any]] = []
+    found: List[Tuple[int, Dict[str, Any]]] = []
     for m in kind_mentions:
-        # a shielded mention is reported; a scene-kind mention is reported only when its
-        # clause did not build it ('a load center': a panelboard by the taxonomy, not a
-        # phrasing the panel clause reads) -- never twice for one span
-        if m not in shielded and overlaps(m.start, m.end):
-            continue
-        taken.append((m.start, m.end))
+        # a shielded mention is reported; a scene-kind mention only when its clause did not
+        # build it ('a load center': a panelboard by the taxonomy, not a phrasing the panel
+        # clause reads) -- never twice for one span
+        if m.key in _SCENE_KIND:
+            if overlaps(m.start, m.end):
+                continue
+            taken.append((m.start, m.end))
         mark((m.start, m.end))
-        rec = _kind_record(m)
-        unbuilt.append(rec)
-        cov.not_built.append(rec)
+        found.append((m.start, _kind_record(m)))
     for kind, pat, why in _CONTEXT_PATTERNS:
         for um in re.finditer(pat, low):
             if overlaps(um.start(), um.end()):
                 continue
-            taken.append((um.start(), um.end()))
+            taken.append(um.span())
             mark(um.span())
-            rec = {"text": text[um.start():um.end()], "kind": kind,
-                   "reason": f"recognised, NOT modelled: {why}"}
-            unbuilt.append(rec)
-            cov.not_built.append(rec)
-    unbuilt.sort(key=lambda r: low.find(r["text"].lower()))
+            found.append((um.start(), {"text": text[um.start():um.end()], "kind": kind,
+                                       "reason": f"recognised, NOT modelled: {why}"}))
+    unbuilt: List[Dict[str, Any]] = [rec for _start, rec in sorted(found, key=lambda f: f[0])]
+    cov.not_built.extend(unbuilt)
 
     # ------------------------------------------------------------------
     # 4. levels
@@ -1222,13 +1220,12 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
 
     if not items and not (room and room.width_m):
         raise PromptError(
-            "the prompt names no equipment this route models (switchboards / panelboards / "
-            "transformers / receptacles) and no room with dimensions -- nothing to author here."
+            f"the prompt names no equipment this route models ({_MODELLED_PROSE}) and no room "
+            "with dimensions -- nothing to author here."
             + (" Recognised, NOT built by this route: "
                + "; ".join(f"'{u['text']}' -> {u['reason']}" for u in unbuilt) + "."
                if unbuilt else " No other equipment kind was recognised either.")
-            + (" Makers named: " + ", ".join(VD.get(k).name for k in loose_keys) + "."
-               if loose_keys else "")
+            + (f" Makers named: {loose_names}." if loose_keys else "")
             + " Ignored words: " + (", ".join(ignored[:12]) or "none"))
 
     return ParsedPrompt(prompt=text, room=room, items=items, unbuilt=unbuilt,

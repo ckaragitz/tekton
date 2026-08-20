@@ -71,8 +71,8 @@ def test_a_generic_word_names_the_types_it_narrows_to_and_is_never_buildable():
     assert not ok and why.startswith("a generic word -- name the type:")
     assert "Recessed LED troffer" in why and "(buildable here)" in why
     d = TX.describe("lighting fixture")
-    assert d["generic"] is True and d["available"] is False and d["lane"] == "none"
-    assert TX.describe("troffer")["generic"] is False
+    assert d["refine"] and d["available"] is False and d["lane"] == "none"
+    assert not TX.describe("troffer")["refine"]
 
 
 def _row(**kw):
@@ -178,10 +178,12 @@ def test_record_for_is_the_makers_own_held_record_or_none():
 
 @pytest.mark.parametrize("maker,kind,record,needles", [
     ("Square D", "panelboard", ("square-d", "nq-nf-iline-panelboards"),
-     ["declared -> its own catalog record", "fact-tier fields"]),
+     ["Square D for panelboard: catalog records held for", "fact-tier fields"]),
     ("Siemens", "panelboard", None, ["known by name only", V.NOT_THAT_MAKER]),
-    ("Trane", "panelboard", None, ["not as a maker of Panelboard", V.NOT_THAT_MAKER]),
-    ("Nobody GmbH", "panelboard", None, ["not a maker the vendor directory knows", V.NOT_THAT_MAKER]),
+    ("Trane", "panelboard", None, ["makes nothing the directory lists for panelboard",
+                                  V.NOT_THAT_MAKER]),
+    ("Nobody GmbH", "panelboard", None, ["not a manufacturer the vendor directory knows",
+                                        V.NOT_THAT_MAKER]),
     ("Eaton", "switchboard", None, ["house model", V.NOT_THAT_MAKER]),
 ])
 def test_declared_says_one_honest_sentence_per_case(maker, kind, record, needles):
@@ -189,6 +191,19 @@ def test_declared_says_one_honest_sentence_per_case(maker, kind, record, needles
     assert d["record"] == record and d["known"] == (maker != "Nobody GmbH")
     for n in needles:
         assert n in d["line"], d["line"]
+    assert (V.NOT_THAT_MAKER in d["line"]) == (record is None)   # said exactly when substituted
+
+
+@pytest.mark.parametrize("cell", ["", "unspecified", "Generic", "N/A", "by others", None])
+def test_a_placeholder_manufacturer_cell_declares_nothing(cell):
+    assert V.declared(cell, "panelboard") is None
+
+
+def test_the_default_record_is_the_directorys_first_held_record():
+    assert V.default_record("panelboard") == ("eaton", "pow-r-line-panelboards")
+    assert V.default_record("transformer_dry") == ("eaton", "dry-type-transformers")
+    assert V.default_record("receptacle") == ("generic", "devices-and-mounting")
+    assert V.default_record("switchboard") is None and V.default_record("vav_box") is None
 
 
 def test_no_table_stores_a_number():
@@ -217,10 +232,13 @@ def test_a_control_panel_is_no_longer_read_as_a_panelboard():
     assert p.coverage.ignored_words == []
 
 
-def test_switchgear_still_builds_the_service_board():
+def test_switchgear_still_builds_the_service_board_because_the_row_says_so():
     p = PP.parse_prompt("an electrical room with 2000 A switchgear and two panels")
     assert [it.kind for it in p.items].count("switchboard") == 1
     assert "switchgear" not in _nb(p)
+    row = TX.get("switchgear")
+    assert row.intent == ("switchboard",) and TX.builder_available(row)[0] is True
+    assert "house model" in TX.describe("switchgear")["line"]
 
 
 def test_every_recognised_kind_carries_the_taxonomy_line_and_what_this_route_does():
@@ -255,13 +273,28 @@ def test_nothing_buildable_relays_the_taxonomy_line_in_the_error():
     assert "No other equipment kind was recognised either" in str(ei.value)
 
 
-def test_grammar_kinds_are_taxonomy_rows_and_scene_kinds_invert_them():
+def test_grammar_kinds_are_taxonomy_rows_and_scene_kinds_derive_from_them():
     for kind, _prefix, _pat in PP._KIND_PATTERNS:
         assert TX.for_intent_kind(kind) is not None, kind
     assert TX.for_intent_kind("lighting_panelboard").key == "panelboard"
-    assert TX.for_intent_kind("wall") is None
-    assert PP._SCENE_KIND["switchgear"] == "switchboard" and PP._SCENE_KIND["panelboard"] == "panelboard"
-    assert set(PP._SCENE_KIND.values()) <= {k for k, _p, _r in PP._KIND_PATTERNS}
+    assert TX.for_intent_kind("receptacle_device").key == "receptacle"      # first row wins
+    assert TX.for_intent_kind("light_fixture").key == "luminaire"          # the IFC route's kind
+    assert TX.for_intent_kind("wall") is None and TX.for_intent_kind("switchgear") is None
+    # derived from Kind.intent alone: a switchgear lineup rides the switchboard clause, the
+    # 20 A receptacle the receptacle clause -- no literal in the grammar says so
+    assert PP._SCENE_KIND == {"panelboard": "panelboard", "switchboard": "switchboard",
+                              "switchgear": "switchboard", "transformer_dry": "transformer",
+                              "receptacle": "receptacle_device",
+                              "receptacle_20a": "receptacle_device"}
+
+
+def test_check_gates_intent_kinds_and_generic_completeness(monkeypatch):
+    bad = TX._k("zz_intent", "Test", "electrical", "electrical_equipment", intent=("no_such_kind",))
+    orphan = TX._k("zz_step_light", "Step light", "lighting", "lighting_fixture")
+    monkeypatch.setattr(TX, "_ROWS", TX._ROWS + (bad, orphan))
+    problems = TX.check()
+    assert any("intent kind 'no_such_kind' is not one rvt.ifc.intent emits" in p for p in problems)
+    assert any("generic for 'lighting_fixture'" in p and "zz_step_light" in p for p in problems)
 
 
 def _makers(parsed):
@@ -321,7 +354,9 @@ def test_the_plan_reads_the_declared_makers_own_record_when_held():
     assert (lp.status, lp.catalog, lp.variant) == ("resolved", "square-d/nq-nf-iline-panelboards", "NQ")
     assert lp.kwargs["vendor"] == "square-d" and lp.facts_summary["manufacturer"] == "Schneider Electric"
     assert (t1.status, t1.catalog) == ("resolved", "hps/sentinel-g-transformers")
-    assert any("declared -> its own catalog record" in n for n in lp.notes + t1.notes)
+    assert any("Square D for panelboard: catalog records held" in n for n in lp.notes)
+    assert any("Hammond Power Solutions for transformer_dry: catalog records held" in n for n in t1.notes)
+    assert lp.degradations == [] and t1.degradations == []       # its own record: nothing to say louder
 
 
 def test_a_member_the_makers_record_refuses_falls_back_loudly_and_is_delivered():
@@ -332,10 +367,13 @@ def test_a_member_the_makers_record_refuses_falls_back_loudly_and_is_delivered()
     for tag, cat in (("T1", "eaton/dry-type-transformers"), ("DP-1", "eaton/pow-r-line-panelboards")):
         fp = plans[tag]
         assert fp.status == "resolved" and fp.catalog == cat and fp.refusal is None
-        note = next(n for n in fp.notes if "REFUSED this member" in n)
-        assert V.NOT_THAT_MAKER in note and "FactoryError" in note
+        said = next(n for n in fp.degradations if "REFUSED this member" in n)
+        assert V.NOT_THAT_MAKER in said and "FactoryError" in said
+        assert not any("REFUSED" in n for n in fp.notes)         # a degradation, not a note
     from rvt.frontdoor import intent as FI, manifest as MF
-    degr = MF.plan_note_degradations(FI.summarize(model))
+    summary = FI.summarize(model)
+    assert all("degradations" in p for p in summary["family_plans"])
+    degr = MF.plan_note_degradations(summary)
     assert {d.split(":")[0] for d in degr} == {"T1", "DP-1"}
 
 
@@ -343,21 +381,29 @@ def test_named_only_and_unknown_makers_build_from_the_default_and_say_so():
     plans, model, _p = _plans("an electrical room with a Siemens panel, a Trane panel and an "
                               "Eaton 2000 A switchboard")
     assert plans["PP-1"].catalog == plans["PP-2"].catalog == "eaton/pow-r-line-panelboards"
-    assert any("known by name only" in n and V.NOT_THAT_MAKER in n for n in plans["PP-1"].notes)
-    assert any("not as a maker of Panelboard" in n for n in plans["PP-2"].notes)
+    assert plans["PP-1"].kwargs["line"] == "pow-r-line-panelboards"    # the directory's default
+    assert any("known by name only" in n and V.NOT_THAT_MAKER in n
+               for n in plans["PP-1"].degradations)
+    assert any("makes nothing the directory lists for panelboard" in n
+               for n in plans["PP-2"].degradations)
     msb = plans["MSB"]
     assert msb.status == "house" and msb.kwargs["manufacturer"] == "Eaton"
-    assert any("house model" in n and V.NOT_THAT_MAKER in n for n in msb.notes)
+    assert any("house model" in n and V.NOT_THAT_MAKER in n for n in msb.degradations)
+    from rvt.frontdoor import intent as FI, manifest as MF
+    degr = MF.plan_note_degradations(FI.summarize(model))
+    assert sorted(d.split(":")[0] for d in degr) == ["MSB", "PP-1", "PP-2"]   # one line each
 
 
 def test_declared_maker_on_a_hand_built_contract_never_raises():
     from rvt.ifc import intent as I
     assert I.declared_maker({}, "panelboard") == (None, None)
     assert I.declared_maker({"Manufacturer": "unspecified"}, "panelboard") == (None, None)
-    rec, note = I.declared_maker({"Manufacturer": "Cutler-Hammer"}, "panelboard")
-    assert rec == ("eaton", "pow-r-line-panelboards") and "Eaton declared" in note
+    rec, note = I.declared_maker({"Manufacturer": "Cutler-Hammer"}, "lighting_panelboard")
+    assert rec == ("eaton", "pow-r-line-panelboards") and "Eaton for panelboard" in note
     rec, note = I.declared_maker({"Manufacturer": object()}, "panelboard")
     assert rec is None and note                       # junk in the cell: a sentence, not a raise
+    assert I._default_record("distribution_panelboard") == ("eaton", "pow-r-line-panelboards")
+    assert I._default_record("wall") == (None, None)
 
 
 def test_route_run_relays_the_line_for_a_kind_it_cannot_build(tmp_path):
