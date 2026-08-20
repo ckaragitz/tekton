@@ -400,14 +400,17 @@ def declared(text: Any, kind: str) -> Optional[Dict[str, Any]]:
     named = str(text or "").strip()
     if named.lower() in UNNAMED_MAKERS:
         return None
-    known, vendor, name, rec, line = _declared(named, kind)
+    from . import catalog as _C
+    known, vendor, name, rec, line = _declared(named, kind, _C.generation())
     return {"known": known, "vendor": vendor, "name": name, "record": rec, "line": line}
 
 
 @functools.lru_cache(maxsize=256)
-def _declared(text: str, kind: str) -> Tuple[bool, Optional[str], str, Optional[Tuple[str, str]], str]:
+def _declared(text: str, kind: str, _generation: int = 0
+              ) -> Tuple[bool, Optional[str], str, Optional[Tuple[str, str]], str]:
     """:func:`declared` memoised on its two words: the plan resolver asks once per equipment
-    ITEM, and every answer costs a record parse (review of #736)."""
+    ITEM, and every answer costs a record parse (review of #736).  Keyed on the catalog's
+    reload generation too, so ``catalog.reload()`` after an in-process record edit is seen."""
     d = describe(text, kind=kind)
     rec = record_for(d["key"], kind) if d["known"] else None
     line = d["line"]
@@ -470,7 +473,8 @@ def _buildability(v: Vendor, lines: List[Line], kind: Optional[str]) -> str:
                          f"never presented as a product of {v.name}{TX.caveat(row)}")
         else:
             parts.append(f"{row.label}: generated without member data and says so ({why}) -- "
-                         f"not a model of {v.name}{TX.caveat(row)}")
+                         f"not a model of {v.name}; the name rides only as the declared "
+                         f"Manufacturer value{TX.caveat(row)}")
     return "; ".join(parts)
 
 

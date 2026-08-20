@@ -256,7 +256,9 @@ def test_every_recognised_kind_carries_the_taxonomy_line_and_what_this_route_doe
     t = nb["troffer"]
     assert (t["label"], t["revit_category"], t["lane"], t["family_buildable_here"]) == \
         ("Recessed LED troffer", "Lighting Fixtures", "catalog", True)
-    assert t["reason"].startswith(TX.describe("troffer")["line"]) and "prompt -> rfa" in t["reason"]
+    assert t["reason"].startswith(TX.describe("troffer")["line"])
+    # it names the lane that DOES build it (a famspec), never the room prompt that just did not
+    assert """--rfa '{"kind": "luminaire", "fixture": "recessed-troffer"}'""" in t["reason"]
     v = nb["vav_box"]
     assert v["family_buildable_here"] is False and "no lane builds it yet" in v["reason"]
     assert v["revit_category"] == "Mechanical Equipment" and "NOT modelled" in v["reason"]
@@ -274,7 +276,8 @@ def test_nothing_buildable_relays_the_taxonomy_line_in_the_error():
         PP.parse_prompt("create a cable tray family by Eaton")
     msg = str(ei.value)
     assert msg.startswith("recognised, NOT built by this route: 'cable tray' -> ")   # reason FIRST
-    assert TX.describe("cable tray")["line"] in msg and "Makers named: Eaton." in msg
+    assert TX.describe("cable tray")["line"] in msg
+    assert "maker named for it: Eaton" in msg          # the maker rides the kind it was named for
     with pytest.raises(PP.PromptError) as ei:
         PP.parse_prompt("please make me something nice")
     assert str(ei.value).startswith("the prompt names no equipment kind and no room")
@@ -421,3 +424,97 @@ def test_route_run_relays_the_line_for_a_kind_it_cannot_build(tmp_path):
     assert "no lane builds it yet" in res.status
     from rvt.frontdoor import manifest as MF                 # survives the manifest's 160-char cut
     assert "VAV terminal unit: Mechanical Equipment; NOT buildable" in MF._status_reason(res.errors[0])
+
+
+# --------------------------------------------------------------------------- review of #736
+
+def test_a_maker_next_to_a_not_built_kind_names_that_kind_never_the_built_items():
+    for prompt, unbuilt, maker in (
+            ("an electrical room with two panels, a 75 kVA transformer and a 500 kW Cummins generator",
+             "generator", "Cummins Power Generation"),
+            ("a 500 kW Cummins generator feeding two panels", "generator", "Cummins Power Generation"),
+            ("a 1600 A switchboard, two 400 A distribution panels and a 300 kW Generac generator "
+             "with an ASCO transfer switch", "generator", "Generac Industrial Power"),
+            ("an electrical room with two panels and a Fire Alarm Panel by Notifier",
+             "Fire Alarm Panel", "NOTIFIER"),
+            ("two lighting panels 208Y/120 V and a Square D safety switch", "safety switch", "Square D")):
+        p = PP.parse_prompt(prompt)
+        assert {it.manufacturer for it in p.items} == {None}, prompt      # nothing leaks onto gear
+        rec = next(n for n in p.coverage.not_built if n["text"] == unbuilt)
+        assert rec["manufacturer"] == maker and f"maker named for it: {maker}" in rec["reason"]
+        assert any(u["as"] == "manufacturer" and u.get("applies_to") == unbuilt
+                   for u in p.coverage.understood), prompt
+        model, _parsed = PP.prompt_to_intent(prompt)
+        assert not any(e.contract.get("Manufacturer") for e in model.equipment), prompt
+        assert not any(fp.kwargs.get("manufacturer") for fp in model.family_plans), prompt
+
+
+@pytest.mark.parametrize("prompt,word", [
+    ("an electrical room in our New York office with 4 panels and a 75 kVA transformer", "York"),
+    ("Price out an electrical room with 4 panels", "Price"),
+])
+def test_a_capitalised_common_word_outside_any_clause_is_not_a_maker(prompt, word):
+    p = PP.parse_prompt(prompt)
+    assert {it.manufacturer for it in p.items} == {None}
+    assert word in p.coverage.ignored_words and not p.coverage.warnings
+    assert not [u for u in p.coverage.understood if u["as"] == "manufacturer"]
+
+
+def test_a_maker_outside_any_clause_without_a_cue_applies_to_nothing_and_says_so():
+    p = PP.parse_prompt("an electrical room for the Hammond plant with a 75 kVA transformer")
+    assert [(it.tag, it.manufacturer) for it in p.items] == [("T1", None)]
+    assert any("Hammond Power Solutions is named outside any equipment clause" in w
+               for w in p.coverage.warnings)
+    plans, _m, _p = _plans("an electrical room for the Hammond plant with a 75 kVA transformer")
+    assert plans["T1"].catalog == "eaton/dry-type-transformers"      # the default, not HPS
+
+
+@pytest.mark.parametrize("prompt", [
+    "an electrical room with 4 panels and a 75 kVA transformer, all gear by Eaton",
+    "an electrical room with 4 panels and a 75 kVA transformer, Eaton equipment throughout",
+])
+def test_the_whole_job_maker_needs_a_cue(prompt):
+    p = PP.parse_prompt(prompt)
+    assert {it.manufacturer for it in p.items} == {"Eaton"} and p.coverage.ignored_words == []
+
+
+def test_two_makers_on_one_noun_apply_neither():
+    p = PP.parse_prompt("two Eaton or Siemens panels and a 75 kVA transformer")
+    assert {it.manufacturer for it in p.items} == {None}
+    assert any("PP-1, PP-2: makers Eaton, Siemens are both named for it" in w
+               for w in p.coverage.warnings)
+
+
+def test_fused_disconnect_switch_is_one_kind_not_a_leftover_word():
+    p = PP.parse_prompt("a 100 amp fused disconnect switch and two panels")
+    assert [n["kind"] for n in p.coverage.not_built] == ["disconnect_switch"]
+    assert p.coverage.not_built[0]["text"] == "fused disconnect switch"
+    assert p.coverage.ignored_words == []
+
+
+def test_declared_answers_follow_a_catalog_reload(monkeypatch):
+    from rvt.famgen import catalog as C
+    first = V.declared("Square D", "panelboard")
+    assert first["record"] == ("square-d", "nq-nf-iline-panelboards")
+    real = C.load_line
+
+    def stripped(vendor, line, *a, **k):
+        rec = dict(real(vendor, line, *a, **k))
+        if vendor == "square-d":
+            rec["variants"] = [dict(x, field_provenance={}) for x in rec["variants"]]
+        return rec
+
+    monkeypatch.setattr(C, "load_line", stripped)
+    assert V.declared("Square D", "panelboard")["line"] == first["line"]     # memoised ...
+    C.reload()                                                              # ... until a reload
+    assert "NO fact-tier field" in V.declared("Square D", "panelboard")["line"]
+    monkeypatch.undo()
+    C.reload()
+    assert V.declared("Square D", "panelboard")["line"] == first["line"]
+
+
+def test_famspec_hint_names_the_smallest_request_that_builds_the_kind():
+    assert TX.famspec_hint("troffer") == '{"kind": "luminaire", "fixture": "recessed-troffer"}'
+    assert TX.famspec_hint("receptacle") == '{"kind": "device", "device": "duplex-receptacle"}'
+    assert TX.famspec_hint("panelboard") == '{"kind": "panelboard"}'
+    assert TX.famspec_hint("vav_box") is None and TX.famspec_hint("switchboard") is None

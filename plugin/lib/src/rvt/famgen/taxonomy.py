@@ -52,8 +52,8 @@ from typing import (Any, Callable, Dict, FrozenSet, Iterable, List, NamedTuple, 
 __all__ = ["Kind", "Mention", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LABEL",
            "AMBIGUOUS_ALONE", "kinds", "keys", "get", "resolve", "scan",
            "for_intent_kind", "by_discipline", "archetype_registry", "category_status",
-           "member_model", "facts_tier", "builder_available", "caveat", "describe", "table",
-           "check_row", "check"]
+           "member_model", "famspec_hint", "facts_tier", "builder_available", "caveat",
+           "describe", "table", "check_row", "check"]
 
 LANES = ("catalog", "archetype", "none")
 MECHANISMS = ("famspec", "archetype", "house")
@@ -149,7 +149,9 @@ _ROWS: Tuple[Kind, ...] = (
     _k("motor_control_center", "Motor control center", "electrical", "electrical_equipment",
        aliases=("mcc",)),
     _k("disconnect_switch", "Safety / disconnect switch", "electrical", "electrical_equipment",
-       aliases=("safety switch", "disconnect", "fused disconnect", "non-fused disconnect")),
+       aliases=("safety switch", "disconnect", "fused disconnect", "non-fused disconnect",
+                "fused disconnect switch", "non-fused disconnect switch", "fusible switch",
+                "heavy duty safety switch")),
     _k("variable_frequency_drive", "Variable frequency drive", "electrical",
        "electrical_equipment", aliases=("vfd", "variable speed drive", "asd", "drive")),
     _k("automatic_transfer_switch", "Automatic transfer switch", "electrical",
@@ -575,6 +577,18 @@ def member_model(kind: Any) -> Optional[str]:
         from . import factory as _F
         return _F.DEVICE_KINDS[_F.device_kind(sub)]["model"]
     return None
+
+
+def famspec_hint(kind: Any) -> Optional[str]:
+    """The smallest famspec that asks the catalog lane for this kind -- ``{"kind": "luminaire",
+    "fixture": "recessed-troffer"}`` -- or None when no famspec mechanism builds it."""
+    row = kind if isinstance(kind, Kind) else _BY_KEY.get(str(kind))
+    fam, sub = _famspec_parts(row) if row else (None, None)
+    if not fam:
+        return None
+    from ..frontdoor import famspec as _FS
+    own = _FS.OWN_KIND_FIELD.get(fam)
+    return ('{"kind": "%s"' % fam) + ((', "%s": "%s"' % (own, sub)) if own and sub else "") + "}"
 
 
 def facts_tier(kind: Any) -> Tuple[Optional[str], List[Tuple[str, str]], int, Optional[str]]:
