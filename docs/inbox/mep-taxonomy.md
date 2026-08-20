@@ -13,3 +13,6 @@ Fragments (one per PR, `docs/inbox/README.md`):
 - `692-tables.md` — slice 1: `src/rvt/famgen/taxonomy.py` + `vendors.py`, the `make_family.py
   taxonomy|vendors` verbs, the `--check` gates (DONE 1, 2, 4 and the honest line of DONE 3 as an
   API); slice 2 (DONE 3/5: the prompt resolver and the #684 interview read the tables) follows.
+- `692-wiring.md` — slice 2: the tables are what the prompt grammar and the family-plan resolver
+  READ (DONE 3 relay + DONE 5): a phrase scanner over both tables, generic words (`refine`),
+  makers carried as declared identity with the directory's one sentence, review nits 1-3 of #735.

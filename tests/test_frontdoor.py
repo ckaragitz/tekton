@@ -257,10 +257,12 @@ def test_coverage_reports_unbuilt_and_defaults():
               "twelve 2x4 LED troffers and no feeders")
     model, parsed = PP.prompt_to_intent(prompt)
     cov = parsed.coverage
-    assert any(n["kind"] == "luminaire" for n in cov.not_built)
+    # 'LED troffers' is the MEP taxonomy's troffer kind (#692): recognised, recorded, not built
+    assert any(n["kind"] == "troffer" for n in cov.not_built)
     assert cov.defaults_applied                      # heights, voltages ... stated
     assert model.feeders == []                       # 'no feeders' honoured
-    assert model.other_products and model.other_products[0]["kind"] == "luminaire"
+    assert model.other_products and model.other_products[0]["kind"] == "troffer"
+    assert model.other_products[0]["revit_category"] == "Lighting Fixtures"
 
 
 def test_prompt_without_anything_buildable_errors():

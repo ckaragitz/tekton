@@ -269,11 +269,12 @@ def test_receptacles_are_a_build_path_kind_not_unbuilt():
     assert any(u["as"] == "equipment" and u["kind"] == "receptacle_device" and u["count"] == 4
                for u in parsed.coverage.understood)
     # a receptacle PANEL is still a panelboard, an outlet is a device, luminaires stay unbuilt
+    # -- recorded under the MEP taxonomy's kind for the words ('LED troffers' -> troffer, #692)
     p2 = PP.parse_prompt("an electrical room with a receptacle panel, 3 outlets at 44 in AFF "
                          "and two LED troffers")
     assert [(it.kind, it.height_in) for it in p2.items] == [
         ("receptacle_panelboard", None)] + [("receptacle_device", 44.0)] * 3
-    assert [n["kind"] for n in p2.coverage.not_built] == ["luminaire"]
+    assert [n["kind"] for n in p2.coverage.not_built] == ["troffer"]
     assert "44" not in p2.coverage.ignored_words and "AFF" not in p2.coverage.ignored_words
 
 

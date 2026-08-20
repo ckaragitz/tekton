@@ -15,17 +15,23 @@ says so (:func:`describe`) -- never a silent substitution, never a recalled numb
 
 No dimensions, ratings, prices or part numbers live here.  Adding a manufacturer or a line
 is adding a row.  ``python tools/make_family.py vendors [VENDOR] [--kind K] [--check]
-[--json]`` prints it.
+[--json]`` prints it.  :func:`scan` finds the makers a prompt names (the taxonomy's scanner
+over this table's names) and :func:`record_for` says which held record a NAMED maker selects
+for a kind -- what the plan resolver (``rvt.ifc.intent``) reads instead of a hard-coded
+"eaton" (#692 DONE 5).
 """
 from __future__ import annotations
 
+import functools
 from dataclasses import dataclass, asdict
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 from . import taxonomy as TX
 
-__all__ = ["Vendor", "Line", "vendors", "get", "resolve", "lines_for_kind", "records_for_kind",
-           "record_tier", "describe", "table", "check_line", "check"]
+__all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "UNNAMED_MAKERS", "vendors",
+           "get", "resolve", "scan", "lines_for_kind", "records_for_kind", "default_record",
+           "record_for", "declared", "record_tier", "describe", "table", "record_row_problems",
+           "check_line", "check"]
 
 
 @dataclass(frozen=True)
@@ -36,6 +42,8 @@ class Line:
                                    # description where no single trade name applies)
     kinds: Tuple[str, ...]         # taxonomy keys this line covers
     record: bool = False           # rvt.famgen.catalog holds facts/<vendor>/<key>.json
+    default: bool = False          # the record its kinds are built from when no maker is read
+                                   # (one per kind that has records; == the factory's own default)
 
 
 @dataclass(frozen=True)
@@ -47,8 +55,8 @@ class Vendor:
     parent: str = ""               # owning group, informational ("Schneider Electric")
 
 
-def _L(key, label, kinds, record=False) -> Line:
-    return Line(key, label, tuple(kinds), record)
+def _L(key, label, kinds, record=False, default=False) -> Line:
+    return Line(key, label, tuple(kinds), record, default)
 
 
 def _V(key, name, lines, aliases=(), parent="") -> Vendor:
@@ -59,9 +67,9 @@ _ROWS: Tuple[Vendor, ...] = (
     # ------------------------------------------------------------ electrical distribution
     _V("eaton", "Eaton", [
         _L("pow-r-line-panelboards", "Pow-R-Line panelboards (PRL1a/1X/2X/3X/4X)",
-           ["panelboard"], record=True),
+           ["panelboard"], record=True, default=True),
         _L("dry-type-transformers", "Dry-type distribution transformers (ventilated, 480-208Y)",
-           ["transformer_dry"], record=True),
+           ["transformer_dry"], record=True, default=True),
         _L("pow-r-line-switchboards", "Pow-R-Line switchboards", ["switchboard"]),
         _L("magnum-switchgear", "Magnum low-voltage switchgear", ["switchgear"]),
         _L("freedom-mcc", "Freedom motor control centers", ["motor_control_center"]),
@@ -89,7 +97,7 @@ _ROWS: Tuple[Vendor, ...] = (
         _L("safety-switches", "General-duty / heavy-duty safety switches",
            ["disconnect_switch"]),
     ]),
-    _V("abb", "ABB (incl. former GE Industrial Solutions)", [
+    _V("abb", "ABB", [                     # incl. the former GE Industrial Solutions lines
         _L("reliagear-panelboards", "ReliaGear lighting / power panelboards", ["panelboard"]),
         _L("reliagear-switchboards", "ReliaGear switchboards", ["switchboard"]),
         _L("acs-drives", "ACS-family variable frequency drives", ["variable_frequency_drive"]),
@@ -113,7 +121,8 @@ _ROWS: Tuple[Vendor, ...] = (
     # ------------------------------------------------------------ wiring devices
     _V("generic", "Generic (standards-derived, no manufacturer)", [
         _L("devices-and-mounting", "NEMA wiring devices and code mounting heights",
-           ["receptacle", "receptacle_20a", "light_switch", "junction_box"], record=True),
+           ["receptacle", "receptacle_20a", "light_switch", "junction_box"], record=True,
+           default=True),
     ], aliases=("standards", "nema")),
     _V("hubbell", "Hubbell Wiring Device-Kellems", [
         _L("spec-grade-devices", "Commercial / spec-grade receptacles and switches",
@@ -125,7 +134,7 @@ _ROWS: Tuple[Vendor, ...] = (
            ["receptacle", "light_switch", "dimmer_switch"]),
         _L("occupancy-sensors", "Occupancy / vacancy sensors", ["occupancy_sensor"]),
     ]),
-    _V("legrand", "Legrand (Pass & Seymour / Wattstopper / Wiremold)", [
+    _V("legrand", "Legrand", [              # Pass & Seymour / Wattstopper / Wiremold brands
         _L("pass-seymour-devices", "Pass & Seymour spec-grade devices",
            ["receptacle", "light_switch"]),
         _L("wattstopper-controls", "Wattstopper occupancy sensors and lighting controls",
@@ -134,8 +143,8 @@ _ROWS: Tuple[Vendor, ...] = (
     ], aliases=("pass & seymour", "pass and seymour", "wattstopper", "wiremold")),
     # ------------------------------------------------------------ lighting
     _V("lithonia", "Lithonia Lighting", [
-        _L("blt-led-troffer", "BLT LED troffer", ["troffer"], record=True),
-        _L("ldn6-led-downlight", "LDN6 LED downlight", ["downlight"], record=True),
+        _L("blt-led-troffer", "BLT LED troffer", ["troffer"], record=True, default=True),
+        _L("ldn6-led-downlight", "LDN6 LED downlight", ["downlight"], record=True, default=True),
         _L("ibg-high-bay", "IBG LED high bay", ["high_bay"]),
         _L("wall-packs", "LED wall packs", ["wall_pack"]),
         _L("exit-emergency", "Exit signs and emergency units (LQM / ELM families)",
@@ -167,7 +176,7 @@ _ROWS: Tuple[Vendor, ...] = (
         _L("truealarm", "TrueAlarm detectors", ["smoke_detector", "heat_detector"]),
         _L("truealert", "TrueAlert notification appliances", ["horn_strobe", "pull_station"]),
     ], aliases=("simplexgrinnell", "jci fire"), parent="Johnson Controls"),
-    _V("edwards", "Edwards (EST)", [
+    _V("edwards", "Edwards", [              # EST
         _L("panels", "EST addressable fire alarm control panels", ["fire_alarm_control_panel"]),
         _L("signature-detectors", "Signature Series detectors",
            ["smoke_detector", "heat_detector"]),
@@ -323,6 +332,23 @@ def resolve(text: Any) -> Optional[Vendor]:
     return _BY_KEY.get(_ALIAS.get(TX._fold(text), ""))
 
 
+#: maker names that are also plain English ('1200 watts', 'a cable carrier', 'unit price'):
+#: :func:`scan` accepts them alone only when Capitalised as written.  The ``generic``
+#: pseudo-vendor (standards-derived records) is never a maker a prompt can name.
+AMBIGUOUS_ALONE: FrozenSet[str] = frozenset({
+    "price", "cook", "taco", "york", "watts", "carrier", "halo", "est", "ge", "jci",
+    "peerless", "simplex",
+    "squared"})           # 'twenty feet squared' folds to the same letters as 'Square D'
+_NEVER_NAMED = ("generic",)
+_SCAN_INDEX: Dict[str, str] = {f: k for f, k in _ALIAS.items() if k not in _NEVER_NAMED}
+
+
+def scan(text: Any) -> List[TX.Mention]:
+    """Every maker ``text`` names (key / name / alias; whole words, longest first) as
+    :class:`rvt.famgen.taxonomy.Mention` s -- ``Mention.key`` is the vendor key."""
+    return TX._scan(text, _SCAN_INDEX, ambiguous=AMBIGUOUS_ALONE, proper=True)
+
+
 def lines_for_kind(kind: str) -> List[Tuple[Vendor, Line]]:
     """Every (vendor, line) that makes the taxonomy kind, catalog records first."""
     out = [(v, ln) for v in _ROWS for ln in v.lines if kind in ln.kinds]
@@ -332,6 +358,76 @@ def lines_for_kind(kind: str) -> List[Tuple[Vendor, Line]]:
 def records_for_kind(kind: str) -> List[Tuple[str, str]]:
     """(catalog vendor, catalog line) pairs held for the kind."""
     return [(v.key, ln.key) for v, ln in lines_for_kind(kind) if ln.record]
+
+
+#: how a maker-SUBSTITUTION sentence ends when the directory has no line of its own to say it
+#: with (an unknown maker, a maker of other kinds, a maker's record that refused the member);
+#: a maker named for the kind is answered by :func:`describe` in its own words ("never
+#: presented as a product of <maker>") -- either way said once per sentence
+NOT_THAT_MAKER = "never presented as that maker's product"
+
+#: manufacturer cells that DECLARE nothing (blank, placeholder): no maker is read from them
+UNNAMED_MAKERS: FrozenSet[str] = frozenset({
+    "", "unspecified", "generic", "n/a", "n.a.", "na", "none", "null", "-", "$", "tbd",
+    "by others", "varies", "unknown", "notdefined", "not defined", "undefined"})
+
+
+def default_record(kind: str) -> Optional[Tuple[str, str]]:
+    """The record a kind is built from when the input names no maker, or one nothing is held
+    for: the held line flagged ``default=True`` for it -- ONE per kind that has records
+    (:func:`check`), and the same one the factory's constructor defaults name (gated in
+    ``taxonomy.check`` where the factory is already imported)."""
+    return next(((v.key, ln.key) for v in _ROWS for ln in v.lines
+                 if ln.record and ln.default and kind in ln.kinds), None)
+
+
+def record_for(vendor: str, kind: str) -> Optional[Tuple[str, str]]:
+    """The (catalog vendor, catalog line) this maker's HELD record for the taxonomy kind is,
+    or None -- the maker is unknown, or known by name only for that kind (say so, never
+    substitute silently: :func:`describe` has the line)."""
+    v = _BY_KEY.get(vendor) or resolve(vendor)
+    if v is None:
+        return None
+    return next(((v.key, ln.key) for ln in v.lines if ln.record and kind in ln.kinds), None)
+
+
+def declared(text: Any, kind: str) -> Optional[Dict[str, Any]]:
+    """What a DECLARED maker ('six Eaton panels', an IFC's Pset_ManufacturerTypeInformation)
+    means for one taxonomy kind -- None when the cell declares nothing (``UNNAMED_MAKERS``).
+    ``record`` is the held (vendor, line) the build should read instead of
+    :func:`default_record`, or None; ``line`` is the ONE sentence every surface relays -- what
+    :func:`describe` says of the maker for that kind, plus, whenever no record of the maker is
+    read, the substitution said out loud (``NOT_THAT_MAKER``).  The prompt coverage and the
+    plan resolver (``rvt.ifc.intent.declared_maker``) both use it (steer #685)."""
+    named = str(text or "").strip()
+    if named.lower() in UNNAMED_MAKERS:
+        return None
+    from . import catalog as _C
+    known, vendor, name, rec, line = _declared(named, kind, _C.generation())
+    return {"known": known, "vendor": vendor, "name": name, "record": rec, "line": line}
+
+
+@functools.lru_cache(maxsize=256)
+def _declared(text: str, kind: str, _generation: int = 0
+              ) -> Tuple[bool, Optional[str], str, Optional[Tuple[str, str]], str]:
+    """:func:`declared` memoised on its two words: the plan resolver asks once per equipment
+    ITEM, and every answer costs a record parse (review of #736).  Keyed on the catalog's
+    reload generation too, so ``catalog.reload()`` after an in-process record edit is seen."""
+    # the cell as written on an IFC ('Eaton Corporation', 'Square D by Schneider Electric')
+    # names its maker by the longest maker mention in it when it is not a name outright
+    v = _BY_KEY.get(text) or resolve(text)
+    if v is None:
+        mentions = scan(text)
+        v = _BY_KEY[max(mentions, key=lambda m: m.end - m.start).key] if mentions else None
+    d = describe(v.key if v else text, kind=kind)
+    rec = record_for(d["key"], kind) if d["known"] else None
+    line = d["line"]
+    # a maker the directory names for this kind already had its say (describe -> _buildability);
+    # an unknown maker, or one that does not make the kind, gets the substitution said here
+    if rec is None and not (d["known"] and any(kind in ln.kinds for ln in _BY_KEY[d["key"]].lines)):
+        line += (f" -- built here from what tekton holds for the kind instead and reported as "
+                 f"such; {NOT_THAT_MAKER}")
+    return d["known"], d.get("key"), d.get("name", text), rec, line
 
 
 def record_tier(vendor: str, line: str, *, model: Optional[str] = None) -> Dict[str, Any]:
@@ -349,19 +445,22 @@ def record_tier(vendor: str, line: str, *, model: Optional[str] = None) -> Dict[
             "tier": "fact" if n_fact else "assumed"}
 
 
-def _line_dict(v: Vendor, ln: Line) -> Dict[str, Any]:
+def _line_dict(v: Vendor, ln: Line, model: Optional[str] = None) -> Dict[str, Any]:
     d = asdict(ln)
     d["vendor"] = v.key
     if ln.record:
-        d.update(record_tier(v.key, ln.key))
+        d.update(record_tier(v.key, ln.key, model=model))
     return d
 
 
-def _held_phrase(v: Vendor, ln: Line) -> str:
-    t = record_tier(v.key, ln.key)
+def _held_phrase(v: Vendor, ln: Line, model: Optional[str] = None) -> str:
+    """What one held record is worth -- counted on the MEMBER (``model``) when a kind selects
+    one variant of a shared record, else over the whole line."""
+    t = record_tier(v.key, ln.key, model=model)
+    member = f"variant {model}: " if model else ""
     if t["tier"] == "fact":
-        return f"{ln.label} (sourced facts: {t['fields_fact']} fact-tier fields)"
-    return (f"{ln.label} (a catalog record with NO fact-tier field: {t['fields_assumed']} "
+        return f"{ln.label} ({member}sourced facts: {t['fields_fact']} fact-tier fields)"
+    return (f"{ln.label} ({member}a catalog record with NO fact-tier field: {t['fields_assumed']} "
             f"search-summary `assumed` values -- the family says so)")
 
 
@@ -382,7 +481,8 @@ def _buildability(v: Vendor, lines: List[Line], kind: Optional[str]) -> str:
                          f"never presented as a product of {v.name}{TX.caveat(row)}")
         else:
             parts.append(f"{row.label}: generated without member data and says so ({why}) -- "
-                         f"not a model of {v.name}{TX.caveat(row)}")
+                         f"not a model of {v.name}; the name rides only as the declared "
+                         f"Manufacturer value{TX.caveat(row)}")
     return "; ".join(parts)
 
 
@@ -399,9 +499,10 @@ def describe(text: Any, kind: Optional[str] = None) -> Dict[str, Any]:
     held = [ln for ln in lines if ln.record]
     named = [ln for ln in lines if not ln.record]
     what = f" for {kind}" if kind else ""
+    model = TX.member_model(kind)
     if held:
         line = (f"{v.name}{what}: catalog records held for " +
-                "; ".join(_held_phrase(v, ln) for ln in held) +
+                "; ".join(_held_phrase(v, ln, model) for ln in held) +
                 (f"; known by name only (no member data): {', '.join(ln.label for ln in named)}"
                  if named else ""))
     elif lines:
@@ -410,7 +511,7 @@ def describe(text: Any, kind: Optional[str] = None) -> Dict[str, Any]:
     else:
         line = f"{v.name} makes nothing the directory lists{what}"
     return {"known": True, "key": v.key, "name": v.name, "parent": v.parent,
-            "aliases": list(v.aliases), "lines": [_line_dict(v, ln) for ln in lines],
+            "aliases": list(v.aliases), "lines": [_line_dict(v, ln, model) for ln in lines],
             "records": [ln.key for ln in held], "line": line}
 
 
@@ -424,10 +525,40 @@ def table() -> Dict[str, Any]:
 
 # --------------------------------------------------------------------------- the gate
 
+def record_row_problems(vendor: str, line: str, row: TX.Kind, *,
+                        model: Optional[str] = None) -> List[str]:
+    """Problems between ONE held record and ONE taxonomy row it serves (empty = they agree):
+    the record loads, names its own vendor/line, is a record OF the famspec kind the row builds
+    through, files under the row's Revit category, and holds the member (``model``) the row
+    selects.  The one gate both ``vendors --check`` and ``taxonomy --check`` call."""
+    from . import catalog as _C
+    from .._clause import cause_clause
+    try:
+        data = _C.load_line(vendor, line)
+        n_variants = record_tier(vendor, line, model=model)["variants"]
+    except Exception as e:                               # noqa: BLE001 -- report, don't raise
+        return [f"record {vendor}/{line} does not load ({cause_clause(e)})"]
+    out: List[str] = []
+    if (data.get("vendor"), data.get("line")) != (vendor, line):
+        out.append(f"record {vendor}/{line} names itself {data.get('vendor')}/{data.get('line')}")
+    cat = data.get("category")
+    fams = [TX._mech(m)[1].partition("/")[0] for m in row.via if m.startswith("famspec:")]
+    if cat not in fams:
+        out.append(f"record {vendor}/{line}: record category {cat!r} but kind {row.key!r} "
+                   f"builds through famspec {fams or 'nothing'} (lane {row.lane})")
+    ost = _ost_label(data.get("revit_category"))
+    if ost and row.category and ost != row.revit_category:
+        out.append(f"record {vendor}/{line} files under {ost!r} ({data.get('revit_category')}) "
+                   f"but kind {row.key!r} is filed under {row.revit_category!r}")
+    if n_variants < 1:
+        out.append(f"record {vendor}/{line} holds no variant" + (f" {model!r}" if model else "")
+                   + f" -- the member kind {row.key!r} builds does not exist in it")
+    return out
+
+
 def check_line(v: Vendor, ln: Line) -> List[str]:
     """Problems ONE line has (empty = honest); :func:`check` runs it over the directory and
     the tests feed it deliberately broken lines."""
-    from . import catalog as _C
     tag = f"vendors[{v.key}/{ln.key}]"
     problems: List[str] = []
     rows = []
@@ -439,23 +570,12 @@ def check_line(v: Vendor, ln: Line) -> List[str]:
         except KeyError:
             problems.append(f"{tag}: kind {k!r} is not a taxonomy row")
     if not ln.record:
+        if ln.default:
+            problems.append(f"{tag}: default=True on a line with no record")
         return problems
-    try:
-        data = _C.load_line(v.key, ln.key)
-    except Exception as e:                               # noqa: BLE001 -- report, don't raise
-        return problems + [f"{tag}: record does not load ({type(e).__name__}: {e})"]
-    if (data.get("vendor"), data.get("line")) != (v.key, ln.key):
-        problems.append(f"{tag}: record names {data.get('vendor')}/{data.get('line')}")
-    cat = data.get("category")
-    ost_label = _ost_label(data.get("revit_category"))
     for row in rows:
-        fams = [TX._mech(m)[1].partition("/")[0] for m in row.via if m.startswith("famspec:")]
-        if cat not in fams:
-            problems.append(f"{tag}: record category {cat!r} but kind {row.key!r} builds "
-                            f"through famspec {fams or 'nothing'} (lane {row.lane})")
-        if ost_label and row.category and ost_label != row.revit_category:
-            problems.append(f"{tag}: record is {data.get('revit_category')} ({ost_label}) but "
-                            f"kind {row.key!r} is filed under {row.revit_category!r}")
+        problems.extend(f"{tag}: {msg}" for msg in
+                        record_row_problems(v.key, ln.key, row, model=TX.member_model(row)))
     return problems
 
 
@@ -479,6 +599,10 @@ def check() -> List[str]:
     problems = list(_ALIAS_CLASHES)
     if len(_BY_KEY) != len(_ROWS):
         problems.append("vendors: duplicate vendor keys")
+    problems.extend(f"vendors: AMBIGUOUS_ALONE word {w!r} is not a name any vendor carries"
+                    for w in sorted(AMBIGUOUS_ALONE) if w not in _ALIAS)
+    problems.extend(f"vendors: _NEVER_NAMED {k!r} is not a vendor key"
+                    for k in _NEVER_NAMED if k not in _BY_KEY)
     claimed: Dict[Tuple[str, str], str] = {}
     for v in _ROWS:
         line_keys = [ln.key for ln in v.lines]
@@ -488,6 +612,12 @@ def check() -> List[str]:
             problems.extend(check_line(v, ln))
             if ln.record:
                 claimed[(v.key, ln.key)] = v.key
+    for kind in sorted({k for v in _ROWS for ln in v.lines if ln.record for k in ln.kinds}):
+        defaults = [(v.key, ln.key) for v in _ROWS for ln in v.lines
+                    if ln.record and ln.default and kind in ln.kinds]
+        if len(defaults) != 1:
+            problems.append(f"vendors: kind {kind!r} has records but {len(defaults)} default "
+                            f"lines {defaults} -- exactly one must carry default=True")
     for pair in _C.list_lines():
         if pair not in claimed:
             problems.append(f"vendors: catalog holds {pair[0]}/{pair[1]} but no directory line "

@@ -104,9 +104,20 @@ def load_line(vendor: str, line: str) -> Dict[str, Any]:
     return json.loads(_load_cached(vendor, line))
 
 
+_GENERATION = 0
+
+
+def generation() -> int:
+    """How many times :func:`reload` has run -- a cache key for anything memoised on top of
+    the records (``rvt.famgen.vendors.declared``), so a reload is seen downstream too."""
+    return _GENERATION
+
+
 def reload() -> None:
     """Drop the cache (after editing a JSON file in-process)."""
+    global _GENERATION
     _load_cached.cache_clear()
+    _GENERATION += 1
 
 
 def all_lines() -> Dict[Tuple[str, str], Dict[str, Any]]:

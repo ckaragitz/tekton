@@ -320,14 +320,17 @@ DROPPED_CELL_MARK = " is not a usable "
 def plan_note_degradations(intent_summary: Optional[Dict[str, Any]]) -> List[str]:
     """One degradation line per family plan whose notes say a schedule cell
     was dropped or defaulted (``'LP-1: PanelSchedule.MainsRating '4OO A' is
-    not a usable current rating (not a number) -> ...'``); ``[]`` when no plan
-    carries such a note (every prompt job, every clean IFC)."""
-    out: List[str] = []
+    not a usable current rating (not a number) -> ...'``), plus every plan's own
+    ``degradations`` (built, but not as the input asked: a declared maker whose
+    record is not held or refused the member, #692); ``[]`` when no plan carries
+    either.  Plans saying the very same thing share one line."""
+    by_text: Dict[str, List[str]] = {}
     for p in (intent_summary or {}).get("family_plans") or []:
-        dropped = [n for n in p.get("notes") or [] if DROPPED_CELL_MARK in n]
-        if dropped:
-            out.append(f"{p.get('tag')}: " + "; ".join(dropped))
-    return out
+        said = ([n for n in p.get("notes") or [] if DROPPED_CELL_MARK in n]
+                + list(p.get("degradations") or []))
+        if said:
+            by_text.setdefault("; ".join(said), []).append(str(p.get("tag")))
+    return [f"{', '.join(tags)}: {text}" for text, tags in by_text.items()]
 
 
 #: the keys of each job-runner gate the EDIT route's manifest echoes under
@@ -765,6 +768,8 @@ def _render_md(m: Dict[str, Any]) -> str:
         for p in it.get("family_plans") or []:      # each plan's notes (#465); nothing when none
             for n in p.get("notes") or []:
                 ap(f"  - note: `{p.get('tag')}` — {n}")
+            for n in p.get("degradations") or []:  # built, not as asked (#692) -- also up top
+                ap(f"  - **said**: `{p.get('tag')}` — {n}")
         ap(f"- feeder edges: {len(it.get('feeder_edges') or [])}")
         ops = it.get("other_products") or []
         if ops:                                # prompt-route entries carry no ifcClass: kind only
@@ -814,6 +819,9 @@ def _render_md(m: Dict[str, Any]) -> str:
         if cov.get("not_built"):
             ap("- **recognised, NOT modelled**: " + ", ".join(f"{n.get('text')} ({n.get('kind')})"
                                                            for n in cov["not_built"]))
+            for n in cov["not_built"][:16]:      # the MEP taxonomy's line per kind (#692 DONE 3)
+                if n.get("label"):               # the reason leads with 'Label: Revit category'
+                    ap(f"  - “{n.get('text')}” → {n.get('reason')}")
         if cov.get("ignored_words"):
             ap("- **ignored words**: " + ", ".join(cov["ignored_words"][:24]))
         for d in (cov.get("defaults_applied") or [])[:24]:

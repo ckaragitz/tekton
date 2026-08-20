@@ -131,7 +131,8 @@ def summarize(model: IntentModel) -> Dict[str, Any]:
                           "constructor": (p.constructor.split(".")[-1] if p.constructor else None),
                           "variant": p.variant, "catalog": p.catalog,
                           "refusal": p.refusal,
-                          "notes": list(p.notes)}     # the plan's notes (schedule cells etc., #465)
+                          "notes": list(p.notes),    # the plan's notes (schedule cells etc., #465)
+                          "degradations": list(p.degradations)}   # built, NOT as asked (#692)
                          for p in (model.family_plans or [])],
         "clearances": len(model.clearances or []),
         "other_products_total": len(model.other_products or []),
