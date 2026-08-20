@@ -1219,12 +1219,15 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     cov.consumed_ratio = float(sum(consumed)) / max(1, len(text))
 
     if not items and not (room and room.width_m):
+        # the recognised kind LEADS: a status line keeps its first ~160 characters (the
+        # manifest's cut), and what the prompt named but this route cannot build is the news
+        nothing = (f"nothing to author here: this route models {_MODELLED_PROSE}, or a room "
+                   "with dimensions")
         raise PromptError(
-            f"the prompt names no equipment this route models ({_MODELLED_PROSE}) and no room "
-            "with dimensions -- nothing to author here."
-            + (" Recognised, NOT built by this route: "
-               + "; ".join(f"'{u['text']}' -> {u['reason']}" for u in unbuilt) + "."
-               if unbuilt else " No other equipment kind was recognised either.")
+            ("recognised, NOT built by this route: "
+             + "; ".join(f"'{u['text']}' -> {u['reason']}" for u in unbuilt) + f" -- {nothing}."
+             if unbuilt else
+             f"the prompt names no equipment kind and no room -- {nothing}.")
             + (f" Makers named: {loose_names}." if loose_keys else "")
             + " Ignored words: " + (", ".join(ignored[:12]) or "none"))
 

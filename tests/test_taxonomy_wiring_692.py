@@ -55,13 +55,6 @@ def test_resolve_keeps_answering_the_ambiguous_word_as_a_whole_answer():
     assert TX.resolve("switch").key == "light_switch" and TX.resolve("box").key == "junction_box"
 
 
-def test_gates_stay_clean_with_the_scanner_tables():
-    assert TX.check() == []
-    assert V.check() == []
-    assert all(w in TX._ALIAS for w in TX.AMBIGUOUS_ALONE)
-    assert all(w in V._ALIAS for w in V.AMBIGUOUS_ALONE)
-
-
 # --------------------------------------------------------------------------- generic words
 
 def test_a_generic_word_names_the_types_it_narrows_to_and_is_never_buildable():
@@ -76,9 +69,11 @@ def test_a_generic_word_names_the_types_it_narrows_to_and_is_never_buildable():
 
 
 def _row(**kw):
+    """A deliberately shaped row through the table's own constructor."""
     base = dict(key="zz_test", label="Test kind", discipline="lighting", category="lighting_fixture")
     base.update(kw)
-    return TX.Kind(**base)
+    return TX._k(base.pop("key"), base.pop("label"), base.pop("discipline"), base.pop("category"),
+                 base.pop("via", ()), **base)
 
 
 @pytest.mark.parametrize("kw,needle", [
@@ -142,6 +137,10 @@ def test_record_problems_compare_the_member_and_the_ost_label(monkeypatch):
     problems = TX.check_row(TX.get("junction_box"))
     assert any("holds no variant 'box-4in-square'" in p for p in problems), problems
     assert any("files under 'Lighting Fixtures'" in p for p in problems), problems
+    # ONE gate for both tables: the directory's check says the same two things
+    vp = V.check_line(V.get("generic"), V.get("generic").lines[0])
+    assert any("holds no variant 'box-4in-square'" in p for p in vp), vp
+    assert any("files under 'Lighting Fixtures'" in p for p in vp), vp
 
 
 def test_vendor_describe_counts_the_tier_on_the_member_a_kind_selects():
@@ -179,19 +178,20 @@ def test_record_for_is_the_makers_own_held_record_or_none():
 @pytest.mark.parametrize("maker,kind,record,needles", [
     ("Square D", "panelboard", ("square-d", "nq-nf-iline-panelboards"),
      ["Square D for panelboard: catalog records held for", "fact-tier fields"]),
-    ("Siemens", "panelboard", None, ["known by name only", V.NOT_THAT_MAKER]),
+    ("Siemens", "panelboard", None, ["known by name only", "never presented as a product of Siemens"]),
     ("Trane", "panelboard", None, ["makes nothing the directory lists for panelboard",
                                   V.NOT_THAT_MAKER]),
     ("Nobody GmbH", "panelboard", None, ["not a manufacturer the vendor directory knows",
                                         V.NOT_THAT_MAKER]),
-    ("Eaton", "switchboard", None, ["house model", V.NOT_THAT_MAKER]),
+    ("Eaton", "switchboard", None, ["house model", "not a model of Eaton"]),
 ])
 def test_declared_says_one_honest_sentence_per_case(maker, kind, record, needles):
     d = V.declared(maker, kind)
     assert d["record"] == record and d["known"] == (maker != "Nobody GmbH")
     for n in needles:
         assert n in d["line"], d["line"]
-    assert (V.NOT_THAT_MAKER in d["line"]) == (record is None)   # said exactly when substituted
+    said = d["line"].count("never presented") + d["line"].count("not a model of")
+    assert said == (0 if record else 1), d["line"]              # said exactly once when substituted
 
 
 @pytest.mark.parametrize("cell", ["", "unspecified", "Generic", "N/A", "by others", None])
@@ -199,19 +199,26 @@ def test_a_placeholder_manufacturer_cell_declares_nothing(cell):
     assert V.declared(cell, "panelboard") is None
 
 
-def test_the_default_record_is_the_directorys_first_held_record():
+def test_the_default_record_is_flagged_once_per_kind_and_matches_the_factory(monkeypatch):
     assert V.default_record("panelboard") == ("eaton", "pow-r-line-panelboards")
     assert V.default_record("transformer_dry") == ("eaton", "dry-type-transformers")
     assert V.default_record("receptacle") == ("generic", "devices-and-mounting")
     assert V.default_record("switchboard") is None and V.default_record("vav_box") is None
-
-
-def test_no_table_stores_a_number():
-    # taxonomy and directory are words: no dimension, rating or price fields (steer #685)
-    import typing
-    for cls in (TX.Kind, V.Vendor, V.Line):
-        hints = typing.get_type_hints(cls)
-        assert not any(t in (int, float) for t in hints.values()), (cls, hints)
+    # the factory's own signature defaults name the same records (taxonomy --check gates it)
+    assert TX._constructor_default("panelboard") == V.default_record("panelboard")
+    assert TX._constructor_default("transformer") == V.default_record("transformer_dry")
+    # a second default for a kind, or a default on a record-less line, fails the gate
+    eaton = V.get("eaton")
+    sqd = V.get("square-d")
+    twin = V._L("nq-nf-iline-panelboards", "NQ", ["panelboard"], record=True, default=True)
+    ghost = V._L("p1-panelboards", "P1", ["panelboard"], default=True)
+    rows = tuple(V._V(v.key, v.name, [twin if (v.key, ln.key) == ("square-d", twin.key) else ln
+                                       for ln in v.lines] + ([ghost] if v.key == "siemens" else []),
+                      v.aliases, v.parent) for v in V.vendors())
+    monkeypatch.setattr(V, "_ROWS", rows)
+    problems = V.check()
+    assert any("kind 'panelboard' has records but 2 default lines" in p for p in problems), problems
+    assert any("default=True on a line with no record" in p for p in problems), problems
 
 
 # --------------------------------------------------------------------------- the prompt grammar
@@ -266,11 +273,11 @@ def test_nothing_buildable_relays_the_taxonomy_line_in_the_error():
     with pytest.raises(PP.PromptError) as ei:
         PP.parse_prompt("create a cable tray family by Eaton")
     msg = str(ei.value)
-    assert "Recognised, NOT built by this route: 'cable tray' -> " in msg
+    assert msg.startswith("recognised, NOT built by this route: 'cable tray' -> ")   # reason FIRST
     assert TX.describe("cable tray")["line"] in msg and "Makers named: Eaton." in msg
     with pytest.raises(PP.PromptError) as ei:
         PP.parse_prompt("please make me something nice")
-    assert "No other equipment kind was recognised either" in str(ei.value)
+    assert str(ei.value).startswith("the prompt names no equipment kind and no room")
 
 
 def test_grammar_kinds_are_taxonomy_rows_and_scene_kinds_derive_from_them():
@@ -337,7 +344,7 @@ def test_a_named_maker_with_no_record_is_said_not_substituted_silently():
     w = " ".join(p.coverage.warnings)
     assert "PP-1, PP-2, PP-3: Siemens for panelboard: known by name only" in w
     assert "R-1, R-2: Leviton for receptacle: known by name only" in w
-    assert w.count(V.NOT_THAT_MAKER) == 2
+    assert [x.count("never presented") for x in p.coverage.warnings] == [1, 1]   # once each
 
 
 # --------------------------------------------------------------------------- the plan resolver
@@ -382,13 +389,13 @@ def test_named_only_and_unknown_makers_build_from_the_default_and_say_so():
                               "Eaton 2000 A switchboard")
     assert plans["PP-1"].catalog == plans["PP-2"].catalog == "eaton/pow-r-line-panelboards"
     assert plans["PP-1"].kwargs["line"] == "pow-r-line-panelboards"    # the directory's default
-    assert any("known by name only" in n and V.NOT_THAT_MAKER in n
+    assert any("known by name only" in n and "never presented as a product of Siemens" in n
                for n in plans["PP-1"].degradations)
     assert any("makes nothing the directory lists for panelboard" in n
                for n in plans["PP-2"].degradations)
     msb = plans["MSB"]
     assert msb.status == "house" and msb.kwargs["manufacturer"] == "Eaton"
-    assert any("house model" in n and V.NOT_THAT_MAKER in n for n in msb.degradations)
+    assert any("house model" in n and "not a model of Eaton" in n for n in msb.degradations)
     from rvt.frontdoor import intent as FI, manifest as MF
     degr = MF.plan_note_degradations(FI.summarize(model))
     assert sorted(d.split(":")[0] for d in degr) == ["MSB", "PP-1", "PP-2"]   # one line each
@@ -412,3 +419,5 @@ def test_route_run_relays_the_line_for_a_kind_it_cannot_build(tmp_path):
     assert res.ok is False
     assert "VAV terminal unit: Mechanical Equipment; NOT buildable here" in res.status
     assert "no lane builds it yet" in res.status
+    from rvt.frontdoor import manifest as MF                 # survives the manifest's 160-char cut
+    assert "VAV terminal unit: Mechanical Equipment; NOT buildable" in MF._status_reason(res.errors[0])

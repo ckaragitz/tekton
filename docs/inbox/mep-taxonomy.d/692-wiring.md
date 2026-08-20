@@ -94,7 +94,13 @@ made public and key-tolerant, the scanner's inner search extracted (`_match_at`)
 records sorted once by offset; the altitude review moved intent kinds row-side, the default
 record into the directory, and the substitution sentence into a structured plan field (above),
 and added the refine-completeness gate (a non-generic row of a category that has a generic row
-must appear in a `refine` list). Left as a follow-up (filed): unbuilt kinds are *shielded spans*,
+must appear in a `refine` list); the reuse review made ONE record/row gate
+(`vendors.record_row_problems`, called by both `--check`s, now also carrying the member-variant
+check), moved every spliced error through `rvt._clause` (`cause_clause` / `clip`), put the
+recognised kind FIRST in the `PromptError` so the manifest's 160-character status cut keeps it,
+made the directory's default record an explicit `default=True` per line (exactly one per kind
+with records, cross-checked against the factory constructors' own signature defaults in
+`taxonomy --check`), and dropped two tests that only repeated slice 1. Left as a follow-up (filed): unbuilt kinds are *shielded spans*,
 not clauses, so a rating/tag written next to one (`a 400 A automatic transfer switch beside two
 panels`) can still bleed into the neighbouring clause exactly as before this slice — parsing them
 as full `PromptItem(buildable=False)` clauses is the deeper fix and what O12 needs.
@@ -104,7 +110,7 @@ as full `PromptItem(buildable=False)` clauses is the deeper fix and what O12 nee
 - Gates: `make_family.py taxonomy --check` → `83 kinds, 0 problems` (13 `#516` conflict rows
   warned, unchanged); `vendors --check` → `50 vendors, 118 lines, 7 with a catalog record, 0
   problems`; `standards --check` unchanged.
-- Tests: new `tests/test_taxonomy_wiring_692.py` — 56 tests, 0.3 s (scanner, generic rows,
+- Tests: new `tests/test_taxonomy_wiring_692.py` — 54 tests, 0.3 s (scanner, generic rows,
   nits, `declared` / `default_record` / placeholders, intent-kind + refine gates, grammar
   shield/records/error relay, maker attach/global/ambiguous, plan resolver
   held/refused-fallback/named-only with structured degradations, `declared_maker` never raises,

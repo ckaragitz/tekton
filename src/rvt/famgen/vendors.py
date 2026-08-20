@@ -30,7 +30,8 @@ from . import taxonomy as TX
 
 __all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "UNNAMED_MAKERS", "vendors",
            "get", "resolve", "scan", "lines_for_kind", "records_for_kind", "default_record",
-           "record_for", "declared", "record_tier", "describe", "table", "check_line", "check"]
+           "record_for", "declared", "record_tier", "describe", "table", "record_row_problems",
+           "check_line", "check"]
 
 
 @dataclass(frozen=True)
@@ -41,6 +42,8 @@ class Line:
                                    # description where no single trade name applies)
     kinds: Tuple[str, ...]         # taxonomy keys this line covers
     record: bool = False           # rvt.famgen.catalog holds facts/<vendor>/<key>.json
+    default: bool = False          # the record its kinds are built from when no maker is read
+                                   # (one per kind that has records; == the factory's own default)
 
 
 @dataclass(frozen=True)
@@ -52,8 +55,8 @@ class Vendor:
     parent: str = ""               # owning group, informational ("Schneider Electric")
 
 
-def _L(key, label, kinds, record=False) -> Line:
-    return Line(key, label, tuple(kinds), record)
+def _L(key, label, kinds, record=False, default=False) -> Line:
+    return Line(key, label, tuple(kinds), record, default)
 
 
 def _V(key, name, lines, aliases=(), parent="") -> Vendor:
@@ -64,9 +67,9 @@ _ROWS: Tuple[Vendor, ...] = (
     # ------------------------------------------------------------ electrical distribution
     _V("eaton", "Eaton", [
         _L("pow-r-line-panelboards", "Pow-R-Line panelboards (PRL1a/1X/2X/3X/4X)",
-           ["panelboard"], record=True),
+           ["panelboard"], record=True, default=True),
         _L("dry-type-transformers", "Dry-type distribution transformers (ventilated, 480-208Y)",
-           ["transformer_dry"], record=True),
+           ["transformer_dry"], record=True, default=True),
         _L("pow-r-line-switchboards", "Pow-R-Line switchboards", ["switchboard"]),
         _L("magnum-switchgear", "Magnum low-voltage switchgear", ["switchgear"]),
         _L("freedom-mcc", "Freedom motor control centers", ["motor_control_center"]),
@@ -118,7 +121,8 @@ _ROWS: Tuple[Vendor, ...] = (
     # ------------------------------------------------------------ wiring devices
     _V("generic", "Generic (standards-derived, no manufacturer)", [
         _L("devices-and-mounting", "NEMA wiring devices and code mounting heights",
-           ["receptacle", "receptacle_20a", "light_switch", "junction_box"], record=True),
+           ["receptacle", "receptacle_20a", "light_switch", "junction_box"], record=True,
+           default=True),
     ], aliases=("standards", "nema")),
     _V("hubbell", "Hubbell Wiring Device-Kellems", [
         _L("spec-grade-devices", "Commercial / spec-grade receptacles and switches",
@@ -139,8 +143,8 @@ _ROWS: Tuple[Vendor, ...] = (
     ], aliases=("pass & seymour", "pass and seymour", "wattstopper", "wiremold")),
     # ------------------------------------------------------------ lighting
     _V("lithonia", "Lithonia Lighting", [
-        _L("blt-led-troffer", "BLT LED troffer", ["troffer"], record=True),
-        _L("ldn6-led-downlight", "LDN6 LED downlight", ["downlight"], record=True),
+        _L("blt-led-troffer", "BLT LED troffer", ["troffer"], record=True, default=True),
+        _L("ldn6-led-downlight", "LDN6 LED downlight", ["downlight"], record=True, default=True),
         _L("ibg-high-bay", "IBG LED high bay", ["high_bay"]),
         _L("wall-packs", "LED wall packs", ["wall_pack"]),
         _L("exit-emergency", "Exit signs and emergency units (LQM / ELM families)",
@@ -355,16 +359,24 @@ def records_for_kind(kind: str) -> List[Tuple[str, str]]:
     return [(v.key, ln.key) for v, ln in lines_for_kind(kind) if ln.record]
 
 
+#: how a maker-SUBSTITUTION sentence ends when the directory has no line of its own to say it
+#: with (an unknown maker, a maker of other kinds, a maker's record that refused the member);
+#: a maker named for the kind is answered by :func:`describe` in its own words ("never
+#: presented as a product of <maker>") -- either way said once per sentence
+NOT_THAT_MAKER = "never presented as that maker's product"
+
 #: manufacturer cells that DECLARE nothing (blank, placeholder): no maker is read from them
 UNNAMED_MAKERS: FrozenSet[str] = frozenset({
     "", "unspecified", "generic", "n/a", "na", "none", "-", "tbd", "by others", "varies"})
 
 
 def default_record(kind: str) -> Optional[Tuple[str, str]]:
-    """The record a kind is built from when the input names no maker (or one nothing is held
-    for): the first held record in directory order -- the ONE place that default lives."""
-    recs = records_for_kind(kind)
-    return recs[0] if recs else None
+    """The record a kind is built from when the input names no maker, or one nothing is held
+    for: the held line flagged ``default=True`` for it -- ONE per kind that has records
+    (:func:`check`), and the same one the factory's constructor defaults name (gated in
+    ``taxonomy.check`` where the factory is already imported)."""
+    return next(((v.key, ln.key) for v in _ROWS for ln in v.lines
+                 if ln.record and ln.default and kind in ln.kinds), None)
 
 
 def record_for(vendor: str, kind: str) -> Optional[Tuple[str, str]]:
@@ -375,11 +387,6 @@ def record_for(vendor: str, kind: str) -> Optional[Tuple[str, str]]:
     if v is None:
         return None
     return next(((v.key, ln.key) for ln in v.lines if ln.record and kind in ln.kinds), None)
-
-
-#: how every maker-SUBSTITUTION sentence ends (a declared maker whose record is not held, or
-#: whose record refused the member) -- prose, kept in one place so both routes say it alike
-NOT_THAT_MAKER = "never presented as that maker's product"
 
 
 def declared(text: Any, kind: str) -> Optional[Dict[str, Any]]:
@@ -403,8 +410,12 @@ def _declared(text: str, kind: str) -> Tuple[bool, Optional[str], str, Optional[
     ITEM, and every answer costs a record parse (review of #736)."""
     d = describe(text, kind=kind)
     rec = record_for(d["key"], kind) if d["known"] else None
-    line = d["line"] if rec else (f"{d['line']} -- built here from what tekton holds for the "
-                                  f"kind instead and reported as such; {NOT_THAT_MAKER}")
+    line = d["line"]
+    # a maker the directory names for this kind already had its say (describe -> _buildability);
+    # an unknown maker, or one that does not make the kind, gets the substitution said here
+    if rec is None and not (d["known"] and any(kind in ln.kinds for ln in _BY_KEY[d["key"]].lines)):
+        line += (f" -- built here from what tekton holds for the kind instead and reported as "
+                 f"such; {NOT_THAT_MAKER}")
     return d["known"], d.get("key"), d.get("name", text), rec, line
 
 
@@ -502,10 +513,40 @@ def table() -> Dict[str, Any]:
 
 # --------------------------------------------------------------------------- the gate
 
+def record_row_problems(vendor: str, line: str, row: TX.Kind, *,
+                        model: Optional[str] = None) -> List[str]:
+    """Problems between ONE held record and ONE taxonomy row it serves (empty = they agree):
+    the record loads, names its own vendor/line, is a record OF the famspec kind the row builds
+    through, files under the row's Revit category, and holds the member (``model``) the row
+    selects.  The one gate both ``vendors --check`` and ``taxonomy --check`` call."""
+    from . import catalog as _C
+    from .._clause import cause_clause
+    try:
+        data = _C.load_line(vendor, line)
+        n_variants = record_tier(vendor, line, model=model)["variants"]
+    except Exception as e:                               # noqa: BLE001 -- report, don't raise
+        return [f"record {vendor}/{line} does not load ({cause_clause(e)})"]
+    out: List[str] = []
+    if (data.get("vendor"), data.get("line")) != (vendor, line):
+        out.append(f"record {vendor}/{line} names itself {data.get('vendor')}/{data.get('line')}")
+    cat = data.get("category")
+    fams = [TX._mech(m)[1].partition("/")[0] for m in row.via if m.startswith("famspec:")]
+    if cat not in fams:
+        out.append(f"record {vendor}/{line}: record category {cat!r} but kind {row.key!r} "
+                   f"builds through famspec {fams or 'nothing'} (lane {row.lane})")
+    ost = _ost_label(data.get("revit_category"))
+    if ost and row.category and ost != row.revit_category:
+        out.append(f"record {vendor}/{line} files under {ost!r} ({data.get('revit_category')}) "
+                   f"but kind {row.key!r} is filed under {row.revit_category!r}")
+    if n_variants < 1:
+        out.append(f"record {vendor}/{line} holds no variant" + (f" {model!r}" if model else "")
+                   + f" -- the member kind {row.key!r} builds does not exist in it")
+    return out
+
+
 def check_line(v: Vendor, ln: Line) -> List[str]:
     """Problems ONE line has (empty = honest); :func:`check` runs it over the directory and
     the tests feed it deliberately broken lines."""
-    from . import catalog as _C
     tag = f"vendors[{v.key}/{ln.key}]"
     problems: List[str] = []
     rows = []
@@ -517,23 +558,12 @@ def check_line(v: Vendor, ln: Line) -> List[str]:
         except KeyError:
             problems.append(f"{tag}: kind {k!r} is not a taxonomy row")
     if not ln.record:
+        if ln.default:
+            problems.append(f"{tag}: default=True on a line with no record")
         return problems
-    try:
-        data = _C.load_line(v.key, ln.key)
-    except Exception as e:                               # noqa: BLE001 -- report, don't raise
-        return problems + [f"{tag}: record does not load ({type(e).__name__}: {e})"]
-    if (data.get("vendor"), data.get("line")) != (v.key, ln.key):
-        problems.append(f"{tag}: record names {data.get('vendor')}/{data.get('line')}")
-    cat = data.get("category")
-    ost_label = _ost_label(data.get("revit_category"))
     for row in rows:
-        fams = [TX._mech(m)[1].partition("/")[0] for m in row.via if m.startswith("famspec:")]
-        if cat not in fams:
-            problems.append(f"{tag}: record category {cat!r} but kind {row.key!r} builds "
-                            f"through famspec {fams or 'nothing'} (lane {row.lane})")
-        if ost_label and row.category and ost_label != row.revit_category:
-            problems.append(f"{tag}: record is {data.get('revit_category')} ({ost_label}) but "
-                            f"kind {row.key!r} is filed under {row.revit_category!r}")
+        problems.extend(f"{tag}: {msg}" for msg in
+                        record_row_problems(v.key, ln.key, row, model=TX.member_model(row)))
     return problems
 
 
@@ -570,6 +600,12 @@ def check() -> List[str]:
             problems.extend(check_line(v, ln))
             if ln.record:
                 claimed[(v.key, ln.key)] = v.key
+    for kind in sorted({k for v in _ROWS for ln in v.lines if ln.record for k in ln.kinds}):
+        defaults = [(v.key, ln.key) for v in _ROWS for ln in v.lines
+                    if ln.record and ln.default and kind in ln.kinds]
+        if len(defaults) != 1:
+            problems.append(f"vendors: kind {kind!r} has records but {len(defaults)} default "
+                            f"lines {defaults} -- exactly one must carry default=True")
     for pair in _C.list_lines():
         if pair not in claimed:
             problems.append(f"vendors: catalog holds {pair[0]}/{pair[1]} but no directory line "

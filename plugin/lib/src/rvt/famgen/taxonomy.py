@@ -599,8 +599,8 @@ def _mechanism_available(row: Kind, mech: str, strict: bool) -> Tuple[bool, str]
         try:
             tier, records, n_fact, model = facts_tier(row)
         except Exception as e:                # noqa: BLE001 -- a record that fails to load is
-            return False, (f"a catalog record held for {row.key!r} does not load "   # a finding,
-                           f"({type(e).__name__}: {e})")                 # never a traceback
+            from .._clause import cause_clause                     # a finding, never a traceback
+            return False, f"a catalog record held for {row.key!r} does not load ({cause_clause(e)})"
         if not records:
             return False, f"no catalog record is held for {row.key!r} (rvt.famgen.vendors)"
         if strict:
@@ -823,33 +823,40 @@ def _constructor_records(fam: str, sub: Optional[str]) -> set:
 
 def _record_problems(row: Kind, fam: str, sub: Optional[str]) -> List[str]:
     """The directory's records for the kind must be exactly the ones the constructor reads,
-    and each must be a record OF that famspec kind -- else describe() would report the tier of
-    a record the build never touches (review of #735)."""
-    from . import catalog as _C, vendors as _V
+    its DEFAULT record the one the constructor's own signature defaults name, and each record
+    must agree with the row (``vendors.record_row_problems`` -- the one gate both tables'
+    checks share) -- else describe() would report the tier of a record the build never
+    touches (review of #735)."""
+    from . import vendors as _V
     held = set(_V.records_for_kind(row.key))
     reads = _constructor_records(fam, sub)
     out = []
     if held != reads:
         out.append(f"directory records {sorted(held)} != the records make_{fam}"
                    f"{'/' + sub if sub else ''} reads {sorted(reads)}")
+    built_in = _constructor_default(fam)
+    if built_in is not None and built_in != _V.default_record(row.key):
+        out.append(f"directory default {_V.default_record(row.key)} != the record make_{fam}'s "
+                   f"own defaults name {built_in}")
     model = member_model(row)
     for v, ln in sorted(held):
-        try:
-            rec = _C.load_line(v, ln)
-            n_variants = _V.record_tier(v, ln, model=model)["variants"]
-        except Exception as e:                           # noqa: BLE001 -- report, don't raise
-            out.append(f"record {v}/{ln} does not load ({type(e).__name__}: {e})")
-            continue
-        cat = rec.get("category")
-        if cat != fam:
-            out.append(f"record {v}/{ln} is a {cat!r} record, the row builds through {fam!r}")
-        if n_variants < 1:
-            out.append(f"record {v}/{ln} holds no variant" + (f" {model!r}" if model else "")
-                       + " -- the member this row builds does not exist in it")
-        ost = _V._ost_label(rec.get("revit_category"))
-        if ost is not None and ost != row.revit_category:
-            out.append(f"record {v}/{ln} files under {ost!r}, the row says {row.revit_category!r}")
+        out.extend(_V.record_row_problems(v, ln, row, model=model))
     return out
+
+
+def _constructor_default(fam: str) -> Optional[Tuple[str, str]]:
+    """The (vendor, line) record a famspec constructor builds from when called with its own
+    default arguments -- read from the factory's signature, not restated."""
+    import inspect
+    from . import factory as _F
+    if fam == "panelboard":
+        ps = inspect.signature(_F.make_panelboard).parameters
+        return _F._PANEL_LINES.get((ps["vendor"].default, ps["line"].default))
+    if fam == "transformer":
+        return _F._XFMR_LINES.get(inspect.signature(_F.make_transformer).parameters["vendor"].default)
+    if fam == "device":
+        return _F._DEVICE_LINE
+    return None
 
 
 def check() -> List[str]:

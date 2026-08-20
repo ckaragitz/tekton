@@ -2280,8 +2280,9 @@ def declared_maker(con: Dict[str, Any], kind: str
         d = VD.declared(con.get("Manufacturer"), row.key if row else str(kind))
         return (None, None) if d is None else (d["record"], d["line"])
     except Exception as e:                    # noqa: BLE001 -- the directory never costs a plan
+        from .._clause import cause_clause
         return None, (f"manufacturer {con.get('Manufacturer')!r} declared; the vendor "
-                      f"directory could not be read ({type(e).__name__}: {e})")
+                      f"directory could not be read ({cause_clause(e)})")
 
 
 def _default_record(kind: str) -> Tuple[Optional[str], Optional[str]]:
@@ -2461,12 +2462,13 @@ def _fall_back(fp: FamilyPlan, resolve, **default_kwargs: Any) -> None:
     """The DECLARED maker's record refused this member (a rating / voltage it holds no table
     for): deliver from the default record instead (hard rule 1) and say so on the plan as a
     degradation -- the refusal is kept verbatim, the substitution is never silent."""
+    from .._clause import CAUSE_MAX, clip
     from ..famgen.vendors import NOT_THAT_MAKER
     was = "/".join(str(fp.kwargs.get(k)) for k in default_kwargs)
     now = "/".join(str(v) for v in default_kwargs.values())
     fp.degradations.append(f"the declared maker's record ({was}) REFUSED this member -- "
-                           f"{fp.refusal} -- so it is built from the default record ({now}) "
-                           f"instead and reported as such; {NOT_THAT_MAKER}")
+                           f"{clip(str(fp.refusal), CAUSE_MAX)} -- so it is built from the "
+                           f"default record ({now}) instead and reported as such; {NOT_THAT_MAKER}")
     fp.kwargs.update(default_kwargs)
     fp.refusal = None
     fp.status = "planned"
