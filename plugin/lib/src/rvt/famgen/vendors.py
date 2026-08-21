@@ -23,12 +23,13 @@ for a kind -- what the plan resolver (``rvt.ifc.intent``) reads instead of a har
 from __future__ import annotations
 
 import functools
+import re
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 from . import taxonomy as TX
 
-__all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "UNNAMED_MAKERS", "vendors",
+__all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "UNNAMED_MAKERS", "vendors", "makes",
            "get", "resolve", "scan", "lines_for_kind", "records_for_kind", "default_record",
            "record_for", "declared", "record_tier", "describe", "table", "record_row_problems",
            "check_line", "check"]
@@ -265,9 +266,11 @@ _ROWS: Tuple[Vendor, ...] = (
     ]),
     _V("price", "Price Industries", [
         _L("terminal-units", "Single-duct and fan-powered VAV terminal units", ["vav_box"]),
+        _L("grds", "Grilles, registers and diffusers", ["air_terminal"]),
     ], aliases=("price industries",)),
     _V("titus", "Titus", [
         _L("terminal-units", "VAV terminal units", ["vav_box"]),
+        _L("grds", "Grilles, registers and diffusers", ["air_terminal"]),
     ]),
     _V("peerless", "Peerless Pump", [
         _L("fire-pumps", "Fire pump systems", ["fire_pump"]),
@@ -349,6 +352,13 @@ def scan(text: Any) -> List[TX.Mention]:
     return TX._scan(text, _SCAN_INDEX, ambiguous=AMBIGUOUS_ALONE, proper=True)
 
 
+def makes(vendor: Any, kind: str) -> bool:
+    """Does the directory list a line of this maker (key, name, alias or :class:`Vendor`) for
+    the taxonomy kind -- held record or named only?  False for a maker it does not know."""
+    v = vendor if isinstance(vendor, Vendor) else (_BY_KEY.get(vendor) or resolve(vendor))
+    return v is not None and any(kind in ln.kinds for ln in v.lines)
+
+
 def lines_for_kind(kind: str) -> List[Tuple[Vendor, Line]]:
     """Every (vendor, line) that makes the taxonomy kind, catalog records first."""
     out = [(v, ln) for v in _ROWS for ln in v.lines if kind in ln.kinds]
@@ -365,6 +375,9 @@ def records_for_kind(kind: str) -> List[Tuple[str, str]]:
 #: a maker named for the kind is answered by :func:`describe` in its own words ("never
 #: presented as a product of <maker>") -- either way said once per sentence
 NOT_THAT_MAKER = "never presented as that maker's product"
+#: ... and the whole clause a substitution sentence closes with
+_SUBSTITUTED = (" -- built here from what tekton holds for the kind instead and reported as "
+                f"such; {NOT_THAT_MAKER}")
 
 #: manufacturer cells that DECLARE nothing (blank, placeholder): no maker is read from them
 UNNAMED_MAKERS: FrozenSet[str] = frozenset({
@@ -407,6 +420,13 @@ def declared(text: Any, kind: str) -> Optional[Dict[str, Any]]:
     return {"known": known, "vendor": vendor, "name": name, "record": rec, "line": line}
 
 
+#: between a brand and its parent in one manufacturer cell, in words that say so: 'X by Y',
+#: 'X, a Y brand', 'X, a division of Y' ('X (Y)', 'X - Y', 'X / Y' name two makers)
+_RE_PARENT_JOIN = re.compile(
+    r"\s*(?:by\b|,?\s*(?:an?\s+)?(?:brand|company|division|business|part|subsidiary)\s+of\b|"
+    r",?\s*an?\s+)\s*", re.I)
+
+
 @functools.lru_cache(maxsize=256)
 def _declared(text: str, kind: str, _generation: int = 0
               ) -> Tuple[bool, Optional[str], str, Optional[Tuple[str, str]], str]:
@@ -414,19 +434,29 @@ def _declared(text: str, kind: str, _generation: int = 0
     ITEM, and every answer costs a record parse (review of #736).  Keyed on the catalog's
     reload generation too, so ``catalog.reload()`` after an in-process record edit is seen."""
     # the cell as written on an IFC ('Eaton Corporation', 'Square D by Schneider Electric')
-    # names its maker by the longest maker mention in it when it is not a name outright
+    # names its maker by the longest maker mention in it when it is not a name outright; a
+    # cell naming TWO makers ('Eaton or Siemens') declares neither -- say so, pick none (#739)
     v = _BY_KEY.get(text) or resolve(text)
     if v is None:
         mentions = scan(text)
-        v = _BY_KEY[max(mentions, key=lambda m: m.end - m.start).key] if mentions else None
+        # 'Cooper Lighting by Eaton', 'Halo, an Eaton brand': the brand, then its PARENT -- a
+        # maker with no line of its own for the kind ('Eaton by Siemens' still names two)
+        if (len(mentions) > 1 and not makes(mentions[1].key, kind)
+                and _RE_PARENT_JOIN.fullmatch(text, mentions[0].end, mentions[1].start)):
+            mentions = mentions[:1]
+        keys = sorted({m.key for m in mentions})
+        if len(keys) > 1:
+            names = ", ".join(_BY_KEY[k].name for k in keys)
+            return (False, None, text, None, f"'{text}' names {len(keys)} makers ({names}), so "
+                                             f"no single maker is read from it{_SUBSTITUTED}")
+        v = _BY_KEY[keys[0]] if keys else None
     d = describe(v.key if v else text, kind=kind)
     rec = record_for(d["key"], kind) if d["known"] else None
     line = d["line"]
     # a maker the directory names for this kind already had its say (describe -> _buildability);
     # an unknown maker, or one that does not make the kind, gets the substitution said here
-    if rec is None and not (d["known"] and any(kind in ln.kinds for ln in _BY_KEY[d["key"]].lines)):
-        line += (f" -- built here from what tekton holds for the kind instead and reported as "
-                 f"such; {NOT_THAT_MAKER}")
+    if rec is None and not (d["known"] and makes(d["key"], kind)):
+        line += _SUBSTITUTED
     return d["known"], d.get("key"), d.get("name", text), rec, line
 
 

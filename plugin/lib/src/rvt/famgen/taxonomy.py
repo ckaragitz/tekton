@@ -426,11 +426,19 @@ AMBIGUOUS_ALONE: FrozenSet[str] = frozenset({
 
 
 class Mention(NamedTuple):
-    """One kind (or vendor) a text names: ``text[start:end]`` is the phrase as written."""
+    """One kind (or vendor) a text names: ``text[start:end]`` is the phrase as written.
+    Two strengths below a real name, for ONE-word names that are also plain English -- the
+    caller decides what each is worth: ``weak`` -- read as a name only because it is
+    Capitalised where it stands ('York', 'Price', 'Watts'); ``acronym`` -- written in capitals
+    inside ordinary text ('a GE transformer', 'an EST panel'), which is more than a capital
+    letter but still also an abbreviation ('delivery EST 6 weeks').  A hyphenated or multi-word
+    spelling of the same letters ('Square D', 'square-d') is a real name: neither flag."""
     start: int
     end: int
     key: str
     text: str
+    weak: bool = False
+    acronym: bool = False
 
 
 _WORD = re.compile(r"[a-z0-9]+(?:[-'./&][a-z0-9]+)*")
@@ -450,6 +458,21 @@ def _singulars(word: str) -> Iterable[str]:
             yield word[:-1]
 
 
+_RE_POSSESSIVE = re.compile(r"['\u2019]s?$")
+_RE_SENTENCE_BREAK = re.compile(r"[.;:!?](?!\d)")
+
+
+def _shouted(text: str, start: int, end: int) -> bool:
+    """Is the sentence around ``text[start:end]`` written ALL IN CAPITALS ('NOTE: PRICE
+    ALTERNATES SEPARATELY.')?  Capitals then say nothing about one word."""
+    lo = max((m.end() for m in _RE_SENTENCE_BREAK.finditer(text, 0, start)), default=0)
+    m = _RE_SENTENCE_BREAK.search(text, end)
+    around = text[lo:start] + text[end:m.start() if m else len(text)]
+    # other words in capitals and none in lower case -- one token alone ('manufacturer: GE')
+    # is an acronym, not a shout
+    return sum(c.isupper() for c in around) >= 3 and not any(c.islower() for c in around)
+
+
 def _match_at(text: str, toks: Sequence[Tuple[int, int, str]], i: int, index: Dict[str, str],
               ambiguous: FrozenSet[str], proper: bool) -> Optional[Tuple[Mention, int]]:
     """The longest name in ``index`` starting at token ``i`` -> (mention, tokens used)."""
@@ -461,10 +484,18 @@ def _match_at(text: str, toks: Sequence[Tuple[int, int, str]], i: int, index: Di
             key = index.get(folded)
             if key is None:
                 continue
-            if n == 1 and folded in ambiguous and not (proper and text[toks[i][0]].isupper()):
-                continue
             start, end = toks[i][0], toks[i + n - 1][1]
-            return Mention(start, end, key, text[start:end]), n
+            written = text[start:end]
+            core = _RE_POSSESSIVE.sub("", written)     # "Kohler's" is judged as 'Kohler'
+            # ONE plain-English word ('watts', 'price') is a name only when Capitalised for a
+            # proper-noun index; spelled with a hyphen or a digit ('square-d') it is not the
+            # English word.  Written in capitals inside ordinary text it is an ACRONYM ('GE') --
+            # unless the sentence around it shouts, where capitals say nothing
+            weak = n == 1 and folded in ambiguous and core.isalpha()
+            if weak and not (proper and core[0].isupper()):
+                continue
+            acronym = weak and core.isupper() and len(core) <= 4 and not _shouted(text, start, end)
+            return Mention(start, end, key, written, weak and not acronym, acronym), n
     return None
 
 
