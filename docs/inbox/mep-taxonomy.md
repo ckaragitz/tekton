@@ -16,3 +16,7 @@ Fragments (one per PR, `docs/inbox/README.md`):
 - `692-wiring.md` — slice 2: the tables are what the prompt grammar and the family-plan resolver
   READ (DONE 3 relay + DONE 5): a phrase scanner over both tables, generic words (`refine`),
   makers carried as declared identity with the directory's one sentence, review nits 1-3 of #735.
+- `739-maker-adjacency.md` — #739 (third review of #736): a maker that does not make the noun's
+  kind rides it only when adjacent; a maker's name used as a place / client / existing gear names
+  no maker; wider whole-job cues (hard vs soft); `Square D` and acronyms are real names; Price /
+  Titus grilles; a cell naming two makers declares neither.

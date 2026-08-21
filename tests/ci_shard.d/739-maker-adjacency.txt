@@ -1,0 +1,2 @@
+# 739: maker adjacency, locatives, whole-job cues (follow-up of #736)
+tests/test_maker_adjacency_739.py

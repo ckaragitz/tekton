@@ -461,11 +461,12 @@ def test_a_capitalised_common_word_outside_any_clause_is_not_a_maker(prompt, wor
 
 
 def test_a_maker_outside_any_clause_without_a_cue_applies_to_nothing_and_says_so():
-    p = PP.parse_prompt("an electrical room for the Hammond plant with a 75 kVA transformer")
+    # ('for the Hammond plant' became a locative -- an ignored word, no maker -- with #739)
+    p = PP.parse_prompt("Hammond preferred; an electrical room with a 75 kVA transformer")
     assert [(it.tag, it.manufacturer) for it in p.items] == [("T1", None)]
     assert any("Hammond Power Solutions is named outside any equipment clause" in w
                for w in p.coverage.warnings)
-    plans, _m, _p = _plans("an electrical room for the Hammond plant with a 75 kVA transformer")
+    plans, _m, _p = _plans("Hammond preferred; an electrical room with a 75 kVA transformer")
     assert plans["T1"].catalog == "eaton/dry-type-transformers"      # the default, not HPS
 
 
@@ -530,8 +531,7 @@ def test_famspec_hint_names_the_smallest_request_that_builds_the_kind():
     ("4 Simplex receptacles at 18 in AFF", "Simplex"),
     ("4 panels 208Y/120 V for a room twenty feet squared", "squared"),
     ("designed by York Engineering with 4 panels and a 75 kVA transformer", "York"),
-    ("a GE transformer and two panels", "GE"),
-])
+])      # 'a GE transformer' (an acronym ADJACENT to the noun) is declared and said since #739
 def test_a_plain_word_inside_a_clause_is_a_maker_only_where_that_maker_makes_the_kind(prompt, word):
     p = PP.parse_prompt(prompt)
     assert {it.manufacturer for it in p.items} == {None}, prompt

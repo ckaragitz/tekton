@@ -265,9 +265,11 @@ _ROWS: Tuple[Vendor, ...] = (
     ]),
     _V("price", "Price Industries", [
         _L("terminal-units", "Single-duct and fan-powered VAV terminal units", ["vav_box"]),
+        _L("grds", "Grilles, registers and diffusers", ["air_terminal"]),
     ], aliases=("price industries",)),
     _V("titus", "Titus", [
         _L("terminal-units", "VAV terminal units", ["vav_box"]),
+        _L("grds", "Grilles, registers and diffusers", ["air_terminal"]),
     ]),
     _V("peerless", "Peerless Pump", [
         _L("fire-pumps", "Fire pump systems", ["fire_pump"]),
@@ -414,11 +416,19 @@ def _declared(text: str, kind: str, _generation: int = 0
     ITEM, and every answer costs a record parse (review of #736).  Keyed on the catalog's
     reload generation too, so ``catalog.reload()`` after an in-process record edit is seen."""
     # the cell as written on an IFC ('Eaton Corporation', 'Square D by Schneider Electric')
-    # names its maker by the longest maker mention in it when it is not a name outright
+    # names its maker by the longest maker mention in it when it is not a name outright; a
+    # cell naming TWO makers ('Eaton or Siemens') declares neither -- say so, pick none (#739)
     v = _BY_KEY.get(text) or resolve(text)
     if v is None:
         mentions = scan(text)
-        v = _BY_KEY[max(mentions, key=lambda m: m.end - m.start).key] if mentions else None
+        keys = sorted({m.key for m in mentions})
+        if len(keys) > 1:
+            names = ", ".join(_BY_KEY[k].name for k in keys)
+            return (False, None, text, None,
+                    f"'{text}' names {len(keys)} makers ({names}) -- no single maker is read "
+                    f"from it; built here from what tekton holds for the kind instead and "
+                    f"reported as such; never presented as any of those makers' product")
+        v = _BY_KEY[keys[0]] if keys else None
     d = describe(v.key if v else text, kind=kind)
     rec = record_for(d["key"], kind) if d["known"] else None
     line = d["line"]
