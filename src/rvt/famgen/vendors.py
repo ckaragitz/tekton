@@ -438,8 +438,10 @@ def _declared(text: str, kind: str, _generation: int = 0
     v = _BY_KEY.get(text) or resolve(text)
     if v is None:
         mentions = scan(text)
-        # 'Cooper Lighting by Eaton', 'Cooper Lighting (Eaton)': the brand, then its parent
-        if len(mentions) > 1 and _RE_PARENT_JOIN.fullmatch(text, mentions[0].end, mentions[1].start):
+        # 'Cooper Lighting by Eaton', 'Halo, an Eaton brand': the brand, then its PARENT -- a
+        # maker with no line of its own for the kind ('Eaton by Siemens' still names two)
+        if (len(mentions) > 1 and not makes(mentions[1].key, kind)
+                and _RE_PARENT_JOIN.fullmatch(text, mentions[0].end, mentions[1].start)):
             mentions = mentions[:1]
         keys = sorted({m.key for m in mentions})
         if len(keys) > 1:

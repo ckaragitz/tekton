@@ -721,10 +721,11 @@ _RE_RUN_JOINER = re.compile(r"\s*(?:(?P<comma>,)\s*|,?\s*(?:\bor\b|/|&)\s*)", re
 #: a maker's name used as a PLACE or a client names no maker (#739): the name is followed --
 #: directly, or across a Capitalised proper-noun phrase of up to two more words -- by a place
 #: noun that is a word of its own ('site-wide' is not).  When an equipment noun follows in the
-#: same clause that reading also needs the place to be SAID as one: a locative word before
-#: the name ('for the Edwards building: 4 panels', 'the Kohler campus needs 4 panels') or a
-#: proper place name after it ('Cooper Hall', 'Hammond Street vault') -- 'an Eaton house
-#: panel', '4 Eaton hospital grade panels' qualify the panel
+#: same clause, what stands between the place noun and that noun decides: nothing or a few
+#: plain words ('an Eaton house panel', '4 Eaton hospital grade panels', 'the Eaton campus
+#: loop switchboard') and the place word merely QUALIFIES the equipment -- the maker rules
+#: decide; a count, a digit, an article, a verb or punctuation ('the Kohler campus needs 4
+#: panels', 'Sloan wing: 4 panels', 'in Cooper Hall, two panels') and it is a place
 _PLACE_NOUNS = (
     _ROOM_NOUNS + r"|building|bldg|plant|offices?|campus(?:es)?|hall|wing|annex|quad|"
     r"residences?|home|house|school|university|college|academy|institute|hospital|clinic|site|"
@@ -737,9 +738,14 @@ _PLACE_NOUNS = (
 _RE_LOCATIVE_AFTER = re.compile(
     r"(?P<proper>(?:\s+(?!(?i:for|the|an?|our|in|at|on|of|by|from|and|with|to|is|are)\b)"
     r"[A-Z][\w.&'-]*){0,2})\s+(?P<place>(?i:" + _PLACE_NOUNS + r"))(?![\w-])")
-_RE_LOCATIVE_BEFORE = re.compile(
-    r"\b(?:(?:for|in|at|on|of|near|inside|within|around|to|into|serving|feeding)\s+"
-    r"(?:(?:the|our|an?|this|that)\s+)?|(?:the|our|this|that)\s+)(?:\w+\s+)?$", re.I)
+#: ... between the place noun and the equipment noun when the former only qualifies the latter
+_RE_QUALIFIER_GAP = re.compile(
+    r"\s*(?:(?!(?:an?|the|our|their|its|this|that|these|those|and|or|with|for|of|to|in|at|on|by|"
+    r"from|is|are|was|be|needs?|gets?|wants?|ha(?:s|ve)|requires?|houses|serves?|feeds?|plus|"
+    r"(?:" + _COUNT_WORDS + r"))\b)[a-z][a-z'-]*\s+){0,3}", re.I)
+#: a client named right before a leading colon ('electrical room for Eaton: 4 panels') is not
+#: the whole job's maker
+_RE_CLIENT_BEFORE = re.compile(r"\b(?:for|at|in|of|by|from)\s+(?:the\s+)?$", re.I)
 #: a sentence stop -- not a decimal point ('7.5 kVA'), not an abbreviation's ('mfr. Eaton')
 _RE_STOP = re.compile(r";|(?<!\b(?:mfr|mfg|inc))(?<!\bcorp)(?<!\b[cn]o)\.(?!\d)", re.I)
 #: EXISTING or NEIGHBOURING gear is context: it names the maker of the noun it qualifies
@@ -856,14 +862,15 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
         before = [i for i, a in enumerate(anchors) if stop <= a[0][1] <= s]   # nearest LAST; []
         return sorted(before, key=lambda i: anchors[i][0][1]) if next_anchor(e) is not None else []
 
-    def locative(s: int, e: int, we: int) -> bool:   # '... the Edwards building'
+    def locative(e: int, we: int) -> bool:           # '... the Edwards building'
         m = _RE_LOCATIVE_AFTER.match(text, e)
         if not m:
             return False
-        if next_anchor(e, we) is None:                 # '4 panels for the Edwards building'
-            return True
-        proper = m.group("proper").strip() or m.group("place")[0].isupper() and not text.isupper()
-        return bool(proper) or bool(_RE_LOCATIVE_BEFORE.search(text[max(0, s - _CUE_REACH):s]))
+        nxt = next_anchor(e, we)                       # '4 panels for the Edwards building': yes;
+        if nxt is None:                                # 'an Eaton house panel', 'the Eaton branch
+            return True                                # panels' (the noun starts inside): no
+        a_start = anchors[nxt][0][0]
+        return a_start >= m.end() and not _RE_QUALIFIER_GAP.fullmatch(text, m.end(), a_start)
 
     cued: Dict[TX.Mention, bool] = {}                  # whole-job makers: is the cue HARD?
     on_anchor: Dict[int, List[TX.Mention]] = {}
@@ -879,12 +886,12 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
         makes_built = any(makes(run, k) for k in built_kinds)
         soft = _RE_SOFT_CUE_BEFORE.search(head)
         lo = off + soft.start() if soft else s        # what to consume along with the name
-        if locative(s, e, we):
+        if locative(e, we):
             continue                                   # a place, a client: an ignored word
         if not soft and _RE_CONTEXT_BEFORE.search(head):
-            nxt = next_anchor(e)                       # existing / neighbouring gear: the maker
-            if nxt is not None and adjacent(s, e, nxt):   # of the noun it qualifies, no other
-                on_anchor.setdefault(nxt, []).extend(run)
+            nxt = next_anchor(e, we)                   # existing / neighbouring gear: the maker
+            if nxt is not None and (makes(run, anchor_kind(nxt)) or adjacent(s, e, nxt)):
+                on_anchor.setdefault(nxt, []).extend(run)   # of the noun it qualifies, no other
                 mark((s, e))
             elif real:
                 contextual.extend(run)
@@ -914,8 +921,8 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                 tie = preceding(s, e)[-1:]             # 'two panels, manufacturer Eaton, and a ...'
         if tie:
             cands = tie
-        elif (soft and not cands or tail.lstrip().startswith(":") and s < first_anchor) \
-                and (real or acronym):
+        elif (soft and not cands or tail.lstrip().startswith(":") and s < first_anchor
+              and not _RE_CLIENT_BEFORE.search(head)) and (real or acronym):
             cued.update((mm, False) for mm in run)     # 'manufacturer: Eaton' / 'Eaton: ...'
             mark((lo, e))
             continue
@@ -947,8 +954,9 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
         _span, its, unbuilt = anchors[i]
         if len(names) > 1:
             what = ", ".join(it.tag for it in its) if its else f"'{unbuilt.text}'"
-            cov.warnings.append(f"{what}: makers {', '.join(names)} are both named for it -- "
-                                "applied neither; name one")
+            both = "both" if len(names) == 2 else "all"
+            cov.warnings.append(f"{what}: makers {', '.join(names)} are {both} named for it -- "
+                                f"applied {'neither' if len(names) == 2 else 'none'}; name one")
         elif its is not None:
             for it in its:
                 it.manufacturer = names[0]

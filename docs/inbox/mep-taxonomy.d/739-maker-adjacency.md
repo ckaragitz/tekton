@@ -46,10 +46,11 @@ maker mention in a room prompt in this order:
    that maker makes the kind) is now a property of the mention, classified once in the shared
    scanner (`taxonomy.Mention.weak`, set in `_match_at`: one token, in the ambiguous list, read only
    because Capitalised, not an acronym, not hyphenated): `Square D` / `Square-D` and `GE` / `EST`
-   are real names everywhere — `a GE 75 kVA transformer` is declared (ABB) and said exactly like
-   `a Trane panel`; `designed by GE Consulting` warns "maker ABB (written GE) is named outside any
-   equipment clause". `squared` stays in `vendors.AMBIGUOUS_ALONE`; the IFC-cell reader
-   (`vendors._declared`) ignores `weak` — a Manufacturer cell is an explicit claim.
+   are real names / acronyms — `a GE 75 kVA transformer` is declared (ABB) and said exactly like
+   `a Trane panel`, `all gear by GE` / `manufacturer: GE` take the cue; an acronym with neither
+   noun nor cue (`designed by GE Consulting`, `delivery EST 6 weeks`) is an ignored word (see
+   round 2 below). `squared` stays in `vendors.AMBIGUOUS_ALONE`; the IFC-cell reader
+   (`vendors._declared`) ignores the grading — a Manufacturer cell is an explicit claim.
 7. **Adjacency is measured with the clause's own extractors** (`_RE_AMP`, `_RE_KVA`, `_RE_KA`,
    `_RE_VOLT_*`, `_RE_SPACES`, `_RE_SECTIONS`, `_RE_MCB`, `_RE_MLO`, `_RE_FLUSH`, `_RE_SURFACE`):
    what stands between a maker and its noun (or inside the parenthetical it fills) must be nothing
@@ -103,7 +104,7 @@ presented as that maker's product" lines in MANIFEST.
 
 Gates: `make_family.py vendors --check` → 50 vendors, 120 lines, 7 with a catalog record, 0
 problems; `taxonomy --check` → 83 kinds, 0 problems (13 #516 warnings unchanged);
-`tests/test_maker_adjacency_739.py` 144 passed; `tests/test_taxonomy_wiring_692.py` +
+`tests/test_maker_adjacency_739.py` 164 passed; `tests/test_taxonomy_wiring_692.py` +
 `tests/test_prompt_intent.py` 111 passed; `tests/test_frontdoor.py tests/test_plugin_sync.py
 tests/test_ifc_intent.py tests/test_taxonomy_692.py` 167 passed / 5 skipped;
 `tools/sync_plugin.py` clean (validation passed, zip rebuilt).
@@ -144,6 +145,19 @@ Three blocking findings and four nits, all reproduced and fixed:
 | 200-clause prompt | 161 ms | 493 ms | 51 ms (cues are searched in a 72-character reach before/after the name, not the whole prefix) |
 
 `tests/test_maker_adjacency_739.py`: 144 cases.
+
+### Independent review, round 3 (head `4359aaa`, verdict 🛑 — quoted verbatim on PR #741)
+
+One blocking finding, three nits, fixed:
+
+| prompt | `main` | `4359aaa` | fixed head |
+|---|---|---|---|
+| `the Eaton house panel …`, `our Eaton house panel …`, `for two Eaton house panels …`, `feed the Eaton house panel …`, `replace one of the Eaton lab panels …`, `the Eaton branch panels …`, `6 Leviton Hospital Grade receptacles …`, `6 Hubbell Hospital Grade duplex receptacles …`, Title Case `Two Eaton Lab Panels`, `4 Eaton Hospital Grade Panels`, `An Eaton Campus Loop Switchboard` | maker on the noun | `None`, silently (an article before the name, or a Capitalised qualifier, satisfied "said as a place") | maker on the noun: qualifier-vs-place is now decided by what stands BETWEEN the place word and the equipment noun — nothing or up to three plain words (`grade`, `loop`, `tenant`) and it qualifies the noun (the maker rules decide; `Cooper Hall panels`, `the Kohler campus panels`, `the Sloan house panel` still end as ignored words because those makers make no panelboard); a count, digit, article, verb or punctuation (`the Kohler campus needs 4 panels`, `Sloan wing: 4 panels`, `in Cooper Hall, two panels`) and it is a place. `two panels next to the existing Siemens site lighting panel` → the lighting panel Siemens (context reaches the noun it qualifies across qualifier words) |
+| `electrical room for Eaton: 4 panels and a 75 kVA transformer` | PP only | whole job (T1 too) | PP only (a client preposition before a leading `X:` is no cue) |
+| cells `Eaton - Siemens`, `Eaton by Siemens`, `Eaton (Siemens)` | (one picked) | collapsed to Eaton | two makers, neither (`X by Y` collapses to X only when Y lists nothing for the kind — a parent, `Cooper Lighting by Eaton`) |
+| `two Eaton or Siemens or ABB panels` | — | "are both named" | "makers ABB, Eaton, Siemens are all named for it -- applied none" |
+
+`tests/test_maker_adjacency_739.py`: 164 cases.
 
 ## Findings
 

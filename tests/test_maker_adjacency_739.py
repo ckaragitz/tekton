@@ -541,7 +541,64 @@ def test_a_brand_and_its_parent_in_one_cell_declare_the_brand():
                  "Metalux - Cooper Lighting"):
         d = V.declared(cell, "downlight")
         assert (d["known"], d["vendor"]) == (True, "cooper-lighting"), (cell, d)
-    assert V.declared("Eaton, Siemens", "panelboard")["known"] is False
+    # two makers OF the kind stay two makers however they are joined
+    for cell in ("Eaton, Siemens", "Eaton - Siemens", "Eaton by Siemens", "Eaton (Siemens)", "Eaton / Siemens"):
+        d = V.declared(cell, "panelboard")
+        assert (d["known"], d["vendor"], d["record"]) == (False, None, None), (cell, d)
+
+
+# --------------------------------------------------------------------------- review of #741, round 3
+
+@pytest.mark.parametrize("prompt,maker", [
+    # an article / possessive before the maker and Title Case change nothing: the place word
+    # still qualifies the equipment noun it stands against
+    ("the Eaton house panel and six tenant panels", "Eaton"),
+    ("our Eaton house panel and six tenant panels", "Eaton"),
+    ("an Eaton house panel and six tenant panels", "Eaton"),
+    ("for two Eaton house panels 100 A and six tenant panels", "Eaton"),
+    ("feed the Eaton house panel from the switchboard", "Eaton"),
+    ("replace one of the Eaton lab panels with a 225 A panel", "Eaton"),
+    ("the Eaton branch panels are 100 A MLO, plus a 45 kVA transformer", "Eaton"),   # noun starts inside
+    ("6 Leviton Hospital Grade receptacles at 18 in AFF", "Leviton"),
+    ("6 Hubbell Hospital Grade duplex receptacles at 18 in AFF and two panels", "Hubbell Wiring Device-Kellems"),
+    ("Two Eaton Lab Panels 100 A", "Eaton"), ("4 Eaton Hospital Grade Panels", "Eaton"),
+    ("Six Eaton Suite Panels 100 A MLO", "Eaton"), ("An Eaton Campus Loop Switchboard 2000 A", "Eaton"),
+    ("6 Hubbell Hospital Grade Receptacles At 18 In AFF", "Hubbell Wiring Device-Kellems"),
+])
+def test_articles_and_title_case_do_not_turn_a_qualifier_into_a_place(prompt, maker):
+    _p, mk = _makers(prompt)
+    assert maker in set(mk.values()), (prompt, mk)
+    named = {t for t, m in mk.items() if m == maker}
+    assert all(mk[t] in (None, maker) for t in mk), (prompt, mk)
+    assert named, prompt
+
+
+@pytest.mark.parametrize("prompt", [
+    "Cooper Hall panels: replace two panels", "the Kohler campus panels: 4 panels", "the Sloan house panel and 4 panels",
+])
+def test_a_place_name_qualifying_a_noun_it_does_not_make_is_still_an_ignored_word(prompt):
+    p, mk = _makers(prompt)
+    assert set(mk.values()) == {None} and not p.coverage.warnings, (prompt, mk, p.coverage.warnings)
+
+
+def test_context_reaches_the_qualified_noun_across_qualifier_words():
+    p, mk = _makers("two panels next to the existing Siemens site lighting panel")
+    # (how many LP items 'the ... lighting panel' yields is #740's count question, not this one)
+    assert {m for t, m in mk.items() if t.startswith("LP")} == {"Siemens"}, mk
+    assert {m for t, m in mk.items() if t.startswith("PP")} == {None}, mk
+    assert not any("names existing or neighbouring equipment" in w for w in p.coverage.warnings)
+
+
+def test_a_client_before_a_leading_colon_is_not_the_jobs_maker():
+    _p, mk = _makers("electrical room for Eaton: 4 panels and a 75 kVA transformer")
+    assert mk["T1"] is None and {m for t, m in mk.items() if t.startswith("PP")} == {"Eaton"}
+
+
+def test_three_makers_on_one_noun_are_all_named_and_none_applied():
+    p, mk = _makers("two Eaton or Siemens or ABB panels")
+    assert set(mk.values()) == {None}
+    assert p.coverage.warnings == ["PP-1, PP-2: makers ABB, Eaton, Siemens are all named for it -- "
+                                   "applied none; name one"]
 
 
 def test_long_prompts_stay_linear():
