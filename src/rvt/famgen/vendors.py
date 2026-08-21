@@ -420,10 +420,11 @@ def declared(text: Any, kind: str) -> Optional[Dict[str, Any]]:
     return {"known": known, "vendor": vendor, "name": name, "record": rec, "line": line}
 
 
-#: between a brand and its parent in one manufacturer cell: 'X by Y', 'X (Y)', 'X, a Y brand'
+#: between a brand and its parent in one manufacturer cell, in words that say so: 'X by Y',
+#: 'X, a Y brand', 'X, a division of Y' ('X (Y)', 'X - Y', 'X / Y' name two makers)
 _RE_PARENT_JOIN = re.compile(
-    r"\s*(?:\(|-|by\b|,?\s*(?:an?\s+)?(?:brand|company|division|business|part)\s+of\b|,?\s*an?\s+)\s*",
-    re.I)
+    r"\s*(?:by\b|,?\s*(?:an?\s+)?(?:brand|company|division|business|part|subsidiary)\s+of\b|"
+    r",?\s*an?\s+)\s*", re.I)
 
 
 @functools.lru_cache(maxsize=256)

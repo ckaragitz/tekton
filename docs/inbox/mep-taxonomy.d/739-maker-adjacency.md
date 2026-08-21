@@ -26,7 +26,9 @@ maker mention in a room prompt in this order:
    (`Eaton only:` yes, `Eaton only for panels` names a clause) after it. The bare `X equipment` /
    `X gear` after-cue is gone: it needs its quantifier (`existing Siemens equipment` is no cue).
 3. **Soft whole-job cue**: `manufacturer|mfr|mfg|brand|vendor|oem [:|is|of choice] X`, `make: X`,
-   `use|using|specify|standardize on|basis of design X`, or a **leading** `X:`. Inside a clause that
+   `use|using|specify|standardize on|basis of design X` **when X closes the phrase** (`use Eaton.`,
+   `use Eaton for …`, `use Eaton gear` — `use Eaton breakers` names a part), or a **leading** `X:`
+   (not after `for|at|in|per …`: `electrical room for Eaton: …`, `Per Eaton: …` name a client / source). Inside a clause that
    names equipment it ties X to that noun; set off mid-list (`two panels, manufacturer Eaton, and a
    transformer, manufacturer Hammond`) it binds to the noun before it in the same sentence (an
    abbreviation's period — `mfr.` — and a decimal point are not sentence stops); leading or trailing
@@ -104,7 +106,7 @@ presented as that maker's product" lines in MANIFEST.
 
 Gates: `make_family.py vendors --check` → 50 vendors, 120 lines, 7 with a catalog record, 0
 problems; `taxonomy --check` → 83 kinds, 0 problems (13 #516 warnings unchanged);
-`tests/test_maker_adjacency_739.py` 164 passed; `tests/test_taxonomy_wiring_692.py` +
+`tests/test_maker_adjacency_739.py` 192 passed; `tests/test_taxonomy_wiring_692.py` +
 `tests/test_prompt_intent.py` 111 passed; `tests/test_frontdoor.py tests/test_plugin_sync.py
 tests/test_ifc_intent.py tests/test_taxonomy_692.py` 167 passed / 5 skipped;
 `tools/sync_plugin.py` clean (validation passed, zip rebuilt).
@@ -158,6 +160,21 @@ One blocking finding, three nits, fixed:
 | `two Eaton or Siemens or ABB panels` | — | "are both named" | "makers ABB, Eaton, Siemens are all named for it -- applied none" |
 
 `tests/test_maker_adjacency_739.py`: 164 cases.
+
+### Independent review, round 4 (head `7b09fde`, verdict 🛑 — quoted verbatim on PR #741)
+
+Three findings and nits, fixed:
+
+| prompt | `main` | `7b09fde` | fixed head |
+|---|---|---|---|
+| `Provide 4 panels and a 75 kVA transformer. Panelboards shall be by Eaton only.` / `…; panels Eaton only` / `… Transformers: Hammond only.` / `…; receptacles Hubbell only` | the trailing noun's items | every item (a trailing `X only` became the whole job) | the noun(s) before the cue **in its own clause**; whole job only when the cue OPENS its clause (`…, Eaton only` / `Eaton only: …`); `…; breakers Eaton only`, `use Eaton breakers`, `using Eaton lugs`, `specify Siemens breakers` (a part, no equipment noun) → nothing + "named outside any equipment clause" as on `main` (a verb cue names the job only when the name closes the phrase) |
+| `6 Hubbell hospital grade 20 A duplex receptacles`, `… 5-20R receptacles`, `two Siemens data center 400 A panels`, `four Eaton branch circuit 42-circuit panels`, `two Eaton lab 225 A panels`, `an Eaton station service 45 kVA transformer`, `an Eaton house 100 A panel`, `… hospital grade (green dot) receptacles` | maker on the noun | `None`, silently (a rating in the qualifier gap made a "place") | maker on the noun: ratings, NEMA configuration tokens and joiners (`,` `and` `/` `(…)`) are stripped/allowed in the qualifier gap; `two Eaton house and tenant panels 100 A` / `6 Hubbell hospital grade, tamper resistant receptacles` (the boundary hides the noun and a count leads) → nothing + the "outside any clause" warning as on `main`, while `For the Kohler campus, provide 4 panels` / `Kohler headquarters; 4 panels` stay places |
+| `Eaton for everything except the transformer: …` | — | whole job, silently | whole job + warning "named 'for everything except ...' -- the exception is not modelled …" |
+| `Per Eaton: 4 panels and a transformer` | PP only | whole job | PP only (`per` / `via` name a source, like `for`) |
+| cells `Eaton (Siemens)` / `Eaton - Siemens` on a transformer | one picked | collapsed to Eaton | two makers, neither: only worded parents collapse (`X by Y`, `X, an Y brand`, `X, a division of Y`, Y listing nothing for the kind); `Cooper Lighting (Eaton)` therefore also names two makers now (said, never picked) |
+| 200 × `…, Eaton only, …` prompt | 17 ms | 34 ms | 57 ms with everything above (anchor lookups and sentence stops are bisected once per prompt; 200 plain clauses 59 ms vs `main` 49 ms) |
+
+`tests/test_maker_adjacency_739.py`: 192 cases.
 
 ## Findings
 

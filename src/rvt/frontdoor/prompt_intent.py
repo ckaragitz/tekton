@@ -45,6 +45,7 @@ Territory: ``src/rvt/frontdoor/`` (front-door stream).  Imports (never edits)
 """
 from __future__ import annotations
 
+import bisect
 import functools
 import json
 import math
@@ -682,7 +683,7 @@ _RE_CUE_BEFORE = re.compile(
 _RE_CUE_AFTER = re.compile(
     r"^(?:\s+(?:gear|equipment|products?|hardware|brand))?,?\s+(?:"
     r"(?:throughout|everywhere|exclusively|across\s+the\s+board|[a-z]+-wide)\b"
-    r"|for\s+(?:everything|the\s+whole\s+(?:job|project|room))\b"
+    r"|(?P<every>for\s+(?:everything|the\s+whole\s+(?:job|project|room)))\b"
     # 'Eaton only:' / 'Eaton for all.' close the phrase; 'Eaton only for panels' names a clause
     r"|(?P<listable>(?P<q>only|for\s+all)(?:\s+of\s+(?:it|them))?(?:\s+(?:the\s+)?(?:gear|equipment|"
     r"items))?)(?=\s*(?:$|[,.;:)]|-\s)))", re.I)
@@ -693,9 +694,17 @@ _RE_CUE_AFTER = re.compile(
 #: kinds that maker makes.
 _RE_SOFT_CUE_BEFORE = re.compile(
     r"\b(?:(?:manufacturers?|mfr|mfg|brand|vendor|oem)\b\.?\s*(?:[:=-]|is|are|to\s+be|shall\s+be|"
-    r"of\s+choice(?:\s+is)?)?|make\s*[:=]|(?:use|using|specify|standardi[sz]e\s+on|"
-    r"basis\s+of\s+design(?:\s+is)?|bod)\b\s*[:=]?|match(?:ing)?\s+(?:the\s+)?(?:existing\s+)?)"
+    r"of\s+choice(?:\s+is)?)?|make\s*[:=]|(?P<verb>(?:use|using|specify|standardi[sz]e\s+on|"
+    r"basis\s+of\s+design(?:\s+is)?|bod)\b\s*[:=]?|match(?:ing)?\s+(?:the\s+)?(?:existing\s+)?))"
     r"\s*$", re.I)
+#: ... a VERB cue ('use Eaton') names the job only when the name closes the phrase ('use Eaton.',
+#: 'use Eaton for ...', 'use Eaton gear'); 'use Eaton breakers' names a part, not the job
+_RE_SOFT_CLOSE = re.compile(
+    r"\s*(?:$|[,.;:)]|-\s|(?:for|as|on|throughout|everywhere|only|exclusively|gear|equipment|"
+    r"products?|hardware|brand|[a-z]+-wide)\b)", re.I)
+#: 'X for everything except the transformer': the exception is not modelled -- said, not silent
+_RE_EXCEPT_AFTER = re.compile(r"\s*,?\s*(?:except|but(?!\s+not\b)|other\s+than|apart\s+from|"
+                              r"excluding|save\s+for)\b", re.I)
 _CUE_REACH = 72                       # cues stand right before / after the name: search no wider
 #: ADJACENT: between a maker and the equipment noun it precedes ('a GE 75 kVA transformer',
 #: 'two Eaton 225 A MLO panels'), or inside the parenthetical it fills ('(Eaton, 225 A)'),
@@ -704,6 +713,7 @@ _CUE_REACH = 72                       # cues stand right before / after the name
 _RATING_EXTRACTORS = (_RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN, _RE_KVA, _RE_KA, _RE_AMP,
                       _RE_SPACES, _RE_SECTIONS, _RE_MCB, _RE_MLO, _RE_FLUSH, _RE_SURFACE)
 _RE_PRIMARY_VOLT = re.compile(r"\b\d{3,5}\s*v?\s*-\s*(?=\d{3})", re.I)   # '480-208Y/120 V'
+_RE_NEMA_CONFIG = re.compile(r"\b(?:nema\s+)?l?\d{1,2}-\d{2}\s?[rp]?\b", re.I)   # '5-20R', 'L6-30P'
 _RE_ADJ_RESIDUE = re.compile(          # single-character alternatives: no nested quantifier
     r"(?:\s|[-/()'\",]|\b(?:new|series|style|step[\s-]?(?:down|up)|nema\s*[0-9a-z]{1,3}|"
     r"(?:type|model|cat(?:alog)?\.?)(?:\s+[a-z0-9][\w/-]{0,11})?|"
@@ -738,14 +748,19 @@ _PLACE_NOUNS = (
 _RE_LOCATIVE_AFTER = re.compile(
     r"(?P<proper>(?:\s+(?!(?i:for|the|an?|our|in|at|on|of|by|from|and|with|to|is|are)\b)"
     r"[A-Z][\w.&'-]*){0,2})\s+(?P<place>(?i:" + _PLACE_NOUNS + r"))(?![\w-])")
-#: ... between the place noun and the equipment noun when the former only qualifies the latter
+#: ... between the place noun and the equipment noun when the former only qualifies the latter:
+#: a few plain words, joined at most by ',', 'and', '/', '(...)' -- ratings are stripped first
 _RE_QUALIFIER_GAP = re.compile(
-    r"\s*(?:(?!(?:an?|the|our|their|its|this|that|these|those|and|or|with|for|of|to|in|at|on|by|"
-    r"from|is|are|was|be|needs?|gets?|wants?|ha(?:s|ve)|requires?|houses|serves?|feeds?|plus|"
-    r"(?:" + _COUNT_WORDS + r"))\b)[a-z][a-z'-]*\s+){0,3}", re.I)
-#: a client named right before a leading colon ('electrical room for Eaton: 4 panels') is not
-#: the whole job's maker
-_RE_CLIENT_BEFORE = re.compile(r"\b(?:for|at|in|of|by|from)\s+(?:the\s+)?$", re.I)
+    r"\s*(?:(?:,|&|/|\band\b|\([^()]{0,30}\)|(?!(?:an?|the|our|their|its|this|that|these|those|"
+    r"or|with|for|of|to|in|at|on|by|from|is|are|was|be|needs?|gets?|wants?|ha(?:s|ve)|requires?|"
+    r"houses|serves?|feeds?|plus|(?:" + _COUNT_WORDS + r"))\b)[a-z][a-z'-]*)\s*){0,5}", re.I)
+#: a client or a source named right before a leading colon ('electrical room for Eaton: 4
+#: panels', 'per Eaton: ...') is not the whole job's maker
+_RE_CLIENT_BEFORE = re.compile(r"\b(?:for|at|in|of|by|from|per|via)\s+(?:the\s+)?$", re.I)
+#: only punctuation between a clause boundary and a cue: the cue OPENS its clause
+_RE_OPENS = re.compile(r"[\s,;:.()\u2013-]*")
+#: a count right before a maker's name ('two Eaton ...', '6 new Hubbell ...'): equipment wording
+_RE_COUNT_LEAD = re.compile(r"\b(?:" + _COUNT_WORDS + r")\s+(?:[a-z-]+\s+)?$", re.I)
 #: a sentence stop -- not a decimal point ('7.5 kVA'), not an abbreviation's ('mfr. Eaton')
 _RE_STOP = re.compile(r";|(?<!\b(?:mfr|mfg|inc))(?<!\bcorp)(?<!\b[cn]o)\.(?!\d)", re.I)
 #: EXISTING or NEIGHBOURING gear is context: it names the maker of the noun it qualifies
@@ -756,13 +771,18 @@ _RE_CONTEXT_BEFORE = re.compile(
     re.I)
 
 
-def _only_ratings(gap: str) -> bool:
-    """Is ``gap`` nothing but equipment ratings and joining punctuation?  Measured with the
-    clause's own extractors, so 'adjacent' means exactly what the clause reads as attributes."""
-    gap = _RE_PRIMARY_VOLT.sub(" ", gap)
+def _strip_ratings(gap: str) -> str:
+    """``gap`` with everything the equipment clause reads as ratings blanked out -- the same
+    extractors, so 'adjacent' and 'qualifier' mean exactly what the clause reads as attributes."""
+    gap = _RE_NEMA_CONFIG.sub(" ", _RE_PRIMARY_VOLT.sub(" ", gap))
     for rx in _RATING_EXTRACTORS:
         gap = rx.sub(" ", gap)
-    return bool(_RE_ADJ_RESIDUE.match(gap))
+    return gap
+
+
+def _only_ratings(gap: str) -> bool:
+    """Is ``gap`` nothing but equipment ratings and joining punctuation?"""
+    return bool(_RE_ADJ_RESIDUE.match(_strip_ratings(gap)))
 
 
 def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
@@ -853,24 +873,44 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
             return close >= 0 and _only_ratings(text[e:close])
         return bool(tie)
 
+    by_start = sorted(range(len(anchors)), key=lambda i: anchors[i][0][0])   # bisectable
+    starts = [anchors[i][0][0] for i in by_start]
+
     def next_anchor(e: int, hi: int = len(text)) -> Optional[int]:   # first noun in [e, hi)
-        later = [i for i, a in enumerate(anchors) if e <= a[0][0] < hi]
-        return min(later, key=lambda i: anchors[i][0][0]) if later else None
+        k = bisect.bisect_left(starts, e)
+        return by_start[k] if k < len(starts) and starts[k] < hi else None
+
+    def anchors_between(lo_: int, hi_: int) -> List[int]:          # nouns inside [lo_, hi_)
+        k = bisect.bisect_left(starts, lo_)
+        out = []
+        while k < len(starts) and starts[k] < hi_:
+            if anchors[by_start[k]][0][1] <= hi_:
+                out.append(by_start[k])
+            k += 1
+        return out
+
+    stops = [b.end() for b in _RE_STOP.finditer(text)]                  # sentence stops, once
 
     def preceding(s: int, e: int) -> List[int]:      # the nouns a mid-list aside follows in
-        stop = max((b.end() for b in _RE_STOP.finditer(text, 0, s)), default=0)   # its sentence,
-        before = [i for i, a in enumerate(anchors) if stop <= a[0][1] <= s]   # nearest LAST; []
-        return sorted(before, key=lambda i: anchors[i][0][1]) if next_anchor(e) is not None else []
+        if next_anchor(e) is None:                     # its sentence, nearest LAST -- [] when the
+            return []                                  # aside trails the job
+        k = bisect.bisect_right(stops, s)
+        return anchors_between(stops[k - 1] if k else 0, s)
 
-    def locative(e: int, we: int) -> bool:           # '... the Edwards building'
+    def locative(s: int, e: int, ws: int, we: int) -> bool:   # '... the Edwards building'
         m = _RE_LOCATIVE_AFTER.match(text, e)
         if not m:
             return False
-        nxt = next_anchor(e, we)                       # '4 panels for the Edwards building': yes;
-        if nxt is None:                                # 'an Eaton house panel', 'the Eaton branch
-            return True                                # panels' (the noun starts inside): no
-        a_start = anchors[nxt][0][0]
-        return a_start >= m.end() and not _RE_QUALIFIER_GAP.fullmatch(text, m.end(), a_start)
+        nxt = next_anchor(e, we)
+        if nxt is None:                                # no equipment noun after it in its clause:
+            # '4 panels for the Edwards building', 'for the Kohler campus, 4 panels': a place;
+            # 'two Eaton house and tenant panels' (a count leads, the noun sits past 'and'):
+            # equipment wording -- the maker rules decide (and say when that is nothing)
+            counted = _RE_COUNT_LEAD.search(text, ws, s)
+            return not counted or bool(anchors_between(ws, s))
+        a_start = anchors[nxt][0][0]                   # 'an Eaton house panel', 'the Eaton branch
+        return a_start >= m.end() and not _RE_QUALIFIER_GAP.fullmatch(   # panels': a qualifier
+            _strip_ratings(text[m.end():a_start]))
 
     cued: Dict[TX.Mention, bool] = {}                  # whole-job makers: is the cue HARD?
     on_anchor: Dict[int, List[TX.Mention]] = {}
@@ -885,8 +925,10 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
         ws, we = clause_window(s, e)
         makes_built = any(makes(run, k) for k in built_kinds)
         soft = _RE_SOFT_CUE_BEFORE.search(head)
+        if soft and soft.group("verb") and not _RE_SOFT_CLOSE.match(tail):
+            soft = None                                # 'use Eaton breakers': a part, not the job
         lo = off + soft.start() if soft else s        # what to consume along with the name
-        if locative(e, we):
+        if locative(s, e, ws, we):
             continue                                   # a place, a client: an ignored word
         if not soft and _RE_CONTEXT_BEFORE.search(head):
             nxt = next_anchor(e, we)                   # existing / neighbouring gear: the maker
@@ -899,22 +941,31 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
             continue
         before, after = _RE_CUE_BEFORE.search(head), _RE_CUE_AFTER.match(tail)
         cue = before or after
-        listed: List[int] = []                         # a LISTABLE cue set off inside a list
-        if cue and cue.group("listable"):              # names what stands before it
-            listed = preceding(s, e)
-            if listed and cue.group("q").lower() in ("both", "only"):
+        cue_lo = off + before.start() if before else lo   # where the cue phrase starts
+        listed: List[int] = []                         # a LISTABLE cue ('all|both by X', 'X only',
+        if cue and cue.group("listable"):              # 'X for all') names what stands before it:
+            own = anchors_between(ws, s)               # (in start order == end order: disjoint)
+            listed = own or preceding(s, e)            # in its own
+            if listed and cue.group("q").lower() in ("both", "only"):     # clause, else mid-list
                 listed = listed[-1:]                   # ... the noun; 'all' the whole list
-        if cue and not listed:                         # the whole-job cue wins wherever it stands
-            if not (real or acronym or makes_built):
+            if not listed and not _RE_OPENS.fullmatch(text, ws, cue_lo):
+                cue = before = after = None            # 'breakers Eaton only': no equipment noun,
+        if cue and not listed:                         # not opening its clause -- no cue at all
+            if not (real or acronym or makes_built):   # the whole-job cue wins wherever it stands
                 continue                               # 'designed by York Engineering': a word
             cued.update((mm, True) for mm in run)
-            mark((off + before.start() if before else lo, e + (after.end() if after else 0)))
+            mark((cue_lo, e + (after.end() if after else 0)))
+            if after and after.group("every") and _RE_EXCEPT_AFTER.match(tail, after.end()):
+                cov.warnings.append(f"maker {VD.get(run[0].key).name} is named 'for everything "
+                                    "except ...' -- the exception is not modelled: applied to "
+                                    "every item that names no maker of its own; name the excepted "
+                                    "item's maker to override it")
             continue
         cands = [i for i, a in enumerate(anchors) if a[0][0] < we and a[0][1] > ws]  # overlap:
         tie: List[int] = []                            # a tag list reads across 'and'
         if listed:
             tie = listed
-            lo, e_mark = (off + before.start() if before else lo), e + (after.end() if after else 0)
+            lo, e_mark = cue_lo, e + (after.end() if after else 0)
         else:
             e_mark = e
             if soft and not cands:

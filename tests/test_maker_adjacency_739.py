@@ -537,14 +537,18 @@ def test_a_dropped_weak_name_in_a_context_phrase_stays_visible():
 
 
 def test_a_brand_and_its_parent_in_one_cell_declare_the_brand():
-    for cell in ("Cooper Lighting Solutions by Eaton", "Cooper Lighting (Eaton)", "Halo, an Eaton brand",
-                 "Metalux - Cooper Lighting"):
+    # said in words ('by', 'an ... brand', 'a division of'); the parent lists nothing for the kind
+    for cell in ("Cooper Lighting Solutions by Eaton", "Halo, an Eaton brand",
+                 "Metalux, a division of Cooper Lighting", "Metalux - Cooper Lighting"):   # (one key)
         d = V.declared(cell, "downlight")
         assert (d["known"], d["vendor"]) == (True, "cooper-lighting"), (cell, d)
-    # two makers OF the kind stay two makers however they are joined
-    for cell in ("Eaton, Siemens", "Eaton - Siemens", "Eaton by Siemens", "Eaton (Siemens)", "Eaton / Siemens"):
-        d = V.declared(cell, "panelboard")
-        assert (d["known"], d["vendor"], d["record"]) == (False, None, None), (cell, d)
+    # anything else names two makers and declares neither -- said, never picked
+    for cell, kind in (("Eaton, Siemens", "panelboard"), ("Eaton - Siemens", "panelboard"),
+                       ("Eaton by Siemens", "panelboard"), ("Eaton (Siemens)", "panelboard"),
+                       ("Eaton / Siemens", "panelboard"), ("Cooper Lighting (Eaton)", "downlight"),
+                       ("Eaton (Siemens)", "transformer_dry"), ("Eaton - Siemens", "transformer_dry")):
+        d = V.declared(cell, kind)
+        assert (d["known"], d["vendor"], d["record"]) == (False, None, None), (cell, kind, d)
 
 
 # --------------------------------------------------------------------------- review of #741, round 3
@@ -607,3 +611,77 @@ def test_long_prompts_stay_linear():
     t = time.perf_counter()
     p = PP.parse_prompt("an electrical room 40 ft by 30 ft with " + clause * 25 + "and a 75 kVA transformer")
     assert time.perf_counter() - t < 2.0 and len(p.items) == 51
+
+
+# --------------------------------------------------------------------------- review of #741, round 4
+
+@pytest.mark.parametrize("prompt,untouched", [
+    # an item-level 'X only' trailing the job names its own noun's items, never the others
+    ("Provide 4 panels and a 75 kVA transformer. Panelboards shall be by Eaton only.", ["T1"]),
+    ("4 panels and a 45 kVA transformer; panels Eaton only", ["T1"]),
+    ("Provide 4 panels and a 75 kVA transformer. Transformers: Hammond only.", ["PP-1", "PP-2", "PP-3", "PP-4"]),
+    ("4 panels and a 45 kVA transformer; receptacles Hubbell only", ["T1", "PP-1", "PP-2", "PP-3", "PP-4"]),
+])
+def test_a_trailing_noun_x_only_names_that_noun_not_the_job(prompt, untouched):
+    _p, mk = _makers(prompt)
+    assert all(mk[t] is None for t in untouched), (prompt, mk)
+    assert any(m for m in mk.values()), (prompt, mk)
+
+
+@pytest.mark.parametrize("prompt,name", [
+    ("4 panels and a 45 kVA transformer; breakers Eaton only", "Eaton"),        # no equipment noun:
+    ("4 panels and a 45 kVA transformer; breakers: Square D only", "Square D"),  # not a cue at all
+    ("4 panels and a 75 kVA transformer; use Eaton breakers", "Eaton"),          # a part, not the job
+    ("two panels and a 45 kVA transformer, using Eaton lugs", "Eaton"),
+    ("4 panels; specify Siemens breakers", "Siemens"),
+])
+def test_a_maker_named_for_a_part_applies_to_nothing_and_says_so(prompt, name):
+    p, mk = _makers(prompt)
+    assert set(mk.values()) == {None}, (prompt, mk)
+    assert any(w.startswith(f"maker {name} is named outside any equipment clause") for w in p.coverage.warnings), \
+        p.coverage.warnings
+
+
+@pytest.mark.parametrize("prompt,maker", [
+    ("6 Hubbell hospital grade 20 A duplex receptacles at 18 in AFF", "Hubbell Wiring Device-Kellems"),
+    ("6 Leviton hospital grade 20A tamper resistant receptacles at 18 in AFF", "Leviton"),
+    ("6 Hubbell hospital grade 5-20R receptacles at 18 in AFF", "Hubbell Wiring Device-Kellems"),
+    ("Hubbell hospital grade 20 A receptacles: 6 at 18 in AFF", "Hubbell Wiring Device-Kellems"),
+    ("6 Hubbell Hospital Grade 20A Receptacles", "Hubbell Wiring Device-Kellems"),
+    ("6 Hubbell hospital grade (green dot) receptacles at 18 in AFF", "Hubbell Wiring Device-Kellems"),
+    ("two Siemens data center 400 A panels", "Siemens"),
+    ("four Eaton branch circuit 42-circuit panels", "Eaton"),
+    ("two Eaton lab 225 A panels", "Eaton"), ("the Eaton lab 225 A panels", "Eaton"),
+    ("an Eaton station service 45 kVA transformer", "Eaton"),
+    ("an Eaton house 100 A panel", "Eaton"), ("An Eaton House 100 A Panel", "Eaton"),
+])
+def test_ratings_between_a_qualifier_and_its_noun_do_not_make_a_place(prompt, maker):
+    _p, mk = _makers(prompt)
+    assert set(mk.values()) == {maker}, (prompt, mk)
+
+
+@pytest.mark.parametrize("prompt,name", [
+    ("6 Hubbell hospital grade, tamper resistant receptacles at 18 in AFF", "Hubbell Wiring Device-Kellems"),
+    ("two Eaton house and tenant panels 100 A", "Eaton"),
+])
+def test_a_counted_maker_cut_from_its_noun_by_a_boundary_is_said_not_dropped(prompt, name):
+    p, mk = _makers(prompt)                          # (main's behaviour: disclosed, not silent)
+    assert set(mk.values()) == {None}
+    assert any(w.startswith(f"maker {name} is named outside any equipment clause") for w in p.coverage.warnings)
+
+
+@pytest.mark.parametrize("prompt", ["For the Kohler campus, provide 4 panels", "Kohler headquarters; 4 panels and a transformer"])
+def test_a_place_cut_from_the_nouns_by_a_boundary_is_still_a_place(prompt):
+    p, mk = _makers(prompt)
+    assert set(mk.values()) == {None} and "Kohler" in p.coverage.ignored_words and not p.coverage.warnings
+
+
+def test_for_everything_except_is_said_not_modelled():
+    p, mk = _makers("Eaton for everything except the transformer: two panels and a 45 kVA transformer")
+    assert {m for t, m in mk.items() if t.startswith("PP")} == {"Eaton"}
+    assert any("named 'for everything except ...' -- the exception is not modelled" in w for w in p.coverage.warnings)
+
+
+def test_per_x_is_a_source_not_the_jobs_maker():
+    _p, mk = _makers("Per Eaton: 4 panels and a 75 kVA transformer")
+    assert mk["T1"] is None and {m for t, m in mk.items() if t.startswith("PP")} == {"Eaton"}
