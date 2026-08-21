@@ -679,9 +679,63 @@ def test_a_place_cut_from_the_nouns_by_a_boundary_is_still_a_place(prompt):
 def test_for_everything_except_is_said_not_modelled():
     p, mk = _makers("Eaton for everything except the transformer: two panels and a 45 kVA transformer")
     assert {m for t, m in mk.items() if t.startswith("PP")} == {"Eaton"}
-    assert any("named 'for everything except ...' -- the exception is not modelled" in w for w in p.coverage.warnings)
+    assert any("'except ...' -- the exception is not modelled" in w for w in p.coverage.warnings)
 
 
 def test_per_x_is_a_source_not_the_jobs_maker():
     _p, mk = _makers("Per Eaton: 4 panels and a 75 kVA transformer")
     assert mk["T1"] is None and {m for t, m in mk.items() if t.startswith("PP")} == {"Eaton"}
+
+
+# --------------------------------------------------------------------------- review of #741, round 5
+
+@pytest.mark.parametrize("prompt", [
+    "electrical room 20 ft by 15 ft. Eaton equipment: 4 panels and a 75 kVA transformer",
+    "electrical room 20 ft by 15 ft. All Eaton equipment: 4 panels and a 75 kVA transformer",
+    "electrical room 20 ft by 15 ft with 4 panels and a 75 kVA transformer using Eaton equipment",
+    "provide 4 panels and a 75 kVA transformer using Eaton gear",
+    "furnish Eaton equipment: 4 panels and a 75 kVA transformer",
+    "Eaton equipment - 4 panels and a 75 kVA transformer",
+    "use Eaton equipment for 4 panels and a 75 kVA transformer",
+    "4 panels and a 75 kVA transformer, Eaton equipment",
+    "4 panels and a 75 kVA transformer with Eaton equipment",
+    "Eaton gear. 4 panels and a 75 kVA transformer.",
+    "4 panels and a 75 kVA transformer, all Eaton equipment",
+])
+def test_maker_equipment_closing_a_phrase_or_led_by_a_job_verb_names_the_whole_job(prompt):
+    p, mk = _makers(prompt)
+    assert set(mk) == {"T1", "PP-1", "PP-2", "PP-3", "PP-4"} and set(mk.values()) == {"Eaton"}, (prompt, mk)
+    assert p.coverage.warnings == [], (prompt, p.coverage.warnings)
+
+
+def test_existing_maker_equipment_is_still_context_not_a_cue():
+    p, mk = _makers("two panels beside existing Siemens equipment and a new transformer")
+    assert set(mk.values()) == {None}
+    assert any("names existing or neighbouring equipment" in w for w in p.coverage.warnings)
+
+
+@pytest.mark.parametrize("prompt,prefix", [
+    ("two Eaton lab 3-phase panels", "PP"), ("an Eaton house 1ph panel", "PP"),
+    ("two Eaton site 3ph 480V lighting panels", "LP"), ("an Eaton house 120/240V 1-phase 100 A panel", "PP"),
+    ("two Eaton lab 208Y/120V 3-phase 4-wire 225 A panels", "PP"), ("an Eaton house 100A 3P panel", "PP"),
+    ("two Eaton lab 3PH 4W 225A panels", "PP"), ("an Eaton house type PRL1a panel", "PP"),
+    ("an Eaton campus 15 kV switchgear lineup", "MSB"),
+])
+def test_phase_pole_model_tokens_in_a_qualifier_gap_do_not_make_a_place(prompt, prefix):
+    _p, mk = _makers(prompt)                          # (item COUNTS here are #740's, not judged)
+    assert {m for t, m in mk.items() if t.startswith(prefix)} == {"Eaton"}, (prompt, mk)
+
+
+def test_one_vocabulary_for_adjacency_and_qualifier_gaps():
+    from rvt.frontdoor.prompt_intent import _only_ratings, _strip_ratings
+    for gap in (" 3-phase ", " 208Y/120V 3-phase 4-wire 225 A ", " type PRL1a ", " NEMA 3R ", " 15 kV ",
+                " 480-208Y/120V 75 kVA ", " main circuit breaker 225 amperes ", " 5-20R "):
+        assert _only_ratings(gap), gap
+        assert not _strip_ratings(gap).strip(" -/()'\","), gap
+    assert not _only_ratings(" hospital grade ") and not _only_ratings(" backup ")
+
+
+def test_an_exception_after_any_whole_job_cue_is_said():
+    p, mk = _makers("Eaton only, except the transformer by Hammond: 4 panels and a 75 kVA transformer")
+    assert {m for t, m in mk.items() if t.startswith("PP")} == {"Eaton"}
+    assert any("'except ...' -- the exception is not modelled" in w for w in p.coverage.warnings)

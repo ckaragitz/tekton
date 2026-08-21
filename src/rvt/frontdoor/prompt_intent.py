@@ -681,12 +681,18 @@ _RE_CUE_BEFORE = re.compile(
     r"|everything(?:\s+else)?\s+(?:made\s+)?(?:by|from)\s*"
     r"|everything(?:\s+else)?\s*[:=]\s*)$", re.I)
 _RE_CUE_AFTER = re.compile(
-    r"^(?:\s+(?:gear|equipment|products?|hardware|brand))?,?\s+(?:"
+    r"^(?:(?:\s+(?:gear|equipment|products?|hardware|brand))?,?\s+(?:"
     r"(?:throughout|everywhere|exclusively|across\s+the\s+board|[a-z]+-wide)\b"
     r"|(?P<every>for\s+(?:everything|the\s+whole\s+(?:job|project|room)))\b"
     # 'Eaton only:' / 'Eaton for all.' close the phrase; 'Eaton only for panels' names a clause
     r"|(?P<listable>(?P<q>only|for\s+all)(?:\s+of\s+(?:it|them))?(?:\s+(?:the\s+)?(?:gear|equipment|"
-    r"items))?)(?=\s*(?:$|[,.;:)]|-\s)))", re.I)
+    r"items))?)(?=\s*(?:$|[,.;:)]|-\s)))"
+    # 'Eaton equipment:' / '..., Eaton gear.' -- the equipment word CLOSING the phrase
+    r"|\s+(?P<equip>gear|equipment|products?|hardware)(?=\s*(?:$|[,.;:)]|-\s)))", re.I)
+#: ... or the equipment word LED by a job verb: 'using Eaton equipment for ...', 'all Eaton gear'
+_RE_EQUIP_LEAD = re.compile(r"\b(?:all(?:\s+new)?|use|using|provide|furnish|supply|install|with)"
+                            r"\s+(?:new\s+)?$", re.I)
+_RE_EQUIP_AFTER = re.compile(r"\s+(?:gear|equipment|products?|hardware)\b", re.I)
 #: a SOFT cue: 'manufacturer: Eaton', 'mfr Eaton', 'use Eaton', 'basis of design Eaton', 'to
 #: match the existing Eaton gear', or a LEADING 'Eaton: ...'.  Inside a clause that names
 #: equipment it ties the maker to that noun ('two panels, manufacturer Eaton'); leading or
@@ -714,10 +720,12 @@ _RATING_EXTRACTORS = (_RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN, _RE_KVA, _RE
                       _RE_SPACES, _RE_SECTIONS, _RE_MCB, _RE_MLO, _RE_FLUSH, _RE_SURFACE)
 _RE_PRIMARY_VOLT = re.compile(r"\b\d{3,5}\s*v?\s*-\s*(?=\d{3})", re.I)   # '480-208Y/120 V'
 _RE_NEMA_CONFIG = re.compile(r"\b(?:nema\s+)?l?\d{1,2}-\d{2}\s?[rp]?\b", re.I)   # '5-20R', 'L6-30P'
-_RE_ADJ_RESIDUE = re.compile(          # single-character alternatives: no nested quantifier
-    r"(?:\s|[-/()'\",]|\b(?:new|series|style|step[\s-]?(?:down|up)|nema\s*[0-9a-z]{1,3}|"
+#: rating WORDS the extractors do not read but a clause carries between a maker and its noun
+_RE_RATING_WORDS = re.compile(
+    r"\b(?:new|series|style|step[\s-]?(?:down|up)|nema\s*[0-9a-z]{1,3}|\d{1,3}(?:\.\d+)?\s*kv|"
     r"(?:type|model|cat(?:alog)?\.?)(?:\s+[a-z0-9][\w/-]{0,11})?|"
-    r"(?:single|three|[1-4])[\s-]?(?:ph(?:ase)?|p(?:ole)?s?|w(?:ire)?))\b)*$", re.I)
+    r"(?:single|three|[1-4])[\s-]?(?:ph(?:ase)?|p(?:ole)?s?|w(?:ire)?))\b", re.I)
+_RE_ADJ_RESIDUE = re.compile(r"[\s\-/()'\",]*$")     # what may remain once ratings are blanked
 #: what ties a maker to the equipment noun (and tag list) it FOLLOWS: 'panels LP-1 and LP-2 by
 #: Eaton', 'a transformer (Hammond)', 'a cable tray family by Eaton' ('two panels,
 #: manufacturer: Eaton' is the soft cue's tie, above)
@@ -759,6 +767,8 @@ _RE_QUALIFIER_GAP = re.compile(
 _RE_CLIENT_BEFORE = re.compile(r"\b(?:for|at|in|of|by|from|per|via)\s+(?:the\s+)?$", re.I)
 #: only punctuation between a clause boundary and a cue: the cue OPENS its clause
 _RE_OPENS = re.compile(r"[\s,;:.()\u2013-]*")
+#: a LEADING 'Eaton:' / 'Eaton equipment:' names the job (softly)
+_RE_LEADING_COLON = re.compile(r"\s*(?:(?:gear|equipment|products?|hardware)\s*)?:")
 #: a count right before a maker's name ('two Eaton ...', '6 new Hubbell ...'): equipment wording
 _RE_COUNT_LEAD = re.compile(r"\b(?:" + _COUNT_WORDS + r")\s+(?:[a-z-]+\s+)?$", re.I)
 #: a sentence stop -- not a decimal point ('7.5 kVA'), not an abbreviation's ('mfr. Eaton')
@@ -777,7 +787,7 @@ def _strip_ratings(gap: str) -> str:
     gap = _RE_NEMA_CONFIG.sub(" ", _RE_PRIMARY_VOLT.sub(" ", gap))
     for rx in _RATING_EXTRACTORS:
         gap = rx.sub(" ", gap)
-    return gap
+    return _RE_RATING_WORDS.sub(" ", gap)
 
 
 def _only_ratings(gap: str) -> bool:
@@ -940,10 +950,13 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                 mark((s, e))
             continue
         before, after = _RE_CUE_BEFORE.search(head), _RE_CUE_AFTER.match(tail)
+        led = None if after else _RE_EQUIP_LEAD.search(head)      # 'using Eaton equipment ...'
+        if led and _RE_EQUIP_AFTER.match(tail):
+            before, after = before or led, _RE_EQUIP_AFTER.match(tail)
         cue = before or after
         cue_lo = off + before.start() if before else lo   # where the cue phrase starts
         listed: List[int] = []                         # a LISTABLE cue ('all|both by X', 'X only',
-        if cue and cue.group("listable"):              # 'X for all') names what stands before it:
+        if cue and cue.groupdict().get("listable"):    # 'X for all') names what stands before it:
             own = anchors_between(ws, s)               # (in start order == end order: disjoint)
             listed = own or preceding(s, e)            # in its own
             if listed and cue.group("q").lower() in ("both", "only"):     # clause, else mid-list
@@ -955,9 +968,9 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                 continue                               # 'designed by York Engineering': a word
             cued.update((mm, True) for mm in run)
             mark((cue_lo, e + (after.end() if after else 0)))
-            if after and after.group("every") and _RE_EXCEPT_AFTER.match(tail, after.end()):
-                cov.warnings.append(f"maker {VD.get(run[0].key).name} is named 'for everything "
-                                    "except ...' -- the exception is not modelled: applied to "
+            if after and _RE_EXCEPT_AFTER.match(tail, after.end()):
+                cov.warnings.append(f"maker {VD.get(run[0].key).name} is named for the job "
+                                    "'except ...' -- the exception is not modelled: applied to "
                                     "every item that names no maker of its own; name the excepted "
                                     "item's maker to override it")
             continue
@@ -972,7 +985,7 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                 tie = preceding(s, e)[-1:]             # 'two panels, manufacturer Eaton, and a ...'
         if tie:
             cands = tie
-        elif (soft and not cands or tail.lstrip().startswith(":") and s < first_anchor
+        elif (soft and not cands or _RE_LEADING_COLON.match(tail) and s < first_anchor
               and not _RE_CLIENT_BEFORE.search(head)) and (real or acronym):
             cued.update((mm, False) for mm in run)     # 'manufacturer: Eaton' / 'Eaton: ...'
             mark((lo, e))

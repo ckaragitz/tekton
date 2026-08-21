@@ -106,7 +106,7 @@ presented as that maker's product" lines in MANIFEST.
 
 Gates: `make_family.py vendors --check` → 50 vendors, 120 lines, 7 with a catalog record, 0
 problems; `taxonomy --check` → 83 kinds, 0 problems (13 #516 warnings unchanged);
-`tests/test_maker_adjacency_739.py` 192 passed; `tests/test_taxonomy_wiring_692.py` +
+`tests/test_maker_adjacency_739.py` 215 passed; `tests/test_taxonomy_wiring_692.py` +
 `tests/test_prompt_intent.py` 111 passed; `tests/test_frontdoor.py tests/test_plugin_sync.py
 tests/test_ifc_intent.py tests/test_taxonomy_692.py` 167 passed / 5 skipped;
 `tools/sync_plugin.py` clean (validation passed, zip rebuilt).
@@ -175,6 +175,22 @@ Three findings and nits, fixed:
 | 200 × `…, Eaton only, …` prompt | 17 ms | 34 ms | 57 ms with everything above (anchor lookups and sentence stops are bisected once per prompt; 200 plain clauses 59 ms vs `main` 49 ms) |
 
 `tests/test_maker_adjacency_739.py`: 192 cases.
+
+### Independent review, round 5 (head `9fadac6`, verdict 🛑 — quoted verbatim on PR #741)
+
+Two findings and nits, fixed:
+
+| prompt | `main` | `9fadac6` | fixed head |
+|---|---|---|---|
+| `Eaton equipment: 4 panels, a 75 kVA transformer and 6 receptacles`, `All Eaton equipment: …`, `… using Eaton equipment`, `provide … using Eaton gear`, `furnish Eaton equipment: …`, `Eaton equipment - …`, `use Eaton equipment for …`, `…, Eaton equipment`, `… with Eaton equipment`, `Eaton gear. …` | whole job | one clause, or nothing + warning | whole job again: `X gear|equipment|products|hardware` is a whole-job cue when the equipment word CLOSES the phrase or is led by `all|use|using|provide|furnish|supply|install|with`; `beside the existing Siemens equipment` is intercepted first as context, so #739's motivating prompt stays fixed; a leading `Eaton equipment:` also counts as the leading-colon cue |
+| `two Eaton lab 3-phase panels`, `an Eaton house 1ph panel`, `two Eaton site 3ph 480V lighting panels`, `an Eaton house 120/240V 1-phase 100 A panel`, `two Eaton lab 208Y/120V 3-phase 4-wire 225 A panels`, `an Eaton house 100A 3P panel`, `two Eaton lab 3PH 4W 225A panels`, `an Eaton house type PRL1a panel`, `an Eaton campus 15 kV switchgear lineup` | Eaton on the noun | `None`, silently | Eaton on the noun: ONE stripping vocabulary (`_strip_ratings`: the extractors + phase/pole/wire, `type|model <token>`, NEMA, `kV`, `step-down`, `series`) serves both the adjacency test and the qualifier gap, so the two can no longer disagree |
+| `Eaton only, except the transformer by Hammond: …` | — | silent | the `except …` disclosure now follows every whole-job after-cue, not only `for everything` |
+
+Pre-existing and left as is (documented, = `main`): a trailing listable cue with no punctuation before it
+(`… transformer all by Eaton`) binds to the last noun only; leading or trailing `all by X` names the
+whole job once it is set off by `,` `;` `.` `:` `-` or opens the prompt.
+
+`tests/test_maker_adjacency_739.py`: 215 cases.
 
 ## Findings
 
