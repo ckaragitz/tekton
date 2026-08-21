@@ -426,11 +426,16 @@ AMBIGUOUS_ALONE: FrozenSet[str] = frozenset({
 
 
 class Mention(NamedTuple):
-    """One kind (or vendor) a text names: ``text[start:end]`` is the phrase as written."""
+    """One kind (or vendor) a text names: ``text[start:end]`` is the phrase as written.
+    ``weak``: a ONE-word name that is also plain English ('York', 'Price', 'Watts'), read as a
+    name only because it is Capitalised where it stands -- the caller decides how much that is
+    worth; an acronym ('GE') or a hyphenated / multi-word spelling ('Square D', 'Square-D') of
+    the same letters is a real name, never weak."""
     start: int
     end: int
     key: str
     text: str
+    weak: bool = False
 
 
 _WORD = re.compile(r"[a-z0-9]+(?:[-'./&][a-z0-9]+)*")
@@ -461,10 +466,13 @@ def _match_at(text: str, toks: Sequence[Tuple[int, int, str]], i: int, index: Di
             key = index.get(folded)
             if key is None:
                 continue
-            if n == 1 and folded in ambiguous and not (proper and text[toks[i][0]].isupper()):
-                continue
             start, end = toks[i][0], toks[i + n - 1][1]
-            return Mention(start, end, key, text[start:end]), n
+            written = text[start:end]
+            weak = n == 1 and folded in ambiguous
+            if weak and not (proper and written[0].isupper()):
+                continue
+            weak = weak and written.isalpha() and not written.isupper()   # 'GE', 'Square-D': real
+            return Mention(start, end, key, written, weak), n
     return None
 
 

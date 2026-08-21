@@ -99,6 +99,8 @@ def test_existing_gear_nearby_is_context_not_a_declaration(prompt, word):
 @pytest.mark.parametrize("prompt,tags", [
     ("a Trane panel", ["PP-1"]),                                  # <maker> <noun>
     ("two new Kohler 225 A panels", ["PP-1", "PP-2"]),            # <maker> [ratings] <noun>
+    ("two Kohler main circuit breaker 225 amperes 480Y/277 V 42-circuit panels", ["PP-1", "PP-2"]),
+    ("two panels (Kohler, 480 V 3 ph 4 wire) and a 75 kVA transformer", ["PP-1", "PP-2"]),
     ("panels LP-1 and LP-2 by Kohler", ["LP-1", "LP-2"]),         # <noun> [tags] by <maker>
     ("two panels (Kohler) and a 75 kVA transformer", ["PP-1", "PP-2"]),
     ("two panels, manufacturer: Kohler, and a 75 kVA transformer", ["PP-1", "PP-2"]),
@@ -152,6 +154,15 @@ def test_a_repeated_by_square_d_keeps_both_mentions():
                    "two panels by Square D and 6 receptacles by Square D"):
         _p, mk = _makers(prompt)
         assert set(mk.values()) == {"Square D"}, (prompt, mk)
+
+
+def test_the_scanner_flags_weak_names_once_for_every_reader():
+    got = {m.text: m.weak for m in V.scan("GE, Square-D, Square D, York, 1200 Watts, Eaton, Squared ft")}
+    assert got == {"GE": False, "Square-D": False, "Square D": False, "York": True,
+                   "Watts": True, "Eaton": False, "Squared": True}
+    assert V.scan("1200 watts and twenty feet squared") == []      # lower case: not even a mention
+    _p, mk = _makers("6 Square-D receptacles at 18 in AFF")         # the hyphenated spelling too
+    assert set(mk.values()) == {"Square D"}
 
 
 def test_squared_stays_a_plain_word_for_the_scanner():
@@ -313,8 +324,9 @@ def test_price_and_titus_make_air_terminals_by_name(prompt, pairs):
 def test_a_cell_naming_two_makers_declares_neither():
     d = V.declared("Eaton or Siemens", "panelboard")
     assert (d["known"], d["vendor"], d["record"]) == (False, None, None)
-    assert d["line"].startswith("'Eaton or Siemens' names 2 makers (Eaton, Siemens) -- no single "
-                                "maker is read from it")
+    assert d["line"].startswith("'Eaton or Siemens' names 2 makers (Eaton, Siemens), so no single "
+                                "maker is read from it -- built here from what tekton holds")
+    assert d["line"].endswith(V.NOT_THAT_MAKER)      # the marker every surface filters on
     # one maker written the long way is still one maker
     assert V.declared("Square D by Schneider Electric", "panelboard")["record"] == (
         "square-d", "nq-nf-iline-panelboards")

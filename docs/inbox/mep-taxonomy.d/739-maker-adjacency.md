@@ -43,11 +43,20 @@ maker mention in a room prompt in this order:
    (`(Generac backup)` is not). Not adjacent and not a maker of the kind → an ignored word (`Kohler
    wants 4 panels`, `4 panels for Edwards`).
 6. **Plain-English names**: the one-word rule (`York`, `Price`, `Watts`, `Simplex` count only where
-   that maker makes the kind) now applies to one-token mentions that are not written as an acronym:
-   `Square D` (two tokens) and `GE` / `EST` (acronyms) are real names everywhere — `a GE 75 kVA
-   transformer` is declared (ABB) and said exactly like `a Trane panel`; `designed by GE Consulting`
-   warns "maker ABB (written GE) is named outside any equipment clause". `squared` stays in
-   `vendors.AMBIGUOUS_ALONE` for the scanner.
+   that maker makes the kind) is now a property of the mention, classified once in the shared
+   scanner (`taxonomy.Mention.weak`, set in `_match_at`: one token, in the ambiguous list, read only
+   because Capitalised, not an acronym, not hyphenated): `Square D` / `Square-D` and `GE` / `EST`
+   are real names everywhere — `a GE 75 kVA transformer` is declared (ABB) and said exactly like
+   `a Trane panel`; `designed by GE Consulting` warns "maker ABB (written GE) is named outside any
+   equipment clause". `squared` stays in `vendors.AMBIGUOUS_ALONE`; the IFC-cell reader
+   (`vendors._declared`) ignores `weak` — a Manufacturer cell is an explicit claim.
+7. **Adjacency is measured with the clause's own extractors** (`_RE_AMP`, `_RE_KVA`, `_RE_KA`,
+   `_RE_VOLT_*`, `_RE_SPACES`, `_RE_SECTIONS`, `_RE_MCB`, `_RE_MLO`, `_RE_FLUSH`, `_RE_SURFACE`):
+   what stands between a maker and its noun (or inside the parenthetical it fills) must be nothing
+   but what the equipment clause reads as ratings — one vocabulary, so `two Kohler main circuit
+   breaker 225 amperes 480Y/277 V 42-circuit panels` is adjacent exactly when the clause can read
+   it. `vendors.makes(vendor, kind)` is the one "does the directory list this maker for the kind"
+   predicate (`_declared`, the attachment loop and the soft-cue application all call it).
 
 `src/rvt/famgen/vendors.py`: Price Industries and Titus each get a named-only `grds` line
 (`air_terminal`, a pending row → "known by name only … not buildable here yet"), so `Price grilles`
@@ -94,13 +103,24 @@ presented as that maker's product" lines in MANIFEST.
 
 Gates: `make_family.py vendors --check` → 50 vendors, 120 lines, 7 with a catalog record, 0
 problems; `taxonomy --check` → 83 kinds, 0 problems (13 #516 warnings unchanged);
-`tests/test_maker_adjacency_739.py` 81 passed; `tests/test_taxonomy_wiring_692.py` +
+`tests/test_maker_adjacency_739.py` 84 passed; `tests/test_taxonomy_wiring_692.py` +
 `tests/test_prompt_intent.py` 111 passed; `tests/test_frontdoor.py tests/test_plugin_sync.py
 tests/test_ifc_intent.py tests/test_taxonomy_692.py` 167 passed / 5 skipped;
 `tools/sync_plugin.py` clean (validation passed, zip rebuilt).
 
 ## Findings
 
+- `/simplify` (four independent angles) on the first cut found one real hazard: the hand-written
+  rating-filler regexes (`(?:\s+|…|\d[\d.,/y]*|…)*$`) backtracked catastrophically on a failed
+  match — `two Trane 111111111111111111111111 custom panels` took 6.9 s in `parse_prompt`, a
+  24-digit token on the product path. Replaced by the extractor-based `_only_ratings()` with a
+  single-character residue pattern: the same prompt parses in 2 ms. Also from those reviews: the
+  weak-name classification moved into the scanner, `vendors.makes()`, the substitution tail shared
+  with `NOT_THAT_MAKER` (the two-maker sentence now carries the marker surfaces filter on), the
+  room nouns shared between `_RE_ROOM` and the locative list, a dead branch and duplicated
+  comprehensions removed. Skipped on purpose: lazy compilation of the maker regexes (+3 ms import,
+  0.1 % of a job — not worth the indirection) and treating `existing <noun>` as a shielding pass
+  over equipment clauses (changes what gets *built*: #740 / #737 territory, noted there).
 - `re.compile(r"^…").match(text, pos)` never matches for `pos > 0` — `^` means the start of the
   string, not `pos`; the parenthetical check used that form at first and silently never fired. The
   locative / parenthetical patterns are written without `^` and rely on `.match(text, pos)`.
@@ -124,9 +144,11 @@ tests/test_ifc_intent.py tests/test_taxonomy_692.py` 167 passed / 5 skipped;
 ## BRANCH STATE
 
 - branch `cam/739-maker-adjacency` from `main` @ 5da6836; files: `src/rvt/frontdoor/prompt_intent.py`,
-  `src/rvt/famgen/vendors.py`, `tests/test_maker_adjacency_739.py` (new),
+  `src/rvt/famgen/vendors.py`, `src/rvt/famgen/taxonomy.py` (`Mention.weak`),
+  `tests/test_maker_adjacency_739.py` (new),
   `tests/ci_shard.d/739-maker-adjacency.txt` (new), `tests/test_taxonomy_wiring_692.py` (2 assertions,
   see Findings), this fragment + one index line in `docs/inbox/mep-taxonomy.md`, regenerated plugin
-  mirrors (`plugin/lib/src/rvt/frontdoor/prompt_intent.py`, `plugin/lib/src/rvt/famgen/vendors.py`).
+  mirrors (`plugin/lib/src/rvt/frontdoor/prompt_intent.py`, `plugin/lib/src/rvt/famgen/vendors.py`,
+  `plugin/lib/src/rvt/famgen/taxonomy.py`).
 - gates above green locally; `/verify` ran (front door, two prompts); nothing staged for the viewer
   (no writer change); shipped = nothing until the PR merges through the session-hosted pipeline.

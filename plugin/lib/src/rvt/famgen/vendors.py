@@ -28,7 +28,7 @@ from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 from . import taxonomy as TX
 
-__all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "UNNAMED_MAKERS", "vendors",
+__all__ = ["Vendor", "Line", "AMBIGUOUS_ALONE", "NOT_THAT_MAKER", "UNNAMED_MAKERS", "vendors", "makes",
            "get", "resolve", "scan", "lines_for_kind", "records_for_kind", "default_record",
            "record_for", "declared", "record_tier", "describe", "table", "record_row_problems",
            "check_line", "check"]
@@ -351,6 +351,13 @@ def scan(text: Any) -> List[TX.Mention]:
     return TX._scan(text, _SCAN_INDEX, ambiguous=AMBIGUOUS_ALONE, proper=True)
 
 
+def makes(vendor: Any, kind: str) -> bool:
+    """Does the directory list a line of this maker (key, name, alias or :class:`Vendor`) for
+    the taxonomy kind -- held record or named only?  False for a maker it does not know."""
+    v = vendor if isinstance(vendor, Vendor) else (_BY_KEY.get(vendor) or resolve(vendor))
+    return v is not None and any(kind in ln.kinds for ln in v.lines)
+
+
 def lines_for_kind(kind: str) -> List[Tuple[Vendor, Line]]:
     """Every (vendor, line) that makes the taxonomy kind, catalog records first."""
     out = [(v, ln) for v in _ROWS for ln in v.lines if kind in ln.kinds]
@@ -367,6 +374,9 @@ def records_for_kind(kind: str) -> List[Tuple[str, str]]:
 #: a maker named for the kind is answered by :func:`describe` in its own words ("never
 #: presented as a product of <maker>") -- either way said once per sentence
 NOT_THAT_MAKER = "never presented as that maker's product"
+#: ... and the whole clause a substitution sentence closes with
+_SUBSTITUTED = (" -- built here from what tekton holds for the kind instead and reported as "
+                f"such; {NOT_THAT_MAKER}")
 
 #: manufacturer cells that DECLARE nothing (blank, placeholder): no maker is read from them
 UNNAMED_MAKERS: FrozenSet[str] = frozenset({
@@ -424,19 +434,16 @@ def _declared(text: str, kind: str, _generation: int = 0
         keys = sorted({m.key for m in mentions})
         if len(keys) > 1:
             names = ", ".join(_BY_KEY[k].name for k in keys)
-            return (False, None, text, None,
-                    f"'{text}' names {len(keys)} makers ({names}) -- no single maker is read "
-                    f"from it; built here from what tekton holds for the kind instead and "
-                    f"reported as such; never presented as any of those makers' product")
+            return (False, None, text, None, f"'{text}' names {len(keys)} makers ({names}), so "
+                                             f"no single maker is read from it{_SUBSTITUTED}")
         v = _BY_KEY[keys[0]] if keys else None
     d = describe(v.key if v else text, kind=kind)
     rec = record_for(d["key"], kind) if d["known"] else None
     line = d["line"]
     # a maker the directory names for this kind already had its say (describe -> _buildability);
     # an unknown maker, or one that does not make the kind, gets the substitution said here
-    if rec is None and not (d["known"] and any(kind in ln.kinds for ln in _BY_KEY[d["key"]].lines)):
-        line += (f" -- built here from what tekton holds for the kind instead and reported as "
-                 f"such; {NOT_THAT_MAKER}")
+    if rec is None and not (d["known"] and makes(d["key"], kind)):
+        line += _SUBSTITUTED
     return d["known"], d.get("key"), d.get("name", text), rec, line
 
 
