@@ -668,62 +668,74 @@ def _kind_record(m: TX.Mention, *, maker: Optional[str] = None) -> Dict[str, Any
 
 #: a HARD cue that a maker applies to the WHOLE job wherever it stands: 'all gear by Eaton',
 #: 'everything from Square D', 'all by Eaton' just before the name; 'Eaton equipment
-#: throughout', 'Eaton only', 'Eaton for everything' just after it -- the quantifier is
-#: required ('existing Siemens equipment' is no cue, #739).  A bare 'by X' / 'from X' is
-#: item-level ('a fire alarm panel by Notifier').
+#: throughout', 'Eaton only', 'Eaton site-wide', 'Eaton for everything' just after it -- the
+#: quantifier is required ('existing Siemens equipment' is no cue, #739).  A bare 'by X' /
+#: 'from X' is item-level ('a fire alarm panel by Notifier'), and 'all|both by X' set off
+#: INSIDE a list ('two panels, both by Eaton, and a transformer') names the noun before it.
 _RE_CUE_BEFORE = re.compile(
     r"\b(?:(?:all|both)\s+(?:(?:of\s+)?the\s+)?(?:gear|equipment|products?|hardware|items)\s*"
     r"(?:(?:by|from|is|are|to\s+be|shall\s+be|[:=])\s*)?"
-    r"|(?:all|both|everything(?:\s+else)?)\s+(?:made\s+)?(?:by|from)\s*"
+    r"|(?P<listable>(?:all|both)\s+(?:made\s+)?(?:by|from)\s*)"
+    r"|everything(?:\s+else)?\s+(?:made\s+)?(?:by|from)\s*"
     r"|everything(?:\s+else)?\s*[:=]\s*)$", re.I)
 _RE_CUE_AFTER = re.compile(
     r"^(?:\s+(?:gear|equipment|products?|hardware|brand))?,?\s+(?:"
-    r"(?:throughout|everywhere|exclusively|across\s+the\s+board)\b"
+    r"(?:throughout|everywhere|exclusively|across\s+the\s+board|[a-z]+-wide)\b"
     r"|for\s+(?:everything|the\s+whole\s+(?:job|project|room))\b"
     # 'Eaton only:' / 'Eaton for all.' close the phrase; 'Eaton only for panels' names a clause
     r"|(?:only|for\s+all(?:\s+of\s+(?:it|them))?(?:\s+(?:the\s+)?(?:gear|equipment|items))?)"
     r"(?=\s*(?:$|[,.;:)]|-\s)))", re.I)
-#: a SOFT cue: 'manufacturer: Eaton', 'mfr Eaton', 'use Eaton', 'basis of design Eaton', or a
-#: LEADING 'Eaton: ...'.  Inside a clause that names equipment it ties the maker to that noun
-#: ('two panels, manufacturer Eaton'); leading or trailing the job -- no equipment noun in its
-#: clause -- it names the job's maker for the kinds that maker makes.
+#: a SOFT cue: 'manufacturer: Eaton', 'mfr Eaton', 'use Eaton', 'basis of design Eaton', 'to
+#: match the existing Eaton gear', or a LEADING 'Eaton: ...'.  Inside a clause that names
+#: equipment it ties the maker to that noun ('two panels, manufacturer Eaton'); leading or
+#: trailing the job -- no equipment noun in its clause -- it names the job's maker for the
+#: kinds that maker makes.
 _RE_SOFT_CUE_BEFORE = re.compile(
     r"\b(?:(?:manufacturers?|mfr|mfg|brand|vendor|oem)\b\.?\s*(?:[:=-]|is|are|to\s+be|shall\s+be|"
     r"of\s+choice(?:\s+is)?)?|make\s*[:=]|(?:use|using|specify|standardi[sz]e\s+on|"
-    r"basis\s+of\s+design(?:\s+is)?|bod)\b\s*[:=]?)\s*$", re.I)
+    r"basis\s+of\s+design(?:\s+is)?|bod)\b\s*[:=]?|match(?:ing)?\s+(?:the\s+)?(?:existing\s+)?)"
+    r"\s*$", re.I)
 #: ADJACENT: between a maker and the equipment noun it precedes ('a GE 75 kVA transformer',
 #: 'two Eaton 225 A MLO panels'), or inside the parenthetical it fills ('(Eaton, 225 A)'),
 #: stands nothing but what the equipment clause itself extracts as ratings -- the same
 #: extractors, not a second vocabulary -- and these few words
 _RATING_EXTRACTORS = (_RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN, _RE_KVA, _RE_KA, _RE_AMP,
                       _RE_SPACES, _RE_SECTIONS, _RE_MCB, _RE_MLO, _RE_FLUSH, _RE_SURFACE)
+_RE_PRIMARY_VOLT = re.compile(r"\b\d{3,5}\s*v?\s*-\s*(?=\d{3})", re.I)   # '480-208Y/120 V'
 _RE_ADJ_RESIDUE = re.compile(          # single-character alternatives: no nested quantifier
-    r"(?:\s|[-/()'\",]|\b(?:new|type|model|series|style|(?:single|three|[1-4])[\s-]?"
-    r"(?:ph(?:ase)?|p(?:ole)?s?|w(?:ire)?))\b)*$", re.I)
+    r"(?:\s|[-/()'\",]|\b(?:new|series|style|step[\s-]?(?:down|up)|nema\s*[0-9a-z]{1,3}|"
+    r"(?:type|model|cat(?:alog)?\.?)(?:\s+[a-z0-9][\w/-]{0,11})?|"
+    r"(?:single|three|[1-4])[\s-]?(?:ph(?:ase)?|p(?:ole)?s?|w(?:ire)?))\b)*$", re.I)
 #: what ties a maker to the equipment noun (and tag list) it FOLLOWS: 'panels LP-1 and LP-2 by
 #: Eaton', 'a transformer (Hammond)', 'a cable tray family by Eaton' ('two panels,
 #: manufacturer: Eaton' is the soft cue's tie, above)
 _RE_ADJ_TRAIL = re.compile(
     r"^(?:\s+(?:famil(?:y|ies)|units?|assembl(?:y|ies)|line-?ups?))?\s*,?\s*"
     r"(?:(?P<paren>\(\s*)|(?:(?:made|manufactured|built|supplied)\s+by|by|from)\s+)$", re.I)
+#: two maker names that are ONE mention for attachment: 'Eaton or Siemens', 'Eaton / Siemens',
+#: 'Eaton, Siemens or ABB' ('and' stays the clause boundary it is everywhere else)
+_RE_RUN_JOINER = re.compile(r"\s*(?:,\s*(?:or\b)?|\bor\b|/|&)\s*", re.I)
 #: a maker's name used as a PLACE or a client ('for the Edwards building', 'in Cooper Hall',
 #: 'Sloan wing', 'the Kohler campus', 'Armstrong High School', 'the Hammond Street vault')
 #: names no maker: the name is followed -- directly, or across a Capitalised proper-noun
-#: phrase of up to two more words -- by a place noun, with no equipment noun in between (#739)
+#: phrase of up to two more words -- by a place noun that is a word of its own ('site-wide'
+#: is not) with no equipment noun in between or right behind ('an Eaton house panel' is a
+#: panel) (#739)
 _RE_LOCATIVE_AFTER = re.compile(
     r"(?:\s+(?!(?i:for|the|an?|our|in|at|on|of|by|from|and|with|to|is|are)\b)[A-Z][\w.&'-]*){0,2}"
     r"\s+(?i:" + _ROOM_NOUNS + r"|building|bldg|plant|offices?|campus|hall|wing|annex|quad|"
     r"residences?|home|house|school|university|college|academy|institute|hospital|clinic|site|"
     r"jobsite|street|st|avenue|ave|road|rd|boulevard|blvd|highway|hwy|towers?|cent(?:er|re)|"
-    r"facilit(?:y|ies)|warehouse|factory|mill|works|store|shop|mall|plaza|park|hotel|motel|"
+    r"facilit(?:y|ies)|warehouse|factory|mill|store|mall|plaza|park|hotel|motel|"
     r"church|chapel|library|museum|theat(?:er|re)|arena|stadium|gym|garage|station|depot|complex|"
     r"county|city|town|village|district|headquarters|hq|branch|property|estate|farm|ranch|"
-    r"labs?|laboratory|pavilion|block|dock|pier|airport|base|camp|lodge|manor|villa|studios?|"
-    r"suite|apartments?|condos?|dorm(?:itory)?|data\s+cent(?:er|re))\b")
+    r"labs?|laboratory|pavilion|dock|pier|airport|campus(?:es)?|lodge|manor|villa|studios?|"
+    r"suite|apartments?|condos?|dorm(?:itory)?|data\s+cent(?:er|re))(?![\w-])")
 #: a sentence stop -- not a decimal point ('7.5 kVA'), not an abbreviation's ('mfr. Eaton')
 _RE_STOP = re.compile(r";|(?<!\b(?:mfr|mfg|inc))(?<!\bcorp)(?<!\b[cn]o)\.(?!\d)", re.I)
-#: EXISTING gear the new work sits beside is context, not a declaration ('two panels beside
-#: the existing Siemens equipment')
+#: EXISTING or NEIGHBOURING gear is context: it names the maker of the noun it qualifies
+#: ('next to an Eaton 75 kVA transformer') and of nothing else ('two panels beside the
+#: existing Siemens equipment')
 _RE_CONTEXT_BEFORE = re.compile(
     r"\b(?:existing|(?:beside|next\s+to|adjacent\s+to|alongside|near)\s+(?:the|an?|our)?)\s*$",
     re.I)
@@ -732,6 +744,7 @@ _RE_CONTEXT_BEFORE = re.compile(
 def _only_ratings(gap: str) -> bool:
     """Is ``gap`` nothing but equipment ratings and joining punctuation?  Measured with the
     clause's own extractors, so 'adjacent' means exactly what the clause reads as attributes."""
+    gap = _RE_PRIMARY_VOLT.sub(" ", gap)
     for rx in _RATING_EXTRACTORS:
         gap = rx.sub(" ", gap)
     return bool(_RE_ADJ_RESIDUE.match(gap))
@@ -742,23 +755,27 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                    unbuilt_anchors: Sequence[TX.Mention], items: List["PromptItem"],
                    clause_window, mark, cov: "PromptCoverage",
                    ) -> Tuple[Dict[TX.Mention, str], Optional[str], str]:
-    """Attach every maker the prompt names (reviews of #736, #739):
+    """Attach every maker the prompt names (reviews of #736, #739).  Names joined by 'or',
+    '/', 'and' ('Eaton or Siemens') are ONE mention here -- wherever it lands, two makers on
+    one thing apply neither and a warning says so.
 
-    * a name used as a PLACE or client ('for the Edwards building', 'the Kohler campus') or
-      as existing context ('beside the existing Siemens equipment') names no maker -- it is
-      an ignored word;
+    * a name used as a PLACE or client ('for the Edwards building', 'the Kohler campus') names
+      no maker -- it is an ignored word; EXISTING or neighbouring gear ('next to an Eaton
+      transformer', 'beside the existing Siemens equipment') names the maker of the noun it
+      qualifies and of nothing else, and says so when that is nothing;
     * a maker with a whole-job CUE applies to the items that name no maker of their own: a
       HARD cue ('all gear by Eaton', 'everything from Square D', 'Eaton equipment throughout')
       to every one of them, a SOFT cue ('manufacturer: Eaton' leading or trailing the job,
-      'use Eaton', a leading 'Eaton: ...') to those of the kinds the directory says the maker
-      makes, saying what it skipped; exactly one such maker may; a bare 'by X' is item-level;
+      'use Eaton', 'to match the existing Eaton gear', a leading 'Eaton: ...') to those of the
+      kinds the directory says the maker makes, saying what it skipped; exactly one such
+      maker may; a bare 'by X' is item-level, and a cue set off INSIDE a list ('two panels,
+      both by Eaton, and ...', '..., manufacturer Eaton, ...') names the noun before it;
     * every other maker goes to the NEAREST equipment noun inside its clause window -- a built
       item group or a not-built kind ('a 500 kW Cummins generator' names the generator's
       maker; the panels in the same sentence keep none) -- when the directory says the maker
       makes that kind; a maker that does NOT make it rides the noun only when the two are
       ADJACENT ('a Trane panel', 'six Square D receptacles', 'panels LP-1 and LP-2 by
-      Kohler'), and is then declared and said, never silently; two different makers on one
-      noun apply neither and a warning says so;
+      Kohler'), and is then declared and said, never silently;
     * a WEAK name -- one plain-English word read as a maker only because it is Capitalised
       ('York', 'Price', 'Watts', 'Simplex'; ``Mention.weak``) -- counts only where that maker
       makes the noun's kind (the job's kinds, for a cue); anywhere else it stays an ignored
@@ -775,78 +792,112 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
     item_kind = {it.tag: TX.for_intent_kind(it.kind).key for it in items}   # taxonomy rows
     built_kinds = set(item_kind.values())
 
+    runs: List[List[TX.Mention]] = []                  # 'Eaton or Siemens' is one mention
+    for mm in maker_mentions:
+        if runs and _RE_RUN_JOINER.fullmatch(text, runs[-1][-1].end, mm.start):
+            runs[-1].append(mm)
+        else:
+            runs.append([mm])
+
     def anchor_kind(i: int) -> str:                    # the taxonomy row an anchor stands for
         _span, its, unbuilt = anchors[i]
         return item_kind[its[0].tag] if its else unbuilt.key
 
-    def adjacent(mm: TX.Mention, i: int) -> bool:
+    def makes(run: Sequence[TX.Mention], kind: str) -> bool:
+        return any(VD.makes(mm.key, kind) for mm in run)
+
+    def adjacent(s: int, e: int, i: int) -> bool:      # run text[s:e] and anchor i
         (a_start, a_end), _its, _unbuilt = anchors[i]
-        if a_start >= mm.end:                          # 'a GE 75 kVA transformer'
-            return _only_ratings(text[mm.end:a_start])
-        tie = _RE_ADJ_TRAIL.match(text[a_end:mm.start])          # 'panels LP-1, LP-2 by Eaton'
+        if a_start >= e:                               # 'a GE 75 kVA transformer'
+            return _only_ratings(text[e:a_start])
+        tie = _RE_ADJ_TRAIL.match(text[a_end:s])      # 'panels LP-1, LP-2 by Eaton'
         if tie and tie.group("paren"):                 # '(Eaton, 225 A)' -- not '(Generac backup)'
-            close = text.find(")", mm.end)
-            return close >= 0 and _only_ratings(text[mm.end:close])
+            close = text.find(")", e)
+            return close >= 0 and _only_ratings(text[e:close])
         return bool(tie)
 
-    def preceding(mm: TX.Mention) -> Optional[int]:   # the noun a mid-list aside follows, in
-        stop = max((b.end() for b in _RE_STOP.finditer(text, 0, mm.start)), default=0)   # its
-        before = [i for i, a in enumerate(anchors) if stop <= a[0][1] <= mm.start]  # sentence,
-        later = any(a[0][0] >= mm.end for a in anchors)          # and not trailing the job
-        return max(before, key=lambda i: anchors[i][0][1]) if before and later else None
+    def next_anchor(e: int) -> Optional[int]:         # the first noun after position e
+        later = [i for i, a in enumerate(anchors) if a[0][0] >= e]
+        return min(later, key=lambda i: anchors[i][0][0]) if later else None
 
-    def locative(mm: TX.Mention) -> bool:              # '... the Edwards building'
-        m = _RE_LOCATIVE_AFTER.match(text, mm.end)
-        return bool(m) and not any(mm.end <= a[0][0] < m.end() for a in anchors)
+    def preceding(s: int, e: int) -> List[int]:      # the nouns a mid-list aside follows in
+        stop = max((b.end() for b in _RE_STOP.finditer(text, 0, s)), default=0)   # its sentence,
+        before = [i for i, a in enumerate(anchors) if stop <= a[0][1] <= s]   # nearest LAST; []
+        later = next_anchor(e) is not None                                   # when trailing
+        return sorted(before, key=lambda i: anchors[i][0][1]) if later else []
+
+    def locative(e: int) -> bool:                      # '... the Edwards building'
+        m = _RE_LOCATIVE_AFTER.match(text, e)
+        if not m:
+            return False
+        nxt = next_anchor(e)                           # 'Eaton site lighting panels': a qualifier
+        return nxt is None or text[m.end():anchors[nxt][0][0]].strip() != "" and anchors[nxt][0][0] >= m.end()
 
     cued: Dict[TX.Mention, bool] = {}                  # whole-job makers: is the cue HARD?
     on_anchor: Dict[int, List[TX.Mention]] = {}
     unplaced: List[TX.Mention] = []                    # a real maker's name, nothing to hang it on
-    for mm in maker_mentions:
-        head, tail = text[:mm.start], text[mm.end:]
-        if locative(mm) or _RE_CONTEXT_BEFORE.search(head):
-            continue                                   # a place, a client, existing gear: a word
-        before, after = _RE_CUE_BEFORE.search(head), _RE_CUE_AFTER.match(tail)
+    contextual: List[TX.Mention] = []                  # names existing / neighbouring gear only
+    for run in runs:
+        s, e = run[0].start, run[-1].end
+        head, tail = text[:s], text[e:]
+        weak = all(mm.weak for mm in run)
         soft = _RE_SOFT_CUE_BEFORE.search(head)
-        lead = before or soft
-        lo = lead.start() if lead else mm.start        # what to consume along with the name
-        if before or after:                            # the whole-job cue wins wherever it stands
-            if mm.weak and not any(VD.makes(mm.key, k) for k in built_kinds):
+        lo = soft.start() if soft else s               # what to consume along with the name
+        if locative(e):
+            continue                                   # a place, a client: an ignored word
+        if not soft and _RE_CONTEXT_BEFORE.search(head):
+            nxt = next_anchor(e)                       # existing / neighbouring gear: the maker
+            if nxt is not None and adjacent(s, e, nxt):   # of the noun it qualifies, no other
+                on_anchor.setdefault(nxt, []).extend(run)
+            elif not weak:
+                contextual.extend(run)
+            mark((s, e))
+            continue
+        before, after = _RE_CUE_BEFORE.search(head), _RE_CUE_AFTER.match(tail)
+        listed = preceding(s, e) if before and before.group("listable") else []   # 'both by X'
+        if (before or after) and not listed:           # the whole-job cue wins wherever it stands
+            if weak and not any(makes(run, k) for k in built_kinds):
                 continue                               # 'designed by York Engineering': a word
-            cued[mm] = True
-            mark((lo, mm.end + (after.end() if after else 0)))
+            cued.update((mm, True) for mm in run)
+            mark(((before or soft).start() if (before or soft) else s,
+                  e + (after.end() if after else 0)))
             continue
-        ws, we = clause_window(mm.start, mm.end)       # a tag list reads across 'and': overlap
+        ws, we = clause_window(s, e)                   # a tag list reads across 'and': overlap
         cands = [i for i, a in enumerate(anchors) if a[0][0] < we and a[0][1] > ws]
-        prev = preceding(mm) if soft and not cands else None
-        if prev is not None:
-            cands = [prev]                             # 'two panels, manufacturer Eaton, and a ...'
-        elif (soft and not cands or tail.lstrip().startswith(":") and mm.start < first_anchor) \
-                and not mm.weak:
-            cued[mm] = False                           # 'manufacturer: Eaton' / 'Eaton: ...'
-            mark((lo, mm.end))
+        tie: List[int] = []                            # a cue set off mid-list names the noun(s)
+        if listed:                                     # before it: '..., both by Eaton, ...' the
+            tie, lo = listed, before.start()           # list, '..., manufacturer Eaton, ...' the
+        elif soft and not cands:                       # last one
+            tie = preceding(s, e)[-1:]
+        if tie:
+            cands = tie
+        elif (soft and not cands or tail.lstrip().startswith(":") and s < first_anchor) \
+                and not weak:
+            cued.update((mm, False) for mm in run)     # 'manufacturer: Eaton' / 'Eaton: ...'
+            mark((lo, e))
             continue
-        fits = [i for i in cands if VD.makes(mm.key, anchor_kind(i))]
-        if mm.weak:                                    # 'our New York office', '1200 Watts',
+        fits = [i for i in cands if makes(run, anchor_kind(i))]
+        if weak:                                       # 'our New York office', '1200 Watts',
             cands = fits                               # '4 Simplex receptacles'
         if not cands:
-            if not mm.weak:
-                unplaced.append(mm)
-                mark((lo, mm.end))
+            if not weak:
+                unplaced.extend(run)
+                mark((lo, e))
             continue
 
         def gap(i: int) -> float:                     # distance to the anchor; the FOLLOWING
             a_start, a_end = anchors[i][0]             # noun wins a tie ('Cummins generator')
-            return (a_start - mm.end) if a_start >= mm.end else (mm.start - a_end) + 0.5
+            return (a_start - e) if a_start >= e else (s - a_end) + 0.5
         nearest = min(cands, key=gap)
-        if not (nearest in fits or adjacent(mm, nearest) or soft):
+        if not (nearest in fits or tie or soft or adjacent(s, e, nearest)):
             # a maker of OTHER kinds, not adjacent to this noun: the nearest noun it does make,
             # else a client's / person's name -- an ignored word ('Kohler wants 4 panels')
             if not fits:
                 continue
             nearest = min(fits, key=gap)
-        on_anchor.setdefault(nearest, []).append(mm)
-        mark((lo, mm.end))
+        for i in (tie if listed else [nearest]):       # 'all by X' mid-list: the whole list
+            on_anchor.setdefault(i, []).extend(run)
+        mark((lo, e))
     unbuilt_makers: Dict[TX.Mention, str] = {}
     for i, mms in on_anchor.items():
         names = sorted({VD.get(mm.key).name for mm in mms})
@@ -885,24 +936,29 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
         for it in targets:
             it.manufacturer = name
         labels = lambda ks: ", ".join(sorted(TX.get(k).label for k in ks))   # noqa: E731
+        force = f"write 'all gear by {name}' or name it inside a clause to declare it regardless"
         if targets:
             global_maker = key
             if not hard and made != open_kinds:
                 cov.warnings.append(
                     f"maker {called(cued)} is named for the job but the vendor directory lists no "
                     f"{labels(open_kinds - made)} by it -- applied to the {labels(made)} only ("
-                    + ", ".join(it.tag for it in targets) + f"); write 'all gear by {name}' or "
-                    "name it inside a clause to declare it regardless")
+                    + ", ".join(it.tag for it in targets) + f"); {force}")
+        elif not open_kinds:                           # 'six Eaton panels; manufacturer: Siemens'
+            cov.warnings.append(f"maker {called(cued)} is named for the job but every item "
+                                "already names its own maker -- applied to nothing")
         elif not hard:                                 # 'Kohler: 4 panels'
-            cov.warnings.append(
-                f"maker {called(cued)} is named for the job but the vendor directory lists none "
-                f"of its equipment ({labels(open_kinds)}) by it -- applied to nothing; write 'all "
-                f"gear by {name}' or name it inside a clause ('two {name} panels') to declare it "
-                "regardless")
+            cov.warnings.append(f"maker {called(cued)} is named for the job but the vendor "
+                                f"directory lists none of its equipment ({labels(open_kinds)}) "
+                                f"by it -- applied to nothing; {force} ('two {name} panels')")
     elif cued_keys:
         cov.warnings.append(f"makers {called(cued)} are all named for the whole job -- applied "
                             "to nothing; name one, or name each inside its clause ('six Eaton "
                             "panels')")
+    if contextual:
+        cov.warnings.append(f"maker {called(contextual)} names existing or neighbouring "
+                            "equipment, not the new work -- applied to nothing; write 'to match "
+                            "the existing <maker> gear' to carry it over")
     if unplaced:
         cov.warnings.append(f"maker {called(unplaced)} is named outside any equipment clause -- "
                             "applied to nothing; write 'all gear by <maker>' for the whole job "

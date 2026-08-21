@@ -103,10 +103,29 @@ presented as that maker's product" lines in MANIFEST.
 
 Gates: `make_family.py vendors --check` → 50 vendors, 120 lines, 7 with a catalog record, 0
 problems; `taxonomy --check` → 83 kinds, 0 problems (13 #516 warnings unchanged);
-`tests/test_maker_adjacency_739.py` 84 passed; `tests/test_taxonomy_wiring_692.py` +
+`tests/test_maker_adjacency_739.py` 114 passed; `tests/test_taxonomy_wiring_692.py` +
 `tests/test_prompt_intent.py` 111 passed; `tests/test_frontdoor.py tests/test_plugin_sync.py
 tests/test_ifc_intent.py tests/test_taxonomy_692.py` 167 passed / 5 skipped;
 `tools/sync_plugin.py` clean (validation passed, zip rebuilt).
+
+### Independent review, round 1 (head `feea259`, verdict 🛑 — quoted verbatim on PR #741)
+
+Six findings, all reproduced and fixed on the branch:
+
+| prompt | `main` | `feea259` | fixed head |
+|---|---|---|---|
+| `an Eaton house panel and six tenant panels` / `two Eaton site lighting panels 100 A` / `two Eaton lab panels …` / `six Eaton suite panels 100 A MLO` | Eaton on the noun | all `None` (a place word *qualifying* the noun was read as a place) | Eaton on the noun again — a place noun followed straight by an equipment noun is a qualifier, and the noun list ends in `(?![\w-])` |
+| `use Eaton site-wide: …` / `standardize on Eaton plant-wide: …` | one clause | all `None` (`site-`) | whole job (`X-wide` is a hard quantifier) |
+| `a 2000 A Eaton factory-assembled switchboard`, `Eaton base bid: 4 panels` | Eaton | `None` | Eaton (`factory-` no place; `base` off the place list) |
+| `two panels, both by Eaton, and a 45 kVA transformer` / `panels LP-1 thru LP-4, all by Eaton, plus a 45 kVA transformer` | nothing + warning | T1 Eaton too (job-wide) | the list before it only (PP / LP), T1 `None`, no warning; leading or trailing `all by X` stays the whole job |
+| `Eaton or Siemens: 4 panels …` / `Eaton / Siemens: …` / `4 panels; manufacturer: Eaton, Siemens` | applied neither + warning | PP Eaton (a guess) | names joined by `or` `/` `&` `,` are ONE cued set → "makers Eaton, Siemens are all named for the whole job -- applied to nothing" |
+| `six Eaton panels; manufacturer: Siemens` | — | "lists none of its equipment () by it" | "every item already names its own maker -- applied to nothing" |
+| `two panels next to an Eaton 75 kVA transformer` / `4 panels near the Eaton switchboard` | T1 / MSB Eaton | `None`, silently | T1 / MSB Eaton (context names the maker of the noun it qualifies); `two panels; existing Siemens gear to remain` → warning "names existing or neighbouring equipment, not the new work -- applied to nothing"; `4 new panels to match the existing Eaton gear` → PP Eaton (`to match the existing X` is a soft whole-job cue) |
+| `ROOM 20 FT SQUARED WITH 4 PANELS` / `PROVIDE 4 PANELS. PRICE SEPARATELY.` / `… YORK TO REVIEW.` | ignored word | spurious "outside any clause" maker warning | ignored word again (in an all-caps text capitals say nothing: `Mention.weak` stays true); `6 square-d receptacles` reads Square D like `square d` |
+| `a GE 480-208Y/120V 75 kVA transformer`, `a GE step-down …`, `a Trane type NQ 225 A panel`, `two Kohler NEMA 3R panels`, `two Kohler 400A 65kAIC MLO 480/277V panels` | (GE ignored) / Trane said | maker → ignored word | declared and said (primary-secondary voltage, `step-down`, `type|model <token>`, `NEMA <x>` count as ratings between maker and noun) |
+
+`tests/test_maker_adjacency_739.py` grew to 114 cases (every prompt above, both orders where order
+matters, plus a linear-time guard on hostile gaps).
 
 ## Findings
 

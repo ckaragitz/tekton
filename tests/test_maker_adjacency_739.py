@@ -83,15 +83,114 @@ def test_a_place_named_after_a_maker_of_the_kind_is_still_a_place():
     _no_maker_anywhere("two panels for the new Eaton building", "Eaton")
 
 
-@pytest.mark.parametrize("prompt,word", [
+@pytest.mark.parametrize("prompt,name", [
     ("two panels beside existing Siemens equipment and a new transformer", "Siemens"),
     ("a new transformer and two panels beside the existing Siemens equipment", "Siemens"),
     ("two panels next to the Eaton gear and a transformer", "Eaton"),
+    ("two panels; existing Siemens gear to remain", "Siemens"),
 ])
-def test_existing_gear_nearby_is_context_not_a_declaration(prompt, word):
+def test_existing_gear_nearby_is_context_not_a_declaration_and_says_so(prompt, name):
     p, mk = _makers(prompt)
-    assert set(mk.values()) == {None} and word in p.coverage.ignored_words, (prompt, mk)
-    assert p.coverage.warnings == []
+    assert set(mk.values()) == {None}, (prompt, mk)
+    (w,) = p.coverage.warnings
+    assert w.startswith(f"maker {name} names existing or neighbouring equipment, not the new "
+                        "work -- applied to nothing")
+
+
+@pytest.mark.parametrize("prompt,expect", [
+    # the noun the context phrase qualifies keeps its maker (the noun is built today: #740)
+    ("two panels next to an Eaton 75 kVA transformer", {"T1": "Eaton", "PP-1": None, "PP-2": None}),
+    ("replace the existing Eaton panel with two new Kohler panels",
+     {"PP-1": "Eaton", "PP-2": "Kohler", "PP-3": "Kohler"}),
+    # 'to match the existing X gear' is a (soft) whole-job cue, not context
+    ("4 new panels to match the existing Eaton gear", {"PP-1": "Eaton", "PP-2": "Eaton", "PP-3": "Eaton", "PP-4": "Eaton"}),
+])
+def test_context_names_the_maker_of_the_noun_it_qualifies(prompt, expect):
+    _p, mk = _makers(prompt)
+    assert mk == expect, (prompt, mk)
+
+
+# --------------------------------------------------------------------------- review of #741, round 1
+
+@pytest.mark.parametrize("prompt,expect", [
+    # a place noun that QUALIFIES the equipment noun is not a place ('house panel', 'site lighting')
+    ("an Eaton house panel and six tenant panels", {"Eaton", None}),
+    ("two Eaton site lighting panels 100 A", {"Eaton"}),
+    ("two Eaton lab panels and a 75 kVA transformer", {"Eaton", None}),
+    ("six Eaton suite panels 100 A MLO", {"Eaton"}),
+    # '-wide' is a whole-job quantifier, 'factory-assembled' an adjective, 'base bid' no place
+    ("use Eaton site-wide: 4 panels and a 45 kVA transformer", {"Eaton"}),
+    ("standardize on Eaton plant-wide: 4 panels and a 45 kVA transformer", {"Eaton"}),
+    ("a 2000 A Eaton factory-assembled switchboard", {"Eaton"}),
+    ("Eaton base bid: 4 panels", {"Eaton"}),
+])
+def test_place_words_that_qualify_the_noun_do_not_swallow_the_maker(prompt, expect):
+    _p, mk = _makers(prompt)
+    assert set(mk.values()) == expect, (prompt, mk)
+
+
+@pytest.mark.parametrize("prompt,expect", [
+    ("two panels, both by Eaton, and a 45 kVA transformer", {"T1": None, "PP-1": "Eaton", "PP-2": "Eaton"}),
+    ("a 45 kVA transformer and two panels, all by Eaton, plus 4 receptacles at 18 in AFF",
+     {"T1": "Eaton", "PP-1": "Eaton", "PP-2": "Eaton", "R-1": None, "R-2": None, "R-3": None, "R-4": None}),
+    ("4 panels and a 45 kVA transformer, all by Eaton",                       # trailing: the job
+     {"T1": "Eaton", "PP-1": "Eaton", "PP-2": "Eaton", "PP-3": "Eaton", "PP-4": "Eaton"}),
+    ("all by Eaton: 4 panels and a 45 kVA transformer",                       # leading: the job
+     {"T1": "Eaton", "PP-1": "Eaton", "PP-2": "Eaton", "PP-3": "Eaton", "PP-4": "Eaton"}),
+])
+def test_all_by_x_inside_a_list_names_the_list_before_it_not_the_job(prompt, expect):
+    p, mk = _makers(prompt)
+    assert mk == expect, (prompt, mk)
+    assert p.coverage.warnings == [], (prompt, p.coverage.warnings)
+
+
+@pytest.mark.parametrize("prompt", [
+    "Eaton or Siemens: 4 panels and a 75 kVA transformer", "Eaton / Siemens: 4 panels",
+    "all gear by Eaton or Siemens: 4 panels", "4 panels; manufacturer: Eaton, Siemens",
+])
+def test_two_names_ahead_of_a_cue_are_one_cued_set_and_apply_to_nothing(prompt):
+    p, mk = _makers(prompt)
+    assert set(mk.values()) == {None}, (prompt, mk)
+    assert any(w.startswith("makers Eaton, Siemens are all named for the whole job -- applied to nothing")
+               for w in p.coverage.warnings), p.coverage.warnings
+
+
+def test_a_cue_when_every_item_already_names_its_maker_says_that():
+    p, mk = _makers("six Eaton panels; manufacturer: Siemens")
+    assert set(mk.values()) == {"Eaton"}
+    assert p.coverage.warnings[-1] == ("maker Siemens is named for the job but every item already "
+                                       "names its own maker -- applied to nothing")
+
+
+@pytest.mark.parametrize("prompt,word", [
+    ("ROOM 20 FT SQUARED WITH 4 PANELS", "SQUARED"),
+    ("PROVIDE 4 PANELS. PRICE SEPARATELY.", "PRICE"),
+    ("4 PANELS AND A 75 KVA TRANSFORMER. YORK TO REVIEW.", "YORK"),
+])
+def test_an_all_caps_prompt_keeps_plain_words_plain(prompt, word):
+    p, mk = _makers(prompt)
+    assert set(mk.values()) == {None} and word in p.coverage.ignored_words and not p.coverage.warnings
+
+
+@pytest.mark.parametrize("prompt,expect", [
+    ("a GE 480-208Y/120V 75 kVA transformer", {"T1": "ABB"}),
+    ("a GE step-down 75 kVA transformer", {"T1": "ABB"}),
+    ("a Trane type NQ 225 A panel", {"PP-1": "Trane"}),
+    ("two Kohler NEMA 3R panels", {"PP-1": "Kohler", "PP-2": "Kohler"}),
+    ("two Kohler 400A 65kAIC MLO 480/277V panels", {"PP-1": "Kohler", "PP-2": "Kohler"}),
+])
+def test_more_rating_spellings_between_maker_and_noun_are_adjacent(prompt, expect):
+    p, mk = _makers(prompt)
+    assert mk == expect, (prompt, mk)
+    assert [w for w in p.coverage.warnings if V.NOT_THAT_MAKER in w], p.coverage.warnings
+
+
+def test_adjacency_stays_linear_on_hostile_gaps():
+    import time
+    for gap in ("1" * 40, "/" * 40, " " * 300 + "x", "480/277V " * 60):
+        t = time.perf_counter()
+        PP.parse_prompt(f"two Trane {gap} custom panels")
+        assert time.perf_counter() - t < 0.5, gap[:12]
 
 
 # --------------------------------------------------------------------------- DONE 1: adjacency

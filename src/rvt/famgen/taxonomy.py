@@ -456,8 +456,10 @@ def _singulars(word: str) -> Iterable[str]:
 
 
 def _match_at(text: str, toks: Sequence[Tuple[int, int, str]], i: int, index: Dict[str, str],
-              ambiguous: FrozenSet[str], proper: bool) -> Optional[Tuple[Mention, int]]:
-    """The longest name in ``index`` starting at token ``i`` -> (mention, tokens used)."""
+              ambiguous: FrozenSet[str], proper: bool, shouting: bool = False,
+              ) -> Optional[Tuple[Mention, int]]:
+    """The longest name in ``index`` starting at token ``i`` -> (mention, tokens used).
+    ``shouting``: the whole text is upper case, so capitals say nothing about one word."""
     for n in range(min(_MAX_WORDS, len(toks) - i), 0, -1):
         words = [t[2] for t in toks[i:i + n]]
         head = "".join(words[:-1])
@@ -468,10 +470,13 @@ def _match_at(text: str, toks: Sequence[Tuple[int, int, str]], i: int, index: Di
                 continue
             start, end = toks[i][0], toks[i + n - 1][1]
             written = text[start:end]
-            weak = n == 1 and folded in ambiguous
+            # ONE plain-English word ('watts', 'price') is a name only when Capitalised for a
+            # proper-noun index; spelled with a hyphen or a digit ('square-d') it is not the
+            # English word, and an ACRONYM ('GE') is a real name -- unless the whole text SHOUTS
+            weak = n == 1 and folded in ambiguous and written.isalpha()
             if weak and not (proper and written[0].isupper()):
                 continue
-            weak = weak and written.isalpha() and not written.isupper()   # 'GE', 'Square-D': real
+            weak = weak and (shouting or not written.isupper())
             return Mention(start, end, key, written, weak), n
     return None
 
@@ -485,10 +490,11 @@ def _scan(text: Any, index: Dict[str, str], *, ambiguous: FrozenSet[str] = froze
     Shared with :mod:`rvt.famgen.vendors`."""
     text = str(text or "")
     toks = [(m.start(), m.end(), m.group()) for m in _WORD.finditer(text.lower())]
+    shouting = text.isupper()                      # 'PROVIDE 4 PANELS. PRICE SEPARATELY.'
     out: List[Mention] = []
     i = 0
     while i < len(toks):
-        hit = _match_at(text, toks, i, index, ambiguous, proper)
+        hit = _match_at(text, toks, i, index, ambiguous, proper, shouting)
         if hit is None:
             i += 1
         else:
