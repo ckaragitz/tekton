@@ -255,13 +255,21 @@ def test_a_repeated_by_square_d_keeps_both_mentions():
         assert set(mk.values()) == {"Square D"}, (prompt, mk)
 
 
-def test_the_scanner_flags_weak_names_once_for_every_reader():
-    got = {m.text: m.weak for m in V.scan("GE, Square-D, Square D, York, 1200 Watts, Eaton, Squared ft")}
-    assert got == {"GE": False, "Square-D": False, "Square D": False, "York": True,
-                   "Watts": True, "Eaton": False, "Squared": True}
-    assert V.scan("1200 watts and twenty feet squared") == []      # lower case: not even a mention
-    _p, mk = _makers("6 Square-D receptacles at 18 in AFF")         # the hyphenated spelling too
-    assert set(mk.values()) == {"Square D"}
+def _strength(m):
+    return "weak" if m.weak else "acronym" if m.acronym else "real"
+
+
+def test_the_scanner_grades_names_once_for_every_reader():
+    got = {m.text: _strength(m) for m in V.scan("GE, Square-D, Square D, York, 1200 Watts, Eaton, Squared ft")}
+    assert got == {"GE": "acronym", "Square-D": "real", "Square D": "real", "York": "weak",
+                   "Watts": "weak", "Eaton": "real", "Squared": "weak"}
+    assert V.scan("1200 watts and twenty feet squared, the carrier's demarc, york's team") == []
+    assert {m.text: _strength(m) for m in V.scan("ROOM 20 FT SQUARED WITH 4 GE PANELS")} == {
+        "SQUARED": "weak", "GE": "weak"}                       # a shouted sentence: no acronyms
+    assert [_strength(m) for m in V.scan("manufacturer: GE")] == ["acronym"]   # one token: no shout
+    for prompt in ("6 Square-D receptacles at 18 in AFF", "6 square-d receptacles at 18 in AFF"):
+        _p, mk = _makers(prompt)                                # the hyphenated spelling too
+        assert set(mk.values()) == {"Square D"}, prompt
 
 
 def test_squared_stays_a_plain_word_for_the_scanner():
@@ -389,11 +397,21 @@ def test_an_acronym_takes_a_cue_like_any_real_name(prompt):
     assert set(mk.values()) == {"ABB"}, (prompt, mk)
 
 
-def test_an_acronym_outside_any_clause_is_named_as_written():
-    p, mk = _makers("designed by GE Consulting with 4 panels")
+@pytest.mark.parametrize("prompt,word", [
+    ("designed by GE Consulting with 4 panels", "GE"),        # an acronym with no noun, no cue:
+    ("4 panels, delivery EST 6 weeks", "EST"),                 # also an abbreviation -- a word
+    ("4 panels and a 75 kVA transformer. NOTE: PRICE ALTERNATES SEPARATELY.", "PRICE"),
+])
+def test_an_acronym_with_neither_noun_nor_cue_is_an_ignored_word(prompt, word):
+    p, mk = _makers(prompt)
+    assert set(mk.values()) == {None} and word in p.coverage.ignored_words and not p.coverage.warnings
+
+
+def test_a_maker_written_as_an_alias_is_named_as_written_in_warnings():
+    p, mk = _makers("two panels and a 75 kVA transformer. Cutler-Hammer.")
     assert set(mk.values()) == {None}
-    assert any(w.startswith("maker ABB (written GE) is named outside any equipment clause")
-               for w in p.coverage.warnings)
+    assert any(w.startswith("maker Eaton (written Cutler-Hammer) is named outside any equipment clause")
+               for w in p.coverage.warnings), p.coverage.warnings
 
 
 @pytest.mark.parametrize("prompt,word", [
@@ -438,3 +456,97 @@ def test_a_cell_naming_two_makers_declares_neither():
 def test_the_directory_and_the_taxonomy_still_gate_clean():
     assert V.check() == []
     assert [pr for pr in TX.check() if not pr.startswith("warning")] == []
+
+
+# --------------------------------------------------------------------------- review of #741, round 2
+
+@pytest.mark.parametrize("prompt,maker", [
+    ("6 Hubbell hospital grade receptacles at 18 in AFF", "Hubbell Wiring Device-Kellems"),
+    ("4 Eaton hospital grade panels", "Eaton"),
+    ("two Eaton lab area panels 100 A", "Eaton"),
+    ("an Eaton garage sub panel", "Eaton"),
+    ("two Eaton mall tenant panels 100 A", "Eaton"),
+    ("four Eaton dorm floor panels 100 A MLO", "Eaton"),
+    ("two Siemens data center row panels", "Siemens"),
+    ("an Eaton campus loop switchboard 2000 A", "Eaton"),
+])
+def test_a_place_word_among_the_nouns_qualifiers_is_not_a_place(prompt, maker):
+    _p, mk = _makers(prompt)
+    assert set(mk.values()) == {maker}, (prompt, mk)
+
+
+def test_a_place_needs_saying_as_one_when_equipment_follows():
+    # said as a place: a locative word before the name, or a proper place name after it
+    for prompt in ("for the Edwards building: 4 panels", "the Kohler campus needs 4 panels",
+                   "in the Sloan wing, 4 panels", "Hammond Street vault: a 75 kVA transformer",
+                   "in Cooper Hall, two panels"):
+        _p, mk = _makers(prompt)
+        assert set(mk.values()) == {None}, (prompt, mk)
+    # not said as one: the maker rules decide ('Sloan' makes no panelboard: an ignored word)
+    p, mk = _makers("Sloan wing: 4 panels")
+    assert set(mk.values()) == {None} and "Sloan" in p.coverage.ignored_words and not p.coverage.warnings
+    p, mk = _makers("6 Hubbell hospital grade receptacles at 18 in AFF and two panels (Eaton only) and "
+                    "a 45 kVA transformer")
+    assert {t: m for t, m in mk.items() if not t.startswith("R-")} == {"T1": None, "PP-1": "Eaton", "PP-2": "Eaton"}
+    assert {m for t, m in mk.items() if t.startswith("R-")} == {"Hubbell Wiring Device-Kellems"}
+
+
+@pytest.mark.parametrize("prompt,expect", [
+    ("two panels (Eaton only) and a 45 kVA transformer", {"T1": None, "PP-1": "Eaton", "PP-2": "Eaton"}),
+    ("4 panels (Eaton only) and a 45 kVA transformer (any make)",
+     {"T1": None, "PP-1": "Eaton", "PP-2": "Eaton", "PP-3": "Eaton", "PP-4": "Eaton"}),
+    ("two panels - Eaton for all - and a 30 kVA transformer", {"T1": None, "PP-1": "Eaton", "PP-2": "Eaton"}),
+    ("two panels, Eaton only, and a 30 kVA transformer", {"T1": None, "PP-1": "Eaton", "PP-2": "Eaton"}),
+    ("a 30 kVA transformer (Hammond only) and two panels", {"T1": HPS, "PP-1": None, "PP-2": None}),
+    # leading / trailing: still the whole job
+    ("Eaton only: two panels and a 30 kVA transformer", {"T1": "Eaton", "PP-1": "Eaton", "PP-2": "Eaton"}),
+    ("two panels and a 30 kVA transformer, Eaton only", {"T1": "Eaton", "PP-1": "Eaton", "PP-2": "Eaton"}),
+    # 'both' names the group before it, not the whole sentence
+    ("a 2000 A switchboard feeding two panels, both by Eaton, and a 45 kVA transformer",
+     {"MSB": None, "T1": None, "PP-1": "Eaton", "PP-2": "Eaton"}),
+])
+def test_x_only_and_for_all_inside_a_list_name_what_stands_before_them(prompt, expect):
+    p, mk = _makers(prompt)
+    assert mk == expect, (prompt, mk)
+    assert p.coverage.warnings == [], (prompt, p.coverage.warnings)
+
+
+@pytest.mark.parametrize("prompt,expect", [
+    ("two panels by Eaton, Hammond 75 kVA transformer", {"T1": HPS, "PP-1": "Eaton", "PP-2": "Eaton"}),
+    ("a 75 kVA transformer by Hammond, Eaton panels LP-1 and LP-2", {"T1": HPS, "LP-1": "Eaton", "LP-2": "Eaton"}),
+    ("panels LP-1 and LP-2 from Eaton, Siemens 2000 A switchboard", {"MSB": "Siemens", "LP-1": "Eaton", "LP-2": "Eaton"}),
+    ("two panels by Eaton, and a transformer by Hammond, Cummins genset", {"T1": HPS, "PP-1": "Eaton", "PP-2": "Eaton"}),
+])
+def test_a_comma_between_two_items_makers_separates_them(prompt, expect):
+    p, mk = _makers(prompt)
+    assert mk == expect, (prompt, mk)
+    assert not any("both named" in w for w in p.coverage.warnings), p.coverage.warnings
+
+
+@pytest.mark.parametrize("prompt", ["Eaton, Siemens: 4 panels", "Eaton, Siemens or ABB: 4 panels",
+                                    "4 panels; manufacturer: Eaton, Siemens"])
+def test_a_comma_inside_an_or_list_or_next_to_a_cue_still_joins(prompt):
+    p, mk = _makers(prompt)
+    assert set(mk.values()) == {None}
+    assert any("are all named for the whole job -- applied to nothing" in w for w in p.coverage.warnings)
+
+
+def test_a_dropped_weak_name_in_a_context_phrase_stays_visible():
+    p, mk = _makers("4 panels beside the York units and a 45 kVA transformer")
+    assert set(mk.values()) == {None} and "York" in p.coverage.ignored_words and not p.coverage.warnings
+
+
+def test_a_brand_and_its_parent_in_one_cell_declare_the_brand():
+    for cell in ("Cooper Lighting Solutions by Eaton", "Cooper Lighting (Eaton)", "Halo, an Eaton brand",
+                 "Metalux - Cooper Lighting"):
+        d = V.declared(cell, "downlight")
+        assert (d["known"], d["vendor"]) == (True, "cooper-lighting"), (cell, d)
+    assert V.declared("Eaton, Siemens", "panelboard")["known"] is False
+
+
+def test_long_prompts_stay_linear():
+    import time
+    clause = "two 225 A panels 42 spaces 480Y/277 V by Eaton for the Edwards building, "
+    t = time.perf_counter()
+    p = PP.parse_prompt("an electrical room 40 ft by 30 ft with " + clause * 25 + "and a 75 kVA transformer")
+    assert time.perf_counter() - t < 2.0 and len(p.items) == 51

@@ -23,6 +23,7 @@ for a kind -- what the plan resolver (``rvt.ifc.intent``) reads instead of a har
 from __future__ import annotations
 
 import functools
+import re
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
@@ -419,6 +420,12 @@ def declared(text: Any, kind: str) -> Optional[Dict[str, Any]]:
     return {"known": known, "vendor": vendor, "name": name, "record": rec, "line": line}
 
 
+#: between a brand and its parent in one manufacturer cell: 'X by Y', 'X (Y)', 'X, a Y brand'
+_RE_PARENT_JOIN = re.compile(
+    r"\s*(?:\(|-|by\b|,?\s*(?:an?\s+)?(?:brand|company|division|business|part)\s+of\b|,?\s*an?\s+)\s*",
+    re.I)
+
+
 @functools.lru_cache(maxsize=256)
 def _declared(text: str, kind: str, _generation: int = 0
               ) -> Tuple[bool, Optional[str], str, Optional[Tuple[str, str]], str]:
@@ -431,6 +438,9 @@ def _declared(text: str, kind: str, _generation: int = 0
     v = _BY_KEY.get(text) or resolve(text)
     if v is None:
         mentions = scan(text)
+        # 'Cooper Lighting by Eaton', 'Cooper Lighting (Eaton)': the brand, then its parent
+        if len(mentions) > 1 and _RE_PARENT_JOIN.fullmatch(text, mentions[0].end, mentions[1].start):
+            mentions = mentions[:1]
         keys = sorted({m.key for m in mentions})
         if len(keys) > 1:
             names = ", ".join(_BY_KEY[k].name for k in keys)

@@ -103,7 +103,7 @@ presented as that maker's product" lines in MANIFEST.
 
 Gates: `make_family.py vendors --check` → 50 vendors, 120 lines, 7 with a catalog record, 0
 problems; `taxonomy --check` → 83 kinds, 0 problems (13 #516 warnings unchanged);
-`tests/test_maker_adjacency_739.py` 114 passed; `tests/test_taxonomy_wiring_692.py` +
+`tests/test_maker_adjacency_739.py` 144 passed; `tests/test_taxonomy_wiring_692.py` +
 `tests/test_prompt_intent.py` 111 passed; `tests/test_frontdoor.py tests/test_plugin_sync.py
 tests/test_ifc_intent.py tests/test_taxonomy_692.py` 167 passed / 5 skipped;
 `tools/sync_plugin.py` clean (validation passed, zip rebuilt).
@@ -126,6 +126,24 @@ Six findings, all reproduced and fixed on the branch:
 
 `tests/test_maker_adjacency_739.py` grew to 114 cases (every prompt above, both orders where order
 matters, plus a linear-time guard on hostile gaps).
+
+### Independent review, round 2 (head `6e99d84`, verdict 🛑 — quoted verbatim on PR #741)
+
+Three blocking findings and four nits, all reproduced and fixed:
+
+| prompt | `main` | `6e99d84` | fixed head |
+|---|---|---|---|
+| `6 Hubbell hospital grade receptacles …`, `4 Eaton hospital grade panels`, `two Eaton lab area panels`, `an Eaton garage sub panel`, `two Eaton mall tenant panels`, `four Eaton dorm floor panels`, `two Siemens data center row panels`, `an Eaton campus loop switchboard 2000 A` | maker on the noun | `None`, silently (a place word among the noun's qualifiers) | maker on the noun: when an equipment noun follows in the clause, the place reading needs the place SAID as one — a locative word before the name (`for the Edwards building: …`, `the Kohler campus needs …`, `in the Sloan wing, …`) or a proper place name after it (`Cooper Hall`, `Hammond Street vault`); otherwise the maker rules decide (`Sloan wing: 4 panels` → an ignored word, Sloan makes no panelboard) |
+| `two panels (Eaton only) and a 45 kVA transformer`, `4 panels (Eaton only) and a 45 kVA transformer (any make)`, `two panels - Eaton for all - and …`, `two panels, Eaton only, and …` | T1 `None` | T1 Eaton (job-wide) | the noun(s) before the aside: `X only` / `both by X` the noun, `X for all` / `all by X` the list; leading or trailing still the whole job |
+| `two panels by Eaton, Hammond 75 kVA transformer`, `a 75 kVA transformer by Hammond, Eaton panels LP-1 and LP-2`, `panels LP-1 and LP-2 from Eaton, Siemens 2000 A switchboard`, `…, Cummins genset` | each noun its maker | one merged "Eaton, Hammond" mention → nothing + a false "both named" warning | each noun its maker: a bare comma joins two names only inside an `or` / `/` / `&` list or next to a cue (`manufacturer: Eaton, Siemens`, `Eaton, Siemens: …`) |
+| `… the carrier's demarc`, `york's team to review` | ignored word | "maker Carrier (written carrier's) … outside any clause" | ignored word (a possessive is judged as the word before `'s`; the capital gate holds for every one-word plain-English name) |
+| `4 panels …. NOTE: PRICE ALTERNATES SEPARATELY.`, `4 panels, delivery EST 6 weeks`, `designed by GE Consulting …` | ignored word | maker warning | ignored word: shouting is judged per sentence, and an ACRONYM (`Mention.acronym`: `GE`, `EST`) counts where it is adjacent (`a GE transformer`, `an EST panel`) or cued (`all gear by GE`, `manufacturer: GE`), nowhere else |
+| `4 panels beside the York units …` | `York` an ignored word | `York` consumed, nothing said | `York` an ignored word again (the context branch marks only what it attaches or warns about) |
+| `a 2000 A switchboard feeding two panels, both by Eaton, and a 45 kVA transformer` | — | MSB Eaton too | the panels only (`both` = the group before it) |
+| a Manufacturer cell `Cooper Lighting Solutions by Eaton` / `Cooper Lighting (Eaton)` / `Halo, an Eaton brand` | Cooper Lighting | "names 2 makers" | Cooper Lighting (`X by Y`, `X (Y)`, `X, an Y brand`, `X - Y` name the brand, then its parent) |
+| 200-clause prompt | 161 ms | 493 ms | 51 ms (cues are searched in a 72-character reach before/after the name, not the whole prefix) |
+
+`tests/test_maker_adjacency_739.py`: 144 cases.
 
 ## Findings
 
