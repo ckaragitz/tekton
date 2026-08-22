@@ -676,10 +676,10 @@ def _kind_record(m: TX.Mention, *, maker: Optional[str] = None) -> Dict[str, Any
 #: names the noun(s) before it, not the job.
 _RE_CUE_BEFORE = re.compile(
     r"\b(?:(?:all|both)\s+(?:(?:of\s+)?the\s+)?(?:gear|equipment|products?|hardware|items)\s*"
-    r"(?:(?:by|from|is|are|to\s+be|shall\s+be|[:=])\s*)?"
+    r"(?:(?:by|from|(?P<colon>is|are|to\s+be|shall\s+be|[:=]))\s*)?"
     r"|(?P<listable>(?P<q>all|both)\s+(?:made\s+)?(?:by|from)\s*)"
     r"|everything(?:\s+else)?\s+(?:made\s+)?(?:by|from)\s*"
-    r"|everything(?:\s+else)?\s*[:=]\s*)$", re.I)
+    r"|everything(?:\s+else)?\s*(?P<colon2>[:=])\s*)$", re.I)
 _RE_CUE_AFTER = re.compile(
     r"^(?:(?:\s+(?:gear|equipment|products?|hardware|brand))?,?\s+(?:"
     r"(?:throughout|everywhere|exclusively|across\s+the\s+board|[a-z]+-wide)\b"
@@ -722,10 +722,22 @@ _RE_PRIMARY_VOLT = re.compile(r"\b\d{3,5}\s*v?\s*-\s*(?=\d{3})", re.I)   # '480-
 _RE_NEMA_CONFIG = re.compile(r"\b(?:nema\s+)?l?\d{1,2}-\d{2}\s?[rp]?\b", re.I)   # '5-20R', 'L6-30P'
 #: rating WORDS the extractors do not read but a clause carries between a maker and its noun
 _RE_RATING_WORDS = re.compile(
-    r"\b(?:new|series|style|step[\s-]?(?:down|up)|nema\s*[0-9a-z]{1,3}|\d{1,3}(?:\.\d+)?\s*kv|"
-    r"(?:type|model|cat(?:alog)?\.?)(?:\s+[a-z0-9][\w/-]{0,11})?|"
-    r"(?:single|three|[1-4])[\s-]?(?:ph(?:ase)?|p(?:ole)?s?|w(?:ire)?))\b", re.I)
-_RE_ADJ_RESIDUE = re.compile(r"[\s\-/()'\",]*$")     # what may remain once ratings are blanked
+    r"\b(?:new|series|style|step[\s-]?(?:down|up)|nema[\s-]*[0-9a-z]{1,3}|\d{1,3}(?:\.\d+)?\s*kv|"
+    r"(?:type|model|cat(?:alog)?\.?\s*#?)(?:\s*[a-z0-9][\w/-]{0,11})?|[13]p[34]w|\d\u00f8|"
+    r"\d{2,3}\s*%(?:\s+(?:rated\s+)?neutral)?|"
+    r"(?:single|three|[1-4])[\s-]?(?:ph(?:ase)?|p(?:ole)?s?|w(?:ire)?|\u00f8))(?![\w%])", re.I)
+#: a model / configuration TOKEN: anything with a digit AND a letter / '%' / '#' ('PRL1a',
+#: 'N3R', '4X', 'K-13', 'P1', '200%') rides between a maker and its noun like a rating; a bare
+#: number is a count, not a model.  Gaps are judged token by token -- no nested quantifiers
+_RE_GAP_SPLIT = re.compile(r"[\s()'\",]+")
+_RE_TOKEN_CHARS = re.compile(r"[\w%#./&-]+")
+
+
+def _model_token(tok: str) -> bool:
+    return (bool(_RE_TOKEN_CHARS.fullmatch(tok)) and any(c.isdigit() for c in tok)
+            and any(c.isalpha() or c in "%#" for c in tok))
+
+
 #: what ties a maker to the equipment noun (and tag list) it FOLLOWS: 'panels LP-1 and LP-2 by
 #: Eaton', 'a transformer (Hammond)', 'a cable tray family by Eaton' ('two panels,
 #: manufacturer: Eaton' is the soft cue's tie, above)
@@ -757,11 +769,24 @@ _RE_LOCATIVE_AFTER = re.compile(
     r"(?P<proper>(?:\s+(?!(?i:for|the|an?|our|in|at|on|of|by|from|and|with|to|is|are)\b)"
     r"[A-Z][\w.&'-]*){0,2})\s+(?P<place>(?i:" + _PLACE_NOUNS + r"))(?![\w-])")
 #: ... between the place noun and the equipment noun when the former only qualifies the latter:
-#: a few plain words, joined at most by ',', 'and', '/', '(...)' -- ratings are stripped first
-_RE_QUALIFIER_GAP = re.compile(
-    r"\s*(?:(?:,|&|/|\band\b|\([^()]{0,30}\)|(?!(?:an?|the|our|their|its|this|that|these|those|"
-    r"or|with|for|of|to|in|at|on|by|from|is|are|was|be|needs?|gets?|wants?|ha(?:s|ve)|requires?|"
-    r"houses|serves?|feeds?|plus|(?:" + _COUNT_WORDS + r"))\b)[a-z][a-z'-]*)\s*){0,5}", re.I)
+#: a few plain words or model / configuration tokens, joined at most by ',', 'and', '/', '(...)'
+#: -- ratings are stripped first; an article, preposition, verb or count word makes it a place
+_RE_GAP_PAREN = re.compile(r"\([^()]{0,30}\)")
+_GAP_STOP = re.compile(
+    r"(?:an?|the|our|their|its|this|that|these|those|or|with|for|of|to|in|at|on|by|from|is|are|"
+    r"was|be|needs?|gets?|wants?|ha(?:s|ve)|requires?|houses|serves?|feeds?|plus|"
+    + _COUNT_WORDS + r")", re.I)
+_RE_PLAIN_WORD = re.compile(r"[a-z][a-z'-]*", re.I)
+
+
+def _qualifier_gap(gap: str) -> bool:
+    """Does ``gap`` (place noun .. equipment noun) hold only what a qualifier chain may hold?"""
+    toks = [t for t in _RE_GAP_SPLIT.split(_RE_GAP_PAREN.sub(" ", _strip_ratings(gap))
+                                          .replace(",", " ").replace("/", " ")) if t and t != "&"]
+    return len(toks) <= 5 and all(
+        _model_token(t) or (_RE_PLAIN_WORD.fullmatch(t) and not _GAP_STOP.fullmatch(t)) for t in toks)
+
+
 #: a client or a source named right before a leading colon ('electrical room for Eaton: 4
 #: panels', 'per Eaton: ...') is not the whole job's maker
 _RE_CLIENT_BEFORE = re.compile(r"\b(?:for|at|in|of|by|from|per|via)\s+(?:the\s+)?$", re.I)
@@ -774,11 +799,13 @@ _RE_COUNT_LEAD = re.compile(r"\b(?:" + _COUNT_WORDS + r")\s+(?:[a-z-]+\s+)?$", r
 #: a sentence stop -- not a decimal point ('7.5 kVA'), not an abbreviation's ('mfr. Eaton')
 _RE_STOP = re.compile(r";|(?<!\b(?:mfr|mfg|inc))(?<!\bcorp)(?<!\b[cn]o)\.(?!\d)", re.I)
 #: EXISTING or NEIGHBOURING gear is context: it names the maker of the noun it qualifies
-#: ('next to an Eaton 75 kVA transformer') and of nothing else ('two panels beside the
-#: existing Siemens equipment')
+#: ('next to an Eaton 75 kVA transformer', 'replace the existing Eaton panel with ...') and of
+#: nothing else ('two panels beside the existing Siemens equipment', 'salvage the Square D
+#: equipment; provide 4 new panels')
 _RE_CONTEXT_BEFORE = re.compile(
-    r"\b(?:existing|(?:beside|next\s+to|adjacent\s+to|alongside|near)\s+(?:the|an?|our)?)\s*$",
-    re.I)
+    r"\b(?:existing|(?:beside|next\s+to|adjacent\s+to|alongside|near|replac(?:e|ing)|remov(?:e|ing)|"
+    r"demo(?:lish(?:ing)?)?|salvag(?:e|ing)|relocat(?:e|ing)|reus(?:e|ing)|refeed(?:ing)?|"
+    r"co-?ordinate\s+with)\s+(?:(?:the|an?|our|all)\s+)?(?:(?:existing|old)\s+)?)\s*$", re.I)
 
 
 def _strip_ratings(gap: str) -> str:
@@ -791,8 +818,9 @@ def _strip_ratings(gap: str) -> str:
 
 
 def _only_ratings(gap: str) -> bool:
-    """Is ``gap`` nothing but equipment ratings and joining punctuation?"""
-    return bool(_RE_ADJ_RESIDUE.match(_strip_ratings(gap)))
+    """Is ``gap`` nothing but equipment ratings, model tokens and joining punctuation?"""
+    return all(_model_token(t) or not t.strip("-/&.")
+               for t in _RE_GAP_SPLIT.split(_strip_ratings(gap)) if t)
 
 
 def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
@@ -919,8 +947,7 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
             counted = _RE_COUNT_LEAD.search(text, ws, s)
             return not counted or bool(anchors_between(ws, s))
         a_start = anchors[nxt][0][0]                   # 'an Eaton house panel', 'the Eaton branch
-        return a_start >= m.end() and not _RE_QUALIFIER_GAP.fullmatch(   # panels': a qualifier
-            _strip_ratings(text[m.end():a_start]))
+        return a_start >= m.end() and not _qualifier_gap(text[m.end():a_start])   # panels': no
 
     cued: Dict[TX.Mention, bool] = {}                  # whole-job makers: is the cue HARD?
     on_anchor: Dict[int, List[TX.Mention]] = {}
@@ -950,6 +977,10 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                 mark((s, e))
             continue
         before, after = _RE_CUE_BEFORE.search(head), _RE_CUE_AFTER.match(tail)
+        if before and (before.group("colon") or before.group("colon2")):
+            nxt = next_anchor(e, we)                   # 'all equipment: Eaton panels and a Hammond
+            if nxt is not None and adjacent(s, e, nxt):   # transformer' introduces a list -- each
+                before = None                          # maker rides the noun it stands against
         led = None if after else _RE_EQUIP_LEAD.search(head)      # 'using Eaton equipment ...'
         if led and _RE_EQUIP_AFTER.match(tail):
             before, after = before or led, _RE_EQUIP_AFTER.match(tail)
@@ -958,9 +989,22 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
         listed: List[int] = []                         # a LISTABLE cue ('all|both by X', 'X only',
         if cue and cue.groupdict().get("listable"):    # 'X for all') names what stands before it:
             own = anchors_between(ws, s)               # (in start order == end order: disjoint)
-            listed = own or preceding(s, e)            # in its own
-            if listed and cue.group("q").lower() in ("both", "only"):     # clause, else mid-list
-                listed = listed[-1:]                   # ... the noun; 'all' the whole list
+            listed = own or preceding(s, e)            # in its own clause, else mid-list
+            q = cue.group("q").lower()
+            if listed and q == "only":
+                listed = listed[-1:]                   # ... 'X only': the noun
+            elif listed and q == "both":               # ... 'both by X': the group holding the two
+                size = lambda i: len(anchors[i][1] or ()) # noqa: E731  ('two panels, both by X'),
+                if size(listed[-1]) == 2 or len(listed) == 1:   # else the two groups before it
+                    listed = listed[-1:]               # ('two panels and a transformer, both by
+                elif len(listed) == 2:                 # X'); more than two: say so, guess nothing
+                    pass
+                else:
+                    cov.warnings.append(f"maker {VD.get(run[0].key).name}: 'both' follows more "
+                                        "than two pieces of equipment -- applied to nothing; name "
+                                        "the two ('panels and transformer by ...')")
+                    mark((cue_lo, e))
+                    continue
             if not listed and not _RE_OPENS.fullmatch(text, ws, cue_lo):
                 cue = before = after = None            # 'breakers Eaton only': no equipment noun,
         if cue and not listed:                         # not opening its clause -- no cue at all

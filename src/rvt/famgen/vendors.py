@@ -440,10 +440,14 @@ def _declared(text: str, kind: str, _generation: int = 0
     if v is None:
         mentions = scan(text)
         # 'Cooper Lighting by Eaton', 'Halo, an Eaton brand': the brand, then its PARENT -- a
-        # maker with no line of its own for the kind ('Eaton by Siemens' still names two)
-        if (len(mentions) > 1 and not makes(mentions[1].key, kind)
-                and _RE_PARENT_JOIN.fullmatch(text, mentions[0].end, mentions[1].start)):
-            mentions = mentions[:1]
+        # maker in another business (no kind in common) or the brand's recorded parent; 'Eaton
+        # by Siemens' (two makers of the same equipment) still names two
+        if len(mentions) > 1 and _RE_PARENT_JOIN.fullmatch(text, mentions[0].end, mentions[1].start):
+            brand, parent = _BY_KEY[mentions[0].key], _BY_KEY[mentions[1].key]
+            kinds = lambda v: {k for ln in v.lines for k in ln.kinds}   # noqa: E731
+            if (TX._fold(brand.parent or "") == TX._fold(parent.name)
+                    or not kinds(brand) & kinds(parent)):
+                mentions = mentions[:1]
         keys = sorted({m.key for m in mentions})
         if len(keys) > 1:
             names = ", ".join(_BY_KEY[k].name for k in keys)

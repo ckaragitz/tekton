@@ -20,3 +20,7 @@ Fragments (one per PR, `docs/inbox/README.md`):
   kind rides it only when adjacent; a maker's name used as a place / client / existing gear names
   no maker; wider whole-job cues (hard vs soft); `Square D` and acronyms are real names; Price /
   Titus grilles; a cell naming two makers declares neither.
+- `mep-taxonomy.d/742-maker-qualifiers.md` (#742): model / configuration tokens ride like ratings in
+  qualifier gaps and adjacency (one token classifier, linear); work on existing gear
+  (`replace / remove / demo / salvage … the X equipment`) is context; `all equipment: X <noun>` lists;
+  `both by X` binds the two it names; brand-vs-parent cells collapse only across businesses.
