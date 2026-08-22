@@ -23,8 +23,10 @@ maker mention in a room prompt in this order:
    gear|equipment|products|hardware [by|from|is|:] X`, `all|both|everything [else] by|from X`,
    `everything: X` before the name; `X [gear|equipment] throughout|everywhere|exclusively|across the
    board|for everything|for the whole job`, and `X only` / `X for all` **when they close the phrase**
-   (`Eaton only:` yes, `Eaton only for panels` names a clause) after it. The bare `X equipment` /
-   `X gear` after-cue is gone: it needs its quantifier (`existing Siemens equipment` is no cue).
+   (`Eaton only:` yes, `Eaton only for panels` names a clause) after it. A bare `X equipment` /
+   `X gear` mid-sentence is no cue (`existing Siemens equipment`); it names the whole job when the
+   equipment word closes the phrase (`Eaton equipment: …`, `…, Eaton gear.`) or is led by a job verb
+   (`using Eaton equipment`) — see round 5 below (wording corrected under #742).
 3. **Soft whole-job cue**: `manufacturer|mfr|mfg|brand|vendor|oem [:|is|of choice] X`, `make: X`,
    `use|using|specify|standardize on|basis of design X` **when X closes the phrase** (`use Eaton.`,
    `use Eaton for …`, `use Eaton gear` — `use Eaton breakers` names a part), or a **leading** `X:`
