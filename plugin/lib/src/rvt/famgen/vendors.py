@@ -55,6 +55,11 @@ class Vendor:
     aliases: Tuple[str, ...] = ()
     parent: str = ""               # owning group, informational ("Schneider Electric")
 
+    @property
+    def kinds(self) -> FrozenSet[str]:
+        """Every taxonomy kind this maker's lines cover."""
+        return frozenset(k for ln in self.lines for k in ln.kinds)
+
 
 def _L(key, label, kinds, record=False, default=False) -> Line:
     return Line(key, label, tuple(kinds), record, default)
@@ -356,7 +361,7 @@ def makes(vendor: Any, kind: str) -> bool:
     """Does the directory list a line of this maker (key, name, alias or :class:`Vendor`) for
     the taxonomy kind -- held record or named only?  False for a maker it does not know."""
     v = vendor if isinstance(vendor, Vendor) else (_BY_KEY.get(vendor) or resolve(vendor))
-    return v is not None and any(kind in ln.kinds for ln in v.lines)
+    return v is not None and kind in v.kinds
 
 
 def lines_for_kind(kind: str) -> List[Tuple[Vendor, Line]]:
@@ -444,9 +449,7 @@ def _declared(text: str, kind: str, _generation: int = 0
         # by Siemens' (two makers of the same equipment) still names two
         if len(mentions) > 1 and _RE_PARENT_JOIN.fullmatch(text, mentions[0].end, mentions[1].start):
             brand, parent = _BY_KEY[mentions[0].key], _BY_KEY[mentions[1].key]
-            kinds = lambda v: {k for ln in v.lines for k in ln.kinds}   # noqa: E731
-            if (TX._fold(brand.parent or "") == TX._fold(parent.name)
-                    or not kinds(brand) & kinds(parent)):
+            if resolve(brand.parent) is parent or not brand.kinds & parent.kinds:
                 mentions = mentions[:1]
         keys = sorted({m.key for m in mentions})
         if len(keys) > 1:
@@ -554,7 +557,7 @@ def table() -> Dict[str, Any]:
     records = [record_tier(v.key, ln.key) for v in _ROWS for ln in v.lines if ln.record]
     return {"vendors": rows, "count": len(rows), "lines": sum(len(v.lines) for v in _ROWS),
             "records": records, "record_count": len(records),
-            "kinds_covered": sorted({k for v in _ROWS for ln in v.lines for k in ln.kinds})}
+            "kinds_covered": sorted({k for v in _ROWS for k in v.kinds})}
 
 
 # --------------------------------------------------------------------------- the gate

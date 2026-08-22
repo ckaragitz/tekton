@@ -66,6 +66,21 @@ Gates: `tests/test_maker_qualifiers_742.py` 46 passed (new, + `tests/ci_shard.d/
 371 passed; `tests/test_frontdoor.py tests/test_plugin_sync.py tests/test_ifc_intent.py` 122 passed / 5 skipped;
 `tools/sync_plugin.py` validation passed (mirrors committed); `make_family.py vendors --check` 50 vendors / 120 lines / 0 problems.
 
+### `/simplify` pass (four review angles, before the first CI run)
+
+Applied: `Vendor.kinds` property in the directory (retiring the fourth inline copy of the same
+comprehension; `makes()` and the table use it) and an alias-aware parent test
+(`resolve(brand.parent) is parent`, so `Simplex, a Johnson Controls company` collapses through the
+alias, not by luck); one `_gap_tokens()` tokenizer shared by `_only_ratings` and `_qualifier_gap`,
+the stop list folded into `_RE_QUALIFIER_WORD`; single-token duplicates of `_model_token`
+dropped from `_RE_RATING_WORDS`; `next_anchor` computed once per maker run and shared by the
+locative, context and intro-cue paths; `intro`/`intro2` group names (two because `re` forbids
+duplicate names); the `both` branch in the function's collect-then-report shape; context verbs
+factored; docstrings refreshed. Skipped, filed instead: a clause-level *scope* for existing /
+removed / relocated equipment (#744 — the maker layer knows `remove two Eaton panels …` is not new
+work, the item layer still authors them; pre-existing); a shared `_FUNCTION_WORDS` constant for
+the four function-word lists in the block (they differ on purpose today; noted).
+
 ## Findings
 
 - A shared *regex* for "model token" is a trap: any `\d[…]*[a-z][…]*` shape under an outer star is
