@@ -170,3 +170,50 @@ def test_context_and_cues_from_741_hold():
     assert set(mk.values()) == {"Eaton"}
     p, mk = _makers("two panels beside existing Siemens equipment and a new transformer")
     assert set(mk.values()) == {None} and any("names existing or neighbouring" in w for w in p.coverage.warnings)
+
+
+# --------------------------------------------------------------------------- review of #743, round 1
+
+@pytest.mark.parametrize("prompt", [
+    "All equipment: Eaton -- panels LP-1 and LP-2, transformer T-1 45 kVA",
+    "All equipment: Eaton - panels LP-1 and LP-2, transformer T-1 45 kVA",
+    "All equipment: Eaton (panels LP-1 and LP-2, transformer T-1 45 kVA)",
+    "All equipment: Eaton\npanels LP-1 and LP-2, transformer T-1 45 kVA",
+    "All equipment: Eaton\n- panels LP-1 and LP-2\n- transformer T-1 45 kVA",
+    "All equipment: Eaton / panels LP-1 and LP-2, transformer T-1 45 kVA",
+    "All equipment is Eaton -- panels LP-1 and LP-2, one 45 kVA transformer",
+])
+def test_punctuation_or_a_line_break_after_all_equipment_x_keeps_the_whole_job(prompt):
+    _p, mk = _makers(prompt)                          # only 'all equipment: X <noun>' with nothing
+    assert set(mk.values()) == {"Eaton"}, (prompt, mk)   # but spaces / ratings between is a list
+
+
+def test_the_list_reading_is_said_not_silent():
+    p, mk = _makers("all equipment: Eaton panels and a 45 kVA transformer")
+    assert mk["T1"] is None
+    assert any(w.startswith("maker Eaton after 'all equipment:' stands against the next noun") for w in
+               p.coverage.warnings), p.coverage.warnings
+
+
+@pytest.mark.parametrize("prompt", [
+    "4 panels\n225 A each\nand a transformer", "provide:\n2 panels\n225A\nEaton",
+])
+def test_a_line_break_is_still_only_layout_elsewhere(prompt):
+    p, mk = _makers(prompt)                           # ratings / makers on their own line still
+    pans = [it for it in p.items if it.tag.startswith("PP")]   # reach the noun, exactly as on main
+    assert pans and all(it.rating_a == 225.0 for it in pans), [(it.tag, it.rating_a) for it in p.items]
+
+
+@pytest.mark.parametrize("prompt,name", [
+    ("the Eaton building 3rd floor panels", "Eaton"), ("the Eaton building #3 panels", "Eaton"),
+    ("Eaton hall room 214B panels", "Eaton"), ("Eaton campus phase 2B panels", "Eaton"),
+    ("the Westinghouse building 4th floor panels", "Westinghouse"), ("Siemens campus bldg 4B panels: 4 x 225A", "Siemens"),
+    ("Leviton hall rm 12B receptacles (6)", "Leviton"),
+])
+def test_an_ordinal_or_room_designator_after_a_place_keeps_it_a_place(prompt, name):
+    p, mk = _makers(prompt)
+    assert set(mk.values()) == {None} and name in p.coverage.ignored_words, (prompt, mk, p.coverage.ignored_words)
+
+
+def test_vendor_kinds_is_computed_once():
+    assert V.get("eaton").kinds is V.get("eaton").kinds and "panelboard" in V.get("eaton").kinds

@@ -52,7 +52,7 @@ import math
 import os
 import re
 from dataclasses import dataclass, field as dc_field
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, FrozenSet, Iterable, List, Optional, Sequence, Tuple
 
 # LAZY (perf-coldstart): the prompt route is pure-python end to end; numpy
 # stays un-imported unless a numeric path is actually exercised.
@@ -739,10 +739,11 @@ def _model_token(tok: str) -> bool:
             and any(c.isalpha() or c in "%#" for c in tok))
 
 
-def _gap_tokens(gap: str, drop_parens: bool = False) -> List[str]:
-    """The words of ``gap`` once everything the clause reads as ratings is blanked out."""
-    gap = _strip_ratings(gap)
-    return [t for t in _RE_GAP_SPLIT.split(_RE_GAP_PAREN.sub(" ", gap) if drop_parens else gap) if t]
+def _gap_tokens(stripped: str, drop_parens: bool = False) -> List[str]:
+    """The words of a gap whose ratings ``_strip_ratings`` has already blanked out."""
+    if drop_parens:
+        stripped = _RE_GAP_PAREN.sub(" ", stripped)
+    return [t for t in _RE_GAP_SPLIT.split(stripped) if t]
 
 
 #: what ties a maker to the equipment noun (and tag list) it FOLLOWS: 'panels LP-1 and LP-2 by
@@ -784,9 +785,19 @@ _RE_QUALIFIER_WORD = re.compile(
     + _COUNT_WORDS + r")\Z)[a-z][a-z'-]*", re.I)
 
 
+#: ... but an ordinal, a '#', or a room / floor / phase designator with its number locates the
+#: work inside the place ('the Eaton building 3rd floor panels', 'Eaton hall room 214B panels')
+_RE_SUBLOCATION = re.compile(
+    r"\b\d+(?:st|nd|rd|th)\b|#\s*\d|\b(?:room|rm|suite|ste|unit|bldg|building|floor|fl|level|"
+    r"lvl|phase|bay|zone|area|block|lot)\.?\s+[a-z]?-?\d", re.I)
+
+
 def _qualifier_gap(gap: str) -> bool:
     """Does ``gap`` (place noun .. equipment noun) hold only what a qualifier chain may hold?"""
-    toks = _gap_tokens(gap, drop_parens=True)
+    stripped = _strip_ratings(gap)                     # ('1-phase 100 A', 'Cat# PRL1A' are ratings)
+    if _RE_SUBLOCATION.search(stripped):
+        return False
+    toks = _gap_tokens(stripped, drop_parens=True)
     return len(toks) <= 5 and all(_model_token(t) or _RE_QUALIFIER_WORD.fullmatch(t) for t in toks)
 
 
@@ -822,13 +833,21 @@ def _strip_ratings(gap: str) -> str:
 
 def _only_ratings(gap: str) -> bool:
     """Is ``gap`` nothing but equipment ratings, model tokens and joining punctuation?"""
-    return all(not t.strip("-.") or _model_token(t) for t in _gap_tokens(gap))
+    return all(not t.strip("-.") or _model_token(t) for t in _gap_tokens(_strip_ratings(gap)))
+
+
+def _tight_gap(gap: str) -> bool:
+    """Stricter: only spaces, ratings and model tokens -- no punctuation of any kind.  'all
+    equipment: Eaton panels ...' introduces a list; 'all equipment: Eaton -- panels ...',
+    '... Eaton (panels ...)', '... Eaton, panels ...' name the job and then itemise it."""
+    return all(_model_token(t) and t.strip("-.") == t for t in _strip_ratings(gap).split())
 
 
 def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                    noun_groups: Sequence[Tuple[Tuple[int, int], List["PromptItem"]]],
                    unbuilt_anchors: Sequence[TX.Mention], items: List["PromptItem"],
                    clause_window, mark, cov: "PromptCoverage",
+                   line_breaks: FrozenSet[int] = frozenset(),
                    ) -> Tuple[Dict[TX.Mention, str], Optional[str], str]:
     """Attach every maker the prompt names (reviews of #736, #739).  Names joined by 'or',
     '/', '&' -- and by commas inside such a list or next to a cue ('manufacturer: Eaton,
@@ -981,9 +1000,15 @@ def _attach_makers(text: str, maker_mentions: Sequence[TX.Mention],
                 mark((s, e))
             continue
         before, after = _RE_CUE_BEFORE.search(head), _RE_CUE_AFTER.match(tail)
-        if before and any(before.group("intro", "intro2")) and nxt is not None and adjacent(s, e, nxt):
-            before = None                              # 'all equipment: Eaton panels and a Hammond
-                                                       # transformer' introduces a list instead
+        if (before and any(before.group("intro", "intro2")) and nxt is not None
+                and _tight_gap(text[e:anchors[nxt][0][0]])
+                and not any(e <= b < anchors[nxt][0][0] for b in line_breaks)):
+            before_span, before = before.span(), None  # 'all equipment: Eaton panels and a Hammond
+            name = VD.get(run[0].key).name             # transformer' introduces a list instead;
+            cov.warnings.append(                       # 'All equipment: Eaton' + a line break, or
+                f"maker {name} after '{head[before_span[0]:before_span[1]].strip()}' stands "
+                f"against the next noun, so it is read as that item's maker, not the whole "
+                f"job's; write 'all equipment by {name}:' to name the job")   # punctuation: the job
         led = None if after else _RE_EQUIP_LEAD.search(head)      # 'using Eaton equipment ...'
         if led and _RE_EQUIP_AFTER.match(tail):
             before, after = before or led, _RE_EQUIP_AFTER.match(tail)
@@ -1160,7 +1185,12 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     report says exactly what was understood, ignored, defaulted, and what
     was recognised but is not buildable today.
     """
-    text = " ".join(str(prompt or "").split())
+    raw = str(prompt or "")
+    text = " ".join(raw.split())
+    # which single spaces of ``text`` were line breaks in the prompt: a break is layout, not
+    # grammar, except that 'All equipment: Eaton' on its own line names the job (below)
+    line_breaks = frozenset(pos for pos, run in zip((i for i, c in enumerate(text) if c == " "),
+                                                    re.findall(r"\s+", raw.strip())) if "\n" in run)
     if not text:
         raise PromptError("empty prompt")
     low = text.lower()
@@ -1589,7 +1619,8 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # ('all gear by Eaton'); a maker's name is never guessed onto equipment (steer #685)
     unbuilt_anchors = [m for m in kind_mentions if m.key not in _SCENE_KIND]
     unbuilt_makers, global_maker, loose_names = _attach_makers(
-        text, maker_mentions, noun_groups, unbuilt_anchors, items, clause_window, mark, cov)
+        text, maker_mentions, noun_groups, unbuilt_anchors, items, clause_window, mark, cov,
+        line_breaks=line_breaks)
     _maker_coverage(items, global_maker, cov)
 
     # room service voltage: the service clause's own voltage, else a

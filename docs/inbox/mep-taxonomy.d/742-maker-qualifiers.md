@@ -61,7 +61,7 @@ Stream: MEP taxonomy / maker attachment (index: `docs/inbox/mep-taxonomy.md`). F
 Item counts in two of those prompts (`K-13` → 13 transformers, `5-20R` → 5 receptacles) are the
 pre-existing count grammar (#740), not judged or changed here.
 
-Gates: `tests/test_maker_qualifiers_742.py` 46 passed (new, + `tests/ci_shard.d/742-maker-qualifiers.txt`);
+Gates: `tests/test_maker_qualifiers_742.py` 64 passed (new, + `tests/ci_shard.d/742-maker-qualifiers.txt`);
 `tests/test_maker_adjacency_739.py tests/test_taxonomy_wiring_692.py tests/test_prompt_intent.py tests/test_taxonomy_692.py`
 371 passed; `tests/test_frontdoor.py tests/test_plugin_sync.py tests/test_ifc_intent.py` 122 passed / 5 skipped;
 `tools/sync_plugin.py` validation passed (mirrors committed); `make_family.py vendors --check` 50 vendors / 120 lines / 0 problems.
@@ -80,6 +80,17 @@ factored; docstrings refreshed. Skipped, filed instead: a clause-level *scope* f
 removed / relocated equipment (#744 — the maker layer knows `remove two Eaton panels …` is not new
 work, the item layer still authors them; pre-existing); a shared `_FUNCTION_WORDS` constant for
 the four function-word lists in the block (they differ on purpose today; noted).
+
+### Independent review, round 1 (head `02378cf`, verdict 🛑 — quoted verbatim on PR #743)
+
+| prompt | `main` | `02378cf` | fixed head |
+|---|---|---|---|
+| `All equipment: Eaton -- panels LP-1 and LP-2, transformer T-1 45 kVA`, `… Eaton (panels …)`, `… Eaton / panels …`, `All equipment: Eaton⏎panels …`, `All equipment: Eaton⏎- panels …⏎- transformer …`, `All equipment is Eaton -- panels …, one 45 kVA transformer, one 1200 A switchboard` | everything Eaton | LP only, T-1 / MSB `None`, silent (punctuation or a line break counted as "adjacent") | everything Eaton: the list-intro exception needs a **tight** gap — spaces + rating / model tokens only, any punctuation keeps the whole-job cue — and no line break between maker and noun (line-break positions are recorded before whitespace is collapsed and consulted only here, so `4 panels⏎225 A each` and `provide:⏎2 panels⏎225A⏎Eaton` still read exactly as on `main`) |
+| `all equipment: Eaton panels and a 45 kVA transformer` (the designed list case) | PP only (pre-#741) | PP only, silent | PP only + "maker Eaton after 'all equipment:' stands against the next noun, so it is read as that item's maker, not the whole job's; write 'all equipment by Eaton:' to name the job" |
+| `the Eaton building 3rd floor panels`, `the Eaton building #3 panels`, `Eaton hall room 214B panels`, `Eaton campus phase 2B panels`, `the Westinghouse building 4th floor panels`, `Siemens campus bldg 4B panels: 4 x 225A`, `Leviton hall rm 12B receptacles (6)` | place, `None` | maker stamped (an ordinal / `#N` / room designator passed as a "model token") | place, `None`, name in ignored words: an ordinal, `#<n>`, or `room / rm / suite / unit / bldg / floor / level / phase / bay / zone … <number>` in the (rating-stripped) gap locates the work inside the place |
+| `Vendor.kinds` | — | rebuilt per `makes()` call | `functools.cached_property` (computed once per vendor) |
+
+`tests/test_maker_qualifiers_742.py`: 64 cases.
 
 ## Findings
 

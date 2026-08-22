@@ -55,7 +55,7 @@ class Vendor:
     aliases: Tuple[str, ...] = ()
     parent: str = ""               # owning group, informational ("Schneider Electric")
 
-    @property
+    @functools.cached_property
     def kinds(self) -> FrozenSet[str]:
         """Every taxonomy kind this maker's lines cover."""
         return frozenset(k for ln in self.lines for k in ln.kinds)
