@@ -3034,6 +3034,12 @@ PARTATOM_NS = "urn:schemas-autodesk-com:partatom"
 ATOM_NS = "http://www.w3.org/2005/Atom"
 
 
+def _xml_escape(text: str) -> str:
+    """Byte-identical to ``xml.sax.saxutils.escape`` (``&`` first) without its
+    ``urllib.request``/``http.client``/``ssl`` import chain (#139)."""
+    return text.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
+
+
 def build_part_atom(title: str, category_label_txt: str, *,
                     type_names: Sequence[str] = (), product_name: str = "rvt-writer",
                     updated: Optional[str] = None) -> bytes:
@@ -3043,7 +3049,7 @@ def build_part_atom(title: str, category_label_txt: str, *,
     are ours -- no Autodesk taxonomy URLs, no OmniClass, no Autodesk product
     label [D content policy].  UNFRAMED stream (like BasicFileInfo).
     """
-    from xml.sax.saxutils import escape as _x
+    _x = _xml_escape
     ts = updated or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     types_xml = "".join(
         f"<A:type><A:title>{_x(str(n))}</A:title></A:type>" for n in type_names)
