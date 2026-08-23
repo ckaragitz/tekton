@@ -529,4 +529,6 @@ Failure triage (reproduced + bisected on the settled tree, load ~4):
 * `test_y2025_a::test_probes_manifest` (KeyError 'certified_by') — y2025
   stream.
 
-- `perf-coldstart.d/139-partatom-escape.md` — PartAtom XML escape without `xml.sax.saxutils`: 34 stdlib modules (`urllib.request`/`http.client`/`ssl`/`email`) and ~13 ms (repo) / 12–26 ms (bare) off every family-generating job, output byte-identical (#139).
+## Fragments (`docs/inbox/perf-coldstart.d/`, one per PR — `docs/inbox/README.md`)
+
+- `139-partatom-escape.md` — PartAtom XML escape without `xml.sax.saxutils`: 34 stdlib modules (`urllib.request`/`http.client`/`ssl`/`email`) and ~13 ms (repo) / 12–26 ms (bare) off every family-generating job, output byte-identical (#139).

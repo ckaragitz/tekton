@@ -77,6 +77,20 @@ wall time is unchanged within noise. It is the "worth one look" item from `lazy-
 * `/verify` front-door drive = the (a) runs above (READY-equivalent `PROOF-ONLY (self-checks PASS)`,
   `errors []`, outputs validate 0 errors); bare-surface `go author` = the (b) runs.
 
+## Review round 1 (head 0769e97, independent reviewer, 🟡 nits — all taken)
+
+| nit | change |
+|---|---|
+| index line sat under the old record's triage bullets | moved under a `## Fragments` header in `perf-coldstart.md` |
+| BRANCH STATE said `skeleton.py (+9/−1)` | corrected to +7/−1 (the docstring was trimmed during `/simplify`) |
+| a future unrelated import tripping `HEAVY` would blame #139 | the child's assert now says "family-build import budget (HEAVY) exceeded" |
+
+The reviewer also re-derived the numbers independently in the sandbox: `_xml_escape == saxutils.escape`
+on 219,608 strings (exhaustive over `&<>;amp` to length 5 + 200k random incl. astral/non-ASCII),
+`build_part_atom` SHA-256 identical to `origin/main`'s over 336 combinations, chain absent on
+CPython 3.11.15 / 3.12.3 / 3.13.14 (201/203/204 modules for one family write), full prompt job
+259 → 225 modules with `xml.sax.saxutils` 13.3 ms cumulative before.
+
 ## Findings
 
 1. The next stdlib weight on this path is `rvt.meta` (imported by `rvt.stream_encoders`): 9–10 ms
@@ -91,7 +105,7 @@ wall time is unchanged within noise. It is the "worth one look" item from `lazy-
 ## BRANCH STATE
 
 * Branch `cam/139-partatom-escape` from `main` @ 11d336d. Files: `src/rvt/famgen/skeleton.py`
-  (+9/−1), `plugin/lib/src/rvt/famgen/skeleton.py` (mirror), `tests/test_partatom_escape_139.py`
+  (+7/−1), `plugin/lib/src/rvt/famgen/skeleton.py` (mirror), `tests/test_partatom_escape_139.py`
   (new), `tests/ci_shard.d/139-partatom-escape.txt` (new), this fragment + one index line in
   `docs/inbox/perf-coldstart.md`. No binaries; all outputs in the session scratchpad / `out/verify/`.
 * Shipped vs staged: code + test ship with the PR; nothing staged for the viewer (byte-neutral).

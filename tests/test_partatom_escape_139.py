@@ -60,7 +60,7 @@ def test_family_build_import_budget(tmp_path):
         "prod = F.make_panelboard(mains_a=225, spaces=30, voltage='208Y/120', mcb=False)\n"
         f"prod.write({rfa!r})\n"
         f"bad = [m for m in {HEAVY!r} if m in sys.modules]\n"
-        "assert not bad, f'family build imported {bad}'\n"
+        "assert not bad, f'family-build import budget (HEAVY) exceeded: {bad}'\n"
         "print('PARTATOM-LIGHT-OK')\n")
     env = {k: v for k, v in os.environ.items()
            if not k.startswith("RVT_") and k != "PYTHONPATH"}
