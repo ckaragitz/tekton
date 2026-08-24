@@ -34,8 +34,11 @@ only relays them in the same JSON that already names the files.
 * `created_counts(rows)` — ONE tally of `build.elements_created` by kind; `MANIFEST.md`'s "created:"
   line counts through it (output unchanged); `_rollup_status` and the report share `_self_checks_ok`.
 * No change to `tools/frontdoor.py` (hot; it prints `as_json()`), `tools/route.py` or the plugin
-  bootstrap: `frontdoor --json`, `route run --json` (via the author result) and `go author|edit`
-  (`result.report`) all carry the block as is.
+  bootstrap: `frontdoor --json`, `route run --json` (via the author result) and `go author` —
+  including the front door's edit route, `go author --rvt X.rvt --edit "…"` — carry the block as is
+  (`result.report`). NOT `go edit`: that verb dispatches `rvt_edit.py --json`, whose `result.report`
+  is the pre-existing per-op change report (`replaced` / `removed_ids`, `tools/rvt_edit.py`) — a
+  different shape under the same key name; #749 (SKILL.md wording) must keep the two apart.
 * `tests/test_go_report_185.py` (+ `tests/ci_shard.d/185-go-report.txt`): assembly rules, both
   validation roll-ups, the MANIFEST.md line through the shared tally, `as_json` without a manifest,
   and end to end on the bundled base: the 6-panel flagship (keys, numbers equal to the manifest's,
@@ -102,6 +105,12 @@ tool round-trip; it is now +0.3–0.4 KB (≈ 100 tokens) inside the JSON the su
 * `/simplify` pass (reuse / simplification / efficiency / altitude reviewers) applied: block born in the
   builders instead of sniffed from the finished dict, no duplicated stamps/line, one budget rule for
   degradations, shared `_self_checks_ok`, MANIFEST.md tally fully migrated, tests measure the shipped form.
+* PR #748 round 1 (head `ad9c52e`): session CI **pass** (`3150 passed, 132 skipped, 4 xfailed`, merge with
+  main clean); independent review 🟡 nits → fixed in-branch: this record's `go author|edit` overclaim
+  (above), `as_json` hands out a copy of the block (never the manifest's dict by reference), and the edit
+  route's `self_checks_ok` requires the validator to have PASSED (a `--no-validate` job reads
+  `SKIPPED / self_checks_ok: false`, as the create routes' would); the TMPDIR-length dependence of the
+  4 KB assertion is finding 2.
 
 ## Findings
 

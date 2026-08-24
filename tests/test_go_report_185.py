@@ -98,7 +98,9 @@ def test_build_validation_rolls_up_over_every_emitted_file():
                                              ("SKIPPED", "SKIPPED"), (None, "NOT-RUN")])
 def test_edit_validation_speaks_the_same_words(status, verdict):
     gate = {"status": status, "errors": 4, "warnings": 1} if status else {}
-    got = MF._edit_validation_summary(gate, hard_gates_passed=status == "PASS", has_output=bool(status))
+    # hard gates "pass" on SKIPPED too (`--no-validate`); self-checked means the validator PASSED
+    got = MF._edit_validation_summary(gate, hard_gates_passed=status in ("PASS", "SKIPPED"),
+                                      has_output=bool(status))
     assert got == {"verdict": verdict, "errors": 4 if status else 0, "warnings": 1 if status else 0,
                    "self_checks_ok": status == "PASS", "files": 1 if status else 0}
 
@@ -146,7 +148,7 @@ def test_flagship_result_carries_the_report_and_fits_the_budget(flagship):
     assert rep["counts"] == {**ZERO_COUNTS, "families": 6, "equipment_instances": 6, "walls": 4,
                              "loaded_families": 6, "elements_created": len(build["elements_created"])}
     assert rep["degradations"] == MF._budgeted(build["degradations"])
-    assert r.manifest["report"] == rep
+    assert r.manifest["report"] == rep and r.manifest["report"] is not rep    # equal, never aliased
     with open(j["manifest"]["json"], encoding="utf-8") as fh:
         assert json.load(fh)["report"] == rep
     assert j["stamps"] and all("PROOF-ONLY" in s for s in j["stamps"])      # #24's homes, said once

@@ -606,7 +606,10 @@ def _edit_validation_summary(gate: Optional[Dict[str, Any]], *, hard_gates_passe
     status = gate.get("status")
     return {"verdict": {"PASS": "VALID", "FAIL": "INVALID"}.get(status, status or "NOT-RUN"),
             "errors": int(gate.get("errors") or 0), "warnings": int(gate.get("warnings") or 0),
-            "self_checks_ok": bool(hard_gates_passed), "files": int(bool(has_output))}
+            # like the create routes: the validator itself must have PASSED -- a
+            # `--no-validate` job (SKIPPED, hard gates still "passed") is not self-checked
+            "self_checks_ok": bool(hard_gates_passed) and status == "PASS",
+            "files": int(bool(has_output))}
 
 
 def _budgeted(lines: Sequence[Any]) -> List[str]:

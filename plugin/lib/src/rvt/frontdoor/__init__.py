@@ -42,6 +42,7 @@ CLI: ``tools/frontdoor.py`` (the ``author`` command).  Territory:
 from __future__ import annotations
 
 import contextlib
+import copy
 import os
 import re
 import time
@@ -151,7 +152,8 @@ class AuthorResult:
         from .manifest import report_block
         out["stamps"] = list(((self.manifest.get("honesty") or {})
                               .get("proof_only_stamps")) or [])
-        out["report"] = self.manifest.get("report") or report_block()
+        # a copy, like `stamps`: the caller's document never aliases the manifest
+        out["report"] = copy.deepcopy(self.manifest.get("report")) or report_block()
         if self.manifest:
             from . import target_status as _ts
             out["release"] = _ts.release_view(self.manifest, files=self.files)
