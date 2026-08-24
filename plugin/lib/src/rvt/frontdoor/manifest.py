@@ -31,7 +31,7 @@ __all__ = ["TOOL", "TOOL_VERSION", "file_facts", "crud_affordances",
            "coverage_cross_reference", "census_gaps", "authorship_census_note",
            "plan_note_degradations",
            "status_gate_lines", "resolved_pin", "build_manifest", "edit_manifest",
-           "write_manifest"]
+           "write_manifest", "created_counts", "report_block", "REPORT_DEGRADATIONS_CAP"]
 
 TOOL = "tekton frontdoor (rvt.frontdoor)"
 TOOL_VERSION = "1.0.0"
@@ -517,6 +517,11 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
     m["crud"] = crud_affordances(files, created, out_dir=out_dir)
     m["coverage_matrix"] = coverage_cross_reference(created)
     m["honesty"] = _honesty(build, verdict, version, status_gate=m["build"]["status_gate"])
+    m["report"] = report_block(
+        degradations=m["build"]["degradations"],
+        validation=_build_validation_summary(m["build"]["validation"]),
+        counts={**created_counts(created), "elements_created": len(created),
+                "circuits": int((build.get("circuits") or {}).get("circuits_built") or 0)})
     m["status"] = _rollup_status(m)
     return m
 
@@ -543,7 +548,7 @@ def _rollup_status(m: Dict[str, Any]) -> str:
     if not files:
         return "NO-OUTPUT (see build.degradations / errors)"
     val = b.get("validation") or {}
-    if val and not all((g or {}).get("self_checks_ok") for g in val.values()):
+    if val and not _self_checks_ok(val):
         bad = [r for r, g in val.items() if not (g or {}).get("self_checks_ok")]
         return "SELF-CHECKS FAILED (" + ", ".join(bad) + ")"
     sg = b.get("status_gate") or {}
@@ -553,6 +558,88 @@ def _rollup_status(m: Dict[str, Any]) -> str:
     if stamps or sg.get("status"):
         return "PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)"
     return "BUILT (self-checks PASS)"
+
+
+# ---------------------------------------------------------------------------
+# the compact `report` block: manifest["report"] == the ONE --json result's
+# `report` (issue #185)
+# ---------------------------------------------------------------------------
+
+REPORT_DEGRADATIONS_CAP = 10           # degradations relayed before the "+N more" tail
+_REPORT_DEGRADATION_MAX = 500          # one degradation rides whole up to this (clip's rule); longest seen: 401
+_CREATED_KINDS = {"families": "family(.rfa)", "walls": "wall",
+                  "equipment_instances": "equipment-instance",
+                  "wiring_devices": "fixture-instance", "loaded_families": "loaded-family"}
+_COUNT_KEYS = (*_CREATED_KINDS, "elements_created", "circuits", "edited", "deleted")
+_NO_VALIDATION = {"verdict": "NOT-RUN", "errors": 0, "warnings": 0, "self_checks_ok": False, "files": 0}
+
+
+def created_counts(rows: Optional[Sequence[Dict[str, Any]]]) -> Dict[str, int]:
+    """ONE tally of ``build.elements_created`` rows by kind -- MANIFEST.md's
+    "created:" line and the ``report`` block count the same way."""
+    kinds = [r.get("kind") for r in rows or []]
+    return {name: kinds.count(kind) for name, kind in _CREATED_KINDS.items()}
+
+
+def _self_checks_ok(validation: Optional[Dict[str, Any]]) -> bool:
+    """Every emitted file's V-stage gates passed (and at least one file was gated)."""
+    return bool(validation) and all((g or {}).get("self_checks_ok") for g in validation.values())
+
+
+def _build_validation_summary(validation: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """Roll ``build.validation[role].validate`` up over every emitted file: any
+    non-VALID verdict wins, errors / warnings are summed."""
+    validation = validation or {}
+    gates = [((g or {}).get("validate") or {}) for g in validation.values()]
+    verdicts = [str(g.get("verdict") or "NOT-RUN") for g in gates]
+    return {"verdict": next((v for v in verdicts if v != "VALID"), "VALID" if gates else "NOT-RUN"),
+            "errors": sum(int(g.get("n_errors") or 0) for g in gates),
+            "warnings": sum(int(g.get("n_warnings") or 0) for g in gates),
+            "self_checks_ok": _self_checks_ok(validation), "files": len(gates)}
+
+
+def _edit_validation_summary(gate: Optional[Dict[str, Any]], *, hard_gates_passed: Any,
+                             has_output: bool) -> Dict[str, Any]:
+    """The edit route's one file is judged by the job runner's validation gate
+    (PASS / FAIL / SKIPPED + counts), said in the create routes' words."""
+    gate = gate or {}
+    status = gate.get("status")
+    return {"verdict": {"PASS": "VALID", "FAIL": "INVALID"}.get(status, status or "NOT-RUN"),
+            "errors": int(gate.get("errors") or 0), "warnings": int(gate.get("warnings") or 0),
+            # like the create routes: the validator itself must have PASSED -- a
+            # `--no-validate` job (SKIPPED, hard gates still "passed") is not self-checked
+            "self_checks_ok": bool(hard_gates_passed) and status == "PASS",
+            "files": int(bool(has_output))}
+
+
+def _budgeted(lines: Sequence[Any]) -> List[str]:
+    """Order kept, duplicates dropped, each line whole up to
+    :data:`_REPORT_DEGRADATION_MAX` (``clip``'s rule), the list capped at
+    :data:`REPORT_DEGRADATIONS_CAP` with a '+N more' tail naming the long form."""
+    out = [clip(s, _REPORT_DEGRADATION_MAX) for s in dict.fromkeys(str(x) for x in lines)]
+    if len(out) > REPORT_DEGRADATIONS_CAP:
+        more = len(out) - REPORT_DEGRADATIONS_CAP
+        out = out[:REPORT_DEGRADATIONS_CAP] + [
+            f"... +{more} more degradation(s), see MANIFEST.md (the manifest's degradations list)"]
+    return out
+
+
+def report_block(*, degradations: Sequence[Any] = (), validation: Optional[Dict[str, Any]] = None,
+                 counts: Optional[Dict[str, int]] = None) -> Dict[str, Any]:
+    """The compact ``report`` block (issue #185): every degradation (budgeted),
+    the validator summary {verdict, errors, warnings, self_checks_ok, files}
+    and the counts, assembled by each manifest builder from what it natively
+    holds and stored as ``manifest["report"]`` -- so ``AuthorResult.as_json()``
+    relays it in the ONE ``--json`` result and a skill never opens
+    ``manifest.json`` (45-225 KB) in a second tool call to say them.  Called
+    with no arguments it is the empty-but-present block of a result that has
+    no manifest (same keys, zero counts, verdict NOT-RUN).  The PROOF-ONLY
+    stamps and the target-version line keep their #24 homes (``stamps``,
+    ``release.line``) and are not repeated here."""
+    counts = counts or {}
+    return {"degradations": _budgeted(degradations),
+            "validation": dict(validation or _NO_VALIDATION),
+            "counts": {k: int(counts.get(k) or 0) for k in _COUNT_KEYS}}
 
 
 # ---------------------------------------------------------------------------
@@ -636,6 +723,14 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
         "status": status,
         "errors": list(errors or []),
     }
+    m["report"] = report_block(
+        degradations=degradations,
+        validation=_edit_validation_summary(gates.get("validation"),
+                                            hard_gates_passed=job.get("hard_gates_passed"),
+                                            has_output=bool(m["output"])),
+        counts={"elements_created": len(m["elements"]["created"] or []),
+                "edited": len(m["elements"]["edited"] or []),
+                "deleted": len(m["elements"]["deleted"] or [])})
     if version:
         m["target_version"] = dict(version)
     if ir:
@@ -853,13 +948,11 @@ def _render_md(m: Dict[str, Any]) -> str:
                    else "house family (our own modeled extents; no catalog line covers the rating)")
             ap(f"- family: `{c.get('name')}` ({c.get('tag')}; {src}; ok={c.get('ok')})")
     created_rows = build.get("elements_created") or []
-    n_inst = sum(1 for c in created_rows if c.get("kind") == "equipment-instance")
-    n_wall = sum(1 for c in created_rows if c.get("kind") == "wall")
-    n_lf = sum(1 for c in created_rows if c.get("kind") == "loaded-family")
+    n = created_counts(created_rows)
     devices = [c for c in created_rows if c.get("kind") == "fixture-instance"]
-    ap(f"- created: {n_wall} walls, {n_inst} equipment instances, "
-       + (f"{len(devices)} wiring devices, " if devices else "")
-       + f"{n_lf} loaded families")
+    ap(f"- created: {n['walls']} walls, {n['equipment_instances']} equipment instances, "
+       + (f"{n['wiring_devices']} wiring devices, " if devices else "")
+       + f"{n['loaded_families']} loaded families")
     if devices:
         ap("- device schedule (one Electrical Fixtures instance per row, all on ONE shared "
            "generated family; free-standing upright at the wall face, PROOF-ONLY like the boards):")
