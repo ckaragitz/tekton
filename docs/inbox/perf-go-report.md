@@ -34,11 +34,13 @@ only relays them in the same JSON that already names the files.
 * `created_counts(rows)` — ONE tally of `build.elements_created` by kind; `MANIFEST.md`'s "created:"
   line counts through it (output unchanged); `_rollup_status` and the report share `_self_checks_ok`.
 * No change to `tools/frontdoor.py` (hot; it prints `as_json()`), `tools/route.py` or the plugin
-  bootstrap: `frontdoor --json`, `route run --json` (via the author result) and `go author` —
-  including the front door's edit route, `go author --rvt X.rvt --edit "…"` — carry the block as is
-  (`result.report`). NOT `go edit`: that verb dispatches `rvt_edit.py --json`, whose `result.report`
-  is the pre-existing per-op change report (`replaced` / `removed_ids`, `tools/rvt_edit.py`) — a
-  different shape under the same key name; #749 (SKILL.md wording) must keep the two apart.
+  bootstrap. Who carries `result.report` today: `frontdoor --json` and the plugin's `go author` —
+  including the front door's edit route, `go author --rvt X.rvt --edit "…"`. Who does NOT (yet):
+  `route run --json` prints `RouteResult.as_json()`, which has no `report` key — only the author
+  `manifest.json` files a route run writes carry the block, and relaying it is #750; and `go edit`,
+  which dispatches `rvt_edit.py --json`, whose `result.report` is the pre-existing per-op change
+  report (`replaced` / `removed_ids`, `tools/rvt_edit.py`) — a different shape under the same key
+  name that #749 (SKILL.md wording) must keep apart.
 * `tests/test_go_report_185.py` (+ `tests/ci_shard.d/185-go-report.txt`): assembly rules, both
   validation roll-ups, the MANIFEST.md line through the shared tally, `as_json` without a manifest,
   and end to end on the bundled base: the 6-panel flagship (keys, numbers equal to the manifest's,
@@ -111,6 +113,9 @@ tool round-trip; it is now +0.3–0.4 KB (≈ 100 tokens) inside the JSON the su
   route's `self_checks_ok` requires the validator to have PASSED (a `--no-validate` job reads
   `SKIPPED / self_checks_ok: false`, as the create routes' would); the TMPDIR-length dependence of the
   4 KB assertion is finding 2.
+* Round 2 (head `1f3c3e9`): independent review 🟡 nits, round-1 items verified fixed; remaining nits
+  were record wording (`route run --json` does not carry `result.report` until #750 — corrected above)
+  and the `--no-validate` vocabulary / status line (finding 4 → #751). Round 3 is this record-only delta.
 
 ## Findings
 
@@ -127,7 +132,14 @@ tool round-trip; it is now +0.3–0.4 KB (≈ 100 tokens) inside the JSON the su
 3. `tekton-author/SKILL.md` "Step 2 — report" item 4 still says counts come from `result.manifest.md`;
    pointing it (and `tekton-edit`'s report step) at `result.report` is a hot-file wording change,
    explicitly outside #185 — follow-up filed (Refs #185, #110).
-4. The IFC example's five plan-note degradations (259–401 chars) share one boilerplate tail; if
+4. One flag, two words (follow-up #751): under the debug-only `--no-validate` the create routes'
+   `report.validation` reads `{verdict: NOT-RUN, files: 0}` (their V stage writes nothing) while the
+   edit route's reads `{verdict: SKIPPED, files: 1, self_checks_ok: false}` (the job runner's gate
+   status); and — pre-existing, now visible in the same document — `_rollup_status` still prints
+   `PROOF-ONLY (self-checks PASS; …)` for a create-route `--no-validate` job because it only tests the
+   self-check clause when `build.validation` is non-empty. #751 makes the status say SKIPPED and picks
+   one word; until then skills should key on `report.validation.self_checks_ok`.
+5. The IFC example's five plan-note degradations (259–401 chars) share one boilerplate tail; if
    degradations grow a structured form (kind + subject + reason) the block should carry that instead of
    prose — its own stream, not needed for today's DONE.
 
