@@ -144,12 +144,17 @@ class AuthorResult:
                "manifest": {k: v for k, v in self.manifest_paths.items()},
                "errors": self.errors, "seconds": self.seconds}
         # issue #24: the ONE --json result must carry the honest release story
-        # and the stamps itself, so an AI surface never re-reads manifest.json
+        # and the stamps itself, so an AI surface never re-reads manifest.json;
+        # issue #185: nor for the degradations, the validator summary and the
+        # counts -- the manifest's own `report` block rides along, and `stamps`
+        # / `report` are present (empty) even on a result that has no manifest
+        from .manifest import report_block
+        out["stamps"] = list(((self.manifest.get("honesty") or {})
+                              .get("proof_only_stamps")) or [])
+        out["report"] = self.manifest.get("report") or report_block()
         if self.manifest:
             from . import target_status as _ts
             out["release"] = _ts.release_view(self.manifest, files=self.files)
-            out["stamps"] = list(((self.manifest.get("honesty") or {})
-                                  .get("proof_only_stamps")) or [])
         return out
 
 
