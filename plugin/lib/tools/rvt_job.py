@@ -739,6 +739,11 @@ def run_gates(mode: str, out_path: str, base_path: Optional[str], manifest: dict
         manifest["status"] = "FAILED (" + ", ".join(failed) + ")"
     elif deliverable:
         manifest["status"] = "DELIVERABLE"
+    elif gates["validation"].get("status") == "SKIPPED":
+        # a skipped validator is counted among the hard gates, so the status a
+        # skill relays verbatim must name the skip, never imply it ran (#751)
+        manifest["status"] = ("PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED; validation SKIPPED: "
+                              f"{gates['validation'].get('reason') or 'not run'})")
     else:
         manifest["status"] = "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)"
 

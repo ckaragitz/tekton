@@ -155,3 +155,7 @@ tool round-trip; it is now +0.3–0.4 KB (≈ 100 tokens) inside the JSON the su
   byte changes — `report` is JSON about files; the validator says what it said).
 * not touched: `tools/frontdoor.py`, `plugin/skills/*/SKILL.md`, `src/rvt/frontdoor/base.py`,
   `src/rvt/frontdoor/router.py`.
+
+## Fragments (`docs/inbox/perf-go-report.d/`, one per PR — `docs/inbox/README.md`)
+
+- `751-skipped-selfchecks.md` — a skipped validator is said: `self-checks SKIPPED: <reason>` in the status, `SKIPPED` as the one `report.validation` word on every route, `NOT-RUN` only when nothing was emitted.

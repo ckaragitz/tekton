@@ -75,6 +75,9 @@ def _this_file(manifest: Dict[str, Any], files: Optional[Dict[str, str]]) -> str
         return "not-built"
     if str(manifest.get("status") or "").upper().startswith("SELF-CHECKS FAILED"):
         return "self-checks-failed (delivered WITH the failed report -- say so plainly)"
+    if "SKIPPED" in str((manifest.get("report") or {}).get("validation", {}).get("verdict")):
+        return ("self-checks-skipped (no validator verdict for this file -- NOT a shippable run; "
+                "Autodesk acceptance only when the recipient's Revit / the Autodesk Viewer opens it)")
     parts = [f"{role}: {v.get('verdict')} {v.get('n_errors', '?')} errors / "
              f"{v.get('n_warnings', '?')} warnings"
              for role, g in ((manifest.get("build") or {}).get("validation") or {}).items()

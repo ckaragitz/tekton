@@ -501,6 +501,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
         "degradations": list(build.get("degradations") or []),
         "circuits": build.get("circuits") or {},
         "validation": build.get("validation") or {},
+        "validation_skipped": build.get("validation_skipped"),   # why no gate ran, or None (#751)
         "status_gate": build.get("status_gate") or {},
         "seconds": build.get("seconds"),
         "log": _relp(build.get("build_log")),          # the quiet stage log (issue #312)
@@ -519,7 +520,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
     m["honesty"] = _honesty(build, verdict, version, status_gate=m["build"]["status_gate"])
     m["report"] = report_block(
         degradations=m["build"]["degradations"],
-        validation=_build_validation_summary(m["build"]["validation"]),
+        validation=_build_validation_summary(m["build"]["validation"], emitted=m["build"]["files"]),
         counts={**created_counts(created), "elements_created": len(created),
                 "circuits": int((build.get("circuits") or {}).get("circuits_built") or 0)})
     m["status"] = _rollup_status(m)
@@ -555,9 +556,18 @@ def _rollup_status(m: Dict[str, Any]) -> str:
     stamps = (m.get("honesty") or {}).get("proof_only_stamps") or []
     if sg.get("deliverable") and not stamps:
         return "DELIVERABLE (all gates passed; genesis base)"
+    # no gate judged the emitted files (`--no-validate`, V not in --stages): the
+    # status a skill relays verbatim must say SKIPPED, never PASS (#751)
+    checks = "self-checks PASS" if val else "self-checks SKIPPED: " + _skipped_reason(b)
     if stamps or sg.get("status"):
-        return "PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)"
-    return "BUILT (self-checks PASS)"
+        return f"PROOF-ONLY ({checks}; see honesty.proof_only_stamps + status_gate)"
+    return f"BUILT ({checks})"
+
+
+def _skipped_reason(build: Dict[str, Any]) -> str:
+    """Why the V stage did not gate the emitted files (``build.validation_skipped``,
+    :class:`rvt.frontdoor.build.BuildResult`), or the honest default."""
+    return str(build.get("validation_skipped") or "validator did not run")
 
 
 # ---------------------------------------------------------------------------
@@ -586,13 +596,26 @@ def _self_checks_ok(validation: Optional[Dict[str, Any]]) -> bool:
     return bool(validation) and all((g or {}).get("self_checks_ok") for g in validation.values())
 
 
-def _build_validation_summary(validation: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+def _unrun_summary(n_files: int) -> Dict[str, Any]:
+    """The validator did not run -- ONE word on every route: ``SKIPPED`` over the
+    ``n_files`` it would have judged (deliberately not run: ``--no-validate``, a
+    ``--stages`` subset), ``NOT-RUN`` when nothing was emitted to judge (#751).
+    Nothing is self-checked and the counts are zero either way."""
+    return {**_NO_VALIDATION, "verdict": "SKIPPED" if n_files else "NOT-RUN", "files": int(n_files)}
+
+
+def _build_validation_summary(validation: Optional[Dict[str, Any]], *,
+                              emitted: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Roll ``build.validation[role].validate`` up over every emitted file: any
-    non-VALID verdict wins, errors / warnings are summed."""
+    non-VALID verdict wins, errors / warnings are summed; with no gate at all,
+    :func:`_unrun_summary` over the ``emitted`` files (``build.files``: exactly
+    the roles the V stage gates)."""
     validation = validation or {}
     gates = [((g or {}).get("validate") or {}) for g in validation.values()]
+    if not gates:
+        return _unrun_summary(len(emitted or ()))
     verdicts = [str(g.get("verdict") or "NOT-RUN") for g in gates]
-    return {"verdict": next((v for v in verdicts if v != "VALID"), "VALID" if gates else "NOT-RUN"),
+    return {"verdict": next((v for v in verdicts if v != "VALID"), "VALID"),
             "errors": sum(int(g.get("n_errors") or 0) for g in gates),
             "warnings": sum(int(g.get("n_warnings") or 0) for g in gates),
             "self_checks_ok": _self_checks_ok(validation), "files": len(gates)}
@@ -601,13 +624,15 @@ def _build_validation_summary(validation: Optional[Dict[str, Any]]) -> Dict[str,
 def _edit_validation_summary(gate: Optional[Dict[str, Any]], *, hard_gates_passed: Any,
                              has_output: bool) -> Dict[str, Any]:
     """The edit route's one file is judged by the job runner's validation gate
-    (PASS / FAIL / SKIPPED + counts), said in the create routes' words."""
+    (PASS / FAIL / SKIPPED + counts), said in the create routes' words; a gate
+    that did not run is :func:`_unrun_summary` over the one output (#751)."""
     gate = gate or {}
     status = gate.get("status")
-    return {"verdict": {"PASS": "VALID", "FAIL": "INVALID"}.get(status, status or "NOT-RUN"),
+    if status not in ("PASS", "FAIL"):
+        return _unrun_summary(int(bool(has_output)))
+    return {"verdict": {"PASS": "VALID", "FAIL": "INVALID"}[status],
             "errors": int(gate.get("errors") or 0), "warnings": int(gate.get("warnings") or 0),
-            # like the create routes: the validator itself must have PASSED -- a
-            # `--no-validate` job (SKIPPED, hard gates still "passed") is not self-checked
+            # like the create routes: the validator itself must have PASSED
             "self_checks_ok": bool(hard_gates_passed) and status == "PASS",
             "files": int(bool(has_output))}
 
@@ -981,6 +1006,9 @@ def _render_md(m: Dict[str, Any]) -> str:
                        f"{b.get('base_elevation_ft'):g} ft)" for b in lv["levels"]))
         for nb in lv.get("not_built") or []:
             ap(f"- **level NOT created**: {nb.get('reason')}")
+    if files and not build.get("validation"):
+        ap(f"- **self-checks SKIPPED** ({_skipped_reason(build)}): no validator / registry / identity "
+           f"verdict for {', '.join(files)} -- NOT a shippable run")
     for role, g in (build.get("validation") or {}).items():
         val = (g or {}).get("validate") or {}
         idg = (g or {}).get("identity") or {}
