@@ -75,6 +75,17 @@ def test_a_gated_run_keeps_todays_exact_strings():
         "NO-OUTPUT (see build.degradations / errors)"
 
 
+def test_this_file_tier_keys_on_the_status_the_router_hands_it():
+    from rvt.frontdoor import target_status as TS
+    files = {"combined": "/x/prompt_room.rvt"}
+    for st in ("PROOF-ONLY (self-checks SKIPPED: --no-validate; see honesty.proof_only_stamps + status_gate)",
+               "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED; validation SKIPPED: --no-validate)"):
+        assert TS._this_file({"status": st}, files).startswith("self-checks-skipped"), st
+    assert TS._this_file({"status": PASS_STATUS}, files).startswith("validated-not-certified")
+    assert TS._this_file({"status": "SELF-CHECKS FAILED (combined)"}, files).startswith("self-checks-failed")
+    assert TS._this_file({"status": "FAILED (x)"}, {}) == "not-built"
+
+
 # ---------------------------------------------------------------------------
 # report.validation: ONE word on every route
 # ---------------------------------------------------------------------------

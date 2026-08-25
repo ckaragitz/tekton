@@ -35,7 +35,12 @@ on the edit route (the job runner's gate word).
   keeps `tests/test_edit_status.py`'s pinned string byte for byte.
 * `target_status._this_file` — the honesty tier `release.this_file` that `tekton-author` relays in
   step 2 reads `self-checks-skipped (no validator verdict for this file -- NOT a shippable run; …)`
-  instead of `validated-not-certified` when `report.validation.verdict` is SKIPPED.
+  instead of `validated-not-certified` whenever the status names a skipped validator (`SELF-CHECKS
+  SKIPPED` / `VALIDATION SKIPPED`, the create routes' and the job runner's words) — keyed on the status
+  because that is all the router's `RouteResult.release_view()` hands the function (review round 1).
+* `tools/rvt_job.py`: a file the validator never judged is never `DELIVERABLE` — `deliverable` now also
+  requires the validation gate to be `PASS` (review round 1: with `hard_ok` accepting SKIPPED, a
+  `--no-validate` job would have been labelled DELIVERABLE the day the P0 gate clears).
 * `MANIFEST.md`: `- **self-checks SKIPPED** (<reason>): no validator / registry / identity verdict for
   <roles> -- NOT a shippable run` where the per-file self-check lines would have been.
 * Tests: `tests/test_skipped_selfchecks_751.py` (+ `tests/ci_shard.d/751-skipped-selfchecks.txt`), 9 cases:
@@ -45,6 +50,7 @@ on the edit route (the job runner's gate word).
   `this_file`), a `--stages FLWEC` build, and a `--no-validate` edit (rvt_job's wording, `this_file`).
   `tests/test_go_report_185.py`'s edit-vocabulary case tightened: a SKIPPED gate's synthetic counts are no
   longer echoed (zeros). A FAILED intake → `NOT-RUN` stays pinned by the #185 module.
+* Tests also pin the `this_file` tier for both status spellings and the router's `{status}`-only input.
 * `/simplify` (4 reviewers) applied: reason-only marker (files counted from `build.files`, no second
   source), one `_unrun_summary`, `checks` computed after the DELIVERABLE return, one degradation template
   for both skip reasons, `GATED_ROLES` shared with `deepest`, the edit-route status fixed in the job
@@ -102,6 +108,12 @@ test_go_target_version.py` → 290 passed / 17 skipped (`RVT_SKIP_LARGE=1`); the
    therefore reaches the router's caveats (`_absorb_build_degradations`) too, which it silently did not before.
 3. #749 (SKILL.md wording) can now tell skills to key on `report.validation.verdict` ∈ {VALID, INVALID,
    SKIPPED, NOT-RUN} + `self_checks_ok`, and on `release.this_file` starting with `self-checks-skipped`.
+4. Review round 1 (head `7b813b1`, 🟡): the `this_file` tier first read `report.validation.verdict`, which
+   the router never passes — `route run --no-validate --json` said `self-checks SKIPPED` in `status` and
+   `validated-not-certified` in `release.this_file` in one document; fixed by keying on the status (now
+   `self-checks-skipped (…)` on the router surface too, verified by hand). The latent DELIVERABLE
+   labelling of a skipped-validator job was closed in the same round. The `GATED_ROLES` reorder is
+   observable only as line/key order on `--strict` runs (no test pins it).
 
 ## BRANCH STATE
 
