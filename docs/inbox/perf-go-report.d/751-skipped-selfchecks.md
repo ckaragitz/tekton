@@ -43,7 +43,7 @@ on the edit route (the job runner's gate word).
   `--no-validate` job would have been labelled DELIVERABLE the day the P0 gate clears).
 * `MANIFEST.md`: `- **self-checks SKIPPED** (<reason>): no validator / registry / identity verdict for
   <roles> -- NOT a shippable run` where the per-file self-check lines would have been.
-* Tests: `tests/test_skipped_selfchecks_751.py` (+ `tests/ci_shard.d/751-skipped-selfchecks.txt`), 9 cases:
+* Tests: `tests/test_skipped_selfchecks_751.py` (+ `tests/ci_shard.d/751-skipped-selfchecks.txt`), 10 cases:
   status wording (skipped with either reason, the reason-less default, the gated / failed / no-output strings
   unchanged), both summaries' vocabulary, and end to end on the bundled base with the one-panel prompt:
   the `--no-validate` build beside its validated twin (status, marker, `report`, degradation, MANIFEST.md,
@@ -88,7 +88,7 @@ Delivered bytes: the marker is written after every file write and read only by t
 `.rvt`/`.rfa` byte depends on it. (Run-to-run sha256 of the same prompt already differs on an unchanged
 tree — #168's non-determinism — so sha equality is not a usable instrument here; the argument is structural.)
 
-Gates (after `/simplify`): `tests/test_skipped_selfchecks_751.py` 9 passed in 4.2 s (the first draft's
+Gates (after `/simplify` and review round 1): `tests/test_skipped_selfchecks_751.py` 10 passed in 4.8 s (the first draft's
 negative control against `origin/main`'s sources failed at the first status test); `test_go_report_185.py
 test_skipped_selfchecks_751.py test_edit_status.py test_status_gate.py test_frontdoor_209.py test_go_edit.py
 test_frontdoor_json_strict.py test_frontdoor_manifest_pin.py test_records_layout.py
@@ -108,7 +108,12 @@ test_go_target_version.py` → 290 passed / 17 skipped (`RVT_SKIP_LARGE=1`); the
    therefore reaches the router's caveats (`_absorb_build_degradations`) too, which it silently did not before.
 3. #749 (SKILL.md wording) can now tell skills to key on `report.validation.verdict` ∈ {VALID, INVALID,
    SKIPPED, NOT-RUN} + `self_checks_ok`, and on `release.this_file` starting with `self-checks-skipped`.
-4. Review round 1 (head `7b813b1`, 🟡): the `this_file` tier first read `report.validation.verdict`, which
+4. The router's convert cells (add-into / merge, `router.py::_convert_status`) carry a THIRD spelling
+   for the same situation — `validator no gate ran (--no-validate)` — which the `this_file` sniff does
+   not catch; today no contradiction surfaces (those cells emit no `release` block) and the rfa cell
+   ignores the flag entirely. Pre-existing, outside #751's DONE; noted on #749 so the skills' wording
+   pass unifies it (review round 2).
+5. Review round 1 (head `7b813b1`, 🟡): the `this_file` tier first read `report.validation.verdict`, which
    the router never passes — `route run --no-validate --json` said `self-checks SKIPPED` in `status` and
    `validated-not-certified` in `release.this_file` in one document; fixed by keying on the status (now
    `self-checks-skipped (…)` on the router surface too, verified by hand). The latent DELIVERABLE
@@ -120,8 +125,10 @@ test_go_target_version.py` → 290 passed / 17 skipped (`RVT_SKIP_LARGE=1`); the
 * branch `cam/751-skipped-selfchecks` from `main` @ `d5b2ede`; files: `src/rvt/frontdoor/build.py`
   (`GATED_ROLES`, `validation_skipped`, V-stage `elif`), `src/rvt/frontdoor/manifest.py` (`_rollup_status`,
   `_skipped_reason`, `_unrun_summary`, both summaries, MANIFEST.md line, the `build.validation_skipped`
-  key), `src/rvt/frontdoor/target_status.py` (`_this_file` skipped tier), `tools/rvt_job.py` (status
-  wording), their `plugin/lib/` mirrors (sync), `tests/test_skipped_selfchecks_751.py`,
+  key), `src/rvt/frontdoor/target_status.py` (`_this_file` skipped tier, keyed on the status),
+  `tools/rvt_job.py` (status wording; `deliverable` requires validation PASS), their mirrors under
+  `plugin/lib/src/rvt/frontdoor/`, `plugin/lib/tools/rvt_job.py` and the three
+  `plugin/skills/{tekton-author,tekton-edit,tekton-native}/scripts/rvt_job.py` (sync), `tests/test_skipped_selfchecks_751.py`,
   `tests/ci_shard.d/751-skipped-selfchecks.txt`, one tightened case in `tests/test_go_report_185.py`,
   this fragment + one index line in `docs/inbox/perf-go-report.md`.
 * shipped in the PR: all of the above. Staged for a human: nothing (no viewer claim; no delivered bytes change).
