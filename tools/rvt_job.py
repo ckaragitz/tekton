@@ -729,7 +729,9 @@ def run_gates(mode: str, out_path: str, base_path: Optional[str], manifest: dict
     hard_ok = (structural.get("status") == "PASS"
                and gates["validation"].get("status") in ("PASS", "SKIPPED")
                and gates["identity"].get("status") == "PASS")
-    deliverable = bool(hard_ok and gates["base_provenance"].get("deliverable"))
+    # a file the validator never judged is never DELIVERABLE, whatever the P0 gate says (#751)
+    deliverable = bool(hard_ok and gates["validation"].get("status") == "PASS"
+                       and gates["base_provenance"].get("deliverable"))
     manifest["hard_gates_passed"] = hard_ok
     manifest["deliverable"] = deliverable
     if not hard_ok:
@@ -739,6 +741,11 @@ def run_gates(mode: str, out_path: str, base_path: Optional[str], manifest: dict
         manifest["status"] = "FAILED (" + ", ".join(failed) + ")"
     elif deliverable:
         manifest["status"] = "DELIVERABLE"
+    elif gates["validation"].get("status") == "SKIPPED":
+        # a skipped validator is counted among the hard gates, so the status a
+        # skill relays verbatim must name the skip, never imply it ran (#751)
+        manifest["status"] = ("PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED; validation SKIPPED: "
+                              f"{gates['validation'].get('reason') or 'not run'})")
     else:
         manifest["status"] = "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)"
 

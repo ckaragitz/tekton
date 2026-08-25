@@ -73,8 +73,14 @@ def opens_in(release: Optional[int]) -> Optional[str]:
 def _this_file(manifest: Dict[str, Any], files: Optional[Dict[str, str]]) -> str:
     if not any(str(p).lower().endswith((".rvt", ".rfa")) for p in (files or {}).values()):
         return "not-built"
-    if str(manifest.get("status") or "").upper().startswith("SELF-CHECKS FAILED"):
+    status = str(manifest.get("status") or "").upper()
+    if status.startswith("SELF-CHECKS FAILED"):
         return "self-checks-failed (delivered WITH the failed report -- say so plainly)"
+    if "SELF-CHECKS SKIPPED" in status or "VALIDATION SKIPPED" in status:
+        # the create routes' and the job runner's words for a validator that did
+        # not run (#751); the status is all the router hands this function
+        return ("self-checks-skipped (no validator verdict for this file -- NOT a shippable run; "
+                "Autodesk acceptance only when the recipient's Revit / the Autodesk Viewer opens it)")
     parts = [f"{role}: {v.get('verdict')} {v.get('n_errors', '?')} errors / "
              f"{v.get('n_warnings', '?')} warnings"
              for role, g in ((manifest.get("build") or {}).get("validation") or {}).items()

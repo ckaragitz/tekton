@@ -163,6 +163,11 @@ class BuildOptions:
     quiet: bool = True                         # stage output -> <out_dir>/build.log, not stdout
 
 
+#: the emitted-file roles the V stage gates (validator / registries / identity),
+#: deepest first -- the order :attr:`BuildResult.deepest` prefers
+GATED_ROLES = ("combined", "equipment", "shell")
+
+
 @dataclass
 class BuildResult:
     """Everything the build produced (feeds the manifest)."""
@@ -172,6 +177,9 @@ class BuildResult:
     load: Dict[str, Any] = dc_field(default_factory=dict)
     stages: List[Dict[str, Any]] = dc_field(default_factory=list)
     validation: Dict[str, Any] = dc_field(default_factory=dict)      # role -> gates
+    #: why the emitted files were NOT gated ("--no-validate", "stage V not in --stages ..."):
+    #: the manifest then says self-checks SKIPPED, never PASS (#751); None when the V stage ran
+    validation_skipped: Optional[str] = None
     circuits: Dict[str, Any] = dc_field(default_factory=dict)
     status_gate: Dict[str, Any] = dc_field(default_factory=dict)
     project_info: Dict[str, Any] = dc_field(default_factory=dict)    # stage P record
@@ -184,7 +192,7 @@ class BuildResult:
 
     @property
     def deepest(self) -> Optional[str]:
-        for role in ("combined", "equipment", "shell"):
+        for role in GATED_ROLES:
             if self.files.get(role):
                 return self.files[role]
         return None
@@ -194,7 +202,8 @@ class BuildResult:
             "files": {k: _relp(v) for k, v in self.files.items() if v},
             "verdict": self.verdict.as_json() if self.verdict is not None else None,
             "families": self.families, "load": self.load,
-            "validation": self.validation, "circuits": self.circuits,
+            "validation": self.validation, "validation_skipped": self.validation_skipped,
+            "circuits": self.circuits,
             "status_gate": self.status_gate, "project_info": self.project_info,
             "levels": self.levels,
             "degradations": list(self.degradations),
@@ -767,7 +776,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                                            + time.perf_counter() - t, 2)
 
         with _timed_stage(res):
-            for role in ("combined", "shell", "equipment"):
+            for role in GATED_ROLES:
                 p = res.files.get(role)
                 if not p or not os.path.isfile(p):
                     continue
@@ -805,8 +814,13 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                         "DELIVERABLE -- rvt.frontdoor.project_info's default is stale")
             res.stages.append({"stage": "V", "files": sorted(res.validation),
                                "gates": gate_seconds})
-    elif not opts.validate:
-        res.degradations.append("validation SKIPPED (--no-validate): this is NOT a shippable run")
+    elif res.deepest:
+        # emitted files that no gate judged: the record says why, so the manifest
+        # reports self-checks SKIPPED -- never the shape of a run whose checks
+        # passed (#751) -- and the degradation rides into the caveats
+        reason = "--no-validate" if not opts.validate else f"stage V not in --stages {opts.stages}"
+        res.validation_skipped = reason
+        res.degradations.append(f"validation SKIPPED ({reason}): this is NOT a shippable run")
 
 
 # ---------------------------------------------------------------------------

@@ -98,10 +98,12 @@ def test_build_validation_rolls_up_over_every_emitted_file():
                                              ("SKIPPED", "SKIPPED"), (None, "NOT-RUN")])
 def test_edit_validation_speaks_the_same_words(status, verdict):
     gate = {"status": status, "errors": 4, "warnings": 1} if status else {}
-    # hard gates "pass" on SKIPPED too (`--no-validate`); self-checked means the validator PASSED
+    # hard gates "pass" on SKIPPED too (`--no-validate`); self-checked means the validator PASSED;
+    # a skipped validator found nothing, so its counts are zero whatever the gate carries (#751)
     got = MF._edit_validation_summary(gate, hard_gates_passed=status in ("PASS", "SKIPPED"),
                                       has_output=bool(status))
-    assert got == {"verdict": verdict, "errors": 4 if status else 0, "warnings": 1 if status else 0,
+    ran = status in ("PASS", "FAIL")
+    assert got == {"verdict": verdict, "errors": 4 if ran else 0, "warnings": 1 if ran else 0,
                    "self_checks_ok": status == "PASS", "files": 1 if status else 0}
 
 
