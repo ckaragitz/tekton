@@ -398,7 +398,7 @@ def parse_transmission(data: bytes) -> Dict[str, Any]:
         "xml": xml_text,
         "references": [],
     }
-    import xml.etree.ElementTree as ET     # deferred: only this parser needs it (#747)
+    import xml.etree.ElementTree as ET     # deferred: imported locally by the two parsers (#747)
     try:
         root = ET.fromstring(xml_text)
         result["is_transmitted"] = root.get("isTransmitted")
@@ -425,7 +425,7 @@ def parse_project_info(data: bytes) -> Dict[str, Any]:
     """Decode ``ProjectInformation``: a ZIP archive with one member, an
     Autodesk *PartAtom* (Atom-syntax) XML document describing the model and its
     Project Information parameters."""
-    import xml.etree.ElementTree as ET     # deferred: only this parser needs them (#747)
+    import xml.etree.ElementTree as ET     # deferred: imported locally by the two parsers (#747)
     import zipfile
     zf = zipfile.ZipFile(io.BytesIO(data))
     members = []

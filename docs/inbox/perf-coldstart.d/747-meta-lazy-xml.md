@@ -15,6 +15,8 @@ module level although only two parsers use them: `parse_transmission` (ElementTr
 * `src/rvt/meta.py`: the three module-level imports are gone; `parse_transmission` imports
   `xml.etree.ElementTree` locally, `parse_project_info` imports `zipfile` and `ElementTree`
   locally. No other line changed (mirror `plugin/lib/src/rvt/meta.py` via `sync_plugin`).
+  Review round 1 (🟡): the two local-import comments now say "imported locally by the two parsers"
+  (the first draft's "only this parser" was wrong for `ElementTree`); the sum rows above re-labelled.
 * `tests/test_partatom_escape_139.py`: the family-build import budget `HEAVY` tuple is extended
   with `xml.dom.minidom`, `xml.etree.ElementTree`, `zipfile` (the existing gate, no third
   subprocess gate, as #747's DONE asks). Negative control: with `origin/main`'s `meta.py` the gate
@@ -31,7 +33,7 @@ with 6 panels" --out … --json`):
 | | before (`main` @ `a7716bb`) | after |
 |---|---|---|
 | modules imported | 225 | **211** |
-| import self-time sum | 243.7 ms | **221.5 ms** |
+| import self-time sum (single warm sample — within run-to-run noise, see note) | 243.7 ms | 221.5 ms |
 | `rvt.meta` cumulative | 12.5 ms | **2.1 ms** |
 | `xml.dom.minidom` | 2.8 ms | absent |
 | `xml.etree.ElementTree` | 2.0 ms | absent |
@@ -40,8 +42,15 @@ with 6 panels" --out … --json`):
 
 Bare surface (fresh unzip of `tekton-plugin.zip`, `/usr/bin/python3`, `env -i`, proxies at a dead
 port, `go author --prompt "an electrical room with 6 panels" --json`): modules 231 → **217**,
-self-time sum 234.2 → **228.3 ms**, `rvt.meta` 11.7 → **0.8 ms**, the three modules absent,
-`go.ready` true, status `PROOF-ONLY (self-checks PASS; …)` both runs.
+`rvt.meta` 11.7 → **0.8 ms**, the three modules absent, `go.ready` true, status
+`PROOF-ONLY (self-checks PASS; …)` both runs (self-time sum 234.2 → 228.3 ms, single sample).
+
+Note on the sums: the whole-job import sums are single warm samples and sit inside the run-to-run
+noise band (the independent review re-measured three warm pairs in its sandbox: head 203.7 / 225.4 /
+236.9 ms vs main 223.0 / 225.9 / 234.4 ms); the robust numbers are the module counts (225 → 211,
+231 → 217 on every run) and the `rvt.meta` cumulative (~12 → ~2 ms), i.e. the ~10 ms this change
+removes. That delta is below `tools/surface_bench.py`'s wall-time resolution, so — as for #139 —
+the `-X importtime` protocol is the before/after of record for O10 rather than a bench row.
 
 Outputs: the three parsers run against the pinned base's real streams (`BasicFileInfo` 2,171 B,
 `ProjectInformation` 969 B, `TransmissionData` 3,838 B) through `main`'s `meta.py` and this branch's
