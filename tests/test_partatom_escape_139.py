@@ -22,9 +22,11 @@ from conftest import ROOT, SRC, needs_schema
 from rvt.famgen import skeleton as SK
 
 #: THE family-build import budget (deny-list): ``xml.sax`` (any submodule) and
-#: the roots of what ``saxutils`` pulled in before #139.  The next stdlib chain
-#: cut off this path extends THIS tuple rather than growing another gate.
-HEAVY = ("xml.sax", "urllib.request", "http.client", "ssl", "socket", "email.parser")
+#: the roots of what ``saxutils`` pulled in before #139; the XML parsers and
+#: ``zipfile`` that ``rvt.meta`` imported at module level before #747.  The next
+#: stdlib chain cut off this path extends THIS tuple rather than growing another gate.
+HEAVY = ("xml.sax", "urllib.request", "http.client", "ssl", "socket", "email.parser",
+         "xml.dom.minidom", "xml.etree.ElementTree", "zipfile")
 
 CASES = ["", "plain", "A&B", "<tag>", "a<b>c&d", "&amp;", "&lt;&gt;", "&&&", "<<>>",
          "R&D <Panel> 42\" x 20'", "ünïcödé & ß < >", "a\nb&\tc",

@@ -532,3 +532,4 @@ Failure triage (reproduced + bisected on the settled tree, load ~4):
 ## Fragments (`docs/inbox/perf-coldstart.d/`, one per PR — `docs/inbox/README.md`)
 
 - `139-partatom-escape.md` — PartAtom XML escape without `xml.sax.saxutils`: 34 stdlib modules (`urllib.request`/`http.client`/`ssl`/`email`) and ~13 ms (repo) / 12–26 ms (bare) off every family-generating job, output byte-identical (#139).
+- `747-meta-lazy-xml.md` — `rvt.meta` defers `xml.etree.ElementTree` / `zipfile` to its two parsers (the unused `xml.dom.minidom` import dropped): 14 stdlib modules and ~10 ms of `rvt.meta`'s 12.5 ms off every prompt job, parser output byte-identical; `urllib.parse` turned out to be `pathlib`'s, not ours (#747).
