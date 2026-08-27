@@ -21,9 +21,15 @@ this test drives its "cowork" surface -- a fresh copy of plugin/ at a
 mount-like path, cleared env, dead proxies -- against the plugin WORKING
 TREE (the shipped zip is separately guarded by test_plugin_sync's drift
 check).
+
+The tekton-ifc skill (Claude Design / Cowork: plain CLIs, no `rvt` engine,
+no `go`) is a DIFFERENT session and is benched on its own (`ifc-harden`,
+issue #113): its four documented calls have their own ceiling and do not
+count against the `go` session's call budget.
 """
 from __future__ import annotations
 
+import functools
 import importlib.util
 import os
 import shutil
@@ -58,6 +64,19 @@ ROOM6_CEILING = 8.0
 # surface: 8.6-9.2 s wall, job ~8.5 s, 8/8 families in one host pass) and is
 # held to the same generous AUTHOR_CEILING as the 1-panel prompt job.
 
+# The tekton-ifc skill's four-call flow (`ifc-harden`, issue #113) on a bare
+# surface: without ifcopenshell + numpy it is BLOCKED at the first import
+# (measured 0.05 s); with them, measured 2026-08-27 on a claude.ai/code cloud
+# VM (venv python 3.11 + ifcopenshell 0.8.5 + numpy 2.4 as the bare
+# interpreter, plugin tree, cowork surface): 5.4-5.7 s wall over the 4 calls --
+# validate 1.4-1.5 s, harden 2.6-2.7 s, re-validate 1.3-1.6 s, report 0.04 s
+# (~0.5-0.7 s of every tool call is the ifcopenshell import; codeexec 5.9 s
+# + 0.5 s extract) -- and the sample goes 35.7 -> 77.0 (Tier 0 -> Tier 1
+# partial), 13/13 GlobalIds kept, 0 schema errors after.  20 s is ~3.5x
+# headroom (the same generous figure as AUTHOR_CEILING); widen only with a
+# newly measured number stated here, never delete the assertion.
+IFC_SKILL_CEILING = 20.0
+
 # the session's call budget: preflight 1 + author 1 + edit 1 (`go edit`, issue
 # #111; the pre-#111 edit flow alone was 3: info -> edit -> gate) + the
 # flagship author job 1 (`go author`, readiness inline) + the documented IFC
@@ -74,6 +93,7 @@ def _load_bench():
     return mod
 
 
+@functools.lru_cache(maxsize=None)
 def _bare_python() -> str:
     """The bare interpreter approximating a sandbox VM: the system
     ``/usr/bin/python3``, else the first ``python3`` on PATH, else the BASE
@@ -96,16 +116,38 @@ def bench():
     return _load_bench()
 
 
+def _cowork_report(bench, jobs: list) -> dict:
+    """One session of ``jobs`` on the cowork surface: the plugin WORKING TREE
+    (always current), the bare interpreter."""
+    report = bench.run_bench(surfaces=["cowork"], jobs=jobs,
+                             source=os.path.join(ROOT, "plugin"),
+                             python_bare=_bare_python(), timeout=120.0)
+    return report["surfaces"][0]
+
+
 @pytest.fixture(scope="module")
 def bench_report(bench):
-    report = bench.run_bench(
-        surfaces=["cowork"],
-        jobs=["preflight", "author-prompt", "go-edit", "go-author-6panels", "go-author-ifc"],
-        source=os.path.join(ROOT, "plugin"),      # the working tree, always current
-        python_bare=_bare_python(),
-        timeout=120.0,
-    )
-    return report["surfaces"][0]
+    return _cowork_report(bench, ["preflight", "author-prompt", "go-edit",
+                                  "go-author-6panels", "go-author-ifc"])
+
+
+@pytest.fixture(scope="module")
+def ifc_skill_report(bench):
+    """The tekton-ifc skill's own session (#113): not part of the `go` session
+    above, so its calls never count against SESSION_CALL_BUDGET."""
+    return _cowork_report(bench, ["ifc-harden"])
+
+
+def _bare_has(bench, python: str, modules, tmp_path) -> bool:
+    """Whether the bare interpreter can import ``modules`` UNDER THE BENCH ENV
+    (cleared PATH/HOME/proxies), asked of that interpreter in a subprocess so
+    nothing heavy is imported here.  Not the preflight's ``extras``: those read
+    ifcopenshell as present through the engine's steplite shim, which the
+    tekton-ifc tools (separate processes) never see."""
+    probe = ("import importlib.util as u, sys; "
+             "sys.exit(0 if all(u.find_spec(m) for m in %r) else 1)" % (list(modules),))
+    return subprocess.run([python, "-c", probe], env=bench.bare_env(str(tmp_path)),
+                          capture_output=True).returncode == 0
 
 
 def _job(report: dict, name: str) -> dict:
@@ -196,6 +238,38 @@ def test_bare_go_author_ifc_builds_or_states_its_prerequisite(bench_report):
         assert jd["seconds"] < PREFLIGHT_CEILING, (
             f"stating the prerequisite took {jd['seconds']}s (ceiling {PREFLIGHT_CEILING}s) -- "
             "it must stay a preflight-cost answer, not a job that starts and stops")
+
+
+def test_ifc_skill_flow_hardens_or_states_its_prerequisite(bench, ifc_skill_report, tmp_path):
+    """`ifc-harden` on a bare surface (#113) is PASS (the wheels present: four
+    calls, the hardened file reopens clean, the sample's score rises, under
+    IFC_SKILL_CEILING) or BLOCKED (absent: one call, the missing prerequisite
+    named, at preflight cost) -- never FAIL, never a silent SKIPPED."""
+    jd = _job(ifc_skill_report, "ifc-harden")
+    assert jd["status"] in ("PASS", "BLOCKED"), (
+        f"the tekton-ifc flow on a bare surface is {jd['status']}: {jd['reason']}")
+    if _bare_has(bench, _bare_python(), bench.IFC_SKILL_NEEDS, tmp_path):
+        assert jd["status"] == "PASS", (
+            f"ifcopenshell + numpy are on the bare python but the flow did not run: {jd['reason']}")
+        assert jd["shell_calls"] == 4, "the documented flow is validate -> harden -> re-validate -> report"
+        bd = jd.get("breakdown") or {}
+        assert bd.get("schema_errors_after") == 0, f"the hardened file must reopen clean: {bd}"
+        assert bd.get("score_after", 0) > bd.get("score_before", 0), (
+            f"hardening the sample must raise its fidelity score: {bd}")
+        assert jd["seconds"] < IFC_SKILL_CEILING, (
+            f"bare-env tekton-ifc flow took {jd['seconds']}s (ceiling {IFC_SKILL_CEILING}s) -- "
+            "the tools' cold start regressed (a heavier import? a second parse?)")
+    else:
+        assert jd["status"] == "BLOCKED", (
+            f"ifcopenshell/numpy are absent but the flow was not gated at its first call: "
+            f"{jd['status']} -- {jd['reason']}")
+        assert jd["shell_calls"] == 1, "a blocked flow must stop at the first failed import"
+        needs = (jd.get("prerequisite") or {}).get("needs") or []
+        assert needs and set(needs) <= set(bench.IFC_SKILL_NEEDS), (
+            f"the BLOCKED row must state which of {bench.IFC_SKILL_NEEDS} is missing: {jd}")
+        assert jd["seconds"] < PREFLIGHT_CEILING, (
+            f"stating the prerequisite took {jd['seconds']}s (ceiling {PREFLIGHT_CEILING}s) -- "
+            "it must fail at import, not start a job")
 
 
 def test_session_shell_call_budget(bench_report):

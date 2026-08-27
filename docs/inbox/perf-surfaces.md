@@ -422,3 +422,7 @@ plugin); `plugin/scripts/validate_plugin.py` PASS (24 assertions);
   first CI run after that should restate the runner-measured 6-panel number
   next to `ROOM6_CEILING` (widen with the number if runner variance demands
   it — never delete).
+
+## Fragments (one per PR, `docs/inbox/README.md`)
+
+- `perf-surfaces.d/113-ifc-skill-bench.md` -- the tekton-ifc skill flow benched (`ifc-harden`: validate -> harden -> re-validate -> report, 4 calls, 5.4-5.7 s baseline; BLOCKED without the wheels)
