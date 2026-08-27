@@ -43,6 +43,10 @@ Canonical jobs (the documented one-command skill flows, in session order):
   go-edit          _bootstrap.py go edit <bundled 2025 base> set-level ... (ONE
                    call: readiness + edit + self-check + the mandatory gate)
   validate         skills/tekton-inspect: rvt_validate.py <authored .rvt>
+  ifc-harden       skills/tekton-ifc (the Claude Design / Cowork sandbox skill:
+                   plain CLIs, its own session): validate_ifc.py -> harden_ifc.py
+                   -> validate_ifc.py -> report.py on the sample IFC, 4 calls;
+                   BLOCKED without ifcopenshell + numpy (issue #113)
 
 Run from the repo root with the repo interpreter:
 
@@ -61,6 +65,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -87,8 +92,16 @@ GO_IFC_TARGET_VERSION = "2025"
 GO_EDIT_BASE_REL = os.path.join("assets", "genesis", "G_ABPD_2025.rvt")
 GO_EDIT_LEVEL_ID = 1351691
 
+#: the tekton-ifc skill's engine: plain CLIs run as `python scripts/<tool>.py`
+#: (no `rvt`, no `_bootstrap.py`; issue #113), what they import (the module
+#: names of scripts/requirements.txt, in its order) and the skill's own fix
+IFC_SKILL_SCRIPTS_REL = os.path.join("skills", "tekton-ifc", "scripts")
+IFC_SKILL_NEEDS = ("ifcopenshell", "numpy")
+IFC_SKILL_FIX = "pip install -r scripts/requirements.txt"
+
 JOB_ORDER = ("preflight", "author-prompt", "go-author-prompt", "go-author-6panels",
-             "author-ifc", "go-author-ifc", "edit-roundtrip", "go-edit", "validate")
+             "author-ifc", "go-author-ifc", "edit-roundtrip", "go-edit", "validate",
+             "ifc-harden")
 SURFACE_ORDER = ("cowork", "codeexec", "local")
 
 # what each surface is, one line, for the table header
@@ -365,6 +378,17 @@ def _d(v) -> dict:
     return v if isinstance(v, dict) else {}
 
 
+def _read_json(path):
+    """The JSON at ``path`` as a dict (``{}`` for a non-object), or ``None``
+    when there is no readable JSON there (missing/unreadable/invalid, or no
+    path at all)."""
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            return _d(json.load(fh))
+    except (OSError, ValueError, TypeError):
+        return None
+
+
 def _why(inv: Invocation) -> str:
     """Why a job did not pass, in <= 200 chars, for its `reason` (issue #287).
 
@@ -422,12 +446,10 @@ def stage_breakdown(result: dict, envelope: dict | None = None) -> dict:
         bd["job_seconds"] = envelope["go"].get("job_seconds")
         bd["preflight_seconds"] = envelope["go"].get("preflight_seconds")
     man = result.get("manifest")
-    man_path = man.get("json") if isinstance(man, dict) else man
-    try:
-        with open(man_path, "r", encoding="utf-8") as fh:
-            build = (json.load(fh) or {}).get("build") or {}
-    except (OSError, ValueError, TypeError):
+    manifest = _read_json(man.get("json") if isinstance(man, dict) else man)
+    if manifest is None:
         return bd
+    build = _d(manifest.get("build"))
     bd["build_seconds"] = build.get("seconds")
     stages = []
     for st in build.get("stages") or []:
@@ -471,6 +493,8 @@ def _fmt_breakdown(bd: dict) -> str:
     inner = " · ".join(parts) if parts else "no stage timings in the manifest"
     if bd.get("job_seconds") is not None:
         inner = f"job {bd['job_seconds']:.1f}s = " + inner
+    if bd.get("summary"):                    # what the job did, in its own words (ifc-harden)
+        inner += "; " + bd["summary"]
     return inner
 
 
@@ -698,6 +722,132 @@ def job_validate(s: Surface, state: dict) -> JobResult:
     return job
 
 
+_MISSING_MODULE = re.compile(r"No module named '([A-Za-z_]\w*)")   # top-level name of a dotted module
+
+
+def _missing_prerequisite(inv: Invocation, needs) -> list:
+    """Which of a job's declared prerequisites ``needs`` (module names) a
+    failed call could not import -- read from its ``ModuleNotFoundError``, in
+    ``needs`` order; ``[]`` when the call passed or failed for another reason."""
+    if inv.exit_code == 0:
+        return []
+    named = set(_MISSING_MODULE.findall(inv.stderr or ""))
+    return [n for n in needs if n in named]
+
+
+def _ifc_score(path: str) -> dict:
+    """``{"score", "tier", "schema_errors"}`` from a ``validate_ifc.py --json``
+    report on disk (the tier's name without its one-line gloss), or ``{}``
+    when no score is readable there."""
+    rep = _d(_read_json(path))
+    sc = _d(rep.get("score"))
+    if "score" not in sc or "tier" not in sc:
+        return {}
+    return {"score": sc["score"], "tier": str(sc["tier"]).split(" -- ")[0],
+            "schema_errors": _d(rep.get("schema")).get("n_errors")}
+
+
+def _ifc_summary(bd: dict) -> str:
+    """'score 35.7 -> 77.0 (Tier 0 (v1-like) -> Tier 1 (partial)); 124 boxes ->
+    extrusions; products 14 -> 13; GlobalIds 13/13 kept; schema errors after 0'
+    -- what hardening did, for the table notes (the stage rows carry the time)."""
+    parts = [f"score {bd['score_before']} -> {bd['score_after']} "
+             f"({bd['tier_before']} -> {bd['tier_after']})"]
+    if bd["boxes_converted"] is not None:
+        parts.append(f"{bd['boxes_converted']} boxes -> extrusions")
+    if bd["products_before"] is not None:
+        parts.append(f"products {bd['products_before']} -> {bd['products_after']}")
+    if bd["globalids_preserved"] is not None:
+        parts.append(f"GlobalIds {bd['globalids_preserved']}/{bd['products_after']} kept")
+    parts.append(f"schema errors after {bd['schema_errors_after']}")
+    return "; ".join(parts)
+
+
+def job_ifc_harden(s: Surface, state: dict) -> JobResult:
+    """The tekton-ifc skill's documented flow on a foreign IFC (its SKILL.md
+    5.2-5.4) on the plugin's sample: validate_ifc.py -> harden_ifc.py ->
+    validate_ifc.py on the hardened file (it must reopen clean) -> report.py,
+    FOUR shell calls of plain CLIs -- no `rvt`, no `go`, its own session
+    (issue #113).  They import ifcopenshell + numpy (scripts/requirements.txt;
+    the session's `pip install` is a network call this harness never makes),
+    so an interpreter without them fails the FIRST call at import -> BLOCKED
+    with that prerequisite stated, never FAIL."""
+    job = JobResult("ifc-harden")
+    tag = f"ifc-{s.call_no + 1}"
+    stages: list = []
+
+    def tool(s: Surface, name: str) -> str:
+        return os.path.join(s.plugin_dir, IFC_SKILL_SCRIPTS_REL, name)
+
+    def out(s: Surface, name: str) -> str:          # this call's workdir (stateless: fresh per call)
+        return os.path.join(s.workdir, f"{tag}-{name}")
+
+    def call(step: str, label: str, argv_builder) -> Invocation:
+        inv = s.run(label, argv_builder)
+        job.invocations.append(inv)
+        stages.append({"stage": step, "seconds": round(inv.seconds, 3)})
+        return inv
+
+    # call 1: validate the input -- score/tier BEFORE
+    inv = call("validate", "validate_ifc (sample)", lambda s: [
+        tool(s, "validate_ifc.py"), os.path.join(s.plugin_dir, IFC_EXAMPLE_REL),
+        "--json", out(s, "validate.json")])
+    missing = _missing_prerequisite(inv, IFC_SKILL_NEEDS)
+    if missing:
+        prereq = {"route": "ifc-skill", "needs": missing, "fix": IFC_SKILL_FIX}
+        return job.blocked("tekton-ifc tools cannot import on this interpreter: "
+                           + _needs_words(prereq), prerequisite=prereq)
+    if inv.exit_code != 0:
+        return job.fail(f"validate_ifc failed: {_why(inv)}")
+    validate_json = out(s, "validate.json")
+    before = _ifc_score(validate_json)
+    if not before:
+        return job.fail("validate_ifc wrote no score")
+    validate_json = s.keep_artifact(validate_json, "ifc-validate.json")
+
+    # call 2: harden -> the rewritten IFC + its action/diff report (exit 1 =
+    # the rewritten file has schema errors: the tool's own contract failed)
+    inv = call("harden", "harden_ifc", lambda s: [
+        tool(s, "harden_ifc.py"), os.path.join(s.plugin_dir, IFC_EXAMPLE_REL),
+        "-o", out(s, "hardened.ifc"), "--report", out(s, "harden.json")])
+    hardened, harden_json = out(s, "hardened.ifc"), out(s, "harden.json")
+    if inv.exit_code != 0 or not os.path.isfile(hardened):
+        return job.fail(f"harden_ifc failed: {_why(inv)}")
+    hardened = s.keep_artifact(hardened, "ifc-hardened.ifc")
+    harden_json = s.keep_artifact(harden_json, "ifc-harden.json")
+
+    # call 3: the hardened file must reopen clean -- score/tier AFTER
+    inv = call("re-validate", "validate_ifc (hardened)", lambda s: [
+        tool(s, "validate_ifc.py"), s.stage_input(hardened),
+        "--json", out(s, "validate-after.json")])
+    after = _ifc_score(out(s, "validate-after.json"))
+    if inv.exit_code != 0 or not after:
+        return job.fail(f"validate_ifc (hardened) failed: {_why(inv)}")
+
+    # call 4: the delivery report (stdlib-only) with the before/after section
+    inv = call("report", "report (before/after)", lambda s: [
+        tool(s, "report.py"), s.stage_input(validate_json),
+        "--compare", s.stage_input(harden_json), "-o", out(s, "report.md")])
+    report_md = out(s, "report.md")
+    if inv.exit_code != 0 or not os.path.isfile(report_md):
+        return job.fail(f"report failed: {_why(inv)}")
+    s.keep_artifact(report_md, "ifc-report.md")
+
+    actions = _d(_d(_read_json(harden_json)).get("actions"))
+    job.breakdown = {
+        "stages": stages,
+        "score_before": before["score"], "tier_before": before["tier"],
+        "score_after": after["score"], "tier_after": after["tier"],
+        "schema_errors_after": after["schema_errors"],
+        "boxes_converted": actions.get("boxes_converted"),
+        "globalids_preserved": actions.get("product_globalids_preserved"),
+        "products_before": actions.get("products_before"),
+        "products_after": actions.get("products_after"),
+    }
+    job.breakdown["summary"] = _ifc_summary(job.breakdown)
+    return job
+
+
 JOBS = {
     "preflight": job_preflight,
     "author-prompt": job_author_prompt,
@@ -708,6 +858,7 @@ JOBS = {
     "edit-roundtrip": job_edit_roundtrip,
     "go-edit": job_go_edit,
     "validate": job_validate,
+    "ifc-harden": job_ifc_harden,
 }
 
 
