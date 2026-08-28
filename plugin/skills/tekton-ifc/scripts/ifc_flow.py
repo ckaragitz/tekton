@@ -30,7 +30,8 @@ delivered AND reported, never withheld.
 Exit codes (the folder's uniform ones):
     0  the flow ran and the hardened file reopens with 0 schema errors
     1  the flow ran but the hardened file has schema errors (files present)
-    2  usage / I/O error (missing input, not IFC, output dir not writable)
+    2  usage / I/O error (missing input, not IFC, output dir not writable) -- no output dir is
+       created for an input that does not parse
 """
 from __future__ import annotations
 
@@ -72,8 +73,9 @@ def run_flow(in_path: str, out_dir: str, **harden_opts) -> dict:
         stages.append({"stage": name, "seconds": round(time.time() - t0, 3)})
 
     with timed("validate"):
-        model = ifcopenshell.open(in_path)
+        model = ifcopenshell.open(in_path)          # an unparseable input fails here, before any output exists
         rep0 = bl.analyze(in_path, model=model)
+        os.makedirs(out_dir, exist_ok=True)
         bl.dump_json(rep0, paths["validate"])
     with timed("harden+re-validate"):          # harden reopens its output and analyses it (the re-validation)
         res, rep1 = harden_ifc.harden_analysed(in_path, paths["hardened"], rep0, model=model, **harden_opts)
@@ -130,7 +132,6 @@ def main(argv=None) -> int:
         print(f"error: no such file: {args.input}", file=sys.stderr)
         return 2
     try:
-        os.makedirs(args.out, exist_ok=True)
         env = run_flow(args.input, args.out, **harden_ifc.harden_kwargs(args))
     except Exception as e:  # not IFC / parse failure / unwritable output
         print(f"error: could not run the flow on {args.input}: {e}", file=sys.stderr)

@@ -72,8 +72,8 @@ fixed for `tekton-edit` (3 calls -> 1).
   the one-call form first, the compose-by-hand path second, the tools table gains the row,
   and the stale "all four tools run in well under a second" line is replaced by the measured
   numbers (noted on #112).
-* NOT in this PR (DONE 4): `SKILL.md` 5.2-5.4 -- hot file, a separate <= 10-line PR after
-  this lands (rebase over #112 if that lands first).
+* NOT in this PR (DONE 4): `SKILL.md` 5.2-5.4 -- hot file, filed as its own task **#757**
+  (<= 10-line PR after this lands; rebase over #112 if that lands first).
 
 ## Evidence (this VM, 2026-08-28 01:05-01:10Z, final code, `--from-tree`, `.venv/bin/python` as the bare interpreter: py3.11 + ifcopenshell 0.8.5 + numpy 2.4.6)
 
@@ -105,7 +105,7 @@ Outputs identical to the four tools run by hand on the same input: `validate.jso
 modification timestamp and the fresh GUIDs of the six synthesised types + their
 `IfcRelDefinesByType` -- exactly the 26 lines two runs of `harden_ifc.py` itself differ by.
 
-Gates: `RVT_SKIP_LARGE=1 pytest tests/test_ifc_flow_754.py tests/test_ifc_skill_bench_113.py tests/test_surface_perf.py tests/test_surface_bench_reason.py tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py tests/test_records_layout.py tests/test_engine.py -q` -> 106 passed, 6 skipped; the same two ifc modules on a pytest-only venv (no numpy, no ifcopenshell) -> 23 passed, 2 skipped; the perf test's PASS branch for both rows also driven by hand with the venv as the bare interpreter (holds); `tools/sync_plugin.py` + `--check` clean; `plugin/scripts/validate_plugin.py` PASS; `tools/dev/check_portable_paths.py` ok (3159 paths).
+Gates (final head): `RVT_SKIP_LARGE=1 pytest tests/test_ifc_flow_754.py tests/test_ifc_skill_bench_113.py tests/test_surface_perf.py tests/test_surface_bench_reason.py tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py tests/test_records_layout.py tests/test_engine.py -q` -> 107 passed, 6 skipped; the same two ifc modules on a pytest-only venv (no numpy, no ifcopenshell) -> 24 passed, 2 skipped; the perf test's PASS branch for both rows also driven by hand with the venv as the bare interpreter (holds); `tools/sync_plugin.py` + `--check` clean; `plugin/scripts/validate_plugin.py` PASS; `tools/dev/check_portable_paths.py` ok (3159 paths).
 
 ## Findings
 
@@ -138,8 +138,16 @@ Gates: `RVT_SKIP_LARGE=1 pytest tests/test_ifc_flow_754.py tests/test_ifc_skill_
 
 ## Open questions / follow-ups
 
-* DONE 4 (SKILL.md 5.2-5.4 documenting the one-call form) -- the hot-file PR, after this merges.
-* #112 (SKILL.md weight/split) should describe `ifc_flow.py` as the flow when it rewrites 5.2-5.4.
+* #757 -- DONE 4 (SKILL.md 5.2-5.4 documenting the one-call form + the corrected `report.py`
+  invocation), the hot-file PR after this merges; #112 (SKILL.md weight/split) should describe
+  `ifc_flow.py` as the flow when it rewrites 5.2-5.4 (whichever lands second rebases).
+* Independent review of head 7c5b945 (🟡, PR #756) asked for: `_why` preferring the tool's own
+  `error:` line over a library finaliser traceback printed after it (done, in `surface_bench`);
+  no output dir for an input that does not parse (done: the dir is created after the parse);
+  the exit-1 reason assertion robust to `_why`'s 200-char cap on long tmp paths (done);
+  the ceiling comment and this record quoting the same run (done); "All five are plain CLIs"
+  in the README (done). The `tekton-eval-kit/tekton-plugin/skills/tekton-ifc/scripts/` copy is
+  a one-time snapshot, not a mirror `sync_plugin.py` maintains -- left as is.
 
 ## BRANCH STATE
 

@@ -159,7 +159,8 @@ def test_a_hardened_file_with_schema_errors_is_fail_in_the_tools_words_but_deliv
     s = _FakeFlowSurface(bench, str(tmp_path), 1, json.dumps(env, indent=2), deliver=True)
     job = bench.job_go_ifc_harden(s, {})
     assert job.status == "FAIL"
-    assert job.reason == "ifc_flow failed: " + env["line"]      # the tool's verdict, not the bench's
+    # the tool's verdict, not the bench's (`_why` caps at 200 chars: the line embeds the out dir)
+    assert job.reason.startswith("ifc_flow failed: the hardened file has 3 schema error(s) -- delivered under ")
     assert sorted(s.kept) == KEPT
 
 
@@ -168,6 +169,21 @@ def test_a_usage_or_io_failure_is_fail_in_the_tools_own_words(bench, tmp_path):
     job = bench.job_go_ifc_harden(s, {})
     assert job.status == "FAIL"
     assert job.reason == "ifc_flow failed: error: no such file: /x/y.ifc"
+
+
+def test_a_junk_input_is_fail_in_the_tools_error_line_not_the_finaliser_traceback(bench, tmp_path):
+    """ifcopenshell prints a `file.__del__` traceback AFTER the tool's own
+    `error:` line on an unparseable input; the reason must be the tool's line."""
+    stderr = ("error: could not run the flow on junk.ifc: Unable to parse IFC SPF header\n"
+              "Exception ignored in: <function file.__del__ at 0x7f9fc3a6ac00>\n"
+              "Traceback (most recent call last):\n"
+              '  File ".../ifcopenshell/file.py", line 649, in __del__\n'
+              "    del file_dict[self.file_pointer()]\n"
+              "KeyError: 748188672\n")
+    s = _FakeFlowSurface(bench, str(tmp_path), 2, "", stderr)
+    job = bench.job_go_ifc_harden(s, {})
+    assert job.status == "FAIL"
+    assert job.reason == "ifc_flow failed: error: could not run the flow on junk.ifc: Unable to parse IFC SPF header"
 
 
 def test_an_envelope_without_scores_is_fail(bench, tmp_path):
@@ -302,7 +318,7 @@ def test_missing_or_unreadable_input_is_exit_2_with_nothing_written(flow, tmp_pa
     junk = tmp_path / "junk.ifc"
     junk.write_text("not an ifc\n")
     assert m.main([str(junk), "--out", out]) == 2
-    assert _files_in(out) == []
+    assert not os.path.exists(out), "an input that does not parse leaves no output dir"
     err = capsys.readouterr().err
     assert "no such file" in err and "could not run the flow" in err and "IFC SPF header" in err
 

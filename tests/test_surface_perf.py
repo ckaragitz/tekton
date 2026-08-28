@@ -79,10 +79,11 @@ ROOM6_CEILING = 8.0
 # The ONE-call form (`go-ifc-harden` = scripts/ifc_flow.py, issue #754: one
 # process, one import, the file analysed twice instead of four times) is held
 # to the same ceiling and must beat its four-call twin from the same run:
-# measured 2026-08-28 on the same VM, same run, cowork surface: four calls
-# 3.35-3.75 s -> one call 1.5-1.7 s (in-process ~1.2 s: validate ~0.55 s,
-# harden + reopen/re-validate ~0.65 s, report 0.00 s); codeexec 3.5 s + 0.7 s
-# extract -> 1.8 s + 0.1 s extract.
+# measured 2026-08-28 on the same VM, same run, cowork surface (the final
+# code, three runs, docs/inbox/perf-surfaces.d/754-ifc-flow.md): four calls
+# 3.27-3.34 s -> one call 1.55-1.56 s (in-process ~1.23 s: validate ~0.6 s,
+# harden + reopen/re-validate ~0.63 s, report 0.00 s); codeexec 3.2 s + 0.4 s
+# extract -> 1.5 s + 0.1 s extract.
 IFC_SKILL_CEILING = 20.0
 
 # the session's call budget: preflight 1 + author 1 + edit 1 (`go edit`, issue

@@ -25,7 +25,7 @@ python scripts/report.py       validation.json [--compare harden.json] -o report
 python scripts/generate_ifc.py --spec <spec.json> -o <out.ifc> --validate
 ```
 
-All four are plain CLIs: they take the user's attached file (Cowork mounts
+All five are plain CLIs: they take the user's attached file (Cowork mounts
 attachments into the sandbox filesystem), write outputs next to it (or to a
 folder Cowork can see), and print a human summary to stdout that Claude
 relays. Nothing needs network *after* the pip install. If the sandbox has no

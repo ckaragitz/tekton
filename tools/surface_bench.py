@@ -398,9 +398,11 @@ def _why(inv: Invocation) -> str:
     Prefers the job's OWN verdict when it printed a well-formed --json result
     (front door: ``errors[0]`` / ``status``; `go` envelope: ``result.error`` /
     ``result.gates.line``, or the preflight line when the job never ran),
-    then the last non-empty stderr line, then the last stdout line that is
-    not bare JSON punctuation (a clean failure pretty-prints its JSON, so the
-    literal last line is ``}``), then ``exit N``."""
+    then the last stderr line the tool wrote as its own message (``error: ...``,
+    the uniform CLI convention here -- a library finaliser may still print a
+    traceback after it), then the last non-empty stderr line, then the last
+    stdout line that is not bare JSON punctuation (a clean failure
+    pretty-prints its JSON, so the literal last line is ``}``), then ``exit N``."""
     res = _json_or_none(inv.stdout)
     if isinstance(res, dict):
         go, inner = _d(res.get("go")), _d(res.get("result")) or res
@@ -411,6 +413,9 @@ def _why(inv: Invocation) -> str:
                      None if go.get("ready", True) else go.get("preflight_line")):
             if isinstance(cand, str) and cand.strip():
                 return " ".join(cand.split())[:200]
+    own = [line.strip() for line in (inv.stderr or "").splitlines() if line.strip().startswith("error:")]
+    if own:
+        return own[-1][:200]
     for text, is_stdout in ((inv.stderr, False), (inv.stdout, True)):
         for line in reversed((text or "").splitlines()):
             line = line.strip()
