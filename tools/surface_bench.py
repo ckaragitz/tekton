@@ -47,6 +47,9 @@ Canonical jobs (the documented one-command skill flows, in session order):
                    plain CLIs, its own session): validate_ifc.py -> harden_ifc.py
                    -> validate_ifc.py -> report.py on the sample IFC, 4 calls;
                    BLOCKED without ifcopenshell + numpy (issue #113)
+  go-ifc-harden    the same flow as ONE call of scripts/ifc_flow.py --json (one
+                   process, one import, 2 analyses instead of 4; issue #754) --
+                   the before/after pair for the tekton-ifc session
 
 Run from the repo root with the repo interpreter:
 
@@ -101,7 +104,7 @@ IFC_SKILL_FIX = "pip install -r scripts/requirements.txt"
 
 JOB_ORDER = ("preflight", "author-prompt", "go-author-prompt", "go-author-6panels",
              "author-ifc", "go-author-ifc", "edit-roundtrip", "go-edit", "validate",
-             "ifc-harden")
+             "ifc-harden", "go-ifc-harden")
 SURFACE_ORDER = ("cowork", "codeexec", "local")
 
 # what each surface is, one line, for the table header
@@ -735,15 +738,20 @@ def _missing_prerequisite(inv: Invocation, needs) -> list:
     return [n for n in needs if n in named]
 
 
+def _tier_name(tier) -> str:
+    """'Tier 1 (partial)' from the report's 'Tier 1 (partial) -- imports usably
+    but ...' -- the tier without its one-line gloss."""
+    return str(tier).split(" -- ")[0]
+
+
 def _ifc_score(path: str) -> dict:
     """``{"score", "tier", "schema_errors"}`` from a ``validate_ifc.py --json``
-    report on disk (the tier's name without its one-line gloss), or ``{}``
-    when no score is readable there."""
+    report on disk, or ``{}`` when no score is readable there."""
     rep = _d(_read_json(path))
     sc = _d(rep.get("score"))
     if "score" not in sc or "tier" not in sc:
         return {}
-    return {"score": sc["score"], "tier": str(sc["tier"]).split(" -- ")[0],
+    return {"score": sc["score"], "tier": sc["tier"],
             "schema_errors": _d(rep.get("schema")).get("n_errors")}
 
 
@@ -761,6 +769,18 @@ def _ifc_summary(bd: dict) -> str:
         parts.append(f"GlobalIds {bd['globalids_preserved']}/{bd['products_after']} kept")
     parts.append(f"schema errors after {bd['schema_errors_after']}")
     return "; ".join(parts)
+
+
+def _ifc_skill_blocked(job: JobResult, inv: Invocation):
+    """The BLOCKED verdict both tekton-ifc jobs share: the call failed at
+    import on one of the skill's declared wheels -> the job, blocked, with
+    that prerequisite stated; None when the call passed or failed otherwise."""
+    missing = _missing_prerequisite(inv, IFC_SKILL_NEEDS)
+    if not missing:
+        return None
+    prereq = {"route": "ifc-skill", "needs": missing, "fix": IFC_SKILL_FIX}
+    return job.blocked("tekton-ifc tools cannot import on this interpreter: "
+                       + _needs_words(prereq), prerequisite=prereq)
 
 
 def job_ifc_harden(s: Surface, state: dict) -> JobResult:
@@ -792,11 +812,8 @@ def job_ifc_harden(s: Surface, state: dict) -> JobResult:
     inv = call("validate", "validate_ifc (sample)", lambda s: [
         tool(s, "validate_ifc.py"), os.path.join(s.plugin_dir, IFC_EXAMPLE_REL),
         "--json", out(s, "validate.json")])
-    missing = _missing_prerequisite(inv, IFC_SKILL_NEEDS)
-    if missing:
-        prereq = {"route": "ifc-skill", "needs": missing, "fix": IFC_SKILL_FIX}
-        return job.blocked("tekton-ifc tools cannot import on this interpreter: "
-                           + _needs_words(prereq), prerequisite=prereq)
+    if _ifc_skill_blocked(job, inv):
+        return job
     if inv.exit_code != 0:
         return job.fail(f"validate_ifc failed: {_why(inv)}")
     validate_json = out(s, "validate.json")
@@ -834,17 +851,57 @@ def job_ifc_harden(s: Surface, state: dict) -> JobResult:
     s.keep_artifact(report_md, "ifc-report.md")
 
     actions = _d(_d(_read_json(harden_json)).get("actions"))
-    job.breakdown = {
+    job.breakdown = _ifc_breakdown(stages, before, after, actions)
+    return job
+
+
+def _ifc_breakdown(stages: list, before: dict, after: dict, actions: dict) -> dict:
+    """The breakdown both tekton-ifc jobs report: the stage timings, the
+    before/after score + tier, and what hardening did (from harden_ifc's
+    ``actions``), summarised for the table notes."""
+    bd = {
         "stages": stages,
-        "score_before": before["score"], "tier_before": before["tier"],
-        "score_after": after["score"], "tier_after": after["tier"],
+        "score_before": before["score"], "tier_before": _tier_name(before["tier"]),
+        "score_after": after["score"], "tier_after": _tier_name(after["tier"]),
         "schema_errors_after": after["schema_errors"],
         "boxes_converted": actions.get("boxes_converted"),
         "globalids_preserved": actions.get("product_globalids_preserved"),
         "products_before": actions.get("products_before"),
         "products_after": actions.get("products_after"),
     }
-    job.breakdown["summary"] = _ifc_summary(job.breakdown)
+    bd["summary"] = _ifc_summary(bd)
+    return bd
+
+
+def job_go_ifc_harden(s: Surface, state: dict) -> JobResult:
+    """The same tekton-ifc flow as ONE shell call: ``scripts/ifc_flow.py
+    SAMPLE --out DIR --json`` runs validate -> harden -> re-validate -> report
+    in one process (one ifcopenshell import, the input analysed once and the
+    hardened output once) and prints one JSON summary (issue #754).  Same
+    verdicts as `ifc-harden`: BLOCKED when the interpreter cannot import the
+    wheels (its own ModuleNotFoundError at the first import), FAIL when the
+    flow failed or the hardened file has schema errors (the files are still
+    delivered -- the tool exits 1, never withholds), PASS otherwise."""
+    job = JobResult("go-ifc-harden")
+    tag = f"go-ifc-{s.call_no + 1}"
+    inv = s.run("ifc_flow (sample, one call)", lambda s: [
+        os.path.join(s.plugin_dir, IFC_SKILL_SCRIPTS_REL, "ifc_flow.py"),
+        os.path.join(s.plugin_dir, IFC_EXAMPLE_REL),
+        "--out", os.path.join(s.workdir, tag), "--json"])
+    job.invocations.append(inv)
+    if _ifc_skill_blocked(job, inv):
+        return job
+    env = _d(_json_or_none(inv.stdout))
+    for path in _d(env.get("files")).values():        # delivered whatever the verdict (exit 1 too)
+        if isinstance(path, str) and os.path.isfile(path):
+            s.keep_artifact(path, "go-ifc-" + os.path.basename(path))
+    if inv.exit_code != 0:                             # exit 1 names its verdict in the envelope's `line`
+        return job.fail(f"ifc_flow failed: {_why(inv)}")
+    before, after = _d(env.get("before")), _d(env.get("after"))
+    if "score" not in before or "score" not in after:
+        return job.fail("ifc_flow printed no before/after score")
+    job.breakdown = _ifc_breakdown(env.get("stages") or [], before, after, _d(env.get("actions")))
+    job.breakdown["job_seconds"] = env.get("seconds")       # in-process time; the rest is the interpreter + imports
     return job
 
 
@@ -859,6 +916,7 @@ JOBS = {
     "go-edit": job_go_edit,
     "validate": job_validate,
     "ifc-harden": job_ifc_harden,
+    "go-ifc-harden": job_go_ifc_harden,
 }
 
 

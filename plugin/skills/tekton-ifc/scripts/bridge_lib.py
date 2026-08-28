@@ -789,8 +789,11 @@ def score_report(rep: dict) -> dict:
 # entry point
 # --------------------------------------------------------------------------- #
 
-def analyze(path: str) -> dict:
-    f = ifcopenshell.open(path)
+def analyze(path: str, model=None) -> dict:
+    """The full report of the IFC at ``path``; ``model`` is an already-open
+    ``ifcopenshell.file`` of that same path to analyse instead of parsing it
+    again (the analysis only reads it)."""
+    f = ifcopenshell.open(path) if model is None else model
     inv = product_inventory(f)
     rep = {
         "engine": "tekton-ifc validate", "engine_version": ENGINE_VERSION,

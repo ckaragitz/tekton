@@ -567,12 +567,27 @@ def summarize(f, path=None) -> dict:
 # main
 # --------------------------------------------------------------------------- #
 
-def harden(in_path: str, out_path: str, *, remove_phantoms=True,
-           clearance_as_space=False, create_types=True, extrusions=True) -> dict:
+def harden(in_path: str, out_path: str, **opts) -> dict:
+    """Rewrite ``in_path`` to ``out_path`` and return the action/diff result
+    (what ``--report`` writes); ``opts`` are harden_analysed's switches."""
     f = ifcopenshell.open(in_path)
+    return harden_analysed(in_path, out_path, bl.analyze(in_path, model=f), model=f, **opts)[0]
+
+
+def harden_analysed(in_path: str, out_path: str, before_report: dict, *, model=None,
+                    remove_phantoms=True, clearance_as_space=False, create_types=True,
+                    extrusions=True) -> tuple:
+    """``harden`` for a caller that already analysed the input (ifc_flow.py,
+    #754): ``before_report`` is its full ``bridge_lib.analyze`` report (step
+    ids are the file's own, so the surgery is identical) and ``model`` the
+    already-open ``ifcopenshell.file`` it analysed, so the input is parsed
+    and analysed once.  Returns ``(result, after_report)`` -- the action/diff
+    result and the reopened output's full report, so that need not be
+    analysed again either."""
+    f = ifcopenshell.open(in_path) if model is None else model
     log = Log()
     before = summarize(f, in_path)
-    rep0 = bl.analyze(in_path)          # audits drive the surgery
+    rep0 = before_report              # audits drive the surgery
     inv = rep0["products"]
     before["duplicate_type_objects"] = rep0["types"]["duplicate_type_objects"]
     before["untyped_elements"] = rep0["types"]["products_untyped"]
@@ -600,7 +615,7 @@ def harden(in_path: str, out_path: str, *, remove_phantoms=True,
     # reopen + verify
     f2 = ifcopenshell.open(out_path)
     after = summarize(f2, out_path)
-    rep1 = bl.analyze(out_path)
+    rep1 = bl.analyze(out_path, model=f2)
     after["duplicate_type_objects"] = rep1["types"]["duplicate_type_objects"]
     after["untyped_elements"] = rep1["types"]["products_untyped"]
     after["score"] = rep1["score"]["score"]
@@ -639,7 +654,7 @@ def harden(in_path: str, out_path: str, *, remove_phantoms=True,
                          "reopened": True},
         "log": log.entries,
     }
-    return result
+    return result, rep1
 
 
 def _still_there(f, step_id) -> bool:
@@ -670,11 +685,8 @@ def print_diff(res: dict):
           f"warnings = {res['schema_after']['warnings']}")
 
 
-def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("input")
-    ap.add_argument("-o", "--output", required=True)
-    ap.add_argument("--report", help="write the JSON action/diff report here")
+def add_harden_args(ap: argparse.ArgumentParser) -> None:
+    """The hardening switches, shared with ifc_flow.py (one option table)."""
     ap.add_argument("--keep-clearance-as-space", action="store_true",
                     help="convert axis-aligned box clearance volumes to IfcSpace instead of deleting")
     ap.add_argument("--no-remove-phantoms", action="store_true")
@@ -682,15 +694,27 @@ def main(argv=None) -> int:
                     help="do not synthesise shared types for untyped elements")
     ap.add_argument("--no-extrusions", action="store_true",
                     help="do not convert exact boxes to extrusions")
+
+
+def harden_kwargs(args: argparse.Namespace) -> dict:
+    """The parsed switches as ``harden`` / ``harden_analysed`` keyword arguments."""
+    return {"remove_phantoms": not args.no_remove_phantoms,
+            "clearance_as_space": args.keep_clearance_as_space,
+            "create_types": not args.no_create_types,
+            "extrusions": not args.no_extrusions}
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("input")
+    ap.add_argument("-o", "--output", required=True)
+    ap.add_argument("--report", help="write the JSON action/diff report here")
+    add_harden_args(ap)
     args = ap.parse_args(argv)
     if not os.path.isfile(args.input):
         print(f"error: no such file: {args.input}", file=sys.stderr)
         return 2
-    res = harden(args.input, args.output,
-                 remove_phantoms=not args.no_remove_phantoms,
-                 clearance_as_space=args.keep_clearance_as_space,
-                 create_types=not args.no_create_types,
-                 extrusions=not args.no_extrusions)
+    res = harden(args.input, args.output, **harden_kwargs(args))
     print_diff(res)
     if args.report:
         with open(args.report, "w") as fh:

@@ -24,8 +24,9 @@ check).
 
 The tekton-ifc skill (Claude Design / Cowork: plain CLIs, no `rvt` engine,
 no `go`) is a DIFFERENT session and is benched on its own (`ifc-harden`,
-issue #113): its four documented calls have their own ceiling and do not
-count against the `go` session's call budget.
+issue #113, and its ONE-call form `go-ifc-harden` = scripts/ifc_flow.py,
+issue #754): its calls have their own ceiling and do not count against the
+`go` session's call budget.
 """
 from __future__ import annotations
 
@@ -75,6 +76,13 @@ ROOM6_CEILING = 8.0
 # partial), 13/13 GlobalIds kept, 0 schema errors after.  20 s is ~3.5x
 # headroom (the same generous figure as AUTHOR_CEILING); widen only with a
 # newly measured number stated here, never delete the assertion.
+# The ONE-call form (`go-ifc-harden` = scripts/ifc_flow.py, issue #754: one
+# process, one import, the file analysed twice instead of four times) is held
+# to the same ceiling and must beat its four-call twin from the same run:
+# measured 2026-08-28 on the same VM, same run, cowork surface: four calls
+# 3.35-3.75 s -> one call 1.5-1.7 s (in-process ~1.2 s: validate ~0.55 s,
+# harden + reopen/re-validate ~0.65 s, report 0.00 s); codeexec 3.5 s + 0.7 s
+# extract -> 1.8 s + 0.1 s extract.
 IFC_SKILL_CEILING = 20.0
 
 # the session's call budget: preflight 1 + author 1 + edit 1 (`go edit`, issue
@@ -134,8 +142,10 @@ def bench_report(bench):
 @pytest.fixture(scope="module")
 def ifc_skill_report(bench):
     """The tekton-ifc skill's own session (#113): not part of the `go` session
-    above, so its calls never count against SESSION_CALL_BUDGET."""
-    return _cowork_report(bench, ["ifc-harden"])
+    above, so its calls never count against SESSION_CALL_BUDGET.  Both the
+    four-call flow and its one-call form (#754) from ONE run, so the
+    before/after pair is measured under the same conditions."""
+    return _cowork_report(bench, ["ifc-harden", "go-ifc-harden"])
 
 
 def _bare_has(bench, python: str, modules, tmp_path) -> bool:
@@ -240,28 +250,38 @@ def test_bare_go_author_ifc_builds_or_states_its_prerequisite(bench_report):
             "it must stay a preflight-cost answer, not a job that starts and stops")
 
 
-def test_ifc_skill_flow_hardens_or_states_its_prerequisite(bench, ifc_skill_report, tmp_path):
-    """`ifc-harden` on a bare surface (#113) is PASS (the wheels present: four
-    calls, the hardened file reopens clean, the sample's score rises, under
-    IFC_SKILL_CEILING) or BLOCKED (absent: one call, the missing prerequisite
-    named, at preflight cost) -- never FAIL, never a silent SKIPPED."""
-    jd = _job(ifc_skill_report, "ifc-harden")
+@pytest.mark.parametrize("name, calls", [("ifc-harden", 4), ("go-ifc-harden", 1)],
+                         ids=["four-calls", "one-call"])
+def test_ifc_skill_flow_hardens_or_states_its_prerequisite(bench, ifc_skill_report, tmp_path, name, calls):
+    """The tekton-ifc flow on a bare surface -- the documented four calls
+    (`ifc-harden`, #113) and its ONE-call form (`go-ifc-harden` =
+    scripts/ifc_flow.py, #754) -- is PASS (the wheels present: the hardened
+    file reopens clean, the sample's score rises, under IFC_SKILL_CEILING;
+    the one call also faster than the four measured in the same run) or
+    BLOCKED (absent: one call, the missing prerequisite named, at preflight
+    cost) -- never FAIL, never a silent SKIPPED."""
+    jd = _job(ifc_skill_report, name)
     assert jd["status"] in ("PASS", "BLOCKED"), (
-        f"the tekton-ifc flow on a bare surface is {jd['status']}: {jd['reason']}")
+        f"the tekton-ifc flow ({name}) on a bare surface is {jd['status']}: {jd['reason']}")
     if _bare_has(bench, _bare_python(), bench.IFC_SKILL_NEEDS, tmp_path):
         assert jd["status"] == "PASS", (
-            f"ifcopenshell + numpy are on the bare python but the flow did not run: {jd['reason']}")
-        assert jd["shell_calls"] == 4, "the documented flow is validate -> harden -> re-validate -> report"
+            f"ifcopenshell + numpy are on the bare python but {name} did not run: {jd['reason']}")
+        assert jd["shell_calls"] == calls, f"{name} must stay {calls} shell call(s)"
         bd = jd.get("breakdown") or {}
         assert bd.get("schema_errors_after") == 0, f"the hardened file must reopen clean: {bd}"
         assert bd.get("score_after", 0) > bd.get("score_before", 0), (
             f"hardening the sample must raise its fidelity score: {bd}")
         assert jd["seconds"] < IFC_SKILL_CEILING, (
-            f"bare-env tekton-ifc flow took {jd['seconds']}s (ceiling {IFC_SKILL_CEILING}s) -- "
-            "the tools' cold start regressed (a heavier import? a second parse?)")
+            f"bare-env {name} took {jd['seconds']}s (ceiling {IFC_SKILL_CEILING}s) -- "
+            "the tools' cold start regressed (a heavier import? an extra parse or analysis?)")
+        if name == "go-ifc-harden":
+            four = _job(ifc_skill_report, "ifc-harden")
+            assert jd["seconds"] < four["seconds"], (
+                f"the one-call flow ({jd['seconds']}s) is not faster than the four calls "
+                f"({four['seconds']}s) in the same run -- it must import once and analyse twice, not four times")
     else:
         assert jd["status"] == "BLOCKED", (
-            f"ifcopenshell/numpy are absent but the flow was not gated at its first call: "
+            f"ifcopenshell/numpy are absent but {name} was not gated at its first import: "
             f"{jd['status']} -- {jd['reason']}")
         assert jd["shell_calls"] == 1, "a blocked flow must stop at the first failed import"
         needs = (jd.get("prerequisite") or {}).get("needs") or []
