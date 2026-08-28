@@ -426,3 +426,4 @@ plugin); `plugin/scripts/validate_plugin.py` PASS (24 assertions);
 ## Fragments (one per PR, `docs/inbox/README.md`)
 
 - `perf-surfaces.d/113-ifc-skill-bench.md` -- the tekton-ifc skill flow benched (`ifc-harden`: validate -> harden -> re-validate -> report, 4 calls, 5.4-5.7 s baseline; BLOCKED without the wheels)
+- `perf-surfaces.d/754-ifc-flow.md` -- the same flow as ONE call (`scripts/ifc_flow.py`, `go-ifc-harden`): one process, one parse + analysis of the input and of the output instead of four each; same run 3.3 s / 4 calls -> 1.55 s / 1 call

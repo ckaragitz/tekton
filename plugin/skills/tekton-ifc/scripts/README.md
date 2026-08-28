@@ -13,14 +13,19 @@ Every session starts cold, so the skill always does:
 # 1. install (fast: two wheels, no compilers) -- once per session
 pip install -r scripts/requirements.txt
 
-# 2. run whichever tool the user's request needs (they compose):
+# 2. the whole "make this IFC Revit-ready" flow in ONE call (validate ->
+#    harden -> re-validate -> report; five files under --out, one JSON):
+python scripts/ifc_flow.py     <in.ifc> --out <dir> --json
+
+# 2b. or compose the tools one at a time (the same steps, four calls):
 python scripts/validate_ifc.py <in.ifc> --json validation.json
 python scripts/harden_ifc.py   <in.ifc> -o <in.hardened.ifc> --report harden.json
-python scripts/generate_ifc.py --spec <spec.json> -o <out.ifc> --validate
+python scripts/validate_ifc.py <in.hardened.ifc> --json validation-after.json
 python scripts/report.py       validation.json [--compare harden.json] -o report.md
+python scripts/generate_ifc.py --spec <spec.json> -o <out.ifc> --validate
 ```
 
-All four are plain CLIs: they take the user's attached file (Cowork mounts
+All five are plain CLIs: they take the user's attached file (Cowork mounts
 attachments into the sandbox filesystem), write outputs next to it (or to a
 folder Cowork can see), and print a human summary to stdout that Claude
 relays. Nothing needs network *after* the pip install. If the sandbox has no
@@ -34,6 +39,7 @@ egress even for pip, the wheels must be pre-staged (see "Sandbox limits").
 | `harden_ifc.py` | existing IFC | rewritten IFC + `--report` JSON diff | Rewrites toward Tier 1 **without changing intended geometry**: merges duplicate types with identical `(class, Name)` (rewires `IfcRelDefinesByType`); creates one shared type per group of identical untyped elements; moves psets that are identical on every occurrence onto the type; repairs empty owner-history fields; removes phantom annotation solids (or `--keep-clearance-as-space` converts axis-aligned box clearances to `IfcSpace .INTERNAL.`); replaces tessellated geometry that is **provably** an upright box (8 corners forming a rectangular prism, rotation about Z allowed) with `IfcExtrudedAreaSolid` + a real placement at the box's base-centre (recovering an insertion point + yaw) — only when exact; assigns missing spatial containment; **preserves every element GlobalId**; reopens the output and prints a before/after diff with the schema-error count. |
 | `generate_ifc.py` | building spec JSON (`spec/building.schema.json` + the **MEP `equipment` profile**) | new IFC4 file (deterministic) | Levels/storeys, footprint auto-walls, explicit walls, floors, flat roofs, doors/windows with real voided openings, rooms -> `IfcSpace`, plus `equipment[]` (`panelboard`/`transformer`/`lightfixture`/`switchgear`/`proxy`: name, level, `position [x,y]` m, `rotationDeg`, `elevation` = mounting height, `dims {w,d,h}`, optional `ifcClass`/`predefinedType`/`typeName`, typed `psets`, `typePsets`) emitted as box extrusions with correct classes/predefined types, ONE shared type per `(class, typeName)` via `IfcRepresentationMap`/`IfcMappedItem` instancing, typed psets, containment. Same spec -> **byte-identical** output (seeded GUIDs, fixed timestamps). Minimal legal spec: `{"levels":[{"name":"Level 1","elevation":0}],"equipment":[{"kind":"panelboard","name":"B-HG4","position":[0,0]}]}`. |
 | `report.py` | `validation.json` (+ optional `harden.json`) | Markdown report | The human delivery report the skill returns: the Tier 1 / Tier 2 framing, exactly what will and won't be editable in Revit per element, before/after table, top fixes, and how the psets map onto the panelboard shared-parameters file. |
+| `ifc_flow.py` | existing IFC + `--out DIR` | `validate.json`, `hardened.ifc`, `harden.json`, `validate-after.json`, `report.md` + ONE JSON summary (`--json`) | The four steps above in one process (issue #754): ifcopenshell imported once, the input analysed once and the hardened output once (`harden_ifc.harden()` reuses the before-report and hands back the after-report) instead of four analyses over four shell calls. Every file is written whatever the verdict; exit 1 = the hardened file has schema errors (files present), exit 2 = usage/I/O. The four CLIs are unchanged for composing by hand. |
 
 Shared library: `bridge_lib.py` (analysis engine: geometry classification,
 box-recovery, all audits, scoring). The CLIs import it from the same folder.
@@ -69,8 +75,11 @@ box-recovery, all audits, scoring). The CLIs import it from the same folder.
 - **Wheel platform.** The Cowork sandbox is Linux x86_64 (manylinux) — that is
   what the pinned wheel targets. macOS arm64 also has a wheel (used to build
   this repo). Python 3.9–3.13 wheels exist for 0.8.5.
-- **Time/memory.** All four tools run in well under a second and a few tens of
-  MB on the sample; the geometry kernel (OpenCascade) is *not* used, so large
+- **Time/memory.** Measured on the sample IFC (`tools/surface_bench.py`,
+  2026-08-28, one VM): `validate_ifc.py` ~0.9 s, `harden_ifc.py` ~1.6 s,
+  `report.py` 0.03 s per call, of which ~0.5 s each is the ifcopenshell
+  import — the four-call flow 3.4-3.8 s, `ifc_flow.py` 1.5-1.7 s in one call;
+  a few tens of MB. The geometry kernel (OpenCascade) is *not* used, so large
   files scale with entity count only. Very large real projects (100 MB+ IFC)
   are the only case likely to approach sandbox limits.
 - **No APS/Autodesk calls happen here** — that is the Tier 2 escalation path

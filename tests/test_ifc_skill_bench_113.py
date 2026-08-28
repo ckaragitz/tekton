@@ -84,7 +84,9 @@ def _happy_path():
 
 
 def test_ifc_harden_is_a_canonical_job_of_its_own(bench):
-    assert bench.JOB_ORDER[-1] == "ifc-harden"           # its own session, after the `go` jobs
+    # its own session, after every `go` job (its one-call form, #754, follows it)
+    assert bench.JOB_ORDER.index("ifc-harden") > bench.JOB_ORDER.index("go-edit")
+    assert bench.JOB_ORDER[-2:] == ("ifc-harden", "go-ifc-harden")
     assert bench.JOBS["ifc-harden"] is bench.job_ifc_harden
 
 
