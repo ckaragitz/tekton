@@ -287,6 +287,13 @@ not silently skip validation. See troubleshooting 8.6.
 
 ### 5.2 Validate
 
+**The flow is ONE call** (after 5.1): `python scripts/ifc_flow.py path/to/input.ifc --out out --json`
+runs validate → harden → re-validate → report in one process and writes `out/validate.json`,
+`hardened.ifc`, `harden.json`, `validate-after.json`, `report.md`, printing one JSON whose `line`
+is the verdict (exit 0 = clean; 1 = the hardened file has schema errors — every file is still
+delivered, say so; 2 = not IFC / usage). 5.2–5.4 explain what it did and stay the compose-by-hand
+path: `validate_ifc.py`, `harden_ifc.py`, `validate_ifc.py` again, `report.py`, one call each.
+
 ```bash
 python scripts/validate_ifc.py path/to/input.ifc --json out/validate.json   # exit 0 = analysed; 2 = not IFC
 ```
@@ -336,7 +343,7 @@ fixes (Workflow A).
 ### 5.4 Delivery report and the deliverable set
 
 ```bash
-python scripts/report.py out/hardened.ifc --before path/to/input.ifc -o out/delivery-report.md
+python scripts/report.py out/validate.json --compare out/harden.json -o out/delivery-report.md
 ```
 
 (If `scripts/report.py` is not present in this checkout, assemble
