@@ -287,6 +287,13 @@ not silently skip validation. See troubleshooting 8.6.
 
 ### 5.2 Validate
 
+**The flow is ONE call** (after 5.1): `python scripts/ifc_flow.py path/to/input.ifc --out out --json`
+runs validate → harden → re-validate → report in one process and writes `out/validate.json`,
+`hardened.ifc`, `harden.json`, `validate-after.json`, `report.md`, printing one JSON whose `line`
+is the verdict (exit 0 = 0 schema errors after hardening; 1 = the hardened file has schema errors —
+every file is still delivered, say so; 2 = not IFC / usage / I/O). 5.2–5.4 explain what it did and stay the
+compose-by-hand path: `validate_ifc.py`, `harden_ifc.py`, `validate_ifc.py` again, `report.py`.
+
 ```bash
 python scripts/validate_ifc.py path/to/input.ifc --json out/validate.json   # exit 0 = analysed; 2 = not IFC
 ```
@@ -336,7 +343,7 @@ fixes (Workflow A).
 ### 5.4 Delivery report and the deliverable set
 
 ```bash
-python scripts/report.py out/hardened.ifc --before path/to/input.ifc -o out/delivery-report.md
+python scripts/report.py out/validate.json --compare out/harden.json -o out/delivery-report.md
 ```
 
 (If `scripts/report.py` is not present in this checkout, assemble
@@ -483,6 +490,7 @@ coordinates if the host project has a survey point).
 | `references/revit-versions.md` | Revit version compatibility rules, the "can't open newer" constraint, IFC version support | Any `.rvt`/version question |
 | `assets/ifc-export.js` | THE canonical v2 exporter (`toIfc(THREE, object, meta)`) — install as `./ifc-export.js` | Workflow A step 4.2 |
 | `assets/example-model.js` | Worked electrical-room model module (panels sharing a type, transformer, hangers, excluded clearance, two storeys) | Template for new models |
+| `scripts/ifc_flow.py` | The four steps below in one process: five files under `--out`, one JSON, `line` = verdict | 5.2 |
 | `scripts/validate_ifc.py` | IFC validator + Revit-fidelity linter: score/tier verdict, ranked fixes, element inventory (`--help` is authoritative) | 5.2 |
 | `scripts/harden_ifc.py` | Semantics-preserving normaliser (types, phantoms, provable-box→extrusion + placement recovery, owner history, containment) | 5.3 |
 | `scripts/bridge_lib.py` | Shared analysis engine both CLIs import (`analyze(path) → report dict`, `human_summary`) | Extending checks |
