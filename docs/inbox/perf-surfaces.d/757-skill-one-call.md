@@ -1,7 +1,7 @@
 # perf-surfaces / #757 -- SKILL.md §5.2–5.4 teach the one-call flow (DONE 4 of #754)
 
 Stream: PERF-SURFACES (index: `docs/inbox/perf-surfaces.md`). Issue #757 (Refs #754, #112, #110, #113).
-Branch `cam/757-skill-one-call` from `main@385b1c3`. Hot-file PR (CLAUDE.md §4): SKILL.md only, +7 lines net.
+Branch `cam/757-skill-one-call` from `main@385b1c3`. Hot-file PR (CLAUDE.md §4): hot file touched = SKILL.md only (+8 net); the runbook edit is not a hot file.
 
 ## What changed
 
@@ -17,6 +17,7 @@ Branch `cam/757-skill-one-call` from `main@385b1c3`. Hot-file PR (CLAUDE.md §4)
   `report.py out/hardened.ifc --before …` form never existed (noted on #112).
 * `skills/tekton-ifc/references/sop-harden-deliver.md` step 8 (+ mirror): the same real `report.py`
   invocation; "omit `--compare` if hardening was skipped" replaces the old "both positions" note.
+* §9's tool table gains the `scripts/ifc_flow.py` row (a reader consulting the table finds the one-call flow).
 * Frontmatter untouched; every path the text references exists.
 
 ## Evidence
@@ -29,6 +30,11 @@ Branch `cam/757-skill-one-call` from `main@385b1c3`. Hot-file PR (CLAUDE.md §4)
   out/delivery-report.md` -> exit 0, `report -> out/delivery-report.md`.
 
 ## Open
+
+* The real `report.py` command headlines the INPUT's validation (score/tier/tessellation of the file
+  before hardening) with the before/after table, while the runbook's manual fallback says "the summary of
+  the FINAL file" -- the tool path and the manual path describe different files. Filed as a follow-up
+  (headline `validate-after.json` + the before/after table, and make the fallback prose agree).
 
 * #112 (SKILL.md weight/split) rewrites §5.2–5.4 wholesale; it should keep the one-call form first.
 * `references/sop-harden-deliver.md` still walks the four-call runbook (the compose-by-hand detail;
