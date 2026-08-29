@@ -129,10 +129,10 @@ crashes, that is a blocker to report, not something to paper over.
 
 8. **Generate the report.**
    ```bash
-   python scripts/report.py out/hardened.ifc --before path/to/input.ifc -o out/delivery-report.md
+   python scripts/report.py out/validate.json --compare out/harden.json -o out/delivery-report.md
    ```
-   (Use the input file for both positions if you skipped hardening at
-   step 4.) If `scripts/report.py` is absent from this checkout, write
+   (Omit `--compare` if you skipped hardening at step 4.) If
+   `scripts/report.py` is absent from this checkout, write
    `out/delivery-report.md` yourself from real outputs only: the
    `validate_ifc.py` summary of the FINAL file (verdict, element inventory
    with each class → its Revit category per `references/mep-class-map.md`),
