@@ -237,13 +237,25 @@ def main(argv=None) -> int:
     if after is not None and _same_file(after.get("file"), rep.get("file")):
         print(f"error: --after {args.after} is the report of the input itself ({rep.get('file')})", file=sys.stderr)
         return 2
-    if after is None and cmp is not None:
+    if cmp is not None and not (isinstance(cmp.get("before"), dict) and isinstance(cmp.get("after"), dict)):
+        print(f"error: --compare {args.compare} is not a harden_ifc.py --report file", file=sys.stderr)
+        return 2
+    source = None
+    if after is None and cmp is not None and _same_file(rep.get("file"), cmp.get("output")):
+        # the positional IS the hardened file's report (`report.py validate-after.json --compare harden.json`)
+        after, source = rep, os.path.basename(str(cmp.get("input") or "input"))
+    elif after is None and cmp is not None:
         after, why = sibling_after(args.compare, cmp)
         if after is None:
             print(f"warning: no report of the hardened file ({why}); the report describes the input "
                   f"-- pass --after {AFTER_REPORT}", file=sys.stderr)
-    md = (render(after, cmp, source=os.path.basename(rep["file"])) if after is not None
-          else render(rep, cmp))
+    if after is not None and source is None:
+        source = os.path.basename(str(rep.get("file")))
+    try:
+        md = render(after, cmp, source=source) if after is not None else render(rep, cmp)
+    except (KeyError, TypeError, AttributeError) as e:
+        print(f"error: not a validate_ifc.py report ({e!r})", file=sys.stderr)
+        return 2
     if args.output:
         with open(args.output, "w") as fh:
             fh.write(md + "\n")

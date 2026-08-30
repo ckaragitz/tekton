@@ -31,14 +31,16 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   hardened file's in-memory report, no re-read.
 * `tools/surface_bench.py` (`ifc-harden`, the four-call row): keeps `validate-after.json` as an
   artifact and names it with `--after` (the bench renames artifacts, so the sibling rule cannot
-  apply); the four-call and one-call rows now render the same document.
+  apply); the four-call and one-call rows now render the same document up to the hardened file's
+  name (the bench keeps its artifact as `ifc-hardened.ifc`).
 * `references/sop-harden-deliver.md` step 8 (+ mirror) and `scripts/README.md`: the tool command and
   the manual fallback describe the same file.
-* Tests: `tests/test_ifc_report_760.py` (12, stdlib-only synthetic reports, in-process `main()`:
+* Tests: `tests/test_ifc_report_760.py` (14 collected, stdlib-only synthetic reports, in-process `main()`:
   the three titles, errors-first with schema errors, sibling lookup == explicit `--after` bytes,
   five degrade cases (no sibling / unreadable / not a report / another output / same path re-hardened) with the
   warning, single-file unchanged, `--after` taken as given but exit 2 when unreadable or the input's
-  own report, one real launch of the entry point) + `tests/ci_shard.d/760-report-headline.txt`;
+  own report, the positional-is-the-hardened-report form (a shipped job template's) == the canonical
+  bytes, malformed positional/compare JSON exit 2, one real launch of the entry point) + `tests/ci_shard.d/760-report-headline.txt`;
   `tests/test_ifc_flow_754.py` stub `render` records `(rep, cmp, source)` and the flow's hand-off is
   pinned; `tests/test_ifc_skill_bench_113.py` pins `--after` == the re-validated report.
 * SKILL.md untouched: its §5.4 command now yields the hardened file's report.
@@ -77,7 +79,14 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   input's own report, an unreadable discovered sibling degrades instead of exit 2, README's third
   state (second commit); a JSON that is not a report (`[1]`) degrades / exits 2 instead of a traceback,
   the README synopsis's `validation-after.json` typo (now load-bearing) fixed, `--after` alone documented,
-  the runbook says to pass `--after` when calls do not share a working directory (third commit).
+  the runbook says to pass `--after` when the after-report is not this run's `validate-after.json`
+  beside `harden.json` (third commit). Third review (🛑): the shipped job template
+  `plugin/docs/JOB-TEMPLATES/electrical-room-package.md` ran `report.py out/validate-after.json --compare
+  out/harden.json` -- the positional already the hardened file's report -- which rendered "hardened from
+  `hardened.ifc`"; `main()` now recognises that form (`rep.file == harden.output` -> it is the subject,
+  the input named from harden.json's `input`; same bytes as the canonical command on the sample), the
+  template moved to the canonical command, and a malformed positional / `--compare` JSON is exit 2
+  instead of a traceback (fourth commit).
 * /simplify (4 reviewers) applied: identity check on the discovered sibling, `source=` instead of an
   `after=` override, the CLI remedy out of the delivered document, one constant for the sibling name,
   `after_path` bound once, dead `instancing`/`units` unpack dropped, tests in-process (5 launches ->

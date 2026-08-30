@@ -79,7 +79,7 @@ pip install -r skills/tekton-ifc/scripts/requirements.txt                    # o
 python skills/tekton-ifc/scripts/validate_ifc.py in.ifc --json out/validate.json
 python skills/tekton-ifc/scripts/harden_ifc.py   in.ifc -o out/hardened.ifc --report out/harden.json
 python skills/tekton-ifc/scripts/validate_ifc.py out/hardened.ifc --json out/validate-after.json   # errors=0
-python skills/tekton-ifc/scripts/report.py       out/validate-after.json --compare out/harden.json -o out/delivery-report.md
+python skills/tekton-ifc/scripts/report.py       out/validate.json --compare out/harden.json -o out/delivery-report.md   # describes out/hardened.ifc (its validate-after.json sits beside harden.json)
 ```
 
 **Acceptance for this stage:** `schema errors=0`, tier ≥ `Tier 1

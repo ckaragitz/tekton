@@ -53,7 +53,7 @@ BEFORE = _rep("/in/electrical-room.ifc", 35.7, "Tier 0 (v1-like) -- frozen",
 AFTER = _rep("/out/hardened.ifc", 77.0, "Tier 1 (partial) -- usable",
              products=[_product("DP-1", "swept"), _product("DP-2", "tessellated")],
              tessellated=1, phantoms=0, size=996653)
-HARDEN = {"output": "/out/hardened.ifc",
+HARDEN = {"input": "/in/electrical-room.ifc", "output": "/out/hardened.ifc",
           "before": {"score": 35.7, "tier": "Tier 0 (v1-like) -- frozen", "elements": 2, "tessellated_elements": 2},
           "after": {"score": 77.0, "tier": "Tier 1 (partial) -- usable", "elements": 2, "tessellated_elements": 1,
                     "size_bytes": 996653},
@@ -162,6 +162,30 @@ def test_cli_without_the_hardened_files_report_stays_on_the_input_and_says_so(re
     md = md_path.read_text()
     assert md.splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc` (the input, before hardening)"
     assert "**Score: 35.7/100**" in md and "| score | 35.7 | 77.0 |" in md
+
+
+def test_cli_positional_may_be_the_hardened_files_report(report, out, tmp_path, capsys):
+    """`report.py validate-after.json --compare harden.json` (a shipped job
+    template's form): the positional IS the hardened file's report -- same
+    bytes as the canonical command, the input named from harden.json."""
+    canon, alt = tmp_path / "canon.md", tmp_path / "alt.md"
+    assert _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"], "-o", canon) == (0, "")
+    assert _cli(report, capsys, out / FILES["validate_after"], "--compare", out / FILES["harden"], "-o", alt) == (0, "")
+    assert alt.read_text() == canon.read_text() and canon.read_text().splitlines()[0] == HARDENED_TITLE
+    (out / FILES["validate_after"]).unlink()                                 # still the subject: it IS the positional
+    (out / "after-copy.json").write_text(json.dumps(AFTER))
+    assert _cli(report, capsys, out / "after-copy.json", "--compare", out / FILES["harden"], "-o", alt) == (0, "")
+    assert alt.read_text() == canon.read_text()
+
+
+def test_cli_malformed_reports_are_usage_errors(report, out, tmp_path, capsys):
+    (out / "empty.json").write_text("{}")
+    rc, err = _cli(report, capsys, out / "empty.json", "-o", tmp_path / "r.md")
+    assert rc == 2 and err.startswith("error: not a validate_ifc.py report") and not (tmp_path / "r.md").exists()
+    for bad in ("{}", '{"output": "/x", "before": {}, "after": 5}'):
+        (out / "bad-harden.json").write_text(bad)
+        rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / "bad-harden.json", "-o", tmp_path / "r.md")
+        assert rc == 2 and err.startswith("error: --compare ") and not (tmp_path / "r.md").exists(), bad
 
 
 def test_cli_single_file_is_unchanged(report, out, tmp_path, capsys):
