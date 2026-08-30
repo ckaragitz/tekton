@@ -17,9 +17,14 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   `rep`; `source` (the input's name) is given when `rep` is the hardened file's report, and the
   first line then names both (`hardened.ifc` (hardened from `X.ifc`)`). `main()` picks the hardened
   file's report from `--after`, or from the `validate-after.json` beside `--compare harden.json` --
-  taken only when its `file` is the `output` harden.json recorded, so a stale one from an earlier
-  run is not headlined (the altitude reviewer reproduced that failure). Without one: the input,
-  first line "(the input, before hardening)", warning on stderr, exit 0 (hard rule 1: delivered).
+  taken only when it is the report of the file harden.json produced -- same path, score and size --
+  so a stale one from an earlier run (another output, or the same path re-hardened with other
+  options) is not headlined (both failure modes reproduced by the reviewers; the second on the real
+  tools: re-`harden_ifc.py --no-extrusions` to the same path, skip the re-validate -> warning + the
+  input's headline, not the old 77.0). An unreadable discovered sibling degrades the same way; an
+  explicit `--after` is the operator's assertion (unreadable, or the input's own report -> exit 2).
+  Without one: the input, first line "(the input, before hardening)", warning on stderr, exit 0
+  (hard rule 1: delivered).
   A single `validation.json` renders byte-identically to before. `AFTER_REPORT` owns the name;
   `ifc_flow.FILES["validate_after"]` refers to it.
 * `skills/tekton-ifc/scripts/ifc_flow.py`: `render(rep1, res, source=basename(input))` -- the
@@ -29,10 +34,11 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   apply); the four-call and one-call rows now render the same document.
 * `references/sop-harden-deliver.md` step 8 (+ mirror) and `scripts/README.md`: the tool command and
   the manual fallback describe the same file.
-* Tests: `tests/test_ifc_report_760.py` (9, stdlib-only synthetic reports, in-process `main()`:
+* Tests: `tests/test_ifc_report_760.py` (11, stdlib-only synthetic reports, in-process `main()`:
   the three titles, errors-first with schema errors, sibling lookup == explicit `--after` bytes,
-  no-after / stale-sibling degrade with the warning, single-file unchanged, exit 2 on an unreadable
-  after-report, one real launch of the entry point) + `tests/ci_shard.d/760-report-headline.txt`;
+  four degrade cases (no sibling / unreadable / another output / same path re-hardened) with the
+  warning, single-file unchanged, `--after` taken as given but exit 2 when unreadable or the input's
+  own report, one real launch of the entry point) + `tests/ci_shard.d/760-report-headline.txt`;
   `tests/test_ifc_flow_754.py` stub `render` records `(rep, cmp, source)` and the flow's hand-off is
   pinned; `tests/test_ifc_skill_bench_113.py` pins `--after` == the re-validated report.
 * SKILL.md untouched: its §5.4 command now yields the hardened file's report.
@@ -67,6 +73,9 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   the CLI throws that report away, SKILL.md 5.3 re-creates it with a second `validate_ifc.py` call,
   and `report.py` now locates the file by convention. `harden_ifc.py --report` persisting its
   after-analysis (or its path) would make `--compare` self-sufficient -- filed as a follow-up.
+* Independent review (🟡): identity check tightened to score + size, `--after` guarded against the
+  input's own report, an unreadable discovered sibling degrades instead of exit 2, README's third
+  state -- all in the second commit.
 * /simplify (4 reviewers) applied: identity check on the discovered sibling, `source=` instead of an
   `after=` override, the CLI remedy out of the delivered document, one constant for the sibling name,
   `after_path` bound once, dead `instancing`/`units` unpack dropped, tests in-process (5 launches ->

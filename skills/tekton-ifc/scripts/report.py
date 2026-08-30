@@ -13,9 +13,9 @@ the report then describes the HARDENED file (the one delivered): its headline,
 element table, remaining fixes, psets and phantoms come from the hardened
 file's own validate_ifc.py report -- `--after`, or, when that is not given,
 the `validate-after.json` beside harden.json that both documented paths write
-(taken only when it is the report of the file harden.json produced).  When
-no such report exists the report stays on the input, its first line says so
-and a warning goes to stderr (issue #760).  Without `--compare` the report
+(taken only when it is the report of the file harden.json produced: same
+path, score and size).  When no such report exists the report stays on the
+input, its first line says so and a warning goes to stderr (issue #760).  Without `--compare` the report
 describes <validation.json>.  Exit code 0 on success, 2 on IO/usage error.
 """
 from __future__ import annotations
@@ -184,18 +184,24 @@ def render(rep: dict, compare: dict | None = None, *, source: str | None = None)
     return "\n".join(L)
 
 
-def after_path(after: str | None, compare: str | None, compare_json: dict | None) -> str | None:
-    """The hardened file's validation report: ``--after`` when given (the
-    operator's assertion), else the AFTER_REPORT beside ``--compare`` when it
-    is the report of the file that harden.json says it produced -- a stale one
-    from an earlier run is not."""
-    if after:
-        return after
-    if compare and compare_json is not None:
-        sibling = os.path.join(os.path.dirname(os.path.abspath(compare)), AFTER_REPORT)
-        if os.path.isfile(sibling) and _same_file(load(sibling).get("file"), compare_json.get("output")):
-            return sibling
-    return None
+def sibling_after(compare: str, compare_json: dict):
+    """The AFTER_REPORT beside ``--compare`` when it is the report of the file
+    harden.json says it produced -- same path, score and size, so a stale one
+    left by an earlier run to the same path is not taken.  Returns
+    ``(report, None)`` or ``(None, why)``."""
+    sibling = os.path.join(os.path.dirname(os.path.abspath(compare)), AFTER_REPORT)
+    if not os.path.isfile(sibling):
+        return None, f"no {AFTER_REPORT} beside {os.path.basename(compare)}"
+    try:
+        after = load(sibling)
+    except Exception as e:
+        return None, f"{sibling} unreadable: {e}"
+    produced = compare_json.get("after") or {}
+    if not (_same_file(after.get("file"), compare_json.get("output"))
+            and after.get("file_size") == produced.get("size_bytes")
+            and after.get("score", {}).get("score") == produced.get("score")):
+        return None, f"{sibling} is not the report of {compare_json.get('output')}"
+    return after, None
 
 
 def _same_file(a, b) -> bool:
@@ -209,19 +215,23 @@ def main(argv=None) -> int:
     ap.add_argument("--compare", help="harden_ifc.py --report JSON: adds the before/after section and "
                     "makes the hardened file the subject of the report")
     ap.add_argument("--after", help=f"validate_ifc.py --json report OF THE HARDENED FILE (default with "
-                    f"--compare: the {AFTER_REPORT} beside it, when it is that file's)")
+                    f"--compare: the {AFTER_REPORT} beside it, when it is that file's report)")
     args = ap.parse_args(argv)
     try:
         rep = load(args.validation_json)
         cmp = load(args.compare) if args.compare else None
-        path = after_path(args.after, args.compare, cmp)
-        after = load(path) if path else None
+        after = load(args.after) if args.after else None
     except Exception as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
-    if cmp is not None and after is None:
-        print(f"warning: no report of the hardened file (--after {AFTER_REPORT}); "
-              "the report describes the input", file=sys.stderr)
+    if after is not None and _same_file(after.get("file"), rep.get("file")):
+        print(f"error: --after {args.after} is the report of the input itself ({rep.get('file')})", file=sys.stderr)
+        return 2
+    if after is None and cmp is not None:
+        after, why = sibling_after(args.compare, cmp)
+        if after is None:
+            print(f"warning: no report of the hardened file ({why}); the report describes the input "
+                  f"-- pass --after {AFTER_REPORT}", file=sys.stderr)
     md = (render(after, cmp, source=os.path.basename(rep["file"])) if after is not None
           else render(rep, cmp))
     if args.output:

@@ -1,8 +1,9 @@
 """tekton-ifc report.py describes the file it delivers (issue #760): with
 harden.json it renders the HARDENED file's own validation report -- `--after`,
 or the validate-after.json beside harden.json when that is the report of the
-file harden.json produced -- and names both files in its first line; without
-an after-report it stays on the input, says so, and warns.  Synthetic
+file harden.json produced (same path, score and size) -- and names both files
+in its first line; without an after-report it stays on the input, says so,
+and warns.  Synthetic
 validation reports, stdlib only (fresh-clone safe).
 """
 from __future__ import annotations
@@ -54,7 +55,8 @@ AFTER = _rep("/out/hardened.ifc", 77.0, "Tier 1 (partial) -- usable",
              tessellated=1, phantoms=0, size=996653)
 HARDEN = {"output": "/out/hardened.ifc",
           "before": {"score": 35.7, "tier": "Tier 0 (v1-like) -- frozen", "elements": 2, "tessellated_elements": 2},
-          "after": {"score": 77.0, "tier": "Tier 1 (partial) -- usable", "elements": 2, "tessellated_elements": 1},
+          "after": {"score": 77.0, "tier": "Tier 1 (partial) -- usable", "elements": 2, "tessellated_elements": 1,
+                    "size_bytes": 996653},
           "actions": {"boxes_converted": 1, "phantoms_removed": 1}}
 HARDENED_TITLE = "# Revit-readiness report: `hardened.ifc` (hardened from `electrical-room.ifc`)"
 
@@ -130,18 +132,31 @@ def test_cli_finds_the_after_report_beside_harden_json(report, out, tmp_path, ca
     assert rc == 0 and md2.read_text() == md
 
 
-@pytest.mark.parametrize("stale", [False, True], ids=["no-after-report", "stale-sibling"])
+STALE = {
+    "no-after-report": None,
+    "unreadable-sibling": "{not json",
+    "another-output": json.dumps(dict(AFTER, file="/out/hardened-v1.ifc")),
+    "same-path-earlier-run": json.dumps(dict(AFTER, score=dict(AFTER["score"], score=47.5), file_size=1108684)),
+}
+
+
+@pytest.mark.parametrize("stale", list(STALE), ids=list(STALE))
 def test_cli_without_the_hardened_files_report_stays_on_the_input_and_says_so(report, out, tmp_path, capsys, stale):
-    """No validate-after.json, or one left by an EARLIER hardening run (it
-    describes another output file): the input is reported, never withheld."""
-    if stale:
-        (out / FILES["validate_after"]).write_text(json.dumps(dict(AFTER, file="/out/hardened-v1.ifc")))
-    else:
+    """No validate-after.json, an unreadable one, or one left by an EARLIER
+    hardening run (another output file, or the same path with other numbers
+    than harden.json records): the input is reported, never withheld."""
+    if STALE[stale] is None:
         (out / FILES["validate_after"]).unlink()
+    else:
+        (out / FILES["validate_after"]).write_text(STALE[stale])
     md_path = tmp_path / "delivery-report.md"
     rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"], "-o", md_path)
     assert rc == 0
-    assert err == "warning: no report of the hardened file (--after validate-after.json); the report describes the input\n"
+    assert err.startswith("warning: no report of the hardened file (") and err.endswith(
+        "); the report describes the input -- pass --after validate-after.json\n")
+    assert {"no-after-report": "no validate-after.json beside harden.json", "unreadable-sibling": "unreadable",
+            "another-output": "is not the report of /out/hardened.ifc",
+            "same-path-earlier-run": "is not the report of /out/hardened.ifc"}[stale] in err
     md = md_path.read_text()
     assert md.splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc` (the input, before hardening)"
     assert "**Score: 35.7/100**" in md and "| score | 35.7 | 77.0 |" in md
@@ -152,11 +167,21 @@ def test_cli_single_file_is_unchanged(report, out, tmp_path, capsys):
     assert (tmp_path / "r.md").read_text().splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc`"
 
 
-def test_cli_unreadable_after_report_is_exit_2(report, out, tmp_path, capsys):
-    (out / FILES["validate_after"]).write_text("{not json")
-    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"], "-o", tmp_path / "r.md")
-    assert rc == 2 and err.startswith("error: ")
-    assert not (tmp_path / "r.md").exists()
+def test_cli_explicit_after_is_the_operators_assertion(report, out, tmp_path, capsys):
+    """--after is taken as given (the bench renames its artifacts) -- except
+    an unreadable file, or the input's own report, which are usage errors."""
+    (out / "moved.json").write_text(json.dumps(dict(AFTER, file="/elsewhere/renamed.ifc")))
+    md_path = tmp_path / "r.md"
+    assert _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
+                "--after", out / "moved.json", "-o", md_path) == (0, "")
+    assert md_path.read_text().splitlines()[0] == "# Revit-readiness report: `renamed.ifc` (hardened from `electrical-room.ifc`)"
+    (out / "bad.json").write_text("{not json")
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
+                   "--after", out / "bad.json", "-o", tmp_path / "r2.md")
+    assert rc == 2 and err.startswith("error: ") and not (tmp_path / "r2.md").exists()
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
+                   "--after", out / FILES["validate"], "-o", tmp_path / "r3.md")
+    assert rc == 2 and "is the report of the input itself" in err and not (tmp_path / "r3.md").exists()
 
 
 def test_script_entry_point(out, tmp_path):
