@@ -136,6 +136,7 @@ def test_the_four_documented_calls_chain_their_outputs(bench, tmp_path):
     assert v2[:2] == [os.path.join(scripts, "validate_ifc.py"), hardened]   # the HARDENED file, re-validated
     assert r[:2] == [os.path.join(scripts, "report.py"), v1[v1.index("--json") + 1]]
     assert r[r.index("--compare") + 1] == harden_json                       # before/after from harden's report
+    assert r[r.index("--after") + 1] == v2[-1]                              # the report describes the HARDENED file (#760)
     assert all(p.startswith(s.workdir) for p in (v1[-1], hardened, harden_json, v2[-1], r[-1]))
     assert job.breakdown == {
         "stages": [{"stage": st, "seconds": 0.1} for st in ("validate", "harden", "re-validate", "report")],

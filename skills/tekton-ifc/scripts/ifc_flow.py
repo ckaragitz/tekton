@@ -19,7 +19,7 @@ shell round-trip instead of four and two analyses instead of four (issue
     hardened.ifc         harden_ifc.py's rewrite (every product GlobalId kept)
     harden.json          harden_ifc.py's action/diff report
     validate-after.json  the full report of the hardened file (it is reopened)
-    report.md            report.py's delivery report with the before/after section
+    report.md            report.py's delivery report OF THE HARDENED FILE with the before/after section
 
 and prints ONE summary: with --json a single JSON object (before/after score
 + tier + schema errors, the verdict `line`, the harden actions, the files by
@@ -50,7 +50,7 @@ import report as report_md  # noqa: E402
 
 #: what the flow writes under --out, by role, in step order
 FILES = {"validate": "validate.json", "hardened": "hardened.ifc", "harden": "harden.json",
-         "validate_after": "validate-after.json", "report": "report.md"}
+         "validate_after": report_md.AFTER_REPORT, "report": "report.md"}
 
 
 def _score(rep: dict) -> dict:
@@ -83,7 +83,7 @@ def run_flow(in_path: str, out_dir: str, **harden_opts) -> dict:
         bl.dump_json(rep1, paths["validate_after"])
     with timed("report"):
         with open(paths["report"], "w") as fh:
-            fh.write(report_md.render(rep0, res) + "\n")
+            fh.write(report_md.render(rep1, res, source=os.path.basename(in_path)) + "\n")
 
     before, after = _score(rep0), _score(rep1)
     ok = after["schema_errors"] == 0

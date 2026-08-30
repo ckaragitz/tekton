@@ -842,14 +842,18 @@ def job_ifc_harden(s: Surface, state: dict) -> JobResult:
     inv = call("re-validate", "validate_ifc (hardened)", lambda s: [
         tool(s, "validate_ifc.py"), s.stage_input(hardened),
         "--json", out(s, "validate-after.json")])
-    after = _ifc_score(out(s, "validate-after.json"))
+    validate_after_json = out(s, "validate-after.json")
+    after = _ifc_score(validate_after_json)
     if inv.exit_code != 0 or not after:
         return job.fail(f"validate_ifc (hardened) failed: {_why(inv)}")
+    validate_after_json = s.keep_artifact(validate_after_json, "ifc-validate-after.json")
 
-    # call 4: the delivery report (stdlib-only) with the before/after section
+    # call 4: the delivery report (stdlib-only) OF THE HARDENED FILE with the before/after section --
+    # named explicitly: the artifacts are kept under bench names, so report.py's sibling rule cannot apply (#760)
     inv = call("report", "report (before/after)", lambda s: [
         tool(s, "report.py"), s.stage_input(validate_json),
-        "--compare", s.stage_input(harden_json), "-o", out(s, "report.md")])
+        "--compare", s.stage_input(harden_json),
+        "--after", s.stage_input(validate_after_json), "-o", out(s, "report.md")])
     report_md = out(s, "report.md")
     if inv.exit_code != 0 or not os.path.isfile(report_md):
         return job.fail(f"report failed: {_why(inv)}")

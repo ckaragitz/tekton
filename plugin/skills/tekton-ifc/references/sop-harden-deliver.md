@@ -131,9 +131,14 @@ crashes, that is a blocker to report, not something to paper over.
    ```bash
    python scripts/report.py out/validate.json --compare out/harden.json -o out/delivery-report.md
    ```
-   (Omit `--compare` if you skipped hardening at step 4.) If
+   The report describes the FINAL file, `out/hardened.ifc`: its headline,
+   element table and remaining fixes come from `out/validate-after.json`
+   (found beside `harden.json`; `--after out/validate-after.json` names it
+   explicitly), the before → after table from `harden.json`, and the first
+   line names both files. (Omit `--compare` if you skipped hardening at
+   step 4: the report then describes the validated input.) If
    `scripts/report.py` is absent from this checkout, write
-   `out/delivery-report.md` yourself from real outputs only: the
+   `out/delivery-report.md` yourself from the same real outputs: the
    `validate_ifc.py` summary of the FINAL file (verdict, element inventory
    with each class → its Revit category per `references/mep-class-map.md`),
    the `harden_ifc.py` before/after table and actions, the Tier 1 / Tier 2
