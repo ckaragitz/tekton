@@ -34,9 +34,9 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   apply); the four-call and one-call rows now render the same document.
 * `references/sop-harden-deliver.md` step 8 (+ mirror) and `scripts/README.md`: the tool command and
   the manual fallback describe the same file.
-* Tests: `tests/test_ifc_report_760.py` (11, stdlib-only synthetic reports, in-process `main()`:
+* Tests: `tests/test_ifc_report_760.py` (12, stdlib-only synthetic reports, in-process `main()`:
   the three titles, errors-first with schema errors, sibling lookup == explicit `--after` bytes,
-  four degrade cases (no sibling / unreadable / another output / same path re-hardened) with the
+  five degrade cases (no sibling / unreadable / not a report / another output / same path re-hardened) with the
   warning, single-file unchanged, `--after` taken as given but exit 2 when unreadable or the input's
   own report, one real launch of the entry point) + `tests/ci_shard.d/760-report-headline.txt`;
   `tests/test_ifc_flow_754.py` stub `render` records `(rep, cmp, source)` and the flow's hand-off is
@@ -73,9 +73,11 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   the CLI throws that report away, SKILL.md 5.3 re-creates it with a second `validate_ifc.py` call,
   and `report.py` now locates the file by convention. `harden_ifc.py --report` persisting its
   after-analysis (or its path) would make `--compare` self-sufficient -- filed as a follow-up.
-* Independent review (🟡): identity check tightened to score + size, `--after` guarded against the
+* Independent reviews (🟡, 🟡): identity check tightened to score + size, `--after` guarded against the
   input's own report, an unreadable discovered sibling degrades instead of exit 2, README's third
-  state -- all in the second commit.
+  state (second commit); a JSON that is not a report (`[1]`) degrades / exits 2 instead of a traceback,
+  the README synopsis's `validation-after.json` typo (now load-bearing) fixed, `--after` alone documented,
+  the runbook says to pass `--after` when calls do not share a working directory (third commit).
 * /simplify (4 reviewers) applied: identity check on the discovered sibling, `source=` instead of an
   `after=` override, the CLI remedy out of the delivered document, one constant for the sibling name,
   `after_path` bound once, dead `instancing`/`units` unpack dropped, tests in-process (5 launches ->

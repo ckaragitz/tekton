@@ -135,6 +135,7 @@ def test_cli_finds_the_after_report_beside_harden_json(report, out, tmp_path, ca
 STALE = {
     "no-after-report": None,
     "unreadable-sibling": "{not json",
+    "not-a-report": "[1]",
     "another-output": json.dumps(dict(AFTER, file="/out/hardened-v1.ifc")),
     "same-path-earlier-run": json.dumps(dict(AFTER, score=dict(AFTER["score"], score=47.5), file_size=1108684)),
 }
@@ -155,6 +156,7 @@ def test_cli_without_the_hardened_files_report_stays_on_the_input_and_says_so(re
     assert err.startswith("warning: no report of the hardened file (") and err.endswith(
         "); the report describes the input -- pass --after validate-after.json\n")
     assert {"no-after-report": "no validate-after.json beside harden.json", "unreadable-sibling": "unreadable",
+            "not-a-report": "unreadable: ",
             "another-output": "is not the report of /out/hardened.ifc",
             "same-path-earlier-run": "is not the report of /out/hardened.ifc"}[stale] in err
     md = md_path.read_text()
@@ -175,10 +177,11 @@ def test_cli_explicit_after_is_the_operators_assertion(report, out, tmp_path, ca
     assert _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
                 "--after", out / "moved.json", "-o", md_path) == (0, "")
     assert md_path.read_text().splitlines()[0] == "# Revit-readiness report: `renamed.ifc` (hardened from `electrical-room.ifc`)"
-    (out / "bad.json").write_text("{not json")
-    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
-                   "--after", out / "bad.json", "-o", tmp_path / "r2.md")
-    assert rc == 2 and err.startswith("error: ") and not (tmp_path / "r2.md").exists()
+    for bad in ("{not json", "[1]", '{"file": "/out/x.ifc"}'):
+        (out / "bad.json").write_text(bad)
+        rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
+                       "--after", out / "bad.json", "-o", tmp_path / "r2.md")
+        assert rc == 2 and err.startswith("error: ") and not (tmp_path / "r2.md").exists(), bad
     rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
                    "--after", out / FILES["validate"], "-o", tmp_path / "r3.md")
     assert rc == 2 and "is the report of the input itself" in err and not (tmp_path / "r3.md").exists()

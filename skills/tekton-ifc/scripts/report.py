@@ -15,8 +15,10 @@ file's own validate_ifc.py report -- `--after`, or, when that is not given,
 the `validate-after.json` beside harden.json that both documented paths write
 (taken only when it is the report of the file harden.json produced: same
 path, score and size).  When no such report exists the report stays on the
-input, its first line says so and a warning goes to stderr (issue #760).  Without `--compare` the report
-describes <validation.json>.  Exit code 0 on success, 2 on IO/usage error.
+input, its first line says so and a warning goes to stderr (issue #760).
+Without `--compare` the report describes <validation.json> (`--after` alone
+describes that file, with no before/after table).  Exit code 0 on success,
+2 on IO/usage error.
 """
 from __future__ import annotations
 
@@ -33,7 +35,10 @@ AFTER_REPORT = "validate-after.json"
 
 def load(path):
     with open(path) as fh:
-        return json.load(fh)
+        rep = json.load(fh)
+    if not isinstance(rep, dict):
+        raise ValueError(f"{path}: not a JSON object")
+    return rep
 
 
 def fmt_pct(x):
@@ -194,12 +199,14 @@ def sibling_after(compare: str, compare_json: dict):
         return None, f"no {AFTER_REPORT} beside {os.path.basename(compare)}"
     try:
         after = load(sibling)
+        if not isinstance(after.get("score"), dict):
+            raise ValueError("not a validate_ifc.py report")
     except Exception as e:
         return None, f"{sibling} unreadable: {e}"
-    produced = compare_json.get("after") or {}
+    produced = compare_json.get("after") if isinstance(compare_json.get("after"), dict) else {}
     if not (_same_file(after.get("file"), compare_json.get("output"))
             and after.get("file_size") == produced.get("size_bytes")
-            and after.get("score", {}).get("score") == produced.get("score")):
+            and after["score"].get("score") == produced.get("score")):
         return None, f"{sibling} is not the report of {compare_json.get('output')}"
     return after, None
 
@@ -223,6 +230,9 @@ def main(argv=None) -> int:
         after = load(args.after) if args.after else None
     except Exception as e:
         print(f"error: {e}", file=sys.stderr)
+        return 2
+    if after is not None and not isinstance(after.get("score"), dict):
+        print(f"error: --after {args.after} is not a validate_ifc.py report", file=sys.stderr)
         return 2
     if after is not None and _same_file(after.get("file"), rep.get("file")):
         print(f"error: --after {args.after} is the report of the input itself ({rep.get('file')})", file=sys.stderr)

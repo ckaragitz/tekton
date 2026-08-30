@@ -133,9 +133,10 @@ crashes, that is a blocker to report, not something to paper over.
    ```
    The report describes the FINAL file, `out/hardened.ifc`: its headline,
    element table and remaining fixes come from `out/validate-after.json`
-   (found beside `harden.json`; `--after out/validate-after.json` names it
-   explicitly), the before → after table from `harden.json`, and the first
-   line names both files. (Omit `--compare` if you skipped hardening at
+   (found beside `harden.json` when it is that file's report; `--after
+   out/validate-after.json` names it explicitly -- do that whenever the
+   calls did not share one working directory), the before → after table from
+   `harden.json`, and the first line names both files. (Omit `--compare` if you skipped hardening at
    step 4: the report then describes the validated input.) If
    `scripts/report.py` is absent from this checkout, write
    `out/delivery-report.md` yourself from the same real outputs: the

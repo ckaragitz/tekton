@@ -20,7 +20,7 @@ python scripts/ifc_flow.py     <in.ifc> --out <dir> --json
 # 2b. or compose the tools one at a time (the same steps, four calls):
 python scripts/validate_ifc.py <in.ifc> --json validation.json
 python scripts/harden_ifc.py   <in.ifc> -o <in.hardened.ifc> --report harden.json
-python scripts/validate_ifc.py <in.hardened.ifc> --json validation-after.json
+python scripts/validate_ifc.py <in.hardened.ifc> --json validate-after.json
 python scripts/report.py       validation.json [--compare harden.json] [--after validate-after.json] -o report.md   # with --compare the report describes the HARDENED file
 python scripts/generate_ifc.py --spec <spec.json> -o <out.ifc> --validate
 ```
