@@ -250,7 +250,14 @@ def _stub_engine(errors_after: int = 0):
                                   "clearance_as_space": a.keep_clearance_as_space,
                                   "create_types": not a.no_create_types, "extrusions": not a.no_extrusions}
     rp = types.ModuleType("report")
-    rp.render = lambda rep, cmp=None: "# stub report" + (" with before/after" if cmp else "")
+    rp.AFTER_REPORT = "validate-after.json"
+    calls["render"] = []
+
+    def render(rep, cmp=None, *, source=None):
+        calls["render"].append({"rep": rep, "cmp": cmp, "source": source})
+        return "# stub report"
+
+    rp.render = render
     return {"ifcopenshell": ios, "bridge_lib": bl, "harden_ifc": hz, "report": rp}, calls
 
 
@@ -294,7 +301,11 @@ def test_one_call_writes_the_five_files_and_prints_one_json(flow, tmp_path, caps
     assert calls["analyze"] == [(str(src), ("model", str(src)))]
     (h,) = calls["harden"]
     assert h["before"]["file"] == str(src) and h["model"] == ("model", str(src))
-    assert (tmp_path / "out" / "report.md").read_text() == "# stub report with before/after\n"
+    assert (tmp_path / "out" / "report.md").read_text() == "# stub report\n"
+    # the report describes the HARDENED file (#760): its report is rendered, with the input named as the source
+    (r,) = calls["render"]
+    assert r["rep"]["file"] == str(tmp_path / "out" / "hardened.ifc") and r["source"] == "in.ifc"
+    assert r["cmp"]["actions"]["products_after"] == 13
     assert json.load(open(os.path.join(out, "validate-after.json")))["score"]["score"] == 77.0
 
 
