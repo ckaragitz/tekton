@@ -35,12 +35,14 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   name (the bench keeps its artifact as `ifc-hardened.ifc`).
 * `references/sop-harden-deliver.md` step 8 (+ mirror) and `scripts/README.md`: the tool command and
   the manual fallback describe the same file.
-* Tests: `tests/test_ifc_report_760.py` (14 collected, stdlib-only synthetic reports, in-process `main()`:
+* Tests: `tests/test_ifc_report_760.py` (16 collected, stdlib-only synthetic reports, in-process `main()`:
   the three titles, errors-first with schema errors, sibling lookup == explicit `--after` bytes,
   five degrade cases (no sibling / unreadable / not a report / another output / same path re-hardened) with the
   warning, single-file unchanged, `--after` taken as given but exit 2 when unreadable or the input's
   own report, the positional-is-the-hardened-report form (a shipped job template's) == the canonical
-  bytes, malformed positional/compare JSON exit 2, one real launch of the entry point) + `tests/ci_shard.d/760-report-headline.txt`;
+  bytes, malformed positional/compare/after JSON exit 2, a stale positional and in-place hardening
+  never headline the wrong numbers, an incomplete discovered sibling degrades, one real launch of the
+  entry point) + `tests/ci_shard.d/760-report-headline.txt`;
   `tests/test_ifc_flow_754.py` stub `render` records `(rep, cmp, source)` and the flow's hand-off is
   pinned; `tests/test_ifc_skill_bench_113.py` pins `--after` == the re-validated report.
 * SKILL.md untouched: its §5.4 command now yields the hardened file's report.
@@ -65,7 +67,7 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   open with the hardened title; codeexec 4 calls 4.1 s vs 1 call 2.3 s (+0.5/+0.2 s extract), local
   4.2 s vs 1.9 s. Bare `/usr/bin/python3` surfaces stay BLOCKED (needs numpy) as in #754's record.
 * `tools/sync_plugin.py --check` -> "plugin in sync with source (deny-audit clean, identity scan ==
-  allowlist, assets verified)"; `plugin/scripts/validate_plugin.py` -> PASS; portable paths ok (3163).
+  allowlist, assets verified)"; `plugin/scripts/validate_plugin.py` -> PASS; portable paths ok (3164).
 * Bare unzip `go author --prompt "an electrical room with 6 panels"`: `ready: True`, preflight READY
   0.023 s, `prompt_room.rvt` delivered, our gate VALID 0 errors (PROOF-ONLY stamps as always).
 
@@ -86,7 +88,15 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   `hardened.ifc`"; `main()` now recognises that form (`rep.file == harden.output` -> it is the subject,
   the input named from harden.json's `input`; same bytes as the canonical command on the sample), the
   template moved to the canonical command, and a malformed positional / `--compare` JSON is exit 2
-  instead of a traceback (fourth commit).
+  instead of a traceback (fourth commit). Fourth review (🛑): that positional door skipped the score/size
+  identity (in-place hardening headlined the input's numbers; the template form after a stale re-harden
+  headlined the old 77.0), a malformed positional slipped through when a good sibling existed, `ValueError`
+  escaped the render guard, an incomplete discovered sibling exited 2 -- subject selection consolidated
+  into `find_subject()` with the one identity rule `produced_by()` (path + size + score) for every door,
+  `is_report()` on every loaded report, and one render guard that degrades for a discovered sibling and
+  errors for an operator-supplied one; the degraded title says "(the input, before hardening)" only when
+  the positional is harden.json's input, else "(not the file harden.json produced; its report was not
+  found)" (fifth commit; both scenarios re-run on the real tools).
 * /simplify (4 reviewers) applied: identity check on the discovered sibling, `source=` instead of an
   `after=` override, the CLI remedy out of the delivered document, one constant for the sibling name,
   `after_path` bound once, dead `instancing`/`units` unpack dropped, tests in-process (5 launches ->

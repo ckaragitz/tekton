@@ -154,11 +154,12 @@ def test_cli_without_the_hardened_files_report_stays_on_the_input_and_says_so(re
     rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"], "-o", md_path)
     assert rc == 0
     assert err.startswith("warning: no report of the hardened file (") and err.endswith(
-        "); the report describes the input -- pass --after validate-after.json\n")
+        "); the report describes electrical-room.ifc -- pass --after validate-after.json\n")
     assert {"no-after-report": "no validate-after.json beside harden.json", "unreadable-sibling": "unreadable",
             "not-a-report": "unreadable: ",
             "another-output": "is not the report of /out/hardened.ifc",
             "same-path-earlier-run": "is not the report of /out/hardened.ifc"}[stale] in err
+
     md = md_path.read_text()
     assert md.splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc` (the input, before hardening)"
     assert "**Score: 35.7/100**" in md and "| score | 35.7 | 77.0 |" in md
@@ -181,11 +182,64 @@ def test_cli_positional_may_be_the_hardened_files_report(report, out, tmp_path, 
 def test_cli_malformed_reports_are_usage_errors(report, out, tmp_path, capsys):
     (out / "empty.json").write_text("{}")
     rc, err = _cli(report, capsys, out / "empty.json", "-o", tmp_path / "r.md")
-    assert rc == 2 and err.startswith("error: not a validate_ifc.py report") and not (tmp_path / "r.md").exists()
+    assert rc == 2 and err.endswith("empty.json: not a validate_ifc.py report\n") and not (tmp_path / "r.md").exists()
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare",
+                   _write(out, "no-output.json", {**HARDEN, "output": None}), "-o", tmp_path / "degraded.md")
+    assert rc == 0 and "(no-output.json records no output file)" in err
     for bad in ("{}", '{"output": "/x", "before": {}, "after": 5}'):
         (out / "bad-harden.json").write_text(bad)
         rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / "bad-harden.json", "-o", tmp_path / "r.md")
-        assert rc == 2 and err.startswith("error: --compare ") and not (tmp_path / "r.md").exists(), bad
+        assert rc == 2 and err.endswith("not a harden_ifc.py --report file\n") and not (tmp_path / "r.md").exists(), bad
+
+
+def _write(d, name, obj):
+    (d / name).write_text(json.dumps(obj))
+    return d / name
+
+
+def test_cli_stale_positional_or_in_place_hardening_never_headlines_the_wrong_numbers(report, out, tmp_path, capsys):
+    """(a) the template form with an after-report left by an EARLIER run to the
+    same path: not adopted (size/score differ), the sibling is that same stale
+    file, so the report degrades -- and says the positional is not the input;
+    (b) the input hardened in place (harden.json input == output): the input's
+    report is not adopted for the hardened file, the sibling is."""
+    md_path = tmp_path / "r.md"
+    stale = _write(out, "stale-after.json", dict(AFTER, score=dict(AFTER["score"], score=47.5), file_size=1108684))
+    (out / FILES["validate_after"]).write_text(stale.read_text())
+    rc, err = _cli(report, capsys, stale, "--compare", out / FILES["harden"], "-o", md_path)
+    assert rc == 0 and "is not the report of /out/hardened.ifc" in err and "describes hardened.ifc" in err
+    assert md_path.read_text().splitlines()[0] == (
+        "# Revit-readiness report: `hardened.ifc` (not the file harden.json produced; its report was not found)")
+    assert "**Score: 47.5/100**" in md_path.read_text()                      # the file the positional describes, as is
+    # (b) in place: harden.json says input == output == /in/electrical-room.ifc; the after report is that path
+    _write(out, "inplace-harden.json", {**HARDEN, "output": "/in/electrical-room.ifc"})
+    _write(out, FILES["validate_after"], dict(AFTER, file="/in/electrical-room.ifc"))
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / "inplace-harden.json", "-o", md_path)
+    assert (rc, err) == (0, "")
+    md = md_path.read_text()
+    assert md.splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc` (hardened from `electrical-room.ifc`)"
+    assert "**Score: 77.0/100**" in md and "- File size 996,653 bytes" in md      # the hardened numbers, not 35.7
+
+
+def test_cli_incomplete_reports(report, out, tmp_path, capsys):
+    """A positional that is not a full report is exit 2 even when a good sibling
+    would supply the subject; a discovered sibling that is incomplete degrades
+    to the input with a warning; an --after that is incomplete is exit 2."""
+    md_path = tmp_path / "r.md"
+    for bad in ({}, {"score": {}, "file": None}):
+        rc, err = _cli(report, capsys, _write(out, "bad.json", bad), "--compare", out / FILES["harden"], "-o", md_path)
+        assert rc == 2 and err.startswith("error: ") and not md_path.exists(), bad
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
+                   "--after", _write(out, "bad.json", dict(AFTER, file_size="996653")), "-o", md_path)
+    assert rc == 2 and "not a complete validate_ifc.py report" in err and not md_path.exists()   # a string size
+    incomplete = {k: v for k, v in AFTER.items() if k != "products"}
+    (out / FILES["validate_after"]).write_text(json.dumps(incomplete))
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"], "-o", md_path)
+    assert rc == 0 and err.startswith("warning: the validate-after.json beside harden.json is incomplete (")
+    assert md_path.read_text().splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc` (the input, before hardening)"
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
+                   "--after", _write(out, "incomplete.json", incomplete), "-o", tmp_path / "r2.md")
+    assert rc == 2 and "not a complete validate_ifc.py report" in err and not (tmp_path / "r2.md").exists()
 
 
 def test_cli_single_file_is_unchanged(report, out, tmp_path, capsys):
