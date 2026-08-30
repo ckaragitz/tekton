@@ -200,45 +200,56 @@ def _same_file(a, b) -> bool:
     return bool(a and b) and os.path.abspath(str(a)) == os.path.abspath(str(b))
 
 
-def produced_by(rep: dict, compare: dict) -> bool:
-    """``rep`` is the report of the file harden.json says it produced: same
-    path, size and score -- a report of the same path from an earlier
-    hardening run (or of the input hardened in place) is not."""
+def same_numbers(rep: dict, compare: dict) -> bool:
+    """``rep`` measures the file harden.json says it produced: the size and
+    score harden.json recorded for it (path-agnostic: a kept or renamed copy
+    of the hardened file still qualifies, an earlier run's or the input's
+    report does not)."""
     produced = compare["after"]
-    return (_same_file(rep.get("file"), compare.get("output"))
-            and rep.get("file_size") == produced.get("size_bytes")
+    return (rep.get("file_size") == produced.get("size_bytes")
             and rep["score"].get("score") == produced.get("score"))
 
 
+def produced_by(rep: dict, compare: dict) -> bool:
+    """``rep`` is the report of the file harden.json says it produced, at
+    that path -- what a positional or a discovered sibling must satisfy."""
+    return _same_file(rep.get("file"), compare.get("output")) and same_numbers(rep, compare)
+
+
 def find_subject(rep: dict, compare: dict, compare_path: str):
-    """With ``--compare``: the hardened file's report to describe and the
-    input's name -- the positional itself when it is that report, else the
-    AFTER_REPORT beside harden.json when it is.  Returns ``(report, source,
-    None)`` or ``(None, None, why)``."""
+    """With ``--compare`` and no ``--after``: the hardened file's report to
+    describe -- the positional itself when it is that report, else the
+    AFTER_REPORT beside harden.json when it is.  Returns ``(report, None)``
+    or ``(None, why)``."""
     if produced_by(rep, compare):
-        return rep, os.path.basename(str(compare.get("input") or rep["file"])), None
+        return rep, None
     sibling = os.path.join(os.path.dirname(os.path.abspath(compare_path)), AFTER_REPORT)
     if not os.path.isfile(sibling):
-        return None, None, f"no {AFTER_REPORT} beside {os.path.basename(compare_path)}"
+        return None, f"no {AFTER_REPORT} beside {os.path.basename(compare_path)}"
     try:
         after = load(sibling)
         if not is_report(after):
             raise ValueError("not a validate_ifc.py report")
     except Exception as e:
-        return None, None, f"{sibling} unreadable: {e}"
+        return None, f"{sibling} unreadable: {e}"
     if not produced_by(after, compare):
-        return None, None, (f"{sibling} is not the report of {compare['output']}" if compare.get("output")
-                            else f"{os.path.basename(compare_path)} records no output file")
-    return after, os.path.basename(str(rep["file"])), None
+        return None, (f"{sibling} is not the report of {compare['output']}" if compare.get("output")
+                      else f"{os.path.basename(compare_path)} records no output file")
+    return after, None
 
 
-def _render(subject: dict, cmp: dict | None, source: str | None, rep: dict) -> str:
-    """render() with the degraded title when ``subject`` is not the hardened file."""
-    note = None
-    if source is None and cmp is not None:
+def _render(subject: dict, cmp: dict | None, rep: dict) -> str:
+    """render() for the chosen subject: named as hardened from harden.json's
+    input when it is the hardened file, with the degraded title otherwise."""
+    if subject is rep and cmp is not None and not produced_by(rep, cmp):
         note = ("the input, before hardening" if _same_file(rep.get("file"), cmp.get("input"))
                 else "not the file harden.json produced; its report was not found")
-    return render(subject, cmp, source=source, note=note)
+        return render(rep, cmp, note=note)
+    if cmp is None:
+        return render(subject, note=None if subject is rep else f"the hardened file; from `{os.path.basename(str(rep['file']))}`")
+    source = os.path.basename(str(cmp["input"])) if cmp.get("input") else None
+    return render(subject, cmp, source=source,
+                  note=None if source else "the hardened file; harden.json names no input")
 
 
 def main(argv=None) -> int:
@@ -259,42 +270,50 @@ def main(argv=None) -> int:
                 raise ValueError(f"{label}: not a validate_ifc.py report")
         if cmp is not None and not (isinstance(cmp.get("before"), dict) and isinstance(cmp.get("after"), dict)):
             raise ValueError(f"{args.compare}: not a harden_ifc.py --report file")
-        if after is not None and _same_file(after["file"], rep["file"]):
-            raise ValueError(f"--after {args.after} is the report of the input itself ({rep['file']})")
+        if after is not None and cmp is not None and not same_numbers(after, cmp):
+            raise ValueError(f"--after {args.after} is not the report of the file {os.path.basename(args.compare)} "
+                             f"produced (its size or score differ from harden.json's `after`)")
+        if after is not None and cmp is None and _same_file(after["file"], rep["file"]):
+            raise ValueError(f"--after {args.after} is the report of {args.validation_json}'s own file ({rep['file']})")
     except Exception as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
 
-    subject, source, discovered = rep, None, False
+    subject, discovered = rep, False
     if after is not None:                       # the operator's assertion (the bench renames its artifacts)
-        subject, source = after, os.path.basename(str(rep["file"]))
+        subject = after
     elif cmp is not None:
-        subject, source, why = find_subject(rep, cmp, args.compare)
+        subject, why = find_subject(rep, cmp, args.compare)
         if subject is None:
             print(f"warning: no report of the hardened file ({why}); the report describes "
-                  f"{os.path.basename(str(rep['file']))} -- pass --after {AFTER_REPORT}", file=sys.stderr)
+                  f"{os.path.basename(str(rep['file']))} -- re-validate the hardened file to {AFTER_REPORT} "
+                  f"beside {os.path.basename(args.compare)}, or pass --after", file=sys.stderr)
             subject = rep
         discovered = subject is not rep
+    named = ", ".join(x for x in (args.validation_json, args.compare, args.after) if x)
     try:
-        md = _render(subject, cmp, source, rep)
+        md = _render(subject, cmp, rep)
     except Exception as e:
         if not discovered:
-            print(f"error: {args.after or args.validation_json}: not a complete validate_ifc.py report ({e!r})",
-                  file=sys.stderr)
+            print(f"error: could not render the report from {named}: {e!r}", file=sys.stderr)
             return 2
         print(f"warning: the {AFTER_REPORT} beside {os.path.basename(args.compare)} is incomplete ({e!r}); "
               f"the report describes {os.path.basename(str(rep['file']))}", file=sys.stderr)
         try:
-            md = _render(rep, cmp, None, rep)
+            md = _render(rep, cmp, rep)
         except Exception as e2:
-            print(f"error: {args.validation_json}: not a complete validate_ifc.py report ({e2!r})", file=sys.stderr)
+            print(f"error: could not render the report from {named}: {e2!r}", file=sys.stderr)
             return 2
-    if args.output:
-        with open(args.output, "w") as fh:
-            fh.write(md + "\n")
-        print(f"report -> {args.output}")
-    else:
-        print(md)
+    try:
+        if args.output:
+            with open(args.output, "w") as fh:
+                fh.write(md + "\n")
+            print(f"report -> {args.output}")
+        else:
+            print(md)
+    except OSError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
     return 0
 
 

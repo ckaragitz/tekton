@@ -154,7 +154,8 @@ def test_cli_without_the_hardened_files_report_stays_on_the_input_and_says_so(re
     rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"], "-o", md_path)
     assert rc == 0
     assert err.startswith("warning: no report of the hardened file (") and err.endswith(
-        "); the report describes electrical-room.ifc -- pass --after validate-after.json\n")
+        "); the report describes electrical-room.ifc -- re-validate the hardened file to validate-after.json "
+        "beside harden.json, or pass --after\n")
     assert {"no-after-report": "no validate-after.json beside harden.json", "unreadable-sibling": "unreadable",
             "not-a-report": "unreadable: ",
             "another-output": "is not the report of /out/hardened.ifc",
@@ -231,7 +232,10 @@ def test_cli_incomplete_reports(report, out, tmp_path, capsys):
         assert rc == 2 and err.startswith("error: ") and not md_path.exists(), bad
     rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
                    "--after", _write(out, "bad.json", dict(AFTER, file_size="996653")), "-o", md_path)
-    assert rc == 2 and "not a complete validate_ifc.py report" in err and not md_path.exists()   # a string size
+    assert rc == 2 and "is not the report of the file harden.json produced" in err and not md_path.exists()   # a string size
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--after",
+                   _write(out, "bad.json", dict(AFTER, file_size="996653")), "-o", md_path)
+    assert rc == 2 and "could not render the report" in err and not md_path.exists()   # ... and without harden.json to check against
     incomplete = {k: v for k, v in AFTER.items() if k != "products"}
     (out / FILES["validate_after"]).write_text(json.dumps(incomplete))
     rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"], "-o", md_path)
@@ -239,7 +243,7 @@ def test_cli_incomplete_reports(report, out, tmp_path, capsys):
     assert md_path.read_text().splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc` (the input, before hardening)"
     rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
                    "--after", _write(out, "incomplete.json", incomplete), "-o", tmp_path / "r2.md")
-    assert rc == 2 and "not a complete validate_ifc.py report" in err and not (tmp_path / "r2.md").exists()
+    assert rc == 2 and "could not render the report" in err and not (tmp_path / "r2.md").exists()
 
 
 def test_cli_single_file_is_unchanged(report, out, tmp_path, capsys):
@@ -247,9 +251,11 @@ def test_cli_single_file_is_unchanged(report, out, tmp_path, capsys):
     assert (tmp_path / "r.md").read_text().splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc`"
 
 
-def test_cli_explicit_after_is_the_operators_assertion(report, out, tmp_path, capsys):
-    """--after is taken as given (the bench renames its artifacts) -- except
-    an unreadable file, or the input's own report, which are usage errors."""
+def test_cli_explicit_after_is_the_hardened_files_report_by_its_numbers(report, out, tmp_path, capsys):
+    """--after is the operator's assertion about WHICH file, but it must measure
+    the file harden.json produced (size + score): a kept or renamed copy passes
+    (the bench keeps its artifacts under other names), the input's own report
+    or a swapped positional/--after does not; unreadable is a usage error."""
     (out / "moved.json").write_text(json.dumps(dict(AFTER, file="/elsewhere/renamed.ifc")))
     md_path = tmp_path / "r.md"
     assert _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
@@ -260,9 +266,41 @@ def test_cli_explicit_after_is_the_operators_assertion(report, out, tmp_path, ca
         rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
                        "--after", out / "bad.json", "-o", tmp_path / "r2.md")
         assert rc == 2 and err.startswith("error: ") and not (tmp_path / "r2.md").exists(), bad
-    rc, err = _cli(report, capsys, out / FILES["validate"], "--compare", out / FILES["harden"],
-                   "--after", out / FILES["validate"], "-o", tmp_path / "r3.md")
-    assert rc == 2 and "is the report of the input itself" in err and not (tmp_path / "r3.md").exists()
+    # the input's own report as --after, and the positional/--after swapped: refused by the numbers
+    for pos, aft in ((FILES["validate"], FILES["validate"]), (FILES["validate_after"], FILES["validate"])):
+        rc, err = _cli(report, capsys, out / pos, "--compare", out / FILES["harden"], "--after", out / aft,
+                       "-o", tmp_path / "r3.md")
+        assert rc == 2 and "is not the report of the file harden.json produced" in err and not (tmp_path / "r3.md").exists()
+    # without --compare nothing can be checked but the path: the positional's own file is refused
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--after", out / FILES["validate"], "-o", tmp_path / "r4.md")
+    assert rc == 2 and "own file" in err
+    # --after alone (no --compare) describes that file and says where it came from
+    rc, err = _cli(report, capsys, out / FILES["validate"], "--after", out / FILES["validate_after"], "-o", tmp_path / "r5.md")
+    assert (rc, err) == (0, "")
+    assert (tmp_path / "r5.md").read_text().splitlines()[0] == (
+        "# Revit-readiness report: `hardened.ifc` (the hardened file; from `electrical-room.ifc`)")
+
+
+def test_cli_in_place_hardening_with_after(report, out, tmp_path, capsys):
+    """harden.json input == output (hardened in place): --after naming the
+    re-validated file is right even though its path is the input's."""
+    _write(out, "inplace-harden.json", {**HARDEN, "output": "/in/electrical-room.ifc"})
+    inplace_after = _write(out, "inplace-after.json", dict(AFTER, file="/in/electrical-room.ifc"))
+    md_path = tmp_path / "r.md"
+    assert _cli(report, capsys, out / FILES["validate"], "--compare", out / "inplace-harden.json",
+                "--after", inplace_after, "-o", md_path) == (0, "")
+    md = md_path.read_text()
+    assert md.splitlines()[0] == "# Revit-readiness report: `electrical-room.ifc` (hardened from `electrical-room.ifc`)"
+    assert "**Score: 77.0/100**" in md
+
+
+def test_cli_output_errors_and_a_nameless_harden_json(report, out, tmp_path, capsys):
+    rc, err = _cli(report, capsys, out / FILES["validate"], "-o", tmp_path / "missing" / "r.md")
+    assert rc == 2 and err.startswith("error: ")
+    _write(out, "noinput-harden.json", {k: v for k, v in HARDEN.items() if k != "input"})
+    md_path = tmp_path / "r.md"
+    assert _cli(report, capsys, out / FILES["validate"], "--compare", out / "noinput-harden.json", "-o", md_path) == (0, "")
+    assert md_path.read_text().splitlines()[0] == "# Revit-readiness report: `hardened.ifc` (the hardened file; harden.json names no input)"
 
 
 def test_script_entry_point(out, tmp_path):

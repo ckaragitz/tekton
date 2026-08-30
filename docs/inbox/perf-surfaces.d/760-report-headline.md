@@ -35,7 +35,7 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   name (the bench keeps its artifact as `ifc-hardened.ifc`).
 * `references/sop-harden-deliver.md` step 8 (+ mirror) and `scripts/README.md`: the tool command and
   the manual fallback describe the same file.
-* Tests: `tests/test_ifc_report_760.py` (16 collected, stdlib-only synthetic reports, in-process `main()`:
+* Tests: `tests/test_ifc_report_760.py` (18 collected, stdlib-only synthetic reports, in-process `main()`:
   the three titles, errors-first with schema errors, sibling lookup == explicit `--after` bytes,
   five degrade cases (no sibling / unreadable / not a report / another output / same path re-hardened) with the
   warning, single-file unchanged, `--after` taken as given but exit 2 when unreadable or the input's
@@ -96,7 +96,13 @@ file that scores 77.0 / Tier 1 (partial). Found by the independent review of #75
   `is_report()` on every loaded report, and one render guard that degrades for a discovered sibling and
   errors for an operator-supplied one; the degraded title says "(the input, before hardening)" only when
   the positional is harden.json's input, else "(not the file harden.json produced; its report was not
-  found)" (fifth commit; both scenarios re-run on the real tools).
+  found)" (fifth commit; both scenarios re-run on the real tools). Fifth review (🛑): the `--after` door
+  was still path-checked against the positional, so an in-place run's correct `--after` was refused as
+  "the input itself" and a swapped positional/`--after` rendered the input as delivered -- `--after` with
+  `--compare` is now accepted iff its size and score are harden.json's `after` (`same_numbers`, path-agnostic
+  because the bench keeps renamed copies), the input's name always comes from harden.json's `input` (a
+  nameless harden.json says so in the title), the `-o` write is guarded (exit 2, no traceback), and the
+  degrade warning's remedy is to re-validate the hardened file (sixth commit; re-run on the real tools).
 * /simplify (4 reviewers) applied: identity check on the discovered sibling, `source=` instead of an
   `after=` override, the CLI remedy out of the delivered document, one constant for the sibling name,
   `after_path` bound once, dead `instancing`/`units` unpack dropped, tests in-process (5 launches ->
