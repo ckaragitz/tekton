@@ -1027,8 +1027,56 @@ def _r_prompt_to_rfa(res, inputs, out_dir, opts):
         res.ok = True
         res.status = f"OK ({built} family .rfa generated; refusals honest)"
         return
-    # nothing catalog-backed came out of it: is this a product we GENERATE?
+    # nothing catalog-backed came out of the SCENE grammar: does the
+    # TAXONOMY name a kind a famspec constructor already builds?  (#766: the
+    # troffer prompt failed while make_luminaire's DEFAULT was the product --
+    # the hint existed and nothing consulted it.)  This runs before the
+    # archetype lane because a catalog-backed constructor outranks a nominal
+    # generation (steer #591 DONE 6), and it never shadows the refusal relay:
+    # a recognised-but-unbuildable kind yields no plan here and still reaches
+    # the taxonomy's own line below.
     intent_errors = [str(e) for e in res.errors[mark:]]
+    try:
+        from . import taxonomy_build as TB
+        tb_plans = TB.plans(prompt)
+    except Exception as e:                        # never block the next lane
+        tb_plans = []
+        res.caveats.append(f"taxonomy-build lane skipped "
+                           f"({type(e).__name__}: {e})")
+    built_kinds: List[str] = []
+    for plan in tb_plans:
+        if plan.get("kw") is None:
+            res.caveats.append(
+                f"taxonomy plan for '{plan['mention']}' not authorable: "
+                f"{plan.get('invalid')}")
+            continue
+        sub = dict(opts)
+        sub.setdefault("stem", _slug(f"{plan['label']}"))
+        before_ok = res.ok
+        got = _famspec_rfa(res, plan["kind"], dict(plan["kw"]), out_dir, sub)
+        if got is not None:
+            built_kinds.append(str(plan["label"]))
+            res.caveats.append(
+                "built from the prompt's own words via the taxonomy: "
+                + TB.describe(plan)
+                + " -- unstated values are the constructor's nominal "
+                  "defaults, overridable by saying them")
+            for note in plan.get("notes") or []:
+                res.caveats.insert(0, str(note))
+        else:
+            res.ok = before_ok      # one failed plan never poisons the rest
+            res.caveats.append(f"taxonomy plan not built: {TB.describe(plan)}")
+    if built_kinds:
+        res.ok = True
+        res.status = (f"OK ({len(built_kinds)} family .rfa generated from the "
+                      f"prompt's named kind(s): {', '.join(built_kinds)})")
+        if any(plan.get("notes") for plan in tb_plans):
+            res.status += " -- NOT at the size you named (see the first caveat)"
+        # the intent step's complaint is served: demote its errors to caveats
+        for e in res.errors[mark:]:
+            res.caveats.append(f"scene grammar: {e}")
+        del res.errors[mark:]
+        return
     if _archetype_rfa(res, prompt, out_dir, opts, demote=res.errors[mark:]):
         return
     res.ok = False
