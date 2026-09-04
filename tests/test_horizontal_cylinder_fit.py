@@ -1,4 +1,4 @@
-"""#766 -- the assembly lane fits TRUE lying cylinders, not box staircases.
+"""#770 -- the assembly lane fits TRUE lying cylinders, not box staircases.
 
 The engine has authored true horizontal cylinders since #591 round 4
 (cylinder_x / cylinder_y, the rotated cached B-rep) but nothing ever FIT
@@ -84,7 +84,7 @@ def test_part_solid_emits_the_rotated_cylinder_contract():
 
 
 # ---------------------------------------------------------------------------
-# the lathe lane (#766 round 2): stepped true cylinders, not slab staircases
+# the lathe lane (#770 round 2): stepped true cylinders, not slab staircases
 # ---------------------------------------------------------------------------
 
 from rvt.ifc.assembly_parts import decompose_lathe

@@ -1,6 +1,6 @@
-# 766 — lying cylinders fit as TRUE cylinders, not box staircases
+# 770 — lying cylinders fit as TRUE cylinders, not box staircases
 
-Refs #766. Stream: `ifc-assembly-rfa`.
+Refs #770. Stream: `ifc-assembly-rfa`.
 
 Owner, on the Greenlee 855GX conversion: *"we really need to stop not making
 circles out of smaller rectangle extrusion and make its true form"*.
