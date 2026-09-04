@@ -198,13 +198,14 @@ class PartSolid:
     ifc_class: str
     tag: str
     guid: str
-    fit: str                                  # cylinder | box | polygon
+    fit: str                     # cylinder | cylinder_x | cylinder_y | box | polygon
     center_ft: Tuple[float, float]
     height_ft: float
     base_z_ft: float
     width_ft: Optional[float] = None          # box
     depth_ft: Optional[float] = None          # box
-    radius_ft: Optional[float] = None         # cylinder
+    radius_ft: Optional[float] = None         # cylinder / cylinder_x / cylinder_y
+    length_ft: Optional[float] = None         # cylinder_x / cylinder_y (along the axis)
     vertices_ft: Optional[List[List[float]]] = None   # polygon (absolute plan)
     n_points: int = 0
     n_faces: int = 0
@@ -222,6 +223,13 @@ class PartSolid:
             "shape": self.fit, "name": self.name,
             "height_ft": self.height_ft, "base_z_ft": self.base_z_ft,
         }
+        if self.fit in ("cylinder_x", "cylinder_y"):
+            # a TRUE lying cylinder: authored vertical, cached B-rep rotated
+            # onto the axis (#591 round 4, desktop-verified as delivered)
+            part["radius_ft"] = self.radius_ft
+            part["length_ft"] = self.length_ft
+            part["center"] = list(self.center_ft)
+            return part
         if self.fit == "cylinder":
             if CYLINDER_AS_POLYGON and self.vertices_ft:
                 # measured round, authored as the mesh's own N-gon: the arc
@@ -245,6 +253,8 @@ class PartSolid:
         d = {
             "name": self.name, "ifc_class": self.ifc_class, "tag": self.tag,
             "guid": self.guid, "fit": self.fit,
+            **({"length_ft": round(self.length_ft, 6)}
+               if self.length_ft is not None else {}),
             "center_ft": [round(c, 6) for c in self.center_ft],
             "height_ft": round(self.height_ft, 6),
             "base_z_ft": round(self.base_z_ft, 6),
@@ -559,6 +569,33 @@ def fit_solid(points_ft: Sequence[Sequence[float]],
         return dict(common, fit="cylinder", center=(cx, cy), radius_ft=mean_r,
                     vertices=ring,      # the mesh's own outline, for authoring
                     fill=_fill(math.pi * mean_r * mean_r * height))
+
+    # -- a cylinder lying on its side?  The plan projection of a horizontal
+    # tube is a RECTANGLE, so the vertical fit above can never see it -- which
+    # is how a conduit bender's rollers, tubes and handles all shipped as
+    # boxes (owner, 2026-09-04: "we really need to stop making circles out of
+    # rectangle extrusions").  The engine has authored true lying cylinders
+    # since #591 round 4 (`cylinder_x` / `cylinder_y`, the rotated cached
+    # B-rep); nothing ever FIT them.  Same two anti-false-positive laws as
+    # the vertical fit, applied to the side projection (#620/#628 inherited
+    # through _fit_circle); axis-aligned only -- a tube at a yaw stays its
+    # box/N-gon envelope, never a guessed cylinder.
+    for axis, cross in (("y", xs), ("x", ys)):
+        side_hull = convex_hull_2d(list(zip(cross, zs)))
+        side_area = _polygon_area(side_hull) if len(side_hull) >= 3 else 0.0
+        c = _fit_circle(side_hull, side_area)
+        if c is None:
+            continue
+        cc, cz, r = c
+        length = ext[1] if axis == "y" else ext[0]
+        if length <= 2.0 * r * 0.05:
+            continue                      # a wafer, not a lying cylinder
+        centre = ((cc, (mn[1] + mx[1]) / 2.0) if axis == "y"
+                  else ((mn[0] + mx[0]) / 2.0, cc))
+        return dict(common, fit=f"cylinder_{axis}", center=centre,
+                    radius_ft=r, length_ft=length,
+                    height_ft=2.0 * r, base_z_ft=cz - r,
+                    fill=_fill(math.pi * r * r * length))
 
     # -- axis-aligned rectangle, or a hull too thin to author as an N-gon --
     if bbox_area <= 0 or hull_area <= 0 or len(hull) < 3 \
@@ -1865,7 +1902,8 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
             fit=fit["fit"], center_ft=tuple(fit["center"]),
             height_ft=fit["height_ft"], base_z_ft=fit["base_z_ft"],
             width_ft=fit.get("width_ft"), depth_ft=fit.get("depth_ft"),
-            radius_ft=fit.get("radius_ft"), vertices_ft=fit.get("vertices"),
+            radius_ft=fit.get("radius_ft"), length_ft=fit.get("length_ft"),
+            vertices_ft=fit.get("vertices"),
             fill=(None if fit.get("fill") is None else float(fit["fill"])),
             of_product=name, **common))
 
