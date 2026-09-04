@@ -1056,6 +1056,10 @@ def _r_prompt_to_rfa(res, inputs, out_dir, opts):
         got = _famspec_rfa(res, plan["kind"], dict(plan["kw"]), out_dir, sub)
         if got is not None:
             built_kinds.append(str(plan["label"]))
+            # a second built kind would overwrite res.files["rfa"]: every
+            # built kind also keeps its file under its own label key (#768).
+            if res.files.get("rfa"):
+                res.files[f"rfa:{_slug(str(plan['label']))}"] = res.files["rfa"]
             res.caveats.append(
                 "built from the prompt's own words via the taxonomy: "
                 + TB.describe(plan)
@@ -1072,9 +1076,14 @@ def _r_prompt_to_rfa(res, inputs, out_dir, opts):
                       f"prompt's named kind(s): {', '.join(built_kinds)})")
         if any(plan.get("notes") for plan in tb_plans):
             res.status += " -- NOT at the size you named (see the first caveat)"
-        # the intent step's complaint is served: demote its errors to caveats
+        # the intent step's complaint is served: demote its errors to
+        # caveats.  intent_errors was snapshotted BEFORE this lane ran, so
+        # errors a failed sibling plan appended are labelled as the famspec
+        # lane's own, not blamed on the scene grammar (#768).
         for e in res.errors[mark:]:
-            res.caveats.append(f"scene grammar: {e}")
+            label = ("scene grammar" if str(e) in intent_errors
+                     else "taxonomy plan")
+            res.caveats.append(f"{label}: {e}")
         del res.errors[mark:]
         return
     if _archetype_rfa(res, prompt, out_dir, opts, demote=res.errors[mark:]):
