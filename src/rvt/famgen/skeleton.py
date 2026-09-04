@@ -1924,6 +1924,28 @@ class FamilyDoc:
         state (type table, current-type value set, parameter ordering,
         element index, ownership).  Idempotent; called by the delivery
         methods."""
+        # CONSTRAINT BACK-EDGES for every constructor (steer #765 battery
+        # find): apply_constraint_back_edges existed but only the files the
+        # session dressed BY HAND carried it -- every family built through a
+        # constructor still shipped the one-directional constraint graph that
+        # failed on the owner's desktop (Alignments naming elements whose
+        # m_constrInfo stayed []).  finalize() is the one choke point every
+        # delivery passes, so the graph is closed here.  Idempotent, and a
+        # document with no constraints is untouched.
+        try:
+            from . import famdim as _famdim
+            _famdim.apply_constraint_back_edges(self)
+        except Exception as _bx:                                   # noqa: BLE001
+            # never block delivery on the repair (hard rule 1) -- but keep
+            # the failure OBSERVABLE: the self-battery and any delivery
+            # report read doc.notes, and a silent pass here would hide a
+            # one-directional constraint graph again (#770 review).
+            try:
+                self.notes.append(
+                    f"constraint back-edge repair skipped "
+                    f"({type(_bx).__name__}: {_bx})")
+            except Exception:                                      # noqa: BLE001
+                pass
         fam = self.self_family
         # type table + current-type value set
         if not self.types:
