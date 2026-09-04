@@ -99,6 +99,26 @@ the TEXT parameter kept `add_family_parameter`'s numeric `0.0` — while
   (914.4 mm → 3.0 ft, text/boolean carried, reserved name skipped) — the prior
   conversion test self-skipped without the untracked transformer IFC.
 
-Gates after the fix: `tests/test_ifc_pset_params.py` **10 passed** (was 7+1skip);
+Gates after the fix: `tests/test_ifc_pset_params.py` **9 passed + 1 skip in CI** (10 passed with the untracked owner sample present; was 7+1skip);
 `tests/test_famgen_standards.py` + `tests/test_edit_family_size_668.py`
 **109 passed**; sync --check clean.
+
+## Review round 2 (head 217344c) — the missing route-wiring guard
+
+Round 2 verified the round-1 fix by execution (type-row values `'ONAN'`/`'Yes'`/3.0,
+the built family writes and validates clean) but found DONE 3 over-claimed: no test
+pinned that `_assembly_rfa` passes the collection into the builder — a refactor of
+its `kw` dict could silently drop `"numeric_params"` with nothing failing. Added
+two tests to `tests/test_ifc_pset_params.py`:
+
+* a monkeypatch pin on the WIRE: `_famspec_rfa` is captured and the kw handed to it
+  must hold `InsulationClass == ("text","ONAN")` and `TopClearance ≈ 3.0 ft`, with
+  the summarise caveat on `res.caveats`;
+* an end-to-end route test: a generated tessellated mm-unit IFC with psets through
+  `R.route({"ifc": …}, "rfa")` → delivered `.rfa` exists and the carry caveat names
+  the carried parameters.
+
+Module now **12 passed** locally (10 + 2; the two schema/numpy-gated ones self-skip
+where those are absent). The round-2 nit (`except (TypeError, ValueError): pass`
+on non-text specs) stays as-is deliberately: `collect()` types every non-numeric
+value "text", so the branch is defensive-only, and the comment says so.
