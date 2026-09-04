@@ -1028,11 +1028,22 @@ def _r_prompt_to_rfa(res, inputs, out_dir, opts):
         res.status = f"OK ({built} family .rfa generated; refusals honest)"
         return
     # nothing catalog-backed came out of it: is this a product we GENERATE?
+    intent_errors = [str(e) for e in res.errors[mark:]]
     if _archetype_rfa(res, prompt, out_dir, opts, demote=res.errors[mark:]):
         return
     res.ok = False
-    res.status = ("FAILED (no family plan in this prompt could be built -- "
-                  "see caveats for every refusal)")
+    # When BOTH lanes fail, the terminal status must still RELAY what the
+    # intent parser said -- the taxonomy's own line for a recognised kind no
+    # lane builds ("VAV terminal unit: Mechanical Equipment; NOT buildable
+    # here -- ...") is the useful part of the refusal, and #692's contract
+    # (test_taxonomy_wiring_692) pins it into res.status.  Swallowing it for
+    # the generic sentence was a semantic merge conflict with that PR, found
+    # by the session CI sandbox, not by git.
+    if intent_errors:
+        res.status = f"FAILED ({'; '.join(intent_errors)})"
+    else:
+        res.status = ("FAILED (no family plan in this prompt could be built "
+                      "-- see caveats for every refusal)")
 
 
 def _archetype_rfa(res: RouteResult, prompt: str, out_dir: str,
