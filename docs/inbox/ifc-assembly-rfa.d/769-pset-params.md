@@ -1,6 +1,6 @@
-# 711 — an IFC's own property sets reach the family as real parameters
+# 769 — an IFC's own property sets reach the family as real parameters
 
-Refs #711. Stream: `ifc-assembly-rfa`.
+Refs #769. Stream: `ifc-assembly-rfa`.
 
 ## The report
 
@@ -70,7 +70,7 @@ through to text. `_eid()` and `_type_name()` handle both shapes, since
   `make_generic_model`; authored with the right storage class and set on the type row.
 - `src/rvt/frontdoor/router.py` — the assembly lane collects and passes them, and
   reports the carry-through (and any skip) as a caveat.
-- `tests/test_ifc_pset_params.py` (8 tests) + `tests/ci_shard.d/711-ifc-pset-params.txt`.
+- `tests/test_ifc_pset_params.py` (8 tests) + `tests/ci_shard.d/769-ifc-pset-params.txt`.
 
 **Gates**
 - `tests/test_ifc_pset_params.py` — 8 passed.

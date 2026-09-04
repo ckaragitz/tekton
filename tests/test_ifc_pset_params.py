@@ -1,4 +1,4 @@
-"""#711 -- an IFC's own property sets reach the family as real parameters."""
+"""#769 -- an IFC's own property sets reach the family as real parameters."""
 import os
 import pytest
 from rvt.ifc import pset_params as PP

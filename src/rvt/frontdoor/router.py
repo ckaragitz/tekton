@@ -1257,7 +1257,7 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
             if pn not in seen:
                 seen.append(pn)
         text_params["Part Numbers"] = ", ".join(seen)
-    # THE AUTHOR'S OWN PROPERTY SETS (#711).  Before this, an IFC's psets were
+    # THE AUTHOR'S OWN PROPERTY SETS (#769).  Before this, an IFC's psets were
     # read for the bill of materials and everything else was dropped: a user
     # who attached Pset_TransformerClearances in their authoring tool got a
     # family with none of it and no word that it had been discarded.  Silent

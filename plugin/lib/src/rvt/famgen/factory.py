@@ -973,7 +973,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # Caller-supplied NUMERIC parameters (e.g. an IFC's own property sets):
     # {name: (spec_key, value)} -- authored with the right storage class so a
     # length reads as a length in Revit, not a bare number.  Every value is
-    # GIVEN by the caller's file; none is a catalog fact (#711).
+    # GIVEN by the caller's file; none is a catalog fact (#769).
     for cap, spec_val in (numeric_params or {}).items():
         spec_key = spec_val[0] if isinstance(spec_val, (tuple, list)) else "number"
         _num(doc, cap, spec_key, "dimensions")
