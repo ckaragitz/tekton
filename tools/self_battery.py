@@ -127,20 +127,21 @@ def _run_one(key: str, thunk: Callable[[], Any], out_dir: str,
         return _fail("write", e)
     row["steps"]["write"] = f"ok ({os.path.getsize(path)} bytes)"
 
-    # validator, in-process (0 errors required)
+    # validator, in-process (0 errors required).  The REAL validator lives at
+    # rvt.validate (tools/rvt_validate.py is a thin CLI shim with no Validator
+    # class) -- the first cut imported the shim, got AttributeError, and
+    # counted the dead instrument as SKIP-therefore-pass: a family with
+    # validator errors sailed through the battery (#770 review, measured).
+    # An instrument crash is a FAIL here, never an invisible skip.
     try:
-        import importlib.util
-        spec = importlib.util.spec_from_file_location(
-            "_rvt_validate", os.path.join(HERE, "rvt_validate.py"))
-        rv = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(rv)                # type: ignore[union-attr]
-        rep = rv.Validator(path).run()
+        from rvt.validate import validate_file
+        rep = validate_file(path, family=True)
         errs = [f for f in rep.findings if f.severity == "error"]
         row["steps"]["validate"] = ("ok" if not errs
                                     else f"FAIL {len(errs)} error(s): "
                                          + "; ".join(f.message for f in errs[:3]))
     except BaseException as e:                                    # noqa: BLE001
-        row["steps"]["validate"] = f"SKIP ({type(e).__name__}: {e})"
+        row["steps"]["validate"] = f"FAIL instrument ({type(e).__name__}: {e})"
 
     try:
         fs = CL.check_file(path)

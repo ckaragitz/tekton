@@ -1935,8 +1935,17 @@ class FamilyDoc:
         try:
             from . import famdim as _famdim
             _famdim.apply_constraint_back_edges(self)
-        except Exception:                                          # noqa: BLE001
-            pass          # never block delivery on the repair (hard rule 1)
+        except Exception as _bx:                                   # noqa: BLE001
+            # never block delivery on the repair (hard rule 1) -- but keep
+            # the failure OBSERVABLE: the self-battery and any delivery
+            # report read doc.notes, and a silent pass here would hide a
+            # one-directional constraint graph again (#770 review).
+            try:
+                self.notes.append(
+                    f"constraint back-edge repair skipped "
+                    f"({type(_bx).__name__}: {_bx})")
+            except Exception:                                      # noqa: BLE001
+                pass
         fam = self.self_family
         # type table + current-type value set
         if not self.types:

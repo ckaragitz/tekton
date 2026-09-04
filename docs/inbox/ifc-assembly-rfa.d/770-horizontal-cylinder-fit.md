@@ -52,6 +52,22 @@ constraint graph coherent.
 
 Files: `src/rvt/ifc/assembly_parts.py` (side fits in `fit_solid`,
 `PartSolid.length_ft` + emit), `tests/test_horizontal_cylinder_fit.py`
-(7 tests) + shard drop-in, this record.
-Gates: 7 tests pass; sync deny-audit clean; Greenlee re-run VALID 0 errors,
+(11 tests) + shard drop-in, this record.
+Gates: 11 tests pass; sync deny-audit clean; Greenlee re-run VALID 0 errors,
 graph coherent; before/after counts above.
+
+## Review round 1 (#772, head 49cb812) — the dead validate instrument
+
+The independent reviewer measured the battery's central claim false: the
+validate step imported `tools/rvt_validate.py` (a CLI shim with no `Validator`
+class), hit `AttributeError`, and recorded `SKIP` — counted as pass. A family
+with validator errors sailed through the steer-#765 instrument. Fixed:
+
+* the battery now calls `rvt.validate.validate_file(path, family=True)` — the
+  real layered validator in family mode — and an instrument crash records
+  `FAIL instrument (…)`, never an invisible SKIP;
+* `skeleton.finalize()`'s back-edge repair failure now appends to `doc.notes`
+  instead of a bare `pass`, so the battery can see a skipped repair;
+* `verdict_harness.py` no longer calls `run()` unconditionally at import — the
+  `__main__` guard covers both plain python and pyRevit exec;
+* this record's test count corrected 7 → 11 (the round-2 lathe tests).

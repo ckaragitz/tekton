@@ -171,5 +171,7 @@ def run():
 
 
 if __name__ == "__main__":
+    # plain python AND pyRevit/RevitPythonShell (both exec the script as
+    # __main__); an unconditional module-level run() fired on any IMPORT of
+    # this file too (#770 review) -- the guard covers every real entry.
     raise SystemExit(run())
-run()   # pyRevit / RevitPythonShell exec() entry
