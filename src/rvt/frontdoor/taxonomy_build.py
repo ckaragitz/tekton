@@ -106,7 +106,11 @@ def plans(prompt: str) -> List[Dict[str, Any]]:
         if row is None:
             continue
         try:
-            if not TX.builder_available(row):
+            # builder_available returns (bool, why) -- truth-testing the
+            # TUPLE is always True, the exact bug class the #766 battery
+            # fixed; unpacked here so the gate actually gates (#768).
+            ok, _why = TX.builder_available(row)
+            if not ok:
                 continue
         except Exception:                                         # noqa: BLE001
             continue

@@ -60,12 +60,16 @@ def run_prompt(prompt: str) -> Dict[str, Any]:
         row["status"] = str(res.status)[:220]
         row["delivered"] = bool(res.files.get("rfa")
                                 or res.files.get("families_dir"))
+        # the honest set names the taxonomy's OWN refusal lines only: the
+        # generic "no family plan" was counted here once and made the law
+        # partially vacuous -- the battery would have PASSed the original
+        # #766 failure itself, and a prompt regressing from delivery to a
+        # generic refusal still passed (#768).
         honest = ("NOT buildable here" in str(res.status)
                   or "recognised, NOT built" in str(res.status)
-                  or "nothing to author here" in str(res.status)
-                  or "no family plan" in str(res.status))
+                  or "nothing to author here" in str(res.status))
         row["held_the_line"] = row["ok"] or honest
-    except BaseException as exc:                                  # noqa: BLE001
+    except Exception as exc:                                      # noqa: BLE001
         row["ok"] = False
         row["held_the_line"] = False           # a crash never holds the line
         row["status"] = f"CRASH {type(exc).__name__}: {exc}"
