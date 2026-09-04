@@ -51,7 +51,11 @@ CATALOG_KINDS: Tuple[str, ...] = ("panelboard", "transformer", "luminaire", "dev
 #: ``generic_model`` is NOT catalog-backed: its geometry is GIVEN by the
 #: caller (vertices + height, or width/depth + height) -- the route for an
 #: arbitrary 3D object, e.g. a Claude Design body (issue #498).
-KINDS: Tuple[str, ...] = CATALOG_KINDS + ("downlight", "generic_model")
+#: ``archetype`` is not catalog-backed either, and does not need the caller to
+#: supply geometry: it GENERATES a named product (a cable tray, a strut
+#: channel) at standard NOMINAL sizes for its class, every dimension reported
+#: nominal or given, no manufacturer claim (rvt.famgen.archetypes, issue #591).
+KINDS: Tuple[str, ...] = CATALOG_KINDS + ("downlight", "generic_model", "archetype")
 
 #: famspec fields that steer the ROUTE, not the constructor
 _ROUTE_FIELDS = ("target_version",)
@@ -110,7 +114,8 @@ def schema() -> Optional[Dict[str, Any]]:
 
 # ---------------------------------------------------------------------------
 # a stdlib validator for the draft-07 subset spec/famspec.schema.json uses:
-# type / enum / const / required / properties / additionalProperties(false)
+# type / enum / const / required / properties / additionalProperties
+# (false = no other keys; a schema = every other key's VALUE is checked)
 # / oneOf / anyOf / $ref (local) / minimum / maximum / exclusiveMinimum /
 # minLength / minItems / items / pattern.  Anything else in a schema node is
 # documentation (title / description / $schema / $id / definitions).
@@ -182,6 +187,14 @@ def check_schema(value: Any, node: Dict[str, Any], root: Optional[Dict[str, Any]
                 out.extend(check_schema(v, props[k], root, f"{where}.{k}"))
             elif node.get("additionalProperties") is False:
                 out.append(f"{where}: unknown field '{k}' (allowed: {', '.join(sorted(props))})")
+            elif isinstance(node.get("additionalProperties"), dict):
+                # a SCHEMA for every other key: the free-key maps the contract
+                # uses (an archetype's 'dimensions', a family's
+                # 'standard_values') -- their VALUES are checked even though
+                # their names are open, so {"width_in": "wide"} is refused here
+                # rather than surviving to the constructor
+                out.extend(check_schema(v, node["additionalProperties"], root,
+                                        f"{where}.{k}"))
     if "anyOf" in node:
         branches = [check_schema(value, b, root, where) for b in node["anyOf"]]
         if all(branches):
@@ -289,4 +302,5 @@ def is_refusal(exc: BaseException) -> bool:
     field it does not take) rather than failing to emit."""
     from ..famgen.factory import FactoryError
     from ..famgen.catalog import CatalogError
-    return isinstance(exc, (FactoryError, CatalogError, TypeError))
+    from ..famgen.archetypes import ArchetypeError
+    return isinstance(exc, (FactoryError, CatalogError, ArchetypeError, TypeError))

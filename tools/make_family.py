@@ -213,6 +213,59 @@ def cmd_proofs(ns) -> int:
     return F.main([] if not ns.no_validate else ["--no-validate"])
 
 
+def cmd_archetypes(ns) -> int:
+    """The ARCHETYPE registry (#591): the named products this engine GENERATES
+    at standard nominal sizes, their parameters and the practice each nominal
+    follows.  With a prompt, show how that prompt resolves -- which dimensions
+    it sets (given) and which stay nominal -- without building anything."""
+    from rvt.famgen import archetypes as AR
+    if ns.check:
+        problems = AR.check_registry()
+        for line in problems:
+            print(line)
+        print(f"{len(AR.ARCHETYPES)} archetypes, {len(problems)} problems")
+        return 1 if problems else 0
+    if ns.prompt:
+        r = AR.resolve_prompt(ns.prompt)
+        if r is None:
+            print(f"no generated product in {ns.prompt!r}. Generated today: "
+                  + ", ".join(AR.keys())
+                  + "\nAnything else needs its geometry supplied (a famspec's "
+                    "'parts', an IFC body) or catalog facts.")
+            return 1
+        print(json.dumps(r.to_json(), indent=1) if ns.json else _archetype_lines(r))
+        return 0
+    if ns.json:
+        print(json.dumps(AR.describe(ns.product) if ns.product else AR.table(),
+                         indent=1, default=str))
+        return 0
+    for key in ([ns.product] if ns.product else AR.keys()):
+        d = AR.describe(key)
+        print(f"== {d['product']}  ({d['title']}, category {d['category']})")
+        print(f"   nominals follow: {d['basis']}")
+        print(f"   LOD            : {d['lod']}")
+        for lim in d["limits"]:
+            print(f"   NOT modelled   : {lim}")
+        for p in d["parameters"]:
+            sizes = (f"  standard: {', '.join(f'{c:g}' for c in p['standard_sizes'])}"
+                     if p["standard_sizes"] else "")
+            print(f"   {p['key']:<20} {p['nominal']:>8g} {p['unit']:<3}"
+                  f"{'  [primary]' if p['primary'] else '          '}{sizes}")
+    return 0
+
+
+def _archetype_lines(r) -> str:
+    d = r.to_json()
+    out = [f"{d['title']}  ({d['product']}, category {d['category']})"]
+    for row in d["dimensions"]:
+        why = (f"GIVEN   <- {row['from_prompt']!r}" if row["provenance"] == "given"
+               else f"nominal <- {row['basis']}")
+        out.append(f"  {row['label']:<20} {row['display']:>10}   {why}")
+    out.append(f"  -> {len(r.parts())} parts; {len(d['nominal'])} nominal, "
+               f"{len(d['given'])} given. No manufacturer identity is claimed.")
+    return "\n".join(out)
+
+
 def cmd_standards(ns) -> int:
     """The CATEGORY -> STANDARD PARAMETERS table (#601): what a generated
     family of a category carries, and where each parameter's name came from.
@@ -488,6 +541,18 @@ def main(argv=None) -> int:
     p = sub.add_parser("proofs", help="build the three proof families")
     p.add_argument("--no-validate", action="store_true")
     p.set_defaults(func=cmd_proofs)
+
+    p = sub.add_parser("archetypes",
+                       help="the named products generated at standard nominal sizes (#591)")
+    p.add_argument("product", nargs="?", default=None,
+                   help="one product (cable_tray, strut_channel, wireway, "
+                        "junction_box, conduit); omitted = every product")
+    p.add_argument("--prompt", default=None,
+                   help="show how a prompt resolves (which dimensions it gives)")
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--check", action="store_true",
+                   help="verify every archetype builds from its own nominals")
+    p.set_defaults(func=cmd_archetypes)
 
     p = sub.add_parser("standards", help="the category -> standard parameters table (#601)")
     p.add_argument("category", nargs="?", default=None,
