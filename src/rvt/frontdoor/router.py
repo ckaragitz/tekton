@@ -1257,10 +1257,27 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
             if pn not in seen:
                 seen.append(pn)
         text_params["Part Numbers"] = ", ".join(seen)
+    # THE AUTHOR'S OWN PROPERTY SETS (#769).  Before this, an IFC's psets were
+    # read for the bill of materials and everything else was dropped: a user
+    # who attached Pset_TransformerClearances in their authoring tool got a
+    # family with none of it and no word that it had been discarded.  Silent
+    # loss of the caller's own input is worse than a refusal.
+    pset_params: Dict[str, Any] = {}
+    try:
+        from ..ifc import pset_params as _PP
+        collected = _PP.collect(ifc_path)
+        pset_params = dict(collected.get("params") or {})
+        for line in _PP.summarise(collected):
+            res.caveats.append(line)
+    except Exception as e:                       # delivery never depends on it
+        res.caveats.append(
+            f"your IFC's property sets were not carried through "
+            f"({type(e).__name__}); the family is delivered without them")
     kw: Dict[str, Any] = {
         "parts": model.to_parts(), "name": name,
         "source": f"IFC mesh ({os.path.basename(ifc_path)})",
         "identity": dict(model.identity), "text_params": text_params,
+        "numeric_params": pset_params,
     }
     sub = dict(opts)
     sub.setdefault("stem", _slug(name))
