@@ -81,3 +81,69 @@ def test_part_solid_emits_the_rotated_cylinder_contract():
     assert d["radius_ft"] == 0.25 and d["length_ft"] == 3.0
     assert d["center"] == [1.0, 2.0] and d["base_z_ft"] == 0.75
     assert "length_ft" in p.to_json() or p.to_json().get("length_ft") == 3.0
+
+
+# ---------------------------------------------------------------------------
+# the lathe lane (#766 round 2): stepped true cylinders, not slab staircases
+# ---------------------------------------------------------------------------
+
+from rvt.ifc.assembly_parts import decompose_lathe
+
+
+def _closed_cyl_y(r, y0, y1, cx=0.0, cz=1.0, n=24, pts=None, tris=None):
+    pts = [] if pts is None else pts
+    tris = [] if tris is None else tris
+    b = len(pts)
+    for y in (y0, y1):
+        for k in range(n):
+            a = 2 * math.pi * k / n
+            pts.append((cx + r * math.cos(a), y, cz + r * math.sin(a)))
+    pts.append((cx, y0, cz))
+    pts.append((cx, y1, cz))
+    c0, c1 = b + 2 * n, b + 2 * n + 1
+    for k in range(n):
+        k2 = (k + 1) % n
+        tris.append((b + k, b + k2, b + n + k))
+        tris.append((b + k2, b + n + k2, b + n + k))
+        tris.append((c0, b + k2, b + k))
+        tris.append((c1, b + n + k, b + n + k2))
+    return pts, tris
+
+
+def test_a_stepped_shaft_becomes_coaxial_true_cylinders():
+    pts, tris = _closed_cyl_y(0.5, 0.0, 0.3)
+    pts, tris = _closed_cyl_y(0.15, 0.3, 2.7, pts=pts, tris=tris)
+    d = decompose_lathe(pts, tris, "y")
+    assert d is not None
+    shapes = [(p["shape"], round(p["radius_ft"], 2), round(p["length_ft"], 2))
+              for p in d["parts"]]
+    assert shapes == [("cylinder_y", 0.5, 0.3), ("cylinder_y", 0.15, 2.4)]
+    # every segment sits on the shared axis: base_z = axis_z - r
+    for p in d["parts"]:
+        assert abs((p["base_z_ft"] + p["radius_ft"]) - 1.0) < 0.01
+        assert abs(p["center"][0]) < 0.01
+    assert d["authored_volume_ft3"] > 0
+
+
+def test_an_offset_boss_refuses_the_lane():
+    pts, tris = _closed_cyl_y(0.5, 0.0, 0.3)
+    pts, tris = _closed_cyl_y(0.15, 0.3, 2.7, cz=1.6, pts=pts, tris=tris)
+    why = []
+    assert decompose_lathe(pts, tris, "y", refusal=why) is None
+    assert any("not coaxial" in w for w in why)
+
+
+def test_a_square_section_refuses_the_lane():
+    bx = [(x, y, z) for x in (0, 1) for y in (0, 2) for z in (0, 1)]
+    bt = [(0, 1, 3), (0, 3, 2), (4, 7, 5), (4, 6, 7), (0, 5, 1), (0, 4, 5),
+          (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)]
+    why = []
+    assert decompose_lathe(bx, bt, "y", refusal=why) is None
+    assert any("not a circle" in w or "not a body of revolution" in w
+               for w in why)
+
+
+def test_unknown_axis_refuses():
+    why = []
+    assert decompose_lathe([(0, 0, 0)], [], "z", refusal=why) is None
+    assert why

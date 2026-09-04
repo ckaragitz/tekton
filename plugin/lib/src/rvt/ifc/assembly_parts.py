@@ -1470,6 +1470,108 @@ def _inside(points: Sequence[Sequence[float]], triangles: Sequence[Sequence[int]
     return abs(winding_number(points, triangles, pt)) >= 0.5
 
 
+#: A lathe segment's ring must fit a circle AND all segments must share one
+#: axis: the largest centre-to-centre spread allowed, as a fraction of the
+#: largest segment radius.  A flanged shaft is coaxial; a crankshaft is not.
+LATHE_COAXIAL_TOL = 0.25
+
+#: How the lathe frame maps: rotate so +axis becomes +Z, run the slab
+#: machinery, map each round slab back.  (to_rot, from_rot) per axis.
+_LATHE_ROT = {
+    "y": (lambda p: (p[0], -p[2], p[1]),      # +Y -> +Z
+          lambda x, y, z: (x, z, -y)),
+    "x": (lambda p: (-p[2], p[1], p[0]),      # +X -> +Z
+          lambda x, y, z: (z, y, -x)),
+}
+
+
+def decompose_lathe(points: Sequence[Sequence[float]],
+                    triangles: Sequence[Sequence[int]], axis: str, *,
+                    refusal: Optional[List[str]] = None
+                    ) -> Optional[Dict[str, Any]]:
+    """Cut a body of revolution about a HORIZONTAL axis into STEPPED TRUE
+    CYLINDERS instead of the rectangular slab staircase.
+
+    The Z-slab lane slices ACROSS a lying round body, so a flanged hub came
+    out as horizontal rectangles climbing a circle (owner, 2026-09-04: "still
+    see some stacking").  This lane rotates the mesh so the axis is vertical,
+    reuses :func:`decompose_slabs` -- inheriting its exact sectioning, hole
+    filling, sliver and budget laws -- and then accepts the result ONLY if
+    every slab's section is a circle (:func:`_fit_circle`, both #620/#628
+    laws) and all the circles share one axis (:data:`LATHE_COAXIAL_TOL`).
+    Anything else -- one square flange, an offset boss -- refuses the whole
+    lane with the reason, and the body falls through to the ordinary slabs
+    rather than being half-guessed.
+
+    Returns the slab-lane dict shape with ``parts`` as ``cylinder_<axis>``
+    dicts plus ``authored_volume_ft3`` (sum of the authored circles, vs
+    ``volume_ft3`` = the exact sectioned volume used for conservation).
+    """
+    def _refused(msg: str) -> None:
+        if refusal is not None:
+            refusal.append(msg)
+
+    if axis not in _LATHE_ROT:
+        _refused(f"unknown lathe axis {axis!r}")
+        return None
+    to_rot, from_rot = _LATHE_ROT[axis]
+    rpts = [to_rot(p) for p in points]
+    why: List[str] = []
+    dec = decompose_slabs(rpts, triangles, refusal=why)
+    if dec is None:
+        _refused("; ".join(why) or "the rotated body did not slab")
+        return None
+
+    segs: List[Dict[str, Any]] = []
+    centres: List[Tuple[float, float]] = []
+    authored = 0.0
+    for part in dec["parts"]:
+        if part.get("shape") != "polygon":
+            _refused(f"a segment's section is a {part.get('shape')}, not a "
+                     f"ring: not a body of revolution about {axis}")
+            return None
+        ring = part["vertices"]
+        area = abs(_polygon_area(ring))
+        c = _fit_circle(ring, area)
+        if c is None:
+            _refused(f"a segment's section at {axis}={part['base_z_ft']:.3f} ft "
+                     f"is not a circle: not a body of revolution about {axis}")
+            return None
+        c1, c2, r = c
+        h = float(part["height_ft"])
+        centres.append((c1, c2))
+        authored += math.pi * r * r * h
+        segs.append({"rot_c": (c1, c2), "r": r,
+                     "band0": float(part["base_z_ft"]), "len": h})
+    if not segs:
+        _refused("no segments")
+        return None
+    max_r = max(s["r"] for s in segs)
+    mc1 = sum(c[0] for c in centres) / len(centres)
+    mc2 = sum(c[1] for c in centres) / len(centres)
+    spread = max(math.hypot(c[0] - mc1, c[1] - mc2) for c in centres)
+    if spread > LATHE_COAXIAL_TOL * max_r:
+        _refused(f"segments are not coaxial (centre spread "
+                 f"{spread * 12.0:.2f} in over radius {max_r * 12.0:.2f} in): "
+                 f"a stepped shaft shares one axis, this does not")
+        return None
+
+    parts: List[Dict[str, Any]] = []
+    for s in segs:
+        c1, c2 = s["rot_c"]
+        # a point on the axis at the segment's midpoint, back in world frame
+        wx, wy, wz = from_rot(c1, c2, s["band0"] + s["len"] / 2.0)
+        parts.append({
+            "shape": f"cylinder_{axis}", "radius_ft": s["r"],
+            "length_ft": s["len"], "center": [wx, wy],
+            "base_z_ft": wz - s["r"], "height_ft": 2.0 * s["r"],
+        })
+    out = dict(dec)
+    out["parts"] = parts
+    out["authored_volume_ft3"] = authored
+    return out
+
+
 def decompose_boxes(points: Sequence[Sequence[float]],
                     triangles: Sequence[Sequence[int]], *,
                     max_cells: int = MAX_GRID_CELLS,
@@ -1826,6 +1928,29 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                     f"{box['volume_ft3'] * 1728:.4f} in3 + overlap "
                     f"{box['overlap_ft3'] * 1728:.4f} in3 vs {vol * 1728:.4f} in3 in the "
                     f"mesh, off by more than {EXACT_REL_TOL:.0e} of it)")
+        # A body of revolution about a HORIZONTAL axis: stepped TRUE cylinders
+        # before the Z-slab staircase ever gets to climb its circle.  Longer
+        # horizontal extent first -- a shaft is sliced along its shaft.
+        if dec is None and decompose and vol is not None \
+                and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
+            ext_x = fit["bbox"][1][0] - fit["bbox"][0][0]
+            ext_y = fit["bbox"][1][1] - fit["bbox"][0][1]
+            for ax in (("y", "x") if ext_y >= ext_x else ("x", "y")):
+                why = []
+                lat = decompose_lathe(pts_ft, tris, ax, refusal=why)
+                refused += [f"lathe lane({ax}): {w}" for w in why]
+                if lat is None:
+                    continue
+                doubled = lat.get("overlap_ft3", 0.0)
+                dv = lat["volume_ft3"]
+                if dv <= 0 or not _conserves(dv + doubled, vol):
+                    refused.append(
+                        f"lathe lane({ax}): sectioned volume "
+                        f"{dv * 1728:.3f} in3 does not conserve the mesh's "
+                        f"{vol * 1728:.3f} in3")
+                    continue
+                dec, method = lat, f"lathe-{ax}"
+                break
         if dec is None and decompose and vol is not None \
                 and (fit.get("fill") or 0.0) < DECOMPOSE_FILL:
             method = "slabs"
@@ -1866,7 +1991,17 @@ def read_assembly(ifc_path: str, *, recentre: bool = True,
                      else ((vol - doubled) / dec["volume_ft3"] if dec["volume_ft3"] else None))
             for k, part in enumerate(dec["parts"], 1):
                 nm = f"{name} [{k}/{n}]" if n > 1 else name
-                if part["shape"] == "box":
+                if str(part["shape"]).startswith("cylinder_"):
+                    parts.append(PartSolid(
+                        name=nm, fit=part["shape"],
+                        center_ft=tuple(part["center"]),
+                        height_ft=part["height_ft"],
+                        base_z_ft=part["base_z_ft"],
+                        radius_ft=part["radius_ft"],
+                        length_ft=part["length_ft"],
+                        fill=after, of_product=name, slabs=dec["n_slabs"],
+                        **common))
+                elif part["shape"] == "box":
                     parts.append(PartSolid(
                         name=nm, fit="box", center_ft=tuple(part["center"]),
                         height_ft=part["height_ft"], base_z_ft=part["base_z_ft"],
