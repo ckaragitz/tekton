@@ -127,6 +127,24 @@ def run():
             row["opened"] = True
             _bboxes(doc)                       # select-test every form
             row["geometry_readable"] = True
+            # per-view census: how many solids each view actually shows.
+            # This is the "why can't I see the whole item in plan" question
+            # answered without anyone's eyes (steer #765): a plan view whose
+            # count is far below the 3D view's names the display bug and,
+            # via each element's id, WHICH parts vanish.
+            try:
+                from Autodesk.Revit.DB import View
+                census = {}
+                for v in FilteredElementCollector(doc).OfClass(View):
+                    if getattr(v, "IsTemplate", False):
+                        continue
+                    ids = [e.Id.IntegerValue for e in
+                           FilteredElementCollector(doc, v.Id).OfClass(GenericForm)]
+                    census["%s:%s" % (v.ViewType, v.Name)] = {
+                        "solids_visible": len(ids), "ids": ids[:400]}
+                row["view_census"] = census
+            except Exception as exc:                               # noqa: BLE001
+                row["view_census"] = "ERROR: %s" % exc
             fm = doc.FamilyManager
             for p in fm.GetParameters():
                 row["parameters"][p.Definition.Name] = _flex(doc, fm, p)

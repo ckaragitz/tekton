@@ -58,12 +58,19 @@ def _emptyish(v: Any) -> bool:
     return v is None or v == [] or v == {} or v == ""
 
 
-def _shape(v: Any) -> str:
+def _shape(v: Any, field: str = "") -> str:
     if v is None:
         return "none"
     if isinstance(v, bool):
         return f"bool:{v}"
     if isinstance(v, int):
+        # An ID is never a LAW: born templates number their elements from 17,
+        # ours from 1000, and "every template's m_famId is 17" is a fact about
+        # template id allocation, not about the format (steer #765 battery
+        # round 3 -- every artefact failed on it).  Id-shaped fields count for
+        # presence only.
+        if field.endswith(("Id", "Ids", "Idx")):
+            return "int"
         return f"int:{v}"
     if isinstance(v, float):
         return "float"
@@ -90,7 +97,7 @@ class Oracle:
         self.specimens[class_name] = self.specimens.get(class_name, 0) + 1
         for field, value in (obj or {}).items():
             cls.setdefault(field, {})
-            s = _shape(value)
+            s = _shape(value, field)
             cls[field][s] = cls[field].get(s, 0) + 1
 
     # -- the derived invariants ------------------------------------------
@@ -199,7 +206,7 @@ def check_doc(doc: Any, invariants: Dict[str, Dict[str, Dict[str, Any]]],
                                 f"{rule['specimens']} born specimens")})
             elif kind == "CONSTANT":
                 want = rule.get("value", "")
-                if _shape(ours) != want:
+                if _shape(ours, field) != want:
                     findings.append({
                         "severity": "question", "class": el.class_name,
                         "element": el.elem_id, "field": field,

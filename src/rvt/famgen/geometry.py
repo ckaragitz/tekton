@@ -1261,7 +1261,11 @@ def new_curve_elem(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
     obj["m_areaSchemeId"] = INVALID
     obj["m_zoneSchemeId"] = INVALID
     obj["m_famElemVisibility"] = {"m_flags": -1}
-    obj["m_referenceType"] = 0
+    # 1 = the DOMINANT born value: 792/798 CurveElems across all 108 default
+    # templates carry 1 and only 6 carry 0 (steer #765 battery find), so this
+    # is corpus-majority alignment, not a law -- 0 exists in born files, but
+    # a uniform 0 across every curve, which we used to write, does not.
+    obj["m_referenceType"] = 1
     obj["m_areaSeparation"] = False
     obj["m_bMEPSpaceSeparation"] = False
     obj["m_bMEPLoadAreaSeparation"] = False
