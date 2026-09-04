@@ -81,3 +81,24 @@ through to text. `_eid()` and `_type_name()` handle both shapes, since
 **Not done:** the carried parameters are values on the type, not geometry drivers —
 `TopClearance` does not move anything. Driving them needs the #689 spine wired into
 the factories, which is a separate piece.
+
+## Review round 1 (#771, head be4b6e1) — the text-value blocker
+
+The independent reviewer measured the exact failure class this issue exists to
+fix, one layer down: `factory`'s type-row loop did `float(v)` for every carried
+value, so a `("text", "ONAN")` entry raised, `except: pass` swallowed it, and
+the TEXT parameter kept `add_family_parameter`'s numeric `0.0` — while
+`summarise()` told the user every value was carried. Fixed:
+
+* text-spec params are authored via `_text` under **identity** (not `_num`
+  under dimensions) and their row value stored verbatim as `str(v)`;
+* `_length_to_ft` now delegates to `steplite.calculate_unit_scale` (the full
+  conversion-factor walk) instead of a name-sniffing re-implementation, keeping
+  the metres-assumed note for files that declare no length unit;
+* the conversion is CI-proven by a tracked fixture `tests/fixtures/pset_mm_unit.ifc`
+  (914.4 mm → 3.0 ft, text/boolean carried, reserved name skipped) — the prior
+  conversion test self-skipped without the untracked transformer IFC.
+
+Gates after the fix: `tests/test_ifc_pset_params.py` **10 passed** (was 7+1skip);
+`tests/test_famgen_standards.py` + `tests/test_edit_family_size_668.py`
+**109 passed**; sync --check clean.

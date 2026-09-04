@@ -973,10 +973,15 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # Caller-supplied NUMERIC parameters (e.g. an IFC's own property sets):
     # {name: (spec_key, value)} -- authored with the right storage class so a
     # length reads as a length in Revit, not a bare number.  Every value is
-    # GIVEN by the caller's file; none is a catalog fact (#769).
+    # GIVEN by the caller's file; none is a catalog fact (#769).  A "text"
+    # spec is authored as a text parameter under identity -- storing a string
+    # on a numeric row silently left add_family_parameter's 0.0 in its place.
     for cap, spec_val in (numeric_params or {}).items():
         spec_key = spec_val[0] if isinstance(spec_val, (tuple, list)) else "number"
-        _num(doc, cap, spec_key, "dimensions")
+        if spec_key == "text":
+            _text(doc, cap, "identity")
+        else:
+            _num(doc, cap, spec_key, "dimensions")
     row: Dict[Any, Any] = {
         doc.params["Width"].elem_id: W,
         doc.params["Depth"].elem_id: D,
@@ -988,11 +993,20 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     for cap, val in (text_params or {}).items():
         row[doc.params[cap].elem_id] = str(val)
     for cap, spec_val in (numeric_params or {}).items():
-        v = spec_val[1] if isinstance(spec_val, (tuple, list)) else spec_val
-        try:
-            row[doc.params[cap].elem_id] = float(v)
-        except (TypeError, ValueError):
-            pass
+        if isinstance(spec_val, (tuple, list)):
+            spec_key, v = spec_val[0], spec_val[1]
+        else:
+            spec_key, v = "number", spec_val
+        if spec_key == "text":
+            # a text-spec value is stored verbatim: float("ONAN") raising and
+            # leaving 0.0 on a TEXT parameter was the #769 review's blocker.
+            row[doc.params[cap].elem_id] = str(v)
+        else:
+            try:
+                row[doc.params[cap].elem_id] = float(v)
+            except (TypeError, ValueError):
+                pass    # collect() never sends a non-float here; "text" does
+
     for key, val in (identity or {}).items():          # manufacturer/model/url
         if val:
             row[key] = str(val)

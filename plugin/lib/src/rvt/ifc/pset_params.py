@@ -198,33 +198,25 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
     return out
 
 
-#: SI prefixes an IfcSIUnit may carry, as multipliers.
-_PREFIX = {"MILLI": 1e-3, "CENTI": 1e-2, "DECI": 1e-1, "DECA": 1e1,
-           "HECTO": 1e2, "KILO": 1e3, "MICRO": 1e-6}
-
-
 def _length_to_ft(f: Any, out: Dict[str, Any]) -> float:
     """The file's length unit expressed in FEET, read from its own
-    IfcUnitAssignment.  Falls back to metres and says so."""
+    IfcUnitAssignment.  Falls back to metres and says so.
+
+    Delegates the unit walk to :func:`steplite.calculate_unit_scale`
+    (metres per project length unit -- the same conversion-factor chain
+    ifcopenshell walks), rather than re-implementing a weaker name-sniffing
+    version here (#769 review).  The honesty note is kept: the scale is
+    trusted only when the file actually DECLARES a length unit."""
     try:
-        for u in f.by_type("IfcSIUnit"):
-            if str(getattr(u, "UnitType", "") or "") != "LENGTHUNIT":
-                continue
-            metres = 1.0
-            pref = getattr(u, "Prefix", None)
-            if pref:
-                metres *= _PREFIX.get(str(pref).upper(), 1.0)
-            return metres * _FT_PER_M
-    except Exception:                                             # noqa: BLE001
-        pass
-    try:
-        for u in f.by_type("IfcConversionBasedUnit"):
-            if str(getattr(u, "UnitType", "") or "") == "LENGTHUNIT":
-                nm = str(getattr(u, "Name", "") or "").lower()
-                if "foot" in nm or "feet" in nm:
-                    return 1.0
-                if "inch" in nm:
-                    return 1.0 / 12.0
+        from . import steplite
+        declares = any(
+            str(getattr(u, "UnitType", "") or "") == "LENGTHUNIT"
+            for kind in ("IfcSIUnit", "IfcConversionBasedUnit")
+            for u in (f.by_type(kind) or ()))
+        if declares:
+            metres = float(steplite.calculate_unit_scale(f))
+            if metres > 0:
+                return metres * _FT_PER_M
     except Exception:                                             # noqa: BLE001
         pass
     out["notes"].append(
