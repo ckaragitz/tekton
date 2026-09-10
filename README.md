@@ -20,10 +20,11 @@ of the *repository* for the people and coding sessions that build it.
 > stays `rvt` (it names the file format it handles) and nothing else is
 > renamed piecemeal — see [`RENAME.md`](RENAME.md). "tekton, for use with
 > Autodesk® Revit®" is referential use; Autodesk and Revit are registered
-> trademarks of Autodesk, Inc. This is a **private evaluation build**: every
+> trademarks of Autodesk, Inc. This is an **evaluation build**: every
 > output is stamped `PROOF-ONLY` until the deliverability gates clear
-> (§ Honest scope), and the repository itself stays private
-> ([`CLAUDE.md`](CLAUDE.md) §1 rule 6).
+> (§ Honest scope). The repository is **public on purpose** — outsiders are
+> meant to read it, file issues and open PRs — so nothing that should not be
+> public is added to it ([`CLAUDE.md`](CLAUDE.md) §1 rule 6, steer #774).
 
 ---
 
@@ -133,7 +134,7 @@ acceptance. The per-route truth, with evidence and caveats per cell, is
 3. **Zero donor bytes in anything shipped** — we mine laws from samples and author our own; sample-derived material stays in git-ignored quarantine dirs.
 4. **Autodesk's reader is the arbiter, not our validator** — certification only via the ledger, every viewer round with a certified base + byte-identical control.
 5. **The reduction law** — a referrer of removed content is deleted with it or left byte-identical, never "neutralised".
-6. **Keep this repo private**; never present "Autodesk Revit" or a template's identity as our author string.
+6. **This repo is public on purpose — so never add anything to it that should not be** (steer #774): no third-party personal data, no secrets, no new counsel analysis; a push to a public remote is not retractable. Never present "Autodesk Revit" or a template's identity as our author string.
 7. **No Autodesk APS / cloud automation services** — the writer is our own; decided, not up for re-proposal.
 8. **A task declined by a policy layer is surfaced verbatim**, never reworded around.
 

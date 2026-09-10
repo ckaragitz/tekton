@@ -123,6 +123,7 @@ last-mile deliverable format; Autodesk's reader is the arbiter of "works" (hard 
 ## Not goals (decided — do not re-propose without a new steer)
 
 No Autodesk APS / Design Automation (rule 7). No reading Autodesk install directories (rule 2).
-No donor bytes in anything shipped (rule 3). No public remote (rule 6). No hosted MCP server yet
+No donor bytes in anything shipped (rule 3). The remote is public on purpose and stays that way —
+never add material that should not be public (rule 6, steer #774). No hosted MCP server yet
 (`docs/product/MCP-PATH.md` is the documented future path). No piecemeal rename before trademark
 clearance (`RENAME.md`).
