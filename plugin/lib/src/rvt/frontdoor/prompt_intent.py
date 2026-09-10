@@ -523,6 +523,28 @@ def _voltage_system_from(text: str) -> Optional[str]:
     return None
 
 
+def _pick_room(text: str) -> Optional[re.Match]:
+    """Choose the ROOM match: the first whose room NOUN is not part of a
+    taxonomy product name.
+
+    'closet' is a room here ('electrical closet'), but 'water closet' is a
+    plumbing FIXTURE (taxonomy row ``water_closet``) -- and the plain
+    ``_RE_ROOM.search`` ate its noun before the taxonomy scan ever ran, so
+    'create a Water closet family' was parsed as a DEFAULT 30 x 20 ft
+    electrical room with no items, and the route answered with the generic
+    'no family plan' line instead of the taxonomy's own honest refusal.
+    The test is on the NOUN span, never the whole match: 'a transformer
+    vault' overlaps the ``transformer_dry`` mention on its *prefix* and is
+    still a room.
+    """
+    kind_spans = [(m.start, m.end) for m in TX.scan(text)]
+    for m in _RE_ROOM.finditer(text):
+        s, e = m.span("noun")
+        if not any(a <= s and e <= b for a, b in kind_spans):
+            return m
+    return None
+
+
 def _pick_room_dims(text: str, m_room) -> Optional[re.Match]:
     """Choose the ROOM dimension expression among all 'W x D' matches:
     prefer one carrying a length unit, then one close to the room noun; skip
@@ -1208,7 +1230,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # 1. the ROOM (dimensions, height, service rating, wall options)
     # ------------------------------------------------------------------
     room: Optional[PromptRoom] = None
-    m_room = _RE_ROOM.search(text)
+    m_room = _pick_room(text)
     m_dims = _pick_room_dims(text, m_room)
     no_walls = bool(_RE_NO_WALLS.search(text))
     # the floor-to-floor height is a LEVEL spacing, never the room's clear
