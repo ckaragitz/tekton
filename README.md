@@ -133,7 +133,7 @@ acceptance. The per-route truth, with evidence and caveats per cell, is
 3. **Zero donor bytes in anything shipped** — we mine laws from samples and author our own; sample-derived material stays in git-ignored quarantine dirs.
 4. **Autodesk's reader is the arbiter, not our validator** — certification only via the ledger, every viewer round with a certified base + byte-identical control.
 5. **The reduction law** — a referrer of removed content is deleted with it or left byte-identical, never "neutralised".
-6. **Keep this repo private**; never present "Autodesk Revit" or a template's identity as our author string.
+6. **This repo is public on purpose — so never add anything to it that should not be** (steer #774): no third-party personal data, no secrets, no new counsel analysis; a push to a public remote is not retractable. Never present "Autodesk Revit" or a template's identity as our author string.
 7. **No Autodesk APS / cloud automation services** — the writer is our own; decided, not up for re-proposal.
 8. **A task declined by a policy layer is surfaced verbatim**, never reworded around.
 

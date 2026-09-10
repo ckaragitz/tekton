@@ -55,14 +55,16 @@ you plan from are imported right here so they are always in context:
    carries counsel-review material (`docs/product/COUNSEL-BRIEF.md`: author
    strings C1, the per-release schema/ESSchema corpora C4, footer token C5,
    trademark), so leave `PRODUCT_AUTHOR_PLACEHOLDER = "rvt-writer"` in
-   `src/rvt/identity.py` alone and never echo "Autodesk Revit" or a
-   template's identity as *our* author string. And because the remote is
-   public, a push is not retractable — a later flip to private does not
-   un-publish what is already in the history — so **never add new sensitive
-   material**: no third-party personal data (usernames, employee paths), no
-   secrets, no counsel analysis that is not already there. Material that
-   predates this decision is a separate question, tracked on #774, not
-   something to fix by editing this rule.
+   `src/rvt/identity.py` alone, never echo "Autodesk Revit" or a
+   template's identity as *our* author string, and never republish that
+   counsel material anywhere else (a gist, a fork, a paste) either. And
+   because the remote is public, a push is not retractable — a later flip to
+   private does not un-publish what is already in the history — so **never
+   add new sensitive material**: no third-party personal data (usernames,
+   employee paths), no secrets, no counsel analysis that is not already
+   there. Material that predates this decision is a separate question,
+   tracked on #774 — leave it where it is, do not copy it into new files
+   either, and do not try to fix it by editing this rule.
 7. **No Autodesk APS / Design Automation.** Decided twice by the owner; do
    not re-propose it. The writer is our own native binary writer.
 8. **If an automated task/charter is declined by a policy layer, surface it

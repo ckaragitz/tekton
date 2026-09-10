@@ -26,13 +26,15 @@ visible except a session stopping dead. Filed as #780.
 
 ## What was built
 
-Three auto-loaded instruction files, corrected so no session re-derives the block:
+Three auto-loaded instruction files plus the README, corrected so no session
+re-derives the block:
 
 | file | change |
 |---|---|
 | `CLAUDE.md` §1 rule 6 | rewritten: public **on purpose** (#774), do not hold pushes or propose privacy; keeps what visibility never governed (counsel material, `PRODUCT_AUTHOR_PLACEHOLDER`, never "Autodesk Revit" as our author string); adds the duty public visibility actually creates |
 | `docs/PROGRAM.md` | the "Not goals" clause *"No public remote (rule 6)"* corrected |
 | `docs/STEERING.md` | standing row **S-2026-09-10-a**, appended newest-last, no existing row rewritten |
+| `README.md` §hard rules | the same correction on the **public front page** — the copy an outsider and a fresh-clone session read first. Found by the independent review of this PR, not by the author: the grep that produced the evidence below was scoped to the three auto-loaded files and could not have seen it. |
 
 The new obligation is the point of the rewrite, not a footnote: **a push to a
 public remote is not retractable** — a later flip to private does not un-publish
@@ -42,31 +44,40 @@ the remote.
 
 ## Evidence
 
+Repo-wide, not scoped to the files this PR set out to change — the narrower grep
+is what let `README.md` survive the first pass:
+
 ```
 $ grep -rniE "keep this repo private|no public remote|nothing here goes to a public remote" \
-      CLAUDE.md docs/PROGRAM.md docs/STEERING.md
-docs/STEERING.md:33: … supersedes the "keep this repo private" half of CLAUDE.md hard rule 6 …
+      --include="*.md" .
+docs/STEERING.md:33          … supersedes the "keep this repo private" half of CLAUDE.md hard rule 6 …
+docs/inbox/process-friction.md:9   … hard rule 6 said "keep this repo private" while the repo was public …
 ```
 
-One hit, in the new steering row, quoting the old rule deliberately to say what it
-supersedes. Nothing else in the three files can be read as "make it private".
+Two hits, both of them this stream's own prose *quoting* the old rule to say what
+it supersedes. Nothing anywhere in the tracked tree still instructs a session to
+make the repo private.
 
 Gates: `check_portable_paths.py` **ok, 3191 tracked paths**; `sync_plugin.py
 --check` **clean** (deny-audit clean, identity scan == allowlist, assets
 verified); `validate_plugin.py` **PASS**. No code changed, so no test module
-applies; the plugin gates ran because instruction files ride in the bundle's
-documentation surface.
+applies. The plugin gates ran because they are cheap and this branch must not
+be the one that lets drift through — *not* because these files ship in the
+bundle: `tools/sync_plugin.py` mirrors none of `CLAUDE.md`, `docs/PROGRAM.md`
+or `docs/STEERING.md` (an earlier draft of this record claimed it did; it does
+not).
 
 ## What this deliberately does NOT fix
 
 **What is already public.** #774 records that the decision settles *where the repo
 lives*, not that everything rule 6 named belongs in a public history:
 
-- `plugin/assets/genesis/*.rvt` carry Autodesk employee usernames — `hansonje`,
-  `loboarch`, `campbes`, `okapaw`, `xuew`, `youyi`, `zhangg`, `gbs_subsuser6` —
-  and `C:\Users\…` paths, indexed by the tracked
-  `tools/plugin_identity_allowlist.json`. #19 owns the scrub but is scoped as a
-  *shipping* concern; public visibility makes it a *disclosure* concern.
+- `plugin/assets/genesis/*.rvt` carry **eight Autodesk employee usernames and
+  their `C:\Users\…` paths**, every one of them enumerated in the tracked
+  `tools/plugin_identity_allowlist.json` — cited there rather than restated
+  here, which is what the rule this PR writes asks of a new file. #19 owns the
+  scrub but is scoped as a *shipping* concern; public visibility makes it a
+  *disclosure* concern.
 - `docs/product/COUNSEL-BRIEF.md` — an inventory of this project's own legal
   exposure — is tracked and publicly readable.
 
@@ -85,7 +96,8 @@ world — but that is its own issue, **#780**, not this PR.
 ## BRANCH STATE
 
 - Branch: `cam/778-rule6-public`, from `main` @ `0119d6b`.
-- Files written: `CLAUDE.md`, `docs/PROGRAM.md`, `docs/STEERING.md`, this record.
+- Files written: `CLAUDE.md`, `docs/PROGRAM.md`, `docs/STEERING.md`, `README.md`,
+  this record.
 - Shipped: the three corrections, gated as above.
 - Staged, not shipped: nothing.
 - Not done: the already-public material (#774, #19); the stale-rule detector (filed #780).
