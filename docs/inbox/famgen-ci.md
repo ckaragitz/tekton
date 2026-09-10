@@ -195,3 +195,17 @@ The full suite was not run (SUITE-COORDINATION).
 * Gates: §4, all green locally.
 * Nothing staged for the viewer; no `.rvt`/`.rfa` committed; no ledger change;
   `tekton-plugin.zip` regenerated locally, not committed.
+
+---
+
+## Fragments (this stream is index + per-PR fragments, `docs/inbox/README.md`)
+
+Everything above is left as written. Each PR feeding this stream adds one file
+under `docs/inbox/famgen-ci.d/` that nobody else appends to, and a line here.
+The first three fragments landed before this section existed and are listed by
+name only — each speaks for itself, in its own author's voice:
+
+- `530-cylinder-tessellation.md`
+- `682-luminaire-sizes.md`
+- `710-yesno-param.md`
+- `703-troffer-size-members.md` -- a troffer size the catalog holds no member for is refused BY NAME instead of silently built from another member's housing ("1x4" was a 2x2 wearing the name); CCT agrees between family name and description; unpublished W/lm/K are blank, not `0`. Narrows one row of what `682-luminaire-sizes.md` asserted -- see this fragment, not that one (#703).

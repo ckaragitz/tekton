@@ -47,12 +47,29 @@ _WATTS = re.compile(r"\b(\d{1,4}(?:\.\d+)?)\s*(?:-\s*)?w(?:atts?)?\b", re.I)
 _KELVIN = re.compile(r"\b(\d{3,4})\s*k(?:elvin)?\b", re.I)
 
 
-#: the trade sizes the troffer CATALOG actually resolves.  Its resolver is
-#: binary -- "2x4" -> the 2BLT4 member, anything else -> 2BLT2, WHICH IS THE
-#: 2x2 -- so passing an unsupported size through would silently deliver a
-#: 2x2 wearing the caller's size ("4x4 troffer" -> a 2BLT2, measured before
-#: this guard existed).  That is the substitution steer #591 forbids.
-_CATALOG_SIZES = frozenset({"2x4", "2x2"})
+#: the trade sizes the troffer CATALOG actually holds a member for -- read
+#: from the factory, never re-listed here.  Before #703 the resolver was
+#: binary ("2x4" -> the 2BLT4 member, anything else -> 2BLT2, WHICH IS THE
+#: 2x2), so passing an unsupported size through silently delivered a 2x2
+#: wearing the caller's size ("4x4 troffer" -> a 2BLT2, measured) -- the
+#: substitution steer #591 forbids.  The constructor now refuses an unheld
+#: size by name, and this route keeps DELIVERING by dropping the size and
+#: saying so.  Deriving the set means adding a member in ONE place makes both
+#: sides agree; a second hand-kept copy would leave this route dropping a
+#: size the constructor had just learned to build, with every test green.
+#: Read lazily and cached, like every other engine import in this module --
+#: importing the factory to answer a two-element question would put the whole
+#: famgen import cost on anyone who merely imports this module (S-2026-08-09-g).
+_CATALOG_SIZES_CACHE: Optional[frozenset] = None
+
+
+def _catalog_sizes() -> frozenset:
+    """The troffer trade sizes the catalog holds a member for (factory-owned)."""
+    global _CATALOG_SIZES_CACHE
+    if _CATALOG_SIZES_CACHE is None:
+        from ..famgen import factory as _F
+        _CATALOG_SIZES_CACHE = _F.held_troffer_sizes()
+    return _CATALOG_SIZES_CACHE
 
 
 def _params_from_prompt(prompt: str, kind: str) -> Dict[str, Any]:
@@ -64,12 +81,13 @@ def _params_from_prompt(prompt: str, kind: str) -> Dict[str, Any]:
     m = _SIZE.search(prompt)
     if m and kind == "luminaire":
         size = f"{m.group(1)}x{m.group(2)}"
-        if size in _CATALOG_SIZES:
+        held = _catalog_sizes()
+        if size in held:
             out["size"] = size
         else:
             out.setdefault("__notes__", []).append(
                 f"the prompt asks for a {size}, which this catalog does not "
-                f"hold ({', '.join(sorted(_CATALOG_SIZES))}): the default "
+                f"hold ({', '.join(sorted(held))}): the default "
                 f"member is delivered and this line says so -- NOT a {size}")
     m = _WATTS.search(prompt)
     if m and kind == "luminaire":

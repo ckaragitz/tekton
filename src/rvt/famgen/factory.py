@@ -609,8 +609,29 @@ _LUM_KINDS = {
 _TROFFER_MEMBERS = {"2x4": "2BLT4-38W", "2x2": "2BLT2"}
 
 
+def held_troffer_sizes() -> frozenset:
+    """The normalised troffer trade sizes this catalog line holds a member for.
+
+    The ONE place that answers the question. `rvt.frontdoor.taxonomy_build`
+    reads it so the prompt route's "deliver the default member and say it is
+    NOT a 1x4" caveat cannot drift out of step with what the constructor will
+    actually build -- a second hand-kept copy would let someone add a member
+    here, watch the constructor build it, and never notice the route still
+    dropping the size (#703 review).
+    """
+    return frozenset(_TROFFER_MEMBERS)
+
+
 def troffer_size(size: Any) -> str:
-    """Normalise a troffer trade size ('2 x 4', "2'x4'", '2X4') -> '2x4'."""
+    """Normalise a troffer trade size ('2 x 4', "2'x4'", '2X4', '2x4 ft',
+    '2×4', '2-4') -> '2x4'.
+
+    Accepts more spellings than a user is likely to type on purpose: the
+    hyphen and multiplication-sign forms both fold to 'x', so '2-4' resolves
+    like '2x4'. That is deliberate (a size string is a trade name, not a
+    calculation) and pinned by tests -- but it IS broader than "the three
+    spellings above", so do not narrow it by accident.
+    """
     s = re.sub(r"[\s'\"]|(?:ft|feet|foot)\b", "", str(size), flags=re.I).lower()
     return s.replace("×", "x").replace("-", "x")
 
@@ -631,6 +652,13 @@ def resolve_luminaire_facts(kind: str = "recessed-troffer", *,
     (aperture / can height as job or default values, flagged 'ours' /
     'given'), never a fabricated manufacturer dimension.
     Photometry (IES) is a URL REFERENCE parameter, never a bundled file.
+
+    :raises FactoryError: for a troffer ``size`` this catalog line holds no
+        member for (see :func:`held_troffer_sizes`).  Delivering another
+        member's housing under the caller's name is the silent substitution
+        S-2026-08-10-e forbids; the PROMPT route is unaffected and keeps
+        delivering, because it drops an unheld size before calling here and
+        says the default member is not the size that was asked for.
     """
     k = str(kind).lower()
     if k not in _LUM_KINDS:
@@ -643,8 +671,9 @@ def resolve_luminaire_facts(kind: str = "recessed-troffer", *,
         model = _TROFFER_MEMBERS.get(troffer_size(size))
         if model is None:
             raise FactoryError(
-                f"troffer size {size!r} is not held by {cv}/{cl}; the sizes with "
-                f"sourced housing dims are: {', '.join(sorted(_TROFFER_MEMBERS))}. "
+                f"troffer size {size!r} is not held by {cv}/{cl}; the sizes this "
+                f"catalog line carries members for are: "
+                f"{', '.join(sorted(_TROFFER_MEMBERS))}. "
                 f"Refusing to deliver another member's housing under that name "
                 f"(#703) -- name a held size, or ask the route for it and it "
                 f"delivers the default member saying it is NOT a {size}.")

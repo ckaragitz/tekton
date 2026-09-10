@@ -88,9 +88,35 @@ def test_unheld_troffer_size_is_refused_by_name(size):
 
 
 @pytest.mark.parametrize("size,written", [("2 x 4", "2BLT4-38W"), ("2'x4'", "2BLT4-38W"),
-                                          ("2X2", "2BLT2")])
+                                          ("2X2", "2BLT2"),
+                                          # these two are what troffer_size()
+                                          # ACTUALLY normalises beyond the three
+                                          # spellings above -- the multiplication
+                                          # sign and the hyphen both fold to 'x'.
+                                          # Untested until the #703 review asked
+                                          # what the new normalisations do; a
+                                          # test that only pins what already
+                                          # worked pins nothing (#674 round 5).
+                                          ("2×4", "2BLT4-38W"),
+                                          ("2-4", "2BLT4-38W"),
+                                          ("2x4 ft", "2BLT4-38W")])
 def test_trade_size_spelling_resolves_to_its_own_member(size, written):
     assert F.resolve_luminaire_facts("recessed-troffer", size=size).variant == written
+
+
+def test_route_and_constructor_agree_on_which_sizes_are_held():
+    """The prompt route's caveat set IS the factory's member set (#703 review).
+
+    Failure this pins: someone adds a sourced 1x4 member to the facts file
+    and to ``_TROFFER_MEMBERS``; the constructor builds it, but a
+    hand-maintained copy in ``taxonomy_build`` still drops the size, so
+    'a 1x4 troffer' silently delivers a 2x4 saying 'NOT a 1x4' -- with every
+    test green.  Derived, not duplicated, so it cannot happen.
+    """
+    from rvt.frontdoor import taxonomy_build as TB
+    assert TB._catalog_sizes() == F.held_troffer_sizes()
+    assert F.held_troffer_sizes() == {"2x2", "2x4"}, \
+        "if this changed, the route's caveat changed with it -- that is the point"
 
 
 # ---------------------------------------------------------------------------
