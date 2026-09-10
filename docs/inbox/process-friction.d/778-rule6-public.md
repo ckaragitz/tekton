@@ -55,15 +55,18 @@ excludes itself, since it quotes every phrase it searches for:
 ```
 $ grep -rniE "keep this repo private|no public remote|nothing here goes to a public remote|stays private|repo private" \
       --include="*.md" . | grep -v "process-friction.d/778"
-docs/STEERING.md:33                   | S-2026-09-10-a | … The repository is **public on purpose** and stays that way …
-docs/inbox/process-friction.md:9      … hard rule 6 said "keep this repo private" while the repo was public on purpose …
-docs/product/architecture.md:59       - **What stays private:** the Python engine, the schema/paging/ECC/object-
-docs/inbox/rvt-to-ifc-param-carrier.md:27   … `_KIND_OF_CARRIER` stays private there —
 ```
 
-The first two are this stream's own prose quoting the old rule to say what it
-supersedes. The last is a Python scoping remark, unrelated. `architecture.md:59`
-is a real stale line and is listed below as deliberately not fixed here.
+Four matches — **regrouped and abridged below, not literal output** (grep emits
+them in a different order and in full; this record is not going to print a
+transcript it has reflowed and call it one):
+
+| match | what it is |
+|---|---|
+| `docs/STEERING.md:33` | the new S-2026-09-10-a row, quoting the old rule to say what supersedes it |
+| `docs/inbox/process-friction.md:9` | this stream's own index line, same quotation |
+| `docs/product/architecture.md:59` | **a genuinely stale line** — "what stays private: the Python engine …" — filed as #781, deliberately not fixed here |
+| `docs/inbox/rvt-to-ifc-param-carrier.md:27` | a Python scoping remark (`_KIND_OF_CARRIER` "stays private"), unrelated |
 
 **No instruction file still tells a session to make this repo private** — which
 is the claim that matters, and is narrower than "no file contains the word".
@@ -90,6 +93,12 @@ lives*, not that everything rule 6 named belongs in a public history:
   *disclosure* concern.
 - `docs/product/COUNSEL-BRIEF.md` — an inventory of this project's own legal
   exposure — is tracked and publicly readable.
+- `SHARE-README.md` and the 254-file `tekton-eval-kit/` carry **confidentiality
+  notices addressed to recipients of a build anyone can now clone** ("treat as
+  confidential", "do not redistribute"). Self-contradicting at best, and the
+  kit's contents have never been reviewed for *disclosure* — they were written
+  for a controlled hand-off. Found by this PR's third review; added to #774's
+  inventory, which had listed only the two items above.
 
 Both predate the decision and sit in every commit since 2026-08-09, so neither is
 fixed by editing a rule; retracting them would need a history rewrite. Called out
