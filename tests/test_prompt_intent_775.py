@@ -26,22 +26,28 @@ from rvt.frontdoor import prompt_intent as PI
 
 
 @pytest.mark.parametrize("prompt", ["create a Water closet family",
-                                    "a water closet",
-                                    # "a wc" pins NOTHING about this fix -- it
-                                    # refused correctly before it too (its alias
-                                    # carries no room noun for _RE_ROOM to eat).
-                                    # Kept as a guard on the alias, not offered
-                                    # as evidence: only the two above fail
-                                    # against pre-change code (#674 round 5 --
-                                    # a test that cannot fail is worse than none).
-                                    "a wc"])
+                                    "a water closet"])
 def test_water_closet_is_a_fixture_not_a_room(prompt):
+    """Both of these DO fail against pre-change code -- this test earns its name."""
     with pytest.raises(PI.PromptError) as e:
         PI.parse_prompt(prompt)
     msg = str(e.value)
     assert "NOT built by this route" in msg
     assert "Plumbing Fixtures" in msg
     assert "Electrical Room" not in msg
+
+
+def test_wc_alias_is_a_fixture():
+    """A guard on the alias, NOT evidence for #775.
+
+    'wc' refused correctly before this change too -- its alias carries no
+    room noun for ``_RE_ROOM`` to eat, so it never took the room path. Split
+    out of the parametrisation above so that test's name keeps meaning "this
+    fix", rather than averaging a real pin with a vacuous one (#674 round 5).
+    """
+    with pytest.raises(PI.PromptError) as e:
+        PI.parse_prompt("a wc")
+    assert "Plumbing Fixtures" in str(e.value)
 
 
 @pytest.mark.parametrize("prompt,room_name", [
