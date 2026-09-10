@@ -1,4 +1,4 @@
-"""test_prompt_room_vs_fixture.py -- a room NOUN inside a product NAME is
+"""test_prompt_intent_775.py -- a room NOUN inside a product NAME is
 not a room.
 
 Found by `tools/prompt_battery.py --rows` (1 of 100 rows failed):
@@ -27,6 +27,13 @@ from rvt.frontdoor import prompt_intent as PI
 
 @pytest.mark.parametrize("prompt", ["create a Water closet family",
                                     "a water closet",
+                                    # "a wc" pins NOTHING about this fix -- it
+                                    # refused correctly before it too (its alias
+                                    # carries no room noun for _RE_ROOM to eat).
+                                    # Kept as a guard on the alias, not offered
+                                    # as evidence: only the two above fail
+                                    # against pre-change code (#674 round 5 --
+                                    # a test that cannot fail is worse than none).
                                     "a wc"])
 def test_water_closet_is_a_fixture_not_a_room(prompt):
     with pytest.raises(PI.PromptError) as e:

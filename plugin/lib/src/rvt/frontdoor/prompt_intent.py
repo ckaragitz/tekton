@@ -523,7 +523,7 @@ def _voltage_system_from(text: str) -> Optional[str]:
     return None
 
 
-def _pick_room(text: str) -> Optional[re.Match]:
+def _pick_room(text: str, mentions=None) -> Optional[re.Match]:
     """Choose the ROOM match: the first whose room NOUN is not part of a
     taxonomy product name.
 
@@ -536,8 +536,15 @@ def _pick_room(text: str) -> Optional[re.Match]:
     The test is on the NOUN span, never the whole match: 'a transformer
     vault' overlaps the ``transformer_dry`` mention on its *prefix* and is
     still a room.
+
+    ``mentions`` is ``TX.scan(text)``'s result when the caller already has it
+    (``parse_prompt`` scans the same text again later); scanning twice cost a
+    measured +17% on a parse, and plugin-path latency is a standing product
+    requirement (S-2026-08-09-g). Omit it and this scans for itself.
     """
-    kind_spans = [(m.start, m.end) for m in TX.scan(text)]
+    if mentions is None:
+        mentions = TX.scan(text)
+    kind_spans = [(m.start, m.end) for m in mentions]
     for m in _RE_ROOM.finditer(text):
         s, e = m.span("noun")
         if not any(a <= s and e <= b for a, b in kind_spans):
@@ -1230,7 +1237,10 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # 1. the ROOM (dimensions, height, service rating, wall options)
     # ------------------------------------------------------------------
     room: Optional[PromptRoom] = None
-    m_room = _pick_room(text)
+    # scanned ONCE here and reused by the kind_mentions filter in section 2 --
+    # TX.scan is the expensive part of a parse (S-2026-08-09-g)
+    tx_mentions = TX.scan(text)
+    m_room = _pick_room(text, tx_mentions)
     m_dims = _pick_room_dims(text, m_room)
     no_walls = bool(_RE_NO_WALLS.search(text))
     # the floor-to-floor height is a LEVEL spacing, never the room's clear
@@ -1440,7 +1450,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # 'a fire alarm control panel' or 'a lighting relay panel' can no longer be read as a
     # panelboard by its last word; it is recorded NOT built in section 3, with the
     # taxonomy's own line.  Kinds the build models are left to their clauses.
-    kind_mentions = [m for m in TX.scan(text) if not overlaps(m.start, m.end)]
+    kind_mentions = [m for m in tx_mentions if not overlaps(m.start, m.end)]
     taken += [(m.start, m.end) for m in kind_mentions if m.key not in _SCENE_KIND]
     # every MAKER named (rvt.famgen.vendors); attached after the clauses are read, to the
     # nearest equipment noun in its clause -- built or not (_attach_makers below)

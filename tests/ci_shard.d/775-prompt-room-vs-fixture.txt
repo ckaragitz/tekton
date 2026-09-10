@@ -1,3 +1,3 @@
 # a room noun inside a fixture mention ("water closet") stays a fixture: the
 # room regex no longer eats a taxonomy mention; fresh-clone safe
-tests/test_prompt_room_vs_fixture.py
+tests/test_prompt_intent_775.py
