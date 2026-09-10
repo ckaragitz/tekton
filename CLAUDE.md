@@ -63,8 +63,9 @@ you plan from are imported right here so they are always in context:
    add new sensitive material**: no third-party personal data (usernames,
    employee paths), no secrets, no counsel analysis that is not already
    there. Material that predates this decision is a separate question,
-   tracked on #774 — leave it where it is, do not copy it into new files
-   either, and do not try to fix it by editing this rule.
+   tracked on #774 (and #19 for the genesis-base scrub) — leave it to those,
+   never handle it in passing or by editing this rule, and do not copy it
+   into new files either.
 7. **No Autodesk APS / Design Automation.** Decided twice by the owner; do
    not re-propose it. The writer is our own native binary writer.
 8. **If an automated task/charter is declined by a policy layer, surface it

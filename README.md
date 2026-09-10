@@ -22,8 +22,9 @@ of the *repository* for the people and coding sessions that build it.
 > Autodesk® Revit®" is referential use; Autodesk and Revit are registered
 > trademarks of Autodesk, Inc. This is a **private evaluation build**: every
 > output is stamped `PROOF-ONLY` until the deliverability gates clear
-> (§ Honest scope), and the repository itself stays private
-> ([`CLAUDE.md`](CLAUDE.md) §1 rule 6).
+> (§ Honest scope). The repository is **public on purpose** — outsiders are
+> meant to read it, file issues and open PRs — so nothing that should not be
+> public is added to it ([`CLAUDE.md`](CLAUDE.md) §1 rule 6, steer #774).
 
 ---
 

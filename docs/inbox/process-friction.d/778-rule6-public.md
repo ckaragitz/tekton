@@ -34,7 +34,7 @@ re-derives the block:
 | `CLAUDE.md` §1 rule 6 | rewritten: public **on purpose** (#774), do not hold pushes or propose privacy; keeps what visibility never governed (counsel material, `PRODUCT_AUTHOR_PLACEHOLDER`, never "Autodesk Revit" as our author string); adds the duty public visibility actually creates |
 | `docs/PROGRAM.md` | the "Not goals" clause *"No public remote (rule 6)"* corrected |
 | `docs/STEERING.md` | standing row **S-2026-09-10-a**, appended newest-last, no existing row rewritten |
-| `README.md` §hard rules | the same correction on the **public front page** — the copy an outsider and a fresh-clone session read first. Found by the independent review of this PR, not by the author: the grep that produced the evidence below was scoped to the three auto-loaded files and could not have seen it. |
+| `README.md` (two places: the front-matter posture block and §hard rules) | the same correction on the **public front page** — the copy an outsider and a fresh-clone session read first. Both found by this PR's independent reviews, not by its author: §hard rules because the first evidence grep was scoped to the three auto-loaded files, and the front-matter block — which cited rule 6 as authority for *"the repository itself stays private"* — because the second grep still only knew the exact phrase "keep this repo private". |
 
 The new obligation is the point of the rewrite, not a footnote: **a push to a
 public remote is not retractable** — a later flip to private does not un-publish
@@ -44,19 +44,29 @@ the remote.
 
 ## Evidence
 
-Repo-wide, not scoped to the files this PR set out to change — the narrower grep
-is what let `README.md` survive the first pass:
+Repo-wide and deliberately over-wide — a narrow grep is what let two of these
+survive earlier passes. `README.md` was missed by a grep scoped to the three
+auto-loaded files; `README.md:25` was then missed *again* by a grep whose
+pattern only knew the exact phrase "keep this repo private", 111 lines above
+the line that had just been fixed. Both were found by this PR's independent
+reviews, not by its author. The pattern below is the widened one; this record
+excludes itself, since it quotes every phrase it searches for:
 
 ```
-$ grep -rniE "keep this repo private|no public remote|nothing here goes to a public remote" \
-      --include="*.md" .
-docs/STEERING.md:33          … supersedes the "keep this repo private" half of CLAUDE.md hard rule 6 …
-docs/inbox/process-friction.md:9   … hard rule 6 said "keep this repo private" while the repo was public …
+$ grep -rniE "keep this repo private|no public remote|nothing here goes to a public remote|stays private|repo private" \
+      --include="*.md" . | grep -v "process-friction.d/778"
+docs/STEERING.md:33                   | S-2026-09-10-a | … The repository is **public on purpose** and stays that way …
+docs/inbox/process-friction.md:9      … hard rule 6 said "keep this repo private" while the repo was public on purpose …
+docs/product/architecture.md:59       - **What stays private:** the Python engine, the schema/paging/ECC/object-
+docs/inbox/rvt-to-ifc-param-carrier.md:27   … `_KIND_OF_CARRIER` stays private there —
 ```
 
-Two hits, both of them this stream's own prose *quoting* the old rule to say what
-it supersedes. Nothing anywhere in the tracked tree still instructs a session to
-make the repo private.
+The first two are this stream's own prose quoting the old rule to say what it
+supersedes. The last is a Python scoping remark, unrelated. `architecture.md:59`
+is a real stale line and is listed below as deliberately not fixed here.
+
+**No instruction file still tells a session to make this repo private** — which
+is the claim that matters, and is narrower than "no file contains the word".
 
 Gates: `check_portable_paths.py` **ok, 3191 tracked paths**; `sync_plugin.py
 --check` **clean** (deny-audit clean, identity scan == allowlist, assets
@@ -85,6 +95,18 @@ Both predate the decision and sit in every commit since 2026-08-09, so neither i
 fixed by editing a rule; retracting them would need a history rewrite. Called out
 on #774 rather than silently carried.
 
+**The trust model of the model-backed runs — filed as #781.** The second
+independent review of this PR found `docs/process/AUTONOMY.md:176` and
+`.github/workflows/worker.yml:164` still asserting that those runs' inputs are
+*"this private repository's files and issues/comments written by its
+collaborators"*. Public-on-purpose means anyone with a GitHub account can now
+write an issue or comment, so the untrusted-input surface of any model-backed
+run is wider than the document claims — a stale **security premise**, not a
+wording slip. Out of this PR's territory (the three auto-loaded instruction
+files), so it is filed rather than fixed here. `docs/product/architecture.md:59`
+("what stays private: the Python engine …") is stale the same way and rides on
+the same issue.
+
 ## Findings for the process itself
 
 The failure mode is general: **an instruction file can go stale against reality
@@ -93,6 +115,13 @@ and nothing notices until a session halts.** Rule 6 was checkable by machine
 follow-up — a cheap session-start assertion that the hard rules still describe the
 world — but that is its own issue, **#780**, not this PR.
 
+This PR is its own best evidence for why that issue is worth doing. Three stale
+statements of the same rule survived an author who was *specifically looking for
+them*: `README.md` §hard rules, `README.md:25`, and the trust-model premise now
+on #781. Each was caught by a reader who had not written the previous fix, and
+each time the miss was a **grep scoped too narrowly** — to three files, then to
+one exact phrase. A human-run grep is not a check; #780's is.
+
 ## BRANCH STATE
 
 - Branch: `cam/778-rule6-public`, from `main` @ `0119d6b`.
@@ -100,4 +129,5 @@ world — but that is its own issue, **#780**, not this PR.
   this record.
 - Shipped: the three corrections, gated as above.
 - Staged, not shipped: nothing.
-- Not done: the already-public material (#774, #19); the stale-rule detector (filed #780).
+- Not done: the already-public material (#774, #19); the stale-rule detector
+  (filed #780); the model-run trust model and `architecture.md` (filed #781).
