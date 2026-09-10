@@ -51,10 +51,33 @@ pre-existing "refused by name" path the router is already written around
 | 2x2 | 23.75 × 23.75 in | unchanged |
 | **1x4 / 4x4 / 1x2** | **23.75 × 23.75 in, mislabelled** | **refused by name, listing the held sizes** |
 
-Anti-vacuity (#674 round 5): the head's test file run against `origin/main`'s
-code gives **6 failed / 13 passed**; at the head, **23 passed**. Neighbours:
-216 passed / 23 skipped, and a second batch 497 passed / 3 skipped.
-`self_battery` 18/18, `prompt_battery --rows` 100/100.
+Anti-vacuity (#674 round 5), measured — the head's test file copied onto a
+clean `origin/main` worktree and run against **main's** code:
+
+```
+$ .venv/bin/python -m pytest tests/test_luminaire_sizes_682.py -q
+10 failed, 13 passed            # against origin/main's code
+23 passed                       # at this head
+```
+
+```
+$ .venv/bin/python -m pytest tests/test_luminaire_sizes_682.py \
+      tests/test_famgen_factory.py tests/test_famgen_catalog.py -q
+108 passed, 5 skipped
+$ .venv/bin/python -m pytest tests/ -q -k taxonomy
+153 passed, 5090 deselected
+$ .venv/bin/python tools/self_battery.py
+18/18 passed
+$ .venv/bin/python tools/prompt_battery.py --rows
+99/100 held the line
+```
+
+**The battery is 99/100, not 100/100**, and that is not this PR's doing: the
+one failing row is `row:water_closet`, which fails identically on `origin/main`
+and is fixed by #777, a different PR. An earlier draft of this record claimed
+100/100 — true only of a working tree that had #777's fix in it, which this
+branch does not. Corrected rather than quietly dropped, because a gate recorded
+as green when it is not is exactly the failure this repo files as a bug.
 
 Found by `tools/self_battery.py` plus a direct size sweep under steer #765
 (sessions test and debug everything themselves) — not by a user hitting it.
@@ -106,9 +129,11 @@ next person to write such a consumer knows.
 - Files written: `src/rvt/famgen/factory.py`, `src/rvt/frontdoor/taxonomy_build.py`
   (+ their mirrors), `tests/test_luminaire_sizes_682.py`,
   `tests/ci_shard.d/703-troffer-size-members.txt`, this record.
-- Gates: module **23 passed**; neighbours **216 passed / 23 skipped**;
-  `self_battery` 18/18; `prompt_battery --rows` 100/100; `sync_plugin --check`
-  clean.
+- Gates (commands and counts under **Evidence** above): module **23 passed**;
+  the three named neighbours **108 passed / 5 skipped**; all taxonomy tests
+  **153 passed**; `self_battery` **18/18**; `prompt_battery --rows` **99/100**
+  (the `water_closet` row fails on `origin/main` too — #777's, not this PR's);
+  `sync_plugin --check` clean; `validate_plugin.py` PASS.
 - Shipped: the refusal, the CCT/blank-value fixes, the derived size set.
 - Staged, not shipped: nothing. No certification claim (hard rule 4).
 - Not done: the downlight column-vs-cell question above.
