@@ -46,12 +46,23 @@ you plan from are imported right here so they are always in context:
    referrer of removed content is deleted *with* it or left
    *byte-identical* — never "neutralised". `assert_edit_free` gates every
    reduction.
-6. **Keep this repo private.** It carries counsel-review material (see
-   `docs/product/COUNSEL-BRIEF.md`: author strings C1, the per-release
-   schema/ESSchema corpora C4, footer token C5, trademark). Nothing here
-   goes to a public remote. Leave `PRODUCT_AUTHOR_PLACEHOLDER = "rvt-writer"`
-   in `src/rvt/identity.py` alone; never echo "Autodesk Revit" or a
-   template's identity as *our* author string.
+6. **This repo is PUBLIC on purpose — so never add anything to it that
+   should not be.** The owner decided this deliberately (steer #774,
+   S-2026-09-10-a, resolving #763): outsiders must be able to read the code,
+   file issues and open PRs. Do **not** treat visibility as a bug, hold
+   pushes over it, or propose making it private — that block cost 10 days
+   once already. What visibility never governed still stands: this repo
+   carries counsel-review material (`docs/product/COUNSEL-BRIEF.md`: author
+   strings C1, the per-release schema/ESSchema corpora C4, footer token C5,
+   trademark), so leave `PRODUCT_AUTHOR_PLACEHOLDER = "rvt-writer"` in
+   `src/rvt/identity.py` alone and never echo "Autodesk Revit" or a
+   template's identity as *our* author string. And because the remote is
+   public, a push is not retractable — a later flip to private does not
+   un-publish what is already in the history — so **never add new sensitive
+   material**: no third-party personal data (usernames, employee paths), no
+   secrets, no counsel analysis that is not already there. Material that
+   predates this decision is a separate question, tracked on #774, not
+   something to fix by editing this rule.
 7. **No Autodesk APS / Design Automation.** Decided twice by the owner; do
    not re-propose it. The writer is our own native binary writer.
 8. **If an automated task/charter is declined by a policy layer, surface it
