@@ -22,7 +22,7 @@ push and merge. #763 went unanswered until **2026-09-10**. In that window:
   rather than buried.
 
 The rule was not wrong when written; it went stale, and nothing made the staleness
-visible except a session stopping dead.
+visible except a session stopping dead. Filed as #780.
 
 ## What was built
 
@@ -80,7 +80,7 @@ The failure mode is general: **an instruction file can go stale against reality
 and nothing notices until a session halts.** Rule 6 was checkable by machine
 (repository visibility vs. the rule's claim) and nothing checked it. Worth a
 follow-up — a cheap session-start assertion that the hard rules still describe the
-world — but that is its own issue, not this PR.
+world — but that is its own issue, **#780**, not this PR.
 
 ## BRANCH STATE
 
@@ -88,4 +88,4 @@ world — but that is its own issue, not this PR.
 - Files written: `CLAUDE.md`, `docs/PROGRAM.md`, `docs/STEERING.md`, this record.
 - Shipped: the three corrections, gated as above.
 - Staged, not shipped: nothing.
-- Not done: the already-public material (#774, #19); the stale-rule detector.
+- Not done: the already-public material (#774, #19); the stale-rule detector (filed #780).
