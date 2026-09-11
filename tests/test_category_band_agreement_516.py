@@ -17,8 +17,17 @@ when the facts changed:
     swapped, so a template-verified fire-alarm family was DESCRIBED by our
     own inspect route as "Nurse Call Devices".
   * ``rvt.genesis.residue_b``               -- the six ids go into one
-    category SET, so its swap was cosmetic; pinned anyway, because the next
-    reader has no way to know that without checking.
+    category SET, so its swap left the set unchanged (the emitted LIST ORDER
+    of two entries does change); pinned anyway, because the next reader has
+    no way to know that without checking.
+  * ``rvt.genesis.house_standard``          -- label-only, rides into the
+    build manifest.  It had -2008081 as "Fire Alarm Devices", which the
+    template refutes.
+
+NOT swept here, deliberately: ``rvt.mep.electrical_data`` declares
+``OST_ElectricalCircuit = -2008087``, colliding with inventory's VERIFIED
+``OST_LightingDevices`` for the same id.  One of them is wrong and neither is
+in this band; it is #782's item 4, not something to guess at here.
 
 A shared contract is only correct when the LAST consumer is.  This module is
 that check, so the next id correction cannot land in one table alone.
@@ -27,8 +36,9 @@ import pytest
 
 from rvt.famgen import category_facts as CF
 
-#: the band as the templates carry it: devices on the odd slots, alternating
-#: with their tag categories (CF.DEVICE_TAG_PAIRING).
+#: Devices sit on the odd slots, alternating with their tag categories
+#: (CF.DEVICE_TAG_PAIRING).  THREE of these are template facts; the
+#: Communication/Nurse Call pair is NOT -- see TEMPLATE_PINNED below.
 BAND = {
     -2008075: "telephone_device",
     -2008077: "communication_device",
@@ -37,6 +47,49 @@ BAND = {
     -2008083: "data_device",
     -2008085: "fire_alarm_device",
 }
+
+
+#: Read from the category's own family template -- these are FACTS.
+TEMPLATE_PINNED = {-2008075: "telephone_device",
+                   -2008083: "data_device",
+                   -2008085: "fire_alarm_device"}
+
+#: NOT settled by any template (#782).  The band law puts devices on the odd
+#: slots, which leaves -2008077 and -2008081 for these two -- and BOTH
+#: arrangements satisfy it equally.  The assignment below is the engine's
+#: current inference; every table is aligned to it so the engine cannot
+#: contradict itself, and the tests here pin that AGREEMENT, never the truth
+#: of the pair.  When #782 mines the templates, the correction lands in
+#: category_facts alone and these tests fail for every other table -- which is
+#: exactly what they are for.
+INFERRED_PAIR = {-2008077: "communication_device",
+                 -2008081: "nurse_call_device"}
+
+
+@pytest.mark.parametrize("cid,key", sorted(TEMPLATE_PINNED.items()))
+def test_template_pinned_ids_are_facts_everywhere(cid, key):
+    """The three ids a template actually declares. Changing one is a bug."""
+    from rvt.famgen import skeleton as SK
+    assert SK._resolve_category(key) == cid
+    f = CF.fact(key)
+    assert f is not None, f"{key} should have a mined row"
+    assert f.category == cid
+
+
+@pytest.mark.parametrize("cid,key", sorted(INFERRED_PAIR.items()))
+def test_the_inferred_pair_is_declared_inferred(cid, key):
+    """Pins that the pair is CONSISTENT and still honestly labelled unproven.
+
+    Deliberately NOT a claim that ``cid`` is correct -- #782 decides that.
+    What must hold today is that no table disagrees with any other, and that
+    the engine has not quietly promoted the guess to a fact.
+    """
+    from rvt.famgen import skeleton as SK
+    assert SK._resolve_category(key) == cid
+    assert key in CF.STILL_INFERRED, \
+        (f"{key} left STILL_INFERRED without a template: if #782 mined it, "
+         f"move it to TEMPLATE_PINNED here and cite the .rft")
+    assert CF.fact(key) is None, f"{key} has a mined row but is still inferred"
 
 
 @pytest.mark.parametrize("cid,key", sorted(BAND.items()))

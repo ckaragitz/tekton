@@ -60,9 +60,12 @@ class CatFact(NamedTuple):
     work_plane_based: bool
     template: str
 
-    @property
-    def verified(self) -> bool:
-        return True
+    # NOTE: there was a `verified` property here that returned an
+    # unconditional True and had no caller.  Removed (#698 review): it would
+    # have read as a verification STAMP the first time a row arrived from
+    # anywhere but a template, which is precisely when the distinction
+    # matters.  A row's evidence is its `template` citation; a kind with no
+    # row is in STILL_INFERRED and says so.
 
 
 #: VERIFIED rows -- one per default template, keyed by the template's family

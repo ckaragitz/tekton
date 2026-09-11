@@ -103,16 +103,28 @@ __all__ = [
 # ---------------------------------------------------------------------------
 OST_LightingDevices = -2008087        # switches, occupancy / daylight sensors
 OST_DataDevices = -2008083
-# Communication and Nurse Call were SWAPPED here until #516: this module had
-# -2008081/-2008077, the exact inverse of what the family templates carry.
-# DEVICE_CATEGORIES below is an id -> NAME map, so the swap made device_census
-# and device_symbols report a speaker as "Nurse Call Devices" and a nurse-call
-# station as "Communication Devices".  Fire Alarm (-2008085) was already right
-# here and is now template-verified (Fire_Alarm_Device.rft).  Single source:
-# rvt.famgen.category_facts.
-OST_CommunicationDevices = -2008077
-OST_FireAlarmDevices = -2008085
-OST_NurseCallDevices = -2008081
+# The 77/81 pair is [INFERRED] and NO TEMPLATE SETTLES IT -- read this before
+# "correcting" it again (#516, #782).
+#
+# Template-pinned, from the .rft set: -2008075 Telephone, -2008083 Data,
+# -2008085 Fire Alarm.  Those three are facts.  The device/tag alternation law
+# puts devices on the odd slots, which leaves -2008077 / -2008079 / -2008081
+# for Communication / Security / Nurse Call; every table agrees Security is
+# -2008079, and NOTHING in the repo distinguishes Communication from Nurse
+# Call.  Both arrangements satisfy the alternation law equally.
+#
+# This module used to hold -2008081 Communication / -2008077 Nurse Call, the
+# opposite of rvt.famgen.category_facts.  Since DEVICE_CATEGORIES is an id ->
+# NAME map read by device_census / device_symbols, disagreeing with the
+# resolver meant a family authored as communication_device (-2008077) was
+# REPORTED as "Nurse Call Devices".  It is aligned to category_facts so the
+# engine is at least self-consistent -- NOT because the templates settle it.
+# If the inference is wrong, it is now wrong in one place and one test catches
+# every table at once; #782 settles it by mining the three device templates
+# Revit ships that nobody has mined yet.
+OST_CommunicationDevices = -2008077      # [INFERRED] -- see above, not a fact
+OST_FireAlarmDevices = -2008085          # template-pinned (Fire_Alarm_Device.rft)
+OST_NurseCallDevices = -2008081          # [INFERRED] -- see above, not a fact
 OST_SecurityDevices = -2008079
 OST_TelephoneDevices = -2008075
 OST_Rooms = -2000160

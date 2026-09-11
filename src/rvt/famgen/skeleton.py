@@ -2321,6 +2321,17 @@ def _resolve_category(category) -> int:
              # -2008075/77/79/81/83/85.  That is what resolved inventory's
              # assumed block, which had Fire Alarm and Nurse Call swapped.
              #
+             # WHAT THE BAND LAW DOES *NOT* SETTLE (#782): with 75 Telephone,
+             # 83 Data and 85 Fire Alarm template-pinned and 79 Security
+             # agreed everywhere, the law leaves 77 and 81 for Communication
+             # and Nurse Call -- and BOTH arrangements satisfy it equally.
+             # No template in the mined set declares either, so the pair below
+             # is [INFERRED], not derived.  Every in-repo table is aligned to
+             # it so the engine cannot contradict itself, and
+             # tests/test_category_band_agreement_516.py pins that AGREEMENT
+             # -- not the truth of the pair.  #782 settles it by mining the
+             # three device templates Revit ships that nobody has mined.
+             #
              # NOT proven by a template: that a family WE author with the id
              # lands in the expected branch of Revit's category list -- that
              # is a Revit-side observation (category_facts
