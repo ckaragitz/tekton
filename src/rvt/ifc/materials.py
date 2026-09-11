@@ -131,8 +131,13 @@ def read_materials(ifc_path: str) -> MaterialFacts:
             relating = rel.RelatingMaterial
             related = rel.RelatedObjects or []
         except AttributeError as exc:
+            # CONTINUE, not break (#514 review): one unreadable relation must
+            # not abandon the rest.  Breaking silently truncated the material
+            # set to whatever happened to be read first -- which looks exactly
+            # like an IFC that declares fewer materials than it does, and the
+            # note below would be the only clue.
             facts.notes.append(f"reader cannot read the material relation: {exc}")
-            break
+            continue
         names = _material_names(relating)
         if not names:
             continue

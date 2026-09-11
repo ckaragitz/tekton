@@ -51,25 +51,63 @@ def test_plus_z_is_exactly_the_identity():
                                                   [0.0, 0.0, 1.0]]
 
 
-@pytest.mark.parametrize("d", [(0, 1, 0), (1, 0, 0), (1, 1, 0), (0, 0, -1),
-                               (1e-9, 0, -1), (0.3, -0.7, 0.2), (0, 0, 5)])
-def test_rotation_is_proper_and_maps_z_onto_the_axis(d):
-    """det == +1 (a mirror would invert the solid) and R . +Z == the axis."""
+def _ortho_err(M):
+    """How far M is from R·Rᵀ == I -- a shear masquerading as a rotation."""
+    return max(abs(sum(M[i][k] * M[j][k] for k in range(3))
+                   - (1.0 if i == j else 0.0))
+               for i in range(3) for j in range(3))
+
+
+#: directions that must be reproduced exactly.
+WELL_CONDITIONED = [(0, 1, 0), (1, 0, 0), (1, 1, 0), (0, 0, -1),
+                    (0.3, -0.7, 0.2), (0, 0, 5), (1e-2, 0, -1)]
+
+#: the near-anti-Z band, where ``rotation_from_z`` deliberately SNAPS to exact
+#: -Z (see its comment).  These must still be true rotations; their axis is
+#: allowed to differ by the snap.
+NEAR_ANTI_Z = [(1e-9, 0, -1), (2e-6, 0, -1), (1e-4, 0, -1), (-3e-5, 2e-5, -1)]
+
+
+@pytest.mark.parametrize("d", WELL_CONDITIONED + NEAR_ANTI_Z)
+def test_rotation_is_always_a_proper_rotation(d):
+    """det == +1 and R·Rᵀ == I for EVERY direction, band included.
+
+    The band is the point.  ``rotation_from_z`` carries k = 1/(1+c), which
+    blows up as the direction approaches -Z; with the original 1e-12 guard,
+    d = (2e-6, 0, -1) produced |det-1| = 8.8e-05 -- a shear, not a rotation,
+    while the module promised det = +1.  Found by the #514 review, which also
+    noted the old parametrisation's single near-anti-Z case (1e-9) landed
+    INSIDE the exact branch and so never exercised the band at all.
+    """
     R = O.rotation_from_z(d)
-    assert _det(R) == pytest.approx(1.0, abs=1e-9), "mirroring would flip the body"
+    assert _det(R) == pytest.approx(1.0, abs=1e-9), "mirroring or shearing the body"
+    assert _ortho_err(R) < 1e-9, "R is not orthonormal: a shear, not a rotation"
+
+
+@pytest.mark.parametrize("d", WELL_CONDITIONED)
+def test_well_conditioned_axes_are_mapped_exactly(d):
+    R = O.rotation_from_z(d)
     n = math.sqrt(sum(float(c) * float(c) for c in d))
     assert O._apply(R, (0.0, 0.0, 1.0)) == pytest.approx([c / n for c in d], abs=1e-9)
 
 
-def test_degenerate_direction_never_yields_nan():
-    """A zero-length segment is a caller bug: fail loudly, or be the identity --
-    never a NaN matrix that silently corrupts every vector it touches."""
-    try:
-        R = O.rotation_from_z((0.0, 0.0, 0.0))
-    except (ValueError, ZeroDivisionError):
-        return
-    assert all(c == c for row in R for c in row), "NaN in the rotation matrix"
-    assert _det(R) == pytest.approx(1.0, abs=1e-9)
+@pytest.mark.parametrize("d", NEAR_ANTI_Z)
+def test_the_near_anti_z_band_snaps_to_minus_z_within_its_stated_bound(d):
+    """Pins the TRADE rather than hiding it: inside the band the axis is
+    allowed to move, by at most the band's own width (~1.4e-4 rad)."""
+    got = O._apply(O.rotation_from_z(d), (0.0, 0.0, 1.0))
+    assert got == pytest.approx([0.0, 0.0, -1.0], abs=1.5e-4)
+
+
+def test_degenerate_direction_fails_loudly():
+    """A zero-length segment is a caller bug and must RAISE.
+
+    This asserted "no NaN" via a bare try/except until the #514 review pointed
+    out the except-branch returned before any assertion ran -- the test could
+    not fail.  ``_unit`` raises ValueError, so that is what is pinned.
+    """
+    with pytest.raises(ValueError):
+        O.rotation_from_z((0.0, 0.0, 0.0))
 
 
 # ---------------------------------------------------------------------------
@@ -156,15 +194,24 @@ def _authored_forms():
     The ``add_*`` wrappers are the entry point (they take a ``FamilyDoc`` and
     build the context themselves); ``geometry.prism_form`` takes an internal
     ``FamilyDocContext`` and is not the caller-facing shape.
+
+    ``add_generic_part``'s ``cylinder_x`` / ``cylinder_y`` are included
+    because they are the shapes whose axis is NOT +Z, so they exercise the
+    rep-side frames most directly.
     """
     from rvt.famgen import factory as F
-    return [("cylinder", F.add_cylinder_form(_doc(), 0.666667, 0.8333)),
-            ("box", F.add_box_form(_doc(), 0.5, 0.75, 1.25)),
-            ("polygon", F.add_polygon_form(
-                _doc(), [[0.0, 0.0], [0.6, 0.0], [0.3, 0.5]], 1.0))]
+    out = [("cylinder", F.add_cylinder_form(_doc(), 0.666667, 0.8333)),
+           ("box", F.add_box_form(_doc(), 0.5, 0.75, 1.25)),
+           ("polygon", F.add_polygon_form(
+               _doc(), [[0.0, 0.0], [0.6, 0.0], [0.3, 0.5]], 1.0))]
+    for shape in ("cylinder_x", "cylinder_y"):
+        out.append((shape, F.add_generic_part(
+            _doc(), {"shape": shape, "length_ft": 1.5, "radius_ft": 0.25})))
+    return out
 
 
-@pytest.mark.parametrize("what", ["cylinder", "box", "polygon"])
+@pytest.mark.parametrize("what", ["cylinder", "box", "polygon",
+                                  "cylinder_x", "cylinder_y"])
 def test_no_unclassified_three_vector_in_an_authored_form(what):
     """THE guard: every 3-vector a real authored form carries is either
     rotated by ``orient`` or explicitly declared non-geometry.
@@ -179,7 +226,15 @@ def test_no_unclassified_three_vector_in_an_authored_form(what):
 
     found = {}
     for el in getattr(forms[what], "elements", forms[what]):
+        # BOTH sides.  place_along rotates el.obj AND el.rep, and the
+        # cylinder-surface m_zVec -- what Revit actually draws (#591 round 4)
+        # -- lives in the REP.  The first version of this guard walked only
+        # .obj, so a shape carrying a new 3-vector solely in its rep would
+        # have passed it: found by the #514 review.
         _vec3_fields(getattr(el, "obj", el), found)
+        rep = getattr(el, "rep", None)
+        if rep is not None:
+            _vec3_fields(rep, found)
     assert found, "no 3-vectors found at all -- the probe is broken, not the code"
 
     handled = set(O.VECTOR_FIELDS) | KNOWN_NON_GEOMETRY | {"m_3x3"}

@@ -26,6 +26,19 @@ equivalents).  Every VALUE here is ours or a plain physical constant; no
 donor bytes, and nothing is read from an Autodesk installation (rule 2).
 
 Territory: issue #608 (new module; nothing else in rvt.genesis changes).
+
+PROBE MODULE -- NOT A PRODUCT PATH, AND THE NAME SAYS SO.
+
+``new_cable_tray_type_probe`` was called ``new_cable_tray_type`` until the
+#514 review: that shadowed the SHIPPING constructor of the same name in
+``rvt.genesis.types`` (exported from ``rvt.genesis``), with a different
+signature -- ``elem_id`` positional, ``shape`` an int, ``with_fitting``
+defaulting the other way.  Nothing imports this module today, so nothing
+broke; but it mirrors into ``plugin/lib/`` and a later
+``from rvt.genesis.cabletray import new_cable_tray_type`` would have silently
+bound the variant that, by this stream's own record
+(``docs/inbox/cable-tray-native-type.md``), **crashes Revit and must not ship
+until probe A3 passes**.  Renamed so that import cannot happen by accident.
 """
 from __future__ import annotations
 
@@ -34,7 +47,8 @@ from typing import Optional
 from .types import (INVALID, TypeRecord, _ptr, _record, blank_object,
                     element_defaults)
 
-__all__ = ["CABLE_TRAY_CATEGORY", "SHAPE_U", "SHAPE_LADDER", "new_cable_tray_type"]
+__all__ = ["CABLE_TRAY_CATEGORY", "SHAPE_U", "SHAPE_LADDER",
+           "new_cable_tray_type_probe"]
 
 #: OST_CableTray [MEASURED on the specimen's types]
 CABLE_TRAY_CATEGORY = -2008130
@@ -57,7 +71,7 @@ _FITTING_SLOTS = (
 )
 
 
-def new_cable_tray_type(name: str, elem_id: int, *,
+def new_cable_tray_type_probe(name: str, elem_id: int, *,
                         shape: int = SHAPE_U,
                         with_fitting: bool = False,
                         branch_type_tee: bool = False,

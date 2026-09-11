@@ -87,18 +87,64 @@ def rotation_from_z(direction: Vec) -> Mat:
     c = sum(a * b for a, b in zip(z, d))
     if c > 1.0 - 1e-12:                                    # already +Z
         return [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-    if c < -1.0 + 1e-12:                                   # antiparallel: 180 deg about X
+    # Antiparallel, and the NEAR-antiparallel band with it.  The Rodrigues form
+    # below carries k = 1/(1+c), which blows up as c -> -1: at d = (2e-6, 0, -1)
+    # the 1e-12 threshold this once used let |det - 1| reach 8.8e-05 -- a
+    # measurably non-orthonormal "rotation", i.e. a body sheared instead of
+    # turned, while the module docstring promised det = +1.  Found by the #514
+    # review; the old test suite missed it because its one near-anti-Z case
+    # (1e-9) lands INSIDE the exact branch and never exercised the band.
+    # THE TRADE, stated so nobody has to rediscover it: this SNAPS any
+    # direction within ~1.4e-4 rad of -Z onto exact -Z.  A body whose axis sits
+    # in that band is placed up to 1.4e-4 rad off what was asked -- 0.012 in
+    # over a 10 ft rod, below any tolerance this format expresses -- and in
+    # exchange the matrix is a true rotation instead of a shear.  The old 1e-12
+    # threshold kept the tilt and gave the shear.
+    if c < -1.0 + 1e-8:                                    # antiparallel: 180 deg about X
         return [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]
     # v = z x d ; R = I + [v] + [v]^2 * 1/(1+c)
     vx, vy, vz = (z[1] * d[2] - z[2] * d[1],
                   z[2] * d[0] - z[0] * d[2],
                   z[0] * d[1] - z[1] * d[0])
     k = 1.0 / (1.0 + c)
-    return [
+    R = [
         [1.0 + (-vz * vz - vy * vy) * k, -vz + vx * vy * k, vy + vx * vz * k],
         [vz + vx * vy * k, 1.0 + (-vz * vz - vx * vx) * k, -vx + vy * vz * k],
         [-vy + vx * vz * k, vx + vy * vz * k, 1.0 + (-vy * vy - vx * vx) * k],
     ]
+    return _reorthonormalise(R)
+
+
+#: how far from orthonormal a matrix may drift before we clean it up.  Chosen
+#: well ABOVE ordinary float noise (~1e-16) so a well-conditioned rotation is
+#: returned BIT-IDENTICAL -- the bodies that carry desktop verdicts must not
+#: move by a last-bit rounding because of a guard aimed at a different case.
+_ORTHO_TOL = 1e-12
+
+
+def _reorthonormalise(R: Mat) -> Mat:
+    """Gram-Schmidt, applied ONLY when ``R`` has measurably drifted.
+
+    Even with the widened antiparallel guard the Rodrigues form above leaves
+    up to ~3e-08 of orthonormality error right at the threshold -- small, but
+    a shear rather than a rotation, and the module promises det = +1.  Rather
+    than loosen that promise, clean the matrix when it needs it and return it
+    untouched when it does not.
+    """
+    err = 0.0
+    for i in range(3):
+        for j in range(3):
+            dot = sum(R[i][x] * R[j][x] for x in range(3))
+            err = max(err, abs(dot - (1.0 if i == j else 0.0)))
+    if err <= _ORTHO_TOL:
+        return R                                   # bit-identical, the common path
+    r0 = _unit(R[0])
+    d1 = sum(r0[x] * R[1][x] for x in range(3))
+    r1 = _unit([R[1][x] - d1 * r0[x] for x in range(3)])
+    r2 = [r0[1] * r1[2] - r0[2] * r1[1],           # r0 x r1 keeps det = +1
+          r0[2] * r1[0] - r0[0] * r1[2],
+          r0[0] * r1[1] - r0[1] * r1[0]]
+    return [r0, r1, r2]
 
 
 def _apply(R: Mat, v: Vec) -> List[float]:
