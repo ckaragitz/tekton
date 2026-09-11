@@ -65,9 +65,11 @@ The diff adds no refusal logic: on the `rvt` lane the `PromptError` is caught
 into `res.errors` (`frontdoor/__init__.py:502`) and `router.py:1015` catches
 `_StepFailed` and falls through to the taxonomy-build / archetype lanes.
 
-But the observable result for this one prompt **does** change, and the first
-draft of this record glossed it. Measured with
-`tools/frontdoor.py author --prompt "a water closet"`:
+But the observable result **does** change for prompts whose only recognised
+content is one of the two affected fixtures, and the first draft of this record
+glossed it. Measured with `tools/frontdoor.py author`, same for
+`"a water closet"`, `"a bathroom sink"` and `"a bathroom sink and a cable
+tray"`:
 
 | | main | this head |
 |---|---|---|
@@ -84,7 +86,11 @@ and a reader should weigh them rather than take the verdict on trust:
    `water_closet` consistent with every other unbuildable plumbing row — rows
    `prompt_battery` already blesses — rather than carving out a new exception.
 
-The `rfa` lane and the archetype lane are untouched.
+The `rfa` lane's **deliverables** are untouched (`route run --prompt "a water
+closet" --output rfa` produces no `.rfa` on either tree), though for these
+prompts the head no longer emits `intent.json` or `families/`, and the status
+line changes from the generic "no family plan" to the taxonomy's named
+refusal — which is the point of the change.
 
 ## Latency — a regression found in review and fixed
 
@@ -99,13 +105,25 @@ Measured over 50 parses of
 | this change, **double scan** | 0.91 ms (**+17%**) | 1.017 ms (**+34%**) |
 | this change, **scanned once** | 0.762 ms | 0.738 ms |
 
-Three independent measurements on the same box, two by reviewers and one by
-the author. They disagree on the *size* of the double-scan penalty — +17% and
-+34% — which is what a sub-millisecond benchmark on a shared machine looks
-like, and the reason the range is printed rather than the flattering figure.
-What all three agree on is the part that matters: scanning twice cost a
-measurable amount, and scanning once puts the parse back at `main`'s level
-(within noise of it).
+Measurements by two reviewers and the author on the same box. They disagree on
+the *size* of the double-scan penalty — +17%, +26–31%, +34% — which is what a
+sub-millisecond benchmark on a shared machine looks like, and the reason the
+range is printed rather than the flattering figure.
+
+A fourth round, min-of-5 × 50 parses with `__pycache__` cleared between trees
+(the method that removes most of that spread):
+
+| | min-of-5 mean |
+|---|---|
+| `main` | 0.554 ms |
+| this head, single scan | 0.576 ms |
+
+So the honest statement is **+4% against `main`, versus +17–34% for the double
+scan** — not "within noise", which an earlier draft of this record claimed and
+which does not reproduce in *direction*: the head is consistently a little
+slower than `main` across every paired round anyone has run. The remaining 4%
+is the `_pick_room` span test itself, which is the cost of the fix rather than
+of scanning twice.
 
 `parse_prompt` now scans once and passes the mentions into `_pick_room`, which
 still scans for itself when called standalone. Plugin-path latency is a
@@ -124,7 +142,8 @@ standing product requirement, not internal cleanup (S-2026-08-09-g), so a
 
 ## BRANCH STATE
 
-- Branch: `cam/prompt-room-vs-fixture`, from `main` @ `0119d6b`.
+- Branch: `cam/prompt-room-vs-fixture`, rebased onto `main` @ `b6e3f09` (was
+  cut from `0119d6b`, before #779 merged).
 - Files written: `src/rvt/frontdoor/prompt_intent.py` (+ its mirror),
   `tests/test_prompt_intent_775.py`, `tests/ci_shard.d/775-prompt-room-vs-fixture.txt`,
   this record.
