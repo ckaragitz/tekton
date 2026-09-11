@@ -141,7 +141,14 @@ def test_inventory_names_agree_with_the_facts():
 
 
 def test_residue_b_names_agree_with_the_facts():
-    """Cosmetic in effect (the ids go into ONE set) -- pinned so it stays true."""
+    """The six ids feed ONE HOUSE_VIEW_FILTERS entry, so the SET is unchanged.
+
+    Not quite cosmetic, though: ``parameter_filter`` serialises ``m_categories``
+    in LIST ORDER, so swapping two names swaps two positions and a fresh
+    genesis compose emits different bytes. No ledger impact -- the certified
+    bases are pinned assets, not rebuilt here -- but "output does not change"
+    would be too strong, so this is pinned rather than assumed.
+    """
     from rvt.genesis import residue_b as RB
     assert RB.OST_FireAlarmDevices == -2008085
     assert RB.OST_NurseCallDevices == -2008081

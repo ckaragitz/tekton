@@ -95,9 +95,19 @@ the band law plus elimination, not a direct reading. The pairing law also indepe
 **confirms** the `security_device` −2008079 and `communication_device` −2008077 choices
 made in the first round: both land on device slots.
 
-inventory's assumed block had **Fire Alarm and Nurse Call swapped**. Its own −2008085
-row still reads `OST_NurseCallDevices`; correcting that table is a different territory
-and was left alone.
+inventory's assumed block had **Fire Alarm and Nurse Call swapped**.
+
+> **Correction, from the merging tech-lead session (not the authoring stream).**
+> The paragraph here originally ended "correcting that table is a different
+> territory and was left alone." That stopped being true on this branch: the
+> independent review of this PR found the id correction had not reached the
+> tables that *name* these ids, and the fix landed here rather than being
+> filed. `src/rvt/inventory.py`, `src/rvt/mep/devices.py`,
+> `src/rvt/genesis/house_standard.py` and `src/rvt/genesis/residue_b.py` are
+> all aligned to `category_facts` now. The sentence is corrected rather than
+> left standing because **#782's implementer reads this record**, and "was
+> left alone" would send them to re-split the tables. See the section at the
+> end of this file for what changed and what is still a guess.
 
 **19 annotation kinds are now resolvable** and marked as a distinct species
 (`category_facts.ANNOTATION_KINDS`, part type −1, view-owned instances): titleblock
@@ -158,3 +168,74 @@ scan reports 0 mismatches. `tools/rft_facts.py` emits values only — never cont
 
 **Staged vs shipped:** all shipped. No viewer batch — this changes an integer in a
 header, and the certified-base lineage is untouched.
+
+---
+
+## Added by the merging tech-lead session — carrying the change to its last consumer
+
+The authoring stream's work above stands as written; this section is a separate
+voice and says only what the merge round changed.
+
+**The finding.** The independent review of this PR noticed the shared-contract
+change had not reached the tables that *name* these ids. Four of them
+disagreed with the corrected resolver:
+
+| table | what it is | was | now |
+|---|---|---|---|
+| `src/rvt/mep/devices.py` | `DEVICE_CATEGORIES`, id → name, read by `device_census` / `device_symbols` | −2008081 Communication, −2008077 Nurse Call | aligned to `category_facts` |
+| `src/rvt/inventory.py` | `category_name()`, what inspect/validate output calls a category | −2008081 Fire Alarm, −2008085 Nurse Call | −2008085 Fire Alarm **(template-pinned)**, −2008081 Nurse Call |
+| `src/rvt/genesis/house_standard.py` | label-only, rides into the build manifest | −2008081 "Fire Alarm Devices" | −2008081 Nurse Call, −2008085 Fire Alarm added |
+| `src/rvt/genesis/residue_b.py` | six ids into one `HOUSE_VIEW_FILTERS` entry | Fire Alarm / Nurse Call swapped | aligned |
+
+The observable bug each caused: a family authored as `communication_device`
+(−2008077) was **reported** by our own `device_census` as "Nurse Call Devices",
+and a template-verified fire-alarm family (−2008085) was described by our own
+inspect route as "Nurse Call Devices".
+
+**What is a fact here and what is not — read this before changing any of it.**
+Template-pinned: **−2008075 Telephone, −2008083 Data, −2008085 Fire Alarm**.
+The alternation law then leaves −2008077 / −2008079 / −2008081 for
+Communication / Security / Nurse Call, and every table agrees Security is
+−2008079. **Nothing distinguishes Communication from Nurse Call** — both
+arrangements satisfy the law equally and no mined template declares either.
+
+A first version of this merge round aligned the tables *and* wrote comments
+claiming the old values were "the exact inverse of what the family templates
+carry". That was false and the next review caught it. The pair is `[INFERRED]`
+everywhere now, `CF.fact()` returns None for both, and
+`tests/test_category_band_agreement_516.py` pins the **agreement** between
+tables plus the three real facts — never the truth of the pair. **#782** settles
+it by mining the three device templates Revit ships that this round did not.
+
+**Why the tables were aligned rather than left dissenting.** The review offered
+reverting as an option. `DEVICE_CATEGORIES` is an id → name map, so a dissenting
+table means a family we author at −2008077 is *reported* under the other name —
+a certain, self-inflicted contradiction. Aligning trades that certainty for no
+change in expected accuracy, because the dissenting table was itself unevidenced;
+and if the guess is wrong, #782 lands the flip in `category_facts` alone and the
+agreement test fails for every other table at once.
+
+**Not swept, deliberately:** `src/rvt/mep/electrical_data.py` declares
+`OST_ElectricalCircuit = -2008087`, colliding with inventory's **VERIFIED**
+`OST_LightingDevices` for that id. One is wrong; neither is in this band. Filed
+as #782 item 4 rather than guessed at.
+
+### BRANCH STATE (merge round)
+
+- Branch: `claude/516-category-facts`; CI green on `2ba37ee` against `main` @ `a76349e`.
+- Files this round added to the ones listed above: `src/rvt/mep/devices.py`,
+  `src/rvt/inventory.py`, `src/rvt/genesis/house_standard.py`,
+  `src/rvt/genesis/residue_b.py`, `tests/test_category_band_agreement_516.py`,
+  `tests/ci_shard.d/516-category-band.txt`, plus the `plugin/lib/` mirrors.
+- Gates at this head (superseding the round-2 numbers above):
+  sandboxed CI shard **3521 passed, 137 skipped, 4 xfailed**;
+  `test_category_facts` + `test_category_band_agreement_516` +
+  `test_famgen_skeleton` + `test_residue_b` + `test_inventory`
+  **133 passed, 41 skipped**; `-k "house_standard or residue"`
+  **135 passed, 57 skipped**; `sync_plugin.py --check` clean;
+  `check_portable_paths.py` ok.
+- Anti-vacuity, measured by the review: reverting `fire_alarm_device` →
+  **8 failed**; undoing the `mep/devices.py` alignment → **2 failed**; dropping
+  `nurse_call_device` from `STILL_INFERRED` with no template row → **3 failed**.
+- Open: **#782** (mine the three device templates; the −2008087 collision),
+  **#699** (`PART_TYPE` 15/16), #516 DONE (2) — this PR is `Refs`, not `Closes`.
