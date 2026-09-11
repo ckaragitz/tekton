@@ -95,10 +95,12 @@ def rotation_from_z(direction: Vec) -> Mat:
     # review; the old test suite missed it because its one near-anti-Z case
     # (1e-9) lands INSIDE the exact branch and never exercised the band.
     # THE TRADE, stated so nobody has to rediscover it: this SNAPS any
-    # direction within ~1.4e-4 rad of -Z onto exact -Z.  A body whose axis sits
-    # in that band is placed up to 1.4e-4 rad off what was asked -- 0.012 in
-    # over a 10 ft rod, below any tolerance this format expresses -- and in
-    # exchange the matrix is a true rotation instead of a shear.  The old 1e-12
+    # direction within 1.41e-4 rad of -Z onto exact -Z (the ceiling is
+    # sqrt(2 * 1e-8) = 1.41421e-4; the worst deviation actually measured over
+    # the band is 1.4082e-4, at d = (9.96e-5, 9.96e-5, -1)).  A body whose axis
+    # sits in that band is placed that far off what was asked -- 0.017 in over
+    # a 10 ft rod, below any tolerance this format expresses -- and in exchange
+    # the matrix is a true rotation instead of a shear.  The old 1e-12
     # threshold kept the tilt and gave the shear.
     if c < -1.0 + 1e-8:                                    # antiparallel: 180 deg about X
         return [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]
@@ -126,7 +128,9 @@ def _reorthonormalise(R: Mat) -> Mat:
     """Gram-Schmidt, applied ONLY when ``R`` has measurably drifted.
 
     Even with the widened antiparallel guard the Rodrigues form above leaves
-    up to ~3e-08 of orthonormality error right at the threshold -- small, but
+    up to 5.2e-08 of orthonormality error right at the threshold (measured,
+    at d = (1.60e-4, 0, -1); this fires 2,944 times over a dense band sweep,
+    so it is load-bearing rather than decoration) -- small, but
     a shear rather than a rotation, and the module promises det = +1.  Rather
     than loosen that promise, clean the matrix when it needs it and return it
     untouched when it does not.

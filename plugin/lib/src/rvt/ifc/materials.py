@@ -136,7 +136,9 @@ def read_materials(ifc_path: str) -> MaterialFacts:
             # set to whatever happened to be read first -- which looks exactly
             # like an IFC that declares fewer materials than it does, and the
             # note below would be the only clue.
-            facts.notes.append(f"reader cannot read the material relation: {exc}")
+            note = f"reader cannot read the material relation: {exc}"
+            if note not in facts.notes:        # N bad rows are one fact, not N
+                facts.notes.append(note)
             continue
         names = _material_names(relating)
         if not names:
