@@ -10,12 +10,15 @@ when the facts changed:
 
   * ``rvt.mep.devices.DEVICE_CATEGORIES``   -- id -> name, used by
     ``device_census`` / ``device_symbols``.  It had -2008081 for
-    Communication and -2008077 for Nurse Call, the exact inverse of the
-    templates: a generated speaker was REPORTED as "Nurse Call Devices".
-  * ``rvt.inventory.CATEGORY_NAMES``        -- id -> name, what inspect and
-    validate output call a category.  It had Fire Alarm and Nurse Call
-    swapped, so a template-verified fire-alarm family was DESCRIBED by our
-    own inspect route as "Nurse Call Devices".
+    Communication and -2008077 for Nurse Call: the inverse of the
+    arrangement ``category_facts`` INFERS -- **no template settles this
+    pair** (#782) -- so the two disagreed and a family authored as
+    ``communication_device`` was REPORTED as "Nurse Call Devices".
+  * ``rvt.inventory``                       -- ``category_name()`` reading
+    ``BUILTIN_CATEGORIES_ASSUMED``, which is what inspect and validate
+    output call a category.  It had Fire Alarm and Nurse Call swapped, so a
+    template-verified fire-alarm family (-2008085) was DESCRIBED by our own
+    inspect route as "Nurse Call Devices".
   * ``rvt.genesis.residue_b``               -- the six ids go into one
     category SET, so its swap left the set unchanged (the emitted LIST ORDER
     of two entries does change); pinned anyway, because the next reader has

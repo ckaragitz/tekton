@@ -176,6 +176,12 @@ header, and the certified-base lineage is untouched.
 The authoring stream's work above stands as written; this section is a separate
 voice and says only what the merge round changed.
 
+**A count, first.** The headings above say "Seven shipped ids were wrong" and
+call `nurse_call_device` "an eighth". Counting the table as it now stands, it
+is **nine** — seven from the first round, `communication_device` and
+`nurse_call_device` from the annotation round. The authoring stream's headings
+are left as written (no cross-voice edits); the PR title and body say nine.
+
 **The finding.** The independent review of this PR noticed the shared-contract
 change had not reached the tables that *name* these ids. Four of them
 disagreed with the corrected resolver:
