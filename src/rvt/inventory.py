@@ -194,9 +194,12 @@ BUILTIN_CATEGORIES_ASSUMED = {
     -2008055: ("OST_PipeAccessory", "Pipe Accessories"),
     -2008077: ("OST_CommunicationDevices", "Communication Devices"),
     -2008079: ("OST_SecurityDevices", "Security Devices"),
-    -2008081: ("OST_FireAlarmDevices", "Fire Alarm Devices"),
+    # -2008081/-2008085 were swapped here until #516.  Fire_Alarm_Device.rft
+    # carries -2008085, so a template-verified fire-alarm family used to be
+    # DESCRIBED by our own inspect/validate output as "Nurse Call Devices".
+    -2008081: ("OST_NurseCallDevices", "Nurse Call Devices"),
     -2008083: ("OST_DataDevices", "Data Devices"),
-    -2008085: ("OST_NurseCallDevices", "Nurse Call Devices"),
+    -2008085: ("OST_FireAlarmDevices", "Fire Alarm Devices"),
     -2008130: ("OST_CableTray", "Cable Trays"),
     -2008132: ("OST_Conduit", "Conduits"),
 }

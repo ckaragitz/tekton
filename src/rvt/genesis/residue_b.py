@@ -1577,9 +1577,17 @@ OST_CableTray = -2008130
 OST_CableTrayFitting = -2008126
 OST_Wire = -2008039
 OST_DataDevices = -2008083
+# Fire Alarm / Nurse Call were swapped here until #516 (Fire_Alarm_Device.rft
+# carries -2008085).  The six ids feed ONE HOUSE_VIEW_FILTERS entry, so the
+# SET is unchanged -- but parameter_filter serialises m_categories in LIST
+# ORDER, so swapping two names swaps two positions and a fresh genesis compose
+# emits different bytes than before.  No ledger impact (the certified bases are
+# pinned assets, not rebuilt here), but "output does not change" would be too
+# strong: the set does not change, the emitted order of two entries does.
+# The 77/81 Communication/Nurse Call assignment is [INFERRED] -- #782.
 OST_CommunicationDevices = -2008077
-OST_FireAlarmDevices = -2008081
-OST_NurseCallDevices = -2008085
+OST_FireAlarmDevices = -2008085
+OST_NurseCallDevices = -2008081
 OST_SecurityDevices = -2008079
 OST_TelephoneDevices = -2008075
 OST_MechanicalEquipment = -2001140

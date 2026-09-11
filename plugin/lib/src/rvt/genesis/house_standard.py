@@ -834,10 +834,14 @@ HOUSE_CATEGORIES: List[Tuple[int, str, str, bool]] = [
     (-2008039, "Wires", "electrical", False),
     (-2008044, "Pipes", "piping", False),
     (-2008049, "Pipe Fittings", "piping", False),
+    # -2008081 was labelled "Fire Alarm Devices" until #516; Fire_Alarm_Device.rft
+    # carries -2008085, so that label was refuted by the template.  The 77/81
+    # Communication/Nurse Call assignment is [INFERRED] and unsettled -- #782.
     (-2008077, "Communication Devices", "electrical", False),
     (-2008079, "Security Devices", "electrical", False),
-    (-2008081, "Fire Alarm Devices", "electrical", False),
+    (-2008081, "Nurse Call Devices", "electrical", False),
     (-2008083, "Data Devices", "electrical", False),
+    (-2008085, "Fire Alarm Devices", "electrical", False),
     (-2008087, "Lighting Devices", "electrical", False),
     (-2008126, "Cable Tray Fittings", "electrical", False),
     (-2008128, "Conduit Fittings", "electrical", False),
