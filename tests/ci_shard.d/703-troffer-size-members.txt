@@ -1,0 +1,3 @@
+# #703: a troffer size the facts file does not hold is refused by name instead
+# of being built from another member's housing under the wrong name; fresh-clone safe
+tests/test_luminaire_sizes_682.py
