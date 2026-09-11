@@ -429,3 +429,12 @@ Floor"` AND without it (`test_add_to_project_lifts_prompt_gear_onto_the_target_l
   certified M3 shape; placed instances remain the open cell and are stamped
   as before). No certification claim.
 - Follow-ups: #294, #295.
+
+---
+
+## Fragments (this stream is now index + per-PR fragments, `docs/inbox/README.md`)
+
+Everything above is left as written. New PRs feeding this stream add one file
+under `docs/inbox/prompt-grammar.d/` that nobody else appends to, and a line here:
+
+- `775-room-vs-fixture.md` -- a room noun inside a product name is a product: `_RE_ROOM` ran before the taxonomy scan, so "create a Water closet family" built a default 30 x 20 ft Electrical Room; the room match now skips any whose NOUN sits inside a taxonomy mention, and the taxonomy scan runs once per parse rather than twice (#775).
