@@ -1577,9 +1577,13 @@ OST_CableTray = -2008130
 OST_CableTrayFitting = -2008126
 OST_Wire = -2008039
 OST_DataDevices = -2008083
+# Fire Alarm / Nurse Call were swapped here until #516 (Fire_Alarm_Device.rft
+# carries -2008085).  Cosmetic only: all six ids below go into ONE category
+# SET, so the set's contents never depended on which name held which id --
+# corrected so a reader is not misled, not because output changes.
 OST_CommunicationDevices = -2008077
-OST_FireAlarmDevices = -2008081
-OST_NurseCallDevices = -2008085
+OST_FireAlarmDevices = -2008085
+OST_NurseCallDevices = -2008081
 OST_SecurityDevices = -2008079
 OST_TelephoneDevices = -2008075
 OST_MechanicalEquipment = -2001140

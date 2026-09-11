@@ -103,9 +103,16 @@ __all__ = [
 # ---------------------------------------------------------------------------
 OST_LightingDevices = -2008087        # switches, occupancy / daylight sensors
 OST_DataDevices = -2008083
-OST_CommunicationDevices = -2008081
+# Communication and Nurse Call were SWAPPED here until #516: this module had
+# -2008081/-2008077, the exact inverse of what the family templates carry.
+# DEVICE_CATEGORIES below is an id -> NAME map, so the swap made device_census
+# and device_symbols report a speaker as "Nurse Call Devices" and a nurse-call
+# station as "Communication Devices".  Fire Alarm (-2008085) was already right
+# here and is now template-verified (Fire_Alarm_Device.rft).  Single source:
+# rvt.famgen.category_facts.
+OST_CommunicationDevices = -2008077
 OST_FireAlarmDevices = -2008085
-OST_NurseCallDevices = -2008077
+OST_NurseCallDevices = -2008081
 OST_SecurityDevices = -2008079
 OST_TelephoneDevices = -2008075
 OST_Rooms = -2000160
