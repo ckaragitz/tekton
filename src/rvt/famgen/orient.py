@@ -21,11 +21,23 @@ WHAT IS DELIBERATELY NOT ROTATED: ``m_keys`` (history tags such as
 corrupts the element history), ``m_endParams`` (frame-local uv), and every
 other numeric list.  The field list is an ALLOW-LIST for exactly that reason.
 
-STATUS: the record is geometrically consistent and the validator accepts it,
-but whether desktop Revit accepts a form whose baked B-rep is rotated while
-its sketch stays on the Ref. Level datum is UNPROVEN -- hard rule 4, and the
-single question the first desktop probe exists to answer.  Do not present a
-rotated body as working until a Revit verdict says so.
+STATUS: **desktop-verified for the shapes below, and nothing wider.**  The
+question this module raised -- whether desktop Revit accepts a form whose
+baked B-rep is rotated while its sketch stays on the Ref. Level datum -- was
+answered by probe A, a single-variable pair whose only difference is the
+rotation: the control opens upright, the variable opens lying down with a
+clean circular end cap (desktop Revit 2026).  The 911-rod wire-mesh tray built
+on it opens and renders as a real tray.  Both verdicts are recorded in
+``docs/inbox/swept-solids-arbitrary-axis.md`` per hard rule 4; neither is a
+viewer-certification ledger entry, and this is not a licence to present any
+*other* rotated construct as working.
+
+(This paragraph said UNPROVEN until the #514 merge round: it was written
+before the probe ran and never updated, so the module was telling readers not
+to trust a result the stream had already obtained.  If you extend this module,
+say what your own verdict covers -- the allow-list guard in
+``tests/test_orient_514.py`` fails by NAME when a new shape carries a
+3-vector nobody has classified, which is the shape of the next surprise.)
 
 Territory: issue #514 (new module; geometry.py untouched).
 """
