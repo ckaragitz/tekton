@@ -1,8 +1,8 @@
 """Guard: the packaging metadata keeps its promises (issue #3).
 
 * ``olefile`` stays the ONLY declared runtime dependency (CLAUDE.md section 2);
-* the ``test`` / ``geometry`` / ``ifc`` / ``dev`` / ``all`` extras exist and
-  mean what the docs say they mean;
+* the ``test`` / ``geometry`` / ``ifc`` / ``pdf`` / ``dev`` / ``all`` extras
+  exist and mean what the docs say they mean;
 * ``ifcopenshell`` stays OPTIONAL -- never a runtime dependency and never in
   an extra a contributor installs by default (the zero-install IFC *read*
   path via ``rvt.ifc.steplite`` is a product requirement,
@@ -24,7 +24,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PYPROJECT = os.path.join(ROOT, "pyproject.toml")
 IFC_REQUIREMENTS = os.path.join(ROOT, "skills", "tekton-ifc", "scripts",
                                 "requirements.txt")
-EXPECTED_EXTRAS = ("test", "geometry", "ifc", "dev", "all")
+EXPECTED_EXTRAS = ("test", "geometry", "ifc", "pdf", "dev", "all")
 
 
 def _project() -> dict:

@@ -191,8 +191,18 @@ def build_pdf(path: str,
                             % (desc_o, tu_o))
     else:
         widths = b" ".join([b"%d" % int(WIDTH)] * 95)
+        # NOT /Helvetica.  A base-14 name lets a reader substitute its own
+        # built-in AFM metrics for the /Widths the file declares -- pdfminer
+        # does exactly that, and the fixture then describes a document no
+        # producer would emit: a font called Helvetica whose declared widths
+        # are not Helvetica's.  Measured while A/B-ing the two backends: the
+        # TJ shape put "62.0 in" at 292.9 instead of 300, which is 72 + the
+        # true Helvetica width of "Height" (28.9pt) + the kern, to the
+        # decimal.  A subset name makes the declared widths the only answer,
+        # which is what a real embedded font does.
         objs[font_o - 1] = (b"<< /Type /Font /Subtype /Type1 "
-                            b"/BaseFont /Helvetica /FirstChar 32 /LastChar 126 "
+                            b"/BaseFont /AAAAAA+ProbeMono "
+                            b"/FirstChar 32 /LastChar 126 "
                             b"/Widths [%s] /Encoding /WinAnsiEncoding >>" % widths)
 
     buf = bytearray(b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n")
