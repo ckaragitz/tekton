@@ -31,6 +31,7 @@ import os
 
 import pytest
 
+from conftest import ladder_constants
 from rvt import versions as V
 from rvt.famgen import loader as L
 
@@ -43,6 +44,21 @@ BASES = {
 #: watermarks main produces for each base (2026 bare; 2025/2024 only reachable
 #: on main by wrapping the call, which is the bug this issue fixes)
 WATERMARKS = {2026: 1472524, 2025: 1472448, 2024: 1472509}
+
+#: Every case here puts a release in force in-process -- that is the whole
+#: subject of the issue -- so the module takes the #707 leak guard.  Without
+#: it `tests/test_conftest_scaffolding.py` fails the shard by name, which is
+#: how this was caught: the law landed after this branch was cut, and the
+#: stream-local gates did not include the scaffolding test.
+pytestmark = pytest.mark.usefixtures("no_release_leak")
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``survey_host`` climbs the READ-side ladder (``enter_own_release`` ->
+    ``reading`` -> ``reading32``), which swaps the record readers as well as
+    the framing table -- so watch those too, not just the native constants."""
+    return ladder_constants
 
 
 def _base(release: int) -> str:
@@ -91,4 +107,6 @@ def test_survey_inside_a_callers_context_is_identical(release):
 def test_2026_survey_is_unchanged():
     ctx = L.survey_host(_base(2026))
     assert ctx.watermark == 1472524
-    assert ctx.category != 0
+    # `!= 0` was near-vacuous (#700 review): the failure it should catch is
+    # the binding falling back to INVALID, which is -1 and would have passed.
+    assert ctx.category == L.CAT_ELECTRICAL_EQUIPMENT

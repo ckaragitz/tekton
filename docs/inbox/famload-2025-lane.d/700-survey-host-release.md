@@ -51,12 +51,34 @@ Bare `survey_host` on the three certified bases:
 Nest-safety: inside a caller's `versions.reading(path)` the watermark is
 identical to the bare call, so a survey made during a load is unchanged.
 
-The load lane that found this — 4 family kinds x 3 releases, family built at
-the surveyed watermark, loaded with `place=False`:
+The load lane that found this — **`cable_tray`, `conduit`, `junction_box`,
+`wireway`** x 3 releases, family built at the surveyed watermark, loaded with
+`place=False`:
 
 | | before | after |
 |---|---|---|
-| load lane | 4 ok / 8 crash | **12 ok / 0 fail** |
+| load lane | 4 ok / 8 crash | **11 ok / 1 fail** |
+
+**The kind set is named because the figure depends on it**, and an earlier
+draft of this record printed `12 ok / 0 fail` without naming it. Re-measured
+by the independent review of this PR on both trees: `main` gives 4 ok / 8
+fail (all eight the survey `ValueError`), this head gives **11 ok / 1 fail**
+with the four kinds above. Substituting `strut_channel` for `conduit` does
+give 12/0 — which is how the flattering number arose, and why the set is now
+written down.
+
+The one remaining failure is **not this PR's** and is not a crash:
+
+```
+2024 conduit: Missing2024: CellList.m_cells[1]:
+              pointed-to class 'ArcElemCell' has no 2024 twin
+```
+
+An honest named refusal from the 2024 port layer, present on `main` too.
+**Filed as #786** rather than buried in a table: it affects any kind whose
+geometry carries an arc cell, not conduit specifically, and it means the
+`rfa -> rvt` lane is not uniformly covered across releases while `route
+matrix` says `WORKS` unqualified.
 
 ## Gates
 
@@ -75,13 +97,17 @@ the surveyed watermark, loaded with `place=False`:
   at `LoaderError: no template instance for placement (host has no instance of
   the family's category)`, which is an honest named refusal, not a crash. The
   matrix row should say what each release actually covers.
+- **#786** — `ArcElemCell` has no 2024 twin, so an arc-bearing family (e.g.
+  `conduit`) cannot load into the 2024 base. Pre-existing, measured on `main`
+  too, and the reason the lane reads 11/1 rather than 12/0.
 - The other read-only entries (`verify_loaded_project(s)`, `provenance_ours`)
   were not wrapped: they are reached through the load path, which holds a
   context. Worth a follow-up if a bare caller ever hits them.
 
 ## BRANCH STATE
 
-- Branch: `cam/700-famgen-loader-release`, from `main` @ `9f25517`.
+- Branch: `cam/700-famgen-loader-release`, rebased onto `main` @ `af70e62`
+  (cut from `9f25517`, before #779/#776/#777/#698/#607 merged).
 - Files written: `src/rvt/famgen/loader.py` (the wrapper + `_survey_host_impl`),
   `tests/test_famgen_loader_release_700.py`,
   `tests/ci_shard.d/700-famgen-loader-release.txt`, this record, and the
