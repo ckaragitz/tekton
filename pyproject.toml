@@ -28,8 +28,14 @@ dependencies = ["olefile>=0.47"]
 test = ["pytest>=7", "numpy>=1.26,<3"]
 geometry = ["numpy>=1.26,<3"]
 ifc = ["ifcopenshell==0.8.5", "numpy>=1.26,<3"]
+# OPTIONAL spec-sheet reading (#688).  The stdlib reader in
+# rvt.specsheet.pdftext handles text-layer PDFs with no dependency at all;
+# this extra buys the documents it names and refuses (exotic stream filters,
+# unusual encodings).  Both feed the same Page/Glyph shape, so which one is
+# installed changes the EXTRACTION, never the inference above it.
+pdf = ["pdfplumber>=0.11,<1"]
 dev = ["pytest>=7", "numpy>=1.26,<3"]
-all = ["pytest>=7", "numpy>=1.26,<3", "ifcopenshell==0.8.5"]
+all = ["pytest>=7", "numpy>=1.26,<3", "ifcopenshell==0.8.5", "pdfplumber>=0.11,<1"]
 
 [project.scripts]
 rvtinspect = "rvt.cli:main"
