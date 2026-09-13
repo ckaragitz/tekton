@@ -82,6 +82,13 @@ class Quantity:
     def __repr__(self) -> str:                                    # pragma: no cover
         return "Quantity(%g, %r)" % (self.value, self.unit)
 
+    def unit_key(self) -> str:
+        """The unit, normalised for lookup: lowercased, trailing periods
+        dropped.  "in." and "In" are how sheets abbreviate inches roughly as
+        often as "in", and treating them as unknown units made a perfectly
+        clear dimension come back as "states no length unit"."""
+        return self.unit.lower().rstrip(".")
+
     def in_inches(self) -> Optional[float]:
         """Inches, or ``None`` when the unit is not a length we know.
 
@@ -91,7 +98,7 @@ class Quantity:
         makes no inference that turns into a dimension.  The reader reports
         "no unit stated" and the caller asks or defaults visibly.
         """
-        f = V.LENGTH_UNITS.get(self.unit.lower())
+        f = V.LENGTH_UNITS.get(self.unit_key())
         return self.value * f if f is not None else None
 
 
@@ -320,7 +327,7 @@ def _colon_split(row) -> Optional[Tuple[str, List[_Split]]]:
     return head, [_Split(tail, row.cells[0].column)]
 
 
-def _read_row(row, doc_note: List[str]) -> Tuple[Optional[SheetValue], str]:
+def _read_row(row) -> Tuple[Optional[SheetValue], str]:
     """One layout row -> a cited value, or ``(None, why not)``."""
     split = _colon_split(row)
     if split is not None:
@@ -354,7 +361,12 @@ def _read_row(row, doc_note: List[str]) -> Tuple[Optional[SheetValue], str]:
             return None, ("%r states no length unit, so %s is left unset "
                           "(a unit taken from a column header would be an "
                           "inference, not a reading)" % (raw, key))
-        if q.unit.lower() not in ("in", "inch", "inches", '"', "”", "″"):
+        if inches <= 0.0:
+            # never a real dimension, and a zero or negative one builds a
+            # degenerate solid that our validator still calls VALID
+            return None, ("%r is not a positive length, so %s is left unset"
+                          % (raw, key))
+        if q.unit_key() not in ("in", "inch", "inches", '"', "”", "″"):
             note = "; ".join(x for x in (note, "converted from %s" % q.unit) if x)
         return SheetValue(key, label, raw, round(inches, 6), "in", row.page,
                           row.index, cells[0].column, note), ""
@@ -408,7 +420,7 @@ def read_sheet(path: str, max_pages: int = 64, **layout_params) -> ParsedSheet:
         if t.note:
             notes.append("page %d: %s" % (t.page, t.note))
         for row in t.rows:
-            sv, why = _read_row(row, notes)
+            sv, why = _read_row(row)
             if sv is not None:
                 values.append(sv)
             else:

@@ -36,6 +36,7 @@ AGREEING_SHAPES = {
     "cm": {"draw": "cm"},
     "type0": {"font": "type0"},
     "raw_stream": {"compress": False},
+    "filter_array": {"filter_array": True},
 }
 
 

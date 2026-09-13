@@ -45,6 +45,7 @@ SHAPES = {
     "type0": {"font": "type0"},
     "stale_xref": {"stale_xref": True},
     "raw_stream": {"compress": False},
+    "filter_array": {"filter_array": True},
 }
 
 
@@ -132,6 +133,70 @@ def test_a_font_with_no_declared_widths_says_so(tmp_path):
     page = P.read_pdf(path)[0]
     assert page.has_text, "removing /Widths must not lose the text"
     assert "estimated" in page.note, page.note
+
+
+# ---------------------------------------------------------------------------
+# (2b) the object layer -- where a silent wrong answer was actually possible
+# ---------------------------------------------------------------------------
+
+def test_the_array_spelling_of_filter_is_read(tmp_path):
+    """``/Filter [/FlateDecode]`` is as legal as ``/Filter /FlateDecode``.
+
+    Reading only the second spelling made an array-filtered stream look
+    UNFILTERED, so the compressed bytes were handed on as the content
+    stream, no text operators parsed out of deflate data, and a perfectly
+    readable sheet came back as "page draws no text -- probably a scanned
+    image".  Measured on this fixture before the fix: the single-name lookup
+    returned None (= no filter) where the stream carried FlateDecode.
+
+    A wrong refusal is the worst outcome this module has: the user goes
+    looking for OCR for a document that was never scanned.
+    """
+    path = FP.build_pdf(str(tmp_path / "arr.pdf"), [FP.spec_sheet_draws()],
+                        filter_array=True)
+    page = P.read_pdf(path)[0]
+    assert page.has_text and not page.note
+    assert _at([page], "62.0 in").x == pytest.approx(300.0)
+
+
+def test_a_filter_CHAIN_is_refused_by_its_full_name(tmp_path):
+    """Half-decoding a chain would be worse than refusing it."""
+    path = FP.build_pdf(str(tmp_path / "chain.pdf"), [FP.spec_sheet_draws()])
+    raw = open(path, "rb").read()
+    assert b"/Filter /FlateDecode" in raw, "fixture changed; this probe is broken"
+    raw = raw.replace(b"/Filter /FlateDecode",
+                      b"/Filter [/ASCII85Decode /FlateDecode]", 1)
+    open(path, "wb").write(raw)
+    note = P.read_pdf(path)[0].note
+    assert "ASCII85Decode" in note and "FlateDecode" in note, note
+
+
+def test_payload_bytes_that_spell_endstream_do_not_truncate_the_stream(tmp_path):
+    """``/Length`` is the format's own answer to where a payload ends.
+
+    Searching for ``endstream`` guesses, and a stream's bytes can spell it --
+    deflate output can contain anything, and an uncompressed one certainly
+    can.  Truncating there drops the rest of the page silently.
+    """
+    draws = [(72.0, 700.0, "Height"), (300.0, 700.0, "62.0 in"),
+             (72.0, 660.0, "endstream endobj"),          # the trap, drawn
+             (72.0, 620.0, "Width"), (300.0, 620.0, "20.0 in")]
+    path = FP.build_pdf(str(tmp_path / "trap.pdf"), [draws], compress=False)
+    page = P.read_pdf(path)[0]
+    texts = [g.text for g in page.glyphs]
+    assert "62.0 in" in texts and "20.0 in" in texts, \
+        "content after the trap was lost: %r" % texts
+
+
+def test_the_word_encrypt_in_a_stream_does_not_refuse_the_file(tmp_path):
+    """The encryption dictionary must be an INDIRECT object, so requiring
+    ``/Encrypt N G R`` keeps every genuinely encrypted file and stops a
+    document that merely mentions the word from being refused."""
+    draws = [(72.0, 700.0, "Height"), (300.0, 700.0, "62.0 in"),
+             (72.0, 660.0, "/Encrypt is a word on this page")]
+    path = FP.build_pdf(str(tmp_path / "word.pdf"), [draws], compress=False)
+    page = P.read_pdf(path)[0]                      # must not raise
+    assert _at([page], "62.0 in").x == pytest.approx(300.0)
 
 
 # ---------------------------------------------------------------------------

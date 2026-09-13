@@ -25,6 +25,9 @@ What can be varied, because each one is a real failure mode of real sheets:
                   with a ``/ToUnicode`` CMap and a ``/W`` array -- what a
                   subset-embedded sheet actually looks like).
 ``filter_name``   force an unsupported filter, to pin the named refusal.
+``filter_array``  spell the filter as ``/Filter [/FlateDecode]`` rather than
+                  ``/Filter /FlateDecode``.  Both are legal; reading only the
+                  second made an array-filtered stream look unfiltered.
 ``no_text``       emit a content stream that draws no text at all: the
                   scanned-sheet case, which must be REPORTED, never read as
                   an empty table.
@@ -132,6 +135,7 @@ def build_pdf(path: str,
               draw: str = "Tm",
               font: str = "simple",
               filter_name: Optional[str] = None,
+              filter_array: bool = False,
               no_text: bool = False,
               encrypt: bool = False) -> str:
     """Write a PDF at ``path`` and return it.  See the module docstring."""
@@ -154,12 +158,18 @@ def build_pdf(path: str,
         else:
             payload = _content(draws, size, draw)
         if filter_name:
-            filt = b"/Filter /" + filter_name.encode("ascii")
+            names = [filter_name.encode("ascii")]
             raw = payload
         elif compress:
-            filt, raw = b"/Filter /FlateDecode", zlib.compress(payload)
+            names, raw = [b"FlateDecode"], zlib.compress(payload)
         else:
-            filt, raw = b"", payload
+            names, raw = [], payload
+        if not names:
+            filt = b""
+        elif filter_array:
+            filt = b"/Filter [" + b" ".join(b"/" + n for n in names) + b"]"
+        else:
+            filt = b"/Filter /" + names[0]
         cnum = add(b"<< /Length %d %s >>\nstream\n" % (len(raw), filt)
                    + raw + b"\nendstream")
         pnum = add(b"<< /Type /Page /Parent %d 0 R /MediaBox [0 0 %g %g] "

@@ -117,6 +117,7 @@ Four producer habits, one fixture sheet, 9 fields the engine knows:
 | `q <translate> cm … Q` | 9 | 9 | **yes** | yes |
 | Type0 2-byte CIDs + `/ToUnicode` + `/W` | 9 | 9 | **yes** | yes |
 | uncompressed stream | 9 | 9 | **yes** | yes |
+| `/Filter [/FlateDecode]` (array spelling) | 9 | 9 | **yes** | yes |
 | **stale xref** | **9** | **0** | **no — ours wins** | — |
 
 The stale-xref row is the design decision (1) above paying off: pdfminer
@@ -147,7 +148,34 @@ The 36pt `TJ` error is exactly the un-advanced width of the preceding cell
 (`"Height"`, 6 chars × 6pt), which is what makes it a diagnosis and not just
 a red test.
 
-### 3. The instrument, and the instrument bug found while using it
+### 3. Six defects found by re-reading the module after writing it
+
+Written, then read back cold before the PR left draft. Each fix is pinned by
+its own test and each was confirmed by a mutant that reverts exactly that fix
+— caught by its own test and by no other, `__pycache__` cleared between runs:
+
+| # | defect | what it actually did | mutant fails |
+|---|---|---|---|
+| A | `/Filter` read only as `/Name`, never as `[/Name]` | the array spelling looked **unfiltered**, so compressed bytes were returned as the content stream, no text parsed out of deflate data, and a readable sheet was reported as *"probably a scanned image"* | `test_the_array_spelling_of_filter_is_read`, `…_filter_CHAIN_is_refused_by_its_full_name` |
+| B | stream extent from `find(b"endstream")` | a payload whose bytes spell `endstream` truncated the page silently | `test_payload_bytes_that_spell_endstream_do_not_truncate_the_stream` |
+| B′ | object extent from the **first** `endobj` | same failure one level up; the fix takes the **last** one inside the next object's extent | same test |
+| C | `/Encrypt` matched anywhere in the file | a document merely containing the word was refused as encrypted; the spec requires the dictionary to be **indirect**, so `/Encrypt N G R` keeps every real case | `test_the_word_encrypt_in_a_stream_does_not_refuse_the_file` |
+| D | unit lookup without stripping a trailing period | `"62.0 in."` — how a large share of sheets abbreviate it — came back as *"states no length unit"* | `test_an_abbreviated_unit_is_still_a_unit` |
+| E | a non-positive length was accepted | `"0 in"` / `"-4 in"` built a degenerate solid our own validator still calls VALID | `test_a_non_positive_length_is_refused_by_name` |
+
+**A is the one that matters.** It is not a crash and not a wrong number — it
+is a *wrong refusal*, which sends the user looking for OCR for a document
+that was never scanned. Measured on the fixture before the fix: the
+single-name lookup returned `None` (= no filter) on a stream that carried
+FlateDecode. `/Filter [/FlateDecode]` is now a shape in both parametrised
+suites, so both backends are held to it.
+
+Fixing A changed the refusal text for the *supported* case too (the filter
+names lost their leading `/`), and the two existing refusal tests caught that
+on the first run. Worth recording: the tests that paid off here were the ones
+pinning a message, not a value.
+
+### 4. The instrument, and the instrument bug found while using it
 
 `tests/fixtures_pdf.py` **writes** every PDF the tests read — no vendor
 document is or may be committed (hard rules 3 and 6), and a writer is the
@@ -165,12 +193,16 @@ so the readings taken with it were void: the fixture now uses a subset name
 (`/AAAAAA+ProbeMono`) and everything was re-measured. The table in §1 is the
 re-measurement.
 
-### 4. Gates
+### 5. Gates
 
-- `tests/test_specsheet_pdftext_688.py` — **22 passed**
-- `tests/test_specsheet_sheet_688.py` — **46 passed**
-- `tests/test_specsheet_backend_688.py` — **12 passed** (with the `[pdf]`
+- `tests/test_specsheet_pdftext_688.py` — **32 passed**
+- `tests/test_specsheet_sheet_688.py` — **53 passed**
+- `tests/test_specsheet_backend_688.py` — **14 passed** (with the `[pdf]`
   extra installed; skips without it)
+- **the full merged CI shard** (`tools/dev/shard_list.py --print`, 158 files)
+  on this branch — **3645 passed, 134 skipped, 4 xfailed** in 6:49, exit 0
+- `tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py`
+  — **31 passed** (the product still works from a bare unzip)
 - `tests/test_pyproject_extras.py` — **8 passed** (the `pdf` extra joins
   `EXPECTED_EXTRAS`)
 - `tests/test_plugin_sync.py`, `tests/test_conftest_scaffolding.py` — green

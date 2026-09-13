@@ -114,7 +114,10 @@ class Page:
 # ---------------------------------------------------------------------------
 
 _OBJ = re.compile(rb"(\d+)\s+(\d+)\s+obj\b")
-_ENCRYPT = re.compile(rb"/Encrypt\b")
+#: the spec requires the encryption dictionary to be an INDIRECT object,
+#: so this shape keeps every genuinely encrypted file and stops the word
+#: appearing inside an uncompressed stream from refusing a readable one
+_ENCRYPT = re.compile(rb"/Encrypt\s+\d+\s+\d+\s+R")
 
 
 def _find_objects(raw: bytes) -> Dict[int, bytes]:
@@ -124,11 +127,14 @@ def _find_objects(raw: bytes) -> Dict[int, bytes]:
     a correct xref would have resolved to.
     """
     out: Dict[int, bytes] = {}
-    for m in _OBJ.finditer(raw):
-        num = int(m.group(1))
-        start = m.end()
-        end = raw.find(b"endobj", start)
-        out[num] = raw[start:end if end != -1 else len(raw)]
+    marks = [(int(m.group(1)), m.start(), m.end()) for m in _OBJ.finditer(raw)]
+    for i, (num, _hstart, start) in enumerate(marks):
+        # upper bound: the NEXT object's header.  Then the LAST `endobj`
+        # inside that extent, not the first -- a deflate payload can contain
+        # the bytes `endobj`, and the real one always follows it.
+        stop = marks[i + 1][1] if i + 1 < len(marks) else len(raw)
+        end = raw.rfind(b"endobj", start, stop)
+        out[num] = raw[start:end if end != -1 else stop]
     return out
 
 
@@ -177,6 +183,23 @@ def _refs(d: bytes, key: bytes) -> List[int]:
     return [int(x) for x in re.findall(rb"(\d+)\s+\d+\s+R", m.group(1))]
 
 
+def _filters(d: bytes) -> List[bytes]:
+    """Every filter name on this stream, in order.
+
+    BOTH spellings the format allows: ``/Filter /FlateDecode`` and
+    ``/Filter [/FlateDecode]`` (and a chain, ``[/ASCII85Decode
+    /FlateDecode]``).  The array form is legal and common, and reading only
+    the first spelling meant an array-filtered stream looked UNFILTERED --
+    so the compressed bytes were handed on as content, no text parsed out of
+    them, and a perfectly readable sheet was reported as a scan.  A wrong
+    refusal is worse than a named one.
+    """
+    m = re.search(rb"/Filter\s*(\[[^\]]*\]|/[A-Za-z0-9#\-+.]+)", d)
+    if not m:
+        return []
+    return re.findall(rb"/([A-Za-z0-9#\-+.]+)", m.group(1))
+
+
 def _stream_bytes(body: bytes) -> Optional[bytes]:
     """Decoded stream payload, or None when there is no stream.
 
@@ -187,17 +210,27 @@ def _stream_bytes(body: bytes) -> Optional[bytes]:
     if not m:
         return None
     start = m.end()
-    end = body.find(b"endstream", start)
-    payload = body[start:end if end != -1 else len(body)]
     d = _dict_of(body)
-    filt = _name(d, b"/Filter")
-    if filt is None:
+    # /Length is the format's own answer to "where does the payload end";
+    # searching for `endstream` guesses, and deflate bytes can spell it.
+    n = _int(d, b"/Length")
+    end = -1
+    if n is not None and 0 <= n <= len(body) - start:
+        tail = body[start + n:start + n + 32]
+        if b"endstream" in tail or not tail.strip():
+            end = start + n
+    if end == -1:
+        end = body.find(b"endstream", start)
+    payload = body[start:end if end != -1 else len(body)]
+
+    filters = _filters(d)
+    if not filters:
         return payload
-    if filt != b"FlateDecode":
+    if filters != [b"FlateDecode"]:
         raise UnreadablePdf(
-            "stream filter /%s is not supported by the stdlib reader "
+            "stream filter %s is not supported by the stdlib reader "
             "(only FlateDecode); install the optional [pdf] extra"
-            % filt.decode("latin-1"))
+            % " ".join("/" + f.decode("latin-1") for f in filters))
     try:
         return zlib.decompress(payload)
     except zlib.error:

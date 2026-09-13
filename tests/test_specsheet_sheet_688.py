@@ -167,6 +167,25 @@ def test_lengths_convert_to_inches(text, inches):
     assert S.parse_quantity(text).in_inches() == pytest.approx(inches)
 
 
+@pytest.mark.parametrize("text,inches", [
+    ("62.0 in.", 62.0),          # the abbreviation half of all sheets use
+    ("62.0 In", 62.0),
+    ("62.0 INCHES", 62.0),
+])
+def test_an_abbreviated_unit_is_still_a_unit(text, inches):
+    """A trailing period made a perfectly clear inch value come back as
+    "states no length unit"."""
+    assert S.parse_quantity(text).in_inches() == pytest.approx(inches)
+
+
+@pytest.mark.parametrize("text", ["20-24 in", "20 - 24 in", "20 to 24 in"])
+def test_a_RANGE_is_not_a_number(text):
+    """Rounding a range into a fact is named in the module docstring as a
+    thing that never happens here.  "20-1/2" is a mixed fraction and does
+    parse; "20-24" is a range and must not."""
+    assert S.parse_quantity(text) is None
+
+
 def test_a_bare_number_is_not_a_length():
     """A unit taken from a column header would be an inference about layout;
     this module makes no inference that turns into a dimension."""
@@ -232,6 +251,16 @@ def test_a_row_whose_value_is_unitless_is_left_unset_and_said_so(tmp_path):
     ps = S.read_sheet(FP.build_pdf(str(tmp_path / "u.pdf"), [draws]))
     assert "height_in" not in ps.by_key()
     assert any("states no length unit" in n for n in ps.notes), ps.notes
+
+
+@pytest.mark.parametrize("raw", ["0 in", "-4 in", "0.0 in"])
+def test_a_non_positive_length_is_refused_by_name(raw, tmp_path):
+    """Zero or negative is never a real dimension, and taking one builds a
+    degenerate solid that our own validator still calls VALID."""
+    draws = [(72.0, 700.0, "Height"), (300.0, 700.0, raw)]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "neg.pdf"), [draws]))
+    assert "height_in" not in ps.by_key()
+    assert any("not a positive length" in n for n in ps.notes), ps.notes
 
 
 def test_rows_the_engine_does_not_understand_are_listed_not_dropped(parsed):
