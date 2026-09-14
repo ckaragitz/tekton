@@ -377,10 +377,18 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
     unit_source = "cell" if q.unit else ""
     if kind == "length":
         inches = q.in_inches()
-        if inches is None and label_unit:
+        if inches is None and label_unit and not q.unit:
             # the ROW'S OWN LABEL states the unit ("Height (in)"), which is
             # this row saying it -- a reading, not the column-header guess
-            # refused below
+            # refused below.
+            #
+            # `not q.unit` matters: without it, a cell that states a unit of
+            # its own was overridden by the label whenever that unit was not
+            # a length, so `Height (mm) | 62 kg` came back as
+            # `height_in = 2.440945 in` -- a label and a cell that plainly
+            # contradict each other, silently resolved in the label's favour
+            # (#688 third review). Two disagreeing statements are a thing to
+            # refuse and show, never to pick between.
             probe = Quantity(q.value, label_unit, q.raw, q.note)
             inches = probe.in_inches()
             if inches is not None:
@@ -390,6 +398,9 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
                 q = probe
                 unit_source = "label"
         if inches is None:
+            if q.unit:
+                return None, ("%r states %s, which is not a length, so %s is "
+                              "left unset" % (raw, q.unit, key))
             return None, ("%r states no length unit, so %s is left unset "
                           "(a unit taken from a column header would be an "
                           "inference, not a reading)" % (raw, key))

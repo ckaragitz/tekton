@@ -418,13 +418,66 @@ def test_where_the_unit_came_from_is_a_FIELD_not_a_sentence(
 
 
 @pytest.mark.parametrize("label", ["Height (M)", "Height (m)", "Height (A)",
-                                   "Height (K)", "Height (W)"])
-def test_a_single_letter_parenthetical_is_not_read_as_a_unit(label):
+                                   "Height (K)", "Height (W)", "Width (M)",
+                                   "Depth (C)"])
+def test_a_single_letter_parenthetical_is_refused_on_a_LENGTH(label):
     """"Height (M)" on a drawing table is a dimension CALLOUT far more often
     than a declaration of metres, and reading it as metres turned 96 into
-    2440.944882 inches end-to-end (#688 re-review). Refusing costs nothing:
-    the row is listed as unused and the unit can still be in the cell."""
+    2440.944882 inches end-to-end (#688 round 2).
+
+    The danger is confined to lengths, whose units differ by 25x."""
     assert V.canonical_key(label) == ""
+
+
+#: Single-letter unit parentheticals that are REAL on a non-length field.
+#: Each was lost when the refusal above was written as a blanket rule (#688
+#: round 3), and the loss was not merely a missing value -- see below.
+SINGLE_LETTER_REAL = [
+    ("Rated Current (A)", "amps"), ("Amperes (A)", "amps"),
+    ("Current Rating (A)", "amps"), ("Ampacity (A)", "amps"),
+    ("Color Temperature (K)", "cct_k"), ("CCT (K)", "cct_k"),
+    ("Correlated Color Temperature (K)", "cct_k"),
+    ("Input Power (W)", "watts"), ("Wattage (W)", "watts"),
+    ("Power (W)", "watts"), ("Watts (W)", "watts"),
+    ("Ambient Temperature (C)", "temperature_c"),
+    ("Operating Temperature (C)", "temperature_c"),
+    ("Weight (#)", "weight_lb"),
+]
+
+
+@pytest.mark.parametrize("label,key", SINGLE_LETTER_REAL)
+def test_a_single_letter_unit_is_READ_on_a_non_length_field(label, key):
+    """The gate is FIELD-AWARE, not a blanket rule.
+
+    A blanket refusal of every single letter lost all 14 of these. `(A)` on
+    `amps` is a reading; `(A)` on `height_in` is a refusal; the difference is
+    the field, which is why the label must be resolved to its key BEFORE the
+    parenthetical is judged.
+    """
+    assert V.canonical_key(label) == key
+
+
+def test_refusing_a_label_can_make_a_LOWER_row_shadow_the_headline(tmp_path):
+    """THE reason the blanket refusal was worse than the bug it fixed.
+
+    A sheet states the headline rating as ``Rated Current (A) | 400`` and an
+    accessory table lower down says ``Amps | 20``. With the headline label
+    refused, the lower row is the only one that resolves, so ``amps`` comes
+    back as **20.0** -- a 20x wrong `fact`-tier value carrying a citation --
+    and ``duplicates()`` is empty, so the ambiguity is not even surfaced.
+    Measured by the #688 third review at the blanket-refusal head.
+
+    "Refusing costs nothing" was written in a source comment and was wrong.
+    """
+    draws = [(72.0, 700.0, "Rated Current (A)"), (300.0, 700.0, "400"),
+             (72.0, 400.0, "Amps"), (300.0, 400.0, "20")]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "sh.pdf"), [draws]))
+    got = ps.by_key()["amps"]
+    assert got.value == pytest.approx(400.0), \
+        "the headline row was lost and a lower row shadowed it"
+    assert got.raw == "400"
+    assert "amps" in ps.duplicates(), \
+        "both readings must be visible, not silently reduced to one"
 
 
 @pytest.mark.parametrize("label,key", [("Height (mm)", "height_in"),
@@ -456,6 +509,35 @@ def test_a_unitless_field_does_not_adopt_a_label_unit(tmp_path):
     assert got["phases"].value == pytest.approx(3.0)
     assert got["phases"].unit == "", \
         "a count must not wear a unit, got %r" % got["phases"].unit
+
+
+def test_a_label_unit_never_overrides_a_unit_the_CELL_stated(tmp_path):
+    """``Height (mm) | 62 kg`` is a label and a cell that plainly contradict
+    each other. It used to resolve silently in the label's favour --
+    ``height_in = 2.440945 in`` -- because the label probe fired whenever the
+    cell's unit was not a length (#688 third review). Two disagreeing
+    statements are a thing to refuse and show, never to pick between."""
+    draws = [(72.0, 700.0, "Height (mm)"), (300.0, 700.0, "62 kg")]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "x.pdf"), [draws]))
+    assert "height_in" not in ps.by_key()
+    assert any("not a length" in n for n in ps.notes), ps.notes
+
+
+def test_a_media_box_inherited_from_the_pages_node_is_followed(tmp_path):
+    """``/MediaBox`` is an INHERITABLE attribute: a producer whose pages
+    share a size states it once on ``/Pages`` and omits it from every page.
+    That is the common case, and it was not followed -- a parent carrying
+    ``[0 0 1224 792]`` gave 612x792 (#688 third review)."""
+    path = FP.build_pdf(str(tmp_path / "inh.pdf"), [FP.spec_sheet_draws()])
+    raw = open(path, "rb").read()
+    assert b"/MediaBox [0 0 612 792]" in raw, "fixture changed; probe broken"
+    raw = raw.replace(b"/MediaBox [0 0 612 792]", b" " * 23, 1)
+    raw = raw.replace(b"/Type /Pages /Kids",
+                      b"/MediaBox [0 0 1224 792] /Type /Pages /Kids", 1)
+    open(path, "wb").write(raw)
+    page = P.read_pdf(path)[0]
+    assert (page.width, page.height) == (1224.0, 792.0)
+    assert len(S.read_sheet(path).values) == 9, "the page must still read"
 
 
 def test_an_indirect_media_box_is_followed(tmp_path):

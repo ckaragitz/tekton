@@ -799,19 +799,31 @@ def _page_objects(objs: Dict[int, bytes]) -> List[int]:
 _LETTER = (612.0, 792.0)
 
 
-def _media_box(d: bytes, objs: Dict[int, bytes]) -> Tuple[float, float]:
-    """The page size, following an INDIRECT ``/MediaBox`` when there is one.
+_BOX = re.compile(rb"\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)")
 
-    ``objs`` was previously accepted and ignored, so ``/MediaBox 5 0 R`` --
-    legal, and what a producer emits when several pages share a box -- fell
-    through to the Letter default (#688 re-review).
+
+def _media_box(d: bytes, objs: Dict[int, bytes], depth: int = 8) -> Tuple[float, float]:
+    """The page size, following BOTH ways the format lets a page get one.
+
+    ``/MediaBox`` is an INHERITABLE attribute: a producer whose pages share a
+    size states it once on the ``/Pages`` node and omits it from every page,
+    which is the common case and the one a docstring here previously
+    misnamed as the indirect-reference case (#688 third review -- measured:
+    a parent carrying ``[0 0 1224 792]`` gave 612x792).  Both are followed:
+    the value may also be an indirect reference at either level.
+
+    ``depth`` bounds the parent walk, because a malformed file can point a
+    page at itself and ``read_sheet`` must never hang or raise.
     """
-    m = re.search(rb"/MediaBox\s*\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)", d)
+    m = _BOX.search(d[d.find(b"/MediaBox"):]) if b"/MediaBox" in d else None
     if not m:
         ref = _ref(d, b"/MediaBox")
         if ref is not None and ref in objs:
-            m = re.search(rb"\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)",
-                          objs[ref])
+            m = _BOX.search(objs[ref])
+    if not m and depth > 0:
+        parent = _ref(d, b"/Parent")
+        if parent is not None and parent in objs:
+            return _media_box(_dict_of(objs[parent]), objs, depth - 1)
     if not m:
         return _LETTER                             # US Letter, the PDF default
     try:

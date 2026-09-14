@@ -219,7 +219,7 @@ four nits were wrong values rather than tidiness, so all four are fixed:
 
 | nit | what it did | fix |
 |---|---|---|
-| a single-letter unit in a label | `Height (M)` read as **metres**: 96 became **2440.944882 in** end-to-end. On a drawing table `(M)` is a dimension callout far more often than a unit | only quote/prime marks may be single-character units; refusing costs nothing, the row is listed as unused |
+| a single-letter unit in a label | `Height (M)` read as **metres**: 96 became **2440.944882 in** end-to-end. On a drawing table `(M)` is a dimension callout far more often than a unit | a single character is read only on a **non-length** field whose declared unit it matches — see §3d, because the first version of this fix was a blanket refusal and was worse than the bug |
 | an assumed unit was marked only in prose | a weight column headed "kg" with a bare `90` gives `weight_lb = 90` — wrong by **2.2×** — separated from a read value by a free-text `note` a consumer cannot check | `SheetValue.unit_source` is now `cell` / `label` / `declared`, with `unit_assumed` and both in the JSON. This is the flag DONE 5's identity lane must read |
 | a unitless field adopted a label unit | `Phase (A) \| 3` recorded as `phases = 3.0 unit='a'` — a bogus unit on a count | only adopt where the field declares a unit |
 | `_media_box` took `objs` and ignored them | an indirect `/MediaBox 5 0 R` — what a producer emits when pages share a box — fell through to Letter | resolved through the objects it was already given |
@@ -232,6 +232,52 @@ test asserted over an empty list. Removing the guard entirely left it green.
 Rewritten with a multi-character unit (`Phases (lbs)`) and an assertion that
 the row was actually read, it fails as it should. Mutants on all four:
 5 / 1 / 1 / 1 failures, each caught by its own test and no other.
+
+### 3d. Round 3: my round-2 fix was worse than the bug it fixed
+
+The third review returned `changes` on the very fix described above, and it
+was right. Refusing **every** single-letter parenthetical lost 14 real label
+forms that had worked one commit earlier:
+
+`Rated Current (A)` · `Amperes (A)` · `Current Rating (A)` · `Ampacity (A)` ·
+`Color Temperature (K)` · `CCT (K)` · `Correlated Color Temperature (K)` ·
+`Input Power (W)` · `Wattage (W)` · `Power (W)` · `Watts (W)` ·
+`Ambient Temperature (C)` · `Operating Temperature (C)` · `Weight (#)`
+
+And losing them was not merely a missing value. Measured by the reviewer: a
+sheet with the headline `Rated Current (A) | 400` near the top and an
+accessory `Amps | 20` further down gives
+
+```
+amps = 20.0   raw '20'   duplicates() == []
+```
+
+— a **20× wrong** `fact`-tier value carrying a citation, with the ambiguity
+not even surfaced, because the only row that still resolved was the wrong
+one. I had introduced the shadowing failure while fixing a conversion
+failure.
+
+**The fix is to make the gate field-aware**, which is what the danger was
+always confined to: a *length*'s units differ by 25×, so a coin flip there
+is a 25× error; a `number` field's declared unit constrains the letter. The
+label is now resolved to its key **first**, and a single character is
+accepted only when the field is not a length *and* the character is an
+accepted spelling of that field's own declared unit. `(A)` on `amps` is a
+reading; `(A)` on `height_in` is a refusal. All 14 forms back, all 7 length
+cases still refused, 0 mismatches across 23 probed labels.
+
+**And the comment I wrote was the real defect.** It said *"Nothing is lost by
+refusing: the row is listed as unused."* That was an assertion with no
+measurement behind it, checked into the source, in the exact place a later
+session would go looking before re-testing. The reviewer measured it and it
+was false. The comment now carries the numbers instead.
+
+Two more from the same round:
+
+| finding | what it did | fix |
+|---|---|---|
+| the label-unit probe fired even when the **cell** stated a unit | `Height (mm) \| 62 kg` resolved silently in the label's favour: `height_in = 2.440945 in`. A label and a cell that plainly contradict each other are a thing to refuse and show, never to pick between | probe only when the cell stated nothing; a non-length unit in the cell is now a named refusal |
+| `/MediaBox` inheritance | the docstring named the indirect-reference case, but a shared page size is normally stated **once on the `/Pages` node** and inherited. A parent carrying `[0 0 1224 792]` gave 612×792 | the parent chain is walked, depth-bounded so a self-referential file cannot hang it |
 
 ### 4. Six defects found by re-reading the module after writing it
 
@@ -288,8 +334,8 @@ the re-review caught the second round of stale counts:
 - `tests/test_specsheet_backend_688.py` — **18 passed** (with the `[pdf]`
   extra installed; skips without it)
 - `tests/test_pyproject_extras.py` — **9 passed**
-- the full merged CI shard and `check_portable_paths` counts are on the PR,
-  against the SHA they were measured on, rather than here — copying a shard
+- the full merged CI shard and `check_portable_paths` counts belong on the
+  PR, against the SHA they were measured on, rather than here — copying a shard
   count into a record is how it goes stale, which happened twice: the first
   draft printed 32 / 53 / 14 (pasted from two different runs; the review
   measured 28 / 55 / 14), and the second still carried the parent commit's
@@ -336,8 +382,11 @@ Fresh-clone safe: no `samples/`, no network, no vendor file.
 - Files written: `src/rvt/specsheet/{__init__,pdftext,layout,vocab,sheet,_backend}.py`,
   `tests/fixtures_pdf.py`, `tests/test_specsheet_{pdftext,sheet,backend}_688.py`,
   `tests/ci_shard.d/688-specsheet-reader.txt`, `pyproject.toml` (the `pdf`
-  extra + its doc block), `tests/test_pyproject_extras.py` (one line:
-  `pdf` joins `EXPECTED_EXTRAS`), this record and its index, and the
+  extra + its doc block), `tests/test_pyproject_extras.py` (the packaging
+  guard, parametrised over both optional backends — it started as a one-line
+  `EXPECTED_EXTRAS` edit and grew when round 1 pointed out the guard
+  enforced the zero-install promise for `ifcopenshell` alone), this record
+  and its index, and the
   `plugin/lib/src/rvt/specsheet/**` mirror (generated by `sync_plugin.py`).
 - Shipped: the reader, gated as above.
 - Staged, not shipped: nothing.

@@ -177,22 +177,43 @@ def _norm(label: str) -> str:
 _TRAILING_UNIT = re.compile(r"\s*\(([^()]{1,8})\)\s*$")
 
 
-#: Single letters that may be read as a unit inside a label parenthetical.
-#: "M" is deliberately NOT here: "Height (M)" is far more often a drawing's
-#: dimension callout than a declaration of metres, and reading it as metres
-#: turned 96 into 2440.944882 inches end-to-end -- a wrong dimension, shown
-#: in the report but shown as a conversion rather than a guess (#688
-#: re-review).  Nothing is lost by refusing: the row is listed as unused and
-#: the value can still be stated in the cell.
+#: Single letters always safe as a unit in a label, whatever the field:
+#: the inch and foot marks, which mean nothing else.
 _SAFE_SINGLE_LETTER_UNITS = {'"', "'", "”", "″", "’", "′"}
 
 
-def _known_unit(text: str) -> bool:
+def _known_unit(text: str, key: str = "") -> bool:
+    """Is ``text`` a unit we can read out of a label parenthetical?
+
+    The single-character case is decided by the FIELD, not by a blanket
+    rule, and that distinction cost two review rounds to get right:
+
+    * The danger is confined to **lengths**.  "Height (M)" on a drawing
+      table is a dimension callout far more often than a declaration of
+      metres, and reading it as metres turned 96 into 2440.944882 inches.
+      A length's units differ by 25x, so a coin flip there is a 25x error.
+    * A blanket refusal of every single letter then lost 13 real label
+      forms -- ``Rated Current (A)``, ``Color Temperature (K)``,
+      ``Input Power (W)``, ``Ambient Temperature (C)``, ``Weight (#)`` --
+      and did something worse than lose them.  With ``Rated Current (A)``
+      refused, a lower ``Amps | 20`` row shadowed a headline
+      ``Rated Current (A) | 400``: ``amps = 20.0``, a **20x wrong**
+      fact-tier value wearing a citation, and ``duplicates()`` empty so the
+      ambiguity was not even surfaced.  Measured by the #688 third review.
+
+    So a single character is accepted only when the field is not a length
+    AND the character is an accepted spelling of that field's own declared
+    unit -- which is what makes ``(A)`` on ``amps`` a reading and ``(A)`` on
+    ``height_in`` a refusal.
+    """
     t = text.strip().lower().rstrip(".")
     if not t:
         return False
     if len(t) == 1 and t not in _SAFE_SINGLE_LETTER_UNITS:
-        return False
+        row = FIELDS.get(key)
+        if row is None or row[0] == "length" or not unit_matches(row[1], t):
+            return False
+        return True
     if t in LENGTH_UNITS:
         return True
     return any(t == d.lower() or t in sp
@@ -226,12 +247,18 @@ def canonical_key(label: str) -> str:
 
 
 def _key_with_label_unit(n: str) -> Tuple[str, str]:
+    """Resolve the FIELD first, then ask whether the parenthetical is a unit
+    *for that field* -- the order matters, because a single character can
+    only be judged once we know what it would be a unit of."""
     m = _TRAILING_UNIT.search(n)
-    if m and _known_unit(m.group(1)):
-        stripped = n[:m.start()].strip()
-        for syn, key in _INDEX:
-            if stripped == syn:
+    if not m:
+        return "", ""
+    stripped = n[:m.start()].strip()
+    for syn, key in _INDEX:
+        if stripped == syn:
+            if _known_unit(m.group(1), key):
                 return key, m.group(1).strip()
+            return "", ""
     return "", ""
 
 
