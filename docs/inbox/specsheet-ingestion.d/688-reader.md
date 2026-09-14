@@ -279,6 +279,61 @@ Two more from the same round:
 | the label-unit probe fired even when the **cell** stated a unit | `Height (mm) \| 62 kg` resolved silently in the label's favour: `height_in = 2.440945 in`. A label and a cell that plainly contradict each other are a thing to refuse and show, never to pick between | probe only when the cell stated nothing; a non-length unit in the cell is now a named refusal |
 | `/MediaBox` inheritance | the docstring named the indirect-reference case, but a shared page size is normally stated **once on the `/Pages` node** and inherited. A parent carrying `[0 0 1224 792]` gave 612×792 | the parent chain is walked, depth-bounded so a self-referential file cannot hang it |
 
+### 3e. Round 4: the round-3 fix reached the trigger, not the mechanism
+
+Round 3 measured a shadowing failure — a headline row refused, a lower row
+silently taken — through one particular refusal reason (a label the
+single-letter gate rejected), and I fixed **that reason**. Round 4 measured
+the same failure through a different door:
+
+```
+Rated Current (A) | 400 V      <- refused: V is not an amps spelling
+Amps              | 20
+  ->  amps = 20.0, cited, duplicates() == {}
+```
+
+An ordinary data-entry typo, the same 20×, the same invisibility. The cause
+was never the label gate: `by_key()` and `duplicates()` walked **accepted**
+rows only, so any refused row vanished into `unmapped` where nothing could
+see it. Five different refusal reasons reach it (a wrong unit, a range, an
+unparseable cell, a non-positive length, a missing unit).
+
+Fixed at the mechanism. A row that **names a field we know** and is then
+refused is recorded as a refused *claim* — a `SheetValue` with `value=None`
+and its reason in `refused` — kept in `ParsedSheet.refused`, out of
+`values` so nothing can build from it, and folded back in by `claims()`,
+`duplicates()` and the new `shadowed()`. `shadowed()` is the dangerous
+subset: keys where an **earlier** claim was refused and a **later** one was
+taken, which is exactly "the value you have is not the one the sheet leads
+with". `questions()` names the refused row and its reason.
+
+The value is still delivered — hard rule 1 — but the caveat is
+machine-readable rather than absent. A genuine second row (nothing refused)
+is a `duplicate` and **not** `shadowed`, both directions pinned, because
+conflating them would make `shadowed()` fire on every ordinary multi-row
+sheet and stop being read.
+
+Round 4's second finding closed a hole in the round-3 gate itself:
+`unit_matches` treats an empty declared unit as "anything goes", so every
+letter a–z was accepted on `phases` and on all nine `text` fields — 300
+accept decisions the docstring's contract does not describe, since there is
+no spelling of "no unit". Harmless today (no caller reads a label unit for
+those fields), a hole all the same. The gate now enumerates to **15**
+accepts across all 24 fields, each defensible:
+
+| field | accepted single characters |
+|---|---|
+| `amps` | `a` |
+| `cct_k` | `k` |
+| `temperature_c` | `c` |
+| `watts` | `w` |
+| `weight_lb` | `#` |
+| the five length fields | `'` `"` |
+
+The inch and foot marks are read on a **length** field and, by the same
+argument, nowhere else — they used to be accepted on every field and were
+harmless only because a later check refused them.
+
 ### 4. Six defects found by re-reading the module after writing it
 
 Written, then read back cold before the PR left draft. Each fix is pinned by
@@ -326,14 +381,27 @@ re-measurement.
 
 ### 6. Gates
 
-Every number below re-measured per module on the head it describes, after
-the re-review caught the second round of stale counts:
+Every number below re-measured **as a section**, not line by line, on the
+head it describes.
+
+That distinction is the third staleness finding and the one worth keeping.
+Round 3 named two stale items; I fixed those two and left a third — the
+`test_specsheet_sheet_688.py` count — wrong in the same document, in this
+same list, under a commit whose title was *"the round-2 fix was worse than
+the bug"*. It had been wrong since round 3's head, while round 3's own PR
+comment carried the right figure. Fixing what a reviewer names is not the
+same as re-verifying what they were looking at, and the difference is
+exactly one number nobody re-ran.
 
 - `tests/test_specsheet_pdftext_688.py` — **32 passed**
-- `tests/test_specsheet_sheet_688.py` — **82 passed**
+- `tests/test_specsheet_sheet_688.py` — **114 passed**
 - `tests/test_specsheet_backend_688.py` — **18 passed** (with the `[pdf]`
   extra installed; skips without it)
 - `tests/test_pyproject_extras.py` — **9 passed**
+- `tests/test_bootstrap.py test_coldstart.py test_surface_perf.py` — **31
+  passed**; `test_plugin_sync test_records_layout
+  test_conftest_scaffolding` — **34 passed**;
+  `plugin/scripts/validate_plugin.py` — **25 assertions**
 - the full merged CI shard and `check_portable_paths` counts belong on the
   PR, against the SHA they were measured on, rather than here — copying a shard
   count into a record is how it goes stale, which happened twice: the first

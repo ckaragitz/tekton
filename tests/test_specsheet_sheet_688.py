@@ -511,6 +511,105 @@ def test_a_unitless_field_does_not_adopt_a_label_unit(tmp_path):
         "a count must not wear a unit, got %r" % got["phases"].unit
 
 
+#: Every way a row that NAMES a known field can still be refused. Each must
+#: leave a visible CLAIM, because the failure below is reachable from all of
+#: them and round 3 only fixed the one it happened to measure.
+REFUSAL_TRIGGERS = [
+    ("Rated Current (A)", "400 V",   "amps"),      # a typo'd unit
+    ("Amperes",           "20-30 A", "amps"),      # a range, not a number
+    ("Amperes",           "TBD",     "amps"),      # not a quantity at all
+    ("Height",            "0 in",    "height_in"),  # not a positive length
+    ("Height",            "62",      "height_in"),  # no unit stated
+]
+
+
+@pytest.mark.parametrize("label,raw,key", REFUSAL_TRIGGERS)
+def test_a_refused_headline_is_still_a_visible_CLAIM(label, raw, key, tmp_path):
+    """THE general form of round 3's finding, which round 3's fix did not
+    reach.
+
+    ``by_key`` and ``duplicates`` walked accepted rows only, so a REFUSED
+    row vanished into ``unmapped`` and a lower row won in silence. Round 3
+    found this through one refusal reason -- a label the single-letter gate
+    rejected -- and I fixed that reason. The mechanism is every refusal
+    reason: measured by the #688 round-4 review, ``Rated Current (A) |
+    400 V`` (an ordinary data-entry typo) above ``Amps | 20`` gave
+    ``amps = 20.0``, cited, with ``duplicates() == {}``. Same 20x, same
+    invisibility, a different trigger.
+
+    The value is still delivered -- hard rule 1 -- but the caveat is now
+    machine-readable instead of absent.
+    """
+    lower = {"amps": ("Amps", "20"), "height_in": ("Height", "9.0 in")}[key]
+    draws = [(72.0, 700.0, label), (300.0, 700.0, raw),
+             (72.0, 400.0, lower[0]), (300.0, 400.0, lower[1])]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "shadow.pdf"), [draws]))
+
+    assert key in ps.by_key(), "the lower row is still delivered (hard rule 1)"
+    assert key in ps.duplicates(), \
+        "the refused headline is invisible to duplicates() -- a later row " \
+        "is winning in silence"
+    assert key in ps.shadowed(), "this is a shadowed key, not a plain duplicate"
+    claims = ps.duplicates()[key]
+    assert [c.is_refused for c in claims] == [True, False], \
+        "claims must be in page order, the refused headline first"
+    assert claims[0].refused, "a refused claim must carry its reason"
+    assert claims[0].value is None, "a refused claim must not carry a value"
+    assert any(key in q and "later row" in q for q in ps.questions())
+
+
+def test_a_genuine_second_row_is_a_duplicate_but_NOT_shadowed(tmp_path):
+    """The distinction has to be real in both directions: two rows the sheet
+    actually states are a duplicate to choose between, not a refusal that
+    let a later row win. Conflating them would make `shadowed()` fire on
+    every ordinary multi-row sheet and stop being read."""
+    draws = [(72.0, 700.0, "Height"), (300.0, 700.0, "62.0 in"),
+             (72.0, 400.0, "Height"), (300.0, 400.0, "48.0 in")]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "dup.pdf"), [draws]))
+    assert "height_in" in ps.duplicates()
+    assert ps.shadowed() == {}, "no row was refused, so nothing is shadowed"
+    assert ps.by_key()["height_in"].value == pytest.approx(62.0)
+
+
+def test_a_refused_row_never_leaks_into_values(tmp_path):
+    """`values` is what a consumer builds from; a refused claim must not be
+    in it however visible it is elsewhere."""
+    draws = [(72.0, 700.0, "Height"), (300.0, 700.0, "0 in")]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "neg.pdf"), [draws]))
+    assert [v.key for v in ps.values] == []
+    assert [v.key for v in ps.refused] == ["height_in"]
+    assert all(v.value is None for v in ps.refused)
+    assert ps.by_key() == {}
+
+
+def test_only_a_fields_OWN_declared_unit_passes_the_single_char_gate():
+    """`unit_matches` treats an empty declared unit as "anything goes", so
+    the gate accepted every one of a-z on `phases` and on all nine text
+    fields -- 300 accept decisions the docstring's contract does not
+    describe, since there is no spelling of "no unit" (#688 round 4).
+
+    Enumerated rather than sampled: this asserts the WHOLE accept set.
+    """
+    import string
+    accepts = {k: "".join(c for c in string.ascii_lowercase + "#°'\""
+                          if V._known_unit(c, k))
+               for k in V.FIELDS}
+    assert {k: v for k, v in accepts.items() if v} == {
+        "amps": "a", "cct_k": "k", "temperature_c": "c", "watts": "w",
+        "weight_lb": "#",
+        "height_in": "'\"", "width_in": "'\"", "depth_in": "'\"",
+        "length_in": "'\"", "diameter_in": "'\"",
+    }
+
+
+@pytest.mark.parametrize("label", ["Voltage (V)", "Phases (A)", "Model (X)",
+                                   "Enclosure (N)", "Amperes (\")"])
+def test_a_single_char_on_a_field_with_no_declared_unit_is_refused(label):
+    """...and an inch mark on a rating is refused too: the length marks are
+    read on a LENGTH field and, by the same argument, nowhere else."""
+    assert V.canonical_key(label) == ""
+
+
 def test_a_label_unit_never_overrides_a_unit_the_CELL_stated(tmp_path):
     """``Height (mm) | 62 kg`` is a label and a cell that plainly contradict
     each other. It used to resolve silently in the label's favour --

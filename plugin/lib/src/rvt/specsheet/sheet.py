@@ -157,11 +157,11 @@ class SheetValue:
     """One value read from the sheet, with everything needed to check it."""
 
     __slots__ = ("key", "label", "raw", "value", "unit", "page", "row",
-                 "column", "note", "unit_source")
+                 "column", "note", "unit_source", "refused")
 
     def __init__(self, key: str, label: str, raw: str, value: Any, unit: str,
                  page: int, row: int, column: int, note: str = "",
-                 unit_source: str = "cell"):
+                 unit_source: str = "cell", refused: str = ""):
         self.key, self.label, self.raw = key, label, raw
         self.value, self.unit = value, unit
         self.page, self.row, self.column = page, row, column
@@ -177,6 +177,20 @@ class SheetValue:
         #: reading ``weight_lb`` by name could not see the difference. This
         #: is the flag that lane must check.
         self.unit_source = unit_source
+        #: why this row's value was NOT taken, or ``""`` when it was.
+        #:
+        #: A refused row is still the sheet CLAIMING a field. Keeping only
+        #: accepted rows made every refusal invisible to ``duplicates()``
+        #: and ``questions()``, so a headline row refused for any reason let
+        #: a lower row silently win: ``Rated Current (A) | 400 V`` (a typo'd
+        #: unit) above ``Amps | 20`` gave ``amps = 20.0`` with no duplicate
+        #: reported -- a 20x error reachable from an ordinary data-entry
+        #: slip (#688 round 4). A refused claim has to stay visible.
+        self.refused = refused
+
+    @property
+    def is_refused(self) -> bool:
+        return bool(self.refused)
 
     @property
     def unit_assumed(self) -> bool:
@@ -194,6 +208,7 @@ class SheetValue:
                 "value": self.value, "unit": self.unit,
                 "unit_source": self.unit_source,
                 "unit_assumed": self.unit_assumed,
+                "refused": self.refused,
                 "page": self.page, "row": self.row, "column": self.column,
                 "citation": self.citation(document) if document else "",
                 "note": self.note}
@@ -206,12 +221,20 @@ class SheetValue:
 class ParsedSheet:
     """Everything one PDF yielded, including what it did not."""
 
-    __slots__ = ("path", "tables", "values", "unmapped", "notes", "unreadable")
+    __slots__ = ("path", "tables", "values", "refused", "unmapped", "notes",
+                 "unreadable")
 
     def __init__(self, path: str, tables: List[Table],
                  values: List[SheetValue], unmapped: List[Tuple[int, int, str]],
-                 notes: List[str], unreadable: str = ""):
+                 notes: List[str], unreadable: str = "",
+                 refused: Optional[List[SheetValue]] = None):
         self.path, self.tables, self.values = path, tables, values
+        #: rows that NAMED a field we know but whose value was refused, each
+        #: carrying `value=None` and its reason.  Kept apart from `values`
+        #: so nothing can read one by accident, and folded back in by
+        #: `claims()` / `duplicates()` / `shadowed()`, which is what stops a
+        #: refused headline from being silently outvoted by a lower row.
+        self.refused = list(refused or [])
         #: (page, row, text) for every row that named no field we know --
         #: shown, never dropped: "the sheet says this and we did not use it"
         self.unmapped = unmapped
@@ -229,16 +252,50 @@ class ParsedSheet:
             out.setdefault(v.key, v)
         return out
 
-    def duplicates(self) -> Dict[str, List[SheetValue]]:
-        """Keys the sheet states more than once, with every reading.
+    def claims(self) -> List[SheetValue]:
+        """Every row that NAMED a field we know -- taken or refused, in page
+        order.  ``values`` is the accepted subset."""
+        return sorted(self.values + self.refused,
+                      key=lambda v: (v.page, v.row))
 
-        Not an error -- a sheet legitimately tables several catalog numbers --
-        but the caller must SEE it, because ``by_key`` silently picked one.
+    def duplicates(self) -> Dict[str, List[SheetValue]]:
+        """Keys the sheet CLAIMS more than once, with every claim.
+
+        Not an error -- a sheet legitimately tables several catalog numbers
+        -- but the caller must SEE it, because ``by_key`` silently picked
+        one.
+
+        Counts refused claims as well as accepted ones, and that is the
+        whole point.  Until #688 round 4 it walked ``values`` alone, so a
+        refused row was invisible here: ``Rated Current (A) | 400 V`` (a
+        typo'd unit) above an accessory ``Amps | 20`` yielded
+        ``amps = 20.0`` with no duplicate reported -- a 20x error, cited,
+        reachable from an ordinary data-entry slip.  Round 3 had found the
+        same shape through one particular refusal reason and I fixed that
+        reason; the mechanism was every refusal reason, and only walking the
+        claims closes it.  A refused claim carries ``value=None`` and its
+        ``refused`` string.
         """
         seen: Dict[str, List[SheetValue]] = {}
-        for v in self.values:
+        for v in self.claims():
             seen.setdefault(v.key, []).append(v)
         return {k: vs for k, vs in seen.items() if len(vs) > 1}
+
+    def shadowed(self) -> Dict[str, List[SheetValue]]:
+        """Keys where an EARLIER claim was refused and a LATER one was taken.
+
+        The dangerous subset of :meth:`duplicates`: the value a caller gets
+        is not the one the sheet leads with, and the reason is a refusal
+        rather than a genuine second row.
+        """
+        out: Dict[str, List[SheetValue]] = {}
+        for key, cs in self.duplicates().items():
+            first_taken = next((i for i, c in enumerate(cs)
+                                if not c.is_refused), None)
+            if first_taken is not None and any(c.is_refused
+                                               for c in cs[:first_taken]):
+                out[key] = cs
+        return out
 
     def questions(self) -> List[str]:
         """What the sheet left undetermined, as questions for #684's lane.
@@ -248,8 +305,20 @@ class ParsedSheet:
         """
         qs: List[str] = []
         have = set(self.by_key())
-        dups = self.duplicates()
-        for key, readings in sorted(dups.items()):
+        shadowed = self.shadowed()
+        for key, cs in sorted(shadowed.items()):
+            qs.append(
+                "%s: the sheet's FIRST statement could not be read (%s), so "
+                "the value comes from a later row -- check it: %s"
+                % (key,
+                   "; ".join("p%d r%d %r: %s" % (c.page, c.row, c.raw,
+                                                 c.refused)
+                             for c in cs if c.is_refused),
+                   ", ".join("p%d r%d %r" % (c.page, c.row, c.raw)
+                             for c in cs if not c.is_refused)))
+        for key, readings in sorted(self.duplicates().items()):
+            if key in shadowed:
+                continue
             qs.append("the sheet states %s %d times (%s) -- which one?"
                       % (key, len(readings),
                          ", ".join("p%d r%d %r" % (v.page, v.row, v.raw)
@@ -346,18 +415,26 @@ def _colon_split(row) -> Optional[Tuple[str, List[_Split]]]:
     return head, [_Split(tail, row.cells[0].column)]
 
 
-def _read_row(row) -> Tuple[Optional[SheetValue], str]:
+def _read_row(row) -> Tuple[Optional[SheetValue], str, str]:
+    """``(value, why-not, key)``.
+
+    The third element is the field the row NAMED, even when the value was
+    refused -- ``""`` only when the label itself matched nothing. Without
+    it a refusal is indistinguishable from an unknown row, and a refused
+    claim disappears into ``unmapped`` where ``duplicates()`` cannot see it
+    (#688 round 4).
+    """
     """One layout row -> a cited value, or ``(None, why not)``."""
     split = _colon_split(row)
     if split is not None:
         label, cells = split
     elif len(row.cells) < 2:
-        return None, "no value cell"
+        return None, "no value cell", ""
     else:
         label, cells = row.cells[0].text, _value_cells(row)
     key, label_unit = V.canonical_key_and_unit(label)
     if not key:
-        return None, "label %r names no field we know" % label
+        return None, "label %r names no field we know" % label, ""
     kind = V.field_kind(key)
     raw = cells[0].text
     extra = [c.text for c in cells[1:] if c.text]
@@ -365,12 +442,12 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
 
     if kind == "text":
         return SheetValue(key, label, raw, raw, "", row.page, row.index,
-                          cells[0].column, note, unit_source=""), ""
+                          cells[0].column, note, unit_source=""), "", key
 
     q = parse_quantity(raw)
     if q is None:
         return None, ("%r is not a single quantity, so %s is left unset"
-                      % (raw, key))
+                      % (raw, key)), key
     if q.note:
         note = "; ".join(x for x in (note, q.note) if x)
 
@@ -399,21 +476,21 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
                 unit_source = "label"
         if inches is None:
             if q.unit:
-                return None, ("%r states %s, which is not a length, so %s is "
-                              "left unset" % (raw, q.unit, key))
+                return None, ("%r states %s, which is not a length, so %s "
+                              "is left unset" % (raw, q.unit, key)), key
             return None, ("%r states no length unit, so %s is left unset "
                           "(a unit taken from a column header would be an "
-                          "inference, not a reading)" % (raw, key))
+                          "inference, not a reading)" % (raw, key)), key
         if inches <= 0.0:
             # never a real dimension, and a zero or negative one builds a
             # degenerate solid that our validator still calls VALID
-            return None, ("%r is not a positive length, so %s is left unset"
-                          % (raw, key))
+            return None, ("%r is not a positive length, so %s is left "
+                          "unset" % (raw, key)), key
         if q.unit_key() not in ("in", "inch", "inches", '"', "”", "″"):
             note = "; ".join(x for x in (note, "converted from %s" % q.unit) if x)
         return SheetValue(key, label, raw, round(inches, 6), "in", row.page,
                           row.index, cells[0].column, note,
-                          unit_source=unit_source), ""
+                          unit_source=unit_source), "", key
 
     declared = V.FIELDS[key][1]
     if not q.unit and label_unit and declared:
@@ -429,7 +506,7 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
         return None, ("%r states %s, but %s is declared in %s and nothing "
                       "here converts a rating; add the spelling to "
                       "vocab.UNIT_SPELLINGS or a conversion, but do not "
-                      "assume" % (raw, q.unit, key, declared))
+                      "assume" % (raw, q.unit, key, declared)), key
     if declared and not q.unit:
         note = "; ".join(x for x in (
             note, "the sheet states no unit for this row; %s is declared in "
@@ -438,7 +515,7 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
         unit_source = "declared"
     return SheetValue(key, label, raw, q.value, q.unit or declared, row.page,
                       row.index, cells[0].column, note,
-                      unit_source=unit_source), ""
+                      unit_source=unit_source), "", key
 
 
 def _second_opinion(path: str, backend: str, max_pages: int) -> str:
@@ -480,19 +557,31 @@ def read_sheet(path: str, max_pages: int = 64, **layout_params) -> ParsedSheet:
 
     tables = [build_table(p, **layout_params) for p in pages]
     values: List[SheetValue] = []
+    refused: List[SheetValue] = []
     unmapped: List[Tuple[int, int, str]] = []
     notes: List[str] = []
     for t in tables:
         if t.note:
             notes.append("page %d: %s" % (t.page, t.note))
         for row in t.rows:
-            sv, why = _read_row(row)
+            sv, why, key = _read_row(row)
             if sv is not None:
                 values.append(sv)
-            else:
-                unmapped.append((t.page, row.index, row.text))
-                if why and not why.startswith("label ") and why != "no value cell":
-                    notes.append("p%d r%d: %s" % (t.page, row.index, why))
+                continue
+            unmapped.append((t.page, row.index, row.text))
+            if why and not why.startswith("label ") and why != "no value cell":
+                notes.append("p%d r%d: %s" % (t.page, row.index, why))
+            if key:
+                # the row NAMED a field we know and we could not read it.
+                # Recorded as a refused CLAIM, not merely an unmapped line,
+                # so `duplicates()` and `shadowed()` can see that the sheet
+                # spoke about this field here -- otherwise a later row wins
+                # silently (#688 round 4).
+                refused.append(SheetValue(
+                    key, row.cells[0].text if row.cells else "", row.text,
+                    None, "", t.page, row.index,
+                    row.cells[0].column if row.cells else -1,
+                    unit_source="", refused=why))
 
     notes.append("read with the %s PDF backend" % backend)
     unreadable = ""
@@ -516,4 +605,9 @@ def read_sheet(path: str, max_pages: int = 64, **layout_params) -> ParsedSheet:
     elif not values:
         notes.append("no row in this sheet named a field the engine knows; "
                      "the rows read are listed above")
-    return ParsedSheet(path, tables, values, unmapped, notes, unreadable)
+    for key in sorted(ParsedSheet(path, tables, values, unmapped, notes,
+                                  unreadable, refused).shadowed()):
+        notes.append("%s: the sheet's first statement of this field could not "
+                     "be read, so its value comes from a later row" % key)
+    return ParsedSheet(path, tables, values, unmapped, notes, unreadable,
+                       refused)

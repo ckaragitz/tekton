@@ -177,9 +177,10 @@ def _norm(label: str) -> str:
 _TRAILING_UNIT = re.compile(r"\s*\(([^()]{1,8})\)\s*$")
 
 
-#: Single letters always safe as a unit in a label, whatever the field:
-#: the inch and foot marks, which mean nothing else.
-_SAFE_SINGLE_LETTER_UNITS = {'"', "'", "”", "″", "’", "′"}
+#: The inch and foot marks.  Single characters, but they mean nothing except
+#: a length, so they are read on a LENGTH field without further ado -- and,
+#: by the same argument, nowhere else.
+_LENGTH_MARKS = {'"', "'", "”", "″", "’", "′"}
 
 
 def _known_unit(text: str, key: str = "") -> bool:
@@ -209,11 +210,25 @@ def _known_unit(text: str, key: str = "") -> bool:
     t = text.strip().lower().rstrip(".")
     if not t:
         return False
-    if len(t) == 1 and t not in _SAFE_SINGLE_LETTER_UNITS:
+    if len(t) == 1:
         row = FIELDS.get(key)
-        if row is None or row[0] == "length" or not unit_matches(row[1], t):
+        if row is None:
             return False
-        return True
+        kind, declared = row
+        if t in _LENGTH_MARKS:
+            return kind == "length"
+        # Not a length, and it must positively spell that field's OWN unit.
+        # `declared` being empty is a REFUSAL, not a licence: `unit_matches`
+        # treats an empty declared unit as "anything goes", so without this
+        # every one of a-z was accepted on `phases` and on all nine text
+        # fields -- 300 accept decisions that the docstring's contract
+        # ("an accepted spelling of that field's own declared unit") does
+        # not describe, since there is no spelling of "no unit" (#688
+        # round 4).  Harmless today, because no caller reads a label unit
+        # for those fields; a hole all the same.
+        if kind == "length" or not declared:
+            return False
+        return unit_matches(declared, t)
     if t in LENGTH_UNITS:
         return True
     return any(t == d.lower() or t in sp
