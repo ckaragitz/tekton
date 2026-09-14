@@ -431,13 +431,17 @@ anyone adds a test — which in a five-round review is every round — so
 re-measuring were treating a symptom. A number belongs where it is produced
 and stamped with what produced it. Here, that is a PR comment carrying a
 SHA; here in the record, what belongs is what the numbers *showed*.
-- `tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py`
-  — **31 passed** (the product still works from a bare unzip)
-- `tests/test_plugin_sync.py`, `tests/test_conftest_scaffolding.py` — green
-- `tools/sync_plugin.py` re-run, `--check` clean, deny-audit clean, identity
-  scan == allowlist; `plugin/scripts/validate_plugin.py` 25/25;
-  `tools/dev/check_portable_paths.py` ok
-- drop-in `tests/ci_shard.d/688-specsheet-reader.txt` (3 files)
+What ran, as a list of gates rather than a list of numbers:
+
+- the three `tests/test_specsheet_*_688.py` modules; `test_pyproject_extras`
+- `test_bootstrap` + `test_coldstart` + `test_surface_perf` — the product
+  still works from a bare unzip
+- `test_plugin_sync`, `test_records_layout`, `test_conftest_scaffolding`
+- `tools/sync_plugin.py` re-run and `--check` clean, deny-audit clean,
+  identity scan == allowlist, mirror byte-identical to source;
+  `plugin/scripts/validate_plugin.py`; `tools/dev/check_portable_paths.py`
+- the full merged shard, via the drop-in
+  `tests/ci_shard.d/688-specsheet-reader.txt` (3 files)
 
 Fresh-clone safe: no `samples/`, no network, no vendor file.
 
