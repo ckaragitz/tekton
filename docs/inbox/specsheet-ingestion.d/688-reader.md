@@ -208,6 +208,31 @@ means width rather than watts.
 | `test_pyproject_extras` guarded only `ifcopenshell` | nothing stopped `pdfplumber` being added to `test` later, and DONE 2's whole claim rests on that | parametrised over both backends |
 | `max_pages=64` truncated silently | pages 65+ of a 100-page submittal lost with no note, so `questions()` asks about a field the document answers on page 80 | a page note naming the cap |
 
+### 3c. Four nits from the re-review, two of which were wrong values
+
+The re-review of the fixed head returned `nits`, having verified all eight
+prior findings independently — 4254 fuzz cases across six producer shapes
+(0 unhandled exceptions), a faithful revert of the `_Str` tagging (7 failures
+across all three layers, `Tm` cases still green), and agreement with
+`pdfminer.extract_text` on the bare-numeric and kern-split sheets. Two of its
+four nits were wrong values rather than tidiness, so all four are fixed:
+
+| nit | what it did | fix |
+|---|---|---|
+| a single-letter unit in a label | `Height (M)` read as **metres**: 96 became **2440.944882 in** end-to-end. On a drawing table `(M)` is a dimension callout far more often than a unit | only quote/prime marks may be single-character units; refusing costs nothing, the row is listed as unused |
+| an assumed unit was marked only in prose | a weight column headed "kg" with a bare `90` gives `weight_lb = 90` — wrong by **2.2×** — separated from a read value by a free-text `note` a consumer cannot check | `SheetValue.unit_source` is now `cell` / `label` / `declared`, with `unit_assumed` and both in the JSON. This is the flag DONE 5's identity lane must read |
+| a unitless field adopted a label unit | `Phase (A) \| 3` recorded as `phases = 3.0 unit='a'` — a bogus unit on a count | only adopt where the field declares a unit |
+| `_media_box` took `objs` and ignored them | an indirect `/MediaBox 5 0 R` — what a producer emits when pages share a box — fell through to Letter | resolved through the objects it was already given |
+
+**One of those four tests was vacuous on its first writing, and the mutant
+caught it rather than me.** `test_a_unitless_field_does_not_adopt_a_label_unit`
+used the reviewer's own `Phase (A)` — but the single-letter rule now refuses
+that label outright, so the row never reached the branch under test and the
+test asserted over an empty list. Removing the guard entirely left it green.
+Rewritten with a multi-character unit (`Phases (lbs)`) and an assertion that
+the row was actually read, it fails as it should. Mutants on all four:
+5 / 1 / 1 / 1 failures, each caught by its own test and no other.
+
 ### 4. Six defects found by re-reading the module after writing it
 
 Written, then read back cold before the PR left draft. Each fix is pinned by
@@ -255,24 +280,27 @@ re-measurement.
 
 ### 6. Gates
 
+Every number below re-measured per module on the head it describes, after
+the re-review caught the second round of stale counts:
+
 - `tests/test_specsheet_pdftext_688.py` — **32 passed**
-- `tests/test_specsheet_sheet_688.py` — **68 passed**
+- `tests/test_specsheet_sheet_688.py` — **82 passed**
 - `tests/test_specsheet_backend_688.py` — **18 passed** (with the `[pdf]`
   extra installed; skips without it)
-- (an earlier draft of this record printed 32 / 53 / 14 — wrong, and caught
-  by the review, which measured 28 / 55 / 14 on the same head in a clean
-  sandbox. I had pasted counts from two different runs. Re-measured
-  per-module above.)
-- **the full merged CI shard** (`tools/dev/shard_list.py --print`, 158 files)
-  on this branch — **3645 passed, 134 skipped, 4 xfailed** in 6:49, exit 0
+- `tests/test_pyproject_extras.py` — **9 passed**
+- the full merged CI shard and `check_portable_paths` counts are on the PR,
+  against the SHA they were measured on, rather than here — copying a shard
+  count into a record is how it goes stale, which happened twice: the first
+  draft printed 32 / 53 / 14 (pasted from two different runs; the review
+  measured 28 / 55 / 14), and the second still carried the parent commit's
+  shard number and a `test_pyproject_extras` count that predated
+  parametrising it.
 - `tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py`
   — **31 passed** (the product still works from a bare unzip)
-- `tests/test_pyproject_extras.py` — **8 passed** (the `pdf` extra joins
-  `EXPECTED_EXTRAS`)
 - `tests/test_plugin_sync.py`, `tests/test_conftest_scaffolding.py` — green
 - `tools/sync_plugin.py` re-run, `--check` clean, deny-audit clean, identity
   scan == allowlist; `plugin/scripts/validate_plugin.py` 25/25;
-  `tools/dev/check_portable_paths.py` ok (3225 paths)
+  `tools/dev/check_portable_paths.py` ok
 - drop-in `tests/ci_shard.d/688-specsheet-reader.txt` (3 files)
 
 Fresh-clone safe: no `samples/`, no network, no vendor file.

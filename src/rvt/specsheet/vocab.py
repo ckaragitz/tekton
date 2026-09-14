@@ -177,8 +177,22 @@ def _norm(label: str) -> str:
 _TRAILING_UNIT = re.compile(r"\s*\(([^()]{1,8})\)\s*$")
 
 
+#: Single letters that may be read as a unit inside a label parenthetical.
+#: "M" is deliberately NOT here: "Height (M)" is far more often a drawing's
+#: dimension callout than a declaration of metres, and reading it as metres
+#: turned 96 into 2440.944882 inches end-to-end -- a wrong dimension, shown
+#: in the report but shown as a conversion rather than a guess (#688
+#: re-review).  Nothing is lost by refusing: the row is listed as unused and
+#: the value can still be stated in the cell.
+_SAFE_SINGLE_LETTER_UNITS = {'"', "'", "”", "″", "’", "′"}
+
+
 def _known_unit(text: str) -> bool:
     t = text.strip().lower().rstrip(".")
+    if not t:
+        return False
+    if len(t) == 1 and t not in _SAFE_SINGLE_LETTER_UNITS:
+        return False
     if t in LENGTH_UNITS:
         return True
     return any(t == d.lower() or t in sp

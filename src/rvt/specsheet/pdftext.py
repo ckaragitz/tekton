@@ -800,7 +800,18 @@ _LETTER = (612.0, 792.0)
 
 
 def _media_box(d: bytes, objs: Dict[int, bytes]) -> Tuple[float, float]:
+    """The page size, following an INDIRECT ``/MediaBox`` when there is one.
+
+    ``objs`` was previously accepted and ignored, so ``/MediaBox 5 0 R`` --
+    legal, and what a producer emits when several pages share a box -- fell
+    through to the Letter default (#688 re-review).
+    """
     m = re.search(rb"/MediaBox\s*\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)", d)
+    if not m:
+        ref = _ref(d, b"/MediaBox")
+        if ref is not None and ref in objs:
+            m = re.search(rb"\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)",
+                          objs[ref])
     if not m:
         return _LETTER                             # US Letter, the PDF default
     try:

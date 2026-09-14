@@ -389,6 +389,93 @@ def test_the_page_cap_is_reported_not_silent(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# (3c) the re-review's nits -- where a unit came from, said in a field
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("label,raw,value,source,assumed", [
+    ("Weight",      "90 lb", 90.0, "cell",     False),
+    ("Weight (lb)", "90",    90.0, "label",    False),
+    ("Weight",      "90",    90.0, "declared", True),
+])
+def test_where_the_unit_came_from_is_a_FIELD_not_a_sentence(
+        label, raw, value, source, assumed, tmp_path):
+    """A sheet whose weight column is headed "kg" with a bare 90 yields
+    ``weight_lb = 90`` -- wrong by 2.2x -- and until the #688 re-review the
+    only thing separating that from a read value was prose in ``note``. A
+    consumer reading ``weight_lb`` by name could not see the difference.
+
+    ``unit_source`` is the marker the identity-parameter lane (DONE 5) must
+    check; ``unit_assumed`` is the one-bit form of the same question.
+    """
+    draws = [(72.0, 700.0, label), (300.0, 700.0, raw)]
+    v = S.read_sheet(FP.build_pdf(str(tmp_path / "u.pdf"), [draws])).by_key()
+    got = v["weight_lb"]
+    assert got.value == pytest.approx(value)
+    assert got.unit_source == source
+    assert got.unit_assumed is assumed
+    assert got.as_json()["unit_assumed"] is assumed, \
+        "the flag must survive into the JSON a consumer reads"
+
+
+@pytest.mark.parametrize("label", ["Height (M)", "Height (m)", "Height (A)",
+                                   "Height (K)", "Height (W)"])
+def test_a_single_letter_parenthetical_is_not_read_as_a_unit(label):
+    """"Height (M)" on a drawing table is a dimension CALLOUT far more often
+    than a declaration of metres, and reading it as metres turned 96 into
+    2440.944882 inches end-to-end (#688 re-review). Refusing costs nothing:
+    the row is listed as unused and the unit can still be in the cell."""
+    assert V.canonical_key(label) == ""
+
+
+@pytest.mark.parametrize("label,key", [("Height (mm)", "height_in"),
+                                       ("Height (in)", "height_in"),
+                                       ('Height (")', "height_in"),
+                                       ("Weight (lbs)", "weight_lb")])
+def test_a_real_unit_parenthetical_still_works(label, key):
+    """The refusal above must not take the useful case with it."""
+    assert V.canonical_key(label) == key
+
+
+def test_a_unitless_field_does_not_adopt_a_label_unit(tmp_path):
+    """``Phase (A) | 3`` was recorded as ``phases = 3.0 unit='a'`` -- a bogus
+    unit string on a count (#688 re-review). A field whose declared unit is
+    empty has nothing for a label unit to be.
+
+    The probe does NOT use the reviewer's own "Phase (A)": the single-letter
+    rule above now refuses that label outright, so the row never reaches
+    this branch and a test built on it asserts over an empty list and passes
+    whatever the code does. That is exactly what the first version of this
+    test did -- it survived a mutant that removed the guard entirely.
+    A multi-character unit is needed to get INTO the branch being tested.
+    """
+    draws = [(72.0, 700.0, "Phases (lbs)"), (300.0, 700.0, "3")]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "ph.pdf"), [draws]))
+    got = ps.by_key()
+    assert "phases" in got, ("the probe never reached the branch under test: "
+                             "rows=%r" % [t for _p, _r, t in ps.unmapped])
+    assert got["phases"].value == pytest.approx(3.0)
+    assert got["phases"].unit == "", \
+        "a count must not wear a unit, got %r" % got["phases"].unit
+
+
+def test_an_indirect_media_box_is_followed(tmp_path):
+    """``/MediaBox 5 0 R`` is legal and is what a producer emits when pages
+    share a box; it used to fall through to the Letter default because the
+    objects were passed in and ignored (#688 re-review)."""
+    path = FP.build_pdf(str(tmp_path / "mb.pdf"), [FP.spec_sheet_draws()])
+    raw = open(path, "rb").read()
+    assert b"/MediaBox [0 0 612 792]" in raw, "fixture changed; probe broken"
+    # park the real box in a NEW object and point at it, keeping the byte
+    # count of the page dict identical so nothing else in the file moves
+    box_obj = b"\n999 0 obj\n[0 0 400 500]\nendobj\n"
+    raw = raw.replace(b"/MediaBox [0 0 612 792]", b"/MediaBox 999 0 R      ", 1)
+    raw = raw.replace(b"\nxref\n", box_obj + b"\nxref\n", 1)
+    open(path, "wb").write(raw)
+    page = P.read_pdf(path)[0]
+    assert (page.width, page.height) == (400.0, 500.0)
+
+
+# ---------------------------------------------------------------------------
 # (4) the parse is SHOWN before it is trusted -- DONE 4
 # ---------------------------------------------------------------------------
 

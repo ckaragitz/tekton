@@ -157,14 +157,31 @@ class SheetValue:
     """One value read from the sheet, with everything needed to check it."""
 
     __slots__ = ("key", "label", "raw", "value", "unit", "page", "row",
-                 "column", "note")
+                 "column", "note", "unit_source")
 
     def __init__(self, key: str, label: str, raw: str, value: Any, unit: str,
-                 page: int, row: int, column: int, note: str = ""):
+                 page: int, row: int, column: int, note: str = "",
+                 unit_source: str = "cell"):
         self.key, self.label, self.raw = key, label, raw
         self.value, self.unit = value, unit
         self.page, self.row, self.column = page, row, column
         self.note = note
+        #: Where the UNIT came from -- ``"cell"`` (the value stated it),
+        #: ``"label"`` (the row's own label did), ``"declared"`` (nobody did,
+        #: and the field's declared unit was assumed), ``""`` (no unit).
+        #:
+        #: A free-text note was the only marker until the #688 re-review
+        #: measured what that costs: a weight column headed "kg" with a bare
+        #: ``90`` yields ``weight_lb = 90`` -- wrong by 2.2x -- and the only
+        #: thing separating it from a read value was prose. A consumer
+        #: reading ``weight_lb`` by name could not see the difference. This
+        #: is the flag that lane must check.
+        self.unit_source = unit_source
+
+    @property
+    def unit_assumed(self) -> bool:
+        """True when nothing on the page stated this value's unit."""
+        return self.unit_source == "declared"
 
     def citation(self, document: str) -> str:
         """``"panel.pdf p2 r14 'Overall Height' = '62.0 in'"`` -- the string
@@ -175,6 +192,8 @@ class SheetValue:
     def as_json(self, document: str = "") -> Dict[str, Any]:
         return {"key": self.key, "label": self.label, "raw": self.raw,
                 "value": self.value, "unit": self.unit,
+                "unit_source": self.unit_source,
+                "unit_assumed": self.unit_assumed,
                 "page": self.page, "row": self.row, "column": self.column,
                 "citation": self.citation(document) if document else "",
                 "note": self.note}
@@ -346,7 +365,7 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
 
     if kind == "text":
         return SheetValue(key, label, raw, raw, "", row.page, row.index,
-                          cells[0].column, note), ""
+                          cells[0].column, note, unit_source=""), ""
 
     q = parse_quantity(raw)
     if q is None:
@@ -355,6 +374,7 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
     if q.note:
         note = "; ".join(x for x in (note, q.note) if x)
 
+    unit_source = "cell" if q.unit else ""
     if kind == "length":
         inches = q.in_inches()
         if inches is None and label_unit:
@@ -368,6 +388,7 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
                     note, "unit %r read from the row's own label" % label_unit)
                     if x)
                 q = probe
+                unit_source = "label"
         if inches is None:
             return None, ("%r states no length unit, so %s is left unset "
                           "(a unit taken from a column header would be an "
@@ -380,13 +401,19 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
         if q.unit_key() not in ("in", "inch", "inches", '"', "”", "″"):
             note = "; ".join(x for x in (note, "converted from %s" % q.unit) if x)
         return SheetValue(key, label, raw, round(inches, 6), "in", row.page,
-                          row.index, cells[0].column, note), ""
+                          row.index, cells[0].column, note,
+                          unit_source=unit_source), ""
 
     declared = V.FIELDS[key][1]
-    if not q.unit and label_unit:
+    if not q.unit and label_unit and declared:
+        # only where the field HAS a declared unit: adopting a label unit
+        # for a unitless field put "Phase (A) | 3" into the report as
+        # `phases = 3.0 unit='a'` -- a bogus unit string on a count (#688
+        # re-review)
         q = Quantity(q.value, label_unit, q.raw, q.note)
         note = "; ".join(x for x in (
             note, "unit %r read from the row's own label" % label_unit) if x)
+        unit_source = "label"
     if not V.unit_matches(declared, q.unit):
         return None, ("%r states %s, but %s is declared in %s and nothing "
                       "here converts a rating; add the spelling to "
@@ -395,9 +422,12 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
     if declared and not q.unit:
         note = "; ".join(x for x in (
             note, "the sheet states no unit for this row; %s is declared in "
-                  "%s" % (key, declared)) if x)
+                  "%s and that unit is ASSUMED, not read" % (key, declared))
+            if x)
+        unit_source = "declared"
     return SheetValue(key, label, raw, q.value, q.unit or declared, row.page,
-                      row.index, cells[0].column, note), ""
+                      row.index, cells[0].column, note,
+                      unit_source=unit_source), ""
 
 
 def _second_opinion(path: str, backend: str, max_pages: int) -> str:
