@@ -103,8 +103,15 @@ def test_two_documents_that_differ_only_AFTER_creation_still_differ():
     """
     a, b = _doc(), _doc()
     assert a.document_guid == b.document_guid, "identical at creation"
-    b.add_family_parameter("Probe Only On B", SK.PARAM_TYPE_LENGTH
-                           if hasattr(SK, "PARAM_TYPE_LENGTH") else 1)
+    # SK.SPEC_LENGTH, read from the module, not a guessed name behind a
+    # hasattr: an earlier version wrote `SK.PARAM_TYPE_LENGTH if hasattr(...)
+    # else 1`, and PARAM_TYPE_LENGTH exists nowhere in this repo -- so the
+    # branch was always False and the probe silently passed the int 1 as a
+    # spec_type_id (#168 round 2 review). A defensive hasattr around a name
+    # I did not look up is a guess wearing a seatbelt; add_family_parameter
+    # already defaults to SPEC_LENGTH, so the name is spelled out here only
+    # to make the probe's intent legible.
+    b.add_family_parameter("Probe Only On B", SK.SPEC_LENGTH)
     a.finalize()
     b.finalize()
     assert a.document_guid != b.document_guid, (

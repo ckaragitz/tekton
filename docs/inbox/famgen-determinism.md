@@ -134,6 +134,10 @@ draft of the code asserted one of them as fact and was wrong:
   by hand leaves the digest bit-identical — `345589223db79945` before and
   after. So hashing the payloads is a genuine content digest and not a
   function of the value it produces.
+* **Moot as well as false.** The review added a fact I had not checked:
+  `FamilyDoc.add()` already raises once `finalized` is set, so no
+  re-entrant mutation is reachable at all — the ordering the invented
+  comment justified could not have mattered either way.
 * **Entered once.** `_guid_sealed` is set before the digest as a cheap
   termination guard, and an earlier draft of that line said it was set
   first *"because the digest calls back"*. Instrumented: `_seal_document_
@@ -154,6 +158,15 @@ The seal costs one payload build. The first version called
 `partition_payloads()` once for the key list and again per key — four
 rebuilds, 0.0369 s against 0.0105 s for a single build. Built once now:
 0.0096 s, i.e. the digest itself is free.
+
+A third finding from the same review, and the same family as the other two:
+the probe in `test_two_documents_that_differ_only_AFTER_creation_still_differ`
+read `SK.PARAM_TYPE_LENGTH if hasattr(SK, "PARAM_TYPE_LENGTH") else 1`.
+`PARAM_TYPE_LENGTH` exists **nowhere in this repo**, so the branch was always
+false and the probe passed the integer `1` where a spec-type id belongs. The
+test still killed its mutant, so it was not vacuous — but a defensive
+`hasattr` around a name I never looked up is a guess wearing a seatbelt. The
+real constant is `SK.SPEC_LENGTH`, and it is now spelled out.
 
 Gates: `tests/test_famgen_determinism_168.py` **27 passed**;
 `test_famgen_factory` + `test_famgen_loader` + `test_geo_site_determinism` +
