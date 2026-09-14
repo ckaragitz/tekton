@@ -28,6 +28,12 @@ What can be varied, because each one is a real failure mode of real sheets:
 ``filter_array``  spell the filter as ``/Filter [/FlateDecode]`` rather than
                   ``/Filter /FlateDecode``.  Both are legal; reading only the
                   second made an array-filtered stream look unfiltered.
+``kern_split``    inside a ``TJ`` array, break every run after this many
+                  characters with an explicit ``0`` kern -- what a real
+                  producer emits constantly.  Combined with a BARE NUMERIC
+                  value (``NUMERIC_ROWS`` below) this is the shape that
+                  caught the worst bug in the reader: a string that parses
+                  as a float being taken for a kern.
 ``no_text``       emit a content stream that draws no text at all: the
                   scanned-sheet case, which must be REPORTED, never read as
                   an empty table.
@@ -61,7 +67,8 @@ def _esc(s: str) -> bytes:
     return bytes(out)
 
 
-def _content(draws: Sequence[Draw], size: float, draw: str) -> bytes:
+def _content(draws: Sequence[Draw], size: float, draw: str,
+             kern_split: int = 0) -> bytes:
     """The page's content stream, in one of the three shapes above."""
     if draw == "TJ":
         # every draw on one baseline becomes ONE kerned array: the pen must
@@ -79,7 +86,15 @@ def _content(draws: Sequence[Draw], size: float, draw: str) -> bytes:
                 if arr:
                     # PDF kerning is SUBTRACTED, in 1/1000 em of the size
                     arr.append(b"%g" % (-gap / size * 1000.0))
-                arr.append(b"(%s)" % _esc(text))
+                if kern_split and len(text) > kern_split:
+                    # (6) 0 (2.0 in) -- one run split by a zero kern, which
+                    # is what a real producer emits and what makes a numeric
+                    # leading fragment indistinguishable from an adjustment
+                    # to a reader that decides by trying float()
+                    head, tail = text[:kern_split], text[kern_split:]
+                    arr.append(b"(%s) 0 (%s)" % (_esc(head), _esc(tail)))
+                else:
+                    arr.append(b"(%s)" % _esc(text))
                 pen = x + advance(size, len(text))
             parts.append(b"[" + b" ".join(arr) + b"] TJ")
         parts.append(b"ET")
@@ -136,6 +151,7 @@ def build_pdf(path: str,
               font: str = "simple",
               filter_name: Optional[str] = None,
               filter_array: bool = False,
+              kern_split: int = 0,
               no_text: bool = False,
               encrypt: bool = False) -> str:
     """Write a PDF at ``path`` and return it.  See the module docstring."""
@@ -156,7 +172,7 @@ def build_pdf(path: str,
         elif font == "type0":
             payload = _type0_content(draws, size)
         else:
-            payload = _content(draws, size, draw)
+            payload = _content(draws, size, draw, kern_split)
         if filter_name:
             names = [filter_name.encode("ascii")]
             raw = payload
@@ -271,4 +287,30 @@ def spec_sheet_draws(x_label: float = 72.0, x_value: float = 300.0,
         y = y_top - i * dy
         out.append((x_label, y, label))
         out.append((x_value, y, value))
+    return out
+
+
+#: A sheet whose values are BARE NUMBERS, with the unit in the row label.
+#: Real sheets are full of these, and they are the case ``SHEET_ROWS`` could
+#: not reach: every value there contains a space, so a reader deciding
+#: "string or kern?" by trying ``float()`` always fell through to the right
+#: answer by accident.  Values invented for this fixture (hard rule 3).
+NUMERIC_ROWS: List[Tuple[str, str]] = [
+    ("Height", "62.0 in"),
+    ("Width", "20.5 in"),
+    ("Depth", "5.75 in"),
+    ("Weight", "145 lb"),
+]
+
+
+def numeric_sheet_draws(x_label: float = 72.0, x_value: float = 300.0,
+                        y_top: float = 700.0, dy: float = 18.0) -> List[Draw]:
+    """``NUMERIC_ROWS`` with the UNIT moved into the label, so every value
+    run is a bare number that ``float()`` accepts."""
+    out: List[Draw] = []
+    for i, (label, value) in enumerate(NUMERIC_ROWS):
+        number, _, unit = value.partition(" ")
+        y = y_top - i * dy
+        out.append((x_label, y, "%s (%s)" % (label, unit)))
+        out.append((x_value, y, number))
     return out

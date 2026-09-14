@@ -109,6 +109,16 @@ def extract_pages(path: str, max_pages: int = 64) -> Tuple[List[Page], str]:
         return _pdfplumber_pages(path, max_pages), name
     except (UnreadablePdf, PdfError):
         raise
+    except OSError:
+        # A missing or unreadable FILE is a caller bug, not a bad document,
+        # and `read_sheet` deliberately lets it raise.  Folding it into
+        # UnreadablePdf made that depend on which backend was installed:
+        # with the extra, a typo'd path came back as a ParsedSheet saying
+        # "pdfplumber could not read this PDF: FileNotFoundError"; without
+        # it, the same call raised.  Found by the #688 review -- and it is
+        # the exact thing this module claims cannot happen, since the
+        # backend is supposed to change the extraction and nothing above it.
+        raise
     except Exception as exc:                             # the extra's own errors
         raise UnreadablePdf("%s could not read this PDF: %s: %s"
                             % (name, type(exc).__name__, exc))

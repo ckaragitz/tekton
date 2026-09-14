@@ -48,6 +48,13 @@ SHAPES = {
     "filter_array": {"filter_array": True},
 }
 
+#: ``kern_split`` is deliberately NOT in SHAPES.  Those two tests assert a
+#: whole drawn run comes back as ONE glyph at ONE x, which a kern-split run
+#: by definition does not -- it is several fragments that the LAYOUT layer
+#: rejoins.  Pinning it here would be pinning the wrong layer; it is
+#: exercised below and in test_specsheet_sheet_688.py, where rejoining is
+#: the actual claim.
+
 
 @pytest.fixture
 def sheet(tmp_path):
@@ -133,6 +140,68 @@ def test_a_font_with_no_declared_widths_says_so(tmp_path):
     page = P.read_pdf(path)[0]
     assert page.has_text, "removing /Widths must not lose the text"
     assert "estimated" in page.note, page.note
+
+
+# ---------------------------------------------------------------------------
+# (2a) THE ONE THAT MATTERS: a numeric string is TEXT, never a kern
+# ---------------------------------------------------------------------------
+
+#: The fixture sheet whose values are BARE NUMBERS, with the unit hoisted
+#: into the row label -- a shape real sheets use constantly, and the shape
+#: ``SHEET_ROWS`` structurally could not produce: every value there contains
+#: a space, so ``float()`` always failed and the ambiguous branch below was
+#: never reached.  The suite was green and the bug was there the whole time.
+NUMERIC_SHAPES = {
+    "Tm": {},
+    "TJ": {"draw": "TJ"},
+    "TJ_kern_split": {"draw": "TJ", "kern_split": 1},
+}
+
+
+@pytest.mark.parametrize("shape", sorted(NUMERIC_SHAPES))
+def test_a_numeric_string_in_a_TJ_array_is_text_not_a_kern(shape, tmp_path):
+    """A ``TJ`` array interleaves strings and kerning numbers, and BOTH
+    arrive from the tokenizer as ``bytes``.  Deciding which is which by
+    trying ``float()`` works until a string IS numeric -- which on a spec
+    sheet is the normal case, because the values are numbers.
+
+    Two failures, the second far worse:
+
+        ``[(62.0)] TJ``          -> read as a kern, the value VANISHES
+        ``[(6) 0 (2.0 in)] TJ``  -> "6" read as a kern, the value becomes
+                                    "2.0 in": a WRONG dimension carrying a
+                                    citation to the user's own document
+
+    Found by the independent review of #688, which measured it against
+    pdfminer on the same bytes (pdfminer reads ``Height 62.0``; we read
+    nothing, or ``2.0``).  The fix tags string operands (``pdftext._Str``)
+    so the question is never asked.
+    """
+    path = FP.build_pdf(str(tmp_path / ("num_%s.pdf" % shape)),
+                        [FP.numeric_sheet_draws()], **NUMERIC_SHAPES[shape])
+    page = P.read_pdf(path)[0]
+    text = "".join(g.text for g in page.glyphs)
+    for label, value in FP.NUMERIC_ROWS:
+        number = value.split(" ")[0]
+        assert number in text, (
+            "%s: the bare numeric value %r for %r was lost -- it was almost "
+            "certainly taken for a kerning adjustment"
+            % (shape, number, label))
+
+
+def test_a_kern_split_number_is_rejoined_not_truncated(tmp_path):
+    """``(6) 0 (2.0)`` must come back as 62.0, not 2.0.
+
+    This is the dangerous half: a dropped value is visibly missing, but a
+    truncated one is a plausible number that a family gets built from.
+    """
+    draws = [(72.0, 700.0, "Height (in)"), (300.0, 700.0, "62.0")]
+    path = FP.build_pdf(str(tmp_path / "split.pdf"), [draws],
+                        draw="TJ", kern_split=1)
+    page = P.read_pdf(path)[0]
+    joined = "".join(g.text for g in sorted(page.glyphs, key=lambda g: g.x)
+                     if g.x >= 299.0)
+    assert joined == "62.0", "got %r -- a truncated dimension" % joined
 
 
 # ---------------------------------------------------------------------------

@@ -336,7 +336,7 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
         return None, "no value cell"
     else:
         label, cells = row.cells[0].text, _value_cells(row)
-    key = V.canonical_key(label)
+    key, label_unit = V.canonical_key_and_unit(label)
     if not key:
         return None, "label %r names no field we know" % label
     kind = V.field_kind(key)
@@ -357,6 +357,17 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
 
     if kind == "length":
         inches = q.in_inches()
+        if inches is None and label_unit:
+            # the ROW'S OWN LABEL states the unit ("Height (in)"), which is
+            # this row saying it -- a reading, not the column-header guess
+            # refused below
+            probe = Quantity(q.value, label_unit, q.raw, q.note)
+            inches = probe.in_inches()
+            if inches is not None:
+                note = "; ".join(x for x in (
+                    note, "unit %r read from the row's own label" % label_unit)
+                    if x)
+                q = probe
         if inches is None:
             return None, ("%r states no length unit, so %s is left unset "
                           "(a unit taken from a column header would be an "
@@ -371,8 +382,22 @@ def _read_row(row) -> Tuple[Optional[SheetValue], str]:
         return SheetValue(key, label, raw, round(inches, 6), "in", row.page,
                           row.index, cells[0].column, note), ""
 
-    return SheetValue(key, label, raw, q.value, q.unit, row.page, row.index,
-                      cells[0].column, note), ""
+    declared = V.FIELDS[key][1]
+    if not q.unit and label_unit:
+        q = Quantity(q.value, label_unit, q.raw, q.note)
+        note = "; ".join(x for x in (
+            note, "unit %r read from the row's own label" % label_unit) if x)
+    if not V.unit_matches(declared, q.unit):
+        return None, ("%r states %s, but %s is declared in %s and nothing "
+                      "here converts a rating; add the spelling to "
+                      "vocab.UNIT_SPELLINGS or a conversion, but do not "
+                      "assume" % (raw, q.unit, key, declared))
+    if declared and not q.unit:
+        note = "; ".join(x for x in (
+            note, "the sheet states no unit for this row; %s is declared in "
+                  "%s" % (key, declared)) if x)
+    return SheetValue(key, label, raw, q.value, q.unit or declared, row.page,
+                      row.index, cells[0].column, note), ""
 
 
 def _second_opinion(path: str, backend: str, max_pages: int) -> str:

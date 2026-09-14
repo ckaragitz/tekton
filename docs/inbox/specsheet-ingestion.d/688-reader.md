@@ -148,7 +148,67 @@ The 36pt `TJ` error is exactly the un-advanced width of the preceding cell
 (`"Height"`, 6 chars × 6pt), which is what makes it a diagnosis and not just
 a red test.
 
-### 3. Six defects found by re-reading the module after writing it
+### 3. The bug the independent review found, and why my own tests could not
+
+The #688 review returned `changes` on one finding that matters more than
+everything else in this record, so it goes first:
+
+> a numeric-only string inside a `TJ` array is silently read as a kerning
+> number, so a value is dropped or, worse, a WRONG value is emitted with a
+> `fact`-tier citation.
+
+A `TJ` array interleaves strings and kerning numbers — `[(a) -120 (b)]` —
+and both arrive from the tokenizer as `bytes`. The reader decided which was
+which by trying `float()`. That works until a string *is* numeric, which on
+a spec sheet is the normal case, because the values **are** numbers:
+
+| drawn | read | effect |
+|---|---|---|
+| `[(62.0)] TJ` | taken as a kern | the value **vanishes** |
+| `[(6) 0 (2.0 in)] TJ` | `6` taken as a kern | `height_in = 2.0 in`, **cited to the user's own document** |
+
+The second is the failure this module's whole docstring says cannot happen.
+The reviewer measured both against pdfminer on the same bytes: pdfminer
+reads `Height 62.0 in`, we read nothing or `2.0 in`.
+
+**Why the cross-backend table in §1 did not catch it.** Every value in the
+fixture's `SHEET_ROWS` contains a space — `"62.0 in"`, `"400 A"`, `"145 lb"`
+— so `float()` always failed and the ambiguous branch was never reached. The
+instrument could not produce the shape that breaks the reader. Six PDF
+shapes agreeing across two implementations, and none of them could see it.
+The same hand wrote the writer and the reader, and this is exactly the blind
+spot that creates: not a wrong assertion, an **absent** one.
+
+Fixed by tagging string operands (`pdftext._Str`) so the question is never
+asked. Now pinned at all three layers by seven tests: reverting the tag
+fails 2 glyph-level, 2 pipeline-level and 2 cross-backend cases plus the
+kern-split case — and leaves the `Tm` cases passing, since the bug is
+`TJ`-specific and the parametrisation says so.
+
+The fixture gained the shape it was missing: `NUMERIC_ROWS` /
+`numeric_sheet_draws()` hoist the unit into the row label so every value run
+is a bare number, and `kern_split` breaks a run mid-number with a zero kern
+— what real producers emit constantly.
+
+That change surfaced a second, smaller thing worth having: a row labelled
+`Height (in)` with a bare `62.0` is **the row stating its own unit**, which
+is a reading, not the column-header guess this module refuses. It is now
+read, with `unit 'in' read from the row's own label` in the note so the
+report never presents it as anything else. Only a *unit* is stripped from a
+label — `Enclosure (Height)` still matches nothing, and `Width (W)` still
+means width rather than watts.
+
+### 3b. Five more from the same review
+
+| finding | what it did | fix |
+|---|---|---|
+| `_media_box` raised `ValueError` on `[. . . .]` / `[- - - -]` | broke `read_sheet`'s documented "never raises for a bad document" — a page size we cannot read losing the whole page. The reviewer fuzzed 1200 random corruptions + 180 truncations and got **exactly two** escapes, both here | fall back to US Letter |
+| `_backend` folded `FileNotFoundError` into `UnreadablePdf` | with the extra installed a typo'd path returned a `ParsedSheet`; without it the same call raised — **the one thing `_backend` claims cannot happen** | re-raise `OSError` before the blanket catch |
+| the declared unit in `FIELDS` was never read | `"90 kg"` became `weight_lb = 90`: a fact about the document and a lie about the product, invisible to a consumer reading the key by name | `vocab.UNIT_SPELLINGS` + `unit_matches`; a positive mismatch is refused by name, a *bare* rating is still recorded with a note (a rating is not a length — the 25x mm/in ambiguity that justifies refusing a bare length does not exist here) |
+| `test_pyproject_extras` guarded only `ifcopenshell` | nothing stopped `pdfplumber` being added to `test` later, and DONE 2's whole claim rests on that | parametrised over both backends |
+| `max_pages=64` truncated silently | pages 65+ of a 100-page submittal lost with no note, so `questions()` asks about a field the document answers on page 80 | a page note naming the cap |
+
+### 4. Six defects found by re-reading the module after writing it
 
 Written, then read back cold before the PR left draft. Each fix is pinned by
 its own test and each was confirmed by a mutant that reverts exactly that fix
@@ -175,7 +235,7 @@ names lost their leading `/`), and the two existing refusal tests caught that
 on the first run. Worth recording: the tests that paid off here were the ones
 pinning a message, not a value.
 
-### 4. The instrument, and the instrument bug found while using it
+### 5. The instrument, and the instrument bug found while using it
 
 `tests/fixtures_pdf.py` **writes** every PDF the tests read — no vendor
 document is or may be committed (hard rules 3 and 6), and a writer is the
@@ -193,12 +253,16 @@ so the readings taken with it were void: the fixture now uses a subset name
 (`/AAAAAA+ProbeMono`) and everything was re-measured. The table in §1 is the
 re-measurement.
 
-### 5. Gates
+### 6. Gates
 
 - `tests/test_specsheet_pdftext_688.py` — **32 passed**
-- `tests/test_specsheet_sheet_688.py` — **53 passed**
-- `tests/test_specsheet_backend_688.py` — **14 passed** (with the `[pdf]`
+- `tests/test_specsheet_sheet_688.py` — **68 passed**
+- `tests/test_specsheet_backend_688.py` — **18 passed** (with the `[pdf]`
   extra installed; skips without it)
+- (an earlier draft of this record printed 32 / 53 / 14 — wrong, and caught
+  by the review, which measured 28 / 55 / 14 on the same head in a clean
+  sandbox. I had pasted counts from two different runs. Re-measured
+  per-module above.)
 - **the full merged CI shard** (`tools/dev/shard_list.py --print`, 158 files)
   on this branch — **3645 passed, 134 skipped, 4 xfailed** in 6:49, exit 0
 - `tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py`

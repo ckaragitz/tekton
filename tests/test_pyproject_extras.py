@@ -3,9 +3,10 @@
 * ``olefile`` stays the ONLY declared runtime dependency (CLAUDE.md section 2);
 * the ``test`` / ``geometry`` / ``ifc`` / ``pdf`` / ``dev`` / ``all`` extras
   exist and mean what the docs say they mean;
-* ``ifcopenshell`` stays OPTIONAL -- never a runtime dependency and never in
-  an extra a contributor installs by default (the zero-install IFC *read*
-  path via ``rvt.ifc.steplite`` is a product requirement,
+* ``ifcopenshell`` AND ``pdfplumber`` stay OPTIONAL -- never a runtime
+  dependency and never in an extra a contributor installs by default (the
+  zero-install IFC *read* path via ``rvt.ifc.steplite`` and the zero-install
+  spec-sheet reader ``rvt.specsheet.pdftext`` are both product requirements,
   docs/product/SURFACE-PLAYBOOK.md; docs/writer/dependency-audit.md F2);
 * the ``ifc`` extra pins exactly what ``skills/tekton-ifc/scripts/
   requirements.txt`` pins, so the IFC authoring backend has one version;
@@ -80,14 +81,39 @@ def test_the_extras_are_declared_and_mean_what_the_docs_say():
         f"all={sorted(_names(extras['all']))} others={sorted(everything)}")
 
 
-def test_ifcopenshell_stays_optional():
+#: (package, the extra it belongs to, why it must never become a default)
+#: -- the zero-install promise is the same shape for both, and it is a
+#: PRODUCT requirement, not a packaging preference: a bare surface must be
+#: able to read IFC and read a spec sheet with `olefile` alone.
+OPTIONAL_BACKENDS = [
+    ("ifcopenshell", "ifc",
+     "IFC reading is zero-install (rvt.ifc.steplite); ifcopenshell is for "
+     "IFC authoring only -- docs/writer/dependency-audit.md F2"),
+    ("pdfplumber", "pdf",
+     "spec-sheet reading is zero-install (rvt.specsheet.pdftext, #688 "
+     "DONE 2); the extra only buys the documents that reader names and "
+     "refuses"),
+]
+
+
+@pytest.mark.parametrize("package,extra,why", OPTIONAL_BACKENDS)
+def test_the_optional_backends_stay_optional(package, extra, why):
+    """Neither heavyweight reader may become a runtime dep or ride in an
+    extra a contributor installs by default.
+
+    Parametrised over both after the #688 review pointed out the guard
+    enforced this for ifcopenshell alone -- so nothing stopped pdfplumber
+    being added to `test` later, and #688 DONE 2's whole claim rests on it
+    not being.
+    """
     project = _project()
-    assert "ifcopenshell" not in _names(project["dependencies"])
+    assert package not in _names(project["dependencies"]), why
     extras = project["optional-dependencies"]
+    assert package in _names(extras[extra]), (
+        f"`{extra}` is where {package} belongs")
     for default_extra in ("test", "geometry", "dev"):
-        assert "ifcopenshell" not in _names(extras[default_extra]), (
-            f"`{default_extra}` must not pull ifcopenshell -- IFC reading is "
-            "zero-install (steplite); ifcopenshell is for IFC authoring only")
+        assert package not in _names(extras[default_extra]), (
+            f"`{default_extra}` must not pull {package} -- {why}")
 
 
 def test_ifc_extra_pins_match_the_tekton_ifc_skill_requirements():

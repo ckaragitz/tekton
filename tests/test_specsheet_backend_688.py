@@ -39,6 +39,14 @@ AGREEING_SHAPES = {
     "filter_array": {"filter_array": True},
 }
 
+#: The bare-numeric sheet, in its own dict because it uses different draws.
+#: This is the shape the first round of this file could not produce, and so
+#: the shape whose bug the pdfminer control never got to catch: every value
+#: in ``SHEET_ROWS`` contains a space.  Listed here so the independent
+#: implementation checks the fix rather than only our own tests doing it.
+NUMERIC_SHAPES = {"Tm": {}, "TJ": {"draw": "TJ"},
+                  "TJ_kern_split": {"draw": "TJ", "kern_split": 1}}
+
 
 def _read(path, monkeypatch, stdlib: bool):
     if stdlib:
@@ -77,6 +85,37 @@ def test_both_backends_agree_on_the_row_grid(shape, tmp_path, monkeypatch):
     ours = _read(path, monkeypatch, True).tables[0].column_grid()
     theirs = _read(path, monkeypatch, False).tables[0].column_grid()
     assert ours == theirs
+
+
+@pytest.mark.parametrize("shape", sorted(NUMERIC_SHAPES))
+def test_both_backends_read_a_sheet_of_BARE_NUMBERS_the_same(
+        shape, tmp_path, monkeypatch):
+    """pdfminer as the control on the case that actually broke.
+
+    A numeric string inside a ``TJ`` array was being taken for a kerning
+    adjustment, so the value vanished -- or, kern-split, came back
+    truncated: ``62.0`` read as ``2.0``, a wrong dimension carrying a
+    citation. pdfminer never had that ambiguity, so it is the right oracle.
+    """
+    path = FP.build_pdf(str(tmp_path / ("n_%s.pdf" % shape)),
+                        [FP.numeric_sheet_draws()], **NUMERIC_SHAPES[shape])
+    ours = {v.key: v.value for v in _read(path, monkeypatch, True).values}
+    theirs = {v.key: v.value for v in _read(path, monkeypatch, False).values}
+    assert ours == theirs
+    assert ours == {"height_in": 62.0, "width_in": 20.5,
+                    "depth_in": 5.75, "weight_lb": 145.0}
+
+
+def test_a_missing_file_raises_on_BOTH_backends(tmp_path, monkeypatch):
+    """A missing FILE is a caller bug, not a bad document, and must not
+    depend on what is installed. With the extra, a blanket ``except
+    Exception`` was folding ``FileNotFoundError`` into ``UnreadablePdf``, so
+    the same typo'd path raised on one machine and returned a ParsedSheet on
+    another -- the one thing _backend claims cannot happen (#688 review)."""
+    missing = str(tmp_path / "nope.pdf")
+    for stdlib in (True, False):
+        with pytest.raises(OSError):
+            _read(missing, monkeypatch, stdlib)
 
 
 def test_the_backends_differ_on_a_stale_xref_and_the_reason_says_so(

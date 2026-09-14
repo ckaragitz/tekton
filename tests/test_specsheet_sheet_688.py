@@ -290,6 +290,105 @@ def test_a_field_stated_twice_is_reported_as_a_question(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# (3b) the #688 review's findings, each pinned
+# ---------------------------------------------------------------------------
+
+#: bare-numeric values, with the unit hoisted into the row label
+NUMERIC_SHAPES = {"Tm": {}, "TJ": {"draw": "TJ"},
+                  "TJ_kern_split": {"draw": "TJ", "kern_split": 1}}
+
+
+@pytest.mark.parametrize("shape", sorted(NUMERIC_SHAPES))
+def test_a_sheet_of_bare_numbers_reads_end_to_end(shape, tmp_path):
+    """The whole pipeline on the shape the old fixture could not produce.
+
+    Every value in ``SHEET_ROWS`` contains a space, so a reader deciding
+    "string or kerning number?" by trying ``float()`` always fell through to
+    the right answer by accident and the suite stayed green over a real bug
+    (#688 review). Here the values are bare numbers and, in one case, split
+    mid-number by a zero kern -- so both halves of that bug are exercised.
+    """
+    path = FP.build_pdf(str(tmp_path / ("n_%s.pdf" % shape)),
+                        [FP.numeric_sheet_draws()], **NUMERIC_SHAPES[shape])
+    got = S.read_sheet(path).by_key()
+    assert got["height_in"].value == pytest.approx(62.0)
+    assert got["width_in"].value == pytest.approx(20.5)
+    assert got["depth_in"].value == pytest.approx(5.75)
+    assert got["weight_lb"].value == pytest.approx(145.0)
+
+
+def test_a_unit_in_the_rows_own_label_is_a_reading(tmp_path):
+    """"Height (in)" with a bare "62.0" is the row STATING its unit.
+
+    Distinct from a column header, which belongs to a different row and is
+    still refused: the note records which it was, so the report never
+    presents an assumption as a reading.
+    """
+    draws = [(72.0, 700.0, "Height (in)"), (300.0, 700.0, "62.0")]
+    v = S.read_sheet(FP.build_pdf(str(tmp_path / "lbl.pdf"), [draws])).by_key()
+    assert v["height_in"].value == pytest.approx(62.0)
+    assert "read from the row's own label" in v["height_in"].note
+
+
+@pytest.mark.parametrize("label", ["Enclosure (Height)", "Notes (see p4)"])
+def test_only_a_UNIT_is_stripped_from_a_label(label):
+    """The trailing-parenthetical rule must not become the substring trap
+    one step along: "Enclosure (Height)" is not the enclosure field."""
+    assert V.canonical_key(label) == ""
+
+
+def test_width_W_still_means_width_not_watts():
+    assert V.canonical_key("Width (W)") == "width_in"
+
+
+def test_a_value_in_the_wrong_unit_is_refused_by_name(tmp_path):
+    """``weight_lb = 90`` read off a row saying "90 kg" is a fact about the
+    document and a lie about the product, and a consumer reading the key by
+    name cannot see the difference (#688 review). Nothing here converts a
+    rating, so the mismatch is named instead."""
+    draws = [(72.0, 700.0, "Weight"), (300.0, 700.0, "90 kg")]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "kg.pdf"), [draws]))
+    assert "weight_lb" not in ps.by_key()
+    assert any("states kg" in n and "weight_lb" in n for n in ps.notes), ps.notes
+
+
+@pytest.mark.parametrize("raw,expect", [("145 lbs", 145.0), ("145 LB.", 145.0),
+                                        ("145", 145.0)])
+def test_accepted_unit_spellings_and_a_bare_rating_still_read(raw, expect, tmp_path):
+    """A rating is not a length: a bare number under a rating key is
+    recorded WITH a note, not refused, because refusing every unitless
+    rating would gut the reader on real sheets. The 25x ambiguity that
+    justifies refusing a bare LENGTH does not exist here."""
+    draws = [(72.0, 700.0, "Weight"), (300.0, 700.0, raw)]
+    v = S.read_sheet(FP.build_pdf(str(tmp_path / "sp.pdf"), [draws])).by_key()
+    assert v["weight_lb"].value == pytest.approx(expect)
+
+
+def test_a_malformed_media_box_does_not_raise(tmp_path):
+    """``read_sheet`` documents that it never raises for a bad document.
+    Fuzzing in the #688 review found exactly two escapes, both here."""
+    path = FP.build_pdf(str(tmp_path / "mb.pdf"), [FP.spec_sheet_draws()])
+    raw = open(path, "rb").read()
+    assert b"/MediaBox [0 0 612 792]" in raw, "fixture changed; probe broken"
+    raw = raw.replace(b"/MediaBox [0 0 612 792]", b"/MediaBox [. . .  . ]", 1)
+    open(path, "wb").write(raw)
+    ps = S.read_sheet(path)                              # must not raise
+    assert ps.by_key()["height_in"].value == pytest.approx(62.0)
+    assert ps.tables[0].page == 1
+
+
+def test_the_page_cap_is_reported_not_silent(tmp_path):
+    """Dropping pages 65+ of a 100-page submittal turns "we did not look"
+    into "the sheet does not say so", and questions() then asks about a
+    field the document answers on page 80."""
+    pages = [[(72.0, 700.0, "PAGE %d" % i)] for i in range(1, 7)]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "many.pdf"), pages),
+                      max_pages=3)
+    assert len(ps.tables) == 3
+    assert any("only the first 3 were read" in n for n in ps.notes), ps.notes
+
+
+# ---------------------------------------------------------------------------
 # (4) the parse is SHOWN before it is trusted -- DONE 4
 # ---------------------------------------------------------------------------
 

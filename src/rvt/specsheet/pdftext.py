@@ -516,6 +516,30 @@ class _Marker:
     __slots__ = ()
 
 
+class _Str(bytes):
+    """A STRING operand, tagged so it can never be mistaken for a number.
+
+    Both arrive from the tokenizer as ``bytes``, and inside a ``TJ`` array
+    the two are interleaved: ``[(a) -120 (b)]``.  Deciding which is which by
+    trying ``float()`` works only until a string IS numeric -- and on a spec
+    sheet that is the normal case, because the values are numbers::
+
+        [(62.0)] TJ          -> float(b"62.0") succeeds -> read as a KERN,
+                                and the number is silently dropped
+        [(6) 0 (2.0 in)] TJ  -> "6" read as a kern -> the value becomes
+                                "2.0 in", a WRONG dimension carrying a
+                                citation to the user's own document
+
+    The second is the worse one by far: it is exactly what
+    :mod:`rvt.specsheet.sheet` promises cannot happen.  Found by the
+    independent review of #688, which measured it against pdfminer on the
+    same bytes (it reads ``Height 62.0 in``; we read ``2.0 in``).  The
+    fixture could not catch it because every value in it contained a space,
+    so ``float()`` always failed and the ambiguous path was never taken.
+    """
+    __slots__ = ()
+
+
 def _text_ops(content: bytes,
               fonts: Dict[str, _Font]) -> Tuple[List[Glyph], List[str]]:
     """Walk the content stream, tracking BOTH matrices, emitting glyphs.
@@ -571,15 +595,15 @@ def _text_ops(content: bytes,
         kind = m.lastgroup
         tok = m.group()
         if kind == "str":
-            stack.append(_unescape(tok[1:-1]))
+            stack.append(_Str(_unescape(tok[1:-1])))
         elif kind == "hex":
             h = re.sub(rb"\s", b"", tok[1:-1])
             if len(h) % 2:
                 h += b"0"
             try:
-                stack.append(bytes.fromhex(h.decode("ascii")))
+                stack.append(_Str(bytes.fromhex(h.decode("ascii"))))
             except ValueError:
-                stack.append(b"")
+                stack.append(_Str(b""))
         elif kind == "arr":
             if tok == b"[":
                 stack.append(_Marker())
@@ -631,19 +655,23 @@ def _text_ops(content: bytes,
                 tlm = _mul([1.0, 0.0, 0.0, 1.0, 0.0, -leading], tlm)
                 tm = list(tlm)
             elif op == b"Tj" and stack:
-                if isinstance(stack[-1], bytes) and not stack[-1].startswith(b"/"):
+                if isinstance(stack[-1], _Str):
                     emit(stack[-1])
             elif op == b"TJ" and stack:
                 arr = stack[-1]
                 if isinstance(arr, list):
                     for t in arr:
+                        # a tagged string is TEXT, whatever it looks like:
+                        # "62.0" is a value on a spec sheet, not a kern
+                        if isinstance(t, _Str):
+                            emit(t)
+                            continue
                         if isinstance(t, bytes) and t.startswith(b"/"):
                             continue
                         if isinstance(t, bytes):
                             try:
                                 adj = float(t)
                             except (TypeError, ValueError):
-                                emit(t)
                                 continue
                             # kerning in 1/1000 em: a large negative one IS a
                             # column gap, so it moves the pen like any advance
@@ -652,7 +680,7 @@ def _text_ops(content: bytes,
             elif op in (b"'", b'"'):
                 tlm = _mul([1.0, 0.0, 0.0, 1.0, 0.0, -leading], tlm)
                 tm = list(tlm)
-                if stack and isinstance(stack[-1], bytes) and not stack[-1].startswith(b"/"):
+                if stack and isinstance(stack[-1], _Str):
                     emit(stack[-1])
             stack = []
     if estimated:
@@ -691,6 +719,15 @@ def read_pdf(path: str, max_pages: int = 64) -> List[Page]:
     if not page_nums:
         raise UnreadablePdf("no /Page objects found")
 
+    capped = ""
+    if len(page_nums) > max_pages:
+        # silently dropping pages 65+ of a 100-page submittal turns
+        # "we did not look" into "the sheet does not say so", and
+        # ParsedSheet.questions() then asks about a field the document
+        # answers on page 80
+        capped = ("this PDF has %d pages; only the first %d were read "
+                  "(max_pages=%d)" % (len(page_nums), max_pages, max_pages))
+
     pages: List[Page] = []
     for n, num in enumerate(page_nums[:max_pages], start=1):
         body = objs.get(num, b"")
@@ -719,6 +756,8 @@ def read_pdf(path: str, max_pages: int = 64) -> List[Page]:
             note = ("page draws no text -- it is probably a scanned image; "
                     "this reader does no OCR")
         pages.append(Page(n, glyphs, w, h, note))
+    if capped and pages:
+        pages[-1].note = "; ".join(x for x in (pages[-1].note, capped) if x)
     return pages
 
 
@@ -755,12 +794,28 @@ def _page_objects(objs: Dict[int, bytes]) -> List[int]:
             if _name(_dict_of(b), b"/Type") == b"Page"]
 
 
+#: the PDF default page size, used whenever /MediaBox is absent
+#: or unreadable
+_LETTER = (612.0, 792.0)
+
+
 def _media_box(d: bytes, objs: Dict[int, bytes]) -> Tuple[float, float]:
     m = re.search(rb"/MediaBox\s*\[\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)", d)
     if not m:
-        return (612.0, 792.0)                      # US Letter, the PDF default
-    x0, y0, x1, y1 = (float(m.group(i)) for i in range(1, 5))
-    return (abs(x1 - x0), abs(y1 - y0))
+        return _LETTER                             # US Letter, the PDF default
+    try:
+        x0, y0, x1, y1 = (float(m.group(i)) for i in range(1, 5))
+    except ValueError:
+        # `[- - - -]` and `[. . . .]` both match the character class and both
+        # fail float().  Found by the #688 review, which fuzzed 1200 random
+        # corruptions and 180 truncations and got exactly TWO escapes, both
+        # here -- and an escape here is not cosmetic: `read_sheet` documents
+        # that it never raises for a bad document, so the caller can report
+        # the reason and still deliver (hard rule 1).  A page size we cannot
+        # read is not a reason to lose the page.
+        return _LETTER
+    w, h = abs(x1 - x0), abs(y1 - y0)
+    return (w or _LETTER[0], h or _LETTER[1])
 
 
 def _resources(d: bytes, objs: Dict[int, bytes]) -> bytes:
