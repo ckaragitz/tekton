@@ -410,22 +410,27 @@ comment carried the right figure. Fixing what a reviewer names is not the
 same as re-verifying what they were looking at, and the difference is
 exactly one number nobody re-ran.
 
-- `tests/test_specsheet_pdftext_688.py` — **32 passed**
-- `tests/test_specsheet_sheet_688.py` — **114 passed**
-- `tests/test_specsheet_backend_688.py` — **18 passed** (with the `[pdf]`
-  extra installed; skips without it)
-- `tests/test_pyproject_extras.py` — **9 passed**
-- `tests/test_bootstrap.py test_coldstart.py test_surface_perf.py` — **31
-  passed**; `test_plugin_sync test_records_layout
-  test_conftest_scaffolding` — **34 passed**;
-  `plugin/scripts/validate_plugin.py` — **25 assertions**
-- the full merged CI shard and `check_portable_paths` counts belong on the
-  PR, against the SHA they were measured on, rather than here — copying a shard
-  count into a record is how it goes stale, which happened twice: the first
-  draft printed 32 / 53 / 14 (pasted from two different runs; the review
-  measured 28 / 55 / 14), and the second still carried the parent commit's
-  shard number and a `test_pyproject_extras` count that predated
-  parametrising it.
+**No pass counts live in this record.** They belong on the PR, each pinned
+to the SHA it was measured on:
+
+- the modules this stream owns — `tests/test_specsheet_{pdftext,sheet,backend}_688.py`
+- the packaging guard — `tests/test_pyproject_extras.py`
+- the bare-unzip trio, the plugin gates, `check_portable_paths`
+- the full merged CI shard (`tools/dev/shard_list.py --print`)
+
+That is a structural decision, not a tidy-up, and it is the fourth attempt
+at this problem. The counts went stale **four times**: the first draft
+pasted figures from two different runs; the second carried the parent
+commit's shard number; the third left one module's figure wrong in this very
+list while the PR comment beside it was right; the fourth went stale inside
+a single commit, because that commit added a test.
+
+The last one is the tell. A per-module count in prose is wrong the moment
+anyone adds a test — which in a five-round review is every round — so
+"remember to update it" was never going to work and the three rounds spent
+re-measuring were treating a symptom. A number belongs where it is produced
+and stamped with what produced it. Here, that is a PR comment carrying a
+SHA; here in the record, what belongs is what the numbers *showed*.
 - `tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py`
   — **31 passed** (the product still works from a bare unzip)
 - `tests/test_plugin_sync.py`, `tests/test_conftest_scaffolding.py` — green
