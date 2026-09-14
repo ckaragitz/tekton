@@ -218,6 +218,13 @@ def _known_unit(text: str, key: str = "") -> bool:
         if t in _LENGTH_MARKS:
             return kind == "length"
         # Not a length, and it must positively spell that field's OWN unit.
+        # (A note on counting, because I got it wrong: the accept set here
+        # is five single letters -- a/k/c/w/# on amps, cct_k, temperature_c,
+        # watts, weight_lb -- plus every mark in _LENGTH_MARKS on each of
+        # the five length fields. `tests/test_specsheet_sheet_688.py`
+        # enumerates it against a domain derived from _LENGTH_MARKS rather
+        # than a hand-picked string; an earlier version of that test sampled
+        # two of the six marks while claiming to assert the whole set.)
         # `declared` being empty is a REFUSAL, not a licence: `unit_matches`
         # treats an empty declared unit as "anything goes", so without this
         # every one of a-z was accepted on `phases` and on all nine text

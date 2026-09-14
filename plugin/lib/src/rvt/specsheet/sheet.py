@@ -319,6 +319,19 @@ class ParsedSheet:
         for key, readings in sorted(self.duplicates().items()):
             if key in shadowed:
                 continue
+            if all(c.is_refused for c in readings):
+                # "which one?" implies two readings to pick between; here
+                # there are none, and the key is absent from by_key()
+                # entirely. Asking the user to choose between two failures
+                # is worse than saying nothing (#688 round 5).
+                qs.append(
+                    "%s: the sheet names this field %d times and NONE of "
+                    "them could be read (%s) -- the field is unset"
+                    % (key, len(readings),
+                       "; ".join("p%d r%d %r: %s" % (c.page, c.row, c.raw,
+                                                     c.refused)
+                                 for c in readings[:4])))
+                continue
             qs.append("the sheet states %s %d times (%s) -- which one?"
                       % (key, len(readings),
                          ", ".join("p%d r%d %r" % (v.page, v.row, v.raw)

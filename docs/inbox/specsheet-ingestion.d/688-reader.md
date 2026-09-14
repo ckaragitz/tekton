@@ -318,8 +318,8 @@ Round 4's second finding closed a hole in the round-3 gate itself:
 letter a–z was accepted on `phases` and on all nine `text` fields — 300
 accept decisions the docstring's contract does not describe, since there is
 no spelling of "no unit". Harmless today (no caller reads a label unit for
-those fields), a hole all the same. The gate now enumerates to **15**
-accepts across all 24 fields, each defensible:
+those fields), a hole all the same. The gate now enumerates, across all 24
+fields, to:
 
 | field | accepted single characters |
 |---|---|
@@ -328,11 +328,28 @@ accepts across all 24 fields, each defensible:
 | `temperature_c` | `c` |
 | `watts` | `w` |
 | `weight_lb` | `#` |
-| the five length fields | `'` `"` |
+| each of the five length fields | every mark in `_LENGTH_MARKS`: `'` `"` `’` `”` `′` `″` |
 
-The inch and foot marks are read on a **length** field and, by the same
-argument, nowhere else — they used to be accepted on every field and were
-harmless only because a later check refused them.
+The marks are read on a **length** field and, by the same argument, nowhere
+else — they used to be accepted on every field and were harmless only
+because a later check refused them.
+
+**An earlier version of this paragraph said "15 accepts".** It is 35. The
+test that was supposed to pin the set enumerated `ascii_lowercase + "#°'\""`
+— a hand-picked string that omits four of the six marks `vocab` itself
+declares — while its own docstring said *"Enumerated rather than sampled:
+this asserts the WHOLE accept set"*. The wrong total went from there into
+the source comment and into this record: **one unmeasured completeness
+claim, written in three places**, in the same PR whose round-3 finding was
+an unevidenced comment and whose round-4 finding was a stale count. Caught
+by the round-5 review, not by me.
+
+The test now enumerates a domain built from `_LENGTH_MARKS` itself, so a
+mark added there cannot slip past unexercised, and both factors of the total
+are read off `FIELDS` rather than typed. (The first attempt at *that*
+asserted `5 + 6 * len(_LENGTH_MARKS)` — six length fields, when there are
+five — and failed immediately, which is the only reason a wrong total did
+not reach this record twice.)
 
 ### 4. Six defects found by re-reading the module after writing it
 

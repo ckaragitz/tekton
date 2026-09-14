@@ -22,6 +22,7 @@ product.  ``fixtures_pdf.SHEET_ROWS`` is invented for this fixture and no
 manufacturer's document was read to produce it (hard rule 3).
 """
 import os
+import string
 
 import pytest
 
@@ -571,6 +572,23 @@ def test_a_genuine_second_row_is_a_duplicate_but_NOT_shadowed(tmp_path):
     assert ps.by_key()["height_in"].value == pytest.approx(62.0)
 
 
+def test_a_key_named_twice_and_never_READ_does_not_ask_which_one(tmp_path):
+    """"which one?" implies two readings to pick between. When every claim
+    was refused there are none, and the key is absent from `by_key()`
+    entirely -- asking the user to choose between two failures is worse than
+    saying nothing (#688 round 5)."""
+    draws = [(72.0, 700.0, "Rated Current (A)"), (300.0, 700.0, "400 V"),
+             (72.0, 400.0, "Amperes"), (300.0, 400.0, "TBD")]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "none.pdf"), [draws]))
+    assert "amps" not in ps.by_key(), "neither claim was readable"
+    assert "amps" in ps.duplicates(), "both claims must still be visible"
+    assert ps.shadowed() == {}, "nothing was taken, so nothing is shadowed"
+    qs = [q for q in ps.questions() if q.startswith("amps")]
+    assert qs, "the field must still raise a question"
+    assert "which one?" not in qs[0], qs[0]
+    assert "NONE of them could be read" in qs[0] and "unset" in qs[0]
+
+
 def test_a_refused_row_never_leaks_into_values(tmp_path):
     """`values` is what a consumer builds from; a refused claim must not be
     in it however visible it is elsewhere."""
@@ -582,24 +600,46 @@ def test_a_refused_row_never_leaks_into_values(tmp_path):
     assert ps.by_key() == {}
 
 
+#: The candidate domain the gate is enumerated over. DERIVED, not typed:
+#: the first version of this test hand-picked ``ascii_lowercase + "#°'\""``
+#: and so never tried ``”``, ``″``, ``’`` or ``′`` -- four of the six marks
+#: in ``_LENGTH_MARKS``, all of which the gate accepts. The test still
+#: claimed "this asserts the WHOLE accept set", and the wrong total that
+#: followed from it (15, really 35) was checked into the source comment,
+#: the record and this docstring (#688 round 5). A completeness claim has
+#: to enumerate something the CODE defines, or it is a sample wearing the
+#: word "whole".
+_SINGLE_CHAR_CANDIDATES = sorted(
+    set(string.ascii_lowercase + string.digits + "#°²³µΩ") | set(V._LENGTH_MARKS))
+
+
 def test_only_a_fields_OWN_declared_unit_passes_the_single_char_gate():
     """`unit_matches` treats an empty declared unit as "anything goes", so
     the gate accepted every one of a-z on `phases` and on all nine text
-    fields -- 300 accept decisions the docstring's contract does not
-    describe, since there is no spelling of "no unit" (#688 round 4).
+    fields -- accept decisions the docstring's contract does not describe,
+    since there is no spelling of "no unit" (#688 round 4).
 
-    Enumerated rather than sampled: this asserts the WHOLE accept set.
+    Asserts the whole accept set over a candidate domain that includes every
+    mark ``vocab`` itself declares, so a new mark added there cannot slip
+    past this test unexercised.
     """
-    import string
-    accepts = {k: "".join(c for c in string.ascii_lowercase + "#°'\""
+    marks = "".join(sorted(V._LENGTH_MARKS))
+    accepts = {k: "".join(c for c in _SINGLE_CHAR_CANDIDATES
                           if V._known_unit(c, k))
                for k in V.FIELDS}
     assert {k: v for k, v in accepts.items() if v} == {
         "amps": "a", "cct_k": "k", "temperature_c": "c", "watts": "w",
         "weight_lb": "#",
-        "height_in": "'\"", "width_in": "'\"", "depth_in": "'\"",
-        "length_in": "'\"", "diameter_in": "'\"",
+        "height_in": marks, "width_in": marks, "depth_in": marks,
+        "length_in": marks, "diameter_in": marks,
     }
+    # Both factors read off the CODE, not typed: the first version of this
+    # line said `5 + 6 * len(_LENGTH_MARKS)` -- 6 length fields times 6
+    # marks -- when there are five length fields. It failed immediately,
+    # which is the only reason the wrong total did not go into the record
+    # for a second time.
+    n_length = sum(1 for kind, _u in V.FIELDS.values() if kind == "length")
+    assert sum(len(v) for v in accepts.values()) == 5 + n_length * len(V._LENGTH_MARKS)
 
 
 @pytest.mark.parametrize("label", ["Voltage (V)", "Phases (A)", "Model (X)",
