@@ -1,0 +1,4 @@
+# Family build determinism (#168).  Fresh-clone safe: the unit cases need no
+# files at all, and the two @slow end-to-end cases skip themselves when the
+# bundled genesis base is absent.
+tests/test_famgen_determinism_168.py

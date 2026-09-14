@@ -1698,6 +1698,34 @@ def author_family_adocument_embedded(source, *, mode: str = "candidate",
 # PART 3 -- THE CLEAN EMISSION (a famgen-side wrapper; skeleton untouched)
 # ===========================================================================
 
+def _determinism_report(doc) -> dict:
+    """Where this build's non-content identity came from (#168).
+
+    ``deterministic`` is true when every such value is reproducible from the
+    job spec: the document GUID was derived by
+    :func:`rvt.famgen.skeleton.family_document_guid` (and the episode and
+    workset GUIDs from it), and the PartAtom ``<updated>`` stamp came from
+    the fixed default or ``SOURCE_DATE_EPOCH`` rather than the wall clock.
+
+    A caller-supplied GUID is reported as ``"caller"`` and makes the flag
+    false -- not because it is wrong, but because we cannot see whether it
+    is reproducible, and a report that guesses is worse than one that says
+    which half it knows.
+    """
+    from . import skeleton as _SK
+    src = getattr(doc, "guid_source", "caller")
+    stamp = ("SOURCE_DATE_EPOCH"
+             if os.environ.get(_SK.SOURCE_DATE_EPOCH, "").strip() else "fixed")
+    return {"deterministic": src == "derived",
+            "document_guid": src,
+            "episode_and_workset_guid": "derived-from-document",
+            "updated_stamp": stamp,
+            "note": ("two builds of one spec are byte-identical"
+                     if src == "derived" else
+                     "the document GUID was supplied by the caller; "
+                     "reproducibility depends on how they chose it")}
+
+
 def emit_family_rfa_v2(doc, path: str, *, mode: str = "candidate",
                        footer_mode: str = "nonce",
                        donor: str = TEMPLATE_DONOR,
@@ -1858,6 +1886,11 @@ def emit_family_rfa_v2(doc, path: str, *, mode: str = "candidate",
                      "central_episode_guid": bfi_model.get("central_episode_guid"),
                      "via": "rvt.identity.own_identity_model + own_increment_table_payload"},
         "seconds": round(time.time() - t0, 2),
+        # #168: whether THIS build contains a value we cannot reproduce.
+        # Sources are named rather than reduced to a bare flag, because
+        # "deterministic: true" on a file whose GUID the caller minted with
+        # uuid4 would be a claim we are in no position to make.
+        "determinism": _determinism_report(doc),
         "notes": list(getattr(doc, "notes", []) or []),
     }
     rep["verify"] = SK.verify_family_rfa(path)

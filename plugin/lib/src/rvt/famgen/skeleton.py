@@ -868,6 +868,44 @@ def new_center_reference_planes(ids, self_family_id: int, *, gen_view_id: int = 
 LOCAL_PARAM_PURPOSE = "family.parameters"
 
 
+#: purpose tags for the three document-level GUIDs, so a document, its save
+#: episode and its workset can never collide with each other or with any
+#: other derived GUID in the engine
+DOC_PURPOSE = "family-document"
+EPISODE_PURPOSE = "family-episode"
+WORKSET_PURPOSE = "family-workset"
+
+
+def family_document_guid(*key: Any) -> str:
+    """The DETERMINISTIC document GUID of a family built from ``key``.
+
+    Why this exists (#168): the family path minted ``uuid4`` here, so two
+    identical builds produced two different files.  Nothing that leans on a
+    sha256-pinned artifact then works -- a family cannot be pinned in a
+    manifest, cached, or diffed in a single-variable round.  That last one
+    is the expensive part: *every* experiment this repo runs compares two
+    builds, and "otherwise byte-identical" is not a statement anyone can
+    make about a file that changes on every run.
+
+    ``key`` is the canonical document identity -- category, name, host,
+    origin, id base, part type, the plane/datum geometry and the view
+    switch.  Two documents that agree on all of it ARE the same document
+    and correctly share a GUID; a caller that wants distinct ones passes an
+    explicit ``document_guid``.
+    """
+    return _gsk.our_guid(DOC_PURPOSE, *key)
+
+
+def family_episode_guid(document_guid: str) -> str:
+    """The save-episode GUID of a family document, derived from its own."""
+    return _gsk.our_guid(EPISODE_PURPOSE, document_guid)
+
+
+def family_workset_guid(document_guid: str) -> str:
+    """The workset GUID of a family document, derived from its own."""
+    return _gsk.our_guid(WORKSET_PURPOSE, document_guid)
+
+
 def local_param_guid(family_name: str, caption: str) -> str:
     """The deterministic session GUID of a LOCAL family parameter."""
     return our_guid(LOCAL_PARAM_PURPOSE, family_name, caption)
@@ -1708,6 +1746,11 @@ class FamilyDoc:
     ids: Any = None
     family_guid: Optional[str] = None     # None = per-parameter local_param_guid; a GUID = one session GUID for all
     document_guid: str = ""
+    #: "derived" = this document's GUID came from :func:`family_document_guid`
+    #: (so two builds of one spec are byte-identical, #168); "caller" = it was
+    #: supplied.  Reported rather than assumed: a caller is free to pass a
+    #: uuid4, and the report must not then claim the build is reproducible.
+    guid_source: str = "derived"
     shared_params: Dict[str, SharedParamDef] = dc_field(default_factory=dict)   # caption -> OUR file's row
     self_family: Optional[SkelElement] = None
     ref_level: Optional[SkelElement] = None
@@ -2123,9 +2166,19 @@ class FamilyDoc:
         """The coordinated Global table-stream models for a ONE-EPISODE
         family document (``rvt.genesis.skeleton.minimal_globals`` -- the
         cross-stream invariants hold by construction)."""
+        # The episode and workset GUIDs are derived HERE and passed down
+        # rather than by changing `minimal_globals`' own defaults (#168):
+        # that function is shared with the genesis compose path, whose
+        # output is the three CERTIFIED bases (hard rule 4).  Making the
+        # family path deterministic must not move a byte of genesis.
+        doc_guid = self.document_guid or None
         return minimal_globals(self.elements, username=username, out_path=out_path,
                                timestamp=timestamp,
-                               document_guid=self.document_guid or None)
+                               document_guid=doc_guid,
+                               episode_guid=(family_episode_guid(doc_guid)
+                                             if doc_guid else None),
+                               workset_guid=(family_workset_guid(doc_guid)
+                                             if doc_guid else None))
 
     # -- delivery ------------------------------------------------------------------
     def partition_payloads(self) -> Dict[int, bytes]:
@@ -2214,13 +2267,17 @@ def new_family_document(category, name: str, *, host: str = "none",
     """
     cat = _resolve_category(category)
     ids = IdSource(start_id)
-    doc_guid = document_guid or str(uuid.uuid4())
     ptype = int(part_type) if part_type is not None else (
         PART_TYPE["panelboard"] if cat == OST_ELECTRICAL_EQUIPMENT and "panel" in name.lower()
         else PART_TYPE["normal"])
+    guid_source = "caller" if document_guid else "derived"
+    doc_guid = document_guid or family_document_guid(
+        cat, name, host, origin, start_id, ptype, work_plane_based,
+        datum_length_ft, plane_length_ft, with_views, family_guid)
     doc = FamilyDoc(category_id=cat, name=str(name), host=str(host),
                     origin=tuple(float(c) for c in origin), ids=ids,
                     family_guid=family_guid, document_guid=doc_guid,
+                    guid_source=guid_source,
                     shared_params=shared_param_table(shared_params),
                     part_type=ptype, work_plane_based=bool(work_plane_based))
     if host not in ("none", None, ""):
@@ -3201,6 +3258,35 @@ def _xml_escape(text: str) -> str:
     return text.replace("&", "&amp;").replace(">", "&gt;").replace("<", "&lt;")
 
 
+#: What ``build_part_atom`` stamps when the caller names no time.
+#:
+#: It was ``time.gmtime()``, which is the second half of #168: pinning every
+#: GUID still left two builds a second apart differing, because this string
+#: is written into the .rfa.  A DERIVED-looking date would be worse than a
+#: random one -- it would be a false claim about when the file was made --
+#: so this is a fixed stamp that says "no time was recorded", and a caller
+#: with a real one passes it.
+#:
+#: ``SOURCE_DATE_EPOCH`` is honoured first: it is the cross-ecosystem
+#: convention for exactly this (reproducible-builds.org), so a build system
+#: that already sets it gets a meaningful date for free.
+SOURCE_DATE_EPOCH = "SOURCE_DATE_EPOCH"
+
+#: the fixed fallback: the Unix epoch, i.e. "unset"
+EPOCH_STAMP = "1970-01-01T00:00:00Z"
+
+
+def stable_updated_stamp() -> str:
+    """The PartAtom ``<updated>`` value when nobody supplied one."""
+    raw = os.environ.get(SOURCE_DATE_EPOCH, "").strip()
+    if raw:
+        try:
+            return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(int(raw)))
+        except (ValueError, OSError, OverflowError):
+            pass            # a malformed value is not a reason to lose the build
+    return EPOCH_STAMP
+
+
 def build_part_atom(title: str, category_label_txt: str, *,
                     type_names: Sequence[str] = (), product_name: str = "rvt-writer",
                     updated: Optional[str] = None) -> bytes:
@@ -3211,7 +3297,7 @@ def build_part_atom(title: str, category_label_txt: str, *,
     label [D content policy].  UNFRAMED stream (like BasicFileInfo).
     """
     _x = _xml_escape
-    ts = updated or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    ts = updated or stable_updated_stamp()
     types_xml = "".join(
         f"<A:type><A:title>{_x(str(n))}</A:title></A:type>" for n in type_names)
     xml = (
