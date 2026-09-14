@@ -125,11 +125,35 @@ the report claimed the environment had supplied it. A false provenance line
 in a report this repo treats as evidence. Both callers now ask one parse
 (`stable_updated_stamp_with_source`), so they cannot drift.
 
-**And one of my own tests for that was vacuous** — the third in this
+Two properties of the seal, measured rather than assumed, because the first
+draft of the code asserted one of them as fact and was wrong:
+
+* **Non-circular.** The document GUID does not appear anywhere in the
+  partition payloads the digest is taken over (searched as ASCII and
+  UTF-16LE, hyphenated and not, both cases), and changing `document_guid`
+  by hand leaves the digest bit-identical — `345589223db79945` before and
+  after. So hashing the payloads is a genuine content digest and not a
+  function of the value it produces.
+* **Entered once.** `_guid_sealed` is set before the digest as a cheap
+  termination guard, and an earlier draft of that line said it was set
+  first *"because the digest calls back"*. Instrumented: `_seal_document_
+  guid` is entered exactly **once** per `finalize`. Nothing calls back. The
+  claim was invented, and it is the second invented comment I wrote in this
+  session — the other was *"Nothing is lost by refusing"* in the spec-sheet
+  reader (#789 round 3), also caught by measurement rather than by me.
+  A wrong comment outlives the code it describes, because the next reader
+  believes it instead of re-testing.
+
+**And one of my own tests for the stamp nit was vacuous** — the third in this
 session. It asserted on the new helper rather than on `_determinism_report`,
 the consumer that actually had the bug, and passed with the report's line
 reverted. Testing the code a fix added instead of the defect it fixes is no
 test at all; rewritten to assert through the report.
+
+The seal costs one payload build. The first version called
+`partition_payloads()` once for the key list and again per key — four
+rebuilds, 0.0369 s against 0.0105 s for a single build. Built once now:
+0.0096 s, i.e. the digest itself is free.
 
 Gates: `tests/test_famgen_determinism_168.py` **27 passed**;
 `test_famgen_factory` + `test_famgen_loader` + `test_geo_site_determinism` +
