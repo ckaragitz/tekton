@@ -1714,8 +1714,10 @@ def _determinism_report(doc) -> dict:
     """
     from . import skeleton as _SK
     src = getattr(doc, "guid_source", "caller")
-    stamp = ("SOURCE_DATE_EPOCH"
-             if os.environ.get(_SK.SOURCE_DATE_EPOCH, "").strip() else "fixed")
+    # asks the same parse the stamp itself used, rather than re-testing the
+    # environment: a malformed SOURCE_DATE_EPOCH falls back to the fixed
+    # stamp, and the report used to claim the environment supplied it
+    stamp = _SK.stable_updated_stamp_with_source()[1]
     return {"deterministic": src == "derived",
             "document_guid": src,
             "episode_and_workset_guid": "derived-from-document",

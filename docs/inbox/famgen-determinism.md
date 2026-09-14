@@ -59,17 +59,55 @@ would have passed inside a single second and certified a lie.
   a bare flag, because `deterministic: true` on a file whose GUID the caller
   minted with `uuid4` is a claim we are in no position to make.
 
+## The review found a collision the creation-time key could not avoid
+
+`family_document_guid` runs inside `new_family_document` — **before** any
+parameter, type, shared-parameter binding or solid exists. Two documents
+identical at that moment and different afterwards therefore shared a GUID,
+silently and stably, which this module's own docstring calls worse than the
+`uuid4` it replaced. Measured by the review on the real CLI:
+
+| build | shared params | sha256 | `document_guid` |
+|---|---|---|---|
+| no `--shared-params` | 0 | `adf39fb1…` | `edee5f1d-324e-5757-…` |
+| with `--shared-params` | 11 bound | `1ba16929…` | `edee5f1d-324e-5757-…` |
+
+Different files, same document GUID, same episode GUID, same
+`unique_document_guid`. My parametrised test never varied anything added
+after creation, so it could not have caught it.
+
+**Folding `shared_params` into the key would have fixed the one case and
+left the class.** Types, parameters and geometry are all added after
+creation too. So the GUID is now *sealed from the content* at
+`FamilyDoc.finalize` — the one choke point every delivery passes — keyed on
+the delivered bytes of the save unit. Two documents that produce identical
+content are the same document and correctly share a GUID; anything that
+changes a byte changes it. A caller-supplied GUID is never resealed, and the
+seal is idempotent because `finalize` is.
+
+After the fix, on the same three builds:
+
+| build | sha256 | `document_guid` |
+|---|---|---|
+| no `--shared-params` | `a160d2a4…` | `f3404ba0-065f-5d9b-…` |
+| with `--shared-params` | `30bf86de…` | `ff26cddd-8b4a-58f6-…` |
+| with `--shared-params`, again | `30bf86de…` | `ff26cddd-8b4a-58f6-…` |
+
+Different specs differ; the same spec repeats.
+
 ## Evidence
 
 Two CLI runs, **same filename in different directories**:
 
 ```
-adf39fb159ff0aaf86c37f676f42ac8cfab2a6e279310540397389607e664215  r1/panel.rfa
-adf39fb159ff0aaf86c37f676f42ac8cfab2a6e279310540397389607e664215  r2/panel.rfa
+a160d2a4e5b21f0b…  r1/panel.rfa
+a160d2a4e5b21f0b…  r2/panel.rfa
 BYTE-IDENTICAL
 ```
 
 Before: `490369135f0c…` vs `d80033669a35…`, first difference at byte 16477.
+(The post-fix digest changed from the first draft of this record — `adf39fb1…`
+— when the GUID became content-derived. Re-measured, not carried over.)
 
 | check | result |
 |---|---|
@@ -80,7 +118,20 @@ Before: `490369135f0c…` vs `d80033669a35…`, first difference at byte 16477.
 | `provenance` | all 11 checks true, `identity_is_ours` true |
 | `SOURCE_DATE_EPOCH=1700000000` | `<updated>2023-11-14T22:13:20Z</updated>` |
 
-Gates: `tests/test_famgen_determinism_168.py` **21 passed**;
+A second, smaller finding from the same review: the report's
+`updated_stamp` line tested whether `SOURCE_DATE_EPOCH` was *set*, not
+whether it *parsed*, so a malformed value fell back to the fixed stamp while
+the report claimed the environment had supplied it. A false provenance line
+in a report this repo treats as evidence. Both callers now ask one parse
+(`stable_updated_stamp_with_source`), so they cannot drift.
+
+**And one of my own tests for that was vacuous** — the third in this
+session. It asserted on the new helper rather than on `_determinism_report`,
+the consumer that actually had the bug, and passed with the report's line
+reverted. Testing the code a fix added instead of the defect it fixes is no
+test at all; rewritten to assert through the report.
+
+Gates: `tests/test_famgen_determinism_168.py` **27 passed**;
 `test_famgen_factory` + `test_famgen_loader` + `test_geo_site_determinism` +
 `test_hostsym_product` + `test_bare_family_validate` **127 passed, 18
 skipped**.

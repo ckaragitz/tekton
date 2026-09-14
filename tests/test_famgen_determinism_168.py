@@ -85,6 +85,45 @@ def test_a_different_spec_derives_a_different_document_guid(kw):
     assert _doc(**kw).document_guid != _doc().document_guid
 
 
+def test_two_documents_that_differ_only_AFTER_creation_still_differ():
+    """THE case the creation-time key could not see, and the reason the GUID
+    is sealed from CONTENT at ``finalize``.
+
+    ``family_document_guid`` runs inside ``new_family_document``, before any
+    parameter, type, shared-parameter binding or solid exists. Two documents
+    identical at that moment and different afterwards therefore shared a
+    GUID -- silently and stably, which the module's own docstring calls
+    worse than the uuid4 it replaced.
+
+    Measured by the #168 review on the real CLI: the same panelboard built
+    with and without ``--shared-params`` differed in 11 bound shared
+    parameters and in sha256, and carried the SAME ``document_guid``,
+    ``episode_guid`` and ``unique_document_guid``. The parametrisation above
+    never varied anything post-creation, so it could not catch it.
+    """
+    a, b = _doc(), _doc()
+    assert a.document_guid == b.document_guid, "identical at creation"
+    b.add_family_parameter("Probe Only On B", SK.PARAM_TYPE_LENGTH
+                           if hasattr(SK, "PARAM_TYPE_LENGTH") else 1)
+    a.finalize()
+    b.finalize()
+    assert a.document_guid != b.document_guid, (
+        "two documents that differ only in content added after creation "
+        "still share a GUID -- the seal at finalize is not working")
+    assert SK.family_episode_guid(a.document_guid) != \
+        SK.family_episode_guid(b.document_guid)
+
+
+def test_the_content_seal_is_idempotent_and_respects_a_callers_guid():
+    given = "12345678-1234-5678-1234-567812345678"
+    d = _doc(document_guid=given).finalize()
+    assert d.document_guid == given, "a supplied GUID must never be resealed"
+    e = _doc().finalize()
+    once = e.document_guid
+    e.finalize()
+    assert e.document_guid == once, "finalize is idempotent; the GUID must not move"
+
+
 def test_the_episode_and_workset_guids_are_derived_and_distinct():
     g = _doc().document_guid
     ep, ws = SK.family_episode_guid(g), SK.family_workset_guid(g)
@@ -116,6 +155,36 @@ def test_the_part_atom_stamp_is_stable_by_default(monkeypatch):
     b = SK.build_part_atom("T", "Electrical Equipment")
     assert a == b, "two PartAtoms for one family must be byte-identical"
     assert SK.EPOCH_STAMP.encode() in a
+
+
+@pytest.mark.parametrize("value,stamp_source", [
+    ("1700000000", "SOURCE_DATE_EPOCH"),
+    ("not-a-number", "fixed"),
+    ("", "fixed"),
+    ("9" * 40, "fixed"),
+])
+def test_the_REPORT_names_the_mechanism_that_actually_produced_the_stamp(
+        value, stamp_source, monkeypatch):
+    """The report used to test whether the variable was SET, not whether it
+    PARSED, so ``SOURCE_DATE_EPOCH=not-a-number`` fell back to the fixed
+    stamp while the report claimed the environment supplied it (#168
+    review). A false provenance line in a report this repo treats as
+    evidence is the same class of error as a stale test count.
+
+    Asserted through ``_determinism_report`` -- the CONSUMER that had the
+    bug -- not through the helper the fix added. The first version of this
+    test called ``stable_updated_stamp_with_source()`` directly and passed
+    with the report's own line reverted: it tested the new code instead of
+    the old defect, which is no test at all.
+    """
+    from rvt.famgen import famdoc_adoc as FA
+    monkeypatch.setenv(SK.SOURCE_DATE_EPOCH, value)
+    doc = _doc()
+    assert FA._determinism_report(doc)["updated_stamp"] == stamp_source
+    # and the stamp itself agrees with what the report says produced it
+    stamp, src = SK.stable_updated_stamp_with_source()
+    assert src == stamp_source
+    assert (stamp == SK.EPOCH_STAMP) == (stamp_source == "fixed")
 
 
 def test_source_date_epoch_is_honoured(monkeypatch):

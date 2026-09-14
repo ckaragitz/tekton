@@ -56,6 +56,7 @@ from __future__ import annotations
 
 import copy
 import json
+import hashlib
 import os
 import struct
 import time
@@ -876,8 +877,39 @@ EPISODE_PURPOSE = "family-episode"
 WORKSET_PURPOSE = "family-workset"
 
 
+def content_document_guid(doc: "FamilyDoc") -> str:
+    """The document GUID as a function of the document's ACTUAL CONTENT.
+
+    The creation-time key (:func:`family_document_guid`) is not enough, and
+    the way it fails is the one its own docstring warns about.  It is
+    computed in ``new_family_document``, **before** any parameter, type,
+    shared-parameter binding or solid exists -- so two documents that differ
+    only in what was added afterwards collapse onto one GUID, silently and
+    stably.  Measured by the #168 review: the same panelboard built with and
+    without ``--shared-params`` differs in 11 bound shared parameters and in
+    sha256, and carried the *same* ``document_guid``, ``episode_guid`` and
+    ``unique_document_guid``.
+
+    So the derivation is keyed on the delivered bytes of the save unit --
+    exactly what ends up in the file.  Two documents that produce identical
+    content are identical documents and correctly share a GUID; anything
+    that changes a byte changes the GUID.  Called from :meth:`FamilyDoc.
+    finalize`, which is the one choke point every delivery passes.
+    """
+    h = hashlib.sha256()
+    for seq in sorted(doc.partition_payloads()):
+        h.update(b"%d:" % seq)
+        h.update(doc.partition_payloads()[seq])
+    return _gsk.our_guid(DOC_PURPOSE, "content", h.hexdigest())
+
+
 def family_document_guid(*key: Any) -> str:
-    """The DETERMINISTIC document GUID of a family built from ``key``.
+    """The document GUID a family is SEEDED with at creation.
+
+    Superseded at :meth:`FamilyDoc.finalize` by
+    :func:`content_document_guid` whenever the GUID was derived rather than
+    supplied -- this value only has to be stable and distinct enough to
+    construct with; the delivered file carries the content-derived one.
 
     Why this exists (#168): the family path minted ``uuid4`` here, so two
     identical builds produced two different files.  Nothing that leans on a
@@ -1751,6 +1783,9 @@ class FamilyDoc:
     #: supplied.  Reported rather than assumed: a caller is free to pass a
     #: uuid4, and the report must not then claim the build is reproducible.
     guid_source: str = "derived"
+    #: set once by :meth:`_seal_document_guid`; ``finalize`` is idempotent
+    #: and the GUID must not move on a second pass
+    _guid_sealed: bool = False
     shared_params: Dict[str, SharedParamDef] = dc_field(default_factory=dict)   # caption -> OUR file's row
     self_family: Optional[SkelElement] = None
     ref_level: Optional[SkelElement] = None
@@ -1996,6 +2031,21 @@ class FamilyDoc:
         return con
 
     # -- finalisation --------------------------------------------------------
+    def _seal_document_guid(self) -> None:
+        """Re-derive the document GUID from the FINISHED content (#168 review).
+
+        Only when it was derived, never when the caller supplied one, and
+        only once -- ``finalize`` is idempotent and a second pass must not
+        move the GUID.  The creation-time key cannot see parameters, types,
+        shared-parameter bindings or geometry, all of which are added after
+        it runs; keying on the delivered bytes closes that gap for every
+        such difference at once rather than one field at a time.
+        """
+        if self.guid_source != "derived" or self._guid_sealed:
+            return
+        self._guid_sealed = True          # set first: the digest calls back
+        self.document_guid = content_document_guid(self)
+
     def finalize(self) -> "FamilyDoc":
         """Seed the self-Family from the final element / type / parameter
         state (type table, current-type value set, parameter ordering,
@@ -2069,6 +2119,7 @@ class FamilyDoc:
         refresh_self_family_index(fam, others)
         self._fit_3d_view()
         self.finalized = True
+        self._seal_document_guid()
         return self
 
     #: 3D-view scale of a Revit-born family document (1:24) -- the project
@@ -3276,15 +3327,31 @@ SOURCE_DATE_EPOCH = "SOURCE_DATE_EPOCH"
 EPOCH_STAMP = "1970-01-01T00:00:00Z"
 
 
-def stable_updated_stamp() -> str:
-    """The PartAtom ``<updated>`` value when nobody supplied one."""
+def stable_updated_stamp_with_source() -> Tuple[str, str]:
+    """``(stamp, "SOURCE_DATE_EPOCH" | "fixed")`` -- the value AND which
+    mechanism actually produced it.
+
+    The two are returned together because reporting them separately got the
+    report wrong (#168 review): it tested whether the variable was *set*,
+    not whether it *parsed*, so ``SOURCE_DATE_EPOCH=not-a-number`` produced
+    the fixed stamp while the report claimed the environment supplied it.
+    A false provenance line in a report this repo treats as evidence is the
+    same class of error as a stale test count, and one caller cannot drift
+    from the other if there is only one parse.
+    """
     raw = os.environ.get(SOURCE_DATE_EPOCH, "").strip()
     if raw:
         try:
-            return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(int(raw)))
+            return (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(int(raw))),
+                    SOURCE_DATE_EPOCH)
         except (ValueError, OSError, OverflowError):
             pass            # a malformed value is not a reason to lose the build
-    return EPOCH_STAMP
+    return EPOCH_STAMP, "fixed"
+
+
+def stable_updated_stamp() -> str:
+    """The PartAtom ``<updated>`` value when nobody supplied one."""
+    return stable_updated_stamp_with_source()[0]
 
 
 def build_part_atom(title: str, category_label_txt: str, *,
