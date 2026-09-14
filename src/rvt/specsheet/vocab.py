@@ -218,13 +218,16 @@ def _known_unit(text: str, key: str = "") -> bool:
         if t in _LENGTH_MARKS:
             return kind == "length"
         # Not a length, and it must positively spell that field's OWN unit.
-        # (A note on counting, because I got it wrong: the accept set here
-        # is five single letters -- a/k/c/w/# on amps, cct_k, temperature_c,
-        # watts, weight_lb -- plus every mark in _LENGTH_MARKS on each of
-        # the five length fields. `tests/test_specsheet_sheet_688.py`
-        # enumerates it against a domain derived from _LENGTH_MARKS rather
-        # than a hand-picked string; an earlier version of that test sampled
-        # two of the six marks while claiming to assert the whole set.)
+        # This is a RULE over `.lower().rstrip(".")`, not a list of
+        # characters, and three attempts to write it down as a list were
+        # wrong: case folding maps an open set onto each accepted letter.
+        # `"A"` reaches `amps`; so does U+212A KELVIN SIGN reach `cct_k`,
+        # because `"\u212a".lower()` is ASCII `"k"` -- a real character
+        # Unicode defines for the Kelvin unit and some PDF toolchains emit.
+        # Both are correct to accept. `tests/test_specsheet_sheet_688.py`
+        # asserts the rule against a set derived from FIELDS /
+        # _LENGTH_MARKS / UNIT_SPELLINGS, which is checkable; a character
+        # list is not.
         # `declared` being empty is a REFUSAL, not a licence: `unit_matches`
         # treats an empty declared unit as "anything goes", so without this
         # every one of a-z was accepted on `phases` and on all nine text

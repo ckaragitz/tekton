@@ -589,6 +589,29 @@ def test_a_key_named_twice_and_never_READ_does_not_ask_which_one(tmp_path):
     assert "NONE of them could be read" in qs[0] and "unset" in qs[0]
 
 
+def test_a_TAKEN_first_claim_with_a_refused_later_one_is_an_ordinary_duplicate(tmp_path):
+    """The `all(...)` vs `any(...)` boundary in `questions()`, which nothing
+    distinguished until round 6 mutated it and the whole suite stayed green.
+
+    Headline TAKEN, accessory row REFUSED. Not shadowed (the first claim was
+    the one used), and emphatically not "NONE of them could be read" -- the
+    field has a value. With `any`, a user would be told their `amps` could
+    not be read while `by_key()` hands them 400.
+    """
+    draws = [(72.0, 700.0, "Amperes"), (300.0, 700.0, "400 A"),
+             (72.0, 400.0, "Rated Current (A)"), (300.0, 400.0, "TBD")]
+    ps = S.read_sheet(FP.build_pdf(str(tmp_path / "mix.pdf"), [draws]))
+
+    assert ps.by_key()["amps"].value == pytest.approx(400.0)
+    assert "amps" in ps.duplicates(), "both claims must be visible"
+    assert ps.shadowed() == {}, "the first claim was taken, so nothing is shadowed"
+    qs = [q for q in ps.questions() if q.startswith(("amps", "the sheet states amps"))]
+    assert qs, "a mixed duplicate must still raise a question"
+    assert "NONE of them could be read" not in qs[0], (
+        "the field HAS a value; saying nothing could be read is false: %r" % qs[0])
+    assert "which one?" in qs[0], qs[0]
+
+
 def test_a_refused_row_never_leaks_into_values(tmp_path):
     """`values` is what a consumer builds from; a refused claim must not be
     in it however visible it is elsewhere."""
@@ -600,46 +623,90 @@ def test_a_refused_row_never_leaks_into_values(tmp_path):
     assert ps.by_key() == {}
 
 
-#: The candidate domain the gate is enumerated over. DERIVED, not typed:
-#: the first version of this test hand-picked ``ascii_lowercase + "#°'\""``
-#: and so never tried ``”``, ``″``, ``’`` or ``′`` -- four of the six marks
-#: in ``_LENGTH_MARKS``, all of which the gate accepts. The test still
-#: claimed "this asserts the WHOLE accept set", and the wrong total that
-#: followed from it (15, really 35) was checked into the source comment,
-#: the record and this docstring (#688 round 5). A completeness claim has
-#: to enumerate something the CODE defines, or it is a sample wearing the
-#: word "whole".
-_SINGLE_CHAR_CANDIDATES = sorted(
-    set(string.ascii_lowercase + string.digits + "#°²³µΩ") | set(V._LENGTH_MARKS))
+#: Characters to probe the gate with. NOT a claim to be the whole domain --
+#: that claim is what kept being wrong. It is a sample chosen to include one
+#: representative of every ACCEPT MECHANISM: ascii both cases, the marks
+#: ``vocab`` declares, and the Unicode compatibility characters whose
+#: ``.lower()`` folds onto an accepted letter.
+_SINGLE_CHAR_PROBES = sorted(
+    set(string.ascii_lowercase + string.ascii_uppercase + string.digits)
+    | set("#°²³µΩ")
+    | set(V._LENGTH_MARKS)
+    | {"\u212a",      # KELVIN SIGN -- lower() is ASCII "k"
+       "\u212b",      # ANGSTROM SIGN
+       "\u2126",      # OHM SIGN
+       "\uff21", "\uff43"})   # fullwidth A, c
 
 
-def test_only_a_fields_OWN_declared_unit_passes_the_single_char_gate():
-    """`unit_matches` treats an empty declared unit as "anything goes", so
-    the gate accepted every one of a-z on `phases` and on all nine text
-    fields -- accept decisions the docstring's contract does not describe,
-    since there is no spelling of "no unit" (#688 round 4).
+def _derived_accepts(key: str) -> set:
+    """The normalised strings ``_known_unit`` should accept for ``key``,
+    derived from ``vocab``'s own tables rather than transcribed."""
+    row = V.FIELDS.get(key)
+    if row is None:
+        return set()
+    kind, declared = row
+    if kind == "length":
+        return set(V._LENGTH_MARKS)
+    if not declared:
+        return set()
+    return {declared.lower()} | set(V.UNIT_SPELLINGS.get(declared, ()))
 
-    Asserts the whole accept set over a candidate domain that includes every
-    mark ``vocab`` itself declares, so a new mark added there cannot slip
-    past this test unexercised.
+
+def test_the_single_char_gate_obeys_a_RULE_not_a_character_list():
+    """The gate is an equivalence-class rule over ``.lower().rstrip(".")``,
+    and asserting it as a finite list of characters was wrong three times.
+
+    Round 5 caught a domain that sampled two of six marks while claiming to
+    assert "the WHOLE accept set". Round 6 caught the replacement: it was
+    ASCII-lowercase-plus-symbols, so it never tried ``"A"`` (accepted on
+    ``amps``) or ``U+212A KELVIN SIGN`` (``.lower()`` is ASCII ``k``, so
+    accepted on ``cct_k``) -- the second is a real character Unicode defines
+    to denote the Kelvin unit and some PDF toolchains emit.
+
+    A character list can never be complete, because case folding maps an
+    open set onto each accepted letter. The RULE can be: a single character
+    is accepted exactly when its normalised form is in the set derived from
+    ``FIELDS`` / ``_LENGTH_MARKS`` / ``UNIT_SPELLINGS``. That is what is
+    asserted here, over probes chosen to hit every accept mechanism.
     """
-    marks = "".join(sorted(V._LENGTH_MARKS))
-    accepts = {k: "".join(c for c in _SINGLE_CHAR_CANDIDATES
-                          if V._known_unit(c, k))
-               for k in V.FIELDS}
-    assert {k: v for k, v in accepts.items() if v} == {
-        "amps": "a", "cct_k": "k", "temperature_c": "c", "watts": "w",
-        "weight_lb": "#",
-        "height_in": marks, "width_in": marks, "depth_in": marks,
-        "length_in": marks, "diameter_in": marks,
-    }
-    # Both factors read off the CODE, not typed: the first version of this
-    # line said `5 + 6 * len(_LENGTH_MARKS)` -- 6 length fields times 6
-    # marks -- when there are five length fields. It failed immediately,
-    # which is the only reason the wrong total did not go into the record
-    # for a second time.
-    n_length = sum(1 for kind, _u in V.FIELDS.values() if kind == "length")
-    assert sum(len(v) for v in accepts.values()) == 5 + n_length * len(V._LENGTH_MARKS)
+    for key in V.FIELDS:
+        want = _derived_accepts(key)
+        for c in _SINGLE_CHAR_PROBES:
+            norm = c.lower().rstrip(".")
+            assert V._known_unit(c, key) is (norm in want), (
+                "key=%r char=%r (U+%04X, lower=%r): gate says %r, the rule "
+                "derived from vocab's tables says %r"
+                % (key, c, ord(c), norm, V._known_unit(c, key), norm in want))
+
+
+@pytest.mark.parametrize("char,key", [
+    ("\u212a", "cct_k"),   # KELVIN SIGN on "Color Temperature (K)"
+    ("K", "cct_k"),        # and plain uppercase K
+    ("A", "amps"),         # uppercase on "Rated Current (A)"
+    ("W", "watts"),
+    ("C", "temperature_c"),
+])
+def test_case_folding_and_unicode_unit_signs_are_ACCEPTED(char, key):
+    """Pinned as intended behaviour, not tolerated as an accident.
+
+    "Color Temperature (K)" with the Kelvin sign is a real label, and a
+    sheet that writes its units in capitals is the normal case -- refusing
+    either would lose rows for no reason. This is the behaviour; round 6
+    found it only because the test that claimed to enumerate the accept set
+    never tried it.
+    """
+    assert V._known_unit(char, key) is True
+
+
+@pytest.mark.parametrize("char,key", [
+    ("\u212a", "height_in"),   # a Kelvin sign is not a length
+    ("K", "height_in"),
+    ("A", "height_in"),
+    ("\u212b", "cct_k"),       # ANGSTROM SIGN folds to a, not k
+    ("\uff21", "amps"),        # FULLWIDTH A does not fold to ascii a
+])
+def test_the_same_characters_are_REFUSED_where_they_mean_nothing(char, key):
+    assert V._known_unit(char, key) is False
 
 
 @pytest.mark.parametrize("label", ["Voltage (V)", "Phases (A)", "Model (X)",

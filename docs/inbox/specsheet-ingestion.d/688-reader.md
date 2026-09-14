@@ -334,22 +334,37 @@ The marks are read on a **length** field and, by the same argument, nowhere
 else — they used to be accepted on every field and were harmless only
 because a later check refused them.
 
-**An earlier version of this paragraph said "15 accepts".** It is 35. The
-test that was supposed to pin the set enumerated `ascii_lowercase + "#°'\""`
-— a hand-picked string that omits four of the six marks `vocab` itself
-declares — while its own docstring said *"Enumerated rather than sampled:
-this asserts the WHOLE accept set"*. The wrong total went from there into
-the source comment and into this record: **one unmeasured completeness
-claim, written in three places**, in the same PR whose round-3 finding was
-an unevidenced comment and whose round-4 finding was a stale count. Caught
-by the round-5 review, not by me.
+**Three attempts to write this down as a list of characters were wrong,
+and the third is the one that settles it.**
 
-The test now enumerates a domain built from `_LENGTH_MARKS` itself, so a
-mark added there cannot slip past unexercised, and both factors of the total
-are read off `FIELDS` rather than typed. (The first attempt at *that*
-asserted `5 + 6 * len(_LENGTH_MARKS)` — six length fields, when there are
-five — and failed immediately, which is the only reason a wrong total did
-not reach this record twice.)
+Round 5 caught the first: the test enumerated `ascii_lowercase + "#°'\""`,
+omitting four of the six marks `vocab` declares, while its docstring said
+*"Enumerated rather than sampled: this asserts the WHOLE accept set"*. The
+wrong total that followed went into the source comment and this record too —
+one unmeasured completeness claim in three places.
+
+Round 6 caught the replacement. It was ASCII-**lowercase** plus symbols, so
+it never tried `"A"` — accepted on `amps` — nor **U+212A KELVIN SIGN**,
+whose `.lower()` is ASCII `"k"`, so it is accepted on `cct_k`. That is a
+real character: Unicode defines it for the Kelvin unit and some PDF
+toolchains emit it, so `Color Temperature (K)` written with it is a label we
+*should* read. The behaviour was right; the claim about it was wrong.
+
+**A character list can never be complete here**, because case folding maps
+an open set onto every accepted letter. So the test no longer asserts a set;
+it asserts the **rule** — a single character is accepted exactly when its
+`.lower().rstrip(".")` form is in the set derived from `FIELDS`,
+`_LENGTH_MARKS` and `UNIT_SPELLINGS` — checked against probes chosen to hit
+every accept *mechanism* (both ASCII cases, the marks, the Unicode
+compatibility signs). A rule is checkable; a list is not, which is why three
+lists were wrong and the count is no longer stated anywhere.
+
+Round 6's second finding, non-blocking: mutating `questions()`'s
+`all(c.is_refused …)` to `any(…)` passed the entire suite. The two differ
+only when a duplicate set mixes taken and refused claims with the **first**
+one taken — a headline that reads plus an accessory row that does not — and
+nothing exercised it, so a regression there would have told a user "NONE of
+them could be read" about a field that has a value. Pinned now.
 
 ### 4. Six defects found by re-reading the module after writing it
 
