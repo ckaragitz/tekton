@@ -1,0 +1,8 @@
+# Spec-sheet reader (#688).  Fresh-clone safe: tests/fixtures_pdf.py WRITES
+# every PDF it reads, so no sample, no vendor document and no network.
+# test_specsheet_backend_688.py skips itself without the optional [pdf]
+# extra, which CI does not install -- it is listed so it runs wherever the
+# extra IS installed rather than only on a contributor's machine.
+tests/test_specsheet_pdftext_688.py
+tests/test_specsheet_sheet_688.py
+tests/test_specsheet_backend_688.py

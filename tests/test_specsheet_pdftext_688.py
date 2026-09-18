@@ -1,0 +1,332 @@
+"""test_specsheet_pdftext_688.py -- the stdlib PDF reader reads what was
+DRAWN, and where (#688 DONE 2).
+
+WHY THIS FILE EXISTS.  ``rvt.specsheet.pdftext`` exists so a spec sheet can
+be read with no new runtime dependency.  Its whole value is positional: a
+reader that returns a flat string has thrown away the columns, and the
+columns are where a spec sheet's meaning lives.  So every case here asserts a
+COORDINATE, not just that some text came back.
+
+THE INSTRUMENT.  ``tests/fixtures_pdf.py`` writes the PDFs, and declares
+every glyph 600/1000 em wide -- so the x of the n-th character is arithmetic,
+not a fuzzy range.  No real vendor sheet is or may be committed (hard rules 3
+and 6); a writer is also the better instrument, because each fixture states
+the coordinate it drew at and the test asserts the reader recovered THAT.
+
+THE FOUR SHAPES, each a real producer habit and each able to break a
+different part of the reader:
+
+  ``Tm``      one absolute placement per cell -- the easy case.
+  ``TJ``      a whole row as one kerned array.  Breaks unless the pen
+              advances by the font's own widths: every run lands at the
+              first x and the row becomes one cell.
+  ``cm``      the table wrapped in ``q <translate> cm ... Q``.  Breaks unless
+              the CTM is composed with the text matrix: the table is read
+              perfectly, at the wrong place.
+  ``type0``   2-byte CIDs with a ``/ToUnicode`` CMap and a ``/W`` array --
+              what a subset-embedded font looks like.  Breaks unless both
+              the CMap and the CID widths are read.
+
+Each of those two matrix rules was confirmed by a single-variable mutant
+(see the record); the tests that catch them are marked below.
+"""
+import os
+
+import pytest
+
+import fixtures_pdf as FP
+from rvt.specsheet import pdftext as P
+
+#: the shapes above; each parametrised case is one producer habit
+SHAPES = {
+    "Tm": {},
+    "TJ": {"draw": "TJ"},
+    "cm": {"draw": "cm"},
+    "type0": {"font": "type0"},
+    "stale_xref": {"stale_xref": True},
+    "raw_stream": {"compress": False},
+    "filter_array": {"filter_array": True},
+}
+
+#: ``kern_split`` is deliberately NOT in SHAPES.  Those two tests assert a
+#: whole drawn run comes back as ONE glyph at ONE x, which a kern-split run
+#: by definition does not -- it is several fragments that the LAYOUT layer
+#: rejoins.  Pinning it here would be pinning the wrong layer; it is
+#: exercised below and in test_specsheet_sheet_688.py, where rejoining is
+#: the actual claim.
+
+
+@pytest.fixture
+def sheet(tmp_path):
+    """``build(shape) -> [Page]`` for the standard fixture sheet."""
+    def build(shape, draws=None, **extra):
+        kw = dict(SHAPES[shape]) if shape in SHAPES else {}
+        kw.update(extra)
+        path = FP.build_pdf(str(tmp_path / ("%s.pdf" % shape)),
+                            [draws if draws is not None
+                             else FP.spec_sheet_draws()], **kw)
+        return P.read_pdf(path)
+    return build
+
+
+def _at(pages, text):
+    """The one glyph whose text starts with ``text`` -- and exactly one."""
+    hits = [g for p in pages for g in p.glyphs if g.text.startswith(text)]
+    assert len(hits) == 1, "%r appears %d times, not once" % (text, len(hits))
+    return hits[0]
+
+
+# ---------------------------------------------------------------------------
+# (1) every shape recovers the SAME coordinates
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("shape", sorted(SHAPES))
+def test_every_producer_shape_recovers_the_drawn_position(shape, sheet):
+    """The fixture drew "62.0 in" at (300, 700).  Every shape must say so.
+
+    ``cm`` is the case that fails without CTM composition (mutant: glyphs
+    land at 0,0); ``TJ`` is the case that fails without the pen advance
+    (mutant: 36pt left, exactly the width of the un-advanced "Height").
+    """
+    pages = sheet(shape)
+    assert len(pages) == 1
+    g = _at(pages, "62.0 in")
+    assert (round(g.x, 3), round(g.y, 3)) == (300.0, 700.0)
+    assert g.size == pytest.approx(10.0)
+
+
+@pytest.mark.parametrize("shape", sorted(SHAPES))
+def test_every_row_of_the_sheet_survives(shape, sheet):
+    """Nothing is dropped: all 8 labels and all 8 values come back."""
+    pages = sheet(shape)
+    text = " | ".join(g.text for g in pages[0].glyphs)
+    for label, value in FP.SHEET_ROWS:
+        assert label in text, "%s lost the label %r" % (shape, label)
+        assert value in text, "%s lost the value %r" % (shape, value)
+
+
+# ---------------------------------------------------------------------------
+# (2) the advance is MEASURED, not estimated
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("shape", ["Tm", "type0"])
+def test_run_width_is_the_fonts_own_advance(shape, sheet):
+    """``Glyph.width`` must come from ``/Widths`` (or ``/W``), which is what
+    lets the layout layer tell "two words" from "two columns".
+
+    The fixture declares 600/1000 em for every code, so a 7-character run at
+    10pt is exactly 42pt.  A reader estimating 0.5 em would say 35 -- close
+    enough to look right in a screenshot and wrong enough to merge two
+    columns on a tight sheet.
+    """
+    g = _at(sheet(shape), "62.0 in")
+    assert g.width == pytest.approx(FP.advance(10.0, len("62.0 in")))
+    assert g.x1 == pytest.approx(g.x + g.width)
+
+
+def test_a_font_with_no_declared_widths_says_so(tmp_path):
+    """An ESTIMATE must be visible.  A silently-estimated advance shifts
+    every column on the page and looks exactly like a badly typeset sheet."""
+    path = FP.build_pdf(str(tmp_path / "nowidths.pdf"), [FP.spec_sheet_draws()])
+    raw = open(path, "rb").read()
+    # strip the /Widths array, keeping the byte count identical so no offset
+    # in the file moves (the reader ignores the xref, but the fixture's is
+    # still written and a length change would be a second variable)
+    m = __import__("re").search(rb"/FirstChar 32 /LastChar 126 /Widths \[[^\]]*\]", raw)
+    assert m, "the fixture stopped declaring /Widths -- this probe is broken"
+    raw = raw.replace(m.group(0), b" " * len(m.group(0)))
+    open(path, "wb").write(raw)
+
+    page = P.read_pdf(path)[0]
+    assert page.has_text, "removing /Widths must not lose the text"
+    assert "estimated" in page.note, page.note
+
+
+# ---------------------------------------------------------------------------
+# (2a) THE ONE THAT MATTERS: a numeric string is TEXT, never a kern
+# ---------------------------------------------------------------------------
+
+#: The fixture sheet whose values are BARE NUMBERS, with the unit hoisted
+#: into the row label -- a shape real sheets use constantly, and the shape
+#: ``SHEET_ROWS`` structurally could not produce: every value there contains
+#: a space, so ``float()`` always failed and the ambiguous branch below was
+#: never reached.  The suite was green and the bug was there the whole time.
+NUMERIC_SHAPES = {
+    "Tm": {},
+    "TJ": {"draw": "TJ"},
+    "TJ_kern_split": {"draw": "TJ", "kern_split": 1},
+}
+
+
+@pytest.mark.parametrize("shape", sorted(NUMERIC_SHAPES))
+def test_a_numeric_string_in_a_TJ_array_is_text_not_a_kern(shape, tmp_path):
+    """A ``TJ`` array interleaves strings and kerning numbers, and BOTH
+    arrive from the tokenizer as ``bytes``.  Deciding which is which by
+    trying ``float()`` works until a string IS numeric -- which on a spec
+    sheet is the normal case, because the values are numbers.
+
+    Two failures, the second far worse:
+
+        ``[(62.0)] TJ``          -> read as a kern, the value VANISHES
+        ``[(6) 0 (2.0 in)] TJ``  -> "6" read as a kern, the value becomes
+                                    "2.0 in": a WRONG dimension carrying a
+                                    citation to the user's own document
+
+    Found by the independent review of #688, which measured it against
+    pdfminer on the same bytes (pdfminer reads ``Height 62.0``; we read
+    nothing, or ``2.0``).  The fix tags string operands (``pdftext._Str``)
+    so the question is never asked.
+    """
+    path = FP.build_pdf(str(tmp_path / ("num_%s.pdf" % shape)),
+                        [FP.numeric_sheet_draws()], **NUMERIC_SHAPES[shape])
+    page = P.read_pdf(path)[0]
+    text = "".join(g.text for g in page.glyphs)
+    for label, value in FP.NUMERIC_ROWS:
+        number = value.split(" ")[0]
+        assert number in text, (
+            "%s: the bare numeric value %r for %r was lost -- it was almost "
+            "certainly taken for a kerning adjustment"
+            % (shape, number, label))
+
+
+def test_a_kern_split_number_is_rejoined_not_truncated(tmp_path):
+    """``(6) 0 (2.0)`` must come back as 62.0, not 2.0.
+
+    This is the dangerous half: a dropped value is visibly missing, but a
+    truncated one is a plausible number that a family gets built from.
+    """
+    draws = [(72.0, 700.0, "Height (in)"), (300.0, 700.0, "62.0")]
+    path = FP.build_pdf(str(tmp_path / "split.pdf"), [draws],
+                        draw="TJ", kern_split=1)
+    page = P.read_pdf(path)[0]
+    joined = "".join(g.text for g in sorted(page.glyphs, key=lambda g: g.x)
+                     if g.x >= 299.0)
+    assert joined == "62.0", "got %r -- a truncated dimension" % joined
+
+
+# ---------------------------------------------------------------------------
+# (2b) the object layer -- where a silent wrong answer was actually possible
+# ---------------------------------------------------------------------------
+
+def test_the_array_spelling_of_filter_is_read(tmp_path):
+    """``/Filter [/FlateDecode]`` is as legal as ``/Filter /FlateDecode``.
+
+    Reading only the second spelling made an array-filtered stream look
+    UNFILTERED, so the compressed bytes were handed on as the content
+    stream, no text operators parsed out of deflate data, and a perfectly
+    readable sheet came back as "page draws no text -- probably a scanned
+    image".  Measured on this fixture before the fix: the single-name lookup
+    returned None (= no filter) where the stream carried FlateDecode.
+
+    A wrong refusal is the worst outcome this module has: the user goes
+    looking for OCR for a document that was never scanned.
+    """
+    path = FP.build_pdf(str(tmp_path / "arr.pdf"), [FP.spec_sheet_draws()],
+                        filter_array=True)
+    page = P.read_pdf(path)[0]
+    assert page.has_text and not page.note
+    assert _at([page], "62.0 in").x == pytest.approx(300.0)
+
+
+def test_a_filter_CHAIN_is_refused_by_its_full_name(tmp_path):
+    """Half-decoding a chain would be worse than refusing it."""
+    path = FP.build_pdf(str(tmp_path / "chain.pdf"), [FP.spec_sheet_draws()])
+    raw = open(path, "rb").read()
+    assert b"/Filter /FlateDecode" in raw, "fixture changed; this probe is broken"
+    raw = raw.replace(b"/Filter /FlateDecode",
+                      b"/Filter [/ASCII85Decode /FlateDecode]", 1)
+    open(path, "wb").write(raw)
+    note = P.read_pdf(path)[0].note
+    assert "ASCII85Decode" in note and "FlateDecode" in note, note
+
+
+def test_payload_bytes_that_spell_endstream_do_not_truncate_the_stream(tmp_path):
+    """``/Length`` is the format's own answer to where a payload ends.
+
+    Searching for ``endstream`` guesses, and a stream's bytes can spell it --
+    deflate output can contain anything, and an uncompressed one certainly
+    can.  Truncating there drops the rest of the page silently.
+    """
+    draws = [(72.0, 700.0, "Height"), (300.0, 700.0, "62.0 in"),
+             (72.0, 660.0, "endstream endobj"),          # the trap, drawn
+             (72.0, 620.0, "Width"), (300.0, 620.0, "20.0 in")]
+    path = FP.build_pdf(str(tmp_path / "trap.pdf"), [draws], compress=False)
+    page = P.read_pdf(path)[0]
+    texts = [g.text for g in page.glyphs]
+    assert "62.0 in" in texts and "20.0 in" in texts, \
+        "content after the trap was lost: %r" % texts
+
+
+def test_the_word_encrypt_in_a_stream_does_not_refuse_the_file(tmp_path):
+    """The encryption dictionary must be an INDIRECT object, so requiring
+    ``/Encrypt N G R`` keeps every genuinely encrypted file and stops a
+    document that merely mentions the word from being refused."""
+    draws = [(72.0, 700.0, "Height"), (300.0, 700.0, "62.0 in"),
+             (72.0, 660.0, "/Encrypt is a word on this page")]
+    path = FP.build_pdf(str(tmp_path / "word.pdf"), [draws], compress=False)
+    page = P.read_pdf(path)[0]                      # must not raise
+    assert _at([page], "62.0 in").x == pytest.approx(300.0)
+
+
+# ---------------------------------------------------------------------------
+# (3) what it will NOT do, said out loud
+# ---------------------------------------------------------------------------
+
+def test_an_image_only_page_is_reported_not_read_as_empty(tmp_path):
+    """The failure this module was written to prevent: a scanned sheet read
+    as an empty table becomes "the sheet states nothing", and a family is
+    then built at nominal sizes while the user believes their document was
+    used."""
+    path = FP.build_pdf(str(tmp_path / "scan.pdf"), [FP.spec_sheet_draws()],
+                        no_text=True)
+    page = P.read_pdf(path)[0]
+    assert not page.has_text
+    assert "no OCR" in page.note and "scanned" in page.note
+
+
+def test_an_unsupported_filter_is_named_not_half_decoded(tmp_path):
+    path = FP.build_pdf(str(tmp_path / "lzw.pdf"), [FP.spec_sheet_draws()],
+                        filter_name="LZWDecode")
+    page = P.read_pdf(path)[0]
+    assert "/LZWDecode" in page.note, page.note
+    assert "FlateDecode" in page.note, "the note must say what IS supported"
+
+
+def test_an_encrypted_pdf_refuses_by_name(tmp_path):
+    path = FP.build_pdf(str(tmp_path / "enc.pdf"), [FP.spec_sheet_draws()],
+                        encrypt=True)
+    with pytest.raises(P.UnreadablePdf) as exc:
+        P.read_pdf(path)
+    assert "encrypted" in str(exc.value)
+
+
+def test_a_non_pdf_raises_pdferror(tmp_path):
+    path = tmp_path / "not.pdf"
+    path.write_bytes(b"PK\x03\x04 this is a zip")
+    with pytest.raises(P.PdfError):
+        P.read_pdf(str(path))
+
+
+# ---------------------------------------------------------------------------
+# (4) multi-page, and the page cap
+# ---------------------------------------------------------------------------
+
+def test_pages_are_numbered_in_document_order(tmp_path):
+    pages_in = [[(72.0, 700.0, "PAGE %d MARKER" % i)] for i in range(1, 4)]
+    path = FP.build_pdf(str(tmp_path / "multi.pdf"), pages_in)
+    pages = P.read_pdf(path)
+    assert [p.number for p in pages] == [1, 2, 3]
+    assert [p.glyphs[0].text for p in pages] == \
+        ["PAGE 1 MARKER", "PAGE 2 MARKER", "PAGE 3 MARKER"]
+
+
+def test_max_pages_caps_the_read(tmp_path):
+    path = FP.build_pdf(str(tmp_path / "many.pdf"),
+                        [[(72.0, 700.0, "p%d" % i)] for i in range(1, 9)])
+    assert len(P.read_pdf(path, max_pages=3)) == 3
+
+
+def test_the_media_box_is_read(tmp_path):
+    page = P.read_pdf(FP.build_pdf(str(tmp_path / "mb.pdf"),
+                                   [FP.spec_sheet_draws()]))[0]
+    assert (page.width, page.height) == (FP.PAGE_W, FP.PAGE_H)
