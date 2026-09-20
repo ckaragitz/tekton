@@ -184,6 +184,10 @@ class HostContext:
     episode: int                          # the load episode (existing max modified episode)
     partition_name: str
     category: int
+    #: sha256 of the host file as opened -- the host half of the derived
+    #: load GUIDs (#794); see rvt.famload.load_doc_guid for why it is the
+    #: host's CONTENT and not its path
+    digest: str = ""
     category_gstyle: int = INVALID        # host GStyleElem for the family's category
     load_classifications: Dict[str, int] = dc_field(default_factory=dict)   # name -> host id
     line_pattern_solid: int = INVALID
@@ -237,7 +241,9 @@ def _survey_host_impl(host_rvt: str = DEFAULT_HOST, *,
         parts = f.partition_streams()
     if len(parts) != 1:
         raise LoaderError(f"expected one partition stream, got {parts}")
+    from .. import famload as _fl          # local: famload reaches back here
     ctx = HostContext(path=host_rvt, doc=doc, fidx=fidx, watermark=wm,
+                      digest=_fl.host_digest(host_rvt),
                       episode=int(episode), partition_name=parts[0],
                       category=INVALID)
     # named load classifications
@@ -391,8 +397,14 @@ def plan_load(product, host: HostContext, *, place: bool) -> LoadPlan:
     max_own = max(e.elem_id for e in doc.elements)
     if max_own <= 0:
         raise LoaderError("product elements carry no ids")
-    plan = LoadPlan(guid=guid, fam_doc_guid=str(uuid.uuid4()),
-                    session_guid_hex=uuid.uuid4().hex,
+    # derived, not minted (#794): the same product loaded into the same host
+    # twice must produce the same project, or nothing can pin, cache or
+    # single-variable-diff a loaded .rvt. One derivation for every load path
+    # -- rvt.famload.load_doc_guid carries the argument.
+    from .. import famload as _fl          # local: famload reaches back here
+    plan = LoadPlan(guid=guid,
+                    fam_doc_guid=_fl.load_doc_guid(host.digest, guid),
+                    session_guid_hex=_fl.load_session_guid_hex(host.digest, guid),
                     family_name=doc.name or product.name,
                     type_name=symbol_type_name(doc, doc.name or product.name),
                     episode=int(host.episode))

@@ -3,6 +3,14 @@
 Charter: **#168**. The family path minted `uuid4` on every build and stamped
 the PartAtom from the wall clock, so no two runs produced the same `.rfa`.
 
+Index + fragments (`docs/inbox/README.md`): one fragment per PR, nobody
+appends to anyone else's.
+
+- `794-load-path.md` — the LOAD half (#794): `famload`, `famgen.loader` and
+  `convert.rfa_load` derive their GUIDs instead of minting them, so two
+  identical loads produce byte-identical projects. Corrects two entries in
+  #794's own site table and records the one lane deliberately left alone.
+
 ## Why this is not housekeeping
 
 Provenance and certification both lean on sha256-pinned artifacts, so a file

@@ -124,6 +124,7 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+import hashlib
 import json
 import os
 import struct
@@ -131,6 +132,8 @@ import time
 import uuid
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+
+from .genesis import skeleton as _gsk      # our_guid: the deterministic primitive
 
 _ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                       "..", ".."))
@@ -314,6 +317,12 @@ class HostContext:
     watermark: int                            # highest issued id (IdentifierSource.m_last)
     episode: int                              # the load episode (max modified episode)
     partition_name: str
+    #: sha256 of the host file AS IT WAS OPENED -- the host half of every
+    #: derived GUID below (#794).  CONTENT, deliberately, not the path: a
+    #: path-keyed derivation makes the output depend on where the file sits,
+    #: which is the false-reading #168's first probe produced.  Measured at
+    #: 0.6 ms for the 568 KB pinned base, ~0.03 s for a 30 MB project.
+    digest: str = ""
     category_gstyles: Dict[int, int] = dc_field(default_factory=dict)   # category -> GStyleElem id
     fill_pattern_solid: int = INVALID
     line_pattern_solid: int = INVALID
@@ -341,7 +350,8 @@ def survey_host(host_rvt: str, *, categories: Sequence[int] = ()) -> HostContext
     wm = max(last, max(doc.et_by_id) if doc.et_by_id else 0)
     episode = max((r.modified_ep for r in et.records), default=0)
     ctx = HostContext(path=host_rvt, doc=doc, watermark=int(wm),
-                      episode=int(episode), partition_name=pname)
+                      episode=int(episode), partition_name=pname,
+                      digest=host_digest(host_rvt))
     # the four registries BEFORE
     ctx.census_before = four_registry_census(host_rvt)
     # category projection GStyles (m_gstyleType 1 = projection) for the
@@ -437,6 +447,56 @@ class FamilyLoad:
     notes: List[str] = dc_field(default_factory=list)
 
 
+def host_digest(host_rvt: str) -> str:
+    """sha256 of the host file, read once when the host is surveyed.
+
+    Public because every load path needs the same host half of the key:
+    :mod:`rvt.famgen.loader` and :mod:`rvt.convert.rfa_load` call it too, and
+    two spellings of "which host is this" would be two ways to drift.
+    """
+    h = hashlib.sha256()
+    with open(host_rvt, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def load_doc_guid(host_digest: str, family_guid: str) -> str:
+    """The host ``Family.m_famDocGUID`` of one load, derived not minted (#794).
+
+    #168 made the family BUILD reproducible; the LOAD path still minted
+    ``uuid4`` here, so two identical loads produced two different projects.
+    The consequence is the one #168 argues: a ``.rvt`` that changes on every
+    run cannot be pinned in a manifest, cached, or **diffed in a
+    single-variable round** -- and this is the half a user meets more often,
+    since ``add_to_project`` and the whole ``rfa -> rvt`` lane come through
+    here.
+
+    The key is (host content, family content) and both halves matter:
+
+    * the **family** half is the content-document GUID of the family being
+      loaded -- itself content-derived since #793 -- so two DIFFERENT
+      families loaded into one host get different GUIDs (the property a
+      naive "hash the host" derivation breaks), and the SAME family loaded
+      twice gets the same one, which is what ``m_famDocGUID`` means: Revit
+      uses it to recognise a family across a reload;
+    * the **host** half keeps two projects from claiming one family-document
+      identity, and is the host's bytes rather than its path.
+
+    The target release is not a separate term because it is already in both:
+    the host digest is that release's bytes, and a family's content GUID
+    covers the release-specific content it was built with. Adding it would
+    be a third spelling of something the key already says.
+    """
+    return _gsk.our_guid("famload-doc", host_digest, family_guid)
+
+
+def load_session_guid_hex(host_digest: str, family_guid: str) -> str:
+    """The 32-hex session GUID the loaded family's parameter twins wear."""
+    return uuid.UUID(_gsk.our_guid("famload-session",
+                                   host_digest, family_guid)).hex
+
+
 def _plan_family(fl: FamilyLoad, doc, host: HostContext, cursor: int) -> Tuple[LoadPlan, int]:
     """Derive the LoadPlan of one finalized FamilyDoc; allocate the host
     element ids above the document's own ids.  Returns (plan, next cursor)."""
@@ -461,8 +521,9 @@ def _plan_family(fl: FamilyLoad, doc, host: HostContext, cursor: int) -> Tuple[L
     # never the symbol an instance binds [corpus law: 0/36 native host rows]
     from .famgen.loader import real_type_names
     type_names = real_type_names(doc) or [str(doc.name)]
-    plan = LoadPlan(key=fl.key, guid=guid, fam_doc_guid=str(uuid.uuid4()),
-                    session_guid_hex=uuid.uuid4().hex,
+    plan = LoadPlan(key=fl.key, guid=guid,
+                    fam_doc_guid=load_doc_guid(host.digest, guid),
+                    session_guid_hex=load_session_guid_hex(host.digest, guid),
                     family_name=str(doc.name), category=int(doc.category_id),
                     part_type=int(getattr(doc, "part_type", 0)),
                     type_names=type_names, episode=int(host.episode),
