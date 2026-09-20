@@ -961,7 +961,7 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
 
 def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             category: str, solid: bool, source: str,
-                            start_id: int,
+                            start_id: int, dim_provenance: str = "given",
                             shared_params: SK.SharedParamsArg,
                             identity: Optional[Dict[str, str]] = None,
                             text_params: Optional[Dict[str, str]] = None,
@@ -1012,9 +1012,13 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         z0, z1 = min(z0, base), max(z1, base + h)
     W, D, H = (x1 - x0), (y1 - y0), (z1 - z0)
     sheet = FactSheet(subject=f"generic model {fam_name} ({len(built)} parts)")
-    sheet.set("width_in", W * 12.0, kind="given", source=source)
-    sheet.set("depth_in", D * 12.0, kind="given", source=source)
-    sheet.set("height_in", H * 12.0, kind="given", source=source)
+    # `given` by default -- a caller's 3D body. The spec-sheet lane passes
+    # `fact`, because those numbers were READ OFF A PUBLISHED DOCUMENT the
+    # user supplied, which is the distinction #688 exists to keep: a fact
+    # carries its source, a given is the caller's word for it.
+    sheet.set("width_in", W * 12.0, kind=dim_provenance, source=source)
+    sheet.set("depth_in", D * 12.0, kind=dim_provenance, source=source)
+    sheet.set("height_in", H * 12.0, kind=dim_provenance, source=source)
     sheet.set("part_count", len(built), kind="given", source=source)
     for dim in ("Width", "Depth", "Height"):
         _num(doc, dim, "length", "dimensions")
@@ -1095,8 +1099,18 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     doc.finalize()
     prod = FamilyProduct("generic_model", doc, sheet, forms=built,
                          file_stem=_slug(fam_name), standards=std_report)
-    prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
-                      "catalog facts; no manufacturer identity is claimed")
+    if dim_provenance == "fact":
+        # The spec-sheet lane (#688 DONE 5). Saying "no manufacturer identity
+        # is claimed" here would be false: the user supplied the document
+        # that states the name, the model and the dimensions together, so
+        # wearing them is a report of THEIR document, not a claim of ours.
+        prod.notes.append(
+            "dimensions are FACTS read from the document named in `source`, "
+            "each cited to its page and row; identity parameters, where "
+            "present, are that document's own and are not this engine's claim")
+    else:
+        prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
+                          "catalog facts; no manufacturer identity is claimed")
     if std_report:
         prod.notes.append(_standards_note(std_report))
     return prod
@@ -1214,6 +1228,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        category: str = "generic_model",
                        base_z_ft: float = 0.0, solid: bool = True,
                        source: str = "given", start_id: int = 1000,
+                       dim_provenance: str = "given",
                        shared_params: SK.SharedParamsArg = None,
                        identity: Optional[Dict[str, str]] = None,
                        text_params: Optional[Dict[str, str]] = None,
@@ -1244,6 +1259,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
         parts, _revolve_report = RV.expand_parts(parts)
         return _make_generic_multipart(parts, name=name, category=category,
                                        solid=solid, source=source,
+                                       dim_provenance=dim_provenance,
                                        start_id=start_id,
                                        shared_params=shared_params,
                                        identity=identity, text_params=text_params,
@@ -1262,11 +1278,13 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     D = float(prof.depth) if prof is not None else float(depth_ft)
     fam_name = name or "Generic Model"
     sheet = FactSheet(subject=f"generic model {fam_name}")
-    sheet.set("width_in", W * 12.0, kind="given", source=source)
-    sheet.set("depth_in", D * 12.0, kind="given", source=source)
-    sheet.set("height_in", H * 12.0, kind="given", source=source)
+    # see the note in _make_generic_multipart: `fact` on the spec-sheet lane
+    sheet.set("width_in", W * 12.0, kind=dim_provenance, source=source)
+    sheet.set("depth_in", D * 12.0, kind=dim_provenance, source=source)
+    sheet.set("height_in", H * 12.0, kind=dim_provenance, source=source)
     if prof is not None:
-        sheet.set("profile_points", len(prof.vertices), kind="given", source=source)
+        sheet.set("profile_points", len(prof.vertices), kind=dim_provenance,
+                  source=source)
     doc = SK.new_family_document(category, fam_name, work_plane_based=False,
                                  start_id=start_id,
                                  plane_length_ft=max(6.0, W * 2.0),
@@ -1303,8 +1321,15 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     doc.finalize()
     prod = FamilyProduct("generic_model", doc, sheet, forms=[fb],
                          file_stem=_slug(fam_name), standards=std_report)
-    prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
-                      "catalog facts; no manufacturer identity is claimed")
+    if dim_provenance == "fact":
+        # see the twin of this branch in _make_generic_multipart (#688 DONE 5)
+        prod.notes.append(
+            "dimensions are FACTS read from the document named in `source`, "
+            "each cited to its page and row; identity parameters, where "
+            "present, are that document's own and are not this engine's claim")
+    else:
+        prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
+                          "catalog facts; no manufacturer identity is claimed")
     if std_report:
         prod.notes.append(_standards_note(std_report))
     return prod
