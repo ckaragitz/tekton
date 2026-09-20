@@ -386,7 +386,7 @@ class LoadPlan:
     """Ids and correspondences of one family load."""
     key: str                                   # caller's family key
     guid: str                                  # our content-document GUID (== unit GUID)
-    fam_doc_guid: str                          # host Family.m_famDocGUID (minted)
+    fam_doc_guid: str                          # host Family.m_famDocGUID (derived, #794)
     session_guid_hex: str                      # 32-hex session guid for the twins' typeIds
     family_name: str
     category: int
@@ -472,11 +472,15 @@ def load_doc_guid(family_guid: str) -> str:
     get different GUIDs because their content GUIDs differ (content-derived
     since #793), and the SAME family loaded twice gets the same one.
 
-    "The same family twice in one host" cannot arise on THIS lane in any
-    case: :func:`_register_content` rejects it by name before any
-    ``fam_doc_guid`` could collide ("content GUID ... already registered in
-    the host").  The born-``.rfa`` lane has no such registry to check against
-    and solves the same problem a different way -- see
+    Reloading a family ALREADY REGISTERED in the host cannot reach a
+    ``fam_doc_guid`` collision on this lane: :func:`register_in_host_adocument`
+    rejects it by name first ("content GUID ... already registered in the
+    host").  That guard is scoped exactly that far and no further -- it
+    snapshots the host's existing keys *before* walking the plans, so two
+    plans carrying ONE content GUID inside a single batch are not caught by
+    it (a degenerate request in its own right, and not one this derivation
+    made worse).  The born-``.rfa`` lane has no host registry to check
+    against at all and solves the two-copies problem a different way -- see
     ``rvt.convert.rfa_load.RfaSource.document_guid_at``, which is why the two
     keys are not spelled the same.
 

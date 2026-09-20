@@ -177,7 +177,7 @@ class BornRfaDoc:
         #
         # The caller now supplies a DERIVED guid keyed on the .rfa's content
         # and the id block it is being rebased into -- see
-        # `BornRfaLoader.document_guid_at`, which keeps both properties at
+        # `RfaSource.document_guid_at`, which keeps both properties at
         # once. The `uuid4()` stays as the last-resort default for a direct
         # constructor call that supplies neither.
         self.document_guid = document_guid or str(uuid.uuid4())
@@ -371,12 +371,12 @@ class RfaSource:
         the two docstrings otherwise look like they disagree.
         ``famload.load_doc_guid`` deliberately excludes anything host-derived
         because a host term breaks the chain-vs-batch invariant
-        (``tests/test_famload_batch.py``) -- and it can afford to, because
-        ``famload._register_content`` already refuses a second copy of one
-        content GUID in a host outright.  Here there is no such registry to
-        refuse against, and the rebased elements genuinely DIFFER between two
-        copies: they carry different ids, so they are different bytes and
-        honestly a different document.  ``start_id`` is not a host identity
+        (``tests/test_famload_batch.py``), and on that lane a family already
+        registered in the host is refused by name first
+        (``famload.register_in_host_adocument``).  Here there is no host
+        registry to refuse against at all, and the rebased elements genuinely
+        DIFFER between two copies: they carry different ids, so they are
+        different bytes and honestly a different document.  ``start_id`` is not a host identity
         smuggled in -- it is the one thing that actually distinguishes the
         two copies, and it is stable run-to-run for a given host
         (``host.watermark + 1``, allocated the same way every time).

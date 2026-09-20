@@ -98,7 +98,9 @@ rather than throwing randomness at it.
 
 ## Evidence
 
-Before, on `main` at `5ddcc16`, measured the way #794 DONE 3 specifies —
+Before, on `main` at `b645cc5` (this branch's actual base; an earlier draft
+said `5ddcc16`, which was the base before #798 merged), measured the way
+#794 DONE 3 specifies —
 **same output filename in different directories**, because the output path is
 written into the file and that is how #168's first probe produced a false
 reading:
@@ -218,21 +220,57 @@ change there is better covered than this record claimed, not worse. I had
 written the sentence from reading call sites instead of running the lane,
 which is the same mistake this record spends two sections warning about.
 
-**And the control that matters more than the correction:** `prompt → rvt` was
-**already byte-deterministic on `main`**, and still is.
+**And a correction to my own correction, caught by the round-2 reviewer.** An
+earlier draft of this section claimed `prompt → rvt` was *already*
+byte-deterministic on `main` and that this PR left it untouched — "the
+regression control for the whole change". **That was false in both halves,
+and the way it went wrong is worth more than the claim was.**
+
+I measured `main` by running `git stash`, taking the numbers, then
+`git stash pop`. My tree was **clean** at that moment — everything was
+committed — so `git stash` created nothing, the working tree still held my
+branch, and I measured *my own branch twice* and labelled one of them `main`.
+(The `pop` then picked up a *different* session's stash that was sitting in
+this shared clone, which is how I noticed at all.) Re-measured properly, with
+`git archive` into two separate directories and `PYTHONPATH` pointed at each
+export's own `src/` — verified by printing `rvt.__file__` on both sides:
 
 ```
-main   (b645cc5)  696a5d1cc523b453  twice   IDENTICAL
-branch (8a27bc6)  696a5d1cc523b453  twice   IDENTICAL
+main (b645cc5)   81e571efff2c9bb4  4091031d0015ae0b   DIFFER
+head (8ec8fc1)   696a5d1cc523b453  696a5d1cc523b453   IDENTICAL
 ```
 
-Same hash on both sides. This PR does not make that lane deterministic — it
-was already — and it does not perturb it either, despite touching a function
-the lane calls six times. That is the regression control for the whole change,
-and it is worth more than the two before/after pairs above, because those only
-show the change *did* something and this shows it did nothing where it should
-do nothing. It also means the minted GUIDs on that lane never reached the
-delivered bytes, which is why nobody had noticed them.
+And the mint census on that lane, same instrument:
+
+```
+main   prompt->rvt   12 mints, all at loader.py plan_load  (6 calls x 2)
+head   prompt->rvt    0 mints
+```
+
+So: **`prompt → rvt` was NOT deterministic on `main`, and this PR fixes it.**
+That is a third lane fixed, not a control — the main authoring lane, the one
+most users actually run. The follow-on sentence in that draft ("the minted
+GUIDs on that lane never reached the delivered bytes, which is why nobody had
+noticed them") was false too: they reached the bytes, which is exactly why the
+hashes differ on `main`.
+
+| lane | `main` (b645cc5) | head (8ec8fc1) |
+|---|---|---|
+| `prompt → rvt` | `81e571ef…` / `4091031d…` **DIFFER** | `696a5d1c…` twice **IDENTICAL** |
+| `famspec → rvt` | DIFFER | twice **IDENTICAL** |
+| `.rfa path → rvt` | DIFFER | twice **IDENTICAL** |
+
+The **property** (DIFFER → IDENTICAL) is what this PR claims and what the
+tests assert. The absolute sha256 values are environment-dependent — the
+round-2 reviewer got different absolute numbers from a clean sandbox export
+while reproducing the property exactly — so they are recorded as what this
+machine produced, never as constants anything should pin.
+
+**Never use `git stash` to measure a "before" state**, in this clone above all:
+it is shared with other sessions, and on a clean tree it silently measures the
+present. Export both revisions with `git archive` and point `PYTHONPATH` at
+each, then *prove which engine ran* by printing `rvt.__file__`. That last step
+is what turns a measurement into evidence, and it is the step I skipped.
 
 ## Open questions
 

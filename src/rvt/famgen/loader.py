@@ -351,7 +351,7 @@ def symbol_type_name(doc, fallback: str) -> str:
 class LoadPlan:
     """Ids and correspondences of one family load."""
     guid: str                                  # our content-document GUID (== unit GUID)
-    fam_doc_guid: str                          # host Family.m_famDocGUID (minted)
+    fam_doc_guid: str                          # host Family.m_famDocGUID (derived, #794)
     session_guid_hex: str                      # 32-hex session guid for the twins' typeIds
     family_name: str
     type_name: str                             # the PRIMARY (current) type = what an instance binds
