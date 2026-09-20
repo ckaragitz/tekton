@@ -187,8 +187,17 @@ Weight-via-`standard_values` split stands and its lb→kg is the only conversion
 `dim_provenance="fact"` the type row's description and the document notes
 still read "geometry GIVEN (spec sheet: …)" while the fact sheet, the product
 note and every caveat said FACT. A person opening the family in Revit reads
-the former. Both generic-model paths now go through `_geometry_origin`, with
-the `given` wording kept as the control for the IFC/caller lane.
+the former. Both generic-model paths now go through `_geometry_origin`.
+
+One correction to an earlier draft of this paragraph, caught by round 2: the
+`given` wording is the *control* for the IFC/caller lane but it is **not
+byte-identical** to what it replaced. The two call sites had different original
+strings ("no catalog record" on the multi-part row, "no catalog record claimed"
+on the single-prism one), so one helper cannot reproduce both; the multi-part
+row gained "claimed", and both document notes gained the parenthetical. Nothing
+greps those strings (checked across `src/ tests/ tools/ docs/ plugin/skills/`)
+and the suite is green, so the change is cosmetic — but "unchanged" was the
+wrong word for it and is not what this record should have said.
 
 ### Mutation table for the fixes
 
@@ -210,6 +219,39 @@ The caveat text promised the behaviour and the code did not implement it, and
 **a caveat is not a test**. Where a route's honesty contract makes a claim in
 prose, the claim needs a case that fails when the claim stops being true —
 which is the same finding #789 kept producing about docstrings, one layer up.
+
+## Round 2 — nits only, three of them fixed here
+
+The re-review at `0382223` confirmed all four round-1 fixes by mutation rather
+than by reading (mutant A alone: 2 failed / 361 passed, the delivery cases
+surviving, which is the proof that the two halves of fix 1 are independent),
+and ran its own nine-shape delivery probe: every case that could build a file
+delivered one. It returned four nits. Three are fixed on this branch because
+two of them are the very defect class this PR exists to remove:
+
+- **`res.line` went stale on a successful fall-through.** A failed famspec
+  attempt writes THE one clear line; `ROUTE.md` prints it as the bullet
+  directly under the status, so a delivered archetype family carried
+  `"famspec kind 'generic_model' could not be emitted here: … This kind needs
+  the family container archetype of the research corpus (owner machine)"` under
+  an `OK` status — a sentence that is false twice over for `generic_model`.
+  The line is now snapshotted before the lane runs and restored before the
+  fall-through, rather than blanket-cleared, so a line legitimately set
+  upstream survives.
+- **A row refused by name collected a second, untrue refusal.** `Weight | 145`
+  with no unit gave both *"unit assumed, not read"* and *"weight_lb: this lane
+  has no place to put it"*. The second is false — the lane has a place; the
+  missing unit was the problem. The unconsumed-key sweep now skips keys
+  already refused by name.
+- **A stale count in the rendered matrix** ("21 cases") was removed rather than
+  updated, for the reason already recorded on this stream: a count written
+  into a document goes stale inside the commit that writes it.
+
+The fourth was a claim in this record, corrected in place above rather than
+argued: the `given` wording did move slightly.
+
+`_r_prompt_to_rfa` has the same stale-`res.line` shape and it predates this
+PR, so it is **#799** rather than a widening of a twice-reviewed branch.
 
 ## Open questions
 

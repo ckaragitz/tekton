@@ -173,6 +173,9 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
     """
     by_key = parsed.by_key()
     refused: List[str] = []
+    #: sheet keys already refused BY NAME above, so the unconsumed-key sweep
+    #: at the end does not say something different about the same row
+    refused_keys: set = set()
     used: List[Tuple[str, SheetValue]] = []
     kwargs: Dict[str, Any] = {}
 
@@ -189,6 +192,7 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
                 f"{key}: the sheet states no unit for this row, so the value "
                 f"{v.raw!r} cannot size a body -- millimetres and inches "
                 f"differ by 25x. Stated at {v.citation(parsed.path)}")
+            refused_keys.add(key)
             continue
         kwargs[kw] = float(v.value) / 12.0
         used.append((kw, v))
@@ -229,6 +233,7 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
         if v.unit_assumed:
             refused.append(
                 f"{caption}: unit assumed, not read ({v.citation(parsed.path)})")
+            refused_keys.add(key)
             continue
         standard[caption] = _to_internal(unit_kind, v.value)
         used.append((f"standard:{caption}", v))
@@ -269,7 +274,12 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
     # "Overall Length 120 in" was dropped in silence while the body was built
     # from the other three. The caveat promised "every row read but not used";
     # this is what makes that true.
-    taken = {v.key for _what, v in used}
+    # A key already refused for a SPECIFIC reason must not collect a second,
+    # weaker and untrue one: "Weight: unit assumed, not read" followed by
+    # "weight_lb: this lane has no place to put it" said two different things
+    # about one row, and the second was false -- the lane has a place; the
+    # missing unit was the problem (#798 review round 2).
+    taken = {v.key for _what, v in used} | refused_keys
     for key in sorted(by_key):
         if key in taken:
             continue

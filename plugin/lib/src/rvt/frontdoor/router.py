@@ -1243,6 +1243,14 @@ def _r_pdf_to_rfa(res, inputs, out_dir, opts):
     base = os.path.basename(pdf)
     steps = _Steps(res)
     mark = len(res.errors)
+    # THE one clear line as it stood before this lane touched it. A failed
+    # famspec attempt writes its own `res.line`, and that line becomes FALSE
+    # the moment the archetype lane below succeeds -- ROUTE.md prints it as
+    # the bullet directly under an OK status, and for a generic_model it goes
+    # on to name a research-corpus archetype that has nothing to do with the
+    # failure. Restored before the fall-through rather than cleared, so a line
+    # that was legitimately set upstream survives (#798 review round 2).
+    line_before = res.line
 
     parsed = steps.run("pdf->sheet", "rvt.specsheet.sheet:read_sheet",
                        lambda: read_sheet(pdf))
@@ -1301,6 +1309,7 @@ def _r_pdf_to_rfa(res, inputs, out_dir, opts):
     if plan.buildable:
         why = (f"the sheet's dimensions were read but the family could not be "
                f"built from them: {res.status}")
+    res.line = line_before
     res.caveats.insert(0, f"THE SHEET DID NOT SIZE THIS FAMILY: {why}")
     if _archetype_rfa(res, fallback, out_dir, opts, demote=res.errors[mark:]):
         res.caveats.insert(1, (

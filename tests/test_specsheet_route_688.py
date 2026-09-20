@@ -461,6 +461,53 @@ def test_material_and_finish_fill_the_STANDARDS_rows_not_shadow_them(tmp_path):
     assert row[prod.doc.params["Finish"].elem_id] == "ANSI 61 Gray"
 
 
+def test_a_row_refused_BY_NAME_does_not_also_collect_a_weaker_untrue_one(tmp_path):
+    """Two refusals about one row said two different things, one of them false.
+
+    A `Weight` stating no unit is refused as "unit assumed, not read" -- and
+    the unconsumed-key sweep then added "weight_lb: this lane has no place to
+    put it", which is untrue: the lane has a place, the missing unit was the
+    problem. Both rode as `read but NOT used:` caveats.
+    """
+    rows = [(lab, val) for lab, val in FP.SHEET_ROWS if lab != "Weight"]
+    rows.append(("Weight", "145"))                    # no unit anywhere
+    draws = []
+    for i, (label, value) in enumerate(rows):
+        y = 700.0 - i * 18.0
+        draws += [(72.0, y, label), (300.0, y, value)]
+    pdf = FP.build_pdf(str(tmp_path / "assumed.pdf"), [draws])
+
+    plan = plan_from_sheet(S.read_sheet(pdf))
+    about_weight = [r for r in plan.refused
+                    if r.startswith(("Weight:", "weight_lb:"))]
+    assert len(about_weight) == 1, about_weight
+    assert about_weight[0].startswith("Weight: unit assumed")
+
+
+def test_a_successful_FALLBACK_does_not_carry_the_failed_attempts_line(tmp_path,
+                                                                      monkeypatch):
+    """`res.line` is THE one clear line, and ROUTE.md prints it directly under
+    the status. A famspec failure writes one; it becomes false the moment the
+    archetype lane succeeds, and for `generic_model` it went on to name a
+    research-corpus archetype that had nothing to do with the failure.
+    """
+    from rvt.frontdoor import famspec as FS
+    real = FS.build
+
+    def boom(kind, kw, **k):
+        if kind == "generic_model":
+            raise RuntimeError("probe: the constructor refused")
+        return real(kind, kw, **k)
+
+    monkeypatch.setattr(FS, "build", boom)
+    res = _run(tmp_path, "out", pdf=_sheet_pdf(tmp_path),
+               prompt="create a cable tray family")
+    assert res.ok and os.path.isfile(res.files["rfa"])
+    assert res.line == "", res.line
+    # the reason is not lost -- it moved to where a caveat belongs
+    assert "could not be built from them" in res.caveats[0]
+
+
 # ===========================================================================
 # 5. the route's own record
 # ===========================================================================
