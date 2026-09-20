@@ -8,7 +8,11 @@ permutation. the goal is to be able to handle any and all situations.”*
 The design answer is a **routing matrix over composable stages**, not
 per-route code:
 
-- **Inputs** — any subset of `{prompt, ifc, rvt, rfa, spec}`
+- **Inputs** — any subset of `{prompt, ifc, rvt, rfa, spec, pdf}`
+  (`pdf` = a manufacturer **spec sheet you supply**, issue #688: its table is
+  read and every dimension built from it is a `fact` citing the page and row —
+  the honest route to real member data, since steer S-2026-08-11-c forbids
+  recalling a manufacturer's dimensions from model knowledge)
   (`spec` = the building/room spec JSON, `spec/building.schema.json`
   dialect; `rfa` = a **famspec** JSON `{"kind": panelboard | transformer |
   luminaire | device | downlight, …}` — the written contract is
@@ -46,9 +50,9 @@ Status vocabulary — honest per cell:
 - **partial** — the mechanism runs with a *named* caveat/scope gap.
 - **missing** — not implemented; the router answers with the clear line.
 
-Live census: **21 cells — 18 works / 1 partial / 2 missing.**
+Live census: **25 cells — 20 works / 1 partial / 4 missing.**
 
-## Single inputs (all 15 cells enumerated)
+## Single inputs (all 18 cells enumerated)
 
 | in → out | status | route (stages) | evidence (cited by the machine matrix) | honest caveats |
 |---|---|---|---|---|
@@ -67,6 +71,9 @@ Live census: **21 cells — 18 works / 1 partial / 2 missing.**
 | spec → rvt | **works** | `spec_to_rvt` (**chain** spec→ifc→intent→rvt on the genesis base) | **certified** `V23_electrical_room.rvt` (legacy direct); worked `usecases/chicago-plenum…/generated.ifc`; `tests/test_job.py` | the legacy direct build (`tools/rvt_job.py create --spec`, template project) remains as **spec+rvt**; open-cell/PROOF-ONLY caveats ride |
 | spec → ifc | **works** | `spec_to_ifc` (deterministic generator) | worked `usecases/…/generated.ifc`; `skills/tekton-ifc/tests` | identical spec → byte-identical IFC |
 | spec → rfa | **works** | `spec_to_rfa` (chain spec→ifc→intent→rfa) | worked families dir; `tests/test_famgen_factory.py` | the spec’s *tagged* equipment maps to catalog family plans; catalog scope and per-release behaviour (`--target-version`) exactly as the prompt → rfa row (the spec’s generated IFC is the version-agnostic addition on a fallback) |
+| pdf → rfa | **works** | `pdf_to_rfa` (pdf→sheet, sheet→famspec, famspec→rfa; prompt→archetype as the fallback) | `tests/test_specsheet_route_688.py` (fact-tier dimensions, citations, the identity lane, the partial- and image-only-sheet fallbacks, determinism); `tests/test_specsheet_sheet_688.py`; `tests/test_famgen_factory.py`; record `docs/inbox/specsheet-ingestion.md` | **the sheet is the source, and that is the point**: steer S-2026-08-11-c forbids this engine from recalling a manufacturer's dimensions as a `fact`, so a document the *user* supplies is the honest route to real member data. Every dimension built from it is fact-tier and cites the file, page and row; a number the sheet does not state is left blank or nominal — never interpolated, never rounded into a fact. **The parse is delivered before it is trusted** (`sheet.json` + `sheet-table.txt`: the table as read, the values taken with citations, and every row read but not used), so a wrong column is visible rather than silently built. **Identity** (issue #688 DONE 5): the manufacturer / model the sheet states *do* land on the family's identity parameters — the one lane where that is honest, because the user supplied the document that says so; the archetype lane's `manufacturer_claim` warning is absent here structurally (a sheet that sized the body is built by `make_generic_model` and never consults the archetype resolver), and it fires as usual where the sheet could *not* size a body and the archetype stands in, because there it is true. **Refused by name, file still delivered wherever an archetype can stand in** (hard rule 1): an unreadable or image-only PDF (no OCR), a sheet with no dimension table, a dimension whose unit the sheet does not state (mm and inches differ by 25×, so an assumed unit is fatal for geometry and a caveat for a rating). **Reader**: `rvt.specsheet.pdftext` is stdlib-only — no dependency beyond the engine's own `olefile`; the optional `[pdf]` extra (pdfplumber) reads what the stdlib slice names and refuses, and both backends produce the same positioned runs, so the *reading* can differ between them, never the inference (`RVT_PDF_STDLIB_FORCE=1` pins the stdlib one). Validator-gated and PROOF-ONLY like every generated `.rfa`: no standalone `.rfa` of ours is in the certified ledger |
+| pdf → rvt | *missing* | — | — | a spec sheet describes ONE product, not a project — no room, no level, no placement. Build the family first (pdf → rfa), then load it: `route run --rfa <the .rfa> --output rvt [--rvt your.rvt]` |
+| pdf → ifc | *missing* | — | — | no family → IFC product emitter exists (the same gap as rfa → ifc), so a sheet has no IFC route; read it into a family instead (pdf → rfa) |
 
 ## Combinations
 
@@ -78,6 +85,7 @@ Live census: **21 cells — 18 works / 1 partial / 2 missing.**
 | rfa + rvt → rvt | **works** | `rfa_load` (load into **your** project: famspec (any of the five kinds) and standalone-born `.rfa` via `rvt.famload`; extracted `.rfa` via `rvt.famgen.loader`) | **certified** L1a / L_downlight (rst host), `stage_L8_lp4` (genesis lineage), **T2a** (Revit-born .rfa on the composed base + instance), **TB0g** (embedded-born famdoc on the composed base + instance); worked `DP1_reextracted.reloaded.rvt.load.json`; `tests/test_famload.py`, `tests/test_convert.py`, `tests/test_router.py`, `tests/test_router_load_release.py` | input contract exactly as the rfa→rvt row (famspec per `spec/famspec.schema.json` \| tekton-extracted .rfa \| standalone-born .rfa via the id-remap lane); no instance is placed by this cell (place with prompt+rvt “add …”); on *your* host the same mechanisms + gates run — the viewer evidence is on the rst sample host and our genesis/composed bases; a host of another release loads only where that release’s creation support is certified. **Release** (issue #242): the load runs under **your host’s own** release and the output keeps it (a load cannot transmute a 2025 project into a 2024 one) — the host’s year is auto-detected and stated every time in `route.json.target_version` exactly as the edit route does (`detected` with no flag, `match` / `match-older`, or `fallback` + THE one line “your Revit N cannot open the loaded output … supply a Revit N input file” when a stated `--target-version` is older than the host — never silently ignored); the `.rfa` generated beside it IS the flag’s year and carries its own block under `target_version.rfa`; validator 0 errors on a Revit-2025 host with the flag at 2024 / 2025 / 2026 (`tests/test_router_load_release.py`, fresh clone); PROOF-ONLY |
 | prompt + ifc → rvt | *partial* | `ifc_build_then_edit` (build the IFC, then apply the prompt as an edit) | composition of two proven stages | a non-edit prompt cannot merge into the IFC’s intent yet (intent-level merge unbuilt) — the route fails with the edit grammar rather than guessing |
 | spec + rvt → rvt | **works** | `spec_on_rvt_seed` (`tools/rvt_job.py create --spec --base`) | **certified** `V23_electrical_room.rvt`; `tests/test_job.py` | your .rvt is the seed/template: seed audit + hard gates; output ledgered against that seed (PROOF-ONLY vs what you supply) |
+| pdf + prompt → rfa | **works** | `pdf_to_rfa` (the same lane; the prompt feeds the archetype fallback) | `tests/test_specsheet_route_688.py`; record `docs/inbox/specsheet-ingestion.md` | the prompt does exactly **one** thing on this cell: it supplies the words for the nominal-**archetype fallback** when the sheet states no usable dimension (an image-only scan, a sheet with no dimension table). It **never overrides a number the sheet states** — a sheet-read dimension is the fact this lane exists to deliver, and a prompt silently outranking it would put a typed number behind a citation to the user's own document (pinned by `test_a_prompt_beside_the_pdf_NEVER_overrides_a_stated_dimension`). All the pdf → rfa caveats ride |
 
 **Anything else** (e.g. `prompt+spec → rvt`, `rfa → ifc`, any output for an
 unlisted combination): the router returns the matrix row and the closest

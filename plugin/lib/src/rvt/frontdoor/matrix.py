@@ -67,7 +67,7 @@ __all__ = [
     "status_counts", "render_text", "LEDGER_RELPATH", "ABSENT_BINARY_MARK",
 ]
 
-INPUT_KINDS = ("prompt", "ifc", "rvt", "rfa", "spec")
+INPUT_KINDS = ("prompt", "ifc", "rvt", "rfa", "spec", "pdf")
 OUTPUT_KINDS = ("rvt", "rfa", "ifc")
 
 STATUS_WORKS = "works"        # runnable end to end today; evidence cited
@@ -139,6 +139,26 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
           "saying the named item is not what was built",
           ("test:tests/test_famgen_archetypes.py",
            "record:docs/inbox/prompt-archetypes.md")),
+    Stage("pdf->sheet", "rvt.specsheet.sheet:read_sheet",
+          "a user-supplied spec sheet PDF -> its table as read, then the "
+          "values we recognise, EACH cited to the page and row it came from "
+          "(steer S-2026-08-11-d): the stdlib reader needs no dependency at "
+          "all and the optional [pdf] extra reads what it names and refuses; "
+          "an unreadable or image-only sheet SAYS SO and is never guessed at",
+          ("test:tests/test_specsheet_pdftext_688.py",
+           "test:tests/test_specsheet_sheet_688.py",
+           "test:tests/test_specsheet_backend_688.py",
+           "record:docs/inbox/specsheet-ingestion.md")),
+    Stage("sheet->famspec", "rvt.specsheet.famspec_from_sheet:plan_from_sheet",
+          "the cited values -> the generic_model famspec they support: the "
+          "sheet's dimensions become FACT-tier kwargs (not `given`, not "
+          "`nominal`) and the manufacturer / model it states land on the "
+          "family's identity parameters -- the ONE lane where wearing a part "
+          "number is honest, because the user supplied the document that "
+          "states it; a unit the sheet does not state is fatal for a "
+          "dimension (mm and inches differ by 25x) and a caveat for a rating",
+          ("test:tests/test_specsheet_route_688.py",
+           "record:docs/inbox/specsheet-ingestion.md")),
     Stage("rvt-edit", "rvt.frontdoor.edit:run_edit",
           "the certified edit pipeline (tools/rvt_job.py edit via "
           "rvt.manipulate + rvt.mutate): modify / move / retype / delete / "
@@ -338,6 +358,38 @@ _CIRCUITS = ("feeder CIRCUITS are AUTHORED natively on the genesis base "
 _CATALOG = ("family generation covers the catalog-backed kinds (panelboard / "
             "transformer / luminaire / wiring device / the honest house switchboard); "
             "anything without facts is REFUSED by name, never invented -- EXCEPT two lanes: kind='generic_model', where the caller SUPPLIES the geometry and every dimension is reported as GIVEN with its source, and kind='archetype' (a prompt naming a product the registry generates), where the geometry is GENERATED at standard nominal sizes for the product class and every dimension is reported nominal or given")
+# --- caveats shared by the pdf (spec-sheet) cells (issue #688) -------------
+_SHEET_IS_THE_SOURCE = (
+    "THE SHEET IS THE SOURCE, and that is the whole point of this cell: "
+    "steer S-2026-08-11-c forbids this engine from recalling a manufacturer's "
+    "dimensions as a `fact`, so a document the USER supplies is the honest "
+    "route to real member data. Every dimension built from it is fact-tier "
+    "and cites the file, the page and the row it was read from; a number the "
+    "sheet does not state is left blank or nominal -- never interpolated, "
+    "never rounded into a fact. The parse is delivered BEFORE it is trusted "
+    "(sheet.json + sheet-table.txt: the table as read, the values taken, and "
+    "every row read but not used), so a wrong column is visible rather than "
+    "silently built")
+_SHEET_IDENTITY = (
+    "IDENTITY: the manufacturer / model the sheet states DO land on the "
+    "family's identity parameters, and this is the one lane where that is "
+    "honest -- the user supplied the document that says so, making it a "
+    "report of their sheet rather than a claim of ours. The archetype lane's "
+    "manufacturer_claim warning is therefore absent here, structurally: a "
+    "sheet that sized the body is built by make_generic_model and never "
+    "consults the archetype resolver. Where the sheet could NOT size a body "
+    "and the archetype lane stands in, the claim warning fires as usual, "
+    "because there it is true -- the named product is not what was built")
+_SHEET_REFUSALS = (
+    "REFUSED BY NAME, with the file still delivered wherever an archetype can "
+    "stand in (hard rule 1): an unreadable or image-only PDF; a sheet with no "
+    "dimension table; a dimension whose unit the sheet does not state (mm and "
+    "inches differ by 25x, so an assumed unit is fatal for geometry and a "
+    "caveat for a rating); a unit we do not convert. A sheet that states the "
+    "same field twice, the first reading refused, says so rather than letting "
+    "the lower row quietly win. NOT YET DESKTOP-VERIFIED: like every other "
+    "generated .rfa, a sheet-built family is validator-gated and PROOF-ONLY "
+    "-- no standalone .rfa of ours is in the certified ledger (hard rule 4)")
 # --- caveats shared by the rvt.convert cells (issue #5) --------------------
 _INTO_GATES = ("INTO-AN-EXISTING-FILE gates: validator 0 errors required to "
                "claim, four-registry census coherent, the target's release "
@@ -642,7 +694,46 @@ _CELL_LIST: List[Cell] = [
           "test:tests/test_famgen_factory.py", "test:tests/test_ifc_intent.py"),
          ("the spec's tagged equipment maps to catalog family plans through "
           "the tagging contract; " + _CATALOG,)),
+    # ---------------- singles: pdf ----------------
+    Cell(("pdf",), "rfa", STATUS_WORKS, "pdf_to_rfa",
+         ("pdf->sheet", "sheet->famspec", "famspec->rfa", "prompt->archetype"),
+         ("test:tests/test_specsheet_route_688.py",
+          "test:tests/test_specsheet_sheet_688.py",
+          "test:tests/test_famgen_factory.py",
+          "record:docs/inbox/specsheet-ingestion.md"),
+         (_SHEET_IS_THE_SOURCE, _SHEET_IDENTITY, _SHEET_REFUSALS, _PROOF_ONLY),
+         hint=("add --prompt beside the PDF to name the product for the "
+               "archetype fallback when the sheet states no dimension")),
+    Cell(("pdf",), "rvt", STATUS_MISSING, None, (),
+         (), (),
+         missing_reason=("a spec sheet describes ONE product, not a project: "
+                         "there is no room, no level and no placement in it"),
+         closest=(("rfa",), "rvt"),
+         hint=("build the family first (pdf -> rfa), then load it: "
+               "route run --rfa <the .rfa> --output rvt [--rvt your.rvt]")),
+    Cell(("pdf",), "ifc", STATUS_MISSING, None, (),
+         (), (),
+         missing_reason=("no family -> IFC product emitter exists (the same "
+                         "gap as rfa -> ifc), so a sheet has no IFC route"),
+         closest=(("pdf",), "rfa"),
+         hint=("read the sheet into a family (pdf -> rfa); an IFC of that "
+               "product would need the family -> IFC emitter that does not "
+               "exist yet")),
     # ---------------- combinations ----------------
+    Cell(("pdf", "prompt"), "rfa", STATUS_WORKS, "pdf_to_rfa",
+         ("pdf->sheet", "sheet->famspec", "famspec->rfa", "prompt->archetype"),
+         ("test:tests/test_specsheet_route_688.py",
+          "record:docs/inbox/specsheet-ingestion.md"),
+         (_SHEET_IS_THE_SOURCE, _SHEET_IDENTITY, _SHEET_REFUSALS,
+          "the prompt does exactly ONE thing on this cell: it supplies the "
+          "words for the ARCHETYPE fallback when the sheet states no usable "
+          "dimension. It never overrides a number the sheet states -- a "
+          "sheet-read dimension is the fact this lane exists to deliver, and "
+          "a prompt silently outranking it would put a typed number behind a "
+          "citation to the user's own document",
+          _PROOF_ONLY),
+         hint=("drop the --pdf to generate at nominal archetype sizes from "
+               "the prompt alone")),
     Cell(("prompt", "rvt"), "rvt", STATUS_WORKS, "rvt_edit",
          ("rvt-read", "rvt-edit", "prompt->intent", "add-into-rvt"),
          ("certified:experiments/manipulate/M3_modify.rvt",

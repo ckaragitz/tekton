@@ -114,7 +114,7 @@ def _norm_inputs(inputs: Dict[str, Any]) -> Dict[str, Any]:
         if k not in MX.INPUT_KINDS:
             raise RouteError(f"unknown input kind {k!r} (inputs: "
                              f"{', '.join(MX.INPUT_KINDS)})")
-    for k in ("ifc", "rvt", "spec"):
+    for k in ("ifc", "rvt", "spec", "pdf"):
         if k in out:
             p = os.path.abspath(str(out[k]))
             if not os.path.isfile(p):
@@ -1172,6 +1172,167 @@ def _archetype_rfa(res: RouteResult, prompt: str, out_dir: str,
     return True
 
 
+
+def _side_file(res: RouteResult, out_dir: str, key: str, name: str,
+               payload: Any) -> None:
+    """Write one evidence file beside the deliverable and register it.
+
+    A side file that cannot be written is a caveat, never a failure: the
+    deliverable rule says the .rfa goes out regardless of what the disk did
+    to the paperwork.
+    """
+    path = os.path.join(out_dir, name)
+    try:
+        with open(path, "w", encoding="utf-8") as fh:
+            if isinstance(payload, str):
+                fh.write(payload)
+            else:
+                _jsonsafe.dump(payload, fh, indent=1)
+    except OSError as e:
+        res.caveats.append(f"{name} could not be written ({e}) -- the "
+                           "deliverable is unaffected")
+        return
+    res.files[key] = path
+
+
+def _r_pdf_to_rfa(res, inputs, out_dir, opts):
+    """A user-supplied spec sheet (PDF) -> a family .rfa whose dimensions are
+    FACTS read off that document (steer S-2026-08-11-d, issue #688).
+
+    THE WHOLE POINT of this lane, and why it is not the archetype lane with a
+    file attached: S-2026-08-11-c forbids this engine from recalling a
+    manufacturer's dimensions as a ``fact``.  A sheet the user hands us is a
+    *source*, so the numbers on it are facts -- each one cited to the page
+    and row it was read from -- and the manufacturer / model the sheet states
+    may land on the family's identity parameters, which is honest here and
+    nowhere else (#688 DONE 5): we are reporting their document, not claiming
+    knowledge of their product.
+
+    THE ORDER, and what each step may refuse without withholding the file:
+
+    1. read the sheet (:func:`rvt.specsheet.sheet.read_sheet`) -- an
+       unreadable or image-only PDF says so and does not raise;
+    2. show the parse BEFORE it is trusted (#688 DONE 4): ``sheet.json`` and
+       ``sheet-table.txt`` carry the table as read, the values taken with
+       their citations, and every row read but not used;
+    3. map it to a famspec
+       (:func:`rvt.specsheet.famspec_from_sheet.plan_from_sheet`);
+    4. build through the SAME famspec lane every other family goes through,
+       so the emit / validate / provenance / target-version block is shared;
+    5. when the sheet cannot size a body, fall through to the ARCHETYPE lane
+       so something is still delivered (hard rule 1) -- and there the
+       manufacturer claim is NOT suppressed, because there it is true: we did
+       not build the named product.
+
+    ``manufacturer_claim``'s suppression on this lane (#688 DONE 5) is
+    structural rather than a flag: a sheet that sized the body is built by
+    ``make_generic_model`` carrying the sheet's own identity, and that path
+    never consults the archetype resolver at all.
+
+    A ``--prompt`` beside the PDF does exactly one thing here: it supplies
+    the words for step 5.  It does not override a number the sheet states --
+    a sheet-read dimension is the fact this lane exists to deliver, and a
+    prompt silently outranking it would put a typed number behind a citation.
+    """
+    from ..specsheet import _backend as SB
+    from ..specsheet.famspec_from_sheet import plan_from_sheet
+    from ..specsheet.sheet import read_sheet
+
+    pdf = str(inputs["pdf"])
+    prompt = str(inputs.get("prompt") or "").strip()
+    base = os.path.basename(pdf)
+    steps = _Steps(res)
+    mark = len(res.errors)
+    # THE one clear line as it stood before this lane touched it. A failed
+    # famspec attempt writes its own `res.line`, and that line becomes FALSE
+    # the moment the archetype lane below succeeds -- ROUTE.md prints it as
+    # the bullet directly under an OK status, and for a generic_model it goes
+    # on to name a research-corpus archetype that has nothing to do with the
+    # failure. Restored before the fall-through rather than cleared, so a line
+    # that was legitimately set upstream survives (#798 review round 2).
+    line_before = res.line
+
+    parsed = steps.run("pdf->sheet", "rvt.specsheet.sheet:read_sheet",
+                       lambda: read_sheet(pdf))
+    res.caveats.append(
+        f"PDF backend: {SB.backend_name()} -- 'stdlib' is this engine's own "
+        f"reader and needs no dependency at all; the optional [pdf] extra "
+        f"reads documents the stdlib slice names and refuses. Both backends "
+        f"produce the same positioned runs, so the READING can differ between "
+        f"them, never the inference")
+    _side_file(res, out_dir, "sheet", "sheet.json", parsed.as_json())
+    _side_file(res, out_dir, "sheet_table", "sheet-table.txt", parsed.report())
+
+    plan = steps.run("sheet->famspec",
+                     "rvt.specsheet.famspec_from_sheet:plan_from_sheet",
+                     lambda: plan_from_sheet(parsed))
+    _side_file(res, out_dir, "sheet_plan", "sheet-plan.json", plan.as_json())
+
+    for q in parsed.questions()[:12]:
+        res.caveats.append(f"the sheet left this undetermined: {q}")
+    for r in plan.refused[:20]:
+        res.caveats.append(f"read but NOT used: {r}")
+
+    built = False
+    if plan.buildable:
+        sub = dict(opts)
+        sub.setdefault("stem", _slug(plan.name))
+        built = _famspec_rfa(res, plan.kind, dict(plan.kwargs),
+                             out_dir, sub) is not None
+    if built:
+        if plan.kwargs.get("identity"):
+            res.caveats.insert(0, (
+                "the manufacturer / model parameters are THE DOCUMENT'S OWN "
+                "words, carried because you supplied the document that states "
+                "them -- a report of your sheet, not a claim by this engine "
+                "about the product"))
+        res.caveats.insert(0, (
+            f"EVERY DIMENSION BELOW IS A FACT READ OFF {base}, not a recalled "
+            f"number and not a nominal size -- each cites the page and row it "
+            f"came from: " + "; ".join(plan.citations())))
+        # appended, never substituted: _famspec_rfa's verdict may read
+        # "DELIVERED WITH A RED GATE", and a status rewrite here would hide it
+        res.status = (f"{res.status} -- built from {base}: {len(plan.used)} "
+                      f"value(s) read and cited, {len(plan.refused)} not used")
+        return
+
+    # The sheet did not produce a family.  Deliver anyway -- and reach here on
+    # a BUILD FAILURE too, not only on an unbuildable plan.  #798's reviewer
+    # found the gap the hard way: a sheet stating a height and no width took
+    # the buildable branch, make_generic_model raised, and this function
+    # returned with no .rfa at all.  `plan.buildable` is now honest about what
+    # the constructor needs, and this fall-through is the structural half:
+    # whatever the reason the famspec lane produced nothing, the archetype
+    # lane still gets its turn (hard rule 1).
+    fallback = prompt or plan.name
+    why = plan.refused[0] if plan.refused else "no dimension was read"
+    if plan.buildable:
+        why = (f"the sheet's dimensions were read but the family could not be "
+               f"built from them: {res.status}")
+    res.line = line_before
+    res.caveats.insert(0, f"THE SHEET DID NOT SIZE THIS FAMILY: {why}")
+    if _archetype_rfa(res, fallback, out_dir, opts, demote=res.errors[mark:]):
+        res.caveats.insert(1, (
+            f"the dimensions are NOMINAL (standard practice for the product "
+            f"class), NOT read from {base} -- the sheet was "
+            + ("unreadable" if parsed.unreadable
+               else "read but the famspec lane produced no file"
+               if plan.buildable
+               else "read but stated no usable dimension")
+            + "; the words that chose the archetype came from "
+            + ("your prompt" if prompt else "the sheet's own product name")))
+        return
+    res.ok = False
+    res.status = f"FAILED (nothing in {base} could size a family)"
+    res.line = (
+        f"{why} -- and {fallback!r} names no product the archetype registry "
+        "generates, so there is no honest size to fall back on. The parse is "
+        "delivered either way (sheet.json / sheet-table.txt): if the table is "
+        "there but its labels are unfamiliar, state the dimensions in a prompt "
+        "beside the PDF ('a 62 in x 20.5 in x 5.75 in enclosure') and they are "
+        "built as GIVEN rather than invented.")
+
+
 def _r_ifc_to_rfa(res, inputs, out_dir, opts):
     """Room IFC -> catalog families; PRODUCT IFC -> the measured downlight."""
     from . import intent as FI
@@ -1795,6 +1956,7 @@ _IMPLS: Dict[str, Callable[..., None]] = {
     "prompt_to_rvt": _r_prompt_to_rvt,
     "prompt_to_ifc": _r_prompt_to_ifc,
     "prompt_to_rfa": _r_prompt_to_rfa,
+    "pdf_to_rfa": _r_pdf_to_rfa,              # pdf[+prompt] -> rfa (#688)
     "ifc_to_rvt": _r_ifc_to_rvt,
     "ifc_normalize": _r_ifc_normalize,
     "ifc_to_rfa": _r_ifc_to_rfa,
@@ -1826,7 +1988,7 @@ def route_ids() -> List[str]:
 
 def route(inputs: Dict[str, Any], output: str, **opts: Any) -> RouteResult:
     """Route any permutation: ``inputs`` = {kind: value} over
-    {prompt, ifc, rvt, rfa, spec}; ``output`` in {rvt, rfa, ifc}.
+    {prompt, ifc, rvt, rfa, spec, pdf}; ``output`` in {rvt, rfa, ifc}.
 
     Supported cells execute their stage chain and DELIVER (final output +
     every intermediate + the route manifest).  Missing/unknown cells return

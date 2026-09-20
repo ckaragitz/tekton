@@ -11,6 +11,10 @@ appends to anyone else's.
 - `688-reader.md` — the reader: a stdlib PDF extractor with positions, a
   layout layer, a label vocabulary as data, and cited values. DONE 2–4 and
   the reader half of DONE 6. Both backends measured against each other.
+- `688-pdf-route.md` — the `pdf` INPUT kind, `route run --pdf`, and the
+  identity lane. DONE 1 and DONE 5, plus #797's mutation probes. Fixes the
+  single-prism `make_generic_model` path, which accepted `identity` /
+  `text_params` / `numeric_params` and wrote none of them.
 
 ## Standing summary
 
@@ -20,6 +24,7 @@ checked separately and either can be replaced without the other. The optional
 `[pdf]` extra feeds the same `Page`/`Glyph` shape, so which backend is
 installed changes the extraction and never the inference.
 
-Not done yet on this stream: `route run --pdf` and the `pdf` INPUT kind in
-the matrix (DONE 1), and the identity-parameter lane where a part number read
-off the user's own document is an honest claim (DONE 5).
+DONE 1–6 are now covered except the desktop half of "functional": a
+sheet-built `.rfa` validates and carries its citations, and no desktop-Revit
+verdict exists for it (hard rule 4). #687's constraints / visibility / tag
+surfaces are separate streams and untouched here.

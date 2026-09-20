@@ -959,9 +959,88 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
     return fb
 
 
+def _geometry_origin(dim_provenance: str, source: str) -> str:
+    """How the delivered file itself should describe where its sizes came from.
+
+    The type row's description and the document notes are read by a person
+    opening the family in Revit, and they were saying "geometry GIVEN" on the
+    spec-sheet lane while the fact sheet, the product note and every route
+    caveat said FACT.  Erring conservative is better than over-claiming, but a
+    file that contradicts its own report is a third thing, and the reviewer of
+    #798 was right to name it.
+    """
+    if dim_provenance == "fact":
+        return (f"dimensions READ from {source} and cited there, "
+                f"no catalog record of ours claimed")
+    return f"geometry GIVEN ({source}), no catalog record claimed"
+
+
+def _author_caller_params(doc: SK.FamilyDoc,
+                          text_params: Optional[Dict[str, str]],
+                          numeric_params: Optional[Dict[str, Any]]) -> None:
+    """Author the caller's own TEXT and NUMERIC parameters on ``doc``.
+
+    Caller-supplied TEXT parameters (an IFC's part numbers, a spec sheet's
+    voltage) are authored so the family SCHEDULES, carried verbatim, never
+    parsed into a catalog claim.  NUMERIC parameters are
+    ``{name: (spec_key, value)}`` or ``{name: value}`` -- authored with the
+    right storage class so a length reads as a length in Revit, not a bare
+    number.  A ``"text"`` spec is authored as a text parameter under identity:
+    storing a string on a numeric row silently left ``add_family_parameter``'s
+    0.0 in its place (#769).
+
+    Shared by both generic-model paths.  It was inline in the multi-part one
+    only, so the SINGLE-PRISM path accepted ``text_params`` / ``numeric_params``
+    / ``identity`` in its signature, documented them, and wrote none of them --
+    which is the shape a spec sheet reaches (height + width + depth from a
+    table is one prism), so #688's identity lane had nothing to land on.
+    """
+    for cap in (text_params or {}):
+        _text(doc, cap, "identity")
+    for cap, spec_val in (numeric_params or {}).items():
+        spec_key = spec_val[0] if isinstance(spec_val, (tuple, list)) else "number"
+        if spec_key == "text":
+            _text(doc, cap, "identity")
+        else:
+            _num(doc, cap, spec_key, "dimensions")
+
+
+def _caller_param_row(doc: SK.FamilyDoc, row: Dict[Any, Any],
+                      text_params: Optional[Dict[str, str]],
+                      numeric_params: Optional[Dict[str, Any]],
+                      identity: Optional[Dict[str, str]]) -> None:
+    """Fill ``row`` (a type row, in place) with those parameters' values.
+
+    Values are stored as the caller gave them -- these lanes carry an IFC's
+    or a document's own numbers, and a silent unit conversion here would put
+    a different number behind the caller's citation.  A caller who needs
+    internal units passes them, or routes the value through
+    ``standard_values`` where the standards table owns the parameter.
+    """
+    for cap, val in (text_params or {}).items():
+        row[doc.params[cap].elem_id] = str(val)
+    for cap, spec_val in (numeric_params or {}).items():
+        if isinstance(spec_val, (tuple, list)):
+            spec_key, v = spec_val[0], spec_val[1]
+        else:
+            spec_key, v = "number", spec_val
+        if spec_key == "text":
+            # a text-spec value is stored verbatim: float("ONAN") raising and
+            # leaving 0.0 on a TEXT parameter was the #769 review's blocker.
+            row[doc.params[cap].elem_id] = str(v)
+        else:
+            try:
+                row[doc.params[cap].elem_id] = float(v)
+            except (TypeError, ValueError):
+                pass    # collect() never sends a non-float here; "text" does
+    for key, val in (identity or {}).items():          # manufacturer/model/url
+        if val:
+            row[key] = str(val)
+
+
 def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             category: str, solid: bool, source: str,
-                            start_id: int,
+                            start_id: int, dim_provenance: str = "given",
                             shared_params: SK.SharedParamsArg,
                             identity: Optional[Dict[str, str]] = None,
                             text_params: Optional[Dict[str, str]] = None,
@@ -1012,56 +1091,26 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         z0, z1 = min(z0, base), max(z1, base + h)
     W, D, H = (x1 - x0), (y1 - y0), (z1 - z0)
     sheet = FactSheet(subject=f"generic model {fam_name} ({len(built)} parts)")
-    sheet.set("width_in", W * 12.0, kind="given", source=source)
-    sheet.set("depth_in", D * 12.0, kind="given", source=source)
-    sheet.set("height_in", H * 12.0, kind="given", source=source)
+    # `given` by default -- a caller's 3D body. The spec-sheet lane passes
+    # `fact`, because those numbers were READ OFF A PUBLISHED DOCUMENT the
+    # user supplied, which is the distinction #688 exists to keep: a fact
+    # carries its source, a given is the caller's word for it.
+    sheet.set("width_in", W * 12.0, kind=dim_provenance, source=source)
+    sheet.set("depth_in", D * 12.0, kind=dim_provenance, source=source)
+    sheet.set("height_in", H * 12.0, kind=dim_provenance, source=source)
     sheet.set("part_count", len(built), kind="given", source=source)
     for dim in ("Width", "Depth", "Height"):
         _num(doc, dim, "length", "dimensions")
-    # Caller-supplied TEXT parameters (e.g. an IFC's part numbers): authored so
-    # the family SCHEDULES, carried verbatim, never parsed into a catalog claim.
-    for cap in (text_params or {}):
-        _text(doc, cap, "identity")
-    # Caller-supplied NUMERIC parameters (e.g. an IFC's own property sets):
-    # {name: (spec_key, value)} -- authored with the right storage class so a
-    # length reads as a length in Revit, not a bare number.  Every value is
-    # GIVEN by the caller's file; none is a catalog fact (#769).  A "text"
-    # spec is authored as a text parameter under identity -- storing a string
-    # on a numeric row silently left add_family_parameter's 0.0 in its place.
-    for cap, spec_val in (numeric_params or {}).items():
-        spec_key = spec_val[0] if isinstance(spec_val, (tuple, list)) else "number"
-        if spec_key == "text":
-            _text(doc, cap, "identity")
-        else:
-            _num(doc, cap, spec_key, "dimensions")
+    _author_caller_params(doc, text_params, numeric_params)
     row: Dict[Any, Any] = {
         doc.params["Width"].elem_id: W,
         doc.params["Depth"].elem_id: D,
         doc.params["Height"].elem_id: H,
         "description": (f"{fam_name}: {len(built)}-part assembly, overall "
                         f"{W * 12.0:g} W x {D * 12.0:g} D x {H * 12.0:g} H in "
-                        f"-- geometry GIVEN ({source}), no catalog record"),
+                        f"-- {_geometry_origin(dim_provenance, source)}"),
     }
-    for cap, val in (text_params or {}).items():
-        row[doc.params[cap].elem_id] = str(val)
-    for cap, spec_val in (numeric_params or {}).items():
-        if isinstance(spec_val, (tuple, list)):
-            spec_key, v = spec_val[0], spec_val[1]
-        else:
-            spec_key, v = "number", spec_val
-        if spec_key == "text":
-            # a text-spec value is stored verbatim: float("ONAN") raising and
-            # leaving 0.0 on a TEXT parameter was the #769 review's blocker.
-            row[doc.params[cap].elem_id] = str(v)
-        else:
-            try:
-                row[doc.params[cap].elem_id] = float(v)
-            except (TypeError, ValueError):
-                pass    # collect() never sends a non-float here; "text" does
-
-    for key, val in (identity or {}).items():          # manufacturer/model/url
-        if val:
-            row[key] = str(val)
+    _caller_param_row(doc, row, text_params, numeric_params, identity)
     doc.add_type(_clean_name(fam_name), row)
     # CATEGORY STANDARDS (#601): the parameters a family of this category is
     # expected to carry.  Applied AFTER add_type so every one lands on the
@@ -1089,14 +1138,26 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         except Exception as e:                       # never block delivery
             drive_note = f"parametric drive not wired ({type(e).__name__}: {str(e)[:90]})"
     doc.notes.append(drive_note)
-    doc.notes.append(f"multi-part generic model: {len(built)} extrusions "
+    doc.notes.append(f"multi-part generic model "
+                     f"({_geometry_origin(dim_provenance, source)}): "
+                     f"{len(built)} extrusions "
                      f"({', '.join(str(p.get('shape') or 'box') for p in parts)}); "
                      f"Width/Depth/Height report the assembly bounding box")
     doc.finalize()
     prod = FamilyProduct("generic_model", doc, sheet, forms=built,
                          file_stem=_slug(fam_name), standards=std_report)
-    prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
-                      "catalog facts; no manufacturer identity is claimed")
+    if dim_provenance == "fact":
+        # The spec-sheet lane (#688 DONE 5). Saying "no manufacturer identity
+        # is claimed" here would be false: the user supplied the document
+        # that states the name, the model and the dimensions together, so
+        # wearing them is a report of THEIR document, not a claim of ours.
+        prod.notes.append(
+            "dimensions are FACTS read from the document named in `source`, "
+            "each cited to its page and row; identity parameters, where "
+            "present, are that document's own and are not this engine's claim")
+    else:
+        prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
+                          "catalog facts; no manufacturer identity is claimed")
     if std_report:
         prod.notes.append(_standards_note(std_report))
     return prod
@@ -1214,6 +1275,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        category: str = "generic_model",
                        base_z_ft: float = 0.0, solid: bool = True,
                        source: str = "given", start_id: int = 1000,
+                       dim_provenance: str = "given",
                        shared_params: SK.SharedParamsArg = None,
                        identity: Optional[Dict[str, str]] = None,
                        text_params: Optional[Dict[str, str]] = None,
@@ -1244,6 +1306,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
         parts, _revolve_report = RV.expand_parts(parts)
         return _make_generic_multipart(parts, name=name, category=category,
                                        solid=solid, source=source,
+                                       dim_provenance=dim_provenance,
                                        start_id=start_id,
                                        shared_params=shared_params,
                                        identity=identity, text_params=text_params,
@@ -1262,27 +1325,35 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     D = float(prof.depth) if prof is not None else float(depth_ft)
     fam_name = name or "Generic Model"
     sheet = FactSheet(subject=f"generic model {fam_name}")
-    sheet.set("width_in", W * 12.0, kind="given", source=source)
-    sheet.set("depth_in", D * 12.0, kind="given", source=source)
-    sheet.set("height_in", H * 12.0, kind="given", source=source)
+    # see the note in _make_generic_multipart: `fact` on the spec-sheet lane
+    sheet.set("width_in", W * 12.0, kind=dim_provenance, source=source)
+    sheet.set("depth_in", D * 12.0, kind=dim_provenance, source=source)
+    sheet.set("height_in", H * 12.0, kind=dim_provenance, source=source)
     if prof is not None:
-        sheet.set("profile_points", len(prof.vertices), kind="given", source=source)
+        sheet.set("profile_points", len(prof.vertices), kind=dim_provenance,
+                  source=source)
     doc = SK.new_family_document(category, fam_name, work_plane_based=False,
                                  start_id=start_id,
                                  plane_length_ft=max(6.0, W * 2.0),
                                  shared_params=shared_params)
-    doc.notes.append(f"generic model: geometry GIVEN ({source}); "
+    doc.notes.append(f"generic model: {_geometry_origin(dim_provenance, source)}; "
                      f"{'arbitrary %d-point profile' % len(prof.vertices) if prof is not None else 'rectangular footprint'}")
     for dim in ("Width", "Depth", "Height"):
         _num(doc, dim, "length", "dimensions")
-    doc.add_type(_clean_name(fam_name), {
+    # the caller's own parameters -- authored BEFORE add_type so their values
+    # land on the type row, and before apply_safe so the standards table skips
+    # any name the caller already authored
+    _author_caller_params(doc, text_params, numeric_params)
+    row: Dict[Any, Any] = {
         doc.params["Width"].elem_id: W,
         doc.params["Depth"].elem_id: D,
         doc.params["Height"].elem_id: H,
         "description": (f"{fam_name}: {W * 12.0:g} W x {D * 12.0:g} D x "
-                        f"{H * 12.0:g} H in -- geometry GIVEN ({source}), "
-                        f"no catalog record claimed"),
-    })
+                        f"{H * 12.0:g} H in "
+                        f"-- {_geometry_origin(dim_provenance, source)}"),
+    }
+    _caller_param_row(doc, row, text_params, numeric_params, identity)
+    doc.add_type(_clean_name(fam_name), row)
     std_report = ST.apply_safe(doc, category, standards, standard_values)   # category standards, #601
     r = G.REP_SOLID if solid else G.REP_DUMMY
     if prof is not None:
@@ -1303,8 +1374,15 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     doc.finalize()
     prod = FamilyProduct("generic_model", doc, sheet, forms=[fb],
                          file_stem=_slug(fam_name), standards=std_report)
-    prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
-                      "catalog facts; no manufacturer identity is claimed")
+    if dim_provenance == "fact":
+        # see the twin of this branch in _make_generic_multipart (#688 DONE 5)
+        prod.notes.append(
+            "dimensions are FACTS read from the document named in `source`, "
+            "each cited to its page and row; identity parameters, where "
+            "present, are that document's own and are not this engine's claim")
+    else:
+        prod.notes.append("dimensions are GIVEN (from the caller's 3D body), never "
+                          "catalog facts; no manufacturer identity is claimed")
     if std_report:
         prod.notes.append(_standards_note(std_report))
     return prod
