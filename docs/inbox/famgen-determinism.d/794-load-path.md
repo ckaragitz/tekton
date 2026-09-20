@@ -40,26 +40,51 @@ Two corrections to the issue's own table, both material:
   because changing an unreachable line proves nothing and the next reader
   would have to re-derive why it was touched.
 
-## The derivation, and the one place it had to be cleverer
+## The derivation — and the correction CI forced
 
-`famload.load_doc_guid(host_digest, family_guid)` — `our_guid` over the
-**host's bytes** and the **family's content-document GUID** (itself
-content-derived since #793). Both halves earn their place:
+`famload.load_doc_guid(family_guid)` — `our_guid` over the **family's
+content-document GUID** (itself content-derived since #793). That is it.
 
-- the family half is what makes two *different* families in one host distinct
-  — the property a naive "hash the host" derivation breaks, and #794 DONE 2
-  names it for that reason;
-- the host half keeps two projects from claiming one family-document identity.
+**This is a deviation from #794 DONE 1, which asked for a key over the host as
+well** ("its sha256 or its own document GUID"), and the first version of this
+change did exactly that. It passed every stream-local gate I ran. Then the
+sandboxed CI failed one test 600 lines away:
 
-The host term is the host's **content**, never its path. A path-keyed
-derivation makes the output depend on where the file sits, which is precisely
-the false reading #168's first probe produced.
+```
+FAILED tests/test_famload_batch.py::test_chain_and_batch_are_logically_identical
+At index 1 diff:
+  chain: fam_doc_guid a3d9e057-e070-5fae-af0e-f125b4eec296
+  batch: fam_doc_guid 6e0c4e8f-7b88-5b11-986a-a8ab5e1b2d9c
+  (guid, host_family_id, symbol_id and all 21 twin ids identical on both sides)
+```
 
-The target release is deliberately **not** a third term: the host digest is
-that release's bytes and the family's content GUID covers the release-specific
-content it was built with, so adding it would be a third spelling of something
-the key already says. #794 DONE 1 asks for it; this is the argument for not
-doing it, offered rather than silently skipped.
+That test encodes an invariant **older than the issue**: loading two families
+ONE AT A TIME — each into the previous output — must produce the same plans as
+loading both in ONE batch. In the chain the second family's host is the
+intermediate file; in the batch it is the original base. Any key over host
+bytes therefore *must* differ between the two, and the invariant is the one
+that is right.
+
+It is also the better semantics, which is the part worth keeping in mind next
+time: `m_famDocGUID` identifies the family **document**, and the same family
+loaded into two projects genuinely *is* the same family document — that
+identity is how Revit recognises a family across a reload, and how a shared
+family library works at all. The host never belonged in the key. The issue's
+DONE was written by a session that had not read that test; the test won, and
+should have.
+
+DONE 2 survives the correction intact, and is worth restating because it was
+the argument *for* the host term: two DIFFERENT families in one host get
+different GUIDs (their content GUIDs differ), and the SAME family loaded twice
+gets the same one. The family half was always doing that work alone.
+
+The target release is not a term either: a family's content GUID already
+covers the release-specific content it was built with.
+
+Because the host digest is now in no key, `HostContext.digest` and the
+`host_digest` helper were **removed** rather than left as a field nothing
+reads — that is the same defect #800 exists to fix, and shipping a fresh
+instance of it in the same week would be hard to defend.
 
 **`convert/rfa_load.py` needed a different key, and its old comment explains
 why.** It read: *"a standalone file's unit 0 carries no separator GUID and the
@@ -84,11 +109,13 @@ eaton_prl1x_225a_42sp_208y_120_loaded.rvt
   .rfa path -> rvt    run a cb1e1189a9a676d9…   run b 14952e44cbca6b15…   DIFFER
 ```
 
-After:
+After (re-measured once the host term came out of the key — the first
+after-values, `a1c71ba2…` and `6f873ce2…`, were from the version CI rejected,
+and quoting them here would be quoting a build that no longer exists):
 
 ```
-  famspec -> rvt      a1c71ba280f6a4bd…  twice   IDENTICAL
-  .rfa path -> rvt    6f873ce2afdc3fb3…  twice   IDENTICAL
+  famspec -> rvt      061245fe04a83076…  twice   IDENTICAL
+  .rfa path -> rvt    3905b0d44f5a94c7…  twice   IDENTICAL
 ```
 
 The mint census across the product lanes, same instrument:
@@ -123,8 +150,8 @@ Every fix dies to its own mutant:
 |---|---|
 | `famload` mints again | 4 tests (both lane cases, both census cases) |
 | `rfa_load` mints again | 2 tests (the `.rfa` path lane and its census) |
-| drop the family half of the key | `test_TWO_DIFFERENT_families_in_one_host_get_DIFFERENT_guids` |
 | drop `start_id` from the born key | `test_the_standalone_born_guid_separates_two_copies_in_one_host` |
+| re-introduce a host term | `test_the_HOST_is_NOT_in_the_key_and_that_is_load_bearing` |
 
 That the first mutant also kills the `.rfa`-path cases is correct coupling, not
 a leak: that lane's document is loaded *through* famload.
@@ -142,6 +169,27 @@ fails and the decision gets re-made deliberately instead of drifting.
 `famgen/birthright.py` mints `uuid4` by its own docstring and was **not**
 reached by any lane probed here, which is the check #794's notes asked for
 rather than an assumption either way.
+
+## The process lesson, which cost a CI round
+
+My stream-local run covered `test_famload`, `test_rfa_load`, `test_convert`,
+`test_router_load_release`, `test_famgen_determinism_168`, `test_router` and
+`test_plugin_sync` — and not `test_famload_batch`, which is the one that
+failed. Picking test files by *what I had edited* misses the files that assert
+**relationships between** the things I edited.
+
+The rule that would have caught it, used for the re-run and worth keeping:
+before pushing a change to a shared module, run every test file that names
+that module —
+
+```
+.venv/bin/python -m pytest $(grep -ln "famload\|famgen.loader\|rfa_load" tests/*.py) -q
+```
+
+That is 32 files and 2.5 minutes here, against a 7.5-minute CI round plus a
+review round. It also surfaced that `tests/test_catchain.py` is red on `main`
+already (2 failures, verified against a stashed tree) — pre-existing, outside
+the CI shard, and not this PR's.
 
 ## Open questions
 

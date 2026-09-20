@@ -124,7 +124,6 @@ from __future__ import annotations
 
 import copy
 import dataclasses
-import hashlib
 import json
 import os
 import struct
@@ -317,12 +316,6 @@ class HostContext:
     watermark: int                            # highest issued id (IdentifierSource.m_last)
     episode: int                              # the load episode (max modified episode)
     partition_name: str
-    #: sha256 of the host file AS IT WAS OPENED -- the host half of every
-    #: derived GUID below (#794).  CONTENT, deliberately, not the path: a
-    #: path-keyed derivation makes the output depend on where the file sits,
-    #: which is the false-reading #168's first probe produced.  Measured at
-    #: 0.6 ms for the 568 KB pinned base, ~0.03 s for a 30 MB project.
-    digest: str = ""
     category_gstyles: Dict[int, int] = dc_field(default_factory=dict)   # category -> GStyleElem id
     fill_pattern_solid: int = INVALID
     line_pattern_solid: int = INVALID
@@ -350,8 +343,7 @@ def survey_host(host_rvt: str, *, categories: Sequence[int] = ()) -> HostContext
     wm = max(last, max(doc.et_by_id) if doc.et_by_id else 0)
     episode = max((r.modified_ep for r in et.records), default=0)
     ctx = HostContext(path=host_rvt, doc=doc, watermark=int(wm),
-                      episode=int(episode), partition_name=pname,
-                      digest=host_digest(host_rvt))
+                      episode=int(episode), partition_name=pname)
     # the four registries BEFORE
     ctx.census_before = four_registry_census(host_rvt)
     # category projection GStyles (m_gstyleType 1 = projection) for the
@@ -447,21 +439,7 @@ class FamilyLoad:
     notes: List[str] = dc_field(default_factory=list)
 
 
-def host_digest(host_rvt: str) -> str:
-    """sha256 of the host file, read once when the host is surveyed.
-
-    Public because every load path needs the same host half of the key:
-    :mod:`rvt.famgen.loader` and :mod:`rvt.convert.rfa_load` call it too, and
-    two spellings of "which host is this" would be two ways to drift.
-    """
-    h = hashlib.sha256()
-    with open(host_rvt, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def load_doc_guid(host_digest: str, family_guid: str) -> str:
+def load_doc_guid(family_guid: str) -> str:
     """The host ``Family.m_famDocGUID`` of one load, derived not minted (#794).
 
     #168 made the family BUILD reproducible; the LOAD path still minted
@@ -472,29 +450,37 @@ def load_doc_guid(host_digest: str, family_guid: str) -> str:
     since ``add_to_project`` and the whole ``rfa -> rvt`` lane come through
     here.
 
-    The key is (host content, family content) and both halves matter:
+    THE KEY IS THE FAMILY, AND ONLY THE FAMILY, and that is a correction to
+    what #794 DONE 1 asked for.  The issue specified a key over the host as
+    well ("its sha256 or its own document GUID"), and the first version of
+    this did that -- until ``tests/test_famload_batch.py::
+    test_chain_and_batch_are_logically_identical`` failed in CI.  That test
+    encodes an invariant older than the issue: loading two families ONE AT A
+    TIME (each into the previous output) must produce the same plans as
+    loading both in ONE batch.  In the chain the second family's host is the
+    intermediate file; in the batch it is the original base.  Any key over
+    host bytes therefore *must* differ between the two, and the invariant is
+    the one that is right.
 
-    * the **family** half is the content-document GUID of the family being
-      loaded -- itself content-derived since #793 -- so two DIFFERENT
-      families loaded into one host get different GUIDs (the property a
-      naive "hash the host" derivation breaks), and the SAME family loaded
-      twice gets the same one, which is what ``m_famDocGUID`` means: Revit
-      uses it to recognise a family across a reload;
-    * the **host** half keeps two projects from claiming one family-document
-      identity, and is the host's bytes rather than its path.
+    It is also the better semantics.  ``m_famDocGUID`` identifies the family
+    *document*, and the same family loaded into two projects genuinely IS the
+    same family document -- that identity is how Revit recognises a family
+    across a reload, and how a shared family library works at all.  The host
+    never belonged in it.
 
-    The target release is not a separate term because it is already in both:
-    the host digest is that release's bytes, and a family's content GUID
-    covers the release-specific content it was built with. Adding it would
-    be a third spelling of something the key already says.
+    DONE 2 survives the correction intact: two DIFFERENT families in one host
+    get different GUIDs because their content GUIDs differ (content-derived
+    since #793), and the SAME family loaded twice gets the same one.
+
+    The target release is not a separate term either: a family's content GUID
+    already covers the release-specific content it was built with.
     """
-    return _gsk.our_guid("famload-doc", host_digest, family_guid)
+    return _gsk.our_guid("famload-doc", family_guid)
 
 
-def load_session_guid_hex(host_digest: str, family_guid: str) -> str:
+def load_session_guid_hex(family_guid: str) -> str:
     """The 32-hex session GUID the loaded family's parameter twins wear."""
-    return uuid.UUID(_gsk.our_guid("famload-session",
-                                   host_digest, family_guid)).hex
+    return uuid.UUID(_gsk.our_guid("famload-session", family_guid)).hex
 
 
 def _plan_family(fl: FamilyLoad, doc, host: HostContext, cursor: int) -> Tuple[LoadPlan, int]:
@@ -522,8 +508,8 @@ def _plan_family(fl: FamilyLoad, doc, host: HostContext, cursor: int) -> Tuple[L
     from .famgen.loader import real_type_names
     type_names = real_type_names(doc) or [str(doc.name)]
     plan = LoadPlan(key=fl.key, guid=guid,
-                    fam_doc_guid=load_doc_guid(host.digest, guid),
-                    session_guid_hex=load_session_guid_hex(host.digest, guid),
+                    fam_doc_guid=load_doc_guid(guid),
+                    session_guid_hex=load_session_guid_hex(guid),
                     family_name=str(doc.name), category=int(doc.category_id),
                     part_type=int(getattr(doc, "part_type", 0)),
                     type_names=type_names, episode=int(host.episode),

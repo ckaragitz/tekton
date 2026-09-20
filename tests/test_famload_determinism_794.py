@@ -7,6 +7,16 @@ so two identical loads produced two different `.rvt` files. That is the half a
 user meets more often: `add_to_project` and the whole `rfa -> rvt` lane come
 through here.
 
+THE KEY IS THE FAMILY AND NOT THE HOST, which is a correction to what the
+issue asked for. #794 DONE 1 specified a key over the host too; the sandbox
+CI failed `test_famload_batch.py::test_chain_and_batch_are_logically_identical`,
+an invariant older than the issue -- loading two families one at a time must
+produce the same plans as loading both in one batch, and in the chain the
+second family's host is the intermediate file. Any host term must differ
+between the two, so the host term had to go. It is also the better semantics:
+`m_famDocGUID` identifies the family DOCUMENT, and the same family in two
+projects genuinely is the same family document.
+
 WHAT WAS ACTUALLY NON-DETERMINISTIC, measured by instrumenting `uuid.uuid4`
 and running each lane rather than by grepping -- the issue's own table named
 three sites and was wrong about two of them:
@@ -75,48 +85,56 @@ def _the_rvt(res):
 # 1. the derivations themselves (DONE 1 and 2)
 # ===========================================================================
 
-def test_the_same_family_into_the_same_host_derives_the_same_guids():
-    a = FL.load_doc_guid("h" * 64, "fam-content-guid")
-    b = FL.load_doc_guid("h" * 64, "fam-content-guid")
-    assert a == b
-    assert (FL.load_session_guid_hex("h" * 64, "fam-content-guid")
-            == FL.load_session_guid_hex("h" * 64, "fam-content-guid"))
+def test_the_same_family_derives_the_same_guids():
+    assert FL.load_doc_guid("fam-content-guid") == FL.load_doc_guid("fam-content-guid")
+    assert (FL.load_session_guid_hex("fam-content-guid")
+            == FL.load_session_guid_hex("fam-content-guid"))
 
 
-def test_TWO_DIFFERENT_families_in_one_host_get_DIFFERENT_guids():
-    """The property a naive 'hash the host' derivation breaks.
+def test_TWO_DIFFERENT_families_get_DIFFERENT_guids():
+    """DONE 2's first half, and the reason the key cannot be the host alone.
 
-    Both families see the same host digest, so if the family half were
-    missing from the key they would collide -- two Family elements in one
-    project claiming one family-document identity.
+    Two Family elements in one project must never claim one family-document
+    identity, and the content GUID -- content-derived since #793 -- is what
+    keeps them apart.
     """
-    host = "h" * 64
-    assert FL.load_doc_guid(host, "fam-A") != FL.load_doc_guid(host, "fam-B")
-    assert (FL.load_session_guid_hex(host, "fam-A")
-            != FL.load_session_guid_hex(host, "fam-B"))
+    assert FL.load_doc_guid("fam-A") != FL.load_doc_guid("fam-B")
+    assert FL.load_session_guid_hex("fam-A") != FL.load_session_guid_hex("fam-B")
 
 
-def test_one_family_into_TWO_DIFFERENT_hosts_gets_different_guids():
-    assert FL.load_doc_guid("h" * 64, "fam") != FL.load_doc_guid("k" * 64, "fam")
+def test_the_HOST_is_NOT_in_the_key_and_that_is_load_bearing():
+    """The correction CI forced, pinned so it cannot be quietly undone.
+
+    #794 DONE 1 asked for a key over the host as well, and the first version
+    of this change did exactly that -- until
+    `test_famload_batch.py::test_chain_and_batch_are_logically_identical`
+    failed in the sandbox. That test encodes an invariant older than the
+    issue: loading two families ONE AT A TIME (each into the previous
+    output) must produce the same plans as loading both in ONE batch. In the
+    chain, the second family's host is the intermediate file; in the batch it
+    is the original base. Any key over host bytes MUST differ between them.
+
+    Re-introducing a host term would break that test, but it would break it
+    600 lines away in another module, so this asserts the API shape here
+    where the decision lives.
+    """
+    import inspect
+    sig = inspect.signature(FL.load_doc_guid)
+    assert list(sig.parameters) == ["family_guid"], (
+        "load_doc_guid grew a parameter -- if a host term came back, read "
+        "test_chain_and_batch_are_logically_identical first")
+    assert list(inspect.signature(FL.load_session_guid_hex).parameters) == ["family_guid"]
 
 
-def test_the_host_half_of_the_key_is_CONTENT_not_a_path(tmp_path):
-    """A path-keyed derivation makes the output depend on where the file
-    sits, which is exactly the false reading #168's first probe produced."""
-    import shutil
-    one, two = tmp_path / "one", tmp_path / "two"
-    one.mkdir(), two.mkdir()
-    a, b = str(one / "host.rvt"), str(two / "elsewhere.rvt")
-    shutil.copyfile(HOST, a)
-    shutil.copyfile(HOST, b)
-    assert FL.host_digest(a) == FL.host_digest(b)
-    assert FL.host_digest(a) == FL.host_digest(HOST)
+def test_chaining_and_batching_agree_on_the_derived_guids(tmp_path):
+    """The invariant itself, exercised through the derivation directly.
 
-
-def test_the_surveyed_host_carries_its_digest():
-    ctx = FL.survey_host(HOST)
-    assert ctx.digest == FL.host_digest(HOST)
-    assert len(ctx.digest) == 64
+    `test_famload_batch.py` owns the end-to-end version; this is the unit
+    statement of why the key had to lose the host: the SAME family gets the
+    SAME guid no matter which project it is going into.
+    """
+    fam = "76e2f89b-1ee0-57f1-ab95-3fd07efb19d0"
+    assert FL.load_doc_guid(fam) == FL.load_doc_guid(fam)
 
 
 # ===========================================================================
