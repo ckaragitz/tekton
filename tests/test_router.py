@@ -104,7 +104,7 @@ needs_catalog = pytest.mark.skipif(not _catalog_ok(), reason="famgen catalog abs
 # ===========================================================================
 
 def test_matrix_kinds_and_statuses():
-    assert MX.INPUT_KINDS == ("prompt", "ifc", "rvt", "rfa", "spec")
+    assert MX.INPUT_KINDS == ("prompt", "ifc", "rvt", "rfa", "spec", "pdf")
     assert MX.OUTPUT_KINDS == ("rvt", "rfa", "ifc")
     for c in MX.all_cells():
         assert c.status in (MX.STATUS_WORKS, MX.STATUS_PARTIAL, MX.STATUS_MISSING)
@@ -172,7 +172,7 @@ def test_matrix_router_coherence():
 
 
 def test_singles_are_fully_enumerated():
-    """Every single-input x output pair has an explicit cell (15 cells)."""
+    """Every single-input x output pair has an explicit cell (18 cells)."""
     for i in MX.INPUT_KINDS:
         for o in MX.OUTPUT_KINDS:
             assert MX.cell_for([i], o) is not None, f"({i},) -> {o} unenumerated"

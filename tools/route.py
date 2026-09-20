@@ -60,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         prog="route",
         description="THE PERMUTATION ROUTER: any subset of {prompt, ifc, rvt, "
-                    "rfa, spec} in -> {rvt, rfa, ifc} out, composed from the "
+                    "rfa, spec, pdf} in -> {rvt, rfa, ifc} out, composed from the "
                     "certified stages, honestly labelled.",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -87,6 +87,16 @@ def build_parser() -> argparse.ArgumentParser:
                           "family to load / reload)")
     ins.add_argument("--spec", default=None, metavar="SPEC.json",
                      help="a building/room spec (spec/building.schema.json)")
+    ins.add_argument("--pdf", default=None, metavar="SHEET.pdf",
+                     help="a manufacturer SPEC SHEET you supply: its table is "
+                          "read and every dimension built from it is a FACT "
+                          "citing the page and row it came from (issue #688). "
+                          "The parse is written beside the output (sheet.json, "
+                          "sheet-table.txt) so a wrong column is visible before "
+                          "it is trusted. With --prompt, the prompt names the "
+                          "product for the nominal-archetype fallback when the "
+                          "sheet states no usable dimension -- it never "
+                          "overrides a number the sheet does state")
     outg = pr.add_argument_group("output & policy (passed through to the stages)")
     outg.add_argument("--out", "-o", default=None, metavar="DIR",
                       help="output directory (default: experiments/routes/"
@@ -135,7 +145,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def cmd_run(a) -> int:
     from rvt.frontdoor import router as R
-    inputs = {k: getattr(a, k) for k in ("prompt", "ifc", "rvt", "rfa", "spec")
+    inputs = {k: getattr(a, k)
+              for k in ("prompt", "ifc", "rvt", "rfa", "spec", "pdf")
               if getattr(a, k) is not None}
     opts = {}
     for k in ("out", "stem", "via", "strict", "base", "target_version",

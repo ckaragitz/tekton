@@ -57,11 +57,21 @@ _TEXT = {"voltage": "Voltage", "enclosure": "Enclosure Rating",
          "series": "Series", "mounting": "Mounting", "material": "Material",
          "finish": "Finish", "ip_rating": "IP Rating"}
 
-#: sheet key -> a numeric parameter, with the unit the value carries
-_NUMERIC = {"amps": "Amps", "weight_lb": "Weight", "sccr_ka": "SCCR",
+#: sheet key -> a plain numeric parameter carried onto the family. The value
+#: is stored as the sheet stated it: these are the document's own numbers and
+#: a silent conversion here would put a different number behind its citation.
+_NUMERIC = {"amps": "Amps", "sccr_ka": "SCCR",
             "kva": "kVA", "watts": "Watts", "lumens": "Lumens",
             "cct_k": "CCT", "phases": "Phases", "frequency_hz": "Frequency",
             "temperature_c": "Ambient Temperature"}
+
+#: sheet key -> (the CATEGORY-STANDARD parameter it fills, sheet unit ->
+#: Revit internal unit).  A key here must NOT also be in ``_NUMERIC``: the
+#: standards table (#601) already authors the parameter at its own storage
+#: class, and authoring a second one of the same name would win the race and
+#: demote a mass to a bare number.  ``standard_values`` takes internal units,
+#: so the conversion is exact and named rather than implied.
+_STANDARD_VALUES = {"weight_lb": ("Weight", "mass")}
 
 
 class SheetPlan:
@@ -92,12 +102,28 @@ class SheetPlan:
                 "buildable": self.buildable,
                 "kwargs": {k: v for k, v in self.kwargs.items()
                            if k not in ("identity", "text_params",
-                                        "numeric_params")},
+                                        "numeric_params", "standard_values")},
                 "identity": dict(self.kwargs.get("identity") or {}),
                 "text_params": dict(self.kwargs.get("text_params") or {}),
                 "numeric_params": dict(self.kwargs.get("numeric_params") or {}),
+                "standard_values": dict(self.kwargs.get("standard_values") or {}),
                 "citations": self.citations(),
                 "refused": list(self.refused)}
+
+
+def _to_internal(unit_kind: str, value: Any) -> Any:
+    """A sheet-stated value -> the internal unit ``standard_values`` expects.
+
+    The factory owns the conversion constants (``rvt.famgen.factory.pounds``
+    is exact by the pound's definition), so this asks it rather than keeping
+    a second copy of a physical constant that could drift.  Imported at call
+    time: :mod:`rvt.specsheet` is a reader and must stay importable without
+    the family engine behind it.
+    """
+    from ..famgen import factory as _F
+    if unit_kind == "mass":
+        return _F.pounds(float(value))
+    return value
 
 
 def _family_name(by_key: Dict[str, SheetValue], document: str) -> str:
@@ -168,6 +194,18 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
             text[caption] = str(v.value)
             used.append((caption, v))
 
+    standard: Dict[str, Any] = {}
+    for key, (caption, unit_kind) in _STANDARD_VALUES.items():
+        v = by_key.get(key)
+        if v is None:
+            continue
+        if v.unit_assumed:
+            refused.append(
+                f"{caption}: unit assumed, not read ({v.citation(parsed.path)})")
+            continue
+        standard[caption] = _to_internal(unit_kind, v.value)
+        used.append((f"standard:{caption}", v))
+
     numeric: Dict[str, Any] = {}
     for key, caption in _NUMERIC.items():
         v = by_key.get(key)
@@ -186,6 +224,8 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
         kwargs["text_params"] = text
     if numeric:
         kwargs["numeric_params"] = numeric
+    if standard:
+        kwargs["standard_values"] = standard
 
     name = _family_name(by_key, parsed.path)
     kwargs["name"] = name

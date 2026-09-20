@@ -717,6 +717,65 @@ def test_a_single_char_on_a_field_with_no_declared_unit_is_refused(label):
     assert V.canonical_key(label) == ""
 
 
+@pytest.mark.parametrize("label,key,unit", [
+    ("Height (in.)", "height_in", "in."),
+    ("Width (In.)", "width_in", "in."),
+    ("Amperes (A.)", "amps", "a."),
+    ("Weight (lbs.)", "weight_lb", "lbs."),
+])
+def test_a_TRAILING_PERIOD_on_a_unit_is_normalised_away(label, key, unit):
+    """``in.`` and ``lbs.`` are how a large share of real sheets abbreviate.
+
+    Issue #797: ``_known_unit`` normalises with ``.strip().lower().rstrip(".")``
+    and the round-6 docstring names that ``rstrip`` explicitly -- but deleting
+    it was caught by none of the 176 tests #789 shipped, because no probe
+    anywhere ended in a period. The single-character probe set cannot express
+    this: the step applies to multi-character units too, so it needs a
+    label-level case. Mutating ``.rstrip(".")`` out of ``vocab.py`` fails
+    exactly these four assertions.
+
+    The unit is returned AS THE LABEL WROTE IT (``"in."``, not ``"in"``): the
+    normalisation decides whether the unit is recognised, it does not rewrite
+    what the document said.
+    """
+    assert V.canonical_key_and_unit(label) == (key, unit)
+
+
+@pytest.mark.parametrize("label,key,unit", [
+    ("Height ( in )", "height_in", "in"),
+    ("Weight ( lb )", "weight_lb", "lb"),
+])
+def test_SPACE_padding_inside_a_unit_parenthetical_is_stripped(label, key, unit):
+    """The companion gap #797 DONE 3 asked to check in the same pass.
+
+    ``_norm`` collapses runs of whitespace but does not strip what sits
+    INSIDE a parenthetical, so ``"Height ( in )"`` reaches ``_known_unit`` as
+    ``" in "`` and only its ``.strip()`` saves the row. Deleting that
+    ``.strip()`` was also caught by nothing; it fails exactly these two.
+    """
+    assert V.canonical_key_and_unit(label) == (key, unit)
+
+
+def test_the_lower_in_that_same_expression_is_an_EQUIVALENT_MUTANT():
+    """#797 DONE 3, third step -- reported rather than papered over.
+
+    ``.lower()`` in ``_known_unit`` cannot be exercised through the public
+    API, and no test should pretend otherwise. ``_key_with_label_unit`` (its
+    ONE caller, ``vocab.py``) receives a string ``_norm`` has already
+    lowercased, and on the single-character path the comparison goes through
+    ``unit_matches``, which lowercases again. Deleting it changes no
+    observable behaviour -- the same verdict #797 itself reached about
+    case-sensitising ``unit_matches``.
+
+    So this asserts the REASON instead of the mutant: the public entry point
+    lowercases, which is what makes the inner call redundant. If that ever
+    stops being true, this fails and the mutant becomes testable.
+    """
+    assert V._norm("HEIGHT (IN)") == "height (in)"
+    assert V.canonical_key_and_unit("HEIGHT (IN)") == ("height_in", "in")
+    assert V.canonical_key_and_unit("Height (in)") == ("height_in", "in")
+
+
 def test_a_label_unit_never_overrides_a_unit_the_CELL_stated(tmp_path):
     """``Height (mm) | 62 kg`` is a label and a cell that plainly contradict
     each other. It used to resolve silently in the label's favour --

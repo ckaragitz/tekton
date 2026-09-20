@@ -959,6 +959,69 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
     return fb
 
 
+def _author_caller_params(doc: SK.FamilyDoc,
+                          text_params: Optional[Dict[str, str]],
+                          numeric_params: Optional[Dict[str, Any]]) -> None:
+    """Author the caller's own TEXT and NUMERIC parameters on ``doc``.
+
+    Caller-supplied TEXT parameters (an IFC's part numbers, a spec sheet's
+    voltage) are authored so the family SCHEDULES, carried verbatim, never
+    parsed into a catalog claim.  NUMERIC parameters are
+    ``{name: (spec_key, value)}`` or ``{name: value}`` -- authored with the
+    right storage class so a length reads as a length in Revit, not a bare
+    number.  A ``"text"`` spec is authored as a text parameter under identity:
+    storing a string on a numeric row silently left ``add_family_parameter``'s
+    0.0 in its place (#769).
+
+    Shared by both generic-model paths.  It was inline in the multi-part one
+    only, so the SINGLE-PRISM path accepted ``text_params`` / ``numeric_params``
+    / ``identity`` in its signature, documented them, and wrote none of them --
+    which is the shape a spec sheet reaches (height + width + depth from a
+    table is one prism), so #688's identity lane had nothing to land on.
+    """
+    for cap in (text_params or {}):
+        _text(doc, cap, "identity")
+    for cap, spec_val in (numeric_params or {}).items():
+        spec_key = spec_val[0] if isinstance(spec_val, (tuple, list)) else "number"
+        if spec_key == "text":
+            _text(doc, cap, "identity")
+        else:
+            _num(doc, cap, spec_key, "dimensions")
+
+
+def _caller_param_row(doc: SK.FamilyDoc, row: Dict[Any, Any],
+                      text_params: Optional[Dict[str, str]],
+                      numeric_params: Optional[Dict[str, Any]],
+                      identity: Optional[Dict[str, str]]) -> None:
+    """Fill ``row`` (a type row, in place) with those parameters' values.
+
+    Values are stored as the caller gave them -- these lanes carry an IFC's
+    or a document's own numbers, and a silent unit conversion here would put
+    a different number behind the caller's citation.  A caller who needs
+    internal units passes them, or routes the value through
+    ``standard_values`` where the standards table owns the parameter.
+    """
+    for cap, val in (text_params or {}).items():
+        row[doc.params[cap].elem_id] = str(val)
+    for cap, spec_val in (numeric_params or {}).items():
+        if isinstance(spec_val, (tuple, list)):
+            spec_key, v = spec_val[0], spec_val[1]
+        else:
+            spec_key, v = "number", spec_val
+        if spec_key == "text":
+            # a text-spec value is stored verbatim: float("ONAN") raising and
+            # leaving 0.0 on a TEXT parameter was the #769 review's blocker.
+            row[doc.params[cap].elem_id] = str(v)
+        else:
+            try:
+                row[doc.params[cap].elem_id] = float(v)
+            except (TypeError, ValueError):
+                pass    # collect() never sends a non-float here; "text" does
+    for key, val in (identity or {}).items():          # manufacturer/model/url
+        if val:
+            row[key] = str(val)
+
+
 def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             category: str, solid: bool, source: str,
                             start_id: int, dim_provenance: str = "given",
@@ -1022,22 +1085,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     sheet.set("part_count", len(built), kind="given", source=source)
     for dim in ("Width", "Depth", "Height"):
         _num(doc, dim, "length", "dimensions")
-    # Caller-supplied TEXT parameters (e.g. an IFC's part numbers): authored so
-    # the family SCHEDULES, carried verbatim, never parsed into a catalog claim.
-    for cap in (text_params or {}):
-        _text(doc, cap, "identity")
-    # Caller-supplied NUMERIC parameters (e.g. an IFC's own property sets):
-    # {name: (spec_key, value)} -- authored with the right storage class so a
-    # length reads as a length in Revit, not a bare number.  Every value is
-    # GIVEN by the caller's file; none is a catalog fact (#769).  A "text"
-    # spec is authored as a text parameter under identity -- storing a string
-    # on a numeric row silently left add_family_parameter's 0.0 in its place.
-    for cap, spec_val in (numeric_params or {}).items():
-        spec_key = spec_val[0] if isinstance(spec_val, (tuple, list)) else "number"
-        if spec_key == "text":
-            _text(doc, cap, "identity")
-        else:
-            _num(doc, cap, spec_key, "dimensions")
+    _author_caller_params(doc, text_params, numeric_params)
     row: Dict[Any, Any] = {
         doc.params["Width"].elem_id: W,
         doc.params["Depth"].elem_id: D,
@@ -1046,26 +1094,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                         f"{W * 12.0:g} W x {D * 12.0:g} D x {H * 12.0:g} H in "
                         f"-- geometry GIVEN ({source}), no catalog record"),
     }
-    for cap, val in (text_params or {}).items():
-        row[doc.params[cap].elem_id] = str(val)
-    for cap, spec_val in (numeric_params or {}).items():
-        if isinstance(spec_val, (tuple, list)):
-            spec_key, v = spec_val[0], spec_val[1]
-        else:
-            spec_key, v = "number", spec_val
-        if spec_key == "text":
-            # a text-spec value is stored verbatim: float("ONAN") raising and
-            # leaving 0.0 on a TEXT parameter was the #769 review's blocker.
-            row[doc.params[cap].elem_id] = str(v)
-        else:
-            try:
-                row[doc.params[cap].elem_id] = float(v)
-            except (TypeError, ValueError):
-                pass    # collect() never sends a non-float here; "text" does
-
-    for key, val in (identity or {}).items():          # manufacturer/model/url
-        if val:
-            row[key] = str(val)
+    _caller_param_row(doc, row, text_params, numeric_params, identity)
     doc.add_type(_clean_name(fam_name), row)
     # CATEGORY STANDARDS (#601): the parameters a family of this category is
     # expected to carry.  Applied AFTER add_type so every one lands on the
@@ -1293,14 +1322,20 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                      f"{'arbitrary %d-point profile' % len(prof.vertices) if prof is not None else 'rectangular footprint'}")
     for dim in ("Width", "Depth", "Height"):
         _num(doc, dim, "length", "dimensions")
-    doc.add_type(_clean_name(fam_name), {
+    # the caller's own parameters -- authored BEFORE add_type so their values
+    # land on the type row, and before apply_safe so the standards table skips
+    # any name the caller already authored
+    _author_caller_params(doc, text_params, numeric_params)
+    row: Dict[Any, Any] = {
         doc.params["Width"].elem_id: W,
         doc.params["Depth"].elem_id: D,
         doc.params["Height"].elem_id: H,
         "description": (f"{fam_name}: {W * 12.0:g} W x {D * 12.0:g} D x "
                         f"{H * 12.0:g} H in -- geometry GIVEN ({source}), "
                         f"no catalog record claimed"),
-    })
+    }
+    _caller_param_row(doc, row, text_params, numeric_params, identity)
+    doc.add_type(_clean_name(fam_name), row)
     std_report = ST.apply_safe(doc, category, standards, standard_values)   # category standards, #601
     r = G.REP_SOLID if solid else G.REP_DUMMY
     if prof is not None:
