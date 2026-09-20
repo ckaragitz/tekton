@@ -130,6 +130,87 @@ lowercases — so if that ever stops being true, it fails and the mutant
 becomes testable. Same verdict #797 itself reached about case-sensitising
 `unit_matches`.
 
+## What the independent review caught, and what it cost
+
+Two blocking findings and two nits, all four real, all four fixed on this
+branch. Recording them because the first one is a hard-rule-1 violation that
+every gate above was green on.
+
+**1 — a partial sheet delivered NOTHING.** `SheetPlan.buildable` was
+`bool(kwargs.get("height_ft"))`, but `make_generic_model` needs height **and**
+width **and** depth. So a sheet stating a height and no width took the
+buildable branch, the constructor raised, `_famspec_rfa` returned `None`, and
+`_r_pdf_to_rfa` returned before the archetype fallback ever ran. Reproduced
+before fixing, on a height-only sheet with `--prompt "create a cable tray
+family"` — a prompt that demonstrably builds a 16-part nominal tray on its own:
+
+```
+plan.buildable = True
+res.ok = False
+status = FAILED (famspec->rfa: make_generic_model needs vertices=[...]
+                 or width_ft + depth_ft, or parts=[...])
+files  = ['sheet', 'sheet_plan', 'sheet_table']      <- no rfa, none on disk
+```
+
+Fixed twice over, because the reviewer identified two independent holes and
+only one of them is `buildable`'s: the predicate now asks for every kwarg the
+constructor needs (`SheetPlan.REQUIRED`), **and** the router falls through to
+the archetype lane whenever the famspec lane produces no file, whatever the
+reason. The mutation table below shows the two are genuinely independent —
+restoring the old `buildable` no longer costs the file, only the honesty of
+the plan.
+
+Compounding it, the caveat that fired in exactly that case read *"the sheet
+states no depth_in, width_in; the body uses what it does state"* — a sentence
+that was false whenever it appeared, since a solid needs all three. Rewritten.
+
+**2 — a field we understood was dropped in silence.** `vocab.FIELDS` carries
+`length_in` and `diameter_in`; neither is in any of this module's maps, and
+only `parsed.unmapped` (rows naming no known field) fed `plan.refused`. So a
+sheet with "Overall Length 120 in" produced `refused == []` and the route
+printed no "read but NOT used" caveat at all, while `_SHEET_IS_THE_SOURCE`
+promised the delivery shows *"every row read but not used"*. For a cable-tray
+or conduit sheet, Length is the headline dimension. Every recognised key the
+plan does not consume is now a refusal line with its citation.
+
+**3 (nit) — `Material` and `Finish` shadowed their own standards rows.** They
+were in `_TEXT`, so `_author_caller_params` authored them under group
+`identity` and `ST.apply_safe` skipped the table's entries as "already
+authored by the constructor". Both are `text` either way so nothing was
+demoted, but the group was wrong. They now go through `standard_values` like
+`Weight`, and land under `materials` with `skipped == []`. The reviewer also
+answered the units question directly and in the negative: no `_NUMERIC`
+caption collides with the `generic_model` standards table, so the
+Weight-via-`standard_values` split stands and its lb→kg is the only conversion.
+
+**4 (nit) — the delivered file contradicted the delivered report.** On
+`dim_provenance="fact"` the type row's description and the document notes
+still read "geometry GIVEN (spec sheet: …)" while the fact sheet, the product
+note and every caveat said FACT. A person opening the family in Revit reads
+the former. Both generic-model paths now go through `_geometry_origin`, with
+the `given` wording kept as the control for the IFC/caller lane.
+
+### Mutation table for the fixes
+
+| mutant | dies in |
+|---|---|
+| `buildable` back to height-only | the 2 `is_not_called_buildable` cases — and **not** the delivery cases, because the router fall-through catches it |
+| router returns instead of falling through | `test_a_BUILD_FAILURE_also_falls_through_to_the_archetype_lane` |
+| unconsumed known fields dropped again | `test_a_recognised_field_this_lane_cannot_place_is_still_reported` |
+| the file says GIVEN again | `test_a_sheet_built_family_does_not_describe_itself_as_GIVEN` |
+| `Material`/`Finish` back to `_TEXT` | `test_material_and_finish_fill_the_STANDARDS_rows_not_shadow_them` |
+
+### The lesson worth carrying
+
+Every gate was green on the broken version: 3797 tests, the validator, the
+provenance scan, the plugin audit. Nothing was green *wrongly* — the hole was
+a case no test covered, and the case was the obvious one (a real sheet that
+tables a height and a catalogue number and puts the footprint in a drawing).
+The caveat text promised the behaviour and the code did not implement it, and
+**a caveat is not a test**. Where a route's honesty contract makes a claim in
+prose, the claim needs a case that fails when the claim stops being true —
+which is the same finding #789 kept producing about docstrings, one layer up.
+
 ## Open questions
 
 - **The archetype fallback picks its words from the file stem** when there is
@@ -157,7 +238,8 @@ Files written:
 - `src/rvt/frontdoor/matrix.py` — `pdf` in `INPUT_KINDS`, the `pdf->sheet`
   and `sheet->famspec` stages, four cells, three shared caveats
 - `src/rvt/famgen/factory.py` — `_author_caller_params` /
-  `_caller_param_row` shared by both generic-model paths (the DONE 5 bug fix)
+  `_caller_param_row` shared by both generic-model paths (the DONE 5 bug fix),
+  and `_geometry_origin` so the file's own wording tracks the provenance
 - `src/rvt/specsheet/famspec_from_sheet.py` — `_STANDARD_VALUES`,
   `_to_internal`, `standard_values` in the plan and its JSON
 - `tools/route.py` — `--pdf`

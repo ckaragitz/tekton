@@ -294,6 +294,174 @@ def test_an_unreadable_sheet_with_no_words_to_fall_back_on_says_so(tmp_path):
 
 
 # ===========================================================================
+# 4b. the file is delivered when the sheet is PARTIAL, not only when it fails
+#     outright -- #798's review found both halves of this broken
+# ===========================================================================
+
+def _partial_pdf(tmp_path, keep, name="partial.pdf"):
+    """A sheet stating only the rows in ``keep`` (plus the non-dimension ones)."""
+    rows = [(lab, val) for lab, val in FP.SHEET_ROWS
+            if lab in keep or lab not in ("Height", "Width", "Depth")]
+    draws = []
+    for i, (label, value) in enumerate(rows):
+        y = 700.0 - i * 18.0
+        draws += [(72.0, y, label), (300.0, y, value)]
+    return FP.build_pdf(str(tmp_path / name), [draws])
+
+
+@pytest.mark.parametrize("keep", [
+    ("Height",),                 # no width, no depth
+    ("Height", "Width"),         # no depth
+    ("Width", "Depth"),          # no height
+    (),                          # no dimension at all
+])
+def test_a_sheet_SHORT_OF_A_DIMENSION_still_delivers(tmp_path, keep):
+    """The hard-rule-1 hole #798's reviewer found, in all four shapes.
+
+    ``buildable`` asked only about ``height_ft`` while ``make_generic_model``
+    needs height AND width AND depth. A height-only sheet therefore took the
+    buildable branch, the constructor raised, and ``_r_pdf_to_rfa`` returned
+    before the archetype fallback ever ran -- delivering **nothing**. Measured
+    at the time: ``res.ok=False``, ``files=['sheet','sheet_plan','sheet_table']``,
+    no ``rfa`` key and no file on disk, on a prompt that demonstrably builds a
+    16-part nominal tray on its own.
+    """
+    pdf = _partial_pdf(tmp_path, keep)
+    res = _run(tmp_path, "out", pdf=pdf, prompt="create a cable tray family")
+    assert res.ok, res.status
+    assert os.path.isfile(res.files["rfa"]), res.files
+    assert res.caveats[0].startswith("THE SHEET DID NOT SIZE THIS FAMILY:")
+    # and it must be the NOMINAL family, not the sheet's numbers on a wrong body
+    rep = json.loads(open(res.files["rfa_report"]).read())
+    assert "fact" not in {v["provenance"] for v in rep["facts"]["values"].values()}
+
+
+@pytest.mark.parametrize("keep", [("Height",), ("Height", "Width")])
+def test_a_sheet_SHORT_OF_A_DIMENSION_is_not_called_buildable(tmp_path, keep):
+    """`buildable` means what the constructor needs, not what we hoped."""
+    plan = plan_from_sheet(S.read_sheet(_partial_pdf(tmp_path, keep)))
+    assert not plan.buildable
+    assert plan.missing_dimensions()
+    joined = " ".join(plan.refused)
+    assert "a solid needs height, width and depth together" in joined
+    # the old wording claimed "the body uses what it does state", which was
+    # false in exactly the case that produced it
+    assert "the body uses what it does state" not in joined
+
+
+def test_a_BUILD_FAILURE_also_falls_through_to_the_archetype_lane(tmp_path,
+                                                                  monkeypatch):
+    """The structural half, independent of `buildable` being right.
+
+    `buildable` is now honest, so no sheet reaches a raising constructor by
+    that route. This forces the other one: whatever the reason the famspec
+    lane produces no file, the archetype lane still gets its turn.
+    """
+    from rvt.frontdoor import famspec as FS
+    real = FS.build
+
+    def boom(kind, kw, **k):
+        # only the SHEET's constructor -- the archetype lane goes through the
+        # same dispatcher, and breaking it too would prove nothing
+        if kind == "generic_model":
+            raise RuntimeError("probe: the constructor refused")
+        return real(kind, kw, **k)
+
+    monkeypatch.setattr(FS, "build", boom)
+    res = _run(tmp_path, "out", pdf=_sheet_pdf(tmp_path),
+               prompt="create a cable tray family")
+    assert res.ok, res.status
+    assert os.path.isfile(res.files["rfa"])
+    assert "could not be built from them" in res.caveats[0]
+
+
+# ===========================================================================
+# 4c. a field we KNOW but do not use is SHOWN, not dropped
+# ===========================================================================
+
+def test_a_recognised_field_this_lane_cannot_place_is_still_reported(tmp_path):
+    """`length_in` and `diameter_in` are in `vocab.FIELDS` and in none of this
+    module's maps, so they were read, understood and dropped in silence -- while
+    the caveat promised "every row read but not used". For a cable-tray or
+    conduit sheet, Overall Length is the headline dimension.
+    """
+    rows = list(FP.SHEET_ROWS) + [("Overall Length", "120 in"), ("Diameter", "4 in")]
+    draws = []
+    for i, (label, value) in enumerate(rows):
+        y = 700.0 - i * 18.0
+        draws += [(72.0, y, label), (300.0, y, value)]
+    pdf = FP.build_pdf(str(tmp_path / "extra.pdf"), [draws])
+
+    parsed = S.read_sheet(pdf)
+    assert {"length_in", "diameter_in"} <= set(parsed.by_key())   # it WAS read
+    plan = plan_from_sheet(parsed)
+    joined = " ".join(plan.refused)
+    for key in ("length_in", "diameter_in"):
+        assert key in joined, plan.refused
+    assert "'Overall Length' = '120 in'" in joined     # with its citation
+
+    res = _run(tmp_path, "out", pdf=pdf)
+    assert res.ok
+    assert any("length_in" in c for c in res.caveats)
+
+
+# ===========================================================================
+# 4d. the delivered FILE must not contradict the delivered REPORT
+# ===========================================================================
+
+def test_a_sheet_built_family_does_not_describe_itself_as_GIVEN(tmp_path):
+    """The type row and the document notes are what a person reads in Revit.
+
+    They said "geometry GIVEN" on this lane while the fact sheet, the product
+    note and every route caveat said FACT.
+    """
+    from rvt.famgen import factory as FA
+    plan = plan_from_sheet(S.read_sheet(_sheet_pdf(tmp_path)))
+    prod = FA.make_generic_model(**plan.kwargs)
+    _name, row = prod.doc.types[0]
+    desc = row[-1010109]
+    assert "READ from spec sheet: probeworks-pw400.pdf" in desc
+    assert "geometry GIVEN" not in desc
+    assert not any("geometry GIVEN" in n for n in prod.doc.notes)
+
+
+def test_a_caller_supplied_body_STILL_describes_itself_as_GIVEN(tmp_path):
+    """...and the control: the IFC / caller lane is unchanged."""
+    from rvt.famgen import factory as FA
+    prod = FA.make_generic_model(height_ft=5.0, width_ft=1.7, depth_ft=0.5,
+                                 name="P", source="an IFC body")
+    _name, row = prod.doc.types[0]
+    assert "geometry GIVEN (an IFC body)" in row[-1010109]
+
+
+def test_material_and_finish_fill_the_STANDARDS_rows_not_shadow_them(tmp_path):
+    """They are `generic_model` standards-table entries (group `materials`).
+
+    Authored as plain text parameters they landed under group `identity` and
+    the table skipped its own rows as "already authored by the constructor".
+    """
+    from rvt.famgen import factory as FA
+    rows = list(FP.SHEET_ROWS) + [("Material", "Galvanized Steel"),
+                                  ("Finish", "ANSI 61 Gray")]
+    draws = []
+    for i, (label, value) in enumerate(rows):
+        y = 700.0 - i * 18.0
+        draws += [(72.0, y, label), (300.0, y, value)]
+    pdf = FP.build_pdf(str(tmp_path / "mat.pdf"), [draws])
+
+    plan = plan_from_sheet(S.read_sheet(pdf))
+    assert plan.kwargs["standard_values"]["Material"] == "Galvanized Steel"
+    assert "Material" not in (plan.kwargs.get("text_params") or {})
+
+    prod = FA.make_generic_model(**plan.kwargs)
+    groups = {a["name"]: a["group"] for a in (prod.standards or {})["authored"]}
+    assert groups["Material"] == "materials" and groups["Finish"] == "materials"
+    assert (prod.standards or {}).get("skipped") == []
+    _name, row = prod.doc.types[0]
+    assert row[prod.doc.params["Finish"].elem_id] == "ANSI 61 Gray"
+
+
+# ===========================================================================
 # 5. the route's own record
 # ===========================================================================
 

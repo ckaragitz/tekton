@@ -54,8 +54,7 @@ _IDENTITY = {"manufacturer": "Manufacturer", "model": "Model"}
 
 #: sheet key -> a text parameter carried onto the family
 _TEXT = {"voltage": "Voltage", "enclosure": "Enclosure Rating",
-         "series": "Series", "mounting": "Mounting", "material": "Material",
-         "finish": "Finish", "ip_rating": "IP Rating"}
+         "series": "Series", "mounting": "Mounting", "ip_rating": "IP Rating"}
 
 #: sheet key -> a plain numeric parameter carried onto the family. The value
 #: is stored as the sheet stated it: these are the document's own numbers and
@@ -71,7 +70,13 @@ _NUMERIC = {"amps": "Amps", "sccr_ka": "SCCR",
 #: class, and authoring a second one of the same name would win the race and
 #: demote a mass to a bare number.  ``standard_values`` takes internal units,
 #: so the conversion is exact and named rather than implied.
-_STANDARD_VALUES = {"weight_lb": ("Weight", "mass")}
+_STANDARD_VALUES = {"weight_lb": ("Weight", "mass"),
+                    # text, so no conversion -- but they are standards-table
+                    # rows on this category and authoring them as plain text
+                    # parameters put them under group `identity` instead of
+                    # `materials`, shadowing the table's own entries
+                    "material": ("Material", ""),
+                    "finish": ("Finish", "")}
 
 
 class SheetPlan:
@@ -89,9 +94,27 @@ class SheetPlan:
         self.refused = refused
         self.document, self.name = document, name
 
+    #: every kwarg ``make_generic_model`` needs to size a rectangular body.
+    #: It requires ``height_ft`` AND (``vertices`` OR ``width_ft`` +
+    #: ``depth_ft``), and this lane never supplies ``vertices`` -- a spec
+    #: sheet states a table, not a profile.
+    REQUIRED = ("height_ft", "width_ft", "depth_ft")
+
     @property
     def buildable(self) -> bool:
-        return bool(self.kwargs.get("height_ft"))
+        """Can ``make_generic_model`` actually build this?
+
+        It asked only about ``height_ft`` once, and the gap cost the file: a
+        sheet stating a height and no width took the buildable branch, the
+        constructor raised, and the route returned before the archetype
+        fallback -- delivering NOTHING, which is hard rule 1 broken by an
+        off-by-two predicate. The router now also falls through on any build
+        failure, so this is the honest answer rather than the only defence.
+        """
+        return all(self.kwargs.get(k) for k in self.REQUIRED)
+
+    def missing_dimensions(self) -> List[str]:
+        return [k for k in self.REQUIRED if not self.kwargs.get(k)]
 
     def citations(self) -> List[str]:
         return [f"{what} <- {v.citation(self.document)}" for what, v in self.used]
@@ -170,15 +193,19 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
         kwargs[kw] = float(v.value) / 12.0
         used.append((kw, v))
 
-    missing = [k for k in _DIMS if k not in by_key]
-    if "height_ft" not in kwargs:
+    # WHAT IS MISSING, said once and accurately. The earlier wording here --
+    # "the body uses what it does state" -- was false in exactly the case that
+    # produced it: a body needs all three, so a sheet short of one sizes
+    # nothing at all and the archetype lane has to stand in.
+    have = {kw for kw in _DIMS.values() if kwargs.get(kw)}
+    short = [kw for kw in SheetPlan.REQUIRED if kw not in have]
+    if short:
+        stated = ", ".join(sorted(by_key)) if by_key else "nothing we recognise"
         refused.append(
-            "no usable height: a body cannot be sized. The sheet did state "
-            + (", ".join(sorted(by_key)) if by_key else "nothing we recognise"))
-    elif missing:
-        refused.append(
-            "the sheet states no " + ", ".join(sorted(missing))
-            + "; the body uses what it does state")
+            "no body can be sized from this sheet: it states no "
+            + ", ".join(k[:-3] + "_in" for k in short)
+            + ", and a solid needs height, width and depth together. "
+            + f"The sheet did state {stated}")
 
     identity: Dict[str, str] = {}
     for key, caption in _IDENTITY.items():
@@ -234,6 +261,22 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
     # the dimensions were READ off a published document, not typed by a
     # caller -- the distinction #688 DONE 3 exists to keep
     kwargs["dim_provenance"] = "fact"
+
+    # A row that named NO field we know is already shown as `unmapped`. A row
+    # that named a field we DO know but that no table above consumes was shown
+    # nowhere and carried nowhere -- `length_in` and `diameter_in` are in
+    # `vocab.FIELDS` and in none of the maps here, so a cable tray's headline
+    # "Overall Length 120 in" was dropped in silence while the body was built
+    # from the other three. The caveat promised "every row read but not used";
+    # this is what makes that true.
+    taken = {v.key for _what, v in used}
+    for key in sorted(by_key):
+        if key in taken:
+            continue
+        v = by_key[key]
+        refused.append(
+            f"{key}: read and understood, but this lane has no place to put "
+            f"it -- stated at {v.citation(parsed.path)}")
 
     for page, row, text_line in parsed.unmapped[:40]:
         refused.append(f"p{page} r{row}: not used -- {text_line[:80]}")

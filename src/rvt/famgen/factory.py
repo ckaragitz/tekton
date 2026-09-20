@@ -959,6 +959,22 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
     return fb
 
 
+def _geometry_origin(dim_provenance: str, source: str) -> str:
+    """How the delivered file itself should describe where its sizes came from.
+
+    The type row's description and the document notes are read by a person
+    opening the family in Revit, and they were saying "geometry GIVEN" on the
+    spec-sheet lane while the fact sheet, the product note and every route
+    caveat said FACT.  Erring conservative is better than over-claiming, but a
+    file that contradicts its own report is a third thing, and the reviewer of
+    #798 was right to name it.
+    """
+    if dim_provenance == "fact":
+        return (f"dimensions READ from {source} and cited there, "
+                f"no catalog record of ours claimed")
+    return f"geometry GIVEN ({source}), no catalog record claimed"
+
+
 def _author_caller_params(doc: SK.FamilyDoc,
                           text_params: Optional[Dict[str, str]],
                           numeric_params: Optional[Dict[str, Any]]) -> None:
@@ -1092,7 +1108,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         doc.params["Height"].elem_id: H,
         "description": (f"{fam_name}: {len(built)}-part assembly, overall "
                         f"{W * 12.0:g} W x {D * 12.0:g} D x {H * 12.0:g} H in "
-                        f"-- geometry GIVEN ({source}), no catalog record"),
+                        f"-- {_geometry_origin(dim_provenance, source)}"),
     }
     _caller_param_row(doc, row, text_params, numeric_params, identity)
     doc.add_type(_clean_name(fam_name), row)
@@ -1122,7 +1138,9 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         except Exception as e:                       # never block delivery
             drive_note = f"parametric drive not wired ({type(e).__name__}: {str(e)[:90]})"
     doc.notes.append(drive_note)
-    doc.notes.append(f"multi-part generic model: {len(built)} extrusions "
+    doc.notes.append(f"multi-part generic model "
+                     f"({_geometry_origin(dim_provenance, source)}): "
+                     f"{len(built)} extrusions "
                      f"({', '.join(str(p.get('shape') or 'box') for p in parts)}); "
                      f"Width/Depth/Height report the assembly bounding box")
     doc.finalize()
@@ -1318,7 +1336,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                                  start_id=start_id,
                                  plane_length_ft=max(6.0, W * 2.0),
                                  shared_params=shared_params)
-    doc.notes.append(f"generic model: geometry GIVEN ({source}); "
+    doc.notes.append(f"generic model: {_geometry_origin(dim_provenance, source)}; "
                      f"{'arbitrary %d-point profile' % len(prof.vertices) if prof is not None else 'rectangular footprint'}")
     for dim in ("Width", "Depth", "Height"):
         _num(doc, dim, "length", "dimensions")
@@ -1331,8 +1349,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
         doc.params["Depth"].elem_id: D,
         doc.params["Height"].elem_id: H,
         "description": (f"{fam_name}: {W * 12.0:g} W x {D * 12.0:g} D x "
-                        f"{H * 12.0:g} H in -- geometry GIVEN ({source}), "
-                        f"no catalog record claimed"),
+                        f"{H * 12.0:g} H in "
+                        f"-- {_geometry_origin(dim_provenance, source)}"),
     }
     _caller_param_row(doc, row, text_params, numeric_params, identity)
     doc.add_type(_clean_name(fam_name), row)

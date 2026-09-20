@@ -1265,11 +1265,13 @@ def _r_pdf_to_rfa(res, inputs, out_dir, opts):
     for r in plan.refused[:20]:
         res.caveats.append(f"read but NOT used: {r}")
 
+    built = False
     if plan.buildable:
         sub = dict(opts)
         sub.setdefault("stem", _slug(plan.name))
-        if _famspec_rfa(res, plan.kind, dict(plan.kwargs), out_dir, sub) is None:
-            return
+        built = _famspec_rfa(res, plan.kind, dict(plan.kwargs),
+                             out_dir, sub) is not None
+    if built:
         if plan.kwargs.get("identity"):
             res.caveats.insert(0, (
                 "the manufacturer / model parameters are THE DOCUMENT'S OWN "
@@ -1286,17 +1288,27 @@ def _r_pdf_to_rfa(res, inputs, out_dir, opts):
                       f"value(s) read and cited, {len(plan.refused)} not used")
         return
 
-    # The sheet could not size a body.  Deliver anyway: the archetype lane
-    # needs words, and a prompt beside the PDF is the first source of them;
-    # the sheet's own product name (or, failing that, the file's stem) second.
+    # The sheet did not produce a family.  Deliver anyway -- and reach here on
+    # a BUILD FAILURE too, not only on an unbuildable plan.  #798's reviewer
+    # found the gap the hard way: a sheet stating a height and no width took
+    # the buildable branch, make_generic_model raised, and this function
+    # returned with no .rfa at all.  `plan.buildable` is now honest about what
+    # the constructor needs, and this fall-through is the structural half:
+    # whatever the reason the famspec lane produced nothing, the archetype
+    # lane still gets its turn (hard rule 1).
     fallback = prompt or plan.name
     why = plan.refused[0] if plan.refused else "no dimension was read"
+    if plan.buildable:
+        why = (f"the sheet's dimensions were read but the family could not be "
+               f"built from them: {res.status}")
     res.caveats.insert(0, f"THE SHEET DID NOT SIZE THIS FAMILY: {why}")
     if _archetype_rfa(res, fallback, out_dir, opts, demote=res.errors[mark:]):
         res.caveats.insert(1, (
             f"the dimensions are NOMINAL (standard practice for the product "
             f"class), NOT read from {base} -- the sheet was "
             + ("unreadable" if parsed.unreadable
+               else "read but the famspec lane produced no file"
+               if plan.buildable
                else "read but stated no usable dimension")
             + "; the words that chose the archetype came from "
             + ("your prompt" if prompt else "the sheet's own product name")))
