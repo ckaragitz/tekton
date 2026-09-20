@@ -366,6 +366,20 @@ class RfaSource:
         The path is deliberately NOT in the key: it would make the output
         depend on where the file sits, which is the false reading #168's
         first determinism probe produced.
+
+        WHY THIS LANE MAY KEY ON THE ID BLOCK AND ``famload`` MAY NOT, since
+        the two docstrings otherwise look like they disagree.
+        ``famload.load_doc_guid`` deliberately excludes anything host-derived
+        because a host term breaks the chain-vs-batch invariant
+        (``tests/test_famload_batch.py``) -- and it can afford to, because
+        ``famload._register_content`` already refuses a second copy of one
+        content GUID in a host outright.  Here there is no such registry to
+        refuse against, and the rebased elements genuinely DIFFER between two
+        copies: they carry different ids, so they are different bytes and
+        honestly a different document.  ``start_id`` is not a host identity
+        smuggled in -- it is the one thing that actually distinguishes the
+        two copies, and it is stable run-to-run for a given host
+        (``host.watermark + 1``, allocated the same way every time).
         """
         from ..genesis.skeleton import our_guid
         return our_guid("rfa-load-doc", self.content_digest(), int(start_id))

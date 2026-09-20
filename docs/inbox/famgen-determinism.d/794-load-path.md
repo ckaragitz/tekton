@@ -191,15 +191,58 @@ review round. It also surfaced that `tests/test_catchain.py` is red on `main`
 already (2 failures, verified against a stashed tree) — pre-existing, outside
 the CI shard, and not this PR's.
 
+## A claim in an earlier draft of this record that was simply wrong
+
+It said *"`famgen.loader.plan_load` is fixed by the same derivation but no
+route exercises it… its tests here are helper-level."* **False**, and #801's
+reviewer caught it. `plan_load` is reached by the main authoring lane:
+
+```
+frontdoor/build.py:590 stage_load_batched
+  -> famgen/loader.py load_families_into_project
+    -> _load_families_into_project -> _author_load -> plan_load
+```
+
+Instrumented on `prompt → rvt` ("an electrical room with 6 panels"):
+
+```
+plan_load calls: 6
+via: stage_load_batched | load_families_into_project | _load_families_into_project
+mints: NONE
+```
+
+So that site is route-reaching *and* CI-covered — the reviewer's own mutant,
+re-introducing a host term into `loader.py`, killed
+`test_famload_batch.py::test_chain_and_batch_are_logically_identical`. The
+change there is better covered than this record claimed, not worse. I had
+written the sentence from reading call sites instead of running the lane,
+which is the same mistake this record spends two sections warning about.
+
+**And the control that matters more than the correction:** `prompt → rvt` was
+**already byte-deterministic on `main`**, and still is.
+
+```
+main   (b645cc5)  696a5d1cc523b453  twice   IDENTICAL
+branch (8a27bc6)  696a5d1cc523b453  twice   IDENTICAL
+```
+
+Same hash on both sides. This PR does not make that lane deterministic — it
+was already — and it does not perturb it either, despite touching a function
+the lane calls six times. That is the regression control for the whole change,
+and it is worth more than the two before/after pairs above, because those only
+show the change *did* something and this shows it did nothing where it should
+do nothing. It also means the minted GUIDs on that lane never reached the
+delivered bytes, which is why nobody had noticed them.
+
 ## Open questions
 
-- `famgen.loader.plan_load` is fixed by the same derivation but no *route*
-  exercises it — it is reached by `convert/extract_family.py`'s own re-load
-  verification and by `factory.py`'s P1–P5 ladder. Its tests here are
-  helper-level. Worth a route-level case if the extract lane ever gets one.
-- The host digest costs one sha256 of the host per survey: 0.6 ms for the
-  568 KB pinned base, ~0.03 s extrapolated for a 30 MB project. Measured, not
-  estimated, but not measured on a genuinely large foreign file.
+- The born-`.rfa` key includes `start_id`, which makes that document's GUID
+  host-dependent, while `famload`'s key deliberately is not. Both are argued
+  in their docstrings and the asymmetry is real rather than accidental — the
+  rebased elements genuinely differ between two copies — but it is the kind
+  of thing worth re-reading if a third load lane ever appears.
+- No measurement on a genuinely large foreign host. Everything here is the
+  568 KB pinned base.
 
 ## BRANCH STATE
 
@@ -207,9 +250,11 @@ Branch `cam/794-load-determinism`, `Closes #794`, `Refs #168`.
 
 Files written:
 
-- `src/rvt/famload.py` — `host_digest`, `load_doc_guid`,
-  `load_session_guid_hex`, `HostContext.digest`, and the derived `LoadPlan`
-- `src/rvt/famgen/loader.py` — `HostContext.digest` and the same derivation
+- `src/rvt/famload.py` — `load_doc_guid`, `load_session_guid_hex`, and the
+  derived `LoadPlan` (no `host_digest`, no `HostContext.digest`: both were
+  written and then removed within this PR when the host term came out of the
+  key — see the correction above)
+- `src/rvt/famgen/loader.py` — the same derivation at its own `plan_load`
 - `src/rvt/convert/rfa_load.py` — `RfaSource.content_digest` /
   `document_guid_at`, and `BornRfaDoc` taking the derived GUID
 - `tests/test_famload_determinism_794.py` (new), `tests/ci_shard.d/794-load-determinism.txt`

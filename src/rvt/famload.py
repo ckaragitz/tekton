@@ -472,6 +472,14 @@ def load_doc_guid(family_guid: str) -> str:
     get different GUIDs because their content GUIDs differ (content-derived
     since #793), and the SAME family loaded twice gets the same one.
 
+    "The same family twice in one host" cannot arise on THIS lane in any
+    case: :func:`_register_content` rejects it by name before any
+    ``fam_doc_guid`` could collide ("content GUID ... already registered in
+    the host").  The born-``.rfa`` lane has no such registry to check against
+    and solves the same problem a different way -- see
+    ``rvt.convert.rfa_load.RfaSource.document_guid_at``, which is why the two
+    keys are not spelled the same.
+
     The target release is not a separate term either: a family's content GUID
     already covers the release-specific content it was built with.
     """

@@ -269,11 +269,25 @@ def test_the_EXTRACT_lane_is_still_nondeterministic_and_that_is_on_purpose():
     So this asserts the CURRENT boundary rather than a wish: if someone later
     makes it derived, this test fails and the decision gets re-made on
     purpose instead of drifting.
+
+    Asserted BEHAVIOURALLY -- two calls, different results -- and not by
+    grepping the function's source for "uuid4()", which #801's reviewer
+    rightly called a weak form: a source grep passes if someone makes the
+    lane deterministic while leaving a dead mint behind, and fails on a
+    cosmetic refactor that changes nothing.
     """
-    import inspect
+    import json
     from rvt.genesis import skeleton as GSK
-    src = inspect.getsource(GSK.minimal_globals)
-    assert "uuid4()" in src, (
-        "minimal_globals no longer mints -- if that was deliberate, update "
-        "this test and docs/inbox/famgen-determinism.d/794-load-path.md; the "
-        "certified bases are its other caller (hard rule 4)")
+    a = json.dumps(GSK.minimal_globals([]), sort_keys=True, default=str)
+    b = json.dumps(GSK.minimal_globals([]), sort_keys=True, default=str)
+    assert a != b, (
+        "minimal_globals is now deterministic -- if that was deliberate, "
+        "update this test and "
+        "docs/inbox/famgen-determinism.d/794-load-path.md; the three "
+        "certified bases are its other caller (hard rule 4), so the change "
+        "needs a viewer round, not just a green suite")
+    # and name WHICH fields move, so a future reader does not have to
+    # re-derive it (they are nested under BasicFileInfo, not top level)
+    ga, gb = json.loads(a)["BasicFileInfo"], json.loads(b)["BasicFileInfo"]
+    moved = {k for k in ga if ga[k] != gb.get(k)}
+    assert moved == {"unique_document_guid", "central_episode_guid"}, moved
