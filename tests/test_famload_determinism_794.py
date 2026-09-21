@@ -190,6 +190,13 @@ def test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid(tmp_path):
               "fill_pattern_solid": 123456,
               "line_pattern_solid": 123457, "census_before": {"probe": 1},
               "usage_referrers": {"Probe": [1, 2]}, "notes": ["probe"]}
+    # NOTE on what this guard does and does not catch: it asserts the VALUES
+    # differ, so a mutant that collapses a field (`len()`, `bool()`) could in
+    # principle still survive if host C's value collapsed onto host A's.
+    # Measured today there is no such collision (census 19 vs 1, referrers
+    # 7 vs 1, notes 0 vs 1, gstyles {} vs 1 entry), but a future field whose
+    # varied value collapses the same way would need a different value here,
+    # not a different assertion.
     for name, value in varied.items():
         assert value != getattr(host_a, name), (
             "host C's %r is equal to host A's, so this axis is not actually "

@@ -337,7 +337,35 @@ The full sweep at this head, every field as a smuggled key term:
 | `len(host.usage_referrers)` | 1 failed, 29 passed |
 | `len(host.notes)` | 1 failed, 29 passed |
 
-Ten of ten. Before this commit, four of those ten passed silently.
+Ten of ten. Before this commit, **seven** of those ten passed silently —
+only the path-bytes, `watermark` and `episode` terms died, because those were
+the only three axes host B and the old host C varied.
+
+That sentence originally said *four*, and it is worth leaving the correction
+visible rather than quietly editing the digit: it was the one number in this
+paragraph I did not measure, and it sat three lines under "Measured, not
+assumed". #801's round-6 reviewer re-ran all seven not-previously-varied
+terms against `84f2b782` and found every one of them surviving at 30 passed;
+I reproduced it from a clean `git archive` of that commit before changing the
+word. Measured at `84f2b782`:
+
+```
+sha256(host.path bytes)        1 failed, 14 passed   <- died
+int(host.watermark)            1 failed, 14 passed   <- died
+int(host.episode)              1 failed, 14 passed   <- died
+str(host.partition_name)       15 passed             <- survived
+len(host.category_gstyles)     15 passed             <- survived
+int(host.fill_pattern_solid)   15 passed             <- survived
+int(host.line_pattern_solid)   15 passed             <- survived
+len(host.census_before)        15 passed             <- survived
+len(host.usage_referrers)      15 passed             <- survived
+len(host.notes)                15 passed             <- survived
+```
+
+Three failure modes in one PR now share a shape: `git stash` on a clean tree,
+a guard asserted without reading the function, a field "varied" to the value
+it already had — and this, a count asserted from memory. Every one was caught
+by measurement and none by reasoning.
 
 ## Open questions
 
