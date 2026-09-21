@@ -156,7 +156,7 @@ HELPERS instead and gets 6 and 4 for the first two rows. Both reproduce.
 
 | mutant (call-site revert) | dies in |
 |---|---|
-| `famload` mints again | 4 tests (both lane cases, both census cases) |
+| `famload` mints again | 5 tests (both lane cases, both census cases, and the two-hosts case) |
 | `rfa_load` mints again | 2 tests (the `.rfa` path lane and its census) |
 | drop `start_id` from the born key | `test_the_standalone_born_guid_separates_two_copies_in_one_host` |
 | re-introduce a host term (signature change) | `test_the_HOST_is_NOT_in_the_key_and_that_is_load_bearing` |
@@ -291,11 +291,20 @@ reach (that test runs through `famgen/loader.py`).
 That is a hole in the exact property this PR exists to establish, so it is
 closed rather than noted:
 `test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid` drives the
-real `_plan_family` against two HostContexts differing in `path` and in the
-bytes behind it — what a smuggled host term would hash — while holding
-watermark and episode equal, since those are id-allocation inputs the plan
-legitimately uses. Verified against the reviewer's own mutant: **1 failed, 29
-passed**, where before it was 29 passed and nothing died.
+real `_plan_family` against THREE HostContexts: one differing in `path` and
+in the bytes behind it — what a smuggled host-*bytes* term would hash — and,
+added in round 4, one differing in `watermark` and `episode`.
+
+That third host exists because round 4 showed the two-host version was not
+enough: `our_guid("famload-doc", guid, int(host.watermark))` and its
+`episode` twin **both survived all 30 tests**. An earlier draft of this
+paragraph justified holding those equal as "id-allocation inputs the plan
+legitimately uses, so varying them would prove nothing" — an over-claim, and
+wrong in the way that matters: the assertion is on `fam_doc_guid` /
+`session_guid_hex` alone, so varying them proves precisely that they are not
+in the key. All three host-term mutants now die (**1 failed, 29 passed**
+each), where the bytes one alone used to be the only one caught and the other
+two passed silently.
 
 ## Open questions
 

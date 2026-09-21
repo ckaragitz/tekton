@@ -136,12 +136,23 @@ def test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid(tmp_path):
     without touching `load_doc_guid`'s signature, left all 29 tests passing.
     A future session re-introducing the host that way would sail through.
 
-    So this drives the real `_plan_family` against two HostContexts that
-    differ in what a smuggled host term would actually reach for -- the
-    `path`, and the bytes of the file behind it -- and pins the derived GUIDs
-    as identical. Watermark and episode are held equal on purpose: they are
-    id-allocation inputs the plan legitimately uses, so varying them would
-    prove nothing about the GUID key.
+    So this drives the real `_plan_family` against THREE HostContexts and
+    pins the derived GUIDs identical across all of them:
+
+    * host B differs in `path` and in the bytes of the file behind it --
+      what a host-*bytes* term would hash;
+    * host C differs in `watermark` and `episode` -- the host's other two
+      identities. An earlier version of this test held those equal and
+      claimed varying them "would prove nothing about the GUID key". That
+      was an over-claim, caught by #801's round-4 reviewer with a working
+      repro: `our_guid("famload-doc", guid, int(host.watermark))` and its
+      `episode` twin BOTH survived all 30 tests. The assertion here is on
+      `fam_doc_guid` / `session_guid_hex` alone, so varying those fields
+      proves exactly what it needs to -- that they are not in the key.
+
+    Host C LOWERS the watermark rather than raising it, so the document's own
+    ids stay above it and `_plan_family`'s `lo <= host.watermark` guard is
+    still satisfied; what matters is that the value moved, not which way.
     """
     import shutil
     from rvt.famgen import factory as F
@@ -158,18 +169,23 @@ def test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid(tmp_path):
     host_b = dataclasses.replace(host_a, path=other)
 
     wm = int(host_a.watermark)
+    # the host's OTHER two identities, moved together
+    host_c = dataclasses.replace(host_a, watermark=wm - 10,
+                                 episode=int(host_a.episode) + 7)
+
     guids = []
-    for host in (host_a, host_b):
+    for host in (host_a, host_b, host_c):
         prod = F.make_panelboard(vendor="eaton", line="pow-r-line", mains_a=225,
                                  spaces=42, voltage="208Y/120", start_id=wm + 1)
         prod.doc.finalize()
         plan, _cursor = FL._plan_family(
             FL.FamilyLoad(key="probe", doc=prod.doc), prod.doc, host, wm + 50000)
         guids.append((plan.fam_doc_guid, plan.session_guid_hex))
-    assert guids[0] == guids[1], (
+    assert guids[0] == guids[1] == guids[2], (
         "the derived GUIDs moved with the host -- something host-derived is "
-        "back in the key; read test_famload_batch.py::"
-        "test_chain_and_batch_are_logically_identical before 'fixing' this")
+        "back in the key (path/bytes, watermark or episode); read "
+        "test_famload_batch.py::test_chain_and_batch_are_logically_identical "
+        "before 'fixing' this")
 
 
 def test_chaining_and_batching_agree_on_the_derived_guids(tmp_path):
