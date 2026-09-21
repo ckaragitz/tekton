@@ -376,10 +376,10 @@ class RfaSource:
         (``famload.register_in_host_adocument``).  Here there is no host
         registry to refuse against at all, and the rebased elements genuinely
         DIFFER between two copies: they carry different ids, so they are
-        different bytes and honestly a different document.  ``start_id`` is not a host identity
-        smuggled in -- it is the one thing that actually distinguishes the
-        two copies, and it is stable run-to-run for a given host
-        (``host.watermark + 1``, allocated the same way every time).
+        different bytes and honestly a different document.  ``start_id`` is
+        not a host identity smuggled in -- it is the one thing that actually
+        distinguishes the two copies, and it is stable run-to-run for a given
+        host (``host.watermark + 1``, allocated the same way every time).
         """
         from ..genesis.skeleton import our_guid
         return our_guid("rfa-load-doc", self.content_digest(), int(start_id))

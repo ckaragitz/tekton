@@ -47,6 +47,7 @@ WHAT THIS IS NOT. Reproducibility is a fact about our bytes. It is never
 evidence that Revit opens them (hard rule 4), and nothing here claims a viewer
 or desktop verdict.
 """
+import dataclasses
 import hashlib
 import os
 
@@ -124,6 +125,51 @@ def test_the_HOST_is_NOT_in_the_key_and_that_is_load_bearing():
         "load_doc_guid grew a parameter -- if a host term came back, read "
         "test_chain_and_batch_are_logically_identical first")
     assert list(inspect.signature(FL.load_session_guid_hex).parameters) == ["family_guid"]
+
+
+def test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid(tmp_path):
+    """The behavioural half of the no-host-in-the-key rule.
+
+    `test_the_HOST_is_NOT_in_the_key_and_that_is_load_bearing` above is a
+    signature-shape proxy, and #801's round-3 reviewer showed exactly how far
+    that gets you: a host-sha256 term inlined at `_plan_family`'s CALL SITE,
+    without touching `load_doc_guid`'s signature, left all 29 tests passing.
+    A future session re-introducing the host that way would sail through.
+
+    So this drives the real `_plan_family` against two HostContexts that
+    differ in what a smuggled host term would actually reach for -- the
+    `path`, and the bytes of the file behind it -- and pins the derived GUIDs
+    as identical. Watermark and episode are held equal on purpose: they are
+    id-allocation inputs the plan legitimately uses, so varying them would
+    prove nothing about the GUID key.
+    """
+    import shutil
+    from rvt.famgen import factory as F
+
+    host_a = FL.survey_host(HOST)
+    # a second host that is a DIFFERENT FILE with different bytes -- which is
+    # what any host-derived term would hash -- while leaving every field
+    # `_plan_family` legitimately reads untouched
+    other = str(tmp_path / "other-host.rvt")
+    shutil.copyfile(HOST, other)
+    with open(other, "ab") as fh:
+        fh.write(b"\0" * 64)
+    assert open(HOST, "rb").read() != open(other, "rb").read()
+    host_b = dataclasses.replace(host_a, path=other)
+
+    wm = int(host_a.watermark)
+    guids = []
+    for host in (host_a, host_b):
+        prod = F.make_panelboard(vendor="eaton", line="pow-r-line", mains_a=225,
+                                 spaces=42, voltage="208Y/120", start_id=wm + 1)
+        prod.doc.finalize()
+        plan, _cursor = FL._plan_family(
+            FL.FamilyLoad(key="probe", doc=prod.doc), prod.doc, host, wm + 50000)
+        guids.append((plan.fam_doc_guid, plan.session_guid_hex))
+    assert guids[0] == guids[1], (
+        "the derived GUIDs moved with the host -- something host-derived is "
+        "back in the key; read test_famload_batch.py::"
+        "test_chain_and_batch_are_logically_identical before 'fixing' this")
 
 
 def test_chaining_and_batching_agree_on_the_derived_guids(tmp_path):

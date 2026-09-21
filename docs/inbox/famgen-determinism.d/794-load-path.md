@@ -148,12 +148,19 @@ something this PR introduced or resolved.
 
 Every fix dies to its own mutant:
 
-| mutant | dies in |
+Each row names the mutant *formulation*, because the count depends on it and
+two tables quoting different numbers for "the same" mutant is how a reader
+concludes one of them is wrong. These revert the CALL SITE (the smallest
+change that restores the old behaviour); the PR body's table mutates the
+HELPERS instead and gets 6 and 4 for the first two rows. Both reproduce.
+
+| mutant (call-site revert) | dies in |
 |---|---|
 | `famload` mints again | 4 tests (both lane cases, both census cases) |
 | `rfa_load` mints again | 2 tests (the `.rfa` path lane and its census) |
 | drop `start_id` from the born key | `test_the_standalone_born_guid_separates_two_copies_in_one_host` |
-| re-introduce a host term | `test_the_HOST_is_NOT_in_the_key_and_that_is_load_bearing` |
+| re-introduce a host term (signature change) | `test_the_HOST_is_NOT_in_the_key_and_that_is_load_bearing` |
+| re-introduce a host term **inlined at the call site**, signature untouched | `test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid` |
 
 That the first mutant also kills the `.rfa`-path cases is correct coupling, not
 a leak: that lane's document is loaded *through* famload.
@@ -271,6 +278,24 @@ it is shared with other sessions, and on a clean tree it silently measures the
 present. Export both revisions with `git archive` and point `PYTHONPATH` at
 each, then *prove which engine ran* by printing `rvt.__file__`. That last step
 is what turns a measurement into evidence, and it is the step I skipped.
+
+## One coverage hole the reviews found in the tests themselves
+
+Round 3 applied a mutant none of the 29 tests caught: a host sha256 inlined at
+`_plan_family`'s **call site**, leaving `load_doc_guid`'s signature untouched.
+All 29 passed. The signature-shape test only catches a host term arriving as a
+*parameter*, and the real invariant lives 600 lines away in
+`test_famload_batch.py`, which a call-site mutant in `famload` alone does not
+reach (that test runs through `famgen/loader.py`).
+
+That is a hole in the exact property this PR exists to establish, so it is
+closed rather than noted:
+`test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid` drives the
+real `_plan_family` against two HostContexts differing in `path` and in the
+bytes behind it — what a smuggled host term would hash — while holding
+watermark and episode equal, since those are id-allocation inputs the plan
+legitimately uses. Verified against the reviewer's own mutant: **1 failed, 29
+passed**, where before it was 29 passed and nothing died.
 
 ## Open questions
 
