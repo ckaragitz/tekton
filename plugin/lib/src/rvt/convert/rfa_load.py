@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import os
 import time
+import hashlib
 import uuid
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -165,8 +166,20 @@ class BornRfaDoc:
         self.part_type = int(part_type)
         self.types = list(types)
         self.current_type = int(current_type)
-        # a standalone file's unit 0 carries no separator GUID and the same
-        # .rfa may be loaded twice into one host: mint the content GUID
+        # A standalone file's unit 0 carries no separator GUID, so this
+        # document's own GUID has to come from somewhere. It used to be
+        # `uuid4()`, for the reason the old comment gave -- the same .rfa may
+        # be loaded twice into ONE host, and two copies must not claim one
+        # identity. That reason is real; minting was just the blunt way to
+        # honour it, and it cost reproducibility: two identical reloads
+        # produced two different projects (#794), so nothing could pin, cache
+        # or single-variable-diff a loaded .rvt.
+        #
+        # The caller now supplies a DERIVED guid keyed on the .rfa's content
+        # and the id block it is being rebased into -- see
+        # `RfaSource.document_guid_at`, which keeps both properties at
+        # once. The `uuid4()` stays as the last-resort default for a direct
+        # constructor call that supplies neither.
         self.document_guid = document_guid or str(uuid.uuid4())
         self.params: Dict[str, Any] = {}
 
@@ -316,12 +329,60 @@ class RfaSource:
                      or os.path.splitext(os.path.basename(self.path))[0]),
             release=V.detect_release(self.path), class_histogram=hist)
         self.last_build: Optional[Dict[str, Any]] = None      # census of build()
+        self._digest: Optional[str] = None                    # content_digest() memo
 
     # -- the famload builder ------------------------------------------------
     def idmap_at(self, start_id: int) -> Dict[int, int]:
         """{old id: new id}: the members in id order onto the contiguous
         block ``start_id ..`` (T2a's allocation law: watermark+1 onward)."""
         return {old: int(start_id) + i for i, old in enumerate(self.members)}
+
+    def content_digest(self) -> str:
+        """sha256 of the .rfa file itself, computed once and cached."""
+        if self._digest is None:
+            h = hashlib.sha256()
+            with open(self.path, "rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 20), b""):
+                    h.update(chunk)
+            self._digest = h.hexdigest()
+        return self._digest
+
+    def document_guid_at(self, start_id: int) -> str:
+        """This standalone family's content-document GUID for one load (#794).
+
+        Keyed on the .rfa's own bytes and the id block it is rebased into,
+        which is what makes it satisfy BOTH halves of the old `uuid4()`:
+
+        * **deterministic across runs** -- the same file rebased to the same
+          block is the same document, so two identical reloads produce the
+          same project and a loaded `.rvt` can finally be pinned and diffed;
+        * **distinct for two copies in one host** -- two loads of one .rfa
+          into one project cannot share an id block (each is allocated above
+          the other), so the `start_id` term separates them. That is the
+          reason the old comment gave for minting, and it is preserved by
+          using the very thing that already distinguishes the copies rather
+          than by throwing randomness at it.
+
+        The path is deliberately NOT in the key: it would make the output
+        depend on where the file sits, which is the false reading #168's
+        first determinism probe produced.
+
+        WHY THIS LANE MAY KEY ON THE ID BLOCK AND ``famload`` MAY NOT, since
+        the two docstrings otherwise look like they disagree.
+        ``famload.load_doc_guid`` deliberately excludes anything host-derived
+        because a host term breaks the chain-vs-batch invariant
+        (``tests/test_famload_batch.py``), and on that lane a family already
+        registered in the host is refused by name first
+        (``famload.register_in_host_adocument``).  Here there is no host
+        registry to refuse against at all, and the rebased elements genuinely
+        DIFFER between two copies: they carry different ids, so they are
+        different bytes and honestly a different document.  ``start_id`` is
+        not a host identity smuggled in -- it is the one thing that actually
+        distinguishes the two copies, and it is stable run-to-run for a given
+        host (``host.watermark + 1``, allocated the same way every time).
+        """
+        from ..genesis.skeleton import our_guid
+        return our_guid("rfa-load-doc", self.content_digest(), int(start_id))
 
     def build(self, start_id: int = 100000) -> BornRfaDoc:
         """Decode every unit-0 record through the typed remap at
@@ -364,7 +425,8 @@ class RfaSource:
         doc = BornRfaDoc(els, sf, name=f.name, category_id=f.category,
                          part_type=f.part_type,
                          types=[(n, {}) for n in f.type_names],
-                         current_type=f.current_type)
+                         current_type=f.current_type,
+                         document_guid=self.document_guid_at(start_id))
         self.last_build = {"start_id": int(start_id),
                            "block": [int(start_id), int(start_id) + len(els) - 1],
                            "self_family": sf_new,

@@ -132,6 +132,8 @@ import uuid
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
+from .genesis import skeleton as _gsk      # our_guid: the deterministic primitive
+
 _ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                       "..", ".."))
 
@@ -384,7 +386,7 @@ class LoadPlan:
     """Ids and correspondences of one family load."""
     key: str                                   # caller's family key
     guid: str                                  # our content-document GUID (== unit GUID)
-    fam_doc_guid: str                          # host Family.m_famDocGUID (minted)
+    fam_doc_guid: str                          # host Family.m_famDocGUID (derived, #794)
     session_guid_hex: str                      # 32-hex session guid for the twins' typeIds
     family_name: str
     category: int
@@ -437,6 +439,62 @@ class FamilyLoad:
     notes: List[str] = dc_field(default_factory=list)
 
 
+def load_doc_guid(family_guid: str) -> str:
+    """The host ``Family.m_famDocGUID`` of one load, derived not minted (#794).
+
+    #168 made the family BUILD reproducible; the LOAD path still minted
+    ``uuid4`` here, so two identical loads produced two different projects.
+    The consequence is the one #168 argues: a ``.rvt`` that changes on every
+    run cannot be pinned in a manifest, cached, or **diffed in a
+    single-variable round** -- and this is the half a user meets more often,
+    since ``add_to_project`` and the whole ``rfa -> rvt`` lane come through
+    here.
+
+    THE KEY IS THE FAMILY, AND ONLY THE FAMILY, and that is a correction to
+    what #794 DONE 1 asked for.  The issue specified a key over the host as
+    well ("its sha256 or its own document GUID"), and the first version of
+    this did that -- until ``tests/test_famload_batch.py::
+    test_chain_and_batch_are_logically_identical`` failed in CI.  That test
+    encodes an invariant older than the issue: loading two families ONE AT A
+    TIME (each into the previous output) must produce the same plans as
+    loading both in ONE batch.  In the chain the second family's host is the
+    intermediate file; in the batch it is the original base.  Any key over
+    host bytes therefore *must* differ between the two, and the invariant is
+    the one that is right.
+
+    It is also the better semantics.  ``m_famDocGUID`` identifies the family
+    *document*, and the same family loaded into two projects genuinely IS the
+    same family document -- that identity is how Revit recognises a family
+    across a reload, and how a shared family library works at all.  The host
+    never belonged in it.
+
+    DONE 2 survives the correction intact: two DIFFERENT families in one host
+    get different GUIDs because their content GUIDs differ (content-derived
+    since #793), and the SAME family loaded twice gets the same one.
+
+    Reloading a family ALREADY REGISTERED in the host cannot reach a
+    ``fam_doc_guid`` collision on this lane: :func:`register_in_host_adocument`
+    rejects it by name first ("content GUID ... already registered in the
+    host").  That guard is scoped exactly that far and no further -- it
+    snapshots the host's existing keys *before* walking the plans, so two
+    plans carrying ONE content GUID inside a single batch are not caught by
+    it (a degenerate request in its own right, and not one this derivation
+    made worse).  The born-``.rfa`` lane has no host registry to check
+    against at all and solves the two-copies problem a different way -- see
+    ``rvt.convert.rfa_load.RfaSource.document_guid_at``, which is why the two
+    keys are not spelled the same.
+
+    The target release is not a separate term either: a family's content GUID
+    already covers the release-specific content it was built with.
+    """
+    return _gsk.our_guid("famload-doc", family_guid)
+
+
+def load_session_guid_hex(family_guid: str) -> str:
+    """The 32-hex session GUID the loaded family's parameter twins wear."""
+    return uuid.UUID(_gsk.our_guid("famload-session", family_guid)).hex
+
+
 def _plan_family(fl: FamilyLoad, doc, host: HostContext, cursor: int) -> Tuple[LoadPlan, int]:
     """Derive the LoadPlan of one finalized FamilyDoc; allocate the host
     element ids above the document's own ids.  Returns (plan, next cursor)."""
@@ -461,8 +519,9 @@ def _plan_family(fl: FamilyLoad, doc, host: HostContext, cursor: int) -> Tuple[L
     # never the symbol an instance binds [corpus law: 0/36 native host rows]
     from .famgen.loader import real_type_names
     type_names = real_type_names(doc) or [str(doc.name)]
-    plan = LoadPlan(key=fl.key, guid=guid, fam_doc_guid=str(uuid.uuid4()),
-                    session_guid_hex=uuid.uuid4().hex,
+    plan = LoadPlan(key=fl.key, guid=guid,
+                    fam_doc_guid=load_doc_guid(guid),
+                    session_guid_hex=load_session_guid_hex(guid),
                     family_name=str(doc.name), category=int(doc.category_id),
                     part_type=int(getattr(doc, "part_type", 0)),
                     type_names=type_names, episode=int(host.episode),

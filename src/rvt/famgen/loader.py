@@ -351,7 +351,7 @@ def symbol_type_name(doc, fallback: str) -> str:
 class LoadPlan:
     """Ids and correspondences of one family load."""
     guid: str                                  # our content-document GUID (== unit GUID)
-    fam_doc_guid: str                          # host Family.m_famDocGUID (minted)
+    fam_doc_guid: str                          # host Family.m_famDocGUID (derived, #794)
     session_guid_hex: str                      # 32-hex session guid for the twins' typeIds
     family_name: str
     type_name: str                             # the PRIMARY (current) type = what an instance binds
@@ -391,8 +391,14 @@ def plan_load(product, host: HostContext, *, place: bool) -> LoadPlan:
     max_own = max(e.elem_id for e in doc.elements)
     if max_own <= 0:
         raise LoaderError("product elements carry no ids")
-    plan = LoadPlan(guid=guid, fam_doc_guid=str(uuid.uuid4()),
-                    session_guid_hex=uuid.uuid4().hex,
+    # derived, not minted (#794): the same product loaded into the same host
+    # twice must produce the same project, or nothing can pin, cache or
+    # single-variable-diff a loaded .rvt. One derivation for every load path
+    # -- rvt.famload.load_doc_guid carries the argument.
+    from .. import famload as _fl          # local: famload reaches back here
+    plan = LoadPlan(guid=guid,
+                    fam_doc_guid=_fl.load_doc_guid(guid),
+                    session_guid_hex=_fl.load_session_guid_hex(guid),
                     family_name=doc.name or product.name,
                     type_name=symbol_type_name(doc, doc.name or product.name),
                     episode=int(host.episode))
