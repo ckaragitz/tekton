@@ -295,16 +295,49 @@ real `_plan_family` against THREE HostContexts: one differing in `path` and
 in the bytes behind it — what a smuggled host-*bytes* term would hash — and,
 added in round 4, one differing in `watermark` and `episode`.
 
-That third host exists because round 4 showed the two-host version was not
-enough: `our_guid("famload-doc", guid, int(host.watermark))` and its
+That third host varies **every field of `HostContext` except `doc`**,
+enumerated from the dataclass rather than hand-listed, and it got there by
+losing the same argument twice.
+
+Round 4 showed the two-host version was not enough: `our_guid("famload-doc", guid, int(host.watermark))` and its
 `episode` twin **both survived all 30 tests**. An earlier draft of this
 paragraph justified holding those equal as "id-allocation inputs the plan
 legitimately uses, so varying them would prove nothing" — an over-claim, and
 wrong in the way that matters: the assertion is on `fam_doc_guid` /
 `session_guid_hex` alone, so varying them proves precisely that they are not
-in the key. All three host-term mutants now die (**1 failed, 29 passed**
-each), where the bytes one alone used to be the only one caught and the other
-two passed silently.
+in the key.
+
+Round 5 then found **two more** surviving axes, `partition_name` and
+`category_gstyles`, and called them non-blocking. They were cheap to close,
+but closing two fields per review round is a losing game, so host C now
+varies every field the dataclass declares and asserts that its own field set
+still matches `HostContext`'s — a field added later is varied automatically
+instead of quietly becoming the next surviving mutant.
+
+One trap on the way, worth recording because it is the same shape as the
+`git stash` error: the first version of that sweep set
+`category_gstyles={}` — and `host_a`'s is *already* `{}`, so the axis was not
+varied at all and a `len(host.category_gstyles)` mutant survived the very
+check written to catch it. Measured, not assumed. It is now non-empty, and
+the loop asserts every varied value actually differs from host A's, so an
+axis that silently fails to vary is a test failure rather than a false pass.
+
+The full sweep at this head, every field as a smuggled key term:
+
+| term at the call site | result |
+|---|---|
+| `sha256(host.path bytes)` | 1 failed, 29 passed |
+| `int(host.watermark)` | 1 failed, 29 passed |
+| `int(host.episode)` | 1 failed, 29 passed |
+| `str(host.partition_name)` | 1 failed, 29 passed |
+| `len(host.category_gstyles)` | 1 failed, 29 passed |
+| `int(host.fill_pattern_solid)` | 1 failed, 29 passed |
+| `int(host.line_pattern_solid)` | 1 failed, 29 passed |
+| `len(host.census_before)` | 1 failed, 29 passed |
+| `len(host.usage_referrers)` | 1 failed, 29 passed |
+| `len(host.notes)` | 1 failed, 29 passed |
+
+Ten of ten. Before this commit, four of those ten passed silently.
 
 ## Open questions
 

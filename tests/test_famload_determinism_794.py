@@ -141,8 +141,15 @@ def test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid(tmp_path):
 
     * host B differs in `path` and in the bytes of the file behind it --
       what a host-*bytes* term would hash;
-    * host C differs in `watermark` and `episode` -- the host's other two
-      identities. An earlier version of this test held those equal and
+    * host C differs in EVERY OTHER FIELD of `HostContext` that a term could
+      reach for -- not just `watermark` and `episode`. An earlier version of
+      this test varied only those two, calling them "the host's other two
+      identities"; `HostContext` has nine more, and #801's round-5 reviewer
+      duly found `partition_name` and `category_gstyles` mutants still
+      surviving. Closing fields one per review round is a losing game, so
+      host C is built by replacing everything except `doc` (which cannot be
+      synthesised) and the id-allocation inputs the plan legitimately needs.
+      An earlier version of this test held `watermark`/`episode` equal and
       claimed varying them "would prove nothing about the GUID key". That
       was an over-claim, caught by #801's round-4 reviewer with a working
       repro: `our_guid("famload-doc", guid, int(host.watermark))` and its
@@ -169,9 +176,29 @@ def test_the_SAME_family_into_TWO_DIFFERENT_HOSTS_derives_one_guid(tmp_path):
     host_b = dataclasses.replace(host_a, path=other)
 
     wm = int(host_a.watermark)
-    # the host's OTHER two identities, moved together
-    host_c = dataclasses.replace(host_a, watermark=wm - 10,
-                                 episode=int(host_a.episode) + 7)
+    # EVERY other field of HostContext, moved at once. Enumerated from the
+    # dataclass rather than hand-listed, so a field added later is varied
+    # here automatically instead of quietly becoming the next surviving
+    # mutant. `doc` is excluded (it cannot be synthesised); `watermark` and
+    # `episode` get values the plan can still work with.
+    varied = {"watermark": wm - 10, "episode": int(host_a.episode) + 7,
+              "path": other, "partition_name": str(host_a.partition_name) + "-x",
+              # NON-EMPTY on purpose: host_a's is already {}, so replacing it
+              # with {} varied nothing and a `len(host.category_gstyles)`
+              # mutant survived this very check until it was measured
+              "category_gstyles": {-2001040: 999999},
+              "fill_pattern_solid": 123456,
+              "line_pattern_solid": 123457, "census_before": {"probe": 1},
+              "usage_referrers": {"Probe": [1, 2]}, "notes": ["probe"]}
+    for name, value in varied.items():
+        assert value != getattr(host_a, name), (
+            "host C's %r is equal to host A's, so this axis is not actually "
+            "varied and a term keyed on it would survive" % name)
+    fields = {f.name for f in dataclasses.fields(FL.HostContext)} - {"doc"}
+    assert set(varied) == fields, (
+        "HostContext gained or lost a field -- vary it here too, or say in "
+        "this test why it cannot be varied: %s" % (fields ^ set(varied)))
+    host_c = dataclasses.replace(host_a, **varied)
 
     guids = []
     for host in (host_a, host_b, host_c):
