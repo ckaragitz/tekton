@@ -1998,7 +1998,8 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
     Since #807 it also SCOPES the donor byte scan -- ids in it are excluded
     from the fatal universe and reported as ``own_id_space_collisions`` -- so
     a caller passing a superset would silence ``zero_donor_id_byte_hits``.
-    Every caller that OVERRIDES it passes the document's own element ids; the
+    Every PRODUCT caller that overrides it passes the document's own element
+    ids (the tests narrow it on purpose, which is the affordance below); the
     rest (``frontdoor.standalone``, one ``render_probes`` site) take the
     file-derived default, which cannot be a superset of itself.  Narrowing it
     is a test affordance -- it is how a carried id is made genuinely foreign.

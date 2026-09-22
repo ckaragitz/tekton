@@ -225,29 +225,48 @@ Gate set = every test file matching
 Zero failures — `main`'s three known reds drop to two, since this was one of
 them (the other two are in `test_catchain.py`, filed separately and untouched).
 
-**Which fixtures were present when that was measured**, because the reviewers
-got `399` then `400 passed / 51 skipped` for the same 13 files — same total
-each time, a 6-test skip delta, and an unexplained delta is not evidence.
+**Why my number differed from the reviewers'**, because an unexplained delta is
+not evidence. I got `406 passed / 45 skipped`; the sandboxed exports got `399`
+then `400 passed / 51 skipped`. Same 451 total every time, 0 failures every
+time.
 
-The mechanism is **git-ignored build artifacts inside otherwise-tracked
-directories**, not ignored directories. My first wording said `experiments/`
-was git-ignored; round 2 measured that it is not, and I confirmed it:
+I gave two wrong explanations before measuring it. The first said `experiments/`
+is git-ignored; it is not (1448 tracked files). The second said the delta was
+git-ignored **artifacts inside** `experiments/` plus the ignored `out/`. Round 3
+showed that is not merely unsupported but **impossible**:
 
 ```
-git ls-files experiments | wc -l           -> 1448      (tracked)
-git archive HEAD | tar -t | grep -c '^experiments/' -> 1723   (present in an export)
-.gitignore:17-22   experiments/**/*.rvt|rfa|bin|gz, experiments/roundtrip/, experiments/out/
-.gitignore:42      out/                                  (this one IS ignored whole)
+find experiments -type f \( -name '*.rvt' -o -name '*.rfa' -o -name '*.bin' -o -name '*.gz' \)
+  -> 0          # there are none in this checkout to be missing from an export
 ```
 
-So an export carries `experiments/` but none of the `.rvt`/`.rfa`/`.bin`/`.gz`
-artifacts under it — e.g. `tests/test_router.py:55`'s
-`WORKED_RVT = experiments/frontdoor/prompt-electrical-room/electrical_room_prompt.rvt`
-is an ignored artifact, and an export's run skips it with "worked .rvt absent".
-`samples/`, `vendor/` and `extracted/` are absent here as well as there.
+and no gate file reads `out/`. I had replaced one unverified causal story with
+another.
 
-The reviewers' lower number is the fresh-clone truth; neither run is wrong, both
-have 0 failures, and the difference is not in this PR's favour.
+**The measured cause is the environment, not the fixtures.** The sandbox sets
+`RVT_SKIP_LARGE=1` (`tools/dev/session_ci.sh:86`); my local runs did not. Same
+checkout, same 13 files, only that variable added:
+
+```
+.venv/bin/python -m pytest <13 files> -q            -> 406 passed, 45 skipped
+RVT_SKIP_LARGE=1 .venv/bin/python -m pytest <same>  -> 399 passed, 52 skipped
+```
+
+Seven tests, from one environment variable, with zero fixture difference — which
+is larger than the delta I was inventing fixture reasons for.
+
+**One test remains unattributed** and I am not going to explain it away: round 2's
+export gave `400/51` where I get `399/52` under the same flag, so one case passes
+there and skips here. It is not in this PR's favour and it does not touch the
+fix; naming it beats a tidy story.
+
+Since session CI sets the flag and is the authoritative gate, **my 406/45 was the
+anomalous run**, not theirs.
+
+For the record, the tracked/export counts (which were right, just not the cause):
+`git ls-files experiments` = **1448**; `git archive | grep '^experiments/'` =
+**1723**, being those same 1448 files plus **275** directory entries — an export
+carries no more of the tree than the tree has.
 
 `tools/sync_plugin.py --check`: *plugin in sync with source (deny-audit clean,
 identity scan == allowlist, assets verified)*.
@@ -323,9 +342,9 @@ and complying here would have meant "fixing" text that was already right.
 
 **Two nits were real, and both were mine:**
 
-1. **The skip-delta explanation was partly false** — corrected above.
-   `experiments/` is not git-ignored (1448 tracked files); only the artifacts
-   inside it are. I generalised from "the tests skip without it" to "the
+1. **The skip-delta explanation was partly false** — and my replacement for it
+   was wrong too; see round 3 below. `experiments/` is not git-ignored (1448
+   tracked files). I generalised from "the tests skip without it" to "the
    directory is ignored" without running `git ls-files`.
 2. **"Every product caller passes the document's own element ids" was untrue
    as worded.** `standalone.py:1002` and `render_probes.py:776` pass no
@@ -340,6 +359,37 @@ myself. Having been caught eight times asserting my own unverified claims, I
 then propagated someone else's. A subagent's measurement is evidence of the
 same kind as my own — it needs re-running before it is quoted, not because the
 reviewer is unreliable, but because "an agent told me" is not a measurement.
+
+## Review round 3 — I replaced a wrong causal story with another one
+
+Round 3 confirmed both round-2 fixes and read the PR body **fresh as its last
+action** (18:19:29Z against `updated_at` 18:16:07Z, head matching), so there was
+no repeat of round 2's stale read. It re-measured A1's counts (1448 / 1723 /
+`.gitignore:17-22` / `out/` ignored whole at `:42` / `samples`,`vendor`,
+`extracted` ignored at `:11-13`), verified the `our_ids=` docstring against a
+grep of every `provenance_scan_v2(` call site, and confirmed the source and its
+`plugin/lib` mirror are byte-identical.
+
+Its finding that mattered: **my corrected skip-delta explanation was itself
+unsupported.** I had said the delta was git-ignored artifacts inside
+`experiments/`. There are **zero** such files in this checkout, so that cannot
+produce any delta at all — not "unproven", *impossible*. The measured cause is
+`RVT_SKIP_LARGE=1`, which the sandbox sets and my local runs did not; it moves
+seven tests on its own. Corrected above, with the one remaining unattributed
+test named rather than absorbed.
+
+This is the eleventh claim in this PR's lineage that did not survive
+re-running, and its shape is new: the first ten were unverified claims. This
+one was a **correction** — I was already on notice that the sentence was wrong,
+rewrote it, and did not measure the rewrite either. Being caught is not the
+same as having checked. The fix for the class is mechanical, not attitudinal:
+a causal sentence about numbers needs the command that produced it printed
+beside it, or it should say "unattributed".
+
+Two presentation nits also fixed: `1723` is `1448` files **plus 275 directory
+entries** (as printed it read as though an export carried more than the tree),
+and the `WORKED_RVT` example was dropped — that file is absent from this
+checkout too, so it could not have been part of any delta between the two runs.
 
 ## Open questions
 
