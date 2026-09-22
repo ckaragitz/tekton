@@ -116,10 +116,10 @@ The adjudicator `corroborated_donor_scan` is **deliberately left value-based**:
 its caller supplies the universe, and `test_tree_corroborated_id_stays_a_hit`
 rightly pins that. The fix belongs where the universe is built.
 
-**The other raise site was measured, not assumed, and is out of scope.**
-`author_family_adocument` scans `meta["donor_element_ids"]` — and on the
-donor-free path (S-2026-08-10-c, the only supported one) that is literally
-`[]`:
+**The other raise site — I got this wrong, and PR #810's reviewer caught it.**
+
+I wrote here that `author_family_adocument`'s raise was "measured, not assumed,
+and out of scope", on the strength of this excerpt:
 
 ```python
 if source_tree is not None:
@@ -127,9 +127,34 @@ if source_tree is not None:
                                                    "donor_element_ids": []}
 ```
 
-so its scan returns `{"hits": None, "note": "no donor id universe (supplied
-tree)"}` and the raise is unreachable there. Touching it would have weakened a
-gate with no measured reason to.
+That is one branch of an `if`, and reading a branch is not running it. My
+supporting probe called `family_template_tree()` with **no argument**, which
+hit an absent vendor default and raised `FileNotFoundError` — I read that as
+"no donor universe" when it only meant "wrong donor". Two errors compounding
+into a confident false sentence with the word *measured* on it.
+
+The reviewer executed the call. Reproduced directly afterwards:
+
+```
+family_template_tree(G_ABPD) -> donor_element_ids n = 2883
+start_id=18400  -> RuntimeError: donor element ids survive in the payload:
+                   {'hits': 6, 'distinct': 3, 'examples': [18403, 18404, 18453], ...}
+start_id=6473   -> RuntimeError: {'hits': 9, 'distinct': 2, 'examples': [6473, 6553], ...}
+```
+
+It is a **product path**: `rfa_assemble.py:118` calls
+`author_family_adocument(doc, mode=…, donor=adoc_archetype)` with no
+`source_tree` and `adoc_archetype` defaulting to `bundled_base_path()`, and
+`extract_family.py:226` reaches it on the `rvt → rfa` cell that
+`matrix.py:581` declares `STATUS_WORKS`. The same collision class is a **hard
+refusal** there, blaming our own ids on the donor. Filed as **#813**.
+
+**It is still out of scope for this PR, but for a different and narrower
+reason than I gave.** The `- ours` exclusion must NOT be extended there: that
+lane's tree is derived from the donor, so a leaf holding one of our ids can
+genuinely be a surviving donor leaf and value alone cannot separate them. The
+unfiltered raise is a real guard there, not an oversight. The two sites differ
+on purpose — which is what this record should have said the first time.
 
 ## Why this is not a widened allowance
 
@@ -138,11 +163,19 @@ green. The exclusion is narrow and justified structurally:
 
 * a reference is resolved **in the id space of the document that carries it**;
   in this file id 18403 *is* our record, and no donor element exists in it;
-* references to ids that are **not** ours stay fatal here **and** are
-  independently caught by the schema-typed dangling census
-  (`zero_dangling_element_refs` / `naive_id_leaves_not_ours_gt99`), which this
-  PR does not touch — that is the check that fires if a real donor reference
-  ever survives;
+* references to ids that are **not** ours stay fatal here;
+* **and the reason the excluded ids are safe is the lane, not a second check.**
+  I first wrote that the schema-typed dangling census independently catches
+  them. It does not, and the reviewer was right to call it: that census tests
+  `id not in ours`, and the excluded ids are by construction *in* `ours`, so
+  for exactly those 7 ids neither check can fire. What actually makes it safe
+  is that where `provenance_scan_v2` is the last word, `emit_family_rfa_v2`
+  took its **project-donor** branch and authored from
+  `constructive_family_host_tree(doc)` — schema-built from our own document,
+  never copied from the donor — so no donor leaf can be present to hide. On
+  the **family-donor** branch the tree *is* copied, and that lane is gated
+  earlier by the unfiltered raise at `famdoc_adoc.py:1313`, before any file
+  exists for this scan to read;
 * the excluded set is reported with the windows it accounts for, and a test
   ties those numbers back to an **unfiltered** scan, so the exclusion cannot
   be widened without failing.
@@ -151,7 +184,10 @@ green. The exclusion is narrow and justified structurally:
 
 `test_provenance_scan_flags_a_genuine_donor_id` used `self_family_id` — *one
 of ours* (18400) — as its stand-in for a genuine donor reference. Excluding the
-collision class makes it **vacuous**: `0 >= 1`, which is how it surfaced. And
+collision class makes it **fail** — `assert (0 >= 1)`, which is how it
+surfaced. Worth the precision: *vacuous* would mean silently passing while
+testing nothing, the dangerous shape; this one goes red and forces the
+rewrite, which is the safe one. And
 no natural substitute exists, since 0 of 48 leaves are non-ours.
 
 Rebuilt on `provenance_scan_v2`'s existing `our_ids=` parameter, narrowing the
@@ -172,19 +208,31 @@ baseline as a pass — that non-run happened three times on #808):
 | **widen the exclusion to everything (blanket allowance)** | 4 |
 | stop reporting the collisions | 3 |
 | drop `universe_scanned` from the report | 2 |
+| revert the empty-`foreign_ids` shape fix (round 1) | 1 |
 
-Baseline **18 passed**; restored source re-measured at **18 passed**.
+Baseline **19 passed**; restored source re-measured at **19 passed**. (Both were
+18 before round 1 added a test.) PR #810's reviewer reproduced the first four
+rows independently and got the same numbers.
 
 Gate set = every test file matching
 `famdoc_adoc|provenance_scan_v2|corroborated_donor_scan|emit_family_rfa_v2|author_family_adocument`,
 **13 files** (conftest excluded from the run list; pytest loads it anyway):
 
 ```
-405 passed, 45 skipped in 103.75s
+406 passed, 45 skipped in 96.55s        (405/45 before round 1's added test)
 ```
 
 Zero failures — `main`'s three known reds drop to two, since this was one of
 them (the other two are in `test_catchain.py`, filed separately and untouched).
+
+**Which fixtures were present when that was measured**, because the reviewer
+got `399 passed / 51 skipped` for the same 13 files — same total, a 6-test skip
+delta, and an unexplained delta is not evidence. This checkout has
+`experiments/` (42 entries) and `out/` (7); `samples/`, `vendor/` and
+`extracted/` are absent. All five are git-ignored, so a `git archive` export
+has none of them and six cases that run here self-skip there. The reviewer's
+lower number is the fresh-clone truth; neither run is wrong, and the difference
+is not in this PR's favour.
 
 `tools/sync_plugin.py --check`: *plugin in sync with source (deny-audit clean,
 identity scan == allowlist, assets verified)*.
@@ -204,8 +252,38 @@ by `tests/ci_shard.d/807-famdoc-scan.txt` (never editing `tests/ci_shard.txt`,
 `shard_list.py --print` now merges to **164** files and lists both.
 
 That a gate can rot unnoticed matters more than these three ids did. It is
-worth a sweep for other gate-bearing test files outside the shard — filed
-separately rather than widened into this PR.
+worth a sweep for other gate-bearing test files outside the shard — filed as
+**#811** rather than widened into this PR (247 test files, 164 in the shard, 83
+outside, 16 of those gate-bearing, including `test_reduce_law.py` which pins
+hard rule 5).
+
+## Review round 1 — one false claim, one wrong justification, one latent crash
+
+No finding touched the fix's correctness; the reviewer independently confirmed
+the premise (48 leaves above the floor, 0 non-ours), the leaf trace field by
+field, every mutation row, and that the exclusion removes 7 of 2883 ids and
+reports them. What it found was three things I had asserted rather than run.
+
+1. **The scope claim was false** (blocking). Corrected above and filed as
+   **#813**. I quoted a code excerpt under the words "measured, not assumed".
+2. **The safety-net justification was wrong.** I said the dangling census
+   independently catches a real donor reference among the excluded ids; it
+   tests `id not in ours` and the excluded ids are *in* `ours`, so for exactly
+   those 7 neither check can fire. The correct, narrower reason — the lane
+   authors from a constructive tree, and the copied-tree lane is gated earlier
+   by the unfiltered raise — now stands in the code comment, the reported
+   `own_id_space_collisions.note` and the section above.
+3. **A latent crash I introduced.** With `foreign_ids` empty, `scan_donor` fell
+   back to `{"hits": 0}` with no `distinct`/`examples`, so any caller reading
+   `examples` got a `KeyError`. The old `if donor_ids` guard could only reach
+   that with an empty donor universe; the new split makes it reachable whenever
+   the donor's ids are a subset of ours. Fixed to the full shape, with a test
+   that dies to the revert.
+
+Also corrected: "vacuous" → **fails**. The old test goes red (`assert (0 >= 1)`),
+it does not pass while testing nothing — the distinction matters, because only
+the second shape is dangerous, and calling a red test vacuous overstates the
+problem I found.
 
 ## Open questions
 
@@ -227,10 +305,12 @@ separately rather than widened into this PR.
   `own_id_space_collisions` + `universe_scanned`.
 * `tests/test_famdoc_scan_fp.py` — `_scan_with_universe` takes `our_ids`;
   new `our_element_ids` helper and `carried_non_owner_id` fixture;
-  `test_provenance_scan_flags_a_genuine_donor_id` rebuilt so it is not vacuous.
-* `tests/test_famdoc_scan_collision_807.py` — **new**, 5 tests: the premise,
+  `test_provenance_scan_flags_a_genuine_donor_id` rebuilt so it exercises a
+  genuinely foreign id (it goes red under the fix, it does not pass emptily).
+* `tests/test_famdoc_scan_collision_807.py` — **new**, 6 tests: the premise,
   the collision is present, recorded-not-fatal, the same id fatal when not
-  ours, and nothing dropped silently.
+  ours, nothing dropped silently, and (round 1) a donor universe entirely
+  inside ours still reporting a whole scan shape.
 * `tests/ci_shard.d/807-famdoc-scan.txt` — **new**, both files into the shard.
 * `docs/inbox/famdoc-scan-fp.d/807-id-space-collision.md` — this fragment.
 * `docs/inbox/generated-size-bound.md` — **repair only**, carried from #808's
@@ -239,9 +319,10 @@ separately rather than widened into this PR.
   rather than merged unreviewed into #808, because a head no reviewer has seen
   is exactly what the #302 merge gate exists to prevent.
 
-**Gates**: 13-file gate set 405 passed / 45 skipped / 0 failed; mutation sweep
-4/4 die, baseline and restore both 18 passed; `sync_plugin --check` clean;
-portable paths ok. Full suite **not** run.
+**Gates**: 13-file gate set 406 passed / 45 skipped / 0 failed (this checkout;
+a fresh export skips 6 more — see Evidence); mutation sweep 5/5 die, baseline
+and restore both 19 passed; `sync_plugin --check` clean; portable paths ok.
+Full suite **not** run.
 
 **Shipped vs staged**: all shipped. No viewer batch — no claim about Autodesk's
 reader is made or needed.

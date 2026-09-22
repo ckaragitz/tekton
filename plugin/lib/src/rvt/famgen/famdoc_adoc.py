@@ -1993,6 +1993,13 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
         final-block parity;
     (E) the carried-constant classification (``Formats/Latest`` sha256 ==
         the corpus schema constant).
+
+    ``our_ids`` overrides the element-id set read from the file's own records.
+    Since #807 it also SCOPES the donor byte scan -- ids in it are excluded
+    from the fatal universe and reported as ``own_id_space_collisions`` -- so
+    a caller passing a superset would silence ``zero_donor_id_byte_hits``.
+    Every product caller passes the document's own element ids; narrowing it
+    is a test affordance (it is how a carried id is made genuinely foreign).
     """
     from .. import adocument as A
     from ..container import open_rvt
@@ -2058,16 +2065,24 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
     # element, whose equally-referenced siblings are clean only because the
     # donor happened not to use those numbers).
     #
-    # This exclusion is not a widened allowance: a reference to an id that is
-    # NOT ours stays fatal here, and is independently caught by the
-    # schema-typed dangling census (``zero_dangling_element_refs``) -- which
-    # is exactly the check that would fire if a real donor reference ever
-    # survived.  The collision set is scanned and REPORTED below, never
-    # silently dropped.
+    # This exclusion is not a widened allowance, but the reason is narrower
+    # than "the dangling census would catch it" -- that census tests
+    # ``id not in ours`` and the excluded ids are by construction IN ``ours``,
+    # so for exactly these ids neither check can fire.  What makes it safe is
+    # the lane: where this scan is the last word, ``emit_family_rfa_v2`` took
+    # its PROJECT-donor branch and authored from
+    # ``constructive_family_host_tree(doc)`` -- schema-built from our own
+    # document, never copied from the donor -- so no donor leaf can be present
+    # to hide.  On the FAMILY-donor branch the tree IS copied, a leaf holding
+    # one of our ids can genuinely be a surviving donor leaf, and that lane is
+    # gated earlier by ``author_family_adocument``'s own raise against the
+    # UNFILTERED universe, before any file exists for this scan to read.  The
+    # two sites therefore differ on purpose; see #807's record.  The collision
+    # set is scanned and REPORTED below, never silently dropped.
     shared_ids = donor_ids & ours
     foreign_ids = donor_ids - ours
     scan_donor = (corroborated_donor_scan(latest_payload, ad.value, foreign_ids)
-                  if foreign_ids else {"hits": 0})
+                  if foreign_ids else {"hits": 0, "distinct": 0, "examples": []})
     scan_shared = (corroborated_donor_scan(latest_payload, ad.value, shared_ids)
                    if shared_ids else {"hits": 0, "distinct": 0, "examples": []})
     scan_ours = GA.byte_scan_ids(latest_payload, ours)
@@ -2098,8 +2113,11 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
                      "donor scan because in THIS file they are our own elements "
                      "(every integer leaf >= the scan floor is one of ours); "
                      "'hits'/'examples' count the windows they account for. "
-                     "A reference to an id that is NOT ours stays fatal above "
-                     "and is independently caught by the dangling census."),
+                     "A reference to an id that is NOT ours stays fatal above. "
+                     "These ids are safe to exclude because this lane authors "
+                     "from a schema-built constructive tree, never a copied "
+                     "donor tree -- NOT because the dangling census covers "
+                     "them; it tests 'not in ours' and cannot (#807)."),
         },
         "byte_scan_our_ids": scan_ours,
         "donor_name_string_hits": name_hits,

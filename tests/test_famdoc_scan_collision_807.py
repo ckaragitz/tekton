@@ -157,3 +157,25 @@ def test_the_excluded_ids_are_reported_and_account_for_every_lost_window(emitted
     assert unfiltered["hits"] == scan["hits"] + coll["hits"]
     assert sorted(unfiltered["examples"]) == sorted(
         set(scan["examples"]) | set(coll["examples"]))
+
+
+def test_a_donor_universe_entirely_inside_ours_still_reports_a_whole_scan(emitted,
+                                                                          monkeypatch):
+    """When every donor id is one of ours, ``foreign_ids`` is empty and the
+    donor scan is a hand-built fallback rather than a real scan result.  It
+    must still carry the whole shape -- a caller reading ``examples`` on it
+    got a KeyError, which the pre-#807 code could only reach with an EMPTY
+    donor universe and this change makes easy to reach.
+    """
+    ours = _our_ids(emitted)
+    monkeypatch.setattr(FA, "donor_element_ids",
+                        lambda donor=None, min_id=4700: sorted(ours))
+    rep = FA.provenance_scan_v2(emitted, donor=BUNDLED_BASE)
+    scan = rep["adocument"]["byte_scan_donor_ids"]
+
+    assert scan["hits"] == 0
+    assert scan["distinct"] == 0 and scan["examples"] == []   # KeyError before the fix
+    assert scan["universe_scanned"] == 0 and scan["universe"] == len(ours)
+    assert rep["checks"]["zero_donor_id_byte_hits"] is True
+    # and the windows those ids account for are still reported, not lost
+    assert rep["adocument"]["own_id_space_collisions"]["hits"] >= 1
