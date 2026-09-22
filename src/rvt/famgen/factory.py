@@ -993,10 +993,10 @@ def _check_body_size(value: Any, what: str, where: str) -> float:
     # False -- so it used to slip both ends and die deeper as
     # `ValueError: extrusions here are extrude-DOWN: start > end`, with no
     # field name and not even a FactoryError (#806 review).
-    if v != v:
+    if v != v or v in (float("inf"), float("-inf")):
         raise FactoryError(
-            f"{where}: {what} is NaN, which is not a size. This is almost "
-            "always a division by zero or a failed parse upstream.")
+            f"{where}: {what} is {v}, which is not a finite size. This is "
+            "almost always a division by zero or a failed parse upstream.")
     if v > MAX_BODY_FT:
         raise FactoryError(
             f"{where}: {what} is {v:,.2f} ft ({v / 5280.0:,.1f} miles), past "
@@ -1147,9 +1147,22 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # sane but whose bounding box is not -- two plausible parts a million
     # feet apart. Bounding the box catches the space; the per-part checks
     # below just name the offending field more precisely (#806 review).
+    # `min`/`max` SKIP NaN rather than propagating it, so a single part with
+    # `center=(nan, 0)` leaves x0=+inf / x1=-inf and W=-inf -- which is not
+    # `> MAX_BODY_FT` and slipped straight through, building a family whose
+    # type row read `Width = -inf ft` and which wrote a VALID 225 KB file.
+    # That is #806's exact symptom, one field over from where it was fixed,
+    # so the checker now rejects any non-finite value (#808 review round 2).
     _check_body_size(W, "overall width", "generic model assembly")
     _check_body_size(D, "overall depth", "generic model assembly")
     _check_body_size(H, "overall height", "generic model assembly")
+    # EXTENT is not the only way to be absurd: a 1 ft box can sit a billion
+    # feet from the family origin and measure 1 ft. Bound the placement too,
+    # for the same reason the bound exists at all.
+    for _v, _n in ((x0, "x"), (x1, "x"), (y0, "y"), (y1, "y"),
+                   (z0, "z"), (z1, "z")):
+        _check_body_size(abs(_v), f"{_n} distance from the family origin",
+                         "generic model assembly")
     sheet = FactSheet(subject=f"generic model {fam_name} ({len(built)} parts)")
     # `given` by default -- a caller's 3D body. The spec-sheet lane passes
     # `fact`, because those numbers were READ OFF A PUBLISHED DOCUMENT the
@@ -1289,6 +1302,13 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
         _check_body_size(max(_vy) - min(_vy), "profile depth", f"part {shape!r}")
     base = float(part.get("base_z_ft") or 0.0)
     center = tuple(part.get("center") or (0.0, 0.0))
+    # the PLACEMENT fields. Unchecked, `base_z_ft=nan` and `=inf` both died
+    # as the bare `ValueError: extrusions here are extrude-DOWN` -- no field
+    # name, not even a FactoryError -- which is precisely the symptom the
+    # NaN guard above was added to remove, one field over (#808 review).
+    _check_body_size(abs(base), "base_z_ft", f"part {shape!r}")
+    for _i, _c in enumerate(center[:2]):
+        _check_body_size(abs(float(_c)), f"center[{_i}]", f"part {shape!r}")
     rep = G.REP_SOLID if solid else G.REP_DUMMY
     if shape in ("cylinder_x", "cylinder_y"):
         # A cylinder about a HORIZONTAL axis -- a wheel, an axle, a pipe run.

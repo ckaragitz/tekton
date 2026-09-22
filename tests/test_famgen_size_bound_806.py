@@ -92,22 +92,96 @@ def test_zero_and_negative_are_still_refused():
 #     AFTER four mutants and a green CI already said it was complete
 # ===========================================================================
 
-def test_the_ASSEMBLY_bounding_box_is_bounded():
-    """The structural check, and the one that makes the rest defence in depth.
+#: Each pair puts the assembly's EXTENT past the bound while keeping every
+#: coordinate well inside it (+/-53,000 ft, bound 105,600), so these cases
+#: can only be caught by the bounding-box check and never by the
+#: distance-from-origin check. Without that separation the two guards mask
+#: each other and deleting either leaves the tests green (#808 round 2).
+@pytest.mark.parametrize("first,second", [
+    ({"center": (-53_000, 0)}, {"center": (53_000, 0)}),    # X
+    ({"center": (0, -53_000)}, {"center": (0, 53_000)}),    # Y
+    ({"base_z_ft": -53_000},   {"base_z_ft": 53_000}),      # Z
+], ids=["x", "y", "z"])
+def test_the_ASSEMBLY_bounding_box_is_bounded_on_EVERY_axis(first, second):
+    """All three axes, because only X was pinned.
 
-    Per-part checks are necessary but not sufficient twice over: a part
-    dimension the code does not enumerate slips through, and so does an
-    assembly whose parts are each sane but whose bounding box is not. This
-    is the second case -- two perfectly ordinary 1 ft boxes, a billion feet
-    apart -- which no per-part check could ever catch.
+    #808's round-2 reviewer deleted the `overall depth` and `overall height`
+    lines and all 19 tests still passed -- the code was right, the test was
+    one-axis.
+    """
+    box = {"shape": "box", "width_ft": 1, "depth_ft": 1, "height_ft": 1}
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(name="T", parts=[dict(box, **first),
+                                              dict(box, **second)])
+    assert "overall" in str(e.value), "caught by the wrong guard: " + str(e.value)
+
+
+def test_a_NON_FINITE_center_cannot_slip_the_bbox():
+    """`min`/`max` SKIP NaN rather than propagating it.
+
+    So one part at `center=(nan, 0)` left `x0=+inf, x1=-inf` and `W=-inf`,
+    which is not `> MAX_BODY_FT` and slipped the guard: the family BUILT,
+    wrote a VALID 225,280-byte file, and its type row read `Width = -inf ft`.
+    That is #806's exact symptom, one field over from where it was fixed.
     """
     with pytest.raises(F.FactoryError) as e:
         F.make_generic_model(name="T", parts=[
             {"shape": "box", "width_ft": 1, "depth_ft": 1, "height_ft": 1,
-             "center": (0, 0)},
+             "center": (float("nan"), 0)}])
+    assert "center[0]" in str(e.value)
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf")])
+def test_base_z_ft_is_checked_like_every_other_field(bad):
+    """Unchecked, `base_z_ft` died as the bare `ValueError: extrusions here
+    are extrude-DOWN` -- no field name, not a FactoryError -- i.e. precisely
+    the symptom the NaN guard was added to remove, one field over."""
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(name="T", parts=[
+            {"shape": "box", "width_ft": 1, "depth_ft": 1, "height_ft": 1,
+             "base_z_ft": bad}])
+    assert "base_z_ft" in str(e.value)
+
+
+def test_an_OFFSET_RING_is_caught_only_by_the_assembly_origin_check():
+    """The case that pins the assembly-level distance guard specifically.
+
+    A 2 ft polygon ring whose vertices sit 1,000,000 ft from the origin
+    passes every PER-PART check -- profile width is 2 ft, `center` is absent
+    so it defaults to (0, 0) -- and the bounding box measures only 2 ft
+    across. Its absolute position is what is absurd, and nothing but the
+    assembly's distance-from-origin check sees it.
+
+    Without a case like this the guard is masked: deleting it left all 25
+    tests green, because the per-part `center` check happened to catch every
+    other probe (#808 round 2).
+
+    (1e6 rather than 1e9 on purpose: at 1e9 the `+2` is lost to float
+    precision and the ring degenerates into `ValueError: profile vertices
+    are collinear or zero-area` before the guard is ever reached.)
+    """
+    off = 1e6
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(name="T", parts=[{
+            "shape": "polygon", "height_ft": 1,
+            "vertices": [[off, off], [off + 2, off],
+                         [off + 2, off + 2], [off, off + 2]]}])
+    assert "distance from the family origin" in str(e.value)
+
+
+def test_DISTANCE_from_the_origin_is_bounded_not_only_extent():
+    """A 1 ft box can measure 1 ft and sit 189,394 miles away.
+
+    Before this, such a part built and wrote a VALID 225,280-byte file whose
+    type row honestly read `Width = 1.000 ft` while the solid sat far past
+    the same working extent `MAX_BODY_FT`'s docstring cites. Extent was
+    bounded; placement was not.
+    """
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(name="T", parts=[
             {"shape": "box", "width_ft": 1, "depth_ft": 1, "height_ft": 1,
              "center": (1e9, 0)}])
-    assert "overall width" in str(e.value)
+    assert "center[0]" in str(e.value)
 
 
 def test_length_ft_is_bounded_the_axial_dimension_of_a_conduit():
@@ -160,13 +234,17 @@ def test_NaN_is_refused_as_a_FactoryError_naming_the_field():
     with pytest.raises(F.FactoryError) as e:
         F.make_generic_model(height_ft=float("nan"), width_ft=1, depth_ft=1,
                              name="T")
-    assert "NaN" in str(e.value) and "height_ft" in str(e.value)
+    # keyed on the CLAUSE, not on how Python spells the float: the message
+    # prints the value, so asserting "NaN" broke when inf joined the guard
+    assert "not a finite size" in str(e.value)
+    assert "height_ft" in str(e.value)
 
 
 def test_infinity_is_refused_too():
-    with pytest.raises(F.FactoryError):
+    with pytest.raises(F.FactoryError) as e:
         F.make_generic_model(height_ft=float("inf"), width_ft=1, depth_ft=1,
                              name="T")
+    assert "not a finite size" in str(e.value)
 
 
 def test_the_bound_is_INCLUSIVE_at_exactly_MAX_BODY_FT():

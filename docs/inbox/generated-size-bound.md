@@ -122,11 +122,11 @@ Three smaller gaps from the same review, each real:
 
 ## Evidence
 
-Baseline 19 passed.
+Baseline **26 passed** (the count moved with each review round; every row below was re-measured at the current head, not carried forward).
 
 | mutant | dies in |
 |---|---|
-| remove the constructor bound | 4 tests (all three fields + the multipart path) |
+| remove the constructor bound | 6 tests |
 | bound height only, not width/depth | 2 tests (width, depth) |
 | lane stops citing the row | 1 test (the row-citation case) |
 | the two bounds drift apart | 1 test (the shared-bound case) |
@@ -144,7 +144,7 @@ recording it as evidence would have been a fourth instance of the pattern
 #801 documents. Re-run from a script file with an assert on the anchor, it
 dies correctly.
 
-Baseline 11 passed. Note the lane-citation mutant does **not** break delivery —
+ Note the lane-citation mutant does **not** break delivery —
 the factory refusal plus the archetype fall-through still ship a file. That is
 defence in depth working, not a gap in the test.
 
@@ -153,6 +153,61 @@ Gates: 56 test files naming `famgen.factory` / `famspec_from_sheet` /
 on `main`** (`test_famdoc_scan_fp.py`, reproduced from a clean `git archive`
 export and filed as **#807**, which also covers why it was invisible: that file
 is not in the CI shard).
+
+## Round 2 found the bound leaking through the fields NEXT to the ones it fixed
+
+Round 1 closed `length_ft`, the polygon ring and the assembly bbox. Round 2
+then found four more, and the pattern is worth naming: **each one was a field
+adjacent to a field I had just guarded.**
+
+| gap | before | why it slipped |
+|---|---|---|
+| `center=(nan, 0)` | BUILT, type row `Width = -inf ft`, VALID 225,280 bytes | `min`/`max` SKIP NaN rather than propagating it, so `x0=+inf, x1=-inf` and `W=-inf` — which is not `> MAX_BODY_FT` |
+| `base_z_ft = nan` / `inf` | bare `ValueError: extrusions here are extrude-DOWN` | never passed through the checker at all |
+| a 1 ft box at `center=(1e9, 0)` | BUILT, VALID, type row honestly `Width = 1.000 ft` | EXTENT was bounded; PLACEMENT was not |
+| only the X axis of the bbox pinned | deleting the depth and height lines left 19/19 green | the test varied one axis |
+
+`center=(nan,0)` is #806's exact symptom — a VALID file carrying an absurd
+dimension — one field over from where it had just been fixed. The checker now
+rejects any non-finite value, and `base_z_ft` / `center` go through it like
+every other field.
+
+**Two masking effects the first attempt at these tests hid**, both found by
+mutating rather than reading:
+
+- The new origin-distance guard *masked* the bbox depth/height checks:
+  deleting either left the suite green, because a part at `center=(0,1e9)`
+  trips both. The cases now put the extent past the bound while keeping every
+  coordinate inside it (±53,000 ft against a 105,600 ft bound), so only the
+  bbox check can catch them.
+- The per-part `center` check *masked* the assembly origin check for the same
+  reason. The pinning case is now a 2 ft polygon ring whose vertices sit
+  1,000,000 ft out: profile width 2 ft, `center` absent, bbox 2 ft across —
+  every per-part field passes and only the assembly-level distance guard
+  sees it. (1e6 and not 1e9: at 1e9 the `+2` is lost to float precision and
+  the ring degenerates into `ValueError: profile vertices are collinear` long
+  before the guard is reached.)
+
+## Where hard rule 1 actually stands on this change
+
+The PR body originally carried a blanket "output always delivered — the
+archetype lane stands in". **That is true on the spec-sheet lane and false on
+the `ifc → rfa` assembly lane**, and the body becomes the squash message.
+Measured, by rewriting one unit line in a real fixture to `.MEGA.,.METRE.`:
+
+```
+ok: False
+files: ['assembly_parts', 'product_facts']      <- no 'rfa' key
+status: FAILED (famspec->rfa: part 'box': height_ft is 748,031.50 ft (141.7 miles) …)
+```
+
+`_assembly_rfa` **is** the fall-through for that route, so when it refuses
+there is no further lane to stand in. This is consistent with the
+pre-existing "no measurable solid → FAILED, no file" path rather than new
+withholding, and the user moves from *a wrong 141-mile file* to *no file plus
+a named reason* — which is the better outcome. But it is a real boundary
+judgement about hard rule 1 and it is recorded as one, not asserted away with
+a checkbox.
 
 ## Open questions
 
@@ -170,8 +225,11 @@ Branch `cam/806-size-bound`, `Closes #806`, `Refs #805`.
 
 Files written:
 
-- `src/rvt/famgen/factory.py` — `MAX_BODY_FT`, `_check_body_size`, and the
-  three call sites (single-prism height/width/depth, and the parts builder)
+- `src/rvt/famgen/factory.py` — `MAX_BODY_FT`; `_check_body_size` (upper
+  bound + a non-finite guard covering NaN and ±inf); the single-prism
+  height/width/depth checks; the per-part checks including `length_ft`, the
+  polygon ring, `base_z_ft` and `center`; and the assembly-level bounding-box
+  and distance-from-origin checks
 - `src/rvt/specsheet/famspec_from_sheet.py` — `_max_body_ft()` and the
   row-citing refusal
 - `tests/test_famgen_size_bound_806.py` (new),
