@@ -959,6 +959,48 @@ def add_polygon_form(doc: SK.FamilyDoc, vertices: Sequence[Sequence[float]],
     return fb
 
 
+#: The largest dimension a GENERATED body may carry, in feet.
+#:
+#: THIS IS A SANITY BOUND, NOT A MINED FORMAT LAW, and the distinction matters
+#: enough to state twice.  We have no evidence from the format about maximum
+#: extent -- `rvt.validate` has no magnitude rule, `docs/writer/` records no
+#: limit, and nothing here has been checked against Autodesk's reader.  The
+#: number is Revit's widely-documented ~20-mile working extent, and it is
+#: cited as a FLOOR ON ABSURDITY rather than as a certified limit: a body
+#: bigger than this is far more likely a misparsed row, a metre/millimetre
+#: mix-up in an IFC, or a typo than a product anyone makes.
+#:
+#: Why a bound exists at all (#806): the constructors refused `<= 0` and
+#: nothing else, so a spec-sheet row reading "999999999999 in" built a family
+#: 15.8 million miles tall, wrote 229 KB, validated VALID with 0 errors, and
+#: carried `provenance: fact` cited to the user's own document.  Every gate we
+#: had passed it. The catalog constructors in this file already bound their
+#: inputs by name ("exceeds the tabulated box", "exceeds the member's
+#: maximum"); generic_model was the one lane that did not, and it is the lane
+#: that takes arbitrary caller input.
+MAX_BODY_FT = 105_600.0            # ~20 miles
+
+
+def _check_body_size(value: Any, what: str, where: str) -> float:
+    """A generated dimension, refused BY NAME when it is past all plausibility.
+
+    Returns the float so call sites can use it directly.  Refuses with the
+    value AND the bound in the message, because "too large" without the
+    numbers leaves the caller guessing which of their inputs was wrong.
+    """
+    v = float(value)
+    if v > MAX_BODY_FT:
+        raise FactoryError(
+            f"{where}: {what} is {v:,.2f} ft ({v / 5280.0:,.1f} miles), past "
+            f"the {MAX_BODY_FT:,.0f} ft sanity bound for a generated body. "
+            "A value this size is a misparsed dimension, a metre/millimetre "
+            "mix-up or a typo far more often than a real product, and this "
+            "engine will not stamp it as a fact. If the object really is that "
+            "large, build it in pieces. (Sanity bound, not a certified format "
+            "limit -- rvt.famgen.factory.MAX_BODY_FT, issue #806.)")
+    return v
+
+
 def _geometry_origin(dim_provenance: str, source: str) -> str:
     """How the delivered file itself should describe where its sizes came from.
 
@@ -1212,6 +1254,10 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
         raise FactoryError(f"part {shape!r} needs a positive "
                            + ("radius_ft (its height is the diameter)"
                               if shape in ("cylinder_x", "cylinder_y") else "height_ft"))
+    _check_body_size(h, "height_ft", f"part {shape!r}")
+    for _dim in ("width_ft", "depth_ft", "radius_ft", "diameter_ft"):
+        if part.get(_dim) is not None:
+            _check_body_size(part[_dim], _dim, f"part {shape!r}")
     base = float(part.get("base_z_ft") or 0.0)
     center = tuple(part.get("center") or (0.0, 0.0))
     rep = G.REP_SOLID if solid else G.REP_DUMMY
@@ -1316,6 +1362,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     if height_ft is None or float(height_ft) <= 0:
         raise FactoryError("make_generic_model needs a positive height_ft "
                            "(or parts=[...] for a multi-part assembly)")
+    _check_body_size(height_ft, "height_ft", "make_generic_model")
     if vertices is None and (width_ft is None or depth_ft is None):
         raise FactoryError("make_generic_model needs vertices=[...] or "
                            "width_ft + depth_ft, or parts=[...]")
@@ -1323,6 +1370,10 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     prof = G.polygon_profile(vertices) if vertices is not None else None
     W = float(prof.width) if prof is not None else float(width_ft)
     D = float(prof.depth) if prof is not None else float(depth_ft)
+    # width/depth too: a sheet that misparses one row usually misparses one,
+    # not all three, so bounding only the height would still ship the body
+    _check_body_size(W, "width_ft", "make_generic_model")
+    _check_body_size(D, "depth_ft", "make_generic_model")
     fam_name = name or "Generic Model"
     sheet = FactSheet(subject=f"generic model {fam_name}")
     # see the note in _make_generic_multipart: `fact` on the spec-sheet lane

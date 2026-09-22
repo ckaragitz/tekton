@@ -134,6 +134,17 @@ class SheetPlan:
                 "refused": list(self.refused)}
 
 
+def _max_body_ft() -> float:
+    """The factory's own sanity bound, imported rather than restated.
+
+    Two copies of a number like this drift, and the drift is silent: the
+    lane would refuse at one size and the constructor at another, with the
+    caveat quoting whichever fired. One definition, two checkers.
+    """
+    from ..famgen import factory as _F
+    return float(_F.MAX_BODY_FT)
+
+
 def _to_internal(unit_kind: str, value: Any) -> Any:
     """A sheet-stated value -> the internal unit ``standard_values`` expects.
 
@@ -192,6 +203,19 @@ def plan_from_sheet(parsed: ParsedSheet) -> SheetPlan:
                 f"{key}: the sheet states no unit for this row, so the value "
                 f"{v.raw!r} cannot size a body -- millimetres and inches "
                 f"differ by 25x. Stated at {v.citation(parsed.path)}")
+            refused_keys.add(key)
+            continue
+        # Past all plausibility -> refuse HERE, so the caveat can cite the row
+        # rather than only the converted number the factory would report.
+        # The bound itself is NOT duplicated: it is imported from the factory,
+        # which is the single place it is defined (#806).
+        if float(v.value) / 12.0 > _max_body_ft():
+            refused.append(
+                f"{key}: {v.raw!r} is past the sanity bound for a generated "
+                f"body -- a value this size is a misparsed row, a "
+                f"metre/millimetre mix-up or a typo far more often than a "
+                f"real product, and this lane will not stamp it as a fact. "
+                f"Stated at {v.citation(parsed.path)}")
             refused_keys.add(key)
             continue
         kwargs[kw] = float(v.value) / 12.0
