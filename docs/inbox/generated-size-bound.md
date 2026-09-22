@@ -170,9 +170,6 @@ All three failures are pre-existing on `main` and none is this PR's:
 `test_catchain.py`, so it under-reported both the file count and the number
 of known reds. Naming all three is the point — a gate line that mentions one
 red invites the reader to assume the rest are green.
-on `main`** (`test_famdoc_scan_fp.py`, reproduced from a clean `git archive`
-export and filed as **#807**, which also covers why it was invisible: that file
-is not in the CI shard).
 
 ## Round 2 found the bound leaking through the fields NEXT to the ones it fixed
 

@@ -1993,6 +1993,16 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
         final-block parity;
     (E) the carried-constant classification (``Formats/Latest`` sha256 ==
         the corpus schema constant).
+
+    ``our_ids`` overrides the element-id set read from the file's own records.
+    Since #807 it also SCOPES the donor byte scan -- ids in it are excluded
+    from the fatal universe and reported as ``own_id_space_collisions`` -- so
+    a caller passing a superset would silence ``zero_donor_id_byte_hits``.
+    Every PRODUCT caller that overrides it passes the document's own element
+    ids (the tests narrow it on purpose, which is the affordance below); the
+    rest (``frontdoor.standalone``, one ``render_probes`` site) take the
+    file-derived default, which cannot be a superset of itself.  Narrowing it
+    is a test affordance -- it is how a carried id is made genuinely foreign.
     """
     from .. import adocument as A
     from ..container import open_rvt
@@ -2045,8 +2055,39 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
     naive_dangling = sorted(i for i in dref if i > 0 and i not in ours
                             and i >= 100)    # < 100 = counters / weak refs
     donor_ids = set(donor_element_ids(donor))
-    scan_donor = (corroborated_donor_scan(latest_payload, ad.value, donor_ids)
-                  if donor_ids else {"hits": 0})
+    # An id both documents allocated is OURS in this file.  A reference is
+    # resolved in the id space of the document that carries it, and above the
+    # scan floor every integer leaf of our ADocument is one of our own
+    # elements -- so a leaf holding such a value names our record, not the
+    # donor's.  Counting it as a carried donor reference is an id-space
+    # collision, NOT the cross-field window artefact
+    # ``corroborated_donor_scan`` adjudicates: the window IS corroborated,
+    # by a leaf that legitimately holds our own id (issue #807; the bundled
+    # base and our start_id=18400 family share 7 of 122 ids, 3 of them
+    # referenced -- our Level, our DBView and a sun-and-shadow settings
+    # element, whose equally-referenced siblings are clean only because the
+    # donor happened not to use those numbers).
+    #
+    # This exclusion is not a widened allowance, but the reason is narrower
+    # than "the dangling census would catch it" -- that census tests
+    # ``id not in ours`` and the excluded ids are by construction IN ``ours``,
+    # so for exactly these ids neither check can fire.  What makes it safe is
+    # the lane: where this scan is the last word, ``emit_family_rfa_v2`` took
+    # its PROJECT-donor branch and authored from
+    # ``constructive_family_host_tree(doc)`` -- schema-built from our own
+    # document, never copied from the donor -- so no donor leaf can be present
+    # to hide.  On the FAMILY-donor branch the tree IS copied, a leaf holding
+    # one of our ids can genuinely be a surviving donor leaf, and that lane is
+    # gated earlier by ``author_family_adocument``'s own raise against the
+    # UNFILTERED universe, before any file exists for this scan to read.  The
+    # two sites therefore differ on purpose; see #807's record.  The collision
+    # set is scanned and REPORTED below, never silently dropped.
+    shared_ids = donor_ids & ours
+    foreign_ids = donor_ids - ours
+    scan_donor = (corroborated_donor_scan(latest_payload, ad.value, foreign_ids)
+                  if foreign_ids else {"hits": 0, "distinct": 0, "examples": []})
+    scan_shared = (corroborated_donor_scan(latest_payload, ad.value, shared_ids)
+                   if shared_ids else {"hits": 0, "distinct": 0, "examples": []})
     scan_ours = GA.byte_scan_ids(latest_payload, ours)
     strings: List[str] = []
     GA._collect_all_strings(ad.value, strings)
@@ -2066,7 +2107,21 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
                                  "-- the authority; the naive Id-key figure "
                                  "includes non-element counters"),
         "byte_scan_donor_ids": {**scan_donor, "universe": len(donor_ids),
+                                "universe_scanned": len(foreign_ids),
                                 "must_be": 0},
+        "own_id_space_collisions": {
+            **scan_shared,
+            "ids": sorted(shared_ids),
+            "note": ("ids the donor document ALSO allocated, excluded from the "
+                     "donor scan because in THIS file they are our own elements "
+                     "(every integer leaf >= the scan floor is one of ours); "
+                     "'hits'/'examples' count the windows they account for. "
+                     "A reference to an id that is NOT ours stays fatal above. "
+                     "These ids are safe to exclude because this lane authors "
+                     "from a schema-built constructive tree, never a copied "
+                     "donor tree -- NOT because the dangling census covers "
+                     "them; it tests 'not in ours' and cannot (#807)."),
+        },
         "byte_scan_our_ids": scan_ours,
         "donor_name_string_hits": name_hits,
         "n_strings": len(strings),
