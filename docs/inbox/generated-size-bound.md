@@ -159,8 +159,17 @@ dies correctly.
 the factory refusal plus the archetype fall-through still ship a file. That is
 defence in depth working, not a gap in the test.
 
-Gates: 61 test files naming `famgen.factory` / `famspec_from_sheet` /
-`specsheet` / `assembly_parts` → 1651 passed, 126 skipped, plus one failure that is **pre-existing
+Gates: The gate set is every test file matching
+`famgen import factory|famgen\.factory|famspec_from_sheet|specsheet|assembly_parts`
+— **62 files** — run at this head: **1661 passed, 128 skipped, 3 failed**.
+
+All three failures are pre-existing on `main` and none is this PR's:
+`test_famdoc_scan_fp::test_provenance_scan_on_the_real_bundled_universe_is_clean`
+(**#807**) and two in `test_catchain.py`. An earlier draft said "61 files,
+1651 passed … plus ONE pre-existing failure": that set silently excluded
+`test_catchain.py`, so it under-reported both the file count and the number
+of known reds. Naming all three is the point — a gate line that mentions one
+red invites the reader to assume the rest are green.
 on `main`** (`test_famdoc_scan_fp.py`, reproduced from a clean `git archive`
 export and filed as **#807**, which also covers why it was invisible: that file
 is not in the CI shard).
@@ -234,7 +243,7 @@ margin: 470x
 
 An earlier draft quoted **36.28 ft / 2911x**, which is true only of the
 20-fixture `inputs/` set and flattering because of it. The wider set is the
-honest denominator, and 470x is still three orders of margin.
+honest denominator, and 470× is still 2.7 orders of margin.
 
 The distance-from-origin check is unreachable from the product lane in any
 case: `router.py` calls `read_assembly` with `recentre=True`, and after

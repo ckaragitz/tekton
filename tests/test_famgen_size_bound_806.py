@@ -134,6 +134,10 @@ def test_add_generic_part_guards_its_OWN_height():
         F.add_generic_part(doc, {"shape": "box", "width_ft": 1,
                                  "depth_ft": 1, "height_ft": ABSURD_FT})
     assert "height_ft" in str(e.value)
+    # ...and for the RIGHT reason. Without this clause a future
+    # positive-height_ft error would keep the test green while the size
+    # guard it exists to pin was gone (#808 round 4).
+    assert "sanity bound" in str(e.value)
 
 
 def test_a_NON_FINITE_center_cannot_slip_the_bbox():
