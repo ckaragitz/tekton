@@ -88,6 +88,110 @@ def test_zero_and_negative_are_still_refused():
 
 
 # ===========================================================================
+# 1b. the gaps the first version of this fix left -- found by #808's review
+#     AFTER four mutants and a green CI already said it was complete
+# ===========================================================================
+
+def test_the_ASSEMBLY_bounding_box_is_bounded():
+    """The structural check, and the one that makes the rest defence in depth.
+
+    Per-part checks are necessary but not sufficient twice over: a part
+    dimension the code does not enumerate slips through, and so does an
+    assembly whose parts are each sane but whose bounding box is not. This
+    is the second case -- two perfectly ordinary 1 ft boxes, a billion feet
+    apart -- which no per-part check could ever catch.
+    """
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(name="T", parts=[
+            {"shape": "box", "width_ft": 1, "depth_ft": 1, "height_ft": 1,
+             "center": (0, 0)},
+            {"shape": "box", "width_ft": 1, "depth_ft": 1, "height_ft": 1,
+             "center": (1e9, 0)}])
+    assert "overall width" in str(e.value)
+
+
+def test_length_ft_is_bounded_the_axial_dimension_of_a_conduit():
+    """`length_ft` was missing from the enumerated fields, and it is the
+    DOMINANT dimension of the cylinder shapes `rvt.ifc.assembly_parts`
+    emits for a conduit or pipe run -- i.e. exactly the lane #806 cited as
+    motivation while leaving it unbounded."""
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(name="T", parts=[
+            {"shape": "cylinder_x", "radius_ft": 0.5, "length_ft": 1e12}])
+    assert "length_ft" in str(e.value)
+
+
+def test_a_polygon_profile_is_bounded_by_its_RING():
+    """A polygon's size lives in its vertices, not in a named scalar."""
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(name="T", parts=[
+            {"shape": "polygon", "height_ft": 5,
+             "vertices": [[0, 0], [1e12, 0], [1e12, 1e12], [0, 1e12]]}])
+    assert "profile width" in str(e.value)
+
+
+def test_a_MIS_SCALED_ifc_conduit_is_refused_end_to_end():
+    """The motivating case, with the real measured fit.
+
+    A 1 in conduit 40 m long, read with a metre/millimetre mix-up (x1000),
+    fits `cylinder_x length_ft=131200 radius_ft=41.7` -- a 24.8-mile
+    conduit. Before #808's review it built 93 elements with `width_in`
+    1,574,400 stamped `given source='ifc body'`.
+    """
+    mis = {"shape": "cylinder_x", "length_ft": 131_200.0,
+           "radius_ft": 41.7, "height_ft": 83.4}
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(name="Conduit", parts=[mis], source="ifc body")
+    assert "24.8 miles" in str(e.value)
+
+    # the control that keeps this from being a bound on real work: the SAME
+    # conduit read correctly (40 m = 131.2 ft) still builds
+    ok = {"shape": "cylinder_x", "length_ft": 131.2,
+          "radius_ft": 0.0417, "height_ft": 0.0834}
+    prod = F.make_generic_model(name="Conduit", parts=[ok], source="ifc body")
+    assert len(prod.doc.elements) > 0
+
+
+def test_NaN_is_refused_as_a_FactoryError_naming_the_field():
+    """NaN passes `<= 0` AND `> MAX_BODY_FT` -- every comparison with it is
+    False -- so it slipped both ends and died deeper as `ValueError:
+    extrusions here are extrude-DOWN`, with no field name and not even a
+    FactoryError."""
+    with pytest.raises(F.FactoryError) as e:
+        F.make_generic_model(height_ft=float("nan"), width_ft=1, depth_ft=1,
+                             name="T")
+    assert "NaN" in str(e.value) and "height_ft" in str(e.value)
+
+
+def test_infinity_is_refused_too():
+    with pytest.raises(F.FactoryError):
+        F.make_generic_model(height_ft=float("inf"), width_ft=1, depth_ft=1,
+                             name="T")
+
+
+def test_the_bound_is_INCLUSIVE_at_exactly_MAX_BODY_FT():
+    """Pins the comparison itself. A `>` -> `>=` mutant survived all eleven
+    of the first tests, because none of them sat on the boundary."""
+    import math
+    prod = F.make_generic_model(**_ok(height_ft=F.MAX_BODY_FT))
+    assert len(prod.doc.elements) > 0                      # exactly at: allowed
+    with pytest.raises(F.FactoryError):                     # one ULP over: not
+        F.make_generic_model(**_ok(height_ft=math.nextafter(F.MAX_BODY_FT,
+                                                            math.inf)))
+
+
+def test_the_bounds_VALUE_is_pinned_to_its_order_of_magnitude():
+    """Nothing stopped a later edit loosening the constant 1000x silently --
+    mutating it to 105_600_000.0 left every test green.
+
+    Asserted as a RANGE, not a literal, so re-tuning it stays possible while
+    quietly turning it off does not. The reasoning lives in the constant's
+    own docstring: it is a floor on absurdity, not a certified limit.
+    """
+    assert 1_000 < F.MAX_BODY_FT < 1_000_000
+
+
+# ===========================================================================
 # 2. the spec-sheet lane -- and hard rule 1
 # ===========================================================================
 

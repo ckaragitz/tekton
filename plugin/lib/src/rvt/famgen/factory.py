@@ -989,6 +989,14 @@ def _check_body_size(value: Any, what: str, where: str) -> float:
     numbers leaves the caller guessing which of their inputs was wrong.
     """
     v = float(value)
+    # NaN passes `<= 0` AND `> MAX_BODY_FT` -- every comparison with it is
+    # False -- so it used to slip both ends and die deeper as
+    # `ValueError: extrusions here are extrude-DOWN: start > end`, with no
+    # field name and not even a FactoryError (#806 review).
+    if v != v:
+        raise FactoryError(
+            f"{where}: {what} is NaN, which is not a size. This is almost "
+            "always a division by zero or a failed parse upstream.")
     if v > MAX_BODY_FT:
         raise FactoryError(
             f"{where}: {what} is {v:,.2f} ft ({v / 5280.0:,.1f} miles), past "
@@ -1132,6 +1140,16 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         y0, y1 = min(y0, cy - hd), max(y1, cy + hd)
         z0, z1 = min(z0, base), max(z1, base + h)
     W, D, H = (x1 - x0), (y1 - y0), (z1 - z0)
+    # THE ASSEMBLY'S OWN EXTENT, checked here rather than only per part.
+    # Per-part checks are necessary but not sufficient twice over: a part
+    # dimension this code does not enumerate (`length_ft`, a `vertices`
+    # ring) slips through, and so does an assembly whose parts are each
+    # sane but whose bounding box is not -- two plausible parts a million
+    # feet apart. Bounding the box catches the space; the per-part checks
+    # below just name the offending field more precisely (#806 review).
+    _check_body_size(W, "overall width", "generic model assembly")
+    _check_body_size(D, "overall depth", "generic model assembly")
+    _check_body_size(H, "overall height", "generic model assembly")
     sheet = FactSheet(subject=f"generic model {fam_name} ({len(built)} parts)")
     # `given` by default -- a caller's 3D body. The spec-sheet lane passes
     # `fact`, because those numbers were READ OFF A PUBLISHED DOCUMENT the
@@ -1255,9 +1273,20 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
                            + ("radius_ft (its height is the diameter)"
                               if shape in ("cylinder_x", "cylinder_y") else "height_ft"))
     _check_body_size(h, "height_ft", f"part {shape!r}")
-    for _dim in ("width_ft", "depth_ft", "radius_ft", "diameter_ft"):
+    # `length_ft` is the AXIAL and usually dominant dimension of
+    # cylinder_x / cylinder_y -- the shapes rvt.ifc.assembly_parts emits for
+    # a conduit or a pipe run -- and was missing from this list, so a
+    # metre/millimetre mix-up built a 24.8-mile conduit (#806 review).
+    for _dim in ("width_ft", "depth_ft", "radius_ft", "diameter_ft",
+                 "length_ft"):
         if part.get(_dim) is not None:
             _check_body_size(part[_dim], _dim, f"part {shape!r}")
+    # a polygon's size lives in its ring, not in a named scalar
+    if part.get("vertices"):
+        _vx = [float(v[0]) for v in part["vertices"]]
+        _vy = [float(v[1]) for v in part["vertices"]]
+        _check_body_size(max(_vx) - min(_vx), "profile width", f"part {shape!r}")
+        _check_body_size(max(_vy) - min(_vy), "profile depth", f"part {shape!r}")
     base = float(part.get("base_z_ft") or 0.0)
     center = tuple(part.get("center") or (0.0, 0.0))
     rep = G.REP_SOLID if solid else G.REP_DUMMY

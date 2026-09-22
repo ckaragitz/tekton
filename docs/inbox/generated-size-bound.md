@@ -76,7 +76,53 @@ Worth noting that this fall-through was built in #798 for a different trigger
 (a sheet short of a dimension) and caught this one for free. Structural fixes
 pay twice; trigger-specific ones do not.
 
+## The first fix was incomplete, on the very lane it cited
+
+#808's independent review found three blocking gaps **after** four mutants
+and a green CI had already said the change was done. All three were live on
+the IFC assembly lane, which this record had named as motivation:
+
+| gap | measured at the first head |
+|---|---|
+| `length_ft` never enumerated — the AXIAL and dominant dimension of the `cylinder_x`/`cylinder_y` shapes `assembly_parts` emits | `cylinder_x length_ft=1e12` → **BUILT, 93 elements** |
+| a `polygon` ring never checked — a polygon's size lives in its vertices, not a named scalar | `vertices` spanning 1e12 → **BUILT, 95 elements** |
+| `_make_generic_multipart`'s own bounding box — named in #806 DONE 1, given no check at all | relied entirely on per-part checks |
+
+End to end, with the reviewer's measured fit: a 1 in conduit 40 m long read
+with a metre/millimetre mix-up (×1000) fits `cylinder_x length_ft=131200
+radius_ft=41.7` and **built 93 elements — a 24.8-mile conduit** with
+`width_in` 1,574,400 stamped `given source='ifc body'`. Exactly the scenario
+this record used to justify the work, still shipping.
+
+**The fix is now structural rather than another list of fields.** The
+assembly's own bounding box is checked, which catches the space instead of
+the instances — including a case neither the reviewer nor I had written a
+repro for: *two perfectly ordinary 1 ft boxes a billion feet apart*, where
+every per-part check passes and no enumeration of part fields could ever
+catch it. The per-part checks stay as defence in depth, because they name the
+offending field more precisely than a bounding box can.
+
+This is the same lesson as #801's host-axis sweep, learned again one PR
+later: **enumerating the instances loses to bounding the space**, and a green
+mutation table over the instances you thought of says nothing about the ones
+you did not.
+
+Three smaller gaps from the same review, each real:
+
+- **`NaN` bypassed both ends.** Every comparison with NaN is False, so it
+  passed `<= 0` *and* `> MAX_BODY_FT` and died deeper as `ValueError:
+  extrusions here are extrude-DOWN: start > end` — no field name, not even a
+  `FactoryError`. `inf` was already refused correctly.
+- **The boundary was untested.** Flipping `>` to `>=` left all eleven
+  original tests green, because none of them sat on it.
+- **The constant's VALUE was unpinned.** Mutating `MAX_BODY_FT` to
+  `105_600_000.0` — a 20,000-mile bound, i.e. the guard effectively off —
+  also left every test green. Now pinned as an order-of-magnitude range, so
+  re-tuning stays possible and silently disabling does not.
+
 ## Evidence
+
+Baseline 19 passed.
 
 | mutant | dies in |
 |---|---|
@@ -84,6 +130,19 @@ pay twice; trigger-specific ones do not.
 | bound height only, not width/depth | 2 tests (width, depth) |
 | lane stops citing the row | 1 test (the row-citation case) |
 | the two bounds drift apart | 1 test (the shared-bound case) |
+| remove the assembly bbox checks | 1 test (the billion-feet-apart case) |
+| drop `length_ft` from the enumerated fields | 1 test (the conduit case) |
+| remove the polygon ring guard | 1 test (the profile case) |
+| `>` → `>=` at the boundary | 1 test (the exactly-at-bound case) |
+| loosen `MAX_BODY_FT` 1000× | 2 tests |
+| remove the NaN guard | 1 test |
+
+One process note on that table: the first attempt at the bbox row **did not
+apply** — shell quoting mangled the anchor, the mutation count came back 0,
+and the run reported "19 passed". That is a non-run, not a survival, and
+recording it as evidence would have been a fourth instance of the pattern
+#801 documents. Re-run from a script file with an assert on the anchor, it
+dies correctly.
 
 Baseline 11 passed. Note the lane-citation mutant does **not** break delivery —
 the factory refusal plus the archetype fall-through still ship a file. That is
