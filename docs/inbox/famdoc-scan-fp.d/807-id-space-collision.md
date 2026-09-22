@@ -225,14 +225,29 @@ Gate set = every test file matching
 Zero failures — `main`'s three known reds drop to two, since this was one of
 them (the other two are in `test_catchain.py`, filed separately and untouched).
 
-**Which fixtures were present when that was measured**, because the reviewer
-got `399 passed / 51 skipped` for the same 13 files — same total, a 6-test skip
-delta, and an unexplained delta is not evidence. This checkout has
-`experiments/` (42 entries) and `out/` (7); `samples/`, `vendor/` and
-`extracted/` are absent. All five are git-ignored, so a `git archive` export
-has none of them and six cases that run here self-skip there. The reviewer's
-lower number is the fresh-clone truth; neither run is wrong, and the difference
-is not in this PR's favour.
+**Which fixtures were present when that was measured**, because the reviewers
+got `399` then `400 passed / 51 skipped` for the same 13 files — same total
+each time, a 6-test skip delta, and an unexplained delta is not evidence.
+
+The mechanism is **git-ignored build artifacts inside otherwise-tracked
+directories**, not ignored directories. My first wording said `experiments/`
+was git-ignored; round 2 measured that it is not, and I confirmed it:
+
+```
+git ls-files experiments | wc -l           -> 1448      (tracked)
+git archive HEAD | tar -t | grep -c '^experiments/' -> 1723   (present in an export)
+.gitignore:17-22   experiments/**/*.rvt|rfa|bin|gz, experiments/roundtrip/, experiments/out/
+.gitignore:42      out/                                  (this one IS ignored whole)
+```
+
+So an export carries `experiments/` but none of the `.rvt`/`.rfa`/`.bin`/`.gz`
+artifacts under it — e.g. `tests/test_router.py:55`'s
+`WORKED_RVT = experiments/frontdoor/prompt-electrical-room/electrical_room_prompt.rvt`
+is an ignored artifact, and an export's run skips it with "worked .rvt absent".
+`samples/`, `vendor/` and `extracted/` are absent here as well as there.
+
+The reviewers' lower number is the fresh-clone truth; neither run is wrong, both
+have 0 failures, and the difference is not in this PR's favour.
 
 `tools/sync_plugin.py --check`: *plugin in sync with source (deny-audit clean,
 identity scan == allowlist, assets verified)*.
@@ -284,6 +299,47 @@ Also corrected: "vacuous" → **fails**. The old test goes red (`assert (0 >= 1)
 it does not pass while testing nothing — the distinction matters, because only
 the second shape is dangerous, and calling a red test vacuous overstates the
 problem I found.
+
+## Review round 2 — two more wrong claims of mine, and one stale blocker
+
+Round 2 verified round 1's three fixes and did not re-litigate settled ground:
+it confirmed #813 is real and accurately describes the defect, checked in the
+code that the replacement justification is **true** rather than merely
+different (`famdoc_adoc.py:1782` branches on `container_is_family(donor)`;
+`:1792-1794` is the project-donor branch using `constructive_family_host_tree`;
+the family-donor branch's unfiltered raise at `:1311-1312` fires before
+`emit_family_rfa_v2` writes, and the one post-emit product caller,
+`standalone.py:1002`, only ever sees a file that already cleared it), and
+re-measured the new mutant itself (baseline **19 passed**; revert → **1 failed,
+18 passed** with `KeyError: 'distinct'`; restore → **19 passed**).
+
+**Its blocking finding was stale, and I checked rather than complied.** It
+reported the PR body still carrying all three round-1 false claims. The live
+body (fetched at the same head) already carried every correction — `updated_at`
+17:59:51, and the reviewer fetched early in its 281-second run. I had edited
+the body immediately after spawning it. A race, not a defect; the blocker is
+void. Worth recording precisely because the reflex under a `🛑` is to comply,
+and complying here would have meant "fixing" text that was already right.
+
+**Two nits were real, and both were mine:**
+
+1. **The skip-delta explanation was partly false** — corrected above.
+   `experiments/` is not git-ignored (1448 tracked files); only the artifacts
+   inside it are. I generalised from "the tests skip without it" to "the
+   directory is ignored" without running `git ls-files`.
+2. **"Every product caller passes the document's own element ids" was untrue
+   as worded.** `standalone.py:1002` and `render_probes.py:776` pass no
+   `our_ids` and take the file-derived default. Harmless — a default cannot be
+   a superset of itself — but the sentence claimed more than it checked.
+
+Nit 2 has a second edge the review did not name, and it belongs in the record
+because it is a **new** failure mode rather than a repeat: that sentence came
+from **round 1's** grep, which reported that every caller passes the document's
+own ids. I put it in the PR body as established fact without running the grep
+myself. Having been caught eight times asserting my own unverified claims, I
+then propagated someone else's. A subagent's measurement is evidence of the
+same kind as my own — it needs re-running before it is quoted, not because the
+reviewer is unreliable, but because "an agent told me" is not a measurement.
 
 ## Open questions
 
