@@ -239,10 +239,37 @@ def emitted_rfa(authored, tmp_path_factory):
     return path
 
 
-def _scan_with_universe(monkeypatch, rfa, donor_ids):
+def _scan_with_universe(monkeypatch, rfa, donor_ids, our_ids=None):
     monkeypatch.setattr(FA, "donor_element_ids",
                         lambda donor=None, min_id=4700: sorted(donor_ids))
-    return FA.provenance_scan_v2(rfa, donor=BUNDLED_BASE)
+    return FA.provenance_scan_v2(rfa, donor=BUNDLED_BASE, our_ids=our_ids)
+
+
+def our_element_ids(rfa) -> set:
+    """The emitted family's OWN element ids, read from its own records --
+    the set ``provenance_scan_v2`` derives for itself when ``our_ids`` is
+    not supplied."""
+    from rvt.families import FamilyIndex, unit_segments
+    from rvt.objects import iter_records
+    segs = unit_segments(FamilyIndex(rfa), 0)
+    return {int(r.elem_id) for r in iter_records(segs[102], 102) if r.elem_id >= 0}
+
+
+@pytest.fixture(scope="module")
+def carried_non_owner_id(emitted_rfa):
+    """One of OUR ids that some integer leaf really holds and that is NOT
+    the owner family -- so declaring it foreign isolates the donor scan
+    instead of also tripping ``owner_family_is_ours``."""
+    from rvt import adocument as A
+    from rvt.container import open_rvt
+    with open_rvt(emitted_rfa) as f:
+        ad = A.decode_latest(f.inflate("Global/Latest", 0))
+    owner = ad.value.get("m_ownerFamilyId")
+    cands = sorted((FA._tree_int_leaves(ad.value) & our_element_ids(emitted_rfa))
+                   - {owner})
+    cands = [c for c in cands if c >= 4700]
+    assert cands, "no carried non-owner id in the payload -- fixture premise"
+    return cands[0]
 
 
 def test_provenance_scan_records_the_window_and_stays_clean(emitted_rfa, misaligned_window,
@@ -254,10 +281,22 @@ def test_provenance_scan_records_the_window_and_stays_clean(emitted_rfa, misalig
     assert rep["checks"]["zero_donor_id_byte_hits"] is True
 
 
-def test_provenance_scan_flags_a_genuine_donor_id(emitted_rfa, self_family_id, monkeypatch):
-    rep = _scan_with_universe(monkeypatch, emitted_rfa, {self_family_id})
+def test_provenance_scan_flags_a_genuine_donor_id(emitted_rfa, carried_non_owner_id,
+                                                  monkeypatch):
+    """A donor id the payload really carries and that is NOT one of our
+    elements: fatal.
+
+    The id is made genuinely foreign by narrowing ``our_ids`` rather than by
+    naming one of our own ids as the donor's -- that shortcut made this test
+    vacuous once the id-space collision class was excluded (#807), because
+    the id it used (our self-Family) was ours all along.
+    """
+    ours = our_element_ids(emitted_rfa) - {carried_non_owner_id}
+    rep = _scan_with_universe(monkeypatch, emitted_rfa, {carried_non_owner_id},
+                              our_ids=ours)
     scan = rep["adocument"]["byte_scan_donor_ids"]
-    assert scan["hits"] >= 1 and scan["examples"] == [self_family_id]
+    assert scan["hits"] >= 1 and scan["examples"] == [carried_non_owner_id]
+    assert scan["universe_scanned"] == 1        # not excluded as one of ours
     assert rep["checks"]["zero_donor_id_byte_hits"] is False
     assert rep["ok"] is False
 

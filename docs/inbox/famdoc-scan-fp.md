@@ -151,3 +151,7 @@ partial.  The ledger now also carries `raw_window_distinct` and
 window is named), so a truncated list says so.  The fatal/non-fatal decision
 was never affected (exact re-scan against `carried`).  Stream tests 13 passed;
 CI shard 136 passed / 23 skipped; `sync_plugin.py --check` clean.
+
+## famdoc-scan-fp fragments (index)
+
+- `807-id-space-collision.md` — the byte scan counted our own element ids where they collide with the donor's; excluded by ownership, reported, and the file put in the CI shard (#807)
