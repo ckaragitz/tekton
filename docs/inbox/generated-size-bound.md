@@ -122,7 +122,18 @@ Three smaller gaps from the same review, each real:
 
 ## Evidence
 
-Baseline **26 passed** (the count moved with each review round; every row below was re-measured at the current head, not carried forward).
+Baseline **27 passed**, and the whole table below was re-measured at this
+head after round 3 caught three rows that had been carried forward and one
+sentence claiming — falsely — that they had not been.
+
+That sentence is the finding worth keeping: it was an assertion about my own
+rigour, printed directly above the numbers it was wrong about. The rows said
+`remove the NaN guard | 1`, `loosen MAX_BODY_FT 1000x | 2` and
+`remove the assembly bbox checks | 1 (the billion-feet-apart case)`; measured,
+they are 3–4, 6 and 3, and *the billion-feet-apart case no longer exists* —
+round 2 replaced it with the ±53,000 ft parametrization. A stale row is a
+small thing; a stale row under a claim of freshness is the thing this record
+keeps having to document.
 
 | mutant | dies in |
 |---|---|
@@ -130,12 +141,12 @@ Baseline **26 passed** (the count moved with each review round; every row below 
 | bound height only, not width/depth | 2 tests (width, depth) |
 | lane stops citing the row | 1 test (the row-citation case) |
 | the two bounds drift apart | 1 test (the shared-bound case) |
-| remove the assembly bbox checks | 1 test (the billion-feet-apart case) |
+| remove all three assembly bbox checks | 3 (the x / y / z parametrization) |
 | drop `length_ft` from the enumerated fields | 1 test (the conduit case) |
 | remove the polygon ring guard | 1 test (the profile case) |
 | `>` → `>=` at the boundary | 1 test (the exactly-at-bound case) |
-| loosen `MAX_BODY_FT` 1000× | 2 tests |
-| remove the NaN guard | 1 test |
+| loosen `MAX_BODY_FT` 1000× (i.e. the guard effectively off) | 6 |
+| drop `v != v` from the finiteness guard | 3 |
 
 One process note on that table: the first attempt at the bbox row **did not
 apply** — shell quoting mangled the anchor, the mutation count came back 0,
@@ -148,8 +159,8 @@ dies correctly.
 the factory refusal plus the archetype fall-through still ship a file. That is
 defence in depth working, not a gap in the test.
 
-Gates: 56 test files naming `famgen.factory` / `famspec_from_sheet` /
-`specsheet` → 1557 passed, 126 skipped, plus one failure that is **pre-existing
+Gates: 61 test files naming `famgen.factory` / `famspec_from_sheet` /
+`specsheet` / `assembly_parts` → 1651 passed, 126 skipped, plus one failure that is **pre-existing
 on `main`** (`test_famdoc_scan_fp.py`, reproduced from a clean `git archive`
 export and filed as **#807**, which also covers why it was invisible: that file
 is not in the CI shard).
@@ -208,6 +219,27 @@ withholding, and the user moves from *a wrong 141-mile file* to *no file plus
 a named reason* — which is the better outcome. But it is a real boundary
 judgement about hard rule 1 and it is recorded as one, not asserted away with
 a checkbox.
+
+## No false refusals, on every tracked IFC in the repo
+
+The placement checks added in round 2 are the most likely source of a false
+refusal, so the sweep is over **every tracked `.ifc`**, not just `inputs/`:
+
+```
+read_assembly -> to_parts -> make_generic_model
+built=25  refused=0  skipped=9 (AssemblyError: no measurable solid -- the documented path)
+largest legitimate overall dimension: 224.57 ft (rme_QUARANTINED.ifc)
+margin: 470x
+```
+
+An earlier draft quoted **36.28 ft / 2911x**, which is true only of the
+20-fixture `inputs/` set and flattering because of it. The wider set is the
+honest denominator, and 470x is still three orders of margin.
+
+The distance-from-origin check is unreachable from the product lane in any
+case: `router.py` calls `read_assembly` with `recentre=True`, and after
+recentring the largest `|coord|` across all fixtures is 112.29 ft (174.15 ft
+before). It guards direct callers of the constructor, not the route.
 
 ## Open questions
 

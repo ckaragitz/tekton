@@ -116,6 +116,26 @@ def test_the_ASSEMBLY_bounding_box_is_bounded_on_EVERY_axis(first, second):
     assert "overall" in str(e.value), "caught by the wrong guard: " + str(e.value)
 
 
+def test_add_generic_part_guards_its_OWN_height():
+    """`add_generic_part` is a public entry point, and its height guard had
+    no test that died for it alone.
+
+    Deleting `_check_body_size(h, "height_ft", …)` left all 26 tests green:
+    on every in-repo call path the assembly bbox-H check catches the same
+    case first, so the guard was defence in depth with nothing pinning it.
+    A caller reaching `add_generic_part` directly — it is not private — got
+    no protection from any test. Driving it directly is what makes the guard
+    its own (#808 round 3).
+    """
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("generic_model", "T", work_plane_based=False,
+                                 start_id=1000)
+    with pytest.raises(F.FactoryError) as e:
+        F.add_generic_part(doc, {"shape": "box", "width_ft": 1,
+                                 "depth_ft": 1, "height_ft": ABSURD_FT})
+    assert "height_ft" in str(e.value)
+
+
 def test_a_NON_FINITE_center_cannot_slip_the_bbox():
     """`min`/`max` SKIP NaN rather than propagating it.
 
