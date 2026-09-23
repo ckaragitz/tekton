@@ -41,6 +41,32 @@ def test_a_spaced_mixed_number_is_one_number(prompt, key, want):
     assert r.provenance[key] == GIVEN
 
 
+# A whole number followed by a slash token that is NOT a fraction of a unit
+# keeps the whole number (#841 review): the round-1 head joined them into a
+# "mixed number" -- "width 12 480 / 277 V" was 13.73 in, stamped given.
+@pytest.mark.parametrize("prompt,key,want", [
+    ("wireway width 12 480 / 277 V", "width_in", 12.0),
+    ("lighting control panel width 20 277 / 480 V", "width_in", 20.0),
+    ("lighting control panel width 20 277/480 V", "width_in", 20.0),   # 20.58 on main
+    ("lighting control panel height 36 120 / 277 V", "height_in", 36.0),
+    ("cable tray, width 24 120 / 208 V feed", "width_in", 24.0),
+    ("lighting control panel width 24 24 / 7 operation", "width_in", 24.0),
+    ("conduit trade size 2 4 / 0 conductors", "diameter_in", 2.0),
+    ("junction box depth 6 3 / 0 feeders", "depth_in", 6.0),
+    ("cable tray wide 12 12/2 cable", "width_in", 12.0),
+    ("cable tray wide 6 3 / 4w", "width_in", 6.0),
+    ("cable tray wide 6 3/4w", "width_in", 6.0),                    # 6.75 on main
+    # ... while real unit fractions, thirds and a unit glued on still join
+    ("a 2 1/3 ft long conduit", "length_ft", 7 / 3),
+    ("a 2 1/2in conduit", "diameter_in", 2.5),
+    ("a 1-5/8\" strut channel", "height_in", 1.625),
+])
+def test_a_slash_token_after_a_number_is_not_its_fraction(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
+
+
 def _spaced():
     """Every spacing of a mixed number's hyphen and slash, on every inch
     parameter of every archetype, in both phrasings, noun first and last.
@@ -69,3 +95,15 @@ def test_every_spacing_of_a_mixed_number_binds_whole_and_alone():
             fails.append((pr, r.values[pk], stray))
     assert total >= 18000, total
     assert not fails, f"{len(fails)}/{total} misread; first: {fails[:3]}"
+
+
+@pytest.mark.parametrize("prompt", ["cable tray width 24 - 120/208 V",     # 24.577 given on main
+                                    "cable tray width 24 - 120 / 208 V",
+                                    "wireway width 12 - 480 / 277 V"])
+def test_a_hyphen_before_a_slash_token_never_joins_them(prompt):
+    """"24 - 120/208" is not 24 120/208 in.  Honest nominal is acceptable
+    here (the hyphen makes it a range-like token); a joined value stamped
+    ``given`` is not."""
+    r = AR.resolve_prompt(prompt)
+    w = r.values["width_in"]
+    assert not (r.provenance["width_in"] == GIVEN and abs(w - round(w)) > 1e-9), (prompt, w)

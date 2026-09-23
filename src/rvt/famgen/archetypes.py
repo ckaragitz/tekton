@@ -693,9 +693,21 @@ def archetype(product: str) -> Archetype:
 #: section and "a 480Y/277 wireway" as 277 in -- each reported `given` and
 #: quoted back with words the caller never used as a measurement, which is the
 #: provenance contract lying about itself.
-_NUM_CORE = (r"(\d+\s+\d+\s*/\s*\d+"                    # 2 1/2, 2 1 / 2 -- mixed, spaced
+#: The fraction part of a MIXED number is a real fraction of a unit: proper
+#: (numerator below denominator) over 2, 3, 4, 8, 16, 32 or 64.  Anything else
+#: after a whole number is a different token -- "width 12 480 / 277 V" is a
+#: width and a voltage, never 12 480/277 = 13.73 in; likewise 277/480, 4/0 AWG,
+#: 24/7, 12/2, 9/23 (#841 review).  A failed fraction falls back to the whole
+#: number, so the 12 still binds.
+_MIXED_FRAC = "(?:" + "|".join(rf"(?:{n})\s*/\s*{d}" for n, d in (
+    ("1", "2"), ("[12]", "3"), ("[1-3]", "4"), ("[1-7]", "8"), ("1[0-5]|[1-9]", "16"),
+    (r"3[01]|[12]\d|[1-9]", "32"), (r"6[0-3]|[1-5]\d|[1-9]", "64"))) + (
+    # ... and it ENDS there: a unit may follow directly ("3/4in"), any other
+    # letter makes it a token ("3/4w" is three-phase four-wire, not 0.75)
+    r")(?=\s|$|[^\w]|in\b|in\.|inch|ft\b|ft\.|feet|foot|mm\b|millimet)")
+_NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 -- mixed, spaced
              r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?"              # 1,200 -- grouped
-             r"|\d+(?:\.\d+)?(?:\s*[-/]\s*\d+(?:\s*/\s*\d+)?)?"
+             rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}|\s*[-/]\s*\d+)?"
              r"|\d+\s*/\s*\d+)")
 #: A mixed number's slash may be spaced like its hyphen: "24 - 1 / 2 in" was
 #: split at the slash, and "1 / 2 in wide" -- a 0.5 in tray -- came back
