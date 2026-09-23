@@ -76,7 +76,11 @@ SKIP_DIR_NAMES = {"__pycache__", "node_modules", ".pytest_cache", ".DS_Store"}
 BINARY_EXT = {".rvt", ".rfa", ".mp4", ".mov"}          # never bundled by tree/file syncs
 EXAMPLE_KEEP_EXT = {".ifc", ".json", ".md", ".txt", ".js"}
 # Never ship third-party extracted reference data (see experiments/genesis/reference/README.md)
-DENY_PATH_PARTS = ("autodesk-extracted", "quarantine", "/reference/", os.sep + "reference" + os.sep)
+DENY_PATH_PARTS = ("autodesk-extracted", "quarantine", "/reference/", os.sep + "reference" + os.sep,
+                   # hard rule 3's quarantine dirs, and the owner's reference
+                   # families (#836/#837): never shipped, whatever path they
+                   # arrive by
+                   "/samples/", "/vendor/", "/extracted/", "reference-families")
 
 # ---------------------------------------------------------------------------
 # the certified genesis base ASSET (the ONLY .rvt the plugin ships) — an
