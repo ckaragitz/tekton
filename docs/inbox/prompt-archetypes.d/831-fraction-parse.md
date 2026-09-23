@@ -79,6 +79,16 @@ height (62 in) and depth (13/16 in) are not used, because the sheet does not
 size a whole family. That is the #688 lane's existing rule, not a parse
 defect. It is recorded here in case it is not intended.
 
+## Follow-up — the two mutants #833's review left alive
+
+#833 merged with 🟡: dropping the whitespace normalisation (m5) or the spaced
+slash (m6) passed all 30 tests. `_NUM_CORE` hands over both shapes ("2  1/2",
+"2\t1/2", "1 / 2", "12 / 16"), and under m6 "a 1 / 2 in conduit" loses the
+0.5 in that `main` reads. Twelve rows now pin them: nine strings and three
+prompts end to end. Result: 42 passed. m5 killed (4), m6 killed (6), and a
+third mutant, the spaced slash dropped from the mixed pattern only, killed (2).
+Tests only, no source change.
+
 ---
 
 ## BRANCH STATE
@@ -87,7 +97,8 @@ defect. It is recorded here in case it is not intended.
 - `src/rvt/famgen/archetypes.py`: `_to_number`.
 - `src/rvt/specsheet/sheet.py`: `_num`, the zero-denominator guard.
 - `plugin/lib/…`: mirrors (via `sync_plugin.py`).
-- `tests/test_fraction_parse_831.py`: new, 30 tests.
+- `tests/test_fraction_parse_831.py`: new, 30 tests; 42 after the follow-up
+  (spacing rows, branch `cam/831-fraction-spacing-tests`).
 - `tests/ci_shard.d/831-fraction-parse.txt`: new.
 - this fragment.
 
