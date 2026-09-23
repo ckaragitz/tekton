@@ -343,7 +343,7 @@ alias-first reading happens to land right. It is reported, not hidden.
 counted on #832 instead of being called "wrong on main too", which was round 2's
 over-claim.
 
-**Tests** (`tests/test_archetype_alias_order_812.py`, **89 passed, 4 xfailed**):
+**Tests** (`tests/test_archetype_alias_order_812.py`, **97 passed, 4 xfailed**):
 - the reviewer's four cross prompts;
 - count, separator and "W x D" rows;
 - two unitless number-first rows (which kill "opens_cross at any rank");
@@ -399,7 +399,7 @@ shared failures).
 - `tools/dev/fuzz_prompt_dims.py` — new: the shape-varied fuzzer with a
   per-prompt oracle and `--compare` (dev instrument, not mirrored into the plugin).
 
-**Gates (round 3)**: 89 passed / 4 xfailed; 13/15 mutants killed (the two
+**Gates (round 3)**: 97 passed / 4 xfailed; 13/15 mutants killed (the two
 survivors change 0 of 269,361 outputs); archetype, taxonomy, spec-sheet and
 fraction suites 689 passed / 4 xfailed; `sync_plugin.py --check` in sync.
 Full suite **not** run; `session_ci.sh` runs the shard on the head.
