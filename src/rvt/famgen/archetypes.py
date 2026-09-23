@@ -892,7 +892,7 @@ def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
                   "and they are measured from it.")}
 
 
-def _alias_patterns(p: Param) -> List[Tuple[int, int, str]]:
+def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, int, str]]:
     """``(alias length, rank, pattern)`` for every way a prompt states this
     parameter, built from its aliases.
 
@@ -905,25 +905,34 @@ def _alias_patterns(p: Param) -> List[Tuple[int, int, str]]:
     every candidate across ALL parameters longest-alias-first, so the most
     specific reading always claims its text first.
 
-    The RANK breaks ties between the two phrasings of one alias, and the
-    NUMBER-FIRST one (``"24 in wide"``, rank 0) must go before the
-    ALIAS-FIRST one (``"wide 24 in"``, rank 1).  Number-first is unambiguous:
-    ``_NUM``'s lookbehind bounds the number on the left and the alias follows
-    it directly.  Alias-first is not -- its connector is optional and ``_SEP``
-    allows no comma, so it degenerates to *alias + whatever number comes
-    next*.  Tried first, it read "24 in wide 4 in deep" as ``wide 4 in`` and
-    built a 4 in tray stamped ``given``, and "... 20 ft long" as ``deep 20 ft``
-    -- a 240 in (20-foot) side rail (#812).  A comma or "and" hid it, because
-    either one stops alias-first from matching across the phrase boundary.
+    Each alias has two phrasings: NUMBER-FIRST (``"24 in wide"``, rank 0) and
+    ALIAS-FIRST (``"wide 24 in"``, rank 1).  ``alias_first`` chooses which of
+    the pair is emitted first; the caller's stable sort by length keeps that
+    order within one alias.  Neither order is right on its own (#812): a number
+    standing between two aliases belongs to one phrase or the other, and each
+    fixed order steals it in one of the two chains --
+
+    * alias-first first reads "24 in wide 4 in deep" as ``wide 4 in`` (a 4 in
+      tray stamped ``given``) and "... 20 ft long" as ``deep 20 ft`` (a 20-foot
+      side rail);
+    * number-first first reads "depth 6 in width 24 in" as ``6 in width``
+      (``width_in`` is declared before ``depth_in``, so its pattern runs
+      first) -- a 6 in tray, with depth left nominal.
+
+    :func:`resolve_prompt` therefore binds under BOTH orders and keeps the
+    reading that gives more stated dimensions a home.  A comma or "and" hid the
+    first chain for a long time, because either one stops alias-first from
+    matching across the phrase boundary (``_SEP`` allows no comma).
     """
     out: List[Tuple[int, int, str]] = []
     for al in p.aliases:
         a = re.escape(al).replace(r"\ ", r"\s+")
         n = len(al)
-        # "12 in rung spacing", "24-inch-wide", "10-ft-long" -- rank 0, first
-        out.append((n, 0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}"))
-        # "rung spacing of 12 in", "width 24 inches", "depth = 6 in" -- rank 1
-        out.append((n, 1, rf"{a}{_SEP}(?:of|is|at|=|:)?{_SEP}{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?"))
+        # rank 0: "12 in rung spacing", "24-inch-wide", "10-ft-long"
+        number_first = (n, 0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}")
+        # rank 1: "rung spacing of 12 in", "width 24 inches", "depth = 6 in"
+        alias_led = (n, 1, rf"{a}{_SEP}(?:of|is|at|=|:)?{_SEP}{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?")
+        out.extend((alias_led, number_first) if alias_first else (number_first, alias_led))
     return out
 
 
@@ -965,28 +974,45 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     # Aliases nest ('length' inside 'slot length'), and whoever matches first
     # locks the region, so the specific reading has to go first or the generic
     # one silently steals it (see _alias_patterns).
-    # Within one alias length, number-first before alias-first (#812).
-    candidates = sorted(((n, rank, pat, p) for p in arch.params
-                         for n, rank, pat in _alias_patterns(p)),
-                        key=lambda c: (-c[0], c[1]))
-    for _n, _rank, pat, p in candidates:
-        if prov[p.key] == GIVEN:
-            continue
-        for m in re.finditer(pat, low):
-            if not free(m.start(), m.end()):
+    def bind_aliases(alias_first: bool):
+        b_vals, b_prov = dict(vals), dict(prov)
+        b_quoted: Dict[str, str] = {}
+        b_used: List[Tuple[int, int]] = []
+
+        def b_free(s: int, e: int) -> bool:
+            return not any(s < ue and e > us for us, ue in b_used)
+
+        candidates = sorted(((n, pat, p) for p in arch.params
+                             for n, _rank, pat in _alias_patterns(p, alias_first=alias_first)),
+                            key=lambda c: -c[0])
+        for _n, pat, p in candidates:
+            if b_prov[p.key] == GIVEN:
                 continue
-            num = _to_number(m.group(1))
-            if num is None:
-                continue
-            unit = _unit_of(m.group(0)) or p.unit
-            conv = _convert(num, unit, p)
-            if conv is None or conv <= p.minimum:
-                continue
-            vals[p.key] = conv
-            prov[p.key] = GIVEN
-            quoted[p.key] = text[m.start():m.end()].strip()
-            used.append((m.start(), m.end()))
-            break
+            for m in re.finditer(pat, low):
+                if not b_free(m.start(), m.end()):
+                    continue
+                num = _to_number(m.group(1))
+                if num is None:
+                    continue
+                unit = _unit_of(m.group(0)) or p.unit
+                conv = _convert(num, unit, p)
+                if conv is None or conv <= p.minimum:
+                    continue
+                b_vals[p.key] = conv
+                b_prov[p.key] = GIVEN
+                b_quoted[p.key] = text[m.start():m.end()].strip()
+                b_used.append((m.start(), m.end()))
+                break
+        return b_vals, b_prov, b_quoted, b_used
+
+    # A number standing between two aliases belongs to one phrase or the
+    # other, and either fixed order steals it in one of the two chains (#812):
+    # bind under both, keep the reading that gives MORE stated dimensions a
+    # home, and on a tie keep the historical alias-first reading.
+    led = bind_aliases(alias_first=True)
+    trailed = bind_aliases(alias_first=False)
+    bound = lambda r: sum(1 for v in r[1].values() if v == GIVEN)
+    vals, prov, quoted, used = trailed if bound(trailed) > bound(led) else led
 
     # "a 12x12 wireway", "a 4 x 4 x 6 in box": a cross-dimension immediately
     # before the product noun sets width x height (x depth) in one go

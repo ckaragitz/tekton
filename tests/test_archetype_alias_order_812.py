@@ -47,6 +47,12 @@ TABLE = [
     ("cable tray depth = 6 in",                    {"depth_in": 6.0}),
     ("cable tray rung spacing of 18 in",           {"rung_spacing_in": 18.0}),
     ("cable tray width 24 in depth 6 in",          {"width_in": 24.0, "depth_in": 6.0}),
+    # the same chains with the parameters in the OTHER declaration order --
+    # width_in is declared before depth_in, and a fixed order's failures
+    # depend on that, so both orders of both styles have to be here
+    ("cable tray depth 6 in width 24 in",          {"width_in": 24.0, "depth_in": 6.0}),
+    ("cable tray 4 in deep 24 in wide 20 ft long", {"width_in": 24.0, "depth_in": 4.0,
+                                                    "length_ft": 20.0}),
     # hyphenated, units, and in front of the noun
     ("a 24-inch-wide cable tray",                  {"width_in": 24.0}),
     ("a cable tray 10 ft long",                    {"length_ft": 10.0}),
@@ -85,22 +91,36 @@ def test_the_quoted_words_are_the_phrase_that_set_each_value():
     assert r.quoted["length_ft"] == "20 ft long"
 
 
-def test_number_first_outranks_alias_first_within_one_alias_length():
-    """The mechanism, pinned directly so a refactor of the sort cannot pass
-    the table by accident: for every alias, the number-first phrasing sorts
-    ahead of the alias-first one."""
+def test_the_emit_order_is_the_only_difference_between_the_two_readings():
+    """The mechanism, pinned directly so a refactor cannot pass the table by
+    accident.  For every alias, ``alias_first`` flips which phrasing of the
+    pair comes first -- and nothing else: the same patterns, the same ranks."""
     arch = AR.archetype("cable_tray")
     for p in arch.params:
-        pats = AR._alias_patterns(p)
-        by_len: dict = {}
-        for n, rank, pat in pats:
-            by_len.setdefault(n, []).append((rank, pat))
-        for n, entries in by_len.items():
-            ranks = sorted(r for r, _ in entries)
-            assert ranks[0] == 0, (p.key, n, entries)
-            number_first = [pat for r, pat in entries if r == 0]
-            assert all(not pat.startswith(AR.re.escape(a).replace(r"\ ", r"\s+")[:3])
-                       or True for pat in number_first)
+        led = AR._alias_patterns(p, alias_first=True)
+        trailed = AR._alias_patterns(p, alias_first=False)
+        assert sorted(led) == sorted(trailed), p.key
+        for i in range(0, len(led), 2):
+            assert [r for _, r, _ in led[i:i + 2]] == [1, 0], (p.key, led[i:i + 2])
+            assert [r for _, r, _ in trailed[i:i + 2]] == [0, 1], (p.key, trailed[i:i + 2])
+
+
+def test_both_chains_need_a_different_order_so_no_fixed_order_passes():
+    """Why the resolver binds twice.  In each prompt one number stands
+    between two aliases: in the first it belongs to the phrase on its RIGHT,
+    in the second to the phrase on its LEFT.  Alias-first-only reads the
+    first as a 4 in tray; number-first-only reads the second as a 6 in tray,
+    because width_in is declared before depth_in and its number-first
+    pattern takes "6 in width".  The witness has to be the param-order-
+    REVERSED chain: "width 24 in depth 6 in" resolves correctly under both
+    fixed orders and proves nothing -- citing it was a mistake during #812."""
+    number_led = AR.resolve_prompt("cable tray 24 in wide 4 in deep")
+    alias_led = AR.resolve_prompt("cable tray depth 6 in width 24 in")
+    assert (number_led.values["width_in"], number_led.values["depth_in"]) == (24.0, 4.0)
+    assert (alias_led.values["width_in"], alias_led.values["depth_in"]) == (24.0, 6.0)
+    assert number_led.quoted["width_in"] == "24 in wide"
+    assert alias_led.quoted["width_in"] == "width 24 in"
+    assert alias_led.quoted["depth_in"] == "depth 6 in"
 
 
 def test_the_built_family_has_the_stated_geometry():
