@@ -278,6 +278,100 @@ what its generator can produce. All three of mine shared one shape (noun
 first), so a regression outside that shape was invisible to all of them at
 once. The reviewer's generator varied the shape and found it in minutes.
 
+## Round 3 — claiming intact phrases broke cross-dimensions, and again my sweeps could not see it
+
+🛑 on head `403988b`. Round 2 added the winner's intact phrases to `used`. An
+intact alias-first match can run into the first number of an "N x N" cross in
+front of the noun ("thickness 12" out of "thickness 12 x 6 in"). The claim then
+locked the cross rule out, and the noun rule read the **last** number of the
+cross as the width:
+
+```
+"a 1/8 in sheet thickness, 1/8 in thickness 12 x 6 in wireway"
+  main:     W 12 / H 6 given           403988b:  W 6 given (+ H 6)
+"a 22 thickness 14 x 19 x 9 in lighting control panel 22 sheet thickness"
+  main:     14 / 19 / 9                403988b:  W 9 given, H and D nominal
+```
+
+The reviewer found 275–324 regressions per 60,000 prompts. My sweeps never
+combined a cross with a restatement. **This is the same failure as rounds 1 and
+2: a sweep proves only what its generator can make.**
+
+### What I did differently this round
+
+Before choosing a fix, I wrote a **randomised, shape-varied fuzzer with a
+per-prompt oracle** (`tools/dev/fuzz_prompt_dims.py`, committed). It covers
+chains of 1–4 parameters, restatements, contradictions, bare aliases, a
+cross before the noun, counts ("3 x 10 ft long"), `x` and `by` used as
+separators, fractions, 9 unit spellings, 7 connectors, 11 separators, and the
+noun first, last, middle or absent. I measured every candidate fix against
+`main` on it, and **each candidate I did not take failed there**:
+
+| candidate | worse than `main` per 20,000 (3 seeds) | why rejected |
+|---|---|---|
+| intact spans not overlapping any cross | 16–22, then 845–962 once `x` separators and counts were generated | blocked "3 x 10 ft long", "wide x deep" |
+| the cross rule ignores intact spans (the reviewer's variant) | same as above on the first fuzzer | leaves the binder free to take a cross's number |
+| no alias match may overlap any cross (binder too) | 845–962 | "a 3 x 10 ft long cable tray" lost its length |
+| alias-first match opening a cross (any unit) | 196–244 | "thickness = 12.5 inches x 9 feet long" lost the thickness |
+| **alias-first match whose UNITLESS number opens a cross** (taken) | **10–19, all but one bare-alias** | — |
+
+The rule taken is `opens_cross`, applied in both the binder and the intact
+count. An alias-first match whose number has **no unit** and is followed by
+`x <digit>` is the first element of a cross, not a phrase. With a unit
+("thickness 12.5 in x 9 ft long"), the phrase is complete and the `x` is a
+separator. Number-first phrases next to an `x` are left alone ("12 in wide x 4
+in deep", "3 x 10 ft long", "24 wide x 4 deep").
+
+### Evidence — this exact tree against `main` (`16074b6`, fraction fix included)
+
+| instrument | prompts | `main` wrong | this head wrong | worse than `main` |
+|---|---|---|---|---|
+| fuzzer, no-`x` shapes, seeds 1–3 | 60,000 | 12,769 | 4,415 | **49, all bare-alias** |
+| fuzzer, with `x`/count shapes, seeds 1–3 | 60,000 | 11,668 | 3,437 | **33: 32 bare-alias, 1 contradiction** |
+| restatements / every alias pair / chains / contradictions | 62,875 | 8,508 | **0** | **0** |
+| placement (noun first/last/middle, bare aliases) | 132,548 | 17,301 | 3,502 | **0** |
+| cross + restatement sweep (new, in tests) | 2,684 | 1,170 | **0** | **0** (403988b: 1,342 wrong) |
+
+The one non-bare regression in 120,000 fuzzed prompts is a contradiction inside a
+no-separator chain: "…2 in rail flange 31 in flange rung pitch is 30 inches
+deep of 16 5/8 in…". That text reads legitimately both ways, and `main`'s
+alias-first reading happens to land right. It is reported, not hidden.
+
+**The bare-alias regressions** (81 in 120,000, against 16,585 fewer wrong overall) are
+#832's class. A bare alias next to a number is often a legitimate reading:
+"sheet thickness 125 mm wide junction box" can mean 125 mm *wide*. They are
+counted on #832 instead of being called "wrong on main too", which was round 2's
+over-claim.
+
+**Tests** (`tests/test_archetype_alias_order_812.py`, **89 passed, 4 xfailed**):
+- the reviewer's four cross prompts;
+- count, separator and "W x D" rows;
+- two unitless number-first rows (which kill "opens_cross at any rank");
+- two rows where intact phrases must not overlap (which kill the reviewer's
+  surviving "no overlap check" mutant: it changed 247 of 269,361 prompts, and
+  the head is right in the ones checked);
+- the new `_crossed()` sweep.
+
+| mutant (anchor asserted = 1, bytecode off) | result |
+|---|---|
+| no nested-alias reservation / equal-length reservation | killed / killed |
+| no intact count / intact must carry the same value / intact not claimed | killed ×3 |
+| full tie → number-first / only alias-first / only number-first | killed ×3 |
+| `opens_cross` dropped from the binder / from the intact count | killed / killed |
+| `opens_cross` ignores the unit / applies to any rank | killed / killed |
+| intact loop: no overlap-with-intact check | killed (was surviving) |
+| intact loop: no `inside_longer` | **survives: 0 of 269,361 outputs change** |
+| intact loop: no `conv > minimum` | **survives: 0 of 269,361 outputs change** |
+
+The two survivors are kept as consistency guards (the intact count accepts
+exactly what the binder would). They are recorded as changing no output, and
+are not claimed as tested.
+
+**Filed from this round:** **#834** — a comma with no space after it drops
+the next number ("24 in wide,4 in deep"). This is most of what `main` and the
+head still get wrong together on the fuzzer (1,729 of about 2,000 non-bare
+shared failures).
+
 ---
 
 ## BRANCH STATE
@@ -287,7 +381,8 @@ once. The reviewer's generator varied the shape and found it in minutes.
   `(length, rank, pattern)` in the requested order; `_alias_re` (new, shared);
   `resolve_prompt` reserves every alias occurrence against shorter aliases,
   binds under both orders, keeps (bindings, intact phrases, then alias-first),
-  and claims the winner's intact phrases into `used`.
+  and claims the winner's intact phrases into `used`; `opens_cross` keeps a
+  unitless alias-first number that opens an "N x N" cross out of both.
 - `plugin/lib/src/rvt/famgen/archetypes.py` — mirror.
 - `tests/test_archetype_alias_order_812.py` — new: a 30-row table (value **and**
   provenance, incl. restated nested aliases, label-first chains followed by a
@@ -301,8 +396,12 @@ once. The reviewer's generator varied the shape and found it in minutes.
   (round 0: the `relay panel` shield and `BRANCH STATE`; round 1: the round tag).
 - this fragment.
 
-**Gates (round 2)**: 70 passed / 4 xfailed; 8/8 mutants killed; archetype,
-taxonomy and lighting-control-panel suites green; `sync_plugin.py --check` in
-sync. Full suite **not** run; `session_ci.sh` runs the shard on the head.
+- `tools/dev/fuzz_prompt_dims.py` — new: the shape-varied fuzzer with a
+  per-prompt oracle and `--compare` (dev instrument, not mirrored into the plugin).
+
+**Gates (round 3)**: 89 passed / 4 xfailed; 13/15 mutants killed (the two
+survivors change 0 of 269,361 outputs); archetype, taxonomy, spec-sheet and
+fraction suites 689 passed / 4 xfailed; `sync_plugin.py --check` in sync.
+Full suite **not** run; `session_ci.sh` runs the shard on the head.
 
 **Shipped vs staged**: shipped.

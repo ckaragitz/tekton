@@ -992,6 +992,16 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
              for al in {al for p in arch.params for al in p.aliases}
              for m in re.finditer(_alias_re(al), low)]
 
+    def opens_cross(m: "re.Match", rank: int) -> bool:
+        # "thickness 12 x 6 in wireway": an alias-first match whose UNITLESS
+        # number is the first element of an "N x N" cross-dimension reads the
+        # cross's number as its own (#828 round 3).  With a unit the phrase is
+        # complete and the 'x' is a separator ("thickness 12.5 in x 9 ft
+        # long"); a number-first phrase next to an 'x' is left alone too
+        # ("12 in wide x 4 in deep", "3 x 10 ft long").
+        return (rank == 1 and not m.group("u")
+                and re.match(r"\s*[x×]\s*\d", low[m.end():]) is not None)
+
     def inside_longer(s: int, e: int, n: int) -> bool:
         # the whole match, not just its alias: the number and unit around
         # an alias are never part of another alias's text
@@ -1005,16 +1015,16 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
         def b_free(s: int, e: int) -> bool:
             return not any(s < ue and e > us for us, ue in b_used)
 
-        candidates = sorted(((n, pat, p) for p in arch.params
-                             for n, _rank, pat in _alias_patterns(p, alias_first=alias_first)),
+        candidates = sorted(((n, rank, pat, p) for p in arch.params
+                             for n, rank, pat in _alias_patterns(p, alias_first=alias_first)),
                             key=lambda c: -c[0])
-        for n, pat, p in candidates:
+        for n, rank, pat, p in candidates:
             if b_prov[p.key] == GIVEN:
                 continue
             for m in re.finditer(pat, low):
                 if not b_free(m.start(), m.end()):
                     continue
-                if inside_longer(m.start(), m.end(), n):
+                if inside_longer(m.start(), m.end(), n) or opens_cross(m, rank):
                     continue
                 num = _to_number(m.group(1))
                 if num is None:
@@ -1033,14 +1043,14 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
         # contradicting it): a reading that cut such a phrase in half to bind
         # something else read a number across a phrase boundary
         intact: List[Tuple[int, int]] = []
-        for n, pat, p in candidates:
+        for n, rank, pat, p in candidates:
             if b_prov[p.key] != GIVEN:
                 continue
             for m in re.finditer(pat, low):
                 s_, e_ = m.start(), m.end()
                 if not b_free(s_, e_) or any(s_ < ie and e_ > is_ for is_, ie in intact):
                     continue
-                if inside_longer(s_, e_, n):
+                if inside_longer(s_, e_, n) or opens_cross(m, rank):
                     continue
                 num = _to_number(m.group(1))
                 conv = None if num is None else _convert(num, _unit_of(m.group(0)) or p.unit, p)

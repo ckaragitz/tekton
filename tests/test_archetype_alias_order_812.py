@@ -78,6 +78,42 @@ TABLE = [
     ("a 9 in rung spacing, rung spacing 9 in cable tray", {"rung_spacing_in": 9.0}),
     ("a 2 in lip, lip 2 in strut channel",         {"lip_in": 2.0}),
     ("a 0.06 in thickness, thickness 0.06 in wireway", {"thickness_in": 0.06}),
+    # a cross-dimension in front of the noun, with a restated phrase before
+    # it.  Round 3 claimed "thickness 12" out of "thickness 12 x 6 in" as an
+    # intact restatement, which locked the cross out: the noun rule then read
+    # the LAST number as the width
+    ("a 1/8 in sheet thickness, 1/8 in thickness 12 x 6 in wireway",
+                                                   {"thickness_in": 0.125, "width_in": 12.0,
+                                                    "height_in": 6.0}),
+    ("a 0.06 in sheet thickness 0.06 in thickness 8 x 8 x 4 in junction box",
+                                                   {"thickness_in": 0.06, "width_in": 8.0,
+                                                    "height_in": 8.0, "depth_in": 4.0}),
+    ("a 13-in-long 13-in-long 11 x 19in wireway",  {"length_ft": 13 / 12, "width_in": 11.0,
+                                                    "height_in": 19.0}),
+    ("a 22 thickness 14 x 19 x 9 in lighting control panel 22 sheet thickness",
+                                                   {"thickness_in": 22.0, "width_in": 14.0,
+                                                    "height_in": 19.0, "depth_in": 9.0}),
+    # ... and the 'x' shapes that are NOT a cross: a count, a separator
+    # between complete phrases, W x D spelled out
+    ("a 3 x 10 ft long cable tray",                {"length_ft": 10.0}),
+    ("cable tray 24 in wide, 2 x 10 ft long",      {"width_in": 24.0, "length_ft": 10.0}),
+    ("strut channel thickness = 0.25 inches x 9 feet long",
+                                                   {"thickness_in": 0.25, "length_ft": 9.0}),
+    ("cable tray 12 in wide x 4 in deep x 10 ft long",
+                                                   {"width_in": 12.0, "depth_in": 4.0,
+                                                    "length_ft": 10.0}),
+    ("junction box 6 in wide 4 x 4 in",            {"width_in": 6.0, "height_in": 6.0}),
+    # a unitless NUMBER-FIRST phrase before an 'x' is a phrase, not a cross
+    ("a 24 wide x 4 deep cable tray",              {"width_in": 24.0, "depth_in": 4.0}),
+    ("cable tray 12 long x 4 in rung spacing",     {"length_ft": 12.0, "rung_spacing_in": 4.0}),
+    # intact phrases may not overlap each other: counted twice, a reading
+    # that cut the restatements apart outscored the right one
+    ('wireway 1 inch wide 2 inch sheet thickness 1 inch width 3" height height is 3"',
+                                                   {"width_in": 1.0, "thickness_in": 2.0,
+                                                    "height_in": 3.0}),
+    ('strut channel 1.75" tall 1.75 " section height 190 mm lip 10 in gauge material '
+     'gauge material is 10 in',                    {"height_in": 1.75, "width_in": 1.75,
+                                                    "lip_in": 190 / 25.4, "thickness_in": 10.0}),
     # hyphenated, units, and in front of the noun
     ("a 24-inch-wide cable tray",                  {"width_in": 24.0}),
     ("a cable tray 10 ft long",                    {"length_ft": 10.0}),
@@ -381,3 +417,47 @@ def test_a_contradiction_leaves_the_other_dimension_alone():
     assert r.quoted["depth_in"] == "loading depth 13 in"
     assert min(abs(r.values["width_in"] - v) for v in (7.0, 9.0)) < 1e-6
     assert r.provenance["width_in"] == GIVEN
+
+
+def _crossed():
+    """A chain of non-cross parameters, one of them restated, then a
+    "W x H [x D] in" cross right before the noun -- the shape round 3's review
+    found: a cross never met a restatement in any earlier sweep.  Phrases are
+    number-first ("7 in lip") or alias-first ("lip 7 in") with their unit,
+    because "1/8 in thickness 12 x 6 in" is how the defect reads in a real
+    prompt ("thickness 12" is the alias of the restated phrase running into
+    the cross).  Measured: main gets 1,170 of 2,684 wrong, round 3's head
+    (403988b) 1,342, this head 0."""
+    import itertools
+    for key, a in AR.ARCHETYPES.items():
+        cross = [k for k in ("width_in", "height_in", "depth_in")
+                 if any(p.key == k for p in a.params)]
+        if len(cross) < 2:
+            continue
+        noun = a.title.split(" - ")[0].lower()
+        ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft") and p.key not in cross]
+        dims = (12, 6, 4)[:len(cross)]
+        cx = " x ".join(str(d) for d in dims) + " in"
+        pairs = list(itertools.permutations(ps, 2)) or [(p, None) for p in ps]
+        for p, q in pairs:
+            orders = ("PPQ", "PQP", "QPP", "PQ") if q else ("PP", "P")
+            for al_p in p.aliases:
+                for order in orders:
+                    for sts in itertools.product((0, 1), repeat=len(order)):
+                        parts = []
+                        for c, st in zip(order, sts):
+                            r, n, al = (p, 7, al_p) if c == "P" else (q, 9, q.aliases[-1])
+                            parts.append((f"{n} {r.unit} {al}", f"{al} {n} {r.unit}")[st])
+                        want = {p.key: 7.0}
+                        if q:
+                            want[q.key] = 9.0
+                        want.update({k: float(d) for k, d in zip(cross, dims)})
+                        yield key, "a " + " ".join(parts) + f" {cx} {noun}", want
+
+
+def test_a_cross_dimension_keeps_its_numbers_next_to_a_restatement():
+    per, fails = _sweep(_crossed())
+    _assert_coverage(per, {"cable_tray": 1000, "strut_channel": 1000, "conduit": 0,
+                           "wireway": 100, "junction_box": 8,
+                           "lighting_control_panel": 8})
+    assert not fails, f"{len(fails)}/{sum(per.values())} cross prompts mis-bound; first: {fails[:3]}"
