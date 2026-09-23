@@ -717,21 +717,27 @@ _ANY_UNIT = "|".join(_UNITS.values())
 
 
 def _to_number(raw: str) -> Optional[float]:
-    """'24' / '1.5' / '1-5/8' / '3/4' -> a float; None when it is not one."""
-    s = re.sub(r"[\s,]+", "", raw)          # '1,200' is one thousand two hundred
-    m = re.fullmatch(r"(\d+)[-\s]?(\d+)/(\d+)", s)
+    """'24' / '1.5' / '1-5/8' / '1 5/8' / '3/4' / '13/16' / '1,200' -> a float;
+    None when it is not one."""
+    s = re.sub(r"\s+", " ", str(raw).strip())
+    # A mixed number needs a SEPARATOR -- a hyphen or a space -- between the
+    # whole part and the fraction.  This used to strip every space first, which
+    # made "1 3/16" and "13/16" the same string; the mixed reading ran first, so
+    # a 13/16 in strut was read as 1 3/16 in and stamped ``given`` (#831).
+    m = re.fullmatch(r"(\d+)(?: ?- ?| )(\d+) ?/ ?(\d+)", s)
     if m:
         den = float(m.group(3))
         return float(m.group(1)) + float(m.group(2)) / den if den else None
-    m = re.fullmatch(r"(\d+)/(\d+)", s)
+    m = re.fullmatch(r"(\d+) ?/ ?(\d+)", s)
     if m:
         den = float(m.group(2))
         # "3/0" and "4/0" are everyday AWG sizes for this product class, and a
         # ZeroDivisionError here escaped ArchetypeError, crashed the route and
         # WITHHELD THE FILE -- a hard rule 1 violation caused by a parser.
         return float(m.group(1)) / den if den else None
-    m = re.fullmatch(r"\d+(?:\.\d+)?", s)
-    return float(m.group(0)) if m else None
+    # '1,200' is one thousand two hundred -- only as digit grouping
+    m = re.fullmatch(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?", s)
+    return float(m.group(0).replace(",", "")) if m else None
 
 
 def _convert(value: float, unit_found: str, p: Param) -> Optional[float]:
