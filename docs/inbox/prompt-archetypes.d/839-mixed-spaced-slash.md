@@ -138,7 +138,7 @@ mutant dropping it changed nothing.
 **Files written**
 - `src/rvt/famgen/archetypes.py`: `_NUM_CORE`.
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 43 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 42 tests (rows, slash-token rows,
   hyphen rows, unit and cross rows, the spacing and denominator sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
