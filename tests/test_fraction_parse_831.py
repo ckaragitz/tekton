@@ -105,3 +105,28 @@ def test_the_pdf_route_still_delivers_when_a_row_says_3_0(tmp_path):
                   out=str(tmp_path / "out"), quiet=True)
     assert res.ok, res.status
     assert os.path.isfile(res.files["rfa"])
+
+
+# ---------------------------------------------------------------------------
+# the spacings _NUM_CORE can hand over (review of #833): a run of spaces or a
+# tab inside a mixed number, and spaces around the slash
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("txt,want", [
+    ("2  1/2", 2.5), ("2\t1/2", 2.5), ("2 \t 1/2", 2.5),
+    ("1 / 2", 0.5), ("12 / 16", 0.75), ("13 /16", 0.8125), ("3/ 4", 0.75),
+    ("2 - 1 / 2", 2.5), ("1-1 /2", 1.5),
+])
+def test_whitespace_inside_a_number_is_normalised_not_meaningful(txt, want):
+    assert AR._to_number(txt) == pytest.approx(want), txt
+
+
+@pytest.mark.parametrize("prompt,key,want", [
+    ("a 1 / 2 in conduit", "diameter_in", 0.5),
+    ("conduit 2  1/2 in diameter", "diameter_in", 2.5),
+    ("strut channel 13 / 16 in tall", "height_in", 0.8125),
+])
+def test_the_prompt_route_reads_a_spaced_fraction(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key])
+    assert r.provenance[key] == "given"
