@@ -1155,6 +1155,21 @@ def _archetype_rfa(res: RouteResult, prompt: str, out_dir: str,
     if req.claim:
         res.status += " -- NOT the product you named"
         res.caveats.insert(0, req.claim["line"])
+    if req.clearance and req.arch.working_space:
+        ws = AR.working_space_report(req)
+        res.status += (f"; with NEC working space {ws['depth_ft']:g} ft deep -- NOT "
+                       "toggleable yet")
+        res.caveats.append(
+            f"NEC WORKING SPACE (#818): {ws['depth_ft']:g} ft deep x "
+            f"{ws['width_ft'] * 12.0:g} in wide x {ws['height_ft']:g} ft high in front of "
+            f"the door -- {ws['status']}. Assumed: "
+            + "; ".join(ws["assumed"].values()) + f". Mounting: {ws['mounting']}. "
+            f"{ws['toggle']}; subcategory: {ws['subcategory']}. The zone is kept "
+            "out of the panel's own Width / Depth / Height.")
+    elif req.clearance:
+        res.caveats.append(
+            f"you asked for a clearance, but a {req.arch.title} has no NEC working-space "
+            "rule in this engine -- none was drawn")
     res.caveats.append(
         f"ARCHETYPE LANE: this family was GENERATED, not read from a catalog. "
         f"{n_nom} dimension(s) are NOMINAL -- {req.arch.basis}; the practice is "

@@ -170,7 +170,7 @@ def test_the_ceiling_cap_is_always_carried_and_applied_when_known():
     assert low.height_above_ft == 3.0 and "capped at the structural ceiling" in low.height_limit
     high = C.dedicated_space("panelboard", equipment_width_ft=1, equipment_depth_ft=1,
                              ceiling_above_ft=9.0)
-    assert high.height_above_ft == 6.0 and "ceiling is higher" in high.height_limit
+    assert high.height_above_ft == 6.0 and "ceiling is not lower" in high.height_limit
 
 
 @pytest.mark.parametrize("edition", [2014, True, "x"])
@@ -191,6 +191,25 @@ def test_a_lighting_control_panel_gets_no_dedicated_space_and_is_told_why():
     # the non-applying branch validates its inputs too
     with pytest.raises(C.ClearanceError, match="must be positive"):
         C.dedicated_space("lighting_control_panel", equipment_width_ft=-1, equipment_depth_ft=1)
+    # ... names its edition (a correct but unpinned source survived #826 round 3)
+    assert d.source.startswith("NEC 2026 ")
+    # ... and validates a ceiling it will never use
+    with pytest.raises(C.ClearanceError, match="0 or more"):
+        C.dedicated_space("lighting_control_panel", equipment_width_ft=1, equipment_depth_ft=1,
+                          ceiling_above_ft=-1)
+
+
+@pytest.mark.parametrize("ceiling", [True, "5"])
+def test_a_ceiling_that_is_not_a_number_is_refused(ceiling):
+    with pytest.raises(C.ClearanceError, match="must be a number"):
+        C.dedicated_space("panelboard", equipment_width_ft=1, equipment_depth_ft=1,
+                          ceiling_above_ft=ceiling)
+
+
+def test_an_equal_ceiling_is_described_as_not_lower():
+    d = C.dedicated_space("panelboard", equipment_width_ft=1, equipment_depth_ft=1,
+                          ceiling_above_ft=6.0)
+    assert d.height_above_ft == 6.0 and "not lower" in d.height_limit
 
 
 def test_a_kind_with_no_decision_is_refused_not_guessed():
