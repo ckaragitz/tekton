@@ -108,11 +108,28 @@ returned `ok: True` with a *lighting* control panel, where `main` refused:
 "a generator relay panel", "a protective relay panel", "a fire alarm relay
 panel", "an AHU with an LCP" (in HVAC, LCP is a *local* control panel). That is a
 different product under the requested name — S-2026-08-11-c's "never a silent
-substitution", and this PR would have introduced it. I traced it to the archetype
-patterns, not the taxonomy (`taxonomy.resolve` returns nothing for all eight
-probes), and narrowed them to `lighting control panel` / `lighting relay panel`.
-Bare "relay panel" and "LCP" now behave as on `main`, which is the honest outcome
-for a genuinely ambiguous name. Tests pin all six as must-not-resolve.
+substitution", and this PR would have introduced it. I traced the *build* to the
+archetype patterns and narrowed them to `lighting control panel` / `lighting
+relay panel`; no collision prompt builds this product now, and tests pin all six
+as must-not-resolve.
+
+**My trace was incomplete, and round 2 caught it.** I checked
+`taxonomy.resolve`, which matches whole phrases only and returned nothing. But
+the route reads prompts with `taxonomy.scan`, which *does* match the row's
+aliases `relay panel` and `lcp` inside a sentence. So the collision prompts no
+longer build the wrong product, but each refusal still names the lighting
+control panel, and after this PR describes it as "a family this engine
+generates" (on `main` it said "no archetype generates it").
+
+**The alias stays, on purpose.** I removed `relay panel` / `lcp` from the
+taxonomy row to fix the wording, and "a generator relay panel" then built an
+**Eaton PRL2X panelboard**: the prompt grammar reads any unclaimed "… panel" as a
+catalog panelboard. On `main` the same substitution already happens for "a pump
+/ generator / elevator / BMS control panel", with a clean `OK` status. The
+ambiguous alias was the only thing shielding this one prompt from it. A misworded
+refusal is a lesser harm than a wrong, manufacturer-branded file, so the change
+was reverted and the real fix is **#825 (P0)**: recognise genuinely ambiguous
+names as ambiguous, and never let "… panel" fall to a panelboard.
 
 **The Z axis was never checked — fixed.** The reviewer applied three Z mutations
 that survived every test (top wall raised above the box, latch dropped to z = 0,
@@ -148,8 +165,11 @@ occurrences of either version), so nothing to regenerate.
 - **#823** — a prompt naming two products builds only the catalog one:
   "a lighting control panel and a panelboard" delivers the panelboard and drops
   the panel. Reproduced; pre-existing on `main` per the reviewer.
-- **#824** — the list of generated products is hand-written in five places
-  (including `SKILL.md`, a hot file); derive it from the registry.
+- **#824** — the list of generated products is hand-written in several places
+  (including `SKILL.md`, a hot file); derive it from the registry. Round 2 found
+  a sixth, `docs/product/PERMUTATION-MATRIX.md:61`, which this PR updates.
+- **#825 (P0)** — "a pump / generator / elevator / BMS control panel" silently
+  builds an Eaton PRL2X panelboard on `main`. Found while fixing round 2.
 
 The reviewer also noted this archetype inherits **#812**: "a lighting control
 panel 48 in tall 4 in deep" resolves height 4 in, stamped `given`. Not introduced
