@@ -19,6 +19,11 @@ Three parts, three issues:
 
 ## #819 — the table
 
+> **Review round 1 on #826 changed this section; see "Round 1" below.** In
+> particular: dedicated equipment space (110.26(E)) is now implemented, the
+> default Condition is **2** (was 1), and `verified` is the AND of every rule an
+> answer used.
+
 **Built:** `src/rvt/famgen/clearance.py`, following the pattern of
 `rvt.famgen.standards` — data with a written account of what is and is not
 verified at the top of the module.
@@ -103,6 +108,63 @@ Baseline and restore both **26 passed**.
 For the lighting control panel (20 × 30 in) at the defaults:
 **3 ft deep × 30 in wide × 6½ ft high**, three assumptions stated.
 
+## Round 1 on #826 — `🛑 changes`, and the blocking one was a silent scope cut
+
+**I dropped 110.26(E) without saying so.** #819 lists dedicated equipment space
+and asks whether it applies *per kind*, but I changed DONE 4 openly on the issue
+and then dropped this silently. Narrowing scope without saying so is the failure
+the process exists to prevent. It is now implemented rather than re-scoped:
+`dedicated_space(kind, …)` gives panelboard, switchboard, switchgear and MCC a
+zone the width and depth of the equipment, up 6 ft. The lighting control panel
+gets **none, and is told why**. A kind with no decision is refused by name.
+
+**`verified` could over-claim once a row was checked.** It read only the depth
+row, while an answer also uses the width and height minimums. It is now the AND
+of every rule used, and a test pins both directions: checking the depth row
+alone stays unverified, and checking every rule it used makes it verified.
+
+**The default Condition is 2, not 1.** The reviewer argued it and I agree: a
+drawn clearance exists to catch obstructions, and a missed clash costs a code
+violation where a false one costs a click. Equipment most often faces a concrete
+or block wall, which is Condition 2. This departs from #819's rule 5 as I wrote
+it; recorded on #819. The lighting control panel's default depth is now
+**3½ ft** (277 V).
+
+**Also:** every rule carries its article, and each answer's `source` names the
+edition and the articles. The tier is `nominal`: the ledger has no "standard"
+tier, and a code minimum's source is a named standard, which is what `nominal`
+means (S-2026-08-10-e). Negative/NaN voltages and a non-integer or bool Condition
+are refused. The over-1000 V pointer is hedged by edition, and DC is out of
+scope. Two test docstrings that claimed more than they checked were narrowed.
+
+**The reviewer's independent read of the numbers**, also unable to reach any
+source (egress blocked): 0–150 and 151–600 V rows *high confidence*, 601–1000 V
+*~80%*, width and height *high*. Their search summary hinted 3½ ft for Condition
+2 in the 601–1000 V band against the 4 ft here. That disagreement is exactly why
+that row stays `single-source`.
+
+**Mutation sweep, round 1**, with bytecode caching disabled and `__pycache__`
+cleared before every run. The reviewer found that a same-size mutant written in
+the same second can load stale bytecode; my earlier mutations all changed the
+file size, so those readings stand. All **11** die, including both of the
+reviewer's survivors:
+
+| mutant | dies in |
+|---|---|
+| 601–1000 V Condition 1 cell 3.0 → 2.5 *(survived round 0)* | 1 |
+| `source` loses its edition *(survived round 0)* | 1 |
+| `verified` from the depth row only | 1 |
+| `verified` always True | 2 |
+| default Condition back to 1 | 2 |
+| dedicated space applied to the lighting control panel | 1 |
+| an unknown kind guessed instead of refused | 1 |
+| a bool Condition accepted | 2 |
+| negative / NaN voltage accepted | 2 |
+| the >1000 V edition hedge dropped | 1 |
+| tier becomes `fact` | 1 |
+
+Baseline and restore both **42 passed**.
+
 ## What #820 found that changes the plan (recorded here because it constrains how this table is used)
 
 The factory has **no subcategory support** (`grep -i subcategor
@@ -123,14 +185,15 @@ configuration), or read the text from an environment with open egress; then set
 ## BRANCH STATE
 
 **Files written (#819)**
-- `src/rvt/famgen/clearance.py` — new: the table, `working_space()`, the
-  verification status.
+- `src/rvt/famgen/clearance.py` — new: working space (depth / width / height),
+  dedicated equipment space per kind, the verification status per rule.
 - `plugin/lib/src/rvt/famgen/clearance.py` — mirror (via `sync_plugin.py`).
-- `tests/test_nec_clearance_819.py` — new, 26 tests.
+- `tests/test_nec_clearance_819.py` — new, 42 tests (26 before round 1).
 - `tests/ci_shard.d/819-nec-clearance.txt` — new.
 - this record.
 
-**Gates**: 26 passed; 7/7 mutants die; `sync_plugin.py --check` in sync; portable
-paths ok. Full suite **not** run.
+**Gates** (after round 1): 42 passed; 11/11 mutants die (bytecode caching
+disabled); `sync_plugin.py --check` in sync; portable paths ok. Full suite **not**
+run.
 
 **Shipped vs staged**: shipped as data; nothing draws it yet (#820).

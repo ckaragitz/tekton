@@ -3,46 +3,63 @@
 THE GAP THIS CLOSES (owner steer #818: "for the future you need to know NEC code
 in order to get the clearances on there", and "clearances need to be toggleable
 within the family parameters").  A generated electrical family modelled the
-equipment and nothing about the space the code requires in front of it -- the
-first thing an electrical designer checks.  This module is the table a family
+equipment and nothing about the space the code requires around it -- the first
+thing an electrical designer checks.  This module is the table a family
 generator sizes that space from (#819); drawing it is #820.
 
-WHAT THE TABLE IS.  NEC (NFPA 70) 110.26, working space for equipment likely to
-be examined, adjusted, serviced or maintained while energized:
+WHAT THE TABLE IS.  NEC (NFPA 70) 110.26, spaces about electrical equipment
+likely to be examined, adjusted, serviced or maintained while energized:
 
-* DEPTH (110.26(A)(1), Table 110.26(A)(1)) -- by nominal voltage to ground and
-  by CONDITION, i.e. what faces the equipment across the space:
-    1  exposed live parts on one side; no live or grounded parts on the other
-    2  exposed live parts on one side; grounded parts (concrete, brick, tile
-       walls count as grounded) on the other
-    3  exposed live parts on both sides
-  Measured from the exposed live parts, or from the enclosure front when they
-  are enclosed.
-* WIDTH (110.26(A)(2)) -- the equipment width or 30 in, whichever is greater.
-* HEIGHT (110.26(A)(3)) -- 6-1/2 ft or the equipment height, whichever greater.
+* WORKING SPACE, in front of the equipment:
+  - depth (110.26(A)(1), Table 110.26(A)(1)) by nominal AC voltage to ground and
+    by CONDITION -- what faces the equipment across the space:
+      1  live parts on one side, nothing live or grounded on the other
+      2  live parts on one side, grounded parts on the other (concrete, brick
+         and tile walls count as grounded)
+      3  live parts on both sides
+    measured from the live parts, or from the enclosure front when enclosed;
+  - width (110.26(A)(2)): the equipment width or 30 in, whichever is greater;
+  - height (110.26(A)(3)): 6-1/2 ft or the equipment height, whichever greater.
+* DEDICATED EQUIPMENT SPACE (110.26(E)(1)), for the equipment kinds that rule
+  names only: a zone the width and depth of the equipment, from the floor to
+  6 ft above the equipment or to the structural ceiling, whichever is lower.
+  :data:`DEDICATED_SPACE_KINDS` says, per kind, whether it applies and why.
 
-No NFPA text is reproduced here -- NFPA 70 is copyrighted and this repository
-is public (hard rule 6).  Numbers and article references only.
+No NFPA text is reproduced -- NFPA 70 is copyrighted and this repository is
+public (hard rule 6).  Numbers, article references and short functional
+descriptions only.
 
 WHAT IS AND IS NOT VERIFIED -- read this before trusting or adding a row.
 
-Every depth row carries ``checked_against`` and ``corroboration``.  As first
-written (2026-09-23) NO row was checked against the NFPA 70 text: the session
-environment's egress proxy blocked every source page it tried (#819).  The rows
-are the commonly cited values, corroborated by model knowledge and one
-web-search summary -- two model-derived sources, which is corroboration, not
+Every rule here -- each depth row, the width and height minimums, the
+dedicated-space rule and its list of kinds -- carries ``checked_against`` (the
+edition text it was read from) and ``corroboration``.  As first written
+(2026-09-23) NOTHING was checked against the NFPA 70 text: the session
+environment's egress proxy blocked every source page tried (#819).  The values
+are the commonly cited ones, corroborated by model knowledge and a web-search
+summary -- two model-derived sources, which is corroboration, not
 verification.  The 601-1000 V row rests on the search summary alone and is
-marked weaker.  :func:`working_space` reports this status with every answer, so
-a family generated from an unchecked row says so in plain words.  To upgrade a
-row, read the edition text and set ``checked_against`` -- never by editing the
-status alone.
+marked single-source.
 
-Editions: the depths above are, per the same search, unchanged 2017-2026 (the
-601-1000 V band was added in 2017).  Rows are keyed by the editions they are
+An answer is ``verified`` only if EVERY rule it used was checked -- the AND,
+not the depth row alone -- and ``verified`` is derived from ``checked_against``,
+never declared, so it cannot be upgraded without recording what was read.
+To upgrade a rule, read the edition text and set its ``checked_against``.
+
+PROVENANCE TIER.  The ledger has no "standard" tier.  A code minimum's source is
+a named standard -- not a manufacturer (``fact``) and not the user (``given``)
+-- which is what ``nominal`` means here (S-2026-08-10-e: source = standard
+practice, never a manufacturer claim).  So every answer is tier ``nominal``,
+source ``NEC <edition> <article>``, and the inputs it had to default are listed
+in ``assumed``.
+
+Editions: per the same search, these depths are unchanged 2017-2026 (the
+601-1000 V band arrived in 2017).  Rows are keyed by the editions they are
 claimed for; the answer names the edition used.
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import Dict, Optional, Tuple
 
@@ -54,33 +71,73 @@ DEFAULT_EDITION = 2026
 
 CONDITIONS = (1, 2, 3)
 
-#: The status string a row carries when nobody has read the code text for it.
+#: The default Condition.  2, not 1: the clearance is drawn as a solid to CATCH
+#: obstructions, and a false clash costs a click while a missed one costs a code
+#: violation.  Equipment most often faces a concrete, block or tile wall, which
+#: is Condition 2.  (Condition 3 -- equipment facing live equipment -- is deeper
+#: still; the assumption text says so.)  Changed from 1 in #826's review.
+DEFAULT_CONDITION = 2
+DEFAULT_VOLTAGE_TO_GROUND = 277.0
+
+TIER = "nominal"
+
+#: The status wording every unverified answer carries.
 UNCHECKED = "not checked against the NFPA 70 text"
+
+_MODEL = "model knowledge (commonly cited value)"
+_SEARCH = "web-search summary, 2026-09-23 (no source page reachable: egress blocked, #819)"
 
 
 @dataclass(frozen=True)
-class DepthRow:
-    """One voltage band of Table 110.26(A)(1)."""
-    v_min: float                                  # nominal volts to ground, inclusive
-    v_max: float                                  # inclusive
-    depth_ft: Tuple[float, float, float]          # Condition 1, 2, 3
+class Rule:
+    """A single cited requirement and what backs it."""
+    article: str                                  # e.g. "110.26(A)(2)"
     editions: Tuple[int, ...]
     checked_against: Optional[str]                # edition text read, or None
     corroboration: Tuple[str, ...]
     confidence: str                               # "corroborated" | "single-source"
 
 
-_MODEL = "model knowledge (commonly cited value)"
-_SEARCH = "web-search summary, 2026-09-23 (no source page reachable: egress blocked, #819)"
+@dataclass(frozen=True)
+class DepthRow:
+    """One voltage band of Table 110.26(A)(1)."""
+    v_min: float                                  # nominal AC volts to ground, inclusive
+    v_max: float                                  # inclusive
+    depth_ft: Tuple[float, float, float]          # Condition 1, 2, 3
+    rule: Rule
+
+
+def _rule(article: str, sources: Tuple[str, ...]) -> Rule:
+    return Rule(article, EDITIONS, None, sources,
+                "corroborated" if len(sources) >= 2 else "single-source")
+
 
 DEPTH_TABLE: Tuple[DepthRow, ...] = (
-    DepthRow(0.0, 150.0, (3.0, 3.0, 3.0), EDITIONS, None, (_MODEL, _SEARCH), "corroborated"),
-    DepthRow(151.0, 600.0, (3.0, 3.5, 4.0), EDITIONS, None, (_MODEL, _SEARCH), "corroborated"),
-    DepthRow(601.0, 1000.0, (3.0, 4.0, 5.0), EDITIONS, None, (_SEARCH,), "single-source"),
+    DepthRow(0.0, 150.0, (3.0, 3.0, 3.0), _rule("Table 110.26(A)(1)", (_MODEL, _SEARCH))),
+    DepthRow(151.0, 600.0, (3.0, 3.5, 4.0), _rule("Table 110.26(A)(1)", (_MODEL, _SEARCH))),
+    DepthRow(601.0, 1000.0, (3.0, 4.0, 5.0), _rule("Table 110.26(A)(1)", (_SEARCH,))),
 )
 
-MIN_WIDTH_FT = 30.0 * IN                          # 110.26(A)(2)
-MIN_HEIGHT_FT = 6.5                               # 110.26(A)(3)
+WIDTH_RULE = _rule("110.26(A)(2)", (_MODEL, _SEARCH))
+MIN_WIDTH_FT = 30.0 * IN
+
+HEIGHT_RULE = _rule("110.26(A)(3)", (_MODEL, _SEARCH))
+MIN_HEIGHT_FT = 6.5
+
+DEDICATED_RULE = _rule("110.26(E)(1)", (_MODEL,))
+DEDICATED_ABOVE_FT = 6.0                          # above the equipment, or to the ceiling
+
+#: kind -> (applies, why).  The rule names switchboards, switchgear, panelboards
+#: and motor control centers; a kind it does not name is NOT given a dedicated
+#: space, and says so -- never applied to every electrical kind by default.
+DEDICATED_SPACE_KINDS: Dict[str, Tuple[bool, str]] = {
+    "panelboard": (True, "panelboards are named by 110.26(E)(1)"),
+    "switchboard": (True, "switchboards are named by 110.26(E)(1)"),
+    "switchgear": (True, "switchgear is named by 110.26(E)(1)"),
+    "motor_control_center": (True, "motor control centers are named by 110.26(E)(1)"),
+    "lighting_control_panel": (False, "a lighting control (relay) panel is not among the "
+                               "kinds 110.26(E)(1) names; working space still applies"),
+}
 
 
 class ClearanceError(ValueError):
@@ -89,84 +146,136 @@ class ClearanceError(ValueError):
 
 @dataclass
 class WorkingSpace:
-    """The working space for one piece of equipment, with its provenance."""
+    """The working space in front of one piece of equipment, with provenance."""
     depth_ft: float
     width_ft: float
     height_ft: float
     edition: int
     voltage_to_ground: float
     condition: int
-    source: str                                   # "NEC 2026 110.26(A)(1)-(3)"
-    verified: bool
+    source: str                                   # "NEC 2026 Table 110.26(A)(1), 110.26(A)(2)-(3)"
+    tier: str                                     # always TIER
+    verified: bool                                # every rule used was checked
     status: str                                   # the plain-words line a report carries
     assumed: Dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class DedicatedSpace:
+    """Whether 110.26(E)(1) applies to a kind, and the zone if it does."""
+    applies: bool
+    why: str
+    width_ft: Optional[float] = None
+    depth_ft: Optional[float] = None
+    height_above_ft: Optional[float] = None       # above the equipment, capped by the ceiling
+    source: str = ""
+    tier: str = TIER
+    verified: bool = False
+    status: str = ""
+
+
+def _status(edition: int, rules: Tuple[Rule, ...], what: str) -> Tuple[bool, str]:
+    verified = all(r.checked_against is not None for r in rules)
+    if verified:
+        return True, f"{what} per NEC {edition}"
+    weak = any(r.confidence == "single-source" for r in rules)
+    return False, (f"{what} per NEC {edition} as commonly cited -- {UNCHECKED}"
+                   + (" (single source)" if weak else ""))
 
 
 def _row_for(volts: float, edition: int) -> DepthRow:
     for row in DEPTH_TABLE:
         if row.v_min <= volts <= row.v_max:
-            if edition not in row.editions:
+            if edition not in row.rule.editions:
                 raise ClearanceError(
                     f"NEC {edition}: the {row.v_min:g}-{row.v_max:g} V row is not held for "
-                    f"that edition (held: {', '.join(map(str, row.editions))})")
+                    f"that edition (held: {', '.join(map(str, row.rule.editions))})")
             return row
     if 150.0 < volts < 151.0 or 600.0 < volts < 601.0:
         raise ClearanceError(f"{volts:g} V to ground falls between the table's bands; state "
                              "the nominal voltage (e.g. 120, 277, 480)")
-    raise ClearanceError(f"{volts:g} V to ground is outside Table 110.26(A)(1) (0-1000 V); "
-                         "over 1000 V is 110.34, which this table does not hold")
+    raise ClearanceError(
+        f"{volts:g} V AC to ground is outside the 0-1000 V this table holds. Over 1000 V is "
+        "covered elsewhere in the NEC (110.34 in the 2017 and 2020 editions; not verified for "
+        "later ones), and DC working space is not held here at all")
 
 
 def working_space(*, equipment_width_ft: float, equipment_height_ft: float,
                   voltage_to_ground: Optional[float] = None,
                   condition: Optional[int] = None,
-                  edition: Optional[int] = None,
-                  default_voltage_to_ground: float = 277.0) -> WorkingSpace:
-    """The 110.26 working space in front of equipment of the given size.
+                  edition: Optional[int] = None) -> WorkingSpace:
+    """The 110.26(A) working space in front of equipment of the given size.
 
-    Voltage to ground, Condition and edition are what a prompt usually does NOT
-    say (S-2026-08-11-c: residue).  Each one left out is DEFAULTED, and the
-    default is recorded in ``assumed`` so the caller can state it -- never
-    silently.  Delivery is never gated on them (hard rule 1):
-
-    * voltage -> ``default_voltage_to_ground`` (277 V, a 480Y/277 V system: the
-      common commercial lighting voltage, which lands in the 151-600 V row);
-    * Condition -> 1, the least demanding;
-    * edition -> :data:`DEFAULT_EDITION`.
-
-    Condition 1 is the least demanding depth, so a defaulted Condition can
-    UNDER-state the space.  ``assumed`` says so, for the caller to surface.
+    Voltage, Condition and edition are what a prompt usually does NOT say
+    (S-2026-08-11-c: residue).  Each one left out is DEFAULTED and recorded in
+    ``assumed`` so the caller can state it -- never silently, never gating
+    delivery (hard rule 1).  Voltage is NOMINAL AC volts to ground.
     """
     assumed: Dict[str, str] = {}
     if edition is None:
         edition = DEFAULT_EDITION
         assumed["edition"] = f"NEC {edition} (newest held; the enforcing jurisdiction may differ)"
-    elif edition not in EDITIONS:
+    elif isinstance(edition, bool) or not isinstance(edition, int) or edition not in EDITIONS:
         raise ClearanceError(f"NEC {edition} is not held (held: {', '.join(map(str, EDITIONS))})")
+
     if voltage_to_ground is None:
-        voltage_to_ground = float(default_voltage_to_ground)
-        assumed["voltage_to_ground"] = (f"{voltage_to_ground:g} V to ground -- not stated; "
-                                        "state it if the system differs")
+        voltage_to_ground = DEFAULT_VOLTAGE_TO_GROUND
+        assumed["voltage_to_ground"] = (f"{voltage_to_ground:g} V AC to ground (a 480Y/277 V "
+                                        "system) -- not stated; state it if the system differs")
+    else:
+        try:
+            voltage_to_ground = float(voltage_to_ground)
+        except (TypeError, ValueError):
+            raise ClearanceError(f"voltage to ground {voltage_to_ground!r} is not a number")
+        if math.isnan(voltage_to_ground) or voltage_to_ground < 0:
+            raise ClearanceError(f"voltage to ground {voltage_to_ground:g} is not a voltage "
+                                 "(it must be a number, 0 or more)")
+
     if condition is None:
-        condition = 1
-        assumed["condition"] = ("Condition 1 (nothing live or grounded opposite) -- the least "
-                                "demanding; a wall of concrete, brick or tile opposite is "
-                                "Condition 2 and needs more depth above 150 V")
-    elif condition not in CONDITIONS:
-        raise ClearanceError(f"Condition {condition} does not exist; 110.26(A)(1) has 1, 2, 3")
-    if equipment_width_ft <= 0 or equipment_height_ft <= 0:
+        condition = DEFAULT_CONDITION
+        assumed["condition"] = (
+            f"Condition {condition} (equipment facing a concrete, block or tile wall) -- the "
+            "common case, chosen so a drawn clearance catches obstructions; Condition 1 "
+            "(nothing grounded opposite) can be shallower, Condition 3 (equipment facing live "
+            "equipment) is deeper")
+    elif isinstance(condition, bool) or not isinstance(condition, int) or condition not in CONDITIONS:
+        raise ClearanceError(f"Condition {condition!r} does not exist; 110.26(A)(1) has 1, 2, 3")
+
+    if not (equipment_width_ft > 0 and equipment_height_ft > 0):
         raise ClearanceError("equipment width and height must be positive")
 
-    row = _row_for(float(voltage_to_ground), edition)
-    verified = row.checked_against is not None
-    status = (f"working space per NEC {edition} Table 110.26(A)(1)"
-              + ("" if verified else
-                 f" as commonly cited -- {UNCHECKED}"
-                 + (" (single source)" if row.confidence == "single-source" else "")))
+    row = _row_for(voltage_to_ground, edition)
+    rules = (row.rule, WIDTH_RULE, HEIGHT_RULE)
+    verified, status = _status(edition, rules, "working space")
     return WorkingSpace(
         depth_ft=row.depth_ft[condition - 1],
         width_ft=max(float(equipment_width_ft), MIN_WIDTH_FT),
         height_ft=max(float(equipment_height_ft), MIN_HEIGHT_FT),
-        edition=edition, voltage_to_ground=float(voltage_to_ground), condition=condition,
-        source=f"NEC {edition} 110.26(A)(1)-(3)", verified=verified, status=status,
-        assumed=assumed)
+        edition=edition, voltage_to_ground=voltage_to_ground, condition=condition,
+        source=f"NEC {edition} {row.rule.article}, {WIDTH_RULE.article}, {HEIGHT_RULE.article}",
+        tier=TIER, verified=verified, status=status, assumed=assumed)
+
+
+def dedicated_space(kind: str, *, equipment_width_ft: float, equipment_depth_ft: float,
+                    edition: int = DEFAULT_EDITION) -> DedicatedSpace:
+    """110.26(E)(1) dedicated equipment space for a taxonomy ``kind``.
+
+    A kind the rule does not name gets ``applies=False`` and the reason; a kind
+    this table has no entry for is refused by name rather than guessed either
+    way.
+    """
+    if kind not in DEDICATED_SPACE_KINDS:
+        raise ClearanceError(f"no 110.26(E)(1) decision is held for kind {kind!r}; add one to "
+                             "DEDICATED_SPACE_KINDS rather than guessing")
+    applies, why = DEDICATED_SPACE_KINDS[kind]
+    verified, status = _status(edition, (DEDICATED_RULE,), "dedicated equipment space")
+    if not applies:
+        return DedicatedSpace(False, why, source=f"NEC {edition} {DEDICATED_RULE.article}",
+                              verified=verified, status=status)
+    if not (equipment_width_ft > 0 and equipment_depth_ft > 0):
+        raise ClearanceError("equipment width and depth must be positive")
+    return DedicatedSpace(True, why, width_ft=float(equipment_width_ft),
+                          depth_ft=float(equipment_depth_ft),
+                          height_above_ft=DEDICATED_ABOVE_FT,
+                          source=f"NEC {edition} {DEDICATED_RULE.article}",
+                          verified=verified, status=status)
