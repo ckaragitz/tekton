@@ -165,7 +165,10 @@ _ROWS: Tuple[Kind, ...] = (
     _k("enclosed_circuit_breaker", "Enclosed circuit breaker", "electrical",
        "electrical_equipment", aliases=("ecb", "enclosed breaker")),
     _k("lighting_control_panel", "Lighting control / relay panel", "electrical",
-       "electrical_equipment", aliases=("relay panel", "lighting relay panel", "lcp")),
+       "electrical_equipment", ["archetype:lighting_control_panel"],
+       aliases=("relay panel", "lighting relay panel", "lcp"),
+       note="the surface cabinet at nominal sizes from the archetype registry (#816); the "
+            "relays and the low-voltage section are not modelled"),
     _k("busway", "Busway / bus duct", "electrical", "electrical_equipment",
        aliases=("bus duct",),
        note="a busway RUN is drawn, not loaded; plug-in units and end fittings are the "
