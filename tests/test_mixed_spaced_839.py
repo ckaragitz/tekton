@@ -58,6 +58,7 @@ def test_a_spaced_mixed_number_is_one_number(prompt, key, want):
     ("cable tray wide 6 3/4w", "width_in", 6.0),                    # 6.75 on main
     # ... while real unit fractions, thirds and a unit glued on still join
     ("a 2 1/3 ft long conduit", "length_ft", 7 / 3),
+    ("conduit length 7 1/3", "length_ft", 22 / 3),               # no unit: thirds still join
     ("a 2 1/2in conduit", "diameter_in", 2.5),
     ("a 1-5/8\" strut channel", "height_in", 1.625),
 ])
@@ -107,3 +108,68 @@ def test_a_hyphen_before_a_slash_token_never_joins_them(prompt):
     r = AR.resolve_prompt(prompt)
     w = r.values["width_in"]
     assert not (r.provenance["width_in"] == GIVEN and abs(w - round(w)) > 1e-9), (prompt, w)
+
+
+# Round 2 (#841): a fraction FOLLOWED BY A UNIT -- or by the 'x' of a cross --
+# is always a fraction of that unit, whatever its denominator.  Round 1 kept
+# only 2/3/4/8/16/32/64 everywhere and "wide 2 1/5 in" became 2.0, given.
+@pytest.mark.parametrize("prompt,key,want", [
+    ("cable tray wide 2 1/5 in", "width_in", 2.2),
+    ("a 2 1/5 in wide cable tray", "width_in", 2.2),
+    ("cable tray wide 2-3/10 in", "width_in", 2.3),
+    ("a nema 12 cable tray wide 2 1/5 in", "width_in", 2.2),
+    ("conduit 10 5/12 ft long", "length_ft", 10 + 5 / 12),
+    ("cable tray wide 12 7 / 20 inches", "width_in", 12.35),
+    ("a cable tray wide 1 1/2ins", "width_in", 1.5),          # glued plural unit
+    ("a cable tray wide 1-1/2ins", "width_in", 1.5),
+])
+def test_a_fraction_followed_by_a_unit_joins_whatever_its_denominator(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
+
+
+@pytest.mark.parametrize("prompt,dims", [
+    ("a 2 1/5 x 4 in wireway", (2.2, 4.0)),                    # round 1: W4 H4 given
+    ("a 2 1/5×4 in wireway", (2.2, 4.0)),
+    ("a 2 1/2x4 in wireway", (2.5, 4.0)),                      # round 1: nominal
+    ("a 4x2 1/2x4 in junction box", (4.0, 2.5, 4.0)),
+])
+def test_a_mixed_number_inside_a_cross_keeps_the_cross(prompt, dims):
+    r = AR.resolve_prompt(prompt)
+    keys = ("width_in", "height_in", "depth_in")[:len(dims)]
+    assert tuple(round(r.values[k], 6) for k in keys) == pytest.approx(dims), (prompt, r.values)
+    assert all(r.provenance[k] == GIVEN for k in keys)
+
+
+def _denominators():
+    """Every inch alias x whole numbers x denominators in and out of the
+    unit-less set, three separators, four units, both phrasings, noun first
+    and last.  Number-first phrases with a glued "ins" are left out: the
+    unit list has no "ins" for number-first phrases on main either (filed
+    separately).  Measured on the full set: main and this head both 3,150
+    wrong of 31,590, 0 worse; round 1 of #841 was 17,681 worse on the
+    reviewer's generator."""
+    for key, a in AR.ARCHETYPES.items():
+        noun = a.title.split(" - ")[0].lower()
+        for p in [p for p in a.params if p.aliases and p.unit == "in"]:
+            al = p.aliases[0]
+            for w, (n, d) in itertools.product((1, 12), ((1, 5), (3, 10), (5, 12), (7, 20), (1, 6), (1, 2))):
+                for sep, u in itertools.product((" ", "-", " - "), ("in", "inch", '"', "ins")):
+                    glue = "" if u in ('"', "ins") else " "
+                    num = f"{w}{sep}{n}/{d}"
+                    forms = [f"{al} {num}{glue}{u}"] + ([] if u == "ins" else [f"{num}{glue}{u} {al}"])
+                    for ph in forms:
+                        for pr in (f"{noun} {ph}", f"a {ph} {noun}"):
+                            yield key, pr, p.key, w + n / d
+
+
+def test_every_denominator_joins_when_a_unit_follows():
+    fails, total = [], 0
+    for key, pr, pk, v in _denominators():
+        total += 1
+        r = AR.resolve_prompt(pr, product=key)
+        if r.provenance[pk] != GIVEN or abs(r.values[pk] - v) > 1e-6:
+            fails.append((pr, r.values[pk]))
+    assert total > 5000, total
+    assert not fails, f"{len(fails)}/{total} misread; first: {fails[:3]}"

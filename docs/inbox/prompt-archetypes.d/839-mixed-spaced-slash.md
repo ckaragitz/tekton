@@ -86,6 +86,51 @@ killed: any fraction in the space-separated alternative (11), any fraction in
 the hyphenated one (3; it survived until the hyphen rows were added), no
 end-of-fraction lookahead (2), no thirds (1).
 
+## Round 2 — the round-1 fraction set was too narrow when a unit follows
+
+🛑 on `b69b9a9`. Round 1 applied the 2/3/4/8/16/32/64 set everywhere, so
+**"cable tray wide 2 1/5 in" fell back to 2.0, stamped `given`** (main 2.2).
+Inside a cross it was worse: "a 2 1/5 x 4 in wireway" lost the cross, and the
+noun rule read W4 H4. A glued plural "1 1/2ins" was 1.0, and "2 1/2x4 in"
+went nominal. On the reviewer's generator, 17,681 prompts were right on main
+and false `given` on the head. **My slash-token sweep had only 2-to-64
+denominators with units**, so round 1's "0 worse" held for my shapes only.
+That is the same lesson as #828.
+
+**Fix: the rule depends on what follows the fraction.**
+- A fraction **followed by a unit or by the `x` of a cross** is always a
+  fraction of that unit, whatever its denominator. That is main's reading,
+  kept.
+- **With no unit after it**, it must be proper, over 2/3/4/8/16/32/64, and end
+  at whitespace or punctuation. This is the voltage / 4/0 / 24/7 / "3/4w"
+  case from round 1.
+
+| instrument | prompts | `main` wrong | head wrong | worse than `main` |
+|---|---|---|---|---|
+| denominators /5 /6 /10 /12 /20 /100 /2 × 3 separators × in/inch/"/ins, crosses | 31,590 | 3,150 | 3,150 | **0** |
+| slash tokens after a number | 19,440 | 7,020 | 3,132 | **0** |
+| every hyphen × slash spacing | 18,000 | 13,500 | 0 | **0** |
+| #828 corpus | 269,361 | — | — | 0 outputs change |
+| fuzzers 1–3, seed 1 | 60,000 | — | — | **0** |
+
+The 3,150 denominator-sweep failures are the same prompts on `main`:
+number-first phrases with a glued "ins" ("1 1/2ins tall"). `_UNITS` has no
+"ins", which is filed separately.
+
+Tests: **84 passed** across `test_mixed_spaced_839.py` and
+`test_fraction_parse_831.py`. There are 8 unit rows (/5 /10 /12 /20, "ins"),
+4 cross rows, a thirds-without-unit row, and a 5,000+ prompt denominator
+sweep. Mutants, 7/7 killed:
+- the round-1 set everywhere (14);
+- no cross `x` after a fraction (4);
+- no "ins" (3);
+- letters allowed after a unit-less fraction (2);
+- any fraction in either alternative (11, 3);
+- no thirds (1; it survived until the unit-less row was added).
+
+One branch of round 2 was **removed rather than tested**: it allowed a cross
+`x` after a *unit-less* fraction. The unit branch already covers that, so a
+mutant dropping it changed nothing.
 ---
 
 ## BRANCH STATE
@@ -93,14 +138,13 @@ end-of-fraction lookahead (2), no thirds (1).
 **Files written**
 - `src/rvt/famgen/archetypes.py`: `_NUM_CORE`.
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 28 tests (rows, slash-token rows,
-  hyphen rows, the 18,000-prompt sweep).
+- `tests/test_mixed_spaced_839.py`: new, 43 tests (rows, slash-token rows,
+  hyphen rows, unit and cross rows, the spacing and denominator sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
 
-**Gates (round 1)**: 70 passed across `test_mixed_spaced_839.py` and
-`test_fraction_parse_831.py`; 4/4 round-1 mutants killed (2/2 round 0);
-plugin in sync. Full suite **not** run; `session_ci.sh` runs the shard.
+**Gates (round 2)**: 84 passed across `test_mixed_spaced_839.py` and
+`test_fraction_parse_831.py`; 7/7 round-2 mutants killed; plugin in sync. Full suite **not** run; `session_ci.sh` runs the shard.
 
 **Shipped vs staged**: shipped; no file-format change.

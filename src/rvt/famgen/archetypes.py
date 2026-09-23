@@ -693,18 +693,23 @@ def archetype(product: str) -> Archetype:
 #: section and "a 480Y/277 wireway" as 277 in -- each reported `given` and
 #: quoted back with words the caller never used as a measurement, which is the
 #: provenance contract lying about itself.
-#: The fraction part of a MIXED number is a real fraction of a unit: proper
-#: (numerator below denominator) over 2, 3, 4, 8, 16, 32 or 64.  Anything else
-#: after a whole number is a different token -- "width 12 480 / 277 V" is a
-#: width and a voltage, never 12 480/277 = 13.73 in; likewise 277/480, 4/0 AWG,
-#: 24/7, 12/2, 9/23 (#841 review).  A failed fraction falls back to the whole
-#: number, so the 12 still binds.
-_MIXED_FRAC = "(?:" + "|".join(rf"(?:{n})\s*/\s*{d}" for n, d in (
+#: The fraction part of a MIXED number.  FOLLOWED BY A UNIT it is always a
+#: fraction of that unit, whatever the denominator ("2 1/5 in", "10 5/12 ft")
+#: -- main's reading, kept (#841 round 2).  With NO unit after it, it must be
+#: a real fraction of one: proper, over 2, 3, 4, 8, 16, 32 or 64, and ending
+#: there -- "width 12 480 / 277 V" is a width and a voltage, never 12 480/277
+#: = 13.73 in; likewise 277/480, 4/0 AWG, 24/7, 12/2, 9/23, and "3/4w"
+#: (three-phase four-wire) (#841 round 1).  A failed fraction falls back to
+#: the whole number, so the 12 still binds.
+#: ("a unit" includes the 'x' of a cross: "a 2 1/5 x 4 in wireway" is 2.2 x 4)
+_FRAC_UNIT_AHEAD = r"""(?=\s*(?:in\b|in\.|ins\b|inch|"|ft\b|ft\.|feet|foot|'|mm\b|millimet|[x×]\s*\d))"""
+_FRAC_UNITLESS = "(?:" + "|".join(rf"(?:{n})\s*/\s*{d}" for n, d in (
     ("1", "2"), ("[12]", "3"), ("[1-3]", "4"), ("[1-7]", "8"), ("1[0-5]|[1-9]", "16"),
     (r"3[01]|[12]\d|[1-9]", "32"), (r"6[0-3]|[1-5]\d|[1-9]", "64"))) + (
-    # ... and it ENDS there: a unit may follow directly ("3/4in"), any other
-    # letter makes it a token ("3/4w" is three-phase four-wire, not 0.75)
-    r")(?=\s|$|[^\w]|in\b|in\.|inch|ft\b|ft\.|feet|foot|mm\b|millimet)")
+    # ... ending there: whitespace or punctuation -- any letter makes it a
+    # token ("3/4w"); a glued unit or cross 'x' is the branch above
+    r")(?=\s|$|[^\w])")
+_MIXED_FRAC = rf"(?:\d+\s*/\s*\d+{_FRAC_UNIT_AHEAD}|{_FRAC_UNITLESS})"
 _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 -- mixed, spaced
              r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?"              # 1,200 -- grouped
              rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}|\s*[-/]\s*\d+)?"
