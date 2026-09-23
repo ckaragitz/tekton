@@ -892,8 +892,8 @@ def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
                   "and they are measured from it.")}
 
 
-def _alias_patterns(p: Param) -> List[Tuple[int, str]]:
-    """``(alias length, pattern)`` for every way a prompt states this
+def _alias_patterns(p: Param) -> List[Tuple[int, int, str]]:
+    """``(alias length, rank, pattern)`` for every way a prompt states this
     parameter, built from its aliases.
 
     The LENGTH matters and is why this returns pairs: aliases nest -- ``length``
@@ -904,15 +904,26 @@ def _alias_patterns(p: Param) -> List[Tuple[int, str]]:
     reporting a slot spacing it does not have). :func:`resolve_prompt` sorts
     every candidate across ALL parameters longest-alias-first, so the most
     specific reading always claims its text first.
+
+    The RANK breaks ties between the two phrasings of one alias, and the
+    NUMBER-FIRST one (``"24 in wide"``, rank 0) must go before the
+    ALIAS-FIRST one (``"wide 24 in"``, rank 1).  Number-first is unambiguous:
+    ``_NUM``'s lookbehind bounds the number on the left and the alias follows
+    it directly.  Alias-first is not -- its connector is optional and ``_SEP``
+    allows no comma, so it degenerates to *alias + whatever number comes
+    next*.  Tried first, it read "24 in wide 4 in deep" as ``wide 4 in`` and
+    built a 4 in tray stamped ``given``, and "... 20 ft long" as ``deep 20 ft``
+    -- a 240 in (20-foot) side rail (#812).  A comma or "and" hid it, because
+    either one stops alias-first from matching across the phrase boundary.
     """
-    out: List[Tuple[int, str]] = []
+    out: List[Tuple[int, int, str]] = []
     for al in p.aliases:
         a = re.escape(al).replace(r"\ ", r"\s+")
         n = len(al)
-        # "rung spacing of 12 in", "width 24 inches", "depth = 6 in"
-        out.append((n, rf"{a}{_SEP}(?:of|is|at|=|:)?{_SEP}{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?"))
-        # "12 in rung spacing", "24-inch-wide", "10-ft-long"
-        out.append((n, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}"))
+        # "12 in rung spacing", "24-inch-wide", "10-ft-long" -- rank 0, first
+        out.append((n, 0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}"))
+        # "rung spacing of 12 in", "width 24 inches", "depth = 6 in" -- rank 1
+        out.append((n, 1, rf"{a}{_SEP}(?:of|is|at|=|:)?{_SEP}{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?"))
     return out
 
 
@@ -954,10 +965,11 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     # Aliases nest ('length' inside 'slot length'), and whoever matches first
     # locks the region, so the specific reading has to go first or the generic
     # one silently steals it (see _alias_patterns).
-    candidates = sorted(((n, pat, p) for p in arch.params
-                         for n, pat in _alias_patterns(p)),
-                        key=lambda c: -c[0])
-    for _n, pat, p in candidates:
+    # Within one alias length, number-first before alias-first (#812).
+    candidates = sorted(((n, rank, pat, p) for p in arch.params
+                         for n, rank, pat in _alias_patterns(p)),
+                        key=lambda c: (-c[0], c[1]))
+    for _n, _rank, pat, p in candidates:
         if prov[p.key] == GIVEN:
             continue
         for m in re.finditer(pat, low):
