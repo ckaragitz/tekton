@@ -147,8 +147,8 @@ def test_the_built_family_has_the_stated_geometry():
     assert "Cable_Tray_-_Ladder_24_in_20_ft" in os.path.basename(res["files"]["rfa"])
 
 
-@pytest.mark.xfail(strict=True, reason="known gap, split out of #812: W x D after the "
-                                       "product noun is not read -- see the follow-up issue")
+@pytest.mark.xfail(strict=True, reason="known gap, split out of #812 as #827: W x D after "
+                                       "the product noun is not read")
 @pytest.mark.parametrize("prompt", ["cable tray 24 x 4 in", "cable tray 600x100 mm",
                                     "cable tray 24in by 4in"])
 def test_known_gap_cross_dimension_after_the_noun(prompt):
@@ -159,3 +159,44 @@ def test_known_gap_cross_dimension_after_the_noun(prompt):
     this starts passing and the xfail must be removed."""
     r = AR.resolve_prompt(prompt)
     assert r.provenance["width_in"] == GIVEN
+
+
+# ---------------------------------------------------------------------------
+# the property, over every archetype -- not a hand-picked table
+# ---------------------------------------------------------------------------
+
+def _chains():
+    """Every two- and three-phrase chain over every archetype's dimensional
+    aliases, in both phrasings ("7 in wide" / "wide 7 in"), in every order,
+    with NO separator between phrases.  Each prompt carries its own oracle:
+    number i belongs to the phrase it is written in."""
+    import itertools
+    for key, a in AR.ARCHETYPES.items():
+        noun = a.title.split(" - ")[0].lower()
+        ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
+        for k in (2, 3):
+            for combo in itertools.permutations(ps, k):
+                for styles in itertools.product((0, 1), repeat=k):
+                    parts, want = [], {}
+                    for i, (p, st) in enumerate(zip(combo, styles)):
+                        n = (7, 13, 19)[i]
+                        al = p.aliases[0]
+                        parts.append(f"{n} {p.unit} {al}" if st == 0 else f"{al} {n} {p.unit}")
+                        want[p.key] = float(n)
+                    yield key, noun + " " + " ".join(parts), want
+
+
+def test_every_stated_number_binds_to_its_own_phrase_across_every_archetype():
+    """On main this failed 1,201 of 5,488 prompts (22%), in every archetype
+    -- e.g. "cable tray 7 in rung spacing 13 ft long" gave a 13-FOOT rung
+    spacing stamped given.  Measured before this fix, not assumed."""
+    total, fails = 0, []
+    for key, prompt, want in _chains():
+        total += 1
+        r = AR.resolve_prompt(prompt, product=key)
+        bad = {k: (r.values[k], r.provenance[k]) for k, v in want.items()
+               if abs(r.values[k] - v) > 1e-6 or r.provenance[k] != GIVEN}
+        if bad:
+            fails.append((prompt, bad))
+    assert total > 5000, f"the chain generator shrank to {total} -- the sweep lost coverage"
+    assert not fails, f"{len(fails)}/{total} chains mis-bound; first: {fails[:3]}"

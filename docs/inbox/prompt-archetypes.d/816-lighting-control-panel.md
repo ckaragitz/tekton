@@ -126,7 +126,8 @@ taxonomy row to fix the wording, and "a generator relay panel" then built an
 **Eaton PRL2X panelboard**: the prompt grammar reads any unclaimed "… panel" as a
 catalog panelboard. On `main` the same substitution already happens for "a pump
 / generator / elevator / BMS control panel", with a clean `OK` status. The
-ambiguous alias was the only thing shielding this one prompt from it. A misworded
+ambiguous alias was the only thing shielding these prompts from it — "a
+generator relay panel" and, per round 3, "a protective relay panel". A misworded
 refusal is a lesser harm than a wrong, manufacturer-branded file, so the change
 was reverted and the real fix is **#825 (P0)**: recognise genuinely ambiguous
 names as ambiguous, and never let "… panel" fall to a panelboard.
@@ -197,6 +198,8 @@ ours is in `docs/coverage/viewer-certified.json`.
   `archetype:lighting_control_panel` and a note.
 - `src/rvt/frontdoor/matrix.py` — the two lists of generated products name the
   lighting control panel (round 1).
+- `docs/product/PERMUTATION-MATRIX.md` — its own list of generated products
+  names the lighting control panel (round 2).
 - `tests/test_archetype_lighting_control_panel_816.py` — new, 17 tests: the lane
   and a strict builder probe, every naming resolving all-nominal, a stated size
   becoming given, the part set, placement by position (mounting plane, walls
@@ -206,7 +209,9 @@ ours is in `docs/coverage/viewer-certified.json`.
 - `tests/ci_shard.d/816-lighting-control-panel.txt` — new.
 - this fragment.
 
-**Gates**: 234 passed (archetype + taxonomy + new module); `sync_plugin.py`
-mirrors regenerated; portable paths ok. Full suite **not** run.
+**Gates** (at the merged head `2f4b0b5`): archetype + taxonomy + router + new
+module 385 passed / 5 skipped; session CI 3892 passed / 140 skipped / 4
+xfailed; `sync_plugin.py --check` in sync. Full suite **not** run.
+(Repaired by #812's PR: this block previously listed round-0 gates.)
 
 **Shipped vs staged**: shipped. No viewer batch.
