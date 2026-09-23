@@ -32,8 +32,8 @@ descriptions only.
 WHAT IS AND IS NOT VERIFIED -- read this before trusting or adding a row.
 
 Every rule here -- each depth row, the width and height minimums, the
-dedicated-space rule and its list of kinds -- carries ``checked_against`` (the
-edition text it was read from) and ``corroboration``.  As first written
+dedicated-space rule and its list of kinds -- carries ``checked`` (the
+``(edition, what was read)`` pairs) and ``corroboration``.  As first written
 (2026-09-23) NOTHING was checked against the NFPA 70 text: the session
 environment's egress proxy blocked every source page tried (#819).  The values
 are the commonly cited ones, corroborated by model knowledge and a web-search
@@ -287,6 +287,12 @@ def dedicated_space(kind: str, *, equipment_width_ft: float, equipment_depth_ft:
     edition = _edition(edition, {})
     if not (equipment_width_ft > 0 and equipment_depth_ft > 0):
         raise ClearanceError("equipment width and depth must be positive")
+    if ceiling_above_ft is not None:
+        if isinstance(ceiling_above_ft, bool) or not isinstance(ceiling_above_ft, (int, float)):
+            raise ClearanceError(f"the ceiling above the equipment must be a number, "
+                                 f"not {ceiling_above_ft!r}")
+        if not (ceiling_above_ft >= 0):
+            raise ClearanceError("the ceiling above the equipment must be 0 or more")
     applies, why = DEDICATED_SPACE_KINDS[kind]
     verified, status = _status(edition, (DEDICATED_RULE,), "dedicated equipment space")
     if not applies:
@@ -294,12 +300,10 @@ def dedicated_space(kind: str, *, equipment_width_ft: float, equipment_depth_ft:
                               verified=verified, status=status)
     above = DEDICATED_ABOVE_FT
     if ceiling_above_ft is not None:
-        if not (ceiling_above_ft >= 0):
-            raise ClearanceError("the ceiling above the equipment must be 0 or more")
         above = min(above, float(ceiling_above_ft))
         limit = (f"capped at the structural ceiling ({float(ceiling_above_ft):g} ft above the "
                  "equipment)" if above < DEDICATED_ABOVE_FT else
-                 f"{DEDICATED_ABOVE_FT:g} ft above the equipment (the ceiling is higher)")
+                 f"{DEDICATED_ABOVE_FT:g} ft above the equipment (the ceiling is not lower)")
     else:
         limit = (f"{DEDICATED_ABOVE_FT:g} ft above the equipment OR to the structural ceiling, "
                  "whichever is lower -- the ceiling is not known here, so the "
