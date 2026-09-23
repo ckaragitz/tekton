@@ -102,7 +102,34 @@ TABLE = [
     ("cable tray 12 in wide x 4 in deep x 10 ft long",
                                                    {"width_in": 12.0, "depth_in": 4.0,
                                                     "length_ft": 10.0}),
-    ("junction box 6 in wide 4 x 4 in",            {"width_in": 6.0, "height_in": 6.0}),
+    # round 4: a cross labelled by a cross-dimension alias keeps main's
+    # reading -- the alias labels the first number ("width 20 x 30 in" is
+    # width 20), and a number before the alias belongs to whatever phrase it
+    # is in ("depth 6 in width 20 x 30 in": 6 is the depth, not the width)
+    ("lighting control panel depth 6 in width 20 x 30 in", {"width_in": 20.0, "depth_in": 6.0}),
+    ("Create A Lighting Relay Panel Depth 18 Inches Width 13 X 16 In",
+                                                   {"width_in": 13.0, "depth_in": 18.0}),
+    ("junction box depth 4 in width 8 x 6",        {"width_in": 8.0, "height_in": 8.0,
+                                                    "depth_in": 4.0}),
+    ("a wire way long 12' width 12 x 5",           {"width_in": 12.0, "height_in": 12.0,
+                                                    "length_ft": 12.0}),
+    ("strut channel section width 13 x 27 in tall", {"width_in": 13.0, "height_in": 27.0}),
+    ("junction box width 8 x 6 in tall",           {"width_in": 8.0, "height_in": 6.0}),
+    ("deep 89mm width 22 x 24 lighting relay panel", {"width_in": 22.0, "depth_in": 89 / 25.4}),
+    ("5-in-thickness 23x24 in junction box",       {"thickness_in": 5.0, "width_in": 23.0,
+                                                    "height_in": 24.0}),      # main: thickness 23
+    # opens_cross's three limits, each pinned: an 'x' that does not open a
+    # cross into the noun ("1-1/8 x 9/16" is a slot size), a phrase whose
+    # unit completes it, and a number-first phrase before an 'x'
+    ("strut channel slot length 1-1/8 x 9/16 in",  {"slot_length_in": 1.125}),
+    ("cable tray rung spacing 9 x 2 in, 10 ft long", {"rung_spacing_in": 9.0, "length_ft": 10.0}),
+    ("thickness 1/8 in x 12 x 6 in wireway",       {"thickness_in": 0.125, "width_in": 12.0,
+                                                    "height_in": 6.0}),
+    ("a 2 lip x 12 x 6 in strut channel",          {"lip_in": 2.0, "width_in": 12.0,
+                                                    "height_in": 6.0}),
+    ("a 1/8 in sheet thickness, 1/8 in thickness 12 × 6 in wireway",
+                                                   {"thickness_in": 0.125, "width_in": 12.0,
+                                                    "height_in": 6.0}),       # the '×' sign
     # a unitless NUMBER-FIRST phrase before an 'x' is a phrase, not a cross
     ("a 24 wide x 4 deep cable tray",              {"width_in": 24.0, "depth_in": 4.0}),
     ("cable tray 12 long x 4 in rung spacing",     {"length_ft": 12.0, "rung_spacing_in": 4.0}),
@@ -206,6 +233,18 @@ def test_the_built_family_has_the_stated_geometry():
                   if round(f.get("width_ft") or 0, 4) < 0.5 and (f.get("depth_ft") or 0) > 0.5}
     assert rung_spans == {2.0}, f"rung spans {rung_spans} ft; a 24 in tray has 2.0 ft rungs"
     assert "Cable_Tray_-_Ladder_24_in_20_ft" in os.path.basename(res["files"]["rfa"])
+
+
+@pytest.mark.xfail(strict=True, reason="known ambiguity, #832: '6 in wide' and 'wide 4 x 4' "
+                                       "share one alias; main's label reading is kept")
+def test_known_ambiguity_a_number_first_phrase_sharing_its_alias_with_a_cross():
+    """Recorded, not hidden.  Round 3 read "junction box 6 in wide 4 x 4 in"
+    as 6 in wide; round 4 returns to main's reading, width 4 ("wide" labels
+    the cross), because the same shape with an alias in front -- "depth 6 in
+    width 20 x 30 in" -- must read the label way, and nothing local tells the
+    two apart.  strict=True: a rule that separates them makes this pass."""
+    r = AR.resolve_prompt("junction box 6 in wide 4 x 4 in")
+    assert r.values["width_in"] == 6.0
 
 
 @pytest.mark.xfail(strict=True, reason="known gap, split out of #812 as #832: a full tie "

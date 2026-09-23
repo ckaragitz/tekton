@@ -21,10 +21,13 @@ prints, per class, how many prompts B gets wrong that A got right.  Print
 ``rvt.__file__`` (it goes to stderr) and check it: ``tests/conftest.py``
 puts its own tree first, so run this, not pytest, to compare trees.
 
-Three rounds of #828 each shipped a regression that the author's own sweeps
+Four rounds of #828 each shipped a regression that the author's own sweeps
 could not produce, because every one of those sweeps shared a shape (noun
-first; no cross with a restatement; no 'x' used as a separator).  This file is
-the generator that found the fourth before a reviewer did; add a shape to it
+first; no cross with a restatement; no 'x' used as a separator; every
+alias-first phrase carrying a unit and every cross sitting before the noun).
+Each review's shape is now generated here: unitless alias-first values, and a
+cross LABELLED by a cross-dimension alias anywhere in the prompt ("depth 6 in
+width 20 x 30 in") whose oracle is the label reading.  Add a shape here
 whenever a review finds one it could not make.
 """
 import collections
@@ -68,8 +71,10 @@ def _generate(seed, n_prompts, out):
         t, v = fmt(R.randint(lo, lo + 30))
         return t, R.choice(units["in"]), v
 
-    def phrase(al, t, u):
+    def phrase(al, t, u, unitless_ok=False):
         glue = "" if u in ('"', "'") else " "
+        if unitless_ok and R.random() < 0.15:
+            return f"{al} {R.choice(conn)}{t}"
         st = R.random()
         if st < 0.45:
             return f"{t}{glue}{u} {al}"
@@ -89,9 +94,10 @@ def _generate(seed, n_prompts, out):
         if use_cross:
             stated = [p for p in stated if p.key not in cross_keys]
         want, loose, parts = {}, {}, []
+        loose_extra = {}
         for p in stated:
             t, u, v = value_for(p)
-            ph = phrase(R.choice(p.aliases), t, u)
+            ph = phrase(R.choice(p.aliases), t, u, unitless_ok=(u in units["in"] and p.unit == "in"))
             if R.random() < 0.08 and ph[0].isdigit():
                 ph = f"{R.randint(2, 6)} x {ph}"
             parts.append(ph)
@@ -106,6 +112,19 @@ def _generate(seed, n_prompts, out):
                 del want[p.key]
         for p in bare:
             parts.insert(R.randint(0, len(parts)), R.choice(p.aliases))
+        lab_keys = [c for c in ("width_in", "height_in", "depth_in") if any(q.key == c for q in a.params)]
+        if (not use_cross) and len(lab_keys) >= 2 and R.random() < 0.25:
+            free_dims = [c for c in lab_keys if c not in want and c not in loose]
+            if len(free_dims) >= 2:
+                c0 = R.choice(free_dims)
+                c1 = lab_keys[(lab_keys.index(c0) + 1) % len(lab_keys)]
+                if c1 in free_dims:
+                    n0, n1 = R.randint(2, 30), R.randint(2, 30)
+                    al = R.choice(a.param(c0).aliases)
+                    parts.insert(R.randint(0, len(parts)),
+                                 f"{al} {n0} x {n1}" + R.choice(["", " in", "in", '"']))
+                    want[c0] = float(n0)
+                    loose_extra[c1] = (float(n1), float(n0))
         sep = R.choice(seps)
         cross_txt = ""
         if use_cross:
@@ -129,16 +148,24 @@ def _generate(seed, n_prompts, out):
             pr = f"{art}{sep.join(parts[:cut])} {cx}{noun} {sep.join(parts[cut:])}"
         cls = "+".join(x for x, f in (("cross", use_cross), ("bare", bool(bare)),
                                        ("contra", bool(loose)), ("noun-" + where, True)) if f)
-        return " ".join(pr.split()), want, loose, cls
+        if loose_extra:
+            cls = "labelled-cross+" + cls
+        return " ".join(pr.split()), want, loose, cls, loose_extra
 
-    def check(a, r, want, loose):
+    def check(a, r, want, loose, extra=None):
+        extra = extra or {}
+        for k, vs in extra.items():   # may be one of vs, or nominal
+            if r.provenance[k] == "given" and min(abs(r.values[k] - v) for v in vs) > 1e-3 * max(1, max(vs)):
+                f = a.param(k).follows
+                if not (f and f in want and abs(r.values[k] - r.values[f]) < 1e-6):
+                    return False
         for k, v in want.items():
             if r.provenance[k] != "given" or abs(r.values[k] - v) > 1e-3 * max(1, v):
                 return False
         for k, vs in loose.items():
             if r.provenance[k] != "given" or min(abs(r.values[k] - v) for v in vs) > 1e-3 * max(1, max(vs)):
                 return False
-        ok = set(want) | set(loose)
+        ok = set(want) | set(loose) | set(extra)
         for k, pv in r.provenance.items():
             if pv == "given" and k not in ok:
                 f = a.param(k).follows
@@ -150,11 +177,11 @@ def _generate(seed, n_prompts, out):
     while len(res) < n_prompts:
         key = R.choice(keys)
         a = AR.archetype(key)
-        pr, want, loose, cls = one(a)
+        pr, want, loose, cls, extra = one(a)
         if not want and not loose:
             continue
         try:
-            ok = check(a, AR.resolve_prompt(pr, product=key), want, loose)
+            ok = check(a, AR.resolve_prompt(pr, product=key), want, loose, extra)
         except Exception as e:                       # noqa: BLE001 -- a crash is a finding
             ok, cls = False, cls + "+EXC:" + type(e).__name__
         res[pr + "|" + key] = [ok, cls]

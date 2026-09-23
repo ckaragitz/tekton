@@ -372,6 +372,78 @@ the next number ("24 in wide,4 in deep"). This is most of what `main` and the
 head still get wrong together on the fuzzer (1,729 of about 2,000 non-bare
 shared failures).
 
+## Round 4 — `opens_cross` fired where no cross is read, and my fuzzer could not make that shape
+
+🛑 on `8d87ef0`. `opens_cross` dropped "width 20" out of "lighting control
+panel depth 6 in width 20 x 30 in". There is no product noun after that cross,
+so the cross rule never reads it. The freed "width" then took "6 in width"
+number-first: a **6 in wide** panel, stamped `given`, where `main` read
+W20 / D6. On the reviewer's generator: 435 / 465 worse than `main` per 20,000,
+102 / 105 of them false `given`. **My fuzzer's alias-first phrases always
+carried a unit, and its only cross sat right before the noun**, so it could
+not generate the shape. That is the fourth round with the same root cause.
+
+**What I did.** I added the reviewer's shapes to the fuzzer first: unitless
+alias-first values, and a cross *labelled* by a cross-dimension alias
+anywhere, whose oracle is the label reading. The fuzzer in `tools/dev` now
+generates both. Then I measured three candidates against `main` on all three
+fuzzer generations × 3 seeds:
+
+| candidate | fuzzer 3 (new shapes): worse than main | fuzzers 1–2: worse than main | reviewer's 11 prompts |
+|---|---|---|---|
+| round-3 head (`opens_cross` everywhere) | **2,301** | 49 / 33 | 4 wrong |
+| V7 — only when the cross runs into the noun (the reviewer's direction) | — | — | 1 wrong (`"deep 89mm width 22 x 24 …"`) |
+| V6 — only for aliases that are not cross dimensions | 134 | 49 / 32 | all right |
+| **V8 — both limits (taken)** | **56** (53 bare, 2 labelled, 1 contradiction) | **49 / 32**, all bare except 1 | **all right** |
+
+**The rule taken (V8).** `opens_cross` fires only for an alias that is not
+itself a cross dimension, and only when the cross runs into the product noun.
+In "width 20 x 30" the alias *labels* the first number, which is how `main`
+reads it. "thickness 12 x 6" cannot be a thickness of 12 × 6.
+
+**What it gives back.** About 800 prompts per 60,000 on fuzzer 1 that round 3
+had "improved" were crosses labelled by a cross-dimension alias right before
+the noun ("a deep 17 x 13 in lighting control panel"). V8 reads them as `main`
+does (depth 17), and is never worse than `main` there. They are genuinely
+ambiguous. So is one row I pinned in round 3, "junction box 6 in wide 4 x 4
+in", which round 3 read as width 6 and V8 reads, as `main` does, as width 4.
+It has the same structure as "depth 6 in width 20 x 30 in", which must read
+the label way, and nothing local separates the two. That row is now a
+**strict xfail citing #832**. It is recorded here and was not deleted.
+
+### Evidence — this exact tree against `main` `06b4cc3`
+
+| instrument | prompts | `main` wrong | this head wrong | worse than `main` |
+|---|---|---|---|---|
+| fuzzer 1 (no `x`), seeds 1–3 | 60,000 | 12,769 | 5,235 | **49, all bare-alias** |
+| fuzzer 2 (`x`/counts), seeds 1–3 | 60,000 | 11,668 | 4,557 | **32: 31 bare, 1 contradiction** |
+| fuzzer 3 (unitless, labelled crosses), seeds 1–3 | 60,000 | 11,147 | 5,290 | **56: 53 bare, 2 labelled, 1 contradiction** |
+| deterministic sweeps (restatements, every alias pair, chains, contradictions) | 62,875 | 8,508 | 1 (the xfail row) | **0** |
+| placement sweep | 132,548 | 17,301 | 3,502 | **0** |
+
+**Of 180,000 fuzzed prompts, 137 are worse than `main`.** 133 have a bare
+alias (#832's class). The other 4 are ambiguous:
+- 2 labelled crosses;
+- 2 contradictions inside a no-separator chain whose " - " sits next to a
+  fraction ("30 x 14 - 1/2 inch", which also reads as 14 1/2).
+
+`main` gets 35,584 of the same 180,000 wrong; this head gets 15,082.
+
+**I no longer claim the class is closed.** Five rounds found five shapes. The
+numbers above hold for the shapes the fuzzer makes, and the next review should
+be expected to find a shape it does not.
+
+Tests: **121 passed, 5 xfailed**.
+- The reviewer's four round-4 prompts, "Create A Lighting Relay Panel …" and
+  the 89 mm case are rows, plus "5-in-thickness 23x24 in junction box",
+  which `main` gets wrong (thickness 23).
+- A `×` row, and four rows pinning `opens_cross`'s limits: a slot size
+  "1-1/8 x 9/16", "rung spacing 9 x 2 in", a unit that completes the phrase,
+  and a number-first phrase before an `x`.
+- Mutants: 6/6 of the V8 rule killed (cross-dimension exemption, into-noun,
+  `×`, rank, unit, off). The 10 core mutants of rounds 1–3 were re-run with
+  their moved anchors: 10/10 killed.
+
 ---
 
 ## BRANCH STATE
@@ -382,7 +454,8 @@ shared failures).
   `resolve_prompt` reserves every alias occurrence against shorter aliases,
   binds under both orders, keeps (bindings, intact phrases, then alias-first),
   and claims the winner's intact phrases into `used`; `opens_cross` keeps a
-  unitless alias-first number that opens an "N x N" cross out of both.
+  unitless alias-first number that opens an "N x N" cross INTO THE NOUN out
+  of both, for aliases that are not themselves cross dimensions.
 - `plugin/lib/src/rvt/famgen/archetypes.py` — mirror.
 - `tests/test_archetype_alias_order_812.py` — new: a 30-row table (value **and**
   provenance, incl. restated nested aliases, label-first chains followed by a
@@ -399,9 +472,9 @@ shared failures).
 - `tools/dev/fuzz_prompt_dims.py` — new: the shape-varied fuzzer with a
   per-prompt oracle and `--compare` (dev instrument, not mirrored into the plugin).
 
-**Gates (round 3)**: 97 passed / 4 xfailed; 13/15 mutants killed (the two
-survivors change 0 of 269,361 outputs); archetype, taxonomy, spec-sheet and
-fraction suites 689 passed / 4 xfailed; `sync_plugin.py --check` in sync.
+**Gates (round 4)**: 121 passed / 5 xfailed; 16/16 mutants killed (6 V8 + 10
+core re-run); `sync_plugin.py --check` in sync. (Round 3: 97 passed; its two
+surviving intact-loop guards still change 0 outputs.)
 Full suite **not** run; `session_ci.sh` runs the shard on the head.
 
 **Shipped vs staged**: shipped.
