@@ -130,7 +130,8 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
            "worked:experiments/frontdoor/prompt-electrical-room/families")),
     Stage("prompt->archetype", "rvt.famgen.archetypes:resolve_prompt",
           "a prompt naming a product the ARCHETYPE registry GENERATES (cable "
-          "tray, strut channel, wireway, junction box, conduit) -> the LOD-400 "
+          "tray, strut channel, wireway, junction box, conduit, lighting "
+          "control panel) -> the LOD-400 "
           "part list at standard NOMINAL sizes for that product class, every "
           "dimension reported nominal (generated) or given (the prompt stated "
           "it); no manufacturer identity is ever attached, and a prompt naming "
@@ -499,7 +500,8 @@ _CELL_LIST: List[Cell] = [
           "test:tests/test_famgen_archetypes.py"),
          (_CATALOG, _PROOF_ONLY,
           "a prompt naming a product the ARCHETYPE registry generates (cable "
-          "tray, strut channel, wireway, junction box, conduit) is built at "
+          "tray, strut channel, wireway, junction box, conduit, lighting "
+          "control panel) is built at "
           "standard NOMINAL sizes for that product class when no catalog "
           "record applies: every dimension is reported nominal (generated) or "
           "given (you stated it), and no manufacturer / model / part number is "

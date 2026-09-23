@@ -384,6 +384,34 @@ def _junction_box(v: Dict[str, float]) -> List[Dict[str, Any]]:
     ]
 
 
+def _lighting_control_panel(v: Dict[str, float]) -> List[Dict[str, Any]]:
+    """A surface-mounted lighting control (relay) cabinet, UPRIGHT: the back
+    sits on the mounting plane (y = 0), the cabinet projects toward -Y, and the
+    height runs along Z from the bottom of the box -- so the family's Front
+    elevation shows the door.  Parts: the back, four walls, the door, and a
+    latch on the door's right edge."""
+    W = float(v["width_in"]) * IN
+    H = float(v["height_in"]) * IN
+    D = float(v["depth_in"]) * IN
+    g = float(v["thickness_in"]) * IN
+    if W <= 2 * g or H <= 2 * g or D <= 2 * g:
+        raise ArchetypeError("a lighting control panel needs every dimension larger than "
+                             "twice its sheet thickness")
+    inner = D - 2 * g
+    y_mid = -(g + inner / 2.0)                   # centre of the walls' depth
+    latch_w, latch_d, latch_h = 1.0 * IN, 0.75 * IN, 3.0 * IN
+    return [
+        _box("back", W, g, H, 0.0, -g / 2.0, 0.0),
+        _box("wall top", W, inner, g, 0.0, y_mid, H - g),
+        _box("wall bottom", W, inner, g, 0.0, y_mid, 0.0),
+        _box("wall left", g, inner, H - 2 * g, -(W - g) / 2.0, y_mid, g),
+        _box("wall right", g, inner, H - 2 * g, (W - g) / 2.0, y_mid, g),
+        _box("door", W, g, H, 0.0, -(D - g / 2.0), 0.0),
+        _box("door latch", latch_w, latch_d, latch_h,
+             W / 2.0 - 2.0 * IN, -(D + latch_d / 2.0), H / 2.0 - latch_h / 2.0),
+    ]
+
+
 def _conduit(v: Dict[str, float]) -> List[Dict[str, Any]]:
     """A conduit straight run: one cylinder about the X axis at the conduit's
     outside diameter.  The BORE IS NOT MODELLED -- see ``limits``."""
@@ -537,6 +565,44 @@ _register(Archetype(
               aliases=("thickness", "sheet thickness")),
     ),
     build=_wireway,
+    standard_values=lambda v: {"Mounting": "surface", "Material": "steel"},
+))
+
+
+_register(Archetype(
+    key="lighting_control_panel",
+    title="Lighting Control Panel - Surface",
+    category="electrical_equipment",
+    basis=("a surface-mounted lighting control (relay) cabinet sized like a standard "
+           "20 in panelboard cabinet box, its height set by the relay count. Nominal "
+           "sizes for the product CLASS -- no manufacturer's catalog record is claimed"),
+    lod_note="the back, four walls, the door and its latch -- the cabinet, upright",
+    limits=("the relays, the low-voltage section, the barrier and the knockouts are "
+            "not modelled -- the interior is empty",
+            "the door is a solid panel, not a hinged, openable one",
+            "an NEMA enclosure rating is a parameter slot, not a claim"),
+    aliases=("lighting relay panel",),
+    # Only names that mean THIS product.  A bare "relay panel" is as often a
+    # generator or protective relay panel, and "LCP" in HVAC is a LOCAL control
+    # panel -- matching them built a lighting control panel for "a generator
+    # relay panel" and "an AHU with an LCP" (#821 review).  Those stay with
+    # whatever main does, rather than being answered with a guessed product.
+    patterns=(r"lighting\s+control\s+panels?", r"lighting\s+relay\s+panels?"),
+    params=(
+        Param("width_in", "Width", 20.0, "in",
+              "the standard 20 in panelboard-width cabinet; 24 in for wider panels",
+              aliases=("wide", "width"), choices=(20.0, 24.0), primary=True),
+        Param("height_in", "Height", 30.0, "in",
+              "cabinet heights in 6 in steps with the relay count",
+              aliases=("tall", "high", "height"), choices=(24.0, 30.0, 36.0, 42.0, 48.0)),
+        Param("depth_in", "Depth", 6.0, "in",
+              "surface cabinet depths 4 / 6 in",
+              aliases=("deep", "depth"), choices=(4.0, 6.0)),
+        Param("thickness_in", "Sheet Thickness", 0.075, "in",
+              "14 gauge (0.0747 in), a common cabinet sheet",
+              aliases=("thickness", "sheet thickness")),
+    ),
+    build=_lighting_control_panel,
     standard_values=lambda v: {"Mounting": "surface", "Material": "steel"},
 ))
 
