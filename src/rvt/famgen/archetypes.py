@@ -693,10 +693,13 @@ def archetype(product: str) -> Archetype:
 #: section and "a 480Y/277 wireway" as 277 in -- each reported `given` and
 #: quoted back with words the caller never used as a measurement, which is the
 #: provenance contract lying about itself.
-_NUM_CORE = (r"(\d+\s+\d+/\d+"                            # 2 1/2 -- mixed, spaced
+_NUM_CORE = (r"(\d+\s+\d+\s*/\s*\d+"                    # 2 1/2, 2 1 / 2 -- mixed, spaced
              r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?"              # 1,200 -- grouped
-             r"|\d+(?:\.\d+)?(?:\s*[-/]\s*\d+(?:/\d+)?)?"
+             r"|\d+(?:\.\d+)?(?:\s*[-/]\s*\d+(?:\s*/\s*\d+)?)?"
              r"|\d+\s*/\s*\d+)")
+#: A mixed number's slash may be spaced like its hyphen: "24 - 1 / 2 in" was
+#: split at the slash, and "1 / 2 in wide" -- a 0.5 in tray -- came back
+#: ``given`` (#839).
 #: the comma in the class matters: without it "a 1,200 mm cable tray" matched
 #: the "200" and delivered a 7.9 in tray, quoted back as '200 mm cable tray'.
 #: ... and the lookbehind excludes a preceding DIGIT+SPACE too, or "2 1/2 in"
