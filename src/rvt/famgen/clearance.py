@@ -38,13 +38,14 @@ edition text it was read from) and ``corroboration``.  As first written
 environment's egress proxy blocked every source page tried (#819).  The values
 are the commonly cited ones, corroborated by model knowledge and a web-search
 summary -- two model-derived sources, which is corroboration, not
-verification.  The 601-1000 V row rests on the search summary alone and is
-marked single-source.
+verification.  Two rules are single-source: the 601-1000 V depth row (the
+search summary alone) and the dedicated-space rule (model knowledge alone).
 
-An answer is ``verified`` only if EVERY rule it used was checked -- the AND,
-not the depth row alone -- and ``verified`` is derived from ``checked_against``,
-never declared, so it cannot be upgraded without recording what was read.
-To upgrade a rule, read the edition text and set its ``checked_against``.
+An answer is ``verified`` only if EVERY rule it used was checked FOR THE
+EDITION it answered in -- the AND over rules, and per edition -- and
+``verified`` is derived from ``checked``, never declared, so it cannot be
+upgraded without recording what was read.  To upgrade a rule, read that
+edition's text and add ``(edition, what was read)`` to its ``checked``.
 
 PROVENANCE TIER.  The ledger has no "standard" tier.  A code minimum's source is
 a named standard -- not a manufacturer (``fact``) and not the user (``given``)
@@ -93,9 +94,14 @@ class Rule:
     """A single cited requirement and what backs it."""
     article: str                                  # e.g. "110.26(A)(2)"
     editions: Tuple[int, ...]
-    checked_against: Optional[str]                # edition text read, or None
+    #: ((edition, what was read), ...) -- a check covers only the edition whose
+    #: text was read; checking the 2026 text says nothing about 2017's
+    checked: Tuple[Tuple[int, str], ...]
     corroboration: Tuple[str, ...]
     confidence: str                               # "corroborated" | "single-source"
+
+    def checked_for(self, edition: int) -> bool:
+        return any(ed == edition for ed, _ in self.checked)
 
 
 @dataclass(frozen=True)
@@ -108,7 +114,7 @@ class DepthRow:
 
 
 def _rule(article: str, sources: Tuple[str, ...]) -> Rule:
-    return Rule(article, EDITIONS, None, sources,
+    return Rule(article, EDITIONS, (), sources,
                 "corroborated" if len(sources) >= 2 else "single-source")
 
 
@@ -136,7 +142,10 @@ DEDICATED_SPACE_KINDS: Dict[str, Tuple[bool, str]] = {
     "switchgear": (True, "switchgear is named by 110.26(E)(1)"),
     "motor_control_center": (True, "motor control centers are named by 110.26(E)(1)"),
     "lighting_control_panel": (False, "a lighting control (relay) panel is not among the "
-                               "kinds 110.26(E)(1) names; working space still applies"),
+                               "kinds 110.26(E)(1) names, so none is applied; working space "
+                               "still applies. BUT a unit built and listed as a panelboard "
+                               "(e.g. remote-operated breakers) IS a panelboard for this rule "
+                               "-- ask for kind 'panelboard' then"),
 }
 
 
@@ -167,15 +176,26 @@ class DedicatedSpace:
     why: str
     width_ft: Optional[float] = None
     depth_ft: Optional[float] = None
-    height_above_ft: Optional[float] = None       # above the equipment, capped by the ceiling
+    height_above_ft: Optional[float] = None       # above the equipment (see height_limit)
+    height_limit: str = ""                        # the ceiling cap, in words -- always carried
     source: str = ""
     tier: str = TIER
     verified: bool = False
     status: str = ""
 
 
+def _edition(edition: Optional[int], assumed: Dict[str, str]) -> int:
+    if edition is None:
+        assumed["edition"] = (f"NEC {DEFAULT_EDITION} (newest held; the enforcing "
+                              "jurisdiction may differ)")
+        return DEFAULT_EDITION
+    if isinstance(edition, bool) or not isinstance(edition, int) or edition not in EDITIONS:
+        raise ClearanceError(f"NEC {edition} is not held (held: {', '.join(map(str, EDITIONS))})")
+    return edition
+
+
 def _status(edition: int, rules: Tuple[Rule, ...], what: str) -> Tuple[bool, str]:
-    verified = all(r.checked_against is not None for r in rules)
+    verified = all(r.checked_for(edition) for r in rules)
     if verified:
         return True, f"{what} per NEC {edition}"
     weak = any(r.confidence == "single-source" for r in rules)
@@ -212,11 +232,7 @@ def working_space(*, equipment_width_ft: float, equipment_height_ft: float,
     delivery (hard rule 1).  Voltage is NOMINAL AC volts to ground.
     """
     assumed: Dict[str, str] = {}
-    if edition is None:
-        edition = DEFAULT_EDITION
-        assumed["edition"] = f"NEC {edition} (newest held; the enforcing jurisdiction may differ)"
-    elif isinstance(edition, bool) or not isinstance(edition, int) or edition not in EDITIONS:
-        raise ClearanceError(f"NEC {edition} is not held (held: {', '.join(map(str, EDITIONS))})")
+    edition = _edition(edition, assumed)
 
     if voltage_to_ground is None:
         voltage_to_ground = DEFAULT_VOLTAGE_TO_GROUND
@@ -237,7 +253,7 @@ def working_space(*, equipment_width_ft: float, equipment_height_ft: float,
             f"Condition {condition} (equipment facing a concrete, block or tile wall) -- the "
             "common case, chosen so a drawn clearance catches obstructions; Condition 1 "
             "(nothing grounded opposite) can be shallower, Condition 3 (equipment facing live "
-            "equipment) is deeper")
+            "equipment) can be deeper -- below 151 V to ground all three are the same")
     elif isinstance(condition, bool) or not isinstance(condition, int) or condition not in CONDITIONS:
         raise ClearanceError(f"Condition {condition!r} does not exist; 110.26(A)(1) has 1, 2, 3")
 
@@ -257,7 +273,8 @@ def working_space(*, equipment_width_ft: float, equipment_height_ft: float,
 
 
 def dedicated_space(kind: str, *, equipment_width_ft: float, equipment_depth_ft: float,
-                    edition: int = DEFAULT_EDITION) -> DedicatedSpace:
+                    edition: Optional[int] = None,
+                    ceiling_above_ft: Optional[float] = None) -> DedicatedSpace:
     """110.26(E)(1) dedicated equipment space for a taxonomy ``kind``.
 
     A kind the rule does not name gets ``applies=False`` and the reason; a kind
@@ -267,15 +284,28 @@ def dedicated_space(kind: str, *, equipment_width_ft: float, equipment_depth_ft:
     if kind not in DEDICATED_SPACE_KINDS:
         raise ClearanceError(f"no 110.26(E)(1) decision is held for kind {kind!r}; add one to "
                              "DEDICATED_SPACE_KINDS rather than guessing")
+    edition = _edition(edition, {})
+    if not (equipment_width_ft > 0 and equipment_depth_ft > 0):
+        raise ClearanceError("equipment width and depth must be positive")
     applies, why = DEDICATED_SPACE_KINDS[kind]
     verified, status = _status(edition, (DEDICATED_RULE,), "dedicated equipment space")
     if not applies:
         return DedicatedSpace(False, why, source=f"NEC {edition} {DEDICATED_RULE.article}",
                               verified=verified, status=status)
-    if not (equipment_width_ft > 0 and equipment_depth_ft > 0):
-        raise ClearanceError("equipment width and depth must be positive")
+    above = DEDICATED_ABOVE_FT
+    if ceiling_above_ft is not None:
+        if not (ceiling_above_ft >= 0):
+            raise ClearanceError("the ceiling above the equipment must be 0 or more")
+        above = min(above, float(ceiling_above_ft))
+        limit = (f"capped at the structural ceiling ({float(ceiling_above_ft):g} ft above the "
+                 "equipment)" if above < DEDICATED_ABOVE_FT else
+                 f"{DEDICATED_ABOVE_FT:g} ft above the equipment (the ceiling is higher)")
+    else:
+        limit = (f"{DEDICATED_ABOVE_FT:g} ft above the equipment OR to the structural ceiling, "
+                 "whichever is lower -- the ceiling is not known here, so the "
+                 "6 ft may overshoot a low ceiling")
     return DedicatedSpace(True, why, width_ft=float(equipment_width_ft),
                           depth_ft=float(equipment_depth_ft),
-                          height_above_ft=DEDICATED_ABOVE_FT,
+                          height_above_ft=above, height_limit=limit,
                           source=f"NEC {edition} {DEDICATED_RULE.article}",
                           verified=verified, status=status)

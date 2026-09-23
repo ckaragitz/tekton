@@ -66,6 +66,15 @@ def test_every_default_is_stated_never_silent():
     assert (w.edition, w.voltage_to_ground, w.condition) == (C.DEFAULT_EDITION, 277.0, 2)
 
 
+def test_the_condition_text_does_not_claim_a_difference_where_there_is_none():
+    """Below 151 V every Condition is 3 ft, so the text must not say Condition 3
+    IS deeper -- only that it can be (#826 round 2)."""
+    w = C.working_space(equipment_width_ft=1, equipment_height_ft=1, voltage_to_ground=120)
+    assert w.depth_ft == 3.0
+    assert "can be deeper" in w.assumed["condition"]
+    assert "all three are the same" in w.assumed["condition"]
+
+
 def test_the_default_condition_is_2_and_says_what_is_shallower_and_deeper():
     """A drawn clearance exists to CATCH obstructions: a false clash costs a
     click, a missed one a code violation.  Condition 2 (facing a concrete,
@@ -116,16 +125,21 @@ def test_checking_the_depth_row_alone_does_not_make_an_answer_verified(monkeypat
     """``verified`` is the AND of every rule an answer used.  Recording a check
     on the depth row alone must not drop the 'not checked' wording while the
     width and height minimums are still unchecked (#826 review)."""
+    read = ((2026, "NEC 2026 text"),)
     row = C.DEPTH_TABLE[1]
-    checked = dataclasses.replace(row, rule=dataclasses.replace(row.rule, checked_against="NEC 2026 text"))
+    checked = dataclasses.replace(row, rule=dataclasses.replace(row.rule, checked=read))
     monkeypatch.setattr(C, "DEPTH_TABLE", (C.DEPTH_TABLE[0], checked, C.DEPTH_TABLE[2]))
     w = C.working_space(equipment_width_ft=1, equipment_height_ft=1, voltage_to_ground=277)
     assert w.verified is False and C.UNCHECKED in w.status
     # ... and with every rule it used checked, it IS verified -- the flag is live
     for name in ("WIDTH_RULE", "HEIGHT_RULE"):
-        monkeypatch.setattr(C, name, dataclasses.replace(getattr(C, name), checked_against="NEC 2026 text"))
+        monkeypatch.setattr(C, name, dataclasses.replace(getattr(C, name), checked=read))
     w = C.working_space(equipment_width_ft=1, equipment_height_ft=1, voltage_to_ground=277)
     assert w.verified is True and C.UNCHECKED not in w.status
+    # ... but only FOR THE EDITION that was read: the 2026 text says nothing about 2017
+    w = C.working_space(equipment_width_ft=1, equipment_height_ft=1, voltage_to_ground=277,
+                        edition=2017)
+    assert w.verified is False and C.UNCHECKED in w.status
 
 
 def test_every_answer_carries_the_nominal_tier():
@@ -141,13 +155,42 @@ def test_every_answer_carries_the_nominal_tier():
 def test_dedicated_space_applies_to_the_kinds_the_rule_names(kind):
     d = C.dedicated_space(kind, equipment_width_ft=20 * IN, equipment_depth_ft=6 * IN)
     assert d.applies and d.width_ft == pytest.approx(20 * IN) and d.depth_ft == pytest.approx(6 * IN)
-    assert d.height_above_ft == 6.0 and "110.26(E)(1)" in d.source
+    assert d.height_above_ft == 6.0
+    assert d.source.startswith("NEC 2026 ") and "110.26(E)(1)" in d.source
+
+
+def test_the_ceiling_cap_is_always_carried_and_applied_when_known():
+    """"6 ft above the equipment OR to the structural ceiling, whichever is
+    lower" -- a caller drawing the zone must never overshoot silently."""
+    unknown = C.dedicated_space("panelboard", equipment_width_ft=1, equipment_depth_ft=1)
+    assert unknown.height_above_ft == 6.0
+    assert "whichever is lower" in unknown.height_limit and "not known" in unknown.height_limit
+    low = C.dedicated_space("panelboard", equipment_width_ft=1, equipment_depth_ft=1,
+                            ceiling_above_ft=3.0)
+    assert low.height_above_ft == 3.0 and "capped at the structural ceiling" in low.height_limit
+    high = C.dedicated_space("panelboard", equipment_width_ft=1, equipment_depth_ft=1,
+                             ceiling_above_ft=9.0)
+    assert high.height_above_ft == 6.0 and "ceiling is higher" in high.height_limit
+
+
+@pytest.mark.parametrize("edition", [2014, True, "x"])
+def test_dedicated_space_refuses_an_edition_it_does_not_hold(edition):
+    """The same over-claim fixed in working_space: 'NEC 2014 110.26(E)(1)' is a
+    citation of an edition this module does not hold (#826 round 2)."""
+    with pytest.raises(C.ClearanceError, match="is not held"):
+        C.dedicated_space("panelboard", equipment_width_ft=1, equipment_depth_ft=1,
+                          edition=edition)
 
 
 def test_a_lighting_control_panel_gets_no_dedicated_space_and_is_told_why():
     d = C.dedicated_space("lighting_control_panel", equipment_width_ft=1, equipment_depth_ft=1)
     assert d.applies is False and d.width_ft is None
     assert "not among" in d.why and "working space still applies" in d.why
+    # ... and it says when that answer is wrong: a unit listed as a panelboard IS one
+    assert "listed as a panelboard" in d.why and "'panelboard'" in d.why
+    # the non-applying branch validates its inputs too
+    with pytest.raises(C.ClearanceError, match="must be positive"):
+        C.dedicated_space("lighting_control_panel", equipment_width_ft=-1, equipment_depth_ft=1)
 
 
 def test_a_kind_with_no_decision_is_refused_not_guessed():

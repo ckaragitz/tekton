@@ -105,8 +105,9 @@ Mutation sweep, every anchor asserted from a script file (`assert count == 1`):
 
 Baseline and restore both **26 passed**.
 
-For the lighting control panel (20 × 30 in) at the defaults:
-**3 ft deep × 30 in wide × 6½ ft high**, three assumptions stated.
+For the lighting control panel (20 × 30 in) at the defaults: originally
+**3 ft deep** (Condition 1); after round 1's change to a Condition 2 default,
+**3½ ft deep × 30 in wide × 6½ ft high**, three assumptions stated.
 
 ## Round 1 on #826 — `🛑 changes`, and the blocking one was a silent scope cut
 
@@ -165,6 +166,45 @@ reviewer's survivors:
 
 Baseline and restore both **42 passed**.
 
+## Round 2 on #826 — `nits`, three of them over-claims, fixed before merge
+
+The module exists to not over-claim, so these were fixed rather than deferred:
+
+- **`dedicated_space()` never checked the edition.** It returned
+  "NEC 2014 110.26(E)(1)", "NEC True …", "NEC x …" — a citation of an edition
+  not held, the same bug round 1 fixed in `working_space`, and the one mutant
+  that survived round 2. Both functions now share one edition guard.
+- **The ceiling cap was not carried.** "6 ft above the equipment *or to the
+  structural ceiling, whichever is lower*" lived only in the docstring, so a
+  caller drawing the zone (#820) would overshoot a low ceiling silently. Every
+  answer now carries `height_limit` in words; an optional `ceiling_above_ft`
+  applies the cap when known.
+- **"A lighting control panel gets no dedicated space" was half right.** The
+  rule does not name the kind, but many lighting control panels are built and
+  listed as panelboards (remote-operated breakers), and for those it does apply.
+  The answer now says so and points to kind `panelboard`. The owner is an MEP
+  designer and would have caught this immediately; better it is caught here.
+
+Also: "Condition 3 is deeper" is now "can be deeper" (below 151 V all three are
+3 ft); **verification is per edition** (`Rule.checked` holds `(edition, what was
+read)` pairs, so a check of the 2026 text no longer marks a 2017 answer
+verified); the non-applying branch validates its inputs; and the module docstring
+names both single-source rules.
+
+| mutant (bytecode caching off, `__pycache__` cleared, anchor asserted) | dies in |
+|---|---|
+| dedicated `source` drops its edition *(survived round 1)* | 4 |
+| `dedicated_space` skips the edition guard | 3 |
+| verification not edition-aware | 1 |
+| ceiling ignored when known | 1 |
+| ceiling-unknown text dropped | 1 |
+| "can be deeper" back to "is deeper" | 1 |
+| the lighting control panel's panelboard caveat dropped | 1 |
+| non-applying branch skips the dimension check | 1 |
+| round 1's two: depth row only / default Condition 1 | 1 / 2 |
+
+Baseline and restore both **47 passed**.
+
 ## What #820 found that changes the plan (recorded here because it constrains how this table is used)
 
 The factory has **no subcategory support** (`grep -i subcategor
@@ -188,12 +228,12 @@ configuration), or read the text from an environment with open egress; then set
 - `src/rvt/famgen/clearance.py` — new: working space (depth / width / height),
   dedicated equipment space per kind, the verification status per rule.
 - `plugin/lib/src/rvt/famgen/clearance.py` — mirror (via `sync_plugin.py`).
-- `tests/test_nec_clearance_819.py` — new, 42 tests (26 before round 1).
+- `tests/test_nec_clearance_819.py` — new, 47 tests (26 at round 0, 42 after round 1).
 - `tests/ci_shard.d/819-nec-clearance.txt` — new.
 - this record.
 
-**Gates** (after round 1): 42 passed; 11/11 mutants die (bytecode caching
-disabled); `sync_plugin.py --check` in sync; portable paths ok. Full suite **not**
-run.
+**Gates** (after round 2): 47 passed; round-1 11/11 and round-2 10/10 mutants
+die (bytecode caching disabled); `sync_plugin.py --check` in sync; portable
+paths ok. Full suite **not** run.
 
 **Shipped vs staged**: shipped as data; nothing draws it yet (#820).
