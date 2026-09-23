@@ -581,9 +581,13 @@ _register(Archetype(
             "not modelled -- the interior is empty",
             "the door is a solid panel, not a hinged, openable one",
             "an NEMA enclosure rating is a parameter slot, not a claim"),
-    aliases=("relay panel", "lighting relay panel", "lcp"),
-    patterns=(r"lighting\s+control\s+panels?", r"(?:lighting\s+)?relay\s+panels?",
-              r"\blcps?\b"),
+    aliases=("lighting relay panel",),
+    # Only names that mean THIS product.  A bare "relay panel" is as often a
+    # generator or protective relay panel, and "LCP" in HVAC is a LOCAL control
+    # panel -- matching them built a lighting control panel for "a generator
+    # relay panel" and "an AHU with an LCP" (#821 review).  Those stay with
+    # whatever main does, rather than being answered with a guessed product.
+    patterns=(r"lighting\s+control\s+panels?", r"lighting\s+relay\s+panels?"),
     params=(
         Param("width_in", "Width", 20.0, "in",
               "the standard 20 in panelboard-width cabinet; 24 in for wider panels",

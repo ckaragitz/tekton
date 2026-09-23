@@ -100,6 +100,67 @@ validated first, and the owner was told it came from an unreviewed branch.
 - The report's `center=[0, 0]` for every form was my own `.get` fallback, not
   data. I checked it against the overall depth before trusting either reading.
 
+## Review round 1 — `nits`, two fixed before merge
+
+**Pattern collisions — fixed.** My archetype matched bare `relay panel` and
+`\blcps?\b`. The reviewer ran four prompts through the route; on the branch each
+returned `ok: True` with a *lighting* control panel, where `main` refused:
+"a generator relay panel", "a protective relay panel", "a fire alarm relay
+panel", "an AHU with an LCP" (in HVAC, LCP is a *local* control panel). That is a
+different product under the requested name — S-2026-08-11-c's "never a silent
+substitution", and this PR would have introduced it. I traced it to the archetype
+patterns, not the taxonomy (`taxonomy.resolve` returns nothing for all eight
+probes), and narrowed them to `lighting control panel` / `lighting relay panel`.
+Bare "relay panel" and "LCP" now behave as on `main`, which is the honest outcome
+for a genuinely ambiguous name. Tests pin all six as must-not-resolve.
+
+**The Z axis was never checked — fixed.** The reviewer applied three Z mutations
+that survived every test (top wall raised above the box, latch dropped to z = 0,
+left wall full height overlapping the caps). The tests now pin the top and
+bottom walls at [H−g, H] and [0, g], the side walls at [g, H−g], the back and
+door full height, and the latch at mid-height. All three mutations now die, and
+so does restoring either ambiguous pattern:
+
+| mutant | dies in |
+|---|---|
+| top wall raised to z = H | 1 |
+| latch dropped to z = 0 | 1 |
+| left wall full height | 1 |
+| bare `relay panel` pattern restored | 4 |
+| bare `LCP` pattern restored | 2 |
+
+Baseline and restore both **17 passed**.
+
+**The caveat printed on this build — fixed.** `matrix.py:133` and `:502` list the
+products the archetype registry generates, and that caveat was printed on the
+lighting control panel's own output without naming it. Both updated. The rendered
+`docs/product/PERMUTATION-MATRIX.md` does not carry that caveat text (0
+occurrences of either version), so nothing to regenerate.
+
+**Filed rather than folded in:**
+
+- **#822 (P0)** — #816's DONE 5. Re-measured before filing: of 83 kinds, **78
+  have a category, and 63 have no builder** on this branch (64 on `main`, so this
+  PR closes exactly one), across electrical 12, lighting 11, fire alarm 6,
+  technology 7, mechanical 15, plumbing 11, fire protection 1. `luminaire` is in
+  the list although the matrix calls luminaires catalog-backed, so that one needs
+  checking before it is counted as a gap.
+- **#823** — a prompt naming two products builds only the catalog one:
+  "a lighting control panel and a panelboard" delivers the panelboard and drops
+  the panel. Reproduced; pre-existing on `main` per the reviewer.
+- **#824** — the list of generated products is hand-written in five places
+  (including `SKILL.md`, a hot file); derive it from the registry.
+
+The reviewer also noted this archetype inherits **#812**: "a lighting control
+panel 48 in tall 4 in deep" resolves height 4 in, stamped `given`. Not introduced
+here; #812's fix covers it.
+
+The reviewer reproduced, independently: the refusal on `main` and delivery on the
+branch, placement of every part at the defaults, the 6.75 in reasoning (the
+factory takes depth as the bounding box's y-extent, `factory.py:1139`), all-
+nominal provenance, #817 pre-existing, mirrors blob-identical, and the bare-unzip
+plugin run (0.9 s, 233,472 bytes).
+
 ## Hard rule 4
 
 Delivered and validated, **not certified**. No generated standalone `.rfa` of
@@ -114,11 +175,14 @@ ours is in `docs/coverage/viewer-certified.json`.
   `lighting_control_panel` registry entry.
 - `src/rvt/famgen/taxonomy.py` — the kind now declares
   `archetype:lighting_control_panel` and a note.
-- `tests/test_archetype_lighting_control_panel_816.py` — new, 13 tests: the lane
+- `src/rvt/frontdoor/matrix.py` — the two lists of generated products name the
+  lighting control panel (round 1).
+- `tests/test_archetype_lighting_control_panel_816.py` — new, 17 tests: the lane
   and a strict builder probe, every naming resolving all-nominal, a stated size
   becoming given, the part set, placement by position (mounting plane, walls
   closing the box, door as the front face, latch proud of it on the right),
-  refusal-by-name of an impossible sheet, and the route end to end.
+  refusal-by-name of an impossible sheet, the route end to end, and (round 1)
+  six must-not-resolve prompts plus the Z placement of every part.
 - `tests/ci_shard.d/816-lighting-control-panel.txt` — new.
 - this fragment.
 

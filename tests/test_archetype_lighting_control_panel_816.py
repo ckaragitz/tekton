@@ -37,14 +37,29 @@ def test_the_taxonomy_routes_the_kind_to_the_archetype_lane():
     "create a lighting control panel family",
     "a lighting control panel",
     "a lighting relay panel",
-    "a relay panel",
-    "an LCP",
 ])
 def test_every_way_of_naming_it_resolves_to_the_archetype_all_nominal(prompt):
     r = AR.resolve_prompt(prompt)
     assert r is not None and r.arch.key == "lighting_control_panel", prompt
     assert r.arch.category == "electrical_equipment"
     assert set(r.provenance.values()) == {"nominal"}, (prompt, r.provenance)
+
+
+@pytest.mark.parametrize("prompt", [
+    "a generator relay panel",
+    "a protective relay panel",
+    "a fire alarm relay panel",
+    "an AHU with an LCP",           # in HVAC, LCP is a LOCAL control panel
+    "a relay panel",
+    "an LCP",
+])
+def test_names_that_mean_another_product_do_not_build_this_one(prompt):
+    """Matching bare "relay panel" / "LCP" once built a lighting control panel
+    for a generator relay panel and for an AHU's local control panel (#821
+    review) -- a different product under the name asked for.  Only the names
+    that mean THIS product resolve to it."""
+    r = AR.resolve_prompt(prompt)
+    assert r is None or r.arch.key != "lighting_control_panel", prompt
 
 
 def test_a_stated_size_is_given_and_the_rest_stay_nominal():
@@ -87,6 +102,9 @@ def test_the_door_is_the_front_face_and_the_latch_is_on_it(parts):
     latch0, latch1 = _y_span(parts["door latch"])
     assert latch1 == pytest.approx(door0) and latch0 < door0
     assert parts["door latch"]["center"][0] > 0, "the latch is on the door's right edge"
+    lz0 = parts["door latch"]["base_z_ft"]
+    lz1 = lz0 + parts["door latch"]["height_ft"]
+    assert (lz0 + lz1) / 2 == pytest.approx(30.0 * IN / 2), "the latch is at mid-height"
 
 
 def test_the_walls_close_the_box_between_back_and_door(parts):
@@ -97,6 +115,20 @@ def test_the_walls_close_the_box_between_back_and_door(parts):
         assert w1 == pytest.approx(back1_front) and w0 == pytest.approx(door_back), w
     W = 20.0 * IN
     assert parts["wall left"]["center"][0] == pytest.approx(-parts["wall right"]["center"][0])
+    # ... and in Z: top and bottom walls cap the box, the side walls fill the
+    # height between them -- no gap, no overlap (the #821 review found three Z
+    # mutations that no test caught)
+    H, g = 30.0 * IN, 0.075 * IN
+
+    def z_span(p):
+        return p["base_z_ft"], p["base_z_ft"] + p["height_ft"]
+
+    assert z_span(parts["wall bottom"]) == pytest.approx((0.0, g))
+    assert z_span(parts["wall top"]) == pytest.approx((H - g, H))
+    for side in ("wall left", "wall right"):
+        assert z_span(parts[side]) == pytest.approx((g, H - g)), side
+    for full in ("back", "door"):
+        assert z_span(parts[full]) == pytest.approx((0.0, H)), full
     assert abs(parts["wall right"]["center"][0]) + parts["wall right"]["width_ft"] / 2 \
         == pytest.approx(W / 2)
 
