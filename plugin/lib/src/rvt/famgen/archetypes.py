@@ -892,6 +892,12 @@ def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
                   "and they are measured from it.")}
 
 
+def _alias_re(al: str) -> str:
+    """The regex for one alias as written in a prompt (any run of whitespace
+    between its words)."""
+    return re.escape(al).replace(r"\ ", r"\s+")
+
+
 def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, int, str]]:
     """``(alias length, rank, pattern)`` for every way a prompt states this
     parameter, built from its aliases.
@@ -926,7 +932,7 @@ def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, in
     """
     out: List[Tuple[int, int, str]] = []
     for al in p.aliases:
-        a = re.escape(al).replace(r"\ ", r"\s+")
+        a = _alias_re(al)
         n = len(al)
         # rank 0: "12 in rung spacing", "24-inch-wide", "10-ft-long"
         number_first = (n, 0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}")
@@ -974,6 +980,23 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     # Aliases nest ('length' inside 'slot length'), and whoever matches first
     # locks the region, so the specific reading has to go first or the generic
     # one silently steals it (see _alias_patterns).
+    #
+    # Longest-first only protects a long alias's text while the long alias is
+    # still BINDING.  Once its parameter is given, its later occurrences are
+    # unclaimed, and a shorter alias nested inside one ('width' in 'rung
+    # width', 'length' in 'slot length') would read a restated value as its
+    # own: "1 in rung width, rung width 1 in" stamped a 1 in tray WIDTH given
+    # (#828 review).  So every occurrence of every alias is recorded up front,
+    # bound or not, and a shorter alias may never match inside a longer one.
+    spans = [(m.start(), m.end(), len(al))
+             for al in {al for p in arch.params for al in p.aliases}
+             for m in re.finditer(_alias_re(al), low)]
+
+    def inside_longer(s: int, e: int, n: int) -> bool:
+        # the whole match, not just its alias: the number and unit around
+        # an alias are never part of another alias's text
+        return any(s < oe and e > os_ and on > n for os_, oe, on in spans)
+
     def bind_aliases(alias_first: bool):
         b_vals, b_prov = dict(vals), dict(prov)
         b_quoted: Dict[str, str] = {}
@@ -985,11 +1008,13 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
         candidates = sorted(((n, pat, p) for p in arch.params
                              for n, _rank, pat in _alias_patterns(p, alias_first=alias_first)),
                             key=lambda c: -c[0])
-        for _n, pat, p in candidates:
+        for n, pat, p in candidates:
             if b_prov[p.key] == GIVEN:
                 continue
             for m in re.finditer(pat, low):
                 if not b_free(m.start(), m.end()):
+                    continue
+                if inside_longer(m.start(), m.end(), n):
                     continue
                 num = _to_number(m.group(1))
                 if num is None:
@@ -1003,16 +1028,42 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 b_quoted[p.key] = text[m.start():m.end()].strip()
                 b_used.append((m.start(), m.end()))
                 break
-        return b_vals, b_prov, b_quoted, b_used
+        # the prompt's OTHER phrases for a parameter this reading has bound
+        # that it left whole ("... 7 in wide" said again, or "... wide 9 in"
+        # contradicting it): a reading that cut such a phrase in half to bind
+        # something else read a number across a phrase boundary
+        intact: List[Tuple[int, int]] = []
+        for n, pat, p in candidates:
+            if b_prov[p.key] != GIVEN:
+                continue
+            for m in re.finditer(pat, low):
+                s_, e_ = m.start(), m.end()
+                if not b_free(s_, e_) or any(s_ < ie and e_ > is_ for is_, ie in intact):
+                    continue
+                if inside_longer(s_, e_, n):
+                    continue
+                num = _to_number(m.group(1))
+                conv = None if num is None else _convert(num, _unit_of(m.group(0)) or p.unit, p)
+                if conv is not None and conv > p.minimum:
+                    intact.append((s_, e_))
+        return b_vals, b_prov, b_quoted, b_used, len(intact)
 
     # A number standing between two aliases belongs to one phrase or the
     # other, and either fixed order steals it in one of the two chains (#812):
-    # bind under both, keep the reading that gives MORE stated dimensions a
-    # home, and on a tie keep the historical alias-first reading.
+    # bind under both and keep, in order,
+    #   1. the reading that gives MORE stated dimensions a home;
+    #   2. the one that leaves more of the prompt's other phrases for its
+    #      bound parameters WHOLE -- "wide 7 in loading depth 13 in wide 9 in"
+    #      binds two either way, but number-first does it by reading
+    #      "7 in loading depth" and "13 in wide", breaking every phrase the
+    #      user wrote; alias-first leaves "wide 9 in" intact;
+    #   3. number-first, because a bare alias in front of a number is an
+    #      adjective far more often than a label: "a long 24 in wide 4 in deep
+    #      cable tray" is 24 in wide, not 2 ft long and 4 in wide.
     led = bind_aliases(alias_first=True)
     trailed = bind_aliases(alias_first=False)
-    bound = lambda r: sum(1 for v in r[1].values() if v == GIVEN)
-    vals, prov, quoted, used = trailed if bound(trailed) > bound(led) else led
+    score = lambda r: (sum(1 for v in r[1].values() if v == GIVEN), r[4])
+    vals, prov, quoted, used, _intact = led if score(led) > score(trailed) else trailed
 
     # "a 12x12 wireway", "a 4 x 4 x 6 in box": a cross-dimension immediately
     # before the product noun sets width x height (x depth) in one go

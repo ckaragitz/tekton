@@ -199,7 +199,7 @@ ours is in `docs/coverage/viewer-certified.json`.
 - `src/rvt/frontdoor/matrix.py` — the two lists of generated products name the
   lighting control panel (round 1).
 - `docs/product/PERMUTATION-MATRIX.md` — its own list of generated products
-  names the lighting control panel (round 2).
+  names the lighting control panel (round 1, with `matrix.py` -- the #821 commit message says so; this line said round 2 until #828's round-1 review).
 - `tests/test_archetype_lighting_control_panel_816.py` — new, 17 tests: the lane
   and a strict builder probe, every naming resolving all-nominal, a stated size
   becoming given, the part set, placement by position (mounting plane, walls

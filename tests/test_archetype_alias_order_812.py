@@ -53,6 +53,22 @@ TABLE = [
     ("cable tray depth 6 in width 24 in",          {"width_in": 24.0, "depth_in": 6.0}),
     ("cable tray 4 in deep 24 in wide 20 ft long", {"width_in": 24.0, "depth_in": 4.0,
                                                     "length_ft": 20.0}),
+    # a dimension stated TWICE, where its alias contains a shorter alias of
+    # another parameter ('width' in 'rung width', 'length' in 'slot length').
+    # Round 1 of #828 stamped the restated value on the short one too: a
+    # 1 in tray width, a 2 in long strut -- both 'given'.
+    ("cable tray 1 in rung width, rung width 1 in", {"rung_width_in": 1.0}),
+    ("cable tray 1 in rung width rung width 1 in",  {"rung_width_in": 1.0}),
+    ("strut channel 2 in slot length, slot length 2 in", {"slot_length_in": 2.0}),
+    ("cable tray 2 in rail flange, rail flange 2 in", {"rail_flange_in": 2.0}),
+    # a restatement around another phrase: 2-2 on bindings under both
+    # orders, and only the number-first reading agrees with the repeat
+    ("cable tray 7 in wide 13 in loading depth 7 in wide", {"width_in": 7.0, "depth_in": 13.0}),
+    ("cable tray wide 7 in 13 in loading depth 7 in wide", {"width_in": 7.0, "depth_in": 13.0}),
+    # a bare alias as an adjective: both readings bind two, nothing is
+    # restated, and the tie goes to number-first -- round 1 read it as a
+    # 2 ft long, 4 in wide tray (main did too)
+    ("a long 24 in wide 4 in deep cable tray",     {"width_in": 24.0, "depth_in": 4.0}),
     # hyphenated, units, and in front of the noun
     ("a 24-inch-wide cable tray",                  {"width_in": 24.0}),
     ("a cable tray 10 ft long",                    {"length_ft": 10.0}),
@@ -165,38 +181,153 @@ def test_known_gap_cross_dimension_after_the_noun(prompt):
 # the property, over every archetype -- not a hand-picked table
 # ---------------------------------------------------------------------------
 
+def _stray(arch, r, want):
+    """Keys stamped ``given`` that the prompt did not state -- except a
+    follower (``Param.follows``) carrying its stated leader's value, which is
+    ``given`` by design (a square wireway asked for at 12 in is 12 in tall)."""
+    return {k: r.values[k] for k, v in r.provenance.items()
+            if v == GIVEN and k not in want
+            and not (arch.param(k).follows in want
+                     and abs(r.values[k] - want[arch.param(k).follows]) < 1e-6)}
+
+
 def _chains():
     """Every two- and three-phrase chain over every archetype's dimensional
     aliases, in both phrasings ("7 in wide" / "wide 7 in"), in every order,
-    with NO separator between phrases.  Each prompt carries its own oracle:
-    number i belongs to the phrase it is written in."""
+    with NO separator between phrases, and with every alias of every
+    parameter used (rotated, so a chain's phrases do not all take their
+    first alias together).  Each prompt carries its own oracle: number i
+    belongs to the phrase it is written in."""
     import itertools
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
         ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
         for k in (2, 3):
             for combo in itertools.permutations(ps, k):
-                for styles in itertools.product((0, 1), repeat=k):
-                    parts, want = [], {}
-                    for i, (p, st) in enumerate(zip(combo, styles)):
-                        n = (7, 13, 19)[i]
-                        al = p.aliases[0]
-                        parts.append(f"{n} {p.unit} {al}" if st == 0 else f"{al} {n} {p.unit}")
-                        want[p.key] = float(n)
-                    yield key, noun + " " + " ".join(parts), want
+                for j in range(max(len(p.aliases) for p in combo)):
+                    for styles in itertools.product((0, 1), repeat=k):
+                        parts, want = [], {}
+                        for i, (p, st) in enumerate(zip(combo, styles)):
+                            n = (7, 13, 19)[i]
+                            al = p.aliases[(j + i) % len(p.aliases)]
+                            parts.append(f"{n} {p.unit} {al}" if st == 0 else f"{al} {n} {p.unit}")
+                            want[p.key] = float(n)
+                        yield key, noun + " " + " ".join(parts), want
 
 
-def test_every_stated_number_binds_to_its_own_phrase_across_every_archetype():
-    """On main this failed 1,201 of 5,488 prompts (22%), in every archetype
-    -- e.g. "cable tray 7 in rung spacing 13 ft long" gave a 13-FOOT rung
-    spacing stamped given.  Measured before this fix, not assumed."""
-    total, fails = 0, []
-    for key, prompt, want in _chains():
-        total += 1
+def _restatements():
+    """One dimension stated twice with another phrase before, between or
+    after (PPQ / PQP / PQQ / QPP), every alias of the restated parameter,
+    both phrasings, with and without a comma: 18,496 prompts.  The class the
+    round-1 review of #828 found.  Measured on this generator: main gets
+    2,152 wrong, #828's round-1 head 2,401 (it fixed some and broke others),
+    this head 0."""
+    import itertools
+    for key, a in AR.ARCHETYPES.items():
+        noun = a.title.split(" - ")[0].lower()
+        ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
+        ph = lambda p, al, n, st: f"{n} {p.unit} {al}" if st == 0 else f"{al} {n} {p.unit}"
+        for p, q in itertools.permutations(ps, 2):
+            for ap in p.aliases:
+                aq = q.aliases[len(ap) % len(q.aliases)]
+                for order in ("PPQ", "PQP", "PQQ", "QPP"):
+                    for sts in itertools.product((0, 1), repeat=3):
+                        for sep in (" ", ", "):
+                            parts = [ph(p, ap, 7, st) if c == "P" else ph(q, aq, 13, st)
+                                     for c, st in zip(order, sts)]
+                            yield key, noun + " " + sep.join(parts), {p.key: 7.0, q.key: 13.0}
+
+
+def _sweep(gen):
+    import collections
+    per, fails = collections.Counter(), []
+    for key, prompt, want in gen:
+        per[key] += 1
+        arch = AR.archetype(key)
         r = AR.resolve_prompt(prompt, product=key)
         bad = {k: (r.values[k], r.provenance[k]) for k, v in want.items()
                if abs(r.values[k] - v) > 1e-6 or r.provenance[k] != GIVEN}
-        if bad:
-            fails.append((prompt, bad))
-    assert total > 5000, f"the chain generator shrank to {total} -- the sweep lost coverage"
-    assert not fails, f"{len(fails)}/{total} chains mis-bound; first: {fails[:3]}"
+        stray = _stray(arch, r, want)
+        if bad or stray:
+            fails.append((prompt, bad, stray))
+    return per, fails
+
+
+def _assert_coverage(per, floor):
+    """A per-archetype floor, not one total: losing a whole archetype (its
+    aliases filtered out by a refactor) must fail, not hide in a big sum."""
+    missing = {k for k in AR.ARCHETYPES if per[k] < floor.get(k, 1)}
+    assert not missing, f"sweep lost coverage: {dict(per)} (floors {floor})"
+
+
+def test_every_stated_number_binds_to_its_own_phrase_across_every_archetype():
+    """On main this fails 3,564 of these 16,344 prompts, in every archetype
+    (1,201 of 5,488 when only each parameter's first alias was used) -- e.g.
+    "cable tray 7 in rung spacing 13 ft long" gave a 13-FOOT rung spacing
+    stamped given.  Measured, not assumed.  Checks the stray half too:
+    nothing the chain did not state may come back ``given``."""
+    per, fails = _sweep(_chains())
+    _assert_coverage(per, {"cable_tray": 2000, "strut_channel": 1000, "wireway": 100,
+                           "junction_box": 100, "lighting_control_panel": 100,
+                           "conduit": 20})
+    assert not fails, f"{len(fails)}/{sum(per.values())} chains mis-bound; first: {fails[:3]}"
+
+
+def test_a_restated_dimension_binds_once_and_nothing_else_follows_it():
+    per, fails = _sweep(_restatements())
+    _assert_coverage(per, {"cable_tray": 5000, "strut_channel": 3000, "wireway": 500,
+                           "junction_box": 500, "lighting_control_panel": 500,
+                           "conduit": 50})
+    assert not fails, f"{len(fails)}/{sum(per.values())} restatements mis-bound; first: {fails[:3]}"
+
+
+def _contradictions():
+    """One dimension stated twice with DIFFERENT values (7 then 9) around
+    another phrase (PPQ / PQP / QPP), every alias, both phrasings, with and
+    without a comma: 13,872 prompts.  Which of 7 or 9 wins is not this
+    test's business -- the user contradicted themselves -- but the OTHER
+    dimension must still be the 13 they stated for it.  Measured: main gets
+    1,478 wrong; a tie-break that only counted restatements carrying the
+    SAME value got 1,156 wrong ("wide 7 in loading depth 13 in wide 9 in"
+    became a 13 in wide, 7 in deep tray); this head 0."""
+    import itertools
+    for key, a in AR.ARCHETYPES.items():
+        noun = a.title.split(" - ")[0].lower()
+        ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
+        ph = lambda p, al, n, st: f"{n} {p.unit} {al}" if st == 0 else f"{al} {n} {p.unit}"
+        for p, q in itertools.permutations(ps, 2):
+            for ap in p.aliases:
+                for order in ("PPQ", "PQP", "QPP"):
+                    for sts in itertools.product((0, 1), repeat=3):
+                        for sep in (" ", ", "):
+                            pv, parts = iter((7, 9)), []
+                            for c, st in zip(order, sts):
+                                parts.append(ph(p, ap, next(pv), st) if c == "P"
+                                             else ph(q, q.aliases[0], 13, st))
+                            yield key, noun + " " + sep.join(parts), p.key, q.key
+
+
+def test_a_contradicted_dimension_never_takes_the_other_phrases_number():
+    import collections
+    per, fails = collections.Counter(), []
+    for key, prompt, pk, qk in _contradictions():
+        per[key] += 1
+        arch = AR.archetype(key)
+        r = AR.resolve_prompt(prompt, product=key)
+        p_ok = r.provenance[pk] == GIVEN and min(abs(r.values[pk] - v) for v in (7, 9)) < 1e-6
+        q_ok = r.provenance[qk] == GIVEN and abs(r.values[qk] - 13) < 1e-6
+        stray = {k for k in _stray(arch, r, {pk: r.values[pk], qk: 13.0})}
+        if not (p_ok and q_ok) or stray:
+            fails.append((prompt, {pk: r.values[pk], qk: r.values[qk]}, stray))
+    _assert_coverage(per, {"cable_tray": 5000, "strut_channel": 3000, "wireway": 500,
+                           "junction_box": 500, "lighting_control_panel": 500,
+                           "conduit": 50})
+    assert not fails, f"{len(fails)}/{sum(per.values())} contradictions mis-bound; first: {fails[:3]}"
+
+
+def test_a_contradiction_leaves_the_other_dimension_alone():
+    r = AR.resolve_prompt("cable tray wide 7 in loading depth 13 in wide 9 in")
+    assert (r.values["depth_in"], r.provenance["depth_in"]) == (13.0, GIVEN)
+    assert r.quoted["depth_in"] == "loading depth 13 in"
+    assert min(abs(r.values["width_in"] - v) for v in (7.0, 9.0)) < 1e-6
+    assert r.provenance["width_in"] == GIVEN
