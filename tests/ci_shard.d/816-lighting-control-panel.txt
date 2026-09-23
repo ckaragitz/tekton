@@ -1,0 +1,1 @@
+tests/test_archetype_lighting_control_panel_816.py
