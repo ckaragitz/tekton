@@ -1046,7 +1046,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 conv = None if num is None else _convert(num, _unit_of(m.group(0)) or p.unit, p)
                 if conv is not None and conv > p.minimum:
                     intact.append((s_, e_))
-        return b_vals, b_prov, b_quoted, b_used, len(intact)
+        return b_vals, b_prov, b_quoted, b_used, intact
 
     # A number standing between two aliases belongs to one phrase or the
     # other, and either fixed order steals it in one of the two chains (#812):
@@ -1057,13 +1057,19 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     #      binds two either way, but number-first does it by reading
     #      "7 in loading depth" and "13 in wide", breaking every phrase the
     #      user wrote; alias-first leaves "wide 9 in" intact;
-    #   3. number-first, because a bare alias in front of a number is an
-    #      adjective far more often than a label: "a long 24 in wide 4 in deep
-    #      cable tray" is 24 in wide, not 2 ft long and 4 in wide.
+    #   3. on a full tie, main's alias-first reading.  Number-first here
+    #      read "junction box width 8 in height 6 in deep" as height 8, depth
+    #      6 (#828 round 2) -- a trailing bare adjective is as common as a
+    #      leading one, so neither side of a full tie is safe.  "a long 24 in
+    #      wide 4 in deep cable tray" stays wrong, as on main (#832).
+    # The winner's intact phrases are claimed too: a restatement left outside
+    # ``used`` would be read again by the noun rules below ("a 4 in depth,
+    # depth 4 in junction box" -> "4 in junction box", a 4 in wide box).
     led = bind_aliases(alias_first=True)
     trailed = bind_aliases(alias_first=False)
-    score = lambda r: (sum(1 for v in r[1].values() if v == GIVEN), r[4])
-    vals, prov, quoted, used, _intact = led if score(led) > score(trailed) else trailed
+    score = lambda r: (sum(1 for v in r[1].values() if v == GIVEN), len(r[4]))
+    vals, prov, quoted, used, intact = trailed if score(trailed) > score(led) else led
+    used = used + intact
 
     # "a 12x12 wireway", "a 4 x 4 x 6 in box": a cross-dimension immediately
     # before the product noun sets width x height (x depth) in one go

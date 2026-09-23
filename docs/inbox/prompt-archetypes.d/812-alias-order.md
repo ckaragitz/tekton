@@ -94,6 +94,11 @@ the prompts I was already thinking about.
 
 ## Round 1 — the review found a regression I had introduced
 
+> **Round 2 changed part of this section; see "Round 2" below.** The full-tie
+> rule "number-first" was itself a regression and is reverted to `main`'s
+> alias-first. The claim "worse than `main` on any prompt in any sweep: 0" held
+> only for sweeps with the noun first, and it was wrong.
+
 🛑 on head `59e872a`. **A dimension stated twice, whose alias contains a
 shorter alias of another parameter**, got a false `given` from this PR that
 `main` did not give:
@@ -187,6 +192,92 @@ to #825). Its `BRANCH STATE` also listed round-0 gates and omitted
 `PERMUTATION-MATRIX.md`. Both corrected in that fragment by this PR, as #821's
 merge comment committed to.
 
+## Round 2 — my tie rule broke the mirror shape, and my sweeps could not see it
+
+🛑 on head `ba36c71`. The reviewer wrote their own random generator: 49,826
+prompts; chains of 2 to 4 parameters; 9 unit spellings, fractions and 7
+separators; the noun first, last and in the middle. Two failure classes, both
+right on `main` and wrong on the head (509 prompts with seed 1, 481 with
+seed 2):
+
+1. **A label-first chain, then a bare adjective:** "junction box width 8 in
+   height 6 in deep" became height = 8 and depth = 6, both `given`. The two
+   readings tie completely, and rule 3 (number-first) picked the wrong one.
+   That is the #812 defect again, from the other side. I justified rule 3 with
+   the mirror shape ("a long 24 in wide …") and never generated this one.
+2. **A restatement just before the noun:** "a 4 in depth, depth 4 in junction
+   box" became a 4 in *wide* box. The winning reading left the restated phrase
+   outside `used`, and the noun rules then read "4 in junction box" as the
+   primary dimension. My three sweeps all put the noun **first**, so none of
+   them could produce this. That is why "0 worse than main" was true of my
+   sweeps and false of the product.
+
+**Fix.**
+- Rule 3 goes back to `main`'s alias-first. With `>=` → `>` as the only
+  change, the reviewer measured 0 regressions against `main` on their
+  generator.
+- The winner's intact phrases are added to `used`, so the noun rules can never
+  re-read a restatement.
+- The mirror case "a long 24 in wide 4 in deep cable tray" is still wrong, as
+  on `main`. It is now a **strict xfail citing #832**, which says why neither
+  side of a full tie is safe and what a fix must be measured against.
+- The reviewer's suggested intersection rule (keep only the bindings the two
+  readings agree on) is recorded there too, with its cost: it turns "junction
+  box width 8 in height 6 in deep", which `main` gets right, into all-nominal.
+
+### Evidence — the noun moved, `rvt.__file__` checked each run
+
+A placement sweep (my generator, not the reviewer's): chains, restatements,
+contradictions, and a chain with a bare alias before or after it. Every alias of
+the restated parameter, the noun first, last and in the middle, with and
+without a comma. 132,548 prompts.
+
+| head | wrong | worse than `main` | better than `main` |
+|---|---|---|---|
+| `main` | 17,301 | — | — |
+| round 0 `59e872a` | 17,328 | 1,902 | 1,875 |
+| round 1 `ba36c71` | 14,030 | **6,048** | 9,319 |
+| this head | **3,502** | **0** | 13,799 |
+
+All 3,502 remaining are the bare-alias shapes (lead-bare 1,648, trail-bare
+1,854), which is #832's class. Chains, restatements and contradictions are
+**0 in every noun position**.
+
+The tests now cycle the noun position. `_restatements("cycle")` and
+`_contradictions("cycle")` put the noun first, last or in the middle in turn:
+
+| sweep (noun cycled) | prompts | `main` | round 0 | round 1 | this head |
+|---|---|---|---|---|---|
+| restatements | 18,496 | 2,466 | 2,773 | 2,010 | **0** |
+| contradictions | 13,872 | 1,543 | 1,611 | 1,692 | **0** |
+
+The table also gains seven of the reviewer's prompts as rows: the three
+label-first + bare-adjective chains and the four restatements before the noun.
+
+| mutant (anchor asserted = 1, bytecode off, `__pycache__` cleared) | result |
+|---|---|
+| no nested-alias reservation | killed |
+| reserve equal-length aliases too | killed |
+| no intact-phrase count | killed |
+| intact phrases must carry the same value | killed |
+| **full tie → number-first (round 1's rule)** | **killed** |
+| **intact phrases not claimed into `used`** | **killed** |
+| only the alias-first reading | killed |
+| only the number-first reading | killed |
+
+`tests/test_archetype_alias_order_812.py`: **70 passed, 4 xfailed** in 30.5 s.
+The xfails are #827 ×3 and #832 ×1.
+
+**Filed from this round:**
+- **#831** (P0): `_to_number` reads "13/16" as 1 3/16. It is on `main` and
+  was not caused by this PR; found by the reviewer.
+- **#832**: the full-tie ambiguity.
+
+**Lesson, written to the record rather than kept:** a property sweep only proves
+what its generator can produce. All three of mine shared one shape (noun
+first), so a regression outside that shape was invisible to all of them at
+once. The reviewer's generator varied the shape and found it in minutes.
+
 ---
 
 ## BRANCH STATE
@@ -195,21 +286,23 @@ merge comment committed to.
 - `src/rvt/famgen/archetypes.py` — `_alias_patterns(p, alias_first=...)` returns
   `(length, rank, pattern)` in the requested order; `_alias_re` (new, shared);
   `resolve_prompt` reserves every alias occurrence against shorter aliases,
-  binds under both orders, and keeps (bindings, intact phrases, number-first).
+  binds under both orders, keeps (bindings, intact phrases, then alias-first),
+  and claims the winner's intact phrases into `used`.
 - `plugin/lib/src/rvt/famgen/archetypes.py` — mirror.
-- `tests/test_archetype_alias_order_812.py` — new: a 24-row table (value **and**
-  provenance, incl. restated nested aliases and the adjective tie), no-stray-
-  `given`, quoted source words, the mechanism, both chain witnesses, the
-  geometry end to end, three property sweeps (chains 16,344, restatements
-  18,496, contradictions 13,872) with per-archetype floors, and three strict
-  xfails for #827.
+- `tests/test_archetype_alias_order_812.py` — new: a 30-row table (value **and**
+  provenance, incl. restated nested aliases, label-first chains followed by a
+  bare adjective, restatements before the noun), no-stray-`given`, quoted
+  source words, the mechanism, both chain witnesses, the geometry end to end,
+  property sweeps (chains 16,344; restatements 18,496 and contradictions 13,872,
+  each noun-first and noun-cycled) with per-archetype floors, three strict
+  xfails for #827 and one for #832.
 - `tests/ci_shard.d/812-alias-order.txt` — new.
 - `docs/inbox/prompt-archetypes.d/816-lighting-control-panel.md` — repair only
   (round 0: the `relay panel` shield and `BRANCH STATE`; round 1: the round tag).
 - this fragment.
 
-**Gates (round 1)**: 56 passed / 3 xfailed; archetype, taxonomy and
-lighting-control-panel suites 401 passed / 3 xfailed; `sync_plugin.py --check`
-in sync. Full suite **not** run; `session_ci.sh` runs the shard on the head.
+**Gates (round 2)**: 70 passed / 4 xfailed; 8/8 mutants killed; archetype,
+taxonomy and lighting-control-panel suites green; `sync_plugin.py --check` in
+sync. Full suite **not** run; `session_ci.sh` runs the shard on the head.
 
 **Shipped vs staged**: shipped.

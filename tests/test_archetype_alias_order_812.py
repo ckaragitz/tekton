@@ -65,10 +65,19 @@ TABLE = [
     # orders, and only the number-first reading agrees with the repeat
     ("cable tray 7 in wide 13 in loading depth 7 in wide", {"width_in": 7.0, "depth_in": 13.0}),
     ("cable tray wide 7 in 13 in loading depth 7 in wide", {"width_in": 7.0, "depth_in": 13.0}),
-    # a bare alias as an adjective: both readings bind two, nothing is
-    # restated, and the tie goes to number-first -- round 1 read it as a
-    # 2 ft long, 4 in wide tray (main did too)
-    ("a long 24 in wide 4 in deep cable tray",     {"width_in": 24.0, "depth_in": 4.0}),
+    # a label-first chain then a bare adjective: a full tie, which keeps
+    # main's alias-first reading.  Round 2 broke the tie number-first and read
+    # these as height 8 / depth 6 -- the #812 defect from the other side
+    ("junction box width 8 in height 6 in deep",   {"width_in": 8.0, "height_in": 6.0}),
+    ("lighting control panel width 20 in height 30 in deep",
+                                                   {"width_in": 20.0, "height_in": 30.0}),
+    ("wireway width 8 in height 6 in long",        {"width_in": 8.0, "height_in": 6.0}),
+    # a restatement just before the noun: the winner's intact phrases are
+    # claimed, or the noun rules re-read "4 in junction box" as the width
+    ("a 4 in depth, depth 4 in junction box",      {"depth_in": 4.0}),
+    ("a 9 in rung spacing, rung spacing 9 in cable tray", {"rung_spacing_in": 9.0}),
+    ("a 2 in lip, lip 2 in strut channel",         {"lip_in": 2.0}),
+    ("a 0.06 in thickness, thickness 0.06 in wireway", {"thickness_in": 0.06}),
     # hyphenated, units, and in front of the noun
     ("a 24-inch-wide cable tray",                  {"width_in": 24.0}),
     ("a cable tray 10 ft long",                    {"length_ft": 10.0}),
@@ -163,6 +172,19 @@ def test_the_built_family_has_the_stated_geometry():
     assert "Cable_Tray_-_Ladder_24_in_20_ft" in os.path.basename(res["files"]["rfa"])
 
 
+@pytest.mark.xfail(strict=True, reason="known gap, split out of #812 as #832: a full tie "
+                                       "between the two readings keeps alias-first")
+def test_known_gap_bare_adjective_before_a_number_first_chain():
+    """Recorded, not hidden: "long" is an adjective here, and alias-first
+    reads "long 24 in" as a 2 ft length and "wide 4 in" as the width -- both
+    ``given``, as on main.  Breaking the tie the other way broke the mirror
+    shape ("width 8 in height 6 in deep"), so the fix is #832's, measured
+    against main on both.  strict=True: a fix makes this pass."""
+    r = AR.resolve_prompt("a long 24 in wide 4 in deep cable tray")
+    assert (r.values["width_in"], r.values["depth_in"]) == (24.0, 4.0)
+    assert r.provenance["length_ft"] == NOMINAL
+
+
 @pytest.mark.xfail(strict=True, reason="known gap, split out of #812 as #827: W x D after "
                                        "the product noun is not read")
 @pytest.mark.parametrize("prompt", ["cable tray 24 x 4 in", "cable tray 600x100 mm",
@@ -191,6 +213,23 @@ def _stray(arch, r, want):
                      and abs(r.values[k] - want[arch.param(k).follows]) < 1e-6)}
 
 
+def _place(noun, parts, sep, where):
+    """The prompt with the product noun FIRST ("cable tray 7 in wide ..."),
+    LAST ("a 7 in wide ... cable tray") or in the MIDDLE.  Round 2's review
+    found every regression it had in the last two: the noun rules read a
+    number standing next to the noun, so a sweep that always puts the noun
+    first cannot see them."""
+    if where == "first":
+        return noun + " " + sep.join(parts)
+    if where == "last":
+        return "a " + sep.join(parts) + " " + noun
+    k = max(1, len(parts) // 2)
+    return "a " + sep.join(parts[:k]) + " " + noun + " " + sep.join(parts[k:])
+
+
+_WHERE = ("first", "last", "middle")
+
+
 def _chains():
     """Every two- and three-phrase chain over every archetype's dimensional
     aliases, in both phrasings ("7 in wide" / "wide 7 in"), in every order,
@@ -215,14 +254,16 @@ def _chains():
                         yield key, noun + " " + " ".join(parts), want
 
 
-def _restatements():
+def _restatements(where="first"):
     """One dimension stated twice with another phrase before, between or
     after (PPQ / PQP / PQQ / QPP), every alias of the restated parameter,
     both phrasings, with and without a comma: 18,496 prompts.  The class the
     round-1 review of #828 found.  Measured on this generator: main gets
     2,152 wrong, #828's round-1 head 2,401 (it fixed some and broke others),
-    this head 0."""
+    this head 0.  With ``where="cycle"`` (noun first, last or middle in
+    turn): main 2,466, round 1 2,773, round 2 2,010, this head 0."""
     import itertools
+    i = 0
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
         ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
@@ -235,7 +276,8 @@ def _restatements():
                         for sep in (" ", ", "):
                             parts = [ph(p, ap, 7, st) if c == "P" else ph(q, aq, 13, st)
                                      for c, st in zip(order, sts)]
-                            yield key, noun + " " + sep.join(parts), {p.key: 7.0, q.key: 13.0}
+                            w, i = (where if where != "cycle" else _WHERE[i % 3]), i + 1
+                            yield key, _place(noun, parts, sep, w), {p.key: 7.0, q.key: 13.0}
 
 
 def _sweep(gen):
@@ -273,15 +315,18 @@ def test_every_stated_number_binds_to_its_own_phrase_across_every_archetype():
     assert not fails, f"{len(fails)}/{sum(per.values())} chains mis-bound; first: {fails[:3]}"
 
 
-def test_a_restated_dimension_binds_once_and_nothing_else_follows_it():
-    per, fails = _sweep(_restatements())
+@pytest.mark.parametrize("where", ["first", "cycle"])
+def test_a_restated_dimension_binds_once_and_nothing_else_follows_it(where):
+    """``cycle`` moves the noun last or into the middle as well -- the shape
+    round 2's regressions all had (see _place)."""
+    per, fails = _sweep(_restatements(where))
     _assert_coverage(per, {"cable_tray": 5000, "strut_channel": 3000, "wireway": 500,
                            "junction_box": 500, "lighting_control_panel": 500,
                            "conduit": 50})
     assert not fails, f"{len(fails)}/{sum(per.values())} restatements mis-bound; first: {fails[:3]}"
 
 
-def _contradictions():
+def _contradictions(where="first"):
     """One dimension stated twice with DIFFERENT values (7 then 9) around
     another phrase (PPQ / PQP / QPP), every alias, both phrasings, with and
     without a comma: 13,872 prompts.  Which of 7 or 9 wins is not this
@@ -289,8 +334,11 @@ def _contradictions():
     dimension must still be the 13 they stated for it.  Measured: main gets
     1,478 wrong; a tie-break that only counted restatements carrying the
     SAME value got 1,156 wrong ("wide 7 in loading depth 13 in wide 9 in"
-    became a 13 in wide, 7 in deep tray); this head 0."""
+    became a 13 in wide, 7 in deep tray); this head 0.  With the noun
+    cycled first / last / middle: main 1,543, round 1 1,611, round 2 1,692,
+    this head 0."""
     import itertools
+    i = 0
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
         ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
@@ -304,13 +352,15 @@ def _contradictions():
                             for c, st in zip(order, sts):
                                 parts.append(ph(p, ap, next(pv), st) if c == "P"
                                              else ph(q, q.aliases[0], 13, st))
-                            yield key, noun + " " + sep.join(parts), p.key, q.key
+                            w, i = (where if where != "cycle" else _WHERE[i % 3]), i + 1
+                            yield key, _place(noun, parts, sep, w), p.key, q.key
 
 
-def test_a_contradicted_dimension_never_takes_the_other_phrases_number():
+@pytest.mark.parametrize("where", ["first", "cycle"])
+def test_a_contradicted_dimension_never_takes_the_other_phrases_number(where):
     import collections
     per, fails = collections.Counter(), []
-    for key, prompt, pk, qk in _contradictions():
+    for key, prompt, pk, qk in _contradictions(where):
         per[key] += 1
         arch = AR.archetype(key)
         r = AR.resolve_prompt(prompt, product=key)
