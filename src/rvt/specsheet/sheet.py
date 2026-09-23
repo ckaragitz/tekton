@@ -104,12 +104,17 @@ class Quantity:
 
 def _num(text: str) -> Optional[float]:
     """A bare number, a fraction or a mixed fraction -> float."""
+    # a zero denominator is not a quantity: "4/0" and "3/0" are everyday AWG
+    # sizes on electrical sheets, and the ZeroDivisionError escaped read_sheet
+    # and FAILED the whole pdf route with no file (hard rule 1, #831)
     m = _MIXED.match(text)
     if m:
-        return int(m.group("whole")) + int(m.group("n")) / int(m.group("d"))
+        d = int(m.group("d"))
+        return int(m.group("whole")) + int(m.group("n")) / d if d else None
     m = _FRAC.match(text)
     if m:
-        return int(m.group("n")) / int(m.group("d"))
+        d = int(m.group("d"))
+        return int(m.group("n")) / d if d else None
     m = _PLAIN.match(text)
     return float(m.group("num")) if m else None
 
