@@ -1051,6 +1051,12 @@ def _author_caller_params(doc: SK.FamilyDoc,
         spec_key = spec_val[0] if isinstance(spec_val, (tuple, list)) else "number"
         if spec_key == "text":
             _text(doc, cap, "identity")
+        elif spec_key == "yesno":
+            # a real Yes/No (ParamDefYesNo, #710) in the group the parametric
+            # module already chose for toggles -- that choice is [INFERRED]
+            # there and stays so here
+            from .parametric import _DEFAULT_GROUP
+            doc.add_family_parameter(cap, SK.SPEC_YESNO, _DEFAULT_GROUP["yesno"])
         else:
             _num(doc, cap, spec_key, "dimensions")
 
@@ -1078,6 +1084,10 @@ def _caller_param_row(doc: SK.FamilyDoc, row: Dict[Any, Any],
             # a text-spec value is stored verbatim: float("ONAN") raising and
             # leaving 0.0 on a TEXT parameter was the #769 review's blocker.
             row[doc.params[cap].elem_id] = str(v)
+        elif spec_key == "yesno":
+            if not isinstance(v, bool):
+                raise FactoryError(f"{cap}: a Yes/No value must be True or False, not {v!r}")
+            row[doc.params[cap].elem_id] = 1 if v else 0
         else:
             try:
                 row[doc.params[cap].elem_id] = float(v)
@@ -1110,6 +1120,14 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     built: List[G.FormBundle] = []
     x0 = y0 = z0 = float("inf")
     x1 = y1 = z1 = float("-inf")
+    # the EQUIPMENT's own extent, which excludes any part whose role is
+    # "clearance" (an NEC working space, #820): a 3.5 ft zone in front of a
+    # 6 in cabinet is not the cabinet's depth, and the type row's Width /
+    # Depth / Height describe the product.  The FULL extent (x0..z1) still
+    # includes every part, so the #808 sanity bounds see all the geometry.
+    ex0 = ey0 = ez0 = float("inf")
+    ex1 = ey1 = ez1 = float("-inf")
+    n_clearance = 0
     for i, part in enumerate(parts):
         fb = add_generic_part(doc, part, solid=solid)
         built.append(fb)
@@ -1139,6 +1157,15 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         x0, x1 = min(x0, cx - hw), max(x1, cx + hw)
         y0, y1 = min(y0, cy - hd), max(y1, cy + hd)
         z0, z1 = min(z0, base), max(z1, base + h)
+        if part.get("role") == "clearance":
+            n_clearance += 1
+        else:
+            ex0, ex1 = min(ex0, cx - hw), max(ex1, cx + hw)
+            ey0, ey1 = min(ey0, cy - hd), max(ey1, cy + hd)
+            ez0, ez1 = min(ez0, base), max(ez1, base + h)
+    if n_clearance == len(parts):
+        raise FactoryError("a generic model needs at least one part that is not a "
+                           "clearance -- a clearance has nothing to be the clearance of")
     W, D, H = (x1 - x0), (y1 - y0), (z1 - z0)
     # THE ASSEMBLY'S OWN EXTENT, checked here rather than only per part.
     # Per-part checks are necessary but not sufficient twice over: a part
@@ -1163,6 +1190,8 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                    (z0, "z"), (z1, "z")):
         _check_body_size(abs(_v), f"{_n} distance from the family origin",
                          "generic model assembly")
+    # from here on W / D / H are the EQUIPMENT's extent (see above)
+    W, D, H = (ex1 - ex0), (ey1 - ey0), (ez1 - ez0)
     sheet = FactSheet(subject=f"generic model {fam_name} ({len(built)} parts)")
     # `given` by default -- a caller's 3D body. The spec-sheet lane passes
     # `fact`, because those numbers were READ OFF A PUBLISHED DOCUMENT the
@@ -1172,6 +1201,8 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     sheet.set("depth_in", D * 12.0, kind=dim_provenance, source=source)
     sheet.set("height_in", H * 12.0, kind=dim_provenance, source=source)
     sheet.set("part_count", len(built), kind="given", source=source)
+    if n_clearance:
+        sheet.set("clearance_part_count", n_clearance, kind="given", source=source)
     for dim in ("Width", "Depth", "Height"):
         _num(doc, dim, "length", "dimensions")
     _author_caller_params(doc, text_params, numeric_params)
@@ -1528,7 +1559,11 @@ def make_archetype(*, product: str,
     arch = res.arch
     fam_name = name or res.name
     src = f"archetype:{arch.key}"
-    prod = make_generic_model(parts=parts, name=fam_name,
+    ws = AR.working_space_report(res) if (res.clearance and arch.working_space) else None
+    # the NEC working space's toggle (#818): a real Yes/No, defaulting to Yes.
+    # NOT yet bound to the zone's visibility (#690) -- the report says so.
+    toggle = {"Show Clearance": ("yesno", True)} if ws else None
+    prod = make_generic_model(parts=parts, name=fam_name, numeric_params=toggle,
                               category=category or arch.category,
                               base_z_ft=base_z_ft, solid=solid, source=src,
                               start_id=start_id, shared_params=shared_params,
@@ -1562,6 +1597,15 @@ def make_archetype(*, product: str,
     prod.notes.append(f"LOD: {arch.lod_note}")
     for lim in arch.limits:
         prod.notes.append(f"NOT modelled: {lim}")
+    if ws:
+        prod.notes.append(f"NEC WORKING SPACE: {ws['depth_ft']:g} ft deep x "
+                          f"{ws['width_ft'] * 12.0:g} in wide x {ws['height_ft']:g} ft high "
+                          f"-- {ws['status']}")
+        for k, a in ws["assumed"].items():
+            prod.notes.append(f"working space assumed {k}: {a}")
+        prod.notes.append(f"working space mounting: {ws['mounting']}")
+        prod.notes.append(f"working space toggle: {ws['toggle']}")
+        prod.notes.append(f"working space subcategory: {ws['subcategory']}")
     prod.doc.notes.append(
         f"archetype {arch.key}: {len(res.nominal())} nominal + {len(res.given())} "
         f"given dimension(s); no manufacturer identity is claimed")

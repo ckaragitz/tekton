@@ -158,6 +158,10 @@ class Archetype:
     lod_note: str = ""                          # what the parts ARE
     limits: Tuple[str, ...] = ()                # what this model does NOT carry
     standard_values: Callable[[Dict[str, float]], Dict[str, Any]] = lambda v: {}
+    #: True for equipment NEC 110.26 gives a working space in front of --
+    #: a prompt asking for "clearance" / "working space" then gets the zone
+    #: drawn from rvt.famgen.clearance (#818 / #820)
+    working_space: bool = False
     aliases: Tuple[str, ...] = ()               # display names, for the report
 
     def param(self, key: str) -> Param:
@@ -183,6 +187,8 @@ class Resolved:
     #: set when the prompt named a SPECIFIC manufacturer's item that this
     #: generic family is not (:func:`manufacturer_claim`)
     claim: Optional[Dict[str, Any]] = None
+    #: the prompt asked for the NEC working-space clearance (#820)
+    clearance: bool = False
 
     def given(self) -> List[str]:
         return sorted(k for k, v in self.provenance.items() if v == GIVEN)
@@ -191,7 +197,10 @@ class Resolved:
         return sorted(k for k, v in self.provenance.items() if v == NOMINAL)
 
     def parts(self) -> List[Dict[str, Any]]:
-        return self.arch.build(dict(self.values))
+        parts = self.arch.build(dict(self.values))
+        if self.clearance and self.arch.working_space:
+            parts.append(working_space_part(self))
+        return parts
 
     def to_json(self) -> Dict[str, Any]:
         return {
@@ -213,6 +222,8 @@ class Resolved:
             "given": self.given(),
             "nominal": self.nominal(),
             "manufacturer_claim": self.claim,
+            **({"working_space": working_space_report(self)}
+               if self.clearance and self.arch.working_space else {}),
         }
 
 
@@ -604,6 +615,7 @@ _register(Archetype(
     ),
     build=_lighting_control_panel,
     standard_values=lambda v: {"Mounting": "surface", "Material": "steel"},
+    working_space=True,
 ))
 
 
@@ -1055,8 +1067,10 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
             used.append((m.start(), m.end()))
             break
     _apply_follows(arch, vals, prov, quoted)
+    clear = wants_clearance(text)
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
-                    name=_name(arch, vals, prov), claim=manufacturer_claim(text))
+                    name=_name(arch, vals, prov, clearance=clear),
+                    claim=manufacturer_claim(text), clearance=clear)
 
 
 def _apply_follows(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str],
@@ -1104,12 +1118,78 @@ def resolve(product: str, overrides: Optional[Dict[str, Any]] = None,
         prov[k] = GIVEN
         quoted.pop(k, None)
     _apply_follows(arch, vals, prov, quoted)
+    clear = bool(base.clearance) if base else wants_clearance(prompt)
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
-                    name=_name(arch, vals, prov),
-                    claim=(base.claim if base else manufacturer_claim(prompt)))
+                    name=_name(arch, vals, prov, clearance=clear),
+                    claim=(base.claim if base else manufacturer_claim(prompt)),
+                    clearance=clear)
 
 
-def _name(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str]) -> str:
+# ---------------------------------------------------------------------------
+# NEC working space (#818 / #820) -- sized from rvt.famgen.clearance
+# ---------------------------------------------------------------------------
+
+_CLEARANCE_ASK = re.compile(
+    r"\b(?:nec\s+)?(?:working\s+)?(?:clearances?|working\s+space)\b", re.I)
+_CLEARANCE_NOT = re.compile(
+    r"\b(?:no|without|w/o|minus|excluding|exclude)\s+(?:any\s+|the\s+|nec\s+|working\s+)*"
+    r"(?:clearances?|working\s+space)\b", re.I)
+
+#: the cabinet's TOP above the floor, used to reach the working space down to
+#: the floor (110.26(A)(3) measures from the floor, the family's origin is the
+#: cabinet bottom).  NOMINAL: a common surface-panel mounting, stated in the
+#: report, and the reason the variant's zone is right only when the panel is
+#: mounted that way.
+MOUNT_TOP_IN = 78.0
+
+
+def wants_clearance(text: str) -> bool:
+    """The prompt asks for the NEC working-space clearance: "with clearance",
+    "NEC clearances", "working space" -- and does not say "without" it."""
+    t = str(text or "")
+    return bool(_CLEARANCE_ASK.search(t)) and not _CLEARANCE_NOT.search(t)
+
+
+def _working_space(res: "Resolved"):
+    from . import clearance as CL
+    v = res.values
+    return CL.working_space(equipment_width_ft=v["width_in"] * IN,
+                            equipment_height_ft=v["height_in"] * IN)
+
+
+def working_space_part(res: "Resolved") -> Dict[str, Any]:
+    """The NEC 110.26(A) working space as one ``role: clearance`` box: in front
+    of the working face (the cabinet projects toward -Y, so the zone starts at
+    the door face), centred on the equipment, from the FLOOR up -- the floor
+    being :data:`MOUNT_TOP_IN` below the cabinet top.  ``role: clearance``
+    keeps it out of the equipment's own Width / Depth / Height (#820)."""
+    v = res.values
+    ws = _working_space(res)
+    H, D = v["height_in"] * IN, v["depth_in"] * IN
+    floor = -max(0.0, MOUNT_TOP_IN * IN - H)          # the floor, below the cabinet bottom
+    return {"shape": "box", "name": "nec working space", "role": "clearance",
+            "width_ft": ws.width_ft, "depth_ft": ws.depth_ft, "height_ft": ws.height_ft,
+            "center": [0.0, -(D + ws.depth_ft / 2.0)], "base_z_ft": floor}
+
+
+def working_space_report(res: "Resolved") -> Dict[str, Any]:
+    ws = _working_space(res)
+    H = res.values["height_in"] * IN
+    return {
+        "depth_ft": ws.depth_ft, "width_ft": ws.width_ft, "height_ft": ws.height_ft,
+        "source": ws.source, "tier": ws.tier, "verified": ws.verified,
+        "status": ws.status, "assumed": dict(ws.assumed),
+        "mounting": (f"cabinet top {MOUNT_TOP_IN:g} in above the floor "
+                     f"(bottom {max(0.0, MOUNT_TOP_IN - H * 12.0):g} in) -- NOMINAL; the "
+                     "zone reaches the floor only when the panel is mounted this way"),
+        "toggle": ("'Show Clearance' is a real Yes/No parameter but is NOT yet linked to "
+                   "the zone's visibility (#690): the zone is always drawn"),
+        "subcategory": "none -- the engine cannot author a subcategory yet (#820)",
+    }
+
+
+def _name(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str], *,
+          clearance: bool = False) -> str:
     """A family name off the dimensions that identify the product."""
     prim = next((p for p in arch.params if p.primary), None)
     bits = [arch.title]
@@ -1118,6 +1198,8 @@ def _name(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str]) -> str:
     length = next((p for p in arch.params if p.key == "length_ft"), None)
     if length is not None:
         bits.append(length.display(vals[length.key]))
+    if clearance and arch.working_space:
+        bits.append("with NEC Clearance")
     return " ".join(bits)
 
 
