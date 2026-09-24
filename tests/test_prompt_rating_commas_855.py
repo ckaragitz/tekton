@@ -1,0 +1,185 @@
+"""test_prompt_rating_commas_855.py -- a comma between ONE item's ratings does not
+cut the item's count off.
+
+Spec-sheet phrasing puts commas between ratings ("four 225A, 3-phase, 4-wire
+panels"). The equipment clause closed its window at every comma, so the count
+before the first comma was never seen and the plural took its default of 2 (#855).
+A comma is now crossed only when no count follows it and the text before it, back
+to the previous boundary, is a count and ratings alone.
+"""
+import pytest
+
+from rvt.frontdoor import prompt_intent as PI
+
+
+def _items(prompt):
+    return PI.parse_prompt(prompt).items
+
+
+@pytest.mark.parametrize("prompt,n", [
+    ("four 225A, MCB panels", 4),                          # main: 2
+    ("three 75 kVA, dry-type transformers", 3),            # main: 2
+    ("six 225A, 3-phase, 4-wire panels", 6),               # main: 4
+    ("four 3-phase, 4-wire panels", 4),                    # main after #848: 2
+    ("three 480V, 3-phase transformers", 3),
+    ("four 75 kVA, 3-phase, 4-wire transformers", 4),
+    ("three 4-wire, 3-phase panels", 3),
+])
+def test_count_before_a_rating_list_is_read(prompt, n):
+    assert len(_items(prompt)) == n
+
+
+def test_ratings_before_the_comma_reach_the_items():
+    its = _items("four 225A, MCB panels")
+    assert all(it.rating_a == 225.0 and it.mains == "MCB" for it in its)
+
+
+@pytest.mark.parametrize("prompt,n", [
+    ("a 225A panel, two transformers", 3),
+    ("two transformers, three panels", 5),
+    ("an electrical room with 6 panels, 2 transformers", 8),
+    ("two 225A panels, a 75 kVA transformer", 3),
+    ("panels LP-1, LP-2 and LP-3", 3),
+    ("an electrical room, 30 x 20 ft, with 4 panels", 4),
+    ("four panels, 225A", 4),
+    ("a 3-phase, 4-wire panelboard", 1),
+])
+def test_a_comma_that_starts_a_new_item_still_splits(prompt, n):
+    assert len(_items(prompt)) == n
+
+
+def test_two_items_keep_their_own_ratings():
+    its = _items("two 225A panels, a 75 kVA transformer")
+    panels = [i for i in its if i.kind == "panelboard"]
+    xfmrs = [i for i in its if i.kind == "transformer"]
+    assert len(panels) == 2 and all(p.rating_a == 225.0 and p.kva is None for p in panels)
+    assert len(xfmrs) == 1 and xfmrs[0].kva == 75.0 and xfmrs[0].rating_a is None
+
+
+def _by_tag(prompt):
+    return {it.tag: it for it in _items(prompt)}
+
+
+@pytest.mark.parametrize("prompt", [
+    "panel LP-1, 225A, MCB, panel LP-2, 100A, MLO",       # review of #856: LP-2 got 225 A MCB
+    "LP-1, 225A, MCB, LP-2, 100A, MLO",
+])
+def test_trailing_ratings_never_reach_the_next_tagged_item(prompt):
+    lp2 = _by_tag(prompt)["LP-2"]
+    assert lp2.rating_a != 225.0 and lp2.mains != "MCB"
+
+
+def test_semicolon_does_not_carry_ratings_forward():
+    assert _by_tag("panel LP-1, 225A; panel LP-2")["LP-2"].rating_a != 225.0
+
+
+def test_spaces_and_mounting_do_not_carry_forward():
+    lp2 = _by_tag("LP-1 225A, 42-space, flush, LP-2")["LP-2"]
+    assert lp2.spaces != 42 and lp2.mounting != "flush"
+
+
+@pytest.mark.parametrize("prompt,kind,attr,leaked", [
+    ("a transformer, 75 kVA, panels", "panelboard", "kva", 75.0),
+    ("a transformer, 75 kVA, 480V, 3-phase, 4-wire panels", "panelboard", "kva", 75.0),
+    ("a panelboard, 225A, 42-space, transformers", "transformer", "rating_a", 225.0),
+    ("four panels, 225A, 3-phase transformers", "transformer", "rating_a", 225.0),
+    ("four receptacles at 18 in AFF, 20A, panels", "panelboard", "rating_a", 20.0),
+    ("two panels 225A, 42-space, flush, transformers", "transformer", "spaces", 42),
+])
+def test_ratings_never_cross_between_kinds(prompt, kind, attr, leaked):
+    its = [i for i in _items(prompt) if i.kind == kind]
+    assert its and all(getattr(i, attr) != leaked for i in its)
+
+
+def test_voltage_does_not_cross_between_kinds():
+    its = [i for i in _items("a transformer, 480V, 3-phase, panels") if i.kind == "panelboard"]
+    assert its and all(i.voltage != "480Y/277" for i in its)
+
+
+@pytest.mark.parametrize("prompt", [
+    "26 24 16, 225A, MCB panelboards",         # review round 2: read 16 (a CSI section number)
+    "26 24 16, panelboards",
+])
+def test_a_number_list_does_not_end_the_chain(prompt):
+    """ONE count token ends the chain; a run of numbers is not a count (the plural
+    default, as on main).  A lone number ('four, 225A, panels') still counts."""
+    assert len(_items(prompt)) == 2
+
+
+def test_an_article_does_not_count_a_plural_across_a_comma():
+    its = _items("a transformer, a 75 kVA, panels")
+    panels = [i for i in its if i.kind == "panelboard"]
+    assert len(panels) == 2 and all(p.kva is None for p in panels)
+
+
+def test_an_article_still_counts_a_singular():
+    its = _items("a 225A, MCB panel")
+    assert len(its) == 1 and its[0].rating_a == 225.0 and its[0].mains == "MCB"
+
+
+@pytest.mark.parametrize("prompt", [
+    "two 5-20R, 20A receptacles",                   # review round 3: read 5 (the 5-20R)
+    "two 15 kV, 500 kVA transformers",              # read 15
+    "four 15 kV, 500 kVA transformers",
+    "three 13.8 kV, 1000 kVA, liquid-filled transformers",   # read 8 (13.8)
+    "four NEMA 12, 225A panels",                    # read 12
+    "four NEMA 1, 225A panels",
+    "four type 1, 225A panels",
+])
+def test_a_rating_digit_the_reader_keeps_blocks_the_move(prompt):
+    """The gate approves exactly what the count reader reads (one shared scrub): a rating
+    digit the reader does not scrub is a second token, so the start stays put and the
+    plural takes its STATED default -- never a rating read as a count."""
+    parsed = PI.parse_prompt(prompt)
+    assert len(parsed.items) == 2
+    assert any("plural with no count" in d for d in parsed.coverage.defaults_applied)
+
+
+def test_room_with_a_nema_configuration_and_a_rating_list():
+    kinds = [i.kind for i in _items(
+        "an electrical room with two 5-20R, 20A receptacles and four 225A, MCB panels")]
+    assert kinds.count("panelboard") == 4 and len(kinds) == 6
+
+
+@pytest.mark.parametrize("prompt,kind,n", [
+    ("3,000A, 480Y/277V switchboard", "switchboard", 1),          # review round 4: 3 at 0 A
+    ("an electrical room with 3,000A, 65kA switchboard", "switchboard", 1),
+    ("an electrical room with 2,000A, 3-phase, 4-wire switchboard and two 225A panels",
+     "switchboard", 1),
+    ("electrical room; 1,200A, 480V, MCB switchboard", "switchboard", 1),
+])
+def test_a_thousands_comma_is_never_crossed(prompt, kind, n):
+    its = [i for i in _items(prompt) if i.kind == kind]
+    assert len(its) == n and all(i.rating_a not in (0.0, 200.0) for i in its)
+
+
+def test_thousands_comma_does_not_make_a_panel_count():
+    parsed = PI.parse_prompt("a 75 kVA transformer and 1,200A, MLO panelboards")
+    panels = [i for i in parsed.items if i.kind == "panelboard"]
+    assert len(panels) == 2 and all(p.rating_a != 200.0 for p in panels)
+    assert any("plural with no count" in d for d in parsed.coverage.defaults_applied)
+
+
+@pytest.mark.parametrize("prompt,kind,n", [
+    ("two 225A, 42, MCB panels", "panelboard", 2),                # review round 4: read 42
+    ("four 225A, 42, MCB panels", "panelboard", 2),               # the stated default
+    ("a 225A, 42, MCB panel", "panelboard", 1),
+    ("four 20A, 125V, 12, duplex receptacles", "receptacle_device", 2),
+    ("a 20A, 2, duplex receptacle", "receptacle_device", 1),
+    ("two 75 kVA, 3, dry-type transformers", "transformer", 2),
+])
+def test_a_bare_number_inside_the_rating_list_is_not_the_count(prompt, kind, n):
+    """The count must OPEN its clause: a number the walk could go on past is part of
+    the rating list, so the start stays put (main's reading)."""
+    its = [i for i in _items(prompt) if i.kind == kind]
+    assert len(its) == n
+
+
+def test_room_with_a_bare_number_in_a_rating_list():
+    assert len(_items("an electrical room with two 225A, 42, MCB panels "
+                      "and a 75 kVA transformer")) == 3
+
+
+def test_a_count_after_a_room_clause_still_opens_its_own():
+    its = _items("an electrical room, four 225A, MCB panels")
+    assert len(its) == 4 and all(i.rating_a == 225.0 for i in its)

@@ -208,6 +208,8 @@ _RE_TAG_SUFFIX = re.compile(r"-\d{1,3}[a-z]?\b", re.I)
 _COUNT_WORDS = r"\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve"
 _RE_COUNT_WORD = re.compile(r"\b(" + _COUNT_WORDS + r")\b")
 _RE_COUNT_TOK = re.compile(r"\b(" + _COUNT_WORDS + r"|a|an|pair|single)\b")
+#: the clause boundary a window starts on (',', 'and', 'with' ...), for reading what follows it
+_RE_LEAD_BOUNDARY = re.compile(r"^\s*(?:[,;.]|and\b|plus\b|with\b)", re.I)
 
 #: room / dimension extractors
 _ROOM_NOUNS = r"room|closet|vault|space"        # the room this route builds (and a place, below)
@@ -264,6 +266,22 @@ _RE_F2F = re.compile(
     r"\s*(?:of\s+|is\s+|=\s*|:\s*)?(?P<f>\d{1,2}(?:\.\d+)?)\s*(?P<u>" + _DIM_UNIT + r")"
     r"|(?P<f2>\d{1,2}(?:\.\d+)?)\s*(?P<u2>" + _DIM_UNIT + r")\s*"
     r"(?:floor[\s-]*to[\s-]*floor|per\s+(?:stor(?:e)?y|floor|level)|stor(?:e)?y\s+height)", re.I)
+#: what the equipment clause scrubs before it looks for a COUNT: ratings, levels, storeys
+#: and floor heights, so no rating digit is ever read as a count.  ONE list, used by the
+#: count reader and by the rating-comma gate alike, so the gate approves exactly the count
+#: the reader will read (#855 review round 3)
+_COUNT_SCRUBS = (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS, _RE_PHASE_WIRE,
+                 _RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN,
+                 _RE_F2F, _RE_STOREYS, _RE_LEVEL_REF)
+
+
+def _count_text(s: str) -> str:
+    """``s`` with everything the count reader scrubs blanked out."""
+    for rx in _COUNT_SCRUBS:
+        s = rx.sub(" ", s)
+    return s
+
+
 _RE_FED_FROM = re.compile(r"(?P<load>[A-Za-z][A-Za-z0-9\-]{0,10})\s+(?:is\s+)?fed\s+(?:from|by)\s+"
                           r"(?:the\s+)?(?P<src>[A-Za-z][A-Za-z0-9\-]{0,10})", re.I)
 
@@ -1453,6 +1471,54 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                 break
         return lo_b, hi_b
 
+    def over_rating_commas(ws: int, start: int, plural: bool) -> int:
+        """Move a clause's start back over commas that only separate ONE item's ratings
+        ('four 225A, 3-phase, 4-wire panels', 'three 75 kVA, dry-type transformers') so
+        the count before them is read (#855).  The move is kept only when the crossed
+        segments are ratings alone AND the chain ENDS at a count -- count, ratings, noun
+        -- with no tag and no other equipment noun on the way; anything else keeps the
+        original start, so one item's trailing ratings never reach the next item ('panel
+        LP-1, 225A, panel LP-2', 'a transformer, 75 kVA, panels').  The count that ends
+        the chain is ONE count token AS THE COUNT READER SEES IT (:func:`_count_text`),
+        so the gate approves exactly the count that will be read: '26 24 16, ...' and
+        'two 15 kV, 500 kVA transformers' stay put (a rating digit the reader does not
+        scrub is a second token), while a lone number still counts ('four, 225A,
+        panels'); a plural noun takes a number, never 'a' / 'an' / 'single' ('a
+        transformer, a 75 kVA, panels' keeps the transformer's ratings off the panels)."""
+        def crossable(c: int) -> Optional[Tuple[int, str]]:
+            """(previous boundary, raw segment) when the comma / semicolon at ``c`` may be
+            crossed: a list comma (never the thousands comma of '3,000A') whose segment
+            before it is ratings alone, tag-free.  None otherwise."""
+            if not (c > 0 and low[c] in ",;"):
+                return None
+            if low[c - 1:c].isdigit() and low[c + 1:c + 2].isdigit():
+                return None
+            prev = max((b for b in boundaries if b < c), default=0)
+            raw = _RE_LEAD_BOUNDARY.sub(" ", low[prev:c])
+            seg = _strip_ratings(raw)
+            if _RE_TAG_TOKEN.search(seg) or not _only_ratings(_RE_COUNT_TOK.sub(" ", seg)):
+                return None
+            return prev, raw
+
+        cur = ws
+        while True:
+            if _RE_COUNT_TOK.search(_count_text(low[cur + 1:start])):
+                break
+            if any(cur < m.start() and m.end() <= start for _k, _p, m, _r in kind_matches):
+                break
+            step = crossable(cur)
+            if step is None:
+                break
+            cur, raw = step
+            counts = _RE_COUNT_TOK.findall(_count_text(raw))
+            if counts:
+                # the count OPENS its clause: if the walk could go on past it ('two 225A,
+                # 42, MCB panels'), it is a bare number inside the rating list, not the count
+                singular = all(c in ("a", "an", "single") for c in counts)
+                opens = crossable(cur) is None
+                return cur if len(counts) == 1 and opens and not (plural and singular) else ws
+        return ws
+
     taken: List[Tuple[int, int]] = list(room_taken)
 
     def overlaps(a: int, b: int) -> bool:
@@ -1528,6 +1594,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             mark((km.start(), rend))
             continue
         ws, we = clause_window(km.start(), km.end())
+        ws = over_rating_commas(ws, km.start(), km.group(0).rstrip().endswith("s"))
         window = text[ws:we]
         # explicit TAGS: a bare reference IS its tag; a noun may be followed
         # by its tag list ('lighting panel LP-1', 'panels LP-1 and LP-2',
@@ -1559,10 +1626,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         # count of an uncounted plural; a bare reference is ONE item.
         head = low[ws:km.start()]
         head_count = head
-        for scrub in (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS, _RE_PHASE_WIRE,
-                      _RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN,
-                      _RE_F2F, _RE_STOREYS, _RE_LEVEL_REF):
-            head_count = scrub.sub(" ", head_count)
+        head_count = _count_text(head_count)
         plural = km.group(0).rstrip().endswith("s") or "pair" in head
         explicit_count = None
         for tok in ([] if ref_tag else reversed(_RE_COUNT_TOK.findall(head_count))):
