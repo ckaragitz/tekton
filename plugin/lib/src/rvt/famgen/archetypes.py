@@ -712,7 +712,18 @@ _FRAC_UNITLESS = "(?:" + "|".join(rf"(?:{n})\s*/\s*{d}" for n, d in (
     # ... ending there: whitespace or punctuation -- any letter makes it a
     # token ("3/4w"); a glued unit or cross 'x' is the branch above
     r")(?=\s|$|[^\w])")
-_MIXED_FRAC = rf"(?:\d+\s*/\s*\d+{_FRAC_UNIT_AHEAD}|{_FRAC_UNITLESS})"
+#: ... but only an UNSPACED slash takes any denominator.  A SPACED one ahead of
+#: a unit must be a proper fraction of at most two digits: "width 12 480 / 277
+#: in the electrical room" is a voltage, and "in" there is a preposition --
+#: 12 480/277 = 13.73 in came back ``given`` (#841 round 4; likewise 120 / 208
+#: before a quote read as feet, 12 / 2, 24 / 7, 277 / 480).
+_PROPER_SPACED = "(?:" + "|".join(
+    [rf"[1-{d - 1}]\s*/\s*{d}" for d in range(2, 10)]                  # 1/5, 5/6
+    + [r"[1-9]\s*/\s*[1-9]\d"]                                          # 7/20
+    + [rf"{a}\d\s*/\s*[{a + 1}-9]\d" for a in range(1, 9)]              # 11/20
+    + [rf"{a}{b}\s*/\s*{a}[{b + 1}-9]" for a in range(1, 10) for b in range(0, 9)]  # 11/12
+) + ")"   # no digit guard needed: the unit must come next
+_MIXED_FRAC = rf"(?:(?:\d+/\d+|{_PROPER_SPACED}){_FRAC_UNIT_AHEAD}|{_FRAC_UNITLESS})"
 _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 -- mixed, spaced
              r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?"              # 1,200 -- grouped
              rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}|\s*[-/]\s*\d+)?"
