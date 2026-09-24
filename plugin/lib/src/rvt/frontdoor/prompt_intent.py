@@ -1485,22 +1485,38 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         scrub is a second token), while a lone number still counts ('four, 225A,
         panels'); a plural noun takes a number, never 'a' / 'an' / 'single' ('a
         transformer, a 75 kVA, panels' keeps the transformer's ratings off the panels)."""
+        def crossable(c: int) -> Optional[Tuple[int, str]]:
+            """(previous boundary, raw segment) when the comma / semicolon at ``c`` may be
+            crossed: a list comma (never the thousands comma of '3,000A') whose segment
+            before it is ratings alone, tag-free.  None otherwise."""
+            if not (c > 0 and low[c] in ",;"):
+                return None
+            if low[c - 1:c].isdigit() and low[c + 1:c + 2].isdigit():
+                return None
+            prev = max((b for b in boundaries if b < c), default=0)
+            raw = _RE_LEAD_BOUNDARY.sub(" ", low[prev:c])
+            seg = _strip_ratings(raw)
+            if _RE_TAG_TOKEN.search(seg) or not _only_ratings(_RE_COUNT_TOK.sub(" ", seg)):
+                return None
+            return prev, raw
+
         cur = ws
-        while cur > 0 and low[cur] in ",;":
+        while True:
             if _RE_COUNT_TOK.search(_count_text(low[cur + 1:start])):
                 break
             if any(cur < m.start() and m.end() <= start for _k, _p, m, _r in kind_matches):
                 break
-            prev = max((b for b in boundaries if b < cur), default=0)
-            raw = _RE_LEAD_BOUNDARY.sub(" ", low[prev:cur])
-            seg = _strip_ratings(raw)
-            if _RE_TAG_TOKEN.search(seg) or not _only_ratings(_RE_COUNT_TOK.sub(" ", seg)):
+            step = crossable(cur)
+            if step is None:
                 break
-            cur = prev
+            cur, raw = step
             counts = _RE_COUNT_TOK.findall(_count_text(raw))
             if counts:
+                # the count OPENS its clause: if the walk could go on past it ('two 225A,
+                # 42, MCB panels'), it is a bare number inside the rating list, not the count
                 singular = all(c in ("a", "an", "single") for c in counts)
-                return cur if len(counts) == 1 and not (plural and singular) else ws
+                opens = crossable(cur) is None
+                return cur if len(counts) == 1 and opens and not (plural and singular) else ws
         return ws
 
     taken: List[Tuple[int, int]] = list(room_taken)

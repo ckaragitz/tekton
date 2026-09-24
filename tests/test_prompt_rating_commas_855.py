@@ -139,3 +139,47 @@ def test_room_with_a_nema_configuration_and_a_rating_list():
     kinds = [i.kind for i in _items(
         "an electrical room with two 5-20R, 20A receptacles and four 225A, MCB panels")]
     assert kinds.count("panelboard") == 4 and len(kinds) == 6
+
+
+@pytest.mark.parametrize("prompt,kind,n", [
+    ("3,000A, 480Y/277V switchboard", "switchboard", 1),          # review round 4: 3 at 0 A
+    ("an electrical room with 3,000A, 65kA switchboard", "switchboard", 1),
+    ("an electrical room with 2,000A, 3-phase, 4-wire switchboard and two 225A panels",
+     "switchboard", 1),
+    ("electrical room; 1,200A, 480V, MCB switchboard", "switchboard", 1),
+])
+def test_a_thousands_comma_is_never_crossed(prompt, kind, n):
+    its = [i for i in _items(prompt) if i.kind == kind]
+    assert len(its) == n and all(i.rating_a not in (0.0, 200.0) for i in its)
+
+
+def test_thousands_comma_does_not_make_a_panel_count():
+    parsed = PI.parse_prompt("a 75 kVA transformer and 1,200A, MLO panelboards")
+    panels = [i for i in parsed.items if i.kind == "panelboard"]
+    assert len(panels) == 2 and all(p.rating_a != 200.0 for p in panels)
+    assert any("plural with no count" in d for d in parsed.coverage.defaults_applied)
+
+
+@pytest.mark.parametrize("prompt,kind,n", [
+    ("two 225A, 42, MCB panels", "panelboard", 2),                # review round 4: read 42
+    ("four 225A, 42, MCB panels", "panelboard", 2),               # the stated default
+    ("a 225A, 42, MCB panel", "panelboard", 1),
+    ("four 20A, 125V, 12, duplex receptacles", "receptacle_device", 2),
+    ("a 20A, 2, duplex receptacle", "receptacle_device", 1),
+    ("two 75 kVA, 3, dry-type transformers", "transformer", 2),
+])
+def test_a_bare_number_inside_the_rating_list_is_not_the_count(prompt, kind, n):
+    """The count must OPEN its clause: a number the walk could go on past is part of
+    the rating list, so the start stays put (main's reading)."""
+    its = [i for i in _items(prompt) if i.kind == kind]
+    assert len(its) == n
+
+
+def test_room_with_a_bare_number_in_a_rating_list():
+    assert len(_items("an electrical room with two 225A, 42, MCB panels "
+                      "and a 75 kVA transformer")) == 3
+
+
+def test_a_count_after_a_room_clause_still_opens_its_own():
+    its = _items("an electrical room, four 225A, MCB panels")
+    assert len(its) == 4 and all(i.rating_a == 225.0 for i in its)

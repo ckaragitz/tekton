@@ -71,6 +71,19 @@ second token, so the start stays put and the default is stated. The reader itsel
 misreads these digits on `main` in the no-comma form; that is filed as #860 and not
 widened here.
 
+**Review round 4 (🛑) raised two more silent wrong counts, both fixed:**
+- **A thousands comma was crossed.** `3,000A, 480Y/277V switchboard` gave 3
+  switchboards at 0 A (the segment `3` became the count and `_RE_AMP` saw `000a`). A
+  comma between two digits is now never crossed.
+- **A bare number inside the rating list ended the chain.** `two 225A, 42, MCB panels`
+  gave 42 (and `a 20A, 2, duplex receptacle` gave 2). The count must now **open its
+  clause**: if the walk could go on past the count segment, that number is part of the
+  rating list, and the start stays put. A lone count still works (`four, 225A, panels`),
+  and so does a count after a room clause (`an electrical room, four 225A, MCB panels` → 4).
+
+Conservative false negatives stay at the stated default and are filed as #861: `N3R`,
+`100% rated`, a maker inside the chain, and the pre-existing `four 1,200A switchboards`.
+
 **Visible change (consistent with the no-comma form):** an explicit count wins over
 named tags, so `four 225A, MCB panels LP-1 and LP-2` now gives 4 items (LP-1, LP-2,
 PP-3, PP-4, all 225 A MCB). `main` gave 2 because it never saw the count.
@@ -82,18 +95,18 @@ What still holds:
 
 ## Evidence
 
-- `tests/test_prompt_rating_commas_855.py` (40 tests):
-  - this head: **40 passed**;
-  - `main`'s source (`c06f845`): **9 failed**, the 8 count pins plus `a 225A, MCB panel`
-    losing its rating; the leak pins pass;
+- `tests/test_prompt_rating_commas_855.py` (53 tests):
+  - this head: **53 passed**;
+  - `main`'s source (`c06f845`): **11 failed**. That is the 7 count pins, the ratings pin,
+    `a 225A, MCB panel` losing its rating, and the two room prompts; the leak, rating-digit
+    and round-4 pins pass on `main`, which never moved the start;
   - the first version (`17ba882`): **11 failed**, all leak pins;
   - round 1 (`7a627d6`): **3 failed**, the round-2 pins;
-  - round 2 (`3fbdfd6`): **8 failed**, the round-3 rating-digit pins.
-- Against `main`, the file now gives 10 failed / 30 passed. That is the 9 above plus the
-  room prompt; the round-3 pins pass on `main`, which never moved the start.
+  - round 2 (`3fbdfd6`): **8 failed**, the round-3 rating-digit pins;
+  - round 3 (`9363f46`): **12 failed**, the round-4 thousands-comma and bare-number pins.
 - `pytest tests/test_prompt_rating_commas_855.py tests/test_prompt_phase_count_845.py
   tests/test_prompt_intent.py tests/test_prompt_intent_775.py tests/test_frontdoor.py
-  tests/test_router.py` gives **327 passed, 19 skipped, 0 failed**
+  tests/test_router.py` gives **340 passed, 19 skipped, 0 failed**
   (`RVT_SKIP_LARGE=1`, no samples; the skip count depends on the environment).
 - `tools/prompt_battery.py --rows`: **99/100**. The same single pre-existing
   `Lighting control / relay panel` row fails as on `main`.
@@ -113,11 +126,14 @@ What still holds:
 - Shipped: `over_rating_commas`:
   - round 1: count-terminated chains only, with no tag and no other noun on the way;
   - round 2: one count token ends the chain, and a plural takes a number, not an article;
-  - round 3: the gate counts with the reader's own scrub (`_count_text`).
+  - round 3: the gate counts with the reader's own scrub (`_count_text`);
+  - round 4: never cross a thousands comma, and the count must open its clause.
 - Found, not widened: `four 225A MCB panels named LP` builds 8 on `main` (`named LP` is also
   read as a lighting-panelboard noun). Filed as #857.
 - Found, not widened: `26 24 16 225A MCB panelboards` builds 16 on `main`. Filed as #858.
 - Found, not widened: rating digits the count reader keeps become the count on `main`
   (`four 15 kV 500 kVA transformers` → 15, `two 5-20R 20A receptacles` → 5,
   `four 2-pole 225A panels` → spaces=2). Filed as #860.
+- Found, not widened: conservative false negatives (`N3R`, `100% rated`, a maker in the
+  chain, `four 1,200A switchboards`). Filed as #861.
 - Staged, not shipped: nothing.
