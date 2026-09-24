@@ -285,6 +285,94 @@ STATE.
   have only been read through simulated records, never from a family that
   has them** (#838).
 
+## Round 4 — shared parameters never read, and nested families' parameters counted
+
+🛑 on `feaeb80`. Every round-3 fix was confirmed. The reviewer then audited
+every class the tool reads against the schema and the Revit-born class
+counts. **The same mistake turned up a third time, in the parameter loop.**
+
+1. **A shared family parameter is a `ParamElemExternal`, not a
+   `ParamElemFamily`.** Our own panelboard, built with
+   `--shared-params`, read **10** of its 21 parameters. `compare` against the
+   local build showed 11 gaps between families with identical parameter
+   sets. Manufacturer reference families lean on shared parameters, so #838
+   would have read them low.
+2. **The loop was not limited to the family.** A loaded family's
+   parameters sit in the host's unit. With one of eval-kit project 04's
+   Family elements passed off as the self family, the profile read
+   **100** parameters for a family that lists 19.
+
+**Fixes:**
+- **Parameters are every `ParamElem` subclass, found by inheritance, and
+  only those the self family's `m_familyParams` lists** (by `m_paramId`).
+  They are reported as `local` / `shared` / `other_kind`.
+- **Instance vs type is still read from the local parameter's own
+  `m_instanceParam`.** A shared parameter has no such flag, so its count goes
+  to `instance_or_type_unread`. I did not take it from the family table's
+  `m_instance`: on our own catalog panelboard that field disagrees with
+  `m_instanceParam` for one parameter, so it does not mean the same thing.
+- **The `shared_parameters` class count is gone**, replaced by the filtered
+  `parameters.shared`.
+- **An undecodable self Family now says so** ("N Family element(s) could not
+  be decoded") instead of calling the file a project.
+
+**Measured:**
+- The local/shared panelboard pair reads 21 = 21 + 0 and 21 = 10 + 11, with
+  identical parameter groups.
+- **Their storage and spec kinds still differ**, because shared parameters are
+  declared as `ParamDefValue` with spec `int64` / `string` where our local
+  ones are `ParamDefInt` / no spec. That is a real difference in the files,
+  not a reading error, and `compare` shows it.
+- The project simulation reads 16: the 16 `ParamElemFamily` records among the
+  19 ids that family lists (3 are built-in).
+
+**Also (non-blocking):**
+- **New tests:**
+  - undecoded parameters, planes and dimensions are left out of their counts
+    (only forms were tested before);
+  - `compare` never ranks `undecoded` as a gap;
+  - the undecodable-self message.
+- **Stated limits:** see the list below.
+
+Tests: **102 passed** (15 new, including both panelboard builds, which also
+run through the content-free and key tests).
+
+Mutants: **6/6 killed**:
+- no listed filter;
+- local only;
+- shared never counted;
+- unread forced to 0;
+- no undecodable message;
+- every local parameter read as instance.
+
+**Limits, updated.** Everything above is subject to them.
+- **The `m_oFamDimConstrMgr` lists read 0 even where our writer labels
+  dimensions.** The catalog panelboard has 2 labelled dimensions and all
+  three lists are empty. That reading is `inferred` and shows nothing yet.
+- **These are read only through simulated records, never from a family that
+  has them:**
+  - voids;
+  - per-form subcategory, material and visibility;
+  - strong/weak planes;
+  - dimension kinds other than linear;
+  - the EQ option;
+  - formulas;
+  - reporting.
+- **`class-count` counts the exact class.** These subclasses are not counted
+  under their bases:
+  - `CurveElem` (4 subclasses);
+  - `DBView3d` (2);
+  - `BaseArray` → `Pattern` (6 in the Revit-born racbasic sample);
+  - `Opening` → `ShaftOpening`.
+- **`RefPlane` is read by exact class.** Its sibling `ProfileRefPlane` (218 in
+  racbasic) is left out, and whether it belongs in a family's reference-plane
+  count is open until a reference family is profiled.
+- **Subcategories and forms are not filtered to the self family.** A nested
+  family's subcategory under the same category would be counted. Parameters
+  are filtered now; the rest waits on a family that nests one (#838).
+- **Nested families, Revit-born projects with in-place or system families,
+  and 2024/2025 families** remain unverified, as in round 2.
+
 ---
 
 ## BRANCH STATE
@@ -293,9 +381,11 @@ STATE.
 - `tools/family_anatomy.py`: new.
 - `tools/sync_plugin.py`: `DENY_PATH_PARTS` gains the quarantine dirs and
   `reference-families`.
-- `tests/test_family_anatomy_837.py`: new, 87 tests;
+- `tests/test_family_anatomy_837.py`: new, 102 tests;
   `tests/ci_shard.d/837-family-anatomy.txt`.
 - this record.
+
+**Gates (round 4)**: 102 passed; 6/6 round-4 mutants killed.
 
 **Gates (round 3)**
 - 87 passed; 96 with `test_plugin_sync.py`.

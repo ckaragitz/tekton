@@ -102,7 +102,6 @@ COUNTED = {
     "BaseArray": "arrays",
     "RadialArray": "radial_arrays",
     "Opening": "openings",
-    "ParamElemExternal": "shared_parameters",
     "DBViewPlan": "plan_views",
     "DBViewSection": "elevation_views",
     "DBView3d": "views_3d",
@@ -164,6 +163,7 @@ VOCABULARY = frozenset({
     "by_kind", "total", "solids", "voids", "distinct_settings", "forms_off_the_common_setting",
     "forms_assigned", "subcategories", "named", "define_origin", "is_reference", "strong", "weak",
     "reference_strength", "other_reference", "alignments", "labelled", "unlabelled",
+    "local", "shared", "other_kind", "instance_or_type_unread",
     "eq_display_option", "param_driven_segments", "driven_segments", "anchored_refs",
     "instance", "type", "by_storage", "by_group", "by_spec", "formulas", "reporting",
     "other", "none",
@@ -214,6 +214,11 @@ def profile(path: str) -> dict:
     selves = [e for e in by_class.get("Family", [])
               if "m_famDocGUID" in val(e, "Family") and _nil_guid(val(e, "Family")["m_famDocGUID"])]
     if not selves:
+        if undecoded.get("Family"):
+            # a Family record the decoder could not read is not proof of a
+            # project -- say what happened (#842 round 4)
+            raise NotAFamily(f"{undecoded['Family']} Family element(s) could not be decoded; "
+                             "no self Family element was read")
         raise NotAFamily("no self Family element (a project file, or not a family)")
     if len(selves) > 1:
         # never guess which one is "the" family (#842 round 3: a tie-break
@@ -260,23 +265,42 @@ def profile(path: str) -> dict:
     driven_segments = len(dc.get("m_drivenDimSegs") or [])
 
     # --- parameters -------------------------------------------------------
-    p_total = p_inst = 0
+    # Every ParamElem subclass the file carries, by inheritance -- a SHARED
+    # family parameter is a ParamElemExternal, not a ParamElemFamily (#842
+    # round 4: a family with shared parameters read 10 of its 21) -- and only
+    # those the family's OWN m_familyParams lists: a nested or loaded family's
+    # parameters sit in the same unit (a project read 100 for a family of 19).
+    listed = {q.get("m_paramId") for q in params if isinstance(q, dict)}
+    p_total = p_inst = p_local = p_shared = p_other_kind = 0
     p_storage, p_group, p_spec = collections.Counter(), collections.Counter(), collections.Counter()
-    for eid in by_class.get("ParamElemFamily", []):
-        v = val(eid, "ParamElemFamily")
-        if not v:
-            continue
-        p_total += 1
-        if v.get("m_instanceParam"):
-            p_inst += 1
-        pdef = v.get("m_pParamDef") or {}
-        cls_name = str(pdef.get("ptr_class") or "")
-        p_storage[cls_name if cls_name.startswith("ParamDef") and cls_name in fi.schema.by_name
-                  else "other"] += 1
-        body = pdef.get("value") or {}
-        p_group[_group_key((body.get("m_groupTypeId") or {}).get("m_typeId"))] += 1
-        spec = (body.get("m_specTypeId") or {}).get("m_typeId")
-        p_spec[_group_key(spec) if spec else "none"] += 1
+    for cls in sorted(c for c in by_class if descends(c, "ParamElem")):
+        for eid in by_class[cls]:
+            if eid not in listed:
+                continue
+            v = val(eid, cls)
+            if not v:
+                continue
+            p_total += 1
+            if cls == "ParamElemFamily":
+                p_local += 1
+                # instance vs type is read from the local parameter's own
+                # flag; a shared one carries none, so it is left unread
+                # (the family table's m_instance disagrees with this flag on
+                # one of our own panelboard's parameters -- not a substitute)
+                if v.get("m_instanceParam"):
+                    p_inst += 1
+            elif cls == "ParamElemExternal":
+                p_shared += 1
+            else:
+                p_other_kind += 1
+            pdef = v.get("m_pParamDef") or {}
+            cls_name = str(pdef.get("ptr_class") or "")
+            p_storage[cls_name if cls_name.startswith("ParamDef") and cls_name in fi.schema.by_name
+                      else "other"] += 1
+            body = pdef.get("value") or {}
+            p_group[_group_key((body.get("m_groupTypeId") or {}).get("m_typeId"))] += 1
+            spec = (body.get("m_specTypeId") or {}).get("m_typeId")
+            p_spec[_group_key(spec) if spec else "none"] += 1
 
     # --- dimensions, reference planes, subcategories ---------------------
     dim_kinds = collections.Counter()
@@ -342,7 +366,10 @@ def profile(path: str) -> dict:
                                          "param_driven_segments": param_driven_segments,
                                          "driven_segments": driven_segments,
                                          "anchored_refs": anchored_refs}, "inferred"),
-        "parameters": aspect({"total": p_total, "instance": p_inst, "type": p_total - p_inst,
+        "parameters": aspect({"total": p_total, "local": p_local, "shared": p_shared,
+                              "other_kind": p_other_kind,
+                              "instance": p_inst, "type": p_local - p_inst,
+                              "instance_or_type_unread": p_total - p_local,
                               "by_storage": dict(sorted(p_storage.items())),
                               "by_group": dict(sorted(p_group.items())),
                               "by_spec": dict(sorted(p_spec.items())),

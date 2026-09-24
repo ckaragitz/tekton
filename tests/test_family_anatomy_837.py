@@ -45,6 +45,11 @@ CATALOG = {
     "transformer": ["transformer"],
     "luminaire": ["luminaire"],
     "device": ["device"],
+    # the same panelboard with LOCAL and with SHARED family parameters (#842
+    # round 4: a shared parameter is a ParamElemExternal and was never read)
+    "panelboard_local": ["panelboard", "--mains", "400", "--spaces", "42", "--mcb"],
+    "panelboard_shared": ["panelboard", "--mains", "400", "--spaces", "42", "--mcb",
+                          "--shared-params", "usecases/eaton-panelboard/panelboard-shared-parameters.txt"],
 }
 
 
@@ -114,7 +119,7 @@ def _schema_ids_in(path):
         elif isinstance(v, list):
             for x in v:
                 walk(x)
-    for eid in fi.ids_of_class(0, "ParamElemFamily"):
+    for eid in [*fi.ids_of_class(0, "ParamElemFamily"), *fi.ids_of_class(0, "ParamElemExternal")]:
         walk(fi.value(0, eid, 102))
     return ids
 
@@ -616,3 +621,94 @@ def test_two_self_families_are_refused_not_guessed(monkeypatch):
     path = os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT", "04_electrical_room_equipment_families.rvt")
     with pytest.raises(FA.NotAFamily, match="ambiguous"):
         FA.profile(path)
+
+
+# --- round 4 (#842): shared parameters, and only the family's own ------------
+
+def test_shared_family_parameters_are_counted(profiles):
+    """Same panelboard, same 21 parameters: 11 of them shared.  The reader
+    counted only ParamElemFamily and read 10 (round 4).  A shared parameter
+    carries no instance flag of its own, so its instance/type is reported
+    unread rather than guessed."""
+    loc = profiles["panelboard_local"]["parameters"]["value"]
+    sh = profiles["panelboard_shared"]["parameters"]["value"]
+    assert (loc["total"], loc["local"], loc["shared"], loc["instance_or_type_unread"]) == (21, 21, 0, 0)
+    assert (sh["total"], sh["local"], sh["shared"], sh["instance_or_type_unread"]) == (21, 10, 11, 11)
+    assert sh["by_group"] == loc["by_group"]
+    assert sum(sh["by_spec"].values()) == sum(sh["by_storage"].values()) == 21
+    assert sh["instance"] + sh["type"] == sh["local"]
+
+
+def test_only_the_familys_own_parameters_are_counted(monkeypatch):
+    """A loaded family's parameters sit in the host's unit too: one of the
+    eval kit project's 7 Family elements made to pass as the self family
+    must count ITS parameters (16 records of the 19 it lists), not the
+    project's 100 (round 4)."""
+    import uuid
+    seen = []
+
+    def one_nil(v):
+        if not seen:
+            seen.append(v.get("m_id"))
+        if v.get("m_id") == seen[0]:
+            v["m_famDocGUID"] = str(uuid.UUID(int=0))
+    _patch_class(monkeypatch, "m_famDocGUID", one_nil)
+    p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
+                                "04_electrical_room_equipment_families.rvt"))
+    assert p["parameters"]["value"]["total"] == 16
+    assert p["types"]["value"] == {"total": 2}
+
+
+@pytest.mark.parametrize("field,cls,aspect,measure", [
+    ("m_instanceParam", "ParamElemFamily", "parameters", "total"),
+    ("m_refName", "RefPlane", "reference_planes", "total"),
+    ("m_dimLockedForLabeling", "LinearDimString", "dimensions", "total"),
+])
+def test_an_undecoded_record_is_left_out_of_every_count(families, monkeypatch, field, cls, aspect, measure):
+    """Tested for forms only until round 4: parameters, planes and
+    dimensions that fail to decode are counted under undecoded instead."""
+    base = FA.profile(families["panelboard"])
+    seen = []
+
+    def fail_one(o):
+        if o.value.get(field) is not None and "m_constrDir" not in o.value and not seen:
+            o.errors.append({"field": field, "offset": 0, "error": "simulated"})
+            seen.append(1)
+    from rvt.families import FamilyIndex
+    import copy
+    real = FamilyIndex.decode
+
+    def fake(self, unit, eid, seq=102):
+        o = real(self, unit, eid, seq)
+        if o is not None and isinstance(o.value, dict) and field in o.value:
+            o = copy.deepcopy(o)
+            fail_one(o)
+        return o
+    monkeypatch.setattr(FamilyIndex, "decode", fake)
+    p = FA.profile(families["panelboard"])
+    assert p[aspect]["value"][measure] == base[aspect]["value"][measure] - 1
+    assert p["undecoded"]["value"] == {cls: 1}
+
+
+def test_compare_never_ranks_the_undecoded_count_as_a_gap(profiles):
+    a = dict(profiles["panelboard"], undecoded={"value": {"ExtrusionElem": 5}, "how": "decoded"})
+    gaps = FA.compare(a, profiles["panelboard"])
+    assert not [g for g in gaps if g["aspect"] == "undecoded"], gaps
+
+
+def test_an_undecodable_self_family_says_so(families, monkeypatch):
+    def fail(o):
+        o.errors.append({"field": "m_famDocGUID", "offset": 0, "error": "simulated"})
+    from rvt.families import FamilyIndex
+    import copy
+    real = FamilyIndex.decode
+
+    def fake(self, unit, eid, seq=102):
+        o = real(self, unit, eid, seq)
+        if o is not None and isinstance(o.value, dict) and "m_famDocGUID" in o.value:
+            o = copy.deepcopy(o)
+            fail(o)
+        return o
+    monkeypatch.setattr(FamilyIndex, "decode", fake)
+    with pytest.raises(FA.NotAFamily, match="could not be decoded"):
+        FA.profile(families["lighting_control_panel"])
