@@ -444,6 +444,50 @@ Tests: **121 passed, 5 xfailed**.
   `×`, rank, unit, off). The 10 core mutants of rounds 1–3 were re-run with
   their moved anchors: 10/10 killed.
 
+## Round 5 — `opens_cross` fired where the cross rule never reads: feet, and conduit
+
+🛑 on `bf4178f`. Two shapes, neither ambiguous:
+
+- **A cross in feet:** "ladder tray rung spacing 9 x 12 ft ladder tray"
+  became a **108 × 144 in tray, `given`**. `opens_cross` dropped "rung spacing
+  9", and the cross rule then read "9 x 12 ft" as width × depth. A foot
+  measurement after `x` is a run length, never a section.
+- **An archetype with no cross rule:** "EMT, trade size 3/4 x 10' EMT" lost its
+  diameter, and "the trade size 4 x 11' emt long is 3 foot" became a **132 in
+  conduit**.
+
+On the reviewer's sweep of this shape `main` was right on 5,724 of 6,372 and
+the head on 0. **My fuzzer's crosses were never in feet and never on
+conduit**: the same blind spot, a fifth time.
+
+**Fix.** `opens_cross` now also requires that the cross rule could actually
+read the cross. The archetype must have two cross dimensions, both still
+nominal in this reading, and the cross must not be in feet.
+
+| instrument | prompts | `main` wrong | head wrong | worse than `main` |
+|---|---|---|---|---|
+| feet crosses: every non-cross alias × values × ft / ' / feet / -ft × leads | 600 | 96 | 96 | **0** (round 4: 600 wrong) |
+| fuzzers 1–3 × seeds 1–3 | 180,000 | 35,584 | 15,084 | **137** (as round 4: 133 bare-alias, 4 ambiguous) |
+| deterministic sweeps (incl. placement and prefix) | 197,277 | 26,813 | 4,506 | **0** |
+
+Tests: **139 passed, 5 xfailed.**
+- The reviewer's 7 prompts are rows.
+- A row pins `re.match` over `re.search`: "junction box sheet thickness 1/8, 12 x
+  12 in junction box".
+- A row pins the "still nominal" check: "strut channel section height 2 in, lip
+  0.5 x 3 in strut channel", where without the check the stated lip is lost.
+  That mutant survived until the row existed.
+
+Mutants: **10/10** for the rule and **10/10** core, re-run.
+
+**The xfail row, reconsidered.** The reviewer points out that "junction box 6
+in wide 4 x 4 in" is *not* really ambiguous. An adjective alias (wide, deep,
+tall, long) follows its number, while a noun alias (width, depth, height,
+length) labels what follows. So "6 in wide" is complete and width 6 is the
+better reading. `main` reads it as W4 too, so it is not a regression. The
+row stays a strict xfail, and the adjective/noun hint is recorded on #832 as
+the lead for a fix.
+
 ---
 
 ## BRANCH STATE
@@ -455,7 +499,8 @@ Tests: **121 passed, 5 xfailed**.
   binds under both orders, keeps (bindings, intact phrases, then alias-first),
   and claims the winner's intact phrases into `used`; `opens_cross` keeps a
   unitless alias-first number that opens an "N x N" cross INTO THE NOUN out
-  of both, for aliases that are not themselves cross dimensions.
+  of both -- for aliases that are not themselves cross dimensions, on an
+  archetype whose cross rule is still open, and never for a cross in feet.
 - `plugin/lib/src/rvt/famgen/archetypes.py` — mirror.
 - `tests/test_archetype_alias_order_812.py` — new: a 30-row table (value **and**
   provenance, incl. restated nested aliases, label-first chains followed by a
@@ -472,8 +517,8 @@ Tests: **121 passed, 5 xfailed**.
 - `tools/dev/fuzz_prompt_dims.py` — new: the shape-varied fuzzer with a
   per-prompt oracle and `--compare` (dev instrument, not mirrored into the plugin).
 
-**Gates (round 4)**: 121 passed / 5 xfailed; 16/16 mutants killed (6 V8 + 10
-core re-run); `sync_plugin.py --check` in sync. (Round 3: 97 passed; its two
+**Gates (round 5)**: 139 passed / 5 xfailed; 20/20 mutants killed (10 for
+`opens_cross`, 10 core re-run); `sync_plugin.py --check` in sync. (Round 3: 97 passed; its two
 surviving intact-loop guards still change 0 outputs.)
 Full suite **not** run; `session_ci.sh` runs the shard on the head.
 

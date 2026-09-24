@@ -127,6 +127,24 @@ TABLE = [
                                                     "height_in": 6.0}),
     ("a 2 lip x 12 x 6 in strut channel",          {"lip_in": 2.0, "width_in": 12.0,
                                                     "height_in": 6.0}),
+    # round 5: a cross in FEET is a run length, never a section; and an
+    # archetype with no cross rule (conduit) never drops the alias
+    ("ladder tray rung spacing 9 x 12 ft ladder tray", {"rung_spacing_in": 9.0, "length_ft": 12.0}),
+    ("cable tray rail thickness 0.105 x 20 ft cable tray",
+                                                   {"rail_thickness_in": 0.105, "length_ft": 20.0}),
+    ("strut channel, lip 1/2 x 10 ft strut",       {"lip_in": 0.5, "length_ft": 10.0}),
+    ("sheet thickness 0.06 x 5 ft wireway",        {"thickness_in": 0.06, "length_ft": 5.0}),
+    ("EMT, trade size 3/4 x 10' EMT",              {"diameter_in": 0.75, "length_ft": 10.0}),
+    ("create a raceway diameter 1 x 10 raceway",   {"diameter_in": 1.0}),
+    ("the trade size 4 x 11' emt long is 3 foot",  {"diameter_in": 4.0, "length_ft": 3.0}),
+    # ... and only while the cross rule is still open: once a cross
+    # dimension is given it will not read the cross, so dropping the alias
+    # would only lose the stated lip
+    ("strut channel section height 2 in, lip 0.5 x 3 in strut channel",
+                                                   {"height_in": 2.0, "width_in": 2.0, "lip_in": 0.5}),
+    ("junction box sheet thickness 1/8, 12 x 12 in junction box",
+                                                   {"thickness_in": 0.125, "width_in": 12.0,
+                                                    "height_in": 12.0}),
     ("a 1/8 in sheet thickness, 1/8 in thickness 12 × 6 in wireway",
                                                    {"thickness_in": 0.125, "width_in": 12.0,
                                                     "height_in": 6.0}),       # the '×' sign
