@@ -76,7 +76,11 @@ SKIP_DIR_NAMES = {"__pycache__", "node_modules", ".pytest_cache", ".DS_Store"}
 BINARY_EXT = {".rvt", ".rfa", ".mp4", ".mov"}          # never bundled by tree/file syncs
 EXAMPLE_KEEP_EXT = {".ifc", ".json", ".md", ".txt", ".js"}
 # Never ship third-party extracted reference data (see experiments/genesis/reference/README.md)
-DENY_PATH_PARTS = ("autodesk-extracted", "quarantine", "/reference/", os.sep + "reference" + os.sep)
+DENY_PATH_PARTS = ("autodesk-extracted", "quarantine", "/reference/", os.sep + "reference" + os.sep,
+                   # hard rule 3's quarantine dirs, and the owner's reference
+                   # families (#836/#837): never shipped, whatever path they
+                   # arrive by
+                   "/samples/", "/vendor/", "/extracted/", "reference-families")
 
 # ---------------------------------------------------------------------------
 # the certified genesis base ASSET (the ONLY .rvt the plugin ships) — an
@@ -109,8 +113,19 @@ def _hash(p: str) -> str:
 
 
 def _denied(path: str) -> bool:
-    rel_full = path.replace("\\", "/").lower()
-    return any(part in rel_full for part in DENY_PATH_PARTS)
+    # matched on the path RELATIVE TO THE REPO (with a leading '/'), so a
+    # clone that happens to live under a folder named samples/, vendor/ or
+    # extracted/ is not denied wholesale (#842 review)
+    # a RELATIVE path (a plugin-relative destination, #842 round 2) is taken
+    # as-is -- abspath() would prepend the current directory, and a cwd under
+    # /vendor/ denied every asset
+    if not os.path.isabs(path):
+        rel = path
+    else:
+        ap = os.path.abspath(path)
+        rel = os.path.relpath(ap, ROOT) if ap.startswith(os.path.abspath(ROOT) + os.sep) else ap
+    rel_full = ("/" + rel.replace("\\", "/").lstrip("/")).lower()
+    return any(part.replace("\\", "/") in rel_full for part in DENY_PATH_PARTS)
 
 
 def _walk(src_dir: str, keep_ext=None):
