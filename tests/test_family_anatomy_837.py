@@ -185,13 +185,15 @@ def test_the_lighting_control_panel_is_pinned_aspect_by_aspect(profiles):
     are references, no subcategory / material / nested family, one type."""
     p = profiles["lighting_control_panel"]
     assert p["forms"]["value"] == {"by_kind": {"extrusion": 7}, "total": 7, "solids": 7, "voids": 0}
-    assert p["reference_planes"]["value"] == {"total": 2, "named": 2, "define_origin": 2,
-                                              "is_reference": 2, "strong": 0, "weak": 0}
+    assert p["reference_planes"]["value"] == {"total": 2, "named": 2, "define_origin": 2}
+    assert p["reference_strength"] == {"value": {"is_reference": 2, "strong": 0, "weak": 0,
+                                                 "other_reference": 2}, "how": "inferred"}
     assert p["form_subcategories"]["value"] == {"forms_assigned": 0, "subcategories": 0}
     assert p["form_materials"]["value"] == {"forms_assigned": 0}
     assert p["nested_families"]["value"] == {"total": 0}
-    assert p["dimensions"]["value"] == {"total": 0}
-    assert p["dimension_constraints"]["value"] == {"eq_display_option": 0, "param_driven_segments": 0,
+    assert p["dimensions"]["value"] == {"total": 0, "by_kind": {}, "alignments": 0}
+    assert p["dimension_constraints"]["value"] == {"labelled": 0, "unlabelled": 0,
+                                                   "eq_display_option": 0, "param_driven_segments": 0,
                                                    "driven_segments": 0, "anchored_refs": 0}
     assert p["dimension_constraints"]["how"] == "inferred"
     assert p["types"]["value"] == {"total": 1}
@@ -385,16 +387,18 @@ def test_a_plane_is_named_by_its_text_not_by_its_reference_setting(families, mon
         seen.append(1)
         v["m_refName"] = 0 if len(seen) == 1 else 12
     _patch_class(monkeypatch, "m_refName", edit)
-    rp = FA.profile(families["lighting_control_panel"])["reference_planes"]["value"]
-    assert (rp["named"], rp["is_reference"]) == (2, 1), rp
+    p = FA.profile(families["lighting_control_panel"])
+    rp, rs = p["reference_planes"]["value"], p["reference_strength"]["value"]
+    assert (rp["named"], rs["is_reference"], rs["other_reference"]) == (2, 1, 1), (rp, rs)
 
 
 def test_a_plane_without_text_is_not_named(families, monkeypatch):
     def edit(v):
         v["m_text"] = ""
     _patch_class(monkeypatch, "m_refName", edit)
-    rp = FA.profile(families["lighting_control_panel"])["reference_planes"]["value"]
-    assert (rp["named"], rp["is_reference"]) == (0, 2), rp
+    p = FA.profile(families["lighting_control_panel"])
+    rp, rs = p["reference_planes"]["value"], p["reference_strength"]["value"]
+    assert (rp["named"], rs["is_reference"]) == (0, 2), (rp, rs)
 
 
 def test_every_form_class_is_a_concrete_genSweep_subclass():
@@ -465,8 +469,9 @@ def test_strong_and_weak_references_are_told_apart(families, monkeypatch, settin
         v["m_refName"] = settings[len(seen) % 2]
         seen.append(1)
     _patch_class(monkeypatch, "m_refName", edit)
-    rp = FA.profile(families["lighting_control_panel"])["reference_planes"]["value"]
+    rp = FA.profile(families["lighting_control_panel"])["reference_strength"]["value"]
     assert (rp["strong"], rp["weak"], rp["is_reference"]) == want, rp
+    assert rp["other_reference"] == rp["is_reference"] - rp["strong"] - rp["weak"]
 
 
 @pytest.mark.parametrize("ptr_class", ["Lighting Control Panel", "ParamDefNotInTheSchema", ""])
@@ -509,6 +514,105 @@ def test_an_undecodable_family_record_is_not_taken_for_the_self_family(monkeypat
         return o
 
     monkeypatch.setattr(FamilyIndex, "decode", fake)
-    with pytest.raises(FA.NotAFamily):
+    with pytest.raises(FA.NotAFamily, match="no self Family"):
         FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
                                 "04_electrical_room_equipment_families.rvt"))
+
+
+# --- round 3 (#842): dimensions are concrete Dimension subclasses ------------
+
+def test_the_catalog_panelboard_dimensions_are_read(profiles):
+    """Our writer puts two labelled LinearDimStrings and four Alignments into
+    the catalog panelboard (param_drive.new_labeled_dim); the reader looked
+    for the abstract Dimension class and read 0 (round 3)."""
+    p = profiles["panelboard"]
+    assert p["dimensions"] == {"value": {"total": 2, "by_kind": {"linear": 2}, "alignments": 4},
+                               "how": "decoded"}
+    dc = p["dimension_constraints"]["value"]
+    assert (dc["labelled"], dc["unlabelled"], dc["eq_display_option"]) == (2, 0, 0)
+    assert p["connectors"]["value"] == {"total": 1}
+
+
+def test_every_dimension_class_the_table_names_is_a_dimension():
+    from rvt import schema as S
+    sch = S.load_schema()
+    for cls in list(FA.DIMENSION_KINDS) + list(FA.ALIGNMENT_CLASSES):
+        c, chain = sch.by_name[cls], []
+        while c is not None and len(chain) < 32:
+            chain.append(c.name)
+            c = sch.by_name.get(c.parent) if c.parent else None
+        assert "Dimension" in chain[1:], (cls, chain)
+
+
+def test_an_unlabelled_and_an_equality_dimension_are_told_apart(families, monkeypatch):
+    seen = []
+
+    def edit(v):
+        if v.get("m_dimLockedForLabeling") is not None and "m_constrDir" not in v:
+            if not seen:
+                v["m_ArrSegInfo"] = [dict(g, m_paramId=-1) for g in v["m_ArrSegInfo"]]
+                v["m_useEqualityFormula"] = True
+            seen.append(1)
+    _patch_class(monkeypatch, "m_ArrSegInfo", edit)
+    dc = FA.profile(families["panelboard"])["dimension_constraints"]["value"]
+    assert (dc["labelled"], dc["unlabelled"], dc["eq_display_option"]) == (1, 1, 1), dc
+
+
+def test_a_dimension_or_form_class_the_table_does_not_name_is_other_not_dropped(families, monkeypatch):
+    monkeypatch.setattr(FA, "DIMENSION_KINDS", {})
+    monkeypatch.setattr(FA, "FORM_CLASSES", {})
+    p = FA.profile(families["panelboard"])
+    assert p["dimensions"]["value"] == {"total": 2, "by_kind": {"other": 2}, "alignments": 4}
+    assert p["forms"]["value"]["by_kind"] == {"other": 1}
+
+
+def test_form_subcategory_and_material_assignments_are_counted(families, monkeypatch):
+    seen = []
+
+    def one(o):
+        if not seen:
+            o.value["m_categoryId"] = 4242
+            o.value["m_materialId"] = 4343
+            seen.append(1)
+    _patched_decode(monkeypatch, one)
+    p = FA.profile(families["lighting_control_panel"])
+    assert p["form_subcategories"]["value"]["forms_assigned"] == 1
+    assert p["form_materials"]["value"] == {"forms_assigned": 1}
+
+
+def test_formulas_and_reporting_parameters_are_counted(families, monkeypatch):
+    def edit(v):
+        ps = v["m_familyParams"]["value"]["m_params"]
+        ps[0]["m_oExpression"] = {"expr": "simulated"}
+        ps[1]["m_reporting"] = True
+        ps[2]["m_reporting"] = True
+    _patch_class(monkeypatch, "m_famDocGUID", edit)
+    params = FA.profile(families["lighting_control_panel"])["parameters"]["value"]
+    assert (params["formulas"], params["reporting"]) == (1, 2), params
+
+
+def test_a_record_the_decoder_could_not_consume_cleanly_is_undecoded(families, monkeypatch):
+    """No error listed, but not ``clean`` (bytes left over): still undecoded.
+    ``clean`` is a property of consumed vs total, so the simulation leaves a
+    byte unconsumed -- assigning ``clean`` raised, and the raise, not the
+    check, made this pass (round 3 mutant)."""
+    def unclean(o):
+        o.stub = False
+        o.consumed = o.total - 1
+        assert not o.errors and not o.clean
+    _patched_decode(monkeypatch, unclean)
+    p = FA.profile(families["lighting_control_panel"])
+    assert p["undecoded"]["value"] == {"ExtrusionElem": 7}
+    assert p["forms"]["value"]["total"] == 0
+
+
+def test_two_self_families_are_refused_not_guessed(monkeypatch):
+    """Every loaded Family made to look like a self family: the profiler
+    refuses instead of picking one (round 3: the tie-break was untested)."""
+    import uuid
+    def nil(v):
+        v["m_famDocGUID"] = str(uuid.UUID(int=0))
+    _patch_class(monkeypatch, "m_famDocGUID", nil)
+    path = os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT", "04_electrical_room_equipment_families.rvt")
+    with pytest.raises(FA.NotAFamily, match="ambiguous"):
+        FA.profile(path)

@@ -10,13 +10,17 @@ generation. Branch `cam/837-family-anatomy`.
 
 - **`profile X.rfa [--json]`** reads any family the engine decodes into
   counts and kinds:
-  - forms by kind (extrusion / blend / swept blend / revolve / sweep), and
-    solids vs voids (`GenSweep.m_cutting`);
+  - forms by kind (extrusion / blend / swept blend / revolve / sweep, and
+    `other` for any GenSweep subclass the table does not name), solids vs
+    voids (`GenSweep.m_cutting`);
   - distinct per-form visibility settings (`m_famElemVisibility.m_flags`);
   - forms assigned a subcategory or a material;
-  - reference planes (total, named, defining the origin);
-  - dimensions: total and EQ, plus, from the family's `m_oFamDimConstrMgr`,
-    labelled (`m_paramExprs`), driven segments and locked references;
+  - reference planes (total, named, defining the origin), and their
+    Is-Reference setting (strong / weak / other), `inferred`;
+  - dimensions by concrete class: linear, angular, radial, arc length,
+    spot elevation, `other`, and alignments (locks) apart. Also `inferred`:
+    labelled vs unlabelled, the EQ option, and the family's
+    `m_oFamDimConstrMgr` lists;
   - parameters: instance or type, by ParamDef storage class, by parameter
     group, formulas (`m_oExpression`), reporting;
   - types (`m_pFamilyTypes`), subcategories of the family's own category;
@@ -25,12 +29,15 @@ generation. Branch `cam/837-family-anatomy`.
 - **`compare REFERENCE OURS`** lists every measure where the reference has
   more than ours. A feature ours lacks entirely ranks first, then the rest by
   relative gap.
-- **Every aspect says how it was read**: `decoded`, `class-count`, or
-  `not-yet-readable`. The last covers a Yes/No bound to a form's visibility
+- **Every aspect says how it was read**: `decoded`, `inferred`, `class-count`
+  (the exact class, not its subclasses), or `not-yet-readable`. The last covers a Yes/No bound to a form's visibility
   (#690). A record that fails to decode is counted under `undecoded`, never
   skipped.
-- **Content-free by construction.** Keys are our own words, a ParamDef class
-  name, or the short form of a parameter-group type id. Values are counts.
+- **Content-free by construction.** A key is one of:
+  - one of our own words (`VOCABULARY`);
+  - a ParamDef class name the file's own schema defines;
+  - the last token of a full `autodesk.…:token-N.N.N` parameter-group or
+    spec type id. Values are counts.
   There are no names, strings, coordinates, ids or GUIDs.
 
 Also: `tools/sync_plugin.py`'s deny list now names hard rule 3's quarantine
@@ -41,8 +48,9 @@ safety net and did not catch it.
 
 ## Evidence
 
-`tests/test_family_anatomy_837.py` has **35 tests**. It builds all six
-archetypes through the product route.
+*Round 0 (first push); the counts are now 87 tests. See the round sections
+below.* `tests/test_family_anatomy_837.py` builds all six archetypes through
+the product route.
 
 - **Content-free:** every string the family carries (captions, type names, the
   description) is absent from its profile. The collector sees 18 such strings
@@ -71,8 +79,12 @@ archetypes through the product route.
 ## What is NOT verified — read this before trusting a profile
 
 **Only the aspects our own families contain have been exercised.** Our
-generated families contain no blends, sweeps, revolves, voids, dimensions,
-formulas, nested families or connectors. So the readers for those were written
+generated families contain no blends, sweeps, revolves, voids, formulas or
+nested families. *(Round 3 correction: this used to say "no dimensions or
+connectors". That was false. The catalog panelboard and luminaire each carry 2
+labelled `LinearDimString`, 4 `Alignment` and 1 connector, and the
+transformer carries 2 connectors. The reader looked for the wrong class and
+read 0.)* So the readers for those were written
 from the schema's field names (for example `GenSweep.m_cutting`,
 `Dimension.m_useEqualityFormula`, `FamDimConstrMgr.m_paramExprs`) and have
 **never been run against a family that has them**. The first profile of a
@@ -204,18 +216,74 @@ Tests: **79 passed** in `test_family_anatomy_837.py`.
 
 **Limits, stated plainly.** Everything else in this record is subject to
 them.
-- **Dimension counts are unexercised.** None of our families, and not the
-  tracked Eaton one, has a `Dimension` record. A mutant that stops counting
-  dimensions survives, because the true count is 0. This stays open until a
-  family with dimensions is profiled (#838).
+- ~~**Dimension counts are unexercised.**~~ *Retracted in round 3.* The
+  families do carry dimensions. `Dimension` is an abstract base that no
+  record carries, so the reader read 0, and that 0 is why the mutant
+  survived.
 - **Nested families are unverified.** No tracked family nests one, and none
   was built here. The self-family rule (nil `m_famDocGUID`) has been checked
-  on flat families and on two 7-family projects only.
+  on flat families, one 7-family project (eval kit 04) and the G_ABPD base only.
 - **Revit-born projects with in-place or system families** have not been
   tried.
 - **2024/2025 families are unverified.** `FamilyIndex` cannot open the 2024
   and 2025 genesis bases ("Partitions header v=9"), so every family profiled
   here is 2026-framed.
+
+## Round 3 — dimensions read from an abstract class
+
+🛑 on `e65cb3b`. All seven round-2 fixes were confirmed, and a new blocker was
+found. **The dimension reader counted records of class `Dimension`, an
+abstract base that no record carries.** Real dimensions are
+`LinearDimString`, `RadialDim`, `AngularDim` and the other 8 subclasses the
+schema lists. So `dimensions` read 0, labelled `decoded`, on every family:
+- The catalog panelboard carries 2 `LinearDimString` + 4 `Alignment` and read 0.
+- The Revit-born oracle summaries carry thousands of these records.
+- The EQ count read the same wrong class.
+
+**This is the round-1 `GenSweep` mistake again:** a base class in a table of
+record classes. The record then explained the surviving mutant with a false
+"the true count is 0", which I have retracted above.
+
+**Fix:**
+- Dimensions and forms are now found by **schema inheritance**
+  (`descends`).
+- A subclass the table does not name counts as `other`, never dropped.
+- Alignments are reported apart from real dimensions.
+- Labelled vs unlabelled is read from the segment's `m_paramId`, which is how
+  our writer labels a dimension. It is marked `inferred` for Revit-born
+  families.
+- The catalog panelboard is pinned exactly: 2 linear dimensions, both
+  labelled, 4 alignments, 1 connector.
+
+**Also:**
+- **The Is-Reference enum is now its own `inferred` aspect,
+  `reference_strength`.** `skeleton.REF_NAME` marks only the values as
+  verified. Codes other than 12/13/14 (Left … Top, and the unmapped 9–11)
+  count as `other_reference` instead of blending into strong/weak.
+- **Two or more nil-GUID Family elements are refused as ambiguous.** The
+  "most referenced" tie-break nothing exercised is gone.
+- **New tests, each of which killed a mutant that survived round 3's review:**
+  - formulas and reporting;
+  - per-form subcategory and material;
+  - the `clean` flag;
+  - the multi-self refusal;
+  - unlabelled and EQ dimensions;
+  - an unnamed dimension or form class.
+- The stale Evidence text, the key description and the "two 7-family
+  projects" line are corrected in place above.
+
+Tests: **87 passed** in `test_family_anatomy_837.py`. Mutants: see BRANCH
+STATE.
+
+**Limits** (round 2's stand, except the retracted dimension line):
+- nested families;
+- Revit-born projects with in-place or system families;
+- 2024/2025 families;
+- **`class-count` aspects count the exact class only.** `CurveElem` has 4
+  subclasses and `DBView3d` has 2 that are not counted under it.
+- **Dimension kinds other than linear, the EQ option and a real formula
+  have only been read through simulated records, never from a family that
+  has them** (#838).
 
 ---
 
@@ -225,12 +293,21 @@ them.
 - `tools/family_anatomy.py`: new.
 - `tools/sync_plugin.py`: `DENY_PATH_PARTS` gains the quarantine dirs and
   `reference-families`.
-- `tests/test_family_anatomy_837.py`: new, 79 tests;
+- `tests/test_family_anatomy_837.py`: new, 87 tests;
   `tests/ci_shard.d/837-family-anatomy.txt`.
 - this record.
 
-**Gates (round 2)**: 79 passed; 11/11 round-2 mutants killed (round 1:
-13/13); 88 passed with `test_plugin_sync.py`; `sync_plugin.py --check` in sync.
+**Gates (round 3)**
+- 87 passed; 96 with `test_plugin_sync.py`.
+- `sync_plugin.py --check` is in sync.
+- **25/25 mutants killed.** These are the 11 from round 2, the reviewer's
+  round-3 survivors, and 8 against the new readings.
+- **Two survived at first:**
+  - The `clean` test assigned to a read-only property. The resulting raise,
+    not the check, made it pass.
+  - The self-family guard test was satisfied by the new ambiguity refusal.
+
+  Both tests are fixed. Round 1 was 13/13.
 Full suite **not** run; `session_ci.sh` runs the shard.
 
 **Shipped vs staged**: a dev instrument, shipped to the repo, not to the

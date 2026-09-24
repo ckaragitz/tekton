@@ -26,7 +26,8 @@ EACH ASPECT SAYS HOW IT WAS READ:
                           its name or from our own writer, and not yet
                           confirmed against a Revit-born family (e.g. the
                           dimension constraint lists)
-  ``class-count``      -- counted by class; finer detail not decoded yet
+  ``class-count``      -- counted by EXACT class (not its subclasses); finer
+                          detail not decoded yet
   ``not-yet-readable`` -- we know it exists and cannot read it yet (e.g. a
                           Yes/No parameter bound to a form's visibility, #690)
 A record the decoder reports errors for, or cannot consume cleanly, is
@@ -73,6 +74,23 @@ FORM_CLASSES = {
 #: PLANE_REF: left=0 ... not_a_reference=12, strong=13, weak=14) -- NOT a name.
 #: The plane's name is DatumPlane.m_text.
 NOT_A_REFERENCE, STRONG_REFERENCE, WEAK_REFERENCE = 12, 13, 14
+#: ... skeleton.REF_NAME marks the VALUES verified and the NAMES inferred for
+#: codes no named specimen plane backs, so everything read from this enum is
+#: reported ``inferred`` (#842 round 3).  ``other_reference`` = every code
+#: but 12/13/14: the named settings Left ... Top (0-8) and the unmapped 9-11.
+
+#: Dimension is an abstract base -- no record carries it (#842 round 3: the
+#: reader looked for it and read 0 on every family).  Its concrete classes,
+#: found by schema inheritance: real dimensions by kind, alignments (the
+#: padlocks) apart; any other Dimension subclass counts as "other".
+DIMENSION_KINDS = {
+    "LinearDimString": "linear",
+    "AngularDim": "angular",
+    "RadialDim": "radial",
+    "ArcLengthDim": "arc_length",
+    "SpotElevation": "spot_elevation",
+}
+ALIGNMENT_CLASSES = ("Alignment", "ArcAlignment")
 
 #: counted by class; meaning known, finer detail not decoded yet
 COUNTED = {
@@ -145,10 +163,12 @@ VOCABULARY = frozenset({
     "dimensions", "dimension_constraints", "parameters", "types", "nested_families", "undecoded",
     "by_kind", "total", "solids", "voids", "distinct_settings", "forms_off_the_common_setting",
     "forms_assigned", "subcategories", "named", "define_origin", "is_reference", "strong", "weak",
+    "reference_strength", "other_reference", "alignments", "labelled", "unlabelled",
     "eq_display_option", "param_driven_segments", "driven_segments", "anchored_refs",
     "instance", "type", "by_storage", "by_group", "by_spec", "formulas", "reporting",
     "other", "none",
-}) | frozenset(FORM_CLASSES.values()) | frozenset(COUNTED.values()) | frozenset(NOT_YET_READABLE)
+}) | frozenset(FORM_CLASSES.values()) | frozenset(DIMENSION_KINDS.values()) \
+  | frozenset(COUNTED.values()) | frozenset(NOT_YET_READABLE)
 
 
 def profile(path: str) -> dict:
@@ -161,6 +181,17 @@ def profile(path: str) -> dict:
         by_class[fi.class_name(r.class_id)].append(int(eid))
     undecoded = collections.Counter()
     cache = {}
+    chains = {}
+
+    def descends(cls: str, base: str) -> bool:
+        """``cls`` is ``base`` or inherits from it, by the file's own schema."""
+        if cls not in chains:
+            chain, c = [], fi.schema.by_name.get(cls)
+            while c is not None and len(chain) < 64:
+                chain.append(c.name)
+                c = fi.schema.by_name.get(c.parent) if c.parent else None
+            chains[cls] = chain or [cls]
+        return base in chains[cls]
 
     def val(eid: int, cls: str) -> dict:
         """The decoded record, or {} -- and then it is COUNTED: the decoder
@@ -184,21 +215,23 @@ def profile(path: str) -> dict:
               if "m_famDocGUID" in val(e, "Family") and _nil_guid(val(e, "Family")["m_famDocGUID"])]
     if not selves:
         raise NotAFamily("no self Family element (a project file, or not a family)")
-    refs = collections.Counter()
-    for cls, eids in by_class.items():
-        for eid in eids:
-            v = val(eid, cls)
-            if v.get("m_famId") in selves:
-                refs[v["m_famId"]] += 1
-    self_id = refs.most_common(1)[0][0] if refs else selves[0]
-    fam = val(self_id, "Family")
+    if len(selves) > 1:
+        # never guess which one is "the" family (#842 round 3: a tie-break
+        # nothing exercised); refused, visibly, until a real file shows it
+        raise NotAFamily(f"{len(selves)} self Family elements (nil m_famDocGUID); "
+                         "which one is the family is ambiguous")
+    fam = val(selves[0], "Family")
 
     # --- forms -----------------------------------------------------------
     forms = collections.Counter()
     solids = voids = with_subcat = with_material = 0
     vis_flags = collections.Counter()
-    for cls, kind in FORM_CLASSES.items():
-        for eid in by_class.get(cls, []):
+    # every GenSweep subclass the file carries, by inheritance: a concrete
+    # class the table does not name (FormElem, FreeFormElement ...) is
+    # "other", never dropped
+    for cls in sorted(c for c in by_class if descends(c, "GenSweep")):
+        kind = FORM_CLASSES.get(cls, "other")
+        for eid in by_class[cls]:
             v = val(eid, cls)
             if not v:
                 continue
@@ -246,14 +279,25 @@ def profile(path: str) -> dict:
         p_spec[_group_key(spec) if spec else "none"] += 1
 
     # --- dimensions, reference planes, subcategories ---------------------
-    dims = eq_option = 0
-    for eid in by_class.get("Dimension", []):
-        v = val(eid, "Dimension")
-        if not v:
-            continue
-        dims += 1
-        if v.get("m_useEqualityFormula"):
-            eq_option += 1
+    dim_kinds = collections.Counter()
+    alignments = labelled = eq_option = 0
+    for cls in sorted(c for c in by_class if descends(c, "Dimension")):
+        for eid in by_class[cls]:
+            v = val(eid, cls)
+            if not v:
+                continue
+            if cls in ALIGNMENT_CLASSES:
+                alignments += 1
+                continue
+            dim_kinds[DIMENSION_KINDS.get(cls, "other")] += 1
+            # a segment naming a parameter element: how our writer labels a
+            # dimension (param_drive.new_labeled_dim) -- inferred for Revit-born
+            if any(isinstance(g, dict) and isinstance(g.get("m_paramId"), int)
+                   and g["m_paramId"] > 0 for g in v.get("m_ArrSegInfo") or []):
+                labelled += 1
+            if v.get("m_useEqualityFormula"):
+                eq_option += 1
+    dims = sum(dim_kinds.values())
     ref_planes = named_planes = origin_planes = is_ref = strong = weak = 0
     for eid in by_class.get("RefPlane", []):
         v = val(eid, "RefPlane")
@@ -288,10 +332,13 @@ def profile(path: str) -> dict:
         "form_subcategories": aspect({"forms_assigned": with_subcat, "subcategories": subcats}),
         "form_materials": aspect({"forms_assigned": with_material}),
         "reference_planes": aspect({"total": ref_planes, "named": named_planes,
-                                    "define_origin": origin_planes, "is_reference": is_ref,
-                                    "strong": strong, "weak": weak}),
-        "dimensions": aspect({"total": dims}),
-        "dimension_constraints": aspect({"eq_display_option": eq_option,
+                                    "define_origin": origin_planes}),
+        "reference_strength": aspect({"is_reference": is_ref, "strong": strong, "weak": weak,
+                                      "other_reference": is_ref - strong - weak}, "inferred"),
+        "dimensions": aspect({"total": dims, "by_kind": dict(sorted(dim_kinds.items())),
+                              "alignments": alignments}),
+        "dimension_constraints": aspect({"labelled": labelled, "unlabelled": dims - labelled,
+                                         "eq_display_option": eq_option,
                                          "param_driven_segments": param_driven_segments,
                                          "driven_segments": driven_segments,
                                          "anchored_refs": anchored_refs}, "inferred"),
