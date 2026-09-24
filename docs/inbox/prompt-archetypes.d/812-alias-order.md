@@ -488,6 +488,67 @@ better reading. `main` reads it as W4 too, so it is not a regression. The
 row stays a strict xfail, and the adjective/noun hint is recorded on #832 as
 the lead for a fix.
 
+## Round 6 — a restated cross dimension claimed the cross, and a rating number beat a doubled label
+
+🛑 on `4895231`. There were two classes, and both are plain English that main
+reads right:
+
+1. **A cross dimension's own alias, restated elsewhere, right before an "N x N"
+   cross.** In "6 in deep 20 x 30 in lighting control panel, depth: 6 in", the
+   intact loop kept "deep 20" as a phrase left whole, because `opens_cross`
+   exempts every cross-dimension alias. That claimed the cross's first number.
+   The head gave **W30 `given`** and lost H; main gives W20 H30 D6. On the
+   reviewer's sweep: 9,396 prompts right on main and wrong here, 6,264 of them
+   a false `given`. This is round 3's defect, reached through a cross
+   dimension.
+2. **A rating number in front of a doubled label.** In "junction box, nema 1
+   width 6 in wide", the redundant "6 in wide" scored as an intact phrase for
+   the number-first reading, so "1 width" won: **W1 `given`**. The same
+   happened with `type 1`, `qty 2`, `class 20` and `nema 12 … tall`. On the
+   reviewer's sweep: 294 of 378 prompts.
+
+**Fixes:**
+- **In the intact loop only, `opens_cross` applies to cross-dimension aliases
+  too** (`any_alias=True`). The binding loop keeps the exemption, so "width
+  20 x 30" still labels 20.
+- **A unit-less number-first number after a rating or count word is not
+  bound** (`_NOT_A_SIZE_LEAD`: the noun rule's rating words plus
+  qty / quantity / count). The noun rule's own list is unchanged.
+- **A designator before the number is skipped as well** (size, model, no.,
+  number, item, mark, tag, #), but only when the same parameter is stated
+  again later. My own generator found this: without it, "size 1 wide 6 in
+  wide" still gave W1. Applied unconditionally, it would have dropped main's
+  reading of "a size 12 wide junction box".
+- **Nit: the tail after the alias holds one number fewer than the
+  archetype's cross dimensions.** "length 24 X 42 × 42in wireway" is L24 with
+  a 42 × 42 section.
+- **Nit: a row now kills the `cross_dims[:2]` mutant.**
+
+| instrument | prompts | right on `main`, wrong on head | notes |
+|---|---|---|---|
+| new: a cross dimension restated (every alias × value × units × before/after × separator) + a rating, count or designator word before a doubled label (10 words × 4 numbers × 4 tails × 2 orders) | 12,912 | **0** | 1,440 better (e.g. "nema 12 tall junction box": main H12 `given`, head nominal) |
+| fuzzers 1–3 × seeds 1–3 | 60,000 | 56 | identical to round 5: 53 bare-alias (#832), 3 ambiguous |
+| deterministic sweeps | 197,277 | **0** | outputs byte-identical to round 5 |
+
+Tests: **175 passed, 5 xfailed.** The reviewer's prompts are all rows, plus
+rows for:
+- designator restated vs alone;
+- a unit after a rating word (still a dimension);
+- the wireway triple;
+- the `[:2]` witness.
+
+Mutants: **8/8** of the new code, all killed:
+- the intact exemption;
+- the binding exemption;
+- no rating guard;
+- no designator guard;
+- the designator guard without the restatement condition;
+- the tail always taking two more numbers;
+- `cross_dims` without `[:2]`;
+- the guard applied to numbers with units.
+
+Two of these survived first; their rows were added after.
+
 ---
 
 ## BRANCH STATE
@@ -517,8 +578,8 @@ the lead for a fix.
 - `tools/dev/fuzz_prompt_dims.py` — new: the shape-varied fuzzer with a
   per-prompt oracle and `--compare` (dev instrument, not mirrored into the plugin).
 
-**Gates (round 5)**: 139 passed / 5 xfailed; 20/20 mutants killed (10 for
-`opens_cross`, 10 core re-run); `sync_plugin.py --check` in sync. (Round 3: 97 passed; its two
+**Gates (round 6)**: 175 passed / 5 xfailed; 8/8 round-6 mutants killed
+(round 5: 20/20); `sync_plugin.py --check` in sync. (Round 3: 97 passed; its two
 surviving intact-loop guards still change 0 outputs.)
 Full suite **not** run; `session_ci.sh` runs the shard on the head.
 

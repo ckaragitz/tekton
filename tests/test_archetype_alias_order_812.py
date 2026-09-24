@@ -164,6 +164,42 @@ TABLE = [
     ("a cable tray 10 ft long",                    {"length_ft": 10.0}),
     ("a 600 mm cable tray",                        {"width_in": 600 / 25.4}),
     ("a 24x4 cable tray",                          {"width_in": 24.0, "depth_in": 4.0}),
+    # round 6: a cross dimension's own alias restated elsewhere, right before
+    # an "N x N" cross, is not a phrase left whole -- "deep 20" claimed the
+    # cross's first number and the noun rule read its last as the width
+    ("6 in deep 20 x 30 in lighting control panel, depth: 6 in",
+                                                   {"width_in": 20.0, "height_in": 30.0, "depth_in": 6.0}),
+    ("150 mm deep 600 x 900 mm lighting control panel, depth 150 mm",
+                                                   {"width_in": 600 / 25.4, "height_in": 900 / 25.4,
+                                                    "depth_in": 150 / 25.4}),
+    ("depth 4 in, 4 in deep 12 x 24 in junction box",
+                                                   {"width_in": 12.0, "height_in": 24.0, "depth_in": 4.0}),
+    ("6 in deep 20x30 lighting control panel, depth 6 in",
+                                                   {"width_in": 20.0, "height_in": 30.0, "depth_in": 6.0}),
+    # ... only while the cross is still open: with depth GIVEN, a junction
+    # box's width and height are what the cross fills (cross_dims[:2])
+    ("junction box, depth 4 in, sheet thickness 12 x 12 in junction box",
+                                                   {"width_in": 12.0, "height_in": 12.0, "depth_in": 4.0}),
+    # ... and the tail holds one number fewer than the cross dimensions: a
+    # wireway's "length 24 X 42 x 42in" already has its whole cross
+    ("length 24 X 42 × 42in wireway",              {"length_ft": 24.0, "width_in": 42.0, "height_in": 42.0}),
+    # a unit-less number after a rating or count word is not a dimension,
+    # even in front of a (doubled) label -- "nema 1 width" is NEMA 1
+    ("junction box, nema 1 width 6 in wide",       {"width_in": 6.0, "height_in": 6.0}),
+    ("nema 12 height 6 in tall junction box",      {"height_in": 6.0}),
+    ("junction box type 1 width 6 in wide",        {"width_in": 6.0, "height_in": 6.0}),
+    ("junction box qty 2 width 6 in wide",         {"width_in": 6.0, "height_in": 6.0}),
+    ("junction box class 20 width 6 in wide",      {"width_in": 6.0, "height_in": 6.0}),
+    ("junction box (2) width 6 in wide",           {"width_in": 6.0, "height_in": 6.0}),
+    ("nema 12 tall junction box",                  {}),        # a rating, not a height (main: 12)
+    # a designator only when the parameter is stated again with a unit ...
+    ("size 1 wide 6 in wide junction box",         {"width_in": 6.0, "height_in": 6.0}),
+    ("junction box #2 width 6 in wide",            {"width_in": 6.0, "height_in": 6.0}),
+    # ... alone, "size 12 wide" is still read as main reads it
+    ("a size 12 wide junction box",                {"width_in": 12.0, "height_in": 12.0}),
+    ("size 1 wide 6 wide junction box",            {"width_in": 6.0, "height_in": 6.0}),
+    # WITH a unit the number is a dimension, whatever word precedes it
+    ("pole 6 in wide junction box",                {"width_in": 6.0, "height_in": 6.0}),
 ]
 
 

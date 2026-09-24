@@ -898,6 +898,22 @@ def _alias_re(al: str) -> str:
     return re.escape(al).replace(r"\ ", r"\s+")
 
 
+#: a rating / classification word right before a number: the number belongs
+#: to that scheme, not to the product's size ("a NEMA 12 wireway")
+_RATING_LEAD = re.compile(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|"
+                          r"grid|zone|group|phase|pole)\s*$")
+#: ... and for a UNIT-LESS number read number-first ("1 wide"), also a count:
+#: "nema 1 width 6 in wide" and "qty 2 width 6 in wide" bound the 1 / 2 as the
+#: width, because the redundant "6 in wide" then scored as a phrase left whole
+#: (#828 round 6)
+_NOT_A_SIZE_LEAD = re.compile(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|grid|"
+                              r"zone|group|phase|pole|qty|quantity|count)\s*[#:=]?\s*$")
+#: ... and a designator, but only when the same parameter is stated again
+#: later ("size 1 wide 6 in wide", "#2 width 6 wide"): alone, "a size 12
+#: wide tray" is as likely a 12 in width, as main reads it
+_DESIGNATOR_LEAD = re.compile(r"(?:\b(?:size|model|no\.?|number|item|mark|tag)|#)\s*[#:=.]?\s*$")
+
+
 def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, int, str]]:
     """``(alias length, rank, pattern)`` for every way a prompt states this
     parameter, built from its aliases.
@@ -995,7 +1011,8 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     cross_dims = [k for k in ("width_in", "height_in", "depth_in")
                   if any(q.key == k for q in arch.params)]
 
-    def opens_cross(m: "re.Match", rank: int, p: "Param", now: Dict[str, str]) -> bool:
+    def opens_cross(m: "re.Match", rank: int, p: "Param", now: Dict[str, str],
+                    any_alias: bool = False) -> bool:
         # "thickness 12 x 6 in wireway": an alias-first match whose UNITLESS
         # number is the first element of an "N x N" cross-dimension that the
         # cross rule below will read reads the cross's number as its own
@@ -1013,13 +1030,17 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
         # With a unit the phrase is complete and the 'x' is a separator
         # ("thickness 12.5 in x 9 ft long"); number-first phrases next to an
         # 'x' are left alone ("12 in wide x 4 in deep", "3 x 10 ft long").
-        if rank != 1 or m.group("u") or p.key in cross_dims:
+        if rank != 1 or m.group("u") or (p.key in cross_dims and not any_alias):
             return False
         if len(cross_dims) < 2 or any(now.get(k) == GIVEN for k in cross_dims[:2]):
             return False
         tail = low[m.end():]
+        # the tail holds the REST of the cross: one number fewer than the
+        # archetype has cross dimensions -- a wireway's "length 24 X 42 x 42in"
+        # already has its whole cross after the alias (#828 round 6)
+        more = rf"(?:\s*[x×]\s*{_NUM_CORE})?" if len(cross_dims) > 2 else ""
         for pat in _product_patterns(arch):
-            mt = re.match(rf"\s*[x×]\s*{_NUM_CORE}(?:\s*[x×]\s*{_NUM_CORE})?{_SEP}"
+            mt = re.match(rf"\s*[x×]\s*{_NUM_CORE}{more}{_SEP}"
                           rf"(?P<u>{_ANY_UNIT})?{_SEP}(?:{pat})", tail)
             if mt:
                 return not (mt.group("u") and re.fullmatch(_UNITS["ft"], mt.group("u")))
@@ -1049,6 +1070,14 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                     continue
                 if inside_longer(m.start(), m.end(), n) or opens_cross(m, rank, p, b_prov):
                     continue
+                # a unit-less number after a rating or count word belongs to
+                # that scheme: "nema 1 width 6 in wide" is NEMA 1, not a 1 in
+                # width (#828 round 6) -- the noun rule's guard, same words
+                if rank == 0 and not m.group("u"):
+                    lead = low[max(0, m.start() - 24):m.start()]
+                    if _NOT_A_SIZE_LEAD.search(lead) or (_DESIGNATOR_LEAD.search(lead) and any(
+                            re.search(pu, low[m.end():]) for _n, _r, pu in _alias_patterns(p))):
+                        continue
                 num = _to_number(m.group(1))
                 if num is None:
                     continue
@@ -1073,7 +1102,11 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 s_, e_ = m.start(), m.end()
                 if not b_free(s_, e_) or any(s_ < ie and e_ > is_ for is_, ie in intact):
                     continue
-                if inside_longer(s_, e_, n) or opens_cross(m, rank, p, b_prov):
+                # ... and a cross dimension's own alias is no exception HERE:
+                # the reading has already bound it elsewhere, so "deep 20" in
+                # "6 in deep 20 x 30 in panel, depth: 6 in" is not a phrase
+                # left whole but the cross's first number (#828 round 6)
+                if inside_longer(s_, e_, n) or opens_cross(m, rank, p, b_prov, any_alias=True):
                     continue
                 num = _to_number(m.group(1))
                 conv = None if num is None else _convert(num, _unit_of(m.group(0)) or p.unit, p)
@@ -1155,9 +1188,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 continue
             # ... and a rating/classification word in front of the number means
             # the number belongs to that scheme, not to the product's size
-            lead = low[max(0, m.start() - 24):m.start()]
-            if re.search(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|"
-                         r"grid|zone|group|phase|pole)\s*$", lead):
+            if _RATING_LEAD.search(low[max(0, m.start() - 24):m.start()]):
                 continue
             num = _to_number(m.group(1))
             if num is None:
