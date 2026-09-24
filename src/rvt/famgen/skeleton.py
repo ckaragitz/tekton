@@ -58,6 +58,7 @@ import copy
 import json
 import hashlib
 import os
+import math
 import struct
 import time
 import uuid
@@ -2266,30 +2267,39 @@ class FamilyDoc:
             visit(pid)
 
         def plain(pid: int, v: Any) -> Any:
-            """A row value as the formula reads it: Yes/No from ``m_int`` (bools and
-            entry dicts alike), measurable values from ``m_value``."""
-            yesno = spec_of.get(pid) == SPEC_YESNO
-            if isinstance(v, dict):
-                if yesno or (not v.get("m_value") and v.get("m_int")):
-                    return int(v.get("m_int", 0))
-                return float(v.get("m_value", 0.0))
-            if isinstance(v, bool):
-                return int(v)
-            return v
-        rows = [(tname, vals, {self._param_key(k): plain(self._param_key(k), v)
-                               for k, v in vals.items()}) for tname, vals in self.types]
+            """A row value as the formula reads it -- taken from the ENTRY that will be
+            stored (:func:`family_param_value`), so a formula never reads a value the
+            file does not hold: Yes/No from ``m_int``, measurable values from
+            ``m_value`` (an int given for a length is stored in ``m_int`` and reads as
+            the 0.0 Revit will see)."""
+            entry = family_param_value(pid, v)
+            if spec_of.get(pid) == SPEC_YESNO:
+                return int(entry.get("m_int") or 0)
+            return float(entry.get("m_value") or 0.0)
+        rows = []
+        for tname, vals in self.types:
+            values = {}
+            for k, v in vals.items():
+                pid = self._param_key(k)
+                try:
+                    values[pid] = plain(pid, v)
+                except Exception:                                  # noqa: BLE001
+                    pass                  # unreadable here: a formula reading it is refused
+            rows.append((tname, vals, values))
         for pid in order:
             results = []
             try:
                 for tname, _vals, values in rows:
                     res = _fx.evaluate(trees[pid], values)
+                    if not isinstance(res, bool) and not math.isfinite(float(res)):
+                        raise ValueError(f"result {res!r} is not finite")
                     if spec_of[pid] == SPEC_YESNO:
                         results.append({"m_oExpression": trees[pid], "m_int": int(bool(res)),
                                         "m_value": 0.0})
                     else:
                         results.append({"m_oExpression": trees[pid], "m_value": float(res)})
             except (_fx.FormulaError, ZeroDivisionError, ValueError, OverflowError,
-                    TypeError) as exc:
+                    TypeError, RecursionError) as exc:
                 self.notes.append(f"formula of {caption(pid)} NOT written: type {tname!r} is not "
                                   f"evaluable ({type(exc).__name__}: {exc}); plain values kept")
                 continue

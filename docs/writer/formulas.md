@@ -42,15 +42,19 @@ Every node is an owned pointer `{ptr_class, pid: -1, value}`.
 
 Every formula entry of every type row in the pack (24,320 evaluations) was
 re-evaluated under candidate meanings and compared with the value Revit stored for
-that type.
+that type. The table gives the **independent re-verification's** single-code counts
+(#862 review). That run reads an Integer result rounded from `m_int`; the first pass,
+without that allowance, scored `/` 938/942. The first pass also counted `<` across
+mixed formulas: 1,445/1,445.
 
 | code | meaning | evaluations matching the stored value |
 |---|---|---|
-| operator 1 / 2 / 3 / 4 | `+` / `-` / `*` / `/` | 842/842, 901/901, 603/603, 938/942 |
-| operator 6 / 7 / 8 | `=` / `>` / `<` | 722/722, 476/476, 1,445/1,445 |
-| function 10 | `if(c, a, b)` | consistent in every passing run |
-| function 12 / 11 | `and` / `or` (variadic) | 6,955/6,955 (swapped: 2,895) |
-| function 13 | `not` | consistent |
+| operator 1 / 2 / 3 / 4 | `+` / `-` / `*` / `/` | 842/842, 901/901, 603/603, 942/942 |
+| operator 6 / 7 / 8 | `=` / `>` / `<` | 722/722, 476/476, 1,022/1,022 |
+| function 10 | `if(c, a, b)` | 2,405/2,405 |
+| function 12 / 11 | `and` / `or` (variadic) | 1,367/1,367, 166/166 (swapped: far lower) |
+| function 13 | `not` | 993/993 |
+| unary 1 | negation | 12/12 |
 | function 18 | `round` (half up) | 88/88 |
 | function 3 | `tan` | 30/30 |
 
@@ -81,9 +85,23 @@ inconsistent units.
   *rounded* in `m_int` (the independent review needed that allowance to reach
   24,320/24,320). A future Integer path must do the same.
 - **Yes/No is typed.** An `if` condition and the arguments of `and` / `or` / `not`
-  must be Yes/No. A Yes/No value is never negated, rounded, or used as a number.
-- **Names match with exact case**, as Revit's do. A name followed by `(` is a
-  function call, so a parameter named like a function never shadows it.
+  must be Yes/No. A Yes/No value never takes `+ - * /`, `= < >`, negation or
+  `round`.
+- `tan` takes an angle or a number, never a length.
+- **Names and unit suffixes match with exact case**, as Revit's do. `5M` and `5MM`
+  are refused. Function names are matched case-insensitively. A name followed by
+  `(` is a function call, so a parameter named like a function never shadows it.
+- **Not supported, and refused with the reason (never a crash):**
+  - feet-and-inches literals (`2' 6"`: write `2.5'`);
+  - parameter names that start with a digit;
+  - trees deeper than 60 levels (`formula.MAX_DEPTH`, far beyond a hand-written
+    formula).
+- **A formula reads exactly what the file stores.** Each input is taken from the
+  entry `family_param_value` will write: Yes/No from `m_int`, measurable values from
+  `m_value`. An int given for a length is stored in `m_int` and reads as the 0.0
+  Revit will see.
+- **A non-finite result** (inf or NaN, from the inputs or from overflow) is not
+  evaluable. The formula is then left out.
 - **All types, or none.** A formula is written only when it parses, type-checks and
   evaluates on **every** type. Otherwise every row keeps its plain value, with no
   tree next to a value that is not its result, and `notes` says why.

@@ -36,10 +36,16 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple
 SPEC_LENGTH = "autodesk.spec.aec:length-1.0.0"
 SPEC_NUMBER = "autodesk.spec.aec:number-1.0.0"
 SPEC_YESNO = "autodesk.spec:spec.bool-1.0.0"
+SPEC_ANGLE = "autodesk.spec.aec:angle-1.0.0"
+#: deepest tree the writer emits: far beyond a formula anyone writes by hand, and well
+#: inside Python's own recursion limit, so no formula string can crash a build (hard
+#: rule 1); deeper is refused with the reason
+MAX_DEPTH = 60
 
-#: ``BinaryOperatorExpression.m_binaryOperator`` -- pinned (#850): 1 '+' 842/842,
-#: 2 '-' 901/901, 3 '*' 603/603, 4 '/' 938/942, 6 '=' 722/722, 7 '>' 476/476,
-#: 8 '<' 1,445/1,445.  Code 5 is NOT pinned (8 uses, none evaluable).
+#: ``BinaryOperatorExpression.m_binaryOperator`` -- pinned (#850; the independent
+#: re-verification's single-code counts, Integer results read rounded from m_int):
+#: 1 '+' 842/842, 2 '-' 901/901, 3 '*' 603/603, 4 '/' 942/942, 6 '=' 722/722,
+#: 7 '>' 476/476, 8 '<' 1,022/1,022.  Code 5 is NOT pinned (8 uses, none evaluable).
 BINARY_OP = {"+": 1, "-": 2, "*": 3, "/": 4, "=": 6, ">": 7, "<": 8}
 #: ``UnaryOperatorExpression.m_unaryOperator`` 1 = negation
 UNARY_NEG = 1
@@ -73,7 +79,7 @@ class ParamRef:
 
 
 _NUMBER = re.compile(r"\s*(?P<num>\d+(?:\.\d*)?|\.\d+)\s*"
-                     r"(?P<unit>mm|cm|m(?![a-z])|in(?![a-z])|ft|'|\")?", re.I)
+                     r"(?P<unit>mm|cm|m(?![A-Za-z])|in(?![A-Za-z])|ft|'|\")?")
 _CALL = re.compile(r"([A-Za-z_]+)\s*\(")
 #: specs a formula may read or produce: MEASURABLE doubles and Yes/No.  Text, integer,
 #: material and other storage kinds are refused (their stored form -- m_str, a rounded
@@ -124,6 +130,7 @@ class _Parser:
         if op in ("=", "<", ">"):
             self._eat(op)
             right = self._additive()
+            _no_yesno(op, left, right)
             _same_spec(left, right, op)
             return _binary(op, left, right), SPEC_YESNO
         return left
@@ -133,6 +140,7 @@ class _Parser:
         while self._peek() in ("+", "-"):
             op = self._peek(); self._eat(op)
             right = self._multiplicative()
+            _no_yesno(op, node, right)
             _same_spec(node, right, op)
             node = (_binary(op, node, right), node[1])
         return node
@@ -145,6 +153,7 @@ class _Parser:
                 raise FormulaError("operator '^' has no pinned code (#850)")
             self._eat(op)
             right = self._unary()
+            _no_yesno(op, node, right)
             node = (_binary(op, node, right), _product_spec(node[1], right[1], op))
         return node
 
@@ -230,6 +239,13 @@ def _binary(op: str, left: Tuple[dict, str], right: Tuple[dict, str]) -> dict:
                                              "m_pRightSubexpression": right[0]})
 
 
+def _no_yesno(op: str, *operands: Tuple[dict, str]) -> None:
+    """Yes/No is never a number: no arithmetic, ordering or '=' on it (use and / or /
+    not / if) -- Revit's editor never writes such a tree."""
+    if any(o[1] == SPEC_YESNO for o in operands):
+        raise FormulaError(f"a Yes/No value cannot take {op!r} (use and / or / not / if)")
+
+
 def _same_spec(a: Tuple[dict, str], b: Tuple[dict, str], op: str) -> None:
     if a[1] != b[1]:
         raise FormulaError(f"inconsistent units: {_short(a[1])} {op} {_short(b[1])} "
@@ -261,7 +277,9 @@ def _function_spec(fname: str, args: List[Tuple[dict, str]]) -> str:
         raise FormulaError(f"{fname}() takes a measurable value, not Yes/No")
     if fname == "round":
         return args[0][1]
-    return SPEC_NUMBER                                    # tan
+    if args[0][1] not in (SPEC_NUMBER, SPEC_ANGLE):       # tan
+        raise FormulaError(f"tan() takes an angle or a number, not {_short(args[0][1])}")
+    return SPEC_NUMBER
 
 
 def _short(spec: str) -> str:
@@ -274,7 +292,28 @@ def parse_formula(text: str, params: Mapping[str, ParamRef]) -> Tuple[dict, str]
     :class:`FormulaError` for anything that cannot be stored faithfully."""
     if not str(text).strip():
         raise FormulaError("empty formula")
-    return _Parser(str(text), params).parse()
+    try:
+        tree, spec = _Parser(str(text), params).parse()
+    except RecursionError:
+        raise FormulaError(f"formula nests deeper than {MAX_DEPTH} levels") from None
+    if _depth(tree) > MAX_DEPTH:
+        raise FormulaError(f"formula nests deeper than {MAX_DEPTH} levels")
+    return tree, spec
+
+
+def _depth(tree: Any) -> int:
+    """Nesting depth of a tree, iteratively (never recursion-limited)."""
+    best, stack = 0, [(tree, 1)]
+    while stack:
+        n, d = stack.pop()
+        if isinstance(n, dict):
+            if "ptr_class" in n:
+                best = max(best, d)
+                d += 1
+            stack.extend((x, d) for x in n.values())
+        elif isinstance(n, list):
+            stack.extend((x, d) for x in n)
+    return best
 
 
 _BIN_EVAL: Dict[int, Callable[[Any, Any], Any]] = {
@@ -321,15 +360,13 @@ def evaluate(tree: dict, values: Mapping[int, Any]) -> Any:
 def referenced_params(tree: dict) -> List[int]:
     """Every parameter id a tree reads (for dependency order)."""
     out: List[int] = []
-
-    def walk(n: Any) -> None:
+    stack: List[Any] = [tree]
+    while stack:
+        n = stack.pop()
         if isinstance(n, dict):
             if n.get("ptr_class") == "ParameterExpression":
                 out.append(int(n["value"]["m_paramId"]))
-            for x in n.values():
-                walk(x)
+            stack.extend(n.values())
         elif isinstance(n, list):
-            for x in n:
-                walk(x)
-    walk(tree)
+            stack.extend(n)
     return out

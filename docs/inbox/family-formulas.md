@@ -52,6 +52,28 @@ ours had 0). The format facts are in `docs/writer/formulas.md`.
   - these hold with the Integer-rounded-in-`m_int` allowance noted in
     `docs/writer/formulas.md`.
 
+## Review round 2 (🛑), fixed
+
+- **Yes/No was still usable as a number.** `Flag + Flag`, `Is Tall * 2` and
+  `Is Tall < Flag2` were accepted. Now `+ - * /` and `= < >` refuse Yes/No operands.
+- **A formula read the raw input, not the stored entry.** An int for a length was
+  stored as `m_value 0.0` but computed with as 2; `1.0` for a Yes/No was stored as
+  No but computed with as Yes. Now every input is read from the
+  `family_param_value` entry that is actually written.
+- **`finalize()` could still raise** (`RecursionError` at 200 nested `if`s, 200
+  parentheses, a 500-term sum, 900 minus signs). Now `MAX_DEPTH` 60 is enforced
+  with an iterative depth walk, `RecursionError` is caught in parse and evaluate,
+  and `referenced_params` is iterative.
+- **Nits:**
+  - non-finite results are refused;
+  - unit suffixes are exact case;
+  - `tan` of a length is refused;
+  - the code tables in `formula.py`, `docs/writer/formulas.md` and this record now
+    use one run's numbers and say which;
+  - the unsupported forms are documented.
+- The reviewer confirmed that families **without** formulas are byte-identical to
+  `main` (`make_family` panelboard sha256 `a160d2a4…` on both).
+
 ## Evidence
 
 - **Reference pack (private, git-ignored `samples/`; counts only).**
@@ -68,15 +90,16 @@ ours had 0). The format facts are in `docs/writer/formulas.md`.
   - written with `emit_family_rfa_v2` on our bundled base and read back from disk,
     the trees and values are intact;
   - `rvt_validate` VALID, 0 errors; provenance `ok: true`.
-- **`tests/test_famgen_formula_850.py`: 54 passed** (37 at round 0, plus 17 round-1
-  pins; 14 of those fail on round 0 `604ce8f`). It covers the parser, unit
+- **`tests/test_famgen_formula_850.py`: 77 passed.**
+  - It has 37 round-0 tests, 17 round-1 pins (14 of them fail on `604ce8f`) and 23
+    round-2 pins (all 23 fail on `f61a076`). It covers the parser, unit
   constants, unit refusals, unpinned refusals, operator and function codes, the
   evaluator, dependency order, the writer on every type row, refusal notes, the cycle
   refusal, the schema round-trip, and an emitted `.rfa` read back and validated.
 - **Family suites.** `test_famgen_skeleton`, `_factory`, `_archetypes`,
   `_determinism_168`, `_parametric`, `_standards`, `_adoc`, `test_yesno_param_710`,
   `test_constraint_law`, `test_conformance` plus the new file give
-  **473 passed, 26 skipped, 0 failed** (round 1) (`RVT_SKIP_LARGE=1`, no samples).
+  **496 passed, 26 skipped, 0 failed** (round 2) (`RVT_SKIP_LARGE=1`, no samples).
 - `tools/sync_plugin.py --check` clean; `validate_plugin.py` PASS;
   `check_portable_paths.py` ok.
 

@@ -301,3 +301,88 @@ def test_a_formula_reading_a_circular_one_is_written_not_called_circular():
     row = _rows(doc.self_family.obj)["T"]
     assert row[made["C0"].elem_id]["m_oExpression"] is not None
     assert row[made["C0"].elem_id]["m_value"] == pytest.approx(3.0)
+
+
+# --- review round 2 (#862) ---------------------------------------------------------
+
+YN = F.SPEC_YESNO
+
+
+@pytest.mark.parametrize("text", ["Is Tall * 2", "2 * Is Tall", "Is Tall / 2", "Is Tall + Flag2",
+                                  "Is Tall - Flag2", "Is Tall < Flag2", "(Width > 1') * 3",
+                                  "Is Tall = Flag2"])
+def test_yes_no_is_never_a_number(text):
+    params = dict(PARAMS, Flag2=F.ParamRef(16, YN))
+    with pytest.raises(F.FormulaError, match="Yes/No value cannot take"):
+        F.parse_formula(text, params)
+
+
+@pytest.mark.parametrize("text", ["5M", "5MM", "5 IN"])
+def test_unit_suffixes_are_exact_case(text):
+    with pytest.raises(F.FormulaError):
+        _tree(f"Width + {text}")
+
+
+def test_tan_takes_an_angle_or_a_number_not_a_length():
+    with pytest.raises(F.FormulaError, match="tan\\(\\) takes an angle or a number"):
+        _tree("tan(Width)")
+
+
+@pytest.mark.parametrize("text", [
+    "if(Is Tall, " * 200 + "1'" + ", 2')" * 200,
+    "(" * 200 + "Width" + ")" * 200,
+    " + ".join(["Width"] * 500),
+    "-" * 900 + "Width",
+])
+def test_a_pathological_formula_is_refused_never_a_crash(text):
+    with pytest.raises(F.FormulaError, match="nests deeper"):
+        _tree(text)
+
+
+@needs_schema
+def test_a_pathological_formula_never_stops_the_build():
+    fs, doc, made = _doc_with(("W", "autodesk.spec.aec:length-1.0.0", None),
+                              ("Deep", "autodesk.spec.aec:length-1.0.0",
+                               " + ".join(["W"] * 500)))
+    doc.add_type("T", {"W": 1.0})
+    doc.finalize()
+    assert any("'Deep' NOT written: formula nests deeper" in n for n in doc.notes)
+
+
+@needs_schema
+@pytest.mark.parametrize("pname,spec,given,formula,stored_ok", [
+    # an int for a LENGTH is stored in m_int (m_value 0.0): the formula reads 0, not 2
+    ("Width", "autodesk.spec.aec:length-1.0.0", 2, "Width / 2", 0.0),
+    # a float for a YES/NO is stored m_int 0 (No): the formula reads No -> 3'
+    ("Flag", "autodesk.spec:spec.bool-1.0.0", 1.0, "if(Flag, 2', 3')", 3.0),
+    # an entry dict carrying m_int for a LENGTH: m_value 0.0 is what is stored
+    ("Width", "autodesk.spec.aec:length-1.0.0", {"m_int": 4}, "Width / 2", 0.0),
+])
+def test_a_formula_reads_exactly_the_value_the_file_stores(pname, spec, given, formula, stored_ok):
+    """Review round 2: the formula read the raw input, not the stored entry."""
+    fs, doc, made = _doc_with((pname, spec, None),
+                              ("Out", "autodesk.spec.aec:length-1.0.0", formula))
+    doc.add_type("T", {pname: given})
+    doc.finalize()
+    row = _rows(doc.self_family.obj)["T"]
+    assert row[made["Out"].elem_id]["m_value"] == pytest.approx(stored_ok)
+
+
+@needs_schema
+@pytest.mark.parametrize("w", [float("inf"), float("nan")])
+def test_a_non_finite_result_is_not_written(w):
+    fs, doc, made = _doc_with(("W", "autodesk.spec.aec:length-1.0.0", None),
+                              ("Out", "autodesk.spec.aec:length-1.0.0", "W * 2"))
+    doc.add_type("T", {"W": w})
+    doc.finalize()
+    assert _rows(doc.self_family.obj)["T"][made["Out"].elem_id]["m_oExpression"] is None
+    assert any("'Out' NOT written" in n and "not finite" in n for n in doc.notes)
+
+
+@needs_schema
+def test_an_overflowing_result_is_not_written():
+    fs, doc, made = _doc_with(("W", "autodesk.spec.aec:length-1.0.0", None),
+                              ("Out", "autodesk.spec.aec:length-1.0.0", "W * " + "9" * 400))
+    doc.add_type("T", {"W": 1.0})
+    doc.finalize()
+    assert _rows(doc.self_family.obj)["T"][made["Out"].elem_id]["m_oExpression"] is None
