@@ -167,6 +167,19 @@ _RE_MLO = re.compile(r"main\s+lugs?(?:\s+only)?|\bmlo\b", re.I)
 _RE_FLUSH = re.compile(r"flush(?:[\s-]*mount(?:ed)?)?|recessed", re.I)
 _RE_SURFACE = re.compile(r"surface(?:[\s-]*mount(?:ed)?)?", re.I)
 _RE_SECTIONS = re.compile(r"(\d{1,2})\s*[- ]?\s*sections?\b", re.I)
+#: PHASE / WIRE / POLE designators ('3-phase', 'single phase', '3PH', '3Ø', '4-wire', '4W',
+#: '3P') -- a system description, never an equipment count (#845).  Not when the word
+#: opens a compound ('four wire-guarded', 'three pole-mounted'), nor 'pole' before a
+#: mounting word ('three pole mounted', 'pole top'): there the number is the count.  A
+#: 'top-feed' after a phase / wire designator is a panel attribute, so only 'pole' takes
+#: that guard ('a 3-phase top-feed panelboard' is one panel)
+_RE_PHASE_WIRE = re.compile(
+    r"\b(?:single|two|three|four|[1-4])[\s-]?(?:phase|wire)s?\b"
+    r"(?!-(?!(?:two|three|four)\b)[a-z])"
+    r"|\b(?:single|two|three|four|[1-4])[\s-]?poles?\b"
+    r"(?!-(?!(?:two|three|four)\b)[a-z])(?!\s+(?:mount|top)\w*)"
+    r"|\b[1-4][\s-]?(?:ph|ø|φ)(?![a-z])"
+    r"|\b[1-4](?:w|p)\b", re.I)
 #: a device MOUNTING HEIGHT above the floor: 'at 18 in AFF', '44 inches above
 #: the finished floor', '1100 mm mounting height' (unit AND an AFF phrase
 #: required, so neither a bare count nor the room's 'N ft high' is read as one)
@@ -1540,13 +1553,13 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         tag_toks = fresh
         # count: the nearest number-word / digit BEFORE the noun in the
         # window, after RATING expressions ('400 A', '75 kVA', '65 kA',
-        # '42-space', '480Y/277 V') are scrubbed so a unit letter ('A')
-        # or a rating digit is never mistaken for a count.  An explicit
+        # '42-space', '480Y/277 V', '3-phase 4-wire') are scrubbed so a unit
+        # letter ('A') or a rating digit is never mistaken for a count.  An explicit
         # count WINS over the number of tags named; tags alone set the
         # count of an uncounted plural; a bare reference is ONE item.
         head = low[ws:km.start()]
         head_count = head
-        for scrub in (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS,
+        for scrub in (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS, _RE_PHASE_WIRE,
                       _RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN,
                       _RE_F2F, _RE_STOREYS, _RE_LEVEL_REF):
             head_count = scrub.sub(" ", head_count)

@@ -1,0 +1,112 @@
+"""test_prompt_phase_count_845.py -- a phase / wire / pole designator is a
+system description, never an equipment count.
+
+Found producing the owner's test panelboard (#845):
+
+    a 208/120V 3-phase 4-wire panelboard  -> 4 panelboards (PP-1..PP-4)
+    a 208/120V 3-phase panelboard         -> 3
+    a 75 kVA 3-phase transformer          -> 3 transformers
+
+The equipment clause scrubs ratings from the words before the noun before it
+looks for a count, but phase / wire / pole designators were not scrubbed, so
+the '3' of '3-phase' and the '4' of '4-wire' won as the count.
+"""
+import pytest
+
+from rvt.frontdoor import prompt_intent as PI
+
+
+def _kinds(prompt):
+    return [it.kind for it in PI.parse_prompt(prompt).items]
+
+
+@pytest.mark.parametrize("prompt", [
+    "a 208/120V 3-phase panelboard",
+    "a 208/120V 4-wire panelboard",
+    "a 208/120V 3-phase 4-wire panelboard",
+    "a three phase four wire 480Y/277V panelboard",
+    "a 3 phase panel",
+])
+def test_designator_is_not_a_count(prompt):
+    """Each of these built 3 or 4 panelboards before the fix."""
+    assert _kinds(prompt) == ["panelboard"]
+
+
+def test_transformer_designator_is_not_a_count():
+    assert _kinds("a 75 kVA 3-phase transformer") == ["transformer"]
+
+
+@pytest.mark.parametrize("prompt", [
+    "a 208/120V panelboard",
+    "a single-phase 120/240V panelboard",
+    "a 3PH 4W 208Y/120 panel",
+    "a 3Ø panelboard",
+    "a 3P panelboard",
+    "a 3-pole 225A panelboard",
+])
+def test_other_forms_stay_one(prompt):
+    """Guards on the wider forms the scrub now covers (these already read as one)."""
+    assert _kinds(prompt) == ["panelboard"]
+
+
+@pytest.mark.parametrize("prompt,n", [
+    ("two 3-phase panels", 2),                      # was 3 before the fix
+    ("2 208Y/120V 3-phase 4-wire panels", 2),       # was 4 before the fix
+    ("three three-phase panelboards", 3),
+    ("4 panels", 4),
+    ("an electrical room with 6 panels", 6),
+])
+def test_explicit_count_still_wins(prompt, n):
+    kinds = _kinds(prompt)
+    assert len(kinds) == n and set(kinds) == {"panelboard"}
+
+
+@pytest.mark.parametrize("prompt,n", [
+    ("three pole-mounted transformers", 3),         # review of #848: the fix first read 2
+    ("four pole-mounted transformers", 4),
+    ("three pole mounted transformers", 3),
+    ("three pole-top transformers", 3),
+    ("four wire-guarded panels", 4),
+    ("three phase-converter panels", 3),
+])
+def test_compound_word_keeps_its_count(prompt, n):
+    """A designator word that opens a compound is not a designator: the number before
+    it is the count."""
+    assert len(_kinds(prompt)) == n
+
+
+def test_room_with_pole_mounted_transformers():
+    kinds = _kinds("an electrical room with three pole-mounted transformers and 2 panels")
+    assert kinds.count("transformer") == 3 and kinds.count("panelboard") == 2
+
+
+@pytest.mark.parametrize("prompt", [
+    "a 208/120V 3-phase-4-wire panelboard",
+    "a 208/120V three-phase-four-wire panelboard",
+])
+def test_hyphen_chained_designators_stay_one(prompt):
+    assert _kinds(prompt) == ["panelboard"]
+
+
+@pytest.mark.parametrize("prompt,n", [
+    ("a 3-phase top-feed panelboard", 1),           # review round 2: round 1 read 3
+    ("a 208/120V 3-phase 4-wire top-feed panelboard", 1),
+    ("two 3-phase top-feed panels", 2),
+    ("a 4-wire top fed switchboard", 1),
+])
+def test_top_feed_after_a_designator_is_an_attribute(prompt, n):
+    assert len(_kinds(prompt)) == n
+
+
+@pytest.mark.parametrize("prompt", [
+    "three phase transformers",
+    "3 phase transformers",
+    "four wire panels",
+])
+def test_uncounted_plural_reads_the_designator(prompt):
+    """A DECISION, not an accident: before a plural noun, 'three phase' is read as the
+    system (trade usage), not as a count -- the plural then takes the stated default of
+    2, and the coverage report says so."""
+    parsed = PI.parse_prompt(prompt)
+    assert len(parsed.items) == 2
+    assert any("plural with no count" in d for d in parsed.coverage.defaults_applied)
