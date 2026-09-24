@@ -5,7 +5,7 @@ panelboard (steer #847 session).
 
 ## What was wrong
 
-| prompt | before | after |
+| prompt | `main` | this PR |
 |---|---|---|
 | `a 208/120V 3-phase panelboard` | 3 panelboards | 1 |
 | `a 208/120V 4-wire panelboard` | 4 | 1 |
@@ -14,61 +14,63 @@ panelboard (steer #847 session).
 | `a 75 kVA 3-phase transformer` | 3 transformers | 1 |
 | `two 3-phase panels` | 3 | 2 |
 | `2 208Y/120V 3-phase 4-wire panels` | 4 | 2 |
+| `three single-phase transformers` | 1 | 3 |
 
 The equipment clause looks for a count in the words before the noun. It
 scrubs rating expressions from those words first (amps, kVA, kA, spaces,
 sections, voltages, storeys, level refs), but it did not scrub phase / wire /
-pole designators. So the nearest digit, the `3` of `3-phase` or the `4` of
-`4-wire`, won as the count. An explicit count *before* the designator also
-lost to it, which is why `two 3-phase panels` came out as 3.
+pole designators. So the nearest digit or number word won as the count.
 
 ## Fix
 
 A new `_RE_PHASE_WIRE` in `src/rvt/frontdoor/prompt_intent.py`, added to the
-count scrub only. It covers:
+count scrub (`head_count`) only. It covers:
 - `3-phase`, `three phase`, `single-phase`
 - `3PH`, `3Ø`, `3φ`
 - `4-wire`, `four wire`, `4W`
 - `3-pole`, `3P`
 
-Attribute extraction is unchanged.
+Attribute extraction (`window`) is unchanged.
 
-**Review round 1 (🛑).** The independent review found that a designator word opening a
-compound lost its count: `three pole-mounted transformers` came out as 2 (base read 3). The
-same happened to `pole mounted`, `pole-top`, `wire-guarded` and `phase-converter`. The regex
-now refuses:
-- a trailing `-<letter>`, except when it chains to the next designator (`three-phase-four-wire`);
-- a following `mount…` / `top…`.
+Guards, each added after an independent review round on the PR:
+- **Round 1:** a designator word that opens a hyphen compound is not a
+  designator (`three pole-mounted`, `four wire-guarded`,
+  `three phase-converter`). A chained designator is still one
+  (`three-phase-four-wire`, `3-phase-4-wire`).
+- **Round 2:** only `pole` refuses a following `mount…` / `top…`
+  (`three pole mounted`, `pole top`). After `phase` / `wire`, `top-feed` /
+  `top fed` is a panel attribute, so `a 3-phase top-feed panelboard` is one panel.
 
-`type` was left out of that list on purpose: `a three phase type panel` must stay 1.
+**Decision (pinned):** before an uncounted plural, the designator reading wins
+(`three phase transformers`, `four wire panels`), following trade usage. The
+plural then takes its stated default of 2, and `coverage.defaults_applied`
+says so ("plural with no count: assumed 2"). `main` read those as counts.
 
-Pins added (26 tests; 7 of them fail on round-0 code). The digit form, `3 pole-mounted
-transformers` → 2, already failed on `main` (`_RE_SPACES` reads "3 pole" as spaces). It is
-filed as #854 and not widened into this PR.
+## Evidence (final head)
 
-## Evidence
-
-- New `tests/test_prompt_phase_count_845.py`: **26 passed** at round 1.
-  - With round-0 code: **7 failed / 19 passed**.
-  - With `main`'s code (round 0): **8 failed / 9 passed** of the first 17.
-- Round 1: `pytest tests/test_prompt_phase_count_845.py tests/test_prompt_intent.py
-  tests/test_prompt_intent_775.py tests/test_frontdoor.py tests/test_router.py` gives
-  **280 passed, 19 skipped, 0 failed**.
-- `pytest tests/test_prompt_intent.py tests/test_prompt_intent_775.py
-  tests/test_prompt_phase_count_845.py tests/test_frontdoor.py tests/test_router.py`
-  gives **271 passed, 19 skipped, 0 failed** (`RVT_SKIP_LARGE=1`, no samples).
-- `tools/prompt_battery.py --rows`: **99/100 both before and after**. The one
-  row is the same pre-existing `Lighting control / relay panel` refusal,
-  unrelated to this change.
+- `tests/test_prompt_phase_count_845.py` (33 tests), run against each version:
+  - this head: **33 passed**;
+  - `main`'s source: **17 failed / 16 passed**;
+  - round 0 (`cfa5c3f`): **7 failed**;
+  - round 1 (`b2e7be7`): **4 failed**.
+- `pytest tests/test_prompt_phase_count_845.py tests/test_prompt_intent.py
+  tests/test_prompt_intent_775.py tests/test_frontdoor.py tests/test_router.py`
+  gives **287 passed, 19 skipped, 0 failed** (`RVT_SKIP_LARGE=1`, no samples).
+- `tools/prompt_battery.py --rows` (round 0): **99/100 both before and after**. The
+  one row is the same pre-existing `Lighting control / relay panel` refusal.
 - `tools/sync_plugin.py --check` clean; `validate_plugin.py` PASS;
-  `check_portable_paths.py` ok; `tests/test_plugin_sync.py` 9 passed.
+  `check_portable_paths.py` ok; `tests/test_plugin_sync.py` 9 passed;
+  `test_bootstrap.py test_coldstart.py test_surface_perf.py` 31 passed.
 
 ## Findings
 
-- Phases and Wires are hard-coded to 3 and 4 for every prompted panelboard.
-  A `single-phase 120/240V panelboard` emits `Phases 3, Wires 4`. Filed
-  as #846; it is not widened into this PR.
-- `3 pole-mounted transformers` builds 2 on `main` (`_RE_SPACES`). Filed as #854.
+- A `single-phase 120/240V panelboard` emits `Phases 3, Wires 4`, because the
+  contract hard-codes them. Filed as #846.
+- `3 pole-mounted transformers` builds 2 on `main`, because `_RE_SPACES` reads
+  "3 pole" as spaces. Filed as #854. The spelled-out form is correct here.
+- Coverage nit (same as `main`, no effect on counts): the count-word mark loop
+  runs over `head`, not `head_count`, so `three three-phase panelboards`
+  reports only `-phase` as ignored.
 
 ## BRANCH STATE
 
@@ -78,5 +80,5 @@ filed as #854 and not widened into this PR.
   - `tests/test_prompt_phase_count_845.py`
   - `tests/ci_shard.d/845-prompt-phase-count.txt`
   - this record
-- Shipped: the count scrub (round 1: compound-word guard).
+- Shipped: the count scrub with its round-1 and round-2 guards.
 - Staged, not shipped: nothing.

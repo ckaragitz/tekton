@@ -86,3 +86,27 @@ def test_room_with_pole_mounted_transformers():
 ])
 def test_hyphen_chained_designators_stay_one(prompt):
     assert _kinds(prompt) == ["panelboard"]
+
+
+@pytest.mark.parametrize("prompt,n", [
+    ("a 3-phase top-feed panelboard", 1),           # review round 2: round 1 read 3
+    ("a 208/120V 3-phase 4-wire top-feed panelboard", 1),
+    ("two 3-phase top-feed panels", 2),
+    ("a 4-wire top fed switchboard", 1),
+])
+def test_top_feed_after_a_designator_is_an_attribute(prompt, n):
+    assert len(_kinds(prompt)) == n
+
+
+@pytest.mark.parametrize("prompt", [
+    "three phase transformers",
+    "3 phase transformers",
+    "four wire panels",
+])
+def test_uncounted_plural_reads_the_designator(prompt):
+    """A DECISION, not an accident: before a plural noun, 'three phase' is read as the
+    system (trade usage), not as a count -- the plural then takes the stated default of
+    2, and the coverage report says so."""
+    parsed = PI.parse_prompt(prompt)
+    assert len(parsed.items) == 2
+    assert any("plural with no count" in d for d in parsed.coverage.defaults_applied)

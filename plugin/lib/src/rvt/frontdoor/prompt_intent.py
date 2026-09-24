@@ -169,10 +169,14 @@ _RE_SURFACE = re.compile(r"surface(?:[\s-]*mount(?:ed)?)?", re.I)
 _RE_SECTIONS = re.compile(r"(\d{1,2})\s*[- ]?\s*sections?\b", re.I)
 #: PHASE / WIRE / POLE designators ('3-phase', 'single phase', '3PH', '3Ø', '4-wire', '4W',
 #: '3P') -- a system description, never an equipment count (#845).  Not when the word
-#: opens a compound ('three pole-mounted', 'three pole mounted', 'four wire-guarded'):
-#: there the number is the count
+#: opens a compound ('four wire-guarded', 'three pole-mounted'), nor 'pole' before a
+#: mounting word ('three pole mounted', 'pole top'): there the number is the count.  A
+#: 'top-feed' after a phase / wire designator is a panel attribute, so only 'pole' takes
+#: that guard ('a 3-phase top-feed panelboard' is one panel)
 _RE_PHASE_WIRE = re.compile(
-    r"\b(?:single|two|three|four|[1-4])[\s-]?(?:phase|wire|pole)s?\b"
+    r"\b(?:single|two|three|four|[1-4])[\s-]?(?:phase|wire)s?\b"
+    r"(?!-(?!(?:two|three|four)\b)[a-z])"
+    r"|\b(?:single|two|three|four|[1-4])[\s-]?poles?\b"
     r"(?!-(?!(?:two|three|four)\b)[a-z])(?!\s+(?:mount|top)\w*)"
     r"|\b[1-4][\s-]?(?:ph|ø|φ)(?![a-z])"
     r"|\b[1-4](?:w|p)\b", re.I)
