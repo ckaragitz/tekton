@@ -905,9 +905,11 @@ _RATING_LEAD = re.compile(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|"
 #: ... and for a UNIT-LESS number read number-first ("1 wide"), also a count:
 #: "nema 1 width 6 in wide" and "qty 2 width 6 in wide" bound the 1 / 2 as the
 #: width, because the redundant "6 in wide" then scored as a phrase left whole
-#: (#828 round 6)
+#: (#828 round 6).  NOT "phase" or "pole": their count comes BEFORE them ("3
+#: phase 12 tall", "2 pole 30 tall"), so the number after one is a size --
+#: listed, they threw it away and let "follows" stamp another (round 7).
 _NOT_A_SIZE_LEAD = re.compile(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|grid|"
-                              r"zone|group|phase|pole|qty|quantity|count)\s*[#:=]?\s*$")
+                              r"zone|group|qty|quantity|count)\s*[#:=]?\s*$")
 #: ... and a designator, but only when the same parameter is stated again
 #: later ("size 1 wide 6 in wide", "#2 width 6 wide"): alone, "a size 12
 #: wide tray" is as likely a 12 in width, as main reads it
@@ -1075,8 +1077,13 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 # width (#828 round 6) -- the noun rule's guard, same words
                 if rank == 0 and not m.group("u"):
                     lead = low[max(0, m.start() - 24):m.start()]
+                    # (a restatement is THIS parameter's phrase, not a longer
+                    # alias holding it: "rung width 1 in" restates no width)
+                    tail0 = m.end()
                     if _NOT_A_SIZE_LEAD.search(lead) or (_DESIGNATOR_LEAD.search(lead) and any(
-                            re.search(pu, low[m.end():]) for _n, _r, pu in _alias_patterns(p))):
+                            not inside_longer(tail0 + mr.start(), tail0 + mr.end(), n_)
+                            for n_, _r, pu in _alias_patterns(p)
+                            for mr in re.finditer(pu, low[tail0:]))):
                         continue
                 num = _to_number(m.group(1))
                 if num is None:

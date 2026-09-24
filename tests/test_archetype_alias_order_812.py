@@ -200,6 +200,19 @@ TABLE = [
     ("size 1 wide 6 wide junction box",            {"width_in": 6.0, "height_in": 6.0}),
     # WITH a unit the number is a dimension, whatever word precedes it
     ("pole 6 in wide junction box",                {"width_in": 6.0, "height_in": 6.0}),
+    # round 7: "phase" and "pole" come AFTER their count -- the number that
+    # follows them is a size
+    ("a 3 phase 12 tall 8 in wide junction box",   {"width_in": 8.0, "height_in": 12.0}),
+    ("wireway, three phase 8 tall wide 33 in",     {"width_in": 33.0, "height_in": 8.0}),
+    ("a 2 pole 30 tall 20 wide lighting control panel", {"width_in": 20.0, "height_in": 30.0}),
+    ("a 3 phase 24 wide lighting control panel",   {"width_in": 24.0}),
+    ("a single-phase 24 wide lighting control panel", {"width_in": 24.0}),
+    ("a 3 phase 22 dia conduit",                   {"diameter_in": 22.0}),
+    ("a single phase 20 wide 30 tall 6 deep lighting control panel",
+                                                   {"width_in": 20.0, "height_in": 30.0, "depth_in": 6.0}),
+    # ... and a restatement is this parameter's own phrase, not a longer alias
+    ("size 24 wide cable tray, rung width 1 in",   {"width_in": 24.0, "rung_width_in": 1.0}),
+    ("tag 20 long strut channel, slot length 2 in", {"length_ft": 20.0, "slot_length_in": 2.0}),
 ]
 
 
