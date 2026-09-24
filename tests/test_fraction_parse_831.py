@@ -115,6 +115,8 @@ def test_the_pdf_route_still_delivers_when_a_row_says_3_0(tmp_path):
 @pytest.mark.parametrize("txt,want", [
     ("2  1/2", 2.5), ("2\t1/2", 2.5), ("2 \t 1/2", 2.5),
     ("1 / 2", 0.5), ("12 / 16", 0.75), ("13 /16", 0.8125), ("3/ 4", 0.75),
+    # unit contract only: _NUM_CORE handed neither of these over whole until
+    # #839 (the prompt route is pinned in tests/test_mixed_spaced_839.py)
     ("2 - 1 / 2", 2.5), ("1-1 /2", 1.5),
 ])
 def test_whitespace_inside_a_number_is_normalised_not_meaningful(txt, want):
