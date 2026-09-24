@@ -1856,9 +1856,12 @@ class FamilyDoc:
         ``spec_type_id`` = the measurable spec (:data:`SPEC_LENGTH`,
         :data:`SPEC_VOLTAGE`, ...); ``group_type_id`` = the palette group;
         ``default`` = the value (internal units) written to every type.
-        ``formula`` = the parameter formula text [UNKNOWN encoding: formulas
-        live in the ``FamDimConstrMgrImpl`` expression tables which this
-        skeleton leaves empty -- carried in ``refs`` for the spec only].
+        ``formula`` = the parameter formula (Revit syntax: ``Width / 2``,
+        ``if(Depth > 6", 1, 0)``, ``Length + 1'``).  At :meth:`build` it is written
+        as the expression tree Revit stores in ``m_oExpression`` on the family's
+        value set and every type row, with each type's evaluated result as the
+        value (:mod:`rvt.famgen.formula`, #850); a formula that cannot be stored
+        faithfully is left out and SAID in ``notes`` (the family is still built).
         """
         row = self.shared_params.get(name)
         if row is not None:
@@ -1878,7 +1881,6 @@ class FamilyDoc:
                                   is_instance=is_instance)
         if formula:
             pe.refs["formula"] = str(formula)
-            pe.notes.append("formula NOT serialized (dimension-expression tables empty)")
         return self._register_param(name, pe, default)
 
     def add_shared_parameter(self, name: str, guid: str, spec_type_id: str = SPEC_LENGTH,
@@ -2090,6 +2092,7 @@ class FamilyDoc:
         if not self.types:
             self.add_type(" ")
         pes = list(self.params.values())
+        self._apply_formulas()
         table = []
         for tname, vals in self.types:
             table.append((tname, self._type_param_entries(vals)))
@@ -2199,6 +2202,74 @@ class FamilyDoc:
                             and sat.obj.get("m_dbViewId") == e.elem_id):
                         sat.obj["m_dbViewNorm"] = [-vd[0], -vd[1], -vd[2]]
                 break
+
+    def _apply_formulas(self) -> None:
+        """Write every ``formula=`` parameter as Revit's expression tree (#850): the
+        same ``m_oExpression`` on every type row, each row's value = the formula
+        evaluated over THAT row, in dependency order.  A formula that cannot be
+        stored faithfully (syntax, units, an unpinned operator, a cycle) keeps its
+        plain value and the reason goes to ``notes`` -- never a silent drop."""
+        from . import formula as _fx
+        formulas = {pe.elem_id: pe for pe in self.params.values() if pe.refs.get("formula")}
+        if not formulas:
+            return
+        refs = {name: _fx.ParamRef(pe.elem_id, pe.refs.get("spec") or SPEC_LENGTH)
+                for name, pe in self.params.items()}
+        trees: Dict[int, dict] = {}
+        for pid, pe in formulas.items():
+            try:
+                tree, spec = _fx.parse_formula(pe.refs["formula"], refs)
+            except _fx.FormulaError as exc:
+                self.notes.append(f"formula of {pe.refs.get('caption')!r} NOT written: {exc}")
+                continue
+            want = pe.refs.get("spec") or SPEC_LENGTH
+            if spec != want and not (want == SPEC_YESNO and spec == _fx.SPEC_YESNO):
+                self.notes.append(f"formula of {pe.refs.get('caption')!r} NOT written: it gives "
+                                  f"{spec.split(':')[-1]}, the parameter is {want.split(':')[-1]}")
+                continue
+            trees[pid] = tree
+        # dependency order (a formula may read another formula's result)
+        order: List[int] = []
+        state: Dict[int, int] = {}
+
+        def visit(pid: int) -> bool:
+            if state.get(pid) == 2:
+                return True
+            if state.get(pid) == 1:
+                return False
+            state[pid] = 1
+            for dep in _fx.referenced_params(trees[pid]):
+                if dep in trees and not visit(dep):
+                    return False
+            state[pid] = 2
+            order.append(pid)
+            return True
+        for pid in list(trees):
+            if not visit(pid):
+                self.notes.append(f"formula of {formulas[pid].refs.get('caption')!r} NOT "
+                                  f"written: circular reference")
+                trees.pop(pid)
+        order = [p for p in order if p in trees]
+        for _tname, vals in self.types:
+            values = {self._param_key(k): (v.get("m_value", 0.0) if isinstance(v, dict) else v)
+                      for k, v in vals.items()}
+            for pid in order:
+                try:
+                    res = _fx.evaluate(trees[pid], values)
+                except (_fx.FormulaError, ZeroDivisionError, ValueError, OverflowError) as exc:
+                    self.notes.append(f"formula of {formulas[pid].refs.get('caption')!r}: "
+                                      f"type {_tname!r} not evaluable ({exc}); value kept")
+                    kept = values.get(pid, 0.0)
+                    vals[pid] = {"m_oExpression": trees[pid],
+                                 "m_value": float(kept) if not isinstance(kept, bool) else 0.0,
+                                 "m_int": int(kept) if isinstance(kept, bool) else 0}
+                    continue
+                values[pid] = res
+                if isinstance(res, bool) or formulas[pid].refs.get("spec") == SPEC_YESNO:
+                    vals[pid] = {"m_oExpression": trees[pid], "m_int": int(bool(res)),
+                                 "m_value": 0.0}
+                else:
+                    vals[pid] = {"m_oExpression": trees[pid], "m_value": float(res)}
 
     def _type_param_entries(self, vals: Dict[Any, Any]) -> List[dict]:
         out = []
