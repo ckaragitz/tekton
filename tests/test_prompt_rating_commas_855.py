@@ -54,3 +54,43 @@ def test_two_items_keep_their_own_ratings():
     xfmrs = [i for i in its if i.kind == "transformer"]
     assert len(panels) == 2 and all(p.rating_a == 225.0 and p.kva is None for p in panels)
     assert len(xfmrs) == 1 and xfmrs[0].kva == 75.0 and xfmrs[0].rating_a is None
+
+
+def _by_tag(prompt):
+    return {it.tag: it for it in _items(prompt)}
+
+
+@pytest.mark.parametrize("prompt", [
+    "panel LP-1, 225A, MCB, panel LP-2, 100A, MLO",       # review of #856: LP-2 got 225 A MCB
+    "LP-1, 225A, MCB, LP-2, 100A, MLO",
+])
+def test_trailing_ratings_never_reach_the_next_tagged_item(prompt):
+    lp2 = _by_tag(prompt)["LP-2"]
+    assert lp2.rating_a != 225.0 and lp2.mains != "MCB"
+
+
+def test_semicolon_does_not_carry_ratings_forward():
+    assert _by_tag("panel LP-1, 225A; panel LP-2")["LP-2"].rating_a != 225.0
+
+
+def test_spaces_and_mounting_do_not_carry_forward():
+    lp2 = _by_tag("LP-1 225A, 42-space, flush, LP-2")["LP-2"]
+    assert lp2.spaces != 42 and lp2.mounting != "flush"
+
+
+@pytest.mark.parametrize("prompt,kind,attr,leaked", [
+    ("a transformer, 75 kVA, panels", "panelboard", "kva", 75.0),
+    ("a transformer, 75 kVA, 480V, 3-phase, 4-wire panels", "panelboard", "kva", 75.0),
+    ("a panelboard, 225A, 42-space, transformers", "transformer", "rating_a", 225.0),
+    ("four panels, 225A, 3-phase transformers", "transformer", "rating_a", 225.0),
+    ("four receptacles at 18 in AFF, 20A, panels", "panelboard", "rating_a", 20.0),
+    ("two panels 225A, 42-space, flush, transformers", "transformer", "spaces", 42),
+])
+def test_ratings_never_cross_between_kinds(prompt, kind, attr, leaked):
+    its = [i for i in _items(prompt) if i.kind == kind]
+    assert its and all(getattr(i, attr) != leaked for i in its)
+
+
+def test_voltage_does_not_cross_between_kinds():
+    its = [i for i in _items("a transformer, 480V, 3-phase, panels") if i.kind == "panelboard"]
+    assert its and all(i.voltage != "480Y/277" for i in its)

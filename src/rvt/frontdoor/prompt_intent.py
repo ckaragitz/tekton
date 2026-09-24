@@ -1458,17 +1458,24 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     def over_rating_commas(ws: int, start: int) -> int:
         """Move a clause's start back over commas that only separate ONE item's ratings
         ('four 225A, 3-phase, 4-wire panels', 'three 75 kVA, dry-type transformers') so
-        the count before them is read (#855).  A comma is crossed only when no count
-        follows it and what precedes it, back to the previous boundary, is a count and
-        ratings alone -- 'a 225A panel, two transformers' still splits."""
-        while ws > 0 and low[ws] in ",;":
-            if _RE_COUNT_TOK.search(_strip_ratings(low[ws + 1:start])):
+        the count before them is read (#855).  The move is kept only when the crossed
+        segments are ratings alone AND the chain ENDS at a count -- count, ratings, noun
+        -- with no tag and no other equipment noun on the way; anything else keeps the
+        original start, so one item's trailing ratings never reach the next item ('panel
+        LP-1, 225A, panel LP-2', 'a transformer, 75 kVA, panels')."""
+        cur = ws
+        while cur > 0 and low[cur] in ",;":
+            if _RE_COUNT_TOK.search(_strip_ratings(low[cur + 1:start])):
                 break
-            prev = max((b for b in boundaries if b < ws), default=0)
-            seg = _RE_LEAD_BOUNDARY.sub(" ", low[prev:ws])
-            if not _only_ratings(_RE_COUNT_TOK.sub(" ", _strip_ratings(seg))):
+            if any(cur < m.start() and m.end() <= start for _k, _p, m, _r in kind_matches):
                 break
-            ws = prev
+            prev = max((b for b in boundaries if b < cur), default=0)
+            seg = _strip_ratings(_RE_LEAD_BOUNDARY.sub(" ", low[prev:cur]))
+            if _RE_TAG_TOKEN.search(seg) or not _only_ratings(_RE_COUNT_TOK.sub(" ", seg)):
+                break
+            cur = prev
+            if _RE_COUNT_TOK.search(seg):
+                return cur
         return ws
 
     taken: List[Tuple[int, int]] = list(room_taken)
