@@ -122,6 +122,16 @@ def test_a_hyphen_before_a_slash_token_never_joins_them(prompt):
     ("cable tray wide 12 7 / 20 inches", "width_in", 12.35),
     ("a cable tray wide 1 1/2ins", "width_in", 1.5),          # glued plural unit
     ("a cable tray wide 1-1/2ins", "width_in", 1.5),
+    # round 3: the unit may be joined by a hyphen (the grammar's _SEP), and
+    # the typographic marks are units -- all fell back to the whole number
+    ("conduit length 10 5/12-ft", "length_ft", 10 + 5 / 12),
+    ("cable tray width 24 1/5-inch", "width_in", 24.2),
+    ("cable tray width 24 3/10-in.", "width_in", 24.3),
+    ("conduit 10 5/12-ft long", "length_ft", 10 + 5 / 12),
+    ("a 12 1/5-in wide cable tray", "width_in", 12.2),
+    ("cable tray width 24 - 1 / 5-in", "width_in", 24.2),
+    ("cable tray wide 2 1/5\u2033", "width_in", 2.2),        # ″
+    ("cable tray wide 2 1/5\u201d", "width_in", 2.2),        # ”
 ])
 def test_a_fraction_followed_by_a_unit_joins_whatever_its_denominator(prompt, key, want):
     r = AR.resolve_prompt(prompt)
@@ -145,9 +155,9 @@ def test_a_mixed_number_inside_a_cross_keeps_the_cross(prompt, dims):
 def _denominators():
     """Every inch alias x whole numbers x denominators in and out of the
     unit-less set, three separators, four units, both phrasings, noun first
-    and last.  Number-first phrases with a glued "ins" are left out: the
-    unit list has no "ins" for number-first phrases on main either (filed
-    separately).  Measured on the full set: main and this head both 3,150
+    and last.  Number-first phrases with a glued "ins" or a typographic
+    inch mark are left out: the unit list has neither for number-first
+    phrases on main either (#844).  Measured on the full set: main and this head both 3,150
     wrong of 31,590, 0 worse; round 1 of #841 was 17,681 worse on the
     reviewer's generator."""
     for key, a in AR.ARCHETYPES.items():
@@ -155,10 +165,13 @@ def _denominators():
         for p in [p for p in a.params if p.aliases and p.unit == "in"]:
             al = p.aliases[0]
             for w, (n, d) in itertools.product((1, 12), ((1, 5), (3, 10), (5, 12), (7, 20), (1, 6), (1, 2))):
-                for sep, u in itertools.product((" ", "-", " - "), ("in", "inch", '"', "ins")):
-                    glue = "" if u in ('"', "ins") else " "
+                for sep, u in itertools.product((" ", "-", " - "),
+                                                ("in", "inch", '"', "ins", "-in", "-inch", "\u2033")):
+                    glue = "" if u in ('"', "ins", "-in", "-inch", "\u2033") else " "
                     num = f"{w}{sep}{n}/{d}"
-                    forms = [f"{al} {num}{glue}{u}"] + ([] if u == "ins" else [f"{num}{glue}{u} {al}"])
+                    # number-first needs the unit in _UNITS, which has no "ins"
+                    # and no typographic mark -- pre-existing on main (#844)
+                    forms = [f"{al} {num}{glue}{u}"] + ([] if u in ("ins", "\u2033") else [f"{num}{glue}{u} {al}"])
                     for ph in forms:
                         for pr in (f"{noun} {ph}", f"a {ph} {noun}"):
                             yield key, pr, p.key, w + n / d

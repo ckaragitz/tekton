@@ -131,6 +131,43 @@ sweep. Mutants, 7/7 killed:
 One branch of round 2 was **removed rather than tested**: it allowed a cross
 `x` after a *unit-less* fraction. The unit branch already covers that, so a
 mutant dropping it changed nothing.
+## Round 3 — a hyphen before the unit, the grammar's own separator
+
+🛑 on `2270f66`. `_FRAC_UNIT_AHEAD` allowed only spaces before the unit, but
+the prompt grammar's separator is `_SEP = [\s-]*`. So
+**"conduit length 10 5/12-ft" fell back to 10.0 `given`**, and "width 24
+1/5-inch" to 24.0. On the reviewer's generator that was 3,150 false `given`
+with an explicit unit. My round-2 denominator sweep joined units only with a
+space: **the same blind spot a fourth time.**
+
+**Fix:** `[\s-]*` before the unit, and the typographic marks `″ ”` (inch) and
+`′ ’` (foot) count as units after a fraction.
+
+| instrument | prompts | `main` wrong | head wrong | worse than `main` |
+|---|---|---|---|---|
+| the test's denominator generator, now with `-in` `-inch` `″` | 21,600 | 0 | 0 | **0** |
+| my denominator sweep (round 2) | 31,590 | 3,150 | 3,150 | **0** |
+| slash tokens after a number | 19,440 | 7,020 | 3,132 | **0** |
+| every hyphen × slash spacing | 18,000 | 13,500 | 0 | **0** |
+| #828 corpus | 269,361 | — | — | 0 outputs change |
+| fuzzers 1–3, seed 1 | 60,000 | — | — | **0** |
+
+**Not changed, by the round-1 design (non-blocking in the review):** an
+off-set fraction with no unit after it ("cable tray wide 12 1/5" at the end of
+a prompt) still falls back to the whole number, 12 `given`, where `main`
+gives 12.2. This is the other side of keeping "width 12 480 / 277 V" at 12.
+A unit-less "1/5" is rare in a dimension prompt, and a voltage or wire size
+after a unit-less number is not.
+
+A number-first phrase with a typographic inch mark ("a 2″ wide cable tray")
+is dropped on `main` too, because `_UNITS` has no `″`. That is added to #844
+with "ins".
+
+Tests: **92 passed** (8 new hyphen / typographic rows, and a hyphen-unit axis
+in the denominator sweep). Mutants: **9/9 killed**. The two new ones are no
+hyphen before the unit (7) and no typographic inch marks (3); the round-2
+seven were re-run with their moved anchors.
+
 ---
 
 ## BRANCH STATE
@@ -138,13 +175,14 @@ mutant dropping it changed nothing.
 **Files written**
 - `src/rvt/famgen/archetypes.py`: `_NUM_CORE`.
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 42 tests (rows, slash-token rows,
-  hyphen rows, unit and cross rows, the spacing and denominator sweeps).
+- `tests/test_mixed_spaced_839.py`: new, 50 tests (rows, slash-token rows,
+  hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
+  sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
 
-**Gates (round 2)**: 84 passed across `test_mixed_spaced_839.py` and
-`test_fraction_parse_831.py`; 7/7 round-2 mutants killed; plugin in sync. Full suite **not** run; `session_ci.sh` runs the shard.
+**Gates (round 3)**: 92 passed across `test_mixed_spaced_839.py` and
+`test_fraction_parse_831.py`; 9/9 mutants killed; plugin in sync. Full suite **not** run; `session_ci.sh` runs the shard.
 
 **Shipped vs staged**: shipped; no file-format change.

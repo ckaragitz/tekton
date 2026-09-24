@@ -701,8 +701,11 @@ def archetype(product: str) -> Archetype:
 #: = 13.73 in; likewise 277/480, 4/0 AWG, 24/7, 12/2, 9/23, and "3/4w"
 #: (three-phase four-wire) (#841 round 1).  A failed fraction falls back to
 #: the whole number, so the 12 still binds.
-#: ("a unit" includes the 'x' of a cross: "a 2 1/5 x 4 in wireway" is 2.2 x 4)
-_FRAC_UNIT_AHEAD = r"""(?=\s*(?:in\b|in\.|ins\b|inch|"|ft\b|ft\.|feet|foot|'|mm\b|millimet|[x×]\s*\d))"""
+#: ("a unit" includes the 'x' of a cross: "a 2 1/5 x 4 in wireway" is 2.2 x 4;
+#: it may be joined by a hyphen like everywhere else in the grammar, _SEP:
+#: "10 5/12-ft"; and the typographic marks count: ″ ” for inches, ′ ’ for feet)
+_FRAC_UNIT_AHEAD = (r"""(?=[\s-]*(?:in\b|in\.|ins\b|inch|"|″|”|ft\b|ft\.|feet|foot|'|′|’|"""
+                    r"""mm\b|millimet|[x×]\s*\d))""")
 _FRAC_UNITLESS = "(?:" + "|".join(rf"(?:{n})\s*/\s*{d}" for n, d in (
     ("1", "2"), ("[12]", "3"), ("[1-3]", "4"), ("[1-7]", "8"), ("1[0-5]|[1-9]", "16"),
     (r"3[01]|[12]\d|[1-9]", "32"), (r"6[0-3]|[1-5]\d|[1-9]", "64"))) + (
