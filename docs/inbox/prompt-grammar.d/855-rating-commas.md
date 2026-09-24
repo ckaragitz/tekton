@@ -56,6 +56,21 @@ between kinds). All 11 fail on the first version and pass on `main` and here.
   2 panels with no kVA. A singular noun still counts `a`: `a 225A, MCB panel` → 1 at
   225 A MCB. On `main` that panel lost its 225 A.
 
+**Review round 3 (🛑) found that the gate and the count reader disagreed.** The gate
+counted tokens after `_strip_ratings`, which blanks `15 kV`, `NEMA 12`, `type 1` and
+`5-20R`. The count reader's scrub does not, and it takes the *last* token. So the gate
+approved `two`, and then the reader read the rating digit, silently:
+- `two 15 kV, 500 kVA transformers` → 15;
+- `two 5-20R, 20A receptacles` → 5;
+- `four NEMA 12, 225A panels` → 12.
+
+`main` gave the honest plural default for all of these. Fix: one shared list,
+`_COUNT_SCRUBS` / `_count_text`, used by both the reader and the gate. The gate now
+counts exactly the tokens the reader will see. A rating digit the reader keeps is a
+second token, so the start stays put and the default is stated. The reader itself
+misreads these digits on `main` in the no-comma form; that is filed as #860 and not
+widened here.
+
 **Visible change (consistent with the no-comma form):** an explicit count wins over
 named tags, so `four 225A, MCB panels LP-1 and LP-2` now gives 4 items (LP-1, LP-2,
 PP-3, PP-4, all 225 A MCB). `main` gave 2 because it never saw the count.
@@ -67,15 +82,18 @@ What still holds:
 
 ## Evidence
 
-- `tests/test_prompt_rating_commas_855.py` (32 tests):
-  - this head: **32 passed**;
+- `tests/test_prompt_rating_commas_855.py` (40 tests):
+  - this head: **40 passed**;
   - `main`'s source (`c06f845`): **9 failed**, the 8 count pins plus `a 225A, MCB panel`
     losing its rating; the leak pins pass;
   - the first version (`17ba882`): **11 failed**, all leak pins;
-  - round 1 (`7a627d6`): **3 failed**, the round-2 pins.
+  - round 1 (`7a627d6`): **3 failed**, the round-2 pins;
+  - round 2 (`3fbdfd6`): **8 failed**, the round-3 rating-digit pins.
+- Against `main`, the file now gives 10 failed / 30 passed. That is the 9 above plus the
+  room prompt; the round-3 pins pass on `main`, which never moved the start.
 - `pytest tests/test_prompt_rating_commas_855.py tests/test_prompt_phase_count_845.py
   tests/test_prompt_intent.py tests/test_prompt_intent_775.py tests/test_frontdoor.py
-  tests/test_router.py` gives **319 passed, 19 skipped, 0 failed**
+  tests/test_router.py` gives **327 passed, 19 skipped, 0 failed**
   (`RVT_SKIP_LARGE=1`, no samples; the skip count depends on the environment).
 - `tools/prompt_battery.py --rows`: **99/100**. The same single pre-existing
   `Lighting control / relay panel` row fails as on `main`.
@@ -94,8 +112,12 @@ What still holds:
   - this record
 - Shipped: `over_rating_commas`:
   - round 1: count-terminated chains only, with no tag and no other noun on the way;
-  - round 2: one count token ends the chain, and a plural takes a number, not an article.
+  - round 2: one count token ends the chain, and a plural takes a number, not an article;
+  - round 3: the gate counts with the reader's own scrub (`_count_text`).
 - Found, not widened: `four 225A MCB panels named LP` builds 8 on `main` (`named LP` is also
   read as a lighting-panelboard noun). Filed as #857.
 - Found, not widened: `26 24 16 225A MCB panelboards` builds 16 on `main`. Filed as #858.
+- Found, not widened: rating digits the count reader keeps become the count on `main`
+  (`four 15 kV 500 kVA transformers` → 15, `two 5-20R 20A receptacles` → 5,
+  `four 2-pole 225A panels` → spaces=2). Filed as #860.
 - Staged, not shipped: nothing.

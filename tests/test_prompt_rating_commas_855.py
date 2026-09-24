@@ -115,3 +115,27 @@ def test_an_article_does_not_count_a_plural_across_a_comma():
 def test_an_article_still_counts_a_singular():
     its = _items("a 225A, MCB panel")
     assert len(its) == 1 and its[0].rating_a == 225.0 and its[0].mains == "MCB"
+
+
+@pytest.mark.parametrize("prompt", [
+    "two 5-20R, 20A receptacles",                   # review round 3: read 5 (the 5-20R)
+    "two 15 kV, 500 kVA transformers",              # read 15
+    "four 15 kV, 500 kVA transformers",
+    "three 13.8 kV, 1000 kVA, liquid-filled transformers",   # read 8 (13.8)
+    "four NEMA 12, 225A panels",                    # read 12
+    "four NEMA 1, 225A panels",
+    "four type 1, 225A panels",
+])
+def test_a_rating_digit_the_reader_keeps_blocks_the_move(prompt):
+    """The gate approves exactly what the count reader reads (one shared scrub): a rating
+    digit the reader does not scrub is a second token, so the start stays put and the
+    plural takes its STATED default -- never a rating read as a count."""
+    parsed = PI.parse_prompt(prompt)
+    assert len(parsed.items) == 2
+    assert any("plural with no count" in d for d in parsed.coverage.defaults_applied)
+
+
+def test_room_with_a_nema_configuration_and_a_rating_list():
+    kinds = [i.kind for i in _items(
+        "an electrical room with two 5-20R, 20A receptacles and four 225A, MCB panels")]
+    assert kinds.count("panelboard") == 4 and len(kinds) == 6

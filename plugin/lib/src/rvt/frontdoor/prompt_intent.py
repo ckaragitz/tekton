@@ -266,6 +266,22 @@ _RE_F2F = re.compile(
     r"\s*(?:of\s+|is\s+|=\s*|:\s*)?(?P<f>\d{1,2}(?:\.\d+)?)\s*(?P<u>" + _DIM_UNIT + r")"
     r"|(?P<f2>\d{1,2}(?:\.\d+)?)\s*(?P<u2>" + _DIM_UNIT + r")\s*"
     r"(?:floor[\s-]*to[\s-]*floor|per\s+(?:stor(?:e)?y|floor|level)|stor(?:e)?y\s+height)", re.I)
+#: what the equipment clause scrubs before it looks for a COUNT: ratings, levels, storeys
+#: and floor heights, so no rating digit is ever read as a count.  ONE list, used by the
+#: count reader and by the rating-comma gate alike, so the gate approves exactly the count
+#: the reader will read (#855 review round 3)
+_COUNT_SCRUBS = (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS, _RE_PHASE_WIRE,
+                 _RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN,
+                 _RE_F2F, _RE_STOREYS, _RE_LEVEL_REF)
+
+
+def _count_text(s: str) -> str:
+    """``s`` with everything the count reader scrubs blanked out."""
+    for rx in _COUNT_SCRUBS:
+        s = rx.sub(" ", s)
+    return s
+
+
 _RE_FED_FROM = re.compile(r"(?P<load>[A-Za-z][A-Za-z0-9\-]{0,10})\s+(?:is\s+)?fed\s+(?:from|by)\s+"
                           r"(?:the\s+)?(?P<src>[A-Za-z][A-Za-z0-9\-]{0,10})", re.I)
 
@@ -1463,21 +1479,25 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         -- with no tag and no other equipment noun on the way; anything else keeps the
         original start, so one item's trailing ratings never reach the next item ('panel
         LP-1, 225A, panel LP-2', 'a transformer, 75 kVA, panels').  The count that ends
-        the chain is ONE count token ('42, 225A, panels' and '26 24 16, ...' stay put),
-        and a plural noun takes a number, never 'a' / 'an' / 'single' ('a transformer, a
-        75 kVA, panels' keeps the transformer's ratings off the panels)."""
+        the chain is ONE count token AS THE COUNT READER SEES IT (:func:`_count_text`),
+        so the gate approves exactly the count that will be read: '26 24 16, ...' and
+        'two 15 kV, 500 kVA transformers' stay put (a rating digit the reader does not
+        scrub is a second token), while a lone number still counts ('four, 225A,
+        panels'); a plural noun takes a number, never 'a' / 'an' / 'single' ('a
+        transformer, a 75 kVA, panels' keeps the transformer's ratings off the panels)."""
         cur = ws
         while cur > 0 and low[cur] in ",;":
-            if _RE_COUNT_TOK.search(_strip_ratings(low[cur + 1:start])):
+            if _RE_COUNT_TOK.search(_count_text(low[cur + 1:start])):
                 break
             if any(cur < m.start() and m.end() <= start for _k, _p, m, _r in kind_matches):
                 break
             prev = max((b for b in boundaries if b < cur), default=0)
-            seg = _strip_ratings(_RE_LEAD_BOUNDARY.sub(" ", low[prev:cur]))
+            raw = _RE_LEAD_BOUNDARY.sub(" ", low[prev:cur])
+            seg = _strip_ratings(raw)
             if _RE_TAG_TOKEN.search(seg) or not _only_ratings(_RE_COUNT_TOK.sub(" ", seg)):
                 break
             cur = prev
-            counts = _RE_COUNT_TOK.findall(seg)
+            counts = _RE_COUNT_TOK.findall(_count_text(raw))
             if counts:
                 singular = all(c in ("a", "an", "single") for c in counts)
                 return cur if len(counts) == 1 and not (plural and singular) else ws
@@ -1590,10 +1610,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         # count of an uncounted plural; a bare reference is ONE item.
         head = low[ws:km.start()]
         head_count = head
-        for scrub in (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS, _RE_PHASE_WIRE,
-                      _RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN,
-                      _RE_F2F, _RE_STOREYS, _RE_LEVEL_REF):
-            head_count = scrub.sub(" ", head_count)
+        head_count = _count_text(head_count)
         plural = km.group(0).rstrip().endswith("s") or "pair" in head
         explicit_count = None
         for tok in ([] if ref_tag else reversed(_RE_COUNT_TOK.findall(head_count))):
