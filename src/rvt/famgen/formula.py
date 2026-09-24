@@ -87,11 +87,25 @@ _CALL = re.compile(r"([A-Za-z_]+)\s*\(")
 _TEXTLIKE = ("autodesk.spec:spec.string", "autodesk.spec:spec.int64", "tekton.storage:")
 
 
+class NameTable:
+    """The parameter names a formula may use, indexed ONCE per family: by first
+    character, longest name first (names may hold spaces; the longest match wins), so
+    a family with thousands of parameters parses each formula in time independent of
+    how many there are."""
+
+    def __init__(self, params: Mapping[str, ParamRef]):
+        self.params = dict(params)
+        self.by_first: Dict[str, List[str]] = {}
+        for name in sorted(self.params, key=len, reverse=True):
+            if name:
+                self.by_first.setdefault(name[0], []).append(name)
+
+
 class _Parser:
-    def __init__(self, text: str, params: Mapping[str, ParamRef]):
+    def __init__(self, text: str, table: NameTable):
         self.text = text
-        self.params = {k: v for k, v in params.items()}
-        self.names = sorted(self.params, key=len, reverse=True)   # longest match first
+        self.params = table.params
+        self.table = table
         self.pos = 0
 
     # --- lexing -----------------------------------------------------------
@@ -195,7 +209,7 @@ class _Parser:
         fm = _CALL.match(self.text, self.pos)
         if fm and fm.group(1).lower() in set(FUNCTION) | _UNPINNED:
             return self._call(fm)
-        for name in self.names:
+        for name in self.table.by_first.get(self.text[self.pos], ()):
             end = self.pos + len(name)
             if self.text[self.pos:end] == name and not \
                     (end < len(self.text) and (self.text[end].isalnum() or self.text[end] == "_")):
@@ -295,14 +309,16 @@ def _short(spec: str) -> str:
     return spec.split(":")[-1].split("-")[0]
 
 
-def parse_formula(text: str, params: Mapping[str, ParamRef]) -> Tuple[dict, str]:
+def parse_formula(text: str, params: "Mapping[str, ParamRef] | NameTable") -> Tuple[dict, str]:
     """``text`` -> (the ``m_oExpression`` tree, its result spec).  ``params`` maps each
-    parameter name the formula may use to its :class:`ParamRef`.  Raises
+    parameter name the formula may use to its :class:`ParamRef` (or is a prebuilt
+    :class:`NameTable`, for many formulas of one family).  Raises
     :class:`FormulaError` for anything that cannot be stored faithfully."""
     if not str(text).strip():
         raise FormulaError("empty formula")
+    table = params if isinstance(params, NameTable) else NameTable(params)
     try:
-        tree, spec = _Parser(str(text), params).parse()
+        tree, spec = _Parser(str(text), table).parse()
     except RecursionError:
         raise FormulaError(f"formula has more than {MAX_DEPTH} levels or terms") from None
     if _depth(tree) > MAX_DEPTH:
@@ -360,7 +376,12 @@ def evaluate(tree: dict, values: Mapping[int, Any]) -> Any:
         if f == FUNCTION["not"]:
             return not evaluate(subs[0], values)
         if f == FUNCTION["round"]:
-            return float(math.floor(evaluate(subs[0], values) + 0.5))
+            x = evaluate(subs[0], values)
+            if x < 0 and float(x + 0.5).is_integer():
+                # only non-negative halves are pinned (half up); Revit rounds a
+                # negative half away from zero -- refused until pinned, never guessed
+                raise FormulaError(f"round() of a negative half ({x}) is not pinned")
+            return float(math.floor(x + 0.5))
         if f == FUNCTION["tan"]:
             return math.tan(evaluate(subs[0], values))
     raise FormulaError(f"cannot evaluate node {c}")

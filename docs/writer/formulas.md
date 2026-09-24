@@ -88,8 +88,12 @@ inconsistent units.
   must be Yes/No. A Yes/No value never takes `+ - * /`, `= < >`, negation or
   `round`.
 - `tan` takes an angle or a number, never a length. `round` takes a plain number
-  only: rounding a length would round its internal feet, and negative halves are
-  unpinned. Both stay refused until pinned.
+  only, because rounding a length would round its internal feet. A **negative
+  half** (`round(-23.5)`) is not pinned: Revit's published syntax rounds it away
+  from zero, to -24. Such a formula is left out, never written with a guessed
+  value.
+- A **type** parameter's formula never reads an **instance** parameter; Revit's
+  editor refuses that too.
 - A constant too large for a double is refused at parse time.
 - **Names and unit suffixes match with exact case**, as Revit's do. `5M` and `5MM`
   are refused. Function names are matched case-insensitively. A name followed by
@@ -106,7 +110,9 @@ inconsistent units.
 - **A non-finite result** (inf or NaN, from the inputs or from overflow) is not
   evaluable. The formula is then left out.
 - **All types, or none.** A formula is written only when it parses, type-checks and
-  evaluates on **every** type. Otherwise every row keeps its plain value, with no
+  evaluates on **every** type. Results are written into **copies** of the type rows,
+  and the caller's table is never changed, so a second `finalize()` after
+  `set_type_param` starts from the given values again. Otherwise every row keeps its plain value, with no
   tree next to a value that is not its result, and `notes` says why.
   - A circular formula is refused.
   - A formula that only *reads* a circular one is still written; it reads that

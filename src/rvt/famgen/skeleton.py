@@ -2093,21 +2093,21 @@ class FamilyDoc:
         if not self.types:
             self.add_type(" ")
         pes = list(self.params.values())
+        # the rows AS WRITTEN: the caller's values plus formula results, built on
+        # COPIES -- self.types is never mutated, so a later finalize() starts from
+        # the given values again (idempotent, review round 4 of #862)
         try:
-            self._apply_formulas()
+            written = self._apply_formulas()
         except Exception as _fx_exc:                                # noqa: BLE001
             # the formula step never blocks delivery (hard rule 1): every formula is
-            # then left out -- the rows keep the plain values they were given
-            for _n, _vals in self.types:
-                for _k, _v in list(_vals.items()):
-                    if isinstance(_v, dict) and _v.get("m_oExpression") is not None:
-                        _vals[_k] = {k: x for k, x in _v.items() if k != "m_oExpression"}
+            # then left out and every row is written exactly as the caller gave it
+            written = [dict(vals) for _n, vals in self.types]
             self.notes.append(f"formulas NOT written ({type(_fx_exc).__name__}: {_fx_exc})")
         table = []
-        for tname, vals in self.types:
+        for (tname, _vals), vals in zip(self.types, written):
             table.append((tname, self._type_param_entries(vals)))
         fam.obj["m_pFamilyTypes"] = family_type_table(table, current_index=self.current_type)
-        cur_vals = self._type_param_entries(self.types[self.current_type][1])
+        cur_vals = self._type_param_entries(written[self.current_type])
         fam.obj["m_familyParams"] = family_params_block(cur_vals)
         # parameter ordering cell: dimensions first, then identity BIPs used
         dim_ids = [pe.elem_id for pe in pes if pe.refs.get("group") == PGROUP_DIMENSIONS]
@@ -2213,21 +2213,24 @@ class FamilyDoc:
                         sat.obj["m_dbViewNorm"] = [-vd[0], -vd[1], -vd[2]]
                 break
 
-    def _apply_formulas(self) -> None:
-        """Write every ``formula=`` parameter as Revit's expression tree (#850): the
-        same ``m_oExpression`` on every type row, each row's value = the formula
-        evaluated over THAT row, in dependency order.  A formula is written only when
-        it parses, type-checks AND evaluates on every type; otherwise it is left out
-        entirely (every row keeps its plain value -- never a tree next to a value that
-        is not its result) and the reason goes to ``notes``.  Nothing here can stop
-        the family from being built (hard rule 1)."""
+    def _apply_formulas(self) -> List[Dict[Any, Any]]:
+        """Every type row AS WRITTEN (copies; ``self.types`` is never changed): the
+        caller's values plus every ``formula=`` parameter written as Revit's expression
+        tree (#850) -- the same ``m_oExpression`` on every row, each row's value = the
+        formula evaluated over the values that row STORES, in dependency order.  A
+        formula is written only when it parses, type-checks and evaluates on every
+        type; otherwise it is left out entirely (every row keeps the value it was
+        given) and the reason goes to ``notes``."""
         from . import formula as _fx
+        written: List[Dict[Any, Any]] = [dict(vals) for _n, vals in self.types]
         formulas = {pe.elem_id: pe for pe in self.params.values() if pe.refs.get("formula")}
         if not formulas:
-            return
+            return written
         spec_of = {pe.elem_id: (pe.refs.get("spec") or SPEC_LENGTH) for pe in self.params.values()}
-        refs = {name: _fx.ParamRef(pe.elem_id, spec_of[pe.elem_id])
-                for name, pe in self.params.items()}
+        is_instance = {pe.elem_id: bool((pe.obj or {}).get("m_instanceParam"))
+                       for pe in self.params.values()}
+        refs = _fx.NameTable({name: _fx.ParamRef(pe.elem_id, spec_of[pe.elem_id])
+                              for name, pe in self.params.items()})
 
         def caption(pid: int) -> str:
             return repr(formulas[pid].refs.get("caption"))
@@ -2244,25 +2247,57 @@ class FamilyDoc:
                                   f"{spec.split(':')[-1]}, the parameter is "
                                   f"{spec_of[pid].split(':')[-1]}")
                 continue
+            if not is_instance[pid] and any(is_instance.get(d) for d in _fx.referenced_params(tree)):
+                self.notes.append(f"formula of {caption(pid)} NOT written: a type parameter's "
+                                  f"formula cannot read an instance parameter")
+                continue
             trees[pid] = tree
-        deps = {pid: [d for d in _fx.referenced_params(t) if d in trees] for pid, t in trees.items()}
-
-        def reaches(src: int, dst: int) -> bool:
-            seen, stack = set(), list(deps[src])
-            while stack:
-                n = stack.pop()
-                if n == dst:
-                    return True
-                if n not in seen:
-                    seen.add(n)
-                    stack.extend(deps.get(n, []))
-            return False
-        cyclic = {pid for pid in trees if reaches(pid, pid)}
+        deps = {pid: sorted({d for d in _fx.referenced_params(t) if d in trees})
+                for pid, t in trees.items()}
+        # circular formulas = members of a strongly connected component of size > 1, or
+        # a self-loop: ONE iterative Tarjan pass (linear; never recursion-limited)
+        index: Dict[int, int] = {}
+        low: Dict[int, int] = {}
+        on_stack: set = set()
+        stack: List[int] = []
+        cyclic: set = set()
+        counter = 0
+        for root in sorted(trees):
+            if root in index:
+                continue
+            work = [(root, 0)]
+            while work:
+                node, i = work.pop()
+                if i == 0:
+                    index[node] = low[node] = counter
+                    counter += 1
+                    stack.append(node)
+                    on_stack.add(node)
+                if i < len(deps[node]):
+                    work.append((node, i + 1))
+                    nxt = deps[node][i]
+                    if nxt not in index:
+                        work.append((nxt, 0))
+                    elif nxt in on_stack:
+                        low[node] = min(low[node], index[nxt])
+                    continue
+                for nxt in deps[node]:
+                    if nxt in on_stack:
+                        low[node] = min(low[node], low[nxt])
+                if low[node] == index[node]:
+                    comp = []
+                    while True:
+                        w = stack.pop()
+                        on_stack.discard(w)
+                        comp.append(w)
+                        if w == node:
+                            break
+                    if len(comp) > 1 or node in deps[node]:
+                        cyclic.update(comp)
         for pid in sorted(cyclic):
             self.notes.append(f"formula of {caption(pid)} NOT written: circular reference")
             trees.pop(pid)
-        # dependency order, iteratively (Kahn): a chain of any length and any
-        # declaration order never recurses (review round 3 of #862)
+        # dependency order, iteratively (Kahn)
         waiting = {pid: {d for d in deps[pid] if d in trees} for pid in trees}
         users: Dict[int, List[int]] = {pid: [] for pid in trees}
         for pid, ds in waiting.items():
@@ -2289,19 +2324,21 @@ class FamilyDoc:
                 return int(entry.get("m_int") or 0)
             return float(entry.get("m_value") or 0.0)
         rows = []
-        for tname, vals in self.types:
+        for (tname, _given), vals in zip(self.types, written):
             values = {}
+            keys: Dict[int, Any] = {}          # pid -> the key this row already uses for it
             for k, v in vals.items():
                 pid = self._param_key(k)
+                keys.setdefault(pid, k)
                 try:
                     values[pid] = plain(pid, v)
                 except Exception:                                  # noqa: BLE001
                     pass                  # unreadable here: a formula reading it is refused
-            rows.append((tname, vals, values))
+            rows.append((tname, vals, values, keys))
         for pid in order:
             results = []
             try:
-                for tname, _vals, values in rows:
+                for tname, _vals, values, _keys in rows:
                     res = _fx.evaluate(trees[pid], values)
                     if not isinstance(res, bool) and not math.isfinite(float(res)):
                         raise ValueError(f"result {res!r} is not finite")
@@ -2313,11 +2350,14 @@ class FamilyDoc:
             except (_fx.FormulaError, ZeroDivisionError, ValueError, OverflowError,
                     TypeError, RecursionError) as exc:
                 self.notes.append(f"formula of {caption(pid)} NOT written: type {tname!r} is not "
-                                  f"evaluable ({type(exc).__name__}: {exc}); plain values kept")
+                                  f"evaluable ({type(exc).__name__}: {exc}); given values kept")
                 continue
-            for (_tname, vals, values), entry in zip(rows, results):
-                vals[pid] = entry
+            for (_tname, vals, values, keys), entry in zip(rows, results):
+                # the key the row already uses for pid (a caption or an id), so a result
+                # REPLACES the given value instead of sitting beside it
+                vals[keys.get(pid, pid)] = entry
                 values[pid] = entry["m_int"] if "m_int" in entry else entry["m_value"]
+        return written
 
     def _type_param_entries(self, vals: Dict[Any, Any]) -> List[dict]:
         out = []

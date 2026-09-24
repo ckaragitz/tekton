@@ -429,3 +429,97 @@ def test_a_flat_sum_over_the_cap_names_terms():
     with pytest.raises(F.FormulaError, match="levels or terms"):
         _tree(" + ".join(["Width"] * 61))
     assert _tree(" + ".join(["Width"] * 30))[1] == L
+
+
+# --- review round 4 (#862) ---------------------------------------------------------
+
+@needs_schema
+def test_a_second_finalize_after_a_type_change_leaves_no_stale_tree():
+    """Review round 4: _apply_formulas mutated self.types, so a formula that failed on
+    a second finalize() left the first pass's tree beside a non-result value."""
+    L_, N_ = "autodesk.spec.aec:length-1.0.0", "autodesk.spec.aec:number-1.0.0"
+    fs, doc, made = _doc_with(("Width", L_, None), ("Div", N_, None), ("Half", L_, "Width / Div"))
+    doc.add_type("A", {"Width": 2.0, "Div": 2.0})
+    doc.finalize()
+    assert _rows(doc.self_family.obj)["A"][made["Half"].elem_id]["m_oExpression"] is not None
+    doc.set_type_param("A", "Div", 0.0)
+    doc.finalize()
+    entry = _rows(doc.self_family.obj)["A"][made["Half"].elem_id]
+    assert entry["m_oExpression"] is None
+    # the caller's own table was never rewritten
+    assert all(not isinstance(v, dict) for _n, vals in doc.types for v in vals.values())
+
+
+def test_round_of_a_negative_half_is_refused_until_pinned():
+    tree, _ = _tree("round(Count)")
+    assert F.evaluate(tree, {14: 23.5}) == 24.0
+    with pytest.raises(F.FormulaError, match="negative half"):
+        F.evaluate(tree, {14: -23.5})
+    assert F.evaluate(tree, {14: -23.4}) == -23.0
+
+
+@needs_schema
+def test_a_type_formula_reading_an_instance_parameter_is_refused():
+    from rvt.famgen import skeleton as fs
+    doc = fs.new_family_document("electrical_equipment", "Inst Probe",
+                                 part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
+    doc.add_family_parameter("IW", fs.SPEC_LENGTH, is_instance=True)
+    th = doc.add_family_parameter("TH", fs.SPEC_LENGTH, formula="IW / 2")
+    doc.add_type("T", {"IW": 2.0})
+    doc.finalize()
+    assert any("'TH' NOT written: a type parameter's formula cannot read an instance" in n
+               for n in doc.notes)
+    assert _rows(doc.self_family.obj)["T"][th.elem_id]["m_oExpression"] is None
+
+
+@needs_schema
+def test_the_safety_net_leaves_no_tree_anywhere_and_says_so(monkeypatch):
+    """If the formula step itself fails mid-way, no tree is written anywhere (type
+    rows AND the current-type set), every row is the caller's value, and a note says
+    why -- the family is still built (hard rule 1)."""
+    from rvt.famgen import skeleton as fs
+    L_ = "autodesk.spec.aec:length-1.0.0"
+    fs_, doc, made = _doc_with(("P0", L_, None), ("P1", L_, "P0 + 1'"), ("P2", L_, "P1 + 1'"),
+                               ("P3", L_, "P2 + 1'"))
+    doc.add_type("T", {"P0": 0.5})
+    calls = {"n": 0}
+    real = F.evaluate
+
+    def boom(tree, values):
+        calls["n"] += 1
+        if calls["n"] == 3:
+            raise RuntimeError("midway")
+        return real(tree, values)
+    monkeypatch.setattr(F, "evaluate", boom)
+    doc.finalize()
+    fam = doc.self_family.obj
+    for r in fam["m_pFamilyTypes"]["value"]["m_pairs"]:
+        assert all(e["m_oExpression"] is None for e in r["params"]["m_params"])
+    assert all(e["m_oExpression"] is None for e in fam["m_familyParams"]["value"]["m_params"])
+    assert any("formulas NOT written (RuntimeError: midway)" in n for n in doc.notes)
+    row = _rows(fam)["T"]
+    assert row[made["P0"].elem_id]["m_value"] == pytest.approx(0.5)
+    assert row[made["P1"].elem_id]["m_value"] == pytest.approx(0.0)      # the given default
+
+
+@needs_schema
+def test_cycles_are_found_in_linear_time():
+    import time
+    from rvt.famgen import skeleton as fs
+    doc = fs.new_family_document("electrical_equipment", "Scc Probe",
+                                 part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
+    n = 5000
+    for i in range(n, 0, -1):
+        doc.add_family_parameter(f"P{i}", fs.SPEC_LENGTH, formula=f"P{i - 1} + 1'")
+    doc.add_family_parameter("P0", fs.SPEC_LENGTH)
+    doc.add_family_parameter("CA", fs.SPEC_LENGTH, formula="CB + 1'")
+    doc.add_family_parameter("CB", fs.SPEC_LENGTH, formula="CA + 1'")
+    doc.add_type("T", {"P0": 1.0})
+    t = time.perf_counter()
+    doc._apply_formulas()                       # the formula step alone: linear, not O(N^2)
+    assert time.perf_counter() - t < 3.0
+    doc.notes.clear()
+    doc.finalize()
+    notes = " ".join(doc.notes)
+    assert notes.count("circular reference") == 2
+    assert _rows(doc.self_family.obj)["T"][doc.params[f"P{n}"].elem_id]["m_value"] == pytest.approx(1.0 + n)
