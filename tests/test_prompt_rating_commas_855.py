@@ -94,3 +94,24 @@ def test_ratings_never_cross_between_kinds(prompt, kind, attr, leaked):
 def test_voltage_does_not_cross_between_kinds():
     its = [i for i in _items("a transformer, 480V, 3-phase, panels") if i.kind == "panelboard"]
     assert its and all(i.voltage != "480Y/277" for i in its)
+
+
+@pytest.mark.parametrize("prompt", [
+    "26 24 16, 225A, MCB panelboards",         # review round 2: read 16 (a CSI section number)
+    "26 24 16, panelboards",
+])
+def test_a_number_list_does_not_end_the_chain(prompt):
+    """ONE count token ends the chain; a run of numbers is not a count (the plural
+    default, as on main).  A lone number ('four, 225A, panels') still counts."""
+    assert len(_items(prompt)) == 2
+
+
+def test_an_article_does_not_count_a_plural_across_a_comma():
+    its = _items("a transformer, a 75 kVA, panels")
+    panels = [i for i in its if i.kind == "panelboard"]
+    assert len(panels) == 2 and all(p.kva is None for p in panels)
+
+
+def test_an_article_still_counts_a_singular():
+    its = _items("a 225A, MCB panel")
+    assert len(its) == 1 and its[0].rating_a == 225.0 and its[0].mains == "MCB"

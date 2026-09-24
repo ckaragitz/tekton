@@ -1455,14 +1455,17 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                 break
         return lo_b, hi_b
 
-    def over_rating_commas(ws: int, start: int) -> int:
+    def over_rating_commas(ws: int, start: int, plural: bool) -> int:
         """Move a clause's start back over commas that only separate ONE item's ratings
         ('four 225A, 3-phase, 4-wire panels', 'three 75 kVA, dry-type transformers') so
         the count before them is read (#855).  The move is kept only when the crossed
         segments are ratings alone AND the chain ENDS at a count -- count, ratings, noun
         -- with no tag and no other equipment noun on the way; anything else keeps the
         original start, so one item's trailing ratings never reach the next item ('panel
-        LP-1, 225A, panel LP-2', 'a transformer, 75 kVA, panels')."""
+        LP-1, 225A, panel LP-2', 'a transformer, 75 kVA, panels').  The count that ends
+        the chain is ONE count token ('42, 225A, panels' and '26 24 16, ...' stay put),
+        and a plural noun takes a number, never 'a' / 'an' / 'single' ('a transformer, a
+        75 kVA, panels' keeps the transformer's ratings off the panels)."""
         cur = ws
         while cur > 0 and low[cur] in ",;":
             if _RE_COUNT_TOK.search(_strip_ratings(low[cur + 1:start])):
@@ -1474,8 +1477,10 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             if _RE_TAG_TOKEN.search(seg) or not _only_ratings(_RE_COUNT_TOK.sub(" ", seg)):
                 break
             cur = prev
-            if _RE_COUNT_TOK.search(seg):
-                return cur
+            counts = _RE_COUNT_TOK.findall(seg)
+            if counts:
+                singular = all(c in ("a", "an", "single") for c in counts)
+                return cur if len(counts) == 1 and not (plural and singular) else ws
         return ws
 
     taken: List[Tuple[int, int]] = list(room_taken)
@@ -1553,7 +1558,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             mark((km.start(), rend))
             continue
         ws, we = clause_window(km.start(), km.end())
-        ws = over_rating_commas(ws, km.start())
+        ws = over_rating_commas(ws, km.start(), km.group(0).rstrip().endswith("s"))
         window = text[ws:we]
         # explicit TAGS: a bare reference IS its tag; a noun may be followed
         # by its tag list ('lighting panel LP-1', 'panels LP-1 and LP-2',
