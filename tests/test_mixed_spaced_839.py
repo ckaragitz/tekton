@@ -186,3 +186,51 @@ def test_every_denominator_joins_when_a_unit_follows():
             fails.append((pr, r.values[pk]))
     assert total > 5000, total
     assert not fails, f"{len(fails)}/{total} misread; first: {fails[:3]}"
+
+
+# Round 4 (#841): only an UNSPACED slash ahead of a unit takes any denominator.
+# A spaced one must be a proper fraction of at most two digits -- "480 / 277 in
+# the electrical room" is a voltage followed by a preposition, and a quote
+# after "120 / 208" read as feet delivered a 294.9 in panel, stamped given.
+@pytest.mark.parametrize("prompt,key,want", [
+    ("wireway width 12 480 / 277 in the electrical room", "width_in", 12.0),
+    ("lighting control panel width 24 120 / 208 'LP-1'", "width_in", 24.0),
+    ("junction box depth 6 12 / 2 in each run", "depth_in", 6.0),
+    ("lighting control panel width 24 24 / 7 x 365 operation", "width_in", 24.0),
+    ("lighting control panel height 36 277 / 480 in a nema 1 enclosure", "height_in", 36.0),
+    ("cable tray width 24 480 / 277 footprint", "width_in", 24.0),
+    ("cable tray width 24 480 / 277 feet away", "width_in", 24.0),
+    ("cable tray wide 12 20 / 19 in", "width_in", 12.0),           # improper, 2 digits
+    ("cable tray wide 12 5 / 5 in", "width_in", 12.0),             # not proper
+    ("cable tray wide 12 4 / 0 in", "width_in", 12.0),
+])
+def test_a_spaced_improper_slash_is_never_a_fraction_even_before_a_unit(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+
+
+@pytest.mark.parametrize("prompt,key,want", [
+    ("conduit length 10 11 / 12 ft", "length_ft", 10 + 11 / 12),   # 2-digit over 2-digit
+    ("conduit length 10 5 / 12 ft", "length_ft", 10 + 5 / 12),     # 1-digit over 2-digit
+    ("cable tray wide 12 12 / 20 in", "width_in", 12.6),           # first digit 1 < 2
+    ("cable tray wide 12 19 / 20 in", "width_in", 12.95),
+    ("cable tray wide 12 13 / 15 in", "width_in", 12 + 13 / 15),   # same first digit
+    ("cable tray wide 2 3 / 5 in", "width_in", 2.6),               # 1-digit over 1-digit
+    ("cable tray wide 12 480/277 in", "width_in", 12 + 480 / 277), # UNSPACED: main's reading, kept
+])
+def test_a_spaced_proper_fraction_before_a_unit_still_joins(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
+
+
+def test_every_spaced_proper_fraction_up_to_two_digits_joins_and_no_improper_one_does():
+    """Exhaustive over n, d in 1..99: '12 n / d in' joins iff n < d."""
+    wrong = []
+    for d in range(1, 100):
+        for n in range(1, 100):
+            r = AR.resolve_prompt(f"cable tray wide 12 {n} / {d} in")
+            want = 12 + n / d if n < d else 12.0
+            if abs(r.values["width_in"] - want) > 1e-9:
+                wrong.append((n, d, r.values["width_in"]))
+    assert not wrong, wrong[:10]
