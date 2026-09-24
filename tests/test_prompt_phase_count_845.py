@@ -59,3 +59,30 @@ def test_other_forms_stay_one(prompt):
 def test_explicit_count_still_wins(prompt, n):
     kinds = _kinds(prompt)
     assert len(kinds) == n and set(kinds) == {"panelboard"}
+
+
+@pytest.mark.parametrize("prompt,n", [
+    ("three pole-mounted transformers", 3),         # review of #848: the fix first read 2
+    ("four pole-mounted transformers", 4),
+    ("three pole mounted transformers", 3),
+    ("three pole-top transformers", 3),
+    ("four wire-guarded panels", 4),
+    ("three phase-converter panels", 3),
+])
+def test_compound_word_keeps_its_count(prompt, n):
+    """A designator word that opens a compound is not a designator: the number before
+    it is the count."""
+    assert len(_kinds(prompt)) == n
+
+
+def test_room_with_pole_mounted_transformers():
+    kinds = _kinds("an electrical room with three pole-mounted transformers and 2 panels")
+    assert kinds.count("transformer") == 3 and kinds.count("panelboard") == 2
+
+
+@pytest.mark.parametrize("prompt", [
+    "a 208/120V 3-phase-4-wire panelboard",
+    "a 208/120V three-phase-four-wire panelboard",
+])
+def test_hyphen_chained_designators_stay_one(prompt):
+    assert _kinds(prompt) == ["panelboard"]

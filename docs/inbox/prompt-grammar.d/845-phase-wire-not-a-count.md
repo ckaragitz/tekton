@@ -33,11 +33,27 @@ count scrub only. It covers:
 
 Attribute extraction is unchanged.
 
+**Review round 1 (🛑).** The independent review found that a designator word opening a
+compound lost its count: `three pole-mounted transformers` came out as 2 (base read 3). The
+same happened to `pole mounted`, `pole-top`, `wire-guarded` and `phase-converter`. The regex
+now refuses:
+- a trailing `-<letter>`, except when it chains to the next designator (`three-phase-four-wire`);
+- a following `mount…` / `top…`.
+
+`type` was left out of that list on purpose: `a three phase type panel` must stay 1.
+
+Pins added (26 tests; 7 of them fail on round-0 code). The digit form, `3 pole-mounted
+transformers` → 2, already failed on `main` (`_RE_SPACES` reads "3 pole" as spaces). It is
+filed as #854 and not widened into this PR.
+
 ## Evidence
 
-- New `tests/test_prompt_phase_count_845.py`: **17 passed** with the fix,
-  **8 failed / 9 passed** with the fix stashed. So the 8 pins earn their
-  names, and the 9 are guards.
+- New `tests/test_prompt_phase_count_845.py`: **26 passed** at round 1.
+  - With round-0 code: **7 failed / 19 passed**.
+  - With `main`'s code (round 0): **8 failed / 9 passed** of the first 17.
+- Round 1: `pytest tests/test_prompt_phase_count_845.py tests/test_prompt_intent.py
+  tests/test_prompt_intent_775.py tests/test_frontdoor.py tests/test_router.py` gives
+  **280 passed, 19 skipped, 0 failed**.
 - `pytest tests/test_prompt_intent.py tests/test_prompt_intent_775.py
   tests/test_prompt_phase_count_845.py tests/test_frontdoor.py tests/test_router.py`
   gives **271 passed, 19 skipped, 0 failed** (`RVT_SKIP_LARGE=1`, no samples).
@@ -52,6 +68,7 @@ Attribute extraction is unchanged.
 - Phases and Wires are hard-coded to 3 and 4 for every prompted panelboard.
   A `single-phase 120/240V panelboard` emits `Phases 3, Wires 4`. Filed
   as #846; it is not widened into this PR.
+- `3 pole-mounted transformers` builds 2 on `main` (`_RE_SPACES`). Filed as #854.
 
 ## BRANCH STATE
 
@@ -61,5 +78,5 @@ Attribute extraction is unchanged.
   - `tests/test_prompt_phase_count_845.py`
   - `tests/ci_shard.d/845-prompt-phase-count.txt`
   - this record
-- Shipped: the count scrub.
+- Shipped: the count scrub (round 1: compound-word guard).
 - Staged, not shipped: nothing.

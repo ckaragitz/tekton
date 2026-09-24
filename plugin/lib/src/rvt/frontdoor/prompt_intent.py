@@ -168,9 +168,12 @@ _RE_FLUSH = re.compile(r"flush(?:[\s-]*mount(?:ed)?)?|recessed", re.I)
 _RE_SURFACE = re.compile(r"surface(?:[\s-]*mount(?:ed)?)?", re.I)
 _RE_SECTIONS = re.compile(r"(\d{1,2})\s*[- ]?\s*sections?\b", re.I)
 #: PHASE / WIRE / POLE designators ('3-phase', 'single phase', '3PH', '3Ø', '4-wire', '4W',
-#: '3P') -- a system description, never an equipment count (#845)
+#: '3P') -- a system description, never an equipment count (#845).  Not when the word
+#: opens a compound ('three pole-mounted', 'three pole mounted', 'four wire-guarded'):
+#: there the number is the count
 _RE_PHASE_WIRE = re.compile(
     r"\b(?:single|two|three|four|[1-4])[\s-]?(?:phase|wire|pole)s?\b"
+    r"(?!-(?!(?:two|three|four)\b)[a-z])(?!\s+(?:mount|top)\w*)"
     r"|\b[1-4][\s-]?(?:ph|ø|φ)(?![a-z])"
     r"|\b[1-4](?:w|p)\b", re.I)
 #: a device MOUNTING HEIGHT above the floor: 'at 18 in AFF', '44 inches above
