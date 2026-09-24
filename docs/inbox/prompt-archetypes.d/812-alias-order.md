@@ -1,0 +1,631 @@
+# 812 — an alias stole the NEXT phrase's number, and stamped it `given`
+
+Stream: **prompt-archetypes** (fragment; index `../prompt-archetypes.md`).
+Issue **#812** (P0), branch `cam/812-alias-steals-number`. Found by the standing
+test/debug loop (#805), hunting adversarial prompts on prompt → `.rfa`.
+
+## The defect
+
+```
+$ tools/route.py run --prompt "cable tray 24 in wide 4 in deep 20 ft long" --output rfa
+  width_in  =   4.0  given     <- the user said 24
+  depth_in  = 240.0  given     <- the "20 ft long" value, read as depth
+  length_ft =  10.0  nominal   <- the user said 20 ft
+  built: side rails 20.0 ft tall
+```
+
+Not a parse miss: a wrong number wearing `given`, the tier that means *"you
+stated it"*. A comma or "and" between the phrases hid it.
+
+## The size of it — measured, not the one example
+
+A property sweep over **every archetype's** dimensional aliases, with two- and
+three-phrase chains in both phrasings ("7 in wide" / "wide 7 in"), in every
+order, and no separators. Each generated prompt carries its own oracle: number
+*i* belongs to the phrase it is written in.
+
+```
+main (git archive, rvt.__file__ printed):  5,488 prompts   4,287 ok   1,201 FAIL (22%)
+  cable_tray 644, strut_channel 406, wireway 50, lighting_control_panel 50,
+  junction_box 50, conduit 1
+this branch:                               5,488 prompts   5,488 ok       0 FAIL
+```
+
+e.g. on `main`, "cable tray 7 in rung spacing 13 ft long" gave a **13-foot**
+rung spacing, stamped `given`.
+
+## Cause and fix
+
+`_alias_patterns` emits two phrasings per alias, number-first (`24 in wide`) and
+alias-first (`wide 24 in`), at the same sort key. Alias-first went first, its
+connector is optional, and `_SEP` allows no comma. So it read *alias + whatever
+number comes next*, stealing the next phrase's number.
+
+**The fix binds under both orders and keeps the reading that gives more stated
+dimensions a home.** Round 1 of the review changed the rest (next section): a
+shorter alias may no longer match inside a longer one, and a tie on bindings
+goes to the reading that leaves more of the user's other phrases whole, then to
+number-first.
+
+## Getting here — three designs, two of them wrong
+
+1. **I posted a "verified" fix on #812 that was wrong:** rank number-first above
+   alias-first. It went 10/13 → 13/13 on my table, with suites green. My table had
+   no alias-first *chain*, and implementing the fix with a proper table showed it
+   broke `width 24 in depth 6 in` — correct on `main`, 6 in depth read as 24.
+   Corrected on #812.
+2. **Then I cited the wrong witness.** I said a fixed number-first order fails
+   `width 24 in depth 6 in`. That was true only of my first *global* rank sort; a
+   per-alias number-first order handles it. A mutation run caught this: "always
+   number-first" survived every test. The case that actually defeats a fixed
+   number-first order is the **param-order-reversed** chain `depth 6 in width 24 in`
+   (`width_in` is declared first, so its pattern takes `6 in width`). Measured,
+   all four chain shapes under the three candidate orders:
+
+   | prompt | alias-first only | number-first only | two-pass |
+   |---|---|---|---|
+   | `24 in wide 4 in deep` | W = 4 ✗ | ✓ | ✓ |
+   | `4 in deep 24 in wide` | ✓ | ✓ | ✓ |
+   | `width 24 in depth 6 in` | ✓ | ✓ | ✓ |
+   | `depth 6 in width 24 in` | ✓ | W = 6, D = 4 ✗ | ✓ |
+
+3. **Two-pass**: correct on all four, and on all 5,488.
+
+**One instrument error along the way:** a first search for tie cases reported 110
+"ties where the readings differ". It counted `given` values *after* `follows`
+(strut width follows height), while the code counts bindings in the alias pass,
+before `follows`. The direct test — the real code with `>` against `>=`,
+compared over all 5,488 prompts — shows **zero** differing outputs.
+
+## Round 0 evidence (superseded in part by round 1)
+
+| mutant (anchor asserted from a script) | dies in |
+|---|---|
+| always alias-first (`main`'s behaviour) | 9 |
+| always number-first (my first fix) | 3 |
+| both passes alias-first (second pass inert) | 9 |
+| tie-break flipped (`>` → `>=`) | **survives** — inert on all 5,488 prompts |
+
+Round 0 said here that "the tie-break is not reachable". **That was wrong
+outside the generated set**, and the review showed it: over restated prompts the
+flip changed 1,759 outputs, and "a long 24 in wide 4 in deep cable tray" was a
+tie that both `main` and round 0 got wrong. My generator only ever produced
+the prompts I was already thinking about.
+
+## Round 1 — the review found a regression I had introduced
+
+> **Round 2 changed part of this section; see "Round 2" below.** The full-tie
+> rule "number-first" was itself a regression and is reverted to `main`'s
+> alias-first. The claim "worse than `main` on any prompt in any sweep: 0" held
+> only for sweeps with the noun first, and it was wrong.
+
+🛑 on head `59e872a`. **A dimension stated twice, whose alias contains a
+shorter alias of another parameter**, got a false `given` from this PR that
+`main` did not give:
+
+```
+"cable tray 1 in rung width, rung width 1 in"
+  main:     rung_width_in = 1 given                      (right)
+  59e872a:  rung_width_in = 1 given, width_in = 1 given  (a 1 in tray, "Ladder 1 in")
+"strut channel 2 in slot length, slot length 2 in"
+  59e872a:  also length_ft = 0.1667 given                (a 2-inch-long strut)
+```
+
+The number-first pass bound `rung width` from its first phrase. Its parameter
+was then `given`, so its second phrase was nobody's, and `width` matched inside
+it. One extra binding, and "more bindings wins" picked the wrong reading. The
+reviewer's sweep: 331 of 14,724 prompts right on `main`, wrong on the PR, every
+one a restatement.
+
+**Fix 1 — a shorter alias never matches inside a longer one.** Every
+occurrence of every alias is recorded up front, bound or not. A candidate match
+overlapping an occurrence of a *longer* alias is skipped. Nested pairs this
+covers today: `rung width`/`width`, `slot length`/`length`, `section
+width`/`width`, `section height`/`height`, `loading depth`/`depth`, `rail
+flange`/`flange`, `sheet thickness`/`thickness`, `diameter`/`dia`.
+
+**Fix 2 — the tie-break, now that it is reachable.** In order: more bindings;
+then the reading that leaves **more of the prompt's other phrases for its bound
+parameters whole**; then number-first. I got the middle rule wrong once more
+before landing it. My first version counted only restatements carrying the
+*same* value. A mutant (count any value) survived the tests, and the search for
+a prompt that told them apart found it was the mutant that was right: with
+"wide 7 in loading depth 13 in wide 9 in", the same-value rule tied 2–2 and
+number-first read `7 in loading depth` and `13 in wide`, a 13 in wide, 7 in deep
+tray. What matters is whether a reading cut the user's phrases apart, not
+whether they agree.
+
+### Evidence — every sweep, three heads, `rvt.__file__` checked each run
+
+| sweep (all generated, oracle per prompt) | prompts | `main` | round 0 `59e872a` | this head |
+|---|---|---|---|---|
+| chains, every alias rotated (in the tests) | 16,344 | 3,564 | 0 | **0** |
+| restatements PPQ/PQP/PQQ/QPP (in the tests) | 18,496 | 2,152 | 2,401 | **0** |
+| contradictions 7…9, PPQ/PQP/QPP (in the tests) | 13,872 | 1,478 | — | **0** |
+| restatements, every alias pair, 3 separators | 8,520 | 1,144 | — | **0** |
+| restatements PPQ/PQQ/QPP, every alias of P | 24,096 | 2,312 | — | **0** |
+| bare alias before a chain, before the noun | 1,854 | 1,004 | — | 610 |
+
+**Worse than `main` on any prompt in any sweep: 0.** The stray check is
+`follows`-aware: a strut width that follows its stated height is `given` by
+design, not stray. My first restatement sweep missed this and reported 2,204
+failures that were really the oracle's.
+
+**The 610 are ambiguous, not wrong, so they are recorded rather than filed.**
+They are prompts like "a rail thickness 7 in loading depth 13 in rung spacing
+cable tray", where a multi-word alias in front of a number is a perfectly good
+label ("rail thickness 7 in"). My oracle assumed it was an adjective. Single-word
+adjectives ("a long 24 in wide …") are the other 394 of that sweep, and number-
+first fixes them.
+
+| mutant (anchor asserted = 1, bytecode off, `__pycache__` cleared) | result |
+|---|---|
+| no nested-alias reservation | killed |
+| reserve equal-length aliases too | killed |
+| no intact-phrase count | killed |
+| intact phrases must carry the same value | killed |
+| full tie → alias-first (`main`'s rule) | killed |
+| only the alias-first reading | killed |
+| only the number-first reading | killed |
+
+Considered and dropped: locating the alias inside each match before the overlap
+test. A mutant that used the whole match survived, and it is equivalent: a
+match's number and unit are never part of another alias's text. The code now
+uses the whole match.
+
+**Review nits addressed.** The chain sweep now uses every alias (rotated), not
+just `aliases[0]`. It checks stray `given` values, and it has per-archetype
+floors instead of one total (conduit had 8 prompts; now 24 chains, 320
+restatements, and floors that fail if an archetype drops out). The #821 record's
+"(round 2)" for `PERMUTATION-MATRIX.md` is corrected to round 1.
+
+`tests/test_archetype_alias_order_812.py`: **56 passed, 3 xfailed** in 18.5 s.
+The three strict xfails are the `W x D`-after-the-noun gap, split out as
+**#827**; they resolve to an honest `nominal`, so lower severity.
+
+## Record repair carried from #821 (round-3 nits, same stream)
+
+`816-lighting-control-panel.md` said the kept `relay panel` alias shields "this
+one prompt". Round 3 reproduced that it shields at least two: "a protective
+relay panel" also builds an Eaton PRL2X panelboard with the alias removed (added
+to #825). Its `BRANCH STATE` also listed round-0 gates and omitted
+`PERMUTATION-MATRIX.md`. Both corrected in that fragment by this PR, as #821's
+merge comment committed to.
+
+## Round 2 — my tie rule broke the mirror shape, and my sweeps could not see it
+
+🛑 on head `ba36c71`. The reviewer wrote their own random generator: 49,826
+prompts; chains of 2 to 4 parameters; 9 unit spellings, fractions and 7
+separators; the noun first, last and in the middle. Two failure classes, both
+right on `main` and wrong on the head (509 prompts with seed 1, 481 with
+seed 2):
+
+1. **A label-first chain, then a bare adjective:** "junction box width 8 in
+   height 6 in deep" became height = 8 and depth = 6, both `given`. The two
+   readings tie completely, and rule 3 (number-first) picked the wrong one.
+   That is the #812 defect again, from the other side. I justified rule 3 with
+   the mirror shape ("a long 24 in wide …") and never generated this one.
+2. **A restatement just before the noun:** "a 4 in depth, depth 4 in junction
+   box" became a 4 in *wide* box. The winning reading left the restated phrase
+   outside `used`, and the noun rules then read "4 in junction box" as the
+   primary dimension. My three sweeps all put the noun **first**, so none of
+   them could produce this. That is why "0 worse than main" was true of my
+   sweeps and false of the product.
+
+**Fix.**
+- Rule 3 goes back to `main`'s alias-first. With `>=` → `>` as the only
+  change, the reviewer measured 0 regressions against `main` on their
+  generator.
+- The winner's intact phrases are added to `used`, so the noun rules can never
+  re-read a restatement.
+- The mirror case "a long 24 in wide 4 in deep cable tray" is still wrong, as
+  on `main`. It is now a **strict xfail citing #832**, which says why neither
+  side of a full tie is safe and what a fix must be measured against.
+- The reviewer's suggested intersection rule (keep only the bindings the two
+  readings agree on) is recorded there too, with its cost: it turns "junction
+  box width 8 in height 6 in deep", which `main` gets right, into all-nominal.
+
+### Evidence — the noun moved, `rvt.__file__` checked each run
+
+A placement sweep (my generator, not the reviewer's): chains, restatements,
+contradictions, and a chain with a bare alias before or after it. Every alias of
+the restated parameter, the noun first, last and in the middle, with and
+without a comma. 132,548 prompts.
+
+| head | wrong | worse than `main` | better than `main` |
+|---|---|---|---|
+| `main` | 17,301 | — | — |
+| round 0 `59e872a` | 17,328 | 1,902 | 1,875 |
+| round 1 `ba36c71` | 14,030 | **6,048** | 9,319 |
+| this head | **3,502** | **0** | 13,799 |
+
+All 3,502 remaining are the bare-alias shapes (lead-bare 1,648, trail-bare
+1,854), which is #832's class. Chains, restatements and contradictions are
+**0 in every noun position**.
+
+The tests now cycle the noun position. `_restatements("cycle")` and
+`_contradictions("cycle")` put the noun first, last or in the middle in turn:
+
+| sweep (noun cycled) | prompts | `main` | round 0 | round 1 | this head |
+|---|---|---|---|---|---|
+| restatements | 18,496 | 2,466 | 2,773 | 2,010 | **0** |
+| contradictions | 13,872 | 1,543 | 1,611 | 1,692 | **0** |
+
+The table also gains seven of the reviewer's prompts as rows: the three
+label-first + bare-adjective chains and the four restatements before the noun.
+
+| mutant (anchor asserted = 1, bytecode off, `__pycache__` cleared) | result |
+|---|---|
+| no nested-alias reservation | killed |
+| reserve equal-length aliases too | killed |
+| no intact-phrase count | killed |
+| intact phrases must carry the same value | killed |
+| **full tie → number-first (round 1's rule)** | **killed** |
+| **intact phrases not claimed into `used`** | **killed** |
+| only the alias-first reading | killed |
+| only the number-first reading | killed |
+
+`tests/test_archetype_alias_order_812.py`: **70 passed, 4 xfailed** in 30.5 s.
+The xfails are #827 ×3 and #832 ×1.
+
+**Filed from this round:**
+- **#831** (P0): `_to_number` reads "13/16" as 1 3/16. It is on `main` and
+  was not caused by this PR; found by the reviewer.
+- **#832**: the full-tie ambiguity.
+
+**Lesson, written to the record rather than kept:** a property sweep only proves
+what its generator can produce. All three of mine shared one shape (noun
+first), so a regression outside that shape was invisible to all of them at
+once. The reviewer's generator varied the shape and found it in minutes.
+
+## Round 3 — claiming intact phrases broke cross-dimensions, and again my sweeps could not see it
+
+🛑 on head `403988b`. Round 2 added the winner's intact phrases to `used`. An
+intact alias-first match can run into the first number of an "N x N" cross in
+front of the noun ("thickness 12" out of "thickness 12 x 6 in"). The claim then
+locked the cross rule out, and the noun rule read the **last** number of the
+cross as the width:
+
+```
+"a 1/8 in sheet thickness, 1/8 in thickness 12 x 6 in wireway"
+  main:     W 12 / H 6 given           403988b:  W 6 given (+ H 6)
+"a 22 thickness 14 x 19 x 9 in lighting control panel 22 sheet thickness"
+  main:     14 / 19 / 9                403988b:  W 9 given, H and D nominal
+```
+
+The reviewer found 275–324 regressions per 60,000 prompts. My sweeps never
+combined a cross with a restatement. **This is the same failure as rounds 1 and
+2: a sweep proves only what its generator can make.**
+
+### What I did differently this round
+
+Before choosing a fix, I wrote a **randomised, shape-varied fuzzer with a
+per-prompt oracle** (`tools/dev/fuzz_prompt_dims.py`, committed). It covers
+chains of 1–4 parameters, restatements, contradictions, bare aliases, a
+cross before the noun, counts ("3 x 10 ft long"), `x` and `by` used as
+separators, fractions, 9 unit spellings, 7 connectors, 11 separators, and the
+noun first, last, middle or absent. I measured every candidate fix against
+`main` on it, and **each candidate I did not take failed there**:
+
+| candidate | worse than `main` per 20,000 (3 seeds) | why rejected |
+|---|---|---|
+| intact spans not overlapping any cross | 16–22, then 845–962 once `x` separators and counts were generated | blocked "3 x 10 ft long", "wide x deep" |
+| the cross rule ignores intact spans (the reviewer's variant) | same as above on the first fuzzer | leaves the binder free to take a cross's number |
+| no alias match may overlap any cross (binder too) | 845–962 | "a 3 x 10 ft long cable tray" lost its length |
+| alias-first match opening a cross (any unit) | 196–244 | "thickness = 12.5 inches x 9 feet long" lost the thickness |
+| **alias-first match whose UNITLESS number opens a cross** (taken) | **10–19, all but one bare-alias** | — |
+
+The rule taken is `opens_cross`, applied in both the binder and the intact
+count. An alias-first match whose number has **no unit** and is followed by
+`x <digit>` is the first element of a cross, not a phrase. With a unit
+("thickness 12.5 in x 9 ft long"), the phrase is complete and the `x` is a
+separator. Number-first phrases next to an `x` are left alone ("12 in wide x 4
+in deep", "3 x 10 ft long", "24 wide x 4 deep").
+
+### Evidence — this exact tree against `main` (`16074b6`, fraction fix included)
+
+| instrument | prompts | `main` wrong | this head wrong | worse than `main` |
+|---|---|---|---|---|
+| fuzzer, no-`x` shapes, seeds 1–3 | 60,000 | 12,769 | 4,415 | **49, all bare-alias** |
+| fuzzer, with `x`/count shapes, seeds 1–3 | 60,000 | 11,668 | 3,437 | **33: 32 bare-alias, 1 contradiction** |
+| restatements / every alias pair / chains / contradictions | 62,875 | 8,508 | **0** | **0** |
+| placement (noun first/last/middle, bare aliases) | 132,548 | 17,301 | 3,502 | **0** |
+| cross + restatement sweep (new, in tests) | 2,684 | 1,170 | **0** | **0** (403988b: 1,342 wrong) |
+
+The one non-bare regression in 120,000 fuzzed prompts is a contradiction inside a
+no-separator chain: "…2 in rail flange 31 in flange rung pitch is 30 inches
+deep of 16 5/8 in…". That text reads legitimately both ways, and `main`'s
+alias-first reading happens to land right. It is reported, not hidden.
+
+**The bare-alias regressions** (81 in 120,000, against 16,585 fewer wrong overall) are
+#832's class. A bare alias next to a number is often a legitimate reading:
+"sheet thickness 125 mm wide junction box" can mean 125 mm *wide*. They are
+counted on #832 instead of being called "wrong on main too", which was round 2's
+over-claim.
+
+**Tests** (`tests/test_archetype_alias_order_812.py`, **97 passed, 4 xfailed**):
+- the reviewer's four cross prompts;
+- count, separator and "W x D" rows;
+- two unitless number-first rows (which kill "opens_cross at any rank");
+- two rows where intact phrases must not overlap (which kill the reviewer's
+  surviving "no overlap check" mutant: it changed 247 of 269,361 prompts, and
+  the head is right in the ones checked);
+- the new `_crossed()` sweep.
+
+| mutant (anchor asserted = 1, bytecode off) | result |
+|---|---|
+| no nested-alias reservation / equal-length reservation | killed / killed |
+| no intact count / intact must carry the same value / intact not claimed | killed ×3 |
+| full tie → number-first / only alias-first / only number-first | killed ×3 |
+| `opens_cross` dropped from the binder / from the intact count | killed / killed |
+| `opens_cross` ignores the unit / applies to any rank | killed / killed |
+| intact loop: no overlap-with-intact check | killed (was surviving) |
+| intact loop: no `inside_longer` | **survives: 0 of 269,361 outputs change** |
+| intact loop: no `conv > minimum` | **survives: 0 of 269,361 outputs change** |
+
+The two survivors are kept as consistency guards (the intact count accepts
+exactly what the binder would). They are recorded as changing no output, and
+are not claimed as tested.
+
+**Filed from this round:** **#834** — a comma with no space after it drops
+the next number ("24 in wide,4 in deep"). This is most of what `main` and the
+head still get wrong together on the fuzzer (1,729 of about 2,000 non-bare
+shared failures).
+
+## Round 4 — `opens_cross` fired where no cross is read, and my fuzzer could not make that shape
+
+🛑 on `8d87ef0`. `opens_cross` dropped "width 20" out of "lighting control
+panel depth 6 in width 20 x 30 in". There is no product noun after that cross,
+so the cross rule never reads it. The freed "width" then took "6 in width"
+number-first: a **6 in wide** panel, stamped `given`, where `main` read
+W20 / D6. On the reviewer's generator: 435 / 465 worse than `main` per 20,000,
+102 / 105 of them false `given`. **My fuzzer's alias-first phrases always
+carried a unit, and its only cross sat right before the noun**, so it could
+not generate the shape. That is the fourth round with the same root cause.
+
+**What I did.** I added the reviewer's shapes to the fuzzer first: unitless
+alias-first values, and a cross *labelled* by a cross-dimension alias
+anywhere, whose oracle is the label reading. The fuzzer in `tools/dev` now
+generates both. Then I measured three candidates against `main` on all three
+fuzzer generations × 3 seeds:
+
+| candidate | fuzzer 3 (new shapes): worse than main | fuzzers 1–2: worse than main | reviewer's 11 prompts |
+|---|---|---|---|
+| round-3 head (`opens_cross` everywhere) | **2,301** | 49 / 33 | 4 wrong |
+| V7 — only when the cross runs into the noun (the reviewer's direction) | — | — | 1 wrong (`"deep 89mm width 22 x 24 …"`) |
+| V6 — only for aliases that are not cross dimensions | 134 | 49 / 32 | all right |
+| **V8 — both limits (taken)** | **56** (53 bare, 2 labelled, 1 contradiction) | **49 / 32**, all bare except 1 | **all right** |
+
+**The rule taken (V8).** `opens_cross` fires only for an alias that is not
+itself a cross dimension, and only when the cross runs into the product noun.
+In "width 20 x 30" the alias *labels* the first number, which is how `main`
+reads it. "thickness 12 x 6" cannot be a thickness of 12 × 6.
+
+**What it gives back.** About 800 prompts per 60,000 on fuzzer 1 that round 3
+had "improved" were crosses labelled by a cross-dimension alias right before
+the noun ("a deep 17 x 13 in lighting control panel"). V8 reads them as `main`
+does (depth 17), and is never worse than `main` there. They are genuinely
+ambiguous. So is one row I pinned in round 3, "junction box 6 in wide 4 x 4
+in", which round 3 read as width 6 and V8 reads, as `main` does, as width 4.
+It has the same structure as "depth 6 in width 20 x 30 in", which must read
+the label way, and nothing local separates the two. That row is now a
+**strict xfail citing #832**. It is recorded here and was not deleted.
+
+### Evidence — this exact tree against `main` `06b4cc3`
+
+| instrument | prompts | `main` wrong | this head wrong | worse than `main` |
+|---|---|---|---|---|
+| fuzzer 1 (no `x`), seeds 1–3 | 60,000 | 12,769 | 5,235 | **49, all bare-alias** |
+| fuzzer 2 (`x`/counts), seeds 1–3 | 60,000 | 11,668 | 4,557 | **32: 31 bare, 1 contradiction** |
+| fuzzer 3 (unitless, labelled crosses), seeds 1–3 | 60,000 | 11,147 | 5,290 | **56: 53 bare, 2 labelled, 1 contradiction** |
+| deterministic sweeps (restatements, every alias pair, chains, contradictions) | 62,875 | 8,508 | 1 (the xfail row) | **0** |
+| placement sweep | 132,548 | 17,301 | 3,502 | **0** |
+
+**Of 180,000 fuzzed prompts, 137 are worse than `main`.** 133 have a bare
+alias (#832's class). The other 4 are ambiguous:
+- 2 labelled crosses;
+- 2 contradictions inside a no-separator chain whose " - " sits next to a
+  fraction ("30 x 14 - 1/2 inch", which also reads as 14 1/2).
+
+`main` gets 35,584 of the same 180,000 wrong; this head gets 15,082.
+
+**I no longer claim the class is closed.** Five rounds found five shapes. The
+numbers above hold for the shapes the fuzzer makes, and the next review should
+be expected to find a shape it does not.
+
+Tests: **121 passed, 5 xfailed**.
+- The reviewer's four round-4 prompts, "Create A Lighting Relay Panel …" and
+  the 89 mm case are rows, plus "5-in-thickness 23x24 in junction box",
+  which `main` gets wrong (thickness 23).
+- A `×` row, and four rows pinning `opens_cross`'s limits: a slot size
+  "1-1/8 x 9/16", "rung spacing 9 x 2 in", a unit that completes the phrase,
+  and a number-first phrase before an `x`.
+- Mutants: 6/6 of the V8 rule killed (cross-dimension exemption, into-noun,
+  `×`, rank, unit, off). The 10 core mutants of rounds 1–3 were re-run with
+  their moved anchors: 10/10 killed.
+
+## Round 5 — `opens_cross` fired where the cross rule never reads: feet, and conduit
+
+🛑 on `bf4178f`. Two shapes, neither ambiguous:
+
+- **A cross in feet:** "ladder tray rung spacing 9 x 12 ft ladder tray"
+  became a **108 × 144 in tray, `given`**. `opens_cross` dropped "rung spacing
+  9", and the cross rule then read "9 x 12 ft" as width × depth. A foot
+  measurement after `x` is a run length, never a section.
+- **An archetype with no cross rule:** "EMT, trade size 3/4 x 10' EMT" lost its
+  diameter, and "the trade size 4 x 11' emt long is 3 foot" became a **132 in
+  conduit**.
+
+On the reviewer's sweep of this shape `main` was right on 5,724 of 6,372 and
+the head on 0. **My fuzzer's crosses were never in feet and never on
+conduit**: the same blind spot, a fifth time.
+
+**Fix.** `opens_cross` now also requires that the cross rule could actually
+read the cross. The archetype must have two cross dimensions, both still
+nominal in this reading, and the cross must not be in feet.
+
+| instrument | prompts | `main` wrong | head wrong | worse than `main` |
+|---|---|---|---|---|
+| feet crosses: every non-cross alias × values × ft / ' / feet / -ft × leads | 600 | 96 | 96 | **0** (round 4: 600 wrong) |
+| fuzzers 1–3 × seeds 1–3 | 180,000 | 35,584 | 15,084 | **137** (as round 4: 133 bare-alias, 4 ambiguous) |
+| deterministic sweeps (incl. placement and prefix) | 197,277 | 26,813 | 4,506 | **0** |
+
+Tests: **139 passed, 5 xfailed.**
+- The reviewer's 7 prompts are rows.
+- A row pins `re.match` over `re.search`: "junction box sheet thickness 1/8, 12 x
+  12 in junction box".
+- A row pins the "still nominal" check: "strut channel section height 2 in, lip
+  0.5 x 3 in strut channel", where without the check the stated lip is lost.
+  That mutant survived until the row existed.
+
+Mutants: **10/10** for the rule and **10/10** core, re-run.
+
+**The xfail row, reconsidered.** The reviewer points out that "junction box 6
+in wide 4 x 4 in" is *not* really ambiguous. An adjective alias (wide, deep,
+tall, long) follows its number, while a noun alias (width, depth, height,
+length) labels what follows. So "6 in wide" is complete and width 6 is the
+better reading. `main` reads it as W4 too, so it is not a regression. The
+row stays a strict xfail, and the adjective/noun hint is recorded on #832 as
+the lead for a fix.
+
+## Round 6 — a restated cross dimension claimed the cross, and a rating number beat a doubled label
+
+🛑 on `4895231`. There were two classes, and both are plain English that main
+reads right:
+
+1. **A cross dimension's own alias, restated elsewhere, right before an "N x N"
+   cross.** In "6 in deep 20 x 30 in lighting control panel, depth: 6 in", the
+   intact loop kept "deep 20" as a phrase left whole, because `opens_cross`
+   exempts every cross-dimension alias. That claimed the cross's first number.
+   The head gave **W30 `given`** and lost H; main gives W20 H30 D6. On the
+   reviewer's sweep: 9,396 prompts right on main and wrong here, 6,264 of them
+   a false `given`. This is round 3's defect, reached through a cross
+   dimension.
+2. **A rating number in front of a doubled label.** In "junction box, nema 1
+   width 6 in wide", the redundant "6 in wide" scored as an intact phrase for
+   the number-first reading, so "1 width" won: **W1 `given`**. The same
+   happened with `type 1`, `qty 2`, `class 20` and `nema 12 … tall`. On the
+   reviewer's sweep: 294 of 378 prompts.
+
+**Fixes:**
+- **In the intact loop only, `opens_cross` applies to cross-dimension aliases
+  too** (`any_alias=True`). The binding loop keeps the exemption, so "width
+  20 x 30" still labels 20.
+- **A unit-less number-first number after a rating or count word is not
+  bound** (`_NOT_A_SIZE_LEAD`: the noun rule's rating words plus
+  qty / quantity / count). The noun rule's own list is unchanged.
+- **A designator before the number is skipped as well** (size, model, no.,
+  number, item, mark, tag, #), but only when the same parameter is stated
+  again later. My own generator found this: without it, "size 1 wide 6 in
+  wide" still gave W1. Applied unconditionally, it would have dropped main's
+  reading of "a size 12 wide junction box".
+- **Nit: the tail after the alias holds one number fewer than the
+  archetype's cross dimensions.** "length 24 X 42 × 42in wireway" is L24 with
+  a 42 × 42 section.
+- **Nit: a row now kills the `cross_dims[:2]` mutant.**
+
+| instrument | prompts | right on `main`, wrong on head | notes |
+|---|---|---|---|
+| new: a cross dimension restated (every alias × value × units × before/after × separator) + a rating, count or designator word before a doubled label (10 words × 4 numbers × 4 tails × 2 orders) | 12,912 | **0** | 1,440 better (e.g. "nema 12 tall junction box": main H12 `given`, head nominal) |
+| fuzzers 1–3 × seeds 1–3 | 60,000 | 56 | identical to round 5: 53 bare-alias (#832), 3 ambiguous |
+| deterministic sweeps | 197,277 | **0** | outputs byte-identical to round 5 |
+
+Tests: **175 passed, 5 xfailed.** The reviewer's prompts are all rows, plus
+rows for:
+- designator restated vs alone;
+- a unit after a rating word (still a dimension);
+- the wireway triple;
+- the `[:2]` witness.
+
+Mutants: **8/8** of the new code, all killed:
+- the intact exemption;
+- the binding exemption;
+- no rating guard;
+- no designator guard;
+- the designator guard without the restatement condition;
+- the tail always taking two more numbers;
+- `cross_dims` without `[:2]`;
+- the guard applied to numbers with units.
+
+Two of these survived first; their rows were added after.
+
+## Round 7 — "phase" and "pole" come after their count
+
+🛑 on `cde93b1`. Round 6's rating guard listed `phase` and `pole`. Electrical
+prompts put the count *before* those words ("3 phase", "2 pole"), so the
+guard threw away the next unit-less size, and `follows` sometimes stamped
+another one:
+- "a 3 phase 12 tall 8 in wide junction box": main W8 H12; head **H8
+  `given`**.
+- "a 3 phase 24 wide lighting control panel": W24 dropped to nominal.
+
+The reviewer counted 814 of 18,000 prefix prompts right on main and wrong on
+the head, all with phase or pole. My round-6 generator put these words only
+*before* a number, never after one: the generator-shape blind spot again.
+
+**Fixes:**
+- **`phase` and `pole` moved from the rating list to the designator list.**
+  A number after them is skipped only when the same parameter is stated
+  again later. That keeps "3 phase 12 tall" as H12, and main's reading of
+  "phase 12 thickness 6 in thickness" (T6). Removing them outright, the
+  reviewer's suggestion, lost that doubled-label shape: 240 prompts in my
+  round-6 generator.
+- **(Non-blocking) A restatement must be the parameter's own phrase, not a
+  longer alias that holds it.** "size 24 wide cable tray, rung width 1 in"
+  had counted "rung width" as restating width.
+
+**A process note.** A round-7 mutation run was writing mutants into the
+shared clone when the session's scratch directory was wiped. The run's
+results were void, and the clone's working file was left holding the
+round-6 text. The commit was built from a verified copy, not the working
+file, and every number below comes from a fresh run in private exports.
+Mutation runs now happen only in private exports.
+
+| instrument | prompts | right on `main`, wrong on head | notes |
+|---|---|---|---|
+| sweeps from the test module's own generators (chains, restatements, contradictions, crossed; noun first and cycled) | 83,764 | **0** | main 12,373 wrong, head 0 |
+| new: 23 descriptors (3 phase, single-phase, 2 pole, nema 12, qty 2, size 2, #2, tag lp-1, phase 3 …) before, inside and after two-phrase chains on every archetype | 8,556 | **0** | 1,119 better. On round 6's head this generator finds **97**, so it sees the defect |
+| new: a rating, count or designator word + number before a (doubled) label (13 words × 5 numbers × 5 tails × 2 orders) | 20,800 | **0** | 2,240 better; 0 wrong on both |
+| fuzzers 1–3 | 60,000 | 56 | identical to rounds 5–6 (53 bare-alias #832, 3 ambiguous) |
+
+Tests: **199 passed, 5 xfailed.**
+
+Mutants: **11/11 killed.** "Guard with units too" survived until a row with
+a listed rating word before a number with a unit was added. The old row used
+"pole", which is no longer in that list.
+
+---
+
+## BRANCH STATE
+
+**Files written**
+- `src/rvt/famgen/archetypes.py` — `_alias_patterns(p, alias_first=...)` returns
+  `(length, rank, pattern)` in the requested order; `_alias_re` (new, shared);
+  `resolve_prompt` reserves every alias occurrence against shorter aliases,
+  binds under both orders, keeps (bindings, intact phrases, then alias-first),
+  and claims the winner's intact phrases into `used`; `opens_cross` keeps a
+  unitless alias-first number that opens an "N x N" cross INTO THE NOUN out
+  of both -- for aliases that are not themselves cross dimensions, on an
+  archetype whose cross rule is still open, and never for a cross in feet.
+- `plugin/lib/src/rvt/famgen/archetypes.py` — mirror.
+- `tests/test_archetype_alias_order_812.py` — new: a 30-row table (value **and**
+  provenance, incl. restated nested aliases, label-first chains followed by a
+  bare adjective, restatements before the noun), no-stray-`given`, quoted
+  source words, the mechanism, both chain witnesses, the geometry end to end,
+  property sweeps (chains 16,344; restatements 18,496 and contradictions 13,872,
+  each noun-first and noun-cycled) with per-archetype floors, three strict
+  xfails for #827 and one for #832.
+- `tests/ci_shard.d/812-alias-order.txt` — new.
+- `docs/inbox/prompt-archetypes.d/816-lighting-control-panel.md` — repair only
+  (round 0: the `relay panel` shield and `BRANCH STATE`; round 1: the round tag).
+- this fragment.
+
+- `tools/dev/fuzz_prompt_dims.py` — new: the shape-varied fuzzer with a
+  per-prompt oracle and `--compare` (dev instrument, not mirrored into the plugin).
+
+**Gates (round 7)**: 199 passed / 5 xfailed; 11/11 round-7 mutants killed
+(round 6: 8/8, round 5: 20/20); `sync_plugin.py --check` in sync. (Round 3: 97 passed; its two
+surviving intact-loop guards still change 0 outputs.)
+Full suite **not** run; `session_ci.sh` runs the shard on the head.
+
+**Shipped vs staged**: shipped.
