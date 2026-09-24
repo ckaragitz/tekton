@@ -214,7 +214,7 @@ def test_a_spaced_improper_slash_is_never_a_fraction_even_before_a_unit(prompt, 
     ("conduit length 10 5 / 12 ft", "length_ft", 10 + 5 / 12),     # 1-digit over 2-digit
     ("cable tray wide 12 12 / 20 in", "width_in", 12.6),           # first digit 1 < 2
     ("cable tray wide 12 19 / 20 in", "width_in", 12.95),
-    ("cable tray wide 12 13 / 15 in", "width_in", 12 + 13 / 15),   # same first digit
+    ("cable tray wide 12 11 / 16 in", "width_in", 12 + 11 / 16),   # same first digit
     ("cable tray wide 2 3 / 5 in", "width_in", 2.6),               # 1-digit over 1-digit
     ("cable tray wide 12 480/277 in", "width_in", 12 + 480 / 277), # UNSPACED: main's reading, kept
 ])
@@ -224,13 +224,65 @@ def test_a_spaced_proper_fraction_before_a_unit_still_joins(prompt, key, want):
     assert r.provenance[key] == GIVEN
 
 
-def test_every_spaced_proper_fraction_up_to_two_digits_joins_and_no_improper_one_does():
-    """Exhaustive over n, d in 1..99: '12 n / d in' joins iff n < d."""
+def test_a_spaced_fraction_joins_only_when_proper_over_a_measuring_denominator():
+    """Exhaustive over n in 1..99, d in 1..130: '12 n / d in' joins iff n < d
+    and d is one digit or one of 10, 12, 16, 20, 32, 64 (round 5: 12 / 24 is
+    a low-voltage pair, 9 / 23 a date; three digits never join)."""
     wrong = []
-    for d in range(1, 100):
+    for d in range(1, 131):
         for n in range(1, 100):
             r = AR.resolve_prompt(f"cable tray wide 12 {n} / {d} in")
-            want = 12 + n / d if n < d else 12.0
+            want = 12 + n / d if n < d and (d < 10 or d in (10, 12, 16, 20, 32, 64)) else 12.0
             if abs(r.values["width_in"] - want) > 1e-9:
                 wrong.append((n, d, r.values["width_in"]))
     assert not wrong, wrong[:10]
+
+
+
+# Round 5 (#841): a REJECTED fraction must not be re-read from its own middle.
+# The lookbehind blocked only one space: "24 - 5/12 wide" re-matched at
+# "5/12 wide" and stamped a 0.42 in tray ``given``; and "24 - 5 / 12 wide", once
+# the numerator was blocked, at "12 wide".  Rejected, the phrase stays nominal.
+@pytest.mark.parametrize("prompt,key", [
+    ("cable tray 24 - 5/12 wide", "width_in"),
+    ("a 2 - 1/5 wide cable tray", "width_in"),
+    ("conduit 10 - 5/12 long", "length_ft"),
+    ("cable tray 12  5/12 wide", "width_in"),                  # double space
+    ("cable tray 12\t5/12 wide", "width_in"),                 # tab
+    ("lighting control panel 20 - 3/10 wide", "width_in"),
+    ("wireway 8 - 5/6 tall", "height_in"),
+    ("strut channel 1 - 7/20 tall", "height_in"),
+    ("cable tray 24 - 5 / 12 wide", "width_in"),
+    ("cable tray 24 5 / 12 wide", "width_in"),
+])
+def test_a_rejected_fraction_is_never_read_from_its_middle(prompt, key):
+    r = AR.resolve_prompt(prompt)
+    assert r.provenance[key] != GIVEN, (prompt, r.values[key], r.quoted.get(key))
+
+
+@pytest.mark.parametrize("prompt,key,want", [
+    ("lighting control panel width 20 12 / 24 'LCP-1'", "width_in", 20.0),  # a quote OPENING a tag
+    ("lighting control panel width 20 5 / 12 'LCP-1'", "width_in", 20.0),   # ... even after a real fraction
+    ("lighting control panel width 20 5/12 \u2018LCP-1\u2019", "width_in", 20.0),
+    ("cable tray long 20 12 / 24 in the room", "length_ft", 20.0),         # low-voltage pair
+    ("wireway width 12 12 / 24 in the room", "width_in", 12.0),
+    ("wireway width 12 24 / 48 in the room", "width_in", 12.0),
+    ("cable tray wide 12 9 / 23 in", "width_in", 12.0),                    # a date
+    ("cable tray wide 12 1 / 100 in", "width_in", 12.0),                   # three digits
+    ("wireway width 12 1 / 2", "width_in", 12.5),                          # unit-less, spaced, listed
+    ("cable tray wide 2 1/5\"", "width_in", 2.2),                          # a quote CLOSING the number
+    # a proper measuring fraction that ENDS the prompt joins (it fell back to
+    # the whole number); an improper or non-measuring one still does not
+    ("cable tray wide 2 1/5", "width_in", 2.2),
+    ("cable tray wide 2 1 / 5", "width_in", 2.2),
+    ("cable tray wide 12 5/12.", "width_in", 12 + 5 / 12),
+    ("cable tray wide 12 480/277", "width_in", 12.0),
+    ("cable tray wide 12 12/24", "width_in", 12.0),
+    # " - " also separates PHRASES: only a fraction is barred after it
+    ('wireway width 25 in. - tall of 1/2 - 46 1/8" long', "length_ft", 46.125 / 12),
+    ("wireway width 25 in. - tall of 1/2 - 46 1/8\" long", "height_in", 0.5),
+])
+def test_round_5_rows(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN

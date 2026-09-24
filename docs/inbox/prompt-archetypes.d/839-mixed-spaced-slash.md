@@ -229,6 +229,67 @@ A trailing-digit guard survived and was removed as dead code, because the
 unit lookahead already requires the unit next. The new sweep's output is
 byte-identical without it.
 
+## Round 5 — a rejected fraction re-read from its own middle
+
+🛑 on `eae984c`. The round-4 blocker was confirmed fixed, with 0 of 6,688
+improper spaced tokens × 19 tails worse than main. **A new regression, the
+#839 defect itself:** when the mixed reading rejected an off-set unit-less
+fraction, the match started again *at the fraction*. The `_NUM` lookbehind
+blocked only a single space, so a hyphen, a double space or a tab slipped
+through:
+- **"cable tray 24 - 5/12 wide"** → 0.42 in `given` (main 24.42).
+- "conduit 10 - 5/12 long" → 0.42 ft `given`.
+- "cable tray 12  5/12 wide" (two spaces) → 0.42 in `given`.
+
+On the reviewer's generator, 10,080 prompts were right on main and gave the
+fraction alone on the head. My round-4 sweeps were alias-first with single
+spaces, which is the separator blind spot for the sixth time.
+
+**Fixes:**
+- **A fraction may not start after a digit followed by up to four spaces or
+  hyphens.** The first version of this barred *any* number there, and the
+  fuzzers caught 9 / 11 / 16 prompts worse, because " - " also separates
+  phrases ("tall of 1/2 - 46 1/8 in long" lost its 46). It now applies only
+  when a fraction follows.
+- **A spaced slash's denominator may not start a number either.** Without
+  this, "24 - 5 / 12 wide" re-matched at "12 wide".
+- **A spaced two-digit denominator must be one a measurement uses: 10, 12,
+  16, 20, 32 or 64** (one-digit denominators are unchanged). This answers the
+  reviewer's non-blocking finding 2: "12 / 24" and "24 / 48" are low-voltage
+  pairs and "9 / 23" is a date. They joined as proper fractions ("wireway
+  width 12 12 / 24 in the room" → 12.5).
+- **A quote mark is a unit only when it closes the number.** "width 20
+  12 / 24 'LCP-1'" read the tag's opening quote as feet and made a 246 in
+  panel. That a bare "width 20 'LCP-1'" is read as 20 ft happens on main
+  too, and is a separate issue.
+- **A proper measuring fraction that ends the prompt now joins.** This
+  retires the round-3 trade-off: "cable tray wide 2 1/5" was 2.0 `given`
+  and is now 2.2. It was the one shape still right on main and wrong here,
+  660 prompts on the generator below.
+
+| instrument | prompts | right on `main`, wrong on head | notes |
+|---|---|---|---|
+| number-first × 9 separators (" - ", "- ", "  ", tab, "--" …) × 12 fractions × spaced/unspaced slash × 4 tails × 3 phrasings, every in/ft alias | 114,048 | **0** | 30,800 better; 22,000 wrong → nominal; **4,224 right → nominal**. These are hyphen and double-space off-set fractions, left nominal as the reviewer's own fix did. |
+| round-4 slash-token sweep | 33,592 | **0** | every non-measuring token gives the whole number, except 2,040 unspaced improper tokens ahead of a unit word ("6 480/277 in the room"), which are byte-identical to main (#843) |
+| fuzzers 1–3 | 60,000 | **0** | 0 better |
+
+**Test gaps (finding 3) covered:**
+- "wireway width 12 1 / 2" → 12.5 is now pinned.
+- The exhaustive sweep now runs n in 1..99 against d in 1..130, so three-digit
+  denominators never join.
+
+Tests: **137 passed** in the two files (95 in `test_mixed_spaced_839.py`);
+**343** across the five neighbouring suites plus `test_plugin_sync.py`.
+
+Mutants: **7/7 killed**:
+- no end-of-prompt join;
+- the extended lookbehind applied to every number;
+- no slash-denominator lookbehind;
+- one-character separators only;
+- any two-digit denominator;
+- the opening quote as a unit, twice. This survived until a row with a real
+  fraction before a tag was added.
+
 ---
 
 ## BRANCH STATE
@@ -236,15 +297,15 @@ byte-identical without it.
 **Files written**
 - `src/rvt/famgen/archetypes.py`: `_NUM_CORE`.
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 68 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 95 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
   sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
 
-**Gates (round 4)**: 110 passed across `test_mixed_spaced_839.py` and
-`test_fraction_parse_831.py` (307 with the five neighbouring suites); 7/7
-round-4 mutants killed; plugin in sync. Full suite **not** run; `session_ci.sh` runs the shard.
+**Gates (round 5)**: 137 passed across `test_mixed_spaced_839.py` and
+`test_fraction_parse_831.py` (343 with the neighbouring suites and
+`test_plugin_sync.py`); 7/7 round-5 mutants killed; plugin in sync. Full suite **not** run; `session_ci.sh` runs the shard.
 
 **Shipped vs staged**: shipped; no file-format change.

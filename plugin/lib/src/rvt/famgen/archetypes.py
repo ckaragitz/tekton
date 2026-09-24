@@ -58,6 +58,7 @@ path).
 from __future__ import annotations
 
 import math
+import itertools
 import re
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -704,8 +705,10 @@ def archetype(product: str) -> Archetype:
 #: ("a unit" includes the 'x' of a cross: "a 2 1/5 x 4 in wireway" is 2.2 x 4;
 #: it may be joined by a hyphen like everywhere else in the grammar, _SEP:
 #: "10 5/12-ft"; and the typographic marks count: ″ ” for inches, ′ ’ for feet)
-_FRAC_UNIT_AHEAD = (r"""(?=[\s-]*(?:in\b|in\.|ins\b|inch|"|″|”|ft\b|ft\.|feet|foot|'|′|’|"""
-                    r"""mm\b|millimet|[x×]\s*\d))""")
+_FRAC_UNIT_AHEAD = (r"""(?=[\s-]*(?:in\b|in\.|ins\b|inch|(?:"|″|”|'|′|’)(?![A-Za-z0-9])|"""
+                    r"""ft\b|ft\.|feet|foot|mm\b|millimet|[x×]\s*\d))""")
+#: (a quote mark is a unit only when it CLOSES the number: "20 12 / 24
+#: 'LCP-1'" opens a tag -- read as feet it made a 246 in panel, round 5)
 _FRAC_UNITLESS = "(?:" + "|".join(rf"(?:{n})\s*/\s*{d}" for n, d in (
     ("1", "2"), ("[12]", "3"), ("[1-3]", "4"), ("[1-7]", "8"), ("1[0-5]|[1-9]", "16"),
     (r"3[01]|[12]\d|[1-9]", "32"), (r"6[0-3]|[1-5]\d|[1-9]", "64"))) + (
@@ -713,17 +716,23 @@ _FRAC_UNITLESS = "(?:" + "|".join(rf"(?:{n})\s*/\s*{d}" for n, d in (
     # token ("3/4w"); a glued unit or cross 'x' is the branch above
     r")(?=\s|$|[^\w])")
 #: ... but only an UNSPACED slash takes any denominator.  A SPACED one ahead of
-#: a unit must be a proper fraction of at most two digits: "width 12 480 / 277
-#: in the electrical room" is a voltage, and "in" there is a preposition --
-#: 12 480/277 = 13.73 in came back ``given`` (#841 round 4; likewise 120 / 208
-#: before a quote read as feet, 12 / 2, 24 / 7, 277 / 480).
+#: a unit must be a PROPER fraction over a one-digit denominator or one a
+#: measurement uses -- 10, 12, 16, 20, 32, 64: "width 12 480 / 277 in the
+#: electrical room" is a voltage and "in" a preposition -- 12 480/277 =
+#: 13.73 in came back ``given`` (#841 round 4; likewise 120 / 208, 12 / 2,
+#: 24 / 7, 277 / 480); and a proper pair is not always a fraction either:
+#: 12 / 24 and 24 / 48 are low-voltage pairs, 9 / 23 a date (round 5).
+_SPACED_DENOMS = (10, 12, 16, 20, 32, 64)
 _PROPER_SPACED = "(?:" + "|".join(
     [rf"[1-{d - 1}]\s*/\s*{d}" for d in range(2, 10)]                  # 1/5, 5/6
-    + [r"[1-9]\s*/\s*[1-9]\d"]                                          # 7/20
-    + [rf"{a}\d\s*/\s*[{a + 1}-9]\d" for a in range(1, 9)]              # 11/20
-    + [rf"{a}{b}\s*/\s*{a}[{b + 1}-9]" for a in range(1, 10) for b in range(0, 9)]  # 11/12
+    + [rf"(?:{'|'.join(str(n) for n in range(d - 1, 0, -1))})\s*/\s*{d}"  # 7/20, 11/12
+       for d in _SPACED_DENOMS]
 ) + ")"   # no digit guard needed: the unit must come next
-_MIXED_FRAC = rf"(?:(?:\d+/\d+|{_PROPER_SPACED}){_FRAC_UNIT_AHEAD}|{_FRAC_UNITLESS})"
+#: ... and a proper fraction over one of those denominators that ENDS the
+#: prompt joins too: "cable tray wide 2 1/5" fell back to 2.0 ``given``
+#: (#841 round 5; nothing can follow it that makes it a voltage or a date).
+_MIXED_FRAC = (rf"(?:(?:\d+/\d+|{_PROPER_SPACED}){_FRAC_UNIT_AHEAD}|{_FRAC_UNITLESS}"
+               rf"|{_PROPER_SPACED}(?=\s*[.!]?\s*$))")
 _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 -- mixed, spaced
              r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?"              # 1,200 -- grouped
              rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}|\s*[-/]\s*\d+)?"
@@ -735,7 +744,20 @@ _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 
 #: the "200" and delivered a 7.9 in tray, quoted back as '200 mm cable tray'.
 #: ... and the lookbehind excludes a preceding DIGIT+SPACE too, or "2 1/2 in"
 #: matched its trailing "1/2" alone and delivered a conduit 5x too small.
-_NUM = r"(?<![A-Za-z0-9.,/-])(?<!\d )" + _NUM_CORE
+#: ... and a FRACTION may not start after a digit and any run of up to four
+#: spaces / hyphens: when the mixed reading rejects an off-set unit-less
+#: fraction, "24 - 5/12 wide" and "12  5/12 wide" re-matched at the fraction
+#: and stamped 0.42 in ``given`` (#841 round 5).  Rejected, the phrase is
+#: left nominal.  Only a fraction: " - " also separates phrases, and "tall of
+#: 1/2 - 46 1/8 in long" must keep its 46.
+_FRAC_AHEAD = r"(?=\d+\s*/\s*\d)"
+_NUM = (r"(?<![A-Za-z0-9.,/-])(?<!\d )"
+        + rf"(?:(?!\d+\s*/\s*\d)|{_FRAC_AHEAD}" + "".join(
+            r"(?<!\d" + "".join(r"\s" if c == " " else "-" for c in sep) + ")"
+            for n in range(1, 5) for sep in itertools.product(" -", repeat=n)) + ")"
+        # ... nor the denominator of a spaced slash: rejected, "24 - 5 / 12
+        # wide" re-matched at "12 wide" and stamped a 12 in tray ``given``
+        + r"(?<!\d\s/\s)(?<!\d/\s)(?<!\d\s/\s\s)(?<!\d\s\s/\s)" + _NUM_CORE)
 
 #: what may sit between a number, its unit and the word it qualifies.  English
 #: hyphenates these -- "a 24-inch-wide tray", "a 6-in-deep tray", "a 10-ft-long
