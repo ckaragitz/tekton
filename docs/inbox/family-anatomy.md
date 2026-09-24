@@ -143,6 +143,80 @@ blends, sweeps, revolves, real dimensions, formulas and nested families have
 never been read from a family that has them. The first Revit-born profile
 (#838) will be their first real test.
 
+## Round 2 — what the review found, and what changed
+
+🛑 on `2a8a3d8`. The round-1 record said "65 passed" and "13/13 mutants
+killed"; both were true only for the tests and mutants I chose, and the
+reviewer found seven problems:
+
+1. **A test failed in the repo's own CI.** The git-ignore test ran
+   `git check-ignore` on the working tree. `session_ci.sh` tests an export
+   with no `.git`, so it failed there (64/1). It now copies `.gitignore` into
+   a throwaway `git init` under `tmp_path`.
+2. **`_denied` still depended on the current directory.** A relative path
+   went through `abspath()`, so running `--check` from a folder named
+   `vendor` refused the genesis base. A relative path is now judged as given.
+   The test runs from a `vendor/` cwd.
+3. **Keys could leak captions.** The cleaner accepted any single word, so a
+   mutant writing "Width" / "Height" as keys passed. A key from file data is
+   now either a token parsed out of a full `autodesk.…:…-N.N.N` schema id, a
+   ParamDef class name the file's own schema defines, `none`, or `other`.
+   Every other key must be in a fixed `VOCABULARY`. The key test enforces
+   this.
+4. **Two readings were wrong but labelled `decoded`.**
+   - "View-specific elements" counted parts of the views themselves (a
+     sketch plane, sun settings, an extent). It is now `not-yet-readable`.
+   - Spec kinds are now kept apart. The tracked Eaton panelboard is pinned
+     exactly: 14 type parameters, 0 instance,
+     `{current 2, int64 3, length 3, number 1, potential 1, string 4}`.
+5. **Readings without a test.** Each now has one:
+   - instance/type, pinned on the Eaton family;
+   - type count, on the two-type catalog panelboard;
+   - strong/weak, five asymmetric pairings (a symmetric one let the swap
+     live);
+   - per-form visibility;
+   - spec kind;
+   - storage class not in the schema, which counts as `other`.
+6. **An undecodable Family record passed as the self family.** The nil-GUID
+   test now requires `m_famDocGUID` to be present in a cleanly decoded
+   record. The test simulates the failure on the eval kit's 7-family project,
+   which is still refused.
+7. **Limits** — added below.
+
+Mutants (anchor asserted = 1, bytecode off, `tools` restored after each):
+**11/11 killed**. They are:
+- instance inverted;
+- types forced to 1;
+- strong/weak swapped;
+- visibility collapsed;
+- spec kind forced to none;
+- a loose group key;
+- the self-family guard dropped;
+- the relative-path deny back through `abspath`;
+- unclean records counted;
+- storage class unchecked;
+- voids never counted.
+
+Strong/weak and storage class **survived at first**. I added their tests
+after that.
+
+Tests: **79 passed** in `test_family_anatomy_837.py`.
+
+**Limits, stated plainly.** Everything else in this record is subject to
+them.
+- **Dimension counts are unexercised.** None of our families, and not the
+  tracked Eaton one, has a `Dimension` record. A mutant that stops counting
+  dimensions survives, because the true count is 0. This stays open until a
+  family with dimensions is profiled (#838).
+- **Nested families are unverified.** No tracked family nests one, and none
+  was built here. The self-family rule (nil `m_famDocGUID`) has been checked
+  on flat families and on two 7-family projects only.
+- **Revit-born projects with in-place or system families** have not been
+  tried.
+- **2024/2025 families are unverified.** `FamilyIndex` cannot open the 2024
+  and 2025 genesis bases ("Partitions header v=9"), so every family profiled
+  here is 2026-framed.
+
 ---
 
 ## BRANCH STATE
@@ -151,12 +225,12 @@ never been read from a family that has them. The first Revit-born profile
 - `tools/family_anatomy.py`: new.
 - `tools/sync_plugin.py`: `DENY_PATH_PARTS` gains the quarantine dirs and
   `reference-families`.
-- `tests/test_family_anatomy_837.py`: new, 65 tests;
+- `tests/test_family_anatomy_837.py`: new, 79 tests;
   `tests/ci_shard.d/837-family-anatomy.txt`.
 - this record.
 
-**Gates (round 1)**: 65 passed (74 with `test_plugin_sync.py`); 13/13 mutants
-killed; `sync_plugin.py --check` in sync.
+**Gates (round 2)**: 79 passed; 11/11 round-2 mutants killed (round 1:
+13/13); 88 passed with `test_plugin_sync.py`; `sync_plugin.py --check` in sync.
 Full suite **not** run; `session_ci.sh` runs the shard.
 
 **Shipped vs staged**: a dev instrument, shipped to the repo, not to the

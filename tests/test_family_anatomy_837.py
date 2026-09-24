@@ -41,7 +41,7 @@ PROMPTS = _archetype_prompts()
 
 #: the catalog lane: families built from sourced manufacturer facts
 CATALOG = {
-    "panelboard": ["panelboard"],
+    "panelboard": ["panelboard", "--types", "225,400"],
     "transformer": ["transformer"],
     "luminaire": ["luminaire"],
     "device": ["device"],
@@ -100,6 +100,25 @@ def _strings_in(path):
     return found
 
 
+def _schema_ids_in(path):
+    from rvt.families import FamilyIndex
+    fi = FamilyIndex(path)
+    ids = set()
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k, x in v.items():
+                if k == "m_typeId" and isinstance(x, str):
+                    ids.add(x)
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+    for eid in fi.ids_of_class(0, "ParamElemFamily"):
+        walk(fi.value(0, eid, 102))
+    return ids
+
+
 # ---------------------------------------------------------------------------
 # 1. content-free
 # ---------------------------------------------------------------------------
@@ -123,13 +142,29 @@ def _keys(v, out):
 
 
 @pytest.mark.parametrize("key", sorted(PROMPTS) + sorted(CATALOG))
-def test_every_key_is_from_our_vocabulary_or_a_schema_identifier(profiles, key):
-    """Keys are this module's words, a ParamDef class name, or the short
-    form of a parameter-group type id -- never a name the family chose."""
-    for k in _keys(profiles[key], set()):
-        assert re.fullmatch(r"[A-Za-z_0-9]+", k), (key, k)
-    for k in profiles[key]["parameters"]["value"]["by_storage"]:
-        assert k.startswith("ParamDef") or k == "unknown", k
+def test_every_key_is_from_our_vocabulary_or_a_schema_identifier(families, profiles, key):
+    """Keys are this module's fixed VOCABULARY, a ParamDef class of the
+    schema, a class name under `undecoded`, or the last token of a schema id
+    the family itself carries -- never a word the family chose.  (Round 2: a
+    caption like "Voltage" passed the old sanitiser as a group key.)"""
+    from rvt import schema as S
+    sch = S.load_schema()
+    prof = profiles[key]
+    tokens = {FA._group_key(x) for x in _schema_ids_in(families[key])} - {"other"}
+    params = prof["parameters"]["value"]
+    for k in params["by_storage"]:
+        assert k == "other" or (k.startswith("ParamDef") and k in sch.by_name), k
+    for k in list(params["by_group"]) + list(params["by_spec"]):
+        assert k in ("other", "none") or k in tokens, k
+    dynamic = set(params["by_storage"]) | set(params["by_group"]) | set(params["by_spec"]) \
+        | set(prof["undecoded"]["value"])
+    for k in _keys(prof, set()) - dynamic:
+        assert k in FA.VOCABULARY, k
+
+
+def test_a_caption_can_never_become_a_key():
+    for text in ("Voltage", "Width", "Panel Name", "Eaton Pow-R-Line", "480Y/277"):
+        assert FA._group_key(text) == "other", text
 
 
 # ---------------------------------------------------------------------------
@@ -162,7 +197,7 @@ def test_the_lighting_control_panel_is_pinned_aspect_by_aspect(profiles):
     assert p["types"]["value"] == {"total": 1}
     params = p["parameters"]["value"]
     assert params["by_group"]["dimensions"] == 3 and params["by_spec"]["length"] >= 3
-    assert p["view_specific_elements"]["value"]["total"] > 0
+    assert p["view_specific_elements"]["how"] == "not-yet-readable"
 
 
 # ---------------------------------------------------------------------------
@@ -206,9 +241,14 @@ def test_the_cli_writes_the_report_and_refuses_a_non_family_in_one_line(families
 # 4. the quarantine
 # ---------------------------------------------------------------------------
 
-def test_reference_families_are_git_ignored():
+def test_reference_families_are_git_ignored(tmp_path):
+    """Checked with the repo's own .gitignore in a throwaway repository, so
+    it also runs where the tree is an export without .git (session_ci.sh)."""
+    import shutil
+    shutil.copy(os.path.join(ROOT, ".gitignore"), tmp_path / ".gitignore")
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True, capture_output=True)
     proc = subprocess.run(["git", "check-ignore", "-q", "samples/reference-families/any.rfa"],
-                          cwd=ROOT, capture_output=True)
+                          cwd=tmp_path, capture_output=True)
     assert proc.returncode == 0, "samples/reference-families/ must be git-ignored (public repo)"
 
 
@@ -380,3 +420,95 @@ def test_every_form_class_is_a_concrete_genSweep_subclass():
 ])
 def test_a_key_built_from_file_data_can_never_carry_its_text(raw, want):
     assert FA._group_key(raw) == want
+
+
+def test_a_relative_path_is_judged_as_is_whatever_the_current_directory(tmp_path, monkeypatch):
+    """sync_plugin calls _denied(dst_rel) with a plugin-relative path; run
+    from a directory under /vendor/ it must not deny the genesis asset."""
+    import sync_plugin
+    cwd = tmp_path / "vendor" / "work"
+    cwd.mkdir(parents=True)
+    monkeypatch.chdir(cwd)
+    assert not sync_plugin._denied("assets/genesis/G_ABPD.rvt")
+    assert sync_plugin._denied("lib/samples/x.rfa")
+
+
+def test_the_tracked_eaton_family_is_pinned():
+    """A stable tracked family: type-only parameters, and spec kinds told
+    apart -- Text, Integer and length are not all 'other' (round 2)."""
+    p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT", "08_eaton_panelboard_family.rfa"))
+    params = p["parameters"]["value"]
+    assert (params["total"], params["instance"], params["type"]) == (14, 0, 14)
+    assert params["by_spec"] == {"current": 2, "int64": 3, "length": 3, "number": 1,
+                                 "potential": 1, "string": 4}
+    assert p["types"]["value"] == {"total": 1}
+    assert p["undecoded"]["value"] == {}
+
+
+def test_the_two_type_catalog_panelboard(profiles):
+    p = profiles["panelboard"]
+    assert p["types"]["value"] == {"total": 2}
+    params = p["parameters"]["value"]
+    assert params["instance"] >= 1 and params["type"] > params["instance"]
+    assert {"length", "current", "potential"} <= set(params["by_spec"])
+
+
+@pytest.mark.parametrize("settings,want", [
+    ((13, 13), (2, 0, 2)), ((14, 14), (0, 2, 2)), ((13, 14), (1, 1, 2)),
+    ((12, 13), (1, 0, 1)), ((12, 12), (0, 0, 0))])
+def test_strong_and_weak_references_are_told_apart(families, monkeypatch, settings, want):
+    """The LCP's two planes re-set to each Is-Reference pairing; asymmetric
+    pairs so a strong/weak swap cannot pass (round 2 mutant)."""
+    seen = []
+
+    def edit(v):
+        v["m_refName"] = settings[len(seen) % 2]
+        seen.append(1)
+    _patch_class(monkeypatch, "m_refName", edit)
+    rp = FA.profile(families["lighting_control_panel"])["reference_planes"]["value"]
+    assert (rp["strong"], rp["weak"], rp["is_reference"]) == want, rp
+
+
+@pytest.mark.parametrize("ptr_class", ["Lighting Control Panel", "ParamDefNotInTheSchema", ""])
+def test_a_parameter_storage_class_is_named_only_when_the_schema_has_it(families, monkeypatch, ptr_class):
+    """The storage key is a class name only if the file's own schema defines
+    it as a ParamDef class; anything else -- a caption, an unknown name --
+    counts as 'other' (round 2 mutant)."""
+    def edit(v):
+        v["m_pParamDef"] = dict(v.get("m_pParamDef") or {}, ptr_class=ptr_class)
+    _patch_class(monkeypatch, "m_instanceParam", edit)
+    params = FA.profile(families["lighting_control_panel"])["parameters"]["value"]
+    assert params["by_storage"] == {"other": params["total"]}, params["by_storage"]
+
+
+def test_a_form_with_its_own_visibility_is_counted(families, monkeypatch):
+    seen = []
+
+    def one_off(o):
+        if not seen:
+            o.value["m_famElemVisibility"] = {"m_flags": 1}
+            seen.append(1)
+    _patched_decode(monkeypatch, one_off)
+    fv = FA.profile(families["lighting_control_panel"])["form_visibility"]["value"]
+    assert fv == {"distinct_settings": 2, "forms_off_the_common_setting": 1}, fv
+
+
+def test_an_undecodable_family_record_is_not_taken_for_the_self_family(monkeypatch):
+    """A Family record that fails to decode used to read as a nil GUID --
+    and a project whose Family records failed was profiled."""
+    import copy
+    from rvt.families import FamilyIndex
+    real = FamilyIndex.decode
+
+    def fake(self, unit, eid, seq=102):
+        o = real(self, unit, eid, seq)
+        if o is not None and isinstance(o.value, dict) and "m_famDocGUID" in o.value:
+            o = copy.deepcopy(o)
+            o.errors.append({"field": "m_famDocGUID", "offset": 0, "error": "simulated"})
+            o.value = {}
+        return o
+
+    monkeypatch.setattr(FamilyIndex, "decode", fake)
+    with pytest.raises(FA.NotAFamily):
+        FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
+                                "04_electrical_room_equipment_families.rvt"))

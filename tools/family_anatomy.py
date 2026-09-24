@@ -50,6 +50,7 @@ import argparse
 import collections
 import json
 import os
+import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -102,6 +103,9 @@ NOT_YET_READABLE = {
                            "counted",
     "symbolic_vs_model_lines": "symbolic lines are not told apart from model "
                                "and sketch curves yet; curves are only counted",
+    "view_specific_elements": "m_ownerDBViewId is set on the views' own sketch "
+                              "planes and extents too, so detail/annotation "
+                              "content cannot be told apart yet (#842 round 2)",
 }
 
 
@@ -113,15 +117,38 @@ def _nil_guid(g) -> bool:
     return not g or not str(g).replace("0", "").replace("-", "")
 
 
-def _group_key(type_id: str) -> str:
-    """'autodesk.parameter.group:dimensions-1.0.0' -> 'dimensions', and
-    'autodesk.spec.aec:length-2.0.0' -> 'length' -- schema identifiers, never
-    the family's own text.  Anything that does not look like one becomes
-    'other', so a key can never carry arbitrary file text."""
+#: a schema identifier: 'autodesk.parameter.group:dimensions-1.0.0',
+#: 'autodesk.spec.aec:length-2.0.0', 'autodesk.spec:spec.string-2.0.0'.  Only
+#: such an id yields a key (its last token); anything else is 'other', so no
+#: text the family chose can ever become a key (#842 round 2: a bare word
+#: like "Voltage" passed the old sanitiser).
+_SCHEMA_ID = re.compile(r"^autodesk\.[A-Za-z0-9_.]+:(?:[A-Za-z0-9_]+\.)*([A-Za-z0-9_]+)-\d+(?:\.\d+)*$")
+
+
+def _group_key(type_id) -> str:
+    """'autodesk.parameter.group:dimensions-1.0.0' -> 'dimensions',
+    'autodesk.spec:spec.string-2.0.0' -> 'string'; empty -> 'none'; any
+    other text -> 'other'."""
     t = str(type_id or "")
-    t = t.split(":", 1)[-1] if ":" in t else t
-    t = t.rsplit("-", 1)[0] if "-" in t else (t or "none")
-    return t if t and len(t) <= 48 and all(c.isalnum() or c == "_" for c in t) else "other"
+    if not t:
+        return "none"
+    m = _SCHEMA_ID.match(t)
+    return m.group(1) if m else "other"
+
+
+#: every key a profile may contain besides schema-derived ones (a parameter
+#: group / spec token from a schema id, a ParamDef class name, an undecoded
+#: record's class name) -- the content-free test checks keys against it
+VOCABULARY = frozenset({
+    "value", "how", "why",
+    "forms", "form_visibility", "form_subcategories", "form_materials", "reference_planes",
+    "dimensions", "dimension_constraints", "parameters", "types", "nested_families", "undecoded",
+    "by_kind", "total", "solids", "voids", "distinct_settings", "forms_off_the_common_setting",
+    "forms_assigned", "subcategories", "named", "define_origin", "is_reference", "strong", "weak",
+    "eq_display_option", "param_driven_segments", "driven_segments", "anchored_refs",
+    "instance", "type", "by_storage", "by_group", "by_spec", "formulas", "reporting",
+    "other", "none",
+}) | frozenset(FORM_CLASSES.values()) | frozenset(COUNTED.values()) | frozenset(NOT_YET_READABLE)
 
 
 def profile(path: str) -> dict:
@@ -151,19 +178,18 @@ def profile(path: str) -> dict:
         return cache[eid]
 
     # --- the family's OWN Family element (nil m_famDocGUID) ---------------
-    selves = [e for e in by_class.get("Family", []) if _nil_guid(val(e, "Family").get("m_famDocGUID"))]
+    # a Family record that did not decode is NOT evidence of a self family
+    # (#842 round 2: an undecodable record read as a nil GUID)
+    selves = [e for e in by_class.get("Family", [])
+              if "m_famDocGUID" in val(e, "Family") and _nil_guid(val(e, "Family")["m_famDocGUID"])]
     if not selves:
         raise NotAFamily("no self Family element (a project file, or not a family)")
     refs = collections.Counter()
-    views_specific = 0
     for cls, eids in by_class.items():
         for eid in eids:
             v = val(eid, cls)
             if v.get("m_famId") in selves:
                 refs[v["m_famId"]] += 1
-            owner = v.get("m_ownerDBViewId")
-            if isinstance(owner, int) and owner not in (-1, 0):
-                views_specific += 1
     self_id = refs.most_common(1)[0][0] if refs else selves[0]
     fam = val(self_id, "Family")
 
@@ -211,8 +237,9 @@ def profile(path: str) -> dict:
         if v.get("m_instanceParam"):
             p_inst += 1
         pdef = v.get("m_pParamDef") or {}
-        cls_name = str(pdef.get("ptr_class") or "unknown")
-        p_storage[cls_name if _group_key(cls_name) == cls_name else "other"] += 1
+        cls_name = str(pdef.get("ptr_class") or "")
+        p_storage[cls_name if cls_name.startswith("ParamDef") and cls_name in fi.schema.by_name
+                  else "other"] += 1
         body = pdef.get("value") or {}
         p_group[_group_key((body.get("m_groupTypeId") or {}).get("m_typeId"))] += 1
         spec = (body.get("m_specTypeId") or {}).get("m_typeId")
@@ -274,7 +301,6 @@ def profile(path: str) -> dict:
                               "by_spec": dict(sorted(p_spec.items())),
                               "formulas": formulas, "reporting": reporting}),
         "types": aspect({"total": types}),
-        "view_specific_elements": aspect({"total": views_specific}),
     }
     for cls, key in COUNTED.items():
         prof[key] = aspect({"total": len(by_class.get(cls, []))}, "class-count")

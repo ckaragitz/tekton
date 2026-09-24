@@ -116,8 +116,14 @@ def _denied(path: str) -> bool:
     # matched on the path RELATIVE TO THE REPO (with a leading '/'), so a
     # clone that happens to live under a folder named samples/, vendor/ or
     # extracted/ is not denied wholesale (#842 review)
-    ap = os.path.abspath(path)
-    rel = os.path.relpath(ap, ROOT) if ap.startswith(os.path.abspath(ROOT) + os.sep) else ap
+    # a RELATIVE path (a plugin-relative destination, #842 round 2) is taken
+    # as-is -- abspath() would prepend the current directory, and a cwd under
+    # /vendor/ denied every asset
+    if not os.path.isabs(path):
+        rel = path
+    else:
+        ap = os.path.abspath(path)
+        rel = os.path.relpath(ap, ROOT) if ap.startswith(os.path.abspath(ROOT) + os.sep) else ap
     rel_full = ("/" + rel.replace("\\", "/").lstrip("/")).lower()
     return any(part.replace("\\", "/") in rel_full for part in DENY_PATH_PARTS)
 
