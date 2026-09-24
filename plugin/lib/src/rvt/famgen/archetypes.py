@@ -905,15 +905,18 @@ _RATING_LEAD = re.compile(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|"
 #: ... and for a UNIT-LESS number read number-first ("1 wide"), also a count:
 #: "nema 1 width 6 in wide" and "qty 2 width 6 in wide" bound the 1 / 2 as the
 #: width, because the redundant "6 in wide" then scored as a phrase left whole
-#: (#828 round 6).  NOT "phase" or "pole": their count comes BEFORE them ("3
-#: phase 12 tall", "2 pole 30 tall"), so the number after one is a size --
-#: listed, they threw it away and let "follows" stamp another (round 7).
+#: (#828 round 6).  NOT "phase" or "pole" here: their count comes BEFORE them
+#: ("3 phase 12 tall", "2 pole 30 tall"), so the number after one is a size --
+#: listed here, they threw it away and let "follows" stamp another (round 7).
 _NOT_A_SIZE_LEAD = re.compile(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|grid|"
                               r"zone|group|qty|quantity|count)\s*[#:=]?\s*$")
 #: ... and a designator, but only when the same parameter is stated again
 #: later ("size 1 wide 6 in wide", "#2 width 6 wide"): alone, "a size 12
-#: wide tray" is as likely a 12 in width, as main reads it
-_DESIGNATOR_LEAD = re.compile(r"(?:\b(?:size|model|no\.?|number|item|mark|tag)|#)\s*[#:=.]?\s*$")
+#: wide tray" is as likely a 12 in width, as main reads it.  "phase" and
+#: "pole" belong HERE: "phase 12 thickness 6 in thickness" is a doubled label
+#: (main: 6), while "3 phase 12 tall" states the height once.
+_DESIGNATOR_LEAD = re.compile(r"(?:\b(?:size|model|no\.?|number|item|mark|tag|phase|pole)|#)"
+                              r"\s*[#:=.]?\s*$")
 
 
 def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, int, str]]:

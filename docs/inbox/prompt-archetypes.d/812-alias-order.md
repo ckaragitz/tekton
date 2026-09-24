@@ -549,6 +549,51 @@ Mutants: **8/8** of the new code, all killed:
 
 Two of these survived first; their rows were added after.
 
+## Round 7 — "phase" and "pole" come after their count
+
+🛑 on `cde93b1`. Round 6's rating guard listed `phase` and `pole`. Electrical
+prompts put the count *before* those words ("3 phase", "2 pole"), so the
+guard threw away the next unit-less size, and `follows` sometimes stamped
+another one:
+- "a 3 phase 12 tall 8 in wide junction box": main W8 H12; head **H8
+  `given`**.
+- "a 3 phase 24 wide lighting control panel": W24 dropped to nominal.
+
+The reviewer counted 814 of 18,000 prefix prompts right on main and wrong on
+the head, all with phase or pole. My round-6 generator put these words only
+*before* a number, never after one: the generator-shape blind spot again.
+
+**Fixes:**
+- **`phase` and `pole` moved from the rating list to the designator list.**
+  A number after them is skipped only when the same parameter is stated
+  again later. That keeps "3 phase 12 tall" as H12, and main's reading of
+  "phase 12 thickness 6 in thickness" (T6). Removing them outright, the
+  reviewer's suggestion, lost that doubled-label shape: 240 prompts in my
+  round-6 generator.
+- **(Non-blocking) A restatement must be the parameter's own phrase, not a
+  longer alias that holds it.** "size 24 wide cable tray, rung width 1 in"
+  had counted "rung width" as restating width.
+
+**A process note.** A round-7 mutation run was writing mutants into the
+shared clone when the session's scratch directory was wiped. The run's
+results were void, and the clone's working file was left holding the
+round-6 text. The commit was built from a verified copy, not the working
+file, and every number below comes from a fresh run in private exports.
+Mutation runs now happen only in private exports.
+
+| instrument | prompts | right on `main`, wrong on head | notes |
+|---|---|---|---|
+| sweeps from the test module's own generators (chains, restatements, contradictions, crossed; noun first and cycled) | 83,764 | **0** | main 12,373 wrong, head 0 |
+| new: 23 descriptors (3 phase, single-phase, 2 pole, nema 12, qty 2, size 2, #2, tag lp-1, phase 3 …) before, inside and after two-phrase chains on every archetype | 8,556 | **0** | 1,119 better. On round 6's head this generator finds **97**, so it sees the defect |
+| new: a rating, count or designator word + number before a (doubled) label (13 words × 5 numbers × 5 tails × 2 orders) | 20,800 | **0** | 2,240 better; 0 wrong on both |
+| fuzzers 1–3 | 60,000 | 56 | identical to rounds 5–6 (53 bare-alias #832, 3 ambiguous) |
+
+Tests: **199 passed, 5 xfailed.**
+
+Mutants: **11/11 killed.** "Guard with units too" survived until a row with
+a listed rating word before a number with a unit was added. The old row used
+"pole", which is no longer in that list.
+
 ---
 
 ## BRANCH STATE
@@ -578,8 +623,8 @@ Two of these survived first; their rows were added after.
 - `tools/dev/fuzz_prompt_dims.py` — new: the shape-varied fuzzer with a
   per-prompt oracle and `--compare` (dev instrument, not mirrored into the plugin).
 
-**Gates (round 6)**: 175 passed / 5 xfailed; 8/8 round-6 mutants killed
-(round 5: 20/20); `sync_plugin.py --check` in sync. (Round 3: 97 passed; its two
+**Gates (round 7)**: 199 passed / 5 xfailed; 11/11 round-7 mutants killed
+(round 6: 8/8, round 5: 20/20); `sync_plugin.py --check` in sync. (Round 3: 97 passed; its two
 surviving intact-loop guards still change 0 outputs.)
 Full suite **not** run; `session_ci.sh` runs the shard on the head.
 

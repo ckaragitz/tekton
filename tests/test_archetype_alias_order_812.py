@@ -200,6 +200,9 @@ TABLE = [
     ("size 1 wide 6 wide junction box",            {"width_in": 6.0, "height_in": 6.0}),
     # WITH a unit the number is a dimension, whatever word precedes it
     ("pole 6 in wide junction box",                {"width_in": 6.0, "height_in": 6.0}),
+    ("cable tray, group 24 in wide",               {"width_in": 24.0}),       # a listed rating word
+    ("wireway, phase 12 thickness 6 in thickness", {"thickness_in": 6.0}),   # phase as a designator
+    ("junction box, pole 2 width 6 in wide",       {"width_in": 6.0, "height_in": 6.0}),
     # round 7: "phase" and "pole" come AFTER their count -- the number that
     # follows them is a size
     ("a 3 phase 12 tall 8 in wide junction box",   {"width_in": 8.0, "height_in": 12.0}),
