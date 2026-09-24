@@ -208,6 +208,8 @@ _RE_TAG_SUFFIX = re.compile(r"-\d{1,3}[a-z]?\b", re.I)
 _COUNT_WORDS = r"\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve"
 _RE_COUNT_WORD = re.compile(r"\b(" + _COUNT_WORDS + r")\b")
 _RE_COUNT_TOK = re.compile(r"\b(" + _COUNT_WORDS + r"|a|an|pair|single)\b")
+#: the clause boundary a window starts on (',', 'and', 'with' ...), for reading what follows it
+_RE_LEAD_BOUNDARY = re.compile(r"^\s*(?:[,;.]|and\b|plus\b|with\b)", re.I)
 
 #: room / dimension extractors
 _ROOM_NOUNS = r"room|closet|vault|space"        # the room this route builds (and a place, below)
@@ -1453,6 +1455,22 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                 break
         return lo_b, hi_b
 
+    def over_rating_commas(ws: int, start: int) -> int:
+        """Move a clause's start back over commas that only separate ONE item's ratings
+        ('four 225A, 3-phase, 4-wire panels', 'three 75 kVA, dry-type transformers') so
+        the count before them is read (#855).  A comma is crossed only when no count
+        follows it and what precedes it, back to the previous boundary, is a count and
+        ratings alone -- 'a 225A panel, two transformers' still splits."""
+        while ws > 0 and low[ws] in ",;":
+            if _RE_COUNT_TOK.search(_strip_ratings(low[ws + 1:start])):
+                break
+            prev = max((b for b in boundaries if b < ws), default=0)
+            seg = _RE_LEAD_BOUNDARY.sub(" ", low[prev:ws])
+            if not _only_ratings(_RE_COUNT_TOK.sub(" ", _strip_ratings(seg))):
+                break
+            ws = prev
+        return ws
+
     taken: List[Tuple[int, int]] = list(room_taken)
 
     def overlaps(a: int, b: int) -> bool:
@@ -1528,6 +1546,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             mark((km.start(), rend))
             continue
         ws, we = clause_window(km.start(), km.end())
+        ws = over_rating_commas(ws, km.start())
         window = text[ws:we]
         # explicit TAGS: a bare reference IS its tag; a noun may be followed
         # by its tag list ('lighting panel LP-1', 'panels LP-1 and LP-2',
