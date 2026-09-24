@@ -2093,7 +2093,16 @@ class FamilyDoc:
         if not self.types:
             self.add_type(" ")
         pes = list(self.params.values())
-        self._apply_formulas()
+        try:
+            self._apply_formulas()
+        except Exception as _fx_exc:                                # noqa: BLE001
+            # the formula step never blocks delivery (hard rule 1): every formula is
+            # then left out -- the rows keep the plain values they were given
+            for _n, _vals in self.types:
+                for _k, _v in list(_vals.items()):
+                    if isinstance(_v, dict) and _v.get("m_oExpression") is not None:
+                        _vals[_k] = {k: x for k, x in _v.items() if k != "m_oExpression"}
+            self.notes.append(f"formulas NOT written ({type(_fx_exc).__name__}: {_fx_exc})")
         table = []
         for tname, vals in self.types:
             table.append((tname, self._type_param_entries(vals)))
@@ -2252,19 +2261,22 @@ class FamilyDoc:
         for pid in sorted(cyclic):
             self.notes.append(f"formula of {caption(pid)} NOT written: circular reference")
             trees.pop(pid)
+        # dependency order, iteratively (Kahn): a chain of any length and any
+        # declaration order never recurses (review round 3 of #862)
+        waiting = {pid: {d for d in deps[pid] if d in trees} for pid in trees}
+        users: Dict[int, List[int]] = {pid: [] for pid in trees}
+        for pid, ds in waiting.items():
+            for d in ds:
+                users[d].append(pid)
+        ready = sorted(pid for pid, ds in waiting.items() if not ds)
         order: List[int] = []
-        state: Dict[int, int] = {}
-
-        def visit(pid: int) -> None:
-            if state.get(pid):
-                return
-            state[pid] = 1
-            for dep in deps[pid]:
-                if dep in trees:
-                    visit(dep)
+        while ready:
+            pid = ready.pop(0)
             order.append(pid)
-        for pid in sorted(trees):
-            visit(pid)
+            for u in sorted(users[pid]):
+                waiting[u].discard(pid)
+                if not waiting[u]:
+                    ready.append(u)
 
         def plain(pid: int, v: Any) -> Any:
             """A row value as the formula reads it -- taken from the ENTRY that will be

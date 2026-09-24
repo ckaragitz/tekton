@@ -176,10 +176,15 @@ class _Parser:
             return _ptr("ParenExpression", {"m_pSubexpression": inner[0]}), inner[1]
         if self.pos >= len(self.text):
             raise FormulaError(f"formula ends where a value is expected: {self.text!r}")
+        if self.text[self.pos] in "+*/^=<>),":
+            raise FormulaError(f"a value is expected at column {self.pos + 1} of {self.text!r}, "
+                               f"not {self.text[self.pos]!r}")
         m = _NUMBER.match(self.text, self.pos)
         if m:
             self.pos = m.end()
             val = float(m.group("num"))
+            if not math.isfinite(val):
+                raise FormulaError(f"constant {m.group('num')[:20]}... is too large to store")
             unit = (m.group("unit") or "").lower()
             if unit:
                 return _number(val * _UNIT_FT[unit], SPEC_LENGTH), SPEC_LENGTH
@@ -276,6 +281,10 @@ def _function_spec(fname: str, args: List[Tuple[dict, str]]) -> str:
     if args[0][1] == SPEC_YESNO:
         raise FormulaError(f"{fname}() takes a measurable value, not Yes/No")
     if fname == "round":
+        # pinned on NUMBERS only (88/88): rounding a length would round its internal
+        # feet, and negative halves are unpinned -- refused until pinned
+        if args[0][1] != SPEC_NUMBER:
+            raise FormulaError(f"round() takes a number, not {_short(args[0][1])}")
         return args[0][1]
     if args[0][1] not in (SPEC_NUMBER, SPEC_ANGLE):       # tan
         raise FormulaError(f"tan() takes an angle or a number, not {_short(args[0][1])}")
@@ -295,9 +304,9 @@ def parse_formula(text: str, params: Mapping[str, ParamRef]) -> Tuple[dict, str]
     try:
         tree, spec = _Parser(str(text), params).parse()
     except RecursionError:
-        raise FormulaError(f"formula nests deeper than {MAX_DEPTH} levels") from None
+        raise FormulaError(f"formula has more than {MAX_DEPTH} levels or terms") from None
     if _depth(tree) > MAX_DEPTH:
-        raise FormulaError(f"formula nests deeper than {MAX_DEPTH} levels")
+        raise FormulaError(f"formula has more than {MAX_DEPTH} levels or terms")
     return tree, spec
 
 

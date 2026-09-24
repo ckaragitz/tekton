@@ -55,7 +55,7 @@ mixed formulas: 1,445/1,445.
 | function 12 / 11 | `and` / `or` (variadic) | 1,367/1,367, 166/166 (swapped: far lower) |
 | function 13 | `not` | 993/993 |
 | unary 1 | negation | 12/12 |
-| function 18 | `round` (half up) | 88/88 |
+| function 18 | `round` (half up; pinned on numbers) | 88/88 |
 | function 3 | `tan` | 30/30 |
 
 Not pinned, so the writer refuses them with the reason:
@@ -87,15 +87,18 @@ inconsistent units.
 - **Yes/No is typed.** An `if` condition and the arguments of `and` / `or` / `not`
   must be Yes/No. A Yes/No value never takes `+ - * /`, `= < >`, negation or
   `round`.
-- `tan` takes an angle or a number, never a length.
+- `tan` takes an angle or a number, never a length. `round` takes a plain number
+  only: rounding a length would round its internal feet, and negative halves are
+  unpinned. Both stay refused until pinned.
+- A constant too large for a double is refused at parse time.
 - **Names and unit suffixes match with exact case**, as Revit's do. `5M` and `5MM`
   are refused. Function names are matched case-insensitively. A name followed by
   `(` is a function call, so a parameter named like a function never shadows it.
 - **Not supported, and refused with the reason (never a crash):**
   - feet-and-inches literals (`2' 6"`: write `2.5'`);
   - parameter names that start with a digit;
-  - trees deeper than 60 levels (`formula.MAX_DEPTH`, far beyond a hand-written
-    formula).
+  - trees with more than 60 levels or terms (`formula.MAX_DEPTH`, far beyond a
+    hand-written formula).
 - **A formula reads exactly what the file stores.** Each input is taken from the
   entry `family_param_value` will write: Yes/No from `m_int`, measurable values from
   `m_value`. An int given for a length is stored in `m_int` and reads as the 0.0

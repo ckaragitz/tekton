@@ -335,7 +335,7 @@ def test_tan_takes_an_angle_or_a_number_not_a_length():
     "-" * 900 + "Width",
 ])
 def test_a_pathological_formula_is_refused_never_a_crash(text):
-    with pytest.raises(F.FormulaError, match="nests deeper"):
+    with pytest.raises(F.FormulaError, match="more than 60 levels or terms"):
         _tree(text)
 
 
@@ -346,7 +346,7 @@ def test_a_pathological_formula_never_stops_the_build():
                                " + ".join(["W"] * 500)))
     doc.add_type("T", {"W": 1.0})
     doc.finalize()
-    assert any("'Deep' NOT written: formula nests deeper" in n for n in doc.notes)
+    assert any("'Deep' NOT written: formula has more than 60 levels or terms" in n for n in doc.notes)
 
 
 @needs_schema
@@ -386,3 +386,46 @@ def test_an_overflowing_result_is_not_written():
     doc.add_type("T", {"W": 1.0})
     doc.finalize()
     assert _rows(doc.self_family.obj)["T"][made["Out"].elem_id]["m_oExpression"] is None
+
+
+# --- review round 3 (#862) ---------------------------------------------------------
+
+@needs_schema
+def test_a_long_reversed_formula_chain_never_stops_the_build():
+    """Review round 3: the recursive dependency sort raised RecursionError on a
+    1,200-long chain declared in reverse order; the sort is iterative now."""
+    from rvt.famgen import skeleton as fs
+    doc = fs.new_family_document("electrical_equipment", "Chain Probe",
+                                 part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
+    n = 1200
+    for i in range(n, 0, -1):
+        doc.add_family_parameter(f"P{i}", fs.SPEC_LENGTH, formula=f"P{i - 1} + 1'")
+    p0 = doc.add_family_parameter("P0", fs.SPEC_LENGTH)
+    doc.add_type("T", {"P0": 2.0})
+    doc.finalize()
+    row = _rows(doc.self_family.obj)["T"]
+    last = doc.params[f"P{n}"].elem_id
+    assert row[last]["m_value"] == pytest.approx(2.0 + n)
+    assert row[p0.elem_id]["m_oExpression"] is None
+
+
+def test_a_constant_too_large_for_a_float_is_refused():
+    with pytest.raises(F.FormulaError, match="too large to store"):
+        _tree("if(Count < " + "9" * 400 + ", Count, 1)")
+
+
+def test_round_takes_a_number_only_until_lengths_are_pinned():
+    with pytest.raises(F.FormulaError, match="round\\(\\) takes a number"):
+        _tree("round(Width)")
+
+
+@pytest.mark.parametrize("text", ["Width + + 1'", "if(Is Tall, 1', )", "Width * / 2"])
+def test_a_missing_value_says_so(text):
+    with pytest.raises(F.FormulaError, match="value is expected"):
+        _tree(text)
+
+
+def test_a_flat_sum_over_the_cap_names_terms():
+    with pytest.raises(F.FormulaError, match="levels or terms"):
+        _tree(" + ".join(["Width"] * 61))
+    assert _tree(" + ".join(["Width"] * 30))[1] == L

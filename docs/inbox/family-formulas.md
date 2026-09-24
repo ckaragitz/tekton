@@ -74,6 +74,23 @@ ours had 0). The format facts are in `docs/writer/formulas.md`.
 - The reviewer confirmed that families **without** formulas are byte-identical to
   `main` (`make_family` panelboard sha256 `a160d2a4…` on both).
 
+## Review round 3 (🛑), fixed
+
+- **`finalize()` could raise `RecursionError`** from the recursive dependency sort,
+  on a 1,200-long formula chain declared in reverse order. The sort is now
+  iterative (Kahn's algorithm). As a safety net, the `_apply_formulas` call is
+  guarded: any failure leaves every formula out, keeps the plain values, and says
+  so in `notes`.
+- **Nits:**
+  - constants too large for a double are refused;
+  - `round` takes numbers only until lengths and negative halves are pinned;
+  - the cap message says "levels or terms";
+  - "a value is expected" replaces "unknown name" for `Width + + 1'` and
+    `if(Flag, 1', )`;
+  - the PR body now has current counts.
+- The reviewer measured families **without** formulas as byte-identical to `main`:
+  `make_family panelboard` `08ff421b…` and `transformer` `99f46c4b…` on both.
+
 ## Evidence
 
 - **Reference pack (private, git-ignored `samples/`; counts only).**
@@ -90,16 +107,17 @@ ours had 0). The format facts are in `docs/writer/formulas.md`.
   - written with `emit_family_rfa_v2` on our bundled base and read back from disk,
     the trees and values are intact;
   - `rvt_validate` VALID, 0 errors; provenance `ok: true`.
-- **`tests/test_famgen_formula_850.py`: 77 passed.**
-  - It has 37 round-0 tests, 17 round-1 pins (14 of them fail on `604ce8f`) and 23
-    round-2 pins (all 23 fail on `f61a076`). It covers the parser, unit
+- **`tests/test_famgen_formula_850.py`: 84 passed.**
+  - It has 37 round-0 tests, 17 round-1 pins (14 fail on `604ce8f`), 23 round-2
+    pins (all 23 fail on `f61a076`) and 7 round-3 pins (12 tests fail on
+    `945727b`, including the renamed cap message). It covers the parser, unit
   constants, unit refusals, unpinned refusals, operator and function codes, the
   evaluator, dependency order, the writer on every type row, refusal notes, the cycle
   refusal, the schema round-trip, and an emitted `.rfa` read back and validated.
 - **Family suites.** `test_famgen_skeleton`, `_factory`, `_archetypes`,
   `_determinism_168`, `_parametric`, `_standards`, `_adoc`, `test_yesno_param_710`,
   `test_constraint_law`, `test_conformance` plus the new file give
-  **496 passed, 26 skipped, 0 failed** (round 2) (`RVT_SKIP_LARGE=1`, no samples).
+  **503 passed, 26 skipped, 0 failed** (round 3) (`RVT_SKIP_LARGE=1`, no samples).
 - `tools/sync_plugin.py --check` clean; `validate_plugin.py` PASS;
   `check_portable_paths.py` ok.
 
