@@ -72,9 +72,13 @@ class ParamRef:
     spec: str
 
 
-_TOKEN = re.compile(r"\s*(?:(?P<num>\d+(?:\.\d*)?|\.\d+)\s*(?P<unit>mm|cm|m(?![a-z])|in(?![a-z])|ft|'|\")?"
-                    r"|(?P<op><>|<=|>=|[-+*/^=<>(),])"
-                    r"|(?P<word>[A-Za-z_][A-Za-z0-9_ .\-]*))", re.I)
+_NUMBER = re.compile(r"\s*(?P<num>\d+(?:\.\d*)?|\.\d+)\s*"
+                     r"(?P<unit>mm|cm|m(?![a-z])|in(?![a-z])|ft|'|\")?", re.I)
+_CALL = re.compile(r"([A-Za-z_]+)\s*\(")
+#: specs a formula may read or produce: MEASURABLE doubles and Yes/No.  Text, integer,
+#: material and other storage kinds are refused (their stored form -- m_str, a rounded
+#: m_int, an element id -- is not what this writer emits)
+_TEXTLIKE = ("autodesk.spec:spec.string", "autodesk.spec:spec.int64", "tekton.storage:")
 
 
 class _Parser:
@@ -115,7 +119,7 @@ class _Parser:
     def _comparison(self) -> Tuple[dict, str]:
         left = self._additive()
         op = self._peek()
-        if op in ("<>", "<=", ">=", "^"):
+        if op in ("<>", "<=", ">="):
             raise FormulaError(f"operator {op!r} has no pinned code (#850)")
         if op in ("=", "<", ">"):
             self._eat(op)
@@ -148,6 +152,8 @@ class _Parser:
         if self._peek() == "-":
             self._eat("-")
             inner = self._unary()
+            if inner[1] == SPEC_YESNO:
+                raise FormulaError("cannot negate a Yes/No value (use not(...))")
             return _ptr("UnaryOperatorExpression", {"m_unaryOperator": UNARY_NEG,
                                                      "m_pSubexpression": inner[0]}), inner[1]
         return self._primary()
@@ -159,46 +165,58 @@ class _Parser:
             inner = self._comparison()
             self._eat(")")
             return _ptr("ParenExpression", {"m_pSubexpression": inner[0]}), inner[1]
-        m = _TOKEN.match(self.text, self.pos)
-        if m and m.group("num") is not None:
+        if self.pos >= len(self.text):
+            raise FormulaError(f"formula ends where a value is expected: {self.text!r}")
+        m = _NUMBER.match(self.text, self.pos)
+        if m:
             self.pos = m.end()
             val = float(m.group("num"))
             unit = (m.group("unit") or "").lower()
             if unit:
                 return _number(val * _UNIT_FT[unit], SPEC_LENGTH), SPEC_LENGTH
             return _number(val, SPEC_NUMBER), SPEC_NUMBER
-        # a parameter name (longest known name wins: names may hold spaces) or a function
+        # a function CALL first (a name followed by '(' -- a parameter named like a
+        # function never shadows it), then a parameter name: exact case, as Revit
+        # matches, longest known name first (names may hold spaces)
+        fm = _CALL.match(self.text, self.pos)
+        if fm and fm.group(1).lower() in set(FUNCTION) | _UNPINNED:
+            return self._call(fm)
         for name in self.names:
             end = self.pos + len(name)
-            if self.text[self.pos:end].lower() == name.lower() and not \
+            if self.text[self.pos:end] == name and not \
                     (end < len(self.text) and (self.text[end].isalnum() or self.text[end] == "_")):
                 self.pos = end
                 ref = self.params[name]
+                if ref.spec.startswith(_TEXTLIKE):
+                    raise FormulaError(f"parameter {name!r} is {_short(ref.spec)}: only measurable "
+                                       f"and Yes/No parameters are supported in formulas")
                 return _ptr("ParameterExpression", {"m_paramId": int(ref.param_id)}), ref.spec
-        fm = re.compile(r"([A-Za-z_]+)\s*\(").match(self.text, self.pos)
         if fm:
-            fname = fm.group(1).lower()
-            if fname in _UNPINNED:
-                raise FormulaError(f"function {fname!r} has no pinned code (#850)")
-            if fname not in FUNCTION:
-                raise FormulaError(f"unknown function {fname!r}")
-            self.pos = fm.end()
-            args: List[Tuple[dict, str]] = []
-            if self._peek() != ")":
-                args.append(self._comparison())
-                while self._peek() == ",":
-                    self._eat(",")
-                    args.append(self._comparison())
-            self._eat(")")
-            lo, hi = _ARITY[fname]
-            if not lo <= len(args) <= hi:
-                raise FormulaError(f"{fname}() takes {lo}..{hi} arguments, got {len(args)}")
-            spec = _function_spec(fname, args)
-            return _ptr("FunctionExpression", {"m_function": FUNCTION[fname],
-                                               "m_subexpressions": [a[0] for a in args]}), spec
+            return self._call(fm)
         word = re.compile(r"[A-Za-z_][\w .\-]*").match(self.text, self.pos)
         raise FormulaError(f"unknown name {word.group(0).strip() if word else self.text[self.pos:]!r}"
                            f" in {self.text!r}")
+
+    def _call(self, fm: "re.Match") -> Tuple[dict, str]:
+        fname = fm.group(1).lower()
+        if fname in _UNPINNED:
+            raise FormulaError(f"function {fname!r} has no pinned code (#850)")
+        if fname not in FUNCTION:
+            raise FormulaError(f"unknown function {fname!r}")
+        self.pos = fm.end()
+        args: List[Tuple[dict, str]] = []
+        if self._peek() != ")":
+            args.append(self._comparison())
+            while self._peek() == ",":
+                self._eat(",")
+                args.append(self._comparison())
+        self._eat(")")
+        lo, hi = _ARITY[fname]
+        if not lo <= len(args) <= hi:
+            raise FormulaError(f"{fname}() takes {lo}..{hi} arguments, got {len(args)}")
+        spec = _function_spec(fname, args)
+        return _ptr("FunctionExpression", {"m_function": FUNCTION[fname],
+                                           "m_subexpressions": [a[0] for a in args]}), spec
 
 
 def _number(value: float, spec: str) -> dict:
@@ -230,10 +248,17 @@ def _product_spec(a: str, b: str, op: str) -> str:
 
 def _function_spec(fname: str, args: List[Tuple[dict, str]]) -> str:
     if fname == "if":
+        if args[0][1] != SPEC_YESNO:
+            raise FormulaError(f"if() condition must be Yes/No, not {_short(args[0][1])}")
         _same_spec(args[1], args[2], "if(...)")
         return args[1][1]
     if fname in ("and", "or", "not"):
+        bad = [_short(a[1]) for a in args if a[1] != SPEC_YESNO]
+        if bad:
+            raise FormulaError(f"{fname}() takes Yes/No arguments, not {', '.join(bad)}")
         return SPEC_YESNO
+    if args[0][1] == SPEC_YESNO:
+        raise FormulaError(f"{fname}() takes a measurable value, not Yes/No")
     if fname == "round":
         return args[0][1]
     return SPEC_NUMBER                                    # tan

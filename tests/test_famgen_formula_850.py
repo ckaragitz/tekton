@@ -195,3 +195,109 @@ def test_an_emitted_rfa_carries_the_trees_and_validates(tmp_path):
     report = Validator(out, family=True).run()
     errors = report.errors() if callable(report.errors) else report.errors
     assert not errors, [e.message for e in errors][:5]
+
+
+# --- review round 1 (#862) ---------------------------------------------------------
+
+@pytest.mark.parametrize("text,match", [
+    ("if(Width, 1', 2')", "condition must be Yes/No"),
+    ("and(Width > 1', Height)", "takes Yes/No arguments"),
+    ("not(Count)", "takes Yes/No arguments"),
+    ("-Is Tall", "cannot negate a Yes/No"),
+    ("round(Is Tall)", "takes a measurable value"),
+])
+def test_yes_no_positions_are_type_checked(text, match):
+    with pytest.raises(F.FormulaError, match=match):
+        _tree(text)
+
+
+def test_names_match_case_sensitively_like_revit():
+    with pytest.raises(F.FormulaError, match="unknown name"):
+        _tree("WIDTH + 1'")
+
+
+def test_a_parameter_named_like_a_function_does_not_shadow_the_call():
+    params = dict(PARAMS, round=F.ParamRef(20, N))
+    tree, _ = F.parse_formula("round(Count)", params)
+    assert tree["value"]["m_function"] == 18
+
+
+def test_a_dangling_operator_says_so():
+    with pytest.raises(F.FormulaError, match="ends where a value is expected"):
+        _tree("Width +")
+
+
+@pytest.mark.parametrize("spec", ["autodesk.spec:spec.string-1.0.0", "autodesk.spec:spec.int64-1.0.0"])
+def test_text_and_integer_parameters_are_refused_in_formulas(spec):
+    params = dict(PARAMS, Label=F.ParamRef(30, spec))
+    with pytest.raises(F.FormulaError, match="only measurable and Yes/No"):
+        F.parse_formula("Label", params)
+
+
+def _doc_with(*params):
+    from rvt.famgen import skeleton as fs
+    doc = fs.new_family_document("electrical_equipment", "Review Probe",
+                                 part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
+    made = {name: doc.add_family_parameter(name, spec, formula=f) for name, spec, f in params}
+    return fs, doc, made
+
+
+@needs_schema
+@pytest.mark.parametrize("pname,spec,formula", [
+    ("Pick", "autodesk.spec:spec.string-1.0.0", "LabelA"),
+    ("Same", "autodesk.spec:spec.bool-1.0.0", "LabelA = LabelB"),
+])
+def test_a_text_formula_never_stops_the_build(pname, spec, formula):
+    """Review round 1: finalize() raised ValueError / TypeError; now a note and a family."""
+    fs, doc, made = _doc_with(("LabelA", fs_text(), None), ("LabelB", fs_text(), None),
+                              (pname, spec, formula))
+    doc.add_type("T", {"LabelA": "aa", "LabelB": "bb"})
+    doc.finalize()
+    assert any(f"{pname!r} NOT written" in n for n in doc.notes)
+    assert _rows(doc.self_family.obj)["T"][made[pname].elem_id]["m_oExpression"] is None
+
+
+def fs_text():
+    from rvt.famgen import skeleton as fs
+    return fs.SPEC_TEXT
+
+
+@needs_schema
+@pytest.mark.parametrize("flag", [True, 1, {"m_int": 1}])
+def test_a_yes_no_input_is_read_in_every_form(flag):
+    """Review round 1: an entry dict {"m_int": 1} was read as 0 (took m_value)."""
+    fs, doc, made = _doc_with(("Flag", "autodesk.spec:spec.bool-1.0.0", None),
+                              ("Out", "autodesk.spec.aec:length-1.0.0", "if(Flag, 2', 3')"))
+    doc.add_type("T", {"Flag": flag})
+    doc.finalize()
+    assert _rows(doc.self_family.obj)["T"][made["Out"].elem_id]["m_value"] == pytest.approx(2.0)
+
+
+@needs_schema
+def test_a_formula_not_evaluable_on_one_type_is_left_out_everywhere():
+    """Review round 1: row B held the tree next to a value that was not its result."""
+    fs, doc, made = _doc_with(("L", "autodesk.spec.aec:length-1.0.0", None),
+                              ("S", "autodesk.spec.aec:number-1.0.0", None),
+                              ("N", "autodesk.spec.aec:length-1.0.0", "L / S"))
+    doc.add_type("A", {"L": 4.0, "S": 2.0})
+    doc.add_type("B", {"L": 4.0, "S": 0.0})
+    doc.finalize()
+    rows = _rows(doc.self_family.obj)
+    assert rows["A"][made["N"].elem_id]["m_oExpression"] is None
+    assert rows["B"][made["N"].elem_id]["m_oExpression"] is None
+    assert any("'N' NOT written: type 'B' is not evaluable" in n for n in doc.notes)
+
+
+@needs_schema
+def test_a_formula_reading_a_circular_one_is_written_not_called_circular():
+    """Review round 1: C0 = A + 1' was reported circular because A was."""
+    L_ = "autodesk.spec.aec:length-1.0.0"
+    fs, doc, made = _doc_with(("A", L_, "B + 1'"), ("B", L_, "A + 1'"), ("C0", L_, "A + 1'"))
+    doc.add_type("T", {"A": 2.0})
+    doc.finalize()
+    notes = " ".join(doc.notes)
+    assert "'A' NOT written: circular" in notes and "'B' NOT written: circular" in notes
+    assert "'C0'" not in notes
+    row = _rows(doc.self_family.obj)["T"]
+    assert row[made["C0"].elem_id]["m_oExpression"] is not None
+    assert row[made["C0"].elem_id]["m_value"] == pytest.approx(3.0)

@@ -23,6 +23,35 @@ ours had 0). The format facts are in `docs/writer/formulas.md`.
   - A formula that cannot be stored keeps its plain value, and the reason goes to
     `doc.notes`; the family is still built (hard rule 1).
 
+## Review round 1 (🛑), fixed
+
+- **A text formula stopped the build** (`ValueError` / `TypeError` in `finalize`).
+  Now text and integer operands are refused at parse time, every per-type
+  evaluation and coercion sits inside one `try` that also catches `TypeError`, and
+  the family is always built.
+- **A Yes/No input given as an entry dict `{"m_int": 1}` was read as 0.** Yes/No
+  is now read from `m_int` in every form.
+- **A type that could not be evaluated kept the tree next to a value that was not
+  its result.** Now a formula is written only if it evaluates on every type;
+  otherwise it is left out everywhere and said.
+- **Yes/No positions were untyped.** `if(Width, …)`, `and(Width, …)`, `not(Count)`
+  and `-Is Tall` were accepted and are now refused.
+- **Nits:**
+  - names now match case-sensitively;
+  - a function call wins over a same-named parameter;
+  - "formula ends where a value is expected" replaces "unknown name ''";
+  - dead code removed;
+  - a formula reading a circular one is no longer called circular.
+- **The reviewer independently re-verified the pinned codes** on the pack with
+  trusted `main` code:
+  - 24,320 / 24,320 trees identical across type rows;
+  - `+` 842/842, `-` 901/901, `*` 603/603, `/` 942/942, `=` 722/722, `>` 476/476,
+    `<` 1,022/1,022;
+  - `if` 2,405/2,405, `and` 1,367/1,367, `or` 166/166, `not` 993/993;
+  - negation 12/12, `round` 88/88, `tan` 30/30;
+  - these hold with the Integer-rounded-in-`m_int` allowance noted in
+    `docs/writer/formulas.md`.
+
 ## Evidence
 
 - **Reference pack (private, git-ignored `samples/`; counts only).**
@@ -39,14 +68,15 @@ ours had 0). The format facts are in `docs/writer/formulas.md`.
   - written with `emit_family_rfa_v2` on our bundled base and read back from disk,
     the trees and values are intact;
   - `rvt_validate` VALID, 0 errors; provenance `ok: true`.
-- **`tests/test_famgen_formula_850.py`: 37 passed.** It covers the parser, unit
+- **`tests/test_famgen_formula_850.py`: 54 passed** (37 at round 0, plus 17 round-1
+  pins; 14 of those fail on round 0 `604ce8f`). It covers the parser, unit
   constants, unit refusals, unpinned refusals, operator and function codes, the
   evaluator, dependency order, the writer on every type row, refusal notes, the cycle
   refusal, the schema round-trip, and an emitted `.rfa` read back and validated.
 - **Family suites.** `test_famgen_skeleton`, `_factory`, `_archetypes`,
   `_determinism_168`, `_parametric`, `_standards`, `_adoc`, `test_yesno_param_710`,
   `test_constraint_law`, `test_conformance` plus the new file give
-  **456 passed, 26 skipped, 0 failed** (`RVT_SKIP_LARGE=1`, no samples).
+  **473 passed, 26 skipped, 0 failed** (round 1) (`RVT_SKIP_LARGE=1`, no samples).
 - `tools/sync_plugin.py --check` clean; `validate_plugin.py` PASS;
   `check_portable_paths.py` ok.
 

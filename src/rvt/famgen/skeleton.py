@@ -2206,70 +2206,96 @@ class FamilyDoc:
     def _apply_formulas(self) -> None:
         """Write every ``formula=`` parameter as Revit's expression tree (#850): the
         same ``m_oExpression`` on every type row, each row's value = the formula
-        evaluated over THAT row, in dependency order.  A formula that cannot be
-        stored faithfully (syntax, units, an unpinned operator, a cycle) keeps its
-        plain value and the reason goes to ``notes`` -- never a silent drop."""
+        evaluated over THAT row, in dependency order.  A formula is written only when
+        it parses, type-checks AND evaluates on every type; otherwise it is left out
+        entirely (every row keeps its plain value -- never a tree next to a value that
+        is not its result) and the reason goes to ``notes``.  Nothing here can stop
+        the family from being built (hard rule 1)."""
         from . import formula as _fx
         formulas = {pe.elem_id: pe for pe in self.params.values() if pe.refs.get("formula")}
         if not formulas:
             return
-        refs = {name: _fx.ParamRef(pe.elem_id, pe.refs.get("spec") or SPEC_LENGTH)
+        spec_of = {pe.elem_id: (pe.refs.get("spec") or SPEC_LENGTH) for pe in self.params.values()}
+        refs = {name: _fx.ParamRef(pe.elem_id, spec_of[pe.elem_id])
                 for name, pe in self.params.items()}
+
+        def caption(pid: int) -> str:
+            return repr(formulas[pid].refs.get("caption"))
+
         trees: Dict[int, dict] = {}
         for pid, pe in formulas.items():
             try:
                 tree, spec = _fx.parse_formula(pe.refs["formula"], refs)
             except _fx.FormulaError as exc:
-                self.notes.append(f"formula of {pe.refs.get('caption')!r} NOT written: {exc}")
+                self.notes.append(f"formula of {caption(pid)} NOT written: {exc}")
                 continue
-            want = pe.refs.get("spec") or SPEC_LENGTH
-            if spec != want and not (want == SPEC_YESNO and spec == _fx.SPEC_YESNO):
-                self.notes.append(f"formula of {pe.refs.get('caption')!r} NOT written: it gives "
-                                  f"{spec.split(':')[-1]}, the parameter is {want.split(':')[-1]}")
+            if spec != spec_of[pid]:
+                self.notes.append(f"formula of {caption(pid)} NOT written: it gives "
+                                  f"{spec.split(':')[-1]}, the parameter is "
+                                  f"{spec_of[pid].split(':')[-1]}")
                 continue
             trees[pid] = tree
-        # dependency order (a formula may read another formula's result)
+        deps = {pid: [d for d in _fx.referenced_params(t) if d in trees] for pid, t in trees.items()}
+
+        def reaches(src: int, dst: int) -> bool:
+            seen, stack = set(), list(deps[src])
+            while stack:
+                n = stack.pop()
+                if n == dst:
+                    return True
+                if n not in seen:
+                    seen.add(n)
+                    stack.extend(deps.get(n, []))
+            return False
+        cyclic = {pid for pid in trees if reaches(pid, pid)}
+        for pid in sorted(cyclic):
+            self.notes.append(f"formula of {caption(pid)} NOT written: circular reference")
+            trees.pop(pid)
         order: List[int] = []
         state: Dict[int, int] = {}
 
-        def visit(pid: int) -> bool:
-            if state.get(pid) == 2:
-                return True
-            if state.get(pid) == 1:
-                return False
+        def visit(pid: int) -> None:
+            if state.get(pid):
+                return
             state[pid] = 1
-            for dep in _fx.referenced_params(trees[pid]):
-                if dep in trees and not visit(dep):
-                    return False
-            state[pid] = 2
+            for dep in deps[pid]:
+                if dep in trees:
+                    visit(dep)
             order.append(pid)
-            return True
-        for pid in list(trees):
-            if not visit(pid):
-                self.notes.append(f"formula of {formulas[pid].refs.get('caption')!r} NOT "
-                                  f"written: circular reference")
-                trees.pop(pid)
-        order = [p for p in order if p in trees]
-        for _tname, vals in self.types:
-            values = {self._param_key(k): (v.get("m_value", 0.0) if isinstance(v, dict) else v)
-                      for k, v in vals.items()}
-            for pid in order:
-                try:
+        for pid in sorted(trees):
+            visit(pid)
+
+        def plain(pid: int, v: Any) -> Any:
+            """A row value as the formula reads it: Yes/No from ``m_int`` (bools and
+            entry dicts alike), measurable values from ``m_value``."""
+            yesno = spec_of.get(pid) == SPEC_YESNO
+            if isinstance(v, dict):
+                if yesno or (not v.get("m_value") and v.get("m_int")):
+                    return int(v.get("m_int", 0))
+                return float(v.get("m_value", 0.0))
+            if isinstance(v, bool):
+                return int(v)
+            return v
+        rows = [(tname, vals, {self._param_key(k): plain(self._param_key(k), v)
+                               for k, v in vals.items()}) for tname, vals in self.types]
+        for pid in order:
+            results = []
+            try:
+                for tname, _vals, values in rows:
                     res = _fx.evaluate(trees[pid], values)
-                except (_fx.FormulaError, ZeroDivisionError, ValueError, OverflowError) as exc:
-                    self.notes.append(f"formula of {formulas[pid].refs.get('caption')!r}: "
-                                      f"type {_tname!r} not evaluable ({exc}); value kept")
-                    kept = values.get(pid, 0.0)
-                    vals[pid] = {"m_oExpression": trees[pid],
-                                 "m_value": float(kept) if not isinstance(kept, bool) else 0.0,
-                                 "m_int": int(kept) if isinstance(kept, bool) else 0}
-                    continue
-                values[pid] = res
-                if isinstance(res, bool) or formulas[pid].refs.get("spec") == SPEC_YESNO:
-                    vals[pid] = {"m_oExpression": trees[pid], "m_int": int(bool(res)),
-                                 "m_value": 0.0}
-                else:
-                    vals[pid] = {"m_oExpression": trees[pid], "m_value": float(res)}
+                    if spec_of[pid] == SPEC_YESNO:
+                        results.append({"m_oExpression": trees[pid], "m_int": int(bool(res)),
+                                        "m_value": 0.0})
+                    else:
+                        results.append({"m_oExpression": trees[pid], "m_value": float(res)})
+            except (_fx.FormulaError, ZeroDivisionError, ValueError, OverflowError,
+                    TypeError) as exc:
+                self.notes.append(f"formula of {caption(pid)} NOT written: type {tname!r} is not "
+                                  f"evaluable ({type(exc).__name__}: {exc}); plain values kept")
+                continue
+            for (_tname, vals, values), entry in zip(rows, results):
+                vals[pid] = entry
+                values[pid] = entry["m_int"] if "m_int" in entry else entry["m_value"]
 
     def _type_param_entries(self, vals: Dict[Any, Any]) -> List[dict]:
         out = []

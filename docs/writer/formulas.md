@@ -73,6 +73,24 @@ The same law holds throughout the pack:
 So `Width + 1` is refused, exactly as Revit's own formula editor rejects
 inconsistent units.
 
+## What the writer accepts (and refuses)
+
+- **Operands and results are measurable doubles or Yes/No.** Text, Integer and other
+  storage kinds are refused. Their stored forms (`m_str`, an element id) are not what
+  this writer emits. In the pack, an **Integer**-typed formula result is stored
+  *rounded* in `m_int` (the independent review needed that allowance to reach
+  24,320/24,320). A future Integer path must do the same.
+- **Yes/No is typed.** An `if` condition and the arguments of `and` / `or` / `not`
+  must be Yes/No. A Yes/No value is never negated, rounded, or used as a number.
+- **Names match with exact case**, as Revit's do. A name followed by `(` is a
+  function call, so a parameter named like a function never shadows it.
+- **All types, or none.** A formula is written only when it parses, type-checks and
+  evaluates on **every** type. Otherwise every row keeps its plain value, with no
+  tree next to a value that is not its result, and `notes` says why.
+  - A circular formula is refused.
+  - A formula that only *reads* a circular one is still written; it reads that
+    parameter's plain value.
+
 ## Not yet claimed
 
 That Revit **re-evaluates** our trees when a driving parameter changes needs a
