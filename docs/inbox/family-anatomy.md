@@ -23,9 +23,14 @@ generation. Branch `cam/837-family-anatomy`.
     `m_oFamDimConstrMgr` lists;
   - parameters: instance or type, by ParamDef storage class, by parameter
     group, formulas (`m_oExpression`), reporting;
-  - types (`m_pFamilyTypes`), subcategories of the family's own category;
-  - class counts for nested instances and families, connectors, materials,
-    text, curves, arrays, openings, shared parameters and views.
+  - types (`m_pFamilyTypes` pairs, and the family's own `FamilySymbol`
+    records), subcategories of the family's own category;
+  - nested families, split into placed and carried-but-not-placed;
+  - class counts for nested instances, connectors, materials, text, curves,
+    arrays, openings and views;
+  - **every element count covers only the family's OWN elements**
+    (`m_famId`). What a nested family owns, or anything else does, is
+    reported apart under `nested_owned` / `other_owner` (round 5).
 - **`compare REFERENCE OURS`** lists every measure where the reference has
   more than ours. A feature ours lacks entirely ranks first, then the rest by
   relative gap.
@@ -310,7 +315,9 @@ counts. **The same mistake turned up a third time, in the parameter loop.**
   `m_instanceParam`.** A shared parameter has no such flag, so its count goes
   to `instance_or_type_unread`. I did not take it from the family table's
   `m_instance`: on our own catalog panelboard that field disagrees with
-  `m_instanceParam` for one parameter, so it does not mean the same thing.
+  `m_instanceParam` for one parameter. *(Round 5 correction: the fields do
+  mean the same thing. They agree on every checkable row of the Revit-born
+  dumps. The disagreement is a defect in our writer, filed as #859.)*
 - **The `shared_parameters` class count is gone**, replaced by the filtered
   `parameters.shared`.
 - **An undecodable self Family now says so** ("N Family element(s) could not
@@ -367,11 +374,86 @@ Mutants: **6/6 killed**:
 - **`RefPlane` is read by exact class.** Its sibling `ProfileRefPlane` (218 in
   racbasic) is left out, and whether it belongs in a family's reference-plane
   count is open until a reference family is profiled.
-- **Subcategories and forms are not filtered to the self family.** A nested
-  family's subcategory under the same category would be counted. Parameters
-  are filtered now; the rest waits on a family that nests one (#838).
+- ~~**Subcategories and forms are not filtered to the self family.**~~
+  *Wrong, and fixed in round 5:* every element loop was unfiltered, not only
+  those two.
 - **Nested families, Revit-born projects with in-place or system families,
   and 2024/2025 families** remain unverified, as in round 2.
+
+## Round 5 — nested families' elements were counted as the family's own
+
+🛑 on `b34fd13`. The round-4 fixes were confirmed. **The reviewer used
+Revit-born ground truth already in the repo:** the decoder's dumps of the
+families embedded in the rme sample
+(`experiments/families/dump_rme_*.json`, `inventory_rme.json`, tracked).
+
+1. **Only the parameter loop was filtered to the family.** In a Revit-born
+   family, nested families' planes, curves and parameters sit in the same
+   unit:
+   - the rme panelboard's 13 RefPlanes include at least 3 owned by its
+     nested section-head family;
+   - its CurveElems (all 6 sampled) are nested-owned;
+   - its ParamElemFamily records are 10 = 7 own + 3 nested.
+
+   Also, 106 of 147 Revit-born rme families carry a nested Family, and in 91
+   of them nothing is placed: they are the template's section-head and
+   level-head families. `nested_families` would have read 3 for families that
+   nest no component, and `compare` would have ranked that gap first.
+
+   **My record said "no tracked family nests one", which was wrong**: the
+   evidence was in the repo.
+2. **The content-free test could not see most of a family's text.** It
+   collected strings only from local parameters and the Family record. So a
+   shared parameter's caption written into the profile as a *value* passed
+   all 102 tests.
+
+**Fixes:**
+- **`own()`: every element loop counts a record only if its `m_famId` is the
+  self family's id.** This covers forms, planes, dimensions, parameters,
+  subcategories and every `COUNTED` class, which now decode their records to
+  check the owner. A record owned by another Family goes to
+  `nested_owned` (by class); anything else (a project's -1) goes to
+  `other_owner`. Both are excluded from `compare`. Every element of our
+  families carries the self id, so our numbers do not change.
+- **`nested_families` is now `{total, placed, not_placed}`, marked `inferred`.**
+  "Placed" follows FamilyInstance → `m_masterSymbolId` → FamilySymbol →
+  `m_familyId`. That chain held for all 7 instances of eval-kit project 04.
+- **`types` gains `symbols`:** the `FamilySymbol` records whose `m_familyId` is
+  the self family. The Revit-born dumps have 0 `m_pFamilyTypes` pairs but 4
+  symbols, so neither count alone is the type count.
+- **Content-free checks, three of them:**
+  - `_strings_in` walks every record;
+  - every profile leaf must be an int or None, except `how` / `why`, which
+    must be our own words;
+  - the text check compares whole keys and our own text, not substrings.
+    "Lighting" sits inside the schema token `electricalLighting` and is not
+    a leak.
+- **A `_class_of` seam** lets the tests re-label one record. It is used for:
+  - a listed `ParamElemGlobal`, which must count as `other_kind`;
+  - a second Family element that owns one of the lighting control panel's
+    planes.
+- **#859 filed:** our writer's `m_familyParams` rows never set `m_instance`
+  (`skeleton._type_param_entries`), and `loader.py` builds placed instance
+  rows from it.
+
+Tests: **118 passed.** New tests cover:
+- nested-owned and project-owned planes, each counted exactly once overall;
+- placed vs carried nested families;
+- `other_kind`;
+- leaf types, for every family.
+
+**Limits (the round-4 list stands, plus):**
+- The `m_famId` filter and the placed chain have been exercised on our
+  families, on eval-kit project 04 and on simulated records. They have
+  never run on a Revit-born *family* file, because the dumps are decoder
+  output, not `.rfa` files. The first reference family profiled (#838, #847)
+  is their first real run.
+- `FamilyGeomCombination` (1 in the Revit-born light) is neither counted nor
+  listed.
+- **The rme dumps show that the readings for voids (2 in the light) and
+  per-form visibility (4 distinct flag values) meet real data.** They do not
+  show that this tool's counts match, because the tool has not read those
+  files.
 
 ---
 
@@ -381,9 +463,11 @@ Mutants: **6/6 killed**:
 - `tools/family_anatomy.py`: new.
 - `tools/sync_plugin.py`: `DENY_PATH_PARTS` gains the quarantine dirs and
   `reference-families`.
-- `tests/test_family_anatomy_837.py`: new, 102 tests;
+- `tests/test_family_anatomy_837.py`: new, 118 tests;
   `tests/ci_shard.d/837-family-anatomy.txt`.
 - this record.
+
+**Gates (round 5)**: 118 passed (127 with `test_plugin_sync.py`); 10/10 round-5 mutants killed (plus a no-op control that survives, as it must); `sync_plugin.py --check` in sync.
 
 **Gates (round 4)**: 102 passed; 6/6 round-4 mutants killed.
 

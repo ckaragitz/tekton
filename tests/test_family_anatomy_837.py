@@ -99,9 +99,13 @@ def _strings_in(path):
         elif isinstance(v, str) and len(v) >= 3:
             found.add(v)
 
+    # EVERY record, not only parameters and the Family (round 5: a shared
+    # parameter's caption or a plane's name was invisible to this check)
     for eid, r in fi.unit_records(0).get(102, {}).items():
-        if fi.class_name(r.class_id) in ("ParamElemFamily", "Family"):
+        try:
             walk(fi.value(0, int(eid), 102))
+        except Exception:                          # noqa: BLE001 -- an undecodable record has no text to leak
+            pass
     return found
 
 
@@ -130,11 +134,21 @@ def _schema_ids_in(path):
 
 @pytest.mark.parametrize("key", sorted(PROMPTS) + sorted(CATALOG))
 def test_a_profile_never_repeats_the_familys_own_text(families, profiles, key):
-    text = json.dumps(profiles[key])
+    """No string of ANY record may be a key of the profile unless it is one
+    of our own words or a schema token, and none may appear inside a string
+    value (the how / why texts).  Whole keys, not substrings: the schema
+    token "electricalLighting" contains the family's "Lighting" and is not
+    the family's text (values are counts, test_every_profile_value_is_a_count)."""
+    prof = profiles[key]
     strings = _strings_in(families[key])
     assert strings, "the family carries no strings -- the check would be vacuous"
-    ours = _keys(profiles[key], set())            # the words the profile is ALLOWED to use
-    leaked = sorted(s for s in strings if s in text and s not in ours)
+    params = prof["parameters"]["value"]
+    allowed = set(FA.VOCABULARY) | set(params["by_storage"]) | set(params["by_group"]) \
+        | set(params["by_spec"])
+    keys = _keys(prof, set())
+    texts = [v for _p, v in _leaf_values(prof) if isinstance(v, str)]
+    leaked = sorted(s for s in strings
+                    if (s in keys and s not in allowed) or any(s in t for t in texts))
     assert not leaked, f"{key}: the profile repeats the family's text: {leaked[:5]}"
 
 
@@ -162,7 +176,11 @@ def test_every_key_is_from_our_vocabulary_or_a_schema_identifier(families, profi
     for k in list(params["by_group"]) + list(params["by_spec"]):
         assert k in ("other", "none") or k in tokens, k
     dynamic = set(params["by_storage"]) | set(params["by_group"]) | set(params["by_spec"]) \
-        | set(prof["undecoded"]["value"])
+        | set(prof["undecoded"]["value"]) | set(prof["nested_owned"]["value"]) \
+        | set(prof["other_owner"]["value"])
+    for k in set(prof["undecoded"]["value"]) | set(prof["nested_owned"]["value"]) \
+            | set(prof["other_owner"]["value"]):
+        assert k in sch.by_name, k                 # a record CLASS name of the schema
     for k in _keys(prof, set()) - dynamic:
         assert k in FA.VOCABULARY, k
 
@@ -195,13 +213,13 @@ def test_the_lighting_control_panel_is_pinned_aspect_by_aspect(profiles):
                                                  "other_reference": 2}, "how": "inferred"}
     assert p["form_subcategories"]["value"] == {"forms_assigned": 0, "subcategories": 0}
     assert p["form_materials"]["value"] == {"forms_assigned": 0}
-    assert p["nested_families"]["value"] == {"total": 0}
+    assert p["nested_families"]["value"] == {"total": 0, "placed": 0, "not_placed": 0}
     assert p["dimensions"]["value"] == {"total": 0, "by_kind": {}, "alignments": 0}
     assert p["dimension_constraints"]["value"] == {"labelled": 0, "unlabelled": 0,
                                                    "eq_display_option": 0, "param_driven_segments": 0,
                                                    "driven_segments": 0, "anchored_refs": 0}
     assert p["dimension_constraints"]["how"] == "inferred"
-    assert p["types"]["value"] == {"total": 1}
+    assert p["types"]["value"] == {"total": 1, "symbols": 0}
     params = p["parameters"]["value"]
     assert params["by_group"]["dimensions"] == 3 and params["by_spec"]["length"] >= 3
     assert p["view_specific_elements"]["how"] == "not-yet-readable"
@@ -450,13 +468,13 @@ def test_the_tracked_eaton_family_is_pinned():
     assert (params["total"], params["instance"], params["type"]) == (14, 0, 14)
     assert params["by_spec"] == {"current": 2, "int64": 3, "length": 3, "number": 1,
                                  "potential": 1, "string": 4}
-    assert p["types"]["value"] == {"total": 1}
+    assert p["types"]["value"] == {"total": 1, "symbols": 0}
     assert p["undecoded"]["value"] == {}
 
 
 def test_the_two_type_catalog_panelboard(profiles):
     p = profiles["panelboard"]
-    assert p["types"]["value"] == {"total": 2}
+    assert p["types"]["value"] == {"total": 2, "symbols": 0}
     params = p["parameters"]["value"]
     assert params["instance"] >= 1 and params["type"] > params["instance"]
     assert {"length", "current", "potential"} <= set(params["by_spec"])
@@ -656,7 +674,7 @@ def test_only_the_familys_own_parameters_are_counted(monkeypatch):
     p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
                                 "04_electrical_room_equipment_families.rvt"))
     assert p["parameters"]["value"]["total"] == 16
-    assert p["types"]["value"] == {"total": 2}
+    assert p["types"]["value"] == {"total": 2, "symbols": 1}
 
 
 @pytest.mark.parametrize("field,cls,aspect,measure", [
@@ -691,9 +709,11 @@ def test_an_undecoded_record_is_left_out_of_every_count(families, monkeypatch, f
 
 
 def test_compare_never_ranks_the_undecoded_count_as_a_gap(profiles):
-    a = dict(profiles["panelboard"], undecoded={"value": {"ExtrusionElem": 5}, "how": "decoded"})
+    a = dict(profiles["panelboard"], undecoded={"value": {"ExtrusionElem": 5}, "how": "decoded"},
+             nested_owned={"value": {"RefPlane": 3}, "how": "decoded"},
+             other_owner={"value": {"CurveElem": 4}, "how": "decoded"})
     gaps = FA.compare(a, profiles["panelboard"])
-    assert not [g for g in gaps if g["aspect"] == "undecoded"], gaps
+    assert not [g for g in gaps if g["aspect"] in ("undecoded", "nested_owned", "other_owner")], gaps
 
 
 def test_an_undecodable_self_family_says_so(families, monkeypatch):
@@ -712,3 +732,140 @@ def test_an_undecodable_self_family_says_so(families, monkeypatch):
     monkeypatch.setattr(FamilyIndex, "decode", fake)
     with pytest.raises(FA.NotAFamily, match="could not be decoded"):
         FA.profile(families["lighting_control_panel"])
+
+
+# --- round 5 (#842): only the family's OWN elements; leaves are counts -------
+
+def _leaf_values(v, path=""):
+    if isinstance(v, dict):
+        for k, x in v.items():
+            yield from _leaf_values(x, f"{path}.{k}")
+    elif isinstance(v, list):
+        for x in v:
+            yield from _leaf_values(x, path)
+    else:
+        yield path, v
+
+
+@pytest.mark.parametrize("key", sorted(PROMPTS) + sorted(CATALOG))
+def test_every_profile_value_is_a_count(profiles, key):
+    """Every leaf is an int or None -- except the aspect's own ``how`` /
+    ``why``, which are this module's words.  A caption written as a VALUE
+    passed every other test (round 5 mutant)."""
+    whys = set(FA.NOT_YET_READABLE.values())
+    for path, v in _leaf_values(profiles[key]):
+        if path.endswith(".how"):
+            assert v in ("decoded", "inferred", "class-count", "not-yet-readable"), (path, v)
+        elif path.endswith(".why"):
+            assert v in whys, (path, v)
+        else:
+            assert v is None or (isinstance(v, int) and not isinstance(v, bool)), (path, v)
+
+
+def test_elements_a_nested_family_owns_are_left_out(monkeypatch):
+    """One of the eval kit project's 7 families made to pass as the self
+    family: planes, curves and forms owned by the other six (and by the
+    project) are reported under nested_owned / other_owner, not counted."""
+    import uuid
+    seen = []
+
+    def one_nil(v):
+        if not seen:
+            seen.append(v.get("m_id"))
+        if v.get("m_id") == seen[0]:
+            v["m_famDocGUID"] = str(uuid.UUID(int=0))
+    _patch_class(monkeypatch, "m_famDocGUID", one_nil)
+    p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
+                                "04_electrical_room_equipment_families.rvt"))
+    # in a PROJECT the loaded families' elements are owned by the project
+    # (m_famId -1): other_owner, never counted as the self family's
+    other = p["other_owner"]["value"]
+    assert other.get("RefPlane", 0) > 0, other
+    assert p["nested_families"]["value"] == {"total": 6, "placed": 0, "not_placed": 6}
+    # every plane the file holds is counted exactly once somewhere
+    from rvt.families import FamilyIndex
+    fi = FamilyIndex(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
+                                  "04_electrical_room_equipment_families.rvt"))
+    for cls, n in (("RefPlane", p["reference_planes"]["value"]["total"]),
+                   ("CurveElem", p["curves"]["value"]["total"]),
+                   ("DBViewPlan", p["plan_views"]["value"]["total"])):
+        held = len(fi.ids_of_class(0, cls))
+        assert held and n + p["nested_owned"]["value"].get(cls, 0) + other.get(cls, 0) == held, cls
+        assert other.get(cls, 0) > 0, cls              # the project's own, never counted
+    # the project's subcategories are the project's, not the family's
+    assert p["form_subcategories"]["value"]["subcategories"] == 0
+    assert other.get("CategoryElem", 0) > 0
+
+
+def test_a_plane_a_nested_family_owns_is_nested_owned(families, monkeypatch):
+    """As a Revit-born family stores it: one of the lighting control panel's
+    planes owned by a SECOND Family element of the same file (m_famId = that
+    family's id).  Simulated by adding the second Family through the class
+    seam and re-owning the plane."""
+    from rvt.families import FamilyIndex
+    fi0 = FamilyIndex(families["lighting_control_panel"])
+    planes = sorted(fi0.ids_of_class(0, "RefPlane"))
+    ghost = planes[-1]                      # this record now plays a nested Family
+    victim = planes[0]
+    real = FA._class_of
+    monkeypatch.setattr(FA, "_class_of",
+                        lambda fi, eid, r: "Family" if eid == ghost else real(fi, eid, r))
+    import copy
+    real_decode = FamilyIndex.decode
+
+    def fake(self, unit, eid, seq=102):
+        o = real_decode(self, unit, eid, seq)
+        if eid == victim and o is not None:
+            o = copy.deepcopy(o)
+            o.value["m_famId"] = ghost
+        return o
+    monkeypatch.setattr(FamilyIndex, "decode", fake)
+    p = FA.profile(families["lighting_control_panel"])
+    assert p["nested_owned"]["value"] == {"RefPlane": 1}
+    assert p["reference_planes"]["value"]["total"] == 0      # the other plane became the ghost Family
+
+
+def test_a_placed_nested_family_is_told_from_a_carried_one(monkeypatch):
+    """Instances re-owned to the self family: each places one of the other
+    families (FamilyInstance -> m_masterSymbolId -> FamilySymbol.m_familyId)."""
+    import uuid
+    seen = []
+
+    def one_nil(v):
+        if not seen:
+            seen.append(v.get("m_id"))
+        if v.get("m_id") == seen[0]:
+            v["m_famDocGUID"] = str(uuid.UUID(int=0))
+
+    from rvt.families import FamilyIndex
+    import copy
+    real = FamilyIndex.decode
+
+    def fake(self, unit, eid, seq=102):
+        o = real(self, unit, eid, seq)
+        if o is not None and isinstance(o.value, dict):
+            if "m_famDocGUID" in o.value:
+                o = copy.deepcopy(o)
+                one_nil(o.value)
+            elif "m_masterSymbolId" in o.value and seen:
+                o = copy.deepcopy(o)
+                o.value["m_famId"] = seen[0]
+        return o
+    monkeypatch.setattr(FamilyIndex, "decode", fake)
+    p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
+                                "04_electrical_room_equipment_families.rvt"))
+    assert p["nested_families"]["value"] == {"total": 6, "placed": 6, "not_placed": 0}
+    assert p["nested_instances"]["value"] == {"total": 7}
+
+
+def test_a_listed_parameter_of_another_kind_is_other_kind(families, monkeypatch):
+    """A listed ParamElem that is neither local nor shared counts as
+    other_kind, never as shared (round 5 mutant).  One listed record is
+    re-labelled a ParamElemGlobal through the profiler's class seam."""
+    from rvt.families import FamilyIndex
+    victim = sorted(FamilyIndex(families["lighting_control_panel"]).ids_of_class(0, "ParamElemFamily"))[0]
+    real = FA._class_of
+    monkeypatch.setattr(FA, "_class_of",
+                        lambda fi, eid, r: "ParamElemGlobal" if eid == victim else real(fi, eid, r))
+    params = FA.profile(families["lighting_control_panel"])["parameters"]["value"]
+    assert (params["other_kind"], params["shared"], params["local"]) == (1, 0, params["total"] - 1), params

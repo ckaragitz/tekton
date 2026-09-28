@@ -164,11 +164,17 @@ VOCABULARY = frozenset({
     "forms_assigned", "subcategories", "named", "define_origin", "is_reference", "strong", "weak",
     "reference_strength", "other_reference", "alignments", "labelled", "unlabelled",
     "local", "shared", "other_kind", "instance_or_type_unread",
+    "placed", "not_placed", "symbols", "nested_owned", "other_owner",
     "eq_display_option", "param_driven_segments", "driven_segments", "anchored_refs",
     "instance", "type", "by_storage", "by_group", "by_spec", "formulas", "reporting",
     "other", "none",
 }) | frozenset(FORM_CLASSES.values()) | frozenset(DIMENSION_KINDS.values()) \
   | frozenset(COUNTED.values()) | frozenset(NOT_YET_READABLE)
+
+
+def _class_of(fi, eid: int, rec) -> str:
+    """A record's class name (a seam: the tests re-label one record)."""
+    return fi.class_name(rec.class_id)
 
 
 def profile(path: str) -> dict:
@@ -178,7 +184,7 @@ def profile(path: str) -> dict:
     fi = FamilyIndex(path)
     by_class = collections.defaultdict(list)
     for eid, r in fi.unit_records(0).get(102, {}).items():
-        by_class[fi.class_name(r.class_id)].append(int(eid))
+        by_class[_class_of(fi, int(eid), r)].append(int(eid))
     undecoded = collections.Counter()
     cache = {}
     chains = {}
@@ -226,6 +232,23 @@ def profile(path: str) -> dict:
         raise NotAFamily(f"{len(selves)} self Family elements (nil m_famDocGUID); "
                          "which one is the family is ambiguous")
     fam = val(selves[0], "Family")
+    self_id = selves[0]
+    family_ids = set(by_class.get("Family", []))
+    nested_owned, other_owner = collections.Counter(), collections.Counter()
+
+    def own(eid: int, cls: str) -> dict:
+        """The decoded record if THIS family owns it (m_famId), else {} --
+        and then it is counted by owner.  A Revit-born family carries its
+        nested families' planes, curves and parameters in the same unit
+        (#842 round 5: the rme panelboard's 13 planes are 3 nested + ...)."""
+        v = val(eid, cls)
+        if not v:
+            return {}
+        fid = v.get("m_famId")
+        if fid is None or fid == self_id:
+            return v
+        (nested_owned if fid in family_ids else other_owner)[cls] += 1
+        return {}
 
     # --- forms -----------------------------------------------------------
     forms = collections.Counter()
@@ -237,7 +260,7 @@ def profile(path: str) -> dict:
     for cls in sorted(c for c in by_class if descends(c, "GenSweep")):
         kind = FORM_CLASSES.get(cls, "other")
         for eid in by_class[cls]:
-            v = val(eid, cls)
+            v = own(eid, cls)
             if not v:
                 continue
             forms[kind] += 1
@@ -277,7 +300,7 @@ def profile(path: str) -> dict:
         for eid in by_class[cls]:
             if eid not in listed:
                 continue
-            v = val(eid, cls)
+            v = own(eid, cls)
             if not v:
                 continue
             p_total += 1
@@ -307,7 +330,7 @@ def profile(path: str) -> dict:
     alignments = labelled = eq_option = 0
     for cls in sorted(c for c in by_class if descends(c, "Dimension")):
         for eid in by_class[cls]:
-            v = val(eid, cls)
+            v = own(eid, cls)
             if not v:
                 continue
             if cls in ALIGNMENT_CLASSES:
@@ -324,7 +347,7 @@ def profile(path: str) -> dict:
     dims = sum(dim_kinds.values())
     ref_planes = named_planes = origin_planes = is_ref = strong = weak = 0
     for eid in by_class.get("RefPlane", []):
-        v = val(eid, "RefPlane")
+        v = own(eid, "RefPlane")
         if not v:
             continue
         ref_planes += 1
@@ -339,7 +362,7 @@ def profile(path: str) -> dict:
             weak += rn == WEAK_REFERENCE
     subcats = 0
     for eid in by_class.get("CategoryElem", []):
-        v = val(eid, "CategoryElem")
+        v = own(eid, "CategoryElem")
         cat = ((v.get("m_pCategory") or {}).get("value") or {})
         if fam_cat is not None and cat.get("m_parentCategoryId") == fam_cat:
             subcats += 1
@@ -377,12 +400,33 @@ def profile(path: str) -> dict:
         "types": aspect({"total": types}),
     }
     for cls, key in COUNTED.items():
-        prof[key] = aspect({"total": len(by_class.get(cls, []))}, "class-count")
-    prof["nested_families"] = aspect({"total": max(0, len(by_class.get("Family", [])) - 1)},
-                                     "class-count")
+        prof[key] = aspect({"total": sum(1 for e in by_class.get(cls, []) if own(e, cls))},
+                           "class-count")
+    # nested families: every Family record but the self one -- and which of
+    # them this family actually PLACES (FamilyInstance -> m_masterSymbolId ->
+    # FamilySymbol.m_familyId; the chain held for all 7 instances of the eval
+    # kit's project).  A template carries section-head / level-head families
+    # it never places (91 of 147 Revit-born rme families), which are not
+    # "nested components" (round 5).
+    nested = family_ids - {self_id}
+    symbols = set(by_class.get("FamilySymbol", []))
+    placed = set()
+    for e in by_class.get("FamilyInstance", []):
+        sym = own(e, "FamilyInstance").get("m_masterSymbolId")
+        if sym in symbols and val(sym, "FamilySymbol").get("m_familyId") in nested:
+            placed.add(val(sym, "FamilySymbol")["m_familyId"])
+    prof["nested_families"] = aspect({"total": len(nested), "placed": len(placed),
+                                      "not_placed": len(nested) - len(placed)}, "inferred")
+    # the family's own types as FamilySymbol records: Revit-born families
+    # carried 4 with 0 m_pFamilyTypes pairs, so neither alone is the count
+    prof["types"]["value"]["symbols"] = sum(
+        1 for e in symbols if val(e, "FamilySymbol").get("m_familyId") == self_id)
     for key, why in NOT_YET_READABLE.items():
         prof[key] = {"value": None, "how": "not-yet-readable", "why": why}
     prof["undecoded"] = {"value": dict(sorted(undecoded.items())), "how": "decoded"}
+    # records left out because a NESTED family (or another owner) owns them
+    prof["nested_owned"] = {"value": dict(sorted(nested_owned.items())), "how": "decoded"}
+    prof["other_owner"] = {"value": dict(sorted(other_owner.items())), "how": "decoded"}
     return prof
 
 
@@ -400,7 +444,8 @@ def compare(ref: dict, ours: dict) -> list:
     the size of the gap relative to the reference."""
     rows = []
     for aspect_name, a in ref.items():
-        if aspect_name == "undecoded" or a.get("how") == "not-yet-readable":
+        if aspect_name in ("undecoded", "nested_owned", "other_owner") \
+                or a.get("how") == "not-yet-readable":
             continue
         rv = dict(_leaves("", a.get("value")))
         ov = dict(_leaves("", (ours.get(aspect_name) or {}).get("value")))
