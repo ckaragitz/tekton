@@ -2360,10 +2360,16 @@ class FamilyDoc:
         return written
 
     def _type_param_entries(self, vals: Dict[Any, Any]) -> List[dict]:
+        # each value row carries its parameter's OWN instance flag: a Revit-born family's
+        # m_familyParams / type rows say m_instance True for an instance parameter (the
+        # rme dumps; 160 of 340 shared GUIDs in the owner's reference pack), and the
+        # loader builds a placed instance's parameter rows from exactly those (#859)
+        inst = {pe.elem_id: bool((pe.obj or {}).get("m_instanceParam") or pe.refs.get("instance"))
+                for pe in self.params.values()}
         out = []
         for k, v in vals.items():
             pid = self._param_key(k)
-            out.append(family_param_value(pid, v))
+            out.append(family_param_value(pid, v, is_instance=inst.get(pid, False)))
         # deterministic order: user params (ascending id) then built-ins
         out.sort(key=lambda e: (0, e["m_paramId"]) if e["m_paramId"] > 0
                  else (1, -e["m_paramId"]))
