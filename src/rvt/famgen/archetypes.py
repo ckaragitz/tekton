@@ -59,7 +59,6 @@ from __future__ import annotations
 
 import functools
 import math
-import itertools
 import re
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
@@ -1395,8 +1394,8 @@ def archetype(product: str) -> Archetype:
 #: The fraction part of a MIXED number.  FOLLOWED BY A UNIT it is always a
 #: fraction of that unit, whatever the denominator ("2 1/5 in", "10 5/12 ft")
 #: -- main's reading, kept (#841 round 2).  With NO unit after it, it must be
-#: a real fraction of one: proper, over 2, 3, 4, 8, 16, 32 or 64, and ending
-#: there -- "width 12 480 / 277 V" is a width and a voltage, never 12 480/277
+#: a real measuring fraction (see _FRAC_UNITLESS below), ending there --
+#: "width 12 480 / 277 V" is a width and a voltage, never 12 480/277
 #: = 13.73 in; likewise 277/480, 4/0 AWG, 24/7, 12/2, 9/23, and "3/4w"
 #: (three-phase four-wire) (#841 round 1).  A failed fraction falls back to
 #: the whole number, so the 12 still binds.
@@ -1407,12 +1406,6 @@ _FRAC_UNIT_AHEAD = (r"""(?=[\s-]*(?:in\b|in\.|ins\b|inch|(?:"|″|”|'|′|’)
                     r"""ft\b|ft\.|feet|foot|mm\b|millimet|[x×]\s*\d))""")
 #: (a quote mark is a unit only when it CLOSES the number: "20 12 / 24
 #: 'LCP-1'" opens a tag -- read as feet it made a 246 in panel, round 5)
-_FRAC_UNITLESS = "(?:" + "|".join(rf"(?:{n})\s*/\s*{d}" for n, d in (
-    ("1", "2"), ("[12]", "3"), ("[1-3]", "4"), ("[1-7]", "8"), ("1[0-5]|[1-9]", "16"),
-    (r"3[01]|[12]\d|[1-9]", "32"), (r"6[0-3]|[1-5]\d|[1-9]", "64"))) + (
-    # ... ending there: whitespace or punctuation -- any letter makes it a
-    # token ("3/4w"); a glued unit or cross 'x' is the branch above
-    r")(?=\s|$|[^\w])")
 #: ... but only an UNSPACED slash takes any denominator.  A SPACED one ahead of
 #: a unit must be a PROPER fraction over a one-digit denominator or one a
 #: measurement uses -- 10, 12, 16, 20, 32, 64: "width 12 480 / 277 in the
@@ -1426,14 +1419,23 @@ _PROPER_SPACED = "(?:" + "|".join(
     + [rf"(?:{'|'.join(str(n) for n in range(d - 1, 0, -1))})\s*/\s*{d}"  # 7/20, 11/12
        for d in _SPACED_DENOMS]
 ) + ")"   # no digit guard needed: the unit must come next
-#: ... and a proper fraction over one of those denominators that ENDS the
-#: prompt joins too: "cable tray wide 2 1/5" fell back to 2.0 ``given``
-#: (#841 round 5; nothing can follow it that makes it a voltage or a date).
-_MIXED_FRAC = (rf"(?:(?:\d+/\d+|{_PROPER_SPACED}){_FRAC_UNIT_AHEAD}|{_FRAC_UNITLESS}"
-               rf"|{_PROPER_SPACED}(?=\s*[.!]?\s*$))")
+#: ... and with NO unit after it, the same proper measuring fraction, ending
+#: there -- whitespace or punctuation; any letter makes it a token ("3/4w").
+#: A rejected fraction (improper, a voltage pair, a date, three digits)
+#: leaves the whole number to read alone ("width 12 480 / 277 V" is 12).
+#: Round 6: this set was only 2/3/4/8/16/32/64, so "sheet thickness 1 - 5 /
+#: 12 each" fell back to 1.0 ``given`` where the user wrote 1 5/12 -- and
+#: round 5's measuring set had already excluded the voltages and dates that
+#: narrow set was guarding against.  (It also covers round 5's "a fraction
+#: that ends the prompt".)
+_FRAC_UNITLESS = rf"{_PROPER_SPACED}(?=\s|$|[^\w])"
+_MIXED_FRAC = rf"(?:(?:\d+/\d+|{_PROPER_SPACED}){_FRAC_UNIT_AHEAD}|{_FRAC_UNITLESS})"
 _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 -- mixed, spaced
              r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?"              # 1,200 -- grouped
-             rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}|\s*[-/]\s*\d+)?"
+             # main's "N / M/D" tail kept whole on the SLASH: "24 / 3/4" is one
+             # token no number reads, never 24 / 3 = 8 (#841 round 6); not on
+             # the hyphen, where "24 - 120/208 V" would join the voltage
+             rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}|\s*-\s*\d+|\s*/\s*\d+(?:/\d+)?)?"
              r"|\d+\s*/\s*\d+)")
 #: A mixed number's slash may be spaced like its hyphen: "24 - 1 / 2 in" was
 #: split at the slash, and "1 / 2 in wide" -- a 0.5 in tray -- came back
@@ -1442,20 +1444,38 @@ _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 
 #: the "200" and delivered a 7.9 in tray, quoted back as '200 mm cable tray'.
 #: ... and the lookbehind excludes a preceding DIGIT+SPACE too, or "2 1/2 in"
 #: matched its trailing "1/2" alone and delivered a conduit 5x too small.
-#: ... and a FRACTION may not start after a digit and any run of up to four
-#: spaces / hyphens: when the mixed reading rejects an off-set unit-less
-#: fraction, "24 - 5/12 wide" and "12  5/12 wide" re-matched at the fraction
-#: and stamped 0.42 in ``given`` (#841 round 5).  Rejected, the phrase is
-#: left nominal.  Only a fraction: " - " also separates phrases, and "tall of
-#: 1/2 - 46 1/8 in long" must keep its 46.
-_FRAC_AHEAD = r"(?=\d+\s*/\s*\d)"
-_NUM = (r"(?<![A-Za-z0-9.,/-])(?<!\d )"
-        + rf"(?:(?!\d+\s*/\s*\d)|{_FRAC_AHEAD}" + "".join(
-            r"(?<!\d" + "".join(r"\s" if c == " " else "-" for c in sep) + ")"
-            for n in range(1, 5) for sep in itertools.product(" -", repeat=n)) + ")"
-        # ... nor the denominator of a spaced slash: rejected, "24 - 5 / 12
-        # wide" re-matched at "12 wide" and stamped a 12 in tray ``given``
-        + r"(?<!\d\s/\s)(?<!\d/\s)(?<!\d\s/\s\s)(?<!\d\s\s/\s)" + _NUM_CORE)
+#: (A fraction the mixed reading REJECTS must not be re-read from its own
+#: middle either -- see _mask_orphan_fractions, which resolve_prompt applies
+#: before any of these patterns run.)
+_NUM = r"(?<![A-Za-z0-9.,/-])(?<!\d )" + _NUM_CORE
+
+
+#: a whole number, a separator the mixed grammar accepts (whitespace, or a
+#: hyphen with optional whitespace), and a fraction after it
+_WHOLE_THEN_FRACTION = re.compile(r"(?<![A-Za-z0-9.,/-])\d+(?:\s+|\s*-\s*)(\d+\s*/\s*\d+)")
+_ORPHAN_MASK = "\x00"
+
+
+def _mask_orphan_fractions(low: str) -> str:
+    """Blank (same length, so every offset holds) each fraction that follows a
+    whole number but that the mixed reading of that number REJECTS.
+
+    Rejected, "24 - 5/12 wide" left "5/12 wide" for the next pattern to read
+    alone -- a 0.42 in tray stamped ``given`` (#841 round 5) -- and "24 - 5 /
+    12 wide" left "12 wide".  A fixed list of lookbehinds cannot say "after a
+    whole number and ANY separator" (round 6: five spaces got through, and
+    the list also barred "LP-1 - 3/4 in conduit").  So: only a real number
+    start (not a tag's "LP-1", not 480/277's tail), only the separators the
+    mixed grammar itself accepts, and only when the mixed reading stops short
+    of the fraction.  Blanked, the whole number still reads alone ("width 12
+    480 / 277 V" is 12) and the fraction is nobody's."""
+    out = low
+    for m in _WHOLE_THEN_FRACTION.finditer(low):
+        whole = re.match(_NUM_CORE, low[m.start():])
+        if whole is None or m.start() + whole.end() < m.end(1):
+            s, e = m.span(1)
+            out = out[:s] + _ORPHAN_MASK * (e - s) + out[e:]
+    return out
 
 #: what may sit between a number, its unit and the word it qualifies.  English
 #: hyphenates these -- "a 24-inch-wide tray", "a 6-in-deep tray", "a 10-ft-long
@@ -1463,8 +1483,11 @@ _NUM = (r"(?<![A-Za-z0-9.,/-])(?<!\d )"
 #: while reporting the value as NOMINAL, i.e. "we generated it".
 _SEP = r"[\s-]*"
 _UNITS = {
-    "in": r"(?:in\b|in\.|inch(?:es)?\b|\")",
-    "ft": r"(?:ft\b|ft\.|foot\b|feet\b|')",
+    # a quote mark is a unit only when it CLOSES the number: "width 20
+    # 'LCP-1'" opens a tag, and read as feet it made a 240 in panel (#841
+    # round 6; the same rule as the fraction lookahead's)
+    "in": r"(?:in\b|in\.|inch(?:es)?\b|\"(?![A-Za-z0-9]))",
+    "ft": r"(?:ft\b|ft\.|foot\b|feet\b|'(?![A-Za-z0-9]))",
     "mm": r"(?:mm\b|millimet(?:er|re)s?\b)",
 }
 _ANY_UNIT = "|".join(_UNITS.values())
@@ -1813,7 +1836,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     from quoted back); every dimension it does not state stays ``nominal``.
     """
     text = str(prompt or "")
-    low = text.lower()
+    low = _mask_orphan_fractions(text.lower())
     arch: Optional[Archetype] = None
     if product:
         arch = archetype(product)

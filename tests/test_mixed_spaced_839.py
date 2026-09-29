@@ -243,27 +243,108 @@ def test_a_spaced_fraction_joins_only_when_proper_over_a_measuring_denominator()
 # The lookbehind blocked only one space: "24 - 5/12 wide" re-matched at
 # "5/12 wide" and stamped a 0.42 in tray ``given``; and "24 - 5 / 12 wide", once
 # the numerator was blocked, at "12 wide".  Rejected, the phrase stays nominal.
+# Round 6: those are MEASURING fractions, which now join with or without a
+# unit -- main's values, and what the user wrote ...
+@pytest.mark.parametrize("prompt,key,want", [
+    ("cable tray 24 - 5/12 wide", "width_in", 24 + 5 / 12),
+    ("a 2 - 1/5 wide cable tray", "width_in", 2.2),
+    ("conduit 10 - 5/12 long", "length_ft", 10 + 5 / 12),
+    ("cable tray 12  5/12 wide", "width_in", 12 + 5 / 12),     # double space
+    ("cable tray 12\t5/12 wide", "width_in", 12 + 5 / 12),    # tab
+    ("cable tray 24     5/12 wide", "width_in", 24 + 5 / 12),  # five spaces
+    ("lighting control panel 20 - 3/10 wide", "width_in", 20.3),
+    ("wireway 8 - 5/6 tall", "height_in", 8 + 5 / 6),
+    ("strut channel 1 - 7/20 tall", "height_in", 1.35),
+    ("cable tray 24 - 5 / 12 wide", "width_in", 24 + 5 / 12),
+    ("cable tray 24 5 / 12 wide", "width_in", 24 + 5 / 12),
+    ("junction box sheet thickness 1  -  5 / 12 each", "thickness_in", 1 + 5 / 12),
+])
+def test_a_measuring_fraction_joins_its_whole_number_without_a_unit(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
+
+
+# ... and a REJECTED fraction (not a measuring one) is never re-read from its
+# own middle, whatever the separator's width (round 6: a fixed lookbehind
+# list let five spaces through, and also barred "LP-1 - 3/4 in conduit").
 @pytest.mark.parametrize("prompt,key", [
-    ("cable tray 24 - 5/12 wide", "width_in"),
-    ("a 2 - 1/5 wide cable tray", "width_in"),
-    ("conduit 10 - 5/12 long", "length_ft"),
-    ("cable tray 12  5/12 wide", "width_in"),                  # double space
-    ("cable tray 12\t5/12 wide", "width_in"),                 # tab
-    ("lighting control panel 20 - 3/10 wide", "width_in"),
-    ("wireway 8 - 5/6 tall", "height_in"),
-    ("strut channel 1 - 7/20 tall", "height_in"),
-    ("cable tray 24 - 5 / 12 wide", "width_in"),
-    ("cable tray 24 5 / 12 wide", "width_in"),
+    ("cable tray 24 - 5/11 wide", "width_in"),
+    ("cable tray 24     5/11 wide", "width_in"),                # five spaces
+    ("cable tray 12  -  7/23 wide", "width_in"),
+    ("lighting control panel 20  -  3/13 deep", "depth_in"),
+    ("junction box 4   -   5/11 deep", "depth_in"),
+    ("cable tray 24\u00a0\u00a0\u00a0\u00a0\u00a05/11 wide", "width_in"),   # non-breaking
+    ("cable tray 24 \t \t 5/11 wide", "width_in"),
+    ("cable tray 24 - 5 / 11 wide", "width_in"),
 ])
 def test_a_rejected_fraction_is_never_read_from_its_middle(prompt, key):
     r = AR.resolve_prompt(prompt)
     assert r.provenance[key] != GIVEN, (prompt, r.values[key], r.quoted.get(key))
 
 
+# ... while a fraction after something that is NOT a whole number reads as
+# main reads it: a tag, a voltage's tail, a cross, a separator the mixed
+# grammar never accepts ("--", " / ")
+@pytest.mark.parametrize("prompt,key,want", [
+    ("EMT for LP-1 - 3/4 in conduit", "diameter_in", 0.75),
+    ("conduit for EF-2 - 1/2 in dia", "diameter_in", 0.5),
+    ("panel LP-1 -- 3/4 in conduit", "diameter_in", 0.75),
+    ('conduit rev 3 -- 3/4" trade size', "diameter_in", 0.75),
+    ("junction box 4x4 / 6 in deep", "depth_in", 6.0),
+    ("wireway 480/277 / 12 in wide", "width_in", 12.0),
+    ("strut channel 1-5/8 x 1-5/8 - 1/2 in slot length", "slot_length_in", 0.5),
+    ("junction box width 10 -- 5/8 in sheet thickness", "thickness_in", 0.625),
+    ("conduit for LP-1 - 5 / 11 in dia", "diameter_in", 5 / 11),   # a tag's digit is no whole number
+])
+def test_a_fraction_after_a_tag_or_a_foreign_separator_reads_as_main(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
+
+
+# ... and "N / M/D" stays one token no number reads (main's tail), never
+# N / M: "24 / 3/4" was 8 in, "8 / 4/0 AWG" a 2 in wireway (round 6)
+@pytest.mark.parametrize("prompt,key", [
+    ("cable tray width 24 / 3/4 in rail flange", "width_in"),
+    ("junction box width 4 / 3/4 in knockouts", "width_in"),
+    ("conduit length 10 / 3/4 in trade size", "length_ft"),
+    ("conduit length 10/3/4", "length_ft"),
+    ("lighting control panel depth 6 / 5/8 in", "depth_in"),
+    ("strut channel height 1 / 5/8 in", "height_in"),
+    ("wireway width 8 / 4/0 AWG", "width_in"),
+])
+def test_a_number_over_a_fraction_is_never_the_number_over_its_numerator(prompt, key):
+    r = AR.resolve_prompt(prompt)
+    assert r.provenance[key] != GIVEN, (prompt, r.values[key], r.quoted.get(key))
+
+
+def test_a_cross_before_a_slash_tail_keeps_its_cross():
+    r = AR.resolve_prompt("a 12 x 12 x 6 / 3/4 in junction box")
+    assert (r.values["width_in"], r.values["height_in"]) == (12.0, 12.0)
+    assert r.provenance["width_in"] == r.provenance["height_in"] == GIVEN
+
+
+@pytest.mark.parametrize("prompt,key,want", [
+    ("lighting control panel width 20 'LCP-1'", "width_in", 20.0),   # main: 240 in
+    ('junction box width 12 "JB-4"', "width_in", 12.0),
+    ('conduit length 10 "L-2"', "length_ft", 10.0),                  # not 10 INCHES
+    ("wireway width 12' long", "width_in", 144.0),                   # a closing mark is still a unit
+    ('junction box width 12" deep 4"', "width_in", 12.0),
+])
+def test_a_quote_is_a_unit_only_when_it_closes_the_number(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
+
+
+
 @pytest.mark.parametrize("prompt,key,want", [
     ("lighting control panel width 20 12 / 24 'LCP-1'", "width_in", 20.0),  # a quote OPENING a tag
-    ("lighting control panel width 20 5 / 12 'LCP-1'", "width_in", 20.0),   # ... even after a real fraction
-    ("lighting control panel width 20 5/12 \u2018LCP-1\u2019", "width_in", 20.0),
+    # ... after a real fraction the fraction joins -- but the opening quote
+    # is still never feet (it was 245 in)
+    ("lighting control panel width 20 5 / 12 'LCP-1'", "width_in", 20 + 5 / 12),
+    ("lighting control panel width 20 5/12 \u2018LCP-1\u2019", "width_in", 20 + 5 / 12),
     ("cable tray long 20 12 / 24 in the room", "length_ft", 20.0),         # low-voltage pair
     ("wireway width 12 12 / 24 in the room", "width_in", 12.0),
     ("wireway width 12 24 / 48 in the room", "width_in", 12.0),

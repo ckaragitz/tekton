@@ -290,6 +290,104 @@ Mutants: **7/7 killed**:
 - the opening quote as a unit, twice. This survived until a row with a real
   fraction before a tag was added.
 
+## Round 6 — a fixed lookbehind list cannot say "after a whole number"
+
+🛑 on `c699827`. The round-5 fixes held only for the shapes the tests used.
+The reviewer's generators (1.2 million prompts) found three blocking shapes:
+
+1. **The slash branch had lost main's tail.** Main read "24 / 3/4" as one
+   token that no number reads. The head stopped at "24 / 3" and stamped
+   **8 in `given`**:
+   - "wireway width 8 / 4/0 AWG" gave a 2 in wireway;
+   - the phrase-list generator produced 11,520 of these.
+2. **Five or more separator characters got through.** "cable tray 24
+   5/12 wide" with five spaces gave 0.42 in `given` again. The lookbehind
+   list stopped at four characters, and no fixed-width list can cover a run
+   of any length.
+3. **The same list also barred fractions after digits that are not a whole
+   number.** Examples: a tag ("EMT for LP-1 - 3/4 in conduit" gave nominal,
+   main 0.75), 480/277's tail, a cross, and separators the mixed grammar
+   never accepts ("--", " / "). That cost 118,236 stated dimensions main
+   read right.
+
+The reviewer also found (non-blocking) that the end-of-prompt lookahead was
+quadratic on long whitespace runs.
+
+**The fix replaces the lookbehind list with one pre-pass,
+`_mask_orphan_fractions`, which `resolve_prompt` runs on the lower-cased
+prompt before any pattern.** It looks for three things together:
+- a real number start (not a tag's "LP-1", not a voltage's tail);
+- a separator the mixed grammar itself accepts (whitespace, or a hyphen with
+  optional whitespace, of any length);
+- a fraction after it that the mixed reading of that number does *not*
+  reach.
+
+Such a fraction is blanked with a same-length neutral mark, so every offset
+holds and nobody reads it. The whole number still reads alone ("width 12
+480 / 277 V" is 12). `_NUM` is back to main's lookbehind.
+
+**Also:**
+- **Main's `N / M/D` tail is restored on the slash**, not on the hyphen,
+  where "24 - 120/208 V" would join the voltage again.
+- **The unit-less fraction set is now every proper *measuring* fraction.**
+  That is a one-digit denominator, or 10, 12, 16, 20, 32 or 64, ending at
+  whitespace or punctuation. It was 2/3/4/8/16/32/64 only, so "sheet
+  thickness 1 - 5 / 12 each" fell back to 1.0 `given` where the user wrote
+  1 5/12. That narrow set guarded against voltages and dates, which round 5's
+  measuring set already excludes. This also retires round 5's separate
+  end-of-prompt branch.
+- **A quote is a unit only when it closes the number, in `_UNITS` too.**
+  "width 20 'LCP-1'" was 240 in on main as well.
+- **"N / M/D" never becomes N / M.**
+
+**Measured against main.** Nothing regressed on any generator:
+
+| instrument | prompts | right on `main`, wrong on head |
+|---|---|---|
+| new: tags before a fraction, separators 1–7 characters wide (spaces, tabs, non-breaking, hyphen runs), phrase lists joined by " - ", " -- ", " / ", ",", "\|", fraction tails, typographic units, 3 seeds | 180,000 | **0** in the reviewer's two false-`given` classes (fraction alone, N ÷ numerator). The head has 6,009 fewer "fraction alone" and 21 fewer "N ÷ numerator" than main. |
+| fuzzers seeds 1–3 | 60,000 | **0** (0 better) |
+
+The 43 head-only hits my classifier flags in the first row are all whole
+numbers from *other* phrases in the same prompt ("wide 6 4/0 each" → 6) that
+happen to equal another token's fraction. None is a fraction read alone.
+
+**Ambiguous, stated:** a designator or tag number followed by a separator
+and a fraction now reads as a mixed number. For example, "wireway for rev 3
+- 1 / 2 inch long" gives 3 1/2 in where main gives 1/2 in, and "no. 3  3/4
+ft" works the same way.
+
+**Speed:** "cable tray wide 12 5 / 12" + 16,000 spaces + "x" takes 16.4 s,
+against main's 7.9 s. Main's resolver is already quadratic on long
+whitespace runs because `_SEP` appears twice; round 5's head took 26.7 s.
+Ordinary prompts are unaffected. This is not pinned by a test (wall-clock
+tests are flaky under CI load) and is recorded here instead.
+
+**Tests:**
+- **169 passed** in the two files: 127 in `test_mixed_spaced_839.py`, plus
+  `test_fraction_parse_831.py`.
+- 178 passed with `test_plugin_sync.py`.
+- A wider run over every prompt, archetype, taxonomy, fraction, intent,
+  spec-sheet and route suite (`RVT_SKIP_LARGE=1`) gave 4,855 passed and 3
+  failed:
+  - `test_catchain.py` ×2, which **fail on a main export too**, so they are
+    not caused by this PR;
+  - `test_plugin_sync.py`, run before the mirror was synced (it is now).
+
+**Mutants: 9/9 killed:**
+- no mask;
+- mask after any digit;
+- mask after "--" and " / ";
+- no slash tail;
+- the tail on the hyphen too;
+- the narrow unit-less set;
+- the opening `"` as inches;
+- the opening `'` as feet;
+- mask only when no number reads.
+
+Two survived until their rows were added: a tag before a rejected spaced
+fraction ("conduit for LP-1 - 5 / 11 in dia"), and a `"` after a length in
+feet ('conduit length 10 "L-2"').
+
 ---
 
 ## BRANCH STATE
@@ -297,12 +395,15 @@ Mutants: **7/7 killed**:
 **Files written**
 - `src/rvt/famgen/archetypes.py`: `_NUM_CORE`.
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 95 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 127 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
   sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 6)**: 169 passed across the two files (178 with
+`test_plugin_sync.py`); 9/9 round-6 mutants killed; plugin in sync.
 
 **Gates (round 5)**: 137 passed across `test_mixed_spaced_839.py` and
 `test_fraction_parse_831.py` (343 with the neighbouring suites and
