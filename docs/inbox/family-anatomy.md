@@ -455,6 +455,89 @@ Tests: **118 passed.** New tests cover:
   show that this tool's counts match, because the tool has not read those
   files.
 
+## Round 6 — the self-family rule was refuted by the reference pack
+
+🛑 on `e825d60`. Most round-5 fixes were confirmed. The blocker came from
+measured data I had not looked for.
+
+1. **The nil-`m_famDocGUID` rule is wrong.** The #838 run (PR comment
+   5814287930) found the self Family's GUID is **real in 421/421** Revit-2025
+   reference families, so `profile` refused every one of them.
+   - The 2024/2025 genesis bases did not even open under the default framing
+     ("unexpected Partitions header").
+   - Read under their own release, each base carries **8 Family elements with
+     a nil GUID**. That refutes "every loaded Family carries a real one". They
+     were refused only by accident, as "ambiguous".
+   - What separates the cases is the surrogate. The self Family has
+     `m_surrogateId` -1 in both rme dumps, our families and the tracked Eaton
+     `.rfa`. Every loaded Family has a real one: project 04 7/7, G_ABPD_2024
+     and _2025 8/8.
+2. **`compare` still ranked a template-carried, never-placed nested family
+   as MISSING, first.** That was half of round 5's blocker.
+3. **`FamilyInstance` went through `own()` twice.** It was counted by two
+   loops, so `other_owner` read 14 of 7.
+4. **Round 5's `types.symbols` misread the dumps.** Every FamilySymbol there
+   belongs to a nested family (the section and level heads), so it read 0 on
+   every known family document.
+
+**Fixes:**
+- **The self Family is now the one element with `m_surrogateId` -1.** Zero
+  or several are refused.
+- **`profile` runs inside `global_framing.enter_own_release`.** It reports
+  `framing_fallback` (0/1) when a fallback rung was used.
+- **`compare` ranks only `nested_families.placed`.** `total`, `not_placed`
+  and `parameters.unlisted` are information (`INFORMATION_ONLY`).
+- **The owner is decided once per record.**
+- **`symbols` is dropped, and `types` is now `inferred`.** Both Revit-born
+  dumps carry 0 `m_pFamilyTypes` pairs, so where a Revit-born family keeps
+  its type table is open.
+- **(Non-blocking) Records with no `m_famId`, or with -1, now count as the
+  family's own.** The convention on 2025 stand-alone families is unmeasured:
+  the self Family's own `m_famId` is -1 in only 123 of 421 references.
+  Reading -1 as foreign would have zeroed every count silently. Anything
+  that is neither the family nor a nested family goes under `other_owner`,
+  and `compare` now **warns** about it the way it warns about `undecoded`.
+- **(Non-blocking) The parameter loop decides the owner first.** Nested
+  families' parameters now reach `nested_owned`, and listed-but-own records
+  count as `unlisted`.
+
+**Measured:**
+- The lighting control panel built for **2025 and for 2024** through the
+  product route profiles *identically* to the 2026 one, on every aspect,
+  with `framing_fallback` 0.
+- The 2024 and 2025 genesis bases are refused by the surrogate rule
+  ("no self Family"). So are G_ABPD and project 04.
+
+**Tests: 128 passed.** New ones cover:
+- 2024/2025 read under their own release;
+- both bases refused;
+- every held record counted once, FamilyInstance included;
+- a foreign-owned instance counted once;
+- None / -1 / foreign ownership;
+- `compare` ranking only `placed`;
+- the owner warning;
+- `framing_fallback`.
+
+**Mutants: 8/8 killed:**
+- no framing;
+- any Family as self;
+- -1 foreign;
+- None foreign;
+- double count;
+- `not_placed` ranked;
+- no warning;
+- `types` decoded.
+
+The double-count and `types` mutants survived until their tests were added.
+
+**Limits (all earlier limits stand):**
+- The surrogate rule is checked on our families, the two rme dumps, the
+  Eaton `.rfa`, project 04 and three genesis bases. Of the 421 references it
+  was built for, **none has been read by this head**. #838 is its first run.
+- Whether the self Family's elements in a 2025 stand-alone family carry
+  `m_famId` = its id, -1 or something else is unmeasured. The -1 reading and
+  the `other_owner` warning make a wrong guess visible, not silent.
+
 ---
 
 ## BRANCH STATE
@@ -463,9 +546,11 @@ Tests: **118 passed.** New tests cover:
 - `tools/family_anatomy.py`: new.
 - `tools/sync_plugin.py`: `DENY_PATH_PARTS` gains the quarantine dirs and
   `reference-families`.
-- `tests/test_family_anatomy_837.py`: new, 118 tests;
+- `tests/test_family_anatomy_837.py`: new, 128 tests;
   `tests/ci_shard.d/837-family-anatomy.txt`.
 - this record.
+
+**Gates (round 6)**: 128 passed (137 with `test_plugin_sync.py`); 8/8 round-6 mutants killed; `sync_plugin.py --check` in sync.
 
 **Gates (round 5)**: 118 passed (127 with `test_plugin_sync.py`); 10/10 round-5 mutants killed (plus a no-op control that survives, as it must); `sync_plugin.py --check` in sync.
 

@@ -34,10 +34,19 @@ A record the decoder reports errors for, or cannot consume cleanly, is
 counted under ``undecoded`` by class and left out of every other count --
 and ``compare`` says so when either side has any.
 
-A PROJECT IS REFUSED.  A family document's own Family element has a nil
-``m_famDocGUID``; every Family loaded into a project carries a real one.  A
-file with no such element is not a family and ``profile`` exits 1 rather
-than profiling whichever loaded family happens to come first.
+A PROJECT IS REFUSED.  A family document's own Family element carries
+``m_surrogateId`` -1; every Family loaded into a project carries a real
+surrogate.  A file with no such element -- or with more than one -- is
+refused and ``profile`` exits 1, rather than profiling whichever loaded
+family happens to come first.  (Until #842 round 6 this read a nil
+``m_famDocGUID``, which is refuted: Revit-2025 reference families carry a
+real one, and the genesis bases carry eight nil ones.)
+
+ONLY THE FAMILY'S OWN ELEMENTS ARE COUNTED (``m_famId``): what a nested
+family owns is reported apart under ``nested_owned``, anything else under
+``other_owner``, and ``compare`` warns about the latter.
+
+Each file is read under its OWN release framing (2024/2025 included).
 
 USAGE
     python tools/family_anatomy.py profile X.rfa [--json out.json]
@@ -130,10 +139,6 @@ class NotAFamily(ValueError):
     """The file has no self Family element (a project, or not a Revit file)."""
 
 
-def _nil_guid(g) -> bool:
-    return not g or not str(g).replace("0", "").replace("-", "")
-
-
 #: a schema identifier: 'autodesk.parameter.group:dimensions-1.0.0',
 #: 'autodesk.spec.aec:length-2.0.0', 'autodesk.spec:spec.string-2.0.0'.  Only
 #: such an id yields a key (its last token); anything else is 'other', so no
@@ -164,7 +169,7 @@ VOCABULARY = frozenset({
     "forms_assigned", "subcategories", "named", "define_origin", "is_reference", "strong", "weak",
     "reference_strength", "other_reference", "alignments", "labelled", "unlabelled",
     "local", "shared", "other_kind", "instance_or_type_unread",
-    "placed", "not_placed", "symbols", "nested_owned", "other_owner",
+    "placed", "not_placed", "nested_owned", "other_owner", "unlisted", "framing_fallback",
     "eq_display_option", "param_driven_segments", "driven_segments", "anchored_refs",
     "instance", "type", "by_storage", "by_group", "by_spec", "formulas", "reporting",
     "other", "none",
@@ -178,7 +183,24 @@ def _class_of(fi, eid: int, rec) -> str:
 
 
 def profile(path: str) -> dict:
-    """The anatomy of one family: counts and kinds only (see module doc)."""
+    """The anatomy of one family: counts and kinds only (see module doc).
+
+    Read under the file's OWN release framing (#842 round 6): a 2024/2025
+    file failed with "unexpected Partitions header" under the default one."""
+    from contextlib import ExitStack
+    from rvt.global_framing import enter_own_release
+
+    with ExitStack() as stack:
+        note = enter_own_release(stack, path)
+        prof = _profile(path)
+    # 1 when the file's own schema could not frame it and a fallback rung was
+    # used (the counts stand, but say so); the note itself is not repeated --
+    # it names parser causes, not family content, yet a profile holds counts
+    prof["framing_fallback"] = {"value": 0 if note is None else 1, "how": "decoded"}
+    return prof
+
+
+def _profile(path: str) -> dict:
     from rvt.families import FamilyIndex
 
     fi = FamilyIndex(path)
@@ -214,11 +236,16 @@ def profile(path: str) -> dict:
         cache[eid] = o.value if ok else {}
         return cache[eid]
 
-    # --- the family's OWN Family element (nil m_famDocGUID) ---------------
-    # a Family record that did not decode is NOT evidence of a self family
-    # (#842 round 2: an undecodable record read as a nil GUID)
+    # --- the family's OWN Family element (m_surrogateId -1) ----------------
+    # Round 6: the nil-m_famDocGUID rule was refuted -- the self Family's GUID
+    # is REAL in 421/421 Revit-2025 reference families, and the 2024/2025
+    # genesis bases carry 8 nil-GUID Families each.  What separates them is
+    # the surrogate: the self Family carries m_surrogateId -1 (both rme dumps,
+    # our families, the tracked Eaton .rfa); every Family loaded into a
+    # project carries a real one (eval-kit project 04: 7/7; G_ABPD_2024 /
+    # _2025: 8/8).  A record that did not decode is never evidence (round 2).
     selves = [e for e in by_class.get("Family", [])
-              if "m_famDocGUID" in val(e, "Family") and _nil_guid(val(e, "Family")["m_famDocGUID"])]
+              if val(e, "Family").get("m_surrogateId") == -1]
     if not selves:
         if undecoded.get("Family"):
             # a Family record the decoder could not read is not proof of a
@@ -229,26 +256,36 @@ def profile(path: str) -> dict:
     if len(selves) > 1:
         # never guess which one is "the" family (#842 round 3: a tie-break
         # nothing exercised); refused, visibly, until a real file shows it
-        raise NotAFamily(f"{len(selves)} self Family elements (nil m_famDocGUID); "
+        raise NotAFamily(f"{len(selves)} self Family elements (m_surrogateId -1); "
                          "which one is the family is ambiguous")
     fam = val(selves[0], "Family")
     self_id = selves[0]
     family_ids = set(by_class.get("Family", []))
     nested_owned, other_owner = collections.Counter(), collections.Counter()
+    owner_of = {}
 
     def own(eid: int, cls: str) -> dict:
         """The decoded record if THIS family owns it (m_famId), else {} --
-        and then it is counted by owner.  A Revit-born family carries its
+        and then it is counted by owner, ONCE per record (round 6: a record
+        read by two loops was counted twice).  A Revit-born family carries its
         nested families' planes, curves and parameters in the same unit
-        (#842 round 5: the rme panelboard's 13 planes are 3 nested + ...)."""
+        (#842 round 5); those carry the nested Family's id.  No m_famId, or
+        -1, counts as the family's own: the convention in 2025 stand-alone
+        families is unmeasured (the self Family's own m_famId is -1 in only
+        123 of 421 references), and reading -1 as foreign would zero every
+        count silently."""
         v = val(eid, cls)
         if not v:
             return {}
-        fid = v.get("m_famId")
-        if fid is None or fid == self_id:
-            return v
-        (nested_owned if fid in family_ids else other_owner)[cls] += 1
-        return {}
+        if eid not in owner_of:
+            fid = v.get("m_famId")
+            owner_of[eid] = ("own" if fid in (None, -1, self_id)
+                             else "nested" if fid in family_ids else "other")
+            if owner_of[eid] == "nested":
+                nested_owned[cls] += 1
+            elif owner_of[eid] == "other":
+                other_owner[cls] += 1
+        return v if owner_of[eid] == "own" else {}
 
     # --- forms -----------------------------------------------------------
     forms = collections.Counter()
@@ -294,22 +331,26 @@ def profile(path: str) -> dict:
     # those the family's OWN m_familyParams lists: a nested or loaded family's
     # parameters sit in the same unit (a project read 100 for a family of 19).
     listed = {q.get("m_paramId") for q in params if isinstance(q, dict)}
-    p_total = p_inst = p_local = p_shared = p_other_kind = 0
+    p_total = p_inst = p_local = p_shared = p_other_kind = p_unlisted = 0
     p_storage, p_group, p_spec = collections.Counter(), collections.Counter(), collections.Counter()
     for cls in sorted(c for c in by_class if descends(c, "ParamElem")):
         for eid in by_class[cls]:
-            if eid not in listed:
-                continue
+            # the owner first, so a nested family's parameters are REPORTED
+            # under nested_owned (round 6: the listed filter dropped them
+            # before own() saw them)
             v = own(eid, cls)
             if not v:
+                continue
+            if eid not in listed:
+                p_unlisted += 1
                 continue
             p_total += 1
             if cls == "ParamElemFamily":
                 p_local += 1
                 # instance vs type is read from the local parameter's own
                 # flag; a shared one carries none, so it is left unread
-                # (the family table's m_instance disagrees with this flag on
-                # one of our own panelboard's parameters -- not a substitute)
+                # (the family table's m_instance should agree -- it does on
+                # every Revit-born row -- but our writer never sets it, #859)
                 if v.get("m_instanceParam"):
                     p_inst += 1
             elif cls == "ParamElemExternal":
@@ -393,11 +434,15 @@ def profile(path: str) -> dict:
                               "other_kind": p_other_kind,
                               "instance": p_inst, "type": p_local - p_inst,
                               "instance_or_type_unread": p_total - p_local,
+                              "unlisted": p_unlisted,
                               "by_storage": dict(sorted(p_storage.items())),
                               "by_group": dict(sorted(p_group.items())),
                               "by_spec": dict(sorted(p_spec.items())),
                               "formulas": formulas, "reporting": reporting}),
-        "types": aspect({"total": types}),
+        # m_pFamilyTypes pairs: right for OUR families; both Revit-born rme
+        # dumps carry 0 pairs, so where a Revit-born family keeps its type
+        # table is open -- inferred until a reference family shows it
+        "types": aspect({"total": types}, "inferred"),
     }
     for cls, key in COUNTED.items():
         prof[key] = aspect({"total": sum(1 for e in by_class.get(cls, []) if own(e, cls))},
@@ -417,10 +462,10 @@ def profile(path: str) -> dict:
             placed.add(val(sym, "FamilySymbol")["m_familyId"])
     prof["nested_families"] = aspect({"total": len(nested), "placed": len(placed),
                                       "not_placed": len(nested) - len(placed)}, "inferred")
-    # the family's own types as FamilySymbol records: Revit-born families
-    # carried 4 with 0 m_pFamilyTypes pairs, so neither alone is the count
-    prof["types"]["value"]["symbols"] = sum(
-        1 for e in symbols if val(e, "FamilySymbol").get("m_familyId") == self_id)
+    # (round 5 added a FamilySymbol count as "the family's own types"; round
+    # 6 showed every FamilySymbol in both rme dumps belongs to a NESTED
+    # family -- the section / level heads -- so it read 0 on every known
+    # family document.  Dropped.)
     for key, why in NOT_YET_READABLE.items():
         prof[key] = {"value": None, "how": "not-yet-readable", "why": why}
     prof["undecoded"] = {"value": dict(sorted(undecoded.items())), "how": "decoded"}
@@ -438,18 +483,28 @@ def _leaves(prefix: str, v):
         yield prefix, v
 
 
+#: measures that describe a family but are never a GAP: a template carries
+#: section-head / level-head families it never places (91 of 147 Revit-born
+#: rme families), so only nested_families.placed is ranked (round 6); and a
+#: parameter the family does not list is not one it offers
+INFORMATION_ONLY = frozenset({("nested_families", "total"), ("nested_families", "not_placed"),
+                              ("parameters", "unlisted")})
+
+
 def compare(ref: dict, ours: dict) -> list:
     """Every numeric leaf where the reference has MORE than ours, ranked:
     a feature ours lacks entirely first (reference > 0, ours == 0), then by
     the size of the gap relative to the reference."""
     rows = []
     for aspect_name, a in ref.items():
-        if aspect_name in ("undecoded", "nested_owned", "other_owner") \
+        if aspect_name in ("undecoded", "nested_owned", "other_owner", "framing_fallback") \
                 or a.get("how") == "not-yet-readable":
             continue
         rv = dict(_leaves("", a.get("value")))
         ov = dict(_leaves("", (ours.get(aspect_name) or {}).get("value")))
         for k, r in rv.items():
+            if (aspect_name, k) in INFORMATION_ONLY:
+                continue
             o = ov.get(k, 0)
             if r > o:
                 rows.append({"aspect": aspect_name, "measure": k, "reference": r, "ours": o,
@@ -481,10 +536,19 @@ def main(argv=None) -> int:
             gaps = compare(ref, ours)
             warn = {side: p["undecoded"]["value"] for side, p in (("reference", ref), ("ours", ours))
                     if p["undecoded"]["value"]}
-            out = {"reference": ref, "ours": ours, "gaps": gaps, "undecoded_warning": warn}
+            # records owned by neither the family nor a nested family: the
+            # m_famId convention is unmeasured on 2025 stand-alone families,
+            # so say so rather than let counts shrink quietly (round 6)
+            owners = {side: p["other_owner"]["value"] for side, p in (("reference", ref), ("ours", ours))
+                      if p["other_owner"]["value"]}
+            out = {"reference": ref, "ours": ours, "gaps": gaps, "undecoded_warning": warn,
+                   "other_owner_warning": owners}
             for side, cls in warn.items():
                 print(f"  WARNING: {side} has records that did not decode ({cls}); "
                       f"its counts are incomplete")
+            for side, cls in owners.items():
+                print(f"  WARNING: {side} has records with an owner that is neither the family "
+                      f"nor a nested family ({cls}); they are left out of its counts")
             print(f"=== {len(gaps)} measure(s) where ours falls short "
                   f"({sum(g['missing'] for g in gaps)} missing entirely)")
             for g in gaps:

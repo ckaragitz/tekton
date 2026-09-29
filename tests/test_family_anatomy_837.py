@@ -219,7 +219,7 @@ def test_the_lighting_control_panel_is_pinned_aspect_by_aspect(profiles):
                                                    "eq_display_option": 0, "param_driven_segments": 0,
                                                    "driven_segments": 0, "anchored_refs": 0}
     assert p["dimension_constraints"]["how"] == "inferred"
-    assert p["types"]["value"] == {"total": 1, "symbols": 0}
+    assert p["types"] == {"value": {"total": 1}, "how": "inferred"}   # Revit-born: 0 pairs (open)
     params = p["parameters"]["value"]
     assert params["by_group"]["dimensions"] == 3 and params["by_spec"]["length"] >= 3
     assert p["view_specific_elements"]["how"] == "not-yet-readable"
@@ -252,8 +252,8 @@ def test_the_cli_writes_the_report_and_refuses_a_non_family_in_one_line(families
                   "--json", str(out)])
     assert rc == 0
     rep = json.loads(out.read_text(encoding="utf-8"))
-    assert set(rep) == {"reference", "ours", "gaps", "undecoded_warning"}
-    assert rep["undecoded_warning"] == {}
+    assert set(rep) == {"reference", "ours", "gaps", "undecoded_warning", "other_owner_warning"}
+    assert rep["undecoded_warning"] == {} and rep["other_owner_warning"] == {}
     junk = tmp_path / "junk.rfa"
     junk.write_bytes(b"not a family")
     proc = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "family_anatomy.py"),
@@ -347,12 +347,19 @@ def test_a_void_is_read_from_the_forms_cutting_flag(families, monkeypatch):
 @pytest.mark.parametrize("rel", ["plugin/assets/genesis/G_ABPD.rvt",
                                  # a project with SEVEN loaded families: the case where
                                  # "the first Family" is a random loaded one
-                                 "tekton-eval-kit/TEST-KIT/04_electrical_room_equipment_families.rvt"])
+                                 "tekton-eval-kit/TEST-KIT/04_electrical_room_equipment_families.rvt",
+                                 # 2024 / 2025 framing (round 6: these failed to OPEN, and
+                                 # read under their own release they carry 8 Family
+                                 # elements with a NIL GUID each -- the old rule's
+                                 # counter-example; every one has a real surrogate)
+                                 "plugin/assets/genesis/G_ABPD_2025.rvt",
+                                 "plugin/assets/genesis/G_ABPD_2024.rvt"])
 def test_a_project_file_is_refused_not_profiled(rel):
     """A project carries loaded families; profiling 'the first Family' there
-    reported a random loaded family as the file's anatomy."""
+    reported a random loaded family as the file's anatomy.  Refused by the
+    surrogate rule: NO Family element with m_surrogateId -1."""
     rvt = os.path.join(ROOT, *rel.split("/"))
-    with pytest.raises(FA.NotAFamily):
+    with pytest.raises(FA.NotAFamily, match="no self Family"):
         FA.profile(rvt)
     proc = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "family_anatomy.py"),
                            "profile", rvt], capture_output=True, text=True, timeout=300)
@@ -468,13 +475,13 @@ def test_the_tracked_eaton_family_is_pinned():
     assert (params["total"], params["instance"], params["type"]) == (14, 0, 14)
     assert params["by_spec"] == {"current": 2, "int64": 3, "length": 3, "number": 1,
                                  "potential": 1, "string": 4}
-    assert p["types"]["value"] == {"total": 1, "symbols": 0}
+    assert p["types"]["value"] == {"total": 1}
     assert p["undecoded"]["value"] == {}
 
 
 def test_the_two_type_catalog_panelboard(profiles):
     p = profiles["panelboard"]
-    assert p["types"]["value"] == {"total": 2, "symbols": 0}
+    assert p["types"]["value"] == {"total": 2}
     params = p["parameters"]["value"]
     assert params["instance"] >= 1 and params["type"] > params["instance"]
     assert {"length", "current", "potential"} <= set(params["by_spec"])
@@ -632,9 +639,8 @@ def test_a_record_the_decoder_could_not_consume_cleanly_is_undecoded(families, m
 def test_two_self_families_are_refused_not_guessed(monkeypatch):
     """Every loaded Family made to look like a self family: the profiler
     refuses instead of picking one (round 3: the tie-break was untested)."""
-    import uuid
     def nil(v):
-        v["m_famDocGUID"] = str(uuid.UUID(int=0))
+        v["m_surrogateId"] = -1
     _patch_class(monkeypatch, "m_famDocGUID", nil)
     path = os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT", "04_electrical_room_equipment_families.rvt")
     with pytest.raises(FA.NotAFamily, match="ambiguous"):
@@ -662,19 +668,25 @@ def test_only_the_familys_own_parameters_are_counted(monkeypatch):
     eval kit project's 7 Family elements made to pass as the self family
     must count ITS parameters (16 records of the 19 it lists), not the
     project's 100 (round 4)."""
-    import uuid
-    seen = []
-
-    def one_nil(v):
-        if not seen:
-            seen.append(v.get("m_id"))
-        if v.get("m_id") == seen[0]:
-            v["m_famDocGUID"] = str(uuid.UUID(int=0))
-    _patch_class(monkeypatch, "m_famDocGUID", one_nil)
+    _patch_class(monkeypatch, "m_famDocGUID", _one_self())
     p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
                                 "04_electrical_room_equipment_families.rvt"))
     assert p["parameters"]["value"]["total"] == 16
-    assert p["types"]["value"] == {"total": 2, "symbols": 1}
+    assert p["types"]["value"] == {"total": 2}
+
+
+def _one_self():
+    """A decode edit that makes the FIRST Family record seen the self family
+    (m_surrogateId -1, the round-6 rule) and leaves the others loaded."""
+    seen = []
+
+    def edit(v):
+        if not seen:
+            seen.append(v.get("m_id"))
+        if v.get("m_id") == seen[0]:
+            v["m_surrogateId"] = -1
+    edit.seen = seen
+    return edit
 
 
 @pytest.mark.parametrize("field,cls,aspect,measure", [
@@ -762,39 +774,54 @@ def test_every_profile_value_is_a_count(profiles, key):
             assert v is None or (isinstance(v, int) and not isinstance(v, bool)), (path, v)
 
 
-def test_elements_a_nested_family_owns_are_left_out(monkeypatch):
+def test_every_held_record_is_counted_exactly_once(monkeypatch):
     """One of the eval kit project's 7 families made to pass as the self
-    family: planes, curves and forms owned by the other six (and by the
-    project) are reported under nested_owned / other_owner, not counted."""
-    import uuid
-    seen = []
-
-    def one_nil(v):
-        if not seen:
-            seen.append(v.get("m_id"))
-        if v.get("m_id") == seen[0]:
-            v["m_famDocGUID"] = str(uuid.UUID(int=0))
-    _patch_class(monkeypatch, "m_famDocGUID", one_nil)
-    p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
-                                "04_electrical_room_equipment_families.rvt"))
-    # in a PROJECT the loaded families' elements are owned by the project
-    # (m_famId -1): other_owner, never counted as the self family's
-    other = p["other_owner"]["value"]
-    assert other.get("RefPlane", 0) > 0, other
-    assert p["nested_families"]["value"] == {"total": 6, "placed": 0, "not_placed": 6}
-    # every plane the file holds is counted exactly once somewhere
+    family: every record of a counted class lands in exactly one place --
+    the family's count, nested_owned or other_owner.  FamilyInstance is read
+    by two loops and was counted TWICE (round 6: other_owner read 14 of 7)."""
+    _patch_class(monkeypatch, "m_famDocGUID", _one_self())
+    path = os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT", "04_electrical_room_equipment_families.rvt")
+    p = FA.profile(path)
+    other, nested = p["other_owner"]["value"], p["nested_owned"]["value"]
+    # the project's own instances carry m_famId -1, which reads as the
+    # (simulated) family's own -- so it "places" the other six
+    assert p["nested_families"]["value"] == {"total": 6, "placed": 6, "not_placed": 0}
     from rvt.families import FamilyIndex
-    fi = FamilyIndex(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
-                                  "04_electrical_room_equipment_families.rvt"))
+    fi = FamilyIndex(path)
     for cls, n in (("RefPlane", p["reference_planes"]["value"]["total"]),
                    ("CurveElem", p["curves"]["value"]["total"]),
-                   ("DBViewPlan", p["plan_views"]["value"]["total"])):
+                   ("DBViewPlan", p["plan_views"]["value"]["total"]),
+                   ("FamilyInstance", p["nested_instances"]["value"]["total"])):
         held = len(fi.ids_of_class(0, cls))
-        assert held and n + p["nested_owned"]["value"].get(cls, 0) + other.get(cls, 0) == held, cls
-        assert other.get(cls, 0) > 0, cls              # the project's own, never counted
-    # the project's subcategories are the project's, not the family's
-    assert p["form_subcategories"]["value"]["subcategories"] == 0
-    assert other.get("CategoryElem", 0) > 0
+        assert held and n + nested.get(cls, 0) + other.get(cls, 0) == held, (cls, n, nested, other)
+
+
+@pytest.mark.parametrize("fid,counted,where", [
+    (None, 2, None),          # no m_famId at all: the family's own
+    (-1, 2, None),            # -1: the family's own (the 2025 convention is unmeasured)
+    (999999, 1, "other_owner"),
+])
+def test_what_counts_as_the_familys_own(families, monkeypatch, fid, counted, where):
+    """Round 6: a record WITHOUT m_famId, or with -1, is the family's own --
+    reading either as foreign would zero every count of a family whose
+    elements carry it; any other non-family owner is other_owner (and
+    compare warns)."""
+    seen = []
+
+    def edit(v):
+        if not seen:
+            seen.append(1)
+            if fid is None:
+                v.pop("m_famId", None)
+            else:
+                v["m_famId"] = fid
+    _patch_class(monkeypatch, "m_refName", edit)
+    p = FA.profile(families["lighting_control_panel"])
+    assert p["reference_planes"]["value"]["total"] == counted
+    if where:
+        assert p[where]["value"] == {"RefPlane": 1}
+    else:
+        assert p["other_owner"]["value"] == {} and p["nested_owned"]["value"] == {}
 
 
 def test_a_plane_a_nested_family_owns_is_nested_owned(families, monkeypatch):
@@ -823,19 +850,24 @@ def test_a_plane_a_nested_family_owns_is_nested_owned(families, monkeypatch):
     p = FA.profile(families["lighting_control_panel"])
     assert p["nested_owned"]["value"] == {"RefPlane": 1}
     assert p["reference_planes"]["value"]["total"] == 0      # the other plane became the ghost Family
+    # a carried, never-placed nested family is information, never a gap:
+    # only nested_families.placed is ranked (round 6: "MISSING nested" came first)
+    assert p["nested_families"]["value"] == {"total": 1, "placed": 0, "not_placed": 1}
+    gaps = FA.compare(p, dict(p, nested_families={"value": {"total": 0, "placed": 0, "not_placed": 0},
+                                                  "how": "inferred"}))
+    assert not [g for g in gaps if g["aspect"] == "nested_families"], gaps
+    gaps = FA.compare(dict(p, nested_families={"value": {"total": 1, "placed": 1, "not_placed": 0},
+                                               "how": "inferred"}),
+                      dict(p, nested_families={"value": {"total": 0, "placed": 0, "not_placed": 0},
+                                               "how": "inferred"}))
+    assert [(g["measure"], g["missing"]) for g in gaps if g["aspect"] == "nested_families"] == [("placed", True)]
 
 
 def test_a_placed_nested_family_is_told_from_a_carried_one(monkeypatch):
     """Instances re-owned to the self family: each places one of the other
     families (FamilyInstance -> m_masterSymbolId -> FamilySymbol.m_familyId)."""
-    import uuid
-    seen = []
-
-    def one_nil(v):
-        if not seen:
-            seen.append(v.get("m_id"))
-        if v.get("m_id") == seen[0]:
-            v["m_famDocGUID"] = str(uuid.UUID(int=0))
+    one_nil = _one_self()
+    seen = one_nil.seen
 
     from rvt.families import FamilyIndex
     import copy
@@ -869,3 +901,71 @@ def test_a_listed_parameter_of_another_kind_is_other_kind(families, monkeypatch)
                         lambda fi, eid, r: "ParamElemGlobal" if eid == victim else real(fi, eid, r))
     params = FA.profile(families["lighting_control_panel"])["parameters"]["value"]
     assert (params["other_kind"], params["shared"], params["local"]) == (1, 0, params["total"] - 1), params
+
+
+def test_compare_warns_about_records_of_a_foreign_owner(families, monkeypatch, tmp_path, capsys):
+    """Round 6: if a family's elements carried an owner that is neither the
+    family nor a nested one, every count would shrink quietly -- compare says so."""
+    real = FA.profile
+
+    def fake(path):
+        p = real(path)
+        if path == families["cable_tray"]:
+            p["other_owner"] = {"value": {"RefPlane": 3}, "how": "decoded"}
+        return p
+    monkeypatch.setattr(FA, "profile", fake)
+    out = tmp_path / "cmp.json"
+    assert FA.main(["compare", families["cable_tray"], families["lighting_control_panel"],
+                    "--json", str(out)]) == 0
+    assert json.loads(out.read_text(encoding="utf-8"))["other_owner_warning"] == {"reference": {"RefPlane": 3}}
+    assert "neither the family nor a nested family" in capsys.readouterr().out
+
+
+def test_every_profile_says_whether_its_release_framing_fell_back(profiles):
+    for key, p in profiles.items():
+        assert p["framing_fallback"] == {"value": 0, "how": "decoded"}, key
+
+
+@pytest.mark.parametrize("year", [2025, 2024])
+def test_a_2024_or_2025_family_is_read_under_its_own_release(profiles, tmp_path, year, monkeypatch):
+    """Round 6: a 2024/2025 file failed to open ("unexpected Partitions
+    header") under the default framing.  The lighting control panel built
+    for that release reads exactly as the 2026 one."""
+    from rvt.frontdoor import router as R
+    from rvt import versions as V
+    res = R.route({"prompt": PROMPTS["lighting_control_panel"]}, "rfa", out=str(tmp_path),
+                  quiet=True, target_version=year)
+    assert res.ok, res.line
+    assert V.detect_release(res.files["rfa"]) == year
+    p = FA.profile(res.files["rfa"])
+    ref = profiles["lighting_control_panel"]
+    for aspect in ("forms", "reference_planes", "reference_strength", "parameters", "types",
+                   "dimensions", "nested_families", "undecoded", "nested_owned", "other_owner",
+                   "framing_fallback"):
+        assert p[aspect] == ref[aspect], (year, aspect, p[aspect], ref[aspect])
+
+
+def test_a_foreign_owned_instance_is_counted_once(monkeypatch):
+    """FamilyInstance is read by the class count AND the placed chain; with
+    the instances owned by someone else, other_owner must read 7, not 14
+    (round 6)."""
+    one = _one_self()
+    from rvt.families import FamilyIndex
+    import copy
+    real = FamilyIndex.decode
+
+    def fake(self, unit, eid, seq=102):
+        o = real(self, unit, eid, seq)
+        if o is not None and isinstance(o.value, dict):
+            if "m_famDocGUID" in o.value:
+                o = copy.deepcopy(o)
+                one(o.value)
+            elif "m_masterSymbolId" in o.value:
+                o = copy.deepcopy(o)
+                o.value["m_famId"] = 999999
+        return o
+    monkeypatch.setattr(FamilyIndex, "decode", fake)
+    p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
+                                "04_electrical_room_equipment_families.rvt"))
+    assert p["other_owner"]["value"].get("FamilyInstance") == 7, p["other_owner"]["value"]
+    assert p["nested_instances"]["value"] == {"total": 0}
