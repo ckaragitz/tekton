@@ -23,8 +23,8 @@ generation. Branch `cam/837-family-anatomy`.
     `m_oFamDimConstrMgr` lists;
   - parameters: instance or type, by ParamDef storage class, by parameter
     group, formulas (`m_oExpression`), reporting;
-  - types (`m_pFamilyTypes` pairs, and the family's own `FamilySymbol`
-    records), subcategories of the family's own category;
+  - types (`m_pFamilyTypes` pairs, `inferred`: Revit-born families carry
+    0 pairs), subcategories of the family's own category;
   - nested families, split into placed and carried-but-not-placed;
   - class counts for nested instances, connectors, materials, text, curves,
     arrays, openings and views;
@@ -53,7 +53,8 @@ safety net and did not catch it.
 
 ## Evidence
 
-*Round 0 (first push); the counts are now 87 tests. See the round sections
+*Round 0 (first push). Current test counts are in each round section and in
+BRANCH STATE; see the round sections
 below.* `tests/test_family_anatomy_837.py` builds all six archetypes through
 the product route.
 
@@ -505,8 +506,14 @@ measured data I had not looked for.
 - The lighting control panel built for **2025 and for 2024** through the
   product route profiles *identically* to the 2026 one, on every aspect,
   with `framing_fallback` 0.
-- The 2024 and 2025 genesis bases are refused by the surrogate rule
-  ("no self Family"). So are G_ABPD and project 04.
+- The 2024 and 2025 genesis bases (8 Families each, all with a real
+  surrogate) and project 04 (7) are refused by the surrogate rule ("no self
+  Family"). G_ABPD is refused too, but it carries 0 Families, so it never
+  exercises the rule. *(Corrected in #872: this line used to count G_ABPD as
+  a check.)*
+- **The strongest evidence for the rule comes from #838's own measurement,
+  not this record:** exactly one Family has surrogate -1 in 421/421
+  references (PR #842 comment 5814287930).
 
 **Tests: 128 passed.** New ones cover:
 - 2024/2025 read under their own release;
@@ -537,6 +544,33 @@ The double-count and `types` mutants survived until their tests were added.
 - Whether the self Family's elements in a 2025 stand-alone family carry
   `m_famId` = its id, -1 or something else is unmeasured. The -1 reading and
   the `other_owner` warning make a wrong guess visible, not silent.
+- **The -1 reading has a cost, stated here (#872):** if a project were ever
+  taken for a family (a Revit-born project whose Family carried surrogate
+  -1), its elements (`m_famId` -1) would be counted as the family's with
+  **no** `other_owner` warning. Before round 6 they went to `other_owner`.
+  This is unlikely, because an in-place family carries its own
+  FamilySurrogate (`docs/writer/k1-autopsy.md`). But it is no longer visible
+  if it happens.
+
+## #872 — the round-7 nits (after merge)
+
+The review of #842 ended at 🟡 (round 7, `0e48c83`), and the PR merged on
+that head. The nits land here:
+- **`compare` tests pin the two unranked measures.** `parameters.unlisted`
+  and `framing_fallback` are never gaps; both mutants survived before.
+- **`compare` warns when a side was read on a fallback framing rung.** The
+  warning goes to stdout and into `framing_warning` in the JSON, the same way
+  `undecoded` and `other_owner` are reported.
+- **The placed-nested chain reads every `FamilySymbol` subclass**
+  (`SysPanelFamSym`, … by inheritance), not the exact class alone.
+- **The record is corrected in place:** the Built list, the Evidence count,
+  the G_ABPD line, #838's 421/421, and the -1 cost above.
+
+Tests: **132 passed.** Mutants: **4/4 killed**:
+- unlisted ranked;
+- framing ranked;
+- exact class only;
+- no framing warning.
 
 ---
 
@@ -546,9 +580,11 @@ The double-count and `types` mutants survived until their tests were added.
 - `tools/family_anatomy.py`: new.
 - `tools/sync_plugin.py`: `DENY_PATH_PARTS` gains the quarantine dirs and
   `reference-families`.
-- `tests/test_family_anatomy_837.py`: new, 128 tests;
+- `tests/test_family_anatomy_837.py`: new, 132 tests (#872);
   `tests/ci_shard.d/837-family-anatomy.txt`.
 - this record.
+
+**Gates (#872)**: 132 passed; 4/4 mutants killed.
 
 **Gates (round 6)**: 128 passed (137 with `test_plugin_sync.py`); 8/8 round-6 mutants killed; `sync_plugin.py --check` in sync.
 

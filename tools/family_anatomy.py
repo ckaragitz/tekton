@@ -454,7 +454,9 @@ def _profile(path: str) -> dict:
     # it never places (91 of 147 Revit-born rme families), which are not
     # "nested components" (round 5).
     nested = family_ids - {self_id}
-    symbols = set(by_class.get("FamilySymbol", []))
+    # every FamilySymbol subclass the file carries (SysPanelFamSym, ...),
+    # by inheritance -- the exact class alone missed them (#872)
+    symbols = {e for c in by_class if descends(c, "FamilySymbol") for e in by_class[c]}
     placed = set()
     for e in by_class.get("FamilyInstance", []):
         sym = own(e, "FamilyInstance").get("m_masterSymbolId")
@@ -542,13 +544,19 @@ def main(argv=None) -> int:
             owners = {side: p["other_owner"]["value"] for side, p in (("reference", ref), ("ours", ours))
                       if p["other_owner"]["value"]}
             out = {"reference": ref, "ours": ours, "gaps": gaps, "undecoded_warning": warn,
-                   "other_owner_warning": owners}
+                   "other_owner_warning": owners,
+                   # a side read on a fallback framing rung: counts stand, caveat them (#872)
+                   "framing_warning": [side for side, p in (("reference", ref), ("ours", ours))
+                                       if p["framing_fallback"]["value"]]}
             for side, cls in warn.items():
                 print(f"  WARNING: {side} has records that did not decode ({cls}); "
                       f"its counts are incomplete")
             for side, cls in owners.items():
                 print(f"  WARNING: {side} has records with an owner that is neither the family "
                       f"nor a nested family ({cls}); they are left out of its counts")
+            for side in out["framing_warning"]:
+                print(f"  WARNING: {side} was read on a fallback framing rung (its own schema "
+                      f"could not frame it); its counts need that caveat")
             print(f"=== {len(gaps)} measure(s) where ours falls short "
                   f"({sum(g['missing'] for g in gaps)} missing entirely)")
             for g in gaps:
