@@ -55,6 +55,16 @@ tagging-contract parameters for the panelboard; every other parameter stays
 local.  The report's ``family.shared_parameters`` lists caption -> GUID.
 Without the flag every parameter is local (the historical file shape).
 
+A PARAMETER PROFILE read from the user's own families (#866)::
+
+    python tools/shared_params_from_rfa.py MY_LIBRARY/ --profile my_profile.json
+    python tools/make_family.py transformer --kva 45 --param-profile my_profile.json -o out/x.rfa
+
+adds, blank and at their GUIDs, the shared parameters the profile's families of the
+same category carry (``--profile-share``, default half of them; ``--profile-family
+NAME`` mirrors one family exactly), bound by instance or type as those families bind
+them.  No value is written: a profile holds definitions only.
+
 Exit code 0 = the file emitted, verified, validated (0 errors, family mode)
 and provenance-clean.  ``--json`` prints the machine-readable report; the
 report is always also written beside the output as ``<stem>.json``.
@@ -106,6 +116,34 @@ def _types_flags(p, axis: str) -> None:
                    help="OUR shared-parameter TXT: parameters it names are authored "
                         "SHARED at its GUIDs (schedules/tags bind by GUID); default "
                         "= every parameter local")
+    _profile_flags(p)
+
+
+def _profile_flags(p) -> None:
+    p.add_argument("--param-profile", default=None, metavar="PROFILE.json",
+                   help="a parameter profile read from YOUR families "
+                        "(tools/shared_params_from_rfa.py --profile): its shared parameters "
+                        "for this family's category are added blank, at their GUIDs")
+    p.add_argument("--profile-family", default=None, metavar="NAME",
+                   help="with --param-profile: mirror exactly this profile family's "
+                        "parameters instead of matching the category")
+    p.add_argument("--profile-values", default=None, metavar="VALUES.json",
+                   help="with --param-profile: values to fill, keyed by parameter name or "
+                        "GUID -- a constant, or {\"formula\": \"Width\"}; the rest stay blank")
+    p.add_argument("--profile-share", type=float, default=0.5, metavar="F",
+                   help="with --param-profile: a parameter is applied when at least this "
+                        "share of the profile's families of the category carry it (0.5)")
+
+
+def _shared_arg(ns):
+    """``shared_params=`` for a constructor: the plain file, or a profile request
+    carrying it (#866)."""
+    if getattr(ns, "param_profile", None):
+        from rvt.famgen.param_profile import ProfileRequest
+        return ProfileRequest(ns.param_profile, family=ns.profile_family,
+                              share=ns.profile_share, rows=ns.shared_params,
+                              values=getattr(ns, "profile_values", None))
+    return ns.shared_params
 
 
 def _device_flags(p) -> None:
@@ -149,7 +187,7 @@ def _print_report(rep: dict, as_json: bool) -> None:
           f"({', '.join((fam.get('parameters') or [])[:8])}...)")
     shared = fam.get("shared_parameters") or {}
     if shared:
-        print(f"shared      : {len(shared)} at OUR file's GUIDs ({', '.join(sorted(shared))})")
+        print(f"shared      : {len(shared)} at the shared file's / parameter profile's GUIDs ({', '.join(sorted(shared))})")
     forms = fam.get("forms") or []
     if forms:
         f0 = forms[0]
@@ -184,14 +222,14 @@ def cmd_panelboard(ns) -> int:
                              mounting=ns.mounting, panel_name=ns.name,
                              sccr_ka=ns.sccr, neutral_rating=ns.neutral,
                              solid=not ns.dummy, types=_types_arg(ns.types),
-                             shared_params=ns.shared_params)
+                             shared_params=_shared_arg(ns))
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
 def cmd_transformer(ns) -> int:
     prod = F.make_transformer(kva=ns.kva, vendor=ns.vendor, primary_v=ns.primary,
                               secondary_v=ns.secondary, solid=not ns.dummy,
-                              types=_types_arg(ns.types), shared_params=ns.shared_params)
+                              types=_types_arg(ns.types), shared_params=_shared_arg(ns))
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
@@ -199,13 +237,13 @@ def cmd_luminaire(ns) -> int:
     prod = F.make_luminaire(kind=ns.kind, size=ns.size, wattage=ns.wattage,
                             lumens=ns.lumens, cct=ns.cct, voltage=ns.voltage,
                             aperture_in=ns.aperture, solid=not ns.dummy,
-                            types=_types_arg(ns.types), shared_params=ns.shared_params)
+                            types=_types_arg(ns.types), shared_params=_shared_arg(ns))
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
 def cmd_device(ns) -> int:
     prod = F.make_device(ns.kind, mounting_height_in=ns.height, voltage=ns.voltage,
-                         va=ns.va, solid=not ns.dummy, shared_params=ns.shared_params)
+                         va=ns.va, solid=not ns.dummy, shared_params=_shared_arg(ns))
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
@@ -532,6 +570,7 @@ def main(argv=None) -> int:
     _device_flags(p)
     p.add_argument("--shared-params", default=None, metavar="FILE",
                    help="OUR shared-parameter TXT (as for the panelboard)")
+    _profile_flags(p)
     p.add_argument("--dummy", action="store_true")
     p.add_argument("-o", "--output", default=None)
     p.add_argument("--json", action="store_true")

@@ -102,5 +102,5 @@ rule 3).
 
 Branch `claude/eager-franklin-xgzgda` from main `1264faf`. Written: `tools/shared_params_from_rfa.py`,
 `tests/test_shared_params_from_rfa_866.py`, `tests/ci_shard.d/866-shared-params-extract.txt`,
-this fragment. `src/` untouched, so the plugin mirror is unaffected (the tool is not in the plugin
-bundle). Shipped: the extractor. Staged: nothing. No certification claim.
+this fragment; and (the #869 CI fix, second commit) `src/rvt/famgen/formula.py` + its `plugin/lib`
+mirror, `tests/test_famgen_formula_850.py`, `docs/inbox/family-formulas.md`. Shipped: the extractor. Staged: nothing. No certification claim.

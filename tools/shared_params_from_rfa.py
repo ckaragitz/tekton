@@ -6,7 +6,8 @@ from the ``.rfa`` files given, across releases (each file is read inside its OWN
 release, ``rvt.global_framing.enter_own_release``), and written as:
 
 * a Revit shared-parameter TXT (the documented tab-separated grammar Revit itself
-  reads: ``*META`` / ``*GROUP`` / ``*PARAM``), GUIDs copied verbatim; and
+  reads: ``*META`` / ``*GROUP`` / ``*PARAM``), GUIDs copied (normalised to lowercase,
+  as Revit and our reader compare them); and
 * a PARAMETER PROFILE JSON: for every source family, which of those parameters it
   carries, instance or type (``null`` = the document only defines it, for a label or
   a nested family -- not a parameter of the family itself), and in which palette
@@ -38,7 +39,6 @@ Read-only on the inputs.
 from __future__ import annotations
 
 import argparse
-import glob
 import json
 import os
 import sys
@@ -217,7 +217,9 @@ _COSMETIC = ("spec", "description", "visible", "user_modifiable", "hide_when_no_
 
 
 def build(paths: Iterable[str]) -> Tuple[Dict[str, Any], List[str]]:
-    """(profile, errors).  The profile's ``parameters`` is keyed by GUID and keeps
+    """(profile, errors).  ``families`` is keyed by file stem -- by the path as given
+    when two inputs share a stem (so a consumer naming one family by stem must
+    rename such a file).  The profile's ``parameters`` is keyed by GUID and keeps
     the first-seen definition; another family's differing identity field
     (:data:`_IDENTITY`) is listed in ``conflicts``, a differing cosmetic one
     (:data:`_COSMETIC`) in ``variants``; per-file oddities go to ``warnings``."""
@@ -240,6 +242,10 @@ def build(paths: Iterable[str]) -> Tuple[Dict[str, Any], List[str]]:
         if fam["self_families"] != 1:
             warnings.append(f"{p}: {fam['self_families']} own Family elements (expected 1); "
                             f"instance flags read from the first")
+        blank = sum(1 for q in fam["params"] if not q["guid"])
+        if blank:
+            warnings.append(f"{p}: {blank} shared parameter(s) with no GUID -- left out of "
+                            f"the parameter table and the TXT")
         families[key] = {"category": fam["category"],
                          "params": [{"guid": q["guid"], "name": q["name"],
                                      "instance": q["instance"],
@@ -265,7 +271,7 @@ def build(paths: Iterable[str]) -> Tuple[Dict[str, Any], List[str]]:
 
 
 def _file_group(name: str) -> str:
-    return name.split("_", 1)[0] if "_" in name else "General"
+    return (name.split("_", 1)[0] if "_" in name else "") or "General"
 
 
 def shared_parameter_txt(profile: Dict[str, Any]) -> str:

@@ -175,6 +175,7 @@ against the 3.0 s wall-clock bound, with no formula change. Rewriting that bound
 * **Fix:** `NameTable.by_first` now maps first character → (length, set of names), longest
   first. A lookup tests one slice per distinct length, with the same longest-match and
   word-boundary semantics.
-* **Result:** the profiled formula step at 4,000 parameters went from 2.85 s to 0.53 s.
+* **Result:** the formula step at 4,000 parameters went from 2.85 s to 0.53 s *under cProfile*
+  (0.66 s → 0.11 s plain `process_time`, per the #869 reviewer's run).
 * **Test:** asserts the ratio stays under 9× (fails at 11.5× before the fix, passes 3/3
   after). `tests/test_famgen_formula_850.py`: 89 passed.
