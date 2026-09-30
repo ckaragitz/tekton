@@ -218,7 +218,84 @@ view. #820 therefore ships it as an **opt-in "with clearance" variant** until
 
 Allow a code-reference domain in the environment's network policy (the owner's
 configuration), or read the text from an environment with open egress; then set
-`checked_against`. Never by editing the status alone.
+add `(edition, what was read)` to the rule's `checked`. Never by editing the status
+alone.
+
+---
+
+## #820 — the lighting control panel WITH its working space
+
+**Built.** A prompt that asks for the clearance ("with NEC clearance", "with
+clearances", "working clearance", "the working space") gets the NEC 110.26(A)
+working space on the lighting control panel. "without clearance" / "no NEC
+clearance" / "w/o working space" is honoured.
+
+- **The zone** is one `role: clearance` box, sized by #819's `working_space()`:
+  30 in wide (the panel is 20 in, so the 30 in minimum governs) × **3½ ft** deep
+  (277 V, Condition 2, NEC 2026 — all defaulted, all stated) × 6½ ft high. It
+  starts at the **door face** and extends forward, centred on the panel.
+- **From the floor.** 110.26(A)(3) measures from the floor, and the family
+  origin is the cabinet bottom. The zone reaches down for a stated **nominal**
+  mounting, cabinet top at 78 in (bottom at 48 in), so it is right only when the
+  panel is mounted that way. The file says so.
+- **Kept out of the panel's own dimensions.** `_make_generic_multipart` now
+  keeps two boxes: the **full** one (every part) still feeds the #808 sanity
+  bounds, and the **equipment** one (parts without `role: clearance`) feeds
+  Width / Depth / Height. The variant's panel measures 20 × 6.75 × 30 in, exactly
+  like the plain panel; without the split its "Depth" would have read ~49 in. A
+  model made only of clearances is refused ("nothing to be the clearance of"),
+  and an absurd clearance is still caught by the bounds.
+- **"Show Clearance"** is a real Yes/No (`ParamDefYesNo`, #710), defaulting to
+  Yes, authored through `numeric_params` as a `("yesno", bool)` spec — no new
+  signatures. Its group is the one `parametric.py` already chose for toggles,
+  which is `[INFERRED]` there and stays so.
+
+**What it does NOT do, stated in the status line, the caveats and the family's
+notes:**
+
+- the toggle is **not linked** to the zone's visibility — that is **#690** — so
+  the zone is always drawn;
+- there is **no subcategory**: the factory cannot author one yet;
+- the depths are **not checked against the NFPA 70 text** (#819).
+
+That is why the plain panel stays the default and this is an opt-in variant,
+named `… with NEC Clearance`.
+
+**A clearance on a product with no working-space rule** ("a cable tray with
+clearance") is not drawn, and the caveat says so rather than silently ignoring
+the request.
+
+**Evidence**
+
+```
+repo route:  ok  8 parts  237,568 bytes  validator 0 errors / 0 warnings
+             equipment overall 20.0 x 6.75 x 30.0 in (unchanged from the plain panel)
+plugin:      bare unzip, system Python, go route.py run ... -> ready, exit 0, 0.83 s, same file
+tests:       test_lcp_clearance_820.py 21 passed; with the clearance, archetype,
+             factory, size-bound, yes/no, router and taxonomy suites -> 547 passed, 10 skipped
+```
+
+| mutant (bytecode off, anchor asserted) | dies in |
+|---|---|
+| Show Clearance defaults to No | 1 |
+| the clearance counted in the equipment's size | 1 |
+| no toggle at all | 1 |
+| the zone starts at the back, not the door face | 1 |
+| the zone starts at the cabinet bottom, not the floor | 1 |
+| "without clearance" ignored | 3 |
+| the "not linked" disclosure dropped | 1 |
+| the status stops saying "NOT toggleable yet" | 1 |
+
+**One test of mine was structurally vacuous and is fixed.** The Show Clearance
+value check ran only `if` the doc had a `types` attribute and a row existed. It
+did run this time, but would silently stop checking if either changed. It is now
+unconditional, and "defaults to No" dying proves it checks the value.
+
+**Also carried from #826's round 3:** the docstring's stale `checked_against`
+reference; "the ceiling is higher" → "not lower" (true when equal as well);
+ceiling inputs validated before the applies branch, rejecting a bool or
+non-number; and the non-applying branch's source edition is now pinned (the
+mutant that survived there dies).
 
 ---
 
@@ -236,4 +313,22 @@ configuration), or read the text from an environment with open egress; then set
 die (bytecode caching disabled); `sync_plugin.py --check` in sync; portable
 paths ok. Full suite **not** run.
 
-**Shipped vs staged**: shipped as data; nothing draws it yet (#820).
+**Files written (#820)**
+- `src/rvt/famgen/archetypes.py` — `working_space` flag on `Archetype`,
+  `clearance` on `Resolved`, `wants_clearance()`, `working_space_part()`,
+  `working_space_report()`, `MOUNT_TOP_IN`; the lighting control panel takes a
+  working space; the name carries "with NEC Clearance".
+- `src/rvt/famgen/factory.py` — `("yesno", bool)` in `numeric_params`; the
+  equipment extent excludes `role: clearance` parts; `make_archetype` adds the
+  toggle and the notes.
+- `src/rvt/frontdoor/router.py` — the status line and caveats for the variant,
+  and for a clearance asked of a product with no rule.
+- `src/rvt/famgen/clearance.py` — #826's round-3 nits.
+- `plugin/lib/…` — mirrors.
+- `tests/test_lcp_clearance_820.py` — new, 21 tests; `tests/ci_shard.d/820-lcp-clearance.txt`.
+- `tests/test_nec_clearance_819.py` — the carried nits' tests.
+
+**Shipped vs staged**: the variant is shipped as an opt-in, validated and **not
+certified**. A desktop batch (the zone is drawn, the panel's dimensions are its
+own) is still to be STAGED for #820's DONE 4. The toggle's own verdict waits on
+#690.
