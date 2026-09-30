@@ -86,7 +86,7 @@ Public API::
     enc  = ESEncoder(dec)                     # record-level encoder (symmetric)
     verify_document(doc)                      # corpus proof: byte-exact per record
 
-``python -m rvt.estorage <project|path.rvt> [--report] [--walk] [--roundtrip]``
+``python -m rvt.estorage <project|path.rvt|path.rfa> [--report] [--walk] [--roundtrip]``
 reads a file under ITS OWN release (a Revit 2025/2024 project is walked with
 that release's framing, entered once through ``rvt.native_framing`` -> the
 ``rvt.global_framing`` note-never-raise ladder; a native file enters nothing
@@ -642,10 +642,10 @@ def locate_tracking(gl: bytes, guids: list[str],
 # ---------------------------------------------------------------------------
 
 def _global_latest_bytes(source) -> tuple[bytes, str]:
-    """Inflated Global/Latest of a source: rvt path, Document, or project name."""
+    """Inflated Global/Latest of a source: rvt/rfa path, Document, or project name."""
     from .container import open_rvt
     path = None
-    if isinstance(source, str) and source.lower().endswith(".rvt"):
+    if isinstance(source, str) and source.lower().endswith((".rvt", ".rfa")):
         path = source
     elif hasattr(source, "source_path") and getattr(source, "source_path", None):
         path = source.source_path
@@ -702,7 +702,7 @@ def schemas(source, decoder: Optional[ObjectDecoder] = None,
     """The in-model Extensible-Storage schema catalog of a project.
 
     ``source`` = a ``rvt.mutate.Document`` (uses ``doc.source_path`` /
-    ``doc.project`` + its schema decoder), an ``.rvt`` path, or a corpus
+    ``doc.project`` + its schema decoder), an ``.rvt`` / ``.rfa`` path, or a corpus
     project name.  ``seed_guids`` (entity-token GUIDs) speed up / harden the
     location; without them a GUID-free structural scan anchors the map.
     """
@@ -754,7 +754,7 @@ def _decoder_for(source) -> ObjectDecoder:
     """Archive-schema decoder for a source (file's own Formats/Latest)."""
     from .container import open_rvt
     from .schema import parse as parse_schema
-    if isinstance(source, str) and source.lower().endswith(".rvt"):
+    if isinstance(source, str) and source.lower().endswith((".rvt", ".rfa")):
         with open_rvt(source) as f:
             return ObjectDecoder(parse_schema(f.inflate("Formats/Latest"), source=source))
     if hasattr(source, "dec"):
@@ -1491,9 +1491,9 @@ def _entity_closures(dec: ESDecoder, r) -> list[tuple]:
 # ---------------------------------------------------------------------------
 
 def _doc_path(arg: str) -> Optional[str]:
-    """The .rvt path ``arg`` names (a path, or a corpus sample by project
+    """The .rvt / .rfa path ``arg`` names (a path, or a corpus sample by project
     name); None when it names an extracted corpus project instead."""
-    if arg.lower().endswith(".rvt") or os.path.sep in arg:
+    if arg.lower().endswith((".rvt", ".rfa")) or os.path.sep in arg:
         return arg
     sample = os.path.join(ROOT, "samples", f"{arg}.rvt")
     return sample if os.path.exists(sample) else None
