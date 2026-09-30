@@ -1208,6 +1208,17 @@ def _is_profile_request(shared_params: Any) -> bool:
     return bool(getattr(shared_params, "is_param_profile_request", False))
 
 
+def _canonical_spec(spec: str) -> str:
+    """``spec`` at schema version 1.0.0 (the version every spec constant here is
+    written at): 'autodesk.spec.aec:length-2.0.0' -> '...:length-1.0.0'.  A spec
+    without a version suffix is returned as is."""
+    s = str(spec)
+    head, sep, tail = s.rpartition("-")
+    if sep and tail.count(".") == 2 and all(x.isdigit() for x in tail.split(".")):
+        return f"{head}-1.0.0"
+    return s
+
+
 def _is_instance_param(pe: "SkelElement") -> bool:
     """A family parameter bound per instance: a local ``ParamElemFamily`` says so in
     ``m_instanceParam``; a shared ``ParamElemExternal`` has no such field -- its
@@ -2093,7 +2104,14 @@ class FamilyDoc:
         if self.param_profile is not None and not self._profile_applied and not self.finalized:
             from . import param_profile as _pp
             self._profile_applied = True
-            self.notes.extend(_pp.apply_request(self, self.param_profile))
+            try:
+                self.notes.extend(_pp.apply_request(self, self.param_profile))
+            except (_pp.ProfileError, OSError, ValueError, KeyError, TypeError) as exc:
+                # never block delivery on the user's profile (hard rule 1): the family
+                # is built without it and the reason is said (selection and file reads
+                # all happen before anything is added, so nothing is half-applied)
+                self.notes.append(f"parameter profile NOT applied ({type(exc).__name__}: "
+                                  f"{exc}) -- the family is delivered without it")
         # CONSTRAINT BACK-EDGES for every constructor (steer #765 battery
         # find): apply_constraint_back_edges existed but only the files the
         # session dressed BY HAND carried it -- every family built through a
@@ -2254,7 +2272,11 @@ class FamilyDoc:
         formulas = {pe.elem_id: pe for pe in self.params.values() if pe.refs.get("formula")}
         if not formulas:
             return written
-        spec_of = {pe.elem_id: (pe.refs.get("spec") or SPEC_LENGTH) for pe in self.params.values()}
+        # every parameter's spec at ONE schema version: a library parameter written at
+        # '...length-2.0.0' is the same kind of value as our '...length-1.0.0', both in
+        # an operand check (formula.py compares specs exactly) and against the result
+        spec_of = {pe.elem_id: _canonical_spec(pe.refs.get("spec") or SPEC_LENGTH)
+                   for pe in self.params.values()}
         is_instance = {pe.elem_id: _is_instance_param(pe) for pe in self.params.values()}
         refs = _fx.NameTable({name: _fx.ParamRef(pe.elem_id, spec_of[pe.elem_id])
                               for name, pe in self.params.items()})
@@ -2269,9 +2291,7 @@ class FamilyDoc:
             except _fx.FormulaError as exc:
                 self.notes.append(f"formula of {caption(pid)} NOT written: {exc}")
                 continue
-            # the same spec at another schema VERSION (a library parameter's
-            # '...length-2.0.0' vs our '...length-1.0.0') is the same kind of value
-            if spec.rsplit("-", 1)[0] != str(spec_of[pid]).rsplit("-", 1)[0]:
+            if _canonical_spec(spec) != spec_of[pid]:
                 self.notes.append(f"formula of {caption(pid)} NOT written: it gives "
                                   f"{spec.split(':')[-1]}, the parameter is "
                                   f"{spec_of[pid].split(':')[-1]}")

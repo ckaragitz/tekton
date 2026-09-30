@@ -58,7 +58,7 @@ tests plus shard drop-ins, this fragment, and the regenerated `plugin/lib` mirro
 
 ## Evidence
 
-* `tests/test_param_profile_866.py` (synthetic profile; made-up GUIDs and names): 11 passed.
+* `tests/test_param_profile_866.py` (synthetic profile; made-up GUIDs and names): 20 passed.
   * **Selection:** the share threshold, majority binding, a tie, `instance: null` excluded,
     one named family, the empty and foreign-schema cases.
   * **Application:** classes, specs, groups, flags and GUIDs checked; the family's own `Width`
@@ -105,22 +105,41 @@ tests plus shard drop-ins, this fragment, and the regenerated `plugin/lib` mirro
 * GUIDs are copied *normalised to lowercase*. Empty-GUID rows are named in the warnings.
   An empty file-group prefix falls back to `General`.
 
+## Review round 1 (96008fd, 🛑) — fixed
+
+* **A formula on a text / Yes-No / integer parameter was typed as a length.**
+  * Cause: the extractor gives those classes no spec; `add_shared_parameter` got `""` and
+    `_apply_formulas` fell back to length.
+  * Fix: each class is typed by its own storage kind (`param_profile.CLASS_SPEC`). A text or
+    integer formula is refused by the formula writer and said; a Yes/No formula is written
+    as the Yes/No it is; a material formula is refused before it gets there.
+* **NaN / ±inf values** are refused, never written or counted.
+* **The share threshold** is an exact ceiling (25 × 0.28 is 7.000000000000001 in floating
+  point, so the naive ceiling asked for 8 families). A share outside (0, 1] is refused.
+* **A GUID-keyed value** matches in any case.
+* **Spec versions are canonical.** Every parameter's spec is read at one schema version in
+  the formula step (`_canonical_spec`), so a library `length-2.0.0` also combines with our
+  `length-1.0.0` *inside* a formula, not only against the result.
+* **Hard rule 1.** A bad profile, family name, share or values file no longer raises
+  inside `finalize()`. The family is delivered without the profile and says why.
+* **New tests:** 6, one per finding, plus the type-reads-instance refusal. Mutations
+  (untyped formula, naive ceiling, NaN allowed, case-sensitive GUID) each fail a test.
+
 ## Open questions / next (#866)
 
-* **Values.** A profile parameter whose meaning matches one the family measures (the
-  library's equipment width/height/depth vs our `Width` / `Height` / `Depth`) could be *driven*
-  by a formula rather than left blank. That needs a user-supplied mapping (no library names
-  in the repo) and text formulas for text parameters (#870).
+* **Values the library derives itself** (#875): category-uniform constants and formulas
+  read from the profile, rather than a values file the caller writes.
+* **Text formulas** (#870). Until then a text value is a constant.
 * **Next PRs:**
   * the prompt/route flag, so `route run --prompt …` can take `--param-profile`;
-  * the estorage `.rfa` path (#866 DONE 4, staged);
+  * the estorage `.rfa` path (#866 DONE 4);
   * a viewer/desktop batch for a profiled family (no claim before it, hard rule 4).
 
 ## BRANCH STATE
 
 Branch `claude/eager-franklin-xgzgda` from main after #869.
 * Written: `src/rvt/famgen/param_profile.py`, `src/rvt/famgen/skeleton.py` (profile hook,
-  `_is_instance_param`, the Kahn `deque`, the version-less spec check),
+  `_is_instance_param`, the Kahn `deque`, `_canonical_spec`, the hard-rule-1 guard),
   `tools/make_family.py`, `tools/shared_params_from_rfa.py`,
   `tests/test_param_profile_866.py`, `tests/test_shared_params_from_rfa_866.py`,
   `tests/ci_shard.d/866-param-profile.txt`, this fragment, and the `plugin/lib` mirrors

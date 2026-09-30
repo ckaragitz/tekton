@@ -316,3 +316,108 @@ def test_values_file_through_the_cli(tmp_path):
         if fi.class_name(rec.class_id) == "Family" and v.get("m_surrogateId") == -1:
             strs = [q["m_str"] for q in v["m_familyParams"]["value"]["m_params"]]
             assert "TX-9" in strs
+
+
+# -- review of 96008fd (#881): typed formulas, finite values, exact share, GUID case,
+#    type-reads-instance, and a bad profile never blocks delivery ----------------------
+
+def _profile_plus(tmp_path, extra_params, extra_rows):
+    import copy
+    prof = copy.deepcopy(PROFILE)
+    prof["parameters"].update(extra_params)
+    for fam in ("Fam A", "Fam B"):
+        prof["families"][fam]["params"] += copy.deepcopy(extra_rows)
+    path = tmp_path / "profile.json"
+    path.write_text(json.dumps(prof), encoding="utf-8")
+    return str(path)
+
+
+def _rows_by_name(doc):
+    fam = doc.self_family.obj
+    rows = {q["m_paramId"]: q for q in fam["m_familyParams"]["value"]["m_params"]}
+    return {n: rows[pe.elem_id] for n, pe in doc.params.items() if pe.elem_id in rows}
+
+
+def test_a_formula_is_typed_by_the_parameters_own_class(tmp_path):
+    path = _profile_plus(tmp_path, {
+        _g(11): _defn("Zz Count", "ParamDefInt", datatype="INTEGER"),
+    }, [{"guid": _g(11), "name": "Zz Count", "instance": False, "palette_group": GRP_ID}])
+    values = {"Zz Tag Text": {"formula": "Width"},          # text is not a length
+              "Zz Count": {"formula": "Width"},             # nor is an integer
+              "Zz Spare Flag": {"formula": "Width > 1'"},   # a Yes/No formula IS a Yes/No
+              "Zz Finish": {"formula": "Width"}}            # no formula for a material
+    doc = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path, values=values)).doc
+    notes = "\n".join(doc.notes)
+    rows = _rows_by_name(doc)
+    for name in ("Zz Tag Text", "Zz Count"):
+        assert f"formula of '{name}' NOT written" in notes
+        assert rows[name]["m_oExpression"] is None
+        assert (rows[name]["m_value"], rows[name]["m_str"]) == (0.0, "")
+    assert rows["Zz Spare Flag"]["m_oExpression"] is not None
+    assert rows["Zz Spare Flag"]["m_int"] == 1                 # 2.07 ft > 1 ft
+    assert "'Zz Finish': the given value is a formula (a material is not written" in notes
+
+
+def test_non_finite_values_and_uppercase_guids(tmp_path):
+    path = _profile_plus(tmp_path, {
+        _g(10): _defn("Zz Box Width", "ParamDefValue", "autodesk.spec.aec:length-2.0.0",
+                      datatype="LENGTH", datatype_basis="spec")},
+        [{"guid": _g(10), "name": "Zz Box Width", "instance": True, "palette_group": GRP_ID}])
+    values = {"Zz Box Width": float("nan"), _g(3).upper(): True}
+    doc = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path, values=values)).doc
+    notes = "\n".join(doc.notes)
+    assert "'Zz Box Width': the given value is not a finite number" in notes
+    assert _rows_by_name(doc)["Zz Box Width"]["m_value"] == 0.0
+    assert _rows_by_name(doc)["Zz Spare Flag"]["m_int"] == 1     # the GUID matched, any case
+    assert "did not select" not in notes
+    assert "1 of them given a value or formula" in notes         # NaN counted as nothing
+
+
+def test_the_share_is_an_exact_ceiling_and_must_be_in_range():
+    # 25 x 0.28 is 7.000000000000001 in floating point: a naive ceiling asks for 8
+    fams = {f"F{i}": {"category": EQ, "params": ([_row(1, False)] if i < 7 else [])}
+            for i in range(25)}
+    prof = dict(PROFILE, families=fams)
+    assert [p.name for p in PP.select(prof, category=EQ, share=0.28)[0]] == ["Zz Tag Text"]
+    assert PP.select(prof, category=EQ, share=0.29)[0] == []
+    for bad in (0, 1.5, -0.1, True, "half"):
+        with pytest.raises(PP.ProfileError):
+            PP.select(prof, category=EQ, share=bad)
+
+
+def test_a_type_formula_reading_an_instance_shared_parameter_is_refused(tmp_path):
+    path = _profile_plus(tmp_path, {
+        _g(10): _defn("Zz Box Width", "ParamDefValue", "autodesk.spec.aec:length-2.0.0",
+                      datatype="LENGTH", datatype_basis="spec"),
+        _g(12): _defn("Zz Type Len", "ParamDefValue", "autodesk.spec.aec:length-1.0.0",
+                      datatype="LENGTH", datatype_basis="spec")},
+        [{"guid": _g(10), "name": "Zz Box Width", "instance": True, "palette_group": GRP_ID},
+         {"guid": _g(12), "name": "Zz Type Len", "instance": False, "palette_group": GRP_ID}])
+    values = {"Zz Box Width": {"formula": "Width"}, "Zz Type Len": {"formula": "Zz Box Width"}}
+    doc = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path, values=values)).doc
+    notes = "\n".join(doc.notes)
+    assert ("formula of 'Zz Type Len' NOT written: a type parameter's formula cannot read an "
+            "instance parameter") in notes
+    rows = _rows_by_name(doc)
+    assert rows["Zz Box Width"]["m_oExpression"] is not None     # length-2.0.0 = Width's kind
+    assert rows["Zz Type Len"]["m_oExpression"] is None
+
+
+@pytest.mark.parametrize("req", [
+    dict(family="No Such Family"),
+    dict(profile="missing-profile.json"),
+    dict(values="missing-values.json"),
+    dict(values=["not", "a", "map"]),
+    dict(share=2.0),
+])
+def test_a_bad_profile_request_still_delivers_the_family(tmp_path, req):
+    path = tmp_path / "profile.json"
+    path.write_text(json.dumps(PROFILE), encoding="utf-8")
+    kw = {"profile": str(path)}
+    kw.update({k: (str(tmp_path / v) if k in ("profile", "values") and isinstance(v, str) else v)
+               for k, v in req.items()})
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(**kw))
+    assert any("parameter profile NOT applied" in n for n in prod.doc.notes)
+    assert not any(n.startswith("Zz ") for n in prod.doc.params)
+    rep = prod.write(str(tmp_path / "tx.rfa"), validate=True, provenance=False)
+    assert rep["validate"]["family_mode"]["n_errors"] == 0

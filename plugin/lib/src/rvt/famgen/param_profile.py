@@ -31,12 +31,28 @@ build time from wherever they keep it (rule 6 / hard rule 3).
 from __future__ import annotations
 
 import json
+import re
+import math
 import os
 from collections import Counter
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 PROFILE_SCHEMA = "tekton.param-profile/1"
+
+_GUID = re.compile(r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$")
+
+#: the spec a class WITHOUT its own ``m_specTypeId`` is typed as in a formula check
+#: (a text / Yes-No / integer parameter is not a length: formula.py refuses text and
+#: integer operands, and types Yes/No logic) -- a ParamDefValue carries its own spec
+CLASS_SPEC = {
+    "ParamDefString": "autodesk.spec:spec.string-1.0.0",
+    "ParamDefURL": "autodesk.spec:spec.string-1.0.0",
+    "ParamDefYesNo": "autodesk.spec:spec.bool-1.0.0",
+    "ParamDefInt": "autodesk.spec:spec.int64-1.0.0",
+    "ParamDefNoOfPoles": "autodesk.spec:spec.int64-1.0.0",
+    "ParamDefMaterialBrowse": "autodesk.spec:spec.string-1.0.0",
+}
 
 #: storage classes :func:`rvt.genesis.residue_b.shared_parameter` authors, and the
 #: blank value a Revit-born family stores for each (all fields empty either way;
@@ -96,6 +112,8 @@ def select(prof: Dict[str, Any], *, category: Optional[int] = None, family: Opti
     exact set of profile ``family``.  Ordered by name, then GUID (deterministic)."""
     notes: List[str] = []
     fams = prof["families"]
+    if isinstance(share, bool) or not isinstance(share, (int, float)) or not (0 < share <= 1):
+        raise ProfileError(f"share {share!r} must be a number in (0, 1]")
     if family is not None:
         if family not in fams:
             raise ProfileError(f"profile has no family {family!r}")
@@ -112,7 +130,7 @@ def select(prof: Dict[str, Any], *, category: Optional[int] = None, family: Opti
             for q in f["params"]:
                 if q.get("instance") is not None and q["guid"] in prof["parameters"]:
                     seen.setdefault(q["guid"], []).append(q)
-        need = max(1, -(-len(pool) * share // 1))           # ceil(len * share), at least one
+        need = max(1, math.ceil(len(pool) * share - 1e-9))     # ceil, float-safe (0.7 x 10 = 7)
         out = []
         for guid, qs in seen.items():
             if len(qs) < need:
@@ -134,11 +152,13 @@ def _value_for(p: ProfileParam, values: Dict[str, Any]) -> Tuple[Any, Optional[s
     GUID or by name; a missing entry is blank.  A value must suit the storage class
     (text for text / URL, Yes/No as a bool or 0/1, a number for a measurable value in
     internal units); anything else is refused, never coerced."""
-    v = values.get(p.guid.lower(), values.get(p.guid, values.get(p.name)))
+    v = values.get(p.guid.lower(), values.get(p.name))
     blank = WRITABLE[p.def_class]
     if v is None:
         return blank, None, None
     if isinstance(v, dict) and "formula" in v:
+        if p.def_class == "ParamDefMaterialBrowse":
+            return blank, None, "a formula (a material is not written by formula)"
         return blank, str(v["formula"]), None
     if p.def_class in ("ParamDefString", "ParamDefURL"):
         return (str(v), None, None) if isinstance(v, str) else (blank, None, "not text")
@@ -150,7 +170,7 @@ def _value_for(p: ProfileParam, values: Dict[str, Any]) -> Tuple[Any, Optional[s
                 else (blank, None, "not an integer"))
     if p.def_class == "ParamDefValue":
         return ((float(v), None, None) if isinstance(v, (int, float)) and not isinstance(v, bool)
-                else (blank, None, "not a number"))
+                and math.isfinite(v) else (blank, None, "not a finite number"))
     return blank, None, f"no value is written for a {p.def_class}"
 
 
@@ -164,7 +184,8 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
     finalizes the document afterwards."""
     from .skeleton import PGROUP_DIMENSIONS
     notes: List[str] = []
-    values = {str(k): v for k, v in (values or {}).items()}
+    values = {(str(k).lower() if _GUID.match(str(k)) else str(k)): v
+              for k, v in (values or {}).items()}
     filled = 0
     have_guid = {str(pe.refs.get("guid", "")).lower() for pe in doc.params.values()}
     added = 0
@@ -184,7 +205,8 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
         if refused:
             notes.append(f"{p.name!r}: the given value is {refused} for a {p.def_class} -- "
                          f"left blank")
-        pe = doc.add_shared_parameter(p.name, p.guid, p.spec or "",
+        pe = doc.add_shared_parameter(p.name, p.guid,
+                                      p.spec or CLASS_SPEC.get(p.def_class, ""),
                                       p.palette_group or PGROUP_DIMENSIONS,
                                       kind=p.def_class, description=p.description,
                                       default=default)
@@ -202,8 +224,7 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
                     f"given a value or formula from {values_source} (a formula the writer "
                     f"cannot store is left out and said at build), the rest blank "
                     f"({sum(1 for p in params if p.instance)} of {len(params)} selected bound per instance)")
-    unused = sorted(set(values) - {p.guid.lower() for p in params} - {p.guid for p in params}
-                    - {p.name for p in params})
+    unused = sorted(set(values) - {p.guid.lower() for p in params} - {p.name for p in params})
     if unused:
         notes.append(f"values given for parameters the profile did not select: {', '.join(unused)}")
     return notes
@@ -238,4 +259,7 @@ def apply_request(doc, req: ProfileRequest) -> List[str]:
         source = f"the values file {os.path.basename(values)!r}"
         with open(values, "r", encoding="utf-8") as fh:
             values = json.load(fh)
+    if values is not None and not isinstance(values, dict):
+        raise ProfileError(f"values must map parameter names / GUIDs to values, not "
+                           f"{type(values).__name__}")
     return apply(doc, sel, values or {}, source) + notes
