@@ -31,6 +31,11 @@ from typing import List
 
 IN = 1.0 / 12.0                     # one inch in feet
 
+#: how far the frontmost part stands proud of the enclosure face -- the top cover's
+#: overhang (0.5 in; the access panel + bolt heads reach 0.25 in): the working space
+#: starts in front of it, never inside a part
+FRONT_PROUD_FT = 0.5 * (1.0 / 12.0)
+
 DETAIL_NOTE = ("transformer detail at NOMINAL proportions (archetype, not a manufacturer "
                "drawing): base skids, enclosure with a louvered ventilation slot under the "
                "lid, overhanging top cover, side louver banks, bolted front access panel, "

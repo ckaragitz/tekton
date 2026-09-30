@@ -595,7 +595,7 @@ def test_a_dimension_or_form_class_the_table_does_not_name_is_other_not_dropped(
     monkeypatch.setattr(FA, "FORM_CLASSES", {})
     p = FA.profile(families["panelboard"])
     assert p["dimensions"]["value"] == {"total": 2, "by_kind": {"other": 2}, "alignments": 4}
-    assert p["forms"]["value"]["by_kind"] == {"other": 1}
+    assert p["forms"]["value"]["by_kind"] == {"other": 3}      # the cabinet + its 2 clearance zones (#882)
 
 
 def test_form_subcategory_and_material_assignments_are_counted(families, monkeypatch):
@@ -652,16 +652,17 @@ def test_two_self_families_are_refused_not_guessed(monkeypatch):
 # --- round 4 (#842): shared parameters, and only the family's own ------------
 
 def test_shared_family_parameters_are_counted(profiles):
-    """Same panelboard, same 21 parameters: 11 of them shared.  The reader
+    """Same panelboard, same 26 parameters (21 + the 5 clearance toggles): 11 shared.  The reader
     counted only ParamElemFamily and read 10 (round 4).  A shared parameter
     carries no instance flag of its own, so its instance/type is reported
     unread rather than guessed."""
     loc = profiles["panelboard_local"]["parameters"]["value"]
     sh = profiles["panelboard_shared"]["parameters"]["value"]
-    assert (loc["total"], loc["local"], loc["shared"], loc["instance_or_type_unread"]) == (21, 21, 0, 0)
-    assert (sh["total"], sh["local"], sh["shared"], sh["instance_or_type_unread"]) == (21, 10, 11, 11)
+    # + the 5 clearance-toggle Yes/No parameters every equipment family carries (#882)
+    assert (loc["total"], loc["local"], loc["shared"], loc["instance_or_type_unread"]) == (26, 26, 0, 0)
+    assert (sh["total"], sh["local"], sh["shared"], sh["instance_or_type_unread"]) == (26, 15, 11, 11)
     assert sh["by_group"] == loc["by_group"]
-    assert sum(sh["by_spec"].values()) == sum(sh["by_storage"].values()) == 21
+    assert sum(sh["by_spec"].values()) == sum(sh["by_storage"].values()) == 26
     assert sh["instance"] + sh["type"] == sh["local"]
 
 

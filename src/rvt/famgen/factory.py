@@ -1800,7 +1800,8 @@ class FamilyProduct:
             "forms": [{"kind": f.kind, **{k: v for k, v in f.params.items()
                                           if k in ("width_ft", "depth_ft", "height_ft",
                                                    "base_z_ft", "rep", "radius_ft",
-                                                   "tessellation")}}
+                                                   "tessellation", "role", "center",
+                                                   "source")}}
                       for f in self.forms],
             "connectors": len(self.doc.connectors),
             "assumed_fields": self.assumed(),
@@ -2419,8 +2420,10 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     clearance_report = None
     if solid:
         from . import equipment_clearance as EC
+        from . import equipment_detail as ED
         clearance_report = EC.add_clearance_zones(
-            doc, add_box_form, kind="transformer", width_ft=W, depth_ft=D, height_ft=Hh)
+            doc, add_box_form, kind="transformer", width_ft=W, depth_ft=D, height_ft=Hh,
+            front_y_ft=-D / 2.0 - ED.FRONT_PROUD_FT)
         # voltage to ground is not the primary rating (a 480 V delta primary is usually
         # fed from a 480Y/277 system): left to the table's stated default
     # connectors: primary + secondary windings on the top face, offset in X.

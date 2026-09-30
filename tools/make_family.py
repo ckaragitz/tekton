@@ -192,6 +192,8 @@ def _print_report(rep: dict, as_json: bool) -> None:
     if forms:
         f0 = forms[0]
         dims = [f0.get(k) for k in ("width_ft", "depth_ft", "height_ft")]
+        zones = [f for f in forms if str(f.get("role", "")).startswith("clearance")]
+        forms = [f for f in forms if f not in zones]      # the equipment's size, not its zones
         if len(forms) > 1 and all(isinstance(f.get(k), (int, float)) for f in forms
                                   for k in ("width_ft", "depth_ft", "height_ft", "base_z_ft")):
             xs = [c for f in forms for c in ((f.get("center") or (0, 0))[0] - f["width_ft"] / 2,
@@ -206,6 +208,10 @@ def _print_report(rep: dict, as_json: bool) -> None:
             print(f"geometry    : {f0.get('kind')} "
                   f"{dims[0]*12:.2f} x {dims[1]*12:.2f} x {dims[2]*12:.2f} in "
                   f"(rep={f0.get('rep')})")
+        for z in zones:
+            print(f"clearance   : {z.get('role', '').split(': ', 1)[-1]} "
+                  f"{z['width_ft']*12:.2f} x {z['depth_ft']*12:.2f} x {z['height_ft']*12:.2f} in "
+                  f"({z.get('source', '')[:70]})")
     print(f"connectors  : {fam.get('connectors')}")
     if fam.get("unverified_fields"):
         print(f"UNVERIFIED  : {fam.get('unverified_fields')} "

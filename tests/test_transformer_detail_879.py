@@ -30,6 +30,16 @@ from rvt.famgen import factory as F  # noqa: E402
 
 IN = 1 / 12.0
 
+# the open-in-3D check reads the written file inside its OWN release (the read-side
+# instrument ladder): conftest's leak guard, module-wide (#707)
+pytestmark = pytest.mark.usefixtures("no_release_leak")
+
+
+@pytest.fixture
+def release_leak_extra():
+    from conftest import ladder_constants
+    return ladder_constants
+
 
 def _extent(parts):
     xs = [c for p in parts for c in (p.cx - p.w / 2, p.cx + p.w / 2)]

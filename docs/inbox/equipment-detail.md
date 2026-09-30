@@ -59,6 +59,14 @@ Territory: `src/rvt/famgen/equipment_detail.py` (new), `src/rvt/famgen/equipment
   - If still failing, stage single-variable probes: direct versus formula-driven, and type versus instance.
   - Until a verdict, nothing calls the toggles working.
 - **`m_famElemVisibility`:** our solids carry 57399. Library solids never set bit 0 (57406 is typical), and an earlier session read bit 0 as Plan/RCP from one screenshot. Not changed here; it is a candidate variable for the #884 probe batch.
+- **#887 session CI (507e1db): 3 failed / 4525 passed.** Each was fixed and re-run green:
+  - `test_conftest_scaffolding`: the open-in-3D test reads a file inside its own release without conftest's leak guard. It now takes `no_release_leak` with `ladder_constants`.
+  - `test_family_anatomy_837` (two tests): they pinned the panelboard's shape at 1 form and 21 parameters. It is now 3 forms (the cabinet and its two zones) and 26 parameters (with the 5 toggles), named in the assertions.
+- **Follow-up to #887's review nits:**
+  - The `make_family` geometry line reports the equipment's own envelope, now from each part's centre and extent (the report's form entries carry `role`, `center`, `source`); the zones print on their own `clearance` lines. It used to fold the zones into "the size" (a 43 in transformer read 78 in) and ignored the parts' positions.
+  - The transformer's working space starts in front of its frontmost part, the cover overhang (`FRONT_PROUD_FT`, 0.5 in), not inside the proud plates.
+  - The zone material's header flags (67108878) are the value measured on the owner's library clearance material (private, one number). The project-side constant (67108894) is a different writer's; both are candidate variables for the #884 probe batch.
+  - The panelboard's working space reaches 1.5 ft below the family origin: the floor below the nominal 78 in cabinet top. In a project, place the cabinet at its mounting height, or the zone reaches below the level.
 - **Still missing** versus the library transformer: entry zones, 3D ID and part-number text, the tracking symbol, a leg-height parameter, the body material (#885). The zones have no subcategory yet (#883).
 
 ## BRANCH STATE

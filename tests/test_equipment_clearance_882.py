@@ -64,7 +64,11 @@ def test_transformer_front_zone_is_the_nec_working_space_from_its_face(transform
         (ws.width_ft, ws.depth_ft, ws.height_ft))
     assert (ws.depth_ft, ws.width_ft, ws.height_ft) == pytest.approx((3.5, 2.5, 6.5))
     assert fp["base_z_ft"] == pytest.approx(0.0)                       # from the floor
-    assert fp["center"][1] + fp["depth_ft"] / 2 == pytest.approx(-D / 2)   # starts at the face
+    from rvt.famgen import equipment_detail as ED
+    # starts at the front's proud plates (access panel + bolts), not inside them
+    assert fp["center"][1] + fp["depth_ft"] / 2 == pytest.approx(-D / 2 - ED.FRONT_PROUD_FT)
+    front_min_y = min(p.cy - p.d / 2 for p in ED.transformer_parts(W, D, H))
+    assert front_min_y >= -D / 2 - ED.FRONT_PROUD_FT - 1e-9
     tp = top.params
     assert tp["base_z_ft"] == pytest.approx(H) and tp["height_ft"] == pytest.approx(EC.NOMINAL_TOP_FT)
     assert "NOMINAL" in tp["source"] and "NEC 450.9" in tp["source"]
