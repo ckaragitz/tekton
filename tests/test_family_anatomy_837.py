@@ -252,7 +252,9 @@ def test_the_cli_writes_the_report_and_refuses_a_non_family_in_one_line(families
                   "--json", str(out)])
     assert rc == 0
     rep = json.loads(out.read_text(encoding="utf-8"))
-    assert set(rep) == {"reference", "ours", "gaps", "undecoded_warning", "other_owner_warning"}
+    assert set(rep) == {"reference", "ours", "gaps", "undecoded_warning", "other_owner_warning",
+                        "framing_warning"}
+    assert rep["framing_warning"] == []
     assert rep["undecoded_warning"] == {} and rep["other_owner_warning"] == {}
     junk = tmp_path / "junk.rfa"
     junk.write_bytes(b"not a family")
@@ -969,3 +971,64 @@ def test_a_foreign_owned_instance_is_counted_once(monkeypatch):
                                 "04_electrical_room_equipment_families.rvt"))
     assert p["other_owner"]["value"].get("FamilyInstance") == 7, p["other_owner"]["value"]
     assert p["nested_instances"]["value"] == {"total": 0}
+
+
+
+# --- #872 (#842 round-7 nits) ------------------------------------------------
+
+@pytest.mark.parametrize("aspect,value", [
+    ("parameters", "unlisted"),
+    ("framing_fallback", None),
+])
+def test_information_is_never_ranked_as_a_gap(profiles, aspect, value):
+    ref = json.loads(json.dumps(profiles["lighting_control_panel"]))
+    if value:
+        ref[aspect]["value"][value] = 3
+    else:
+        ref[aspect]["value"] = 1
+    gaps = FA.compare(ref, profiles["lighting_control_panel"])
+    assert not [g for g in gaps if g["aspect"] == aspect], gaps
+
+
+def test_compare_warns_about_a_fallback_framing(families, monkeypatch, tmp_path, capsys):
+    real = FA.profile
+
+    def fake(path):
+        p = real(path)
+        if path == families["lighting_control_panel"]:
+            p["framing_fallback"] = {"value": 1, "how": "decoded"}
+        return p
+    monkeypatch.setattr(FA, "profile", fake)
+    out = tmp_path / "cmp.json"
+    assert FA.main(["compare", families["cable_tray"], families["lighting_control_panel"],
+                    "--json", str(out)]) == 0
+    assert json.loads(out.read_text(encoding="utf-8"))["framing_warning"] == ["ours"]
+    assert "fallback framing rung" in capsys.readouterr().out
+
+
+def test_a_symbol_subclass_still_places_its_family(monkeypatch):
+    """The placed chain reads every FamilySymbol subclass, not the exact class
+    alone: the project's symbols re-labelled SysPanelFamSym still place their
+    families (#872)."""
+    from rvt.families import FamilyIndex
+    import copy
+    one = _one_self()
+    real_decode = FamilyIndex.decode
+
+    def fake(self, unit, eid, seq=102):
+        o = real_decode(self, unit, eid, seq)
+        if o is not None and isinstance(o.value, dict):
+            if "m_famDocGUID" in o.value:
+                o = copy.deepcopy(o)
+                one(o.value)
+            elif "m_masterSymbolId" in o.value and one.seen:
+                o = copy.deepcopy(o)
+                o.value["m_famId"] = one.seen[0]
+        return o
+    monkeypatch.setattr(FamilyIndex, "decode", fake)
+    real_class = FA._class_of
+    monkeypatch.setattr(FA, "_class_of", lambda fi, eid, r: (
+        "SysPanelFamSym" if real_class(fi, eid, r) == "FamilySymbol" else real_class(fi, eid, r)))
+    p = FA.profile(os.path.join(ROOT, "tekton-eval-kit", "TEST-KIT",
+                                "04_electrical_room_equipment_families.rvt"))
+    assert p["nested_families"]["value"] == {"total": 6, "placed": 6, "not_placed": 0}
