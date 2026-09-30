@@ -52,6 +52,9 @@ CLASS_SPEC = {
     "ParamDefInt": "autodesk.spec:spec.int64-1.0.0",
     "ParamDefNoOfPoles": "autodesk.spec:spec.int64-1.0.0",
     "ParamDefMaterialBrowse": "autodesk.spec:spec.string-1.0.0",
+    # a measurable definition that arrived WITHOUT its spec (an older / hand-edited
+    # profile): the writer stores it as a number, so the formula check types it so
+    "ParamDefValue": "autodesk.spec.aec:number-1.0.0",
 }
 
 #: storage classes :func:`rvt.genesis.residue_b.shared_parameter` authors, and the
@@ -166,8 +169,10 @@ def _value_for(p: ProfileParam, values: Dict[str, Any]) -> Tuple[Any, Optional[s
         return ((int(bool(v)), None, None) if isinstance(v, bool) or v in (0, 1)
                 else (blank, None, "not Yes/No"))
     if p.def_class in ("ParamDefInt", "ParamDefNoOfPoles"):
+        # the stored integer is 32-bit (m_int): a wider one (a serial number given as a
+        # JSON integer) would fail the whole family at encode time -- refused instead
         return ((int(v), None, None) if isinstance(v, int) and not isinstance(v, bool)
-                else (blank, None, "not an integer"))
+                and -2**31 <= v <= 2**31 - 1 else (blank, None, "not a 32-bit integer"))
     if p.def_class == "ParamDefValue":
         return ((float(v), None, None) if isinstance(v, (int, float)) and not isinstance(v, bool)
                 and math.isfinite(v) else (blank, None, "not a finite number"))

@@ -421,3 +421,21 @@ def test_a_bad_profile_request_still_delivers_the_family(tmp_path, req):
     assert not any(n.startswith("Zz ") for n in prod.doc.params)
     rep = prod.write(str(tmp_path / "tx.rfa"), validate=True, provenance=False)
     assert rep["validate"]["family_mode"]["n_errors"] == 0
+
+
+def test_an_out_of_range_integer_is_refused_not_a_failed_family(tmp_path):
+    """m_int is 32-bit: a serial number given as a JSON integer must not fail the whole
+    family at encode time (review of 9d02639)."""
+    path = _profile_plus(tmp_path, {
+        _g(11): _defn("Zz Count", "ParamDefInt", datatype="INTEGER"),
+        _g(13): _defn("Zz Plain", "ParamDefValue", None, datatype="NUMBER", datatype_basis="spec"),
+    }, [{"guid": _g(11), "name": "Zz Count", "instance": False, "palette_group": GRP_ID},
+        {"guid": _g(13), "name": "Zz Plain", "instance": False, "palette_group": GRP_ID}])
+    values = {"Zz Count": 2 ** 40, "Zz Plain": {"formula": "Width"}}
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path, values=values))
+    notes = "\n".join(prod.doc.notes)
+    assert "'Zz Count': the given value is not a 32-bit integer" in notes
+    # a spec-less measurable definition is written (and typed) as a number, not a length
+    assert "formula of 'Zz Plain' NOT written" in notes
+    rep = prod.write(str(tmp_path / "tx.rfa"), validate=True, provenance=False)
+    assert rep["validate"]["family_mode"]["n_errors"] == 0

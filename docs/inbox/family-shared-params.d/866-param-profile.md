@@ -58,7 +58,7 @@ tests plus shard drop-ins, this fragment, and the regenerated `plugin/lib` mirro
 
 ## Evidence
 
-* `tests/test_param_profile_866.py` (synthetic profile; made-up GUIDs and names): 20 passed.
+* `tests/test_param_profile_866.py` (synthetic profile; made-up GUIDs and names): 21 passed.
   * **Selection:** the share threshold, majority binding, a tie, `instance: null` excluded,
     one named family, the empty and foreign-schema cases.
   * **Application:** classes, specs, groups, flags and GUIDs checked; the family's own `Width`
@@ -122,7 +122,14 @@ tests plus shard drop-ins, this fragment, and the regenerated `plugin/lib` mirro
   `length-1.0.0` *inside* a formula, not only against the result.
 * **Hard rule 1.** A bad profile, family name, share or values file no longer raises
   inside `finalize()`. The family is delivered without the profile and says why.
-* **New tests:** 6, one per finding, plus the type-reads-instance refusal. Mutations
+* **Round 2 (9d02639, 🛑):**
+  * An integer value outside 32 bits (a serial number given as a JSON integer) failed the
+    whole family at encode time. It is now refused and said.
+  * A spec-less measurable definition is typed as the number it is written as, not a
+    length.
+  * Direct-manipulation locking reads the canonical spec, so a library `length-2.0.0` is
+    locked like ours.
+* **New tests:** 7, one per finding, plus the type-reads-instance refusal. Mutations
   (untyped formula, naive ceiling, NaN allowed, case-sensitive GUID) each fail a test.
 
 ## Open questions / next (#866)

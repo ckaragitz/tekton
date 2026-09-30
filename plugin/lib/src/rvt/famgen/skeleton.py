@@ -2184,7 +2184,8 @@ class FamilyDoc:
         # locked-for-direct-manipulation = the length parameters (Revit locks
         # dimension params it drives geometry with) [INFERRED default]
         fam.obj["m_lockedParameterIdsForDirectManipulation"] = sorted(
-            pe.elem_id for pe in pes if pe.refs.get("spec") == SPEC_LENGTH)
+            pe.elem_id for pe in pes
+            if _canonical_spec(pe.refs.get("spec") or "") == SPEC_LENGTH)
         # element index + ownership over EVERY element (self last)
         others = [e.elem_id for e in self.elements if e.elem_id != fam.elem_id]
         refresh_self_family_index(fam, others)
