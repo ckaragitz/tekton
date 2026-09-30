@@ -393,6 +393,71 @@ def evaluate(tree: dict, values: Mapping[int, Any]) -> Any:
     raise FormulaError(f"cannot evaluate node {c}")
 
 
+_OP_TEXT = {v: k for k, v in BINARY_OP.items()}
+_FN_TEXT = {v: k for k, v in FUNCTION.items()}
+
+
+def _num_text(v: float) -> str:
+    """A constant as the parser reads it back: fixed-point, never an exponent."""
+    t = f"{abs(float(v)):.12f}".rstrip("0").rstrip(".")
+    return t or "0"
+
+
+def unparse(tree: Any, names: Mapping[int, str]) -> Optional[str]:
+    """The Revit formula text of a stored expression tree -- the inverse of
+    :func:`parse_formula` for everything it pins: + - * / = > <, unary minus,
+    parentheses, if / and / or / not / round / tan, parameter references by
+    ``names`` (param id -> caption), number constants (a length in feet, written
+    ``1.5'``), and string constants (``"..."``, kept for the record: the writer
+    does not store text formulas yet, #870).  Anything else -- an unpinned operator
+    or function, an angle constant, a parameter not in ``names`` -- gives None:
+    never a guessed spelling."""
+    if not isinstance(tree, dict):
+        return None
+    cls, v = tree.get("ptr_class"), tree.get("value") or {}
+    try:
+        if cls == "ParameterExpression":
+            return names.get(int(v.get("m_paramId")))
+        if cls == "NumberConstantExpression":
+            val = v.get("m_value")
+            if isinstance(val, bool) or not isinstance(val, (int, float)) or not math.isfinite(val):
+                return None
+            spec = str(((v.get("m_specTypeId") or {}).get("m_typeId")) or "")
+            if spec.startswith("autodesk.spec.aec:length"):
+                body = _num_text(val) + "'"
+            elif spec.startswith("autodesk.spec.aec:number") or not spec:
+                body = _num_text(val)
+            else:
+                return None                                   # angle / other units: not pinned
+            return f"(-{body})" if val < 0 else body
+        if cls == "StringConstantExpression":
+            text = v.get("m_value")
+            return None if not isinstance(text, str) or '"' in text else f'"{text}"'
+        if cls == "ParenExpression":
+            inner = unparse(v.get("m_pSubexpression"), names)
+            return None if inner is None else f"({inner})"
+        if cls == "UnaryOperatorExpression":
+            if v.get("m_unaryOperator") != UNARY_NEG:
+                return None
+            inner = unparse(v.get("m_pSubexpression"), names)
+            return None if inner is None else f"-{inner}"
+        if cls == "BinaryOperatorExpression":
+            op = _OP_TEXT.get(v.get("m_binaryOperator"))
+            left = unparse(v.get("m_pLeftSubexpression"), names)
+            right = unparse(v.get("m_pRightSubexpression"), names)
+            return None if None in (op, left, right) else f"{left} {op} {right}"
+        if cls == "FunctionExpression":
+            fn = _FN_TEXT.get(v.get("m_function"))
+            subs = v.get("m_subexpressions") or []
+            if isinstance(subs, dict):
+                subs = subs.get("value") or subs.get("m_items") or []
+            args = [unparse(a, names) for a in subs] if isinstance(subs, list) else [None]
+            return None if fn is None or None in args else f"{fn}({', '.join(args)})"
+    except (TypeError, ValueError):
+        return None
+    return None
+
+
 def referenced_params(tree: dict) -> List[int]:
     """Every parameter id a tree reads (for dependency order)."""
     out: List[int] = []

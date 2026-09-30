@@ -21,7 +21,9 @@ A family is the same container, so three places now accept `.rfa` as well as `.r
 - **The owner's reference families** (private, counts only):
   - 6 of 6 sampled `.rfa` files read their catalog inside their own release, with 6 to 10 schemas each.
   - The CLI on one reports 7 schemas with its tracking table.
-- **Suites:** the estorage suites and plugin sync give 44 passed / 12 skipped. `sync_plugin.py --check` is in sync.
+- **Suites:** `tests/test_estorage*.py` gives 35 passed / 12 skipped (the skips need `samples/`), and `tests/test_plugin_sync.py` 9 passed. `sync_plugin.py --check` is in sync.
+  - Corrected in the #875 PR: this line first read "44 passed / 12 skipped" for the two runs together, a sum an independent reviewer could not reproduce.
+- **Release context:** the CLI reads a file under its own release. A library call `schemas(path)` reads under whatever release is in force, as it always did for a `.rvt`; its docstring now says so (#875 PR).
 
 ## BRANCH STATE
 
