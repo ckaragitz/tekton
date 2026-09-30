@@ -1800,7 +1800,8 @@ class FamilyProduct:
             "forms": [{"kind": f.kind, **{k: v for k, v in f.params.items()
                                           if k in ("width_ft", "depth_ft", "height_ft",
                                                    "base_z_ft", "rep", "radius_ft",
-                                                   "tessellation")}}
+                                                   "tessellation", "role", "center",
+                                                   "source")}}
                       for f in self.forms],
             "connectors": len(self.doc.connectors),
             "assumed_fields": self.assumed(),
@@ -2089,6 +2090,19 @@ def write_type_catalog(product: "FamilyProduct", path: str) -> Dict[str, Any]:
 # PRODUCT 1 -- PANELBOARD
 # ---------------------------------------------------------------------------
 
+def _panel_volts_to_ground(facts) -> Optional[float]:
+    """The panel's nominal voltage to ground from its system ('208Y/120' -> 120,
+    '480Y/277' -> 277); None (the table's stated default) when it cannot be read --
+    a delta system's voltage to ground is not its line voltage."""
+    sysv = str(facts.get("voltage_system") or "")
+    if "Y/" in sysv.upper():
+        try:
+            return float(sysv.upper().split("Y/")[1].split()[0])
+        except (ValueError, IndexError):
+            return None
+    return None
+
+
 def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                     mains_a: float = 400, spaces: int = 42,
                     voltage: Any = "480Y/277", mcb: bool = True,
@@ -2239,9 +2253,28 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     #    parameter and still sizes the geometry at generation time.
     from . import param_drive as PD
     PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+    # clearance zones, always (steer #882): the NEC working space in front of the
+    # door face (+y for a surface panel, the wall face for a flush one), reaching the
+    # floor below a NOMINALLY mounted cabinet, and the 110.26(E)(1) dedicated space
+    # above; each shown by Yes/No parameters bound to its visibility
+    forms = [fb]
+    if solid:
+        from . import equipment_clearance as EC
+        from .archetypes import MOUNT_TOP_IN
+        floor = -max(0.0, MOUNT_TOP_IN / 12.0 - H)
+        rep_c = EC.add_clearance_zones(
+            doc, add_box_form, kind="panelboard", width_ft=W, depth_ft=D, height_ft=H,
+            body_center=(0.0, y_centre), front_dir=+1,
+            front_y_ft=(D if not mount.startswith("flush") else 0.0),
+            floor_z_ft=floor, voltage_to_ground=_panel_volts_to_ground(facts),
+            mounting_note=(f"cabinet top {MOUNT_TOP_IN:g} in above the floor (bottom "
+                           f"{max(0.0, MOUNT_TOP_IN - H * 12.0):g} in) -- NOMINAL, so the "
+                           f"working space reaches the floor; the family origin stays the "
+                           f"cabinet bottom"))
+        forms += rep_c.pop("forms")
     std_report = ST.apply_safe(doc, "panelboard", standards, standard_values)
     doc.finalize()
-    prod = FamilyProduct("panelboard", doc, facts, forms=[fb], types=rows,
+    prod = FamilyProduct("panelboard", doc, facts, forms=forms, types=rows,
                          standards=std_report,
                          file_stem=_slug(f"{vendor}_{facts.variant}_"
                                          f"{_joined([int(j['mains_a']) for j in jobs], 'A')}_"
@@ -2358,22 +2391,51 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
             f"({fx.get('width_in'):g} W x {fx.get('height_in'):g} H x "
             f"{fx.get('depth_in'):g} D in, {fx.get('weight_lb') or '?'} lb; "
             f"generated from catalog facts)"))
-    # geometry: W (x) x D (y) footprint, H tall from the floor
-    fb = add_box_form(doc, W, D, Hh, base_z_ft=0.0, center=(0.0, 0.0),
-                      rep=G.REP_SOLID if solid else G.REP_DUMMY)
+    # geometry: W (x) x D (y) footprint, H tall from the floor.  A solid family is
+    # built from the transformer's real PARTS (skids, louvered enclosure, drip lid,
+    # access panel, nameplate -- rvt.famgen.equipment_detail, #879); the dummy
+    # (regeneration) variant stays the one envelope box.
+    top = None
+    forms: List[G.FormBundle] = []
+    if solid:
+        from . import equipment_detail as ED
+        for part in ED.transformer_parts(W, D, Hh):
+            f = add_box_form(doc, part.w, part.d, part.h, base_z_ft=part.z0,
+                             center=(part.cx, part.cy), rep=G.REP_SOLID)
+            f.params.update({"role": part.role})
+            forms.append(f)
+            if part.role == "top cover":
+                top = f
+        doc.notes.append(ED.DETAIL_NOTE)
+    else:
+        forms.append(add_box_form(doc, W, D, Hh, base_z_ft=0.0, center=(0.0, 0.0),
+                                  rep=G.REP_DUMMY))
+    fb = forms[0]
     fb.params.update({"role": "transformer enclosure",
                       "dims_in": [facts.get("width_in"), facts.get("depth_in"),
                                   facts.get("height_in")]})
+    top = top or fb
+    # clearance zones, always (steer #882): the NEC working space in front and the
+    # ventilation zone above, each shown by Yes/No parameters bound to its visibility
+    clearance_report = None
+    if solid:
+        from . import equipment_clearance as EC
+        from . import equipment_detail as ED
+        clearance_report = EC.add_clearance_zones(
+            doc, add_box_form, kind="transformer", width_ft=W, depth_ft=D, height_ft=Hh,
+            front_y_ft=-D / 2.0 - ED.FRONT_PROUD_FT)
+        # voltage to ground is not the primary rating (a 480 V delta primary is usually
+        # fed from a 480Y/277 system): left to the table's stated default
     # connectors: primary + secondary windings on the top face, offset in X.
     # The primary winding is the family's ONE primary connector (the side an
     # upstream circuit attaches to); the secondary books the kVA rating as a
     # balanced 3-pole load = an equal per-phase split (SK.electrical_domain)
-    add_connector(doc, host=fb, face="top",
+    add_connector(doc, host=top, face="top",
                   location=(-W / 4.0, 0.0, Hh), direction=(0.0, 0.0, 1.0),
                   u_axis=(1.0, 0.0, 0.0), voltage_v=vp, poles=3,
                   apparent_load_va=0.0, bind_voltage_param="Primary Voltage",
                   load_class="Power", description="Primary", primary=True)
-    add_connector(doc, host=fb, face="top",
+    add_connector(doc, host=top, face="top",
                   location=(W / 4.0, 0.0, Hh), direction=(0.0, 0.0, 1.0),
                   u_axis=(1.0, 0.0, 0.0), voltage_v=vs, poles=3,
                   apparent_load_va=float(kva) * 1000.0,
@@ -2382,7 +2444,9 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                   load_class="Power", description="Secondary", primary=False)
     std_report = ST.apply_safe(doc, "transformer", standards, standard_values)
     doc.finalize()
-    prod = FamilyProduct("transformer", doc, facts, forms=[fb], types=rows,
+    if clearance_report:
+        forms += clearance_report.pop("forms")
+    prod = FamilyProduct("transformer", doc, facts, forms=forms, types=rows,
                          standards=std_report,
                          file_stem=_slug(f"xfmr_{_joined([float(j['kva']) for j in jobs], 'kVA')}"
                                          f"_{int(vp)}-{secondary_v}"))
