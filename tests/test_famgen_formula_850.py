@@ -504,20 +504,34 @@ def test_the_safety_net_leaves_no_tree_anywhere_and_says_so(monkeypatch):
 
 @needs_schema
 def test_cycles_are_found_in_linear_time():
+    """The formula step is linear in the parameter count: the time of a 4x longer
+    chain grows ~4x (quadratic would be ~16x).  A RATIO, not a wall-clock bound -- an
+    absolute limit failed on a loaded CI sandbox (3.1 s vs 3.0 s) without any change."""
     import time
     from rvt.famgen import skeleton as fs
-    doc = fs.new_family_document("electrical_equipment", "Scc Probe",
-                                 part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
-    n = 5000
-    for i in range(n, 0, -1):
-        doc.add_family_parameter(f"P{i}", fs.SPEC_LENGTH, formula=f"P{i - 1} + 1'")
-    doc.add_family_parameter("P0", fs.SPEC_LENGTH)
-    doc.add_family_parameter("CA", fs.SPEC_LENGTH, formula="CB + 1'")
-    doc.add_family_parameter("CB", fs.SPEC_LENGTH, formula="CA + 1'")
-    doc.add_type("T", {"P0": 1.0})
-    t = time.perf_counter()
-    doc._apply_formulas()                       # the formula step alone: linear, not O(N^2)
-    assert time.perf_counter() - t < 3.0
+
+    def chain(n):
+        doc = fs.new_family_document("electrical_equipment", "Scc Probe",
+                                     part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
+        for i in range(n, 0, -1):
+            doc.add_family_parameter(f"P{i}", fs.SPEC_LENGTH, formula=f"P{i - 1} + 1'")
+        doc.add_family_parameter("P0", fs.SPEC_LENGTH)
+        doc.add_family_parameter("CA", fs.SPEC_LENGTH, formula="CB + 1'")
+        doc.add_family_parameter("CB", fs.SPEC_LENGTH, formula="CA + 1'")
+        doc.add_type("T", {"P0": 1.0})
+        return doc
+
+    def cost(doc):
+        best = float("inf")
+        for _ in range(3):                      # best of 3: the least-disturbed run
+            t = time.process_time()
+            doc._apply_formulas()               # the formula step alone
+            best = min(best, time.process_time() - t)
+        return best
+
+    small, n = chain(1000), 4000
+    doc = chain(n)
+    assert cost(doc) < 9 * max(cost(small), 1e-3)
     doc.notes.clear()
     doc.finalize()
     notes = " ".join(doc.notes)

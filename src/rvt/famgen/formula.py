@@ -89,16 +89,21 @@ _TEXTLIKE = ("autodesk.spec:spec.string", "autodesk.spec:spec.int64", "tekton.st
 
 class NameTable:
     """The parameter names a formula may use, indexed ONCE per family: by first
-    character, longest name first (names may hold spaces; the longest match wins), so
-    a family with thousands of parameters parses each formula in time independent of
-    how many there are."""
+    character, then by LENGTH, longest first (names may hold spaces; the longest
+    match wins).  A lookup tests one slice per distinct name length -- never every
+    name sharing a first letter, which made a family of thousands of ``P…``
+    parameters quadratic (measured: a 4x longer chain cost 11.5x) -- so a family
+    with thousands of parameters parses each formula in time independent of how
+    many there are."""
 
     def __init__(self, params: Mapping[str, ParamRef]):
         self.params = dict(params)
-        self.by_first: Dict[str, List[str]] = {}
-        for name in sorted(self.params, key=len, reverse=True):
+        grouped: Dict[str, Dict[int, set]] = {}
+        for name in self.params:
             if name:
-                self.by_first.setdefault(name[0], []).append(name)
+                grouped.setdefault(name[0], {}).setdefault(len(name), set()).add(name)
+        self.by_first: Dict[str, List[Tuple[int, set]]] = {
+            c: sorted(by_len.items(), reverse=True) for c, by_len in grouped.items()}
 
 
 class _Parser:
@@ -209,9 +214,10 @@ class _Parser:
         fm = _CALL.match(self.text, self.pos)
         if fm and fm.group(1).lower() in set(FUNCTION) | _UNPINNED:
             return self._call(fm)
-        for name in self.table.by_first.get(self.text[self.pos], ()):
-            end = self.pos + len(name)
-            if self.text[self.pos:end] == name and not \
+        for length, names in self.table.by_first.get(self.text[self.pos], ()):
+            end = self.pos + length
+            name = self.text[self.pos:end]
+            if name in names and not \
                     (end < len(self.text) and (self.text[end].isalnum() or self.text[end] == "_")):
                 self.pos = end
                 ref = self.params[name]
