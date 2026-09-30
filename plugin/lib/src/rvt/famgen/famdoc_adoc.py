@@ -1157,6 +1157,7 @@ def author_family_adocument(source, *, mode: str = "candidate",
     # 3. COHERENCE + CACHES ------------------------------------------------------
     if cfg["empty_caches"]:
         _empty_family_caches(tree, report)
+    _open_in_3d_view(tree, source, report)
 
     # 4. REPOPULATE ------------------------------------------------------------
     if cfg["repopulate"]:
@@ -1355,6 +1356,32 @@ def _donor_name_hits(strings: Iterable[str]) -> List[str]:
         if any(t in low for t in DONOR_NAME_TOKENS):
             out.append(s[:140])
     return sorted(set(out))
+
+
+def _open_in_3d_view(tree: dict, source, report: dict) -> None:
+    """Record ONE open window -- the family's 3D "View 1" -- so the file opens there,
+    shaded, rather than on the Ref. Level plan (steer #878).  Revit restores the
+    windows ``DBDrawingInfo.m_openWindowStates`` lists (a ``WindowState`` per open
+    view, keyed by the view's ``m_dbDrawingId``; the archetype's own entries are
+    emptied above).  Zero projection extents = no saved zoom (Revit fits the view),
+    as the Revit-born specimens store; the screen rectangle is our neutral window
+    size, never an authoring machine's.  A document without a 3D view is untouched."""
+    view_ids = getattr(source, "view_ids", None) or {}
+    vid = view_ids.get("view3d")
+    elements = getattr(source, "elements", None) or []
+    view = next((e for e in elements if getattr(e, "elem_id", None) == vid), None)
+    drawing = ((view.obj or {}).get("m_dbDrawingId") if view is not None else None)
+    dd = _appinfo_body(tree, "DBDrawingInfo")
+    if not isinstance(drawing, int) or drawing <= 0 or not isinstance(dd, dict) \
+            or not isinstance(dd.get("m_openWindowStates"), list):
+        return
+    dd["m_openWindowStates"] = [{"ptr_class": "WindowState", "pid": -1, "value": {
+        "m_projLeftBottom": [0.0, 0.0, 0.0], "m_projRightTop": [0.0, 0.0, 0.0],
+        "m_dbDrawingId": int(drawing), "m_showState": 1,
+        "m_screenWidth": 0, "m_screenHeight": 0, "m_screenLeft": 0, "m_screenTop": 0,
+        "m_screenRight": int(OUR_WINDOW_RES[0]), "m_screenBottom": int(OUR_WINDOW_RES[1])}}]
+    report.setdefault("caches", {})["DBDrawingInfo.m_openWindowStates"] = (
+        f"one window: the 3D view (drawing {drawing}) -- the file opens there (#878)")
 
 
 def _empty_family_caches(tree: dict, report: dict) -> None:

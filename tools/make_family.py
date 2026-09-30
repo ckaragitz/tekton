@@ -192,7 +192,17 @@ def _print_report(rep: dict, as_json: bool) -> None:
     if forms:
         f0 = forms[0]
         dims = [f0.get(k) for k in ("width_ft", "depth_ft", "height_ft")]
-        if all(isinstance(x, (int, float)) for x in dims):
+        if len(forms) > 1 and all(isinstance(f.get(k), (int, float)) for f in forms
+                                  for k in ("width_ft", "depth_ft", "height_ft", "base_z_ft")):
+            xs = [c for f in forms for c in ((f.get("center") or (0, 0))[0] - f["width_ft"] / 2,
+                                             (f.get("center") or (0, 0))[0] + f["width_ft"] / 2)]
+            ys = [c for f in forms for c in ((f.get("center") or (0, 0))[1] - f["depth_ft"] / 2,
+                                             (f.get("center") or (0, 0))[1] + f["depth_ft"] / 2)]
+            zs = [z for f in forms for z in (f["base_z_ft"], f["base_z_ft"] + f["height_ft"])]
+            print(f"geometry    : {len(forms)} parts, envelope "
+                  f"{(max(xs) - min(xs))*12:.2f} x {(max(ys) - min(ys))*12:.2f} x "
+                  f"{(max(zs) - min(zs))*12:.2f} in (rep={f0.get('rep')})")
+        elif all(isinstance(x, (int, float)) for x in dims):
             print(f"geometry    : {f0.get('kind')} "
                   f"{dims[0]*12:.2f} x {dims[1]*12:.2f} x {dims[2]*12:.2f} in "
                   f"(rep={f0.get('rep')})")

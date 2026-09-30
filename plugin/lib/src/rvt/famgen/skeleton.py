@@ -3103,9 +3103,10 @@ _FAMILY_VIEW_DISPLAY = {
 #: spelling, not ours) -- 0 in both references, 43 in ours.
 _FAMILY_VIEW_BK_FIT_TYPE = 0
 
-#: ``VIEW_DETAIL_LEVEL`` (-1011002): 1 = Coarse on the plans, 2 = Medium on
-#: the 3D view [measured].  Our 3D view shipped an EMPTY int param set, i.e.
-#: no detail level at all.
+#: ``VIEW_DETAIL_LEVEL`` (-1011002): 1 = Coarse, 2 = Medium, 3 = Fine.  The plans
+#: carry 1 [measured]; the 3D view -- the view a generated family now OPENS in
+#: (#878) -- carries 3, Fine, so every part shows (the owner's library sets its 3D
+#: views to 2 or 3: 218 / 173 of its 3D views, private census).
 _PARAM_VIEW_DETAIL_LEVEL = -1011002
 #: ``m_pParamValueSetInt`` entry the project skeleton adds and a famdoc view
 #: does not carry (a project-only display flag).
@@ -3313,7 +3314,7 @@ def _apply_family_viewer_law(els, project_view_id: int) -> None:
                     p for p in iv["m_paramSet"]
                     if p.get("m_paramId") != _PARAM_PROJECT_ONLY_INT]
                 # the implicit project view carries no detail level at all
-                want = ({"DBView3d": 2}.get(e.class_name, 1)
+                want = ({"DBView3d": 3}.get(e.class_name, 1)   # the 3D view: Fine (#878)
                         if e.class_name != "DBViewProject" else None)
                 if want is None:
                     iv["m_paramSet"] = [

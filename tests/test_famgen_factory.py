@@ -205,7 +205,10 @@ def test_panelboard_family_composition():
     assert vals[SK.BIP_TYPE_MANUFACTURER] == "Eaton"
     assert vals[SK.BIP_TYPE_MODEL] == "PRL2X"
     # geometry: one box at the true catalog dims
-    assert len(prod.forms) == 1
+    # the enclosure, then its two clearance zones (#882)
+    assert len(prod.forms) == 3
+    assert [f.params["role"] for f in prod.forms[1:]] == ["clearance: front working space",
+                                                          "clearance: top"]
     fp = prod.forms[0].params
     # THE PANEL STANDS UP: W x D footprint, H tall (it used to trace W x H
     # in plan and push the depth up +Z, which laid a 5 ft panel on the floor)
@@ -257,10 +260,16 @@ def test_transformer_family_composition():
     volts = sorted(round(c.obj["m_pDomain"]["value"]["m_dVoltage"] * 0.3048 ** 2)
                    for c in doc.connectors)
     assert volts == [208, 480]                              # secondary, primary
+    # the enclosure body carries the catalog footprint; the parts together stand the
+    # catalog height (the transformer's real parts, #879)
     fp = prod.forms[0].params
+    assert fp["role"] == "transformer enclosure"
     assert fp["width_ft"] == pytest.approx(30.5 / 12)
     assert fp["depth_ft"] == pytest.approx(24.0 / 12)
-    assert fp["height_ft"] == pytest.approx(43.0 / 12)
+    body = [f for f in prod.forms if not f.params["role"].startswith("clearance")]
+    assert max(f.params["base_z_ft"] + f.params["height_ft"] for f in body) == \
+        pytest.approx(43.0 / 12)
+    assert min(f.params["base_z_ft"] for f in body) == pytest.approx(0.0)
     # both connectors on the TOP face (tag 1)
     for c in doc.connectors:
         assert c.obj["m_oPlaneRef"]["value"]["m_geomRef"]["m_geomTag"] == 1
@@ -583,9 +592,18 @@ def test_multi_type_family_has_one_row_per_selection(kind):
     # nothing assumed hides in a row: the family-level list is the union
     union = sorted({a for t in prod.types for a in t.facts.assumed()})
     assert summ["assumed_fields"] == union
-    # ONE solid, one connector set -- a product line, not N families
-    assert len(prod.forms) == 1
-    assert sum(1 for e in prod.doc.elements if e.class_name == "ExtrusionElem") == 1
+    # ONE geometry set, one connector set -- a product line, not N families: one solid,
+    # or (the transformer, #879) the primary type's parts, each authored once
+    n_forms = 1
+    if kind == "transformer":
+        from rvt.famgen import equipment_detail as ED
+        f = prod.facts
+        n_forms = len(ED.transformer_parts(f.get("width_in") / 12, f.get("depth_in") / 12,
+                                           f.get("height_in") / 12))
+    if kind in ("transformer", "panelboard"):
+        n_forms += 2                                      # + the two clearance zones (#882)
+    assert len(prod.forms) == n_forms
+    assert sum(1 for e in prod.doc.elements if e.class_name == "ExtrusionElem") == n_forms
     assert any("types" in n and "primary" in n for n in prod.notes)
 
 
@@ -836,7 +854,9 @@ def test_shared_params_flag_makes_the_eleven_contract_params_shared_rest_local()
     assert prod.summary()["shared_parameters"] == CONTRACT_GUIDS
     classes = {n: pe.class_name for n, pe in prod.doc.params.items()}
     assert {n for n, c in classes.items() if c == "ParamElemExternal"} == set(CONTRACT_GUIDS)
-    assert {n for n, c in classes.items() if c == "ParamElemFamily"} == {"Width", "Height", "Depth"}
+    from rvt.famgen import equipment_clearance as EC
+    assert {n for n, c in classes.items() if c == "ParamElemFamily"} == \
+        {"Width", "Height", "Depth"} | set(EC.TOGGLE_PARAMS)          # + the clearance toggles
     for name, guid in CONTRACT_GUIDS.items():
         o = prod.doc.params[name].obj
         assert o["m_externalParamKey"]["m_guidValue"] == guid
@@ -913,7 +933,8 @@ def test_shared_panelboard_rfa_is_valid_clean_and_decodes_the_file_guids(tmp_pat
     assert decoded == CONTRACT_GUIDS
     assert all(v["m_pParamDef"]["value"]["m_typeId"]["m_typeId"]
                == SK.shared_param_type_id(v["m_externalParamKey"]["m_guidValue"]) for v in ext)
-    assert len(idx.ids_of_class(0, "ParamElemFamily")) == 3           # Width / Height / Depth
+    from rvt.famgen import equipment_clearance as EC
+    assert len(idx.ids_of_class(0, "ParamElemFamily")) == 3 + len(EC.TOGGLE_PARAMS)  # W/H/D + clearance toggles
     assert F._suspects(["revit.local.shared:d2cce9ee8e6244ffb5ab12ead03922b8-1.0.0"]) == []
 
 
@@ -945,7 +966,9 @@ def test_loader_twins_keep_the_shared_identity_verbatim():
 
 
 def _assert_twins(twins, plan, doc):
-    assert len(twins) == len(doc.params) == 14 and len(plan.twin_of) == 14
+    from rvt.famgen import equipment_clearance as EC
+    n = 14 + len(EC.TOGGLE_PARAMS)                          # + the clearance toggles (#882)
+    assert len(twins) == len(doc.params) == n and len(plan.twin_of) == n
     assert sum(pe.class_name == "ParamElemExternal" for pe in doc.params.values()) == 11
     by_id = {t.elem_id: t for t in twins}
     for name, pe in doc.params.items():
