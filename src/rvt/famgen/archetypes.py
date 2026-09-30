@@ -892,8 +892,35 @@ def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
                   "and they are measured from it.")}
 
 
-def _alias_patterns(p: Param) -> List[Tuple[int, str]]:
-    """``(alias length, pattern)`` for every way a prompt states this
+def _alias_re(al: str) -> str:
+    """The regex for one alias as written in a prompt (any run of whitespace
+    between its words)."""
+    return re.escape(al).replace(r"\ ", r"\s+")
+
+
+#: a rating / classification word right before a number: the number belongs
+#: to that scheme, not to the product's size ("a NEMA 12 wireway")
+_RATING_LEAD = re.compile(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|"
+                          r"grid|zone|group|phase|pole)\s*$")
+#: ... and for a UNIT-LESS number read number-first ("1 wide"), also a count:
+#: "nema 1 width 6 in wide" and "qty 2 width 6 in wide" bound the 1 / 2 as the
+#: width, because the redundant "6 in wide" then scored as a phrase left whole
+#: (#828 round 6).  NOT "phase" or "pole" here: their count comes BEFORE them
+#: ("3 phase 12 tall", "2 pole 30 tall"), so the number after one is a size --
+#: listed here, they threw it away and let "follows" stamp another (round 7).
+_NOT_A_SIZE_LEAD = re.compile(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|grid|"
+                              r"zone|group|qty|quantity|count)\s*[#:=]?\s*$")
+#: ... and a designator, but only when the same parameter is stated again
+#: later ("size 1 wide 6 in wide", "#2 width 6 wide"): alone, "a size 12
+#: wide tray" is as likely a 12 in width, as main reads it.  "phase" and
+#: "pole" belong HERE: "phase 12 thickness 6 in thickness" is a doubled label
+#: (main: 6), while "3 phase 12 tall" states the height once.
+_DESIGNATOR_LEAD = re.compile(r"(?:\b(?:size|model|no\.?|number|item|mark|tag|phase|pole)|#)"
+                              r"\s*[#:=.]?\s*$")
+
+
+def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, int, str]]:
+    """``(alias length, rank, pattern)`` for every way a prompt states this
     parameter, built from its aliases.
 
     The LENGTH matters and is why this returns pairs: aliases nest -- ``length``
@@ -904,15 +931,35 @@ def _alias_patterns(p: Param) -> List[Tuple[int, str]]:
     reporting a slot spacing it does not have). :func:`resolve_prompt` sorts
     every candidate across ALL parameters longest-alias-first, so the most
     specific reading always claims its text first.
+
+    Each alias has two phrasings: NUMBER-FIRST (``"24 in wide"``, rank 0) and
+    ALIAS-FIRST (``"wide 24 in"``, rank 1).  ``alias_first`` chooses which of
+    the pair is emitted first; the caller's stable sort by length keeps that
+    order within one alias.  Neither order is right on its own (#812): a number
+    standing between two aliases belongs to one phrase or the other, and each
+    fixed order steals it in one of the two chains --
+
+    * alias-first first reads "24 in wide 4 in deep" as ``wide 4 in`` (a 4 in
+      tray stamped ``given``) and "... 20 ft long" as ``deep 20 ft`` (a 20-foot
+      side rail);
+    * number-first first reads "depth 6 in width 24 in" as ``6 in width``
+      (``width_in`` is declared before ``depth_in``, so its pattern runs
+      first) -- a 6 in tray, with depth left nominal.
+
+    :func:`resolve_prompt` therefore binds under BOTH orders and keeps the
+    reading that gives more stated dimensions a home.  A comma or "and" hid the
+    first chain for a long time, because either one stops alias-first from
+    matching across the phrase boundary (``_SEP`` allows no comma).
     """
-    out: List[Tuple[int, str]] = []
+    out: List[Tuple[int, int, str]] = []
     for al in p.aliases:
-        a = re.escape(al).replace(r"\ ", r"\s+")
+        a = _alias_re(al)
         n = len(al)
-        # "rung spacing of 12 in", "width 24 inches", "depth = 6 in"
-        out.append((n, rf"{a}{_SEP}(?:of|is|at|=|:)?{_SEP}{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?"))
-        # "12 in rung spacing", "24-inch-wide", "10-ft-long"
-        out.append((n, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}"))
+        # rank 0: "12 in rung spacing", "24-inch-wide", "10-ft-long"
+        number_first = (n, 0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}")
+        # rank 1: "rung spacing of 12 in", "width 24 inches", "depth = 6 in"
+        alias_led = (n, 1, rf"{a}{_SEP}(?:of|is|at|=|:)?{_SEP}{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?")
+        out.extend((alias_led, number_first) if alias_first else (number_first, alias_led))
     return out
 
 
@@ -954,27 +1001,151 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     # Aliases nest ('length' inside 'slot length'), and whoever matches first
     # locks the region, so the specific reading has to go first or the generic
     # one silently steals it (see _alias_patterns).
-    candidates = sorted(((n, pat, p) for p in arch.params
-                         for n, pat in _alias_patterns(p)),
-                        key=lambda c: -c[0])
-    for _n, pat, p in candidates:
-        if prov[p.key] == GIVEN:
-            continue
-        for m in re.finditer(pat, low):
-            if not free(m.start(), m.end()):
+    #
+    # Longest-first only protects a long alias's text while the long alias is
+    # still BINDING.  Once its parameter is given, its later occurrences are
+    # unclaimed, and a shorter alias nested inside one ('width' in 'rung
+    # width', 'length' in 'slot length') would read a restated value as its
+    # own: "1 in rung width, rung width 1 in" stamped a 1 in tray WIDTH given
+    # (#828 review).  So every occurrence of every alias is recorded up front,
+    # bound or not, and a shorter alias may never match inside a longer one.
+    spans = [(m.start(), m.end(), len(al))
+             for al in {al for p in arch.params for al in p.aliases}
+             for m in re.finditer(_alias_re(al), low)]
+
+    cross_dims = [k for k in ("width_in", "height_in", "depth_in")
+                  if any(q.key == k for q in arch.params)]
+
+    def opens_cross(m: "re.Match", rank: int, p: "Param", now: Dict[str, str],
+                    any_alias: bool = False) -> bool:
+        # "thickness 12 x 6 in wireway": an alias-first match whose UNITLESS
+        # number is the first element of an "N x N" cross-dimension that the
+        # cross rule below will read reads the cross's number as its own
+        # (#828 round 3).  Each limit was a measured regression (rounds 4, 5):
+        #  * the cross must RUN INTO THE NOUN -- the only cross that rule
+        #    reads; "depth 6 in width 20 x 30 in" has none;
+        #  * the alias must NOT itself be a cross dimension -- "width 20 x 30"
+        #    labels 20, as main reads it;
+        #  * the archetype must HAVE a cross rule and it must still be open
+        #    (two cross dimensions, both nominal in this reading) -- conduit
+        #    has none, so "trade size 3/4 x 10' EMT" lost its diameter;
+        #  * the cross must not be in FEET -- a foot measurement after 'x' is
+        #    a run length, never a section: "rung spacing 9 x 12 ft ladder
+        #    tray" became a 108 x 144 in tray.
+        # With a unit the phrase is complete and the 'x' is a separator
+        # ("thickness 12.5 in x 9 ft long"); number-first phrases next to an
+        # 'x' are left alone ("12 in wide x 4 in deep", "3 x 10 ft long").
+        if rank != 1 or m.group("u") or (p.key in cross_dims and not any_alias):
+            return False
+        if len(cross_dims) < 2 or any(now.get(k) == GIVEN for k in cross_dims[:2]):
+            return False
+        tail = low[m.end():]
+        # the tail holds the REST of the cross: one number fewer than the
+        # archetype has cross dimensions -- a wireway's "length 24 X 42 x 42in"
+        # already has its whole cross after the alias (#828 round 6)
+        more = rf"(?:\s*[x×]\s*{_NUM_CORE})?" if len(cross_dims) > 2 else ""
+        for pat in _product_patterns(arch):
+            mt = re.match(rf"\s*[x×]\s*{_NUM_CORE}{more}{_SEP}"
+                          rf"(?P<u>{_ANY_UNIT})?{_SEP}(?:{pat})", tail)
+            if mt:
+                return not (mt.group("u") and re.fullmatch(_UNITS["ft"], mt.group("u")))
+        return False
+
+    def inside_longer(s: int, e: int, n: int) -> bool:
+        # the whole match, not just its alias: the number and unit around
+        # an alias are never part of another alias's text
+        return any(s < oe and e > os_ and on > n for os_, oe, on in spans)
+
+    def bind_aliases(alias_first: bool):
+        b_vals, b_prov = dict(vals), dict(prov)
+        b_quoted: Dict[str, str] = {}
+        b_used: List[Tuple[int, int]] = []
+
+        def b_free(s: int, e: int) -> bool:
+            return not any(s < ue and e > us for us, ue in b_used)
+
+        candidates = sorted(((n, rank, pat, p) for p in arch.params
+                             for n, rank, pat in _alias_patterns(p, alias_first=alias_first)),
+                            key=lambda c: -c[0])
+        for n, rank, pat, p in candidates:
+            if b_prov[p.key] == GIVEN:
                 continue
-            num = _to_number(m.group(1))
-            if num is None:
+            for m in re.finditer(pat, low):
+                if not b_free(m.start(), m.end()):
+                    continue
+                if inside_longer(m.start(), m.end(), n) or opens_cross(m, rank, p, b_prov):
+                    continue
+                # a unit-less number after a rating or count word belongs to
+                # that scheme: "nema 1 width 6 in wide" is NEMA 1, not a 1 in
+                # width (#828 round 6) -- the noun rule's guard, same words
+                if rank == 0 and not m.group("u"):
+                    lead = low[max(0, m.start() - 24):m.start()]
+                    # (a restatement is THIS parameter's phrase, not a longer
+                    # alias holding it: "rung width 1 in" restates no width)
+                    tail0 = m.end()
+                    if _NOT_A_SIZE_LEAD.search(lead) or (_DESIGNATOR_LEAD.search(lead) and any(
+                            not inside_longer(tail0 + mr.start(), tail0 + mr.end(), n_)
+                            for n_, _r, pu in _alias_patterns(p)
+                            for mr in re.finditer(pu, low[tail0:]))):
+                        continue
+                num = _to_number(m.group(1))
+                if num is None:
+                    continue
+                unit = _unit_of(m.group(0)) or p.unit
+                conv = _convert(num, unit, p)
+                if conv is None or conv <= p.minimum:
+                    continue
+                b_vals[p.key] = conv
+                b_prov[p.key] = GIVEN
+                b_quoted[p.key] = text[m.start():m.end()].strip()
+                b_used.append((m.start(), m.end()))
+                break
+        # the prompt's OTHER phrases for a parameter this reading has bound
+        # that it left whole ("... 7 in wide" said again, or "... wide 9 in"
+        # contradicting it): a reading that cut such a phrase in half to bind
+        # something else read a number across a phrase boundary
+        intact: List[Tuple[int, int]] = []
+        for n, rank, pat, p in candidates:
+            if b_prov[p.key] != GIVEN:
                 continue
-            unit = _unit_of(m.group(0)) or p.unit
-            conv = _convert(num, unit, p)
-            if conv is None or conv <= p.minimum:
-                continue
-            vals[p.key] = conv
-            prov[p.key] = GIVEN
-            quoted[p.key] = text[m.start():m.end()].strip()
-            used.append((m.start(), m.end()))
-            break
+            for m in re.finditer(pat, low):
+                s_, e_ = m.start(), m.end()
+                if not b_free(s_, e_) or any(s_ < ie and e_ > is_ for is_, ie in intact):
+                    continue
+                # ... and a cross dimension's own alias is no exception HERE:
+                # the reading has already bound it elsewhere, so "deep 20" in
+                # "6 in deep 20 x 30 in panel, depth: 6 in" is not a phrase
+                # left whole but the cross's first number (#828 round 6)
+                if inside_longer(s_, e_, n) or opens_cross(m, rank, p, b_prov, any_alias=True):
+                    continue
+                num = _to_number(m.group(1))
+                conv = None if num is None else _convert(num, _unit_of(m.group(0)) or p.unit, p)
+                if conv is not None and conv > p.minimum:
+                    intact.append((s_, e_))
+        return b_vals, b_prov, b_quoted, b_used, intact
+
+    # A number standing between two aliases belongs to one phrase or the
+    # other, and either fixed order steals it in one of the two chains (#812):
+    # bind under both and keep, in order,
+    #   1. the reading that gives MORE stated dimensions a home;
+    #   2. the one that leaves more of the prompt's other phrases for its
+    #      bound parameters WHOLE -- "wide 7 in loading depth 13 in wide 9 in"
+    #      binds two either way, but number-first does it by reading
+    #      "7 in loading depth" and "13 in wide", breaking every phrase the
+    #      user wrote; alias-first leaves "wide 9 in" intact;
+    #   3. on a full tie, main's alias-first reading.  Number-first here
+    #      read "junction box width 8 in height 6 in deep" as height 8, depth
+    #      6 (#828 round 2) -- a trailing bare adjective is as common as a
+    #      leading one, so neither side of a full tie is safe.  "a long 24 in
+    #      wide 4 in deep cable tray" stays wrong, as on main (#832).
+    # The winner's intact phrases are claimed too: a restatement left outside
+    # ``used`` would be read again by the noun rules below ("a 4 in depth,
+    # depth 4 in junction box" -> "4 in junction box", a 4 in wide box).
+    led = bind_aliases(alias_first=True)
+    trailed = bind_aliases(alias_first=False)
+    score = lambda r: (sum(1 for v in r[1].values() if v == GIVEN), len(r[4]))
+    vals, prov, quoted, used, intact = trailed if score(trailed) > score(led) else led
+    used = used + intact
 
     # "a 12x12 wireway", "a 4 x 4 x 6 in box": a cross-dimension immediately
     # before the product noun sets width x height (x depth) in one go
@@ -1027,9 +1198,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 continue
             # ... and a rating/classification word in front of the number means
             # the number belongs to that scheme, not to the product's size
-            lead = low[max(0, m.start() - 24):m.start()]
-            if re.search(r"\b(?:nema|ul|iec|ip|type|class|div|division|level|"
-                         r"grid|zone|group|phase|pole)\s*$", lead):
+            if _RATING_LEAD.search(low[max(0, m.start() - 24):m.start()]):
                 continue
             num = _to_number(m.group(1))
             if num is None:
