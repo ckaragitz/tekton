@@ -162,3 +162,19 @@ ours had 0). The format facts are in `docs/writer/formulas.md`.
   - this record
 - Shipped: the formula encoder and the writer integration.
 - Staged, not shipped: nothing. The desktop batch is still to be reserved and staged.
+
+## Follow-up (#869 CI, 2026-09-30) — name lookup was quadratic for shared first letters
+
+On a loaded sandbox, session CI of #869 failed `test_cycles_are_found_in_linear_time`: 3.12 s
+against the 3.0 s wall-clock bound, with no formula change. Rewriting that bound as a
+**scaling ratio** exposed a real defect:
+* **Measured:** `process_time`, best of 3. A 4,000-parameter chain cost **11.5×** a 1,000-parameter
+  chain (0.657 s vs 0.057 s); linear work would be about 4×.
+* **Cause:** `NameTable` indexed names by first character only, and `_primary` scanned every
+  name sharing that letter. All `P…` names made each lookup O(N).
+* **Fix:** `NameTable.by_first` now maps first character → (length, set of names), longest
+  first. A lookup tests one slice per distinct length, with the same longest-match and
+  word-boundary semantics.
+* **Result:** the profiled formula step at 4,000 parameters went from 2.85 s to 0.53 s.
+* **Test:** asserts the ratio stays under 9× (fails at 11.5× before the fix, passes 3/3
+  after). `tests/test_famgen_formula_850.py`: 89 passed.
