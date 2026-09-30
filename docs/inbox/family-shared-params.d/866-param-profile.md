@@ -58,7 +58,7 @@ tests plus shard drop-ins, this fragment, and the regenerated `plugin/lib` mirro
 
 ## Evidence
 
-* `tests/test_param_profile_866.py` (synthetic profile; made-up GUIDs and names): 21 passed.
+* `tests/test_param_profile_866.py` (synthetic profile; made-up GUIDs and names): 29 passed.
   * **Selection:** the share threshold, majority binding, a tie, `instance: null` excluded,
     one named family, the empty and foreign-schema cases.
   * **Application:** classes, specs, groups, flags and GUIDs checked; the family's own `Width`
@@ -129,7 +129,15 @@ tests plus shard drop-ins, this fragment, and the regenerated `plugin/lib` mirro
     length.
   * Direct-manipulation locking reads the canonical spec, so a library `length-2.0.0` is
     locked like ours.
-* **New tests:** 7, one per finding, plus the type-reads-instance refusal. Mutations
+* **Round 3 (14f88f6, 🛑): every profile row is validated before anything is added.**
+  * A malformed GUID used to crash the build later, at the document-GUID seal. So did a
+    non-string or empty name, and an unhashable storage class. Each is now skipped with a
+    note. A braced GUID is read as the GUID.
+  * A 400-digit integer offered as a measurable value is refused, not an OverflowError.
+  * The finalize guard catches any error. Everything it wraps is user input. If a failure
+    ever came after some parameters were added, the note names exactly those, instead of
+    claiming "NOT applied".
+* **New tests:** 16 (parametrized), one per finding, plus the type-reads-instance refusal. Mutations
   (untyped formula, naive ceiling, NaN allowed, case-sensitive GUID) each fail a test.
 
 ## Open questions / next (#866)

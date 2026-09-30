@@ -439,3 +439,43 @@ def test_an_out_of_range_integer_is_refused_not_a_failed_family(tmp_path):
     assert "formula of 'Zz Plain' NOT written" in notes
     rep = prod.write(str(tmp_path / "tx.rfa"), validate=True, provenance=False)
     assert rep["validate"]["family_mode"]["n_errors"] == 0
+
+
+# -- review of 14f88f6: a malformed profile row is skipped and said, never a failed build --
+
+@pytest.mark.parametrize("guid,defn,skipped", [
+    ("not-a-guid", _defn("Zz Bad Guid"), "is not a GUID"),
+    ("1234", _defn("Zz Short Guid"), "is not a GUID"),
+    (_g(20), dict(_defn("x"), name=123), "no parameter name"),
+    (_g(21), dict(_defn("x"), name=None), "no parameter name"),
+    (_g(22), dict(_defn("x"), name="  "), "no parameter name"),
+    (_g(23), dict(_defn("Zz Bad Class"), def_class=["x"]), "no storage class"),
+])
+def test_a_malformed_profile_row_is_skipped_not_a_failed_family(tmp_path, guid, defn, skipped):
+    path = _profile_plus(tmp_path, {guid: defn},
+                         [{"guid": guid, "name": "?", "instance": False, "palette_group": GRP_ID}])
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path))
+    notes = "\n".join(prod.doc.notes)
+    assert f"profile parameter skipped: " in notes and skipped in notes
+    assert "Zz Tag Text" in prod.doc.params                  # the rest still applied
+    rep = prod.write(str(tmp_path / "tx.rfa"), validate=True, provenance=False)
+    assert rep["validate"]["family_mode"]["n_errors"] == 0
+
+
+def test_a_braced_guid_is_read_as_the_guid(tmp_path):
+    braced = "{" + _g(24).upper() + "}"
+    path = _profile_plus(tmp_path, {braced: _defn("Zz Braced")},
+                         [{"guid": braced, "name": "Zz Braced", "instance": False,
+                           "palette_group": GRP_ID}])
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path))
+    assert prod.doc.params["Zz Braced"].refs["guid"] == _g(24)
+
+
+def test_a_huge_integer_for_a_measurable_value_is_refused(tmp_path):
+    path = _profile_plus(tmp_path, {
+        _g(10): _defn("Zz Box Width", "ParamDefValue", "autodesk.spec.aec:length-2.0.0",
+                      datatype="LENGTH", datatype_basis="spec")},
+        [{"guid": _g(10), "name": "Zz Box Width", "instance": True, "palette_group": GRP_ID}])
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(
+        path, values={"Zz Box Width": 10 ** 400}))
+    assert any("'Zz Box Width': the given value is not a finite number" in n for n in prod.doc.notes)

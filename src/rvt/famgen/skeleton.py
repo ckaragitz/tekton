@@ -2104,14 +2104,20 @@ class FamilyDoc:
         if self.param_profile is not None and not self._profile_applied and not self.finalized:
             from . import param_profile as _pp
             self._profile_applied = True
+            before = set(self.params)
             try:
                 self.notes.extend(_pp.apply_request(self, self.param_profile))
-            except (_pp.ProfileError, OSError, ValueError, KeyError, TypeError) as exc:
-                # never block delivery on the user's profile (hard rule 1): the family
-                # is built without it and the reason is said (selection and file reads
-                # all happen before anything is added, so nothing is half-applied)
-                self.notes.append(f"parameter profile NOT applied ({type(exc).__name__}: "
-                                  f"{exc}) -- the family is delivered without it")
+            except Exception as exc:                               # noqa: BLE001
+                # never block delivery on the user's profile (hard rule 1): everything
+                # it touches is user input.  Rows are validated before anything is
+                # added, so a failure here is normally before the first one -- and if
+                # not, the note says exactly what did get added.
+                added = sorted(set(self.params) - before)
+                self.notes.append(
+                    f"parameter profile NOT applied ({type(exc).__name__}: {exc}) -- "
+                    + (f"the family is delivered without it" if not added else
+                       f"only {len(added)} of its parameters were added before it failed: "
+                       f"{', '.join(added)}"))
         # CONSTRAINT BACK-EDGES for every constructor (steer #765 battery
         # find): apply_constraint_back_edges existed but only the files the
         # session dressed BY HAND carried it -- every family built through a

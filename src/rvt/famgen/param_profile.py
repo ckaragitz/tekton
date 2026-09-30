@@ -100,13 +100,37 @@ def load_profile(path: str) -> Dict[str, Any]:
     return prof
 
 
-def _param(prof: Dict[str, Any], guid: str, instance: bool, group: str) -> ProfileParam:
-    d = prof["parameters"][guid]
-    return ProfileParam(guid=guid, name=d["name"], def_class=d["def_class"], spec=d.get("spec"),
-                        palette_group=group, instance=bool(instance),
-                        description=d.get("description", ""), visible=d.get("visible", True),
-                        user_modifiable=d.get("user_modifiable", True),
-                        hide_when_no_value=d.get("hide_when_no_value", False))
+def _flag(v: Any, default: bool) -> bool:
+    return v if isinstance(v, bool) else default
+
+
+def _param(prof: Dict[str, Any], guid: Any, instance: Any, group: Any
+           ) -> Tuple[Optional[ProfileParam], Optional[str]]:
+    """(the parameter, None) or (None, why it is skipped).  Every field is checked
+    HERE, before anything is added to a document, so a malformed profile row is
+    skipped and said -- never a failed build, never a half-applied profile."""
+    g = str(guid).strip() if isinstance(guid, str) else ""
+    if g.startswith("{") and g.endswith("}"):
+        g = g[1:-1]                                          # a braced GUID, as hand-written
+    if not _GUID.match(g):
+        return None, f"GUID {str(guid)[:60]!r} is not a GUID"
+    d = prof["parameters"].get(guid)
+    if not isinstance(d, dict):
+        return None, f"GUID {g} has no definition"
+    name, cls = d.get("name"), d.get("def_class")
+    if not isinstance(name, str) or not name.strip():
+        return None, f"GUID {g}: no parameter name"
+    if not isinstance(cls, str):
+        return None, f"{name[:60]!r}: no storage class"
+    spec = d.get("spec")
+    return ProfileParam(guid=g.lower(), name=name, def_class=cls,
+                        spec=spec if isinstance(spec, str) else None,
+                        palette_group=group if isinstance(group, str) else "",
+                        instance=bool(instance) if isinstance(instance, (bool, int)) else False,
+                        description=d.get("description") if isinstance(d.get("description"), str) else "",
+                        visible=_flag(d.get("visible"), True),
+                        user_modifiable=_flag(d.get("user_modifiable"), True),
+                        hide_when_no_value=_flag(d.get("hide_when_no_value"), False)), None
 
 
 def select(prof: Dict[str, Any], *, category: Optional[int] = None, family: Optional[str] = None,
@@ -120,9 +144,16 @@ def select(prof: Dict[str, Any], *, category: Optional[int] = None, family: Opti
     if family is not None:
         if family not in fams:
             raise ProfileError(f"profile has no family {family!r}")
-        rows = [q for q in fams[family]["params"] if q.get("instance") is not None]
-        out = [_param(prof, q["guid"], q["instance"], q.get("palette_group", "")) for q in rows
-               if q["guid"] in prof["parameters"]]
+        out = []
+        for q in fams[family]["params"]:
+            if not isinstance(q, dict) or q.get("instance") is None \
+                    or not isinstance(q.get("guid"), str):
+                continue
+            par, why = _param(prof, q["guid"], q["instance"], q.get("palette_group", ""))
+            if why:
+                notes.append(f"profile parameter skipped: {why}")
+            else:
+                out.append(par)
         notes.append(f"profile family {family!r}: {len(out)} of its shared parameters")
     else:
         pool = [f for f in fams.values() if f.get("category") == category]
@@ -131,7 +162,8 @@ def select(prof: Dict[str, Any], *, category: Optional[int] = None, family: Opti
         seen: Dict[str, List[dict]] = {}
         for f in pool:
             for q in f["params"]:
-                if q.get("instance") is not None and q["guid"] in prof["parameters"]:
+                if isinstance(q, dict) and q.get("instance") is not None \
+                        and isinstance(q.get("guid"), str) and q["guid"] in prof["parameters"]:
                     seen.setdefault(q["guid"], []).append(q)
         need = max(1, math.ceil(len(pool) * share - 1e-9))     # ceil, float-safe (0.7 x 10 = 7)
         out = []
@@ -139,12 +171,17 @@ def select(prof: Dict[str, Any], *, category: Optional[int] = None, family: Opti
             if len(qs) < need:
                 continue
             binds = Counter(bool(q["instance"]) for q in qs)
-            groups = Counter(q.get("palette_group", "") for q in qs)
+            groups = Counter(q.get("palette_group") if isinstance(q.get("palette_group"), str)
+                             else "" for q in qs)
+            par, why = _param(prof, guid, binds[True] > binds[False],
+                              sorted(groups.items(), key=lambda kv: (-kv[1], kv[0]))[0][0])
+            if why:
+                notes.append(f"profile parameter skipped: {why}")
+                continue
             if binds[True] == binds[False]:
-                notes.append(f"{prof['parameters'][guid]['name']!r}: bound by instance and by type "
-                             f"equally often -- written by type")
-            out.append(_param(prof, guid, binds[True] > binds[False],
-                              sorted(groups.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]))
+                notes.append(f"{par.name!r}: bound by instance and by type equally often -- "
+                             f"written by type")
+            out.append(par)
         notes.append(f"category {category}: {len(out)} shared parameters carried by at least "
                      f"{int(need)} of the profile's {len(pool)} families of that category")
     return sorted(out, key=lambda p: (p.name, p.guid)), notes
@@ -174,8 +211,12 @@ def _value_for(p: ProfileParam, values: Dict[str, Any]) -> Tuple[Any, Optional[s
         return ((int(v), None, None) if isinstance(v, int) and not isinstance(v, bool)
                 and -2**31 <= v <= 2**31 - 1 else (blank, None, "not a 32-bit integer"))
     if p.def_class == "ParamDefValue":
-        return ((float(v), None, None) if isinstance(v, (int, float)) and not isinstance(v, bool)
-                and math.isfinite(v) else (blank, None, "not a finite number"))
+        try:
+            f = float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+        except OverflowError:                         # a JSON integer with hundreds of digits
+            f = None
+        return ((f, None, None) if f is not None and math.isfinite(f)
+                else (blank, None, "not a finite number"))
     return blank, None, f"no value is written for a {p.def_class}"
 
 
