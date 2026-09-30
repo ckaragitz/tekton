@@ -1402,10 +1402,12 @@ def archetype(product: str) -> Archetype:
 #: ("a unit" includes the 'x' of a cross: "a 2 1/5 x 4 in wireway" is 2.2 x 4;
 #: it may be joined by a hyphen like everywhere else in the grammar, _SEP:
 #: "10 5/12-ft"; and the typographic marks count: ″ ” for inches, ′ ’ for feet)
-_FRAC_UNIT_AHEAD = (r"""(?=[\s-]*(?:in\b|in\.|ins\b|inch|(?:"|″|”|'|′|’)(?![A-Za-z0-9])|"""
+_FRAC_UNIT_AHEAD = (r"""(?=(?:"|″|”|'|′|’)|[\s-]*(?:in\b|in\.|ins\b|inch|(?:"|″|”|'|′|’)(?![A-Za-z0-9])|"""
                     r"""ft\b|ft\.|feet|foot|mm\b|millimet|[x×]\s*\d))""")
-#: (a quote mark is a unit only when it CLOSES the number: "20 12 / 24
-#: 'LCP-1'" opens a tag -- read as feet it made a 246 in panel, round 5)
+#: (a quote mark is a unit when it TOUCHES the number -- "5 1/2"W", 7'0" --
+#: or when nothing alphanumeric follows it; a quote after a space that opens
+#: a word is a tag: "20 12 / 24 'LCP-1'" read as feet made a 246 in panel,
+#: round 5; round 7: the touching case had been lost)
 #: ... but only an UNSPACED slash takes any denominator.  A SPACED one ahead of
 #: a unit must be a PROPER fraction over a one-digit denominator or one a
 #: measurement uses -- 10, 12, 16, 20, 32, 64: "width 12 480 / 277 in the
@@ -1452,7 +1454,7 @@ _NUM = r"(?<![A-Za-z0-9.,/-])(?<!\d )" + _NUM_CORE
 
 #: a whole number, a separator the mixed grammar accepts (whitespace, or a
 #: hyphen with optional whitespace), and a fraction after it
-_WHOLE_THEN_FRACTION = re.compile(r"(?<![A-Za-z0-9.,/-])\d+(?:\s+|\s*-\s*)(\d+\s*/\s*\d+)")
+_WHOLE_THEN_FRACTION = re.compile(r"(?<![A-Za-z0-9.,/-])\d+(\s+|\s*-\s*)(\d+\s*/\s*(\d+))")
 _ORPHAN_MASK = "\x00"
 
 
@@ -1468,12 +1470,22 @@ def _mask_orphan_fractions(low: str) -> str:
     start (not a tag's "LP-1", not 480/277's tail), only the separators the
     mixed grammar itself accepts, and only when the mixed reading stops short
     of the fraction.  Blanked, the whole number still reads alone ("width 12
-    480 / 277 V" is 12) and the fraction is nobody's."""
+    480 / 277 V" is 12) and the fraction is nobody's.
+
+    Round 7: a HYPHEN-joined token, or an UNSPACED wire size ("3 4/0"), is
+    blanked WHOLE -- "3-4/0 AWG" is three 4/0 conductors, and with only the
+    "4/0" blanked the 3 stood alone and "20 ft long 3-4/0 AWG" became a
+    3 ft tray.  Main read those tokens as no number at all; so does this.
+    A SPACED slash keeps its whole number, as main does: "width 12 480 /
+    277 V" is 12, and "trade size 2 4 / 0 conductors" is a 2 in conduit."""
     out = low
     for m in _WHOLE_THEN_FRACTION.finditer(low):
         whole = re.match(_NUM_CORE, low[m.start():])
-        if whole is None or m.start() + whole.end() < m.end(1):
-            s, e = m.span(1)
+        if whole is None or m.start() + whole.end() < m.end(2):
+            if "-" in m.group(1) or (int(m.group(3)) == 0 and re.search(r"\d/\d", m.group(2))):
+                s, e = m.start(), m.end(2)
+            else:
+                s, e = m.span(2)
             out = out[:s] + _ORPHAN_MASK * (e - s) + out[e:]
     return out
 
@@ -1483,11 +1495,13 @@ def _mask_orphan_fractions(low: str) -> str:
 #: while reporting the value as NOMINAL, i.e. "we generated it".
 _SEP = r"[\s-]*"
 _UNITS = {
-    # a quote mark is a unit only when it CLOSES the number: "width 20
-    # 'LCP-1'" opens a tag, and read as feet it made a 240 in panel (#841
-    # round 6; the same rule as the fraction lookahead's)
-    "in": r"(?:in\b|in\.|inch(?:es)?\b|\"(?![A-Za-z0-9]))",
-    "ft": r"(?:ft\b|ft\.|foot\b|feet\b|'(?![A-Za-z0-9]))",
+    # a quote mark is a unit when it TOUCHES the number (7'0", 24"W, 60"L)
+    # or when nothing alphanumeric follows it; after a space, before a word,
+    # it opens a tag: "width 20 'LCP-1'" read as feet made a 240 in panel
+    # (#841 round 6).  Round 7: requiring "nothing after" alone turned 7'0"
+    # into 7 in and 60"L into 60 ft -- so touching the digit is enough.
+    "in": r"(?:in\b|in\.|inch(?:es)?\b|(?<=\d)\"|\"(?![A-Za-z0-9]))",
+    "ft": r"(?:ft\b|ft\.|foot\b|feet\b|(?<=\d)'|'(?![A-Za-z0-9]))",
     "mm": r"(?:mm\b|millimet(?:er|re)s?\b)",
 }
 _ANY_UNIT = "|".join(_UNITS.values())

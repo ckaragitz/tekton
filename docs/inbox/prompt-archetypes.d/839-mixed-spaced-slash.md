@@ -388,6 +388,68 @@ Two survived until their rows were added: a tag before a rejected spaced
 fraction ("conduit for LP-1 - 5 / 11 in dia"), and a `"` after a length in
 feet ('conduit length 10 "L-2"').
 
+## Round 7 — the quote rule broke feet-inch notation; a conductor count became a length
+
+🛑 on `4cdb9cd`. The round-6 fixes were confirmed. Two new false-`given`
+regressions against main turned up, both from my own round-6 changes:
+
+1. **The quote rule in `_UNITS` also applies to quotes touching the
+   number.** "A quote is a unit only when nothing alphanumeric follows it"
+   turned feet-inch notation and "24"W" forms into the parameter's own unit:
+   - `height 7'0"` gave 7 in (main 84);
+   - `length 60"L` gave 60 ft (main 5);
+   - `24"wide, 4"deep, 12'long` lost all three.
+
+   That was 14,539 diffs on the reviewer's quote generator. **My round-6
+   generators never put a quote after a number.**
+2. **A conductor count before a wire size became a dimension.** In "20 ft
+   long 3-4/0 AWG", the mask blanked only "4/0", so the 3 stood alone and
+   took the length: 3 ft. Main read "3-4/0" as no number at all. The
+   reviewer's oracle sweep found 1,782 of these, every one of this shape.
+
+**Fixes:**
+- **A quote is a unit when it touches the number** (`(?<=\d)"`, and in the
+  fraction lookahead a quote directly after the fraction), **or when nothing
+  alphanumeric follows it.** A quote after a space that opens a word is still
+  a tag ("width 20 'LCP-1'" is 20).
+- **`_mask_orphan_fractions` blanks the whole token** (whole number,
+  separator and fraction) when the separator is a hyphen, or when the
+  fraction is an unspaced wire size (`/0`). That is main's reading. A spaced
+  slash keeps its whole number, as main does: "width 12 480 / 277 V" is 12,
+  and "trade size 2 4 / 0 conductors" is a 2 in conduit. That row caught a
+  first version that blanked the spaced form too.
+
+**Measured against main:**
+
+| instrument | prompts | right on `main`, wrong on head |
+|---|---|---|
+| new: every in/ft alias × " and ' touching the number, followed by nothing / a letter / a digit / a word / a tag / feet-inch, both phrasings; and conductor counts N-a/0, N a/0, N a / 0 × 4 tails after a stated dimension | 18,184 | **0** (identical to main on every prompt) |
+| round-6 generator (tags, separators 1–7 wide, phrase lists), 3 seeds | 180,000 | **0** in either false-`given` class (6,128 fewer than main); the 36 flagged are whole numbers from other phrases, as in round 6 |
+| fuzzers seeds 1–3 | 60,000 | **0** |
+
+**Stated, non-blocking (the reviewer's):**
+- **The wider unit-less set joins spaced proper fractions that are counts.**
+  "width 30 3 / 4 conductors" gives 30.75 (main 30); main already joins the
+  unspaced form.
+- **"20 ft long 1-1/2 in rails" gives a 1/8 ft length on main and here
+  alike.** It is the alias-first reading (#880).
+
+**Tests:** 188 passed in the two files (146 in
+`test_mixed_spaced_839.py`), and 394 with the neighbouring suites and
+`test_plugin_sync.py`.
+
+**Mutants: 7/7 killed:**
+- touching `"` not a unit;
+- touching `'` not a unit;
+- a touching quote after a fraction not a unit;
+- never blank the whole token;
+- no `/0` rule;
+- the `/0` rule on spaced slashes too;
+- no hyphen rule.
+
+Two survived until their rows were added: `10 5/11'L`, and `20 ft long
+3-5/11 each`.
+
 ---
 
 ## BRANCH STATE
@@ -395,12 +457,16 @@ feet ('conduit length 10 "L-2"').
 **Files written**
 - `src/rvt/famgen/archetypes.py`: `_NUM_CORE`.
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 127 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 146 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
   sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 7)**: 188 passed across the two files (394 with the
+neighbouring suites and `test_plugin_sync.py`); 7/7 round-7 mutants killed;
+plugin in sync.
 
 **Gates (round 6)**: 169 passed across the two files (178 with
 `test_plugin_sync.py`); 9/9 round-6 mutants killed; plugin in sync.

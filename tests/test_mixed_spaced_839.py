@@ -367,3 +367,45 @@ def test_round_5_rows(prompt, key, want):
     r = AR.resolve_prompt(prompt)
     assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
     assert r.provenance[key] == GIVEN
+
+
+
+# Round 7 (#841): a quote TOUCHING the number is a unit -- feet-inch notation
+# and "24\"W" forms (requiring "nothing after it" alone turned 7'0" into
+# 7 in and 60"L into 60 ft) -- while a spaced quote before a word is a tag.
+@pytest.mark.parametrize("prompt,key,want", [
+    ("a lighting control panel height 7'0\"", "height_in", 84.0),
+    ("a lighting control panel width 2'6\"", "width_in", 24.0),
+    ("a lighting control panel 30\" wide, height 6'0\"", "height_in", 72.0),
+    ('a wireway length 60"L', "length_ft", 5.0),
+    ('a conduit length 120"L', "length_ft", 10.0),
+    ("a cable tray 24\"wide, 4\"deep, 12'long", "length_ft", 12.0),
+    ("a cable tray 24\"wide, 4\"deep, 12'long", "width_in", 24.0),
+    ('a 6"tall junction box', "height_in", 6.0),
+    ("a conduit 3/4\" EMT 10'long", "length_ft", 10.0),
+    ("lighting control panel width 20 'LCP-1'", "width_in", 20.0),     # still a tag
+    ("conduit length 10 5/11'L", "length_ft", 10 + 5 / 11),            # a touching quote after a fraction
+])
+def test_a_quote_touching_the_number_is_its_unit(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
+
+
+# ... and a conductor count before a wire size ("3-4/0 AWG", "3 4/0 AWG") is
+# no number at all, as on main -- with only "4/0" blanked, the 3 stood alone
+# and took the slot of the value the user gave (round 7)
+@pytest.mark.parametrize("prompt,key,want", [
+    ("a 24 in cable tray 20 ft long 3-4/0 AWG", "length_ft", 20.0),
+    ("a 12 in wide wireway 10 ft long 4-1/0 AWG feeders", "length_ft", 10.0),
+    ("a 2 in conduit 10 ft long 3-3/0 AWG", "length_ft", 10.0),
+    ("a cable tray 24 in wide 3-4/0 AWG", "width_in", 24.0),
+    ("a lighting control panel 20 in wide 4-2/0 AWG", "width_in", 20.0),
+    ("a cable tray 24 in wide 3 4/0 AWG", "width_in", 24.0),
+    ("conduit trade size 2 4 / 0 conductors", "diameter_in", 2.0),      # spaced: the 2 stands
+    ("a cable tray 20 ft long 3-5/11 each", "length_ft", 20.0),        # any rejected hyphen token
+])
+def test_a_conductor_count_is_never_a_dimension(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
