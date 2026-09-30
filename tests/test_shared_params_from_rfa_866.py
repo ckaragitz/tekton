@@ -287,3 +287,49 @@ def test_a_name_on_two_guids_is_counted():
     profile = {"parameters": dict([_param("g1", "Same"), _param("g2", "Same")]),
                "families": {}, "conflicts": [], "variants": [], "warnings": []}
     assert SP.summary_of(profile, [])["duplicate_names"] == 1
+
+
+# -- review nits of the second head (#869) -------------------------------------------
+
+def test_palette_group_is_read_per_family(instance_device, panelboard):
+    groups = {q["name"]: q["palette_group"] for q in SP.build([panelboard])[0]["families"]["pb"]["params"]}
+    assert groups["BusRating"] == "autodesk.parameter.group:electrical-1.0.0"
+    assert groups["Mounting"] == "autodesk.parameter.group:identityData-1.0.0"
+    dev = {q["name"]: q for q in SP.read_family(instance_device)["params"]}
+    assert all(q["palette_group"].startswith("autodesk.parameter.group:") for q in dev.values())
+
+
+def test_family_type_category_is_read_from_the_definition():
+    idx = _FakeIndex({10: _fam(-1, [(1, False)]),
+                      1: ("ParamElemExternal", {"m_externalParamKey": {"m_guidValue": "G1"},
+                                                "m_pParamDef": {"ptr_class": "ParamDefFamType",
+                                                                "value": {"m_caption": "Kit",
+                                                                          "m_categoryId": -2001060}}})})
+    (p,) = SP.read_index(idx)["params"]
+    assert (p["datatype"], p["data_category"]) == ("FAMILYTYPE", -2001060)
+
+
+def test_summary_counts_inferred_rows_not_own_and_warnings(monkeypatch):
+    fams = {"a": dict(_fake_family(def_class="ParamDefTextBrowseEdit", datatype="MULTILINETEXT",
+                                   datatype_basis="inferred", instance=None),
+                      release_note="own schema unreadable (x); checked against the pinned base"),
+            "b": dict(_fake_family(guid=""), release_note=None)}
+    monkeypatch.setattr(SP, "read_family", lambda p: fams[os.path.splitext(os.path.basename(p))[0]])
+    monkeypatch.setattr(SP, "_files", lambda a: (list(a), []))
+    profile, errors = SP.build(["a.rfa", "b.rfa"])
+    s = SP.summary_of(profile, errors)
+    assert (s["datatypes_inferred"], s["rows_not_family_parameters"], s["family_rows"]) == (1, 1, 2)
+    assert any("own schema unreadable" in w for w in s["warnings"])      # the release note, named
+    assert any("with no GUID" in w for w in s["warnings"])               # never silently dropped
+    assert s["parameters"] == 1
+
+
+def test_txt_cells_are_single_line_and_group_names_never_empty():
+    profile = {"parameters": dict([
+        _param("aaaaaaaa-0000-4000-8000-000000000001", "_Leading", description="a\tb\nc\rd")]),
+        "families": {}, "conflicts": [], "variants": [], "warnings": []}
+    txt = SP.shared_parameter_txt(profile)
+    groups = [r.split("\t") for r in txt.splitlines() if r.startswith("GROUP\t")]
+    assert groups == [["GROUP", "1", "General"]]
+    (row,) = [r.split("\t") for r in txt.splitlines() if r.startswith("PARAM\t")]
+    assert len(row) == 10 and row[7] == "a b c d"

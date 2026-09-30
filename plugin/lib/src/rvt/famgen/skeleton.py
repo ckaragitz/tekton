@@ -54,6 +54,7 @@ round-trip proof and (when the donor container is available) emit
 """
 from __future__ import annotations
 
+import collections
 import copy
 import json
 import hashlib
@@ -1197,12 +1198,40 @@ def read_shared_parameter_file(path: str) -> Dict[str, SharedParamDef]:
     return out
 
 
-#: ``shared_params=``: a shared-parameter file path, or its parsed rows
-SharedParamsArg = Union[None, str, Dict[str, SharedParamDef]]
+#: ``shared_params=``: a shared-parameter file path, its parsed rows, or a user's
+#: parameter profile request (:class:`rvt.famgen.param_profile.ProfileRequest`,
+#: which may carry a file of rows too)
+SharedParamsArg = Union[None, str, Dict[str, SharedParamDef], Any]
+
+
+def _is_profile_request(shared_params: Any) -> bool:
+    return bool(getattr(shared_params, "is_param_profile_request", False))
+
+
+def _canonical_spec(spec: str) -> str:
+    """``spec`` at schema version 1.0.0 (the version every spec constant here is
+    written at): 'autodesk.spec.aec:length-2.0.0' -> '...:length-1.0.0'.  A spec
+    without a version suffix is returned as is."""
+    s = str(spec)
+    head, sep, tail = s.rpartition("-")
+    if sep and tail.count(".") == 2 and all(x.isdigit() for x in tail.split(".")):
+        return f"{head}-1.0.0"
+    return s
+
+
+def _is_instance_param(pe: "SkelElement") -> bool:
+    """A family parameter bound per instance: a local ``ParamElemFamily`` says so in
+    ``m_instanceParam``; a shared ``ParamElemExternal`` has no such field -- its
+    binding lives only on the family's value rows -- so the writer records it in
+    ``refs["instance"]`` (set by a parameter profile, #866)."""
+    return bool((pe.obj or {}).get("m_instanceParam") or pe.refs.get("instance"))
 
 
 def shared_param_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamDef]:
-    """Normalise ``shared_params=`` (None | path | parsed rows) to rows."""
+    """Normalise ``shared_params=`` (None | path | parsed rows | a profile request's
+    ``rows``) to rows."""
+    if _is_profile_request(shared_params):
+        return shared_param_table(shared_params.rows)
     if not shared_params:
         return {}
     if isinstance(shared_params, str):
@@ -1789,6 +1818,10 @@ class FamilyDoc:
     #: and the GUID must not move on a second pass
     _guid_sealed: bool = False
     shared_params: Dict[str, SharedParamDef] = dc_field(default_factory=dict)   # caption -> OUR file's row
+    #: a user's parameter profile to apply (rvt.famgen.param_profile.ProfileRequest),
+    #: applied ONCE at the first finalize, when the document's category is known
+    param_profile: Any = None
+    _profile_applied: bool = False
     self_family: Optional[SkelElement] = None
     ref_level: Optional[SkelElement] = None
     level_type: Optional[SkelElement] = None
@@ -2066,6 +2099,25 @@ class FamilyDoc:
         state (type table, current-type value set, parameter ordering,
         element index, ownership).  Idempotent; called by the delivery
         methods."""
+        # a user's PARAMETER PROFILE (#866): its shared definitions are added
+        # blank, once, before anything is seeded from the parameter set
+        if self.param_profile is not None and not self._profile_applied and not self.finalized:
+            from . import param_profile as _pp
+            self._profile_applied = True
+            before = set(self.params)
+            try:
+                self.notes.extend(_pp.apply_request(self, self.param_profile))
+            except Exception as exc:                               # noqa: BLE001
+                # never block delivery on the user's profile (hard rule 1): everything
+                # it touches is user input.  Rows are validated before anything is
+                # added, so a failure here is normally before the first one -- and if
+                # not, the note says exactly what did get added.
+                added = sorted(set(self.params) - before)
+                self.notes.append(
+                    f"parameter profile NOT applied ({type(exc).__name__}: {exc}) -- "
+                    + (f"the family is delivered without it" if not added else
+                       f"only {len(added)} of its parameters were added before it failed: "
+                       f"{', '.join(added)}"))
         # CONSTRAINT BACK-EDGES for every constructor (steer #765 battery
         # find): apply_constraint_back_edges existed but only the files the
         # session dressed BY HAND carried it -- every family built through a
@@ -2138,7 +2190,8 @@ class FamilyDoc:
         # locked-for-direct-manipulation = the length parameters (Revit locks
         # dimension params it drives geometry with) [INFERRED default]
         fam.obj["m_lockedParameterIdsForDirectManipulation"] = sorted(
-            pe.elem_id for pe in pes if pe.refs.get("spec") == SPEC_LENGTH)
+            pe.elem_id for pe in pes
+            if _canonical_spec(pe.refs.get("spec") or "") == SPEC_LENGTH)
         # element index + ownership over EVERY element (self last)
         others = [e.elem_id for e in self.elements if e.elem_id != fam.elem_id]
         refresh_self_family_index(fam, others)
@@ -2226,9 +2279,12 @@ class FamilyDoc:
         formulas = {pe.elem_id: pe for pe in self.params.values() if pe.refs.get("formula")}
         if not formulas:
             return written
-        spec_of = {pe.elem_id: (pe.refs.get("spec") or SPEC_LENGTH) for pe in self.params.values()}
-        is_instance = {pe.elem_id: bool((pe.obj or {}).get("m_instanceParam"))
-                       for pe in self.params.values()}
+        # every parameter's spec at ONE schema version: a library parameter written at
+        # '...length-2.0.0' is the same kind of value as our '...length-1.0.0', both in
+        # an operand check (formula.py compares specs exactly) and against the result
+        spec_of = {pe.elem_id: _canonical_spec(pe.refs.get("spec") or SPEC_LENGTH)
+                   for pe in self.params.values()}
+        is_instance = {pe.elem_id: _is_instance_param(pe) for pe in self.params.values()}
         refs = _fx.NameTable({name: _fx.ParamRef(pe.elem_id, spec_of[pe.elem_id])
                               for name, pe in self.params.items()})
 
@@ -2242,7 +2298,7 @@ class FamilyDoc:
             except _fx.FormulaError as exc:
                 self.notes.append(f"formula of {caption(pid)} NOT written: {exc}")
                 continue
-            if spec != spec_of[pid]:
+            if _canonical_spec(spec) != spec_of[pid]:
                 self.notes.append(f"formula of {caption(pid)} NOT written: it gives "
                                   f"{spec.split(':')[-1]}, the parameter is "
                                   f"{spec_of[pid].split(':')[-1]}")
@@ -2303,10 +2359,10 @@ class FamilyDoc:
         for pid, ds in waiting.items():
             for d in ds:
                 users[d].append(pid)
-        ready = sorted(pid for pid, ds in waiting.items() if not ds)
+        ready = collections.deque(sorted(pid for pid, ds in waiting.items() if not ds))
         order: List[int] = []
         while ready:
-            pid = ready.pop(0)
+            pid = ready.popleft()           # O(1): thousands of independent formulas stay linear
             order.append(pid)
             for u in sorted(users[pid]):
                 waiting[u].discard(pid)
@@ -2364,8 +2420,11 @@ class FamilyDoc:
         # m_familyParams / type rows say m_instance True for an instance parameter (the
         # rme dumps; 160 of 340 shared GUIDs in the owner's reference pack), and the
         # loader builds a placed instance's parameter rows from exactly those (#859)
-        inst = {pe.elem_id: bool((pe.obj or {}).get("m_instanceParam") or pe.refs.get("instance"))
-                for pe in self.params.values()}
+        # Only USER parameters are looked up: every built-in row our factories write
+        # (-1010109 / -1010104 / -1010103) is a type parameter in Revit-born files
+        # too; a factory that one day writes an instance BUILT-IN (mains, max poles:
+        # True in the rme dumps) must extend this map, or it is written False.
+        inst = {pe.elem_id: _is_instance_param(pe) for pe in self.params.values()}
         out = []
         for k, v in vals.items():
             pid = self._param_key(k)
@@ -2488,7 +2547,9 @@ def new_family_document(category, name: str, *, host: str = "none",
     :func:`local_param_guid`); ``shared_params`` = OUR shared-parameter file
     (path or parsed rows): every ``add_family_parameter`` caption it names is
     authored SHARED at the file's GUID, the rest local (default: all
-    local).  Returns an un-finalised :class:`FamilyDoc`
+    local) -- or a user's parameter profile request
+    (:class:`rvt.famgen.param_profile.ProfileRequest`, #866), whose shared
+    definitions are added blank at the first :meth:`FamilyDoc.finalize`.  Returns an un-finalised :class:`FamilyDoc`
     ready for ``add_type`` / ``add_family_parameter`` /
     ``add_shared_parameter`` / ``add_reference_plane`` /
     ``add_electrical_connector``.
@@ -2507,6 +2568,7 @@ def new_family_document(category, name: str, *, host: str = "none",
                     family_guid=family_guid, document_guid=doc_guid,
                     guid_source=guid_source,
                     shared_params=shared_param_table(shared_params),
+                    param_profile=shared_params if _is_profile_request(shared_params) else None,
                     part_type=ptype, work_plane_based=bool(work_plane_based))
     if host not in ("none", None, ""):
         doc.notes.append(f"host={host!r}: hosted-family scaffolding (host placeholder + "
