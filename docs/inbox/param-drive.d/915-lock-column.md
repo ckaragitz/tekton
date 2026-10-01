@@ -73,6 +73,14 @@ through unchanged, so no existing output changes.
   replaced.
 - This fragment.
 
-**Gates:** see the PR.
+**Gates** (PR #930)
+- the lock-column, spec-list, skeleton, diameter, constraint-law, panel, height,
+  drive, trapeze, family-anatomy, parametric, archetype, factory, plugin, bootstrap
+  and coldstart suites: **706 passed / 14 skipped**;
+- self-battery 21/21;
+- `sync_plugin --check` in sync; `validate_plugin` PASS.
+- The #930 review read back 36 written files (18 families × 2026/2025). In 36/36 the
+  lock list equals the locked labelled segments, with 0 validator errors and
+  `check_file == []`.
 
 **Shipped vs staged:** shipped. Nothing is staged.

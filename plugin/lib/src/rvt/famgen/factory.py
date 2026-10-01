@@ -1101,6 +1101,155 @@ def _caller_param_row(doc: SK.FamilyDoc, row: Dict[Any, Any],
             row[key] = str(val)
 
 
+def _named_sketches(named) -> Tuple[Dict[str, Any], set]:
+    """``{part name: its VarSketch}`` and the set of names used more than once."""
+    sketch_of: Dict[str, Any] = {}
+    dup: set = set()
+    for n, fb in named:
+        sk = next((e for e in fb.elements if e.class_name == "VarSketch"), None)
+        if sk is not None and n:
+            n = str(n)
+            if n in sketch_of:
+                dup.add(n)
+            sketch_of[n] = sk
+    return sketch_of, dup
+
+
+def _wire_drive_specs(doc: SK.FamilyDoc, named, drives) -> List[Dict[str, Any]]:
+    """Wire declarative in-plane drive specs onto ``named`` = ``[(part name,
+    FormBundle)]`` (the multi-part generic model's, #904; the panelboard's,
+    #914): each spec names a family parameter, an axis, the two plane
+    positions and, BY PART NAME, which edges of which parts follow it -- the
+    in-plane law the owner's desktop verified on a one-box probe (#787), per
+    part.  ``"lo_plane": "origin"`` / ``"hi_plane": "origin"`` anchors that end
+    on the origin centre plane (a one-sided drive, unverified).  Every spec
+    and every step on it is all-or-nothing and a refusal is a note, never an
+    exception (hard rule 1).  Returns the wired drives' reports."""
+    from . import drive_law as DL
+    sketch_of, dup = _named_sketches(named)
+    drive_report: List[Dict[str, Any]] = []
+    for spec in drives:
+        try:
+            names = list(spec["parts"])
+            # a name that matches no part, or several, is never silently
+            # dropped (#907 review round 3)
+            bad = [n for n in names if n not in sketch_of or n in dup]
+            if bad:
+                raise ValueError(f"part name(s) missing or not unique: {bad[:4]}")
+            targets = [(sketch_of[n], tuple(sides))
+                       for n, sides in spec["parts"].items()]
+            if not targets:
+                raise ValueError("no named part to drive")
+            anchors = {}
+            for end in ("lo_plane", "hi_plane"):
+                a = spec.get(end)
+                if a is None:
+                    continue
+                if a != "origin":
+                    raise ValueError(f"{end} must be 'origin', not {a!r}")
+                anchors[end] = DL.origin_centre_plane(doc, spec["axis"])
+            base = DL.wire_linear_drive(
+                doc, caption=spec["caption"], axis=spec["axis"],
+                lo=float(spec["lo"]), hi=float(spec["hi"]), targets=targets, **anchors)
+            drive_report.append(base)
+        except Exception as e:                   # noqa: BLE001
+            cap = spec.get("caption") if isinstance(spec, dict) else spec
+            doc.notes.append(f"drive for {cap!r} not wired "
+                             f"({type(e).__name__}: {str(e)[:90]})")
+            continue
+        # the ends move SYMMETRICALLY about the origin centre plane, and
+        # parts FOLLOW them at a labelled offset (#904 / #908: the "Follow"
+        # ladder's mechanisms, every rung desktop-verified).  Each step is
+        # all-or-nothing and never undoes the drive it builds on.
+        if spec.get("symmetric"):
+            try:
+                DL.wire_symmetric(doc, base, spec["axis"])
+                base["symmetric"] = True
+            except Exception as e:               # noqa: BLE001
+                doc.notes.append(f"{spec['caption']!r} not made symmetric "
+                                 f"({type(e).__name__}: {str(e)[:90]})")
+        att = spec.get("attach")
+        if att:
+            # parts riding the drive's own end planes (#913)
+            try:
+                names = [n for key in ("lo", "hi", "span") for n in att.get(key, ())]
+                bad = [n for n in names if n not in sketch_of or n in dup]
+                if bad or len(set(names)) != len(names):
+                    raise ValueError(f"attached part name(s) missing, repeated or not "
+                                     f"unique: {bad[:4] or names[:4]}")
+                planes = {p.elem_id: p for p in doc.refplanes}
+                lo_p, hi_p = planes[base["planes"][0]], planes[base["planes"][1]]
+                # "lo" / "hi": the part rides that end rigidly; "span": its
+                # low edge rides the low end and its high edge the high end
+                ride = {"lo": (lo_p, lo_p), "hi": (hi_p, hi_p), "span": (lo_p, hi_p)}
+                base["attach"] = DL.wire_attach(doc, axis=spec["axis"], items=[
+                    (sketch_of[n], *ride[key]) for key in ("lo", "hi", "span")
+                    for n in att.get(key, ())])
+            except Exception as e:               # noqa: BLE001
+                doc.notes.append(f"parts attached to {spec['caption']!r} not wired "
+                                 f"({type(e).__name__}: {str(e)[:90]})")
+        fol = spec.get("follow")
+        if fol:
+            try:
+                if not base.get("symmetric"):
+                    raise ValueError("a follow mirrors through the symmetric ends")
+                fnames = [f["part"] for f in fol["followers"]]
+                bad = [n for n in fnames if n not in sketch_of or n in dup]
+                if bad:
+                    raise ValueError(f"follower name(s) missing or not unique: {bad[:4]}")
+                followers = [dict(f, sketch=sketch_of[f["part"]]) for f in fol["followers"]]
+                base["follow"] = DL.wire_follow(
+                    doc, base=base, caption=fol["caption"], offset=float(fol["offset"]),
+                    followers=followers, axis=spec["axis"])
+            except Exception as e:               # noqa: BLE001
+                doc.notes.append(f"followers of {spec['caption']!r} not wired "
+                                 f"({type(e).__name__}: {str(e)[:90]})")
+    if drive_report:
+        doc.notes.append("parameter drives wired: " + "; ".join(
+            f"{d['caption']} moves {len(d['locks'])} part edge(s) on "
+            f"{d['targets']} part(s)"
+            + (" symmetrically" if d.get("symmetric") else "")
+            + (f" with its {d['anchored'][0]} end anchored on the origin plane "
+               f"(one-sided; no desktop verdict)" if d.get("anchored") else "")
+            + (f"; {d['attach']['parts']} part(s) authored to ride it "
+               f"({d['attach']['locks']} locks; assembled family unverified)"
+               if d.get("attach") else "")
+            + (f"; {d['follow']['followers']} part(s) authored to follow it at "
+               f"{d['follow']['caption']} ({d['follow']['locks']} locks; "
+               f"assembled family unverified)"
+               if d.get("follow") else "")
+            for d in drive_report))
+    return drive_report
+
+
+def _wire_height_spec_list(doc: SK.FamilyDoc, named, heights) -> Dict[str, Any]:
+    """Wire declarative height specs (#787 Case B, ``height_law``) onto
+    ``named`` = ``[(part name, FormBundle)]``; never raises (hard rule 1)."""
+    from . import height_law as HL
+    ext_of: Dict[str, Any] = {}
+    for n, fb in named:
+        ex = [e for e in fb.elements if e.class_name == "ExtrusionElem"]
+        if n and len(ex) == 1:
+            n = str(n)
+            ext_of[n] = None if n in ext_of else ex[0]
+    try:
+        height_report = HL.wire_height_specs(doc, list(heights), ext_of)
+    except Exception as e:                       # noqa: BLE001 -- never block delivery
+        doc.notes.append(f"height drives not wired ({type(e).__name__}: {str(e)[:90]})")
+        height_report = {}
+    if height_report.get("wired"):
+        doc.notes.append(
+            f"height drives wired (#787 Case B, NO desktop verdict): "
+            f"{height_report['wired']} of {height_report['specs']} -- "
+            f"{height_report['face_locks']} cap faces on "
+            f"{height_report['extrusions_locked']} extrusions locked to "
+            f"{height_report['planes']} horizontal planes "
+            f"({', '.join(height_report['captions'])}"
+            + (f"; {height_report['locked_unlabelled']} locked unlabelled"
+               if height_report['locked_unlabelled'] else "") + ")")
+    return height_report
+
+
 def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             category: str, solid: bool, source: str,
                             start_id: int, dim_provenance: str = "given",
@@ -1253,103 +1402,14 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # it -- the in-plane law the owner's desktop verified on a one-box probe
     # (#787), per part.  Never blocks delivery (hard rule 1).
     drive_report: List[Dict[str, Any]] = []
+    named = [(p.get("name"), fb) for p, fb in zip(parts, built)]
     if drives:
-        from . import drive_law as DL
-        sketch_of: Dict[str, Any] = {}
-        dup: set = set()
-        for part, fb in zip(parts, built):
-            sk = next((e for e in fb.elements if e.class_name == "VarSketch"), None)
-            if sk is not None and part.get("name"):
-                n = str(part["name"])
-                if n in sketch_of:
-                    dup.add(n)
-                sketch_of[n] = sk
-        for spec in drives:
-            try:
-                names = list(spec["parts"])
-                # a name that matches no part, or several, is never silently
-                # dropped (#907 review round 3)
-                bad = [n for n in names if n not in sketch_of or n in dup]
-                if bad:
-                    raise ValueError(f"part name(s) missing or not unique: {bad[:4]}")
-                targets = [(sketch_of[n], tuple(sides))
-                           for n, sides in spec["parts"].items()]
-                if not targets:
-                    raise ValueError("no named part to drive")
-                base = DL.wire_linear_drive(
-                    doc, caption=spec["caption"], axis=spec["axis"],
-                    lo=float(spec["lo"]), hi=float(spec["hi"]), targets=targets)
-                drive_report.append(base)
-            except Exception as e:                   # noqa: BLE001
-                cap = spec.get("caption") if isinstance(spec, dict) else spec
-                doc.notes.append(f"drive for {cap!r} not wired "
-                                 f"({type(e).__name__}: {str(e)[:90]})")
-                continue
-            # the ends move SYMMETRICALLY about the origin centre plane, and
-            # parts FOLLOW them at a labelled offset (#904 / #908: the "Follow"
-            # ladder's mechanisms, every rung desktop-verified).  Each step is
-            # all-or-nothing and never undoes the drive it builds on.
-            if spec.get("symmetric"):
-                try:
-                    DL.wire_symmetric(doc, base, spec["axis"])
-                    base["symmetric"] = True
-                except Exception as e:               # noqa: BLE001
-                    doc.notes.append(f"{spec['caption']!r} not made symmetric "
-                                     f"({type(e).__name__}: {str(e)[:90]})")
-            att = spec.get("attach")
-            if att:
-                # parts riding the drive's own end planes (#913)
-                try:
-                    names = [n for key in ("lo", "hi", "span") for n in att.get(key, ())]
-                    bad = [n for n in names if n not in sketch_of or n in dup]
-                    if bad or len(set(names)) != len(names):
-                        raise ValueError(f"attached part name(s) missing, repeated or not "
-                                         f"unique: {bad[:4] or names[:4]}")
-                    planes = {p.elem_id: p for p in doc.refplanes}
-                    lo_p, hi_p = planes[base["planes"][0]], planes[base["planes"][1]]
-                    # "lo" / "hi": the part rides that end rigidly; "span": its
-                    # low edge rides the low end and its high edge the high end
-                    ride = {"lo": (lo_p, lo_p), "hi": (hi_p, hi_p), "span": (lo_p, hi_p)}
-                    base["attach"] = DL.wire_attach(doc, axis=spec["axis"], items=[
-                        (sketch_of[n], *ride[key]) for key in ("lo", "hi", "span")
-                        for n in att.get(key, ())])
-                except Exception as e:               # noqa: BLE001
-                    doc.notes.append(f"parts attached to {spec['caption']!r} not wired "
-                                     f"({type(e).__name__}: {str(e)[:90]})")
-            fol = spec.get("follow")
-            if fol:
-                try:
-                    if not base.get("symmetric"):
-                        raise ValueError("a follow mirrors through the symmetric ends")
-                    fnames = [f["part"] for f in fol["followers"]]
-                    bad = [n for n in fnames if n not in sketch_of or n in dup]
-                    if bad:
-                        raise ValueError(f"follower name(s) missing or not unique: {bad[:4]}")
-                    followers = [dict(f, sketch=sketch_of[f["part"]]) for f in fol["followers"]]
-                    base["follow"] = DL.wire_follow(
-                        doc, base=base, caption=fol["caption"], offset=float(fol["offset"]),
-                        followers=followers, axis=spec["axis"])
-                except Exception as e:               # noqa: BLE001
-                    doc.notes.append(f"followers of {spec['caption']!r} not wired "
-                                     f"({type(e).__name__}: {str(e)[:90]})")
-        if drive_report:
+        drive_report = _wire_drive_specs(doc, named, drives)
+        if drive_report and drive_note.startswith("dimensions are REPORTED only"):
             # the "REPORTED only" first-solid note is false once a drive is
             # wired; a wired first-solid note (drive=True) stays beside the
             # summary of what the drives carry (#907 review round 4)
-            if drive_note.startswith("dimensions are REPORTED only"):
-                doc.notes.remove(drive_note)
-            doc.notes.append("parameter drives wired: " + "; ".join(
-                f"{d['caption']} moves {len(d['locks'])} part edge(s) on "
-                f"{d['targets']} part(s)"
-                + (" symmetrically" if d.get("symmetric") else "")
-                + (f"; {d['attach']['parts']} part(s) authored to ride it "
-                   f"({d['attach']['locks']} locks; assembled family unverified)"
-                   if d.get("attach") else "")
-                + (f"; {d['follow']['followers']} part(s) authored to follow it at "
-                   f"{d['follow']['caption']} ({d['follow']['locks']} locks; "
-                   f"assembled family unverified)"
-                   if d.get("follow") else "")
-                for d in drive_report))
+            doc.notes.remove(drive_note)
     # HEIGHT DRIVES (#787 Case B): extrusion cap faces locked to horizontal
     # reference planes held by elevation dimensions -- the Revit-born law
     # (rvt.famgen.height_law), wired AFTER the in-plane drives, each spec
@@ -1357,28 +1417,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # rule 1).  No Case B element has a desktop verdict (hard rule 4).
     height_report: Dict[str, Any] = {}
     if heights:
-        from . import height_law as HL
-        ext_of: Dict[str, Any] = {}
-        for part, fb in zip(parts, built):
-            ex = [e for e in fb.elements if e.class_name == "ExtrusionElem"]
-            if part.get("name") and len(ex) == 1:
-                n = str(part["name"])
-                ext_of[n] = None if n in ext_of else ex[0]
-        try:
-            height_report = HL.wire_height_specs(doc, list(heights), ext_of)
-        except Exception as e:                       # noqa: BLE001 -- never block delivery
-            doc.notes.append(f"height drives not wired ({type(e).__name__}: {str(e)[:90]})")
-            height_report = {}
-        if height_report.get("wired"):
-            doc.notes.append(
-                f"height drives wired (#787 Case B, NO desktop verdict): "
-                f"{height_report['wired']} of {height_report['specs']} -- "
-                f"{height_report['face_locks']} cap faces on "
-                f"{height_report['extrusions_locked']} extrusions locked to "
-                f"{height_report['planes']} horizontal planes "
-                f"({', '.join(height_report['captions'])}"
-                + (f"; {height_report['locked_unlabelled']} locked unlabelled"
-                   if height_report['locked_unlabelled'] else "") + ")")
+        height_report = _wire_height_spec_list(doc, named, heights)
     # DIAMETERS (#916): a circle's diameter labelled with a length parameter
     # -- the Revit-born type-9 RadialDim (rvt.famgen.diameter_law), each spec
     # all-or-nothing; a refused spec is a note, never an exception (hard
@@ -2335,7 +2374,8 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                     types: Optional[Sequence[Any]] = None,
                     shared_params: SK.SharedParamsArg = None,
                     standards: bool = True,
-                    standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
+                    standard_values: Optional[Dict[str, Any]] = None,
+                    drive: Optional[str] = "law") -> FamilyProduct:
     """Compose a PANELBOARD family from catalog facts.
 
     Geometry: the enclosure box at TRUE catalog dimensions, standing on the
@@ -2347,6 +2387,14 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     clearance zones (#882).  One 3-pole power connector on the enclosure's top
     face (the specimen's convention: feeder entry on top), voltage associated
     to the ``Voltage`` family parameter.
+
+    ``drive`` (#914): ``"law"`` (default) wires Width / Depth / Height through
+    ``drive_law`` + ``height_law`` with the front parts and clearance zones
+    riding the planes they belong to (:func:`_panelboard_drive_specs`) and the
+    Revit-born in-plane law applied after ``finalize``; ``"372"`` keeps the
+    old first-solid chain (``param_drive.wire_panelboard_drive``: Width/Depth
+    on the enclosure only, back-edges); ``None`` wires nothing.  No assembled
+    panelboard drive has a desktop verdict (hard rule 4).
 
     Parameters: the tekton-ifc tagging-contract NAMES (PanelName,
     Voltage, Phases, Wires, BusRating, MainsType, MainsRating,
@@ -2367,6 +2415,8 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     eleven contract parameters for :data:`DEFAULT_SHARED_PARAMS`), the rest
     stay local; ``None`` = every parameter local (the historical shape).
     """
+    if drive not in ("law", "372", None):
+        raise FactoryError(f"panelboard drive must be 'law', '372' or None, not {drive!r}")
     jobs = _type_jobs(types, {"mains_a": mains_a, "spaces": spaces, "mcb": mcb,
                               "sccr_ka": sccr_ka, "neutral_rating": neutral_rating},
                       scalar_key="mains_a")
@@ -2463,6 +2513,7 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     from . import equipment_detail as ED
     face_y = 0.0 if mount.startswith("flush") else D
     detail: List[Any] = []
+    parts = []
     proud = 0.0
     if solid:
         try:
@@ -2489,19 +2540,18 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                   voltage_v=vll, poles=poles, apparent_load_va=0.0,
                   power_factor=1.0, bind_voltage_param="Voltage",
                   load_class="Power", description="Panel Feed")
-    # -- parametric drive: editing the two SKETCH dimensions must MOVE the
-    #    extrusion (issue #372: side RefPlanes + Alignments + labeled dims).
-    #    Standing the panel up makes the footprint Width x Depth; Height is
-    #    now the extrusion depth, which needs a built-in-to-family parameter
-    #    association we do not author yet (filed) -- it is still a real
-    #    parameter and still sizes the geometry at generation time.
-    from . import param_drive as PD
-    PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+    if drive == "372":
+        # the OLD first-solid chain (issue #372: side RefPlanes + Alignments +
+        # labeled Width/Depth dims on the enclosure only, back-edges from
+        # finalize), kept selectable for comparison; the default is "law"
+        from . import param_drive as PD
+        PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
     # clearance zones, always (steer #882): the NEC working space in front of the
     # door face (+y for a surface panel, the wall face for a flush one), reaching the
     # floor below a NOMINALLY mounted cabinet, and the 110.26(E)(1) dedicated space
     # above; each shown by Yes/No parameters bound to its visibility
     forms = [fb] + detail
+    rep_c: Dict[str, Any] = {}
     if solid:
         from . import equipment_clearance as EC
         from .archetypes import MOUNT_TOP_IN
@@ -2516,8 +2566,28 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                            f"working space reaches the floor; the family origin stays the "
                            f"cabinet bottom"))
         forms += rep_c.pop("forms")
+    # -- parameter drives (#914): Width / Depth through drive_law, Height through
+    #    height_law, the front parts and clearance zones riding the planes they
+    #    belong to -- every spec all-or-nothing, a refusal a note (hard rule 1)
+    drive_report: List[Dict[str, Any]] = []
+    height_report: Dict[str, Any] = {}
+    if drive == "law":
+        named = _panelboard_named_forms(fb, parts, detail, forms[1 + len(detail):])
+        d_specs, h_specs = _panelboard_drive_specs(
+            W, D, H, flush=mount.startswith("flush"), named=named,
+            top_zone_h=((rep_c.get("top") or {}).get("height_ft")))
+        drive_report = _wire_drive_specs(doc, [(n, f) for n, f, _p in named], d_specs)
+        height_report = _wire_height_spec_list(doc, [(n, f) for n, f, _p in named], h_specs)
+        law = bool(drive_report) or bool(height_report.get("wired"))
+        doc.born_drive_law = law
+        if not law:
+            doc.notes.append("panelboard drives NOT wired: every drive spec was refused "
+                             "(see the notes above); the dimensions are values only")
     std_report = ST.apply_safe(doc, "panelboard", standards, standard_values)
     doc.finalize()
+    if drive == "law" and doc.born_drive_law:
+        from . import drive_law as DL
+        DL.apply_born_inplane_law(doc)
     prod = FamilyProduct("panelboard", doc, facts, forms=forms, types=rows,
                          standards=std_report,
                          file_stem=_slug(f"{vendor}_{facts.variant}_"
@@ -2526,8 +2596,139 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                                          f"{facts.get('voltage_system')}"))
     prod.notes.append("connector hosted on the enclosure's top face (face-referenced, "
                       "edge-loop tags of the solid) -- resolves the S0e datum-host gap")
+    prod.drives = drive_report
+    prod.heights = height_report
     _multi_type_notes(prod, label="UNVERIFIED (assumed) values surfaced: ")
+    if drive_report and len(prod.types) > 1:
+        # the rows' Width / Depth (and Height, when wired) now LABEL the drive
+        # dimensions, so "geometry is not label-driven yet" is no longer what
+        # the file carries -- what it lacks is a desktop verdict
+        prod.notes[:] = [n.replace("geometry is not label-driven yet (asset-factory "
+                                   "honest limit #4)",
+                                   "the drive dimensions are labelled by the rows' "
+                                   "Width / Depth / Height, authored and UNVERIFIED in "
+                                   "Revit (hard rule 4)") for n in prod.notes]
     return prod
+
+
+#: front parts whose BOTH cap faces ride the cabinet top when Height flexes
+#: (the nameplate across the top of the door, the upper hinge); the door's top
+#: face rides it too; the latch handle and the lower hinge keep their heights
+_PANEL_TOP_RIDERS = ("nameplate", "door hinge high")
+
+
+def _panelboard_named_forms(fb, parts, detail, zones) -> List[Tuple[str, Any, Any]]:
+    """``[(drive name, FormBundle, BoxPart | None)]`` for the panelboard's
+    enclosure, front parts and clearance zones.  A role used twice (the two
+    door hinges) is told apart by height: ``door hinge low`` / ``high``."""
+    out: List[Tuple[str, Any, Any]] = [("enclosure", fb, None)]
+    hinges = sorted((p.z0, i) for i, p in enumerate(parts) if p.role == "door hinge")
+    rank = {i: ("low" if j == 0 else "high" if j == len(hinges) - 1 else f"{j + 1}")
+            for j, (_z, i) in enumerate(hinges)}
+    for i, (p, f) in enumerate(zip(parts, detail)):
+        out.append((f"{p.role} {rank[i]}" if i in rank else p.role, f, p))
+    for z in zones:
+        out.append((str(z.params.get("role") or "clearance"), z, None))
+    return out
+
+
+def _panelboard_drive_specs(W: float, D: float, H: float, *, flush: bool,
+                            named, top_zone_h: Optional[float]
+                            ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """The panelboard's drive specs (#914), read off the geometry it was built
+    with -- ``(drives, heights)`` for :func:`_wire_drive_specs` /
+    :func:`_wire_height_spec_list`.
+
+    * **Width** (x, symmetric about the origin centre plane -- the box is
+      centred in x): the enclosure, every full-width part (a surface trim, the
+      top clearance zone) on both planes; a centred inset part (the door, a
+      flush trim that laps the opening) SPANS them at fixed insets; a part off
+      to one side (the hinges at +x, the latch at -x) rides that end rigidly; a
+      narrow centred part (the nameplate) and the front working space (its
+      width is the code minimum, not the box's) stay.
+    * **Depth** (y, ONE-SIDED): the face that is fixed is held on the origin
+      centre plane (the wall plane y = 0): a SURFACE box's back, whose front
+      then moves with every front part and the working space riding it; a
+      FLUSH box's front, whose back moves.  The top clearance zone (the box's
+      own footprint) follows both edges.
+    * **Height** (#787 Case B): origin -> cabinet top on the enclosure (and a
+      surface trim, and the top zone's base); the faces that belong to the top
+      -- the door's top, the upper hinge, the nameplate, a flush trim's lap,
+      the top zone's top -- ride it by LOCKED unlabelled heights, one plane
+      per distinct offset.  The latch and the lower hinge keep their heights.
+    """
+    eps = 1e-6
+    names = [n for n, _f, _p in named]
+    box = {n: p for n, _f, p in named if p is not None}
+    zones = [n for n in names if n.startswith("clearance")]
+    top_zone = "clearance: top" if "clearance: top" in zones else None
+    front_zone = ("clearance: front working space"
+                  if "clearance: front working space" in zones else None)
+    # -- Width
+    w_parts: Dict[str, Tuple[str, ...]] = {"enclosure": ("lo", "hi")}
+    span: List[str] = []
+    lo_r: List[str] = []
+    hi_r: List[str] = []
+    for n, p in box.items():
+        x0, x1 = p.cx - p.w / 2.0, p.cx + p.w / 2.0
+        if abs(x0 + W / 2.0) < eps and abs(x1 - W / 2.0) < eps:
+            w_parts[n] = ("lo", "hi")
+        elif abs(p.cx) < eps:
+            if p.role in ("front trim", "door"):
+                span.append(n)
+        elif p.cx > 0:
+            hi_r.append(n)
+        else:
+            lo_r.append(n)
+    if top_zone:
+        w_parts[top_zone] = ("lo", "hi")
+    width = {"caption": "Width", "axis": "x", "symmetric": True,
+             "lo": -W / 2.0, "hi": W / 2.0, "parts": w_parts}
+    attach = {k: v for k, v in (("lo", lo_r), ("hi", hi_r), ("span", span)) if v}
+    if attach:
+        width["attach"] = attach
+    # -- Depth
+    d_parts: Dict[str, Tuple[str, ...]] = {"enclosure": ("lo", "hi")}
+    if top_zone:
+        d_parts[top_zone] = ("lo", "hi")
+    if flush:
+        depth = {"caption": "Depth", "axis": "y", "lo": -D, "hi": 0.0,
+                 "hi_plane": "origin", "parts": d_parts}
+    else:
+        depth = {"caption": "Depth", "axis": "y", "lo": 0.0, "hi": D,
+                 "lo_plane": "origin", "parts": d_parts}
+        riders = list(box) + ([front_zone] if front_zone else [])
+        if riders:
+            depth["attach"] = {"hi": riders}
+    # -- Height
+    both = {"start": "lo", "end": "hi"}
+    h_parts: Dict[str, Dict[str, str]] = {"enclosure": dict(both)}
+    rides: List[Tuple[str, str, float]] = []          # (part, face, z) riding the top
+    for n, p in box.items():
+        z0, z1 = p.z0, p.z0 + p.h
+        if abs(z0) < eps and abs(z1 - H) < eps:
+            h_parts[n] = dict(both)                   # a surface trim: the full height
+        elif n in _PANEL_TOP_RIDERS:
+            rides += [(n, "start", z0), (n, "end", z1)]
+        elif p.role in ("door", "front trim"):
+            rides.append((n, "end", z1))              # its top keeps its inset / lap
+    if top_zone and top_zone_h:
+        h_parts[top_zone] = {"start": "hi"}
+        rides.append((top_zone, "end", H + float(top_zone_h)))
+    heights: List[Dict[str, Any]] = [
+        {"caption": "Height", "lo": 0.0, "hi": H, "name_hi": "cabinet top",
+         "parts": h_parts}]
+    by_z: Dict[float, Dict[str, Dict[str, str]]] = {}
+    for n, face, z in rides:
+        if abs(z - H) < eps:
+            h_parts.setdefault(n, {})[face] = "hi"
+            continue
+        by_z.setdefault(round(z, 9), {}).setdefault(n, {})[face] = "lo" if z < H else "hi"
+    for z, parts in sorted(by_z.items()):
+        lo, hi = (z, "cabinet top") if z < H else ("cabinet top", z)
+        heights.append({"caption": None, "locked": True, "lo": lo, "hi": hi,
+                        "parts": parts})
+    return [width, depth], heights
 
 
 def _multi_type_notes(prod: FamilyProduct, label: str = "UNVERIFIED (assumed): ") -> None:

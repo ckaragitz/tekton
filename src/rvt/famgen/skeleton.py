@@ -1793,7 +1793,10 @@ _TYPE_TEXT_PARAMS = {
 def labelled_lock_state(doc) -> Dict[int, bool]:
     """{param id: True if ANY of its labelled dimension segments carries the
     lock bit (``m_ArrSegInfo[k].m_flags & 1``)} over every dimension in
-    ``doc`` -- linear, radial, any class with segment info (#915)."""
+    ``doc`` -- linear, radial, any class with segment info (#915).  Only
+    FAMILY parameters (id >= 0) are judged: the born census counts family
+    parameters, and a segment labelled by a built-in (negative id) is never
+    entered here -- nothing we generate does that (#930 review)."""
     state: Dict[int, bool] = {}
     for e in doc.elements:
         segs = e.obj.get("m_ArrSegInfo") if isinstance(e.obj, dict) else None
