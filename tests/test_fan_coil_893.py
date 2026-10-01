@@ -36,6 +36,7 @@ def release_leak_extra():
     """``no_release_leak`` watches the names the authoring context swaps too (#707)."""
     return context_constants
 
+
 IN = 1 / 12.0
 
 
@@ -116,18 +117,21 @@ def test_the_disconnect_working_space_is_toggleable_and_magenta(fcu):
     assert "110.26(A)(4)" in "\n".join(fcu.doc.notes)
 
 
-@pytest.mark.parametrize("year", [2026, 2025])
+@pytest.mark.parametrize("year", [2026, 2025, 2024])
 def test_the_written_family_validates(fcu, tmp_path, year):
     out = str(tmp_path / f"fcu{year}.rfa")
     if year == 2026:
         rep = fcu.write(out)
     else:
         from rvt.frontdoor import release_ctx as RC
-        base = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2025.rvt")
+        base = os.path.join(ROOT, "plugin", "assets", "genesis", f"G_ABPD_{year}.rvt")
         if not os.path.exists(base):
-            pytest.skip("the pinned 2025 base is not in this checkout")
+            pytest.skip(f"the pinned {year} base is not in this checkout")
         with RC.release_build_context(base):
-            rep = FC.make_fan_coil_unit().write(out)
+            prod = FC.make_fan_coil_unit()
+            rep = prod.write(out)
+        # 2024's class map has no ArcElemCell (#786): the round parts are drawn square, said
+        assert any("drawn SQUARE" in n for n in prod.doc.notes) == (year == 2024)
     fm = rep["validate"]["family_mode"]
     assert (fm["verdict"], fm["n_errors"]) == ("VALID", 0) and rep["provenance"]["ok"] is True
 
@@ -198,13 +202,15 @@ def test_a_240v_three_phase_unit_gets_the_deeper_delta_working_space():
     prod = FC.make_fan_coil_unit(voltage=240, phases=3)
     zone = next(f for f in prod.forms if f.params["role"] == "clearance: front working space")
     assert zone.params["depth_ft"] == pytest.approx(3.5)        # 151-600 V to ground, Condition 2
-    assert any("is a delta" in n for n in prod.doc.notes)
+    assert any("read as a delta" in n for n in prod.doc.notes)
     given = FC.make_fan_coil_unit(voltage=240, phases=3, voltage_to_ground=120)
     zone = next(f for f in given.forms if f.params["role"] == "clearance: front working space")
     assert zone.params["depth_ft"] == pytest.approx(3.0)        # the caller's statement wins
 
 
-@pytest.mark.parametrize("kw", [dict(voltage=0), dict(voltage=-5), dict(phases=0), dict(phases=2)])
+@pytest.mark.parametrize("kw", [dict(voltage=0), dict(voltage=-5), dict(voltage=float("inf")),
+                                dict(voltage=float("nan")), dict(phases=0), dict(phases=2),
+                                dict(phases=1.5), dict(phases=True)])
 def test_impossible_supplies_are_refused_up_front(kw):
     with pytest.raises(ValueError):
         FC.make_fan_coil_unit(**kw)
@@ -225,9 +231,31 @@ def test_the_cabinet_only_branch_does_not_promise_stubs():
 def test_the_cli_passes_voltage_to_ground(tmp_path):
     import json
     import subprocess
-    out = tmp_path / "v.rfa"
-    r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "make_family.py"), "fan-coil",
-                        "--voltage", "240", "--phases", "3", "--voltage-to-ground", "120",
-                        "-o", str(out)], capture_output=True, text=True, timeout=600)
-    assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-2000:]
-    assert out.exists()
+
+    def run(*extra):
+        out = tmp_path / f"v{len(extra)}.rfa"
+        r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "make_family.py"),
+                            "fan-coil", "--voltage", "240", "--phases", "3", *extra,
+                            "-o", str(out), "--json"], capture_output=True, text=True, timeout=600)
+        assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-2000:]
+        assert out.exists()
+        return json.dumps(json.loads(r.stdout))
+    stated, derived = run("--voltage-to-ground", "120"), run()
+    assert "3 ft deep" in stated and "read as a delta" not in stated     # the flag took effect
+    assert "3.5 ft deep" in derived and "read as a delta" in derived
+
+
+# --- #903 -----------------------------------------------------------------------------
+
+def test_single_phase_240v_names_its_120_240_reading():
+    prod = FC.make_fan_coil_unit(voltage=240, phases=1)
+    assert any("read as the 120/240 V single-phase system" in n for n in prod.doc.notes)
+
+
+def test_a_supply_beyond_the_table_delivers_the_unit_without_the_zone(tmp_path):
+    prod = FC.make_fan_coil_unit(voltage=4160, phases=3)
+    assert not any(f.params["role"].startswith("clearance") for f in prod.forms)
+    assert any(n.startswith("clearance zone NOT drawn") for n in prod.doc.notes)
+    assert EC.P_SHOW not in prod.doc.params
+    rep = prod.write(str(tmp_path / "mv.rfa"))
+    assert rep["validate"]["family_mode"]["n_errors"] == 0
