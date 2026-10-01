@@ -1112,7 +1112,8 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             standards: bool = True,
                             standard_values: Optional[Dict[str, Any]] = None,
                             drives: Optional[Sequence[Dict[str, Any]]] = None,
-                            heights: Optional[Sequence[Dict[str, Any]]] = None
+                            heights: Optional[Sequence[Dict[str, Any]]] = None,
+                            diameters: Optional[Sequence[Dict[str, Any]]] = None
                             ) -> FamilyProduct:
     """A MULTI-PART generic model: several stacked / offset extrusions in one
     family (a canopy + a stem, a base + a body + a cap).  This is the LOD
@@ -1378,10 +1379,41 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                 f"({', '.join(height_report['captions'])}"
                 + (f"; {height_report['locked_unlabelled']} locked unlabelled"
                    if height_report['locked_unlabelled'] else "") + ")")
+    # DIAMETERS (#916): a circle's diameter labelled with a length parameter
+    # -- the Revit-born type-9 RadialDim (rvt.famgen.diameter_law), each spec
+    # all-or-nothing; a refused spec is a note, never an exception (hard
+    # rule 1).  No diameter has a desktop verdict (hard rule 4).
+    diameter_report: Dict[str, Any] = {}
+    if diameters:
+        from . import diameter_law as DM
+        circle_of: Dict[str, Any] = {}
+        rotated: set = set()
+        for part, fb in zip(parts, built):
+            sk = next((e for e in fb.elements if e.class_name == "VarSketch"), None)
+            if sk is not None and part.get("name"):
+                n = str(part["name"])
+                circle_of[n] = None if n in circle_of else sk
+                if (getattr(fb, "params", None) or {}).get("rotated_brep"):
+                    # a cylinder_x / cylinder_y: its sketch is the vertical
+                    # authoring circle, NOT the drawn (rotated) geometry, so
+                    # a label there drives nothing Revit draws (#591 round 4)
+                    rotated.add(n)
+        diameter_report = DM.wire_diameter_specs(doc, list(diameters), circle_of,
+                                                 rotated=rotated)
+        for r in diameter_report["refused"]:
+            doc.notes.append(f"diameter for {r['caption']!r} not wired ({r['why'][:90]})")
+        if diameter_report["wired"]:
+            doc.notes.append(
+                f"diameters labelled (#916, NO desktop verdict): "
+                f"{', '.join(diameter_report['captions'])} on {diameter_report['dims']} "
+                f"circle(s), the Revit-born type-9 diameter dimension"
+                + (" placed on a half arc of this engine's two-half circle (born "
+                   "diameters sit on one full arc)" if diameter_report.get("half_arc") else ""))
     # only a document that actually CARRIES a drive is a law document:
     # finalize then skips back-edges and the law runs after it
-    law = bool(drive_report) or bool(height_report.get("wired"))
-    if drives or heights:
+    law = (bool(drive_report) or bool(height_report.get("wired"))
+           or bool(diameter_report.get("wired")))
+    if drives or heights or diameters:
         doc.born_drive_law = law
     doc.notes.append(f"multi-part generic model "
                      f"({_geometry_origin(dim_provenance, source)}): "
@@ -1396,6 +1428,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                          file_stem=_slug(fam_name), standards=std_report)
     prod.drives = drive_report
     prod.heights = height_report
+    prod.diameters = diameter_report
     if dim_provenance == "fact":
         # The spec-sheet lane (#688 DONE 5). Saying "no manufacturer identity
         # is claimed" here would be false: the user supplied the document
@@ -1556,7 +1589,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        standards: bool = True,
                        standard_values: Optional[Dict[str, Any]] = None,
                        drives: Optional[Sequence[Dict[str, Any]]] = None,
-                       heights: Optional[Sequence[Dict[str, Any]]] = None
+                       heights: Optional[Sequence[Dict[str, Any]]] = None,
+                       diameters: Optional[Sequence[Dict[str, Any]]] = None
                        ) -> FamilyProduct:
     """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
     "when i go to claude design and ask it to build me a 3d object you
@@ -1587,7 +1621,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                                        numeric_params=numeric_params,
                                        drive=drive, standards=standards,
                                        standard_values=standard_values,
-                                       drives=drives, heights=heights)
+                                       drives=drives, heights=heights,
+                                       diameters=diameters)
     if height_ft is None or float(height_ft) <= 0:
         raise FactoryError("make_generic_model needs a positive height_ft "
                            "(or parts=[...] for a multi-part assembly)")
@@ -1667,10 +1702,11 @@ def make_generic_model(*, height_ft: Optional[float] = None,
         prod.notes.append(_standards_note(std_report))
     prod.drives = []
     prod.heights = {}
-    if drives or heights:
+    prod.diameters = {}
+    if drives or heights or diameters:
         # never silently dropped (#907 review round 4): the single-prism path
         # has no named parts to drive -- pass parts=[...] for drives
-        n = len(drives or []) + len(heights or [])
+        n = len(drives or []) + len(heights or []) + len(diameters or [])
         msg = (f"{n} parameter drive(s) NOT wired: the single-prism path "
                "has no named parts (pass parts=[...] to drive them)")
         doc.notes.append(msg)
@@ -1728,8 +1764,9 @@ def make_archetype(*, product: str,
     numeric = {**own, **(toggle or {})} or None
     drives = arch.drives(dict(res.values)) if arch.drives else None
     heights = arch.heights(dict(res.values)) if arch.heights else None
+    diameters = arch.diameters(dict(res.values)) if arch.diameters else None
     prod = make_generic_model(parts=parts, name=fam_name, numeric_params=numeric,
-                              drives=drives, heights=heights,
+                              drives=drives, heights=heights, diameters=diameters,
                               category=category or arch.category,
                               base_z_ft=base_z_ft, solid=solid, source=src,
                               start_id=start_id, shared_params=shared_params,

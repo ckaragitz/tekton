@@ -198,6 +198,10 @@ class Archetype:
     #: reference planes (z in feet, or the name an earlier spec gave a plane);
     #: authored by ``rvt.famgen.height_law.wire_height_specs``
     heights: Optional[Callable[[Dict[str, float]], List[Dict[str, Any]]]] = None
+    #: DIAMETERS (#916): ``vals -> [{caption, parts: [part name, ...]}]`` --
+    #: which family length parameter labels the diameter of which parts'
+    #: circles; authored by ``rvt.famgen.diameter_law.wire_diameter``
+    diameters: Optional[Callable[[Dict[str, float]], List[Dict[str, Any]]]] = None
 
     def param(self, key: str) -> Param:
         for p in self.params:
@@ -712,6 +716,14 @@ def _trapeze_heights(v: Dict[str, float]) -> List[Dict[str, Any]]:
     return out
 
 
+def _trapeze_diameters(v: Dict[str, float]) -> List[Dict[str, Any]]:
+    """Rod Diameter labels both rods' circles as their DIAMETER (#916): the
+    Revit-born type-9 diameter dimension; the rods' centres already follow
+    Rod Inset (#904 P4)."""
+    return [{"caption": "Rod Diameter",
+             "parts": [f"threaded rod {s}" for s in ("left", "right")]}]
+
+
 def _trapeze_settle(vals: Dict[str, float], prov: Dict[str, str],
                     quoted: Dict[str, str]) -> None:
     """Strut length = rod spacing + 2 x rod inset, whichever two the caller
@@ -1190,7 +1202,9 @@ _register(Archetype(
               "reference plane, chained up from the origin elevation plane by Tier "
               "Spacing, Strut Height, Strut Thickness, Washer Thickness (with a locked "
               "nut height beyond each washer), Rod Below Bottom Nut and Rod Above Top "
-              "Tier"),
+              "Tier. DIAMETER AUTHORED (#916, no desktop verdict): Rod Diameter labels "
+              "both rods' circles as their diameter, the Revit-born diameter "
+              "dimension"),
     limits=("the rod threads and the nut chamfers are not modelled; a rod is a "
             "plain cylinder at its nominal diameter",
             "the rod holes are not cut: the rod passes through the channel back",
@@ -1210,9 +1224,14 @@ _register(Archetype(
             "Level; until one is recorded no height is claimed to flex",
             "Rod Spacing is a value (Strut Length - 2 x Rod Inset), not a driver: "
             "after Strut Length or Rod Inset is flexed its value no longer describes "
-            "the rods; Rod Length, Nut Across Flats, Rod Diameter, Strut Width, the "
-            "slots and the washer size carry values and do not drive the geometry, and "
-            "the nut height is held by a locked dimension, not a parameter"),
+            "the rods; Rod Length, Nut Across Flats, Strut Width, the slots and the "
+            "washer size carry values and do not drive the geometry, and the nut "
+            "height is held by a locked dimension, not a parameter",
+            "Rod Diameter is authored to drive the rods (#916) but has NO desktop "
+            "verdict: a labelled RADIUS passed on desktop (#904 P5), the diameter "
+            "form has not been tried. It labels one half arc of each rod's circle, "
+            "which no Revit-born diameter does (they sit on one full arc), and the "
+            "washers and nuts do not change with it"),
     aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
     patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
               r"(?:\s+(?:hangers?|supports?|racks?))?",
@@ -1290,6 +1309,7 @@ _register(Archetype(
     settle=_trapeze_settle,
     drives=_trapeze_drives,
     heights=_trapeze_heights,
+    diameters=_trapeze_diameters,
     noun_leads=(("strut", "height_in"), ("channel", "height_in"),
                 ("unistrut", "height_in")),
     name_bits=lambda v: [f"{int(round(float(v['tiers'])))} Tier"],
