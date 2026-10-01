@@ -510,19 +510,94 @@ is 1.625 in). This is #844, which should also cover ’/′ on inch parameters.
 The improper case survived until "junction box grid 4-7 / 4 in wide" was
 added.
 
+## Round 9 — the list rule needed no heuristic; two mask edge cases
+
+🛑 on `9a1294d`. The round-8 fix was confirmed. Overall the head is far ahead
+of main: on the reviewer's 60,000-prompt grid, 17,689 prompts main gets
+wrong are read right. **26 regressions remained, in three classes:**
+
+1. **The whole-token mask could start at a fraction's denominator.** In
+   "tall = 3 / **4** - 277/480 v", blanking the rejected "4 - 277/480" ate
+   the 4 of "3 / 4", leaving 3.0 `given` (main 0.75).
+2. **A blank let an orphaned fraction through.** In "rooms 101-104/1 5/8 in
+   tall", blanking "101-104/1" left " 5/8", and `_NUM`'s `(?<!\d )` guard
+   saw a blank, not a digit, before the space. That gave 0.625 `given`
+   (main nominal): #839's own defect again.
+3. **Round 8's "lone inch fraction" exception had no reliable signal.** Its
+   "no other spaced slash" check missed every other separator, so "pull box
+   | levels 2-3 / 8 in wide" was 2.375 (main 8). The same held for `/`,
+   `//`, `;`, `,`, ` - `, and for 4, 8 and 16 in sizes.
+
+**Fixes:**
+- **A match whose whole number is a fraction's denominator is skipped**
+  (`\d\s*/\s*$` before it). This is the reviewer's tested fix.
+- **The blank counts as a digit in `_NUM`'s guard** (`(?<![\d\x00] )`).
+  Also the reviewer's tested fix.
+- **A tight hyphen before a spaced slash is now always a list.**
+  `_is_list_slash` and its power-of-two exception are gone. Mixed numbers
+  are written "2-1/2" or "2 - 1 / 2". **The one spacing given up**, "a 2-1 /
+  2 in conduit", now reads as a list (2 in; main gives a wrong 0.5). It is
+  pinned as a strict xfail. The #839 spacing sweep leaves out its 2,700
+  asymmetric prompts: 15,300 remain, all right.
+
+The branch is rebased on main `f1672e4` (`archetypes.py` unchanged there
+since `71ead7c`).
+
+**Measured against main `f1672e4`:**
+
+| instrument | prompts | right on `main`, wrong on head |
+|---|---|---|
+| list generator, now with separators " / ", "/", " // ", "; ", ", ", " - ", " \| " | 22,176 | **0** |
+| round-7 quote and conductor-count generator | 18,184 | **0** (identical) |
+| round-6 generator, 3 seeds | 180,000 | **0** in either false-`given` class (6,211 fewer than main; the 38 flagged are whole numbers from other phrases, as before) |
+| fuzzers seeds 1–3 | 60,000 | **0** |
+
+In the list generator, the only differences from main are 44 prompts like
+"cable tray/rooms 101-104/12 wide", where main gives a wrong 109.67 `given`
+and the head leaves the value nominal.
+
+**Stated, non-blocking (the reviewer's):** " - " as a list separator is
+ambiguous with the mixed-number grammar. "junction box - qty 4 - 5 / 8"
+wide" gives 4.625, as main gives 4.25 for the tight "qty 4 - 1/4 in". A
+`_NOT_A_SIZE_LEAD` guard on the whole number could cover it; that belongs
+with #880's alias-first rating guard.
+
+**Tests:** 215 passed and 2 xfailed in the two files (175 tests in
+`test_mixed_spaced_839.py`); 641 passed and 7 xfailed with the neighbouring
+suites.
+
+**Mutants: 4/4 killed:**
+- a denominator may start a token;
+- the blank is not a digit;
+- inch fractions still join (round 8's rule);
+- never a list.
+
 ---
 
 ## BRANCH STATE
 
 **Files written**
-- `src/rvt/famgen/archetypes.py`: `_NUM_CORE`.
+- `src/rvt/famgen/archetypes.py`: the number grammar.
+  - `_NUM_CORE`: the spaced-slash mixed forms, and main's slash tail kept.
+  - `_MIXED_FRAC`, `_PROPER_SPACED`, `_FRAC_UNITLESS`, `_FRAC_UNIT_AHEAD`,
+    `_SPACED_DENOMS`.
+  - The quote-mark units in `_UNITS`.
+  - `_NUM`'s guard.
+  - `_WHOLE_THEN_FRACTION` / `_mask_orphan_fractions` (new).
+  - `resolve_prompt` now masks `low` first.
+
+  *(Corrected in round 9: this line used to list only `_NUM_CORE`.)*
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 160 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 175 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
   sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 9)**: 215 passed + 2 xfailed across the two files (641 + 7
+xfailed with the neighbouring suites, on the tree rebased onto `f1672e4`);
+4/4 round-9 mutants killed; plugin in sync.
 
 **Gates (round 8)**: 202 passed across the two files (628 with the
 neighbouring suites, on the tree rebased onto main `71ead7c`); 3/3 round-8

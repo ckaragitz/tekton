@@ -1453,26 +1453,13 @@ _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 
 #: (A fraction the mixed reading REJECTS must not be re-read from its own
 #: middle either -- see _mask_orphan_fractions, which resolve_prompt applies
 #: before any of these patterns run.)
-_NUM = r"(?<![A-Za-z0-9.,/-])(?<!\d )" + _NUM_CORE
+_NUM = r"(?<![A-Za-z0-9.,/-])(?<![\d\x00] )" + _NUM_CORE   # a blank (_ORPHAN_MASK) counts as a digit: round 9
 
 
 #: a whole number, a separator the mixed grammar accepts (whitespace, or a
 #: hyphen with optional whitespace), and a fraction after it
 _WHOLE_THEN_FRACTION = re.compile(r"(?<![A-Za-z0-9.,/-])\d+(\s+|\s*-\s*)(\d+\s*/\s*(\d+))")
 _ORPHAN_MASK = "\x00"
-
-
-def _is_list_slash(low: str, m: "re.Match") -> bool:
-    """A TIGHT hyphen before a SPACED slash ("2-3 / 12") is a list unless the
-    fraction is a proper inch fraction (n < d, d a power of two) AND the
-    prompt uses no other spaced slash as a separator: "a 2-1 / 2 in
-    conduit" is #839's own 2 1/2, while "pull box / levels 2-3 / 12\" wide"
-    and "cable tray / levels 2-3 / 4 in wide" are lists (#841 round 8)."""
-    n, d = (int(x) for x in re.findall(r"\d+", m.group(2)))
-    if not (d in (2, 4, 8, 16, 32, 64) and n < d):
-        return True
-    others = [x for x in re.finditer(r"\s/\s", low) if not (m.start(2) <= x.start() < m.end(2))]
-    return bool(others)
 
 
 def _mask_orphan_fractions(low: str) -> str:
@@ -1497,10 +1484,19 @@ def _mask_orphan_fractions(low: str) -> str:
     277 V" is 12, and "trade size 2 4 / 0 conductors" is a 2 in conduit."""
     out = low
     for m in _WHOLE_THEN_FRACTION.finditer(low):
-        # a TIGHT hyphen before a SPACED slash is a list separator, not a
-        # mixed number: "levels 2-3 / 12\" wide" -- blanking it took the
-        # next phrase's 12 with it (#841 round 8)
-        if m.group(1) == "-" and re.search(r"\s", m.group(2)) and _is_list_slash(low, m):
+        # a match whose whole number is itself a fraction's DENOMINATOR is
+        # no whole number: blanking "4 - 277/480" whole ate the 4 of "3 / 4"
+        # (#841 round 9)
+        if re.search(r"\d\s*/\s*$", low[:m.start()]):
+            continue
+        # a TIGHT hyphen before a SPACED slash is a list separator, ALWAYS:
+        # "levels 2-3 / 12\" wide" -- read as 2 3/12, or blanked whole, it
+        # took the next phrase's 12 (#841 round 8).  Round 8 kept a lone
+        # proper inch fraction ("a 2-1 / 2 in conduit") as a mixed number;
+        # round 9 showed no cheap signal tells it from a list ("levels 2-3 /
+        # 8 in wide" after any of , ; | - //), and mixed numbers are written
+        # "2-1/2" or "2 - 1 / 2" -- so the asymmetric spacing is a list.
+        if m.group(1) == "-" and re.search(r"\s", m.group(2)):
             # the slash (with its spaces) is the LIST's separator: blank it,
             # so neither side reads across it and the next phrase's number
             # stands -- "24 in / 2-3 / 4 in deep" is a 4 in depth

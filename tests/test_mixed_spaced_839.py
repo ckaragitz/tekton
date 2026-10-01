@@ -25,7 +25,6 @@ GIVEN = "given"
 @pytest.mark.parametrize("prompt,key,want", [
     ("cable tray 24 - 1 / 2 in wide", "width_in", 24.5),
     ("a 2 - 1 / 2 in conduit", "diameter_in", 2.5),
-    ("a 2-1 /2 in conduit", "diameter_in", 2.5),
     ("a 2 1 / 2 in conduit", "diameter_in", 2.5),
     ("strut channel 1 - 5 / 8 in tall", "height_in", 1.625),
     ("cable tray width 12 - 3 / 16 in", "width_in", 12.1875),
@@ -71,13 +70,17 @@ def test_a_slash_token_after_a_number_is_not_its_fraction(prompt, key, want):
 def _spaced():
     """Every spacing of a mixed number's hyphen and slash, on every inch
     parameter of every archetype, in both phrasings, noun first and last.
-    Measured: main gets 13,500 of 18,000 wrong; this fix 0; none worse."""
+    Measured: main gets 13,500 of 18,000 wrong; this fix 0; none worse.
+    Round 9: the 2,700 with a TIGHT hyphen and a spaced slash ("2-1 / 2")
+    are lists now and left out -- 15,300 remain."""
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
         for p in [p for p in a.params if p.aliases and p.unit == "in"]:
             al = p.aliases[0]
             for w, (n, d) in itertools.product((1, 2, 12), ((1, 2), (5, 8), (3, 16))):
                 for hy, sl in itertools.product(["-", " - ", "- ", " -", " "], ["/", " / ", " /", "/ "]):
+                    if hy == "-" and sl != "/":
+                        continue      # a TIGHT hyphen before a spaced slash is a list (#841 round 9)
                     num = f"{w}{hy}{n}{sl}{d}"
                     for ph in (f"{num} in {al}", f"{al} {num} in"):
                         for pr in (f"{noun} {ph}", f"a {ph} {noun}"):
@@ -94,7 +97,7 @@ def test_every_spacing_of_a_mixed_number_binds_whole_and_alone():
                  and not (a.param(k).follows == pk and abs(r.values[k] - v) < 1e-6)]
         if r.provenance[pk] != GIVEN or abs(r.values[pk] - v) > 1e-6 or stray:
             fails.append((pr, r.values[pk], stray))
-    assert total >= 18000, total
+    assert total >= 15300, total      # 18,000 less the 2,700 tight-hyphen/spaced-slash lists (round 9)
     assert not fails, f"{len(fails)}/{total} misread; first: {fails[:3]}"
 
 
@@ -435,3 +438,47 @@ def test_a_tight_hyphen_before_a_spaced_slash_is_a_list(prompt, key, want):
     r = AR.resolve_prompt(prompt)
     assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
     assert r.provenance[key] == GIVEN
+
+
+
+# Round 9 (#841): a tight hyphen before a spaced slash is ALWAYS a list --
+# round 8 kept "a 2-1 / 2 in conduit" as 2 1/2 when it was a lone inch
+# fraction, and lists after any of , ; | - // still read "levels 2-3 / 8 in
+# wide" as 2 3/8.  The one spacing given up is pinned as a known limit.
+@pytest.mark.xfail(strict=True, reason="tight hyphen + spaced slash is read as a list (#841 round 9)")
+@pytest.mark.parametrize("prompt", ["a 2-1 /2 in conduit", "a 2-1 / 2 in conduit"])
+def test_a_tight_hyphen_spaced_slash_mixed_number_is_not_read(prompt):
+    r = AR.resolve_prompt(prompt)
+    assert r.values["diameter_in"] == pytest.approx(2.5) and r.provenance["diameter_in"] == GIVEN
+
+
+@pytest.mark.parametrize("prompt,key,want", [
+    ("pull box/levels 2-3 / 8 in wide", "width_in", 8.0),
+    ("pull box // levels 2-3 / 8 in wide", "width_in", 8.0),
+    ("pull box | levels 2-3 / 8 in wide", "width_in", 8.0),
+    ("pull box - levels 2-3 / 8 in wide", "width_in", 8.0),
+    ("pull box; levels 2-3 / 4 in deep", "depth_in", 4.0),
+    ("cable tray, levels 2-3 / 4 in deep", "depth_in", 4.0),
+    ('wireway, rev 2-3 / 16" wide', "width_in", 16.0),
+    ("strut channel rev 2-3 / 16 in. wide", "width_in", 16.0),
+    # the whole number of a "W - a/b" token is never a fraction's denominator
+    ("strut channel, tall = 3 / 4 - 277/480 v", "height_in", 0.75),
+    ("junction box, depth 3 / 8 - 4/0 awg", "depth_in", 0.375),
+    ("emt trade size 3 / 4 - 12/2 mc", "diameter_in", 0.75),
+])
+def test_round_9_lists_and_denominators(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
+
+
+# ... and a blank left by the mask counts as a digit: the orphaned " 5/8" of
+# "rooms 101-104/1 5/8 in" is never read alone (main: nominal)
+@pytest.mark.parametrize("prompt,key", [
+    ("pull box / rooms 101-104/1 5/8 in tall", "height_in"),
+    ("rooms 101-104/1 5/8 in tall junction box", "height_in"),
+    ("emt/floors 2-4/18 3/4 ft long", "length_ft"),
+])
+def test_a_fraction_beside_a_blank_is_not_read_alone(prompt, key):
+    r = AR.resolve_prompt(prompt)
+    assert r.provenance[key] != GIVEN, (prompt, r.values[key], r.quoted.get(key))
