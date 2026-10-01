@@ -74,6 +74,9 @@ executed and the numbers you observed); last line `VERDICT=approve|nits|changes`
 1. Posts the review text as ONE PR comment ending with
    `<!-- claude-review: <approve|nits|changes> sha=<full head sha> -->` (the marker every
    tool already parses), together with the CI line and `<!-- session-ci: pass|fail sha=… -->`.
+   The CI line names the shard cap whenever the verdict JSON's `shard_timeout` is not 1500
+   (`SESSION_CI_SHARD_TIMEOUT`, #934), e.g. "shard cap 2700 s, override #934"; the marker
+   itself keeps its format.
 2. Merges (squash, through the API, after re-reading that the head is unchanged) only when,
    **in this same tick**, `tools/dev/session_ci.sh` said `pass` for that head AND the
    reviewer it spawned said approve/nits for that head. A marker found on the PR from an

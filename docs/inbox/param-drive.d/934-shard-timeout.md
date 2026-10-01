@@ -26,11 +26,26 @@ That makes every head red regardless of its content.
   `timeout after N s`, instead of an empty string. It still fails, because only an
   "N passed" tally can be green.
 
+- **Disclosure.** A posted CI line run under a cap other than 1500 names the cap
+  (`.github/prompts/tick.md`, `tools/dev/review_brief.md` step 1). The JSON stays
+  local; the PR comment is the lasting evidence.
+
+## Review of #933 (head `20a378a`, 🛑)
+
+- **Overflow.** The range check failed open on an overflowing number:
+  `99999999999999999999` passed the digits-only `case`, `[ -lt ]` errored, and the run
+  went on. The value must now be 3 or 4 digits before any arithmetic, and the range
+  test treats an error as a refusal.
+- **Killed runs.** A kill after the grace period (rc 137) is named in the summary like
+  a timeout (rc 124).
+- **Header.** The script header lists `shard_timeout`.
+
 The override is for a slower machine, never for a slower suite. #934 stays open for
 the real headroom work: the shard on an idle machine in ≤ 900 s.
 
 ## BRANCH STATE
 - `tools/dev/session_ci.sh`; this fragment.
-- Gates: `test_ci_fresh`, `test_techlead` and `test_shard_list` pass; `bash -n` is ok.
+- Gates: `test_ci_fresh`, `test_techlead` and `test_shard_list` pass; `bash -n` is ok; the input table was re-checked (overflow, 599, 3601, a space, 9e3 and empty
+  are refused; 0900, 900 and 2700 are accepted).
 - Shipped with PR #933. Its CI ran with `SESSION_CI_SHARD_TIMEOUT=2700`, recorded in the
   verdict.
