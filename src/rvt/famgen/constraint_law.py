@@ -334,6 +334,12 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
                 add(ERROR, "CG4", eid, cls,
                     f"{cls} {eid} lists constraint {cid}, which is not in "
                     f"the document")
+            elif cid not in by_id:
+                # in the file but of a class this law does not decode (a
+                # Level, another dimension class): it exists, so it is not a
+                # dangling pointer, and its class cannot be judged here --
+                # reading must not be the thing that breaks (#927 review)
+                continue
             elif by_id[cid][0] not in CONSTRAINING_CLASSES:
                 add(ERROR, "CG4", eid, cls,
                     f"{cls} {eid} lists {cid} as a constraint, but {cid} is a "

@@ -122,6 +122,15 @@ The new CG7 fires on `make_panelboard`, in all three battery variants:
 - CG7 judges only GLine/geomTag 0 and GArc/geomTag 1. Other witness tags (line
   endpoints, for example) are skipped until a specimen names them.
 
+## Shipped together with #914 (PR #927)
+
+The panelboard CG7 finding above (battery 18/21, strict xfail) held only for
+#910 alone. In PR #927 the fix ships alongside it (`914-panel-drives.md`): the
+battery reads 21/21 and `test_the_panelboard_chain_is_coherent` is a plain pass.
+The PR's review found that CG4 raised `KeyError` on a back-edge to an element
+in the file but outside the decoded classes; such an id is now unjudged (it
+exists, so it is no dangling pointer), with a synthetic test.
+
 ## BRANCH STATE
 
 - **Files:**

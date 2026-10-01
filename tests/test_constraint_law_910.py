@@ -154,6 +154,16 @@ def test_universe_counts_ids_not_decoded():
     assert CL.check_graph(g, universe=[99]) == []
 
 
+def test_cg4_a_back_edge_to_an_undecoded_element_is_unjudged_never_a_crash():
+    """#927 review: an id in the file but of a class the law does not decode
+    must neither raise nor pass as a constraint; an id in no part of the file
+    is still the dangling pointer CG4 exists to catch."""
+    g = [(1, "RefPlane", {"m_constrInfo": [{"m_constrId": 99}]})]
+    assert CL.check_graph(g, universe=[1, 99]) == []
+    assert _rules(CL.check_graph(g, universe=[1])) == ["CG4"]
+    assert _rules(CL.check_graph(g)) == ["CG4"]
+
+
 # -- the desktop-verified chains --------------------------------------------
 
 @pytest.fixture(scope="module")
