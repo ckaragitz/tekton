@@ -187,6 +187,11 @@ class Archetype:
     #: binds THIS parameter instead of the primary: "a 1-5/8 in strut
     #: trapeze" names the channel, not a 1.6 in trapeze (#900 review)
     noun_leads: Tuple[Tuple[str, str], ...] = ()
+    #: PARAMETER DRIVES (#904): ``vals -> [{caption, axis, lo, hi, parts:
+    #: {part name: ("lo",) | ("hi",) | ("lo", "hi")}}]`` -- which family
+    #: parameter moves which part edges (feet, family coordinates); authored
+    #: by ``rvt.famgen.drive_law.wire_linear_drive``
+    drives: Optional[Callable[[Dict[str, float]], List[Dict[str, Any]]]] = None
 
     def param(self, key: str) -> Param:
         for p in self.params:
@@ -604,6 +609,29 @@ def _trapeze_params(v: Dict[str, float]) -> Dict[str, Any]:
     }
 
 
+def _trapeze_drives(v: Dict[str, float]) -> List[Dict[str, Any]]:
+    """Strut Length moves both ends of every tier: the full-length webs and
+    lips follow on both sides, a slotted back's end segments on their outer
+    side only (the slots in between keep their pitch)."""
+    g = _trapeze_geometry(v)
+    sides: Dict[str, Tuple[str, ...]] = {}
+    for p in _strut_trapeze(v):
+        n = p["name"]
+        if not n.startswith("tier ") or p.get("shape") != "box":
+            continue
+        rest = n.split(" ", 2)[2]
+        if rest.startswith(("web ", "inturned lip ")) or rest == "back":
+            sides[n] = ("lo", "hi")
+        elif rest.startswith("back segment "):
+            k, total = rest[len("back segment "):].split("/")
+            if k == "1":
+                sides[n] = ("lo",)
+            elif k == total:
+                sides[n] = ("hi",)
+    return [{"caption": "Strut Length", "axis": "x",
+             "lo": -g["L"] / 2.0, "hi": g["L"] / 2.0, "parts": sides}]
+
+
 def _trapeze_settle(vals: Dict[str, float], prov: Dict[str, str],
                     quoted: Dict[str, str]) -> None:
     """Strut length = rod spacing + 2 x rod inset, whichever two the caller
@@ -887,10 +915,11 @@ _register(Archetype(
             "the rod holes are not cut: the rod passes through the channel back",
             "the beam clamp / anchor at the rod top is not modelled",
             "the section is authored square-cornered; the forming radii are not",
-            "PARAMETERS CARRY VALUES, THEY DO NOT YET DRIVE THE GEOMETRY: editing "
-            "Strut Length or Tier Spacing in Revit does not move the solids (the "
-            "parametric drive has no desktop verdict, #372 / #787) -- a different "
-            "size is a re-generation with the new numbers"),
+            "Strut Length is WIRED to move both strut ends of every tier (the in-plane "
+            "law the owner's desktop verified on a one-box probe, #787), but this "
+            "multi-part family has NO desktop verdict of its own yet (#904); every "
+            "other parameter carries a value and does not drive the geometry -- a "
+            "different rod spacing, tier spacing or rod size is a re-generation"),
     aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
     patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
               r"(?:\s+(?:hangers?|supports?|racks?))?",
@@ -966,6 +995,7 @@ _register(Archetype(
     build=_strut_trapeze,
     family_params=_trapeze_params,
     settle=_trapeze_settle,
+    drives=_trapeze_drives,
     noun_leads=(("strut", "height_in"), ("channel", "height_in"),
                 ("unistrut", "height_in")),
     name_bits=lambda v: [f"{int(round(float(v['tiers'])))} Tier"],
