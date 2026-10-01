@@ -199,7 +199,9 @@ _ROWS: Tuple[Kind, ...] = (
             "sizes from the archetype registry (#899); Strut Length moves both ends of "
             "every tier symmetrically and the rods, washers and nuts follow at Rod Inset "
             "(mechanisms desktop-verified, #904; the assembled family awaits its own "
-            "verdict); the other parameters carry values only"),
+            "verdict); the heights (Tier Spacing, Strut Height, Strut Thickness, Washer "
+            "Thickness, the rod ends) are authored from the born corpus law with no "
+            "desktop verdict (#787 Case B); the other parameters carry values only"),
     # ---------------------------------------------------------------- wiring devices
     _k("receptacle", "Duplex receptacle", "electrical", "electrical_fixture",
        ["famspec:device/duplex-receptacle"], intent=("receptacle_device",),
