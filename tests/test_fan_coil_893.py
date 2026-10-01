@@ -7,7 +7,8 @@ disconnect, built from its researched parts.
   label, conduit hub -- on the ELECTRICAL end (+y), opposite the coil connections;
 * every dimension ``nominal`` unless given, the disconnect's 30 A frame / 15 A fuses
   ``given``, the voltage an assumption unless given;
-* ONE electrical connector, on the disconnect's top, bound to Voltage;
+* one power connector, on the disconnect's top, bound to Voltage, and the feeder's
+  conduit connector at the same point (#894);
 * the NEC working space in front of the disconnect, magenta, bound to
   ``and(Show Clearances, Show Front Clearance)``;
 * VALID, 0 errors, on 2026 and inside the 2025 build context.
@@ -271,3 +272,67 @@ def test_the_shared_equipment_clearance_also_delivers_beyond_the_table():
     assert rep["forms"] == [] and rep["not_drawn"]
     assert any(n.startswith("clearance zones NOT drawn") for n in doc.notes)
     assert EC.P_SHOW not in doc.params
+
+
+# --- #894: the feeder's conduit connector -----------------------------------------------
+
+def test_the_disconnect_carries_a_conduit_connector_driven_by_its_diameter(fcu):
+    from rvt.famgen import mep_connectors as MC
+    (con,) = fcu.doc.mep_connectors
+    dom = con.obj["m_pDomain"]
+    assert dom["ptr_class"] == "ConnectorElemDomainCableTrayConduit"
+    v = dom["value"]
+    assert (v["m_eSystemType"], v["m_eProfileType"], v["m_ePlacementType"]) == (32, 0, 0)
+    assert v["m_dConnectorDiameter"] == pytest.approx(0.75 / 12) and v["m_bIsPrimaryConnector"]
+    (cell,) = [c for c in con.obj["m_cellList"]["value"]["m_cells"]
+               if c["ptr_class"] == "FamilyParametrizedElemParamsCell"]
+    (d,) = cell["value"]["m_paramDrivenData"]
+    pid = fcu.doc.params["Conduit Diameter"].elem_id
+    assert (d["m_famParamId"], d["m_elemPropId"]) == (pid, MC.ELEM_PROP_CONDUIT_DIAMETER)
+    assert pid in con.header["m_parents"]["value"]["m_deletion"]
+    (power,) = fcu.doc.connectors                                # the power one is still the primary
+    assert power.obj["m_pDomain"]["value"]["m_bIsConnectorPrimary"]
+    assert fcu.facts.values["conduit_diameter_in"].kind == "nominal"
+
+
+def test_the_conduit_connector_reads_back_from_the_written_file(fcu, tmp_path):
+    from contextlib import ExitStack
+    from rvt import global_framing as GF
+    from rvt.families import FamilyIndex
+    out = str(tmp_path / "c.rfa")
+    fcu.write(out, validate=False, provenance=False)
+    with ExitStack() as st:
+        GF.enter_own_release(st, out)
+        fi = FamilyIndex(out)
+        doms = sorted((fi.value(0, e) or {})["m_pDomain"]["ptr_class"]
+                      for e, r in fi.unit_records(0).get(102, {}).items()
+                      if fi.class_name(r.class_id) == "ConnectorElem")
+    assert doms == ["ConnectorElemDomainCableTrayConduit", "ConnectorElemDomainElectrical"]
+
+
+def test_conduit_domain_refuses_a_non_positive_diameter():
+    from rvt.famgen import mep_connectors as MC
+    with pytest.raises(ValueError):
+        MC.conduit_domain(0.0)
+
+
+def test_a_second_conduit_connector_points_at_the_domain_primary():
+    """The corpus law (226 / 226): a non-primary conduit connector carries its domain's
+    primary in m_idPrimaryElem and depends on it; a second primary is refused."""
+    from rvt.famgen import factory as F
+    from rvt.famgen import mep_connectors as MC
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_fixture", "jb")
+    box = F.add_box_form(doc, 0.5, 0.5, 0.5)
+    kw = dict(host=box, face="top", direction=(0, 0, 1), u_axis=(1, 0, 0), diameter_ft=0.0625)
+    with pytest.raises(F.FactoryError):
+        MC.add_conduit_connector(doc, location=(0, 0, 0.5), primary=False, **kw)
+    a = MC.add_conduit_connector(doc, location=(0, 0, 0.5), **kw)
+    b = MC.add_conduit_connector(doc, location=(0.1, 0, 0.5), **kw)
+    assert a.obj["m_pDomain"]["value"]["m_bIsPrimaryConnector"]
+    assert not b.obj["m_pDomain"]["value"]["m_bIsPrimaryConnector"]
+    assert (a.obj["m_idPrimaryElem"], b.obj["m_idPrimaryElem"]) == (a.elem_id, a.elem_id)
+    assert a.elem_id in b.header["m_parents"]["value"]["m_deletion"]
+    assert b.obj["m_index"] == a.obj["m_index"] + 1
+    with pytest.raises(F.FactoryError):
+        MC.add_conduit_connector(doc, location=(0.2, 0, 0.5), primary=True, **kw)

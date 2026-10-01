@@ -23,9 +23,10 @@ Every dimension is ``nominal`` (S-2026-08-10-e) unless the caller gives it: the
 class proportions above, never a manufacturer's drawing, model or part number.
 
 WHAT THE FILE DOES NOT CARRY YET: hydronic (pipe) and duct CONNECTORS -- the writer
-authors electrical connectors only, so the coil, drain and duct connections are
-geometry, said in the notes.  The unit's one electrical connector sits on the
-disconnect.  "Behaves in Revit" is claimed only with a desktop verdict (hard rule 4).
+authors power and conduit connectors only (#894: no hydronic or duct specimen pins
+their system), so the coil, drain and duct connections are
+geometry, said in the notes.  The unit's power connector and its feeder's conduit
+connector sit on the disconnect.  "Behaves in Revit" is claimed only with a desktop verdict (hard rule 4).
 
 Clearance: the NEC 110.26(A) working space in front of the DISCONNECT's face,
 toggleable and magenta like every equipment family (steer #882 / #884).  A
@@ -46,6 +47,8 @@ NOMINAL_DEPTH_IN = 23.0
 NOMINAL_HEIGHT_IN = 10.5
 
 ROLE_CABINET = "fan coil cabinet"
+#: the feeder conduit's nominal trade size (in): 3/4 in, the common branch-circuit size
+CONDUIT_NOMINAL_IN = 0.75
 ROLE_DISCONNECT = "fused disconnect switch"
 ROLE_DISCONNECT_NF = "disconnect switch"
 
@@ -211,6 +214,8 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
     if fused:
         sheet.set("disconnect_fuse_a", float(disconnect_fuse_a), kind="given",
                   source=f"the request ({disconnect_fuse_a:g}AS)")
+    sheet.set("conduit_diameter_in", CONDUIT_NOMINAL_IN, kind="nominal",
+              source="3/4 in, the common branch-circuit conduit trade size")
     sheet.set("manufacturer", "", kind="ours")
     sheet.set("model", "", kind="ours")
     L, D, H = dims["length_in"] * IN, dims["depth_in"] * IN, dims["height_in"] * IN
@@ -244,6 +249,7 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
     F._num(doc, "Disconnect Frame Rating", "current", "electrical")
     if fused:                                  # a non-fused switch has no fuse to rate
         F._num(doc, "Disconnect Fuse Rating", "current", "electrical")
+    F._num(doc, "Conduit Diameter", "length", "electrical")      # drives the conduit connector
     F._text(doc, "Disconnect Type", "electrical")
     F._text(doc, "Disconnect Enclosure", "electrical")
     F._text(doc, "Coil Configuration")
@@ -255,6 +261,7 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
         ("Height", "length", dims["height_in"]),
         ("Voltage", "voltage", float(voltage)), ("Number of Phases", "integer", int(phases)),
         ("Disconnect Frame Rating", "current", float(disconnect_frame_a)),
+        ("Conduit Diameter", "length", CONDUIT_NOMINAL_IN),
     ] + ([("Disconnect Fuse Rating", "current", float(disconnect_fuse_a))] if fused else []) + [
         ("Disconnect Type", "text", "Fused Disconnect Switch" if fused else "Non-Fused Disconnect Switch"),
         ("Disconnect Enclosure", "text", "NEMA 1 (nominal)"),
@@ -305,13 +312,13 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
             f"{'fused' if fused else 'non-fused'} disconnect ({sw}) with handle, rating label "
             f"and conduit hub")
     if not cabinet_only:
-        doc.notes.append("pipe / duct connectors are NOT authored (the writer authors electrical "
-                         "connectors only): the coil, drain and duct connections are geometry "
+        doc.notes.append("pipe / duct connectors are NOT authored (the writer authors power and "
+                         "conduit connectors only): the coil, drain and duct connections are geometry "
                          "-- draw pipe and duct to them by eye")
     else:
         doc.notes.append("pipe / duct connectors are NOT authored, and with the end hardware "
                          "left out there are no coil, drain or duct stubs to draw to")
-    # the one electrical connector: on the disconnect's top, where the feeder enters
+    # the power connector: on the disconnect's top, where the feeder enters
     # (on the cabinet's top at the electrical end when there is no room for one)
     if host_disc is not None:
         fdisc, pd = host_disc
@@ -329,6 +336,17 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
     doc.notes.append(f"power connector on the {'disconnect' if host_disc else 'cabinet'}'s top, "
                      f"{poles} pole(s) for {voltage:g} V {phases}-phase, apparent load 0 VA: the "
                      f"motor's nameplate load is not known -- enter it")
+    # the feeder's CONDUIT connector at the same point (#894): the conduit routed to
+    # the hub, its diameter driven by a family parameter (nominal 3/4 in trade size)
+    from . import mep_connectors as MC
+    MC.add_conduit_connector(doc, host=fdisc, face="top", location=loc,
+                             direction=(0.0, 0.0, 1.0), u_axis=(1.0, 0.0, 0.0),
+                             diameter_ft=CONDUIT_NOMINAL_IN * IN,
+                             bind_diameter_param="Conduit Diameter", description="Feeder Conduit")
+    doc.notes.append(f"conduit connector at the {'disconnect' if host_disc else 'cabinet'}'s "
+                     f"feeder entry, {CONDUIT_NOMINAL_IN:g} in NOMINAL, driven by 'Conduit "
+                     f"Diameter' (#894; conduit routes to it in Revit only with a desktop "
+                     f"verdict)")
     # clearance: the 110.26(A) working space in front of the disconnect, toggleable
     vtg = voltage_to_ground if voltage_to_ground is not None else voltage_to_ground_for(voltage, phases)
     zone_w_src = pd["w"] if host_disc is not None else D
