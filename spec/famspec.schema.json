@@ -166,14 +166,6 @@
             "flush"
           ]
         },
-        "drive": {
-          "enum": [
-            "law",
-            "372",
-            null
-          ],
-          "description": "How Width / Depth / Height drive the geometry (#914): 'law' (default) = the Revit-born in-plane law with the front parts riding; '372' = the legacy panelboard chain; null = no drive wired. Authored; the assembled family has no desktop verdict."
-        },
         "panel_name": {
           "type": "string",
           "minLength": 1,
@@ -209,6 +201,14 @@
         },
         "standard_values": {
           "$ref": "#/definitions/common/properties/standard_values"
+        },
+        "drive": {
+          "enum": [
+            "law",
+            "372",
+            null
+          ],
+          "description": "The parameter drives (#913/#914): 'law' (default) wires the family's dimension parameters through drive_law (symmetric in-plane) + height_law (#787 Case B) with its parts riding the planes they belong to; '372' keeps the old first-solid chain (Width/Depth or Length/Width on the main solid only); null wires nothing (the family as before the drives). AUTHORED, the assembled family UNVERIFIED: no route calls it flexing before a desktop-Revit verdict (hard rule 4)."
         }
       }
     },
@@ -259,6 +259,13 @@
         },
         "standard_values": {
           "$ref": "#/definitions/common/properties/standard_values"
+        },
+        "drive": {
+          "enum": [
+            "law",
+            null
+          ],
+          "description": "The parameter drives (#913/#914): 'law' (default) wires the family's dimension parameters through drive_law (symmetric in-plane) + height_law (#787 Case B) with its parts riding the planes they belong to; null wires nothing (the family as before the drives). AUTHORED, the assembled family UNVERIFIED: no route calls it flexing before a desktop-Revit verdict (hard rule 4)."
         }
       }
     },
@@ -324,6 +331,14 @@
         },
         "standard_values": {
           "$ref": "#/definitions/common/properties/standard_values"
+        },
+        "drive": {
+          "enum": [
+            "law",
+            "372",
+            null
+          ],
+          "description": "The parameter drives (#913/#914): 'law' (default) wires the family's dimension parameters through drive_law (symmetric in-plane) + height_law (#787 Case B) with its parts riding the planes they belong to; '372' keeps the old first-solid chain (Width/Depth or Length/Width on the main solid only); null wires nothing (the family as before the drives). AUTHORED, the assembled family UNVERIFIED: no route calls it flexing before a desktop-Revit verdict (hard rule 4)."
         }
       }
     },
@@ -378,6 +393,13 @@
         },
         "standard_values": {
           "$ref": "#/definitions/common/properties/standard_values"
+        },
+        "drive": {
+          "enum": [
+            "law",
+            null
+          ],
+          "description": "The parameter drives (#913/#914): 'law' (default) wires the family's dimension parameters through drive_law (symmetric in-plane) + height_law (#787 Case B) with its parts riding the planes they belong to; 'law' also adds the Width / Height / Depth dimension parameters; null wires nothing (the family as before the drives). AUTHORED, the assembled family UNVERIFIED: no route calls it flexing before a desktop-Revit verdict (hard rule 4)."
         }
       }
     },

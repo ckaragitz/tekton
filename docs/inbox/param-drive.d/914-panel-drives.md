@@ -125,7 +125,7 @@ no drive, i.e. the panel's old shape. A new test pins that fixture to the old nu
 - **The anchor check took a horizontal plane.** It compared only end coordinates, so
   the origin elevation plane (#787 Case B, both ends at y = 0) passed as a y anchor.
   `origin_centre_plane` had the same blind spot. Both now also require the plane's
-  normal to be ±axis. This lands in the next PR, with
+  normal to be ±axis. This lands in `d42388b` (in #931 itself), with
   `test_a_horizontal_plane_is_never_an_anchor_or_an_origin_centre`.
 
 ## BRANCH STATE
