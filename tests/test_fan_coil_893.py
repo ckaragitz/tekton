@@ -137,7 +137,8 @@ def test_the_cli_builds_it(tmp_path):
 
 @pytest.mark.parametrize("v,ph,poles,vtg", [(120, 1, 1, 120), (208, 1, 2, 120), (240, 1, 2, 120),
                                             (277, 1, 1, 277), (480, 1, 2, 277), (208, 3, 3, 120),
-                                            (480, 3, 3, 277), (600, 3, 3, 347)])
+                                            (480, 3, 3, 277), (600, 3, 3, 347),
+                                            (240, 3, 3, 240), (230, 3, 3, 240)])  # delta: not 120
 def test_poles_and_voltage_to_ground_follow_the_supply(v, ph, poles, vtg):
     assert FC.poles_for(v, ph) == poles
     assert FC.voltage_to_ground_for(v, ph) == vtg
@@ -180,3 +181,44 @@ def test_the_control_box_and_disconnect_never_overlap_at_the_smallest_depth():
     cb = next(p for p in parts if p["role"] == "unit control box")
     ds = next(p for p in parts if p["role"] == FC.ROLE_DISCONNECT)
     assert cb["cx"] + cb["w"] / 2 <= ds["cx"] - ds["w"] / 2
+
+
+# --- review round 2 (#902) ------------------------------------------------------------
+
+def test_a_240v_three_phase_unit_gets_the_deeper_delta_working_space():
+    prod = FC.make_fan_coil_unit(voltage=240, phases=3)
+    zone = next(f for f in prod.forms if f.params["role"] == "clearance: front working space")
+    assert zone.params["depth_ft"] == pytest.approx(3.5)        # 151-600 V to ground, Condition 2
+    assert any("is a delta" in n for n in prod.doc.notes)
+    given = FC.make_fan_coil_unit(voltage=240, phases=3, voltage_to_ground=120)
+    zone = next(f for f in given.forms if f.params["role"] == "clearance: front working space")
+    assert zone.params["depth_ft"] == pytest.approx(3.0)        # the caller's statement wins
+
+
+@pytest.mark.parametrize("kw", [dict(voltage=0), dict(voltage=-5), dict(phases=0), dict(phases=2)])
+def test_impossible_supplies_are_refused_up_front(kw):
+    with pytest.raises(ValueError):
+        FC.make_fan_coil_unit(**kw)
+
+
+def test_a_non_fused_unit_has_no_fuse_rating_parameter():
+    assert "Disconnect Fuse Rating" not in FC.make_fan_coil_unit(fused=False).doc.params
+    assert "Disconnect Fuse Rating" in FC.make_fan_coil_unit().doc.params
+
+
+def test_the_cabinet_only_branch_does_not_promise_stubs():
+    prod = FC.make_fan_coil_unit(length_in=10)
+    notes = "\n".join(prod.doc.notes)
+    assert "draw pipe and duct to them by eye" not in notes
+    assert "no coil, drain or duct stubs" in notes
+
+
+def test_the_cli_passes_voltage_to_ground(tmp_path):
+    import json
+    import subprocess
+    out = tmp_path / "v.rfa"
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "make_family.py"), "fan-coil",
+                        "--voltage", "240", "--phases", "3", "--voltage-to-ground", "120",
+                        "-o", str(out)], capture_output=True, text=True, timeout=600)
+    assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-2000:]
+    assert out.exists()

@@ -67,14 +67,22 @@ def poles_for(voltage: float, phases: int) -> int:
 
 
 def voltage_to_ground_for(voltage: float, phases: int) -> float:
-    """The nominal voltage to ground of a supply (for the 110.26(A) table): a
-    line-to-neutral single-phase supply is its own; a line-to-line one is the
-    system's line-to-neutral -- 208 -> 120, 240 (120/240 V) -> 120, 480 -> 277,
-    600 -> 347 -- else V / sqrt(3) (a wye system), stated as assumed by the caller."""
+    """The nominal voltage to ground of a supply (for the 110.26(A) table), stated
+    as an assumption by the caller:
+
+    * single-phase line-to-neutral (120 / 277 / 347 V): its own voltage;
+    * single-phase 240 V: the 120/240 V system, 120 V;
+    * three-phase 240 V: a DELTA system -- no conductor is 120 V to ground (a
+      high leg is 208 V, a corner-grounded phase 240 V, and an ungrounded system
+      counts its phase-to-phase voltage), so 240 V, the conservative reading;
+    * 208 -> 120, 480 -> 277, 600 -> 347 (the wye systems);
+    * anything else: V / sqrt(3) (a wye system)."""
     v = float(voltage)
     if int(phases) < 3 and poles_for(v, phases) == 1:
         return v
-    for ll, ln in ((208.0, 120.0), (240.0, 120.0), (480.0, 277.0), (600.0, 347.0)):
+    if abs(v - 240.0) <= 10.0:
+        return 240.0 if int(phases) >= 3 else 120.0
+    for ll, ln in ((208.0, 120.0), (480.0, 277.0), (600.0, 347.0)):
         if abs(v - ll) <= 10.0:
             return ln
     return round(v / 3 ** 0.5)
@@ -179,6 +187,10 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
         else:
             sheet.set(key, float(val), kind="given", source="the request")
             dims[key] = float(val)
+    if voltage is not None and not (float(voltage) > 0):
+        raise ValueError(f"supply voltage must be a positive number of volts, got {voltage!r}")
+    if phases is not None and int(phases) not in (1, 3):
+        raise ValueError(f"phases must be 1 or 3, got {phases!r}")
     if voltage is None:
         voltage = 208.0
         sheet.set("voltage_v", voltage, kind="assumed",
@@ -228,7 +240,8 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
     F._num(doc, "Voltage", "voltage", "electrical")
     F._num(doc, "Number of Phases", "integer", "electrical")
     F._num(doc, "Disconnect Frame Rating", "current", "electrical")
-    F._num(doc, "Disconnect Fuse Rating", "current", "electrical")
+    if fused:                                  # a non-fused switch has no fuse to rate
+        F._num(doc, "Disconnect Fuse Rating", "current", "electrical")
     F._text(doc, "Disconnect Type", "electrical")
     F._text(doc, "Disconnect Enclosure", "electrical")
     F._text(doc, "Coil Configuration")
@@ -240,7 +253,7 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
         ("Height", "length", dims["height_in"]),
         ("Voltage", "voltage", float(voltage)), ("Number of Phases", "integer", int(phases)),
         ("Disconnect Frame Rating", "current", float(disconnect_frame_a)),
-        ("Disconnect Fuse Rating", "current", float(disconnect_fuse_a) if fused else 0.0),
+    ] + ([("Disconnect Fuse Rating", "current", float(disconnect_fuse_a))] if fused else []) + [
         ("Disconnect Type", "text", "Fused Disconnect Switch" if fused else "Non-Fused Disconnect Switch"),
         ("Disconnect Enclosure", "text", "NEMA 1 (nominal)"),
         ("Coil Configuration", "text", "2-pipe (nominal)"),
@@ -282,9 +295,13 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
             f"coil supply / return and condensate drain stubs, unit control box, unit-mounted "
             f"{'fused' if fused else 'non-fused'} disconnect ({sw}) with handle, rating label "
             f"and conduit hub")
-    doc.notes.append("pipe / duct connectors are NOT authored (the writer authors electrical "
-                     "connectors only): the coil, drain and duct connections are geometry -- "
-                     "draw pipe and duct to them by eye")
+    if not cabinet_only:
+        doc.notes.append("pipe / duct connectors are NOT authored (the writer authors electrical "
+                         "connectors only): the coil, drain and duct connections are geometry "
+                         "-- draw pipe and duct to them by eye")
+    else:
+        doc.notes.append("pipe / duct connectors are NOT authored, and with the end hardware "
+                         "left out there are no coil, drain or duct stubs to draw to")
     # the one electrical connector: on the disconnect's top, where the feeder enters
     # (on the cabinet's top at the electrical end when there is no room for one)
     if host_disc is not None:
@@ -336,8 +353,12 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
     for k, v in ws.assumed.items():
         doc.notes.append(f"clearance assumption -- {k}: {v}")
     if voltage_to_ground is None:
+        delta = (" -- a 240 V three-phase system is a delta: no conductor is 120 V to ground "
+                 "(high leg 208 V, corner-grounded 240 V), so the conservative 240 V"
+                 if phases >= 3 and abs(voltage - 240.0) <= 10.0 else "")
         doc.notes.append(f"clearance assumption -- voltage_to_ground: {vtg:g} V (from the "
-                         f"{voltage:g} V {phases}-phase supply) -- state it if the system differs")
+                         f"{voltage:g} V {phases}-phase supply{delta}) -- state it if the system "
+                         f"differs (--voltage-to-ground)")
     std = ST.apply_safe(doc, "mechanical_equipment", standards, None)
     doc.finalize()
     prod = F.FamilyProduct("fan_coil_unit", doc, sheet, forms=forms, types=rows, standards=std,

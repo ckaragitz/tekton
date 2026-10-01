@@ -268,7 +268,8 @@ def cmd_fan_coil(ns) -> int:
     prod = FC.make_fan_coil_unit(length_in=ns.length, depth_in=ns.depth, height_in=ns.height,
                                  voltage=ns.voltage, phases=ns.phases,
                                  disconnect_frame_a=ns.frame, disconnect_fuse_a=ns.fuse,
-                                 fused=not ns.non_fused, shared_params=_shared_arg(ns))
+                                 fused=not ns.non_fused, voltage_to_ground=ns.voltage_to_ground,
+                                 shared_params=_shared_arg(ns))
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
@@ -612,6 +613,9 @@ def main(argv=None) -> int:
     p.add_argument("--frame", type=float, default=30.0, help="disconnect frame rating (A), e.g. 30AF")
     p.add_argument("--fuse", type=float, default=15.0, help="fuse rating (A), e.g. 15AS")
     p.add_argument("--non-fused", action="store_true", help="a non-fused disconnect")
+    p.add_argument("--voltage-to-ground", type=float, default=None,
+                   help="the system's voltage to ground (V) for the NEC working space; derived "
+                        "from the supply and stated as assumed if omitted")
     p.add_argument("--shared-params", default=None, metavar="FILE")
     _profile_flags(p)
     p.add_argument("-o", "--output", default=None)

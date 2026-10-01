@@ -17,7 +17,7 @@ The sources were public installation manuals and product pages for horizontal co
 ## What was built
 
 **`rvt.famgen.fan_coil`:**
-- `fan_coil_parts(L, D, H)` returns 17 parts. Airflow is +x; the piping end is −y and the electrical end +y.
+- `fan_coil_parts(L, D, H)` returns 16 parts; the working space makes the 17th form. Airflow is +x; the piping end is −y and the electrical end +y.
   - the cabinet;
   - the supply duct collar and the return filter rack;
   - a bottom access panel;
@@ -29,10 +29,10 @@ The sources were public installation manuals and product pages for horizontal co
   - dimensions `nominal` (42 × 23 × 10.5 in for the class) unless given;
   - the disconnect's frame and fuse `given` (30 AF / 15 AS);
   - the voltage `assumed` (208 V, 1-phase) unless given.
-- **One electrical connector, on the disconnect's top (the conduit hub)**, 2 poles, bound to `Voltage`.
+- **One electrical connector, on the disconnect's top (the conduit hub)**, bound to `Voltage`. Its poles follow the supply (`poles_for`, below): 2 for the default 208 V single-phase.
 - **The NEC 110.26(A) working space in front of the disconnect**: magenta, and toggleable through the #882 parameters.
   - It is drawn the unit's height. A ceiling-hung family does not know the floor, and above a suspended ceiling 110.26(A)(4) (limited access) governs.
-  - Its voltage to ground is 120 V for a ≤ 240 V supply, stated.
+  - Its voltage to ground follows the supply (`voltage_to_ground_for`, below) unless given, and is stated.
 - **Category standards:** 16 mechanical-equipment standard parameters authored, blank (S-2026-08-11-a).
 - **CLI:** `tools/make_family.py fan-coil [--length --depth --height --voltage --phases --frame --fuse --non-fused …]`.
 
@@ -61,6 +61,17 @@ The sources were public installation manuals and product pages for horizontal co
   - The minimum depth for the end hardware is 16 in. Below 15.5 in, the control box and the disconnect overlapped.
 - **The panelboard factory's tiny-box fallback is now tested through `make_panelboard`.**
 - **Tests:** `tests/test_fan_coil_893.py` has 23 tests (pole/ground table, 277 V, non-fused, 4 odd shapes, no overlap at the minimum depth). Together with the panelboard detail tests: 32 passed.
+
+## Review round 2 (#902): what changed
+
+- **240 V three-phase is a delta.** No conductor is 120 V to ground: a high leg is 208 V, a corner-grounded phase is 240 V, and an ungrounded system counts its phase-to-phase voltage.
+  - So `voltage_to_ground_for(240, 3)` = 240 V, the conservative reading, and the note says why. Same for 230 V. Single-phase 240 V stays 120 V (the 120/240 V system).
+  - The first head drew a 3.0 ft zone where Condition 2 needs 3.5 ft: the unsafe direction.
+- **CLI `--voltage-to-ground`** passes the system's voltage to ground through (S-2026-09-23-a: overridable).
+- **Impossible supplies are refused up front** (voltage ≤ 0, phases other than 1 or 3), like non-positive dimensions.
+- **A non-fused unit has no "Disconnect Fuse Rating" parameter.** A blank number would be stored as 0, an invented value.
+- **The cabinet-only branch** no longer tells the user to draw pipe to stubs that are not there.
+- **Tests:** 33 in `tests/test_fan_coil_893.py`, adding the delta zone depth and its override, the refused supplies, no fuse parameter, the cabinet-only note, and the CLI flag.
 
 ## Open
 
