@@ -915,11 +915,12 @@ _register(Archetype(
             "the rod holes are not cut: the rod passes through the channel back",
             "the beam clamp / anchor at the rod top is not modelled",
             "the section is authored square-cornered; the forming radii are not",
-            "Strut Length is WIRED to move both strut ends of every tier (the in-plane "
-            "law the owner's desktop verified on a one-box probe, #787), but this "
-            "multi-part family has NO desktop verdict of its own yet (#904); every "
-            "other parameter carries a value and does not drive the geometry -- a "
-            "different rod spacing, tier spacing or rod size is a re-generation"),
+            "Strut Length DRIVES both strut ends of every tier (owner's desktop "
+            "verdict, #904); the threaded rods, washers and nuts do NOT follow it yet "
+            "-- they stay where they were generated, so after flexing Strut Length "
+            "the Rod Inset, Rod Spacing and Width values no longer describe the "
+            "geometry; every other parameter carries a value and does not drive it "
+            "-- a different rod spacing, tier spacing or rod size is a re-generation"),
     aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
     patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
               r"(?:\s+(?:hangers?|supports?|racks?))?",

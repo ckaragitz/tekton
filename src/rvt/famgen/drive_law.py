@@ -248,6 +248,16 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
         locks.extend(new_ids)
 
     value = abs(hi - lo)
+    # the labelled dimension must agree with the parameter it carries: a
+    # mismatch would draw one size and report another (#907 review)
+    rows = doc.types[doc.current_type][1] if doc.types else {}
+    current = rows.get(pe.elem_id)
+    if isinstance(current, (int, float)) and abs(float(current) - value) > 1e-6:
+        raise ValueError(f"drive_law: {caption} is {float(current):g} ft but its planes "
+                         f"are {value:g} ft apart")
+    units = [e.elem_id for e in doc.by_class("UnitsElem")]
+    view_sp = next((e for e in doc.views if e.class_name == "SketchPlane"), None)
+    regen_sp = view_sp.elem_id if view_sp is not None else -1
     ref = -(P - PD.REFPNT_INSET)
     if axis == "x":
         line = ref - PD.DIMLINE_STEP
@@ -259,7 +269,8 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
             ref_pnts=((lo, ref, 0.0), (hi, ref, 0.0)),
             seg_origin=((lo + hi) / 2.0, line, 0.0),
             dim_line_origin=((lo + hi) / 2.0, line, 0.0),
-            dim_line_dir=(1.0, 0.0, 0.0), view_id=view_id, seg_flags=0)
+            dim_line_dir=(1.0, 0.0, 0.0), view_id=view_id,
+            sketch_plane_id=regen_sp, seg_flags=0)
     else:
         line = ref + PD.DIMLINE_STEP
         dim = PD.new_labeled_dim(
@@ -270,7 +281,11 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
             ref_pnts=((ref, lo, 0.0), (ref, hi, 0.0)),
             seg_origin=(line, (lo + hi) / 2.0, 0.0),
             dim_line_origin=(line, (lo + hi) / 2.0, 0.0),
-            dim_line_dir=(0.0, 1.0, 0.0), view_id=view_id, seg_flags=0)
+            dim_line_dir=(0.0, 1.0, 0.0), view_id=view_id,
+            sketch_plane_id=regen_sp, seg_flags=0)
+    if not units:
+        doc.notes.append("drive_law: no UnitsElem -- the labelled dimension keeps the "
+                         "view sketch plane as its regen parent")
     doc.add(dim)
     return {"caption": caption, "axis": axis, "planes": [planes["lo"].elem_id,
                                                          planes["hi"].elem_id],

@@ -123,3 +123,21 @@ def test_the_probe_tool_stages_a_pair_differing_in_one_field():
     c = next(f for n, f in files.items() if "_C_" in n)
     (ps,), (cs,) = p["sketches"].values(), c["sketches"].values()
     assert len(ps["regen_after"]) > len(cs["regen_after"]) == len(cs["regen_before"])
+
+
+def test_a_document_carrying_the_law_gets_no_back_edges_at_all():
+    """#907 review: finalize wrote 22 back-edges and the law then cleared them,
+    leaving two contradicting notes; a law-carrying document skips the step."""
+    prod = F.make_archetype(product="strut_trapeze",
+                            prompt="a 2 tier slotted trapeze with threaded rod")
+    assert not any("back-edges:" in n for n in prod.doc.notes)
+    assert any("0 back-edges cleared" in n for n in prod.doc.notes)
+
+
+def test_planes_that_disagree_with_their_parameter_are_refused_by_name():
+    prod = F.make_generic_model(parts=[dict(BOX)], name="x",
+                                numeric_params={"Run": ("length", 2.0)},
+                                drives=[{"caption": "Run", "axis": "x", "lo": -1.5,
+                                         "hi": 1.5, "parts": {"body": ("lo", "hi")}}])
+    assert prod.drives == []
+    assert any("Run" in n and "not wired" in n for n in prod.doc.notes)

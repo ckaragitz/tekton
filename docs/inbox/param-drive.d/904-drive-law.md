@@ -69,8 +69,10 @@ Read-back showed they differ in exactly one header field. Test: Width from
   - `rvt_validate` ok; family mode VALID, 0 errors; PROVENANCE-CLEAN.
   - Read-back: 20 alignments, all view −1; 1 labelled dimension; 12 sketches
     carrying locks; 0 `m_constrInfo`; 0 unclean records.
-- **Staged for the owner:** change Strut Length from 2' 6" to 3' 6" and Apply.
-  Verdict pending.
+- **Desktop verdict (owner, 2026-10-01):** *"it changes the lengths but the rest
+  of the elements need to be constrained and move with it"*. Strut Length drives
+  every tier's strut ends across 12 parts, which is the second desktop pass. The
+  hardware does not follow yet (steer #908, next).
 
 ## Open
 
@@ -83,6 +85,21 @@ Read-back showed they differ in exactly one header field. Test: Width from
 - **Strut Length leaves the rods where they are.** Rod Inset, as a value, goes
   stale when Strut Length is flexed. A formula (`Rod Inset = (Strut Length − Rod
   Spacing) / 2`) is the natural fix once formulas (#862) have a desktop verdict.
+
+## Review round 1 (head `f2f8890`, 🛑)
+
+- **The PR body.** It said "does not close #904", and GitHub's linker ignores the
+  "not". It is reworded as a Refs-only partial.
+- **Back-edges.** A document carrying the law (`doc.born_drive_law`, set when
+  drives are wired) gets **no** back-edges from `finalize`. There are no more
+  "22 written, then 22 cleared" notes.
+- **`wire_linear_drive` refuses planes that disagree with the parameter's
+  current value.** In the factory that means it is noted and left unwired, never
+  raised. It also passes the view sketch plane as the labelled dimension's regen
+  parent, and notes when a document has no `UnitsElem`.
+- **The trapeze `limits` now say** that the rods, washers and nuts stay put, and
+  that Rod Inset, Rod Spacing and Width no longer describe the geometry after a
+  flex.
 
 ## BRANCH STATE
 

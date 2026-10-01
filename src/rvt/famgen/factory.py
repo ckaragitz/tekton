@@ -1258,6 +1258,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
             sk = next((e for e in fb.elements if e.class_name == "VarSketch"), None)
             if sk is not None and part.get("name"):
                 sketch_of[str(part["name"])] = sk
+        doc.born_drive_law = True
         for spec in drives:
             try:
                 targets = [(sketch_of[n], tuple(sides))
