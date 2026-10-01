@@ -171,13 +171,25 @@ def read_index(fi) -> Dict[str, Any]:
         for q in ((v.get("m_familyParams") or {}).get("value") or {}).get("m_params") or []:
             instance[int(q["m_paramId"])] = bool(q.get("m_instance"))
             rows[int(q["m_paramId"])] = q
-    # every parameter's caption, so a formula reads back over NAMES (#875)
+    # every parameter's caption, so a formula reads back over NAMES (#875), and the
+    # family's own name table, so the spelling is checked by parsing it back
+    from rvt.famgen import formula as FX
+    from rvt.famgen.skeleton import _canonical_spec
     names: Dict[int, str] = {}
+    refs: Dict[str, Any] = {}
     for eid, rec in recs.items():
         if fi.class_name(rec.class_id) in ("ParamElemExternal", "ParamElemFamily"):
-            pv = (((fi.value(0, eid) or {}).get("m_pParamDef") or {}).get("value") or {})
+            pd = (fi.value(0, eid) or {}).get("m_pParamDef") or {}
+            pv = pd.get("value") or {}
             if pv.get("m_caption"):
-                names[int(eid)] = str(pv["m_caption"])
+                cap = str(pv["m_caption"])
+                names[int(eid)] = cap
+                spec = (FX.SPEC_YESNO if pd.get("ptr_class") == "ParamDefYesNo" else
+                        _canonical_spec((pv.get("m_specTypeId") or {}).get("m_typeId") or FX.SPEC_NUMBER))
+                # a caption defined twice (a nested family's definition): the family's own wins
+                if cap not in refs or int(eid) in rows:
+                    refs[cap] = FX.ParamRef(int(eid), spec)
+    table = FX.NameTable(refs)
     for eid, rec in recs.items():
         if fi.class_name(rec.class_id) != "ParamElemExternal":
             continue
@@ -199,7 +211,7 @@ def read_index(fi) -> Dict[str, Any]:
             "visible": bool(pv.get("m_userVisible", True)),
             "user_modifiable": bool(v.get("m_userModifiable", True)),
             "hide_when_no_value": bool(v.get("m_hideWhenNoValue", False)),
-            **_value_of(rows.get(int(eid)), pd.get("ptr_class", ""), names),
+            **_value_of(rows.get(int(eid)), pd.get("ptr_class", ""), names, table),
         })
     return {"category": category, "self_families": self_families,
             "params": sorted(params, key=lambda p: (p["name"], p["guid"]))}
@@ -212,7 +224,8 @@ _VALUE_FIELD = {"ParamDefString": "m_str", "ParamDefURL": "m_str", "ParamDefText
                 "ParamDefValue": "m_value"}
 
 
-def _value_of(row: Optional[dict], def_class: str, names: Dict[int, str]) -> Dict[str, Any]:
+def _value_of(row: Optional[dict], def_class: str, names: Dict[int, str],
+              table: Any = None) -> Dict[str, Any]:
     """How the family fills one parameter in its current type (#875): ``value`` (the
     stored text / integer / Yes-No / measurable value in internal units; None when
     blank or not transferable) and ``formula`` (the expression as Revit text over
@@ -233,9 +246,9 @@ def _value_of(row: Optional[dict], def_class: str, names: Dict[int, str]) -> Dic
         else:
             out["value"] = float(val) if isinstance(val, (int, float)) and val else None
     expr = row.get("m_oExpression")
-    from rvt.famgen.formula import is_no_formula, unparse
+    from rvt.famgen.formula import is_no_formula, unparse, unparse_checked
     if not is_no_formula(expr):                       # an empty string constant = no formula
-        text = unparse(expr, names)
+        text = unparse(expr, names) if table is None else unparse_checked(expr, names, table)
         out["formula"], out["formula_unread"] = text, text is None
     return out
 

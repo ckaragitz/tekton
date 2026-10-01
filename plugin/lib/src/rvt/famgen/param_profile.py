@@ -290,9 +290,11 @@ def _from_convention(p: ProfileParam) -> Tuple[Any, Optional[str], Optional[str]
 def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = None,
           values_source: str = "the caller", profile_source: str = "the profile") -> List[str]:
     """Add ``params`` to the (unfinalized or re-finalizable) family ``doc`` as SHARED
-    parameters -- blank, unless ``values`` (keyed by GUID or name) gives one: a
-    constant, or ``{"formula": "Width"}`` written as the parameter's formula
-    (:mod:`rvt.famgen.formula`; one it cannot store is left out and said at build).
+    parameters -- filled from ``values`` (keyed by GUID or name: a constant, or
+    ``{"formula": "Width"}``) when given, else from the parameter's library
+    convention (``ProfileParam.convention``), else blank.  A formula is written by
+    :mod:`rvt.famgen.formula` at finalize; one it cannot store is left out, said, and
+    loses its provenance tag (:func:`settle_formula_provenance`).
     Returns the notes (what was added, filled, left, or not writable).  The caller
     finalizes the document afterwards."""
     from .skeleton import PGROUP_DIMENSIONS
@@ -336,7 +338,9 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
         pe.refs["instance"] = p.instance
         if formula:
             pe.refs["formula"] = formula
-        if formula or default != WRITABLE[p.def_class]:
+        if formula or default != WRITABLE[p.def_class] or (from_convention and not refused):
+            # a convention is reported even when its value equals the blank row (a Yes/No
+            # the library holds at No): the library said so, the file says the same
             if from_convention:
                 (conv_formulas if formula else conv_values).append(p.name)
                 pe.refs["provenance"] = {"tier": "library", "source": profile_source,
@@ -365,6 +369,29 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
     if unused:
         notes.append(f"values given for parameters the profile did not select: {', '.join(unused)}")
     return notes
+
+
+def settle_formula_provenance(doc, written_ids) -> None:
+    """After the formulas are written: a parameter tagged as filled BY FORMULA whose
+    formula was refused (``written_ids`` = the parameter ids that did get one) carries
+    no library or given value -- its tag is dropped, its name leaves the provenance
+    line, and a note says so.  Called by the finalize step; idempotent."""
+    written_ids = set(written_ids)
+    dropped = []
+    for name, pe in doc.params.items():
+        prov = pe.refs.get("provenance")
+        if prov and prov.get("by") == "formula" and pe.elem_id not in written_ids:
+            pe.refs.pop("provenance")
+            dropped.append(name)
+    if not dropped:
+        return
+    for i, n in enumerate(doc.notes):
+        if n.startswith("provenance library ("):
+            head, _sep, body = n.partition("): ")
+            kept = [e for e in body.split("; ") if not any(e == f"{d!r} by formula" for d in dropped)]
+            doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
+    doc.notes.append("library formulas not written, so these parameters carry no library "
+                     "value: " + ", ".join(repr(d) for d in sorted(dropped)))
 
 
 @dataclass
