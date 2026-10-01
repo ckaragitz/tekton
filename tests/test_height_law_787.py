@@ -22,6 +22,29 @@ from contextlib import ExitStack
 import pytest
 
 from rvt.famgen import factory as F
+from conftest import context_constants, ladder_constants
+
+# builds enter the write-side release context (2025 targets) and the read-back
+# climbs the read-side ladder: conftest's guard watches both (#707)
+pytestmark = pytest.mark.usefixtures("no_release_leak")
+
+
+@pytest.fixture
+def release_leak_extra():
+    return lambda: dict(ladder_constants(), **context_constants())
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _warm_native_codecs():
+    """The first write in a process installs the bundled schema and seeds the
+    native codec singletons (standalone.install_schema, by design); do that
+    once before the guard's first snapshot, so only a swap a release context
+    leaves behind can turn the guard red."""
+    d = tempfile.mkdtemp(prefix="t787w_")
+    try:
+        F.make_archetype(product="wireway").write(os.path.join(d, "w.rfa"))
+    finally:
+        shutil.rmtree(d, True)
 from rvt.famgen import height_law as HL
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
