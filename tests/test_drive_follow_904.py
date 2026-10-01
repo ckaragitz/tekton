@@ -81,7 +81,10 @@ def test_the_trapeze_rods_washers_and_nuts_follow_the_strut_ends(prompt, tiers):
     assert lines == len(d["locks"]) + 2 * 8 * tiers
     eq = [x for x in prod.doc.by_class("LinearDimString") if x.obj["m_flags"] == 140]
     assert len(eq) == 1 + 1 + 4                         # ends, rod planes, 4 rigid pairs
+    # the PLAN-view (in-plane) labels; the elevation height dims of #787 Case B
+    # (test_height_law_787) label other parameters
     labelled = {s["m_paramId"] for x in prod.doc.by_class("LinearDimString")
+                if x.obj["m_ownerDBViewId"] == prod.doc.plan_view_id
                 for s in x.obj["m_ArrSegInfo"] if s["m_paramId"] >= 0}
     assert labelled == {prod.doc.params["Strut Length"].elem_id,
                         prod.doc.params["Rod Inset"].elem_id}

@@ -192,6 +192,12 @@ class Archetype:
     #: parameter moves which part edges (feet, family coordinates); authored
     #: by ``rvt.famgen.drive_law.wire_linear_drive``
     drives: Optional[Callable[[Dict[str, float]], List[Dict[str, Any]]]] = None
+    #: HEIGHT DRIVES (#787 Case B): ``vals -> [{caption | None, locked, lo, hi,
+    #: name_lo, name_hi, parts: {part name: faces}}]`` -- which family
+    #: parameter moves which extrusion cap faces between two horizontal
+    #: reference planes (z in feet, or the name an earlier spec gave a plane);
+    #: authored by ``rvt.famgen.height_law.wire_height_specs``
+    heights: Optional[Callable[[Dict[str, float]], List[Dict[str, Any]]]] = None
 
     def param(self, key: str) -> Param:
         for p in self.params:
@@ -652,6 +658,60 @@ def _trapeze_drives(v: Dict[str, float]) -> List[Dict[str, Any]]:
                         "followers": followers}}]
 
 
+def _trapeze_heights(v: Dict[str, float]) -> List[Dict[str, Any]]:
+    """The trapeze's HEIGHTS as cap-face drives (#787 Case B), chained from the
+    origin elevation plane up: per tier, Strut Height (base -> top: the webs'
+    and lips' tops), Strut Thickness twice (base -> back top: the back, the
+    webs' bottoms; lip bottom -> top: the lips' bottoms), Washer Thickness
+    below and above with a LOCKED nut height beyond each; Tier Spacing chains
+    each tier's base to the one below; the rods end at Rod Below Bottom Nut
+    and Rod Above Top Tier."""
+    g = _trapeze_geometry(v)
+    parts = [p["name"] for p in _strut_trapeze(v)]
+    H, t, n, wt, nh = g["H"], g["t"], g["n"], g["wt"], g["nut_h"]
+    thk = float(v["thickness_in"]) * IN
+    both = {"start": "lo", "end": "hi"}
+    out: List[Dict[str, Any]] = []
+    for i in range(n):
+        tier = f"tier {i + 1}"
+        mine = [p[len(tier) + 1:] for p in parts if p.startswith(tier + " ")]
+        backs = [f"{tier} {k}" for k in mine if k == "back" or k.startswith("back segment")]
+        webs = [f"{tier} {k}" for k in mine if k.startswith("web ")]
+        lips = [f"{tier} {k}" for k in mine if k.startswith("inturned lip ")]
+        base, top = f"{tier} base", f"{tier} top"
+        if i == 0:
+            lo: Any = 0.0
+        else:
+            out.append({"caption": "Tier Spacing", "lo": f"tier {i} base", "hi": i * t,
+                        "name_hi": base, "parts": {}})
+            lo = base
+        out.append({"caption": "Strut Height", "lo": lo, "hi": i * t + H,
+                    "name_lo": base, "name_hi": top,
+                    "parts": {p: {"end": "hi"} for p in webs + lips}})
+        out.append({"caption": "Strut Thickness", "lo": base, "hi": i * t + thk,
+                    "parts": {**{p: dict(both) for p in backs},
+                              **{p: {"start": "hi"} for p in webs}}})
+        out.append({"caption": "Strut Thickness", "lo": i * t + H - thk, "hi": top,
+                    "parts": {p: {"start": "lo"} for p in lips}})
+        wb, nb, wa, na = ([f"{tier} {k} {s}" for s in ("left", "right")]
+                          for k in ("washer below", "nut below", "washer above", "nut above"))
+        out.append({"caption": "Washer Thickness", "lo": i * t - wt, "hi": base,
+                    "name_lo": f"{tier} washer below", "parts": {p: dict(both) for p in wb}})
+        out.append({"caption": None, "locked": True, "lo": i * t - wt - nh,
+                    "hi": f"{tier} washer below", "name_lo": f"{tier} nut below",
+                    "parts": {p: dict(both) for p in nb}})
+        out.append({"caption": "Washer Thickness", "lo": top, "hi": i * t + H + wt,
+                    "name_hi": f"{tier} washer above", "parts": {p: dict(both) for p in wa}})
+        out.append({"caption": None, "locked": True, "lo": f"{tier} washer above",
+                    "hi": i * t + H + wt + nh, "parts": {p: dict(both) for p in na}})
+    rods = [f"threaded rod {s}" for s in ("left", "right")]
+    out.append({"caption": "Rod Below Bottom Nut", "lo": g["rod_bottom"],
+                "hi": "tier 1 nut below", "parts": {p: {"start": "lo"} for p in rods}})
+    out.append({"caption": "Rod Above Top Tier", "lo": f"tier {n} top", "hi": g["rod_top"],
+                "parts": {p: {"end": "hi"} for p in rods}})
+    return out
+
+
 def _trapeze_settle(vals: Dict[str, float], prov: Dict[str, str],
                     quoted: Dict[str, str]) -> None:
     """Strut length = rod spacing + 2 x rod inset, whichever two the caller
@@ -830,7 +890,13 @@ _register(Archetype(
     limits=("a loadable family in Cable Tray Fittings: Revit's drawable Cable Trays "
             "element is a SYSTEM family and generates its own straight-run geometry "
             "(issue #608), so this section is placed, not routed",
-            "splice plates, hold-down clamps and grounding lugs are not modelled"),
+            "splice plates, hold-down clamps and grounding lugs are not modelled",
+            "CONSTRAINTS AUTHORED (assembled family unverified): Tray Width and Length "
+            "drive the geometry with the rails riding them; each mechanism is "
+            "desktop-verified on its own, this family has no verdict of its own",
+            "Rung Spacing, Rail Thickness, Rail Flange, Rung Width and Rung Thickness "
+            "are values only -- editing them does not move the geometry; the rungs "
+            "keep their pitch when Length flexes and the end bays absorb it"),
     aliases=("ladder tray", "cable ladder"),
     patterns=(r"cable\s+trays?", r"cable\s+ladders?", r"ladder\s+trays?",
               r"\btrays?\b(?!\s*(?:ceil|table))"),
@@ -885,7 +951,12 @@ _register(Archetype(
               "with a slot spacing the back is authored as the material BETWEEN the "
               "slots, so the slots are genuinely absent"),
     limits=("hole patterns other than the back slots are not modelled",
-            "the section is authored square-cornered; the forming radii are not"),
+            "the section is authored square-cornered; the forming radii are not",
+            "CONSTRAINTS AUTHORED (assembled family unverified): Length and Section "
+            "Width drive the geometry with the webs and lips riding them; this family "
+            "has no desktop verdict of its own",
+            "Section Height, Material Thickness, Lip, Slot Length and Slot Spacing are "
+            "values only -- editing them does not move the geometry"),
     aliases=("unistrut", "metal framing channel", "strut"),
     patterns=(r"strut\s+channels?", r"\bstruts?\b", r"metal\s+framing\s+channels?",
               r"channel\s+framing", r"\bunistruts?\b"),
@@ -928,7 +999,12 @@ _register(Archetype(
            "CLASS -- no manufacturer's catalog record is claimed"),
     lod_note="bottom, two sides and the removable cover -- an open-ended trough",
     limits=("knockouts, the hinge and the cover screws are not modelled",
-            "an NEMA enclosure rating is a parameter slot, not a claim"),
+            "an NEMA enclosure rating is a parameter slot, not a claim",
+            "CONSTRAINTS AUTHORED (assembled family unverified): Wireway Width and "
+            "Length drive the geometry with the sides riding Wireway Width; this "
+            "family has no desktop verdict of its own",
+            "Wireway Height and Sheet Thickness are values only -- editing them does "
+            "not move the geometry"),
     aliases=("square duct", "auxiliary gutter", "lay-in wireway"),
     patterns=(r"wire\s*ways?", r"square\s+ducts?", r"auxiliary\s+gutters?"),
     params=(
@@ -1003,7 +1079,12 @@ _register(Archetype(
            "in the 16-gauge range. Nominal sizes for the product CLASS"),
     lod_note="the back, four walls and the screw cover",
     limits=("knockouts and the cover screws are not modelled",
-            "an NEMA enclosure rating is a parameter slot, not a claim"),
+            "an NEMA enclosure rating is a parameter slot, not a claim",
+            "CONSTRAINTS AUTHORED (assembled family unverified): Box Width and Box "
+            "Height drive the geometry with the walls riding and stretching with them; "
+            "this family has no desktop verdict of its own",
+            "Box Depth and Sheet Thickness are values only -- editing them does not "
+            "move the geometry"),
     aliases=("pull box", "j-box"),
     patterns=(r"junction\s+box(?:es)?", r"pull\s+box(?:es)?", r"\bj-?\s*box(?:es)?\b"),
     params=(
@@ -1071,7 +1152,13 @@ _register(Archetype(
               "CONSTRAINTS AUTHORED (assembled family unverified, #904): Strut "
               "Length is authored to move both ends of every tier, symmetric about "
               "the centre, and the rods (circle centres), washers and nuts (held "
-              "rigid about each rod plane) to follow the ends at Rod Inset"),
+              "rigid about each rod plane) to follow the ends at Rod Inset. HEIGHTS "
+              "AUTHORED from the Revit-born corpus law (#787 Case B, no desktop "
+              "verdict): every solid's top and bottom face is locked to a horizontal "
+              "reference plane, chained up from the origin elevation plane by Tier "
+              "Spacing, Strut Height, Strut Thickness, Washer Thickness (with a locked "
+              "nut height beyond each washer), Rod Below Bottom Nut and Rod Above Top "
+              "Tier"),
     limits=("the rod threads and the nut chamfers are not modelled; a rod is a "
             "plain cylinder at its nominal diameter",
             "the rod holes are not cut: the rod passes through the channel back",
@@ -1084,10 +1171,16 @@ _register(Archetype(
             "a rod plane by a LOCKED (unlabelled) width, two such pairs sharing one "
             "rod plane, parts on several tiers locked to one plane pair, and the "
             "hex nut locked by two flats",
+            "the height drives (#787 Case B: cap faces locked to horizontal reference "
+            "planes held by elevation dimensions) have NO desktop verdict for any of "
+            "their elements -- not the face locks, not the surface-only horizontal "
+            "planes, not the origin elevation plane added to hold the chain to the "
+            "Level; until one is recorded no height is claimed to flex",
             "Rod Spacing is a value (Strut Length - 2 x Rod Inset), not a driver: "
             "after Strut Length or Rod Inset is flexed its value no longer describes "
-            "the rods; Tier Spacing, rod diameter and the other sizes carry values "
-            "and do not drive the geometry"),
+            "the rods; Rod Length, Nut Across Flats, Rod Diameter, Strut Width, the "
+            "slots and the washer size carry values and do not drive the geometry, and "
+            "the nut height is held by a locked dimension, not a parameter"),
     aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
     patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
               r"(?:\s+(?:hangers?|supports?|racks?))?",
@@ -1164,6 +1257,7 @@ _register(Archetype(
     family_params=_trapeze_params,
     settle=_trapeze_settle,
     drives=_trapeze_drives,
+    heights=_trapeze_heights,
     noun_leads=(("strut", "height_in"), ("channel", "height_in"),
                 ("unistrut", "height_in")),
     name_bits=lambda v: [f"{int(round(float(v['tiers'])))} Tier"],

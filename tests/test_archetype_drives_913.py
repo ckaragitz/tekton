@@ -21,6 +21,7 @@ import tempfile
 import pytest
 
 from rvt.families import FamilyIndex
+from rvt.famgen import archetypes as AR
 from rvt.famgen import drive_law as DL
 from rvt.famgen import factory as F
 from conftest import ladder_constants
@@ -137,3 +138,18 @@ def test_only_the_specs_born_families_label_are_drivable(spec, ok):
 def test_the_lighting_control_panel_stays_unconstrained_for_now():
     """Its Cabinet Width drive lands with height / depth in its own change."""
     assert F.make_archetype(product="lighting_control_panel").drives == []
+
+
+# ---- #919 review ----------------------------------------------------------
+
+@pytest.mark.parametrize("key", ["cable_tray", "strut_channel", "wireway", "junction_box"])
+def test_each_driven_archetype_says_its_constraints_are_unverified(key):
+    lim = " ".join(AR.archetype(key).limits)
+    assert "CONSTRAINTS AUTHORED (assembled family unverified)" in lim
+    assert "values only" in lim
+
+
+def test_wire_attach_refuses_a_finalized_document():
+    prod = F.make_archetype(product="wireway")
+    with pytest.raises(RuntimeError):
+        DL.wire_attach(prod.doc, items=[], axis="x")       # finalized

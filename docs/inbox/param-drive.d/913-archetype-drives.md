@@ -77,6 +77,15 @@ until everything is complete"*), plan step 4. Builds on #904 (`904-drive-law.md`
 - **The conduit** is a horizontal cylinder (rotated B-rep): its length is the extrusion
   end, and its diameter is #916.
 
+## Review of #919 (head `71bacb5`, 🟡 nits, folded into the next PR)
+
+- **Limits lines.** Each of the four archetypes' `limits` now says CONSTRAINTS AUTHORED
+  (assembled family unverified), and names the parameters that are values only:
+  editing them does not move the geometry.
+- **`wire_attach` guards.** It now refuses a finalized document and an axis other than
+  x/y before any mutation, like `wire_linear_drive`.
+- **`_lcp_drives`** is wired in the panel change (#914).
+
 ## BRANCH STATE
 
 **Files written**
