@@ -26,6 +26,15 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from rvt.famgen import equipment_clearance as EC  # noqa: E402
 from rvt.famgen import fan_coil as FC  # noqa: E402
+from conftest import context_constants  # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # one row builds inside release_build_context
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too (#707)."""
+    return context_constants
 
 IN = 1 / 12.0
 
