@@ -184,6 +184,19 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
     if doc.finalized:
         raise RuntimeError("drive_law: document is finalized")
     pe = doc.params[caption]
+    # EVERY check before the first mutation: a refused drive must leave the
+    # document exactly as it was, not half a chain (#907 review round 2)
+    value = abs(hi - lo)
+    rows = doc.types[doc.current_type][1] if doc.types else {}
+    current = rows.get(pe.elem_id)
+    if isinstance(current, (int, float)) and abs(float(current) - value) > 1e-6:
+        raise ValueError(f"drive_law: {caption} is {float(current):g} ft but its planes "
+                         f"are {value:g} ft apart")
+    rects = [PD._classify_rect(PD._sketch_lines(sk)) for sk, _sides in targets]
+    for _sk, sides in targets:
+        bad = [x for x in sides if (axis, x) not in _SIDE_LAW]
+        if bad:
+            raise ValueError(f"drive_law: unknown side(s) {bad}")
     fam_id = doc.self_family.elem_id
     style_id = int(doc.dim_style_id)
     view_id = int(doc.plan_view_id)
@@ -218,8 +231,7 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
     side_key = {("x", "lo"): "left", ("x", "hi"): "right",
                 ("y", "lo"): "bottom", ("y", "hi"): "top"}
     locks: List[int] = []
-    for sk, sides in targets:
-        rect = PD._classify_rect(PD._sketch_lines(sk))
+    for (sk, sides), rect in zip(targets, rects):
         geo_sp = next((e for e in doc.by_class("SketchPlane")
                        if int(e.obj.get("m_userId", -1)) == sk.elem_id), None)
         geo_sp_id = geo_sp.elem_id if geo_sp is not None else -1
@@ -247,14 +259,6 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
         par["m_deletion"] = sorted(set(par["m_deletion"]) | set(new_ids))
         locks.extend(new_ids)
 
-    value = abs(hi - lo)
-    # the labelled dimension must agree with the parameter it carries: a
-    # mismatch would draw one size and report another (#907 review)
-    rows = doc.types[doc.current_type][1] if doc.types else {}
-    current = rows.get(pe.elem_id)
-    if isinstance(current, (int, float)) and abs(float(current) - value) > 1e-6:
-        raise ValueError(f"drive_law: {caption} is {float(current):g} ft but its planes "
-                         f"are {value:g} ft apart")
     units = [e.elem_id for e in doc.by_class("UnitsElem")]
     view_sp = next((e for e in doc.views if e.class_name == "SketchPlane"), None)
     regen_sp = view_sp.elem_id if view_sp is not None else -1

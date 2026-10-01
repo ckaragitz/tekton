@@ -101,6 +101,21 @@ Read-back showed they differ in exactly one header field. Test: Width from
   that Rod Inset, Rod Spacing and Width no longer describe the geometry after a
   flex.
 
+## Review round 2 (head `534a6ae`, 🛑)
+
+- **A refused drive left half a chain in the delivered file:** 2 RefPlanes and 2
+  Alignments in the pre-law form, plus the sketch registration, because the value
+  check ran after the first `doc.add`. Now every check runs before the first
+  mutation: the value, each target's rectangle and the sides. The test asserts
+  that the document equals the no-drive control, class by class.
+- **`doc.born_drive_law`** is set only when at least one drive actually wired.
+- **The verdict's head.** The owner's trapeze verdict was on `f2f8890`. Since
+  then exactly one field differs in the trapeze: the labelled dimension's header
+  `m_appearanceParents` gains the view SketchPlane, matching the verified one-box
+  probe. `m_constrInfo` is never written instead of written and then cleared, and
+  the file is identical. The archetype's "(owner's desktop verdict)" refers to
+  that run.
+
 ## BRANCH STATE
 
 **Files written**

@@ -1258,7 +1258,6 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
             sk = next((e for e in fb.elements if e.class_name == "VarSketch"), None)
             if sk is not None and part.get("name"):
                 sketch_of[str(part["name"])] = sk
-        doc.born_drive_law = True
         for spec in drives:
             try:
                 targets = [(sketch_of[n], tuple(sides))
@@ -1271,6 +1270,9 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
             except Exception as e:                   # noqa: BLE001
                 doc.notes.append(f"drive for {spec.get('caption')!r} not wired "
                                  f"({type(e).__name__}: {str(e)[:90]})")
+        # only a document that actually CARRIES a drive is a law document:
+        # finalize then skips back-edges and the law runs after it
+        doc.born_drive_law = bool(drive_report)
     doc.notes.append(f"multi-part generic model "
                      f"({_geometry_origin(dim_provenance, source)}): "
                      f"{len(built)} extrusions "
