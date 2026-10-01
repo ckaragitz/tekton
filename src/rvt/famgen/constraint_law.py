@@ -42,6 +42,19 @@ WHAT STAYS -- the corpus-attested shape of the in-plane drive (#787 census):
   ``m_cutVec``.  A lock whose geometry is not one of these two cases is not
   judged (never guessed).
 
+* **CG8**  an INSTANCE lock (#917) holds: an ``Alignment`` locking a nested
+  ``FamilyInstance``'s centre reference (witness geomTag 0-8 = the child
+  document's Is-Reference code, resolved to the child's ``RefPlane`` with that
+  ``m_refName``, the origin-defining one where two share it) to a host
+  ``RefPlane`` has that child plane, placed by the instance transform, LIE ON
+  the host plane: parallel, and its point within ``ON_PLANE_TOL``.  Born
+  evidence (421-family corpus, centre-reference locks to a RefPlane): 1,297 /
+  1,297 Center (Left/Right), 1,084 / 1,084 Center (Front/Back) and 11 / 11
+  Center (Elevation) hold, with a plane read from its ``m_pSurface`` and the
+  transform applied as ``world_k = m_or_k + m_3x3[k] . v`` (the other reading
+  of ``m_3x3`` leaves 249 of them non-parallel).  Named references (other
+  geomTags) and references the child cannot resolve are not judged.
+
 WHAT IT IS NOT.  A file that passes this law is not thereby correct in Revit
 (hard rule 4).  It catches contradictions, never omissions we have not
 thought of, and says nothing about whether Revit's solver accepts a
@@ -75,6 +88,13 @@ ON_PLANE_TOL = 1e-5
 #: classes check_file decodes -- everything the rules above read
 FILE_CLASSES = ("Alignment", "LinearDimString", "CurveElem", "RefPlane",
                 "ExtrusionElem", "GenericForm", "VarSketch")
+
+#: CG8: the instance-witness geomTags that name a child's Is-Reference code
+#: (RefPlane.m_refName: 0 Left .. 8 Top; 1 / 4 / 7 = the three centres)
+INSTANCE_REF_TAGS = tuple(range(9))
+
+#: CG8: parallel tolerance on unit normals (|n1 . n2| within this of 1)
+PARALLEL_TOL = 1e-6
 
 
 def _val(p: Any) -> Dict[str, Any]:
@@ -177,6 +197,46 @@ def plane_of(cls: str, obj: Dict[str, Any]
     return f, (n[0] / ln, n[1] / ln, n[2] / ln)
 
 
+def plane_of_any(cls: str, obj: Dict[str, Any]
+                 ) -> Optional[Tuple[Tuple[float, float, float],
+                                     Tuple[float, float, float]]]:
+    """``(point, unit normal)`` of a ``RefPlane`` from its ``m_pSurface``
+    (origin, x axis, y axis) -- the plane's own geometry, present on
+    surface-only planes whose drawn ends are zero (born families, our
+    horizontal planes) -- else from its drawn ends (:func:`plane_of`).  Used
+    by CG8 only; CG7 keeps :func:`plane_of`."""
+    if cls != "RefPlane":
+        return None
+    srf = _val(obj.get("m_pSurface"))
+    o, x, y = (_vec(srf.get(k)) for k in ("m_origin", "m_xVec", "m_yVec"))
+    if o is not None and x is not None and y is not None:
+        n = _cross(x, y)
+        ln = math.sqrt(_dot(n, n))
+        if ln >= 1e-12:
+            return o, (n[0] / ln, n[1] / ln, n[2] / ln)
+    return plane_of(cls, obj)
+
+
+def transform_plane(trf: Dict[str, Any], plane) -> Optional[Tuple[Tuple[float, float, float],
+                                                                  Tuple[float, float, float]]]:
+    """A child-document plane placed by an ``InstanceInfo.m_Trf``:
+    ``world_k = m_or_k + m_3x3[k] . v`` (the reading the born corpus holds,
+    CG8 in the module docstring)."""
+    m, o = trf.get("m_3x3") if isinstance(trf, dict) else None, _vec((trf or {}).get("m_or"))
+    if not (isinstance(m, list) and len(m) == 3 and o is not None):
+        return None
+    rows = [_vec(r) for r in m]
+    if any(r is None for r in rows):
+        return None
+    p, n = plane
+    wp = tuple(o[k] + _dot(rows[k], p) for k in range(3))
+    wn = tuple(_dot(rows[k], n) for k in range(3))
+    ln = math.sqrt(_dot(wn, wn))
+    if ln < 1e-12:
+        return None
+    return wp, (wn[0] / ln, wn[1] / ln, wn[2] / ln)
+
+
 def lock_points(cls: str, obj: Dict[str, Any], geom_tag: int
                 ) -> Optional[List[Tuple[float, float, float]]]:
     """The points a sketch lock pins to its plane for a witness of
@@ -215,13 +275,19 @@ def _norm(elements: Iterable[Sequence[Any]]
 
 
 def check_graph(elements: Iterable[Sequence[Any]], *,
-                universe: Optional[Iterable[int]] = None
+                universe: Optional[Iterable[int]] = None,
+                instance_planes: Optional[Dict[Tuple[int, int], Any]] = None
                 ) -> List[Dict[str, Any]]:
     """The law over ``(elem_id, class_name, obj[, header])`` tuples.
 
     An id is "in the document" when it is one of the tuples or in
     ``universe`` (``check_file`` decodes only the constraint-relevant classes
     and passes every element id of the file here).
+
+    ``instance_planes`` = ``{(instance id, geomTag): (point, normal)}``, the
+    child reference each instance witness names, already placed in host
+    coordinates (``check_file`` resolves them from the nested documents); a
+    witness missing from it is not judged by CG8.
 
     Never demands an ``m_constrInfo`` back-edge (CG2 retired, #910).
     Returns findings; empty means the graph is coherent.
@@ -270,6 +336,9 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
                             f"parameter {p}, which is not in the document")
         if cls != "Alignment":
             continue
+        # CG8 -- an instance lock's placed child reference lies on its plane
+        if instance_planes and len(grefs) == 2:
+            _cg8(eid, cls, grefs, by_id, instance_planes, add)
         sk_id = _sketch_of_lock(obj)
         if sk_id is None:
             continue
@@ -347,6 +416,35 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
     return findings
 
 
+def _cg8(eid, cls, grefs, by_id, instance_planes, add) -> None:
+    planes, refs = [], []
+    for g in grefs:
+        t, tag = int(g.get("m_elemId", -1)), int(g.get("m_geomTag", 0))
+        if (t, tag) in instance_planes:
+            refs.append((t, tag, instance_planes[(t, tag)]))
+            continue
+        tgt = by_id.get(t)
+        pl = plane_of_any(tgt[0], tgt[1]) if tgt is not None else None
+        if pl is not None:
+            planes.append((t, pl))
+    if len(planes) != 1 or len(refs) != 1:
+        return
+    (pid, (p0, n)), (iid, tag, (q, m)) = planes[0], refs[0]
+    if abs(abs(_dot(n, m)) - 1.0) > PARALLEL_TOL:
+        add(ERROR, "CG8", eid, cls,
+            f"instance lock {eid} locks reference {tag} of instance {iid} to "
+            f"plane {pid}, but the placed reference is not parallel to that "
+            f"plane: the lock contradicts the geometry it locks")
+        return
+    off = abs(_dot(_sub(q, p0), n))
+    if off > ON_PLANE_TOL:
+        add(ERROR, "CG8", eid, cls,
+            f"instance lock {eid} locks reference {tag} of instance {iid} to "
+            f"plane {pid}, but the placed reference is {off:.6g} ft off that "
+            f"plane: the lock contradicts the geometry it locks",
+            offset_ft=off)
+
+
 def _param_ids(obj: Dict[str, Any]) -> List[int]:
     return [int(s.get("m_paramId", -1)) for s in obj.get("m_ArrSegInfo") or []
             if isinstance(s, dict) and int(s.get("m_paramId", -1)) >= 0]
@@ -397,7 +495,65 @@ def _check_file(path: str) -> List[Dict[str, Any]]:
                 ho = dec.decode_record(h.class_id, h.payload) if h is not None else None
                 hdr = (ho.value or {}) if ho is not None else None
             tuples.append((int(eid), cls, o.value or {}, hdr))
-    return check_graph(tuples, universe=recs.get(102, {}).keys())
+    inst = _instance_planes(idx, recs, tuples)
+    return check_graph(tuples, universe=recs.get(102, {}).keys(),
+                       instance_planes=inst)
+
+
+def _instance_planes(idx: Any, recs: Dict[int, Dict[int, Any]],
+                     tuples: Sequence[Tuple[int, str, Dict[str, Any], Any]]
+                     ) -> Dict[Tuple[int, int], Any]:
+    """CG8's input: every ``(instance, geomTag)`` an Alignment witnesses, with
+    the tag an Is-Reference code, resolved through instance -> symbol ->
+    nested Family -> its content document's ``RefPlane`` with that
+    ``m_refName`` (the origin-defining one when two share it) and placed by
+    the instance transform.  Anything that does not resolve is left out --
+    never guessed."""
+    r102 = recs.get(102, {})
+    wanted = set()
+    for _eid, cls, obj, _h in tuples:
+        if cls != "Alignment":
+            continue
+        for g in _witness_grefs(obj):
+            t, tag = int(g.get("m_elemId", -1)), int(g.get("m_geomTag", -1))
+            r = r102.get(t)
+            if (r is not None and tag in INSTANCE_REF_TAGS
+                    and idx.class_name(r.class_id) == "FamilyInstance"):
+                wanted.add((t, tag))
+    out: Dict[Tuple[int, int], Any] = {}
+    if not wanted:
+        return out
+
+    def val(unit: int, eid: int) -> Dict[str, Any]:
+        o = idx.decode(unit, eid, 102)
+        return (o.value or {}) if o is not None and isinstance(o.value, dict) else {}
+    child_cache: Dict[str, List[Dict[str, Any]]] = {}
+    for iid, tag in sorted(wanted):
+        ii = _val(val(0, iid).get("m_pInstanceInfo"))
+        sym = ii.get("m_symbolId")
+        if not isinstance(sym, int) or sym not in r102:
+            continue
+        fam = val(0, sym).get("m_familyId")
+        if not isinstance(fam, int) or fam not in r102:
+            continue
+        guid = _val(val(0, fam).get("m_oFamDoc")).get("m_contentDocGUID")
+        unit = getattr(idx, "unit_by_guid", {}).get(guid)
+        if unit is None:
+            continue
+        if guid not in child_cache:
+            ur = idx.unit_records(unit).get(102, {})
+            child_cache[guid] = [val(unit, e) for e, r in sorted(ur.items())
+                                 if idx.class_name(r.class_id) == "RefPlane"]
+        cands = [p for p in child_cache[guid] if p.get("m_refName") == tag]
+        if len(cands) > 1:
+            cands = [p for p in cands if p.get("m_definesOrigin")]
+        if len(cands) != 1:
+            continue
+        pl = plane_of_any("RefPlane", cands[0])
+        placed = transform_plane(ii.get("m_Trf"), pl) if pl is not None else None
+        if placed is not None:
+            out[(iid, tag)] = placed
+    return out
 
 
 def summarise(findings: List[Dict[str, Any]]) -> str:

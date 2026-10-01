@@ -1,0 +1,2 @@
+# #917 locks + parameter association on nested instances: generated families only, fresh-clone safe
+tests/test_nest_locks_917.py

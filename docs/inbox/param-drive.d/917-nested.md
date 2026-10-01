@@ -220,3 +220,201 @@ will not follow Rod Inset.
 
 **Shipped vs staged:** the API ships, but no route uses it. Nothing is staged and
 no viewer or desktop batch has been run.
+
+---
+
+# #917 second pass: locks and parameter association (gaps 1 and 2)
+
+Branch `nest-locks-917`, based on `nested-917` (422dbd9). Gaps 1 and 2 above
+are closed in the file; gap 6 (no desktop verdict) is not, and does not move
+here either (hard rule 4, steer #913: no probe family goes to the owner).
+
+The census reads the same owner reference library (421 born families,
+git-ignored, development instrument only). Only counts and field values are
+cited; no specimen name, parameter name or value reaches the output.
+
+## Census: how a born host locks a nested instance
+
+**Which locks.** 1,378 `Alignment`s in the first 40 files witness a nested
+instance; across the whole library the centre-reference ones (instance
+witness `m_geomTag` 0-8) to a host `RefPlane` are 1,297 Center (Left/Right),
+1,084 Center (Front/Back), 11 Center (Elevation) and 1 Bottom. Named
+references (any other geomTag, 2,000+) are left alone (below).
+
+**What geomTag means.** It is the child document's Is-Reference code
+(`RefPlane.m_refName`):
+
+- geomTag 1: the child carries exactly one origin-defining plane with
+  `m_refName` 1, in 1,340 / 1,340 locks;
+- geomTag 4: two planes carry code 4 in 1,153 / 1,165 (one defines the
+  origin, one does not); the origin one is the one placed on the host plane;
+- the nested `Family`'s `m_oFamilyReferenceIdxMgr` lists the code in every
+  one (1,340 / 1,340 and 1,165 / 1,165); the code is never the reference
+  INDEX (0 of them).
+
+**Placement holds.** Placed by the instance transform, the child plane lies on
+the host plane in every judged lock: 1,297 / 1,297, 1,084 / 1,084, 11 / 11
+(plane read from `m_pSurface`; 347 of the first 406 host planes are
+surface-only, zero drawn ends). The transform reads as
+`world_k = m_or_k + m_3x3[k] . v`: under it the child plane's drawn ends land
+on the host plane in 2,393 / 2,393; the transposed reading leaves 249
+non-parallel and 135 ends off the plane. The instance witness's own old
+segment ends are NOT the transformed child ends (0 / 2,393 equal), so they
+are a cache; ours carry the transformed child ends, which lie on the plane.
+
+**The instance witness `GeomRef`** (912 / 912 free-placed locks):
+`m_elemId` = the instance, `m_geomTag` = the code, `m_subTag` -1,
+`m_famMemberIdx` -1, `m_ownerDBViewId` -1, `m_flags` 1,
+`m_intermediateTags` [], no next ref, `GeomSegInPlaneRef` with `m_sideOfArc`
+False. The plane witness: geomTag 0, flags 0.
+
+**The `Alignment`** (free-placed instance, 912: 546 Center (Left/Right),
+355 Center (Front/Back), 11 Center (Elevation); each field 912 / 912 unless
+counted):
+
+- `m_flags` 14, `m_dimVersion` 6, no cell list, `m_ownerDBViewId` -1,
+  `m_lastTrf` identity, `m_dimSketchPlaneId` -1, design option -4;
+- only pointer `m_pDimLine`: GLine pid 3, endParams [0, 0], GInfo flags
+  524292, origin = `m_oldOrigin`, direction perpendicular to the host normal;
+- `m_constrDir` parallel to the host normal; `m_planeNormal` perpendicular
+  to it; both `m_refPnts`, `m_oldOrigin` and both witnesses' old segment ends
+  on the host plane;
+- one segment: flags 1, three values (two trailing -1), param -1, locked 0;
+  equality array empty; `m_lastDimSegInfoId` {0, -1} and `m_lastUsedId` 1 in
+  532 / 912 (the rest {0, 1} or {1, -1});
+- witness order: plane first (constrFlags 4, end index 0), instance second
+  (constrFlags 2, end index 0) in 620 / 912; the rest put the instance
+  first (mostly constrFlags 8 / 1) or vary an end index. Gaps 1/192 ft and
+  1/128 ft as every other lock.
+
+**Its header** (912 / 912): category -2000262, flags 10, view flags -4225,
+owner view -1, family = the host self-Family, design option -1;
+deletion = exactly {itself, DimensionStyle, self-Family, instance, plane};
+regenOnly = {nested symbol, Level, UnitsElem} (hosted instances: SketchPlane
+in place of the Level); appearance = {DimensionStyle, instance, plane,
+UnitsElem}. No back-edge: neither the instance's nor the plane's header
+names the lock (912 / 912), and a locked free instance keeps regenOnly =
+[nested Family] (675 / 675) -- it does not regenerate from its planes.
+
+## Census: parameter association
+
+`FamilyParametrizedElemParamsCell` on 4,606 nested instances, 25,002
+entries, every one `{m_famParamId, m_elemPropId, m_geomTag -1, m_bIsSymbol
+False}`:
+
+- cell list: `[FamilyParametrizedElemParamsCell, FamilyInstancePatternHelper]`
+  in 3,432 / 4,606; the rest put analytical/cover/group cells first, never
+  after the pattern helper;
+- targets: 8,349 are the nested family's own parameter twins, and **every
+  one is an INSTANCE parameter** of the nested family (8,349 / 8,349); the
+  rest go to shared parameters (same `ParamElemExternal` on both sides) or
+  built-ins. Host side: type parameters drive nested instance parameters too
+  (2,087 + 94);
+- the instance's `m_pInstParams` row for the target carries the host
+  parameter's current value: 3,880 / 3,880 numbers, 4,467 / 4,467 Yes/No; no
+  row carries an expression (8,347 / 8,347);
+- definition class and spec agree in 8,014 of 8,349 (331 differ only in
+  spec, 4 in class);
+- the host parameter is a deletion parent of the instance in 24,992 /
+  25,002; entries are in no sorted order;
+- 30 nested **symbols** carry the cell too (77 entries, targets that are not
+  instance twins): association to a nested TYPE parameter lives there. Not
+  censused far enough to author.
+
+## Built
+
+**`src/rvt/famgen/nest.py`** (additive; the default call is unchanged):
+
+- `nest_family(..., locks=[Lock(i, "center_lr" | "center_fb" |
+  "center_elevation", host_plane_id) | (i, ref, id)], associate={host caption:
+  nested caption})`;
+- every lock is planned before anything is written and **refused** unless the
+  child carries one origin plane with that code, the target is a host
+  RefPlane, and the child plane placed at the instance already lies on the
+  host plane (parallel, within 1e-5 ft) -- a lock that would contradict the
+  geometry is never written;
+- an association is refused unless the host parameter exists, the nested
+  parameter exists and is an INSTANCE parameter, it has a host twin, and both
+  are the same kind (definition class + spec);
+- authoring follows the census modes above; `host_reference_planes(path)`
+  lists a family's planes (id, name, code, origin flag, point, normal);
+- `verify_nested` also checks every lock decodes and witnesses a placed
+  instance, and every instance carries exactly its association entries.
+
+**`src/rvt/famgen/constraint_law.py`** (additive; CG1-CG7 unchanged):
+
+- **CG8**: an instance lock's child reference, placed by the instance
+  transform, lies on the host plane it is locked to. `check_file` resolves
+  instance -> symbol -> nested Family -> its content document -> the
+  `RefPlane` with that code (origin one where two share it). Named
+  references and anything that does not resolve are not judged;
+- `plane_of_any` (surface first, then drawn ends) and `transform_plane`;
+  CG7 still uses `plane_of`.
+- Run over the whole born library: **2,393 locks judged, 0 CG8 findings**
+  (421 files, 2,511 instance references resolved).
+
+**Child generator:** unchanged. Our families already carry Center
+(Left/Right) = code 1 and Center (Front/Back) = code 4 on their
+origin-defining planes, and the loader's reference index lists both; the
+census asked for nothing more. None has a Center (Elevation) plane, so an
+elevation lock is refused rather than invented.
+
+## Evidence (read back from the written files)
+
+Generated strut trapeze, two nut-sized children at the rod planes
+(x = -1 / +1 ft), each locked by Center (Left/Right) to its rod plane and by
+Center (Front/Back) to the origin plane; host Rod Diameter (a type
+parameter) associated to the child's instance parameter. On **2026 and
+2025**:
+
+- `rvt_validate` (family mode) VALID, 0 errors, 0 warnings;
+- `constraint_law.check_file` == [], with all four locks JUDGED by CG8
+  (four resolved instance references, not skipped);
+- registries agree; the nested Family's reference index carries codes 1 and 4;
+- the instance row carries Rod Diameter's value, not the child's own;
+- deterministic (two runs byte-identical except BasicFileInfo);
+- every refusal (12 cases) leaves no output and the host byte-identical
+  (SHA-256).
+
+## Gaps, stated plainly (second pass)
+
+1. **No desktop verdict.** Whether Revit honours these locks (instances
+   following Rod Inset) or the association is unknown. Validator green and an
+   empty CG8 report are facts about the file (hard rule 4; steer #913: no
+   probe family to the owner).
+2. **The association moves a value, not geometry, in our children.** No
+   generated child yet has an instance parameter that drives its own solid,
+   so a nut whose `Nut Size` follows Rod Diameter does not resize. The
+   tests use a probe child built for the purpose.
+3. **Not wired into the trapeze** (optional step 4, skipped): the archetype
+   draws its nuts and washers as solids that #904 already locks to the rod
+   planes; swapping them for nested instances means reworking those drive
+   followers, which is its own change. Default unchanged.
+4. **Not authored:** named-reference locks (geomTag beyond 0-8, mapping
+   unresolved), instance-first witness order, rotated / hosted /
+   work-plane-based instances, association to a nested TYPE parameter
+   (symbol-side cell), Center (Elevation) on our children.
+5. First-pass gaps 3, 4, 5 and 7 stand as written above.
+
+## BRANCH STATE (nest-locks-917)
+
+**Files written**
+- `src/rvt/famgen/nest.py`: locks, association, `host_reference_planes`.
+- `src/rvt/famgen/constraint_law.py`: CG8, `plane_of_any`, `transform_plane`.
+- `plugin/lib/src/rvt/famgen/{nest,constraint_law}.py`: sync mirrors.
+- `tests/test_nest_locks_917.py` (23 tests) and
+  `tests/ci_shard.d/917-nest-locks.txt`: new.
+- This section.
+
+**Gates**
+- `sync_plugin.py`, then `--check`: in sync; `validate_plugin.py`: PASS (25).
+- `pytest`: 310 passed, 0 failed -- `test_nest_locks_917` (23),
+  `test_conftest_scaffolding`, `test_nest_917`, `test_lock_column_915`,
+  `test_diameter_916`, `test_panel_drives_914`, `test_height_law_787`,
+  `test_archetype_drives_913`, `test_drive_follow_904`, `test_drive_law_904`,
+  `test_strut_trapeze_899`, `test_constraint_law`, `test_constraint_law_910`,
+  `test_plugin_sync`.
+- CG8 over the born library (scratch instrument): 2,393 judged, 0 findings.
+
+**Shipped vs staged:** the API ships; no route uses it. Nothing is staged; no
+viewer or desktop batch has been run.
