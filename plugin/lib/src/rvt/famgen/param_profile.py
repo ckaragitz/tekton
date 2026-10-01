@@ -7,12 +7,23 @@ or by type.  Applied to a family we build, it adds the same SHARED definitions -
 same GUID, name, storage class, spec, palette group, flags -- so the generated
 family schedules and tags alongside the user's library.
 
-Values: none.  Every added parameter is written BLANK -- the all-empty value row a
-Revit-born family itself stores for a parameter nobody filled (``m_str`` "",
-``m_int`` 0, ``m_value`` 0.0, ``m_elemId`` -1) -- because a profile holds
-definitions, never a value (S-2026-08-11-a: an empty standard parameter is
-correct, an invented one is not).  A parameter the family already authors (same
-GUID, or same caption) is left as the family authored it and said so.
+Values, in order of authority (S-2026-08-11-a: an empty standard parameter is
+correct, an invented one is not):
+
+* the caller's own ``values`` (a constant, or ``{"formula": "..."}``) -- tier ``given``;
+* else the library's CONVENTION for the parameter (#875), read from the profile
+  rows: a FORMULA when every carrying family uses the same one, a CONSTANT only
+  when two or more families hold it and agree -- tier ``library``, cited to the
+  profile; product data that differs between families, material ids and family
+  types never carry; a text formula that is one string constant is written as its
+  value, any other text formula is left out and said (#870);
+* else BLANK -- the all-empty value row a Revit-born family itself stores for a
+  parameter nobody filled (``m_str`` "", ``m_int`` 0, ``m_value`` 0.0,
+  ``m_elemId`` -1).
+
+Each filled parameter carries ``refs["provenance"]`` and is named in the notes with
+its tier.  A parameter the family already authors (same GUID, or same caption) is
+left as the family authored it and said so.
 
 What is selected (:func:`select`):
 
@@ -103,12 +114,15 @@ def _convention(rows: List[dict], def_class: str) -> Optional[Dict[str, Any]]:
     id of the source document: never carried."""
     if def_class in ("ParamDefMaterialBrowse", "ParamDefFamType") or not rows:
         return None
-    formulas = {q.get("formula") for q in rows}
-    if any(q.get("formula_unread") for q in rows):
+    if any(not isinstance(q, dict) or q.get("formula_unread") for q in rows):
         return None
-    if len(formulas) == 1 and isinstance(next(iter(formulas)), str):
-        return {"formula": next(iter(formulas))}
-    if any(q.get("formula") for q in rows):
+    # '""' is how an empty string constant spells: Revit's own "no formula" (formula.is_no_formula)
+    forms = [None if q.get("formula") in (None, '""') else q.get("formula") for q in rows]
+    if any(f is not None and not isinstance(f, str) for f in forms):
+        return None                                   # a malformed row: no convention for THIS parameter
+    if all(f is not None for f in forms) and len(set(forms)) == 1:
+        return {"formula": forms[0]}
+    if any(f is not None for f in forms):
         return None                                   # some rows are formula-driven, some not
     vals = [q.get("value") for q in rows]
     if len(rows) >= 2 and all(v is not None for v in vals) and len({repr(v) for v in vals}) == 1:
@@ -274,7 +288,7 @@ def _from_convention(p: ProfileParam) -> Tuple[Any, Optional[str], Optional[str]
 
 
 def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = None,
-          values_source: str = "the caller") -> List[str]:
+          values_source: str = "the caller", profile_source: str = "the profile") -> List[str]:
     """Add ``params`` to the (unfinalized or re-finalizable) family ``doc`` as SHARED
     parameters -- blank, unless ``values`` (keyed by GUID or name) gives one: a
     constant, or ``{"formula": "Width"}`` written as the parameter's formula
@@ -286,7 +300,8 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
     values = {(str(k).lower() if _GUID.match(str(k)) else str(k)): v
               for k, v in (values or {}).items()}
     filled = 0
-    conventional = 0
+    conv_values: List[str] = []
+    conv_formulas: List[str] = []
     have_guid = {str(pe.refs.get("guid", "")).lower() for pe in doc.params.values()}
     added = 0
     for p in params:
@@ -307,7 +322,9 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
                 and p.convention and _given(p, values) is None):
             default, formula, refused, from_convention = _from_convention(p)
         if refused and from_convention:
-            notes.append(f"{p.name!r}: {refused} -- left blank")
+            what = refused if refused.startswith("the library's") else \
+                f"the library's convention value is {refused} for a {p.def_class}"
+            notes.append(f"{p.name!r}: {what} -- left blank")
         elif refused:
             notes.append(f"{p.name!r}: the given value is {refused} for a {p.def_class} -- "
                          f"left blank")
@@ -321,19 +338,29 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
             pe.refs["formula"] = formula
         if formula or default != WRITABLE[p.def_class]:
             if from_convention:
-                conventional += 1
+                (conv_formulas if formula else conv_values).append(p.name)
+                pe.refs["provenance"] = {"tier": "library", "source": profile_source,
+                                         "by": "formula" if formula else "value"}
             else:
                 filled += 1
+                pe.refs["provenance"] = {"tier": "given", "source": values_source}
         pe.obj["m_hideWhenNoValue"] = bool(p.hide_when_no_value)
         pe.obj["m_userModifiable"] = bool(p.user_modifiable)
         pe.obj["m_pParamDef"]["value"]["m_userVisible"] = bool(p.visible)
         have_guid.add(p.guid.lower())
         added += 1
+    conventional = len(conv_values) + len(conv_formulas)
     notes.insert(0, f"parameter profile: {added} shared parameters added, {filled} of them "
                     f"given a value or formula from {values_source}, {conventional} from the "
-                    f"library's own conventions (a formula the writer cannot store is left "
-                    f"out and said at build), the rest blank "
+                    f"library's own conventions in {profile_source} ({len(conv_values)} values, "
+                    f"{len(conv_formulas)} formulas -- a formula is checked when the family is "
+                    f"finalized, and one the writer cannot store is named in a 'NOT written' "
+                    f"note and stays blank), the rest blank "
                     f"({sum(1 for p in params if p.instance)} of {len(params)} selected bound per instance)")
+    if conventional:
+        notes.insert(1, f"provenance library ({profile_source}): "
+                        + "; ".join([f"{n!r} by value" for n in conv_values]
+                                    + [f"{n!r} by formula" for n in conv_formulas]))
     unused = sorted(set(values) - {p.guid.lower() for p in params} - {p.name for p in params})
     if unused:
         notes.append(f"values given for parameters the profile did not select: {', '.join(unused)}")
@@ -363,6 +390,8 @@ class ProfileRequest:
 
 def apply_request(doc, req: ProfileRequest) -> List[str]:
     """Select and :func:`apply` ``req`` to ``doc`` (its own category); the notes."""
+    prof_src = (f"the profile {os.path.basename(req.profile)!r}" if isinstance(req.profile, str)
+                else "the given profile")              # named before loaded() replaces the path
     sel, notes = select(req.loaded(), category=doc.category_id, family=req.family, share=req.share)
     values, source = req.values, "the given values"
     if isinstance(values, str):
@@ -372,4 +401,4 @@ def apply_request(doc, req: ProfileRequest) -> List[str]:
     if values is not None and not isinstance(values, dict):
         raise ProfileError(f"values must map parameter names / GUIDs to values, not "
                            f"{type(values).__name__}")
-    return apply(doc, sel, values or {}, source) + notes
+    return apply(doc, sel, values or {}, source, prof_src) + notes

@@ -233,8 +233,8 @@ def _value_of(row: Optional[dict], def_class: str, names: Dict[int, str]) -> Dic
         else:
             out["value"] = float(val) if isinstance(val, (int, float)) and val else None
     expr = row.get("m_oExpression")
-    if expr:
-        from rvt.famgen.formula import unparse
+    from rvt.famgen.formula import is_no_formula, unparse
+    if not is_no_formula(expr):                       # an empty string constant = no formula
         text = unparse(expr, names)
         out["formula"], out["formula_unread"] = text, text is None
     return out

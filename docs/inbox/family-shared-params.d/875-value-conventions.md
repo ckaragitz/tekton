@@ -39,9 +39,26 @@ Territory: `src/rvt/famgen/formula.py` (`unparse`), `src/rvt/famgen/param_profil
   - the extractor reading values and formulas back from a written family;
   - `unparse` round-tripping through `parse` (same spec, same value);
   - `unparse` refusing what it cannot spell.
+  - Review round 1 (#889) added 10 tests, 23 in all:
+    - `unparse` brackets a tree without stored parentheses by precedence (6 shapes, each evaluated);
+    - an empty string constant is no formula, including the `'""'` spelling in a profile written earlier;
+    - a malformed row costs only its own parameter, not the whole profile;
+    - a convention formula over a parameter the family lacks is named in a "NOT written" note and stays blank (#875 DONE 3);
+    - every filled value carries `refs["provenance"]` (`library` cited to the profile, or `given`), is listed in a provenance note, and the written family validates VALID at 0 errors (DONE 2 and 4).
 - **Broader suites** (famgen, param-profile, extractor, formula, clearance, detail, router, plugin sync): 416 passed / 22 skipped. `sync_plugin.py --check` is in sync.
 - **The owner's library, private run (counts only):**
-  - 4,890 own-parameter rows. 2,611 carry a formula, and 26 of those cannot be spelled yet: unpinned functions or built-in references. 3,787 carry a value.
+  - 4,890 own-parameter rows. 2,637 carry a formula. 3,787 carry a value.
+    - 89 formulas are reported unread, never spelled.
+      - 26 use unpinned functions or built-in references.
+      - 63 name a parameter whose caption the parser cannot read back: it starts like a number, or it holds a quote.
+    - None is an empty string constant, so the formula count is not inflated by "no formula" rows.
+    - The earlier "2,611 carry a formula" counted only the spelled ones.
+  - **Round-trip check:** every formula row of every family (11,233 rows, all parameters, not only shared ones) was spelled with `unparse`, parsed back, and evaluated with the family's stored values.
+    - 10,213 are spelled.
+    - 6,190 both evaluate and re-parse. All 6,190 give the same value as the stored tree: **0 differ**.
+    - Before this round's fixes, 20 differed. Constants were printed to 12 decimals, so a constant stored a few ulps above a round number came back as the round number and flipped a `>`. Constants are now spelled with their exact shortest digits.
+    - 229 are refused at re-parse by our own unit rule (a conduit, cable-tray or pipe size mixed with a length). They are never written: the build names them in a "NOT written" note.
+    - 3,794 do not evaluate outside Revit (text formulas, unpinned functions, values not stored).
   - A 45 kVA transformer against the 16 electrical-equipment families gets 1 of its 13 library parameters filled by convention: the category id, which all 16 hold the same.
   - Mirroring the library's own transformer family fills its 4 identity parameters that are set by string formulas. Its product-specific constants are not copied.
 - **Correction to `866-extract-library.md`:** "0 left out of the TXT (after `FORCE` joined the table)" was wrong. 15 conduit-size and cable-tray-size parameters are left out, by design, until those tokens' spelling is evidenced.
@@ -49,6 +66,8 @@ Territory: `src/rvt/famgen/formula.py` (`unparse`), `src/rvt/famgen/param_profil
 ## Open
 
 - Text formulas (#870) turn the "left out, said" cases into real formulas.
+- Captions the parser cannot read back (a leading digit, a quote) need Revit's own spelling for such names before they can be written; they stay unread until that spelling is evidenced.
+- Size specs (conduit, cable tray, pipe) mixed with lengths need the unit rule widened; that is the same evidence gap as the TXT tokens above.
 - The rest of #886.
 - #876: dimension labels, beyond formula links.
 

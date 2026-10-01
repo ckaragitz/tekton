@@ -175,3 +175,95 @@ def test_unparse_refuses_what_it_cannot_spell():
     assert FX.unparse({"ptr_class": "ParameterExpression", "value": {"m_paramId": 99}}, {}) is None
     assert FX.unparse({"ptr_class": "FunctionExpression",
                        "value": {"m_function": 777, "m_subexpressions": []}}, {}) is None
+
+
+# --- review round 1 (#889) ------------------------------------------------------------
+
+def _p(pid):
+    return {"ptr_class": "ParameterExpression", "value": {"m_paramId": pid}}
+
+
+def _b(op, left, right):
+    return {"ptr_class": "BinaryOperatorExpression",
+            "value": {"m_binaryOperator": FX.BINARY_OP[op],
+                      "m_pLeftSubexpression": left, "m_pRightSubexpression": right}}
+
+
+def _neg(inner):
+    return {"ptr_class": "UnaryOperatorExpression",
+            "value": {"m_unaryOperator": FX.UNARY_NEG, "m_pSubexpression": inner}}
+
+
+A, B, C = _p(11), _p(12), _p(14)
+
+
+@pytest.mark.parametrize("tree,text", [
+    (_b("*", _b("+", A, B), C), "(Width + Depth) * N"),
+    (_b("-", A, _b("-", B, C)), "Width - (Depth - N)"),
+    (_b("/", A, _b("*", B, C)), "Width / (Depth * N)"),
+    (_b("-", _b("-", A, B), C), "Width - Depth - N"),
+    (_neg(_b("+", A, B)), "-(Width + Depth)"),
+    (_b(">", _b("+", A, B), C), "Width + Depth > N"),
+])
+def test_unparse_brackets_a_paren_free_tree_by_precedence(tree, text):
+    """A Revit-born tree need not store ParenExpression nodes: precedence is spelled
+    from the tree, and the text parses back to a tree of the same value."""
+    names = {11: "Width", 12: "Depth", 14: "N"}
+    refs = FX.NameTable({"Width": FX.ParamRef(11, FX.SPEC_NUMBER), "Depth": FX.ParamRef(12, FX.SPEC_NUMBER),
+                         "N": FX.ParamRef(14, FX.SPEC_NUMBER)})
+    got = FX.unparse(tree, names)
+    assert got == text
+    vals = {11: 2.0, 12: 1.5, 14: 3.0}
+    assert FX.evaluate(FX.parse_formula(got, refs)[0], vals) == FX.evaluate(tree, vals)
+
+
+def test_an_empty_string_constant_is_no_formula():
+    empty = {"ptr_class": "StringConstantExpression", "value": {"m_value": ""}}
+    assert FX.is_no_formula(empty) and FX.is_no_formula(None)
+    got = SP._value_of({"m_value": 2.0, "m_oExpression": empty}, "ParamDefValue", {})
+    assert got == {"value": 2.0, "formula": None, "formula_unread": False}
+    # a profile written before this fix spells it '""': still read as no formula
+    prof = _profile()
+    for f in prof["families"].values():
+        f["params"][5].update(value=2.0, formula='""')
+    sel, _ = PP.select(prof, category=EQ)
+    assert {p.name: p.convention for p in sel}["Zz Mixed"] == {"value": 2.0}
+
+
+def test_a_malformed_row_costs_only_its_own_parameter(tmp_path):
+    prof = _profile()
+    prof["families"]["Unit A"]["params"][1]["formula"] = ["not", "text"]
+    sel, _ = PP.select(prof, category=EQ)
+    conv = {p.name: p.convention for p in sel}
+    assert conv["Zz Half"] is None and conv["Zz Unit"] == {"value": "EA"}
+    p = tmp_path / "bad.json"
+    p.write_text(json.dumps(prof), encoding="utf-8")
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(str(p)))
+    assert _written(prod)["Zz Unit"]["m_str"] == "EA"
+    assert not any("NOT applied" in n for n in prod.doc.notes)
+
+
+def test_a_convention_formula_over_a_missing_parameter_is_said_and_left_blank(tmp_path):
+    prof = _profile()
+    for f in prof["families"].values():
+        f["params"][1]["formula"] = "Zz Absent * 2"
+    p = tmp_path / "absent.json"
+    p.write_text(json.dumps(prof), encoding="utf-8")
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(str(p)))
+    notes = "\n".join(prod.doc.notes)
+    assert "formula of 'Zz Half' NOT written" in notes
+    row = _written(prod)["Zz Half"]
+    assert row["m_oExpression"] is None and row["m_value"] == 0.0
+
+
+def test_every_convention_value_is_provenance_tagged_and_the_family_validates(path, tmp_path):
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path, values={"Zz Rating": "45 kVa"}))
+    prov = {n: pe.refs.get("provenance") for n, pe in prod.doc.params.items() if pe.refs.get("provenance")}
+    assert prov["Zz Unit"] == {"tier": "library", "source": "the profile 'profile.json'", "by": "value"}
+    assert prov["Zz Half"]["by"] == "formula" and prov["Zz Half"]["tier"] == "library"
+    assert prov["Zz Rating"]["tier"] == "given"
+    (line,) = [n for n in prod.doc.notes if n.startswith("provenance library (the profile 'profile.json'): ")]
+    assert "'Zz Unit' by value" in line and "'Zz Half' by formula" in line and "Zz Rating" not in line
+    rep = prod.write(str(tmp_path / "tx.rfa"))
+    fm = rep["validate"]["family_mode"]
+    assert (fm["verdict"], fm["n_errors"]) == ("VALID", 0) and rep["provenance"]["ok"] is True

@@ -28,6 +28,7 @@ family is carried (hard rule 3).
 """
 from __future__ import annotations
 
+import functools
 import math
 import re
 from dataclasses import dataclass
@@ -398,9 +399,42 @@ _FN_TEXT = {v: k for k, v in FUNCTION.items()}
 
 
 def _num_text(v: float) -> str:
-    """A constant as the parser reads it back: fixed-point, never an exponent."""
-    t = f"{abs(float(v)):.12f}".rstrip("0").rstrip(".")
+    """A constant as the parser reads it back to the SAME float: the shortest
+    round-trip digits (``repr``) in fixed-point, never an exponent -- a rounded
+    spelling can flip a comparison against a value stored a few ulps away."""
+    from decimal import Decimal
+    t = format(Decimal(repr(abs(float(v)))), "f")
+    if "." in t:
+        t = t.rstrip("0").rstrip(".")
     return t or "0"
+
+
+@functools.lru_cache(maxsize=4096)
+def _spellable(name: str) -> bool:
+    """True when the parser reads ``name`` back as that parameter: a caption that
+    starts like a number ('3 Phase'), carries a quote, or begins with an operator is not
+    -- such a formula is reported unread rather than spelled wrong."""
+    try:
+        tree, _ = parse_formula(name, {name: ParamRef(0, SPEC_NUMBER)})
+    except (FormulaError, ValueError, KeyError, IndexError):
+        return False
+    return tree.get("ptr_class") == "ParameterExpression"
+
+
+#: binding strength of each spelled node, as :class:`_Parser` reads it back:
+#: comparison < additive < multiplicative < unary minus < atom
+_P_CMP, _P_ADD, _P_MUL, _P_UNARY, _P_ATOM = 1, 2, 3, 4, 5
+_OP_PREC = {"=": _P_CMP, ">": _P_CMP, "<": _P_CMP, "+": _P_ADD, "-": _P_ADD,
+            "*": _P_MUL, "/": _P_MUL}
+
+
+def is_no_formula(tree: Any) -> bool:
+    """True when ``m_oExpression`` means "no formula": a null pointer or an empty
+    ``StringConstantExpression`` (both are how Revit stores an absent formula)."""
+    if not tree:
+        return True
+    return (isinstance(tree, dict) and tree.get("ptr_class") == "StringConstantExpression"
+            and not ((tree.get("value") or {}).get("m_value")))
 
 
 def unparse(tree: Any, names: Mapping[int, str]) -> Optional[str]:
@@ -411,13 +445,27 @@ def unparse(tree: Any, names: Mapping[int, str]) -> Optional[str]:
     ``1.5'``), and string constants (``"..."``, kept for the record: the writer
     does not store text formulas yet, #870).  Anything else -- an unpinned operator
     or function, an angle constant, a parameter not in ``names`` -- gives None:
-    never a guessed spelling."""
+    never a guessed spelling.  Precedence is spelled from the TREE, not from any
+    stored parentheses: an operand that binds more loosely than its operator is
+    bracketed, so a Revit-born tree with no ``ParenExpression`` nodes reads back
+    to the same tree's value."""
+    got = _unparse(tree, names)
+    return None if got is None else got[0]
+
+
+def _wrap(child: Tuple[str, int], need: int) -> str:
+    text, prec = child
+    return f"({text})" if prec < need else text
+
+
+def _unparse(tree: Any, names: Mapping[int, str]) -> Optional[Tuple[str, int]]:
     if not isinstance(tree, dict):
         return None
     cls, v = tree.get("ptr_class"), tree.get("value") or {}
     try:
         if cls == "ParameterExpression":
-            return names.get(int(v.get("m_paramId")))
+            name = names.get(int(v.get("m_paramId")))
+            return None if name is None or not _spellable(name) else (name, _P_ATOM)
         if cls == "NumberConstantExpression":
             val = v.get("m_value")
             if isinstance(val, bool) or not isinstance(val, (int, float)) or not math.isfinite(val):
@@ -429,30 +477,38 @@ def unparse(tree: Any, names: Mapping[int, str]) -> Optional[str]:
                 body = _num_text(val)
             else:
                 return None                                   # angle / other units: not pinned
-            return f"(-{body})" if val < 0 else body
+            return (f"(-{body})" if val < 0 else body), _P_ATOM
         if cls == "StringConstantExpression":
             text = v.get("m_value")
-            return None if not isinstance(text, str) or '"' in text else f'"{text}"'
+            return None if not isinstance(text, str) or '"' in text else (f'"{text}"', _P_ATOM)
         if cls == "ParenExpression":
-            inner = unparse(v.get("m_pSubexpression"), names)
-            return None if inner is None else f"({inner})"
+            inner = _unparse(v.get("m_pSubexpression"), names)
+            return None if inner is None else (f"({inner[0]})", _P_ATOM)
         if cls == "UnaryOperatorExpression":
             if v.get("m_unaryOperator") != UNARY_NEG:
                 return None
-            inner = unparse(v.get("m_pSubexpression"), names)
-            return None if inner is None else f"-{inner}"
+            inner = _unparse(v.get("m_pSubexpression"), names)
+            return None if inner is None else (f"-{_wrap(inner, _P_UNARY)}", _P_UNARY)
         if cls == "BinaryOperatorExpression":
             op = _OP_TEXT.get(v.get("m_binaryOperator"))
-            left = unparse(v.get("m_pLeftSubexpression"), names)
-            right = unparse(v.get("m_pRightSubexpression"), names)
-            return None if None in (op, left, right) else f"{left} {op} {right}"
+            left = _unparse(v.get("m_pLeftSubexpression"), names)
+            right = _unparse(v.get("m_pRightSubexpression"), names)
+            if None in (op, left, right):
+                return None
+            p = _OP_PREC[op]
+            # left-associative: an equal-precedence RIGHT operand is bracketed
+            # ('A - (B - C)'); comparisons do not chain, so both sides need more
+            lneed = p + 1 if p == _P_CMP else p
+            return f"{_wrap(left, lneed)} {op} {_wrap(right, p + 1)}", p
         if cls == "FunctionExpression":
             fn = _FN_TEXT.get(v.get("m_function"))
             subs = v.get("m_subexpressions") or []
             if isinstance(subs, dict):
                 subs = subs.get("value") or subs.get("m_items") or []
-            args = [unparse(a, names) for a in subs] if isinstance(subs, list) else [None]
-            return None if fn is None or None in args else f"{fn}({', '.join(args)})"
+            args = [_unparse(a, names) for a in subs] if isinstance(subs, list) else [None]
+            if fn is None or None in args:
+                return None
+            return f"{fn}({', '.join(a[0] for a in args)})", _P_ATOM
     except (TypeError, ValueError):
         return None
     return None
