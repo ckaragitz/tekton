@@ -1274,12 +1274,42 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                            for n, sides in spec["parts"].items()]
                 if not targets:
                     raise ValueError("no named part to drive")
-                drive_report.append(DL.wire_linear_drive(
+                base = DL.wire_linear_drive(
                     doc, caption=spec["caption"], axis=spec["axis"],
-                    lo=float(spec["lo"]), hi=float(spec["hi"]), targets=targets))
+                    lo=float(spec["lo"]), hi=float(spec["hi"]), targets=targets)
+                drive_report.append(base)
             except Exception as e:                   # noqa: BLE001
-                doc.notes.append(f"drive for {spec.get('caption')!r} not wired "
+                cap = spec.get("caption") if isinstance(spec, dict) else spec
+                doc.notes.append(f"drive for {cap!r} not wired "
                                  f"({type(e).__name__}: {str(e)[:90]})")
+                continue
+            # the ends move SYMMETRICALLY about the origin centre plane, and
+            # parts FOLLOW them at a labelled offset (#904 / #908: the "Follow"
+            # ladder's mechanisms, every rung desktop-verified).  Each step is
+            # all-or-nothing and never undoes the drive it builds on.
+            if spec.get("symmetric"):
+                try:
+                    DL.wire_symmetric(doc, base, spec["axis"])
+                    base["symmetric"] = True
+                except Exception as e:               # noqa: BLE001
+                    doc.notes.append(f"{spec['caption']!r} not made symmetric "
+                                     f"({type(e).__name__}: {str(e)[:90]})")
+            fol = spec.get("follow")
+            if fol:
+                try:
+                    if not base.get("symmetric"):
+                        raise ValueError("a follow mirrors through the symmetric ends")
+                    fnames = [f["part"] for f in fol["followers"]]
+                    bad = [n for n in fnames if n not in sketch_of or n in dup]
+                    if bad:
+                        raise ValueError(f"follower name(s) missing or not unique: {bad[:4]}")
+                    followers = [dict(f, sketch=sketch_of[f["part"]]) for f in fol["followers"]]
+                    base["follow"] = DL.wire_follow(
+                        doc, base=base, caption=fol["caption"], offset=float(fol["offset"]),
+                        followers=followers, axis=spec["axis"])
+                except Exception as e:               # noqa: BLE001
+                    doc.notes.append(f"followers of {spec['caption']!r} not wired "
+                                     f"({type(e).__name__}: {str(e)[:90]})")
         # only a document that actually CARRIES a drive is a law document:
         # finalize then skips back-edges and the law runs after it
         doc.born_drive_law = bool(drive_report)
@@ -1291,7 +1321,12 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                 doc.notes.remove(drive_note)
             doc.notes.append("parameter drives wired: " + "; ".join(
                 f"{d['caption']} moves {len(d['locks'])} part edge(s) on "
-                f"{d['targets']} part(s)" for d in drive_report))
+                f"{d['targets']} part(s)"
+                + (" symmetrically" if d.get("symmetric") else "")
+                + (f"; {d['follow']['followers']} part(s) follow it at "
+                   f"{d['follow']['caption']} ({d['follow']['locks']} locks)"
+                   if d.get("follow") else "")
+                for d in drive_report))
     doc.notes.append(f"multi-part generic model "
                      f"({_geometry_origin(dim_provenance, source)}): "
                      f"{len(built)} extrusions "

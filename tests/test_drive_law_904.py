@@ -251,12 +251,8 @@ def test_planes_that_disagree_with_their_parameter_are_refused_by_name():
                                          "hi": 1.5, "parts": {"body": ("lo", "hi")}}])
     assert prod.drives == []
     assert any("Run" in n and "not wired" in n for n in prod.doc.notes)
-    # ... and NOTHING of the chain was left behind (#907 review round 2):
-    # the document is the no-drive control, element class for element class
+    # ... and NOTHING of the chain was left behind (#907 review rounds 2 and 5):
+    # the written file is byte-identical to the no-drive control
     control = F.make_generic_model(parts=[dict(BOX)], name="x",
                                    numeric_params={"Run": ("length", 2.0)})
-    for cls in ("RefPlane", "Alignment", "LinearDimString"):
-        assert len(prod.doc.by_class(cls)) == len(control.doc.by_class(cls)), cls
-    sk, = prod.doc.by_class("VarSketch")
-    assert not sk.obj.get("m_dimIds")
-    assert not getattr(prod.doc, "born_drive_law", False)
+    _same_as_control(prod, control)
