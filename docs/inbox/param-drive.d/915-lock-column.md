@@ -49,6 +49,16 @@ bit (`m_ArrSegInfo[k].m_flags & 1`) exactly:
 - **No desktop verdict.** The Lock column is a dialog display. Its Revit check comes
   from the owner's ordinary use, since steer #913 says no probe families go to them.
 
+## Also in this PR: spec arguments that are not lists (#929 review nit)
+
+`make_generic_model(drives=5)`, `heights=5` and `diameters=5` used to raise
+`TypeError` out of the factory and withhold the file. That contract predates the
+param-drive stream. `factory._spec_list` now coerces a single spec, string or
+number into a one-item list and a generator into a list. A malformed argument
+therefore becomes a reported "not wired" note and the family is delivered (hard
+rule 1). Pinned by `tests/test_spec_lists_929.py` (25 tests). Lists and tuples pass
+through unchanged, so no existing output changes.
+
 ## BRANCH STATE
 
 **Files written**
@@ -57,6 +67,8 @@ bit (`m_ArrSegInfo[k].m_flags & 1`) exactly:
 - `src/rvt/famgen/drive_law.py`: re-syncs after the born law.
 - `plugin/lib/…`: mirrors.
 - `tests/test_lock_column_915.py`, `tests/ci_shard.d/915-lock-column.txt`: new.
+- `src/rvt/famgen/factory.py`: `_spec_list`; `tests/test_spec_lists_929.py` and its
+  shard drop-in.
 - `tests/test_famgen_skeleton.py`: the old "length params are locked" pin is
   replaced.
 - This fragment.
