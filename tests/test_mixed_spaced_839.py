@@ -82,6 +82,8 @@ def _spaced():
                     if hy == "-" and sl != "/":
                         continue      # a TIGHT hyphen before a spaced slash is a list (#841 round 9)
                     num = f"{w}{hy}{n}{sl}{d}"
+                    if not p.minimum < w + n / d <= p.maximum:
+                        continue      # out of the parameter's range: nominal by design (#899)
                     for ph in (f"{num} in {al}", f"{al} {num} in"):
                         for pr in (f"{noun} {ph}", f"a {ph} {noun}"):
                             yield key, pr, p.key, w + n / d
@@ -94,6 +96,7 @@ def test_every_spacing_of_a_mixed_number_binds_whole_and_alone():
         a = AR.archetype(key)
         r = AR.resolve_prompt(pr, product=key)
         stray = [k for k, pv in r.provenance.items() if pv == GIVEN and k != pk
+                 and k not in r.derived          # settled from it (a trapeze's rod spacing, #899)
                  and not (a.param(k).follows == pk and abs(r.values[k] - v) < 1e-6)]
         if r.provenance[pk] != GIVEN or abs(r.values[pk] - v) > 1e-6 or stray:
             fails.append((pr, r.values[pk], stray))
@@ -172,6 +175,8 @@ def _denominators():
                                                 ("in", "inch", '"', "ins", "-in", "-inch", "\u2033")):
                     glue = "" if u in ('"', "ins", "-in", "-inch", "\u2033") else " "
                     num = f"{w}{sep}{n}/{d}"
+                    if not p.minimum < w + n / d <= p.maximum:
+                        continue      # out of the parameter's range: nominal by design (#899)
                     # number-first needs the unit in _UNITS, which has no "ins"
                     # and no typographic mark -- pre-existing on main (#844)
                     forms = [f"{al} {num}{glue}{u}"] + ([] if u in ("ins", "\u2033") else [f"{num}{glue}{u} {al}"])

@@ -790,6 +790,60 @@ same as "1-120 /208 3/4", and no rule tells them apart without a magnitude heuri
 
 ---
 
+## Round 14 — main moved under the branch: the strut trapeze
+
+🛑 on `f557781`: **no parser counterexample, but the PR turned main red.**
+
+**What changed on main.** The rounds since round 10 said main's `archetypes.py` was unchanged
+since `f1672e4`. That stopped being true at `b05f7af` (#899) and `1a835d4` (#907), which added a
+`strut_trapeze` archetype with:
+- bounded parameters;
+- a `count` unit;
+- `settle`-derived values;
+- `noun_leads` and `phrases`.
+
+**Which tests failed.** On the merge with `1a835d4`, two sweeps failed, all on that archetype. The
+PR's own sweeps did not know three things:
+- A value outside a parameter's range stays nominal by design. "strut trapeze 1-1/2 in long"
+  keeps the 30 in nominal, because strut length must exceed 6 in.
+- A value that `settle` derives is not a stray. A strut length also yields a rod spacing.
+- Main's noun-lead rule then takes some of the out-of-range values.
+
+**Fix (the reviewer's, tested).** Rebased onto `1a835d4`. The sweeps skip out-of-range values, and
+the stray check ignores `Resolved.derived`. No parser change this round.
+
+**Measured against `1a835d4`:**
+- **The reviewer's oracle generator:** 220,000 prompts, every archetype including the trapeze, 13
+  spacings, and noise (voltages, AWG including 3-4/0, dates, ranges, lists, tags, NEMA).
+  - 58 prompts read main-nominal → head-wrong.
+  - 396 read main-correct → head-wrong or nominal.
+  - Every one of these 454 equals main's own reading of the same prompt with its slash closed up
+    ("2 - 1 / 2" → "2-1/2"). That is the existing #812 ambiguity between two phrases, plus the
+    stated trades. So the new spacing reads as main reads the tight form.
+- **This session's generators** compare trees and hold no oracle for "worse":
+  - Quote/conductor (23,192) and fuzzers (60,000): identical to main.
+  - List generator (26,208): the same 44 main-wrong → nominal, plus 6 trapeze rows of the same
+    shape. For example, "strut trapeze/rooms 101-104/12 long" gives nominal; main gives 109.67.
+  - Round-6 generator (169,095): a sample of the trapeze differences is the same classes as on
+    every other archetype.
+    - Fractions now join their whole number: "12\t3 / 4 in slot centers" gives 12.75 (main 0.75).
+    - Noise fractions are dropped: "#10     5 / 12 in. channel height" gives nominal (main 0.42).
+    - Stated trades, for example "1     12/24 each" gives 1 (main 1.5).
+- **Found on the way, main's own:** a rod inset of half the strut length or more settles a zero or
+  negative rod spacing stamped `given`. Filed as #911.
+
+**Tests:**
+- 258 passed and 2 xfailed in the two files.
+- 830 passed and 7 xfailed with the neighbouring suites and main's new ones (`test_strut_trapeze_899`,
+  `test_drive_law_904`, `test_fan_coil_893`, `test_panelboard_detail_892`).
+- 117 passed in the prompt-intent suites.
+
+**CI:** the first run on `f557781` was stopped by the shard's 1500 s limit at 88%. It shared four
+cores with the reviewer's generators. Earlier runs took 904–938 s. That was not a test failure, and
+the run is repeated on the new head.
+
+---
+
 ## BRANCH STATE
 
 **Files written**
@@ -806,10 +860,15 @@ same as "1-120 /208 3/4", and no rule tells them apart without a magnitude heuri
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
 - `tests/test_mixed_spaced_839.py`: new, 218 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
-  sweeps, the round-11 to round-13 rows that pin main's full reading).
+  sweeps, the round-11 to round-13 rows that pin main's full reading; the sweeps skip
+  out-of-range values and settled values, round 14).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 14, rebased onto `1a835d4`)**: 258 passed + 2 xfailed across the two files
+(830 + 7 xfailed with the neighbouring suites and main's new trapeze/drive-law/fan-coil/panelboard
+suites; 117 in the prompt-intent suites); plugin in sync.
 
 **Gates (round 13)**: 258 passed + 2 xfailed across the two files (684 + 7 xfailed with
 the neighbouring suites; 117 in the prompt-intent suites); 2/2 round-13 mutants killed; plugin
