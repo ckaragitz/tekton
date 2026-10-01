@@ -1416,9 +1416,25 @@ _FRAC_UNIT_AHEAD = (r"""(?=(?:"|″|”|'|′|’)|[\s-]*(?:in\b|in\.|ins\b|inch
 #: 24 / 7, 277 / 480); and a proper pair is not always a fraction either:
 #: 12 / 24 and 24 / 48 are low-voltage pairs, 9 / 23 a date (round 5).
 _SPACED_DENOMS = (10, 12, 16, 20, 32, 64)
+
+
+def _one_to(n: int) -> str:
+    """A compact regex for the integers 1..n (n < 100), no leading zero --
+    "[1-9]|[1-5]\\d|6[0-3]" for 63.  The numerator it spells is always followed
+    by \\s*/, so it must take the whole digit run and matches exactly what
+    the spelled-out list "63|62|...|1" did -- at a sixth of the pattern
+    length, which every alias pattern embeds (#841: the list made
+    resolve_prompt 2.5x slower than main)."""
+    if n < 10:
+        return f"[1-{n}]"
+    t, u = divmod(n, 10)
+    mid = [rf"[1-{t - 1}]\d"] if t > 2 else ([r"1\d"] if t == 2 else [])
+    return "|".join(["[1-9]", *mid, f"{t}[0-{u}]"])
+
+
 _PROPER_SPACED = "(?:" + "|".join(
     [rf"[1-{d - 1}]\s*/\s*{d}" for d in range(2, 10)]                  # 1/5, 5/6
-    + [rf"(?:{'|'.join(str(n) for n in range(d - 1, 0, -1))})\s*/\s*{d}"  # 7/20, 11/12
+    + [rf"(?:{_one_to(d - 1)})\s*/\s*{d}"                               # 7/20, 11/12
        for d in _SPACED_DENOMS]
 ) + ")"   # no digit guard needed: the unit must come next
 #: ... and with NO unit after it, the same proper measuring fraction, ending
@@ -1432,7 +1448,11 @@ _PROPER_SPACED = "(?:" + "|".join(
 #: that ends the prompt".)
 _FRAC_UNITLESS = rf"{_PROPER_SPACED}(?=\s|$|[^\w])"
 _MIXED_FRAC = rf"(?:(?:\d+/\d+|{_PROPER_SPACED}){_FRAC_UNIT_AHEAD}|{_FRAC_UNITLESS})"
-_NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 -- mixed, spaced
+_NUM_CORE = (rf"(\d+(?:\s+|(?:\.\d+)?\s*-\s*){_MIXED_FRAC}"     # 2 1/2, 2 1 / 2, 2-1/2 -- mixed
+             # (ONE copy of _MIXED_FRAC: the hyphen form used to sit in the
+             # third alternative as a second copy, doubling every pattern that
+             # embeds _NUM; no other alternative can match where it does --
+             # only "1,200" has a comma after its digits)
              r"|\d{1,3}(?:,\d{3})+(?:\.\d+)?"              # 1,200 -- grouped
              # main's "N / M/D" tail kept whole on the SLASH: "24 / 3/4" is one
              # token no number reads, never 24 / 3 = 8 (#841 round 6); not on
@@ -1440,8 +1460,7 @@ _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 
              # (a tight hyphen before a spaced slash that is really a LIST,
              # "levels 2-3 / 12\" wide", never reaches here as one token:
              # _mask_orphan_fractions blanks that slash first, #841 round 8)
-             rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}"
-             r"|\s*-\s*\d+|\s*/\s*\d+(?:/\d+)?)?"
+             r"|\d+(?:\.\d+)?(?:\s*-\s*\d+|\s*/\s*\d+(?:/\d+)?)?"
              r"|\d+\s*/\s*\d+)")
 #: A mixed number's slash may be spaced like its hyphen: "24 - 1 / 2 in" was
 #: split at the slash, and "1 / 2 in wide" -- a 0.5 in tray -- came back

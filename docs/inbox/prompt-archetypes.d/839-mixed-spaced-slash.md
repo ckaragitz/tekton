@@ -842,6 +842,30 @@ the stray check ignores `Resolved.derived`. No parser change this round.
 cores with the reviewer's generators. Earlier runs took 904–938 s. That was not a test failure, and
 the run is repeated on the new head.
 
+**Performance — found by CI, fixed on the branch.**
+- **What CI showed.** The shard was killed at its 1500 s limit (88%) on `a090d21` too, with the box
+  to itself.
+- **The cause.** The PR's number grammar made `resolve_prompt` **2.5× slower** than main: 3.40 vs
+  1.35 ms per prompt on 2,730 three-phrase strut-trapeze prompts. The regex cache was not
+  thrashing; both trees use 171 distinct patterns. The patterns were 11× longer (mean 1,739 vs 156
+  characters):
+  - `_PROPER_SPACED` spelled every numerator out ("63|62|…|1");
+  - `_NUM_CORE` held `_MIXED_FRAC` twice;
+  - every alias pattern embeds `_NUM`, and the cross pattern embeds three copies.
+- **The two rewrites** (`_NUM`: 2,786 → 872 characters):
+  - `_one_to(n)` spells 1..n compactly ("[1-9]|[1-5]\d|6[0-3]"). It is checked against 0..129 for
+    every n.
+  - The hyphen-joined mixed fraction is folded into the first alternative. No other alternative
+    can match at the same start, because only "1,200" has a comma after its digits.
+- **Result:**
+  - 2.09 ms per prompt, 1.5× main's 1.35.
+  - Output is identical to the pre-rewrite head on all 278,495 generator prompts (169,095 + 26,208 +
+    23,192 + 60,000).
+  - 748 tests passed and 2 xfailed across the touched suites.
+- **What is main's own:** `tests/test_archetype_alias_order_812.py` alone takes 385 s on main (about
+  30 s before #899), because it sweeps every parameter triple and the trapeze has about 13
+  parameters. Filed as #918.
+
 ---
 
 ## BRANCH STATE
@@ -853,6 +877,7 @@ the run is repeated on the new head.
     `_SPACED_DENOMS`.
   - The quote-mark units in `_UNITS`.
   - `_NUM`'s guard.
+  - `_one_to` (round 14: the compact numerator ranges).
   - `_WHOLE_THEN_FRACTION` / `_mask_orphan_fractions` (new).
   - `resolve_prompt` now masks `low` first.
 
