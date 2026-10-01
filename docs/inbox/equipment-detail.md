@@ -83,3 +83,4 @@ Later PRs of this stream each write their own fragment under `docs/inbox/equipme
 - `892-panelboard-parts.md`
 - `893-fan-coil.md`
 - `903-fan-coil-followups.md`
+- `894-conduit-connectors.md`

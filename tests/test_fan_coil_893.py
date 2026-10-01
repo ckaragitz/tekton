@@ -271,3 +271,45 @@ def test_the_shared_equipment_clearance_also_delivers_beyond_the_table():
     assert rep["forms"] == [] and rep["not_drawn"]
     assert any(n.startswith("clearance zones NOT drawn") for n in doc.notes)
     assert EC.P_SHOW not in doc.params
+
+
+# --- #894: the feeder's conduit connector -----------------------------------------------
+
+def test_the_disconnect_carries_a_conduit_connector_driven_by_its_diameter(fcu):
+    from rvt.famgen import mep_connectors as MC
+    (con,) = fcu.doc.mep_connectors
+    dom = con.obj["m_pDomain"]
+    assert dom["ptr_class"] == "ConnectorElemDomainCableTrayConduit"
+    v = dom["value"]
+    assert (v["m_eSystemType"], v["m_eProfileType"], v["m_ePlacementType"]) == (32, 0, 0)
+    assert v["m_dConnectorDiameter"] == pytest.approx(0.75 / 12) and v["m_bIsPrimaryConnector"]
+    (cell,) = [c for c in con.obj["m_cellList"]["value"]["m_cells"]
+               if c["ptr_class"] == "FamilyParametrizedElemParamsCell"]
+    (d,) = cell["value"]["m_paramDrivenData"]
+    pid = fcu.doc.params["Conduit Diameter"].elem_id
+    assert (d["m_famParamId"], d["m_elemPropId"]) == (pid, MC.ELEM_PROP_CONDUIT_DIAMETER)
+    assert pid in con.header["m_parents"]["value"]["m_deletion"]
+    (power,) = fcu.doc.connectors                                # the power one is still the primary
+    assert power.obj["m_pDomain"]["value"]["m_bIsConnectorPrimary"]
+    assert fcu.facts.values["conduit_diameter_in"].kind == "nominal"
+
+
+def test_the_conduit_connector_reads_back_from_the_written_file(fcu, tmp_path):
+    from contextlib import ExitStack
+    from rvt import global_framing as GF
+    from rvt.families import FamilyIndex
+    out = str(tmp_path / "c.rfa")
+    fcu.write(out, validate=False, provenance=False)
+    with ExitStack() as st:
+        GF.enter_own_release(st, out)
+        fi = FamilyIndex(out)
+        doms = sorted((fi.value(0, e) or {})["m_pDomain"]["ptr_class"]
+                      for e, r in fi.unit_records(0).get(102, {}).items()
+                      if fi.class_name(r.class_id) == "ConnectorElem")
+    assert doms == ["ConnectorElemDomainCableTrayConduit", "ConnectorElemDomainElectrical"]
+
+
+def test_conduit_domain_refuses_a_non_positive_diameter():
+    from rvt.famgen import mep_connectors as MC
+    with pytest.raises(ValueError):
+        MC.conduit_domain(0.0)
