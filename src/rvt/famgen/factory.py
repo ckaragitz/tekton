@@ -1294,6 +1294,26 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                 except Exception as e:               # noqa: BLE001
                     doc.notes.append(f"{spec['caption']!r} not made symmetric "
                                      f"({type(e).__name__}: {str(e)[:90]})")
+            att = spec.get("attach")
+            if att:
+                # parts riding the drive's own end planes (#913)
+                try:
+                    names = [n for key in ("lo", "hi", "span") for n in att.get(key, ())]
+                    bad = [n for n in names if n not in sketch_of or n in dup]
+                    if bad or len(set(names)) != len(names):
+                        raise ValueError(f"attached part name(s) missing, repeated or not "
+                                         f"unique: {bad[:4] or names[:4]}")
+                    planes = {p.elem_id: p for p in doc.refplanes}
+                    lo_p, hi_p = planes[base["planes"][0]], planes[base["planes"][1]]
+                    # "lo" / "hi": the part rides that end rigidly; "span": its
+                    # low edge rides the low end and its high edge the high end
+                    ride = {"lo": (lo_p, lo_p), "hi": (hi_p, hi_p), "span": (lo_p, hi_p)}
+                    base["attach"] = DL.wire_attach(doc, axis=spec["axis"], items=[
+                        (sketch_of[n], *ride[key]) for key in ("lo", "hi", "span")
+                        for n in att.get(key, ())])
+                except Exception as e:               # noqa: BLE001
+                    doc.notes.append(f"parts attached to {spec['caption']!r} not wired "
+                                     f"({type(e).__name__}: {str(e)[:90]})")
             fol = spec.get("follow")
             if fol:
                 try:
@@ -1323,8 +1343,12 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                 f"{d['caption']} moves {len(d['locks'])} part edge(s) on "
                 f"{d['targets']} part(s)"
                 + (" symmetrically" if d.get("symmetric") else "")
-                + (f"; {d['follow']['followers']} part(s) follow it at "
-                   f"{d['follow']['caption']} ({d['follow']['locks']} locks)"
+                + (f"; {d['attach']['parts']} part(s) authored to ride it "
+                   f"({d['attach']['locks']} locks; assembled family unverified)"
+                   if d.get("attach") else "")
+                + (f"; {d['follow']['followers']} part(s) authored to follow it at "
+                   f"{d['follow']['caption']} ({d['follow']['locks']} locks; "
+                   f"assembled family unverified)"
                    if d.get("follow") else "")
                 for d in drive_report))
     doc.notes.append(f"multi-part generic model "

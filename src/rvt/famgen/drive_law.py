@@ -36,12 +36,28 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, List, Optional
 
-from .skeleton import SPEC_LENGTH
 
 #: the curve GInfo bit set on 24,209 / 24,213 born sketch curves [census]
 CURVE_BORN_BIT = 0x80000
 #: m_dimVersion on born dimensions (36k records; 0 on the other 4k) [census]
 BORN_DIM_VERSION = 6
+
+
+#: the parameter specs a LABELLED dimension may carry in Revit-born families:
+#: census of the 421-family reference corpus (#913) -- length 2,504, conduit
+#: size 92, cable-tray size 19, pipe size 8; nothing else is ever labelled
+DRIVABLE_SPECS = ("autodesk.spec.aec:length",
+                  "autodesk.spec.aec.electrical:conduitSize",
+                  "autodesk.spec.aec.electrical:cableTraySize",
+                  "autodesk.spec.aec.piping:pipeSize")
+
+
+def drivable_spec(pe) -> str:
+    """The parameter's spec id when a labelled dimension may carry it, else ''."""
+    pdef = next((v.get("value") or {} for k, v in pe.obj.items()
+                 if k.endswith("aramDef") and isinstance(v, dict)), {})
+    spec = (pdef.get("m_specTypeId") or {}).get("m_typeId") or ""
+    return spec if spec.rsplit("-", 1)[0] in DRIVABLE_SPECS else ""
 
 
 def _parents(el) -> Dict[str, Any]:
@@ -197,11 +213,8 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
     lo, hi = float(lo), float(hi)
     if not (math.isfinite(lo) and math.isfinite(hi) and lo < hi):
         raise ValueError(f"drive_law: planes must be finite with lo < hi (got {lo!r}, {hi!r})")
-    pdef = next((v.get("value") or {} for k, v in pe.obj.items()
-                 if k.endswith("aramDef") and isinstance(v, dict)), {})
-    spec = ((pdef.get("m_specTypeId") or {}).get("m_typeId") or "")
-    if spec != SPEC_LENGTH:
-        raise ValueError(f"drive_law: {caption} is not a length parameter ({spec or 'no spec'})")
+    if not drivable_spec(pe):
+        raise ValueError(f"drive_law: {caption} is not a length or size parameter")
     if not targets:
         raise ValueError("drive_law: no target parts")
     value = hi - lo
@@ -592,10 +605,8 @@ def wire_follow(doc, *, base: Dict[str, Any], caption: str, offset: float,
     lo_p, hi_p = planes[base["planes"][0]], planes[base["planes"][1]]
     lo, hi = plane_at(lo_p, axis), plane_at(hi_p, axis)
     pe = doc.params[caption]
-    pdef = next((v.get("value") or {} for k, v in pe.obj.items()
-                 if k.endswith("aramDef") and isinstance(v, dict)), {})
-    if ((pdef.get("m_specTypeId") or {}).get("m_typeId") or "") != SPEC_LENGTH:
-        raise ValueError(f"drive_law: {caption} is not a length parameter")
+    if not drivable_spec(pe):
+        raise ValueError(f"drive_law: {caption} is not a length or size parameter")
     rows = doc.types[doc.current_type][1] if doc.types else {}
     cur = rows.get(pe.elem_id)
     offset = float(offset)
@@ -698,3 +709,56 @@ def wire_symmetric(doc, base: Dict[str, Any], axis: str = "x"):
         # an EQ about a plane that is not midway cannot hold (#912 review)
         raise ValueError("drive_law: the drive's planes are not centred on the origin plane")
     return eq3d(doc, lo_p, centre, hi_p, axis)
+
+
+def wire_attach(doc, *, items, axis: str) -> Dict[str, Any]:
+    """Part edges that RIDE moving planes at their current offsets.
+
+    ``items`` = ``[(VarSketch, lo_plane, hi_plane), ...]``: the sketch's edge
+    on the low side of ``axis`` rides ``lo_plane`` and its high-side edge rides
+    ``hi_plane`` (either may be ``None`` = that edge stays).  Each edge gets a
+    plane at its offset from the plane it rides, held by a LOCKED unlabelled
+    dimension from it (offset 0 = that plane itself), and is locked to it --
+    the P2 rung's chain (lo -> A locked, A -> B locked), desktop-verified (#904
+    "Follow" ladder).  Same plane on both sides = the part rides rigidly (a
+    tray rail's web on the width plane); different planes = it stretches with
+    the drive (a box wall between front and back).
+
+    All-or-nothing: every item is checked before the first mutation."""
+    from . import param_drive as PD
+    k = 0 if axis == "x" else 1
+    locked = {cid for al in _sketch_locks(doc) for cid in _witness_ids(al)}
+    claimed: set = set()
+    plan = []
+    for sk, lo_p, hi_p in items:
+        rect = PD._classify_rect(PD._sketch_lines(sk))
+        lo_l, hi_l = ((rect["left"], rect["right"]) if axis == "x"
+                      else (rect["bottom"], rect["top"]))
+        for side, ln, rides in (("lo", lo_l, lo_p), ("hi", hi_l, hi_p)):
+            if rides is None:
+                continue
+            cid, a, b = ln
+            if abs(a[k] - b[k]) > 1e-6:
+                raise ValueError(f"drive_law: sketch {sk.elem_id} edge is not square to {axis}")
+            if cid in locked or cid in claimed:
+                raise ValueError(f"drive_law: sketch {sk.elem_id}'s {side} edge is already locked")
+            claimed.add(cid)
+            plan.append((rides, sk, side, ln, round(a[k] - plane_at(rides, axis), 9)))
+    if not plan:
+        raise ValueError("drive_law: nothing to attach")
+    # -- mutations start here
+    made: Dict[tuple, Any] = {}
+    n_planes = 0
+    keys = sorted({(p[0].elem_id, p[4]): p[0] for p in plan}.items(),
+                  key=lambda kv: (kv[0][0], abs(kv[0][1])))
+    for i, ((pid, off), plane) in enumerate(keys):
+        if off == 0.0:
+            made[(pid, off)] = plane
+            continue
+        made[(pid, off)] = add_plane(doc, axis, plane_at(plane, axis) + off)
+        dim3d(doc, plane, made[(pid, off)], axis, locked=True, line_step=4 + i % 3)
+        n_planes += 1
+    for plane, sk, side, ln, off in plan:
+        lock_line(doc, sk, ln, made[(plane.elem_id, off)], axis, side)
+    return {"axis": axis, "parts": len({id(p[1]) for p in plan}), "planes": n_planes,
+            "locks": len(plan)}
