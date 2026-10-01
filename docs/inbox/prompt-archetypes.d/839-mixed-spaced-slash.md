@@ -730,6 +730,66 @@ main**, and the round-11 sentence "no prompt moved away from main" was wrong:
 
 ---
 
+## Round 13 — round 12's glued-slash exception, and main's "N / D/x" tail
+
+🛑 on `797947a`. **Two classes read worse than main:**
+1. **Round 12's list rule kept a glued slash unless a mixed number followed.** That exception
+   brought round 12's class 3 back through the list rule. It was already present at `c74f6ac`,
+   `4cd2a6f` and `28a958b`.
+   - "a 1-120 /208 3/4 in conduit" gave **208.75 in `given`** (main nominal).
+   - "cable tray width 24 2-120 /208 1/2 in deep" added depth 208.5.
+2. **Round 10's denominator branch freed the D/x of main's "N / D/x" tail.** It did this through
+   its `\s*/\s*\d` alternative. Main keeps "3 / 120/208" as one token that no number reads.
+   - "cable tray levels 2 - 3 / 120/208 in deep" gave **0.577 in `given`** (main nominal).
+
+**Correction to round 12:** "None reads worse than main" held only for prompts where round 12
+differed from round 11. Class 1 was unchanged by round 12 and still read worse.
+
+**Mutant counts:** the round-12 counts (4, 5, 9) are for this session's mutant definitions. The
+reviewer's reproductions gave different counts (3, 4, 3–6). Every variant is killed.
+
+**Fix (the reviewer's, tested):**
+- The list rule always keeps a slash that touches the next number.
+- A denominator after "/ " that opens a slash token, where that token is no measuring fraction,
+  stays one token as on main.
+
+**What it gives up:** about 58 improvements that only the exception produced. Their syntax is the
+same as "1-120 /208 3/4", and no rule tells them apart without a magnitude heuristic.
+- "levels 2-3 /12 1/2 in wide" read 12.5; it now reads nominal, as on main.
+- "2-3 /2 - 1 / 2 in" read 2.5; it now reads 0.5, as on main.
+
+**Known trades, stated (the reviewer's; not regressions introduced this round):**
+- **A list value after a whole number.** A spaced, improper "N / D" after a whole number is
+  blanked whole, so a list value that main read is lost. "cable tray, rooms 101 102 / 12 in deep"
+  gives nominal (main 12). This is the round-4/5 trade that guards "width 12 480 / 277 in": the
+  two shapes differ only in their numbers.
+- **A list item shaped like a mixed number.** It reads as one: "a 10 ft long 2 - 3 / 4 conduit"
+  gives 2.75 (main 10). That is the feature itself — "2 - 3 / 4" is how #839's users write 2¾.
+
+**Measured:**
+- **The reviewer's runs:**
+  - Round 12's 96,711-prompt oracle generator: target-lost 277 both before and after the fix.
+    All 277 are the same "2 - 3 / 4" list item, the second trade above.
+  - Main wrong, now right: 5,672 → 5,614.
+  - Round 12's 150,000-prompt random set: 1,486 prompts change against `797947a`, and all
+    1,486 return exactly to main's `given` set.
+  - The reviewer's own 127,520 prompts: every change returns exactly to main's reading.
+- **This session's generators, against round 12:** 0 of 267,141 changed. They do not produce
+  these shapes. They compare trees and hold no oracle for "worse", so the reviewers' runs are
+  the evidence.
+
+**Tests:**
+- 258 passed and 2 xfailed in the two files: 218 in `test_mixed_spaced_839.py`, with 8 rows
+  pinning main's full `given` set.
+- 684 passed and 7 xfailed with the neighbouring suites.
+- 117 passed in the prompt-intent suites.
+
+**Mutants: 2/2 killed:**
+- the round-12 exception restored (6 failures);
+- the tail skip dropped (4).
+
+---
+
 ## BRANCH STATE
 
 **Files written**
@@ -744,12 +804,16 @@ main**, and the round-11 sentence "no prompt moved away from main" was wrong:
 
   *(Corrected in round 9: this line used to list only `_NUM_CORE`.)*
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 210 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 218 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
-  sweeps, the round-11 and round-12 rows that pin main's full reading).
+  sweeps, the round-11 to round-13 rows that pin main's full reading).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 13)**: 258 passed + 2 xfailed across the two files (684 + 7 xfailed with
+the neighbouring suites; 117 in the prompt-intent suites); 2/2 round-13 mutants killed; plugin
+in sync.
 
 **Gates (round 12)**: 250 passed + 2 xfailed across the two files (676 + 7 xfailed with the
 neighbouring suites; 117 in the prompt-intent suites); 3/3 round-12 mutants killed; plugin

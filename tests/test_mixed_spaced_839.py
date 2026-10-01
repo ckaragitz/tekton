@@ -555,3 +555,23 @@ def test_a_list_or_a_glued_slash_never_frees_a_number(prompt, given):
     r = AR.resolve_prompt(prompt)
     got = {k: v for k, v in r.values.items() if r.provenance.get(k) == GIVEN}
     assert got == pytest.approx(given), (prompt, got, r.quoted)
+
+
+# Round 13 (#841): round 12's glued-slash exception freed a voltage ("a 1-120
+# /208 3/4 in conduit" was 208.75 in), and the denominator branch freed the
+# D/x of main's "N / D/x" tail ("levels 2 - 3 / 120/208 in deep" was 0.58 in).
+# Every row reads exactly as main: the given set.
+@pytest.mark.parametrize("prompt,given", [
+    ("a 1-120 /208 3/4 in conduit", {}),
+    ("cable tray 1-277 /480 1/2 in deep", {}),
+    ("cable tray width 24 2-120 /208 1/2 in deep", {"width_in": 24.0}),
+    ('lighting control panel 1-120 /277 3/4" deep', {}),
+    ("cable tray levels 2-3 /4 - 1/2 in deep", {"depth_in": 0.5}),
+    ("cable tray levels 2 - 3 / 120/208 in deep", {}),
+    ("a conduit, floors 2 - 3 / 277/480 in conduit", {}),
+    ("cable tray 16  208 / 277/1 in wide", {}),
+])
+def test_a_glued_slash_or_a_slash_tail_never_frees_a_number(prompt, given):
+    r = AR.resolve_prompt(prompt)
+    got = {k: v for k, v in r.values.items() if r.provenance.get(k) == GIVEN}
+    assert got == pytest.approx(given), (prompt, got, r.quoted)

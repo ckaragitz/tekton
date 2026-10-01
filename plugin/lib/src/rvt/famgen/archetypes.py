@@ -1497,12 +1497,11 @@ def _mask_orphan_fractions(low: str) -> str:
             # stands -- "24 in / 2-3 / 4 in deep" is a 4 in depth
             sl = re.search(r"\s*/\s*", low[m.start(2):m.end(2)])
             s, e = m.start(2) + sl.start(), m.start(2) + sl.end()
-            # (a slash TOUCHING the next number stays unless that number
-            # opens a mixed one ("2-3 /2 - 1 / 2 in"): main never reads a
-            # number glued to a slash, and blanked, "levels 2-3 /4 / 6 in
-            # deep" read 4/6 as the depth -- #841 round 12)
-            if low[e - 1] == "/" and not re.match(
-                    rf"\d+(?:\s+|\s*-\s*){_MIXED_FRAC}", low[e:]):
+            # (a slash TOUCHING the next number always stays: main never
+            # reads a number glued to a slash, and blanked, "levels 2-3 /4 /
+            # 6 in deep" read 4/6 as the depth -- #841 round 12 -- and "a
+            # 1-120 /208 3/4 in conduit" was a 208.75 in conduit, round 13)
+            if low[e - 1] == "/":
                 e -= 1
             out = out[:s] + _ORPHAN_MASK * (e - s) + out[e:]
             continue
@@ -1515,6 +1514,13 @@ def _mask_orphan_fractions(low: str) -> str:
         whole = re.match(_NUM_CORE, low[m.start():])
         if whole is None or m.start() + whole.end() < m.end(2):
             den = low[m.start(3):]
+            if low[m.start(3) - 1].isspace() and re.match(r"\d+\s*/\s*\d", den) and not re.match(
+                    rf"{_PROPER_SPACED}(?:{_FRAC_UNIT_AHEAD}|(?=\s|$|[^\w]))", den):
+                # main's "N / D/x" tail: a denominator that opens a slash token
+                # that is no measuring fraction stays one token no number reads
+                # -- freed, "levels 2 - 3 / 120/208 in deep" was 0.58 in given
+                # (#841 round 13)
+                continue
             # only after "/ ", never "/": main reads no number glued to a
             # slash, and freed, "a 2 120 /208 3/4 in conduit" was a 208.75 in
             # conduit (round 12; round 11 guarded the range alone)
