@@ -2117,12 +2117,15 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                     standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
     """Compose a PANELBOARD family from catalog facts.
 
-    Geometry: the enclosure box at TRUE catalog dimensions (width x height
-    in the family's XY plane = the wall face for a work-plane-based /
-    face-hosted family, depth extruded +Z out of the face for SURFACE
-    mounting, or recessed -Z for FLUSH).  One 3-pole power connector on the
-    enclosure's top face (the specimen's convention: feeder entry on top),
-    voltage associated to the ``Voltage`` family parameter.
+    Geometry: the enclosure box at TRUE catalog dimensions, standing on the
+    reference level -- W (x) x D (y) footprint, H tall; a SURFACE box stands
+    proud of the wall face at y = 0 (0..D), a FLUSH one is recessed behind it
+    (-D..0) -- then its FRONT at nominal proportions on the door face (+y): trim,
+    hinged door, two hinges, latch handle, nameplate
+    (:func:`rvt.famgen.equipment_detail.panelboard_parts`, #892), and the NEC
+    clearance zones (#882).  One 3-pole power connector on the enclosure's top
+    face (the specimen's convention: feeder entry on top), voltage associated
+    to the ``Voltage`` family parameter.
 
     Parameters: the tekton-ifc tagging-contract NAMES (PanelName,
     Voltage, Phases, Wires, BusRating, MainsType, MainsRating,

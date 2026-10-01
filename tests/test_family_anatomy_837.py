@@ -595,8 +595,8 @@ def test_a_dimension_or_form_class_the_table_does_not_name_is_other_not_dropped(
     monkeypatch.setattr(FA, "FORM_CLASSES", {})
     p = FA.profile(families["panelboard"])
     assert p["dimensions"]["value"] == {"total": 2, "by_kind": {"other": 2}, "alignments": 4}
-    # the cabinet, its 13 front parts (#885) and its 2 clearance zones (#882)
-    assert p["forms"]["value"]["by_kind"] == {"other": 16}
+    # the cabinet, its 6 front parts (#892) and its 2 clearance zones (#882)
+    assert p["forms"]["value"]["by_kind"] == {"other": 9}
 
 
 def test_form_subcategory_and_material_assignments_are_counted(families, monkeypatch):

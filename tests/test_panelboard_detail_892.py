@@ -1,10 +1,9 @@
 """#892 (#885 parity): a generated panelboard is built from its real parts, not a labelled box.
 
 ``rvt.famgen.equipment_detail.panelboard_parts`` lays out the FRONT of the cabinet
-on the catalog box (which stays the parameter-driven enclosure form): a front trim
-with screws, a hinged door with two hinges on the left as you face it, a latch
-handle and key lock on the right, and a nameplate -- nominal proportions, never a
-manufacturer drawing.  ``make_panelboard`` authors them after the box, and the NEC
+on the catalog box (which stays the parameter-driven enclosure form): a front trim,
+a hinged door with two hinges on the left as you face it, a latch handle on the
+right, and a nameplate -- nominal proportions, never a manufacturer drawing.  ``make_panelboard`` authors them after the box, and the NEC
 working space starts in front of the door hardware.
 
 "Looks right in Revit" is a desktop claim (hard rule 4); these tests pin what the
@@ -33,7 +32,7 @@ def test_the_front_parts_stand_on_the_box_face(W, D, H):
     parts = ED.panelboard_parts(W, D, H)
     roles = [p.role for p in parts]
     for role, n in (("front trim", 1), ("door", 1), ("door hinge", 2), ("door latch handle", 1),
-                    ("door lock", 1), ("trim screw", 6), ("nameplate", 1)):
+                    ("nameplate", 1)):
         assert roles.count(role) == n, role
     for p in parts:
         assert p.w > 0 and p.d > 0 and p.h > 0
@@ -86,3 +85,15 @@ def test_the_branch_panel_is_authored_from_its_parts_and_validates(panel, tmp_pa
 def test_the_dummy_variant_carries_no_front_parts():
     prod = F.make_panelboard(solid=False)
     assert len(prod.forms) == 1
+
+
+def test_a_flush_panel_starts_its_working_space_at_the_wall_face_plus_hardware():
+    prod = F.make_panelboard(mains_a=225, spaces=42, voltage="208Y/120", mounting="flush")
+    f = prod.facts
+    W, D, H = f.get("width_in") / 12, f.get("depth_in") / 12, f.get("height_in") / 12
+    parts = ED.panelboard_parts(W, D, H, flush=True)
+    front = next(x for x in prod.forms if x.params["role"] == "clearance: front working space").params
+    assert front["center"][1] - front["depth_ft"] / 2 == pytest.approx(ED.front_proud_ft(parts, 0.0))
+    box = prod.forms[0].params
+    assert box["center"][1] == pytest.approx(-D / 2)                  # recessed behind the wall
+    assert all(p.cy - p.d / 2 >= -1e-9 for p in parts)                  # the front stands on the wall

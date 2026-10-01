@@ -209,10 +209,27 @@ def blank_object(class_name: str) -> dict:
     ``rvt.encode`` -> ``rvt.objects`` byte-exact (tests/test_genesis_types).
     """
     dec, _enc, schema = _S()
-    cd = schema.by_name.get(class_name)
-    if cd is None:
-        raise KeyError(f"class {class_name!r} not in the archive class map")
-    return _blank_class(dec, cd.type_id, 0)
+    # one prototype per class per schema in force: the cache lives IN the state
+    # dict, which a release context swaps whole (rvt.frontdoor.release_ctx), so a
+    # 2025 build never sees a 2026 blank.  Each call gets its own deep copy.
+    cache = _STATE.setdefault("blank", {})
+    proto = cache.get(class_name)
+    if proto is None:
+        cd = schema.by_name.get(class_name)
+        if cd is None:
+            raise KeyError(f"class {class_name!r} not in the archive class map")
+        proto = cache[class_name] = _blank_class(dec, cd.type_id, 0)
+    return _clone(proto)
+
+
+def _clone(o):
+    """A deep copy of a blank (dicts, lists, scalars) -- several times faster than
+    ``copy.deepcopy`` on these plain trees."""
+    if isinstance(o, dict):
+        return {k: _clone(v) for k, v in o.items()}
+    if isinstance(o, list):
+        return [_clone(v) for v in o]
+    return o
 
 
 def _blank_class(dec, type_id: int, depth: int) -> dict:

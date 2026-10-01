@@ -128,8 +128,8 @@ PANEL_TRIM_T = 0.1875 * IN
 PANEL_DOOR_T = 0.125 * IN
 
 PANEL_DETAIL_NOTE = ("panelboard detail at NOMINAL proportions (archetype, not a manufacturer "
-                     "drawing): the catalog box, a front trim with corner screws, a hinged door "
-                     "with two hinges, a latch handle with a key lock, and a nameplate; the box "
+                     "drawing): the catalog box, a front trim, a hinged door with two hinges, a "
+                     "latch handle, and a nameplate; the box "
                      "W x D x H is the catalog fact, the trim and door stand under 1 in proud "
                      "of its face (a flush trim also laps the wall opening by 0.75 in)")
 
@@ -160,18 +160,14 @@ def panelboard_parts(W: float, D: float, H: float, *, flush: bool = False) -> Li
     hx = dw / 2 + hw / 2 - 0.05 * IN
     for frac in (0.2, 0.8):
         parts.append(BoxPart("door hinge", hw, hd, hh, dz0 + frac * dh - hh / 2, hx, y_on - hd / 2 + 0.1 * IN))
-    # latch handle and key lock on the RIGHT edge as you face it (-x), at mid height
+    # the latch handle on the RIGHT edge as you face it (-x), at mid height
     lx = -(dw / 2 - min(1.25 * IN, dw / 8))
     lh = min(3.0 * IN, dh / 5)
     lz = dz0 + dh / 2 - lh / 2
     parts.append(BoxPart("door latch handle", 0.9 * IN, 0.35 * IN, lh, lz, lx, y_on + 0.175 * IN))
-    parts.append(BoxPart("door lock", 0.6 * IN, 0.2 * IN, 0.6 * IN, lz + lh + 0.4 * IN, lx, y_on + 0.1 * IN))
-    # trim screws: the four corners outside the door, and mid-height on both sides
-    sx = tw / 2 - side_in / 2
-    for z in (tz0 + end_in / 2, tz0 + th - end_in / 2, tz0 + th / 2):
-        for x in (-sx, sx):
-            parts.append(BoxPart("trim screw", 0.4 * IN, 0.1 * IN, 0.4 * IN, z - 0.2 * IN, x,
-                                 face + PANEL_TRIM_T + 0.05 * IN))
+    # No trim screws or separate key lock: each part is a form, and every family is
+    # built and loaded once per panel -- the flagship six-panel room job paid ~1 s
+    # for those seven sub-inch parts (#892 review; latency is product, S-2026-08-09-g).
     # nameplate across the top of the door
     nw, nh = min(4.0 * IN, dw * 0.4), 1.25 * IN
     parts.append(BoxPart("nameplate", nw, 0.06 * IN, nh, dz0 + dh - 2.5 * IN - nh, 0.0, y_on + 0.03 * IN))
