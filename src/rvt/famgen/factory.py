@@ -2117,12 +2117,15 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                     standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
     """Compose a PANELBOARD family from catalog facts.
 
-    Geometry: the enclosure box at TRUE catalog dimensions (width x height
-    in the family's XY plane = the wall face for a work-plane-based /
-    face-hosted family, depth extruded +Z out of the face for SURFACE
-    mounting, or recessed -Z for FLUSH).  One 3-pole power connector on the
-    enclosure's top face (the specimen's convention: feeder entry on top),
-    voltage associated to the ``Voltage`` family parameter.
+    Geometry: the enclosure box at TRUE catalog dimensions, standing on the
+    reference level -- W (x) x D (y) footprint, H tall; a SURFACE box stands
+    proud of the wall face at y = 0 (0..D), a FLUSH one is recessed behind it
+    (-D..0) -- then its FRONT at nominal proportions on the door face (+y): trim,
+    hinged door, two hinges, latch handle, nameplate
+    (:func:`rvt.famgen.equipment_detail.panelboard_parts`, #892), and the NEC
+    clearance zones (#882).  One 3-pole power connector on the enclosure's top
+    face (the specimen's convention: feeder entry on top), voltage associated
+    to the ``Voltage`` family parameter.
 
     Parameters: the tekton-ifc tagging-contract NAMES (PanelName,
     Voltage, Phases, Wires, BusRating, MainsType, MainsRating,
@@ -2234,6 +2237,21 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                       "dims_in": [facts.get("width_in"), facts.get("height_in"),
                                   facts.get("depth_in")],
                       "mounting": mount})
+    # the cabinet FRONT (#885/#879: equipment looks like the product): trim, door,
+    # hinges, latch and lock, trim screws, nameplate -- nominal proportions
+    from . import equipment_detail as ED
+    face_y = 0.0 if mount.startswith("flush") else D
+    detail: List[Any] = []
+    proud = 0.0
+    if solid:
+        parts = ED.panelboard_parts(W, D, H, flush=mount.startswith("flush"))
+        for part in parts:
+            f = add_box_form(doc, part.w, part.d, part.h, base_z_ft=part.z0,
+                             center=(part.cx, part.cy), rep=G.REP_SOLID)
+            f.params.update({"role": part.role})
+            detail.append(f)
+        proud = ED.front_proud_ft(parts, face_y)
+        doc.notes.append(ED.PANEL_DETAIL_NOTE)
     # -- connector: 3-pole power feed, top face centre (specimen convention)
     poles = 3 if int(facts.get("phases")) >= 3 else 1
     # the feeder enters a standing panelboard from ABOVE, so the connector
@@ -2257,7 +2275,7 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     # door face (+y for a surface panel, the wall face for a flush one), reaching the
     # floor below a NOMINALLY mounted cabinet, and the 110.26(E)(1) dedicated space
     # above; each shown by Yes/No parameters bound to its visibility
-    forms = [fb]
+    forms = [fb] + detail
     if solid:
         from . import equipment_clearance as EC
         from .archetypes import MOUNT_TOP_IN
@@ -2265,7 +2283,7 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
         rep_c = EC.add_clearance_zones(
             doc, add_box_form, kind="panelboard", width_ft=W, depth_ft=D, height_ft=H,
             body_center=(0.0, y_centre), front_dir=+1,
-            front_y_ft=(D if not mount.startswith("flush") else 0.0),
+            front_y_ft=face_y + proud,                  # in front of the door hardware
             floor_z_ft=floor, voltage_to_ground=_panel_volts_to_ground(facts),
             mounting_note=(f"cabinet top {MOUNT_TOP_IN:g} in above the floor (bottom "
                            f"{max(0.0, MOUNT_TOP_IN - H * 12.0):g} in) -- NOMINAL, so the "

@@ -85,7 +85,11 @@ def test_panelboard_zone_leaves_the_door_face_and_reaches_the_floor(panelboard):
     fp = z["clearance: front working space"].params
     floor = -max(0.0, MOUNT_TOP_IN / 12 - H)
     assert fp["base_z_ft"] == pytest.approx(floor)
-    assert fp["center"][1] - fp["depth_ft"] / 2 == pytest.approx(D)          # surface: door at +D
+    # surface: the box face at +D, the zone in front of the door hardware standing on it
+    from rvt.famgen import equipment_detail as ED
+    proud = ED.front_proud_ft(ED.panelboard_parts(W, D, H), D)
+    assert 0 < proud < 1.0 / 12
+    assert fp["center"][1] - fp["depth_ft"] / 2 == pytest.approx(D + proud)
     assert fp["height_ft"] >= 6.5
     tp = z["clearance: top"].params
     assert tp["height_ft"] == pytest.approx(6.0) and tp["base_z_ft"] == pytest.approx(H)

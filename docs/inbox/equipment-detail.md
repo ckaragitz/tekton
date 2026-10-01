@@ -76,3 +76,8 @@ Branch `claude/eager-franklin-xgzgda`, from main `6f56772`.
 - Shipped: parts, open-in-3D, clearance zones.
 - Staged: nothing.
 - No certification claim.
+
+## Fragments
+
+Later PRs of this stream each write their own fragment under `docs/inbox/equipment-detail.d/`:
+- `892-panelboard-parts.md`
