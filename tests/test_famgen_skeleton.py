@@ -361,8 +361,9 @@ def test_type_and_parameter_authoring():
     groups = {g["m_groupTypeId"]["m_typeId"]: g["m_paramIds"]
               for g in cell["m_sortedParams"]}
     assert groups[fs.PGROUP_DIMENSIONS] == [L.elem_id]
-    # length params are locked for direct manipulation
-    assert doc.self_family.obj["m_lockedParameterIdsForDirectManipulation"] == [L.elem_id]
+    # the Lock column follows labelled segments' lock bits, never "every length
+    # param" (#915); this document labels no dimension, so nothing is locked
+    assert doc.self_family.obj["m_lockedParameterIdsForDirectManipulation"] == []
 
 
 def test_phase_loads_split_a_balanced_load_equally_over_the_poles():

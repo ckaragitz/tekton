@@ -1790,6 +1790,36 @@ _TYPE_TEXT_PARAMS = {
 }
 
 
+def labelled_lock_state(doc) -> Dict[int, bool]:
+    """{param id: True if ANY of its labelled dimension segments carries the
+    lock bit (``m_ArrSegInfo[k].m_flags & 1``)} over every dimension in
+    ``doc`` -- linear, radial, any class with segment info (#915)."""
+    state: Dict[int, bool] = {}
+    for e in doc.elements:
+        segs = e.obj.get("m_ArrSegInfo") if isinstance(e.obj, dict) else None
+        for sg in segs or ():
+            pid = int(sg.get("m_paramId", -1))
+            if pid >= 0:
+                state[pid] = state.get(pid, False) or bool(int(sg.get("m_flags", 0)) & 1)
+    return state
+
+
+def sync_locked_params(doc) -> List[int]:
+    """Make ``Family.m_lockedParameterIdsForDirectManipulation`` (the Family
+    Types dialog's Lock column) agree with the segment lock bits, the way it
+    does in every Revit-born family (#915): a parameter that labels a locked
+    segment is in, one that labels only unlocked segments is out, and an
+    entry that labels no dimension at all (a built-in a residue put there on
+    purpose) is left as it is."""
+    fam = doc.self_family
+    state = labelled_lock_state(doc)
+    keep = [int(p) for p in fam.obj.get("m_lockedParameterIdsForDirectManipulation") or []
+            if int(p) not in state]
+    fam.obj["m_lockedParameterIdsForDirectManipulation"] = sorted(
+        set(keep) | {p for p, on in state.items() if on})
+    return fam.obj["m_lockedParameterIdsForDirectManipulation"]
+
+
 @dataclass
 class FamilyDoc:
     """A family document under construction (skeleton + authored content).
@@ -2203,11 +2233,11 @@ class FamilyDoc:
         # electrical); it is content-preserving (asserts the id multiset).
         from . import layout_law as _LL
         _LL.normalize_order_cell(self)
-        # locked-for-direct-manipulation = the length parameters (Revit locks
-        # dimension params it drives geometry with) [INFERRED default]
-        fam.obj["m_lockedParameterIdsForDirectManipulation"] = sorted(
-            pe.elem_id for pe in pes
-            if _canonical_spec(pe.refs.get("spec") or "") == SPEC_LENGTH)
+        # locked-for-direct-manipulation = exactly the parameters whose
+        # labelled dimension segments carry the lock bit (#915: 262/262 born
+        # members have it, 1,994/1,994 non-members do not; [] in 279/421
+        # born families) -- never "every length parameter"
+        sync_locked_params(self)
         # element index + ownership over EVERY element (self last)
         others = [e.elem_id for e in self.elements if e.elem_id != fam.elem_id]
         refresh_self_family_index(fam, others)
