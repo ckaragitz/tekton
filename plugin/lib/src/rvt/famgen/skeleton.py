@@ -2128,7 +2128,11 @@ class FamilyDoc:
         # document with no constraints is untouched.
         try:
             from . import famdim as _famdim
-            _famdim.apply_constraint_back_edges(self)
+            # a document carrying the Revit-born drive law gets NO back-edges:
+            # 0 of 421 born files carry one (#787), and the law's own pass
+            # would only clear them again (#907 review)
+            if not getattr(self, "born_drive_law", False):
+                _famdim.apply_constraint_back_edges(self)
         except Exception as _bx:                                   # noqa: BLE001
             # never block delivery on the repair (hard rule 1) -- but keep
             # the failure OBSERVABLE: the self-battery and any delivery

@@ -122,6 +122,15 @@ class Param:
     #: followed value is the caller's, so the follower is ``given`` too, with
     #: the reason quoted rather than presented as a nominal.
     follows: str = ""
+    #: the largest value a PROMPT may bind (in ``unit``): a number past it
+    #: belongs to another phrase -- "1/2 in rod 24 in apart" is not a 24 in
+    #: rod (#900 review).  A famspec override is not limited by it.
+    maximum: float = math.inf
+    #: whole PHRASES that state this dimension where no single alias does --
+    #: "rods 24 in apart", "tiers at 12 in centers": regex templates with
+    #: ``{num}``, ``{sep}`` and ``{unit}`` slots (``{unit}`` is the optional
+    #: named unit group).  Tried before any alias (#900 review round 4).
+    phrases: Tuple[str, ...] = ()
 
     def feet(self, value: Optional[float] = None) -> float:
         v = self.default if value is None else float(value)
@@ -163,6 +172,26 @@ class Archetype:
     #: drawn from rvt.famgen.clearance (#818 / #820)
     working_space: bool = False
     aliases: Tuple[str, ...] = ()               # display names, for the report
+    #: the Revit FAMILY PARAMETERS this product carries, with their values:
+    #: ``vals -> {caption: (spec_key, value_in_internal_units)}``.  Empty for
+    #: the products whose dimensions live in the fact sheet only; an assembly a
+    #: user adjusts (a trapeze: tiers, rod spacing, rod size) lists every one.
+    family_params: Callable[[Dict[str, float]], Dict[str, Any]] = lambda v: {}
+    #: extra words for the family NAME after the primary dimension ("2 Tier")
+    name_bits: Callable[[Dict[str, float]], List[str]] = lambda v: []
+    #: dimensions DERIVED from others once the caller's are known -- run after
+    #: ``follows``, with the provenance, so a derived value is ``given`` when
+    #: the caller's numbers decided it: ``(vals, prov, quoted) -> None``
+    settle: Optional[Callable[[Dict[str, float], Dict[str, str], Dict[str, str]], None]] = None
+    #: a measurement right before one of these words in the product name
+    #: binds THIS parameter instead of the primary: "a 1-5/8 in strut
+    #: trapeze" names the channel, not a 1.6 in trapeze (#900 review)
+    noun_leads: Tuple[Tuple[str, str], ...] = ()
+    #: PARAMETER DRIVES (#904): ``vals -> [{caption, axis, lo, hi, parts:
+    #: {part name: ("lo",) | ("hi",) | ("lo", "hi")}}]`` -- which family
+    #: parameter moves which part edges (feet, family coordinates); authored
+    #: by ``rvt.famgen.drive_law.wire_linear_drive``
+    drives: Optional[Callable[[Dict[str, float]], List[Dict[str, Any]]]] = None
 
     def param(self, key: str) -> Param:
         for p in self.params:
@@ -189,6 +218,13 @@ class Resolved:
     claim: Optional[Dict[str, Any]] = None
     #: the prompt asked for the NEC working-space clearance (#820)
     clearance: bool = False
+    #: keys ``Archetype.settle`` DERIVED from the caller's numbers -> the
+    #: reason; ``given`` (the caller's numbers decided them) but not stated
+    derived: Dict[str, str] = dc_field(default_factory=dict)
+    #: numbers the prompt stated for a dimension that stayed NOMINAL because
+    #: they are outside its range: ``[{key, label, said, range}]`` -- reported,
+    #: never silently dropped (#900 review round 3)
+    out_of_range: List[Dict[str, Any]] = dc_field(default_factory=list)
 
     def given(self) -> List[str]:
         return sorted(k for k, v in self.provenance.items() if v == GIVEN)
@@ -221,6 +257,8 @@ class Resolved:
                 for p in self.arch.params],
             "given": self.given(),
             "nominal": self.nominal(),
+            **({"derived": dict(self.derived)} if self.derived else {}),
+            **({"out_of_range": list(self.out_of_range)} if self.out_of_range else {}),
             "manufacturer_claim": self.claim,
             **({"working_space": working_space_report(self)}
                if self.clearance and self.arch.working_space else {}),
@@ -432,6 +470,188 @@ def _conduit(v: Dict[str, float]) -> List[Dict[str, Any]]:
         raise ArchetypeError("a conduit run needs a positive diameter and length")
     return [{"shape": "cylinder_x", "name": "conduit run", "radius_ft": d / 2.0,
              "length_ft": L, "center": [0.0, 0.0], "base_z_ft": -d / 2.0}]
+
+
+#: a whole-phrase pattern outranks every alias: it states its subject itself
+PHRASE_RANK = 1000
+
+#: "<subject> [at|spaced] N in apart / on center / centers / o.c." -- the
+#: number is after the subject word, so a size before it ("1/2 in rod 18 in
+#: apart") keeps its own text
+_SPACED = (r"(?:(?:at|spaced(?:\s+at)?)\s+)?{num}{sep}{unit}{sep}"
+           r"(?:apart|on\s+cent(?:er|re)s?|cent(?:er|re)s?|o\.?\s?c\.?)(?![a-z])")
+
+
+def _subject(*words: str) -> str:
+    """A fixed-width lookbehind per subject word, so the phrase's span starts
+    at its number and never swallows the subject word another phrase needs."""
+    return "(?:" + "|".join(rf"(?<=\b{w}\s)" for w in words) + ")"
+
+
+def _hex_nut(name: str, across_flats: float, height: float, cx: float, cy: float,
+             base: float) -> Dict[str, Any]:
+    """A hex nut as a hexagonal prism (the thread and the chamfers are not
+    modelled), flats parallel to the strut so it reads square-on in plan."""
+    r = across_flats / math.sqrt(3.0)              # centre to corner
+    ring = [[r * math.cos(math.radians(a)), r * math.sin(math.radians(a))]
+            for a in (0, 60, 120, 180, 240, 300)]
+    ring.append(list(ring[0]))
+    return {"shape": "polygon", "name": name, "vertices": ring,
+            "height_ft": height, "center": [cx, cy], "base_z_ft": base}
+
+
+def _trapeze_geometry(v: Dict[str, float]) -> Dict[str, float]:
+    """The derived numbers of a trapeze, in FEET -- shared by the builder and
+    the family parameters so the two can never disagree."""
+    L = float(v["strut_length_in"]) * IN
+    inset = float(v["rod_inset_in"]) * IN
+    n = int(round(float(v["tiers"])))
+    t = float(v["tier_spacing_in"]) * IN
+    H = float(v["height_in"]) * IN
+    d = float(v["rod_diameter_in"]) * IN
+    wt = float(v["washer_thickness_in"]) * IN
+    nut_h = 0.875 * d
+    spacing = float(v["rod_spacing_in"]) * IN
+    top = (n - 1) * t + H                            # top of the top tier's lips
+    rod_top = top + float(v["rod_above_in"]) * IN
+    rod_bottom = -(wt + nut_h + float(v["rod_below_in"]) * IN)
+    return {"L": L, "inset": inset, "n": n, "t": t, "H": H, "d": d, "wt": wt,
+            "nut_h": nut_h, "nut_af": 1.5 * d, "spacing": spacing, "top": top,
+            "rod_top": rod_top, "rod_bottom": rod_bottom,
+            "rod_length": rod_top - rod_bottom}
+
+
+def _strut_trapeze(v: Dict[str, float]) -> List[Dict[str, Any]]:
+    """A strut TRAPEZE hanger: ``tiers`` lengths of channel, open side up, hung
+    on two vertical threaded rods, each tier clamped at each rod by a square
+    washer and a hex nut BELOW the channel back and a washer and nut ON the
+    lips.  The insertion point is the underside of the bottom tier's channel,
+    midway between the rods."""
+    g = _trapeze_geometry(v)
+    if not (1 <= g["n"] <= 6) or abs(float(v["tiers"]) - g["n"]) > 1e-9:
+        raise ArchetypeError(f"a trapeze takes 1 to 6 whole tiers, not {float(v['tiers']):g}")
+    if g["d"] <= 0:
+        raise ArchetypeError("a trapeze needs a positive rod diameter")
+    if abs(g["L"] - 2.0 * g["inset"] - g["spacing"]) > 1e-6:
+        raise ArchetypeError(
+            f"a {g['L'] / IN:g} in strut with rods {g['spacing'] / IN:g} in apart cannot "
+            f"also have them {g['inset'] / IN:g} in in from each end -- state two of the three")
+    if g["spacing"] <= max(g["nut_af"], float(v["washer_size_in"]) * IN):
+        raise ArchetypeError(
+            f"rods {g['inset'] / IN:g} in in from each end of a {g['L'] / IN:g} in "
+            f"strut leave no room between them for their washers")
+    if g["inset"] < float(v["washer_size_in"]) * IN / 2.0:
+        raise ArchetypeError(
+            f"a {g['inset'] / IN:g} in rod inset puts the "
+            f"{float(v['washer_size_in']):g} in washer past the end of the strut")
+    if g["n"] > 1 and g["t"] <= g["H"] + 2.0 * (g["wt"] + g["nut_h"]):
+        raise ArchetypeError(
+            f"{float(v['tier_spacing_in']):g} in between tiers does not clear one "
+            f"channel and its nuts and washers")
+    if g["d"] >= float(v["width_in"]) * IN:
+        raise ArchetypeError("the rod is wider than the channel it passes through")
+    chan = {k: v[k] for k in ("height_in", "width_in", "thickness_in", "lip_in",
+                              "slot_length_in", "slot_spacing_in")}
+    chan["length_ft"] = g["L"]
+    one_tier = _strut_channel(chan)
+    ws = float(v["washer_size_in"]) * IN
+    parts: List[Dict[str, Any]] = []
+    for i in range(g["n"]):
+        z0 = i * g["t"]
+        tier = f"tier {i + 1}"
+        for p in one_tier:
+            q = dict(p)
+            q["name"] = f"{tier} {p['name']}"
+            q["base_z_ft"] = float(p.get("base_z_ft") or 0.0) + z0
+            parts.append(q)
+        for side, x in (("left", -g["spacing"] / 2.0), ("right", g["spacing"] / 2.0)):
+            below_w = z0 - g["wt"]
+            parts.append(_box(f"{tier} washer below {side}", ws, ws, g["wt"], x, 0.0, below_w))
+            parts.append(_hex_nut(f"{tier} nut below {side}", g["nut_af"], g["nut_h"],
+                                  x, 0.0, below_w - g["nut_h"]))
+            above = z0 + g["H"]
+            parts.append(_box(f"{tier} washer above {side}", ws, ws, g["wt"], x, 0.0, above))
+            parts.append(_hex_nut(f"{tier} nut above {side}", g["nut_af"], g["nut_h"],
+                                  x, 0.0, above + g["wt"]))
+    for side, x in (("left", -g["spacing"] / 2.0), ("right", g["spacing"] / 2.0)):
+        parts.append({"shape": "cylinder", "name": f"threaded rod {side}",
+                      "radius_ft": g["d"] / 2.0, "height_ft": g["rod_length"],
+                      "center": [x, 0.0], "base_z_ft": g["rod_bottom"]})
+    if len(parts) > MAX_PARTS:
+        raise ArchetypeError(f"{len(parts)} parts is past the {MAX_PARTS}-part budget "
+                             f"for one family")
+    return parts
+
+
+def _trapeze_params(v: Dict[str, float]) -> Dict[str, Any]:
+    """Every dimension a user adjusts on a trapeze, as a family parameter (feet
+    internally for lengths), plus the derived ones a schedule wants."""
+    g = _trapeze_geometry(v)
+    ft = lambda key: float(v[key]) * IN            # noqa: E731
+    return {
+        "Number of Tiers": ("integer", g["n"]),
+        "Strut Length": ("length", g["L"]),
+        "Rod Spacing": ("length", g["spacing"]),
+        "Rod Inset": ("length", g["inset"]),
+        "Tier Spacing": ("length", g["t"]),
+        "Rod Diameter": ("length", g["d"]),
+        "Rod Length": ("length", g["rod_length"]),
+        "Rod Above Top Tier": ("length", ft("rod_above_in")),
+        "Rod Below Bottom Nut": ("length", ft("rod_below_in")),
+        "Strut Height": ("length", g["H"]),
+        "Strut Width": ("length", ft("width_in")),
+        "Strut Thickness": ("length", ft("thickness_in")),
+        "Slot Length": ("length", ft("slot_length_in")),
+        "Slot Spacing": ("length", ft("slot_spacing_in")),
+        "Washer Size": ("length", ft("washer_size_in")),
+        "Washer Thickness": ("length", g["wt"]),
+        "Nut Across Flats": ("length", g["nut_af"]),
+    }
+
+
+def _trapeze_drives(v: Dict[str, float]) -> List[Dict[str, Any]]:
+    """Strut Length moves both ends of every tier: the full-length webs and
+    lips follow on both sides, a slotted back's end segments on their outer
+    side only (the slots in between keep their pitch)."""
+    g = _trapeze_geometry(v)
+    sides: Dict[str, Tuple[str, ...]] = {}
+    for p in _strut_trapeze(v):
+        n = p["name"]
+        if not n.startswith("tier ") or p.get("shape") != "box":
+            continue
+        rest = n.split(" ", 2)[2]
+        if rest.startswith(("web ", "inturned lip ")) or rest == "back":
+            sides[n] = ("lo", "hi")
+        elif rest.startswith("back segment "):
+            k, total = rest[len("back segment "):].split("/")
+            if k == "1":
+                sides[n] = ("lo",)
+            elif k == total:
+                sides[n] = ("hi",)
+    return [{"caption": "Strut Length", "axis": "x",
+             "lo": -g["L"] / 2.0, "hi": g["L"] / 2.0, "parts": sides}]
+
+
+def _trapeze_settle(vals: Dict[str, float], prov: Dict[str, str],
+                    quoted: Dict[str, str]) -> None:
+    """Strut length = rod spacing + 2 x rod inset, whichever two the caller
+    stated.  A value the caller's numbers decided is ``given``, with the reason
+    quoted; with none of the three stated all stay nominal."""
+    L, S, I = "strut_length_in", "rod_spacing_in", "rod_inset_in"
+    g = {k: prov.get(k) == GIVEN for k in (L, S, I)}
+    if g[S] and not g[L]:
+        vals[L] = vals[S] + 2.0 * vals[I]
+        prov[L] = GIVEN
+        quoted[L] = f"rod spacing {vals[S]:g} in + 2 x {vals[I]:g} in inset"
+    elif g[S] and g[L] and not g[I]:
+        vals[I] = (vals[L] - vals[S]) / 2.0
+        prov[I] = GIVEN
+        quoted[I] = f"({vals[L]:g} in strut - {vals[S]:g} in rod spacing) / 2"
+    elif not g[S]:
+        vals[S] = vals[L] - 2.0 * vals[I]
+        if g[L] or g[I]:
+            prov[S] = GIVEN
+            quoted[S] = f"{vals[L]:g} in strut - 2 x {vals[I]:g} in inset"
 
 
 # ---------------------------------------------------------------------------
@@ -679,6 +899,113 @@ _register(Archetype(
 ))
 
 
+_register(Archetype(
+    key="strut_trapeze",
+    title="Strut Trapeze",
+    category="generic_model",
+    basis=("standard trapeze hanger practice: 1-5/8 in metal framing channel, open "
+           "side up, hung on two all-thread rods with a square washer and hex nut "
+           "above and below each tier. Nominal sizes for the product CLASS -- no "
+           "manufacturer's part is claimed"),
+    lod_note=("every tier's real C section (back, webs, inturned lips, the back "
+              "slots genuinely absent), both threaded rods full length, and a "
+              "square washer + hex nut above and below each tier at each rod"),
+    limits=("the rod threads and the nut chamfers are not modelled; a rod is a "
+            "plain cylinder at its nominal diameter",
+            "the rod holes are not cut: the rod passes through the channel back",
+            "the beam clamp / anchor at the rod top is not modelled",
+            "the section is authored square-cornered; the forming radii are not",
+            "both strut ends of every tier are LOCKED to the Strut Length planes, so "
+            "changing Strut Length changes their length (owner's desktop verdict, "
+            "#904; nothing pins the centre, so Revit may move only one end); the threaded rods, washers and nuts do NOT follow it yet "
+            "-- they stay where they were generated, so after flexing Strut Length "
+            "the Rod Inset and Width values no longer describe the geometry (Rod "
+            "Spacing still does); every other parameter carries a value and does not "
+            "drive it "
+            "-- a different rod spacing, tier spacing or rod size is a re-generation"),
+    aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
+    patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
+              r"(?:\s+(?:hangers?|supports?|racks?))?",
+              r"trapeze\s+hangers?"),
+    params=(
+        Param("strut_length_in", "Strut Length", 30.0, "in",
+              "a 30 in strut: 24 in between rods with the rods 3 in in from each end",
+              aliases=("long", "length", "strut length", "trapeze length",
+                       "trapeze width"),
+              choices=(18.0, 24.0, 30.0, 36.0, 42.0, 48.0), primary=True,
+              minimum=6.0, maximum=240.0),
+        Param("tiers", "Number of Tiers", 2.0, "count",
+              "two tiers, as asked for most often; 1 to 6",
+              aliases=("tier", "tiers", "level", "levels", "tier trapeze"),
+              choices=(1.0, 2.0, 3.0, 4.0), maximum=6.0),
+        Param("tier_spacing_in", "Tier Spacing", 12.0, "in",
+              "12 in between tiers, centre to centre",
+              aliases=("tier spacing", "tier to tier"),
+              phrases=(_subject("tier", "tiers") + _SPACED,),
+              choices=(8.0, 10.0, 12.0, 18.0, 24.0), maximum=120.0),
+        Param("rod_spacing_in", "Rod Spacing", 24.0, "in",
+              "rod centres 24 in apart: the strut length less the two insets",
+              # NOT bare "apart" / "on center": "tiers 12 in apart" is the
+              # TIER spacing (#900 review round 3)
+              aliases=("rod spacing", "rod centers", "rod centres", "between rods"),
+              phrases=(_subject("rod", "rods") + _SPACED,),
+              minimum=1.0, maximum=228.0),
+        Param("rod_inset_in", "Rod Inset", 3.0, "in",
+              "the rod 3 in in from each end of the strut",
+              aliases=("rod inset", "overhang", "rod from end"), maximum=24.0),
+        Param("rod_diameter_in", "Rod Diameter", 0.375, "in",
+              "3/8 in all-thread, the common trapeze rod; 1/2, 5/8 and 3/4 in for "
+              "heavier loads",
+              aliases=("rod", "rod diameter", "threaded rod", "all thread",
+                       "all-thread", "rod size"),
+              # "24 in rod spacing" / "rod inset" are LONGER aliases of other
+              # dimensions and claim their text first; the range keeps a
+              # following number ("1/2 in rod 24 in apart") off the diameter
+              choices=(0.375, 0.5, 0.625, 0.75), maximum=1.5),
+        Param("rod_above_in", "Rod Above Top Tier", 24.0, "in",
+              "24 in of rod above the top tier, up to the structure",
+              aliases=("rod above", "rod drop", "to structure"), maximum=480.0),
+        Param("rod_below_in", "Rod Below Bottom Nut", 1.0, "in",
+              "1 in of rod left below the bottom nut",
+              aliases=("rod below", "rod tail"), maximum=12.0),
+        Param("height_in", "Strut Height", 1.625, "in",
+              "the 1-5/8 in standard channel height",
+              aliases=("strut height", "channel height", "section height"),
+              maximum=4.0),
+        Param("width_in", "Strut Width", 1.625, "in",
+              "the 1-5/8 in standard channel width",
+              aliases=("strut width", "channel width", "section width"),
+              maximum=4.0),
+        Param("thickness_in", "Strut Thickness", 0.105, "in",
+              "12 gauge (0.105 in), the common structural weight",
+              aliases=("thickness", "strut thickness")),
+        Param("lip_in", "Lip", 0.5, "in",
+              "the inturned lip that the channel nut turns against",
+              aliases=("lip",)),
+        Param("slot_length_in", "Slot Length", 1.125, "in",
+              "the standard 1-1/8 in slot; 0 = a solid back",
+              aliases=("slot length",), allow_zero=True),
+        Param("slot_spacing_in", "Slot Spacing", 2.0, "in",
+              "slots on 2 in centres; 0 = a solid back",
+              aliases=("slot spacing", "slot centers", "slot centres"), allow_zero=True),
+        Param("washer_size_in", "Washer Size", 1.625, "in",
+              "the 1-5/8 in square strut washer",
+              aliases=("washer size",)),
+        Param("washer_thickness_in", "Washer Thickness", 0.25, "in",
+              "a 1/4 in thick square washer",
+              aliases=("washer thickness",)),
+    ),
+    build=_strut_trapeze,
+    family_params=_trapeze_params,
+    settle=_trapeze_settle,
+    drives=_trapeze_drives,
+    noun_leads=(("strut", "height_in"), ("channel", "height_in"),
+                ("unistrut", "height_in")),
+    name_bits=lambda v: [f"{int(round(float(v['tiers'])))} Tier"],
+    standard_values=lambda v: {"Material": "steel"},
+))
+
+
 def keys() -> Tuple[str, ...]:
     return tuple(sorted(ARCHETYPES))
 
@@ -755,7 +1082,13 @@ def _to_number(raw: str) -> Optional[float]:
 def _convert(value: float, unit_found: str, p: Param) -> Optional[float]:
     """A number the prompt gave in ``unit_found`` expressed in the parameter's
     own unit.  A unit the parameter cannot mean (feet for a sheet thickness is
-    fine; there is no rule against it) simply converts."""
+    fine; there is no rule against it) simply converts.  A COUNT takes a bare
+    number only ("2 tier"); "2 in tiers" is not a count."""
+    if p.unit == "count":
+        # a whole number only: "2 tier 1-5/8 strut" must not read 1.625 tiers
+        if unit_found != "count" or abs(value - round(value)) > 1e-9:
+            return None
+        return value
     ft = {"in": value * IN, "ft": value, "mm": value * MM}.get(unit_found)
     if ft is None:
         return None
@@ -964,6 +1297,9 @@ def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, in
     matching across the phrase boundary (``_SEP`` allows no comma).
     """
     out: List[Tuple[int, int, str]] = []
+    for ph in p.phrases:
+        out.append((PHRASE_RANK, 0, ph.format(num=_NUM, sep=_SEP,
+                                              unit=rf"(?P<u>{_ANY_UNIT})?")))
     for al in p.aliases:
         a = _alias_re(al)
         n = len(al)
@@ -1105,7 +1441,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                     continue
                 unit = _unit_of(m.group(0)) or p.unit
                 conv = _convert(num, unit, p)
-                if conv is None or conv <= p.minimum:
+                if conv is None or conv <= p.minimum or conv > p.maximum:
                     continue
                 b_vals[p.key] = conv
                 b_prov[p.key] = GIVEN
@@ -1132,7 +1468,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                     continue
                 num = _to_number(m.group(1))
                 conv = None if num is None else _convert(num, _unit_of(m.group(0)) or p.unit, p)
-                if conv is not None and conv > p.minimum:
+                if conv is not None and p.minimum < conv <= p.maximum:
                     intact.append((s_, e_))
         return b_vals, b_prov, b_quoted, b_used, intact
 
@@ -1181,7 +1517,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                     continue
                 p = arch.param(k)
                 conv = _convert(num, unit or p.unit, p)
-                if conv is None or conv <= p.minimum:
+                if conv is None or conv <= p.minimum or conv > p.maximum:
                     continue
                 vals[k], prov[k] = conv, GIVEN
                 quoted[k] = text[m.start():m.end()].strip()
@@ -1217,7 +1553,19 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 continue
             unit = _unit_of(m.group(0))
             target = prim
-            if unit == "ft" and prim.unit == "in":
+            # any modifier of the noun may lead: "1-5/8 in slotted strut trapeze"
+            leads = dict(arch.noun_leads)
+            lead_key = next((leads[w] for w in re.findall(r"[a-z]+", low[m.end("u"):m.end()])
+                             if w in leads), None)
+            if lead_key:
+                # ... but only a value the channel section can take: "a 36 in
+                # strut trapeze" is a 36 in TRAPEZE, "a 1-5/8 in strut trapeze"
+                # a 1-5/8 in channel (#900 review round 3)
+                lt = arch.param(lead_key)
+                lc = _convert(num, unit or lt.unit, lt)
+                if lc is not None and lt.minimum < lc <= lt.maximum:
+                    target = lt
+            if target is prim and unit == "ft" and prim.unit == "in":
                 # FEET in front of the noun names the RUN, not the section: "a
                 # 10 ft cable tray" is ten feet long, not ten feet wide.  Only
                 # this pair redirects -- every other unit (mm, in) is a section
@@ -1228,7 +1576,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
             if prov[target.key] == GIVEN:
                 continue
             conv = _convert(num, unit or target.unit, target)
-            if conv is None or conv <= target.minimum:
+            if conv is None or conv <= target.minimum or conv > target.maximum:
                 continue
             vals[target.key] = conv
             prov[target.key] = GIVEN
@@ -1236,10 +1584,77 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
             used.append((m.start(), m.end()))
             break
     _apply_follows(arch, vals, prov, quoted)
+    derived = _settle(arch, vals, prov, quoted)
     clear = wants_clearance(text)
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
                     name=_name(arch, vals, prov, clearance=clear),
-                    claim=manufacturer_claim(text), clearance=clear)
+                    claim=manufacturer_claim(text), clearance=clear,
+                    derived=derived, out_of_range=_out_of_range(arch, low, text, prov))
+
+
+def _out_of_range(arch: Archetype, low: str, text: str,
+                  prov: Dict[str, str]) -> List[Dict[str, Any]]:
+    """Phrases that state a BOUNDED dimension (``Param.maximum``) left nominal
+    at a value outside its range -- "a 7 tier trapeze" -- so the report can
+    say what it did not use.  Only parameters that declare a range."""
+    out: List[Dict[str, Any]] = []
+    prim = next((p for p in arch.params if p.primary), None)
+    # every alias / phrase occurrence with its length: a number read by a
+    # LONGER alias ("24 in rod spacing") or any phrase belongs to that one
+    # -- only readings that COULD bind (their number converts into range):
+    # "tier 25 ft" is no count, so it hides nothing
+    def _could(q, m) -> bool:
+        num = _to_number(m.group(1))
+        c = None if num is None else _convert(num, _unit_of(m.group(0)) or q.unit, q)
+        return c is not None and q.minimum < c <= q.maximum
+    spans = [(m.start(), m.end(), n_) for q in arch.params
+             for n_, _r, pat in _alias_patterns(q) for m in re.finditer(pat, low)
+             if _could(q, m)]
+    for p in arch.params:
+        if prov.get(p.key) != NOMINAL or not math.isfinite(p.maximum):
+            continue
+        pats = [(n_, pat) for n_, _r, pat in _alias_patterns(p)]
+        if p is prim:
+            pats += [(0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT}){_SEP}(?:{q})")
+                     for q in _product_patterns(arch)]
+        for n_p, pat in pats:
+            for m in re.finditer(pat, low):
+                if any(m.start() < e and m.end() > s_ and n_q > n_p
+                       for s_, e, n_q in spans):
+                    continue
+                num = _to_number(m.group(1))
+                if num is None:
+                    continue
+                conv = _convert(num, _unit_of(m.group(0)) or p.unit, p)
+                if conv is not None and conv > p.maximum:
+                    if any(o["key"] == p.key and m.start() < o["_e"] and m.end() > o["_s"]
+                           for o in out):
+                        continue                 # one phrase, read by two patterns
+                    out.append({"key": p.key, "label": p.label,
+                                "said": text[m.start():m.end()].strip(),
+                                "range": f"up to {p.display(p.maximum)}",
+                                "_s": m.start(), "_e": m.end()})
+    return [{k: v for k, v in o.items() if not k.startswith("_")} for o in out]
+
+
+def _settle(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str],
+            quoted: Dict[str, str], undo: Dict[str, str] = None,
+            keep: Sequence[str] = ()) -> Dict[str, str]:
+    """Run ``arch.settle`` and return what it derived (key -> reason).  A value
+    an EARLIER settle derived (``undo``) goes back to nominal first unless the
+    caller has since stated it (``keep``), so it is re-derived from the
+    caller's current numbers instead of being taken for one of them."""
+    if arch.settle is None:
+        return {}
+    for k in (undo or {}):
+        if k not in keep:
+            vals[k] = arch.param(k).default
+            prov[k] = NOMINAL
+            quoted.pop(k, None)
+    before = dict(prov)
+    arch.settle(vals, prov, quoted)
+    return {k: quoted.get(k, "") for k, v in prov.items()
+            if v == GIVEN and before.get(k) != GIVEN}
 
 
 def _apply_follows(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str],
@@ -1287,11 +1702,13 @@ def resolve(product: str, overrides: Optional[Dict[str, Any]] = None,
         prov[k] = GIVEN
         quoted.pop(k, None)
     _apply_follows(arch, vals, prov, quoted)
+    derived = _settle(arch, vals, prov, quoted,
+                      undo=(base.derived if base else None), keep=tuple(overrides or ()))
     clear = bool(base.clearance) if base else wants_clearance(prompt)
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
                     name=_name(arch, vals, prov, clearance=clear),
                     claim=(base.claim if base else manufacturer_claim(prompt)),
-                    clearance=clear)
+                    clearance=clear, derived=derived)
 
 
 # ---------------------------------------------------------------------------
@@ -1367,6 +1784,7 @@ def _name(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str], *,
     length = next((p for p in arch.params if p.key == "length_ft"), None)
     if length is not None:
         bits.append(length.display(vals[length.key]))
+    bits.extend(arch.name_bits(vals))
     if clearance and arch.working_space:
         bits.append("with NEC Clearance")
     return " ".join(bits)
