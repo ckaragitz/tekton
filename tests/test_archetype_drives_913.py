@@ -23,6 +23,28 @@ import pytest
 from rvt.families import FamilyIndex
 from rvt.famgen import drive_law as DL
 from rvt.famgen import factory as F
+from conftest import ladder_constants
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the read-back enters a release context
+
+
+@pytest.fixture
+def release_leak_extra():
+    """The read-back climbs the read-side ladder: watch what it swaps, too."""
+    return ladder_constants
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _warm_default_decoder():
+    """The first write in a process installs the bundled schema and seeds the
+    native default ADocument decoder (standalone.install_schema, by design);
+    do that once before the guard's first snapshot, so only a swap the
+    read-back ladder leaves behind can turn the guard red."""
+    d = tempfile.mkdtemp(prefix="t913w_")
+    try:
+        F.make_archetype(product="wireway").write(os.path.join(d, "w.rfa"))
+    finally:
+        shutil.rmtree(d, True)
 
 EXPECT = {
     # product: {caption: (axis, edges locked on the planes, parts riding)}
