@@ -158,6 +158,9 @@ def apply_born_inplane_law(doc, *, regen_edge: bool = True) -> Dict[str, Any]:
         if el.obj.get("m_constrInfo"):
             el.obj["m_constrInfo"] = []
             rep["constr_info_cleared"] += 1
+    # the Lock column follows the segment lock bits just cleared (#915)
+    from .skeleton import sync_locked_params
+    sync_locked_params(doc)
     # (runs AFTER finalize sealed the content-derived document GUID (#168):
     # harmless because this rewrite is a pure function of the document, so two
     # identical builds still produce identical bytes)

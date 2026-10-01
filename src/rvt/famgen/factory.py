@@ -1571,6 +1571,19 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
     return fb
 
 
+def _spec_list(specs: Any) -> Optional[List[Any]]:
+    """``None``/empty stays as it is; a list or tuple is listed; a single spec
+    (a dict, a string, a number) becomes a one-item list; any other iterable
+    (a generator) is listed."""
+    if not specs:
+        return specs
+    if isinstance(specs, (list, tuple)):
+        return list(specs)
+    if isinstance(specs, (dict, str, bytes)) or not hasattr(specs, "__iter__"):
+        return [specs]
+    return list(specs)
+
+
 def make_generic_model(*, height_ft: Optional[float] = None,
                        parts: Optional[Sequence[Dict[str, Any]]] = None,
                        vertices: Optional[Sequence[Sequence[float]]] = None,
@@ -1606,6 +1619,11 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     Donor-free like every other constructor; carries the full famdoc law
     set (settings singletons, views, browser folders, sketch solver).
     """
+    # a drive / height / diameter list that is not a list is coerced, so a
+    # malformed argument becomes a reported refusal, never an exception
+    # that withholds the file (hard rule 1; #929 review)
+    drives, heights, diameters = (_spec_list(drives), _spec_list(heights),
+                                  _spec_list(diameters))
     if parts:
         # composite bodies (sphere / dome / cone / a cylinder about a
         # horizontal axis) expand into the prisms this factory authors
