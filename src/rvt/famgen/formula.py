@@ -449,8 +449,65 @@ def unparse(tree: Any, names: Mapping[int, str]) -> Optional[str]:
     stored parentheses: an operand that binds more loosely than its operator is
     bracketed, so a Revit-born tree with no ``ParenExpression`` nodes reads back
     to the same tree's value."""
-    got = _unparse(tree, names)
+    try:
+        got = _unparse(tree, names)
+    except RecursionError:                            # a tree deeper than any written by hand
+        return None
     return None if got is None else got[0]
+
+
+def _subs(v: Mapping[str, Any]) -> Optional[list]:
+    """A ``FunctionExpression``'s argument trees, however the record holds them."""
+    subs = v.get("m_subexpressions") or []
+    if isinstance(subs, dict):
+        subs = subs.get("value") or subs.get("m_items") or []
+    return subs if isinstance(subs, list) else None
+
+
+def _shape(tree: Any) -> list:
+    """``tree`` as a preorder list of (class, operator / function / parameter /
+    constant), parentheses skipped -- two trees with one shape compute alike."""
+    out: list = []
+    stack = [tree]
+    while stack:
+        n = stack.pop()
+        if not isinstance(n, dict):
+            out.append(("?", repr(n)))
+            continue
+        cls, v = n.get("ptr_class"), n.get("value") or {}
+        if cls == "ParenExpression":
+            stack.append(v.get("m_pSubexpression"))
+        elif cls == "BinaryOperatorExpression":
+            out.append((cls, v.get("m_binaryOperator")))
+            stack += [v.get("m_pRightSubexpression"), v.get("m_pLeftSubexpression")]
+        elif cls == "UnaryOperatorExpression":
+            out.append((cls, v.get("m_unaryOperator")))
+            stack.append(v.get("m_pSubexpression"))
+        elif cls == "FunctionExpression":
+            subs = _subs(v) or []
+            out.append((cls, v.get("m_function"), len(subs)))
+            stack += list(reversed(subs))
+        elif cls == "ParameterExpression":
+            out.append((cls, v.get("m_paramId")))
+        else:
+            out.append((cls, repr(v.get("m_value"))))
+    return out
+
+
+def unparse_checked(tree: Any, names: Mapping[int, str], table: "NameTable") -> Optional[str]:
+    """:func:`unparse`, and the text parsed back against the family's OWN names
+    (``table``) must give the same tree -- a caption that holds another one plus an
+    operator ('A - B' beside 'A' and 'B') would otherwise read back as a different
+    parameter.  A text the parser refuses on its unit rules cannot be checked here and
+    is kept: the writer refuses it by the same rules, so it is never written wrong."""
+    text = unparse(tree, names)
+    if text is None:
+        return None
+    try:
+        back, _spec = parse_formula(text, table)
+    except (FormulaError, RecursionError):
+        return text
+    return text if _shape(back) == _shape(tree) else None
 
 
 def _wrap(child: Tuple[str, int], need: int) -> str:
@@ -502,10 +559,8 @@ def _unparse(tree: Any, names: Mapping[int, str]) -> Optional[Tuple[str, int]]:
             return f"{_wrap(left, lneed)} {op} {_wrap(right, p + 1)}", p
         if cls == "FunctionExpression":
             fn = _FN_TEXT.get(v.get("m_function"))
-            subs = v.get("m_subexpressions") or []
-            if isinstance(subs, dict):
-                subs = subs.get("value") or subs.get("m_items") or []
-            args = [_unparse(a, names) for a in subs] if isinstance(subs, list) else [None]
+            subs = _subs(v)
+            args = [_unparse(a, names) for a in subs] if subs is not None else [None]
             if fn is None or None in args:
                 return None
             return f"{fn}({', '.join(a[0] for a in args)})", _P_ATOM

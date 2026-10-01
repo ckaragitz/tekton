@@ -2155,6 +2155,18 @@ class FamilyDoc:
             # then left out and every row is written exactly as the caller gave it
             written = [dict(vals) for _n, vals in self.types]
             self.notes.append(f"formulas NOT written ({type(_fx_exc).__name__}: {_fx_exc})")
+        try:
+            from .param_profile import settle_formula_provenance
+            got = set()
+            for k, v in (written[0] if written else {}).items():
+                if isinstance(v, dict) and v.get("m_oExpression"):
+                    try:
+                        got.add(self._param_key(k))
+                    except KeyError:
+                        pass
+            settle_formula_provenance(self, got)
+        except Exception:                                          # noqa: BLE001
+            pass                                    # a note's accuracy never blocks delivery
         table = []
         for (tname, _vals), vals in zip(self.types, written):
             table.append((tname, self._type_param_entries(vals)))
