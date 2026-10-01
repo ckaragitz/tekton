@@ -1,6 +1,6 @@
 # #787 Case B — a parameter drives an extrusion's height (plan step 3 of #913)
 
-**Stream:** param-drive. **Refs:** #787, #913, #904, #912 (this branch is built on #912's head).
+**Stream:** param-drive. **Refs:** #787, #913, #904, #912 (built on #912; merged in #923).
 
 ## What was built
 
