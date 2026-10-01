@@ -853,11 +853,41 @@ def _jbox_drives(v):
 
 
 def _lcp_drives(v):
+    """Cabinet Width moves both side edges of the back, the top and bottom
+    walls and the door symmetrically; the side walls ride the ends rigidly
+    (wall left at -x, wall right at +x) and so does the latch, on the door's
+    right edge.  The depth is NOT driven: it runs along Y from the mounting
+    plane (y = 0, the back) to the door, one-sided, and an in-plane drive
+    there needs its low end held to the origin centre plane -- a mechanism
+    with no verified rung yet (#914 record, open)."""
     W = float(v["width_in"]) * IN
     return [
         {"caption": "Cabinet Width", "axis": "x", "symmetric": True, "lo": -W / 2, "hi": W / 2,
          "parts": {n: ("lo", "hi") for n in ("back", "wall top", "wall bottom", "door")},
          "attach": {"lo": ["wall left"], "hi": ["wall right", "door latch"]}},
+    ]
+
+
+def _lcp_heights(v):
+    """The cabinet's HEIGHTS as cap-face drives (#787 Case B), the panel
+    standing upright from the origin elevation plane: Cabinet Height (origin
+    -> cabinet top: the back and the door on both faces, the bottom wall's
+    base, the top wall's top), Sheet Thickness twice (origin -> the bottom
+    wall's top, where the side walls start; the top wall's base, where the
+    side walls end -> cabinet top).  The latch keeps its mid-door height (not
+    driven)."""
+    H = float(v["height_in"]) * IN
+    g = float(v["thickness_in"]) * IN
+    both = {"start": "lo", "end": "hi"}
+    sides = ("wall left", "wall right")
+    return [
+        {"caption": "Cabinet Height", "lo": 0.0, "hi": H, "name_hi": "cabinet top",
+         "parts": {"back": dict(both), "door": dict(both),
+                   "wall bottom": {"start": "lo"}, "wall top": {"end": "hi"}}},
+        {"caption": "Sheet Thickness", "lo": 0.0, "hi": g,
+         "parts": {"wall bottom": {"end": "hi"}, **{n: {"start": "hi"} for n in sides}}},
+        {"caption": "Sheet Thickness", "lo": H - g, "hi": "cabinet top",
+         "parts": {"wall top": {"start": "lo"}, **{n: {"end": "lo"} for n in sides}}},
     ]
 
 
@@ -1063,9 +1093,11 @@ _register(Archetype(
               aliases=("thickness", "sheet thickness")),
     ),
     build=_lighting_control_panel,
-    # its Cabinet Width drive (_lcp_drives) is wired in its own change together
-    # with height / depth: the family-anatomy suite pins this panel as its
-    # unconstrained baseline (#913)
+    # Cabinet Width (in-plane, symmetric, the side walls and the latch riding
+    # it) and the heights (#787 Case B); the depth stays undriven (#914 record)
+    family_params=_box_params("Cabinet"),
+    drives=_lcp_drives,
+    heights=_lcp_heights,
     standard_values=lambda v: {"Mounting": "surface", "Material": "steel"},
     working_space=True,
 ))

@@ -53,6 +53,9 @@ EXPECT = {
     "wireway": {"Wireway Width": ("y", 4, 2), "Length": ("x", 8, 0)},
     "junction_box": {"Box Width": ("x", 8, 2), "Box Height": ("y", 4, 4)},
     "strut_channel": {"Length": ("x", 10, 0), "Section Width": ("y", 2, 4)},
+    # #914: the side walls and the door latch ride Cabinet Width; its depth
+    # is not driven (one-sided from the mounting plane, no verified anchor)
+    "lighting_control_panel": {"Cabinet Width": ("x", 8, 3)},
 }
 
 
@@ -135,9 +138,12 @@ def test_only_the_specs_born_families_label_are_drivable(spec, ok):
     assert bool(DL.drivable_spec(PE())) is ok
 
 
-def test_the_lighting_control_panel_stays_unconstrained_for_now():
-    """Its Cabinet Width drive lands with height / depth in its own change."""
-    assert F.make_archetype(product="lighting_control_panel").drives == []
+def test_the_lighting_control_panel_is_no_longer_the_unconstrained_baseline():
+    """It was (#913) until its Cabinet Width drive and heights landed (#914);
+    the drive pins live in EXPECT and tests/test_panel_drives_914.py."""
+    prod = F.make_archetype(product="lighting_control_panel")
+    assert [d["caption"] for d in prod.drives] == ["Cabinet Width"]
+    assert prod.heights["wired"] == 3 and not prod.heights["refused"]
 
 
 # ---- #919 review ----------------------------------------------------------

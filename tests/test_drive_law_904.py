@@ -170,7 +170,12 @@ def test_the_single_prism_path_never_drops_drives_silently():
 
 
 def test_drive_true_plus_drives_notes_both_chains():
-    prod = F.make_generic_model(parts=[dict(BOX), dict(BOX, name="b2", center=[0.0, 3.0])],
+    # b2 is STACKED on the body (#914): drive=True locks the first solid to
+    # planes at the assembly's Width/Depth, which is only coherent while the
+    # first solid IS that footprint.  b2 used to sit beside it (center y = 3),
+    # which put two locks 1.5 ft off their planes (CG7); that case is now
+    # refused -- see the test below.
+    prod = F.make_generic_model(parts=[dict(BOX), dict(BOX, name="b2", base_z_ft=1.5)],
                                 name="x", numeric_params={"Run": ("length", 2.0)}, drive=True,
                                 drives=[{"caption": "Run", "axis": "x", "lo": -1, "hi": 1,
                                          "parts": {"b2": ("lo", "hi")}}])
@@ -178,6 +183,23 @@ def test_drive_true_plus_drives_notes_both_chains():
     assert any(n.startswith("Width/Depth DRIVE the first solid") for n in prod.doc.notes)
     assert any(n.startswith("parameter drives wired: Run moves 2") for n in prod.doc.notes)
     assert not any("REPORTED only" in n for n in prod.doc.notes)
+    from rvt.famgen import constraint_law as CL
+    assert CL.check_doc(prod.doc) == []
+
+
+def test_drive_true_refuses_a_first_solid_that_is_not_the_footprint():
+    """#914: the first-solid chain no longer draws planes at a bounding box
+    the first solid does not span -- it is noted, never raised, and the run
+    drive still lands."""
+    prod = F.make_generic_model(parts=[dict(BOX), dict(BOX, name="b2", center=[0.0, 3.0])],
+                                name="x", numeric_params={"Run": ("length", 2.0)}, drive=True,
+                                drives=[{"caption": "Run", "axis": "x", "lo": -1, "hi": 1,
+                                         "parts": {"b2": ("lo", "hi")}}])
+    assert len(prod.drives) == 1
+    assert any(n.startswith("parametric drive not wired (ValueError")
+               and "disagree with the profile" in n for n in prod.doc.notes)
+    from rvt.famgen import constraint_law as CL
+    assert CL.check_doc(prod.doc) == []
 
 
 def test_the_notes_say_what_the_document_carries():

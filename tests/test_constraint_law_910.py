@@ -264,10 +264,8 @@ def test_self_battery_still_catches_a_broken_chain(tmp_path):
     assert row["steps"]["law"].startswith("FAIL") and not row["ok"]
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "#910 finding: param_drive.wire_panelboard_drive puts the front/back side "
-    "planes at y = +-depth/2 while the profile spans y = 0..depth, so two "
-    "sketch locks sit 0.24 ft off their planes (CG7). A real defect, filed as "
-    "a follow-up; strict so the fix flips this test"))
 def test_the_panelboard_chain_is_coherent():
+    """Was a strict xfail (#910 finding): the front/back side planes sat at
+    y = +-depth/2 while the profile spans y = 0..depth, two sketch locks 0.24 ft
+    off their planes (CG7).  #914 put every plane on its edge."""
     assert CL.check_doc(F.make_panelboard(name="B910").doc) == []

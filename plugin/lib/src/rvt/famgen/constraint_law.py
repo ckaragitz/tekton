@@ -358,8 +358,18 @@ def check_file(path: str) -> List[Dict[str, Any]]:
     """The law over a WRITTEN ``.rfa`` / ``.rft``.
 
     Decoding the file rather than trusting the builder is the point: it is the
-    same instrument a user's file can be run through.
+    same instrument a user's file can be run through.  Read under the file's
+    OWN release (a 2025 file's framing is not 2026's), as every instrument is.
     """
+    from contextlib import ExitStack
+    from ..global_framing import enter_own_release
+
+    with ExitStack() as st:
+        enter_own_release(st, path)
+        return _check_file(path)
+
+
+def _check_file(path: str) -> List[Dict[str, Any]]:
     from ..families import FamilyIndex
     from ..objects import ObjectDecoder
 
