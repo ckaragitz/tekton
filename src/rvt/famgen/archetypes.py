@@ -122,6 +122,10 @@ class Param:
     #: followed value is the caller's, so the follower is ``given`` too, with
     #: the reason quoted rather than presented as a nominal.
     follows: str = ""
+    #: words that, right after one of this parameter's aliases, mean the
+    #: number belongs to a DIFFERENT dimension: "3/8 in rod" is the rod's
+    #: diameter, "24 in rod spacing" is not (#900 review)
+    not_before: Tuple[str, ...] = ()
 
     def feet(self, value: Optional[float] = None) -> float:
         v = self.default if value is None else float(value)
@@ -170,6 +174,14 @@ class Archetype:
     family_params: Callable[[Dict[str, float]], Dict[str, Any]] = lambda v: {}
     #: extra words for the family NAME after the primary dimension ("2 Tier")
     name_bits: Callable[[Dict[str, float]], List[str]] = lambda v: []
+    #: dimensions DERIVED from others once the caller's are known -- run after
+    #: ``follows``, with the provenance, so a derived value is ``given`` when
+    #: the caller's numbers decided it: ``(vals, prov, quoted) -> None``
+    settle: Optional[Callable[[Dict[str, float], Dict[str, str], Dict[str, str]], None]] = None
+    #: a measurement right before one of these words in the product name
+    #: binds THIS parameter instead of the primary: "a 1-5/8 in strut
+    #: trapeze" names the channel, not a 1.6 in trapeze (#900 review)
+    noun_leads: Tuple[Tuple[str, str], ...] = ()
 
     def param(self, key: str) -> Param:
         for p in self.params:
@@ -196,6 +208,9 @@ class Resolved:
     claim: Optional[Dict[str, Any]] = None
     #: the prompt asked for the NEC working-space clearance (#820)
     clearance: bool = False
+    #: keys ``Archetype.settle`` DERIVED from the caller's numbers -> the
+    #: reason; ``given`` (the caller's numbers decided them) but not stated
+    derived: Dict[str, str] = dc_field(default_factory=dict)
 
     def given(self) -> List[str]:
         return sorted(k for k, v in self.provenance.items() if v == GIVEN)
@@ -228,6 +243,7 @@ class Resolved:
                 for p in self.arch.params],
             "given": self.given(),
             "nominal": self.nominal(),
+            **({"derived": dict(self.derived)} if self.derived else {}),
             "manufacturer_claim": self.claim,
             **({"working_space": working_space_report(self)}
                if self.clearance and self.arch.working_space else {}),
@@ -464,7 +480,7 @@ def _trapeze_geometry(v: Dict[str, float]) -> Dict[str, float]:
     d = float(v["rod_diameter_in"]) * IN
     wt = float(v["washer_thickness_in"]) * IN
     nut_h = 0.875 * d
-    spacing = L - 2.0 * inset
+    spacing = float(v["rod_spacing_in"]) * IN
     top = (n - 1) * t + H                            # top of the top tier's lips
     rod_top = top + float(v["rod_above_in"]) * IN
     rod_bottom = -(wt + nut_h + float(v["rod_below_in"]) * IN)
@@ -485,10 +501,14 @@ def _strut_trapeze(v: Dict[str, float]) -> List[Dict[str, Any]]:
         raise ArchetypeError(f"a trapeze takes 1 to 6 whole tiers, not {float(v['tiers']):g}")
     if g["d"] <= 0:
         raise ArchetypeError("a trapeze needs a positive rod diameter")
-    if g["spacing"] <= g["nut_af"]:
+    if abs(g["L"] - 2.0 * g["inset"] - g["spacing"]) > 1e-6:
+        raise ArchetypeError(
+            f"a {g['L'] / IN:g} in strut with rods {g['spacing'] / IN:g} in apart cannot "
+            f"also have them {g['inset'] / IN:g} in in from each end -- state two of the three")
+    if g["spacing"] <= max(g["nut_af"], float(v["washer_size_in"]) * IN):
         raise ArchetypeError(
             f"rods {g['inset'] / IN:g} in in from each end of a {g['L'] / IN:g} in "
-            f"strut leave no room between them")
+            f"strut leave no room between them for their washers")
     if g["inset"] < float(v["washer_size_in"]) * IN / 2.0:
         raise ArchetypeError(
             f"a {g['inset'] / IN:g} in rod inset puts the "
@@ -555,8 +575,29 @@ def _trapeze_params(v: Dict[str, float]) -> Dict[str, Any]:
         "Washer Size": ("length", ft("washer_size_in")),
         "Washer Thickness": ("length", g["wt"]),
         "Nut Across Flats": ("length", g["nut_af"]),
-        "Overall Height": ("length", g["rod_length"]),
     }
+
+
+def _trapeze_settle(vals: Dict[str, float], prov: Dict[str, str],
+                    quoted: Dict[str, str]) -> None:
+    """Strut length = rod spacing + 2 x rod inset, whichever two the caller
+    stated.  A value the caller's numbers decided is ``given``, with the reason
+    quoted; with none of the three stated all stay nominal."""
+    L, S, I = "strut_length_in", "rod_spacing_in", "rod_inset_in"
+    g = {k: prov.get(k) == GIVEN for k in (L, S, I)}
+    if g[S] and not g[L]:
+        vals[L] = vals[S] + 2.0 * vals[I]
+        prov[L] = GIVEN
+        quoted[L] = f"rod spacing {vals[S]:g} in + 2 x {vals[I]:g} in inset"
+    elif g[S] and g[L] and not g[I]:
+        vals[I] = (vals[L] - vals[S]) / 2.0
+        prov[I] = GIVEN
+        quoted[I] = f"({vals[L]:g} in strut - {vals[S]:g} in rod spacing) / 2"
+    elif not g[S]:
+        vals[S] = vals[L] - 2.0 * vals[I]
+        if g[L] or g[I]:
+            prov[S] = GIVEN
+            quoted[S] = f"{vals[L]:g} in strut - 2 x {vals[I]:g} in inset"
 
 
 # ---------------------------------------------------------------------------
@@ -831,8 +872,8 @@ _register(Archetype(
     params=(
         Param("strut_length_in", "Strut Length", 30.0, "in",
               "a 30 in strut: 24 in between rods with the rods 3 in in from each end",
-              aliases=("long", "length", "strut length", "wide", "width",
-                       "trapeze length", "trapeze width"),
+              aliases=("long", "length", "strut length", "trapeze length",
+                       "trapeze width"),
               choices=(18.0, 24.0, 30.0, 36.0, 42.0, 48.0), primary=True),
         Param("tiers", "Number of Tiers", 2.0, "count",
               "two tiers, as asked for most often; 1 to 6",
@@ -842,22 +883,26 @@ _register(Archetype(
               "12 in between tiers, centre to centre",
               aliases=("tier spacing", "tier to tier"),
               choices=(8.0, 10.0, 12.0, 18.0, 24.0)),
+        Param("rod_spacing_in", "Rod Spacing", 24.0, "in",
+              "rod centres 24 in apart: the strut length less the two insets",
+              aliases=("rod spacing", "rod centers", "rod centres", "between rods")),
         Param("rod_inset_in", "Rod Inset", 3.0, "in",
               "the rod 3 in in from each end of the strut",
-              aliases=("rod inset", "inset", "overhang", "rod from end")),
+              aliases=("rod inset", "overhang", "rod from end")),
         Param("rod_diameter_in", "Rod Diameter", 0.375, "in",
               "3/8 in all-thread, the common trapeze rod; 1/2, 5/8 and 3/4 in for "
               "heavier loads",
-              aliases=("rod diameter", "threaded rod", "all thread",
+              aliases=("rod", "rod diameter", "threaded rod", "all thread",
                        "all-thread", "rod size"),
-              choices=(0.375, 0.5, 0.625, 0.75)),
+              choices=(0.375, 0.5, 0.625, 0.75),
+              not_before=("spacing", "centers", "centres", "inset", "above", "below",
+                          "drop", "tail", "from")),
         Param("rod_above_in", "Rod Above Top Tier", 24.0, "in",
               "24 in of rod above the top tier, up to the structure",
-              aliases=("rod above", "drop", "rod drop", "above top tier",
-                       "to structure")),
+              aliases=("rod above", "rod drop", "to structure")),
         Param("rod_below_in", "Rod Below Bottom Nut", 1.0, "in",
               "1 in of rod left below the bottom nut",
-              aliases=("rod below", "rod tail", "below bottom nut")),
+              aliases=("rod below", "rod tail")),
         Param("height_in", "Strut Height", 1.625, "in",
               "the 1-5/8 in standard channel height",
               aliases=("strut height", "channel height", "section height")),
@@ -885,6 +930,9 @@ _register(Archetype(
     ),
     build=_strut_trapeze,
     family_params=_trapeze_params,
+    settle=_trapeze_settle,
+    noun_leads=(("strut", "height_in"), ("channel", "height_in"),
+                ("unistrut", "height_in")),
     name_bits=lambda v: [f"{int(round(float(v['tiers'])))} Tier"],
     standard_values=lambda v: {"Material": "steel"},
 ))
@@ -969,7 +1017,10 @@ def _convert(value: float, unit_found: str, p: Param) -> Optional[float]:
     fine; there is no rule against it) simply converts.  A COUNT takes a bare
     number only ("2 tier"); "2 in tiers" is not a count."""
     if p.unit == "count":
-        return value if unit_found == "count" else None
+        # a whole number only: "2 tier 1-5/8 strut" must not read 1.625 tiers
+        if unit_found != "count" or abs(value - round(value)) > 1e-9:
+            return None
+        return value
     ft = {"in": value * IN, "ft": value, "mm": value * MM}.get(unit_found)
     if ft is None:
         return None
@@ -1178,8 +1229,10 @@ def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, in
     matching across the phrase boundary (``_SEP`` allows no comma).
     """
     out: List[Tuple[int, int, str]] = []
+    nb = (r"(?![\s-]*(?:" + "|".join(_alias_re(w) for w in p.not_before) + r")\b)"
+          if p.not_before else "")
     for al in p.aliases:
-        a = _alias_re(al)
+        a = _alias_re(al) + nb
         n = len(al)
         # rank 0: "12 in rung spacing", "24-inch-wide", "10-ft-long"
         number_first = (n, 0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}")
@@ -1431,7 +1484,11 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 continue
             unit = _unit_of(m.group(0))
             target = prim
-            if unit == "ft" and prim.unit == "in":
+            lead = re.match(r"[\s-]*([a-z]+)", low[m.end("u"):m.end()])
+            lead_key = dict(arch.noun_leads).get(lead.group(1) if lead else "")
+            if lead_key:
+                target = arch.param(lead_key)
+            elif unit == "ft" and prim.unit == "in":
                 # FEET in front of the noun names the RUN, not the section: "a
                 # 10 ft cable tray" is ten feet long, not ten feet wide.  Only
                 # this pair redirects -- every other unit (mm, in) is a section
@@ -1450,10 +1507,32 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
             used.append((m.start(), m.end()))
             break
     _apply_follows(arch, vals, prov, quoted)
+    derived = _settle(arch, vals, prov, quoted)
     clear = wants_clearance(text)
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
                     name=_name(arch, vals, prov, clearance=clear),
-                    claim=manufacturer_claim(text), clearance=clear)
+                    claim=manufacturer_claim(text), clearance=clear,
+                    derived=derived)
+
+
+def _settle(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str],
+            quoted: Dict[str, str], undo: Dict[str, str] = None,
+            keep: Sequence[str] = ()) -> Dict[str, str]:
+    """Run ``arch.settle`` and return what it derived (key -> reason).  A value
+    an EARLIER settle derived (``undo``) goes back to nominal first unless the
+    caller has since stated it (``keep``), so it is re-derived from the
+    caller's current numbers instead of being taken for one of them."""
+    if arch.settle is None:
+        return {}
+    for k in (undo or {}):
+        if k not in keep:
+            vals[k] = arch.param(k).default
+            prov[k] = NOMINAL
+            quoted.pop(k, None)
+    before = dict(prov)
+    arch.settle(vals, prov, quoted)
+    return {k: quoted.get(k, "") for k, v in prov.items()
+            if v == GIVEN and before.get(k) != GIVEN}
 
 
 def _apply_follows(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str],
@@ -1501,11 +1580,13 @@ def resolve(product: str, overrides: Optional[Dict[str, Any]] = None,
         prov[k] = GIVEN
         quoted.pop(k, None)
     _apply_follows(arch, vals, prov, quoted)
+    derived = _settle(arch, vals, prov, quoted,
+                      undo=(base.derived if base else None), keep=tuple(overrides or ()))
     clear = bool(base.clearance) if base else wants_clearance(prompt)
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
                     name=_name(arch, vals, prov, clearance=clear),
                     claim=(base.claim if base else manufacturer_claim(prompt)),
-                    clearance=clear)
+                    clearance=clear, derived=derived)
 
 
 # ---------------------------------------------------------------------------

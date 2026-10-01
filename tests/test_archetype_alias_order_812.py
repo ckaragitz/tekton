@@ -351,11 +351,22 @@ def test_known_gap_cross_dimension_after_the_noun(prompt):
 def _stray(arch, r, want):
     """Keys stamped ``given`` that the prompt did not state -- except a
     follower (``Param.follows``) carrying its stated leader's value, which is
-    ``given`` by design (a square wireway asked for at 12 in is 12 in tall)."""
-    return {k: r.values[k] for k, v in r.provenance.items()
-            if v == GIVEN and k not in want
-            and not (arch.param(k).follows in want
-                     and abs(r.values[k] - want[arch.param(k).follows]) < 1e-6)}
+    ``given`` by design (a square wireway asked for at 12 in is 12 in tall),
+    and a value ``Archetype.settle`` DERIVED from stated ones (a trapeze's
+    strut length from its rod spacing and inset, #900) -- which is checked
+    here to be exactly what settle computes from the prompt's own numbers."""
+    stray = {k: r.values[k] for k, v in r.provenance.items()
+             if v == GIVEN and k not in want
+             and not (arch.param(k).follows in want
+                      and abs(r.values[k] - want[arch.param(k).follows]) < 1e-6)}
+    if stray and arch.settle is not None:
+        vals = {**arch.defaults(), **want}
+        prov = {p.key: (GIVEN if p.key in want else "nominal") for p in arch.params}
+        arch.settle(vals, prov, {})
+        stray = {k: v for k, v in stray.items()
+                 if not (k in r.derived and prov.get(k) == GIVEN
+                         and abs(vals[k] - v) < 1e-6)}
+    return stray
 
 
 def _place(noun, parts, sep, where):

@@ -105,6 +105,54 @@ No desktop or viewer verdict exists for this family (hard rule 4).
 - Once a geometry drive has a desktop verdict, the trapeze is the natural second
   customer: Tier Spacing and Strut Length are both single-axis drives.
 
+## Review round 1 (head `b03273b`, 🛑) — what changed
+
+The independent reviewer's findings, each fixed and tested:
+
+- **A bare rod size now binds.** "1/2 rod", "5/8 in rod" and `5/8" rod` all bound
+  nothing, and the route delivered a 3/8 in rod with no caveat.
+  - The `rod` alias is back.
+  - A new `Param.not_before` lets an alias refuse a match when the next word belongs
+    to another dimension ("rod spacing", "rod inset", "rod above", "rod drop" …).
+    It is a negative lookahead in `_alias_patterns`, available to any parameter.
+  - The bare aliases that made the text truly ambiguous (`inset`, `drop`,
+    `above top tier`, `below bottom nut`) are gone.
+- **"1-5/8" names the channel.**
+  - A count now takes a whole number only, so "2 tier 1-5/8 strut" no longer reads
+    1.625 tiers.
+  - `wide` / `width` are off strut length.
+  - A new `Archetype.noun_leads` makes a measurement right before "strut" /
+    "channel" / "unistrut" in the product name bind the channel height. "a 13/16 in
+    strut trapeze" is a 13/16 in tall channel; its width stays 1-5/8 in, as on real
+    shallow strut.
+  - "a 1-5/8 in wide strut trapeze" now delivers a file. On the old head it
+    returned `ok=False` with no file.
+- **Rod spacing is an input.** A new `Archetype.settle` hook keeps strut length =
+  rod spacing + 2 x inset, whichever two the caller states.
+  - A derived value is `given` (the caller's numbers decided it), with the reason
+    quoted, and is listed in `Resolved.derived`.
+  - An override re-derives instead of keeping a stale derivation.
+  - The builder refuses three that disagree.
+  - The #812 sweep's `_stray` exempts a derived key only when `settle`, recomputed
+    from the prompt's own numbers, gives that exact value. The same treatment
+    `follows` already had, and checked rather than waved through.
+- **Nits:**
+  - The rod-spacing guard is now `max(nut, washer)`.
+  - `Overall Height` (a copy of `Rod Length`) is dropped, leaving 17 trapeze
+    parameters.
+
+**Gates:**
+- trapeze 37 passed;
+- the #812 suite, including the 54,336-prompt restatement sweep: 238 passed /
+  5 xfailed;
+- neighbouring suites plus plugin bootstrap/coldstart: 629 passed / 5 skipped;
+- plugin in sync, validate PASS.
+
+Rebuilt 2026 and 2025 `.rfa`: 0 errors, PROVENANCE-CLEAN, 23 parameters.
+
+**Desktop:** the owner opened the round-0 file. Every parameter showed with the
+right value, and none drove the geometry (steer #901). The drive is #787's.
+
 ## BRANCH STATE
 
 **Files written**
@@ -115,7 +163,8 @@ No desktop or viewer verdict exists for this family (hard rule 4).
   `_caller_param_row` stores an int for integers.
 - `src/rvt/famgen/taxonomy.py`: the `strut_trapeze` kind.
 - `plugin/lib/…`: mirrors (via `sync_plugin.py`).
-- `tests/test_strut_trapeze_899.py`: new, 20 tests.
+- `tests/test_strut_trapeze_899.py`: new, 37 tests after review round 1.
+- `tests/test_archetype_alias_order_812.py`: `_stray` exempts a verified `settle` derivation.
 - `tests/ci_shard.d/899-strut-trapeze.txt`: new.
 - this fragment.
 

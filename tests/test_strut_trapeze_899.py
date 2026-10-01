@@ -39,15 +39,35 @@ def test_the_taxonomy_routes_trapeze_to_the_archetype_lane():
      {"tiers": 2.0, "rod_diameter_in": 0.375}),
     ("3 tier unistrut trapeze 36 in long with 1/2 in threaded rod, 18 in tier spacing",
      {"tiers": 3.0, "strut_length_in": 36.0, "rod_diameter_in": 0.5,
-      "tier_spacing_in": 18.0}),
+      "tier_spacing_in": 18.0, "rod_spacing_in": 30.0}),
     ("a 4-tier trapeze", {"tiers": 4.0}),
     ("a trapeze with 3 tiers", {"tiers": 3.0}),
+    # the #900 review's prompts: a bare rod size, the 1-5/8 trade name, rod spacing
+    ("a 2 tier trapeze with 1/2 rod", {"tiers": 2.0, "rod_diameter_in": 0.5}),
+    ("a trapeze with 5/8 in rod", {"rod_diameter_in": 0.625}),
+    ('a trapeze with 5/8" rod', {"rod_diameter_in": 0.625}),
+    ("a 2 tier 1-5/8 strut trapeze", {"tiers": 2.0}),
+    ("a 2 tier 1-5/8 in strut trapeze with 3/8 in threaded rod",
+     {"tiers": 2.0, "height_in": 1.625, "rod_diameter_in": 0.375}),
+    ("a 1-5/8 in wide strut trapeze", {}),
+    ("a 13/16 in strut trapeze", {"height_in": 0.8125}),
+    ("a 2 tier trapeze with 18 in rod spacing",
+     {"tiers": 2.0, "rod_spacing_in": 18.0, "strut_length_in": 24.0}),
+    ("a 36 in trapeze with 30 in rod spacing",
+     {"strut_length_in": 36.0, "rod_spacing_in": 30.0, "rod_inset_in": 3.0}),
+    ("a 24 in rod spacing 1/2 in rod trapeze, 3 in rod inset",
+     {"rod_spacing_in": 24.0, "rod_diameter_in": 0.5, "rod_inset_in": 3.0,
+      "strut_length_in": 30.0}),
 ])
 def test_every_way_of_asking_resolves_to_the_trapeze(prompt, given):
     r = AR.resolve_prompt(prompt)
     assert r is not None and r.arch.key == "strut_trapeze", prompt
-    got = {k: r.values[k] for k in r.given()}
-    assert got == pytest.approx(given), (prompt, got)
+    stated = {k: r.values[k] for k in r.given() if k not in r.derived}
+    derived = {k: r.values[k] for k in r.derived}
+    assert {**stated, **derived} == pytest.approx(given), (prompt, stated, derived)
+    # strut length = rod spacing + 2 x inset, always -- stated or derived
+    v = r.values
+    assert v["strut_length_in"] == pytest.approx(v["rod_spacing_in"] + 2 * v["rod_inset_in"])
 
 
 def test_a_plain_strut_channel_is_still_a_strut_channel():
@@ -55,10 +75,34 @@ def test_a_plain_strut_channel_is_still_a_strut_channel():
     assert r is not None and r.arch.key == "strut_channel"
 
 
-def test_a_count_takes_a_bare_number_only():
+def test_a_count_takes_a_bare_whole_number_only():
     p = AR.archetype("strut_trapeze").param("tiers")
     assert AR._convert(2.0, "count", p) == 2.0
     assert AR._convert(2.0, "in", p) is None       # "2 in tiers" is not a count
+    assert AR._convert(1.625, "count", p) is None  # "tier 1-5/8 strut" is not 1.6 tiers
+
+
+@pytest.mark.parametrize("prompt", [
+    "a 2 tier trapeze with 1/2 rod", "a 2 tier 1-5/8 strut trapeze",
+    "a 1-5/8 in wide strut trapeze", "a 13/16 in strut trapeze",
+    "a 2 tier trapeze with 18 in rod spacing", "a 6 tier 48 in trapeze",
+])
+def test_every_phrasing_builds(prompt):
+    """The review found "a 1-5/8 in wide strut trapeze" delivered NO file."""
+    assert AR.resolve_prompt(prompt).parts()
+
+
+def test_an_override_re_derives_rather_than_keeping_a_stale_derivation():
+    r = AR.resolve("strut_trapeze", {"rod_inset_in": 4},
+                   prompt="a 2 tier trapeze with 18 in rod spacing")
+    assert r.values["strut_length_in"] == pytest.approx(26.0)   # 18 + 2 x 4, not 24
+    assert "strut_length_in" in r.derived and r.parts()
+
+
+def test_strut_length_rod_spacing_and_inset_must_agree():
+    with pytest.raises(AR.ArchetypeError, match="state two of the three"):
+        AR.resolve("strut_trapeze", {"strut_length_in": 36, "rod_spacing_in": 24,
+                                     "rod_inset_in": 3}).parts()
 
 
 @pytest.fixture(scope="module")
@@ -111,8 +155,9 @@ def test_washers_and_nuts_clamp_each_tier_at_each_rod(parts):
     ({"tiers": 7.0}, "1 to 6"),
     ({"tiers": 2.5}, "1 to 6"),
     ({"tier_spacing_in": 2.0}, "between tiers"),
-    ({"rod_inset_in": 0.5}, "washer"),
-    ({"strut_length_in": 6.0, "rod_inset_in": 3.0}, "no room"),
+    ({"rod_inset_in": 0.5, "rod_spacing_in": 29.0}, "past the end"),
+    ({"strut_length_in": 6.0, "rod_inset_in": 3.0, "rod_spacing_in": 0.0}, "no room"),
+    ({"strut_length_in": 7.0, "rod_inset_in": 3.0, "rod_spacing_in": 1.0}, "washers"),
 ])
 def test_impossible_trapezes_are_refused_by_name(over, word):
     arch = AR.archetype("strut_trapeze")
@@ -131,7 +176,7 @@ def test_every_adjustable_dimension_is_a_family_parameter_with_its_value():
     assert val["Rod Spacing"] == pytest.approx(30 * IN)     # 36 - 2 x 3 in inset
     assert val["Rod Diameter"] == pytest.approx(0.5 * IN)
     assert val["Tier Spacing"] == pytest.approx(12 * IN)
-    assert val["Rod Length"] == pytest.approx(val["Overall Height"])
+    assert "Overall Height" not in val                     # was a copy of Rod Length
     for cap in ("Rod Inset", "Rod Above Top Tier", "Rod Below Bottom Nut", "Strut Height",
                 "Strut Width", "Strut Thickness", "Slot Length", "Slot Spacing",
                 "Washer Size", "Washer Thickness", "Nut Across Flats"):
