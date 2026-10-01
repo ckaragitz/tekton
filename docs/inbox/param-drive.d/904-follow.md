@@ -93,14 +93,39 @@ included. The release used has not been stated.
 
 - **A desktop verdict on the assembled trapeze** (the owner): change Strut Length, then
   Rod Inset.
-- **The hex nut's follow,** locked by two flats, is the one shape the ladder did not
-  cover.
+- **Combinations no probe tested** (named in `limits`):
+  - mirrored rod planes;
+  - EQ pairs held by a locked width;
+  - two pairs on one rod plane;
+  - several tiers on one plane pair;
+  - the hex nut's two-flat lock.
 - **Rod diameter as a driver.** A labelled radius (P5) is verified, but "Rod Diameter"
   needs either a diameter-dimension marker (unread) or a formula radius = diameter / 2
   (formulas unverified, #862).
 - **Tier Spacing** is the extrusion end (#787 Case B).
 - **Nested hardware families,** the corpus's own way, need nested-family authoring.
 - **The edit lane (#909)** and the back-edge law (#910) still apply.
+
+## Review round 1 (head `703cd66`, 🛑)
+
+- **`wire_symmetric` and `wire_follow` refuse planes not centred on the origin
+  plane.** An EQ about a plane that is not midway cannot hold: the file was VALID
+  but wrong.
+- **`wire_follow` keeps a `claimed` set across its plan,** so a part listed twice is
+  refused instead of having every curve locked twice.
+- **A rigid follower must be a single slab:** every vertex within [R − h, R + h],
+  and every edge square to the axis lying on one of those two planes. An L-shape
+  is refused.
+- **`wire_follow` has a `doc.finalized` guard.**
+- **Honesty:**
+  - The limits now name every combination no probe tested: the mirrored rod planes;
+    EQ pairs held by a locked, unlabelled width; two pairs sharing a rod plane;
+    parts on several tiers on one plane pair; the hex nut.
+  - They say Rod Spacing goes stale after a flex.
+  - `lod_note` says the constraints are *authored*, with the assembled family
+    unverified.
+- **Tests:** an off-centre symmetric drive, a box or circle listed twice, and an
+  L-shape, each compared by SHA with the build without it.
 
 ## BRANCH STATE
 

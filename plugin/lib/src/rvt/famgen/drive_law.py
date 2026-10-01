@@ -586,6 +586,8 @@ def wire_follow(doc, *, base: Dict[str, Any], caption: str, offset: float,
     R - h / R + h locked to two planes held EQ about R by a LOCKED width).
 
     Every check runs before the first mutation, as in wire_linear_drive."""
+    if doc.finalized:
+        raise RuntimeError("drive_law: document is finalized")
     planes = {p.elem_id: p for p in doc.refplanes}
     lo_p, hi_p = planes[base["planes"][0]], planes[base["planes"][1]]
     lo, hi = plane_at(lo_p, axis), plane_at(hi_p, axis)
@@ -602,6 +604,9 @@ def wire_follow(doc, *, base: Dict[str, Any], caption: str, offset: float,
     if isinstance(cur, (int, float)) and abs(float(cur) - offset) > 1e-6:
         raise ValueError(f"drive_law: {caption} is {float(cur):g} ft, not {offset:g}")
     centre = origin_centre_plane(doc, axis)
+    if abs((lo + hi) / 2.0 - plane_at(centre, axis)) > 1e-6:
+        # R_hi mirrors R_lo through the centre: only true when the ends do
+        raise ValueError("drive_law: the drive's planes are not centred on the origin plane")
     at = {"lo": lo + offset, "hi": hi - offset}
     plan: List[tuple] = []
     for f in followers:
@@ -617,21 +622,39 @@ def wire_follow(doc, *, base: Dict[str, Any], caption: str, offset: float,
                                  f"its follow plane")
             plan.append(("circle", sk, side, arcs))
         elif kind == "rigid":
+            from . import param_drive as PD
             h = float(f["half"])
             lines_lo = _lines_on(sk, axis, at[side] - h)
             lines_hi = _lines_on(sk, axis, at[side] + h)
             if not (h > 0 and lines_lo and lines_hi):
                 raise ValueError(f"drive_law: sketch {sk.elem_id} has no edges at "
                                  f"{at[side]:g} +- {h:g} ft")
+            # the WHOLE part must be the slab between those edges: every vertex
+            # within [R - h, R + h] and every edge square to the axis on one of
+            # them -- an L-shape locked by two edges would deform (#912 review)
+            k = 0 if axis == "x" else 1
+            on = {ln[0] for ln in lines_lo + lines_hi}
+            for cid, a, b in PD._sketch_lines(sk):
+                if (a[k] < at[side] - h - 1e-6 or a[k] > at[side] + h + 1e-6
+                        or b[k] < at[side] - h - 1e-6 or b[k] > at[side] + h + 1e-6):
+                    raise ValueError(f"drive_law: sketch {sk.elem_id} reaches past "
+                                     f"{at[side]:g} +- {h:g} ft")
+                if abs(a[k] - b[k]) <= 1e-6 and cid not in on:
+                    raise ValueError(f"drive_law: sketch {sk.elem_id} has an edge square to "
+                                     f"{axis} inside the slab")
             plan.append(("rigid", sk, side, (h, lines_lo, lines_hi)))
         else:
             raise ValueError(f"drive_law: follower kind {kind!r}")
     locked = {cid for al in _sketch_locks(doc) for cid in _witness_ids(al)}
+    claimed: set = set()
     for kind, sk, side, data in plan:
         cids = ([a.elem_id for a in data] if kind == "circle"
                 else [ln[0] for ln in data[1] + data[2]])
-        if any(c in locked for c in cids):
+        # never locked before, and never twice within this follow (a part
+        # listed twice, #912 review)
+        if any(c in locked or c in claimed for c in cids):
             raise ValueError(f"drive_law: sketch {sk.elem_id} is already locked")
+        claimed.update(cids)
 
     # -- mutations start here
     R = {"lo": add_plane(doc, axis, at["lo"]), "hi": add_plane(doc, axis, at["hi"])}
@@ -669,4 +692,9 @@ def wire_symmetric(doc, base: Dict[str, Any], axis: str = "x"):
     base, present on every rung that passed]."""
     planes = {p.elem_id: p for p in doc.refplanes}
     centre = origin_centre_plane(doc, axis)
-    return eq3d(doc, planes[base["planes"][0]], centre, planes[base["planes"][1]], axis)
+    lo_p, hi_p = planes[base["planes"][0]], planes[base["planes"][1]]
+    if abs((plane_at(lo_p, axis) + plane_at(hi_p, axis)) / 2.0
+           - plane_at(centre, axis)) > 1e-6:
+        # an EQ about a plane that is not midway cannot hold (#912 review)
+        raise ValueError("drive_law: the drive's planes are not centred on the origin plane")
+    return eq3d(doc, lo_p, centre, hi_p, axis)

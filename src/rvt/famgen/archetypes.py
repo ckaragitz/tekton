@@ -930,20 +930,26 @@ _register(Archetype(
     lod_note=("every tier's real C section (back, webs, inturned lips, the back "
               "slots genuinely absent), both threaded rods full length, and a "
               "square washer + hex nut above and below each tier at each rod. "
-              "CONSTRAINED: Strut Length moves both ends of every tier, symmetric "
-              "about the centre; the rods (circle centres), washers and nuts (held "
-              "rigid about each rod plane) follow the ends at Rod Inset"),
+              "CONSTRAINTS AUTHORED (assembled family unverified, #904): Strut "
+              "Length is authored to move both ends of every tier, symmetric about "
+              "the centre, and the rods (circle centres), washers and nuts (held "
+              "rigid about each rod plane) to follow the ends at Rod Inset"),
     limits=("the rod threads and the nut chamfers are not modelled; a rod is a "
             "plain cylinder at its nominal diameter",
             "the rod holes are not cut: the rod passes through the channel back",
             "the beam clamp / anchor at the rod top is not modelled",
             "the section is authored square-cornered; the forming radii are not",
             "the assembled constraint set has no desktop verdict of its own yet "
-            "(#904) -- each mechanism was verified on its own -- and the hex nut is the "
-            "one shape no probe covered",
-            "Rod Spacing is a value (Strut Length - 2 x Rod Inset), not a driver; Tier "
-            "Spacing, rod diameter and the other sizes carry values and do not drive "
-            "the geometry"),
+            "(#904). Each mechanism was verified on its own, but this family also "
+            "combines them in ways no probe tested: the rod planes mirrored by a "
+            "second EQ about the centre plane, washer and nut planes held EQ about "
+            "a rod plane by a LOCKED (unlabelled) width, two such pairs sharing one "
+            "rod plane, parts on several tiers locked to one plane pair, and the "
+            "hex nut locked by two flats",
+            "Rod Spacing is a value (Strut Length - 2 x Rod Inset), not a driver: "
+            "after Strut Length or Rod Inset is flexed its value no longer describes "
+            "the rods; Tier Spacing, rod diameter and the other sizes carry values "
+            "and do not drive the geometry"),
     aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
     patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
               r"(?:\s+(?:hangers?|supports?|racks?))?",

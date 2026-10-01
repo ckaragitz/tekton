@@ -168,3 +168,46 @@ def test_symmetric_ends_add_exactly_one_equality():
     eq = lambda p: [x for x in p.doc.by_class("LinearDimString")  # noqa: E731
                     if x.obj["m_flags"] == 140]
     assert len(eq(prod)) == 1 and len(eq(control)) == 0
+
+
+# ---- #912 review round 1 ---------------------------------------------------
+
+def test_symmetric_ends_off_centre_are_refused_with_the_file_untouched():
+    """An EQ about a plane that is not midway cannot hold (VALID but wrong)."""
+    off = dict(_spec(None), lo=-1.0, hi=1.5)
+    strut = dict(STRUT, width_ft=2.5, center=[0.25, 0.0])
+    prod = F.make_generic_model(parts=[strut, dict(POST), dict(ROD)], name="f",
+                                numeric_params=dict(PARAMS), drives=[off])
+    control = F.make_generic_model(parts=[strut, dict(POST), dict(ROD)], name="f",
+                                   numeric_params=dict(PARAMS),
+                                   drives=[dict(off, symmetric=False)])
+    assert prod.drives and not prod.drives[0].get("symmetric")
+    assert any("not made symmetric" in n for n in prod.doc.notes)
+    assert _sha(prod) == _sha(control)
+
+
+@pytest.mark.parametrize("followers", [
+    [GOOD["followers"][0]] * 2,                     # a box listed twice
+    [GOOD["followers"][1]] * 2,                     # a circle listed twice
+])
+def test_a_part_listed_twice_is_refused(followers):
+    prod = _build(_spec(dict(GOOD, followers=followers)))
+    assert "follow" not in prod.drives[0]
+    assert _sha(prod) == _sha(_build(_spec(None)))
+
+
+def test_a_rigid_follower_must_be_a_single_slab():
+    """An L-shape with edges at R +- h and another square edge further out
+    would be half-locked and deform (#912 review)."""
+    x0, h = -1.25 + 3 * IN, 0.5 * IN
+    ell = {"shape": "polygon", "name": "post", "height_ft": 1.0, "base_z_ft": 0.2,
+           "vertices": [[x0 - h, -h], [x0 + h, -h], [x0 + h, 0.0], [x0 + 3 * h, 0.0],
+                        [x0 + 3 * h, h], [x0 - h, h], [x0 - h, -h]]}
+    spec = _spec(dict(GOOD, followers=[GOOD["followers"][0]]))
+    prod = F.make_generic_model(parts=[dict(STRUT), ell, dict(ROD)], name="f",
+                                numeric_params=dict(PARAMS), drives=[spec])
+    control = F.make_generic_model(parts=[dict(STRUT), ell, dict(ROD)], name="f",
+                                   numeric_params=dict(PARAMS), drives=[_spec(None)])
+    assert "follow" not in prod.drives[0]
+    assert any("followers of 'Run' not wired" in n for n in prod.doc.notes)
+    assert _sha(prod) == _sha(control)
