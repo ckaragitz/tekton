@@ -491,10 +491,11 @@ def _subject(*words: str) -> str:
 def _hex_nut(name: str, across_flats: float, height: float, cx: float, cy: float,
              base: float) -> Dict[str, Any]:
     """A hex nut as a hexagonal prism (the thread and the chamfers are not
-    modelled), flats parallel to the strut so it reads square-on in plan."""
+    modelled), two flats square to the strut (x = +- across_flats / 2) so the
+    nut can be locked to the planes either side of its rod (#904)."""
     r = across_flats / math.sqrt(3.0)              # centre to corner
     ring = [[r * math.cos(math.radians(a)), r * math.sin(math.radians(a))]
-            for a in (0, 60, 120, 180, 240, 300)]
+            for a in (30, 90, 150, 210, 270, 330)]
     ring.append(list(ring[0]))
     return {"shape": "polygon", "name": name, "vertices": ring,
             "height_ft": height, "center": [cx, cy], "base_z_ft": base}
@@ -628,8 +629,27 @@ def _trapeze_drives(v: Dict[str, float]) -> List[Dict[str, Any]]:
                 sides[n] = ("lo",)
             elif k == total:
                 sides[n] = ("hi",)
-    return [{"caption": "Strut Length", "axis": "x",
-             "lo": -g["L"] / 2.0, "hi": g["L"] / 2.0, "parts": sides}]
+    # the rods, washers and nuts FOLLOW the strut ends at Rod Inset (#904 / #908):
+    # the "Follow" ladder's verified mechanisms -- a circle's centre on a plane,
+    # a part held rigid by EQ + a locked width about it
+    followers: List[Dict[str, Any]] = []
+    ws = float(v["washer_size_in"]) * IN
+    for p in _strut_trapeze(v):
+        n = p["name"]
+        side = "lo" if n.endswith(" left") else "hi" if n.endswith(" right") else None
+        if side is None:
+            continue
+        if n.startswith("threaded rod"):
+            followers.append({"part": n, "side": side, "kind": "circle"})
+        elif " washer " in n:
+            followers.append({"part": n, "side": side, "kind": "rigid", "half": ws / 2.0})
+        elif " nut " in n:
+            followers.append({"part": n, "side": side, "kind": "rigid",
+                              "half": g["nut_af"] / 2.0})
+    return [{"caption": "Strut Length", "axis": "x", "symmetric": True,
+             "lo": -g["L"] / 2.0, "hi": g["L"] / 2.0, "parts": sides,
+             "follow": {"caption": "Rod Inset", "offset": g["inset"],
+                        "followers": followers}}]
 
 
 def _trapeze_settle(vals: Dict[str, float], prov: Dict[str, str],
@@ -909,20 +929,21 @@ _register(Archetype(
            "manufacturer's part is claimed"),
     lod_note=("every tier's real C section (back, webs, inturned lips, the back "
               "slots genuinely absent), both threaded rods full length, and a "
-              "square washer + hex nut above and below each tier at each rod"),
+              "square washer + hex nut above and below each tier at each rod. "
+              "CONSTRAINED: Strut Length moves both ends of every tier, symmetric "
+              "about the centre; the rods (circle centres), washers and nuts (held "
+              "rigid about each rod plane) follow the ends at Rod Inset"),
     limits=("the rod threads and the nut chamfers are not modelled; a rod is a "
             "plain cylinder at its nominal diameter",
             "the rod holes are not cut: the rod passes through the channel back",
             "the beam clamp / anchor at the rod top is not modelled",
             "the section is authored square-cornered; the forming radii are not",
-            "both strut ends of every tier are LOCKED to the Strut Length planes, so "
-            "changing Strut Length changes their length (owner's desktop verdict, "
-            "#904; nothing pins the centre, so Revit may move only one end); the threaded rods, washers and nuts do NOT follow it yet "
-            "-- they stay where they were generated, so after flexing Strut Length "
-            "the Rod Inset and Width values no longer describe the geometry (Rod "
-            "Spacing still does); every other parameter carries a value and does not "
-            "drive it "
-            "-- a different rod spacing, tier spacing or rod size is a re-generation"),
+            "the assembled constraint set has no desktop verdict of its own yet "
+            "(#904) -- each mechanism was verified on its own -- and the hex nut is the "
+            "one shape no probe covered",
+            "Rod Spacing is a value (Strut Length - 2 x Rod Inset), not a driver; Tier "
+            "Spacing, rod diameter and the other sizes carry values and do not drive "
+            "the geometry"),
     aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
     patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
               r"(?:\s+(?:hangers?|supports?|racks?))?",
