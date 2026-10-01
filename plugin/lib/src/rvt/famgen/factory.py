@@ -1088,6 +1088,9 @@ def _caller_param_row(doc: SK.FamilyDoc, row: Dict[Any, Any],
             if not isinstance(v, bool):
                 raise FactoryError(f"{cap}: a Yes/No value must be True or False, not {v!r}")
             row[doc.params[cap].elem_id] = 1 if v else 0
+        elif spec_key == "integer":
+            # a ParamDefInt row holds an int, as the catalog rows store one
+            row[doc.params[cap].elem_id] = int(round(float(v)))
         else:
             try:
                 row[doc.params[cap].elem_id] = float(v)
@@ -1563,7 +1566,11 @@ def make_archetype(*, product: str,
     # the NEC working space's toggle (#818): a real Yes/No, defaulting to Yes.
     # NOT yet bound to the zone's visibility (#690) -- the report says so.
     toggle = {"Show Clearance": ("yesno", True)} if ws else None
-    prod = make_generic_model(parts=parts, name=fam_name, numeric_params=toggle,
+    # the product's own adjustable dimensions as family parameters (#899): a
+    # trapeze's tiers / rod spacing / rod size are what a user edits
+    own = arch.family_params(dict(res.values)) or {}
+    numeric = {**own, **(toggle or {})} or None
+    prod = make_generic_model(parts=parts, name=fam_name, numeric_params=numeric,
                               category=category or arch.category,
                               base_z_ft=base_z_ft, solid=solid, source=src,
                               start_id=start_id, shared_params=shared_params,

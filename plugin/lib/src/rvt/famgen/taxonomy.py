@@ -190,7 +190,14 @@ _ROWS: Tuple[Kind, ...] = (
        aliases=("lay-in wireway", "wire trough", "gutter", "auxiliary gutter")),
     _k("strut_channel", "Strut channel", "electrical", "generic_model",
        ["archetype:strut_channel"],
-       aliases=("strut", "unistrut", "channel strut", "trapeze strut")),
+       aliases=("strut", "unistrut", "channel strut")),
+    _k("strut_trapeze", "Strut trapeze hanger", "electrical", "generic_model",
+       ["archetype:strut_trapeze"],
+       aliases=("trapeze", "trapeze hanger", "trapeze strut", "strut trapeze",
+                "unistrut trapeze", "slotted trapeze"),
+       note="tiers of slotted strut on two threaded rods with washers and nuts, at nominal "
+            "sizes from the archetype registry (#899); its parameters carry values but do "
+            "not yet drive the geometry (#372)"),
     # ---------------------------------------------------------------- wiring devices
     _k("receptacle", "Duplex receptacle", "electrical", "electrical_fixture",
        ["famspec:device/duplex-receptacle"], intent=("receptacle_device",),
