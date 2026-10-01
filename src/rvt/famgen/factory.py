@@ -3036,6 +3036,21 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                                                     top_zone_h=top_h)
         drive_report, height_report = _wire_equipment_drives(doc, named, d_specs, h_specs,
                                                              what="transformer")
+        zone_x = next((e[0] for n, f in named
+                       if str(f.params.get("role")) == _XFMR_ZONE_FRONT
+                       for e in [_form_extents(f)]), None)
+        if drive_report and zone_x is not None:
+            tracks = (abs(zone_x[0] + W / 2.0) < _DRIVE_EPS
+                      and abs(zone_x[1] - W / 2.0) < _DRIVE_EPS)
+            doc.notes.append(
+                "front working space (NEC 110.26(A)(2): the greater of the equipment "
+                "width or 30 in): " + (
+                    "drawn at the box's width, so it tracks Width -- a flex BELOW 30 in "
+                    "is not re-derived and would leave it under the minimum"
+                    if tracks else
+                    "drawn at the 30 in minimum (wider than the box), so it stays -- a "
+                    "flex ABOVE 30 in is not re-derived and would leave it narrower "
+                    "than the box") + "; authored, unverified")
     # connectors: primary + secondary windings on the top face, offset in X.
     # The primary winding is the family's ONE primary connector (the side an
     # upstream circuit attaches to); the secondary books the kVA rating as a
@@ -3078,9 +3093,12 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
 _XFMR_SPAN_X = ("top cover", "vent slot louver", "front access panel")
 _XFMR_SPAN_Y = ("top cover", "enclosure upper band (behind the vent slot)", "side louver")
 #: parts left where they are drawn when the plan dimensions flex: the nameplate
-#: (a fraction of the width, off centre) and the front working space, whose width
-#: is the code minimum, not the box's
-_XFMR_STAY_X = ("nameplate", "clearance: front working space")
+#: (a fraction of the width, off centre) and -- only while it is wider than the
+#: box -- the front working space, at its 30 in code minimum.  NEC 110.26(A)(2)
+#: sizes it as the GREATER of the equipment width or 30 in, so where it was
+#: drawn at the box's width it is a drive part and tracks Width (#933 review)
+_XFMR_STAY_X = ("nameplate",)
+_XFMR_ZONE_FRONT = "clearance: front working space"
 
 
 def _transformer_drive_specs(W: float, D: float, H: float, *, named, solid: bool,
@@ -3113,8 +3131,14 @@ def _transformer_drive_specs(W: float, D: float, H: float, *, named, solid: bool
 
     def by_role(*rs):
         return [n for n in ext if roles[n] in rs]
+    # the front working space tracks Width only where it IS the box's width
+    # (equal edges); at its 30 in minimum (a narrower box) it stays
+    stay_x = by_role(*_XFMR_STAY_X) + [
+        n for n in by_role(_XFMR_ZONE_FRONT)
+        if not (abs(ext[n][0][0] + W / 2.0) < _DRIVE_EPS
+                and abs(ext[n][0][1] - W / 2.0) < _DRIVE_EPS)]
     width = _plan_drive_spec("Width", "x", -W / 2.0, W / 2.0, xs,
-                             span=by_role(*_XFMR_SPAN_X), stay=by_role(*_XFMR_STAY_X))
+                             span=by_role(*_XFMR_SPAN_X), stay=stay_x)
     depth = _plan_drive_spec("Depth", "y", -D / 2.0, D / 2.0, ys,
                              span=by_role(*_XFMR_SPAN_Y))
     if not solid:                                    # the one envelope box

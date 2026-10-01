@@ -96,7 +96,9 @@ def _refusals(doc):
 #: (in-plane drives: caption -> (edge locks, attach (parts, planes, locks) or None),
 #:  heights: (specs wired, face locks, locked unlabelled))
 EXPECT = {
-    "transformer": ({"Width": (6, (36, 14, 72)), "Depth": (8, (37, 10, 74))}, (23, 42, 22)),
+    # Width 6 -> 8 (#933 review): the default 75 kVA working space is drawn at the
+    # box's width (NEC 110.26(A)(2)), so it is a Width drive part, not a stayer
+    "transformer": ({"Width": (8, (36, 14, 72)), "Depth": (8, (37, 10, 74))}, (23, 42, 22)),
     "transformer_dummy": ({"Width": (2, None), "Depth": (2, None)}, (1, 2, 0)),
     "troffer": ({"Length": (2, None), "Width": (2, None)}, (1, 2, 0)),
     "downlight": ({}, (1, 2, 0)),
@@ -238,14 +240,17 @@ def _specs_of(monkeypatch, mod, fn, build):
 def test_the_transformer_specs_name_who_rides_what(monkeypatch):
     (width, depth), heights = _specs_of(monkeypatch, F, "_transformer_drive_specs",
                                         lambda: F.make_transformer(name="E913XR"))
+    # the default 75 kVA working space is drawn at the box's width, so it tracks
+    # Width as a drive part (NEC 110.26(A)(2); #933 review)
     assert set(width["parts"]) == {"transformer enclosure", "clearance: top",
-                                   "enclosure upper band (behind the vent slot)"}
+                                   "enclosure upper band (behind the vent slot)",
+                                   "clearance: front working space"}
     span = width["attach"]["span"]
     assert "top cover" in span and "front access panel" in span
     assert all(n.startswith("vent slot louver") for n in span
                if n not in ("top cover", "front access panel"))
     # the skids, cheeks, side louver banks and bolts ride their own side; the
-    # nameplate and the front working space keep their x
+    # nameplate keeps its x
     rides = width["attach"]["lo"] + width["attach"]["hi"]
     assert {"base skid 1", "base skid 2", "vent slot cheek 1", "vent slot cheek 2"} <= set(rides)
     assert "nameplate" not in rides and "clearance: front working space" not in rides
@@ -365,8 +370,27 @@ def test_an_unknown_drive_mode_is_refused(build):
 
 
 def test_an_unknown_fan_coil_drive_mode_is_refused():
-    with pytest.raises(ValueError):
+    with pytest.raises(F.FactoryError):           # a famspec refusal, like every kind
         FC.make_fan_coil_unit(name="E913B", drive="372")
+
+
+@pytest.mark.parametrize("kva, tracks", [(15, False), (45, False), (75, True), (225, True)])
+def test_the_transformer_working_space_tracks_width_only_where_it_is_the_box_width(kva, tracks):
+    """NEC 110.26(A)(2): the greater of the equipment width or 30 in (#933
+    review). Drawn at the box's width (75 kVA up) the zone is a Width drive
+    part; drawn at the 30 in minimum it stays. The note says which, and that
+    the boundary itself is not re-derived."""
+    prod = F.make_transformer(kva=kva)
+    (width,) = [d for d in prod.drives if d["caption"] == "Width"]
+    base = [d for d in F.make_transformer(kva=15).drives if d["caption"] == "Width"][0]
+    note = next(n for n in prod.doc.notes if n.startswith("front working space (NEC"))
+    if tracks:
+        assert "tracks Width" in note and "BELOW 30 in" in note
+        assert len(width["locks"]) == len(base["locks"]) + 2
+    else:
+        assert "stays" in note and "ABOVE 30 in" in note
+        assert len(width["locks"]) == len(base["locks"])
+    assert "unverified" in note
 
 
 # --------------------------------------------------------------------------- refusals

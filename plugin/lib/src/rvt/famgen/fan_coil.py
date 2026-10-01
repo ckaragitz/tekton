@@ -180,9 +180,9 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
     cap-face chain, every box part riding what it belongs to
     (:func:`fan_coil_drive_specs`); ``None`` wires nothing (the family as it was
     before #913).  No assembled fan coil drive has a desktop verdict (hard rule 4)."""
-    if drive not in ("law", None):
-        raise ValueError(f"fan coil drive must be 'law' or None, not {drive!r}")
     from . import factory as F
+    if drive not in ("law", None):                 # FactoryError: a famspec refusal
+        raise F.FactoryError(f"fan coil drive must be 'law' or None, not {drive!r}")
     from . import geometry as G
     from . import skeleton as SK
     from . import standards as ST
