@@ -121,3 +121,63 @@ def transformer_parts(W: float, D: float, H: float) -> List[BoxPart]:
     parts.append(BoxPart("nameplate", np_w, 0.06 * IN, np_h, p_z0 + 0.62 * (p_z1 - p_z0),
                          0.1 * W, front - plate_t - 0.03 * IN))
     return parts
+
+
+#: panelboard front: trim plate and door thicknesses, proud of the box face
+PANEL_TRIM_T = 0.1875 * IN
+PANEL_DOOR_T = 0.125 * IN
+
+PANEL_DETAIL_NOTE = ("panelboard detail at NOMINAL proportions (archetype, not a manufacturer "
+                     "drawing): the catalog box, a front trim with corner screws, a hinged door "
+                     "with two hinges, a latch handle with a key lock, and a nameplate; the box "
+                     "W x D x H is the catalog fact, the trim and door stand under 1 in proud "
+                     "of its face (a flush trim also laps the wall opening by 0.75 in)")
+
+
+def panelboard_parts(W: float, D: float, H: float, *, flush: bool = False) -> List[BoxPart]:
+    """The FRONT of a panelboard cabinet (the box itself is the caller's catalog-driven
+    enclosure form and is NOT returned): its face is the plane ``y = face`` with the
+    door facing +y -- ``face = D`` for a SURFACE box standing on ``0..D``, ``0`` for a
+    FLUSH box recessed on ``-D..0`` (its trim laps the wall opening).  Feet, nominal
+    proportions (:data:`PANEL_DETAIL_NOTE`)."""
+    if min(W, D, H) <= 0:
+        raise ValueError(f"panelboard box must be positive, got {W} x {D} x {H}")
+    face = 0.0 if flush else D
+    lap = 0.75 * IN if flush else 0.0
+    tw, th, tz0 = W + 2 * lap, H + 2 * lap, -lap
+    parts: List[BoxPart] = [
+        BoxPart("front trim", tw, PANEL_TRIM_T, th, tz0, 0.0, face + PANEL_TRIM_T / 2)]
+    # the door: inset from the trim edge, standing on the trim
+    side_in = _clamp(0.065 * W, 0.75 * IN, 1.5 * IN)
+    end_in = _clamp(0.045 * H, 1.0 * IN, 2.5 * IN)
+    dw, dh, dz0 = W - 2 * side_in, H - 2 * end_in, end_in
+    y_door = face + PANEL_TRIM_T
+    parts.append(BoxPart("door", dw, PANEL_DOOR_T, dh, dz0, 0.0, y_door + PANEL_DOOR_T / 2))
+    y_on = y_door + PANEL_DOOR_T                       # the door's outer face
+    # hinges on the door's LEFT edge as you face it -- facing the door from +y,
+    # your left is +x -- at a fifth and four fifths of its height
+    hw, hd, hh = 0.3 * IN, 0.3 * IN, min(2.5 * IN, dh / 6)
+    hx = dw / 2 + hw / 2 - 0.05 * IN
+    for frac in (0.2, 0.8):
+        parts.append(BoxPart("door hinge", hw, hd, hh, dz0 + frac * dh - hh / 2, hx, y_on - hd / 2 + 0.1 * IN))
+    # latch handle and key lock on the RIGHT edge as you face it (-x), at mid height
+    lx = -(dw / 2 - min(1.25 * IN, dw / 8))
+    lh = min(3.0 * IN, dh / 5)
+    lz = dz0 + dh / 2 - lh / 2
+    parts.append(BoxPart("door latch handle", 0.9 * IN, 0.35 * IN, lh, lz, lx, y_on + 0.175 * IN))
+    parts.append(BoxPart("door lock", 0.6 * IN, 0.2 * IN, 0.6 * IN, lz + lh + 0.4 * IN, lx, y_on + 0.1 * IN))
+    # trim screws: the four corners outside the door, and mid-height on both sides
+    sx = tw / 2 - side_in / 2
+    for z in (tz0 + end_in / 2, tz0 + th - end_in / 2, tz0 + th / 2):
+        for x in (-sx, sx):
+            parts.append(BoxPart("trim screw", 0.4 * IN, 0.1 * IN, 0.4 * IN, z - 0.2 * IN, x,
+                                 face + PANEL_TRIM_T + 0.05 * IN))
+    # nameplate across the top of the door
+    nw, nh = min(4.0 * IN, dw * 0.4), 1.25 * IN
+    parts.append(BoxPart("nameplate", nw, 0.06 * IN, nh, dz0 + dh - 2.5 * IN - nh, 0.0, y_on + 0.03 * IN))
+    return parts
+
+
+def front_proud_ft(parts: List[BoxPart], face: float) -> float:
+    """How far the frontmost part stands proud of ``face`` (the +y door side)."""
+    return max([p.cy + p.d / 2 for p in parts] + [face]) - face
