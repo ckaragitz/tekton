@@ -85,7 +85,7 @@ def test_the_trapeze_rods_washers_and_nuts_follow_the_strut_ends(prompt, tiers):
                 for s in x.obj["m_ArrSegInfo"] if s["m_paramId"] >= 0}
     assert labelled == {prod.doc.params["Strut Length"].elem_id,
                         prod.doc.params["Rod Inset"].elem_id}
-    assert any("follow it at Rod Inset" in n for n in prod.doc.notes)
+    assert any("authored to follow it at Rod Inset" in n for n in prod.doc.notes)
     assert not any(e.obj.get("m_constrInfo") for e in prod.doc.elements)
 
 

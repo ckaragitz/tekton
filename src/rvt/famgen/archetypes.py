@@ -675,6 +675,133 @@ def _trapeze_settle(vals: Dict[str, float], prov: Dict[str, str],
 
 
 # ---------------------------------------------------------------------------
+# FAMILY PARAMETERS + DRIVES of the sheet-metal / channel archetypes (#913):
+# every product's own dimensions as family parameters (distinct captions -- the
+# overall Width / Depth / Height stay the bounding box), and the in-plane drives
+# that move its parts: the verified #904 mechanisms (symmetric ends, parts on
+# the planes, parts riding them at locked offsets).  A part's edges are named
+# by the builder; "span" = its low edge rides the low plane, its high edge the
+# high plane; "lo" / "hi" = it rides that plane rigidly.
+# ---------------------------------------------------------------------------
+
+def _named(v: Dict[str, float], build, test) -> List[str]:
+    return [p["name"] for p in build(v) if test(p["name"])]
+
+
+def _len_param(caption: str, inches: float) -> Tuple[str, Tuple[str, float]]:
+    return caption, ("length", float(inches) * IN)
+
+
+def _tray_params(v):
+    # "Tray Width" / "Tray Height" are the category's STANDARD parameters (the
+    # standards table authors and fills them, #601); the drive labels the
+    # standard Tray Width rather than a duplicate
+    return dict([("Length", ("length", float(v["length_ft"]))),
+                 _len_param("Rung Spacing", v["rung_spacing_in"]),
+                 _len_param("Rail Thickness", v["rail_thickness_in"]),
+                 _len_param("Rail Flange", v["rail_flange_in"]),
+                 _len_param("Rung Width", v["rung_width_in"]),
+                 _len_param("Rung Thickness", v["rung_thickness_in"])])
+
+
+def _tray_drives(v):
+    W, L = float(v["width_in"]) * IN, float(v["length_ft"])
+    rails = _named(v, _ladder_tray, lambda n: n.startswith("side rail"))
+    rungs = _named(v, _ladder_tray, lambda n: n.startswith("rung "))
+    return [
+        {"caption": "Tray Width", "axis": "y", "symmetric": True, "lo": -W / 2, "hi": W / 2,
+         "parts": {n: ("lo", "hi") for n in rungs},
+         "attach": {"hi": [n for n in rails if " left " in n],
+                    "lo": [n for n in rails if " right " in n]}},
+        {"caption": "Length", "axis": "x", "symmetric": True, "lo": -L / 2, "hi": L / 2,
+         "parts": {n: ("lo", "hi") for n in rails}},
+    ]
+
+
+def _channel_params(v):
+    return dict([("Length", ("length", float(v["length_ft"]))),
+                 _len_param("Section Width", v["width_in"]),
+                 _len_param("Section Height", v["height_in"]),
+                 _len_param("Material Thickness", v["thickness_in"]),
+                 _len_param("Lip", v["lip_in"]),
+                 _len_param("Slot Length", v["slot_length_in"]),
+                 _len_param("Slot Spacing", v["slot_spacing_in"])])
+
+
+def _channel_drives(v):
+    L, Wd = float(v["length_ft"]), float(v["width_in"]) * IN
+    names = _named(v, _strut_channel, lambda n: True)
+    ends: Dict[str, Tuple[str, ...]] = {}
+    for n in names:
+        if n.startswith(("web ", "inturned lip ")) or n == "back":
+            ends[n] = ("lo", "hi")
+        elif n.startswith("back segment "):
+            k, total = n[len("back segment "):].split("/")
+            if k == "1":
+                ends[n] = ("lo",)
+            elif k == total:
+                ends[n] = ("hi",)
+    backs = [n for n in names if n == "back" or n.startswith("back segment ")]
+    return [
+        {"caption": "Length", "axis": "x", "symmetric": True, "lo": -L / 2, "hi": L / 2,
+         "parts": ends},
+        {"caption": "Section Width", "axis": "y", "symmetric": True,
+         "lo": -Wd / 2, "hi": Wd / 2, "parts": {n: ("lo", "hi") for n in backs},
+         "attach": {"hi": [n for n in names if n.endswith(" left")],
+                    "lo": [n for n in names if n.endswith(" right")]}},
+    ]
+
+
+def _wireway_params(v):
+    return dict([_len_param("Wireway Width", v["width_in"]),
+                 _len_param("Wireway Height", v["height_in"]),
+                 ("Length", ("length", float(v["length_ft"]))),
+                 _len_param("Sheet Thickness", v["thickness_in"])])
+
+
+def _wireway_drives(v):
+    W, L = float(v["width_in"]) * IN, float(v["length_ft"])
+    return [
+        {"caption": "Wireway Width", "axis": "y", "symmetric": True, "lo": -W / 2, "hi": W / 2,
+         "parts": {"bottom": ("lo", "hi"), "cover": ("lo", "hi")},
+         "attach": {"hi": ["side left"], "lo": ["side right"]}},
+        {"caption": "Length", "axis": "x", "symmetric": True, "lo": -L / 2, "hi": L / 2,
+         "parts": {n: ("lo", "hi") for n in ("bottom", "side left", "side right", "cover")}},
+    ]
+
+
+def _box_params(prefix: str):
+    def params(v):
+        return dict([_len_param(f"{prefix} Width", v["width_in"]),
+                     _len_param(f"{prefix} Height", v["height_in"]),
+                     _len_param(f"{prefix} Depth", v["depth_in"]),
+                     _len_param("Sheet Thickness", v["thickness_in"])])
+    return params
+
+
+def _jbox_drives(v):
+    W, H = float(v["width_in"]) * IN, float(v["height_in"]) * IN
+    return [
+        {"caption": "Box Width", "axis": "x", "symmetric": True, "lo": -W / 2, "hi": W / 2,
+         "parts": {n: ("lo", "hi") for n in ("back", "wall top", "wall bottom", "cover")},
+         "attach": {"hi": ["wall left"], "lo": ["wall right"]}},
+        {"caption": "Box Height", "axis": "y", "symmetric": True, "lo": -H / 2, "hi": H / 2,
+         "parts": {n: ("lo", "hi") for n in ("back", "cover")},
+         "attach": {"hi": ["wall top"], "lo": ["wall bottom"],
+                    "span": ["wall left", "wall right"]}},
+    ]
+
+
+def _lcp_drives(v):
+    W = float(v["width_in"]) * IN
+    return [
+        {"caption": "Cabinet Width", "axis": "x", "symmetric": True, "lo": -W / 2, "hi": W / 2,
+         "parts": {n: ("lo", "hi") for n in ("back", "wall top", "wall bottom", "door")},
+         "attach": {"lo": ["wall left"], "hi": ["wall right", "door latch"]}},
+    ]
+
+
+# ---------------------------------------------------------------------------
 # THE REGISTRY.  One entry + one builder = one more product.
 # ---------------------------------------------------------------------------
 
@@ -737,6 +864,8 @@ _register(Archetype(
               aliases=("rung thickness",)),
     ),
     build=_ladder_tray,
+    family_params=_tray_params,
+    drives=_tray_drives,
     standard_values=lambda v: {
         "Tray Width": float(v["width_in"]) * IN,
         "Tray Height": float(v["depth_in"]) * IN,
@@ -784,6 +913,8 @@ _register(Archetype(
               aliases=("slot spacing", "slot centers", "slot centres"), allow_zero=True),
     ),
     build=_strut_channel,
+    family_params=_channel_params,
+    drives=_channel_drives,
     standard_values=lambda v: {"Material": "steel"},
 ))
 
@@ -816,6 +947,8 @@ _register(Archetype(
               aliases=("thickness", "sheet thickness")),
     ),
     build=_wireway,
+    family_params=_wireway_params,
+    drives=_wireway_drives,
     standard_values=lambda v: {"Mounting": "surface", "Material": "steel"},
 ))
 
@@ -854,6 +987,9 @@ _register(Archetype(
               aliases=("thickness", "sheet thickness")),
     ),
     build=_lighting_control_panel,
+    # its Cabinet Width drive (_lcp_drives) is wired in its own change together
+    # with height / depth: the family-anatomy suite pins this panel as its
+    # unconstrained baseline (#913)
     standard_values=lambda v: {"Mounting": "surface", "Material": "steel"},
     working_space=True,
 ))
@@ -886,6 +1022,8 @@ _register(Archetype(
               aliases=("thickness", "sheet thickness")),
     ),
     build=_junction_box,
+    family_params=_box_params("Box"),
+    drives=_jbox_drives,
     standard_values=lambda v: {"Device Type": "junction box", "Mounting": "surface"},
 ))
 

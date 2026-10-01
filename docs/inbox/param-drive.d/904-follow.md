@@ -39,8 +39,9 @@ mechanism:
 | P6 | in-sketch EQ |
 | P0, P0n | controls |
 
-**Owner:** *"all 9 worked"*. Reading: each rung behaved as described, the controls
-included. The release used has not been stated.
+**Owner:** *"all 9 worked"*. Reading: each mechanism rung flexed as described. That
+the controls (P0, P0n, P2c) stayed put was asked on #904 and is still pending, as is
+the release used.
 
 ## What was built
 
@@ -91,8 +92,9 @@ included. The release used has not been stated.
 
 ## Open
 
-- **A desktop verdict on the assembled trapeze** (the owner): change Strut Length, then
-  Rod Inset.
+- **A desktop verdict on the assembled trapeze**, from ordinary use (change Strut
+  Length, then Rod Inset; check the hex nut keeps its shape, since only its two flats
+  are locked).
 - **Combinations no probe tested** (named in `limits`):
   - mirrored rod planes;
   - EQ pairs held by a locked width;
@@ -149,4 +151,5 @@ included. The release used has not been stated.
 - `sync_plugin --check` in sync; `validate_plugin` PASS; portable paths ok.
 
 **Shipped vs staged:** the mechanisms are desktop-verified one by one. The assembled
-trapeze is staged for the owner's check.
+trapeze ships wired and stamped unverified (`lod_note`, `limits`, the factory note); no
+probe is staged (steer #913), and its verdict comes from the owner's ordinary use.
