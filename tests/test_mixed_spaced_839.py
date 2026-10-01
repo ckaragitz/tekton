@@ -507,3 +507,28 @@ def test_a_denominator_that_opens_the_next_number_stays_readable(prompt, key, wa
     r = AR.resolve_prompt(prompt)
     assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
     assert r.provenance[key] == GIVEN
+
+
+# Round 11 (#841): the round-10 branch blanked from the whole number even with
+# no hyphen ("trade size 1 120 / 208 3/4 in conduit" became a 208.75 in
+# conduit) and broke a range its denominator opened ("6 - 12 / 18 - 24 in
+# wide" read 24 alone).  Every row reads exactly as main: the given set.
+@pytest.mark.parametrize("prompt,given", [
+    ("conduit trade size 1 120 / 208 3/4 in conduit", {"diameter_in": 1.0}),
+    ("conduit diameter 1 277 / 480 1/2 in conduit", {"diameter_in": 1.0}),
+    ("lighting control panel width 20 277 / 480 3/4 in conduit", {"width_in": 20.0}),
+    ("lighting control panel height 36 120 / 277 3/4 in conduit", {"height_in": 36.0}),
+    ("junction box depth 6 12 / 24 3/4 in knockouts", {"depth_in": 6.0}),
+    ("cable tray 6 - 12 / 18 - 24 in wide", {}),
+    ("cable tray sizes 12 - 18 / 24 - 30 in wide", {}),
+    ("cable tray 12 18 / 24 - 30 in wide", {}),
+    ("conduit sizes 6 - 12 / 18 - 24 length 5-3 / 16", {}),
+    ("wireway width 12 480 / 277 - 6 in tall", {"width_in": 12.0, "height_in": 12.0}),
+    # an UNSPACED slash before the range keeps main's reading of the range's end
+    ("levels strut channel depth 6  277 /12 - 36 long", {"length_ft": 36.0}),
+    ("conduit 0 24 /3 - 10 long deep", {"length_ft": 10.0}),
+])
+def test_a_denominator_never_frees_a_whole_or_a_range_end(prompt, given):
+    r = AR.resolve_prompt(prompt)
+    got = {k: v for k, v in r.values.items() if r.provenance.get(k) == GIVEN}
+    assert got == pytest.approx(given), (prompt, got, r.quoted)

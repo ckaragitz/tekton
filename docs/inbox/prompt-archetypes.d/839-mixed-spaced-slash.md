@@ -626,6 +626,60 @@ passed and 7 xfailed with the neighbouring suites.
 
 ---
 
+## Round 11 — the round-10 branch freed a whole number and a range's end
+
+🛑 on `4cd2a6f`. The round-10 rows held. **Two regressions came from round 10's own branch:**
+- **The whole number was blanked even with no hyphen.** The branch blanked from the whole
+  number whenever the denominator opened another number, so a voltage pair or wire size before
+  a fraction ate the dimension that preceded it.
+  - "conduit trade size 1 120 / 208 3/4 in conduit" gave **208.75 `given`** (main 1).
+  - "lighting control panel width 20 277 / 480 3/4 in conduit" lost the width to nominal (main 20).
+
+  The function's docstring ("a SPACED slash keeps its whole number, as main does") was untrue at
+  `4cd2a6f`, and the round-10 section above did not say the branch also did this.
+- **A range opened by the denominator lost its start.** On main, "18 - 24" after "6 - 12 /" is one
+  token that reads as nothing. Blanked up to it, its "24" read alone.
+  - "cable tray 6 - 12 / 18 - 24 in wide" gave **width 24 `given`** (main nominal).
+  - "wireway width 12 480 / 277 - 6 in tall" gave height 6 (main: height follows the width, 12).
+
+**Fix (the reviewer's, tested):**
+- A token with no hyphen blanks only from the numerator, so the whole number stays.
+- A denominator after "/ " that opens an "N - M" range is kept, so the range stays one unreadable
+  token as on main.
+- The "/ " condition matters: after a tight "/", main reads the range's end
+  ("strut channel depth 6  277 /12 - 36 long" is a 36 ft length), and so does this.
+
+**Measured** against main (`archetypes.py` unchanged since `f1672e4`; main is `be0a350`) and
+against round 10 (`4cd2a6f`):
+
+| instrument | prompts | round 11 vs main | round 11 vs round 10 |
+|---|---|---|---|
+| round-6 generator, 3 seeds | 166,781 unique | 18,410 differ (round 10's measured improvements) | 11 differ, all toward main: 8 return exactly to main's reading, 3 restore one of main's values while keeping a round-10 improvement on another |
+| list generator, 7 separators | 22,176 | the same 44 main-wrong → nominal | identical |
+| quote and conductor-count generator | 18,184 | identical | identical |
+| fuzzers seeds 1–3 | 60,000 | identical | identical |
+
+So round 10's "0 worse than main" results stand: no prompt moved away from main.
+
+**Not blocking (the reviewer's; main does the same):** two phrases run together with no
+punctuation, where the second uses round 9's tight-hyphen + spaced-slash list form, can still
+lend a number across the boundary. "cable tray deep 12 3 /4in rung centres of 4-3 / 16 in" gives
+rung spacing 12.75. Main gives 12.75 for the unspaced form too. This is main's existing tiebreak
+between reading the alias first and the number first.
+
+**Tests:**
+- 240 passed and 2 xfailed in the two files: 200 in `test_mixed_spaced_839.py`, with the
+  reviewer's 10 repros and its 2 tight-slash guard rows. Each row asserts main's full `given` set.
+- 666 passed and 7 xfailed with the neighbouring suites.
+- 117 passed in the four prompt-intent suites.
+
+**Mutants: 3/3 killed:**
+- whole number blanked regardless of hyphen (7 failures);
+- the "/ " guard dropped (3);
+- the range clause dropped (6).
+
+---
+
 ## BRANCH STATE
 
 **Files written**
@@ -640,12 +694,16 @@ passed and 7 xfailed with the neighbouring suites.
 
   *(Corrected in round 9: this line used to list only `_NUM_CORE`.)*
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 188 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 200 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
-  sweeps).
+  sweeps, the round-11 rows that pin main's full reading).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 11)**: 240 passed + 2 xfailed across the two files (666 + 7
+xfailed with the neighbouring suites; 117 in the prompt-intent suites); 3/3 round-11
+mutants killed; plugin in sync.
 
 **Gates (round 10)**: 228 passed + 2 xfailed across the two files (654 + 7
 xfailed with the neighbouring suites); 2/2 round-10 mutants killed; plugin
