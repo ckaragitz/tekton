@@ -1,0 +1,157 @@
+"""A prompt for a strut trapeze builds the whole trapeze (issue #899).
+
+Before this, "a 2 tier slotted trapeze with threaded rod" built ONE 10 ft
+strut channel and listed tier / slotted / trapeze / threaded / rod as ignored
+words.  These tests pin the lane, the assembly by POSITION (two tiers stacked
+at the tier spacing, rods through both, washers and nuts touching the channel
+they clamp), and the family parameters a user adjusts -- with their values.
+"""
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+import tempfile
+
+import pytest
+
+from rvt.famgen import archetypes as AR
+from rvt.famgen import factory as F
+from rvt.famgen import taxonomy as TX
+
+IN = 1.0 / 12.0
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def test_the_taxonomy_routes_trapeze_to_the_archetype_lane():
+    kind = TX.get("strut_trapeze")
+    assert "archetype:strut_trapeze" in kind.via
+    assert kind.lane == "archetype"
+    ok, why = TX.builder_available(kind, strict=True)
+    assert ok, why
+
+
+@pytest.mark.parametrize("prompt, given", [
+    ("a 2 tier slotted trapeze with threaded rod", {"tiers": 2.0}),
+    ("create a trapeze family", {}),
+    ("a 2 tier slotted strut trapeze hanger with 3/8 in threaded rod",
+     {"tiers": 2.0, "rod_diameter_in": 0.375}),
+    ("3 tier unistrut trapeze 36 in long with 1/2 in threaded rod, 18 in tier spacing",
+     {"tiers": 3.0, "strut_length_in": 36.0, "rod_diameter_in": 0.5,
+      "tier_spacing_in": 18.0}),
+    ("a 4-tier trapeze", {"tiers": 4.0}),
+    ("a trapeze with 3 tiers", {"tiers": 3.0}),
+])
+def test_every_way_of_asking_resolves_to_the_trapeze(prompt, given):
+    r = AR.resolve_prompt(prompt)
+    assert r is not None and r.arch.key == "strut_trapeze", prompt
+    got = {k: r.values[k] for k in r.given()}
+    assert got == pytest.approx(given), (prompt, got)
+
+
+def test_a_plain_strut_channel_is_still_a_strut_channel():
+    r = AR.resolve_prompt("a 10 ft strut channel")
+    assert r is not None and r.arch.key == "strut_channel"
+
+
+def test_a_count_takes_a_bare_number_only():
+    p = AR.archetype("strut_trapeze").param("tiers")
+    assert AR._convert(2.0, "count", p) == 2.0
+    assert AR._convert(2.0, "in", p) is None       # "2 in tiers" is not a count
+
+
+@pytest.fixture(scope="module")
+def parts():
+    return AR.resolve("strut_trapeze", {}).parts()
+
+
+def _named(parts, word):
+    return [p for p in parts if word in p["name"]]
+
+
+def test_two_tiers_each_a_real_slotted_channel(parts):
+    for t in (1, 2):
+        tier = _named(parts, f"tier {t} ")
+        assert len(_named(tier, "back segment")) > 1, "slotted back is segments"
+        assert len(_named(tier, "web")) == 2 and len(_named(tier, "inturned lip")) == 2
+    t2_back = _named(parts, "tier 2 back segment")[0]
+    assert t2_back["base_z_ft"] == pytest.approx(12 * IN)   # 12 in tier spacing
+
+
+def test_two_rods_full_length_through_both_tiers(parts):
+    rods = _named(parts, "threaded rod")
+    assert len(rods) == 2
+    xs = sorted(r["center"][0] for r in rods)
+    assert xs[1] - xs[0] == pytest.approx(24 * IN)          # 30 in strut, 3 in insets
+    for r in rods:
+        assert r["radius_ft"] == pytest.approx(0.375 * IN / 2)
+        bottom, top = r["base_z_ft"], r["base_z_ft"] + r["height_ft"]
+        lowest_nut = min(p["base_z_ft"] for p in _named(parts, "nut below"))
+        assert bottom == pytest.approx(lowest_nut - 1 * IN)  # 1 in tail below the nut
+        assert top == pytest.approx((12 + 1.625 + 24) * IN)  # 24 in above the top tier
+
+
+def test_washers_and_nuts_clamp_each_tier_at_each_rod(parts):
+    for t, z0 in ((1, 0.0), (2, 12 * IN)):
+        for side in ("left", "right"):
+            wb = _named(parts, f"tier {t} washer below {side}")[0]
+            nb = _named(parts, f"tier {t} nut below {side}")[0]
+            wa = _named(parts, f"tier {t} washer above {side}")[0]
+            na = _named(parts, f"tier {t} nut above {side}")[0]
+            assert wb["base_z_ft"] + wb["height_ft"] == pytest.approx(z0)   # under the back
+            assert nb["base_z_ft"] + nb["height_ft"] == pytest.approx(wb["base_z_ft"])
+            assert wa["base_z_ft"] == pytest.approx(z0 + 1.625 * IN)         # on the lips
+            assert na["base_z_ft"] == pytest.approx(wa["base_z_ft"] + wa["height_ft"])
+            assert nb["shape"] == "polygon" and len(nb["vertices"]) == 7    # hexagon, closed
+
+
+@pytest.mark.parametrize("over, word", [
+    ({"tiers": 0.0}, "1 to 6"),
+    ({"tiers": 7.0}, "1 to 6"),
+    ({"tiers": 2.5}, "1 to 6"),
+    ({"tier_spacing_in": 2.0}, "between tiers"),
+    ({"rod_inset_in": 0.5}, "washer"),
+    ({"strut_length_in": 6.0, "rod_inset_in": 3.0}, "no room"),
+])
+def test_impossible_trapezes_are_refused_by_name(over, word):
+    arch = AR.archetype("strut_trapeze")
+    with pytest.raises(AR.ArchetypeError, match=word):
+        arch.build(dict(arch.defaults(), **over))
+
+
+def test_every_adjustable_dimension_is_a_family_parameter_with_its_value():
+    prod = F.make_archetype(product="strut_trapeze",
+                            prompt="a 3 tier slotted trapeze 36 in long with 1/2 in threaded rod")
+    doc = prod.doc
+    row = doc.types[0][1]
+    val = {cap: row[p.elem_id] for cap, p in doc.params.items() if p.elem_id in row}
+    assert val["Number of Tiers"] == 3 and isinstance(val["Number of Tiers"], int)
+    assert val["Strut Length"] == pytest.approx(36 * IN)
+    assert val["Rod Spacing"] == pytest.approx(30 * IN)     # 36 - 2 x 3 in inset
+    assert val["Rod Diameter"] == pytest.approx(0.5 * IN)
+    assert val["Tier Spacing"] == pytest.approx(12 * IN)
+    assert val["Rod Length"] == pytest.approx(val["Overall Height"])
+    for cap in ("Rod Inset", "Rod Above Top Tier", "Rod Below Bottom Nut", "Strut Height",
+                "Strut Width", "Strut Thickness", "Slot Length", "Slot Spacing",
+                "Washer Size", "Washer Thickness", "Nut Across Flats"):
+        assert val[cap] > 0, cap
+    assert prod.name.startswith("Strut Trapeze 36 in 3 Tier")
+
+
+def test_the_route_delivers_the_trapeze_where_main_built_one_channel():
+    out = tempfile.mkdtemp(prefix="t899_")
+    proc = subprocess.run(
+        [sys.executable, os.path.join(ROOT, "tools", "route.py"), "run",
+         "--prompt", "a 2 tier slotted trapeze with threaded rod",
+         "--output", "rfa", "--out", out, "--json"],
+        capture_output=True, text=True, timeout=300, cwd=ROOT)
+    res = json.loads(proc.stdout)
+    assert res["ok"], res.get("status")
+    assert os.path.getsize(res["files"]["rfa"]) > 0
+    report = json.load(open(res["files"]["rfa_report"], encoding="utf-8"))
+    fam = report["family"]
+    assert fam["family_name"].startswith("Strut Trapeze")
+    assert len(fam["forms"]) > 40                            # was 5: one channel
+    assert {"Number of Tiers", "Rod Spacing", "Tier Spacing", "Rod Diameter"} <= set(fam["parameters"])
+    assert report["validate"]["family_mode"]["n_errors"] == 0

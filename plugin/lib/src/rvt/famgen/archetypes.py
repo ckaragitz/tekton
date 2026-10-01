@@ -163,6 +163,13 @@ class Archetype:
     #: drawn from rvt.famgen.clearance (#818 / #820)
     working_space: bool = False
     aliases: Tuple[str, ...] = ()               # display names, for the report
+    #: the Revit FAMILY PARAMETERS this product carries, with their values:
+    #: ``vals -> {caption: (spec_key, value_in_internal_units)}``.  Empty for
+    #: the products whose dimensions live in the fact sheet only; an assembly a
+    #: user adjusts (a trapeze: tiers, rod spacing, rod size) lists every one.
+    family_params: Callable[[Dict[str, float]], Dict[str, Any]] = lambda v: {}
+    #: extra words for the family NAME after the primary dimension ("2 Tier")
+    name_bits: Callable[[Dict[str, float]], List[str]] = lambda v: []
 
     def param(self, key: str) -> Param:
         for p in self.params:
@@ -434,6 +441,124 @@ def _conduit(v: Dict[str, float]) -> List[Dict[str, Any]]:
              "length_ft": L, "center": [0.0, 0.0], "base_z_ft": -d / 2.0}]
 
 
+def _hex_nut(name: str, across_flats: float, height: float, cx: float, cy: float,
+             base: float) -> Dict[str, Any]:
+    """A hex nut as a hexagonal prism (the thread and the chamfers are not
+    modelled), flats parallel to the strut so it reads square-on in plan."""
+    r = across_flats / math.sqrt(3.0)              # centre to corner
+    ring = [[r * math.cos(math.radians(a)), r * math.sin(math.radians(a))]
+            for a in (0, 60, 120, 180, 240, 300)]
+    ring.append(list(ring[0]))
+    return {"shape": "polygon", "name": name, "vertices": ring,
+            "height_ft": height, "center": [cx, cy], "base_z_ft": base}
+
+
+def _trapeze_geometry(v: Dict[str, float]) -> Dict[str, float]:
+    """The derived numbers of a trapeze, in FEET -- shared by the builder and
+    the family parameters so the two can never disagree."""
+    L = float(v["strut_length_in"]) * IN
+    inset = float(v["rod_inset_in"]) * IN
+    n = int(round(float(v["tiers"])))
+    t = float(v["tier_spacing_in"]) * IN
+    H = float(v["height_in"]) * IN
+    d = float(v["rod_diameter_in"]) * IN
+    wt = float(v["washer_thickness_in"]) * IN
+    nut_h = 0.875 * d
+    spacing = L - 2.0 * inset
+    top = (n - 1) * t + H                            # top of the top tier's lips
+    rod_top = top + float(v["rod_above_in"]) * IN
+    rod_bottom = -(wt + nut_h + float(v["rod_below_in"]) * IN)
+    return {"L": L, "inset": inset, "n": n, "t": t, "H": H, "d": d, "wt": wt,
+            "nut_h": nut_h, "nut_af": 1.5 * d, "spacing": spacing, "top": top,
+            "rod_top": rod_top, "rod_bottom": rod_bottom,
+            "rod_length": rod_top - rod_bottom}
+
+
+def _strut_trapeze(v: Dict[str, float]) -> List[Dict[str, Any]]:
+    """A strut TRAPEZE hanger: ``tiers`` lengths of channel, open side up, hung
+    on two vertical threaded rods, each tier clamped at each rod by a square
+    washer and a hex nut BELOW the channel back and a washer and nut ON the
+    lips.  The insertion point is the underside of the bottom tier's channel,
+    midway between the rods."""
+    g = _trapeze_geometry(v)
+    if not (1 <= g["n"] <= 6) or abs(float(v["tiers"]) - g["n"]) > 1e-9:
+        raise ArchetypeError(f"a trapeze takes 1 to 6 whole tiers, not {float(v['tiers']):g}")
+    if g["d"] <= 0:
+        raise ArchetypeError("a trapeze needs a positive rod diameter")
+    if g["spacing"] <= g["nut_af"]:
+        raise ArchetypeError(
+            f"rods {g['inset'] / IN:g} in in from each end of a {g['L'] / IN:g} in "
+            f"strut leave no room between them")
+    if g["inset"] < float(v["washer_size_in"]) * IN / 2.0:
+        raise ArchetypeError(
+            f"a {g['inset'] / IN:g} in rod inset puts the "
+            f"{float(v['washer_size_in']):g} in washer past the end of the strut")
+    if g["n"] > 1 and g["t"] <= g["H"] + 2.0 * (g["wt"] + g["nut_h"]):
+        raise ArchetypeError(
+            f"{float(v['tier_spacing_in']):g} in between tiers does not clear one "
+            f"channel and its nuts and washers")
+    if g["d"] >= float(v["width_in"]) * IN:
+        raise ArchetypeError("the rod is wider than the channel it passes through")
+    chan = {k: v[k] for k in ("height_in", "width_in", "thickness_in", "lip_in",
+                              "slot_length_in", "slot_spacing_in")}
+    chan["length_ft"] = g["L"]
+    one_tier = _strut_channel(chan)
+    ws = float(v["washer_size_in"]) * IN
+    parts: List[Dict[str, Any]] = []
+    for i in range(g["n"]):
+        z0 = i * g["t"]
+        tier = f"tier {i + 1}"
+        for p in one_tier:
+            q = dict(p)
+            q["name"] = f"{tier} {p['name']}"
+            q["base_z_ft"] = float(p.get("base_z_ft") or 0.0) + z0
+            parts.append(q)
+        for side, x in (("left", -g["spacing"] / 2.0), ("right", g["spacing"] / 2.0)):
+            below_w = z0 - g["wt"]
+            parts.append(_box(f"{tier} washer below {side}", ws, ws, g["wt"], x, 0.0, below_w))
+            parts.append(_hex_nut(f"{tier} nut below {side}", g["nut_af"], g["nut_h"],
+                                  x, 0.0, below_w - g["nut_h"]))
+            above = z0 + g["H"]
+            parts.append(_box(f"{tier} washer above {side}", ws, ws, g["wt"], x, 0.0, above))
+            parts.append(_hex_nut(f"{tier} nut above {side}", g["nut_af"], g["nut_h"],
+                                  x, 0.0, above + g["wt"]))
+    for side, x in (("left", -g["spacing"] / 2.0), ("right", g["spacing"] / 2.0)):
+        parts.append({"shape": "cylinder", "name": f"threaded rod {side}",
+                      "radius_ft": g["d"] / 2.0, "height_ft": g["rod_length"],
+                      "center": [x, 0.0], "base_z_ft": g["rod_bottom"]})
+    if len(parts) > MAX_PARTS:
+        raise ArchetypeError(f"{len(parts)} parts is past the {MAX_PARTS}-part budget "
+                             f"for one family")
+    return parts
+
+
+def _trapeze_params(v: Dict[str, float]) -> Dict[str, Any]:
+    """Every dimension a user adjusts on a trapeze, as a family parameter (feet
+    internally for lengths), plus the derived ones a schedule wants."""
+    g = _trapeze_geometry(v)
+    ft = lambda key: float(v[key]) * IN            # noqa: E731
+    return {
+        "Number of Tiers": ("integer", g["n"]),
+        "Strut Length": ("length", g["L"]),
+        "Rod Spacing": ("length", g["spacing"]),
+        "Rod Inset": ("length", g["inset"]),
+        "Tier Spacing": ("length", g["t"]),
+        "Rod Diameter": ("length", g["d"]),
+        "Rod Length": ("length", g["rod_length"]),
+        "Rod Above Top Tier": ("length", ft("rod_above_in")),
+        "Rod Below Bottom Nut": ("length", ft("rod_below_in")),
+        "Strut Height": ("length", g["H"]),
+        "Strut Width": ("length", ft("width_in")),
+        "Strut Thickness": ("length", ft("thickness_in")),
+        "Slot Length": ("length", ft("slot_length_in")),
+        "Slot Spacing": ("length", ft("slot_spacing_in")),
+        "Washer Size": ("length", ft("washer_size_in")),
+        "Washer Thickness": ("length", g["wt"]),
+        "Nut Across Flats": ("length", g["nut_af"]),
+        "Overall Height": ("length", g["rod_length"]),
+    }
+
+
 # ---------------------------------------------------------------------------
 # THE REGISTRY.  One entry + one builder = one more product.
 # ---------------------------------------------------------------------------
@@ -679,6 +804,92 @@ _register(Archetype(
 ))
 
 
+_register(Archetype(
+    key="strut_trapeze",
+    title="Strut Trapeze",
+    category="generic_model",
+    basis=("standard trapeze hanger practice: 1-5/8 in metal framing channel, open "
+           "side up, hung on two all-thread rods with a square washer and hex nut "
+           "above and below each tier. Nominal sizes for the product CLASS -- no "
+           "manufacturer's part is claimed"),
+    lod_note=("every tier's real C section (back, webs, inturned lips, the back "
+              "slots genuinely absent), both threaded rods full length, and a "
+              "square washer + hex nut above and below each tier at each rod"),
+    limits=("the rod threads and the nut chamfers are not modelled; a rod is a "
+            "plain cylinder at its nominal diameter",
+            "the rod holes are not cut: the rod passes through the channel back",
+            "the beam clamp / anchor at the rod top is not modelled",
+            "the section is authored square-cornered; the forming radii are not",
+            "PARAMETERS CARRY VALUES, THEY DO NOT YET DRIVE THE GEOMETRY: editing "
+            "Strut Length or Tier Spacing in Revit does not move the solids (the "
+            "parametric drive has no desktop verdict, #372 / #787) -- a different "
+            "size is a re-generation with the new numbers"),
+    aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
+    patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
+              r"(?:\s+(?:hangers?|supports?|racks?))?",
+              r"trapeze\s+hangers?"),
+    params=(
+        Param("strut_length_in", "Strut Length", 30.0, "in",
+              "a 30 in strut: 24 in between rods with the rods 3 in in from each end",
+              aliases=("long", "length", "strut length", "wide", "width",
+                       "trapeze length", "trapeze width"),
+              choices=(18.0, 24.0, 30.0, 36.0, 42.0, 48.0), primary=True),
+        Param("tiers", "Number of Tiers", 2.0, "count",
+              "two tiers, as asked for most often; 1 to 6",
+              aliases=("tier", "tiers", "level", "levels", "tier trapeze"),
+              choices=(1.0, 2.0, 3.0, 4.0), minimum=1.0),
+        Param("tier_spacing_in", "Tier Spacing", 12.0, "in",
+              "12 in between tiers, centre to centre",
+              aliases=("tier spacing", "tier to tier"),
+              choices=(8.0, 10.0, 12.0, 18.0, 24.0)),
+        Param("rod_inset_in", "Rod Inset", 3.0, "in",
+              "the rod 3 in in from each end of the strut",
+              aliases=("rod inset", "inset", "overhang", "rod from end")),
+        Param("rod_diameter_in", "Rod Diameter", 0.375, "in",
+              "3/8 in all-thread, the common trapeze rod; 1/2, 5/8 and 3/4 in for "
+              "heavier loads",
+              aliases=("rod diameter", "threaded rod", "all thread",
+                       "all-thread", "rod size"),
+              choices=(0.375, 0.5, 0.625, 0.75)),
+        Param("rod_above_in", "Rod Above Top Tier", 24.0, "in",
+              "24 in of rod above the top tier, up to the structure",
+              aliases=("rod above", "drop", "rod drop", "above top tier",
+                       "to structure")),
+        Param("rod_below_in", "Rod Below Bottom Nut", 1.0, "in",
+              "1 in of rod left below the bottom nut",
+              aliases=("rod below", "rod tail", "below bottom nut")),
+        Param("height_in", "Strut Height", 1.625, "in",
+              "the 1-5/8 in standard channel height",
+              aliases=("strut height", "channel height", "section height")),
+        Param("width_in", "Strut Width", 1.625, "in",
+              "the 1-5/8 in standard channel width",
+              aliases=("strut width", "channel width", "section width")),
+        Param("thickness_in", "Strut Thickness", 0.105, "in",
+              "12 gauge (0.105 in), the common structural weight",
+              aliases=("thickness", "strut thickness")),
+        Param("lip_in", "Lip", 0.5, "in",
+              "the inturned lip that the channel nut turns against",
+              aliases=("lip",)),
+        Param("slot_length_in", "Slot Length", 1.125, "in",
+              "the standard 1-1/8 in slot; 0 = a solid back",
+              aliases=("slot length",), allow_zero=True),
+        Param("slot_spacing_in", "Slot Spacing", 2.0, "in",
+              "slots on 2 in centres; 0 = a solid back",
+              aliases=("slot spacing", "slot centers", "slot centres"), allow_zero=True),
+        Param("washer_size_in", "Washer Size", 1.625, "in",
+              "the 1-5/8 in square strut washer",
+              aliases=("washer size",)),
+        Param("washer_thickness_in", "Washer Thickness", 0.25, "in",
+              "a 1/4 in thick square washer",
+              aliases=("washer thickness",)),
+    ),
+    build=_strut_trapeze,
+    family_params=_trapeze_params,
+    name_bits=lambda v: [f"{int(round(float(v['tiers'])))} Tier"],
+    standard_values=lambda v: {"Material": "steel"},
+))
+
+
 def keys() -> Tuple[str, ...]:
     return tuple(sorted(ARCHETYPES))
 
@@ -755,7 +966,10 @@ def _to_number(raw: str) -> Optional[float]:
 def _convert(value: float, unit_found: str, p: Param) -> Optional[float]:
     """A number the prompt gave in ``unit_found`` expressed in the parameter's
     own unit.  A unit the parameter cannot mean (feet for a sheet thickness is
-    fine; there is no rule against it) simply converts."""
+    fine; there is no rule against it) simply converts.  A COUNT takes a bare
+    number only ("2 tier"); "2 in tiers" is not a count."""
+    if p.unit == "count":
+        return value if unit_found == "count" else None
     ft = {"in": value * IN, "ft": value, "mm": value * MM}.get(unit_found)
     if ft is None:
         return None
@@ -1367,6 +1581,7 @@ def _name(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str], *,
     length = next((p for p in arch.params if p.key == "length_ft"), None)
     if length is not None:
         bits.append(length.display(vals[length.key]))
+    bits.extend(arch.name_bits(vals))
     if clearance and arch.working_space:
         bits.append("with NEC Clearance")
     return " ".join(bits)
