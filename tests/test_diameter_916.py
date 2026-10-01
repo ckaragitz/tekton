@@ -215,7 +215,10 @@ def test_two_specs_share_one_diameter_style():
     [{"caption": "Rod Diameter", "parts": []}],               # nothing to label
     [{"caption": "Rod Diameter", "parts": ["rod", "rod"]}],   # listed twice
     [{"caption": "Rod Diameter", "parts": ["rod", "pin", "plate"]}],  # one bad of three
-], ids=["value", "spec", "param", "box", "part", "empty", "twice", "partial"])
+    [{"caption": "Rod Diameter", "parts": 5}],                # parts not a list
+    [{"caption": "Rod Diameter", "parts": True}],             # parts not a list
+], ids=["value", "spec", "param", "box", "part", "empty", "twice", "partial",
+        "parts-int", "parts-bool"])
 def test_a_refused_spec_leaves_the_file_byte_identical(bad):
     prod = _build(bad)
     assert prod.diameters["wired"] == 0 and len(prod.diameters["refused"]) == 1
@@ -238,6 +241,11 @@ def test_a_horizontal_cylinder_is_refused_with_the_file_untouched(shape):
     assert prod.diameters["wired"] == 0 and len(prod.diameters["refused"]) == 1
     assert any("rotated B-rep" in n for n in prod.doc.notes)
     assert _sha(prod) == _sha(build())
+    # mixed with a good spec: the good one still wires, refusals stay in order
+    mixed = build([{"caption": "Pin Diameter", "parts": ["bar"]}, GOOD[0]])
+    assert (mixed.diameters["specs"], mixed.diameters["wired"]) == (2, 1)
+    assert [r["caption"] for r in mixed.diameters["refused"]] == ["Pin Diameter"]
+    assert _sha(mixed) == _sha(build(GOOD))
 
 
 def test_the_good_spec_does_change_the_file():
@@ -251,7 +259,7 @@ def test_wire_diameter_refusals_leave_the_document_untouched():
     calls = {}
     orig = DM.wire_diameter_specs
 
-    def probe(doc, specs, sketch_of):
+    def probe(doc, specs, sketch_of, rotated=None):
         n0 = len(doc.elements)
         for caption, names in (("Wrong Diameter", ["rod"]), ("Count", ["rod"]),
                                ("Rod Diameter", ["plate"])):

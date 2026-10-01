@@ -1398,17 +1398,8 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                     # authoring circle, NOT the drawn (rotated) geometry, so
                     # a label there drives nothing Revit draws (#591 round 4)
                     rotated.add(n)
-        specs = list(diameters)
-        kept = [sp for sp in specs if not (isinstance(sp, dict)
-                and any(str(n) in rotated for n in (sp.get("parts") or ())))]
-        diameter_report = DM.wire_diameter_specs(doc, kept, circle_of)
-        diameter_report["specs"] = len(specs)
-        for sp in specs:
-            if sp not in kept:
-                diameter_report["refused"].append({
-                    "caption": sp.get("caption"),
-                    "why": "a horizontal (rotated B-rep) cylinder: no in-plane mechanism "
-                           "is probed off the plan plane"})
+        diameter_report = DM.wire_diameter_specs(doc, list(diameters), circle_of,
+                                                 rotated=rotated)
         for r in diameter_report["refused"]:
             doc.notes.append(f"diameter for {r['caption']!r} not wired ({r['why'][:90]})")
         if diameter_report["wired"]:

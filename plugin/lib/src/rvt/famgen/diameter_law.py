@@ -304,10 +304,13 @@ def wire_diameter(doc, *, caption: str, sketches: Sequence[Any]) -> Dict[str, An
 
 
 def wire_diameter_specs(doc, specs: Sequence[Dict[str, Any]],
-                        sketch_of: Dict[str, Optional[Any]]) -> Dict[str, Any]:
+                        sketch_of: Dict[str, Optional[Any]],
+                        rotated: Optional[set] = None) -> Dict[str, Any]:
     """Wire ``[{"caption", "parts": [part name, ...]}]``; each spec is
     all-or-nothing, a refused one is reported (never raised) so delivery is
-    never blocked (hard rule 1)."""
+    never blocked (hard rule 1).  ``rotated`` names parts whose B-rep is
+    rotated (cylinder_x / cylinder_y): their sketch is the vertical AUTHORING
+    circle, not the drawn geometry, so a spec naming one is refused (#929)."""
     rep: Dict[str, Any] = {"specs": len(specs), "wired": 0, "dims": 0,
                            "captions": [], "refused": []}
     for spec in specs:
@@ -317,6 +320,11 @@ def wire_diameter_specs(doc, specs: Sequence[Dict[str, Any]],
             bad = [n for n in names if sketch_of.get(n) is None]
             if bad or not names:
                 raise DiameterError(f"part name(s) missing or not unique: {bad[:4]}")
+            off = [n for n in names if n in (rotated or ())]
+            if off:
+                raise DiameterError(
+                    f"{off[:4]}: a horizontal (rotated B-rep) cylinder -- no in-plane "
+                    "mechanism is probed off the plan plane")
             r = wire_diameter(doc, caption=spec["caption"],
                               sketches=[sketch_of[n] for n in names])
         except Exception as e:                       # noqa: BLE001 -- never block delivery
