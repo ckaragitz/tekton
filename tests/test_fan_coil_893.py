@@ -336,3 +336,9 @@ def test_a_second_conduit_connector_points_at_the_domain_primary():
     assert b.obj["m_index"] == a.obj["m_index"] + 1
     with pytest.raises(F.FactoryError):
         MC.add_conduit_connector(doc, location=(0.2, 0, 0.5), primary=True, **kw)
+
+
+def test_the_square_fallback_keeps_an_x_axis_cylinder_along_x():
+    p = {"shape": "cylinder_x", "role": "r", "r": 0.25, "length": 1.0, "zc": 1.0, "cx": 0.0, "cy": 0.0}
+    s = FC._square(p)
+    assert (s["w"], s["d"], s["h"], s["z0"]) == (1.0, 0.5, 0.5, 0.75)

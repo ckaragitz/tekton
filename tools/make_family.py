@@ -273,6 +273,16 @@ def cmd_fan_coil(ns) -> int:
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
+def cmd_fan_powered(ns) -> int:
+    from rvt.famgen import fan_powered as FPB
+    prod = FPB.make_fan_powered_box(kind=ns.kind, length_in=ns.length, width_in=ns.width,
+                                    height_in=ns.height, inlet_in=ns.inlet, reheat=ns.reheat,
+                                    voltage=ns.voltage, phases=ns.phases,
+                                    voltage_to_ground=ns.voltage_to_ground,
+                                    shared_params=_shared_arg(ns))
+    return 0 if _emit(prod, ns)["ok"] else 1
+
+
 def cmd_proofs(ns) -> int:
     return F.main([] if not ns.no_validate else ["--no-validate"])
 
@@ -622,6 +632,25 @@ def main(argv=None) -> int:
     p.add_argument("--json", action="store_true")
     p.add_argument("--no-validate", action="store_true")
     p.set_defaults(func=cmd_fan_coil, types=None, type_catalog=False)
+
+    p = sub.add_parser("fan-powered-box", help="generate a series or parallel fan-powered "
+                                               "terminal unit (#895)")
+    p.add_argument("--kind", default="series", choices=["series", "parallel"])
+    p.add_argument("--reheat", default="none", choices=["none", "hot_water", "electric"])
+    p.add_argument("--length", type=float, default=None, help="casing length, airflow (in)")
+    p.add_argument("--width", type=float, default=None, help="casing width (in)")
+    p.add_argument("--height", type=float, default=None, help="casing height (in)")
+    p.add_argument("--inlet", type=float, default=None, help="primary inlet diameter (in)")
+    p.add_argument("--voltage", type=float, default=None, help="supply voltage (V); 277 assumed if omitted")
+    p.add_argument("--phases", type=int, default=None, help="1 or 3; single-phase assumed if omitted")
+    p.add_argument("--voltage-to-ground", type=float, default=None,
+                   help="the system's voltage to ground (V) for the NEC working space")
+    p.add_argument("--shared-params", default=None, metavar="FILE")
+    _profile_flags(p)
+    p.add_argument("-o", "--output", default=None)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--no-validate", action="store_true")
+    p.set_defaults(func=cmd_fan_powered, types=None, type_catalog=False)
 
     p = sub.add_parser("proofs", help="build the three proof families")
     p.add_argument("--no-validate", action="store_true")
