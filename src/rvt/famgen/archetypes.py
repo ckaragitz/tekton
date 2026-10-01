@@ -890,7 +890,13 @@ _register(Archetype(
     limits=("a loadable family in Cable Tray Fittings: Revit's drawable Cable Trays "
             "element is a SYSTEM family and generates its own straight-run geometry "
             "(issue #608), so this section is placed, not routed",
-            "splice plates, hold-down clamps and grounding lugs are not modelled"),
+            "splice plates, hold-down clamps and grounding lugs are not modelled",
+            "CONSTRAINTS AUTHORED (assembled family unverified): Tray Width and Length "
+            "drive the geometry with the rails riding them; each mechanism is "
+            "desktop-verified on its own, this family has no verdict of its own",
+            "Rung Spacing, Rail Thickness, Rail Flange, Rung Width and Rung Thickness "
+            "are values only -- editing them does not move the geometry; the rungs "
+            "keep their pitch when Length flexes and the end bays absorb it"),
     aliases=("ladder tray", "cable ladder"),
     patterns=(r"cable\s+trays?", r"cable\s+ladders?", r"ladder\s+trays?",
               r"\btrays?\b(?!\s*(?:ceil|table))"),
@@ -945,7 +951,12 @@ _register(Archetype(
               "with a slot spacing the back is authored as the material BETWEEN the "
               "slots, so the slots are genuinely absent"),
     limits=("hole patterns other than the back slots are not modelled",
-            "the section is authored square-cornered; the forming radii are not"),
+            "the section is authored square-cornered; the forming radii are not",
+            "CONSTRAINTS AUTHORED (assembled family unverified): Length and Section "
+            "Width drive the geometry with the webs and lips riding them; this family "
+            "has no desktop verdict of its own",
+            "Section Height, Material Thickness, Lip, Slot Length and Slot Spacing are "
+            "values only -- editing them does not move the geometry"),
     aliases=("unistrut", "metal framing channel", "strut"),
     patterns=(r"strut\s+channels?", r"\bstruts?\b", r"metal\s+framing\s+channels?",
               r"channel\s+framing", r"\bunistruts?\b"),
@@ -988,7 +999,12 @@ _register(Archetype(
            "CLASS -- no manufacturer's catalog record is claimed"),
     lod_note="bottom, two sides and the removable cover -- an open-ended trough",
     limits=("knockouts, the hinge and the cover screws are not modelled",
-            "an NEMA enclosure rating is a parameter slot, not a claim"),
+            "an NEMA enclosure rating is a parameter slot, not a claim",
+            "CONSTRAINTS AUTHORED (assembled family unverified): Wireway Width and "
+            "Length drive the geometry with the sides riding Wireway Width; this "
+            "family has no desktop verdict of its own",
+            "Wireway Height and Sheet Thickness are values only -- editing them does "
+            "not move the geometry"),
     aliases=("square duct", "auxiliary gutter", "lay-in wireway"),
     patterns=(r"wire\s*ways?", r"square\s+ducts?", r"auxiliary\s+gutters?"),
     params=(
@@ -1063,7 +1079,12 @@ _register(Archetype(
            "in the 16-gauge range. Nominal sizes for the product CLASS"),
     lod_note="the back, four walls and the screw cover",
     limits=("knockouts and the cover screws are not modelled",
-            "an NEMA enclosure rating is a parameter slot, not a claim"),
+            "an NEMA enclosure rating is a parameter slot, not a claim",
+            "CONSTRAINTS AUTHORED (assembled family unverified): Box Width and Box "
+            "Height drive the geometry with the walls riding and stretching with them; "
+            "this family has no desktop verdict of its own",
+            "Box Depth and Sheet Thickness are values only -- editing them does not "
+            "move the geometry"),
     aliases=("pull box", "j-box"),
     patterns=(r"junction\s+box(?:es)?", r"pull\s+box(?:es)?", r"\bj-?\s*box(?:es)?\b"),
     params=(

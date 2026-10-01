@@ -726,6 +726,10 @@ def wire_attach(doc, *, items, axis: str) -> Dict[str, Any]:
 
     All-or-nothing: every item is checked before the first mutation."""
     from . import param_drive as PD
+    if doc.finalized:
+        raise RuntimeError("drive_law: document is finalized")
+    if axis not in ("x", "y"):
+        raise ValueError(f"drive_law: attach axis must be 'x' or 'y', not {axis!r}")
     k = 0 if axis == "x" else 1
     locked = {cid for al in _sketch_locks(doc) for cid in _witness_ids(al)}
     claimed: set = set()
