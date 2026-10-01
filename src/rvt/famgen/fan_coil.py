@@ -23,9 +23,10 @@ Every dimension is ``nominal`` (S-2026-08-10-e) unless the caller gives it: the
 class proportions above, never a manufacturer's drawing, model or part number.
 
 WHAT THE FILE DOES NOT CARRY YET: hydronic (pipe) and duct CONNECTORS -- the writer
-authors electrical connectors only, so the coil, drain and duct connections are
-geometry, said in the notes.  The unit's one electrical connector sits on the
-disconnect.  "Behaves in Revit" is claimed only with a desktop verdict (hard rule 4).
+authors power and conduit connectors only (#894: no hydronic or duct specimen pins
+their system), so the coil, drain and duct connections are
+geometry, said in the notes.  The unit's power connector and its feeder's conduit
+connector sit on the disconnect.  "Behaves in Revit" is claimed only with a desktop verdict (hard rule 4).
 
 Clearance: the NEC 110.26(A) working space in front of the DISCONNECT's face,
 toggleable and magenta like every equipment family (steer #882 / #884).  A
@@ -311,13 +312,13 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
             f"{'fused' if fused else 'non-fused'} disconnect ({sw}) with handle, rating label "
             f"and conduit hub")
     if not cabinet_only:
-        doc.notes.append("pipe / duct connectors are NOT authored (the writer authors electrical "
-                         "connectors only): the coil, drain and duct connections are geometry "
+        doc.notes.append("pipe / duct connectors are NOT authored (the writer authors power and "
+                         "conduit connectors only): the coil, drain and duct connections are geometry "
                          "-- draw pipe and duct to them by eye")
     else:
         doc.notes.append("pipe / duct connectors are NOT authored, and with the end hardware "
                          "left out there are no coil, drain or duct stubs to draw to")
-    # the one electrical connector: on the disconnect's top, where the feeder enters
+    # the power connector: on the disconnect's top, where the feeder enters
     # (on the cabinet's top at the electrical end when there is no room for one)
     if host_disc is not None:
         fdisc, pd = host_disc

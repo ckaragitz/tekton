@@ -10,8 +10,15 @@ WHAT THE CORPUS PINS (the owner's reference library, 421 families read inside th
 own releases; counts only, the corpus stays quarantined -- hard rule 3, rule 6):
 
 * 392 ``ConnectorElemDomainCableTrayConduit`` connectors in 166 families.  Every
-  one has ``m_eSystemType`` 32; ``m_eProfileType`` 0 (round, 262) or 1 (rectangular,
+  one has ``m_eSystemType`` 32; ``m_eProfileType`` 0 (round, 267) or 1 (rectangular,
   125); ``m_ePlacementType`` 0 (387 of 392).  A round one keeps width = height = 1.0.
+* ONE PRIMARY PER DOMAIN, the others pointing at it: the 166 primaries carry
+  ``m_idPrimaryElem`` = their own id; all 226 non-primaries carry the domain's primary
+  conduit connector there and list it in their header's deletion parents (a law of the
+  conduit domain: the corpus's non-primary power connectors point at themselves).
+  Every corpus connector is a 2025 file, so release state cannot be split from
+  regeneration state; what the corpus shows is that the shell does not depend on
+  the domain.
 * ``m_dConnectorDiameter`` stores the DIAMETER: where it is bound to a family
   parameter through the diameter property (-1133415) the two are equal (90 / 90);
   through the radius property (-1133401) the stored value is twice the parameter
@@ -85,8 +92,14 @@ def add_conduit_connector(doc, *, host: Any, face: str, location: Sequence[float
     mep = getattr(doc, "mep_connectors", None)
     if mep is None:
         mep = doc.mep_connectors = []
+    prim = next((c for c in mep if c.obj["m_pDomain"]["value"]["m_bIsPrimaryConnector"]), None)
     if primary is None:
-        primary = not any(c.obj["m_pDomain"]["value"]["m_bIsPrimaryConnector"] for c in mep)
+        primary = prim is None
+    if primary and prim is not None:
+        raise F.FactoryError("the family already has a primary conduit connector (one per domain)")
+    if not primary and prim is None:
+        raise F.FactoryError("a non-primary conduit connector points at its domain's primary: "
+                             "add the primary one first")
     fx = F.box_face(face)
     bindings = []
     if bind_diameter_param:
@@ -103,6 +116,13 @@ def add_conduit_connector(doc, *, host: Any, face: str, location: Sequence[float
     con.obj["m_pDomain"] = {"ptr_class": DOMAIN_CLASS, "pid": -1,
                             "value": conduit_domain(diameter_ft, primary=bool(primary),
                                                     description=description)}
+    if not primary:
+        # the corpus law: a non-primary conduit connector points at its domain's
+        # primary and depends on it (226 / 226)
+        con.obj["m_idPrimaryElem"] = int(prim.elem_id)
+        dele = con.header["m_parents"]["value"]["m_deletion"]
+        dele.append(int(prim.elem_id))
+        dele.sort()
     con.notes[:] = [f"conduit connector (#894), {diameter_ft * 12:g} in, on the {face} face "
                     f"(tag {fx['tag']}); domain pinned from the corpus, seq103=SerializedDummy"]
     con.refs["domain"] = "conduit"

@@ -7,7 +7,8 @@ disconnect, built from its researched parts.
   label, conduit hub -- on the ELECTRICAL end (+y), opposite the coil connections;
 * every dimension ``nominal`` unless given, the disconnect's 30 A frame / 15 A fuses
   ``given``, the voltage an assumption unless given;
-* ONE electrical connector, on the disconnect's top, bound to Voltage;
+* one power connector, on the disconnect's top, bound to Voltage, and the feeder's
+  conduit connector at the same point (#894);
 * the NEC working space in front of the disconnect, magenta, bound to
   ``and(Show Clearances, Show Front Clearance)``;
 * VALID, 0 errors, on 2026 and inside the 2025 build context.
@@ -313,3 +314,25 @@ def test_conduit_domain_refuses_a_non_positive_diameter():
     from rvt.famgen import mep_connectors as MC
     with pytest.raises(ValueError):
         MC.conduit_domain(0.0)
+
+
+def test_a_second_conduit_connector_points_at_the_domain_primary():
+    """The corpus law (226 / 226): a non-primary conduit connector carries its domain's
+    primary in m_idPrimaryElem and depends on it; a second primary is refused."""
+    from rvt.famgen import factory as F
+    from rvt.famgen import mep_connectors as MC
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_fixture", "jb")
+    box = F.add_box_form(doc, 0.5, 0.5, 0.5)
+    kw = dict(host=box, face="top", direction=(0, 0, 1), u_axis=(1, 0, 0), diameter_ft=0.0625)
+    with pytest.raises(F.FactoryError):
+        MC.add_conduit_connector(doc, location=(0, 0, 0.5), primary=False, **kw)
+    a = MC.add_conduit_connector(doc, location=(0, 0, 0.5), **kw)
+    b = MC.add_conduit_connector(doc, location=(0.1, 0, 0.5), **kw)
+    assert a.obj["m_pDomain"]["value"]["m_bIsPrimaryConnector"]
+    assert not b.obj["m_pDomain"]["value"]["m_bIsPrimaryConnector"]
+    assert (a.obj["m_idPrimaryElem"], b.obj["m_idPrimaryElem"]) == (a.elem_id, a.elem_id)
+    assert a.elem_id in b.header["m_parents"]["value"]["m_deletion"]
+    assert b.obj["m_index"] == a.obj["m_index"] + 1
+    with pytest.raises(F.FactoryError):
+        MC.add_conduit_connector(doc, location=(0.2, 0, 0.5), primary=True, **kw)
