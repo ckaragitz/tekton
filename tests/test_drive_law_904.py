@@ -81,13 +81,57 @@ def test_wire_linear_drive_on_both_axes():
         assert ids <= set(sk.header["m_parents"]["value"]["m_deletion"])
 
 
-def test_an_unknown_side_is_refused_before_any_mutation():
-    from rvt.famgen import skeleton as SK
-    prod = F.make_generic_model(parts=[dict(BOX)], name="x",
-                                numeric_params={"Run": ("length", 2.0)},
-                                drives=[{"caption": "Run", "axis": "x", "lo": -1, "hi": 1,
-                                         "parts": {"body": ("lo", "middle")}}])
-    assert prod.drives == [] and len(prod.doc.by_class("Alignment")) == 0
+def _same_as_control(prod, control):
+    for cls in ("RefPlane", "Alignment", "LinearDimString"):
+        assert len(prod.doc.by_class(cls)) == len(control.doc.by_class(cls)), cls
+    assert all(not sk.obj.get("m_dimIds") for sk in prod.doc.by_class("VarSketch"))
+    assert not getattr(prod.doc, "born_drive_law", False)
+
+
+TWO = [dict(BOX, name="wide", width_ft=3.0), dict(BOX, name="narrow", center=[0.0, 2.0])]
+TILTED = [{"shape": "polygon", "name": "tilt", "height_ft": 1.0,
+           "vertices": [[-0.866, -0.5], [0.866, 0.5], [0.366, 1.366], [-1.366, 0.366],
+                        [-0.866, -0.5]]}]
+
+
+@pytest.mark.parametrize("parts, params, spec", [
+    # the #907 round-3 review's cases -- each built a VALID, wrong file
+    (TWO, {"Run": ("length", 3.0)},                       # (i) an edge off its plane
+     {"caption": "Run", "axis": "x", "lo": -1.5, "hi": 1.5,
+      "parts": {"wide": ("lo", "hi"), "narrow": ("lo", "hi")}}),
+    (TILTED, {"Run": ("length", 2.0)},                    # (ii) a rotated rectangle
+     {"caption": "Run", "axis": "x", "lo": -1.0, "hi": 1.0, "parts": {"tilt": ("lo", "hi")}}),
+    ([dict(BOX)], {"Run": ("length", 2.0)},               # (iii) lo > hi
+     {"caption": "Run", "axis": "x", "lo": 1.0, "hi": -1.0, "parts": {"body": ("lo", "hi")}}),
+    ([dict(BOX)], {"Run": ("length", 2.0)},               # (iv) a NaN plane
+     {"caption": "Run", "axis": "x", "lo": float("nan"), "hi": 1.0,
+      "parts": {"body": ("lo", "hi")}}),
+    ([dict(BOX)], {"Run": ("text", "abc")},               # (v) a text parameter
+     {"caption": "Run", "axis": "x", "lo": -1.0, "hi": 1.0, "parts": {"body": ("lo", "hi")}}),
+    ([dict(BOX)], {"Run": ("length", 2.0)},               # an unknown side
+     {"caption": "Run", "axis": "x", "lo": -1, "hi": 1, "parts": {"body": ("lo", "middle")}}),
+    (TWO, {"Run": ("length", 3.0)},                       # a name matching no part
+     {"caption": "Run", "axis": "x", "lo": -1.5, "hi": 1.5,
+      "parts": {"wide": ("lo", "hi"), "ghost": ("lo",)}}),
+    ([dict(BOX), dict(BOX, center=[0.0, 2.0])], {"Run": ("length", 2.0)},  # a duplicate name
+     {"caption": "Run", "axis": "x", "lo": -1, "hi": 1, "parts": {"body": ("lo", "hi")}}),
+])
+def test_a_drive_that_would_be_wrong_is_refused_before_any_mutation(parts, params, spec):
+    prod = F.make_generic_model(parts=[dict(p) for p in parts], name="x",
+                                numeric_params=params, drives=[spec])
+    control = F.make_generic_model(parts=[dict(p) for p in parts], name="x",
+                                   numeric_params=params)
+    assert prod.drives == []
+    assert any("not wired" in n for n in prod.doc.notes)
+    _same_as_control(prod, control)
+
+
+def test_the_notes_say_what_the_document_carries():
+    """No "REPORTED only" next to a wired drive (#907 review round 3)."""
+    prod = F.make_archetype(product="strut_trapeze",
+                            prompt="a 2 tier slotted trapeze with threaded rod")
+    assert not any("REPORTED only" in n for n in prod.doc.notes)
+    assert any(n.startswith("parameter drives wired: Strut Length moves 20") for n in prod.doc.notes)
 
 
 def test_a_drive_naming_no_part_is_noted_never_raised():
@@ -122,6 +166,9 @@ def test_a_solid_back_trapeze_drives_the_whole_back():
 
 def test_the_probe_tool_stages_a_pair_differing_in_one_field():
     out = tempfile.mkdtemp(prefix="t904_")
+    import shutil
+    import atexit
+    atexit.register(shutil.rmtree, out, True)
     proc = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "drive_probe.py"), out],
                           capture_output=True, text=True, timeout=600, cwd=ROOT)
     assert proc.returncode == 0, proc.stderr

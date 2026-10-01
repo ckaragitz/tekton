@@ -60,8 +60,9 @@ Read-back showed they differ in exactly one header field. Test: Width from
   - Every tier's webs and lips follow on both ends.
   - A slotted back's first and last segments follow on their outer end.
   - At the defaults: 12 parts, 20 locks, one labelled dimension.
-  - The archetype's `limits` say it is **wired, with no verdict for this family
-    yet**.
+  - The archetype's `limits` cite the owner's verdict on #904: Strut Length
+    drives the strut ends. They also say the rods and hardware do not follow it
+    yet.
 
 ## Evidence
 
@@ -116,6 +117,32 @@ Read-back showed they differ in exactly one header field. Test: Width from
   the file is identical. The archetype's "(owner's desktop verdict)" refers to
   that run.
 
+## Review round 3 (head `0743de7`, 🛑)
+
+- **`wire_linear_drive` refuses, before its first mutation, every drive that
+  would build a valid but wrong file:**
+  - (i) an edge not on its plane: both ends of each locked edge must sit at the
+    plane coordinate;
+  - (ii) a rotated quad, which `_classify_rect` accepted;
+  - (iii) `lo >= hi`;
+  - (iv) a non-finite plane;
+  - (v) a parameter that is not a length (`m_specTypeId` must be the length
+    spec).
+
+  `targets` is materialised first, because a generator would be spent by the
+  checks.
+- **The factory refuses** a drive naming a part that is missing or not unique,
+  instead of silently dropping the name or driving only the last duplicate.
+- **The notes say what the document carries.** "Parameter drives wired: Strut
+  Length moves 20 part edge(s) on 12 part(s)" replaces the stale "REPORTED only"
+  first-solid note. The law note names the lanes that have verdicts.
+- **A comment records** that the law runs after the content-derived GUID is
+  sealed (#168) and is deterministic.
+- **Text fixes:** the taxonomy note and the limits text are corrected (Rod Spacing
+  stays true after a flex; Rod Inset and Width do not).
+- **Tests:** one per case, each compared with the no-drive control class by class.
+  8 of them fail on the round-2 code.
+
 ## BRANCH STATE
 
 **Files written**
@@ -125,12 +152,12 @@ Read-back showed they differ in exactly one header field. Test: Width from
 - `src/rvt/famgen/archetypes.py`: `Archetype.drives`, `_trapeze_drives`, and the
   limits text.
 - `plugin/lib/…`: mirrors.
-- `tests/test_drive_law_904.py`: new, 7 tests.
+- `tests/test_drive_law_904.py`: new, 18 tests after review round 3.
 - `tests/ci_shard.d/904-drive-law.txt`: new.
 - this fragment.
 
 **Gates**
-- `test_drive_law_904`: 7 passed.
+- `test_drive_law_904`: 18 passed (8 of them fail on the round-2 code, as intended).
 - trapeze, famgen_factory, family_anatomy, param_profile, archetypes, panelboard
   detail, equipment clearance, transformer detail, famgen_adoc, bare family
   validate, route, bootstrap, coldstart and surface_perf suites: 758 passed.
@@ -139,5 +166,7 @@ Read-back showed they differ in exactly one header field. Test: Width from
 
 **Shipped vs staged:**
 - The one-box probe has a desktop verdict.
-- The trapeze's Strut Length drive is shipped wired but unverified; its probe is
-  staged for the owner.
+- The trapeze's Strut Length drive has its desktop verdict (#904), on `f2f8890`;
+  the shipped file differs from that one in one field.
+- The "Follow" probe ladder (9 rungs, for the rods and hardware) is staged with
+  the owner (#904).

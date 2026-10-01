@@ -918,8 +918,9 @@ _register(Archetype(
             "Strut Length DRIVES both strut ends of every tier (owner's desktop "
             "verdict, #904); the threaded rods, washers and nuts do NOT follow it yet "
             "-- they stay where they were generated, so after flexing Strut Length "
-            "the Rod Inset, Rod Spacing and Width values no longer describe the "
-            "geometry; every other parameter carries a value and does not drive it "
+            "the Rod Inset and Width values no longer describe the geometry (Rod "
+            "Spacing still does); every other parameter carries a value and does not "
+            "drive it "
             "-- a different rod spacing, tier spacing or rod size is a re-generation"),
     aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
     patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"

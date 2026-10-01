@@ -1253,15 +1253,25 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     drive_report: List[Dict[str, Any]] = []
     if drives:
         from . import drive_law as DL
-        sketch_of = {}
+        sketch_of: Dict[str, Any] = {}
+        dup: set = set()
         for part, fb in zip(parts, built):
             sk = next((e for e in fb.elements if e.class_name == "VarSketch"), None)
             if sk is not None and part.get("name"):
-                sketch_of[str(part["name"])] = sk
+                n = str(part["name"])
+                if n in sketch_of:
+                    dup.add(n)
+                sketch_of[n] = sk
         for spec in drives:
             try:
+                names = list(spec["parts"])
+                # a name that matches no part, or several, is never silently
+                # dropped (#907 review round 3)
+                bad = [n for n in names if n not in sketch_of or n in dup]
+                if bad:
+                    raise ValueError(f"part name(s) missing or not unique: {bad[:4]}")
                 targets = [(sketch_of[n], tuple(sides))
-                           for n, sides in spec["parts"].items() if n in sketch_of]
+                           for n, sides in spec["parts"].items()]
                 if not targets:
                     raise ValueError("no named part to drive")
                 drive_report.append(DL.wire_linear_drive(
@@ -1273,6 +1283,13 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         # only a document that actually CARRIES a drive is a law document:
         # finalize then skips back-edges and the law runs after it
         doc.born_drive_law = bool(drive_report)
+        if drive_report and not drive:
+            # the first-solid note above described the OLD single-part drive;
+            # replace it with what this document actually carries
+            doc.notes.remove(drive_note)
+            doc.notes.append("parameter drives wired: " + "; ".join(
+                f"{d['caption']} moves {len(d['locks'])} part edge(s) on "
+                f"{d['targets']} part(s)" for d in drive_report))
     doc.notes.append(f"multi-part generic model "
                      f"({_geometry_origin(dim_provenance, source)}): "
                      f"{len(built)} extrusions "

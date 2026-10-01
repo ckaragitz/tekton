@@ -33,7 +33,10 @@ flexes: that is a desktop verdict (hard rule 4).
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Dict, List
+
+from .skeleton import SPEC_LENGTH
 
 #: the curve GInfo bit set on 24,209 / 24,213 born sketch curves [census]
 CURVE_BORN_BIT = 0x80000
@@ -139,12 +142,16 @@ def apply_born_inplane_law(doc, *, regen_edge: bool = True) -> Dict[str, Any]:
         if el.obj.get("m_constrInfo"):
             el.obj["m_constrInfo"] = []
             rep["constr_info_cleared"] += 1
+    # (runs AFTER finalize sealed the content-derived document GUID (#168):
+    # harmless because this rewrite is a pure function of the document, so two
+    # identical builds still produce identical bytes)
     doc.notes.append(
         "in-plane drive rewritten to the Revit-born law (#787): "
         + ("WITH" if regen_edge else "WITHOUT (control)")
         + f" the sketch regen edge; {len(rep['locks'])} sketch locks view-less, "
         f"{len(rep['labelled'])} labelled dims, {rep['constr_info_cleared']} "
-        "back-edges cleared -- NOT desktop-verified (hard rule 4)")
+        "back-edges cleared -- desktop verdicts are per lane (#787 one box, "
+        "#904 trapeze Strut Length); any other lane is unverified (hard rule 4)")
     return rep
 
 
@@ -184,19 +191,42 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
     if doc.finalized:
         raise RuntimeError("drive_law: document is finalized")
     pe = doc.params[caption]
+    targets = list(targets)            # a generator would be spent by the checks
     # EVERY check before the first mutation: a refused drive must leave the
     # document exactly as it was, not half a chain (#907 review round 2)
-    value = abs(hi - lo)
+    lo, hi = float(lo), float(hi)
+    if not (math.isfinite(lo) and math.isfinite(hi) and lo < hi):
+        raise ValueError(f"drive_law: planes must be finite with lo < hi (got {lo!r}, {hi!r})")
+    pdef = next((v.get("value") or {} for k, v in pe.obj.items()
+                 if k.endswith("aramDef") and isinstance(v, dict)), {})
+    spec = ((pdef.get("m_specTypeId") or {}).get("m_typeId") or "")
+    if spec != SPEC_LENGTH:
+        raise ValueError(f"drive_law: {caption} is not a length parameter ({spec or 'no spec'})")
+    if not targets:
+        raise ValueError("drive_law: no target parts")
+    value = hi - lo
     rows = doc.types[doc.current_type][1] if doc.types else {}
     current = rows.get(pe.elem_id)
     if isinstance(current, (int, float)) and abs(float(current) - value) > 1e-6:
         raise ValueError(f"drive_law: {caption} is {float(current):g} ft but its planes "
                          f"are {value:g} ft apart")
     rects = [PD._classify_rect(PD._sketch_lines(sk)) for sk, _sides in targets]
-    for _sk, sides in targets:
+    side_key = {("x", "lo"): "left", ("x", "hi"): "right",
+                ("y", "lo"): "bottom", ("y", "hi"): "top"}
+    at = {"lo": lo, "hi": hi}
+    k = 0 if axis == "x" else 1
+    for (sk, sides), rect in zip(targets, rects):
         bad = [x for x in sides if (axis, x) not in _SIDE_LAW]
-        if bad:
-            raise ValueError(f"drive_law: unknown side(s) {bad}")
+        if bad or not sides:
+            raise ValueError(f"drive_law: unknown or empty side(s) {list(sides)}")
+        for side in sides:
+            # the edge must LIE ON its plane: both ends at the plane's coordinate
+            # (refuses a rotated quad, crossed planes and an off-plane edge)
+            _cid, a, b = rect[side_key[(axis, side)]]
+            if abs(a[k] - at[side]) > 1e-6 or abs(b[k] - at[side]) > 1e-6:
+                raise ValueError(
+                    f"drive_law: sketch {sk.elem_id}'s {side} edge is not on the "
+                    f"{'xy'[k]} = {at[side]:g} ft plane")
     fam_id = doc.self_family.elem_id
     style_id = int(doc.dim_style_id)
     view_id = int(doc.plan_view_id)
@@ -228,8 +258,6 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
     def _plane_ends(rp):
         return (_p3(rp.obj["m_freeEnd"]), _p3(rp.obj["m_bubbleEnd"]))
 
-    side_key = {("x", "lo"): "left", ("x", "hi"): "right",
-                ("y", "lo"): "bottom", ("y", "hi"): "top"}
     locks: List[int] = []
     for (sk, sides), rect in zip(targets, rects):
         geo_sp = next((e for e in doc.by_class("SketchPlane")
