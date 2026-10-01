@@ -192,6 +192,34 @@ right value, and none drove the geometry (steer #901). The drive is #787's.
   - neighbouring suites plus route and plugin suites: 811 passed / 10 skipped;
   - plugin in sync, validate PASS.
 
+## Review round 3 (head `4f09b6a`, 🛑) — what changed
+
+- **A trapeze length before "strut" / "channel" / "unistrut" is the trapeze's
+  length again.**
+  - The channel's `height_in` / `width_in` now carry `maximum` 4 in.
+  - A noun-lead redirects a value only when it fits that range; otherwise the
+    value falls back to the primary.
+  - "a 36 in strut trapeze", "a 3 ft strut trapeze", "a 24 in unistrut trapeze"
+    and "a 36 in slotted strut trapeze" each give a 36 or 24 in strut and deliver.
+    Round 2 bound a 36 in channel, failed the build and delivered no file.
+- **Bare `apart` / `on center(s)` are no longer rod-spacing aliases.** "tiers 12 in
+  apart" had captured the rod spacing and shrunk the strut. It now binds nothing:
+  honest nominal, with tiers 12 in apart by default.
+- **An out-of-range number is reported, never silently dropped.**
+  `Resolved.out_of_range` lists every phrase stating a bounded dimension that
+  stayed nominal, and the route adds a caveat: `NOT USED: "7 tier" -- a Number of
+  Tiers of that size is outside the range … (up to 6)`.
+- **The restatement scan checks `maximum` too**, consistent with the bind sites.
+- **The #812 cross sweep** gives the channel's 12 x 6 in cross the same in-range
+  stand-ins through `_n`. Unbounded archetypes keep 12 x 6 exactly.
+- **Rebased onto `c56b7cf`** (#902).
+- **Gates:**
+  - trapeze 61 passed;
+  - the #812 suite: 251 passed / 5 xfailed;
+  - all related suites plus route and router, plugin and bootstrap suites:
+    1076 passed / 10 skipped / 5 xfailed;
+  - plugin in sync, validate PASS.
+
 ## BRANCH STATE
 
 **Files written**
@@ -202,7 +230,7 @@ right value, and none drove the geometry (steer #901). The drive is #787's.
   `_caller_param_row` stores an int for integers.
 - `src/rvt/famgen/taxonomy.py`: the `strut_trapeze` kind.
 - `plugin/lib/…`: mirrors (via `sync_plugin.py`).
-- `tests/test_strut_trapeze_899.py`: new, 49 tests after review round 2.
+- `tests/test_strut_trapeze_899.py`: new, 61 tests after review round 3.
 - `src/rvt/frontdoor/router.py`: the archetype status line counts derived values separately.
 - `tests/test_archetype_alias_order_812.py`: `_stray` exempts a verified `settle` derivation; `_sweep` rejects a stated key refilled by settle; `_n` gives bounded params in-range numbers.
 - `tests/ci_shard.d/899-strut-trapeze.txt`: new.

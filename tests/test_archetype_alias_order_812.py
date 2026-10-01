@@ -575,8 +575,8 @@ def _crossed():
             continue
         noun = a.title.split(" - ")[0].lower()
         ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft") and p.key not in cross]
-        dims = (12, 6, 4)[:len(cross)]
-        cx = " x ".join(str(d) for d in dims) + " in"
+        dims = tuple(_n(a.param(k), d) for k, d in zip(cross, (12, 6, 4)))
+        cx = " x ".join(f"{d:g}" for d in dims) + " in"
         pairs = list(itertools.permutations(ps, 2)) or [(p, None) for p in ps]
         for p, q in pairs:
             orders = ("PPQ", "PQP", "QPP", "PQ") if q else ("PP", "P")

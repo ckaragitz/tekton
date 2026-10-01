@@ -1144,6 +1144,11 @@ def _archetype_rfa(res: RouteResult, prompt: str, out_dir: str,
         res.files["archetype"] = rec_path
     except OSError as e:                                     # delivery never blocks
         res.caveats.append(f"the archetype record could not be written ({e})")
+    for o in getattr(req, "out_of_range", None) or []:
+        res.caveats.append(
+            f"NOT USED: \"{o['said']}\" -- a {o['label']} of that size is outside the "
+            f"range this product is generated for ({o['range']}); the nominal was kept. "
+            f"State it within range to set it.")
     n_der = len(getattr(req, "derived", {}) or {})
     n_nom, n_giv = len(req.nominal()), len(req.given()) - n_der
     res.status = (f"OK ({req.arch.title}: {len(req.parts())}-part .rfa generated at "

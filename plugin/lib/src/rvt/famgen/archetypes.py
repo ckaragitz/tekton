@@ -211,6 +211,10 @@ class Resolved:
     #: keys ``Archetype.settle`` DERIVED from the caller's numbers -> the
     #: reason; ``given`` (the caller's numbers decided them) but not stated
     derived: Dict[str, str] = dc_field(default_factory=dict)
+    #: numbers the prompt stated for a dimension that stayed NOMINAL because
+    #: they are outside its range: ``[{key, label, said, range}]`` -- reported,
+    #: never silently dropped (#900 review round 3)
+    out_of_range: List[Dict[str, Any]] = dc_field(default_factory=list)
 
     def given(self) -> List[str]:
         return sorted(k for k, v in self.provenance.items() if v == GIVEN)
@@ -244,6 +248,7 @@ class Resolved:
             "given": self.given(),
             "nominal": self.nominal(),
             **({"derived": dict(self.derived)} if self.derived else {}),
+            **({"out_of_range": list(self.out_of_range)} if self.out_of_range else {}),
             "manufacturer_claim": self.claim,
             **({"working_space": working_space_report(self)}
                if self.clearance and self.arch.working_space else {}),
@@ -886,8 +891,10 @@ _register(Archetype(
               choices=(8.0, 10.0, 12.0, 18.0, 24.0), maximum=120.0),
         Param("rod_spacing_in", "Rod Spacing", 24.0, "in",
               "rod centres 24 in apart: the strut length less the two insets",
+              # NOT bare "apart" / "on center": "tiers 12 in apart" is the
+              # TIER spacing (#900 review round 3)
               aliases=("rod spacing", "rod centers", "rod centres", "between rods",
-                       "apart", "on center", "on centers", "on centres"),
+                       "rods apart"),
               minimum=1.0, maximum=228.0),
         Param("rod_inset_in", "Rod Inset", 3.0, "in",
               "the rod 3 in in from each end of the strut",
@@ -909,10 +916,12 @@ _register(Archetype(
               aliases=("rod below", "rod tail"), maximum=12.0),
         Param("height_in", "Strut Height", 1.625, "in",
               "the 1-5/8 in standard channel height",
-              aliases=("strut height", "channel height", "section height")),
+              aliases=("strut height", "channel height", "section height"),
+              maximum=4.0),
         Param("width_in", "Strut Width", 1.625, "in",
               "the 1-5/8 in standard channel width",
-              aliases=("strut width", "channel width", "section width")),
+              aliases=("strut width", "channel width", "section width"),
+              maximum=4.0),
         Param("thickness_in", "Strut Thickness", 0.105, "in",
               "12 gauge (0.105 in), the common structural weight",
               aliases=("thickness", "strut thickness")),
@@ -1401,7 +1410,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                     continue
                 num = _to_number(m.group(1))
                 conv = None if num is None else _convert(num, _unit_of(m.group(0)) or p.unit, p)
-                if conv is not None and conv > p.minimum:
+                if conv is not None and p.minimum < conv <= p.maximum:
                     intact.append((s_, e_))
         return b_vals, b_prov, b_quoted, b_used, intact
 
@@ -1491,7 +1500,15 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
             lead_key = next((leads[w] for w in re.findall(r"[a-z]+", low[m.end("u"):m.end()])
                              if w in leads), None)
             if lead_key:
-                target = arch.param(lead_key)
+                # ... but only a value the channel section can take: "a 36 in
+                # strut trapeze" is a 36 in TRAPEZE, "a 1-5/8 in strut trapeze"
+                # a 1-5/8 in channel (#900 review round 3)
+                lt = arch.param(lead_key)
+                lc = _convert(num, unit or lt.unit, lt)
+                if lc is not None and lt.minimum < lc <= lt.maximum:
+                    target = lt
+            if target is not prim:
+                pass
             elif unit == "ft" and prim.unit == "in":
                 # FEET in front of the noun names the RUN, not the section: "a
                 # 10 ft cable tray" is ten feet long, not ten feet wide.  Only
@@ -1516,7 +1533,38 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     return Resolved(arch=arch, values=vals, provenance=prov, quoted=quoted,
                     name=_name(arch, vals, prov, clearance=clear),
                     claim=manufacturer_claim(text), clearance=clear,
-                    derived=derived)
+                    derived=derived, out_of_range=_out_of_range(arch, low, text, prov))
+
+
+def _out_of_range(arch: Archetype, low: str, text: str,
+                  prov: Dict[str, str]) -> List[Dict[str, Any]]:
+    """Phrases that state a BOUNDED dimension (``Param.maximum``) left nominal
+    at a value outside its range -- "a 7 tier trapeze" -- so the report can
+    say what it did not use.  Only parameters that declare a range."""
+    out: List[Dict[str, Any]] = []
+    prim = next((p for p in arch.params if p.primary), None)
+    for p in arch.params:
+        if prov.get(p.key) != NOMINAL or not math.isfinite(p.maximum):
+            continue
+        pats = [pat for _n, _r, pat in _alias_patterns(p)]
+        if p is prim:
+            pats += [rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT}){_SEP}(?:{q})"
+                     for q in _product_patterns(arch)]
+        for pat in pats:
+            for m in re.finditer(pat, low):
+                num = _to_number(m.group(1))
+                if num is None:
+                    continue
+                conv = _convert(num, _unit_of(m.group(0)) or p.unit, p)
+                if conv is not None and conv > p.maximum:
+                    if any(o["key"] == p.key and m.start() < o["_e"] and m.end() > o["_s"]
+                           for o in out):
+                        continue                 # one phrase, read by two patterns
+                    out.append({"key": p.key, "label": p.label,
+                                "said": text[m.start():m.end()].strip(),
+                                "range": f"up to {p.display(p.maximum)}",
+                                "_s": m.start(), "_e": m.end()})
+    return [{k: v for k, v in o.items() if not k.startswith("_")} for o in out]
 
 
 def _settle(arch: Archetype, vals: Dict[str, float], prov: Dict[str, str],
