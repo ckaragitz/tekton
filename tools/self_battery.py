@@ -13,7 +13,8 @@ Instruments per artefact:
   build       the constructor itself (an exception is a FAIL, hard rule 1)
   write       the standalone .rfa emitter
   validate    tools/rvt_validate.py (0 errors required)
-  law         famgen.constraint_law.check_file (graph coherence)
+  law         famgen.constraint_law.check_file (graph coherence; never
+              demands m_constrInfo back-edges -- 0 / 421 born files carry one, #910)
   corpus      famgen.conformance against samples/rft (skips when absent)
   reread      full re-decode of every element (round-trip)
 
@@ -91,10 +92,32 @@ def _catalog() -> Dict[str, Callable[[], Any]]:
              "length_ft": 1.5, "center": (0, 0.75), "base_z_ft": 3.0},
         ]),
     }
+    # the in-plane drive under the Revit-born law (#787 / #907): the one-box
+    # probe pair (P = full law, C = P without the sketch regen edge) -- both
+    # desktop-verified widening -- carry NO m_constrInfo back-edges, so the
+    # law instrument must pass them (#910)
+    def _one_box(regen_edge):
+        def mk():
+            from rvt.famgen import drive_law as DL
+            prod = F.make_generic_model(
+                parts=[{"name": "b", "shape": "box", "width_ft": 2,
+                        "depth_ft": 1, "height_ft": 1}],
+                name="B_drive" + ("" if regen_edge else "_C"),
+                category="generic_model", source="self battery", drive=True)
+            DL.apply_born_inplane_law(prod.doc, regen_edge=regen_edge)
+            return prod
+        return mk
+    jobs["drive_one_box_law"] = _one_box(True)
+    jobs["drive_one_box_control"] = _one_box(False)
     # constructors that may not exist on this trunk yet: probe and include
     for opt, key, mk in (
         ("make_archetype", "archetype_cable_tray",
          lambda F=F: F.make_archetype(product="cable_tray")),
+        # the desktop-verified driving trapeze (#904 / #907)
+        ("make_archetype", "archetype_strut_trapeze",
+         lambda F=F: F.make_archetype(
+             product="strut_trapeze",
+             prompt="a 2 tier slotted trapeze with threaded rod")),
     ):
         if hasattr(F, opt):
             jobs[key] = mk

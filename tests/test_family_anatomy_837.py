@@ -71,7 +71,25 @@ def families(tmp_path_factory):
                                "-o", path], capture_output=True, text=True, cwd=ROOT, timeout=300)
         assert proc.returncode == 0 and os.path.isfile(path), (key, proc.stdout[-400:], proc.stderr[-400:])
         out[key] = path
+    # THE TWO-PLANE BASELINE.  The plane-mutation tests below re-set each of a
+    # family's reference planes and count; they were written against the
+    # lighting control panel while it had only its two origin planes.  Its
+    # Cabinet Width drive and heights (#914) gave it 12, so those tests now
+    # run on the SAME seven parts built as a plain multi-part generic model
+    # with no drive -- the LCP's old shape, kept on purpose as the profiler's
+    # unconstrained fixture.
+    from rvt.famgen import factory as F
+    parts, _rep = AR.build_parts(AR.resolve("lighting_control_panel"))
+    prod = F.make_generic_model(parts=parts, name="Unconstrained Panel",
+                                category="electrical_equipment")
+    d = tmp_path_factory.mktemp("unconstrained")
+    out[UNCONSTRAINED] = str(d / "unconstrained.rfa")
+    prod.write(out[UNCONSTRAINED])
     return out
+
+
+#: key of the two-plane, no-drive baseline in the ``families`` fixture
+UNCONSTRAINED = "unconstrained_two_plane"
 
 
 @pytest.fixture(scope="module")
@@ -203,26 +221,50 @@ def test_every_aspect_says_how_it_was_read_and_nothing_failed_to_decode(profiles
 
 
 def test_the_lighting_control_panel_is_pinned_aspect_by_aspect(profiles):
-    """Pinned to what the #816 builder and our writer author: seven solid
-    extrusions (back, four walls, door, latch), two named origin planes that
-    are references, no subcategory / material / nested family, one type."""
+    """Pinned to what the #816 builder, its #914 drives and our writer author:
+    seven solid extrusions (back, four walls, door, latch), no subcategory /
+    material / nested family, one type.
+
+    THE BASELINE CHANGED ON PURPOSE (#914).  This panel was the suite's
+    unconstrained baseline (2 origin planes, 0 dimensions); it now carries
+    Cabinet Width (symmetric in-plane drive, side walls + latch riding it) and
+    its heights (#787 Case B: Cabinet Height, Sheet Thickness x 2).  So:
+    12 planes = 2 origin centre + 2 width ends + 4 ride planes + the origin
+    elevation plane + 3 surface-only height planes; 9 dimensions = 4 labelled
+    (Cabinet Width, Cabinet Height, Sheet Thickness x 2) + 5 locked unlabelled
+    (the EQ, 4 ride offsets); 27 alignments = 14 sketch locks + 12 cap-face
+    locks + the origin plane to the Level.  The old two-plane shape lives on
+    as the UNCONSTRAINED fixture.  Authored, never certified: the assembled
+    family has no desktop verdict (hard rule 4)."""
     p = profiles["lighting_control_panel"]
     assert p["forms"]["value"] == {"by_kind": {"extrusion": 7}, "total": 7, "solids": 7, "voids": 0}
-    assert p["reference_planes"]["value"] == {"total": 2, "named": 2, "define_origin": 2}
-    assert p["reference_strength"] == {"value": {"is_reference": 2, "strong": 0, "weak": 0,
+    assert p["reference_planes"]["value"] == {"total": 12, "named": 2, "define_origin": 3}
+    assert p["reference_strength"] == {"value": {"is_reference": 11, "strong": 0, "weak": 9,
                                                  "other_reference": 2}, "how": "inferred"}
     assert p["form_subcategories"]["value"] == {"forms_assigned": 0, "subcategories": 0}
     assert p["form_materials"]["value"] == {"forms_assigned": 0}
     assert p["nested_families"]["value"] == {"total": 0, "placed": 0, "not_placed": 0}
-    assert p["dimensions"]["value"] == {"total": 0, "by_kind": {}, "alignments": 0}
-    assert p["dimension_constraints"]["value"] == {"labelled": 0, "unlabelled": 0,
-                                                   "eq_display_option": 0, "param_driven_segments": 0,
-                                                   "driven_segments": 0, "anchored_refs": 0}
+    assert p["dimensions"]["value"] == {"total": 9, "by_kind": {"linear": 9}, "alignments": 27}
+    assert p["dimension_constraints"]["value"] == {"labelled": 4, "unlabelled": 5,
+                                                   "eq_display_option": 0, "param_driven_segments": 12,
+                                                   "driven_segments": 12, "anchored_refs": 10}
     assert p["dimension_constraints"]["how"] == "inferred"
     assert p["types"] == {"value": {"total": 1}, "how": "inferred"}   # Revit-born: 0 pairs (open)
     params = p["parameters"]["value"]
-    assert params["by_group"]["dimensions"] == 3 and params["by_spec"]["length"] >= 3
+    # Width/Depth/Height + Cabinet Width/Height/Depth + Sheet Thickness
+    assert params["by_group"]["dimensions"] == 7 and params["by_spec"]["length"] >= 7
     assert p["view_specific_elements"]["how"] == "not-yet-readable"
+
+
+def test_the_unconstrained_baseline_keeps_the_panels_old_shape(families):
+    """The two-plane fixture is what the LCP used to be: same seven parts,
+    two named origin planes, no dimension of any kind."""
+    p = FA.profile(families[UNCONSTRAINED])
+    assert p["forms"]["value"] == {"by_kind": {"extrusion": 7}, "total": 7, "solids": 7, "voids": 0}
+    assert p["reference_planes"]["value"] == {"total": 2, "named": 2, "define_origin": 2}
+    assert p["reference_strength"]["value"] == {"is_reference": 2, "strong": 0, "weak": 0,
+                                                "other_reference": 2}
+    assert p["dimensions"]["value"] == {"total": 0, "by_kind": {}, "alignments": 0}
 
 
 # ---------------------------------------------------------------------------
@@ -419,7 +461,7 @@ def test_a_plane_is_named_by_its_text_not_by_its_reference_setting(families, mon
         seen.append(1)
         v["m_refName"] = 0 if len(seen) == 1 else 12
     _patch_class(monkeypatch, "m_refName", edit)
-    p = FA.profile(families["lighting_control_panel"])
+    p = FA.profile(families[UNCONSTRAINED])
     rp, rs = p["reference_planes"]["value"], p["reference_strength"]["value"]
     assert (rp["named"], rs["is_reference"], rs["other_reference"]) == (2, 1, 1), (rp, rs)
 
@@ -428,7 +470,7 @@ def test_a_plane_without_text_is_not_named(families, monkeypatch):
     def edit(v):
         v["m_text"] = ""
     _patch_class(monkeypatch, "m_refName", edit)
-    p = FA.profile(families["lighting_control_panel"])
+    p = FA.profile(families[UNCONSTRAINED])
     rp, rs = p["reference_planes"]["value"], p["reference_strength"]["value"]
     assert (rp["named"], rs["is_reference"]) == (0, 2), (rp, rs)
 
@@ -493,15 +535,16 @@ def test_the_two_type_catalog_panelboard(profiles):
     ((13, 13), (2, 0, 2)), ((14, 14), (0, 2, 2)), ((13, 14), (1, 1, 2)),
     ((12, 13), (1, 0, 1)), ((12, 12), (0, 0, 0))])
 def test_strong_and_weak_references_are_told_apart(families, monkeypatch, settings, want):
-    """The LCP's two planes re-set to each Is-Reference pairing; asymmetric
-    pairs so a strong/weak swap cannot pass (round 2 mutant)."""
+    """The two-plane baseline's planes (the LCP's old shape, #914) re-set to
+    each Is-Reference pairing; asymmetric pairs so a strong/weak swap cannot
+    pass (round 2 mutant)."""
     seen = []
 
     def edit(v):
         v["m_refName"] = settings[len(seen) % 2]
         seen.append(1)
     _patch_class(monkeypatch, "m_refName", edit)
-    rp = FA.profile(families["lighting_control_panel"])["reference_strength"]["value"]
+    rp = FA.profile(families[UNCONSTRAINED])["reference_strength"]["value"]
     assert (rp["strong"], rp["weak"], rp["is_reference"]) == want, rp
     assert rp["other_reference"] == rp["is_reference"] - rp["strong"] - rp["weak"]
 
@@ -820,7 +863,7 @@ def test_what_counts_as_the_familys_own(families, monkeypatch, fid, counted, whe
             else:
                 v["m_famId"] = fid
     _patch_class(monkeypatch, "m_refName", edit)
-    p = FA.profile(families["lighting_control_panel"])
+    p = FA.profile(families[UNCONSTRAINED])
     assert p["reference_planes"]["value"]["total"] == counted
     if where:
         assert p[where]["value"] == {"RefPlane": 1}
@@ -829,12 +872,12 @@ def test_what_counts_as_the_familys_own(families, monkeypatch, fid, counted, whe
 
 
 def test_a_plane_a_nested_family_owns_is_nested_owned(families, monkeypatch):
-    """As a Revit-born family stores it: one of the lighting control panel's
+    """As a Revit-born family stores it: one of the two-plane baseline's
     planes owned by a SECOND Family element of the same file (m_famId = that
     family's id).  Simulated by adding the second Family through the class
     seam and re-owning the plane."""
     from rvt.families import FamilyIndex
-    fi0 = FamilyIndex(families["lighting_control_panel"])
+    fi0 = FamilyIndex(families[UNCONSTRAINED])
     planes = sorted(fi0.ids_of_class(0, "RefPlane"))
     ghost = planes[-1]                      # this record now plays a nested Family
     victim = planes[0]
@@ -851,7 +894,7 @@ def test_a_plane_a_nested_family_owns_is_nested_owned(families, monkeypatch):
             o.value["m_famId"] = ghost
         return o
     monkeypatch.setattr(FamilyIndex, "decode", fake)
-    p = FA.profile(families["lighting_control_panel"])
+    p = FA.profile(families[UNCONSTRAINED])
     assert p["nested_owned"]["value"] == {"RefPlane": 1}
     assert p["reference_planes"]["value"]["total"] == 0      # the other plane became the ghost Family
     # a carried, never-placed nested family is information, never a gap:

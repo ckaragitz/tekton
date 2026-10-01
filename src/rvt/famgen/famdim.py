@@ -419,9 +419,22 @@ def apply_to_doc(doc: Any, *, rung: str = DEFAULT_RUNG,
 # [HYPOTHESIS, not a verdict]: this is the click failure.  It is testable the
 # usual way -- the same family with and without the back-edges, everything
 # else equal.
+#
+# REFUTED (#787 census, #910): ``m_constrInfo`` is ``[]`` on every element of
+# every file in a 421-family Revit-born corpus -- 0 / 421 files carry a single
+# back-edge -- and the owner's desktop verified a parameter driving geometry
+# in families written WITHOUT them (#787 one box, #904 trapeze).  Revit does
+# not need back-edges and never writes them.  ``constraint_law`` no longer
+# demands them (CG2 retired).  This function is kept ONLY for documents that
+# do not carry the born drive law (``skeleton.finalize`` skips it when
+# ``doc.born_drive_law`` is set, and ``drive_law.apply_born_inplane_law``
+# clears any it finds), so those older chains keep their current bytes until
+# their own lanes move to the born law; no new caller should use it.
+# (The #910 constraint law also found the panelboard chain locking its front
+# and back profile edges to planes 0.24 ft away from them -- a contradiction
+# in the geometry, not in the back-edges.)
 
-#: Classes that CONSTRAIN other elements, and therefore owe a back-edge to
-#: everything they reference.
+#: Classes that CONSTRAIN other elements (the elements their witnesses name).
 CONSTRAINING_CLASSES = ("Alignment", "LinearDimString")
 
 
@@ -476,6 +489,10 @@ def constraint_back_edges(doc: Any) -> Dict[int, List[int]]:
 
 def apply_constraint_back_edges(doc: Any) -> Dict[str, Any]:
     """Write the ``m_constrInfo`` back-edges onto every constrained element.
+
+    LEGACY, for documents WITHOUT the born drive law only: 0 / 421 Revit-born
+    files carry a back-edge (#787 census, #910), so this is not a law of the
+    format and nothing checks for it any more.
 
     Idempotent: an element that already lists a constraint keeps one entry for
     it.  Returns a report naming exactly what changed, so a probe pair differs

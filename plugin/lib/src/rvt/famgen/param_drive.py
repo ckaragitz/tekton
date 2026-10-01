@@ -432,10 +432,27 @@ def wire_panelboard_drive(doc, *, x_caption: str = "Width",
         doc.add(rp)
         return rp
 
-    left = _side_plane("", -W / 2.0, True)
-    right = _side_plane("", W / 2.0, True)
-    bottom = _side_plane("", -H / 2.0, False)
-    top = _side_plane("", H / 2.0, False)
+    # EVERY PLANE ON ITS EDGE (#914): the side planes sit where the profile's
+    # edges ARE, not at +-W/2 / +-H/2 about the origin.  A centred profile
+    # gives the same numbers; the panelboard's (y = 0..D for a surface panel,
+    # -D..0 flush) put two locks 0.24 ft off their planes (constraint law
+    # CG7) -- a lock that contradicts the geometry it locks.
+    def _edge(side, k):
+        _cid, a, b = rect[side]
+        if abs(a[k] - b[k]) > 1e-9:
+            raise ValueError(f"param_drive: the {side} edge is not square to its axis")
+        return (a[k] + b[k]) / 2.0
+
+    x_lo, x_hi = _edge("left", 0), _edge("right", 0)
+    y_lo, y_hi = _edge("bottom", 1), _edge("top", 1)
+    if abs((x_hi - x_lo) - W) > 1e-6 or abs((y_hi - y_lo) - H) > 1e-6:
+        raise ValueError(
+            f"param_drive: {x_caption} / {y_caption} ({W:g} / {H:g} ft) disagree with "
+            f"the profile ({x_hi - x_lo:g} / {y_hi - y_lo:g} ft)")
+    left = _side_plane("", x_lo, True)
+    right = _side_plane("", x_hi, True)
+    bottom = _side_plane("", y_lo, False)
+    top = _side_plane("", y_hi, False)
 
     def _p3(p):
         return (float(p[0]), float(p[1]), 0.0)
@@ -481,8 +498,9 @@ def wire_panelboard_drive(doc, *, x_caption: str = "Width",
         _alloc(doc.ids), fam_id, param_id=w_pe.elem_id,
         ref_a_id=left.elem_id, ref_b_id=right.elem_id, style_id=style_id,
         value=W, ref_a_ends=_plane_ends(left), ref_b_ends=_plane_ends(right),
-        ref_pnts=((-W / 2.0, y_ref, 0.0), (W / 2.0, y_ref, 0.0)),
-        seg_origin=(0.0, y_line, 0.0), dim_line_origin=(0.0, y_line, 0.0),
+        ref_pnts=((x_lo, y_ref, 0.0), (x_hi, y_ref, 0.0)),
+        seg_origin=((x_lo + x_hi) / 2.0, y_line, 0.0),
+        dim_line_origin=((x_lo + x_hi) / 2.0, y_line, 0.0),
         dim_line_dir=(1.0, 0.0, 0.0), view_id=view_id,
         sketch_plane_id=view_sp_id, seg_flags=1)
     doc.add(width_dim)
@@ -492,8 +510,9 @@ def wire_panelboard_drive(doc, *, x_caption: str = "Width",
         _alloc(doc.ids), fam_id, param_id=h_pe.elem_id,
         ref_a_id=bottom.elem_id, ref_b_id=top.elem_id, style_id=style_id,
         value=H, ref_a_ends=_plane_ends(bottom), ref_b_ends=_plane_ends(top),
-        ref_pnts=((x_ref, -H / 2.0, 0.0), (x_ref, H / 2.0, 0.0)),
-        seg_origin=(x_line, 0.0, 0.0), dim_line_origin=(x_line, 0.0, 0.0),
+        ref_pnts=((x_ref, y_lo, 0.0), (x_ref, y_hi, 0.0)),
+        seg_origin=(x_line, (y_lo + y_hi) / 2.0, 0.0),
+        dim_line_origin=(x_line, (y_lo + y_hi) / 2.0, 0.0),
         dim_line_dir=(0.0, 1.0, 0.0), view_id=view_id,
         sketch_plane_id=view_sp_id, seg_flags=0)
     doc.add(height_dim)
