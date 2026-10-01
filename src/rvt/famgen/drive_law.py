@@ -244,6 +244,13 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
             continue
         if rp.elem_id not in {p.elem_id for p in doc.refplanes}:
             raise ValueError(f"drive_law: the {end} plane is not in this document")
+        # square to the axis: its NORMAL is +-axis -- matching ends alone pass
+        # a horizontal plane, whose ends can sit at the same coordinate (#931
+        # review)
+        from .constraint_law import plane_of
+        pn = plane_of("RefPlane", rp.obj)
+        if pn is None or abs(abs(pn[1][k]) - 1.0) > 1e-9:
+            raise ValueError(f"drive_law: the {end} plane is not square to {axis}")
         f, b = rp.obj["m_freeEnd"], rp.obj["m_bubbleEnd"]
         want = lo if end == "lo" else hi
         if abs(float(f[k]) - want) > 1e-9 or abs(float(b[k]) - want) > 1e-9:
@@ -611,9 +618,15 @@ def lock_line(doc, sk, line, plane, axis: str, side: str):
 
 def origin_centre_plane(doc, axis: str):
     """The document's origin-defining centre plane normal to ``axis``."""
+    from .constraint_law import plane_of
     k = 0 if axis == "x" else 1
     for p in doc.refplanes:
-        if (p.obj.get("m_definesOrigin") and abs(p.obj["m_freeEnd"][k]) < 1e-9
+        pn = plane_of("RefPlane", p.obj)
+        # the normal decides, not the ends alone: the origin ELEVATION plane
+        # (#787 Case B) also has both ends at x = y = 0 (#931 review)
+        if (p.obj.get("m_definesOrigin") and pn is not None
+                and abs(abs(pn[1][k]) - 1.0) < 1e-9
+                and abs(p.obj["m_freeEnd"][k]) < 1e-9
                 and abs(p.obj["m_bubbleEnd"][k]) < 1e-9):
             return p
     raise ValueError(f"drive_law: no origin centre plane normal to {axis}")

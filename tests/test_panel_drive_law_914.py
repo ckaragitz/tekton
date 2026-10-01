@@ -287,6 +287,23 @@ def test_an_anchor_off_its_end_is_refused_before_any_mutation(kw, match):
             list(sk.obj.get("m_dimIds") or [])) == before
 
 
+def test_a_horizontal_plane_is_never_an_anchor_or_an_origin_centre():
+    """#931 review: a plane whose ends sit at y = 0 but whose normal is +-z
+    (the origin elevation plane's shape) passed the ends-only check."""
+    doc, sk = _doc_with_box()
+    origin = DL.origin_centre_plane(doc, "y")
+    origin.obj["m_freeEnd"] = [-5.0, 0.0, 0.0]
+    origin.obj["m_bubbleEnd"] = [5.0, 0.0, 0.0]
+    origin.obj["m_cutVec"] = [0.0, 1.0, 0.0]          # normal = (10,0,0) x (0,1,0) = +z
+    before = ([e.elem_id for e in doc.elements], len(doc.refplanes))
+    with pytest.raises(ValueError, match="not square to y"):
+        DL.wire_linear_drive(doc, caption="Depth", axis="y", lo=0.0, hi=1.0,
+                             targets=[(sk, ("lo", "hi"))], lo_plane=origin)
+    assert ([e.elem_id for e in doc.elements], len(doc.refplanes)) == before
+    with pytest.raises(ValueError, match="no origin centre plane"):
+        DL.origin_centre_plane(doc, "y")
+
+
 def test_an_anchored_end_adds_one_plane_not_two():
     doc, sk = _doc_with_box()
     origin = DL.origin_centre_plane(doc, "y")

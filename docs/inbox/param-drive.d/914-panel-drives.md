@@ -96,7 +96,7 @@ no drive, i.e. the panel's old shape. A new test pins that fixture to the old nu
 
 ## Open
 
-- **#914 DONE 3 is not done.** It asks for the panelboard to move to `drive_law`
+- **#914 DONE 3 is not done** *(superseded below: done in PR #931)*. It asks for the panelboard to move to `drive_law`
   (`wire_linear_drive` + the born in-plane law) and for the front parts (#897) to ride
   the face plane. This change keeps the old #372 chain and fixes only its geometry
   (DONE 1–2). Moving it would change the panelboard's law (born regen edge, no
@@ -112,6 +112,21 @@ no drive, i.e. the panel's old shape. A new test pins that fixture to the old nu
   #372 / #689 failures, and only Revit can say whether it was the cause.
 - The self battery has no `lighting_control_panel` row. Adding one would also put it
   through the battery's law step.
+
+
+## Review of #931 (head `ba9d57b`, 🟡)
+
+- **Byte identity was re-measured against the PR's real base `374ba9f`.** The table
+  above was measured against `b345288`. The independent reviewer re-built the
+  following and found them identical on 2026 and 2025:
+  - `drive="372"` for surface, flush, types and `solid=False`;
+  - the LCP, trapeze, junction box, cable tray, wireway, one-box `drive=True`,
+    troffer, transformer, and `make_house_switchboard`.
+- **The anchor check took a horizontal plane.** It compared only end coordinates, so
+  the origin elevation plane (#787 Case B, both ends at y = 0) passed as a y anchor.
+  `origin_centre_plane` had the same blind spot. Both now also require the plane's
+  normal to be ±axis. This lands in the next PR, with
+  `test_a_horizontal_plane_is_never_an_anchor_or_an_origin_centre`.
 
 ## BRANCH STATE
 
