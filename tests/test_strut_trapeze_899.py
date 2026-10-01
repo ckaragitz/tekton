@@ -60,13 +60,14 @@ def test_the_taxonomy_routes_trapeze_to_the_archetype_lane():
     ("a 2 tier 1-5/8 in slotted trapeze", {"tiers": 2.0}),
     ("a 1-5/8 in slotted strut trapeze", {"height_in": 1.625}),
     ("a 1-5/8 in slotted trapeze", {}),
-    # bare "apart" is not a rod-spacing alias ("tiers 12 in apart" is the tier
-    # spacing, review round 3); the stated 1/2 in rod survives
-    ("a trapeze with 1/2 in rod 24 in apart", {"rod_diameter_in": 0.5}),
-    # bare "centers" is not a spacing alias ("rod centers" would be ambiguous);
-    # what matters is the stated 1/2 in rod survives the following number
-    ("a trapeze with 1/2 in rod at 18 in centers", {"rod_diameter_in": 0.5}),
-    ("a trapeze with 1/2 in rod 18 in on center", {"rod_diameter_in": 0.5}),
+    # "rods/rod N apart" is the rod spacing, "tiers N apart" the tier spacing
+    # (subject-aware phrases, review round 4); the 1/2 in rod survives
+    ("a trapeze with 1/2 in rod 24 in apart",
+     {"rod_diameter_in": 0.5, "rod_spacing_in": 24.0, "strut_length_in": 30.0}),
+    ("a trapeze with 1/2 in rod at 18 in centers",
+     {"rod_diameter_in": 0.5, "rod_spacing_in": 18.0, "strut_length_in": 24.0}),
+    ("a trapeze with 1/2 in rod 18 in on center",
+     {"rod_diameter_in": 0.5, "rod_spacing_in": 18.0, "strut_length_in": 24.0}),
     # review round 3: a trapeze LENGTH before "strut" / "channel" / "unistrut"
     # is the strut length; only a channel-sized number names the channel
     ("a 36 in strut trapeze", {"strut_length_in": 36.0, "rod_spacing_in": 30.0}),
@@ -75,8 +76,18 @@ def test_the_taxonomy_routes_trapeze_to_the_archetype_lane():
     ("a 36 in slotted strut trapeze", {"strut_length_in": 36.0, "rod_spacing_in": 30.0}),
     ("a 2 tier 36 in slotted channel trapeze hanger",
      {"tiers": 2.0, "strut_length_in": 36.0, "rod_spacing_in": 30.0}),
-    ("a 2 tier trapeze with tiers 12 in apart", {"tiers": 2.0}),
-    ("a 2 tier trapeze with tiers 12 in apart and rods 24 in apart", {"tiers": 2.0}),
+    ("a 2 tier trapeze with tiers 12 in apart", {"tiers": 2.0, "tier_spacing_in": 12.0}),
+    ("a 2 tier trapeze with tiers 12 in apart and rods 24 in apart",
+     {"tiers": 2.0, "tier_spacing_in": 12.0, "rod_spacing_in": 24.0,
+      "strut_length_in": 30.0}),
+    ("a 2 tier trapeze with rods 18 in apart",
+     {"tiers": 2.0, "rod_spacing_in": 18.0, "strut_length_in": 24.0}),
+    ("a 2 tier trapeze with rods at 18 in centers",
+     {"tiers": 2.0, "rod_spacing_in": 18.0, "strut_length_in": 24.0}),
+    ("a 3 tier 36 in trapeze rods 24 in apart",
+     {"tiers": 3.0, "strut_length_in": 36.0, "rod_spacing_in": 24.0, "rod_inset_in": 6.0}),
+    ("a trapeze with the tiers spaced 18 in apart", {"tier_spacing_in": 18.0}),
+    ("a 4 ft rod drop trapeze", {"rod_above_in": 48.0}),
     ("a 2 tier trapeze with 1/2 in rod 2 ft above", {"tiers": 2.0, "rod_diameter_in": 0.5}),
     ("a 1 tier trapeze", {"tiers": 1.0}),
     ("a 24 in rod spacing 1/2 in rod trapeze, 3 in rod inset",
@@ -146,7 +157,18 @@ def test_the_route_names_a_number_it_did_not_use():
         capture_output=True, text=True, timeout=300, cwd=ROOT)
     res = json.loads(proc.stdout)
     assert res["ok"] and os.path.getsize(res["files"]["rfa"]) > 0
-    assert any(c.startswith('NOT USED: "7 tier"') for c in res["caveats"]), res["caveats"]
+    assert any(c.startswith('NOT USED: "7 tier') for c in res["caveats"]), res["caveats"]
+
+
+@pytest.mark.parametrize("prompt", [
+    "a trapeze 36 in long with 24 in rod spacing", "a trapeze with 3 in rod inset",
+    "a trapeze with 3 in rod below", "a trapeze with 60 in rod above",
+    "a trapeze with 4 ft rod drop", "a trapeze with 1/2 in rod 24 in apart",
+])
+def test_a_number_a_longer_phrase_used_is_never_reported_unused(prompt):
+    """Review round 4: "24 in rod spacing" was ALSO reported as an unused 24 in
+    rod -- the report contradicting itself."""
+    assert AR.resolve_prompt(prompt).out_of_range == []
 
 
 def test_strut_length_rod_spacing_and_inset_must_agree():

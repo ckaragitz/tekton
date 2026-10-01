@@ -220,6 +220,39 @@ right value, and none drove the geometry (steer #901). The drive is #787's.
     1076 passed / 10 skipped / 5 xfailed;
   - plugin in sync, validate PASS.
 
+## Review round 4 (head `b925ad9`, 🛑) — what changed
+
+- **Spacing is read by its subject.** A new `Param.phrases` holds whole-phrase
+  patterns, tried before any alias: "rod(s) [at|spaced] N apart / on center(s) /
+  centers / o.c." is the rod spacing, and "tier(s) …" with the same words is the
+  tier spacing.
+  - The subject word is a fixed-width lookbehind, so the phrase's text starts at
+    its number. In "1/2 in rod 18 in apart" the "1/2 in rod" keeps its own text.
+  - Round 3 had dropped bare `apart` to stop "tiers 12 in apart" capturing the rod
+    spacing, which lost the rod spacing in every natural phrasing. Both now bind,
+    each to its own dimension.
+  - The round-2 expectations are restored: "1/2 in rod 24 in apart" gives rod
+    spacing 24 and a derived strut of 30 in. New cases:
+    - "rods 18 in apart / on center / at 18 in centers"
+    - "a 3 tier 36 in trapeze rods 24 in apart" (inset derived as 6)
+    - "tiers spaced 18 in apart"
+- **`_out_of_range` never reports a number another reading used.** A match is
+  skipped when a longer alias or phrase that *could bind* (its number converts in
+  range) overlaps it. "24 in rod spacing" no longer also says `NOT USED: "24 in
+  rod"`. "tier 25 ft", which is no count, no longer hides the out-of-range "25 ft
+  trapeze".
+- **Nit:** the no-op `if target is not prim: pass` is folded away.
+- **Follow-up:** the reviewer's other findings occur on `main` too and are filed as
+  #906:
+  - feet-and-inches values;
+  - bare-noun phrases such as "4 ft drop";
+  - "unistrut P1000 trapeze".
+- **Gates:**
+  - trapeze 77 passed;
+  - all related suites plus the #812 sweep, route/router, plugin and bootstrap
+    suites: 1087 passed / 10 skipped / 5 xfailed;
+  - plugin in sync, validate PASS.
+
 ## BRANCH STATE
 
 **Files written**
@@ -230,7 +263,7 @@ right value, and none drove the geometry (steer #901). The drive is #787's.
   `_caller_param_row` stores an int for integers.
 - `src/rvt/famgen/taxonomy.py`: the `strut_trapeze` kind.
 - `plugin/lib/…`: mirrors (via `sync_plugin.py`).
-- `tests/test_strut_trapeze_899.py`: new, 61 tests after review round 3.
+- `tests/test_strut_trapeze_899.py`: new, 77 tests after review round 4.
 - `src/rvt/frontdoor/router.py`: the archetype status line counts derived values separately.
 - `tests/test_archetype_alias_order_812.py`: `_stray` exempts a verified `settle` derivation; `_sweep` rejects a stated key refilled by settle; `_n` gives bounded params in-range numbers.
 - `tests/ci_shard.d/899-strut-trapeze.txt`: new.

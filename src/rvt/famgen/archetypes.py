@@ -126,6 +126,11 @@ class Param:
     #: belongs to another phrase -- "1/2 in rod 24 in apart" is not a 24 in
     #: rod (#900 review).  A famspec override is not limited by it.
     maximum: float = math.inf
+    #: whole PHRASES that state this dimension where no single alias does --
+    #: "rods 24 in apart", "tiers at 12 in centers": regex templates with
+    #: ``{num}``, ``{sep}`` and ``{unit}`` slots (``{unit}`` is the optional
+    #: named unit group).  Tried before any alias (#900 review round 4).
+    phrases: Tuple[str, ...] = ()
 
     def feet(self, value: Optional[float] = None) -> float:
         v = self.default if value is None else float(value)
@@ -460,6 +465,22 @@ def _conduit(v: Dict[str, float]) -> List[Dict[str, Any]]:
         raise ArchetypeError("a conduit run needs a positive diameter and length")
     return [{"shape": "cylinder_x", "name": "conduit run", "radius_ft": d / 2.0,
              "length_ft": L, "center": [0.0, 0.0], "base_z_ft": -d / 2.0}]
+
+
+#: a whole-phrase pattern outranks every alias: it states its subject itself
+PHRASE_RANK = 1000
+
+#: "<subject> [at|spaced] N in apart / on center / centers / o.c." -- the
+#: number is after the subject word, so a size before it ("1/2 in rod 18 in
+#: apart") keeps its own text
+_SPACED = (r"(?:(?:at|spaced(?:\s+at)?)\s+)?{num}{sep}{unit}{sep}"
+           r"(?:apart|on\s+cent(?:er|re)s?|cent(?:er|re)s?|o\.?\s?c\.?)(?![a-z])")
+
+
+def _subject(*words: str) -> str:
+    """A fixed-width lookbehind per subject word, so the phrase's span starts
+    at its number and never swallows the subject word another phrase needs."""
+    return "(?:" + "|".join(rf"(?<=\b{w}\s)" for w in words) + ")"
 
 
 def _hex_nut(name: str, across_flats: float, height: float, cx: float, cy: float,
@@ -888,13 +909,14 @@ _register(Archetype(
         Param("tier_spacing_in", "Tier Spacing", 12.0, "in",
               "12 in between tiers, centre to centre",
               aliases=("tier spacing", "tier to tier"),
+              phrases=(_subject("tier", "tiers") + _SPACED,),
               choices=(8.0, 10.0, 12.0, 18.0, 24.0), maximum=120.0),
         Param("rod_spacing_in", "Rod Spacing", 24.0, "in",
               "rod centres 24 in apart: the strut length less the two insets",
               # NOT bare "apart" / "on center": "tiers 12 in apart" is the
               # TIER spacing (#900 review round 3)
-              aliases=("rod spacing", "rod centers", "rod centres", "between rods",
-                       "rods apart"),
+              aliases=("rod spacing", "rod centers", "rod centres", "between rods"),
+              phrases=(_subject("rod", "rods") + _SPACED,),
               minimum=1.0, maximum=228.0),
         Param("rod_inset_in", "Rod Inset", 3.0, "in",
               "the rod 3 in in from each end of the strut",
@@ -1242,6 +1264,9 @@ def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, in
     matching across the phrase boundary (``_SEP`` allows no comma).
     """
     out: List[Tuple[int, int, str]] = []
+    for ph in p.phrases:
+        out.append((PHRASE_RANK, 0, ph.format(num=_NUM, sep=_SEP,
+                                              unit=rf"(?P<u>{_ANY_UNIT})?")))
     for al in p.aliases:
         a = _alias_re(al)
         n = len(al)
@@ -1507,9 +1532,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 lc = _convert(num, unit or lt.unit, lt)
                 if lc is not None and lt.minimum < lc <= lt.maximum:
                     target = lt
-            if target is not prim:
-                pass
-            elif unit == "ft" and prim.unit == "in":
+            if target is prim and unit == "ft" and prim.unit == "in":
                 # FEET in front of the noun names the RUN, not the section: "a
                 # 10 ft cable tray" is ten feet long, not ten feet wide.  Only
                 # this pair redirects -- every other unit (mm, in) is a section
@@ -1543,15 +1566,29 @@ def _out_of_range(arch: Archetype, low: str, text: str,
     say what it did not use.  Only parameters that declare a range."""
     out: List[Dict[str, Any]] = []
     prim = next((p for p in arch.params if p.primary), None)
+    # every alias / phrase occurrence with its length: a number read by a
+    # LONGER alias ("24 in rod spacing") or any phrase belongs to that one
+    # -- only readings that COULD bind (their number converts into range):
+    # "tier 25 ft" is no count, so it hides nothing
+    def _could(q, m) -> bool:
+        num = _to_number(m.group(1))
+        c = None if num is None else _convert(num, _unit_of(m.group(0)) or q.unit, q)
+        return c is not None and q.minimum < c <= q.maximum
+    spans = [(m.start(), m.end(), n_) for q in arch.params
+             for n_, _r, pat in _alias_patterns(q) for m in re.finditer(pat, low)
+             if _could(q, m)]
     for p in arch.params:
         if prov.get(p.key) != NOMINAL or not math.isfinite(p.maximum):
             continue
-        pats = [pat for _n, _r, pat in _alias_patterns(p)]
+        pats = [(n_, pat) for n_, _r, pat in _alias_patterns(p)]
         if p is prim:
-            pats += [rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT}){_SEP}(?:{q})"
+            pats += [(0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT}){_SEP}(?:{q})")
                      for q in _product_patterns(arch)]
-        for pat in pats:
+        for n_p, pat in pats:
             for m in re.finditer(pat, low):
+                if any(m.start() < e and m.end() > s_ and n_q > n_p
+                       for s_, e, n_q in spans):
+                    continue
                 num = _to_number(m.group(1))
                 if num is None:
                     continue
