@@ -403,9 +403,9 @@ def _chains():
                     for styles in itertools.product((0, 1), repeat=k):
                         parts, want = [], {}
                         for i, (p, st) in enumerate(zip(combo, styles)):
-                            n = (7, 13, 19)[i]
+                            n = _n(p, (7, 13, 19)[i])
                             al = p.aliases[(j + i) % len(p.aliases)]
-                            parts.append(f"{n} {p.unit} {al}" if st == 0 else f"{al} {n} {p.unit}")
+                            parts.append(f"{n:g} {p.unit} {al}" if st == 0 else f"{al} {n:g} {p.unit}")
                             want[p.key] = float(n)
                         yield key, noun + " " + " ".join(parts), want
 
@@ -423,17 +423,29 @@ def _restatements(where="first"):
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
         ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
-        ph = lambda p, al, n, st: f"{n} {p.unit} {al}" if st == 0 else f"{al} {n} {p.unit}"
+        ph = lambda p, al, n, st: f"{n:g} {p.unit} {al}" if st == 0 else f"{al} {n:g} {p.unit}"
         for p, q in itertools.permutations(ps, 2):
             for ap in p.aliases:
                 aq = q.aliases[len(ap) % len(q.aliases)]
                 for order in ("PPQ", "PQP", "PQQ", "QPP"):
                     for sts in itertools.product((0, 1), repeat=3):
                         for sep in (" ", ", "):
-                            parts = [ph(p, ap, 7, st) if c == "P" else ph(q, aq, 13, st)
+                            parts = [ph(p, ap, _n(p, 7), st) if c == "P" else ph(q, aq, _n(q, 13), st)
                                      for c, st in zip(order, sts)]
                             w, i = (where if where != "cycle" else _WHERE[i % 3]), i + 1
-                            yield key, _place(noun, parts, sep, w), {p.key: 7.0, q.key: 13.0}
+                            yield (key, _place(noun, parts, sep, w),
+                                   {p.key: float(_n(p, 7)), q.key: float(_n(q, 13))})
+
+
+def _n(p, n):
+    """The sweep's number for parameter ``p``: ``n`` itself, unless ``p``
+    declares a range a prompt may bind (``Param.maximum``, #900) that ``n``
+    falls outside -- then a distinct in-range stand-in, so a bounded
+    dimension is swept with numbers it can legitimately take.  Unbounded
+    parameters (every archetype before #900) get exactly the old numbers."""
+    if p.minimum < n <= p.maximum:
+        return n
+    return round(p.maximum * n / 20.0, 4)
 
 
 def _sweep(gen):
@@ -446,6 +458,11 @@ def _sweep(gen):
         bad = {k: (r.values[k], r.provenance[k]) for k, v in want.items()
                if abs(r.values[k] - v) > 1e-6 or r.provenance[k] != GIVEN}
         stray = _stray(arch, r, want)
+        # a STATED key must never come back as settle-derived: that would be a
+        # missed binding refilled by settle, hidden by _stray's exemption
+        refilled = set(want) & set(getattr(r, "derived", {}) or {})
+        if refilled:
+            stray = dict(stray, **{f"refilled:{k}": r.values[k] for k in refilled})
         if bad or stray:
             fails.append((prompt, bad, stray))
     return per, fails
@@ -498,31 +515,33 @@ def _contradictions(where="first"):
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
         ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
-        ph = lambda p, al, n, st: f"{n} {p.unit} {al}" if st == 0 else f"{al} {n} {p.unit}"
+        ph = lambda p, al, n, st: f"{n:g} {p.unit} {al}" if st == 0 else f"{al} {n:g} {p.unit}"
         for p, q in itertools.permutations(ps, 2):
             for ap in p.aliases:
                 for order in ("PPQ", "PQP", "QPP"):
                     for sts in itertools.product((0, 1), repeat=3):
                         for sep in (" ", ", "):
-                            pv, parts = iter((7, 9)), []
+                            pv, parts = iter((_n(p, 7), _n(p, 9))), []
                             for c, st in zip(order, sts):
                                 parts.append(ph(p, ap, next(pv), st) if c == "P"
-                                             else ph(q, q.aliases[0], 13, st))
+                                             else ph(q, q.aliases[0], _n(q, 13), st))
                             w, i = (where if where != "cycle" else _WHERE[i % 3]), i + 1
-                            yield key, _place(noun, parts, sep, w), p.key, q.key
+                            yield key, _place(noun, parts, sep, w), p, q
 
 
 @pytest.mark.parametrize("where", ["first", "cycle"])
 def test_a_contradicted_dimension_never_takes_the_other_phrases_number(where):
     import collections
     per, fails = collections.Counter(), []
-    for key, prompt, pk, qk in _contradictions(where):
+    for key, prompt, pp, qq in _contradictions(where):
+        pk, qk = pp.key, qq.key
         per[key] += 1
         arch = AR.archetype(key)
         r = AR.resolve_prompt(prompt, product=key)
-        p_ok = r.provenance[pk] == GIVEN and min(abs(r.values[pk] - v) for v in (7, 9)) < 1e-6
-        q_ok = r.provenance[qk] == GIVEN and abs(r.values[qk] - 13) < 1e-6
-        stray = {k for k in _stray(arch, r, {pk: r.values[pk], qk: 13.0})}
+        p_ok = r.provenance[pk] == GIVEN and min(abs(r.values[pk] - v)
+                                                 for v in (_n(pp, 7), _n(pp, 9))) < 1e-6
+        q_ok = r.provenance[qk] == GIVEN and abs(r.values[qk] - _n(qq, 13)) < 1e-6
+        stray = {k for k in _stray(arch, r, {pk: r.values[pk], qk: float(_n(qq, 13))})}
         if not (p_ok and q_ok) or stray:
             fails.append((prompt, {pk: r.values[pk], qk: r.values[qk]}, stray))
     _assert_coverage(per, {"cable_tray": 5000, "strut_channel": 3000, "wireway": 500,
@@ -566,11 +585,12 @@ def _crossed():
                     for sts in itertools.product((0, 1), repeat=len(order)):
                         parts = []
                         for c, st in zip(order, sts):
-                            r, n, al = (p, 7, al_p) if c == "P" else (q, 9, q.aliases[-1])
-                            parts.append((f"{n} {r.unit} {al}", f"{al} {n} {r.unit}")[st])
-                        want = {p.key: 7.0}
+                            r, n, al = ((p, _n(p, 7), al_p) if c == "P"
+                                        else (q, _n(q, 9), q.aliases[-1]))
+                            parts.append((f"{n:g} {r.unit} {al}", f"{al} {n:g} {r.unit}")[st])
+                        want = {p.key: float(_n(p, 7))}
                         if q:
-                            want[q.key] = 9.0
+                            want[q.key] = float(_n(q, 9))
                         want.update({k: float(d) for k, d in zip(cross, dims)})
                         yield key, "a " + " ".join(parts) + f" {cx} {noun}", want
 

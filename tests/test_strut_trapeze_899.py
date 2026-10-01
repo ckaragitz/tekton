@@ -55,6 +55,20 @@ def test_the_taxonomy_routes_trapeze_to_the_archetype_lane():
      {"tiers": 2.0, "rod_spacing_in": 18.0, "strut_length_in": 24.0}),
     ("a 36 in trapeze with 30 in rod spacing",
      {"strut_length_in": 36.0, "rod_spacing_in": 30.0, "rod_inset_in": 3.0}),
+    # round 2 of the #900 review: "slotted" leading the noun, a rod size
+    # followed by another number
+    ("a 2 tier 1-5/8 in slotted trapeze", {"tiers": 2.0}),
+    ("a 1-5/8 in slotted strut trapeze", {"height_in": 1.625}),
+    ("a 1-5/8 in slotted trapeze", {}),
+    ("a trapeze with 1/2 in rod 24 in apart",
+     {"rod_diameter_in": 0.5, "rod_spacing_in": 24.0, "strut_length_in": 30.0}),
+    # bare "centers" is not a spacing alias ("rod centers" would be ambiguous);
+    # what matters is the stated 1/2 in rod survives the following number
+    ("a trapeze with 1/2 in rod at 18 in centers", {"rod_diameter_in": 0.5}),
+    ("a trapeze with 1/2 in rod 18 in on center",
+     {"rod_diameter_in": 0.5, "rod_spacing_in": 18.0, "strut_length_in": 24.0}),
+    ("a 2 tier trapeze with 1/2 in rod 2 ft above", {"tiers": 2.0, "rod_diameter_in": 0.5}),
+    ("a 1 tier trapeze", {"tiers": 1.0}),
     ("a 24 in rod spacing 1/2 in rod trapeze, 3 in rod inset",
      {"rod_spacing_in": 24.0, "rod_diameter_in": 0.5, "rod_inset_in": 3.0,
       "strut_length_in": 30.0}),
@@ -83,6 +97,9 @@ def test_a_count_takes_a_bare_whole_number_only():
 
 
 @pytest.mark.parametrize("prompt", [
+    "a 2 tier 1-5/8 in slotted trapeze", "a 1-5/8 in slotted strut trapeze",
+    "a trapeze with 1/2 in rod 24 in apart", "a trapeze with 1/2 in rod at 18 in centers",
+    "a 2 tier trapeze with 1/2 in rod 2 ft above",
     "a 2 tier trapeze with 1/2 rod", "a 2 tier 1-5/8 strut trapeze",
     "a 1-5/8 in wide strut trapeze", "a 13/16 in strut trapeze",
     "a 2 tier trapeze with 18 in rod spacing", "a 6 tier 48 in trapeze",

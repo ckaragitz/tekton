@@ -153,6 +153,45 @@ Rebuilt 2026 and 2025 `.rfa`: 0 errors, PROVENANCE-CLEAN, 23 parameters.
 **Desktop:** the owner opened the round-0 file. Every parameter showed with the
 right value, and none drove the geometry (steer #901). The drive is #787's.
 
+## Review round 2 (head `40100d9`, 🛑) — what changed
+
+- **A stated size is never overwritten by a following number.** The new
+  `Param.maximum` is the largest value a *prompt* may bind; a famspec override
+  is not limited by it.
+  - "1/2 in rod 24 in apart" used to read the 24 alias-first as a 24 in rod. Now
+    the rod is bounded at 1.5 in, so that reading is refused, the 1/2 binds, and
+    "24 in apart" is the rod spacing. The same holds for "… on center" and
+    "… 2 ft above".
+  - The other trapeze dimensions carry ranges too: strut 6 to 240 in, tiers up
+    to 6, and so on.
+  - `tiers` minimum went from 1 to 0, because `conv <= minimum` had silently
+    refused "a 1 tier trapeze".
+- **Any modifier of the noun may lead.** In "1-5/8 in slotted strut trapeze" the
+  word "strut" is not the first word after the unit; the rule now scans the whole
+  modifier run.
+  - "1-5/8 in slotted trapeze" no longer binds a 1.625 in strut, because strut
+    length is at least 6 in. It builds at the nominal size.
+- **Round 1's `not_before` was removed.** Every phrase it guarded ("rod spacing",
+  "rod inset", "rod above", "rod drop", "rod tail", "rod from end") is a longer
+  alias of another dimension and claims its text first. The guard then broke
+  "rod diameter centers 13 in".
+  - Bare `centers` / `centres` are not spacing aliases, because "rod centers"
+    would be ambiguous. Use "apart" or "on center".
+- **Sweep (#812):**
+  - New `_n(p, n)` gives a bounded parameter a distinct in-range stand-in for
+    7/13/19. An unbounded parameter (every archetype before this PR) gets exactly
+    the old numbers.
+  - `_sweep` now also fails a stated key that comes back as settle-derived, as
+    the review asked.
+- **The status line** counts derived values separately: "2 dimension(s) from the
+  prompt, 1 derived from them, …".
+- **Gates:**
+  - trapeze 49 passed;
+  - the #812 suite: 251 passed / 5 xfailed (131,728 chains, the restatement and
+    contradiction sweeps, the cross sweep);
+  - neighbouring suites plus route and plugin suites: 811 passed / 10 skipped;
+  - plugin in sync, validate PASS.
+
 ## BRANCH STATE
 
 **Files written**
@@ -163,8 +202,9 @@ right value, and none drove the geometry (steer #901). The drive is #787's.
   `_caller_param_row` stores an int for integers.
 - `src/rvt/famgen/taxonomy.py`: the `strut_trapeze` kind.
 - `plugin/lib/…`: mirrors (via `sync_plugin.py`).
-- `tests/test_strut_trapeze_899.py`: new, 37 tests after review round 1.
-- `tests/test_archetype_alias_order_812.py`: `_stray` exempts a verified `settle` derivation.
+- `tests/test_strut_trapeze_899.py`: new, 49 tests after review round 2.
+- `src/rvt/frontdoor/router.py`: the archetype status line counts derived values separately.
+- `tests/test_archetype_alias_order_812.py`: `_stray` exempts a verified `settle` derivation; `_sweep` rejects a stated key refilled by settle; `_n` gives bounded params in-range numbers.
 - `tests/ci_shard.d/899-strut-trapeze.txt`: new.
 - this fragment.
 

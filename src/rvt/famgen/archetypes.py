@@ -122,10 +122,10 @@ class Param:
     #: followed value is the caller's, so the follower is ``given`` too, with
     #: the reason quoted rather than presented as a nominal.
     follows: str = ""
-    #: words that, right after one of this parameter's aliases, mean the
-    #: number belongs to a DIFFERENT dimension: "3/8 in rod" is the rod's
-    #: diameter, "24 in rod spacing" is not (#900 review)
-    not_before: Tuple[str, ...] = ()
+    #: the largest value a PROMPT may bind (in ``unit``): a number past it
+    #: belongs to another phrase -- "1/2 in rod 24 in apart" is not a 24 in
+    #: rod (#900 review).  A famspec override is not limited by it.
+    maximum: float = math.inf
 
     def feet(self, value: Optional[float] = None) -> float:
         v = self.default if value is None else float(value)
@@ -874,35 +874,39 @@ _register(Archetype(
               "a 30 in strut: 24 in between rods with the rods 3 in in from each end",
               aliases=("long", "length", "strut length", "trapeze length",
                        "trapeze width"),
-              choices=(18.0, 24.0, 30.0, 36.0, 42.0, 48.0), primary=True),
+              choices=(18.0, 24.0, 30.0, 36.0, 42.0, 48.0), primary=True,
+              minimum=6.0, maximum=240.0),
         Param("tiers", "Number of Tiers", 2.0, "count",
               "two tiers, as asked for most often; 1 to 6",
               aliases=("tier", "tiers", "level", "levels", "tier trapeze"),
-              choices=(1.0, 2.0, 3.0, 4.0), minimum=1.0),
+              choices=(1.0, 2.0, 3.0, 4.0), maximum=6.0),
         Param("tier_spacing_in", "Tier Spacing", 12.0, "in",
               "12 in between tiers, centre to centre",
               aliases=("tier spacing", "tier to tier"),
-              choices=(8.0, 10.0, 12.0, 18.0, 24.0)),
+              choices=(8.0, 10.0, 12.0, 18.0, 24.0), maximum=120.0),
         Param("rod_spacing_in", "Rod Spacing", 24.0, "in",
               "rod centres 24 in apart: the strut length less the two insets",
-              aliases=("rod spacing", "rod centers", "rod centres", "between rods")),
+              aliases=("rod spacing", "rod centers", "rod centres", "between rods",
+                       "apart", "on center", "on centers", "on centres"),
+              minimum=1.0, maximum=228.0),
         Param("rod_inset_in", "Rod Inset", 3.0, "in",
               "the rod 3 in in from each end of the strut",
-              aliases=("rod inset", "overhang", "rod from end")),
+              aliases=("rod inset", "overhang", "rod from end"), maximum=24.0),
         Param("rod_diameter_in", "Rod Diameter", 0.375, "in",
               "3/8 in all-thread, the common trapeze rod; 1/2, 5/8 and 3/4 in for "
               "heavier loads",
               aliases=("rod", "rod diameter", "threaded rod", "all thread",
                        "all-thread", "rod size"),
-              choices=(0.375, 0.5, 0.625, 0.75),
-              not_before=("spacing", "centers", "centres", "inset", "above", "below",
-                          "drop", "tail", "from")),
+              # "24 in rod spacing" / "rod inset" are LONGER aliases of other
+              # dimensions and claim their text first; the range keeps a
+              # following number ("1/2 in rod 24 in apart") off the diameter
+              choices=(0.375, 0.5, 0.625, 0.75), maximum=1.5),
         Param("rod_above_in", "Rod Above Top Tier", 24.0, "in",
               "24 in of rod above the top tier, up to the structure",
-              aliases=("rod above", "rod drop", "to structure")),
+              aliases=("rod above", "rod drop", "to structure"), maximum=480.0),
         Param("rod_below_in", "Rod Below Bottom Nut", 1.0, "in",
               "1 in of rod left below the bottom nut",
-              aliases=("rod below", "rod tail")),
+              aliases=("rod below", "rod tail"), maximum=12.0),
         Param("height_in", "Strut Height", 1.625, "in",
               "the 1-5/8 in standard channel height",
               aliases=("strut height", "channel height", "section height")),
@@ -1229,10 +1233,8 @@ def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, in
     matching across the phrase boundary (``_SEP`` allows no comma).
     """
     out: List[Tuple[int, int, str]] = []
-    nb = (r"(?![\s-]*(?:" + "|".join(_alias_re(w) for w in p.not_before) + r")\b)"
-          if p.not_before else "")
     for al in p.aliases:
-        a = _alias_re(al) + nb
+        a = _alias_re(al)
         n = len(al)
         # rank 0: "12 in rung spacing", "24-inch-wide", "10-ft-long"
         number_first = (n, 0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT})?{_SEP}{a}")
@@ -1372,7 +1374,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                     continue
                 unit = _unit_of(m.group(0)) or p.unit
                 conv = _convert(num, unit, p)
-                if conv is None or conv <= p.minimum:
+                if conv is None or conv <= p.minimum or conv > p.maximum:
                     continue
                 b_vals[p.key] = conv
                 b_prov[p.key] = GIVEN
@@ -1448,7 +1450,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                     continue
                 p = arch.param(k)
                 conv = _convert(num, unit or p.unit, p)
-                if conv is None or conv <= p.minimum:
+                if conv is None or conv <= p.minimum or conv > p.maximum:
                     continue
                 vals[k], prov[k] = conv, GIVEN
                 quoted[k] = text[m.start():m.end()].strip()
@@ -1484,8 +1486,10 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                 continue
             unit = _unit_of(m.group(0))
             target = prim
-            lead = re.match(r"[\s-]*([a-z]+)", low[m.end("u"):m.end()])
-            lead_key = dict(arch.noun_leads).get(lead.group(1) if lead else "")
+            # any modifier of the noun may lead: "1-5/8 in slotted strut trapeze"
+            leads = dict(arch.noun_leads)
+            lead_key = next((leads[w] for w in re.findall(r"[a-z]+", low[m.end("u"):m.end()])
+                             if w in leads), None)
             if lead_key:
                 target = arch.param(lead_key)
             elif unit == "ft" and prim.unit == "in":
@@ -1499,7 +1503,7 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
             if prov[target.key] == GIVEN:
                 continue
             conv = _convert(num, unit or target.unit, target)
-            if conv is None or conv <= target.minimum:
+            if conv is None or conv <= target.minimum or conv > target.maximum:
                 continue
             vals[target.key] = conv
             prov[target.key] = GIVEN
