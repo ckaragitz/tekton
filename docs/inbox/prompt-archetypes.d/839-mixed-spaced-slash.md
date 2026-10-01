@@ -536,7 +536,7 @@ wrong are read right. **26 regressions remained, in three classes:**
 - **A tight hyphen before a spaced slash is now always a list.**
   `_is_list_slash` and its power-of-two exception are gone. Mixed numbers
   are written "2-1/2" or "2 - 1 / 2". **The one spacing given up**, "a 2-1 /
-  2 in conduit", now reads as a list (2 in; main gives a wrong 0.5). It is
+  2 in conduit", now reads as a list (2 in; *main reads 2.0 too, corrected in round 10*). It is
   pinned as a strict xfail. The #839 spacing sweep leaves out its 2,700
   asymmetric prompts: 15,300 remain, all right.
 
@@ -572,6 +572,58 @@ suites.
 - inch fractions still join (round 8's rule);
 - never a list.
 
+## Round 10 — the whole-token mask ate the next mixed number's whole number
+
+🛑 on `2459a04`. All three round-9 fixes were confirmed. The head reads about
+28,600 of the reviewer's 80,000 prompts better than main. **One new
+regression, in #839's own class:**
+- "cable tray, floors 2 - 3 / 24 - 1/2 in wide": the rejected "2 - 3 / 24"
+  was blanked whole, including the 24 that starts the next mixed number.
+  "1/2 in" was then read alone: **0.5 `given`** (main 24.5).
+- The same shape dropped main's right answers to nominal ("floors 2 - 3 /
+  2 1/2 in diameter").
+- The chained form "floors 2 - 3 / 1 / 4" rung centres" gave 4.0 (main 0.25).
+
+On the reviewer's two grids: 7 and 10 fractions read alone, and 11 and 16
+values lost.
+
+**Fix (the reviewer's, tested as a mutant):** when the slash is spaced and
+its denominator opens another number (a mixed number, or a further slash),
+the mask blanks only up to the denominator, so the next number reads. The
+spaced-slash condition is needed: without it, round 9's tight-slash rows
+("rooms 101-104/1 5/8 in tall") break, and the mutant test kills that
+variant.
+
+**Record correction:** round 9 said main reads "a 2-1 / 2 in conduit" as
+0.5. **Main reads it as 2.0, the same as the head.** So the spacing given up
+is a false `given` on both trees, not a regression; it stays a strict xfail.
+
+**Stated, non-blocking (the reviewer's):**
+- **" - " as a list separator joins into a mixed number with a spaced
+  slash.** For example, "phase 3 - 3 / 16 in. thickness" gives 3.1875, and
+  "9 / 23 / 26 - 1 / 4 inches" gives 26.25. Main does the same with a tight
+  slash. These belong with #880's rating and lead-word guard.
+- **An alias-led thickness can take a feet value from the next phrase.**
+  "32 1/10 in sheet thickness: 34 - 5/ 12' long" gives 413 on the head.
+  Main gives 413 for the tight form and 408 for a plain "34'".
+
+**Measured against main `f1672e4`** (`archetypes.py` is unchanged on `be0a350`):
+
+| instrument | prompts | right on `main`, wrong on head |
+|---|---|---|
+| list generator, 7 separators | 22,176 | **0** (the same 44 main-wrong → nominal) |
+| quote and conductor-count generator | 18,184 | **0** (identical) |
+| round-6 generator, 3 seeds | 180,000 | **0** in either false-`given` class (6,211 fewer than main) |
+| fuzzers seeds 1–3 | 60,000 | **0** |
+
+**Tests:** 228 passed and 2 xfailed in the two files (188 in
+`test_mixed_spaced_839.py`, with the reviewer's 13 probes as rows); 654
+passed and 7 xfailed with the neighbouring suites.
+
+**Mutants: 2/2 killed:**
+- the denominator branch off;
+- no spaced-slash condition.
+
 ---
 
 ## BRANCH STATE
@@ -588,12 +640,16 @@ suites.
 
   *(Corrected in round 9: this line used to list only `_NUM_CORE`.)*
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 175 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 188 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
   sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 10)**: 228 passed + 2 xfailed across the two files (654 + 7
+xfailed with the neighbouring suites); 2/2 round-10 mutants killed; plugin
+in sync.
 
 **Gates (round 9)**: 215 passed + 2 xfailed across the two files (641 + 7
 xfailed with the neighbouring suites, on the tree rebased onto `f1672e4`);

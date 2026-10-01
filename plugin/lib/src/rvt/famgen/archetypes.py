@@ -1506,7 +1506,14 @@ def _mask_orphan_fractions(low: str) -> str:
             continue
         whole = re.match(_NUM_CORE, low[m.start():])
         if whole is None or m.start() + whole.end() < m.end(2):
-            if "-" in m.group(1) or (int(m.group(3)) == 0 and re.search(r"\d/\d", m.group(2))):
+            if re.search(r"\s/|/\s", m.group(2)) and re.match(
+                    rf"\d+(?:(?:\s+|\s*-\s*){_MIXED_FRAC}|\s*/\s*\d)", low[m.start(3):]):
+                # the spaced slash's DENOMINATOR opens the next number ("floors
+                # 2 - 3 / 24 - 1/2 in wide"): blank only up to it, so 24 1/2
+                # still reads -- blanked whole, the "1/2" was read alone
+                # (#841 round 10)
+                s, e = m.start(), m.start(3)
+            elif "-" in m.group(1) or (int(m.group(3)) == 0 and re.search(r"\d/\d", m.group(2))):
                 s, e = m.start(), m.end(2)
             else:
                 s, e = m.span(2)

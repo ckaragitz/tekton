@@ -482,3 +482,28 @@ def test_round_9_lists_and_denominators(prompt, key, want):
 def test_a_fraction_beside_a_blank_is_not_read_alone(prompt, key):
     r = AR.resolve_prompt(prompt)
     assert r.provenance[key] != GIVEN, (prompt, r.values[key], r.quoted.get(key))
+
+
+
+# Round 10 (#841): the whole-token mask must not eat the whole number of the
+# NEXT mixed number -- "floors 2 - 3 / 24 - 1/2 in wide" blanked the 24 and
+# read "1/2" alone; the denominator that opens a number stays readable.
+@pytest.mark.parametrize("prompt,key,want", [
+    ("cable tray, floors 2 - 3 / 24 - 1/2 in wide", "width_in", 24.5),
+    ("a conduit, floors 2 - 3 / 2 - 1/2 in diameter", "diameter_in", 2.5),
+    ('cable tray, rooms 101 - 104 / 24 - 1/2" wide', "width_in", 24.5),
+    ("cable tray, phases 1 - 2 / 18 - 1/2 in wide", "width_in", 18.5),
+    ("strut channel, 12 - 2 / 1 - 1/4 inches slot length", "slot_length_in", 1.25),
+    ("emt conduit 2 - 3 / 11 - 5/16 feet long", "length_ft", 11.3125),
+    ("need a wireway -- item 7 - 2 / 22 - 5/12 inches wide", "width_in", 22 + 5 / 12),
+    ("a conduit, floors 2 - 3 / 2 1/2 in diameter", "diameter_in", 2.5),
+    ("pull box // 2 - 3 / 29 1/2 in. sheet thickness", "thickness_in", 29.5),
+    ("emt conduit floors 2 - 3 / 23-1/2 feet length", "length_ft", 23.5),
+    ("lighting control panel . 12 - 2 / 15-5/12 in width", "width_in", 15 + 5 / 12),
+    ('make cable tray - floors 2 - 3 / 1 / 4" rung centres', "rung_spacing_in", 0.25),
+    ("strut channel & floors 2 - 3 / 1 / 3 lip", "lip_in", 1 / 3),
+])
+def test_a_denominator_that_opens_the_next_number_stays_readable(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN
