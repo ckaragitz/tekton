@@ -1110,7 +1110,8 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             numeric_params: Optional[Dict[str, Any]] = None,
                             drive: bool = False,
                             standards: bool = True,
-                            standard_values: Optional[Dict[str, Any]] = None
+                            standard_values: Optional[Dict[str, Any]] = None,
+                            drives: Optional[Sequence[Dict[str, Any]]] = None
                             ) -> FamilyProduct:
     """A MULTI-PART generic model: several stacked / offset extrusions in one
     family (a canopy + a stem, a base + a body + a cap).  This is the LOD
@@ -1245,14 +1246,64 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         except Exception as e:                       # never block delivery
             drive_note = f"parametric drive not wired ({type(e).__name__}: {str(e)[:90]})"
     doc.notes.append(drive_note)
+    # PARAMETER DRIVES (#904): each spec names a family parameter, an axis, the
+    # two plane positions and, BY PART NAME, which edges of which parts follow
+    # it -- the in-plane law the owner's desktop verified on a one-box probe
+    # (#787), per part.  Never blocks delivery (hard rule 1).
+    drive_report: List[Dict[str, Any]] = []
+    if drives:
+        from . import drive_law as DL
+        sketch_of: Dict[str, Any] = {}
+        dup: set = set()
+        for part, fb in zip(parts, built):
+            sk = next((e for e in fb.elements if e.class_name == "VarSketch"), None)
+            if sk is not None and part.get("name"):
+                n = str(part["name"])
+                if n in sketch_of:
+                    dup.add(n)
+                sketch_of[n] = sk
+        for spec in drives:
+            try:
+                names = list(spec["parts"])
+                # a name that matches no part, or several, is never silently
+                # dropped (#907 review round 3)
+                bad = [n for n in names if n not in sketch_of or n in dup]
+                if bad:
+                    raise ValueError(f"part name(s) missing or not unique: {bad[:4]}")
+                targets = [(sketch_of[n], tuple(sides))
+                           for n, sides in spec["parts"].items()]
+                if not targets:
+                    raise ValueError("no named part to drive")
+                drive_report.append(DL.wire_linear_drive(
+                    doc, caption=spec["caption"], axis=spec["axis"],
+                    lo=float(spec["lo"]), hi=float(spec["hi"]), targets=targets))
+            except Exception as e:                   # noqa: BLE001
+                doc.notes.append(f"drive for {spec.get('caption')!r} not wired "
+                                 f"({type(e).__name__}: {str(e)[:90]})")
+        # only a document that actually CARRIES a drive is a law document:
+        # finalize then skips back-edges and the law runs after it
+        doc.born_drive_law = bool(drive_report)
+        if drive_report:
+            # the "REPORTED only" first-solid note is false once a drive is
+            # wired; a wired first-solid note (drive=True) stays beside the
+            # summary of what the drives carry (#907 review round 4)
+            if drive_note.startswith("dimensions are REPORTED only"):
+                doc.notes.remove(drive_note)
+            doc.notes.append("parameter drives wired: " + "; ".join(
+                f"{d['caption']} moves {len(d['locks'])} part edge(s) on "
+                f"{d['targets']} part(s)" for d in drive_report))
     doc.notes.append(f"multi-part generic model "
                      f"({_geometry_origin(dim_provenance, source)}): "
                      f"{len(built)} extrusions "
                      f"({', '.join(str(p.get('shape') or 'box') for p in parts)}); "
                      f"Width/Depth/Height report the assembly bounding box")
     doc.finalize()
+    if drive_report:
+        from . import drive_law as DL
+        DL.apply_born_inplane_law(doc)
     prod = FamilyProduct("generic_model", doc, sheet, forms=built,
                          file_stem=_slug(fam_name), standards=std_report)
+    prod.drives = drive_report
     if dim_provenance == "fact":
         # The spec-sheet lane (#688 DONE 5). Saying "no manufacturer identity
         # is claimed" here would be false: the user supplied the document
@@ -1411,7 +1462,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        numeric_params: Optional[Dict[str, Any]] = None,
                        drive: bool = False,
                        standards: bool = True,
-                       standard_values: Optional[Dict[str, Any]] = None
+                       standard_values: Optional[Dict[str, Any]] = None,
+                       drives: Optional[Sequence[Dict[str, Any]]] = None
                        ) -> FamilyProduct:
     """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
     "when i go to claude design and ask it to build me a 3d object you
@@ -1441,7 +1493,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                                        identity=identity, text_params=text_params,
                                        numeric_params=numeric_params,
                                        drive=drive, standards=standards,
-                                       standard_values=standard_values)
+                                       standard_values=standard_values,
+                                       drives=drives)
     if height_ft is None or float(height_ft) <= 0:
         raise FactoryError("make_generic_model needs a positive height_ft "
                            "(or parts=[...] for a multi-part assembly)")
@@ -1519,6 +1572,14 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                           "catalog facts; no manufacturer identity is claimed")
     if std_report:
         prod.notes.append(_standards_note(std_report))
+    prod.drives = []
+    if drives:
+        # never silently dropped (#907 review round 4): the single-prism path
+        # has no named parts to drive -- pass parts=[...] for drives
+        msg = (f"{len(drives)} parameter drive(s) NOT wired: the single-prism path "
+               "has no named parts (pass parts=[...] to drive them)")
+        doc.notes.append(msg)
+        prod.notes.append(msg)
     return prod
 
 
@@ -1570,7 +1631,9 @@ def make_archetype(*, product: str,
     # trapeze's tiers / rod spacing / rod size are what a user edits
     own = arch.family_params(dict(res.values)) or {}
     numeric = {**own, **(toggle or {})} or None
+    drives = arch.drives(dict(res.values)) if arch.drives else None
     prod = make_generic_model(parts=parts, name=fam_name, numeric_params=numeric,
+                              drives=drives,
                               category=category or arch.category,
                               base_z_ft=base_z_ft, solid=solid, source=src,
                               start_id=start_id, shared_params=shared_params,
