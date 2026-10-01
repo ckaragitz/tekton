@@ -205,10 +205,10 @@ def test_panelboard_family_composition():
     assert vals[SK.BIP_TYPE_MANUFACTURER] == "Eaton"
     assert vals[SK.BIP_TYPE_MODEL] == "PRL2X"
     # geometry: one box at the true catalog dims
-    # the enclosure, its front parts (#885), then its two clearance zones (#882)
+    # the enclosure, its front parts (#892), then its two clearance zones (#882)
     from rvt.famgen import equipment_detail as ED
     front = ED.panelboard_parts(20.0 / 12, 5.75 / 12, 60.0 / 12)
-    assert len(prod.forms) == 1 + len(front) + 2      # the box, its front parts (#885), 2 zones (#882)
+    assert len(prod.forms) == 1 + len(front) + 2      # the box, its front parts (#892), 2 zones (#882)
     assert prod.forms[0].params["role"] == "panelboard enclosure"
     assert [f.params["role"] for f in prod.forms[1:]] == [p.role for p in front] + [
         "clearance: front working space", "clearance: top"]
@@ -607,7 +607,7 @@ def test_multi_type_family_has_one_row_per_selection(kind):
         from rvt.famgen import equipment_detail as ED
         f = prod.facts
         n_forms += len(ED.panelboard_parts(f.get("width_in") / 12, f.get("depth_in") / 12,
-                                           f.get("height_in") / 12))    # its front parts (#885)
+                                           f.get("height_in") / 12))    # its front parts (#892)
     if kind in ("transformer", "panelboard"):
         n_forms += 2                                      # + the two clearance zones (#882)
     assert len(prod.forms) == n_forms

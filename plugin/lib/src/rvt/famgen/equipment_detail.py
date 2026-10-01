@@ -142,6 +142,10 @@ def panelboard_parts(W: float, D: float, H: float, *, flush: bool = False) -> Li
     proportions (:data:`PANEL_DETAIL_NOTE`)."""
     if min(W, D, H) <= 0:
         raise ValueError(f"panelboard box must be positive, got {W} x {D} x {H}")
+    if W < 6 * IN or H < 12 * IN:
+        # below this the inset door (and the nameplate on it) has no room
+        raise ValueError(f"a {W * 12:g} x {H * 12:g} in box is too small for a panelboard front "
+                         f"(needs 6 in wide x 12 in high)")
     face = 0.0 if flush else D
     lap = 0.75 * IN if flush else 0.0
     tw, th, tz0 = W + 2 * lap, H + 2 * lap, -lap

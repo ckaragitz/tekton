@@ -54,9 +54,18 @@ def test_a_flush_trim_laps_the_wall_opening():
     assert (trim.w, trim.h, trim.z0) == pytest.approx((W + 1.5 * IN, H + 1.5 * IN, -0.75 * IN))
 
 
-def test_a_non_positive_box_is_refused():
+def test_a_non_positive_or_tiny_box_is_refused():
     with pytest.raises(ValueError):
         ED.panelboard_parts(1.0, 0.0, 1.0)
+    with pytest.raises(ValueError, match="too small"):
+        ED.panelboard_parts(5 * IN, 4 * IN, 20 * IN)
+    with pytest.raises(ValueError, match="too small"):
+        ED.panelboard_parts(20 * IN, 4 * IN, 8 * IN)
+    for W, H in ((6 * IN, 12 * IN), (20 * IN, 12 * IN)):         # the smallest allowed: sane parts
+        parts = ED.panelboard_parts(W, 4 * IN, H)
+        door = next(p for p in parts if p.role == "door")
+        plate = next(p for p in parts if p.role == "nameplate")
+        assert door.w > 0 and door.h > 0 and plate.z0 >= door.z0
 
 
 @pytest.fixture(scope="module")
@@ -97,3 +106,15 @@ def test_a_flush_panel_starts_its_working_space_at_the_wall_face_plus_hardware()
     box = prod.forms[0].params
     assert box["center"][1] == pytest.approx(-D / 2)                  # recessed behind the wall
     assert all(p.cy - p.d / 2 >= -1e-9 for p in parts)                  # the front stands on the wall
+
+
+def test_the_factory_still_delivers_a_box_with_no_room_for_a_front(monkeypatch, tmp_path):
+    def refuse(*a, **k):
+        raise ValueError("a 4 x 8 in box is too small for a panelboard front")
+    monkeypatch.setattr(ED, "panelboard_parts", refuse)
+    prod = F.make_panelboard(mains_a=225, spaces=42, voltage="208Y/120")
+    assert [x.params["role"] for x in prod.forms][0] == "panelboard enclosure"
+    assert not any(x.params["role"] == "door" for x in prod.forms)
+    assert any(n.startswith("panelboard front NOT drawn") for n in prod.doc.notes)
+    rep = prod.write(str(tmp_path / "pb.rfa"))
+    assert rep["validate"]["family_mode"]["n_errors"] == 0
