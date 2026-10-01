@@ -660,6 +660,9 @@ against round 10 (`4cd2a6f`):
 | fuzzers seeds 1–3 | 60,000 | identical | identical |
 
 So round 10's "0 worse than main" results stand: no prompt moved away from main.
+*(Corrected in round 12: that sentence was wrong. These generators compare trees but
+hold no oracle for "worse", and they do not produce the shapes round 12 found — three
+classes that read worse than main, two of them since round 9.)*
 
 **Not blocking (the reviewer's; main does the same):** two phrases run together with no
 punctuation, where the second uses round 9's tight-hyphen + spaced-slash list form, can still
@@ -680,6 +683,53 @@ between reading the alias first and the number first.
 
 ---
 
+## Round 12 — a list after a slash, a slash-glued number, and a glued denominator
+
+🛑 on `28a958b`. Both round-11 cases were confirmed fixed. **Three classes still read worse than
+main**, and the round-11 sentence "no prompt moved away from main" was wrong:
+1. **Round 9's denominator skip ran before round 8's list rule**, so a tight-hyphen list after a
+   slash read as a mixed number again. Round 8 read these as main does.
+   - "cable tray levels 1 / 2-3 / 12\" wide" gave **2.25 `given`** (main 12).
+   - "cable tray 3 / 2-3 / 6 in deep" gave 2.5 (main 6).
+2. **The list rule blanked a slash that touches the next number**, which freed that number.
+   Main never reads a number glued to a slash.
+   - "cable tray levels 2-3 /4 / 6 in deep" gave **0.667** (main 6).
+   - "a 2-3 /4 in conduit" gave **4 in `given`** (main nominal).
+3. **Round 10's denominator branch freed a slash-glued denominator** on its mixed-number
+   alternative. Round 11 had guarded only the range alternative.
+   - "a 2 120 /208 3/4 in conduit" gave **208.75 in `given`** (main nominal).
+
+**Fix (the reviewer's, tested):**
+- The list rule runs before the denominator skip.
+- The list rule leaves a slash that touches the next number unless that number opens a mixed
+  number.
+- The "/ " guard covers both alternatives of the denominator branch.
+
+**Measured:**
+- **The reviewer's generators** (the evidence for these shapes):
+  - 96,711 prompts of dimensions next to distractors;
+  - 150,000 random mixed/slash prompts.
+
+  Every prompt where the fix differs from `28a958b` either returns exactly to main's reading
+  (204 and 3,029) or moves toward the intended value (3). None reads worse than main.
+- **The cost:** some slash-glued garbage shapes, where main was already wrong, return to main's
+  wrong reading instead of round 10's better one. For example, "a 1\t12 /2 - 1/2 in strut" gives
+  0.5, as main does.
+- **This session's generators**, against round 11:
+  - round-6 generator, 166,781 unique prompts: 3 changed, all 3 back to main's reading;
+  - list, quote/conductor and fuzzer sets (100,360): identical.
+
+**Tests:**
+- 250 passed and 2 xfailed in the two files: 210 in `test_mixed_spaced_839.py`, with the 10
+  repros as rows pinning main's full `given` set.
+
+**Mutants: 3/3 killed:**
+- skip before the list rule (4 failures);
+- glued slash blanked (5);
+- guard on the range only (9).
+
+---
+
 ## BRANCH STATE
 
 **Files written**
@@ -694,12 +744,16 @@ between reading the alias first and the number first.
 
   *(Corrected in round 9: this line used to list only `_NUM_CORE`.)*
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 200 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 210 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
-  sweeps, the round-11 rows that pin main's full reading).
+  sweeps, the round-11 and round-12 rows that pin main's full reading).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 12)**: 250 passed + 2 xfailed across the two files (676 + 7 xfailed with the
+neighbouring suites; 117 in the prompt-intent suites); 3/3 round-12 mutants killed; plugin
+in sync.
 
 **Gates (round 11)**: 240 passed + 2 xfailed across the two files (666 + 7
 xfailed with the neighbouring suites; 117 in the prompt-intent suites); 3/3 round-11

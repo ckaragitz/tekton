@@ -532,3 +532,26 @@ def test_a_denominator_never_frees_a_whole_or_a_range_end(prompt, given):
     r = AR.resolve_prompt(prompt)
     got = {k: v for k, v in r.values.items() if r.provenance.get(k) == GIVEN}
     assert got == pytest.approx(given), (prompt, got, r.quoted)
+
+
+# Round 12 (#841): round 9's denominator skip ran before the list rule, so a
+# tight-hyphen list after a slash read as a mixed number again; the list rule
+# freed a number glued to the next slash; and round 10's denominator branch
+# freed a slash-glued denominator ("2 120 /208 3/4 in" was 208.75).  Every row
+# reads exactly as main: the given set.
+@pytest.mark.parametrize("prompt,given", [
+    ('cable tray levels 1 / 2-3 / 12" wide', {"width_in": 12.0}),
+    ("cable tray floors 2 / 3-4 / 12 in wide", {"width_in": 12.0}),
+    ("cable tray 3 / 2-3 / 6 in deep", {"depth_in": 6.0}),
+    ("cable tray levels 2-3 /4 / 6 in deep", {"depth_in": 6.0}),
+    ("a 1-120 /16 / 8 in junction box", {"width_in": 8.0, "height_in": 8.0}),
+    ("wireway #12-120 /208 / 10 ft long", {"length_ft": 10.0}),
+    ("a 2-3 /4 in conduit", {}),
+    ("a 2 120 /208 3/4 in conduit", {}),
+    ("cable tray 24 120 /208 1/2 in deep", {}),
+    ("cable tray width 24 120 /208 1/2 in deep", {"width_in": 24.0}),
+])
+def test_a_list_or_a_glued_slash_never_frees_a_number(prompt, given):
+    r = AR.resolve_prompt(prompt)
+    got = {k: v for k, v in r.values.items() if r.provenance.get(k) == GIVEN}
+    assert got == pytest.approx(given), (prompt, got, r.quoted)

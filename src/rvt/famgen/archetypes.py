@@ -1484,11 +1484,6 @@ def _mask_orphan_fractions(low: str) -> str:
     277 V" is 12, and "trade size 2 4 / 0 conductors" is a 2 in conduit."""
     out = low
     for m in _WHOLE_THEN_FRACTION.finditer(low):
-        # a match whose whole number is itself a fraction's DENOMINATOR is
-        # no whole number: blanking "4 - 277/480" whole ate the 4 of "3 / 4"
-        # (#841 round 9)
-        if re.search(r"\d\s*/\s*$", low[:m.start()]):
-            continue
         # a TIGHT hyphen before a SPACED slash is a list separator, ALWAYS:
         # "levels 2-3 / 12\" wide" -- read as 2 3/12, or blanked whole, it
         # took the next phrase's 12 (#841 round 8).  Round 8 kept a lone
@@ -1502,15 +1497,30 @@ def _mask_orphan_fractions(low: str) -> str:
             # stands -- "24 in / 2-3 / 4 in deep" is a 4 in depth
             sl = re.search(r"\s*/\s*", low[m.start(2):m.end(2)])
             s, e = m.start(2) + sl.start(), m.start(2) + sl.end()
+            # (a slash TOUCHING the next number stays unless that number
+            # opens a mixed one ("2-3 /2 - 1 / 2 in"): main never reads a
+            # number glued to a slash, and blanked, "levels 2-3 /4 / 6 in
+            # deep" read 4/6 as the depth -- #841 round 12)
+            if low[e - 1] == "/" and not re.match(
+                    rf"\d+(?:\s+|\s*-\s*){_MIXED_FRAC}", low[e:]):
+                e -= 1
             out = out[:s] + _ORPHAN_MASK * (e - s) + out[e:]
+            continue
+        # a match whose whole number is itself a fraction's DENOMINATOR is
+        # no whole number: blanking "4 - 277/480" whole ate the 4 of "3 / 4"
+        # (#841 round 9).  AFTER the list rule, which blanks only the slash:
+        # skipped first, "levels 1 / 2-3 / 12\" wide" read 2 3/12 (round 12)
+        if re.search(r"\d\s*/\s*$", low[:m.start()]):
             continue
         whole = re.match(_NUM_CORE, low[m.start():])
         if whole is None or m.start() + whole.end() < m.end(2):
             den = low[m.start(3):]
-            if re.search(r"\s/|/\s", m.group(2)) and (
+            # only after "/ ", never "/": main reads no number glued to a
+            # slash, and freed, "a 2 120 /208 3/4 in conduit" was a 208.75 in
+            # conduit (round 12; round 11 guarded the range alone)
+            if low[m.start(3) - 1].isspace() and (
                     re.match(rf"\d+(?:(?:\s+|\s*-\s*){_MIXED_FRAC}|\s*/\s*\d)", den)
-                    # a range only where main read one: after "/ ", not "/"
-                    or (low[m.start(3) - 1].isspace() and re.match(r"\d+\s*-\s*\d", den))):
+                    or re.match(r"\d+\s*-\s*\d", den)):
                 # the spaced slash's DENOMINATOR opens the next number ("floors
                 # 2 - 3 / 24 - 1/2 in wide"): blank only up to it, so 24 1/2
                 # still reads -- blanked whole, the "1/2" was read alone
