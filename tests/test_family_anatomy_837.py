@@ -597,14 +597,19 @@ def test_an_undecodable_family_record_is_not_taken_for_the_self_family(monkeypat
 # --- round 3 (#842): dimensions are concrete Dimension subclasses ------------
 
 def test_the_catalog_panelboard_dimensions_are_read(profiles):
-    """Our writer puts two labelled LinearDimStrings and four Alignments into
-    the catalog panelboard (param_drive.new_labeled_dim); the reader looked
-    for the abstract Dimension class and read 0 (round 3)."""
+    """Our writer puts LinearDimStrings and Alignments into the catalog
+    panelboard; the reader looked for the abstract Dimension class and read 0
+    (round 3).  Re-pinned on purpose by #914 DONE 3 (the panelboard moved from
+    the #372 first-solid chain -- 2 labelled dims, 4 locks -- to drive_law +
+    height_law): 3 labelled (Width, Depth, Height) + 20 unlabelled (the Width
+    EQ, 13 locked ride offsets in plan, 6 locked heights) = 23; 44 alignments
+    (14 Width + 18 Depth sketch locks, 11 cap-face locks, the origin elevation
+    plane to the Level)."""
     p = profiles["panelboard"]
-    assert p["dimensions"] == {"value": {"total": 2, "by_kind": {"linear": 2}, "alignments": 4},
-                               "how": "decoded"}
+    assert p["dimensions"] == {"value": {"total": 23, "by_kind": {"linear": 23},
+                                         "alignments": 44}, "how": "decoded"}
     dc = p["dimension_constraints"]["value"]
-    assert (dc["labelled"], dc["unlabelled"], dc["eq_display_option"]) == (2, 0, 0)
+    assert (dc["labelled"], dc["unlabelled"], dc["eq_display_option"]) == (3, 20, 0)
     assert p["connectors"]["value"] == {"total": 1}
 
 
@@ -623,21 +628,25 @@ def test_an_unlabelled_and_an_equality_dimension_are_told_apart(families, monkey
     seen = []
 
     def edit(v):
-        if v.get("m_dimLockedForLabeling") is not None and "m_constrDir" not in v:
+        # the first LABELLED dimension (the panelboard also carries unlabelled
+        # ones since #914, so "the first dimension" no longer means a label)
+        if (v.get("m_dimLockedForLabeling") is not None and "m_constrDir" not in v
+                and any(int(g.get("m_paramId", -1)) >= 0 for g in v["m_ArrSegInfo"])):
             if not seen:
                 v["m_ArrSegInfo"] = [dict(g, m_paramId=-1) for g in v["m_ArrSegInfo"]]
                 v["m_useEqualityFormula"] = True
             seen.append(1)
     _patch_class(monkeypatch, "m_ArrSegInfo", edit)
     dc = FA.profile(families["panelboard"])["dimension_constraints"]["value"]
-    assert (dc["labelled"], dc["unlabelled"], dc["eq_display_option"]) == (1, 1, 1), dc
+    assert (dc["labelled"], dc["unlabelled"], dc["eq_display_option"]) == (2, 21, 1), dc
 
 
 def test_a_dimension_or_form_class_the_table_does_not_name_is_other_not_dropped(families, monkeypatch):
     monkeypatch.setattr(FA, "DIMENSION_KINDS", {})
     monkeypatch.setattr(FA, "FORM_CLASSES", {})
     p = FA.profile(families["panelboard"])
-    assert p["dimensions"]["value"] == {"total": 2, "by_kind": {"other": 2}, "alignments": 4}
+    assert p["dimensions"]["value"] == {"total": 23, "by_kind": {"other": 23},
+                                        "alignments": 44}
     # the cabinet, its 6 front parts (#892) and its 2 clearance zones (#882)
     assert p["forms"]["value"]["by_kind"] == {"other": 9}
 

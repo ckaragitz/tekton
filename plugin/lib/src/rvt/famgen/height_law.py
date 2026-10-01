@@ -232,13 +232,12 @@ def _surface_only(rp) -> None:
     step["m_flags"] = SURFACE_GSTEP_FLAGS
     gs["m_flags"] = SURFACE_GSTEP_LIST_FLAGS
     gs["m_latestGStepTypeInPrevRegenCycle"] = [0, 0, 0, 0, 0]
-    # GeomTable m_maxSafeTag / m_lastCheckedKingsUserModificationDate -1: the
-    # born values; the 2026 schema has no such fields and the 2025/2024 port
-    # writes -1 for them (release_ctx), so the written file carries them
-    # whatever this object says -- stated here so the form is complete
-    gt = o["m_pGeomTable"]["value"]
-    gt["m_maxSafeTag"] = -1
-    gt["m_lastCheckedKingsUserModificationDate"] = -1
+    # GeomTable m_maxSafeTag / m_lastCheckedKingsUserModificationDate are -1 in
+    # born files.  The 2026 schema has no such fields and the 2025/2024 port
+    # writes -1 for them when the object lacks them (release_ctx), so they are
+    # NOT set here: two keys the native schema does not carry made the
+    # in-memory roundtrip unequal (byte-exact, value-unequal) on every surface
+    # plane (#914 DONE 3; the written bytes are identical either way)
     hdr = rp.header
     hdr["m_abFlags4Bytes"] = SURFACE_HDR_FLAGS
     par = hdr["m_parents"]["value"]

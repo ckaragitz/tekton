@@ -2,7 +2,8 @@
 
 Two changes are pinned here, both read back from the WRITTEN file:
 
-1. **The panelboard chain.**  ``param_drive.wire_panelboard_drive`` used to put its
+1. **The panelboard chain** (now `drive="372"`; the default is drive_law, #914 DONE 3,
+   `tests/test_panel_drive_law_914.py`).  ``param_drive.wire_panelboard_drive`` used to put its
    side planes at x = +-W/2 and y = +-D/2 about the origin.  The panelboard profile
    spans y = 0..D (surface) or -D..0 (flush), so the two y locks sat 0.24 ft off
    their planes -- constraint law CG7.  Now every plane is placed on the edge it
@@ -134,6 +135,11 @@ BUILDS = {
     "panelboard_flush": lambda: F.make_panelboard(name="B914F", mounting="flush"),
     "panelboard_types": lambda: F.make_panelboard(name="B914T", types=["225A", "400A"]),
     "panelboard_600A": lambda: F.make_panelboard(name="B914_600", mains_a=600),
+    # the panelboard keys above carry drive_law since #914 DONE 3; the old
+    # #372 chain stays read back from the written file too
+    "panelboard_372": lambda: F.make_panelboard(name="B914_372", drive="372"),
+    "panelboard_flush_372": lambda: F.make_panelboard(name="B914F_372", mounting="flush",
+                                                      drive="372"),
     "lighting_control_panel": lambda: F.make_archetype(product="lighting_control_panel"),
 }
 
@@ -160,7 +166,9 @@ def test_every_written_sketch_lock_lies_on_its_plane(key, release):
 
 @pytest.mark.parametrize("mounting, y", [("surface", (0.0, 1.0)), ("flush", (-1.0, 0.0))])
 def test_the_panelboard_depth_planes_sit_on_the_profile_edges(mounting, y):
-    prod = F.make_panelboard(name="B914P", mounting=mounting)
+    # the OLD #372 chain, now behind drive="372" (#914 DONE 3 moved the default
+    # to drive_law: tests/test_panel_drive_law_914.py); its planes stay on edges
+    prod = F.make_panelboard(name="B914P", mounting=mounting, drive="372")
     D = prod.doc.types[prod.doc.current_type][1][prod.doc.params["Depth"].elem_id]
     side = [p.obj for p in prod.doc.refplanes if not p.obj.get("m_definesOrigin")]
     ys = sorted(o["m_freeEnd"][1] for o in side
@@ -190,7 +198,7 @@ def test_a_parameter_that_disagrees_with_the_profile_is_refused_before_any_mutat
     SK.FamilyDoc.finalize = grab
     try:
         with pytest.raises(RuntimeError, match="stop"):
-            F.make_panelboard(name="B914R")
+            F.make_panelboard(name="B914R", drive="372")        # the old chain (#914 DONE 3)
     finally:
         SK.FamilyDoc.finalize = orig
     doc = seen["doc"]

@@ -190,7 +190,7 @@ _SIDE_LAW = {
 
 
 def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
-                      targets) -> Dict[str, Any]:
+                      targets, lo_plane=None, hi_plane=None) -> Dict[str, Any]:
     """Make family parameter ``caption`` drive the distance between two new
     reference planes at ``lo`` / ``hi`` (feet, along ``axis`` 'x' or 'y'), and
     lock the matching edge of every target part's rectangular sketch to them.
@@ -198,6 +198,15 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
     ``targets`` = ``[(VarSketch element, ("lo",) | ("hi",) | ("lo", "hi"))]``:
     a part whose ends both follow the parameter (a full-length web) lists both
     sides; the end segment of a slotted back lists only its outer side.
+
+    ``lo_plane`` / ``hi_plane``: an EXISTING reference plane (in practice the
+    origin centre plane, :func:`origin_centre_plane`) standing in for that end.
+    No new plane is made there: the labelled dimension witnesses it and that
+    side's edges are locked to it, so that end is ANCHORED and only the other
+    one moves -- a one-sided drive (a panelboard's back on the wall plane,
+    #914).  The plane must lie square to ``axis`` exactly at ``lo`` / ``hi``.
+    UNVERIFIED: the one-box verdict (#787) had two new, unanchored planes; a
+    drive anchored on an origin plane has no desktop verdict (hard rule 4).
 
     Call BEFORE ``finalize``; run :func:`apply_born_inplane_law` after it.  The
     chain is the desktop-verified one-box law (#787 verdict) applied per part;
@@ -226,11 +235,24 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
     if isinstance(current, (int, float)) and abs(float(current) - value) > 1e-6:
         raise ValueError(f"drive_law: {caption} is {float(current):g} ft but its planes "
                          f"are {value:g} ft apart")
+    k = 0 if axis == "x" else 1
+    given = {"lo": lo_plane, "hi": hi_plane}
+    if lo_plane is not None and lo_plane is hi_plane:
+        raise ValueError("drive_law: one plane cannot be both ends")
+    for end, rp in given.items():
+        if rp is None:
+            continue
+        if rp.elem_id not in {p.elem_id for p in doc.refplanes}:
+            raise ValueError(f"drive_law: the {end} plane is not in this document")
+        f, b = rp.obj["m_freeEnd"], rp.obj["m_bubbleEnd"]
+        want = lo if end == "lo" else hi
+        if abs(float(f[k]) - want) > 1e-9 or abs(float(b[k]) - want) > 1e-9:
+            raise ValueError(f"drive_law: the {end} plane is not the {'xy'[k]} = "
+                             f"{want:g} ft plane")
     rects = [PD._classify_rect(PD._sketch_lines(sk)) for sk, _sides in targets]
     side_key = {("x", "lo"): "left", ("x", "hi"): "right",
                 ("y", "lo"): "bottom", ("y", "hi"): "top"}
     at = {"lo": lo, "hi": hi}
-    k = 0 if axis == "x" else 1
     # a curve already locked to a plane (an earlier drive, or the first-solid
     # chain of drive=True) must not be locked again: two locks on one edge tie
     # two parameters together for ever and Revit cannot flex either (#907
@@ -278,7 +300,8 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
         doc.add(rp)
         return rp
 
-    planes = {"lo": _plane(lo), "hi": _plane(hi)}
+    planes = {"lo": lo_plane if lo_plane is not None else _plane(lo),
+              "hi": hi_plane if hi_plane is not None else _plane(hi)}
 
     def _p3(p):
         return (float(p[0]), float(p[1]), 0.0)
@@ -347,9 +370,13 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
         doc.notes.append("drive_law: no UnitsElem -- the labelled dimension keeps the "
                          "view sketch plane as its regen parent")
     doc.add(dim)
-    return {"caption": caption, "axis": axis, "planes": [planes["lo"].elem_id,
-                                                         planes["hi"].elem_id],
-            "locks": locks, "dim": dim.elem_id, "targets": len(targets)}
+    out = {"caption": caption, "axis": axis, "planes": [planes["lo"].elem_id,
+                                                        planes["hi"].elem_id],
+           "locks": locks, "dim": dim.elem_id, "targets": len(targets)}
+    anchored = [e for e in ("lo", "hi") if given[e] is not None]
+    if anchored:
+        out["anchored"] = anchored
+    return out
 
 
 # ---------------------------------------------------------------------------
