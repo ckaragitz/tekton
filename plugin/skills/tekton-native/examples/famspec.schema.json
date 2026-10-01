@@ -166,6 +166,14 @@
             "flush"
           ]
         },
+        "drive": {
+          "enum": [
+            "law",
+            "372",
+            null
+          ],
+          "description": "How Width / Depth / Height drive the geometry (#914): 'law' (default) = the Revit-born in-plane law with the front parts riding; '372' = the legacy panelboard chain; null = no drive wired. Authored; the assembled family has no desktop verdict."
+        },
         "panel_name": {
           "type": "string",
           "minLength": 1,
