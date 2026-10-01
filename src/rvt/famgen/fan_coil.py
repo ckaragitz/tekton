@@ -188,7 +188,8 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
         else:
             sheet.set(key, float(val), kind="given", source="the request")
             dims[key] = float(val)
-    if voltage is not None and not (float(voltage) > 0 and math.isfinite(float(voltage))):
+    if voltage is not None and (isinstance(voltage, bool)
+                                or not (float(voltage) > 0 and math.isfinite(float(voltage)))):
         raise ValueError(f"supply voltage must be a positive, finite number of volts, got {voltage!r}")
     if phases is not None and (isinstance(phases, bool) or phases not in (1, 3)):
         raise ValueError(f"phases must be 1 or 3, got {phases!r}")

@@ -149,9 +149,16 @@ def add_clearance_zones(doc, add_box_form, *, kind: str, width_ft: float, depth_
     if front_y_ft is None:
         front_y_ft = cy - depth_ft / 2.0 if front_dir < 0 else cy + depth_ft / 2.0
     top_of_equipment = base_z_ft + height_ft
-    ws = CL.working_space(equipment_width_ft=width_ft,
-                          equipment_height_ft=top_of_equipment - floor_z_ft,
-                          voltage_to_ground=voltage_to_ground, condition=condition)
+    try:
+        ws = CL.working_space(equipment_width_ft=width_ft,
+                              equipment_height_ft=top_of_equipment - floor_z_ft,
+                              voltage_to_ground=voltage_to_ground, condition=condition)
+    except CL.ClearanceError as exc:
+        # a supply or input the 110.26(A) table does not cover (e.g. above 1000 V to
+        # ground): the family is still delivered, without zones or toggles, and says
+        # why (hard rule 1)
+        doc.notes.append(f"clearance zones NOT drawn: {exc}")
+        return {"front": None, "top": None, "not_drawn": str(exc), "toggles": [], "forms": []}
     try:
         ded = CL.dedicated_space(kind, equipment_width_ft=width_ft, equipment_depth_ft=depth_ft)
     except CL.ClearanceError:

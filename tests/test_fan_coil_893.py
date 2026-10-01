@@ -209,6 +209,7 @@ def test_a_240v_three_phase_unit_gets_the_deeper_delta_working_space():
 
 
 @pytest.mark.parametrize("kw", [dict(voltage=0), dict(voltage=-5), dict(voltage=float("inf")),
+                                dict(voltage=True),
                                 dict(voltage=float("nan")), dict(phases=0), dict(phases=2),
                                 dict(phases=1.5), dict(phases=True)])
 def test_impossible_supplies_are_refused_up_front(kw):
@@ -259,3 +260,14 @@ def test_a_supply_beyond_the_table_delivers_the_unit_without_the_zone(tmp_path):
     assert EC.P_SHOW not in prod.doc.params
     rep = prod.write(str(tmp_path / "mv.rfa"))
     assert rep["validate"]["family_mode"]["n_errors"] == 0
+
+
+def test_the_shared_equipment_clearance_also_delivers_beyond_the_table():
+    from rvt.famgen import factory as F
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_equipment", "mv test")
+    rep = EC.add_clearance_zones(doc, F.add_box_form, kind="panelboard", width_ft=2.0,
+                                 depth_ft=1.0, height_ft=5.0, voltage_to_ground=2400)
+    assert rep["forms"] == [] and rep["not_drawn"]
+    assert any(n.startswith("clearance zones NOT drawn") for n in doc.notes)
+    assert EC.P_SHOW not in doc.params
