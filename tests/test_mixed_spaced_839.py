@@ -409,3 +409,29 @@ def test_a_conductor_count_is_never_a_dimension(prompt, key, want):
     r = AR.resolve_prompt(prompt)
     assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
     assert r.provenance[key] == GIVEN
+
+
+# Round 8 (#841): the spacing of a mixed number must AGREE.  A tight hyphen
+# before a SPACED slash is a list separator -- "levels 2-3 / 12\" wide" read
+# as 2 3/12 took the next phrase's 12 (and blanking it on rejection dropped
+# that phrase), while "24 - 1 / 2" and "24-1/2" stay mixed numbers.
+@pytest.mark.parametrize("prompt,key,want", [
+    ('pull box / levels 2-3 / 12" wide', "width_in", 12.0),
+    ("junction box / 3-4 / 12 wide", "width_in", 12.0),
+    ("emt / rev 2-3 / 12 feet long", "length_ft", 12.0),
+    ("cable tray width 24 in / 2-3 / 4 in deep", "depth_in", 4.0),
+    ("junction box / grid 4-7 / 12 in wide", "width_in", 12.0),
+    ("strut channel / rooms 101-104 / 1 5/8 in tall", "height_in", 1.625),   # not 5/8 alone
+    ('lighting control panel / rooms 101-104 / 24" wide / 6" deep', "width_in", 24.0),
+    ("wireway / 480-277 / 6 in wide", "width_in", 6.0),
+    ("cable tray 12-18 / 24 in wide", "width_in", 24.0),
+    ("junction box grid 4-7 / 4 in wide", "width_in", 4.0),    # 7/4 improper: a list, no other slash
+    ("cable tray 24 - 1 / 2 in wide", "width_in", 24.5),       # agreeing spacings join
+    ("cable tray 24-1/2 in wide", "width_in", 24.5),
+    ("cable tray 24 -1 / 2 in wide", "width_in", 24.5),
+    ("cable tray 24- 1 / 2 in wide", "width_in", 24.5),
+])
+def test_a_tight_hyphen_before_a_spaced_slash_is_a_list(prompt, key, want):
+    r = AR.resolve_prompt(prompt)
+    assert r.values[key] == pytest.approx(want), (prompt, r.values[key], r.quoted.get(key))
+    assert r.provenance[key] == GIVEN

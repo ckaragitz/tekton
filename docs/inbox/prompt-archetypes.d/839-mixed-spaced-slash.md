@@ -450,6 +450,66 @@ regressions against main turned up, both from my own round-6 changes:
 Two survived until their rows were added: `10 5/11'L`, and `20 ft long
 3-5/11 each`.
 
+## Round 8 — a tight hyphen before " / " is a list, not a mixed number
+
+🛑 on `8488385`. The round-7 fixes were confirmed on the head and on the
+tree merged with main. One new false-`given` class turned up: a hyphen
+token before a " / " list separator. Main never joined a spaced slash after
+"N-M", so it read the next phrase; this head read "N-M / D" as N M/D.
+- **False `given`:**
+  - `pull box / levels 2-3 / 12" wide` gave a 2.25 in width (main 12);
+  - `emt / rev 2-3 / 12 feet long` gave 2.25 ft.
+- **Dropped:** when the mixed reading was rejected, the round-7 whole-token
+  mask took the next phrase's number with it. `rooms 101-104 / 24" wide`
+  lost its width.
+- **#839's own defect returned:** `rooms 101-104 / 1 5/8 in tall` gave 5/8
+  alone.
+
+On the reviewer's grid this was 73 false `given` and 54 drops in 152 " / "
+prompts, and 0 with "," or " - ".
+
+**Fix (one place, the mask pre-pass):** `_is_list_slash`. A tight hyphen
+before a spaced slash is a **list** unless both of these hold:
+- the fraction is a proper inch fraction (n < d, d a power of two);
+- the prompt uses no other spaced slash.
+
+For a list, the slash and its spaces are blanked, so neither side reads
+across it and the next phrase's number stands. "a 2-1 / 2 in conduit"
+(#839's own sweep) is still 2 1/2. A first version also put a
+spacing-agreement rule into `_NUM_CORE`; the mask already decides every
+case, so it was removed as dead code, with 0 outputs changed (checked on
+180,000 prompts).
+
+The branch is rebased on main `71ead7c`, which now carries #828's resolver
+changes in the same file.
+
+**Measured against main `71ead7c`:**
+
+| instrument | prompts | right on `main`, wrong on head |
+|---|---|---|
+| new: 12 hyphen tokens (levels 2-3, rev 2-3, grid 4-7, rooms 101-104, 480-277, 12-18, LP-1, 3-4/0, 1-1/2 …) × separators " / ", ", ", " - ", " \| " × 6 dimension spellings × in/ft aliases | 12,672 | **0** (identical to main) |
+| round-7 quote and conductor-count generator | 18,184 | **0** (identical to main) |
+| round-6 generator, 3 seeds | 180,000 | **0** in either false-`given` class (6,220 fewer than main; the 36 flagged are whole numbers from other phrases, as before) |
+| fuzzers seeds 1–3 | 60,000 | **0** |
+
+**Stated, non-blocking (the reviewer's):** typographic marks (’ ″ ” ′) count
+as units after a fraction, but `_UNITS` does not know them, so `tall 1 - 5 /
+8’` reads 1.625 in. Main does the same on the unspaced form ("tall 1-5/8’"
+is 1.625 in). This is #844, which should also cover ’/′ on inch parameters.
+
+**Tests:**
+- 202 passed in the two files.
+- 628 with #812's, #816's, #820's and the archetype, intent and plugin
+  suites, all on the rebased tree.
+
+**Mutants: 3/3 killed:**
+- never a list;
+- an improper inch fraction joins;
+- other slashes ignored.
+
+The improper case survived until "junction box grid 4-7 / 4 in wide" was
+added.
+
 ---
 
 ## BRANCH STATE
@@ -457,12 +517,16 @@ Two survived until their rows were added: `10 5/11'L`, and `20 ft long
 **Files written**
 - `src/rvt/famgen/archetypes.py`: `_NUM_CORE`.
 - `plugin/lib/src/rvt/famgen/archetypes.py`: mirror.
-- `tests/test_mixed_spaced_839.py`: new, 146 tests (rows, slash-token rows,
+- `tests/test_mixed_spaced_839.py`: new, 160 tests (rows, slash-token rows,
   hyphen rows, unit, hyphen-unit and cross rows, the spacing and denominator
   sweeps).
 - `tests/test_fraction_parse_831.py`: a pointer comment on two unit rows (DONE 4).
 - `tests/ci_shard.d/839-mixed-spaced.txt`: new.
 - this fragment.
+
+**Gates (round 8)**: 202 passed across the two files (628 with the
+neighbouring suites, on the tree rebased onto main `71ead7c`); 3/3 round-8
+mutants killed; plugin in sync.
 
 **Gates (round 7)**: 188 passed across the two files (394 with the
 neighbouring suites and `test_plugin_sync.py`); 7/7 round-7 mutants killed;

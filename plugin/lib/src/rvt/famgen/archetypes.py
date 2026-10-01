@@ -1437,7 +1437,11 @@ _NUM_CORE = (rf"(\d+\s+{_MIXED_FRAC}"                          # 2 1/2, 2 1 / 2 
              # main's "N / M/D" tail kept whole on the SLASH: "24 / 3/4" is one
              # token no number reads, never 24 / 3 = 8 (#841 round 6); not on
              # the hyphen, where "24 - 120/208 V" would join the voltage
-             rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}|\s*-\s*\d+|\s*/\s*\d+(?:/\d+)?)?"
+             # (a tight hyphen before a spaced slash that is really a LIST,
+             # "levels 2-3 / 12\" wide", never reaches here as one token:
+             # _mask_orphan_fractions blanks that slash first, #841 round 8)
+             rf"|\d+(?:\.\d+)?(?:\s*-\s*{_MIXED_FRAC}"
+             r"|\s*-\s*\d+|\s*/\s*\d+(?:/\d+)?)?"
              r"|\d+\s*/\s*\d+)")
 #: A mixed number's slash may be spaced like its hyphen: "24 - 1 / 2 in" was
 #: split at the slash, and "1 / 2 in wide" -- a 0.5 in tray -- came back
@@ -1456,6 +1460,19 @@ _NUM = r"(?<![A-Za-z0-9.,/-])(?<!\d )" + _NUM_CORE
 #: hyphen with optional whitespace), and a fraction after it
 _WHOLE_THEN_FRACTION = re.compile(r"(?<![A-Za-z0-9.,/-])\d+(\s+|\s*-\s*)(\d+\s*/\s*(\d+))")
 _ORPHAN_MASK = "\x00"
+
+
+def _is_list_slash(low: str, m: "re.Match") -> bool:
+    """A TIGHT hyphen before a SPACED slash ("2-3 / 12") is a list unless the
+    fraction is a proper inch fraction (n < d, d a power of two) AND the
+    prompt uses no other spaced slash as a separator: "a 2-1 / 2 in
+    conduit" is #839's own 2 1/2, while "pull box / levels 2-3 / 12\" wide"
+    and "cable tray / levels 2-3 / 4 in wide" are lists (#841 round 8)."""
+    n, d = (int(x) for x in re.findall(r"\d+", m.group(2)))
+    if not (d in (2, 4, 8, 16, 32, 64) and n < d):
+        return True
+    others = [x for x in re.finditer(r"\s/\s", low) if not (m.start(2) <= x.start() < m.end(2))]
+    return bool(others)
 
 
 def _mask_orphan_fractions(low: str) -> str:
@@ -1480,6 +1497,17 @@ def _mask_orphan_fractions(low: str) -> str:
     277 V" is 12, and "trade size 2 4 / 0 conductors" is a 2 in conduit."""
     out = low
     for m in _WHOLE_THEN_FRACTION.finditer(low):
+        # a TIGHT hyphen before a SPACED slash is a list separator, not a
+        # mixed number: "levels 2-3 / 12\" wide" -- blanking it took the
+        # next phrase's 12 with it (#841 round 8)
+        if m.group(1) == "-" and re.search(r"\s", m.group(2)) and _is_list_slash(low, m):
+            # the slash (with its spaces) is the LIST's separator: blank it,
+            # so neither side reads across it and the next phrase's number
+            # stands -- "24 in / 2-3 / 4 in deep" is a 4 in depth
+            sl = re.search(r"\s*/\s*", low[m.start(2):m.end(2)])
+            s, e = m.start(2) + sl.start(), m.start(2) + sl.end()
+            out = out[:s] + _ORPHAN_MASK * (e - s) + out[e:]
+            continue
         whole = re.match(_NUM_CORE, low[m.start():])
         if whole is None or m.start() + whole.end() < m.end(2):
             if "-" in m.group(1) or (int(m.group(3)) == 0 and re.search(r"\d/\d", m.group(2))):
