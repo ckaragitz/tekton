@@ -45,9 +45,42 @@ NOMINAL_DEPTH_IN = 23.0
 NOMINAL_HEIGHT_IN = 10.5
 
 ROLE_CABINET = "fan coil cabinet"
+ROLE_DISCONNECT = "fused disconnect switch"
+ROLE_DISCONNECT_NF = "disconnect switch"
 
 
-def fan_coil_parts(L: float, D: float, H: float) -> List[Dict[str, Any]]:
+#: smallest cabinet that has room for its end hardware: the control box and the
+#: disconnect sit side by side across the electrical end and need 15.5 in of depth
+MIN_LENGTH_IN, MIN_DEPTH_IN, MIN_HEIGHT_IN = 24.0, 16.0, 7.0
+
+#: single-phase supplies that are LINE-TO-NEUTRAL (one pole + neutral); every other
+#: single-phase supply (208, 240, 480, 600 V) is line-to-line: two poles
+LINE_TO_NEUTRAL_V = (120.0, 127.0, 277.0, 347.0)
+
+
+def poles_for(voltage: float, phases: int) -> int:
+    """Connector poles for a supply: 3 for three-phase; single-phase is 1 pole when
+    the voltage is line-to-neutral (120 / 127 / 277 / 347 V), else 2."""
+    if int(phases) >= 3:
+        return 3
+    return 1 if any(abs(float(voltage) - v) <= 5.0 for v in LINE_TO_NEUTRAL_V) else 2
+
+
+def voltage_to_ground_for(voltage: float, phases: int) -> float:
+    """The nominal voltage to ground of a supply (for the 110.26(A) table): a
+    line-to-neutral single-phase supply is its own; a line-to-line one is the
+    system's line-to-neutral -- 208 -> 120, 240 (120/240 V) -> 120, 480 -> 277,
+    600 -> 347 -- else V / sqrt(3) (a wye system), stated as assumed by the caller."""
+    v = float(voltage)
+    if int(phases) < 3 and poles_for(v, phases) == 1:
+        return v
+    for ll, ln in ((208.0, 120.0), (240.0, 120.0), (480.0, 277.0), (600.0, 347.0)):
+        if abs(v - ll) <= 10.0:
+            return ln
+    return round(v / 3 ** 0.5)
+
+
+def fan_coil_parts(L: float, D: float, H: float, *, fused: bool = True) -> List[Dict[str, Any]]:
     """The parts (feet).  Cabinet centred on the origin in plan, bottom at z = 0;
     airflow +x (return at -x, supply at +x); piping end -y, electrical end +y.
     Boxes: ``{"shape": "box", role, w (x), d (y), h, z0, cx, cy}``; cylinders along y:
@@ -55,9 +88,9 @@ def fan_coil_parts(L: float, D: float, H: float) -> List[Dict[str, Any]]:
     ``{"shape": "cylinder", role, r, h, z0, cx, cy}``."""
     if min(L, D, H) <= 0:
         raise ValueError(f"fan coil cabinet must be positive, got {L} x {D} x {H}")
-    if H < 7 * IN or D < 14 * IN or L < 24 * IN:
-        raise ValueError("a fan coil cabinet under 24 in long, 14 in deep or 7 in high has "
-                         "no room for its end hardware")
+    if H < MIN_HEIGHT_IN * IN or D < MIN_DEPTH_IN * IN or L < MIN_LENGTH_IN * IN:
+        raise ValueError(f"a fan coil cabinet under {MIN_LENGTH_IN:g} in long, {MIN_DEPTH_IN:g} "
+                         f"in deep or {MIN_HEIGHT_IN:g} in high has no room for its end hardware")
 
     def box(role, w, d, h, z0, cx=0.0, cy=0.0):
         return {"shape": "box", "role": role, "w": w, "d": d, "h": h, "z0": z0, "cx": cx, "cy": cy}
@@ -92,7 +125,8 @@ def fan_coil_parts(L: float, D: float, H: float) -> List[Dict[str, Any]]:
     ds_w, ds_d, ds_h = 6.5 * IN, 4.25 * IN, min(9.5 * IN, H - 1.0 * IN)
     ds_x = D / 2 - 1.0 * IN - ds_w / 2
     ds_z0 = (H - ds_h) / 2
-    parts.append(box("fused disconnect switch", ds_w, ds_d, ds_h, ds_z0, ds_x, y_elec + ds_d / 2))
+    parts.append(box(ROLE_DISCONNECT if fused else ROLE_DISCONNECT_NF, ds_w, ds_d, ds_h, ds_z0, ds_x,
+                     y_elec + ds_d / 2))
     face = y_elec + ds_d                                    # the disconnect's working face
     hz = ds_z0 + ds_h / 2 - 1.25 * IN
     parts.append(box("disconnect operating handle", 0.75 * IN, 1.25 * IN, 2.5 * IN, hz,
@@ -100,7 +134,7 @@ def fan_coil_parts(L: float, D: float, H: float) -> List[Dict[str, Any]]:
     parts.append(box("disconnect rating label", 2.5 * IN, 0.06 * IN, 1.0 * IN,
                      ds_z0 + ds_h - 2.0 * IN, ds_x - 0.75 * IN, face + 0.03 * IN))
     parts.append({"shape": "cylinder", "role": "disconnect conduit hub", "r": 0.55 * IN,
-                  "h": min(0.75 * IN, H - (ds_z0 + ds_h)) or 0.25 * IN, "z0": ds_z0 + ds_h,
+                  "h": min(0.75 * IN, H - (ds_z0 + ds_h)), "z0": ds_z0 + ds_h,
                   "cx": ds_x, "cy": y_elec + ds_d / 2})
     return parts
 
@@ -109,20 +143,24 @@ def front_of_disconnect(parts: List[Dict[str, Any]]) -> float:
     """The y of the frontmost disconnect hardware (where its working space starts)."""
     ys = [p["cy"] + p["d"] / 2 for p in parts
           if p["shape"] == "box" and p["role"].startswith(("fused disconnect", "disconnect"))]
+    if not ys:                                               # cabinet only: its electrical end
+        cab = next(p for p in parts if p["role"] == ROLE_CABINET)
+        return cab["cy"] + cab["d"] / 2
     return max(ys)
 
 
 def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[float] = None,
-                       height_in: Optional[float] = None, voltage: float = 208.0,
-                       phases: int = 1, disconnect_frame_a: float = 30.0,
+                       height_in: Optional[float] = None, voltage: Optional[float] = None,
+                       phases: Optional[int] = None, disconnect_frame_a: float = 30.0,
                        disconnect_fuse_a: float = 15.0, fused: bool = True,
                        voltage_to_ground: Optional[float] = None,
                        name: Optional[str] = None, start_id: int = 1000,
                        shared_params: Any = None, standards: bool = True):
     """Compose the fan coil family (see the module docstring).  Dimensions left
     ``None`` are the class nominals; the disconnect's ratings are the schedule's
-    (30 A frame / 15 A fuses by default, the owner's request), the voltage an
-    assumption unless given (208 V single-phase, stated)."""
+    (30 A frame / 15 A fuses by default, the owner's request), the voltage and phase
+    count assumptions unless given (208 V single-phase, stated).  Dimensions too small
+    for the end hardware still deliver the cabinet, said (hard rule 1)."""
     from . import factory as F
     from . import geometry as G
     from . import skeleton as SK
@@ -141,15 +179,37 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
         else:
             sheet.set(key, float(val), kind="given", source="the request")
             dims[key] = float(val)
-    sheet.set("voltage_v", float(voltage), kind="assumed" if voltage == 208.0 else "given",
-              source="208 V single-phase assumed -- state the unit's nameplate voltage")
-    sheet.set("phases", int(phases), kind="assumed" if phases == 1 else "given")
-    sheet.set("disconnect_frame_a", float(disconnect_frame_a), kind="given", source="the request (30AF)")
-    sheet.set("disconnect_fuse_a", float(disconnect_fuse_a), kind="given", source="the request (15AS)")
+    if voltage is None:
+        voltage = 208.0
+        sheet.set("voltage_v", voltage, kind="assumed",
+                  source="208 V assumed (not stated) -- state the unit's nameplate voltage")
+    else:
+        voltage = float(voltage)
+        sheet.set("voltage_v", voltage, kind="given", source="the request")
+    if phases is None:
+        phases = 1
+        sheet.set("phases", phases, kind="assumed", source="single-phase assumed (not stated)")
+    else:
+        phases = int(phases)
+        sheet.set("phases", phases, kind="given", source="the request")
+    sheet.set("disconnect_frame_a", float(disconnect_frame_a), kind="given",
+              source=f"the request ({disconnect_frame_a:g}AF)")
+    if fused:
+        sheet.set("disconnect_fuse_a", float(disconnect_fuse_a), kind="given",
+                  source=f"the request ({disconnect_fuse_a:g}AS)")
     sheet.set("manufacturer", "", kind="ours")
     sheet.set("model", "", kind="ours")
     L, D, H = dims["length_in"] * IN, dims["depth_in"] * IN, dims["height_in"] * IN
-    parts = fan_coil_parts(L, D, H)
+    try:
+        parts = fan_coil_parts(L, D, H, fused=fused)
+        cabinet_only = None
+    except ValueError as exc:
+        if min(L, D, H) <= 0:
+            raise
+        # odd but real dimensions: deliver the cabinet and say what it has no room for
+        parts = [{"shape": "box", "role": ROLE_CABINET, "w": D, "d": L, "h": H, "z0": 0.0,
+                  "cx": 0.0, "cy": 0.0}]
+        cabinet_only = str(exc)
 
     v_txt = f"{voltage:g}V-{phases}Ph"
     sw = f"{disconnect_frame_a:g}AF-{disconnect_fuse_a:g}AS" if fused else f"{disconnect_frame_a:g}A NF"
@@ -190,7 +250,7 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
                     f"proportions, no manufacturer), {v_txt}, unit-mounted "
                     f"{'fused' if fused else 'non-fused'} disconnect {sw}"))
     forms: List[Any] = []
-    host_disc = None
+    host_disc = host_cab = None
     for p in parts:
         if p["shape"] == "box":
             f = F.add_box_form(doc, p["w"], p["d"], p["h"], base_z_ft=p["z0"],
@@ -206,40 +266,55 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
         if p["shape"] == "box":
             f.params.update({"width_ft": p["w"], "depth_ft": p["d"], "height_ft": p["h"],
                              "base_z_ft": p["z0"], "center": (p["cx"], p["cy"])})
-        if p["role"] == "fused disconnect switch":
+        if p["role"] in (ROLE_DISCONNECT, ROLE_DISCONNECT_NF):
             host_disc = (f, p)
+        if p["role"] == ROLE_CABINET:
+            host_cab = (f, p)
         forms.append(f)
-    doc.notes.append(
-        f"fan coil detail at NOMINAL class proportions (no manufacturer drawing): cabinet "
-        f"{dims['length_in']:g} x {dims['depth_in']:g} x {dims['height_in']:g} in, supply duct "
-        f"collar, return filter rack, bottom access panel, 4 hanger brackets, 3/4 in coil "
-        f"supply / return and condensate drain stubs, unit control box, unit-mounted "
-        f"{'fused' if fused else 'non-fused'} disconnect ({sw}) with handle, rating label and "
-        f"conduit hub")
+    if cabinet_only:
+        doc.notes.append(f"fan coil end hardware NOT drawn ({cabinet_only}): the cabinet is "
+                         f"delivered alone, its power connector on the electrical (+y) end")
+    else:
+        doc.notes.append(
+            f"fan coil detail at NOMINAL class proportions (no manufacturer drawing): cabinet "
+            f"{dims['length_in']:g} x {dims['depth_in']:g} x {dims['height_in']:g} in, supply "
+            f"duct collar, return filter rack, bottom access panel, 4 hanger brackets, 3/4 in "
+            f"coil supply / return and condensate drain stubs, unit control box, unit-mounted "
+            f"{'fused' if fused else 'non-fused'} disconnect ({sw}) with handle, rating label "
+            f"and conduit hub")
     doc.notes.append("pipe / duct connectors are NOT authored (the writer authors electrical "
                      "connectors only): the coil, drain and duct connections are geometry -- "
                      "draw pipe and duct to them by eye")
     # the one electrical connector: on the disconnect's top, where the feeder enters
-    fdisc, pd = host_disc
-    poles = 2 if phases == 1 and voltage > 150 else (1 if phases == 1 else 3)
+    # (on the cabinet's top at the electrical end when there is no room for one)
+    if host_disc is not None:
+        fdisc, pd = host_disc
+        loc = (pd["cx"], pd["cy"], pd["z0"] + pd["h"])
+    else:
+        fdisc, pd = host_cab
+        loc = (0.0, pd["cy"] + pd["d"] / 2 - min(2.0 * IN, pd["d"] / 4), pd["z0"] + pd["h"])
+    poles = poles_for(voltage, phases)
     F.add_connector(doc, host=fdisc, face="top",
-                    location=(pd["cx"], pd["cy"], pd["z0"] + pd["h"]),
+                    location=loc,
                     direction=(0.0, 0.0, 1.0), u_axis=(1.0, 0.0, 0.0),
                     voltage_v=float(voltage), poles=poles, apparent_load_va=0.0,
                     power_factor=1.0, bind_voltage_param="Voltage", load_class="Power",
                     description="Unit Power (at the disconnect)")
-    doc.notes.append("power connector on the disconnect's top (the conduit hub), apparent "
-                     "load 0 VA: the motor's nameplate load is not known -- enter it")
+    doc.notes.append(f"power connector on the {'disconnect' if host_disc else 'cabinet'}'s top, "
+                     f"{poles} pole(s) for {voltage:g} V {phases}-phase, apparent load 0 VA: the "
+                     f"motor's nameplate load is not known -- enter it")
     # clearance: the 110.26(A) working space in front of the disconnect, toggleable
-    vtg = voltage_to_ground if voltage_to_ground is not None else (120.0 if voltage <= 240 else 277.0)
-    ws = CL.working_space(equipment_width_ft=pd["w"], equipment_height_ft=H,
+    vtg = voltage_to_ground if voltage_to_ground is not None else voltage_to_ground_for(voltage, phases)
+    zone_w_src = pd["w"] if host_disc is not None else D
+    ws = CL.working_space(equipment_width_ft=zone_w_src, equipment_height_ft=H,
                           voltage_to_ground=vtg)
     y0 = front_of_disconnect(parts)
+    zx = pd["cx"] if host_disc is not None else 0.0
     zone = F.add_box_form(doc, ws.width_ft, ws.depth_ft, H, base_z_ft=0.0,
-                          center=(pd["cx"], y0 + ws.depth_ft / 2.0))
+                          center=(zx, y0 + ws.depth_ft / 2.0))
     zone.params.update({"role": "clearance: front working space", "source": ws.source,
                         "width_ft": ws.width_ft, "depth_ft": ws.depth_ft, "height_ft": H,
-                        "base_z_ft": 0.0, "center": (pd["cx"], y0 + ws.depth_ft / 2.0)})
+                        "base_z_ft": 0.0, "center": (zx, y0 + ws.depth_ft / 2.0)})
     mat = EC.new_family_material(doc, EC.CLEARANCE_MATERIAL, EC.CLEARANCE_RGB,
                                  EC.CLEARANCE_TRANSPARENCY)
     EC.apply_material(zone, mat)
@@ -251,7 +326,8 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
     EC.bind_visibility(zone, on)
     forms.append(zone)
     doc.notes.append(
-        f"clearance zone (steer #882): working space in front of the disconnect, "
+        f"clearance zone (steer #882): working space in front of the "
+        f"{'disconnect' if host_disc is not None else 'electrical end'}, "
         f"{ws.depth_ft:g} ft deep x {ws.width_ft * 12:g} in wide ({ws.source}; {ws.status}; "
         f"{vtg:g} V to ground) -- drawn the UNIT's height, not 6 1/2 ft from the floor: a "
         f"ceiling-hung family does not know the floor, and above a suspended ceiling NEC "
@@ -261,7 +337,7 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
         doc.notes.append(f"clearance assumption -- {k}: {v}")
     if voltage_to_ground is None:
         doc.notes.append(f"clearance assumption -- voltage_to_ground: {vtg:g} V (from the "
-                         f"{voltage:g} V supply) -- state it if the system differs")
+                         f"{voltage:g} V {phases}-phase supply) -- state it if the system differs")
     std = ST.apply_safe(doc, "mechanical_equipment", standards, None)
     doc.finalize()
     prod = F.FamilyProduct("fan_coil_unit", doc, sheet, forms=forms, types=rows, standards=std,

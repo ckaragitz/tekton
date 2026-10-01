@@ -131,3 +131,52 @@ def test_the_cli_builds_it(tmp_path):
                        capture_output=True, text=True, timeout=600)
     assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-2000:]
     assert out.exists() and "VALID (0 errors" in r.stdout
+
+
+# --- review round 1 (#902) ------------------------------------------------------------
+
+@pytest.mark.parametrize("v,ph,poles,vtg", [(120, 1, 1, 120), (208, 1, 2, 120), (240, 1, 2, 120),
+                                            (277, 1, 1, 277), (480, 1, 2, 277), (208, 3, 3, 120),
+                                            (480, 3, 3, 277), (600, 3, 3, 347)])
+def test_poles_and_voltage_to_ground_follow_the_supply(v, ph, poles, vtg):
+    assert FC.poles_for(v, ph) == poles
+    assert FC.voltage_to_ground_for(v, ph) == vtg
+
+
+def test_a_277v_unit_gets_a_one_pole_connector_and_given_provenance():
+    prod = FC.make_fan_coil_unit(voltage=277)
+    (con,) = prod.doc.connectors
+    assert con.obj["m_pDomain"]["value"]["m_nNumberOfPoles"] == 1
+    v = prod.facts.values
+    assert (v["voltage_v"].kind, v["voltage_v"].source) == ("given", "the request")
+    assert v["phases"].kind == "assumed"
+    stated = FC.make_fan_coil_unit(voltage=208, phases=1).facts.values
+    assert stated["voltage_v"].kind == "given" and stated["phases"].kind == "given"
+
+
+def test_a_non_fused_disconnect_carries_no_fuse():
+    prod = FC.make_fan_coil_unit(fused=False, disconnect_frame_a=60)
+    assert "disconnect_fuse_a" not in prod.facts.values
+    assert prod.facts.values["disconnect_frame_a"].source == "the request (60AF)"
+    roles = [f.params["role"] for f in prod.forms]
+    assert FC.ROLE_DISCONNECT_NF in roles and FC.ROLE_DISCONNECT not in roles
+    assert len(prod.doc.connectors) == 1
+
+
+@pytest.mark.parametrize("dims", [(20, 23, 10.5), (42, 12, 10.5), (42, 23, 6), (42, 15, 10.5)])
+def test_odd_dimensions_still_deliver_the_cabinet_and_say_so(dims, tmp_path):
+    L, D, H = dims
+    prod = FC.make_fan_coil_unit(length_in=L, depth_in=D, height_in=H)
+    roles = [f.params["role"] for f in prod.forms]
+    assert roles[0] == FC.ROLE_CABINET and "clearance: front working space" in roles
+    assert len(prod.doc.connectors) == 1
+    assert any(n.startswith("fan coil end hardware NOT drawn") for n in prod.doc.notes)
+    rep = prod.write(str(tmp_path / "odd.rfa"))
+    assert rep["validate"]["family_mode"]["n_errors"] == 0
+
+
+def test_the_control_box_and_disconnect_never_overlap_at_the_smallest_depth():
+    parts = FC.fan_coil_parts(42 * IN, FC.MIN_DEPTH_IN * IN, 10.5 * IN)
+    cb = next(p for p in parts if p["role"] == "unit control box")
+    ds = next(p for p in parts if p["role"] == FC.ROLE_DISCONNECT)
+    assert cb["cx"] + cb["w"] / 2 <= ds["cx"] - ds["w"] / 2

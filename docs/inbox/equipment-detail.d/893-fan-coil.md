@@ -48,6 +48,20 @@ The sources were public installation manuals and product pages for horizontal co
   - the CLI.
 - **Delivered to the owner:** `FanCoilUnit_Horizontal_208V-1Ph_30AF-15AS_R2026/R2025.rfa`. Both are VALID with 0 errors under `rvt_validate` and family mode, with provenance ok, 17 forms and 1 connector.
 
+## Review round 1 (#902): what changed
+
+- **Poles follow the supply.** `poles_for` returns 3 for three-phase. Single-phase is 1 pole line-to-neutral (120 / 127 / 277 / 347 V) and 2 poles line-to-line (208 / 240 / 480 / 600 V). The first head gave a 277 V unit 2 poles, which matches no distribution system.
+- **Voltage to ground follows the supply.** `voltage_to_ground_for`: 208 → 120, 240 → 120, 480 → 277, 600 → 347, a line-to-neutral supply its own, else V/√3. The value is stated in the notes.
+- **Provenance from presence, not from value.**
+  - `voltage` and `phases` default to `None` in both the function and the CLI. A value the caller states is `given` ("the request"), even when it equals the assumption.
+  - The disconnect's sources are built from the actual values.
+  - A non-fused unit carries no fuse fact, and its part is a plain "disconnect switch".
+- **Odd dimensions still deliver.**
+  - A cabinet too small for its end hardware is delivered alone, with its power connector on the electrical end, the working space in front of that end, and a note.
+  - The minimum depth for the end hardware is 16 in. Below 15.5 in, the control box and the disconnect overlapped.
+- **The panelboard factory's tiny-box fallback is now tested through `make_panelboard`.**
+- **Tests:** `tests/test_fan_coil_893.py` has 23 tests (pole/ground table, 277 V, non-fused, 4 odd shapes, no overlap at the minimum depth). Together with the panelboard detail tests: 32 passed.
+
 ## Open
 
 - **Pipe and duct connectors are not authored** (#894). The writer has only the electrical domain, so the coil, drain and duct connections are geometry, and the notes say so.
