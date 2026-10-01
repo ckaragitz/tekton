@@ -155,6 +155,7 @@ def read_index(fi) -> Dict[str, Any]:
     params: List[Dict[str, Any]] = []
     recs = fi.unit_records(0).get(102, {})
     instance: Dict[int, bool] = {}
+    rows: Dict[int, dict] = {}                   # param id -> the current type's value row
     category = None
     self_families = 0
     for eid, rec in recs.items():
@@ -169,6 +170,14 @@ def read_index(fi) -> Dict[str, Any]:
         category = v.get("m_categoryId")
         for q in ((v.get("m_familyParams") or {}).get("value") or {}).get("m_params") or []:
             instance[int(q["m_paramId"])] = bool(q.get("m_instance"))
+            rows[int(q["m_paramId"])] = q
+    # every parameter's caption, so a formula reads back over NAMES (#875)
+    names: Dict[int, str] = {}
+    for eid, rec in recs.items():
+        if fi.class_name(rec.class_id) in ("ParamElemExternal", "ParamElemFamily"):
+            pv = (((fi.value(0, eid) or {}).get("m_pParamDef") or {}).get("value") or {})
+            if pv.get("m_caption"):
+                names[int(eid)] = str(pv["m_caption"])
     for eid, rec in recs.items():
         if fi.class_name(rec.class_id) != "ParamElemExternal":
             continue
@@ -190,9 +199,45 @@ def read_index(fi) -> Dict[str, Any]:
             "visible": bool(pv.get("m_userVisible", True)),
             "user_modifiable": bool(v.get("m_userModifiable", True)),
             "hide_when_no_value": bool(v.get("m_hideWhenNoValue", False)),
+            **_value_of(rows.get(int(eid)), pd.get("ptr_class", ""), names),
         })
     return {"category": category, "self_families": self_families,
             "params": sorted(params, key=lambda p: (p["name"], p["guid"]))}
+
+
+#: storage classes whose stored value is transferable between documents, and where it is
+#: stored (a material / family-type value is an element id of THIS document: not)
+_VALUE_FIELD = {"ParamDefString": "m_str", "ParamDefURL": "m_str", "ParamDefTextBrowseEdit": "m_str",
+                "ParamDefYesNo": "m_int", "ParamDefInt": "m_int", "ParamDefNoOfPoles": "m_int",
+                "ParamDefValue": "m_value"}
+
+
+def _value_of(row: Optional[dict], def_class: str, names: Dict[int, str]) -> Dict[str, Any]:
+    """How the family fills one parameter in its current type (#875): ``value`` (the
+    stored text / integer / Yes-No / measurable value in internal units; None when
+    blank or not transferable) and ``formula`` (the expression as Revit text over
+    parameter NAMES; None when there is none, ``formula_unread`` True when there is
+    one this reader cannot spell -- never a guessed text)."""
+    out: Dict[str, Any] = {"value": None, "formula": None, "formula_unread": False}
+    if not isinstance(row, dict):
+        return out
+    field = _VALUE_FIELD.get(def_class)
+    if field:
+        val = row.get(field)
+        if field == "m_str":
+            out["value"] = val if isinstance(val, str) and val else None
+        elif field == "m_int":
+            out["value"] = int(val) if isinstance(val, int) and not isinstance(val, bool) else None
+            if def_class != "ParamDefYesNo" and not out["value"]:
+                out["value"] = None                   # 0 = unset for a count
+        else:
+            out["value"] = float(val) if isinstance(val, (int, float)) and val else None
+    expr = row.get("m_oExpression")
+    from rvt.famgen.formula import is_no_formula, unparse
+    if not is_no_formula(expr):                       # an empty string constant = no formula
+        text = unparse(expr, names)
+        out["formula"], out["formula_unread"] = text, text is None
+    return out
 
 
 def read_family(path: str) -> Dict[str, Any]:
@@ -249,7 +294,10 @@ def build(paths: Iterable[str]) -> Tuple[Dict[str, Any], List[str]]:
         families[key] = {"category": fam["category"],
                          "params": [{"guid": q["guid"], "name": q["name"],
                                      "instance": q["instance"],
-                                     "palette_group": q["palette_group"]} for q in fam["params"]]}
+                                     "palette_group": q["palette_group"],
+                                     "value": q.get("value"), "formula": q.get("formula"),
+                                     "formula_unread": q.get("formula_unread", False)}
+                                    for q in fam["params"]]}
         for q in fam["params"]:
             if not q["guid"]:
                 continue

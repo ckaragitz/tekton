@@ -705,6 +705,8 @@ def schemas(source, decoder: Optional[ObjectDecoder] = None,
     ``doc.project`` + its schema decoder), an ``.rvt`` / ``.rfa`` path, or a corpus
     project name.  ``seed_guids`` (entity-token GUIDs) speed up / harden the
     location; without them a GUID-free structural scan anchors the map.
+    A path of another release is read under whatever release is in force: read it
+    inside ``rvt.global_framing.enter_own_release`` (``main()`` enters it for you).
     """
     base = decoder if decoder is not None else _decoder_for(source)
     gl, src = _global_latest_bytes(source)
