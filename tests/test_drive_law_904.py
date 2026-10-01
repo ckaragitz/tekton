@@ -81,11 +81,23 @@ def test_wire_linear_drive_on_both_axes():
         assert ids <= set(sk.header["m_parents"]["value"]["m_deletion"])
 
 
+def _sha(prod) -> str:
+    import hashlib
+    import shutil
+    d = tempfile.mkdtemp(prefix="t904sha_")
+    try:
+        path = os.path.join(d, "f.rfa")
+        prod.write(path)
+        return hashlib.sha256(open(path, "rb").read()).hexdigest()
+    finally:
+        shutil.rmtree(d, True)
+
+
 def _same_as_control(prod, control):
-    for cls in ("RefPlane", "Alignment", "LinearDimString"):
-        assert len(prod.doc.by_class(cls)) == len(control.doc.by_class(cls)), cls
-    assert all(not sk.obj.get("m_dimIds") for sk in prod.doc.by_class("VarSketch"))
+    """A refused drive leaves the WRITTEN FILE byte-identical to the build
+    without it (#907 review round 4: class counts alone were too weak)."""
     assert not getattr(prod.doc, "born_drive_law", False)
+    assert _sha(prod) == _sha(control)
 
 
 TWO = [dict(BOX, name="wide", width_ft=3.0), dict(BOX, name="narrow", center=[0.0, 2.0])]
@@ -124,6 +136,48 @@ def test_a_drive_that_would_be_wrong_is_refused_before_any_mutation(parts, param
     assert prod.drives == []
     assert any("not wired" in n for n in prod.doc.notes)
     _same_as_control(prod, control)
+
+
+@pytest.mark.parametrize("drive, specs", [
+    # (a) two parameters on one edge -- they would be tied together for ever
+    (False, [{"caption": "Run", "axis": "x", "lo": -1, "hi": 1, "parts": {"body": ("lo", "hi")}},
+             {"caption": "Run2", "axis": "x", "lo": -1, "hi": 1, "parts": {"body": ("lo", "hi")}}]),
+    # (b) drive=True's first-solid chain already locks the box's edges
+    (True, [{"caption": "Run", "axis": "x", "lo": -1, "hi": 1, "parts": {"body": ("lo", "hi")}}]),
+    # (c) a repeated side locks one edge twice
+    (False, [{"caption": "Run", "axis": "x", "lo": -1, "hi": 1, "parts": {"body": ("lo", "lo")}}]),
+])
+def test_an_edge_is_never_locked_twice(drive, specs):
+    params = {"Run": ("length", 2.0), "Run2": ("length", 2.0)}
+    prod = F.make_generic_model(parts=[dict(BOX)], name="x", numeric_params=params,
+                                drive=drive, drives=specs)
+    first = specs[0] if not drive else None
+    control = F.make_generic_model(parts=[dict(BOX)], name="x", numeric_params=params,
+                                   drive=drive, drives=[first] if first and
+                                   len(set(first["parts"]["body"])) == 2 else None)
+    expect = 1 if (first and len(set(first["parts"]["body"])) == 2) else 0
+    assert len(prod.drives) == expect
+    assert any("already locked" in n or "repeated" in n for n in prod.doc.notes)
+    assert _sha(prod) == _sha(control)
+
+
+def test_the_single_prism_path_never_drops_drives_silently():
+    prod = F.make_generic_model(height_ft=1.0, width_ft=2.0, depth_ft=1.0, name="p",
+                                drives=[{"caption": "Width", "axis": "x", "lo": -1, "hi": 1,
+                                         "parts": {"x": ("lo",)}}])
+    assert prod.drives == []
+    assert any("NOT wired: the single-prism path" in n for n in prod.notes)
+
+
+def test_drive_true_plus_drives_notes_both_chains():
+    prod = F.make_generic_model(parts=[dict(BOX), dict(BOX, name="b2", center=[0.0, 3.0])],
+                                name="x", numeric_params={"Run": ("length", 2.0)}, drive=True,
+                                drives=[{"caption": "Run", "axis": "x", "lo": -1, "hi": 1,
+                                         "parts": {"b2": ("lo", "hi")}}])
+    assert len(prod.drives) == 1
+    assert any(n.startswith("Width/Depth DRIVE the first solid") for n in prod.doc.notes)
+    assert any(n.startswith("parameter drives wired: Run moves 2") for n in prod.doc.notes)
+    assert not any("REPORTED only" in n for n in prod.doc.notes)
 
 
 def test_the_notes_say_what_the_document_carries():

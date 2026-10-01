@@ -140,8 +140,30 @@ Read-back showed they differ in exactly one header field. Test: Width from
   sealed (#168) and is deterministic.
 - **Text fixes:** the taxonomy note and the limits text are corrected (Rod Spacing
   stays true after a flex; Rod Inset and Width do not).
-- **Tests:** one per case, each compared with the no-drive control class by class.
-  8 of them fail on the round-2 code.
+- **Tests:** one per case, each compared with the no-drive control. 8 of them fail
+  on the round-2 code.
+
+## Review round 4 (head `68840d5`, 🛑)
+
+- **An edge is never locked twice.** Before the first mutation, `wire_linear_drive`
+  refuses:
+  - a repeated side;
+  - any target curve already witnessed by a sketch lock, whether an earlier drive
+    or `drive=True`'s first-solid chain.
+
+  Two locks on one edge tie two parameters together for ever, so Revit cannot
+  flex either. The file was VALID, which is why the validator missed it.
+- **Notes:**
+  - With `drive=True` and `drives=`, the "REPORTED only" note is removed only when
+    it is that text.
+  - The drives summary is always added.
+  - The single-prism path notes that its `drives=` were not wired (it has no named
+    parts) and sets `prod.drives = []`.
+- **Wording:** "every tier's strut ends are LOCKED to the Strut Length planes".
+  Nothing pins the centre, so Revit may move only one end.
+- **Tests:** refusals now compare **written-file SHA-256** against the control,
+  not class counts. The 5 new tests fail on the round-3 code. `test_drive_law_904`
+  has 23 tests.
 
 ## BRANCH STATE
 
@@ -151,16 +173,18 @@ Read-back showed they differ in exactly one header field. Test: Width from
 - `src/rvt/famgen/factory.py`: `drives` plumbing.
 - `src/rvt/famgen/archetypes.py`: `Archetype.drives`, `_trapeze_drives`, and the
   limits text.
+- `src/rvt/famgen/skeleton.py`: `finalize` skips back-edges on a law document.
+- `src/rvt/famgen/taxonomy.py`: the trapeze kind's note.
 - `plugin/lib/…`: mirrors.
-- `tests/test_drive_law_904.py`: new, 18 tests after review round 3.
+- `tests/test_drive_law_904.py`: new, 23 tests after review round 4.
 - `tests/ci_shard.d/904-drive-law.txt`: new.
 - this fragment.
 
 **Gates**
-- `test_drive_law_904`: 18 passed (8 of them fail on the round-2 code, as intended).
+- `test_drive_law_904`: 23 passed (5 fail on the round-3 code, 8 on the round-2 code, as intended).
 - trapeze, famgen_factory, family_anatomy, param_profile, archetypes, panelboard
   detail, equipment clearance, transformer detail, famgen_adoc, bare family
-  validate, route, bootstrap, coldstart and surface_perf suites: 758 passed.
+  validate, route, taxonomy, bootstrap and coldstart suites: 955 passed / 21 skipped (round 4).
 - `test_constraint_law`, `test_famgen_parametric` and `test_plugin_sync`: green.
 - Plugin in sync; validate PASS; portable paths ok.
 

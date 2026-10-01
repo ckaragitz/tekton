@@ -915,8 +915,9 @@ _register(Archetype(
             "the rod holes are not cut: the rod passes through the channel back",
             "the beam clamp / anchor at the rod top is not modelled",
             "the section is authored square-cornered; the forming radii are not",
-            "Strut Length DRIVES both strut ends of every tier (owner's desktop "
-            "verdict, #904); the threaded rods, washers and nuts do NOT follow it yet "
+            "both strut ends of every tier are LOCKED to the Strut Length planes, so "
+            "changing Strut Length changes their length (owner's desktop verdict, "
+            "#904; nothing pins the centre, so Revit may move only one end); the threaded rods, washers and nuts do NOT follow it yet "
             "-- they stay where they were generated, so after flexing Strut Length "
             "the Rod Inset and Width values no longer describe the geometry (Rod "
             "Spacing still does); every other parameter carries a value and does not "

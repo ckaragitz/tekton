@@ -1283,10 +1283,12 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
         # only a document that actually CARRIES a drive is a law document:
         # finalize then skips back-edges and the law runs after it
         doc.born_drive_law = bool(drive_report)
-        if drive_report and not drive:
-            # the first-solid note above described the OLD single-part drive;
-            # replace it with what this document actually carries
-            doc.notes.remove(drive_note)
+        if drive_report:
+            # the "REPORTED only" first-solid note is false once a drive is
+            # wired; a wired first-solid note (drive=True) stays beside the
+            # summary of what the drives carry (#907 review round 4)
+            if drive_note.startswith("dimensions are REPORTED only"):
+                doc.notes.remove(drive_note)
             doc.notes.append("parameter drives wired: " + "; ".join(
                 f"{d['caption']} moves {len(d['locks'])} part edge(s) on "
                 f"{d['targets']} part(s)" for d in drive_report))
@@ -1570,6 +1572,14 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                           "catalog facts; no manufacturer identity is claimed")
     if std_report:
         prod.notes.append(_standards_note(std_report))
+    prod.drives = []
+    if drives:
+        # never silently dropped (#907 review round 4): the single-prism path
+        # has no named parts to drive -- pass parts=[...] for drives
+        msg = (f"{len(drives)} parameter drive(s) NOT wired: the single-prism path "
+               "has no named parts (pass parts=[...] to drive them)")
+        doc.notes.append(msg)
+        prod.notes.append(msg)
     return prod
 
 

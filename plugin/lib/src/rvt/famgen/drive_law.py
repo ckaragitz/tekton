@@ -215,10 +215,22 @@ def wire_linear_drive(doc, *, caption: str, axis: str, lo: float, hi: float,
                 ("y", "lo"): "bottom", ("y", "hi"): "top"}
     at = {"lo": lo, "hi": hi}
     k = 0 if axis == "x" else 1
+    # a curve already locked to a plane (an earlier drive, or the first-solid
+    # chain of drive=True) must not be locked again: two locks on one edge tie
+    # two parameters together for ever and Revit cannot flex either (#907
+    # review round 4)
+    locked = {cid for al in _sketch_locks(doc) for cid in _witness_ids(al)}
+    claimed: set = set()
     for (sk, sides), rect in zip(targets, rects):
         bad = [x for x in sides if (axis, x) not in _SIDE_LAW]
-        if bad or not sides:
-            raise ValueError(f"drive_law: unknown or empty side(s) {list(sides)}")
+        if bad or not sides or len(set(sides)) != len(sides):
+            raise ValueError(f"drive_law: unknown, empty or repeated side(s) {list(sides)}")
+        for side in sides:
+            cid = rect[side_key[(axis, side)]][0]
+            if cid in locked or cid in claimed:
+                raise ValueError(f"drive_law: sketch {sk.elem_id}'s {side} edge is already "
+                                 "locked by another drive")
+            claimed.add(cid)
         for side in sides:
             # the edge must LIE ON its plane: both ends at the plane's coordinate
             # (refuses a rotated quad, crossed planes and an off-plane edge)
