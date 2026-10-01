@@ -1387,12 +1387,28 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     if diameters:
         from . import diameter_law as DM
         circle_of: Dict[str, Any] = {}
+        rotated: set = set()
         for part, fb in zip(parts, built):
             sk = next((e for e in fb.elements if e.class_name == "VarSketch"), None)
             if sk is not None and part.get("name"):
                 n = str(part["name"])
                 circle_of[n] = None if n in circle_of else sk
-        diameter_report = DM.wire_diameter_specs(doc, list(diameters), circle_of)
+                if (getattr(fb, "params", None) or {}).get("rotated_brep"):
+                    # a cylinder_x / cylinder_y: its sketch is the vertical
+                    # authoring circle, NOT the drawn (rotated) geometry, so
+                    # a label there drives nothing Revit draws (#591 round 4)
+                    rotated.add(n)
+        specs = list(diameters)
+        kept = [sp for sp in specs if not (isinstance(sp, dict)
+                and any(str(n) in rotated for n in (sp.get("parts") or ())))]
+        diameter_report = DM.wire_diameter_specs(doc, kept, circle_of)
+        diameter_report["specs"] = len(specs)
+        for sp in specs:
+            if sp not in kept:
+                diameter_report["refused"].append({
+                    "caption": sp.get("caption"),
+                    "why": "a horizontal (rotated B-rep) cylinder: no in-plane mechanism "
+                           "is probed off the plan plane"})
         for r in diameter_report["refused"]:
             doc.notes.append(f"diameter for {r['caption']!r} not wired ({r['why'][:90]})")
         if diameter_report["wired"]:

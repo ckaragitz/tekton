@@ -116,10 +116,15 @@ Scripts `census13.py` / `census14.py` live in the session scratchpad and are nev
 - **Default-type map.** Whether born documents register the diameter style in
   `SymbolIdMgr.m_defElementTypeMap` was not censused; ours registers only key 10, the
   linear default. P5's radial style was unregistered and passed.
-- **Conduit: out of scope.** Its run is a horizontal cylinder (`cylinder_x`), so the circle
-  lies on a vertical work plane. `circle_of` refuses any circle outside the plan plane,
-  because no in-plane mechanism has been probed on a non-plan sketch. Its "Outside
-  Diameter" is also an archetype dimension, not a family parameter today.
+- **Conduit: out of scope.** Its run is a horizontal cylinder (`cylinder_x`). Such a part
+  keeps a vertical *authoring* sketch and only rotates its B-rep, so the plan-plane
+  check in `circle_of` alone does not catch it.
+  - The factory refuses any part whose B-rep is rotated, as a reported note: a label
+    there would sit on a sketch Revit does not draw from (#591 round 4).
+  - This refusal was found in the #929 review and is pinned by a SHA-identical test
+    for `cylinder_x` and `cylinder_y`.
+  - The conduit's "Outside Diameter" is also an archetype dimension, not a family
+    parameter today.
 - **Washers and nuts** do not change with Rod Diameter. Nut Across Flats is a value
   (1.5 d) and drives nothing.
 
@@ -129,6 +134,16 @@ Scripts `census13.py` / `census14.py` live in the session scratchpad and are nev
    rods to grow about centres that keep following Rod Inset.
 2. `Diameter_C`: the control. The same build with the style type left at 2 and the value
    at r (the P5 shape on a "Rod Radius" parameter).
+
+## Review of #929 (head `90cbfab`, 🛑)
+
+- **Horizontal cylinders.** They passed the plan-plane check, as described in the
+  conduit gap above, and are now refused in the factory.
+- **Partial mutation (not reachable today).** In `wire_diameter`, the style and the
+  dimensions are authored one after another. A raise inside `_radial_dim` on a later
+  sketch would leave the earlier ones wired. Every precondition is checked before the
+  first mutation, and no input was found that raises there.
+- **Wording.** The PR title says "labels … (authored, unverified)", never "drives".
 
 ## BRANCH STATE
 

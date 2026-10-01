@@ -223,6 +223,23 @@ def test_a_refused_spec_leaves_the_file_byte_identical(bad):
     assert _sha(prod) == _sha(_build())
 
 
+@pytest.mark.parametrize("shape", ["cylinder_x", "cylinder_y"])
+def test_a_horizontal_cylinder_is_refused_with_the_file_untouched(shape):
+    """#929 review: a cylinder_x/y keeps a vertical AUTHORING sketch and only
+    rotates its B-rep, so the plan-plane check alone would label a sketch
+    Revit does not draw from; the factory refuses it as a reported note."""
+    bar = {"shape": shape, "name": "bar", "radius_ft": R, "length_ft": 1.0,
+           "center": [0.0, 0.0], "base_z_ft": 0.5}
+    def build(diameters=None):
+        return F.make_generic_model(parts=[dict(p) for p in PARTS] + [dict(bar)],
+                                    name="Rods", numeric_params=dict(PARAMS),
+                                    diameters=diameters)
+    prod = build([{"caption": "Rod Diameter", "parts": ["bar"]}])
+    assert prod.diameters["wired"] == 0 and len(prod.diameters["refused"]) == 1
+    assert any("rotated B-rep" in n for n in prod.doc.notes)
+    assert _sha(prod) == _sha(build())
+
+
 def test_the_good_spec_does_change_the_file():
     assert _sha(_build(GOOD)) != _sha(_build())
 
