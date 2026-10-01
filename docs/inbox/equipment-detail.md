@@ -81,3 +81,4 @@ Branch `claude/eager-franklin-xgzgda`, from main `6f56772`.
 
 Later PRs of this stream each write their own fragment under `docs/inbox/equipment-detail.d/`:
 - `892-panelboard-parts.md`
+- `893-fan-coil.md`

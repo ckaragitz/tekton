@@ -48,7 +48,15 @@ A flush trim laps the wall opening by 0.75 in all round. `front_proud_ft` gives 
     | main | 5.16, 5.48, 5.79 s | 5.48 s |
     | this PR | 6.01, 6.62, 6.05 s | 6.05 s |
 
-  - So the panel front costs about +0.6 s on the six-panel job, with about 2 s left under the ceiling.
+  - **Correction (#893 PR).** The independent reviewer of #897 ran 6 interleaved runs on each side:
+
+    | | runs | median |
+    |---|---|---|
+    | main | 6.14, 5.12, 5.18, 5.38, 5.70, 5.35 s | 5.37 s |
+    | this PR | 7.10, 5.87, 6.46, 6.05, 6.34, 6.37 s | 6.36 s |
+
+  - So the front costs about **+1.0 s (+18 %)**, not +0.6 s as my 3-run sample above said, with about 1.6 s left under the ceiling. Session CI passed the gate at head `a88fafc`.
+  - **Tiny boxes (#893 PR).** A box under 6 in wide or 12 in high has no room for the door. `panelboard_parts` refuses it, and `make_panelboard` then delivers the box with a "front NOT drawn" note (hard rule 1).
   - The stage split is about +0.3 s in F (build) and +0.3 s in L (load).
 
 ## Open

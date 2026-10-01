@@ -2237,21 +2237,26 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                       "dims_in": [facts.get("width_in"), facts.get("height_in"),
                                   facts.get("depth_in")],
                       "mounting": mount})
-    # the cabinet FRONT (#885/#879: equipment looks like the product): trim, door,
-    # hinges, latch and lock, trim screws, nameplate -- nominal proportions
+    # the cabinet FRONT (#892/#879: equipment looks like the product): trim, door,
+    # hinges, latch handle, nameplate -- nominal proportions
     from . import equipment_detail as ED
     face_y = 0.0 if mount.startswith("flush") else D
     detail: List[Any] = []
     proud = 0.0
     if solid:
-        parts = ED.panelboard_parts(W, D, H, flush=mount.startswith("flush"))
+        try:
+            parts = ED.panelboard_parts(W, D, H, flush=mount.startswith("flush"))
+        except ValueError as exc:                     # a tiny box: the front is left out, said
+            parts = []
+            doc.notes.append(f"panelboard front NOT drawn: {exc}")
         for part in parts:
             f = add_box_form(doc, part.w, part.d, part.h, base_z_ft=part.z0,
                              center=(part.cx, part.cy), rep=G.REP_SOLID)
             f.params.update({"role": part.role})
             detail.append(f)
         proud = ED.front_proud_ft(parts, face_y)
-        doc.notes.append(ED.PANEL_DETAIL_NOTE)
+        if parts:
+            doc.notes.append(ED.PANEL_DETAIL_NOTE)
     # -- connector: 3-pole power feed, top face centre (specimen convention)
     poles = 3 if int(facts.get("phases")) >= 3 else 1
     # the feeder enters a standing panelboard from ABOVE, so the connector

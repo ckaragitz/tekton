@@ -54,9 +54,18 @@ def test_a_flush_trim_laps_the_wall_opening():
     assert (trim.w, trim.h, trim.z0) == pytest.approx((W + 1.5 * IN, H + 1.5 * IN, -0.75 * IN))
 
 
-def test_a_non_positive_box_is_refused():
+def test_a_non_positive_or_tiny_box_is_refused_and_the_factory_still_delivers():
     with pytest.raises(ValueError):
         ED.panelboard_parts(1.0, 0.0, 1.0)
+    with pytest.raises(ValueError, match="too small"):
+        ED.panelboard_parts(5 * IN, 4 * IN, 20 * IN)
+    with pytest.raises(ValueError, match="too small"):
+        ED.panelboard_parts(20 * IN, 4 * IN, 8 * IN)
+    for W, H in ((6 * IN, 12 * IN), (20 * IN, 12 * IN)):         # the smallest allowed: sane parts
+        parts = ED.panelboard_parts(W, 4 * IN, H)
+        door = next(p for p in parts if p.role == "door")
+        plate = next(p for p in parts if p.role == "nameplate")
+        assert door.w > 0 and door.h > 0 and plate.z0 >= door.z0
 
 
 @pytest.fixture(scope="module")

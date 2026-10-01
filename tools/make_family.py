@@ -263,6 +263,15 @@ def cmd_device(ns) -> int:
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
+def cmd_fan_coil(ns) -> int:
+    from rvt.famgen import fan_coil as FC
+    prod = FC.make_fan_coil_unit(length_in=ns.length, depth_in=ns.depth, height_in=ns.height,
+                                 voltage=ns.voltage, phases=ns.phases,
+                                 disconnect_frame_a=ns.frame, disconnect_fuse_a=ns.fuse,
+                                 fused=not ns.non_fused, shared_params=_shared_arg(ns))
+    return 0 if _emit(prod, ns)["ok"] else 1
+
+
 def cmd_proofs(ns) -> int:
     return F.main([] if not ns.no_validate else ["--no-validate"])
 
@@ -592,6 +601,23 @@ def main(argv=None) -> int:
     p.add_argument("--json", action="store_true")
     p.add_argument("--no-validate", action="store_true")
     p.set_defaults(func=cmd_device, types=None, type_catalog=False)
+
+    p = sub.add_parser("fan-coil", help="generate a horizontal concealed fan coil unit with a "
+                                        "unit-mounted disconnect (#893)")
+    p.add_argument("--length", type=float, default=None, help="cabinet length (in); nominal if omitted")
+    p.add_argument("--depth", type=float, default=None, help="cabinet depth, airflow (in)")
+    p.add_argument("--height", type=float, default=None, help="cabinet height (in)")
+    p.add_argument("--voltage", type=float, default=208.0)
+    p.add_argument("--phases", type=int, default=1)
+    p.add_argument("--frame", type=float, default=30.0, help="disconnect frame rating (A), e.g. 30AF")
+    p.add_argument("--fuse", type=float, default=15.0, help="fuse rating (A), e.g. 15AS")
+    p.add_argument("--non-fused", action="store_true", help="a non-fused disconnect")
+    p.add_argument("--shared-params", default=None, metavar="FILE")
+    _profile_flags(p)
+    p.add_argument("-o", "--output", default=None)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--no-validate", action="store_true")
+    p.set_defaults(func=cmd_fan_coil, types=None, type_catalog=False)
 
     p = sub.add_parser("proofs", help="build the three proof families")
     p.add_argument("--no-validate", action="store_true")
