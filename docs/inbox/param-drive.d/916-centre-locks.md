@@ -8,7 +8,7 @@ parts) carry no centre lock. Base `276a5a8`. No probe families were made and not
 sent to the owner. No Revit claim is made here (hard rule 4).
 
 **Decision: no code change.** The census does not support "a circle whose centre lies on
-an origin centre plane is locked to it" — born families leave about 94 % of such circles
+an origin centre plane is locked to it" — born families leave about 93 % of such circles
 unlocked. A born centre lock goes to a plane that MOVES (a labelled or EQ-held plane),
 which is the follow drive (#904 P4) this engine already authors. Every product's bytes are
 unchanged because nothing was changed.
@@ -97,7 +97,7 @@ direction and refPnts, with two differences: it writes the header owner view and
 never, 0 / 61, though on the plane 58 / 58). It also uses the (plane 1, arc 0) id form
 (born 25 / 61, the minority). These are recorded, not changed: the form as written is the
 one the #904 desktop round accepted, and changing a verified lock is a single-variable
-round of its own, not a side effect of this one.
+round of its own, not a side effect of this one (filed as #986).
 
 ## What a future rule would need
 
@@ -118,7 +118,7 @@ construction; no byte-delta table is needed and none was measured.
 
 **Gates:** `tools/dev/check_portable_paths.py` ok (3,476 tracked paths, this fragment
 included); `tools/sync_plugin.py --check` clean (plugin in sync,
-deny-audit clean). No test was added and no product suite was re-run: there is no
+deny-audit clean); `tests/test_records_layout.py` 5 passed. No test was added and no product suite was re-run: there is no
 behaviour to pin and no byte that could move.
 
 **Shipped vs staged:** nothing shipped beyond the record; nothing staged for a viewer or
