@@ -60,7 +60,32 @@ WHAT STAYS -- the corpus-attested shape of the in-plane drive (#787 census):
   2,393 / 2,393 judged born locks (of them 467 ELEVATION locks, to a
   horizontal host plane: tags 1 / 4 on rotated instances 119 / 338, Bottom 1,
   Center (Elevation) 9).  :func:`judged_instance_locks` lists what CG8
-  judged in a written file, elevation locks marked.
+  judged in a written file, elevation locks marked.  (#948) A judged lock
+  that does not CARRY one of the three frame fields gets a WARNING: born
+  locks carry all three, and so does every lock our writers emit.
+
+(#948) ANGULAR AND SKETCH DIMENSIONS -- ``AngularDim`` is a constraining class
+(387 born, every one 2 witnesses / 1 segment; the hexagon recipe of
+:mod:`rvt.famgen.angular_law`):
+
+* **CG5** also covers an ``AngularDim``: at least two witnesses and one segment
+  per gap.  **CG6** covers every SKETCH-MEMBER constraint, not only sketch
+  locks: an ``AngularDim`` / ``LinearDimString`` carrying
+  ``SketchMembership{VarSketch}`` is in that sketch's ``m_dimIds``.
+* **CG9**  an ``AngularDim`` over sketch lines (``GLine`` witnesses, geomTag
+  0, subTag -1) holds: each LOCKED segment's value is the angle between its
+  two lines (either of the two supplementary angles), and the segments of an
+  EQ angular dimension (segment flags bit 2) measure equal angles.  (The born
+  library has no angular EQ -- 0 / 387 have more than two witnesses -- so the
+  EQ half is judged on synthetic graphs only.)
+* **CG10** a ``LinearDimString`` whose witnesses all resolve -- a reference
+  plane square to the dimension line, a sketch line square to it (subTag -1),
+  a line END (subTag 0 / 1), or the crossing of two planes
+  (``CurveXCurveInPlaneRef``) -- stores, on every LOCKED, LABELLED or EQ
+  segment, the distance its two witnesses are apart along the dimension
+  line, and an EQ dimension's segments are equal.  A witness that does not
+  resolve, or does not sit square to the dimension line, leaves the dimension
+  unjudged (never guessed).
 
 WHAT IT IS NOT.  A file that passes this law is not thereby correct in Revit
 (hard rule 4).  It catches contradictions, never omissions we have not
@@ -78,7 +103,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 #: Classes that CONSTRAIN other elements (their witnesses name the
 #: constrained elements).
-CONSTRAINING_CLASSES = ("Alignment", "LinearDimString")
+CONSTRAINING_CLASSES = ("Alignment", "LinearDimString", "AngularDim")
 
 #: CG2 (the m_constrInfo back-edge law) is retired: 0 / 421 Revit-born files
 #: carry a back-edge (#787 census, #910).  Kept as a constant so the id is
@@ -93,8 +118,13 @@ WARNING = "warning"
 ON_PLANE_TOL = 1e-5
 
 #: classes check_file decodes -- everything the rules above read
-FILE_CLASSES = ("Alignment", "LinearDimString", "CurveElem", "RefPlane",
+FILE_CLASSES = ("Alignment", "LinearDimString", "AngularDim", "CurveElem", "RefPlane",
                 "ExtrusionElem", "GenericForm", "VarSketch")
+
+#: CG9: angle tolerance, radians (locks are authored exact)
+ANGLE_TOL = 1e-6
+#: CG10: segment flag bits -- 1 locked, 2 EQ
+SEG_LOCKED, SEG_EQ = 1, 2
 
 #: CG8: the instance-witness geomTags that name a child's Is-Reference code
 #: (RefPlane.m_refName: 0 Left .. 8 Top; 1 / 4 / 7 = the three centres)
@@ -124,12 +154,18 @@ def _witness_grefs(obj: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 
 def _witness_targets(obj: Dict[str, Any]) -> List[int]:
-    """Element ids a constraint's witness references name (distinct)."""
+    """Element ids a constraint's witness references name (distinct) -- a
+    plane-crossing witness (``CurveXCurveInPlaneRef``) names two."""
     out: List[int] = []
-    for gref in _witness_grefs(obj):
-        eid = int(gref.get("m_elemId", -1))
-        if eid > 0 and eid not in out:
-            out.append(eid)
+    for w in obj.get("m_witnessRefs") or []:
+        ref = _val((w or {}).get("m_pWitnessRef"))
+        for key in ("m_geomRef", "m_otherGeomRef"):
+            gref = ref.get(key)
+            if not isinstance(gref, dict):
+                continue
+            eid = int(gref.get("m_elemId", -1))
+            if eid > 0 and eid not in out:
+                out.append(eid)
     return out
 
 
@@ -326,42 +362,55 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
             add(ERROR, "CG5", eid, cls,
                 f"Alignment {eid} has {len(grefs)} witness reference(s); an "
                 f"alignment aligns exactly two references")
-        if cls == "LinearDimString":
+        if cls == "AngularDim" and grefs:
+            segs = obj.get("m_ArrSegInfo") or []
+            if len(grefs) < 2 or len(segs) != len(grefs) - 1:
+                add(ERROR, "CG5", eid, cls,
+                    f"AngularDim {eid} has {len(grefs)} witness(es) and "
+                    f"{len(segs)} segment(s); an angular dimension measures "
+                    f"between at least two references, one segment per gap")
+        if cls in ("LinearDimString", "AngularDim"):
             segs = obj.get("m_ArrSegInfo") or []
             params = _param_ids(obj)
-            if params:
+            if params and cls == "LinearDimString":
                 if len(grefs) < 2 or len(segs) != len(grefs) - 1:
                     add(ERROR, "CG5", eid, cls,
                         f"labelled LinearDimString {eid} has {len(grefs)} "
                         f"witness(es) and {len(segs)} segment(s); a labelled "
                         f"dimension measures between at least two references, "
                         f"one segment per gap")
-                for p in params:
-                    if p not in known:
-                        add(ERROR, "CG5", eid, cls,
-                            f"LinearDimString {eid} is labelled with "
-                            f"parameter {p}, which is not in the document")
-        if cls != "Alignment":
+            for p in params:
+                if p not in known:
+                    add(ERROR, "CG5", eid, cls,
+                        f"{cls} {eid} is labelled with "
+                        f"parameter {p}, which is not in the document")
+        # CG6 -- registration on the sketch (every sketch-member constraint)
+        sk_id = _sketch_of_lock(obj)
+        if sk_id is not None:
+            what = "sketch lock" if cls == "Alignment" else f"sketch {cls}"
+            sk = by_id.get(sk_id)
+            if sk is None:
+                if sk_id not in known:
+                    add(ERROR, "CG6", eid, cls,
+                        f"{what} {eid} is a member of sketch {sk_id}, which "
+                        f"is not in the document")
+            else:
+                dim_ids = [int(i) for i in (sk[1].get("m_dimIds") or [])]
+                if eid not in dim_ids:
+                    add(ERROR, "CG6", eid, cls,
+                        f"{what} {eid} names sketch {sk_id} but is not in "
+                        f"its m_dimIds: the sketch does not own it")
+        if cls == "AngularDim":
+            _cg9(eid, cls, obj, by_id, add)
+            continue
+        if cls == "LinearDimString":
+            _cg10(eid, cls, obj, by_id, add)
             continue
         # CG8 -- an instance lock's placed child reference lies on its plane
         if instance_planes and len(grefs) == 2:
             _cg8(eid, cls, grefs, by_id, instance_planes, add)
-        sk_id = _sketch_of_lock(obj)
         if sk_id is None:
             continue
-        # CG6 -- registration on the sketch
-        sk = by_id.get(sk_id)
-        if sk is None:
-            if sk_id not in known:
-                add(ERROR, "CG6", eid, cls,
-                    f"sketch lock {eid} is a member of sketch {sk_id}, which "
-                    f"is not in the document")
-        else:
-            dim_ids = [int(i) for i in (sk[1].get("m_dimIds") or [])]
-            if eid not in dim_ids:
-                add(ERROR, "CG6", eid, cls,
-                    f"sketch lock {eid} names sketch {sk_id} but is not in "
-                    f"its m_dimIds: the sketch does not own the lock")
         # CG7 -- the locked curve lies on the locked plane
         planes = []
         points = []
@@ -423,20 +472,38 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
     return findings
 
 
-def _cg8(eid, cls, grefs, by_id, instance_planes, add) -> None:
+def cg8_pick(grefs, plane_at, instance_planes):
+    """The ONE selection rule CG8 judges by (shared with
+    :func:`judged_instance_locks`, #949 review): a two-witness lock with exactly
+    one witness an instance reference in ``instance_planes`` and exactly one a
+    plane (``plane_at(elem id)`` -> ``(point, normal)`` or None).  Returns
+    ``(plane id, plane, instance id, tag, placed reference)`` or None (not
+    judged)."""
+    if len(grefs) != 2:
+        return None
     planes, refs = [], []
     for g in grefs:
         t, tag = int(g.get("m_elemId", -1)), int(g.get("m_geomTag", 0))
         if (t, tag) in instance_planes:
             refs.append((t, tag, instance_planes[(t, tag)]))
             continue
-        tgt = by_id.get(t)
-        pl = plane_of_any(tgt[0], tgt[1]) if tgt is not None else None
+        pl = plane_at(t)
         if pl is not None:
             planes.append((t, pl))
     if len(planes) != 1 or len(refs) != 1:
+        return None
+    (pid, pl), (iid, tag, placed) = planes[0], refs[0]
+    return pid, pl, iid, tag, placed
+
+
+def _cg8(eid, cls, grefs, by_id, instance_planes, add) -> None:
+    def plane_at(t):
+        tgt = by_id.get(t)
+        return plane_of_any(tgt[0], tgt[1]) if tgt is not None else None
+    pick = cg8_pick(grefs, plane_at, instance_planes)
+    if pick is None:
         return
-    (pid, (p0, n)), (iid, tag, (q, m)) = planes[0], refs[0]
+    pid, (p0, n), iid, tag, (q, m) = pick
     if abs(abs(_dot(n, m)) - 1.0) > PARALLEL_TOL:
         add(ERROR, "CG8", eid, cls,
             f"instance lock {eid} locks reference {tag} of instance {iid} to "
@@ -453,18 +520,32 @@ def _cg8(eid, cls, grefs, by_id, instance_planes, add) -> None:
     _cg8_frame(eid, cls, by_id[eid][1] if eid in by_id else {}, pid, p0, n, add)
 
 
+#: the three frame fields every judged born lock carries (2,393 / 2,393)
+CG8_FRAME_FIELDS = ("m_constrDir", "m_refPnts", "m_oldOrigin")
+
+
 def _cg8_frame(eid, cls, obj, pid, p0, n, add) -> None:
     """#940: the lock's own frame agrees with the plane it locks to
     (2,393 / 2,393 judged born locks each): ``m_constrDir`` parallel to the
-    plane normal; ``m_refPnts`` and ``m_oldOrigin`` on the plane."""
+    plane normal; ``m_refPnts`` and ``m_oldOrigin`` on the plane.  A frame
+    field the lock does not carry (absent, empty or unreadable) is REPORTED as
+    a warning (#949 review) -- never silently skipped, never guessed."""
     cd = _vec(obj.get("m_constrDir"))
-    # a field the object does not carry is not judged (never guessed)
+    refs = [_vec(q) for q in (obj.get("m_refPnts") or [])]
+    old = _vec(obj.get("m_oldOrigin"))
+    missing = [f for f, ok in zip(CG8_FRAME_FIELDS,
+                                  (cd is not None, bool(refs) and None not in refs,
+                                   old is not None)) if not ok]
+    if missing:
+        add(WARNING, "CG8", eid, cls,
+            f"instance lock {eid} does not carry {', '.join(missing)}: that part "
+            f"of its frame is not judged against plane {pid} (every judged born "
+            f"lock carries all three)", missing=missing)
     if cd is not None and abs(abs(_dot(cd, n)) - 1.0) > PARALLEL_TOL:
         add(ERROR, "CG8", eid, cls,
             f"instance lock {eid}'s constrained direction {cd} is not the normal "
             f"of plane {pid}: the lock would pull the instance along the plane")
-    pts = [("m_refPnts", _vec(q)) for q in (obj.get("m_refPnts") or [])]
-    pts.append(("m_oldOrigin", _vec(obj.get("m_oldOrigin"))))
+    pts = [("m_refPnts", q) for q in refs] + [("m_oldOrigin", old)]
     for name, q in pts:
         if q is None:
             continue
@@ -474,6 +555,157 @@ def _cg8_frame(eid, cls, obj, pid, p0, n, add) -> None:
                 f"instance lock {eid}'s {name} point is {off:.6g} ft off plane "
                 f"{pid}: the lock is drawn somewhere it does not lock",
                 offset_ft=off)
+
+
+# -- CG9 / CG10: angular and linear dimensions against their geometry (#948) --
+
+def _seg_flags(seg: Dict[str, Any]) -> int:
+    try:
+        return int(seg.get("m_flags", 0) or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _seg_value(seg: Dict[str, Any], locked: bool) -> Optional[float]:
+    """A segment's stored value: its locked value for a lock, else the first
+    ``m_values`` entry (the current value), else the locked value."""
+    lv = seg.get("m_lockedValue")
+    if locked and isinstance(lv, (int, float)):
+        return float(lv)
+    vals = seg.get("m_values") or []
+    v = vals[0].get("m_value") if vals and isinstance(vals[0], dict) else None
+    if isinstance(v, (int, float)) and v >= 0.0:
+        return float(v)
+    return float(lv) if isinstance(lv, (int, float)) else None
+
+
+def _whole_line(by_id, g: Dict[str, Any]):
+    """``(start, unit direction)`` of a witness naming a whole sketch GLine
+    (geomTag 0, subTag -1), else None."""
+    if int(g.get("m_geomTag", 0)) != 0 or int(g.get("m_subTag", -1)) != -1:
+        return None
+    tgt = by_id.get(int(g.get("m_elemId", -1)))
+    pts = lock_points(tgt[0], tgt[1], 0) if tgt is not None else None
+    if not pts or len(pts) != 2:
+        return None
+    d = _sub(pts[1], pts[0])
+    ln = math.sqrt(_dot(d, d))
+    if ln < 1e-12:
+        return None
+    return pts[0], (d[0] / ln, d[1] / ln, d[2] / ln)
+
+
+def _cg9(eid, cls, obj, by_id, add) -> None:
+    grefs = _witness_grefs(obj)
+    segs = [s for s in obj.get("m_ArrSegInfo") or [] if isinstance(s, dict)]
+    lines = [_whole_line(by_id, g) for g in grefs]
+    if len(grefs) < 2 or None in lines or len(segs) != len(grefs) - 1:
+        return                                   # not judged (never guessed)
+    angles = []
+    for i, seg in enumerate(segs):
+        (_p, d), (_q, e) = lines[i], lines[i + 1]
+        th = math.acos(max(-1.0, min(1.0, _dot(d, e))))
+        angles.append(min(th, math.pi - th))
+        if _seg_flags(seg) & SEG_LOCKED:
+            v = _seg_value(seg, True)
+            if v is not None and min(abs(v - th), abs(v - (math.pi - th))) > ANGLE_TOL:
+                add(ERROR, "CG9", eid, cls,
+                    f"angular dimension {eid} locks segment {i} at "
+                    f"{math.degrees(v):.6g} deg, but its lines meet at "
+                    f"{math.degrees(th):.6g} deg: the lock contradicts the sketch",
+                    value=v, measured=th)
+    eq = [angles[i] for i, s in enumerate(segs) if _seg_flags(s) & SEG_EQ]
+    if len(eq) >= 2 and max(eq) - min(eq) > ANGLE_TOL:
+        add(ERROR, "CG9", eid, cls,
+            f"angular EQ dimension {eid} spans unequal angles "
+            f"({', '.join(f'{math.degrees(a):.6g}' for a in eq)} deg)")
+    # (the arc's centre is NOT judged: 19 of 36 judged born host-document
+    # angular dimensions draw it away from where their lines cross)
+
+
+def _crossing(p1, p2):
+    """``(point, unit direction)`` of the line where planes ``p1`` and ``p2``
+    cross, or None when they are parallel."""
+    (a, n), (b, m) = p1, p2
+    u = _cross(n, m)
+    det = _dot(u, u)
+    if det < 1e-18:
+        return None
+    # X = ((n.a) (m x u) + (m.b) (u x n)) / |u|^2 lies on both planes
+    da, db = _dot(n, a), _dot(m, b)
+    mu, un = _cross(m, u), _cross(u, n)
+    x = tuple((da * mu[k] + db * un[k]) / det for k in range(3))
+    ln = math.sqrt(det)
+    return x, (u[0] / ln, u[1] / ln, u[2] / ln)
+
+
+def _witness_coord(by_id, w: Dict[str, Any], d) -> Optional[float]:
+    """Where a witness sits along the unit dimension direction ``d``, or None
+    when it does not resolve or is not square to ``d``."""
+    ptr = (w or {}).get("m_pWitnessRef")
+    ref = _val(ptr)
+    g = ref.get("m_geomRef") if isinstance(ref.get("m_geomRef"), dict) else {}
+
+    def plane(gr):
+        tgt = by_id.get(int((gr or {}).get("m_elemId", -1)))
+        return plane_of_any(tgt[0], tgt[1]) if tgt is not None else None
+    if isinstance(ptr, dict) and ptr.get("ptr_class") == "CurveXCurveInPlaneRef":
+        p1, p2 = plane(g), plane(ref.get("m_otherGeomRef"))
+        cr = _crossing(p1, p2) if p1 is not None and p2 is not None else None
+        if cr is None or abs(_dot(cr[1], d)) > 1e-9:
+            return None
+        return _dot(cr[0], d)
+    pl = plane(g)
+    if pl is not None:
+        if abs(abs(_dot(pl[1], d)) - 1.0) > PARALLEL_TOL:
+            return None
+        return _dot(pl[0], d)
+    tgt = by_id.get(int(g.get("m_elemId", -1)))
+    if tgt is None or int(g.get("m_geomTag", 0)) != 0:
+        return None
+    sub = int(g.get("m_subTag", -1))
+    pts = lock_points(tgt[0], tgt[1], 0)
+    if not pts or len(pts) != 2:
+        return None
+    if sub in (0, 1):
+        return _dot(pts[sub], d)
+    if sub != -1:
+        return None
+    ln = _sub(pts[1], pts[0])
+    if abs(_dot(ln, d)) > 1e-9 * max(1.0, math.sqrt(_dot(ln, ln))):
+        return None
+    return _dot(pts[0], d)
+
+
+def _cg10(eid, cls, obj, by_id, add) -> None:
+    segs = [s for s in obj.get("m_ArrSegInfo") or [] if isinstance(s, dict)]
+    ws = obj.get("m_witnessRefs") or []
+    judged = [i for i, s in enumerate(segs)
+              if _seg_flags(s) & (SEG_LOCKED | SEG_EQ) or int(s.get("m_paramId", -1)) >= 0]
+    if not judged or len(ws) != len(segs) + 1:
+        return
+    d = _vec(_val(obj.get("m_pDimLine")).get("m_dirVec"))
+    if d is None or _dot(d, d) < 1e-24:
+        return
+    ln = math.sqrt(_dot(d, d))
+    d = (d[0] / ln, d[1] / ln, d[2] / ln)
+    xs = [_witness_coord(by_id, w, d) for w in ws]
+    if None in xs:
+        return                                   # not judged (never guessed)
+    meas = [abs(xs[i + 1] - xs[i]) for i in range(len(segs))]
+    for i in judged:
+        v = _seg_value(segs[i], bool(_seg_flags(segs[i]) & SEG_LOCKED))
+        if v is not None and abs(v - meas[i]) > ON_PLANE_TOL:
+            add(ERROR, "CG10", eid, cls,
+                f"dimension {eid} stores {v:.6g} ft on segment {i}, but its "
+                f"witnesses are {meas[i]:.6g} ft apart: the dimension "
+                f"contradicts the geometry it measures",
+                value=v, measured=meas[i])
+    eq = [meas[i] for i, s in enumerate(segs) if _seg_flags(s) & SEG_EQ]
+    if len(eq) >= 2 and max(eq) - min(eq) > ON_PLANE_TOL:
+        add(ERROR, "CG10", eid, cls,
+            f"EQ dimension {eid} spans unequal gaps "
+            f"({', '.join(f'{x:.6g}' for x in eq)} ft)")
 
 
 def _param_ids(obj: Dict[str, Any]) -> List[int]:
@@ -489,31 +721,48 @@ def check_doc(doc: Any) -> List[Dict[str, Any]]:
                         for e in getattr(doc, "elements", [])))
 
 
-def check_file(path: str) -> List[Dict[str, Any]]:
+def check_file(path: str, unit: int = 0) -> List[Dict[str, Any]]:
     """The law over a WRITTEN ``.rfa`` / ``.rft``.
 
     Decoding the file rather than trusting the builder is the point: it is the
     same instrument a user's file can be run through.  Read under the file's
     OWN release (a 2025 file's framing is not 2026's), as every instrument is.
+
+    ``unit`` = the document unit judged: 0 = the family itself (the default);
+    a nested family's content document is its own unit (:func:`nested_units`),
+    judged without CG8 (instance locks live in the host).
     """
     from contextlib import ExitStack
     from ..global_framing import enter_own_release
 
     with ExitStack() as st:
         enter_own_release(st, path)
-        return _check_file(path)
+        return _check_file(path, unit)
 
 
-def _check_file(path: str) -> List[Dict[str, Any]]:
+def nested_units(path: str) -> Dict[str, int]:
+    """``{content-document GUID: unit}`` of every nested family document a
+    WRITTEN file carries (unit 0, the family itself, excluded)."""
+    from contextlib import ExitStack
+    from ..families import FamilyIndex
+    from ..global_framing import enter_own_release
+
+    with ExitStack() as st:
+        enter_own_release(st, path)
+        idx = FamilyIndex(path)
+        return {g: u for g, u in idx.unit_by_guid.items() if u != 0}
+
+
+def _check_file(path: str, unit: int = 0) -> List[Dict[str, Any]]:
     from ..families import FamilyIndex
     from ..objects import ObjectDecoder
 
     idx = FamilyIndex(path)
     dec = ObjectDecoder(idx.schema)
-    recs = idx.unit_records(0)
+    recs = idx.unit_records(unit)
     tuples: List[Tuple[int, str, Dict[str, Any], Optional[Dict[str, Any]]]] = []
     for cls in FILE_CLASSES:
-        for eid in idx.ids_of_class(0, cls):
+        for eid in idx.ids_of_class(unit, cls):
             r = recs.get(102, {}).get(eid)
             if r is None:
                 continue
@@ -526,7 +775,7 @@ def _check_file(path: str) -> List[Dict[str, Any]]:
                 ho = dec.decode_record(h.class_id, h.payload) if h is not None else None
                 hdr = (ho.value or {}) if ho is not None else None
             tuples.append((int(eid), cls, o.value or {}, hdr))
-    inst = _instance_planes(idx, recs, tuples)
+    inst = _instance_planes(idx, recs, tuples) if unit == 0 else {}
     return check_graph(tuples, universe=recs.get(102, {}).keys(),
                        instance_planes=inst)
 
@@ -616,15 +865,13 @@ def judged_instance_locks(path: str) -> List[Dict[str, Any]]:
         inst = _instance_planes(idx, recs, tuples)
     out: List[Dict[str, Any]] = []
     for eid, _cls, obj, _h in tuples:
-        grefs = _witness_grefs(obj)
-        refs = [(int(g.get("m_elemId", -1)), int(g.get("m_geomTag", 0))) for g in grefs]
-        mine = [r for r in refs if r in inst]
-        tgt = [t for t, _g in refs if planes.get(t) is not None]
-        if len(grefs) != 2 or len(mine) != 1 or len(tgt) != 1:
+        # the SAME selection CG8 judges by (#949 review), never a re-derivation
+        pick = cg8_pick(_witness_grefs(obj), planes.get, inst)
+        if pick is None:
             continue
-        n = planes[tgt[0]][1]
-        out.append({"lock": eid, "instance": mine[0][0], "tag": mine[0][1],
-                    "plane": tgt[0], "elevation": abs(abs(n[2]) - 1.0) <= PARALLEL_TOL})
+        pid, (_p0, n), iid, tag, _placed = pick
+        out.append({"lock": eid, "instance": iid, "tag": tag, "plane": pid,
+                    "elevation": abs(abs(n[2]) - 1.0) <= PARALLEL_TOL})
     return out
 
 

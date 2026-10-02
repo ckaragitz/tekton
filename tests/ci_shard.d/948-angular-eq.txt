@@ -1,0 +1,2 @@
+# #948: the hex nut's Nut Across Flats drives a regular hexagon (locked angular dims + EQs + labels, the born recipe); CG9 / CG10 / CG8 frame warning; generated families only, fresh-clone safe
+tests/test_angular_eq_948.py

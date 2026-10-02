@@ -274,7 +274,12 @@ def _align(eid, plane, inst, tag=1):
     def w(t, g):
         return {"m_pWitnessRef": {"ptr_class": "GeomSegInPlaneRef", "value": {
             "m_geomRef": {"m_elemId": t, "m_geomTag": g}}}}
-    return (eid, "Alignment", {"m_witnessRefs": [w(plane, 0), w(inst, tag)], "m_flags": 14})
+    # a full frame on the x = 2 plane (every born lock carries one; since #948
+    # a lock without it draws a CG8 WARNING, test_angular_eq_948)
+    return (eid, "Alignment", {"m_witnessRefs": [w(plane, 0), w(inst, tag)], "m_flags": 14,
+                               "m_constrDir": [1.0, 0.0, 0.0],
+                               "m_refPnts": [[2.0, 0.5, 0.0], [2.0, 0.5, 0.0]],
+                               "m_oldOrigin": [2.0, 0.0, 0.0]})
 
 
 @pytest.mark.parametrize("placed, rule", [
