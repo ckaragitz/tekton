@@ -423,6 +423,40 @@ plugin); `plugin/scripts/validate_plugin.py` PASS (24 assertions);
   next to `ROOM6_CEILING` (widen with the number if runner variance demands
   it — never delete).
 
+### FLAGSHIP-PERF-GATE follow-up — test-health stream, issue #965 (2026-10-02): a ratio gate
+
+*Added by the test-health stream; the #184 text above is left as written.*
+Full numbers: `docs/inbox/test-health.d/965-perf-gate.md`.
+
+**Before.** `ROOM6_CEILING = 8.0 s` on wall time. On the session-CI container
+(4 vCPU, system python 3.11.15), main@fe83378 measured 6.3–7.8 s, median
+6.8 s over 39 samples. PR #964 went red at 8.26 s with no per-family change.
+The same container ran main@dc0980f (the commit #184 calibrated on) at
+4.4–5.1 s, so roughly 1.45× the VM's 3.1–3.4 s. The rest of today's gap
+is main itself: the flagship grew about 45% since 2026-08-09 on the same
+machine (F 1.5 → 2.4 s, L 1.3 → 2.3 s).
+
+**After.** The gate is now `ROOM6_RATIO_CEILING = 24.0`, in reference units.
+The measured value is the flagship's `job_seconds`, taking the min of 2
+samples in one session. It is divided by `surface_bench`'s fixed
+pure-stdlib reference workload, timed by the same bare python. The
+reference is the min of 6 samples taken around the jobs, 0.30–0.33 s
+here. `ROOM6_CEILING` stays as a runaway guard at 18.0 s (2.6× the median).
+
+| plugin tree (same container) | reference units (min of 2) | verdict at 24.0 |
+|---|---|---|
+| main@fe83378, 10 pytest runs | 18.9–21.1 (median 19.6) | 10/10 pass |
+| main@fe83378, 10 bench sessions | 19.4–21.7 (median 20.1) | pass |
+| main@dc0980f (#184's commit) | 12.9–14.2 | pass |
+| injected: every .rfa built + written twice (+32% job) | 25.6–28.0 | fail (3/3 + 2 pytest self-tests) |
+| pre-#292 (3ff16c6) | 30.7–34.6 | fail |
+| pre-#256 (5a40b22^) | 49.9–54.8 | fail |
+| pre-#237 (27e2093^) | 92.5 | fail |
+
+The ratio was **not** measured on a normal cloud VM. It is designed to be
+machine-independent, but its VM value is unknown. The first VM run should
+state its number next to the constant.
+
 ## Fragments (one per PR, `docs/inbox/README.md`)
 
 - `perf-surfaces.d/113-ifc-skill-bench.md` -- the tekton-ifc skill flow benched (`ifc-harden`: validate -> harden -> re-validate -> report, 4 calls, 5.4-5.7 s baseline; BLOCKED without the wheels)

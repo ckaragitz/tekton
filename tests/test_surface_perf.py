@@ -49,13 +49,43 @@ AUTHOR_CEILING = 20.0
 EDIT_CEILING = 20.0
 # The flagship 6-panel `go author` job (issue #184): measured 2026-08-09 at
 # main@dc0980f on a claude.ai/code cloud VM (bare system python 3.11), median
-# 3.1-3.4 s wall, slowest observed 3.7 s; GitHub's ubuntu-latest runner timed
-# the shard's other bare builds on par with that VM the same day.  8 s is
-# ~2.3x headroom for runner variance and still fails both earlier states of
-# main (pre-#292 8.1-8.9 s, pre-#237 27 s).  Per-run / per-surface tables:
-# docs/inbox/perf-surfaces.md "FLAGSHIP-PERF-GATE".  Widen only with a newly
+# 3.1-3.4 s wall, slowest observed 3.7 s; the original ceiling was 8.0 s.
+# Issue #965: an absolute ceiling is a statement about ONE machine.  On the
+# session-CI container (4 vCPU, system python 3.11.15) main@fe83378 measured
+# 6.3-7.8 s (median 6.8 s wall over 39 samples) and PR #964 went red at 8.26 s
+# with no per-family cost change -- so the gate is now the RATIO below, and
+# the absolute ceiling is only a runaway guard: 18 s = 2.6x that container
+# median (it still fails pre-#237's 30-33 s there).  Widen only with a newly
 # measured number stated here; never delete the assertion.
-ROOM6_CEILING = 8.0
+ROOM6_CEILING = 18.0
+# The machine-independent gate (#965): the flagship's job_seconds -- the MIN
+# of two samples in the same session -- divided by the bench's fixed
+# reference workload (surface_bench.reference_samples: a pure-stdlib zlib /
+# struct / dict loop timed by the same bare python, min of 6 samples
+# bracketing the jobs; it shares no engine code, so it moves with the
+# machine and never with the product).  Measured 2026-10-02 on the
+# session-CI container, cowork surface, plugin tree, reference 0.302-0.331 s
+# (sd ~3%):
+#   main@fe83378           19.4-21.7  (median 20.1, 10 sessions; single
+#                                       samples 19.4-23.4 over 30)
+#   main@dc0980f (#184)    12.9-14.2  -- main's flagship grew ~45% since the
+#                                       8.0 s gate was set (F 1.5->2.4 s,
+#                                       L 1.3->2.3 s), on the same machine
+#   pre-#292 (3ff16c6)     30.7-34.6  -- fails
+#   pre-#256 (5a40b22^)    49.9-54.8  -- fails
+#   pre-#237 (27e2093^)    92.5       -- fails
+#   injected: a second full .rfa build+write per family (+32% job time,
+#   test_room6_gate_catches_injected_regression)  25.6-28.0 -- fails
+# 24.0 = 1.19x the main median and 1.03x the slowest SINGLE sample ever seen
+# (the min of two keeps the healthy tail near 21.7), so it passes healthy main
+# and fails a per-flagship regression of about +25% or more; smaller ones are
+# within the container's noise and not claimed.  NOT measured on a cloud VM:
+# the ratio is built to be machine-independent, but its VM value is unknown
+# (the #184 VM numbers predate the reference).  Widen only with a newly
+# measured number stated here; never delete the assertion.
+ROOM6_RATIO_CEILING = 24.0
+#: how many flagship samples the gate's session takes (min is gated)
+ROOM6_SAMPLES = 2
 # The documented IFC flow -- ONE `go author --ifc FILE --target-version N`
 # call (issue #562) -- has exactly two honest outcomes on a bare surface: on a
 # python WITHOUT numpy the surface states the route's prerequisite up front and
@@ -125,19 +155,26 @@ def bench():
     return _load_bench()
 
 
-def _cowork_report(bench, jobs: list) -> dict:
+def _cowork_report(bench, jobs: list, source: str = "", calibrate: bool = False) -> dict:
     """One session of ``jobs`` on the cowork surface: the plugin WORKING TREE
-    (always current), the bare interpreter."""
+    (always current) unless ``source`` names another tree, the bare
+    interpreter; ``calibrate`` brackets the jobs with the machine-speed
+    reference (#965)."""
     report = bench.run_bench(surfaces=["cowork"], jobs=jobs,
-                             source=os.path.join(ROOT, "plugin"),
-                             python_bare=_bare_python(), timeout=120.0)
+                             source=source or os.path.join(ROOT, "plugin"),
+                             python_bare=_bare_python(), timeout=120.0,
+                             calibrate=calibrate)
     return report["surfaces"][0]
 
 
 @pytest.fixture(scope="module")
 def bench_report(bench):
+    # the flagship runs ROOM6_SAMPLES times back to back: the repeats are
+    # measurement samples for the ratio gate, not session calls (see the
+    # budget test)
     return _cowork_report(bench, ["preflight", "author-prompt", "go-edit",
-                                  "go-author-6panels", "go-author-ifc"])
+                                  *["go-author-6panels"] * ROOM6_SAMPLES,
+                                  "go-author-ifc"], calibrate=True)
 
 
 @pytest.fixture(scope="module")
@@ -159,6 +196,17 @@ def _bare_has(bench, python: str, modules, tmp_path) -> bool:
              "sys.exit(0 if all(u.find_spec(m) for m in %r) else 1)" % (list(modules),))
     return subprocess.run([python, "-c", probe], env=bench.bare_env(str(tmp_path)),
                           capture_output=True).returncode == 0
+
+
+def _room6_ratio(bench, report: dict):
+    """(ratio, job_seconds samples, reference seconds) of a calibrated
+    session: the flagship's fastest job_seconds in reference units."""
+    samples = [(j.get("breakdown") or {}).get("job_seconds")
+               for j in report["jobs"] if j["job"] == "go-author-6panels"]
+    cal = report.get("calibration") or {}
+    assert samples and all(x is not None for x in samples), (
+        f"every flagship sample must PASS and report job_seconds: {samples}")
+    return bench.calibrated(min(samples), cal), samples, cal.get("seconds")
 
 
 def _job(report: dict, name: str) -> dict:
@@ -216,8 +264,60 @@ def test_bare_go_author_6panels_under_ceiling(bench, bench_report):
         f"(manifest L stage: {load})")
     assert jd["seconds"] < ROOM6_CEILING, (
         f"bare-env flagship `go author` (6 panels) took {jd['seconds']}s, job_seconds "
-        f"{bd['job_seconds']}s (ceiling {ROOM6_CEILING}s) -- per-family cost regressed "
+        f"{bd['job_seconds']}s (runaway ceiling {ROOM6_CEILING}s) -- per-family cost regressed "
         f"(schema re-materialised per decoder? a second host pass? ECC back on the slow path?)")
+
+
+def test_bare_go_author_6panels_ratio_under_ceiling(bench, bench_report, record_property):
+    """The machine-independent flagship gate (issue #965): the 6-panel job's
+    cost in units of the bench's fixed reference workload, timed by the same
+    interpreter in the same session, under ROOM6_RATIO_CEILING -- a slow
+    runner moves both, a product regression only the job."""
+    for jd in bench_report["jobs"]:
+        if jd["job"] == "go-author-6panels":
+            assert jd["status"] == "PASS", f"flagship sample failed: {jd['reason']}"
+    ratio, samples, ref = _room6_ratio(bench, bench_report)
+    assert ratio is not None, f"the session was not calibrated: {bench_report.get('calibration')}"
+    for k, v in (("room6_ratio", ratio), ("room6_job_seconds", samples), ("reference_seconds", ref)):
+        record_property(k, v)               # --junitxml carries the measurement
+    assert ratio < ROOM6_RATIO_CEILING, (
+        f"flagship `go author` (6 panels) costs {ratio} reference units (ceiling "
+        f"{ROOM6_RATIO_CEILING}; job_seconds samples {samples}, reference {ref}s) -- "
+        f"per-family or schema cost regressed (a second host pass? schema re-parse? "
+        f"ECC slow path?)")
+
+
+#: the self-test's injected regression: every generated family is built and
+#: written TWICE (the duplicate to a throwaway path) -- a real code-path
+#: regression in a scratch COPY of the plugin, never in product code
+_INJECT_OLD = "            prod = build_product(plan, start_id=1000)\n"
+_INJECT_NEW = ("            build_product(plan, start_id=1000).write("
+               "os.path.join(fam_dir, '_dup.rfa'))  # INJECTED (#965 self-test)\n" + _INJECT_OLD)
+
+
+@pytest.mark.skipif(os.environ.get("TEKTON_PERF_SELFTEST") != "1",
+                    reason="opt-in (TEKTON_PERF_SELFTEST=1): ~25 s, proves the ratio gate bites")
+def test_room6_gate_catches_injected_regression(bench, tmp_path):
+    """The ratio gate FAILS a known regression (#965 DONE 2c): a scratch copy
+    of the plugin whose family stage builds every .rfa twice (+~32% flagship
+    job time measured on the session-CI container) must land over
+    ROOM6_RATIO_CEILING.  Opt-in, so CI pays for it only when the gate's
+    constants change."""
+    src = str(tmp_path / "plugin")
+    shutil.copytree(os.path.join(ROOT, "plugin"), src)
+    for rel in ("skills/tekton-author/scripts/ifc_intent.py", "lib/tools/ifc_intent.py"):
+        path = os.path.join(src, rel)
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        assert text.count(_INJECT_OLD) == 1, f"injection point moved in {rel}; update the self-test"
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(text.replace(_INJECT_OLD, _INJECT_NEW))
+    report = _cowork_report(bench, ["preflight", *["go-author-6panels"] * ROOM6_SAMPLES],
+                            source=src, calibrate=True)
+    ratio, samples, ref = _room6_ratio(bench, report)
+    assert ratio >= ROOM6_RATIO_CEILING, (
+        f"the injected regression scored {ratio} (samples {samples}, reference {ref}s) "
+        f"-- under the ceiling {ROOM6_RATIO_CEILING}: the gate would not catch it")
 
 
 def test_bare_go_author_ifc_builds_or_states_its_prerequisite(bench_report):
@@ -296,7 +396,10 @@ def test_ifc_skill_flow_hardens_or_states_its_prerequisite(bench, ifc_skill_repo
 def test_session_shell_call_budget(bench_report):
     """The choreography budget: a new mandatory call in any canonical flow is
     a regression on every surface (each call is a model round-trip)."""
-    total = sum(j["shell_calls"] for j in bench_report["jobs"])
+    seen: dict = {}
+    for j in bench_report["jobs"]:          # a repeated job is a measurement sample (#965)
+        seen.setdefault(j["job"], j["shell_calls"])
+    total = sum(seen.values())
     assert total <= SESSION_CALL_BUDGET, (
         f"the canonical preflight+author+edit+flagship session now takes {total} shell "
         f"calls (budget {SESSION_CALL_BUDGET}) -- a flow grew an extra round-trip")
