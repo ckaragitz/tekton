@@ -63,17 +63,9 @@ def bind_visibility(form, param) -> None:
     """Bind ``param`` (a Yes/No family parameter element) to the Visible property of
     the extrusion in ``form``: the association cell between the extrusion helper and
     the pattern helper, and the parameter in the header's deletion parents."""
+    from . import param_binding as PB                    # the shared writer (#877)
     ext = next(e for e in form.elements if e.class_name == "ExtrusionElem")
-    cells = ext.obj["m_cellList"]["value"]["m_cells"]
-    cell = {"ptr_class": "FamilyParametrizedElemParamsCell", "pid": -1, "value": {
-        "m_paramDrivenData": [{"m_famParamId": int(param.elem_id),
-                               "m_elemPropId": ELEM_PROP_VISIBLE,
-                               "m_geomTag": -1, "m_bIsSymbol": False}]}}
-    at = next((i for i, c in enumerate(cells)
-               if str(c.get("ptr_class", "")).endswith("PatternHelper")), len(cells))
-    cells.insert(at, cell)
-    parents = ext.header["m_parents"]["value"]
-    parents["m_deletion"] = sorted(set(parents["m_deletion"]) | {int(param.elem_id)})
+    PB.bind(ext, param, ELEM_PROP_VISIBLE)
     form.params["visibility_param"] = param.refs.get("caption") or param.elem_id
 
 
