@@ -189,33 +189,43 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                 continue
             typed = _typed(ifc_type, value, length_to_ft)
             if typed is None:
+                if label in seen_names:
+                    out["skipped"].append({
+                        "name": label, "pset": pset_name, "on": on,
+                        "why": f"unreadable value {value!r} ({ifc_type}) dropped; "
+                               "it is not a statement"})
                 continue
             src = out["sources"].get(label)
             if label in seen_names and src is not None:
                 prev_src, prev_val = seen_names[label]
-                same = _same_statement(src, typed, out["params"].get(label))
+                same = _same_statement(src, typed, out["params"].get(label), value)
                 if not src["product_ids"] and on_ids:
-                    # an occurrence value overrides a type-level / unattached
-                    # one (IFC's override rule, #973): the occurrence's value
-                    # and owners replace it, and the type value is reported
+                    # an occurrence value wins over an UNATTACHED one (no
+                    # relation links its pset to a product -- e.g. a type-level
+                    # set; IfcRelDefinesByType is not resolved, so the note does
+                    # not claim which product's type it was, #973 / #974 review):
+                    # the occurrence's value and owners replace it
                     if not same:
                         out["skipped"].append({
                             "name": label, "pset": src["pset"], "on": "",
-                            "why": f"type-level value {prev_val!r} overridden by "
-                                   f"the occurrence value {value!r} ({on or pset_name})"})
+                            "why": f"unattached value {prev_val!r} not carried; the "
+                                   f"occurrence value {value!r} ({on or pset_name}) wins"})
                     out["params"][label] = typed
                     seen_names[label] = (f"{on or pset_name}", value)
                     out["sources"][label] = _source(pset_name, on, ons, on_ids,
                                                     ifc_type, value)
                     continue
                 if not on_ids:
-                    # a type-level / unattached repeat never contradicts an
-                    # occurrence value: it is overridden (#973)
+                    # an unattached repeat never contradicts an occurrence value
+                    # (#973); between two unattached values the first is kept
                     if not same:
-                        out["skipped"].append({
-                            "name": label, "pset": pset_name, "on": "",
-                            "why": f"type-level value {value!r} overridden by "
-                                   f"the occurrence value {prev_val!r} ({prev_src})"})
+                        why = (f"unattached value {value!r} not carried; the occurrence "
+                               f"value {prev_val!r} ({prev_src}) wins"
+                               if src["product_ids"] else
+                               f"unattached value {value!r} not carried; the first "
+                               f"unattached value {prev_val!r} ({prev_src}) is kept")
+                        out["skipped"].append({"name": label, "pset": pset_name,
+                                               "on": "", "why": why})
                     continue
                 # every product the label is attached to is recorded, equal
                 # value or not, so pset_drive.plan never drives the first one
@@ -273,15 +283,14 @@ SAME_LENGTH_FT = 1e-6
 
 
 def _same_statement(src: Dict[str, Any], typed: Tuple[str, Any],
-                    kept: Optional[Tuple[str, Any]]) -> bool:
-    """Is the repeat ``typed`` the same statement as the carried ``kept``?
-    Lengths compare converted, to :data:`SAME_LENGTH_FT`; anything else by
-    :func:`_same_value` on the raw values."""
-    if kept is None:
-        return _same_value(src.get("raw_value"), typed[1])
-    if kept[0] == "length" and typed[0] == "length":
+                    kept: Optional[Tuple[str, Any]], raw: Any) -> bool:
+    """Is the repeat (``typed``, raw ``raw``) the same statement as the carried
+    one?  Two LENGTHS compare converted, to :data:`SAME_LENGTH_FT`; any other
+    pairing (a length against a plain number, text, ...) compares the RAW values
+    with :func:`_same_value` -- never feet against file units (#974 review)."""
+    if kept is not None and kept[0] == "length" and typed[0] == "length":
         return abs(float(kept[1]) - float(typed[1])) <= SAME_LENGTH_FT
-    return _same_value(kept[1], typed[1])
+    return _same_value(src.get("raw_value"), raw)
 
 
 def _same_value(a: Any, b: Any) -> bool:

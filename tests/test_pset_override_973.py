@@ -35,7 +35,7 @@ def test_an_unattached_differing_value_does_not_block_the_drive(tmp_path):
     parts, coll = _measured(_write(tmp_path, text, "orphan_after.ifc"))
     src = coll["sources"]["BodyWidth"]
     assert "conflicting_values" not in src and src["products"] == ["tank_shell"]
-    assert any("overridden by the occurrence value" in r["why"] for r in coll["skipped"]
+    assert any("not carried; the occurrence value" in r["why"] for r in coll["skipped"]
                if r["name"] == "BodyWidth")
     row = _rows(PD.plan(parts, coll))["BodyWidth"]
     assert row["status"] == PD.DRIVES and (row["part"], row["axis"]) == ("tank_shell", "x"), row
@@ -74,3 +74,25 @@ def test_a_real_conflict_is_still_a_value(tmp_path):
     parts, coll = _measured(_write(tmp_path, ifc_text(PRODUCTS, psets), "real.ifc"))
     row = _rows(PD.plan(parts, coll))["BodyWidth"]
     assert row["status"] == PD.VALUE_ONLY and "conflicting values" in row["reason"], row
+
+
+def test_a_length_and_a_plain_number_of_one_value_are_one_statement(tmp_path):
+    """#974 review: IFCLENGTHMEASURE(1574.8) and IFCREAL(1574.8) on one product
+    compare raw, never feet against file units -- it still drives."""
+    from rvt.ifc import pset_drive as PD
+    psets = PSETS + [("Pset X", ["tank_shell"], [("BodyWidth", "IFCREAL", 1574.8)])]
+    parts, coll = _measured(_write(tmp_path, ifc_text(PRODUCTS, psets), "mixed.ifc"))
+    assert "conflicting_values" not in coll["sources"]["BodyWidth"]
+    assert not [r for r in coll["skipped"] if r["name"] == "BodyWidth"]
+    assert _rows(PD.plan(parts, coll))["BodyWidth"]["status"] == PD.DRIVES
+
+
+def test_two_unattached_values_keep_the_first_and_say_so(tmp_path):
+    from rvt.ifc import pset_params as PP
+    text = _orphan(ifc_text(PRODUCTS, PSETS), [("Orph", _L, 100)])
+    text = text.replace("#98000=", "#98001=IFCPROPERTYSINGLEVALUE('Orph',$,"
+                        "IFCLENGTHMEASURE(200.0),$);\n#98002=IFCPROPERTYSET("
+                        "'0000000000000000098002',#5,'Pset_Type2',$,(#98001));\n#98000=")
+    coll = PP.collect(_write(tmp_path, text, "two_orphans.ifc"))
+    whys = [r["why"] for r in coll["skipped"] if r["name"] == "Orph"]
+    assert whys and all("first unattached value" in w and "occurrence" not in w for w in whys), whys
