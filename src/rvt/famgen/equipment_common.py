@@ -11,7 +11,23 @@ not import private helpers across modules.
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Dict
+
+def positive_finite(val: Any, what: str, unit: str) -> float:
+    """``val`` as a positive, finite float, or a ``ValueError`` naming ``what`` and
+    ``unit`` -- the one refusal for a bool, a non-numeric string, NaN, an infinity,
+    zero or a negative (invalid input is refused with a message, never drawn)."""
+    try:
+        if isinstance(val, bool):
+            raise TypeError
+        v = float(val)
+    except (TypeError, ValueError):
+        v = float("nan")
+    if not (math.isfinite(v) and v > 0):
+        raise ValueError(f"{what} must be a positive, finite number of {unit}, got {val!r}")
+    return v
+
 
 #: single-phase supplies that are LINE-TO-NEUTRAL (one pole + neutral); every other
 #: single-phase supply (208, 240, 480, 600 V) is line-to-line: two poles

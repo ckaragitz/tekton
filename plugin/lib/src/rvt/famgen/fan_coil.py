@@ -40,8 +40,8 @@ import math
 from typing import Any, Dict, List, Optional
 
 from .equipment_common import (LINE_TO_NEUTRAL_V, add_working_zone, arcs_available,  # noqa: F401
-                               note_voltage_to_ground, poles_for, square_round_part,
-                               voltage_to_ground_for)
+                               note_voltage_to_ground, poles_for, positive_finite,
+                               square_round_part, voltage_to_ground_for)
 
 _arcs_available, _square, _note_vtg = arcs_available, square_round_part, note_voltage_to_ground
 
@@ -69,8 +69,9 @@ def fan_coil_parts(L: float, D: float, H: float, *, fused: bool = True) -> List[
     Boxes: ``{"shape": "box", role, w (x), d (y), h, z0, cx, cy}``; cylinders along y:
     ``{"shape": "cylinder_y", role, r, length, zc, cx, cy}``; vertical cylinders:
     ``{"shape": "cylinder", role, r, h, z0, cx, cy}``."""
-    if min(L, D, H) <= 0:
-        raise ValueError(f"fan coil cabinet must be positive, got {L} x {D} x {H}")
+    if not all(math.isfinite(v) and v > 0 for v in (L, D, H)):
+        raise ValueError(f"fan coil cabinet must be positive and finite, got "
+                         f"{L / IN:g} x {D / IN:g} x {H / IN:g} in")
     if H < MIN_HEIGHT_IN * IN or D < MIN_DEPTH_IN * IN or L < MIN_LENGTH_IN * IN:
         raise ValueError(f"a fan coil cabinet under {MIN_LENGTH_IN:g} in long, {MIN_DEPTH_IN:g} "
                          f"in deep or {MIN_HEIGHT_IN:g} in high has no room for its end hardware")
@@ -169,11 +170,10 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
             sheet.set(key, nom, kind="nominal", source="class proportions (fan_coil.py)")
             dims[key] = nom
         else:
-            sheet.set(key, float(val), kind="given", source="the request")
-            dims[key] = float(val)
-    if voltage is not None and (isinstance(voltage, bool)
-                                or not (float(voltage) > 0 and math.isfinite(float(voltage)))):
-        raise ValueError(f"supply voltage must be a positive, finite number of volts, got {voltage!r}")
+            dims[key] = positive_finite(val, key[:-3], "inches")
+            sheet.set(key, dims[key], kind="given", source="the request")
+    if voltage is not None:
+        positive_finite(voltage, "supply voltage", "volts")
     if phases is not None and (isinstance(phases, bool) or phases not in (1, 3)):
         raise ValueError(f"phases must be 1 or 3, got {phases!r}")
     if voltage is None:

@@ -201,3 +201,19 @@ def test_the_shared_helpers_live_in_equipment_common():
     from rvt.famgen import fan_coil as FC
     assert FC.poles_for is E.poles_for and FC._square is E.square_round_part
     assert E.poles_for(277, 1) == 1 and E.voltage_to_ground_for(480, 3) == 277
+
+
+# --- #959 review nits -------------------------------------------------------------------
+
+@pytest.mark.parametrize("kw,unit", [(dict(length_in="abc"), "inches"), (dict(inlet_in="4x"), "inches"),
+                                     (dict(voltage="high"), "volts"), (dict(voltage=float("-inf")), "volts")])
+def test_a_non_numeric_value_gets_the_same_refusal(kw, unit):
+    with pytest.raises(ValueError, match=f"positive, finite number of {unit}"):
+        FP.make_fan_powered_box(**kw)
+
+
+@pytest.mark.parametrize("length_in", [41, 44, 60, 120])
+def test_the_electric_heater_panel_is_centred_on_the_service_side(length_in):
+    parts = {p["role"]: p for p in FP.fan_powered_parts(length_in * IN, 30 * IN, 18 * IN,
+                                                         inlet_d=10 * IN, reheat="electric")}
+    assert parts["electric heater control panel"]["cx"] == pytest.approx(0.0)

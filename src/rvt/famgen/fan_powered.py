@@ -37,7 +37,7 @@ import math
 from typing import Any, Dict, List, Optional
 
 from .equipment_common import (add_working_zone, arcs_available, note_voltage_to_ground, poles_for,
-                               square_round_part, voltage_to_ground_for)
+                               positive_finite, square_round_part, voltage_to_ground_for)
 from .fan_coil import IN, CONDUIT_NOMINAL_IN
 
 KINDS = ("series", "parallel")
@@ -110,10 +110,9 @@ def fan_powered_parts(L: float, W: float, H: float, *, kind: str = "series", inl
         xd = xout + 6 * IN
     parts.append(box("discharge collar", 1.5 * IN, W - 8 * IN, H - 6 * IN, 3 * IN, xd + 0.75 * IN, 0.0))
     # service side (+y): the controls at the inlet end, the electrical enclosure at the
-    # discharge end, an electric heater's control panel centred between them
+    # discharge end, an electric heater's control panel centred between them -- each in
+    # its own slot along the side, clear of the corner hanger brackets
     ch = min(8 * IN, H - 3 * IN)
-    # each has its own slot along the side, clear of the corner hanger brackets:
-    # controls at the inlet end, the electrical enclosure at the discharge end
     parts.append(box("controls enclosure", 10 * IN, 3.5 * IN, ch, (H - ch) / 2, xin + 8.5 * IN,
                      W / 2 + 1.75 * IN))
     eh = min(10 * IN, H - 2 * IN)
@@ -162,15 +161,14 @@ def make_fan_powered_box(*, kind: str = "series", length_in: Optional[float] = N
         raise ValueError(f"kind must be one of {KINDS}, got {kind!r}")
     if reheat not in REHEATS:
         raise ValueError(f"reheat must be one of {REHEATS}, got {reheat!r}")
-    if voltage is not None and (isinstance(voltage, bool)
-                                or not (float(voltage) > 0 and math.isfinite(float(voltage)))):
-        raise ValueError(f"supply voltage must be a positive, finite number of volts, got {voltage!r}")
+    if voltage is not None:
+        positive_finite(voltage, "supply voltage", "volts")
     if phases is not None and (isinstance(phases, bool) or phases not in (1, 3)):
         raise ValueError(f"phases must be 1 or 3, got {phases!r}")
     for key, val in (("length_in", length_in), ("width_in", width_in), ("height_in", height_in),
                      ("inlet_in", inlet_in)):
-        if val is not None and (isinstance(val, bool) or not (math.isfinite(float(val)) and float(val) > 0)):
-            raise ValueError(f"{key[:-3]} must be a positive, finite number of inches, got {val!r}")
+        if val is not None:
+            positive_finite(val, key[:-3], "inches")
     sheet = F.FactSheet(subject=f"fan-powered terminal unit, {kind} (archetype)")
     dims = {}
     nominal_l = NOMINAL_LENGTH_ELECTRIC_IN if reheat == "electric" else NOMINAL_LENGTH_IN
