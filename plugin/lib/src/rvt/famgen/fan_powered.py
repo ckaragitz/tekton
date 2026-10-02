@@ -165,10 +165,11 @@ def make_fan_powered_box(*, kind: str = "series", length_in: Optional[float] = N
         positive_finite(voltage, "supply voltage", "volts")
     if phases is not None and (isinstance(phases, bool) or phases not in (1, 3)):
         raise ValueError(f"phases must be 1 or 3, got {phases!r}")
+    given = {}
     for key, val in (("length_in", length_in), ("width_in", width_in), ("height_in", height_in),
                      ("inlet_in", inlet_in)):
         if val is not None:
-            positive_finite(val, key[:-3], "inches")
+            given[key] = positive_finite(val, key[:-3], "inches")
     sheet = F.FactSheet(subject=f"fan-powered terminal unit, {kind} (archetype)")
     dims = {}
     nominal_l = NOMINAL_LENGTH_ELECTRIC_IN if reheat == "electric" else NOMINAL_LENGTH_IN
@@ -180,8 +181,8 @@ def make_fan_powered_box(*, kind: str = "series", length_in: Optional[float] = N
             sheet.set(key, nom, kind="nominal", source="class proportions (fan_powered.py)")
             dims[key] = nom
         else:
-            sheet.set(key, float(val), kind="given", source="the request")
-            dims[key] = float(val)
+            dims[key] = given[key]
+            sheet.set(key, dims[key], kind="given", source="the request")
     if voltage is None:
         voltage = 277.0
         sheet.set("voltage_v", voltage, kind="assumed",

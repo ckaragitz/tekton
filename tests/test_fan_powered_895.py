@@ -217,3 +217,17 @@ def test_the_electric_heater_panel_is_centred_on_the_service_side(length_in):
     parts = {p["role"]: p for p in FP.fan_powered_parts(length_in * IN, 30 * IN, 18 * IN,
                                                          inlet_d=10 * IN, reheat="electric")}
     assert parts["electric heater control panel"]["cx"] == pytest.approx(0.0)
+
+
+@pytest.mark.parametrize("val", [10 ** 400, float("1e400")])
+def test_a_number_too_large_for_a_float_gets_the_same_refusal(val):
+    with pytest.raises(ValueError, match="positive, finite number of inches"):
+        FP.make_fan_powered_box(length_in=val)
+    with pytest.raises(ValueError, match="positive, finite number of volts"):
+        FP.make_fan_powered_box(voltage=val)
+
+
+def test_a_numpy_bool_is_refused_like_a_bool():
+    np = pytest.importorskip("numpy")
+    with pytest.raises(ValueError, match="positive, finite number of inches"):
+        FP.make_fan_powered_box(width_in=np.True_)

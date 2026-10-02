@@ -19,10 +19,10 @@ def positive_finite(val: Any, what: str, unit: str) -> float:
     ``unit`` -- the one refusal for a bool, a non-numeric string, NaN, an infinity,
     zero or a negative (invalid input is refused with a message, never drawn)."""
     try:
-        if isinstance(val, bool):
+        if type(val).__name__ in ("bool", "bool_"):    # Python's, and numpy's (1.x / 2.x)
             raise TypeError
         v = float(val)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         v = float("nan")
     if not (math.isfinite(v) and v > 0):
         raise ValueError(f"{what} must be a positive, finite number of {unit}, got {val!r}")

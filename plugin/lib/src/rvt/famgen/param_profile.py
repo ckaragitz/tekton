@@ -347,7 +347,14 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
                                          "by": "formula" if formula else "value"}
             else:
                 filled += 1
-                pe.refs["provenance"] = {"tier": "given", "source": values_source}
+                pe.refs["provenance"] = {"tier": "given", "source": values_source,
+                                         "by": "formula" if formula else "value"}
+            if formula:
+                # what a formula CLAIMS, kept apart from the tag: each finalize settles
+                # the tag from it (settle_formula_provenance), so a formula refused on
+                # one finalize and written on a later one is tagged again
+                pe.refs["formula_provenance"] = {"tag": dict(pe.refs["provenance"]),
+                                                 "formula": formula}
         pe.obj["m_hideWhenNoValue"] = bool(p.hide_when_no_value)
         pe.obj["m_userModifiable"] = bool(p.user_modifiable)
         pe.obj["m_pParamDef"]["value"]["m_userVisible"] = bool(p.visible)
@@ -372,26 +379,46 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
 
 
 def settle_formula_provenance(doc, written_ids) -> None:
-    """After the formulas are written: a parameter tagged as filled BY FORMULA whose
-    formula was refused (``written_ids`` = the parameter ids that did get one) carries
-    no library or given value -- its tag is dropped, its name leaves the provenance
-    line, and a note says so.  Called by the finalize step; idempotent."""
+    """After the formulas are written (``written_ids`` = the parameter ids that got
+    one): a parameter filled BY FORMULA -- from the library or given -- carries its
+    provenance tag only when its formula was written; one refused carries no value, so
+    its tag is dropped, it leaves the provenance line, and a note names it.  Settled
+    afresh on every finalize from the claim :func:`apply` recorded, so a formula
+    refused once and written on a later finalize is tagged and listed again and the
+    notes say only what the latest finalize wrote.  Idempotent."""
     written_ids = set(written_ids)
-    dropped = []
+    dropped: Dict[str, List[str]] = {"library": [], "given": []}
+    by_value, by_formula = [], []
     for name, pe in doc.params.items():
-        prov = pe.refs.get("provenance")
-        if prov and prov.get("by") == "formula" and pe.elem_id not in written_ids:
-            pe.refs.pop("provenance")
-            dropped.append(name)
-    if not dropped:
-        return
+        claim = pe.refs.get("formula_provenance")
+        if claim and pe.refs.get("formula") != claim["formula"]:
+            # the formula was replaced after the profile filled it: no longer its claim
+            pe.refs.pop("formula_provenance")
+            if pe.refs.get("provenance") == claim["tag"]:
+                pe.refs.pop("provenance")
+        elif claim:
+            if pe.elem_id in written_ids:
+                pe.refs["provenance"] = dict(claim["tag"])
+            else:
+                pe.refs.pop("provenance", None)
+                dropped.setdefault(claim["tag"].get("tier"), []).append(name)
+        prov = pe.refs.get("provenance") or {}
+        if prov.get("tier") == "library":
+            (by_formula if prov.get("by") == "formula" else by_value).append(name)
     for i, n in enumerate(doc.notes):
         if n.startswith("provenance library ("):
-            head, _sep, body = n.partition("): ")
-            kept = [e for e in body.split("; ") if not any(e == f"{d!r} by formula" for d in dropped)]
+            head, _sep, _body = n.partition("): ")
+            kept = [f"{d!r} by value" for d in by_value] + [f"{d!r} by formula" for d in by_formula]
             doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
-    doc.notes.append("library formulas not written, so these parameters carry no library "
-                     "value: " + ", ".join(repr(d) for d in sorted(dropped)))
+    doc.notes[:] = [n for n in doc.notes if not n.startswith(_NOT_WRITTEN_NOTES)]
+    for tier, names in dropped.items():
+        if names:
+            doc.notes.append(f"{tier} formulas not written, so these parameters carry no {tier} "
+                             "value: " + ", ".join(repr(d) for d in sorted(names)))
+
+
+#: the notes :func:`settle_formula_provenance` owns (rebuilt on every finalize)
+_NOT_WRITTEN_NOTES = ("library formulas not written", "given formulas not written")
 
 
 @dataclass

@@ -464,9 +464,32 @@ def _subs(v: Mapping[str, Any]) -> Optional[list]:
     return subs if isinstance(subs, list) else None
 
 
+def _constant_value(n: Any) -> Optional[float]:
+    """The value of ``n`` when it is a number constant -- through parentheses and
+    leading minus signs, so ``-(2)``, ``-2.0`` and a stored ``-2`` read alike --
+    else None.  -0.0 is 0.0 (the two compute alike)."""
+    sign = 1.0
+    while isinstance(n, dict):
+        cls, v = n.get("ptr_class"), n.get("value") or {}
+        if cls == "ParenExpression":
+            n = v.get("m_pSubexpression")
+        elif cls == "UnaryOperatorExpression" and v.get("m_unaryOperator") == UNARY_NEG:
+            sign, n = -sign, v.get("m_pSubexpression")
+        elif cls == "NumberConstantExpression":
+            try:
+                return sign * float(v.get("m_value")) + 0.0
+            except (TypeError, ValueError):
+                return None
+        else:
+            return None
+    return None
+
+
 def _shape(tree: Any) -> list:
     """``tree`` as a preorder list of (class, operator / function / parameter /
-    constant), parentheses skipped -- two trees with one shape compute alike."""
+    constant), parentheses skipped -- two trees with one shape compute alike.  A
+    number constant compares by value (an int and a float, -0.0 and 0.0 alike), a
+    negated constant as the negative number, a parameter by its integer id."""
     out: list = []
     stack = [tree]
     while stack:
@@ -475,7 +498,10 @@ def _shape(tree: Any) -> list:
             out.append(("?", repr(n)))
             continue
         cls, v = n.get("ptr_class"), n.get("value") or {}
-        if cls == "ParenExpression":
+        num = _constant_value(n)
+        if num is not None:
+            out.append(("NumberConstantExpression", num))
+        elif cls == "ParenExpression":
             stack.append(v.get("m_pSubexpression"))
         elif cls == "BinaryOperatorExpression":
             out.append((cls, v.get("m_binaryOperator")))
@@ -488,7 +514,10 @@ def _shape(tree: Any) -> list:
             out.append((cls, v.get("m_function"), len(subs)))
             stack += list(reversed(subs))
         elif cls == "ParameterExpression":
-            out.append((cls, v.get("m_paramId")))
+            try:
+                out.append((cls, int(v.get("m_paramId"))))
+            except (TypeError, ValueError):
+                out.append((cls, repr(v.get("m_paramId"))))
         else:
             out.append((cls, repr(v.get("m_value"))))
     return out
@@ -498,8 +527,11 @@ def unparse_checked(tree: Any, names: Mapping[int, str], table: "NameTable") -> 
     """:func:`unparse`, and the text parsed back against the family's OWN names
     (``table``) must give the same tree -- a caption that holds another one plus an
     operator ('A - B' beside 'A' and 'B') would otherwise read back as a different
-    parameter.  A text the parser refuses on its unit rules cannot be checked here and
-    is kept: the writer refuses it by the same rules, so it is never written wrong."""
+    parameter.  A text that cannot be parsed back cannot be checked here and is
+    returned as is -- the parser refusing it (its unit rules, or a tree deeper than
+    ``MAX_DEPTH``) or Python's recursion limit: the writer parses with the same parser
+    and limits, so it refuses such a text rather than writing another tree.  None when
+    the tree cannot be spelled at all, or reads back as a different one."""
     text = unparse(tree, names)
     if text is None:
         return None
