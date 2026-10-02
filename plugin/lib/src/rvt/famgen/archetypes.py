@@ -57,6 +57,7 @@ path).
 """
 from __future__ import annotations
 
+import functools
 import math
 import re
 from dataclasses import dataclass, field as dc_field
@@ -1364,21 +1365,28 @@ _UNITS = {
     "mm": r"(?:mm\b|millimet(?:er|re)s?\b)",
 }
 _ANY_UNIT = "|".join(_UNITS.values())
+#: the same patterns, compiled once (#934 -- the resolver reads every number
+#: through these; module-level re.* calls paid a cache lookup each time)
+_UNITS_RX = tuple((k, re.compile(v)) for k, v in _UNITS.items())
+_WS = re.compile(r"\s+")
+_MIXED = re.compile(r"(\d+)(?: ?- ?| )(\d+) ?/ ?(\d+)")
+_FRACTION = re.compile(r"(\d+) ?/ ?(\d+)")
+_DECIMAL = re.compile(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?")
 
 
 def _to_number(raw: str) -> Optional[float]:
     """'24' / '1.5' / '1-5/8' / '1 5/8' / '3/4' / '13/16' / '1,200' -> a float;
     None when it is not one."""
-    s = re.sub(r"\s+", " ", str(raw).strip())
+    s = _WS.sub(" ", str(raw).strip())
     # A mixed number needs a SEPARATOR -- a hyphen or a space -- between the
     # whole part and the fraction.  This used to strip every space first, which
     # made "1 3/16" and "13/16" the same string; the mixed reading ran first, so
     # a 13/16 in strut was read as 1 3/16 in and stamped ``given`` (#831).
-    m = re.fullmatch(r"(\d+)(?: ?- ?| )(\d+) ?/ ?(\d+)", s)
+    m = _MIXED.fullmatch(s)
     if m:
         den = float(m.group(3))
         return float(m.group(1)) + float(m.group(2)) / den if den else None
-    m = re.fullmatch(r"(\d+) ?/ ?(\d+)", s)
+    m = _FRACTION.fullmatch(s)
     if m:
         den = float(m.group(2))
         # "3/0" and "4/0" are everyday AWG sizes for this product class, and a
@@ -1386,7 +1394,7 @@ def _to_number(raw: str) -> Optional[float]:
         # WITHHELD THE FILE -- a hard rule 1 violation caused by a parser.
         return float(m.group(1)) / den if den else None
     # '1,200' is one thousand two hundred -- only as digit grouping
-    m = re.fullmatch(r"\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?", s)
+    m = _DECIMAL.fullmatch(s)
     return float(m.group(0).replace(",", "")) if m else None
 
 
@@ -1412,8 +1420,8 @@ def _convert(value: float, unit_found: str, p: Param) -> Optional[float]:
 
 def _unit_of(text: str) -> Optional[str]:
     low = text.lower()
-    for key, pat in _UNITS.items():
-        if re.search(pat, low):
+    for key, rx in _UNITS_RX:
+        if rx.search(low):
             return key
     return None
 
@@ -1483,6 +1491,8 @@ _BRAND_HINTS = (
     "b-line", "b line", "cooper", "unistrut", "cablofil", "hoffman", "panduit",
     "nvent", "thomas & betts", "superstrut", "chalfant", "mono-systems",
     "wiremold", "legrand", "atkore", "allied tube")
+#: each hint's word-bounded pattern, compiled once (#934; same regex as before)
+_BRAND_RX = tuple((b, re.compile(rf"\b{re.escape(b)}\b")) for b in _BRAND_HINTS)
 
 
 def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
@@ -1517,8 +1527,8 @@ def manufacturer_claim(prompt: str) -> Optional[Dict[str, Any]]:
         if tok not in tokens:
             tokens.append(tok)
             reasons.append(f"{tok!r} is shaped like a catalogue number")
-    for b in _BRAND_HINTS:
-        if re.search(rf"\b{re.escape(b)}\b", low):
+    for b, rx in _BRAND_RX:
+        if rx.search(low):
             brands.append(b)
             reasons.append(f"names a manufacturer: {b!r}")
     # A BARE designator (no separators) is only a catalogue number when the
@@ -1622,6 +1632,72 @@ def _alias_patterns(p: Param, *, alias_first: bool = True) -> List[Tuple[int, in
     return out
 
 
+def _by_identity(fn):
+    """Memoise ``fn(obj, flag)`` on the IDENTITY of ``obj`` (#934).  The
+    resolver's static tables (a frozen ``Param``, an archetype's parameter
+    tuple) are looked up several times per prompt; ``lru_cache`` would hash
+    every field of every ``Param`` on each lookup.  The entry keeps ``obj``
+    alive and is checked with ``is``, so a recycled ``id`` can never hit."""
+    memo: Dict[Tuple[int, bool], Tuple[Any, Any]] = {}
+
+    @functools.wraps(fn)
+    def wrapper(obj, flag: bool = True):
+        hit = memo.get((id(obj), flag))
+        if hit is not None and hit[0] is obj:
+            return hit[1]
+        val = fn(obj, flag)
+        memo[(id(obj), flag)] = (obj, val)
+        return val
+    return wrapper
+
+
+@_by_identity
+def _alias_rx(p: Param, alias_first: bool = True) -> Tuple[Tuple[int, int, "re.Pattern[str]"], ...]:
+    """:func:`_alias_patterns` with each pattern COMPILED, cached per
+    parameter (#934): the patterns are a pure function of the frozen
+    ``Param``'s aliases and phrases, so the resolver need not rebuild and
+    re-look-up ~70 regex strings per prompt.  Same patterns, same order."""
+    return tuple((n, rank, re.compile(pat))
+                 for n, rank, pat in _alias_patterns(p, alias_first=alias_first))
+
+
+@_by_identity
+def _alias_rx_tagged(p: Param, alias_first: bool = True
+                     ) -> Tuple[Tuple[int, int, "re.Pattern[str]", Optional[str]], ...]:
+    """:func:`_alias_rx` with the ALIAS each pattern is built around (None for
+    a whole-phrase template).  Both phrasings of an alias contain that
+    alias's own regex (:func:`_alias_re`) as a required part, so a pattern
+    whose alias occurs nowhere in the prompt cannot match and a caller may
+    skip it without changing any result (#934)."""
+    tags = [None] * len(p.phrases) + [al for al in p.aliases for _ in (0, 1)]
+    rx = _alias_rx(p, alias_first)
+    assert len(tags) == len(rx), p.key                # _alias_patterns' layout
+    return tuple((n, rank, pat, al) for (n, rank, pat), al in zip(rx, tags))
+
+
+def _present_aliases(params: Sequence[Param], low: str) -> set:
+    """The aliases of ``params`` that occur in ``low`` at all."""
+    return {al for p in params for al in p.aliases if _alias_re_c(al).search(low)}
+
+
+@_by_identity
+def _candidates(params: Tuple[Param, ...], alias_first: bool
+                ) -> Tuple[Tuple[int, int, "re.Pattern[str]", Param, Optional[str]], ...]:
+    """Every alias pattern of every parameter, LONGEST ALIAS FIRST (a stable
+    sort, so declaration order holds within a length) -- see
+    :func:`resolve_prompt`.  Cached per (frozen) parameter tuple (#934); the
+    fifth field is the pattern's alias (:func:`_alias_rx_tagged`)."""
+    return tuple(sorted(((n, rank, pat, p, al) for p in params
+                         for n, rank, pat, al in _alias_rx_tagged(p, alias_first)),
+                        key=lambda c: -c[0]))
+
+
+@functools.lru_cache(maxsize=None)
+def _alias_re_c(al: str) -> "re.Pattern[str]":
+    """:func:`_alias_re` compiled, cached per alias (#934)."""
+    return re.compile(_alias_re(al))
+
+
 def _product_patterns(a: Archetype) -> List[str]:
     return list(a.patterns) or [re.escape(a.key.replace("_", r"\s+"))]
 
@@ -1668,9 +1744,12 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
     # own: "1 in rung width, rung width 1 in" stamped a 1 in tray WIDTH given
     # (#828 review).  So every occurrence of every alias is recorded up front,
     # bound or not, and a shorter alias may never match inside a longer one.
-    spans = [(m.start(), m.end(), len(al))
-             for al in {al for p in arch.params for al in p.aliases}
-             for m in re.finditer(_alias_re(al), low)]
+    spans: List[Tuple[int, int, int]] = []
+    present = set()                  # the aliases that occur in the prompt at all
+    for al in {al for p in arch.params for al in p.aliases}:
+        for m in _alias_re_c(al).finditer(low):
+            spans.append((m.start(), m.end(), len(al)))
+            present.add(al)
 
     cross_dims = [k for k in ("width_in", "height_in", "depth_in")
                   if any(q.key == k for q in arch.params)]
@@ -1723,13 +1802,13 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
         def b_free(s: int, e: int) -> bool:
             return not any(s < ue and e > us for us, ue in b_used)
 
-        candidates = sorted(((n, rank, pat, p) for p in arch.params
-                             for n, rank, pat in _alias_patterns(p, alias_first=alias_first)),
-                            key=lambda c: -c[0])
-        for n, rank, pat, p in candidates:
+        # a pattern whose alias is absent from the prompt cannot match (#934)
+        candidates = [c for c in _candidates(arch.params, alias_first)
+                      if c[4] is None or c[4] in present]
+        for n, rank, pat, p, _al in candidates:
             if b_prov[p.key] == GIVEN:
                 continue
-            for m in re.finditer(pat, low):
+            for m in pat.finditer(low):
                 if not b_free(m.start(), m.end()):
                     continue
                 if inside_longer(m.start(), m.end(), n) or opens_cross(m, rank, p, b_prov):
@@ -1744,8 +1823,8 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
                     tail0 = m.end()
                     if _NOT_A_SIZE_LEAD.search(lead) or (_DESIGNATOR_LEAD.search(lead) and any(
                             not inside_longer(tail0 + mr.start(), tail0 + mr.end(), n_)
-                            for n_, _r, pu in _alias_patterns(p)
-                            for mr in re.finditer(pu, low[tail0:]))):
+                            for n_, _r, pu in _alias_rx(p)
+                            for mr in pu.finditer(low[tail0:]))):
                         continue
                 num = _to_number(m.group(1))
                 if num is None:
@@ -1764,10 +1843,10 @@ def resolve_prompt(prompt: str, *, product: Optional[str] = None) -> Optional[Re
         # contradicting it): a reading that cut such a phrase in half to bind
         # something else read a number across a phrase boundary
         intact: List[Tuple[int, int]] = []
-        for n, rank, pat, p in candidates:
+        for n, rank, pat, p, _al in candidates:
             if b_prov[p.key] != GIVEN:
                 continue
-            for m in re.finditer(pat, low):
+            for m in pat.finditer(low):
                 s_, e_ = m.start(), m.end()
                 if not b_free(s_, e_) or any(s_ < ie and e_ > is_ for is_, ie in intact):
                     continue
@@ -1918,13 +1997,18 @@ def _out_of_range(arch: Archetype, low: str, text: str,
         num = _to_number(m.group(1))
         c = None if num is None else _convert(num, _unit_of(m.group(0)) or q.unit, q)
         return c is not None and q.minimum < c <= q.maximum
+    # (a pattern whose alias is absent from the prompt cannot match, #934)
+    present = _present_aliases(arch.params, low)
     spans = [(m.start(), m.end(), n_) for q in arch.params
-             for n_, _r, pat in _alias_patterns(q) for m in re.finditer(pat, low)
+             for n_, _r, pat, al in _alias_rx_tagged(q)
+             if al is None or al in present
+             for m in pat.finditer(low)
              if _could(q, m)]
     for p in arch.params:
         if prov.get(p.key) != NOMINAL or not math.isfinite(p.maximum):
             continue
-        pats = [(n_, pat) for n_, _r, pat in _alias_patterns(p)]
+        pats = [(n_, pat) for n_, _r, pat, al in _alias_rx_tagged(p)
+                if al is None or al in present]
         if p is prim:
             pats += [(0, rf"{_NUM}{_SEP}(?P<u>{_ANY_UNIT}){_SEP}(?:{q})")
                      for q in _product_patterns(arch)]
