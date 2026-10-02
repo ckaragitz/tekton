@@ -1,0 +1,2 @@
+# #984: every certified file the matrix cites whose content we generated is registered (earlier FORM, fingerprinted at its releases) or declared MECHANISM-ONLY; rows and docs say which (fresh-clone safe, ~25 s)
+tests/test_matrix_evidence_984.py
