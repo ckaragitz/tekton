@@ -22,9 +22,10 @@ Revit already loads.**
 * a DOME is the top half of the sphere.
 
 Every generated part is an ordinary ``box`` / ``cylinder`` dict, so the whole
-set travels the line-segment and arc paths that the owner's desktop Revit 2026
-verified (boxes and N-gons load; arcs load since #589).  Nothing here touches
-the writer.
+set travels the line-segment and arc paths (the owner's desktop Revit 2026
+verified boxes and N-gons, and arcs in their TWO-HALF form since #589; plan
+circles are one full arc since #916 / #980, the born form, unverified on the
+desktop).  Nothing here touches the writer.
 
 THE APPROXIMATION IS MEASURED, NOT DESCRIBED.  ``segments`` controls the stack
 and every generator reports the volume it authored against the true volume of

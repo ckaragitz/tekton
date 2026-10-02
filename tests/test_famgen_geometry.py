@@ -431,7 +431,8 @@ def test_emit_cylinder_rfa_reads_back_clean(tmp_path, ctx):
     assert v["walker_errors"] == []
     assert v["new_all_clean"] and v["donor_ids_preserved"] and v["ok"]
     # one record per element of the bundle (4 since #916 plan: one full arc)
-    assert v["record_counts_out"] == {s: v["record_counts_donor"][s] + len(fb.elements)
+    assert len(fb.elements) == 4
+    assert v["record_counts_out"] == {s: v["record_counts_donor"][s] + 4
                                       for s in ("101", "102", "103")}
     from rvt.families import FamilyIndex
     idx = FamilyIndex(str(out))

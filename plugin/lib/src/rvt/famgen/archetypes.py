@@ -45,7 +45,9 @@ LOD 400 MEANS THE PARTS ARE THE REAL PARTS.  A ladder tray is two side rails
 and rungs at the standard spacing, not a box labelled "cable tray"; a strut
 channel is a back, two webs and two inturned lips.  Every archetype emits the
 ordinary ``parts`` list `factory.make_generic_model` already authors, so the
-whole set travels the box / N-gon / arc paths desktop Revit 2026 has verified.
+whole set travels the box / N-gon / arc paths.  Desktop Revit 2026 verified the
+box and N-gon paths and the TWO-HALF arc form (#589); plan circles are one full
+arc since #916 (#980) -- the born form, with NO desktop verdict yet.
 
 ADDING A PRODUCT IS ONE ENTRY AND ONE FUNCTION (steer #591 DONE 5): an
 :class:`Archetype` in :data:`ARCHETYPES` with its :class:`Param` list, its
