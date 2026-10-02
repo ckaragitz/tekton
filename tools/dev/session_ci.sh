@@ -25,7 +25,8 @@
 # (all runs on one machine must share it — the global lock lives there).
 # Prints one JSON object: {pr, head, main (the origin/main it was merged with — tools/dev/ci_fresh.sh <pr> says
 # FRESH/STALE against the current one before a merge, #487), merge_with_main, portable_paths, plugin_drift, plugin_structure,
-# shard_rc, shard_summary, seconds, sandbox, shard_timeout (the cap the shard ran under, #934), verdict: pass|fail}; exit 0 either way (read the verdict) —
+# shard_rc, shard_summary, seconds, sandbox, shard_timeout (the cap the shard ran under, #934), and when the shard ran
+# shard_seconds / shard_budget (ok|near-limit|timeout) / shard_slowest [/ shard_progress] (#918), verdict: pass|fail}; exit 0 either way (read the verdict) —
 # except setup failures (no ref, no origin/main, another run holds the PR / global lock timeout, worktree, tree export):
 # {"pr":N,"error":...} and exit 2.
 set -uo pipefail
@@ -102,18 +103,23 @@ step() { local name=$1; shift; echo "=== $name" >> "$LOG"; if sandbox timeout -k
 t0=$(date +%s)
 D=$(step plugin_drift "$PY" tools/sync_plugin.py --check)
 V=$(step plugin_structure "$PY" plugin/scripts/validate_plugin.py)
+SHARD_RAN=0; SHARD_SECS=0   # set only when the shard runs (#918): never inherited from the caller
 if [ -n "$BADSHARD" ] || [ "${#SHARD[@]}" = "0" ]; then
   echo "=== shard REFUSED: ${#SHARD[@]} entries, invalid:${BADSHARD:- (empty list)}" >> "$LOG"; RC=3; TAIL="shard list refused (${#SHARD[@]} entries; see log)"
 else
   echo "=== shard (${#SHARD[@]} files, sandboxed: uid nobody, no network, own pid/mount ns)" >> "$LOG"
+  # how close the shard came to its cap goes in the JSON (#918): two #841 runs died at
+  # 88% with nothing else to say, and a shard creeping up on the cap must be seen first
+  ts0=$(date +%s)
   sandbox timeout -k 30 "$SHARD_TIMEOUT" "$PY" -m pytest -q -p no:cacheprovider --durations=5 -- "${SHARD[@]}" >> "$LOG" 2>&1; RC=$?
+  SHARD_RAN=1; SHARD_SECS=$(( $(date +%s) - ts0 ))
   # The summary line is sandbox OUTPUT (untrusted text): keep only a pytest-shaped tally, never arbitrary log content.
   TAIL=$(grep -oE '[0-9]+ (passed|failed|error|errors)(, [0-9]+ [a-z]+)* in [0-9.]+s( \([0-9:]+\))?' "$LOG" | tail -1 | cut -c1-160)   # bounded: it gets posted
 fi
 t1=$(date +%s)
-python3 - "$OUT" "$PR" "$HEAD" "$MAIN" "$MERGE" "$P" "$D" "$V" "$RC" "$TAIL" "$((t1-t0))" "$SHARD_TIMEOUT" <<'PYEOF'
+python3 - "$OUT" "$PR" "$HEAD" "$MAIN" "$MERGE" "$P" "$D" "$V" "$RC" "$TAIL" "$((t1-t0))" "$SHARD_TIMEOUT" "$SHARD_RAN" "$SHARD_SECS" "$LOG" <<'PYEOF'
 import json,sys
-out,pr,head,main,merge,p,d,v,rc,tail,secs,cap=sys.argv[1:]
+out,pr,head,main,merge,p,d,v,rc,tail,secs,cap,ran,ssecs,log=sys.argv[1:]
 r={"pr":int(pr),"head":head,"main":main,"merge_with_main":merge,"portable_paths":p,"plugin_drift":d,"plugin_structure":v,
    "shard_rc":int(rc),"shard_summary":tail.strip(),"seconds":int(secs),"sandbox":"uid=nobody,net+pid+mnt ns,no caps,no-new-privs,env scrubbed,tree exported"}
 import re
@@ -121,6 +127,26 @@ green = re.match(r"^\d+ passed\b", r["shard_summary"]) and not re.search(r"(^|, 
 r["verdict"]="pass" if (merge=="clean" and p=="ok" and d=="ok" and v=="ok" and r["shard_rc"]==0 and green) else "fail"
 r["shard_timeout"]=int(cap)
 if r["shard_rc"] in (124, 137): r["shard_summary"]=r["shard_summary"] or f"timeout/killed after {cap} s"   # names itself (#934)
+# the shard's budget (#918).  The log is sandbox OUTPUT (untrusted): only strictly
+# shaped pytest lines are kept -- ASCII node ids, no spaces, bounded -- never free text.
+if ran == "1":
+    ssecs, cap_s = int(ssecs), int(cap)
+    r["shard_seconds"] = ssecs
+    r["shard_budget"] = ("timeout" if r["shard_rc"] in (124, 137) or ssecs >= cap_s else
+                         "near-limit" if ssecs > 0.8 * cap_s else "ok")
+    try:
+        with open(log, "rb") as fh:                 # the tail only: the log is any size
+            fh.seek(0, 2); fh.seek(max(0, fh.tell() - 400000))
+            text = fh.read().decode("utf-8", "replace")
+    except OSError:
+        text = ""
+    r["shard_slowest"] = [m.group(0)[:200] for m in re.finditer(
+        r"(?m)^\d+\.\d+s (?:call|setup|teardown) +tests/[A-Za-z0-9_/.-]+\.py::[A-Za-z0-9_.:\[\],=-]+$",
+        text, re.ASCII)][:5]
+    if r["shard_budget"] == "timeout":             # how far a killed shard got
+        done = re.findall(r"\[ *(\d{1,3})%\]", text)
+        if done:
+            r["shard_progress"] = f"{int(done[-1])}%"
 json.dump(r,open(out,"w")); print(json.dumps(r))
 PYEOF
 rm -rf "$BOX" "$TMPBOX"; flock -u 9; flock -u 8
