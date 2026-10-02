@@ -225,7 +225,7 @@ no viewer or desktop batch has been run.
 
 # #917 second pass: locks and parameter association (gaps 1 and 2)
 
-Branch `claude/pull-latest-main-1cmo56 (PR #936; built on a local `nest-locks-917`)`, based on `claude/pull-latest-main-1cmo56` (PR #936; built on a local `nested-917`) (422dbd9). Gaps 1 and 2 above
+Branch `claude/pull-latest-main-1cmo56` (PR #936; built locally as `nest-locks-917` on `nested-917` 422dbd9). Gaps 1 and 2 above
 are closed in the file; gap 6 (no desktop verdict) is not, and does not move
 here either (hard rule 4, steer #913: no probe family goes to the owner).
 
@@ -411,10 +411,9 @@ parameter) associated to the child's instance parameter. On **2026 and
   carries a note saying so. A child passed as a callable is built inside the host's
   release context.
 - **Still open, unchanged.** #917 DONE 1 is not met: the leading blank type row
-  remains (gap 4). The project loader has the same duplicate-name gap; that is #928's
-  territory.
+  remains (gap 4). The project loader has the same duplicate-name gap, filed as #937.
 
-## BRANCH STATE (claude/pull-latest-main-1cmo56 (PR #936; built on a local `nest-locks-917`))
+## BRANCH STATE (PR #936, branch `claude/pull-latest-main-1cmo56`)
 
 **Files written**
 - `src/rvt/famgen/nest.py`: locks, association, `host_reference_planes`.
