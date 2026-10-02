@@ -3036,12 +3036,19 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                                                     top_zone_h=top_h)
         drive_report, height_report = _wire_equipment_drives(doc, named, d_specs, h_specs,
                                                              what="transformer")
-        zone_x = next((e[0] for n, f in named
-                       if str(f.params.get("role")) == _XFMR_ZONE_FRONT
-                       for e in [_form_extents(f)]), None)
-        if drive_report and zone_x is not None:
-            tracks = (abs(zone_x[0] + W / 2.0) < _DRIVE_EPS
-                      and abs(zone_x[1] - W / 2.0) < _DRIVE_EPS)
+        zone = next((n for n, f in named
+                     if str(f.params.get("role")) == _XFMR_ZONE_FRONT), None)
+        width = next((d for d in drive_report if d.get("caption") == "Width"), None)
+        if width is not None and zone is not None:
+            # the wiring decides, the note reports it (one source; #935 review)
+            tracks = zone in (d_specs[0].get("parts") or {})
+            # the type rows that land on the far side of the 30 in line from the
+            # case the zone was wired for (#935 review)
+            pe = doc.params.get("Width")
+            cross = [str(t[0]) for t in (doc.types or [])
+                     if pe is not None and isinstance(t[1].get(pe.elem_id), (int, float))
+                     and ((t[1][pe.elem_id] < 2.5 - _DRIVE_EPS) if tracks
+                          else (t[1][pe.elem_id] > 2.5 + _DRIVE_EPS))]
             doc.notes.append(
                 "front working space (NEC 110.26(A)(2): the greater of the equipment "
                 "width or 30 in): " + (
@@ -3050,7 +3057,11 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                     if tracks else
                     "drawn at the 30 in minimum (wider than the box), so it stays -- a "
                     "flex ABOVE 30 in is not re-derived and would leave it narrower "
-                    "than the box") + "; authored, unverified")
+                    "than the box")
+                + (f"; type(s) {', '.join(cross)} cross that line and leave the zone "
+                   f"{'under the minimum' if tracks else 'narrower than the box'}"
+                   if cross else "")
+                + "; authored, unverified")
     # connectors: primary + secondary windings on the top face, offset in X.
     # The primary winding is the family's ONE primary connector (the side an
     # upstream circuit attaches to); the secondary books the kVA rating as a

@@ -393,6 +393,21 @@ def test_the_transformer_working_space_tracks_width_only_where_it_is_the_box_wid
     assert "unverified" in note
 
 
+@pytest.mark.parametrize("types, tracks, crossing", [
+    ([75, 15], True, "15 kVA"), ([45, 75], False, "75 kVA"), ([75, 150], True, None)])
+def test_a_multi_type_transformer_names_the_rows_that_cross_30_in(types, tracks, crossing):
+    """#935 review: the zone is wired for the primary type; a type row on the
+    other side of the 30 in line is named in the note, never left silent."""
+    prod = F.make_transformer(types=types)
+    (width,) = [d for d in prod.drives if d["caption"] == "Width"]
+    note = next(n for n in prod.doc.notes if n.startswith("front working space (NEC"))
+    assert ("tracks Width" in note) is tracks
+    if crossing:
+        assert f"type(s) {crossing}" in note and "cross that line" in note
+    else:
+        assert "cross that line" not in note
+
+
 # --------------------------------------------------------------------------- refusals
 
 def _patched(monkeypatch, mod, fn, edit, build):

@@ -190,6 +190,17 @@ order. No probe families were made and nothing was sent to the owner, per the st
   - `make_generic_model(parts=…)` from the IFC / Claude Design routes;
   - `famfrom_ifc.make_downlight`.
 
+## Review of #935 (🟡)
+
+- **One source for the note.** Whether the working space tracks is now read from the
+  wired Width spec (is the zone one of its drive parts), not recomputed separately.
+- **Crossing types are named.** In a multi-type family the zone is wired for the
+  primary type. Any type row whose Width lands on the other side of the 30 in line is
+  now named in the note: tracking, a row under 30 in; staying, a row over 30 in. Test:
+  `test_a_multi_type_transformer_names_the_rows_that_cross_30_in`.
+- **Not acted on.** `_DRIVE_EPS` (1e-6 ft) could matter only for a box within
+  1.2e-5 in of 30 in, but not equal to it. Catalog widths are 2-decimal inches.
+
 ## BRANCH STATE
 
 **Files written**

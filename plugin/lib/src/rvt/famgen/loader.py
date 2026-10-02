@@ -1921,12 +1921,20 @@ def _edit_host_registries(host_rvt: str, host: HostContext,
 
 def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
                       authored: Sequence[_AuthoredLoad],
-                      new_latest: bytes, cd_new: bytes) -> Dict[str, Any]:
+                      new_latest: bytes, cd_new: bytes, *,
+                      identity: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """The ONE container rewrite: pass 1 = every family's host elements into
     save-unit 0 + ElemTable (``rvt.commit.commit_new_elements``, via a temp
     file); pass 2 = splice every save unit before the partition end record
     (load order), swap in the edited ContentDocuments / Latest, write
-    ``out_path``.  Returns the pass-1 / pass-2 proofs."""
+    ``out_path``.  Returns the pass-1 / pass-2 proofs.
+
+    ``identity`` (``rvt.identity.own_identity_model`` kwargs) is the caller's
+    identity for the written file; when given, pass 2 also re-owns
+    ``BasicFileInfo`` against ``out_path`` (document GUID kept), so the
+    file's last-save path is its own name rather than the pass-1 temp file's
+    (the nesting path, #917).  None = the project loader's historical
+    behaviour, unchanged."""
     from . import factory as F
     from ..encode import encode_record
     from ..commit import commit_new_elements
@@ -1937,9 +1945,10 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
     from .. import ecc
     recs, elemrecs = _framed_load_records(authored, encode_record)
     tmp1 = out_path + ".pass1.tmp"
+    ident = {"username": ""} if identity is None else dict(identity)
     crep = commit_new_elements(host_rvt, tmp1, recs, elemrecs,
                                creation_ep=authored[0].plan.episode,
-                               identity={"username": ""})
+                               identity=ident)
     rep: Dict[str, Any] = {"pass1_commit": {
         "new_element_ids": list(crep.new_element_ids),
         "elemtable_count_before": crep.elemtable_count_before,
@@ -1974,6 +1983,16 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
         "Global/Latest": ecc.frame_stream(
             wrap_global_stream("Global/Latest", new_latest, level=3)),
     }
+    if identity is not None:
+        from ..identity import own_basic_file_info, BFI_STREAM
+        from .. import stream_encoders as _se
+        with open_rvt(tmp1) as f3:
+            if f3.has(BFI_STREAM):
+                bfi = f3.raw(BFI_STREAM)
+                kw = dict(ident)
+                kw.setdefault("document_guid",
+                              _se.decode_basic_file_info(bfi).get("unique_document_guid"))
+                new_streams[BFI_STREAM] = own_basic_file_info(bfi, out_path=out_path, **kw)
     out_entries = [replace(e, data=new_streams[e.path])
                    if (e.entry_type == "stream" and e.path in new_streams) else e
                    for e in read_entries(tmp1)]
