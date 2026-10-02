@@ -36,8 +36,9 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, List, Optional
 
-from .fan_coil import (IN, CONDUIT_NOMINAL_IN, _add_zone, _arcs_available, _note_vtg, _square,
-                       poles_for, voltage_to_ground_for)
+from .equipment_common import (add_working_zone, arcs_available, note_voltage_to_ground, poles_for,
+                               square_round_part, voltage_to_ground_for)
+from .fan_coil import IN, CONDUIT_NOMINAL_IN
 
 KINDS = ("series", "parallel")
 REHEATS = ("none", "hot_water", "electric")
@@ -65,8 +66,9 @@ def fan_powered_parts(L: float, W: float, H: float, *, kind: str = "series", inl
         raise ValueError(f"kind must be one of {KINDS}, got {kind!r}")
     if reheat not in REHEATS:
         raise ValueError(f"reheat must be one of {REHEATS}, got {reheat!r}")
-    if min(L, W, H, inlet_d) <= 0:
-        raise ValueError(f"casing and inlet must be positive, got {L} x {W} x {H}, inlet {inlet_d}")
+    if not all(math.isfinite(v) and v > 0 for v in (L, W, H, inlet_d)):
+        raise ValueError(f"casing and inlet must be positive, got {L * 12:g} x {W * 12:g} x "
+                         f"{H * 12:g} in, inlet {inlet_d * 12:g} in")
     min_l = MIN_LENGTH_ELECTRIC_IN if reheat == "electric" else MIN_LENGTH_IN
     if L < min_l * IN or W < MIN_WIDTH_IN * IN or H < MIN_HEIGHT_IN * IN:
         raise ValueError(f"a casing under {min_l:g} in long, {MIN_WIDTH_IN:g} in wide or "
@@ -107,8 +109,8 @@ def fan_powered_parts(L: float, W: float, H: float, *, kind: str = "series", inl
                           "length": 2 * IN, "zc": zc, "cx": xout + 3 * IN, "cy": W / 2 - 3 * IN + 1 * IN})
         xd = xout + 6 * IN
     parts.append(box("discharge collar", 1.5 * IN, W - 8 * IN, H - 6 * IN, 3 * IN, xd + 0.75 * IN, 0.0))
-    # service side (+y): controls near the inlet, the electrical enclosure mid-casing,
-    # an electric heater's control panel near the discharge
+    # service side (+y): the controls at the inlet end, the electrical enclosure at the
+    # discharge end, an electric heater's control panel centred between them
     ch = min(8 * IN, H - 3 * IN)
     # each has its own slot along the side, clear of the corner hanger brackets:
     # controls at the inlet end, the electrical enclosure at the discharge end
@@ -126,7 +128,7 @@ def fan_powered_parts(L: float, W: float, H: float, *, kind: str = "series", inl
     if reheat == "electric":
         hh = min(12 * IN, H - 2 * IN)
         parts.append(box("electric heater control panel", 10 * IN, 4 * IN, hh, (H - hh) / 2,
-                         xin + 20.5 * IN, W / 2 + 2 * IN))
+                         0.0, W / 2 + 2 * IN))
     # hanger brackets at the top corners, on the long sides
     for sx in (-1, 1):
         for sy in (-1, 1):
@@ -165,6 +167,10 @@ def make_fan_powered_box(*, kind: str = "series", length_in: Optional[float] = N
         raise ValueError(f"supply voltage must be a positive, finite number of volts, got {voltage!r}")
     if phases is not None and (isinstance(phases, bool) or phases not in (1, 3)):
         raise ValueError(f"phases must be 1 or 3, got {phases!r}")
+    for key, val in (("length_in", length_in), ("width_in", width_in), ("height_in", height_in),
+                     ("inlet_in", inlet_in)):
+        if val is not None and (isinstance(val, bool) or not (math.isfinite(float(val)) and float(val) > 0)):
+            raise ValueError(f"{key[:-3]} must be a positive, finite number of inches, got {val!r}")
     sheet = F.FactSheet(subject=f"fan-powered terminal unit, {kind} (archetype)")
     dims = {}
     nominal_l = NOMINAL_LENGTH_ELECTRIC_IN if reheat == "electric" else NOMINAL_LENGTH_IN
@@ -238,13 +244,13 @@ def make_fan_powered_box(*, kind: str = "series", length_in: Optional[float] = N
                     f"manufacturer), {v_txt}{heat.replace(' - ', ', ')}"))
     forms: List[Any] = []
     host_el = host_case = None
-    arcs = _arcs_available()
+    arcs = arcs_available()
     if not arcs and any(p["shape"] != "box" for p in parts):
         doc.notes.append("round parts (inlet, reheat stubs, conduit hub) drawn SQUARE: this "
                          "release's class map has no ArcElemCell (#786) -- same size and place")
     for p in parts:
         if p["shape"] != "box" and not arcs:
-            p = _square(p)
+            p = square_round_part(p)
         if p["shape"] == "box":
             f = F.add_box_form(doc, p["w"], p["d"], p["h"], base_z_ft=p["z0"],
                                center=(p["cx"], p["cy"]), rep=G.REP_SOLID)
@@ -275,10 +281,14 @@ def make_fan_powered_box(*, kind: str = "series", length_in: Optional[float] = N
                "electric": ", electric heater control panel"}[reheat]
             + ", controls and electrical enclosures (toggle disconnect, conduit hub), 4 hanger "
               "brackets")
-    doc.notes.append("pipe / duct connectors are NOT authored (no corpus specimen pins their "
-                     "system, #894): the inlet, discharge"
-                     + (", induction and reheat" if reheat == "hot_water" else " and induction")
-                     + " openings are geometry -- draw duct and pipe to them by eye")
+    if casing_only:
+        doc.notes.append("pipe / duct connectors are NOT authored (#894), and with the hardware "
+                         "left out there are no inlet, discharge or induction openings to draw to")
+    else:
+        doc.notes.append("pipe / duct connectors are NOT authored (no corpus specimen pins their "
+                         "system, #894): the inlet, discharge"
+                         + (", induction and reheat" if reheat == "hot_water" else " and induction")
+                         + " openings are geometry -- draw duct and pipe to them by eye")
     if host_el is not None:
         fel, pe = host_el
         loc = (pe["cx"], pe["cy"], pe["z0"] + pe["h"])
@@ -307,9 +317,10 @@ def make_fan_powered_box(*, kind: str = "series", length_in: Optional[float] = N
     if ws is not None:
         y0 = max(p["cy"] + p["d"] / 2 for p in parts if p["shape"] == "box"
                  and p["role"] in (ROLE_ELECTRICAL, "disconnect toggle")) if host_el else W / 2
-        _add_zone(doc, F, SK, EC, forms, ws, H, y0, pe["cx"] if host_el else 0.0, host_el is not None, vtg)
+        add_working_zone(doc, forms, ws, H, y0, pe["cx"] if host_el else 0.0,
+                         "electrical enclosure" if host_el else "service side", vtg)
         if voltage_to_ground is None:
-            _note_vtg(doc, vtg, voltage, phases)
+            note_voltage_to_ground(doc, vtg, voltage, phases)
     std = ST.apply_safe(doc, "mechanical_equipment", standards, None)
     doc.finalize()
     return F.FamilyProduct("fan_powered_box", doc, sheet, forms=forms, types=rows, standards=std,

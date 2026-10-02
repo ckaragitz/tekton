@@ -39,6 +39,12 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, List, Optional
 
+from .equipment_common import (LINE_TO_NEUTRAL_V, add_working_zone, arcs_available,  # noqa: F401
+                               note_voltage_to_ground, poles_for, square_round_part,
+                               voltage_to_ground_for)
+
+_arcs_available, _square, _note_vtg = arcs_available, square_round_part, note_voltage_to_ground
+
 IN = 1.0 / 12.0
 
 #: nominal cabinet for the class (a ~400 cfm unit): length (y) x depth (x, airflow) x height
@@ -56,41 +62,6 @@ ROLE_DISCONNECT_NF = "disconnect switch"
 #: smallest cabinet that has room for its end hardware: the control box and the
 #: disconnect sit side by side across the electrical end and need 15.5 in of depth
 MIN_LENGTH_IN, MIN_DEPTH_IN, MIN_HEIGHT_IN = 24.0, 16.0, 7.0
-
-#: single-phase supplies that are LINE-TO-NEUTRAL (one pole + neutral); every other
-#: single-phase supply (208, 240, 480, 600 V) is line-to-line: two poles
-LINE_TO_NEUTRAL_V = (120.0, 127.0, 277.0, 347.0)
-
-
-def poles_for(voltage: float, phases: int) -> int:
-    """Connector poles for a supply: 3 for three-phase; single-phase is 1 pole when
-    the voltage is line-to-neutral (120 / 127 / 277 / 347 V), else 2."""
-    if int(phases) >= 3:
-        return 3
-    return 1 if any(abs(float(voltage) - v) <= 5.0 for v in LINE_TO_NEUTRAL_V) else 2
-
-
-def voltage_to_ground_for(voltage: float, phases: int) -> float:
-    """The nominal voltage to ground of a supply (for the 110.26(A) table), stated
-    as an assumption by the caller:
-
-    * single-phase line-to-neutral (120 / 277 / 347 V): its own voltage;
-    * single-phase 240 V: the 120/240 V system, 120 V;
-    * three-phase 240 V: a DELTA system -- no conductor is 120 V to ground (a
-      high leg is 208 V, a corner-grounded phase 240 V, and an ungrounded system
-      counts its phase-to-phase voltage), so 240 V, the conservative reading;
-    * 208 -> 120, 480 -> 277, 600 -> 347 (the wye systems);
-    * anything else: V / sqrt(3) (a wye system)."""
-    v = float(voltage)
-    if int(phases) < 3 and poles_for(v, phases) == 1:
-        return v
-    if abs(v - 240.0) <= 10.0:
-        return 240.0 if int(phases) >= 3 else 120.0
-    for ll, ln in ((208.0, 120.0), (480.0, 277.0), (600.0, 347.0)):
-        if abs(v - ll) <= 10.0:
-            return ln
-    return round(v / 3 ** 0.5)
-
 
 def fan_coil_parts(L: float, D: float, H: float, *, fused: bool = True) -> List[Dict[str, Any]]:
     """The parts (feet).  Cabinet centred on the origin in plan, bottom at z = 0;
@@ -368,8 +339,9 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
         doc.notes.append(f"clearance zone NOT drawn: {exc}")
         ws = None
     if ws is not None:
-        _add_zone(doc, F, SK, EC, forms, ws, H, front_of_disconnect(parts),
-                  pd["cx"] if host_disc is not None else 0.0, host_disc is not None, vtg)
+        add_working_zone(doc, forms, ws, H, front_of_disconnect(parts),
+                         pd["cx"] if host_disc is not None else 0.0,
+                         "disconnect" if host_disc is not None else "electrical end", vtg)
         if voltage_to_ground is None:
             _note_vtg(doc, vtg, voltage, phases)
     drive_report: List[Dict[str, Any]] = []
@@ -438,70 +410,3 @@ def fan_coil_drive_specs(L: float, D: float, H: float, named):
                                     top_both=by_role("hanger bracket"),
                                     top_end=by_role(*TOP_END))
     return [width, length], heights
-
-
-def _arcs_available() -> bool:
-    """True when the class map in force can author an arc (a round sketch): the
-    2024 map has no ``ArcElemCell`` (#786)."""
-    from ..genesis import types as GT
-    try:
-        GT.class_id("ArcElemCell")
-    except KeyError:
-        return False
-    return True
-
-
-def _square(p: Dict[str, Any]) -> Dict[str, Any]:
-    """A round part as the square box of the same envelope (for a map with no arcs)."""
-    if p["shape"] == "cylinder":
-        return {"shape": "box", "role": p["role"], "w": 2 * p["r"], "d": 2 * p["r"], "h": p["h"],
-                "z0": p["z0"], "cx": p["cx"], "cy": p["cy"]}
-    along_x = p["shape"] == "cylinder_x"                 # its length runs along x, not y
-    return {"shape": "box", "role": p["role"],
-            "w": p["length"] if along_x else 2 * p["r"],
-            "d": 2 * p["r"] if along_x else p["length"], "h": 2 * p["r"],
-            "z0": p["zc"] - p["r"], "cx": p["cx"], "cy": p["cy"]}
-
-
-def _add_zone(doc, F, SK, EC, forms, ws, H, y0, zx, at_disconnect, vtg) -> None:
-    """The toggleable, magenta working-space form in front of the electrical end."""
-    zone = F.add_box_form(doc, ws.width_ft, ws.depth_ft, H, base_z_ft=0.0,
-                          center=(zx, y0 + ws.depth_ft / 2.0))
-    zone.params.update({"role": "clearance: front working space", "source": ws.source,
-                        "width_ft": ws.width_ft, "depth_ft": ws.depth_ft, "height_ft": H,
-                        "base_z_ft": 0.0, "center": (zx, y0 + ws.depth_ft / 2.0)})
-    mat = EC.new_family_material(doc, EC.CLEARANCE_MATERIAL, EC.CLEARANCE_RGB,
-                                 EC.CLEARANCE_TRANSPARENCY)
-    EC.apply_material(zone, mat)
-    yes = SK.SPEC_YESNO
-    doc.add_family_parameter(EC.P_SHOW, yes, EC.GROUP_VISIBILITY, is_instance=True, default=1)
-    doc.add_family_parameter(EC.P_FRONT, yes, EC.GROUP_VISIBILITY, is_instance=False, default=1)
-    on = doc.add_family_parameter(EC.P_FRONT_ON, yes, EC.GROUP_VISIBILITY, is_instance=True,
-                                  formula=f"and({EC.P_SHOW}, {EC.P_FRONT})", default=1)
-    EC.bind_visibility(zone, on)
-    forms.append(zone)
-    doc.notes.append(
-        f"clearance zone (steer #882): working space in front of the "
-        f"{'disconnect' if at_disconnect else 'electrical end'}, "
-        f"{ws.depth_ft:g} ft deep x {ws.width_ft * 12:g} in wide ({ws.source}; {ws.status}; "
-        f"{vtg:g} V to ground) -- drawn the UNIT's height, not 6 1/2 ft from the floor: a "
-        f"ceiling-hung family does not know the floor, and above a suspended ceiling NEC "
-        f"110.26(A)(4) (limited access) governs; shown by '{EC.P_SHOW}' and '{EC.P_FRONT}', "
-        f"bound to its visibility -- NOT yet verified in Revit (hard rule 4)")
-    for k, v in ws.assumed.items():
-        doc.notes.append(f"clearance assumption -- {k}: {v}")
-
-
-def _note_vtg(doc, vtg, voltage, phases) -> None:
-    """The stated assumption behind a derived voltage to ground."""
-    if phases >= 3 and abs(voltage - 240.0) <= 10.0:
-        why = (" -- read as a delta (240Y/139 V systems exist): no conductor of a delta is "
-               "120 V to ground (high leg 208 V, corner-grounded 240 V), so the conservative 240 V")
-    elif phases < 3 and abs(voltage - 240.0) <= 10.0:
-        why = (" -- read as the 120/240 V single-phase system; a load on a corner-grounded "
-               "240 V delta is 240 V to ground and needs the deeper space")
-    else:
-        why = ""
-    doc.notes.append(f"clearance assumption -- voltage_to_ground: {vtg:g} V (from the "
-                     f"{voltage:g} V {phases}-phase supply{why}) -- state it if the system "
-                     f"differs (--voltage-to-ground)")
