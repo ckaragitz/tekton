@@ -12,9 +12,13 @@ and, when it is written, nests two families of OUR OWN making into it with
   width in x AND y (two symmetric in-plane drives, the #787 / #904 law) and
   whose ``Washer Thickness`` drives its height (a #787 Case B cap-face drive);
 * a HEX NUT: one hexagonal prism, whose instance parameter ``Nut Height``
-  drives its height (Case B).  Its ``Nut Across Flats`` is an instance
-  parameter that carries a VALUE ONLY (#940 census below: the born hexagon
-  resize needs angular EQ dimensions this engine does not author).
+  drives its height (Case B), and whose instance parameter ``Nut Across Flats``
+  drives the hexagon (#948) through ``Nut Half Across Flats`` (= Nut Across
+  Flats / 2): the Revit-born hexagon recipe of :mod:`rvt.famgen.angular_law`
+  (five locked 60-degree angular dimensions, three EQ dimensions about the
+  origin planes, three labelled dimensions; one born element substituted,
+  stated there).  The hexagon is drawn in the census orientation (flats square
+  to y), 90 degrees from the solid trapeze's nut.
 
 Both children carry their origin elevation plane (the template's horizontal
 plane at z 0, the parts' bottom face) with Is-Reference **Center (Elevation)**
@@ -48,12 +52,13 @@ through the symbol's geometry table and stay unresolved.
 
 What this lane does NOT do (stated in the product's notes, never hidden):
 
-* the nut's across-flats does not resize the hexagon (above);
 * nothing here has a desktop-Revit verdict (hard rule 4): validator green, an
-  empty constraint-law report with every nested lock judged by CG8, and
-  coherent registries are facts about the file -- whether Revit's solver
-  moves a locked nested instance when Tier Spacing changes is unverified.
-  That, and the nut, are why the solid version stays the DEFAULT.
+  empty constraint-law report with every nested lock judged by CG8 and every
+  hexagon angle / EQ / label judged by CG9 / CG10, and coherent registries are
+  facts about the file -- whether Revit's solver moves a locked nested instance
+  when Tier Spacing changes, or regenerates the nut's hexagon when Nut Across
+  Flats changes, is unverified.  That is why the solid version stays the
+  DEFAULT (#948 record: the decision and its reason).
 
 Hard rule 1: a nesting that fails or is refused still DELIVERS -- the solid
 trapeze is written at the same path with the reason in the report's notes.
@@ -76,6 +81,9 @@ NUT_FAMILY = "Hex Nut"
 #: host parameter caption -> the child's instance parameter it drives
 WASHER_ASSOCIATIONS = {"Washer Size": "Washer Size", "Washer Thickness": "Washer Thickness"}
 NUT_ASSOCIATIONS = {"Nut Across Flats": "Nut Across Flats"}
+#: the nut's formula parameter its hexagon's dimensions carry (#948; born: one
+#: instance formula parameter labels the hexagon, 32 / 32)
+NUT_HALF_ACROSS_FLATS = "Nut Half Across Flats"
 
 #: Is-Reference code of the children's origin elevation plane (#940): Center
 #: (Elevation), the code a born child carries when its instances are locked
@@ -235,39 +243,79 @@ def make_washer(start_id: int, *, size_ft: float, thickness_ft: float,
                    f"square strut washer {size_ft / IN:g} in x {thickness_ft / IN:g} in", [fb])
 
 
+def hex_ring(across_flats_ft: float) -> List[List[float]]:
+    """The nut's hexagon in the census orientation (#948): flats square to y,
+    the ring starting at the 300-degree corner and running counter-clockwise,
+    so its six sketch lines are the born H0 .. H5 (bottom-right slant first,
+    bottom flat last) that :func:`angular_law.hexagon_roles` reads."""
+    import math
+    r = across_flats_ft / math.sqrt(3.0)              # centre to corner = the side
+    ring = [[r * math.cos(math.radians(a)), r * math.sin(math.radians(a))]
+            for a in (300, 0, 60, 120, 180, 240)]
+    ring.append(list(ring[0]))
+    return ring
+
+
 def make_hex_nut(start_id: int, *, across_flats_ft: float, height_ft: float,
                  name: str = NUT_FAMILY) -> "F.FamilyProduct":
     """A hex nut centred on the origin, bottom face on the Level, two flats
-    square to x.  ``Nut Height`` (instance) drives its height; ``Nut Across
-    Flats`` (instance) carries the value only -- no verified mechanism resizes
-    a hexagon, so it is not wired to the geometry."""
+    square to y (the census orientation, #948).  ``Nut Height`` (instance)
+    drives its height; ``Nut Across Flats`` (instance) drives the hexagon
+    through ``Nut Half Across Flats`` (= Nut Across Flats / 2), which labels
+    the born recipe's dimensions (:func:`angular_law.wire_hexagon_drive`: five
+    locked 60-degree angles, three EQs, three labels).  If that wiring is
+    refused the nut is still built and the across-flats carries a value only,
+    said in the notes."""
+    from . import angular_law as AL
     from . import height_law as HL
-    from .archetypes import _hex_nut
     doc = _child_doc(name, start_id)
-    part = _hex_nut("nut", across_flats_ft, height_ft, 0.0, 0.0, 0.0)
+    part = {"shape": "polygon", "name": "nut", "vertices": hex_ring(across_flats_ft),
+            "height_ft": height_ft, "center": [0.0, 0.0], "base_z_ft": 0.0}
     fb = F.add_generic_part(doc, part)
     for d in ("Width", "Depth", "Height"):
         doc.add_family_parameter(d, SK.SPEC_LENGTH, SK.PGROUP_DIMENSIONS)
     af = doc.add_family_parameter("Nut Across Flats", SK.SPEC_LENGTH, SK.PGROUP_DIMENSIONS,
                                   is_instance=True, default=across_flats_ft)
+    half = doc.add_family_parameter(NUT_HALF_ACROSS_FLATS, SK.SPEC_LENGTH,
+                                    SK.PGROUP_DIMENSIONS, is_instance=True,
+                                    formula="Nut Across Flats / 2",
+                                    default=across_flats_ft / 2.0)
     nh = doc.add_family_parameter("Nut Height", SK.SPEC_LENGTH, SK.PGROUP_DIMENSIONS,
                                   is_instance=True, default=height_ft)
     corner = across_flats_ft / 3.0 ** 0.5 * 2.0
-    doc.add_type(name, {doc.params["Width"].elem_id: across_flats_ft,
-                        doc.params["Depth"].elem_id: corner,
+    doc.add_type(name, {doc.params["Width"].elem_id: corner,
+                        doc.params["Depth"].elem_id: across_flats_ft,
                         doc.params["Height"].elem_id: height_ft,
-                        af.elem_id: across_flats_ft, nh.elem_id: height_ft,
+                        af.elem_id: across_flats_ft, half.elem_id: across_flats_ft / 2.0,
+                        nh.elem_id: height_ft,
                         "description": "hex nut (nominal, generated)"})
+    sk = next(e for e in fb.elements if e.class_name == "VarSketch")
     ex = next(e for e in fb.elements if e.class_name == "ExtrusionElem")
+    try:
+        hexd = AL.wire_hexagon_drive(doc, sketch=sk, caption="Nut Across Flats",
+                                     half_caption=NUT_HALF_ACROSS_FLATS)
+    except AL.AngularLawError as exc:                 # all-or-nothing: doc untouched
+        hexd = None
+        doc.notes.append(f"Nut Across Flats carries a VALUE ONLY: the hexagon drive was "
+                         f"refused ({exc})")
     HL.wire_height_drive(doc, caption="Nut Height", lo_z=0.0, hi_z=height_ft,
                          targets=[(ex, ("start", "end"))])
     origin_elevation_reference(doc)
-    doc.notes.append("nested-hardware child (#917): Nut Height drives the height; Nut "
-                     "Across Flats carries a value only (a hexagon has no verified "
-                     "resize mechanism: born hexagons resize through angular EQ "
-                     "dimensions this engine does not author, #940); its bottom "
-                     "face's origin plane is its Center (Elevation) reference; no "
-                     "desktop verdict")
+    doc.hexagon_drive = hexd
+    if hexd is not None:
+        doc.notes.append(
+            "nested-hardware child (#917, #948): Nut Height drives the height; Nut "
+            "Across Flats drives the hexagon across flats through Nut Half Across "
+            "Flats (= Nut Across Flats / 2) with the Revit-born hexagon recipe: 5 "
+            "locked 60-degree angular dimensions, 3 EQ dimensions about the origin "
+            "planes, 3 labelled dimensions (the born secret-style corner pin is "
+            "substituted by a second labelled slant, stated); its bottom face's "
+            "origin plane is its Center (Elevation) reference; no desktop verdict "
+            "(hard rule 4)")
+    else:
+        doc.notes.append("nested-hardware child (#917): Nut Height drives the height; "
+                         "its bottom face's origin plane is its Center (Elevation) "
+                         "reference; no desktop verdict")
     return _finish(doc, "nested_nut", "hex_nut",
                    f"hex nut {across_flats_ft / IN:g} in across flats", [fb])
 
@@ -328,6 +376,13 @@ class NestedHardwareProduct(F.FamilyProduct):
         obj.z_planes = height_planes(prod.doc, sorted({o[2] for k in pos for o, _s in pos[k]}))
         return obj
 
+    def _nut_child(self, start_id: int, g: Dict[str, float]):
+        """The hex nut child, remembering whether its hexagon drive was wired
+        (#948) so the delivered notes say what the nested nut does."""
+        prod = make_hex_nut(start_id, across_flats_ft=g["nut_af"], height_ft=g["nut_h"])
+        self.nut_hexagon_drive = getattr(prod.doc, "hexagon_drive", None)
+        return prod
+
     def nest_plan(self) -> Dict[str, Any]:
         """The two nests: points, locks and associations per child."""
         from .archetypes import _trapeze_geometry
@@ -339,9 +394,7 @@ class NestedHardwareProduct(F.FamilyProduct):
                 ("washer", lambda sid: make_washer(sid, size_ft=float(
                     self.hardware_values["washer_size_in"]) * IN, thickness_ft=g["wt"]),
                  WASHER_ASSOCIATIONS),
-                ("nut", lambda sid: make_hex_nut(sid, across_flats_ft=g["nut_af"],
-                                                 height_ft=g["nut_h"]),
-                 NUT_ASSOCIATIONS)):
+                ("nut", lambda sid: self._nut_child(sid, g), NUT_ASSOCIATIONS)):
             pts = [p for p, _s in pos[key]]
             locks = []
             for k, (p, side) in enumerate(pos[key]):
@@ -397,9 +450,15 @@ class NestedHardwareProduct(F.FamilyProduct):
             "there, #940)",
             "nested washer: Washer Size drives its width in x and y and Washer "
             "Thickness its height (instance parameters, associated to the host's); "
-            "nested nut: Nut Across Flats is associated but carries a VALUE ONLY "
-            "(a hexagon has no verified resize mechanism), Nut Height drives its "
-            "height but has no host parameter to follow",
+            + ("nested nut: Nut Across Flats is associated and drives the hexagon "
+               "across flats (#948: the Revit-born recipe -- 5 locked 60-degree "
+               "angular dimensions, 3 EQ and 3 labelled dimensions of Nut Half "
+               "Across Flats = Nut Across Flats / 2, the born secret-style corner "
+               "pin substituted by a second labelled slant; no desktop verdict)"
+               if getattr(self, "nut_hexagon_drive", None) else
+               "nested nut: Nut Across Flats is associated but carries a VALUE ONLY "
+               "(its hexagon drive was refused)")
+            + ", Nut Height drives its height but has no host parameter to follow",
             "the nested washers and nuts are LOCKED to the host's height planes "
             "(Tier Spacing, Strut Height and Washer Thickness move those planes); "
             "whether Revit moves a locked nested instance with them is unverified "

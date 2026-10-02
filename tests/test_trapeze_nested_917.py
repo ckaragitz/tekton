@@ -230,10 +230,12 @@ def labels_of(prod, cap):
 def test_children_are_our_own_driven_families(tmp):
     """The washer's size and thickness and the nut's height are REAL drives
     (labelled dimensions on locked planes); each child writes VALID with an
-    empty constraint law on its own.  The nut's across-flats is a value only."""
+    empty constraint law on its own.  The nut's across-flats drives its hexagon
+    through the half-across-flats formula parameter (#948)."""
     wsh = TN.make_washer(1000, size_ft=1.625 * IN, thickness_ft=0.25 * IN)
     nut = TN.make_hex_nut(1000, across_flats_ft=0.5625 * IN, height_ft=0.328125 * IN)
-    for prod, labelled in ((wsh, {"Washer Size", "Washer Thickness"}), (nut, {"Nut Height"})):
+    for prod, labelled in ((wsh, {"Washer Size", "Washer Thickness"}),
+                           (nut, {"Nut Height", TN.NUT_HALF_ACROSS_FLATS})):
         p = os.path.join(tmp, prod.file_stem + ".rfa")
         r = prod.write(p)
         assert r["ok"], r.get("validate")
@@ -254,9 +256,13 @@ def test_children_are_our_own_driven_families(tmp):
             assert [r for r in fp if r["m_paramId"] == pe.elem_id][0]["m_instance"]
     # Washer Size labels BOTH plan widths (x and y)
     assert labels_of(wsh, "Washer Size") == 2
-    # the nut's across-flats: an instance parameter, honestly NOT a drive
+    # the nut's across-flats (#948): an instance parameter that labels nothing
+    # itself; its formula child Nut Half Across Flats labels the hexagon's three
+    # labelled dimensions (born: one instance formula parameter, 32 / 32)
     assert "Nut Across Flats" in nut.doc.params and labels_of(nut, "Nut Across Flats") == 0
-    assert any("value only" in x for x in nut.doc.notes)
+    assert labels_of(nut, TN.NUT_HALF_ACROSS_FLATS) == 3
+    assert nut.doc.hexagon_drive is not None
+    assert not any("value only" in x.lower() for x in nut.doc.notes)
 
 
 def test_nested_trapeze_is_deterministic(nested, tmp):

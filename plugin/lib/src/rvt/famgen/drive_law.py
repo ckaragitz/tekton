@@ -113,6 +113,13 @@ def apply_born_inplane_law(doc, *, regen_edge: bool = True) -> Dict[str, Any]:
         segs = dim.obj.get("m_ArrSegInfo") or []
         if not any(int(s.get("m_paramId", -1)) >= 0 for s in segs):
             continue
+        cells = (((dim.obj.get("m_cellList") or {}).get("value") or {})
+                 .get("m_cells") or [])
+        if any(c.get("ptr_class") == "SketchMembership" for c in cells):
+            # a SKETCH-member labelled dimension (the #948 hexagon) keeps its
+            # own born law: header regen = its sketch plane (64 / 64), not
+            # [UnitsElem] -- item 7 is the census of plane-to-plane labels
+            continue
         for s in segs:
             s["m_flags"] = 0
         dim.obj["m_dimVersion"] = BORN_DIM_VERSION
