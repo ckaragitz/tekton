@@ -35,12 +35,24 @@ WHAT STAYS -- the corpus-attested shape of the in-plane drive (#787 census):
   every id in a sketch's ``m_dimIds`` is in that sketch's header
   ``m_parents.m_deletion`` (deleting the sketch deletes its locks).
 * **CG7**  a sketch lock's curve LIES ON the plane it is locked to: a ``GLine``
-  witnessed with geomTag 0 has both ends (``m_origin + m_dirVec * t`` for each
-  ``t`` of ``m_endParams``) on the plane; a ``GArc`` witnessed with geomTag 1
-  (its centre) has ``m_center`` on it.  The plane of a ``RefPlane`` is the one
-  through ``m_freeEnd`` spanned by ``m_bubbleEnd - m_freeEnd`` and
-  ``m_cutVec``.  A lock whose geometry is not one of these two cases is not
-  judged (never guessed).
+  witnessed whole (geomTag 0, subTag -1) has both ends (``m_origin + m_dirVec
+  * t`` for each ``t`` of ``m_endParams``) on the plane; a ``GLine`` END
+  witnessed (geomTag 0, subTag 0 / 1) has THAT end on it -- the other end is
+  free; a ``GArc`` witnessed with geomTag 1 (its centre) has ``m_center`` on
+  it.  The plane of a ``RefPlane`` is its own surface (``m_pSurface``:
+  origin, x axis, y axis -- :func:`plane_of_any`); only a plane with no
+  surface falls back to the one through ``m_freeEnd`` spanned by
+  ``m_bubbleEnd - m_freeEnd`` and ``m_cutVec``.  A lock whose geometry is not
+  one of these cases is not judged (never guessed).  (#953) The first
+  reading -- both ends for every line witness, the plane from its drawn ends
+  -- fired 139 errors on the host documents of the 421 born families (410
+  over host + nested units): 109 host (338 all) were END locks judged on
+  their free end (6 host / 22 all of them also locked to a plane whose drawn
+  ends are off its surface), and 30 host (72 all) were whole-line or arc-
+  centre locks to such a plane.  Corrected -- and now also judging the
+  surface-only planes the drawn-end reading skipped -- it holds on all
+  15,867 judged born sketch locks (2,313 host; 0 CG7 findings; census in
+  ``docs/inbox/param-drive.d/953-cg7.md``).
 
 * **CG8**  an INSTANCE lock (#917) holds: an ``Alignment`` locking a nested
   ``FamilyInstance``'s centre reference (witness geomTag 0-8 = the child
@@ -247,7 +259,7 @@ def plane_of_any(cls: str, obj: Dict[str, Any]
     (origin, x axis, y axis) -- the plane's own geometry, present on
     surface-only planes whose drawn ends are zero (born families, our
     horizontal planes) -- else from its drawn ends (:func:`plane_of`).  Used
-    by CG8 only; CG7 keeps :func:`plane_of`."""
+    by CG7 (#953), CG8 and CG10."""
     if cls != "RefPlane":
         return None
     srf = _val(obj.get("m_pSurface"))
@@ -280,11 +292,16 @@ def transform_plane(trf: Dict[str, Any], plane) -> Optional[Tuple[Tuple[float, f
     return wp, (wn[0] / ln, wn[1] / ln, wn[2] / ln)
 
 
-def lock_points(cls: str, obj: Dict[str, Any], geom_tag: int
+def lock_points(cls: str, obj: Dict[str, Any], geom_tag: int,
+                sub_tag: Optional[int] = None
                 ) -> Optional[List[Tuple[float, float, float]]]:
     """The points a sketch lock pins to its plane for a witness of
     ``geom_tag`` on element ``obj``, or None when the case is not one this law
-    knows (GLine geomTag 0 = both ends; GArc geomTag 1 = the centre)."""
+    knows (GLine geomTag 0 = both ends; GArc geomTag 1 = the centre).
+
+    ``sub_tag`` (#953): None keeps the historical answer (both ends of a
+    line, as CG9 / CG10 read it); -1 = the whole line (both ends); 0 / 1 =
+    that END only; any other value is not a case this law knows (None)."""
     if cls != "CurveElem":
         return None
     crv_p = _val(obj.get("m_pCurveDriver")).get("m_pCrv")
@@ -296,8 +313,13 @@ def lock_points(cls: str, obj: Dict[str, Any], geom_tag: int
         ts = crv.get("m_endParams") or []
         if o is None or d is None or len(ts) != 2:
             return None
-        return [(o[0] + d[0] * float(t), o[1] + d[1] * float(t),
+        ends = [(o[0] + d[0] * float(t), o[1] + d[1] * float(t),
                  o[2] + d[2] * float(t)) for t in ts]
+        if sub_tag is None or sub_tag == -1:
+            return ends
+        if sub_tag in (0, 1):
+            return [ends[sub_tag]]
+        return None
     if kind == "GArc" and geom_tag == 1:
         c = _vec(crv.get("m_center"))
         return [c] if c is not None else None
@@ -419,11 +441,12 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
             tgt = by_id.get(t)
             if tgt is None:
                 continue
-            pl = plane_of(tgt[0], tgt[1])
+            pl = plane_of_any(tgt[0], tgt[1])
             if pl is not None:
                 planes.append((t, pl))
                 continue
-            pts = lock_points(tgt[0], tgt[1], int(g.get("m_geomTag", 0)))
+            pts = lock_points(tgt[0], tgt[1], int(g.get("m_geomTag", 0)),
+                              int(g.get("m_subTag", -1)))
             if pts is not None:
                 points.append((t, pts))
         if len(planes) == 1 and len(points) == 1:
