@@ -1,0 +1,2 @@
+# #953: CG7 corrected to the born law (END locks pin one end; plane = its own surface); synthetic cases, corpus test skips without samples/
+tests/test_cg7_953.py
