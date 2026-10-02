@@ -1,6 +1,6 @@
 # 876 (part A) — a profile map links a library's size parameters to the family's own
 
-Stream **family-shared-params** (tech-lead session, 2026-10-02). Refs #876: DONE 1, 3, 4 and 5. DONE 2, the map *proposed* from the user's own families, is part B, a separate PR.
+Stream **family-shared-params** (tech-lead session, 2026-10-02). Refs #876: DONE 1, 3, 4 and 5. DONE 2, the map *proposed* from the user's own families, is part B (`876-map-proposal.md`), in the same PR (#971).
 
 ## What changed
 
@@ -34,6 +34,21 @@ The tests fail on main, which has no `links`.
 ## Not claimed (DONE 5)
 
 The link is a formula, so the library parameter *reports* our size. That Revit re-evaluates it, and that labelling our own dimensions with the shared parameter would let it *drive* them, both need desktop verdicts (hard rule 4). Labelling is a later item.
+
+## #971 review round 1 (🛑): every link announced is one the family carries
+
+- **The finding:** `_link` accepted links that the formula step then refused, while the "linked by … follows every type" note announced them.
+  - The cases: a type library parameter onto one of our *instance* parameters, and an integer on either side.
+  - `_link` now makes those refusals itself, up front, with the reason.
+  - `settle_formula_provenance` rebuilds the "linked by" line, per map, from the tags that still carry a `link`, the same way the library line is rebuilt. A link the finalize step refuses for any other reason is no longer announced, and the line says `none written` when nothing remains.
+- **A refused link keeps the library's convention.** Before, a map typo blanked the parameter. The note now says `the library's convention is written instead`.
+- **`_spec_kind`** follows `skeleton._canonical_spec`'s version rule. A target with no spec is read as a length, as `skeleton._formula_spec` reads it.
+- **The proposal tool:**
+  - Primary-per-axis now ranks by the families labelling *that* axis, not by every family the parameter labels.
+  - A family whose labels run equally along two axes votes "mixed" and counts for no axis. Before, the first-inserted axis won.
+  - Rerun on the owner's library (counts only): still **3 proposed** for electrical equipment.
+- **Tests:** a type→instance link and an integer link refused with no contradicting "NOT written" note; the linked line rebuilt; a refused link keeping the convention; axis ranking by own votes; a mixed family.
+  - The test helper now copies the module's parameter table. Before, an extended profile leaked between tests, and the new tests showed it.
 
 ## #962 review nits carried here
 

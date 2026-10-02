@@ -56,7 +56,7 @@ def _profile():
     rows = [{"guid": g, "name": d["name"], "instance": False, "palette_group": GRP,
              "value": None, "formula": None, "formula_unread": False} for g, d in PARAMS.items()]
     return {"schema": PP.PROFILE_SCHEMA, "conflicts": [], "variants": [], "warnings": [],
-            "parameters": PARAMS,
+            "parameters": dict(PARAMS),                    # a copy: tests may extend it
             "families": {"Unit A": {"category": EQ, "params": rows},
                          "Unit B": {"category": EQ, "params": [dict(r) for r in rows]}}}
 
@@ -190,3 +190,53 @@ def test_the_cli_takes_a_profile_map(tmp_path, path):
             found = any(x.get("ptr_class") == "ParameterExpression" for x in exprs)
     assert found
     assert "the profile map 'map.json'" in r.stdout
+
+
+# --- #971 review: every link announced is one the family carries ----------------------
+
+def _profile_plus(tmp_path, extra):
+    prof = _profile()
+    for i, (name, def_class, spec, conv) in enumerate(extra, start=50):
+        g = _g(i)
+        prof["parameters"][g] = _defn(name, def_class, spec)
+        for fam in prof["families"].values():
+            fam["params"].append({"guid": g, "name": name, "instance": False, "palette_group": GRP,
+                                  "value": conv, "formula": None, "formula_unread": False})
+    p = tmp_path / "profile_plus.json"
+    p.write_text(json.dumps(prof), encoding="utf-8")
+    return str(p)
+
+
+def test_a_type_link_to_an_instance_parameter_or_an_integer_is_refused_up_front(tmp_path):
+    path = _profile_plus(tmp_path, [
+        ("Zz Load", "ParamDefValue", "autodesk.spec.aec.electrical:apparentPower-1.0.0", None),
+        ("Zz Poles", "ParamDefInt", None, None)])
+    prod = _linked(path, {"Zz Load": "Apparent Load", "Zz Poles": "Phases"}, second_type=False)
+    notes = prod.doc.notes
+    assert any(n.startswith("'Zz Load': the map's link is refused -- 'Apparent Load' is bound per "
+                            "instance") for n in notes)
+    assert any(n.startswith("'Zz Poles': the map's link is refused -- an integer") for n in notes)
+    assert not any(n.startswith("linked by") for n in notes)
+    assert not any("formula of 'Zz Load' NOT written" in n or "formula of 'Zz Poles' NOT written" in n
+                   for n in notes)
+
+
+def test_the_linked_line_lists_only_links_still_carried(path):
+    prod = _linked(path, {"Zz Box Width": "Width", "Zz Box Height": "Height"}, second_type=False)
+    doc = prod.doc
+    keep = {doc.params["Zz Box Height"].elem_id}
+    PP.settle_formula_provenance(doc, keep)               # the width's formula not written
+    (line,) = [n for n in doc.notes if n.startswith("linked by")]
+    assert "'Zz Box Height' = 'Height'" in line and "Zz Box Width" not in line
+    PP.settle_formula_provenance(doc, set())
+    (line,) = [n for n in doc.notes if n.startswith("linked by")]
+    assert line.endswith("): none written")
+
+
+def test_a_refused_link_keeps_the_librarys_convention(tmp_path):
+    path = _profile_plus(tmp_path, [("Zz Plain W", "ParamDefValue",
+                                     "autodesk.spec.aec:length-2.0.0", 2.0)])
+    prod = _linked(path, {"Zz Plain W": "No Such"}, second_type=False)
+    assert prod.doc.params["Zz Plain W"].refs["provenance"]["tier"] == "library"
+    assert any(n == "'Zz Plain W': the map's link is refused -- the family has no parameter "
+                    "'No Such' -- the library's convention is written instead" for n in prod.doc.notes)

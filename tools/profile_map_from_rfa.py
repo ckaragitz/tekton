@@ -127,7 +127,11 @@ def propose(families: Iterable[Dict[str, Any]], *, category: Optional[int] = Non
             if not axes:
                 continue
             meta.setdefault(guid, {"name": p["name"], "spec": p["spec"]})
-            votes[guid][axes.most_common(1)[0][0]] += 1
+            ranked = axes.most_common(2)
+            # a family whose labels run equally along two axes votes for neither:
+            # never guessed by insertion order
+            votes[guid]["mixed" if len(ranked) > 1 and ranked[0][1] == ranked[1][1]
+                        else ranked[0][0]] += 1
     mapping: Dict[str, str] = {}
     report: List[Dict[str, Any]] = []
     for guid in sorted(votes, key=lambda g: (meta[g]["name"], g)):
@@ -141,6 +145,8 @@ def propose(families: Iterable[Dict[str, Any]], *, category: Optional[int] = Non
             row["why"] = f"not a length ({spec.split(':')[-1] or 'no spec'})"
         elif axis == "oblique":
             row["why"] = "its dimensions are not along an axis"
+        elif axis == "mixed":
+            row["why"] = "its families label it along two axes equally"
         elif n < min_families:
             row["why"] = f"labels a dimension in {n} family(ies), fewer than {min_families}"
         elif top / n < min_share:
@@ -158,11 +164,13 @@ def propose(families: Iterable[Dict[str, Any]], *, category: Optional[int] = Non
         if row.pop("candidate", False):
             by_axis[row["axis"]].append(row)
     for axis, rows in by_axis.items():
-        rows.sort(key=lambda r: -r["families"])
-        top = rows[0]["families"]
-        tied = [r for r in rows if r["families"] == top]
+        # ranked by the families labelling it along THIS axis (its votes), not by
+        # every family it labels
+        rows.sort(key=lambda r: -r["axes"][axis])
+        top = rows[0]["axes"][axis]
+        tied = [r for r in rows if r["axes"][axis] == top]
         for r in rows:
-            if len(tied) > 1 and r["families"] == top:
+            if len(tied) > 1 and r["axes"][axis] == top:
                 r["why"] = (f"{len(tied)} parameters label the {axis} axis in {top} families "
                             f"each: not guessed which is the family's size")
             elif r is rows[0]:
@@ -170,7 +178,7 @@ def propose(families: Iterable[Dict[str, Any]], *, category: Optional[int] = Non
                 r["target"] = targets[axis]
             else:
                 r["why"] = (f"{rows[0]['name']!r} labels the {axis} axis in more families "
-                            f"({top} vs {r['families']}): this one sizes a part, not the family")
+                            f"({top} vs {r['axes'][axis]}): this one sizes a part, not the family")
     return mapping, report
 
 

@@ -106,3 +106,21 @@ def test_the_cli_reads_the_axes_from_real_families(tmp_path):
         "0000eeee-0000-4000-8000-000000000003": "Height"}
     summary = json.loads(r.stdout)
     assert (summary["read"], summary["proposed"], summary["errors"]) == (2, 3, [])
+
+
+# --- #971 review ----------------------------------------------------------------------
+
+def test_the_axis_is_ranked_by_its_own_votes():
+    a = [_fam(a=("Zz A", L, {"x": 1}))] * 8 + [_fam(a=("Zz A", L, {"y": 1}))] * 2
+    b = [_fam(b=("Zz B", L, {"x": 1}))] * 9
+    mapping, report = PM.propose(a + b)
+    assert mapping == {"b": "Width"}
+    row = next(r for r in report if r["guid"] == "a")
+    assert "'Zz B' labels the x axis in more families (9 vs 8)" in row["why"]
+
+
+def test_a_family_labelling_two_axes_equally_votes_for_neither():
+    fams = [_fam(g=("Zz Both", L, {"x": 1, "y": 1}))] * 2
+    mapping, report = PM.propose(fams)
+    assert mapping == {} and report[0]["axis"] == "mixed"
+    assert report[0]["why"] == "its families label it along two axes equally"
