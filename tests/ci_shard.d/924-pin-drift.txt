@@ -1,0 +1,4 @@
+# #924: three pin-drift files re-pinned with reasons; fresh-clone-safe (self-skip what needs samples/ or built probes)
+tests/test_catchain.py
+tests/test_selfcontained.py
+tests/test_required_settings.py

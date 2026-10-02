@@ -131,13 +131,21 @@ def test_bip_locked_and_palette(doc):
     assert not any(r["m_paramId"] == CP.BIP_COST_LOCKED for r in fp)
 
 
-def test_materials_machinery(doc):
+def test_materials_machinery(doc, base_doc):
     CP.apply_residues(doc, materials=True)
     fam = doc.self_family
     fp = fam.obj["m_familyParams"]["value"]["m_params"]
     row = next(r for r in fp if r["m_paramId"] == CP.BIP_MATERIAL)
     assert row["m_instance"] is True and row["m_elemId"] == -1
-    assert len(fp) == 18                          # donor row count
+    # exactly ONE row added (the material row) to the product's own rows.
+    # Re-pinned for #924: this was `len(fp) == 18` ("donor row count"), which
+    # held only while the panelboard authored 17 rows; the product has since
+    # gained parameters on purpose (Width/Depth/Height drives #931, NEC
+    # clearance toggles #818/#820, standard parameters #601) and the recipe
+    # never pads rows to the donor's count -- it adds the one material row.
+    base_fp = base_doc.self_family.obj["m_familyParams"]["value"]["m_params"]
+    assert len(fp) == len(base_fp) + 1
+    assert [r for r in fp if r["m_paramId"] != CP.BIP_MATERIAL] == base_fp
     sp = CP._order_cell_groups(fam)
     assert CP._group_key(sp[0]) == SK.PGROUP_MATERIALS   # materials FIRST
     assert sp[0]["m_paramIds"] == [CP.BIP_MATERIAL]
@@ -184,14 +192,26 @@ def test_deletion_prefix_without_bip_or_materials(doc):
     assert CP.BIP_COST_LOCKED not in dele
 
 
-def test_full_conjunction_flips_and_roundtrips(doc):
+def test_full_conjunction_flips_and_roundtrips(doc, base_doc):
     CP.apply_residues(doc, types5=True, bip=True, materials=True,
                       dedup_cell=True, sparse_counters=True,
                       deletion_prefix=True, ref_type_ids=True)
     fam = doc.self_family
     sp = CP._order_cell_groups(fam)
     keys = [CP._group_key(g).rsplit(":", 1)[-1].split("-")[0] for g in sp]
-    assert keys == ["materials", "dimensions", "identityData", "electrical"]
+    # Re-pinned for #924: was == ["materials", "dimensions", "identityData",
+    # "electrical"] -- the panelboard's own order cell at the time.  The
+    # product now also authors visibility (NEC clearance toggles #818/#820),
+    # constraints and electricalLoads (#601) groups, on purpose.  The recipe's
+    # law is unchanged and pinned exactly: materials goes FIRST and every
+    # group the product authored keeps its own relative order after it.
+    base_keys = [CP._group_key(g).rsplit(":", 1)[-1].split("-")[0]
+                 for g in CP._order_cell_groups(base_doc.self_family)]
+    assert keys == ["materials"] + [k for k in base_keys if k != "materials"]
+    # the donor's four groups still appear in the donor's order
+    assert [k for k in keys if k in ("materials", "dimensions", "identityData",
+                                     "electrical")] == [
+        "materials", "dimensions", "identityData", "electrical"]
     assert len(keys) == len(set(keys))            # no dup keys (M3 fix)
     rt = doc.roundtrip()
     assert rt["failed"] == 0
