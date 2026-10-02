@@ -131,16 +131,21 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
     # single part, and ``owner``'s ", "-joined string cannot say so when a
     # product's own name holds a comma
     owners: Dict[int, List[str]] = {}
+    # and by IFC entity id (#967 review): two products with one name, or an
+    # unnamed one, are still distinct owners
+    owner_ids: Dict[int, List[int]] = {}
     try:
         for rel in f.by_type("IfcRelDefinesByProperties"):
             pdef = getattr(rel, "RelatingPropertyDefinition", None)
             if pdef is None:
                 continue
-            names = []
+            names, ids = [], []
             for o in (getattr(rel, "RelatedObjects", None) or ()):
                 names.append(str(getattr(o, "Name", "") or ""))
+                ids.append(_eid(o))
             owner[_eid(pdef)] = ", ".join(n for n in names if n)
             owners[_eid(pdef)] = names
+            owner_ids[_eid(pdef)] = ids
     except Exception:                                             # noqa: BLE001
         pass
 
@@ -154,6 +159,7 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
         pset_name = str(getattr(ps, "Name", "") or "Pset")
         on = owner.get(_eid(ps), "")
         ons = list(owners.get(_eid(ps), []))
+        on_ids = list(owner_ids.get(_eid(ps), []))
         for pr in (getattr(ps, "HasProperties", None) or ()):
             raw_name = str(getattr(pr, "Name", "") or "")
             if not raw_name or raw_name in _ALREADY_CARRIED:
@@ -174,6 +180,15 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                            "substituted for it"})
                 continue
             if label in seen_names:
+                # every product the label is attached to is recorded, equal
+                # value or not, so pset_drive.plan never drives the first one
+                # alone (#967 review: a per-occurrence pset is normal input)
+                src = out["sources"].get(label)
+                if src is not None:
+                    for nm, oid in zip(ons, on_ids):
+                        if oid not in src["product_ids"]:
+                            src["product_ids"].append(oid)
+                            src["products"].append(nm)
                 prev_src, prev_val = seen_names[label]
                 if prev_val != value:
                     out["skipped"].append({
@@ -200,6 +215,7 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
             seen_names[label] = (f"{on or pset_name}", value)
             out["sources"][label] = {
                 "pset": pset_name, "product": on, "products": ons,
+                "product_ids": list(dict.fromkeys(on_ids)),
                 "ifc_type": ifc_type, "raw_value": value, "tier": "given"}
     return out
 

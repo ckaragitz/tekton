@@ -146,3 +146,29 @@ and 2024 give the same result.
   conftest_scaffolding: 57 passed.
 - Shipped: wired by default on the IFC assembly lane, and only when a pset matches.
   Staged: nothing.
+
+### Review of #967 (2026-10-02)
+
+Shipped as PR #967 rebased onto `fe83378` (the byte-identity claim above was
+re-measured against `fe83378` by the independent reviewer: identical for the
+nine cases it ran). The first review was 🛑 with three real findings, fixed:
+
+- **A label on several products drove the first one.** `collect()` kept the
+  first occurrence and dropped a later one with an equal value silently, so
+  `leg_1` / `leg_2` each with its own `Pset_Leg.LegHeight = 700` drove `leg_1`
+  alone. `collect()` now records every owner of a label (`products`, and
+  `product_ids` by IFC entity id), equal value or not, and `plan()` reports
+  "attached to N products" as a value.
+- **An unnamed owner was not counted.** `plan()` filtered empty names before
+  counting; a pset on an unnamed product and `tank_shell` drove `tank_shell`.
+  Owners are now counted by entity id, and any unnamed one makes it a value.
+- **An axis word contradicting the one matching span was ignored.** `BodyWidth`
+  equal only to the y span drove y. `_named_axis()` now refuses it ("its name
+  says x but its value equals the part's y span: not guessed").
+
+Four tests pin these (`test_one_label_on_two_products_names_no_part` x2,
+`test_an_unnamed_second_owner_is_still_an_owner`,
+`test_a_name_whose_axis_word_contradicts_the_one_matching_span_is_a_value`);
+all four fail against the unfixed modules. The fixture's seven drives are
+unchanged (no fixture name contradicts its span). The unrelated `956-cg5.md`
+edit the first push carried was dropped from this PR.

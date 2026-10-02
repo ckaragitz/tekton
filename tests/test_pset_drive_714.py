@@ -550,3 +550,45 @@ def test_an_ifc_without_a_drivable_pset_reaches_the_builder_unchanged(tmp_path, 
     res = R.RouteResult(ok=True, status="", route="ifc->rfa")
     R._assembly_rfa(res, _ifc(tmp_path), str(tmp_path), {})
     assert seen[-1]["settle_drives"] is True and len(seen[-1]["drives"]) == 5
+
+
+# --------------------------------------------------------------------------- #967 review
+
+def _legs(d, legs_psets, name):
+    products = PRODUCTS + [("leg_1", (-900, -800, -700), (-800, -700, 0)),
+                           ("leg_2", (800, 700, -700), (900, 800, 0))]
+    return _measured(_ifc(d, products=products, psets=PSETS + legs_psets, name=name))
+
+
+@pytest.mark.parametrize("v2", [700, 650], ids=["equal", "different"])
+def test_one_label_on_two_products_names_no_part(tmp_path, v2):
+    """A per-occurrence pset (each leg its own Pset_Leg) is normal exporter
+    output: the label is recorded against BOTH products and stays a value --
+    never the first leg driven alone and the second dropped unsaid."""
+    from rvt.ifc import pset_drive as PD
+    parts, coll = _legs(tmp_path, [("Pset_Leg", ["leg_1"], [("LegHeight", _L, 700)]),
+                                   ("Pset_Leg", ["leg_2"], [("LegHeight", _L, v2)])],
+                        f"legs_{v2}.ifc")
+    assert sorted(coll["sources"]["LegHeight"]["products"]) == ["leg_1", "leg_2"]
+    row = _rows(PD.plan(parts, coll))["LegHeight"]
+    assert row["status"] == PD.VALUE_ONLY and "2 products" in row["reason"], row
+
+
+def test_an_unnamed_second_owner_is_still_an_owner(tmp_path):
+    from rvt.ifc import pset_drive as PD
+    products = PRODUCTS + [("", (2000, 2000, 0), (2100, 2100, 100))]
+    psets = PSETS + [("Pset_Odd", ["", "tank_shell"], [("OddWidth", _L, 1574.8)])]
+    parts, coll = _measured(_ifc(tmp_path, products=products, psets=psets, name="odd.ifc"))
+    row = _rows(PD.plan(parts, coll))["OddWidth"]
+    assert row["status"] == PD.VALUE_ONLY and "unnamed" in row["reason"], row
+
+
+def test_a_name_whose_axis_word_contradicts_the_one_matching_span_is_a_value(tmp_path):
+    """BodyWidth = 1000 mm equals only tank_shell's y span: the name says x,
+    so it is not guessed (#967 review)."""
+    from rvt.ifc import pset_drive as PD
+    psets = [p for p in PSETS if p[0] != "Pset_Body"] + [
+        ("Pset_Body", ["tank_shell"], [("BodyWidth", _L, 1000)])]
+    parts, coll = _measured(_ifc(tmp_path, psets=psets, name="contra.ifc"))
+    row = _rows(PD.plan(parts, coll))["BodyWidth"]
+    assert row["status"] == PD.VALUE_ONLY and "name says x" in row["reason"], row

@@ -92,6 +92,12 @@ def _fmt_in(ft: float) -> str:
     return f"{ft * 12.0:.4g} in"
 
 
+def _named_axis(name: str) -> Optional[str]:
+    """The ONE axis a parameter's name names (Width -> x, ...), else None."""
+    hits = [ax for ax, rx in _AXIS_WORD if rx.search(name)]
+    return hits[0] if len(hits) == 1 else None
+
+
 def _axis_from_name(name: str, candidates: Sequence[str]) -> Optional[str]:
     hits = [ax for ax, rx in _AXIS_WORD if rx.search(name)]
     if len(hits) == 1 and hits[0] in candidates:
@@ -150,17 +156,24 @@ def plan(parts: Sequence[Dict[str, Any]], collected: Dict[str, Any]) -> Dict[str
         if kind != "length":
             row(name, VALUE_ONLY, f"a {kind} parameter: only a length labels a dimension")
             continue
-        products = [p for p in (src.get("products") or []) if p]
-        if not products and src.get("product"):
-            products = [str(src["product"])]
+        allp = [str(p or "") for p in (src.get("products") or [])]
+        if not allp and src.get("product"):
+            allp = [str(src["product"])]
+        n_owners = max(len(set(src.get("product_ids") or [])), len(allp))
+        if any(not p for p in allp) and n_owners > 1:
+            row(name, VALUE_ONLY, f"its pset ({src.get('pset') or '?'}) is attached to "
+                                  f"{n_owners} products, one or more unnamed: which one it "
+                                  "measures is not stated")
+            continue
+        products = [p for p in allp if p]
         if not products:
             row(name, VALUE_ONLY, f"its pset ({src.get('pset') or '?'}) is attached to no "
                                   "named product, so no part is named")
             continue
-        if len(products) > 1:
-            row(name, VALUE_ONLY, f"its pset ({src.get('pset') or '?'}) is attached to "
-                                  f"{len(products)} products ({', '.join(products[:4])}): "
-                                  "which one it measures is not stated")
+        if n_owners > 1:
+            row(name, VALUE_ONLY, f"it is attached to {n_owners} products "
+                                  f"({', '.join(products[:4])}): which one it measures "
+                                  "is not stated")
             continue
         prod = products[0]
         found = by_name.get(prod, [])
@@ -196,6 +209,12 @@ def plan(parts: Sequence[Dict[str, Any]], collected: Dict[str, Any]) -> Dict[str
                 continue
             tie = f"; equal to its {' and '.join(cands)} spans, the name's axis word picked {ax}"
             cands = [ax]
+        named = _named_axis(name)
+        if len(cands) == 1 and named is not None and named != cands[0]:
+            row(name, VALUE_ONLY, f"its name says {named} but its value equals the part's "
+                                  f"{cands[0]} span ({_fmt_in(v)}): not guessed",
+                part=prod)
+            continue
         if not cands:
             near = sorted((abs(size[ax] - v), ax) for ax in size)
             if near and near[0][0] <= NEAR_TOL:
