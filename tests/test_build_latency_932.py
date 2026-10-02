@@ -61,8 +61,9 @@ class _GeneralOnly(E.ObjectEncoder):
     """The encoder with every precompiled op switched off: each field takes
     the general _encode_field path, exactly as before #932."""
 
-    def _class_plan(self, class_id):
-        return tuple((k, f, 0, None) for k, f, _op, _p in super()._class_plan(class_id))
+    def _class_plan(self, class_id, native_ids=True):
+        return tuple((k, f, 0, None)
+                     for k, f, _op, _p in super()._class_plan(class_id, native_ids))
 
 
 def _records(doc):
@@ -102,6 +103,19 @@ def test_a_changed_record_is_re_encoded_not_served_from_the_cache(doc):
     assert SK.build_unit_segments(doc.elements, cache=cache) == SK.build_unit_segments(doc.elements)
 
 
+def test_the_id_width_era_starts_the_segment_cache_afresh(doc):
+    """#933 review: a document encoded natively, then under ids32, must not be
+    served its cached i64 bytes."""
+    from rvt.versions import records32 as R32
+    cache: dict = {}
+    native = SK.build_unit_segments(doc.elements, cache=cache)
+    with R32.ids32():
+        cached = SK.build_unit_segments(doc.elements, cache=cache)
+        fresh = SK.build_unit_segments(doc.elements)
+    assert cached == fresh and cached != native
+    assert SK.build_unit_segments(doc.elements, cache=cache) == native
+
+
 def test_a_new_encoder_starts_the_cache_afresh(doc):
     cache: dict = {}
     SK.build_unit_segments(doc.elements, cache=cache)
@@ -128,6 +142,27 @@ def test_the_precompiled_encoder_writes_what_the_general_path_writes(doc):
             slow.encode_record(seq, eid, 0, cid, obj), (eid, seq)
         n += 1
     assert n > 1000
+
+
+def test_under_ids32_the_precompiled_encoder_writes_32_bit_ids(doc):
+    """#933 review: the 2023 era patches Writer.element_id to i32; the
+    precompiled ElementId op must not pack i64 underneath it."""
+    from rvt.versions import records32 as R32
+    fast = _enc()
+    slow = _GeneralOnly(decoder=fast.dec)
+    native = {(eid, seq): fast.encode_record(seq, eid, 0, cid, obj)
+              for eid, seq, cid, obj in _records(doc)}
+    with R32.ids32():
+        n = changed = 0
+        for eid, seq, cid, obj in _records(doc):
+            got = fast.encode_record(seq, eid, 0, cid, obj)
+            assert got == slow.encode_record(seq, eid, 0, cid, obj), (eid, seq)
+            changed += got != native[(eid, seq)]
+            n += 1
+    assert n > 1000 and changed > 100               # ids really were re-sized
+    # and the native plans are untouched once the era is restored
+    eid, seq, cid, obj = next(iter(_records(doc)))
+    assert fast.encode_record(seq, eid, 0, cid, obj) == native[(eid, seq)]
 
 
 def _raised(enc, cid, obj):
@@ -308,6 +343,34 @@ def test_a_memo_scope_decodes_what_a_fresh_decoder_decodes(written):
     assert O._MEMO.rows is None                    # dropped with the scope
 
 
+def test_a_sink_less_first_read_never_hides_refs_from_a_later_sink_ful_read(written):
+    """#933 review: FamilyIndex / provenance decode with no ref_sink BEFORE the
+    validator's semantic layer decodes with one; the memo must still hand the
+    validator every ElementId the record carries."""
+    schema, recs = _file_records(written)
+    ref = ObjectDecoder(schema)
+    want = []
+    for c, p in recs:
+        rs: list = []
+        ref.ref_sink = rs
+        O.ObjectDecoder._decode_record_once(ref, c, p)
+        want.append(rs)
+    assert sum(map(len, want)) > 100
+    with O.decode_memo():
+        blind = ObjectDecoder(schema)               # no sink: the first reader
+        for c, p in recs:
+            blind.decode_record(c, p)
+        assert blind.ref_sink is None               # the temporary sink is gone
+        dec = ObjectDecoder(schema)
+        got = []
+        for c, p in recs:
+            sink: list = []
+            dec.ref_sink = sink
+            dec.decode_record(c, p)
+            got.append(sink)
+    assert got == want
+
+
 def test_a_memo_hit_replays_the_plan_bails_and_nested_scopes_share(written):
     schema, recs = _file_records(written)
     c, p = recs[0]
@@ -450,3 +513,34 @@ def test_build_gc_restores_the_thresholds_nested_or_not():
         with gcpolicy.build_gc():
             raise RuntimeError("x")
     assert gc.get_threshold() == before
+
+
+def test_overlapping_build_jobs_restore_the_host_thresholds_when_the_last_leaves():
+    """#933 review: the outer job leaving first must not strand the inner
+    one's pacing or the host's own thresholds."""
+    from rvt import gcpolicy
+    host = gc.get_threshold()
+    outer, inner = gcpolicy.build_gc(), gcpolicy.build_gc()
+    outer.__enter__()
+    inner.__enter__()
+    outer.__exit__(None, None, None)               # out of order, as two threads can
+    assert gc.get_threshold() == gcpolicy.BUILD_THRESHOLDS
+    inner.__exit__(None, None, None)
+    assert gc.get_threshold() == host
+    with gcpolicy.build_gc():                       # and the next job paces again
+        assert gc.get_threshold() == gcpolicy.BUILD_THRESHOLDS
+    assert gc.get_threshold() == host
+
+
+def test_past_the_payload_budget_members_are_re_inflated_identically(written, monkeypatch):
+    from rvt import container as C
+    from rvt.container import open_rvt
+    with open_rvt(written) as d:
+        names = [s.name for s in d.streams() if d.members(s.name)]
+        want = {n: list(d.inflate_all(n)) for n in names}
+    monkeypatch.setattr(C, "PAYLOAD_CACHE_BUDGET", 0)
+    with open_rvt(written) as d:
+        for n in names:
+            assert list(d.inflate_all(n)) == want[n]
+            assert d.inflate(n, 0) == want[n][0]
+        assert d._payload_cache == {} and d._payload_bytes == 0

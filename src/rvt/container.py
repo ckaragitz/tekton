@@ -61,6 +61,11 @@ def depage(raw: bytes) -> bytes:
     return bytes(out)
 
 
+#: inflated member payloads kept per open document (bytes); past it a member
+#: is re-inflated on demand (#932 speed, #933 review memory bound)
+PAYLOAD_CACHE_BUDGET = 256 * 1024 * 1024
+
+
 @dataclass(frozen=True)
 class Member:
     """One gzip member found inside a (de-paged, logical) stream."""
@@ -114,6 +119,7 @@ class RvtDocument:
         # (which has to inflate every member to find where it ends) so that
         # inflate()/inflate_all() do not inflate the same bytes again (#932)
         self._payload_cache: dict = {}
+        self._payload_bytes = 0
 
     # -- context manager -------------------------------------------------
     def close(self) -> None:
@@ -171,7 +177,13 @@ class RvtDocument:
             payloads.append(payload)
             pos = i + max(consumed, 1)
         self._member_cache[name] = members
-        self._payload_cache[name] = payloads
+        # keep the payloads the scan already inflated only up to a budget per
+        # document; past it a member is re-inflated on demand, as before #932,
+        # so a large model's memory does not grow ~10x (#933 review)
+        size = sum(len(p) for p in payloads)
+        if self._payload_bytes + size <= PAYLOAD_CACHE_BUDGET:
+            self._payload_cache[name] = payloads
+            self._payload_bytes += size
         return members
 
     def prefix(self, name: str) -> bytes:
@@ -187,12 +199,22 @@ class RvtDocument:
             raise ValueError(f"{name!r}: no gzip members (not compressed?)")
         if index >= len(m):
             raise IndexError(f"{name!r}: has {len(m)} member(s), asked for {index}")
-        return self._payload_cache[name][index]
+        cached = self._payload_cache.get(name)
+        if cached is not None:
+            return cached[index]
+        r = _inflate_at(self.logical(name), m[index].offset)
+        return r[0]
 
     def inflate_all(self, name: str) -> Iterator[bytes]:
         """Yield each gzip member's payload in stream order."""
-        self.members(name)
-        yield from self._payload_cache[name]
+        m = self.members(name)
+        cached = self._payload_cache.get(name)
+        if cached is not None:
+            yield from cached
+            return
+        data = self.logical(name)
+        for mem in m:
+            yield _inflate_at(data, mem.offset)[0]
 
     def concat(self, name: str) -> bytes:
         """All members inflated and concatenated (partition element data)."""

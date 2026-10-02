@@ -23,29 +23,33 @@ from __future__ import annotations
 
 import contextlib
 import gc
+import threading
 from typing import Iterator, Tuple
 
 #: (gen0, gen1, gen2) thresholds during a build job
 BUILD_THRESHOLDS: Tuple[int, int, int] = (50_000, 20, 100)
 
-_DEPTH = [0]
+_LOCK = threading.Lock()
+_STATE = {"depth": 0, "before": None}
 
 
 @contextlib.contextmanager
 def build_gc() -> Iterator[None]:
-    """Pace the cyclic GC for one build job (see the module docstring)."""
-    if _DEPTH[0]:
-        _DEPTH[0] += 1
-        try:
-            yield
-        finally:
-            _DEPTH[0] -= 1
-        return
-    before = gc.get_threshold()
-    _DEPTH[0] = 1
-    gc.set_threshold(*BUILD_THRESHOLDS)
+    """Pace the cyclic GC for one build job (see the module docstring).
+
+    Jobs may nest or overlap on threads: the first to enter saves the host's
+    thresholds and the LAST to leave restores them, under one lock, so the
+    host process always gets its own thresholds back (#933 review)."""
+    with _LOCK:
+        if _STATE["depth"] == 0:
+            _STATE["before"] = gc.get_threshold()
+            gc.set_threshold(*BUILD_THRESHOLDS)
+        _STATE["depth"] += 1
     try:
         yield
     finally:
-        _DEPTH[0] = 0
-        gc.set_threshold(*before)
+        with _LOCK:
+            _STATE["depth"] = max(0, _STATE["depth"] - 1)
+            if _STATE["depth"] == 0 and _STATE["before"] is not None:
+                gc.set_threshold(*_STATE["before"])
+                _STATE["before"] = None

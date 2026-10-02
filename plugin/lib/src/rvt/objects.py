@@ -435,10 +435,21 @@ class ObjectDecoder:
             for b in bails:
                 self.plan_bails[b] += 1
             return obj
-        mark = len(sink) if sink is not None else 0
+        # a miss ALWAYS records the record's refs -- through a temporary sink
+        # when the caller has none -- so a later hit from a sink-ful reader
+        # (the validator's semantic layer) gets them back, never an empty
+        # tuple left by a sink-less first read (#933 review)
+        tmp = sink is None
+        if tmp:
+            self.ref_sink = sink = []
+        mark = len(sink)
         before = Counter(self.plan_bails)
-        obj = self._decode_record_once(class_id, payload)
-        refs = tuple(sink[mark:]) if sink is not None else ()
+        try:
+            obj = self._decode_record_once(class_id, payload)
+            refs = tuple(sink[mark:])
+        finally:
+            if tmp:
+                self.ref_sink = None
         bails = tuple((self.plan_bails - before).elements())
         _MEMO.keep.append(self.schema)             # the id() in the key stays this schema's
         memo[key] = (obj, refs, bails)

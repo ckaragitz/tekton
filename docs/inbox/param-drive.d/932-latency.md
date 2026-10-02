@@ -146,6 +146,33 @@ single-bench local comparison measured head twice and is void.
 - The ADocument walk decoder (`decode_latest`) is not on the compiled-plan path. The edited
   project ADocument is decoded 4× per job (~0.06 s each).
 
+## Review of #933 (head `4083d7c`, 🛑)
+
+- **A sink-less first read blinded the validator.** The decode memo's key did not say
+  whether a reference sink was attached. `FamilyIndex` and provenance decode with no
+  sink before the validator's semantic layer decodes with one. The memo then served
+  `refs=()`, and on the default `load_family_into_project(validate=True)` path
+  `refs_checked` fell from 51,798 to 45,872.
+  - **Fix:** a miss now always records the record's refs, through a temporary sink when
+    the caller has none.
+  - **Test:** `test_a_sink_less_first_read_never_hides_refs_from_a_later_sink_ful_read`.
+- **The 2023 era's 4-byte ids.** The precompiled ElementId op packed i64 under
+  `records32.ids32()`, which patches `Writer.element_id` to i32 (954 of 1,416 records
+  differed). The per-document segment cache could also serve native bytes inside the era.
+  - **Fix:** the plans are keyed on the active id writer and route ids through
+    `w.element_id` when it is patched. The segment cache resets when the writer changes.
+  - **Tests:** `test_under_ids32_the_precompiled_encoder_writes_32_bit_ids` and
+    `test_the_id_width_era_starts_the_segment_cache_afresh`.
+  - None of the three new tests passes without the fix.
+- **`build_gc` on threads.** It is now lock-guarded: the first job to enter saves the
+  host's thresholds and the last to leave restores them, even when jobs exit out of
+  order. Test: `test_overlapping_build_jobs_restore_the_host_thresholds_when_the_last_leaves`.
+- **Payload memory.** The cache is bounded by `PAYLOAD_CACHE_BUDGET` (256 MB per open
+  document). Past the budget, a member is re-inflated on demand, giving identical bytes.
+  Test: `test_past_the_payload_budget_members_are_re_inflated_identically`.
+- **Open: the donor-read cache** is still keyed on (path, mtime, size) and never
+  evicted. The bundled base is sha-pinned, so the risk is limited to user donor files.
+
 ## BRANCH STATE
 
 - Branch `latency-932` (worktree `.claude/worktrees/agent-af6b40be23d0a41ea`), on main

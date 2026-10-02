@@ -200,6 +200,10 @@ class _Pend:
         self.path = path
 
 
+#: the native (i64) ElementId writer, captured at import: ``ids32`` patches
+#: ``Writer.element_id`` to i32 for the 2023 era (records32)
+_WRITER_ELEMENT_ID64 = Writer.element_id
+
 class ObjectEncoder:
     """Serialises decoded object dicts using the parsed schema.
 
@@ -285,9 +289,13 @@ class ObjectEncoder:
                       queue: deque, path: str):
         if not isinstance(value, dict):
             raise EncodeError(path, f"class body must be a dict, got {type(value).__name__}")
-        plan = self._plans.get(class_id)
+        # the precompiled ElementId op packs i64; under a patched writer (the
+        # 2023 era's records32.ids32 swaps Writer.element_id to i32) the plan
+        # must route ids through w.element_id instead (#933 review)
+        native = Writer.element_id is _WRITER_ELEMENT_ID64
+        plan = self._plans.get((class_id, native))
         if plan is None:
-            plan = self._plans[class_id] = self._class_plan(class_id)
+            plan = self._plans[(class_id, native)] = self._class_plan(class_id, native)
         enc_field = self._encode_field
         buf = w.buf
         for key, f, op, pack in plan:
@@ -327,7 +335,7 @@ class ObjectEncoder:
                     del buf[n0:]
             enc_field(w, f, v, queue, (path, ".", f.name))
 
-    def _class_plan(self, class_id: int) -> tuple:
+    def _class_plan(self, class_id: int, native_ids: bool = True) -> tuple:
         """``((dict key, Field, op, packer), ...)`` over the parent-first chain.
 
         The shadowed-name keying (``field_key``) is a function of the chain
@@ -357,7 +365,8 @@ class ObjectEncoder:
                         op, pack = _OP_WEAK, _U32.pack
                     elif kind == 0x0E and indir == 0 and f.type_id is not None:
                         if f.type_id in (self.id_ElementId, self.id_Identifier):
-                            op, pack = _OP_PACK, _I64.pack
+                            if native_ids:          # else: the general path's w.element_id
+                                op, pack = _OP_PACK, _I64.pack
                         elif f.type_id == self.id_XYZ:
                             op, pack = _OP_XYZ, _XYZ.pack
                         elif f.type_id not in (self.id_UV, self.id_GUIDvalue):

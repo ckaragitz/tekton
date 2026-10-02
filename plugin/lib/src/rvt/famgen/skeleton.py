@@ -3520,9 +3520,13 @@ def build_unit_segments(elements: Sequence[SkelElement], *,
         enc = _gsk._SCHEMA_CACHE["enc"] = ObjectEncoder(decoder=dec)
     memo: Optional[Dict[bytes, bytes]] = None
     if cache is not None:
-        if cache.get("enc") is not enc:
+        # the bytes depend on the encoder AND the active id width: the 2023
+        # era patches Writer.element_id to i32 (records32.ids32; #933 review)
+        from ..encode import Writer as _W
+        if cache.get("enc") is not enc or cache.get("eid") is not _W.element_id:
             cache.clear()
             cache["enc"] = enc
+            cache["eid"] = _W.element_id
             cache["records"] = {}
         memo = cache["records"]
     segs: Dict[int, bytearray] = {101: bytearray(), 102: bytearray(), 103: bytearray()}
