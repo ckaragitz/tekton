@@ -116,8 +116,8 @@ transformer, LCP, cable tray, wireway, junction box, strut channel, prism, rotat
 `cylinder_x`, the flagship 6-panel go author) is byte-identical to `276a5a8` by
 construction; no byte-delta table is needed and none was measured.
 
-**Gates:** `tools/dev/check_portable_paths.py` ok (3,475 tracked paths, this fragment
-included once committed); `tools/sync_plugin.py --check` clean (plugin in sync,
+**Gates:** `tools/dev/check_portable_paths.py` ok (3,476 tracked paths, this fragment
+included); `tools/sync_plugin.py --check` clean (plugin in sync,
 deny-audit clean). No test was added and no product suite was re-run: there is no
 behaviour to pin and no byte that could move.
 
