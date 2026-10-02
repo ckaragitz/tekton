@@ -75,9 +75,10 @@ def test_the_trapeze_rods_washers_and_nuts_follow_the_strut_ends(prompt, tiers):
     # 2 rods + per tier, per side: a washer and a nut below and above
     assert fol["followers"] == 2 + 8 * tiers
     assert fol["rigid_pairs"] == 4                      # washer + nut planes per side
-    assert fol["locks"] == 4 + 2 * 8 * tiers            # 2 arcs per rod, 2 flats per part
+    # #916 plan: a rod circle is ONE full arc -> one centre lock per rod (was 2 halves)
+    assert fol["locks"] == 2 + 2 * 8 * tiers            # 1 arc per rod, 2 flats per part
     lines, arcs, bad = _locks_on_planes(prod.doc)
-    assert arcs == 4 and bad == 0
+    assert arcs == 2 and bad == 0
     assert lines == len(d["locks"]) + 2 * 8 * tiers
     eq = [x for x in prod.doc.by_class("LinearDimString") if x.obj["m_flags"] == 140]
     assert len(eq) == 1 + 1 + 4                         # ends, rod planes, 4 rigid pairs
@@ -131,9 +132,10 @@ def _build(spec):
 def test_a_generic_follow_wires_a_box_and_a_circle():
     prod = _build(_spec(GOOD))
     (d,) = prod.drives
-    assert d["follow"]["followers"] == 2 and d["follow"]["locks"] == 4
+    # #916 plan: the circle is one full arc -> 1 centre lock (+ 2 box edges)
+    assert d["follow"]["followers"] == 2 and d["follow"]["locks"] == 3
     lines, arcs, bad = _locks_on_planes(prod.doc)
-    assert (arcs, bad) == (2, 0)
+    assert (arcs, bad) == (1, 0)
 
 
 @pytest.mark.parametrize("follow", [
