@@ -483,8 +483,13 @@ path only:
 - with the default `False`, the project bytes are unchanged (table above).
 
 `verify_nested` now also checks that the partition's exact content ends on
-`FAMILY_END_RECORD`. Both nested trapezes, 2026 and 2025, are now
-PROVENANCE-CLEAN.
+`FAMILY_END_RECORD`. Both nested trapezes now pass the end-record check
+(`end_record_is_constant`) on 2026 and 2025, and the write report's own provenance
+(run inside the write context) is `ok` on both. A standalone `provenance_scan_v2` on
+the 2025 file still reports `formats_latest_is_format_constant=False`, the same as the
+2025 solid trapeze on main. That is an instrument limit, not this change: the
+read-side release ladder does not swap the Formats/Latest constant, so it is
+recorded on #864, together with the CLI's 2025 read failure.
 
 **Open question.** Pass 1 may carry the same stale parity into project loads.
 That path is outside this territory and is not judged here.

@@ -335,10 +335,18 @@ class NestedHardwareProduct(F.FamilyProduct):
         rep["family"]["notes"] = list(rep["family"]["notes"]) + notes
         from ..famgen import famdoc_adoc as FA
         from ..objects import decode_memo
-        with decode_memo():
-            SA._read_back_checks(rep, path, hrep.get("container_source"), FA,
-                                 validate=validate, provenance=provenance)
-        rep["ok"] = bool((not validate or (rep.get("validate") or {}).get("ok"))
+        try:
+            with decode_memo():
+                SA._read_back_checks(rep, path, hrep.get("container_source"), FA,
+                                     validate=validate, provenance=provenance)
+        except Exception as exc:                              # noqa: BLE001 -- hard rule 1
+            # the nested file is already at ``path``: a crashing read-back is
+            # stamped on the report, never raised past the delivery (#939 review)
+            rep["read_back_error"] = f"{type(exc).__name__}: {str(exc)[:200]}"
+            rep.setdefault("caveats", []).append(
+                "the delivered file's read-back checks crashed and were not completed")
+        rep["ok"] = bool("read_back_error" not in rep
+                         and (not validate or (rep.get("validate") or {}).get("ok"))
                          and (not provenance or (rep.get("provenance") or {}).get("ok")))
         return _dump(rep, path, report_path)
 

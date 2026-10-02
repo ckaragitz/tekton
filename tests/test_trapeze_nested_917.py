@@ -308,6 +308,24 @@ def test_refused_nesting_delivers_the_solid_trapeze(tmp, monkeypatch):
     assert not [f for f in os.listdir(tmp) if f.endswith(".tmp")]
 
 
+def test_a_crashing_read_back_is_stamped_never_raised(tmp, monkeypatch):
+    """#939 review: once both nests succeed the file is at ``path``; a read-back
+    that crashes is recorded on the report, not raised past delivery."""
+    from rvt.frontdoor import standalone as SA
+    path = os.path.join(tmp, "t.rfa")
+    real = SA._read_back_checks
+
+    def boom(rep, p, *a, **k):                      # only the final delivery's read-back
+        if os.path.abspath(p) == os.path.abspath(path):
+            raise KeyError("reader crashed")
+        return real(rep, p, *a, **k)
+    monkeypatch.setattr(SA, "_read_back_checks", boom)
+    rep = F.make_archetype(product="strut_trapeze", nested_hardware=True).write(path)
+    assert os.path.isfile(path)
+    assert rep["ok"] is False and "KeyError" in rep["read_back_error"]
+    assert any("read-back checks crashed" in c for c in rep["caveats"])
+
+
 def test_nested_hardware_on_another_product_is_a_note(tmp):
     a, b = os.path.join(tmp, "a", "w.rfa"), os.path.join(tmp, "b", "w.rfa")
     pa = F.make_archetype(product="wireway", nested_hardware=True)
