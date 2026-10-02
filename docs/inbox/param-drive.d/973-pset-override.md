@@ -39,3 +39,16 @@ Stream: param-drive. Issue #973 (follow-up to #972's re-review). Base `main` 5d6
 - Files: `src/rvt/ifc/pset_params.py` (+ `plugin/lib` mirror),
   `tests/test_pset_override_973.py` (new), `tests/ci_shard.d/973-pset-override.txt`
   (new), this fragment. Nothing staged; no Revit claim (hard rule 4).
+
+## Correction (#975), 2026-10-02
+Appended by the #975 fix; the text above is left as merged.
+- "What changed" quotes the `skipped` wording as "type-level value X overridden by
+  the occurrence value Y". That is the first head's wording. What #974 merged says
+  "unattached value X not carried; the occurrence value Y wins", as the #974-review
+  bullets above record.
+- The #974-review bullet "An unreadable repeat ... is dropped" was incomplete. The
+  drop also lost that statement's product as an owner of the label, so a value on
+  another product no longer made the label "attached to 2 products". #975 restores
+  this, along with three other edge cases: `975-pset-edges.md`.
+- The unattached-vs-unattached wording "the first unattached value ... is kept" could
+  become false once a later occurrence value replaced it. #975 rewords it.
