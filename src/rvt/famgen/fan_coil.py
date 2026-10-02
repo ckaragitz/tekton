@@ -456,7 +456,10 @@ def _square(p: Dict[str, Any]) -> Dict[str, Any]:
     if p["shape"] == "cylinder":
         return {"shape": "box", "role": p["role"], "w": 2 * p["r"], "d": 2 * p["r"], "h": p["h"],
                 "z0": p["z0"], "cx": p["cx"], "cy": p["cy"]}
-    return {"shape": "box", "role": p["role"], "w": 2 * p["r"], "d": p["length"], "h": 2 * p["r"],
+    along_x = p["shape"] == "cylinder_x"                 # its length runs along x, not y
+    return {"shape": "box", "role": p["role"],
+            "w": p["length"] if along_x else 2 * p["r"],
+            "d": 2 * p["r"] if along_x else p["length"], "h": 2 * p["r"],
             "z0": p["zc"] - p["r"], "cx": p["cx"], "cy": p["cy"]}
 
 

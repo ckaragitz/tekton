@@ -16,7 +16,7 @@ own releases; counts only, the corpus stays quarantined -- hard rule 3, rule 6):
   ``m_idPrimaryElem`` = their own id; all 226 non-primaries carry the domain's primary
   conduit connector there and list it in their header's deletion parents (a law of the
   conduit domain: the corpus's non-primary power connectors point at themselves).
-  Every corpus connector is a 2025 file, so release state cannot be split from
+  Every corpus connector is in a 2025 file, so release state cannot be split from
   regeneration state; what the corpus shows is that the shell does not depend on
   the domain.
 * ``m_dConnectorDiameter`` stores the DIAMETER: where it is bound to a family
@@ -27,7 +27,7 @@ own releases; counts only, the corpus stays quarantined -- hard rule 3, rule 6):
   element class and category (-2007000 for every domain), face reference, edge
   loop and ``FamilyParametrizedElemParamsCell`` associations.  The geometry-step
   fields that differ from our power connector differ identically on the corpus's
-  own power connectors, so they are release / regeneration state, not the domain.
+  own power connectors, so they are not domain state.
 
 So a conduit connector is the verified power-connector shell with this domain.
 Piping (hydronic) and duct connectors are NOT authored here: the corpus holds no
