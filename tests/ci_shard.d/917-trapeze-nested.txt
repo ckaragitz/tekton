@@ -1,0 +1,2 @@
+# #917 DONE 1 + DONE 5: nested washers / nuts on the strut trapeze (opt-in), real-types-only nested type table; generated families only, fresh-clone safe
+tests/test_trapeze_nested_917.py

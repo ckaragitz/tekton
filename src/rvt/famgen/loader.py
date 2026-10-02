@@ -1922,7 +1922,8 @@ def _edit_host_registries(host_rvt: str, host: HostContext,
 def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
                       authored: Sequence[_AuthoredLoad],
                       new_latest: bytes, cd_new: bytes, *,
-                      identity: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+                      identity: Optional[Dict[str, Any]] = None,
+                      exact_partition: bool = False) -> Dict[str, Any]:
     """The ONE container rewrite: pass 1 = every family's host elements into
     save-unit 0 + ElemTable (``rvt.commit.commit_new_elements``, via a temp
     file); pass 2 = splice every save unit before the partition end record
@@ -1934,7 +1935,17 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
     ``BasicFileInfo`` against ``out_path`` (document GUID kept), so the
     file's last-save path is its own name rather than the pass-1 temp file's
     (the nesting path, #917).  None = the project loader's historical
-    behaviour, unchanged."""
+    behaviour, unchanged.
+
+    ``exact_partition`` (a FAMILY host, the nesting path): splice into the
+    partition's EXACT content, ending on the family end record.  The
+    depaged logical stream's tail past the end record is the host's old
+    final-block CRCIO parity, and pass 1 (``commit_new_elements`` keeps the
+    walker's ``end_record`` = everything from the end offset on) carries it
+    into its re-framed partition as CONTENT; spliced as is, the nested
+    host's true end is no longer the family end record (#917 third pass).
+    So the exact content is cut right after the 10-byte family end record.
+    False = the project loader's historical bytes, unchanged."""
     from . import factory as F
     from ..encode import encode_record
     from ..commit import commit_new_elements
@@ -1957,7 +1968,16 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
         "per_seq_bytes_added": dict(crep.per_seq_bytes_added),
     }, "pass2_partition_splice": []}
     with open_rvt(tmp1) as f2:
-        part_logical = f2.logical(host.partition_name)
+        part_logical = (ecc.unframe_stream(f2.raw(host.partition_name)) if exact_partition
+                        else f2.logical(host.partition_name))
+    if exact_partition:
+        from ..partitions import StreamWalker
+        from .famdoc_adoc import FAMILY_END_RECORD
+        end = int(StreamWalker(part_logical, inflate=False, keep_data=False).end_offset)
+        if not part_logical[end:].startswith(FAMILY_END_RECORD):
+            raise LoaderError("exact_partition: the host partition does not end on the "
+                              "family end record (not a family host?)")
+        part_logical = part_logical[:end + len(FAMILY_END_RECORD)]
     for i, a in enumerate(authored):
         try:
             sp = F.splice_save_unit(part_logical, a.unit["bytes"])

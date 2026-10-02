@@ -1925,7 +1925,8 @@ def make_archetype(*, product: str,
                    identity: Optional[Dict[str, str]] = None,
                    text_params: Optional[Dict[str, str]] = None,
                    standards: bool = True,
-                   standard_values: Optional[Dict[str, Any]] = None
+                   standard_values: Optional[Dict[str, Any]] = None,
+                   nested_hardware: bool = False
                    ) -> FamilyProduct:
     """Compose a NAMED PRODUCT at standard nominal sizes (owner steer #591:
     *"if i say crate a cable tray family you should be able to create it in
@@ -1947,11 +1948,23 @@ def make_archetype(*, product: str,
     no manufacturer identity on it, and
     :func:`rvt.famgen.archetypes.manufacturer_claim` puts "the named item is not
     what this is" in front of the caller.
+
+    ``nested_hardware=True`` (``strut_trapeze`` only, OPT-IN, #917): the
+    washers and nuts become NESTED instances of our own generated washer and
+    hex-nut families, nested when the product is written
+    (:mod:`rvt.famgen.trapeze_nested`); a nesting that fails still writes the
+    solid trapeze with the reason noted.  Default ``False`` = unchanged.
     """
     from . import archetypes as AR
     res = AR.resolve(product, dimensions or {}, prompt=prompt)
     parts, report = AR.build_parts(res)
     arch = res.arch
+    nest_note = None
+    if nested_hardware and arch.key != "strut_trapeze":
+        # never a refusal (hard rule 1): the option names a lane this product has not
+        nest_note = (f"nested_hardware applies to the strut trapeze only; this "
+                     f"{arch.title} was built as usual")
+        nested_hardware = False
     fam_name = name or res.name
     src = f"archetype:{arch.key}"
     ws = AR.working_space_report(res) if (res.clearance and arch.working_space) else None
@@ -1965,6 +1978,9 @@ def make_archetype(*, product: str,
     drives = arch.drives(dict(res.values)) if arch.drives else None
     heights = arch.heights(dict(res.values)) if arch.heights else None
     diameters = arch.diameters(dict(res.values)) if arch.diameters else None
+    if nested_hardware:
+        from . import trapeze_nested as TN
+        parts, drives, heights = TN.strip_hardware(parts, drives, heights)
     prod = make_generic_model(parts=parts, name=fam_name, numeric_params=numeric,
                               drives=drives, heights=heights, diameters=diameters,
                               category=category or arch.category,
@@ -2012,6 +2028,27 @@ def make_archetype(*, product: str,
     prod.doc.notes.append(
         f"archetype {arch.key}: {len(res.nominal())} nominal + {len(res.given())} "
         f"given dimension(s); no manufacturer identity is claimed")
+    if nest_note:
+        prod.notes.append(nest_note)
+    if nested_hardware:
+        from . import trapeze_nested as TN
+        kw = dict(product=product, dimensions=dimensions, prompt=prompt, name=name,
+                  category=category, solid=solid, base_z_ft=base_z_ft,
+                  start_id=start_id, shared_params=shared_params, identity=identity,
+                  text_params=text_params, standards=standards,
+                  standard_values=standard_values)
+        try:
+            prod = TN.NestedHardwareProduct.adopt(
+                prod, values=dict(res.values), solid=lambda: make_archetype(**kw))
+        except Exception as exc:                     # noqa: BLE001 -- hard rule 1
+            solid_prod = make_archetype(**kw)
+            solid_prod.notes.append(
+                f"NESTED HARDWARE REFUSED (#917): {type(exc).__name__}: "
+                f"{str(exc)[:200]} -- the solid trapeze is delivered instead")
+            return solid_prod
+        prod.notes.append("nested hardware (#917, opt-in): the washers and nuts are "
+                          "nested as instances of our own generated families when "
+                          "this family is written; see the write report")
     return prod
 
 

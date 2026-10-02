@@ -435,3 +435,187 @@ parameter) associated to the child's instance parameter. On **2026 and
 
 **Shipped vs staged:** the API ships; no route uses it. Nothing is staged; no
 viewer or desktop batch has been run.
+
+---
+
+# #917 third pass: real types only (DONE 1) and the trapeze's nested hardware (DONE 5, opt-in)
+
+Branch `trapeze-nested-917`, based on `origin/main` 3bb380f. This pass adds no
+census; the figures it relies on are the ones above.
+
+## DONE 1: the nested type table holds real types only
+
+`nest._family_host_flavour` now passes the nested `Family`'s `m_pFamilyTypes`
+through `nested_type_table`. The table keeps only its named pairs, and
+`m_idx` points at the same current pair it pointed at before. On a one-type
+table that is one pair at `m_idx` 0, the born form (996 / 996). A table with no
+named type is refused (`NestError`).
+
+The project loader is untouched: a family loaded into a project still gets the
+leading `' '` row, and a test pins that. Before and after this change, these
+bytes are identical (SHA-256, base `src/` from `git archive 3bb380f` against
+this branch):
+
+| Output | SHA-256 prefix |
+|---|---|
+| project load into the bundled `G_ABPD.rvt` (`place=False`) | `d2ddb644ec1b950c` |
+| default trapeze, 2026 | `28313e4cf7734e37` |
+| default trapeze, 2025 | `90b636b87a009252` |
+| wireway | `a14e446899f25cf4` |
+
+## Defect found and fixed: a nested host did not end on the family end record
+
+`provenance_scan_v2` flagged `end_record_is_constant` = False on every nested
+output, including those of the first two passes. That check is not in
+`verify_nested`, which is why it went unseen.
+
+**Cause.** Pass 1 (`commit_new_elements`) keeps the walker's `end_record`,
+which is everything from the end offset on. That includes the host's old
+final-block CRCIO parity. The parity was re-framed as content, and the nested
+unit was spliced in ahead of it. A single nest left 91 stray bytes after the
+end record.
+
+**Fix.** `loader._commit_and_write(exact_partition=True)` is used by the nest
+path only:
+
+- it splices into `ecc.unframe_stream` content;
+- it cuts that content right after the 10-byte family end record;
+- with the default `False`, the project bytes are unchanged (table above).
+
+`verify_nested` now also checks that the partition's exact content ends on
+`FAMILY_END_RECORD`. Both nested trapezes, 2026 and 2025, are now
+PROVENANCE-CLEAN.
+
+**Open question.** Pass 1 may carry the same stale parity into project loads.
+That path is outside this territory and is not judged here.
+
+## DONE 5: `make_archetype(product="strut_trapeze", nested_hardware=True)`
+
+The implementation is a new module, `src/rvt/famgen/trapeze_nested.py`, plus a
+small opt-in hook in `factory.make_archetype`.
+
+**The host.** `strip_hardware` removes the 16 washer and nut solids from the
+host. Rod Inset now follows the two rods only; `wire_follow` still makes the
+two Rod Inset planes. The height chain keeps every plane: Rod Below Bottom Nut
+still chains from the bottom nut's plane, but no washer or nut face is locked
+to it.
+
+**The children.** Both are our own families. No donor or reference family is
+read.
+
+| Child | Instance parameters | Drives |
+|---|---|---|
+| `Square Strut Washer` (one box) | `Washer Size`, `Washer Thickness` | `Washer Size` labels two symmetric in-plane drives (x and y) and so resizes the plan; `Washer Thickness` is a Case B cap-face height drive |
+| `Hex Nut` (one hex prism) | `Nut Height`, `Nut Across Flats` | `Nut Height` is a Case B height drive; `Nut Across Flats` carries a value only (the in-plane drive takes rectangles, so no current mechanism resizes a hexagon) |
+
+**What `write()` does.**
+
+1. Writes the stripped host.
+2. Calls `nest_family` with the washers: 8 instances, each locked by
+   Center (Left/Right) to its Rod Inset plane and by Center (Front/Back) to the
+   origin plane, with host `Washer Size` and `Washer Thickness` associated.
+3. Calls `nest_family` with the nuts: 8 instances, the same locks, with host
+   `Nut Across Flats` associated.
+
+Each instance is placed where the solid version draws that part: the part's
+centre at its bottom face, checked part for part.
+
+**On failure.** Any failure at any step writes the solid trapeze at the same
+path, with `nested_hardware: {ok: False, refused}` and a caveat (hard rule 1).
+A refusal while building also returns the solid product.
+
+**Scope.** No route passes the flag yet, and `nested_hardware` on any other
+product is a note only.
+
+**Evidence** (read back from the written files, on **2026 and 2025**):
+
+- `rvt_validate` in family mode: VALID, 0 errors, 0 warnings.
+- `provenance_scan_v2`: clean.
+- `constraint_law.check_file` == []. **CG8 judged all 32 nested locks**: the 16
+  instances × {code 1, code 4} resolve, and none is skipped.
+- `four_registry_census` is coherent, with 3 save units.
+- Each lock's target is the Rod Inset plane on the instance's side (x = ∓1 ft),
+  or the origin Center (Front/Back) plane (`m_refName` 4).
+- Every washer row carries the host's Washer Size and Washer Thickness values.
+  Every nut row carries the host's Nut Across Flats.
+- Both nested type tables are `[family name]` with `m_idx` 0.
+- Each child, written on its own, is VALID with constraint law [] and has
+  every drive caption labelling ≥ 1 dimension (Washer Size labels 2).
+- Determinism: two writes into different directories are byte-identical in
+  **every** stream, BasicFileInfo included.
+- The default trapeze is a plain `FamilyProduct` and is byte-identical to
+  `nested_hardware=False` and to the base.
+
+**Timings** (median of 3, in seconds, warm process, this sandbox):
+
+| Release | Version | Build | Write | Total | File size |
+|---|---|---:|---:|---:|---:|
+| 2026 | solid | 0.60 | 0.70 | 1.30 | 327,680 B |
+| 2026 | nested | 0.51 | 1.88 | 2.40 | 339,968 B |
+| 2025 | solid | 1.46 | 1.39 | 2.96 | 323,584 B |
+| 2025 | nested | 0.93 | 2.85 | 3.73 | 335,872 B |
+
+**Why the default stays solid.** The nested version is not strictly better:
+
+- **Height.** Its instances do not follow the host's height drives. Our
+  children carry no Center (Elevation) reference to lock, so Tier Spacing,
+  Strut Height and Washer Thickness move the host's planes but not the nested
+  washers and nuts. The solid washers and nuts do ride those planes.
+- **Nut sizing.** The nut's across-flats association moves a value only.
+- **Cost.** The nested build is about 1.8× slower on 2026 and about 1.3×
+  slower on 2025.
+- **Verdict.** It has no desktop verdict. Neither does the solid assembly
+  (#904).
+
+## Gaps (third pass)
+
+1. **No desktop verdict** for nested families, their locks or their
+   associations (hard rule 4). Per steer #913, no probe family goes to the
+   owner.
+2. **No vertical follow.** Fixing it needs a Center (Elevation) (code 7) origin
+   plane on our children. That has only 11 born locks behind it and is not
+   authored. An elevation lock is still refused rather than invented.
+3. **The nut's across-flats drives nothing**, as described above.
+4. **Not reachable from the route or prompt.** It is an API flag only, and the
+   archetype's `lod_note` and `limits` still describe the solid version. The
+   nested product's own notes state the nested truth.
+5. **The project loader may carry stale end parity** (the open question
+   above). Unjudged.
+6. **The washer is one family for both positions.** Below the channel and on
+   the lips use the same nested family (8 instances), which born hosts also
+   do; no shared nesting (`m_bShared`).
+
+## BRANCH STATE (`trapeze-nested-917`)
+
+**Files written**
+- `src/rvt/famgen/nest.py`:
+  - `nested_type_table`, used by the family-host flavour;
+  - the end-record check in `verify_nested`;
+  - `exact_partition=True` on the write;
+  - docstring.
+- `src/rvt/famgen/loader.py`: `_commit_and_write(exact_partition=False)`.
+  The default is byte-identical.
+- `src/rvt/famgen/factory.py`: `make_archetype(nested_hardware=False)`. The
+  default is byte-identical.
+- `src/rvt/famgen/trapeze_nested.py`: new.
+- `plugin/lib/src/rvt/famgen/{nest,loader,factory,trapeze_nested}.py`: sync
+  mirrors.
+- `tests/test_trapeze_nested_917.py` (18 tests) and
+  `tests/ci_shard.d/917-trapeze-nested.txt`: new.
+- This section.
+
+**Gates**
+- `sync_plugin.py`, then `--check`: in sync.
+- `validate_plugin.py`: PASS (25).
+- `pytest`: **293 passed, 13 skipped** (rme sample absent), 0 failed, over
+  these files:
+  - `test_trapeze_nested_917`, `test_nest_917`, `test_nest_locks_917`;
+  - `test_strut_trapeze_899`, `test_drive_follow_904`,
+    `test_archetype_drives_913`;
+  - `test_constraint_law`, `test_constraint_law_910`;
+  - `test_famgen_loader`, `test_famgen_loader_release_700`,
+    `test_famload_batch`, `test_famload_2025`, `test_famload_determinism_794`;
+  - `test_conftest_scaffolding`, `test_plugin_sync`, `test_surface_perf`.
+
+**Shipped vs staged:** the opt-in API ships; no route uses it. Nothing is
+staged, and no viewer or desktop batch has been run.
