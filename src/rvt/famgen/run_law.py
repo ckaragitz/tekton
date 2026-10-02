@@ -19,7 +19,9 @@ only, never copied; counts only, no specimen named):
   is sketched ON A VERTICAL PLANE and extruded along that plane's normal
   (147 circles + 4 rings); 8 are sweeps; no revolve has a circle profile.
   The work plane is the origin centre plane square to the run on 74 / 147
-  (``m_definesOrigin``; the "Center (Left/Right)" plane for a run along X),
+  single circles -- 78 / 151 counting the 4 rings, all on it (re-counted for
+  #916; another plane 18, unresolved 55) -- (``m_definesOrigin``; the
+  "Center (Left/Right)" plane for a run along X),
   and the start offset is negative -- the run centred on it -- on 79 / 151.
   Its ``SketchPlane`` carries the plane's own frame as ``m_oTrf.m_3x3``
   (columns = the sketch's x, y and normal), the ``VarSketch.m_pPlane`` that
@@ -27,8 +29,12 @@ only, never copied; counts only, no specimen named):
   header ``m_regenOnly`` [Level, the work plane, ...]; each arc is world
   coordinates on that plane (181 / 193), its centre marker along the normal
   (170 / 193) and its header ``m_regenOnly`` [extrusion, work plane]
-  (102 / 193).  The born circle is ONE full ``GArc`` on 147 / 151; this
-  engine draws two half arcs (``geometry``) and keeps them -- see GAPS.
+  (102 / 193).  The born circle is ONE full ``GArc`` (endParams [0, 0]) on
+  147 / 147 single circles (each ring is two full arcs) -- and so is this
+  run's (#916 DONE 3, ``geometry.full_arc_cylinder_form``: its CurveElem,
+  sketch, solver record, helper loop and history follow that census field
+  for field; the B-rep is the two-half-cylinder solid the born runs carry
+  too, 147 / 147).
 * **How its length is driven.**  An END-FACE LOCK: an ``Alignment`` flags 14,
   no cell, owned by no view, one segment (flags 1, locked value 0), header
   ``m_regenOnly`` [UnitsElem] (94 / 94), whose ``m_planeNormal`` is the PLAN
@@ -50,9 +56,10 @@ only, never copied; counts only, no specimen named):
   plane (refFlip 2) and the SketchPlane (refFlip 2 on +normal, 1 on -normal).
 * **How its diameter is driven**: a labelled ``RadialDim`` on the circle, in
   the vertical sketch -- ``rvt.famgen.diameter_law`` (type-9 style, 24 of the
-  151 born runs; its ``m_planeNormal`` runs along the sketch normal: + on 14 of
-  27 labelled diameters, - on 13; this lane writes +, with no dimension
-  sketch plane, as 7 of them do).
+  151 born runs, 21 of them on a single full arc, witness geomTag 0 with a
+  cached [0, pi] arc; its ``m_planeNormal`` runs along the sketch normal: + on
+  14 of 27 labelled diameters, - on 13; this lane writes +, with no dimension
+  sketch plane, as 7 of them do).  It labels the run's ONE full arc.
 
 WHAT HAS A DESKTOP VERDICT AND WHAT DOES NOT (hard rule 4).  A rotated cached
 B-rep displays (#514 probe A, #591 round 4).  The in-plane drive and the
@@ -63,12 +70,15 @@ a vertical plane held by plan dimensions, and a diameter on a vertical circle
 are each AUTHORED, the assembled family UNVERIFIED.  Every check in
 :func:`wire_run_length` runs before its first mutation.
 
-GAPS, stated rather than hidden: the circle is this engine's two half arcs,
-not the born single full arc (147 / 151), so the diameter sits on the [0, pi]
-half (``diameter_law``'s own gap); the run's circle centre is not locked to
-the origin planes (born runs lock it on 10 / 151 only); the sketch solver
-records keep the circle in the sketch's own 2D frame, unverified on a
-vertical plane.
+GAPS, stated rather than hidden: the run's circle centre is not locked to
+the origin planes (born runs lock it on 10 / 151 only: 20 centre locks, an
+``Alignment`` flags 30 on the arc's centre, geomTag 1 -- 14 to origin
+planes, 3 to other planes, 3 to a nested instance; in a VERTICAL sketch one
+of the two would be the Ref. Level, a lock no lane here authors, so it is
+left); the sketch solver records keep the circle in the sketch's own 2D
+frame, unverified on a vertical plane; the curve-geometry ``m_GInfo`` flags
+and the guess cache's ``m_nPar`` stay this engine's convention (as on every
+other sketch) rather than the born values.
 """
 from __future__ import annotations
 
@@ -98,7 +108,8 @@ def _cross(a, b) -> Tuple[float, float, float]:
 
 def work_plane(doc, axis: str):
     """The origin centre plane SQUARE to a run along ``axis`` -- the born
-    work plane of a centred run (74 / 147): normal X for a run along X."""
+    work plane of a centred run (74 / 147 single circles; 78 / 151 with the
+    4 rings): normal X for a run along X."""
     from .drive_law import origin_centre_plane
     return origin_centre_plane(doc, axis)
 
@@ -143,7 +154,9 @@ def add_run_cylinder(doc, *, axis: str, radius_ft: float, length_ft: float,
     underside (the axis is at ``base_z_ft + radius_ft``) -- the ``cylinder_x``
     / ``cylinder_y`` part contract.
 
-    Built as the engine's verified upright cylinder cluster in the work
+    Built as an upright cylinder cluster whose circle is ONE full arc
+    (``geometry.full_arc_cylinder_form``, the born run circle; the verified
+    upright B-rep reused) in the work
     plane's LOCAL frame (sketch x, sketch y, normal), then every element and
     cached B-rep placed into world by that frame's rotation
     (:func:`rvt.famgen.orient.rotate_record`, the #514 path) and the
@@ -170,7 +183,16 @@ def add_run_cylinder(doc, *, axis: str, radius_ft: float, length_ft: float,
     R = [[xv[i], yv[i], n[i]] for i in range(3)]         # columns: x, y, normal
     from .factory import geometry_context
     ctx = geometry_context(doc)
-    fb = G.cylinder(r, w1 - w0, ctx, doc.ids, base_z_ft=w0, center=(u, v), rep=rep)
+    # ONE full arc, as every born run's circle (147 / 147; #916 DONE 3) --
+    # the plan-circle forms keep their two half arcs
+    fb = G.full_arc_cylinder_form(G.circle_profile((u, v), r), w1 - w0, ctx, doc.ids,
+                                  base_z_ft=w0, rep=rep)
+    tess = fb.params["tessellation"] = G.arc_tessellation_facts(r)
+    if not tess["verified"]:
+        fb.notes.append(
+            f"curved rails tessellated with the FIXED {tess['chords']}-chord split "
+            f"verified only at r={G.ARC_CHORDS_VERIFIED_RADIUS_FT} ft; this radius is "
+            f"{tess['specimen_ratio']:.1f}x that -- extrapolated, mechanism [H] (#530)")
     sp = next(e for e in fb.elements if e.class_name == "SketchPlane")
     sk = next(e for e in fb.elements if e.class_name == "VarSketch")
     ex = next(e for e in fb.elements if e.class_name == "ExtrusionElem")
@@ -203,7 +225,7 @@ def add_run_cylinder(doc, *, axis: str, radius_ft: float, length_ft: float,
     fb.params.update({"run_axis": axis, "radius_ft": r, "length_ft": L,
                       "work_plane": wp.elem_id, "normal_sign": s,
                       "run_start": a0, "run_end": a1, "vertical_sketch": True,
-                      "centre_cross": centre[1 - k]})
+                      "centre_cross": centre[1 - k], "centre_z": centre[2]})
     fb.notes.append(
         f"horizontal run along {axis}: circle sketched on the origin centre plane "
         f"{wp.elem_id} (vertical) and extruded along its normal -- the born way "
@@ -243,13 +265,16 @@ def _run_of(doc, t):
     return ex, sp, axis, s, at
 
 
-def _end_plane(doc, axis: str, at: float):
+def _end_plane(doc, axis: str, at: float, reach: float = 0.0):
     """A SURFACE-ONLY vertical reference plane square to ``axis`` at ``at``
     (the born end plane of a run): surface x along the other plan axis (+Y
-    for an X run, -X for a Y run -- the born modes), y up."""
+    for an X run, -X for a Y run -- the born modes), y up.  Its envelope
+    covers the run axis position ``at`` AND ``reach`` -- the farthest the
+    run's cap faces sit from the origin across the run (plan) or up it --
+    plus 1 ft, so every face trace lies within the plane."""
     from . import drive_law as DL
     c = DL._dim_ctx(doc)
-    P = max(c["P"], abs(at) + 1.0)
+    P = max(c["P"], abs(at) + 1.0, float(reach) + 1.0)
     if axis == "x":
         free, bubble = (at, -P, 0.0), (at, P, 0.0)
     else:
@@ -280,13 +305,14 @@ def _face_lock(doc, ext, face: str, plane, *, axis: str, sign: float, at: float,
     when it points up it; constrained direction -normal on END, +normal on
     START; plane normal +Z (the plan)."""
     from . import drive_law as DL
-    P = DL._dim_ctx(doc)["P"]
+    y0, y1 = span
+    # the plane witness trace covers the face's cross span (#950 review)
+    P = max(DL._dim_ctx(doc)["P"], max(abs(y0), abs(y1)) + 1.0)
     k = _k(axis)
     tag = HL.FACE_TAG[face]
     nd = [0.0, 0.0, 0.0]
     nd[k] = sign * (-1.0 if face == "end" else 1.0)
     plane_first = nd[k] < 0
-    y0, y1 = span
     ym = (y0 + y1) / 2.0
     pl = _trace(axis, at, -P, P)
     fc = _trace(axis, at, y0, y1)
@@ -363,10 +389,11 @@ def wire_run_length(doc, *, caption: str, targets: Sequence[Any],
     and its value equals the run length, every target is a run on one axis
     with the same caps, no cap face is locked already, and (``symmetric``)
     the caps are centred on the origin plane.  Call BEFORE ``finalize``.
-    Authored, UNVERIFIED (module docstring)."""
+    Any refusal -- a finalized document included -- raises :class:`RunError`
+    with the document unchanged.  Authored, UNVERIFIED (module docstring)."""
     from . import drive_law as DL
     if doc.finalized:
-        raise RuntimeError("run_law: document is finalized")
+        raise RunError("run_law: document is finalized")
     pe = doc.params.get(caption)
     if pe is None:
         raise RunError(f"run_law: no family parameter {caption!r}")
@@ -406,12 +433,17 @@ def wire_run_length(doc, *, caption: str, targets: Sequence[Any],
                 raise RunError(f"run_law: extrusion {ex.elem_id}'s {f} face is already locked")
     HL._mgr(doc)
     spans = []
+    reach = 0.0
     for _t, ex, sp, _a, _s, _at in runs:
         r = float(_t.params["radius_ft"])
         cy = float(_t.params.get("centre_cross", 0.0))
+        cz = float(_t.params.get("centre_z", 0.0))
         spans.append((cy - r, cy + r))
+        # the farthest a cap face reaches from the origin across the run or
+        # up it: the end planes' envelope must hold it (#950 review)
+        reach = max(reach, abs(cy) + r, abs(cz) + r)
     # -- mutations start here
-    planes = {"lo": _end_plane(doc, axis, lo), "hi": _end_plane(doc, axis, hi)}
+    planes = {"lo": _end_plane(doc, axis, lo, reach), "hi": _end_plane(doc, axis, hi, reach)}
     dim = DL.dim3d(doc, planes["lo"], planes["hi"], axis, caption=caption)
     eq = DL.eq3d(doc, planes["lo"], centre, planes["hi"], axis) if symmetric else None
     locks: List[int] = []

@@ -2407,13 +2407,17 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
                            start: float, end: float, rep: str = REP_SOLID,
                            category_id: int = INVALID, material_id: int = INVALID,
                            notes=None,
-                   always_ref_plane_norm: bool = False) -> SkelElement:
+                   always_ref_plane_norm: bool = False,
+                           lower_half: Tuple[float, float] = CircleProfile.ANG_L) -> SkelElement:
     """The ``ExtrusionElem`` of a circle-profile form: start/end offsets
     (extrude-UP), the two-arc-loop ExtrusionGStep tag map, the per-tag
     geometry table, the private helper copy of each circle loop (traversal
     L then U -- arcs keep the sketch's parametrization, params [-pi,0]
     then [0,pi]) [V 614], and the rep: our authored CylSurf B-rep
-    (``rep='solid'``) or ``SerializedDummy``."""
+    (``rep='solid'``) or ``SerializedDummy``.  ``lower_half`` -- the params
+    of the loop's lower half: [-pi, 0] for the two-half-arc sketch (614);
+    a ONE-full-arc sketch's halves are [0, pi] and [pi, 2pi]
+    (:func:`full_arc_cylinder_form`, #916)."""
     C = list(circles)
     k = len(C)
     if not float(end) > float(start):
@@ -2441,7 +2445,7 @@ def new_cylinder_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: in
         cl["m_open"] = False
         # traversal L (drawn index 2j+1) then U (2j), tags = the sketch's
         cl["m_curves"] = [
-            garc(c.center, c.radius, *CircleProfile.ANG_L, tag=2 * j + 1,
+            garc(c.center, c.radius, *lower_half, tag=2 * j + 1,
                  flags=ctx.gline_flags),
             garc(c.center, c.radius, *CircleProfile.ANG_U, tag=2 * j,
                  flags=ctx.gline_flags),
@@ -2567,6 +2571,149 @@ def cylinder(radius_ft: float, height_ft: float, ctx: FamilyDocContext, ids: Any
             f"solid bbox taken from them) sit up to {tess['sagitta_ft']:.5f} ft "
             f"inside the true circle -- extrapolated, mechanism [H] (#530)")
     return fb
+
+
+# ---------------------------------------------------------------------------
+# ONE FULL ARC (#916): the circle a Revit-born horizontal run sketches.
+#
+# Census of the 147 born horizontal runs whose profile is one circle (the
+# 421-family private reference corpus, a development instrument, counts only):
+# the circle is ONE ``CurveElem`` whose driver ``GArc`` has endParams [0, 0]
+# (147 / 147), no control joins (147), cells SketchMembership + ArcElemCell
+# (141; +PatternHelper 6), header deletion [family, SketchPlane, sketch, self]
+# (147), its rep one full GArc (147).  The SKETCH still absorbs it as two
+# halves -- tag 0 [0, pi], tag 1 [pi, 2pi] (147) -- with curve history
+# (1: -10000, 0: 0) (132), a 2-row geometry table and m_nextIndex 1 (132),
+# ONE solver record, a ``VarSketchArcObj`` with m_unbounded True (147),
+# m_angleCoef = the radius and angle params 0 .. 2 pi x radius (105), and its
+# rep lists the [pi, 2pi] half first (147).  The extrusion's helper loop is
+# (tag 1 [pi, 2pi], tag 0 [0, pi]) (136; 7 more renumbered, 4 tags swapped),
+# its ExtrusionGStep carries the SAME tag map as the two-half-arc form (139 / 147;
+# faces listed caps, U, L: 138) and its B-rep the same 2 planes + 2 CylSurf +
+# 6 edges (147 / 147) -- so ``solid_cylinder_brep`` is reused unchanged.
+# ---------------------------------------------------------------------------
+
+#: VarSketchArcObj.m_unbounded of a full-arc circle (147 / 147 born)
+FULL_ARC_SOLVER_UNBOUNDED = True
+#: the full arc's lower half in the sketch and the extrusion loop (147 / 147)
+FULL_ARC_LOWER_HALF = (math.pi, 2.0 * math.pi)
+#: m_curveHist key of the sketch's second absorbed half (132 / 147)
+FULL_ARC_SPLIT_HIST_KEY = -10000
+
+
+def new_full_arc_curve_elem(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
+                            sketch_id: int, extrusion_id: int, center: Vec,
+                            radius: float, notes=None) -> SkelElement:
+    """A circle as ONE model ``CurveElem`` -- driver ``GArc`` endParams
+    [0, 0], no control joins, cells SketchMembership + ArcElemCell, header
+    deletion [family, SketchPlane, sketch, self] -- the born full arc (census
+    above).  Built from :func:`new_arc_curve_elem` and reshaped."""
+    el = new_arc_curve_elem(elem_id, ctx, sketch_plane_id=sketch_plane_id,
+                            sketch_id=sketch_id, extrusion_id=extrusion_id,
+                            center=center, radius=radius, ang0=0.0, ang1=0.0,
+                            partner_id=INVALID, tag=0, notes=notes)
+    drv = el.obj["m_pCurveDriver"]["value"]
+    drv["m_controlJoinsSet"] = []
+    cells = el.obj["m_cellList"]["value"]["m_cells"]
+    el.obj["m_cellList"]["value"]["m_cells"] = [
+        c for c in cells if c.get("ptr_class") in ("SketchMembership", "ArcElemCell")]
+    assign_pids(el.obj)
+    bbox = _arc_bbox(center, radius, 0.0, 2.0 * math.pi)
+    el.rep["m_bBox"] = [_cv(bbox[0]), _cv(bbox[1])]
+    el.rep["m_tightbBox"] = [_cv(bbox[0]), _cv(bbox[1])]
+    el.refs.pop("partner", None)
+    return el
+
+
+def _full_arc_solver_obj(center: Vec, radius: float, curve_id: int) -> dict:
+    """The one ``VarSketchArcObj`` of a full-arc circle: unbounded, angle
+    coefficient = the radius, angle params 0 .. 2 pi x radius (census above)."""
+    r = float(radius)
+    vals = [float(center[0]), float(center[1]), r, 0.0, 2.0 * math.pi * r]
+    return _ptr("VarSketchArcObj", {
+        "m_params": [_ptr("VarParam", {"m_refCt": 1, "m_val": v}) for v in vals],
+        "m_pSketch": _weak(2), "m_objId": int(curve_id), "m_angleCoef": r,
+        "m_unbounded": FULL_ARC_SOLVER_UNBOUNDED, "m_flipped": False})
+
+
+def new_var_sketch_full_arc(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
+                            user_id: int, arc_id: int, center: Vec, radius: float,
+                            notes=None) -> SkelElement:
+    """The ``VarSketch`` of ONE full-arc circle: the arc absorbed as two
+    halves (tag 0 [0, pi], tag 1 [pi, 2pi]) owned by one CurveElem, one
+    solver record (census above)."""
+    c, r = [float(center[0]), float(center[1]), 0.0], float(radius)
+    h0 = garc(c, r, 0.0, math.pi, tag=0, flags=ctx.gline_flags)
+    h1 = garc(c, r, *FULL_ARC_LOWER_HALF, tag=1, flags=ctx.gline_flags)
+    bbox = [[c[0] - r, c[1] - r, 0.0], [c[0] + r, c[1] + r, 0.0]]
+    el = new_var_sketch_curves(elem_id, ctx, sketch_plane_id=sketch_plane_id,
+                               user_id=user_id, curves=[h0, h1],
+                               curve_ids=[arc_id, arc_id], bbox=bbox, notes=notes)
+    o = el.obj
+    st = o["m_geomSteps"]["value"]["m_nonBRepGList"][0]["value"]
+    st["m_curveHistTableSet"] = [
+        {"m_id": 1, "m_curveHist": {"m_keys": [1, FULL_ARC_SPLIT_HIST_KEY, -1, -1, -1]}},
+        {"m_id": 0, "m_curveHist": {"m_keys": [1, 0, -1, -1, -1]}}]
+    o["m_elemIdsPairSet"]["value"]["m_data"] = [{"m_elementId": int(arc_id), "m_index": 0}]
+    o["m_nextIndex"] = 1
+    o["m_elemRecs"] = [_full_arc_solver_obj(c, r, arc_id)]
+    o["m_curveObjIdxMap"] = [{"first": int(arc_id), "second": 0}]
+    o["m_oGuessCache"]["value"]["m_guessArr"] = [_ptr("VarSketchGuess", {
+        "m_values": [float(c[0]), float(c[1]), r, 0.0, 2.0 * math.pi * r],
+        "m_useCount": 29})]
+    assign_pids(o)
+    # the rep lists the [pi, 2pi] half first (147 / 147 born)
+    el.rep["m_subNodes"] = list(reversed(el.rep["m_subNodes"]))
+    assign_pids(el.rep)
+    el.refs["curves"] = [int(arc_id)]
+    return el
+
+
+def full_arc_cylinder_form(circle: CircleProfile, height_ft: float, ctx: FamilyDocContext,
+                           ids: Any, *, base_z_ft: float = 0.0, rep: str = REP_SOLID,
+                           kind: str = "cylinder(full arc)") -> FormBundle:
+    """A cylinder whose circle is ONE full arc -- the way every born
+    horizontal run sketches it (147 / 147, census above): SketchPlane +
+    VarSketch + ONE arc ``CurveElem`` + ``ExtrusionElem`` (helper loop
+    [pi, 2pi] then [0, pi]; the same tag map and B-rep as the two-half form,
+    its face / edge history listed U-first as born).  Extruded UP from
+    ``base_z_ft``.  Authored, unverified -- nothing here has a desktop
+    verdict (hard rule 4); the plan-circle forms are untouched."""
+    if height_ft <= 0:
+        raise ValueError("height must be positive")
+    id_plane = _alloc(ids)
+    id_sketch = _alloc(ids)
+    id_arc = _alloc(ids)
+    id_ext = _alloc(ids)
+    start = float(base_z_ft)
+    end = float(base_z_ft) + float(height_ft)
+    c = circle
+    elems: List[SkelElement] = [
+        new_sketch_plane(id_plane, ctx, sketch_id=id_sketch),
+        new_var_sketch_full_arc(id_sketch, ctx, sketch_plane_id=id_plane, user_id=id_ext,
+                                arc_id=id_arc, center=c.center, radius=c.radius),
+        new_full_arc_curve_elem(id_arc, ctx, sketch_plane_id=id_plane, sketch_id=id_sketch,
+                                extrusion_id=id_ext, center=c.center, radius=c.radius),
+    ]
+    ex = new_cylinder_extrusion(id_ext, ctx, sketch_id=id_sketch, sketch_plane_id=id_plane,
+                                circles=[c], start=start, end=end, rep=rep,
+                                lower_half=FULL_ARC_LOWER_HALF)
+    st = ex.obj["m_geomSteps"]["value"]["m_bRepFormGList"][0]["value"]
+    # born order (faces 138 / 147, edges 139 / 147): the caps, then the
+    # curve-0 (U) side before the curve-1 (L) side; U rails before L; lat_v0
+    # before lat_v1.  Same ids and keys as the two-half form, listed U-first.
+    fo = {1: 0, 0: 1, 5: 2, 2: 3}
+    st["m_faceHistTable"].sort(key=lambda h: fo.get(h["m_id"], 9))
+    eo = {6: 0, 7: 1, 3: 2, 4: 3, 9: 4, 8: 5}
+    st["m_edgeHistTable"].sort(key=lambda h: eo.get(h["m_id"], 9))
+    elems.append(ex)
+    params = {"radius_ft": c.radius, "height_ft": float(height_ft),
+              "base_z_ft": float(base_z_ft), "start_ft": start, "end_ft": end,
+              "center": [c.center[0], c.center[1]], "rep": rep, "full_arc": True}
+    notes = ["profile: ONE full-arc CurveElem (endParams [0, 0]) absorbed by its "
+             "sketch as two halves -- the born run circle (147 / 147); authored, "
+             "no desktop verdict"]
+    return FormBundle(kind, elems, params, notes)
 
 
 # ---------------------------------------------------------------------------
