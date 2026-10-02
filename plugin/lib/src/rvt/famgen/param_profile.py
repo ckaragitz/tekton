@@ -54,8 +54,9 @@ PROFILE_SCHEMA = "tekton.param-profile/1"
 _GUID = re.compile(r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$")
 
 #: the spec a class WITHOUT its own ``m_specTypeId`` is typed as in a formula check
-#: (a text / Yes-No / integer parameter is not a length: formula.py refuses text and
-#: integer operands, and types Yes/No logic) -- a ParamDefValue carries its own spec
+#: (a text / Yes-No / integer parameter is not a length: formula.py refuses integer
+#: operands, types Yes/No logic and takes text only as a value, #870) -- a
+#: ParamDefValue carries its own spec
 CLASS_SPEC = {
     "ParamDefString": "autodesk.spec:spec.string-1.0.0",
     "ParamDefURL": "autodesk.spec:spec.string-1.0.0",
@@ -281,20 +282,74 @@ def _from_convention(p: ProfileParam) -> Tuple[Any, Optional[str], Optional[str]
     return got[0], got[1], got[2], True
 
 
+def _spec_kind(spec: str) -> str:
+    """``spec`` without its schema version ('...:length-2.0.0' -> '...:length')."""
+    head, sep, tail = str(spec).rpartition("-")         # the rule of skeleton._canonical_spec
+    return head if sep and tail.count(".") == 2 and all(x.isdigit() for x in tail.split(".")) \
+        else str(spec)
+
+
+def _link(doc, p: "ProfileParam", target: Any) -> Tuple[Optional[str], Optional[str]]:
+    """(formula, refusal) for a profile-map entry linking ``p`` to the generated
+    family's own parameter ``target`` (#876): the formula is the target's name, so the
+    library parameter carries the family's value in every type.  Refused, with the
+    reason, when the target is not a parameter of this family, cannot be named in a
+    formula, holds another kind of value than ``p`` (a length is never linked to a
+    number, a text to a length), is an integer (formulas take no integer operand),
+    or is bound per INSTANCE while ``p`` is a type parameter (a type formula cannot
+    read an instance parameter) -- every refusal the formula step itself would make,
+    made here so no link is announced that the family will not carry; never coerced."""
+    from . import formula as FX
+    from .skeleton import SPEC_LENGTH, _is_instance_param
+    if not isinstance(target, str) or not target:
+        return None, f"the map entry is {target!r}, not a parameter name"
+    if p.def_class == "ParamDefMaterialBrowse":
+        return None, "a material is not written by formula"
+    pe = doc.params.get(target)
+    if pe is None:
+        return None, f"the family has no parameter {target!r}"
+    if pe.refs.get("kind") == "ParamDefMaterialBrowse":
+        return None, f"{target!r} is a material, not written by formula"
+    if not FX.is_spellable(target):
+        return None, f"{target!r} cannot be named in a formula"
+    mine = _spec_kind(p.spec or CLASS_SPEC.get(p.def_class, ""))
+    theirs = _spec_kind(pe.refs.get("spec") or SPEC_LENGTH)   # as skeleton._formula_spec reads it
+    if "spec.int64" in (mine + theirs):
+        return None, "an integer is not linked by formula (formulas take no integer operand)"
+    if not p.instance and _is_instance_param(pe):
+        return None, (f"{target!r} is bound per instance and the library parameter per type: "
+                      f"a type formula cannot read an instance parameter")
+    if mine != theirs:
+        return None, (f"{target!r} is a {theirs.split(':')[-1]}, the library parameter a "
+                      f"{mine.split(':')[-1]}")
+    return target, None
+
+
 def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = None,
-          values_source: str = "the caller", profile_source: str = "the profile") -> List[str]:
+          values_source: str = "the caller", profile_source: str = "the profile",
+          links: Optional[Dict[str, Any]] = None,
+          links_source: str = "the profile map") -> List[str]:
     """Add ``params`` to the (unfinalized or re-finalizable) family ``doc`` as SHARED
     parameters -- filled from ``values`` (keyed by GUID or name: a constant, or
     ``{"formula": "Width"}``) when given, else from the parameter's library
     convention (``ProfileParam.convention``), else blank.  A formula is written by
     :mod:`rvt.famgen.formula` at finalize; one it cannot store is left out, said, and
     loses its provenance tag (:func:`settle_formula_provenance`).
+    ``links`` (#876, keyed like ``values``) maps a profile parameter to the generated
+    family's OWN parameter it stands for (``{"<library Width GUID>": "Width"}``): it
+    is written as a formula naming that parameter, tagged ``given`` from
+    ``links_source``, so the library parameter tracks the family in every type.  A
+    caller's value for the same parameter wins; a link that cannot hold (no such
+    parameter, another kind of value) is refused and said.
     Returns the notes (what was added, filled, left, or not writable).  The caller
     finalizes the document afterwards."""
     from .skeleton import PGROUP_DIMENSIONS
     notes: List[str] = []
     values = {(str(k).lower() if _GUID.match(str(k)) else str(k)): v
               for k, v in (values or {}).items()}
+    links = {(str(k).lower() if _GUID.match(str(k)) else str(k)): v
+             for k, v in (links or {}).items()}
+    linked: List[str] = []
     filled = 0
     conv_values: List[str] = []
     conv_formulas: List[str] = []
@@ -313,10 +368,26 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
                          f"kept as authored, the profile's definition left out")
             continue
         default, formula, refused = _value_for(p, values)
+        target = links.get(p.guid.lower(), links.get(p.name))
+        link_used = False
+        if target is not None and _given(p, values) is not None:
+            notes.append(f"{p.name!r}: the map links it to {target!r}, but a value was given "
+                         f"-- the given value is written")
+        link_refused = None
+        if target is not None and _given(p, values) is None:
+            formula, link_refused = _link(doc, p, target)
+            if not link_refused:
+                link_used = True
+                linked.append(f"{p.name!r} = {target!r}")
         from_convention = False
         if (default == WRITABLE[p.def_class] and formula is None and not refused
-                and p.convention and _given(p, values) is None):
+                and p.convention and _given(p, values) is None and not link_used):
+            # a refused link never costs the parameter the library's own convention
             default, formula, refused, from_convention = _from_convention(p)
+        if link_refused:
+            notes.append(f"{p.name!r}: the map's link is refused -- {link_refused} -- "
+                         + ("the library's convention is written instead"
+                            if from_convention and not refused else "left blank"))
         if refused and from_convention:
             what = refused if refused.startswith("the library's") else \
                 f"the library's convention value is {refused} for a {p.def_class}"
@@ -339,6 +410,9 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
                 (conv_formulas if formula else conv_values).append(p.name)
                 pe.refs["provenance"] = {"tier": "library", "source": profile_source,
                                          "by": "formula" if formula else "value"}
+            elif link_used:
+                pe.refs["provenance"] = {"tier": "given", "source": links_source,
+                                         "by": "formula", "link": formula}
             else:
                 filled += 1
                 pe.refs["provenance"] = {"tier": "given", "source": values_source,
@@ -366,9 +440,15 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
         notes.insert(1, f"provenance library ({profile_source}): "
                         + "; ".join([f"{n!r} by value" for n in conv_values]
                                     + [f"{n!r} by formula" for n in conv_formulas]))
+    if linked:
+        notes.insert(1, f"linked by {links_source} to the family's own parameters (a formula "
+                        f"each, so the value follows every type): " + "; ".join(linked))
     unused = sorted(set(values) - {p.guid.lower() for p in params} - {p.name for p in params})
     if unused:
         notes.append(f"values given for parameters the profile did not select: {', '.join(unused)}")
+    unlinked = sorted(set(links) - {p.guid.lower() for p in params} - {p.name for p in params})
+    if unlinked:
+        notes.append(f"map entries for parameters the profile did not select: {', '.join(unlinked)}")
     return notes
 
 
@@ -408,6 +488,16 @@ def settle_formula_provenance(doc, written_ids) -> None:
             by_value, by_formula = library.get(head[len("provenance library ("):], ([], []))
             kept = [f"{d!r} by value" for d in by_value] + [f"{d!r} by formula" for d in by_formula]
             doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
+    # the map's line (#876) lists only the links still carried: one the formula step
+    # refused is not announced as following every type
+    for i, n in enumerate(doc.notes):
+        if n.startswith("linked by "):
+            head, _sep, _body = n.partition("): ")
+            kept = [f"{name!r} = {pe.refs['provenance']['link']!r}"
+                    for name, pe in doc.params.items()
+                    if (pe.refs.get("provenance") or {}).get("link")
+                    and head.startswith(f"linked by {pe.refs['provenance'].get('source')} ")]
+            doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
     doc.notes[:] = [n for n in doc.notes if not n.startswith(_NOT_WRITTEN_NOTES)]
     for tier, names in dropped.items():
         if names:
@@ -432,6 +522,9 @@ class ProfileRequest:
     #: values to fill, keyed by GUID or name (a dict, or a path to a JSON of one):
     #: a constant or {"formula": "..."}; everything else stays blank
     values: Any = None
+    #: the PROFILE MAP (#876): profile parameter (GUID or name) -> the generated
+    #: family's own parameter it stands for (a dict, or a path to a JSON of one)
+    links: Any = None
     is_param_profile_request = True           # duck-typed by rvt.famgen.skeleton (no import cycle)
 
     def loaded(self) -> Dict[str, Any]:
@@ -453,4 +546,12 @@ def apply_request(doc, req: ProfileRequest) -> List[str]:
     if values is not None and not isinstance(values, dict):
         raise ProfileError(f"values must map parameter names / GUIDs to values, not "
                            f"{type(values).__name__}")
-    return apply(doc, sel, values or {}, source, prof_src) + notes
+    links, links_source = req.links, "the given profile map"
+    if isinstance(links, str):
+        links_source = f"the profile map {os.path.basename(links)!r}"
+        with open(links, "r", encoding="utf-8") as fh:
+            links = json.load(fh)
+    if links is not None and not isinstance(links, dict):
+        raise ProfileError(f"a profile map must map parameter names / GUIDs to the family's "
+                           f"parameter names, not {type(links).__name__}")
+    return apply(doc, sel, values or {}, source, prof_src, links or {}, links_source) + notes

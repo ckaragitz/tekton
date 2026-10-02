@@ -367,7 +367,11 @@ def parse_formula(text: str, params: "Mapping[str, ParamRef] | NameTable") -> Tu
         raise FormulaError(f"formula has more than {MAX_DEPTH} levels or terms") from None
     if _depth(tree) > MAX_DEPTH:
         raise FormulaError(f"formula has more than {MAX_DEPTH} levels or terms")
-    if is_no_formula(tree):
+    inner = tree
+    while isinstance(inner, dict) and inner.get("ptr_class") == "ParenExpression":
+        inner = (inner.get("value") or {}).get("m_pSubexpression")
+    if is_no_formula(inner):
+        # bracketed or not: a formula whose whole value is "" is Revit's NO formula
         raise FormulaError('an empty text formula ("") is how Revit stores NO formula: '
                            'leave the value blank instead')
     return tree, spec
@@ -451,6 +455,11 @@ def _num_text(v: float) -> str:
     return t or "0"
 
 
+def is_spellable(name: str) -> bool:
+    """True when a formula can name the parameter ``name`` (see :func:`_spellable`)."""
+    return _spellable(str(name))
+
+
 @functools.lru_cache(maxsize=4096)
 def _spellable(name: str) -> bool:
     """True when the parser reads ``name`` back as that parameter: a caption that
@@ -484,8 +493,8 @@ def unparse(tree: Any, names: Mapping[int, str]) -> Optional[str]:
     :func:`parse_formula` for everything it pins: + - * / = > <, unary minus,
     parentheses, if / and / or / not / round / tan, parameter references by
     ``names`` (param id -> caption), number constants (a length in feet, written
-    ``1.5'``), and string constants (``"..."``, kept for the record: the writer
-    does not store text formulas yet, #870).  Anything else -- an unpinned operator
+    ``1.5'``), and string constants (``"..."``, written as text formulas since
+    #870).  Anything else -- an unpinned operator
     or function, an angle constant, a parameter not in ``names`` -- gives None:
     never a guessed spelling.  Precedence is spelled from the TREE, not from any
     stored parentheses: an operand that binds more loosely than its operator is
