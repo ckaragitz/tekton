@@ -1277,9 +1277,9 @@ _register(Archetype(
             "height is held by a locked dimension, not a parameter",
             "Rod Diameter is authored to drive the rods (#916) but has NO desktop "
             "verdict: a labelled RADIUS passed on desktop (#904 P5), the diameter "
-            "form has not been tried. It labels one half arc of each rod's circle, "
-            "which no Revit-born diameter does (they sit on one full arc), and the "
-            "washers and nuts do not change with it"),
+            "form has not been tried. It labels each rod's circle, drawn as one "
+            "full arc as born plan circles are (#916), and the washers and nuts do "
+            "not change with it"),
     aliases=("trapeze", "trapeze hanger", "strut trapeze", "unistrut trapeze"),
     patterns=(r"(?:(?:strut|unistrut|channel|slotted)\s+)*trapezes?"
               r"(?:\s+(?:hangers?|supports?|racks?))?",

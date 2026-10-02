@@ -36,14 +36,18 @@ instrument only, never copied; counts only here) found:
    direct type-9 label (67) is the majority shape and is the one authored
    here.
 
-THE GAP THIS MODULE STATES RATHER THAN HIDES.  This engine draws a circle as
-TWO half arcs (``geometry``; the rods' centre locks of #904 P4 are on both
-halves).  The dimension goes on the half arc whose span is [0, pi] -- exactly
-the arc the verified P5 radius labelled, and exactly the cached arc every
-born diameter carries -- but a diameter on a half arc is unattested in the
-corpus (0 / 67).  The type-9 style is authored here from this engine's own
-default-style constellation (no donor bytes), and no diameter has a desktop
-verdict: nothing here claims a diameter flexes (hard rule 4).
+THE LABELLED ARC.  This engine draws a plan circle (``geometry.cylinder``)
+and a run circle (``run_law``) as ONE full arc, as born circles are (#916;
+235 / 235 born single-circle plan extrusions, 147 / 147 runs), so the
+dimension goes on that full arc, witness geomTag 0 with a cached [0, pi] arc.
+A circle still made of two half arcs (the rotated-B-rep authoring circle,
+which this module refuses, #929) would be labelled on its [0, pi] half -- the
+arc the verified P5 radius labelled, but a diameter on a half arc is
+unattested in the corpus (0 / 67) and is reported as ``half_arc``.  The
+type-9 style is authored here from this engine's own default-style
+constellation (no donor bytes), and no diameter has a desktop verdict: the
+verified P5 radius sat on a half arc, so its verdict does not carry over to a
+full arc either -- nothing here claims a diameter flexes (hard rule 4).
 """
 from __future__ import annotations
 

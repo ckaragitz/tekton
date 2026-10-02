@@ -184,7 +184,8 @@ def add_run_cylinder(doc, *, axis: str, radius_ft: float, length_ft: float,
     from .factory import geometry_context
     ctx = geometry_context(doc)
     # ONE full arc, as every born run's circle (147 / 147; #916 DONE 3) --
-    # the plan-circle forms keep their two half arcs
+    # the plan circles take the same full arc (geometry.cylinder); only the
+    # rotated-B-rep authoring circle keeps two half arcs
     fb = G.full_arc_cylinder_form(G.circle_profile((u, v), r), w1 - w0, ctx, doc.ids,
                                   base_z_ft=w0, rep=rep)
     tess = fb.params["tessellation"] = G.arc_tessellation_facts(r)

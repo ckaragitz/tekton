@@ -374,7 +374,11 @@ def test_specimen_cylinders_reproduced_from_dimensions():
 @needs_schema
 @pytest.mark.parametrize("rep", [G.REP_SOLID, G.REP_DUMMY])
 def test_cylinder_bundle_schema_roundtrip(ctx, rep):
-    fb = G.cylinder(G.inches(3), G.mm(190), ctx, _Ids(), center=(1.0, 1.0), rep=rep)
+    # the TWO-HALF-ARC form, explicitly (#916 plan): plan circles are one full
+    # arc now (tests/test_plan_arc_916.py); this form stays the rotated-B-rep
+    # cylinder_x / cylinder_y authoring circle and the documented way back
+    fb = G.cylinder(G.inches(3), G.mm(190), ctx, _Ids(), center=(1.0, 1.0), rep=rep,
+                    full_arc=False)
     assert [e.class_name for e in fb.elements] == \
         ["SketchPlane", "VarSketch", "CurveElem", "CurveElem", "ExtrusionElem"]
     rt = fb.roundtrip()
@@ -426,7 +430,8 @@ def test_emit_cylinder_rfa_reads_back_clean(tmp_path, ctx):
     assert v["gzip_crc_failures"] == 0 and v["ecc_mismatch"] == 0
     assert v["walker_errors"] == []
     assert v["new_all_clean"] and v["donor_ids_preserved"] and v["ok"]
-    assert v["record_counts_out"] == {s: v["record_counts_donor"][s] + 5
+    # one record per element of the bundle (4 since #916 plan: one full arc)
+    assert v["record_counts_out"] == {s: v["record_counts_donor"][s] + len(fb.elements)
                                       for s in ("101", "102", "103")}
     from rvt.families import FamilyIndex
     idx = FamilyIndex(str(out))

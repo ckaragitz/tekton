@@ -568,7 +568,8 @@ def _register(sk, el, second: Optional[int]) -> None:
 
 
 def _arcs_of(doc, sk) -> List[Any]:
-    """The arc CurveElems of sketch ``sk`` (a circle is two half-arcs here)."""
+    """The arc CurveElems of sketch ``sk`` (a plan or run circle is one full
+    arc; the rotated-B-rep authoring circle is two half arcs)."""
     out = []
     for ce in doc.by_class("CurveElem"):
         if sk.elem_id not in (ce.header["m_parents"]["value"].get("m_deletion") or []):

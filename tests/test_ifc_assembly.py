@@ -611,7 +611,10 @@ def test_an_arc_sketch_now_carries_the_solver_records_it_promises():
     for e in sketches:
         o = e.obj
         recs = o.get("m_elemRecs") or []
-        assert len(recs) == len(o.get("m_curveObjIdxMap") or []) == len(o["m_absorbedCurves"])
+        # one solver record per CURVE the map names (#589); since #916 plan the
+        # circle is ONE full arc the sketch absorbs as two halves, as born
+        assert len(recs) == len(o.get("m_curveObjIdxMap") or []) == 1
+        assert len(o["m_absorbedCurves"]) == 2
         assert all(r["ptr_class"] == "VarSketchArcObj" for r in recs)
         # the guess cache must declare the same parameter vector the records do
         guess = ((o.get("m_oGuessCache") or {}).get("value") or {}).get("m_guessArr") or []

@@ -10,9 +10,9 @@ B-rep the same two-half-cylinder solid the two-half-arc form carries.  A labelle
 diameter witnesses that arc with geomTag 0 and a cached [0, pi] arc.
 
 ``run_law.add_run_cylinder`` now authors that shape (``geometry.full_arc_cylinder_form``)
-and ``diameter_law`` labels the full arc.  The plan-circle forms (``cylinder`` parts, the
-rotated-B-rep ``cylinder_x``, the trapeze rods, the downlight) keep their two half arcs
-and their bytes.  Every check here reads back from the WRITTEN file on 2026 and 2025.
+and ``diameter_law`` labels the full arc.  The rotated-B-rep ``cylinder_x`` keeps its two
+half arcs and its bytes; the plan circles took the full arc too (#916 plan,
+``tests/test_plan_arc_916.py``).  Every check here reads back from the WRITTEN file on 2026 and 2025.
 
 Nothing here claims a family flexes in Revit (hard rule 4): authored, unverified.
 """
@@ -32,10 +32,9 @@ from rvt.famgen import constraint_law as CL
 from rvt.famgen import factory as F
 from rvt.famgen import geometry as G
 from rvt.famgen import run_law as RL
-from conftest import HAVE_SCHEMA, context_constants, ladder_constants
+from conftest import context_constants, ladder_constants
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-IFC = os.path.join(ROOT, "inputs", "ifc", "chicago-plenum-downlight.ifc")
 
 # builds enter the write-side release context (2025 targets) and the read-back
 # climbs the read-side ladder: conftest's guard watches both (#707)
@@ -231,20 +230,20 @@ def _guarded(monkeypatch):
     monkeypatch.setattr(G, "full_arc_cylinder_form", boom)
 
 
+# #916 plan (tests/test_plan_arc_916.py): the plan circles -- cylinder parts, the
+# trapeze rods, the downlight -- are one full arc too now; only the rotated-B-rep
+# authoring circle keeps two half arcs (re-pinned deliberately: this test asserted
+# the plan circles' old two-half form)
 PLAN_CIRCLES = {
-    "cylinder_part": lambda: F.make_generic_model(
-        parts=[{"name": "c", "shape": "cylinder", "radius_ft": 0.2, "height_ft": 1.0}],
-        name="CP"),
     "rotated_cylinder_x": lambda: F.make_generic_model(parts=[dict(RUN, work_plane=None)],
                                                        name="RR"),
-    "trapeze": lambda: F.make_archetype(product="strut_trapeze"),
 }
 
 
 @pytest.mark.parametrize("key", sorted(PLAN_CIRCLES))
 def test_the_plan_circles_keep_two_half_arcs_and_their_bytes(key, monkeypatch):
-    """Every other circle constructor never reaches the full-arc form (the bytes with
-    it disabled equal the bytes without), and still draws two half arcs."""
+    """The rotated-B-rep authoring circle never reaches the full-arc form (the bytes
+    with it disabled equal the bytes without), and still draws two half arcs."""
     free = _sha(PLAN_CIRCLES[key]())
     _guarded(monkeypatch)
     prod = PLAN_CIRCLES[key]()
@@ -253,15 +252,6 @@ def test_the_plan_circles_keep_two_half_arcs_and_their_bytes(key, monkeypatch):
             if _crv(e.obj)["ptr_class"] == "GArc"]
     assert arcs and not any(_full(a) for a in arcs)
     assert sorted(map(tuple, arcs))[0] == (-math.pi, 0.0)
-
-
-@pytest.mark.skipif(not (os.path.exists(IFC) and HAVE_SCHEMA),
-                    reason="downlight IFC input / class schema absent")
-def test_the_downlight_plan_circles_never_reach_the_full_arc(monkeypatch):
-    from rvt.ifc import famfrom_ifc as FI
-    free = _sha(FI.make_downlight())
-    _guarded(monkeypatch)
-    assert _sha(FI.make_downlight()) == free
 
 
 def test_the_end_planes_cover_an_off_centre_run():
