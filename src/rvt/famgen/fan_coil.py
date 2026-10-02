@@ -357,7 +357,7 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
                              "hub) are NOT tied to the drives: they keep where they are drawn "
                              "when Width / Length / Height flex (a circle rides a plane only "
                              "by its arc centres, #904 P4 -- a later change)")
-    std = ST.apply_safe(doc, "mechanical_equipment", standards, None)
+    std = ST.apply_safe(doc, "mechanical_equipment", standards, None, facts=sheet)
     doc.finalize()
     if drive == "law":
         F._born_law_after_finalize(doc)

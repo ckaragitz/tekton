@@ -320,7 +320,7 @@ def make_fan_powered_box(*, kind: str = "series", length_in: Optional[float] = N
                          "electrical enclosure" if host_el else "service side", vtg)
         if voltage_to_ground is None:
             note_voltage_to_ground(doc, vtg, voltage, phases)
-    std = ST.apply_safe(doc, "mechanical_equipment", standards, None)
+    std = ST.apply_safe(doc, "mechanical_equipment", standards, None, facts=sheet)
     doc.finalize()
     return F.FamilyProduct("fan_powered_box", doc, sheet, forms=forms, types=rows, standards=std,
                            file_stem=F._slug(f"fan_powered_{kind}_{dims['inlet_in']:g}in_{reheat}_{v_txt}"))

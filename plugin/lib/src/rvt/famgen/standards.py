@@ -1003,11 +1003,55 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
     return rep
 
 
+#: a constructor's OWN facts that ARE a standard parameter's value (#863): fact key ->
+#: the parameter it fills (in the fact's units, which are the parameter's internal
+#: ones: Hz, a plain number).  Only a KNOWN value fills one (S-2026-08-11-a): a
+#: catalog ``fact``, a ``given`` or a ``derived`` one -- never ``assumed`` or
+#: ``nominal``.  A fact with no row here fills nothing.
+FACT_VALUES: Dict[str, str] = {
+    "frequency_hz": "Frequency",
+    "cri": "Color Rendering Index",
+}
+KNOWN_TIERS = ("fact", "given", "derived")
+
+
+def values_from_facts(facts: Any) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[str]]:
+    """(values, provenance, disagreements) the constructor's facts establish for the
+    standards step: each :data:`FACT_VALUES` key held at a known tier.  ``facts`` is
+    one ``FactSheet`` or the sheets of every TYPE the family builds -- a standard
+    parameter is one value for the family, so it is filled only when every type
+    holds the same known value; one that differs between types is named in
+    ``disagreements`` and stays blank (never the first type's value on all)."""
+    sheets = list(facts) if isinstance(facts, (list, tuple)) else [facts]
+    out: Dict[str, Any] = {}
+    prov: List[Dict[str, Any]] = []
+    split: List[str] = []
+    for key, name in FACT_VALUES.items():
+        got = [(getattr(sh, "values", None) or {}).get(key) for sh in sheets]
+        if any(f is None or getattr(f, "kind", None) not in KNOWN_TIERS or f.value in (None, "")
+               for f in got) or not got:
+            continue
+        if len({repr(f.value) for f in got}) > 1:
+            split.append(name)
+            continue
+        out[name] = got[0].value
+        prov.append({"name": name, "fact": key, "tier": got[0].kind,
+                     "source": getattr(got[0], "source", "")})
+    return out, prov, split
+
+
 def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
                values: Optional[Dict[str, Any]] = None,
+               facts: Any = None,
                **kw: Any) -> Optional[Dict[str, Any]]:
     """The standards step EVERY model-family constructor calls (#642) --
     :func:`apply` under the two guarantees a constructor needs.
+
+    ``facts`` (#863): the constructor's ``FactSheet`` (or every type's) -- the
+    standard parameters its own known facts establish (:data:`FACT_VALUES`,
+    :func:`values_from_facts`) are filled from it, the caller's ``values``
+    overriding any of them; the report's ``filled_from_facts`` names each with its
+    fact and tier.
 
     ``on`` False (the caller's ``standards=False``, the regression control):
     nothing is authored and ``None`` comes back -- but ``values`` the caller
@@ -1024,8 +1068,23 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
                              f"given {offered} are NOT authored (no standard "
                              f"parameters are applied, so nothing carries them)")
         return None
+    from_facts: List[Dict[str, Any]] = []
+    if facts is not None:
+        fv, from_facts, split = values_from_facts(facts)
+        given = {meaning_key(n) for n in _offered(values)}
+        for name in split:
+            if meaning_key(name) not in given:
+                doc.notes.append(f"standard parameter {name!r} left blank: the family's types "
+                                 f"hold different values for it, and a standard parameter "
+                                 f"is one value per family")
+        from_facts = [p for p in from_facts if meaning_key(p["name"]) not in given]
+        values = {**{p["name"]: fv[p["name"]] for p in from_facts}, **_offered(values)}
     try:
-        return apply(doc, category, values=values, **kw)
+        rep = apply(doc, category, values=values, **kw)
+        if from_facts:
+            filled = set(rep.get("filled") or ())
+            rep["filled_from_facts"] = [p for p in from_facts if p["name"] in filled]
+        return rep
     except Exception as e:                            # never block delivery
         doc.notes.append(f"category standards NOT applied "
                          f"({type(e).__name__}: {str(e)[:120]})")
