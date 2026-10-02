@@ -158,6 +158,15 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
         pass
 
     seen_names: Dict[str, Tuple[str, Any]] = {}
+    # owners of a label's UNREADABLE statements not yet merged into a carried
+    # source (#975): an unreadable value is not a statement, but the product it
+    # is attached to still holds the label -- counted once a readable value of
+    # an attached source exists, whichever order the file gives them in
+    pending: Dict[str, List[Tuple[str, int]]] = {}
+    # ``skipped`` rows of unattached repeats, per label (#975): re-worded when an
+    # occurrence value later replaces the unattached one, so no row is left
+    # naming a value that is no longer the carried one
+    unattached_rows: Dict[str, List[Tuple[Dict[str, Any], Any]]] = {}
     try:
         psets = list(f.by_type("IfcPropertySet"))
     except Exception:                                             # noqa: BLE001
@@ -194,6 +203,16 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                         "name": label, "pset": pset_name, "on": on,
                         "why": f"unreadable value {value!r} ({ifc_type}) dropped; "
                                "it is not a statement"})
+                # its owners still hold the label (#967's invariant, #975):
+                # merged now when an attached source is carried, else later
+                src = out["sources"].get(label)
+                if src is not None and src["product_ids"]:
+                    _merge_owners(src, ons, on_ids)
+                else:
+                    held = pending.setdefault(label, [])
+                    for nm, oid in zip(ons, on_ids):
+                        if oid not in [o for _n, o in held]:
+                            held.append((nm, oid))
                 continue
             src = out["sources"].get(label)
             if label in seen_names and src is not None:
@@ -205,36 +224,51 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                     # set; IfcRelDefinesByType is not resolved, so the note does
                     # not claim which product's type it was, #973 / #974 review):
                     # the occurrence's value and owners replace it
+                    wins = f"the occurrence value {value!r} ({on or pset_name}) wins"
                     if not same:
                         out["skipped"].append({
                             "name": label, "pset": src["pset"], "on": "",
-                            "why": f"unattached value {prev_val!r} not carried; the "
-                                   f"occurrence value {value!r} ({on or pset_name}) wins"})
+                            "why": f"unattached value {prev_val!r} not carried; {wins}"})
+                    # earlier unattached repeats are re-worded against the value
+                    # now carried (#975); one equal to it is no longer a skip
+                    for r, rv in unattached_rows.pop(label, []):
+                        if _same_value(rv, value):
+                            out["skipped"].remove(r)
+                        else:
+                            r["why"] = f"unattached value {rv!r} not carried; {wins}"
                     out["params"][label] = typed
                     seen_names[label] = (f"{on or pset_name}", value)
                     out["sources"][label] = _source(pset_name, on, ons, on_ids,
                                                     ifc_type, value)
+                    _merge_owners(out["sources"][label], *_unzip(pending.pop(label, [])))
                     continue
                 if not on_ids:
                     # an unattached repeat never contradicts an occurrence value
-                    # (#973); between two unattached values the first is kept
+                    # (#973); between two unattached values the first stays
+                    # carried -- worded without a lasting claim, as a later
+                    # occurrence value may still replace it (#975)
                     if not same:
-                        why = (f"unattached value {value!r} not carried; the occurrence "
-                               f"value {prev_val!r} ({prev_src}) wins"
-                               if src["product_ids"] else
-                               f"unattached value {value!r} not carried; the first "
-                               f"unattached value {prev_val!r} ({prev_src}) is kept")
-                        out["skipped"].append({"name": label, "pset": pset_name,
-                                               "on": "", "why": why})
+                        if src["product_ids"]:
+                            why = (f"unattached value {value!r} not carried; the "
+                                   f"occurrence value {prev_val!r} ({prev_src}) wins")
+                        else:
+                            why = (f"unattached value {value!r} not carried; it "
+                                   f"differs from the first unattached value "
+                                   f"{prev_val!r} ({prev_src})")
+                        row = {"name": label, "pset": pset_name, "on": "", "why": why}
+                        out["skipped"].append(row)
+                        if not src["product_ids"]:
+                            unattached_rows.setdefault(label, []).append((row, value))
+                    elif not src["product_ids"]:
+                        _upgrade_kind(out, src, label, typed, ifc_type, value)
                     continue
                 # every product the label is attached to is recorded, equal
                 # value or not, so pset_drive.plan never drives the first one
                 # alone (#967 review: a per-occurrence pset is normal input)
-                for nm, oid in zip(ons, on_ids):
-                    if oid not in src["product_ids"]:
-                        src["product_ids"].append(oid)
-                        src["products"].append(nm)
-                if not same:
+                _merge_owners(src, ons, on_ids)
+                if same:
+                    _upgrade_kind(out, src, label, typed, ifc_type, value)
+                else:
                     # the drive plan must see the conflict, not only `skipped`;
                     # "same" is the drive's own tolerance (#972 review, #973)
                     src.setdefault("conflicting_values", []).append(value)
@@ -249,6 +283,8 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
             out["params"][label] = typed
             seen_names[label] = (f"{on or pset_name}", value)
             out["sources"][label] = _source(pset_name, on, ons, on_ids, ifc_type, value)
+            if on_ids:
+                _merge_owners(out["sources"][label], *_unzip(pending.pop(label, [])))
     return out
 
 
@@ -267,6 +303,30 @@ def _typed(ifc_type: str, value: Any, length_to_ft: float) -> Optional[Tuple[str
     if isinstance(value, bool):
         return ("text", "Yes" if value else "No")
     return ("text", str(value))
+
+
+def _unzip(pairs: List[Tuple[str, int]]) -> Tuple[List[str], List[int]]:
+    return [n for n, _o in pairs], [o for _n, o in pairs]
+
+
+def _merge_owners(src: Dict[str, Any], ons: List[str], on_ids: List[int]) -> None:
+    """Record every product of ``on_ids`` on ``src``, each once by entity id."""
+    for nm, oid in zip(ons, on_ids):
+        if oid not in src["product_ids"]:
+            src["product_ids"].append(oid)
+            src["products"].append(nm)
+
+
+def _upgrade_kind(out: Dict[str, Any], src: Dict[str, Any], label: str,
+                  typed: Tuple[str, Any], ifc_type: str, value: Any) -> None:
+    """A plain number and a length of ONE value are one statement (#974 review);
+    the carried kind is the LENGTH whichever came first in the file (#975), so
+    file order never decides whether the label can drive a span."""
+    kept = out["params"].get(label)
+    if kept is not None and kept[0] == "number" and typed[0] == "length":
+        out["params"][label] = typed
+        src["ifc_type"] = ifc_type
+        src["raw_value"] = value
 
 
 def _source(pset_name: str, on: str, ons: List[str], on_ids: List[int],
