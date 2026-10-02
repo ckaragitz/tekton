@@ -377,7 +377,8 @@ def reload_family(rfa_path: str, base_rvt: str, out_rvt: str, *,
     res = L.load_family_into_project(base_rvt, out_rvt, product=prod, place=False,
                                      symbol_solid=symbol_solid,
                                      report_path=out_rvt + ".load.json",
-                                     validate=validate)
+                                     validate=validate,
+                                     on_name_clash="rename")   # a route delivers (#937)
     plan = res.plan
     return {
         "ok": bool(res.ok), "stop_reason": res.stop_reason or None,
@@ -387,6 +388,7 @@ def reload_family(rfa_path: str, base_rvt: str, out_rvt: str, *,
             "host_family": plan.host_family_id, "symbol": plan.symbol_id,
             "surrogate": plan.surrogate_id, "twins": len(plan.twin_of),
             "content_guid": plan.guid},
+        "family_name": None if plan is None else res.proofs.get("family_name"),
         "elements_added": len(res.elements),
         "report": _relp(out_rvt + ".load.json"),
     }

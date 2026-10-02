@@ -324,7 +324,8 @@ def stage_load_batched(model: FI.IntentModel, base_path: str, stages_dir: str, R
         try:
             res = L.load_families_into_project(base_path, out, [builder(t) for t in attempt],
                                                symbol_solid=symbol_solid,
-                                               report_path=out + ".load.json", validate=False)
+                                               report_path=out + ".load.json", validate=False,
+                                               on_name_clash="rename")   # deliver (#937)
         except Exception as e:                                       # noqa: BLE001
             # the host itself could not be surveyed / opened: no family to blame
             rec["blocker"] = rec["blocker"] or f"host: {type(e).__name__}: {e}"
