@@ -324,7 +324,7 @@ def test_the_direct_run_api_refuses_before_any_mutation():
         RL.wire_run_length(doc, caption="Length", targets=[run])
     assert len(doc.elements) == n
     doc.finalized = True
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RL.RunError, match="finalized"):
         RL.wire_run_length(doc, caption="Length", targets=[run])
 
 

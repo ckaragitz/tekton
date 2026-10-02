@@ -1580,10 +1580,6 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     height_report: Dict[str, Any] = {}
     if heights:
         height_report = _wire_height_spec_list(doc, named, heights)
-    # DIAMETERS (#916): a circle's diameter labelled with a length parameter
-    # -- the Revit-born type-9 RadialDim (rvt.famgen.diameter_law), each spec
-    # all-or-nothing; a refused spec is a note, never an exception (hard
-    # rule 1).  No diameter has a desktop verdict (hard rule 4).
     # RUN LENGTHS (#913, rvt.famgen.run_law): a horizontal run authored the
     # born way (``"work_plane": "vertical"``) has its END / START faces locked
     # to two surface-only vertical planes held by a labelled plan dimension
@@ -1608,6 +1604,10 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                 f"{', '.join(run_report['captions'])} -- {run_report['locks']} end-face "
                 f"locks to surface-only vertical planes held by plan dimensions; the "
                 f"run is sketched on a vertical work plane (the born way)")
+    # DIAMETERS (#916): a circle's diameter labelled with a length parameter
+    # -- the Revit-born type-9 RadialDim (rvt.famgen.diameter_law), each spec
+    # all-or-nothing; a refused spec is a note, never an exception (hard
+    # rule 1).  No diameter has a desktop verdict (hard rule 4).
     diameter_report: Dict[str, Any] = {}
     if diameters:
         from . import diameter_law as DM
@@ -1815,6 +1815,13 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
             raise FactoryError("a box part needs width_ft and depth_ft")
         fb = add_box_form(doc, float(w), float(d), float(h), base_z_ft=base,
                           center=center, rep=rep)
+    if work_plane == "vertical" and shape not in ("cylinder_x", "cylinder_y"):
+        # only a horizontal run has a vertical-plane form (run_law); any other
+        # shape is authored on the Ref. Level as before -- delivered, and SAID,
+        # never silently (#950 review; hard rule 1: not a refusal)
+        doc.notes.append(
+            f"part {str(part.get('name') or shape)!r}: work_plane 'vertical' applies to "
+            f"cylinder_x / cylinder_y runs only; this {shape!r} is on the Ref. Level")
     fb.params.update({"role": str(part.get("name") or shape), "shape": shape,
                       "base_z_ft": base})
     return fb

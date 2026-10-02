@@ -1205,8 +1205,9 @@ _register(Archetype(
             "CONSTRAINTS AUTHORED, assembled family unverified: Length (end faces) "
             "and Outside Diameter (the circle) are authored to drive the run; no "
             "desktop verdict exists for either mechanism on a vertical work plane",
-            "the circle is two half arcs (this engine's circle); born runs draw one "
-            "full arc (147 / 151), and the diameter sits on the [0, pi] half",
+            "the circle is ONE full arc, as every born run's circle is (147 / 147), "
+            "and Outside Diameter labels it; its centre is not locked to the origin "
+            "planes (born runs lock it on 10 / 151)",
             "Nominal Diameter (the category's conduit-size parameter) carries the "
             "trade size as a value and drives nothing"),
     aliases=("EMT", "raceway", "rigid conduit"),
