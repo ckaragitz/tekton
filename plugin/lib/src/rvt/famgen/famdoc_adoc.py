@@ -666,17 +666,42 @@ def family_template_tree(donor: str = TEMPLATE_DONOR) -> Tuple[dict, dict]:
     return adoc.value, meta
 
 
+def _file_key(path: str) -> Optional[Tuple[str, int, int]]:
+    """(absolute path, mtime_ns, size) of a file -- the key of the per-process
+    donor caches below, so an edited or replaced donor is re-read; ``None``
+    (= do not cache) when the file cannot be stat'ed."""
+    try:
+        st = os.stat(path)
+    except (OSError, TypeError, ValueError):
+        return None
+    return (os.path.abspath(path), st.st_mtime_ns, st.st_size)
+
+
+_DONOR_IDS_CACHE: Dict[Tuple[Any, int], Tuple[int, ...]] = {}
+
+
 def donor_element_ids(donor: str = TEMPLATE_DONOR, min_id: int = 4700) -> List[int]:
     """The archetype's own element ids >= ``min_id`` (below that ids collide
     with counts / enums / class ordinals) = the id space a leaked DONOR
-    reference would come from -- the byte-scan universe."""
+    reference would come from -- the byte-scan universe.
+
+    Read once per donor FILE per process (#932: every family write's
+    provenance scan asks for the same bundled base's ids); a fresh list
+    each call."""
+    fk = _file_key(donor)
+    hit = _DONOR_IDS_CACHE.get((fk, min_id)) if fk is not None else None
+    if hit is not None:
+        return list(hit)
     try:
         from ..families import FamilyIndex
         idx = FamilyIndex(donor)
         ids = [int(i) for i in idx.unit_records(0)[102].keys() if int(i) >= min_id]
-        return sorted(set(ids))
+        out = sorted(set(ids))
     except Exception:                                     # pragma: no cover
         return []
+    if fk is not None:
+        _DONOR_IDS_CACHE[(fk, min_id)] = tuple(out)
+    return out
 
 
 def _tree_int_leaves(node: Any) -> Set[int]:
@@ -2254,26 +2279,47 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
     return rep
 
 
-def _longest_common_run(payload: bytes, donor: str) -> Dict[str, Any]:
-    """Longest common byte run between our Global/Latest payload and the
-    donor's, and its classification (the Forge product-corpus region is a
-    per-release constant carried in candidate mode; anything else would be
-    donor expression)."""
+#: :func:`_longest_common_run`'s donor window width and index stride
+_LCR_WINDOW, _LCR_STRIDE = 64, 32
+_DONOR_LATEST_CACHE: Dict[Any, Tuple[bytes, Dict[bytes, int]]] = {}
+
+
+def _donor_latest_index(donor: str) -> Optional[Tuple[bytes, Dict[bytes, int]]]:
+    """(the donor's inflated Global/Latest, its window index) for
+    :func:`_longest_common_run`: index donor windows at stride 32; the probe
+    side tests OUR payload at EVERY offset so a shared region of >= 96 bytes
+    is always found regardless of its relative alignment (a stride-8/stride-8
+    probe misses regions whose offset difference is not 8-aligned).  Both
+    payloads are ~1.3 MB.  Built once per donor FILE per process (#932) --
+    the index is read-only to its user; ``None`` when the donor is unreadable."""
+    fk = _file_key(donor)
+    hit = _DONOR_LATEST_CACHE.get(fk) if fk is not None else None
+    if hit is not None:
+        return hit
     try:
         from ..container import open_rvt
         with open_rvt(donor) as f:
             dp = f.inflate("Global/Latest", 0)
     except Exception:                                          # pragma: no cover
-        return {"note": "donor unavailable"}
-    # index donor windows at stride 32; probe OUR payload at EVERY offset so
-    # a shared region of >= 96 bytes is always found regardless of its
-    # relative alignment (a stride-8/stride-8 probe misses regions whose
-    # offset difference is not 8-aligned).  Both payloads are ~1.3 MB.
-    W = 64
-    STRIDE = 32
+        return None
     idx: Dict[bytes, int] = {}
-    for i in range(0, len(dp) - W + 1, STRIDE):
-        idx.setdefault(dp[i:i + W], i)
+    for i in range(0, len(dp) - _LCR_WINDOW + 1, _LCR_STRIDE):
+        idx.setdefault(dp[i:i + _LCR_WINDOW], i)
+    if fk is not None:
+        _DONOR_LATEST_CACHE[fk] = (dp, idx)
+    return dp, idx
+
+
+def _longest_common_run(payload: bytes, donor: str) -> Dict[str, Any]:
+    """Longest common byte run between our Global/Latest payload and the
+    donor's, and its classification (the Forge product-corpus region is a
+    per-release constant carried in candidate mode; anything else would be
+    donor expression)."""
+    got = _donor_latest_index(donor)
+    if got is None:                                            # pragma: no cover
+        return {"note": "donor unavailable"}
+    dp, idx = got
+    W = _LCR_WINDOW
     best_len, best_at, best_donor_at = 0, -1, -1
     n = len(payload)
     p = 0

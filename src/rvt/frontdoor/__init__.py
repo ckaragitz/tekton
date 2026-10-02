@@ -194,13 +194,15 @@ def run(req: AuthorRequest) -> AuthorResult:
         raise FrontDoorError(line)          # before makedirs: nothing lands in the quarantine dir
     os.makedirs(out_dir, exist_ok=True)
     res = AuthorResult(route=route, ok=False, status="", out_dir=out_dir)   # ours, so it outlives a dying route
+    from ..gcpolicy import build_gc
     try:
-        if route == "rvt":
-            _route_rvt(req, out_dir, res)
-        elif route == "ifc":
-            _route_ifc(req, out_dir, res)
-        else:
-            _route_prompt(req, out_dir, res)
+        with build_gc():                         # GC pacing for one job; no output byte changes (#932)
+            if route == "rvt":
+                _route_rvt(req, out_dir, res)
+            elif route == "ifc":
+                _route_ifc(req, out_dir, res)
+            else:
+                _route_prompt(req, out_dir, res)
     except (FrontDoorError, BaseError):
         raise                                    # a REFUSED request keeps its one line (CLI exit 2), as ever
     except Exception as e:                       # noqa: BLE001 -- anything else, however late: rule 1 (#209)

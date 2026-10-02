@@ -25,7 +25,7 @@
 # (all runs on one machine must share it — the global lock lives there).
 # Prints one JSON object: {pr, head, main (the origin/main it was merged with — tools/dev/ci_fresh.sh <pr> says
 # FRESH/STALE against the current one before a merge, #487), merge_with_main, portable_paths, plugin_drift, plugin_structure,
-# shard_rc, shard_summary, seconds, sandbox, verdict: pass|fail}; exit 0 either way (read the verdict) —
+# shard_rc, shard_summary, seconds, sandbox, shard_timeout (the cap the shard ran under, #934), verdict: pass|fail}; exit 0 either way (read the verdict) —
 # except setup failures (no ref, no origin/main, another run holds the PR / global lock timeout, worktree, tree export):
 # {"pr":N,"error":...} and exit 2.
 set -uo pipefail
@@ -37,6 +37,16 @@ REPO=$(cd "$(dirname "$0")/../.." && pwd)          # the trusted checkout this s
 S=${SESSION_CI_DIR:-$REPO/.git/session-ci}
 safe_dir() { [ -d "$1" ] || mkdir -m 700 "$1" 2>/dev/null; [ -d "$1" ] && [ -O "$1" ] && [ ! -L "$1" ] || { echo "refusing scratch dir $1 (not an own, non-symlink directory)" >&2; exit 2; }; chmod 700 "$1"; }
 safe_dir "$S"; safe_dir "$S/ci"
+# the shard's wall-clock cap: 1500 s by default.  SESSION_CI_SHARD_TIMEOUT (an
+# integer, 600..3600) lifts it on a slower machine -- never to hide a slower suite
+# (#934); the cap used is recorded in the verdict JSON ("shard_timeout"), and a
+# posted CI line run under any cap but 1500 states it (tick.md / review_brief.md).
+SHARD_TIMEOUT=${SESSION_CI_SHARD_TIMEOUT:-1500}
+# 3-4 digits only, checked BEFORE any arithmetic (an overflowing number made `[`
+# error out and fail open, #933 review); then the range, with an error = refusal
+[[ "$SHARD_TIMEOUT" =~ ^[0-9]{3,4}$ ]] || { echo "SESSION_CI_SHARD_TIMEOUT must be 600..3600" >&2; exit 2; }
+(( 10#$SHARD_TIMEOUT >= 600 && 10#$SHARD_TIMEOUT <= 3600 )) || { echo "SESSION_CI_SHARD_TIMEOUT must be 600..3600" >&2; exit 2; }
+SHARD_TIMEOUT=$((10#$SHARD_TIMEOUT))
 PY=${SESSION_CI_PYTHON:-$REPO/.venv/bin/python}; WT=$S/ci/wt-$PR; LOG=$S/ci/$PR.log; OUT=$S/ci/$PR.json; LOCK=$S/ci/$PR.lock
 # The sandbox side lives under /tmp/tekton-ci (every parent traversable by `nobody`); the PARENT stays root-owned
 # 0755 so `nobody` cannot swap box-<pr>/tmp-<pr> for a symlink between our mkdir and our writes into them.
@@ -96,19 +106,21 @@ if [ -n "$BADSHARD" ] || [ "${#SHARD[@]}" = "0" ]; then
   echo "=== shard REFUSED: ${#SHARD[@]} entries, invalid:${BADSHARD:- (empty list)}" >> "$LOG"; RC=3; TAIL="shard list refused (${#SHARD[@]} entries; see log)"
 else
   echo "=== shard (${#SHARD[@]} files, sandboxed: uid nobody, no network, own pid/mount ns)" >> "$LOG"
-  sandbox timeout -k 30 1500 "$PY" -m pytest -q -p no:cacheprovider --durations=5 -- "${SHARD[@]}" >> "$LOG" 2>&1; RC=$?
+  sandbox timeout -k 30 "$SHARD_TIMEOUT" "$PY" -m pytest -q -p no:cacheprovider --durations=5 -- "${SHARD[@]}" >> "$LOG" 2>&1; RC=$?
   # The summary line is sandbox OUTPUT (untrusted text): keep only a pytest-shaped tally, never arbitrary log content.
   TAIL=$(grep -oE '[0-9]+ (passed|failed|error|errors)(, [0-9]+ [a-z]+)* in [0-9.]+s( \([0-9:]+\))?' "$LOG" | tail -1 | cut -c1-160)   # bounded: it gets posted
 fi
 t1=$(date +%s)
-python3 - "$OUT" "$PR" "$HEAD" "$MAIN" "$MERGE" "$P" "$D" "$V" "$RC" "$TAIL" "$((t1-t0))" <<'PYEOF'
+python3 - "$OUT" "$PR" "$HEAD" "$MAIN" "$MERGE" "$P" "$D" "$V" "$RC" "$TAIL" "$((t1-t0))" "$SHARD_TIMEOUT" <<'PYEOF'
 import json,sys
-out,pr,head,main,merge,p,d,v,rc,tail,secs=sys.argv[1:]
+out,pr,head,main,merge,p,d,v,rc,tail,secs,cap=sys.argv[1:]
 r={"pr":int(pr),"head":head,"main":main,"merge_with_main":merge,"portable_paths":p,"plugin_drift":d,"plugin_structure":v,
    "shard_rc":int(rc),"shard_summary":tail.strip(),"seconds":int(secs),"sandbox":"uid=nobody,net+pid+mnt ns,no caps,no-new-privs,env scrubbed,tree exported"}
 import re
 green = re.match(r"^\d+ passed\b", r["shard_summary"]) and not re.search(r"(^|, )\d+ (failed|errors?)\b", r["shard_summary"])   # "3 xfailed" is not a failure
 r["verdict"]="pass" if (merge=="clean" and p=="ok" and d=="ok" and v=="ok" and r["shard_rc"]==0 and green) else "fail"
+r["shard_timeout"]=int(cap)
+if r["shard_rc"] in (124, 137): r["shard_summary"]=r["shard_summary"] or f"timeout/killed after {cap} s"   # names itself (#934)
 json.dump(r,open(out,"w")); print(json.dumps(r))
 PYEOF
 rm -rf "$BOX" "$TMPBOX"; flock -u 9; flock -u 8

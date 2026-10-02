@@ -77,11 +77,13 @@ table, samples) — see :func:`main`.
 from __future__ import annotations
 
 import codecs
+import contextlib
 import functools
 import json
 import os
 import struct
 import sys
+import weakref
 from collections import Counter, defaultdict, deque
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Optional
@@ -390,6 +392,12 @@ class ObjectDecoder:
         32-bit-id era (rvt.versions.records32) has that method patched, every
         record takes the walk, which goes through the patched method.
         """
+        memo = _MEMO.rows
+        if memo is not None and type(self) is ObjectDecoder:
+            return self._decode_record_memo(memo, class_id, payload)
+        return self._decode_record_once(class_id, payload)
+
+    def _decode_record_once(self, class_id: int, payload: bytes) -> DecodedObject:
         if self.use_plans and self._hooks_native and Reader.element_id is _ELEMENT_ID64:
             sink = self.ref_sink
             mark = len(sink) if sink is not None else 0
@@ -400,6 +408,52 @@ class ObjectDecoder:
                 if sink is not None:
                     del sink[mark:]           # the reference walk re-reads them
         return self._decode_record_walked(class_id, payload)
+
+    def _decode_record_memo(self, memo: dict, class_id: int, payload: bytes) -> DecodedObject:
+        """:meth:`decode_record` inside a :func:`decode_memo` scope (#932).
+
+        The decode of one record is a pure function of (schema, the decoder's
+        path switches, class id, payload bytes), so inside the scope the same
+        record read again -- by the validator's second (family-mode) run, the
+        provenance scan, a FamilyIndex over the same file -- returns the
+        DecodedObject decoded the first time, and replays everything that
+        first decode did to the decoder: the ``ref_sink`` entries it appended
+        and the ``plan_bails`` it counted.  Only a plain ``ObjectDecoder``
+        (no subclass hooks) is memoized; the scope is opened only around
+        READ-ONLY consumers, which never mutate a decoded value."""
+        native = bool(self.use_plans and self._hooks_native
+                      and Reader.element_id is _ELEMENT_ID64)
+        key = (id(self.schema), native, self.self_first, self.id_ElementId,
+               self.id_Identifier, self.id_XYZ, self.id_UV, self.id_GUIDvalue,
+               class_id, bytes(payload))
+        hit = memo.get(key)
+        sink = self.ref_sink
+        if hit is not None:
+            obj, refs, bails = hit
+            if sink is not None and refs:
+                sink.extend(refs)
+            for b in bails:
+                self.plan_bails[b] += 1
+            return obj
+        # a miss ALWAYS records the record's refs -- through a temporary sink
+        # when the caller has none -- so a later hit from a sink-ful reader
+        # (the validator's semantic layer) gets them back, never an empty
+        # tuple left by a sink-less first read (#933 review)
+        tmp = sink is None
+        if tmp:
+            self.ref_sink = sink = []
+        mark = len(sink)
+        before = Counter(self.plan_bails)
+        try:
+            obj = self._decode_record_once(class_id, payload)
+            refs = tuple(sink[mark:])
+        finally:
+            if tmp:
+                self.ref_sink = None
+        bails = tuple((self.plan_bails - before).elements())
+        _MEMO.keep.append(self.schema)             # the id() in the key stays this schema's
+        memo[key] = (obj, refs, bails)
+        return obj
 
     def _decode_record_walked(self, class_id: int, payload: bytes) -> DecodedObject:
         """The reference walk: field by field through the hook methods, with
@@ -581,6 +635,24 @@ class ObjectDecoder:
     # re-decoding with the reference walk, so a record either decodes to the
     # very same value here or is reported by the code that always reported it.
     # =========================================================================
+    def _shared_plan(self, class_id: int) -> tuple:
+        """:meth:`_compile`, shared by every decoder of the SAME schema object
+        (#932: each validator / FamilyIndex / provenance pass builds its own
+        decoder, and recompiling every class plan per instance was a visible
+        share of a family write).  A plan is a function of the schema, the
+        decoder class, ``self_first`` and the wrapper-class ids -- the key --
+        and is an immutable tuple, so sharing it changes no decode."""
+        try:
+            store = _SHARED_PLANS.setdefault(self.schema, {})
+        except TypeError:                                # an unhashable/unweakrefable schema
+            return self._compile(class_id)
+        key = (type(self), self.self_first, self.id_ElementId, self.id_Identifier,
+               self.id_XYZ, self.id_UV, self.id_GUIDvalue, class_id)
+        plan = store.get(key)
+        if plan is None:
+            plan = store[key] = self._compile(class_id)
+        return plan
+
     def _compile(self, class_id: int) -> tuple:
         steps: list = []
         keys_seen: dict = {}               # field_key's view of the dict so far
@@ -724,7 +796,7 @@ class ObjectDecoder:
         fx = 4 if sink is not None else 5                  # which fix-up tuple of a run
         plan = self._plans.get(class_id)
         if plan is None:
-            plan = self._plans[class_id] = self._compile(class_id)
+            plan = self._plans[class_id] = self._shared_plan(class_id)
         for step in plan:
             if step[0] == _G:                              # a fused fixed-size run
                 p = cx.p
@@ -882,6 +954,39 @@ _utf16le = codecs.utf_16_le_decode
 _ELEMENT_ID64 = Reader.element_id
 
 
+class _Memo:
+    """The active :func:`decode_memo` scope (``rows`` is None outside one)."""
+    rows: Optional[dict] = None
+    keep: list = []
+
+
+_MEMO = _Memo()
+
+
+@contextlib.contextmanager
+def decode_memo():
+    """Within the scope, a plain :class:`ObjectDecoder` decodes each distinct
+    record once (:meth:`ObjectDecoder._decode_record_memo`, #932): several
+    read-only passes over the same file -- the validator's project- and
+    family-mode runs, the provenance scans, a verification FamilyIndex --
+    share one decode per record.  Nested scopes share the outermost one; the
+    rows are dropped when it closes.  Open it ONLY around code that never
+    mutates a decoded value (every caller then sees the same object)."""
+    if _MEMO.rows is not None:
+        yield
+        return
+    _MEMO.rows, _MEMO.keep = {}, []
+    try:
+        yield
+    finally:
+        _MEMO.rows, _MEMO.keep = None, []
+
+
+#: schema -> {(decoder class, self_first, wrapper ids..., class id): plan}
+#: (ObjectDecoder._shared_plan); weak, so a dropped schema drops its plans
+_SHARED_PLANS: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
+
+
 class _Bail(Exception):
     """The compiled path declines; decode_record re-runs the reference walk."""
 
@@ -987,29 +1092,41 @@ def iter_records(seg: bytes, seq: int = 102):
     hlen = 12 if seq == 101 else 16
     p = 0
     n = len(seg)
+    # precompiled packers, and the payload sliced ONCE straight out of the
+    # segment (#932) -- the same values the per-call format strings and the
+    # slice-then-reslice read
+    head = _REC_HEAD101.unpack_from if seq == 101 else _REC_HEAD.unpack_from
+    u32 = _REC_U32.unpack_from
+    u16 = _REC_U16.unpack_from
     while p + hlen + 4 <= n:
         if seq == 101:
-            eid, size = struct.unpack_from("<qI", seg, p)
+            eid, size = head(seg, p)
             stamp = 0
         else:
-            eid, stamp, size = struct.unpack_from("<qII", seg, p)
+            eid, stamp, size = head(seg, p)
         if not (-1 <= eid < (1 << 40)) or size > (1 << 30):
             return
-        pay = seg[p + hlen: p + hlen + size]
-        if len(pay) < size:
+        start = p + hlen
+        tail_off = start + size
+        if tail_off > n:                        # the payload runs past the segment
             return
-        tail_off = p + hlen + size
         trailer_ok = True
         if tail_off + 4 <= n:
-            trailer_ok = struct.unpack_from("<I", seg, tail_off)[0] == size
+            trailer_ok = u32(seg, tail_off)[0] == size
         if size >= 2:
-            cls = struct.unpack_from("<H", pay, 0)[0]
-            payload = pay[2:]
+            cls = u16(seg, start)[0]
+            payload = seg[start + 2:tail_off]
         else:
             cls = 0
             payload = b""
         yield Record(eid, stamp, cls, size, payload, p, trailer_ok)
         p = tail_off + 4
+
+
+_REC_HEAD101 = struct.Struct("<qI")
+_REC_HEAD = struct.Struct("<qII")
+_REC_U32 = struct.Struct("<I")
+_REC_U16 = struct.Struct("<H")
 
 
 def load_segment(project: str, seq: int = 102, cache_dir: Optional[str] = None) -> bytes:

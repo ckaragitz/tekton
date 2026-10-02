@@ -167,12 +167,21 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
                        disconnect_fuse_a: float = 15.0, fused: bool = True,
                        voltage_to_ground: Optional[float] = None,
                        name: Optional[str] = None, start_id: int = 1000,
-                       shared_params: Any = None, standards: bool = True):
+                       shared_params: Any = None, standards: bool = True,
+                       drive: Optional[str] = "law"):
     """Compose the fan coil family (see the module docstring).  Dimensions left
     ``None`` are the class nominals; the disconnect's ratings are the schedule's
     (30 A frame / 15 A fuses by default, the owner's request), the voltage and phase
     count assumptions unless given (208 V single-phase, stated).  Dimensions too small
-    for the end hardware still deliver the cabinet, said (hard rule 1)."""
+    for the end hardware still deliver the cabinet, said (hard rule 1).
+
+    ``drive`` (#913): ``"law"`` (default) wires Width (x, the airflow depth) and
+    Length (y) as symmetric in-plane drives and Height as the #787 Case B
+    cap-face chain, every box part riding what it belongs to
+    (:func:`fan_coil_drive_specs`); ``None`` wires nothing (the family as it was
+    before #913).  No assembled fan coil drive has a desktop verdict (hard rule 4)."""
+    if drive not in ("law", None):
+        raise ValueError(f"fan coil drive must be 'law' or None, not {drive!r}")
     from . import factory as F
     from . import geometry as G
     from . import skeleton as SK
@@ -363,12 +372,72 @@ def make_fan_coil_unit(*, length_in: Optional[float] = None, depth_in: Optional[
                   pd["cx"] if host_disc is not None else 0.0, host_disc is not None, vtg)
         if voltage_to_ground is None:
             _note_vtg(doc, vtg, voltage, phases)
+    drive_report: List[Dict[str, Any]] = []
+    height_report: Dict[str, Any] = {}
+    if drive == "law":
+        boxes = [f for f in forms if "width_ft" in f.params]      # round parts cannot ride
+        named = list(zip(F._unique_names([str(f.params.get("role")) for f in boxes]), boxes))
+        d_specs, h_specs = fan_coil_drive_specs(L, D, H, named)
+        drive_report, height_report = F._wire_equipment_drives(doc, named, d_specs, h_specs,
+                                                               what="fan coil")
+        if any(f not in boxes for f in forms):
+            doc.notes.append("round parts (coil and drain stubs, the disconnect's conduit "
+                             "hub) are NOT tied to the drives: they keep where they are drawn "
+                             "when Width / Length / Height flex (a circle rides a plane only "
+                             "by its arc centres, #904 P4 -- a later change)")
     std = ST.apply_safe(doc, "mechanical_equipment", standards, None)
     doc.finalize()
+    if drive == "law":
+        F._born_law_after_finalize(doc)
     prod = F.FamilyProduct("fan_coil_unit", doc, sheet, forms=forms, types=rows, standards=std,
                            file_stem=F._slug(f"fan_coil_horizontal_{dims['length_in']:g}in_"
                                              f"{v_txt}_{sw}"))
+    prod.drives = drive_report
+    prod.heights = height_report
     return prod
+
+
+#: fan coil parts that STRETCH between the plan planes at their insets
+SPAN_X = ("bottom access panel",)
+SPAN_Y = ("supply duct collar", "return filter rack", "bottom access panel")
+#: parts whose top face rides the cabinet top when Height flexes (their bottoms stay)
+TOP_END = (ROLE_CABINET, "supply duct collar", "return filter rack", "unit control box",
+           "clearance: front working space")
+
+
+def fan_coil_drive_specs(L: float, D: float, H: float, named):
+    """The fan coil's drive specs (#913), read off the box parts it was built with
+    (``named`` = ``[(part name, FormBundle)]``; cabinet centred on the origin in
+    plan, bottom at z 0) -- ``(drives, heights)``.
+
+    * **Width** (x = the airflow depth, symmetric): the cabinet lies on both
+      planes; the bottom access panel spans them at its insets; the supply collar,
+      the disconnect and its hardware and the working space ride +x, the return
+      rack and the control box -x, each hanger its own side.
+    * **Length** (y, symmetric): the cabinet on both planes; the collar, the
+      filter rack and the access panel span; the electrical-end hardware (control
+      box, disconnect, handle, label) and the working space ride +y, each hanger
+      its own end (squared stubs on a release without arcs ride -y).
+    * **Height** (#787 Case B): origin -> cabinet top; the hangers ride the top,
+      the collar's, the filter rack's, the control box's and the working space's
+      top faces with it; the disconnect (centred on the cabinet's height) and the
+      access panel keep their heights.
+    """
+    from . import factory as F
+    ext = {n: F._form_extents(f) for n, f in named}
+    roles = {n: str(f.params.get("role")) for n, f in named}
+
+    def by_role(*rs):
+        return [n for n in ext if roles[n] in rs]
+    width = F._plan_drive_spec("Width", "x", -D / 2.0, D / 2.0,
+                               [(n, e[0]) for n, e in ext.items()], span=by_role(*SPAN_X))
+    length = F._plan_drive_spec("Length", "y", -L / 2.0, L / 2.0,
+                                [(n, e[1]) for n, e in ext.items()], span=by_role(*SPAN_Y))
+    heights = F._height_drive_specs(H, [(n, e[2]) for n, e in ext.items()],
+                                    base=by_role(ROLE_CABINET),
+                                    top_both=by_role("hanger bracket"),
+                                    top_end=by_role(*TOP_END))
+    return [width, length], heights
 
 
 def _arcs_available() -> bool:

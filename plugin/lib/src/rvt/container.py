@@ -61,6 +61,11 @@ def depage(raw: bytes) -> bytes:
     return bytes(out)
 
 
+#: inflated member payloads kept per open document (bytes); past it a member
+#: is re-inflated on demand (#932 speed, #933 review memory bound)
+PAYLOAD_CACHE_BUDGET = 256 * 1024 * 1024
+
+
 @dataclass(frozen=True)
 class Member:
     """One gzip member found inside a (de-paged, logical) stream."""
@@ -86,15 +91,16 @@ def _inflate_at(data: bytes, off: int):
     succeeds and CRC-verifies. A raw-deflate fallback (skip 10-byte header)
     is kept purely as a diagnostic escape hatch; it reports ``crc_ok=False``.
     """
+    view = memoryview(data)          # the tail is read in place, never copied (#932)
     d = zlib.decompressobj(16 + zlib.MAX_WBITS)  # gzip wrapper, checks CRC
     try:
-        out = d.decompress(data[off:]) + d.flush()
+        out = d.decompress(view[off:]) + d.flush()
         return out, len(data) - off - len(d.unused_data), True
     except zlib.error:
         pass
     d = zlib.decompressobj(-zlib.MAX_WBITS)
     try:
-        out = d.decompress(data[off + 10:]) + d.flush()
+        out = d.decompress(view[off + 10:]) + d.flush()
     except zlib.error:
         return None
     return out, len(data) - off - len(d.unused_data), False
@@ -109,6 +115,11 @@ class RvtDocument:
         self._raw_cache: dict = {}
         self._logical_cache: dict = {}
         self._member_cache: dict = {}
+        # name -> each member's inflated payload, kept from the members() scan
+        # (which has to inflate every member to find where it ends) so that
+        # inflate()/inflate_all() do not inflate the same bytes again (#932)
+        self._payload_cache: dict = {}
+        self._payload_bytes = 0
 
     # -- context manager -------------------------------------------------
     def close(self) -> None:
@@ -151,6 +162,7 @@ class RvtDocument:
             return self._member_cache[name]
         data = self.logical(name)
         members: List[Member] = []
+        payloads: List[bytes] = []
         pos = 0
         while True:
             i = data.find(GZIP_MAGIC, pos)
@@ -162,8 +174,16 @@ class RvtDocument:
                 continue
             payload, consumed, crc_ok = r
             members.append(Member(len(members), i, consumed, len(payload), crc_ok))
+            payloads.append(payload)
             pos = i + max(consumed, 1)
         self._member_cache[name] = members
+        # keep the payloads the scan already inflated only up to a budget per
+        # document; past it a member is re-inflated on demand, as before #932,
+        # so a large model's memory does not grow ~10x (#933 review)
+        size = sum(len(p) for p in payloads)
+        if self._payload_bytes + size <= PAYLOAD_CACHE_BUDGET:
+            self._payload_cache[name] = payloads
+            self._payload_bytes += size
         return members
 
     def prefix(self, name: str) -> bytes:
@@ -179,17 +199,22 @@ class RvtDocument:
             raise ValueError(f"{name!r}: no gzip members (not compressed?)")
         if index >= len(m):
             raise IndexError(f"{name!r}: has {len(m)} member(s), asked for {index}")
+        cached = self._payload_cache.get(name)
+        if cached is not None:
+            return cached[index]
         r = _inflate_at(self.logical(name), m[index].offset)
-        assert r is not None
         return r[0]
 
     def inflate_all(self, name: str) -> Iterator[bytes]:
         """Yield each gzip member's payload in stream order."""
+        m = self.members(name)
+        cached = self._payload_cache.get(name)
+        if cached is not None:
+            yield from cached
+            return
         data = self.logical(name)
-        for mem in self.members(name):
-            r = _inflate_at(data, mem.offset)
-            assert r is not None
-            yield r[0]
+        for mem in m:
+            yield _inflate_at(data, mem.offset)[0]
 
     def concat(self, name: str) -> bytes:
         """All members inflated and concatenated (partition element data)."""

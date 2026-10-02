@@ -1250,6 +1250,149 @@ def _wire_height_spec_list(doc: SK.FamilyDoc, named, heights) -> Dict[str, Any]:
     return height_report
 
 
+# ---------------------------------------------------------------------------
+# the equipment drives (#913): the panelboard's way (#914), read off each
+# family's own part geometry, so a catalog / archetype family's sub-parts ride
+# the Width / Depth / Height (or Length) planes they belong to
+# ---------------------------------------------------------------------------
+
+_DRIVE_EPS = 1e-6
+
+
+def _unique_names(roles: Sequence[str]) -> List[str]:
+    """A drive name per part: its role, or ``role k`` (1-based, in build order)
+    when the role is used more than once -- a spec addresses parts BY NAME and a
+    repeated name is refused (#907 review round 3)."""
+    total: Dict[str, int] = {}
+    for r in roles:
+        total[r] = total.get(r, 0) + 1
+    seen: Dict[str, int] = {}
+    out = []
+    for r in roles:
+        if total[r] == 1:
+            out.append(r)
+        else:
+            seen[r] = seen.get(r, 0) + 1
+            out.append(f"{r} {seen[r]}")
+    return out
+
+
+def _plan_drive_spec(caption: str, axis: str, lo: float, hi: float,
+                     extents: Sequence[Tuple[str, Tuple[float, float]]], *,
+                     span: Sequence[str] = (), stay: Sequence[str] = ()) -> Dict[str, Any]:
+    """One SYMMETRIC in-plane drive spec (``lo = -hi``: the body is centred on
+    the origin centre plane) read off the parts' extents along ``axis``:
+
+    * a part whose two edges lie on the two planes is a drive part (both edges
+      locked to them);
+    * a part named in ``span`` stretches between the planes at its current
+      insets (``attach.span``);
+    * a part named in ``stay`` is left where it is drawn;
+    * any other part rides the end on its side rigidly (``attach.lo`` /
+      ``attach.hi``) -- a centred part that is in neither list stays.
+    """
+    mid = (lo + hi) / 2.0
+    parts: Dict[str, Tuple[str, ...]] = {}
+    att: Dict[str, List[str]] = {"lo": [], "hi": [], "span": []}
+    for n, (a0, a1) in extents:
+        if n in stay:
+            continue
+        if abs(a0 - lo) < _DRIVE_EPS and abs(a1 - hi) < _DRIVE_EPS:
+            parts[n] = ("lo", "hi")
+        elif n in span:
+            att["span"].append(n)
+        elif (a0 + a1) / 2.0 > mid + _DRIVE_EPS:
+            att["hi"].append(n)
+        elif (a0 + a1) / 2.0 < mid - _DRIVE_EPS:
+            att["lo"].append(n)
+    spec: Dict[str, Any] = {"caption": caption, "axis": axis, "symmetric": True,
+                            "lo": lo, "hi": hi, "parts": parts}
+    attach = {k: v for k, v in att.items() if v}
+    if attach:
+        spec["attach"] = attach
+    return spec
+
+
+def _height_drive_specs(H: float, extents: Sequence[Tuple[str, Tuple[float, float]]], *,
+                        caption: str = "Height", base: Sequence[str] = (),
+                        top_both: Sequence[str] = (), top_end: Sequence[str] = (),
+                        top_start: Sequence[str] = (), above: Optional[Tuple[str, float]] = None,
+                        name_hi: str = "top") -> List[Dict[str, Any]]:
+    """#787 Case B height specs (``height_law``): ``caption`` = origin -> ``H``
+    on the faces lying there (the start faces at z 0 of the ``base`` parts, any
+    end face of a ``top_*`` part that is at ``H``); every other face that
+    belongs to the top -- both faces of a ``top_both`` part, the end face of a
+    ``top_end`` part, the start face of a ``top_start`` one -- rides it by a
+    LOCKED unlabelled height, one plane per distinct z (the panelboard's
+    chain, #914).  ``above`` = ``(part, z)``: a part standing on the top (a
+    clearance zone) whose end face rides it too.  Faces of no listed part keep
+    their height."""
+    zs = dict(extents)
+    h_parts: Dict[str, Dict[str, str]] = {}
+    rides: List[Tuple[str, str, float]] = []
+    for n in base:
+        if n in zs and abs(zs[n][0]) < _DRIVE_EPS:
+            h_parts.setdefault(n, {})["start"] = "lo"
+    for n in top_both:
+        if n in zs:
+            rides += [(n, "start", zs[n][0]), (n, "end", zs[n][1])]
+    for n in top_end:
+        if n in zs:
+            rides.append((n, "end", zs[n][1]))
+    for n in top_start:
+        if n in zs:
+            rides.append((n, "start", zs[n][0]))
+    if above is not None and above[0] in zs:
+        h_parts.setdefault(above[0], {})["start"] = "hi"
+        rides.append((above[0], "end", float(above[1])))
+    by_z: Dict[float, Dict[str, Dict[str, str]]] = {}
+    for n, face, z in rides:
+        if abs(z - H) < _DRIVE_EPS:
+            h_parts.setdefault(n, {})[face] = "hi"
+            continue
+        by_z.setdefault(round(z, 9), {}).setdefault(n, {})[face] = "lo" if z < H else "hi"
+    specs: List[Dict[str, Any]] = [{"caption": caption, "lo": 0.0, "hi": H,
+                                    "name_hi": name_hi, "parts": h_parts}]
+    for z, parts in sorted(by_z.items()):
+        lo, hi = (z, name_hi) if z < H else (name_hi, z)
+        specs.append({"caption": None, "locked": True, "lo": lo, "hi": hi, "parts": parts})
+    return specs
+
+
+def _wire_equipment_drives(doc: SK.FamilyDoc, named, d_specs, h_specs, *,
+                           what: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Wire a family's in-plane + height specs (``named`` = ``[(part name,
+    FormBundle)]``) and mark the document a drive-law document when anything
+    was wired; every spec all-or-nothing, a refusal a note (hard rule 1).  Run
+    :func:`drive_law.apply_born_inplane_law` after ``finalize`` when
+    ``doc.born_drive_law``."""
+    drive_report = _wire_drive_specs(doc, named, d_specs) if d_specs else []
+    height_report = _wire_height_spec_list(doc, named, h_specs) if h_specs else {}
+    law = bool(drive_report) or bool(height_report.get("wired"))
+    doc.born_drive_law = law
+    if not law:
+        doc.notes.append(f"{what} drives NOT wired: every drive spec was refused "
+                         "(see the notes above); the dimensions are values only")
+    return drive_report, height_report
+
+
+def _born_law_after_finalize(doc: SK.FamilyDoc) -> None:
+    if getattr(doc, "born_drive_law", False):
+        from . import drive_law as DL
+        DL.apply_born_inplane_law(doc)
+
+
+def _label_driven_note(prod: "FamilyProduct", captions: str) -> None:
+    """A multi-type family whose rows now LABEL drive dimensions: replace the
+    "not label-driven yet" note with what the file carries (#914's wording)."""
+    if (prod.drives or (prod.heights or {}).get("wired")) and len(prod.types) > 1:
+        prod.notes[:] = [n.replace("geometry is not label-driven yet (asset-factory "
+                                   "honest limit #4)",
+                                   f"the drive dimensions are labelled by the rows' "
+                                   f"{captions}, authored and UNVERIFIED in "
+                                   f"Revit (hard rule 4)") for n in prod.notes]
+
+
 def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             category: str, solid: bool, source: str,
                             start_id: int, dim_provenance: str = "given",
@@ -2766,7 +2909,8 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                      types: Optional[Sequence[Any]] = None,
                      shared_params: SK.SharedParamsArg = None,
                      standards: bool = True,
-                     standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
+                     standard_values: Optional[Dict[str, Any]] = None,
+                     drive: Optional[str] = "law") -> FamilyProduct:
     """Compose a DRY-TYPE TRANSFORMER family from catalog facts: the
     enclosure box at the catalog W x D footprint x H tall standing on the
     Reference Level (free-standing, floor-mounted), with TWO 3-pole power
@@ -2778,7 +2922,15 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     for a MULTI-TYPE family: one row per rating with its own frame / dims /
     weight / Model; the first is the primary type (the solid is its box).
     ``shared_params`` as :func:`make_panelboard` (caption + datatype match a
-    file row -> SHARED at the file's GUID; else local)."""
+    file row -> SHARED at the file's GUID; else local).
+
+    ``drive`` (#913): ``"law"`` (default) wires Width / Depth (symmetric
+    in-plane drives, ``drive_law``) and Height (``height_law``) with every part
+    riding the plane it belongs to (:func:`_transformer_drive_specs`); ``None``
+    wires nothing (the family as it was before #913, byte for byte).  No
+    assembled transformer drive has a desktop verdict (hard rule 4)."""
+    if drive not in ("law", None):
+        raise FactoryError(f"transformer drive must be 'law' or None, not {drive!r}")
     jobs = _type_jobs(types, {"kva": kva}, scalar_key="kva")
     sheets = [resolve_transformer_facts(float(j["kva"]), vendor=vendor, primary_v=primary_v,
                                         secondary_v=secondary_v) for j in jobs]
@@ -2871,6 +3023,19 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
             front_y_ft=-D / 2.0 - ED.FRONT_PROUD_FT)
         # voltage to ground is not the primary rating (a 480 V delta primary is usually
         # fed from a 480Y/277 system): left to the table's stated default
+    # -- parameter drives (#913): Width / Depth symmetric in plan, Height from the
+    #    floor to the top of the drip lid, every part riding what it belongs to
+    drive_report: List[Dict[str, Any]] = []
+    height_report: Dict[str, Any] = {}
+    if drive == "law":
+        zones = list((clearance_report or {}).get("forms") or [])
+        top_h = ((clearance_report or {}).get("top") or {}).get("height_ft")
+        named = list(zip(_unique_names([str(f.params.get("role")) for f in forms]), forms))
+        named += [(str(z.params.get("role")), z) for z in zones]
+        d_specs, h_specs = _transformer_drive_specs(W, D, Hh, named=named, solid=solid,
+                                                    top_zone_h=top_h)
+        drive_report, height_report = _wire_equipment_drives(doc, named, d_specs, h_specs,
+                                                             what="transformer")
     # connectors: primary + secondary windings on the top face, offset in X.
     # The primary winding is the family's ONE primary connector (the side an
     # upstream circuit attaches to); the secondary books the kVA rating as a
@@ -2889,6 +3054,8 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                   load_class="Power", description="Secondary", primary=False)
     std_report = ST.apply_safe(doc, "transformer", standards, standard_values)
     doc.finalize()
+    if drive == "law":
+        _born_law_after_finalize(doc)
     if clearance_report:
         forms += clearance_report.pop("forms")
     prod = FamilyProduct("transformer", doc, facts, forms=forms, types=rows,
@@ -2898,8 +3065,88 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     prod.notes.append("two connectors on the top face: the primary winding is the "
                       "family's primary connector; the secondary is bound to the kVA "
                       "rating and books it as an equal per-phase (balanced) load")
+    prod.drives = drive_report
+    prod.heights = height_report
     _multi_type_notes(prod)
+    _label_driven_note(prod, "Width / Depth / Height")
     return prod
+
+
+#: transformer parts that STRETCH between the Width / Depth planes at their insets
+#: (the drip lid's overhang, the panel's margins, the slot's louver run); every
+#: other part either lies on both planes or rides the end on its side
+_XFMR_SPAN_X = ("top cover", "vent slot louver", "front access panel")
+_XFMR_SPAN_Y = ("top cover", "enclosure upper band (behind the vent slot)", "side louver")
+#: parts left where they are drawn when the plan dimensions flex: the nameplate
+#: (a fraction of the width, off centre) and the front working space, whose width
+#: is the code minimum, not the box's
+_XFMR_STAY_X = ("nameplate", "clearance: front working space")
+
+
+def _transformer_drive_specs(W: float, D: float, H: float, *, named, solid: bool,
+                             top_zone_h: Optional[float]
+                             ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """The transformer's drive specs (#913), read off the geometry it was built
+    with (:func:`rvt.famgen.equipment_detail.transformer_parts`; the body is
+    centred on the origin in plan, front -y) -- ``(drives, heights)``.
+
+    * **Width** (x, symmetric): the enclosure body, the band behind the vent slot
+      and the top clearance zone lie on both planes; the drip lid, the slot's
+      louvers and the access panel span them at their insets; the skids, slot
+      cheeks, side louver banks and access-panel bolts ride the end on their side.
+    * **Depth** (y, symmetric): the body, the skids and the top zone lie on both
+      planes; the lid, the slot band and the side louvers span; the front
+      hardware (slot cheeks and louvers, access panel, bolts, nameplate) and the
+      front working space ride the front (-y) plane.
+    * **Height** (#787 Case B): origin (the skids' feet) -> the top of the drip
+      lid; the vent slot (band, cheeks, louvers), the lid, the upper side louver
+      bank and the upper bolts ride the top by locked heights, the body's and the
+      access panel's top faces with them; the skids, the lower louvers, the lower
+      bolts and the nameplate keep their heights.  The top clearance zone stands
+      on the top plane.
+    """
+    roles = {n: str(f.params.get("role")) for n, f in named}
+    ext = {n: _form_extents(f) for n, f in named}
+    xs = [(n, e[0]) for n, e in ext.items()]
+    ys = [(n, e[1]) for n, e in ext.items()]
+    zs = [(n, e[2]) for n, e in ext.items()]
+
+    def by_role(*rs):
+        return [n for n in ext if roles[n] in rs]
+    width = _plan_drive_spec("Width", "x", -W / 2.0, W / 2.0, xs,
+                             span=by_role(*_XFMR_SPAN_X), stay=by_role(*_XFMR_STAY_X))
+    depth = _plan_drive_spec("Depth", "y", -D / 2.0, D / 2.0, ys,
+                             span=by_role(*_XFMR_SPAN_Y))
+    if not solid:                                    # the one envelope box
+        heights = _height_drive_specs(H, zs, base=list(ext), top_end=list(ext))
+        return [width, depth], heights
+    mid = H / 2.0
+    upper = [n for n in ext if roles[n] in ("side louver", "access panel bolt")
+             and ext[n][2][0] > mid]
+    slot = by_role("enclosure upper band (behind the vent slot)", "vent slot cheek",
+                   "vent slot louver", "top cover")
+    zone = next((n for n in ext if roles[n] == "clearance: top"), None)
+    heights = _height_drive_specs(
+        H, zs, base=by_role("base skid"), top_both=slot + upper,
+        top_end=by_role("transformer enclosure", "front access panel"),
+        above=(zone, H + float(top_zone_h)) if zone and top_zone_h else None)
+    return [width, depth], heights
+
+
+def _form_extents(fb) -> Tuple[Tuple[float, float], ...]:
+    """``((x0, x1), (y0, y1), (z0, z1))`` of a box form: its sketch's lines in
+    plan and its extrusion's start / end -- read off the form itself, so a spec
+    never disagrees with what was drawn."""
+    from . import height_law as HL
+    from . import param_drive as PD
+    sk = next(e for e in fb.elements if e.class_name == "VarSketch")
+    rect = PD._classify_rect(PD._sketch_lines(sk))
+    x0, x1 = rect["left"][1][0], rect["right"][1][0]
+    y0, y1 = rect["bottom"][1][1], rect["top"][1][1]
+    ex = next(e for e in fb.elements if e.class_name == "ExtrusionElem")
+    pv = HL._pvd(ex)
+    return ((min(x0, x1), max(x0, x1)), (min(y0, y1), max(y0, y1)),
+            (pv[HL.BIP["start"]], pv[HL.BIP["end"]]))
 
 
 # ---------------------------------------------------------------------------
@@ -2915,7 +3162,8 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                    types: Optional[Sequence[Any]] = None,
                    shared_params: SK.SharedParamsArg = None,
                    standards: bool = True,
-                   standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
+                   standard_values: Optional[Dict[str, Any]] = None,
+                   drive: Optional[str] = "law") -> FamilyProduct:
     """Compose a LUMINAIRE family: a recessed TROFFER (rectangular housing at
     the catalog dimensions) or a recessed DOWNLIGHT (OUR parametric can --
     the flagship record's housing dims are not sourced).  One single-phase
@@ -2928,7 +3176,17 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
     (``[30, 38, 48]`` / ``'38W'``) or dicts over ``wattage, lumens, cct,
     size, aperture_in``; one row per package, the first = the primary type
     (the housing solid is built at its dimensions).  ``shared_params`` as
-    :func:`make_panelboard`."""
+    :func:`make_panelboard`.
+
+    ``drive`` (#913): ``"law"`` (default) wires a troffer's Length / Width as
+    symmetric in-plane drives (``drive_law``) and its Height as the #787 Case B
+    cap-face chain (``height_law``), and a downlight's Height (its 4-gon can has
+    no axis-aligned edge for an in-plane drive); ``"372"`` keeps the troffer's
+    old first-solid chain (``param_drive.wire_panelboard_drive``); ``None``
+    wires nothing.  No assembled luminaire drive has a desktop verdict (hard
+    rule 4)."""
+    if drive not in ("law", "372", None):
+        raise FactoryError(f"luminaire drive must be 'law', '372' or None, not {drive!r}")
     jobs = _type_jobs(types, {"wattage": wattage, "lumens": lumens, "cct": cct,
                               "size": size, "aperture_in": aperture_in},
                       scalar_key="wattage")
@@ -3038,12 +3296,30 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                   apparent_load_va=float(watt or 0.0), power_factor=0.95,
                   bind_voltage_param="Voltage", bind_load_param="Wattage",
                   load_class="Lighting", description="Power Connection")
-    if shape == "box":
-        # parametric drive (issue #372): the troffer sketch is X=Length, Y=Width
+    if shape == "box" and drive == "372":
+        # the OLD first-solid chain (issue #372): the troffer sketch is X=Length,
+        # Y=Width; kept selectable, the default is "law" (#913)
         from . import param_drive as PD
         PD.wire_panelboard_drive(doc, x_caption="Length", y_caption="Width")
+    drive_report: List[Dict[str, Any]] = []
+    height_report: Dict[str, Any] = {}
+    if drive == "law":
+        # #913: the housing is centred on the origin in plan, z 0..H above the
+        # ceiling face -- Length (x) and Width (y) symmetric, Height origin -> top
+        named = [("housing", fb)]
+        h_specs = [{"caption": "Height", "lo": 0.0, "hi": Hh,
+                    "parts": {"housing": {"start": "lo", "end": "hi"}}}]
+        d_specs = ([{"caption": "Length", "axis": "x", "symmetric": True, "lo": -L / 2.0,
+                     "hi": L / 2.0, "parts": {"housing": ("lo", "hi")}},
+                    {"caption": "Width", "axis": "y", "symmetric": True, "lo": -Wd / 2.0,
+                     "hi": Wd / 2.0, "parts": {"housing": ("lo", "hi")}}]
+                   if shape == "box" else [])
+        drive_report, height_report = _wire_equipment_drives(doc, named, d_specs, h_specs,
+                                                             what="luminaire")
     std_report = ST.apply_safe(doc, "lighting_fixture", standards, standard_values)
     doc.finalize()
+    if drive == "law":
+        _born_law_after_finalize(doc)
     stem = ("troffer_" + _slug(size) + "_recessed") if shape == "box" \
         else _slug(f"downlight_{facts.get('aperture_in'):g}in")
     if len(rows) > 1:
@@ -3052,7 +3328,10 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                          standards=std_report)
     prod.notes.append("apparent load = the input wattage (power factor 0.95 booked "
                       "on the connector); bound to the Wattage parameter")
+    prod.drives = drive_report
+    prod.heights = height_report
     _multi_type_notes(prod)
+    _label_driven_note(prod, "Length / Width / Height" if shape == "box" else "Height")
     if shape != "box":
         prod.notes.append("housing = OUR polygonal can (manufacturer housing dims not "
                           "sourced); the true curved profile is phase 2")
@@ -3070,7 +3349,8 @@ def make_device(kind: str = "duplex-receptacle", *,
                 start_id: int = 1000,
                 shared_params: SK.SharedParamsArg = None,
                 standards: bool = True,
-                standard_values: Optional[Dict[str, Any]] = None) -> FamilyProduct:
+                standard_values: Optional[Dict[str, Any]] = None,
+                drive: Optional[str] = "law") -> FamilyProduct:
     """Compose a WIRING DEVICE family (``OST_ElectricalFixtures``): a duplex
     receptacle (NEMA 5-15R / 5-20R), a single-pole switch or a 4 in square
     junction box from ``generic/devices-and-mounting`` -- the faceplate
@@ -3085,7 +3365,19 @@ def make_device(kind: str = "duplex-receptacle", *,
     ADA 15..48 in reach FACT).  Both names are the Electrical Fixtures
     table's spelling (rvt.famgen.standards, #622) -- the legacy ``Load`` /
     ``MountingHeight`` left a blank standard twin beside each; the IFC-side
-    ``DeviceSchedule`` pset keeps its own keys."""
+    ``DeviceSchedule`` pset keeps its own keys.
+
+    ``drive`` (#913): ``"law"`` (default) adds ``Width`` / ``Height`` (the
+    faceplate, on the wall face) and ``Depth`` (the box, behind it) as
+    dimension parameters at the record's envelope values ('assumed', as the
+    geometry already is) and wires them: Width / Height symmetric in-plane
+    drives on the plate with the box spanning them at its insets
+    (``drive_law``), Depth the box's back face from the wall plane
+    (``height_law``; the family's z is out of the wall).  ``None`` = the
+    family as before #913 (no dimension parameters, nothing wired).  No
+    assembled device drive has a desktop verdict (hard rule 4)."""
+    if drive not in ("law", None):
+        raise FactoryError(f"device drive must be 'law' or None, not {drive!r}")
     facts = resolve_device_facts(kind, mounting_height_in=mounting_height_in,
                                  voltage=voltage, va=va)
     label, config = facts.get("label"), facts.get("configuration")
@@ -3101,13 +3393,19 @@ def make_device(kind: str = "duplex-receptacle", *,
     _num(doc, "Voltage", "voltage", "electrical")
     _num(doc, "Apparent Load", "apparent_power", "electrical_loads")
     _num(doc, "Mounting Height", "length", "constraints")
-    rows: List[TypeRow] = []
     plate_in = [facts.get(k) for k in ("plate_width_in", "plate_height_in", "plate_thickness_in")]
     box_in = [facts.get(k) for k in ("box_width_in", "box_height_in", "box_depth_in")]
+    dims: List[Tuple[str, str, Any]] = []
+    if drive == "law":
+        for dim in ("Width", "Height", "Depth"):
+            _num(doc, dim, "length", "dimensions")
+        dims = [("Width", "length", plate_in[0]), ("Height", "length", plate_in[1]),
+                ("Depth", "length", box_in[2])]
+    rows: List[TypeRow] = []
     _add_type_row(doc, rows, _clean_name(config, f"{volt:g}V"), facts, [
         ("Voltage", "voltage", volt), ("Apparent Load", "apparent_power", load),
         ("Mounting Height", "length", facts.get("mounting_height_in")),
-    ], description=(
+    ] + dims, description=(
         f"{label} ({config}), {volt:g} V 1-pole, {load:g} VA booked, mounted "
         f"{facts.get('mounting_height_in'):g} in AFF (box {box_in[0]:g} W x {box_in[1]:g} H x "
         f"{box_in[2]:g} D in, plate {plate_in[0]:g} x {plate_in[1]:g} in; generated from "
@@ -3128,13 +3426,32 @@ def make_device(kind: str = "duplex-receptacle", *,
                   bind_voltage_param="Voltage", bind_load_param="Apparent Load",
                   load_class="Receptacle" if "Receptacle" in label else "Power",
                   description="Power Connection", primary=True)
+    drive_report: List[Dict[str, Any]] = []
+    height_report: Dict[str, Any] = {}
+    if drive == "law":
+        # #913: plate and box centred on the origin in the wall plane (x across,
+        # y up the wall), the box from z = -Depth to the wall face at z = 0
+        named = [("faceplate", plate), ("device box", box)]
+        d_specs = [{"caption": cap, "axis": ax, "symmetric": True, "lo": -v / 2.0,
+                    "hi": v / 2.0, "parts": {"faceplate": ("lo", "hi")},
+                    "attach": {"span": ["device box"]}}
+                   for cap, ax, v in (("Width", "x", pw), ("Height", "y", ph))]
+        h_specs = [{"caption": "Depth", "lo": -bd, "hi": 0.0,
+                    "parts": {"device box": {"start": "lo", "end": "hi"},
+                              "faceplate": {"start": "hi"}}}]
+        drive_report, height_report = _wire_equipment_drives(doc, named, d_specs, h_specs,
+                                                             what="device")
     std_report = ST.apply_safe(doc, "electrical_fixture", standards, standard_values)
     doc.finalize()
+    if drive == "law":
+        _born_law_after_finalize(doc)
     prod = FamilyProduct("device", doc, facts, forms=[plate, box], types=rows,
                          standards=std_report,
                          file_stem=_slug(f"{label}_{config}_{volt:g}v"))
     prod.notes.append("one 1-pole primary connector on the back of the device box, voltage "
                       "-> Voltage, load -> Apparent Load (Power-Unbalanced, load on phase 1)")
+    prod.drives = drive_report
+    prod.heights = height_report
     _multi_type_notes(prod)
     return prod
 

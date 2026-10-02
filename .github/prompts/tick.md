@@ -57,7 +57,8 @@ read its header once; never edit it while a run is in flight; runs queue behind 
 a PR whose earlier run is still in flight is dropped by its per-PR lock, so re-check the head in the result
 JSON); spawn a FRESH reviewer subagent with `tools/dev/review_brief.md` filled in (execution only through that
 file's nobody/no-network recipe; for this loop's own PRs tell it the author is the would-be merger); post ONE
-PR comment = CI line + review text + `<!-- session-ci: pass|fail sha=<full> -->` +
+PR comment = CI line (naming the shard cap when the JSON's `shard_timeout` is not 1500, e.g. "shard cap 2700 s,
+override #934") + review text + `<!-- session-ci: pass|fail sha=<full> -->` +
 `<!-- claude-review: approve|nits|changes sha=<full> -->`; MERGE (`merge_pull_request`, squash, a plain commit
 message describing the change — no tool/AI attribution) ONLY when in THIS tick your CI said pass AND your
 reviewer said approve/nits for the exact head you re-read (`git ls-remote`) just before merging, AND

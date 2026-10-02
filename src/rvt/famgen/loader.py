@@ -72,6 +72,7 @@ from __future__ import annotations
 
 import collections
 import copy
+import pickle
 import json
 import math
 import os
@@ -119,7 +120,14 @@ class LoaderError(RuntimeError):
 # ---------------------------------------------------------------------------
 
 def _dc(v: Any) -> Any:
-    return copy.deepcopy(v)
+    """A deep copy.  The loader copies decoded record trees (dict / list / str
+    / int / float / bool / None), for which a pickle round-trip is the same
+    copy -- shared sub-objects stay shared, exactly as with deepcopy -- at a
+    third of the cost (#932); anything pickle refuses falls back to deepcopy."""
+    try:
+        return pickle.loads(pickle.dumps(v, protocol=pickle.HIGHEST_PROTOCOL))
+    except Exception:                                              # noqa: BLE001
+        return copy.deepcopy(v)
 
 
 def _ptr(cls: str, value: dict, pid: int = -1) -> dict:
@@ -1983,6 +1991,16 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
 
 def verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
                            validate: bool = True) -> Dict[str, Any]:
+    """:func:`_verify_loaded_projects` with one decode per record: every pass
+    below only READS the file (FamilyIndex, provenance, the validator), so
+    they share one :func:`rvt.objects.decode_memo` scope (#932)."""
+    from ..objects import decode_memo
+    with decode_memo():
+        return _verify_loaded_projects(path, plans, validate=validate)
+
+
+def _verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
+                            validate: bool = True) -> Dict[str, Any]:
     """Read a loaded project back ONCE and prove, for the file: container/ECC
     health (the validator's structure layer is authoritative), the partition
     walker is clean, the host ADocument decodes clean and (optionally)

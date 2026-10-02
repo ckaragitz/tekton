@@ -2646,7 +2646,8 @@ def make_house_switchboard(*, tag: str = "MSB", name: str = "Switchboard",
                           width_m: float, depth_m: float, height_m: float,
                           solid: bool = True, start_id: int = 1000,
                           standards: bool = True,
-                          standard_values: Optional[Dict[str, Any]] = None):
+                          standard_values: Optional[Dict[str, Any]] = None,
+                          drive: Optional[str] = "law"):
     """Compose OUR floor-standing SWITCHBOARD family (Electrical Equipment,
     part type 16 = switchboard) from OUR OWN IFC-modeled dimensions -- the
     honest fallback when no catalog line covers the rating.  Same building
@@ -2666,12 +2667,21 @@ def make_house_switchboard(*, tag: str = "MSB", name: str = "Switchboard",
     the pset ratings this constructor authors and fills itself are left as
     made, every other entry is an honest BLANK unless ``standard_values``
     carries it -- nothing here invents a value the intent did not hold.
+
+    ``drive`` (#913): ``"law"`` (default) wires Width / Depth as symmetric
+    in-plane drives (``drive_law``; the lineup box is centred on the origin) and
+    Height as the #787 Case B cap-face chain (``height_law``); ``"372"`` keeps
+    the old first-solid chain (``param_drive.wire_panelboard_drive``, Width /
+    Depth only); ``None`` wires nothing.  No assembled switchboard drive has a
+    desktop verdict (hard rule 4).
     """
     from ..famgen import factory as F
     from ..famgen import skeleton as SK
     from ..famgen import geometry as G
     from ..famgen import standards as ST
 
+    if drive not in ("law", "372", None):
+        raise F.FactoryError(f"switchboard drive must be 'law', '372' or None, not {drive!r}")
     W = float(width_m) * FT_PER_M
     D = float(depth_m) * FT_PER_M
     H = float(height_m) * FT_PER_M
@@ -2759,17 +2769,33 @@ def make_house_switchboard(*, tag: str = "MSB", name: str = "Switchboard",
                     apparent_load_va=0.0, power_factor=1.0,
                     bind_voltage_param="Voltage", load_class="Power",
                     description="Service / feeder bus (top entry)")
-    # parametric drive (issue #372): the floor-standing box footprint is
-    # X=Width, Y=Depth in the plan sketch
-    from ..famgen import param_drive as PD
-    PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+    if drive == "372":
+        # the OLD first-solid chain (issue #372): the floor-standing box footprint
+        # is X=Width, Y=Depth in the plan sketch; the default is "law" (#913)
+        from ..famgen import param_drive as PD
+        PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+    drive_report: List[Dict[str, Any]] = []
+    height_report: Dict[str, Any] = {}
+    if drive == "law":
+        both = {"enclosure": ("lo", "hi")}
+        d_specs = [{"caption": cap, "axis": ax, "symmetric": True, "lo": -v / 2.0,
+                    "hi": v / 2.0, "parts": dict(both)}
+                   for cap, ax, v in (("Width", "x", W), ("Depth", "y", D))]
+        h_specs = [{"caption": "Height", "lo": 0.0, "hi": H,
+                    "parts": {"enclosure": {"start": "lo", "end": "hi"}}}]
+        drive_report, height_report = F._wire_equipment_drives(
+            doc, [("enclosure", fb)], d_specs, h_specs, what="switchboard")
     std_report = ST.apply_safe(doc, "switchboard", standards, standard_values)
     doc.finalize()
+    if drive == "law":
+        F._born_law_after_finalize(doc)
     prod = F.FamilyProduct("switchboard", doc, sheet, forms=[fb], standards=std_report,
                            file_stem=re.sub(r"[^a-z0-9_]+", "_",
                                              f"switchboard_{tag}_{mains_a:g}A_{vs.get('system') or 'v'}".lower()))
     prod.notes.append("house switchboard from OUR IFC-modeled dimensions (no catalog "
                       "record); ratings are Pset values, identity strings are ifc-declared")
+    prod.drives = drive_report
+    prod.heights = height_report
     return prod
 
 

@@ -400,8 +400,14 @@ def test_device_family_composition(kind, variant, height):
     assert doc.category_id == SK.OST_ELECTRICAL_FIXTURES and doc.part_type == 0
     assert doc.work_plane_based and doc.finalized
     # standards=False = the constructor's OWN parameters, nothing else (the
-    # regression control for the category-standards layer, #601)
-    assert sorted(doc.params) == ["Apparent Load", "Mounting Height", "Voltage"]   # the table's spelling (#622)
+    # regression control for the category-standards layer, #601).  Re-pinned on
+    # purpose by #913: the default drive="law" adds the Width / Height / Depth
+    # dimension parameters its drives label (the plate and the box depth, the
+    # record's envelope); drive=None keeps the old three, pinned just below
+    assert sorted(doc.params) == ["Apparent Load", "Depth", "Height", "Mounting Height",
+                                  "Voltage", "Width"]   # the table's spelling (#622)
+    assert sorted(F.make_device(kind, standards=False, drive=None).doc.params) == [
+        "Apparent Load", "Mounting Height", "Voltage"]
     assert prod.standards is None
     assert [f.kind for f in prod.forms] == ["plate", "box"]
     plate, box = prod.forms

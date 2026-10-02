@@ -989,6 +989,25 @@ def standalone_family_write(product, path: str, *, validate: bool = True,
             "2026 opens, navigates and edits families built this way "
             "(issues #333/#480, owner-verified on two machines).")
     rep["verify"] = emit.get("verify")
+    # the validator's two runs and the provenance scan only READ the file:
+    # one decode per record between them (#932)
+    from ..objects import decode_memo
+    with decode_memo():
+        _read_back_checks(rep, path, donor, FA, validate=validate, provenance=provenance)
+    rep["ok"] = bool(rep["verify"] and rep["verify"].get("ok")
+                     and (not validate or rep["validate"].get("ok"))
+                     and (not provenance or rep["provenance"].get("ok")))
+    rp = report_path or (os.path.splitext(path)[0] + ".json")
+    with open(rp, "w") as fh:
+        _jsonsafe.dump(rep, fh, indent=1)
+    rep["report_path"] = rp
+    return rep
+
+
+def _read_back_checks(rep: Dict[str, Any], path: str, donor: str, FA, *,
+                      validate: bool, provenance: bool) -> None:
+    """The family-mode validation and the provenance scan of a written
+    family file, into ``rep`` (:func:`standalone_family_write`)."""
     if validate:
         try:
             val = FA.validate_family_file(path, with_donor_parity=False)
@@ -1007,14 +1026,6 @@ def standalone_family_write(product, path: str, *, validate: bool = True,
                                  "checks": checks}
         except Exception as e:                              # pragma: no cover
             rep["provenance"] = {"ok": False, "error": repr(e), "suspects": ["scan crashed"]}
-    rep["ok"] = bool(rep["verify"] and rep["verify"].get("ok")
-                     and (not validate or rep["validate"].get("ok"))
-                     and (not provenance or rep["provenance"].get("ok")))
-    rp = report_path or (os.path.splitext(path)[0] + ".json")
-    with open(rp, "w") as fh:
-        _jsonsafe.dump(rep, fh, indent=1)
-    rep["report_path"] = rp
-    return rep
 
 
 # ===========================================================================
