@@ -130,10 +130,13 @@ def test_refplane_cutvec_is_the_plane_normal(fi):
             assert cut == [0.0, 1.0, 0.0], eid
             elev += 1
     assert {"Center (Front/Back)", "Center (Left/Right)"} <= names
-    # 2 center planes + the 4 parametric-drive side planes (issue #372) at least
-    assert plan >= 6
-    assert elev == 1                     # height_law adds the origin plane once
-    assert surface >= 1                  # Height's cap planes (height_law)
+    # exact counts for the default panelboard (drive="law", #931), measured
+    # on the written fixture: 18 plan-drawn planes (the 2 centre planes + the
+    # Width/Depth drive planes and the planes their riding parts lock to),
+    # the 1 elevation-drawn origin plane, and 7 surface-only Height cap planes
+    # (height_law) -- exact, so a drive or cap plane silently dropped is red
+    # (#943 review: floors let up to 12 + 6 planes go missing)
+    assert (plan, elev, surface) == (18, 1, 7), (plan, elev, surface)
 
 
 def test_headers_carry_no_bbox(fi):
