@@ -29,7 +29,19 @@ WHAT STAYS -- the corpus-attested shape of the in-plane drive (#787 census):
   m_flags 14) aligns exactly TWO references; a labelled ``LinearDimString``
   (``m_ArrSegInfo[i].m_paramId`` >= 0) witnesses at least two references with
   one segment per gap, and (when the whole document is in hand) its parameter
-  exists.
+  exists.  (#956) In a NESTED family's document "exists" has one more born
+  form: a SHARED parameter (``ParamElemExternal``) is stored once, in the
+  host document (unit 0), and the nested document names it by that id -- so a
+  nested unit's label may be a ``ParamElemExternal`` of the host document,
+  provided the ``Family`` its dimension's ``m_famId`` names lists it in
+  ``m_familyParams`` (the nested family declares it).  The first reading
+  (the parameter must be in the dimension's own unit) fired 236 errors on
+  nested units of the 421 born families (0 on host documents): every one a
+  labelled ``LinearDimString`` whose parameter is a host-held shared
+  parameter, which the nested family's own ``Family`` lists -- 0 of 4,425
+  nested units carries a ``ParamElemExternal`` of its own, and element ids
+  never repeat across units.  Census in
+  ``docs/inbox/param-drive.d/956-cg5.md``.
 * **CG6**  registration: a sketch lock (an ``Alignment`` carrying
   ``SketchMembership{VarSketch}``) is listed in its sketch's ``m_dimIds``, and
   every id in a sketch's ``m_dimIds`` is in that sketch's header
@@ -144,7 +156,11 @@ ON_PLANE_TOL = 1e-5
 
 #: classes check_file decodes -- everything the rules above read
 FILE_CLASSES = ("Alignment", "LinearDimString", "AngularDim", "CurveElem", "RefPlane",
-                "ExtrusionElem", "GenericForm", "VarSketch")
+                "ExtrusionElem", "GenericForm", "VarSketch", "Family")
+
+#: CG5 (#956): the parameter class a nested document may name from its host
+#: (shared parameters are stored once, in unit 0)
+HOST_SHARED_PARAM_CLASS = "ParamElemExternal"
 
 #: CG9: angle tolerance, radians (locks are authored exact)
 ANGLE_TOL = 1e-6
@@ -380,7 +396,8 @@ def _norm(elements: Iterable[Sequence[Any]]
 
 def check_graph(elements: Iterable[Sequence[Any]], *,
                 universe: Optional[Iterable[int]] = None,
-                instance_planes: Optional[Dict[Tuple[int, int], Any]] = None
+                instance_planes: Optional[Dict[Tuple[int, int], Any]] = None,
+                host_shared_params: Optional[Iterable[int]] = None
                 ) -> List[Dict[str, Any]]:
     """The law over ``(elem_id, class_name, obj[, header])`` tuples.
 
@@ -393,11 +410,18 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
     coordinates (``check_file`` resolves them from the nested documents); a
     witness missing from it is not judged by CG8.
 
+    ``host_shared_params`` (#956) = ids of the shared parameters
+    (``ParamElemExternal``) the HOST document holds, passed when the graph is
+    a nested family's document: a label naming one of them is a parameter of
+    this document when the ``Family`` the dimension's ``m_famId`` names lists
+    it in ``m_familyParams``.
+
     Never demands an ``m_constrInfo`` back-edge (CG2 retired, #910).
     Returns findings; empty means the graph is coherent.
     """
     by_id = _norm(elements)
     known = set(by_id) | {int(i) for i in (universe or ())}
+    host_shared = {int(i) for i in (host_shared_params or ())}
     findings: List[Dict[str, Any]] = []
 
     def add(sev, rule, eid, cls, msg, **extra):
@@ -441,10 +465,21 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
                         f"dimension measures between at least two references, "
                         f"one segment per gap")
             for p in params:
-                if p not in known:
+                if p in known:
+                    continue
+                if p in host_shared:
+                    fam = _family_params(by_id, obj.get("m_famId"))
+                    if fam is not None and p in fam:
+                        continue
                     add(ERROR, "CG5", eid, cls,
-                        f"{cls} {eid} is labelled with "
-                        f"parameter {p}, which is not in the document")
+                        f"{cls} {eid} is labelled with shared parameter {p} of "
+                        f"the host document, but its family "
+                        f"{obj.get('m_famId')} does not list it in "
+                        f"m_familyParams: the nested family does not declare it")
+                    continue
+                add(ERROR, "CG5", eid, cls,
+                    f"{cls} {eid} is labelled with "
+                    f"parameter {p}, which is not in the document")
         # CG6 -- registration on the sketch (every sketch-member constraint)
         sk_id = _sketch_of_lock(obj)
         if sk_id is not None:
@@ -804,6 +839,25 @@ def _cg10(eid, cls, obj, by_id, add) -> None:
             f"({', '.join(f'{x:.6g}' for x in eq)} ft)")
 
 
+def _family_params(by_id, fam_id) -> Optional[List[int]]:
+    """The parameter ids a ``Family`` element lists in ``m_familyParams``, or
+    None when ``fam_id`` is not a decoded ``Family`` (#956)."""
+    try:
+        tgt = by_id.get(int(fam_id))
+    except (TypeError, ValueError):
+        return None
+    if tgt is None or tgt[0] != "Family":
+        return None
+    out = []
+    for q in _val(tgt[1].get("m_familyParams")).get("m_params") or []:
+        if isinstance(q, dict):
+            try:
+                out.append(int(q.get("m_paramId", -1)))
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
 def _param_ids(obj: Dict[str, Any]) -> List[int]:
     return [int(s.get("m_paramId", -1)) for s in obj.get("m_ArrSegInfo") or []
             if isinstance(s, dict) and int(s.get("m_paramId", -1)) >= 0]
@@ -826,7 +880,8 @@ def check_file(path: str, unit: int = 0) -> List[Dict[str, Any]]:
 
     ``unit`` = the document unit judged: 0 = the family itself (the default);
     a nested family's content document is its own unit (:func:`nested_units`),
-    judged without CG8 (instance locks live in the host).
+    judged without CG8 (instance locks live in the host), and with the host's
+    shared parameters as label targets its family declares (CG5, #956).
     """
     from contextlib import ExitStack
     from ..global_framing import enter_own_release
@@ -872,8 +927,9 @@ def _check_file(path: str, unit: int = 0) -> List[Dict[str, Any]]:
                 hdr = (ho.value or {}) if ho is not None else None
             tuples.append((int(eid), cls, o.value or {}, hdr))
     inst = _instance_planes(idx, recs, tuples) if unit == 0 else {}
+    shared = (idx.ids_of_class(0, HOST_SHARED_PARAM_CLASS) if unit != 0 else ())
     return check_graph(tuples, universe=recs.get(102, {}).keys(),
-                       instance_planes=inst)
+                       instance_planes=inst, host_shared_params=shared)
 
 
 def _instance_planes(idx: Any, recs: Dict[int, Dict[int, Any]],

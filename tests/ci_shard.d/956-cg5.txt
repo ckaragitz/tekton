@@ -1,0 +1,2 @@
+# #956: CG5 corrected to the born law (a nested unit may label with a host-held shared parameter its family declares); synthetic cases, corpus test skips without samples/
+tests/test_cg5_956.py
