@@ -463,3 +463,4 @@ state its number next to the constant.
 - `perf-surfaces.d/754-ifc-flow.md` -- the same flow as ONE call (`scripts/ifc_flow.py`, `go-ifc-harden`): one process, one parse + analysis of the input and of the output instead of four each; same run 3.3 s / 4 calls -> 1.55 s / 1 call
 - `perf-surfaces.d/757-skill-one-call.md` -- SKILL.md §5.2–5.4 teach the one-call flow and the real `report.py` invocation (hot-file, +7 lines; DONE 4 of #754)
 - `perf-surfaces.d/760-report-headline.md` -- the delivery report describes the HARDENED file (`report.py` renders the after-validation, found beside `harden.json` or named with `--after`; flow, bench and runbook aligned)
+- `perf-surfaces.d/969-latency.md` -- the 6-panel job's growth since 2026-08-09 attributed per merged step (all content: desktop-round laws, drives, clearance zones, real panel parts; #931's overhead already recovered by #932), plus four byte-identical fixes: job 5.98 -> 5.40 s, gate units 22.1 -> 20.5
