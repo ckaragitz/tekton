@@ -56,6 +56,8 @@ Run from the repo root with the repo interpreter:
     .venv/bin/python tools/surface_bench.py                # all three surfaces
     .venv/bin/python tools/surface_bench.py --surfaces local --jobs preflight,author-prompt
     .venv/bin/python tools/surface_bench.py --json bench.json --md bench.md --keep
+    .venv/bin/python tools/surface_bench.py --from-tree --surfaces cowork --jobs preflight,go-author-6panels --calibrate
+        # + every job in units of a fixed machine-speed reference (#965)
 
 The default plugin source is the SHIPPED artifact tekton-plugin.zip (what a
 surface actually receives); --from-tree copies plugin/ instead (dev mode).
@@ -930,19 +932,87 @@ JOBS = {
 
 
 # ---------------------------------------------------------------------------
+# machine-speed calibration (issue #965)
+# ---------------------------------------------------------------------------
+
+#: A FIXED pure-stdlib workload run by the SAME bare interpreter as the jobs:
+#: zlib round-trips, struct parsing, dict churn, sort + repr -- the kinds of
+#: work the engine's hot path does, but none of the engine's code, so it
+#: tracks how fast the machine (and that python) is and NOTHING about the
+#: product.  Wall time of a job divided by this is a machine-independent
+#: cost: a slow runner inflates both, a product regression only the job.
+#: The loop is timed inside the process (interpreter start-up excluded) and
+#: prints "<seconds> <checksum>"; the checksum pins the work done.
+REFERENCE_ROUNDS = 60
+REFERENCE_REPEATS = 3          # per side: before AND after the jobs; min over all
+_REFERENCE_SRC = r"""
+import sys, time, zlib, struct
+def work(rounds):
+    buf = bytes((i * 7 + 13 + (i >> 5)) & 0xFF for i in range(1 << 15))
+    acc = 0
+    table = {}
+    for r in range(rounds):
+        blob = zlib.decompress(zlib.compress(buf, 6))
+        for off in range(0, len(blob) - 8, 8):
+            a, b = struct.unpack_from("<II", blob, off)
+            key = (a ^ (b << 1) ^ r) & 0x3FFF
+            table[key] = table.get(key, 0) + 1
+            acc = (acc * 31 + (a & 0xFFFF)) & 0xFFFFFFFF
+        rows = sorted(table.items())[:256]
+        acc ^= len(repr(rows)) + len([str(k) for k, _ in rows])
+    return acc
+t = time.perf_counter()
+x = work(int(sys.argv[1]))
+print("%.4f %d" % (time.perf_counter() - t, x))
+"""
+
+
+def reference_samples(python: str, env: dict, repeats: int = REFERENCE_REPEATS,
+                      rounds: int = REFERENCE_ROUNDS) -> list:
+    """``repeats`` timings (seconds) of the fixed reference workload."""
+    out = []
+    for _ in range(repeats):
+        p = subprocess.run([python, "-c", _REFERENCE_SRC, str(rounds)], env=env,
+                           capture_output=True, text=True, timeout=120)
+        if p.returncode != 0:
+            raise RuntimeError(f"reference workload failed: {p.stderr.strip()[-400:]}")
+        out.append(float(p.stdout.split()[0]))
+    return out
+
+
+def calibration(before: list, after: list) -> dict:
+    """The reference samples bracketing a session -> its calibration record.
+    ``seconds`` is the MIN over both sides: timing noise on a shared machine
+    only ever adds time, so the minimum is the machine's speed."""
+    allv = list(before) + list(after)
+    return {"rounds": REFERENCE_ROUNDS, "before": before, "after": after,
+            "seconds": min(allv) if allv else None}
+
+
+def calibrated(seconds, cal: dict | None):
+    """``seconds`` in reference units (job / reference), or None."""
+    ref = (cal or {}).get("seconds")
+    return round(seconds / ref, 3) if (seconds is not None and ref) else None
+
+
+# ---------------------------------------------------------------------------
 # orchestration
 # ---------------------------------------------------------------------------
 
 def bench_surface(name: str, source: str, bench_root: str, python: str,
-                  jobs: list, timeout: float, assume_network: bool) -> dict:
+                  jobs: list, timeout: float, assume_network: bool,
+                  calibrate: bool = False) -> dict:
     s = Surface(name, source, bench_root, python,
                 stateless=(name == "codeexec"),
                 no_network=(name != "local" and not assume_network),
                 timeout=timeout)
     state: dict = {}
     results: list[JobResult] = []
+    cal_env = s.env()
+    before = reference_samples(python, cal_env) if calibrate else []
     for jn in jobs:
         results.append(JOBS[jn](s, state))
+    after = reference_samples(python, cal_env) if calibrate else []
     return {
         "surface": name,
         "model": SURFACE_BLURB[name],
@@ -957,6 +1027,7 @@ def bench_surface(name: str, source: str, bench_root: str, python: str,
             "seconds": round(sum(j.seconds for j in results), 3),
             "extract_seconds": round(sum(j.extract_seconds for j in results), 3),
         },
+        **({"calibration": calibration(before, after)} if calibrate else {}),
     }
 
 
@@ -1018,6 +1089,13 @@ def markdown_table(report: dict) -> str:
                 notes.append(f"- {sn} / {jd['job']}: job {bd.get('job_seconds')}s "
                              f"(edit+gates {bd.get('edit_seconds')}s, of which validator "
                              f"{bd.get('validation_seconds')}s) -- {bd['gates']}")
+    for sn in surfaces:
+        cal = by[sn].get("calibration")
+        if cal and cal.get("seconds"):
+            units = ", ".join(f"{jd['job']} {calibrated((jd.get('breakdown') or {}).get('job_seconds') or jd['seconds'], cal)}"
+                              for jd in by[sn]["jobs"] if jd["status"] == "PASS")
+            notes.append(f"- {sn} calibration: reference {cal['seconds']:.3f}s (min of "
+                         f"{len(cal['before']) + len(cal['after'])}); jobs in reference units: {units}")
     reasons = []
     for sn in surfaces:
         for jd in by[sn]["jobs"]:
@@ -1032,7 +1110,7 @@ def markdown_table(report: dict) -> str:
 def run_bench(surfaces=SURFACE_ORDER, jobs=JOB_ORDER, source: str = "",
               python_bare: str = "/usr/bin/python3", timeout: float = 300.0,
               workroot: str = "", keep: bool = False,
-              assume_network: bool = False) -> dict:
+              assume_network: bool = False, calibrate: bool = False) -> dict:
     """Programmatic entry (used by tests/test_surface_perf.py)."""
     if not source:
         source = DEFAULT_ZIP if os.path.isfile(DEFAULT_ZIP) else PLUGIN_TREE
@@ -1049,7 +1127,7 @@ def run_bench(surfaces=SURFACE_ORDER, jobs=JOB_ORDER, source: str = "",
             python = sys.executable if sn == "local" else python_bare
             report["surfaces"].append(
                 bench_surface(sn, source, bench_root, python, list(jobs),
-                              timeout, assume_network))
+                              timeout, assume_network, calibrate=calibrate))
         return report
     finally:
         if not keep:
@@ -1073,6 +1151,9 @@ def main(argv=None) -> int:
     ap.add_argument("--keep", action="store_true", help="keep the environments")
     ap.add_argument("--assume-network", action="store_true",
                     help="do NOT install the dead-proxy no-network guard")
+    ap.add_argument("--calibrate", action="store_true",
+                    help="time the fixed machine-speed reference before and after each "
+                         "surface's jobs and report every job in reference units (#965)")
     ap.add_argument("--json", dest="json_out", default="", help="write the full report")
     ap.add_argument("--md", dest="md_out", default="", help="write the markdown table")
     a = ap.parse_args(argv)
@@ -1094,7 +1175,7 @@ def main(argv=None) -> int:
     report = run_bench(surfaces=surfaces, jobs=jobs, source=source,
                        python_bare=a.python_bare, timeout=a.timeout,
                        workroot=a.workroot, keep=a.keep,
-                       assume_network=a.assume_network)
+                       assume_network=a.assume_network, calibrate=a.calibrate)
     table = markdown_table(report)
     print(table)
     if a.json_out:
