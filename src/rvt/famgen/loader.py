@@ -115,6 +115,66 @@ class LoaderError(RuntimeError):
     """A load precondition the host or the product cannot satisfy."""
 
 
+class FamilyNameClash(LoaderError):
+    """The family's name is already taken in the target project (#937).
+
+    Revit keeps family names unique per document; a second ``Family`` named
+    like one the project already holds is a project Revit would not accept,
+    yet it validates 0 errors -- so the loader refuses it BEFORE anything is
+    written (``on_name_clash="refuse"``, the default) unless the caller asked
+    for the deterministic rename (``on_name_clash="rename"``, what the
+    front-door routes pass: :func:`resolve_family_name`)."""
+
+    def __init__(self, name: str, existing_id: int, existing_name: str):
+        super().__init__(
+            f"family name clash: the host already holds a family named "
+            f"{existing_name!r} (element {existing_id}); refusing to load a second "
+            f"family named {name!r} (Revit keeps family names unique per document; "
+            f"on_name_clash='rename' loads it as {name + ' (2)'!r} or the next free "
+            f"number)")
+        self.name = name
+        self.existing_id = existing_id
+        self.existing_name = existing_name
+
+
+#: the loaders' family-name clash policies (#937)
+NAME_CLASH_POLICIES = ("refuse", "rename")
+
+
+def _name_key(name: str) -> str:
+    """Uniqueness key of a family name: case-insensitive.  Conservative -- a
+    case-only variant counts as a clash [UNVERIFIED whether desktop Revit
+    treats case variants as one name; refusing/renaming one is harmless]."""
+    return str(name).casefold()
+
+
+def resolve_family_name(name: str, taken: Dict[str, Tuple[int, str]], *,
+                        on_name_clash: str = "refuse") -> Tuple[str, Dict[str, Any]]:
+    """The name a family loads under, given ``taken`` (``_name_key(name) ->
+    (family id, name)`` of the families the project already holds).
+
+    ``refuse``: a taken name raises :class:`FamilyNameClash`.  ``rename``: the
+    first free ``"<name> (k)"``, k = 2, 3, ... -- deterministic, so the same
+    loads into the same host always produce the same project (#801).  Returns
+    ``(name, proof)``; ``proof`` says what was asked, what is written and why."""
+    if on_name_clash not in NAME_CLASH_POLICIES:
+        raise LoaderError(f"on_name_clash must be one of {NAME_CLASH_POLICIES}, "
+                          f"got {on_name_clash!r}")
+    proof: Dict[str, Any] = {"requested": name, "written": name,
+                             "policy": on_name_clash, "clash_with": None}
+    hit = taken.get(_name_key(name))
+    if hit is None:
+        return name, proof
+    proof["clash_with"] = {"family_id": int(hit[0]), "family_name": hit[1]}
+    if on_name_clash == "refuse":
+        raise FamilyNameClash(name, int(hit[0]), hit[1])
+    k = 2
+    while _name_key(f"{name} ({k})") in taken:
+        k += 1
+    proof["written"] = f"{name} ({k})"
+    return proof["written"], proof
+
+
 # ---------------------------------------------------------------------------
 # small helpers
 # ---------------------------------------------------------------------------
@@ -200,6 +260,8 @@ class HostContext:
     template_host: int = INVALID          # its face host (SketchPlane) if any
     levels: List[dict] = dc_field(default_factory=list)
     notes: List[str] = dc_field(default_factory=list)
+    #: ``_name_key(m_name) -> (family id, m_name)`` of every host Family (#937)
+    family_names: Dict[str, Tuple[int, str]] = dc_field(default_factory=dict)
 
 
 def survey_host(host_rvt: str = DEFAULT_HOST, *,
@@ -260,6 +322,10 @@ def _survey_host_impl(host_rvt: str = DEFAULT_HOST, *,
     ctx.fill_pattern_solid = fps[0] if fps else INVALID
     ctx.line_pattern_solid = lps[0] if lps else INVALID
     ctx.levels = doc.levels()
+    for fid in sorted(doc.ids_of_class("Family")):
+        nm = (doc.value(fid) or {}).get("m_name")
+        if nm:
+            ctx.family_names.setdefault(_name_key(nm), (int(fid), str(nm)))
     return ctx if category is None else bind_category(ctx, category)
 
 
@@ -1499,16 +1565,29 @@ class _AuthoredLoad:
 
 
 def _author_load(product, host: HostContext, *, place: bool, symbol_solid: bool,
-                 circuit_slots: int) -> _AuthoredLoad:
+                 circuit_slots: int, taken: Optional[Dict[str, Tuple[int, str]]] = None,
+                 on_name_clash: str = "refuse") -> _AuthoredLoad:
     """Plan + author + gate ONE family against ``host`` (whose ``watermark``
     is the id floor): the shared front half of the single and the batched
-    loader.  Raises :class:`LoaderError` on any gate failure."""
+    loader.  Raises :class:`LoaderError` on any gate failure --
+    :class:`FamilyNameClash` first of all, before anything is authored, when
+    the family's name is in ``taken`` (default: the host's own family names)
+    and ``on_name_clash == "refuse"`` (#937)."""
     from . import factory as F
     doc = product.doc
     if not doc.finalized:
         doc.finalize()
+    taken = host.family_names if taken is None else taken
+    # the name first: a refused clash costs no planning or authoring
+    name, name_proof = resolve_family_name(doc.name or product.name, taken,
+                                           on_name_clash=on_name_clash)
     plan = plan_load(product, host, place=place)
-    proofs: Dict[str, Any] = {}
+    plan.family_name = name               # plan_load's own name == the requested one
+    if name_proof["written"] != name_proof["requested"]:
+        plan.notes.append(f"family name {name_proof['requested']!r} is taken in the project "
+                          f"(Family {name_proof['clash_with']['family_id']}): loaded as "
+                          f"{name_proof['written']!r} (on_name_clash='rename', #937)")
+    proofs: Dict[str, Any] = {"family_name": name_proof}
     proofs["plan"] = {
         "content_guid": plan.guid, "fam_doc_guid": plan.fam_doc_guid,
         "host_watermark": host.watermark,
@@ -1597,11 +1676,21 @@ def load_family_into_project(host_rvt: str = DEFAULT_HOST,
                              symbol_solid: bool = True,
                              circuit_slots: int = 0,
                              report_path: Optional[str] = None,
-                             validate: bool = True) -> LoadResult:
+                             validate: bool = True,
+                             on_name_clash: str = "refuse") -> LoadResult:
     """LOAD ``product`` (a :class:`rvt.famgen.factory.FamilyProduct`; default
     = the flagship 400 A Eaton panelboard) into a copy of ``host_rvt`` and,
     if ``place``, place one instance.  Writes ``out_path`` (a ``.rvt``) and
     returns a :class:`LoadResult` with the machine proofs.
+
+    Family names are unique per document (#937): a product whose name the
+    host already holds (case-insensitively) raises :class:`FamilyNameClash`
+    before anything is written (``on_name_clash="refuse"``), or loads as
+    ``"<name> (2)"`` / the next free number (``"rename"``, what the
+    front-door routes pass -- they always deliver, hard rule 1);
+    ``proofs["family_name"]`` records the outcome.  The written project
+    records its own file name in ``BasicFileInfo`` (#928), as a directly
+    written project does.
 
     Pipeline: survey host -> regenerate the product ABOVE the host id
     watermark -> plan ids/twins -> author the host elements (twins,
@@ -1620,13 +1709,13 @@ def load_family_into_project(host_rvt: str = DEFAULT_HOST,
         return _load_family_into_project(
             host_rvt, out_path, product, place=place, symbol_solid=symbol_solid,
             circuit_slots=circuit_slots, report_path=report_path,
-            validate=validate)
+            validate=validate, on_name_clash=on_name_clash)
 
 
 def _load_family_into_project(host_rvt: str, out_path: Optional[str],
                               product, *, place: bool, symbol_solid: bool,
                               circuit_slots: int, report_path: Optional[str],
-                              validate: bool) -> LoadResult:
+                              validate: bool, on_name_clash: str = "refuse") -> LoadResult:
     from . import factory as F
     if product is None:
         host = survey_host(host_rvt)
@@ -1638,7 +1727,7 @@ def _load_family_into_project(host_rvt: str, out_path: Optional[str],
         host = survey_host(host_rvt, category=product_category(product))
         _require_ids_above(product, host.watermark)
     authored = _author_load(product, host, place=place, symbol_solid=symbol_solid,
-                            circuit_slots=circuit_slots)
+                            circuit_slots=circuit_slots, on_name_clash=on_name_clash)
     plan, proofs = authored.plan, authored.proofs
 
     # L5 (host ADocument) + L1 (ContentDocuments), in memory
@@ -1754,7 +1843,8 @@ class BatchLoadResult:
 def load_families_into_project(host_rvt: str, out_path: str, products: Sequence[Any], *,
                                symbol_solid: bool = True,
                                report_path: Optional[str] = None,
-                               validate: bool = True) -> BatchLoadResult:
+                               validate: bool = True,
+                               on_name_clash: str = "refuse") -> BatchLoadResult:
     """LOAD ``products`` (N :class:`rvt.famgen.factory.FamilyProduct`, or
     callables ``f(start_id) -> FamilyProduct`` so each family is regenerated
     above the ids the previous one allocated) into a copy of ``host_rvt`` in
@@ -1782,20 +1872,28 @@ def load_families_into_project(host_rvt: str, out_path: str, products: Sequence[
     again) is the CALLER's degrade policy
     (``rvt.frontdoor.build.stage_load_batched``).
 
+    Family names (#937): every family's name must be free in the host AND
+    among the batch's earlier families.  ``on_name_clash="refuse"`` makes a
+    clash an authoring failure of that family (the batch stops there, as
+    above); ``"rename"`` loads it as ``"<name> (k)"``, the first free k >= 2.
+
     Runs under the HOST's own release like the single loader.
     """
     from ..frontdoor.release_ctx import host_release_context
     with host_release_context(host_rvt):
         return _load_families_into_project(host_rvt, out_path, list(products),
                                            symbol_solid=symbol_solid,
-                                           report_path=report_path, validate=validate)
+                                           report_path=report_path, validate=validate,
+                                           on_name_clash=on_name_clash)
 
 
 def _load_families_into_project(host_rvt: str, out_path: str, products: List[Any], *,
                                 symbol_solid: bool, report_path: Optional[str],
-                                validate: bool) -> BatchLoadResult:
+                                validate: bool,
+                                on_name_clash: str = "refuse") -> BatchLoadResult:
     host = survey_host(host_rvt, category=None)
     shared: Dict[str, Any] = {"host_watermark": host.watermark, "n_products": len(products)}
+    taken = dict(host.family_names)      # the host's names + every earlier family's (#937)
     authored: List[_AuthoredLoad] = []
     auth_failure = ""                    # why the first un-authorable family failed
     cursor = int(host.watermark)
@@ -1808,11 +1906,13 @@ def _load_families_into_project(host_rvt: str, out_path: str, products: List[Any
             if cat not in bound:
                 bound[cat] = bind_category(host, cat)
             a = _author_load(product, replace(bound[cat], watermark=cursor),
-                             place=False, symbol_solid=symbol_solid, circuit_slots=0)
+                             place=False, symbol_solid=symbol_solid, circuit_slots=0,
+                             taken=taken, on_name_clash=on_name_clash)
         except Exception as exc:                                  # noqa: BLE001
             auth_failure = f"family {i + 1}/{len(products)}: {type(exc).__name__}: {exc}"
             break                        # the id ladder needs every earlier family
         authored.append(a)
+        taken[_name_key(a.plan.family_name)] = (a.plan.host_family_id, a.plan.family_name)
         cursor = a.max_host_id
     loads: List[LoadResult] = []
     stop_reason = ""
@@ -1933,11 +2033,13 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
     ``out_path``.  Returns the pass-1 / pass-2 proofs.
 
     ``identity`` (``rvt.identity.own_identity_model`` kwargs) is the caller's
-    identity for the written file; when given, pass 2 also re-owns
-    ``BasicFileInfo`` against ``out_path`` (document GUID kept), so the
-    file's last-save path is its own name rather than the pass-1 temp file's
-    (the nesting path, #917).  None = the project loader's historical
-    behaviour, unchanged.
+    identity for the written file (None = ``{"username": ""}``, the project
+    loader's).  Pass 2 always re-owns ``BasicFileInfo`` against ``out_path``
+    (document GUID kept), so the file's last-save path is its own name rather
+    than the pass-1 temp file's -- the nesting path since #917, every project
+    load since #928: the stream is then exactly what ``commit_new_elements``
+    writing ``out_path`` directly would have written (``own_identity_model``
+    is idempotent on everything but the path it is given).
 
     ``exact_partition`` (a FAMILY host, the nesting path): splice into the
     partition's EXACT content, ending on the family end record.  The
@@ -2018,16 +2120,16 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
         "Global/Latest": ecc.frame_stream(
             wrap_global_stream("Global/Latest", new_latest, level=3)),
     }
-    if identity is not None:
-        from ..identity import own_basic_file_info, BFI_STREAM
-        from .. import stream_encoders as _se
-        with open_rvt(tmp1) as f3:
-            if f3.has(BFI_STREAM):
-                bfi = f3.raw(BFI_STREAM)
-                kw = dict(ident)
-                kw.setdefault("document_guid",
-                              _se.decode_basic_file_info(bfi).get("unique_document_guid"))
-                new_streams[BFI_STREAM] = own_basic_file_info(bfi, out_path=out_path, **kw)
+    # every load names itself (#928; the nesting path since #917)
+    from ..identity import own_basic_file_info, BFI_STREAM
+    from .. import stream_encoders as _se
+    with open_rvt(tmp1) as f3:
+        if f3.has(BFI_STREAM):
+            bfi = f3.raw(BFI_STREAM)
+            kw = dict(ident)
+            kw.setdefault("document_guid",
+                          _se.decode_basic_file_info(bfi).get("unique_document_guid"))
+            new_streams[BFI_STREAM] = own_basic_file_info(bfi, out_path=out_path, **kw)
     out_entries = [replace(e, data=new_streams[e.path])
                    if (e.entry_type == "stream" and e.path in new_streams) else e
                    for e in read_entries(tmp1)]

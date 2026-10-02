@@ -362,7 +362,8 @@ def stage_load(model: I.IntentModel, base_rvt: str, out_dir: str, *,
             res = L.load_family_into_project(current, nxt, product=prod, place=False,
                                             symbol_solid=symbol_solid,
                                             report_path=nxt + ".load.json",
-                                            validate=False)
+                                            validate=False,
+                                            on_name_clash="rename")   # deliver (#937)
             entry.update({
                 "ok": bool(res.ok), "stop_reason": res.stop_reason,
                 "host_watermark": wm,
@@ -413,7 +414,7 @@ def stage_load(model: I.IntentModel, base_rvt: str, out_dir: str, *,
 def _slim_proofs(proofs: Dict[str, Any]) -> Dict[str, Any]:
     """Keep the load proofs small enough for the record."""
     keep = {}
-    for k in ("plan", "roundtrip_gate", "save_unit", "content_documents",
+    for k in ("plan", "family_name", "roundtrip_gate", "save_unit", "content_documents",
               "adocument_reencode", "commit", "verify", "validate", "census"):
         if k in proofs:
             v = proofs[k]
