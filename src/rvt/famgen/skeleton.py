@@ -4049,10 +4049,21 @@ def validate_family(path: str, *, layers=None) -> Dict[str, Any]:
     is included for comparison).
     """
     from .. import validate as _v
-    raw = _v.validate_file(path, layers=layers or _v.ALL_LAYERS)
-    # family mode is now a first-class validator parameter (the recorded
-    # `rvt_validate --family` request, landed) -- no global mutation
-    fam = _v.validate_file(path, layers=layers or _v.ALL_LAYERS, family=True)
+    # both runs draw from ONE read + ECC + inflate walk of the file (#266's
+    # WalkedFile; the report is the same with or without it -- #969)
+    try:
+        walked = _v.walk_file(path)
+    except ValueError:                              # not a CFB: each run says so itself
+        walked = None
+    try:
+        raw = _v.validate_file(path, layers=layers or _v.ALL_LAYERS, walked=walked)
+        # family mode is now a first-class validator parameter (the recorded
+        # `rvt_validate --family` request, landed) -- no global mutation
+        fam = _v.validate_file(path, layers=layers or _v.ALL_LAYERS, family=True,
+                               walked=walked)
+    finally:
+        if walked is not None:
+            walked.close()
 
     def summarize(rep) -> Dict[str, Any]:
         errs = [f for f in rep.findings if f.severity == _v.SEV_ERROR]
