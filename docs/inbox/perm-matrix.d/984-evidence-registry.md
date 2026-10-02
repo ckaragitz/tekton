@@ -178,3 +178,13 @@ Branch `fix-984` from `276a5a8`, one local commit, **not pushed**.
   - `tools/sync_plugin.py`, then `--check`: in sync. `validate_plugin.py` PASS.
     `check_portable_paths.py` ok.
 - **Staged:** nothing.
+
+### Review of #989 (2026-10-02)
+🟡 nits; carried here: the `prompt->rfa->loaded-rvt` chain keeps `works` ("runnable end to
+end today; evidence cited", matrix.py) -- its placing leg runs on a fresh clone
+(`tests/test_frontdoor_standalone.py` places an instance on the bundled base) -- but its note
+now also carries `_OPEN_BUG` (placed instances of our generated families on our composed base
+are the open cell, delivered stamped PROOF-ONLY) and its evidence names that test, so the
+"placed" leg no longer rests on a certified file that has no placed instance. Two citations
+outside this PR's territory still lack a caveat (the `tekton-author` skill reference
+GENESIS-BASE.md and docs/product/REQUIREMENTS.md) -- filed as a follow-up issue.

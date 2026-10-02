@@ -1360,9 +1360,13 @@ CHAINS: Dict[str, Dict[str, Any]] = {
         "status": STATUS_WORKS,
         "note": ("this chain IS the F/L stages inside prompt->rvt: the "
                  "families are generated, loaded onto the base, then placed; "
-                 "the certified file below has NO placed instance. "
+                 "the certified file below has NO placed instance, and the "
+                 "placing leg runs end to end on a fresh clone "
+                 "(tests/test_frontdoor_standalone.py places an instance on the "
+                 "bundled base) without any viewer verdict. " + _OPEN_BUG + " "
                  + STAGE_L8_EARLIER_FORM),
-        "evidence": ("certified:experiments/ifc_room/stage_L8_lp4.rvt",),
+        "evidence": ("certified:experiments/ifc_room/stage_L8_lp4.rvt",
+                     "test:tests/test_frontdoor_standalone.py"),
     },
     "rvt->rfa->loaded-rvt": {
         "via": None, "cell": key_for(("rfa", "rvt"), "rvt"),

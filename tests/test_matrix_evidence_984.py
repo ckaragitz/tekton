@@ -284,3 +284,13 @@ def test_the_author_fingerprint_does_not_depend_on_the_out_dir(tmp_path):
     b.mkdir()
     assert (M.generator_fingerprint(R25, 2025, out_dir=str(a))
             == M.generator_fingerprint(R25, 2025, out_dir=str(b)))
+
+
+def test_the_placing_chain_names_the_open_cell_and_a_test_that_places():
+    """#989 review: the chain's only certified citation has no placed instance,
+    so its note carries the open-cell stamp and its evidence names the fresh-clone
+    test that does place one."""
+    from rvt.frontdoor import matrix as M
+    ch = M.CHAINS["prompt->rfa->loaded-rvt"]
+    assert M._OPEN_BUG in ch["note"] and "NO placed instance" in ch["note"]
+    assert "test:tests/test_frontdoor_standalone.py" in ch["evidence"]
