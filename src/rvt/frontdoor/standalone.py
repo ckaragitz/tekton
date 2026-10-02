@@ -971,8 +971,10 @@ def standalone_family_write(product, path: str, *, validate: bool = True,
                            "container_source": donor,
                            "container_mode": ("user-donor" if family_donor
                                               else "bundled-base")}
+    # the read-back verification runs below, in the decode-memo scope of the
+    # other read-only checks (#969): one decode per record for all of them
     emit = FA.emit_family_rfa_v2(product.doc, path, donor=donor,
-                                 timestamp=timestamp, write_reports=False)
+                                 timestamp=timestamp, write_reports=False, verify=False)
     rep["emit"] = {k: v for k, v in emit.items() if k not in ("verify", "adocument")}
     rep["adocument"] = (emit.get("adocument") or {}).get("conclusion")
     rep["adocument_archetype"] = (emit.get("adocument") or {}).get("archetype")
@@ -988,11 +990,12 @@ def standalone_family_write(product, path: str, *, validate: bool = True,
             "BrowserOrganizationTracking) at OUR elements. Desktop Revit "
             "2026 opens, navigates and edits families built this way "
             "(issues #333/#480, owner-verified on two machines).")
-    rep["verify"] = emit.get("verify")
-    # the validator's two runs and the provenance scan only READ the file:
-    # one decode per record between them (#932)
+    # the read-back verification, the validator's two runs and the provenance
+    # scan only READ the file: one decode per record between them (#932, #969)
     from ..objects import decode_memo
+    from ..famgen import skeleton as _SK
     with decode_memo():
+        rep["verify"] = _SK.verify_family_rfa(path)
         _read_back_checks(rep, path, donor, FA, validate=validate, provenance=provenance)
     rep["ok"] = bool(rep["verify"] and rep["verify"].get("ok")
                      and (not validate or rep["validate"].get("ok"))

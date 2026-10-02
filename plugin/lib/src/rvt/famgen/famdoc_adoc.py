@@ -1786,7 +1786,8 @@ def emit_family_rfa_v2(doc, path: str, *, mode: str = "candidate",
                        product_name: str = PRODUCT_NAME,
                        username: str = PRODUCT_NAME,
                        timestamp: Optional[int] = TIMESTAMP,
-                       write_reports: bool = True) -> Dict[str, Any]:
+                       write_reports: bool = True,
+                       verify: bool = True) -> Dict[str, Any]:
     """Write ``doc`` (OUR ``FamilyDoc``) as a standalone ``.rfa`` whose EVERY
     stream is ours except the certified per-release schema constant.
 
@@ -1810,7 +1811,10 @@ def emit_family_rfa_v2(doc, path: str, *, mode: str = "candidate",
 
     Returns the emission report (streams, sizes, what is ours, the read-back
     verification); a ``<stem>_adoc.json`` / ``<stem>_emit.json`` are written
-    beside the file when ``write_reports``.
+    beside the file when ``write_reports``.  ``verify=False`` leaves the
+    read-back (``skeleton.verify_family_rfa``) to the caller, which then runs
+    it itself -- ``frontdoor.standalone`` does, inside the one decode-memo
+    scope its other read-only checks of the file share (#969).
     """
     from .. import ecc
     from .. import identity as _ID
@@ -1947,7 +1951,7 @@ def emit_family_rfa_v2(doc, path: str, *, mode: str = "candidate",
         "determinism": _determinism_report(doc),
         "notes": list(getattr(doc, "notes", []) or []),
     }
-    rep["verify"] = SK.verify_family_rfa(path)
+    rep["verify"] = SK.verify_family_rfa(path) if verify else None
     if write_reports:
         stem = os.path.splitext(path)[0]
         with open(stem + "_emit.json", "w") as fh:
