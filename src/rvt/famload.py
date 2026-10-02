@@ -1303,7 +1303,10 @@ def _load_family_documents(host_rvt: str, families: Sequence[FamilyLoad],
 
     # ---------------- PASS 2: units + ContentDocuments + host ADocument -----
     with open_rvt(tmp1) as f2:
-        part_logical = f2.logical(host.partition_name)
+        # the host's own tail kept byte for byte, no stale parity (#938)
+        from .partition_tail import host_tail, keep_host_tail
+        part_logical, proofs["partition_tail"] = keep_host_tail(
+            f2.raw(host.partition_name), host_tail(host_rvt, host.partition_name))
         cd_payload = b"".join(f2.inflate_all("Global/ContentDocuments"))
         latest_payload = f2.inflate("Global/Latest")
     # splice every unit (each before the end record; sequential)
@@ -1380,9 +1383,13 @@ def _load_family_documents(host_rvt: str, families: Sequence[FamilyLoad],
             # nothing was repointed: the loaded (stage) file IS the output
             os.replace(stage_out, out_rvt)
     # ---------------- verify -------------------------------------------------
+    # pass 3 (usage repointing) is a manipulate rewrite of its own: the tail
+    # law is judged on the pass-2 bytes only when pass 3 did not rewrite
+    tail_host = None if (proofs.get("pass3_usage_repoint") or {}).get("written") else host_rvt
     ver = verify_loaded_project(out_rvt, plans, expected_units_added=len(plans),
                                  validate=validate,
-                                 census_before=host.census_before)
+                                 census_before=host.census_before,
+                                 host_rvt=tail_host)
     proofs["verify_written"] = ver
     ok = bool(ver.get("ok"))
     acceptance.extend([
@@ -1445,13 +1452,16 @@ def load_family_document(host_rvt: str, family: Union[FamilyLoad, Any],
 def verify_loaded_project(path: str, plans: Sequence[LoadPlan], *,
                           expected_units_added: int,
                           validate: bool = True,
-                          census_before: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+                          census_before: Optional[Dict[str, Any]] = None,
+                          host_rvt: Optional[str] = None) -> Dict[str, Any]:
     """Read the loaded project back and prove: container / ECC / walker
     health, the FOUR REGISTRIES are COHERENT and each family's GUID sits in
     all four, the host ids are in the ElemTable and decode to the expected
     classes, the host Family names our content GUID and our symbol(s), the
     edited ADocument decodes clean, and (optionally) ``rvt.validate`` = 0
-    errors."""
+    errors.  The partition tail (#938, ``rvt.partition_tail.check_tail``)
+    starts on the end record and, given ``host_rvt``, equals the host's own
+    tail byte for byte; an unjudgeable (Autodesk-born) tail is reported only."""
     from .container import open_rvt
     from .families import FamilyIndex, family_documents
     from .elemtable import parse_elemtable
@@ -1584,6 +1594,9 @@ def verify_loaded_project(path: str, plans: Sequence[LoadPlan], *,
         except Exception as exc:                                   # pragma: no cover
             rep["validate"] = {"error": f"{type(exc).__name__}: {exc}"}
             val_ok = False
+    from .partition_tail import check_tail, host_tail
+    rep["partition_tail"] = check_tail(path, host_tail(host_rvt) if host_rvt else None)
+    tail_ok = rep["partition_tail"]["ok"] is not False
     rep["ok"] = bool(
         (rep["container"]["crc_failures"] == 0)
         and (rep["container"]["ecc_mismatches"] == 0)
@@ -1597,7 +1610,8 @@ def verify_loaded_project(path: str, plans: Sequence[LoadPlan], *,
         and rep["elemtable"]["watermark_covers_documents"]
         and all_link_ok
         and inv_ok
-        and val_ok)
+        and val_ok
+        and tail_ok)
     return rep
 
 

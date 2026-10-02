@@ -1657,9 +1657,10 @@ def _load_family_into_project(host_rvt: str, out_path: Optional[str],
     write_proofs = _commit_and_write(host_rvt, out_path, host, [authored], new_latest, cd_new)
     proofs["pass1_commit"] = write_proofs["pass1_commit"]
     proofs["pass2_partition_splice"] = write_proofs["pass2_partition_splice"][0]
+    proofs["partition_tail"] = write_proofs.get("partition_tail")
 
     # ---------------- verify the written file --------------------------------
-    ver = verify_loaded_project(out_path, plan, validate=validate)
+    ver = verify_loaded_project(out_path, plan, validate=validate, host_rvt=host_rvt)
     ok = bool(ver.get("ok"))
     res = authored.result(ok, out_path, verify=ver,
                           stop_reason=("" if ok else "verify_written reported failures"))
@@ -1839,7 +1840,8 @@ def _load_families_into_project(host_rvt: str, out_path: str, products: List[Any
                 except OSError:
                     pass
     if written:
-        ver = verify_loaded_projects(out_path, [a.plan for a in authored], validate=validate)
+        ver = verify_loaded_projects(out_path, [a.plan for a in authored], validate=validate,
+                                     host_rvt=host_rvt)
         shared["verify_written"] = {k: v for k, v in ver.items() if k != "per_plan"}
         file_ok = bool(ver["file_ok"])
         for k, (a, pv) in enumerate(zip(authored, ver["per_plan"])):
@@ -1945,7 +1947,14 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
     into its re-framed partition as CONTENT; spliced as is, the nested
     host's true end is no longer the family end record (#917 third pass).
     So the exact content is cut right after the 10-byte family end record.
-    False = the project loader's historical bytes, unchanged."""
+    False (a PROJECT host): splice into the pass-1 file's exact content cut
+    right after the HOST's own exact tail (``rvt.partition_tail``): the host's
+    tail -- which our certified composed bases carry past the end record --
+    is kept byte for byte and the stale parity pass 1 re-framed (plus the
+    generation a de-paged pass-2 read used to add) is dropped (#938; before
+    it a project load grew the tail by 645-1,051 B).  A host whose final
+    block does not decode exactly (Autodesk-born) keeps pass 1's exact
+    content whole; ``rep["partition_tail"]`` says which."""
     from . import factory as F
     from ..encode import encode_record
     from ..commit import commit_new_elements
@@ -1968,9 +1977,9 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
         "per_seq_bytes_added": dict(crep.per_seq_bytes_added),
     }, "pass2_partition_splice": []}
     with open_rvt(tmp1) as f2:
-        part_logical = (ecc.unframe_stream(f2.raw(host.partition_name)) if exact_partition
-                        else f2.logical(host.partition_name))
+        pass1_raw = f2.raw(host.partition_name)
     if exact_partition:
+        part_logical = ecc.unframe_stream(pass1_raw)
         from ..partitions import StreamWalker
         from .famdoc_adoc import FAMILY_END_RECORD
         end = int(StreamWalker(part_logical, inflate=False, keep_data=False).end_offset)
@@ -1978,6 +1987,12 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
             raise LoaderError("exact_partition: the host partition does not end on the "
                               "family end record (not a family host?)")
         part_logical = part_logical[:end + len(FAMILY_END_RECORD)]
+    else:
+        # a PROJECT host keeps its own tail byte for byte and gains no stale
+        # parity (#938): the exact pass-1 content cut after the host's tail
+        from ..partition_tail import host_tail, keep_host_tail
+        part_logical, rep["partition_tail"] = keep_host_tail(
+            pass1_raw, host_tail(host_rvt, host.partition_name))
     for i, a in enumerate(authored):
         try:
             sp = F.splice_save_unit(part_logical, a.unit["bytes"])
@@ -2029,17 +2044,19 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
 # ---------------------------------------------------------------------------
 
 def verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
-                           validate: bool = True) -> Dict[str, Any]:
+                           validate: bool = True,
+                           host_rvt: Optional[str] = None) -> Dict[str, Any]:
     """:func:`_verify_loaded_projects` with one decode per record: every pass
     below only READS the file (FamilyIndex, provenance, the validator), so
     they share one :func:`rvt.objects.decode_memo` scope (#932)."""
     from ..objects import decode_memo
     with decode_memo():
-        return _verify_loaded_projects(path, plans, validate=validate)
+        return _verify_loaded_projects(path, plans, validate=validate, host_rvt=host_rvt)
 
 
 def _verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
-                            validate: bool = True) -> Dict[str, Any]:
+                            validate: bool = True,
+                            host_rvt: Optional[str] = None) -> Dict[str, Any]:
     """Read a loaded project back ONCE and prove, for the file: container/ECC
     health (the validator's structure layer is authoritative), the partition
     walker is clean, the host ADocument decodes clean and (optionally)
@@ -2048,7 +2065,14 @@ def _verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
     ADocument carries our three registrations, our family shows up as a host
     Family whose content GUID is ours with our symbol(s), the instance (if
     any) references our symbol, and the provenance of what the load added is
-    ours.  ``ok`` = the file checks AND every plan's checks."""
+    ours.  ``ok`` = the file checks AND every plan's checks.
+
+    The partition TAIL (#938, ``rvt.partition_tail.check_tail``): the exact
+    partition content past the end offset starts on the release's end record
+    and -- given ``host_rvt``, the file the load started from -- is
+    byte-identical to the host's own tail (a load adds no stale parity).
+    A tail that cannot be judged (an Autodesk-born final block) is reported,
+    not failed."""
     from ..container import open_rvt
     from ..families import FamilyIndex, family_documents
     from ..elemtable import parse_elemtable
@@ -2178,13 +2202,23 @@ def _verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
     if not val_ok:
         file_errors.append("rvt.validate: " + "; ".join((rep.get("validate") or {}).get("errors")
                                                           or [str((rep.get("validate") or {}).get("error"))]))
+    from ..partition_tail import check_tail, host_tail
+    expected = host_tail(host_rvt) if host_rvt else None
+    rep["partition_tail"] = check_tail(path, expected)
+    if rep["partition_tail"]["ok"] is False:
+        pt = rep["partition_tail"]
+        file_errors.append("partition tail: " + (
+            "does not start on the end record" if not pt.get("starts_on_end_record") else
+            f"{pt['tail_bytes']} B != the host's {pt.get('expected_tail_bytes')} B "
+            "(stale parity carried as content)"))
     rep["file_errors"] = file_errors
     rep["file_ok"] = not file_errors
     rep["ok"] = bool(rep["file_ok"] and per_plan and all(pr["ok"] for pr in per_plan))
     return rep
 
 
-def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True) -> Dict[str, Any]:
+def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True,
+                          host_rvt: Optional[str] = None) -> Dict[str, Any]:
     """Read the loaded project back and prove: container/ECC health, the
     partition walker is clean and OUR unit is present with our GUID, our
     family shows up as a host Family whose content GUID is ours with our
@@ -2193,7 +2227,7 @@ def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True) -
     references our symbol, and (optionally) ``rvt.validate`` reports 0
     errors.  (The one-plan view of :func:`verify_loaded_projects`: the plan's
     slice merged into the file-level report -- the historical shape.)"""
-    rep = verify_loaded_projects(path, [plan], validate=validate)
+    rep = verify_loaded_projects(path, [plan], validate=validate, host_rvt=host_rvt)
     for k, v in rep.pop("per_plan")[0].items():
         if k in ("ok", "content_guid"):
             continue
