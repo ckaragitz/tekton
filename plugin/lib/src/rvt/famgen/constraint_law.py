@@ -285,6 +285,12 @@ def plane_of(cls: str, obj: Dict[str, Any]
     return f, (n[0] / ln, n[1] / ln, n[2] / ln)
 
 
+def _tag(g: Dict[str, Any], key: str, default: int) -> int:
+    """A gref's integer tag; ``default`` when absent OR decoded as None (#963 review)."""
+    v = g.get(key)
+    return default if v is None else int(v)
+
+
 def plane_of_any(cls: str, obj: Dict[str, Any]
                  ) -> Optional[Tuple[Tuple[float, float, float],
                                      Tuple[float, float, float]]]:
@@ -478,8 +484,8 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
             if pl is not None:
                 planes.append((t, pl))
                 continue
-            pts = lock_points(tgt[0], tgt[1], int(g.get("m_geomTag", 0)),
-                              int(g.get("m_subTag", -1)))
+            pts = lock_points(tgt[0], tgt[1], _tag(g, "m_geomTag", 0),
+                              _tag(g, "m_subTag", -1))
             if pts is not None:
                 points.append((t, pts))
         if len(planes) == 1 and len(points) == 1:

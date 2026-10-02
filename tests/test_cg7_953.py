@@ -178,3 +178,11 @@ def test_cg7_is_silent_on_the_born_host_documents():
         if cg7:
             bad.append((os.path.basename(p), len(cg7)))
     assert bad == [], f"{len(bad)} born host documents with CG7 findings"
+
+
+def test_a_none_tag_reads_as_its_default():
+    """#963 review: a gref tag decoded as None is the default, never a TypeError."""
+    from rvt.famgen import constraint_law as CL
+    assert CL._tag({"m_subTag": None}, "m_subTag", -1) == -1
+    assert CL._tag({}, "m_geomTag", 0) == 0
+    assert CL._tag({"m_subTag": 1}, "m_subTag", -1) == 1
