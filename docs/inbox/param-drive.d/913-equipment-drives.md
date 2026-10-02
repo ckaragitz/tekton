@@ -47,8 +47,10 @@ order. No probe families were made and nothing was sent to the owner, per the st
 - **Transformer** (`_transformer_drive_specs`):
   - **Width:** the body, the slot band and the top zone lie on both planes. The drip
     lid, the slot louvers and the access panel span them. The skids, cheeks, side
-    louver banks and bolts ride their side. The nameplate and the front working space
-    keep their x.
+    louver banks and bolts ride their side. The nameplate keeps its x. The front
+    working space tracks Width where it was drawn at the box's width (NEC 110.26(A)(2):
+    the greater of the equipment width or 30 in; from 75 kVA up). At its 30 in minimum
+    (a narrower box) it stays. The family's note states which case applies (#933 review).
   - **Depth:** the body, the skids and the top zone lie on both planes. The lid, the
     band and the side louvers span. The front hardware and the working space ride the
     front plane.
@@ -161,7 +163,9 @@ order. No probe families were made and nothing was sent to the owner, per the st
 
   The notes say "assembled family unverified" and "#787 Case B, NO desktop verdict".
 - **Transformer:**
-  - The front working space keeps its x width (the code minimum) and its height.
+  - The front working space is not re-derived across the 30 in boundary. Tracking
+    Width, it can be flexed below 30 in; staying, it can be outgrown by a wider box.
+    The note says which. Its height is not re-derived either.
   - The nameplate, the lower louvers and the lower bolts keep their heights.
   - The connectors are face-hosted on the lid's top face and not separately
     constrained.
