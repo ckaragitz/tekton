@@ -195,3 +195,10 @@ def test_unjudgeable_tails_are_reported_not_trimmed():
     got, rep = keep_host_tail(raw, b"\x01" * 12)     # a tail the pass does not start with
     assert got == ex and not rep["kept_host_tail"]
     assert exact_tail(b"\x00" * 7) is None
+    # a pass stream that is not exactly decodable at all comes back de-paged,
+    # whole, never raising (#942 review)
+    from rvt.container import depage
+    junk = b"\x00" * 7
+    got, rep = keep_host_tail(junk, b"")
+    assert got == depage(junk) and rep["stale_bytes_dropped"] == 0
+    assert "de-paged whole" in rep["why"]

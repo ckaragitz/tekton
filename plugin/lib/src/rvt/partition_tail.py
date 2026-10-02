@@ -70,13 +70,17 @@ def keep_host_tail(pass_raw: bytes, tail: Optional[bytes]) -> Tuple[bytes, Dict[
     pass re-framed as content; that suffix is dropped.  When the host tail is
     unknown (None) or the pass's tail does not start with it, the exact
     content is returned whole (no generation is added by THIS read; the
-    report says nothing was trimmed)."""
+    report says nothing was trimmed); a pass stream that does not decode
+    exactly at all is returned de-paged, as every writer read it before #938."""
     from . import ecc
     got = exact_tail(pass_raw)
     if got is None:                       # not ours-framed: never expected
-        ex = ecc.unframe_stream(pass_raw)
-        return ex, {"host_tail_bytes": None, "stale_bytes_dropped": 0, "kept_host_tail": False,
-                    "why": "pass stream did not decode exactly"}
+        # fall back to what the writers read before #938 -- the de-paged
+        # stream, which never raises (#942 review); nothing is trimmed
+        from .container import depage
+        return depage(pass_raw), {"host_tail_bytes": None, "stale_bytes_dropped": 0,
+                                  "kept_host_tail": False,
+                                  "why": "pass stream did not decode exactly (de-paged whole)"}
     ex, end, pass_tail = got
     if tail is None:
         return ex, {"host_tail_bytes": None, "stale_bytes_dropped": 0, "kept_host_tail": False,

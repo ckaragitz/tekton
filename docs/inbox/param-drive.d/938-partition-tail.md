@@ -181,6 +181,22 @@ Every test runs under the `no_release_leak` guard, with the extended
    fallback (`kept_host_tail = False`, the tail reported unjudged) is
    unit-tested, not exercised on a real foreign file.
 
+## Review of #942 (🟡)
+
+- **Fallback fixed.** A pass stream that does not decode exactly now returns de-paged
+  and whole, as the writers read it before this change. Previously
+  `ecc.unframe_stream` raised there. The branch is unreachable today, since
+  `commit.py` always frames, but it is now pinned by a test.
+- **Why the tail is kept, not cut.** #938's DONE (2) said "write exactly what the nest
+  path writes", which would cut at the end record. Keeping the host's lineage tail is a
+  deliberate deviation, accepted at merge. The reason is that cutting would also remove
+  the certified bases' own tail, which no 2025/2024 viewer evidence covers.
+  `docs/writer/content-splice.md` row 11 also flags mixed zero+parity tails as an
+  unproven reader axis (D2). Keeping the host's tail stays on the certified side of
+  that axis.
+- **Test totals.** This record's 168 and the PR's 208 come from different file sets.
+  Both are 0 failed.
+
 ## BRANCH STATE (`parity-938`)
 
 **Files written**
