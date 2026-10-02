@@ -21,9 +21,17 @@ left for "the next PR that touches these files", carried here in one small PR.
   three-times injection and its measured 33.6–37.4. The #965 record's earlier
   self-test bullet points to its amendment.
 
+*Review of #972 (2026-10-02), 🛑 then fixed:* the multi-relation extension did not
+dedupe, so one product linked by two relations counted as two owners and a correctly
+driven parameter (BodyWidth on tank_shell) became value-only -- a regression against
+main. Owners are now added once per IFC entity id. And float noise between repeats
+(1574.8 vs 1574.80000001) was a "conflict"; `_same_value` now treats values equal to
+1e-9 relative as one statement. Two more tests pin both (they fail at the first head).
+
 ## Evidence
-- `tests/test_review_nits_967_970.py`: 3 tests. Against the unfixed modules, the two
-  fix tests fail; the equal-repeat guard passes on both.
+- `tests/test_review_nits_967_970.py`: 5 tests. Against the unfixed modules, the two
+  fix tests fail; the equal-repeat guard passes on both; the two #972-review tests
+  fail against the PR's first head.
 - The #714 fixture's 7 drives are unchanged (`test_pset_drive_714`, 32 passed).
 
 ## BRANCH STATE

@@ -53,3 +53,25 @@ def test_a_pset_linked_by_two_relations_keeps_both_owners(tmp_path):
     assert sorted(coll["sources"]["LegHeight"]["products"]) == ["pad_slab", "tank_shell"]
     row = _rows(PD.plan(parts, coll))["LegHeight"]
     assert row["status"] == PD.VALUE_ONLY and "2 products" in row["reason"], row
+
+
+def test_one_product_linked_twice_is_one_owner_and_still_drives(tmp_path):
+    """#972 review: the multi-relation extension dedupes by entity id."""
+    from rvt.ifc import pset_drive as PD
+    text = ifc_text(PRODUCTS, PSETS)
+    rel = [ln for ln in text.splitlines()
+           if "IFCRELDEFINESBYPROPERTIES" in ln][1]           # Pset_Body -> tank_shell
+    extra = rel.replace(rel.split("=")[0], "#99999", 1)
+    text = text.replace("ENDSEC;\nEND-ISO", extra + "\nENDSEC;\nEND-ISO")
+    parts, coll = _measured(_write(tmp_path, text, "dup_rel.ifc"))
+    assert coll["sources"]["BodyWidth"]["products"] == ["tank_shell"]
+    row = _rows(PD.plan(parts, coll))["BodyWidth"]
+    assert row["status"] == PD.DRIVES and (row["part"], row["axis"]) == ("tank_shell", "x"), row
+
+
+def test_float_noise_between_repeats_is_not_a_conflict(tmp_path):
+    from rvt.ifc import pset_drive as PD
+    psets = PSETS + [("Pset_Body2", ["tank_shell"], [("BodyWidth", _L, 1574.80000001)])]
+    parts, coll = _measured(_write(tmp_path, ifc_text(PRODUCTS, psets), "noise.ifc"))
+    assert "conflicting_values" not in coll["sources"]["BodyWidth"]
+    assert _rows(PD.plan(parts, coll))["BodyWidth"]["status"] == PD.DRIVES
