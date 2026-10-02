@@ -99,6 +99,19 @@ WHAT STAYS -- the corpus-attested shape of the in-plane drive (#787 census):
   resolve, or does not sit square to the dimension line, leaves the dimension
   unjudged (never guessed).
 
+(#952) SKETCH SOLVER RECORDS:
+
+* **CG11**  a ``VarSketchHorVerConstrObj`` holds: the sketch line it names
+  (a ``VarSketchLineSegObj`` in the same sketch's ``m_elemRecs``, read from
+  its own solver parameters x1, y1, x2, y2) is horizontal when ``m_hor`` is
+  True and vertical when it is False (:func:`line_axis`).  An HV on a slanted
+  line -- or on the other axis -- contradicts the geometry it constrains.
+  Born evidence (421-family corpus, host + nested units): 62,033 HV
+  constraints, every one on an axis-parallel line with ``m_hor`` = horizontal
+  (0 on the 14,219 slanted lines; the nearest-to-axis slanted line is
+  6.3e-8 degrees off, far outside the tolerance).  An HV naming anything
+  other than a line, or a line without four parameters, is not judged.
+
 WHAT IT IS NOT.  A file that passes this law is not thereby correct in Revit
 (hard rule 4).  It catches contradictions, never omissions we have not
 thought of, and says nothing about whether Revit's solver accepts a
@@ -144,6 +157,26 @@ INSTANCE_REF_TAGS = tuple(range(9))
 
 #: CG8: parallel tolerance on unit normals (|n1 . n2| within this of 1)
 PARALLEL_TOL = 1e-6
+
+#: CG11: a sketch line is axis-parallel when its off-axis extent is within
+#: this fraction of max(1 ft, its length) (the writer uses the same test)
+HV_AXIS_TOL = 1e-9
+
+
+def line_axis(x1: float, y1: float, x2: float, y2: float) -> Optional[str]:
+    """``"H"`` for a horizontal sketch line, ``"V"`` for a vertical one, None
+    for a slanted (or zero-length) one -- the one predicate CG11 judges by and
+    the sketch writer emits ``VarSketchHorVerConstrObj`` by (#952)."""
+    dx, dy = float(x2) - float(x1), float(y2) - float(y1)
+    length = math.hypot(dx, dy)
+    if length == 0.0:
+        return None
+    tol = HV_AXIS_TOL * max(1.0, length)
+    if abs(dy) <= tol:
+        return "H"
+    if abs(dx) <= tol:
+        return "V"
+    return None
 
 
 def _val(p: Any) -> Dict[str, Any]:
@@ -463,6 +496,7 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
     for eid, (cls, obj, hdr) in sorted(by_id.items()):
         if cls != "VarSketch":
             continue
+        _cg11(eid, cls, obj, add)
         dele = _deletion(hdr)
         if dele is None:
             continue
@@ -493,6 +527,39 @@ def check_graph(elements: Iterable[Sequence[Any]], *,
                     f"{cls} {eid} lists {cid} as a constraint, but {cid} is a "
                     f"{by_id[cid][0]}, which does not constrain anything")
     return findings
+
+
+def _cg11(eid, cls, obj, add) -> None:
+    """CG11 -- every HorVer constraint of a sketch's solver sits on a line
+    along its own axis (#952)."""
+    lines: Dict[int, List[float]] = {}
+    for r in obj.get("m_elemRecs") or []:
+        if not isinstance(r, dict) or r.get("ptr_class") != "VarSketchLineSegObj":
+            continue
+        try:
+            prm = [float(_val(q)["m_val"]) for q in _val(r).get("m_params") or []]
+        except (KeyError, TypeError, ValueError):
+            continue
+        if len(prm) == 4 and r.get("pid") is not None:
+            lines[int(r["pid"])] = prm
+    for c in obj.get("m_constrRecs") or []:
+        if not isinstance(c, dict) or c.get("ptr_class") != "VarSketchHorVerConstrObj":
+            continue
+        cv = _val(c)
+        hor = bool(cv.get("m_hor"))
+        for w in cv.get("m_constrElems") or []:
+            prm = lines.get(int((w or {}).get("weakref", -1)))
+            if prm is None:
+                continue
+            axis = line_axis(*prm)
+            if axis != ("H" if hor else "V"):
+                what = "slanted" if axis is None else ("horizontal" if axis == "H" else "vertical")
+                add(ERROR, "CG11", eid, cls,
+                    f"VarSketch {eid} constrains a {what} line "
+                    f"({prm[0]:.6g}, {prm[1]:.6g}) -> ({prm[2]:.6g}, {prm[3]:.6g}) "
+                    f"to be {'horizontal' if hor else 'vertical'}: the "
+                    f"horizontal/vertical constraint contradicts the geometry it "
+                    f"constrains", line=prm, hor=hor)
 
 
 def cg8_pick(grefs, plane_at, instance_planes):

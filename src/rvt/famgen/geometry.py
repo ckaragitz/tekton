@@ -1165,6 +1165,17 @@ def new_var_sketch(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
     # VarSketchLineSegObj per curve (4 VarParams = x1,y1,x2,y2), a HorVer
     # constraint per axis-parallel edge + point-point joins closing the
     # loop, and the guess cache primed with the parameter vector.
+    # (#952) The HorVer constraint goes on GENUINELY axis-parallel lines only
+    # (``constraint_law.line_axis``), m_hor True on a horizontal one: born
+    # sketches carry it on 62,033 / 62,783 axis-parallel lines (m_hor =
+    # horizontal 62,033 / 62,033; every one of the 750 without it sits in an
+    # m_highResidualTol sketch, and our sketches are not) and on 0 / 14,219
+    # slanted ones -- an HV on a slanted edge of a polygon contradicts the
+    # geometry it constrains (CG11).  m_angleCoef stays 1.0: it is 1.0 on
+    # 26,561 / 26,561 lines of the 9,603 born sketches whose
+    # m_highResidualTol is False, which every sketch here is (the line
+    # length appears only in m_highResidualTol sketches, angular_law's).
+    # Census: docs/inbox/param-drive.d/952-sketch-hv.md.
     # Weakrefs address solver objects by archive pid: pid 3 = m_pPlane,
     # 4..3+n = the absorbed GLines, 4+n+i = LineSegObj i (assign_pids
     # reproduces this numbering).
@@ -1196,8 +1207,13 @@ def new_var_sketch(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
             "m_constrElems": [{"weakref": seg_pid[i]}, {"weakref": seg_pid[j]}],
             "m_constrSubTypes": [sub_i, sub_j], "m_priorityLevel": 0})
 
-    def _is_horizontal(a, b) -> bool:
-        return abs(b[1] - a[1]) <= abs(b[0] - a[0])
+    from .constraint_law import line_axis
+
+    def _hv_of(i: int) -> list:
+        """The line's HorVer constraint, or none on a slanted line (#952)."""
+        (a, b) = lines[i]
+        axis = line_axis(a[0], a[1], b[0], b[1])
+        return [] if axis is None else [_hv(i, axis == "H")]
     # PP joins are COINCIDENCE-DETECTED, not copied by index pattern: the
     # donor's subtype semantics are 1 = the (x1,y1) start, 2 = the (x2,y2)
     # end, and each PP names one shared CORNER (donor round 27: gluing the
@@ -1216,10 +1232,10 @@ def new_var_sketch(elem_id: int, ctx: FamilyDocContext, *, sketch_plane_id: int,
         return out
     constrs: list = []
     if n >= 2:
-        constrs.append(_hv(0, _is_horizontal(*lines[0])))
+        constrs.extend(_hv_of(0))
         for i in range(1, n):
             constrs.extend(_corner_joins(i))
-            constrs.append(_hv(i, _is_horizontal(*lines[i])))
+            constrs.extend(_hv_of(i))
     obj["m_constrRecs"] = constrs
     gc = blank_object("VarSketchGuessCache")
     gc["m_pSketch"] = _weak(2)
@@ -2607,7 +2623,10 @@ def new_full_arc_curve_elem(elem_id: int, ctx: FamilyDocContext, *, sketch_plane
     """A circle as ONE model ``CurveElem`` -- driver ``GArc`` endParams
     [0, 0], no control joins, cells SketchMembership + ArcElemCell, header
     deletion [family, SketchPlane, sketch, self] -- the born full arc (census
-    above).  Built from :func:`new_arc_curve_elem` and reshaped."""
+    above).  Built from :func:`new_arc_curve_elem` and reshaped.  Engine
+    convention, not born values: the driver's ``m_nextMidParamId`` = 4 (as on
+    every CurveElem this module writes), alongside the curve ``m_GInfo``
+    flags and the sketch guess cache's ``m_nPar`` (0)."""
     el = new_arc_curve_elem(elem_id, ctx, sketch_plane_id=sketch_plane_id,
                             sketch_id=sketch_id, extrusion_id=extrusion_id,
                             center=center, radius=radius, ang0=0.0, ang1=0.0,

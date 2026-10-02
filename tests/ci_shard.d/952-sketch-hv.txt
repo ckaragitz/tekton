@@ -1,0 +1,2 @@
+# #952 sketch HV only on axis-parallel lines + CG11: builds in process; corpus test skips without samples
+tests/test_sketch_hv_952.py
