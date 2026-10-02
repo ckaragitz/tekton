@@ -196,3 +196,9 @@ def test_the_law_is_silent_on_born_host_and_nested_units():
                 # index + counts only: the library's names are not cited
                 bad.append((i, u, sorted({x["rule"] for x in f}), len(f)))
     assert bad == [], f"{len(bad)} born units with findings: {bad[:10]}"
+
+
+def test_cg11_reads_a_none_weakref_as_absent():
+    """#964 review: a weakref decoded as None is no line, never a TypeError."""
+    from rvt.famgen import constraint_law as CL
+    assert CL._tag({"weakref": None}, "weakref", -1) == -1

@@ -398,8 +398,9 @@ def _renumber(obj: dict) -> None:
 def _born_solver_state(sk, roles: Dict[str, Any]) -> Dict[str, int]:
     """The hexagon sketch's solver records in the census form: the
     horizontal/vertical constraint on the top flat ONLY (the generic sketch
-    writer puts one on every line, slanted ones included, which the angle
-    locks would contradict), ``m_angleCoef`` = each line's length, and
+    writer emits one on every axis-parallel line since #952 -- here the
+    bottom flat's is dropped too, as born hexagons carry one), ``m_angleCoef``
+    = each line's length, and
     ``m_highResidualTol`` True."""
     recs = sk.obj.get("m_elemRecs") or []
     pid_line = {r["pid"]: int(r["value"]["m_objId"]) for r in recs}

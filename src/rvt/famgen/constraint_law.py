@@ -589,7 +589,7 @@ def _cg11(eid, cls, obj, add) -> None:
         cv = _val(c)
         hor = bool(cv.get("m_hor"))
         for w in cv.get("m_constrElems") or []:
-            prm = lines.get(int((w or {}).get("weakref", -1)))
+            prm = lines.get(_tag(w or {}, "weakref", -1))   # None-safe (#964 review)
             if prm is None:
                 continue
             axis = line_axis(*prm)
