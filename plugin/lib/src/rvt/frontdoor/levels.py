@@ -192,7 +192,9 @@ def stage_levels(src_rvt: str, out_path: str, intent_levels: Sequence[dict], *,
                              "removed_ids": list(crep.removed_ids),
                              "elemtable_count_before": crep.elemtable_count_before,
                              "elemtable_count_after": crep.elemtable_count_after,
-                             "watermark": crep.watermark}
+                             "watermark": crep.watermark,
+                             # #941: the host's exact partition tail kept byte for byte
+                             "partition_tail": crep.partition_tail}
             after = {int(lv["id"]): lv for lv in Document.from_file(out_path).levels()}
             rec["mismatch"] = {}
             for b in bound:
@@ -205,7 +207,9 @@ def stage_levels(src_rvt: str, out_path: str, intent_levels: Sequence[dict], *,
                              and all(s == 102 for s, _e in crep.replaced)
                              and not crep.removed_ids
                              and crep.elemtable_count_before == crep.elemtable_count_after
-                             and not rec["mismatch"])
+                             and not rec["mismatch"]
+                             and ((crep.partition_tail or {}).get("kept_host_tail")
+                                  or not (crep.partition_tail or {}).get("exact")))
             if not rec["ok"]:
                 rec["blocker"] = "level edit did not land cleanly (see commit / mismatch)"
     except Exception as e:                                               # noqa: BLE001

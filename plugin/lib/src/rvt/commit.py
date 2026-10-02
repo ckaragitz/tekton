@@ -25,12 +25,13 @@ from __future__ import annotations
 
 import dataclasses
 import struct
-from typing import Dict, List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from . import ecc
 from . import partitions as _P
 from .container import open_rvt
 from .identity import own_streams
+from .partition_tail import tail_defect, tail_verdict, writer_logical
 from .partitions import StreamWalker
 from .roundtrip import rewrite_entries
 from .stream_encoders import (decode_elemtable, encode_elemtable,
@@ -77,6 +78,9 @@ class CommitReport:
     watermark_after: int
     per_seq_bytes_added: Dict[int, int]
     out_path: str
+    #: how the source partition was read (#941, ``partition_tail.writer_logical``):
+    #: ``exact`` True = the host's exact tail is kept byte for byte
+    partition_tail: Optional[dict] = None
 
 
 def commit_new_elements(src_rvt: str, out_path: str,
@@ -124,7 +128,10 @@ def commit_new_elements(src_rvt: str, out_path: str,
         new_streams["Global/ElemTable"] = ecc.frame_stream(et_logical)
 
         # ---------------- 2. Partitions/<N> --------------------------------
-        logical = doc.logical(pname)
+        # the EXACT content (#941): the walker's end_record is then the host's
+        # exact tail, kept byte for byte below -- a de-paged read would carry
+        # the host's final-block parity in as content (one stale generation)
+        logical, tail_rep = writer_logical(doc, pname)
         w = StreamWalker(logical, inflate=True, keep_data=True)
         if w.errors:
             raise RuntimeError(f"walker errors on source: {w.errors[:3]}")
@@ -176,6 +183,8 @@ def commit_new_elements(src_rvt: str, out_path: str,
         if w2.errors:
             raise RuntimeError(f"walker errors after splice: {w2.errors[:3]}")
         part_logical = bytes(out[:w2.end_offset + len(w2.end_record)])
+        tail_rep["host_tail_bytes"] = len(w.end_record) if tail_rep["exact"] else None
+        tail_rep["kept_host_tail"] = bool(tail_rep["exact"] and w2.end_record == w.end_record)
         new_streams[pname] = ecc.frame_stream(part_logical)
 
         # ---------------- 3. identity (gate G2): the writer OWNS BasicFileInfo
@@ -188,11 +197,18 @@ def commit_new_elements(src_rvt: str, out_path: str,
     # ---------------- 4. write ------------------------------------------------
     rewrite_entries(src_rvt, out_path, new_streams)
     return CommitReport(pname, new_ids, count_before, count_after,
-                        watermark_after, added_bytes, out_path)
+                        watermark_after, added_bytes, out_path, tail_rep)
 
 
-def verify_written(path: str, expect_ids: Sequence[int]) -> dict:
-    """Read a committed file back and prove structural + semantic health."""
+def verify_written(path: str, expect_ids: Sequence[int], *,
+                   host_rvt: Optional[str] = None) -> dict:
+    """Read a committed file back and prove structural + semantic health.
+
+    The partition TAIL (#941, ``partition_tail.tail_verdict``): it must start
+    on the release's end record and, given ``host_rvt`` (the file the commit
+    read), equal the host's exact tail byte for byte.  ``rep["partition_tail"]``
+    holds the verdict; ``ok`` False there is a defect
+    (``rep["partition_tail_defect"]`` names it)."""
     from .objects import ObjectDecoder, iter_records
     rep = {"crc_failures": 0, "ecc_mismatches": 0, "walker_errors": 0,
            "new_ids_found": {}, "elemtable_count": None,
@@ -229,4 +245,8 @@ def verify_written(path: str, expect_ids: Sequence[int]) -> dict:
                         stamps_ok = False
             rep["new_ids_found"][seq] = found
         rep["stamps_ok"] = stamps_ok
+    rep["partition_tail"] = tail_verdict(path, host_rvt, pname)
+    defect = tail_defect(rep["partition_tail"])
+    if defect:
+        rep["partition_tail_defect"] = defect
     return rep

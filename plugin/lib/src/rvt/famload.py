@@ -1103,12 +1103,14 @@ def repoint_usage(src_rvt: str, out_rvt: str, repoints: Sequence[UsageRepoint],
     if not plans:
         return {"edits": log, "written": False}
     MP.commit_plans(src_rvt, out_rvt, plans)
-    ver = MP.verify_manipulated(out_rvt, edited_ids=[p.elem_id for p in plans])
+    ver = MP.verify_manipulated(out_rvt, edited_ids=[p.elem_id for p in plans],
+                                host_rvt=src_rvt)
     return {"edits": log, "written": True, "plans": len(plans),
             "verify": {k: ver.get(k) for k in ("crc_failures", "ecc_mismatches",
                                                    "walker_errors", "stamps_ok",
                                                    "elemtable_count",
-                                                   "isize_identity_mismatches")}}
+                                                   "isize_identity_mismatches",
+                                                   "partition_tail")}}
 
 
 # ---------------------------------------------------------------------------
@@ -1383,13 +1385,13 @@ def _load_family_documents(host_rvt: str, families: Sequence[FamilyLoad],
             # nothing was repointed: the loaded (stage) file IS the output
             os.replace(stage_out, out_rvt)
     # ---------------- verify -------------------------------------------------
-    # pass 3 (usage repointing) is a manipulate rewrite of its own: the tail
-    # law is judged on the pass-2 bytes only when pass 3 did not rewrite
-    tail_host = None if (proofs.get("pass3_usage_repoint") or {}).get("written") else host_rvt
+    # pass 3 (usage repointing) is a manipulate rewrite of its own, which
+    # keeps its source's exact tail too since #941: the tail law is judged
+    # against the HOST on every output, repointed or not
     ver = verify_loaded_project(out_rvt, plans, expected_units_added=len(plans),
                                  validate=validate,
                                  census_before=host.census_before,
-                                 host_rvt=tail_host)
+                                 host_rvt=host_rvt)
     proofs["verify_written"] = ver
     ok = bool(ver.get("ok"))
     acceptance.extend([

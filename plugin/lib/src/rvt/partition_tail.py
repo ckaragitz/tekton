@@ -25,6 +25,20 @@ Before #938 each project load added two generations of stale parity (pass 1
 ``commit_new_elements`` re-framed the host's de-paged tail; pass 2 re-read the
 pass-1 file de-paged): +660 B (2026), +1,051 B (2025), +645 B (2024) per load.
 
+#941 extends the law from the loaders to EVERY project-rewriting writer
+(``commit.commit_new_elements`` and its callers -- walls, equipment, mep,
+famload pass 1 --, ``manipulate.commit_plans`` -- identity, levels, edits,
+famload pass 3 --, ``mep.conduit.commit_created``,
+``mep.electrical_data.commit_electrical``, ``tools/rvt_edit_text.py``): each
+read its source partition DE-PAGED (``doc.logical``) and kept the walker's
+``end_record`` whole, so each added one generation of the source's
+final-block parity (+580 / +578 / +526 B per stage on the 6-panel project).
+They now read it with :func:`writer_logical` (the exact content, so the
+walker's ``end_record`` IS the host's exact tail) and their verifiers judge
+the written tail with :func:`tail_verdict`.  ``reduce.delete_elements`` is
+deliberately NOT changed: it is the genesis composition tool that built the
+certified bases with their lineage tails, not a product path (#941 record).
+
 Release-agnostic: the walker reads the release's own framing ordinals, so
 callers run inside the file's release context (the loaders already do;
 instruments use ``global_framing.enter_own_release``).
@@ -33,7 +47,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Tuple
 
-__all__ = ["exact_tail", "host_tail", "keep_host_tail", "check_tail"]
+__all__ = ["exact_tail", "host_tail", "keep_host_tail", "check_tail",
+           "writer_logical", "tail_verdict", "tail_defect"]
 
 
 def exact_tail(raw: bytes) -> Optional[Tuple[bytes, int, bytes]]:
@@ -121,3 +136,56 @@ def check_tail(path: str, expected: Optional[bytes] = None,
         ok = ok and tail == expected
     rep["ok"] = bool(ok)
     return rep
+
+
+def writer_logical(doc: Any, pname: str) -> Tuple[bytes, Dict[str, Any]]:
+    """The logical partition stream a project-rewriting writer splices into
+    (#941): the EXACT content of ``doc``'s ``pname`` (``ecc.unframe_stream``),
+    so the partition walker's ``end_record`` is the host's exact tail and a
+    writer that keeps ``out[:end_offset + len(end_record)]`` keeps that tail
+    byte for byte, adding no generation of stale parity.  When the final block
+    does not decode exactly (an Autodesk-born block with heap bytes in its pad
+    region) the de-paged stream is returned, as every writer read it before
+    #941; the report says which (``exact``).  ``doc``: an open ``RvtDocument``
+    (anything with ``raw(name)`` and ``logical(name)``)."""
+    from . import ecc
+    try:
+        return ecc.unframe_stream(doc.raw(pname)), {"exact": True}
+    except ValueError:
+        return doc.logical(pname), {
+            "exact": False,
+            "why": "final block not exactly decodable: read de-paged (host tail unknown)"}
+
+
+def tail_verdict(path: str, host_rvt: Optional[str] = None,
+                 partition: Optional[str] = None) -> Dict[str, Any]:
+    """:func:`check_tail` of a written file against its HOST's exact tail
+    (#941).  With ``host_rvt`` the written tail must equal the host's when the
+    host's decodes exactly (``host_tail_known``); otherwise, and without
+    ``host_rvt``, only the end-record check runs.  Judged under the written
+    file's OWN release framing (``global_framing.enter_own_release``,
+    nest-safe), whatever context the caller is in."""
+    from contextlib import ExitStack
+    from .global_framing import enter_own_release
+    try:
+        with ExitStack() as stack:
+            enter_own_release(stack, path)
+            expected = host_tail(host_rvt, partition) if host_rvt else None
+            rep = check_tail(path, expected, partition)
+    except Exception as e:                     # noqa: BLE001 -- a verifier never raises
+        return {"partition": partition, "ok": None,
+                "why": f"tail not judgeable: {type(e).__name__}: {e}"}
+    if host_rvt:
+        rep["host_tail_known"] = expected is not None
+    return rep
+
+
+def tail_defect(rep: Optional[Dict[str, Any]]) -> Optional[str]:
+    """The one-line defect a :func:`check_tail` report names when its ``ok``
+    is False; None when it is ok or not judgeable."""
+    if not rep or rep.get("ok") is not False:
+        return None
+    if not rep.get("starts_on_end_record"):
+        return f"partition tail: does not start on the stream end record ({rep.get('partition')})"
+    return (f"partition tail: {rep.get('tail_bytes')} B != the host's "
+            f"{rep.get('expected_tail_bytes')} B (stale parity carried as content)")

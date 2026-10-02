@@ -1955,14 +1955,15 @@ def build_walls_file(base_rvt: str, out_path: str, wall_lines: Sequence[dict], *
         plans.append(el.elemrec)
     crep = commit_new_elements(base_rvt, out_path, records, plans)
     ids = [p.elem_id for p in plans]
-    ver = verify_written(out_path, ids)
+    ver = verify_written(out_path, ids, host_rvt=base_rvt)
     rep["new_ids"] = ids
     rep["commit"] = {"elemtable_after": crep.elemtable_count_after,
                      "watermark_after": crep.watermark_after,
                      "bytes_added": dict(crep.per_seq_bytes_added)}
     rep["verify_written"] = ver
     rep["structurally_valid"] = bool(all(
-        all(x.get("clean") for x in ver["new_ids_found"][s].values()) for s in ver["new_ids_found"]))
+        all(x.get("clean") for x in ver["new_ids_found"][s].values()) for s in ver["new_ids_found"])
+        and (ver.get("partition_tail") or {}).get("ok") is not False)   # #941 tail law
     rep["seconds"] = round(time.time() - t0, 1)
     rep["md5"] = _md5(out_path)
     return rep

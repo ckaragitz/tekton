@@ -1558,6 +1558,9 @@ class ElectricalCommitReport:
     watermark_after: int
     blocks_after: Dict[int, int]
     out_path: str
+    #: how the source partition was read (#941, ``partition_tail.writer_logical``):
+    #: ``exact`` True = the host's exact tail is kept byte for byte
+    partition_tail: Optional[dict] = None
 
     def to_json(self) -> dict:
         d = dataclasses.asdict(self)
@@ -1641,7 +1644,10 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
         new_streams["Global/ElemTable"] = ecc.frame_stream(et_logical)
 
         # ---- 2. Partitions/<N>: rewrite save-unit 0 -----------------------------
-        logical = d.logical(pname)
+        # the EXACT content (#941): the verbatim tail copied below is then the
+        # host's exact tail (a de-paged read re-framed its parity as content)
+        from ..partition_tail import writer_logical
+        logical, tail_rep = writer_logical(d, pname)
         w = StreamWalker(logical, inflate=True, keep_data=True)
         if w.errors:
             raise M.ManipulationError(f"walker errors on source {pname}: {w.errors[:3]}")
@@ -1684,6 +1690,8 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
         if w2.errors:
             raise M.ManipulationError(f"walker errors after re-emit: {w2.errors[:3]}")
         part_logical = bytes(out[:w2.end_offset + len(w2.end_record)])
+        tail_rep["host_tail_bytes"] = len(w.end_record) if tail_rep["exact"] else None
+        tail_rep["kept_host_tail"] = bool(tail_rep["exact"] and w2.end_record == w.end_record)
         new_streams[pname] = ecc.frame_stream(part_logical)
 
         # ---- 3. identity (gate G2) — opt-in, see docstring: this site's policy
@@ -1697,17 +1705,21 @@ def commit_electrical(src_rvt: str, out_path: str, doc: Document, *,
     return ElectricalCommitReport(
         pname, sorted(e.elem_id for e in new_elements), sorted(removals),
         sorted(replacements.keys()), count_before, count_after, watermark,
-        blocks_after, out_path)
+        blocks_after, out_path, tail_rep)
 
 
 def verify_electrical(path: str, *, new_ids: Sequence[int] = (),
                       edited_ids: Sequence[int] = (),
-                      deleted_ids: Sequence[int] = ()) -> dict:
+                      deleted_ids: Sequence[int] = (),
+                      host_rvt: Optional[str] = None) -> dict:
     """Structural + semantic proof of a committed file (wraps
     ``manipulate.verify_manipulated`` and treats new elements as edited:
-    present, decoding cleanly, in all their seqs)."""
+    present, decoding cleanly, in all their seqs).  ``host_rvt`` (the file the
+    commit read) makes the partition-tail check compare against the host's
+    exact tail (#941)."""
     v = M.verify_manipulated(path, deleted_ids=list(deleted_ids),
-                              edited_ids=list(new_ids) + list(edited_ids))
+                              edited_ids=list(new_ids) + list(edited_ids),
+                              host_rvt=host_rvt)
     v["new_ids"] = list(new_ids)
     v["structurally_valid"] = structurally_valid(v)
     return v
@@ -1721,7 +1733,10 @@ def structurally_valid(v: dict) -> bool:
           and all((v.get("sentinel_last") or {}).values())
           and v.get("elemtable_count") == v.get("header_count")
           and v.get("elemtable_ids_sorted") and v.get("unit0_ids_equal_elemtable")
-          and not v.get("deleted_still_present") and not v.get("deleted_in_elemtable"))
+          and not v.get("deleted_still_present") and not v.get("deleted_in_elemtable")
+          # the partition tail (#941): a judged mismatch is a defect; an
+          # unjudgeable tail (Autodesk-born final block) is not
+          and (v.get("partition_tail") or {}).get("ok") is not False)
     for _eid, seqs in (v.get("edited") or {}).items():
         ok = ok and all(x.get("clean") for x in seqs.values())
     return bool(ok)

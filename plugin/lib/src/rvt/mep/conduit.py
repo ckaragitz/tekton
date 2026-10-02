@@ -1514,7 +1514,10 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
         et_logical = global_prefix("Global/ElemTable") + gzip_member(et_new, level=3)
         new_streams["Global/ElemTable"] = ecc.frame_stream(et_logical)
         # -- Partitions/<N>: append records before each unit-0 sentinel -------
-        logical = f.logical(pname)
+        # the EXACT content (#941): the walker's end_record is the host's exact
+        # tail, kept byte for byte (a de-paged read re-framed its parity)
+        from ..partition_tail import writer_logical
+        logical, tail_rep = writer_logical(f, pname)
         w = StreamWalker(logical, inflate=True, keep_data=True)
         if w.errors:
             raise RuntimeError(f"walker errors on source: {w.errors[:3]}")
@@ -1566,6 +1569,8 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
         if w2.errors:
             raise RuntimeError(f"walker errors after splice: {w2.errors[:3]}")
         part_logical = bytes(out[:w2.end_offset + len(w2.end_record)])
+        tail_rep["host_tail_bytes"] = len(w.end_record) if tail_rep["exact"] else None
+        tail_rep["kept_host_tail"] = bool(tail_rep["exact"] and w2.end_record == w.end_record)
         new_streams[pname] = ecc.frame_stream(part_logical)
         # -- identity: the writer owns BasicFileInfo; a MINIMAL commit (no new
         # History episode), so the document GUID is kept -- rvt.identity's policy
@@ -1575,10 +1580,12 @@ def commit_created(src_rvt: str, out_path: str, doc: Document,
               "elemtable_count_before": count_before,
               "elemtable_count_after": count_after,
               "watermark_after": watermark_after,
-              "per_seq_bytes_added": added_bytes, "out_path": out_path}
+              "per_seq_bytes_added": added_bytes, "out_path": out_path,
+              "partition_tail": tail_rep}
     if verify:
         from ..commit import verify_written
-        report["verify_written"] = verify_written(out_path, [e.elem_id for e in elements])
+        report["verify_written"] = verify_written(out_path, [e.elem_id for e in elements],
+                                                  host_rvt=src_rvt)
     return report
 
 

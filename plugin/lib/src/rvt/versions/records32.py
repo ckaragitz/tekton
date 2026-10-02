@@ -364,7 +364,8 @@ def verify_reduced32(path: str, deleted_ids: Iterable[int] = ()) -> dict:
 
 
 def verify_manipulated32(path: str, *, deleted_ids=(), edited_ids=(),
-                         expect_elemtable_count: Optional[int] = None) -> dict:
+                         expect_elemtable_count: Optional[int] = None,
+                         walked=None, host_rvt: Optional[str] = None) -> dict:
     """32-bit-id variant of :func:`rvt.manipulate.verify_manipulated`.
 
     TRACKS rvt.manipulate.verify_manipulated (2026-08-04 shape) with two
@@ -373,7 +374,13 @@ def verify_manipulated32(path: str, *, deleted_ids=(), edited_ids=(),
     uses the FILE'S OWN schema (the original builds ObjectDecoder() over
     the canonical 2026 schema, which mis-decodes 2023 ordinals).  All other
     helpers (iter_records, decode_elemtable) resolve to the patched
-    bindings while :func:`ids32` is active."""
+    bindings while :func:`ids32` is active.
+
+    ``walked`` and ``host_rvt`` keep the native signature, so a caller that
+    passes them (#941: ``verify_electrical``, ``famload.repoint_usage``)
+    works inside :func:`ids32` (#946 review).  They are accepted but not used:
+    the 2023 era's partition-tail check is not ported, so a 2023 result carries
+    ``partition_tail: "not checked (2023 era)"`` rather than claiming one."""
     import struct as _s
     from .. import ecc
     from .. import manipulate as M
@@ -441,6 +448,8 @@ def verify_manipulated32(path: str, *, deleted_ids=(), edited_ids=(),
             rep["unit0_ids_equal_elemtable"] = (u0_102_ids == etset)
     if expect_elemtable_count is not None:
         rep["elemtable_count_expected"] = expect_elemtable_count
+    if host_rvt is not None:
+        rep["partition_tail"] = "not checked (2023 era)"
     return rep
 
 

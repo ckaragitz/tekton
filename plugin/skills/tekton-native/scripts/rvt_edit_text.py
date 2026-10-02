@@ -120,7 +120,11 @@ def main(argv=None) -> int:
 def _edit(a: argparse.Namespace, doc, old_b: bytes, new_b: bytes) -> int:
     with doc:
         pname = find_partition(doc, a.partition)
-        logical = doc.logical(pname)
+        # the EXACT content (#941 / #946 review): the walker's end_record is
+        # then the host's exact tail, so the re-framed partition keeps it and
+        # adds no generation of stale ECC parity
+        from rvt.partition_tail import writer_logical
+        logical, _tail = writer_logical(doc, pname)
         try:
             w = P.StreamWalker(logical, inflate=True, keep_data=True)
         except Exception as e:  # noqa: BLE001 -- a header no release in force parses: refuse, never trace back

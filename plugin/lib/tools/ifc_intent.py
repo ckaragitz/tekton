@@ -728,7 +728,7 @@ def stage_walls(model: I.IntentModel, src_rvt: str, out_path: str,
             plans.append(el.elemrec)
         crep = commit_new_elements(src_rvt, out_path, records, plans)
         ids = [p.elem_id for p in plans]
-        ver = verify_written(out_path, ids)
+        ver = verify_written(out_path, ids, host_rvt=src_rvt)
         rec.update(_commit_summary(crep, ver, ids))
         rec["ok"] = bool(rec["structurally_valid"])
         rec["seconds"] = round(time.time() - t0, 1)
@@ -768,7 +768,10 @@ def _commit_summary(crep, ver: dict, ids: Sequence[int]) -> Dict[str, Any]:
              for s in (101, 102, 103)}
     ok = (ver.get("crc_failures") == 0 and ver.get("ecc_mismatches") == 0
           and ver.get("walker_errors") == 0 and ver.get("stamps_ok")
-          and all(n == len(ids) for n in found.values()))
+          and all(n == len(ids) for n in found.values())
+          # the partition tail (#941): a judged mismatch with the host's exact
+          # tail is a defect; an unjudgeable (Autodesk-born) tail is not
+          and (ver.get("partition_tail") or {}).get("ok") is not False)
     return {
         "elemtable_before": getattr(crep, "elemtable_count_before", None),
         "elemtable_after": getattr(crep, "elemtable_count_after", None),
@@ -780,7 +783,10 @@ def _commit_summary(crep, ver: dict, ids: Sequence[int]) -> Dict[str, Any]:
                    "elemtable_matches_header": ver.get("elemtable_count") == ver.get("header_count"),
                    "sentinels_last": all(ver.get("sentinel_last", {}).values())
                    if isinstance(ver.get("sentinel_last"), dict) else ver.get("sentinel_last"),
-                   "new_elements_clean_per_seq": found},
+                   "new_elements_clean_per_seq": found,
+                   "partition_tail": {k: (ver.get("partition_tail") or {}).get(k)
+                                      for k in ("ok", "tail_bytes", "stray_bytes",
+                                                "equals_host_tail")}},
         "structurally_valid": bool(ok),
     }
 
@@ -1124,7 +1130,7 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
             plans.append(el.elemrec)
         crep = commit_new_elements(src_rvt, out_path, records, plans)
         ids = [p.elem_id for p in plans]
-        ver = verify_written(out_path, ids)
+        ver = verify_written(out_path, ids, host_rvt=src_rvt)
         rec.update(_commit_summary(crep, ver, ids))
         rec["ok"] = bool(rec["structurally_valid"])
         rec["instances_by_category"] = dict(collections.Counter(
