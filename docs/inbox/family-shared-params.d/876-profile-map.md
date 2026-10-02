@@ -35,6 +35,16 @@ The tests fail on main, which has no `links`.
 
 The link is a formula, so the library parameter *reports* our size. That Revit re-evaluates it, and that labelling our own dimensions with the shared parameter would let it *drive* them, both need desktop verdicts (hard rule 4). Labelling is a later item.
 
+## #962 review nits carried here
+
+- **Recorded:** what #870 changed for profile users. A library **string constant**, such as `"Box"`, is now written as the formula the library stores. Before, it was flattened to a value. As a formula, the parameter is **formula-driven in Revit**: it cannot be edited per type until the formula is cleared, exactly as in the library's own families.
+  - The reviewer's related point predates #870 and is filed as #968: a one-family constant formula, such as a rating in quotes, is carried as structure under `family=` mirroring.
+- **Recorded:** #870 extended past the territory its issue named, to `param_profile.py`, the `_formula_spec` helper in `skeleton.py`, and the 875/886 tests. Each follows from the change, and #870's record describes them.
+- `("")`, like `""`, is refused as Revit's "no formula": parentheses are unwrapped before the check.
+- A caption that *starts* with `"` cannot be named in a formula, because the quote opens a text constant. This is pinned by a test and stated in `docs/writer/formulas.md`.
+- Two docstrings that still described text formulas as unwritten are updated: `formula.unparse` and the `param_profile.CLASS_SPEC` comment.
+- `test_famgen_formula_850`'s "Pick" case is flipped to a positive test rather than dropped.
+
 ## BRANCH STATE
 
 - Files:
