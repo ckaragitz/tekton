@@ -47,18 +47,19 @@ def _panel(name):
 
 
 class _Counting:
-    """Count ObjectEncoder.encode_object / encode_record calls (= records encoded afresh)."""
+    """Count ObjectEncoder.encode_object / encode_record calls (= records encoded afresh).
+    Patched on the CLASS, never as instance attributes: an instance attribute left on the
+    shared encoder would shadow the 2023 era's class-level encode_record swap (records32)."""
 
     def __init__(self, monkeypatch):
         self.n = 0
-        enc = GSK._SCHEMA_CACHE["enc"]
         for name in ("encode_object", "encode_record"):
-            orig = getattr(enc, name)
+            orig = getattr(E.ObjectEncoder, name)
 
-            def wrap(*a, _orig=orig, **k):
+            def wrap(enc, *a, _orig=orig, **k):
                 self.n += 1
-                return _orig(*a, **k)
-            monkeypatch.setattr(enc, name, wrap)
+                return _orig(enc, *a, **k)
+            monkeypatch.setattr(E.ObjectEncoder, name, wrap)
 
 
 # -- the shared record memo ------------------------------------------------------------
