@@ -149,10 +149,20 @@ class TestRebindLane:
         assert census["self_contained"] is True
         assert census["foreign"] == 0 and census["unbound_form"] == 0
         b = ent["binds"]["bound"]
-        assert b["solid_nodes"] == 1
-        assert b["faces_render"] == 6
-        assert b["sketch_curves"] == 4
-        assert b["material_field"] == 1
+        # Re-pinned for #924: was solid 1 / faces 6 / curves 4 / material 1,
+        # i.e. ONE box extrusion -- the PP-1 panelboard's single body at the
+        # time.  The panelboard now authors its front parts and NEC
+        # clearance zones as further box extrusions (#931/#933/#818), on
+        # purpose.  The law is per extrusion and is pinned exactly: every
+        # ExtrusionElem binds 1 Geometry node, its 6 faces, its 4 sketch
+        # curves and its material field -- none skipped.
+        n_ext = sum(1 for e in prod.doc.elements
+                    if e.class_name == "ExtrusionElem")
+        assert n_ext >= 1
+        assert b["solid_nodes"] == n_ext
+        assert b["faces_render"] == 6 * n_ext
+        assert b["sketch_curves"] == 4 * n_ext
+        assert b["material_field"] == n_ext
         # bound targets are authored in-unit rows of the right class
         by_id = {e.elem_id: e for e in prod.doc.elements}
         t = ent["binds"]["targets"]

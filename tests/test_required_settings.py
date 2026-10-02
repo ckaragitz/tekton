@@ -90,14 +90,53 @@ def test_pen_width_table_carries_the_iso_series(fi):
 
 
 def test_refplane_cutvec_is_the_plane_normal(fi):
+    """m_cutVec is the direction of the view the plane was SKETCHED in (the
+    plane's ``normal`` argument), never the old in-plane x-cross-normal.
+
+    Re-pinned for #924: the original pin said "every RefPlane carries
+    [0,0,1] and there are exactly 6" -- true while every plane of the
+    panelboard was drawn in the plan view.  Since #923/#931 the panelboard's
+    Height goes through ``height_law``, which deliberately adds the
+    template's origin elevation plane in its born DRAWN form (drawn in the
+    front elevation, m_cutVec (0,1,0)) and surface-only horizontal planes
+    (born law: ends, m_cutVec and genDbViewId all zero / -1); and
+    ``drive_law`` (#907/#931) adds more plan-drawn drive planes.  The law
+    is the same; the pin now checks it per generating view."""
     recs = fi.unit_records(0).get(102, {})
-    seen = 0
+    plan = elev = surface = 0
+    names = set()
     for eid, r in sorted(recs.items()):
-        if fi.class_name(r.class_id) == "RefPlane":
-            assert fi.value(0, eid, 102).get("m_cutVec") == [0.0, 0.0, 1.0], eid
-            seen += 1
-    # 2 center planes + the 4 parametric-drive side planes (issue #372)
-    assert seen == 6
+        if fi.class_name(r.class_id) != "RefPlane":
+            continue
+        v = fi.value(0, eid, 102)
+        cut, gv = v.get("m_cutVec"), v.get("m_genDbViewId")
+        if gv == -1:
+            # height_law's born surface-only horizontal plane
+            assert cut == [0.0, 0.0, 0.0], eid
+            assert v.get("m_freeEnd") == v.get("m_bubbleEnd") == [0.0, 0.0, 0.0], eid
+            surface += 1
+            continue
+        view_cls = fi.class_name(recs[gv].class_id)
+        free, bub = v.get("m_freeEnd"), v.get("m_bubbleEnd")
+        line = [b - f for f, b in zip(free, bub)]
+        assert abs(sum(c * l for c, l in zip(cut, line))) < 1e-9, eid  # not in-plane
+        if view_cls == "DBViewPlan":
+            assert cut == [0.0, 0.0, 1.0], eid
+            plan += 1
+            names.add(v.get("m_text"))
+        else:
+            # the origin elevation plane, drawn in the front elevation
+            assert view_cls == "DBViewSection", (eid, view_cls)
+            assert cut == [0.0, 1.0, 0.0], eid
+            elev += 1
+    assert {"Center (Front/Back)", "Center (Left/Right)"} <= names
+    # exact counts for the default panelboard (drive="law", #931), measured
+    # on the written fixture: 18 plan-drawn planes (the 2 centre planes + the
+    # Width/Depth drive planes and the planes their riding parts lock to),
+    # the 1 elevation-drawn origin plane, and 7 surface-only Height cap planes
+    # (height_law) -- exact, so a drive or cap plane silently dropped is red
+    # (#943 review: floors let up to 12 + 6 planes go missing)
+    assert (plan, elev, surface) == (18, 1, 7), (plan, elev, surface)
 
 
 def test_headers_carry_no_bbox(fi):
