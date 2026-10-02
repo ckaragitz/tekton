@@ -34,7 +34,7 @@ value or tree from a reference family is carried.
 | `ParenExpression` | `m_pSubexpression` |
 | `ParameterExpression` | `m_paramId` (the parameter's element id) |
 | `NumberConstantExpression` | `m_value` (internal units), `m_specTypeId` |
-| `StringConstantExpression` | `m_value` |
+| `StringConstantExpression` | `m_value` (the text; no spec). Empty = "no formula" |
 
 Every node is an owned pointer `{ptr_class, pid: -1, value}`.
 
@@ -79,11 +79,25 @@ inconsistent units.
 
 ## What the writer accepts (and refuses)
 
-- **Operands and results are measurable doubles or Yes/No.** Text, Integer and other
-  storage kinds are refused. Their stored forms (`m_str`, an element id) are not what
-  this writer emits. In the pack, an **Integer**-typed formula result is stored
-  *rounded* in `m_int` (the independent review needed that allowance to reach
-  24,320/24,320). A future Integer path must do the same.
+- **Operands and results are measurable doubles, Yes/No or text (#870).** Integer,
+  material and other storage kinds are refused. Their stored forms (a rounded
+  `m_int`, an element id) are not what this writer emits. In the pack, an
+  **Integer**-typed formula result is stored *rounded* in `m_int` (the independent
+  review needed that allowance to reach 24,320/24,320). A future Integer path must
+  do the same.
+- **Text is a value, never an operand (#870).** A `"quoted"` literal is a
+  `StringConstantExpression`; a text parameter may be named; `if()` may choose
+  between two texts. No operator takes text: joining (`+`) and comparing (`=`) have
+  no pinned code, so both are refused. A text result is stored in the row's `m_str`,
+  with `m_value` 0.0, `m_int` 0 and `m_elemId` -1, on every row, under the same tree.
+  - These are the shapes the owner's library uses. In a private census (counts only),
+    4,002 formulas carry text: 3,278 bare constants, and the rest `if()` chains over
+    Yes/No conditions. 3,901 re-evaluate exactly to the stored `m_str`; the other 101
+    hold `size_lookup` (code 21, unpinned), which stays refused.
+  - `""` alone is how Revit stores **no formula**, so it is refused as a formula
+    (leave the value blank). An empty text inside `if()` is an ordinary value.
+  - A material parameter is never read as text, even where a shared definition names
+    it with a text spec: its value is an element id.
 - **Yes/No is typed.** An `if` condition and the arguments of `and` / `or` / `not`
   must be Yes/No. A Yes/No value never takes `+ - * /`, `= < >`, negation or
   `round`.

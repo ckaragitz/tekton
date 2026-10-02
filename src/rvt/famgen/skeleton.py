@@ -1220,6 +1220,15 @@ def _canonical_spec(spec: str) -> str:
     return s
 
 
+def _formula_spec(pe: "SkelElement") -> str:
+    """The spec a formula reads ``pe`` as: its own, at one schema version -- except a
+    MATERIAL parameter, whose value is an element id even where a shared definition
+    names it with a text spec: never read or written as text (#870)."""
+    if pe.refs.get("kind") == "ParamDefMaterialBrowse":
+        return SPEC_MATERIAL
+    return _canonical_spec(pe.refs.get("spec") or SPEC_LENGTH)
+
+
 def _is_instance_param(pe: "SkelElement") -> bool:
     """A family parameter bound per instance: a local ``ParamElemFamily`` says so in
     ``m_instanceParam``; a shared ``ParamElemExternal`` has no such field -- its
@@ -2332,8 +2341,7 @@ class FamilyDoc:
         # every parameter's spec at ONE schema version: a library parameter written at
         # '...length-2.0.0' is the same kind of value as our '...length-1.0.0', both in
         # an operand check (formula.py compares specs exactly) and against the result
-        spec_of = {pe.elem_id: _canonical_spec(pe.refs.get("spec") or SPEC_LENGTH)
-                   for pe in self.params.values()}
+        spec_of = {pe.elem_id: _formula_spec(pe) for pe in self.params.values()}
         is_instance = {pe.elem_id: _is_instance_param(pe) for pe in self.params.values()}
         refs = _fx.NameTable({name: _fx.ParamRef(pe.elem_id, spec_of[pe.elem_id])
                               for name, pe in self.params.items()})
@@ -2428,6 +2436,8 @@ class FamilyDoc:
             entry = family_param_value(pid, v)
             if spec_of.get(pid) == SPEC_YESNO:
                 return int(entry.get("m_int") or 0)
+            if spec_of.get(pid) == SPEC_TEXT:
+                return str(entry.get("m_str") or "")
             return float(entry.get("m_value") or 0.0)
         rows = []
         for (tname, _given), vals in zip(self.types, written):
@@ -2446,6 +2456,12 @@ class FamilyDoc:
             try:
                 for tname, _vals, values, _keys in rows:
                     res = _fx.evaluate(trees[pid], values)
+                    if spec_of[pid] == SPEC_TEXT:
+                        # a text result: m_str, the numeric fields at their blanks -- as
+                        # every text formula row of the reference library stores it (#870)
+                        results.append({"m_oExpression": trees[pid], "m_str": str(res),
+                                        "m_value": 0.0, "m_int": 0})
+                        continue
                     if not isinstance(res, bool) and not math.isfinite(float(res)):
                         raise ValueError(f"result {res!r} is not finite")
                     if spec_of[pid] == SPEC_YESNO:
@@ -2462,7 +2478,8 @@ class FamilyDoc:
                 # the key the row already uses for pid (a caption or an id), so a result
                 # REPLACES the given value instead of sitting beside it
                 vals[keys.get(pid, pid)] = entry
-                values[pid] = entry["m_int"] if "m_int" in entry else entry["m_value"]
+                values[pid] = (entry["m_str"] if spec_of[pid] == SPEC_TEXT
+                               else entry["m_int"] if "m_int" in entry else entry["m_value"])
         return written
 
     def _type_param_entries(self, vals: Dict[Any, Any]) -> List[dict]:

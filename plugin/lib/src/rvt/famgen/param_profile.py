@@ -15,8 +15,8 @@ correct, an invented one is not):
   rows: a FORMULA when every carrying family uses the same one, a CONSTANT only
   when two or more families hold it and agree -- tier ``library``, cited to the
   profile; product data that differs between families, material ids and family
-  types never carry; a text formula that is one string constant is written as its
-  value, any other text formula is left out and said (#870);
+  types never carry; a text formula is written as the formula it is (#870) -- a
+  string constant or an ``if()`` choosing between texts, as the library stores it;
 * else BLANK -- the all-empty value row a Revit-born family itself stores for a
   parameter nobody filled (``m_str`` "", ``m_int`` 0, ``m_value`` 0.0,
   ``m_elemId`` -1).
@@ -270,19 +270,13 @@ def _given(p: ProfileParam, values: Dict[str, Any]) -> Any:
 
 
 def _from_convention(p: ProfileParam) -> Tuple[Any, Optional[str], Optional[str], bool]:
-    """(default, formula, refusal, True) for ``p``'s library convention.  A text
-    parameter's formula that is one string constant is written as its value (text
-    formulas are not stored yet, #870); any other text formula is left out, said."""
+    """(default, formula, refusal, True) for ``p``'s library convention.  A formula
+    -- a text one included (#870): a string constant or an ``if()`` choosing between
+    texts is written as the formula the library stores, never flattened to a value."""
     blank = WRITABLE[p.def_class]
     conv = p.convention or {}
     if "formula" in conv:
-        text = conv["formula"]
-        if p.def_class in ("ParamDefString", "ParamDefURL", "ParamDefTextBrowseEdit"):
-            if len(text) >= 2 and text[0] == text[-1] == '"' and '"' not in text[1:-1]:
-                return text[1:-1], None, None, True
-            return blank, None, (f"the library's text formula {text[:60]!r} (text formulas "
-                                 f"are not written yet, #870)"), True
-        return blank, text, None, True
+        return blank, conv["formula"], None, True
     got = _value_for(p, {p.name: conv.get("value")}) if "value" in conv else (blank, None, None)
     return got[0], got[1], got[2], True
 
@@ -388,7 +382,7 @@ def settle_formula_provenance(doc, written_ids) -> None:
     notes say only what the latest finalize wrote.  Idempotent."""
     written_ids = set(written_ids)
     dropped: Dict[str, List[str]] = {"library": [], "given": []}
-    by_value, by_formula = [], []
+    library: Dict[str, Tuple[List[str], List[str]]] = {}     # source -> (by value, by formula)
     for name, pe in doc.params.items():
         claim = pe.refs.get("formula_provenance")
         if claim and pe.refs.get("formula") != claim["formula"]:
@@ -404,10 +398,14 @@ def settle_formula_provenance(doc, written_ids) -> None:
                 dropped.setdefault(claim["tag"].get("tier"), []).append(name)
         prov = pe.refs.get("provenance") or {}
         if prov.get("tier") == "library":
+            by_value, by_formula = library.setdefault(str(prov.get("source")), ([], []))
             (by_formula if prov.get("by") == "formula" else by_value).append(name)
     for i, n in enumerate(doc.notes):
         if n.startswith("provenance library ("):
+            # each profile's line from its OWN parameters (a document two profiles were
+            # applied to keeps two lines, each true of its source)
             head, _sep, _body = n.partition("): ")
+            by_value, by_formula = library.get(head[len("provenance library ("):], ([], []))
             kept = [f"{d!r} by value" for d in by_value] + [f"{d!r} by formula" for d in by_formula]
             doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
     doc.notes[:] = [n for n in doc.notes if not n.startswith(_NOT_WRITTEN_NOTES)]

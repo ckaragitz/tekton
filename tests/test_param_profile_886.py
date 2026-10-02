@@ -59,7 +59,7 @@ def test_a_yes_no_convention_of_no_is_reported(tmp_path):
     prod = _build(tmp_path, prof)
     assert prod.doc.params["Zz Flag"].refs["provenance"] == {
         "tier": "library", "source": "the profile 'profile.json'", "by": "value"}
-    assert "4 from the library's own conventions" in "\n".join(prod.doc.notes)
+    assert "5 from the library's own conventions" in "\n".join(prod.doc.notes)
 
 
 def test_a_spelling_that_reads_back_as_another_parameter_is_refused():
@@ -104,7 +104,8 @@ def test_a_formula_refused_once_and_written_later_is_tagged_again(tmp_path):
     PP.settle_formula_provenance(doc, set())                  # nothing written
     assert "provenance" not in half.refs
     assert any(n.startswith("library formulas not written") for n in doc.notes)
-    PP.settle_formula_provenance(doc, {half.elem_id})        # written this time
+    every = {pe.elem_id for pe in doc.params.values() if pe.refs.get("formula_provenance")}
+    PP.settle_formula_provenance(doc, every)                 # written this time
     assert half.refs["provenance"] == {
         "tier": "library", "source": "the profile 'profile.json'", "by": "formula"}
     (line,) = [n for n in doc.notes if n.startswith("provenance library (")]
@@ -176,3 +177,42 @@ def test_trees_that_compute_alike_are_not_reported_unread(tree):
 def test_a_different_constant_is_still_a_different_tree():
     a, b = _bin("*", _par(1), _num(2.0)), _bin("*", _par(1), _num(-2.0))
     assert FX._shape(a) != FX._shape(b)
+
+
+# --- the #961 review nits ---------------------------------------------------------------
+
+def test_a_failed_formula_step_then_a_good_one_settles_through_finalize(tmp_path, monkeypatch):
+    """The real path: finalize's formula step raises once (every formula left out, the
+    fallback note), then a later finalize writes them -- the tags come back."""
+    from rvt.famgen import skeleton as SKm
+    prod = _build(tmp_path, T._profile())
+    doc = prod.doc
+    real = SKm.FamilyDoc._apply_formulas
+    calls = {"n": 0}
+
+    def flaky(self):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("probe")
+        return real(self)
+    monkeypatch.setattr(SKm.FamilyDoc, "_apply_formulas", flaky)
+    doc.finalize()
+    assert "provenance" not in doc.params["Zz Half"].refs
+    assert any(n.startswith("library formulas not written") for n in doc.notes)
+    doc.finalize()
+    assert doc.params["Zz Half"].refs["provenance"]["by"] == "formula"
+    assert not any(n.startswith("library formulas not written") for n in doc.notes)
+
+
+def test_each_profile_line_lists_only_its_own_source(tmp_path):
+    prod = _build(tmp_path, T._profile())
+    doc = prod.doc
+    doc.finalize()
+    doc.params["Zz Unit"].refs["provenance"] = {"tier": "library", "source": "another", "by": "value"}
+    doc.notes.append("provenance library (another): 'Zz Unit' by value")
+    every = {pe.elem_id for pe in doc.params.values() if pe.refs.get("formula_provenance")}
+    PP.settle_formula_provenance(doc, every)
+    lines = [n for n in doc.notes if n.startswith("provenance library (")]
+    mine = next(n for n in lines if "profile.json" in n)
+    assert "Zz Unit" not in mine and "'Zz Half' by formula" in mine
+    assert "provenance library (another): 'Zz Unit' by value" in lines

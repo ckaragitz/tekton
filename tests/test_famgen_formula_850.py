@@ -227,10 +227,10 @@ def test_a_dangling_operator_says_so():
         _tree("Width +")
 
 
-@pytest.mark.parametrize("spec", ["autodesk.spec:spec.string-1.0.0", "autodesk.spec:spec.int64-1.0.0"])
-def test_text_and_integer_parameters_are_refused_in_formulas(spec):
-    params = dict(PARAMS, Label=F.ParamRef(30, spec))
-    with pytest.raises(F.FormulaError, match="only measurable and Yes/No"):
+def test_integer_parameters_are_refused_in_formulas():
+    # text parameters are read since #870 (tests/test_famgen_formula_870.py)
+    params = dict(PARAMS, Label=F.ParamRef(30, "autodesk.spec:spec.int64-1.0.0"))
+    with pytest.raises(F.FormulaError, match="only measurable, Yes/No and text"):
         F.parse_formula("Label", params)
 
 
@@ -244,7 +244,7 @@ def _doc_with(*params):
 
 @needs_schema
 @pytest.mark.parametrize("pname,spec,formula", [
-    ("Pick", "autodesk.spec:spec.string-1.0.0", "LabelA"),
+    # ("Pick", text, "LabelA") is WRITTEN since #870 (tests/test_famgen_formula_870.py)
     ("Same", "autodesk.spec:spec.bool-1.0.0", "LabelA = LabelB"),
 ])
 def test_a_text_formula_never_stops_the_build(pname, spec, formula):
