@@ -187,50 +187,110 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                            "name from the geometry; the pset value is NOT "
                            "substituted for it"})
                 continue
-            if label in seen_names:
+            typed = _typed(ifc_type, value, length_to_ft)
+            if typed is None:
+                if label in seen_names:
+                    out["skipped"].append({
+                        "name": label, "pset": pset_name, "on": on,
+                        "why": f"unreadable value {value!r} ({ifc_type}) dropped; "
+                               "it is not a statement"})
+                continue
+            src = out["sources"].get(label)
+            if label in seen_names and src is not None:
+                prev_src, prev_val = seen_names[label]
+                same = _same_statement(src, typed, out["params"].get(label), value)
+                if not src["product_ids"] and on_ids:
+                    # an occurrence value wins over an UNATTACHED one (no
+                    # relation links its pset to a product -- e.g. a type-level
+                    # set; IfcRelDefinesByType is not resolved, so the note does
+                    # not claim which product's type it was, #973 / #974 review):
+                    # the occurrence's value and owners replace it
+                    if not same:
+                        out["skipped"].append({
+                            "name": label, "pset": src["pset"], "on": "",
+                            "why": f"unattached value {prev_val!r} not carried; the "
+                                   f"occurrence value {value!r} ({on or pset_name}) wins"})
+                    out["params"][label] = typed
+                    seen_names[label] = (f"{on or pset_name}", value)
+                    out["sources"][label] = _source(pset_name, on, ons, on_ids,
+                                                    ifc_type, value)
+                    continue
+                if not on_ids:
+                    # an unattached repeat never contradicts an occurrence value
+                    # (#973); between two unattached values the first is kept
+                    if not same:
+                        why = (f"unattached value {value!r} not carried; the occurrence "
+                               f"value {prev_val!r} ({prev_src}) wins"
+                               if src["product_ids"] else
+                               f"unattached value {value!r} not carried; the first "
+                               f"unattached value {prev_val!r} ({prev_src}) is kept")
+                        out["skipped"].append({"name": label, "pset": pset_name,
+                                               "on": "", "why": why})
+                    continue
                 # every product the label is attached to is recorded, equal
                 # value or not, so pset_drive.plan never drives the first one
                 # alone (#967 review: a per-occurrence pset is normal input)
-                src = out["sources"].get(label)
-                if src is not None:
-                    for nm, oid in zip(ons, on_ids):
-                        if oid not in src["product_ids"]:
-                            src["product_ids"].append(oid)
-                            src["products"].append(nm)
-                prev_src, prev_val = seen_names[label]
-                if src is not None and not _same_value(prev_val, value):
-                    # the drive plan must see the conflict, not only `skipped`
-                    # (float noise is not a conflict: pset_drive's "never a
-                    # snap" tolerance, #972 review)
+                for nm, oid in zip(ons, on_ids):
+                    if oid not in src["product_ids"]:
+                        src["product_ids"].append(oid)
+                        src["products"].append(nm)
+                if not same:
+                    # the drive plan must see the conflict, not only `skipped`;
+                    # "same" is the drive's own tolerance (#972 review, #973)
                     src.setdefault("conflicting_values", []).append(value)
-                if prev_val != value:
                     out["skipped"].append({
                         "name": label, "pset": pset_name, "on": on,
                         "why": f"already carried from {prev_src} with a "
                                f"different value ({prev_val!r} vs {value!r}); "
                                f"the first is kept"})
                 continue
-
-            if ifc_type in _LENGTH_TYPES:
-                try:
-                    out["params"][label] = ("length", float(value) * length_to_ft)
-                except (TypeError, ValueError):
-                    continue
-            elif ifc_type in _NUMBER_TYPES:
-                try:
-                    out["params"][label] = ("number", float(value))
-                except (TypeError, ValueError):
-                    continue
-            elif isinstance(value, bool):
-                out["params"][label] = ("text", "Yes" if value else "No")
-            else:
-                out["params"][label] = ("text", str(value))
+            if label in seen_names:
+                continue
+            out["params"][label] = typed
             seen_names[label] = (f"{on or pset_name}", value)
-            out["sources"][label] = {
-                "pset": pset_name, "product": on, "products": ons,
-                "product_ids": list(dict.fromkeys(on_ids)),
-                "ifc_type": ifc_type, "raw_value": value, "tier": "given"}
+            out["sources"][label] = _source(pset_name, on, ons, on_ids, ifc_type, value)
     return out
+
+
+def _typed(ifc_type: str, value: Any, length_to_ft: float) -> Optional[Tuple[str, Any]]:
+    """The carried ``(kind, value)`` of one pset value; None when unreadable."""
+    if ifc_type in _LENGTH_TYPES:
+        try:
+            return ("length", float(value) * length_to_ft)
+        except (TypeError, ValueError):
+            return None
+    if ifc_type in _NUMBER_TYPES:
+        try:
+            return ("number", float(value))
+        except (TypeError, ValueError):
+            return None
+    if isinstance(value, bool):
+        return ("text", "Yes" if value else "No")
+    return ("text", str(value))
+
+
+def _source(pset_name: str, on: str, ons: List[str], on_ids: List[int],
+            ifc_type: str, value: Any) -> Dict[str, Any]:
+    return {"pset": pset_name, "product": on, "products": list(ons),
+            "product_ids": list(dict.fromkeys(on_ids)),
+            "ifc_type": ifc_type, "raw_value": value, "tier": "given"}
+
+
+#: two carried LENGTHS closer than this (feet) are one statement -- the drive's
+#: own span tolerance (``pset_drive.SPAN_TOL``), so "same" means the same thing
+#: to the conflict test and to the span match (#973)
+SAME_LENGTH_FT = 1e-6
+
+
+def _same_statement(src: Dict[str, Any], typed: Tuple[str, Any],
+                    kept: Optional[Tuple[str, Any]], raw: Any) -> bool:
+    """Is the repeat (``typed``, raw ``raw``) the same statement as the carried
+    one?  Two LENGTHS compare converted, to :data:`SAME_LENGTH_FT`; any other
+    pairing (a length against a plain number, text, ...) compares the RAW values
+    with :func:`_same_value` -- never feet against file units (#974 review)."""
+    if kept is not None and kept[0] == "length" and typed[0] == "length":
+        return abs(float(kept[1]) - float(typed[1])) <= SAME_LENGTH_FT
+    return _same_value(src.get("raw_value"), raw)
 
 
 def _same_value(a: Any, b: Any) -> bool:
