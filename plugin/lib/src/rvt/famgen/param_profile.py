@@ -284,8 +284,9 @@ def _from_convention(p: ProfileParam) -> Tuple[Any, Optional[str], Optional[str]
 
 def _spec_kind(spec: str) -> str:
     """``spec`` without its schema version ('...:length-2.0.0' -> '...:length')."""
-    head, sep, tail = str(spec).rpartition("-")
-    return head if sep and tail.count(".") == 2 and tail.replace(".", "").isdigit() else str(spec)
+    head, sep, tail = str(spec).rpartition("-")         # the rule of skeleton._canonical_spec
+    return head if sep and tail.count(".") == 2 and all(x.isdigit() for x in tail.split(".")) \
+        else str(spec)
 
 
 def _link(doc, p: "ProfileParam", target: Any) -> Tuple[Optional[str], Optional[str]]:
@@ -293,9 +294,13 @@ def _link(doc, p: "ProfileParam", target: Any) -> Tuple[Optional[str], Optional[
     family's own parameter ``target`` (#876): the formula is the target's name, so the
     library parameter carries the family's value in every type.  Refused, with the
     reason, when the target is not a parameter of this family, cannot be named in a
-    formula, or holds another kind of value than ``p`` (a length is never linked to a
-    number, a text to a length) -- never coerced."""
+    formula, holds another kind of value than ``p`` (a length is never linked to a
+    number, a text to a length), is an integer (formulas take no integer operand),
+    or is bound per INSTANCE while ``p`` is a type parameter (a type formula cannot
+    read an instance parameter) -- every refusal the formula step itself would make,
+    made here so no link is announced that the family will not carry; never coerced."""
     from . import formula as FX
+    from .skeleton import SPEC_LENGTH, _is_instance_param
     if not isinstance(target, str) or not target:
         return None, f"the map entry is {target!r}, not a parameter name"
     if p.def_class == "ParamDefMaterialBrowse":
@@ -308,7 +313,12 @@ def _link(doc, p: "ProfileParam", target: Any) -> Tuple[Optional[str], Optional[
     if not FX.is_spellable(target):
         return None, f"{target!r} cannot be named in a formula"
     mine = _spec_kind(p.spec or CLASS_SPEC.get(p.def_class, ""))
-    theirs = _spec_kind(pe.refs.get("spec") or "")
+    theirs = _spec_kind(pe.refs.get("spec") or SPEC_LENGTH)   # as skeleton._formula_spec reads it
+    if "spec.int64" in (mine + theirs):
+        return None, "an integer is not linked by formula (formulas take no integer operand)"
+    if not p.instance and _is_instance_param(pe):
+        return None, (f"{target!r} is bound per instance and the library parameter per type: "
+                      f"a type formula cannot read an instance parameter")
     if mine != theirs:
         return None, (f"{target!r} is a {theirs.split(':')[-1]}, the library parameter a "
                       f"{mine.split(':')[-1]}")
@@ -363,17 +373,21 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
         if target is not None and _given(p, values) is not None:
             notes.append(f"{p.name!r}: the map links it to {target!r}, but a value was given "
                          f"-- the given value is written")
-        elif target is not None:
-            formula, why = _link(doc, p, target)
-            if why:
-                notes.append(f"{p.name!r}: the map's link is refused -- {why} -- left blank")
-            else:
+        link_refused = None
+        if target is not None and _given(p, values) is None:
+            formula, link_refused = _link(doc, p, target)
+            if not link_refused:
                 link_used = True
                 linked.append(f"{p.name!r} = {target!r}")
         from_convention = False
         if (default == WRITABLE[p.def_class] and formula is None and not refused
-                and p.convention and _given(p, values) is None and target is None):
+                and p.convention and _given(p, values) is None and not link_used):
+            # a refused link never costs the parameter the library's own convention
             default, formula, refused, from_convention = _from_convention(p)
+        if link_refused:
+            notes.append(f"{p.name!r}: the map's link is refused -- {link_refused} -- "
+                         + ("the library's convention is written instead"
+                            if from_convention and not refused else "left blank"))
         if refused and from_convention:
             what = refused if refused.startswith("the library's") else \
                 f"the library's convention value is {refused} for a {p.def_class}"
@@ -473,6 +487,16 @@ def settle_formula_provenance(doc, written_ids) -> None:
             head, _sep, _body = n.partition("): ")
             by_value, by_formula = library.get(head[len("provenance library ("):], ([], []))
             kept = [f"{d!r} by value" for d in by_value] + [f"{d!r} by formula" for d in by_formula]
+            doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
+    # the map's line (#876) lists only the links still carried: one the formula step
+    # refused is not announced as following every type
+    for i, n in enumerate(doc.notes):
+        if n.startswith("linked by "):
+            head, _sep, _body = n.partition("): ")
+            kept = [f"{name!r} = {pe.refs['provenance']['link']!r}"
+                    for name, pe in doc.params.items()
+                    if (pe.refs.get("provenance") or {}).get("link")
+                    and head.startswith(f"linked by {pe.refs['provenance'].get('source')} ")]
             doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
     doc.notes[:] = [n for n in doc.notes if not n.startswith(_NOT_WRITTEN_NOTES)]
     for tier, names in dropped.items():
