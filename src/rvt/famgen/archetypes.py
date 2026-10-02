@@ -203,6 +203,11 @@ class Archetype:
     #: which family length parameter labels the diameter of which parts'
     #: circles; authored by ``rvt.famgen.diameter_law.wire_diameter``
     diameters: Optional[Callable[[Dict[str, float]], List[Dict[str, Any]]]] = None
+    #: RUN LENGTHS (#913): ``vals -> [{caption, parts: [run part name, ...],
+    #: symmetric}]`` -- which family length parameter drives the length of
+    #: which horizontal runs (parts authored ``"work_plane": "vertical"``);
+    #: authored by ``rvt.famgen.run_law.wire_run_length``
+    runs: Optional[Callable[[Dict[str, float]], List[Dict[str, Any]]]] = None
 
     def param(self, key: str) -> Param:
         for p in self.params:
@@ -474,13 +479,39 @@ def _lighting_control_panel(v: Dict[str, float]) -> List[Dict[str, Any]]:
 
 def _conduit(v: Dict[str, float]) -> List[Dict[str, Any]]:
     """A conduit straight run: one cylinder about the X axis at the conduit's
-    outside diameter.  The BORE IS NOT MODELLED -- see ``limits``."""
+    outside diameter, authored the BORN way (#913): its circle sketched on the
+    origin centre plane square to the run and extruded along it
+    (``rvt.famgen.run_law``), so Length and Outside Diameter can drive it.
+    The BORE IS NOT MODELLED -- see ``limits``."""
     d = float(v["diameter_in"]) * IN
     L = float(v["length_ft"])
     if d <= 0 or L <= 0:
         raise ArchetypeError("a conduit run needs a positive diameter and length")
     return [{"shape": "cylinder_x", "name": "conduit run", "radius_ft": d / 2.0,
-             "length_ft": L, "center": [0.0, 0.0], "base_z_ft": -d / 2.0}]
+             "length_ft": L, "center": [0.0, 0.0], "base_z_ft": -d / 2.0,
+             "work_plane": "vertical"}]
+
+
+def _conduit_params(v):
+    # the run's own dimensions as family parameters (#913): "Outside
+    # Diameter" is what the run is drawn at (the archetype models the trade
+    # size AS the outside diameter, `basis`); the standard "Nominal Diameter"
+    # (conduit size) keeps the trade size as a value
+    return dict([_len_param("Outside Diameter", v["diameter_in"]),
+                 ("Length", ("length", float(v["length_ft"])))])
+
+
+def _conduit_runs(v):
+    """Length drives the run's two end faces, symmetric about the origin
+    centre plane (the born run law: run_law)."""
+    return [{"caption": "Length", "parts": ["conduit run"], "symmetric": True}]
+
+
+def _conduit_diameters(v):
+    """Outside Diameter labels the run's circle on its vertical sketch (the
+    born type-9 diameter, diameter_law; on a run its plane normal is the
+    sketch's)."""
+    return [{"caption": "Outside Diameter", "parts": ["conduit run"]}]
 
 
 #: a whole-phrase pattern outranks every alias: it states its subject itself
@@ -1162,10 +1193,22 @@ _register(Archetype(
            "TRADE SIZE as its outside diameter: the true outside diameter per the "
            "conduit standard differs slightly by type and is not held in this repo, "
            "so pass diameter_in to set it exactly"),
-    lod_note="one cylinder about the run axis at the conduit's outside diameter",
+    lod_note=("one cylinder about the run axis at the conduit's outside diameter, "
+              "sketched on the vertical centre plane and extruded along the run (the "
+              "born way); CONSTRAINTS AUTHORED: Length drives both end faces "
+              "symmetrically and Outside Diameter labels the circle -- assembled "
+              "family unverified (no desktop verdict for a face lock to a vertical "
+              "plane, a diameter on a vertical circle or a vertical-plane sketch)"),
     limits=("THE BORE IS NOT MODELLED: the writer has no void or boolean, so the run "
             "is a solid rod at the outside diameter, not a tube",
-            "couplings, straps and the wall thickness are not modelled"),
+            "couplings, straps and the wall thickness are not modelled",
+            "CONSTRAINTS AUTHORED, assembled family unverified: Length (end faces) "
+            "and Outside Diameter (the circle) are authored to drive the run; no "
+            "desktop verdict exists for either mechanism on a vertical work plane",
+            "the circle is two half arcs (this engine's circle); born runs draw one "
+            "full arc (147 / 151), and the diameter sits on the [0, pi] half",
+            "Nominal Diameter (the category's conduit-size parameter) carries the "
+            "trade size as a value and drives nothing"),
     aliases=("EMT", "raceway", "rigid conduit"),
     patterns=(r"conduits?", r"\bemt\b", r"racew?ays?", r"rigid\s+metal\s+conduits?"),
     params=(
@@ -1178,6 +1221,9 @@ _register(Archetype(
               aliases=("long", "length"), choices=(10.0,)),
     ),
     build=_conduit,
+    family_params=_conduit_params,
+    runs=_conduit_runs,
+    diameters=_conduit_diameters,
     standard_values=lambda v: {"Nominal Diameter": float(v["diameter_in"]) * IN,
                                "Material": "steel"},
 ))

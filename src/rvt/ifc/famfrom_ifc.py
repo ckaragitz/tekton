@@ -276,6 +276,11 @@ class DownlightProduct:
     #: same shape ``factory.FamilyProduct.standards`` carries; None = the
     #: caller switched standards off
     standards: Optional[Dict[str, Any]] = None
+    #: the #913 drive reports (``drive="law"``): in-plane drives, the height
+    #: chain and the labelled diameters -- empty with ``drive=None``
+    drives: List[Dict[str, Any]] = dc_field(default_factory=list)
+    heights: Dict[str, Any] = dc_field(default_factory=dict)
+    diameters: Dict[str, Any] = dc_field(default_factory=dict)
 
     @property
     def name(self) -> str:
@@ -404,7 +409,8 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
                    detail: str = "standard", solid: bool = True,
                    name: Optional[str] = None, start_id: int = 1000,
                    standards: bool = True,
-                   standard_values: Optional[Dict[str, Any]] = None) -> DownlightProduct:
+                   standard_values: Optional[Dict[str, Any]] = None,
+                   drive: Optional[str] = "law") -> DownlightProduct:
     """Compose OUR recessed-downlight family from the IFC product facts.
 
     Geometry (the FAMILY frame): the insertion origin is the CAN AXIS (the
@@ -438,9 +444,20 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
     ``standards=False`` = the IFC contract + connector parameters only (the
     regression control; given lumens/cct are then noted, not authored).
     One single-phase Lighting connector on the junction box top.
+
+    ``drive`` (#913): ``"law"`` (default) wires what the measured parts make
+    drivable -- Frame Length / Frame Width on the plate's edges and Bar
+    Hanger Span on both hangers (``drive_law``, in plan), Housing / Trim /
+    Lens Diameter on the round parts' circles (``diameter_law``), Housing
+    Height on the can's cap faces with the driver riding its top
+    (``height_law``) -- see :func:`downlight_drive_specs`; ``None`` = no
+    constraints (byte-identical to the build before #913).  Authored; the
+    assembled family is unverified (hard rule 4).
     """
     if detail not in ("standard", "envelope"):
         raise FamFromIfcError(f"detail must be 'standard' or 'envelope', got {detail!r}")
+    if drive not in ("law", None):
+        raise FamFromIfcError(f"drive must be 'law' or None, got {drive!r}")
     pf = facts if facts is not None else PF.extract_product_facts(ifc_path)
     fs = resolve_downlight_facts(pf, voltage=voltage, wattage=wattage, lumens=lumens,
                                  cct=cct, photometric_web=photometric_web)
@@ -618,13 +635,22 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
                   if (v := g(key)) is not None}
     std_values.update(standard_values or {})
     std_report = ST.apply_safe(doc, STD_CATEGORY, standards, std_values)
+    drive_note, reports = None, ([], {}, {})
+    if drive == "law":
+        drive_note, reports = _wire_downlight_drives(doc, forms)
     doc.finalize()
+    if getattr(doc, "born_drive_law", False):
+        from ..famgen import drive_law as DL
+        DL.apply_born_inplane_law(doc)
     prod = DownlightProduct(doc=doc, facts=fs, product_facts=pf, forms=forms,
                             detail=detail,
                             file_stem=("chicago_plenum_downlight" if detail == "standard"
                                        else "chicago_plenum_downlight_min"),
                             standards=std_report)
+    prod.drives, prod.heights, prod.diameters = reports
     prod.notes.append(con_note)
+    if drive_note:
+        prod.notes.append(drive_note)
     prod.notes.append(f"{len(forms)} form clusters composed from rvt.famgen.geometry "
                       f"({sum(len(fb.elements) for fb in forms)} form elements) sized by the "
                       f"IFC facts; family frame = product frame translated by "
@@ -639,6 +665,138 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
     prod.notes.append(f"{len(hw)} sub-inch hardware meshes RECORDED in the facts but NOT "
                       f"modelled (below family level of detail): {hw}")
     return prod
+
+
+# ---------------------------------------------------------------------------
+# the drives (#913): what the measured parts make drivable
+# ---------------------------------------------------------------------------
+
+#: drive name of each measured form, by the role it was authored with
+_DRIVE_NAMES = (("housing can", "housing can"), ("trim ring", "trim ring"),
+                ("frosted lens", "lens"), ("plaster / mounting frame", "frame plate"),
+                ("gasketed integral junction box", "junction box"),
+                ("LED driver", "driver"), ("telescoping bar hanger (front)", "hanger front"),
+                ("telescoping bar hanger (back)", "hanger back"))
+_EPS = 1e-6
+
+
+def _drive_name(fb: G.FormBundle) -> str:
+    role = str(fb.params.get("role") or "")
+    return next((n for r, n in _DRIVE_NAMES if role.startswith(r)), role)
+
+
+def _plan_extent(fb: G.FormBundle, k: int) -> Tuple[float, float]:
+    """(lo, hi) of a box form along plan axis ``k`` (0 = x, 1 = y)."""
+    c = float((fb.params.get("center") or [0.0, 0.0])[k])
+    h = float(fb.params["width_ft" if k == 0 else "depth_ft"]) / 2.0
+    return c - h, c + h
+
+
+def downlight_drive_specs(doc: SK.FamilyDoc, forms: Sequence[G.FormBundle]
+                          ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]],
+                                     List[Dict[str, Any]]]:
+    """``(in-plane specs, height specs, diameter specs)`` read off the measured
+    forms -- each one only where the part and its parameter AGREE (the value
+    on the type row equals the drawn size; a spec that disagrees is refused
+    by the law module and noted, never forced):
+
+    * **Frame Length** (x) / **Frame Width** (y): the plate's two edges.  The
+      plate sits off the can axis in x (the product's own layout), so Frame
+      Length is the verified one-box law with two new planes (#787) -- not
+      symmetric; Frame Width is centred, so symmetric.
+    * **Bar Hanger Span** (x, symmetric): both hangers' ends.
+    * **Housing / Trim / Lens Diameter**: the can's, the trim ring's and the
+      lens's circles (``diameter_law``, plan circles).
+    * **Housing Height**: the can's two cap faces; its base is held to the
+      origin elevation plane (the trim plane) by a locked height, and the LED
+      driver sitting on the can top rides it.
+    Not driven (values only): Aperture Diameter (no aperture solid), Overall
+    Height (the stated pset value is not the drawn envelope), the junction
+    box and the driver in plan, the trim / lens / frame thicknesses."""
+    by = {_drive_name(fb): fb for fb in forms}
+    d_specs: List[Dict[str, Any]] = []
+    plate = by.get("frame plate")
+    if plate is not None:
+        x0, x1 = _plan_extent(plate, 0)
+        y0, y1 = _plan_extent(plate, 1)
+        d_specs.append({"caption": "Frame Length", "axis": "x", "lo": x0, "hi": x1,
+                        "parts": {"frame plate": ("lo", "hi")},
+                        **({"symmetric": True} if abs(x0 + x1) < _EPS else {})})
+        d_specs.append({"caption": "Frame Width", "axis": "y", "lo": y0, "hi": y1,
+                        "parts": {"frame plate": ("lo", "hi")},
+                        **({"symmetric": True} if abs(y0 + y1) < _EPS else {})})
+    hangers = [n for n in ("hanger front", "hanger back") if n in by]
+    if hangers:
+        x0, x1 = _plan_extent(by[hangers[0]], 0)
+        if all(abs(_plan_extent(by[n], 0)[0] - x0) < _EPS
+               and abs(_plan_extent(by[n], 0)[1] - x1) < _EPS for n in hangers):
+            d_specs.append({"caption": "Bar Hanger Span", "axis": "x", "lo": x0, "hi": x1,
+                            "parts": {n: ("lo", "hi") for n in hangers},
+                            **({"symmetric": True} if abs(x0 + x1) < _EPS else {})})
+    dm_specs = [{"caption": cap, "parts": [n]} for cap, n in
+                (("Housing Diameter", "housing can"), ("Trim Diameter", "trim ring"),
+                 ("Lens Diameter", "lens")) if n in by]
+    h_specs: List[Dict[str, Any]] = []
+    can = by.get("housing can")
+    if can is not None:
+        base = float(can.params["base_z_ft"])
+        top = base + float(can.params["height_ft"])
+        drv = by.get("driver")
+        rides = (drv is not None and abs(float(drv.params["base_z_ft"]) - top) < _EPS)
+        parts = {"housing can": {"start": "lo", "end": "hi"}}
+        if rides:
+            parts["driver"] = {"start": "hi"}
+        if abs(base) < _EPS:
+            h_specs.append({"caption": "Housing Height", "lo": 0.0, "hi": top,
+                            "name_hi": "can top", "parts": parts})
+        else:
+            h_specs.append({"caption": None, "locked": True, "lo": 0.0, "hi": base,
+                            "name_hi": "can base", "parts": {}} if base > 0 else
+                           {"caption": None, "locked": True, "lo": base, "hi": 0.0,
+                            "name_lo": "can base", "parts": {}})
+            h_specs.append({"caption": "Housing Height", "lo": "can base", "hi": top,
+                            "name_hi": "can top", "parts": parts})
+        if rides:
+            dtop = float(drv.params["base_z_ft"]) + float(drv.params["height_ft"])
+            h_specs.append({"caption": None, "locked": True, "lo": "can top", "hi": dtop,
+                            "parts": {"driver": {"end": "hi"}}})
+    return d_specs, h_specs, dm_specs
+
+
+def _wire_downlight_drives(doc: SK.FamilyDoc, forms: Sequence[G.FormBundle]
+                           ) -> Tuple[str, Tuple[List[Dict[str, Any]], Dict[str, Any],
+                                                 Dict[str, Any]]]:
+    """Wire :func:`downlight_drive_specs` (each spec all-or-nothing, a refusal a
+    note -- hard rule 1); return the product note and the three reports."""
+    from ..famgen import diameter_law as DM
+    d_specs, h_specs, dm_specs = downlight_drive_specs(doc, forms)
+    named = [(_drive_name(fb), fb) for fb in forms]
+    drives, heights = F._wire_equipment_drives(doc, named, d_specs, h_specs,
+                                               what="downlight")
+    sketch_of = {n: next((e for e in fb.elements if e.class_name == "VarSketch"), None)
+                 for n, fb in named}
+    dia = DM.wire_diameter_specs(doc, dm_specs, sketch_of) if dm_specs else {}
+    for r in dia.get("refused") or []:
+        doc.notes.append(f"diameter for {r['caption']!r} not wired ({r['why'][:90]})")
+    if dia.get("wired"):
+        doc.born_drive_law = True
+        # the "every spec refused" note of the plan / height step is false
+        # once a diameter is wired
+        doc.notes[:] = [n for n in doc.notes if not n.startswith("downlight drives NOT wired")]
+        doc.notes.append(
+            f"diameters labelled (#916, NO desktop verdict): {', '.join(dia['captions'])} "
+            f"on {dia['dims']} circle(s), the Revit-born type-9 diameter dimension placed "
+            "on a half arc of this engine's two-half circle")
+    caps = [d["caption"] for d in drives] + list((heights or {}).get("captions") or []) \
+        + list(dia.get("captions") or [])
+    reports = (drives, heights or {}, dia)
+    if not caps:
+        return ("drives (#913) NOT wired: every spec was refused (see the document "
+                "notes)"), reports
+    return ("constraints authored (#913): " + ", ".join(caps) + " drive the measured parts "
+            "(plan edges, cap faces, circle diameters); Aperture Diameter and Overall "
+            "Height are values only -- assembled family unverified, no desktop verdict "
+            "(hard rule 4)"), reports
 
 
 # ---------------------------------------------------------------------------

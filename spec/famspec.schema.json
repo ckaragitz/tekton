@@ -462,6 +462,13 @@
         },
         "standard_values": {
           "$ref": "#/definitions/common/properties/standard_values"
+        },
+        "drive": {
+          "enum": [
+            "law",
+            null
+          ],
+          "description": "The parameter drives (#913): 'law' (default) wires what the measured parts make drivable -- Frame Length / Frame Width on the plate's edges and Bar Hanger Span on both hangers (drive_law, plan), Housing / Trim / Lens Diameter on the round parts' circles (diameter_law), Housing Height on the can's cap faces with the LED driver riding its top (height_law, #787 Case B); Aperture Diameter and Overall Height stay values. null wires nothing (the family as before the drives). AUTHORED, the assembled family UNVERIFIED: no route calls it flexing before a desktop-Revit verdict (hard rule 4)."
         }
       }
     },
@@ -695,6 +702,14 @@
             },
             "description": "One solid. 'height_ft' is required for box / cylinder / polygon and for cone; sphere / dome / cylinder_x / cylinder_y derive their extent from radius_ft (and length_ft)."
           }
+        },
+        "prism_drive": {
+          "enum": [
+            "law",
+            "372",
+            null
+          ],
+          "description": "The SINGLE-solid form's drives (#913; 'parts' ignores it): 'law' (default) -- a rectangle's Width / Depth drive its edges symmetrically (drive_law) and Height its cap faces (height_law, #787 Case B); an arbitrary 'vertices' ring gets Height only. '372' keeps the old first-solid chain on a rectangle; null wires nothing. AUTHORED, the assembled family UNVERIFIED: no route calls it flexing before a desktop-Revit verdict (hard rule 4)."
         }
       }
     }

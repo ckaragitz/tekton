@@ -227,10 +227,22 @@ def test_a_third_dimension_between_positioned_planes_is_refused():
 
 
 def test_the_single_prism_path_says_heights_were_not_wired():
+    # RE-PINNED (#913 drives-rest): the single prism now wires its OWN Height
+    # by default (prism_drive="law"), so the report is no longer empty; what
+    # this test pins is unchanged -- a CALLER's height specs are never wired
+    # on this path and never dropped silently.  The old empty report is the
+    # prism_drive="372" build, pinned beside it.
+    own = F.make_generic_model(width_ft=1.0, depth_ft=1.0, height_ft=1.0, name="One")
     prod = F.make_generic_model(width_ft=1.0, depth_ft=1.0, height_ft=1.0, name="One",
                                 heights=GOOD)
-    assert prod.heights == {}
+    keys = ("wired", "refused", "face_locks", "locked_unlabelled", "captions")
+    assert {k: prod.heights[k] for k in keys} == {k: own.heights[k] for k in keys}
+    assert "Base Height" not in prod.heights["captions"]
     assert any("NOT wired" in n for n in prod.notes)
+    old = F.make_generic_model(width_ft=1.0, depth_ft=1.0, height_ft=1.0, name="One",
+                               heights=GOOD, prism_drive="372")
+    assert old.heights == {}
+    assert any("NOT wired" in n for n in old.notes)
 
 
 def test_the_direct_api_refuses_before_any_mutation():

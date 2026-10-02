@@ -109,6 +109,21 @@ def _catalog() -> Dict[str, Callable[[], Any]]:
         return mk
     jobs["drive_one_box_law"] = _one_box(True)
     jobs["drive_one_box_control"] = _one_box(False)
+    # the single-prism lane (the spec-sheet route) under the #913 law: Width /
+    # Depth on a rectangle's edges + Height on its caps; Height only on a ring
+    jobs["prism_rect_law"] = lambda: F.make_generic_model(
+        width_ft=2, depth_ft=1, height_ft=1.5, base_z_ft=0.25, name="B_prism",
+        source="self battery")
+    jobs["prism_polygon_law"] = lambda: F.make_generic_model(
+        vertices=[(0, 0), (1, 0), (1.2, 0.6), (0.5, 1), (-0.2, 0.6)], height_ft=1,
+        name="B_prism_poly", source="self battery")
+    # a run the born way (#913 run_law): a circle on the vertical centre plane
+    jobs["shape_run_x"] = _multi("B_runx", [
+        {"name": "rx", "shape": "cylinder_x", "radius_ft": 0.2, "length_ft": 2.0,
+         "center": (0, 0), "base_z_ft": 0, "work_plane": "vertical"}])
+    jobs["shape_run_y"] = _multi("B_runy", [
+        {"name": "ry", "shape": "cylinder_y", "radius_ft": 0.2, "length_ft": 2.0,
+         "center": (0.5, 0), "base_z_ft": 0.5, "work_plane": "vertical"}])
     # constructors that may not exist on this trunk yet: probe and include
     for opt, key, mk in (
         ("make_archetype", "archetype_cable_tray",
@@ -118,6 +133,10 @@ def _catalog() -> Dict[str, Callable[[], Any]]:
          lambda F=F: F.make_archetype(
              product="strut_trapeze",
              prompt="a 2 tier slotted trapeze with threaded rod")),
+        # the born-way horizontal run: Length on its end faces, Outside
+        # Diameter on its vertical circle (#913 run_law; authored, unverified)
+        ("make_archetype", "archetype_conduit",
+         lambda F=F: F.make_archetype(product="conduit")),
     ):
         if hasattr(F, opt):
             jobs[key] = mk
