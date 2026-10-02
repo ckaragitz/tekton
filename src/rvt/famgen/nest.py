@@ -794,9 +794,9 @@ def verify_nested(path: str, *, nested_family_id: int, symbol_id: int,
                        for g, u in sorted(CL.nested_units(path).items())}
     rep["constraint_law_nested"] = nested_findings
     every = list(findings) + [f for fs in nested_findings.values() for f in fs]
-    law_errs = [f for f in every if f.get("severity") == CL.ERROR]
+    law_errs = [f for f in every if f["severity"] == CL.ERROR]   # no severity: fail loudly
     rep["constraint_law_errors"] = len(law_errs)
-    rep["constraint_law_warnings"] = [f for f in every if f.get("severity") != CL.ERROR]
+    rep["constraint_law_warnings"] = [f for f in every if f["severity"] != CL.ERROR]
     if law_errs:
         bad.append(f"constraint law: {len(law_errs)} error(s)")
     if validate:

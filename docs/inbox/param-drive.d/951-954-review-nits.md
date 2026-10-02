@@ -1,6 +1,6 @@
 # Review nits from #951 and #954
 
-Branch `review-nits`, based on `main` 3e03fd3. Five small fixes left as
+Branch `review-nits`, based on `main` 3e03fd3 (shipped rebased onto 7d2fcde). Five small fixes left as
 optional review nits on the merged PRs #951 (#947, the reference index) and
 #954 (#948, the hexagon drive).
 
@@ -60,6 +60,11 @@ optional review nits on the merged PRs #951 (#947, the reference index) and
     Identical before and after.
   - Both releases still nest, with no solid fallback: `nested_hardware.ok`
     True. Washer and nut verify `ok`.
+  - *Note (review of #957, 2026-10-02):* the two sha256 values above were
+    measured on base 3e03fd3. Rebased onto 7d2fcde (which includes #955) the
+    independent reviewer measured 2026 `4502dbfe…558e` and 2025 `5925d7a0…006d`,
+    again identical at base and head -- the before/after identity holds; the
+    absolute hashes moved with the base.
   - The washer and nut nested units are now judged too. 2026: 1 unit, then
     2 units. 2025: the same. All 0 findings, 0 warnings.
 - **New module `tests/test_review_nits_951_954.py`:** 7 tests, about 3 s.
@@ -109,4 +114,9 @@ verdict was taken.
 - `tools/dev/check_portable_paths.py`: ok (3,419 paths).
 
 **Staged / shipped:** nothing is staged for the viewer. Nothing is
-certified. Not pushed.
+certified. Follow-up commit on #957: session CI found
+`test_conftest_scaffolding::test_every_module_on_the_leak_guard_enters_a_context`
+red -- the new module requests `no_release_leak` but enters a release context
+only through `nest_family`, which the call-scan cannot see -- so it now stands on
+that test's `ADOPTERS` list saying so; the same commit carries the #957 review
+nits (`from exc`, `f["severity"]`, the dated sha note above). Pushed as PR #957 (branch `claude/pull-latest-main-1cmo56`).
