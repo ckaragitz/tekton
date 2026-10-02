@@ -34,6 +34,7 @@ depends on -- and the report names them, so the loss is never silent twice.
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Dict, List, Optional, Tuple
 
 #: Properties already carried by the identity / BOM path -- carrying them
@@ -166,7 +167,10 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
     # ``skipped`` rows of unattached repeats, per label (#975): re-worded when an
     # occurrence value later replaces the unattached one, so no row is left
     # naming a value that is no longer the carried one
-    unattached_rows: Dict[str, List[Tuple[Dict[str, Any], Any]]] = {}
+    # (each with its raw and typed value, so the removal test is the same
+    # ``_same_statement`` every other comparison here uses, #979)
+    unattached_rows: Dict[str, List[Tuple[Dict[str, Any], Any,
+                                          Tuple[str, Any]]]] = {}
     try:
         psets = list(f.by_type("IfcPropertySet"))
     except Exception:                                             # noqa: BLE001
@@ -198,11 +202,13 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                 continue
             typed = _typed(ifc_type, value, length_to_ft)
             if typed is None:
-                if label in seen_names:
-                    out["skipped"].append({
-                        "name": label, "pset": pset_name, "on": on,
-                        "why": f"unreadable value {value!r} ({ifc_type}) dropped; "
-                               "it is not a statement"})
+                # one row per unreadable occurrence, whichever comes first in
+                # the file (#979): its product may still be named as an owner
+                # (#975), so the dropped value must be explained either way
+                out["skipped"].append({
+                    "name": label, "pset": pset_name, "on": on,
+                    "why": f"unreadable value {value!r} ({ifc_type}) dropped; "
+                           "it is not a statement"})
                 # its owners still hold the label (#967's invariant, #975):
                 # merged now when an attached source is carried, else later
                 src = out["sources"].get(label)
@@ -231,8 +237,8 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                             "why": f"unattached value {prev_val!r} not carried; {wins}"})
                     # earlier unattached repeats are re-worded against the value
                     # now carried (#975); one equal to it is no longer a skip
-                    for r, rv in unattached_rows.pop(label, []):
-                        if _same_value(rv, value):
+                    for r, rv, rt in unattached_rows.pop(label, []):
+                        if _same_statement({"raw_value": rv}, typed, rt, value):
                             out["skipped"].remove(r)
                         else:
                             r["why"] = f"unattached value {rv!r} not carried; {wins}"
@@ -258,7 +264,8 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                         row = {"name": label, "pset": pset_name, "on": "", "why": why}
                         out["skipped"].append(row)
                         if not src["product_ids"]:
-                            unattached_rows.setdefault(label, []).append((row, value))
+                            unattached_rows.setdefault(label, []).append(
+                                (row, value, typed))
                     elif not src["product_ids"]:
                         _upgrade_kind(out, src, label, typed, ifc_type, value)
                     continue
@@ -321,12 +328,36 @@ def _upgrade_kind(out: Dict[str, Any], src: Dict[str, Any], label: str,
                   typed: Tuple[str, Any], ifc_type: str, value: Any) -> None:
     """A plain number and a length of ONE value are one statement (#974 review);
     the carried kind is the LENGTH whichever came first in the file (#975), so
-    file order never decides whether the label can drive a span."""
+    file order never decides whether the label can drive a span.  A TEXT value
+    that reads as the same number (``IFCLABEL('1574.8')``) ranks below both
+    (#979): it yields to the number or the length, never the reverse."""
     kept = out["params"].get(label)
-    if kept is not None and kept[0] == "number" and typed[0] == "length":
-        out["params"][label] = typed
-        src["ifc_type"] = ifc_type
-        src["raw_value"] = value
+    if kept is None:
+        return
+    rank = _KIND_RANK.get(typed[0], 0)
+    if rank <= _KIND_RANK.get(kept[0], 0):
+        return
+    if kept[0] == "text":
+        # only when the text IS that number, raw against raw -- never feet
+        # against file units, never a label that merely compares equal as text;
+        # a Yes/No (carried as text from an IfcBoolean) is never a number, and
+        # 'inf' / 'nan' are no number at all (#983 review)
+        raw = src.get("raw_value")
+        if isinstance(raw, bool):
+            return
+        try:
+            as_num = float(raw)
+        except (TypeError, ValueError):
+            return
+        if not math.isfinite(as_num) or not _same_value(as_num, value):
+            return
+    out["params"][label] = typed
+    src["ifc_type"] = ifc_type
+    src["raw_value"] = value
+
+
+#: which carried kind a repeat of ONE value upgrades to (#975, #979)
+_KIND_RANK = {"text": 0, "number": 1, "length": 2}
 
 
 def _source(pset_name: str, on: str, ons: List[str], on_ids: List[int],
@@ -356,12 +387,20 @@ def _same_statement(src: Dict[str, Any], typed: Tuple[str, Any],
 def _same_value(a: Any, b: Any) -> bool:
     """Two raw pset values are the same statement: equal, or equal numbers to
     1e-9 relative (float noise, never a tolerance that would hide a real
-    difference -- pset_drive's SPAN_TOL is 1e-6 ft on converted lengths)."""
+    difference -- pset_drive's SPAN_TOL is 1e-6 ft on converted lengths).
+    A boolean is the same statement only as an equal boolean (``True == 1.0``
+    in Python, never in an IFC), and a non-finite number is never the same as
+    anything by tolerance: ``inf`` would otherwise "equal" every number (#983
+    review)."""
+    if isinstance(a, bool) or isinstance(b, bool):
+        return isinstance(a, bool) and isinstance(b, bool) and a == b
     if a == b:
         return True
     try:
         fa, fb = float(a), float(b)
     except (TypeError, ValueError):
+        return False
+    if not (math.isfinite(fa) and math.isfinite(fb)):
         return False
     return abs(fa - fb) <= 1e-9 * max(1.0, abs(fa), abs(fb))
 
