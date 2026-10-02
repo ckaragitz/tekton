@@ -223,3 +223,15 @@ identical).
   - Full suite not run (SUITE-COORDINATION).
 - **Shipped vs staged.** Latency only. No output byte changed, nothing is staged for the viewer,
   and nothing is claimed about Revit behaviour (hard rule 4).
+
+### Review of #976 (2026-10-02)
+🛑 then fixed: the shared up-front `walk_file` in `validate_family` caught only
+`ValueError`, so a CFB with a damaged header (directory index out of range) raised
+`OleFileError` (an IOError) out of the validator where it used to get an INVALID
+report. It now catches any exception and falls back to `walked = None`, so each
+`validate_file` run reports the damage itself, as before. Pinned by
+`test_validate_family_on_a_damaged_container_still_reports` (fails without the
+fix). The reviewer's 18 other mutated inputs per family (truncations, zeroed
+blocks, byte flips, garbage, empty) gave identical reports base vs head, and
+byte identity held for nine sandboxed jobs, including all of them run in one
+process under one shared-cache scope across 2026 / 2025 / 2024.

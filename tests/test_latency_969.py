@@ -237,6 +237,19 @@ def test_validate_family_on_a_non_container_still_reports(tmp_path):
     assert got["ok"] is False and got["family_mode"]["verdict"] == "INVALID"
 
 
+def test_validate_family_on_a_damaged_container_still_reports(written, tmp_path):
+    """#976 review: a CFB whose header points the directory out of range made
+    the shared walk raise OleFileError (an IOError) out of validate_family;
+    each run must report the damage instead, as before the shared walk."""
+    with open(written, "rb") as fh:
+        data = bytearray(fh.read())
+    data[0x30:0x34] = b"\xff\xff\xff\xff"
+    bad = tmp_path / "damaged.rfa"
+    bad.write_bytes(bytes(data))
+    got = SK.validate_family(str(bad))
+    assert got["ok"] is False and got["family_mode"]["verdict"] == "INVALID"
+
+
 def test_this_module_runs_the_worktree_engine():
     here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     assert os.path.abspath(A.__file__).startswith(os.path.join(here, "src"))

@@ -4053,8 +4053,10 @@ def validate_family(path: str, *, layers=None) -> Dict[str, Any]:
     # WalkedFile; the report is the same with or without it -- #969)
     try:
         walked = _v.walk_file(path)
-    except ValueError:                              # not a CFB: each run says so itself
-        walked = None
+    except Exception:                               # noqa: BLE001 -- not a CFB, or a
+        walked = None                               # damaged one (OleFileError is an
+        # IOError, #976 review): each run reads and reports the damage itself, as
+        # before the shared walk -- a validator reports, it never raises
     try:
         raw = _v.validate_file(path, layers=layers or _v.ALL_LAYERS, walked=walked)
         # family mode is now a first-class validator parameter (the recorded
