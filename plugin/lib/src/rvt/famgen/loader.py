@@ -92,6 +92,21 @@ PRODUCT_NAME = "rvt-writer"
 INVALID = -1
 CAT_ELECTRICAL_EQUIPMENT = -2001040
 
+#: RefPlane.m_refName "Not a Reference" (``skeleton.REF_NAME``).  Issue #947:
+#: a census of 421 born families finds such a plane in NO loaded/nested
+#: family's reference index (0 / 1,312 entries) and NO symbol strong reference
+#: (0 / 3,349), while real Is-Reference codes always are (Center (Elevation)
+#: 61 / 61, 11 / 11).  An origin plane carrying it (the #787 Case B origin
+#: elevation plane of every height-driven family) is therefore left out of
+#: both lists.
+NOT_A_REFERENCE = 12
+
+
+def _is_reference_code(code) -> bool:
+    """A RefPlane ``m_refName`` that a host's reference index / strong
+    references list: an int other than "Not a Reference" (#947)."""
+    return isinstance(code, int) and code != NOT_A_REFERENCE
+
 #: FamilySurrogate.m_guid -- the SAME value on all 159 FamilySurrogates of
 #: the rme host [VERIFIED 159/159]: a format-level creator identifier, not
 #: content.  Every loaded family carries it.
@@ -765,7 +780,7 @@ def _reference_idx_mgr(product, plan: LoadPlan) -> Optional[dict]:
         if not v.get("m_definesOrigin"):
             continue
         code = v.get("m_refName")
-        if not isinstance(code, int):
+        if not _is_reference_code(code):               # #947: never code 12
             continue
         ai = plan.abs_index.get(e.elem_id)
         if ai is None:
@@ -953,7 +968,7 @@ def _symbol_placement_data(product, plan: LoadPlan) -> Dict[str, Any]:
         if e.class_name != "RefPlane":
             continue
         v = e.obj or {}
-        if v.get("m_definesOrigin") and isinstance(v.get("m_refName"), int):
+        if v.get("m_definesOrigin") and _is_reference_code(v.get("m_refName")):
             strong_refs.append({
                 "m_intermediateTags": [], "m_oNextRef": None,
                 "m_elemId": int(plan.symbol_id), "m_ownerDBViewId": -1,
