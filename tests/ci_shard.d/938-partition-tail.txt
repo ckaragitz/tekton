@@ -1,0 +1,2 @@
+# #938: a project load keeps the host partition tail byte for byte (no stale CRCIO parity as content); bundled bases only, fresh-clone safe
+tests/test_partition_tail_938.py
