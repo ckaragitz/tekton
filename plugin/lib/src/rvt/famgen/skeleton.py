@@ -2517,6 +2517,26 @@ class FamilyDoc:
                                workset_guid=(family_workset_guid(doc_guid)
                                              if doc_guid else None))
 
+    def __deepcopy__(self, memo: Dict[int, Any]) -> "FamilyDoc":
+        """A deep copy WITHOUT the per-document encode cache (#924).
+
+        ``_record_cache`` (#932) holds the process-wide ``ObjectEncoder`` --
+        the whole schema plus, once anything has been written in this
+        process, its compiled encode plans (``struct.Struct`` objects, which
+        cannot be copied).  Copying it made ``copy.deepcopy(doc)`` fail or
+        not depending on what the process had encoded before, and a copied
+        encoder is never ``is`` the live one, so the copy's cache would be
+        cleared on first use anyway.  The copy starts with no cache; its
+        bytes are identical either way (the cache only skips re-encoding)."""
+        cls = type(self)
+        new = cls.__new__(cls)
+        memo[id(self)] = new
+        for k, v in self.__dict__.items():
+            if k == "_record_cache":
+                continue
+            new.__dict__[k] = copy.deepcopy(v, memo)
+        return new
+
     # -- delivery ------------------------------------------------------------------
     def partition_payloads(self) -> Dict[int, bytes]:
         """Per-seq (101/102/103) record byte strings of THE ONE SAVE UNIT

@@ -2,3 +2,4 @@
 tests/test_catchain.py
 tests/test_selfcontained.py
 tests/test_required_settings.py
+tests/test_famdoc_deepcopy_924.py
