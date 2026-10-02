@@ -74,7 +74,8 @@ Two candidates were tried and rejected:
   - Enable it with `TEKTON_PERF_SELFTEST=1`. It takes about 25 s.
   - It copies the plugin tree to a scratch directory and patches the copy's
     `stage_families` (both `ifc_intent.py` copies in the plugin) so every family is
-    built and written twice.
+    built and written twice. *(Superseded after the #970 review: three times --
+    see the amendment under "Resolution".)*
   - It asserts that the ratio comes out **at or above** the ceiling.
   - Product code is never touched.
 

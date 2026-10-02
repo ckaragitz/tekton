@@ -143,9 +143,17 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
             for o in (getattr(rel, "RelatedObjects", None) or ()):
                 names.append(str(getattr(o, "Name", "") or ""))
                 ids.append(_eid(o))
-            owner[_eid(pdef)] = ", ".join(n for n in names if n)
-            owners[_eid(pdef)] = names
-            owner_ids[_eid(pdef)] = ids
+            # a pset linked by SEVERAL relations (the schema forbids it, an
+            # exporter may not) keeps every owner, never the last (#967 review)
+            # (each product once: the same product linked twice is ONE owner,
+            # #972 review)
+            k = _eid(pdef)
+            for nm, oid in zip(names, ids):
+                if oid not in owner_ids.setdefault(k, []):
+                    owner_ids[k].append(oid)
+                    owners.setdefault(k, []).append(nm)
+            owners.setdefault(k, [])
+            owner[k] = ", ".join(n for n in owners[k] if n)
     except Exception:                                             # noqa: BLE001
         pass
 
@@ -190,6 +198,11 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                             src["product_ids"].append(oid)
                             src["products"].append(nm)
                 prev_src, prev_val = seen_names[label]
+                if src is not None and not _same_value(prev_val, value):
+                    # the drive plan must see the conflict, not only `skipped`
+                    # (float noise is not a conflict: pset_drive's "never a
+                    # snap" tolerance, #972 review)
+                    src.setdefault("conflicting_values", []).append(value)
                 if prev_val != value:
                     out["skipped"].append({
                         "name": label, "pset": pset_name, "on": on,
@@ -218,6 +231,19 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                 "product_ids": list(dict.fromkeys(on_ids)),
                 "ifc_type": ifc_type, "raw_value": value, "tier": "given"}
     return out
+
+
+def _same_value(a: Any, b: Any) -> bool:
+    """Two raw pset values are the same statement: equal, or equal numbers to
+    1e-9 relative (float noise, never a tolerance that would hide a real
+    difference -- pset_drive's SPAN_TOL is 1e-6 ft on converted lengths)."""
+    if a == b:
+        return True
+    try:
+        fa, fb = float(a), float(b)
+    except (TypeError, ValueError):
+        return False
+    return abs(fa - fb) <= 1e-9 * max(1.0, abs(fa), abs(fb))
 
 
 def _length_to_ft(f: Any, out: Dict[str, Any]) -> float:

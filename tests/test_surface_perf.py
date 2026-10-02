@@ -74,8 +74,10 @@ ROOM6_CEILING = 18.0
 #   pre-#292 (3ff16c6)     30.7-34.6  -- fails
 #   pre-#256 (5a40b22^)    49.9-54.8  -- fails
 #   pre-#237 (27e2093^)    92.5       -- fails
-#   injected: a second full .rfa build+write per family (+32% job time,
-#   test_room6_gate_catches_injected_regression)  25.6-28.0 -- fails
+#   injected: a second full .rfa build+write per family (+32% job time)
+#                          23.7-28.0  -- flaky under load, replaced (#970)
+#   injected: two extra build+writes per family (the self-test,
+#   test_room6_gate_catches_injected_regression)  33.6-37.4 -- fails
 # 24.0 = 1.19x the main median and 1.03x the slowest SINGLE sample ever seen
 # (the min of two keeps the healthy tail near 21.7), so it passes healthy main
 # and fails a steady per-flagship regression of about +35% or more reliably,
@@ -309,10 +311,11 @@ _INJECT_NEW = ("            build_product(plan, start_id=1000).write("
                     reason="opt-in (TEKTON_PERF_SELFTEST=1): ~25 s, proves the ratio gate bites")
 def test_room6_gate_catches_injected_regression(bench, tmp_path, record_property):
     """The ratio gate FAILS a known regression (#965 DONE 2c): a scratch copy
-    of the plugin whose family stage builds every .rfa twice (+~32% flagship
-    job time measured on the session-CI container) must land over
-    ROOM6_RATIO_CEILING.  Opt-in, so CI pays for it only when the gate's
-    constants change."""
+    of the plugin whose family stage builds and writes every .rfa three times
+    (33.6-37.4 reference units, quiet and under concurrent load, on the
+    session-CI container; the earlier twice-injection, +~32% job time, scored
+    23.7-28.0 and flaked, #970 review) must land over ROOM6_RATIO_CEILING.
+    Opt-in, so CI pays for it only when the gate's constants change."""
     src = str(tmp_path / "plugin")
     shutil.copytree(os.path.join(ROOT, "plugin"), src)
     for rel in ("skills/tekton-author/scripts/ifc_intent.py", "lib/tools/ifc_intent.py"):
