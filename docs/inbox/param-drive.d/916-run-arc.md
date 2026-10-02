@@ -118,6 +118,13 @@ runs are those whose profile is one circle (147) or a ring (4).
   (`diameter_law`'s gap for plan circles). Extending the full arc there is a separate
   change with its own census (plan circles were not censused here).
 
+## Correction (2026-10-02, folded in by #952 from the #955 review)
+
+Two facts above are wrong, the rest stands: the PR's base was `3e03fd3`, not
+`3f575d3` (the "Byte identity, base ..." line names the wrong commit), and
+`tests/test_run_arc_916.py` has **9** test functions / 16 collected cases, not
+11 / 16.
+
 ## BRANCH STATE
 
 **Files written**
