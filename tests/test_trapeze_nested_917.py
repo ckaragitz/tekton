@@ -127,7 +127,9 @@ def test_nested_trapeze_writes_valid_and_lawful(nested):
     w, n = nh["washer"], nh["nut"]
     # 2 tiers x 2 rods x (below + above)
     assert len(w["instance_ids"]) == 8 and len(n["instance_ids"]) == 8
-    assert len(w["lock_ids"]) == 16 and len(n["lock_ids"]) == 16
+    # three locks each: Center (Left/Right), Center (Front/Back), and (#940)
+    # Center (Elevation) to the host height plane at its bottom face
+    assert len(w["lock_ids"]) == 24 and len(n["lock_ids"]) == 24
     for r in (w, n):
         v = r["proofs"]["verify"]
         assert v["ok"] and v["registries_coherent"] and v["end_record_is_constant"]
@@ -135,13 +137,13 @@ def test_nested_trapeze_writes_valid_and_lawful(nested):
     # the final file: the law is clean and EVERY nested lock is judged by CG8
     assert CL.check_file(path) == []
     judged = _judged(path)
-    want = {(i, c) for i in w["instance_ids"] + n["instance_ids"] for c in (1, 4)}
+    want = {(i, c) for i in w["instance_ids"] + n["instance_ids"] for c in (1, 4, 7)}
     assert set(judged) == want
     from rvt.famload import four_registry_census
     reg = four_registry_census(path)
     assert reg["coherent"]
     notes = " ".join(rep["family"]["notes"])
-    assert "NESTED HARDWARE" in notes and "do NOT follow the host's height drives" in notes
+    assert "NESTED HARDWARE" in notes and "LOCKED to the host's height planes" in notes
     assert "hard rule 4" in notes
 
 
@@ -168,10 +170,12 @@ def test_nested_locks_target_the_rod_inset_and_origin_planes(nested):
         x = inst[wi["m_elemId"]]["m_instOrigin"][0]
         if wi["m_geomTag"] == 1:
             assert wp["m_elemId"] == (lo if x < 0 else hi)
-        else:
-            assert wi["m_geomTag"] == 4 and wp["m_elemId"] == fb
+        elif wi["m_geomTag"] == 4:
+            assert wp["m_elemId"] == fb
+        else:                                   # #940: tested in test_nested_heights_940
+            assert wi["m_geomTag"] == 7
         seen.add((wi["m_elemId"], wi["m_geomTag"]))
-    assert len(seen) == 32
+    assert len(seen) == 48
 
 
 def test_hardware_sits_where_the_solid_version_draws_it():

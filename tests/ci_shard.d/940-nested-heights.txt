@@ -1,0 +1,2 @@
+# #940: nested trapeze washers / nuts locked by Center (Elevation) to the host height planes; CG8 frame check; generated families only, fresh-clone safe
+tests/test_nested_heights_940.py

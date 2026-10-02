@@ -54,6 +54,13 @@ WHAT STAYS -- the corpus-attested shape of the in-plane drive (#787 census):
   transform applied as ``world_k = m_or_k + m_3x3[k] . v`` (the other reading
   of ``m_3x3`` leaves 249 of them non-parallel).  Named references (other
   geomTags) and references the child cannot resolve are not judged.
+  (#940) The judged lock's own frame agrees with its plane too: its
+  ``m_constrDir`` is parallel to the host plane's normal, and both
+  ``m_refPnts`` and its ``m_oldOrigin`` lie on the host plane -- each held by
+  2,393 / 2,393 judged born locks (of them 467 ELEVATION locks, to a
+  horizontal host plane: tags 1 / 4 on rotated instances 119 / 338, Bottom 1,
+  Center (Elevation) 9).  :func:`judged_instance_locks` lists what CG8
+  judged in a written file, elevation locks marked.
 
 WHAT IT IS NOT.  A file that passes this law is not thereby correct in Revit
 (hard rule 4).  It catches contradictions, never omissions we have not
@@ -443,6 +450,30 @@ def _cg8(eid, cls, grefs, by_id, instance_planes, add) -> None:
             f"plane {pid}, but the placed reference is {off:.6g} ft off that "
             f"plane: the lock contradicts the geometry it locks",
             offset_ft=off)
+    _cg8_frame(eid, cls, by_id[eid][1] if eid in by_id else {}, pid, p0, n, add)
+
+
+def _cg8_frame(eid, cls, obj, pid, p0, n, add) -> None:
+    """#940: the lock's own frame agrees with the plane it locks to
+    (2,393 / 2,393 judged born locks each): ``m_constrDir`` parallel to the
+    plane normal; ``m_refPnts`` and ``m_oldOrigin`` on the plane."""
+    cd = _vec(obj.get("m_constrDir"))
+    # a field the object does not carry is not judged (never guessed)
+    if cd is not None and abs(abs(_dot(cd, n)) - 1.0) > PARALLEL_TOL:
+        add(ERROR, "CG8", eid, cls,
+            f"instance lock {eid}'s constrained direction {cd} is not the normal "
+            f"of plane {pid}: the lock would pull the instance along the plane")
+    pts = [("m_refPnts", _vec(q)) for q in (obj.get("m_refPnts") or [])]
+    pts.append(("m_oldOrigin", _vec(obj.get("m_oldOrigin"))))
+    for name, q in pts:
+        if q is None:
+            continue
+        off = abs(_dot(_sub(q, p0), n))
+        if off > ON_PLANE_TOL:
+            add(ERROR, "CG8", eid, cls,
+                f"instance lock {eid}'s {name} point is {off:.6g} ft off plane "
+                f"{pid}: the lock is drawn somewhere it does not lock",
+                offset_ft=off)
 
 
 def _param_ids(obj: Dict[str, Any]) -> List[int]:
@@ -553,6 +584,47 @@ def _instance_planes(idx: Any, recs: Dict[int, Dict[int, Any]],
         placed = transform_plane(ii.get("m_Trf"), pl) if pl is not None else None
         if placed is not None:
             out[(iid, tag)] = placed
+    return out
+
+
+def judged_instance_locks(path: str) -> List[Dict[str, Any]]:
+    """What CG8 judges in a WRITTEN file: one row per instance lock whose
+    child reference resolved -- ``{lock, instance, tag, plane, elevation}``,
+    ``elevation`` True when the host plane is horizontal (the lock holds the
+    instance's HEIGHT, #940).  A lock missing here was not judged."""
+    from contextlib import ExitStack
+    from ..families import FamilyIndex
+    from ..global_framing import enter_own_release
+    from ..objects import ObjectDecoder
+
+    with ExitStack() as st:
+        enter_own_release(st, path)
+        idx = FamilyIndex(path)
+        dec = ObjectDecoder(idx.schema)
+        recs = idx.unit_records(0)
+        tuples, planes = [], {}
+        for cls in ("Alignment", "RefPlane"):
+            for eid in idx.ids_of_class(0, cls):
+                r = recs.get(102, {}).get(eid)
+                o = dec.decode_record(r.class_id, r.payload) if r is not None else None
+                if o is None:
+                    continue
+                if cls == "Alignment":
+                    tuples.append((int(eid), cls, o.value or {}, None))
+                else:
+                    planes[int(eid)] = plane_of_any(cls, o.value or {})
+        inst = _instance_planes(idx, recs, tuples)
+    out: List[Dict[str, Any]] = []
+    for eid, _cls, obj, _h in tuples:
+        grefs = _witness_grefs(obj)
+        refs = [(int(g.get("m_elemId", -1)), int(g.get("m_geomTag", 0))) for g in grefs]
+        mine = [r for r in refs if r in inst]
+        tgt = [t for t, _g in refs if planes.get(t) is not None]
+        if len(grefs) != 2 or len(mine) != 1 or len(tgt) != 1:
+            continue
+        n = planes[tgt[0]][1]
+        out.append({"lock": eid, "instance": mine[0][0], "tag": mine[0][1],
+                    "plane": tgt[0], "elevation": abs(abs(n[2]) - 1.0) <= PARALLEL_TOL})
     return out
 
 
