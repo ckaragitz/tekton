@@ -1,6 +1,6 @@
 # #714: carried IFC pset parameters drive the part they describe
 
-Stream: param-drive. Issue #714 (P0). Base: `main` 7d2fcde. Branch `fix-714`.
+Stream: param-drive. Issue #714 (P0). Base: `main` 7d2fcde, shipped as PR #967 rebased onto `fe83378`. Branch `fix-714`.
 
 ## What was built
 

@@ -143,9 +143,12 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
             for o in (getattr(rel, "RelatedObjects", None) or ()):
                 names.append(str(getattr(o, "Name", "") or ""))
                 ids.append(_eid(o))
-            owner[_eid(pdef)] = ", ".join(n for n in names if n)
-            owners[_eid(pdef)] = names
-            owner_ids[_eid(pdef)] = ids
+            # a pset linked by SEVERAL relations (the schema forbids it, an
+            # exporter may not) keeps every owner, never the last (#967 review)
+            k = _eid(pdef)
+            owners.setdefault(k, []).extend(names)
+            owner_ids.setdefault(k, []).extend(ids)
+            owner[k] = ", ".join(n for n in owners[k] if n)
     except Exception:                                             # noqa: BLE001
         pass
 
@@ -190,6 +193,9 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                             src["product_ids"].append(oid)
                             src["products"].append(nm)
                 prev_src, prev_val = seen_names[label]
+                if prev_val != value and src is not None:
+                    # the drive plan must see the conflict, not only `skipped`
+                    src.setdefault("conflicting_values", []).append(value)
                 if prev_val != value:
                     out["skipped"].append({
                         "name": label, "pset": pset_name, "on": on,

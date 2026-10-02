@@ -27,13 +27,16 @@ model already wires (``factory._make_generic_multipart``):
 NEVER A GUESS.  A parameter is matched only when (1) its pset is attached to
 exactly ONE product, (2) exactly one measured part carries that product's
 name (a product decomposed into several solids, or two products of one name,
-is not one part), and (3) the value EQUALS one of that part's spans to
+is not one part; owners are counted by IFC entity id, and any UNNAMED owner
+makes it a value), and (3) the value EQUALS one of that part's spans to
 :data:`SPAN_TOL` -- float noise, never a snap: a value a hair off the span is
 reported as off, because a labelled dimension forces its planes to the
 parameter's value and would silently move the geometry.  Equal to two spans
 (a square part) is resolved only by an axis word in the parameter's own name
 (``...Width`` = x, ``...Depth`` = y, ``...Height`` = z) and otherwise left a
-value.  Every unmatched parameter is reported with its reason.
+value; a name whose single axis word CONTRADICTS the one span the value
+equals is a value too, as is a label the IFC states with conflicting values
+(#967 review).  Every unmatched parameter is reported with its reason.
 
 ALL OR NOTHING.  The specs carry ``group`` = the parameter, and the lane
 builds with ``settle_drives=True``: a group the factory refuses is dropped
@@ -174,6 +177,12 @@ def plan(parts: Sequence[Dict[str, Any]], collected: Dict[str, Any]) -> Dict[str
             row(name, VALUE_ONLY, f"it is attached to {n_owners} products "
                                   f"({', '.join(products[:4])}): which one it measures "
                                   "is not stated")
+            continue
+        if src.get("conflicting_values"):
+            row(name, VALUE_ONLY, f"the IFC states it with conflicting values "
+                                  f"({src.get('raw_value')!r} kept, "
+                                  f"{', '.join(repr(v) for v in src['conflicting_values'][:3])} "
+                                  "dropped): which one the part measures is not stated")
             continue
         prod = products[0]
         found = by_name.get(prod, [])
