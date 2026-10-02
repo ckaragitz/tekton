@@ -127,6 +127,10 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
 
     # which product each pset is attached to (for the source record)
     owner: Dict[int, str] = {}
+    # the same, as a LIST (#714): a pset shared by several products names no
+    # single part, and ``owner``'s ", "-joined string cannot say so when a
+    # product's own name holds a comma
+    owners: Dict[int, List[str]] = {}
     try:
         for rel in f.by_type("IfcRelDefinesByProperties"):
             pdef = getattr(rel, "RelatingPropertyDefinition", None)
@@ -136,6 +140,7 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
             for o in (getattr(rel, "RelatedObjects", None) or ()):
                 names.append(str(getattr(o, "Name", "") or ""))
             owner[_eid(pdef)] = ", ".join(n for n in names if n)
+            owners[_eid(pdef)] = names
     except Exception:                                             # noqa: BLE001
         pass
 
@@ -148,6 +153,7 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
     for ps in psets:
         pset_name = str(getattr(ps, "Name", "") or "Pset")
         on = owner.get(_eid(ps), "")
+        ons = list(owners.get(_eid(ps), []))
         for pr in (getattr(ps, "HasProperties", None) or ()):
             raw_name = str(getattr(pr, "Name", "") or "")
             if not raw_name or raw_name in _ALREADY_CARRIED:
@@ -193,8 +199,8 @@ def collect(ifc_path: str, *, length_to_ft: Optional[float] = None,
                 out["params"][label] = ("text", str(value))
             seen_names[label] = (f"{on or pset_name}", value)
             out["sources"][label] = {
-                "pset": pset_name, "product": on, "ifc_type": ifc_type,
-                "raw_value": value, "tier": "given"}
+                "pset": pset_name, "product": on, "products": ons,
+                "ifc_type": ifc_type, "raw_value": value, "tier": "given"}
     return out
 
 

@@ -1455,6 +1455,7 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
     # family with none of it and no word that it had been discarded.  Silent
     # loss of the caller's own input is worse than a refusal.
     pset_params: Dict[str, Any] = {}
+    collected: Dict[str, Any] = {}
     try:
         from ..ifc import pset_params as _PP
         collected = _PP.collect(ifc_path)
@@ -1465,15 +1466,43 @@ def _assembly_rfa(res: RouteResult, ifc_path: str, out_dir: str,
         res.caveats.append(
             f"your IFC's property sets were not carried through "
             f"({type(e).__name__}); the family is delivered without them")
+    parts = model.to_parts()
     kw: Dict[str, Any] = {
-        "parts": model.to_parts(), "name": name,
+        "parts": parts, "name": name,
         "source": f"IFC mesh ({os.path.basename(ifc_path)})",
         "identity": dict(model.identity), "text_params": text_params,
         "numeric_params": pset_params,
     }
+    # EACH CARRIED PARAMETER DRIVES THE PART IT DESCRIBES (#714): matched on
+    # the pset's product + one span of that part, never guessed; specs only
+    # when something matched, so an IFC without psets builds exactly as before
+    pset_plan: Dict[str, Any] = {}
+    if pset_params:
+        try:
+            from ..ifc import pset_drive as _PD
+            pset_plan = _PD.plan(parts, collected)
+        except Exception as e:                   # delivery never depends on it
+            res.caveats.append(f"your pset parameters were not matched to parts "
+                               f"({type(e).__name__}); they are carried as values only")
+    if pset_plan.get("drives") or pset_plan.get("heights"):
+        kw.update(drives=pset_plan["drives"], heights=pset_plan["heights"],
+                  settle_drives=True)
     sub = dict(opts)
     sub.setdefault("stem", _slug(name))
-    _famspec_rfa(res, "generic_model", kw, out_dir, sub, source_ifc=ifc_path)
+    emitted = _famspec_rfa(res, "generic_model", kw, out_dir, sub, source_ifc=ifc_path)
+    if pset_plan.get("rows"):
+        from ..ifc import pset_drive as _PD
+        settle = getattr(emitted[0], "drive_settle", None) if emitted else None
+        rows = (_PD.settle_rows(pset_plan["rows"], settle)
+                if (settle is not None or not (pset_plan.get("drives")
+                                               or pset_plan.get("heights")))
+                else [dict(r, status=_PD.VALUE_ONLY,
+                           reason="planned, but no family was built to carry it")
+                      if r["status"] == _PD.DRIVES else r for r in pset_plan["rows"]])
+        res.caveats.extend(_PD.summarise(rows))
+        _side_file(res, out_dir, "pset_drives", "pset-drives.json",
+                   {"issue": 714, "rows": rows,
+                    "verdict": "authored; no desktop-Revit verdict (hard rule 4)"})
     if not res.files.get("rfa"):
         return
     d = model.dims_ft()
