@@ -208,6 +208,17 @@ adds a generation, so pass 2 has nothing left to drop.
 - **Measurement correction.** The reviewer measured W-before on 2026 as 2,432 B on base
   main, not 2,430. That is a before-number only.
 
+## Sandboxed CI on `1ca120e`: 4 failures, fixed
+
+`tests/test_partition_header_verdict.py` pins #486's healthy-shape contract: an
+undamaged file's `verify_manipulated` report gains no key unless it is earned.
+`verify_manipulated` had added `partition_tail` to every report.
+
+**The fix.** The tail is still judged on every call. The key now appears only when it
+is earned: when a host is given (to compare against) or when there is a defect.
+`partition_tail_defect` always appears on a defect. The contract tests pass again, and
+the #941 test now asserts that a healthy host-less report carries no key.
+
 ## BRANCH STATE (`tail-941`)
 
 **Files written**

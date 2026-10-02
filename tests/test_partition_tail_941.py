@@ -207,9 +207,10 @@ def test_verifiers_flag_stale_parity(tmp_path):
     vw = verify_written(bad, [], host_rvt=base)
     assert vw["partition_tail"]["ok"] is False and "partition_tail_defect" in vw
     assert ED.verify_electrical(bad, host_rvt=base)["structurally_valid"] is False
-    # without the host the tail is only judged to start on the end record
+    # without the host the tail is only judged to start on the end record --
+    # which the stale suffix does -- and a healthy report adds no key (#486)
     v2 = M.verify_manipulated(bad, edited_ids=[rec["elem_id"]])
-    assert v2["partition_tail"]["ok"] and "expected_tail_bytes" not in v2["partition_tail"]
+    assert "partition_tail" not in v2 and "partition_tail_defect" not in v2
 
 
 def test_writer_logical_falls_back_to_the_depaged_read():

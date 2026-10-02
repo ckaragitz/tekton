@@ -1659,7 +1659,9 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
     OUR bytes as stored, never the validator's CRCIO-auto-repaired view.
 
     The primary partition's TAIL (#941, ``partition_tail.tail_verdict``):
-    ``rep["partition_tail"]`` -- it must start on the release's end record and,
+    ``rep["partition_tail"]`` (present given ``host_rvt`` or on a defect --
+    never added to a healthy report judged without a host, #486) -- it must
+    start on the release's end record and,
     given ``host_rvt`` (the file the commit read), equal the host's exact tail
     byte for byte; ``ok`` False there is a defect, named in
     ``rep["partition_tail_defect"]``.
@@ -1765,10 +1767,15 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
         rep["elemtable_count_expected"] = expect_elemtable_count
     # the partition TAIL (#941): starts on the end record and, given the host
     # the commit read, equals the host's exact tail byte for byte
+    # The key is added only when EARNED (#486's healthy-shape contract, #946
+    # CI): given a host, or on a defect; a healthy file judged without a host
+    # says exactly what it said before #941
     if parts:
         from .partition_tail import tail_defect, tail_verdict
-        rep["partition_tail"] = tail_verdict(path, host_rvt, pname)
-        defect = tail_defect(rep["partition_tail"])
+        verdict = tail_verdict(path, host_rvt, pname)
+        defect = tail_defect(verdict)
+        if host_rvt is not None or defect:
+            rep["partition_tail"] = verdict
         if defect:
             rep["partition_tail_defect"] = defect
     return rep
