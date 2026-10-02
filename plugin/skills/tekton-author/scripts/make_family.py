@@ -130,6 +130,10 @@ def _profile_flags(p) -> None:
     p.add_argument("--profile-values", default=None, metavar="VALUES.json",
                    help="with --param-profile: values to fill, keyed by parameter name or "
                         "GUID -- a constant, or {\"formula\": \"Width\"}; the rest stay blank")
+    p.add_argument("--profile-map", default=None, metavar="MAP.json",
+                   help="with --param-profile: link library parameters to this family's own "
+                        "(a JSON of {library parameter GUID or name: our parameter name, e.g. "
+                        "\"Width\"}): each is written as a formula, so it follows every type")
     p.add_argument("--profile-share", type=float, default=0.5, metavar="F",
                    help="with --param-profile: a parameter is applied when at least this "
                         "share of the profile's families of the category carry it (0.5)")
@@ -142,7 +146,8 @@ def _shared_arg(ns):
         from rvt.famgen.param_profile import ProfileRequest
         return ProfileRequest(ns.param_profile, family=ns.profile_family,
                               share=ns.profile_share, rows=ns.shared_params,
-                              values=getattr(ns, "profile_values", None))
+                              values=getattr(ns, "profile_values", None),
+                              links=getattr(ns, "profile_map", None))
     return ns.shared_params
 
 

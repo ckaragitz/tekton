@@ -451,6 +451,11 @@ def _num_text(v: float) -> str:
     return t or "0"
 
 
+def is_spellable(name: str) -> bool:
+    """True when a formula can name the parameter ``name`` (see :func:`_spellable`)."""
+    return _spellable(str(name))
+
+
 @functools.lru_cache(maxsize=4096)
 def _spellable(name: str) -> bool:
     """True when the parser reads ``name`` back as that parameter: a caption that
