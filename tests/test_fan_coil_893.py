@@ -342,3 +342,19 @@ def test_the_square_fallback_keeps_an_x_axis_cylinder_along_x():
     p = {"shape": "cylinder_x", "role": "r", "r": 0.25, "length": 1.0, "zc": 1.0, "cx": 0.0, "cy": 0.0}
     s = FC._square(p)
     assert (s["w"], s["d"], s["h"], s["z0"]) == (1.0, 0.5, 0.5, 0.75)
+
+
+# --- #959 review nits: the fan coil refuses what the fan-powered box refuses ------------
+
+@pytest.mark.parametrize("kw,unit", [(dict(length_in=0), "inches"), (dict(depth_in=-3), "inches"),
+                                     (dict(height_in=float("nan")), "inches"),
+                                     (dict(length_in=True), "inches"), (dict(length_in="abc"), "inches"),
+                                     (dict(voltage="high"), "volts")])
+def test_an_invalid_dimension_or_voltage_is_refused_in_its_unit(kw, unit):
+    with pytest.raises(ValueError, match=f"positive, finite number of {unit}"):
+        FC.make_fan_coil_unit(**kw)
+
+
+def test_the_parts_refuse_a_nan_cabinet_in_inches():
+    with pytest.raises(ValueError, match=r"positive and finite, got 40 x nan x 12 in"):
+        FC.fan_coil_parts(40 * IN, float("nan"), 12 * IN)
