@@ -300,7 +300,9 @@ def test_the_trapeze_labels_both_rods_and_says_it_is_unverified():
     d = prod.diameters
     assert (d["wired"], d["dims"], d["captions"], d["refused"]) == (1, 2, ["Rod Diameter"], [])
     note = next(n for n in prod.doc.notes if n.startswith("diameters labelled"))
-    assert "NO desktop verdict" in note and "half arc" in note
+    # #916 plan: the rods are one full arc each now, so the half-arc caveat is gone
+    assert "NO desktop verdict" in note and "half arc" not in note
+    assert d["half_arc"] is False
     from rvt.famgen import archetypes as AR
     arch = AR.archetype("strut_trapeze")
     assert "no desktop verdict" in arch.lod_note

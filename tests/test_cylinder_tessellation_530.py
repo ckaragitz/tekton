@@ -112,7 +112,8 @@ def test_facts_are_never_written_into_an_element():
     blob = json.dumps([e.obj for e in fb.elements], default=str)
     assert "tessellation" not in blob
     assert "specimen_ratio" not in blob
-    assert len(fb.elements) == 5, "SketchPlane + VarSketch + 2 arcs + ExtrusionElem"
+    # #916 plan: a plan circle is ONE full-arc CurveElem, as born plan circles are
+    assert len(fb.elements) == 4, "SketchPlane + VarSketch + 1 full arc + ExtrusionElem"
 
 
 # ---------------------------------------------------------------------------
