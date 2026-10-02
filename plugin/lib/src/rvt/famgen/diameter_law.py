@@ -134,24 +134,51 @@ def _geo_sp(doc, sk) -> int:
     return sp.elem_id if sp is not None else -1
 
 
-def circle_of(doc, sk):
-    """``(label arc, centre, radius)`` of sketch ``sk``'s ONE circle in the
-    plan plane -- one full ``GArc``, or arcs about one centre at one radius
-    covering the full turn -- else raise :class:`DiameterError`."""
+def sketch_frame(sk):
+    """``(x, y, normal)`` of a sketch's own plane (``VarSketch.m_pPlane``)."""
+    pl = ((sk.obj.get("m_pPlane") or {}).get("value") or {})
+    x = [float(c) for c in pl.get("m_xVec", (1.0, 0.0, 0.0))]
+    y = [float(c) for c in pl.get("m_yVec", (0.0, 1.0, 0.0))]
+    n = [x[1] * y[2] - x[2] * y[1], x[2] * y[0] - x[0] * y[2], x[0] * y[1] - x[1] * y[0]]
+    return x, y, n
+
+
+def _in_plan(sk) -> bool:
+    _x, _y, n = sketch_frame(sk)
+    return abs(n[0]) < 1e-9 and abs(n[1]) < 1e-9
+
+
+def circle_of(doc, sk, *, vertical: bool = False):
+    """``(label arc, centre, radius)`` of sketch ``sk``'s ONE circle -- one
+    full ``GArc``, or arcs about one centre at one radius covering the full
+    turn -- else raise :class:`DiameterError`.
+
+    The circle must lie in the PLAN plane; ``vertical=True`` also admits a
+    circle in its own sketch's VERTICAL plane (a run authored the born way,
+    ``rvt.famgen.run_law``: sketch, frame and B-rep agree).  A plan-sketched
+    circle whose B-rep alone is rotated is never admitted (#929)."""
     from .drive_law import _arcs_of
     arcs = _arcs_of(doc, sk)
     if not arcs:
         raise DiameterError(f"sketch {sk.elem_id} has no circle")
+    plan = _in_plan(sk)
+    if not plan and not vertical:
+        raise DiameterError(f"sketch {sk.elem_id}'s circle is not in the plan plane")
+    _fx, _fy, n = sketch_frame(sk)
     c0, r0 = _crv(arcs[0])["m_center"], float(_crv(arcs[0])["m_radius"])
     for a in arcs:
         cr = _crv(a)
         if (any(abs(float(cr["m_center"][i]) - float(c0[i])) > 1e-9 for i in range(3))
                 or abs(float(cr["m_radius"]) - r0) > 1e-9):
             raise DiameterError(f"sketch {sk.elem_id}'s arcs are not one circle")
-        # the plan plane only: the dimension's plane normal is +Z (a circle on
-        # a vertical work plane -- a horizontal cylinder -- is not authored)
-        if abs(float(cr["m_xVec"][2])) > 1e-9 or abs(float(cr["m_yVec"][2])) > 1e-9:
-            raise DiameterError(f"sketch {sk.elem_id}'s circle is not in the plan plane")
+        if plan:
+            # the plan plane: the dimension's plane normal is +Z
+            if abs(float(cr["m_xVec"][2])) > 1e-9 or abs(float(cr["m_yVec"][2])) > 1e-9:
+                raise DiameterError(f"sketch {sk.elem_id}'s circle is not in the plan plane")
+        elif any(abs(sum(float(cr[f][i]) * n[i] for i in range(3))) > 1e-9
+                 for f in ("m_xVec", "m_yVec")):
+            # a vertical sketch: the arc must lie in THAT sketch's plane
+            raise DiameterError(f"sketch {sk.elem_id}'s circle is not in its sketch plane")
     if abs(sum(_span(_crv(a)["m_endParams"]) for a in arcs) - 2.0 * math.pi) > 1e-6:
         raise DiameterError(f"sketch {sk.elem_id}'s arcs do not close a circle")
     if not (r0 > 0 and math.isfinite(r0)):
@@ -162,7 +189,9 @@ def circle_of(doc, sk):
     label = (full or first or [None])[0]
     if label is None:
         raise DiameterError(f"sketch {sk.elem_id}'s circle has no [0, pi] half arc")
-    return label, [float(c0[0]), float(c0[1]), 0.0], r0
+    if plan:
+        return label, [float(c0[0]), float(c0[1]), 0.0], r0
+    return label, [float(c0[0]), float(c0[1]), float(c0[2])], r0
 
 
 def _labelled_arcs(doc) -> set:
@@ -193,11 +222,19 @@ def _radial_dim(doc, sk, arc_ce, centre, radius, value, pid, style_id):
     obj["m_cellList"] = {"ptr_class": "CellList", "pid": -1, "value": {"m_cells": [
         {"ptr_class": "SketchMembership", "pid": -1, "value": {"m_groupId": sk.elem_id}}]}}
     s45 = 0.7071067811865476
-    pt = [centre[0] + radius * s45, centre[1] + radius * s45, 0.0]
+    fx, fy, fn = sketch_frame(sk)
+    if _in_plan(sk):
+        pt = [centre[0] + radius * s45, centre[1] + radius * s45, 0.0]
+        fx, fy, fn = [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]
+    else:
+        # a run's vertical sketch (run_law): the same 45-degree point, the
+        # sketch's own frame and normal (born: m_planeNormal = the sketch
+        # normal on a run's labelled diameter)
+        pt = [centre[i] + radius * s45 * (fx[i] + fy[i]) for i in range(3)]
     obj["m_refPnts"] = [pt]
     obj["m_oldRefSegEndPnt"] = []
     obj["m_oldRefSegEnd"] = []
-    seg = PD._seg_info(locked_value=value, origin=(centre[0], centre[1], 0.0),
+    seg = PD._seg_info(locked_value=value, origin=(centre[0], centre[1], centre[2]),
                        param_id=pid, flags=0, seg_value=value, id1=0, id2=-1)
     for v in seg["m_values"]:
         v["m_oTextFields"] = None
@@ -205,7 +242,7 @@ def _radial_dim(doc, sk, arc_ce, centre, radius, value, pid, style_id):
     obj["m_ArrEqualityFormulaInfo_DimEqSegInfoArr"] = {"m_arr": [], "m_maxSize": 0,
                                                        "m_isLazy": False}
     obj["m_lastTrf"] = PD._identity_trf()
-    obj["m_planeNormal"] = [0.0, 0.0, 1.0]
+    obj["m_planeNormal"] = list(fn)
     obj["m_oldOrigin"] = list(pt)
     obj["m_styleSymbolId"] = int(style_id)
     obj["m_dimSketchPlaneId"] = -1
@@ -218,8 +255,8 @@ def _radial_dim(doc, sk, arc_ce, centre, radius, value, pid, style_id):
     obj["m_pWitnessRefs"] = []
     garc = blank_object("GArc")
     garc["m_GInfo"] = G.ginfo(category=-1, tag=-1, control_command=0, flags=CACHED_ARC_FLAGS)
-    garc.update({"m_endParams": [0.0, math.pi], "m_xVec": [1.0, 0.0, 0.0],
-                 "m_yVec": [0.0, 1.0, 0.0], "m_radius": float(radius),
+    garc.update({"m_endParams": [0.0, math.pi], "m_xVec": list(fx),
+                 "m_yVec": list(fy), "m_radius": float(radius),
                  "m_center": list(centre), "m_bFilled": False})
     obj["m_witnessRefs"] = [{
         "m_id": {"m_id": -1}, "m_pWitnessRefInfoBase": None,
@@ -251,7 +288,8 @@ def _radial_dim(doc, sk, arc_ce, centre, radius, value, pid, style_id):
     return el
 
 
-def wire_diameter(doc, *, caption: str, sketches: Sequence[Any]) -> Dict[str, Any]:
+def wire_diameter(doc, *, caption: str, sketches: Sequence[Any],
+                  vertical: Sequence[Any] = ()) -> Dict[str, Any]:
     """Label the ONE circle of every sketch in ``sketches`` with family
     parameter ``caption`` as its DIAMETER (the born type-9 ``RadialDim``).
 
@@ -261,6 +299,9 @@ def wire_diameter(doc, *, caption: str, sketches: Sequence[Any]) -> Dict[str, An
     one plan circle no RadialDim labels yet, no sketch is listed twice, and
     the parameter's current value equals 2 x every circle's radius.  The
     document's diameter style is authored on first use and reused after.
+    ``vertical`` lists the sketches that are a RUN's vertical sketch
+    (``rvt.famgen.run_law``): their circle lies in that sketch's own plane
+    and the dimension takes its frame and normal (authored, no verdict).
 
     Call BEFORE ``finalize``.  Authored, unverified: no diameter has a
     desktop verdict (hard rule 4)."""
@@ -282,7 +323,7 @@ def wire_diameter(doc, *, caption: str, sketches: Sequence[Any]) -> Dict[str, An
     labelled = _labelled_arcs(doc)
     plan: List[tuple] = []
     for sk in sketches:
-        arc, centre, r = circle_of(doc, sk)
+        arc, centre, r = circle_of(doc, sk, vertical=any(sk is v for v in vertical))
         if any(a.elem_id in labelled for a in _arcs_of(doc, sk)):
             raise DiameterError(f"diameter_law: sketch {sk.elem_id}'s circle is already "
                                 "dimensioned")
@@ -305,12 +346,15 @@ def wire_diameter(doc, *, caption: str, sketches: Sequence[Any]) -> Dict[str, An
 
 def wire_diameter_specs(doc, specs: Sequence[Dict[str, Any]],
                         sketch_of: Dict[str, Optional[Any]],
-                        rotated: Optional[set] = None) -> Dict[str, Any]:
+                        rotated: Optional[set] = None,
+                        runs: Optional[set] = None) -> Dict[str, Any]:
     """Wire ``[{"caption", "parts": [part name, ...]}]``; each spec is
     all-or-nothing, a refused one is reported (never raised) so delivery is
     never blocked (hard rule 1).  ``rotated`` names parts whose B-rep is
     rotated (cylinder_x / cylinder_y): their sketch is the vertical AUTHORING
-    circle, not the drawn geometry, so a spec naming one is refused (#929)."""
+    circle, not the drawn geometry, so a spec naming one is refused (#929).
+    ``runs`` names parts authored the born way (``run_law``): a circle on a
+    vertical sketch whose frame and B-rep agree, labelled in that plane."""
     rep: Dict[str, Any] = {"specs": len(specs), "wired": 0, "dims": 0,
                            "captions": [], "refused": []}
     for spec in specs:
@@ -326,7 +370,8 @@ def wire_diameter_specs(doc, specs: Sequence[Dict[str, Any]],
                     f"{off[:4]}: a horizontal (rotated B-rep) cylinder -- no in-plane "
                     "mechanism is probed off the plan plane")
             r = wire_diameter(doc, caption=spec["caption"],
-                              sketches=[sketch_of[n] for n in names])
+                              sketches=[sketch_of[n] for n in names],
+                              vertical=[sketch_of[n] for n in names if n in (runs or ())])
         except Exception as e:                       # noqa: BLE001 -- never block delivery
             rep["refused"].append({"caption": cap, "why": f"{type(e).__name__}: {str(e)[:120]}"})
             continue

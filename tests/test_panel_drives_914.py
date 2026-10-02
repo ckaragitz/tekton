@@ -178,8 +178,14 @@ def test_the_panelboard_depth_planes_sit_on_the_profile_edges(mounting, y):
 
 
 def test_a_centred_profile_keeps_its_planes_at_plus_minus_half():
-    """The fix reads the planes off the profile, so a centred box is unchanged."""
-    prod = F.make_generic_model(width_ft=2.0, depth_ft=1.0, height_ft=3.0, name="C914")
+    """The fix reads the planes off the profile, so a centred box is unchanged.
+
+    RE-PINNED (#913 drives-rest): this pins the #372 chain, which the single
+    prism wired by default until #913 and now wires behind prism_drive="372"
+    (byte-identical); the default build drives the prism through drive_law /
+    height_law instead (tests/test_drives_rest_913.py)."""
+    prod = F.make_generic_model(width_ft=2.0, depth_ft=1.0, height_ft=3.0, name="C914",
+                                prism_drive="372")
     new = [p for p in prod.doc.refplanes if not p.obj.get("m_definesOrigin")]
     at = sorted((round(p.obj["m_freeEnd"][0], 12) if abs(p.obj["m_freeEnd"][0] - p.obj["m_bubbleEnd"][0]) < 1e-12
                  else round(p.obj["m_freeEnd"][1], 12)) for p in new)

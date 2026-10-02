@@ -162,11 +162,23 @@ def test_an_edge_is_never_locked_twice(drive, specs):
 
 
 def test_the_single_prism_path_never_drops_drives_silently():
+    # RE-PINNED (#913 drives-rest): the single prism now drives its OWN Width /
+    # Depth by default (prism_drive="law"), so prod.drives is no longer empty;
+    # the pin is unchanged in substance -- a CALLER's drive spec is never wired
+    # on this path and is never dropped silently.  The old empty report is the
+    # prism_drive="372" build, pinned beside it.
+    spec = [{"caption": "Width", "axis": "x", "lo": -1, "hi": 1, "parts": {"x": ("lo",)}}]
+    own = F.make_generic_model(height_ft=1.0, width_ft=2.0, depth_ft=1.0, name="p")
     prod = F.make_generic_model(height_ft=1.0, width_ft=2.0, depth_ft=1.0, name="p",
-                                drives=[{"caption": "Width", "axis": "x", "lo": -1, "hi": 1,
-                                         "parts": {"x": ("lo",)}}])
-    assert prod.drives == []
+                                drives=spec)
+    assert ([(d["caption"], len(d["locks"]), d["targets"]) for d in prod.drives]
+            == [(d["caption"], len(d["locks"]), d["targets"]) for d in own.drives]
+            == [("Width", 2, 1), ("Depth", 2, 1)])
     assert any("NOT wired: the single-prism path" in n for n in prod.notes)
+    old = F.make_generic_model(height_ft=1.0, width_ft=2.0, depth_ft=1.0, name="p",
+                               drives=spec, prism_drive="372")
+    assert old.drives == []
+    assert any("NOT wired: the single-prism path" in n for n in old.notes)
 
 
 def test_drive_true_plus_drives_notes_both_chains():

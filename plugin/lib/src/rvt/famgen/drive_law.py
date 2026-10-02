@@ -400,7 +400,22 @@ def _p3(p) -> tuple:
     return (float(p[0]), float(p[1]), 0.0)
 
 
+def is_surface_only(rp) -> bool:
+    """A SURFACE-ONLY reference plane (no drawn ends: the born form of a
+    plane a cap face is locked to -- ``height_law``, ``run_law``)."""
+    o = rp.obj
+    return all(abs(float(c)) < 1e-12
+               for c in list(o.get("m_freeEnd") or ()) + list(o.get("m_bubbleEnd") or ()))
+
+
 def _plane_ends(rp) -> tuple:
+    if is_surface_only(rp):
+        # no drawn line: the plan trace of its surface over its envelope
+        s = rp.obj["m_pSurface"]["value"]
+        o, x = s["m_origin"], s["m_xVec"]
+        u0, u1 = (float(c[0]) for c in s["m_Envelope"]["m_corners"])
+        return tuple((float(o[0]) + float(x[0]) * u, float(o[1]) + float(x[1]) * u, 0.0)
+                     for u in (u0, u1))
     return (_p3(rp.obj["m_freeEnd"]), _p3(rp.obj["m_bubbleEnd"]))
 
 
@@ -417,7 +432,10 @@ def _dim_ctx(doc) -> Dict[str, Any]:
 
 
 def plane_at(rp, axis: str) -> float:
-    return float(rp.obj["m_freeEnd"][0 if axis == "x" else 1])
+    k = 0 if axis == "x" else 1
+    if is_surface_only(rp):
+        return float(rp.obj["m_pSurface"]["value"]["m_origin"][k])
+    return float(rp.obj["m_freeEnd"][k])
 
 
 def add_plane(doc, axis: str, at: float):

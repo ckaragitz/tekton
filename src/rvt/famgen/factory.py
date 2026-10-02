@@ -1382,6 +1382,24 @@ def _born_law_after_finalize(doc: SK.FamilyDoc) -> None:
         DL.apply_born_inplane_law(doc)
 
 
+def _prism_height_specs(base_z_ft: float, H: float) -> List[Dict[str, Any]]:
+    """Height specs of ONE body from ``base_z_ft`` up ``H`` (the single-prism
+    path): Height between its cap faces, the base held to the origin
+    elevation plane by a LOCKED unlabelled height when it is off it (the
+    panelboard's chain, #914) -- exactly one end of each spec positioned."""
+    base, top = float(base_z_ft), float(base_z_ft) + float(H)
+    faces = {"body": {"start": "lo", "end": "hi"}}
+    if abs(base) < _DRIVE_EPS:
+        return [{"caption": "Height", "lo": 0.0, "hi": top, "parts": faces}]
+    if abs(top) < _DRIVE_EPS:
+        return [{"caption": "Height", "lo": base, "hi": 0.0, "parts": faces}]
+    held = ({"caption": None, "locked": True, "lo": 0.0, "hi": base, "name_hi": "base",
+             "parts": {}} if base > 0 else
+            {"caption": None, "locked": True, "lo": base, "hi": 0.0, "name_lo": "base",
+             "parts": {}})
+    return [held, {"caption": "Height", "lo": "base", "hi": top, "parts": faces}]
+
+
 def _label_driven_note(prod: "FamilyProduct", captions: str) -> None:
     """A multi-type family whose rows now LABEL drive dimensions: replace the
     "not label-driven yet" note with what the file carries (#914's wording)."""
@@ -1405,7 +1423,8 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                             standard_values: Optional[Dict[str, Any]] = None,
                             drives: Optional[Sequence[Dict[str, Any]]] = None,
                             heights: Optional[Sequence[Dict[str, Any]]] = None,
-                            diameters: Optional[Sequence[Dict[str, Any]]] = None
+                            diameters: Optional[Sequence[Dict[str, Any]]] = None,
+                            runs: Optional[Sequence[Dict[str, Any]]] = None
                             ) -> FamilyProduct:
     """A MULTI-PART generic model: several stacked / offset extrusions in one
     family (a canopy + a stem, a base + a body + a cap).  This is the LOD
@@ -1565,6 +1584,30 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # -- the Revit-born type-9 RadialDim (rvt.famgen.diameter_law), each spec
     # all-or-nothing; a refused spec is a note, never an exception (hard
     # rule 1).  No diameter has a desktop verdict (hard rule 4).
+    # RUN LENGTHS (#913, rvt.famgen.run_law): a horizontal run authored the
+    # born way (``"work_plane": "vertical"``) has its END / START faces locked
+    # to two surface-only vertical planes held by a labelled plan dimension
+    # (+ EQ about the origin plane).  Each spec all-or-nothing, a refusal a
+    # note (hard rule 1); no desktop verdict (hard rule 4).
+    from . import run_law as RL
+    run_names: set = set()
+    run_of: Dict[str, Any] = {}
+    for part, fb in zip(parts, built):
+        if RL.is_run(fb) and part.get("name"):
+            n = str(part["name"])
+            run_of[n] = None if n in run_of else fb
+            run_names.add(n)
+    run_report: Dict[str, Any] = {}
+    if runs:
+        run_report = RL.wire_run_specs(doc, list(runs), run_of)
+        for r in run_report["refused"]:
+            doc.notes.append(f"run length for {r['caption']!r} not wired ({r['why'][:90]})")
+        if run_report["wired"]:
+            doc.notes.append(
+                f"run lengths wired (#913 run law, NO desktop verdict): "
+                f"{', '.join(run_report['captions'])} -- {run_report['locks']} end-face "
+                f"locks to surface-only vertical planes held by plan dimensions; the "
+                f"run is sketched on a vertical work plane (the born way)")
     diameter_report: Dict[str, Any] = {}
     if diameters:
         from . import diameter_law as DM
@@ -1580,8 +1623,10 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
                     # authoring circle, NOT the drawn (rotated) geometry, so
                     # a label there drives nothing Revit draws (#591 round 4)
                     rotated.add(n)
+        # ``runs`` only when a run is present: the call is unchanged otherwise
         diameter_report = DM.wire_diameter_specs(doc, list(diameters), circle_of,
-                                                 rotated=rotated)
+                                                 rotated=rotated,
+                                                 **({"runs": run_names} if run_names else {}))
         for r in diameter_report["refused"]:
             doc.notes.append(f"diameter for {r['caption']!r} not wired ({r['why'][:90]})")
         if diameter_report["wired"]:
@@ -1594,8 +1639,8 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # only a document that actually CARRIES a drive is a law document:
     # finalize then skips back-edges and the law runs after it
     law = (bool(drive_report) or bool(height_report.get("wired"))
-           or bool(diameter_report.get("wired")))
-    if drives or heights or diameters:
+           or bool(diameter_report.get("wired")) or bool(run_report.get("wired")))
+    if drives or heights or diameters or runs:
         doc.born_drive_law = law
     doc.notes.append(f"multi-part generic model "
                      f"({_geometry_origin(dim_provenance, source)}): "
@@ -1611,6 +1656,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     prod.drives = drive_report
     prod.heights = height_report
     prod.diameters = diameter_report
+    prod.runs = run_report
     if dim_provenance == "fact":
         # The spec-sheet lane (#688 DONE 5). Saying "no manufacturer identity
         # is claimed" here would be false: the user supplied the document
@@ -1702,7 +1748,28 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
     for _i, _c in enumerate(center[:2]):
         _check_body_size(abs(float(_c)), f"center[{_i}]", f"part {shape!r}")
     rep = G.REP_SOLID if solid else G.REP_DUMMY
-    if shape in ("cylinder_x", "cylinder_y"):
+    work_plane = part.get("work_plane")
+    if work_plane not in (None, "level", "vertical"):
+        raise FactoryError(f"part work_plane must be 'level' or 'vertical', not {work_plane!r}")
+    if shape in ("cylinder_x", "cylinder_y") and work_plane == "vertical":
+        # THE BORN WAY (#913, rvt.famgen.run_law): the circle sketched on the
+        # origin centre plane square to the run and extruded along its
+        # normal -- sketch, frame and B-rep agree, so its length (the
+        # extrusion's own start / end) and its diameter (a circle in the
+        # sketch) can be driven.  Authored; no desktop verdict.
+        from . import run_law as RL
+        r = part.get("radius_ft")
+        if r is None and part.get("diameter_ft") is not None:
+            r = float(part["diameter_ft"]) / 2.0
+        L = part.get("length_ft")
+        if r is None or float(r) <= 0 or L is None or float(L) <= 0:
+            raise FactoryError(f"a {shape!r} part needs radius_ft (or diameter_ft) "
+                               "and a positive length_ft")
+        fb = RL.add_run_cylinder(doc, axis=shape[-1], radius_ft=float(r),
+                                 length_ft=float(L), center=center, base_z_ft=base,
+                                 rep=rep)
+        fb.params.update({"axis": shape[-1]})
+    elif shape in ("cylinder_x", "cylinder_y"):
         # A cylinder about a HORIZONTAL axis -- a wheel, an axle, a pipe run.
         # Desktop round 4 (#591) established that the CACHED B-REP is what Revit
         # draws: three rounds of editing the sketch moved nothing, and rotating
@@ -1785,7 +1852,9 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        standard_values: Optional[Dict[str, Any]] = None,
                        drives: Optional[Sequence[Dict[str, Any]]] = None,
                        heights: Optional[Sequence[Dict[str, Any]]] = None,
-                       diameters: Optional[Sequence[Dict[str, Any]]] = None
+                       diameters: Optional[Sequence[Dict[str, Any]]] = None,
+                       runs: Optional[Sequence[Dict[str, Any]]] = None,
+                       prism_drive: Optional[str] = "law"
                        ) -> FamilyProduct:
     """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
     "when i go to claude design and ask it to build me a 3d object you
@@ -1800,12 +1869,23 @@ def make_generic_model(*, height_ft: Optional[float] = None,
 
     Donor-free like every other constructor; carries the full famdoc law
     set (settings singletons, views, browser folders, sketch solver).
+
+    ``prism_drive`` (the SINGLE-prism path only -- the spec-sheet lane and the
+    prompt shapes; ``parts=`` ignores it): ``"law"`` (default, #913) = the
+    multipart way -- a rectangle's Width / Depth drive its edges symmetrically
+    about the origin centre planes (``drive_law``) and Height its cap faces
+    (``height_law``, #787 Case B); an arbitrary polygon gets Height only (no
+    axis-aligned edge pair to label).  ``"372"`` = the #372 first-solid chain
+    this path always wired before (byte-identical); ``None`` = no constraints.
+    Authored; the assembled family is unverified (hard rule 4).
     """
+    if prism_drive not in ("law", "372", None):
+        raise FactoryError(f"prism_drive must be 'law', '372' or None, not {prism_drive!r}")
     # a drive / height / diameter list that is not a list is coerced, so a
     # malformed argument becomes a reported refusal, never an exception
     # that withholds the file (hard rule 1; #929 review)
-    drives, heights, diameters = (_spec_list(drives), _spec_list(heights),
-                                  _spec_list(diameters))
+    drives, heights, diameters, runs = (_spec_list(drives), _spec_list(heights),
+                                        _spec_list(diameters), _spec_list(runs))
     if parts:
         # composite bodies (sphere / dome / cone / a cylinder about a
         # horizontal axis) expand into the prisms this factory authors
@@ -1822,7 +1902,7 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                                        drive=drive, standards=standards,
                                        standard_values=standard_values,
                                        drives=drives, heights=heights,
-                                       diameters=diameters)
+                                       diameters=diameters, runs=runs)
     if height_ft is None or float(height_ft) <= 0:
         raise FactoryError("make_generic_model needs a positive height_ft "
                            "(or parts=[...] for a multi-part assembly)")
@@ -1871,6 +1951,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     doc.add_type(_clean_name(fam_name), row)
     std_report = ST.apply_safe(doc, category, standards, standard_values)   # category standards, #601
     r = G.REP_SOLID if solid else G.REP_DUMMY
+    prism_drives: List[Dict[str, Any]] = []
+    prism_heights: Dict[str, Any] = {}
     if prof is not None:
         fb = add_polygon_form(doc, prof.vertices, H, base_z_ft=base_z_ft, rep=r)
         fb.params.update({"role": "given 3D body (arbitrary profile)",
@@ -1880,13 +1962,30 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                          "REGENERATION rep (Revit rebuilds the solid from the "
                          "sketch on open); the cached N-gon B-rep is issue #499")
             doc.notes.append(prod_note)
+        if prism_drive == "law":
+            # an arbitrary ring has no axis-aligned edge pair: Height only
+            prism_drives, prism_heights = _wire_equipment_drives(
+                doc, [("body", fb)], [], _prism_height_specs(base_z_ft, H),
+                what="generic model")
+            doc.notes.append("Width / Depth are NOT driven on an arbitrary profile "
+                             "(no axis-aligned edge pair to label); Height is")
     else:
         fb = add_box_form(doc, W, D, H, base_z_ft=base_z_ft, center=(0.0, 0.0), rep=r)
         fb.params.update({"role": "given 3D body (rectangular)"})
-        # the drive only means something on a rectangle (issue #372)
-        from . import param_drive as PD
-        PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+        if prism_drive == "372":
+            # the #372 first-solid chain, kept byte-identical behind the flag
+            from . import param_drive as PD
+            PD.wire_panelboard_drive(doc, x_caption="Width", y_caption="Depth")
+        elif prism_drive == "law":
+            # the multipart way (#913): Width / Depth symmetric in-plane drives
+            # on the body's edges, Height its cap faces
+            prism_drives, prism_heights = _wire_equipment_drives(
+                doc, [("body", fb)],
+                [_plan_drive_spec("Width", "x", -W / 2.0, W / 2.0, [("body", (-W / 2.0, W / 2.0))]),
+                 _plan_drive_spec("Depth", "y", -D / 2.0, D / 2.0, [("body", (-D / 2.0, D / 2.0))])],
+                _prism_height_specs(base_z_ft, H), what="generic model")
     doc.finalize()
+    _born_law_after_finalize(doc)
     prod = FamilyProduct("generic_model", doc, sheet, forms=[fb],
                          file_stem=_slug(fam_name), standards=std_report)
     if dim_provenance == "fact":
@@ -1900,13 +1999,21 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                           "catalog facts; no manufacturer identity is claimed")
     if std_report:
         prod.notes.append(_standards_note(std_report))
-    prod.drives = []
-    prod.heights = {}
+    prod.drives = prism_drives
+    prod.heights = prism_heights
     prod.diameters = {}
-    if drives or heights or diameters:
+    prod.runs = {}
+    if prism_drives or prism_heights.get("wired"):
+        prod.notes.append(
+            "constraints authored (#913): "
+            + ("Width / Depth drive the body's edges symmetrically, " if prism_drives else "")
+            + "Height drives its cap faces (#787 Case B) -- assembled family "
+            "unverified, no desktop verdict (hard rule 4)")
+    if drives or heights or diameters or runs:
         # never silently dropped (#907 review round 4): the single-prism path
         # has no named parts to drive -- pass parts=[...] for drives
-        n = len(drives or []) + len(heights or []) + len(diameters or [])
+        n = (len(drives or []) + len(heights or []) + len(diameters or [])
+             + len(runs or []))
         msg = (f"{n} parameter drive(s) NOT wired: the single-prism path "
                "has no named parts (pass parts=[...] to drive them)")
         doc.notes.append(msg)
@@ -1978,11 +2085,13 @@ def make_archetype(*, product: str,
     drives = arch.drives(dict(res.values)) if arch.drives else None
     heights = arch.heights(dict(res.values)) if arch.heights else None
     diameters = arch.diameters(dict(res.values)) if arch.diameters else None
+    runs = arch.runs(dict(res.values)) if arch.runs else None
     if nested_hardware:
         from . import trapeze_nested as TN
         parts, drives, heights = TN.strip_hardware(parts, drives, heights)
     prod = make_generic_model(parts=parts, name=fam_name, numeric_params=numeric,
                               drives=drives, heights=heights, diameters=diameters,
+                              runs=runs,
                               category=category or arch.category,
                               base_z_ft=base_z_ft, solid=solid, source=src,
                               start_id=start_id, shared_params=shared_params,
