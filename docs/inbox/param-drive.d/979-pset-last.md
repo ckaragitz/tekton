@@ -81,3 +81,20 @@ Stream: param-drive. Issue #979. Base `main` 18153b4.
   - this fragment
 - Committed locally on `fix-979`. Not pushed, nothing staged for the viewer, and no
   Revit claim (hard rule 4).
+
+### Review of #983 (2026-10-02)
+🛑 then fixed (`_same_value` / `_upgrade_kind`):
+- **`'inf'` "equalled" every number.** `abs(inf - x) <= 1e-9 * inf` is true, so
+  `IFCLABEL('inf')` then `IFCLENGTHMEASURE(1574.8)` upgraded to a length and DROVE --
+  two contradicting statements, silently. A non-finite value now never matches by
+  tolerance, and the text upgrade requires a finite number. 'inf' / '-inf' /
+  'Infinity' / 'nan' against a length are now a recorded conflict, value-only.
+- **A Yes/No upgraded to a length.** steplite returns `.T.` as Python `True`, and
+  `True == 1.0`, so `IFCBOOLEAN(.T.)` then `IFCLENGTHMEASURE(1.)` carried a 1-unit length
+  (in a metre file, a drive of any 1 m span). A boolean is now the same statement only
+  as an equal boolean, and a text carried from a boolean never upgrades.
+- Numeric spellings that do upgrade (same number, by `float()`): `' 1574.8 '`,
+  `'01574.8'`, `'1.5748e3'`, `'1_574.8'`; spellings that never do: `'1,574.8'`,
+  `'1574.8 mm'`, `'nan'`, `'inf'`.
+- Two tests pin both (`test_an_infinite_label_is_no_number_and_never_drives`,
+  `test_a_yes_no_is_never_a_number`); both fail at the PR's first head.

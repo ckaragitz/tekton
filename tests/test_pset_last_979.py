@@ -87,3 +87,31 @@ def test_an_unattached_repeat_within_drive_tolerance_is_no_skip(tmp_path):
     # the first-unattached comparison already agreed: the same value first is no row
     coll = PP.collect(_write(tmp_path, _orphans_first([1574.8001]), "near_first.ifc"))
     assert not [r for r in coll["skipped"] if r["name"] == "BodyWidth"]
+
+
+def test_an_infinite_label_is_no_number_and_never_drives(tmp_path):
+    """#983 review: 'inf' compared "equal" to every number by tolerance, so a
+    label 'inf' then a length upgraded silently and DROVE -- two contradicting
+    statements.  A non-finite value is never the same as anything."""
+    from rvt.ifc import pset_drive as PD
+    for i, word in enumerate(("inf", "-inf", "Infinity", "nan")):
+        psets = _psets_with([("Pset_Label", ["tank_shell"],
+                              [("BodyWidth", "IFCLABEL", word)])], before_body=True)
+        parts, coll = _measured(_write(tmp_path, ifc_text(PRODUCTS, psets), f"inf{i}.ifc"))
+        assert coll["params"]["BodyWidth"][0] == "text", (word, coll["params"]["BodyWidth"])
+        assert coll["sources"]["BodyWidth"].get("conflicting_values"), word
+        assert _rows(PD.plan(parts, coll))["BodyWidth"]["status"] == PD.VALUE_ONLY, word
+
+
+def test_a_yes_no_is_never_a_number(tmp_path):
+    """#983 review: IFCBOOLEAN(.T.) then IFCLENGTHMEASURE(1.) upgraded the
+    Yes/No to a 1-unit length (True == 1.0 in Python) -- in a metre file it
+    would drive any 1 m span.  A boolean is a different statement."""
+    from rvt.ifc import pset_params as PP
+    psets = _psets_with([("Pset_Flag", ["tank_shell"], [("Flag", "IFCLABEL", "__BOOL__")]),
+                         ("Pset_Len", ["tank_shell"], [("Flag", _L, 1)])])
+    text = ifc_text(PRODUCTS, psets).replace("IFCLABEL('__BOOL__')", "IFCBOOLEAN(.T.)")
+    coll = PP.collect(_write(tmp_path, text, "bool.ifc"))
+    assert coll["params"]["Flag"] == ("text", "Yes"), coll["params"]["Flag"]
+    src = coll["sources"]["Flag"]
+    assert src["raw_value"] is True and src.get("conflicting_values") == [1.0], src

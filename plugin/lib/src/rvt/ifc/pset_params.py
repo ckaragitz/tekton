@@ -34,6 +34,7 @@ depends on -- and the report names them, so the loss is never silent twice.
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Dict, List, Optional, Tuple
 
 #: Properties already carried by the identity / BOM path -- carrying them
@@ -338,12 +339,17 @@ def _upgrade_kind(out: Dict[str, Any], src: Dict[str, Any], label: str,
         return
     if kept[0] == "text":
         # only when the text IS that number, raw against raw -- never feet
-        # against file units, never a label that merely compares equal as text
+        # against file units, never a label that merely compares equal as text;
+        # a Yes/No (carried as text from an IfcBoolean) is never a number, and
+        # 'inf' / 'nan' are no number at all (#983 review)
+        raw = src.get("raw_value")
+        if isinstance(raw, bool):
+            return
         try:
-            as_num = float(src.get("raw_value"))
+            as_num = float(raw)
         except (TypeError, ValueError):
             return
-        if not _same_value(as_num, value):
+        if not math.isfinite(as_num) or not _same_value(as_num, value):
             return
     out["params"][label] = typed
     src["ifc_type"] = ifc_type
@@ -381,12 +387,20 @@ def _same_statement(src: Dict[str, Any], typed: Tuple[str, Any],
 def _same_value(a: Any, b: Any) -> bool:
     """Two raw pset values are the same statement: equal, or equal numbers to
     1e-9 relative (float noise, never a tolerance that would hide a real
-    difference -- pset_drive's SPAN_TOL is 1e-6 ft on converted lengths)."""
+    difference -- pset_drive's SPAN_TOL is 1e-6 ft on converted lengths).
+    A boolean is the same statement only as an equal boolean (``True == 1.0``
+    in Python, never in an IFC), and a non-finite number is never the same as
+    anything by tolerance: ``inf`` would otherwise "equal" every number (#983
+    review)."""
+    if isinstance(a, bool) or isinstance(b, bool):
+        return isinstance(a, bool) and isinstance(b, bool) and a == b
     if a == b:
         return True
     try:
         fa, fb = float(a), float(b)
     except (TypeError, ValueError):
+        return False
+    if not (math.isfinite(fa) and math.isfinite(fb)):
         return False
     return abs(fa - fb) <= 1e-9 * max(1.0, abs(fa), abs(fb))
 
