@@ -1,5 +1,5 @@
 """rvt.famgen.trapeze_nested -- the strut trapeze with its washers and nuts as
-NESTED families (issue #917 DONE 5), opt-in:
+NESTED families (issue #917 DONE 5; heights #940), opt-in:
 ``make_archetype(product="strut_trapeze", nested_hardware=True)``.
 
 Born families nest their hardware (the #917 census: 7,845 nested instances in
@@ -13,29 +13,47 @@ and, when it is written, nests two families of OUR OWN making into it with
   whose ``Washer Thickness`` drives its height (a #787 Case B cap-face drive);
 * a HEX NUT: one hexagonal prism, whose instance parameter ``Nut Height``
   drives its height (Case B).  Its ``Nut Across Flats`` is an instance
-  parameter that carries a VALUE ONLY: a hexagon is not a rectangle and no
-  verified mechanism resizes it, so it is not wired to the geometry.
+  parameter that carries a VALUE ONLY (#940 census below: the born hexagon
+  resize needs angular EQ dimensions this engine does not author).
+
+Both children carry their origin elevation plane (the template's horizontal
+plane at z 0, the parts' bottom face) with Is-Reference **Center (Elevation)**
+(``m_refName`` 7), the born form of a child whose instances are locked by
+height (#940 census: 61 / 61 born child documents with a code-7 plane carry it
+on their origin elevation plane at z 0, unnamed, drawn; 1,299 others leave that
+plane "Not a Reference" (12), which no lock can name).
 
 Per tier and rod, a washer + nut below the channel back and a washer + nut on
-the lips (the same positions the solid version draws), each instance locked by
-its Center (Left/Right) to the Rod Inset plane of its rod (the planes
-``drive_law.wire_follow`` creates) and by its Center (Front/Back) to the
-origin Center (Front/Back) plane; the host's ``Washer Size`` / ``Washer
-Thickness`` / ``Nut Across Flats`` are associated to the children's instance
-parameters (a host TYPE parameter driving a nested INSTANCE parameter: 2,087
-born entries).
+the lips (the same positions the solid version draws), each instance locked
+THREE ways: its Center (Left/Right) to the Rod Inset plane of its rod (the
+planes ``drive_law.wire_follow`` creates), its Center (Front/Back) to the
+origin Center (Front/Back) plane, and (#940) its Center (Elevation) to the host
+HORIZONTAL plane its bottom face sits on -- the plane the trapeze's height
+chain (Tier Spacing / Strut Height / Washer Thickness, #787 Case B) already
+places there and the solid version locks that part's face to.  The host's
+``Washer Size`` / ``Washer Thickness`` / ``Nut Across Flats`` are associated
+to the children's instance parameters (a host TYPE parameter driving a nested
+INSTANCE parameter: 2,087 born entries).
+
+#940 census (421 born families, every own nested instance; counts only): a
+nested part follows a host HEIGHT by an ``Alignment`` lock of one of its
+references to a horizontal host plane in 1,203 instances -- the dominant
+mechanism -- against 480 hosted on a SketchPlane over a horizontal RefPlane,
+13 labelled ``LinearDimString``s to a horizontal plane and 20 offset built-in
+parameter associations.  CG8 judges 467 born elevation locks (tags 1 / 4 on
+rotated instances, 6, 7), all holding; for an UNROTATED free instance, the
+placement this lane uses, the lockable horizontal reference is the child's
+Center (Elevation) (9 locks) or Bottom (1); named references (614 locks) map
+through the symbol's geometry table and stay unresolved.
 
 What this lane does NOT do (stated in the product's notes, never hidden):
 
-* the nested instances do not follow the trapeze's HEIGHT drives: our children
-  carry no Center (Elevation) reference, so they are placed at fixed heights
-  and only the in-plane locks hold them -- flexing Tier Spacing, Strut Height
-  or Washer Thickness in the host moves the host's planes, not the instances.
-  The solid version's washers and nuts do ride those planes.  That is why the
-  solid version stays the DEFAULT;
+* the nut's across-flats does not resize the hexagon (above);
 * nothing here has a desktop-Revit verdict (hard rule 4): validator green, an
   empty constraint-law report with every nested lock judged by CG8, and
-  coherent registries are facts about the file.
+  coherent registries are facts about the file -- whether Revit's solver
+  moves a locked nested instance when Tier Spacing changes is unverified.
+  That, and the nut, are why the solid version stays the DEFAULT.
 
 Hard rule 1: a nesting that fails or is refused still DELIVERS -- the solid
 trapeze is written at the same path with the reason in the report's notes.
@@ -58,6 +76,13 @@ NUT_FAMILY = "Hex Nut"
 #: host parameter caption -> the child's instance parameter it drives
 WASHER_ASSOCIATIONS = {"Washer Size": "Washer Size", "Washer Thickness": "Washer Thickness"}
 NUT_ASSOCIATIONS = {"Nut Across Flats": "Nut Across Flats"}
+
+#: Is-Reference code of the children's origin elevation plane (#940): Center
+#: (Elevation), the code a born child carries when its instances are locked
+#: by height (skeleton.REF_NAME)
+CENTER_ELEVATION = SK.REF_NAME["center_elevation"]
+#: a host horizontal plane at the instance's bottom face (feet)
+Z_TOL = 1e-9
 
 
 class NestedHardwareError(RuntimeError):
@@ -130,6 +155,29 @@ def hardware_positions(v: Dict[str, float]) -> Dict[str, List[Tuple[Tuple[float,
 # the two children: our own generated families, with real drives
 # ---------------------------------------------------------------------------
 
+def origin_elevation_reference(doc) -> int:
+    """Give the child's origin elevation plane (the template's horizontal
+    plane at z 0 that ``height_law.wire_height_drive`` adds, drawn,
+    origin-defining) the Is-Reference code Center (Elevation), so a host can
+    lock an instance's height to it (#940).  Returns the plane id; refuses
+    unless exactly one such plane exists."""
+    from . import constraint_law as CL
+    hits = []
+    for rp in doc.refplanes:
+        o = rp.obj or {}
+        if not o.get("m_definesOrigin"):
+            continue
+        pl = CL.plane_of_any("RefPlane", o)
+        if pl is None or abs(abs(pl[1][2]) - 1.0) > CL.PARALLEL_TOL or abs(pl[0][2]) > Z_TOL:
+            continue
+        hits.append(rp)
+    if len(hits) != 1:
+        raise NestedHardwareError(f"the child has {len(hits)} horizontal origin planes at z 0; "
+                                  "its Center (Elevation) needs exactly one")
+    hits[0].obj["m_refName"] = CENTER_ELEVATION
+    return hits[0].elem_id
+
+
 def _child_doc(name: str, start_id: int):
     return SK.new_family_document("generic_model", name, work_plane_based=False,
                                   start_id=start_id, plane_length_ft=1.0)
@@ -178,8 +226,11 @@ def make_washer(start_id: int, *, size_ft: float, thickness_ft: float,
         DL.wire_symmetric(doc, base, axis)
     HL.wire_height_drive(doc, caption="Washer Thickness", lo_z=0.0, hi_z=thickness_ft,
                          targets=[(ex, ("start", "end"))])
+    origin_elevation_reference(doc)
     doc.notes.append("nested-hardware child (#917): Washer Size drives the width in x "
-                     "and y, Washer Thickness the height; no desktop verdict")
+                     "and y, Washer Thickness the height; its bottom face's origin "
+                     "plane is its Center (Elevation) reference (#940); no desktop "
+                     "verdict")
     return _finish(doc, "nested_washer", "square_strut_washer",
                    f"square strut washer {size_ft / IN:g} in x {thickness_ft / IN:g} in", [fb])
 
@@ -210,9 +261,13 @@ def make_hex_nut(start_id: int, *, across_flats_ft: float, height_ft: float,
     ex = next(e for e in fb.elements if e.class_name == "ExtrusionElem")
     HL.wire_height_drive(doc, caption="Nut Height", lo_z=0.0, hi_z=height_ft,
                          targets=[(ex, ("start", "end"))])
+    origin_elevation_reference(doc)
     doc.notes.append("nested-hardware child (#917): Nut Height drives the height; Nut "
                      "Across Flats carries a value only (a hexagon has no verified "
-                     "resize mechanism); no desktop verdict")
+                     "resize mechanism: born hexagons resize through angular EQ "
+                     "dimensions this engine does not author, #940); its bottom "
+                     "face's origin plane is its Center (Elevation) reference; no "
+                     "desktop verdict")
     return _finish(doc, "nested_nut", "hex_nut",
                    f"hex nut {across_flats_ft / IN:g} in across flats", [fb])
 
@@ -220,6 +275,28 @@ def make_hex_nut(start_id: int, *, across_flats_ft: float, height_ft: float,
 # ---------------------------------------------------------------------------
 # the product: the stripped trapeze that nests its hardware when written
 # ---------------------------------------------------------------------------
+
+def height_planes(doc, zs) -> Dict[float, int]:
+    """``{z: plane id}`` -- for every height in ``zs`` the ONE horizontal host
+    RefPlane through it (the height chain's planes, #787 Case B).  Refuses
+    when a height has none or several: an elevation lock must name its plane
+    unambiguously (#940)."""
+    from . import constraint_law as CL
+    horizontal = []
+    for rp in doc.refplanes:
+        pl = CL.plane_of_any("RefPlane", rp.obj or {})
+        if pl is not None and abs(abs(pl[1][2]) - 1.0) <= CL.PARALLEL_TOL:
+            horizontal.append((int(rp.elem_id), float(pl[0][2])))
+    out: Dict[float, int] = {}
+    for z in zs:
+        hits = [pid for pid, pz in horizontal if abs(pz - z) <= Z_TOL]
+        if len(hits) != 1:
+            raise NestedHardwareError(
+                f"{len(hits)} horizontal host planes at z {z * 12.0:.6g} in: a nested "
+                "instance's Center (Elevation) needs exactly one plane to lock to")
+        out[z] = hits[0]
+    return out
+
 
 def _follow_planes(prod) -> Tuple[int, int]:
     for d in getattr(prod, "drives", None) or []:
@@ -247,6 +324,8 @@ class NestedHardwareProduct(F.FamilyProduct):
         obj.rod_planes = _follow_planes(prod)
         from . import drive_law as DL
         obj.fb_plane = int(DL.origin_centre_plane(prod.doc, "y").elem_id)
+        pos = hardware_positions(values)
+        obj.z_planes = height_planes(prod.doc, sorted({o[2] for k in pos for o, _s in pos[k]}))
         return obj
 
     def nest_plan(self) -> Dict[str, Any]:
@@ -265,9 +344,11 @@ class NestedHardwareProduct(F.FamilyProduct):
                  NUT_ASSOCIATIONS)):
             pts = [p for p, _s in pos[key]]
             locks = []
-            for k, (_p, side) in enumerate(pos[key]):
+            for k, (p, side) in enumerate(pos[key]):
                 locks.append((k, "center_lr", lo if side == "lo" else hi))
                 locks.append((k, "center_fb", self.fb_plane))
+                # #940: the bottom face follows the host's height chain
+                locks.append((k, "center_elevation", self.z_planes[p[2]]))
             plan[key] = {"child": make, "points": pts, "locks": locks,
                          "associate": dict(assoc)}
         return plan
@@ -311,16 +392,18 @@ class NestedHardwareProduct(F.FamilyProduct):
             f"({rn.family_name!r}) are nested family instances of our own generated "
             f"families, not solids; {len(rw.lock_ids) + len(rn.lock_ids)} centre-"
             "reference locks (Center (Left/Right) to the Rod Inset planes, Center "
-            "(Front/Back) to the origin plane)",
+            "(Front/Back) to the origin plane, Center (Elevation) -- each part's "
+            "bottom face -- to the host horizontal plane the height chain puts "
+            "there, #940)",
             "nested washer: Washer Size drives its width in x and y and Washer "
             "Thickness its height (instance parameters, associated to the host's); "
             "nested nut: Nut Across Flats is associated but carries a VALUE ONLY "
             "(a hexagon has no verified resize mechanism), Nut Height drives its "
             "height but has no host parameter to follow",
-            "the nested washers and nuts do NOT follow the host's height drives "
-            "(Tier Spacing, Strut Height, Washer Thickness move the host's planes, "
-            "not the instances): our children carry no Center (Elevation) "
-            "reference to lock -- the solid version (the default) does ride them",
+            "the nested washers and nuts are LOCKED to the host's height planes "
+            "(Tier Spacing, Strut Height and Washer Thickness move those planes); "
+            "whether Revit moves a locked nested instance with them is unverified "
+            "(no desktop verdict)",
             "no desktop-Revit verdict exists for nested families, their locks or "
             "their associations (hard rule 4); validator green and an empty "
             "constraint-law report are facts about the file"]
