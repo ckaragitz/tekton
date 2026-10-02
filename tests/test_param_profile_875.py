@@ -5,9 +5,9 @@ family is filled the way the library fills it -- structure, never one product's 
   integer / measurable, internal units) and ``formula`` (Revit text over parameter
   NAMES, via ``rvt.famgen.formula.unparse``; ``formula_unread`` when it cannot spell it);
 * ``param_profile`` takes a FORMULA when every carrying family uses it, a CONSTANT only
-  when two or more families hold it and all agree; a text formula that is one string
-  constant is written as that value (text formulas are not stored yet, #870), any
-  other text formula is left out and said; materials / family types never carry;
+  when two or more families hold it and all agree; a text formula is written as the
+  formula it is (#870: a string constant, a text parameter, an if() over texts);
+  materials / family types never carry;
 * the caller's own values win over a convention.
 
 Synthetic only: made-up names / GUIDs / values (rule 6).
@@ -113,26 +113,29 @@ def test_a_generated_family_is_filled_by_the_conventions(path):
     prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path))
     rows = _written(prod)
     assert rows["Zz Unit"]["m_str"] == "EA"
-    assert rows["Zz Kind"]["m_str"] == "Box"                  # '"Box"' written as its value
+    assert rows["Zz Kind"]["m_str"] == "Box"                  # '"Box"' written as the formula
+    assert rows["Zz Kind"]["m_oExpression"]["ptr_class"] == "StringConstantExpression"
+    assert rows["Zz Label"]["m_str"] == "EA"                  # 'Zz Unit': a text parameter
     assert rows["Zz Flag"]["m_int"] == 1
     half = rows["Zz Half"]
     assert half["m_oExpression"] is not None
     assert half["m_value"] == pytest.approx(rows["Width"]["m_value"] / 2)
     assert rows["Zz Rating"]["m_str"] == "" and rows["Zz Finish"]["m_elemId"] == -1
     notes = "\n".join(prod.doc.notes)
-    assert "4 from the library's own conventions" in notes
+    assert "5 from the library's own conventions" in notes
 
 
-def test_a_text_formula_over_parameters_is_left_out_and_said(path):
+def test_a_text_formula_over_parameters_is_written(path):
     prof = _profile()
     for f in prof["families"].values():
         f["params"][4]["formula"] = "Zz Unit"                 # the same in both: a convention
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(prof, fh)
     prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path))
-    notes = "\n".join(prod.doc.notes)
-    assert "'Zz Label': the library's text formula 'Zz Unit' (text formulas are not written" in notes
-    assert _written(prod)["Zz Label"]["m_str"] == ""
+    label = _written(prod)["Zz Label"]
+    assert label["m_str"] == "EA" and label["m_oExpression"]["ptr_class"] == "ParameterExpression"
+    assert (label["m_value"], label["m_int"], label["m_elemId"]) == (0.0, 0, -1)
+    assert "'Zz Label' by formula" in "\n".join(prod.doc.notes)
 
 
 def test_the_callers_values_win_over_a_convention(path):

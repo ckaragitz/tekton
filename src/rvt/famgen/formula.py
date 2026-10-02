@@ -22,6 +22,14 @@ a bare literal is a NUMBER; '+', '-' and the comparisons need the same spec on b
 sides, and '*' / '/' by a number keep the other side's spec -- so 'Width + 1' is
 refused exactly as Revit's formula editor refuses "inconsistent units".
 
+TEXT (#870) is a value, never an operand: a ``"quoted"`` literal is a
+``StringConstantExpression`` holding only ``m_value`` (no spec), a text parameter
+may be named, and ``if()`` may choose between texts -- the shapes the owner's
+reference library uses (4,002 text formulas: 3,278 bare constants, the rest
+``if()`` chains over Yes/No conditions; every result stored in the row's
+``m_str`` with ``m_value`` 0.0, ``m_int`` 0, ``m_elemId`` -1).  No operator
+takes text ('+' joining, '=' comparing): none is pinned, so each is refused.
+
 This module is FORMAT, not content: the node classes and field names are our own
 Revit-2026 ``Formats/Latest`` schema's; no value, name or tree from a reference
 family is carried (hard rule 3).
@@ -38,6 +46,7 @@ SPEC_LENGTH = "autodesk.spec.aec:length-1.0.0"
 SPEC_NUMBER = "autodesk.spec.aec:number-1.0.0"
 SPEC_YESNO = "autodesk.spec:spec.bool-1.0.0"
 SPEC_ANGLE = "autodesk.spec.aec:angle-1.0.0"
+SPEC_TEXT = "autodesk.spec:spec.string-1.0.0"
 #: deepest tree the writer emits: far beyond a formula anyone writes by hand, and well
 #: inside Python's own recursion limit, so no formula string can crash a build (hard
 #: rule 1); deeper is refused with the reason
@@ -82,10 +91,15 @@ class ParamRef:
 _NUMBER = re.compile(r"\s*(?P<num>\d+(?:\.\d*)?|\.\d+)\s*"
                      r"(?P<unit>mm|cm|m(?![A-Za-z])|in(?![A-Za-z])|ft|'|\")?")
 _CALL = re.compile(r"([A-Za-z_]+)\s*\(")
-#: specs a formula may read or produce: MEASURABLE doubles and Yes/No.  Text, integer,
-#: material and other storage kinds are refused (their stored form -- m_str, a rounded
-#: m_int, an element id -- is not what this writer emits)
-_TEXTLIKE = ("autodesk.spec:spec.string", "autodesk.spec:spec.int64", "tekton.storage:")
+#: specs a formula may NOT read or produce: integer, material and other storage kinds
+#: (their stored form -- a rounded m_int, an element id -- is not what this writer
+#: emits).  Measurable doubles, Yes/No and text (#870) are read and produced.
+_UNSUPPORTED = ("autodesk.spec:spec.int64", "tekton.storage:")
+
+
+def is_text(spec: str) -> bool:
+    """True for a text spec (any version)."""
+    return str(spec).startswith("autodesk.spec:spec.string")
 
 
 class NameTable:
@@ -150,6 +164,7 @@ class _Parser:
         if op in ("=", "<", ">"):
             self._eat(op)
             right = self._additive()
+            _no_text(op, left, right)
             _no_yesno(op, left, right)
             _same_spec(left, right, op)
             return _binary(op, left, right), SPEC_YESNO
@@ -160,6 +175,7 @@ class _Parser:
         while self._peek() in ("+", "-"):
             op = self._peek(); self._eat(op)
             right = self._multiplicative()
+            _no_text(op, node, right)
             _no_yesno(op, node, right)
             _same_spec(node, right, op)
             node = (_binary(op, node, right), node[1])
@@ -173,6 +189,7 @@ class _Parser:
                 raise FormulaError("operator '^' has no pinned code (#850)")
             self._eat(op)
             right = self._unary()
+            _no_text(op, node, right)
             _no_yesno(op, node, right)
             node = (_binary(op, node, right), _product_spec(node[1], right[1], op))
         return node
@@ -181,6 +198,7 @@ class _Parser:
         if self._peek() == "-":
             self._eat("-")
             inner = self._unary()
+            _no_text("-", inner)
             if inner[1] == SPEC_YESNO:
                 raise FormulaError("cannot negate a Yes/No value (use not(...))")
             return _ptr("UnaryOperatorExpression", {"m_unaryOperator": UNARY_NEG,
@@ -196,6 +214,14 @@ class _Parser:
             return _ptr("ParenExpression", {"m_pSubexpression": inner[0]}), inner[1]
         if self.pos >= len(self.text):
             raise FormulaError(f"formula ends where a value is expected: {self.text!r}")
+        if self.text[self.pos] == '"':
+            end = self.text.find('"', self.pos + 1)
+            if end < 0:
+                raise FormulaError(f"text constant at column {self.pos + 1} of {self.text!r} "
+                                   f"has no closing quote")
+            value = self.text[self.pos + 1:end]
+            self.pos = end + 1
+            return _ptr("StringConstantExpression", {"m_value": value}), SPEC_TEXT
         if self.text[self.pos] in "+*/^=<>),":
             raise FormulaError(f"a value is expected at column {self.pos + 1} of {self.text!r}, "
                                f"not {self.text[self.pos]!r}")
@@ -222,9 +248,9 @@ class _Parser:
                     (end < len(self.text) and (self.text[end].isalnum() or self.text[end] == "_")):
                 self.pos = end
                 ref = self.params[name]
-                if ref.spec.startswith(_TEXTLIKE):
-                    raise FormulaError(f"parameter {name!r} is {_short(ref.spec)}: only measurable "
-                                       f"and Yes/No parameters are supported in formulas")
+                if ref.spec.startswith(_UNSUPPORTED):
+                    raise FormulaError(f"parameter {name!r} is {_short(ref.spec)}: only measurable, "
+                                       f"Yes/No and text parameters are supported in formulas")
                 return _ptr("ParameterExpression", {"m_paramId": int(ref.param_id)}), ref.spec
         if fm:
             return self._call(fm)
@@ -272,7 +298,18 @@ def _no_yesno(op: str, *operands: Tuple[dict, str]) -> None:
         raise FormulaError(f"a Yes/No value cannot take {op!r} (use and / or / not / if)")
 
 
+def _no_text(op: str, *operands: Tuple[dict, str]) -> None:
+    """Text is a value only: no operator takes it -- joining ('+') and comparing ('=')
+    text have no pinned code, so neither is guessed (#870)."""
+    if any(is_text(o[1]) for o in operands):
+        raise FormulaError(f"a text value cannot take {op!r} (text can only be a value or an "
+                           f"if() result)")
+
+
 def _same_spec(a: Tuple[dict, str], b: Tuple[dict, str], op: str) -> None:
+    if is_text(a[1]) != is_text(b[1]):
+        raise FormulaError(f"{op} mixes text and {_short(b[1] if is_text(a[1]) else a[1])}: "
+                           f"both sides must be text")
     if a[1] != b[1]:
         raise FormulaError(f"inconsistent units: {_short(a[1])} {op} {_short(b[1])} "
                            f"(write the constant with its unit, e.g. 1' or 300 mm)")
@@ -299,8 +336,8 @@ def _function_spec(fname: str, args: List[Tuple[dict, str]]) -> str:
         if bad:
             raise FormulaError(f"{fname}() takes Yes/No arguments, not {', '.join(bad)}")
         return SPEC_YESNO
-    if args[0][1] == SPEC_YESNO:
-        raise FormulaError(f"{fname}() takes a measurable value, not Yes/No")
+    if args[0][1] == SPEC_YESNO or is_text(args[0][1]):
+        raise FormulaError(f"{fname}() takes a measurable value, not {_short(args[0][1])}")
     if fname == "round":
         # pinned on NUMBERS only (88/88): rounding a length would round its internal
         # feet, and negative halves are unpinned -- refused until pinned
@@ -330,6 +367,9 @@ def parse_formula(text: str, params: "Mapping[str, ParamRef] | NameTable") -> Tu
         raise FormulaError(f"formula has more than {MAX_DEPTH} levels or terms") from None
     if _depth(tree) > MAX_DEPTH:
         raise FormulaError(f"formula has more than {MAX_DEPTH} levels or terms")
+    if is_no_formula(tree):
+        raise FormulaError('an empty text formula ("") is how Revit stores NO formula: '
+                           'leave the value blank instead')
     return tree, spec
 
 
@@ -360,6 +400,8 @@ def evaluate(tree: dict, values: Mapping[int, Any]) -> Any:
     c = tree.get("ptr_class"); v = tree.get("value") or {}
     if c == "NumberConstantExpression":
         return float(v["m_value"])
+    if c == "StringConstantExpression":
+        return str(v.get("m_value") or "")
     if c == "ParameterExpression":
         pid = int(v["m_paramId"])
         if pid not in values:
@@ -489,7 +531,9 @@ def _shape(tree: Any) -> list:
     """``tree`` as a preorder list of (class, operator / function / parameter /
     constant), parentheses skipped -- two trees with one shape compute alike.  A
     number constant compares by value (an int and a float, -0.0 and 0.0 alike), a
-    negated constant as the negative number, a parameter by its integer id."""
+    negated constant as the negative number, a parameter by its integer id.  A
+    constant's unit spec is not compared: ``unparse`` spells the unit (``2'`` vs ``2``)
+    and the parser reads it back, so a spelling never changes a constant's unit."""
     out: list = []
     stack = [tree]
     while stack:
