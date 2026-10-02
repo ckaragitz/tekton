@@ -93,10 +93,11 @@ instance (24,992 / 25,002).
 Not authored here (gaps recorded in the record): named-reference locks (a
 geomTag beyond the Is-Reference codes, 2,000+ in the corpus, mapping
 unresolved), work-plane-based / rotated / hosted placement, shared nesting,
-association to a nested TYPE parameter (30 born nested symbols carry the
-cell; not censused far enough to author), and the nested type table's blank
-leading row the project loader writes (born nested families carry real
-types only).
+and association to a nested TYPE parameter (30 born nested symbols carry
+the cell; not censused far enough to author).  The nested type table carries
+the real types only (#917 DONE 1, :func:`nested_type_table`), and the
+partition is spliced on its exact content so it still ends on the family end
+record (``loader._commit_and_write(exact_partition=True)``).
 
 Honesty: everything here is format structure + our own two documents; no
 reference-family value enters the output.  Validator green and an empty
@@ -616,12 +617,34 @@ def host_reference_planes(host_rfa: str) -> List[Dict[str, Any]]:
     return out
 
 
+def nested_type_table(ftt: dict) -> dict:
+    """The family-host form of a nested Family's ``m_pFamilyTypes``: the REAL
+    types only, ``m_idx`` naming the current one.  Born family hosts carry no
+    leading blank row (996 / 996 one-type tables: one real pair, ``m_idx`` 0);
+    the project loader's blank ' ' current-values row (and its ``m_idx`` + 1)
+    is a PROJECT-host trait and is dropped here.  The project path never calls
+    this (its bytes are unchanged)."""
+    pairs = list(ftt.get("m_pairs") or [])
+    idx = ftt.get("m_idx")
+    cur = pairs[idx] if isinstance(idx, int) and 0 <= idx < len(pairs) else None
+    real = [p for p in pairs if str(p.get("name", "")).strip()]
+    if not real:
+        raise NestError("the nested family has no named type")
+    ftt["m_pairs"] = real
+    ftt["m_idx"] = next((k for k, p in enumerate(real) if p is cur), 0)
+    return ftt
+
+
 def _family_host_flavour(authored) -> None:
     """Born family hosts carry the nested Family / FamilySymbol headers with
-    flags 10 / 2472 where the project loader writes 26 / 2488."""
+    flags 10 / 2472 where the project loader writes 26 / 2488, and the nested
+    Family's type table with its real types only (#917 DONE 1)."""
     for e in authored.elements:
         if e.class_name == "Family" and e.elem_id == authored.plan.host_family_id:
             e.header["m_abFlags4Bytes"] = NESTED_FAMILY_HDR_FLAGS
+            ftt = ((e.obj.get("m_pFamilyTypes") or {}).get("value") or {})
+            if ftt:
+                nested_type_table(ftt)
         elif e.class_name == "FamilySymbol" and e.elem_id in authored.plan.symbol_ids:
             e.header["m_abFlags4Bytes"] = NESTED_SYMBOL_HDR_FLAGS
 
@@ -743,6 +766,15 @@ def verify_nested(path: str, *, nested_family_id: int, symbol_id: int,
             cd = b"".join(f.inflate_all("Global/ContentDocuments"))
         ents, _tail = F.parse_content_documents(cd)
         rep["content_documents"] = len(ents)
+        # the partition's exact content ends on the family end record: no
+        # stale CRCIO parity spliced in as content (#917 third pass)
+        from .. import ecc
+        from .famdoc_adoc import FAMILY_END_RECORD
+        with open_rvt(path) as f:
+            exact = ecc.unframe_stream(f.raw(f.partition_streams()[0]))
+        rep["end_record_is_constant"] = exact.endswith(FAMILY_END_RECORD)
+        if not rep["end_record_is_constant"]:
+            bad.append("the partition does not end on the family end record")
         if guid not in {str(g) for g, _a in ents}:
             bad.append("Global/ContentDocuments has no entry for the nested document")
     from ..famload import four_registry_census
@@ -877,7 +909,7 @@ def _nest(host_rfa: str, out_rfa: str, child: ProductArg,
     os.makedirs(out_dir, exist_ok=True)
     try:
         wr = L._commit_and_write(host_rfa, out_rfa, host, [authored], new_latest, cd_new,
-                                 identity=_host_identity(host_rfa))
+                                 identity=_host_identity(host_rfa), exact_partition=True)
     except Exception as exc:                                   # noqa: BLE001
         _discard(out_rfa)
         raise NestError(f"writing the host failed: {type(exc).__name__}: {exc}") from exc
