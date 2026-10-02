@@ -785,8 +785,9 @@ def _wire_downlight_drives(doc: SK.FamilyDoc, forms: Sequence[G.FormBundle]
         doc.notes[:] = [n for n in doc.notes if not n.startswith("downlight drives NOT wired")]
         doc.notes.append(
             f"diameters labelled (#916, NO desktop verdict): {', '.join(dia['captions'])} "
-            f"on {dia['dims']} circle(s), the Revit-born type-9 diameter dimension placed "
-            "on a half arc of this engine's two-half circle")
+            f"on {dia['dims']} circle(s), the Revit-born type-9 diameter dimension"
+            + (" placed on a half arc of this engine's two-half circle"
+               if dia.get("half_arc") else " on the circle's one full arc (#916)"))
     caps = [d["caption"] for d in drives] + list((heights or {}).get("captions") or []) \
         + list(dia.get("captions") or [])
     reports = (drives, heights or {}, dia)

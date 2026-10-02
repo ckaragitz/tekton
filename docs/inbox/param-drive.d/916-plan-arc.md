@@ -135,8 +135,9 @@ whole delta.
   else here (hard rule 4). The two-half form HAS a desktop load verdict (#589, Revit 2026);
   that verdict does not carry over. `PLAN_CIRCLE_FULL_ARC = False` is the way back.
 - **The downlight's diameter note is now wrong** and is not fixed here: `src/rvt/ifc/` is
-  another PR's territory this round. `famfrom_ifc._wire_downlight_drives` (around line
-  789) still appends "… placed on a half arc of this engine's two-half circle". Patch for
+  another PR's territory this round. *(Applied when shipped: the note now follows
+  `half_arc`.)* `famfrom_ifc._wire_downlight_drives` (around line
+  789) still appended "… placed on a half arc of this engine's two-half circle". Patch for
   whoever holds that file:
 
   ```diff

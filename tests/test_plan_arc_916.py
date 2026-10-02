@@ -294,4 +294,7 @@ def test_the_downlight_circles_are_full_arcs_and_its_diameters_on_them():
             for d in doc.by_class("RadialDim") for w in d.obj["m_witnessRefs"]]
     assert dims and all(g["m_elemId"] in full and g["m_geomTag"] == 0 for g in dims)
     assert CL.check_doc(doc) == []
+    # the family's own note says where the diameter sits -- never "a half arc"
+    notes = [n for n in doc.notes if n.startswith("diameters labelled")]
+    assert notes and all("half arc" not in n and "one full arc" in n for n in notes), notes
     _sha(prod)                                     # writes, validates 0 errors
