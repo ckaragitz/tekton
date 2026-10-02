@@ -118,6 +118,16 @@ def test_the_rendered_doc_says_earlier_form_wherever_it_names_the_file():
     assert len(rows) == 4, len(rows)
     for ln in rows:
         assert "an earlier form" in ln and "#981" in ln, ln[:80]
+        # never presented as the complete list of changes (#985 review)
+        assert "not complete" in ln and "#601" in ln, ln[:80]
+
+
+def test_the_plugin_honest_status_says_earlier_form_too():
+    """The shipped plugin's own status page cites the same ledger file (#985 review)."""
+    path = os.path.join(ROOT, "plugin", "docs", "HONEST-STATUS.md")
+    with open(path, encoding="utf-8") as fh:
+        rows = [ln for ln in fh if "L_downlight_loaded" in ln]
+    assert rows and all("an earlier form" in ln and "#981" in ln for ln in rows), rows
 
 
 # ---------------------------------------------------------------------------

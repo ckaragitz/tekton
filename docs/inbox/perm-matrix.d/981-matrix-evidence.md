@@ -60,6 +60,9 @@ in the ledger, so nothing noticed.
   family equals any generator output (git-ignored binary, unrecorded fingerprint, different
   container) — hence `certified: None` and the mandatory caveat. It covers only files
   registered in `EVIDENCE_FORMS`; nothing auto-discovers other certified generated families.
+  And it fingerprints ONE recipe (`standalone_family_write` on the bundled base), not
+  necessarily the bytes a user gets: the product-IFC downlight lane still needs the
+  owner-disk family container (#94) and falls back to a `generic_model` on a fresh clone.
 - Open question (not changed, outside #981's DONE): `L1a_rstbasic_loaded_levelhead.rvt` and
   `stage_L8_lp4.rvt` are cited as *load-mechanism* evidence and also contain families our
   generators made in August; their generators' output has very likely moved too. They are
@@ -68,7 +71,11 @@ in the ledger, so nothing noticed.
 
 ## BRANCH STATE
 
-Branch `fix-981` from `18153b4`, one local commit, not pushed.
+Branch `fix-981` from `18153b4`, one local commit, not pushed. *Update:* shipped as PR #985
+on `claude/pull-latest-main-1cmo56`, rebased onto `a615735`. After the PR's 🛑 review: the
+caveat no longer reads as the complete list of changes (the certification predates the
+repo's history; standard parameters #601 / #631 are named too), and
+`plugin/docs/HONEST-STATUS.md`'s Family-generation row carries the earlier-form note.
 - `src/rvt/frontdoor/matrix.py` (+ mirror `plugin/lib/src/rvt/frontdoor/matrix.py` via sync):
   `DOWNLIGHT_EARLIER_FORM`, `EVIDENCE_FORMS`, `evidence_form_is_earlier`,
   `generator_fingerprint`, the `verify_evidence` hook, caveat on six rows + `_RFA_HOST`.
