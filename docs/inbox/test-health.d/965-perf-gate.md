@@ -97,6 +97,24 @@ units, min of 2 samples:
 or more. A +10% regression passes: that is within this container's noise, and the
 gate does not claim to catch it.
 
+*Amended after the #970 review (2026-10-02):* under concurrent load (another
+sandboxed CI run, load ≈ 1.8) the +32% injection scored **23.74** -- under 24.0 --
+so the claim above holds only on a quiet machine. Restated: the gate fails a
+steady regression of about **+35% reliably**, about +25% on a quiet machine. The
+self-test now injects two extra build+writes per family instead of one (numbers
+below). Known asymmetries, stated in the constant's comment: the reference is
+the min of six samples and the flagship the min of two, so load inflates the
+ratio (≈ 10% headroom on healthy main); a regression hitting only one of the two
+flagship samples is invisible to the ratio; the reference loop is CPU-only, so a
+machine with unusually slow disk drifts the ratio.
+
+Strengthened self-test, measured on `4054a8f` + this branch (reference units,
+min of 2): quiet 35.78, 34.50; under a concurrent flagship pytest run 35.54,
+36.47 -- all over 24.0 with ≥ 40% margin. Healthy main in the same session:
+19.48, 20.51, 20.06. The self-test now records `injected_room6_ratio` for
+`--junitxml` (read with `-o junit_family=legacy`; under xunit2 pytest warns
+and omits properties).
+
 **Not measured on a normal cloud VM.** No VM was available in this container. The
 ratio is designed to be machine-independent, because the reference and the job are
 both timed by the same python on the same machine in the same session. The only
@@ -112,7 +130,9 @@ like with like.
 ## BRANCH STATE
 
 - **Branch:** `fix-965` from `fe83378`, committed locally. Not pushed, no PR. The
-  caller asked for exactly that.
+  caller asked for exactly that. *Update:* shipped as PR #970 on
+  `claude/pull-latest-main-1cmo56`, rebased onto `4054a8f`; the review follow-up
+  (stronger self-test, restated claim) is the second commit.
 - **Files:**
   - `tests/test_surface_perf.py`: the ratio gate, the opt-in self-test,
     `ROOM6_CEILING` 8.0 → 18.0 as a runaway guard, 2 flagship samples, and the budget

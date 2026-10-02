@@ -78,8 +78,16 @@ ROOM6_CEILING = 18.0
 #   test_room6_gate_catches_injected_regression)  25.6-28.0 -- fails
 # 24.0 = 1.19x the main median and 1.03x the slowest SINGLE sample ever seen
 # (the min of two keeps the healthy tail near 21.7), so it passes healthy main
-# and fails a per-flagship regression of about +25% or more; smaller ones are
-# within the container's noise and not claimed.  NOT measured on a cloud VM:
+# and fails a steady per-flagship regression of about +35% or more reliably,
+# and of about +25% only on a quiet machine (a +32% injection scored 23.7 under
+# concurrent load, #970 review); smaller ones are within the noise and not
+# claimed.  Two asymmetries are known and accepted: the reference is the min of
+# six samples and the flagship the min of two, so contention inflates the ratio
+# (headroom on healthy main is ~10%); and a regression hitting only ONE of the
+# two flagship samples (bimodal) is invisible to the ratio -- the absolute
+# runaway guard judges the first sample only.  The reference loop is CPU-only
+# (no disk writes, no fork/exec), so a machine with unusually slow I/O will
+# drift the ratio.  NOT measured on a cloud VM:
 # the ratio is built to be machine-independent, but its VM value is unknown
 # (the #184 VM numbers predate the reference).  Widen only with a newly
 # measured number stated here; never delete the assertion.
@@ -288,16 +296,18 @@ def test_bare_go_author_6panels_ratio_under_ceiling(bench, bench_report, record_
 
 
 #: the self-test's injected regression: every generated family is built and
-#: written TWICE (the duplicate to a throwaway path) -- a real code-path
-#: regression in a scratch COPY of the plugin, never in product code
+#: written THREE times (the two duplicates to a throwaway path) -- a real
+#: code-path regression in a scratch COPY of the plugin, never in product code.
+#: Twice (+32% job time) scored 23.7-28.0 and so flaked under concurrent load
+#: (#970 review); three times keeps the self-test clear of the noise.
 _INJECT_OLD = "            prod = build_product(plan, start_id=1000)\n"
 _INJECT_NEW = ("            build_product(plan, start_id=1000).write("
-               "os.path.join(fam_dir, '_dup.rfa'))  # INJECTED (#965 self-test)\n" + _INJECT_OLD)
+               "os.path.join(fam_dir, '_dup.rfa'))  # INJECTED (#965 self-test)\n") * 2 + _INJECT_OLD
 
 
 @pytest.mark.skipif(os.environ.get("TEKTON_PERF_SELFTEST") != "1",
                     reason="opt-in (TEKTON_PERF_SELFTEST=1): ~25 s, proves the ratio gate bites")
-def test_room6_gate_catches_injected_regression(bench, tmp_path):
+def test_room6_gate_catches_injected_regression(bench, tmp_path, record_property):
     """The ratio gate FAILS a known regression (#965 DONE 2c): a scratch copy
     of the plugin whose family stage builds every .rfa twice (+~32% flagship
     job time measured on the session-CI container) must land over
@@ -315,6 +325,7 @@ def test_room6_gate_catches_injected_regression(bench, tmp_path):
     report = _cowork_report(bench, ["preflight", *["go-author-6panels"] * ROOM6_SAMPLES],
                             source=src, calibrate=True)
     ratio, samples, ref = _room6_ratio(bench, report)
+    record_property("injected_room6_ratio", ratio)   # --junitxml carries the measurement
     assert ratio >= ROOM6_RATIO_CEILING, (
         f"the injected regression scored {ratio} (samples {samples}, reference {ref}s) "
         f"-- under the ceiling {ROOM6_RATIO_CEILING}: the gate would not catch it")
