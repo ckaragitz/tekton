@@ -2560,12 +2560,32 @@ def cylinder_form(circle: CircleProfile, height_ft: float, ctx: FamilyDocContext
     return FormBundle(kind, elems, params, notes)
 
 
+#: Plan circles are ONE full arc, as born plan circles are (#916 DONE 3 for the
+#: plan; census in :func:`cylinder`).  ``False`` is the documented way back to
+#: the two-half-arc sketch: that form is the one with a desktop LOAD verdict
+#: (#589, Revit 2026); the full arc has none yet (hard rule 4).
+PLAN_CIRCLE_FULL_ARC = True
+
+
 def cylinder(radius_ft: float, height_ft: float, ctx: FamilyDocContext, ids: Any,
              *, base_z_ft: float = 0.0, center: Vec = (0.0, 0.0),
-             rep: str = REP_SOLID) -> FormBundle:
+             rep: str = REP_SOLID, full_arc: Optional[bool] = None) -> FormBundle:
     """A CYLINDER form (a recessed can / a leg): radius x height, centred at
     ``center`` in plan, from z = base_z up to z = base_z + height, drawn as
-    Revit sketches a circle -- two half arcs -- and extruded UP.
+    Revit sketches a plan circle -- ONE full arc
+    (:func:`full_arc_cylinder_form`) -- and extruded UP.
+
+    Census (#916 plan, the 421-family private reference corpus, a development
+    instrument, counts only; record ``docs/inbox/param-drive.d/916-plan-arc.md``):
+    of the 235 born extrusions on a horizontal sketch plane whose profile is one
+    circle, 235 draw it as ONE full arc (endParams [0, 0]); over every circle
+    in every horizontal-plane sketch, 858 are a full arc and 33 are split into
+    partial arcs.  The full arc's CurveElem, sketch, solver record, helper loop,
+    tag map and B-rep are the run census's modal shape (``run_law``) at the
+    same or higher shares.  ``full_arc=False`` (or
+    :data:`PLAN_CIRCLE_FULL_ARC` = False) draws the engine's earlier two half
+    arcs -- the authoring circle of the rotated-B-rep ``cylinder_x`` /
+    ``cylinder_y`` keeps that form and its bytes.
 
     E.g. a 6 in. recessed can: ``cylinder(inches(3), inches(7.5), ctx, ids)``.
 
@@ -2575,8 +2595,19 @@ def cylinder(radius_ft: float, height_ft: float, ctx: FamilyDocContext, ids: Any
     nodes -- and the ``m_bBox``/``m_tightbBox`` taken from them -- are an
     extrapolation.  Measured and labelled, not silently applied (#530).
     """
-    fb = cylinder_form(circle_profile(center, radius_ft), height_ft, ctx, ids,
-                       base_z_ft=base_z_ft, rep=rep)
+    if full_arc is None:
+        full_arc = PLAN_CIRCLE_FULL_ARC
+    form = full_arc_cylinder_form if full_arc else cylinder_form
+    fb = form(circle_profile(center, radius_ft), height_ft, ctx, ids,
+              base_z_ft=base_z_ft, rep=rep, kind="cylinder")
+    if full_arc:
+        fb.notes = [
+            "profile: ONE full-arc CurveElem (endParams [0, 0]) in a VarSketch on the "
+            "Ref. Level SketchPlane, absorbed by its sketch as two halves -- the born "
+            "plan circle (235 / 235 single-circle plan extrusions); authored, no "
+            "desktop verdict (the two-half form's #589 load verdict does not carry over)",
+            "ExtrusionElem params -1001800 start (bottom) / -1001801 end (top): "
+            "extrude-UP, the frame every corpus cylinder uses"]
     tess = arc_tessellation_facts(radius_ft)
     fb.params["tessellation"] = tess
     if not tess["verified"]:
@@ -2607,6 +2638,18 @@ def cylinder(radius_ft: float, height_ft: float, ctx: FamilyDocContext, ids: Any
 # its ExtrusionGStep carries the SAME tag map as the two-half-arc form (139 / 147;
 # faces listed caps, U, L: 138) and its B-rep the same 2 planes + 2 CylSurf +
 # 6 edges (147 / 147) -- so ``solid_cylinder_brep`` is reused unchanged.
+#
+# PLAN circles (#916 plan, same corpus, same fields): of the 235 born
+# extrusions on a HORIZONTAL sketch plane whose profile is one circle, 235 draw
+# ONE full arc; no joins (235), cells SketchMembership + ArcElemCell (232),
+# header deletion as above (235), regenOnly [work plane, extrusion] (202); the
+# sketch's halves tag 0 [0, pi] / tag 1 [pi, 2pi] (230; 5 renumbered), curve
+# history (1: -10000, 0: 0) (222), table 2 / nextIndex 1 (220), one unbounded
+# VarSketchArcObj (235) with m_angleCoef = r (198) and angles 0 .. 2 pi r
+# (170), no constraint / point records (235), rep [pi, 2pi] first (235); the
+# helper loop (tag 1 [pi, 2pi], tag 0 [0, pi]) (176; 5 renumbered, 54
+# swapped), faces caps-U-L (229), edges as above (228), table 10 (228), B-rep
+# 2 planes + 2 CylSurf + 6 edges (234).  So :func:`cylinder` uses this form.
 # ---------------------------------------------------------------------------
 
 #: VarSketchArcObj.m_unbounded of a full-arc circle (147 / 147 born)
@@ -2697,7 +2740,9 @@ def full_arc_cylinder_form(circle: CircleProfile, height_ft: float, ctx: FamilyD
     [pi, 2pi] then [0, pi]; the same tag map and B-rep as the two-half form,
     its face / edge history listed U-first as born).  Extruded UP from
     ``base_z_ft``.  Authored, unverified -- nothing here has a desktop
-    verdict (hard rule 4); the plan-circle forms are untouched."""
+    verdict (hard rule 4).  The plan circles of :func:`cylinder` use it too
+    (#916 plan: 235 / 235 born single-circle plan extrusions draw one full
+    arc); only the rotated-B-rep authoring circle keeps two halves."""
     if height_ft <= 0:
         raise ValueError("height must be positive")
     id_plane = _alloc(ids)

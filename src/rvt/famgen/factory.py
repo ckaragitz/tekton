@@ -1677,14 +1677,19 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
 def add_cylinder_form(doc: SK.FamilyDoc, radius_ft: float, height_ft: float, *,
                       base_z_ft: float = 0.0,
                       center: Sequence[float] = (0.0, 0.0),
-                      rep: str = G.REP_SOLID) -> G.FormBundle:
+                      rep: str = G.REP_SOLID,
+                      full_arc: Optional[bool] = None) -> G.FormBundle:
     """Author a true ARC-PROFILE cylinder (a stem, a can, a bollard) --
-    Revit's own two-half-arc circle sketch, not a faceted approximation."""
+    Revit's own plan circle, ONE full arc as born plan circles are (#916;
+    ``full_arc=False`` = the earlier two-half-arc sketch, kept for the
+    rotated-B-rep ``cylinder_x`` / ``cylinder_y``), not a faceted
+    approximation."""
     if doc.finalized:
         raise FactoryError("document is finalized; add forms before finalize")
     ctx = geometry_context(doc)
     fb = G.cylinder(float(radius_ft), float(height_ft), ctx, doc.ids,
-                    base_z_ft=float(base_z_ft), center=tuple(center), rep=rep)
+                    base_z_ft=float(base_z_ft), center=tuple(center), rep=rep,
+                    full_arc=full_arc)
     doc.add(*fb.elements)
     return fb
 
@@ -1784,7 +1789,11 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
             raise FactoryError(f"a {shape!r} part needs radius_ft (or diameter_ft) "
                                "and a positive length_ft")
         r, L = float(r), float(L)
-        fb = add_cylinder_form(doc, r, L, base_z_ft=-L / 2.0, center=(0.0, 0.0), rep=rep)
+        # the authoring circle keeps its two half arcs (#916: the rotated-B-rep
+        # path is the one with desktop round 4's verdict; only plan circles
+        # and born-way runs take the full arc)
+        fb = add_cylinder_form(doc, r, L, base_z_ft=-L / 2.0, center=(0.0, 0.0), rep=rep,
+                               full_arc=False)
         rot = ([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]]
                if shape == "cylinder_y" else
                [[0.0, 0.0, -1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
