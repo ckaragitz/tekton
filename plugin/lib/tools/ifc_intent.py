@@ -221,6 +221,18 @@ def stage_families(model: I.IntentModel, out_dir: str) -> Dict[str, Any]:
     os.makedirs(fam_dir, exist_ok=True)
     rec: Dict[str, Any] = {"stage": "F", "families": [], "dir": _relp(fam_dir)}
     groups = family_groups(model)
+    from rvt.famgen.skeleton import shared_record_cache
+    with shared_record_cache():          # one encode per record shared by the families (#969)
+        _stage_families_into(rec, model, groups, fam_dir)
+    rec["all_ok"] = all(x.get("ok") for x in rec["families"] if x.get("built"))
+    rec["built"] = sum(1 for x in rec["families"] if x.get("built"))
+    return rec
+
+
+def _stage_families_into(rec: Dict[str, Any], model: I.IntentModel,
+                         groups: Dict[str, List[str]], fam_dir: str) -> None:
+    """:func:`stage_families`' loop: one standalone .rfa per mapped family,
+    each entry appended to ``rec["families"]``."""
     for plan in model.family_plans:
         if plan.status not in ("resolved", "house"):
             rec["families"].append({"tag": plan.tag, "kind": plan.kind, "built": False,
@@ -265,9 +277,6 @@ def stage_families(model: I.IntentModel, out_dir: str) -> Dict[str, Any]:
                                     "error": f"{type(e).__name__}: {e}",
                                     "traceback": traceback.format_exc(limit=6)})
             _log(f"F  {plan.tag:5s} FAILED: {type(e).__name__}: {e}")
-    rec["all_ok"] = all(x.get("ok") for x in rec["families"] if x.get("built"))
-    rec["built"] = sum(1 for x in rec["families"] if x.get("built"))
-    return rec
 
 
 # ===========================================================================

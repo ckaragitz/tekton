@@ -81,6 +81,7 @@ authoring implications; ``docs/inbox/adoc-grammar.md`` for the record.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -630,6 +631,57 @@ def decode_latest(payload: bytes, decoder: Optional[ADocumentDecoder] = None) ->
     adoc.trailer = payload[2 + adoc.consumed:]
     adoc.payload_len = len(payload)
     adoc.root_class_id = class_id
+    return adoc
+
+
+#: the job-scoped memo of :func:`decode_latest_shared` (#969): ``rows`` is a
+#: small LRU list of (key, ADocument) while a :func:`shared_latest_decodes`
+#: scope is open, None otherwise
+_SHARED_LATEST: dict = {"depth": 0, "rows": None}
+#: how many distinct payloads the shared memo keeps (oldest dropped first)
+SHARED_LATEST_SLOTS = 2
+
+
+@contextlib.contextmanager
+def shared_latest_decodes():
+    """Within the scope, :func:`decode_latest_shared` decodes each distinct
+    ``Global/Latest`` payload once (#969).  A front-door build reads the
+    edited host ADocument back four times -- the loader's re-decode proof,
+    the loaded-project verification, the validator's four-registry check and
+    the registry census -- and every one of them only READS it.  Nested scopes
+    share the outermost one; the rows are dropped when it closes."""
+    outer = _SHARED_LATEST["depth"] == 0
+    if outer:
+        _SHARED_LATEST["rows"] = []
+    _SHARED_LATEST["depth"] += 1
+    try:
+        yield
+    finally:
+        _SHARED_LATEST["depth"] -= 1
+        if outer:
+            _SHARED_LATEST["rows"] = None
+
+
+def decode_latest_shared(payload: bytes) -> "ADocument":
+    """:func:`decode_latest` with the default decoder, served from the
+    :func:`shared_latest_decodes` memo when one is open (a plain decode
+    otherwise).  The decode is a pure function of (decoder class, schema,
+    the element-id width in force, payload bytes), which is the key; a hit
+    returns the SAME object, so call it only where the result is never
+    mutated (a caller that edits the tree uses :func:`decode_latest`)."""
+    rows = _SHARED_LATEST["rows"]
+    if rows is None:
+        return decode_latest(payload)
+    dec = get_decoder()
+    key = (type(dec), dec.schema, Reader.element_id, bytes(payload))
+    for i, (k, adoc) in enumerate(rows):
+        if (k[0] is key[0] and k[1] is key[1] and k[2] is key[2]
+                and k[3] == key[3]):
+            rows.append(rows.pop(i))                  # most recently used last
+            return adoc
+    adoc = decode_latest(payload)
+    rows.append((key, adoc))
+    del rows[:-SHARED_LATEST_SLOTS]
     return adoc
 
 

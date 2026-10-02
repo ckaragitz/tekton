@@ -55,6 +55,7 @@ round-trip proof and (when the donor container is available) emit
 from __future__ import annotations
 
 import collections
+import contextlib
 import copy
 import json
 import hashlib
@@ -66,7 +67,7 @@ import time
 import uuid
 import zlib
 from dataclasses import dataclass, field as dc_field
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Sequence, Tuple, Union
 
 # --- reuse the project skeleton's building blocks (same shape contract) -----
 from ..genesis import skeleton as _gsk
@@ -3533,6 +3534,55 @@ def _record_key(seq: int, elem_id: int, cid: int, obj: Any) -> Optional[bytes]:
         return None
 
 
+#: the job-scoped record memo SHARED between documents (#969): rows keyed
+#: exactly like a document's own cache (:func:`_record_key`), alive only
+#: inside :func:`shared_record_cache` and bounded by
+#: :data:`SHARED_RECORD_BUDGET` bytes of keys + records
+_SHARED_RECORDS: Dict[str, Any] = {"depth": 0, "rows": None, "enc": None, "eid": None,
+                                   "bytes": 0}
+#: past this many bytes (keys + encoded records) the shared memo stops
+#: growing; lookups keep serving what it holds
+SHARED_RECORD_BUDGET = 64 * 1024 * 1024
+
+
+@contextlib.contextmanager
+def shared_record_cache() -> Iterator[None]:
+    """Within the scope, :func:`build_unit_segments` calls that keep a
+    per-document cache also share encoded records BETWEEN documents (#969).
+
+    A job that builds several near-identical families -- the six panelboards
+    of "an electrical room with 6 panels", each a standalone ``.rfa`` at the
+    same start id -- encodes most of their records identically: a record's
+    bytes are a pure function of (encoder, active id width, seq, element id,
+    class id, value), and the shared rows are keyed on exactly that (the
+    per-document key, :func:`_record_key`, plus the same encoder / id-writer
+    reset rule), so a record served from another document's encode is the
+    record this document would have encoded -- byte for byte.  Nested scopes
+    share the outermost one; the rows are dropped when it closes."""
+    outer = _SHARED_RECORDS["depth"] == 0
+    if outer:
+        _SHARED_RECORDS.update(rows={}, enc=None, eid=None, bytes=0)
+    _SHARED_RECORDS["depth"] += 1
+    try:
+        yield
+    finally:
+        _SHARED_RECORDS["depth"] -= 1
+        if outer:
+            _SHARED_RECORDS.update(rows=None, enc=None, eid=None, bytes=0)
+
+
+def _shared_rows(enc: Any, eid: Any) -> Optional[Dict[bytes, bytes]]:
+    """The shared memo's rows for this encoder and id writer (reset when
+    either changed, as a per-document cache is), or None outside a scope."""
+    rows = _SHARED_RECORDS["rows"]
+    if rows is None:
+        return None
+    if _SHARED_RECORDS["enc"] is not enc or _SHARED_RECORDS["eid"] is not eid:
+        rows.clear()
+        _SHARED_RECORDS.update(enc=enc, eid=eid, bytes=0)
+    return rows
+
+
 def build_unit_segments(elements: Sequence[SkelElement], *,
                         cache: Optional[Dict[str, Any]] = None) -> Dict[int, bytes]:
     """Encode every element into the three per-seq record byte strings of a
@@ -3556,6 +3606,7 @@ def build_unit_segments(elements: Sequence[SkelElement], *,
     if enc is None:
         enc = _gsk._SCHEMA_CACHE["enc"] = ObjectEncoder(decoder=dec)
     memo: Optional[Dict[bytes, bytes]] = None
+    shared: Optional[Dict[bytes, bytes]] = None
     if cache is not None:
         # the bytes depend on the encoder AND the active id width: the 2023
         # era patches Writer.element_id to i32 (records32.ids32; #933 review)
@@ -3566,12 +3617,17 @@ def build_unit_segments(elements: Sequence[SkelElement], *,
             cache["eid"] = _W.element_id
             cache["records"] = {}
         memo = cache["records"]
+        shared = _shared_rows(enc, _W.element_id)      # other documents' encodes (#969)
     segs: Dict[int, bytearray] = {101: bytearray(), 102: bytearray(), 103: bytearray()}
     for e in sorted(elements, key=lambda x: x.elem_id):
         for seq, cid, obj in e.records(class_ids=enc.class_id_of):
             key = _record_key(seq, e.elem_id, cid, obj) if memo is not None else None
             if key is not None:
                 rec = memo.get(key)
+                if rec is None and shared is not None:
+                    rec = shared.get(key)
+                    if rec is not None:
+                        memo[key] = rec
                 if rec is not None:
                     segs[seq] += rec
                     continue
@@ -3586,6 +3642,9 @@ def build_unit_segments(elements: Sequence[SkelElement], *,
                        + struct.pack("<I", ps))
             if key is not None:
                 memo[key] = rec
+                if shared is not None and _SHARED_RECORDS["bytes"] < SHARED_RECORD_BUDGET:
+                    shared[key] = rec
+                    _SHARED_RECORDS["bytes"] += len(key) + len(rec)
             segs[seq] += rec
     # sentinels (last record of each seq)
     segs[101] += struct.pack("<qI", -1, 0) + struct.pack("<I", 0)
@@ -3990,10 +4049,23 @@ def validate_family(path: str, *, layers=None) -> Dict[str, Any]:
     is included for comparison).
     """
     from .. import validate as _v
-    raw = _v.validate_file(path, layers=layers or _v.ALL_LAYERS)
-    # family mode is now a first-class validator parameter (the recorded
-    # `rvt_validate --family` request, landed) -- no global mutation
-    fam = _v.validate_file(path, layers=layers or _v.ALL_LAYERS, family=True)
+    # both runs draw from ONE read + ECC + inflate walk of the file (#266's
+    # WalkedFile; the report is the same with or without it -- #969)
+    try:
+        walked = _v.walk_file(path)
+    except Exception:                               # noqa: BLE001 -- not a CFB, or a
+        walked = None                               # damaged one (OleFileError is an
+        # IOError, #976 review): each run reads and reports the damage itself, as
+        # before the shared walk -- a validator reports, it never raises
+    try:
+        raw = _v.validate_file(path, layers=layers or _v.ALL_LAYERS, walked=walked)
+        # family mode is now a first-class validator parameter (the recorded
+        # `rvt_validate --family` request, landed) -- no global mutation
+        fam = _v.validate_file(path, layers=layers or _v.ALL_LAYERS, family=True,
+                               walked=walked)
+    finally:
+        if walked is not None:
+            walked.close()
 
     def summarize(rep) -> Dict[str, Any]:
         errs = [f for f in rep.findings if f.severity == _v.SEV_ERROR]
