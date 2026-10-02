@@ -1827,6 +1827,59 @@ def add_generic_part(doc: SK.FamilyDoc, part: Dict[str, Any], *,
     return fb
 
 
+def _group(spec: Any) -> str:
+    """A drive spec's all-or-nothing group: its ``"group"``, else its caption."""
+    if isinstance(spec, dict):
+        return str(spec.get("group") or spec.get("caption") or "")
+    return str(spec)
+
+
+def _settled_build(build, drives: List[Any], heights: List[Any]) -> "FamilyProduct":
+    """``make_generic_model(settle_drives=True)`` (#714): build, find every
+    drive group the wiring refused in whole or in PART -- an in-plane drive
+    that asked to be symmetric and was not, a height chain whose held base
+    plane wired and whose labelled height did not -- and rebuild without
+    those groups until none is refused, so a refused group leaves the bytes of
+    the build that never requested it.  A group is wired only when each of
+    its in-plane specs is in ``prod.drives`` (symmetric when asked) and each
+    of its labelled height specs is in ``prod.heights["captions"]``; a group
+    with no labelled spec cannot be shown wired and is dropped.  The reasons
+    are the refusal notes of the build that refused them."""
+    refused: Dict[str, str] = {}
+    for _ in range(len(drives) + len(heights) + 1):
+        prod = build(drives or None, heights or None)
+        wired_inplane = {str(d.get("caption")): d for d in (prod.drives or [])}
+        h_caps = set((prod.heights or {}).get("captions") or ())
+        groups: Dict[str, bool] = {}
+        for s in drives:
+            g = _group(s)
+            d = wired_inplane.get(str(s.get("caption"))) if isinstance(s, dict) else None
+            ok = d is not None and (not s.get("symmetric") or bool(d.get("symmetric")))
+            groups[g] = groups.get(g, True) and ok
+        labelled: Dict[str, bool] = {}
+        for s in heights:
+            g = _group(s)
+            groups.setdefault(g, True)
+            cap = s.get("caption") if isinstance(s, dict) else None
+            if cap:
+                labelled[g] = True
+                groups[g] = groups[g] and cap in h_caps
+        for g in {_group(s) for s in heights}:
+            if not labelled.get(g):
+                groups[g] = False
+        bad = sorted(g for g, ok in groups.items() if not ok)
+        if not bad:
+            prod.drive_settle = {"wired": sorted(groups), "refused": dict(refused)}
+            return prod
+        for g in bad:
+            why = [n for n in prod.doc.notes if repr(g) in n
+                   and ("not wired" in n or "not made" in n)]
+            refused[g] = (why[0] if why else "the chain was not wired in full")[:240]
+        drives = [s for s in drives if _group(s) not in bad]
+        heights = [s for s in heights if _group(s) not in bad]
+    raise FactoryError("drive settle did not converge")     # unreachable: each pass drops a group
+
+
 def _spec_list(specs: Any) -> Optional[List[Any]]:
     """``None``/empty stays as it is; a list or tuple is listed; a single spec
     (a dict, a string, a number) becomes a one-item list; any other iterable
@@ -1861,7 +1914,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
                        heights: Optional[Sequence[Dict[str, Any]]] = None,
                        diameters: Optional[Sequence[Dict[str, Any]]] = None,
                        runs: Optional[Sequence[Dict[str, Any]]] = None,
-                       prism_drive: Optional[str] = "law"
+                       prism_drive: Optional[str] = "law",
+                       settle_drives: bool = False
                        ) -> FamilyProduct:
     """Compose a family for an ARBITRARY 3D object (issue #498, owner steer:
     "when i go to claude design and ask it to build me a 3d object you
@@ -1885,6 +1939,13 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     axis-aligned edge pair to label).  ``"372"`` = the #372 first-solid chain
     this path always wired before (byte-identical); ``None`` = no constraints.
     Authored; the assembled family is unverified (hard rule 4).
+
+    ``settle_drives`` (``parts=`` only, #714): ALL OR NOTHING per drive GROUP
+    (a spec's ``"group"``, else its caption): a group any of whose specs the
+    wiring refused -- including a half-wired height chain -- is dropped and the
+    family rebuilt without it, so the result is byte-identical to the build
+    that never asked for it.  ``prod.drive_settle`` = ``{"wired": [...],
+    "refused": {group: reason}}``.  Default ``False`` = unchanged.
     """
     if prism_drive not in ("law", "372", None):
         raise FactoryError(f"prism_drive must be 'law', '372' or None, not {prism_drive!r}")
@@ -1899,17 +1960,22 @@ def make_generic_model(*, height_ft: Optional[float] = None,
         # directly -- rvt.famgen.revolve, issue #591
         from . import revolve as RV
         parts, _revolve_report = RV.expand_parts(parts)
-        return _make_generic_multipart(parts, name=name, category=category,
-                                       solid=solid, source=source,
-                                       dim_provenance=dim_provenance,
-                                       start_id=start_id,
-                                       shared_params=shared_params,
-                                       identity=identity, text_params=text_params,
-                                       numeric_params=numeric_params,
-                                       drive=drive, standards=standards,
-                                       standard_values=standard_values,
-                                       drives=drives, heights=heights,
-                                       diameters=diameters, runs=runs)
+
+        def build(d_specs, h_specs):
+            return _make_generic_multipart(parts, name=name, category=category,
+                                           solid=solid, source=source,
+                                           dim_provenance=dim_provenance,
+                                           start_id=start_id,
+                                           shared_params=shared_params,
+                                           identity=identity, text_params=text_params,
+                                           numeric_params=numeric_params,
+                                           drive=drive, standards=standards,
+                                           standard_values=standard_values,
+                                           drives=d_specs, heights=h_specs,
+                                           diameters=diameters, runs=runs)
+        if not (settle_drives and (drives or heights)):
+            return build(drives, heights)
+        return _settled_build(build, list(drives or []), list(heights or []))
     if height_ft is None or float(height_ft) <= 0:
         raise FactoryError("make_generic_model needs a positive height_ft "
                            "(or parts=[...] for a multi-part assembly)")

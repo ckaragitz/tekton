@@ -124,6 +124,27 @@ def _catalog() -> Dict[str, Callable[[], Any]]:
     jobs["shape_run_y"] = _multi("B_runy", [
         {"name": "ry", "shape": "cylinder_y", "radius_ft": 0.2, "length_ft": 2.0,
          "center": (0.5, 0), "base_z_ft": 0.5, "work_plane": "vertical"}])
+    # an IFC's carried pset parameters driving the parts they name (#714): the
+    # assembly lane's plan (x / y in-plane, z height with a held base) built
+    # all-or-nothing per parameter (settle_drives); authored, unverified
+    def _pset_drives():
+        from rvt.ifc import pset_drive as PD
+        parts = [{"name": "pad", "shape": "box", "width_ft": 4, "depth_ft": 3,
+                  "height_ft": 0.5, "center": (0, 0), "base_z_ft": 0},
+                 {"name": "tank", "shape": "box", "width_ft": 3, "depth_ft": 2,
+                  "height_ft": 4, "center": (0, -0.25), "base_z_ft": 0.5}]
+        vals = {"PadWidth": ("pad", 4.0), "TankDepth": ("tank", 2.0),
+                "TankHeight": ("tank", 4.0)}
+        coll = {"params": {n: ("length", v) for n, (_p, v) in vals.items()},
+                "sources": {n: {"pset": "P", "product": p, "products": [p]}
+                            for n, (p, _v) in vals.items()}}
+        plan = PD.plan(parts, coll)
+        return F.make_generic_model(parts=parts, name="B_pset_drives",
+                                    source="self battery",
+                                    numeric_params=dict(coll["params"]),
+                                    drives=plan["drives"], heights=plan["heights"],
+                                    settle_drives=True)
+    jobs["ifc_pset_drives"] = _pset_drives
     # constructors that may not exist on this trunk yet: probe and include
     for opt, key, mk in (
         ("make_archetype", "archetype_cable_tray",
