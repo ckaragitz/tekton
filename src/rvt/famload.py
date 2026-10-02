@@ -717,6 +717,11 @@ def _reference_idx_mgr(doc, plan: LoadPlan) -> Optional[dict]:
         v = e.obj or {}
         if not v.get("m_definesOrigin"):
             continue
+        if v.get("m_refName") == 12:
+            # #947: a "Not a Reference" plane (a template's origin elevation
+            # plane) is in no born host's reference index (0 / 1,312 entries
+            # across 421 born families) -- left out, never re-coded
+            continue
         ai = plan.abs_index.get(e.elem_id)
         if ai is None:
             continue
