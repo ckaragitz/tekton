@@ -28,6 +28,31 @@ nested ones).
 | `m_pDimArc` a `GArc`, pid 3, GInfo flags 524292, endParams [0, 0] | 387 / 387 |
 | text fields on segment values | 0 / 387 |
 
+> **Recount (review of #954), 2026-10-02. Counts only.** A reviewer recounted
+> **502** `AngularDim`s in **71** files, **164** of them locked at 60°. The
+> table above says 387 in 62 files (113 units), with 160 locked at 60°. A
+> scratch script (not committed) recounted the same 421-file library under
+> its own release, with 0 read errors, and reproduces the reviewer's figures
+> under every enumeration that includes unit 0:
+>
+> | Units enumerated | Dims | Files | Units | Locked 60° | Host / nested |
+> |---|---:|---:|---:|---:|---:|
+> | every unit `FamilyIndex.units` holds (4,846 units, 421 with no GUID = unit 0) | 502 | 71 | 156 | 164 | 74 / 428 |
+> | unit 0 + `unit_by_guid` (the reviewer's) | 502 | 71 | 156 | 164 | 74 / 428 |
+> | the same, each nested GUID counted once across the library | 502 | 71 | 156 | 164 | 74 / 428 |
+> | `unit_by_guid` only (nested, no unit 0) | 428 | 59 | 136 | 154 | 0 / 428 |
+>
+> No unit shares a GUID within a file or across files, so the enumerations
+> that include unit 0 agree. The host count (74) matches the table. The
+> nested count does not: 428 here against 313 in the table. No enumeration
+> tried reproduces 387 / 62 / 113 / 160, so that row's unit selection is not
+> known. The 156 units match this record's own law-run count ("units with an
+> `AngularDim`, 156", below). **Read Census 1's totals as 502 / 71 / 156 /
+> 164.** The per-field rows of the table were not recounted. Their
+> denominators are those of the 387-dimension selection. Their conclusions
+> (no angular EQ; every hexagon angle a locked π/3) were not re-checked on
+> the 502. Census 2's 32 hexagons are a separate count.
+
 **Correction to #940.** The #940 record called the hexagon's angular
 dimensions "5 EQ `AngularDim`s". They are not EQ: each has one segment,
 segment flags 1 (locked) and value π/3 (160 / 160). The "EQ" came from counting

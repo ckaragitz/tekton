@@ -701,7 +701,8 @@ def verify_nested(path: str, *, nested_family_id: int, symbol_id: int,
     other, the content document + FamilyMgr entry are present, the four
     document registries agree (every born family in the census does: 421 /
     421), the family-mode validator reports 0 errors and the constraint law
-    has no findings."""
+    reports no ERROR on the host or any nested unit (its warnings are kept in
+    the report: ``constraint_law_warnings``)."""
     from contextlib import ExitStack
     from ..global_framing import enter_own_release
     from ..families import FamilyIndex
@@ -783,10 +784,21 @@ def verify_nested(path: str, *, nested_family_id: int, symbol_id: int,
     if not reg.get("coherent"):
         bad.append("the four document registries disagree (save units / ContentDocuments / "
                    "ContentTable / FamilyMgr)")
+    # the law judges the host (unit 0) AND every nested content document
+    # (its own unit, without CG8); only ERROR findings fail the nest --
+    # warnings are kept in the report, never discarded (as
+    # tools/self_battery.py filters)
     findings = CL.check_file(path)
     rep["constraint_law"] = findings
-    if findings:
-        bad.append(f"constraint law: {len(findings)} finding(s)")
+    nested_findings = {g: CL.check_file(path, unit=u)
+                       for g, u in sorted(CL.nested_units(path).items())}
+    rep["constraint_law_nested"] = nested_findings
+    every = list(findings) + [f for fs in nested_findings.values() for f in fs]
+    law_errs = [f for f in every if f.get("severity") == CL.ERROR]
+    rep["constraint_law_errors"] = len(law_errs)
+    rep["constraint_law_warnings"] = [f for f in every if f.get("severity") != CL.ERROR]
+    if law_errs:
+        bad.append(f"constraint law: {len(law_errs)} error(s)")
     if validate:
         from ..validate import validate_file
         vr = validate_file(path, family=True)
