@@ -1342,6 +1342,9 @@ class ManipCommitReport:
     blocks_before: Dict[int, int]
     blocks_after: Dict[int, int]
     out_path: str
+    #: how the source partition was read (#941, ``partition_tail.writer_logical``):
+    #: ``exact`` True = the host's exact tail is kept byte for byte
+    partition_tail: Optional[dict] = None
 
     def to_json(self) -> dict:
         return dataclasses.asdict(self)
@@ -1538,7 +1541,11 @@ def commit_plans(src_rvt: str, out_path: str, plans: Sequence[Plan], *,
         new_streams["Global/ElemTable"] = ecc.frame_stream(et_logical)
 
         # ---------------- 2. Partitions/<N> ---------------------------------
-        logical = doc.logical(pname)
+        # the EXACT content (#941, ``partition_tail.writer_logical``): the
+        # verbatim tail copied below is then the host's exact tail -- a
+        # de-paged read carried the host's final-block parity in as content
+        from .partition_tail import writer_logical
+        logical, tail_rep = writer_logical(doc, pname)
         w = StreamWalker(logical, inflate=True, keep_data=True)
         if w.errors:
             raise ManipulationError(f"walker errors on source {pname}: {w.errors[:3]}")
@@ -1581,13 +1588,15 @@ def commit_plans(src_rvt: str, out_path: str, plans: Sequence[Plan], *,
         if w2.errors:
             raise ManipulationError(f"walker errors after re-emit: {w2.errors[:3]}")
         part_logical = bytes(out[:w2.end_offset + len(w2.end_record)])
+        tail_rep["host_tail_bytes"] = len(w.end_record) if tail_rep["exact"] else None
+        tail_rep["kept_host_tail"] = bool(tail_rep["exact"] and w2.end_record == w.end_record)
         new_streams[pname] = ecc.frame_stream(part_logical)
 
     rewrite_entries(src_rvt, out_path, new_streams)
     return ManipCommitReport(pname, sorted(removals),
                              sorted(replacements.keys()),
                              count_before, count_after, watermark,
-                             blocks_before, blocks_after, out_path)
+                             blocks_before, blocks_after, out_path, tail_rep)
 
 
 def commit_deletions(src_rvt: str, out_path: str, plan: DeletePlan, **kw) -> ManipCommitReport:
@@ -1614,7 +1623,7 @@ def commit_session(doc, out_path: str, **kw) -> ManipCommitReport:
 def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                        edited_ids: Sequence[int] = (),
                        expect_elemtable_count: Optional[int] = None,
-                       walked=None) -> dict:
+                       walked=None, host_rvt: Optional[str] = None) -> dict:
     """Prove a manipulated file is structurally healthy and the edits landed.
 
     Checks: gzip CRC of every framed stream, each enumerated by its framing
@@ -1648,6 +1657,12 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
     from that one read/inflate walk instead of a second one (#266).  The
     verdict is the same with or without it -- the self-check always judges
     OUR bytes as stored, never the validator's CRCIO-auto-repaired view.
+
+    The primary partition's TAIL (#941, ``partition_tail.tail_verdict``):
+    ``rep["partition_tail"]`` -- it must start on the release's end record and,
+    given ``host_rvt`` (the file the commit read), equal the host's exact tail
+    byte for byte; ``ok`` False there is a defect, named in
+    ``rep["partition_tail_defect"]``.
     """
     from contextlib import ExitStack
 
@@ -1748,6 +1763,14 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                 rep["unit0_ids_equal_elemtable"] = (u0_102_ids == etset)
     if expect_elemtable_count is not None:
         rep["elemtable_count_expected"] = expect_elemtable_count
+    # the partition TAIL (#941): starts on the end record and, given the host
+    # the commit read, equals the host's exact tail byte for byte
+    if parts:
+        from .partition_tail import tail_defect, tail_verdict
+        rep["partition_tail"] = tail_verdict(path, host_rvt, pname)
+        defect = tail_defect(rep["partition_tail"])
+        if defect:
+            rep["partition_tail_defect"] = defect
     return rep
 
 

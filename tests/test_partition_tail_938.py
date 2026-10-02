@@ -106,7 +106,9 @@ def test_project_load_keeps_the_host_tail(release, tmp_path):
     res = L.load_family_into_project(BASES[release], out, place=False, validate=False)
     assert res.ok, res.stop_reason
     pt = res.proofs["partition_tail"]
-    assert pt["kept_host_tail"] and pt["stale_bytes_dropped"] > 0, pt
+    # since #941 pass 1 (commit_new_elements) reads the host exactly, so pass
+    # 2 finds no stale suffix left to drop
+    assert pt["kept_host_tail"] and pt["stale_bytes_dropped"] == 0, pt
     vt = res.proofs["verify_written"]["partition_tail"]
     host, _end = _tail(BASES[release])
     got, _ = _tail(out)

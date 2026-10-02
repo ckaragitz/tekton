@@ -163,14 +163,18 @@ def stage_project_info(src_rvt: str, out_path: str, ident: ProjectIdentity) -> D
                          "removed_ids": list(crep.removed_ids),
                          "elemtable_count_before": crep.elemtable_count_before,
                          "elemtable_count_after": crep.elemtable_count_after,
-                         "watermark": crep.watermark}
+                         "watermark": crep.watermark,
+                         # #941: the host's exact partition tail kept byte for byte
+                         "partition_tail": crep.partition_tail}
         after = read_project_info(Document.from_file(out_path))
         rec["after"] = after["fields"]
         rec["mismatch"] = {k: {"wanted": v, "got": after["fields"].get(k)}
                            for k, v in rec["identity"].items() if after["fields"].get(k) != v}
         rec["ok"] = bool(list(crep.replaced) == [(102, eid)] and not crep.removed_ids
                          and crep.elemtable_count_before == crep.elemtable_count_after
-                         and after["elem_id"] == eid and not rec["mismatch"])
+                         and after["elem_id"] == eid and not rec["mismatch"]
+                         and ((crep.partition_tail or {}).get("kept_host_tail")
+                              or not (crep.partition_tail or {}).get("exact")))
         if not rec["ok"]:
             rec["blocker"] = "ProjectInfo edit did not land cleanly (see commit / mismatch)"
     except Exception as e:                                               # noqa: BLE001

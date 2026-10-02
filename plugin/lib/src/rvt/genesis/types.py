@@ -1989,7 +1989,7 @@ class GenesisCatalog:
                  zip((101, 102, 103), _encode_element(el))} for el in els]
         rep = commit_new_elements(src_rvt, out_path, recs, [el.elemrec for el in els],
                                   identity=identity)
-        ver = verify_written(out_path, [el.elem_id for el in els])
+        ver = verify_written(out_path, [el.elem_id for el in els], host_rvt=src_rvt)
         return rep, ver
 
     def to_json(self) -> dict:
