@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from rvt.famgen import equipment_clearance as EC  # noqa: E402
 from rvt.famgen import fan_powered as FP  # noqa: E402
-from rvt.famgen.fan_coil import _square  # noqa: E402
+from rvt.famgen.equipment_common import square_round_part as _square  # noqa: E402
 from conftest import context_constants  # noqa: E402
 
 pytestmark = pytest.mark.usefixtures("no_release_leak")   # rows build inside release_build_context
@@ -144,3 +144,60 @@ def test_the_cli_builds_it(tmp_path):
                         "-o", str(out)], capture_output=True, text=True, timeout=600)
     assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-2000:]
     assert out.exists() and "VALID (0 errors" in r.stdout
+
+
+
+# --- #926 ---------------------------------------------------------------------------------
+
+@pytest.mark.parametrize("kw", [dict(inlet_in=0), dict(inlet_in=-4), dict(length_in=float("nan")),
+                                dict(width_in=0), dict(height_in=True)])
+def test_a_non_positive_or_nan_dimension_is_refused_in_inches(kw):
+    with pytest.raises(ValueError, match="inches"):
+        FP.make_fan_powered_box(**kw)
+
+
+@pytest.mark.parametrize("kw", [dict(length_in=20), dict(reheat="electric", length_in=30)])
+def test_the_casing_only_notes_say_only_what_is_drawn(kw):
+    notes = "\n".join(FP.make_fan_powered_box(**kw).doc.notes)
+    assert "draw duct and pipe to them by eye" not in notes
+    assert "no inlet, discharge or induction openings to draw to" in notes
+    assert "working space in front of the service side" in notes
+
+
+def _touch(a, b, axis):
+    """The two boxes share a face along ``axis`` (0 x, 1 y, 2 z) and overlap on the others."""
+    A, B = _bb(a), _bb(b)
+    lo, hi = 2 * axis, 2 * axis + 1
+    meet = abs(A[hi] - B[lo]) < 1e-9 or abs(B[hi] - A[lo]) < 1e-9
+    others = all(min(A[2 * k + 1], B[2 * k + 1]) - max(A[2 * k], B[2 * k]) > 0 for k in range(3) if k != axis)
+    return meet and others
+
+
+@pytest.mark.parametrize("kind,reheat", [("series", "hot_water"), ("parallel", "electric")])
+def test_attached_hardware_touches_what_it_hangs_on(kind, reheat):
+    """Not only no interpenetration: the attached parts are ON their hosts, never floating."""
+    parts = {p["role"]: p for p in FP.fan_powered_parts(44 * IN, 30 * IN, 18 * IN, kind=kind,
+                                                         inlet_d=10 * IN, reheat=reheat)}
+    case = parts[FP.ROLE_CASING]
+    assert _touch(parts["primary air inlet"], case, 0)
+    assert _touch(parts["controls enclosure"], case, 1)
+    assert _touch(parts[FP.ROLE_ELECTRICAL], case, 1)
+    assert _touch(parts["disconnect toggle"], parts[FP.ROLE_ELECTRICAL], 1)
+    assert _touch(parts["discharge collar"], parts.get("hot water reheat coil", case), 0)
+    if kind == "parallel":
+        assert _touch(parts["parallel fan module"], case, 1)
+        assert _touch(parts["induction opening filter"], parts["parallel fan module"], 1)
+        assert _touch(parts["electric heater control panel"], case, 1)
+    else:
+        assert _touch(parts["induction opening filter"], case, 0)
+        for s in ("reheat supply connection", "reheat return connection"):
+            assert _touch(parts[s], parts["hot water reheat coil"], 1)
+    actuator, inlet = _bb(parts["primary damper actuator"]), _bb(parts["primary air inlet"])
+    assert abs(actuator[3] - inlet[2]) < 1e-9                          # on the collar's side
+
+
+def test_the_shared_helpers_live_in_equipment_common():
+    from rvt.famgen import equipment_common as E
+    from rvt.famgen import fan_coil as FC
+    assert FC.poles_for is E.poles_for and FC._square is E.square_round_part
+    assert E.poles_for(277, 1) == 1 and E.voltage_to_ground_for(480, 3) == 277
