@@ -710,6 +710,7 @@ def _reference_idx_mgr(doc, plan: LoadPlan) -> Optional[dict]:
     -> (Is-Reference code, name) [VERIFIED shape rstbasic 1388845: keys 4/5 =
     the origin planes' m_familyIds indices, code 10, name '' for the head
     families]."""
+    from .famgen.loader import NOT_A_REFERENCE   # local: loader reaches back here
     entries = []
     for e in doc.elements:
         if e.class_name != "RefPlane":
@@ -717,7 +718,7 @@ def _reference_idx_mgr(doc, plan: LoadPlan) -> Optional[dict]:
         v = e.obj or {}
         if not v.get("m_definesOrigin"):
             continue
-        if v.get("m_refName") == 12:
+        if v.get("m_refName") == NOT_A_REFERENCE:
             # #947: a "Not a Reference" plane (a template's origin elevation
             # plane) is in no born host's reference index (0 / 1,312 entries
             # across 421 born families) -- left out, never re-coded

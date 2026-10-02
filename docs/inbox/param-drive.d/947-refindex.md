@@ -21,7 +21,24 @@ Case B origin elevation plane (code 12, `m_definesOrigin`), so every such
 family loaded into a project, or nested into a family, arrived with an entry
 no born file has. Verified on the products: the transformer, the panelboard
 and the strut trapeze all have origin planes with codes `[1, 4, 12]`; the
-generic model and the wireway have `[1, 4]`.
+generic model and the wireway have `[1, 4]`. *(Amended 2026-10-02: the
+generic-model half of this sentence is wrong; see the correction below.
+The wireway half stands.)*
+
+> **Correction (review of #951), 2026-10-02.** A
+> `make_generic_model(width_ft=…, depth_ft=…, height_ft=…)` build carries
+> origin-plane codes `[1, 4, 12]`, not `[1, 4]` (checked on two builds:
+> 2 x 1 x 2 ft and the 4 x 1 x 0.2 ft nest host the test uses;
+> `make_generic_model` refuses to build without a positive `height_ft`, so
+> there is no height-free generic model to have `[1, 4]`). The wireway
+> archetype does carry `[1, 4]`. The generic model's load therefore changes
+> too: loaded with `place=False`, pre-fix predicate vs post-fix, into each
+> bundled base, the one changed partition shrinks by **-79 inflated bytes**
+> (2026 Partitions/21, 2025 Partitions/20, 2024 Partitions/21; raw 0; file
+> size unchanged at 602,112 / 618,496 / 598,016). BasicFileInfo also differs
+> by +4 B raw, only because the two output file names differ in length. The
+> other 10 of 12 streams are byte-identical. The fix and its tests are
+> unaffected.
 
 ## The fix
 

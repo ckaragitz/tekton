@@ -500,8 +500,11 @@ def wire_hexagon_drive(doc, *, sketch, caption: str, half_caption: str) -> Dict[
         raise AngularLawError("angular_law: the hexagon is already constrained")
     if sketch.obj.get("m_dimIds"):
         raise AngularLawError("angular_law: the sketch already registers dimensions")
-    ppar = origin_centre_plane(doc, "y")       # y = 0: parallel to the flats
-    pperp = origin_centre_plane(doc, "x")      # x = 0
+    try:
+        ppar = origin_centre_plane(doc, "y")   # y = 0: parallel to the flats
+        pperp = origin_centre_plane(doc, "x")  # x = 0
+    except ValueError as exc:                  # a refusal, so callers' fallback runs
+        raise AngularLawError(f"angular_law: {exc}") from exc
     skp = int(sketch.obj.get("m_sketchPlaneId", -1))
     if skp not in by_id or by_id[skp].class_name != "SketchPlane":
         raise AngularLawError("angular_law: the sketch has no sketch plane")
