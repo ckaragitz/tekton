@@ -127,7 +127,8 @@ def test_the_plugin_honest_status_says_earlier_form_too():
     path = os.path.join(ROOT, "plugin", "docs", "HONEST-STATUS.md")
     with open(path, encoding="utf-8") as fh:
         rows = [ln for ln in fh if "L_downlight_loaded" in ln]
-    assert rows and all("an earlier form" in ln and "#981" in ln for ln in rows), rows
+    assert rows and all("an earlier form" in ln and "#981" in ln
+                        and "not a complete list" in ln for ln in rows), rows
 
 
 # ---------------------------------------------------------------------------

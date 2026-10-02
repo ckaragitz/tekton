@@ -17,8 +17,11 @@ in the ledger, so nothing noticed.
 ## What changed
 
 - **Wording.** One constant, `matrix.DOWNLIGHT_EARLIER_FORM`, now rides every row citing the
-  file (stage `does`, cell caveats, chain note): the certified file holds an EARLIER form; what
-  changed since (drives #913/#950, full-arc plan circles #916/#980); today's output is
+  file (stage `does`, cell caveats, chain note): the certified file holds an EARLIER form;
+  it was certified on 2026-08-04 (verdict #21), before the repo's history, and the family has
+  changed in many ways since -- among them standard parameters (#601/#631), drives
+  (#913/#950) and full-arc plan circles (#916/#980), the list stated as not complete (the
+  first push named only the last two; corrected after the #985 review); today's output is
   family-mode validator VALID (0 errors) with NO viewer or desktop-Revit verdict; the
   certification speaks for the earlier form and the four-registry load mechanism. `_RFA_HOST`
   names it as an earlier form too. **No status changed** (all six still `works` — their
@@ -26,7 +29,8 @@ in the ledger, so nothing noticed.
   project, not a standalone `.rfa`). No citation was removed or added.
 - **Rendered doc.** `PERMUTATION-MATRIX.md` is hand-kept (pinned by `tests/test_router.py` for
   status only); its four rows naming `L_downlight` (ifc → rfa, rfa → rvt, rfa + rvt → rvt,
-  ifc → rfa → loaded-rvt) gained the same "an earlier form … #981" parenthesis.
+  ifc → rfa → loaded-rvt) gained the same "an earlier form … #981" parenthesis, and so did
+  the Family-generation row of `plugin/docs/HONEST-STATUS.md` (hand-authored, §3b).
 - **Guard.** `matrix.EVIDENCE_FORMS`: certified file → `{generator, build, certified,
   reviewed, reviewed_at, caveat}`. `certified` = the generator's output sha256 at
   certification (`None` for the downlight: not knowable — the ledger entry predates the repo's
@@ -89,4 +93,7 @@ repo's history; standard parameters #601 / #631 are named too), and
   `tools/route.py matrix` self-audit clean (25 cells / 27 stages / 5 chains);
   `tools/sync_plugin.py` then `--check` in sync; `validate_plugin.py` PASS;
   `check_portable_paths.py` ok.
+- Also written (after the #985 review): `plugin/docs/HONEST-STATUS.md` (one row),
+  `docs/inbox/param-drive.d/983-rereview-correction.md` (the #979 record correction, in its
+  own fragment), the new test `test_the_plugin_honest_status_says_earlier_form_too`.
 - Staged: nothing (no viewer batch; route 1 is a separate human-gated step).
