@@ -54,8 +54,9 @@ PROFILE_SCHEMA = "tekton.param-profile/1"
 _GUID = re.compile(r"^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$")
 
 #: the spec a class WITHOUT its own ``m_specTypeId`` is typed as in a formula check
-#: (a text / Yes-No / integer parameter is not a length: formula.py refuses text and
-#: integer operands, and types Yes/No logic) -- a ParamDefValue carries its own spec
+#: (a text / Yes-No / integer parameter is not a length: formula.py refuses integer
+#: operands, types Yes/No logic and takes text only as a value, #870) -- a
+#: ParamDefValue carries its own spec
 CLASS_SPEC = {
     "ParamDefString": "autodesk.spec:spec.string-1.0.0",
     "ParamDefURL": "autodesk.spec:spec.string-1.0.0",

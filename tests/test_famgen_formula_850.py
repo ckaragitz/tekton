@@ -244,7 +244,6 @@ def _doc_with(*params):
 
 @needs_schema
 @pytest.mark.parametrize("pname,spec,formula", [
-    # ("Pick", text, "LabelA") is WRITTEN since #870 (tests/test_famgen_formula_870.py)
     ("Same", "autodesk.spec:spec.bool-1.0.0", "LabelA = LabelB"),
 ])
 def test_a_text_formula_never_stops_the_build(pname, spec, formula):
@@ -537,3 +536,15 @@ def test_cycles_are_found_in_linear_time():
     notes = " ".join(doc.notes)
     assert notes.count("circular reference") == 2
     assert _rows(doc.self_family.obj)["T"][doc.params[f"P{n}"].elem_id]["m_value"] == pytest.approx(1.0 + n)
+
+
+@needs_schema
+def test_a_text_parameter_formula_is_written_since_870():
+    """Review round 1's "Pick" case flipped: a text parameter naming another is
+    written (#870), its result in m_str."""
+    fs, doc, made = _doc_with(("LabelA", fs_text(), None), ("LabelB", fs_text(), None),
+                              ("Pick", fs_text(), "LabelA"))
+    doc.add_type("T", {"LabelA": "aa", "LabelB": "bb"})
+    doc.finalize()
+    row = _rows(doc.self_family.obj)["T"][made["Pick"].elem_id]
+    assert row["m_oExpression"]["ptr_class"] == "ParameterExpression" and row["m_str"] == "aa"
