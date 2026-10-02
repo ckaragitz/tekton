@@ -98,3 +98,13 @@ Stream: param-drive. Issue #979. Base `main` 18153b4.
   `'1574.8 mm'`, `'nan'`, `'inf'`.
 - Two tests pin both (`test_an_infinite_label_is_no_number_and_never_drives`,
   `test_a_yes_no_is_never_a_number`); both fail at the PR's first head.
+
+### Correction (#983 re-review, 2026-10-02)
+As shipped (PR #983, merged as `a615735`): `tests/test_pset_last_979.py` holds **8**
+tests, not 6 (the two #983-review tests added). Against base, "DRIVES lost" is **22**,
+not 0 -- each one a contradiction base drove through: an attached
+`IFCLABEL('inf'|'-inf'|'Infinity'|'1e400')`, or `IFCREAL(1.E400)`, next to the length
+(base's `abs(inf - x) <= 1e-9 * inf` matched any number). The `_same_value` fix closes
+that base bug too. The independent re-review's 5,116-case probe: contradicting
+statements drive 22 times at base, 0 at head; 12 drives gained, all the intended
+label → length upgrades. BRANCH STATE: pushed and merged as #983.
