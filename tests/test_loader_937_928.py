@@ -111,6 +111,16 @@ def test_resolve_family_name_policies():
     assert issubclass(L.FamilyNameClash, L.LoaderError)
 
 
+@pytest.mark.parametrize("variant", ["Caf\u00e9", "Cafe\u0301", " Caf\u00e9 ", "CAF\u00c9"],
+                         ids=["nfc", "nfd", "spaces", "upper"])
+def test_unicode_form_and_outer_spaces_do_not_make_a_new_name(variant):
+    """#945 review: NFC/NFD spellings and a stray space are one family name."""
+    from rvt.famgen import loader as L
+    taken = {L._name_key("Caf\u00e9"): (7, "Caf\u00e9")}
+    with pytest.raises(L.FamilyNameClash):
+        L.resolve_family_name(variant, taken)
+
+
 def test_host_survey_lists_family_names():
     """The survey sees the host's families: none on the 2026 base, the eight
     curtain-wall system families on the 2025 / 2024 bases."""

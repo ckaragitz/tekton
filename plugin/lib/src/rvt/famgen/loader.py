@@ -77,6 +77,7 @@ import json
 import math
 import os
 import struct
+import unicodedata
 import uuid
 from dataclasses import dataclass, field as dc_field, replace
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -142,10 +143,12 @@ NAME_CLASH_POLICIES = ("refuse", "rename")
 
 
 def _name_key(name: str) -> str:
-    """Uniqueness key of a family name: case-insensitive.  Conservative -- a
-    case-only variant counts as a clash [UNVERIFIED whether desktop Revit
-    treats case variants as one name; refusing/renaming one is harmless]."""
-    return str(name).casefold()
+    """Uniqueness key of a family name: Unicode NFC, outer whitespace
+    trimmed, case-insensitive.  Conservative -- a case-only, an NFC/NFD or a
+    trailing-space variant counts as a clash (#945 review) [UNVERIFIED whether
+    desktop Revit treats such variants as one name; refusing/renaming one is
+    harmless]."""
+    return unicodedata.normalize("NFC", str(name)).strip().casefold()
 
 
 def resolve_family_name(name: str, taken: Dict[str, Tuple[int, str]], *,
