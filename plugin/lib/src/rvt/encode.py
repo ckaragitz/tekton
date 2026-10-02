@@ -73,10 +73,34 @@ ROOT = os.environ.get("TEKTON_ROOT") or os.path.normpath(os.path.join(os.path.di
 
 _PSIZE = struct.Struct("<I")
 _U16 = struct.Struct("<H")
+_U32 = struct.Struct("<I")
+_I64 = struct.Struct("<q")
+_XYZ = struct.Struct("<3d")
+
+#: precompiled single-value field kinds of a class plan (#932)
+_OP_PACK, _OP_XYZ, _OP_WEAK, _OP_BOOL, _OP_GROW, _OP_FIXED = 1, 2, 3, 4, 5, 6
+#: ... and the two that call straight into the general path's own callees
+_OP_PTR, _OP_VCLASS = 7, 8
+
+
+def path_str(path: Any) -> str:
+    """Render an encoder field path.  The encoder builds paths LAZILY (#932):
+    a path is the root string or a ``(parent, sep, part)`` tuple, so the hot
+    loop never formats a string that is only ever read when encoding fails;
+    this renders exactly what the eager ``f"{path}.{name}"`` /
+    ``f"{path}[{i}]"`` / ``f"{path}->{class}"`` chain spelled."""
+    parts = []
+    while isinstance(path, tuple):
+        parent, sep, part = path
+        parts.append(f"[{part}]" if sep == "[" else f"{sep}{part}")
+        path = parent
+    parts.append(f"{path}")
+    return "".join(reversed(parts))
 
 
 class EncodeError(Exception):
-    def __init__(self, path: str, msg: str):
+    def __init__(self, path: Any, msg: str):
+        path = path_str(path)
         super().__init__(f"{msg} @ {path}")
         self.path = path
         self.msg = msg
@@ -196,6 +220,10 @@ class ObjectEncoder:
         self.id_XYZ = d.id_XYZ
         self.id_UV = d.id_UV
         self.id_GUIDvalue = d.id_GUIDvalue
+        # class id -> ((dict key, Field), ...) over the parent-first chain:
+        # the shadowed-name keying (field_key) is a function of the chain
+        # alone, so it is resolved once per class, not once per object (#932)
+        self._plans: dict = {}
 
     # -- schema helpers ------------------------------------------------------
     def chain(self, class_id: int) -> list[ClassDef]:
@@ -229,7 +257,7 @@ class ObjectEncoder:
         while queue:
             pend = queue.popleft()
             self._encode_class(w, pend.class_id, pend.value or {}, queue,
-                               f"{pend.path}->{self.dec.class_name(pend.class_id)}")
+                               (pend.path, "->", self.dec.class_name(pend.class_id)))
         return w.bytes()
 
     def encode_record(self, seq: int, elem_id: int, stamp: int, class_id: int,
@@ -257,16 +285,91 @@ class ObjectEncoder:
                       queue: deque, path: str):
         if not isinstance(value, dict):
             raise EncodeError(path, f"class body must be a dict, got {type(value).__name__}")
+        plan = self._plans.get(class_id)
+        if plan is None:
+            plan = self._plans[class_id] = self._class_plan(class_id)
+        enc_field = self._encode_field
+        buf = w.buf
+        for key, f, op, pack in plan:
+            if key not in value:
+                raise EncodeError((path, ".", f.name), f"missing field {key!r}")
+            v = value[key]
+            if op == _OP_PTR:
+                self._encode_pointer(w, v, queue, (path, ".", f.name))
+                continue
+            if op == _OP_VCLASS:
+                self._encode_class(w, pack, v, queue, (path, ".", f.name))
+                continue
+            if op:
+                # the precompiled single-value kinds (see _class_plan); any
+                # failure re-runs the general path from a clean buffer, so a
+                # bad value raises exactly what it always raised
+                n0 = len(buf)
+                try:
+                    if op == _OP_PACK:
+                        buf += pack(v)
+                    elif op == _OP_XYZ:
+                        buf += pack(*v)
+                    elif op == _OP_WEAK:
+                        buf += pack(v["weakref"] if isinstance(v, dict) else v)
+                    elif op == _OP_GROW:
+                        buf += _U32.pack(len(v))
+                        for x in v:
+                            buf += pack(x)
+                    elif op == _OP_FIXED:
+                        for x in v:
+                            buf += pack(x)
+                    else:                                  # _OP_BOOL
+                        buf.append((1 if v else 0) if isinstance(v, bool)
+                                   else int(v) & 0xFF)
+                    continue
+                except Exception:                          # noqa: BLE001
+                    del buf[n0:]
+            enc_field(w, f, v, queue, (path, ".", f.name))
+
+    def _class_plan(self, class_id: int) -> tuple:
+        """``((dict key, Field, op, packer), ...)`` over the parent-first chain.
+
+        The shadowed-name keying (``field_key``) is a function of the chain
+        alone, so it is resolved once per class rather than once per object;
+        and a field that is ONE plain value -- a primitive, a bool, an
+        ElementId/Identifier, an XYZ, a weak pointer, a growable or fixed
+        array of non-bool primitives -- gets an ``op`` whose bytes are exactly
+        what :meth:`_encode_field` writes for it; an owned pointer and a nested
+        value class go straight to :meth:`_encode_pointer` /
+        :meth:`_encode_class`, the calls the general path ends in (#932)."""
         seen: dict = {}
+        rows = []
         for cd in self.chain(class_id):
             for f in cd.fields:
-                fpath = f"{path}.{f.name}"
                 # identical shadowed-name keying rule as the decoder
                 key = field_key(cd, f, seen)
                 seen[key] = True
-                if key not in value:
-                    raise EncodeError(fpath, f"missing field {key!r}")
-                self._encode_field(w, f, value[key], queue, fpath)
+                op, pack = 0, None
+                kind, flags = f.kind, f.flags
+                shape, indir = flags >> 4, flags & 0x0F
+                if kind not in (0x08, 0x0D) and shape not in (0x5, 0x1):
+                    if kind == 0x01:
+                        op = _OP_BOOL
+                    elif kind in _PRIM_FMT:
+                        op, pack = _OP_PACK, struct.Struct(_PRIM_FMT[kind][0]).pack
+                    elif kind == 0x0E and indir == 3:
+                        op, pack = _OP_WEAK, _U32.pack
+                    elif kind == 0x0E and indir == 0 and f.type_id is not None:
+                        if f.type_id in (self.id_ElementId, self.id_Identifier):
+                            op, pack = _OP_PACK, _I64.pack
+                        elif f.type_id == self.id_XYZ:
+                            op, pack = _OP_XYZ, _XYZ.pack
+                        elif f.type_id not in (self.id_UV, self.id_GUIDvalue):
+                            op, pack = _OP_VCLASS, f.type_id
+                    elif kind == 0x0E and indir != 0:
+                        op = _OP_PTR
+                elif (kind in _PRIM_FMT and kind != 0x01
+                      and shape in (0x5, 0x1)):
+                    op = _OP_GROW if shape == 0x5 else _OP_FIXED
+                    pack = struct.Struct(_PRIM_FMT[kind][0]).pack
+                rows.append((key, f, op, pack))
+        return tuple(rows)
 
     # -- one field -------------------------------------------------------------
     def _encode_field(self, w: Writer, f: Field, v: Any, queue: deque, path: str):
@@ -292,18 +395,18 @@ class ObjectEncoder:
             if shape == 0x5:
                 w.u32(len(v))
             for i, x in enumerate(v):
-                self._encode_field(w, elem, x, queue, f"{path}[{i}]")
+                self._encode_field(w, elem, x, queue, (path, "[", i))
             return
 
         if shape == 0x5:                                   # growable container
             w.u32(len(v))
             for i, x in enumerate(v):
-                self._encode_scalar(w, f, kind, indir, x, queue, f"{path}[{i}]")
+                self._encode_scalar(w, f, kind, indir, x, queue, (path, "[", i))
             return
 
         if shape == 0x1:                                   # fixed array
             for i, x in enumerate(v):
-                self._encode_scalar(w, f, kind, indir, x, queue, f"{path}[{i}]")
+                self._encode_scalar(w, f, kind, indir, x, queue, (path, "[", i))
             return
 
         self._encode_scalar(w, f, kind, indir, v, queue, path)

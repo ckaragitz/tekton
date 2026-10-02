@@ -820,7 +820,60 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
 
 def _assert_pid_stable(obj: dict) -> None:
     """Re-run the archive numbering on a copy and assert every pointer /
-    weakref target we set formulaically is what the encoder assigns."""
+    weakref target we set formulaically is what the encoder assigns.
+
+    Computed without the copy (#932: the deepcopy was most of the check's
+    cost): the same walk as :func:`assign_pids`, recording the pid each
+    pointer token WOULD receive (last assignment wins, as on a copy that
+    shares a token), then comparing -- a copy re-numbered by assign_pids
+    differs from ``obj`` exactly when some token's pid differs or is
+    missing, since pids are the only thing assign_pids writes."""
+    if _pid_numbering(obj) is not None:
+        raise AssertionError("constructor pid layout != archive numbering "
+                             "(assign_pids disagrees)")
+
+
+def _pid_numbering(value: dict, start: int = 3) -> Optional[dict]:
+    """``None`` when every owned-pointer token of ``value`` already carries
+    the pid :func:`assign_pids` would give it; else the first offending token.
+    Read-only twin of :func:`assign_pids` (same traversal, same rule)."""
+    counter = start
+    want: Dict[int, Tuple[dict, int]] = {}
+    q: deque = deque()
+
+    def walk(v: Any) -> None:
+        nonlocal counter
+        if isinstance(v, dict):
+            if "ptr_class" in v:
+                if v["ptr_class"] in REGISTERED_CLASSES:
+                    want[id(v)] = (v, counter)
+                    counter += 1
+                else:
+                    want[id(v)] = (v, -1)
+                q.append(v.get("value"))
+            elif "weakref" in v or "backref_pid" in v or "classref" in v:
+                return
+            else:
+                for x in v.values():
+                    walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+
+    walk(value)
+    while q:
+        body = q.popleft()
+        if body is not None:
+            walk(body)
+    for tok, pid in want.values():
+        if "pid" not in tok or not (tok["pid"] == pid):
+            return tok
+    return None
+
+
+def _assert_pid_stable_by_copy(obj: dict) -> None:
+    """The original copy-and-renumber form of :func:`_assert_pid_stable`,
+    kept as the reference its read-only twin is tested against."""
     a = copy.deepcopy(obj)
     assign_pids(a)
     if a != obj:

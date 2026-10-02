@@ -2062,8 +2062,9 @@ def route(inputs: Dict[str, Any], output: str, **opts: Any) -> RouteResult:
     res.caveats.extend(cell.caveats)
 
     capture = _stage_stdout(res, out_dir, quiet=bool(opts.get("quiet")))   # opens route.log now
+    from ..gcpolicy import build_gc
     try:
-        with capture:
+        with capture, build_gc():                # GC pacing for one job; no output byte changes (#932)
             impl(res, inputs, out_dir, opts)
     except _StepFailed:
         res.ok = False

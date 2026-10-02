@@ -86,15 +86,16 @@ def _inflate_at(data: bytes, off: int):
     succeeds and CRC-verifies. A raw-deflate fallback (skip 10-byte header)
     is kept purely as a diagnostic escape hatch; it reports ``crc_ok=False``.
     """
+    view = memoryview(data)          # the tail is read in place, never copied (#932)
     d = zlib.decompressobj(16 + zlib.MAX_WBITS)  # gzip wrapper, checks CRC
     try:
-        out = d.decompress(data[off:]) + d.flush()
+        out = d.decompress(view[off:]) + d.flush()
         return out, len(data) - off - len(d.unused_data), True
     except zlib.error:
         pass
     d = zlib.decompressobj(-zlib.MAX_WBITS)
     try:
-        out = d.decompress(data[off + 10:]) + d.flush()
+        out = d.decompress(view[off + 10:]) + d.flush()
     except zlib.error:
         return None
     return out, len(data) - off - len(d.unused_data), False
@@ -109,6 +110,10 @@ class RvtDocument:
         self._raw_cache: dict = {}
         self._logical_cache: dict = {}
         self._member_cache: dict = {}
+        # name -> each member's inflated payload, kept from the members() scan
+        # (which has to inflate every member to find where it ends) so that
+        # inflate()/inflate_all() do not inflate the same bytes again (#932)
+        self._payload_cache: dict = {}
 
     # -- context manager -------------------------------------------------
     def close(self) -> None:
@@ -151,6 +156,7 @@ class RvtDocument:
             return self._member_cache[name]
         data = self.logical(name)
         members: List[Member] = []
+        payloads: List[bytes] = []
         pos = 0
         while True:
             i = data.find(GZIP_MAGIC, pos)
@@ -162,8 +168,10 @@ class RvtDocument:
                 continue
             payload, consumed, crc_ok = r
             members.append(Member(len(members), i, consumed, len(payload), crc_ok))
+            payloads.append(payload)
             pos = i + max(consumed, 1)
         self._member_cache[name] = members
+        self._payload_cache[name] = payloads
         return members
 
     def prefix(self, name: str) -> bytes:
@@ -179,17 +187,12 @@ class RvtDocument:
             raise ValueError(f"{name!r}: no gzip members (not compressed?)")
         if index >= len(m):
             raise IndexError(f"{name!r}: has {len(m)} member(s), asked for {index}")
-        r = _inflate_at(self.logical(name), m[index].offset)
-        assert r is not None
-        return r[0]
+        return self._payload_cache[name][index]
 
     def inflate_all(self, name: str) -> Iterator[bytes]:
         """Yield each gzip member's payload in stream order."""
-        data = self.logical(name)
-        for mem in self.members(name):
-            r = _inflate_at(data, mem.offset)
-            assert r is not None
-            yield r[0]
+        self.members(name)
+        yield from self._payload_cache[name]
 
     def concat(self, name: str) -> bytes:
         """All members inflated and concatenated (partition element data)."""

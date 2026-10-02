@@ -107,7 +107,7 @@ from dataclasses import dataclass, field as dc_field, replace
 from itertools import takewhile
 from typing import Optional
 
-from .encode import ObjectEncoder, Writer, EncodeError, _Pend
+from .encode import ObjectEncoder, Writer, EncodeError, _Pend, path_str
 from . import objects as O                      # O.iter_records at call time: ids32() rebinds it by name (#548)
 from .objects import (ObjectDecoder, Reader, DecodeError, DecodedObject,
                       _Pending, _State, field_key)
@@ -1151,7 +1151,7 @@ class ESEncoder(ObjectEncoder):
     def _encode_class(self, w: Writer, class_id: int, value: dict, queue: deque, path: str):
         if class_id == self.esdec.id_ESEntity:
             self.codec.write_entity_token(w, (value or {}).get("m_blob"), queue,
-                                          path + ".m_blob")
+                                          path_str(path) + ".m_blob")
             return
         super()._encode_class(w, class_id, value, queue, path)
 
@@ -1169,7 +1169,7 @@ class ESEncoder(ObjectEncoder):
                 self.codec.write_entity_body(w, ent, queue, ent.get("schema") or g)
                 continue
             self._encode_class(w, pend.class_id, pend.value or {}, queue,
-                               f"{pend.path}->{self.dec.class_name(pend.class_id)}")
+                               (pend.path, "->", self.dec.class_name(pend.class_id)))
         return w.bytes()
 
 
