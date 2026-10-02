@@ -187,6 +187,27 @@ adds a generation, so pass 2 has nothing left to drop.
    raw and the schema for the release to run `tail_verdict`. The job times
    above show no measurable cost, but that is not a benchmark.
 
+## Review of #946 (🟡; fixed in this PR)
+
+- **`tools/rvt_edit_text.py` was missing.** It ships as the tekton-native skill script,
+  read de-paged, and added one stale generation. It now reads through `writer_logical`.
+  `test_edit_text_release.py::test_a_text_edit_keeps_the_hosts_partition_tail` checks
+  this on 2026, 2025 and 2024. Without the fix that test fails: a 1,862 B tail against
+  the host's 1,282 B on 2026.
+- **The 2023 verifier's signature.** Inside `ids32()`, `verify_manipulated` is rebound to
+  `verify_manipulated32`, which lacked `walked=` and `host_rvt=`. #941's callers
+  (`verify_electrical`, `famload.repoint_usage`) would raise `TypeError` there. It now
+  accepts both. The 2023 tail check is not ported, so the report says
+  `"not checked (2023 era)"` rather than claiming one. A signature-parity test covers it.
+- **`partition_tail` docstring.** It no longer names a non-existent
+  `reduce.reduce_elements`, and it says `reduce.delete_elements` is deliberately
+  unchanged.
+- **Genesis composition.** No composition path touches the changed writers:
+  `reduce.delete_elements` is unchanged, and `GenesisCatalog.commit_into` has no caller.
+  The `samples/`-gated reproduction tests could not run in a fresh clone.
+- **Measurement correction.** The reviewer measured W-before on 2026 as 2,432 B on base
+  main, not 2,430. That is a before-number only.
+
 ## BRANCH STATE (`tail-941`)
 
 **Files written**

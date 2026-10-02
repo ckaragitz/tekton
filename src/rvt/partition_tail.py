@@ -29,13 +29,15 @@ pass-1 file de-paged): +660 B (2026), +1,051 B (2025), +645 B (2024) per load.
 (``commit.commit_new_elements`` and its callers -- walls, equipment, mep,
 famload pass 1 --, ``manipulate.commit_plans`` -- identity, levels, edits,
 famload pass 3 --, ``mep.conduit.commit_created``,
-``mep.electrical_data.commit_electrical``, ``reduce.reduce_elements``): each
+``mep.electrical_data.commit_electrical``, ``tools/rvt_edit_text.py``): each
 read its source partition DE-PAGED (``doc.logical``) and kept the walker's
 ``end_record`` whole, so each added one generation of the source's
 final-block parity (+580 / +578 / +526 B per stage on the 6-panel project).
 They now read it with :func:`writer_logical` (the exact content, so the
 walker's ``end_record`` IS the host's exact tail) and their verifiers judge
-the written tail with :func:`tail_verdict`.
+the written tail with :func:`tail_verdict`.  ``reduce.delete_elements`` is
+deliberately NOT changed: it is the genesis composition tool that built the
+certified bases with their lineage tails, not a product path (#941 record).
 
 Release-agnostic: the walker reads the release's own framing ordinals, so
 callers run inside the file's release context (the loaders already do;

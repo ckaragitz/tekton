@@ -106,3 +106,30 @@ def test_native_edit_imports_nothing_under_rvt_frontdoor(tmp_path):
 def test_foreign_edit_enters_the_authoring_context_not_the_read_side_ladder(year, tmp_path):
     mods = _modules_after_edit(year, str(tmp_path / f"f{year}.rvt"))
     assert "rvt.frontdoor.release_ctx" in mods, sorted(mods)
+
+
+@pytest.mark.parametrize("year", [V.LATEST_RELEASE] + list(FOREIGN_FIRST))
+def test_a_text_edit_keeps_the_hosts_partition_tail(year, edit_text, tmp_path, capsys):
+    """#946 review: the text-edit writer reads its partition exactly, so the
+    edited file ends on the host's own tail -- no generation of stale ECC
+    parity is added (the #941 law, extended to this shipped tool)."""
+    from rvt.partition_tail import host_tail
+    base = pinned_base(year)
+    out = str(tmp_path / f"tail{year}.rvt")
+    rc = edit_text.main([base, "--old", OLD_NAME, "--new", NEW_NAME, "--utf16", "-o", out])
+    assert rc == 0, capsys.readouterr().err[-600:]
+    with RC.host_release_context(base):
+        want = host_tail(base)
+        got = host_tail(out)
+    assert want is not None and got == want, (len(got or b""), len(want))
+
+
+def test_the_2023_verifier_takes_the_native_keywords():
+    """#946 review: inside ids32() verify_manipulated is rebound to the 2023
+    variant, which must accept the keywords #941's callers now pass."""
+    import inspect
+    from rvt.manipulate import verify_manipulated
+    from rvt.versions.records32 import verify_manipulated32
+    native = set(inspect.signature(verify_manipulated).parameters)
+    v32 = set(inspect.signature(verify_manipulated32).parameters)
+    assert native <= v32, native - v32
