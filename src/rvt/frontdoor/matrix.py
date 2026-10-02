@@ -65,6 +65,8 @@ __all__ = [
     "key_for", "cell_for", "all_cells", "closest_supported", "describe_cell",
     "unsupported_line", "verify_evidence", "audit", "matrix_rows",
     "status_counts", "render_text", "LEDGER_RELPATH", "ABSENT_BINARY_MARK",
+    "DOWNLIGHT_EARLIER_FORM", "EVIDENCE_FORMS", "evidence_form_is_earlier",
+    "generator_fingerprint",
 ]
 
 INPUT_KINDS = ("prompt", "ifc", "rvt", "rfa", "spec", "pdf")
@@ -78,6 +80,98 @@ STATUS_MISSING = "missing"    # not implemented; clear message + closest route
 def _root() -> str:
     from .base import repo_root
     return repo_root()
+
+
+# ===========================================================================
+# EVIDENCE FORMS -- certified files whose family a generator in this repo
+# still emits, and whether the generator's output is still THAT form (#981)
+# ===========================================================================
+
+#: the one caveat every row citing the certified downlight carries (#981):
+#: the viewer PASS is for an EARLIER form of the family than the generator
+#: emits today.  ``verify_evidence`` fails a citing row that drops it.
+DOWNLIGHT_EARLIER_FORM = (
+    "EARLIER FORM (#981): the certified L_downlight_loaded.rvt (viewer PASS, "
+    "docs/coverage/viewer-certified.json) holds an EARLIER form of the IFC "
+    "downlight than rvt.ifc.famfrom_ifc:make_downlight emits today -- since that "
+    "certification the family gained parameter drives (Frame Length / Frame "
+    "Width / Bar Hanger Span, Housing / Trim / Lens Diameter and Housing Height "
+    "wired by the drive law, #913 / #950) and its can / trim / lens plan circles "
+    "became one full arc each (#916 / #980). Today's output is family-mode "
+    "validator VALID (0 errors) with NO viewer or desktop-Revit verdict: the "
+    "certification speaks for the earlier form and for the four-registry load "
+    "mechanism, not for the bytes delivered now")
+
+#: certified file -> the in-repo generator that still emits its family, the
+#: output fingerprint at certification (None = never recorded / not knowable:
+#: the ledger entry predates the repo's history and the certified load used
+#: the owner-machine family container) and the fingerprint the matrix wording
+#: was last REVIEWED against (sha256 of the generator's standalone .rfa,
+#: built as ``build`` says, per release).  When ``certified`` != ``reviewed``
+#: every citing row must carry ``caveat`` (:func:`verify_evidence`);
+#: ``tests/test_matrix_evidence_981.py`` rebuilds and fails when the output
+#: drifts from ``reviewed``, so the next byte change re-opens the wording.
+EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
+    "experiments/families/ifc/L_downlight_loaded.rvt": {
+        "generator": "rvt.ifc.famfrom_ifc:make_downlight",
+        "build": ("make_downlight() on the default IFC (inputs/ifc/"
+                  "chicago-plenum-downlight.ifc facts, start_id=1000, drive='law'), "
+                  "written by rvt.frontdoor.standalone:standalone_family_write("
+                  "provenance=False) to a file named f.rfa (the name is in the bytes; "
+                  "the directory is not) inside that release's build context"),
+        "certified": None,
+        "reviewed": {
+            2026: "ea274092154a14189e40ee6be14e1c33b4fdc2d332934cba384a34881e107910",
+            2025: "4a67e333d792715de37a80a00f3b68292d396a313c682a28faf83351eb6779bb",
+        },
+        "reviewed_at": "18153b4 (main after #980/#982)",
+        "caveat": DOWNLIGHT_EARLIER_FORM,
+    },
+}
+
+
+def evidence_form_is_earlier(path: str) -> bool:
+    """True when the certified ``path``'s family is no longer what its
+    generator emits (or that was never fingerprinted): its rows need the
+    entry's caveat."""
+    ent = EVIDENCE_FORMS.get(path)
+    if ent is None:
+        return False
+    return ent.get("certified") != ent.get("reviewed")
+
+
+def generator_fingerprint(path: str, release: int, *, out_dir: Optional[str] = None) -> str:
+    """Rebuild the family a certified ``path`` cites through its generator
+    exactly as ``EVIDENCE_FORMS[path]['build']`` says, at ``release``, and
+    return the sha256 of the written ``.rfa``.  Needs the bundled genesis
+    base (plugin/assets/genesis); imports are local so this module stays
+    cheap to import."""
+    import hashlib
+    import shutil
+    import tempfile
+    ent = EVIDENCE_FORMS[path]
+    if ent["generator"] != "rvt.ifc.famfrom_ifc:make_downlight":
+        raise ValueError(f"no rebuild recipe for generator {ent['generator']!r}")
+    from ..ifc import famfrom_ifc as FFI
+    from . import release_ctx as RC
+    from .standalone import standalone_family_write
+    d = out_dir or tempfile.mkdtemp(prefix="t981_")
+    try:
+        out = os.path.join(d, "f.rfa")
+
+        def build() -> None:
+            standalone_family_write(FFI.make_downlight(), out, provenance=False)
+
+        if int(release) == RC.native_release():
+            build()
+        else:
+            with RC.release_build_context(RC._bundled_base_of(int(release))):
+                build()
+        with open(out, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest()
+    finally:
+        if out_dir is None:
+            shutil.rmtree(d, True)
 
 
 # ===========================================================================
@@ -194,14 +288,14 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
            "record:docs/inbox/ifc-assembly-rfa.md")),
     Stage("facts->rfa", "rvt.ifc.famfrom_ifc:make_downlight",
           "compose OUR family from measured facts (the recessed-downlight "
-          "archetype; assay-clean emit_family_rfa_v2)",
+          "archetype; assay-clean emit_family_rfa_v2). " + DOWNLIGHT_EARLIER_FORM,
           ("test:tests/test_ifc_family.py",
            "certified:experiments/families/ifc/L_downlight_loaded.rvt")),
     Stage("rfa-load", "rvt.ifc.famfrom_ifc:load_into_project",
           "the certified FOUR-REGISTRY loader (rvt.famload, L1a mechanism): "
           "our family document becomes an embedded save unit + "
           "ContentDocuments + ContentTable + FamilyMgr entries + host "
-          "Family/Symbol/surrogates/twins",
+          "Family/Symbol/surrogates/twins. " + DOWNLIGHT_EARLIER_FORM,
           ("test:tests/test_famload.py",
            "certified:experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
            "certified:experiments/families/ifc/L_downlight_loaded.rvt")),
@@ -440,7 +534,8 @@ _RFA_INPUT = ("rfa INPUT CONTRACT: (a) a famspec JSON ({'kind': 'panelboard' | "
 _RFA_HOST = ("default host = the pinned certified genesis base (G_ABPD, "
              "hash-verified, bundled with the plugin); pass rvt to load into "
              "YOUR project. Load depth certified by the ledger: our families "
-             "onto the rst host (L1a, L_downlight_loaded) and the genesis "
+             "onto the rst host (L1a, L_downlight_loaded -- an EARLIER form of "
+             "the downlight, #981) and the genesis "
              "lineage (stage_L8_lp4), a Revit-born standalone .rfa (T2a) and "
              "an embedded-born family document (TB0g) onto the composed base "
              "with instances")
@@ -551,6 +646,7 @@ _CELL_LIST: List[Cell] = [
           "the assembly lane needs TESSELLATED bodies (IfcTriangulatedFaceSet / "
           "IfcPolygonalFaceSet); a product carrying only swept/CSG solids is "
           "skipped BY NAME in the record, never given a guessed size",
+          DOWNLIGHT_EARLIER_FORM,
           _CATALOG)),
     # ---------------- singles: rvt ----------------
     Cell(("rvt",), "rvt", STATUS_MISSING, None, (),
@@ -630,7 +726,8 @@ _CELL_LIST: List[Cell] = [
           "spec/famspec.schema.json (unknown kind, misspelt field, wrong type) or "
           "whose facts the catalog lacks is answered in ONE clear line naming the "
           "field -- never a traceback, never an invented dimension",
-          _RFA_HOST, _RFA_RELEASE, _RFA_FAMSPEC_ENV, _FAMSPEC_GATES, _PROOF_ONLY)),
+          _RFA_HOST, DOWNLIGHT_EARLIER_FORM, _RFA_RELEASE, _RFA_FAMSPEC_ENV,
+          _FAMSPEC_GATES, _PROOF_ONLY)),
     Cell(("rfa",), "ifc", STATUS_MISSING, None, (),
          (), (),
          missing_reason="no family->IFC product emitter exists yet",
@@ -841,7 +938,7 @@ _CELL_LIST: List[Cell] = [
           "composed bases (both Revit-lineage 2026 projects) -- a host of "
           "another release loads only where that release's creation support "
           "is certified",
-          _RFA_RELEASE, _RFA_FAMSPEC_ENV, _PROOF_ONLY)),
+          DOWNLIGHT_EARLIER_FORM, _RFA_RELEASE, _RFA_FAMSPEC_ENV, _PROOF_ONLY)),
     Cell(("ifc", "prompt"), "rvt", STATUS_PARTIAL, "ifc_build_then_edit",
          ("ifc->intent", "intent->rvt", "rvt-read", "rvt-edit"),
          ("test:tests/test_ifc_intent.py", "test:tests/test_manipulate.py"),
@@ -897,7 +994,8 @@ CHAINS: Dict[str, Dict[str, Any]] = {
                  "(the product .rfa is emitted in the --target-version year's "
                  "context and the default host is that year's certified base, one "
                  "resolver, one stated block); the measured archetype itself still "
-                 "needs the family container archetype on disk (owner machine, #94)"),
+                 "needs the family container archetype on disk (owner machine, #94). "
+                 + DOWNLIGHT_EARLIER_FORM),
         "evidence": ("certified:experiments/families/ifc/L_downlight_loaded.rvt",
                      "test:tests/test_ifc_family.py",
                      "test:tests/test_router_load_release.py"),
@@ -1045,10 +1143,25 @@ def verify_evidence() -> List[str]:
         else:
             problems.append(f"{where}: unknown evidence kind {kind!r} in {ref!r}")
 
+    def check_form(refs: Sequence[str], text: str, where: str) -> None:
+        """#981: a certified family whose generator output is no longer the
+        certified form may only be cited by a row that SAYS so."""
+        for ref in refs:
+            if not ref.startswith("certified:"):
+                continue
+            path = ref.split(":", 1)[1]
+            if evidence_form_is_earlier(path) and EVIDENCE_FORMS[path]["caveat"] not in text:
+                problems.append(f"{where}: cites {path} (an EARLIER form of what its "
+                                f"generator emits now) without the EVIDENCE_FORMS caveat")
+
     for s in STAGES.values():
         for ref in s.evidence:
             check(ref, f"stage {s.id}")
+        check_form(s.evidence, s.does, f"stage {s.id}")
+    for name, ch in CHAINS.items():
+        check_form(ch.get("evidence", ()), str(ch.get("note") or ""), f"chain {name}")
     for c in _CELL_LIST:
+        check_form(c.evidence, "\n".join(c.caveats), f"cell {'+'.join(c.inputs)}->{c.output}")
         if c.status in (STATUS_WORKS, STATUS_PARTIAL) and not c.evidence:
             problems.append(f"cell {c.key()}: status {c.status} with NO evidence")
         for ref in c.evidence:
