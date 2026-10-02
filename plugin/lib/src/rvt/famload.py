@@ -259,7 +259,7 @@ def _four_registry_census(path: str) -> Dict[str, Any]:
             rep["contentdocs_error"] = repr(ex)
         # ADocument ContentTable + FamilyMgr
         try:
-            a = A.decode_latest(f.inflate("Global/Latest"))
+            a = A.decode_latest_shared(f.inflate("Global/Latest"))   # read only (#969)
             rep["adocument_clean"] = bool(a.clean)
             ct = (a.value.get("m_oContentTable") or {}).get("value") or {}
             recs = ct.get("m_ContentRecSet")

@@ -435,7 +435,11 @@ def build_intent(model: FI.IntentModel, opts: BuildOptions) -> BuildResult:
                                "release": release_info["release"],
                                "native": release_info["native"],
                                "port_layer": release_info["port_layer"]})
-        out = _build_intent_inner(model, opts, R, res, t0)
+        # the edited host ADocument is read back by four read-only checks
+        # across stages L and V: one decode per distinct payload (#969)
+        from ..adocument import shared_latest_decodes
+        with shared_latest_decodes():
+            out = _build_intent_inner(model, opts, R, res, t0)
         if release_info and any(c.get("kind") in INSTANCE_KINDS for c in out.created):
             out.degradations.append(
                 "KNOWN LIMIT (release-independent): placed equipment instances "

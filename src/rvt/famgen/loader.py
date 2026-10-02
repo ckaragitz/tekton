@@ -1993,7 +1993,7 @@ def _edit_host_registries(host_rvt: str, host: HostContext,
     ``(new_latest_payload, new_content_documents_payload, proofs)``."""
     from . import factory as F
     from ..container import open_rvt
-    from ..adocument import decode_latest, encode_latest
+    from ..adocument import decode_latest, decode_latest_shared, encode_latest
     with open_rvt(host_rvt) as f:
         latest_payload = f.inflate("Global/Latest")
         cd_payload = b"".join(f.inflate_all("Global/ContentDocuments"))
@@ -2010,7 +2010,7 @@ def _edit_host_registries(host_rvt: str, host: HostContext,
             raise _FamilyStepError(i, f"host ADocument registration failed: "
                                       f"{type(exc).__name__}: {exc}") from exc
     new_latest = encode_latest(lv, trailer=lat.trailer)
-    back = decode_latest(new_latest)
+    back = decode_latest_shared(new_latest)            # read-only proof (#969)
     if not back.clean:
         raise LoaderError("edited host ADocument does not re-decode clean")
     ents_before, tail = F.parse_content_documents(cd_payload)
@@ -2197,7 +2197,7 @@ def _verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
     from ..families import FamilyIndex, family_documents
     from ..elemtable import parse_elemtable
     from ..partitions import StreamWalker
-    from ..adocument import decode_latest
+    from ..adocument import decode_latest_shared
     from ..commit import verify_written
     rep: Dict[str, Any] = {"path": path}
     vw = verify_written(path, {i for plan in plans for i in _plan_host_ids(plan)})
@@ -2236,7 +2236,7 @@ def _verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
         et_ids = {r.id for r in et.records}
         rep["elemtable"] = {"records": len(et.records),
                             "watermark": et.footer.last_id if et.footer else None}
-        lat = decode_latest(f.inflate("Global/Latest"))
+        lat = decode_latest_shared(f.inflate("Global/Latest"))     # read only (#969)
         lv = lat.value
         rep["adocument"] = {"clean": bool(lat.clean)}
     ct = (((lv.get("m_oContentTable") or {}).get("value") or {}).get("m_ContentRecSet") or [])

@@ -1792,8 +1792,8 @@ class Validator:
         if not need_latest:
             return
         try:
-            from .adocument import decode_latest
-            lat = decode_latest(self._payload("Global/Latest"))
+            from .adocument import decode_latest_shared
+            lat = decode_latest_shared(self._payload("Global/Latest"))   # read only (#969)
             lv = lat.value
         except Exception as e:
             rep.warn(L_SEMANTIC, "loaded-content",
