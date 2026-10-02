@@ -1,6 +1,6 @@
 # #917: nesting a generated family inside a generated family (first piece)
 
-Stream: param-drive. Issue #917. Branch `nested-917`, based on `lock-915`.
+Stream: param-drive. Issue #917. Branch `claude/pull-latest-main-1cmo56` (PR #936; built on a local `nested-917`), based on `lock-915`.
 
 Born families nest their hardware. The reference trapeze nests its rods, nuts and
 washers as family instances; it does not draw them as solids. This pass does
@@ -225,7 +225,7 @@ no viewer or desktop batch has been run.
 
 # #917 second pass: locks and parameter association (gaps 1 and 2)
 
-Branch `nest-locks-917`, based on `nested-917` (422dbd9). Gaps 1 and 2 above
+Branch `claude/pull-latest-main-1cmo56 (PR #936; built on a local `nest-locks-917`)`, based on `claude/pull-latest-main-1cmo56` (PR #936; built on a local `nested-917`) (422dbd9). Gaps 1 and 2 above
 are closed in the file; gap 6 (no desktop verdict) is not, and does not move
 here either (hard rule 4, steer #913: no probe family goes to the owner).
 
@@ -396,7 +396,25 @@ parameter) associated to the child's instance parameter. On **2026 and
    (symbol-side cell), Center (Elevation) on our children.
 5. First-pass gaps 3, 4, 5 and 7 stand as written above.
 
-## BRANCH STATE (nest-locks-917)
+## Review of #936 (head `0526ec8`, 🟡; fixed in this PR)
+
+- **Duplicate family names.** A second family with a name the host already holds
+  (nesting "Hex Nut" twice) is now refused before writing. Revit requires family names
+  in one document to be unique. Before the fix, the file validated with 0 errors and
+  `[]` anyway.
+- **One refusal type.** Every failure is now a `NestError`: a `None` child, a child
+  callable that raises, something that is not a FamilyProduct, a loader step outside
+  `LoaderError`. A crash inside the read-back removes the written output, and the
+  pre-write steps touch no file.
+- **Release check for a prebuilt child.** A prebuilt child's build release is not
+  checked against the host's (a FamilyProduct does not record it), and the result now
+  carries a note saying so. A child passed as a callable is built inside the host's
+  release context.
+- **Still open, unchanged.** #917 DONE 1 is not met: the leading blank type row
+  remains (gap 4). The project loader has the same duplicate-name gap; that is #928's
+  territory.
+
+## BRANCH STATE (claude/pull-latest-main-1cmo56 (PR #936; built on a local `nest-locks-917`))
 
 **Files written**
 - `src/rvt/famgen/nest.py`: locks, association, `host_reference_planes`.

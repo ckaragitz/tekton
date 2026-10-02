@@ -232,3 +232,55 @@ def test_a_child_whose_ids_collide_with_the_host_is_refused(tmp):
         N.nest_family(host, out, _washer(1000), [(0, 0, 0)])
     assert not os.path.exists(out)
 
+
+
+# ---- #936 review ----------------------------------------------------------
+
+def _sha(path):
+    import hashlib
+    return hashlib.sha256(open(path, "rb").read()).hexdigest()
+
+
+def test_a_second_family_of_the_same_name_is_refused_before_writing(tmp):
+    """Revit requires family names in one document to be unique."""
+    host = os.path.join(tmp, "h.rfa")
+    _host(host)
+    a = N.nest_family(host, os.path.join(tmp, "a.rfa"), _nut, [(0.5, 0.0, 0.2)])
+    before = _sha(a.out_path)
+    out = os.path.join(tmp, "b.rfa")
+    with pytest.raises(N.NestError, match="already holds a family named 'Hex Nut'"):
+        N.nest_family(a.out_path, out, _nut, [(-0.5, 0.0, 0.2)])
+    assert not os.path.exists(out) and _sha(a.out_path) == before
+
+
+@pytest.mark.parametrize("child", [None, lambda sid: 1 / 0, lambda sid: "not a family"],
+                         ids=["none", "raises", "not-a-product"])
+def test_every_failure_is_a_nest_error_and_leaves_no_file(child, tmp):
+    host, out = os.path.join(tmp, "h.rfa"), os.path.join(tmp, "o.rfa")
+    _host(host)
+    before = _sha(host)
+    with pytest.raises(N.NestError):
+        N.nest_family(host, out, child, [(0, 0, 0.2)])
+    assert not os.path.exists(out) and not os.path.exists(out + ".pass1.tmp")
+    assert _sha(host) == before
+
+
+def test_a_crash_while_verifying_removes_the_written_output(tmp, monkeypatch):
+    host, out = os.path.join(tmp, "h.rfa"), os.path.join(tmp, "o.rfa")
+    _host(host)
+
+    def boom(*a, **k):
+        raise KeyError("decoder crashed")
+    monkeypatch.setattr(N, "verify_nested", boom)
+    with pytest.raises(N.NestError, match="verifying the written host failed"):
+        N.nest_family(host, out, _washer, [(0.5, 0.0, 0.2)])
+    assert not os.path.exists(out) and not os.path.exists(out + ".pass1.tmp")
+
+
+def test_a_prebuilt_child_carries_a_note_that_its_release_was_not_checked(tmp):
+    host = os.path.join(tmp, "h.rfa")
+    _host(host)
+    r = N.nest_family(host, os.path.join(tmp, "a.rfa"), _washer(5000), [(0.5, 0.0, 0.2)])
+    assert any("its build release was not checked" in n for n in r.notes)
+    r2 = N.nest_family(host, os.path.join(tmp, "b.rfa"), _washer, [(0.5, 0.0, 0.2)])
+    assert not any("build release was not checked" in n for n in r2.notes)

@@ -804,8 +804,17 @@ def nest_family(host_rfa: str, out_rfa: str, child: ProductArg,
     lks = _locks(locks)
     from ..frontdoor.release_ctx import host_release_context
     with host_release_context(host_rfa):
-        return _nest(host_rfa, out_rfa, child, pts, validate=validate, locks=lks,
-                     associate=associate)
+        try:
+            return _nest(host_rfa, out_rfa, child, pts, validate=validate, locks=lks,
+                         associate=associate)
+        except NestError:
+            raise
+        except Exception as exc:                               # noqa: BLE001
+            # one refusal type for every failure (#936 review).  Nothing to
+            # remove: the write and the read-back each discard their own
+            # output, and every step before the write touches no file (a
+            # pre-existing out_rfa is left as it was)
+            raise NestError(f"nesting failed: {type(exc).__name__}: {exc}") from exc
 
 
 def _nest(host_rfa: str, out_rfa: str, child: ProductArg,
@@ -814,7 +823,11 @@ def _nest(host_rfa: str, out_rfa: str, child: ProductArg,
           ) -> NestResult:
     host = L.survey_host(host_rfa, category=None)
     frame = _host_frame(host)
+    prebuilt = not callable(child)
     product = child(int(host.watermark) + 1) if callable(child) else child
+    if not hasattr(product, "doc"):
+        raise NestError(f"child must be a FamilyProduct or a callable returning one, "
+                        f"not {type(product).__name__}")
     try:
         L._require_ids_above(product, host.watermark)
     except L.LoaderError as exc:
@@ -834,6 +847,12 @@ def _nest(host_rfa: str, out_rfa: str, child: ProductArg,
         raise NestError(f"loading the nested document failed: {exc}") from exc
     _family_host_flavour(authored)
     plan = authored.plan
+    # Revit requires family names in one document to be unique (#936 review)
+    taken = {str((host.doc.value(fid) or {}).get("m_name") or "")
+             for fid in host.doc.ids_of_class("Family")}
+    if plan.family_name in taken:
+        raise NestError(f"the host already holds a family named {plan.family_name!r}; "
+                        "family names in one document must be unique")
     lock_plan = _plan_locks(locks, pts, product, host)
     lock_ctx = _host_lock_context(host, frame) if lock_plan else {}
     assoc = _plan_associations(associate, product, plan, host, frame)
@@ -864,10 +883,15 @@ def _nest(host_rfa: str, out_rfa: str, child: ProductArg,
         raise NestError(f"writing the host failed: {type(exc).__name__}: {exc}") from exc
     lock_ids = [e.elem_id for e in lock_els]
     ids = [e.elem_id for e in inst if e.elem_id not in set(lock_ids)]
-    ver = verify_nested(out_rfa, nested_family_id=plan.host_family_id,
-                        symbol_id=plan.symbol_id, instance_ids=ids, guid=plan.guid,
-                        validate=validate, lock_ids=lock_ids,
-                        associations=[(a.host_param, a.twin) for a in assoc])
+    try:
+        ver = verify_nested(out_rfa, nested_family_id=plan.host_family_id,
+                            symbol_id=plan.symbol_id, instance_ids=ids, guid=plan.guid,
+                            validate=validate, lock_ids=lock_ids,
+                            associations=[(a.host_param, a.twin) for a in assoc])
+    except Exception as exc:                                   # noqa: BLE001
+        _discard(out_rfa)                  # a reader that crashes never leaves output
+        raise NestError(f"verifying the written host failed: "
+                        f"{type(exc).__name__}: {exc}") from exc
     if not ver["ok"]:
         _discard(out_rfa)
         raise NestError(f"written host failed verification: {ver['problems'][:6]}")
@@ -886,7 +910,10 @@ def _nest(host_rfa: str, out_rfa: str, child: ProductArg,
             "associated to the nested family's",
             "validator green and an empty constraint-law report are facts about "
             "the file; no desktop-Revit verdict exists for nested families "
-            "(hard rule 4)"])
+            "(hard rule 4)"] + ([
+            "the child was passed prebuilt, so its build release was not checked "
+            "against the host's; pass a callable to build it under the host's "
+            "release"] if prebuilt else []))
 
 
 def _host_identity(host_rfa: str) -> Dict[str, Any]:
