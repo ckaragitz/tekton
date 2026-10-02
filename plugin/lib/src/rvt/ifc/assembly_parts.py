@@ -172,7 +172,9 @@ EXACT_REL_TOL = 1e-6
 #: empty-solver control CRASHED, which is what makes it the mechanism rather
 #: than a coincidence.  So round profiles are authored as real cylinders
 #: again; this switch stays as the documented way back if an arc regression
-#: ever appears.
+#: ever appears.  NOTE (#980): that verdict is for the TWO-HALF arc form; plan
+#: circles are one full arc since #916 (the born form, no desktop verdict yet;
+#: ``geometry.PLAN_CIRCLE_FULL_ARC = False`` restores the verified form).
 CYLINDER_AS_POLYGON = False
 
 

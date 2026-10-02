@@ -241,7 +241,7 @@ PLAN_CIRCLES = {
 
 
 @pytest.mark.parametrize("key", sorted(PLAN_CIRCLES))
-def test_the_plan_circles_keep_two_half_arcs_and_their_bytes(key, monkeypatch):
+def test_the_rotated_authoring_circle_keeps_two_half_arcs_and_its_bytes(key, monkeypatch):
     """The rotated-B-rep authoring circle never reaches the full-arc form (the bytes
     with it disabled equal the bytes without), and still draws two half arcs."""
     free = _sha(PLAN_CIRCLES[key]())

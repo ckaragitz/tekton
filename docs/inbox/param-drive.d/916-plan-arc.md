@@ -134,18 +134,18 @@ whole delta.
 - **No desktop verdict** for a full plan arc, its label, its one centre lock, or anything
   else here (hard rule 4). The two-half form HAS a desktop load verdict (#589, Revit 2026);
   that verdict does not carry over. `PLAN_CIRCLE_FULL_ARC = False` is the way back.
-- **The downlight's diameter note is now wrong** and is not fixed here: `src/rvt/ifc/` is
-  another PR's territory this round. *(Applied when shipped: the note now follows
-  `half_arc`.)* `famfrom_ifc._wire_downlight_drives` (around line
-  789) still appended "… placed on a half arc of this engine's two-half circle". Patch for
-  whoever holds that file:
+- **The downlight's diameter note** (`famfrom_ifc._wire_downlight_drives`) said the label
+  sat "on a half arc of this engine's two-half circle". `src/rvt/ifc/` was another PR's
+  territory while this branch was built (#978); that PR merged before this one shipped,
+  so the tech lead applied the fix in the shipped PR (#980) and pinned it in
+  `test_plan_arc_916`. The applied patch:
 
   ```diff
   -            f"on {dia['dims']} circle(s), the Revit-born type-9 diameter dimension placed "
   -            "on a half arc of this engine's two-half circle")
   +            f"on {dia['dims']} circle(s), the Revit-born type-9 diameter dimension"
   +            + (" placed on a half arc of this engine's two-half circle"
-  +               if dia.get("half_arc") else ""))
+  +               if dia.get("half_arc") else " on the circle's one full arc (#916)"))
   ```
 - **Centre locks to the origin planes** are still not authored for plan circles that are
   not followers (born: 41 centre `Alignment`s over 235 circles).
@@ -164,7 +164,14 @@ whole delta.
   `tests/ci_shard.d/916-plan-arc.txt`; re-pins in `test_run_arc_916.py`,
   `test_diameter_916.py`, `test_drive_follow_904.py`, `test_ifc_assembly.py`,
   `test_famgen_geometry.py`, `test_cylinder_tessellation_530.py`.
-- This fragment. Not touched: `src/rvt/ifc/**`, `constraint_law.py`, `trapeze_nested.py`.
+- `src/rvt/ifc/famfrom_ifc.py` (+ mirror): the downlight note, applied when shipped (above).
+- This fragment. Not touched: the rest of `src/rvt/ifc/**`, `constraint_law.py`,
+  `trapeze_nested.py`.
+- *Follow-up (#980 review):* docstrings that called every arc path desktop-verified
+  (`archetypes.py`, `revolve.py`, `ifc/assembly_parts.py`) now say the #589 verdict is
+  for the two-half form; the `test_famgen_geometry` re-pin is a literal `+ 4`; the
+  rotated-circle test in `test_run_arc_916` is renamed. The downlight's matrix evidence
+  lagging its bytes is #981.
 
 **Gates** (`RVT_SKIP_LARGE=1`)
 - test_plan_arc_916, test_run_arc_916, test_diameter_916, test_drives_rest_913,
