@@ -15,9 +15,10 @@ the whole chain (which planes, which locks, which followers, which formula
 children); re-solving the graph in place would be a second, unverified copy
 of that knowledge.  So an edit of a generator INPUT rebuilds the family from
 its generator with the new value -- byte-identical to building it at that
-value directly under the input's own family and type name (the name is KEPT,
-so the edited family reloads over the original; a dimension-derived name that
-now describes the old size is said, never silently changed).  A generated family does not carry its spec, so the spec is
+value directly under the input's own family and type name (the names are
+KEPT, never changed silently; a dimension-derived name that now describes the
+old size is said, and which FILE name reloads over the placed family -- Revit
+names a loaded family by its file name -- is said with it, #994).  A generated family does not carry its spec, so the spec is
 RECOVERED from the file (its parameter values, its name, its start id) and
 the recovery is PROVEN before anything is rebuilt: the generator, run on the
 recovered spec, must reproduce the input file BYTE FOR BYTE (sha256, written
@@ -643,10 +644,12 @@ def rebuild(plan: RebuildPlan, out_path: str) -> Dict[str, Any]:
     for cap, (k, v) in plan.changes.items():
         new[k] = v
         edited.append(k)
-    # the input's family + type names are KEPT (a renamed family would load as
-    # a SECOND family beside the original on reload); when the input carried
-    # the generator's own dimension-derived name, the kept name now describes
-    # the old size -- said in ``name_note``, never changed silently
+    # the input's family title + type names are KEPT (never changed silently);
+    # when the input carried the generator's own dimension-derived name, the
+    # kept name now describes the old size -- reported as ``name_stale``, and
+    # the route (modify_family._name_note) words the note for the edit's own
+    # renames and output file name (#994: Revit names a LOADED family by its
+    # FILE name, so whether it replaces the placed family is the file's call)
     os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
     with _release_context(rec.release):
         prod, drop, refusals = _try_build(rec, new, rec.name, edited)
@@ -655,17 +658,14 @@ def rebuild(plan: RebuildPlan, out_path: str) -> Dict[str, Any]:
                                + "; ".join(refusals[:3]))
         _write(prod, out_path)
     auto = GENERATORS[rec.generator]["auto_name"]
-    name_note = ""
+    name_stale: Optional[Dict[str, str]] = None
     try:
         if auto(rec, rec.values) == rec.name:
             fresh = auto(rec, new, drop)
             if fresh != rec.name:
-                name_note = (f"the name {rec.name!r} was generated from the old dimensions "
-                             f"(the generator would name this size {fresh!r}); it is kept so "
-                             "the edited family reloads over the original -- 'rename the "
-                             "family to ...' to change it")
+                name_stale = {"old": rec.name, "fresh": fresh}
     except Exception:                                        # noqa: BLE001 -- a note only
-        name_note = ""
+        name_stale = None
     rederived = list(drop)
     return {
         "route": "regenerated",
@@ -679,7 +679,7 @@ def rebuild(plan: RebuildPlan, out_path: str) -> Dict[str, Any]:
         "re_derived_by_generator": rederived,
         "name": getattr(prod, "name", None) or rec.name,
         "name_rule": "the input's family and type names are kept",
-        **({"name_note": name_note} if name_note else {}),
+        **({"name_stale": name_stale} if name_stale else {}),
         "proof": "the generator on the recovered spec reproduced the input "
                  "byte for byte (sha256, written under the input's file name); "
                  "the output is byte-identical to a direct build at the new "

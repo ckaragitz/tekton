@@ -1,0 +1,2 @@
+# family-edit leftovers (#994): scoped PartAtom renames, true name notes, the 'to'-in-a-value grammar, overridden ops; fresh-clone safe
+tests/test_edit_leftovers_994.py
