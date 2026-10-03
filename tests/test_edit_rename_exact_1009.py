@@ -62,3 +62,27 @@ def test_a_caption_containing_of_type_is_a_parameter(clause, want):
 def test_a_wrong_type_after_such_a_caption_is_still_refused():
     with pytest.raises(MF.FamilyEditError, match="'of type T1' is not a type"):
         MF._match_set(_Inv, "set Size of Type of type T1 = 5")
+
+
+class _Both:
+    """The #1010 review's family: a caption that is a prefix of another."""
+    params = [{"caption": c} for c in ("Size of Type", "Size", "Finish")]
+    type_names = ["Big", "Big One", "T2"]
+    notes: list = []
+
+
+@pytest.mark.parametrize("clause, want", [
+    # 'of type Big One' after the SHORTER caption names a type: resolve it whole
+    ("set Size of type Big One = 5", ("Size", "5", "Big One")),
+    ("set Size of type Big = 5", ("Size", "5", "Big")),
+    ("set Size of type T2 to 5", ("Size", "5", "T2")),
+    # otherwise the longer caption is the parameter
+    ("set Size of Type to 5", ("Size of Type", "5", None)),
+    ("set Size of Type 5", ("Size of Type", "5", None)),     # never Size = "of Type 5"
+    ("set Size of Type of type Big One = 5", ("Size of Type", "5", "Big One")),
+    ("set Size 5", ("Size", "5", None)),
+])
+def test_a_caption_prefix_of_another_reads_the_type_whole(clause, want):
+    m = MF._match_set(_Both, clause)
+    assert (m.group("cap"), m.group("val"),
+            m.group("typeq") or m.group("typeq2") or m.group("type")) == want
