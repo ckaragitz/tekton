@@ -127,8 +127,47 @@ def test_type_names_with_colons_read_whole(clause, want):
     "set Width of type T1: 3",           # a colon after a TYPE is not a delimiter
     "set Note:",                         # never a blank write
     "set Note: ",
-    "set Note: Installs = x",            # a mistyped longer caption
 ])
 def test_type_and_caption_colon_misreads_are_refused(clause):
     with pytest.raises(MF.FamilyEditError):
         MF._match_set(_TC, clause)
+
+
+@pytest.mark.parametrize("caps, clause, want", [
+    # PR #1016 third review: a LONGER caption the user typed exactly, with the
+    # value glued on, is never rewritten into the shorter caption's '=' reading
+    (("Mark", "Mark: Ref"), 'set Mark: Ref"x"', ("Mark: Ref", '"x"')),
+    (("Note", "Note: A"), 'set Note: A"x"', ("Note: A", '"x"')),
+    (("Note", "Note:"), 'set Note:"x"', ("Note:", '"x"')),
+    (("Note", "Note:"), "set Note: :", ("Note:", ":")),
+    (("Mark", "Mark: Ref"), "set Mark: Ref := 5", ("Mark: Ref", ":= 5")),
+    (("Mark", "Mark: Ref"), "set Mark: 5", ("Mark", "5")),
+])
+def test_a_longer_colon_caption_typed_exactly_wins(caps, clause, want):
+    inv = type("I", (), {"params": [{"caption": c} for c in caps], "type_names": ["T1"]})
+    m = MF._match_set(inv, clause)
+    assert (m.group("cap"), m.group("val")) == want
+
+
+@pytest.mark.parametrize("caps", [("Note", "Note:"), ("Note", "Note: A"), ("Note",)])
+def test_a_glued_colon_with_no_value_is_always_refused(caps):
+    inv = type("I", (), {"params": [{"caption": c} for c in caps], "type_names": ["T1"]})
+    with pytest.raises(MF.FamilyEditError, match="no value given"):
+        MF._match_set(inv, "set Note:")
+
+
+def test_a_mistyped_longer_colon_caption_is_refused():
+    # with captions Note / Note: Install (and no 'Note:' caption -- where one
+    # exists, 'set Note: Installs = x' names it exactly, as on main)
+    inv = type("I", (), {"params": [{"caption": c} for c in ("Note", "Note: Install")],
+                         "type_names": ["T1"]})
+    with pytest.raises(MF.FamilyEditError, match="no parameter 'Note: Installs'"):
+        MF._match_set(inv, "set Note: Installs = x")
+
+
+@pytest.mark.parametrize("clause", ["set Note to A: to x", "set Note to A:= x", "set Note: = x"])
+def test_a_colon_followed_by_another_delimiter_is_refused(clause):
+    inv = type("I", (), {"params": [{"caption": c} for c in ("Note", "Note to A")],
+                         "type_names": ["T1"]})
+    with pytest.raises(MF.FamilyEditError):
+        MF._match_set(inv, clause)

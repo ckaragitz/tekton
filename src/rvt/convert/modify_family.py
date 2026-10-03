@@ -756,19 +756,25 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
             cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
             if cm is not None and _word_ends(body, cm.end()):                     # any whitespace between the words
                 rest = body[cm.end():].lstrip()
-                if body[cm.end():cm.end() + 1] == ":":
+                glued = body[cm.end():cm.end() + 1] == ":"
+                if glued and re.match(r"(?:to\s|=)", rest[1:].strip() + " ", re.I):
+                    # 'set Note to A: to x' / ':= x': two delimiters -- the value
+                    # cannot be told (#1016 review)
+                    raise FamilyEditError(
+                        "two delimiters after the parameter: set <Parameter> = <value>")
+                if glued and not rest[1:].strip():
+                    # 'set Note:' -- never a blank or ':' write, whichever caption
+                    # ('Note' or 'Note:') was meant (#1016 review)
+                    raise FamilyEditError("no value given: set <Parameter> = <value>")
+                if glued and not caps:
                     # a colon GLUED to the caption: 'Tray Type: 1' == 'Tray Type = 1'
                     # (#1014); after a space it is the value's own ('set Note :)').
+                    # Only when no LONGER caption already matched ('set Note:
+                    # A"x"' with captions Note / Note: A is Note: A, #1016 review).
                     # Type names keep main's grammar (no colon delimiter, #1016).
                     after = rest[1:].strip()
-                    longer_named = bool(caps)       # captions run longest first
-                    if not after:
-                        # 'set Note:' -- never a blank write, whichever caption
-                        # ('Note' or 'Note:') was meant (#1016 review)
-                        raise FamilyEditError(
-                            "no value given: set <Parameter> = <value>")
                     pre = " ".join(cap.split()).lower() + ":"
-                    if not longer_named and "=" in after and any(
+                    if "=" in after and any(
                             " ".join(str(p["caption"]).split()).lower().startswith(pre)
                             and len(" ".join(str(p["caption"]).split())) > len(pre)
                             for p in inv.params):

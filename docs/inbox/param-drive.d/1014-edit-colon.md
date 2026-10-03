@@ -44,6 +44,19 @@ The type-name grammar goes **back to main's**: no colon delimiter after a type. 
 - The 17 suites: **597 passed / 35 skipped**.
 - The reviewer's `hunt10.py` / `hunt11.py`: every clause reads the named caption and type with the user's value, or is refused.
 
+## Third review round (PR #1016, head 8934b78, 🛑)
+The colon→`=` rewrite on a SHORTER caption ran even when a LONGER caption had matched first. Its `=` reading then won in the explicit-delimiter step: `set Note: A"x"` (captions Note / Note: A) wrote Note = `A"x"`, and `set Mark: Ref"x"` wrote into Mark. The review's prefix-colon probe found 93 such writes. Fixed:
+- **The rewrite stands down when a longer caption already matched.**
+- **A glued colon with no value is refused whichever caption matched** (`set Note:` with captions Note / Note: never writes ":").
+- **A glued colon followed by another delimiter is refused** (`set Note to A: to x`, `:= x`).
+- **The mistyped-longer-caption test is narrowed.** With a caption literally named "Note:", `set Note: Installs = x` names it exactly, as on main. The refusal is pinned on a family without one.
+
+**At this head:**
+- The reviewer's `hunt12.py` (6,501 clauses) against main has **no write to a different caption**. Every value change is a dropped glued colon; the rest are 516 writes → refusals and 18 refusals → reads of the exactly named caption.
+- The ASCII sweep and `adv9.py` show no OK→worse.
+- `test_edit_colon_1014` has 50 cases; the 17 suites give **609 passed / 35 skipped**.
+- The pre-existing `;`-inside-quotes split is filed as #1017.
+
 ## Correction to the #1011 record
 `1011-edit-caption-readings.md` reports 554 passed / 35 skipped for #1013's final head. The independent review measured **558 / 35** for those 16 suites at that head (a1fba67). The fragment shipped as it was; this is the correction.
 
