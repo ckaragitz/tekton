@@ -113,3 +113,67 @@ def test_an_unquoted_generated_type_name_targets_that_type(conduit, tmp_path):
     assert rec["validation"]["rfa"]["self_checks_ok"]
     with pytest.raises(MF.FamilyEditError, match="is not a type"):
         MF.parse_family_edit(f"set Finish of type {name.split()[0]} Wrong Words to black", inv)
+
+
+# --------------------------------------------------------------------------- the #1007 review's probes
+
+class _Pfx:
+    params = [{"caption": c} for c in ("Finish", "Width", "Distance to Wall")]
+    type_names = ["Big One", "Big One XL", "T1"]
+
+
+@pytest.mark.parametrize("inv_types, clause, want", [
+    (None, "set Finish of type Big One to black", ("Finish", "black", "Big One")),
+    (None, "set Finish of type Big One XL to black", ("Finish", "black", "Big One XL")),
+    (None, "set Finish of type Big One=black", ("Finish", "black", "Big One")),
+    # bare: 'black' cannot continue 'Big One XL', so 'Big One' is the name
+    (None, "set Finish of type Big One black", ("Finish", "black", "Big One")),
+    (None, "set Finish of type Big One XL black", ("Finish", "black", "Big One XL")),
+    (None, "set Distance to Wall of type Big One XL to 3 ft",
+     ("Distance to Wall", "3 ft", "Big One XL")),
+    # 'of type' inside the VALUE is the user's text, untouched
+    (None, "set Finish = x of type Big One to y", ("Finish", "x of type Big One to y", None)),
+    (None, 'set Finish to "x of type Big One"', ("Finish", '"x of type Big One"', None)),
+    (None, "set Finish to x of type Big One", ("Finish", "x of type Big One", None)),
+    (["Typ 1 ", "Typ 10"], "set Finish of type Typ 10 to black", ("Finish", "black", "Typ 10")),
+    (["Typ 1 ", "Typ 10"], "set Finish of type Typ 1 to black", ("Finish", "black", "Typ 1")),
+    (['He "Q"'], 'set Finish of type He "Q" to black', ("Finish", "black", 'He "Q"')),
+    (["Run to Ground", "Run"], "set Finish of type Run to black", ("Finish", "black", "Run")),
+    (["Default"], "set Finish of type Default black", ("Finish", "black", "Default")),
+    (["Default"], "set Finish of type Default = Extra black", ("Finish", "Extra black", "Default")),
+    (["T1"], "set Width of type T1 3.5", ("Width", "3.5", "T1")),
+])
+def test_a_type_name_is_never_cut_and_a_value_never_rewritten(inv_types, clause, want):
+    inv = type("I", (_Pfx,), {"type_names": inv_types} if inv_types else {})
+    m = MF._match_set(inv, clause)
+    assert (m.group("cap"), m.group("val"),
+            m.group("typeq") or m.group("typeq2") or m.group("type")) == want
+
+
+@pytest.mark.parametrize("inv_types, clause", [
+    (None, "set Finish of type Big One XLL to black"),     # a longer, mistyped name
+    (None, "set Finish of type Big One X"),                # bare: 'X' could start 'XL'
+    (None, "set Finish of type Big One XLL black"),
+    (None, "set Finish of type Big One-x to black"),
+    (None, "set Finish of type Big One. to black"),
+    (None, "set Finish of type Big Two black"),
+    (["Typ 1 ", "Typ 10"], "set Finish of type Typ 1 0 to black"),
+    (["Default"], "set Finish of type Default Extra black"),
+])
+def test_an_ambiguous_type_name_is_refused(inv_types, clause):
+    inv = type("I", (_Pfx,), {"type_names": inv_types} if inv_types else {})
+    with pytest.raises(MF.FamilyEditError, match="is not a type of this family"):
+        MF._match_set(inv, clause)
+
+
+def test_a_longer_mistyped_name_on_a_generated_family_is_refused(conduit):
+    inv = MF.inventory_family(conduit)
+    (name,) = inv.type_names
+    for clause in (f"set Finish of type {name} ZZ to black",
+                   f"set Finish = see of type {name} doc"):
+        if "=" in clause:
+            ops = MF.parse_family_edit(clause, inv)["ops"]        # value text, untouched
+            assert ops[0]["value"] == f"see of type {name} doc"
+        else:
+            with pytest.raises(MF.FamilyEditError, match="is not a type"):
+                MF.parse_family_edit(clause, inv)

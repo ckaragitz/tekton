@@ -587,49 +587,98 @@ def _match_set(inv: FamilyInventory, clause: str):
 _RE_OF_TYPE = re.compile(r"(?:^|\s+)of\s+type\s+(?P<t>\"[^\"]+\"|'[^']+'|[^\"'\s]+)", re.I)
 
 
-_RE_OF_TYPE_BARE = re.compile(r"\s+of\s+type\s+(?![\"'])", re.I)
+_RE_OF_TYPE_AT = re.compile(r"\s+of\s+type\s+", re.I)
 _RE_DELIM_AHEAD = re.compile(r"\s+to\s+|\s*=", re.I)
+#: what may follow a family type name typed unquoted: the end, ``to``, ``=``
+#: (spaces optional before it), or one space and a bare value
+_RE_AFTER_NAME = re.compile(r"(?P<to>\s+to\s+)|(?P<eq>\s*=\s*)|(?P<sp>\s+)|(?P<end>$)", re.I)
+
+
+def _refuse_type(named: str, types: Sequence[str]):
+    raise FamilyEditError(
+        f"'of type {named}' is not a type of this family "
+        f"({', '.join(map(repr, types)) or 'no types'}): name a type exactly, "
+        "quoted when it has spaces -- e.g. set <Parameter> of type \"<type name>\" = <value>")
 
 
 def _quote_type_name(inv: FamilyInventory, clause: str) -> str:
-    """``clause`` with its first UNQUOTED ``of type NAME`` quoted when NAME is
-    one of the family's own type names (the longest that matches at a word
-    boundary, case-insensitive) -- #1006.  An unquoted name that is not a type
-    of this family and runs over more than one word before the ``to`` / ``=``
-    delimiter is refused by name: the grammar would otherwise take its first
-    word as the type and write the rest into the value.  Without a delimiter
-    (``of type NAME VALUE``) the first word must be EXACTLY one of the
-    family's types, else the clause is refused too.  A single-token name
-    followed by the delimiter (``of type T1 to 5``) is left to the existing
-    grammar, which refuses a name that matches no type."""
-    m = _RE_OF_TYPE_BARE.search(clause)
-    if m is None:
+    """``clause`` with an UNQUOTED ``of type NAME`` rewritten to the grammar's
+    quoted form when NAME is one of the family's own type names (#1006), or
+    refused by name -- never a name cut short with the rest written into the
+    value, never a clause folded into the default type's value.
+
+    * Only the ``of type`` that qualifies the PARAMETER counts: the one before
+      any ``=`` or quote, and before any ``to`` unless the words before it are
+      exactly one of the family's captions (``Distance to Wall``).  An ``of
+      type`` inside the value is the user's text and is left alone.
+    * A family type name matches case-insensitively and must be followed by
+      the end, ``to``, ``=`` (``Big One=black`` too), or one space and a bare
+      value.  Longest first.  A name followed by MORE words and then a
+      delimiter (``Big One XLL to black`` -- the user typed a longer name) is
+      not a match; if nothing else fits, the clause is refused.  In the bare
+      form a name followed by a word that begins (or extends) the next word
+      of a longer type of this family (``Big One XL`` / ``Big One XLL``)
+      cannot be told from that longer name, and a bare value of several words that starts with a word
+      (``Default Extra black``) cannot be told from a longer mistyped name,
+      so both are refused (``of type T1 3 ft`` and ``= <value>`` still work).
+    * With no family name matching: an unquoted name of more than one word
+      before ``to`` / ``=``, or (no delimiter) a first word that is not
+      exactly a type, is refused.  A single word before the delimiter
+      (``of type T1 to 5``) is left to the grammar, which refuses a name that
+      matches no type."""
+    m = _RE_OF_TYPE_AT.search(clause)
+    if m is None or clause[m.end():m.end() + 1] in ("\"", "'"):
         return clause
+    head = clause[:m.start()]
+    if "=" in head or '"' in head or "'" in head:
+        return clause                                     # 'of type' inside the value
+    lead = _RE_SET_LEAD.match(head)
+    words_head = head[lead.end():].strip() if lead else head.strip()
+    if re.search(r"\bto\b", words_head, re.I) and not any(
+            str(p["caption"]).strip().lower() == words_head.lower() for p in inv.params):
+        return clause                                     # 'set X to ... of type ...': value text
     tail = clause[m.end():]
     low = tail.lower()
-    types = list(getattr(inv, "type_names", None) or [])
-    for name in sorted({str(n) for n in types if str(n).strip()},
-                       key=len, reverse=True):
-        n = name.strip()
-        if low.startswith(n.lower()) and (len(low) == len(n)
-                                          or not (low[len(n)].isalnum() or low[len(n)] == "_")):
-            return clause[:m.end()] + '"' + n + '"' + tail[len(n):]
+    types = [str(n) for n in (getattr(inv, "type_names", None) or []) if str(n).strip()]
+    names = sorted({n.strip() for n in types}, key=len, reverse=True)
+    for n in names:
+        if not low.startswith(n.lower()):
+            continue
+        after = _RE_AFTER_NAME.match(tail, len(n))
+        if after is None:
+            continue                                      # 'Big One-x', 'Big One.': not this name
+        rest = tail[after.end():]
+        if after.group("sp") is not None:
+            if _RE_DELIM_AHEAD.search(rest):
+                continue                                  # more words, then to/= : a longer name
+            vw = rest.split()
+            nxt = vw[0].lower() if vw else ""
+            # a longer type of this family whose next word the typed word could
+            # be (or start): 'Big One XLL' vs 'Big One XL' -- 'black' vs 'Long' is not
+            longer = [o for o in names if len(o) > len(n) and o.lower().startswith(n.lower() + " ")
+                      and nxt and (o[len(n):].split()[0].lower().startswith(nxt)
+                                   or nxt.startswith(o[len(n):].split()[0].lower()))]
+            if longer or (len(vw) > 1 and vw[0][:1].isalpha()):
+                # a bare value of several words that starts with a word could
+                # be the rest of a longer (mistyped) type name: refuse, '='
+                # says it unambiguously ("of type T1 3 ft" still parses)
+                _refuse_type(n + (" " + vw[0] if vw else "") + " ...", types)
+        if '"' in n and "'" in n:
+            _refuse_type(n, types)
+        q = "'" if '"' in n else '"'
+        sep = (" to " if after.group("to") is not None
+               else " = " if after.group("eq") is not None
+               else " " if after.group("sp") is not None else "")
+        return clause[:m.end()] + q + n + q + sep + rest
     d = _RE_DELIM_AHEAD.search(tail)
-    named = (tail[:d.start()] if d else "").strip()
+    if d is not None:
+        named = tail[:d.start()].strip()
+        if len(named.split()) > 1 or any(c in named for c in ".,;"):
+            _refuse_type(named, types)
+        return clause
     words = tail.split()
-    bare_partial = (d is None and len(words) > 1
-                    and words[0].lower() not in {str(n).strip().lower() for n in types})
-    if bare_partial:
-        named = words[0] + " ..."
-    if (d is not None and len(named.split()) > 1) or bare_partial:
-        # with no to / '=' a name that is not EXACTLY a type cannot be told
-        # from the value after it ("of type Big Two black" would substring-
-        # match 'Big One' and write "Two black" to it) -- #1007 review
-        raise FamilyEditError(
-            f"'of type {named}' is not a type of this family "
-            f"({', '.join(map(repr, types)) or 'no types'}): name a type "
-            "exactly, quoted when it has spaces -- e.g. set <Parameter> of type "
-            "\"<type name>\" = <value>")
+    if len(words) > 1 and words[0].lower() not in {n.lower() for n in names}:
+        _refuse_type(words[0] + " ...", types)
     return clause
 
 

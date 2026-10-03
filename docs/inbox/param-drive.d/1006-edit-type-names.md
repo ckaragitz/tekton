@@ -28,6 +28,31 @@ The issue's DONE (1) said row 1 "targets the named type with value black". Its c
 ## Review round (PR #1007, 2026-10-03)
 I re-probed the bare-value form while the independent review ran, and the same mis-target was still there. `set Finish of type Big Two black` (no `to`/`=`) took type "Big", which substring-matched 'Big One', and wrote "Two black" to it. `set Finish of type Conduit - Straight black` did the same. Without a delimiter, the name's end can't be told from the value's start. So in that form the first word must now be **exactly** one of the family's types (any case), and anything else is refused by name. `set Finish of type Big One black` and `set Width of type t1 3 ft` still work. There are 4 new cases; the six edit suites plus the scaffolding check give 136 passed / 8 skipped.
 
+## Second review round (PR #1007 head 63d4cbc, 🛑): rewritten
+The independent review found that the first `_quote_type_name` **added** mis-targeted writes:
+1. **It stopped at a shorter type name.** The only check after the match was "the next character is not alphanumeric", so `of type Big One XLL to black` (types Big One / Big One XL) wrote "XLL to black" to 'Big One'. `Typ 1 0` did the same with 'Typ 1 '.
+2. **It injected quotes into values.** It quoted an `of type` found anywhere, so `set Finish = x of type Big One to y` stored `x of type "Big One" to y`.
+3. **`Big One=black` landed in the default type.** It rewrote this to `"Big One"=black`, which the grammar does not accept, and the clause fell through to the default type with a garbled value.
+4. **The bare form still cut at the first word.**
+
+The rewrite, `_quote_type_name` plus `_RE_AFTER_NAME` / `_refuse_type`:
+- Only the `of type` that qualifies the **parameter** counts: before any `=` or quote, and before any `to` unless the words before it are exactly a caption ("Distance to Wall"). Text inside the value is never touched.
+- A type name, matched longest first and case-insensitively, must be followed by the end, `to`, `=` (with or without spaces), or one space and a bare value. It is re-emitted in the grammar's quoted form, with single quotes for a name containing `"`.
+- A name followed by more words and then a delimiter is not a match, and with nothing else fitting the clause is refused.
+- In the bare form, the clause is refused when:
+  - the next word could begin or extend the next word of a longer type of this family (`Big One X…` with 'Big One XL'), or
+  - several bare value words start with a letter (`Default Extra black`; `= <value>` says it unambiguously, and `T1 3 ft` still parses).
+- Unknown multi-word names, or names carrying `.`/`,`/`;`, are refused by name.
+
+**Evidence.**
+- `test_edit_type_names_1006` now has 41 cases, adding every probe from the review. Against them, `origin/main`'s parser fails 31, the previous PR head (edcead1) fails 13, and this head passes all 41.
+- The reviewer's own probe script now reports every case as either the user's named type or a refusal. No value is rewritten.
+- The six edit suites plus the scaffolding check: 161 passed / 8 skipped.
+
+**Accepted as they are (same as main).**
+- In a one-type family, a single-word partial name (`of type Big to black`) resolves to that one type by substring. The target is unambiguous.
+- A doubled space inside a name is refused rather than normalised.
+
 ## BRANCH STATE
 - Files:
   - `src/rvt/convert/modify_family.py` and its `plugin/lib` mirror;
