@@ -638,6 +638,10 @@ def _word_ends(text: str, i: int) -> bool:
     return not (cat[0] == "M" or cat == "Cf" or cat == "So")
 
 
+#: a quoted span of a value -- an '=' inside it is the value's own text
+_RE_QUOTED = re.compile(r"\"[^\"]*\"|'[^']*'")
+
+
 def _caption_matches(inv: FamilyInventory, body: str) -> List[Tuple[str, int, bool]]:
     """Every caption ``body`` starts with, as ``(caption, end, whole)``: the
     caption's words match with any whitespace between them, case-insensitively,
@@ -757,9 +761,10 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
             if cm is not None and _word_ends(body, cm.end()):                     # any whitespace between the words
                 rest = body[cm.end():].lstrip()
                 glued = body[cm.end():cm.end() + 1] == ":"
-                if glued and re.match(r"(?:to\s|=)", rest[1:].strip() + " ", re.I):
+                if glued and not caps and re.match(r"(?:to\s|=)", rest[1:].strip() + " ", re.I):
                     # 'set Note to A: to x' / ':= x': two delimiters -- the value
-                    # cannot be told (#1016 review)
+                    # cannot be told (#1016 review); a LONGER caption that
+                    # matched ('Note:' in 'set Note: = x') reads it instead
                     raise FamilyEditError(
                         "two delimiters after the parameter: set <Parameter> = <value>")
                 if glued and not rest[1:].strip():
@@ -774,7 +779,7 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
                     # Type names keep main's grammar (no colon delimiter, #1016).
                     after = rest[1:].strip()
                     pre = " ".join(cap.split()).lower() + ":"
-                    if "=" in after and any(
+                    if "=" in _RE_QUOTED.sub("", after) and any(
                             " ".join(str(p["caption"]).split()).lower().startswith(pre)
                             and len(" ".join(str(p["caption"]).split())) > len(pre)
                             for p in inv.params):
@@ -815,7 +820,8 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
     for cap, rest in caps:
         if _RE_EXPLICIT.match(rest):
             m = _RE_SET.match("set P " + rest)
-            if m is not None and re.match(r"to\s", rest, re.I) and "=" in (m.group("val") or ""):
+            if (m is not None and re.match(r"to\s", rest, re.I)
+                    and "=" in _RE_QUOTED.sub("", m.group("val") or "")):
                 # 'set Distance to Walls = 5' with a caption 'Distance to Wall':
                 # the user named a longer parameter, mistyped -- never Distance
                 # = "Walls = 5" (#1014)

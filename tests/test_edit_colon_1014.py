@@ -171,3 +171,30 @@ def test_a_colon_followed_by_another_delimiter_is_refused(clause):
                          "type_names": ["T1"]})
     with pytest.raises(MF.FamilyEditError):
         MF._match_set(inv, clause)
+
+
+@pytest.mark.parametrize("clause, want", [
+    ("set Note: = x", ("Note:", "x")),
+    ("set Note:= x", ("Note:", "x")),
+    ("set Note: to x", ("Note:", "x")),
+    ('set Note: = "x"', ("Note:", '"x"')),
+])
+def test_a_caption_ending_in_a_colon_takes_its_own_delimiter(clause, want):
+    # fourth review: the shorter caption's two-delimiter refusal never pre-empts
+    # a longer caption the user typed exactly
+    inv = type("I", (), {"params": [{"caption": c} for c in ("Note", "Note:")],
+                         "type_names": ["T1"]})
+    m = MF._match_set(inv, clause)
+    assert (m.group("cap"), m.group("val")) == want
+
+
+@pytest.mark.parametrize("clause, want", [
+    ('set Note to "A = 1"', ("Note", '"A = 1"')),     # an '=' inside quotes is the value's own
+    ("set Note to 'k=v'", ("Note", "'k=v'")),
+    ('set Note: "a = b"', ("Note", '"a = b"')),
+])
+def test_a_quoted_equals_sign_is_never_read_as_a_mistyped_caption(clause, want):
+    inv = type("I", (), {"params": [{"caption": c} for c in ("Note", "Note to A", "Note: A")],
+                         "type_names": ["T1"]})
+    m = MF._match_set(inv, clause)
+    assert (m.group("cap"), m.group("val")) == want

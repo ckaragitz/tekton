@@ -52,10 +52,18 @@ The colon→`=` rewrite on a SHORTER caption ran even when a LONGER caption had 
 - **The mistyped-longer-caption test is narrowed.** With a caption literally named "Note:", `set Note: Installs = x` names it exactly, as on main. The refusal is pinned on a family without one.
 
 **At this head:**
-- The reviewer's `hunt12.py` (6,501 clauses) against main has **no write to a different caption**. Every value change is a dropped glued colon; the rest are 516 writes → refusals and 18 refusals → reads of the exactly named caption.
+- The reviewer's `hunt12.py` (6,501 clauses) against main had no write to a different caption, but its 516 writes → refusals included 136 well-formed clauses for a caption named `Note:` (corrected in the fourth round below).
 - The ASCII sweep and `adv9.py` show no OK→worse.
 - `test_edit_colon_1014` has 50 cases; the 17 suites give **609 passed / 35 skipped**.
 - The pre-existing `;`-inside-quotes split is filed as #1017.
+
+## Fourth review round (PR #1016, head b9c8b21, 🛑)
+- **Blocking.** The new two-delimiter refusal ran even when a LONGER caption had matched. With a caption literally named "Note:", `set Note: = x` / `set Note: to x` were refused, where main and 8934b78 wrote Note: = "x" (136 OK→REFUSE in hunt12). It now sits under the same "no longer caption matched" guard as the colon rewrite. The no-value refusal stays unconditional.
+- **Also fixed.** An `=` inside a quoted value no longer counts as a mistyped longer caption: `set Note to "A = 1"` stores `"A = 1"` even with a "Note to A" caption.
+- **Re-measured.** hunt12 against main: no write to a different caption; 851 values change (all dropped glued colons); 18 refusals → reads.
+  - Of the remaining writes → refusals, every one main wrote *cleanly* (`set <cap> to|= <value>`) is the intended mistyped-longer-caption refusal (`set Note to AB = 1` with a "Note to A" caption).
+  - The cases in the first bullet read again.
+- `test_edit_colon_1014` has 57 cases; the 17 suites give **616 passed / 35 skipped**.
 
 ## Correction to the #1011 record
 `1011-edit-caption-readings.md` reports 554 passed / 35 skipped for #1013's final head. The independent review measured **558 / 35** for those 16 suites at that head (a1fba67). The fragment shipped as it was; this is the correction.
