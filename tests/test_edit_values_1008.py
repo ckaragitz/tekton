@@ -37,6 +37,12 @@ _TEXT = {"caption": "Finish", "param_id": 1, "carrier": "m_str", "spec": "", "de
     ('"to"', "to"),
     ('"mixed\'', '"mixed\''),
     ("plain", "plain"),
+    # two quoted pieces are not ONE pair around the value (#1012 review)
+    ('"a" and "b"', '"a" and "b"'),
+    ("'x' or 'y'", "'x' or 'y'"),
+    ("'it''s'", "'it''s'"),
+    ('" x "', " x "),
+    ('""', ""),
 ])
 def test_a_text_value_is_unquoted_only_when_wholly_wrapped(raw, want):
     assert MF._convert_value(_TEXT, raw)[0] == want
@@ -74,3 +80,24 @@ def test_a_quoted_word_reads_back_as_typed(conduit, tmp_path):
     rec = MF.modify_family(conduit, "set Finish = 'hot dip' galvanized", str(tmp_path))
     assert MF.inventory_family(rec["files"]["rfa"]).param_by_caption("Finish")["current"] \
         == "'hot dip' galvanized"
+
+
+@pytest.mark.parametrize("clause, val", [
+    ("set Finish to to", "to"),           # the value IS the word 'to'
+    ("set Finish = to", "to"),
+    ("set Finish = =", "="),
+])
+def test_a_delimiter_word_given_as_the_value_is_stored(clause, val):
+    (op,) = MF.parse_family_edit(clause, _Inv())["ops"]
+    assert op["value"] == val
+
+
+def test_an_unknown_parameter_is_named_before_a_missing_value():
+    with pytest.raises(MF.FamilyEditError, match="no parameter 'Bogus'"):
+        MF.parse_family_edit("set Bogus to", _Inv())
+
+
+def test_two_quoted_pieces_read_back_as_typed(conduit, tmp_path):
+    rec = MF.modify_family(conduit, 'set Finish = "a" and "b"', str(tmp_path))
+    assert MF.inventory_family(rec["files"]["rfa"]).param_by_caption("Finish")["current"] \
+        == '"a" and "b"'
