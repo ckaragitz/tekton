@@ -1241,7 +1241,9 @@ _CELL_LIST: List[Cell] = [
           "worked:experiments/convert/edit-family/manifest.json",
           "test:tests/test_convert_combo.py", "test:tests/test_convert.py",
           "test:tests/test_router.py", "record:docs/inbox/convert-b.md",
-          "record:docs/inbox/convert-a.md"),
+          "record:docs/inbox/convert-a.md",
+          "test:tests/test_edit_drives_909.py",
+          "record:docs/inbox/param-drive.d/909-edit-drives.md"),
          ("the prompt is the FAMILY EDIT of an EXISTING .rfa: text ('rename "
           "the type to 225A MCB 42ckt; set BusRating 225; set PanelName "
           "DP-7; set Width of type \"X\" 600 mm'), inline JSON ops or an "
@@ -1257,10 +1259,28 @@ _CELL_LIST: List[Cell] = [
           "PARTIAL on FOREIGN Revit-authored .rfa files: inventory + parse "
           "work, the COMMIT is blocked by the ElemTable GraveyardRec codec "
           "gap (rvt.stream_encoders) -- refused by name, nothing corrupted",
-          "a DIMENSION edit changes the type-table value only (generated "
-          "families carry no constraint graph): the geometry-true path is "
-          "regeneration from the facts (prompt->rfa) -- recorded on every "
-          "length edit",
+          "a DIMENSION edit of a family OUR generators wrote is GEOMETRY-TRUE "
+          "(#909): generated families carry driving constraint graphs -- "
+          "archetypes (rvt.famgen.archetypes drives/heights/diameters/runs): "
+          "strut trapeze Strut Length, Rod Inset (rods/washers/nuts follow), "
+          "Tier Spacing, Strut Height, Strut Thickness, Washer Thickness, Rod "
+          "Above Top Tier, Rod Below Bottom Nut, Rod Diameter; cable tray Tray "
+          "Width, Length; strut channel Section Width, Length; wireway Wireway "
+          "Width, Length; junction box Box Width, Box Height; lighting control "
+          "panel Cabinet Width, Cabinet Height, Sheet Thickness; conduit Outside "
+          "Diameter, Length; the #917 hex nut Nut Across Flats (through the "
+          "formula Nut Half Across Flats) and Nut Height, the washer Washer "
+          "Size / Thickness; catalog equipment (panelboard, transformer, "
+          "luminaire, device, fan coil, fan-powered box) Width / Depth / Height "
+          "(luminaire Length / Width / Height); IFC pset drives (#714) -- and an "
+          "edit of a GENERATOR INPUT is applied by REBUILDING the family from "
+          "its generator, after the generator reproduced the input byte for "
+          "byte from the spec recovered from the file (rvt.convert.family_regen; "
+          "byte-identical to building at the new value). Not rebuilt -- catalog "
+          "equipment, IFC-built families, a family edited since generation, "
+          "foreign families, 2025/2024 files: the value changes and an explicit "
+          "caveat names every dimension left at the old value. No desktop "
+          "verdict exists for an edited or rebuilt family (hard rule 4)",
           "the edited .rfa is validator-gated, not viewer-certified (no .rfa "
           "of ours has been through the family editor's audit yet)",
           _PROOF_ONLY),

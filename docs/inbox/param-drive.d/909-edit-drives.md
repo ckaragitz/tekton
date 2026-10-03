@@ -137,7 +137,9 @@ with 0 errors; re-read proven; sha256 equal to the direct build.
 A rebuild costs one extra build + write, the reproduction proof (about 1–2 s on
 a trapeze). A family no generator matches costs only a caption comparison.
 
-## The matrix change (patch; `src/rvt/frontdoor/matrix.py` and `docs/product/PERMUTATION-MATRIX.md` are held by another PR)
+## The matrix change (patch; `src/rvt/frontdoor/matrix.py` and `docs/product/PERMUTATION-MATRIX.md` were held by another PR)
+
+*Applied when shipped (PR after #989 / #991 merged): the cell caveat and evidence in `matrix.py` as below; the doc row as one table-cell sentence carrying the same content.*
 
 **`src/rvt/frontdoor/matrix.py`**, the `prompt + rfa -> rfa` (`rfa_modify`) cell.
 Replace the caveat string
