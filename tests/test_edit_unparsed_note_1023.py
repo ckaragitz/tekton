@@ -155,6 +155,10 @@ def test_an_abbreviated_caption_inside_quotes_is_a_further_edit(real_invs, value
     (("Mark", "Panel No."), "set Mark = 'see note; set No three'"),
     (("Mark", "Breaker AT"), "set Mark = 'see note; set AT MCCB'"),
     (("Mark", "Lamp ON"), "set Mark = 'see note; set ON xyz'"),
+    # review 6: an all-caps word glued to a CamelCase caption
+    (("Mark", "ONDelay", "OFFDelay"), "set Mark = 'relay; set ON 5 s'"),
+    (("Mark", "ONDelay", "OFFDelay"), "set Mark = 'relay; set OFF 2 s'"),
+    (("Mark", "INRated"), "set Mark = 'relay; set IN 20 A'"),
 ])
 def test_a_short_key_naming_a_parameter_inside_quotes_is_a_further_edit(caps, text):
     ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",

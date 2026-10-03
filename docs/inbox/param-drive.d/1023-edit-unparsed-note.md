@@ -10,7 +10,7 @@
   3. **Correction to the #1021 record.** It says `test_edit_quoted_split_1017.py` was "otherwise unchanged". Its `_inv()` also gained the captions `Finish` and `Length`, which changes which fragments read.
 
 ## Evidence
-- `tests/test_edit_unparsed_note_1023.py`, 43 cases:
+- `tests/test_edit_unparsed_note_1023.py`, 46 cases:
   - three "not applied" notes;
   - one fully read edit with no note;
   - three near-miss refusals;
@@ -109,6 +109,13 @@
   - **Fresh seed 6067:** family fuzz 0 silent, 17 now refused; real conduit 0 silent, 7 now refused.
   - **`r20/fp.py`:** text → edit 29, edit → text 60. `set rating later` is refused on 2 more families, where Rating ends the shared captions (the safe side).
   - **Suites:** **958 passed / 41 skipped**.
+
+## Review round 6 (PR #1024, head 7632307, 🛑)
+- **Blocking.** `_split_camel` split only lower → Upper, never an acronym from the word after it. So "ONDelay" stayed one word, and `set ON 5 s` inside a quoted value was swallowed, although the old split applies it to ONDelay and main refuses. The same held for "OFFDelay" and "INRated". The reviewer enumerated every function word in every caption position: 186 `camelfirst` cases, all of this acronym form.
+- **Fixed.** `_split_camel` also splits Upper → Upper-lower, so "ONDelay" becomes "ON Delay". Three test rows are added.
+- **Re-measured with the reviewer's enumerator** (`r25/probe/en.py`, 12,280 old-applied cases): `camelfirst` drops to 0. What remains is inner words (`Rating AT Value` in any separator form) and lowercase pieces of words (`Ratingat`), both text by design.
+- **Unchanged:** `r20/fp.py` (29 / 60); r15 fuzz seed 7741 and fuzzL seed 8123 give 0 silent and 0 newly accepted, with 11 and 8 now refused.
+- **Suites:** **961 passed / 41 skipped**.
 
 ## BRANCH STATE
 - Files:

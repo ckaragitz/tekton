@@ -508,7 +508,9 @@ def _near_caption(inv: FamilyInventory, cap: str) -> bool:
 
 
 def _split_camel(text: str) -> str:
-    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", text)
+    """CamelCase into words, an acronym kept apart from the word after it:
+    "PanelName" -> "Panel Name", "ONDelay" -> "ON Delay" (PR #1024 review 6)."""
+    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ", text)
 
 
 _RE_SET_DELIM_WORD = re.compile(r"set\s.*?(?:=|:|\sto\s)", re.I | re.S)
