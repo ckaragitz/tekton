@@ -67,6 +67,30 @@ def test_a_quoted_value_running_across_a_further_edit_is_refused(text):
         MF._split_clauses(text)
 
 
+def _inv():
+    ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",
+           "spec": "autodesk.spec:string-2.0.0", "carrier": "m_str", "current": "", "formula": False}
+          for i, c in enumerate(("Width", "Note", "Mark"))]
+    return MF.FamilyInventory(path="x.rfa", family_id=1, family_name="F", type_names=["T1"], params=ps)
+
+
+@pytest.mark.parametrize("text", [
+    # PR #1018 second review: kept whole, then unreadable -> refused, never dropped
+    'set Note = "p\nq"\nset Width = 2',
+    'set Note = "p\nq" then set Mark = 2',
+    'set Mark = 2; set Note = "line one\r\nline two"',
+    "rename the type to 'Run 2\"; long'; set Mark = 2",
+])
+def test_a_kept_whole_clause_the_grammar_cannot_read_is_refused(text):
+    with pytest.raises(MF.FamilyEditError, match="cannot read"):
+        MF.parse_family_edit(text, _inv())
+
+
+def test_a_kept_whole_clause_that_reads_gives_every_op():
+    ops = MF.parse_family_edit('set Note = "a; b then c"; set Mark = 2', _inv())["ops"]
+    assert [(o["caption"], o["value"]) for o in ops] == [("Note", "a; b then c"), ("Mark", "2")]
+
+
 @pytest.fixture(scope="module")
 def conduit():
     if not HAVE_SCHEMA:
