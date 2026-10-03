@@ -150,6 +150,11 @@ def test_an_abbreviated_caption_inside_quotes_is_a_further_edit(real_invs, value
     (("Mark", "On"), "set Mark = 'x; set On 3 ft'"),
     (("Mark", "No. of Poles"), "set Mark = 'x; set no 3 poles'"),
     (("Mark", "Up Light"), "set Mark = 'x; set Up 3 ft'"),
+    # review 5: a function word that ends the caption
+    (("Mark", "Circuit No"), "set Mark = 'see note; set No twelve'"),
+    (("Mark", "Panel No."), "set Mark = 'see note; set No three'"),
+    (("Mark", "Breaker AT"), "set Mark = 'see note; set AT MCCB'"),
+    (("Mark", "Lamp ON"), "set Mark = 'see note; set ON xyz'"),
 ])
 def test_a_short_key_naming_a_parameter_inside_quotes_is_a_further_edit(caps, text):
     ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",

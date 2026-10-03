@@ -467,25 +467,26 @@ def _reads(inv: FamilyInventory, fragment: str) -> bool:
 
 
 def _leads(key: str, caption: str) -> bool:
-    """Is ``key`` the caption itself or its first word (``A``, ``On``, ``No`` in
-    "No. of Poles", ``Up`` in "Up Light")?  Then even a function word names the
-    parameter (PR #1024 review 4); ``at`` in Material, ``of`` in Number of Lamps
-    do not lead."""
+    """Is ``key`` the caption itself or its first or last word (``A``, ``On``;
+    ``No`` in "No. of Poles" / "Circuit No", ``Up`` in "Up Light", ``AT`` in
+    "Breaker AT")?  Then even a function word names the parameter (PR #1024
+    reviews 4 and 5); an inner word (``of`` in Number of Lamps, ``to`` in
+    Distance to Wall) or a piece of a word (``at`` in Material) does not."""
     words = re.findall(r"[a-z0-9]+", _split_camel(caption).lower())
     return (re.sub(r"[\s_-]+", "", caption).lower() == key
-            or (bool(words) and words[0] == key))
+            or (bool(words) and key in (words[0], words[-1])))
 
 
 #: words of value prose that ``param_by_caption``'s unique-substring rule would
 #: resolve to a parameter ('at' -> Material, 'of' -> Number of Lamps, 'it' ->
 #: Fitting Angle): not a further edit unless the word IS the caption or its first
-#: word (:func:`_leads`).  Any other short key it resolves IS one
+#: or last word (:func:`_leads`).  Only keys under 4 characters consult it.  Any other short key it resolves IS one
 #: -- ``Len``, ``Ht``, ``W``, ``kA``, ``kVA`` are applied by the grammar outside
 #: quotes (PR #1024 reviews 2 and 3); refusing a rare abbreviation-shaped word is
 #: recoverable, swallowing an edit is not.
 _FUNCTION_WORDS = frozenset(
     "a an and as at be by do for if in is it its no nor not of off on or our per so "
-    "than that the then to too up us via vs we with".split())
+    "the to too up us via vs we".split())
 
 
 def _near_caption(inv: FamilyInventory, cap: str) -> bool:

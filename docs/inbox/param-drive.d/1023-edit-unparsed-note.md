@@ -10,7 +10,7 @@
   3. **Correction to the #1021 record.** It says `test_edit_quoted_split_1017.py` was "otherwise unchanged". Its `_inv()` also gained the captions `Finish` and `Length`, which changes which fragments read.
 
 ## Evidence
-- `tests/test_edit_unparsed_note_1023.py`, 39 cases:
+- `tests/test_edit_unparsed_note_1023.py`, 43 cases:
   - three "not applied" notes;
   - one fully read edit with no note;
   - three near-miss refusals;
@@ -97,6 +97,18 @@
   - **`r20/fp.py`:** text → edit 27, edit → text 60. The only change is `set box flush` refused on one more family (`box` leads "Box …"), the safe side.
   - **Enumeration on the 21 real families:** unchanged, 245 function-word mis-targets read as text.
   - **Suites:** **954 passed / 41 skipped**.
+
+## Review round 5 (PR #1024, head bff499b, 🛑)
+- **Blocking.** This is the mirror image of round 4. A function word that is the *last* word of the caption was swallowed into a quoted value: `No` in "Circuit No" / "Item No" / "Panel No.", `AT` in "Breaker AT", `ON` in "Lamp ON", `In` in "Rated Current In". The old split applied those unquoted, and main refused them quoted. `r24/probe/fuzzL.py` (seed 4711) had 7 such texts newly accepted.
+- **Fixed.** `_leads` now accepts the whole caption, its first word or its last word. Only an inner word (`of` in Number of Lamps, `to` in Distance to Wall) or a piece of a word (`at` in Material, `up` in Setup, `a` in Mark) stays text. Each of those is a mis-target when the old split writes it.
+- **Optional nit 1, carried.** `than` / `that` / `then` / `with` are dropped from `_FUNCTION_WORDS`, because keys of 4+ characters never consult it. The comment now says so.
+- **Known gap (optional nit 2).** A digit-led caption ("2nd Floor") cannot be named by `set 2nd …`. Unquoted that is now a "not applied" note, quoted it is text; the old split never applied it either.
+- **Re-measured:**
+  - **`r24/probe/lastw.py`:** the only quoted-stored, unquoted-applied cases left are `up` → Setup and `a` → Mark, both substring mis-targets.
+  - **`fuzzL`, seed 4711:** 0 newly accepted (7 before), 5 now refused.
+  - **Fresh seed 6067:** family fuzz 0 silent, 17 now refused; real conduit 0 silent, 7 now refused.
+  - **`r20/fp.py`:** text → edit 29, edit → text 60. `set rating later` is refused on 2 more families, where Rating ends the shared captions (the safe side).
+  - **Suites:** **958 passed / 41 skipped**.
 
 ## BRANCH STATE
 - Files:
