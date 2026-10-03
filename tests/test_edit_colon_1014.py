@@ -25,7 +25,8 @@ def release_leak_extra():
 
 
 class _I:
-    params = [{"caption": c} for c in ("Tray Type", "Finish", "Width", "Mark", "Mark Note",
+    params = [{"caption": c} for c in ("Tray Type", "Finish", "Width", "Mark", "Mark Note", "Note",
+                                       "Ratio", "Height", "Height tolerance",
                                        "Size of Type", "Size of Type A", "Size",
                                        "Distance", "Distance to Wall")]
     type_names = ["T1", "Big One"]
@@ -48,6 +49,15 @@ def _read(clause):
     ("set Distance to Wall-mounted box", ("Distance", "Wall-mounted box", None)),
     ("set Distance to Wall: 3", ("Distance to Wall", "3", None)),
     ("set Width=3", ("Width", "3", None)),
+    # PR #1016 review: only a colon GLUED to the caption is a delimiter -- after
+    # a space it is the value's own
+    ("set Note :)", ("Note", ":)", None)),
+    ("set Note :-)", ("Note", ":-)", None)),
+    ("set Ratio :1", ("Ratio", ":1", None)),
+    ("set Width of type T1 :)", ("Width", ":)", "T1")),
+    ("set Width of type T1: 3", ("Width", "3", "T1")),
+    # 'Height tolerance' is not a 'Height to ...' caption: whole words only
+    ("set Height to a=b", ("Height", "a=b", None)),
 ])
 def test_read(clause, want):
     assert _read(clause) == want

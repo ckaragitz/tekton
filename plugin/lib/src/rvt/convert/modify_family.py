@@ -756,8 +756,10 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
             cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
             if cm is not None and _word_ends(body, cm.end()):                     # any whitespace between the words
                 rest = body[cm.end():].lstrip()
-                if rest.startswith(":"):
-                    rest = "= " + rest[1:].lstrip()   # 'Tray Type: 1' == 'Tray Type = 1' (#1014)
+                if body[cm.end():cm.end() + 1] == ":":
+                    # a colon GLUED to the caption: 'Tray Type: 1' == 'Tray Type = 1'
+                    # (#1014); after a space it is the value's own ('set Note :)')
+                    rest = "= " + rest[1:].lstrip()
                 caps.append((cap, rest))
                 if re.match(r"\s|$|[:=]", body[cm.end():]):
                     whole_word.add(cap)            # ends at a word boundary the user typed
@@ -793,8 +795,8 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
                 # 'set Distance to Walls = 5' with a caption 'Distance to Wall':
                 # the user named a longer parameter, mistyped -- never Distance
                 # = "Walls = 5" (#1014)
-                pre = (cap + " to").lower()
-                if any(str(p["caption"]).strip().lower().startswith(pre)
+                pre = " ".join(cap.split()).lower() + " to "
+                if any(" ".join(str(p["caption"]).split()).lower().startswith(pre)
                        for p in inv.params):
                     raise FamilyEditError(
                         f"no parameter {' '.join(clause.split('=')[0].split()[1:])!r} in this "
@@ -822,7 +824,7 @@ _RE_OF_TYPE_AT = re.compile(r"\s+of\s+type\s+", re.I)
 _RE_DELIM_AHEAD = re.compile(r"\s+to\s+|\s*=", re.I)
 #: what may follow a family type name typed unquoted: the end, ``to``, ``=``
 #: (spaces optional before it), or one space and a bare value
-_RE_AFTER_NAME = re.compile(r"(?P<to>\s+to\s+)|(?P<eq>\s*[=:]\s*)|(?P<sp>\s+)|(?P<end>$)", re.I)
+_RE_AFTER_NAME = re.compile(r"(?P<to>\s+to\s+)|(?P<eq>\s*=\s*|:\s*)|(?P<sp>\s+)|(?P<end>$)", re.I)
 
 
 def _refuse_type(named: str, types: Sequence[str]):
