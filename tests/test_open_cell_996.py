@@ -126,3 +126,25 @@ def test_the_shell_reason_scales_with_the_family_count(n_fam, one):
     else:
         assert text.startswith("certified only as " + SHAPE)
         assert f"with {n_fam} families no viewer verdict" in text
+
+
+def test_the_frozen_eval_kit_says_it_is_frozen():
+    """#1004: ``tekton-eval-kit/tekton-plugin`` is a 2026-08-11 snapshot that
+    still names the dead stamp; it is out of ``SCANNED`` only because
+    ``tekton-eval-kit/FROZEN.md`` says so.  A refresh that drops the dead
+    stamp must also drop the note (and put the kit into ``SCANNED``)."""
+    kit = os.path.join(ROOT, "tekton-eval-kit")
+    if not os.path.isdir(kit):
+        pytest.skip("no eval kit in this tree")
+    stale = False
+    for dirpath, _dirs, files in os.walk(os.path.join(kit, "tekton-plugin")):
+        for f in files:
+            if f.endswith((".md", ".py")):
+                with open(os.path.join(dirpath, f), encoding="utf-8", errors="replace") as fh:
+                    if "walls+families combination unverified" in fh.read():
+                        stale = True
+    note = os.path.join(kit, "FROZEN.md")
+    assert stale == os.path.isfile(note), ("stale snapshot", stale, "FROZEN.md", os.path.isfile(note))
+    if stale:
+        flat = _flat("tekton-eval-kit/FROZEN.md")
+        assert "OPEN_CELL_STAMP" in flat and "2026-08-11" in flat and "plugin/" in flat
