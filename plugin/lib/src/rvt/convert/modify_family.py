@@ -638,6 +638,10 @@ def _word_ends(text: str, i: int) -> bool:
     return not (cat[0] == "M" or cat == "Cf" or cat == "So")
 
 
+#: a quoted span of a value -- an '=' inside it is the value's own text
+_RE_QUOTED = re.compile(r"\"[^\"]*\"|'[^']*'")
+
+
 def _caption_matches(inv: FamilyInventory, body: str) -> List[Tuple[str, int, bool]]:
     """Every caption ``body`` starts with, as ``(caption, end, whole)``: the
     caption's words match with any whitespace between them, case-insensitively,
@@ -681,8 +685,24 @@ def _refuse_glued_caption(inv: FamilyInventory, clause: str) -> None:
     body = clause[lead.end():]
     ms = _caption_matches(inv, body)
     for cap, end, whole in ms:
-        if whole or end >= len(body):
+        if end >= len(body):
             continue
+        if whole:
+            # punctuation glued to the LONGEST caption ('Mark^ 1', 'Mark Note-1')
+            # with no other reading writes the user's punctuation into the
+            # value (#1014): refused -- unless a longer caption is what was
+            # typed, or a shorter caption reads it with to / '=' ('Distance
+            # to Wall-mounted box' is Distance = "Wall-mounted box")
+            ch = body[end]
+            if (ch.isspace() or ch in ":=\"'"
+                    or any(e > end and w for _c, e, w in ms)
+                    or any(e < end and body[e:e + 1].isspace()
+                           and re.match(r"(?:to\s|=)", body[e:].lstrip(), re.I)
+                           for _c, e, _w in ms)):
+                continue
+            raise FamilyEditError(
+                f"a parameter name runs straight into {ch!r}: put a space or '=' "
+                "between the parameter and its value -- set <Parameter> = <value>")
         ch = body[end]
         if ch.isalnum() or ch == "_":
             continue                       # a letter: the ordinary grammar reads it
@@ -739,7 +759,37 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
                 continue
             cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
             if cm is not None and _word_ends(body, cm.end()):                     # any whitespace between the words
-                caps.append((cap, body[cm.end():].lstrip()))
+                rest = body[cm.end():].lstrip()
+                glued = body[cm.end():cm.end() + 1] == ":"
+                if glued and not caps and re.match(r"(?:to\s|=)", rest[1:].strip() + " ", re.I):
+                    # 'set Note to A: to x' / ':= x': two delimiters -- the value
+                    # cannot be told (#1016 review); a LONGER caption that
+                    # matched ('Note:' in 'set Note: = x') reads it instead
+                    raise FamilyEditError(
+                        "two delimiters after the parameter: set <Parameter> = <value>")
+                if glued and not rest[1:].strip():
+                    # 'set Note:' -- never a blank or ':' write, whichever caption
+                    # ('Note' or 'Note:') was meant (#1016 review)
+                    raise FamilyEditError("no value given: set <Parameter> = <value>")
+                if glued and not caps:
+                    # a colon GLUED to the caption: 'Tray Type: 1' == 'Tray Type = 1'
+                    # (#1014); after a space it is the value's own ('set Note :)').
+                    # Only when no LONGER caption already matched ('set Note:
+                    # A"x"' with captions Note / Note: A is Note: A, #1016 review).
+                    # Type names keep main's grammar (no colon delimiter, #1016).
+                    after = rest[1:].strip()
+                    pre = " ".join(cap.split()).lower() + ":"
+                    if "=" in _RE_QUOTED.sub("", after) and any(
+                            " ".join(str(p["caption"]).split()).lower().startswith(pre)
+                            and len(" ".join(str(p["caption"]).split())) > len(pre)
+                            for p in inv.params):
+                        # 'set Note: Installs = x' with a caption 'Note: Install':
+                        # a mistyped longer caption, never Note = "Installs = x"
+                        raise FamilyEditError(
+                            f"no parameter {(cap + ': ' + after.split('=')[0].strip())!r} in "
+                            "this family: name the parameter exactly -- set <Parameter> = <value>")
+                    rest = "= " + rest[1:].lstrip()
+                caps.append((cap, rest))
                 if re.match(r"\s|$|[:=]", body[cm.end():]):
                     whole_word.add(cap)            # ends at a word boundary the user typed
     if len(caps) > 1 and not typed:
@@ -770,6 +820,17 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
     for cap, rest in caps:
         if _RE_EXPLICIT.match(rest):
             m = _RE_SET.match("set P " + rest)
+            if (m is not None and re.match(r"to\s", rest, re.I)
+                    and "=" in _RE_QUOTED.sub("", m.group("val") or "")):
+                # 'set Distance to Walls = 5' with a caption 'Distance to Wall':
+                # the user named a longer parameter, mistyped -- never Distance
+                # = "Walls = 5" (#1014)
+                pre = " ".join(cap.split()).lower() + " to "
+                if any(" ".join(str(p["caption"]).split()).lower().startswith(pre)
+                       for p in inv.params):
+                    raise FamilyEditError(
+                        f"no parameter {' '.join(clause.split('=')[0].split()[1:])!r} in this "
+                        "family: name the parameter exactly -- set <Parameter> = <value>")
             if m is not None:
                 if re.match(r"of\s+type\s", rest, re.I) and not (
                         m.group("typeq") or m.group("typeq2") or m.group("type")):
