@@ -349,7 +349,11 @@ def _convert_value(param: dict, raw: str) -> Tuple[Any, List[str]]:
     carrier = param["carrier"]
     txt = str(raw).strip()
     if carrier == "m_str":
-        return txt.strip("\"'"), notes
+        # unquote only a value WHOLLY wrapped in one matching pair; any other
+        # quote is the user's text ("= 'quoted' value" stays as typed, #1008)
+        if len(txt) >= 2 and txt[0] == txt[-1] and txt[0] in "\"'":
+            txt = txt[1:-1]
+        return txt, notes
     txt = _unwrap_measure(txt)
     measurable = carrier != "m_int" and bool(spec) and ":number" not in spec   # a unit MEANS something here
     if measurable and (fi := _RE_FEET_INCHES.fullmatch(txt)):
@@ -495,6 +499,13 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
         elif (m := _RE_RENAME_TYPE.match(c)):
             op = _op_rename_type(inv, m.group("old"), m.group("new").strip())
         elif (m := _match_set(inv, c)):
+            if m.group("val").strip().lower() in ("", "to", "="):
+                # 'set Finish to' / 'set Finish =': the delimiter is not a value
+                # (#1008); a JSON op's empty value stays a deliberate clear
+                cap = m.group("cap").strip()
+                raise FamilyEditError(
+                    f"no value given for {cap!r}: set {cap} = <value> (quote it to store "
+                    "the word 'to' itself)")
             op = _op_set(inv, m.group("cap").strip(), m.group("val").strip(), notes,
                          type_name=(m.group("typeq") or m.group("typeq2")
                                     or m.group("type")), clause=c)
