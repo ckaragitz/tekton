@@ -37,7 +37,7 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Optional, Tuple
 
 from .base import repo_root
-from .. import _jsonsafe
+from .. import _jsonsafe, _quoted
 from .._logsink import stage_stdout
 
 __all__ = ["EditParseError", "EditSpec", "parse_edit_spec", "editables",
@@ -288,8 +288,24 @@ def _opkey(o: dict) -> str:
     return str(o.get("op") or o.get("type") or "").strip().lower()
 
 
+_RE_CLAUSE_SEP = re.compile(r";|\n|\bthen\b|\band\s+then\b")
+_RE_FURTHER_EDIT = re.compile(r"\s*(?:delete|remove|drop|move|rotate|rename|set|mark|retype)\b",
+                              re.I)
+
+
+def _reads(clause: str) -> bool:
+    """Does any text-grammar pattern read ``clause`` (references unresolved)?"""
+    c = clause.strip().rstrip(".")
+    return any(r.match(c) for r in (_RE_DELETE, _RE_MOVE_TO, _RE_MOVE_BY, _RE_ROTATE, _RE_RENAME,
+                                    _RE_SETMARK, _RE_SETLEVEL, _RE_RETYPE, _RE_SETPARAM))
+
+
 def _parse_text(text: str, doc) -> EditSpec:
-    clauses = [c.strip() for c in re.split(r";|\n|\bthen\b|\band\s+then\b", text) if c.strip()]
+    # never cut a quoted mark / name / value at a ';' / newline / 'then' inside
+    # it (#1019; the quote rules: rvt._quoted, shared with the family lane)
+    joined: set = set()
+    clauses = _quoted.split_clauses(text, _RE_CLAUSE_SEP, _RE_FURTHER_EDIT, EditParseError,
+                                    joined)
     ops: List[dict] = []
     understood: List[dict] = []
     unparsed: List[str] = []
@@ -338,6 +354,13 @@ def _parse_text(text: str, doc) -> EditSpec:
             elif (m := _RE_SETPARAM.match(c)):
                 op = {"op": "set-param", "id": rid(m.group("ref")),
                       "param_id": int(m.group("pid")), "value": _coerce(m.group("val"))}
+            elif cl in joined and any(_reads(f) for f in _RE_CLAUSE_SEP.split(cl)):
+                # kept whole across a separator inside quotes, then unreadable,
+                # where the old split applied part of it -- never drop that
+                # silently (a clause no part of which reads stays unparsed, as before)
+                raise EditParseError(
+                    f"cannot read {cl!r} as one edit: a quoted value here holds a ';' / "
+                    "newline / 'then' (pass the edit as ops.json / inline JSON to store such text)")
             else:
                 unparsed.append(cl)
                 continue
