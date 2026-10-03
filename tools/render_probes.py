@@ -630,8 +630,11 @@ def _expected_tree(category: str, family: str, ftype: str, *, position_m, body: 
 def _wallhost_feasibility() -> Dict[str, Any]:
     """The wall-face-HOSTED variant the charter asks about.  On the family-
     free genesis base a face-SketchPlane specimen is required by
-    rvt.hosting; and any wall-hosted file is walls + a loaded family = the
-    exact combination that FAILS today.  Recorded, not faked."""
+    rvt.hosting; and any wall-hosted file is walls + a loaded family -- the
+    combination this stream saw FAIL when it ran (stage_W_loaded_walls); a
+    later single-family pair, WF_fix / WF_nofix, PASSED (verdict #27), so
+    today that shape is certified with ONE family and open with more.
+    Recorded, not faked."""
     rec: Dict[str, Any] = {"probe": "R_inst_panel_wallhost", "kind": "not_built"}
     try:
         from rvt.mutate import Document
@@ -650,8 +653,9 @@ def _wallhost_feasibility() -> Dict[str, Any]:
         "for rvt.hosting.add_sketchplane_on_wall / host_instance_on_wall (certified H1/H2 on "
         "the MEP sample).  On the family-free genesis base ZA_deep there are no walls and no "
         "face-SketchPlane specimen, so hosting would clone R5 templates AND require the wall "
-        "stage.  Crucially, walls + a loaded family is the very combination this stream shows "
-        "FAILING (stage_W_loaded_walls) -- a wall-hosted render probe would read on TWO "
+        "stage.  Crucially, walls + a loaded family is the combination this stream saw FAIL "
+        "(stage_W_loaded_walls; a later one-family pair WF_fix / WF_nofix PASSED, verdict #27, "
+        "with more families still open) -- a wall-hosted render probe would read on TWO "
         "confounded variables (the hosting AND the failing interaction) until the interaction is "
         "understood.  The free-standing R_inst probes are therefore PRIMARY; the wall-hosted "
         "question is deferred behind the F_-set bisection (and behind emitting baked wall "
