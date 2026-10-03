@@ -258,7 +258,23 @@ engineer brief).
   row now also expects the #909 caveat (Width labels the transformer's drive)
 - this fragment
 
-**Gates:** see the PR / hand-off report for the counts of the final run.
+**Gates** (RVT_SKIP_LARGE=1)
+- `test_edit_drives_909` + `test_conftest_scaffolding`: 40 passed.
+- The other drive and edit suites, 363 passed / 23 skipped. Skips are
+  samples-gated. The files:
+  - drive laws: `test_drive_law_904`, `test_height_law_787`, `test_diameter_916`,
+    `test_trapeze_nested_917`, `test_pset_drive_714`;
+  - matrix: `test_matrix_evidence_981` (`_984` is absent on this base);
+  - convert and manipulate: `test_convert`, `test_manipulate`,
+    `test_rewrite_entries_646`, `test_rvt_to_ifc_param_carrier`;
+  - families and edits: `test_transformer_mass_630`, `test_standards_apply_safe`,
+    `test_edit_family_size_668` / `_marks_678` / `_mass_659`,
+    `test_modify_family_carrier`, `test_convert_combo`.
+- `test_router`, `test_router_load_release`, `test_router_release`,
+  `test_famgen_factory`, `test_plugin_sync`: 241 passed / 17 skipped.
+- `tools/sync_plugin.py`, then `--check`: in sync. `validate_plugin.py`: PASS
+  (25). `check_portable_paths.py`: ok (3479). `tools/self_battery.py`: 27/27
+  PASS.
 
 **Shipped vs staged:** nothing staged. No viewer or desktop batch was run. The
 rebuilt and value-only families are validator-gated, not certified.
