@@ -760,10 +760,12 @@ def _r_rfa_modify(res, inputs, out_dir, opts):
     rfa = res.files.get("rfa")
     g = ((rec.get("validation") or {}).get("rfa") or {})
     reread = g.get("reread") or []
+    unread = (rec.get("parsed") or {}).get("unparsed") or []      # #1023: never silent
     _convert_status(res, gates, delivered=bool(rfa and os.path.isfile(rfa)),
                     what=(f"{len((rec.get('apply') or {}).get('applied') or reread)} edit(s) "
                           f"applied; re-read ok={all(r.get('ok') for r in reread) if reread else 'n/a'}; "
-                          f"release preserved={(g.get('release') or {}).get('preserved')}"))
+                          f"release preserved={(g.get('release') or {}).get('preserved')}"
+                          + (f"; {len(unread)} clause(s) NOT applied (see caveats)" if unread else "")))
 
 
 def _r_ifc_build_then_edit(res, inputs, out_dir, opts):

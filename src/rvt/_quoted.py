@@ -65,8 +65,14 @@ def split_clauses(s: str, sep: Pattern[str], reads: Callable[[str], bool],
             start, kept = m.end(), False
             continue
         kept = True
-        nxt = sep.search(s, m.end())
-        if reads(s[m.end():nxt.start() if nxt else len(s)]):
+        end = sep.search(s, m.end())
+        end = end.start() if end else len(s)
+        frag = s[m.end():end]
+        if span[1] <= end:                 # the span's closing quote is in it: read it
+            frag2 = s[m.end():span[1] - 1] + s[span[1]:end]  # without that quote too
+        else:                              # (PR #1022 review nit 2)
+            frag2 = frag
+        if reads(frag) or reads(frag2):
             raise refuse(
                 f"the quote in {s[span[0]:span[1]]} runs across a further edit: close the "
                 "quote before the ';' / ',' / 'then' to make separate edits (to store that "

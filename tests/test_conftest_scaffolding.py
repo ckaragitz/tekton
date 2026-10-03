@@ -87,6 +87,8 @@ ADOPTERS = {
                             "back with constraint_law.check_file (enter_own_release) inside the engine",
     "test_edit_leftovers_994": "MF.modify_family(...) rebuilds through famgen.nest (host_release_context) inside the "
                                "engine",
+    "test_edit_unparsed_note_1023": "MF.modify_family(...) enters host_release_context inside the engine (the "
+                                    "not-applied note on a generated conduit)",
     "test_edit_quoted_split_1017": "MF.modify_family(...) enters host_release_context inside the engine (the "
                                    "quoted-separator read-back on a generated conduit)",
     "test_edit_colon_1014": "MF.modify_family(...) enters host_release_context inside the engine (the colon read-back "

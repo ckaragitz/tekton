@@ -75,6 +75,7 @@ Territory: ``src/rvt/convert/`` (convert-B stream).
 from __future__ import annotations
 
 import argparse
+import difflib
 import functools
 import html
 import json
@@ -452,7 +453,64 @@ def _reads(inv: FamilyInventory, fragment: str) -> bool:
         m = _match_set(inv, c)
     except FamilyEditError:
         return True
-    return m is not None and inv.param_by_caption(m.group("cap").strip()) is not None
+    if m is None:
+        return False
+    cap = m.group("cap").strip()
+    hit = inv.param_by_caption(cap)
+    key = re.sub(r"[\s_-]+", "", cap).lower()
+    if hit is not None and (len(key) >= 4 or key not in _FUNCTION_WORDS
+                            or _leads(key, hit["caption"])):
+        return True
+    if hit is None and any(_leads(key, p["caption"]) for p in inv.params):
+        return True                       # 'A' with "A Phase Load" and "Mark": ambiguous,
+    return _near_caption(inv, cap)        # refused unquoted -- a further edit, not text
+
+
+def _leads(key: str, caption: str) -> bool:
+    """Is ``key`` the caption itself or its first or last word (``A``, ``On``;
+    ``No`` in "No. of Poles" / "Circuit No", ``Up`` in "Up Light", ``AT`` in
+    "Breaker AT")?  Then even a function word names the parameter (PR #1024
+    reviews 4 and 5); an inner word (``of`` in Number of Lamps, ``to`` in
+    Distance to Wall) or a piece of a word (``at`` in Material) does not."""
+    words = re.findall(r"[a-z0-9]+", _split_camel(caption).lower())
+    return (re.sub(r"[\s_-]+", "", caption).lower() == key
+            or (bool(words) and key in (words[0], words[-1])))
+
+
+#: words of value prose that ``param_by_caption``'s unique-substring rule would
+#: resolve to a parameter ('at' -> Material, 'of' -> Number of Lamps, 'it' ->
+#: Fitting Angle): not a further edit unless the word IS the caption or its first
+#: or last word (:func:`_leads`).  Only keys under 4 characters consult it.  Any other short key it resolves IS one
+#: -- ``Len``, ``Ht``, ``W``, ``kA``, ``kVA`` are applied by the grammar outside
+#: quotes (PR #1024 reviews 2 and 3); refusing a rare abbreviation-shaped word is
+#: recoverable, swallowing an edit is not.
+_FUNCTION_WORDS = frozenset(
+    "a an and as at be by do for if in is it its no nor not of off on or our per so "
+    "the to too up us via vs we".split())
+
+
+def _near_caption(inv: FamilyInventory, cap: str) -> bool:
+    """A caption the old split would have refused with a useful message rather
+    than read as text: a whole word of several parameters' captions
+    (``Diameter``), or a near-miss of one (``Widht``, ``Notes``) -- PR #1022
+    review nit 1.  Short words are never near-misses: ``set in concrete``, ``set
+    with epoxy``, ``set as shown`` are text on every family (PR #1024 review)."""
+    key = re.sub(r"[\s_-]+", "", cap).lower()
+    if len(key) < 4:
+        return False
+    words = [set(re.findall(r"[a-z0-9]+", _split_camel(p["caption"]).lower())) for p in inv.params]
+    if sum(key in w for w in words) > 1:
+        return True
+    if len(key) < 5:
+        return False
+    norm = [re.sub(r"[\s_-]+", "", p["caption"]).lower() for p in inv.params]
+    return any(difflib.SequenceMatcher(None, key, n).ratio() >= 0.8 for n in norm)
+
+
+def _split_camel(text: str) -> str:
+    """CamelCase into words, an acronym kept apart from the word after it:
+    "PanelName" -> "Panel Name", "ONDelay" -> "ON Delay" (PR #1024 review 6)."""
+    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ", text)
 
 
 _RE_SET_DELIM_WORD = re.compile(r"set\s.*?(?:=|:|\sto\s)", re.I | re.S)
@@ -561,6 +619,11 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
         op_notes.append(notes[mark:])
         understood.append({"clause": cl, "op": op})
     notes[:] = _settle_overrides(ops, op_notes)
+    # every clause the grammar could not read is said, never dropped silently
+    # (#1023): the family is still delivered with the clauses it did read
+    notes.extend(f"not applied: {cl!r} was not understood, nothing was changed for it "
+                 "(say: set <Parameter> = <value>; rename type OLD to NEW; rename the "
+                 "family to NAME)" for cl in unparsed if ops)
     if not ops:
         raise FamilyEditError(
             "no family edit understood. Grammar: 'rename the type to NAME', "
@@ -1976,8 +2039,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"delivered {role}: {d['path']} ({d['bytes']:,} bytes)")
     for s in rec.get("stamps") or []:
         print(f"  STAMP: {s}")
-    for d in (rec.get("degradations") or [])[:8]:
+    degr = rec.get("degradations") or []
+    for d in degr[:8]:
         print(f"  caveat: {d}")
+    if len(degr) > 8:
+        print(f"  caveat: (+{len(degr) - 8} more in the record)")
     ok = bool(rec.get("deliverables")) and (
         ((rec.get("validation") or {}).get("rfa") or {}).get("self_checks_ok", True))
     return 0 if ok else 1

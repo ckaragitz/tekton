@@ -198,6 +198,8 @@ def _print_result(res) -> None:
         print(f"  STAMP     : {s}")
     for cv in res.caveats[:8]:
         print(f"  caveat    : {cv}")
+    if len(res.caveats) > 8:
+        print(f"  caveat    : (+{len(res.caveats) - 8} more in route.json / ROUTE.md)")
     for k, v in (res.manifest_paths or {}).items():
         print(f"  manifest  : {k} -> {v}")
     for e in res.errors[:6]:
