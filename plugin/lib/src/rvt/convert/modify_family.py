@@ -438,13 +438,26 @@ def _sibling_vocabulary():
 _RE_CLAUSE_SEP = re.compile(r";|\n|\bthen\b|,\s*(?=set\b|rename\b)")
 
 
-_RE_FURTHER_EDIT = re.compile(r"\s*(?:set|rename)\b", re.I)
+def _reads(inv: FamilyInventory, clause: str) -> bool:
+    """Would the text grammar apply ``clause`` as an edit (or refuse the whole
+    edit over it, as the old quote-blind split did)?  (#1021)"""
+    c = clause.strip().rstrip(".")
+    if _RE_RENAME_FAMILY.match(c) or _RE_RENAME_TYPE.match(c):
+        return True
+    try:
+        m = _match_set(inv, c)
+    except FamilyEditError:
+        return True                       # the grammar's own refusal: stay on the safe side
+    # a 'set <word> ...' naming no parameter of this family is text, not an edit
+    # ("Hex bolt, set screw included")
+    return m is not None and inv.param_by_caption(m.group("cap").strip()) is not None
 
 
-def _split_clauses(s: str, joined: Optional[set] = None) -> List[str]:
+def _split_clauses(s: str, inv: FamilyInventory, joined: Optional[set] = None) -> List[str]:
     """Split edit text on ``;``, newlines, ``then`` and ``, set|rename`` -- never
     inside a quoted value (#1017; the rules: :mod:`rvt._quoted`)."""
-    return _quoted.split_clauses(s, _RE_CLAUSE_SEP, _RE_FURTHER_EDIT, FamilyEditError, joined)
+    return _quoted.split_clauses(s, _RE_CLAUSE_SEP, lambda f: _reads(inv, f), FamilyEditError,
+                                 joined)
 
 
 def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
@@ -507,7 +520,7 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
 
     unparsed: List[str] = []
     joined: set = set()
-    for cl in _split_clauses(s, joined):
+    for cl in _split_clauses(s, inv, joined):
         c = cl.rstrip(".")
         mark = len(notes)
         if (m := _RE_RENAME_FAMILY.match(c)):
@@ -527,11 +540,11 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
             op = _op_set(inv, m.group("cap").strip(), m.group("val").strip(), notes,
                          type_name=(m.group("typeq") or m.group("typeq2")
                                     or m.group("type")), clause=c)
-        elif cl in joined:
+        elif cl in joined and any(_reads(inv, f) for f in _RE_CLAUSE_SEP.split(cl)):
             # kept whole across a ';' / newline / 'then' inside quotes, then
-            # unreadable (a newline in the value, a mixed quote in a name): the
-            # split on main would have applied part of it -- never drop it
-            # silently (PR #1018 second review)
+            # unreadable (a newline in the value, a mixed quote in a name), where
+            # the old split applied part of it -- never drop it silently (PR #1018
+            # second review); a clause no part of which reads stays unparsed (#1021)
             raise FamilyEditError(
                 f"cannot read {cl!r} as one edit: a quoted value here holds a ';' / "
                 "newline / 'then' (to store such text, use a JSON set-param op)")
