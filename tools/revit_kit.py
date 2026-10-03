@@ -100,8 +100,8 @@ KIT_SPEC: Dict[str, Dict[str, Any]] = {
                      "line Revit shows here IS the fix spec -- capture it verbatim."},
     K3: {"role": "combined", "job": "combined",
          "expect": {"added": {**_ONE_FAMILY, "SWall": 4}, "added_units": 1, "swall": 4},
-         "expected": "K1 + K2 in one file: the stamped product shape (PROOF-ONLY: walls+"
-                     "families combination). Same dialog as K2 => one shared cause; a "
+         "expected": "K1 + K2 in one file: the stamped product shape (it places an "
+                     "instance, so it carries the open-cell stamp). Same dialog as K2 => one shared cause; a "
                      "different / extra dialog => the combination adds a second defect."},
 }
 RFA_EXPECTED = ("The generated family K2/K3 embed, as a standalone .rfa. Insert > Load "

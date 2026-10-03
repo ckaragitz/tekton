@@ -32,7 +32,8 @@ QUOTING = ("plugin/skills/tekton-author/references/GENESIS-BASE.md",
 SCANNED = ("src/rvt/frontdoor/*.py", "src/rvt/frontdoor/*.md", "plugin/skills/**/SKILL.md",
            "plugin/skills/**/references/*.md", "/".join(("plugin", "docs", "*.md")),
            "docs/product/*.md", "plugin/README.md", "plugin/agents/*.md",
-           "plugin/commands/*.md", "src/rvt/convert/*.py", "tools/frontdoor.py", "tools/route.py")
+           "plugin/commands/*.md", "src/rvt/convert/*.py", "tools/frontdoor.py", "tools/route.py",
+           "tools/revit_kit.py")
 #: dated measurement logs quote what a run printed then; never a claim of now
 LOGS = {"docs/product/REQUIREMENTS.md"}
 _OVERCLAIM = re.compile(
@@ -47,7 +48,9 @@ _OVERCLAIM = re.compile(
     r"|walls\+families open[- ]bug"
     r"|(?:two |coordinated )+(?:proven|certified)(?:-shaped)? files"
     r"|walls \+ our placed families in one file"
-    r"|walls\+families combination bug", re.I)
+    r"|walls\+families combination bug"
+    r"|walls \+ loaded[- ]families combination is the open bug"
+    r"|PROOF-ONLY: walls\+\s*\"?\s*\"?families combination", re.I)
 
 
 def _flat(rel):
@@ -108,7 +111,9 @@ def test_the_overclaim_pattern_fires_on_the_old_texts():
                 "`--strict` = TWO coordinated proven files",
                 "wants two proven-shaped files instead of the stamped combo",
                 "caveats: walls + our placed families in one file is the open cell",
-                "research residuals (RENDER gate, walls+families combination bug"):
+                "research residuals (RENDER gate, walls+families combination bug",
+                "and the walls + loaded-families COMBINATION is the open bug the",
+                "the stamped product shape (PROOF-ONLY: walls+families combination)"):
         assert _OVERCLAIM.search(old), old
     assert not _OVERCLAIM.search(SHAPE)
 

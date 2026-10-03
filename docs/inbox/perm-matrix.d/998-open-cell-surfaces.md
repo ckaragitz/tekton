@@ -67,7 +67,13 @@ Also fixed in this round:
 Left as they are, on purpose:
 - `TRACKER.md:81`: a hot file, dated roadmap history.
 - The `tekton-eval-kit/tekton-plugin/**` tracked snapshot: an older plugin build, refresh-or-freeze is #1004.
-- `src/rvt/genesis/residue_c.py` and `tools/revit_kit.py`: these name the historical walls+families fix and investigation correctly.
+- `src/rvt/genesis/residue_c.py` and `tools/revit_kit.py`'s verdict table: these name the historical walls+families fix and investigation correctly.
+
+**Second review round (head dfa4e3f, 🛑).** Two more items were found and fixed:
+- `plugin/skills/tekton-author/references/CRUD-COVERAGE.md` (a shipped reference that SKILL.md tells sessions to quote) still said "the walls + loaded-families COMBINATION is the open bug". It now says placed instances are the open cell (#48 / #16). This was blocking.
+- `tools/revit_kit.py`: K3's `expected` text paraphrased the dead stamp. It now says K3 places an instance and so carries the open-cell stamp. That text lands in the kit's manifest. The earlier line above called all of `revit_kit.py` correct; that was wrong for this one string.
+
+Two patterns were added and pinned, and `tools/revit_kit.py` joined `SCANNED`. Gates at this head (`RVT_SKIP_LARGE=1`): test_open_cell_996 + test_doc_caveats_990 + test_revit_kit + test_frontdoor + test_convert_combo + test_plugin_sync + test_plugin_validate + test_records_layout, **244 passed / 14 skipped**. Before this push I ran a whitespace-flattened hunt across plugin/, src/, tools/, skills/, docs/product and README.md for "walls + (loaded / placed / our) families … open bug / combination / proven / certified / PASS / exonerated". Every remaining hit states the one-family shape correctly.
 
 ## BRANCH STATE
 - Files:
