@@ -236,7 +236,7 @@
   },
   {
    "file": "experiments/ifc_room/stage_L8_lp4.rvt",
-   "proves": "family LOAD + instance PLACEMENT on the genesis base translate (PASS) \u2014 loader + creation path proven on the genesis lineage; viewable is 'design is empty' (no baked geometry)"
+   "proves": "family LOAD on the genesis base translates (PASS) \u2014 the 8 generated families loaded via the loader on the genesis lineage; NO instance was placed (all 8 stage load records instance_id -1) \u2014 verdicts #24/#25: placement on the genesis lineage unproven (#24), and this PASS an empty-design short-circuit (8 families + 0 walls + 0 instances, #25); viewable is 'design is empty' (no baked geometry)"
   },
   {
    "file": "experiments/acceptance/CTRL_ZCdeep_b23.rvt",
