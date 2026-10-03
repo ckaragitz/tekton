@@ -76,6 +76,7 @@ from __future__ import annotations
 
 import argparse
 import functools
+import html
 import json
 import os
 import re
@@ -157,7 +158,7 @@ def _partatom_title(path: str) -> str:
         with open_rvt(path) as f:
             xml = f.raw("PartAtom").decode("utf-8", "replace")
         m = re.search(r"<title>(.*?)</title>", xml, re.S)
-        return m.group(1) if m else ""
+        return html.unescape(m.group(1)) if m else ""
     except Exception:                                          # noqa: BLE001
         return ""
 
@@ -447,6 +448,7 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
     ops: List[dict] = []
     understood: List[dict] = []
     notes: List[str] = []
+    op_notes: List[List[str]] = []          # the notes each op produced (#994)
 
     def norm_json_ops(payload) -> List[dict]:
         raw_ops = payload.get("ops") if isinstance(payload, dict) else payload
@@ -457,6 +459,7 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
         out = []
         for o in raw_ops:
             op = str(o.get("op") or "").lower()
+            mark = len(notes)
             if op in ("rename-type", "rename_type"):
                 out.append(_op_rename_type(inv, o.get("type"), str(o.get("name"))))
             elif op in ("rename-family", "rename_family"):
@@ -468,6 +471,8 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
             else:
                 raise FamilyEditError(f"unknown op {op!r} (rename-type | "
                                       "rename-family | set-param)")
+            op_notes.append(notes[mark:])
+        notes[:] = _settle_overrides(out, op_notes)
         return out
 
     if os.path.isfile(s) and s.lower().endswith(".json"):
@@ -484,6 +489,7 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
     for cl in [c.strip() for c in re.split(r";|\n|\bthen\b|,\s*(?=set\b|rename\b)", s)
                if c.strip()]:
         c = cl.rstrip(".")
+        mark = len(notes)
         if (m := _RE_RENAME_FAMILY.match(c)):
             op = {"op": "rename-family", "name": m.group("new").strip()}
         elif (m := _RE_RENAME_TYPE.match(c)):
@@ -496,7 +502,9 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
             unparsed.append(cl)
             continue
         ops.append(op)
+        op_notes.append(notes[mark:])
         understood.append({"clause": cl, "op": op})
+    notes[:] = _settle_overrides(ops, op_notes)
     if not ops:
         raise FamilyEditError(
             "no family edit understood. Grammar: 'rename the type to NAME', "
@@ -535,7 +543,15 @@ def _match_set(inv: FamilyInventory, clause: str):
     is the parameter ``Material Finish`` (refused by name if the family has
     none), never ``Material`` = "Finish to galvanized"; (3) the longest
     caption followed by a bare value (``set Width 600 mm``); (4) the plain
-    pattern, as before."""
+    pattern, as before.
+
+    NO EXCEPTION TO (2) (#994 review): ``set Finish galvanized to spec`` names
+    the parameter ``Finish galvanized`` and is refused by name, with a hint
+    that the value goes after ``=`` (``set Finish = galvanized to spec``).
+    Words after a known caption cannot be told apart from a mistyped
+    parameter (``set finish color to black``, ``set Model number to X``) by
+    case or vocabulary, and a refusal is recoverable where a mis-targeted
+    write is not."""
     lead = _RE_SET_LEAD.match(clause)
     caps: List[Tuple[str, str]] = []
     if lead:
@@ -559,6 +575,23 @@ def _match_set(inv: FamilyInventory, clause: str):
         if m is not None:
             return _CaptionMatch(m, cap)
     return _RE_SET.match(clause)
+
+
+def _value_hint(inv: FamilyInventory, caption: str) -> str:
+    """For a refused ``caption`` that starts with one of the family's own
+    captions (``Finish galvanized``), name the recovery: the words after a
+    known caption may be part of a VALUE (``set Finish galvanized to spec``),
+    but nothing in the clause tells that apart from a mistyped parameter
+    (``set finish color to black``), so the edit is refused, never guessed
+    (#994 review) -- the hint says how to write the value unambiguously."""
+    low = caption.lower()
+    for cap in sorted((p["caption"] for p in inv.params), key=len, reverse=True):
+        c = cap.lower()
+        if c and low.startswith(c) and len(low) > len(c) and low[len(c)].isspace():
+            return (f" -- if the words after {cap!r} are part of its VALUE, write the "
+                    f"value after '=': set {cap} = <value> (e.g. set {cap} = "
+                    f"{caption[len(cap):].strip()} to ...)")
+    return ""
 
 
 class _CaptionMatch:
@@ -599,7 +632,7 @@ def _op_set(inv: FamilyInventory, caption: str, raw: str, notes: List[str],
     if p is None:
         raise FamilyEditError(
             f"no parameter {caption!r} in this family. Parameters: "
-            + ", ".join(q["caption"] for q in inv.params))
+            + ", ".join(q["caption"] for q in inv.params) + _value_hint(inv, caption))
     if p.get("formula"):
         raise FamilyEditError(
             f"{p['caption']} is a FORMULA parameter: Revit computes it from the "
@@ -623,6 +656,63 @@ def _op_set(inv: FamilyInventory, caption: str, raw: str, notes: List[str],
     return op
 
 
+def _op_target(op: dict) -> tuple:
+    kind = op["op"]
+    if kind == "set-param":
+        return ("set", int(op["param_id"]), op.get("type_name"))
+    if kind == "rename-type":
+        return ("type", int(op["type_index"]))
+    return (kind,)
+
+
+def _overrides(later: dict, earlier: dict) -> bool:
+    """``later`` writes everything ``earlier`` wrote: the same parameter (an
+    unscoped set covers every type, a scoped one only its own type), the same
+    type's name, or the family name."""
+    a, b = _op_target(later), _op_target(earlier)
+    if a[0] != b[0]:
+        return False
+    if a[0] == "set":
+        return a[1] == b[1] and (a[2] is None or a[2] == b[2])
+    return a == b
+
+
+def _op_shown(op: dict) -> Tuple[str, str]:
+    kind = op["op"]
+    if kind == "set-param":
+        return op["caption"], str(op.get("raw"))
+    if kind == "rename-type":
+        return f"type name {op.get('old')!r}", str(op["name"])
+    return "family name", str(op["name"])
+
+
+def _settle_overrides(ops: List[dict], op_notes: Sequence[Sequence[str]]) -> List[str]:
+    """The last op on a target wins (#994): every op a LATER op of the same
+    edit overrides is marked ``overridden_by`` (the later op's 1-based number)
+    and is applied by nobody; its own notes (unit conversion, the geometry
+    statement the route adds to them) are replaced by ONE note saying it was
+    overridden -- a note about a value the file does not carry would be false.
+    Returns the edit's notes, in op order."""
+    notes: List[str] = []
+    for i, op in enumerate(ops):
+        later = next((j for j in range(i + 1, len(ops)) if _overrides(ops[j], op)), None)
+        if later is None:
+            notes.extend(op_notes[i] if i < len(op_notes) else ())
+            continue
+        op["overridden_by"] = later + 1
+        what, val = _op_shown(op)
+        _w, val2 = _op_shown(ops[later])
+        notes.append(f"{what}: {val!r} (op {i + 1}) is overridden by a later op in the "
+                     f"same edit (op {later + 1}: {val2!r}) -- the last one wins; nothing "
+                     "of op " + str(i + 1) + " is written")
+    return notes
+
+
+def _effective_ops(ops: Sequence[dict]) -> List[dict]:
+    """``ops`` without the ones a later op of the same edit overrides."""
+    return [o for o in ops if not o.get("overridden_by")]
+
+
 # ---------------------------------------------------------------------------
 # apply: ONE manipulate commit + the PartAtom follow
 # ---------------------------------------------------------------------------
@@ -638,22 +728,24 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
     ftt = ((fv.get("m_pFamilyTypes") or {}).get("value") or {})
     pairs = ftt.get("m_pairs") or []
     changes: Dict[str, Any] = {}
-    partatom_renames: List[Tuple[str, str]] = []
+    #: PartAtom follows, SCOPED (#994): a type rename touches only its type's
+    #: entry, a family rename only the family-level elements -- in generated
+    #: families the type name equals the family title, so a plain text replace
+    #: renamed both.  Keyed by target, so the last op on a target wins.
+    type_renames: Dict[int, Tuple[str, str]] = {}
     new_family_name: Optional[str] = None
     applied: List[dict] = []
 
-    for op in ops:
+    for op in _effective_ops(ops):
         kind = op["op"]
         if kind == "rename-type":
             i = int(op["type_index"])
             changes[f"m_pFamilyTypes.value.m_pairs[{i}].name"] = op["name"]
-            partatom_renames.append((str(op.get("old") or inv.type_names[i]),
-                                     op["name"]))
+            type_renames[i] = (str(inv.type_names[i] if i < len(inv.type_names)
+                                   else op.get("old")), op["name"])
             applied.append(op)
         elif kind == "rename-family":
             new_family_name = op["name"]
-            if inv.family_name:
-                partatom_renames.append((inv.family_name, op["name"]))
             fam_rec_name = str(fv.get("m_name") or "")
             if fam_rec_name:
                 changes["m_name"] = op["name"]
@@ -694,7 +786,7 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
         else:                                                  # pragma: no cover
             raise FamilyEditError(f"unknown op {kind!r}")
 
-    formula_notes = _formula_followups(inv, fv, pairs, ops, changes)
+    formula_notes = _formula_followups(inv, fv, pairs, _effective_ops(ops), changes)
     if not changes and new_family_name is not None:
         # a generated family's self-Family m_name is empty: a family rename
         # alone changes no record -- the name lives in PartAtom (+ the file
@@ -705,7 +797,7 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
                "commit": {"out": _relp(out_path), "blocks": 0,
                           "note": "no record changes (the family name lives in "
                                   "PartAtom and the file name)"}}
-        rec["partatom"] = _patch_partatom(out_path, partatom_renames)
+        rec["partatom"] = _patch_partatom_scoped(out_path, new_family_name, type_renames)
         return rec
     if not changes:
         raise FamilyEditError("the ops produced no record changes")
@@ -730,8 +822,8 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
         and ver.get("elemtable_count") == ver.get("header_count"))
 
     # ---- PartAtom follow (names in the Atom-XML metadata) -----------------
-    if partatom_renames or new_family_name:
-        rec["partatom"] = _patch_partatom(out_path, partatom_renames)
+    if type_renames or new_family_name is not None:
+        rec["partatom"] = _patch_partatom_scoped(out_path, new_family_name, type_renames)
     return rec
 
 
@@ -804,6 +896,91 @@ def _patch_partatom(path: str, renames: Sequence[Tuple[str, str]]) -> Dict[str, 
     return {"changed": True, "replaced": replaced, "bytes": len(data)}
 
 
+#: the family-level PartAtom elements: the entry's OWN ``<title>`` / ``<id>``
+#: (the first of each -- a Revit-born PartAtom also has ``<title>`` inside each
+#: ``<A:part>``, which names a TYPE), the feature's ``<A:title>``, and the
+#: design file's ``<A:title>NAME.rfa``.  A type's entry is ours
+#: ``<A:type><A:title>NAME</A:title>`` or Revit's ``<A:part ...><title>NAME``
+_RE_PA_ENTRY = (re.compile(r"(<title>)(.*?)(</title>)", re.S),
+                re.compile(r"(<id>)(.*?)(</id>)", re.S))
+_RE_PA_FEATURE = re.compile(r"(<A:feature><A:title>)(.*?)(</A:title>)", re.S)
+_RE_PA_DESIGN = re.compile(r"(<A:design-file><A:title>)(.*?)(</A:title>)", re.S)
+_RE_PA_TYPE = re.compile(r"(<A:type><A:title>|<A:part\b[^>]*>\s*<title>)(.*?)(</A:title>|</title>)",
+                         re.S)
+
+
+def _patch_partatom_scoped(path: str, family: Optional[str],
+                           types: Dict[int, Tuple[str, str]]) -> Dict[str, Any]:
+    """Keep PartAtom in step with the edit's renames, each on its OWN elements
+    (#994): ``family`` (the new family name, or ``None``) rewrites the
+    family-level elements that carry the old family title (and the design
+    file's ``OLD.rfa``); ``types`` ({type index: (old, new)}) rewrites only
+    that type's ``<A:type>`` entry -- the i-th entry when it carries the old
+    name, else the one entry that does.  Order-independent: every match is
+    against the input's PartAtom.  Values are XML-escaped; the container is
+    rebuilt in place (atomic replace) only when the XML changed."""
+    import html
+    from ..container import open_rvt
+    from ..roundtrip import rewrite_entries
+    from ..famgen.skeleton import _xml_escape
+    with open_rvt(path) as f:
+        xml = f.raw("PartAtom").decode("utf-8")
+    replaced: List[dict] = []
+    out_xml = xml
+    if family is not None:
+        m0 = _RE_PA_ENTRY[0].search(xml)
+        old = html.unescape(m0.group(2)) if m0 else ""
+        n = [0]
+
+        def sub_if(want: str, new: str):
+            def f(m):
+                if html.unescape(m.group(2)) != want:
+                    return m.group(0)
+                n[0] += 1
+                return m.group(1) + _xml_escape(new) + m.group(3)
+            return f
+        if m0 is not None:
+            for rx in _RE_PA_ENTRY:                    # the entry's own, first one only
+                out_xml = rx.sub(sub_if(old, family), out_xml, count=1)
+            if "<A:type>" in out_xml:                  # our form: the feature is the family's;
+                # in Revit's form <A:feature><A:title> is a parameter GROUP ("Constraints")
+                out_xml = _RE_PA_FEATURE.sub(sub_if(old, family), out_xml)
+            out_xml = _RE_PA_DESIGN.sub(sub_if(old + ".rfa", family + ".rfa"), out_xml)
+        replaced.append({"scope": "family", "old": old, "new": family, "occurrences": n[0]})
+    if types:
+        spans = list(_RE_PA_TYPE.finditer(out_xml))
+        edits: Dict[int, str] = {}
+        for i, (old, new) in sorted(types.items()):
+            k = i if i < len(spans) and html.unescape(spans[i].group(2)) == old else None
+            if k is None:
+                hits = [j for j, s in enumerate(spans) if html.unescape(s.group(2)) == old]
+                k = hits[0] if len(hits) == 1 else None
+            if k is not None:
+                edits[k] = new
+            replaced.append({"scope": "type", "index": i, "old": old, "new": new,
+                             "occurrences": int(k is not None)})
+        for k in sorted(edits, reverse=True):
+            s = spans[k]
+            out_xml = out_xml[:s.start(2)] + _xml_escape(edits[k]) + out_xml[s.end(2):]
+    if out_xml == xml:
+        return {"changed": False, "replaced": replaced,
+                "note": "no PartAtom occurrence of the renamed strings"}
+    data = out_xml.encode("utf-8")
+    rewrite_entries(path, path, {"PartAtom": data})
+    return {"changed": True, "replaced": replaced, "bytes": len(data)}
+
+
+def _partatom_type_titles(path: str) -> List[str]:
+    import html
+    from ..container import open_rvt
+    try:
+        with open_rvt(path) as f:
+            xml = f.raw("PartAtom").decode("utf-8", "replace")
+    except Exception:                                          # noqa: BLE001
+        return []
+    return [html.unescape(m.group(2)) for m in _RE_PA_TYPE.finditer(xml)]
+
+
 # ---------------------------------------------------------------------------
 # THE ROUTE
 # ---------------------------------------------------------------------------
@@ -816,9 +993,12 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
     os.makedirs(out_dir, exist_ok=True)
     inv = inventory_family(rfa_path)
     parsed = parse_family_edit(edit, inv)
+    # the ops the file carries: an op a later op overrides is applied by
+    # nobody and re-read by nobody (its note says so, #994)
+    ops = _effective_ops(parsed["ops"])
 
     # output name: a family's display name IS largely its file name
-    new_name = next((o["name"] for o in parsed["ops"]
+    new_name = next((o["name"] for o in reversed(ops)
                      if o["op"] == "rename-family"), None)
     base_stem = stem or (re.sub(r"[^A-Za-z0-9._ -]+", "", new_name).strip()
                          if new_name else
@@ -838,14 +1018,14 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
     if inv.quarantined:
         rec["stamps"].append(QUARANTINE_STAMP)
     try:
-        rec["apply"], regen, geometry = _apply_geometry_true(inv, parsed["ops"], out_path)
+        rec["apply"], regen, geometry = _apply_geometry_true(inv, ops, out_path)
     except Exception as e:                                     # noqa: BLE001
         rec["errors"].append(f"apply failed: {type(e).__name__}: {e}")
         rec["errors"].append(traceback.format_exc(limit=6))
         rec["files"] = {}
         _finish(rec, out_dir, t0)
         raise
-    reread_ops = parsed["ops"]
+    reread_ops = ops
     # one geometry statement per edit: a value-only edit of a LABELLING
     # parameter carries the full VALUE ONLY caveat, so its unit note drops
     # the short one
@@ -857,7 +1037,7 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
         rec["regeneration"] = regen
         if regen.get("route") == "regenerated":
             # the rebuilt family's parameter ids are its own: re-read by caption
-            reread_ops = _rebind_ops(inventory_family(out_path), parsed["ops"])
+            reread_ops = _rebind_ops(inventory_family(out_path), ops)
             rebuilt = set(regen.get("captions") or ())
             parsed["notes"] = [
                 n[:-len(LENGTH_CAVEAT)] + REBUILT_NOTE
@@ -904,11 +1084,65 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
         rec["degradations"].append(n)
     for n in geometry:
         rec["degradations"].append(n)
-    if (regen is not None and regen.get("name_note")
-            and not any(o["op"] == "rename-family" for o in parsed["ops"])):
-        rec["degradations"].append(regen["name_note"])
+    if regen is not None:
+        note = _name_note(inv, ops, regen, rfa_path, out_path)
+        regen.pop("name_note", None)
+        if note:
+            regen["name_note"] = note
+            rec["degradations"].append(note)
     _finish(rec, out_dir, t0)
     return rec
+
+
+def _name_note(inv: FamilyInventory, ops: Sequence[dict], regen: Dict[str, Any],
+               rfa_path: str, out_path: str) -> str:
+    """The ONE name statement of a rebuilt edit (#994), true for every
+    combination of renames: the rebuild keeps the input's family title and
+    type names, so a name the generator derived from the OLD dimensions is
+    stale exactly where the edit did not rename it -- the family title unless
+    a rename-family, each type that carried it unless a rename-type of that
+    type.  Revit names a LOADED family by its FILE name, so the note also says
+    which file name loads over the placed family: the delivered file when it
+    kept the input's file name, else the input's file name to save it as (a
+    rename-family is a new family by intent, so no reload advice then)."""
+    stale = regen.get("name_stale") if regen.get("route") == "regenerated" else None
+    if not stale:
+        return ""
+    old, fresh = stale["old"], stale["fresh"]
+    renamed_family = any(o["op"] == "rename-family" for o in ops)
+    renamed_types = {int(o["type_index"]) for o in ops if o["op"] == "rename-type"}
+    what: List[str] = []
+    fixes: List[str] = []
+    if not renamed_family and inv.family_name == old:
+        what.append(f"the family title {old!r}")
+        fixes.append("'rename the family to ...'")
+    n_types = sum(1 for i, t in enumerate(inv.type_names)
+                  if t == old and i not in renamed_types)
+    if n_types:
+        what.append(f"the type name {old!r}" if n_types == 1 else
+                    f"{n_types} type names {old!r}")
+        fixes.append("'rename the type to ...'")
+    if not what:
+        return ""
+    many = len(what) > 1 or n_types > 1
+    note = (f"{' and '.join(what)} {'were' if many else 'was'} generated from the old "
+            f"dimensions (the generator would name this size {fresh!r}); "
+            f"{'they are' if many else 'it is'} kept, never changed silently -- "
+            f"{' / '.join(fixes)} to change {'them' if many else 'it'}")
+    if not renamed_family:
+        src_file = os.path.basename(rfa_path)
+        out_file = os.path.basename(out_path)
+        src_stem = os.path.splitext(src_file)[0]
+        if out_file.lower() == src_file.lower():
+            note += (f". Revit names a loaded family by its file name: this file keeps the "
+                     f"input's file name {src_file!r}, so loading it replaces the placed "
+                     f"family {src_stem!r}")
+        else:
+            note += (f". Revit names a loaded family by its file name: this file is "
+                     f"{out_file!r}, so loading it adds a SECOND family "
+                     f"{os.path.splitext(out_file)[0]!r} beside {src_stem!r} -- save or "
+                     f"load it as {src_file!r} to replace the placed family")
+    return note
 
 
 def _rebind_ops(inv: FamilyInventory, ops: Sequence[dict]) -> List[dict]:
@@ -1046,8 +1280,13 @@ def _reread_proof(path: str, ops: Sequence[dict]) -> List[dict]:
         if op["op"] == "rename-type":
             got = (pairs[int(op["type_index"])].get("name")
                    if int(op["type_index"]) < len(pairs) else None)
+            # PartAtom's own type entry follows the type -- and ONLY the type
+            # (#994: the family title is the rename-family check's business)
+            pa_types = _partatom_type_titles(path)
+            pa_ok = not pa_types or op["name"] in pa_types
             out.append({"op": "rename-type", "want": op["name"], "got": got,
-                        "ok": got == op["name"]})
+                        "partatom_types": pa_types,
+                        "ok": got == op["name"] and pa_ok})
         elif op["op"] == "set-param":
             pid, carrier = int(op["param_id"]), op["carrier"]
             scope = op.get("type_name")
@@ -1064,9 +1303,10 @@ def _reread_proof(path: str, ops: Sequence[dict]) -> List[dict]:
             out.append({"op": "set-param", "caption": op.get("caption"),
                         "want": want, "got": got, "ok": bool(ok)})
         elif op["op"] == "rename-family":
-            title = _partatom_title(path)
+            import html
+            title = html.unescape(_partatom_title(path) or "")
             out.append({"op": "rename-family", "want": op["name"], "got": title,
-                        "ok": op["name"] in (title or "")})
+                        "ok": title == op["name"]})
     return out
 
 

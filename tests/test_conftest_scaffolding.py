@@ -85,6 +85,8 @@ ADOPTERS = {
     "test_genesis_identity": "GI.build_release(year) re-authors the foreign pins under release_build_context",
     "test_edit_drives_909": "MF.modify_family(...) rebuilds through famgen.nest (host_release_context) and the test reads "
                             "back with constraint_law.check_file (enter_own_release) inside the engine",
+    "test_edit_leftovers_994": "MF.modify_family(...) rebuilds through famgen.nest (host_release_context) inside the "
+                               "engine",
     "test_frontdoor_209": "FD.author(prompt=..., target_version=<first foreign pin>) enters release_build_context in the "
                           "front door's build, then the route dies late (#209): the guard proves nothing stayed entered",
 }
