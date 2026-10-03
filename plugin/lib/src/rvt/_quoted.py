@@ -14,10 +14,12 @@ rules live here, once, in a stdlib-only leaf, so the doors cannot drift:
   unbalanced quote never pairs with a quote in a LATER clause and swallows it
   (PR #1018 review 1).
 * :func:`split_clauses` -- split on a door's separators outside those spans.
-  A span running across what reads as a further edit (the door's verbs) is
-  refused, and each clause kept whole is reported in ``joined`` so the door
-  refuses one its grammar cannot read instead of dropping it (PR #1018
-  review 2): a refusal is recoverable, a swallowed edit is not.
+  A span is refused where the text after a separator inside it is a fragment
+  the old quote-blind split would have APPLIED as an edit (the door's own
+  ``reads``) -- ``"Main; Mark B"`` is a value, ``'heavy; set Mark = workers'``
+  is ambiguous (#1021); each clause kept whole is reported in ``joined`` so
+  the door refuses one its grammar cannot read instead of dropping it (PR
+  #1018 review 2): a refusal is recoverable, a swallowed edit is not.
 """
 from __future__ import annotations
 
@@ -46,13 +48,13 @@ def quoted_spans(s: str) -> List[Tuple[int, int]]:
     return spans
 
 
-def split_clauses(s: str, sep: Pattern[str], further: Pattern[str],
+def split_clauses(s: str, sep: Pattern[str], reads: Callable[[str], bool],
                   refuse: Callable[[str], Exception],
                   joined: Optional[Set[str]] = None) -> List[str]:
-    """Split ``s`` on ``sep`` outside :func:`quoted_spans`.  A span that runs
-    across a separator followed by ``further`` (a door's edit verbs, matched
-    at the text after the separator) raises ``refuse(message)``; each clause
-    kept whole across a separator is added to ``joined``."""
+    """Split ``s`` on ``sep`` outside :func:`quoted_spans`.  A span holding a
+    separator after which the old split's next fragment ``reads`` as an edit
+    raises ``refuse(message)``; each clause kept whole across a separator is
+    added to ``joined``."""
     spans = quoted_spans(s)
     out: List[Tuple[str, bool]] = []
     start, kept = 0, False
@@ -63,7 +65,8 @@ def split_clauses(s: str, sep: Pattern[str], further: Pattern[str],
             start, kept = m.end(), False
             continue
         kept = True
-        if further.match(s, m.end()):
+        nxt = sep.search(s, m.end())
+        if reads(s[m.end():nxt.start() if nxt else len(s)]):
             raise refuse(
                 f"the quote in {s[span[0]:span[1]]} runs across a further edit: close the "
                 "quote before the ';' / ',' / 'then' to make separate edits (to store that "

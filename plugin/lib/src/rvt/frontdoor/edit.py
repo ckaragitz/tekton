@@ -289,8 +289,6 @@ def _opkey(o: dict) -> str:
 
 
 _RE_CLAUSE_SEP = re.compile(r";|\n|\bthen\b|\band\s+then\b")
-_RE_FURTHER_EDIT = re.compile(r"\s*(?:delete|remove|drop|move|rotate|rename|set|mark|retype)\b",
-                              re.I)
 
 
 def _reads(clause: str) -> bool:
@@ -304,7 +302,7 @@ def _parse_text(text: str, doc) -> EditSpec:
     # never cut a quoted mark / name / value at a ';' / newline / 'then' inside
     # it (#1019; the quote rules: rvt._quoted, shared with the family lane)
     joined: set = set()
-    clauses = _quoted.split_clauses(text, _RE_CLAUSE_SEP, _RE_FURTHER_EDIT, EditParseError,
+    clauses = _quoted.split_clauses(text, _RE_CLAUSE_SEP, _reads, EditParseError,
                                     joined)
     ops: List[dict] = []
     understood: List[dict] = []

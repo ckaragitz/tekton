@@ -44,7 +44,7 @@ def test_quoted_separators(text, want):
 
 @pytest.mark.parametrize("text", [
     "mark 742670 as 'heavy; delete 1466502 workers'",
-    'rename 742670 to "x then move 1466502 by 1,0,0 ft"',
+    'rename 742670 to "x then move 1466502 by 1,0,0 ft then spare"',
 ])
 def test_a_quote_running_across_a_further_edit_is_refused(text):
     with pytest.raises(E.EditParseError, match="runs across a further edit"):

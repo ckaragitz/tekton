@@ -28,6 +28,13 @@ def release_leak_extra():
     return lambda: dict(ladder_constants(), **context_constants())
 
 
+def _inv():
+    ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",
+           "spec": "autodesk.spec:string-2.0.0", "carrier": "m_str", "current": "", "formula": False}
+          for i, c in enumerate(("Width", "Note", "Mark", "Finish", "Length"))]
+    return MF.FamilyInventory(path="x.rfa", family_id=1, family_name="F", type_names=["T1"], params=ps)
+
+
 @pytest.mark.parametrize("text, want", [
     ('set Note = "a; b"', ['set Note = "a; b"']),
     ("set Note = 'x, set Width = 2'", ["set Note = 'x", "set Width = 2'"]),   # 2' = feet: as main
@@ -53,7 +60,7 @@ def release_leak_extra():
     ("set Note = 'rock 'n' roll; set Mark = 2'", ["set Note = 'rock 'n' roll", "set Mark = 2'"]),
 ])
 def test_split(text, want):
-    assert MF._split_clauses(text) == want
+    assert MF._split_clauses(text, _inv()) == want
 
 
 @pytest.mark.parametrize("text", [
@@ -64,14 +71,7 @@ def test_split(text, want):
 ])
 def test_a_quoted_value_running_across_a_further_edit_is_refused(text):
     with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
-        MF._split_clauses(text)
-
-
-def _inv():
-    ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",
-           "spec": "autodesk.spec:string-2.0.0", "carrier": "m_str", "current": "", "formula": False}
-          for i, c in enumerate(("Width", "Note", "Mark"))]
-    return MF.FamilyInventory(path="x.rfa", family_id=1, family_name="F", type_names=["T1"], params=ps)
+        MF._split_clauses(text, _inv())
 
 
 @pytest.mark.parametrize("text", [
