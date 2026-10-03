@@ -2,9 +2,14 @@
 inside is one clause, not two.  #1008 made a quoted value the way to store
 text exactly as typed; a separator inside the quotes cut it ('"a').
 
-A quote counts only when it opens at a word start and closes at a word end,
-so an apostrophe ("Bob's") or an unbalanced quote never hides a separator --
-those split exactly as before.
+A quote pairs only when it opens at a word start onto a non-space, the next
+copy of it closes at a word end, and that close is not a unit mark (3' / 5").
+Anything else is literal, so an apostrophe ('90s, Bob's), a feet/inch mark,
+a glued quote or an unbalanced quote never pairs with a quote in a LATER
+clause and swallows it (PR #1018 review) -- those split exactly as on main.
+A quoted value that still runs across what reads as a further set/rename
+clause is refused: that shape cannot be told from a stray quote pairing with
+the next edit's, and a refusal is recoverable where a swallowed edit is not.
 
 Run: .venv/bin/python -m pytest tests/test_edit_quoted_split_1017.py -q
 """
@@ -25,7 +30,7 @@ def release_leak_extra():
 
 @pytest.mark.parametrize("text, want", [
     ('set Note = "a; b"', ['set Note = "a; b"']),
-    ("set Note = 'x, set Width = 2'", ["set Note = 'x, set Width = 2'"]),
+    ("set Note = 'x, set Width = 2'", ["set Note = 'x", "set Width = 2'"]),   # 2' = feet: as main
     ('set Note = "x then y" then set Width = 2', ['set Note = "x then y"', "set Width = 2"]),
     ('set Note = "p\nq"\nset Width = 2', ['set Note = "p\nq"', "set Width = 2"]),
     ('set Note: "a; b"', ['set Note: "a; b"']),
@@ -37,9 +42,29 @@ def release_leak_extra():
     ('set Note = 5"; set Width = 2', ['set Note = 5"', "set Width = 2"]),
     ("set Note = a; set Width = 2, set Mark = 3", ["set Note = a", "set Width = 2", "set Mark = 3"]),
     ("set Note = a then set Width = 2", ["set Note = a", "set Width = 2"]),
+    # PR #1018 review: a literal quote never pairs with a later clause's quote
+    ("set Finish = '90s style; set Length = 3'", ["set Finish = '90s style", "set Length = 3'"]),
+    ('set Finish = "a; b; set Length = 5"', ['set Finish = "a', "b", 'set Length = 5"']),
+    ('set Finish = 3 "; set Length = 5"', ['set Finish = 3 "', 'set Length = 5"']),
+    ('set Finish = "hot dip; set Length = "X"', ['set Finish = "hot dip', 'set Length = "X"']),
+    ("set Note = 'tis; set Mark = 'x'", ["set Note = 'tis", "set Mark = 'x'"]),
+    ('set Note = "A"B; set Mark = "x"', ['set Note = "A"B', 'set Mark = "x"']),
+    ("set Note = 10 '; set Mark = 'x'", ["set Note = 10 '", "set Mark = 'x'"]),
+    ("set Note = 'rock 'n' roll; set Mark = 2'", ["set Note = 'rock 'n' roll", "set Mark = 2'"]),
 ])
 def test_split(text, want):
     assert MF._split_clauses(text) == want
+
+
+@pytest.mark.parametrize("text", [
+    "set Note = 'heavy; set Mark = workers'",
+    'set Note = "x, set Mark = A"',
+    'set Note = "a then rename type T1 to Big"',
+    "set Note = 'a\nset Mark = b'",
+])
+def test_a_quoted_value_running_across_a_further_edit_is_refused(text):
+    with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
+        MF._split_clauses(text)
 
 
 @pytest.fixture(scope="module")
@@ -60,6 +85,13 @@ def conduit():
 
 
 def test_a_quoted_separator_reads_back_whole_on_a_generated_family(conduit, tmp_path):
-    rec = MF.modify_family(conduit, 'set Finish = "hot dip; galv, set Mark"', str(tmp_path))
+    rec = MF.modify_family(conduit, 'set Finish = "hot dip; galv then coat"', str(tmp_path))
     assert MF.inventory_family(rec["files"]["rfa"]).param_by_caption("Finish")["current"] \
-        == "hot dip; galv, set Mark"
+        == "hot dip; galv then coat"
+
+
+def test_a_leading_apostrophe_never_swallows_the_next_edit(conduit, tmp_path):
+    # PR #1018 review row 1: main applied both edits; the first head dropped Length
+    ops = MF.parse_family_edit("set Finish = '90s style; set Length = 3'",
+                               MF.inventory_family(conduit))["ops"]
+    assert len(ops) == 2
