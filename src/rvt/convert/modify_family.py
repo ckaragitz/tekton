@@ -438,19 +438,24 @@ def _sibling_vocabulary():
 _RE_CLAUSE_SEP = re.compile(r";|\n|\bthen\b|,\s*(?=set\b|rename\b)")
 
 
-def _reads(inv: FamilyInventory, clause: str) -> bool:
-    """Would the text grammar apply ``clause`` as an edit (or refuse the whole
-    edit over it, as the old quote-blind split did)?  (#1021)"""
-    c = clause.strip().rstrip(".")
-    if _RE_RENAME_FAMILY.match(c) or _RE_RENAME_TYPE.match(c):
+def _reads(inv: FamilyInventory, fragment: str) -> bool:
+    """Is the fragment after a separator inside a quoted value a further edit
+    (#1021)?  A rename; a ``set`` with an explicit ``=`` / ``to`` / ``:`` (``set
+    Material = steel`` is a mistyped edit, refused); a ``set`` naming a
+    parameter of this family; or one the grammar itself refuses.  ``set screw
+    included`` / ``set up later`` is text."""
+    c = fragment.strip().rstrip(".")
+    if (_RE_RENAME_FAMILY.match(c) or _RE_RENAME_TYPE.match(c)
+            or _RE_SET_DELIM_WORD.match(c)):
         return True
     try:
         m = _match_set(inv, c)
     except FamilyEditError:
-        return True                       # the grammar's own refusal: stay on the safe side
-    # a 'set <word> ...' naming no parameter of this family is text, not an edit
-    # ("Hex bolt, set screw included")
+        return True
     return m is not None and inv.param_by_caption(m.group("cap").strip()) is not None
+
+
+_RE_SET_DELIM_WORD = re.compile(r"set\s.*?(?:=|:|\sto\s)", re.I | re.S)
 
 
 def _split_clauses(s: str, inv: FamilyInventory, joined: Optional[set] = None) -> List[str]:
@@ -540,11 +545,12 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
             op = _op_set(inv, m.group("cap").strip(), m.group("val").strip(), notes,
                          type_name=(m.group("typeq") or m.group("typeq2")
                                     or m.group("type")), clause=c)
-        elif cl in joined and any(_reads(inv, f) for f in _RE_CLAUSE_SEP.split(cl)):
+        elif cl in joined:
             # kept whole across a ';' / newline / 'then' inside quotes, then
-            # unreadable (a newline in the value, a mixed quote in a name), where
-            # the old split applied part of it -- never drop it silently (PR #1018
-            # second review); a clause no part of which reads stays unparsed (#1021)
+            # unreadable (a newline in the value, a mixed quote in a name):
+            # refused, never dropped -- this lane shows no 'unparsed' to the
+            # user, so even a clause the old split could not read (an unknown
+            # caption with ':') is a refusal here (PR #1018 second review; #1022)
             raise FamilyEditError(
                 f"cannot read {cl!r} as one edit: a quoted value here holds a ';' / "
                 "newline / 'then' (to store such text, use a JSON set-param op)")

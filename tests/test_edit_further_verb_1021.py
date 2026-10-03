@@ -47,20 +47,38 @@ def test_family_a_verb_word_in_a_quoted_value_is_stored(text, want):
     "set Note = 'heavy; set Mark = workers'",
     'set Note = "x; set Mark"',
     "set Note = 'a, rename family to B'",
+    # PR #1022 review nit 1: an explicit delimiter makes it an edit, even mistyped
+    'set Note = "x; set Material = steel"',
+    'set Note = "x; set Finishes = a"',
+    'set Note = "x then set W to a"',
+    'set Note = "a; set Bend: x"',
 ])
 def test_family_a_fragment_that_would_have_applied_is_still_refused(text):
     with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
         MF.parse_family_edit(text, _inv())
 
 
-def test_family_a_kept_whole_clause_no_part_of_which_read_stays_unparsed():
-    ops, unparsed = _family('also set Note = "a; b"; set Mark = 2')
-    assert ops == [("Mark", "2")] and unparsed == ['also set Note = "a; b"']
-
-
-def test_family_a_kept_whole_clause_whose_part_read_is_still_refused():
+@pytest.mark.parametrize("text", [
+    # the family lane shows no 'unparsed' to the user, so a kept-whole clause it
+    # cannot read is refused even where the old split read no part of it (#1022)
+    'also set Note = "a; b"; set Mark = 2',
+    "set Bend: 'EMT, set aside'\nset Width to 2",
+])
+def test_family_a_kept_whole_clause_it_cannot_read_is_always_refused(text):
     with pytest.raises(MF.FamilyEditError, match="cannot read"):
-        MF.parse_family_edit('set Note = "p\nq"\nset Width = 2', _inv())
+        MF.parse_family_edit(text, _inv())
+
+
+@pytest.mark.parametrize("text", [
+    'set Note = "p\nq"\nset Width = 2',
+    # PR #1022 review: an unknown / mistyped caption was REFUSED by the old split
+    # ("no parameter"), never dropped -- so this is refused, not left unparsed
+    'set Finsh = "line one\nline two"; set Mark = PVC',
+    'set Colour = "line one\nline two"; set Mark = PVC',
+])
+def test_family_a_kept_whole_clause_the_grammar_acted_on_is_still_refused(text):
+    with pytest.raises(MF.FamilyEditError, match="cannot read"):
+        MF.parse_family_edit(text, _inv())
 
 
 @pytest.mark.parametrize("text, want", [
