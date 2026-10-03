@@ -551,7 +551,28 @@ def _match_set(inv: FamilyInventory, clause: str):
     Words after a known caption cannot be told apart from a mistyped
     parameter (``set finish color to black``, ``set Model number to X``) by
     case or vocabulary, and a refusal is recoverable where a mis-targeted
-    write is not."""
+    write is not.
+
+    An UNQUOTED type name after ``of type`` is first resolved against the
+    family's own type names (#1006, :func:`_resolve_type_name`), so a generated
+    family's ``Conduit - Straight Run 0.75 in 10 ft`` is one name, never cut at
+    its first word or folded into the value."""
+    clause, qual = _resolve_type_name(inv, clause)
+    m = _match_set_inner(inv, clause)
+    if qual is not None and m is not None and not (
+            m.group("typeq") or m.group("typeq2") or m.group("type")):
+        # the clause qualified its parameter with a type the grammar did not
+        # read: never let it fall through to the default type (#1007 review)
+        raise FamilyEditError(
+            f"could not read the type in {clause!r}: set <Parameter> of type "
+            "\"<type name>\" = <value>")
+    if qual and m is not None and (m.group("typeq") or m.group("typeq2")) != qual:
+        raise FamilyEditError(f"could not read the type {qual!r} in {clause!r}")
+    return m
+
+
+def _match_set_inner(inv: FamilyInventory, clause: str):
+    """:func:`_match_set`'s grammar on a clause whose type name is resolved."""
     lead = _RE_SET_LEAD.match(clause)
     caps: List[Tuple[str, str]] = []
     if lead:
@@ -581,6 +602,179 @@ def _match_set(inv: FamilyInventory, clause: str):
 _RE_OF_TYPE = re.compile(r"(?:^|\s+)of\s+type\s+(?P<t>\"[^\"]+\"|'[^']+'|[^\"'\s]+)", re.I)
 
 
+_RE_OF_TYPE_AT = re.compile(r"\s+of\s+type\s+", re.I)
+_RE_DELIM_AHEAD = re.compile(r"\s+to\s+|\s*=", re.I)
+#: what may follow a family type name typed unquoted: the end, ``to``, ``=``
+#: (spaces optional before it), or one space and a bare value
+_RE_AFTER_NAME = re.compile(r"(?P<to>\s+to\s+)|(?P<eq>\s*=\s*)|(?P<sp>\s+)|(?P<end>$)", re.I)
+
+
+def _refuse_type(named: str, types: Sequence[str]):
+    raise FamilyEditError(
+        f"'of type {named}' is not a type of this family "
+        f"({', '.join(map(repr, types)) or 'no types'}): name a type exactly, "
+        "quoted when it has spaces -- e.g. set <Parameter> of type \"<type name>\" = <value>")
+
+
+def _quote_type_name(inv: FamilyInventory, clause: str) -> str:
+    """``clause`` with an unquoted family type name quoted in, or a
+    :class:`FamilyEditError` -- the clause half of
+    :func:`_resolve_type_name` (#1006), for the refusal hint."""
+    return _resolve_type_name(inv, clause)[0]
+
+
+def _resolve_type_name(inv: FamilyInventory, clause: str) -> Tuple[str, Optional[str]]:
+    """Resolve the ``of type`` qualifier of a set clause (#1006, #1007).
+
+    Returns ``(clause, qualifier)``: ``clause`` with an UNQUOTED ``of type
+    NAME`` rewritten to the grammar's quoted form when NAME is one of the
+    family's own type names (#1006), or
+    refused by name -- never a name cut short with the rest written into the
+    value, never a clause folded into the default type's value.
+
+    * Only the ``of type`` that qualifies the PARAMETER counts: the one before
+      any ``=`` or quote, and before any ``to`` unless the words before it are
+      exactly one of the family's captions (``Distance to Wall``).  An ``of
+      type`` inside the value is the user's text and is left alone.
+    * A family type name matches case-insensitively and must be followed by
+      the end, ``to``, ``=`` (``Big One=black`` too), or one space and a bare
+      value.  Longest first.  A name followed by MORE words and then a
+      delimiter (``Big One XLL to black`` -- the user typed a longer name) is
+      not a match; if nothing else fits, the clause is refused.  In the bare
+      form a name followed by a word that begins (or extends) the next word
+      of a longer type of this family (``Big One XL`` / ``Big One XLL``)
+      cannot be told from that longer name, and a bare value of several words that starts with a word
+      (``Default Extra black``) cannot be told from a longer mistyped name,
+      so both are refused (``of type T1 3 ft`` and ``= <value>`` still work).
+    * With no family name matching: an unquoted name of more than one word
+      before ``to`` / ``=``, or (no delimiter) a first word that is not
+      exactly a type, is refused.  A single word before the delimiter
+      (``of type T1 to 5``) is left to the grammar, which refuses a name that
+      matches no type.
+
+    ``qualifier`` is ``None`` when the clause has no ``of type`` qualifying
+    its parameter, the resolved type name when one was quoted in, and ``""``
+    when a qualifier was left to the grammar (quoted by the user, or one exact
+    word).  :func:`_match_set` refuses any clause whose qualifier the grammar
+    did not read, so a typed clause never falls into the default type.
+    Also refused: a type named with no value; a value that ENDS in ``of type
+    <a type of this family>`` (quoted or not); two valid readings (``X`` /
+    ``X to Y``); a head before ``of type`` that is not a caption + ``to`` /
+    ``=`` when the tail names a type (``Finish's color of type Big One``); and
+    any single word before ``to`` / ``=`` that is not exactly a type (no
+    substring match -- ``T1`` never reaches ``T10``)."""
+    m = _RE_OF_TYPE_AT.search(clause)
+    if m is None:
+        return clause, None
+    types = [str(n) for n in (getattr(inv, "type_names", None) or []) if str(n).strip()]
+    names = sorted({n.strip() for n in types}, key=len, reverse=True)
+    tail = clause[m.end():]
+    low = tail.lower()
+    head = clause[:m.start()]
+    lead = _RE_SET_LEAD.match(head)
+    words_head = head[lead.end():].strip() if lead else head.strip()
+    in_value = ("=" in head or '"' in head or "'" in head
+                or (re.search(r"\bto\b", words_head, re.I) and not any(
+                    str(p["caption"]).strip().lower() == words_head.lower() for p in inv.params)))
+    if in_value:
+        # Only a head that is a COMPLETE set clause -- one of the family's
+        # captions, then to / '=' -- puts this 'of type' inside a value.  A
+        # head like "Finish's color" or "Route to Panel name" is not one: if
+        # the tail starts with a type of this family, the clause cannot be
+        # read safely and is refused, never written to the default type
+        # (#1007 review, B3).
+        wl = words_head.lower()
+        real_value = any(
+            wl.startswith(c) and re.match(r"\s+to\s|\s*=", wl[len(c):] + " ")
+            for c in (str(p["caption"]).strip().lower() for p in inv.params) if c)
+        if not real_value:
+            if any(low.startswith(n.lower()) and _RE_AFTER_NAME.match(tail, len(n))
+                   for n in names):
+                raise FamilyEditError(
+                    f"could not read {words_head!r} as one of this family's parameters "
+                    "before 'of type': set <Parameter> of type \"<type name>\" = <value>")
+            return clause, None
+        # 'of type' inside the VALUE is the user's text -- unless the value
+        # ENDS in 'of type <a type of this family>', quoted or not: then the
+        # user may have meant that type, and writing the phrase into the
+        # default type is the mis-target #1006 retires (#1007 review, B2)
+        # the LAST 'of type' in the value, trailing punctuation dropped
+        # ('black of type Big One!', 'x of type steel of type Big One')
+        lm = list(_RE_OF_TYPE_AT.finditer(clause))[-1]
+        last = clause[lm.end():].strip().lower().rstrip(".!?,;:").strip()
+        if len(last) >= 2 and last[0] == last[-1] and last[0] in "\"'":
+            last = last[1:-1].strip()
+        if last in {n.lower() for n in names}:
+            shown = next(n for n in names if n.lower() == last)
+            raise FamilyEditError(
+                f"the value ends in 'of type {shown}', a type of this family: to set "
+                "that type, put the type before the value -- set <Parameter> of type "
+                f"\"{shown}\" = <value>; to store the words as text, quote the value")
+        return clause, None
+    if clause[m.end():m.end() + 1] in ("\"", "'"):
+        return clause, ""                 # quoted: the grammar reads it; the backstop checks it did
+    for n in names:
+        if not low.startswith(n.lower()):
+            continue
+        after = _RE_AFTER_NAME.match(tail, len(n))
+        if after is None:
+            continue                                      # 'Big One-x', 'Big One.': not this name
+        rest = tail[after.end():]
+        if after.group("sp") is not None:
+            if _RE_DELIM_AHEAD.search(rest):
+                continue                                  # more words, then to/= : a longer name
+            vw = rest.split()
+            nxt = vw[0].lower() if vw else ""
+            # a longer type of this family whose next word the typed word could
+            # be (or start): 'Big One XLL' vs 'Big One XL' -- 'black' vs 'Long' is not
+            longer = [o for o in names if len(o) > len(n) and o.lower().startswith(n.lower() + " ")
+                      and nxt and (o[len(n):].split()[0].lower().startswith(nxt)
+                                   or nxt.startswith(o[len(n):].split()[0].lower()))]
+            if longer or (len(vw) > 1 and vw[0][:1].isalpha()):
+                # a bare value of several words that starts with a word could
+                # be the rest of a longer (mistyped) type name: refuse, '='
+                # says it unambiguously ("of type T1 3 ft" still parses)
+                _refuse_type(n + (" " + vw[0] if vw else "") + " ...", types)
+        if not rest.strip() or rest.strip().lower() in ("to", "="):
+            raise FamilyEditError(
+                f"no value given for type {n!r}: set <Parameter> of type \"{n}\" = <value>")
+        if after.group("sp") is None:
+            # a SHORTER type of this family that also reads with a to / '=' is
+            # a second valid parse ('X' / 'X to Y' in 'of type X to Y to z'):
+            # refuse rather than pick (#1007 review)
+            for s2 in names:
+                if len(s2) < len(n) and low.startswith(s2.lower()):
+                    a2 = _RE_AFTER_NAME.match(tail, len(s2))
+                    if (a2 is not None and a2.group("sp") is None
+                            and tail[a2.end():].strip()):
+                        raise FamilyEditError(
+                            f"'of type {tail[:after.start()].strip()} ...' reads as type {n!r} or "
+                            f"type {s2!r}: quote the type -- set <Parameter> of type \"{n}\" = "
+                            "<value>")
+        if '"' in n and "'" in n:
+            _refuse_type(n, types)
+        q = "'" if '"' in n else '"'
+        sep = (" to " if after.group("to") is not None
+               else " = " if after.group("eq") is not None
+               else " " if after.group("sp") is not None else "")
+        return clause[:m.end()] + q + n + q + sep + rest, n
+    d = _RE_DELIM_AHEAD.search(tail)
+    if d is not None:
+        named = tail[:d.start()].strip()
+        if (len(named.split()) > 1 or any(c in named for c in ".,;")
+                or named.lower() not in {n.lower() for n in names}):
+            _refuse_type(named, types)
+        return clause, ""
+    words = tail.split()
+    if len(words) > 1 and words[0].lower() not in {n.lower() for n in names}:
+        _refuse_type(words[0] + " ...", types)
+    if len(words) < 2:
+        raise FamilyEditError(
+            f"no value given for 'of type {tail.strip()}': set <Parameter> of type "
+            "\"<type name>\" = <value>")
+    return clause, ""
+
+
 def _value_hint(inv: FamilyInventory, caption: str, clause: Optional[str] = None) -> str:
     """For a refused ``caption`` that starts with one of the family's own
     captions (``Finish galvanized``), name the recovery: the words after a
@@ -594,6 +788,11 @@ def _value_hint(inv: FamilyInventory, caption: str, clause: Optional[str] = None
     for cap in sorted((p["caption"] for p in inv.params), key=len, reverse=True):
         c = cap.lower()
         if c and low.startswith(c) and len(low) > len(c) and low[len(c)].isspace():
+            if clause:
+                try:
+                    clause = _quote_type_name(inv, clause)       # a full type name stays one (#1006)
+                except FamilyEditError:
+                    pass
             at = (clause or "").lower().find(low)
             rest = (clause[at + len(cap):].strip() if at >= 0 else "<value>")
             # an 'of type T' qualifier stays the TYPE, in its parsed position
@@ -658,13 +857,13 @@ def _op_set(inv: FamilyInventory, caption: str, raw: str, notes: List[str],
           "carrier": p["carrier"], "spec": p["spec"], "value": val, "raw": raw}
     if type_name:
         key = str(type_name).strip().strip("\"'").lower()
+        # EXACT (case-insensitive) only: a substring ('T1' in 'T10', 'One' in
+        # 'Big One') would write to a type the user did not name (#1007 review)
         hits = [n for n in inv.type_names if n.strip().lower() == key]
-        if not hits:
-            hits = [n for n in inv.type_names if key in n.lower()]
         if len(hits) != 1:
             raise FamilyEditError(
-                f"'of type {type_name}' matches {len(hits)} of {inv.type_names}: "
-                "name the type exactly (quote names containing spaces)")
+                f"'of type {type_name}' is not exactly one of this family's types "
+                f"{inv.type_names}: name the type exactly (quote names containing spaces)")
         op["type_name"] = hits[0]
         notes.append(f"{p['caption']}: scoped to type {hits[0]!r} -- the current-"
                      "defaults row (m_familyParams) is left as-is for a scoped edit")

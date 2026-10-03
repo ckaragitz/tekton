@@ -1,0 +1,1 @@
+tests/test_edit_type_names_1006.py
