@@ -31,10 +31,12 @@ Routing:
                  runner's certified edit pipeline: modify / move / retype /
                  delete / cascade), driven by ``--edit`` text or an ops spec.
 
-The OPEN BUG (created walls + loaded family documents in one file trip the
-audit) is DETECTED and DEGRADED honestly by :mod:`rvt.frontdoor.build`:
-``--strict`` -> two coordinated files (shell + equipment); default -> one
-combined file STAMPED 'PROOF-ONLY: walls+families combination unverified'.
+THE OPEN CELL (PLACED INSTANCES of our generated families on our composed
+genesis base; genesis-audit #48, issue #16) is DETECTED and DEGRADED honestly
+by :mod:`rvt.frontdoor.build`: ``--strict`` -> two coordinated files (shell +
+equipment); default -> one combined file STAMPED
+:data:`rvt.frontdoor.intent.OPEN_CELL_STAMP`.  Walls + ONE loaded family in
+one file are certified (WF_fix / WF_nofix); more families is open (#27).
 
 CLI: ``tools/frontdoor.py`` (the ``author`` command).  Territory:
 ``src/rvt/frontdoor/`` (front-door stream).

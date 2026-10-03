@@ -10,7 +10,7 @@ Fast, self-contained checks of the four things the front door adds:
   route yields (tagging-contract dicts, room ring, feeder tree, family
   mapping), with an honest coverage report; and the PRIMARY handoff path
   (scene brief + PROMPT_TO_IFC.md);
-* the OPEN-BUG DEGRADE logic (walls + loaded families): --strict = two
+* the OPEN-CELL DEGRADE logic (placed instances): --strict = two
   files, default = one file + the PROOF-ONLY stamp, never a silent combo;
 * the --rvt EDIT normalisation: text / ops.json / inline JSON -> the job
   runner's ops vocabulary, and the CLI's route validation.
@@ -409,7 +409,7 @@ def test_prompt_to_ifc_doc_ships_with_the_package():
 
 # ===========================================================================
 # 4. the OPEN-CELL degrade (placed instances of OUR families on OUR composed
-#    base -- genesis-audit #48 / issue #16; walls + loaded families PASS)
+#    base -- genesis-audit #48 / issue #16; walls + ONE loaded family PASS, #27)
 # ===========================================================================
 
 @needs_catalog
@@ -445,7 +445,8 @@ def test_combination_detected_and_degraded():
 def test_no_combination_when_walls_or_families_only():
     """No instance placed on a composed base -> single, no open-cell stamp:
     walls only, walls + LOADED families without placement (--stages FLWV, the
-    WF_fix / WF_nofix certified shape), and instances on a NON-composed host."""
+    WF_fix / WF_nofix shape, certified with one family), and instances on a
+    NON-composed host."""
     walls_only, _ = PP.prompt_to_intent("an electrical room 9.2m x 6.2m")
     v = FI.combination_check(walls_only)
     assert not v.triggers_open_bug and v.mode == "single" and v.has_walls

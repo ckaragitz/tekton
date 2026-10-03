@@ -32,7 +32,8 @@ What THIS module adds is the degrade policy the ifc-room pipeline never
 had -- THE OPEN CELL (docs/inbox/genesis-audit.md verdict #48, issue #16):
 PLACED INSTANCES of OUR generated family documents on OUR composed genesis
 base fail Autodesk's audit, while walls PASS, loaded families PASS and
-walls + loaded families in one file PASS (WF_fix / WF_nofix, verdict #27).
+walls + ONE loaded family in one file PASS (WF_fix / WF_nofix, verdict #27;
+whether more families in one file pass is open -- #996).
 So :func:`build_intent` first asks
 :func:`rvt.frontdoor.intent.combination_check` (intent + stages + the
 base's lineage) and then does exactly one of:
@@ -40,10 +41,12 @@ base's lineage) and then does exactly one of:
   * ``single``            no instance placed on a composed base (walls only,
                           loaded families only, walls + loaded families
                           without placement, or a non-composed host) -> ONE
-                          certified-shape file, no open-cell stamp;
+                          file, no open-cell stamp (walls + families is a
+                          certified shape with one family only, #27);
   * ``split-strict``      (``--strict``) -> TWO coordinated files, both
                           delivered: ``shell`` (the walls + the LOADED
-                          families on the base -- the certified shape) +
+                          families on the base -- certified with one
+                          family) +
                           ``equipment`` (the loaded families + their PLACED
                           instances -- the open cell, isolated);
   * ``stamp-proof-only``  (default) -> ONE combined file whose manifest is
@@ -661,8 +664,9 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     erec: Optional[Dict[str, Any]] = None             # stage E's record: stage C names causes off it
     if mode == "split-strict":
         # (a) shell = the walls + the LOADED families (no placement): the
-        #     WF_fix-certified shape, grown on the loaded chain; with no walls
-        #     requested/built the loaded chain IS the certified shell
+        #     WF_fix-certified shape with one family (more is open, #27), grown
+        #     on the loaded chain; with no walls requested/built the loaded
+        #     chain IS the shell
         wok = None
         if want_walls:
             with _timed_stage(res):
@@ -682,7 +686,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         res.files["shell"] = shell_path
         _harvest_loaded_families(res, loaded)
         # (b) equipment = the loaded families + their PLACED instances (the
-        #     open cell, isolated from the certified shell)
+        #     open cell, isolated from the shell)
         with _timed_stage(res):
             erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded,
                                           level_ids=level_ids, circuits="C" in opts.stages)

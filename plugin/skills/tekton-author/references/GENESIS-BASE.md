@@ -79,8 +79,9 @@ python scripts/rvt_validate.py assets/genesis/G_ABPD.rvt   # -> VALID (no errors
    a picture.
 3. **THE OPEN CELL — PLACED INSTANCES of our generated families on our
    composed genesis base** (docs/inbox/genesis-audit.md #48, issue #16).
-   Walls, loaded families and walls + loaded families in one file are
-   certified (WF_fix / WF_nofix); verdict #24 retracted #22's "one
+   Walls, loaded families and walls + one loaded family (WF_fix /
+   WF_nofix; whether more families in one file pass is open, verdict #27)
+   are certified; verdict #24 retracted #22's "one
    defective family". Two older citations certify less than they look
    like: `electrical_room_2500a_walls_only.rvt` is **mechanism only**
    (#984): wall CREATION on the owner-machine base ZA_deep, walls without
@@ -96,7 +97,7 @@ python scripts/rvt_validate.py assets/genesis/G_ABPD.rvt   # -> VALID (no errors
    `PROOF-ONLY: generated-family INSTANCES on a composed genesis base
    (open cell, docs/inbox/genesis-audit.md #48, issue #16)`; `--strict`
    emits two coordinated files instead, both delivered — `shell` (walls +
-   loaded families, the certified shape) + `equipment` (the placed
+   loaded families, no placement — certified with one family) + `equipment` (the placed
    instances, the open cell isolated). Report which mode ran.
 4. **Placement scaffolding needs a SPECIMEN ANCESTOR.** The family-free
    base carries no placed wall / instance to clone, and `rvt.mutate`

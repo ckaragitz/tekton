@@ -36,14 +36,17 @@ supplies (their responsibility; recorded, never asserted certified).
 | `--rvt --edit` | **PROVEN edit path** | move / retype / delete(+cascade) / set-level / set-param on the user's file through the certified manipulate pipeline (rename/set-mark work on NATIVE instances; ours carry no instance param rows — the manifest says so) |
 | every output | **PROOF-ONLY** | self-checks PASS ≠ Autodesk acceptance; the genesis lineage still fails the P0 deliverability gate (recorded); LOAD ≠ RENDER (created walls carry no baked geometry for the cloud viewer). Never conflate the tiers. |
 
-The **OPEN BUG** you must know cold: created **walls + loaded family
-documents in the SAME file** currently trip Autodesk's audit (walls alone
-PASS, families alone PASS). The front door NEVER ships that combination
-silently: by default it emits one combined file whose manifest is STAMPED
-`PROOF-ONLY: walls+families combination unverified`; with `--strict` it
-emits TWO coordinated files (`-shell.rvt` = walls, `-equipment.rvt` =
-families + instances), each a viewer-certified SHAPE. Tell the user which
-they got.
+The **OPEN CELL** you must know cold: **PLACED INSTANCES** of our generated
+families on our composed genesis base fail Autodesk's audit
+(docs/inbox/genesis-audit.md #48, issue #16). Walls alone PASS, loaded
+families alone PASS, and walls + one loaded family (WF_fix / WF_nofix; whether
+more families in one file pass is open, verdict #27). The front door NEVER
+ships the open cell silently: by default it emits one combined file whose
+manifest is STAMPED `PROOF-ONLY: generated-family INSTANCES on a composed
+genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)`; with
+`--strict` it emits TWO coordinated files (`-shell.rvt` = walls + loaded
+families, no placement; `-equipment.rvt` = families + instances, the open
+cell isolated), both delivered. Tell the user which they got.
 
 ## 2. Which route?
 

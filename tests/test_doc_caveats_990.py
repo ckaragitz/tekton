@@ -14,7 +14,11 @@ user or a skill session reads:
 For every registered path (``EVIDENCE_FORMS`` / ``EVIDENCE_MECHANISMS``,
 found by its ``doc_names`` regexes) the *unit* naming it must carry the
 caveat's issue tag (``#981`` for the downlight, ``#984`` for the rest) and
-its kind phrase (``earlier form`` / ``mechanism only``, case-insensitive).
+its kind phrase (``earlier form`` / ``mechanism only``, case-insensitive),
+and -- #996 -- the phrase must follow the file's own mention, before the next
+registered file the unit names, so two files named apart never share one
+caveat (names joined only by separators -- "A / B", "A + B" -- are one group
+and share the caveat written after the group).
 A unit is: a table row (a line starting ``|``); a line inside a fenced code
 block (the dated measurement logs are one long line per finding); otherwise
 one prose paragraph or list item (consecutive non-blank lines, split where a
@@ -100,13 +104,43 @@ def _registry():
     return reg
 
 
+#: what may sit between two file names that are one group sharing the caveat
+#: written after the last of them ("`A.rvt`, `B.rvt` (both mechanism only")
+_NAME_TAIL = re.compile(r"[\w.-]*")   # a doc_names regex may match a name's prefix only
+_JOIN = re.compile(r"(?:[\s`*,/+&()]|\band\b|\bor\b|\.rvt\b)*")
+
+
 def missing_caveats(text, reg=None):
-    """``[(line, path)]`` for every unit of ``text`` naming a registered file
-    without its caveat."""
+    """``[(line, path)]`` for every registered file a unit of ``text`` names
+    without ITS OWN caveat.
+
+    The unit must carry the caveat's issue tag (#990), and -- #996 -- the kind
+    phrase must sit in the stretch after one of the file's mentions, up to the
+    next registered file named in that unit: two files named apart cannot
+    share one caveat ("``A.rvt`` (an earlier form, #984) and ``B.rvt``
+    certified" fires for B).  File names joined only by separators (``A.rvt`` /
+    ``B.rvt``, "A + B", "A and B") are one group, and the stretch after the
+    group's last member is the group's ("both mechanism only")."""
+    reg = reg or _registry()
     bad = []
     for start, u in units(text):
-        for path, pats, tag, phrase in (reg or _registry()):
-            if any(p.search(u) for p in pats) and not (tag in u and phrase in u.lower()):
+        hits = sorted({(m.start(), _NAME_TAIL.match(u, m.end()).end(), path)
+                       for path, pats, _, _ in reg for p in pats for m in p.finditer(u)})
+        groups = []
+        for h in hits:
+            if groups and (h[0] <= groups[-1][-1][1]
+                           or _JOIN.fullmatch(u[groups[-1][-1][1]:h[0]])):
+                groups[-1].append(h)
+            else:
+                groups.append([h])
+        stretch = {}
+        for gi, g in enumerate(groups):
+            end = groups[gi + 1][0][0] if gi + 1 < len(groups) else len(u)
+            seg = u[g[-1][0]:end].lower()
+            for _, _, path in g:
+                stretch.setdefault(path, []).append(seg)
+        for path, pats, tag, phrase in reg:
+            if path in stretch and not (tag in u and any(phrase in s for s in stretch[path])):
                 bad.append((start, path))
     return bad
 
@@ -156,6 +190,14 @@ def test_the_guard_fires_on_the_shapes_990_found():
     split = ("- `stage_L8_lp4.rvt` certified\n"
              "- an earlier form (#984) of something else\n")
     assert missing_caveats(split) == [(1, "experiments/ifc_room/stage_L8_lp4.rvt")]
+    # #996: two files named apart in one unit cannot share one caveat
+    shared = "| a | ROOM2025_walls.rvt (an earlier form, #984) and stage_L8_lp4.rvt certified |"
+    assert missing_caveats(shared) == [(1, "experiments/ifc_room/stage_L8_lp4.rvt")]
+    # ... but a group joined only by separators shares the caveat after it
+    assert not missing_caveats("| a | `V25_room_from_ifc.rvt`, `V26_room_from_ifc_with_walls.rvt`"
+                               " (both **mechanism only**, #984) |")
+    assert not missing_caveats("- W1_gabpd_wall_solid + RSOLID_walls_A_solid -- both MECHANISM"
+                               " ONLY per #984\n")
     # and the caveated forms pass
     assert not missing_caveats("- `stage_L8_lp4.rvt` is an **earlier form** (#984)\n")
     assert not missing_caveats("| `W1_gabpd` (MECHANISM ONLY, #984) |\n")
