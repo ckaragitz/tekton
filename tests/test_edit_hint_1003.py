@@ -18,6 +18,7 @@ from rvt.convert import modify_family as MF
 
 class _Inv:
     params = [{"caption": c} for c in ("Material", "Finish")]
+    type_names = ["T1", "T 1"]          # the types the cases name (exact match since #1007)
 
 
 def _type(m):
@@ -26,7 +27,7 @@ def _type(m):
 
 @pytest.mark.parametrize("caption, clause, example, val, typ", [
     ("Finish color", "set Finish color of type T1 to black",
-     "set Finish of type T1 = color to black", "color to black", "T1"),
+     'set Finish of type "T1" = color to black', "color to black", "T1"),   # a known type, quoted in (#1007)
     ("Finish color", 'set Finish color of type "T 1" to black',
      'set Finish of type "T 1" = color to black', "color to black", "T 1"),
     ("Finish color", "set Finish color of type 'T 1' = black",

@@ -220,3 +220,63 @@ def test_a_type_with_no_value_on_a_generated_family_is_refused(conduit, tmp_path
         with pytest.raises(MF.FamilyEditError):
             MF.modify_family(conduit, clause, str(tmp_path))
     assert MF.inventory_family(conduit).param_by_caption("Finish")["current"] == before
+
+
+# --------------------------------------------------------------------------- the fourth review's probes
+
+class _Route:
+    params = [{"caption": c} for c in ("Finish", "Width", "Route to Panel")]
+    type_names = ["Big One", "T1", "T10", "T2"]
+
+
+@pytest.mark.parametrize("clause, match", [
+    # B1: a single word is a type only when it IS one -- 'T1' never reaches 'T10'
+    ("set Finish of type B to black", "'of type B' is not a type"),
+    ("set Finish of type One to black", "'of type One' is not a type"),
+    # B2: a value ending in a QUOTED type of this family
+    ('set Finish = black of type "Big One"', "the value ends in 'of type Big One'"),
+    ("set Finish to black of type 'T1'", "the value ends in 'of type T1'"),
+    ("set Finish to black of type Big One!", "the value ends in 'of type Big One'"),
+    ("set Finish to x of type steel of type Big One", "the value ends in 'of type Big One'"),
+    # B3: a head that is not caption + to / = before a named type
+    ("set Finish's color of type Big One to black", "could not read"),
+    ("set Route to Panel name of type Big One to X", "could not read"),
+])
+def test_the_fourth_reviews_mis_targets_are_refused(clause, match):
+    with pytest.raises(MF.FamilyEditError, match=re.escape(match)):
+        MF._match_set(_Route, clause)
+
+
+def test_a_partial_type_never_reaches_a_longer_one_in_op_set():
+    class _Two(_Route):
+        type_names = ["T10", "T2"]
+
+        def param_by_caption(self, caption):
+            return {"caption": "Finish", "param_id": 1, "carrier": "m_str", "spec": "",
+                    "def_class": ""} if caption.lower() == "finish" else None
+    with pytest.raises(MF.FamilyEditError):
+        MF._match_set(_Two, "set Finish of type T1 to black")
+    with pytest.raises(MF.FamilyEditError, match="not exactly one of this family's types"):
+        MF._op_set(_Two(), "Finish", "black", [], type_name='"T1"')
+
+
+@pytest.mark.parametrize("clause, want", [
+    ("set Route to Panel of type Big One to X", ("Route to Panel", "X", "Big One")),
+    ("set Finish of type T10 to black", ("Finish", "black", "T10")),
+    ("set Finish = x of type Big One to y", ("Finish", "x of type Big One to y", None)),
+    ("set Finish to galvanized of type steel", ("Finish", "galvanized of type steel", None)),
+])
+def test_the_fourth_reviews_valid_forms_still_parse(clause, want):
+    m = MF._match_set(_Route, clause)
+    assert (m.group("cap"), m.group("val"),
+            m.group("typeq") or m.group("typeq2") or m.group("type")) == want
+
+
+def test_a_quoted_type_ending_a_value_on_a_generated_family_is_refused(conduit, tmp_path):
+    inv = MF.inventory_family(conduit)
+    (name,) = inv.type_names
+    before = inv.param_by_caption("Finish")["current"]
+    for clause in (f'set Finish = black of type "{name}"', f"set Finish's color of type {name} to x"):
+        with pytest.raises(MF.FamilyEditError):
+            MF.modify_family(conduit, clause, str(tmp_path))
+    assert MF.inventory_family(conduit).param_by_caption("Finish")["current"] == before

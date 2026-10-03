@@ -58,10 +58,28 @@ The review found the rewrite still wrote the user's text into the default type w
 
 **Evidence.** `test_edit_type_names_1006` now has 52 cases. Against the version before the last change, `origin/main` failed 39 of 51, the previous head (e7387ea) failed 8 of 51, and this head passed 51 of 51. The reviewer's 88 case lines (their `p2.py` with c2/c3) show every non-refused clause going to the named type. The only default-type writes left are untyped clauses (`set Length to 20 ft`, `set Finish = galvanized to spec`, …) and two older value defects, now filed as #1008: uneven quote stripping, and `set Finish to` storing "to". The six edit suites plus the scaffolding check: 171 passed / 8 skipped.
 
-**Correction to the first round's text.** A single-word name before the delimiter is not always refused when it matches no type: `_op_set` falls back to a unique substring match. In a one-type family `of type Big to black` targets 'Big One' (accepted below).
+## Fourth review round (head 373e86f, 🛑)
+Three ways to land on a type the user did not name were still open:
+- **B1.** A single unquoted word before `to`/`=` resolved by **substring** in `_op_set`. With types T10 / T2, `of type T1 to black` wrote to **T10**, and `of type B` / `One` reached 'Big One'. `_op_set` now matches a type **exactly** (case-insensitive) or refuses. `_resolve_type_name` also refuses a single word that is not exactly a type. This covers the JSON-ops path too.
+- **B2.** A value ending in a **quoted** type of this family (`= black of type "Big One"`) skipped the value-ends refusal and stored an uneven quote. The check now strips one matching quote pair. It also reads the **last** `of type` in the value and drops trailing punctuation (`… of type Big One!`, `x of type steel of type Big One`), which closes the review's N3.
+- **B3.** Any `=`, quote, apostrophe or "to" before `of type` made the clause count as "in the value", which bypassed the backstop. `set Finish's color of type Big One to black` and `set Route to Panel name of type Big One to X` stored the whole clause in the default type. Now an `of type` counts as inside the value only when the head is a complete set clause: one of the family's captions, then `to`/`=`. Otherwise a tail that starts with a type of this family is refused.
+
+Also: the long docstring moved to `_resolve_type_name`, which does the work; `_quote_type_name` is now a one-line wrapper (N1). The #1003 hint test's stub family now has the types its cases name, since types match exactly. Its first example's expectation now has the type quoted in.
+
+**Evidence.**
+- `test_edit_type_names_1006` now has 66 cases. `origin/main` fails 51, the previous head (373e86f) fails 10, and this head passes 66.
+- The fourth reviewer's 139 probe lines (c2/c3/c4) were re-run. Every non-refused clause goes to the named type, apart from:
+  - untyped clauses;
+  - a rename;
+  - `set Finish in type Big One black` ("in type" is not the grammar; out of scope, as on main).
+- The six edit suites plus the scaffolding check, `test_router`, `test_convert_combo` and `test_reduce`: **335 passed / 35 skipped**.
+
+**Accepted (N2).** With types Big One / Big One XL, `of type Big One X1 …` (bare form) writes "X1 …" to 'Big One'. A typo of "XL" that does not begin it cannot be detected, and the parse is the literal one.
+
+**Correction to the first round's text.** A single-word name before the delimiter is not always refused when it matches no type: `_op_set` falls back to a unique substring match. That substring fallback is retired in the fourth round (B1).
 
 **Accepted as they are (same as main).**
-- In a one-type family, a single-word partial name (`of type Big to black`) resolves to that one type by substring. The target is unambiguous.
+- ~~In a one-type family, a single-word partial name resolves by substring~~ -- retired in the fourth round (B1): types match exactly.
 - A doubled space inside a name is refused rather than normalised.
 
 ## BRANCH STATE
