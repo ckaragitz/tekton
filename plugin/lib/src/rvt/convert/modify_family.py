@@ -81,6 +81,7 @@ import json
 import os
 import re
 import time
+import unicodedata
 import traceback
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, FrozenSet, List, Optional, Sequence, Tuple
@@ -572,6 +573,7 @@ def _match_set(inv: FamilyInventory, clause: str):
     family's own type names (#1006, :func:`_resolve_type_name`), so a generated
     family's ``Conduit - Straight Run 0.75 in 10 ft`` is one name, never cut at
     its first word or folded into the value."""
+    _refuse_glued_caption(inv, clause)
     clause = _canon_caption_span(inv, clause)
     lead_n = _RE_SET_LEAD.match(clause)
     if lead_n:
@@ -620,6 +622,47 @@ def _match_set(inv: FamilyInventory, clause: str):
     return m
 
 
+def _word_ends(text: str, i: int) -> bool:
+    """A caption (or type name) matched up to ``text[:i]`` ends a WORD there:
+    the next character does not continue it.  A word continues through word
+    characters, combining marks (an NFD accent: 'A' + U+0301), format
+    characters (zero-width joiners) and symbols such as emoji -- else a caption
+    ending inside 'Á' or 'A\u200d' would be named and the rest of the word
+    written as its value (#1013 review)."""
+    if i >= len(text):
+        return True
+    ch = text[i]
+    if ch.isalnum() or ch == "_":
+        return False
+    cat = unicodedata.category(ch)
+    return not (cat[0] == "M" or cat == "Cf" or cat == "So")
+
+
+def _refuse_glued_caption(inv: FamilyInventory, clause: str) -> None:
+    """Refuse a clause in which one of the family's captions runs straight into
+    a combining mark, a format character or a symbol ('Height' + U+200D,
+    'Rating' + U+0308, 'Type' + an emoji): which word the user meant cannot be
+    told, and every reading writes a cut or orphaned word somewhere (#1013
+    review).  Letters (``Aé``) and punctuation (``Wall-mounted``) are read
+    as before."""
+    lead = _RE_SET_LEAD.match(clause)
+    if not lead:
+        return
+    body = clause[lead.end():]
+    for cap in (str(p["caption"]) for p in inv.params):
+        words = cap.split()
+        if not words:
+            continue
+        cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
+        if cm is None or cm.end() >= len(body):
+            continue
+        ch = body[cm.end()]
+        if not (ch.isalnum() or ch == "_") and not _word_ends(body, cm.end()):
+            raise FamilyEditError(
+                f"{cap!r} is followed by the character U+{ord(ch):04X} with no space: "
+                f"write set {' '.join(words)} = <value>")
+
+
 def _canon_caption_span(inv: FamilyInventory, clause: str) -> str:
     """``clause`` with the caption it starts with (the LONGEST, matched with any
     whitespace between its words) rewritten with single spaces, so
@@ -635,8 +678,8 @@ def _canon_caption_span(inv: FamilyInventory, clause: str) -> str:
         words = cap.split()
         if not words:
             continue
-        cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?!\w)", body, re.I)
-        if cm is not None and (best is None or len(" ".join(words)) > len(" ".join(best[0].split()))):
+        cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
+        if cm is not None and _word_ends(body, cm.end()) and (best is None or len(" ".join(words)) > len(" ".join(best[0].split()))):
             best = (cap, cm)
     if best is None:
         return clause
@@ -663,8 +706,8 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
             words = str(cap).split()
             if not words:
                 continue
-            cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?!\w)", body, re.I)
-            if cm is not None:                     # any whitespace between the words
+            cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
+            if cm is not None and _word_ends(body, cm.end()):                     # any whitespace between the words
                 caps.append((cap, body[cm.end():].lstrip()))
                 if re.match(r"\s|$|[:=]", body[cm.end():]):
                     whole_word.add(cap)            # ends at a word boundary the user typed
@@ -679,7 +722,11 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
         # Wall-mounted box' is Distance = "Wall-mounted box" (#1013 review)
         if lcap in whole_word and lrest_s and not _RE_EXPLICIT.match(lrest_s) and not (
                 prefer and lcap.strip().lower() != prefer.strip().lower()):
-            if _RE_DELIM_AHEAD.search(" " + lrest_s):
+            if _RE_DELIM_AHEAD.search(" " + lrest_s) and any(
+                    c != lcap and _RE_EXPLICIT.match(r) for c, r in caps):
+                # a SHORTER caption followed by to / '=' reads it too
+                # ('Distance to Wall height to 3'); with none ('Mark Note x to
+                # red'), the long caption is the only reading
                 raise FamilyEditError(
                     f"{clause!r} reads two ways: parameter {lcap!r} with value "
                     f"{lrest_s!r}, or a shorter parameter -- write set {lcap} = <value>")
@@ -751,7 +798,7 @@ def _caption_of_type(inv: FamilyInventory, clause: str) -> Tuple[int, Optional[s
     for cap in sorted((str(p["caption"]).strip() for p in inv.params), key=len, reverse=True):
         c = cap.lower()
         if not (c and body0.startswith(c) and (len(body0) == len(c)
-                                                 or not body0[len(c)].isalnum())):
+                                                 or _word_ends(body0, len(c)))):
             continue
         inner = list(re.finditer(r"\s+of\s+type\b", c))
         if not inner:
@@ -762,7 +809,7 @@ def _caption_of_type(inv: FamilyInventory, clause: str) -> Tuple[int, Optional[s
                 qt = (after[:1] if after[:1] in "\"'" else "")
                 tt = qt + t + qt                      # a QUOTED type reads the same way
                 if after.startswith(tt) and (len(after) == len(tt)
-                                             or not after[len(tt)].isalnum()):
+                                             or _word_ends(after, len(tt))):
                     if qt:
                         return 0, None    # quoted by the user: unambiguously the qualifier
                     q_rest = after[len(t):]

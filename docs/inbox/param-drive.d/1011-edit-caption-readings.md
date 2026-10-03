@@ -45,14 +45,30 @@ The caption-match boundary `(?![A-Za-z0-9_])` (from a174288) is ASCII-only, whil
 - `set Size of Type Aé` (captions Size of Type / Size of Type A) wrote Size of Type **A** = "é";
 - `set Mark Noteé` wrote Mark Note = "é".
 
-The review's unicode probe counted 1,456 refusals that turned into writes and 1,040 changed values. The boundary is now `(?!\w)`, which is Unicode-aware, in both places. Added 6 cases, for 53 in total.
+The review's unicode probe counted 1,456 refusals that turned into writes and 1,040 changed values. The boundary became `(?!\w)` in both places; the fifth round (below) found that this alone is not enough. Added 6 cases, for 53 in total.
 
 The review's 46,944-clause, 21-family sweep at 9d785e0 (all ASCII) showed **no transition from OK to anything worse** against main. Its only remaining wrong values are #1014's ": v" prefix: 90 double-spaced `C  C: v` clauses now reach it, as noted on #1014. With the fix, the unicode probe matches main on 8,550 of 8,560 clauses, and the other 10 are improvements.
 
+## Fifth review round (PR #1013, head 6360900, 🛑)
+`(?!\\w)` was not the whole fix. The previous round called it "Unicode-aware", which overstated it. Combining marks (NFD input such as 'A' + U+0301), format characters (U+200D) and emoji are not `\\w`. A caption ending right before one was therefore still named, and the orphaned mark was written as the value: `set Size of Type Á 5` wrote "\u0301 5" to Size of Type **A**, where main refused.
+
+Fixed in three steps:
+- **One boundary rule (`_word_ends`).** A word continues through letters, digits, `_`, combining marks, format characters and symbols. It is used in all three boundary checks (`_canon_caption_span`, `_match_set_inner`, `_caption_of_type`).
+- **Glued captions are refused (`_refuse_glued_caption`).** A clause in which any caption runs straight into such a character cannot be read safely, because every reading writes a cut or orphaned word. Letters (`Aé`) and punctuation (`Wall-mounted`) read as before.
+- **The two-readings refusal now needs a real second reading.** A shorter caption must actually be followed by `to`/`=`. So `set Mark Note x to red` reads Mark Note = "x to red", as main does, and is no longer refused.
+
+**Sweeps at this head, rerun with the reviewers' own scripts:**
+- **ASCII (46,944 clauses, 21 families):** the transition table is identical to the fourth and fifth reviews', with **no OK → worse**.
+- **First Unicode probe (8,560):** matches main except 10 improvements.
+- **Mark/ZWJ/emoji/NBSP probe (11,984):**
+  - 1,974 clauses main **wrote** with an orphaned mark or a cut word are now refused;
+  - 18 NBSP-separated clauses now read the long caption (improvements);
+  - no other differences.
+
 ## Evidence
-- `tests/test_edit_caption_readings_1011.py`: **53 cases**, covering refusals, reads, every review round's probes, and three end-to-end read-backs on generated conduits with colliding text parameters. Main fails 25; head 9d785e0 fails 3 (the unicode cut-word cases); this head passes all 53.
+- `tests/test_edit_caption_readings_1011.py`: **61 cases**, covering refusals, reads, every review round's probes, and three end-to-end read-backs on generated conduits with colliding text parameters. Main fails 31; head 6360900 fails 7; this head passes all 61.
 - Real-family regression: 600 well-formed clauses (7 archetypes × every caption × type × five forms) give **0 differences from main**. The second review's own 5,861-clause, 21-family sweep found only improvements, apart from B1.
-- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **542 passed / 35 skipped**. The 600-clause real-family regression is re-run at this head, with 0 differences from main.
+- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **550 passed / 35 skipped**. The 600-clause real-family regression is re-run at this head, with 0 differences from main.
 
 ## BRANCH STATE
 - Files:

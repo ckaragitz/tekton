@@ -52,6 +52,12 @@ class _MN:
     type_names = ["T1"]
 
 
+class _G:
+    params = [{"caption": c} for c in ("Mounting", "Mounting Height", "Enclosure Rating",
+                                       "Mark", "Mark Note")]
+    type_names = ["T1"]
+
+
 class _A:
     params = [{"caption": c} for c in ("Size of Type A", "Size", "Finish")]
     type_names = ["A", "B"]
@@ -190,3 +196,30 @@ def test_a_caption_ending_inside_a_word_on_a_generated_family(tmp_path):
     inv = MF.inventory_family(rec["files"]["rfa"])
     assert (inv.param_by_caption("Distance")["current"],
             inv.param_by_caption("Distance to Wall")["current"]) == ("Wall-mounted box", "w0")
+
+
+@pytest.mark.parametrize("clause", [
+    # fifth review: a caption running straight into a combining mark, a
+    # zero-width joiner or an emoji cannot be read safely -- refused
+    "set Mounting Height\u200d 1",
+    "set Mounting Height\u0301 to red",
+    "set Enclosure Rating\u0308 1",
+    "set Mark Note\U0001F600 1",
+])
+def test_a_caption_glued_to_a_mark_or_symbol_is_refused(clause):
+    with pytest.raises(MF.FamilyEditError, match="with no space"):
+        MF._match_set(_G, clause)
+
+
+@pytest.mark.parametrize("inv, clause, want", [
+    (_SA, "set Size of Type A\u0301 5", None),             # NFD 'Á': refused, never "\u0301 5"
+    (_G, "set Mark Note x to red", ("Mark Note", "x to red", None)),   # no shorter reading
+    (_G, "set Mark Note\xa0x to red", ("Mark Note", "x to red", None)),
+    (_G, "set Mark to red", ("Mark", "red", None)),
+])
+def test_unicode_and_single_reading_forms(inv, clause, want):
+    if want is None:
+        with pytest.raises(MF.FamilyEditError):
+            MF._match_set(inv, clause)
+    else:
+        assert _read(inv, clause) == want
