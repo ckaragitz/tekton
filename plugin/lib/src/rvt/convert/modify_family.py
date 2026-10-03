@@ -577,6 +577,10 @@ def _match_set(inv: FamilyInventory, clause: str):
     return _RE_SET.match(clause)
 
 
+#: the first ``of type T`` qualifier inside a refused clause's tail (#1003)
+_RE_OF_TYPE = re.compile(r"(?:^|\s+)of\s+type\s+(?P<t>\"[^\"]+\"|'[^']+'|[^\"'\s]+)", re.I)
+
+
 def _value_hint(inv: FamilyInventory, caption: str, clause: Optional[str] = None) -> str:
     """For a refused ``caption`` that starts with one of the family's own
     captions (``Finish galvanized``), name the recovery: the words after a
@@ -592,8 +596,15 @@ def _value_hint(inv: FamilyInventory, caption: str, clause: Optional[str] = None
         if c and low.startswith(c) and len(low) > len(c) and low[len(c)].isspace():
             at = (clause or "").lower().find(low)
             rest = (clause[at + len(cap):].strip() if at >= 0 else "<value>")
+            # an 'of type T' qualifier stays the TYPE, in its parsed position
+            # (before the '='), never folded into the value (#1003)
+            q = _RE_OF_TYPE.search(rest)
+            of = ""
+            if q is not None:
+                of = " of type " + q.group("t")
+                rest = (rest[:q.start()] + rest[q.end():]).strip()
             return (f" -- if the words after {cap!r} are part of its VALUE, write the "
-                    f"value after '=': set {cap} = {rest}")
+                    f"value after '=': set {cap}{of} = {rest}")
     return ""
 
 
