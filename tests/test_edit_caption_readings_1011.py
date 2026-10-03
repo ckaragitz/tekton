@@ -103,6 +103,17 @@ def test_refused(inv, clause, match):
     # B2: a caption typed with extra spaces resolves its type whole
     (_DT, "set Distance to  Wall of type T 1 = 4", ("Distance to Wall", "4", "T 1")),
     (_DT, "set Distance  to  Wall of type T 1 4", ("Distance to Wall", "4", "T 1")),
+    # third review: a caption ending INSIDE a word is not named -- the shorter
+    # caption + 'to' reads it, value as typed (main's result)
+    (_D, "set Distance to Wall-mounted box", ("Distance", "Wall-mounted box", None)),
+    (_D, "set Distance to Wall's face", ("Distance", "Wall's face", None)),
+    (_D, 'set Distance to Wall"3"', ("Distance", 'Wall"3"', None)),
+    (_D, "set Distance to Wall.5", ("Distance", "Wall.5", None)),
+    (_D, "set Distance to Wall/Floor", ("Distance", "Wall/Floor", None)),
+    (_D, "set Distance to Wall(s)", ("Distance", "Wall(s)", None)),
+    (_D, "set Distance to Wall,5", ("Distance", "Wall,5", None)),
+    (_D, "set Distance\tto\tWall-mounted", ("Distance", "Wall-mounted", None)),
+    (_D, "set Distance to Wall=3", ("Distance to Wall", "3", None)),
 ])
 def test_read(inv, clause, want):
     assert _read(inv, clause) == want
@@ -148,3 +159,17 @@ def test_the_longest_caption_with_a_value_on_a_generated_family(tmp_path):
     inv = MF.inventory_family(rec["files"]["rfa"])
     assert (inv.param_by_caption("Distance")["current"],
             inv.param_by_caption("Distance to Wall")["current"]) == ("d0", "3 ft")
+
+
+def test_a_caption_ending_inside_a_word_on_a_generated_family(tmp_path):
+    if not HAVE_SCHEMA:
+        pytest.skip("class schema cache absent")
+    from rvt.famgen import factory as F
+    p = str(tmp_path / "c.rfa")
+    F.make_archetype(product="conduit",
+                     text_params={"Distance": "d0", "Distance to Wall": "w0"}).write(
+        p, validate=False, provenance=False)
+    rec = MF.modify_family(p, "set Distance to Wall-mounted box", str(tmp_path / "o"))
+    inv = MF.inventory_family(rec["files"]["rfa"])
+    assert (inv.param_by_caption("Distance")["current"],
+            inv.param_by_caption("Distance to Wall")["current"]) == ("Wall-mounted box", "w0")

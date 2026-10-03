@@ -655,6 +655,7 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
     the qualifier reading is decided and the longest-caption rule stands down."""
     lead = _RE_SET_LEAD.match(clause)
     caps: List[Tuple[str, str]] = []
+    whole_word: set = set()
     if lead:
         body = clause[lead.end():]
         low = body.lower()
@@ -665,6 +666,8 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
             cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?![A-Za-z0-9_])", body, re.I)
             if cm is not None:                     # any whitespace between the words
                 caps.append((cap, body[cm.end():].lstrip()))
+                if re.match(r"\s|$|[:=]", body[cm.end():]):
+                    whole_word.add(cap)            # ends at a word boundary the user typed
     if len(caps) > 1 and not typed:
         # the LONGEST caption the clause names, followed by a bare value, is the
         # parameter: 'set Distance to Wall 3 ft' is never Distance = "Wall 3 ft"
@@ -672,7 +675,9 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
         # caption's delimiter reading is just as possible: refuse, naming both.
         lcap, lrest = max(caps, key=lambda cr: len(" ".join(str(cr[0]).split())))
         lrest_s = lrest.strip().lstrip(":").strip()
-        if lrest_s and not _RE_EXPLICIT.match(lrest_s) and not (
+        # only a caption that ENDS where the user ended a word: 'Distance to
+        # Wall-mounted box' is Distance = "Wall-mounted box" (#1013 review)
+        if lcap in whole_word and lrest_s and not _RE_EXPLICIT.match(lrest_s) and not (
                 prefer and lcap.strip().lower() != prefer.strip().lower()):
             if _RE_DELIM_AHEAD.search(" " + lrest_s):
                 raise FamilyEditError(

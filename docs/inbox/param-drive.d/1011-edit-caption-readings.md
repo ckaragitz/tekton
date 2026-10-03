@@ -35,10 +35,15 @@ The first round's "with or without a trailing to/= or punctuation" was overstate
 - **B1. A quoted type counted as "untyped".** `_resolve_type_name` returns `""` for a quoted qualifier, and `typed=bool(qual)` read that as untyped. So the longest-caption rule fired on `set Size of type "Big One" = 5`, either refusing it or writing `'"Big One" 5'` to Size of Type. That is exactly the form the two-readings refusal tells the user to write. Now `typed=qual is not None`, and `_caption_of_type` recognises a **quoted** type after the shorter caption as the qualifier.
 - **B2. Exact-spacing caption comparisons.** The type resolver still compared captions with exact spacing. `set Distance to  Wall of type T 1 = 4` therefore skipped type resolution, and with types T / T 1 it wrote "1 = 4" to type **T**. A new `_canon_caption_span` rewrites the caption the clause starts with (the longest, whitespace-tolerant) to single spaces before anything else runs. The user's own words and casing are kept for messages, and the value is never touched.
 
+## Third review round (PR #1013, head ad438e8, 🛑)
+The longest-caption rule (from a174288) accepted a caption that ends inside a word. The grammar's boundary check `(?![A-Za-z0-9_])` lets `-`, `'`, `"`, `.`, `/`, `(` and `,` through. So `set Distance to Wall-mounted box` wrote "-mounted box" into **Distance to Wall**; main wrote "Wall-mounted box" into Distance, correctly. This was confirmed end to end. Now the rule applies only to a caption that ends where the user ended a word: whitespace, the end of the clause, `:` or `=`. Otherwise main's explicit-first ordering reads the clause. Added 9 such cases and an end-to-end read-back, for 47 cases in all.
+
+The same review's 25,080-clause sweep over 15 families found otherwise only improvements against main, plus that one regression. Head vs a174288 showed only improvements. It also measured an older value defect: `set Tray Type: 1` stores ": 1". That is filed separately as #1014.
+
 ## Evidence
-- `tests/test_edit_caption_readings_1011.py`: **37 cases**, covering refusals, reads, the review rounds' probes, and two end-to-end read-backs on generated conduits with colliding text parameters. Main fails 23; head a174288 fails 6; this head passes all 37.
+- `tests/test_edit_caption_readings_1011.py`: **47 cases**, covering refusals, reads, every review round's probes, and three end-to-end read-backs on generated conduits with colliding text parameters. Main fails 23; head ad438e8 fails 9 (the third round's cases); this head passes all 47.
 - Real-family regression: 600 well-formed clauses (7 archetypes × every caption × type × five forms) give **0 differences from main**. The second review's own 5,861-clause, 21-family sweep found only improvements, apart from B1.
-- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **526 passed / 35 skipped**.
+- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **536 passed / 35 skipped**. The 600-clause real-family regression is re-run at this head, with 0 differences from main.
 
 ## BRANCH STATE
 - Files:
