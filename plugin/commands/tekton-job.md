@@ -63,8 +63,9 @@ standing instructions:
    Autodesk Viewer opens it; `release.line` verbatim when present, with the
    IFC addition); (c) `result.status` **verbatim** then `result.stamps` —
    PROOF-ONLY explained in one sentence, after the files; (d) the standing
-   caveats: walls + our placed families in one file is the open cell
-   (combined file stamped, `--strict` = two coordinated files), LOAD is not
+   caveats: placed instances of our generated families on our composed base
+   are the open cell (combined file stamped, `--strict` = two coordinated
+   files: shell without placement + equipment), LOAD is not
    RENDER (created walls may not draw yet), circuits are planned not
    promised; (e) counts and what `intent.json` defaulted or recognised but
    did not build; (f) for an IFC deliverable the exact Tier statement and

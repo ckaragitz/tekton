@@ -91,8 +91,9 @@ per the tekton-edit skill.
 
 ## The lines you hold
 - **Deliver, then caveat.** The standing caveats ride with every creation
-  delivery, never instead of it: the walls+families open cell (combined file
-  stamped; `--strict` splits it), LOAD is not RENDER (created walls may not
+  delivery, never instead of it: the open cell — placed instances of our
+  generated families on our composed base (combined file stamped; `--strict`
+  splits it), LOAD is not RENDER (created walls may not
   draw yet — tekton-inspect's render check decides), circuits are planned in
   the manifest rather than promised as working Revit circuits, CRUD coverage
   per category is whatever `skills/tekton-author/references/CRUD-COVERAGE.md`

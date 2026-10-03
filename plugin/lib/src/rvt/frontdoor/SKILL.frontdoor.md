@@ -40,7 +40,7 @@ The **OPEN CELL** you must know cold: **PLACED INSTANCES** of our generated
 families on our composed genesis base fail Autodesk's audit
 (docs/inbox/genesis-audit.md #48, issue #16). Walls alone PASS, loaded
 families alone PASS, and walls + one loaded family (WF_fix / WF_nofix; whether
-more families in one file pass is open, verdict #27). The front door NEVER
+more families in one file pass is open, verdict #27) PASS. The front door NEVER
 ships the open cell silently: by default it emits one combined file whose
 manifest is STAMPED `PROOF-ONLY: generated-family INSTANCES on a composed
 genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)`; with
@@ -56,7 +56,7 @@ cell isolated), both delivered. Tell the user which they got.
 | only wants the AI-surface package (no build) | add `--handoff-only` |
 | an `.ifc` (from Claude Design / three-d-stage / any exporter following our tagging contract) | `frontdoor author --ifc FILE.ifc --out DIR` |
 | an `.rvt` and a change to make | `frontdoor author --rvt FILE.rvt --edit "move DP-1 to 3,4,0; delete LP-4 with cascade" --out DIR` (or `--edit ops.json` / inline JSON) |
-| wants two proven-shaped files instead of the stamped combo | add `--strict` (prompt/ifc routes) |
+| wants the open cell isolated in its own file instead of the stamped combo | add `--strict` (prompt/ifc routes): a shell without placement + an equipment file carrying the placed instances |
 
 ## 3. Commands (copy exactly)
 

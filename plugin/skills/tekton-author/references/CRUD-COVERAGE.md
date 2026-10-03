@@ -78,5 +78,6 @@ its slab / ceiling / doors are not yet.
 - Two rows carry a viewer-behaviour caveat rather than a coverage gap:
   created walls historically emitted no baked geometry (LOAD passes,
   RENDER pending the wall B-rep authoring — `references/GENESIS-BASE.md`
-  §3), and the walls + loaded-families COMBINATION is the open bug the
-  front door degrades around (§3 there).
+  §3), and placed instances of our generated families on our composed
+  base are the open cell (genesis-audit #48, issue #16) the front door
+  degrades around (§3 there).

@@ -30,6 +30,12 @@ Exclusions: none.  The only dated logs in scope are REQUIREMENTS.md's
 of any of these files never meets an uncaveated certification claim.  An
 exclusion added later must be listed in ``EXCLUDED`` with its reason.
 
+Known false passes (phrase matching, #999 review): a negated caveat ("not an
+earlier form (#984)") and a caveat that belongs to an UNregistered file later
+in the same stretch both satisfy the check; a registered file named inside a
+separator group takes the group's caveat even if the prose meant only one of
+them.  Reviews read the prose; this guard catches the drift.
+
 What this can NOT prove (hard rule 4): a caveat in prose says what the
 ledger certifies; it never makes a file open in Revit.
 """

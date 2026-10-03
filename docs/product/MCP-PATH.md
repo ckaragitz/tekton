@@ -45,7 +45,8 @@ ChatGPT Work, Gemini and Claude Design ever call tekton at all. That is the
 MCP does **not** solve, and must not be asked to solve: the format-posture
 legal questions (counsel C1/C4/C5 — those are about the bytes we emit, and
 they are identical whether a sandbox or a server emits them), or the
-research residuals (RENDER gate, walls+families combination bug, ~260
+research residuals (RENDER gate, the open cell -- placed instances of our
+generated families on our composed base, issue #16 -- ~260
 Autodesk-authored residue elements). A server ships whatever the engine can
 do; it does not make the engine do more.
 
@@ -346,5 +347,5 @@ manifest.** Only where the bytes are computed moves.
 - Any change to what the engine can lawfully emit (counsel C1/C4/C5,
   trademark clearance for the tekton name) — those gates apply to skill and
   server identically.
-- The RENDER gate, the walls+families combination bug, and the residue
+- The RENDER gate, the open cell (placed instances, issue #16), and the residue
   program — engine work, tracked in `TRACKER.md`, not transport work.

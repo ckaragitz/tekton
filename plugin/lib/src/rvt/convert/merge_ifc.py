@@ -15,7 +15,7 @@ lands just east of the target's content bounding box (+ margin, y-centred);
 (the IFC's own world coordinates).
 
 Everything else -- release preservation, target-schema installation, the
-walls+families open-bug degrade, the stamps, the manifest -- is the shared
+open-cell degrade (placed instances), the stamps, the manifest -- is the shared
 engine's behaviour (see :mod:`rvt.convert.add_to_project`).
 
 Territory: ``src/rvt/convert/`` (convert-B stream).
@@ -103,7 +103,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     help="target level: 1-based story index or name substring")
     ap.add_argument("--stem", default=None)
     ap.add_argument("--strict", action="store_true",
-                    help="walls+families open bug -> two coordinated files")
+                    help="open cell (placed instances) -> two coordinated files: "
+                         "shell (no placement) + equipment")
     ap.add_argument("--no-validate", action="store_true")
     a = ap.parse_args(argv)
     try:
