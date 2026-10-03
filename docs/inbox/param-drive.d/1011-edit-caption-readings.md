@@ -65,10 +65,24 @@ Fixed in three steps:
   - 18 NBSP-separated clauses now read the long caption (improvements);
   - no other differences.
 
+## Sixth review round (PR #1013, head b41ab3f, 🛑)
+- **B1. A longer caption read as a glued prefix.** `_refuse_glued_caption` refused a clause whenever a SHORTER caption ran into a symbol, even when the user had typed a longer caption in full. With captions Size / Size™ Code, `set Size™ Code = 5` was refused, and the hint said `set Size = <value>`, which points at a parameter the user did not name. Now:
+  - the refusal fires only when no longer caption matches there and ends a word;
+  - its message names no caption: "name the parameter in full … set <Parameter> = <value>".
+- **B2. NFC/NFD.** A caption stored in one Unicode normalisation form was missed when the clause was typed in the other (present since a174288), and the value went to the shorter caption. Now:
+  - `_caption_matches` matches every caption with any whitespace, case-insensitively and in either form, and maps the end back to the clause's own indices;
+  - `_canon_caption_span` rewrites the span to the stored caption's text when only the form differs, so every later step sees the stored caption;
+  - the glued check runs after that canonicalisation.
+
+**This head.** The module has 69 cases (B1 ×7, B2 ×2 added). Main fails 34, b41ab3f fails 12, and this head passes all 69. The 16 suites give **554 passed / 35 skipped**. The reviewers' instruments, rerun:
+- ASCII sweep: the transition table is identical to the fourth through sixth rounds' (no OK → worse);
+- `uni.py` and `uni2.py`: identical to b41ab3f's results against main;
+- the sixth reviewer's 1,094-clause hunt: its `over|` (B1) and `nf|` (B2) rows now read the named caption.
+
 ## Evidence
-- `tests/test_edit_caption_readings_1011.py`: **61 cases**, covering refusals, reads, every review round's probes, and three end-to-end read-backs on generated conduits with colliding text parameters. Main fails 31; head 6360900 fails 7; this head passes all 61.
+- `tests/test_edit_caption_readings_1011.py`: **69 cases**, covering refusals, reads, every review round's probes, and three end-to-end read-backs on generated conduits with colliding text parameters. Main fails 34; head b41ab3f fails 12; this head passes all 69.
 - Real-family regression: 600 well-formed clauses (7 archetypes × every caption × type × five forms) give **0 differences from main**. The second review's own 5,861-clause, 21-family sweep found only improvements, apart from B1.
-- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **550 passed / 35 skipped**. The 600-clause real-family regression is re-run at this head, with 0 differences from main.
+- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **554 passed / 35 skipped** (at this head). The 600-clause real-family regression is re-run at this head, with 0 differences from main.
 
 ## BRANCH STATE
 - Files:

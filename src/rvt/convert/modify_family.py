@@ -573,8 +573,8 @@ def _match_set(inv: FamilyInventory, clause: str):
     family's own type names (#1006, :func:`_resolve_type_name`), so a generated
     family's ``Conduit - Straight Run 0.75 in 10 ft`` is one name, never cut at
     its first word or folded into the value."""
-    _refuse_glued_caption(inv, clause)
     clause = _canon_caption_span(inv, clause)
+    _refuse_glued_caption(inv, clause)
     lead_n = _RE_SET_LEAD.match(clause)
     if lead_n:
         named = re.sub(r"(?:\s+to|\s*=)$", "",
@@ -638,54 +638,85 @@ def _word_ends(text: str, i: int) -> bool:
     return not (cat[0] == "M" or cat == "Cf" or cat == "So")
 
 
-def _refuse_glued_caption(inv: FamilyInventory, clause: str) -> None:
-    """Refuse a clause in which one of the family's captions runs straight into
-    a combining mark, a format character or a symbol ('Height' + U+200D,
-    'Rating' + U+0308, 'Type' + an emoji): which word the user meant cannot be
-    told, and every reading writes a cut or orphaned word somewhere (#1013
-    review).  Letters (``Aé``) and punctuation (``Wall-mounted``) are read
-    as before."""
-    lead = _RE_SET_LEAD.match(clause)
-    if not lead:
-        return
-    body = clause[lead.end():]
+def _caption_matches(inv: FamilyInventory, body: str) -> List[Tuple[str, int, bool]]:
+    """Every caption ``body`` starts with, as ``(caption, end, whole)``: the
+    caption's words match with any whitespace between them, case-insensitively,
+    and in either Unicode normalisation form (a caption stored NFD matches a
+    clause typed NFC and back -- #1013 review); ``end`` is the index in
+    ``body`` where the match stops and ``whole`` whether a word ends there
+    (:func:`_word_ends`)."""
+    out: List[Tuple[str, int, bool]] = []
     for cap in (str(p["caption"]) for p in inv.params):
         words = cap.split()
         if not words:
             continue
-        cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
-        if cm is None or cm.end() >= len(body):
+        for form in (None, "NFC", "NFD"):
+            b = unicodedata.normalize(form, body) if form else body
+            ws = [unicodedata.normalize(form, w) for w in words] if form else words
+            cm = re.match(r"\s+".join(map(re.escape, ws)), b, re.I)
+            if cm is None:
+                continue
+            end = cm.end()
+            if form:                       # the same prefix, in body's own indices
+                end = next((i for i in range(len(body) + 1)
+                            if unicodedata.normalize(form, body[:i]) == b[:cm.end()]), None)
+                if end is None:
+                    continue
+            out.append((cap, end, _word_ends(body, end)))
+            break
+    return out
+
+
+def _refuse_glued_caption(inv: FamilyInventory, clause: str) -> None:
+    """Refuse a clause whose caption runs straight into a combining mark, a
+    format character or a symbol ('Height' + U+200D, 'Rating' + U+0308, 'Type'
+    + an emoji) when NO longer caption of the family is what the user typed
+    there ('Size' / 'Size\u2122 Code' reads the long caption): which word was
+    meant cannot be told, and every reading writes a cut or orphaned word
+    somewhere (#1013 review).  The message names no caption: a guessed
+    prefix would point the recovery at a parameter the user did not name."""
+    lead = _RE_SET_LEAD.match(clause)
+    if not lead:
+        return
+    body = clause[lead.end():]
+    ms = _caption_matches(inv, body)
+    for cap, end, whole in ms:
+        if whole or end >= len(body):
             continue
-        ch = body[cm.end()]
-        if not (ch.isalnum() or ch == "_") and not _word_ends(body, cm.end()):
-            raise FamilyEditError(
-                f"{cap!r} is followed by the character U+{ord(ch):04X} with no space: "
-                f"write set {' '.join(words)} = <value>")
+        ch = body[end]
+        if ch.isalnum() or ch == "_":
+            continue                       # a letter: the ordinary grammar reads it
+        if any(e > end and w for _c, e, w in ms):
+            continue                       # a longer caption IS what was typed
+        raise FamilyEditError(
+            f"a parameter name runs straight into the character U+{ord(ch):04X}: name "
+            "the parameter in full, then a space or '=' before the value -- "
+            "set <Parameter> = <value>")
 
 
 def _canon_caption_span(inv: FamilyInventory, clause: str) -> str:
-    """``clause`` with the caption it starts with (the LONGEST, matched with any
-    whitespace between its words) rewritten with single spaces, so
-    every later step -- type resolution included -- sees one form
-    (``set Distance  to  Wall of type T 1 = 4`` reads as ``Distance to Wall``,
-    #1013 review).  Only the caption span changes; the value is never touched."""
+    """``clause`` with the caption it starts with (the LONGEST that ends a
+    word, matched with any whitespace and in either Unicode normalisation form)
+    rewritten with single spaces, so every later step -- type resolution
+    included -- sees one form (``set Distance  to  Wall of type T 1 = 4``,
+    #1013 review).  The user's own words and casing are kept; when they differ
+    from the stored caption only in normalisation form, the stored caption's
+    text is used.  Only the caption span changes; the value is never touched."""
     lead = _RE_SET_LEAD.match(clause)
     if not lead:
         return clause
     body = clause[lead.end():]
     best = None
-    for cap in (str(p["caption"]) for p in inv.params):
-        words = cap.split()
-        if not words:
-            continue
-        cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
-        if cm is not None and _word_ends(body, cm.end()) and (best is None or len(" ".join(words)) > len(" ".join(best[0].split()))):
-            best = (cap, cm)
+    for cap, end, whole in _caption_matches(inv, body):
+        if whole and (best is None or len(" ".join(cap.split())) > len(" ".join(best[0].split()))):
+            best = (cap, end)
     if best is None:
         return clause
-    cap, cm = best
-    # single spaces between the user's OWN words (their casing kept for messages)
-    return clause[:lead.end()] + " ".join(body[:cm.end()].split()) + body[cm.end():]
+    cap, end = best
+    typed = " ".join(body[:end].split())
+    if typed.lower() != " ".join(cap.split()).lower():
+        typed = " ".join(cap.split())      # another normalisation form: the stored text
+    return clause[:lead.end()] + typed + body[end:]
 
 
 def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = None,

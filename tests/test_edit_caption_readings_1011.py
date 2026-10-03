@@ -207,7 +207,7 @@ def test_a_caption_ending_inside_a_word_on_a_generated_family(tmp_path):
     "set Mark Note\U0001F600 1",
 ])
 def test_a_caption_glued_to_a_mark_or_symbol_is_refused(clause):
-    with pytest.raises(MF.FamilyEditError, match="with no space"):
+    with pytest.raises(MF.FamilyEditError, match="runs straight into the character"):
         MF._match_set(_G, clause)
 
 
@@ -223,3 +223,39 @@ def test_unicode_and_single_reading_forms(inv, clause, want):
             MF._match_set(inv, clause)
     else:
         assert _read(inv, clause) == want
+
+
+class _TM:
+    params = [{"caption": c} for c in ("Size", "Size\u2122 Code", "Temp", "Temp\u00b0 Rating")]
+    type_names = ["T1"]
+
+
+@pytest.mark.parametrize("clause, want", [
+    # sixth review B1: a LONGER caption the user typed whole is never refused
+    # as "glued" because a shorter prefix caption sits inside it
+    ("set Size\u2122 Code = 5", ("Size\u2122 Code", "5", None)),
+    ("set Size\u2122 Code to 5", ("Size\u2122 Code", "5", None)),
+    ("set Size\u2122 Code 5", ("Size\u2122 Code", "5", None)),
+    ("set Size\u2122 Code of type T1 = 5", ("Size\u2122 Code", "5", "T1")),
+    ("set Temp\u00b0 Rating = 90", ("Temp\u00b0 Rating", "90", None)),
+])
+def test_a_longer_caption_containing_a_symbol_reads_whole(clause, want):
+    assert _read(_TM, clause) == want
+
+
+def test_a_glued_refusal_names_no_guessed_caption():
+    with pytest.raises(MF.FamilyEditError) as e:
+        MF._match_set(_TM, "set Size\u2122 5")
+    assert "set <Parameter> = <value>" in str(e.value) and "set Size =" not in str(e.value)
+
+
+@pytest.mark.parametrize("stored, typed", [("NFD", "NFC"), ("NFC", "NFD")])
+def test_a_caption_matches_in_either_normalisation_form(stored, typed):
+    import unicodedata as U
+    long_cap = "Size of Type " + U.normalize(stored, "\u00c1")
+
+    class _N:
+        params = [{"caption": c} for c in ("Size of Type", long_cap, "Size")]
+        type_names = ["T1"]
+    clause = "set Size of Type " + U.normalize(typed, "\u00c1") + " 5"
+    assert _read(_N, clause) == (long_cap, "5", None)
