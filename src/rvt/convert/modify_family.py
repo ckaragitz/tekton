@@ -574,10 +574,12 @@ def _match_set(inv: FamilyInventory, clause: str):
     its first word or folded into the value."""
     lead_n = _RE_SET_LEAD.match(clause)
     if lead_n:
-        named = re.sub(r"(?:\s+to|\s*=)$", "", clause[lead_n.end():].strip().rstrip(".;,!").rstrip(),
-                       flags=re.I).strip().lower()
+        named = re.sub(r"(?:\s+to|\s*=)$", "",
+                       clause[lead_n.end():].strip().rstrip(".;,!?:").rstrip(), flags=re.I)
+        named = " ".join(named.split()).lower()        # 'Distance to  Wall' == 'Distance to Wall'
         whole = next((str(p["caption"]).strip() for p in inv.params
-                      if str(p["caption"]).strip().lower() == named and " " in named), None)
+                      if " ".join(str(p["caption"]).split()).lower() == named and " " in named),
+                     None)
         if whole is not None:
             # the clause IS a multi-word caption, with no value: 'set Distance
             # to Wall' is never Distance = "Wall" when 'Distance to Wall' is a
@@ -586,7 +588,7 @@ def _match_set(inv: FamilyInventory, clause: str):
                 f"no value given for {whole!r}: set {whole} = <value>")
     clause, qual = _resolve_type_name(inv, clause)
     _start, long_cap = _caption_of_type(inv, clause)
-    m = _match_set_inner(inv, clause, prefer=long_cap)
+    m = _match_set_inner(inv, clause, prefer=long_cap, typed=bool(qual))
     if qual is not None and m is not None and not (
             m.group("typeq") or m.group("typeq2") or m.group("type")):
         # the clause qualified its parameter with a type the grammar did not
@@ -603,8 +605,9 @@ def _match_set(inv: FamilyInventory, clause: str):
             # 'set Size of Type' (captions Size / Size of Type): the words
             # 'of Type' are never the VALUE of the shorter caption (#1011)
             raise FamilyEditError(
-                f"no value given in {clause!r}: set <Parameter> = <value>, or "
-                "set <Parameter> of type \"<type name>\" = <value>")
+                f"no value given in {clause!r}, or a value that starts with 'of type' "
+                "(quote such a value): set <Parameter> = <value>, or set <Parameter> of "
+                "type \"<type name>\" = <value>")
         if typed:
             hit = _ends_in_type(val, [str(n) for n in (getattr(inv, "type_names", None) or [])])
             if hit is not None:
@@ -615,21 +618,42 @@ def _match_set(inv: FamilyInventory, clause: str):
     return m
 
 
-def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = None):
+def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = None,
+                     typed: bool = False):
     """:func:`_match_set`'s grammar on a clause whose type name is resolved.
     ``prefer`` = a caption containing "of type" that the clause names
     (:func:`_caption_of_type`): a shorter caption whose remainder starts with
-    "of type" is then not a reading (#1011: ``set Size of Type 5 mm``)."""
+    "of type" is then not a reading (#1011: ``set Size of Type 5 mm``).
+    ``typed`` = :func:`_resolve_type_name` already quoted a family type in, so
+    the qualifier reading is decided and the longest-caption rule stands down."""
     lead = _RE_SET_LEAD.match(clause)
     caps: List[Tuple[str, str]] = []
     if lead:
         body = clause[lead.end():]
         low = body.lower()
         for cap in sorted((p["caption"] for p in inv.params), key=len, reverse=True):
-            c = cap.lower()
-            if c and low.startswith(c) and (len(low) == len(c) or not (low[len(c)].isalnum()
-                                                                     or low[len(c)] == "_")):
-                caps.append((cap, body[len(cap):].lstrip()))
+            words = str(cap).split()
+            if not words:
+                continue
+            cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?![A-Za-z0-9_])", body, re.I)
+            if cm is not None:                     # any whitespace between the words
+                caps.append((cap, body[cm.end():].lstrip()))
+    if len(caps) > 1 and not typed:
+        # the LONGEST caption the clause names, followed by a bare value, is the
+        # parameter: 'set Distance to Wall 3 ft' is never Distance = "Wall 3 ft"
+        # (#1013 review).  If that value itself holds a to / '=', the shorter
+        # caption's delimiter reading is just as possible: refuse, naming both.
+        lcap, lrest = max(caps, key=lambda cr: len(" ".join(str(cr[0]).split())))
+        lrest_s = lrest.strip().lstrip(":").strip()
+        if lrest_s and not _RE_EXPLICIT.match(lrest_s) and not (
+                prefer and lcap.strip().lower() != prefer.strip().lower()):
+            if _RE_DELIM_AHEAD.search(" " + lrest_s):
+                raise FamilyEditError(
+                    f"{clause!r} reads two ways: parameter {lcap!r} with value "
+                    f"{lrest_s!r}, or a shorter parameter -- write set {lcap} = <value>")
+            lm = _RE_SET.match("set P " + lrest_s)
+            if lm is not None:
+                return _CaptionMatch(lm, lcap)
     if prefer:
         caps = [(c, r) for c, r in caps if c.strip().lower() == prefer.strip().lower()
                 or not re.match(r"of\s+type\b", r, re.I)]

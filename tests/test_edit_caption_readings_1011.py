@@ -60,6 +60,13 @@ def _read(inv, clause):
     (_D, "set Distance to Wall to", "no value given for 'Distance to Wall'"),
     (_D, "set Distance to Wall", "no value given for 'Distance to Wall'"),
     (_D, "set Distance to Wall.", "no value given for 'Distance to Wall'"),
+    # PR #1013 review: whitespace and more punctuation never bypass it
+    (_D, "set Distance to  Wall to", "no value given for 'Distance to Wall'"),
+    (_D, "set Distance  to  Wall", "no value given for 'Distance to Wall'"),
+    (_D, "set Distance to Wall?", "no value given for 'Distance to Wall'"),
+    (_D, "set Distance to Wall:", "no value given for 'Distance to Wall'"),
+    # the longest caption's bare value holds a delimiter: two readings
+    (_D, "set Distance to Wall height to 3", "reads two ways"),
 ])
 def test_refused(inv, clause, match):
     with pytest.raises(MF.FamilyEditError, match=re.escape(match)):
@@ -77,6 +84,11 @@ def test_refused(inv, clause, match):
     (_A, "set Size of type B = 5", ("Size", "5", "B")),
     (_D, "set Distance to Wall to 3 ft", ("Distance to Wall", "3 ft", None)),
     (_D, "set Distance to 3 ft", ("Distance", "3 ft", None)),
+    # the LONGEST caption followed by a bare value is the parameter (#1013 review)
+    (_D, "set Distance to Wall 3 ft", ("Distance to Wall", "3 ft", None)),
+    (_D, "set Distance to Wall: 3", ("Distance to Wall", "3", None)),
+    (_D, "set Distance  to  Wall = 2 ft", ("Distance to Wall", "2 ft", None)),
+    (_D, "set Finish = two  spaces", ("Finish", "two  spaces", None)),   # value spacing kept
 ])
 def test_read(inv, clause, want):
     assert _read(inv, clause) == want
@@ -108,3 +120,17 @@ def test_no_value_after_the_long_caption_writes_nothing(conduit_two_captions, tm
     rec = MF.modify_family(conduit_two_captions, "set Size of Type 5 mm", str(tmp_path))
     assert MF.inventory_family(rec["files"]["rfa"]).param_by_caption("Size of Type")["current"] \
         == "5 mm"
+
+
+def test_the_longest_caption_with_a_value_on_a_generated_family(tmp_path):
+    if not HAVE_SCHEMA:
+        pytest.skip("class schema cache absent")
+    from rvt.famgen import factory as F
+    p = str(tmp_path / "c.rfa")
+    F.make_archetype(product="conduit",
+                     text_params={"Distance": "d0", "Distance to Wall": "w0"}).write(
+        p, validate=False, provenance=False)
+    rec = MF.modify_family(p, "set Distance to Wall 3 ft", str(tmp_path / "o"))
+    inv = MF.inventory_family(rec["files"]["rfa"])
+    assert (inv.param_by_caption("Distance")["current"],
+            inv.param_by_caption("Distance to Wall")["current"]) == ("d0", "3 ft")

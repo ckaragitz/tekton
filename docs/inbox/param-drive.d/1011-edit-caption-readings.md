@@ -12,6 +12,25 @@ Refs #1011, #1009, #1010, #1007. S-2026-09-22-a. Found by the second review of P
 
 - **A clause that is exactly a multi-word caption with no value is refused** ("no value given for 'Distance to Wall'"). This holds with or without a trailing `to`/`=` or punctuation. With captions Distance / Distance to Wall, `set Distance to Wall to` used to write Distance = "Wall to", and `set Distance to Wall` wrote Distance = "Wall". The second review of PR #1012 found this; it is on main too. A family with only a "Distance" caption still reads `set Distance to Wall` as Distance = "Wall".
 
+## Review round (PR #1013, head b5d04ec, 🛑)
+The caption-only check had gaps, and each one still wrote the user's words into **Distance**. All were confirmed end to end, and all were on main too:
+- extra whitespace (`set Distance to  Wall to`);
+- a trailing `?` or `:`;
+- above all, the long caption followed by a bare value (`set Distance to Wall 3 ft` → Distance = "Wall 3 ft").
+
+The first round's "with or without a trailing to/= or punctuation" was overstated. Fixed:
+- **Whitespace and punctuation.** Captions now match with any whitespace between their words, both in the grammar and in the caption-only check. The check also strips `?` and `:`. A value's own spacing is kept (`= two  spaces`).
+- **The longest caption wins.** The longest caption the clause names, followed by a bare value, is the parameter (`set Distance to Wall 3 ft` → Distance to Wall = "3 ft"; `…: 3` → "3"). If that value itself holds `to`/`=` (`set Distance to Wall height to 3`), the shorter caption's reading is just as possible, so the clause is refused naming both. The rule stands down when the type resolver already decided a qualifier, which keeps #1010's `set Size of type Big One = 5`.
+- **Clearer refusal.** An untyped value starting with "of type" now says to quote it (review nit).
+
+**Real-family regression.**
+- Families: the 7 archetypes (cable_tray, conduit, junction_box, lighting_control_panel, strut_channel, strut_trapeze, wireway).
+- Clauses: every caption × type × five forms (`to 1`, `= x`, `of type T = 1`, `of type "T" to 1`, bare `1`), 600 in all.
+- Result: **0 differences from main**, and 0 new refusals.
+- The review's own sweep of about 7,000 clauses over 11 families found the only differences to be bare `set C` / `set C to`, now refused (improvements).
+
+**Tests.** The module now has 31 cases (main fails 21 of them), including an end-to-end read-back (`set Distance to Wall 3 ft` leaves Distance = "d0" and sets Distance to Wall = "3 ft"). The 16 edit/convert suites: **510 passed / 35 skipped**.
+
 ## Evidence
 - `tests/test_edit_caption_readings_1011.py` (new, 21 cases):
   - 10 refusals, 3 of them the caption-only no-value forms;
