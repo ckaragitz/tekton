@@ -10,7 +10,7 @@
 # session_ci.sh (merges serialise behind CI runs; reviews stay parallel, they are diff-scoped).
 # Tolerated drift = what cannot change a gate's outcome: files ADDED or MODIFIED under docs/**, except the docs
 # files shard tests open for content (SHARD_READS: the certification ledger and rendered matrix — tests/test_router.py,
-# test_probe_batch.py, test_frontdoor_manifest_pin.py; AUTONOMY.md — needles in tests/test_techlead.py; the list is
+# test_probe_batch.py, test_frontdoor_manifest_pin.py; every docs/product/ file — tests/test_doc_caveats_990.py; AUTONOMY.md — needles in tests/test_techlead.py; the list is
 # pinned against the shard's real docs/ reads by tests/test_ci_fresh.py). A docs DELETION is drift too:
 # src/rvt/frontdoor/matrix.py cites docs/inbox records by existence. So is a docs file ADDED on main when the
 # post-merge name set no longer passes tools/dev/check_portable_paths.py — THE names-only gate session_ci.sh ran, its
@@ -44,7 +44,7 @@
 # 5 the JSON is for another head / not a pass | 3 MISSING (no JSON, or one from before "main" was recorded) |
 # 2 bad PR number / cannot judge (fetch or diff failed) — every non-zero exit means "do not merge on this verdict".
 set -uo pipefail
-SHARD_READS='^docs/(coverage/|product/PERMUTATION-MATRIX[.]md$|process/AUTONOMY[.]md$)'   # [.] not \.: gawk warns on "\." in a -v string and reads it as "." (#496)
+SHARD_READS='^docs/(coverage/|product/|process/AUTONOMY[.]md$)'   # [.] not \.: gawk warns on "\." in a -v string and reads it as "." (#496)
 PR=${1:?usage: tools/dev/ci_fresh.sh <pr-number> [<head-sha>]}; WANT=${2:-}
 [[ "$PR" =~ ^[0-9]+$ ]] || { echo "usage: PR must be a number" >&2; exit 2; }
 REPO=$(cd "$(dirname "$0")/../.." && pwd)          # the trusted checkout this script lives in (main)

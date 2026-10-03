@@ -9,8 +9,8 @@ the rest of the inventory (record: ``docs/inbox/perm-matrix.d/
 * ``stage_L8_lp4.rvt`` -- eight catalog / house families our constructors
   still emit, cited by rows that implied today's constructor output is what
   the ledger certifies -> registered (``recipe='family_set'``), and its
-  caveat also states verdict #25's retraction (an empty-design translation:
-  no walls, no placed instance);
+  caveat also states verdicts #24/#25 (placement unproven; the PASS an
+  empty-design short-circuit: no walls, no placed instance -- #990 wording);
 * ``ROOM2025_walls.rvt`` -- the 2025 prompt route's walls-only output, cited
   by plugin/docs/HONEST-STATUS.md -> registered (``recipe='author'``), the
   one entry whose certified fingerprint the ledger itself records;
@@ -152,9 +152,13 @@ def test_verify_evidence_fails_a_row_that_drops_the_stage_l8_caveat(monkeypatch)
     assert probs and probs[0].startswith("stage rfa-reload"), probs
 
 
-def test_the_stage_l8_caveat_states_the_retraction_and_the_current_status():
+def test_the_stage_l8_caveat_states_verdicts_24_25_and_the_current_status():
     c = M.STAGE_L8_EARLIER_FORM
-    for must in ("EARLIER FORM", "verdict #22", "verdict #25", "RETRACTED",
+    # #990: the #25 wording follows the ledger (#991): verdicts #24/#25, not "RETRACTED"
+    assert "RETRACTED" not in c
+    for must in ("EARLIER FORM", "verdict #22", "verdicts #24/#25",
+                 "placement on the genesis lineage unproven (#24)",
+                 "empty-design short-circuit (8 families + 0 walls + 0 instances, #25)",
                  "NO placed instance", "instance_id -1", "design is empty",
                  "not complete", "#892", "#931", "#887", "VALID",
                  "NO viewer or desktop-Revit verdict"):
