@@ -40,10 +40,19 @@ The longest-caption rule (from a174288) accepted a caption that ends inside a wo
 
 The same review's 25,080-clause sweep over 15 families found otherwise only improvements against main, plus that one regression. Head vs a174288 showed only improvements. It also measured an older value defect: `set Tray Type: 1` stores ": 1". That is filed separately as #1014.
 
+## Fourth review round (PR #1013, head 9d785e0, 🛑)
+The caption-match boundary `(?![A-Za-z0-9_])` (from a174288) is ASCII-only, while main's `isalnum()` is not. A caption ending inside a word of non-ASCII letters or digits therefore still matched. The fallback loop then cut the word:
+- `set Size of Type Aé` (captions Size of Type / Size of Type A) wrote Size of Type **A** = "é";
+- `set Mark Noteé` wrote Mark Note = "é".
+
+The review's unicode probe counted 1,456 refusals that turned into writes and 1,040 changed values. The boundary is now `(?!\w)`, which is Unicode-aware, in both places. Added 6 cases, for 53 in total.
+
+The review's 46,944-clause, 21-family sweep at 9d785e0 (all ASCII) showed **no transition from OK to anything worse** against main. Its only remaining wrong values are #1014's ": v" prefix: 90 double-spaced `C  C: v` clauses now reach it, as noted on #1014. With the fix, the unicode probe matches main on 8,550 of 8,560 clauses, and the other 10 are improvements.
+
 ## Evidence
-- `tests/test_edit_caption_readings_1011.py`: **47 cases**, covering refusals, reads, every review round's probes, and three end-to-end read-backs on generated conduits with colliding text parameters. Main fails 23; head ad438e8 fails 9 (the third round's cases); this head passes all 47.
+- `tests/test_edit_caption_readings_1011.py`: **53 cases**, covering refusals, reads, every review round's probes, and three end-to-end read-backs on generated conduits with colliding text parameters. Main fails 25; head 9d785e0 fails 3 (the unicode cut-word cases); this head passes all 53.
 - Real-family regression: 600 well-formed clauses (7 archetypes × every caption × type × five forms) give **0 differences from main**. The second review's own 5,861-clause, 21-family sweep found only improvements, apart from B1.
-- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **536 passed / 35 skipped**. The 600-clause real-family regression is re-run at this head, with 0 differences from main.
+- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **542 passed / 35 skipped**. The 600-clause real-family regression is re-run at this head, with 0 differences from main.
 
 ## BRANCH STATE
 - Files:

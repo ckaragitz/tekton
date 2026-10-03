@@ -42,6 +42,16 @@ class _DT:
     type_names = ["T", "T 1"]
 
 
+class _SA:
+    params = [{"caption": c} for c in ("Size of Type", "Size of Type A", "Size")]
+    type_names = ["T1"]
+
+
+class _MN:
+    params = [{"caption": c} for c in ("Mark", "Mark Note")]
+    type_names = ["T1"]
+
+
 class _A:
     params = [{"caption": c} for c in ("Size of Type A", "Size", "Finish")]
     type_names = ["A", "B"]
@@ -114,6 +124,13 @@ def test_refused(inv, clause, match):
     (_D, "set Distance to Wall,5", ("Distance", "Wall,5", None)),
     (_D, "set Distance\tto\tWall-mounted", ("Distance", "Wall-mounted", None)),
     (_D, "set Distance to Wall=3", ("Distance to Wall", "3", None)),
+    # fourth review: a caption ending inside a NON-ASCII word is not named either
+    (_SA, "set Size of Type Aé", ("Size of Type", "Aé", None)),
+    (_SA, "set Size of Type Aé red", ("Size of Type", "Aé red", None)),
+    (_SA, "set Size of Type A 5", ("Size of Type A", "5", None)),
+    (_MN, "set Mark Noteé", ("Mark", "Noteé", None)),
+    (_MN, "set Mark Note x", ("Mark Note", "x", None)),
+    (_D, "set Distance to Wallé x", ("Distance", "Wallé x", None)),
 ])
 def test_read(inv, clause, want):
     assert _read(inv, clause) == want

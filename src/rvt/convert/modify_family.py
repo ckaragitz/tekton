@@ -635,7 +635,7 @@ def _canon_caption_span(inv: FamilyInventory, clause: str) -> str:
         words = cap.split()
         if not words:
             continue
-        cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?![A-Za-z0-9_])", body, re.I)
+        cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?!\w)", body, re.I)
         if cm is not None and (best is None or len(" ".join(words)) > len(" ".join(best[0].split()))):
             best = (cap, cm)
     if best is None:
@@ -663,7 +663,7 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
             words = str(cap).split()
             if not words:
                 continue
-            cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?![A-Za-z0-9_])", body, re.I)
+            cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?!\w)", body, re.I)
             if cm is not None:                     # any whitespace between the words
                 caps.append((cap, body[cm.end():].lstrip()))
                 if re.match(r"\s|$|[:=]", body[cm.end():]):
