@@ -681,8 +681,24 @@ def _refuse_glued_caption(inv: FamilyInventory, clause: str) -> None:
     body = clause[lead.end():]
     ms = _caption_matches(inv, body)
     for cap, end, whole in ms:
-        if whole or end >= len(body):
+        if end >= len(body):
             continue
+        if whole:
+            # punctuation glued to the LONGEST caption ('Mark^ 1', 'Mark Note-1')
+            # with no other reading writes the user's punctuation into the
+            # value (#1014): refused -- unless a longer caption is what was
+            # typed, or a shorter caption reads it with to / '=' ('Distance
+            # to Wall-mounted box' is Distance = "Wall-mounted box")
+            ch = body[end]
+            if (ch.isspace() or ch in ":=\"'"
+                    or any(e > end and w for _c, e, w in ms)
+                    or any(e < end and body[e:e + 1].isspace()
+                           and re.match(r"(?:to\s|=)", body[e:].lstrip(), re.I)
+                           for _c, e, _w in ms)):
+                continue
+            raise FamilyEditError(
+                f"a parameter name runs straight into {ch!r}: put a space or '=' "
+                "between the parameter and its value -- set <Parameter> = <value>")
         ch = body[end]
         if ch.isalnum() or ch == "_":
             continue                       # a letter: the ordinary grammar reads it
@@ -739,7 +755,10 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
                 continue
             cm = re.match(r"\s+".join(map(re.escape, words)), body, re.I)
             if cm is not None and _word_ends(body, cm.end()):                     # any whitespace between the words
-                caps.append((cap, body[cm.end():].lstrip()))
+                rest = body[cm.end():].lstrip()
+                if rest.startswith(":"):
+                    rest = "= " + rest[1:].lstrip()   # 'Tray Type: 1' == 'Tray Type = 1' (#1014)
+                caps.append((cap, rest))
                 if re.match(r"\s|$|[:=]", body[cm.end():]):
                     whole_word.add(cap)            # ends at a word boundary the user typed
     if len(caps) > 1 and not typed:
@@ -770,6 +789,16 @@ def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = 
     for cap, rest in caps:
         if _RE_EXPLICIT.match(rest):
             m = _RE_SET.match("set P " + rest)
+            if m is not None and re.match(r"to\s", rest, re.I) and "=" in (m.group("val") or ""):
+                # 'set Distance to Walls = 5' with a caption 'Distance to Wall':
+                # the user named a longer parameter, mistyped -- never Distance
+                # = "Walls = 5" (#1014)
+                pre = (cap + " to").lower()
+                if any(str(p["caption"]).strip().lower().startswith(pre)
+                       for p in inv.params):
+                    raise FamilyEditError(
+                        f"no parameter {' '.join(clause.split('=')[0].split()[1:])!r} in this "
+                        "family: name the parameter exactly -- set <Parameter> = <value>")
             if m is not None:
                 if re.match(r"of\s+type\s", rest, re.I) and not (
                         m.group("typeq") or m.group("typeq2") or m.group("type")):
@@ -793,7 +822,7 @@ _RE_OF_TYPE_AT = re.compile(r"\s+of\s+type\s+", re.I)
 _RE_DELIM_AHEAD = re.compile(r"\s+to\s+|\s*=", re.I)
 #: what may follow a family type name typed unquoted: the end, ``to``, ``=``
 #: (spaces optional before it), or one space and a bare value
-_RE_AFTER_NAME = re.compile(r"(?P<to>\s+to\s+)|(?P<eq>\s*=\s*)|(?P<sp>\s+)|(?P<end>$)", re.I)
+_RE_AFTER_NAME = re.compile(r"(?P<to>\s+to\s+)|(?P<eq>\s*[=:]\s*)|(?P<sp>\s+)|(?P<end>$)", re.I)
 
 
 def _refuse_type(named: str, types: Sequence[str]):
