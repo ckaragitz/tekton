@@ -40,7 +40,7 @@ The **OPEN CELL** you must know cold: **PLACED INSTANCES** of our generated
 families on our composed genesis base fail Autodesk's audit
 (docs/inbox/genesis-audit.md #48, issue #16). Walls alone PASS, loaded
 families alone PASS, and walls + one loaded family (WF_fix / WF_nofix; whether
-more families in one file pass is open, verdict #27). The front door NEVER
+more families in one file pass is open, verdict #27) PASS. The front door NEVER
 ships the open cell silently: by default it emits one combined file whose
 manifest is STAMPED `PROOF-ONLY: generated-family INSTANCES on a composed
 genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)`; with

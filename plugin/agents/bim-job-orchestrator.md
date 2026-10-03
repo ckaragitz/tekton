@@ -114,10 +114,12 @@ Before dispatching anything, read (they ship with this plugin):
    open, so outputs are stamped for third-party deliverability — the user
    still gets the file.
 4. **The standing caveats, stated with the delivery, never instead of it:**
-   created walls AND our generated placed families in ONE file currently
-   trip Autodesk's audit while each alone passes (the open cell) — default is
-   one combined file stamped `PROOF-ONLY: walls+families combination
-   unverified`, `--strict` gives two coordinated files; **LOAD is not
+   placed instances of our generated families on our composed base fail
+   Autodesk's audit (the open cell; walls, loaded families and
+   walls + one loaded family (WF_fix / WF_nofix; whether more families in one file pass is open, verdict #27) pass) — default is one combined file
+   stamped `PROOF-ONLY: generated-family INSTANCES on a composed genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)`,
+   `--strict` gives two coordinated files (shell without placement +
+   equipment); **LOAD is not
    RENDER** — placed equipment carries real solids, created walls load but
    may not draw yet (run tekton-inspect's render check before promising a
    picture); circuits/panel schedules are planned in the manifest, not

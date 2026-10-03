@@ -106,7 +106,8 @@ def build_parser() -> argparse.ArgumentParser:
                       help="chain selector: 'ifc' = prompt->IFC->RVT; "
                            "'family' = product-IFC->rfa->loaded rvt")
     outg.add_argument("--strict", action="store_true",
-                      help="walls+families open bug -> two coordinated files")
+                      help="open cell (placed instances) -> two coordinated files: "
+                           "shell (no placement) + equipment")
     outg.add_argument("--base", default=None, metavar="FILE.rvt",
                       help="build base override (Autodesk samples refused)")
     outg.add_argument("--target-version", type=int, default=None)

@@ -26,11 +26,13 @@ SHAPE = M.WALLS_FAMILY_SHAPE
 #: every hand-authored surface that states the shape -- each must quote it
 QUOTING = ("plugin/skills/tekton-author/references/GENESIS-BASE.md",
            "docs/product/PERMUTATION-MATRIX.md", "/".join(("plugin", "docs", "HONEST-STATUS.md")),
-           "src/rvt/frontdoor/SKILL.frontdoor.md")
+           "src/rvt/frontdoor/SKILL.frontdoor.md", "plugin/skills/tekton-author/SKILL.md",
+           "plugin/README.md", "plugin/agents/bim-job-orchestrator.md", "tools/frontdoor.py")
 #: the sources an overclaim must never reappear in
 SCANNED = ("src/rvt/frontdoor/*.py", "src/rvt/frontdoor/*.md", "plugin/skills/**/SKILL.md",
            "plugin/skills/**/references/*.md", "/".join(("plugin", "docs", "*.md")),
-           "docs/product/*.md")
+           "docs/product/*.md", "plugin/README.md", "plugin/agents/*.md",
+           "plugin/commands/*.md", "src/rvt/convert/*.py", "tools/frontdoor.py", "tools/route.py")
 #: dated measurement logs quote what a run printed then; never a claim of now
 LOGS = {"docs/product/REQUIREMENTS.md"}
 _OVERCLAIM = re.compile(
@@ -38,7 +40,12 @@ _OVERCLAIM = re.compile(
     r"(?: are| is)? (?:certified|PASS)\b"
     r"|walls\s*\+\s*loaded families,? (?:the )?certified shape"
     r"|walls\+families combination['’]? suspicion is exonerated"
-    r"|walls\+families in one file\)? [—-]+ \*\*exonerated", re.I)
+    r"|walls\+families in one file\)? [—-]+ \*\*exonerated"
+    # #998: the old cell, the dead stamp, and a --strict pair called proven
+    r"|walls\+families combination unverified"
+    r"|created walls \**and\** our generated,? placed families"
+    r"|walls\+families open[- ]bug"
+    r"|coordinated (?:proven|certified) files", re.I)
 
 
 def _flat(rel):
@@ -92,7 +99,11 @@ def test_the_overclaim_pattern_fires_on_the_old_texts():
                 "walls + loaded families together PASS",
                 "shell (walls + loaded families, certified shape)",
                 "the old 'walls+families combination' suspicion is exonerated",
-                "**Open bug r2** (walls+families in one file) — **exonerated**"):
+                "**Open bug r2** (walls+families in one file) — **exonerated**",
+                "stamped `PROOF-ONLY: walls+families combination unverified`",
+                "Created walls AND our generated, placed families in ONE file",
+                "help=\"walls+families open bug -> two coordinated files\"",
+                "`--strict` = TWO coordinated proven files"):
         assert _OVERCLAIM.search(old), old
     assert not _OVERCLAIM.search(SHAPE)
 

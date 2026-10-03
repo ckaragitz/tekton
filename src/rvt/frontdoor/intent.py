@@ -155,6 +155,11 @@ def planned_instances(model: IntentModel,
     return sum(1 for e in (model.equipment or []) if e.tag in tags)
 
 
+def _fams(n: int) -> str:
+    """``"1 loaded family"`` / ``"7 loaded families"``."""
+    return f"{n} loaded famil{'y' if n == 1 else 'ies'}"
+
+
 def _wf_shape(n_fam: int) -> str:
     """How far WF_fix / WF_nofix cover a walls + ``n_fam`` families shell (#996)."""
     if n_fam == 1:
@@ -258,9 +263,9 @@ def combination_check(model: IntentModel, *, strict: bool = False,
                   n_loaded_families=n_fam, n_instances=n_inst,
                   composed_base=bool(composed_base))
     if n_inst > 0 and composed_base:
-        shell_what = (f"the {n_walls} walls + the {n_fam} loaded families, NO placement "
+        shell_what = (f"the {n_walls} walls + the {_fams(n_fam)}, NO placement "
                       f"-- {_wf_shape(n_fam)}" if builds_w
-                      else f"the {n_fam} loaded families, NO placement -- the "
+                      else f"the {_fams(n_fam)}, NO placement -- the "
                            "certified load shape")
         if strict:
             v = CombinationVerdict(
@@ -281,7 +286,7 @@ def combination_check(model: IntentModel, *, strict: bool = False,
                 stamp=OPEN_CELL_STAMP, files=["combined"],
                 reason=("default: ONE combined file ("
                         + (f"the {n_walls} walls + " if builds_w else "")
-                        + f"the {n_fam} loaded families + their {n_inst} PLACED instances) is "
+                        + f"the {_fams(n_fam)} + their {n_inst} PLACED instances) is "
                         f"emitted and DELIVERED, and the manifest is STAMPED '{OPEN_CELL_STAMP}' "
                         f"-- {_CELL_WHY}. Pass --strict to get the shell (no placement) and the "
                         "instances as two coordinated files instead."))
@@ -296,7 +301,7 @@ def combination_check(model: IntentModel, *, strict: bool = False,
                 "are a certified cell (T1r / T1u / U16); this artifact itself is unverified "
                 "and rides the status gate's PROOF-ONLY label")
     elif builds_w and has_f and "L" in stages:
-        what = (f"{n_walls} walls + {n_fam} loaded families WITHOUT placement -- "
+        what = (f"{n_walls} walls + {_fams(n_fam)} WITHOUT placement -- "
                 + _wf_shape(n_fam))
     elif builds_w:
         what = "walls only (viewer-certified shape: room shell on the genesis base)"

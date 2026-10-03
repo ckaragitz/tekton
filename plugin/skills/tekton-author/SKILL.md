@@ -228,11 +228,13 @@ caveat 3), `--handoff-only` (prompt route: only the AI-surface handoff),
    (`references/GENESIS-BASE.md`), so the provenance gate stamps outputs
    PROOF-ONLY for third-party deliverability. The user still gets the file;
    a firm's own base via `--base` changes the verdict.
-3. **The open walls+families cell.** Created walls AND our generated,
-   placed families in ONE file currently trip Autodesk's audit; each alone
-   passes. Default = one combined file stamped `PROOF-ONLY: walls+families
-   combination unverified`; `--strict` = TWO coordinated proven files
-   (shell + equipment) — offer both, user picks. Same on every release.
+3. **The open cell: PLACED INSTANCES** of our generated families on our
+   composed base fail Autodesk's audit (issue #16). Walls, loaded families
+   and walls + one loaded family (WF_fix / WF_nofix; whether more families in one file pass is open, verdict #27) pass. Default = one combined file stamped
+   `PROOF-ONLY: generated-family INSTANCES on a composed genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)`; `--strict` = TWO coordinated
+   files (shell = walls + loaded families, no placement; equipment = the
+   placed instances, unverified) — offer both, user picks. Same on every
+   release.
 4. **LOAD is not RENDER.** Loaded symbols/instances carry real solids;
    created walls load but may not draw yet. Run **tekton-inspect**'s render
    check before promising a picture.

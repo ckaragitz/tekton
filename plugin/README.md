@@ -59,11 +59,12 @@ final judge of every file.
 - **LOAD is not RENDER.** Placed equipment carries real solids; created walls
   load and validate but may not draw in a 3D view yet. `tekton-inspect`'s
   render check tells you which, per element, before anyone promises a picture.
-- **The one open cell:** created walls **and** our generated, placed families
-  in ONE file currently trip Autodesk's audit, while each alone passes. The
-  default is one combined file stamped `PROOF-ONLY: walls+families
-  combination unverified`; `--strict` gives two coordinated files (shell +
-  equipment). It is the project's top engineering priority (tracked as issue
+- **The one open cell:** **placed instances** of our generated families on
+  our composed base fail Autodesk's audit. Walls, loaded families and
+  walls + one loaded family (WF_fix / WF_nofix; whether more families in one file pass is open, verdict #27) pass. The default is one combined file stamped
+  `PROOF-ONLY: generated-family INSTANCES on a composed genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)`; `--strict`
+  gives two coordinated files (shell = walls + loaded families, no
+  placement; equipment = the placed instances). It is the project's top engineering priority (tracked as issue
   #16 in the repo); Claude says so with every affected delivery.
 - **Circuits and Revit-native panel schedules** are planned in the manifest,
   not promised as working Revit circuits. From IFC they never come at all:
@@ -194,8 +195,9 @@ output 2025, "Revit 2025 and newer -- never an older Revit",
 `target_support: certified-base`, `this_file: validated-not-certified (our
 gate: VALID 0 errors / 0 warnings; Autodesk acceptance only when the
 recipient's Revit / the Autodesk Viewer opens it)`*, and `result.status =
-PROOF-ONLY (self-checks PASS; …)` with the stamps `PROOF-ONLY: walls+families
-combination unverified` and `PROOF-ONLY, NOT-DELIVERABLE`. That is the honest
+PROOF-ONLY (self-checks PASS; …)` with the stamps
+`PROOF-ONLY: generated-family INSTANCES on a composed genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)` and
+`PROOF-ONLY, NOT-DELIVERABLE`. That is the honest
 shape of every creation delivery: the file first, the version story, the
 status line verbatim, the stamps after. Change the prompt (ratings, counts,
 room size, `--target-version 2024`) and re-run: same command, new file.

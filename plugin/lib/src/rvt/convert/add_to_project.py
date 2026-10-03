@@ -42,7 +42,8 @@ Autodesk-authored element.
 
 THE DELIVERABLE RULE: gates are labels.  Every run that can produce a file
 DELIVERS it, with the honest stamps after: the P0 PROOF-ONLY stamp, the
-walls+families open-bug stamp when this run creates that combination, and a
+open-cell stamp (rvt.frontdoor.intent.OPEN_CELL_STAMP) when this run places
+instances of our generated families on our composed genesis base, and a
 QUARANTINED-TARGET stamp when the target is an Autodesk sample (dev-only
 proof, never shipped).
 
@@ -430,9 +431,9 @@ def build_into_target(model: FI.IntentModel, target: TargetInfo, out_dir: str,
       V  gates per output: rvt.validate (0 errors required to claim the
          cell), four-registry census, release-preservation check.
 
-    The walls+families OPEN BUG degrade applies exactly as in the front
-    door: ``--strict`` emits two coordinated files (shell / equipment), the
-    default emits ONE stamped combined file.  Returns the full record;
+    The OPEN-CELL degrade (rvt.frontdoor.intent.combination_check) applies
+    exactly as in the front door: ``--strict`` emits two coordinated files
+    (shell / equipment), the default emits ONE stamped combined file.  Returns the full record;
     ``record['files']`` maps role -> path (the deliverables).
 
     Every stage runs under the TARGET's own release (the host release
@@ -482,7 +483,7 @@ def _build_into_target(model: FI.IntentModel, target: TargetInfo, out_dir: str,
     rec["level"] = {"id": lvl_id, "elevation_ft": lvl_elev_ft,
                     "requested": level or "(nearest elevation 0)"}
 
-    # ---- degrade decision (the walls+families open bug) -------------------
+    # ---- degrade decision (the open cell: placed instances) ----------------
     verdict = FI.combination_check(model, strict=strict)
     rec["verdict"] = verdict.as_json()
     plans = FI.buildable_family_plans(model)
@@ -500,8 +501,8 @@ def _build_into_target(model: FI.IntentModel, target: TargetInfo, out_dir: str,
         rec["degradations"].append(
             "note: the target already carries walls; THIS RUN creates none, so "
             "loading our families into it is the certified load-into-a-walled-host "
-            "shape (L1a foreign-host precedent), not the created-walls+loaded-"
-            "families open-bug combination")
+            "shape (L1a foreign-host precedent), not created walls + loaded families "
+            "in one file (certified only as walls + one loaded family, verdict #27)")
 
     # ---- F: the .rfa deliverables ----------------------------------------
     frec = R.stage_families(model, out_dir)
@@ -558,8 +559,8 @@ def _build_into_target(model: FI.IntentModel, target: TargetInfo, out_dir: str,
     mode = verdict.mode
     if verdict.triggers_open_bug and not have_fams:
         mode = "single"
-        rec["degradations"].append("walls+families collapsed to walls-only (nothing "
-                                   "loaded) -- single proven-shaped file")
+        rec["degradations"].append("the open cell collapsed to walls only (no family "
+                                   "loaded, so no instance placed) -- a single file")
     rec["mode"] = mode
 
     def _walls(src: str, dst: str, label: str) -> Optional[str]:
@@ -907,7 +908,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     help="target level: 1-based story index or name substring")
     ap.add_argument("--stem", default=None, help="output file stem")
     ap.add_argument("--strict", action="store_true",
-                    help="walls+families open bug -> two coordinated files")
+                    help="open cell (placed instances) -> two coordinated files: "
+                         "shell (no placement) + equipment")
     ap.add_argument("--no-validate", action="store_true")
     a = ap.parse_args(argv)
     try:

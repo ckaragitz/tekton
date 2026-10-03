@@ -32,10 +32,14 @@ ROUTES
             certified edit pipeline; --edit takes an edit SENTENCE, an
             ops.json path, or inline JSON.
 
-THE OPEN BUG (walls + loaded families in one file trip Autodesk's audit) is
-DETECTED, never silently shipped:  --strict emits TWO coordinated files
-(shell + equipment); the default emits ONE combined file STAMPED
-'PROOF-ONLY: walls+families combination unverified'.
+THE OPEN CELL (PLACED INSTANCES of our generated families on our composed
+genesis base fail Autodesk's audit -- genesis-audit #48, issue #16) is
+DETECTED, never silently shipped: --strict emits TWO coordinated files
+(shell = walls + loaded families, no placement; equipment = the placed
+instances); the default emits ONE combined file STAMPED with
+rvt.frontdoor.intent.OPEN_CELL_STAMP.  Certified around it: walls, loaded
+families, and walls + one loaded family (WF_fix / WF_nofix; whether more
+families in one file pass is open, verdict #27).
 
 Exit codes: 0 = the route completed (status in the manifest; PROOF-ONLY is
 still 0), 2 = usage / route error, 3 = build/edit did not complete,
@@ -96,8 +100,9 @@ def build_parser() -> argparse.ArgumentParser:
                           "presented as the target. Omitted = the default release, and the "
                           "result says to ask.")
     pol.add_argument("--strict", action="store_true",
-                     help="the walls+families OPEN BUG -> emit TWO coordinated files "
-                          "(shell + equipment) instead of one stamped combined file")
+                     help="THE OPEN CELL (placed instances) -> emit TWO coordinated files "
+                          "(shell = no placement + equipment) instead of one stamped "
+                          "combined file")
     pol.add_argument("--base", default=None, metavar="FILE.rvt",
                      help="author on this base instead of the pinned genesis base (an Autodesk "
                           "sample is REFUSED); the pin is hash-verified when omitted")
