@@ -41,7 +41,6 @@ def _read(clause):
     ("set Tray Type: 1", ("Tray Type", "1", None)),
     ("set Tray  Type: 1", ("Tray Type", "1", None)),
     ("set Tray Type:1", ("Tray Type", "1", None)),
-    ("set Tray Type of type T1: 1", ("Tray Type", "1", "T1")),
     ("set Finish = 10:30", ("Finish", "10:30", None)),          # a colon INSIDE a value stays
     ("set Finish to a:b", ("Finish", "a:b", None)),
     ("set Finish to a=b", ("Finish", "a=b", None)),             # no longer 'Finish to ...' caption
@@ -55,7 +54,6 @@ def _read(clause):
     ("set Note :-)", ("Note", ":-)", None)),
     ("set Ratio :1", ("Ratio", ":1", None)),
     ("set Width of type T1 :)", ("Width", ":)", "T1")),
-    ("set Width of type T1: 3", ("Width", "3", "T1")),
     # 'Height tolerance' is not a 'Height to ...' caption: whole words only
     ("set Height to a=b", ("Height", "a=b", None)),
 ])
@@ -97,3 +95,40 @@ def test_a_colon_value_reads_back_on_a_generated_family(conduit, tmp_path):
     rec = MF.modify_family(conduit, "set Finish: hot dip", str(tmp_path))
     assert MF.inventory_family(rec["files"]["rfa"]).param_by_caption("Finish")["current"] \
         == "hot dip"
+
+
+class _TC:
+    """Type names that contain colons (PR #1016 second review)."""
+    params = [{"caption": c} for c in ("Width", "Note", "Note: Install", "Note:")]
+    type_names = ["A", "A:B", "A: Heavy", "T1", "T1:B"]
+
+
+@pytest.mark.parametrize("clause, want", [
+    ("set Width of type A:B = 3", ("Width", "3", "A:B")),
+    ("set Width of type A:B to 3", ("Width", "3", "A:B")),
+    ("set Width of type A:B 3", ("Width", "3", "A:B")),
+    ("set Width of type A: Heavy = 3", ("Width", "3", "A: Heavy")),
+    ("set Width of type T1:B = 3", ("Width", "3", "T1:B")),
+    ("set Note: Install = x", ("Note: Install", "x", None)),
+    ("set Note: x", ("Note:", "x", None)),
+    ("set Note x", ("Note", "x", None)),
+])
+def test_type_names_with_colons_read_whole(clause, want):
+    m = MF._match_set(_TC, clause)
+    assert (m.group("cap"), m.group("val"),
+            m.group("typeq") or m.group("typeq2") or m.group("type")) == want
+
+
+@pytest.mark.parametrize("clause", [
+    "set Width of type T1:C = 3",        # never T1 = "C = 3"
+    "set Width of type T1::B = 3",
+    "set Width of type A::B = 3",
+    "set Width of type A::B 3",
+    "set Width of type T1: 3",           # a colon after a TYPE is not a delimiter
+    "set Note:",                         # never a blank write
+    "set Note: ",
+    "set Note: Installs = x",            # a mistyped longer caption
+])
+def test_type_and_caption_colon_misreads_are_refused(clause):
+    with pytest.raises(MF.FamilyEditError):
+        MF._match_set(_TC, clause)

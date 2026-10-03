@@ -3,7 +3,7 @@
 Refs #1014, #1011, #1013, #1008. S-2026-09-22-a. Measured by the reviews of PR #1013; all of it was on main too.
 
 ## What was built (`src/rvt/convert/modify_family.py`)
-1. **A colon glued to a caption reads like `=`.** In `_match_set_inner`'s caption list, a caption immediately followed by `:` (no space) gets `= `. `_RE_AFTER_NAME` also accepts `:` after a resolved type name. So `set Tray Type: 1`, `set Tray  Type: 1`, `set Tray Type:1` and `set Tray Type of type T1: 1` all store "1", not ": 1". A colon inside a value (`= 10:30`, `to a:b`) is kept.
+1. **A colon glued to a caption reads like `=`.** In `_match_set_inner`'s caption list, a caption immediately followed by `:` (no space) gets `= `. So `set Tray Type: 1`, `set Tray  Type: 1` and `set Tray Type:1` store "1", not ": 1". (A colon after a type name is not a delimiter; see the second review round.) A colon inside a value (`= 10:30`, `to a:b`) is kept.
 2. **Punctuation glued to the longest caption is refused** (in `_refuse_glued_caption`): `set Mark^ 1`, `set Mark Note-1`, `set Mark-1`, `set Size of Type A- 1`. Before, they stored "^ 1" / "-1" / "- 1". The refusal does not apply when:
    - a longer caption is what was typed;
    - a shorter caption reads the clause with `to` / `=` (`set Distance to Wall-mounted box` stays Distance = "Wall-mounted box");
@@ -28,6 +28,21 @@ Refs #1014, #1011, #1013, #1008. S-2026-09-22-a. Measured by the reviews of PR #
 - The review's own probe (`adv9.py`, 27,896 clauses) against main: OK→OK 7,617; REFUSE→OK 485; WRONGVAL→OK 1,283; WRONGVAL→REFUSE 1 (`set Width, 3`, which stored ", 3"). There is **no OK→worse**. The remaining 1,263 WRONGVAL→WRONGVAL are quoted bare values (`set Note "hi"` keeps its quotes), which predate this PR.
 - The ASCII sweep is unchanged: no wrong value or caption left.
 - `test_edit_colon_1014` now has 24 cases; the 17 suites give **583 passed / 35 skipped**.
+
+## Second review round (PR #1016, head a6656c9, 🛑)
+Extending the colon rule to **type names** (`_RE_AFTER_NAME`) regressed:
+- with types T1 / T1:B, `of type T1:C = 3` wrote T1 = "C = 3";
+- `of type A:B = 3` (types A / A:B) was refused although main read it.
+
+The type-name grammar goes **back to main's**: no colon delimiter after a type. `of type A:B = 3` reads type A:B again, and the mistyped forms are refused as before. On the caption side:
+- **A glued colon with no value is always refused,** naming no caption. `set Note:` used to write a blank (and with captions Note and Note:, a blank into Note).
+- **The colon form of a mistyped longer caption is refused.** `set Note: Installs = x`, with a caption "Note: Install", never becomes Note = "Installs = x".
+- **Both checks stand down when a longer caption already matched** (`set Note: Install = x` reads that caption).
+
+**At this head:**
+- `test_edit_colon_1014` has **38 cases**, including families whose type names contain `:`.
+- The 17 suites: **597 passed / 35 skipped**.
+- The reviewer's `hunt10.py` / `hunt11.py`: every clause reads the named caption and type with the user's value, or is refused.
 
 ## Correction to the #1011 record
 `1011-edit-caption-readings.md` reports 554 passed / 35 skipped for #1013's final head. The independent review measured **558 / 35** for those 16 suites at that head (a1fba67). The fragment shipped as it was; this is the correction.
