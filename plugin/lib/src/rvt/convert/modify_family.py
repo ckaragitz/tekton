@@ -458,10 +458,21 @@ def _reads(inv: FamilyInventory, fragment: str) -> bool:
     cap = m.group("cap").strip()
     hit = inv.param_by_caption(cap)
     key = re.sub(r"[\s_-]+", "", cap).lower()
-    if hit is not None and (len(key) >= 4                     # a short word names a
-                            or re.sub(r"[\s_-]+", "", hit["caption"]).lower() == key):
-        return True                                          # parameter only exactly:
-    return _near_caption(inv, cap)                           # 'at' is not Material
+    if hit is not None and (len(key) >= 4 or _abbreviates(key, hit["caption"])):
+        return True
+    return _near_caption(inv, cap)
+
+
+def _abbreviates(key: str, caption: str) -> bool:
+    """A short key (under 4 characters) names the parameter ``param_by_caption``
+    resolved only as the start of its caption or of one of its words: ``Len`` /
+    ``Mat`` / ``kVA`` / ``IP`` do (the grammar applies them outside quotes, so a
+    quoted fragment holding them is a further edit -- PR #1024 review 2), ``at``
+    in Material, ``of`` in Number of Lamps, ``it`` in Fitting Angle do not."""
+    norm = re.sub(r"[\s_-]+", "", caption).lower()
+    words = re.findall(r"[a-z0-9]+", _split_camel(caption).lower())
+    return len(key) >= 2 and (norm.startswith(key)
+                              or (len(key) >= 3 and any(w.startswith(key) for w in words)))
 
 
 def _near_caption(inv: FamilyInventory, cap: str) -> bool:

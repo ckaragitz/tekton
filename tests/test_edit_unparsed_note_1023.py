@@ -124,6 +124,17 @@ def test_value_text_is_stored_on_real_generated_families(real_invs, value):
         assert [o["value"] for o in ops] == [value], inv.family_name
 
 
+@pytest.mark.parametrize("value", [
+    # PR #1024 review 2: an abbreviation the grammar applies outside quotes
+    # (Len -> Length, Out -> Outside Diameter, Mat -> Material) is a further edit
+    "PVC; set Len 10 ft", "EMT; set Out 2 in", "HDG; set Mat steel", "x; set Dep 3 in",
+])
+def test_an_abbreviated_caption_inside_quotes_is_a_further_edit(real_invs, value):
+    inv = real_invs[0]                                              # the conduit
+    with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
+        MF.parse_family_edit(f'set Finish = "{value}"', inv)
+
+
 def test_the_note_reaches_the_delivered_records_degradations(conduit, tmp_path):
     rec = MF.modify_family(conduit, "set Length; set Material = PVC", str(tmp_path))
     assert rec["files"]["rfa"]                                     # still delivered

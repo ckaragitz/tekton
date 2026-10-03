@@ -10,7 +10,7 @@
   3. **Correction to the #1021 record.** It says `test_edit_quoted_split_1017.py` was "otherwise unchanged". Its `_inv()` also gained the captions `Finish` and `Length`, which changes which fragments read.
 
 ## Evidence
-- `tests/test_edit_unparsed_note_1023.py`, 22 cases:
+- `tests/test_edit_unparsed_note_1023.py`, 26 cases:
   - three "not applied" notes;
   - one fully read edit with no note;
   - three near-miss refusals;
@@ -43,6 +43,7 @@
   - 26 pairs flip from text to "further edit", across 6 fragments. All are real parameter words that several captions share (`set load class` 13, `set rating later` 8) or exact captions (`set type B`, `set length in field`). The old split refused those too.
   - 66 pairs flip back to text, such as `set of four`, `set at 48 in` and `set on pad`. Main refused these.
     - On the old quote-blind split, some of these would have **written** through the short-substring rule: `set of four` → a parameter containing "of". That is a mis-targeted write; it is the fuzzy `param_by_caption` matching listed as still open in the #1014 record, and it is not changed here.
+  - **Corrected in review round 2:** not every short-key flip was a mis-target (see below).
 - **Visibility (the review's optional nit 1, carried):**
   - The family-edit route status now ends with `N clause(s) NOT applied (see caveats)` (`src/rvt/frontdoor/router.py`).
   - `tools/route.py`'s text output and the `modify_family` CLI print `(+N more …)` when they cut the caveats at 8. The notes were in `route.json`, `ROUTE.md`, `MANIFEST.md` and the skill's `go` JSON already.
@@ -57,6 +58,19 @@
   | Real conduit | 7 | **0** | 0 | 10 |
 
   The new refusals hold edit-looking text: the misspelled `set Finsh 10 ft`, the ambiguous `set Diameter 3 in`, or a rename.
+
+## Review round 2 (PR #1024, head 58932d2, 🛑)
+- **Blocking.** The round-1 rule ("a key under 4 characters names a parameter only by an exact caption") also caught abbreviations that `param_by_caption` resolves correctly and that the grammar applies outside quotes:
+  - `Len` → Length, `Out` → Outside Diameter, `Mat` → Material;
+  - `kVA` → kVA Rating, `IP` → IP Rating, `Bus` → BusRating.
+- Inside a quoted span those were stored silently as text. `set Material = "PVC; set Len 10 ft"` wrote one op where main refused. Real-conduit fuzz seed 31 had 3 such texts newly accepted.
+- **The round-1 record line "every short-key flip is a mis-target" was wrong;** this corrects it.
+- **Fixed with new `_abbreviates`.** A short key also names its resolved parameter when it starts the caption, or (3+ characters) starts one of the caption's words, CamelCase split. `at` / `of` / `it` / `as` / `to` / `per` / `the` / `and` / `box` stay text.
+- **Re-measured:**
+  - `r20/fp.py`: the only change from round 1 is `set out by surveyor` (4 conduit-family pairs), now refused, which is the safe side. Text → edit stays 26; edit → text is 62.
+  - Real conduit, seeds 31 and 7: 0 silent fewer ops, 0 newly accepted, 9 / 10 now refused.
+  - Family fuzz, seeds 4242 and 9001: 0 silent, 0 accepted, 10 / 20 now refused.
+  - Suites (the round-1 set): **941 passed / 41 skipped**. `sync_plugin --check` is clean.
 
 ## BRANCH STATE
 - Files:
