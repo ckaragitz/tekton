@@ -456,20 +456,34 @@ def _reads(inv: FamilyInventory, fragment: str) -> bool:
     if m is None:
         return False
     cap = m.group("cap").strip()
-    return inv.param_by_caption(cap) is not None or _near_caption(inv, cap)
+    hit = inv.param_by_caption(cap)
+    key = re.sub(r"[\s_-]+", "", cap).lower()
+    if hit is not None and (len(key) >= 4                     # a short word names a
+                            or re.sub(r"[\s_-]+", "", hit["caption"]).lower() == key):
+        return True                                          # parameter only exactly:
+    return _near_caption(inv, cap)                           # 'at' is not Material
 
 
 def _near_caption(inv: FamilyInventory, cap: str) -> bool:
     """A caption the old split would have refused with a useful message rather
-    than read as text: one several parameters contain (``Diameter``), or a
-    near-miss of one (``Widht``, ``Notes``) -- PR #1022 review nit 1."""
+    than read as text: a whole word of several parameters' captions
+    (``Diameter``), or a near-miss of one (``Widht``, ``Notes``) -- PR #1022
+    review nit 1.  Short words are never near-misses: ``set in concrete``, ``set
+    with epoxy``, ``set as shown`` are text on every family (PR #1024 review)."""
     key = re.sub(r"[\s_-]+", "", cap).lower()
-    if not key:
+    if len(key) < 4:
+        return False
+    words = [set(re.findall(r"[a-z0-9]+", _split_camel(p["caption"]).lower())) for p in inv.params]
+    if sum(key in w for w in words) > 1:
+        return True
+    if len(key) < 5:
         return False
     norm = [re.sub(r"[\s_-]+", "", p["caption"]).lower() for p in inv.params]
-    if sum(key in n for n in norm) > 1:
-        return True
     return any(difflib.SequenceMatcher(None, key, n).ratio() >= 0.8 for n in norm)
+
+
+def _split_camel(text: str) -> str:
+    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", text)
 
 
 _RE_SET_DELIM_WORD = re.compile(r"set\s.*?(?:=|:|\sto\s)", re.I | re.S)
@@ -1998,8 +2012,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"delivered {role}: {d['path']} ({d['bytes']:,} bytes)")
     for s in rec.get("stamps") or []:
         print(f"  STAMP: {s}")
-    for d in (rec.get("degradations") or [])[:8]:
+    degr = rec.get("degradations") or []
+    for d in degr[:8]:
         print(f"  caveat: {d}")
+    if len(degr) > 8:
+        print(f"  caveat: (+{len(degr) - 8} more in the record)")
     ok = bool(rec.get("deliverables")) and (
         ((rec.get("validation") or {}).get("rfa") or {}).get("self_checks_ok", True))
     return 0 if ok else 1

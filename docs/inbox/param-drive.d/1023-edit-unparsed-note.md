@@ -10,15 +10,16 @@
   3. **Correction to the #1021 record.** It says `test_edit_quoted_split_1017.py` was "otherwise unchanged". Its `_inv()` also gained the captions `Finish` and `Length`, which changes which fragments read.
 
 ## Evidence
-- `tests/test_edit_unparsed_note_1023.py`, 12 cases:
+- `tests/test_edit_unparsed_note_1023.py`, 22 cases:
   - three "not applied" notes;
   - one fully read edit with no note;
   - three near-miss refusals;
   - two texts still stored;
   - the closing-quote fragment;
-  - a delivered-record degradation on a generated conduit.
+  - a delivered-record degradation on a generated conduit;
+  - ten value texts stored whole on a generated conduit and junction box (review round 1).
 - An ADOPTERS row is added, plus the drop-in `tests/ci_shard.d/1023-edit-unparsed-note.txt`.
-- **Suites:** `tests/test_edit_*.py`, `test_rvt_edit_quoted_split_1019`, `test_modify_family*`, `test_conftest_scaffolding`, `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`, `test_frontdoor`, `test_frontdoor_json_strict`, `test_one_job_module`, `test_release_ctx_refusal`, `test_stagelog` and `test_plugin_sync` give **892 passed / 41 skipped** with `RVT_SKIP_LARGE=1`. `tools/sync_plugin.py --check` is clean.
+- **Suites:** `tests/test_edit_*.py`, `test_rvt_edit_quoted_split_1019`, `test_modify_family*`, `test_conftest_scaffolding`, `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`, `test_frontdoor`, `test_frontdoor_json_strict`, `test_one_job_module`, `test_release_ctx_refusal`, `test_stagelog` and `test_plugin_sync` give **892 passed / 41 skipped** with `RVT_SKIP_LARGE=1` at the first head. After review round 1, the same set plus `tests/test_route*.py` gives **937 passed / 41 skipped**. `tools/sync_plugin.py --check` is clean.
 - **Fuzz differentials against main a1e8d54:**
 
   | Lane / instrument | Seed | Texts | Silent fewer ops | Now accepted | Now refused | Refusal wording changed |
@@ -31,9 +32,36 @@
 
   Every new refusal is the safe side of nits 1–2: a leading apostrophe that pairs with a later possessive, now read as a further edit once the closing quote is stripped (for example, `'90s; mark 742670 as workers'`), or a near-miss caption.
 
+## Review round 1 (PR #1024, head dd3f225, 🛑)
+- **Blocking.** `_near_caption` counted raw substrings with no minimum length, and its `difflib` check ran on short keys. So common value text was refused on every real generated family: `"PVC; set in concrete"` ("in" sits inside Nominal Diameter, Fitting Angle and Finish), `"epoxy coated; set with epoxy"` ("with" scores 0.89 against "width"), and `"surface; set at 48 in AFF"`. The reviewer counted 258 of 2,940 fragment/family pairs flipping across 21 real families.
+- **Fixed in `_near_caption`:**
+  - keys under 4 characters are never near-misses;
+  - "several parameters contain it" now counts whole caption words, so CamelCase captions are split first;
+  - the `difflib` check runs only on keys of 5+ characters.
+- **Also fixed in `_reads`.** A short word named a parameter through `param_by_caption`'s unique-substring rule, so "at" matched Material and "on" matched Conduit Standard. A key under 4 characters now names a parameter only by an exact caption.
+- **Re-measured with the reviewer's `r20/fp.py`** (140 "set …" fragments × 21 real families, against main):
+  - 26 pairs flip from text to "further edit", across 6 fragments. All are real parameter words that several captions share (`set load class` 13, `set rating later` 8) or exact captions (`set type B`, `set length in field`). The old split refused those too.
+  - 66 pairs flip back to text, such as `set of four`, `set at 48 in` and `set on pad`. Main refused these.
+    - On the old quote-blind split, some of these would have **written** through the short-substring rule: `set of four` → a parameter containing "of". That is a mis-targeted write; it is the fuzzy `param_by_caption` matching listed as still open in the #1014 record, and it is not changed here.
+- **Visibility (the review's optional nit 1, carried):**
+  - The family-edit route status now ends with `N clause(s) NOT applied (see caveats)` (`src/rvt/frontdoor/router.py`).
+  - `tools/route.py`'s text output and the `modify_family` CLI print `(+N more …)` when they cut the caveats at 8. The notes were in `route.json`, `ROUTE.md`, `MANIFEST.md` and the skill's `go` JSON already.
+- **Fuzz against main a1e8d54, after the fix:**
+
+  | Lane / instrument | Seed | Silent fewer ops | Now accepted | Now refused |
+  |---|---|---|---|---|
+  | Family | 5 | **0** | 0 | 9 |
+  | Family | 77 | **0** | 0 | 12 |
+  | `.rvt` | 5 | **0** | 0 | 10 |
+  | `.rvt` | 77 | **0** | 0 | 11 |
+  | Real conduit | 7 | **0** | 0 | 10 |
+
+  The new refusals hold edit-looking text: the misspelled `set Finsh 10 ft`, the ambiguous `set Diameter 3 in`, or a rename.
+
 ## BRANCH STATE
 - Files:
-  - `src/rvt/convert/modify_family.py` and `src/rvt/_quoted.py`, with their `plugin/lib` mirrors;
+  - `src/rvt/convert/modify_family.py`, `src/rvt/_quoted.py` and `src/rvt/frontdoor/router.py`, with their `plugin/lib` mirrors;
+  - `tools/route.py` (and its plugin copy);
   - `tests/test_edit_unparsed_note_1023.py` (new);
   - `tests/ci_shard.d/1023-edit-unparsed-note.txt` (new);
   - `tests/test_conftest_scaffolding.py` (an ADOPTERS row);

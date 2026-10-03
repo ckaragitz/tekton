@@ -95,6 +95,35 @@ def conduit():
         shutil.rmtree(d, True)
 
 
+@pytest.fixture(scope="module")
+def real_invs(conduit):
+    import os
+    import shutil
+    import tempfile
+    from rvt.famgen import factory as F
+    d = tempfile.mkdtemp(prefix="t1023b_")
+    try:
+        p = os.path.join(d, "jb.rfa")
+        F.make_archetype(product="junction box").write(p, validate=False, provenance=False)
+        yield [MF.inventory_family(conduit), MF.inventory_family(p)]
+    finally:
+        shutil.rmtree(d, True)
+
+
+@pytest.mark.parametrize("value", [
+    # PR #1024 review: short words were read as near-miss / shared captions on
+    # every real family ("in" is inside Nominal Diameter, "with" ~ "width")
+    "galvanized; set in place by others", "PVC; set in concrete", "epoxy coated; set with epoxy",
+    "x; set it plumb", "surface; set at 48 in AFF", "duplex, set of four", "pad; set on pad",
+    "LP-1; set as shown", "ready; set up later", "Hex bolt, set screw included",
+])
+def test_value_text_is_stored_on_real_generated_families(real_invs, value):
+    for inv in real_invs:
+        cap = next(p["caption"] for p in inv.params if not p.get("spec") or "string" in p["spec"])
+        ops = MF.parse_family_edit(f'set {cap} = "{value}"', inv)["ops"]
+        assert [o["value"] for o in ops] == [value], inv.family_name
+
+
 def test_the_note_reaches_the_delivered_records_degradations(conduit, tmp_path):
     rec = MF.modify_family(conduit, "set Length; set Material = PVC", str(tmp_path))
     assert rec["files"]["rfa"]                                     # still delivered
