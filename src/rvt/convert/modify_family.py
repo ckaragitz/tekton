@@ -497,7 +497,7 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
         elif (m := _match_set(inv, c)):
             op = _op_set(inv, m.group("cap").strip(), m.group("val").strip(), notes,
                          type_name=(m.group("typeq") or m.group("typeq2")
-                                    or m.group("type")))
+                                    or m.group("type")), clause=c)
         else:
             unparsed.append(cl)
             continue
@@ -577,20 +577,23 @@ def _match_set(inv: FamilyInventory, clause: str):
     return _RE_SET.match(clause)
 
 
-def _value_hint(inv: FamilyInventory, caption: str) -> str:
+def _value_hint(inv: FamilyInventory, caption: str, clause: Optional[str] = None) -> str:
     """For a refused ``caption`` that starts with one of the family's own
     captions (``Finish galvanized``), name the recovery: the words after a
     known caption may be part of a VALUE (``set Finish galvanized to spec``),
     but nothing in the clause tells that apart from a mistyped parameter
     (``set finish color to black``), so the edit is refused, never guessed
-    (#994 review) -- the hint says how to write the value unambiguously."""
+    (#994 review) -- the hint says how to write the value unambiguously.  The
+    example is the user's own ``clause`` with ``=`` after the caption, so it
+    keeps whichever delimiter they wrote (#1000)."""
     low = caption.lower()
     for cap in sorted((p["caption"] for p in inv.params), key=len, reverse=True):
         c = cap.lower()
         if c and low.startswith(c) and len(low) > len(c) and low[len(c)].isspace():
+            at = (clause or "").lower().find(low)
+            rest = (clause[at + len(cap):].strip() if at >= 0 else "<value>")
             return (f" -- if the words after {cap!r} are part of its VALUE, write the "
-                    f"value after '=': set {cap} = <value> (e.g. set {cap} = "
-                    f"{caption[len(cap):].strip()} to ...)")
+                    f"value after '=': set {cap} = {rest}")
     return ""
 
 
@@ -627,12 +630,13 @@ def _op_rename_type(inv: FamilyInventory, old: Optional[str], new: str) -> dict:
 
 
 def _op_set(inv: FamilyInventory, caption: str, raw: str, notes: List[str],
-            type_name: Optional[str] = None) -> dict:
+            type_name: Optional[str] = None, clause: Optional[str] = None) -> dict:
     p = inv.param_by_caption(caption)
     if p is None:
         raise FamilyEditError(
             f"no parameter {caption!r} in this family. Parameters: "
-            + ", ".join(q["caption"] for q in inv.params) + _value_hint(inv, caption))
+            + ", ".join(q["caption"] for q in inv.params)
+            + _value_hint(inv, caption, clause))
     if p.get("formula"):
         raise FamilyEditError(
             f"{p['caption']} is a FORMULA parameter: Revit computes it from the "
@@ -942,8 +946,10 @@ def _patch_partatom_scoped(path: str, family: Optional[str],
         if m0 is not None:
             for rx in _RE_PA_ENTRY:                    # the entry's own, first one only
                 out_xml = rx.sub(sub_if(old, family), out_xml, count=1)
-            if "<A:type>" in out_xml:                  # our form: the feature is the family's;
-                # in Revit's form <A:feature><A:title> is a parameter GROUP ("Constraints")
+            if "<A:family" not in out_xml:             # our form: the feature is the family's;
+                # Revit's form lists types as <A:family><A:part>, and its
+                # <A:feature><A:title> is a parameter GROUP ("Constraints").  Our
+                # form may carry zero <A:type> entries, so that is not the test (#1000)
                 out_xml = _RE_PA_FEATURE.sub(sub_if(old, family), out_xml)
             out_xml = _RE_PA_DESIGN.sub(sub_if(old + ".rfa", family + ".rfa"), out_xml)
         replaced.append({"scope": "family", "old": old, "new": family, "occurrences": n[0]})

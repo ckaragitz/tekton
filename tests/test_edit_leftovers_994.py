@@ -297,7 +297,7 @@ def test_a_known_caption_with_a_value_containing_to(clause, cap, val):
 
 def test_the_refusal_names_the_recovery_only_after_a_known_caption():
     hint = MF._value_hint(_Inv, "Finish galvanized")
-    assert "set Finish = <value>" in hint and "set Finish = galvanized to" in hint
+    assert hint.endswith("set Finish = <value>")         # no clause: a placeholder (#1000)
     assert MF._value_hint(_Inv, "Colour") == ""
     assert MF._value_hint(_Inv, "Finishes") == ""          # not a word boundary
 
