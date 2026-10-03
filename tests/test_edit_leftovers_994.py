@@ -10,9 +10,14 @@
    LOADED family by its FILE name, so the note says which file name loads over
    the placed family; it names exactly the names that are still dimension-
    derived and stale (the family title unless renamed, the type unless renamed).
-3. ``set Finish galvanized to spec`` is Finish = "galvanized to spec" again;
-   ``set Material Finish to galvanized`` / ``set Material Color to red`` stay
-   refused by name (never Material = "...").
+3. A clause with ``to`` names its parameter as everything before it, so
+   ``set Material Finish to galvanized`` / ``set finish color to black`` /
+   ``set Model number to X`` are refused by name, never written to Material /
+   Finish / Model (the review of PR #997: no case or vocabulary rule tells a
+   value's words from a mistyped parameter).  ``set Finish galvanized to
+   spec`` is refused the same way, and the refusal names the recovery:
+   ``set Finish = galvanized to spec`` (or ``set Finish to galvanized to
+   spec``), which writes Finish = "galvanized to spec".
 4. An op a later op of the same edit overrides gets ONE "overridden" note and
    no note about a value the file does not carry.
 
@@ -138,6 +143,7 @@ def test_renames_are_xml_escaped(conduit, tmp_path):
     xml = _partatom(out)
     assert "<title>C&amp;D</title>" in xml and "<A:title>A&amp;B &lt;1&gt;</A:title>" in xml
     assert rec["validation"]["rfa"]["self_checks_ok"]
+    assert MF._partatom_title(out) == "C&D"            # read back unescaped
 
 
 def test_the_scoped_patch_reads_a_revit_born_part_list(tmp_path, monkeypatch):
@@ -170,6 +176,34 @@ def test_the_scoped_patch_reads_a_revit_born_part_list(tmp_path, monkeypatch):
     got = written["PartAtom"].decode()
     assert got.startswith("<entry><title>NewFam</title><id>NewFam</id>")
     assert '<A:part type="user"><title>Fam</title>' in got                # the type kept
+
+
+def test_a_revit_born_feature_group_title_is_never_renamed(tmp_path, monkeypatch):
+    """In Revit's PartAtom ``<A:feature><A:title>`` is a parameter GROUP; a
+    family that happens to be titled like a group keeps the group's title."""
+    xml = ('<entry><title>Constraints</title><id>Constraints</id><A:family type="user">'
+           '<A:part type="user"><title>T1</title></A:part></A:family>'
+           '<A:features><A:feature><A:title>Constraints</A:title></A:feature></A:features>'
+           '</entry>')
+    written = {}
+
+    class _F:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def raw(self, _name):
+            return xml.encode()
+    import rvt.container as C
+    import rvt.roundtrip as R
+    monkeypatch.setattr(C, "open_rvt", lambda _p: _F())
+    monkeypatch.setattr(R, "rewrite_entries", lambda _a, _b, d: written.update(d))
+    MF._patch_partatom_scoped("x.rfa", "New", {})
+    got = written["PartAtom"].decode()
+    assert got.startswith("<entry><title>New</title><id>New</id>")
+    assert "<A:feature><A:title>Constraints</A:title></A:feature>" in got
 
 
 # --------------------------------------------------------------------------- 2. name notes
@@ -239,14 +273,19 @@ def test_no_name_note_when_the_name_was_not_the_generators(tmp_path):
 # --------------------------------------------------------------------------- 3. grammar
 
 class _Inv:
-    params = [{"caption": c} for c in ("Material", "Finish", "Width", "Strut Length")]
+    params = [{"caption": c} for c in ("Material", "Finish", "Width", "Strut Length", "Model")]
 
 
 @pytest.mark.parametrize("clause, cap, val", [
-    ("set Finish galvanized to spec", "Finish", "galvanized to spec"),
-    ("set Finish hot dip galvanized to spec", "Finish", "hot dip galvanized to spec"),
-    ("set Material Finish to galvanized", "Material Finish", "galvanized"),   # refused by name later
-    ("set Material Color to red", "Material Color", "red"),                   # refused by name later
+    # everything before the first 'to' is the parameter -> refused by name later
+    ("set Finish galvanized to spec", "Finish galvanized", "spec"),
+    ("set Material Finish to galvanized", "Material Finish", "galvanized"),
+    ("set Material Color to red", "Material Color", "red"),
+    ("set material color to red", "material color", "red"),
+    ("set finish color to black", "finish color", "black"),
+    ("set Model number to ABC-1", "Model number", "ABC-1"),
+    # the value after an explicit delimiter may contain 'to'
+    ("set Finish = galvanized to spec", "Finish", "galvanized to spec"),
     ("set Finish to galvanized to spec", "Finish", "galvanized to spec"),
     ("set Strut Length to 36 in", "Strut Length", "36 in"),
     ("set Width 600 mm", "Width", "600 mm"),
@@ -256,16 +295,36 @@ def test_a_known_caption_with_a_value_containing_to(clause, cap, val):
     assert (m.group("cap"), m.group("val")) == (cap, val)
 
 
+def test_the_refusal_names_the_recovery_only_after_a_known_caption():
+    hint = MF._value_hint(_Inv, "Finish galvanized")
+    assert "set Finish = <value>" in hint and "set Finish = galvanized to" in hint
+    assert MF._value_hint(_Inv, "Colour") == ""
+    assert MF._value_hint(_Inv, "Finishes") == ""          # not a word boundary
+
+
 @needs_schema
-def test_finish_galvanized_to_spec_is_written_and_material_finish_refused(conduit, tmp_path):
+@pytest.mark.parametrize("clause, cap", [
+    ("set Finish galvanized to spec", "Finish galvanized"),
+    ("set finish color to black", "finish color"),
+    ("set material color to red", "material color"),
+    ("set Material Finish to galvanized", "Material Finish"),
+    ("set Material Color to red", "Material Color"),
+])
+def test_a_parameter_the_family_lacks_is_refused_never_written(conduit, clause, cap):
     inv = MF.inventory_family(conduit)
-    ops = MF.parse_family_edit("set Finish galvanized to spec", inv)["ops"]
-    assert [(o["caption"], o["value"]) for o in ops] == [("Finish", "galvanized to spec")]
-    with pytest.raises(MF.FamilyEditError, match="no parameter 'Material Finish'"):
-        MF.parse_family_edit("set Material Finish to galvanized", inv)
-    with pytest.raises(MF.FamilyEditError, match="no parameter 'Material Color'"):
-        MF.parse_family_edit("set Material Color to red", inv)
-    rec, out = _edit(conduit, "set Finish galvanized to spec", tmp_path)
+    with pytest.raises(MF.FamilyEditError, match=f"no parameter '{cap}'") as e:
+        MF.parse_family_edit(clause, inv)
+    if cap.lower().startswith(("finish ", "material ")):
+        assert "write the value after '='" in str(e.value)
+
+
+@needs_schema
+def test_finish_equals_galvanized_to_spec_is_written(conduit, tmp_path):
+    inv = MF.inventory_family(conduit)
+    for clause in ("set Finish = galvanized to spec", "set Finish to galvanized to spec"):
+        ops = MF.parse_family_edit(clause, inv)["ops"]
+        assert [(o["caption"], o["value"]) for o in ops] == [("Finish", "galvanized to spec")]
+    rec, out = _edit(conduit, "set Finish = galvanized to spec", tmp_path)
     assert MF.inventory_family(out).param_by_caption("Finish")["current"] == "galvanized to spec"
     assert rec["validation"]["rfa"]["self_checks_ok"]
 

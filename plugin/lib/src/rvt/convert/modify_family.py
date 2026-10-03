@@ -76,6 +76,7 @@ from __future__ import annotations
 
 import argparse
 import functools
+import html
 import json
 import os
 import re
@@ -157,7 +158,7 @@ def _partatom_title(path: str) -> str:
         with open_rvt(path) as f:
             xml = f.raw("PartAtom").decode("utf-8", "replace")
         m = re.search(r"<title>(.*?)</title>", xml, re.S)
-        return m.group(1) if m else ""
+        return html.unescape(m.group(1)) if m else ""
     except Exception:                                          # noqa: BLE001
         return ""
 
@@ -544,18 +545,13 @@ def _match_set(inv: FamilyInventory, clause: str):
     caption followed by a bare value (``set Width 600 mm``); (4) the plain
     pattern, as before.
 
-    THE ONE EXCEPTION TO (2) (#994): when (2)'s parameter is NOT one of the
-    family's and it is a known caption followed by words that read as a VALUE,
-    (3) is taken instead -- ``set Finish galvanized to spec`` is ``Finish`` =
-    "galvanized to spec", as before #909.  The words after the known caption
-    read as a value only when the first of them does not start with a capital
-    letter and none of them is (part of) another of the family's captions:
-    captions are Title Case, so ``set Material Finish to galvanized`` (both
-    parameters exist) and ``set Material Color to red`` (no ``Material Color``)
-    stay ``Material Finish`` / ``Material Color`` and are refused by name --
-    never ``Material`` = "Finish to galvanized" / "Color to red".  A refusal is
-    recoverable (``set Finish = Galvanized to spec``); a mis-targeted write is
-    not."""
+    NO EXCEPTION TO (2) (#994 review): ``set Finish galvanized to spec`` names
+    the parameter ``Finish galvanized`` and is refused by name, with a hint
+    that the value goes after ``=`` (``set Finish = galvanized to spec``).
+    Words after a known caption cannot be told apart from a mistyped
+    parameter (``set finish color to black``, ``set Model number to X``) by
+    case or vocabulary, and a refusal is recoverable where a mis-targeted
+    write is not."""
     lead = _RE_SET_LEAD.match(clause)
     caps: List[Tuple[str, str]] = []
     if lead:
@@ -573,8 +569,7 @@ def _match_set(inv: FamilyInventory, clause: str):
                 return _CaptionMatch(m, cap)
     m = _RE_SET_DELIM.match(clause)
     if m is not None:
-        bare = _bare_value_reading(inv, m.group("cap"), caps)
-        return bare if bare is not None else m
+        return m
     for cap, rest in caps:
         m = _RE_SET.match("set P " + rest)
         if m is not None:
@@ -582,37 +577,21 @@ def _match_set(inv: FamilyInventory, clause: str):
     return _RE_SET.match(clause)
 
 
-def _norm_caption(s: str) -> str:
-    return re.sub(r"[\s_-]+", "", str(s)).lower()
-
-
-def _is_known_caption(inv: FamilyInventory, caption: str) -> bool:
-    """``FamilyInventory.param_by_caption`` would resolve ``caption`` (exact,
-    or a unique substring) -- computed from ``inv.params`` alone."""
-    key = _norm_caption(caption)
-    norms = [_norm_caption(p["caption"]) for p in inv.params]
-    return key in norms or (bool(key) and sum(key in n for n in norms) == 1)
-
-
-def _bare_value_reading(inv: FamilyInventory, delim_cap: str,
-                        caps: Sequence[Tuple[str, str]]):
-    """The #994 exception to ``_match_set``'s step (2): ``delim_cap`` (the text
-    before the first ``to`` / ``=``) is not a parameter of this family, and it
-    is a known caption + words that read as a VALUE -> the known caption with a
-    bare value (step 3).  ``None`` keeps step (2)'s reading (refused by name)."""
-    if _is_known_caption(inv, delim_cap):
-        return None
-    words = {_norm_caption(w) for p in inv.params for w in str(p["caption"]).split()}
-    for cap, rest in caps:
-        extra = delim_cap[len(cap):].split() if delim_cap.lower().startswith(cap.lower()) else []
-        if not extra or extra[0][:1].isupper():
-            continue
-        if any(_norm_caption(w) in words for w in extra):
-            continue
-        m = _RE_SET.match("set P " + rest)
-        if m is not None:
-            return _CaptionMatch(m, cap)
-    return None
+def _value_hint(inv: FamilyInventory, caption: str) -> str:
+    """For a refused ``caption`` that starts with one of the family's own
+    captions (``Finish galvanized``), name the recovery: the words after a
+    known caption may be part of a VALUE (``set Finish galvanized to spec``),
+    but nothing in the clause tells that apart from a mistyped parameter
+    (``set finish color to black``), so the edit is refused, never guessed
+    (#994 review) -- the hint says how to write the value unambiguously."""
+    low = caption.lower()
+    for cap in sorted((p["caption"] for p in inv.params), key=len, reverse=True):
+        c = cap.lower()
+        if c and low.startswith(c) and len(low) > len(c) and low[len(c)].isspace():
+            return (f" -- if the words after {cap!r} are part of its VALUE, write the "
+                    f"value after '=': set {cap} = <value> (e.g. set {cap} = "
+                    f"{caption[len(cap):].strip()} to ...)")
+    return ""
 
 
 class _CaptionMatch:
@@ -653,7 +632,7 @@ def _op_set(inv: FamilyInventory, caption: str, raw: str, notes: List[str],
     if p is None:
         raise FamilyEditError(
             f"no parameter {caption!r} in this family. Parameters: "
-            + ", ".join(q["caption"] for q in inv.params))
+            + ", ".join(q["caption"] for q in inv.params) + _value_hint(inv, caption))
     if p.get("formula"):
         raise FamilyEditError(
             f"{p['caption']} is a FORMULA parameter: Revit computes it from the "
@@ -963,7 +942,9 @@ def _patch_partatom_scoped(path: str, family: Optional[str],
         if m0 is not None:
             for rx in _RE_PA_ENTRY:                    # the entry's own, first one only
                 out_xml = rx.sub(sub_if(old, family), out_xml, count=1)
-            out_xml = _RE_PA_FEATURE.sub(sub_if(old, family), out_xml)
+            if "<A:type>" in out_xml:                  # our form: the feature is the family's;
+                # in Revit's form <A:feature><A:title> is a parameter GROUP ("Constraints")
+                out_xml = _RE_PA_FEATURE.sub(sub_if(old, family), out_xml)
             out_xml = _RE_PA_DESIGN.sub(sub_if(old + ".rfa", family + ".rfa"), out_xml)
         replaced.append({"scope": "family", "old": old, "new": family, "occurrences": n[0]})
     if types:

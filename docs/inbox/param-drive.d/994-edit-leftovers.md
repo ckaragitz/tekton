@@ -42,21 +42,23 @@ fixes went in with it. Everything that record lists as written is on `main`.
    - A rename-family gets no reload advice, because it makes a new family on
      purpose.
    - If no name is stale, there is no note.
-3. **Grammar: `set Finish galvanized to spec` was refused by name.**
-   `_match_set` step (2) has one exception, `_bare_value_reading`. It applies
-   when the caption before the first `to` / `=` is not a parameter of this
-   family, but it starts with a known caption followed by words that read as a
-   value. Those words read as a value only when the first one does not start
-   with a capital letter and none of them is a word of any of the family's
-   captions. Captions are Title Case, so:
-   - `set Finish galvanized to spec` → Finish = "galvanized to spec" (as on
-     main before #909);
-   - `set Material Finish to galvanized` (both parameters exist) and
-     `set Material Color to red` (no such parameter) are refused by name,
-     never written as Material = "…".
+3. **Grammar: `set Finish galvanized to spec` is refused, and the refusal
+   names the recovery.** The first head of this PR added an exception to
+   `_match_set` step (2) (`_bare_value_reading`). It read the words after a
+   known caption as a value when the first word was lowercase and no word was
+   one of the family's caption words. The independent review showed that rule
+   writes to the wrong parameter: `set finish color to black` wrote Finish =
+   "color to black", and `set Model number to ABC-1` wrote Model = "number to
+   ABC-1". `main` refused both. No rule based on case or vocabulary separates
+   a value's words from a mistyped parameter, so the exception is removed:
+   - everything before the first `to` / `=` is the parameter, and a parameter
+     the family lacks is refused by name;
+   - when that name starts with one of the family's captions at a word
+     boundary, the refusal adds a hint (`_value_hint`): write the value after
+     `=`, as in `set Finish = galvanized to spec`. That form, and `set Finish
+     to galvanized to spec`, write Finish = "galvanized to spec".
 
-   A refusal can be recovered (`set Finish = Galvanized to spec`). A write to
-   the wrong parameter cannot, so ambiguous cases are refused.
+   A refusal can be recovered. A write to the wrong parameter cannot.
 4. **Overridden ops.** In the parse, `_settle_overrides` marks every op that a
    later op in the same edit fully covers with `overridden_by`. "Fully covers"
    means:
@@ -117,8 +119,8 @@ Branch `fix-994` from `fd7b67b`, committed locally and not pushed (per the
 engineer brief).
 
 **Files written**
-- `src/rvt/convert/modify_family.py`: `_match_set` + `_bare_value_reading` /
-  `_is_known_caption`; `_settle_overrides` / `_effective_ops` and the per-op
+- `src/rvt/convert/modify_family.py`: `_match_set` (no bare-value
+  exception) + the refusal's `_value_hint`; `_settle_overrides` / `_effective_ops` and the per-op
   notes in `parse_family_edit`; the scoped PartAtom follow in
   `apply_family_edits` (`_patch_partatom_scoped`, `_partatom_type_titles`);
   exact rename-family and PartAtom-aware rename-type re-reads; `_name_note`
@@ -141,6 +143,18 @@ engineer brief).
 - `tools/sync_plugin.py`, then `--check`: in sync.
 - `validate_plugin.py`: PASS (25).
 - `check_portable_paths.py`: ok.
+
+**Review round (PR #997, 2026-10-03).** The independent review was 🛑, with
+one blocking finding (item 3 above, now fixed) and two nits, both fixed:
+- `_partatom_title` returns the title unescaped (`Fam & X`, not
+  `Fam &amp; X`), so `_name_note`'s comparison sees a stale title;
+- in a Revit-born PartAtom, `<A:feature><A:title>` is a parameter group, so a
+  rename-family patches it only in our own form (which has `<A:type>`).
+
+Tests: `test_edit_leftovers_994` 37 passed; the 14-file edit-lane set (the 13 above + `test_plugin_sync`) 413 passed / 30 skipped. The `set Finish galvanized to
+spec` legs of the combination probe now raise by design, as they do on base.
+The reviewer's 54-edit probe used `set Finish galvanized to spec` as its text
+op, so it was not re-run in that form.
 
 **Shipped vs staged:** nothing is staged, and no viewer or desktop batch was
 run. Every claim here comes from our own validator and checks; none is a
