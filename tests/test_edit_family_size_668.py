@@ -58,8 +58,7 @@ TRAY_SPEC = SIZE_SPECS["cable_tray_size"]
 CONDUIT_SPEC = SIZE_SPECS["conduit_size"]
 LENGTH_SPEC = ST.SPECS["length"]
 
-CAVEAT = (" (CAVEAT: type-table value only; the authored solid is not re-derived -- "
-          "regenerate from the facts sidecar for geometry-true resizing)")
+CAVEAT = " (CAVEAT: type-table value only; the authored solid is not re-derived)"
 #: the length wording, kind and offer exactly as ``Width`` gets them (#659 pinned it)
 TRAY_REFUSAL = T659.LENGTH_REFUSAL.replace("Width", "Tray Width", 1)
 TRAY_WRONG_KIND = "Tray Width is a length; got unit 'kg'"

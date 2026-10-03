@@ -1,0 +1,2 @@
+# geometry-true family edits (#909): rebuild-by-generator rows + the explicit value-only caveats, fresh-clone safe (bundled base)
+tests/test_edit_drives_909.py

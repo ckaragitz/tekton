@@ -64,8 +64,8 @@ MASS_PER_LENGTH_SPEC = ST.SPECS["mass_per_length"]
 
 #: the exact strings ``main`` produced before #659 -- control rows must not move
 LENGTH_NOTE_600MM = ("Width: 600 mm -> 1.9685 ft (CAVEAT: type-table value only; the "
-                     "authored solid is not re-derived -- regenerate from the facts "
-                     "sidecar for geometry-true resizing)")
+                     "authored solid is not re-derived)")   # #993: the stale "regenerate
+                     # from the facts sidecar" advice is gone (the lane never read it)
 LENGTH_REFUSAL = ("Width is a LENGTH: give an explicit unit (in / ft / mm / m) -- "
                   "units are never guessed")
 DIMLESS_NOTE_115C = f"Temperature Rise: unit 'c' ignored (dimensionless spec {NUMBER_SPEC})"
@@ -399,7 +399,13 @@ def test_control_rows_on_the_file_a_length_and_a_dimensionless_number_behave_as_
         xfmr_rfa, tmp_path):
     rc, man, out = _cli_edit(xfmr_rfa, tmp_path / "len", "Width=600 mm")
     assert rc == 0 and _current(out, "Width") == pytest.approx(600 / 304.8)
-    assert man["degradations"] == [LENGTH_NOTE_600MM]
+    # #909: the transformer's Width LABELS its in-plane drive dimension and the
+    # catalog product is not rebuilt by the edit lane, so the value-only edit
+    # now also says, explicitly, that the dimension and its geometry did not move
+    # one geometry statement per edit (#993): the full VALUE ONLY caveat replaces
+    # the unit note's short one
+    assert man["degradations"][0] == "Width: 600 mm -> 1.9685 ft" and len(man["degradations"]) == 2
+    assert man["degradations"][1].startswith("Width: VALUE ONLY -- this parameter labels")
     _assert_valid_and_ours(man, out)
     rc, man, out = _cli_edit(xfmr_rfa, tmp_path / "num", "Temperature Rise=115 C")
     assert rc == 0 and _current(out, "Temperature Rise") == 115.0
