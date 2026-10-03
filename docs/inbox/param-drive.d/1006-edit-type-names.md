@@ -46,8 +46,19 @@ The rewrite, `_quote_type_name` plus `_RE_AFTER_NAME` / `_refuse_type`:
 
 **Evidence.**
 - `test_edit_type_names_1006` now has 41 cases, adding every probe from the review. Against them, `origin/main`'s parser fails 31, the previous PR head (edcead1) fails 13, and this head passes all 41.
-- The reviewer's own probe script now reports every case as either the user's named type or a refusal. No value is rewritten.
+- The reviewer's first probe script then reported every case as either the user's named type or a refusal; the third round below found the no-value forms it did not cover.
 - The six edit suites plus the scaffolding check: 161 passed / 8 skipped.
+
+## Third review round (head e7387ea, 🛑)
+The review found the rewrite still wrote the user's text into the default type when **no value** followed the name. `set Finish of type Big One` (and `… then black`) stored Finish = `of type "Big One`, with a quote the user never typed. On a generated conduit this was stored end to end. Fixes:
+- **No value.** A matched name with no value after it (end, a bare `to`, or `=`) is refused: "no value given for type …". So is an unknown single word with no value, and a quoted name with no value.
+- **Value ending in a type.** A value that **ends** in `of type <a type of this family>` (`set Finish to black of type Big One`) is refused, with how to set that type or keep the words as text. Main and the previous head wrote it to the default type.
+- **Two valid readings.** When a shorter type of the family also gives a valid `to`/`=` reading (`of type X to Y to z`, types X / 'X to Y'), the clause is refused rather than one reading picked.
+- **Backstop.** `_match_set` now runs through `_resolve_type_name`, which reports whether the clause carried an unquoted or quoted `of type` qualifying its parameter. If it did and the grammar did not read a type (or read a different one), the clause is refused. It can never fall through to the default type.
+
+**Evidence.** `test_edit_type_names_1006` now has 52 cases. Against the version before the last change, `origin/main` failed 39 of 51, the previous head (e7387ea) failed 8 of 51, and this head passed 51 of 51. The reviewer's 88 case lines (their `p2.py` with c2/c3) show every non-refused clause going to the named type. The only default-type writes left are untyped clauses (`set Length to 20 ft`, `set Finish = galvanized to spec`, …) and two older value defects, now filed as #1008: uneven quote stripping, and `set Finish to` storing "to". The six edit suites plus the scaffolding check: 171 passed / 8 skipped.
+
+**Correction to the first round's text.** A single-word name before the delimiter is not always refused when it matches no type: `_op_set` falls back to a unique substring match. In a one-type family `of type Big to black` targets 'Big One' (accepted below).
 
 **Accepted as they are (same as main).**
 - In a one-type family, a single-word partial name (`of type Big to black`) resolves to that one type by substring. The target is unambiguous.

@@ -134,7 +134,6 @@ class _Pfx:
     # 'of type' inside the VALUE is the user's text, untouched
     (None, "set Finish = x of type Big One to y", ("Finish", "x of type Big One to y", None)),
     (None, 'set Finish to "x of type Big One"', ("Finish", '"x of type Big One"', None)),
-    (None, "set Finish to x of type Big One", ("Finish", "x of type Big One", None)),
     (["Typ 1 ", "Typ 10"], "set Finish of type Typ 10 to black", ("Finish", "black", "Typ 10")),
     (["Typ 1 ", "Typ 10"], "set Finish of type Typ 1 to black", ("Finish", "black", "Typ 1")),
     (['He "Q"'], 'set Finish of type He "Q" to black', ("Finish", "black", 'He "Q"')),
@@ -177,3 +176,47 @@ def test_a_longer_mistyped_name_on_a_generated_family_is_refused(conduit):
         else:
             with pytest.raises(MF.FamilyEditError, match="is not a type"):
                 MF.parse_family_edit(clause, inv)
+
+
+# --------------------------------------------------------------------------- the third review's probes
+
+@pytest.mark.parametrize("inv_types, clause, match", [
+    # a type name with NO value: never the name written into the value of the default type
+    (None, "set Finish of type Big One", "no value given for type 'Big One'"),
+    (None, "set Finish of type T1", "no value given for type 'T1'"),
+    (None, "set Finish of type Big One to", "no value given for type 'Big One'"),
+    (None, "set Finish of type Zed", "no value given for 'of type Zed'"),
+    (None, 'set Finish of type "Big One"', "could not read the type"),   # quoted, no value
+    # the value ENDS in 'of type <a type of this family>': refuse, never the default type
+    (None, "set Finish to black of type Big One", "the value ends in 'of type Big One'"),
+    (None, "set Finish to x of type Big One", "the value ends in 'of type Big One'"),
+    # two valid readings ('X' or 'X to Y'): refuse rather than pick
+    (["X", "X to Y"], "set Finish of type X to Y to z", "reads as type 'X to Y' or type 'X'"),
+])
+def test_a_clause_that_could_land_in_the_wrong_type_is_refused(inv_types, clause, match):
+    inv = type("I", (_Pfx,), {"type_names": inv_types} if inv_types else {})
+    with pytest.raises(MF.FamilyEditError, match=re.escape(match)):
+        MF._match_set(inv, clause)
+
+
+@pytest.mark.parametrize("inv_types, clause, want", [
+    (["X", "X to Y"], "set Finish of type X to z", ("Finish", "z", "X")),
+    (["X", "X to Y"], 'set Finish of type "X to Y" to z', ("Finish", "z", "X to Y")),
+    (None, "set Finish = x of type Big One to y", ("Finish", "x of type Big One to y", None)),
+])
+def test_unambiguous_forms_still_parse(inv_types, clause, want):
+    inv = type("I", (_Pfx,), {"type_names": inv_types} if inv_types else {})
+    m = MF._match_set(inv, clause)
+    assert (m.group("cap"), m.group("val"),
+            m.group("typeq") or m.group("typeq2") or m.group("type")) == want
+
+
+def test_a_type_with_no_value_on_a_generated_family_is_refused(conduit, tmp_path):
+    inv = MF.inventory_family(conduit)
+    (name,) = inv.type_names
+    before = inv.param_by_caption("Finish")["current"]
+    for clause in (f"set Finish of type {name}", f"set Finish of type {name} then black",
+                   f"set Finish to black of type {name}"):
+        with pytest.raises(MF.FamilyEditError):
+            MF.modify_family(conduit, clause, str(tmp_path))
+    assert MF.inventory_family(conduit).param_by_caption("Finish")["current"] == before
