@@ -18,3 +18,6 @@ Refs #1003, #1000, #1001.
   - `tests/ci_shard.d/1003-edit-hint.txt` (new);
   - this fragment.
 - Staged: nothing. Hard rule 4: no claim here rests on a desktop verdict.
+
+## Also in this PR (from the third review of #1002)
+`tools/render_probes.py` is a dev-only probe driver, not a product surface. It still said walls + a loaded family is "the exact combination that FAILS today", and wrote that claim into its record. Both places now say the stream saw the combination fail when it ran, that the later one-family pair WF_fix / WF_nofix passed (verdict #27), and that more than one family is still open. Gate: `test_render_wallgeom` passes. Refs #998.
