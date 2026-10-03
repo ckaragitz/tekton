@@ -663,7 +663,19 @@ def _resolve_type_name(inv: FamilyInventory, clause: str) -> Tuple[str, Optional
     ``=`` when the tail names a type (``Finish's color of type Big One``); and
     any single word before ``to`` / ``=`` that is not exactly a type (no
     substring match -- ``T1`` never reaches ``T10``)."""
-    m = _RE_OF_TYPE_AT.search(clause)
+    # an 'of type' INSIDE one of the family's captions ('Size of Type') is
+    # the parameter's name, not a qualifier (#1009): search after it
+    start = 0
+    lead0 = _RE_SET_LEAD.match(clause)
+    if lead0:
+        body0 = clause[lead0.end():].lower()
+        for cap in sorted((str(p["caption"]) for p in inv.params), key=len, reverse=True):
+            c = cap.strip().lower()
+            if c and re.search(r"\bof\s+type\b", c) and body0.startswith(c) and (
+                    len(body0) == len(c) or not body0[len(c)].isalnum()):
+                start = lead0.end() + len(c)
+                break
+    m = _RE_OF_TYPE_AT.search(clause, start)
     if m is None:
         return clause, None
     types = [str(n) for n in (getattr(inv, "type_names", None) or []) if str(n).strip()]
@@ -822,12 +834,12 @@ def _op_rename_type(inv: FamilyInventory, old: Optional[str], new: str) -> dict:
         raise FamilyEditError("this family has no type-table types to rename "
                               + ("(" + "; ".join(inv.notes) + ")" if inv.notes else ""))
     if old:
-        key = str(old).strip().lower()
+        # EXACT (case-insensitive) only, as for a set (#1007): a substring
+        # ('T1' in 'T10') would rename a type the user did not name (#1009)
+        key = str(old).strip().strip("\"'").strip().lower()
         hits = [i for i, n in enumerate(inv.type_names) if n.strip().lower() == key]
-        if not hits:
-            hits = [i for i, n in enumerate(inv.type_names) if key in n.lower()]
         if len(hits) != 1:
-            raise FamilyEditError(f"type {old!r} matches {len(hits)} of "
+            raise FamilyEditError(f"type {old!r} is not exactly one of this family's types "
                                   f"{inv.type_names}: name it exactly")
         idx = hits[0]
     elif len(inv.type_names) == 1:
