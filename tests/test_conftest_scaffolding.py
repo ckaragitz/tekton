@@ -87,6 +87,8 @@ ADOPTERS = {
                             "back with constraint_law.check_file (enter_own_release) inside the engine",
     "test_edit_leftovers_994": "MF.modify_family(...) rebuilds through famgen.nest (host_release_context) inside the "
                                "engine",
+    "test_edit_type_names_1006": "MF.modify_family(...) enters host_release_context inside the engine (the end-to-end "
+                                 "write on a generated conduit)",
     "test_frontdoor_209": "FD.author(prompt=..., target_version=<first foreign pin>) enters release_build_context in the "
                           "front door's build, then the route dies late (#209): the guard proves nothing stayed entered",
 }

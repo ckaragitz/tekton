@@ -551,7 +551,13 @@ def _match_set(inv: FamilyInventory, clause: str):
     Words after a known caption cannot be told apart from a mistyped
     parameter (``set finish color to black``, ``set Model number to X``) by
     case or vocabulary, and a refusal is recoverable where a mis-targeted
-    write is not."""
+    write is not.
+
+    An UNQUOTED type name after ``of type`` is first resolved against the
+    family's own type names (#1006, :func:`_quote_type_name`), so a generated
+    family's ``Conduit - Straight Run 0.75 in 10 ft`` is one name, never cut at
+    its first word or folded into the value."""
+    clause = _quote_type_name(inv, clause)
     lead = _RE_SET_LEAD.match(clause)
     caps: List[Tuple[str, str]] = []
     if lead:
@@ -581,6 +587,42 @@ def _match_set(inv: FamilyInventory, clause: str):
 _RE_OF_TYPE = re.compile(r"(?:^|\s+)of\s+type\s+(?P<t>\"[^\"]+\"|'[^']+'|[^\"'\s]+)", re.I)
 
 
+_RE_OF_TYPE_BARE = re.compile(r"\s+of\s+type\s+(?![\"'])", re.I)
+_RE_DELIM_AHEAD = re.compile(r"\s+to\s+|\s*=", re.I)
+
+
+def _quote_type_name(inv: FamilyInventory, clause: str) -> str:
+    """``clause`` with its first UNQUOTED ``of type NAME`` quoted when NAME is
+    one of the family's own type names (the longest that matches at a word
+    boundary, case-insensitive) -- #1006.  An unquoted name that is not a type
+    of this family and runs over more than one word before the ``to`` / ``=``
+    delimiter is refused by name: the grammar would otherwise take its first
+    word as the type and write the rest into the value.  A single-token name
+    (``of type T1 to 5``) is left to the existing grammar, which refuses a
+    name that matches no type."""
+    m = _RE_OF_TYPE_BARE.search(clause)
+    if m is None:
+        return clause
+    tail = clause[m.end():]
+    low = tail.lower()
+    types = list(getattr(inv, "type_names", None) or [])
+    for name in sorted({str(n) for n in types if str(n).strip()},
+                       key=len, reverse=True):
+        n = name.strip()
+        if low.startswith(n.lower()) and (len(low) == len(n)
+                                          or not (low[len(n)].isalnum() or low[len(n)] == "_")):
+            return clause[:m.end()] + '"' + n + '"' + tail[len(n):]
+    d = _RE_DELIM_AHEAD.search(tail)
+    named = (tail[:d.start()] if d else "").strip()
+    if d is not None and len(named.split()) > 1:
+        raise FamilyEditError(
+            f"'of type {named}' is not a type of this family "
+            f"({', '.join(map(repr, types)) or 'no types'}): name a type "
+            "exactly, quoted when it has spaces -- e.g. set <Parameter> of type "
+            "\"<type name>\" = <value>")
+    return clause
+
+
 def _value_hint(inv: FamilyInventory, caption: str, clause: Optional[str] = None) -> str:
     """For a refused ``caption`` that starts with one of the family's own
     captions (``Finish galvanized``), name the recovery: the words after a
@@ -594,6 +636,11 @@ def _value_hint(inv: FamilyInventory, caption: str, clause: Optional[str] = None
     for cap in sorted((p["caption"] for p in inv.params), key=len, reverse=True):
         c = cap.lower()
         if c and low.startswith(c) and len(low) > len(c) and low[len(c)].isspace():
+            if clause:
+                try:
+                    clause = _quote_type_name(inv, clause)       # a full type name stays one (#1006)
+                except FamilyEditError:
+                    pass
             at = (clause or "").lower().find(low)
             rest = (clause[at + len(cap):].strip() if at >= 0 else "<value>")
             # an 'of type T' qualifier stays the TYPE, in its parsed position
