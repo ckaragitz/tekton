@@ -128,11 +128,30 @@ def test_value_text_is_stored_on_real_generated_families(real_invs, value):
     # PR #1024 review 2: an abbreviation the grammar applies outside quotes
     # (Len -> Length, Out -> Outside Diameter, Mat -> Material) is a further edit
     "PVC; set Len 10 ft", "EMT; set Out 2 in", "HDG; set Mat steel", "x; set Dep 3 in",
+    # review 3: inner abbreviations and one-letter keys the grammar applies too
+    "see detail; set Ht 18 in", "PVC then set W 2 in",
 ])
 def test_an_abbreviated_caption_inside_quotes_is_a_further_edit(real_invs, value):
     inv = real_invs[0]                                              # the conduit
     with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
         MF.parse_family_edit(f'set Finish = "{value}"', inv)
+
+
+@pytest.mark.parametrize("caps, text", [
+    # PR #1024 review 3: unit tokens inside a caption ("Rated kVA", "...Rating kA")
+    (("Mark", "Rated kVA"), "set Mark = 'T-1; set kVA 75 nominal'"),
+    (("Mark", "Interrupting kA"), "set Mark = 'P-1; set kA 22 sym'"),
+    (("Mark", "ShortCircuitRatingkA"), "set Mark = 'MCB; set kA 65 kA'"),
+    (("Mark", "Height", "Width"), "set Mark = 'B-1; set Ht 4 ft'"),
+    (("Mark", "Width", "Depth"), "set Mark = 'B-1; set W 4 ft'"),
+])
+def test_a_short_key_naming_a_parameter_inside_quotes_is_a_further_edit(caps, text):
+    ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",
+           "spec": "autodesk.spec:string-2.0.0", "carrier": "m_str", "current": "", "formula": False}
+          for i, c in enumerate(caps)]
+    inv = MF.FamilyInventory(path="x.rfa", family_id=1, family_name="F", type_names=["T1"], params=ps)
+    with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
+        MF.parse_family_edit(text, inv)
 
 
 def test_the_note_reaches_the_delivered_records_degradations(conduit, tmp_path):

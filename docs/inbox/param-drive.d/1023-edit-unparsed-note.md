@@ -10,7 +10,7 @@
   3. **Correction to the #1021 record.** It says `test_edit_quoted_split_1017.py` was "otherwise unchanged". Its `_inv()` also gained the captions `Finish` and `Length`, which changes which fragments read.
 
 ## Evidence
-- `tests/test_edit_unparsed_note_1023.py`, 26 cases:
+- `tests/test_edit_unparsed_note_1023.py`, 33 cases:
   - three "not applied" notes;
   - one fully read edit with no note;
   - three near-miss refusals;
@@ -71,6 +71,22 @@
   - Real conduit, seeds 31 and 7: 0 silent fewer ops, 0 newly accepted, 9 / 10 now refused.
   - Family fuzz, seeds 4242 and 9001: 0 silent, 0 accepted, 10 / 20 now refused.
   - Suites (the round-1 set): **941 passed / 41 skipped**. `sync_plugin --check` is clean.
+
+## Review round 3 (PR #1024, head 812b406, 🛑)
+- **Blocking.** `_abbreviates` (prefix of the caption or of a caption word) still missed short keys that the old split applies to the meant parameter, so they were swallowed into a quoted value:
+  - inner abbreviations: `Ht` → Height;
+  - one-letter keys: `W` → Width;
+  - unit tokens inside a caption: `kA` → ShortCircuitRatingkA, `kVA` in "Rated kVA", because `_split_camel` broke "kVA" into "k VA".
+- **Correction.** The round-2 line saying `IP` and `kVA` are covered held only where they start the caption.
+- **Fixed by inverting the rule, as the reviewer preferred.** A key under 4 characters that `param_by_caption` resolves **is** a further edit, unless it is in `_FUNCTION_WORDS`, a fixed list of prose words: a, an, and, as, at, be, by, do, for, if, in, is, it, its, no, nor, not, of, off, on, or, our, per, so, than, that, the, then, to, too, up, us, via, vs, we, with.
+  - `out` is deliberately not in the list, because `Out` → Outside Diameter is a real abbreviation (round 2).
+  - The rule errs toward refusal, which is recoverable. `_abbreviates` is removed.
+- **Re-measured:**
+  - **Enumeration** (`r22/keyenum.py`: every 1–3 character substring of every caption on the 21 real families × 3 values): 245 keys that old applies still read as text, and all of them are function words. Examples: `of` → Number of Lamps, `to` → Distance to Wall, `no` → Nominal Diameter, `be` → Bend Radius, `us` → BusRating. Every one of those old writes is a mis-target. At round 3's head the count was 5,148.
+  - **`r20/fp.py`:** text → edit stays 26. Edit → text is now 60, because `set box flush` is refused on 2 families (`box` → Backbox Size), the safe side.
+  - **Family fuzz, seed 2201:** 0 silent, 13 now refused, 1 newly accepted. The accepted one is `('q then set a r')`, where old wrote Mark = `r'` through "a" ⊂ Mark, a mis-target.
+  - **Real conduit,** seeds 2203 and 31: 0 silent, 0 newly accepted, 10 / 9 now refused.
+  - **Suites:** **948 passed / 41 skipped**. `sync_plugin --check` is clean.
 
 ## BRANCH STATE
 - Files:
