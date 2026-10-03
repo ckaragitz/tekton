@@ -386,6 +386,57 @@ def _place(noun, parts, sep, where):
 _WHERE = ("first", "last", "middle")
 
 
+#: An archetype with more sized parameters than this is swept on a
+#: deterministic COVER, not the full product (#918).  The full product grows
+#: with the cube of the parameter count: the strut trapeze's 15 sized
+#: parameters (#899) made 90,352 of this file's 106,696 chains and took the
+#: file from about 30 s to 385 s, past what the CI shard can hold.  Every
+#: archetype at or under the limit -- all six before #899 -- is swept exactly
+#: as before.  A covered archetype still gets, in every sweep, every ordered
+#: parameter pair, every alias of every parameter, and every phrasing and
+#: separator (rotated across the cover rather than crossed with it); its
+#: chains add enough triples that every ordered pair stands NEXT to each other
+#: in both slots of a triple -- the adjacency #812's defect lived in.
+_FULL_SWEEP_MAX_PARAMS = 8
+
+
+def _sized(a):
+    return [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
+
+
+def _covered(a):
+    return len(_sized(a)) > _FULL_SWEEP_MAX_PARAMS
+
+
+def _adjacency_cover(ps):
+    """Triples (in permutation order, so deterministic) until every ordered
+    pair (p, q) has stood adjacent in slot 0-1 and in slot 1-2."""
+    import itertools
+    need = {(p.key, q.key, s) for p, q in itertools.permutations(ps, 2) for s in (0, 1)}
+    out = []
+    for t in itertools.permutations(ps, 3):
+        got = {(t[0].key, t[1].key, 0), (t[1].key, t[2].key, 1)} & need
+        if got:
+            out.append(t)
+            need -= got
+        if not need:
+            break
+    return out
+
+
+def _rotation(options, counter):
+    """The ``counter``-th of ``options``, skewed one step per lap: one
+    combination per case on a covered archetype, and every combination for
+    every word order across the cover.  Unskewed (``counter % n``), a counter
+    stepping once per order over 4 orders and 16 / 8 / 4 options pinned each
+    order to a quarter of them -- PPQ only ever ", " with Q number-first, PQ
+    crosses only number-first -- and 5 of the 7 restatement classes and 5 of
+    the 6 cross classes #812's defect fails were never generated (#922
+    review)."""
+    n = len(options)
+    return [options[(counter + counter // n) % n]]
+
+
 def _chains():
     """Every two- and three-phrase chain over every archetype's dimensional
     aliases, in both phrasings ("7 in wide" / "wide 7 in"), in every order,
@@ -396,10 +447,14 @@ def _chains():
     import itertools
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
-        ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
+        ps = _sized(a)
+        cov = _covered(a)
         for k in (2, 3):
-            for combo in itertools.permutations(ps, k):
-                for j in range(max(len(p.aliases) for p in combo)):
+            combos = (_adjacency_cover(ps) if k == 3 and cov
+                      else list(itertools.permutations(ps, k)))
+            for rot, combo in enumerate(combos):
+                n_al = max(len(p.aliases) for p in combo)
+                for j in (_rotation(range(n_al), rot) if cov else range(n_al)):
                     for styles in itertools.product((0, 1), repeat=k):
                         parts, want = [], {}
                         for i, (p, st) in enumerate(zip(combo, styles)):
@@ -419,22 +474,24 @@ def _restatements(where="first"):
     this head 0.  With ``where="cycle"`` (noun first, last or middle in
     turn): main 2,466, round 1 2,773, round 2 2,010, this head 0."""
     import itertools
-    i = 0
+    i = rot = 0
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
-        ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
+        ps = _sized(a)
+        cov = _covered(a)
         ph = lambda p, al, n, st: f"{n:g} {p.unit} {al}" if st == 0 else f"{al} {n:g} {p.unit}"
+        forms = list(itertools.product(itertools.product((0, 1), repeat=3), (" ", ", ")))
         for p, q in itertools.permutations(ps, 2):
             for ap in p.aliases:
                 aq = q.aliases[len(ap) % len(q.aliases)]
                 for order in ("PPQ", "PQP", "PQQ", "QPP"):
-                    for sts in itertools.product((0, 1), repeat=3):
-                        for sep in (" ", ", "):
-                            parts = [ph(p, ap, _n(p, 7), st) if c == "P" else ph(q, aq, _n(q, 13), st)
-                                     for c, st in zip(order, sts)]
-                            w, i = (where if where != "cycle" else _WHERE[i % 3]), i + 1
-                            yield (key, _place(noun, parts, sep, w),
-                                   {p.key: float(_n(p, 7)), q.key: float(_n(q, 13))})
+                    rot += 1
+                    for sts, sep in (_rotation(forms, rot) if cov else forms):
+                        parts = [ph(p, ap, _n(p, 7), st) if o == "P" else ph(q, aq, _n(q, 13), st)
+                                 for o, st in zip(order, sts)]
+                        w, i = (where if where != "cycle" else _WHERE[i % 3]), i + 1
+                        yield (key, _place(noun, parts, sep, w),
+                               {p.key: float(_n(p, 7)), q.key: float(_n(q, 13))})
 
 
 def _n(p, n):
@@ -484,7 +541,7 @@ def test_every_stated_number_binds_to_its_own_phrase_across_every_archetype():
     per, fails = _sweep(_chains())
     _assert_coverage(per, {"cable_tray": 2000, "strut_channel": 1000, "wireway": 100,
                            "junction_box": 100, "lighting_control_panel": 100,
-                           "conduit": 20})
+                           "conduit": 20, "strut_trapeze": 3000})
     assert not fails, f"{len(fails)}/{sum(per.values())} chains mis-bound; first: {fails[:3]}"
 
 
@@ -495,7 +552,7 @@ def test_a_restated_dimension_binds_once_and_nothing_else_follows_it(where):
     per, fails = _sweep(_restatements(where))
     _assert_coverage(per, {"cable_tray": 5000, "strut_channel": 3000, "wireway": 500,
                            "junction_box": 500, "lighting_control_panel": 500,
-                           "conduit": 50})
+                           "conduit": 50, "strut_trapeze": 1500})
     assert not fails, f"{len(fails)}/{sum(per.values())} restatements mis-bound; first: {fails[:3]}"
 
 
@@ -511,22 +568,24 @@ def _contradictions(where="first"):
     cycled first / last / middle: main 1,543, round 1 1,611, round 2 1,692,
     this head 0."""
     import itertools
-    i = 0
+    i = rot = 0
     for key, a in AR.ARCHETYPES.items():
         noun = a.title.split(" - ")[0].lower()
-        ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft")]
+        ps = _sized(a)
+        cov = _covered(a)
         ph = lambda p, al, n, st: f"{n:g} {p.unit} {al}" if st == 0 else f"{al} {n:g} {p.unit}"
+        forms = list(itertools.product(itertools.product((0, 1), repeat=3), (" ", ", ")))
         for p, q in itertools.permutations(ps, 2):
             for ap in p.aliases:
                 for order in ("PPQ", "PQP", "QPP"):
-                    for sts in itertools.product((0, 1), repeat=3):
-                        for sep in (" ", ", "):
-                            pv, parts = iter((_n(p, 7), _n(p, 9))), []
-                            for c, st in zip(order, sts):
-                                parts.append(ph(p, ap, next(pv), st) if c == "P"
-                                             else ph(q, q.aliases[0], _n(q, 13), st))
-                            w, i = (where if where != "cycle" else _WHERE[i % 3]), i + 1
-                            yield key, _place(noun, parts, sep, w), p, q
+                    rot += 1
+                    for sts, sep in (_rotation(forms, rot) if cov else forms):
+                        pv, parts = iter((_n(p, 7), _n(p, 9))), []
+                        for o, st in zip(order, sts):
+                            parts.append(ph(p, ap, next(pv), st) if o == "P"
+                                         else ph(q, q.aliases[0], _n(q, 13), st))
+                        w, i = (where if where != "cycle" else _WHERE[i % 3]), i + 1
+                        yield key, _place(noun, parts, sep, w), p, q
 
 
 @pytest.mark.parametrize("where", ["first", "cycle"])
@@ -546,7 +605,7 @@ def test_a_contradicted_dimension_never_takes_the_other_phrases_number(where):
             fails.append((prompt, {pk: r.values[pk], qk: r.values[qk]}, stray))
     _assert_coverage(per, {"cable_tray": 5000, "strut_channel": 3000, "wireway": 500,
                            "junction_box": 500, "lighting_control_panel": 500,
-                           "conduit": 50})
+                           "conduit": 50, "strut_trapeze": 1500})
     assert not fails, f"{len(fails)}/{sum(per.values())} contradictions mis-bound; first: {fails[:3]}"
 
 
@@ -574,7 +633,8 @@ def _crossed():
         if len(cross) < 2:
             continue
         noun = a.title.split(" - ")[0].lower()
-        ps = [p for p in a.params if p.aliases and p.unit in ("in", "ft") and p.key not in cross]
+        ps = [p for p in _sized(a) if p.key not in cross]
+        cov, rot = _covered(a), 0
         dims = tuple(_n(a.param(k), d) for k, d in zip(cross, (12, 6, 4)))
         cx = " x ".join(f"{d:g}" for d in dims) + " in"
         pairs = list(itertools.permutations(ps, 2)) or [(p, None) for p in ps]
@@ -582,7 +642,9 @@ def _crossed():
             orders = ("PPQ", "PQP", "QPP", "PQ") if q else ("PP", "P")
             for al_p in p.aliases:
                 for order in orders:
-                    for sts in itertools.product((0, 1), repeat=len(order)):
+                    rot += 1
+                    stss = list(itertools.product((0, 1), repeat=len(order)))
+                    for sts in (_rotation(stss, rot) if cov else stss):
                         parts = []
                         for c, st in zip(order, sts):
                             r, n, al = ((p, _n(p, 7), al_p) if c == "P"
@@ -599,5 +661,50 @@ def test_a_cross_dimension_keeps_its_numbers_next_to_a_restatement():
     per, fails = _sweep(_crossed())
     _assert_coverage(per, {"cable_tray": 1000, "strut_channel": 1000, "conduit": 0,
                            "wireway": 100, "junction_box": 8,
-                           "lighting_control_panel": 8})
+                           "lighting_control_panel": 8, "strut_trapeze": 1000})
     assert not fails, f"{len(fails)}/{sum(per.values())} cross prompts mis-bound; first: {fails[:3]}"
+
+
+def test_a_covered_archetype_keeps_the_cover_guarantees():
+    """The reduction (#918) must not quietly thin out: on every archetype
+    swept by cover, each ordered parameter pair stands adjacent in both slots
+    of some chain triple, and every alias of every sized parameter appears in
+    every sweep.  Archetypes under the limit are untouched (their prompt
+    sequences are byte-identical to the full product)."""
+    import itertools
+    import re
+    covered = [k for k, a in AR.ARCHETYPES.items() if _covered(a)]
+    assert covered, "no archetype is swept by cover -- the limit or this test is stale"
+    for key in covered:
+        a = AR.ARCHETYPES[key]
+        ps = _sized(a)
+        tri = _adjacency_cover(ps)
+        got = ({(t[0].key, t[1].key, 0) for t in tri} | {(t[1].key, t[2].key, 1) for t in tri})
+        assert got >= {(p.key, q.key, s) for p, q in itertools.permutations(ps, 2) for s in (0, 1)}
+        for name, gen in (("chains", _chains()), ("restatements", _restatements()),
+                          ("contradictions", _contradictions()), ("crossed", _crossed())):
+            text = "\n".join(x[1] for x in gen if x[0] == key)
+            skip = {"width_in", "height_in", "depth_in"} if name == "crossed" else set()
+            every = {al for p in ps for al in p.aliases}
+            missing = []
+            for p in ps:
+                if p.key in skip:
+                    continue
+                for al in p.aliases:
+                    # "rod" must appear on its own, not inside "rod spacing"
+                    t = text
+                    for longer in sorted((x for x in every if al in x and x != al), key=len, reverse=True):
+                        t = t.replace(longer, "#")
+                    if not re.search(r"(?<![a-z])" + re.escape(al) + r"(?![a-z])", t):
+                        missing.append((p.key, al))
+            assert not missing, (key, name, missing)
+    # the rotation reaches every option for every word order, whatever the
+    # number of orders (3 or 4) and options (4, 8, 16) -- the stride the
+    # unskewed rotation lost (#922 review)
+    for n in (4, 8, 16):
+        for k in (3, 4):
+            for o in range(k):
+                got = {_rotation(range(n), k * c + o)[0] for c in range(n * n)}
+                assert got == set(range(n)), (n, k, o)
+    full = [k for k, a in AR.ARCHETYPES.items() if not _covered(a)]
+    assert {"cable_tray", "strut_channel", "conduit"} <= set(full)
