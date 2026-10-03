@@ -56,7 +56,7 @@ cell isolated), both delivered. Tell the user which they got.
 | only wants the AI-surface package (no build) | add `--handoff-only` |
 | an `.ifc` (from Claude Design / three-d-stage / any exporter following our tagging contract) | `frontdoor author --ifc FILE.ifc --out DIR` |
 | an `.rvt` and a change to make | `frontdoor author --rvt FILE.rvt --edit "move DP-1 to 3,4,0; delete LP-4 with cascade" --out DIR` (or `--edit ops.json` / inline JSON) |
-| wants two proven-shaped files instead of the stamped combo | add `--strict` (prompt/ifc routes) |
+| wants the open cell isolated in its own file instead of the stamped combo | add `--strict` (prompt/ifc routes): a shell without placement + an equipment file carrying the placed instances |
 
 ## 3. Commands (copy exactly)
 

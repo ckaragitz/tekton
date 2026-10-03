@@ -45,7 +45,9 @@ _OVERCLAIM = re.compile(
     r"|walls\+families combination unverified"
     r"|created walls \**and\** our generated,? placed families"
     r"|walls\+families open[- ]bug"
-    r"|coordinated (?:proven|certified) files", re.I)
+    r"|(?:two |coordinated )+(?:proven|certified)(?:-shaped)? files"
+    r"|walls \+ our placed families in one file"
+    r"|walls\+families combination bug", re.I)
 
 
 def _flat(rel):
@@ -103,7 +105,10 @@ def test_the_overclaim_pattern_fires_on_the_old_texts():
                 "stamped `PROOF-ONLY: walls+families combination unverified`",
                 "Created walls AND our generated, placed families in ONE file",
                 "help=\"walls+families open bug -> two coordinated files\"",
-                "`--strict` = TWO coordinated proven files"):
+                "`--strict` = TWO coordinated proven files",
+                "wants two proven-shaped files instead of the stamped combo",
+                "caveats: walls + our placed families in one file is the open cell",
+                "research residuals (RENDER gate, walls+families combination bug"):
         assert _OVERCLAIM.search(old), old
     assert not _OVERCLAIM.search(SHAPE)
 

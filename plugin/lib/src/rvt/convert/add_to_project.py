@@ -42,8 +42,10 @@ Autodesk-authored element.
 
 THE DELIVERABLE RULE: gates are labels.  Every run that can produce a file
 DELIVERS it, with the honest stamps after: the P0 PROOF-ONLY stamp, the
-open-cell stamp (rvt.frontdoor.intent.OPEN_CELL_STAMP) when this run places
-instances of our generated families on our composed genesis base, and a
+open-cell stamp (rvt.frontdoor.intent.OPEN_CELL_STAMP) whenever this run
+places instances of our generated families -- combination_check is called with
+its default composed_base=True, so a pristine or foreign target is stamped too
+(conservative: a pristine host is certified, T1r / T1u / U16) -- and a
 QUARANTINED-TARGET stamp when the target is an Autodesk sample (dev-only
 proof, never shipped).
 

@@ -93,7 +93,7 @@ class AuthorRequest:
     edit: Optional[str] = None
     out: Optional[str] = None                 # output DIRECTORY
     base: Optional[str] = None                # --base override (never a sample)
-    strict: bool = False                      # the walls+families split degrade
+    strict: bool = False                      # the open-cell split degrade (shell + equipment)
     handoff_only: bool = False                # prompt: emit the handoff, skip the fallback build
     no_handoff: bool = False                  # prompt: skip the handoff package
     stages: str = "FLWECV"                    # build stages subset

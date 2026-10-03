@@ -9,7 +9,7 @@ The independent review of #999 found surfaces outside #996's territory that stil
 
 One surface also called the `--strict` pair "TWO coordinated **proven** files". That overclaims: the equipment file is the open cell.
 
-Every surface now states the same three things:
+Every live surface now states the same three things:
 - the open cell: PLACED INSTANCES of our generated families on our composed base (genesis-audit #48, issue #16);
 - the stamp: `OPEN_CELL_STAMP`;
 - the walls + families shape, exactly as `matrix.WALLS_FAMILY_SHAPE` states it.
@@ -18,7 +18,8 @@ The surfaces:
 - `plugin/skills/tekton-author/SKILL.md` item 3 (hot file);
 - `tools/frontdoor.py`: the module docstring and the `--strict` help (hot file);
 - `plugin/README.md`: the open-cell bullet, and the `go author` example's stamps;
-- `plugin/agents/bim-job-orchestrator.md`, `plugin/agents/tekton-author-agent.md`;
+- `plugin/agents/bim-job-orchestrator.md`, `plugin/agents/tekton-author-agent.md`, `plugin/commands/tekton-job.md`;
+- `src/rvt/frontdoor/SKILL.frontdoor.md` (the `--strict` table row) and `docs/product/MCP-PATH.md`;
 - `src/rvt/convert/add_to_project.py`:
   - the docstrings and the `--strict` help;
   - two runtime degradation strings: the walled-target note now says walls + families is "certified only as walls + one loaded family, verdict #27", and the collapse note no longer says "proven-shaped";
@@ -47,6 +48,26 @@ Small items from the same review:
 
   The growth is the full stamp, which replaced a shorter dead one.
 - Gates (`RVT_SKIP_LARGE=1`): test_open_cell_996 + test_doc_caveats_990 + test_frontdoor + test_router + test_convert + test_convert_combo + test_plugin_sync + test_plugin_validate + test_target_version_first + test_sync_zip + test_bootstrap: **389 passed / 34 skipped**. `sync_plugin.py --check` in sync; `validate_plugin.py` PASS.
+
+## Review round (PR #1002, 2026-10-03)
+The independent review was 🛑. Two surfaces still missed DONE (1), and the scan did not catch either:
+- `SKILL.frontdoor.md` table row: "two proven-shaped files";
+- `plugin/commands/tekton-job.md`: "walls + our placed families in one file is the open cell".
+
+Both are fixed. Three patterns were added and pinned on the old text:
+- "two/coordinated proven/certified(-shaped) files";
+- "walls + our placed families in one file";
+- "walls+families combination bug".
+
+Also fixed in this round:
+- `docs/product/MCP-PATH.md` (two residual lists);
+- the `strict` comment in `src/rvt/frontdoor/__init__.py`;
+- the `add_to_project.py` docstring. It now says what the code does: `combination_check` runs with `composed_base=True`, so a pristine or foreign target is stamped too. That is conservative, since a pristine host is certified (T1r / T1u / U16).
+
+Left as they are, on purpose:
+- `TRACKER.md:81`: a hot file, dated roadmap history.
+- The `tekton-eval-kit/tekton-plugin/**` tracked snapshot: an older plugin build, refresh-or-freeze is #1004.
+- `src/rvt/genesis/residue_c.py` and `tools/revit_kit.py`: these name the historical walls+families fix and investigation correctly.
 
 ## BRANCH STATE
 - Files:
