@@ -25,6 +25,9 @@ On base (PR #1005's head `c19f298`), 9 of the 12 fail; with the fix, all 12 pass
 
 The issue's DONE (1) said row 1 "targets the named type with value black". Its caption is "Finish color", which this family does not have, so the correct outcome is a refusal by name (#994). It now parses the type whole, the caption is refused, and the hint reads `set Finish of type "<name>" = color to black`.
 
+## Review round (PR #1007, 2026-10-03)
+I re-probed the bare-value form while the independent review ran, and the same mis-target was still there. `set Finish of type Big Two black` (no `to`/`=`) took type "Big", which substring-matched 'Big One', and wrote "Two black" to it. `set Finish of type Conduit - Straight black` did the same. Without a delimiter, the name's end can't be told from the value's start. So in that form the first word must now be **exactly** one of the family's types (any case), and anything else is refused by name. `set Finish of type Big One black` and `set Width of type t1 3 ft` still work. There are 4 new cases; the six edit suites plus the scaffolding check give 136 passed / 8 skipped.
+
 ## BRANCH STATE
 - Files:
   - `src/rvt/convert/modify_family.py` and its `plugin/lib` mirror;

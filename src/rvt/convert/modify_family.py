@@ -597,9 +597,11 @@ def _quote_type_name(inv: FamilyInventory, clause: str) -> str:
     boundary, case-insensitive) -- #1006.  An unquoted name that is not a type
     of this family and runs over more than one word before the ``to`` / ``=``
     delimiter is refused by name: the grammar would otherwise take its first
-    word as the type and write the rest into the value.  A single-token name
-    (``of type T1 to 5``) is left to the existing grammar, which refuses a
-    name that matches no type."""
+    word as the type and write the rest into the value.  Without a delimiter
+    (``of type NAME VALUE``) the first word must be EXACTLY one of the
+    family's types, else the clause is refused too.  A single-token name
+    followed by the delimiter (``of type T1 to 5``) is left to the existing
+    grammar, which refuses a name that matches no type."""
     m = _RE_OF_TYPE_BARE.search(clause)
     if m is None:
         return clause
@@ -614,7 +616,15 @@ def _quote_type_name(inv: FamilyInventory, clause: str) -> str:
             return clause[:m.end()] + '"' + n + '"' + tail[len(n):]
     d = _RE_DELIM_AHEAD.search(tail)
     named = (tail[:d.start()] if d else "").strip()
-    if d is not None and len(named.split()) > 1:
+    words = tail.split()
+    bare_partial = (d is None and len(words) > 1
+                    and words[0].lower() not in {str(n).strip().lower() for n in types})
+    if bare_partial:
+        named = words[0] + " ..."
+    if (d is not None and len(named.split()) > 1) or bare_partial:
+        # with no to / '=' a name that is not EXACTLY a type cannot be told
+        # from the value after it ("of type Big Two black" would substring-
+        # match 'Big One' and write "Two black" to it) -- #1007 review
         raise FamilyEditError(
             f"'of type {named}' is not a type of this family "
             f"({', '.join(map(repr, types)) or 'no types'}): name a type "

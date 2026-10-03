@@ -16,6 +16,7 @@ Run: .venv/bin/python -m pytest tests/test_edit_type_names_1006.py -q
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -59,6 +60,9 @@ def _parse(clause):
     (f"set Finish of type {LONG.lower()} long = red", ("Finish", "red", LONG + " Long")),
     # a type name containing 'to'
     ("set Finish of type Run to Ground to black", ("Finish", "black", "Run to Ground")),
+    # the bare-value form with an exact name (any case) still works
+    ("set Finish of type Big One black", ("Finish", "black", "Big One")),
+    ("set Width of type t1 3 ft", ("Width", "3 ft", "T1")),
     # quoted and single-token forms are unchanged
     (f'set Finish of type "{LONG}" to black', ("Finish", "black", LONG)),
     ("set Finish to black", ("Finish", "black", None)),
@@ -70,9 +74,13 @@ def test_a_family_type_name_is_one_name(clause, want):
 @pytest.mark.parametrize("clause, named", [
     ("set Finish of type Conduit - Straight Run to black", "Conduit - Straight Run"),
     ("set Width of type Big Two to 3 ft", "Big Two"),
+    # no to / '=': a first word that is not EXACTLY a type cannot be told from
+    # the value ("Big" would substring-match 'Big One' and get "Two black")
+    ("set Finish of type Big Two black", "Big ..."),
+    ("set Finish of type Conduit - Straight black", "Conduit ..."),
 ])
 def test_an_unknown_multi_word_type_is_refused_by_name(clause, named):
-    with pytest.raises(MF.FamilyEditError, match=f"'of type {named}' is not a type"):
+    with pytest.raises(MF.FamilyEditError, match=re.escape(f"'of type {named}' is not a type")):
         MF._match_set(_Inv, clause)
 
 
