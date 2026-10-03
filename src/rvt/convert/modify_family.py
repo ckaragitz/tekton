@@ -572,8 +572,21 @@ def _match_set(inv: FamilyInventory, clause: str):
     family's own type names (#1006, :func:`_resolve_type_name`), so a generated
     family's ``Conduit - Straight Run 0.75 in 10 ft`` is one name, never cut at
     its first word or folded into the value."""
+    lead_n = _RE_SET_LEAD.match(clause)
+    if lead_n:
+        named = re.sub(r"(?:\s+to|\s*=)$", "", clause[lead_n.end():].strip().rstrip(".;,!").rstrip(),
+                       flags=re.I).strip().lower()
+        whole = next((str(p["caption"]).strip() for p in inv.params
+                      if str(p["caption"]).strip().lower() == named and " " in named), None)
+        if whole is not None:
+            # the clause IS a multi-word caption, with no value: 'set Distance
+            # to Wall' is never Distance = "Wall" when 'Distance to Wall' is a
+            # parameter of this family (#1011, from PR #1012's review)
+            raise FamilyEditError(
+                f"no value given for {whole!r}: set {whole} = <value>")
     clause, qual = _resolve_type_name(inv, clause)
-    m = _match_set_inner(inv, clause)
+    _start, long_cap = _caption_of_type(inv, clause)
+    m = _match_set_inner(inv, clause, prefer=long_cap)
     if qual is not None and m is not None and not (
             m.group("typeq") or m.group("typeq2") or m.group("type")):
         # the clause qualified its parameter with a type the grammar did not
@@ -583,11 +596,30 @@ def _match_set(inv: FamilyInventory, clause: str):
             "\"<type name>\" = <value>")
     if qual and m is not None and (m.group("typeq") or m.group("typeq2")) != qual:
         raise FamilyEditError(f"could not read the type {qual!r} in {clause!r}")
+    if m is not None:
+        typed = m.group("typeq") or m.group("typeq2") or m.group("type")
+        val = m.group("val") or ""
+        if not typed and re.match(r"of\s+type\b", val.strip(), re.I):
+            # 'set Size of Type' (captions Size / Size of Type): the words
+            # 'of Type' are never the VALUE of the shorter caption (#1011)
+            raise FamilyEditError(
+                f"no value given in {clause!r}: set <Parameter> = <value>, or "
+                "set <Parameter> of type \"<type name>\" = <value>")
+        if typed:
+            hit = _ends_in_type(val, [str(n) for n in (getattr(inv, "type_names", None) or [])])
+            if hit is not None:
+                raise FamilyEditError(
+                    f"the value ends in 'of type {hit}', a type of this family: name one "
+                    "type, before the value -- set <Parameter> of type \"<type>\" = <value>; "
+                    "to store the words as text, quote the value")
     return m
 
 
-def _match_set_inner(inv: FamilyInventory, clause: str):
-    """:func:`_match_set`'s grammar on a clause whose type name is resolved."""
+def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = None):
+    """:func:`_match_set`'s grammar on a clause whose type name is resolved.
+    ``prefer`` = a caption containing "of type" that the clause names
+    (:func:`_caption_of_type`): a shorter caption whose remainder starts with
+    "of type" is then not a reading (#1011: ``set Size of Type 5 mm``)."""
     lead = _RE_SET_LEAD.match(clause)
     caps: List[Tuple[str, str]] = []
     if lead:
@@ -598,6 +630,9 @@ def _match_set_inner(inv: FamilyInventory, clause: str):
             if c and low.startswith(c) and (len(low) == len(c) or not (low[len(c)].isalnum()
                                                                      or low[len(c)] == "_")):
                 caps.append((cap, body[len(cap):].lstrip()))
+    if prefer:
+        caps = [(c, r) for c, r in caps if c.strip().lower() == prefer.strip().lower()
+                or not re.match(r"of\s+type\b", r, re.I)]
     for cap, rest in caps:
         if _RE_EXPLICIT.match(rest):
             m = _RE_SET.match("set P " + rest)
@@ -641,6 +676,61 @@ def _quote_type_name(inv: FamilyInventory, clause: str) -> str:
     return _resolve_type_name(inv, clause)[0]
 
 
+def _caption_of_type(inv: FamilyInventory, clause: str) -> Tuple[int, Optional[str]]:
+    """``(start, caption)``: when the clause names one of the family's captions
+    that itself contains "of type" (``Size of Type``), the position after it
+    -- where a qualifier may begin -- and that caption; else ``(0, None)``
+    (#1009).  When a SHORTER caption reads the same words as caption + type
+    qualifier (captions Size / Size of Type, ``set Size of type Big One = 5``),
+    that reading wins (#1010) -- unless the long caption ALSO reads (it is
+    followed by ``to`` / ``=``, or both readings take a bare value): then the
+    clause is refused, naming both readings (#1011)."""
+    lead0 = _RE_SET_LEAD.match(clause)
+    if not lead0:
+        return 0, None
+    type_lows = [str(n).strip().lower() for n in (getattr(inv, "type_names", None) or [])
+                 if str(n).strip()]
+    cap_lows = {str(p["caption"]).strip().lower() for p in inv.params}
+    body0 = clause[lead0.end():].lower()
+    for cap in sorted((str(p["caption"]).strip() for p in inv.params), key=len, reverse=True):
+        c = cap.lower()
+        if not (c and body0.startswith(c) and (len(body0) == len(c)
+                                                 or not body0[len(c)].isalnum())):
+            continue
+        inner = list(re.finditer(r"\s+of\s+type\b", c))
+        if not inner:
+            continue
+        before, after = c[:inner[-1].start()].strip(), body0[inner[-1].end():].lstrip()
+        if before in cap_lows:
+            for t in sorted(type_lows, key=len, reverse=True):
+                if after.startswith(t) and (len(after) == len(t) or not after[len(t)].isalnum()):
+                    q_rest = after[len(t):]
+                    q_bare = not re.match(r"\s*(=|to\s)", q_rest + " ", re.I)
+                    long_rest = body0[len(c):]
+                    long_delim = bool(re.match(r"\s*(=|to\s)", long_rest + " ", re.I))
+                    if long_delim or (q_bare and long_rest.strip()):
+                        raise FamilyEditError(
+                            f"{clause!r} reads two ways: parameter {cap!r}, or parameter "
+                            f"{before!r} of type {t!r} -- quote the type to mean the second "
+                            f"(set <Parameter> of type \"<type>\" = <value>) or write "
+                            f"set {cap} = <value> for the first")
+                    return 0, None
+        return lead0.end() + len(c), cap
+    return 0, None
+
+
+def _ends_in_type(value: str, names: Sequence[str]) -> Optional[str]:
+    """The family type ``value`` ends in after its LAST ``of type`` (quoted or
+    not, trailing punctuation dropped), else ``None`` (#1007 B2, #1011)."""
+    ms = list(re.finditer(r"(?:^|\s)of\s+type\s+", value, re.I))
+    if not ms:
+        return None
+    last = value[ms[-1].end():].strip().lower().rstrip(".!?,;:").strip()
+    if len(last) >= 2 and last[0] == last[-1] and last[0] in "\"'":
+        last = last[1:-1].strip()
+    return next((n for n in names if n.strip().lower() == last), None)
+
+
 def _resolve_type_name(inv: FamilyInventory, clause: str) -> Tuple[str, Optional[str]]:
     """Resolve the ``of type`` qualifier of a set clause (#1006, #1007).
 
@@ -681,34 +771,7 @@ def _resolve_type_name(inv: FamilyInventory, clause: str) -> Tuple[str, Optional
     ``=`` when the tail names a type (``Finish's color of type Big One``); and
     any single word before ``to`` / ``=`` that is not exactly a type (no
     substring match -- ``T1`` never reaches ``T10``)."""
-    # an 'of type' INSIDE one of the family's captions ('Size of Type') is
-    # the parameter's name, not a qualifier (#1009): search after it
-    start = 0
-    lead0 = _RE_SET_LEAD.match(clause)
-    type_lows = [str(n).strip().lower() for n in (getattr(inv, "type_names", None) or [])
-                 if str(n).strip()]
-    cap_lows = {str(p["caption"]).strip().lower() for p in inv.params}
-    if lead0:
-        body0 = clause[lead0.end():].lower()
-        for cap in sorted((str(p["caption"]) for p in inv.params), key=len, reverse=True):
-            c = cap.strip().lower()
-            if not (c and body0.startswith(c) and (len(body0) == len(c)
-                                                     or not body0[len(c)].isalnum())):
-                continue
-            inner = list(re.finditer(r"\s+of\s+type\b", c))
-            if not inner:
-                continue
-            # 'Size of type Big One' with captions Size / Size of Type: when the
-            # words before the caption's own 'of type' are ANOTHER caption and
-            # the words after it name a type of this family, it is that
-            # caption's qualifier -- resolve it, never skip it (#1010 review)
-            before, after = c[:inner[-1].start()].strip(), body0[inner[-1].end():].lstrip()
-            if before in cap_lows and any(
-                    after.startswith(t) and (len(after) == len(t) or not after[len(t)].isalnum())
-                    for t in type_lows):
-                break
-            start = lead0.end() + len(c)
-            break
+    start, _cap = _caption_of_type(inv, clause)
     m = _RE_OF_TYPE_AT.search(clause, start)
     if m is None:
         return clause, None
