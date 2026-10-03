@@ -458,14 +458,28 @@ def _reads(inv: FamilyInventory, fragment: str) -> bool:
     cap = m.group("cap").strip()
     hit = inv.param_by_caption(cap)
     key = re.sub(r"[\s_-]+", "", cap).lower()
-    if hit is not None and (len(key) >= 4 or key not in _FUNCTION_WORDS):
+    if hit is not None and (len(key) >= 4 or key not in _FUNCTION_WORDS
+                            or _leads(key, hit["caption"])):
         return True
-    return _near_caption(inv, cap)
+    if hit is None and any(_leads(key, p["caption"]) for p in inv.params):
+        return True                       # 'A' with "A Phase Load" and "Mark": ambiguous,
+    return _near_caption(inv, cap)        # refused unquoted -- a further edit, not text
+
+
+def _leads(key: str, caption: str) -> bool:
+    """Is ``key`` the caption itself or its first word (``A``, ``On``, ``No`` in
+    "No. of Poles", ``Up`` in "Up Light")?  Then even a function word names the
+    parameter (PR #1024 review 4); ``at`` in Material, ``of`` in Number of Lamps
+    do not lead."""
+    words = re.findall(r"[a-z0-9]+", _split_camel(caption).lower())
+    return (re.sub(r"[\s_-]+", "", caption).lower() == key
+            or (bool(words) and words[0] == key))
 
 
 #: words of value prose that ``param_by_caption``'s unique-substring rule would
 #: resolve to a parameter ('at' -> Material, 'of' -> Number of Lamps, 'it' ->
-#: Fitting Angle): never a further edit.  Any other short key it resolves IS one
+#: Fitting Angle): not a further edit unless the word IS the caption or its first
+#: word (:func:`_leads`).  Any other short key it resolves IS one
 #: -- ``Len``, ``Ht``, ``W``, ``kA``, ``kVA`` are applied by the grammar outside
 #: quotes (PR #1024 reviews 2 and 3); refusing a rare abbreviation-shaped word is
 #: recoverable, swallowing an edit is not.

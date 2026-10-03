@@ -144,6 +144,12 @@ def test_an_abbreviated_caption_inside_quotes_is_a_further_edit(real_invs, value
     (("Mark", "ShortCircuitRatingkA"), "set Mark = 'MCB; set kA 65 kA'"),
     (("Mark", "Height", "Width"), "set Mark = 'B-1; set Ht 4 ft'"),
     (("Mark", "Width", "Depth"), "set Mark = 'B-1; set W 4 ft'"),
+    # review 4: a caption that IS a function word, or starts with one
+    (("Mark", "A", "B"), "set Mark = 'see note; set A 600 mm'"),
+    (("Mark", "A", "B"), "set Mark = 'see note then set a 2 ft'"),
+    (("Mark", "On"), "set Mark = 'x; set On 3 ft'"),
+    (("Mark", "No. of Poles"), "set Mark = 'x; set no 3 poles'"),
+    (("Mark", "Up Light"), "set Mark = 'x; set Up 3 ft'"),
 ])
 def test_a_short_key_naming_a_parameter_inside_quotes_is_a_further_edit(caps, text):
     ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",
@@ -152,6 +158,15 @@ def test_a_short_key_naming_a_parameter_inside_quotes_is_a_further_edit(caps, te
     inv = MF.FamilyInventory(path="x.rfa", family_id=1, family_name="F", type_names=["T1"], params=ps)
     with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
         MF.parse_family_edit(text, inv)
+
+
+def test_a_function_word_caption_outside_quotes_still_applies():
+    ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",
+           "spec": "autodesk.spec:string-2.0.0", "carrier": "m_str", "current": "", "formula": False}
+          for i, c in enumerate(("Mark", "A", "On"))]
+    inv = MF.FamilyInventory(path="x.rfa", family_id=1, family_name="F", type_names=["T1"], params=ps)
+    ops = MF.parse_family_edit("set Mark = 'see note'; set A 600 mm; set On 3 ft", inv)["ops"]
+    assert [o["caption"] for o in ops] == ["Mark", "A", "On"]
 
 
 def test_the_note_reaches_the_delivered_records_degradations(conduit, tmp_path):

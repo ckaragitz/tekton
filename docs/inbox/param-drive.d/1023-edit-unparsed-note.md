@@ -10,7 +10,7 @@
   3. **Correction to the #1021 record.** It says `test_edit_quoted_split_1017.py` was "otherwise unchanged". Its `_inv()` also gained the captions `Finish` and `Length`, which changes which fragments read.
 
 ## Evidence
-- `tests/test_edit_unparsed_note_1023.py`, 33 cases:
+- `tests/test_edit_unparsed_note_1023.py`, 39 cases:
   - three "not applied" notes;
   - one fully read edit with no note;
   - three near-miss refusals;
@@ -82,11 +82,21 @@
   - `out` is deliberately not in the list, because `Out` → Outside Diameter is a real abbreviation (round 2).
   - The rule errs toward refusal, which is recoverable. `_abbreviates` is removed.
 - **Re-measured:**
-  - **Enumeration** (`r22/keyenum.py`: every 1–3 character substring of every caption on the 21 real families × 3 values): 245 keys that old applies still read as text, and all of them are function words. Examples: `of` → Number of Lamps, `to` → Distance to Wall, `no` → Nominal Diameter, `be` → Bend Radius, `us` → BusRating. Every one of those old writes is a mis-target. At round 3's head the count was 5,148.
+  - **Enumeration** (`r22/keyenum.py`: every 1–3 character substring of every caption on the 21 real families × 3 values): 245 keys that old applies still read as text, and all of them are function words. Examples: `of` → Number of Lamps, `to` → Distance to Wall, `no` → Nominal Diameter, `be` → Bend Radius, `us` → BusRating. Every one of those old writes is a mis-target **on these 21 families** (see round 4 for captions that are, or start with, a function word). At round 3's head the count was 5,148.
   - **`r20/fp.py`:** text → edit stays 26. Edit → text is now 60, because `set box flush` is refused on 2 families (`box` → Backbox Size), the safe side.
   - **Family fuzz, seed 2201:** 0 silent, 13 now refused, 1 newly accepted. The accepted one is `('q then set a r')`, where old wrote Mark = `r'` through "a" ⊂ Mark, a mis-target.
   - **Real conduit,** seeds 2203 and 31: 0 silent, 0 newly accepted, 10 / 9 now refused.
   - **Suites:** **948 passed / 41 skipped**. `sync_plugin --check` is clean.
+
+## Review round 4 (PR #1024, head 65b68ab, 🛑)
+- **Blocking.** A caption that is *exactly* a listed word (a single-letter dimension `A`, or `On`, `No`, `Up`) was swallowed into a quoted value: `set Mark = 'see note; set A 600 mm'` stored one op, where main refused and the unquoted clause applies A. The same happened to a function word that is the *first word* of the resolved caption (`no` → "No. of Poles", `Up` → "Up Light", `ON` → "ON Delay"), which the old split applied. None of the 21 real families has such a caption, so the round-3 measurements stood for them; the code comment's "never a further edit" did not hold in general.
+- **Fixed with new `_leads(key, caption)`:** a function word still names the parameter when it **is** the caption or its first word. When `param_by_caption` resolves nothing (ambiguous, e.g. `A` with "Mark" and "A Phase Load"), a key that leads any caption is a further edit too; old refused those unquoted.
+- **Re-measured:**
+  - **`r23/fw.py`** (every listed word as an exact caption and as a leading word, in Title and UPPER case): all 95 quoted cases now refuse.
+  - **`r23/fuzzA.py`** (fuzz with captions `A`, `On` and `No. of Poles` added), seeds 2718 and 3141: 0 newly accepted (10 at round 4's head), 0 silent; 8 and 16 now refused.
+  - **`r20/fp.py`:** text → edit 27, edit → text 60. The only change is `set box flush` refused on one more family (`box` leads "Box …"), the safe side.
+  - **Enumeration on the 21 real families:** unchanged, 245 function-word mis-targets read as text.
+  - **Suites:** **954 passed / 41 skipped**.
 
 ## BRANCH STATE
 - Files:
