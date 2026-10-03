@@ -63,9 +63,12 @@ New module: `src/rvt/convert/family_regen.py`.
    what the graph itself does when Strut Length flexes and the rods follow at
    Rod Inset. Editing Rod Spacing, a non-driver, re-derives Strut Length instead.
    The record states which dimension was re-derived (`re_derived_by_generator`).
-6. **Name rule.** If the input carried the generator's own name for its
-   dimensions ("Strut Trapeze 30 in 2 Tier"), the rebuild is named for the new
-   ones. A name the user chose is kept.
+6. **Name rule** (revised in review, PR #993). The input's family and type
+   names are always kept, because a renamed family reloads as a second family
+   beside the original. If the input carried the generator's own
+   dimension-derived name ("Strut Trapeze 30 in 2 Tier"), the kept name now
+   describes the old size. The result says so in `regeneration.name_note` and
+   in a degradation, unless the same edit renames the family.
 
 **Formula inputs** (`Nut Across Flats` → `Nut Half Across Flats`, #948):
 
@@ -106,7 +109,7 @@ written on every set-param edit.
 | archetype products (strut trapeze solid + #917 nested, cable tray, strut channel, wireway, junction box, lighting control panel, conduit) at the native release, unedited since generation | **rebuilt**: planes, labelled dims, locked edges/faces, followers, formula children agree; sha256 = direct build | derived parameter → "the generator computes it from …" |
 | #917 children written standalone (hex nut, square washer) | **rebuilt** (the hexagon + its formula child) | formula parameter → refused by name |
 | a generated family edited since (any byte changed), or a spec value no parameter carries (e.g. trapeze `Lip` ≠ 0.5 in) | value only + explicit caveat ("does not reproduce the input byte for byte") | |
-| catalog equipment (panelboard, transformer, luminaire, device, fan coil, fan-powered box: Width/Depth/Height/Length drives) | value only + explicit caveat ("no generator of ours matches"). Their dimensions are catalog FACTS. | |
+| catalog equipment, labelled drives measured with `label_report` on each default build: panelboard / transformer / wiring device Width, Depth, Height; luminaire and fan coil Length, Width, Height. The fan-powered box labels no dimension. | value only + explicit caveat ("no generator of ours matches"). Their dimensions are catalog FACTS. | |
 | IFC-built families (#714 pset drives), single-prism generic models | value only + explicit caveat (the IFC / caller geometry is not in the file) | |
 | a 2025 / 2024 family | the edit lane cannot read it at all yet (`Document.from_file`: "unexpected Partitions header v=9"); a pre-existing gap, refused before any rebuild question arises | |
 | a generator refusal at the new value (e.g. Strut Length 4 in, under the 6 in minimum) | delivered by value with the refusal quoted (hard rule 1) | |
@@ -233,50 +236,129 @@ Also add `tests/test_edit_drives_909.py` to that row's evidence column.
   flexing the original family, produces the same geometry as the rebuild.
   Nor on whether a value-only edit's mismatch is repaired or rejected on open.
 
+## Review fixes (PR #993)
+
+An independent review of PR #993 found two blocking issues and four nits.
+All six are fixed on the same branch.
+
+1. **Rule 1 regression: rename after a rebuild (blocking).** After a rebuild,
+   `rename-family` stayed in `plan.rest`. A generated family's self-Family
+   `m_name` is empty, so the rename changed no record, and
+   `apply_family_edits` raised "the ops produced no record changes". The
+   route then delivered nothing. `set Length to 20 ft; rename family to
+   MyConduit` (either order) and the trapeze equivalent all raised.
+   - Fix: `apply_family_edits` treats a family rename that changes no record
+     as PartAtom plus file name only. It copies the bytes and patches
+     PartAtom. This also fixes `rename the family to X` alone on a generated
+     family, which raised on the base too.
+   - The post-rebuild step is now `_apply_rest`, wrapped so that any exception
+     falls back to the value path for the whole edit. The reason is stated in
+     `regeneration.reason` and in the value-only caveat. Nothing is raised and
+     nothing is withheld.
+   - Tests cover both orders on the conduit and the trapeze, a rename alone,
+     a type rename in both orders, and an injected post-rebuild failure.
+2. **Matrix overclaim (blocking).** The cell claimed Width / Depth / Height
+   drives for the fan-powered box, which labels none, and Depth for the fan
+   coil, which labels Length / Width / Height.
+   - Fix: the claim is generated from `matrix.EDIT_DRIVES_909`, which lists
+     each family's builder and its labelled captions, measured.
+   - A parametrized test builds every listed family at its defaults and
+     asserts that `label_report`'s captions equal the claim, so the claim
+     cannot drift. It also asserts that the archetype claims are the
+     generator's own drivers.
+   - The fan-powered box is named as labelling no dimension.
+   - The doc row in `PERMUTATION-MATRIX.md` is updated to match.
+3. **Silent rename on rebuild (nit).** The rebuild kept the auto name only
+   when the user had chosen one, so "…30 in…" became "…36 in…" and reloaded as
+   a second family.
+   - Fix: names are always kept (see Name rule).
+   - The byte-identity claim is restated as "identical to a direct build at
+     the new value WITH the input's name". The tests build the direct control
+     with the input's family name.
+4. **Stale LENGTH_CAVEAT (nit).** "Regenerate from the facts sidecar" is gone;
+   the lane never read that sidecar.
+   - There is one geometry statement per edit. A rebuilt edit gets
+     `REBUILT_NOTE`. A value-only edit of a labelling parameter gets only the
+     full `VALUE ONLY` caveat, and its unit note drops the short caveat.
+   - An unlabelled length keeps the short caveat.
+   - The pinned strings in `test_edit_family_mass_659` / `_size_668` were
+     updated.
+5. **Caption grammar (nit).** A caption match must be followed by an explicit
+   delimiter (`to` / `=` / `of type`).
+   - Otherwise, a clause with an explicit delimiter names its parameter as
+     everything before that delimiter. `set Material Finish to galvanized`
+     names `Material Finish`, which is refused by name, and no longer sets
+     Material = "Finish to galvanized".
+   - Only then does a caption followed by a bare value apply
+     (`set Width 600 mm`).
+6. **Cleanups.**
+   - The `test_conftest_scaffolding.py` key spacing is restored.
+   - **Conduit diameters.** The conduit's `Nominal Diameter` and
+     `Outside Diameter` both map to the one archetype dimension
+     `diameter_in`. Both are recovered as inputs, and an edit of either
+     rebuilds the same diameter. Only `Outside Diameter` labels a dimension.
+     If one edit sets both to different values, the later op wins.
+
 ## BRANCH STATE
 
-Branch `fix-909` off `28760f6`, local commits only (not pushed, per the
+Branch `fix-909`, pushed as **PR #993** (head `33853db` at review). The review
+fixes are commits on `fix-993` on top of that head, local, not pushed (per the
 engineer brief).
 
 **Files written**
 - `src/rvt/convert/family_regen.py` (new): `label_report`,
   `formula_followups` / `formula_dependents`, `caption_map`, `recover`,
-  `plan_rebuild`, `rebuild`, `value_only_caveat`, `derived_caveat`
+  `plan_rebuild`, `rebuild` (names kept; `name_note`), `value_only_caveat`,
+  `derived_caveat`
 - `src/rvt/convert/modify_family.py`:
   - the module docstring's geometry paragraph;
-  - `LENGTH_CAVEAT` / `REBUILT_NOTE`;
+  - `LENGTH_CAVEAT` (stale advice removed) / `REBUILT_NOTE`;
+  - one geometry statement per edit;
   - the inventory's `formula` flag, and the refusal of a formula parameter;
-  - `_match_set` (the multi-word caption grammar);
+  - `_match_set` / `_RE_SET_DELIM` (the multi-word caption grammar, with a
+    delimiter required);
   - `_formula_followups` in `apply_family_edits`;
-  - `_apply_geometry_true` / `_value_path_caveats` / `_rebind_ops` in
-    `modify_family`;
+  - the PartAtom-only family rename;
+  - `_apply_geometry_true` / `_apply_rest` (with a value-path fallback) /
+    `_value_path_caveats` / `_rebind_ops` in `modify_family`;
   - the `labels` gate.
-- `plugin/lib/src/rvt/convert/{family_regen,modify_family}.py`: sync mirrors
-- `tests/test_edit_drives_909.py` (new, 19 tests) and
+- `src/rvt/frontdoor/matrix.py`: `EDIT_DRIVES_909` + `_EDIT_DRIVES_CLAIM`
+  (the `rfa_modify` cell's caveat, generated from measured data) and the
+  #909 evidence; `docs/product/PERMUTATION-MATRIX.md` row 84
+- `plugin/lib/src/rvt/{convert/family_regen,convert/modify_family,frontdoor/matrix}.py`:
+  sync mirrors
+- `tests/test_edit_drives_909.py` (new) and
   `tests/ci_shard.d/909-edit-drives.txt`
 - `tests/test_conftest_scaffolding.py`: `test_edit_drives_909` added to
   `ADOPTERS`
-- `tests/test_edit_family_mass_659.py`: the transformer `Width=600 mm` control
-  row now also expects the #909 caveat (Width labels the transformer's drive)
+- `tests/test_edit_family_mass_659.py`, `tests/test_edit_family_size_668.py`:
+  the pinned length caveat and the transformer `Width=600 mm` control row
 - this fragment
 
-**Gates** (RVT_SKIP_LARGE=1)
+**Gates at review-fix head** (RVT_SKIP_LARGE=1)
+- `test_edit_drives_909` alone: 44 passed (19 original + 25 new or
+  parametrized cases).
+- One run of 15 files: 426 passed / 30 skipped (skips are samples-gated). The
+  files are `test_edit_drives_909`, `test_convert`, `test_convert_combo`,
+  `test_edit_family_marks_678` / `_mass_659` / `_size_668`,
+  `test_edit_own_release`, `test_edit_status`, `test_edit_text_release`,
+  `test_router`, `test_router_load_release`, `test_router_release`,
+  `test_matrix_evidence_981`, `test_matrix_evidence_984`, and
+  `test_conftest_scaffolding`.
+- `test_plugin_sync`: 9 passed.
+- `tools/sync_plugin.py`, then `--check`: in sync.
+- `validate_plugin.py`: PASS (25).
+- `check_portable_paths.py`: ok (3485).
+- `tools/route.py matrix`: the evidence self-audit is clean (25 cells, 27
+  stages, 5 chains).
+- `tools/self_battery.py`: 27/27 PASS.
+
+**Gates at the original head `33853db`** (for the record)
 - `test_edit_drives_909` + `test_conftest_scaffolding`: 40 passed.
-- The other drive and edit suites, 363 passed / 23 skipped. Skips are
-  samples-gated. The files:
-  - drive laws: `test_drive_law_904`, `test_height_law_787`, `test_diameter_916`,
-    `test_trapeze_nested_917`, `test_pset_drive_714`;
-  - matrix: `test_matrix_evidence_981` (`_984` is absent on this base);
-  - convert and manipulate: `test_convert`, `test_manipulate`,
-    `test_rewrite_entries_646`, `test_rvt_to_ifc_param_carrier`;
-  - families and edits: `test_transformer_mass_630`, `test_standards_apply_safe`,
-    `test_edit_family_size_668` / `_marks_678` / `_mass_659`,
-    `test_modify_family_carrier`, `test_convert_combo`.
-- `test_router`, `test_router_load_release`, `test_router_release`,
-  `test_famgen_factory`, `test_plugin_sync`: 241 passed / 17 skipped.
-- `tools/sync_plugin.py`, then `--check`: in sync. `validate_plugin.py`: PASS
-  (25). `check_portable_paths.py`: ok (3479). `tools/self_battery.py`: 27/27
-  PASS.
+- The other drive and edit suites: 363 passed / 23 skipped (skips are
+  samples-gated).
+- Router and factory suites with `test_plugin_sync`: 241 passed / 17 skipped.
+- `self_battery` 27/27 PASS.
 
 **Shipped vs staged:** nothing staged. No viewer or desktop batch was run. The
 rebuilt and value-only families are validator-gated, not certified.

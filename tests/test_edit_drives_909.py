@@ -41,6 +41,7 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from conftest import HAVE_SCHEMA, context_constants, ladder_constants   # noqa: E402
 from rvt.convert import family_regen as FR                              # noqa: E402
 from rvt.convert import modify_family as MF                             # noqa: E402
+from rvt.frontdoor import matrix as MX                                  # noqa: E402
 
 needs_schema = pytest.mark.skipif(not HAVE_SCHEMA, reason="class schema cache absent")
 
@@ -85,15 +86,24 @@ def _write(prod, path) -> str:
     return path
 
 
-def _archetype(d, product="strut_trapeze", name="x.rfa", **kw) -> str:
+def _archetype(d, product="strut_trapeze", name="x.rfa", family_name=None, **kw) -> str:
     from rvt.famgen import factory as F
+    if family_name is not None:
+        kw["name"] = family_name
     return _write(F.make_archetype(product=product, **kw), os.path.join(str(d), name))
 
 
-def _direct(d, stem, **kw) -> str:
+def _direct(d, stem, src=None, **kw) -> str:
     """The family built AT the new value directly, written under the edit's
-    output name (the one path-dependent byte is BasicFileInfo's save name)."""
+    output name (the one path-dependent byte is BasicFileInfo's save name) and
+    -- given ``src`` -- under the INPUT's family name, which the rebuild keeps."""
+    if src is not None:
+        kw["family_name"] = _family_name(src)
     return _archetype(os.path.join(str(d), "direct"), name=stem + ".rfa", **kw)
+
+
+def _family_name(path) -> str:
+    return MF.inventory_family(str(path)).family_name
 
 
 def _edit(src, edit, d, stem="E"):
@@ -170,16 +180,20 @@ def test_strut_length_moves_its_planes_dimension_edges_and_followers(trapeze, tm
     # Rod Spacing is a value, never a driver: the generator re-derives it, so
     # the rods keep their Rod Inset from the moved ends
     assert rg["re_derived_by_generator"] == ["rod_spacing_in"]
-    assert rg["name"] == "Strut Trapeze 36 in 2 Tier"
+    # the input's name is KEPT (a renamed family would reload as a second one)
+    assert rg["name"] == "Strut Trapeze 30 in 2 Tier" == _family_name(out)
+    assert MF.inventory_family(out).type_names == ["Strut Trapeze 30 in 2 Tier"]
     after = _labels(out, "Strut Length")
     assert [l["stored"] for l in after] == [pytest.approx(3.0)] and after[0]["agree"]
     assert sorted(abs(x) for x in _planes_of(out, after[0]["dim"])) == pytest.approx([1.5, 1.5])
     assert _current(out, "Strut Length") == pytest.approx(3.0)
     assert _current(out, "Rod Spacing") == pytest.approx(30 * IN)           # 36 - 2 x 3
     _assert_geometry_true(rec, out)
-    assert _sha(out) == _sha(_direct(tmp_path, "T36", dimensions={"strut_length_in": 36}))
+    assert _sha(out) == _sha(_direct(tmp_path, "T36", src=trapeze,
+                                     dimensions={"strut_length_in": 36}))
     assert rec["degradations"] == [
-        "Strut Length: 36 in -> 3 ft" + MF.REBUILT_NOTE]
+        "Strut Length: 36 in -> 3 ft" + MF.REBUILT_NOTE, rg["name_note"]]
+    assert "'Strut Trapeze 36 in 2 Tier'" in rg["name_note"] and "kept" in rg["name_note"]
 
 
 @needs_schema
@@ -200,7 +214,7 @@ def test_a_height_drive_rebuilds(trapeze, tmp_path):
     assert rec["regeneration"]["route"] == "regenerated"
     assert [l["stored"] for l in _labels(out, "Tier Spacing")] == [pytest.approx(1.5)]
     _assert_geometry_true(rec, out)
-    assert _sha(out) == _sha(_direct(tmp_path, "TS18", dimensions={"tier_spacing_in": 18}))
+    assert _sha(out) == _sha(_direct(tmp_path, "TS18", src=trapeze, dimensions={"tier_spacing_in": 18}))
 
 
 @needs_schema
@@ -212,7 +226,7 @@ def test_a_diameter_drive_rebuilds(trapeze, tmp_path):
     assert [l["class"] for l in rods] == ["RadialDim", "RadialDim"]
     assert all(l["stored"] == pytest.approx(0.5 * IN) for l in rods)
     _assert_geometry_true(rec, out)
-    assert _sha(out) == _sha(_direct(tmp_path, "RD", dimensions={"rod_diameter_in": 0.5}))
+    assert _sha(out) == _sha(_direct(tmp_path, "RD", src=trapeze, dimensions={"rod_diameter_in": 0.5}))
 
 
 @needs_schema
@@ -222,7 +236,7 @@ def test_a_follow_offset_rebuilds_and_rod_spacing_is_re_derived(trapeze, tmp_pat
     assert _current(out, "Strut Length") == pytest.approx(2.5)
     assert _current(out, "Rod Spacing") == pytest.approx(22 * IN)
     _assert_geometry_true(rec, out)
-    assert _sha(out) == _sha(_direct(tmp_path, "RI4", dimensions={"rod_inset_in": 4}))
+    assert _sha(out) == _sha(_direct(tmp_path, "RI4", src=trapeze, dimensions={"rod_inset_in": 4}))
 
 
 @needs_schema
@@ -242,7 +256,7 @@ def test_other_archetypes_rebuild_through_their_own_registries(tmp_path, product
     # a prompt that states one size, never for an edit)
     rg = rec["regeneration"]
     assert rg["spec_built"] == dict(rg["spec_recovered"], **{k: float(v) for k, v in dims.items()})
-    assert _sha(out) == _sha(_direct(tmp_path, product, product=product,
+    assert _sha(out) == _sha(_direct(tmp_path, product, src=src, product=product,
                                      dimensions=rg["spec_built"]))
 
 
@@ -258,7 +272,7 @@ def test_the_nested_hardware_trapeze_rebuilds_with_its_nested_children(tmp_path)
     _assert_geometry_true(rec, out)
     for unit in CL.nested_units(out).values():
         assert CL.check_file(out, unit=unit) == []
-    assert _sha(out) == _sha(_direct(tmp_path, "NRD", nested_hardware=True,
+    assert _sha(out) == _sha(_direct(tmp_path, "NRD", src=src, nested_hardware=True,
                                      dimensions={"rod_diameter_in": 0.5}))
 
 
@@ -270,11 +284,11 @@ def test_an_edit_and_a_value_edit_together_and_a_second_edit_of_the_output(trape
     _assert_geometry_true(rec, out)
     # the rebuilt output is itself re-editable by rebuild ... once its text edit is
     # gone it reproduces; with the text edit on it does NOT (see the unsupported rows)
-    rec2, out2 = _edit(_direct(tmp_path, "S42", dimensions={"strut_length_in": 42}),
-                       "set Strut Length to 24 in", tmp_path, "S24")
+    s42 = _direct(tmp_path, "S42", dimensions={"strut_length_in": 42})
+    rec2, out2 = _edit(s42, "set Strut Length to 24 in", tmp_path, "S24")
     assert rec2["regeneration"]["route"] == "regenerated"
     _assert_geometry_true(rec2, out2)
-    assert _sha(out2) == _sha(_direct(tmp_path, "S24", dimensions={"strut_length_in": 24}))
+    assert _sha(out2) == _sha(_direct(tmp_path, "S24", src=s42, dimensions={"strut_length_in": 24}))
 
 
 # --------------------------------------------------------------------------- formula inputs
@@ -340,7 +354,9 @@ def test_a_family_that_does_not_reproduce_gets_the_explicit_caveat(trapeze, tmp_
     _rec0, edited = _edit(trapeze, "set Material to aluminum", tmp_path, "MAT")
     rec, out = _edit(edited, "set Strut Length to 36 in", tmp_path, "MAT36")
     assert rec["regeneration"]["route"] == "value-only"
-    assert rec["degradations"][0] == "Strut Length: 36 in -> 3 ft" + MF.LENGTH_CAVEAT
+    # one geometry statement per edit: the unit note drops its short caveat for
+    # the full VALUE ONLY statement that follows
+    assert rec["degradations"][0] == "Strut Length: 36 in -> 3 ft"
     cav = rec["degradations"][1]
     assert cav.startswith("Strut Length: VALUE ONLY -- this parameter labels 1 dimension(s)")
     assert "still measure 2.5 ft" in cav and "did NOT move" in cav
@@ -411,3 +427,133 @@ def test_a_multi_word_caption_parses_in_the_text_grammar():
                              ('set Width of type "A B" 2 ft', "Width", "2 ft")):
         m = MF._match_set(_Inv, clause)
         assert (m.group("cap"), m.group("val")) == (cap, val), clause
+
+
+# --------------------------------------------------------------------------- review fixes (PR #993)
+
+@pytest.fixture(scope="module")
+def conduit():
+    if not HAVE_SCHEMA:
+        pytest.skip("class schema cache absent")
+    d = tempfile.mkdtemp(prefix="t909cd_")
+    try:
+        yield _archetype(d, product="conduit", name="conduit.rfa")
+    finally:
+        shutil.rmtree(d, True)
+
+
+@needs_schema
+@pytest.mark.parametrize("which, edit, new, cap, want", [
+    ("conduit", "set Length to 20 ft; rename family to MyConduit", "MyConduit", "Length", 20.0),
+    ("conduit", "rename family to MyConduit; set Length to 20 ft", "MyConduit", "Length", 20.0),
+    ("trapeze", "set Strut Length to 36 in; rename family to MyTrapeze", "MyTrapeze",
+     "Strut Length", 3.0),
+    ("trapeze", "rename the family to MyTrapeze; set Strut Length to 36 in", "MyTrapeze",
+     "Strut Length", 3.0),
+])
+def test_a_rebuild_with_a_family_rename_delivers_both(request, tmp_path, which, edit, new, cap, want):
+    """Hard rule 1 (review of #993): a generated family's m_name is empty, so the
+    rename rides on PartAtom + the file name after the rebuild -- never 'no
+    record changes' and nothing delivered."""
+    src = request.getfixturevalue(which)
+    rec = MF.modify_family(src, edit, str(tmp_path / "out"))
+    out = rec["files"]["rfa"]
+    assert os.path.basename(out) == new + ".rfa" and os.path.isfile(out)
+    assert rec["regeneration"]["route"] == "regenerated"
+    assert _family_name(out) == new
+    assert _current(out, cap) == pytest.approx(want)
+    assert rec["validation"]["rfa"]["self_checks_ok"]
+    assert all(r["ok"] for r in rec["validation"]["rfa"]["reread"])
+    assert rec["validation"]["rfa"]["labels"]["disagree"] == []
+    # the user renamed it: no "rename it to change the name" note
+    assert not any("reloads over the original" in n for n in rec["degradations"])
+
+
+@needs_schema
+def test_a_rename_alone_of_a_generated_family_is_delivered(conduit, tmp_path):
+    rec = MF.modify_family(conduit, "rename the family to OnlyRename", str(tmp_path / "o"))
+    out = rec["files"]["rfa"]
+    assert os.path.isfile(out) and _family_name(out) == "OnlyRename"
+    assert rec["apply"]["record_changes"] == {} and rec["apply"]["partatom"]["changed"]
+    assert rec["validation"]["rfa"]["self_checks_ok"]
+
+
+@needs_schema
+@pytest.mark.parametrize("edit, cap, want", [
+    ("set Strut Length to 36 in; rename the type to TT", "Strut Length", 3.0),
+    ("rename the type to TT; set Strut Length to 36 in", "Strut Length", 3.0),
+])
+def test_a_rebuild_with_a_type_rename_delivers_both(trapeze, tmp_path, edit, cap, want):
+    rec = MF.modify_family(trapeze, edit, str(tmp_path / "o"))
+    out = rec["files"]["rfa"]
+    assert rec["regeneration"]["route"] == "regenerated"
+    assert MF.inventory_family(out).type_names == ["TT"]
+    assert _current(out, cap) == pytest.approx(want)
+    assert rec["validation"]["rfa"]["self_checks_ok"]
+
+
+@needs_schema
+def test_a_failure_after_the_rebuild_falls_back_to_the_value_path_and_says_why(
+        trapeze, tmp_path, monkeypatch):
+    """Hard rule 1: whatever goes wrong applying the other ops to the rebuilt
+    file, the edit is delivered by value with the reason stated -- never raised."""
+    def boom(*_a, **_k):
+        raise RuntimeError("injected")
+    monkeypatch.setattr(MF, "_apply_rest", boom)
+    rec = MF.modify_family(trapeze, "set Strut Length to 36 in; rename family to MyT",
+                           str(tmp_path / "o"))
+    out = rec["files"]["rfa"]
+    assert os.path.isfile(out) and _family_name(out) == "MyT"
+    rg = rec["regeneration"]
+    assert rg["route"] == "value-only" and "RuntimeError: injected" in rg["reason"]
+    assert "delivered by value instead" in rg["reason"]
+    assert _current(out, "Strut Length") == pytest.approx(3.0)
+    cav = [n for n in rec["degradations"] if n.startswith("Strut Length: VALUE ONLY")]
+    assert len(cav) == 1 and "injected" in cav[0]
+
+
+def test_a_caption_must_be_followed_by_a_delimiter():
+    """Review of #993: ``set Material Finish to galvanized`` on a family with
+    both Material and Finish names the parameter 'Material Finish' (refused by
+    name), never Material = 'Finish to galvanized'."""
+    class _Inv:
+        params = [{"caption": c} for c in ("Material", "Finish", "Width")]
+    m = MF._match_set(_Inv, "set Material Finish to galvanized")
+    assert (m.group("cap"), m.group("val")) == ("Material Finish", "galvanized")
+    m = MF._match_set(_Inv, "set Material to galvanized")
+    assert (m.group("cap"), m.group("val")) == ("Material", "galvanized")
+    m = MF._match_set(_Inv, "set Finish galvanized")
+    assert (m.group("cap"), m.group("val")) == ("Finish", "galvanized")
+    m = MF._match_set(_Inv, "set Width=2 ft")
+    assert (m.group("cap"), m.group("val")) == ("Width", "2 ft")
+
+
+@needs_schema
+def test_an_undelimited_two_caption_clause_is_refused_by_name(conduit):
+    inv = MF.inventory_family(conduit)
+    assert {"Material", "Finish"} <= {p["caption"] for p in inv.params}
+    with pytest.raises(MF.FamilyEditError, match="no parameter 'Material Finish'"):
+        MF.parse_family_edit("set Material Finish to galvanized", inv)
+
+
+@needs_schema
+@pytest.mark.parametrize("row", MX.EDIT_DRIVES_909, ids=lambda r: r[0])
+def test_the_matrix_claims_exactly_the_labelled_drives_of_each_default_build(tmp_path, row):
+    """The prompt+rfa->rfa cell's driver list (matrix.EDIT_DRIVES_909) equals
+    family_regen.label_report of each family's default build -- so the claim
+    cannot drift from what the generators write."""
+    fam, builder, kw, caps, rebuilt = row
+    p = _write(MX._resolve(builder)(**kw), str(tmp_path / "f.rfa"))
+    assert sorted({l["caption"] for l in FR.label_report(p)}) == sorted(caps), fam
+    if rebuilt and builder.endswith(":make_archetype"):
+        drivers = set(FR.caption_map(kw["product"])["drivers"])
+        assert set(caps) <= drivers, fam
+
+
+@needs_schema
+def test_the_fan_powered_box_labels_no_dimension_so_the_matrix_does_not_claim_one(tmp_path):
+    from rvt.famgen import fan_powered as FP
+    p = _write(FP.make_fan_powered_box(), str(tmp_path / "fpb.rfa"))
+    assert FR.label_report(p) == []
+    assert not any("fan_powered" in b for _f, b, _k, _c, _r in MX.EDIT_DRIVES_909)
+    assert "fan-powered box labels no dimension" in MX._EDIT_DRIVES_CLAIM

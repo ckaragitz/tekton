@@ -260,9 +260,10 @@ _INTERNAL_AS_GIVEN = "(Revit's internal unit -- stored as given)"
 #: means a bare number is stored as given, exactly as before this table.
 #: the length note's geometry caveat -- true on the VALUE path; an edit the
 #: family's generator REBUILDS (#909, rvt.convert.family_regen) swaps it for
-#: :data:`REBUILT_NOTE`
-LENGTH_CAVEAT = (" (CAVEAT: type-table value only; the authored solid is not re-derived -- "
-                 "regenerate from the facts sidecar for geometry-true resizing)")
+#: :data:`REBUILT_NOTE`, and a value-only edit of a parameter that LABELS a
+#: dimension drops it for the fuller ``VALUE ONLY`` statement (one geometry
+#: statement per edit)
+LENGTH_CAVEAT = " (CAVEAT: type-table value only; the authored solid is not re-derived)"
 REBUILT_NOTE = (" (geometry REBUILT by the family's own generator at this value (#909): "
                 "the reference planes, the labelled dimension(s), the locked edges and "
                 "faces and the followers agree with it -- no desktop verdict, hard rule 4)")
@@ -514,13 +515,29 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
 _RE_SET_LEAD = re.compile(r"^set\s+(?:the\s+)?", re.I)
 
 
+#: a SET clause whose parameter is closed by an EXPLICIT delimiter (``to`` /
+#: ``=``, optionally after ``of type T``): the parameter is everything before it
+_RE_SET_DELIM = re.compile(
+    r"^set\s+(?:the\s+)?(?P<cap>[A-Za-z][A-Za-z0-9 _-]*?)"
+    r"(?:\s+of\s+type\s+(?:\"(?P<typeq>[^\"]+)\"|'(?P<typeq2>[^']+)'"
+    r"|(?P<type>[^\"'\s]+)))?"
+    r"(?:\s+to\s+|\s*=\s*)(?P<val>.+?)$", re.I)
+_RE_EXPLICIT = re.compile(r"^(?:to\s|=|of\s+type\s)", re.I)
+
+
 def _match_set(inv: FamilyInventory, clause: str):
-    """``_RE_SET`` with the parameter named by the family's OWN captions first:
-    the longest caption the clause starts with is the parameter, so a
-    multi-word caption (``set Strut Length to 36 in``) is never cut at its
-    first word by the lazy pattern (#909).  The caption is matched in place of
-    a one-word stand-in; otherwise the plain pattern decides, as before."""
+    """``_RE_SET`` with the parameter named by the family's OWN captions first
+    (#909), so a multi-word caption (``set Strut Length to 36 in``) is never
+    cut at its first word by the lazy pattern.  Order: (1) the longest caption
+    the clause starts with that is followed by an EXPLICIT delimiter (``to`` /
+    ``=`` / ``of type``); (2) a clause with an explicit delimiter names the
+    parameter as everything before it -- ``set Material Finish to galvanized``
+    is the parameter ``Material Finish`` (refused by name if the family has
+    none), never ``Material`` = "Finish to galvanized"; (3) the longest
+    caption followed by a bare value (``set Width 600 mm``); (4) the plain
+    pattern, as before."""
     lead = _RE_SET_LEAD.match(clause)
+    caps: List[Tuple[str, str]] = []
     if lead:
         body = clause[lead.end():]
         low = body.lower()
@@ -528,9 +545,19 @@ def _match_set(inv: FamilyInventory, clause: str):
             c = cap.lower()
             if c and low.startswith(c) and (len(low) == len(c) or not (low[len(c)].isalnum()
                                                                      or low[len(c)] == "_")):
-                m = _RE_SET.match("set P " + body[len(cap):].lstrip())
-                if m is not None:
-                    return _CaptionMatch(m, cap)
+                caps.append((cap, body[len(cap):].lstrip()))
+    for cap, rest in caps:
+        if _RE_EXPLICIT.match(rest):
+            m = _RE_SET.match("set P " + rest)
+            if m is not None:
+                return _CaptionMatch(m, cap)
+    m = _RE_SET_DELIM.match(clause)
+    if m is not None:
+        return m
+    for cap, rest in caps:
+        m = _RE_SET.match("set P " + rest)
+        if m is not None:
+            return _CaptionMatch(m, cap)
     return _RE_SET.match(clause)
 
 
@@ -668,6 +695,18 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
             raise FamilyEditError(f"unknown op {kind!r}")
 
     formula_notes = _formula_followups(inv, fv, pairs, ops, changes)
+    if not changes and new_family_name is not None:
+        # a generated family's self-Family m_name is empty: a family rename
+        # alone changes no record -- the name lives in PartAtom (+ the file
+        # name), so the edit is a byte copy with PartAtom kept in step
+        import shutil
+        shutil.copyfile(inv.path, out_path)
+        rec = {"applied": applied, "record_changes": {},
+               "commit": {"out": _relp(out_path), "blocks": 0,
+                          "note": "no record changes (the family name lives in "
+                                  "PartAtom and the file name)"}}
+        rec["partatom"] = _patch_partatom(out_path, partatom_renames)
+        return rec
     if not changes:
         raise FamilyEditError("the ops produced no record changes")
     plan = M.modify_element(doc, fam, changes, kind="family-edit",
@@ -807,6 +846,13 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
         _finish(rec, out_dir, t0)
         raise
     reread_ops = parsed["ops"]
+    # one geometry statement per edit: a value-only edit of a LABELLING
+    # parameter carries the full VALUE ONLY caveat, so its unit note drops
+    # the short one
+    full = {g.split(": VALUE ONLY", 1)[0] for g in geometry if ": VALUE ONLY" in g}
+    parsed["notes"] = [n[:-len(LENGTH_CAVEAT)]
+                       if n.endswith(LENGTH_CAVEAT) and n.split(":", 1)[0] in full else n
+                       for n in parsed.get("notes") or []]
     if regen is not None:
         rec["regeneration"] = regen
         if regen.get("route") == "regenerated":
@@ -858,6 +904,9 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
         rec["degradations"].append(n)
     for n in geometry:
         rec["degradations"].append(n)
+    if (regen is not None and regen.get("name_note")
+            and not any(o["op"] == "rename-family" for o in parsed["ops"])):
+        rec["degradations"].append(regen["name_note"])
     _finish(rec, out_dir, t0)
     return rec
 
@@ -903,36 +952,59 @@ def _apply_geometry_true(inv: FamilyInventory, ops: Sequence[dict], out_path: st
                                       derived=plan.derived, candidates=plan.candidates)
             else:
                 regen["captions"] = sorted(plan.changes)
-                caveats = [FR.derived_caveat(plan.recovered, o) for o in plan.derived]
-                if plan.rest:
-                    inv2 = inventory_family(out_path)
-                    tmp = os.path.join(work, "rest", os.path.basename(out_path))
-                    os.makedirs(os.path.dirname(tmp), exist_ok=True)
-                    rest = []
-                    for o in plan.rest:
-                        if o.get("op") == "set-param":
-                            p = inv2.param_by_caption(o["caption"])
-                            if p is None:
-                                raise FamilyEditError(f"{o['caption']}: not in the rebuilt family")
-                            o = dict(o, param_id=p["param_id"], carrier=p["carrier"])
-                        elif o.get("op") == "rename-type":
-                            o = dict(o, old=inv2.type_names[int(o["type_index"])])
-                        rest.append(o)
-                    apply_rec = apply_family_edits(inv2, rest, tmp)
-                    shutil.move(tmp, out_path)
-                    apply_rec["commit"]["out"] = _relp(out_path)
+                try:
+                    apply_rec = _apply_rest(plan, ops, out_path, work)
+                except Exception as exc:                       # noqa: BLE001 -- hard rule 1
+                    # the rebuild stood, the other ops could not ride on it:
+                    # deliver the whole edit by VALUE instead, and say why
+                    plan = FR.RebuildPlan(
+                        False, "the family was rebuilt, but the edit's other ops could "
+                               f"not be applied to the rebuilt file ({type(exc).__name__}: "
+                               f"{exc}) -- the whole edit is delivered by value instead",
+                        recovered=plan.recovered, derived=plan.derived,
+                        candidates=plan.candidates)
+                    try:
+                        os.remove(out_path)
+                    except OSError:
+                        pass
                 else:
-                    apply_rec = {"applied": list(ops), "record_changes": {},
-                                 "commit": {"out": _relp(out_path), "blocks": None}}
-                apply_rec["rebuilt"] = True
-                apply_rec["applied"] = list(ops)
-                return apply_rec, regen, caveats
+                    caveats = [FR.derived_caveat(plan.recovered, o) for o in plan.derived]
+                    return apply_rec, regen, caveats
         apply_rec = apply_family_edits(inv, ops, out_path)
         regen = {"route": "value-only", "reason": plan.reason,
                  "candidates": plan.candidates}
         return apply_rec, regen, _value_path_caveats(inv, ops, plan)
     finally:
         shutil.rmtree(work, ignore_errors=True)
+
+
+def _apply_rest(plan, ops: Sequence[dict], out_path: str, work: str) -> Dict[str, Any]:
+    """The ops the rebuild did not carry (renames, non-input parameters),
+    applied by value on top of the rebuilt file at ``out_path``."""
+    import shutil
+    if plan.rest:
+        inv2 = inventory_family(out_path)
+        tmp = os.path.join(work, "rest", os.path.basename(out_path))
+        os.makedirs(os.path.dirname(tmp), exist_ok=True)
+        rest = []
+        for o in plan.rest:
+            if o.get("op") == "set-param":
+                p = inv2.param_by_caption(o["caption"])
+                if p is None:
+                    raise FamilyEditError(f"{o['caption']}: not in the rebuilt family")
+                o = dict(o, param_id=p["param_id"], carrier=p["carrier"])
+            elif o.get("op") == "rename-type":
+                o = dict(o, old=inv2.type_names[int(o["type_index"])])
+            rest.append(o)
+        apply_rec = apply_family_edits(inv2, rest, tmp)
+        shutil.move(tmp, out_path)
+        apply_rec["commit"]["out"] = _relp(out_path)
+    else:
+        apply_rec = {"applied": list(ops), "record_changes": {},
+                     "commit": {"out": _relp(out_path), "blocks": None}}
+    apply_rec["rebuilt"] = True
+    apply_rec["applied"] = list(ops)
+    return apply_rec
 
 
 def _value_path_caveats(inv: FamilyInventory, ops: Sequence[dict], plan) -> List[str]:

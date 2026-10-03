@@ -799,6 +799,68 @@ _CIRCUITS = ("feeder CIRCUITS are AUTHORED natively on the genesis base "
 _CATALOG = ("family generation covers the catalog-backed kinds (panelboard / "
             "transformer / luminaire / wiring device / the honest house switchboard); "
             "anything without facts is REFUSED by name, never invented -- EXCEPT two lanes: kind='generic_model', where the caller SUPPLIES the geometry and every dimension is reported as GIVEN with its source, and kind='archetype' (a prompt naming a product the registry generates), where the geometry is GENERATED at standard nominal sizes for the product class and every dimension is reported nominal or given")
+# --- the prompt+rfa->rfa cell's dimension-edit claim (#909) ---------------
+#: every generated family the edit cell names, with the builder that writes its
+#: DEFAULT form and the captions that LABEL a dimension in that build -- exactly
+#: ``rvt.convert.family_regen.label_report`` of the default build (measured, and
+#: held equal by tests/test_edit_drives_909.py, so the claim cannot drift).
+#: ``rebuilt`` = an edit of those captions is applied by the generator rebuild;
+#: otherwise it is value-only with the explicit caveat.  A family with no
+#: labelled dimension (the fan-powered box today) is deliberately absent.
+EDIT_DRIVES_909: Tuple[Tuple[str, str, Dict[str, Any], Tuple[str, ...], bool], ...] = (
+    ("strut trapeze", "rvt.famgen.factory:make_archetype", {"product": "strut_trapeze"},
+     ("Strut Length", "Rod Inset", "Strut Height", "Strut Thickness", "Washer Thickness",
+      "Tier Spacing", "Rod Below Bottom Nut", "Rod Above Top Tier", "Rod Diameter"), True),
+    ("cable tray", "rvt.famgen.factory:make_archetype", {"product": "cable_tray"},
+     ("Tray Width", "Length"), True),
+    ("strut channel", "rvt.famgen.factory:make_archetype", {"product": "strut_channel"},
+     ("Length", "Section Width"), True),
+    ("wireway", "rvt.famgen.factory:make_archetype", {"product": "wireway"},
+     ("Wireway Width", "Length"), True),
+    ("junction box", "rvt.famgen.factory:make_archetype", {"product": "junction_box"},
+     ("Box Width", "Box Height"), True),
+    ("lighting control panel", "rvt.famgen.factory:make_archetype",
+     {"product": "lighting_control_panel"},
+     ("Cabinet Width", "Cabinet Height", "Sheet Thickness"), True),
+    ("conduit", "rvt.famgen.factory:make_archetype", {"product": "conduit"},
+     ("Length", "Outside Diameter"), True),
+    ("#917 hex nut", "rvt.famgen.trapeze_nested:make_hex_nut",
+     {"start_id": 1000, "across_flats_ft": 0.046875, "height_ft": 0.02734375},
+     ("Nut Half Across Flats", "Nut Height"), True),
+    ("#917 washer", "rvt.famgen.trapeze_nested:make_washer",
+     {"start_id": 1000, "size_ft": 0.125, "thickness_ft": 0.0104166667},
+     ("Washer Size", "Washer Thickness"), True),
+    ("panelboard", "rvt.famgen.factory:make_panelboard", {}, ("Width", "Depth", "Height"), False),
+    ("transformer", "rvt.famgen.factory:make_transformer", {}, ("Width", "Depth", "Height"), False),
+    ("luminaire", "rvt.famgen.factory:make_luminaire", {}, ("Length", "Width", "Height"), False),
+    ("wiring device", "rvt.famgen.factory:make_device", {}, ("Width", "Depth", "Height"), False),
+    ("fan coil unit", "rvt.famgen.fan_coil:make_fan_coil_unit", {},
+     ("Length", "Width", "Height"), False),
+)
+
+
+def _edit_drives_text(rebuilt: bool) -> str:
+    return "; ".join(f"{fam} {' / '.join(caps)}" for fam, _b, _k, caps, r in EDIT_DRIVES_909
+                     if r is rebuilt)
+
+
+_EDIT_DRIVES_CLAIM = (
+    "a DIMENSION edit of a family OUR generators wrote is GEOMETRY-TRUE (#909) where "
+    "the generator can rebuild it: the parameters that LABEL a dimension in each "
+    "default build (measured with family_regen.label_report) -- REBUILT on edit: "
+    + _edit_drives_text(True)
+    + " (the hex nut's Nut Across Flats drives its labelled formula child Nut Half "
+    "Across Flats; the conduit's Nominal Diameter and Outside Diameter both set the "
+    "one diameter) -- an edit of a GENERATOR INPUT is applied by REBUILDING the "
+    "family from its generator, after the generator reproduced the input byte for "
+    "byte from the spec recovered from the file (rvt.convert.family_regen; "
+    "byte-identical to building at the new value under the input's own family and "
+    "type name). VALUE ONLY, with an explicit caveat naming every dimension left at "
+    "the old value: catalog equipment (" + _edit_drives_text(False) + "), IFC pset "
+    "drives (#714), a family edited since generation, foreign families, 2025/2024 "
+    "files; the fan-powered box labels no dimension. No desktop verdict exists for "
+    "an edited or rebuilt family (hard rule 4)")
+
 # --- caveats shared by the pdf (spec-sheet) cells (issue #688) -------------
 _SHEET_IS_THE_SOURCE = (
     "THE SHEET IS THE SOURCE, and that is the whole point of this cell: "
@@ -1259,28 +1321,7 @@ _CELL_LIST: List[Cell] = [
           "PARTIAL on FOREIGN Revit-authored .rfa files: inventory + parse "
           "work, the COMMIT is blocked by the ElemTable GraveyardRec codec "
           "gap (rvt.stream_encoders) -- refused by name, nothing corrupted",
-          "a DIMENSION edit of a family OUR generators wrote is GEOMETRY-TRUE "
-          "(#909): generated families carry driving constraint graphs -- "
-          "archetypes (rvt.famgen.archetypes drives/heights/diameters/runs): "
-          "strut trapeze Strut Length, Rod Inset (rods/washers/nuts follow), "
-          "Tier Spacing, Strut Height, Strut Thickness, Washer Thickness, Rod "
-          "Above Top Tier, Rod Below Bottom Nut, Rod Diameter; cable tray Tray "
-          "Width, Length; strut channel Section Width, Length; wireway Wireway "
-          "Width, Length; junction box Box Width, Box Height; lighting control "
-          "panel Cabinet Width, Cabinet Height, Sheet Thickness; conduit Outside "
-          "Diameter, Length; the #917 hex nut Nut Across Flats (through the "
-          "formula Nut Half Across Flats) and Nut Height, the washer Washer "
-          "Size / Thickness; catalog equipment (panelboard, transformer, "
-          "luminaire, device, fan coil, fan-powered box) Width / Depth / Height "
-          "(luminaire Length / Width / Height); IFC pset drives (#714) -- and an "
-          "edit of a GENERATOR INPUT is applied by REBUILDING the family from "
-          "its generator, after the generator reproduced the input byte for "
-          "byte from the spec recovered from the file (rvt.convert.family_regen; "
-          "byte-identical to building at the new value). Not rebuilt -- catalog "
-          "equipment, IFC-built families, a family edited since generation, "
-          "foreign families, 2025/2024 files: the value changes and an explicit "
-          "caveat names every dimension left at the old value. No desktop "
-          "verdict exists for an edited or rebuilt family (hard rule 4)",
+          _EDIT_DRIVES_CLAIM,
           "the edited .rfa is validator-gated, not viewer-certified (no .rfa "
           "of ours has been through the family editor's audit yet)",
           _PROOF_ONLY),
