@@ -587,6 +587,9 @@ def _match_set_inner(inv: FamilyInventory, clause: str):
         if _RE_EXPLICIT.match(rest):
             m = _RE_SET.match("set P " + rest)
             if m is not None:
+                if re.match(r"of\s+type\s", rest, re.I) and not (
+                        m.group("typeq") or m.group("typeq2") or m.group("type")):
+                    continue        # 'of Type 5' read as a VALUE of 'Size': not this caption (#1010)
                 return _CaptionMatch(m, cap)
     m = _RE_SET_DELIM.match(clause)
     if m is not None:
@@ -663,7 +666,35 @@ def _resolve_type_name(inv: FamilyInventory, clause: str) -> Tuple[str, Optional
     ``=`` when the tail names a type (``Finish's color of type Big One``); and
     any single word before ``to`` / ``=`` that is not exactly a type (no
     substring match -- ``T1`` never reaches ``T10``)."""
-    m = _RE_OF_TYPE_AT.search(clause)
+    # an 'of type' INSIDE one of the family's captions ('Size of Type') is
+    # the parameter's name, not a qualifier (#1009): search after it
+    start = 0
+    lead0 = _RE_SET_LEAD.match(clause)
+    type_lows = [str(n).strip().lower() for n in (getattr(inv, "type_names", None) or [])
+                 if str(n).strip()]
+    cap_lows = {str(p["caption"]).strip().lower() for p in inv.params}
+    if lead0:
+        body0 = clause[lead0.end():].lower()
+        for cap in sorted((str(p["caption"]) for p in inv.params), key=len, reverse=True):
+            c = cap.strip().lower()
+            if not (c and body0.startswith(c) and (len(body0) == len(c)
+                                                     or not body0[len(c)].isalnum())):
+                continue
+            inner = list(re.finditer(r"\s+of\s+type\b", c))
+            if not inner:
+                continue
+            # 'Size of type Big One' with captions Size / Size of Type: when the
+            # words before the caption's own 'of type' are ANOTHER caption and
+            # the words after it name a type of this family, it is that
+            # caption's qualifier -- resolve it, never skip it (#1010 review)
+            before, after = c[:inner[-1].start()].strip(), body0[inner[-1].end():].lstrip()
+            if before in cap_lows and any(
+                    after.startswith(t) and (len(after) == len(t) or not after[len(t)].isalnum())
+                    for t in type_lows):
+                break
+            start = lead0.end() + len(c)
+            break
+    m = _RE_OF_TYPE_AT.search(clause, start)
     if m is None:
         return clause, None
     types = [str(n) for n in (getattr(inv, "type_names", None) or []) if str(n).strip()]
@@ -822,12 +853,12 @@ def _op_rename_type(inv: FamilyInventory, old: Optional[str], new: str) -> dict:
         raise FamilyEditError("this family has no type-table types to rename "
                               + ("(" + "; ".join(inv.notes) + ")" if inv.notes else ""))
     if old:
-        key = str(old).strip().lower()
+        # EXACT (case-insensitive) only, as for a set (#1007): a substring
+        # ('T1' in 'T10') would rename a type the user did not name (#1009)
+        key = str(old).strip().strip("\"'").strip().lower()
         hits = [i for i, n in enumerate(inv.type_names) if n.strip().lower() == key]
-        if not hits:
-            hits = [i for i, n in enumerate(inv.type_names) if key in n.lower()]
         if len(hits) != 1:
-            raise FamilyEditError(f"type {old!r} matches {len(hits)} of "
+            raise FamilyEditError(f"type {old!r} is not exactly one of this family's types "
                                   f"{inv.type_names}: name it exactly")
         idx = hits[0]
     elif len(inv.type_names) == 1:
