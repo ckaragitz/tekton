@@ -37,6 +37,11 @@ class _D:
     type_names = ["T1"]
 
 
+class _DT:
+    params = [{"caption": c} for c in ("Distance", "Distance to Wall")]
+    type_names = ["T", "T 1"]
+
+
 class _A:
     params = [{"caption": c} for c in ("Size of Type A", "Size", "Finish")]
     type_names = ["A", "B"]
@@ -89,6 +94,15 @@ def test_refused(inv, clause, match):
     (_D, "set Distance to Wall: 3", ("Distance to Wall", "3", None)),
     (_D, "set Distance  to  Wall = 2 ft", ("Distance to Wall", "2 ft", None)),
     (_D, "set Finish = two  spaces", ("Finish", "two  spaces", None)),   # value spacing kept
+    # B1 (#1013 second review): a QUOTED type is the qualifier -- the form the
+    # two-readings refusal tells the user to write
+    (_S, 'set Size of type "Big One" 5', ("Size", "5", "Big One")),
+    (_S, 'set Size of type "Big One" = 5', ("Size", "5", "Big One")),
+    (_S, "set Size of type 'Big One' to 5", ("Size", "5", "Big One")),
+    (_S, 'set Size of type "T2" = 5', ("Size", "5", "T2")),
+    # B2: a caption typed with extra spaces resolves its type whole
+    (_DT, "set Distance to  Wall of type T 1 = 4", ("Distance to Wall", "4", "T 1")),
+    (_DT, "set Distance  to  Wall of type T 1 4", ("Distance to Wall", "4", "T 1")),
 ])
 def test_read(inv, clause, want):
     assert _read(inv, clause) == want

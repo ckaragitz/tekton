@@ -572,6 +572,7 @@ def _match_set(inv: FamilyInventory, clause: str):
     family's own type names (#1006, :func:`_resolve_type_name`), so a generated
     family's ``Conduit - Straight Run 0.75 in 10 ft`` is one name, never cut at
     its first word or folded into the value."""
+    clause = _canon_caption_span(inv, clause)
     lead_n = _RE_SET_LEAD.match(clause)
     if lead_n:
         named = re.sub(r"(?:\s+to|\s*=)$", "",
@@ -588,7 +589,8 @@ def _match_set(inv: FamilyInventory, clause: str):
                 f"no value given for {whole!r}: set {whole} = <value>")
     clause, qual = _resolve_type_name(inv, clause)
     _start, long_cap = _caption_of_type(inv, clause)
-    m = _match_set_inner(inv, clause, prefer=long_cap, typed=bool(qual))
+    # quoted ('') or resolved (name) alike: the qualifier reading is decided
+    m = _match_set_inner(inv, clause, prefer=long_cap, typed=qual is not None)
     if qual is not None and m is not None and not (
             m.group("typeq") or m.group("typeq2") or m.group("type")):
         # the clause qualified its parameter with a type the grammar did not
@@ -616,6 +618,31 @@ def _match_set(inv: FamilyInventory, clause: str):
                     "type, before the value -- set <Parameter> of type \"<type>\" = <value>; "
                     "to store the words as text, quote the value")
     return m
+
+
+def _canon_caption_span(inv: FamilyInventory, clause: str) -> str:
+    """``clause`` with the caption it starts with (the LONGEST, matched with any
+    whitespace between its words) rewritten with single spaces, so
+    every later step -- type resolution included -- sees one form
+    (``set Distance  to  Wall of type T 1 = 4`` reads as ``Distance to Wall``,
+    #1013 review).  Only the caption span changes; the value is never touched."""
+    lead = _RE_SET_LEAD.match(clause)
+    if not lead:
+        return clause
+    body = clause[lead.end():]
+    best = None
+    for cap in (str(p["caption"]) for p in inv.params):
+        words = cap.split()
+        if not words:
+            continue
+        cm = re.match(r"\s+".join(map(re.escape, words)) + r"(?![A-Za-z0-9_])", body, re.I)
+        if cm is not None and (best is None or len(" ".join(words)) > len(" ".join(best[0].split()))):
+            best = (cap, cm)
+    if best is None:
+        return clause
+    cap, cm = best
+    # single spaces between the user's OWN words (their casing kept for messages)
+    return clause[:lead.end()] + " ".join(body[:cm.end()].split()) + body[cm.end():]
 
 
 def _match_set_inner(inv: FamilyInventory, clause: str, prefer: Optional[str] = None,
@@ -727,7 +754,12 @@ def _caption_of_type(inv: FamilyInventory, clause: str) -> Tuple[int, Optional[s
         before, after = c[:inner[-1].start()].strip(), body0[inner[-1].end():].lstrip()
         if before in cap_lows:
             for t in sorted(type_lows, key=len, reverse=True):
-                if after.startswith(t) and (len(after) == len(t) or not after[len(t)].isalnum()):
+                qt = (after[:1] if after[:1] in "\"'" else "")
+                tt = qt + t + qt                      # a QUOTED type reads the same way
+                if after.startswith(tt) and (len(after) == len(tt)
+                                             or not after[len(tt)].isalnum()):
+                    if qt:
+                        return 0, None    # quoted by the user: unambiguously the qualifier
                     q_rest = after[len(t):]
                     q_bare = not re.match(r"\s*(=|to\s)", q_rest + " ", re.I)
                     long_rest = body0[len(c):]

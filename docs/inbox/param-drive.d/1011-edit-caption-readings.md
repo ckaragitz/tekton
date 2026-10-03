@@ -29,15 +29,16 @@ The first round's "with or without a trailing to/= or punctuation" was overstate
 - Result: **0 differences from main**, and 0 new refusals.
 - The review's own sweep of about 7,000 clauses over 11 families found the only differences to be bare `set C` / `set C to`, now refused (improvements).
 
-**Tests.** The module now has 31 cases (main fails 21 of them), including an end-to-end read-back (`set Distance to Wall 3 ft` leaves Distance = "d0" and sets Distance to Wall = "3 ft"). The 16 edit/convert suites: **510 passed / 35 skipped**.
+**Tests at that head:** 31 cases (main failed 21), and 510 passed / 35 skipped across the 16 suites. These numbers are superseded below.
+
+## Second review round (PR #1013, head a174288, 🛑)
+- **B1. A quoted type counted as "untyped".** `_resolve_type_name` returns `""` for a quoted qualifier, and `typed=bool(qual)` read that as untyped. So the longest-caption rule fired on `set Size of type "Big One" = 5`, either refusing it or writing `'"Big One" 5'` to Size of Type. That is exactly the form the two-readings refusal tells the user to write. Now `typed=qual is not None`, and `_caption_of_type` recognises a **quoted** type after the shorter caption as the qualifier.
+- **B2. Exact-spacing caption comparisons.** The type resolver still compared captions with exact spacing. `set Distance to  Wall of type T 1 = 4` therefore skipped type resolution, and with types T / T 1 it wrote "1 = 4" to type **T**. A new `_canon_caption_span` rewrites the caption the clause starts with (the longest, whitespace-tolerant) to single spaces before anything else runs. The user's own words and casing are kept for messages, and the value is never touched.
 
 ## Evidence
-- `tests/test_edit_caption_readings_1011.py` (new, 21 cases):
-  - 10 refusals, 3 of them the caption-only no-value forms;
-  - 10 reads, including #1010's case unchanged;
-  - an end-to-end case on a generated conduit carrying text parameters Size / Size of Type. `set Size of Type` is refused and neither value changes; `set Size of Type 5 mm` reads back "5 mm".
-- On base (main + #1008, df299d7), 12 of the 21 fail; with the fix, all 21 pass.
-- The 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994 edit suites, `test_edit_drives_909`, scaffolding (an ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo` and `test_reduce`: 392 passed / 35 skipped.
+- `tests/test_edit_caption_readings_1011.py`: **37 cases**, covering refusals, reads, the review rounds' probes, and two end-to-end read-backs on generated conduits with colliding text parameters. Main fails 23; head a174288 fails 6; this head passes all 37.
+- Real-family regression: 600 well-formed clauses (7 archetypes × every caption × type × five forms) give **0 differences from main**. The second review's own 5,861-clause, 21-family sweep found only improvements, apart from B1.
+- The 16 suites: 1011 / 1008 / 1009 / 1006 / 1003 / 1000 / 994, `test_edit_drives_909`, `test_edit_family_{marks_678,mass_659,size_668}`, scaffolding (ADOPTERS row), `test_convert`, `test_router`, `test_convert_combo`, `test_reduce`. Result: **526 passed / 35 skipped**.
 
 ## BRANCH STATE
 - Files:
