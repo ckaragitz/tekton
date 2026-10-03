@@ -66,6 +66,7 @@ Territory: ``src/rvt/convert/`` (new module, #909).
 """
 from __future__ import annotations
 
+import contextlib
 import functools
 import hashlib
 import math
@@ -321,6 +322,7 @@ class Recovered:
     name: str                            # the family name (PartAtom title)
     start_id: int
     options: Dict[str, Any] = dc_field(default_factory=dict)
+    release: Optional[int] = None        # the input's Revit release (rebuilt at it)
     notes: List[str] = dc_field(default_factory=list)
 
     def build(self, values: Dict[str, float], *, name: Optional[str],
@@ -331,6 +333,7 @@ class Recovered:
         return {"generator": GENERATORS[self.generator]["callable"],
                 "product": self.product, "start_id": self.start_id,
                 "name": self.name, "options": dict(self.options),
+                "release": self.release,
                 "values": dict(self.values)}
 
 
@@ -466,6 +469,8 @@ def recover(inv) -> List[Recovered]:
             out.extend(fn(inv))
         except Exception:                                    # noqa: BLE001 -- a guess, never a failure
             continue
+    for r in out:
+        r.release = inv.release
     return out
 
 
@@ -513,16 +518,33 @@ def _try_build(rec: Recovered, values: Dict[str, float], name: Optional[str],
     return None, (), refusals
 
 
+@contextlib.contextmanager
+def _release_context(year: Optional[int]):
+    """Build + write at the input's release: only the native release is
+    rebuilt (the edit lane itself reads native-release families only today;
+    another release is refused here by name, never written at the wrong one)."""
+    from ..frontdoor import release_ctx as RC
+    if year is not None and int(year) != RC.native_release():
+        raise RuntimeError(f"a Revit {year} family is not rebuilt (the generators "
+                           f"rebuild at the native Revit {RC.native_release()} only here)")
+    yield None
+
+
 def _prove(rec: Recovered, input_path: str, work: str) -> Tuple[bool, str]:
     """Rebuild the recovered spec under the input's own file name and compare
     bytes.  ``(reproduced, reason)``."""
-    prod, drop, refusals = _try_build(rec, dict(rec.values), rec.name)
-    if prod is None:
-        return False, "the generator refused the recovered spec: " + "; ".join(refusals[:2])
     d = os.path.join(work, "reproduce", rec.generator + "-" + rec.product)
     os.makedirs(d, exist_ok=True)
     p = os.path.join(d, os.path.basename(input_path))
-    _write(prod, p)
+    try:
+        with _release_context(rec.release):
+            prod, drop, refusals = _try_build(rec, dict(rec.values), rec.name)
+            if prod is None:
+                return False, ("the generator refused the recovered spec: "
+                               + "; ".join(refusals[:2]))
+            _write(prod, p)
+    except Exception as exc:                                 # noqa: BLE001
+        return False, f"the recovered spec could not be built ({type(exc).__name__}: {exc})"
     if _sha256(p) != _sha256(input_path):
         return False, (f"{GENERATORS[rec.generator]['callable']}({rec.product}) on the "
                        "recovered spec does not reproduce the input byte for byte")
@@ -624,12 +646,13 @@ def rebuild(plan: RebuildPlan, out_path: str) -> Dict[str, Any]:
         was_auto = auto(rec, rec.values) == rec.name
     except Exception:                                        # noqa: BLE001
         was_auto = False
-    prod, drop, refusals = _try_build(rec, new, None if was_auto else rec.name, edited)
-    if prod is None:
-        raise RuntimeError("the generator refused the edited spec: "
-                           + "; ".join(refusals[:3]))
     os.makedirs(os.path.dirname(os.path.abspath(out_path)) or ".", exist_ok=True)
-    _write(prod, out_path)
+    with _release_context(rec.release):
+        prod, drop, refusals = _try_build(rec, new, None if was_auto else rec.name, edited)
+        if prod is None:
+            raise RuntimeError("the generator refused the edited spec: "
+                               + "; ".join(refusals[:3]))
+        _write(prod, out_path)
     rederived = list(drop)
     return {
         "route": "regenerated",
@@ -637,6 +660,7 @@ def rebuild(plan: RebuildPlan, out_path: str) -> Dict[str, Any]:
         "product": rec.product,
         "start_id": rec.start_id,
         "options": dict(rec.options),
+        "release": rec.release,
         "spec_recovered": {k: rec.values[k] for k in rec.values},
         "spec_built": {k: v for k, v in new.items() if k not in drop},
         "re_derived_by_generator": rederived,
