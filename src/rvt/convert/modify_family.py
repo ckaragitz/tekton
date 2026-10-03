@@ -75,6 +75,7 @@ Territory: ``src/rvt/convert/`` (convert-B stream).
 from __future__ import annotations
 
 import argparse
+import difflib
 import functools
 import html
 import json
@@ -452,7 +453,23 @@ def _reads(inv: FamilyInventory, fragment: str) -> bool:
         m = _match_set(inv, c)
     except FamilyEditError:
         return True
-    return m is not None and inv.param_by_caption(m.group("cap").strip()) is not None
+    if m is None:
+        return False
+    cap = m.group("cap").strip()
+    return inv.param_by_caption(cap) is not None or _near_caption(inv, cap)
+
+
+def _near_caption(inv: FamilyInventory, cap: str) -> bool:
+    """A caption the old split would have refused with a useful message rather
+    than read as text: one several parameters contain (``Diameter``), or a
+    near-miss of one (``Widht``, ``Notes``) -- PR #1022 review nit 1."""
+    key = re.sub(r"[\s_-]+", "", cap).lower()
+    if not key:
+        return False
+    norm = [re.sub(r"[\s_-]+", "", p["caption"]).lower() for p in inv.params]
+    if sum(key in n for n in norm) > 1:
+        return True
+    return any(difflib.SequenceMatcher(None, key, n).ratio() >= 0.8 for n in norm)
 
 
 _RE_SET_DELIM_WORD = re.compile(r"set\s.*?(?:=|:|\sto\s)", re.I | re.S)
@@ -561,6 +578,11 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
         op_notes.append(notes[mark:])
         understood.append({"clause": cl, "op": op})
     notes[:] = _settle_overrides(ops, op_notes)
+    # every clause the grammar could not read is said, never dropped silently
+    # (#1023): the family is still delivered with the clauses it did read
+    notes.extend(f"not applied: {cl!r} was not understood, nothing was changed for it "
+                 "(say: set <Parameter> = <value>; rename type OLD to NEW; rename the "
+                 "family to NAME)" for cl in unparsed if ops)
     if not ops:
         raise FamilyEditError(
             "no family edit understood. Grammar: 'rename the type to NAME', "

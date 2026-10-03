@@ -1,0 +1,101 @@
+"""#1023 -- a family edit with a clause the grammar cannot read says so.
+
+``parse_family_edit`` put such clauses into ``parsed["unparsed"]``, which
+nothing showed the user: ``set Length; set Material = PVC`` applied Material
+and dropped the bare ``set Length`` without a word.  Each such clause is now
+a "not applied" note, which ``modify_family`` reports as a degradation; the
+family is still delivered with what was read (hard rule 1).
+
+Also the optional nits of the PR #1022 review: a near-miss / ambiguous
+caption inside a quoted value is a further edit (refused, as the old split
+refused it), and a fragment is read with and without the span's closing
+quote.
+
+Run: .venv/bin/python -m pytest tests/test_edit_unparsed_note_1023.py -q
+"""
+from __future__ import annotations
+
+import pytest
+
+from conftest import HAVE_SCHEMA, context_constants, ladder_constants
+from rvt.convert import modify_family as MF
+from rvt.frontdoor import edit as E
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")
+
+
+@pytest.fixture
+def release_leak_extra():
+    return lambda: dict(ladder_constants(), **context_constants())
+
+
+def _inv():
+    ps = [{"caption": c, "param_id": 1000 + i, "def_class": "ParamDefString",
+           "spec": "autodesk.spec:string-2.0.0", "carrier": "m_str", "current": "", "formula": False}
+          for i, c in enumerate(("Width", "Note", "Mark", "Outside Diameter", "Nominal Diameter",
+                                 "Material"))]
+    return MF.FamilyInventory(path="x.rfa", family_id=1, family_name="F", type_names=["T1"], params=ps)
+
+
+@pytest.mark.parametrize("text, clause", [
+    ("set Width; set Material = PVC", "set Width"),
+    ("set Bend: EMT; set Width = 2", "set Bend: EMT"),
+    ('also set Note = x\nset Mark = 2', "also set Note = x"),
+])
+def test_an_unread_clause_is_a_not_applied_note(text, clause):
+    r = MF.parse_family_edit(text, _inv())
+    assert r["ops"] and r["unparsed"] == [clause]
+    assert [n for n in r["notes"] if n.startswith("not applied:")] == [
+        n for n in r["notes"] if repr(clause) in n]
+    assert any(repr(clause) in n for n in r["notes"])
+
+
+def test_an_edit_that_reads_whole_has_no_not_applied_note():
+    r = MF.parse_family_edit("set Width = 2; set Mark = A", _inv())
+    assert not r["unparsed"] and not [n for n in r["notes"] if n.startswith("not applied:")]
+
+
+@pytest.mark.parametrize("text", [
+    'set Note = "x; set Widht 600 mm"',          # near-miss of Width
+    'set Note = "x; set Notes x"',                # near-miss of Note
+    'set Note = "x; set Diameter 3 in"',          # several parameters contain it
+])
+def test_a_near_miss_caption_inside_quotes_is_a_further_edit(text):
+    with pytest.raises(MF.FamilyEditError, match="runs across a further edit"):
+        MF.parse_family_edit(text, _inv())
+
+
+@pytest.mark.parametrize("text, want", [
+    ('set Note = "Hex bolt, set screw included"', "Hex bolt, set screw included"),
+    ('set Note = "ready; set up later"', "ready; set up later"),
+])
+def test_text_inside_quotes_is_still_stored(text, want):
+    assert MF.parse_family_edit(text, _inv())["ops"][0]["value"] == want
+
+
+def test_a_fragment_hidden_by_the_closing_quote_is_a_further_edit():
+    with pytest.raises(E.EditParseError, match="runs across a further edit"):
+        E.parse_edit_spec('rename 742670 to "x then move 1466502 by 1,0,0 ft"')
+
+
+@pytest.fixture(scope="module")
+def conduit():
+    if not HAVE_SCHEMA:
+        pytest.skip("class schema cache absent")
+    import os
+    import shutil
+    import tempfile
+    from rvt.famgen import factory as F
+    d = tempfile.mkdtemp(prefix="t1023_")
+    try:
+        p = os.path.join(d, "c.rfa")
+        F.make_archetype(product="conduit").write(p, validate=False, provenance=False)
+        yield p
+    finally:
+        shutil.rmtree(d, True)
+
+
+def test_the_note_reaches_the_delivered_records_degradations(conduit, tmp_path):
+    rec = MF.modify_family(conduit, "set Length; set Material = PVC", str(tmp_path))
+    assert rec["files"]["rfa"]                                     # still delivered
+    assert any(d.startswith("not applied: 'set Length'") for d in rec["degradations"])
