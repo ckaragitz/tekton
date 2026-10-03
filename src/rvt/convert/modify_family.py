@@ -47,11 +47,22 @@ cleanly WRAPPING a whole value (``"600 mm"``, ``'4"'``) still comes off first,
 and any other quote arrangement (``4''``, ``4'"``, ``''4''``) is refused by
 name, never read as feet or inches (#678).
 
-HONEST LIMIT: editing a DIMENSION parameter changes the type-table value
-only -- generated families carry no dimension-constraint graph, so the
-authored solid is NOT re-derived.  The geometry-true path is regeneration
-from the facts sidecar (``families/<stem>.json``); every dimension edit
-records this caveat.
+GEOMETRY (#909).  Our generated families carry constraint graphs: a
+parameter LABELS a dimension between reference planes that edges, faces and
+followers are locked to.  Writing the value alone would leave that dimension
+and its geometry at the old size -- a family that disagrees with itself.  So
+an edit of a generator INPUT is applied by REBUILDING the family from its
+generator at the new value (:mod:`rvt.convert.family_regen`): the generator
+and its spec are recovered from the file and PROVEN by reproducing the input
+byte for byte first; the result is byte-identical to building at that value
+directly.  Everything else (foreign families, catalog equipment, IFC-built
+families, a family that does not reproduce) stays on the value path, and an
+edit there of a parameter that labels a dimension -- directly or through a
+formula parameter -- says so in an explicit caveat (never a silent
+mismatch).  Formula parameters an edit feeds (``Nut Across Flats`` ->
+``Nut Half Across Flats``) are re-evaluated on both paths; a formula
+parameter itself is refused by name (Revit computes it).  No desktop verdict
+exists for a rebuilt family (hard rule 4).
 
 VOCABULARY COORDINATION: if a sibling stream lands a shared family-edit
 vocabulary module (``rvt.convert.edit_family``), :func:`parse_family_edit`
@@ -79,6 +90,7 @@ from ..famgen.factory import KG_PER_LB
 from .add_to_project import (ConvertError, P0_STAMP, QUARANTINE_STAMP, TOOL,
                              TOOL_VERSION, _jdump, _relp, _sha256,
                              quarantined_input)
+from ..famgen import formula as _FO
 from .param_carrier import carrier_for_param
 
 __all__ = [
@@ -186,7 +198,10 @@ def inventory_family(path: str) -> FamilyInventory:
         row = cur_rows.get(int(eid), {})
         params.append({"caption": cap, "param_id": int(eid),
                        "def_class": def_class, "spec": spec,
-                       "carrier": carrier, "current": row.get(carrier)})
+                       "carrier": carrier, "current": row.get(carrier),
+                       # a FORMULA parameter (#850 tree on the row): Revit
+                       # computes it, an edit sets its inputs (#909)
+                       "formula": not _FO.is_no_formula(row.get("m_oExpression"))})
     inv = FamilyInventory(
         path=os.path.abspath(path), family_id=fam,
         family_name=_partatom_title(path) or str(fv.get("m_name") or ""),
@@ -243,10 +258,17 @@ _INTERNAL_AS_GIVEN = "(Revit's internal unit -- stored as given)"
 #: named in the note, caveat).  An ``offer`` means the unit is REQUIRED --
 #: a bare number is refused listing those units (never guessed); ``None``
 #: means a bare number is stored as given, exactly as before this table.
+#: the length note's geometry caveat -- true on the VALUE path; an edit the
+#: family's generator REBUILDS (#909, rvt.convert.family_regen) swaps it for
+#: :data:`REBUILT_NOTE`
+LENGTH_CAVEAT = (" (CAVEAT: type-table value only; the authored solid is not re-derived -- "
+                 "regenerate from the facts sidecar for geometry-true resizing)")
+REBUILT_NOTE = (" (geometry REBUILT by the family's own generator at this value (#909): "
+                "the reference planes, the labelled dimension(s), the locked edges and "
+                "faces and the followers agree with it -- no desktop verdict, hard rule 4)")
+
 _SPEC_UNITS = (
-    (":length", "length", "in / ft / mm / m", "ft",
-     " (CAVEAT: type-table value only; the authored solid is not re-derived -- "
-     "regenerate from the facts sidecar for geometry-true resizing)"),
+    (":length", "length", "in / ft / mm / m", "ft", LENGTH_CAVEAT),
     (":mass-", "mass", "lb / kg", "kg", ""),
     ("electrical:wattage", "wattage", None, "internal (W x 1/0.3048^2)", ""),
     ("electrical:frequency", "frequency", None, f"Hz {_INTERNAL_AS_GIVEN}", ""),
@@ -465,7 +487,7 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
             op = {"op": "rename-family", "name": m.group("new").strip()}
         elif (m := _RE_RENAME_TYPE.match(c)):
             op = _op_rename_type(inv, m.group("old"), m.group("new").strip())
-        elif (m := _RE_SET.match(c)):
+        elif (m := _match_set(inv, c)):
             op = _op_set(inv, m.group("cap").strip(), m.group("val").strip(), notes,
                          type_name=(m.group("typeq") or m.group("typeq2")
                                     or m.group("type")))
@@ -487,6 +509,39 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
             "vocabulary": "rvt.convert.modify_family (built-in; merges into the "
                           "shared rvt.convert.edit_family vocabulary when that "
                           "sibling module lands)"}
+
+
+_RE_SET_LEAD = re.compile(r"^set\s+(?:the\s+)?", re.I)
+
+
+def _match_set(inv: FamilyInventory, clause: str):
+    """``_RE_SET`` with the parameter named by the family's OWN captions first:
+    the longest caption the clause starts with is the parameter, so a
+    multi-word caption (``set Strut Length to 36 in``) is never cut at its
+    first word by the lazy pattern (#909).  The caption is matched in place of
+    a one-word stand-in; otherwise the plain pattern decides, as before."""
+    lead = _RE_SET_LEAD.match(clause)
+    if lead:
+        body = clause[lead.end():]
+        low = body.lower()
+        for cap in sorted((p["caption"] for p in inv.params), key=len, reverse=True):
+            c = cap.lower()
+            if c and low.startswith(c) and (len(low) == len(c) or not (low[len(c)].isalnum()
+                                                                     or low[len(c)] == "_")):
+                m = _RE_SET.match("set P " + body[len(cap):].lstrip())
+                if m is not None:
+                    return _CaptionMatch(m, cap)
+    return _RE_SET.match(clause)
+
+
+class _CaptionMatch:
+    """A ``_RE_SET`` match whose ``cap`` group is the family's own caption."""
+
+    def __init__(self, m, cap: str):
+        self._m, self._cap = m, cap
+
+    def group(self, name: str):
+        return self._cap if name == "cap" else self._m.group(name)
 
 
 def _op_rename_type(inv: FamilyInventory, old: Optional[str], new: str) -> dict:
@@ -518,6 +573,10 @@ def _op_set(inv: FamilyInventory, caption: str, raw: str, notes: List[str],
         raise FamilyEditError(
             f"no parameter {caption!r} in this family. Parameters: "
             + ", ".join(q["caption"] for q in inv.params))
+    if p.get("formula"):
+        raise FamilyEditError(
+            f"{p['caption']} is a FORMULA parameter: Revit computes it from the "
+            "parameters its formula reads -- set those instead (#909)")
     val, conv_notes = _convert_value(p, raw)
     notes.extend(conv_notes)
     op = {"op": "set-param", "param_id": p["param_id"], "caption": p["caption"],
@@ -608,6 +667,7 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
         else:                                                  # pragma: no cover
             raise FamilyEditError(f"unknown op {kind!r}")
 
+    formula_notes = _formula_followups(inv, fv, pairs, ops, changes)
     if not changes:
         raise FamilyEditError("the ops produced no record changes")
     plan = M.modify_element(doc, fam, changes, kind="family-edit",
@@ -619,6 +679,8 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
         "commit": {"out": _relp(out_path),
                    "blocks": getattr(crep, "n_blocks", None)},
     }
+    if formula_notes:
+        rec["formula_followups"] = formula_notes
     ver = M.verify_manipulated(out_path, edited_ids=[fam])
     rec["structural_verify"] = {k: ver.get(k) for k in
                                 ("crc_failures", "ecc_mismatches", "walker_errors",
@@ -632,6 +694,50 @@ def apply_family_edits(inv: FamilyInventory, ops: Sequence[dict],
     if partatom_renames or new_family_name:
         rec["partatom"] = _patch_partatom(out_path, partatom_renames)
     return rec
+
+
+def _formula_followups(inv: FamilyInventory, fv: Dict[str, Any], pairs: List[dict],
+                       ops: Sequence[dict], changes: Dict[str, Any]) -> List[str]:
+    """Re-evaluate every FORMULA parameter the set-param ops feed (``Nut Across
+    Flats`` -> ``Nut Half Across Flats``, #909) in each row set the ops wrote --
+    every type row (or the scoped one) and, unscoped, the current defaults --
+    with the file's own expression trees, adding the results to ``changes``.
+    Returns notes: one per followed formula, and any it could not compute."""
+    from . import family_regen as FR
+    sets = [o for o in ops if o.get("op") == "set-param"]
+    if not sets:
+        return []
+    carriers = {int(p["param_id"]): p["carrier"] for p in inv.params}
+    caps = {int(p["param_id"]): p["caption"] for p in inv.params}
+    notes: List[str] = []
+    row_sets: List[Tuple[str, List[dict], Dict[int, Any]]] = []
+    for i, pr in enumerate(pairs):
+        edits = {int(o["param_id"]): o["value"] for o in sets
+                 if not o.get("type_name") or str(pr.get("name")) == o["type_name"]}
+        if edits:
+            row_sets.append((f"m_pFamilyTypes.value.m_pairs[{i}].params.m_params",
+                             ((pr.get("params") or {}).get("m_params") or []), edits))
+    unscoped = {int(o["param_id"]): o["value"] for o in sets if not o.get("type_name")}
+    if unscoped:
+        row_sets.append(("m_familyParams.value.m_params",
+                         (((fv.get("m_familyParams") or {}).get("value") or {})
+                          .get("m_params") or []), unscoped))
+    seen = set()
+    for base, rows, edits in row_sets:
+        follow, fnotes = FR.formula_followups(rows, edits, carriers)
+        for n in fnotes:
+            if n not in notes:
+                notes.append(n)
+        for pid, val in follow.items():
+            for j, row in enumerate(rows):
+                if int(row.get("m_paramId", -1)) == pid:
+                    changes[f"{base}[{j}].{carriers.get(pid, 'm_value')}"] = val
+            if pid not in seen:
+                seen.add(pid)
+                shown = f" -> {val:g}" if isinstance(val, (int, float)) else ""
+                notes.append(f"{caps.get(pid, pid)}: re-evaluated by its formula from "
+                             f"the edited value{shown}")
+    return notes
 
 
 def _patch_partatom(path: str, renames: Sequence[Tuple[str, str]]) -> Dict[str, Any]:
@@ -693,13 +799,24 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
     if inv.quarantined:
         rec["stamps"].append(QUARANTINE_STAMP)
     try:
-        rec["apply"] = apply_family_edits(inv, parsed["ops"], out_path)
+        rec["apply"], regen, geometry = _apply_geometry_true(inv, parsed["ops"], out_path)
     except Exception as e:                                     # noqa: BLE001
         rec["errors"].append(f"apply failed: {type(e).__name__}: {e}")
         rec["errors"].append(traceback.format_exc(limit=6))
         rec["files"] = {}
         _finish(rec, out_dir, t0)
         raise
+    reread_ops = parsed["ops"]
+    if regen is not None:
+        rec["regeneration"] = regen
+        if regen.get("route") == "regenerated":
+            # the rebuilt family's parameter ids are its own: re-read by caption
+            reread_ops = _rebind_ops(inventory_family(out_path), parsed["ops"])
+            rebuilt = set(regen.get("captions") or ())
+            parsed["notes"] = [
+                n[:-len(LENGTH_CAVEAT)] + REBUILT_NOTE
+                if n.endswith(LENGTH_CAVEAT) and n.split(":", 1)[0] in rebuilt else n
+                for n in parsed.get("notes") or []]
 
     # ---- gates (labels) ---------------------------------------------------
     if validate:
@@ -718,7 +835,14 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
         g["release"] = {"input": inv.release, "output": out_rel,
                         "preserved": bool(out_rel == inv.release)}
         # semantic re-read: every op's new value echoes back
-        g["reread"] = _reread_proof(out_path, parsed["ops"])
+        g["reread"] = _reread_proof(out_path, reread_ops)
+        if regen is not None:
+            # the contradiction an edit must not leave behind: every labelled
+            # dimension measures its parameter's value (#909)
+            from . import family_regen as FR
+            labels = FR.label_report(out_path)
+            g["labels"] = {"n": len(labels),
+                           "disagree": [l for l in labels if not l["agree"]]}
         g["self_checks_ok"] = bool(
             g["family_mode"].get("verdict") == "VALID"
             and g["release"]["preserved"]
@@ -730,8 +854,112 @@ def modify_family(rfa_path: str, edit: str, out_dir: str, *,
                                        "see validation")
     for n in parsed.get("notes") or []:
         rec["degradations"].append(n)
+    for n in (rec["apply"].get("formula_followups") or []):
+        rec["degradations"].append(n)
+    for n in geometry:
+        rec["degradations"].append(n)
     _finish(rec, out_dir, t0)
     return rec
+
+
+def _rebind_ops(inv: FamilyInventory, ops: Sequence[dict]) -> List[dict]:
+    """``ops`` with every set-param's parameter id re-read from ``inv`` by
+    caption (a rebuilt family numbers its own elements)."""
+    out: List[dict] = []
+    for o in ops:
+        if o.get("op") == "set-param":
+            p = inv.param_by_caption(o["caption"])
+            if p is not None:
+                o = dict(o, param_id=p["param_id"], carrier=p["carrier"])
+        out.append(o)
+    return out
+
+
+def _apply_geometry_true(inv: FamilyInventory, ops: Sequence[dict], out_path: str
+                         ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[str]]:
+    """Apply ``ops`` so the geometry agrees with the values (#909): REBUILD the
+    family from its generator when the edit sets a generator input and the
+    generator reproduces the input byte for byte (then the other ops on top,
+    by value); otherwise the VALUE path, with an explicit caveat for every
+    edited parameter that labels a dimension.  Returns ``(apply record,
+    regeneration record | None, geometry caveats)``."""
+    import shutil
+    import tempfile
+    from . import family_regen as FR
+    if not any(o.get("op") == "set-param" for o in ops):
+        return apply_family_edits(inv, ops, out_path), None, []
+    work = tempfile.mkdtemp(prefix="tekton_regen_")
+    try:
+        try:
+            plan = FR.plan_rebuild(inv, ops, work=work)
+        except Exception as exc:                               # noqa: BLE001 -- hard rule 1
+            plan = FR.RebuildPlan(False, f"the rebuild check failed ({type(exc).__name__}: "
+                                         f"{exc})")
+        if plan.ok:
+            try:
+                regen = FR.rebuild(plan, out_path)
+            except Exception as exc:                           # noqa: BLE001 -- hard rule 1
+                plan = FR.RebuildPlan(False, str(exc), recovered=plan.recovered,
+                                      derived=plan.derived, candidates=plan.candidates)
+            else:
+                regen["captions"] = sorted(plan.changes)
+                caveats = [FR.derived_caveat(plan.recovered, o) for o in plan.derived]
+                if plan.rest:
+                    inv2 = inventory_family(out_path)
+                    tmp = os.path.join(work, "rest", os.path.basename(out_path))
+                    os.makedirs(os.path.dirname(tmp), exist_ok=True)
+                    rest = []
+                    for o in plan.rest:
+                        if o.get("op") == "set-param":
+                            p = inv2.param_by_caption(o["caption"])
+                            if p is None:
+                                raise FamilyEditError(f"{o['caption']}: not in the rebuilt family")
+                            o = dict(o, param_id=p["param_id"], carrier=p["carrier"])
+                        elif o.get("op") == "rename-type":
+                            o = dict(o, old=inv2.type_names[int(o["type_index"])])
+                        rest.append(o)
+                    apply_rec = apply_family_edits(inv2, rest, tmp)
+                    shutil.move(tmp, out_path)
+                    apply_rec["commit"]["out"] = _relp(out_path)
+                else:
+                    apply_rec = {"applied": list(ops), "record_changes": {},
+                                 "commit": {"out": _relp(out_path), "blocks": None}}
+                apply_rec["rebuilt"] = True
+                apply_rec["applied"] = list(ops)
+                return apply_rec, regen, caveats
+        apply_rec = apply_family_edits(inv, ops, out_path)
+        regen = {"route": "value-only", "reason": plan.reason,
+                 "candidates": plan.candidates}
+        return apply_rec, regen, _value_path_caveats(inv, ops, plan)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def _value_path_caveats(inv: FamilyInventory, ops: Sequence[dict], plan) -> List[str]:
+    """The explicit statement for every value-only edit whose parameter -- or
+    a formula parameter computed from it -- LABELS a dimension in the file,
+    plus every edit of a parameter a recognised generator computes."""
+    from . import family_regen as FR
+    fv = inv.doc.value(inv.family_id) or {}
+    rows = (((fv.get("m_familyParams") or {}).get("value") or {}).get("m_params") or [])
+    labels = FR.label_report(inv.doc)
+    caps = {int(p["param_id"]): p["caption"] for p in inv.params}
+    out: List[str] = []
+    for o in ops:
+        if o.get("op") != "set-param":
+            continue
+        pid = int(o["param_id"])
+        deps = FR.formula_dependents(rows, [pid])
+        direct = [l for l in labels if l["param_id"] == pid]
+        via = [l for l in labels if l["param_id"] in deps]
+        if direct or via:
+            out.append(FR.value_only_caveat(
+                o["caption"], direct + via, plan.reason,
+                via=sorted({caps.get(l["param_id"], str(l["param_id"])) for l in via})))
+    for o in plan.derived:
+        if plan.recovered is not None:
+            out.append(FR.derived_caveat(plan.recovered, o))
+    return out
 
 
 def _reread_proof(path: str, ops: Sequence[dict]) -> List[dict]:
