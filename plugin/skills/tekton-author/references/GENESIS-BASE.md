@@ -77,17 +77,27 @@ python scripts/rvt_validate.py assets/genesis/G_ABPD.rvt   # -> VALID (no errors
    is being certified. Use `skills/tekton-inspect` (`render_inspect.py`)
    to see per element `kind = brep | instance-ref | dummy` before promising
    a picture.
-3. **THE OPEN BUG — walls + loaded families TOGETHER.** Verdict #24
-   retracted #22's "one defective family": the failing delta is *created
-   walls AND loaded family documents in the same file* (walls alone
-   PASS — `electrical_room_2500a_walls_only.rvt` certified; families
-   alone PASS — `stage_L8_lp4.rvt` certified). The mechanism is under
-   bisection. The front door (`rvt.frontdoor.intent.combination_check`)
-   therefore never silently ships that combination: `--strict` emits
-   TWO coordinated files (`shell` = walls only; `equipment` = loaded
-   families + their instances), each a viewer-certified SHAPE; the default
-   emits ONE combined file whose manifest is STAMPED `PROOF-ONLY:
-   walls+families combination unverified`. Report which mode ran.
+3. **THE OPEN CELL — PLACED INSTANCES of our generated families on our
+   composed genesis base** (docs/inbox/genesis-audit.md #48, issue #16).
+   Walls, loaded families and walls + loaded families in one file are
+   certified (WF_fix / WF_nofix); verdict #24 retracted #22's "one
+   defective family". Two older citations certify less than they look
+   like: `electrical_room_2500a_walls_only.rvt` is **mechanism only**
+   (#984): wall CREATION on the owner-machine base ZA_deep, walls without
+   baked geometry — not a verdict on the bytes delivered now (pinned
+   G_ABPD bases, authored seq-103 wall solids since #144); `stage_L8_lp4.rvt`
+   is an **earlier form** (#984) of eight of our generated families,
+   loaded **unplaced** — verdicts #24/#25: placement on the genesis
+   lineage unproven (#24), and the PASS an empty-design short-circuit
+   (8 families + 0 walls + 0 instances, #25); today's families are
+   validator VALID with no viewer verdict. The front door
+   (`rvt.frontdoor.intent.combination_check`) never silently ships the
+   open cell: a job that places instances is DELIVERED and STAMPED
+   `PROOF-ONLY: generated-family INSTANCES on a composed genesis base
+   (open cell, docs/inbox/genesis-audit.md #48, issue #16)`; `--strict`
+   emits two coordinated files instead, both delivered — `shell` (walls +
+   loaded families, the certified shape) + `equipment` (the placed
+   instances, the open cell isolated). Report which mode ran.
 4. **Placement scaffolding needs a SPECIMEN ANCESTOR.** The family-free
    base carries no placed wall / instance to clone, and `rvt.mutate`
    creates by cloning a real specimen of the target class. The front door
