@@ -66,7 +66,12 @@ __all__ = [
     "unsupported_line", "verify_evidence", "audit", "matrix_rows",
     "status_counts", "render_text", "LEDGER_RELPATH", "ABSENT_BINARY_MARK",
     "DOWNLIGHT_EARLIER_FORM", "EVIDENCE_FORMS", "evidence_form_is_earlier",
-    "generator_fingerprint",
+    "generator_fingerprint", "family_set_fingerprints",
+    "STAGE_L8_EARLIER_FORM", "ROOM2025_WALLS_EARLIER_FORM",
+    "L1A_MECHANISM_ONLY", "ROOM_2500A_WALLS_MECHANISM_ONLY",
+    "RSOLID_MECHANISM_ONLY", "W1_MECHANISM_ONLY", "V23_MECHANISM_ONLY",
+    "V25_MECHANISM_ONLY", "V26_MECHANISM_ONLY", "EVIDENCE_MECHANISMS",
+    "required_caveat",
 ]
 
 INPUT_KINDS = ("prompt", "ifc", "rvt", "rfa", "spec", "pdf")
@@ -105,18 +110,102 @@ DOWNLIGHT_EARLIER_FORM = (
     "certification speaks for the earlier form and for the four-registry load "
     "mechanism, not for the bytes delivered now")
 
-#: certified file -> the in-repo generator that still emits its family, the
-#: output fingerprint at certification (None = never recorded / not knowable:
-#: the ledger entry predates the repo's history and the certified load used
-#: the owner-machine family container) and the fingerprint the matrix wording
-#: was last REVIEWED against (sha256 of the generator's standalone .rfa,
-#: built as ``build`` says, per release).  When ``certified`` != ``reviewed``
-#: every citing row must carry ``caveat`` (:func:`verify_evidence`);
-#: ``tests/test_matrix_evidence_981.py`` rebuilds and fails when the output
-#: drifts from ``reviewed``, so the next byte change re-opens the wording.
+#: #984: the eight families of the certified stage_L8_lp4.rvt -- tag, the
+#: constructor (dotted), its kwargs -- in their load order (stage L1 .. L8),
+#: as the tracked build record of that room (experiments/ifc_room/
+#: build_record.json, stage F) and the eight stage load records name them
+STAGE_L8_FAMILIES: Tuple[Tuple[str, str, Dict[str, Any]], ...] = (
+    ("MSB", "rvt.ifc.intent:make_house_switchboard",
+     {"tag": "MSB", "name": "Switchboard MSB", "mains_a": 2500.0, "voltage": "480Y/277",
+      "phases": 3, "wires": 4, "sccr_ka": 65.0, "sections": 4,
+      "mains_device": "2500 A, 3-pole insulated-case main breaker, 100% rated",
+      "mounting": "Floor, on 100 mm housekeeping pad, front accessible",
+      "feeder_entry": "Top; overhead EMT on trapeze hangers", "manufacturer": "Eaton",
+      "model_label": "Pow-R-Line C style switchboard", "width_m": 4.27,
+      "depth_m": 0.6229999999999998, "height_m": 2.286}),
+    ("DP-1", "rvt.famgen.factory:make_panelboard",
+     {"vendor": "eaton", "line": "pow-r-line", "mains_a": 400.0, "spaces": 42,
+      "voltage": "480Y/277", "mcb": True, "mounting": "surface", "panel_name": "DP-1",
+      "sccr_ka": None}),
+    ("DP-2", "rvt.famgen.factory:make_panelboard",
+     {"vendor": "eaton", "line": "pow-r-line", "mains_a": 400.0, "spaces": 42,
+      "voltage": "480Y/277", "mcb": True, "mounting": "surface", "panel_name": "DP-2",
+      "sccr_ka": None}),
+    ("LP-1", "rvt.famgen.factory:make_panelboard",
+     {"vendor": "eaton", "line": "pow-r-line", "mains_a": 100.0, "spaces": 30,
+      "voltage": "480Y/277", "mcb": False, "mounting": "surface", "panel_name": "LP-1",
+      "sccr_ka": None}),
+    ("LP-2", "rvt.famgen.factory:make_panelboard",
+     {"vendor": "eaton", "line": "pow-r-line", "mains_a": 100.0, "spaces": 30,
+      "voltage": "480Y/277", "mcb": False, "mounting": "surface", "panel_name": "LP-2",
+      "sccr_ka": None}),
+    ("LP-3", "rvt.famgen.factory:make_panelboard",
+     {"vendor": "eaton", "line": "pow-r-line", "mains_a": 100.0, "spaces": 30,
+      "voltage": "480Y/277", "mcb": False, "mounting": "surface", "panel_name": "LP-3",
+      "sccr_ka": None}),
+    ("T1", "rvt.famgen.factory:make_transformer",
+     {"kva": 150.0, "vendor": "eaton", "primary_v": 480, "secondary_v": "208Y/120"}),
+    ("LP-4", "rvt.famgen.factory:make_panelboard",
+     {"vendor": "eaton", "line": "pow-r-line", "mains_a": 225.0, "spaces": 42,
+      "voltage": "208Y/120", "mcb": True, "mounting": "surface", "panel_name": "LP-4",
+      "sccr_ka": None}),
+)
+
+#: #984: the certified stage_L8_lp4.rvt -- an EARLIER form of eight families
+#: our constructors still emit, AND a narrower PASS than its ledger line says
+STAGE_L8_EARLIER_FORM = (
+    "EARLIER FORM (#984): the certified stage_L8_lp4.rvt (viewer translation PASS, "
+    "verdict #22, 2026-08-04 -- before the repo's own history begins, 2026-08-11) holds "
+    "EARLIER forms of eight of our generated families -- panelboards DP-1 / DP-2 / "
+    "LP-1..LP-4 and transformer T1 (rvt.famgen.factory make_panelboard / "
+    "make_transformer) and the house switchboard MSB (rvt.ifc.intent "
+    "make_house_switchboard) -- loaded by the component loader (rvt.famgen.loader) onto "
+    "the owner-machine genesis base ZA_deep. The constructors have changed in many ways "
+    "since -- among them the panelboard built from its real parts (#892) with Width / "
+    "Depth / Height through the drive law (#931) and the transformer's real parts with "
+    "NEC clearance zones (#887 / #935); the list is not complete -- and the loader now "
+    "writes the empty Family.m_oFamDimConstrMgr / FamilySymbol.m_pMoveRestrictions forms "
+    "that genesis-12 found nulled in this file. The PASS is also narrower than its "
+    "ledger line: verdict #25 RETRACTED it as an empty-design translation -- the file "
+    "holds the eight loaded families, NO walls and NO placed instance (every stage load "
+    "record: instance_id -1, 'family loads unplaced'; the viewer showed 'design is "
+    "empty'). It certifies that a genesis-lineage project carrying eight loaded family "
+    "documents of that earlier form translates -- not placement, not render, and not the "
+    "families the constructors emit now, which are family-mode validator VALID (0 "
+    "errors) with NO viewer or desktop-Revit verdict")
+
+#: #984: the certified ROOM2025_walls.rvt -- an EARLIER form of the 2025
+#: prompt route's walls-only output (cited by plugin/docs/HONEST-STATUS.md)
+ROOM2025_WALLS_EARLIER_FORM = (
+    "EARLIER FORM (#984): the certified ROOM2025_walls.rvt (viewer PASS, verdict #32, "
+    "2026-08-05 -- before the repo's own history begins, 2026-08-11) is an EARLIER form "
+    "of what the prompt route emits for its own recipe today (author --prompt 'an "
+    "electrical room 30x20 ft' --target-version 2025): the rebuild's sha256 is not the "
+    "ledger's sha256 of the certified file; among the changes, front-door walls carry "
+    "authored seq-103 solids since #144, and the rebuild differs even with that "
+    "switched off -- the list is not complete. Today's output validates 0 errors with "
+    "NO viewer verdict of its own: the certification speaks for native-2025 authoring "
+    "of a walls-only room in that earlier form")
+
+#: certified file -> the in-repo generator that still emits its content, the
+#: output fingerprint at certification and the fingerprint the matrix
+#: wording was last REVIEWED against, per release.  ``certified`` is None when
+#: it was never recorded / is not knowable (the ledger entry predates the
+#: repo's history and the certified build used the owner machine's base or
+#: family container), or a per-release dict when the ledger itself records
+#: the certified file's sha256 and ``recipe`` rebuilds that same kind of file
+#: (ROOM2025_walls).  ``recipe`` names how :func:`generator_fingerprint`
+#: rebuilds (``build`` says it in words).  When ``certified`` != ``reviewed``
+#: every citing row -- in this module, ``docs/product/PERMUTATION-MATRIX.md``
+#: and ``plugin/docs/HONEST-STATUS.md`` -- must carry ``caveat``
+#: (:func:`verify_evidence` checks this module's rows statically;
+#: ``tests/test_matrix_evidence_981.py`` / ``_984.py`` rebuild and fail when
+#: the output drifts from ``reviewed``, so the next byte change re-opens the
+#: wording).  ``doc_names`` = regexes that find a doc row naming the file.
 EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
     "experiments/families/ifc/L_downlight_loaded.rvt": {
         "generator": "rvt.ifc.famfrom_ifc:make_downlight",
+        "recipe": "downlight",
         "build": ("make_downlight() on the default IFC (inputs/ifc/"
                   "chicago-plenum-downlight.ifc facts, start_id=1000, drive='law'), "
                   "written by rvt.frontdoor.standalone:standalone_family_write("
@@ -129,6 +218,166 @@ EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
         },
         "reviewed_at": "18153b4 (main after #980/#982)",
         "caveat": DOWNLIGHT_EARLIER_FORM,
+        "doc_names": (r"L_downlight",),
+    },
+    "experiments/ifc_room/stage_L8_lp4.rvt": {
+        "generator": ("rvt.famgen.factory:make_panelboard / make_transformer + "
+                      "rvt.ifc.intent:make_house_switchboard"),
+        "recipe": "family_set",
+        "families": STAGE_L8_FAMILIES,
+        "build": ("each of STAGE_L8_FAMILIES, in order, built by its constructor with "
+                  "those kwargs and written by rvt.frontdoor.standalone:"
+                  "standalone_family_write(provenance=False) to a file named f.rfa "
+                  "inside that release's build context; the fingerprint is the sha256 "
+                  "of the lines '<tag> <sha256 of that f.rfa>' joined by newlines"),
+        "certified": None,
+        "reviewed": {
+            2026: "ea239c27df58e42118203302e0f0838b6a6fd6dea2c47cfdbeecabef7a3e45f4",
+            2025: "5fe7308d080ff147f2c6582c99a0c6af54734fb8106bf3ca9ec59cd7201db1ba",
+        },
+        "reviewed_at": "276a5a8 (main after #981/#985)",
+        "caveat": STAGE_L8_EARLIER_FORM,
+        "doc_names": (r"stage_L8",),
+    },
+    "experiments/frontdoor2025/room_walls/ROOM2025_walls.rvt": {
+        "generator": "rvt.frontdoor:author",
+        "recipe": "author",
+        "author": {"prompt": "an electrical room 30x20 ft", "stem": "ROOM2025_walls"},
+        "build": ("rvt.frontdoor.author(prompt='an electrical room 30x20 ft', "
+                  "target_version=<release>, no_handoff=True, stem='ROOM2025_walls') "
+                  "-- the recipe experiments/frontdoor2025/probes.json records, the "
+                  "stem being the certified file's own name (the stem is in the bytes; "
+                  "the out directory is not) -- with SOURCE_DATE_EPOCH=0 (the project's "
+                  "issue date is otherwise the wall clock) and RVT_WALL_REP unset; the "
+                  "fingerprint is the sha256 of <out>/ROOM2025_walls.rvt"),
+        # the LEDGER's sha256 of the certified file (viewer-certified.json)
+        "certified": {
+            2025: "666f66a53525f0f913e325268ec0d9d3b69939dfa04387954a15683f51702d55",
+        },
+        "reviewed": {
+            2025: "83d7bb46c8f20fa9df2cc27f50930e3e86d9d04d408d0b54e92cebcdec5be26f",
+        },
+        "reviewed_at": "276a5a8 (main after #981/#985)",
+        "caveat": ROOM2025_WALLS_EARLIER_FORM,
+        "doc_names": (r"ROOM2025_walls",),
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# #984: certified files whose content we generated but which a row cites for
+# a MECHANISM, not for the form of what a route emits today.  They are NOT
+# fingerprinted (no row claims their form; most cannot be rebuilt on a fresh
+# clone: owner-machine bases / samples) -- instead every citing row must say
+# what the file does and does not certify, in the entry's caveat.
+# ---------------------------------------------------------------------------
+
+L1A_MECHANISM_ONLY = (
+    "MECHANISM ONLY (#984): the certified L1a_rstbasic_loaded_levelhead.rvt (viewer PASS, "
+    "verdict #7, 2026-08-03 -- before the repo's own history begins) certifies the "
+    "four-registry LOAD MECHANISM (rvt.famload) on a Revit sample host; the family it "
+    "loaded is our level-head ANNOTATION skeleton (rvt.famgen.heads: no geometry, no "
+    "label), not a product family any route delivers and not a famspec kind -- it says "
+    "nothing about the form of the families generated now")
+ROOM_2500A_WALLS_MECHANISM_ONLY = (
+    "MECHANISM ONLY (#984): the certified electrical_room_2500a_walls_only.rvt (viewer "
+    "PASS, verdict #22, 2026-08-04 -- before the repo's own history begins) is a "
+    "walls-only room shell built by the IFC room pipeline's wall stage on the "
+    "owner-machine genesis base ZA_deep, its walls without baked geometry (the viewer "
+    "showed only the datum); it certifies wall CREATION on the genesis lineage. Today's "
+    "build differs in at least the base (the pinned composed G_ABPD bases) and the walls "
+    "(authored seq-103 solids since #144) -- not a complete list -- so it is not a "
+    "verdict on the bytes delivered now")
+RSOLID_MECHANISM_ONLY = (
+    "MECHANISM ONLY (#984): the certified RSOLID_walls_A_solid.rvt (viewer PASS + RENDER, "
+    "verdict #26, 2026-08-04 -- before the repo's own history begins) is a research "
+    "probe, not a route output: 4 walls carrying authored seq-103 GElement solids on the "
+    "owner-machine walls-only base. It certifies that this wall-solid grammar (rvt.render."
+    "brep, which front-door walls use since #144) loads and renders; the front door's own "
+    "solid-wall output has no viewer verdict")
+W1_MECHANISM_ONLY = (
+    "MECHANISM ONLY (#984): the certified W1_gabpd_wall_solid.rvt (viewer PASS + RENDER, "
+    "2026-08-04 -- before the repo's own history begins) is a research probe, not a route "
+    "output: ONE free wall with an authored seq-103 solid on the composed G_ABPD base. It "
+    "certifies the wall-solid mechanism on the pinned base; the front door's own "
+    "solid-wall output (staged as batches 57-59, #144) has no viewer verdict")
+V23_MECHANISM_ONLY = (
+    "TEMPLATE ERA, MECHANISM ONLY (#984): the certified V23_electrical_room.rvt (viewer "
+    "PASS, 2026-08-03 -- before the repo's own history begins) was built by "
+    "tools/spec_to_rvt.py on an Autodesk MEP template project (a git-ignored sample): "
+    "walls plus instances of the TEMPLATE's own family types, no family of ours. It "
+    "certifies authoring onto a seed project (the legacy direct build) -- not the "
+    "canonical spec->ifc->rvt chain on the genesis base, and not today's bytes")
+V25_MECHANISM_ONLY = (
+    "TEMPLATE ERA, MECHANISM ONLY (#984): the certified V25_room_from_ifc.rvt (viewer "
+    "PASS, 2026-08-03 -- before the repo's own history begins) was built by the earlier "
+    "tools/ifc_to_spec.py (ifcopenshell) -> tools/spec_to_rvt.py pipeline on an Autodesk "
+    "MEP template project: equipment = instances of the TEMPLATE's family types, no "
+    "family of ours. It certifies that a Design IFC's content can be authored into a "
+    ".rvt Autodesk loads -- not the rvt.ifc.intent resolver, the genesis-base build or "
+    "the generated families today's ifc->rvt route runs")
+V26_MECHANISM_ONLY = (
+    "TEMPLATE ERA, MECHANISM ONLY (#984): the certified V26_room_from_ifc_with_walls.rvt "
+    "(viewer PASS, 2026-08-03 -- before the repo's own history begins) is V25's pipeline "
+    "(tools/ifc_to_spec.py -> tools/spec_to_rvt.py on an Autodesk MEP template project) "
+    "plus perimeter walls synthesized from the IFC's room footprint; equipment = the "
+    "TEMPLATE's family types, no family of ours. It certifies that pipeline, not the "
+    "rvt.ifc.intent resolver, the genesis-base build or the generated families today's "
+    "ifc->rvt route runs")
+
+#: certified file -> {content, built_by, why (not fingerprinted), caveat,
+#: doc_names}: every row citing it must carry ``caveat`` (#984).
+EVIDENCE_MECHANISMS: Dict[str, Dict[str, Any]] = {
+    "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt": {
+        "content": "our level-head annotation family loaded into the rst sample",
+        "built_by": "rvt.famgen.heads:family_load('level_head') + rvt.famload",
+        "why": ("probe L1a was 'the mechanism on a passing base' (experiments/genesis/"
+                "loader/probes.json); the host is a git-ignored sample; no route emits "
+                "a level head"),
+        "caveat": L1A_MECHANISM_ONLY,
+        "doc_names": (r"\bL1a(?![A-Za-z0-9])",),
+    },
+    "experiments/ifc_room/electrical_room_2500a_walls_only.rvt": {
+        "content": "a walls-only room shell (stage W) on ZA_deep",
+        "built_by": "tools/ifc_intent.py build_room, stages W only",
+        "why": "owner-machine base (ZA_deep); cited for wall creation on the genesis lineage",
+        "caveat": ROOM_2500A_WALLS_MECHANISM_ONLY,
+        "doc_names": (r"2500a_walls_only", r"walls-only \+"),
+    },
+    "experiments/render/RSOLID_walls_A_solid.rvt": {
+        "content": "4 walls with authored seq-103 solids on the walls-only base",
+        "built_by": "the render-emit probe builders (batch 25)",
+        "why": "a research probe on an owner-machine base; cited for the render mechanism",
+        "caveat": RSOLID_MECHANISM_ONLY,
+        "doc_names": (r"RSOLID",),
+    },
+    "experiments/render/g12/W1_gabpd_wall_solid.rvt": {
+        "content": "one free wall with an authored seq-103 solid on G_ABPD",
+        "built_by": "experiments/render/g12/build_g12_probes.py",
+        "why": "a research probe; cited (plugin/docs/HONEST-STATUS.md only) for the render mechanism",
+        "caveat": W1_MECHANISM_ONLY,
+        "doc_names": (r"W1_gabpd",),
+    },
+    "experiments/acceptance/V23_electrical_room.rvt": {
+        "content": "walls + template-family instances on an Autodesk MEP template",
+        "built_by": "tools/spec_to_rvt.py (the legacy rvt_job create --spec lineage)",
+        "why": "built on a git-ignored template sample; no family of ours inside",
+        "caveat": V23_MECHANISM_ONLY,
+        "doc_names": (r"V23_electrical_room",),
+    },
+    "experiments/acceptance/V25_room_from_ifc.rvt": {
+        "content": "IFC content authored onto an Autodesk MEP template",
+        "built_by": "tools/ifc_to_spec.py -> tools/spec_to_rvt.py",
+        "why": "built on a git-ignored template sample; no family of ours inside",
+        "caveat": V25_MECHANISM_ONLY,
+        "doc_names": (r"V25_room_from_ifc",),
+    },
+    "experiments/acceptance/V26_room_from_ifc_with_walls.rvt": {
+        "content": "IFC content + synthesized walls authored onto an Autodesk MEP template",
+        "built_by": "tools/ifc_to_spec.py -> tools/spec_to_rvt.py",
+        "why": "built on a git-ignored template sample; no family of ours inside",
+        "caveat": V26_MECHANISM_ONLY,
+        "doc_names": (r"V26_room_from_ifc",),
     },
 }
 
@@ -143,35 +392,124 @@ def evidence_form_is_earlier(path: str) -> bool:
     return ent.get("certified") != ent.get("reviewed")
 
 
+def required_caveat(path: str) -> Optional[str]:
+    """The caveat every row citing certified ``path`` must carry (#981 /
+    #984), or None: an earlier-form registered file's, or a mechanism-only
+    file's."""
+    if evidence_form_is_earlier(path):
+        return EVIDENCE_FORMS[path]["caveat"]
+    ent = EVIDENCE_MECHANISMS.get(path)
+    return ent["caveat"] if ent else None
+
+
+def _resolve(dotted: str) -> Any:
+    import importlib
+    mod, _, name = dotted.partition(":")
+    return getattr(importlib.import_module(mod), name)
+
+
+class _pinned_env:
+    """Set (str) / unset (None) environment variables for one rebuild and
+    restore them after -- the recipes must not depend on the caller's env."""
+
+    def __init__(self, **kv: Optional[str]) -> None:
+        self.kv, self.saved = kv, {}
+
+    def __enter__(self) -> "_pinned_env":
+        for k, v in self.kv.items():
+            self.saved[k] = os.environ.get(k)
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        return self
+
+    def __exit__(self, *exc: Any) -> None:
+        for k, v in self.saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+
+def _in_release(release: int, build: Any) -> Any:
+    from . import release_ctx as RC
+    if int(release) == RC.native_release():
+        return build()
+    with RC.release_build_context(RC._bundled_base_of(int(release))):
+        return build()
+
+
+def _sha256(path: str) -> str:
+    import hashlib
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def family_set_fingerprints(path: str, release: int, *,
+                            out_dir: Optional[str] = None) -> List[Tuple[str, str, str]]:
+    """``[(tag, sha256 of the written .rfa, family-mode verdict)]`` for a
+    ``family_set`` entry (#984), each family built as ``build`` says."""
+    import shutil
+    import tempfile
+    from .standalone import standalone_family_write
+    ent = EVIDENCE_FORMS[path]
+    d = out_dir or tempfile.mkdtemp(prefix="t984_")
+    try:
+        out = os.path.join(d, "f.rfa")
+
+        def build() -> List[Tuple[str, str, str]]:
+            rows = []
+            for tag, ctor, kwargs in ent["families"]:
+                rep = standalone_family_write(_resolve(ctor)(**kwargs), out, provenance=False)
+                verdict = (((rep.get("validate") or {}).get("family_mode") or {})
+                           .get("verdict", "?"))
+                rows.append((tag, _sha256(out), str(verdict)))
+            return rows
+
+        with _pinned_env(SOURCE_DATE_EPOCH=None):
+            return _in_release(release, build)
+    finally:
+        if out_dir is None:
+            shutil.rmtree(d, True)
+
+
 def generator_fingerprint(path: str, release: int, *, out_dir: Optional[str] = None) -> str:
-    """Rebuild the family a certified ``path`` cites through its generator
-    exactly as ``EVIDENCE_FORMS[path]['build']`` says, at ``release``, and
-    return the sha256 of the written ``.rfa``.  Needs the bundled genesis
-    base (plugin/assets/genesis); imports are local so this module stays
-    cheap to import."""
+    """Rebuild what a certified ``path`` cites through its generator exactly
+    as ``EVIDENCE_FORMS[path]['build']`` says, at ``release``, and return the
+    sha256 (of the written file, or of the family set's per-family lines).
+    Needs the bundled genesis bases (plugin/assets/genesis); imports are local
+    so this module stays cheap to import."""
     import hashlib
     import shutil
     import tempfile
     ent = EVIDENCE_FORMS[path]
-    if ent["generator"] != "rvt.ifc.famfrom_ifc:make_downlight":
-        raise ValueError(f"no rebuild recipe for generator {ent['generator']!r}")
-    from ..ifc import famfrom_ifc as FFI
-    from . import release_ctx as RC
-    from .standalone import standalone_family_write
+    recipe = ent.get("recipe")
+    if recipe == "family_set":
+        rows = family_set_fingerprints(path, release, out_dir=out_dir)
+        return hashlib.sha256("\n".join(f"{t} {h}" for t, h, _ in rows)
+                              .encode("utf-8")).hexdigest()
     d = out_dir or tempfile.mkdtemp(prefix="t981_")
     try:
-        out = os.path.join(d, "f.rfa")
-
-        def build() -> None:
-            standalone_family_write(FFI.make_downlight(), out, provenance=False)
-
-        if int(release) == RC.native_release():
-            build()
-        else:
-            with RC.release_build_context(RC._bundled_base_of(int(release))):
-                build()
-        with open(out, "rb") as fh:
-            return hashlib.sha256(fh.read()).hexdigest()
+        if recipe == "downlight":
+            from ..ifc import famfrom_ifc as FFI
+            from .standalone import standalone_family_write
+            out = os.path.join(d, "f.rfa")
+            with _pinned_env(SOURCE_DATE_EPOCH=None):
+                _in_release(release, lambda: standalone_family_write(
+                    FFI.make_downlight(), out, provenance=False))
+            return _sha256(out)
+        if recipe == "author":
+            from . import author
+            a = ent["author"]
+            with _pinned_env(SOURCE_DATE_EPOCH="0", RVT_WALL_REP=None):
+                res = author(prompt=a["prompt"], out=d, target_version=int(release),
+                             no_handoff=True, stem=a["stem"])
+            out = os.path.join(d, a["stem"] + ".rvt")
+            if not os.path.isfile(out):
+                raise RuntimeError(f"author wrote no {a['stem']}.rvt: {res.status}")
+            return _sha256(out)
+        raise ValueError(f"no rebuild recipe {recipe!r} for {path}")
     finally:
         if out_dir is None:
             shutil.rmtree(d, True)
@@ -204,13 +542,15 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
            "worked:experiments/frontdoor/prompt-electrical-room/scene-brief.json")),
     Stage("ifc->intent", "rvt.frontdoor.intent:intent_from_ifc",
           "rvt.ifc.intent resolver: placement chains + world geometry + the "
-          "tagging-contract Pset join key -> IntentModel",
+          "tagging-contract Pset join key -> IntentModel. " + V25_MECHANISM_ONLY,
           ("test:tests/test_ifc_intent.py",
            "certified:experiments/acceptance/V25_room_from_ifc.rvt")),
     Stage("intent->rvt", "rvt.frontdoor:author",
           "the build step on the CERTIFIED GENESIS BASE (families F, load L, "
           "walls W, equipment E, circuits C plan, gates V) with the honest "
-          "open-cell degrade (placed instances: stamp / --strict split)",
+          "open-cell degrade (placed instances: stamp / --strict split). "
+          + ROOM_2500A_WALLS_MECHANISM_ONLY + ". " + STAGE_L8_EARLIER_FORM + ". "
+          + RSOLID_MECHANISM_ONLY,
           ("test:tests/test_frontdoor.py",
            "certified:experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
            "certified:experiments/ifc_room/stage_L8_lp4.rvt",
@@ -298,7 +638,8 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
           "the certified FOUR-REGISTRY loader (rvt.famload, L1a mechanism): "
           "our family document becomes an embedded save unit + "
           "ContentDocuments + ContentTable + FamilyMgr entries + host "
-          "Family/Symbol/surrogates/twins. " + DOWNLIGHT_EARLIER_FORM,
+          "Family/Symbol/surrogates/twins. " + L1A_MECHANISM_ONLY + ". "
+          + DOWNLIGHT_EARLIER_FORM,
           ("test:tests/test_famload.py",
            "certified:experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
            "certified:experiments/families/ifc/L_downlight_loaded.rvt")),
@@ -309,7 +650,8 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
            "worked:skills/tekton-ifc/tests")),
     Stage("spec->rvt-legacy", "tool:tools/rvt_job.py",
           "rvt_job.py create --spec: the job runner's gated spec build on a "
-          "template/seed project (seed audit; hard gates; manifest)",
+          "template/seed project (seed audit; hard gates; manifest). "
+          + V23_MECHANISM_ONLY,
           ("test:tests/test_job.py",
            "certified:experiments/acceptance/V23_electrical_room.rvt")),
     Stage("rvt-read", "rvt.frontdoor.edit:editables",
@@ -344,7 +686,8 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
           "a standalone .rfa ON DISK -> RfaFamilyDoc -> the four-registry "
           "COMPONENT loader (rvt.famgen.loader, the stage_L8 mechanism) into a "
           "copy of the host; the family's element ids must clear the host's "
-          "id watermark (a tekton-EXTRACTED family does by construction)",
+          "id watermark (a tekton-EXTRACTED family does by construction). "
+          + STAGE_L8_EARLIER_FORM,
           ("test:tests/test_convert.py",
            "worked:experiments/convert/extract-family/DP1_reextracted.reloaded.rvt.load.json",
            "certified:experiments/ifc_room/stage_L8_lp4.rvt")),
@@ -536,12 +879,13 @@ _RFA_INPUT = ("rfa INPUT CONTRACT: (a) a famspec JSON ({'kind': 'panelboard' | "
               "documents, seq-103 classes beyond GElement/SerializedDummy")
 _RFA_HOST = ("default host = the pinned certified genesis base (G_ABPD, "
              "hash-verified, bundled with the plugin); pass rvt to load into "
-             "YOUR project. Load depth certified by the ledger: our families "
-             "onto the rst host (L1a, L_downlight_loaded -- an EARLIER form of "
-             "the downlight, #981) and the genesis "
-             "lineage (stage_L8_lp4), a Revit-born standalone .rfa (T2a) and "
-             "an embedded-born family document (TB0g) onto the composed base "
-             "with instances")
+             "YOUR project. Load depth certified by the ledger: the loader onto "
+             "the rst host (L1a -- a level-head annotation skeleton, mechanism "
+             "only, #984; L_downlight_loaded -- an EARLIER form of the downlight, "
+             "#981), EARLIER forms of our catalog families loaded, unplaced, on "
+             "the genesis lineage (stage_L8_lp4, an empty-design translation, "
+             "#984), a Revit-born standalone .rfa (T2a) and an embedded-born "
+             "family document (TB0g) onto the composed base with instances")
 _RFA_RELEASE = ("PER RELEASE (--target-version, or 'target_version' in the famspec): "
                 "with no rvt the host is THAT year's pinned certified base and the "
                 "family is emitted AND loaded under its release -- 2026 / 2025 / 2024: "
@@ -571,10 +915,13 @@ _FAMSPEC_GATES = ("a famspec-generated .rfa is family-mode-validator + provenanc
                   "gated (0 errors, zero donor bytes, assumed/user-given fact fields "
                   "surfaced in its report) and stamped PROOF-ONLY: no famspec artifact "
                   "is in the certified ledger as a standalone .rfa (rule 4: no .rfa "
-                  "of ours is) -- what the ledger certifies is the same constructors' "
-                  "families LOADED into projects (stage_L8_lp4 on the genesis lineage, "
-                  "L1a on the rst host); the standalone file is delivered regardless, "
-                  "the label rides with it")
+                  "of ours is) -- what the ledger certifies is EARLIER forms of these "
+                  "constructors' families LOADED, unplaced, into a genesis-lineage "
+                  "project (stage_L8_lp4, an empty-design translation that predates "
+                  "the constructors' current output, #984) and the load mechanism on "
+                  "the rst host (L1a, a level-head annotation family, not a famspec "
+                  "kind); today's constructor output has no viewer verdict; the "
+                  "standalone file is delivered regardless, the label rides with it")
 
 _CELL_LIST: List[Cell] = [
     # ---------------- singles: prompt ----------------
@@ -584,7 +931,8 @@ _CELL_LIST: List[Cell] = [
           "test:tests/test_frontdoor.py",
           "certified:experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
           "certified:experiments/ifc_room/stage_L8_lp4.rvt"),
-         (_OPEN_BUG, _CIRCUITS, _PROOF_ONLY),
+         (_OPEN_BUG, _CIRCUITS, ROOM_2500A_WALLS_MECHANISM_ONLY, STAGE_L8_EARLIER_FORM,
+          _PROOF_ONLY),
          hint="alternate chain: via='ifc' runs prompt->ifc->rvt (the handoff round trip)"),
     Cell(("prompt",), "ifc", STATUS_WORKS, "prompt_to_ifc",
          ("prompt->intent", "intent->ifc"),
@@ -616,7 +964,7 @@ _CELL_LIST: List[Cell] = [
           "certified:experiments/acceptance/V26_room_from_ifc_with_walls.rvt",
           "worked:experiments/frontdoor/ifc-electrical-room-2500a/manifest.json",
           "test:tests/test_ifc_intent.py"),
-         (_OPEN_BUG, _CIRCUITS, _PROOF_ONLY),
+         (_OPEN_BUG, _CIRCUITS, V25_MECHANISM_ONLY, V26_MECHANISM_ONLY, _PROOF_ONLY),
          hint=("a PRODUCT IFC (one measured product, no room) auto-falls back "
                "to the family chain: ifc->facts->rfa->loaded rvt")),
     Cell(("ifc",), "ifc", STATUS_WORKS, "ifc_normalize",
@@ -729,8 +1077,8 @@ _CELL_LIST: List[Cell] = [
           "spec/famspec.schema.json (unknown kind, misspelt field, wrong type) or "
           "whose facts the catalog lacks is answered in ONE clear line naming the "
           "field -- never a traceback, never an invented dimension",
-          _RFA_HOST, DOWNLIGHT_EARLIER_FORM, _RFA_RELEASE, _RFA_FAMSPEC_ENV,
-          _FAMSPEC_GATES, _PROOF_ONLY)),
+          _RFA_HOST, DOWNLIGHT_EARLIER_FORM, L1A_MECHANISM_ONLY, STAGE_L8_EARLIER_FORM,
+          _RFA_RELEASE, _RFA_FAMSPEC_ENV, _FAMSPEC_GATES, _PROOF_ONLY)),
     Cell(("rfa",), "ifc", STATUS_MISSING, None, (),
          (), (),
          missing_reason="no family->IFC product emitter exists yet",
@@ -784,7 +1132,7 @@ _CELL_LIST: List[Cell] = [
           "genesis base; the LEGACY direct build (tools/rvt_job.py create "
           "--spec, V23-certified) authors on a template/seed project and "
           "remains available as spec+rvt",
-          _OPEN_BUG, _PROOF_ONLY)),
+          V23_MECHANISM_ONLY, _OPEN_BUG, _PROOF_ONLY)),
     Cell(("spec",), "ifc", STATUS_WORKS, "spec_to_ifc",
          ("spec->ifc",),
          ("worked:usecases/chicago-plenum-electrical-room/generated.ifc",
@@ -941,7 +1289,8 @@ _CELL_LIST: List[Cell] = [
           "composed bases (both Revit-lineage 2026 projects) -- a host of "
           "another release loads only where that release's creation support "
           "is certified",
-          DOWNLIGHT_EARLIER_FORM, _RFA_RELEASE, _RFA_FAMSPEC_ENV, _PROOF_ONLY)),
+          DOWNLIGHT_EARLIER_FORM, L1A_MECHANISM_ONLY, STAGE_L8_EARLIER_FORM,
+          _RFA_RELEASE, _RFA_FAMSPEC_ENV, _PROOF_ONLY)),
     Cell(("ifc", "prompt"), "rvt", STATUS_PARTIAL, "ifc_build_then_edit",
          ("ifc->intent", "intent->rvt", "rvt-read", "rvt-edit"),
          ("test:tests/test_ifc_intent.py", "test:tests/test_manipulate.py"),
@@ -959,7 +1308,8 @@ _CELL_LIST: List[Cell] = [
           "(seed audit reports gaps; hard gates structural/validation/"
           "identity run; manifest written beside the output)",
           "authored content clones the seed's loaded types -- the output is "
-          "ledgered against that seed: PROOF-ONLY vs whatever you supply")),
+          "ledgered against that seed: PROOF-ONLY vs whatever you supply",
+          V23_MECHANISM_ONLY)),
 ]
 
 CELLS: Dict[Tuple[Tuple[str, ...], str], Cell] = {c.key(): c for c in _CELL_LIST}
@@ -1009,8 +1359,14 @@ CHAINS: Dict[str, Dict[str, Any]] = {
         "stages": ("prompt->intent", "intent->rfa", "rfa-load", "intent->rvt"),
         "status": STATUS_WORKS,
         "note": ("this chain IS the F/L stages inside prompt->rvt: the "
-                 "families are generated, loaded onto the base, then placed"),
-        "evidence": ("certified:experiments/ifc_room/stage_L8_lp4.rvt",),
+                 "families are generated, loaded onto the base, then placed; "
+                 "the certified file below has NO placed instance, and the "
+                 "placing leg runs end to end on a fresh clone "
+                 "(tests/test_frontdoor_standalone.py places an instance on the "
+                 "bundled base) without any viewer verdict. " + _OPEN_BUG + " "
+                 + STAGE_L8_EARLIER_FORM),
+        "evidence": ("certified:experiments/ifc_room/stage_L8_lp4.rvt",
+                     "test:tests/test_frontdoor_standalone.py"),
     },
     "rvt->rfa->loaded-rvt": {
         "via": None, "cell": key_for(("rfa", "rvt"), "rvt"),
@@ -1148,12 +1504,19 @@ def verify_evidence() -> List[str]:
 
     def check_form(refs: Sequence[str], text: str, where: str) -> None:
         """#981: a certified family whose generator output is no longer the
-        certified form may only be cited by a row that SAYS so."""
+        certified form may only be cited by a row that SAYS so; #984: nor
+        may a file cited for a mechanism only."""
         for ref in refs:
             if not ref.startswith("certified:"):
                 continue
             path = ref.split(":", 1)[1]
-            if evidence_form_is_earlier(path) and EVIDENCE_FORMS[path]["caveat"] not in text:
+            need = required_caveat(path)
+            if need is None or need in text:
+                continue
+            if path in EVIDENCE_MECHANISMS:
+                problems.append(f"{where}: cites {path} (certifies a MECHANISM only) "
+                                f"without the EVIDENCE_MECHANISMS caveat")
+            else:
                 problems.append(f"{where}: cites {path} (an EARLIER form of what its "
                                 f"generator emits now) without the EVIDENCE_FORMS caveat")
 
@@ -1163,6 +1526,9 @@ def verify_evidence() -> List[str]:
         check_form(s.evidence, s.does, f"stage {s.id}")
     for name, ch in CHAINS.items():
         check_form(ch.get("evidence", ()), str(ch.get("note") or ""), f"chain {name}")
+    for path in list(EVIDENCE_FORMS) + list(EVIDENCE_MECHANISMS):
+        if path not in certified:
+            problems.append(f"evidence registry: {path} is NOT in the certified ledger")
     for c in _CELL_LIST:
         check_form(c.evidence, "\n".join(c.caveats), f"cell {'+'.join(c.inputs)}->{c.output}")
         if c.status in (STATUS_WORKS, STATUS_PARTIAL) and not c.evidence:

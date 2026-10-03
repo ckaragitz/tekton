@@ -66,7 +66,10 @@ def test_every_registered_form_is_a_certified_ledger_entry():
     for path, ent in M.EVIDENCE_FORMS.items():
         assert path in certified, path
         assert ent["generator"] and ent["build"] and ent["caveat"]
-        assert set(ent["reviewed"]) >= {2026, 2025}, path
+        # #984: a registered file is fingerprinted at the releases its recipe
+        # builds (ROOM2025_walls is a 2025 file); the downlight at both
+        assert ent["reviewed"] and set(ent["reviewed"]) <= {2026, 2025, 2024}, path
+    assert set(M.EVIDENCE_FORMS[DOWNLIGHT]["reviewed"]) >= {2026, 2025}
 
 
 def test_the_downlight_is_registered_and_is_an_earlier_form():
