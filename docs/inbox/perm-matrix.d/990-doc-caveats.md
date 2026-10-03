@@ -89,4 +89,5 @@ Caveats in prose say what the ledger certifies. None of this makes any file open
   test_plugin_sync together: **354 passed / 15 skipped** (144 s); test_doc_caveats_990 alone 35 passed. `tools/route.py matrix`
   self-audit clean (25 cells / 27 stages / 5 chains). `tools/sync_plugin.py` then `--check`
   in sync. `validate_plugin.py` PASS. `check_portable_paths.py` ok.
-- Staged: nothing. Follow-up: the HONEST-STATUS.md:30 "verdict #25 retracted" phrase.
+- Staged: nothing. The HONEST-STATUS.md:30 "verdict #25 retracted" phrase was aligned to the
+  verdicts #24/#25 wording when this shipped (plugin/docs is hand-authored, §3b).
