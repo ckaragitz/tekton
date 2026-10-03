@@ -248,7 +248,8 @@ def test_every_installed_awk_gives_the_same_quiet_answers(rig, tmp_path, flavour
     (shim / "awk").symlink_to(shutil.which(flavour))                    # busybox, too: it picks the applet from argv[0]'s basename
     path = str(shim) + os.pathsep + os.environ.get("PATH", "")
     # a near-miss of a SHARD_READS name (any character where the literal dot or the directory slash must be) is plain tolerated docs drift...
-    now = git_commit(rig.up, {"docs/coverage-x.md": "x\n", "docs/process/AUTONOMY_md": "x\n", "docs/x.md": "more\n"}, "near misses")
+    now = git_commit(rig.up, {"docs/coverage-x.md": "x\n", "docs/product-x.md": "x\n",   # product/ is a bare prefix since #995
+                                    "docs/process/AUTONOMY_md": "x\n", "docs/x.md": "more\n"}, "near misses")
     assert rig.fresh(path=path) == (0, "FRESH(docs-only drift) was=%s now=%s" % (rig.was, now)), flavour
     assert rig.err == "", (flavour, rig.err)
     # ...the real name is not, and the blocking list is joined the same way

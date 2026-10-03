@@ -15,9 +15,10 @@ itself needs:
 * :func:`combination_check` -- detects THE OPEN CELL (docs/inbox/
   genesis-audit.md ORCHESTRATOR VERDICTS #48, issue #16): PLACED INSTANCES
   of OUR generated family documents on OUR composed genesis base fail
-  Autodesk's audit, while walls PASS, loaded families PASS, and walls +
-  loaded families together PASS (WF_fix / WF_nofix, verdict #27 -- the old
-  'walls+families combination' suspicion is EXONERATED).  The build step
+  Autodesk's audit, while walls PASS, loaded families PASS, and
+  :data:`rvt.frontdoor.matrix.WALLS_FAMILY_SHAPE` PASS -- walls + ONE loaded
+  family; the old 'walls+families combination' suspicion is not reproduced
+  with one family, and the original failure had 8 (attribution open, #996).  The build step
   DEGRADES HONESTLY on the true cell: split into two coordinated files
   (``--strict``: shell = walls + loaded families, equipment = the placed
   instances) or emit one file STAMPED with :data:`OPEN_CELL_STAMP`.  A
@@ -34,6 +35,7 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, Iterable, List, Optional
 
 from ..ifc import intent as I
+from .matrix import WALLS_FAMILY_SHAPE
 
 __all__ = [
     "IntentModel", "IntentError", "intent_from_ifc", "write_intent_json",
@@ -57,11 +59,11 @@ OPEN_BUG_TEXT = (
     "docs/coverage/viewer-certified.json) while every other measured axis is "
     "exonerated -- docs/inbox/genesis-audit.md ORCHESTRATOR VERDICTS #48, "
     "issue #16 (next instrument: desktop Revit's own dialog). Certified around "
-    "it: walls on the base PASS, loaded families PASS, walls + loaded families "
-    "in ONE file PASS (WF_fix / WF_nofix, verdict #27), our famdocs + instances "
+    "it: walls on the base PASS, loaded families PASS, " + WALLS_FAMILY_SHAPE
+    + " PASS, our famdocs + instances "
     "on a PRISTINE Revit host PASS (T1r / T1u / U16). Until the cell closes the "
     "front door DEGRADES, never withholds: --strict emits two coordinated files "
-    "('shell' = walls + loaded families, the certified shape; 'equipment' = the "
+    "('shell' = walls + loaded families, certified with one family; 'equipment' = the "
     "placed instances, the open cell isolated), the default emits one combined "
     "file STAMPED '" + OPEN_CELL_STAMP + "'.")
 
@@ -153,9 +155,17 @@ def planned_instances(model: IntentModel,
     return sum(1 for e in (model.equipment or []) if e.tag in tags)
 
 
+def _wf_shape(n_fam: int) -> str:
+    """How far WF_fix / WF_nofix cover a walls + ``n_fam`` families shell (#996)."""
+    if n_fam == 1:
+        return "the WF_fix / WF_nofix certified shape (walls + one loaded family, verdict #27)"
+    return (f"certified only as {WALLS_FAMILY_SHAPE}: with {n_fam} families no viewer "
+            "verdict exists (the original walls+families failure had 8)")
+
+
 _CELL_WHY = ("placed instances of OUR generated families on the composed genesis base "
              "are THE OPEN CELL (genesis-audit #48, issue #16; walls, loaded families "
-             "and walls + loaded families are certified)")
+             "and " + WALLS_FAMILY_SHAPE + " are certified)")
 
 
 # ---------------------------------------------------------------------------
@@ -212,15 +222,15 @@ def combination_check(model: IntentModel, *, strict: bool = False,
       and at least one loaded family with equipment) on our COMPOSED genesis
       base = THE OPEN CELL:
         - ``strict``  -> ``mode='split-strict'``: TWO coordinated files --
-          ``shell`` = the walls + the LOADED families (the WF_fix-certified
-          shape, no placement) and ``equipment`` = the loaded families +
-          their PLACED instances (the open cell, isolated).  Both delivered.
+          ``shell`` = the walls + the LOADED families (no placement; the
+          WF_fix-certified shape with ONE family -- more is open, #27) and
+          ``equipment`` = the loaded families + their PLACED instances (the open cell, isolated).  Both delivered.
         - default     -> ``mode='stamp-proof-only'``: ONE combined file whose
           manifest is STAMPED :data:`OPEN_CELL_STAMP`.  Delivered.
     * anything else -> ``mode='single'``, no open-cell stamp: walls only,
-      loaded families only, walls + loaded families WITHOUT placement (all
-      certified shapes), or instances on a host that is NOT our composed
-      base (our famdocs + instances on a pristine Revit host PASS -- T1r /
+      loaded families only, walls + loaded families WITHOUT placement
+      (certified shapes -- walls + families only with ONE family, #27), or
+      instances on a host that is NOT our composed base (our famdocs + instances on a pristine Revit host PASS -- T1r /
       T1u / U16; the artifact itself stays PROOF-ONLY via the status gate).
 
     ``composed_base`` defaults to True: a caller that cannot vouch for the
@@ -249,7 +259,7 @@ def combination_check(model: IntentModel, *, strict: bool = False,
                   composed_base=bool(composed_base))
     if n_inst > 0 and composed_base:
         shell_what = (f"the {n_walls} walls + the {n_fam} loaded families, NO placement "
-                      "-- the WF_fix-certified shape" if builds_w
+                      f"-- {_wf_shape(n_fam)}" if builds_w
                       else f"the {n_fam} loaded families, NO placement -- the "
                            "certified load shape")
         if strict:
@@ -273,7 +283,7 @@ def combination_check(model: IntentModel, *, strict: bool = False,
                         + (f"the {n_walls} walls + " if builds_w else "")
                         + f"the {n_fam} loaded families + their {n_inst} PLACED instances) is "
                         f"emitted and DELIVERED, and the manifest is STAMPED '{OPEN_CELL_STAMP}' "
-                        f"-- {_CELL_WHY}. Pass --strict to get the certified shell and the "
+                        f"-- {_CELL_WHY}. Pass --strict to get the shell (no placement) and the "
                         "instances as two coordinated files instead."))
             v.notes.append("the stamp is a LABEL, not refusal logic: the file is delivered and "
                            "its own self-checks (validator / registries / identity) still run; "
@@ -286,9 +296,8 @@ def combination_check(model: IntentModel, *, strict: bool = False,
                 "are a certified cell (T1r / T1u / U16); this artifact itself is unverified "
                 "and rides the status gate's PROOF-ONLY label")
     elif builds_w and has_f and "L" in stages:
-        what = (f"{n_walls} walls + {n_fam} loaded families WITHOUT placement -- the "
-                "WF_fix / WF_nofix certified shape (genesis-audit #27); the old "
-                "'walls+families combination' suspicion is exonerated")
+        what = (f"{n_walls} walls + {n_fam} loaded families WITHOUT placement -- "
+                + _wf_shape(n_fam))
     elif builds_w:
         what = "walls only (viewer-certified shape: room shell on the genesis base)"
     elif has_f and "L" in stages:

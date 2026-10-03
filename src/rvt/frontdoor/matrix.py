@@ -779,15 +779,21 @@ def key_for(inputs: Sequence[str], output: str) -> Tuple[Tuple[str, ...], str]:
 _PROOF_ONLY = ("every output is PROOF-ONLY, NOT-DELIVERABLE until TRACKER "
                "gates G2/G3 clear (docs/product/content-strategy.md); the "
                "manifest says so explicitly")
+#: #996 -- the one wording of what WF_fix / WF_nofix certify.  Both are walls +
+#: ONE loaded family; the file that failed had 8, and verdict #27 left the
+#: attribution open (no walls + N families ladder has run since).  Every
+#: product surface that states the shape quotes this (tests/test_open_cell_996.py).
+WALLS_FAMILY_SHAPE = ("walls + one loaded family (WF_fix / WF_nofix; whether more "
+                      "families in one file pass is open, verdict #27)")
 _OPEN_BUG = ("PLACED INSTANCES of our generated families on our composed "
              "genesis base are THE OPEN CELL (docs/inbox/genesis-audit.md "
-             "#48, issue #16; walls, loaded families and walls + loaded "
-             "families in one file are certified -- WF_fix / WF_nofix): a "
+             "#48, issue #16; walls, loaded families and "
+             + WALLS_FAMILY_SHAPE + " are certified): a "
              "job that places instances is DELIVERED and STAMPED 'PROOF-ONLY: "
              "generated-family INSTANCES on a composed genesis base (open "
              "cell, docs/inbox/genesis-audit.md #48, issue #16)'; --strict "
              "emits two coordinated files instead, both delivered -- 'shell' "
-             "(walls + loaded families, the certified shape) + 'equipment' "
+             "(walls + loaded families -- certified with one family) + 'equipment' "
              "(the placed instances, the open cell isolated)")
 _CIRCUITS = ("feeder CIRCUITS are AUTHORED natively on the genesis base "
              "(2026/2025/2024): one constructed RbsElectricalSystem per "
