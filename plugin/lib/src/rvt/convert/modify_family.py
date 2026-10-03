@@ -434,6 +434,45 @@ def _sibling_vocabulary():
     return None
 
 
+_RE_CLAUSE_SEP = re.compile(r";|\n|\bthen\b|,\s*(?=set\b|rename\b)")
+
+
+def _quoted_spans(s: str) -> List[Tuple[int, int]]:
+    """(start, end) of each ``"..."`` / ``'...'`` pair that opens at a word start
+    and closes at a word end; a quote with no such close is literal, so an
+    apostrophe (``Bob's``) or an unbalanced quote never hides a separator (#1017)."""
+    spans: List[Tuple[int, int]] = []
+    i = 0
+    while i < len(s):
+        q = s[i]
+        if q in "\"'" and (i == 0 or s[i - 1].isspace() or s[i - 1] in "=:,;("):
+            j = i + 1
+            while (j := s.find(q, j)) >= 0:
+                if j + 1 == len(s) or s[j + 1].isspace() or s[j + 1] in ".;,!?)":
+                    break
+                j += 1
+            if j > i:
+                spans.append((i, j + 1))
+                i = j + 1
+                continue
+        i += 1
+    return spans
+
+
+def _split_clauses(s: str) -> List[str]:
+    """Split edit text on ``;``, newlines, ``then`` and ``, set|rename`` -- never
+    inside a quoted value (#1017: ``set Note = "a; b"`` is one clause)."""
+    spans = _quoted_spans(s)
+    out, start = [], 0
+    for m in _RE_CLAUSE_SEP.finditer(s):
+        if any(a < m.start() < b for a, b in spans):
+            continue
+        out.append(s[start:m.start()])
+        start = m.end()
+    out.append(s[start:])
+    return [c.strip() for c in out if c.strip()]
+
+
 def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
     """Normalise ``spec`` (NL text | inline JSON | ops.json path) into ops:
 
@@ -493,8 +532,7 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
                 "notes": notes, "vocabulary": "rvt.convert.modify_family (built-in)"}
 
     unparsed: List[str] = []
-    for cl in [c.strip() for c in re.split(r";|\n|\bthen\b|,\s*(?=set\b|rename\b)", s)
-               if c.strip()]:
+    for cl in _split_clauses(s):
         c = cl.rstrip(".")
         mark = len(notes)
         if (m := _RE_RENAME_FAMILY.match(c)):
