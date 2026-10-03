@@ -434,6 +434,59 @@ def _sibling_vocabulary():
     return None
 
 
+_RE_CLAUSE_SEP = re.compile(r";|\n|\bthen\b|,\s*(?=set\b|rename\b)")
+
+
+def _quoted_spans(s: str) -> List[Tuple[int, int]]:
+    """(start, end) of each ``"..."`` / ``'...'`` pair that may hold a clause
+    separator (#1017).  A pair opens at a word start onto a non-space and closes
+    at a word end; it holds no other copy of its quote and does not close as a
+    unit mark (``3'`` / ``5"``).  Any other quote is literal -- an apostrophe
+    (``'90s``, ``Bob's``), a feet/inch mark or an unbalanced quote never pairs
+    with a quote in a later clause and swallows it (PR #1018 review)."""
+    spans: List[Tuple[int, int]] = []
+    i = 0
+    while i < len(s):
+        q = s[i]
+        if (q in "\"'" and (i == 0 or s[i - 1].isspace() or s[i - 1] in "=:,;(")
+                and i + 1 < len(s) and not s[i + 1].isspace() and s[i + 1] not in ";,"):
+            j = s.find(q, i + 1)
+            if j > i and (j + 1 == len(s) or s[j + 1].isspace() or s[j + 1] in ".;,!?)") \
+                    and not (s[j - 1].isdigit() or s[j - 1].isspace()):
+                spans.append((i, j + 1))
+                i = j + 1
+                continue
+        i += 1
+    return spans
+
+
+def _split_clauses(s: str, joined: Optional[set] = None) -> List[str]:
+    """Split edit text on ``;``, newlines, ``then`` and ``, set|rename`` -- never
+    inside a quoted value (#1017: ``set Note = "a; b"`` is one clause).  A quoted
+    value that runs across what reads as a further ``set`` / ``rename`` clause is
+    refused: it cannot be told from a stray quote pairing with the next edit's
+    (PR #1018 review), and a refusal is recoverable where a swallowed edit is not.
+    Each clause kept whole across a separator is added to ``joined``."""
+    spans = _quoted_spans(s)
+    out, start, kept = [], 0, False
+    for m in _RE_CLAUSE_SEP.finditer(s):
+        span = next(((a, b) for a, b in spans if a < m.start() < b), None)
+        if span is None:
+            out.append((s[start:m.start()], kept))
+            start, kept = m.end(), False
+            continue
+        kept = True
+        if re.match(r"\s*(?:set|rename)\b", s[m.end():], re.I):
+            raise FamilyEditError(
+                f"the quote in {s[span[0]:span[1]]} runs across a further edit: close the "
+                "quote before the ';' / ',' / 'then' to make separate edits (to store that "
+                "text itself, use a JSON set-param op)")
+    out.append((s[start:], kept))
+    if joined is not None:
+        joined.update(c.strip() for c, k in out if k)
+    return [c.strip() for c, _ in out if c.strip()]
+
+
 def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
     """Normalise ``spec`` (NL text | inline JSON | ops.json path) into ops:
 
@@ -493,8 +546,8 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
                 "notes": notes, "vocabulary": "rvt.convert.modify_family (built-in)"}
 
     unparsed: List[str] = []
-    for cl in [c.strip() for c in re.split(r";|\n|\bthen\b|,\s*(?=set\b|rename\b)", s)
-               if c.strip()]:
+    joined: set = set()
+    for cl in _split_clauses(s, joined):
         c = cl.rstrip(".")
         mark = len(notes)
         if (m := _RE_RENAME_FAMILY.match(c)):
@@ -514,6 +567,14 @@ def parse_family_edit(spec: str, inv: FamilyInventory) -> Dict[str, Any]:
             op = _op_set(inv, m.group("cap").strip(), m.group("val").strip(), notes,
                          type_name=(m.group("typeq") or m.group("typeq2")
                                     or m.group("type")), clause=c)
+        elif cl in joined:
+            # kept whole across a ';' / newline / 'then' inside quotes, then
+            # unreadable (a newline in the value, a mixed quote in a name): the
+            # split on main would have applied part of it -- never drop it
+            # silently (PR #1018 second review)
+            raise FamilyEditError(
+                f"cannot read {cl!r} as one edit: a quoted value here holds a ';' / "
+                "newline / 'then' (to store such text, use a JSON set-param op)")
         else:
             unparsed.append(cl)
             continue
