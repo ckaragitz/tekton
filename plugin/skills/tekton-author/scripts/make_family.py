@@ -148,6 +148,12 @@ def _shared_arg(ns):
                               share=ns.profile_share, rows=ns.shared_params,
                               values=getattr(ns, "profile_values", None),
                               links=getattr(ns, "profile_map", None))
+    ignored = [f for f, a in (("--profile-values", "profile_values"), ("--profile-map", "profile_map"),
+                              ("--profile-family", "profile_family"))
+               if getattr(ns, a, None)]
+    if ignored:
+        print(f"warning: {', '.join(ignored)} given without --param-profile -- ignored",
+              file=sys.stderr)
     return ns.shared_params
 
 

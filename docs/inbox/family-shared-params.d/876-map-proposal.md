@@ -18,7 +18,7 @@ New tool **`tools/profile_map_from_rfa.py LIBRARY --category ID -o MAP.json`**. 
 
 ## Evidence
 
-- `tests/test_profile_map_from_rfa_876.py`: **15 passed**. It covers:
+- `tests/test_profile_map_from_rfa_876.py`: **15 passed** as first shipped; **18** after the #971 review rounds (axis votes, a mixed family, an even split across families). It covers:
   - axis detection (aligned in either sense, oblique, unreadable);
   - primary per axis, where a part's width loses to the family's width;
   - each refusal reason: non-length, oblique, too few families, disagreement, tie;

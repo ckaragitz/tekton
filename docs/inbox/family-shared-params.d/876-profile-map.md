@@ -20,7 +20,7 @@ Stream **family-shared-params** (tech-lead session, 2026-10-02). Refs #876: DONE
 
 ## Evidence (DONE 4)
 
-`tests/test_profile_map_876.py`: **13 passed**. Synthetic profile, made-up names and GUIDs. The cases:
+`tests/test_profile_map_876.py`: **13 passed** as first shipped; **18** after the #971 review rounds (see below). Synthetic profile, made-up names and GUIDs. The cases:
 - **A link follows every type.** With a second type of Width 3.25 ft, the library width reads 3.25 there and the first type's width in the first. Width and height are both linked. An unmapped size parameter stays blank, with no tree.
 - **Six refusals**, each with its exact note: number←length, text←length, length←number, no such parameter, not a name, material.
 - **A given value wins:** the constant is written, with no tree, and the note says so.
@@ -49,6 +49,14 @@ The link is a formula, so the library parameter *reports* our size. That Revit r
   - Rerun on the owner's library (counts only): still **3 proposed** for electrical equipment.
 - **Tests:** a type→instance link and an integer link refused with no contradicting "NOT written" note; the linked line rebuilt; a refused link keeping the convention; axis ranking by own votes; a mixed family.
   - The test helper now copies the module's parameter table. Before, an extended profile leaked between tests, and the new tests showed it.
+
+## #971 review round 2 (🟡), carried in the #877 PR
+
+- **A refused link's fallback note** now reads "the library's convention is used instead (a formula is checked when the family is finalized)". A convention formula that finalize then refuses is named in the "not written" note, so the first note no longer claims it was written.
+- **The "linked by" line is matched by its whole head, per map source** (`_linked_head`), no longer by splitting at the first `"): "`. A map file named `odd): name.json` rebuilds correctly; there is a test.
+- **`make_family`** says so on stderr when `--profile-map`, `--profile-values` or `--profile-family` is given without `--param-profile`. Before, the flag was ignored silently; there is a test.
+- **The proposal tool:** families split evenly between two axes count as "mixed" and nothing is proposed, below the default share too (`--min-share 0.5`).
+- **Test counts:** `test_profile_map_876.py` 18 and `test_profile_map_from_rfa_876.py` 18, both collected.
 
 ## #962 review nits carried here
 

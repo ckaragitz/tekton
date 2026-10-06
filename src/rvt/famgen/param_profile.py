@@ -386,7 +386,8 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
             default, formula, refused, from_convention = _from_convention(p)
         if link_refused:
             notes.append(f"{p.name!r}: the map's link is refused -- {link_refused} -- "
-                         + ("the library's convention is written instead"
+                         + ("the library's convention is used instead (a formula is "
+                            "checked when the family is finalized)"
                             if from_convention and not refused else "left blank"))
         if refused and from_convention:
             what = refused if refused.startswith("the library's") else \
@@ -441,8 +442,7 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
                         + "; ".join([f"{n!r} by value" for n in conv_values]
                                     + [f"{n!r} by formula" for n in conv_formulas]))
     if linked:
-        notes.insert(1, f"linked by {links_source} to the family's own parameters (a formula "
-                        f"each, so the value follows every type): " + "; ".join(linked))
+        notes.insert(1, f"{_linked_head(links_source)}: " + "; ".join(linked))
     unused = sorted(set(values) - {p.guid.lower() for p in params} - {p.name for p in params})
     if unused:
         notes.append(f"values given for parameters the profile did not select: {', '.join(unused)}")
@@ -491,18 +491,39 @@ def settle_formula_provenance(doc, written_ids) -> None:
     # the map's line (#876) lists only the links still carried: one the formula step
     # refused is not announced as following every type
     for i, n in enumerate(doc.notes):
-        if n.startswith("linked by "):
-            head, _sep, _body = n.partition("): ")
+        # the source is read off the note itself, between the head's fixed prefix and
+        # tail -- so a map name holding "): " cannot split it, and a link whose claim
+        # was dropped above (its formula replaced) still has its line rebuilt
+        src = _linked_source(n)
+        if src is not None:
             kept = [f"{name!r} = {pe.refs['provenance']['link']!r}"
                     for name, pe in doc.params.items()
                     if (pe.refs.get("provenance") or {}).get("link")
-                    and head.startswith(f"linked by {pe.refs['provenance'].get('source')} ")]
-            doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
+                    and pe.refs["provenance"].get("source") == src]
+            doc.notes[i] = f"{_linked_head(src)}: " + ("; ".join(kept) if kept else "none written")
     doc.notes[:] = [n for n in doc.notes if not n.startswith(_NOT_WRITTEN_NOTES)]
     for tier, names in dropped.items():
         if names:
             doc.notes.append(f"{tier} formulas not written, so these parameters carry no {tier} "
                              "value: " + ", ".join(repr(d) for d in sorted(names)))
+
+
+_LINKED_PREFIX = "linked by "
+_LINKED_TAIL = (" to the family's own parameters (a formula each, so the value follows "
+                "every type): ")
+
+
+def _linked_head(source: str) -> str:
+    """The head of a profile map's "linked by" note (#876), one per map source."""
+    return f"{_LINKED_PREFIX}{source}{_LINKED_TAIL[:-2]}"
+
+
+def _linked_source(note: str) -> Optional[str]:
+    """The map source a "linked by" note names, or None for any other note."""
+    if not note.startswith(_LINKED_PREFIX):
+        return None
+    at = note.find(_LINKED_TAIL, len(_LINKED_PREFIX))
+    return note[len(_LINKED_PREFIX):at] if at >= 0 else None
 
 
 #: the notes :func:`settle_formula_provenance` owns (rebuilt on every finalize)
