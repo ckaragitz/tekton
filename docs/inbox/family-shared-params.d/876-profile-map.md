@@ -56,7 +56,7 @@ The link is a formula, so the library parameter *reports* our size. That Revit r
 - **The "linked by" line is matched by its whole head, per map source** (`_linked_head`), no longer by splitting at the first `"): "`. A map file named `odd): name.json` rebuilds correctly; there is a test.
 - **`make_family`** says so on stderr when `--profile-map`, `--profile-values` or `--profile-family` is given without `--param-profile`. Before, the flag was ignored silently; there is a test.
 - **The proposal tool:** families split evenly between two axes count as "mixed" and nothing is proposed, below the default share too (`--min-share 0.5`).
-- **Test counts:** `test_profile_map_876.py` 18 and `test_profile_map_from_rfa_876.py` 18, both collected.
+- **Test counts:** `test_profile_map_876.py` 18 and `test_profile_map_from_rfa_876.py` 18 collected at #1029's first head. `test_profile_map_876.py` holds 20 after the #1029 review rounds: the replaced-formula linked line and the profile name holding the separator.
 
 ## #962 review nits carried here
 

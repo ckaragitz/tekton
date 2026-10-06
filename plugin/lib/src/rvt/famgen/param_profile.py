@@ -480,11 +480,19 @@ def settle_formula_provenance(doc, written_ids) -> None:
         if prov.get("tier") == "library":
             by_value, by_formula = library.setdefault(str(prov.get("source")), ([], []))
             (by_formula if prov.get("by") == "formula" else by_value).append(name)
+    known = {str(t.get("source")) for pe in doc.params.values()
+             for t in ((pe.refs.get("provenance") or {}),
+                       ((pe.refs.get("formula_provenance") or {}).get("tag") or {}))
+             if t.get("tier") == "library"}
     for i, n in enumerate(doc.notes):
         if n.startswith("provenance library ("):
             # each profile's line from its OWN parameters (a document two profiles were
-            # applied to keeps two lines, each true of its source)
-            head, _sep, _body = n.partition("): ")
+            # applied to keeps two lines, each true of its source); the source matched
+            # whole, so one holding "): " cannot split the line
+            src = next((s for s in sorted(known, key=len, reverse=True)
+                        if n.startswith(f"provenance library ({s}): ")), None)
+            head = (f"provenance library ({src}" if src is not None
+                    else n.partition("): ")[0])
             by_value, by_formula = library.get(head[len("provenance library ("):], ([], []))
             kept = [f"{d!r} by value" for d in by_value] + [f"{d!r} by formula" for d in by_formula]
             doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"

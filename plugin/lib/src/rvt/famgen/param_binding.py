@@ -98,11 +98,39 @@ def bind_material(form: Any, param: Any, material_id: int, *, doc: Any = None) -
         raise BindingError(f"a material is driven by a material parameter, not {_kind(param)!r}")
     solid = solid_of(form)
     bind(solid, param, ELEM_PROP_MATERIAL)
-    solid.obj["m_materialId"] = int(material_id)
+    _paint(form, solid, int(material_id))
     if doc is not None:
         for _name, row in doc.types:
             row[param.elem_id] = {"m_elemId": int(material_id)}
     form.params["material_param"] = param.refs.get("caption") or param.elem_id
+
+
+def _paint(form: Any, solid: Any, material_id: int) -> None:
+    """The solid wears ``material_id`` the way ``equipment_clearance.apply_material``
+    paints one: its ``m_materialId``, every cached face's render style, and the
+    material among its deletion parents -- the material it wore before dropped from
+    them, so deleting that one in Revit no longer deletes this solid."""
+    prev = int(solid.obj.get("m_materialId", -1) or -1)
+    solid.obj["m_materialId"] = material_id
+    parents = solid.header["m_parents"]["value"]
+    dele = set(parents["m_deletion"])
+    if prev > 0 and prev != material_id:
+        dele.discard(prev)
+    parents["m_deletion"] = sorted(dele | {material_id})
+
+    def paint(v):
+        if isinstance(v, dict):
+            if "m_renderStyleId" in v:
+                v["m_renderStyleId"] = material_id
+            for x in v.values():
+                paint(x)
+        elif isinstance(v, list):
+            for x in v:
+                paint(x)
+    for e in form.elements:
+        paint(e.obj)
+        if e.rep:
+            paint(e.rep)
 
 
 def add_material_parameter(doc: Any, name: str, material_id: int, *,

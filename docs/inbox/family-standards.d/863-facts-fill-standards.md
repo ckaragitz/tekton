@@ -44,10 +44,18 @@ Which known facts map to a standards-table entry:
 - **DONE 4:** `test_famgen_standards.py`, `test_famgen_factory.py`, the fan coil and fan-powered suites and `test_plugin_sync`: **258 passed, 5 skipped**. Every other module that mentions filled standards, Frequency or CRI (edit-family mass and size, IFC standards, archetypes, `apply_safe`): **306 passed**.
 - `tools/sync_plugin.py --check`: clean.
 
+## Also in this PR: the 🟡 nits of #1029's second review
+
+- **`param_binding.bind_material`** now paints the way `equipment_clearance.apply_material` does: `m_materialId`, every cached face's render style, and the material among the deletion parents. The material the solid wore before is dropped from those parents, so deleting it in Revit no longer deletes the solid. There is a test.
+- **The "provenance library (…)" line** now matches its profile source whole, as the "linked by" line does since #1029, so a profile name holding `"): "` cannot split it. There is a test.
+- **The proposal tool's tie wording** is now "no axis holds a majority of its families ({…})". Before, it said "split evenly" even with three buckets.
+- **The #877 and #876 records** now give current test counts and list every file in BRANCH STATE.
+
 ## BRANCH STATE
 
 - Files:
   - `src/rvt/famgen/{standards,factory,fan_coil,fan_powered}.py` and their plugin mirrors;
   - `tests/test_standards_facts_863.py` and the drop-in `tests/ci_shard.d/863-standards-facts.txt`;
+  - the #1029 nits: `src/rvt/famgen/{param_binding,param_profile}.py`, `tools/profile_map_from_rfa.py`, `tests/test_{param_binding_877,profile_map_876,profile_map_from_rfa_876}.py`, and the 876/877 records;
   - this record.
 - Shipped on merge; nothing is staged. No Revit claim (hard rule 4).

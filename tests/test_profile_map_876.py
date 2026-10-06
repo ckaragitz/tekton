@@ -291,3 +291,19 @@ def test_a_link_whose_formula_was_replaced_leaves_the_linked_line(tmp_path, path
     PP.settle_formula_provenance(doc, {pe.elem_id})
     (line,) = [n for n in doc.notes if n.startswith("linked by")]
     assert line.endswith(": none written") and "provenance" not in pe.refs
+
+
+def test_a_profile_name_holding_the_separator_keeps_its_library_line(tmp_path):
+    p = tmp_path / "odd): profile.json"
+    import shutil
+    prof = _profile()
+    for fam in prof["families"].values():
+        for r in fam["params"]:
+            if r["name"] == "Zz Box Depth":
+                r["value"] = 0.5                           # a convention: both families agree
+    p.write_text(json.dumps(prof), encoding="utf-8")
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(str(p)))
+    prod.doc.finalize()
+    PP.settle_formula_provenance(prod.doc, set())
+    (line,) = [n for n in prod.doc.notes if n.startswith("provenance library (")]
+    assert line == "provenance library (the profile 'odd): profile.json'): 'Zz Box Depth' by value"
