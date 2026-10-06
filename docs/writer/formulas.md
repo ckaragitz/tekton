@@ -98,6 +98,10 @@ inconsistent units.
     (leave the value blank). An empty text inside `if()` is an ordinary value.
   - A material parameter is never read as text, even where a shared definition names
     it with a text spec: its value is an element id.
+  - `""` inside brackets, `("")`, is the same "no formula" and refused too.
+  - A `"` always opens a text constant, so a parameter whose caption *starts* with a
+    quote cannot be named in a formula. Such a formula is refused, said, and the
+    family is still built; a spelled-back formula over that name is reported unread.
 - **Yes/No is typed.** An `if` condition and the arguments of `and` / `or` / `not`
   must be Yes/No. A Yes/No value never takes `+ - * /`, `= < >`, negation or
   `round`.

@@ -50,8 +50,9 @@ def test_a_text_parameter_may_be_named():
 def test_an_empty_branch_is_a_value_but_an_empty_formula_is_no_formula():
     tree, _ = F.parse_formula('if(Flag, "", "x")', PARAMS)
     assert F.evaluate(tree, {1: 1}) == ""
-    with pytest.raises(F.FormulaError, match="NO formula"):
-        F.parse_formula('""', PARAMS)
+    for text in ('""', '("")', '((""))'):
+        with pytest.raises(F.FormulaError, match="NO formula"):
+            F.parse_formula(text, PARAMS)
 
 
 @pytest.mark.parametrize("text,match", [
@@ -174,3 +175,13 @@ def test_an_emitted_rfa_reads_back_identically_and_validates(tmp_path):
     report = Validator(out, family=True).run()
     errors = report.errors() if callable(report.errors) else report.errors
     assert not errors, [e.message for e in errors][:5]
+
+
+def test_a_name_that_starts_with_a_quote_is_read_as_text_and_refused():
+    """A quote opens a text constant, so a caption beginning with one cannot be named
+    in a formula (spelled-back formulas over such a name are reported unread) --
+    refused with the reason, never misread as the parameter."""
+    params = dict(PARAMS, **{'"Q" Name': F.ParamRef(7, F.SPEC_LENGTH)})
+    with pytest.raises(F.FormulaError):
+        F.parse_formula('"Q" Name + Width', params)
+    assert not F.is_spellable('"Q" Name')
