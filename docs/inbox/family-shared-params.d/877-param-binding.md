@@ -41,11 +41,15 @@ Stream **family-shared-params** (tech-lead session, 2026-10-02). Closes #877: DO
 
 ## Evidence (DONE 3)
 
-`tests/test_param_binding_877.py`: **5 passed**.
+`tests/test_param_binding_877.py`: **5 passed**, under the #707 release-leak guard because the 2025 build enters a release context.
 - **The encoding:** both bindings sit in one cell before the `PatternHelper`, with the exact entry shape, the deletion parents and `m_materialId`.
 - **Rebinding** does not duplicate.
 - **Wrong-kind refusals.**
 - **A generic box** with a material parameter driving its solid and a Yes/No driving its visibility, built and written for **2026 and 2025**: VALID with 0 errors and provenance ok. It **reads back** from the written file: both entries, `m_materialId`, and the parameter rows (`m_elemId` = the material, `m_int` 1).
+
+## Also in this PR
+
+The 🟡 nits of #971's second review round, recorded in `876-profile-map.md`.
 
 ## Open
 

@@ -250,4 +250,29 @@ def test_a_refused_link_keeps_the_librarys_convention(tmp_path):
     prod = _linked(path, {"Zz Plain W": "No Such"}, second_type=False)
     assert prod.doc.params["Zz Plain W"].refs["provenance"]["tier"] == "library"
     assert any(n == "'Zz Plain W': the map's link is refused -- the family has no parameter "
-                    "'No Such' -- the library's convention is written instead" for n in prod.doc.notes)
+                    "'No Such' -- the library's convention is used instead (a formula is checked "
+                    "when the family is finalized)" for n in prod.doc.notes)
+
+
+# --- #971 round-2 nits -------------------------------------------------------------------
+
+def test_a_map_name_holding_the_heads_separator_still_rebuilds(tmp_path, path):
+    m = tmp_path / "odd): name.json"
+    m.write_text(json.dumps({"Zz Box Width": "Width"}), encoding="utf-8")
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path, links=str(m)))
+    prod.doc.finalize()
+    (line,) = [n for n in prod.doc.notes if n.startswith("linked by")]
+    assert line.endswith("'Zz Box Width' = 'Width'")
+    PP.settle_formula_provenance(prod.doc, set())
+    (line,) = [n for n in prod.doc.notes if n.startswith("linked by")]
+    assert line.endswith(": none written") and "odd): name.json" in line
+
+
+def test_map_flags_without_a_profile_are_said(tmp_path):
+    m = tmp_path / "map.json"
+    m.write_text("{}", encoding="utf-8")
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "make_family.py"), "transformer",
+                        "--kva", "45", "--profile-map", str(m), "-o", str(tmp_path / "t.rfa"),
+                        "--no-validate"], cwd=ROOT, capture_output=True, text=True, timeout=900)
+    assert r.returncode == 0, r.stderr[-1500:]
+    assert "--profile-map given without --param-profile -- ignored" in r.stderr

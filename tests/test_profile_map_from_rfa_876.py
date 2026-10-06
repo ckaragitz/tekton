@@ -54,7 +54,7 @@ def test_one_parameter_per_axis_the_one_most_families_size_by():
     ([_fam(g=("Zz N", "autodesk.spec.aec:number-1.0.0", {"x": 1}))] * 2, "not a length (number-1.0.0)"),
     ([_fam(g=("Zz O", L, {"oblique": 2}))] * 2, "its dimensions are not along an axis"),
     ([_fam(g=("Zz One", L, {"x": 1}))], "labels a dimension in 1 family(ies), fewer than 2"),
-    ([_fam(g=("Zz Mix", L, {"x": 1})), _fam(g=("Zz Mix", L, {"y": 1}))],
+    ([_fam(g=("Zz Mix", L, {"x": 1}))] * 2 + [_fam(g=("Zz Mix", L, {"y": 1}))],
      "its families disagree on the axis"),
 ])
 def test_what_cannot_be_proposed_is_said(fams, why):
@@ -124,3 +124,10 @@ def test_a_family_labelling_two_axes_equally_votes_for_neither():
     mapping, report = PM.propose(fams)
     assert mapping == {} and report[0]["axis"] == "mixed"
     assert report[0]["why"] == "its families label it along two axes equally"
+
+
+def test_families_split_evenly_between_two_axes_are_not_guessed():
+    fams = [_fam(g=("Zz Even", L, {"x": 1}))] * 2 + [_fam(g=("Zz Even", L, {"y": 1}))] * 2
+    mapping, report = PM.propose(fams, min_share=0.5)
+    assert mapping == {} and report[0]["axis"] == "mixed"
+    assert report[0]["why"].startswith("its families label it along two axes equally")

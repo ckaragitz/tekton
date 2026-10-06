@@ -137,7 +137,10 @@ def propose(families: Iterable[Dict[str, Any]], *, category: Optional[int] = Non
     for guid in sorted(votes, key=lambda g: (meta[g]["name"], g)):
         v = votes[guid]
         n = sum(v.values())
-        axis, top = v.most_common(1)[0]
+        ranked = v.most_common(2)
+        axis, top = ranked[0]
+        if len(ranked) > 1 and ranked[1][1] == top:
+            axis = "mixed"                      # families split evenly: never guessed
         row = {"guid": guid, "name": meta[guid]["name"], "families": n, "axes": dict(v),
                "axis": axis, "share": round(top / n, 3)}
         spec = meta[guid]["spec"]
@@ -146,7 +149,8 @@ def propose(families: Iterable[Dict[str, Any]], *, category: Optional[int] = Non
         elif axis == "oblique":
             row["why"] = "its dimensions are not along an axis"
         elif axis == "mixed":
-            row["why"] = "its families label it along two axes equally"
+            row["why"] = ("its families label it along two axes equally"
+                          + (f" ({dict(v)})" if len(v) > 1 and "mixed" not in v else ""))
         elif n < min_families:
             row["why"] = f"labels a dimension in {n} family(ies), fewer than {min_families}"
         elif top / n < min_share:

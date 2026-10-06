@@ -26,6 +26,17 @@ from rvt.famgen import factory as F  # noqa: E402
 from rvt.famgen import param_binding as PB  # noqa: E402
 from rvt.famgen import skeleton as SK  # noqa: E402
 
+sys.path.insert(0, os.path.join(ROOT, "tests"))
+from conftest import context_constants  # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the 2025 build enters release_build_context
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too (#707)."""
+    return context_constants
+
 
 def _bound_family(bind_material=True, bind_visible=True):
     doc = SK.new_family_document("generic_model", "Zz Bound Box", work_plane_based=False)
