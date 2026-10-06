@@ -47,6 +47,13 @@ Stream **family-shared-params** (tech-lead session, 2026-10-02). Closes #877: DO
 - **Wrong-kind refusals.**
 - **A generic box** with a material parameter driving its solid and a Yes/No driving its visibility, built and written for **2026 and 2025**: VALID with 0 errors and provenance ok. It **reads back** from the written file: both entries, `m_materialId`, and the parameter rows (`m_elemId` = the material, `m_int` 1).
 
+## #1029 review round 1 (🛑)
+
+- **The fix:** `bind` now drops a replaced parameter from the solid's deletion parents when no remaining entry references it. Rebinding a property to *another* parameter used to leave the old one as a deletion parent, so deleting it in Revit would have deleted the solid. That broke the census law (bound parameter ⇔ deletion parent). There is a test that rebinds a second Yes/No.
+- **New option:** `bind_material(..., doc=)` sets every type row of the document to the material, so the solid's `m_materialId` and the parameter's value cannot disagree. Before, a row that `add_type` reset read as no material. There is a test.
+- **The finding in the #876 code:** the "linked by" line's source is now read from the note itself (fixed prefix and tail). Before, it came from the claims, which an earlier step pops when a link's formula is replaced, so the line kept announcing a link the file no longer carried. There is a test.
+- **Proposal tool wording:** an even split across families now reads "its families split evenly ({…}): not guessed". Before, it read "two axes", even when one bucket was "oblique".
+
 ## Also in this PR
 
 The 🟡 nits of #971's second review round, recorded in `876-profile-map.md`.

@@ -490,13 +490,11 @@ def settle_formula_provenance(doc, written_ids) -> None:
             doc.notes[i] = f"{head}): {'; '.join(kept)}" if kept else f"{head}): none written"
     # the map's line (#876) lists only the links still carried: one the formula step
     # refused is not announced as following every type
-    sources = {str((pe.refs.get("formula_provenance") or {}).get("tag", {}).get("source"))
-               for pe in doc.params.values()
-               if (pe.refs.get("formula_provenance") or {}).get("tag", {}).get("link")}
     for i, n in enumerate(doc.notes):
-        # matched by its whole head per source, so a map name holding "): " cannot split it
-        src = next((s for s in sorted(sources, key=len, reverse=True)
-                    if n.startswith(_linked_head(s) + ": ")), None)
+        # the source is read off the note itself, between the head's fixed prefix and
+        # tail -- so a map name holding "): " cannot split it, and a link whose claim
+        # was dropped above (its formula replaced) still has its line rebuilt
+        src = _linked_source(n)
         if src is not None:
             kept = [f"{name!r} = {pe.refs['provenance']['link']!r}"
                     for name, pe in doc.params.items()
@@ -510,10 +508,22 @@ def settle_formula_provenance(doc, written_ids) -> None:
                              "value: " + ", ".join(repr(d) for d in sorted(names)))
 
 
+_LINKED_PREFIX = "linked by "
+_LINKED_TAIL = (" to the family's own parameters (a formula each, so the value follows "
+                "every type): ")
+
+
 def _linked_head(source: str) -> str:
     """The head of a profile map's "linked by" note (#876), one per map source."""
-    return (f"linked by {source} to the family's own parameters (a formula each, so the "
-            f"value follows every type)")
+    return f"{_LINKED_PREFIX}{source}{_LINKED_TAIL[:-2]}"
+
+
+def _linked_source(note: str) -> Optional[str]:
+    """The map source a "linked by" note names, or None for any other note."""
+    if not note.startswith(_LINKED_PREFIX):
+        return None
+    at = note.find(_LINKED_TAIL, len(_LINKED_PREFIX))
+    return note[len(_LINKED_PREFIX):at] if at >= 0 else None
 
 
 #: the notes :func:`settle_formula_provenance` owns (rebuilt on every finalize)

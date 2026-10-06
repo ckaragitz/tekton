@@ -130,4 +130,4 @@ def test_families_split_evenly_between_two_axes_are_not_guessed():
     fams = [_fam(g=("Zz Even", L, {"x": 1}))] * 2 + [_fam(g=("Zz Even", L, {"y": 1}))] * 2
     mapping, report = PM.propose(fams, min_share=0.5)
     assert mapping == {} and report[0]["axis"] == "mixed"
-    assert report[0]["why"].startswith("its families label it along two axes equally")
+    assert report[0]["why"] == "its families split evenly ({'x': 2, 'y': 2}): not guessed"

@@ -150,7 +150,8 @@ def propose(families: Iterable[Dict[str, Any]], *, category: Optional[int] = Non
             row["why"] = "its dimensions are not along an axis"
         elif axis == "mixed":
             row["why"] = ("its families label it along two axes equally"
-                          + (f" ({dict(v)})" if len(v) > 1 and "mixed" not in v else ""))
+                          if len(v) == 1 else
+                          f"its families split evenly ({dict(v)}): not guessed")
         elif n < min_families:
             row["why"] = f"labels a dimension in {n} family(ies), fewer than {min_families}"
         elif top / n < min_share:

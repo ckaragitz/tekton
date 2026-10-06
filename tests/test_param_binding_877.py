@@ -125,3 +125,35 @@ def test_the_bound_family_validates_and_reads_back(tmp_path, year):
                    and (fi.value(0, e) or {}).get("m_surrogateId") == -1)
         row = {q["m_paramId"]: q for q in fam["m_familyParams"]["value"]["m_params"]}
         assert row[mp.elem_id]["m_elemId"] == mat.elem_id and row[vp.elem_id]["m_int"] == 1
+
+
+
+def test_rebinding_to_another_parameter_drops_the_old_deletion_parent():
+    """#1029 review: bound parameter <=> deletion parent -- the replaced one goes."""
+    prod, fb, mp, vp, mat = _bound_family()
+    solid = PB.solid_of(fb)
+    deletion_before = list(solid.header["m_parents"]["value"]["m_deletion"])
+    assert vp.elem_id in deletion_before
+    # a second Yes/No, bound to the same property, on a fresh document
+    d2 = SK.new_family_document("generic_model", "Zz Rebind", work_plane_based=False)
+    a = d2.add_family_parameter("Zz A", SK.SPEC_YESNO, default=True)
+    b = d2.add_family_parameter("Zz B", SK.SPEC_YESNO, default=True)
+    d2.add_type("T", {a.elem_id: True, b.elem_id: True})
+    f2 = F.add_box_form(d2, 1.0, 1.0, 1.0, base_z_ft=0.0, center=(0.0, 0.0), rep="solid")
+    PB.bind_visibility(f2, a)
+    PB.bind_visibility(f2, b)
+    s2 = PB.solid_of(f2)
+    assert [d["m_famParamId"] for d in PB.bound(s2)] == [b.elem_id]
+    dele = s2.header["m_parents"]["value"]["m_deletion"]
+    assert b.elem_id in dele and a.elem_id not in dele
+
+
+def test_bind_material_with_the_document_sets_every_row():
+    d = SK.new_family_document("generic_model", "Zz Rows", work_plane_based=False)
+    mat = EC.new_family_material(d, "Zz Grey", (128, 128, 128), 0.0)
+    mp = PB.add_material_parameter(d, "Body Material", mat.elem_id)
+    d.add_type("T1", {})
+    d.add_type("T2", {})                                   # rows reset to 0.0
+    fb = F.add_box_form(d, 1.0, 1.0, 1.0, base_z_ft=0.0, center=(0.0, 0.0), rep="solid")
+    PB.bind_material(fb, mp, mat.elem_id, doc=d)
+    assert all(row[mp.elem_id] == {"m_elemId": mat.elem_id} for _n, row in d.types)

@@ -62,9 +62,15 @@ def bind(element: Any, param: Any, prop: int) -> None:
                    if str(c.get("ptr_class", "")).endswith("PatternHelper")), len(cells))
         cells.insert(at, cell)
     data = cell["value"]["m_paramDrivenData"]
+    replaced = {int(d["m_famParamId"]) for d in data if d.get("m_elemPropId") == int(prop)}
     data[:] = [d for d in data if d.get("m_elemPropId") != int(prop)] + [entry]
     parents = element.header["m_parents"]["value"]
-    parents["m_deletion"] = sorted(set(parents["m_deletion"]) | {int(param.elem_id)})
+    # a parameter that no longer drives anything here is no longer a deletion parent
+    # (bound parameter <=> deletion parent, the library's law): deleting it in Revit
+    # must not delete this solid
+    still = {int(d["m_famParamId"]) for d in data}
+    gone = replaced - still
+    parents["m_deletion"] = sorted((set(parents["m_deletion"]) - gone) | {int(param.elem_id)})
 
 
 def _kind(param: Any) -> str:
@@ -80,16 +86,22 @@ def bind_visibility(form: Any, param: Any) -> None:
     form.params["visibility_param"] = param.refs.get("caption") or param.elem_id
 
 
-def bind_material(form: Any, param: Any, material_id: int) -> None:
+def bind_material(form: Any, param: Any, material_id: int, *, doc: Any = None) -> None:
     """A material ``param`` drives the form's solid material.  ``material_id`` is
     the parameter's current value (the ``MaterialElem`` its rows hold): the solid
-    carries it as its own ``m_materialId``, as every bound solid of the library does."""
+    carries it as its own ``m_materialId``, as every bound solid of the library does.
+    With ``doc``, every type row of the document is set to hold ``material_id`` for
+    ``param`` as well, so the solid and the parameter cannot disagree (a row
+    ``add_type`` reset to 0.0 would otherwise read as no material)."""
     from .skeleton import SPEC_MATERIAL
     if _kind(param) not in ("ParamDefMaterialBrowse", SPEC_MATERIAL):
         raise BindingError(f"a material is driven by a material parameter, not {_kind(param)!r}")
     solid = solid_of(form)
     bind(solid, param, ELEM_PROP_MATERIAL)
     solid.obj["m_materialId"] = int(material_id)
+    if doc is not None:
+        for _name, row in doc.types:
+            row[param.elem_id] = {"m_elemId": int(material_id)}
     form.params["material_param"] = param.refs.get("caption") or param.elem_id
 
 

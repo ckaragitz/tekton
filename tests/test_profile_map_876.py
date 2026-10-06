@@ -276,3 +276,18 @@ def test_map_flags_without_a_profile_are_said(tmp_path):
                         "--no-validate"], cwd=ROOT, capture_output=True, text=True, timeout=900)
     assert r.returncode == 0, r.stderr[-1500:]
     assert "--profile-map given without --param-profile -- ignored" in r.stderr
+
+
+def test_a_link_whose_formula_was_replaced_leaves_the_linked_line(tmp_path, path):
+    """#1029 review: a link's claim dropped because its formula was replaced must not
+    leave the map's line announcing it."""
+    m = tmp_path / "m.json"
+    m.write_text(json.dumps({"Zz Box Width": "Width"}), encoding="utf-8")
+    prod = F.make_transformer(kva=45, shared_params=PP.ProfileRequest(path, links=str(m)))
+    doc = prod.doc
+    doc.finalize()
+    pe = doc.params["Zz Box Width"]
+    pe.refs["formula"] = "Width / 2"                      # someone else's formula now
+    PP.settle_formula_provenance(doc, {pe.elem_id})
+    (line,) = [n for n in doc.notes if n.startswith("linked by")]
+    assert line.endswith(": none written") and "provenance" not in pe.refs
