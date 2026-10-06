@@ -95,25 +95,9 @@ def new_family_material(doc, name: str, rgb, transparency: float):
 def apply_material(form, material) -> None:
     """Paint ``form``'s extrusion with ``material``: its ``m_materialId``, every cached
     face's render style, and the material among the element's deletion parents."""
-    mid = int(material.elem_id)
+    from . import param_binding as PB                    # one painter (#1031 review)
     ext = next(e for e in form.elements if e.class_name == "ExtrusionElem")
-    ext.obj["m_materialId"] = mid
-    parents = ext.header["m_parents"]["value"]
-    parents["m_deletion"] = sorted(set(parents["m_deletion"]) | {mid})
-
-    def paint(v):
-        if isinstance(v, dict):
-            if "m_renderStyleId" in v:
-                v["m_renderStyleId"] = mid
-            for x in v.values():
-                paint(x)
-        elif isinstance(v, list):
-            for x in v:
-                paint(x)
-    for e in form.elements:
-        paint(e.obj)
-        if e.rep:
-            paint(e.rep)
+    PB._paint(form, ext, int(material.elem_id))
     form.params["material"] = material.refs.get("name")
 
 

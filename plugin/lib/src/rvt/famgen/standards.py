@@ -1015,28 +1015,42 @@ FACT_VALUES: Dict[str, str] = {
 KNOWN_TIERS = ("fact", "given", "derived")
 
 
+def _same_value(v: Any) -> str:
+    """A comparison key under which 60, 60.0 and "60" are one value."""
+    try:
+        return repr(float(v))
+    except (TypeError, ValueError):
+        return repr(v)
+
+
 def values_from_facts(facts: Any) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[str]]:
     """(values, provenance, disagreements) the constructor's facts establish for the
     standards step: each :data:`FACT_VALUES` key held at a known tier.  ``facts`` is
     one ``FactSheet`` or the sheets of every TYPE the family builds -- a standard
     parameter is one value for the family, so it is filled only when every type
-    holds the same known value; one that differs between types is named in
-    ``disagreements`` and stays blank (never the first type's value on all)."""
+    holds the same known value; one that differs between types, or that only some
+    types hold, is named in ``disagreements`` and stays blank (never the first
+    type's value on all)."""
     sheets = list(facts) if isinstance(facts, (list, tuple)) else [facts]
     out: Dict[str, Any] = {}
     prov: List[Dict[str, Any]] = []
     split: List[str] = []
     for key, name in FACT_VALUES.items():
         got = [(getattr(sh, "values", None) or {}).get(key) for sh in sheets]
-        if any(f is None or getattr(f, "kind", None) not in KNOWN_TIERS or f.value in (None, "")
-               for f in got) or not got:
+        known = [f is not None and getattr(f, "kind", None) in KNOWN_TIERS
+                 and f.value not in (None, "") for f in got]
+        if not got or not any(known):
             continue
-        if len({repr(f.value) for f in got}) > 1:
+        if not all(known):                        # some types hold it, some do not
+            split.append(name)
+            continue
+        if len({_same_value(f.value) for f in got}) > 1:
             split.append(name)
             continue
         out[name] = got[0].value
+        sources = list(dict.fromkeys(str(getattr(f, "source", "") or "") for f in got))
         prov.append({"name": name, "fact": key, "tier": got[0].kind,
-                     "source": getattr(got[0], "source", "")})
+                     "source": "; ".join(s for s in sources if s)})
     return out, prov, split
 
 
@@ -1072,11 +1086,20 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
     if facts is not None:
         fv, from_facts, split = values_from_facts(facts)
         given = {meaning_key(n) for n in _offered(values)}
+        # a fact fills (or is noted for) only a parameter this step will author: one
+        # in the category's table that the document does not already carry
+        authorable = {meaning_key(p.name) for p in standard_params(category) if p.authored}
+        present = {meaning_key(n) for n in doc.params}
+        from_facts = [p for p in from_facts if meaning_key(p["name"]) in authorable
+                      and meaning_key(p["name"]) not in present]
+        fv = {p["name"]: fv[p["name"]] for p in from_facts}
         for name in split:
-            if meaning_key(name) not in given:
+            if (meaning_key(name) not in given and meaning_key(name) in authorable
+                    and meaning_key(name) not in present):
                 doc.notes.append(f"standard parameter {name!r} left blank: the family's types "
-                                 f"hold different values for it, and a standard parameter "
-                                 f"is one value per family")
+                                 f"do not all hold one known value for it (they differ, or "
+                                 f"only some hold it), and a standard parameter is one value "
+                                 f"per family")
         from_facts = [p for p in from_facts if meaning_key(p["name"]) not in given]
         values = {**{p["name"]: fv[p["name"]] for p in from_facts}, **_offered(values)}
     try:
@@ -1084,6 +1107,28 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
         if from_facts:
             filled = set(rep.get("filled") or ())
             rep["filled_from_facts"] = [p for p in from_facts if p["name"] in filled]
+            if rep["filled_from_facts"]:
+                doc.notes.append(
+                    "category standards: of those filled, "
+                    f"{[p['name'] for p in rep['filled_from_facts']]} came from the "
+                    "family's own catalog facts, not from the caller")
+            # what the CALLER offered is reported as theirs; a fact that could not be
+            # written is reported apart, never as a value the caller gave
+            fact_only = {p["name"] for p in from_facts}
+            for key in ("values_not_placed", "values_unusable"):
+                got = rep.get(key)
+                if not got:
+                    continue
+                name_of = (lambda x: x["name"]) if key == "values_unusable" else (lambda x: x)
+                mine = [x for x in got if name_of(x) not in fact_only]
+                theirs = [x for x in got if name_of(x) in fact_only]
+                if mine:
+                    rep[key] = mine
+                else:
+                    rep.pop(key)
+                if theirs:
+                    rep.setdefault("facts_not_written", []).extend(
+                        name_of(x) for x in theirs)
         return rep
     except Exception as e:                            # never block delivery
         doc.notes.append(f"category standards NOT applied "

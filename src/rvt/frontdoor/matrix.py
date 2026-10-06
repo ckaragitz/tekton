@@ -238,7 +238,7 @@ EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
             2026: "be4868dc24b0ddf2b8437041b3de8f133b01405f97defd3858145970f6ae2771",
             2025: "8d7055d047a893e99a74fe5e305d70f1a14bf9afc68fd85d8a787b722851295c",
         },
-        "reviewed_at": "1499a8b (#1031: catalog Frequency, #863)",
+        "reviewed_at": "#1031 (catalog Frequency, #863; generator output unchanged since 1499a8b)",
         "caveat": STAGE_L8_EARLIER_FORM,
         "doc_names": (r"stage_L8",),
     },

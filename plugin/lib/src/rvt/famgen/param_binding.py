@@ -110,6 +110,8 @@ def _paint(form: Any, solid: Any, material_id: int) -> None:
     paints one: its ``m_materialId``, every cached face's render style, and the
     material among its deletion parents -- the material it wore before dropped from
     them, so deleting that one in Revit no longer deletes this solid."""
+    if int(material_id) <= 0:
+        raise BindingError(f"a material is an element id, not {material_id!r}")
     prev = int(solid.obj.get("m_materialId", -1) or -1)
     solid.obj["m_materialId"] = material_id
     parents = solid.header["m_parents"]["value"]

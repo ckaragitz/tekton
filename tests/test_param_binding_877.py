@@ -190,3 +190,13 @@ def test_binding_a_material_over_a_painted_solid_repaints_and_drops_the_old_pare
         if e.rep:
             walk(e.rep)
     assert styles and set(styles) == {b.elem_id}
+
+
+
+def test_a_material_is_an_element_id():
+    d = SK.new_family_document("generic_model", "Zz Guard", work_plane_based=False)
+    mp = PB.add_material_parameter(d, "Body Material", -1)
+    d.add_type("T", {})
+    fb = F.add_box_form(d, 1.0, 1.0, 1.0, base_z_ft=0.0, center=(0.0, 0.0), rep="solid")
+    with pytest.raises(PB.BindingError, match="element id"):
+        PB.bind_material(fb, mp, -1)

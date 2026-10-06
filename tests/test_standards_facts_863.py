@@ -42,7 +42,7 @@ def test_a_transformer_carries_its_catalog_frequency_on_every_type():
 def test_the_callers_value_wins_over_the_fact():
     prod = F.make_transformer(kva=45, standard_values={"Frequency": 50.0})
     assert all(r["m_value"] == pytest.approx(50.0) for r in _rows(prod, "Frequency"))
-    assert "filled_from_facts" not in prod.standards or not prod.standards["filled_from_facts"]
+    assert "filled_from_facts" not in prod.standards
 
 
 def test_a_luminaire_carries_its_catalog_cri():
@@ -78,11 +78,70 @@ def test_a_disagreement_is_noted_on_the_document():
     b.set("cri", 90, kind="fact", source="b")
     rep = ST.apply_safe(doc, "lighting_fixture", True, None, facts=[a, b])
     assert "Color Rendering Index" not in rep["filled"]
-    assert any("'Color Rendering Index' left blank: the family's types hold different values"
-               in n for n in doc.notes)
+    assert any("'Color Rendering Index' left blank: the family's types do not all hold one "
+               "known value" in n for n in doc.notes)
 
 
 def test_standards_off_authors_nothing_from_facts():
     prod = F.make_transformer(kva=45, standards=False)
     assert "Frequency" not in prod.doc.params
     assert not any("Frequency" in n for n in prod.doc.notes)
+
+
+
+# --- #1031 review nits -------------------------------------------------------------------
+
+def test_a_multi_type_transformer_carries_the_frequency_on_every_type_and_cites_each():
+    prod = F.make_transformer(types=[30, 45, 75])
+    rows = _rows(prod, "Frequency")
+    assert len(rows) == 3 and all(r["m_value"] == pytest.approx(60.0) for r in rows)
+    (p,) = prod.standards["filled_from_facts"]
+    srcs = {f.source for f in (s.values["frequency_hz"] for s in prod._sheets())}
+    assert all(s in p["source"] for s in srcs if s)
+
+
+def test_a_fact_for_a_parameter_the_category_lacks_is_not_reported_as_the_callers():
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("generic_model", "Zz Leak", work_plane_based=False)
+    doc.add_type("T", {})
+    sh = F.FactSheet(subject="probe")
+    sh.set("frequency_hz", 60, kind="fact", source="probe")
+    rep = ST.apply_safe(doc, "generic_model", True, None, facts=sh)
+    assert "values_not_placed" not in rep and "values_unusable" not in rep
+    assert not rep.get("filled_from_facts")
+
+
+def test_an_unusable_fact_is_reported_apart_from_the_callers_values():
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("transformer", "Zz Unusable", work_plane_based=False)
+    doc.add_type("T", {})
+    sh = F.FactSheet(subject="probe")
+    sh.set("frequency_hz", "60 Hz", kind="fact", source="probe")
+    rep = ST.apply_safe(doc, "transformer", True, None, facts=sh)
+    assert "values_unusable" not in rep and rep.get("facts_not_written") == ["Frequency"]
+
+
+def test_a_type_without_the_fact_leaves_it_blank_and_says_so():
+    a, b = F.FactSheet(subject="a"), F.FactSheet(subject="b")
+    a.set("cri", 82, kind="fact", source="a")
+    assert ST.values_from_facts([a, b]) == ({}, [], ["Color Rendering Index"])
+    b.set("cri", 82, kind="nominal", source="b")
+    assert ST.values_from_facts([a, b])[2] == ["Color Rendering Index"]
+    prod = F.make_luminaire(types=[38, {"wattage": 99, "size": "2x2"}])
+    assert any("'Color Rendering Index' left blank" in n for n in prod.doc.notes)
+
+
+def test_equal_values_in_different_number_types_agree():
+    a, b, c = (F.FactSheet(subject=x) for x in "abc")
+    a.set("frequency_hz", 60, kind="fact", source="a")
+    b.set("frequency_hz", 60.0, kind="fact", source="b")
+    c.set("frequency_hz", "60", kind="given", source="c")
+    vals, prov, split = ST.values_from_facts([a, b, c])
+    assert vals == {"Frequency": 60} and not split
+    assert prov[0]["source"] == "a; b; c"
+
+
+def test_a_filled_fact_is_named_as_the_familys_own_not_the_callers():
+    prod = F.make_transformer(kva=45)
+    assert any("['Frequency'] came from the family's own catalog facts" in n
+               for n in prod.doc.notes)

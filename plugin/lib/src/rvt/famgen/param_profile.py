@@ -438,6 +438,12 @@ def apply(doc, params: List[ProfileParam], values: Optional[Dict[str, Any]] = No
                     f"note and stays blank), the rest blank "
                     f"({sum(1 for p in params if p.instance)} of {len(params)} selected bound per instance)")
     if conventional:
+        # the source is kept on the document, so its line is rebuilt whole even after
+        # every parameter it names lost its tag (#1031 review)
+        srcs = getattr(doc, "profile_sources", None)
+        if srcs is None:
+            srcs = doc.profile_sources = set()
+        srcs.add(str(profile_source))
         notes.insert(1, f"provenance library ({profile_source}): "
                         + "; ".join([f"{n!r} by value" for n in conv_values]
                                     + [f"{n!r} by formula" for n in conv_formulas]))
@@ -483,7 +489,7 @@ def settle_formula_provenance(doc, written_ids) -> None:
     known = {str(t.get("source")) for pe in doc.params.values()
              for t in ((pe.refs.get("provenance") or {}),
                        ((pe.refs.get("formula_provenance") or {}).get("tag") or {}))
-             if t.get("tier") == "library"}
+             if t.get("tier") == "library"} | set(getattr(doc, "profile_sources", ()) or ())
     for i, n in enumerate(doc.notes):
         if n.startswith("provenance library ("):
             # each profile's line from its OWN parameters (a document two profiles were
