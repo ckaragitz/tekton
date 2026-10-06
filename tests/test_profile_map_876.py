@@ -28,6 +28,17 @@ from rvt.famgen import factory as F  # noqa: E402
 from rvt.famgen import param_profile as PP  # noqa: E402
 from rvt.famgen import skeleton as SK  # noqa: E402
 
+sys.path.insert(0, os.path.join(ROOT, "tests"))
+from conftest import context_constants  # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("no_release_leak")   # the 2025 build enters release_build_context
+
+
+@pytest.fixture
+def release_leak_extra():
+    """``no_release_leak`` watches the names the authoring context swaps too (#707)."""
+    return context_constants
+
 EQ = SK.OST_ELECTRICAL_EQUIPMENT
 GRP = "autodesk.parameter.group:geometry-1.0.0"
 
