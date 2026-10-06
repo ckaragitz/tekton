@@ -51,11 +51,25 @@ Which known facts map to a standards-table entry:
 - **The proposal tool's tie wording** is now "no axis holds a majority of its families ({…})". Before, it said "split evenly" even with three buckets.
 - **The #877 and #876 records** now give current test counts and list every file in BRANCH STATE.
 
+## The #984 evidence guard: a changed generator output, recorded
+
+Session CI caught a change in output. The stage_L8 family set, which `tests/test_matrix_evidence_984.py` rebuilds, now writes the 45 kVA transformer's Frequency from its catalog fact. So the generator fingerprints changed:
+- 2026: `ea239c27…` → `be4868dc…`
+- 2025: `5fe7308d…` → `8d7055d0…`
+
+The guard's procedure was followed:
+- `STAGE_L8_EARLIER_FORM` in `src/rvt/frontdoor/matrix.py` now names the change ("its standard Frequency filled from its catalog fact (#863)");
+- so do the matching rows in `docs/product/PERMUTATION-MATRIX.md` (5) and `plugin/docs/HONEST-STATUS.md` (1);
+- the new fingerprints are recorded as `reviewed`, with `reviewed_at` set to this branch.
+
+The certified file is untouched. The entry stays uncertified, `certified: None`.
+
 ## BRANCH STATE
 
 - Files:
   - `src/rvt/famgen/{standards,factory,fan_coil,fan_powered}.py` and their plugin mirrors;
   - `tests/test_standards_facts_863.py` and the drop-in `tests/ci_shard.d/863-standards-facts.txt`;
   - the #1029 nits: `src/rvt/famgen/{param_binding,param_profile}.py`, `tools/profile_map_from_rfa.py`, `tests/test_{param_binding_877,profile_map_876,profile_map_from_rfa_876}.py`, and the 876/877 records;
+  - the #984 guard update: `src/rvt/frontdoor/matrix.py`, `docs/product/PERMUTATION-MATRIX.md`, `plugin/docs/HONEST-STATUS.md`;
   - this record.
 - Shipped on merge; nothing is staged. No Revit claim (hard rule 4).
