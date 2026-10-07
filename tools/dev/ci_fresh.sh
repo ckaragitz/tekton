@@ -34,7 +34,10 @@
 # 8-bit names this lets through are bytes to every awk flavour alike (gawk warns on invalid multibyte input in a UTF-8
 # locale; the ^docs/ prefix and the [AM] status are ASCII, so byte semantics lose nothing).
 # With <head-sha> (what `git ls-remote` says the PR head is right now) it also refuses a JSON computed for another
-# head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.
+# head or whose verdict is not pass — so one call is the whole pre-merge check of the CI side.  Without it, the
+# helper reads that head itself from origin's refs/pull/<pr>/head (#1034: a verdict for an earlier push of the PR
+# read FRESH four times on #1031, because only main was compared); an origin holding no such ref (not GitHub, a
+# test rig) leaves the head unchecked, as before, and an origin that cannot be read is "cannot judge".
 #
 # Trusted side only: git plumbing on THIS checkout (main, plus the file NAMES the recorded PR head adds and deletes —
 # the same names-only reading session_ci.sh's portable_paths step does), this checkout's own check_portable_paths.py,
@@ -53,6 +56,11 @@ cd "$REPO" || exit 2
 [ -f "$OUT" ] || { echo "MISSING $OUT (no CI verdict stored for PR $PR: run tools/dev/session_ci.sh $PR)"; exit 3; }
 read -r WAS HEAD VERDICT < <(python3 -I -c 'import json,sys; r=json.load(open(sys.argv[1])); print(*(r.get(k) or "-" for k in ("main","head","verdict")))' "$OUT" 2>/dev/null)
 [[ "$WAS" =~ ^[0-9a-f]{40}$ ]] || { echo "MISSING \"main\" in $OUT (a verdict from before #487: re-run tools/dev/session_ci.sh $PR)"; exit 3; }
+if [ -z "$WANT" ]; then
+  WANT=$(git ls-remote origin "refs/pull/$PR/head") || { echo "cannot judge PR $PR: git ls-remote origin failed"; exit 2; }
+  WANT=${WANT%%[[:space:]]*}
+  [[ "$WANT" =~ ^[0-9a-f]{40}$ ]] || WANT=""                 # origin holds no PR ref: the head is not checked (as before)
+fi
 if [ -n "$WANT" ]; then
   [ "$HEAD" = "$WANT" ] || { echo "WRONG-HEAD json=$HEAD now=$WANT (the stored run is for another head: run tools/dev/session_ci.sh $PR)"; exit 5; }
   [ "$VERDICT" = pass ] || { echo "NOT-PASS verdict=$VERDICT for head $HEAD (nothing to merge on)"; exit 5; }

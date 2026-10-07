@@ -323,8 +323,8 @@ def test_session_ci_records_the_main_it_merged_and_the_helper_stays_trusted_side
     assert 'rev-list --count "HEAD..$MAIN"' in src and 'merge --no-edit "$MAIN"' in src                                     # merged with the sha it records, not the ref name
     assert '"$HEAD" "$MAIN" "$MERGE"' in src and '"head":head,"main":main,' in src                                          # emitted right after "head"
     header = src.split("\nset -uo pipefail")[0]
-    assert src.count('\\"error\\":\\"') == 6, "session_ci.sh gained or lost a setup-failure exit: name it in its header comment and adjust this pin"
-    for reason in ("no ref", "no origin/main", "worktree", "tree export", "lock"):   # every setup failure it can emit is named where the tick reads about them (#496)
+    assert src.count('\\"error\\":\\"') == 7, "session_ci.sh gained or lost a setup-failure exit: name it in its header comment and adjust this pin"
+    for reason in ("no ref", "no origin/main", "worktree", "tree export", "lock", "current head"):   # every setup failure it can emit is named where the tick reads about them (#496)
         assert reason in header, reason
     helper = open(HELPER, encoding="utf-8").read()
     assert os.access(HELPER, os.X_OK) and helper.startswith("#!/usr/bin/env bash")
