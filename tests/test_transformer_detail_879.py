@@ -97,8 +97,8 @@ def test_transformer_is_authored_from_its_parts_and_validates(built):
     assert prod.forms[0].params["role"] == "transformer enclosure"
     assert any(ED.DETAIL_NOTE == x for x in prod.doc.notes)
     H = max(f.params["base_z_ft"] + f.params["height_ft"] for f in body)
-    for c in prod.doc.connectors:                                        # on the cover, at the top
-        assert c.obj["m_oPlaneRef"]["value"]["m_geomRef"]["m_geomTag"] == 1
+    for c in prod.doc.connectors:                     # on the cover, at the top: END cap, #1030
+        assert c.obj["m_oPlaneRef"]["value"]["m_geomRef"]["m_geomTag"] == 0
     fm = rep["validate"]["family_mode"]
     assert (fm["verdict"], fm["n_errors"]) == ("VALID", 0)
     assert rep["provenance"]["ok"] is True

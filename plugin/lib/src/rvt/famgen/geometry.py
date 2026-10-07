@@ -578,7 +578,7 @@ def _box_tags(n: int) -> dict:
 def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: float,
                    *, element_id: int, geometry_style_id: int = -1,
                    control_command: int = 0,
-                   base_pid: int = 3) -> dict:
+                   base_pid: int = 3, end_on_top: bool = False) -> dict:
     """The cached (N+2)-face B-rep solid (seq-103 ``GElement``) of a PRISM
     over any closed planar profile, built field by field.
 
@@ -595,7 +595,15 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
     ``profile`` -- >= 3 CCW vertices in the sketch plane (z ignored);
     ``start`` / ``end`` -- offsets along the sketch normal (+z), with
     ``start > end`` (the "extrude-down" convention of every box specimen:
-    the START cap is the top face).  ``element_id`` becomes the root tag /
+    the START cap is the top face).  ``end_on_top`` (#1030): the element's
+    OWN parameters name the top cap its END (Start = the lower offset, End =
+    the higher -- every form :func:`new_extrusion` writes); the solid is still
+    traced down from the top (the rails [1,i,0] and every side frame on the
+    top cap, side xVec down -- born, 583 / 583 end > start extrusions), but
+    the cap TAGS follow the parameters, as in every born extrusion: tag 0 =
+    the cap at the End offset, tag 1 = the cap at the Start offset (1,040
+    born extrusions, counts only).  Without it (the extrude-down specimens,
+    walls) the top cap is the START and keeps tag 1.  ``element_id`` becomes the root tag /
     ``m_elementId``; ``geometry_style_id`` = the ``Geometry`` graphics
     category (the family sub-category ``GStyleElem`` id).
 
@@ -739,7 +747,9 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
         return nxt, prv
 
     # --- assemble faces ----------------------------------------------------
-    face_defs = [(F_START, tags["start_face"], up), (F_END, tags["end_face"], dn)]
+    top_tag, bot_tag = ((tags["end_face"], tags["start_face"]) if end_on_top
+                        else (tags["start_face"], tags["end_face"]))
+    face_defs = [(F_START, top_tag, up), (F_END, bot_tag, dn)]
     for i in range(n):
         face_defs.append((f_side(i), tags["face"][i], None))
     faces_out = []
@@ -1435,9 +1445,12 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
     obj["m_sideRefPlaneCurveBased"] = False
     assign_pids(obj)
     if rep == REP_SOLID:
+        # the element's own Start / End are ordered by elevation (above), so its
+        # END is the top cap: tag 0 there, as in every born extrusion (#1030)
         solid = solid_box_brep(prof, start, end, element_id=elem_id,
                                geometry_style_id=ctx.geometry_style_id,
-                               control_command=ctx.solid_control_command)
+                               control_command=ctx.solid_control_command,
+                               end_on_top=True)
         # never ship an open or self-inconsistent shell again: the record
         # validator cannot see B-rep topology, so a broken solid used to
         # reach Revit with "0 errors" reported (issue #504).
@@ -2925,10 +2938,14 @@ def reproduce_specimen_solid(doc, unit: int, extrusion_id: int, *,
     idx = _index(doc)
     sp = specimen_box_inputs(idx, unit, extrusion_id)
     z0 = sp["sketch_z"]
-    ours = solid_box_brep(sp["vertices"], sp["start"] + z0, sp["end"] + z0,
+    # traced down from the higher offset; the cap tags follow the element's own
+    # Start / End (#1030): an end > start specimen has its END on top
+    hi, lo = max(sp["start"], sp["end"]), min(sp["start"], sp["end"])
+    ours = solid_box_brep(sp["vertices"], hi + z0, lo + z0,
                           element_id=sp["element_id"],
                           geometry_style_id=sp["geometry_style_id"],
-                          control_command=sp["control_command"])
+                          control_command=sp["control_command"],
+                          end_on_top=sp["end"] > sp["start"])
     theirs = sp["specimen_rep"]
     cmp = compare_object_trees(ours, theirs)
     enc = ObjectEncoder(idx.schema)

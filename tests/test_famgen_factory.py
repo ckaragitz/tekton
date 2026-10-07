@@ -225,10 +225,11 @@ def test_panelboard_family_composition():
     gr = con["m_oPlaneRef"]["value"]["m_geomRef"]
     ext = prod.forms[0].by_class("ExtrusionElem")[0]
     # the feeder enters a STANDING panel from above, so the connector rides
-    # the +z cap (tag 1, edges [3, 6, 10, 14]) -- the same face and tags the
-    # transformer's connectors use.  It used to sit on +y, the face that
-    # pointed up only because the panel was lying on its back.
-    assert gr["m_elemId"] == ext.elem_id and gr["m_geomTag"] == 1
+    # the +z cap (tag 0 -- the form's END cap, #1030 -- edges [3, 6, 10, 14])
+    # -- the same face and tags the transformer's connectors use.  It used to
+    # sit on +y, the face that pointed up only because the panel was lying on
+    # its back.
+    assert gr["m_elemId"] == ext.elem_id and gr["m_geomTag"] == 0
     assert con["m_oEdgeLoopRef"]["value"]["m_sortedTagArr"] == [3, 6, 10, 14]
     dom = con["m_pDomain"]["value"]
     assert dom["m_dVoltage"] == pytest.approx(SK.volts(480))
@@ -246,9 +247,12 @@ def test_panelboard_family_composition():
 def test_box_face_tags_match_the_specimen_convention():
     assert F.box_face("+y")["tag"] == 2
     assert F.box_face("+y")["edges"] == [3, 4, 8, 17]
-    assert F.box_face("top")["tag"] == 1
+    # the top is the form's END cap: tag 0, as in every born extrusion whose End
+    # is above its Start (#1030); its rails stay the [1,i,0] rails
+    assert F.box_face("top")["tag"] == 0
     assert F.box_face("top")["edges"] == [3, 6, 10, 14]
-    assert F.box_face("bottom")["tag"] == 0
+    assert F.box_face("bottom")["tag"] == 1
+    assert F.box_face("bottom")["edges"] == [4, 7, 11, 15]
     with pytest.raises(KeyError):
         F.box_face("diagonal")
 
@@ -273,9 +277,9 @@ def test_transformer_family_composition():
     assert max(f.params["base_z_ft"] + f.params["height_ft"] for f in body) == \
         pytest.approx(43.0 / 12)
     assert min(f.params["base_z_ft"] for f in body) == pytest.approx(0.0)
-    # both connectors on the TOP face (tag 1)
+    # both connectors on the TOP face (tag 0, the END cap: #1030)
     for c in doc.connectors:
-        assert c.obj["m_oPlaneRef"]["value"]["m_geomRef"]["m_geomTag"] == 1
+        assert c.obj["m_oPlaneRef"]["value"]["m_geomRef"]["m_geomTag"] == 0
     # the primary WINDING is the family's one primary connector; the secondary
     # books 75 kVA balanced over its 3 poles = 25 kVA per phase
     pri, sec = (c.obj["m_pDomain"]["value"] for c in doc.connectors)

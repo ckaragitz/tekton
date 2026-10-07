@@ -104,8 +104,9 @@ DOWNLIGHT_EARLIER_FORM = (
     "in many ways since -- among them category standard parameters (#601 / #631), "
     "parameter drives (Frame Length / Frame Width / Bar Hanger Span, Housing / "
     "Trim / Lens Diameter and Housing Height wired by the drive law, #913 / #950) "
-    "and can / trim / lens plan circles drawn as one full arc each (#916 / #980); "
-    "the list is not complete. Today's output is family-mode "
+    "and can / trim / lens plan circles drawn as one full arc each (#916 / #980) "
+    "and its box solids' cap tags following each extrusion's own Start / End "
+    "(#1030); the list is not complete. Today's output is family-mode "
     "validator VALID (0 errors) with NO viewer or desktop-Revit verdict: the "
     "certification speaks for the earlier form and for the four-registry load "
     "mechanism, not for the bytes delivered now")
@@ -164,7 +165,8 @@ STAGE_L8_EARLIER_FORM = (
     "since -- among them the panelboard built from its real parts (#892) with Width / "
     "Depth / Height through the drive law (#931) and the transformer's real parts with "
     "NEC clearance zones (#887 / #935) and its standard Frequency filled from its "
-    "catalog fact (#863); the list is not complete -- and the loader now "
+    "catalog fact (#863), and every box solid's cap tags following its own Start / "
+    "End (#1030); the list is not complete -- and the loader now "
     "writes the empty Family.m_oFamDimConstrMgr / FamilySymbol.m_pMoveRestrictions forms "
     "that genesis-12 found nulled in this file. The PASS is also narrower than a "
     "viewer PASS reads, as the ledger words it: verdicts #24/#25: placement on the "
@@ -216,10 +218,10 @@ EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
                   "the directory is not) inside that release's build context"),
         "certified": None,
         "reviewed": {
-            2026: "ea274092154a14189e40ee6be14e1c33b4fdc2d332934cba384a34881e107910",
-            2025: "4a67e333d792715de37a80a00f3b68292d396a313c682a28faf83351eb6779bb",
+            2026: "e32de4c8f7d56d4d798d9ef360c1e70fe9ba074b390218ac8a37884a2a400b31",
+            2025: "5460bedc550c2687fc6f2b89edc51a4cda6a4d5cd4ce7bd5b7fbcf39a3ca6a54",
         },
-        "reviewed_at": "18153b4 (main after #980/#982)",
+        "reviewed_at": "#1030 (cap tags follow Start / End)",
         "caveat": DOWNLIGHT_EARLIER_FORM,
         "doc_names": (r"L_downlight",),
     },
@@ -235,10 +237,10 @@ EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
                   "of the lines '<tag> <sha256 of that f.rfa>' joined by newlines"),
         "certified": None,
         "reviewed": {
-            2026: "be4868dc24b0ddf2b8437041b3de8f133b01405f97defd3858145970f6ae2771",
-            2025: "8d7055d047a893e99a74fe5e305d70f1a14bf9afc68fd85d8a787b722851295c",
+            2026: "9b023c8270acc610580dce53404dd9554752376f31d9317d055269c99b63c64f",
+            2025: "d29bcc222d60c29beceea9055a2c62b35745674824296cbf4c23cda7b79a46e6",
         },
-        "reviewed_at": "#1031 (catalog Frequency, #863)",
+        "reviewed_at": "#1030 (cap tags follow Start / End)",
         "caveat": STAGE_L8_EARLIER_FORM,
         "doc_names": (r"stage_L8",),
     },

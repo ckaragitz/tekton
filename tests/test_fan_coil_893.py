@@ -96,7 +96,8 @@ def test_the_family_is_mechanical_equipment_with_one_power_connector_on_the_disc
     (con,) = fcu.doc.connectors
     disc = next(f for f in fcu.forms if f.params["role"] == "fused disconnect switch")
     gr = con.obj["m_oPlaneRef"]["value"]["m_geomRef"]
-    assert gr["m_elemId"] == disc.by_class("ExtrusionElem")[0].elem_id and gr["m_geomTag"] == 1
+    # on the disconnect's top: the END cap, tag 0 (#1030)
+    assert gr["m_elemId"] == disc.by_class("ExtrusionElem")[0].elem_id and gr["m_geomTag"] == 0
     assert con.obj["m_pDomain"]["value"]["m_nNumberOfPoles"] == 2      # 208 V single-phase
     notes = "\n".join(fcu.doc.notes)
     assert "pipe / duct connectors are NOT authored" in notes
