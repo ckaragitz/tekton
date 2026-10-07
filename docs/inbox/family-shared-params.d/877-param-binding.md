@@ -41,7 +41,7 @@ Stream **family-shared-params** (tech-lead session, 2026-10-02). Closes #877: DO
 
 ## Evidence (DONE 3)
 
-`tests/test_param_binding_877.py`: **5 passed** as first opened, under the #707 release-leak guard because the 2025 build enters a release context; **8 collected** after the review rounds (the rebind, `doc=` and repaint tests: see below and `docs/inbox/family-standards.d/863-facts-fill-standards.md`).
+`tests/test_param_binding_877.py`: **5 passed** as first opened, under the #707 release-leak guard because the 2025 build enters a release context; **9 collected** after the review rounds: 8 functions, one parametrised ×2. They add the rebind, `doc=`, repaint and material-is-an-element-id tests; see below and `docs/inbox/family-standards.d/863-facts-fill-standards.md`.
 - **The encoding:** both bindings sit in one cell before the `PatternHelper`, with the exact entry shape, the deletion parents and `m_materialId`.
 - **Rebinding** does not duplicate.
 - **Wrong-kind refusals.**

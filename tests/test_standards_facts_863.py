@@ -143,5 +143,24 @@ def test_equal_values_in_different_number_types_agree():
 
 def test_a_filled_fact_is_named_as_the_familys_own_not_the_callers():
     prod = F.make_transformer(kva=45)
-    assert any("['Frequency'] came from the family's own catalog facts" in n
+    assert any("'Frequency' (fact) came from the family's own facts" in n
                for n in prod.doc.notes)
+
+
+
+def test_a_multi_type_provenance_names_every_tier():
+    a, b = F.FactSheet(subject="a"), F.FactSheet(subject="b")
+    a.set("frequency_hz", 60, kind="fact", source="cat")
+    b.set("frequency_hz", 60, kind="derived", source="calc")
+    prov = ST.values_from_facts([a, b])[1]
+    assert prov[0]["tier"] == "fact; derived" and prov[0]["source"] == "cat; calc"
+
+
+def test_a_pathological_fact_never_blocks_the_family():
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_equipment", "Zz Huge", work_plane_based=False)
+    doc.add_type("T", {})
+    a, b = F.FactSheet(subject="a"), F.FactSheet(subject="b")
+    a.set("frequency_hz", 10 ** 400, kind="fact", source="a")
+    b.set("frequency_hz", 60, kind="fact", source="b")
+    ST.apply_safe(doc, "electrical_equipment", True, None, facts=[a, b])   # no raise

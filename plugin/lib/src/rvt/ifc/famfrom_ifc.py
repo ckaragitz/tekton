@@ -634,7 +634,7 @@ def make_downlight(*, facts: Optional[PF.ProductFacts] = None,
     std_values = {caption: v for key, caption in PHOTOMETRIC_JOB_VALUES
                   if (v := g(key)) is not None}
     std_values.update(standard_values or {})
-    std_report = ST.apply_safe(doc, STD_CATEGORY, standards, std_values)
+    std_report = ST.apply_safe(doc, STD_CATEGORY, standards, std_values, facts=fs)
     drive_note, reports = None, ([], {}, {})
     if drive == "law":
         drive_note, reports = _wire_downlight_drives(doc, forms)
