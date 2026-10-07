@@ -88,3 +88,12 @@ def test_the_constant_is_the_declared_releases_not_any_releases(built):
     assert not FA.is_release_schema_constant(sha26, bfi25)     # a 2026 schema in a 2025 file
     assert FA.is_release_schema_constant(sha26, bfi26)
     assert not FA.is_release_schema_constant("", bfi25)
+
+
+def test_a_declared_release_we_hold_no_constant_for_is_not_constant(monkeypatch):
+    from rvt import versions as V
+    pin = FA.FORMATS_LATEST_SHA256_PREFIX
+    monkeypatch.setattr(V, "detect_release_from_bfi", lambda bfi: 2031)   # a future release
+    assert not FA.is_release_schema_constant(pin + "0" * (64 - len(pin)), b"declares 2031")
+    monkeypatch.setattr(V, "detect_release_from_bfi", lambda bfi: None)   # undetected: the pin
+    assert FA.is_release_schema_constant(pin + "0" * (64 - len(pin)), b"no release")

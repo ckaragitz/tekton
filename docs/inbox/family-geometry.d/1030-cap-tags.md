@@ -13,7 +13,7 @@ Every box solid we generate had its two cap **face tags** the wrong way round fo
 So our top cap carried the Start's tag while the element called the top its End.
 
 **Consequences found in our own files** (no Revit needed):
-- **Height locks.** `height_law`, built from a born census, locks "end" (geomTag 0) to the higher plane and "start" (tag 1) to the lower one. Across the panelboard, the 45 kVA transformer and every archetype, **175 of 179** cap-face locks witnessed the cached cap on the *other* plane. The 4 that did not were already correct for other reasons.
+- **Height locks.** `height_law`, built from a born census, locks "end" (geomTag 0) to the higher plane and "start" (tag 1) to the lower one. Across the panelboard, the 45 kVA transformer and every archetype, **175 of 179** cap-face locks witnessed the cached cap on the *other* plane. The 4 already on their plane were the strut trapeze's threaded rods, true cylinders (`solid_cylinder_brep`, which already tagged its top 0). The troffer, downlight, device and fan coil carry 21 more locks, 21 of them on the other cap before the fix (counted in the #1036 review; the law test now requires them).
 - **Connectors.** A connector on a box top (`box_face('top')`) named tag 1, the Start cap.
 - **Cylinders.** The true cylinder solid (`solid_cylinder_brep`), built from a born extrude-up specimen, already put tag 0 on its top, so `box_face`'s convention disagreed with it. No connector was affected: connectors are refused on any host that is not a 4-curve prism (`add_connector`, `add_conduit_connector`). The polygon cylinders a connector can sit on go through `new_extrusion` like every box.
 

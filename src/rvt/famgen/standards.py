@@ -1087,6 +1087,8 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
                              f"given {offered} are NOT authored (no standard "
                              f"parameters are applied, so nothing carries them)")
         return None
+    if isinstance(kw.get("skip"), str):              # one name, never its characters
+        kw["skip"] = (kw["skip"],)
     from_facts: List[Dict[str, Any]] = []
     split: List[str] = []
     try:

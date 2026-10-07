@@ -67,27 +67,39 @@ def test_a_form_extrusion_tags_its_top_cap_0():
     assert caps[0] > caps[1]
 
 
+#: makers whose height locks this law must judge: each must build AND carry
+#: cap locks (#1036 review: a floor on the row count alone let them drop out)
+REQUIRED = ("panelboard", "transformer", "troffer", "downlight", "device", "fan coil",
+            "strut_trapeze", "lighting_control_panel")
+
+
 def _builds():
+    from rvt.famgen import fan_coil as FC
     yield "panelboard", F.make_panelboard
     yield "transformer", lambda: F.make_transformer(kva=45)
+    yield "troffer", F.make_luminaire
+    yield "downlight", lambda: F.make_luminaire(kind="downlight")
+    yield "device", F.make_device
+    yield "fan coil", FC.make_fan_coil_unit
     for k in sorted(A.ARCHETYPES):
         yield k, (lambda k=k: F.make_archetype(product=k))
 
 
 def test_every_height_lock_witnesses_the_cap_on_its_plane():
-    rows, built = [], set()
+    assert set(REQUIRED) - {"troffer", "downlight", "device", "fan coil"} <= \
+        {"panelboard", "transformer"} | set(A.ARCHETYPES)
+    rows = []
     for name, build in _builds():
         try:
             doc = build().doc
-        except Exception:                             # an archetype that does not build is not this law's
-            if name in ("panelboard", "transformer"):
+        except Exception:                             # an archetype outside REQUIRED is not this law's
+            if name in REQUIRED:
                 raise
             continue
-        built.add(name)
         got = CL.lock_face_findings(doc)
-        if name in ("panelboard", "transformer"):
+        if name in REQUIRED:
             assert got, f"{name} has no cap locks to judge"
         rows += [dict(r, family=name) for r in got]
-    assert len(rows) >= 50                            # 179 locks at the time of writing
+    assert len(rows) >= 179 + 21                      # at the time of writing
     off = [r for r in rows if not r["on_plane"]]
     assert not off, off[:5]
