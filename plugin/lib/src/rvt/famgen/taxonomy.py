@@ -53,7 +53,8 @@ __all__ = ["Kind", "Mention", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LA
            "AMBIGUOUS_ALONE", "kinds", "keys", "get", "resolve", "scan",
            "for_intent_kind", "by_discipline", "archetype_registry", "category_status",
            "member_model", "famspec_hint", "facts_tier", "builder_available", "caveat",
-           "describe", "table", "check_row", "check"]
+           "describe", "table", "check_row", "check", "DECISIONS", "DECISION_OUTCOMES",
+           "gap_rows", "decision"]
 
 LANES = ("catalog", "archetype", "none")
 MECHANISMS = ("famspec", "archetype", "house")
@@ -359,6 +360,115 @@ _ROWS: Tuple[Kind, ...] = (
 )
 
 _BY_KEY: Dict[str, Kind] = {k.key: k for k in _ROWS}
+
+#: #822: every kind with a category and NO build mechanism carries a recorded DECISION -- which
+#: of the three honest outcomes closes its gap, and why -- so a refusal is a decision, never the
+#: side effect of a taxonomy row with no mechanism.  ``archetype``: real parts at standard nominal
+#: sizes for the product class (rvt.famgen.archetypes, steer #591) -- planned, not built yet;
+#: ``catalog``: a famspec constructor from sourced facts (a vendor record must be held first);
+#: ``not generated``: deliberately not a generated family, the reason given.  Never a near-miss
+#: mapping onto another product.  :func:`check` fails on a gap row without a decision and on a
+#: decision whose row is no longer a gap (the row gained a mechanism: drop its decision).
+DECISION_OUTCOMES = ("archetype", "catalog", "not generated")
+_LUMINAIRE_CATALOG = ("luminaires are built from a manufacturer record, as the troffer and the "
+                      "downlight are; this type needs a held record")
+_DEVICE_CATALOG = ("a wall/ceiling device built by the device lane from a held catalog record, "
+                   "as the receptacle is")
+_EQUIPMENT_ARCHETYPE = "an enclosure product class with a standard shape, as the lighting control panel"
+_MECH_ARCHETYPE = "packaged equipment with a standard shape for its class, at nominal sizes"
+_FIXTURE_ARCHETYPE = "a fixture with a standard shape for its class, at nominal sizes"
+_INLINE_ARCHETYPE = "an in-line accessory sized by its duct / pipe, at nominal sizes"
+DECISIONS: Dict[str, Tuple[str, str]] = {
+    # electrical
+    "motor_control_center": ("archetype", "a lineup of vertical sections at standard section sizes"),
+    "disconnect_switch": ("archetype", _EQUIPMENT_ARCHETYPE + " (the fan coil already builds one "
+                          "as a part)"),
+    "variable_frequency_drive": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "automatic_transfer_switch": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "ups": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "generator": ("archetype", "a packaged generator set: skid, engine-generator and enclosure at "
+                  "nominal sizes"),
+    "meter_center": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "enclosed_circuit_breaker": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "busway": ("not generated", "a busway RUN is drawn, not loaded as a family; its plug-in units "
+               "and end fittings may become families later"),
+    "cable_tray_fitting": ("archetype", "elbows / tees / reducers derived from the cable tray "
+                           "archetype's own sizes"),
+    "conduit_fitting": ("archetype", "fittings derived from the conduit archetype's trade sizes"),
+    "floor_box": ("archetype", "a recessed box at standard gang sizes"),
+    # lighting
+    "high_bay": ("catalog", _LUMINAIRE_CATALOG),
+    "linear_luminaire": ("catalog", _LUMINAIRE_CATALOG),
+    "wall_pack": ("catalog", _LUMINAIRE_CATALOG),
+    "wall_sconce": ("catalog", _LUMINAIRE_CATALOG),
+    "exit_sign": ("catalog", _LUMINAIRE_CATALOG),
+    "emergency_light": ("catalog", _LUMINAIRE_CATALOG),
+    "pole_light": ("catalog", _LUMINAIRE_CATALOG),
+    "occupancy_sensor": ("catalog", _DEVICE_CATALOG),
+    "dimmer_switch": ("catalog", _DEVICE_CATALOG),
+    "daylight_sensor": ("catalog", _DEVICE_CATALOG),
+    # fire alarm
+    "smoke_detector": ("catalog", _DEVICE_CATALOG),
+    "heat_detector": ("catalog", _DEVICE_CATALOG),
+    "pull_station": ("catalog", _DEVICE_CATALOG),
+    "horn_strobe": ("catalog", _DEVICE_CATALOG),
+    "duct_smoke_detector": ("catalog", _DEVICE_CATALOG),
+    "fire_alarm_control_panel": ("archetype", _EQUIPMENT_ARCHETYPE),
+    # technology
+    "data_outlet": ("catalog", _DEVICE_CATALOG),
+    "telephone_outlet": ("catalog", _DEVICE_CATALOG),
+    "speaker": ("catalog", _DEVICE_CATALOG),
+    "card_reader": ("catalog", _DEVICE_CATALOG),
+    "security_camera": ("catalog", _DEVICE_CATALOG),
+    "intrusion_detector": ("catalog", _DEVICE_CATALOG),
+    "nurse_call_station": ("catalog", _DEVICE_CATALOG),
+    # mechanical
+    "air_handling_unit": ("archetype", _MECH_ARCHETYPE),
+    "rooftop_unit": ("archetype", _MECH_ARCHETYPE),
+    "fan_coil_unit": ("archetype", "a house model exists (rvt.famgen.fan_coil:make_fan_coil_unit, "
+                      "#893) but is not wired to this row or the prompt route yet"),
+    "vav_box": ("archetype", "the fan-powered terminal exists (rvt.famgen.fan_powered, #895) and "
+                "answers this row's 'fan powered box' alias once wired; a bare VAV box (single "
+                "duct, no fan) must never be built as one"),
+    "exhaust_fan": ("archetype", _MECH_ARCHETYPE),
+    "pump": ("archetype", _MECH_ARCHETYPE),
+    "boiler": ("archetype", _MECH_ARCHETYPE),
+    "chiller": ("archetype", _MECH_ARCHETYPE),
+    "cooling_tower": ("archetype", _MECH_ARCHETYPE),
+    "unit_heater": ("archetype", _MECH_ARCHETYPE),
+    "split_system": ("archetype", _MECH_ARCHETYPE),
+    "energy_recovery_unit": ("archetype", _MECH_ARCHETYPE),
+    "expansion_tank": ("archetype", _MECH_ARCHETYPE),
+    "fire_damper": ("archetype", _INLINE_ARCHETYPE),
+    "volume_damper": ("archetype", _INLINE_ARCHETYPE),
+    # plumbing
+    "water_heater": ("archetype", _MECH_ARCHETYPE),
+    "water_closet": ("archetype", _FIXTURE_ARCHETYPE),
+    "urinal": ("archetype", _FIXTURE_ARCHETYPE),
+    "lavatory": ("archetype", _FIXTURE_ARCHETYPE),
+    "sink": ("archetype", _FIXTURE_ARCHETYPE),
+    "drinking_fountain": ("archetype", _FIXTURE_ARCHETYPE),
+    "shower": ("archetype", _FIXTURE_ARCHETYPE),
+    "floor_drain": ("archetype", _FIXTURE_ARCHETYPE),
+    "backflow_preventer": ("archetype", _INLINE_ARCHETYPE),
+    "pressure_reducing_valve": ("archetype", _INLINE_ARCHETYPE),
+    "valve": ("archetype", _INLINE_ARCHETYPE),
+    # fire protection
+    "fire_pump": ("archetype", _MECH_ARCHETYPE),
+}
+
+
+def gap_rows() -> Tuple[Kind, ...]:
+    """Rows a prompt recognises and no lane builds (#822): a usable category key, no build
+    mechanism and not a generic word.  Each must carry a :data:`DECISIONS` entry."""
+    return tuple(r for r in _ROWS if r.category and not r.pending and not r.via and not r.refine)
+
+
+def decision(row: Any) -> Optional[Tuple[str, str]]:
+    """``(outcome, reason)`` recorded for a gap row (#822), or None."""
+    key = row.key if isinstance(row, Kind) else str(row)
+    return DECISIONS.get(key)
+
 
 
 def _fold(text: Any) -> str:
@@ -727,8 +837,12 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
         return False, "a generic word -- name the type: " + "; ".join(
             f"{', '.join(labels)} ({what})" for labels, what in groups if labels)
     if not row.via:
+        dec = DECISIONS.get(row.key)
+        planned = ("" if dec is None else
+                   f" -- not generated here, by decision: {dec[1]}" if dec[0] == "not generated"
+                   else f" -- planned lane ({dec[0]}, #822): {dec[1]}")
         return False, (f"{row.label} is placed under {row.revit_category}, but no lane builds "
-                       f"it yet: no catalog record is held and no archetype generates it")
+                       f"it yet: no catalog record is held and no archetype generates it{planned}")
     whys = []
     for mech in row.via:
         ok, why = _mechanism_available(row, mech, strict)
@@ -944,6 +1058,19 @@ def check() -> List[str]:
                             f"of that category are in no refine list: {missing}")
     problems.extend(f"taxonomy: AMBIGUOUS_ALONE word {w!r} is not a name any row carries"
                     for w in sorted(AMBIGUOUS_ALONE) if w not in _ALIAS)
+    gaps = {r.key for r in gap_rows()}                  # #822: a refusal is a recorded decision
+    problems.extend(f"taxonomy[{k}]: recognised, categorised and built by no lane, with no "
+                    f"recorded decision -- add DECISIONS[{k!r}] (archetype / catalog / not "
+                    f"generated, with the reason) or a build mechanism"
+                    for k in sorted(gaps - set(DECISIONS)))
+    problems.extend(f"taxonomy: DECISIONS[{k!r}] names "
+                    + ("no row" if k not in _BY_KEY else "a row that is no longer a gap (it has "
+                       "a build mechanism, or is generic or pending): drop the decision")
+                    for k in sorted(set(DECISIONS) - gaps))
+    problems.extend(f"taxonomy: DECISIONS[{k!r}] outcome {o!r} is not one of {DECISION_OUTCOMES}"
+                    for k, (o, _why) in sorted(DECISIONS.items()) if o not in DECISION_OUTCOMES)
+    problems.extend(f"taxonomy: DECISIONS[{k!r}] gives no reason"
+                    for k, (_o, why) in sorted(DECISIONS.items()) if not str(why).strip())
     for row in _ROWS:
         problems.extend(check_row(row))
     return problems
