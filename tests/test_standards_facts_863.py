@@ -207,3 +207,29 @@ def test_skip_names_a_table_row_exactly_as_apply_reads_it():
                         skip=["Rated Frequency"])               # not the row's name
     assert "Frequency" in rep["filled"]                          # so it is not skipped
     assert [p["name"] for p in rep["filled_from_facts"]] == ["Frequency"]
+
+
+def test_a_bare_string_skip_is_one_name():
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_equipment", "Zz SkipStr", work_plane_based=False)
+    doc.add_type("T", {})
+    a = F.FactSheet(subject="a")
+    a.set("frequency_hz", 60, kind="fact", source="a")
+    rep = ST.apply_safe(doc, "electrical_equipment", True, None, facts=a, skip="Frequency")
+    assert "Frequency" not in rep["filled"] and "facts_not_written" not in rep
+    assert any(s["name"] == "Frequency" for s in rep["skipped"])
+
+
+def test_filled_from_facts_is_matched_by_meaning_not_spelling(monkeypatch):
+    # a fact table naming the parameter by an alias still reports its provenance
+    monkeypatch.setitem(ST.FACT_VALUES, "frequency_hz", "Rated Frequency")
+    if ST.meaning_key("Rated Frequency") != ST.meaning_key("Frequency"):
+        pytest.skip("'Rated Frequency' is not a Frequency synonym in this table")
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_equipment", "Zz Alias", work_plane_based=False)
+    doc.add_type("T", {})
+    a = F.FactSheet(subject="a")
+    a.set("frequency_hz", 60, kind="fact", source="a")
+    rep = ST.apply_safe(doc, "electrical_equipment", True, None, facts=a)
+    assert [p["name"] for p in rep["filled_from_facts"]] == ["Rated Frequency"]
+    assert "Frequency" in rep["filled"]

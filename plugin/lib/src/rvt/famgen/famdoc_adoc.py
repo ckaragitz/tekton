@@ -2031,7 +2031,8 @@ def is_release_schema_constant(fmt_sha: str, bfi: bytes) -> bool:
     """True when ``fmt_sha`` (the sha256 of a file's inflated ``Formats/Latest``) is
     the schema constant of the release the file's own ``BasicFileInfo`` declares
     (``rvt.versions.KNOWN_RELEASES``) -- a 2025 family is judged against 2025's
-    constant, never 2026's (#864).  A file whose release is not detected falls back
+    constant, never 2026's (#864).  A file that declares a release we hold no
+    constant for is not judged constant.  A file whose release is not detected falls back
     to the pin in force (:data:`FORMATS_LATEST_SHA256_PREFIX`, swapped by a write's
     release context)."""
     from .. import versions as V
@@ -2039,9 +2040,9 @@ def is_release_schema_constant(fmt_sha: str, bfi: bytes) -> bool:
         year = V.detect_release_from_bfi(bfi) if bfi else None
     except Exception:                                         # noqa: BLE001
         year = None
-    rel = V.KNOWN_RELEASES.get(year) if year else None
-    if rel is not None:
-        return bool(fmt_sha) and fmt_sha == rel.schema_sha256
+    if year:                                   # a declared release is judged by its own constant
+        rel = V.KNOWN_RELEASES.get(year)       # -- one we hold no constant for is not ours to pass
+        return rel is not None and bool(fmt_sha) and fmt_sha == rel.schema_sha256
     return bool(FORMATS_LATEST_SHA256_PREFIX and fmt_sha.startswith(FORMATS_LATEST_SHA256_PREFIX))
 
 
