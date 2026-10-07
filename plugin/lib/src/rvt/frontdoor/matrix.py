@@ -163,7 +163,8 @@ STAGE_L8_EARLIER_FORM = (
     "the owner-machine genesis base ZA_deep. The constructors have changed in many ways "
     "since -- among them the panelboard built from its real parts (#892) with Width / "
     "Depth / Height through the drive law (#931) and the transformer's real parts with "
-    "NEC clearance zones (#887 / #935); the list is not complete -- and the loader now "
+    "NEC clearance zones (#887 / #935) and its standard Frequency filled from its "
+    "catalog fact (#863); the list is not complete -- and the loader now "
     "writes the empty Family.m_oFamDimConstrMgr / FamilySymbol.m_pMoveRestrictions forms "
     "that genesis-12 found nulled in this file. The PASS is also narrower than a "
     "viewer PASS reads, as the ledger words it: verdicts #24/#25: placement on the "
@@ -234,10 +235,10 @@ EVIDENCE_FORMS: Dict[str, Dict[str, Any]] = {
                   "of the lines '<tag> <sha256 of that f.rfa>' joined by newlines"),
         "certified": None,
         "reviewed": {
-            2026: "ea239c27df58e42118203302e0f0838b6a6fd6dea2c47cfdbeecabef7a3e45f4",
-            2025: "5fe7308d080ff147f2c6582c99a0c6af54734fb8106bf3ca9ec59cd7201db1ba",
+            2026: "be4868dc24b0ddf2b8437041b3de8f133b01405f97defd3858145970f6ae2771",
+            2025: "8d7055d047a893e99a74fe5e305d70f1a14bf9afc68fd85d8a787b722851295c",
         },
-        "reviewed_at": "276a5a8 (main after #981/#985)",
+        "reviewed_at": "#1031 (catalog Frequency, #863)",
         "caveat": STAGE_L8_EARLIER_FORM,
         "doc_names": (r"stage_L8",),
     },

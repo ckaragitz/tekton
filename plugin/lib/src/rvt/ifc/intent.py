@@ -2785,7 +2785,7 @@ def make_house_switchboard(*, tag: str = "MSB", name: str = "Switchboard",
                     "parts": {"enclosure": {"start": "lo", "end": "hi"}}}]
         drive_report, height_report = F._wire_equipment_drives(
             doc, [("enclosure", fb)], d_specs, h_specs, what="switchboard")
-    std_report = ST.apply_safe(doc, "switchboard", standards, standard_values)
+    std_report = ST.apply_safe(doc, "switchboard", standards, standard_values, facts=sheet)
     doc.finalize()
     if drive == "law":
         F._born_law_after_finalize(doc)

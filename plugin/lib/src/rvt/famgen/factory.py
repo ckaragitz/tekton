@@ -1538,7 +1538,7 @@ def _make_generic_multipart(parts: Sequence[Dict[str, Any]], *, name: str,
     # type row at its own storage class's blank ("" / 0 / 0.0) rather than
     # add_type's numeric 0.0 -- and skipped wherever the constructor already
     # authored that name (Width/Depth/Height, a caller's text parameter).
-    std_report = ST.apply_safe(doc, category, standards, standard_values)
+    std_report = ST.apply_safe(doc, category, standards, standard_values, facts=sheet)
     # PARAMETRIC DRIVE -- OFF BY DEFAULT, and that is a desktop verdict, not
     # caution.  Wiring the #372 chain (side RefPlanes + Alignments + labeled
     # dimensions) onto a multi-part generic model builds and validates cleanly
@@ -2031,7 +2031,8 @@ def make_generic_model(*, height_ft: Optional[float] = None,
     }
     _caller_param_row(doc, row, text_params, numeric_params, identity)
     doc.add_type(_clean_name(fam_name), row)
-    std_report = ST.apply_safe(doc, category, standards, standard_values)   # category standards, #601
+    std_report = ST.apply_safe(doc, category, standards, standard_values,   # category standards, #601
+                               facts=sheet)
     r = G.REP_SOLID if solid else G.REP_DUMMY
     prism_drives: List[Dict[str, Any]] = []
     prism_heights: Dict[str, Any] = {}
@@ -2954,7 +2955,7 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
         if not law:
             doc.notes.append("panelboard drives NOT wired: every drive spec was refused "
                              "(see the notes above); the dimensions are values only")
-    std_report = ST.apply_safe(doc, "panelboard", standards, standard_values)
+    std_report = ST.apply_safe(doc, "panelboard", standards, standard_values, facts=sheets)
     doc.finalize()
     if drive == "law" and doc.born_drive_law:
         from . import drive_law as DL
@@ -3306,7 +3307,7 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                   bind_voltage_param="Secondary Voltage",
                   bind_load_param="kVA Rating",
                   load_class="Power", description="Secondary", primary=False)
-    std_report = ST.apply_safe(doc, "transformer", standards, standard_values)
+    std_report = ST.apply_safe(doc, "transformer", standards, standard_values, facts=sheets)
     doc.finalize()
     if drive == "law":
         _born_law_after_finalize(doc)
@@ -3579,7 +3580,8 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                    if shape == "box" else [])
         drive_report, height_report = _wire_equipment_drives(doc, named, d_specs, h_specs,
                                                              what="luminaire")
-    std_report = ST.apply_safe(doc, "lighting_fixture", standards, standard_values)
+    std_report = ST.apply_safe(doc, "lighting_fixture", standards, standard_values,
+                               facts=sheets)
     doc.finalize()
     if drive == "law":
         _born_law_after_finalize(doc)
@@ -3704,7 +3706,8 @@ def make_device(kind: str = "duplex-receptacle", *,
                               "faceplate": {"start": "hi"}}}]
         drive_report, height_report = _wire_equipment_drives(doc, named, d_specs, h_specs,
                                                              what="device")
-    std_report = ST.apply_safe(doc, "electrical_fixture", standards, standard_values)
+    std_report = ST.apply_safe(doc, "electrical_fixture", standards, standard_values,
+                               facts=facts)
     doc.finalize()
     if drive == "law":
         _born_law_after_finalize(doc)

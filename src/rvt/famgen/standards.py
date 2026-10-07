@@ -966,7 +966,7 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
             gname, gv = given
             try:
                 val = coerce_value(p.spec, gv)
-            except (TypeError, ValueError) as e:   # the slot stays BLANK, the value is named
+            except (TypeError, ValueError, OverflowError) as e:   # the slot stays BLANK, the value is named
                 unusable.append({"name": gname, "why": f"{gv!r} cannot be written as {p.spec} ({e})"})
                 placed.add(mk)
                 given = None
@@ -1003,11 +1003,74 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
     return rep
 
 
+#: a constructor's OWN facts that ARE a standard parameter's value (#863): fact key ->
+#: the parameter it fills (in the fact's units, which are the parameter's internal
+#: ones: Hz, a plain number).  Only a KNOWN value fills one (S-2026-08-11-a): a
+#: catalog ``fact``, a ``given`` or a ``derived`` one -- never ``assumed`` or
+#: ``nominal``.  A fact with no row here fills nothing.
+FACT_VALUES: Dict[str, str] = {
+    "frequency_hz": "Frequency",
+    "cri": "Color Rendering Index",
+}
+KNOWN_TIERS = ("fact", "given", "derived")
+
+
+def _same_value(v: Any) -> str:
+    """A comparison key under which 60, 60.0 and "60" are one value."""
+    try:
+        return repr(float(v))
+    except (TypeError, ValueError, OverflowError):
+        return repr(v)
+
+
+def values_from_facts(facts: Any) -> Tuple[Dict[str, Any], List[Dict[str, Any]], List[str]]:
+    """(values, provenance, disagreements) the constructor's facts establish for the
+    standards step: each :data:`FACT_VALUES` key held at a known tier.  ``facts`` is
+    one ``FactSheet`` or the sheets of every TYPE the family builds -- a standard
+    parameter is one value for the family, so it is filled only when every type
+    holds the same known value; one that differs between types, or that only some
+    types hold, is named in ``disagreements`` and stays blank (never the first
+    type's value on all)."""
+    if isinstance(facts, dict):                    # {type name: sheet}
+        facts = list(facts.values())
+    sheets = list(facts) if isinstance(facts, (list, tuple)) else [facts]
+    out: Dict[str, Any] = {}
+    prov: List[Dict[str, Any]] = []
+    split: List[str] = []
+    for key, name in FACT_VALUES.items():
+        got = [v.get(key) if isinstance(v := getattr(sh, "values", None), dict) else None
+               for sh in sheets]
+        known = [f is not None and getattr(f, "kind", None) in KNOWN_TIERS
+                 and f.value not in (None, "") for f in got]
+        if not got or not any(known):
+            continue
+        if not all(known):                        # some types hold it, some do not
+            split.append(name)
+            continue
+        if len({_same_value(f.value) for f in got}) > 1:
+            split.append(name)
+            continue
+        out[name] = got[0].value
+        sources = list(dict.fromkeys(str(getattr(f, "source", "") or "") for f in got))
+        tiers = list(dict.fromkeys(str(f.kind) for f in got))
+        prov.append({"name": name, "fact": key, "tier": "; ".join(tiers),
+                     "source": "; ".join(s for s in sources if s)})
+    return out, prov, split
+
+
 def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
                values: Optional[Dict[str, Any]] = None,
+               facts: Any = None,
                **kw: Any) -> Optional[Dict[str, Any]]:
     """The standards step EVERY model-family constructor calls (#642) --
     :func:`apply` under the two guarantees a constructor needs.
+
+    ``facts`` (#863): the constructor's ``FactSheet`` (or every type's) -- the
+    standard parameters its own known facts establish (:data:`FACT_VALUES`,
+    :func:`values_from_facts`) are filled from it, the caller's ``values``
+    overriding any of them; the report's ``filled_from_facts`` names each with its
+    fact and tier.  A caller's ``None`` is no value (as everywhere here), so it
+    does not suppress a fact: ``skip=`` does, or ``on=False`` for every standard.
 
     ``on`` False (the caller's ``standards=False``, the regression control):
     nothing is authored and ``None`` comes back -- but ``values`` the caller
@@ -1024,8 +1087,61 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
                              f"given {offered} are NOT authored (no standard "
                              f"parameters are applied, so nothing carries them)")
         return None
+    from_facts: List[Dict[str, Any]] = []
+    split: List[str] = []
     try:
-        return apply(doc, category, values=values, **kw)
+        if facts is not None:
+            fv, from_facts, split = values_from_facts(facts)
+            given = {meaning_key(n) for n in _offered(values)}
+            # a fact fills (or is noted for) only a parameter this step will author: one
+            # in the category's table that the document does not already carry
+            authorable = {meaning_key(p.name) for p in standard_params(category) if p.authored}
+            present = {meaning_key(n) for n in doc.params}
+            # a parameter the caller skips is not offered a fact (nor reported unwritten)
+            present |= {meaning_key(n) for n in (kw.get("skip") or ())}
+            from_facts = [p for p in from_facts if meaning_key(p["name"]) in authorable
+                          and meaning_key(p["name"]) not in present]
+            fv = {p["name"]: fv[p["name"]] for p in from_facts}
+            split = [n for n in split if meaning_key(n) not in given
+                     and meaning_key(n) in authorable and meaning_key(n) not in present]
+            from_facts = [p for p in from_facts if meaning_key(p["name"]) not in given]
+            values = {**{p["name"]: fv[p["name"]] for p in from_facts}, **_offered(values)}
+        rep = apply(doc, category, values=values, **kw)
+        # a split fact is noted only where this step really authored the slot blank
+        authored_blank = {meaning_key(a["name"]) for a in rep.get("applied") or ()
+                          if a.get("value") == "blank"}
+        for name in split:
+            if meaning_key(name) in authored_blank:
+                doc.notes.append(f"standard parameter {name!r} left blank: the family's types "
+                                 f"do not all hold one known value for it (they differ, or "
+                                 f"only some hold it), and a standard parameter is one value "
+                                 f"per family")
+        if from_facts:
+            filled = set(rep.get("filled") or ())
+            rep["filled_from_facts"] = [p for p in from_facts if p["name"] in filled]
+            if rep["filled_from_facts"]:
+                doc.notes.append(
+                    "category standards: of those filled, "
+                    + ", ".join(f"{p['name']!r} ({p['tier']})" for p in rep["filled_from_facts"])
+                    + " came from the family's own facts, not from the caller's values")
+            # what the CALLER offered is reported as theirs; a fact that could not be
+            # written is reported apart, never as a value the caller gave
+            fact_only = {p["name"] for p in from_facts}
+            for key in ("values_not_placed", "values_unusable"):
+                got = rep.get(key)
+                if not got:
+                    continue
+                name_of = (lambda x: x["name"]) if key == "values_unusable" else (lambda x: x)
+                mine = [x for x in got if name_of(x) not in fact_only]
+                theirs = [x for x in got if name_of(x) in fact_only]
+                if mine:
+                    rep[key] = mine
+                else:
+                    rep.pop(key)
+                if theirs:
+                    rep.setdefault("facts_not_written", []).extend(
+                        name_of(x) for x in theirs)
+        return rep
     except Exception as e:                            # never block delivery
         doc.notes.append(f"category standards NOT applied "
                          f"({type(e).__name__}: {str(e)[:120]})")

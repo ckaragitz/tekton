@@ -41,7 +41,7 @@ Stream **family-shared-params** (tech-lead session, 2026-10-02). Closes #877: DO
 
 ## Evidence (DONE 3)
 
-`tests/test_param_binding_877.py`: **5 passed**, under the #707 release-leak guard because the 2025 build enters a release context.
+`tests/test_param_binding_877.py`: **5 passed** as first opened, under the #707 release-leak guard because the 2025 build enters a release context; **9 collected** after the review rounds: 8 functions, one parametrised ×2. They add the rebind, `doc=`, repaint and material-is-an-element-id tests; see below and `docs/inbox/family-standards.d/863-facts-fill-standards.md`.
 - **The encoding:** both bindings sit in one cell before the `PatternHelper`, with the exact entry shape, the deletion parents and `m_materialId`.
 - **Rebinding** does not duplicate.
 - **Wrong-kind refusals.**
@@ -67,10 +67,13 @@ The 🟡 nits of #971's second review round, recorded in `876-profile-map.md`.
 
 That Revit honours the bindings (the solid hides with the flag, its material follows the parameter) needs a desktop verdict (hard rule 4; S-2026-08-11-d's visibility surface). The visibility binding's own desktop question is #690.
 
-## BRANCH STATE
+## BRANCH STATE (as merged in #1029)
 
 - Files:
-  - `src/rvt/famgen/param_binding.py` (new) and `src/rvt/famgen/equipment_clearance.py`, with their plugin mirrors;
+  - `src/rvt/famgen/param_binding.py` (new) and `src/rvt/famgen/equipment_clearance.py`;
+  - `src/rvt/famgen/param_profile.py`, `tools/make_family.py`, `tools/profile_map_from_rfa.py` (the #971 nits);
+  - the plugin mirrors of all of these;
   - `tests/test_param_binding_877.py` and the drop-in `tests/ci_shard.d/877-param-binding.txt`;
-  - this record.
+  - `tests/test_profile_map_876.py`, `tests/test_profile_map_from_rfa_876.py`;
+  - this record and `876-profile-map.md`.
 - Shipped on merge; nothing is staged.

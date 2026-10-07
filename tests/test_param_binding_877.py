@@ -157,3 +157,47 @@ def test_bind_material_with_the_document_sets_every_row():
     fb = F.add_box_form(d, 1.0, 1.0, 1.0, base_z_ft=0.0, center=(0.0, 0.0), rep="solid")
     PB.bind_material(fb, mp, mat.elem_id, doc=d)
     assert all(row[mp.elem_id] == {"m_elemId": mat.elem_id} for _n, row in d.types)
+
+
+def test_binding_a_material_over_a_painted_solid_repaints_and_drops_the_old_parent():
+    """#1029 review round 2: bind_material paints like apply_material and the material
+    the solid wore before is no longer a deletion parent."""
+    d = SK.new_family_document("generic_model", "Zz Repaint", work_plane_based=False)
+    a = EC.new_family_material(d, "Zz A", (200, 0, 0), 0.0)
+    b = EC.new_family_material(d, "Zz B", (0, 0, 200), 0.0)
+    mp = PB.add_material_parameter(d, "Body Material", b.elem_id)
+    d.add_type("T", {})
+    fb = F.add_box_form(d, 1.0, 1.0, 1.0, base_z_ft=0.0, center=(0.0, 0.0), rep="solid")
+    EC.apply_material(fb, a)
+    PB.bind_material(fb, mp, b.elem_id, doc=d)
+    solid = PB.solid_of(fb)
+    dele = solid.header["m_parents"]["value"]["m_deletion"]
+    assert solid.obj["m_materialId"] == b.elem_id
+    assert b.elem_id in dele and a.elem_id not in dele and mp.elem_id in dele
+    styles = []
+
+    def walk(v):
+        if isinstance(v, dict):
+            if "m_renderStyleId" in v:
+                styles.append(v["m_renderStyleId"])
+            for x in v.values():
+                walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+    for e in fb.elements:
+        walk(e.obj)
+        if e.rep:
+            walk(e.rep)
+    assert styles and set(styles) == {b.elem_id}
+
+
+
+def test_a_material_is_an_element_id():
+    d = SK.new_family_document("generic_model", "Zz Guard", work_plane_based=False)
+    mp = PB.add_material_parameter(d, "Body Material", -1)
+    d.add_type("T", {})
+    fb = F.add_box_form(d, 1.0, 1.0, 1.0, base_z_ft=0.0, center=(0.0, 0.0), rep="solid")
+    with pytest.raises(PB.BindingError, match="element id"):
+        PB.bind_material(fb, mp, -1)
+    assert not list(PB.bound(PB.solid_of(fb)))     # refused before anything was bound
