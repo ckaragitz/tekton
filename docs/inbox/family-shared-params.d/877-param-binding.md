@@ -72,8 +72,8 @@ That Revit honours the bindings (the solid hides with the flag, its material fol
 - Files:
   - `src/rvt/famgen/param_binding.py` (new) and `src/rvt/famgen/equipment_clearance.py`;
   - `src/rvt/famgen/param_profile.py`, `tools/make_family.py`, `tools/profile_map_from_rfa.py` (the #971 nits);
-  - the plugin mirrors of all of these;
+  - the plugin mirrors of these, where mirrored (`tools/profile_map_from_rfa.py` is not);
   - `tests/test_param_binding_877.py` and the drop-in `tests/ci_shard.d/877-param-binding.txt`;
   - `tests/test_profile_map_876.py`, `tests/test_profile_map_from_rfa_876.py`;
-  - this record and `876-profile-map.md`.
+  - this record, `876-profile-map.md` and `876-map-proposal.md`.
 - Shipped on merge; nothing is staged.

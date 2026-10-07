@@ -3748,6 +3748,15 @@ _FORGE_VOCAB = re.compile(
 
 
 def provenance_scan(path: str, *, donor: Optional[str] = None) -> Dict[str, Any]:
+    """The provenance ledger of a generated ``.rfa``, read inside the file's OWN
+    release (#864: a 2024 / 2025 family is read with its own framing and its
+    ``Formats/Latest`` judged against its own release's constant) -- see
+    :func:`_provenance_scan`."""
+    from .famdoc_adoc import in_own_release
+    return in_own_release(_provenance_scan)(path, donor=donor)
+
+
+def _provenance_scan(path: str, *, donor: Optional[str] = None) -> Dict[str, Any]:
     """The provenance ledger of a generated ``.rfa``.
 
     Proves: (1) every element of the family document is OURS (its id set is
@@ -3768,6 +3777,7 @@ def provenance_scan(path: str, *, donor: Optional[str] = None) -> Dict[str, Any]
     from ..families import FamilyIndex, unit_segments
     from ..objects import iter_records
     from .. import adocument as _A
+    from .famdoc_adoc import is_release_schema_constant as _release_schema
 
     rep: Dict[str, Any] = {"path": path, "checks": {}, "findings": []}
     idx = FamilyIndex(path)
@@ -3831,9 +3841,10 @@ def provenance_scan(path: str, *, donor: Optional[str] = None) -> Dict[str, Any]
     rep["carried_format_constants"] = {
         "Formats/Latest": {
             "inflated_bytes": len(fmt), "sha256": fmt_sha,
-            "is_corpus_schema_constant": fmt_sha.startswith(FORMATS_LATEST_SHA256_PREFIX),
+            "is_corpus_schema_constant": _release_schema(fmt_sha, bfi),
             "note": ("the per-release archive class map, byte-identical in every "
-                     "Revit 2026 file (.rvt and .rfa) -- FORMAT, not content"),
+                     "file of the release its BasicFileInfo declares (.rvt and .rfa) "
+                     "-- FORMAT, not content"),
         },
         "Global/Latest": _characterize_latest(latest, set(ids), _A),
         "opaque": ["Partitions unit footer blob (64 B) + stream end record (~92 B): "

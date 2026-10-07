@@ -2027,6 +2027,46 @@ EMPLOYEE_USERNAMES = ("hansonje", "zhangg", "campbes", "loboarch", "okapaw", "yo
                       "xuew", "gbs_subsuser6", "liqi", "macalis")
 
 
+def is_release_schema_constant(fmt_sha: str, bfi: bytes) -> bool:
+    """True when ``fmt_sha`` (the sha256 of a file's inflated ``Formats/Latest``) is
+    the schema constant of the release the file's own ``BasicFileInfo`` declares
+    (``rvt.versions.KNOWN_RELEASES``) -- a 2025 family is judged against 2025's
+    constant, never 2026's (#864).  A file whose release is not detected falls back
+    to the pin in force (:data:`FORMATS_LATEST_SHA256_PREFIX`, swapped by a write's
+    release context)."""
+    from .. import versions as V
+    try:
+        year = V.detect_release_from_bfi(bfi) if bfi else None
+    except Exception:                                         # noqa: BLE001
+        year = None
+    rel = V.KNOWN_RELEASES.get(year) if year else None
+    if rel is not None:
+        return bool(fmt_sha) and fmt_sha == rel.schema_sha256
+    return bool(FORMATS_LATEST_SHA256_PREFIX and fmt_sha.startswith(FORMATS_LATEST_SHA256_PREFIX))
+
+
+def in_own_release(scan):
+    """Run a provenance ``scan(path, ...)`` inside ``path``'s OWN release
+    (``global_framing.enter_own_release``; nest-safe inside a write's release
+    context), so a 2024 / 2025 family is read with its own framing (#864, the
+    class of #700); a rung other than the file's own schema is reported as
+    ``release_note``."""
+    import functools
+
+    @functools.wraps(scan)
+    def run(path, *a, **kw):
+        from contextlib import ExitStack
+        from .. import global_framing as GF
+        with ExitStack() as stack:
+            note = GF.enter_own_release(stack, path)
+            rep = scan(path, *a, **kw)
+        if note:
+            rep["release_note"] = note
+        return rep
+    return run
+
+
+@in_own_release
 def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
                        our_ids: Optional[Set[int]] = None) -> Dict[str, Any]:
     """The byte-level provenance ledger of a v2 family file.  Proves:
@@ -2267,9 +2307,7 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
     fmt_sha = hashlib.sha256(fmt).hexdigest() if fmt else ""
     rep["carried_constants"] = {
         "Formats/Latest": {"inflated_bytes": len(fmt), "sha256": fmt_sha,
-                           "is_corpus_schema_constant": bool(
-                               FORMATS_LATEST_SHA256_PREFIX
-                               and fmt_sha.startswith(FORMATS_LATEST_SHA256_PREFIX))},
+                           "is_corpus_schema_constant": is_release_schema_constant(fmt_sha, bfi)},
         "Global/Latest": "OURS (constructed family ADocument -- see 'adocument')",
         "unit footer / end record": "OURS + universal format tokens (see 'partition_footer')",
     }
