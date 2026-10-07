@@ -605,9 +605,10 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
     (673 of the 689 classified born extrusions, 16 the other way, not yet
     explained; counts only, docs/inbox/family-geometry.d/1030-cap-tags.md).
     Without it (the extrude-down specimens, walls) the top cap is the START
-    and keeps tag 1.  The ExtrusionGStep history is the same either way (face
-    tag 1 = key 1, the Start cap; rail tag 3 = [1,i,0]) -- measured on 745 born
-    extrusions in both directions (#1037).  ``element_id`` becomes the root tag /
+    and keeps tag 1.  The ExtrusionGStep history is the same either way: face
+    tag 0 = key [2] (the End cap), tag 1 = key [1] (the Start cap), and edge
+    tag 3 = [1,i,0], the start rail of the loop's first curve i -- measured on
+    745 born extrusions in both directions (#1037).  ``element_id`` becomes the root tag /
     ``m_elementId``; ``geometry_style_id`` = the ``Geometry`` graphics
     category (the family sub-category ``GStyleElem`` id).
 

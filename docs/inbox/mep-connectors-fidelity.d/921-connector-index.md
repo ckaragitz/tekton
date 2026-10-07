@@ -20,11 +20,18 @@ So a power connector added after a conduit connector reused its `m_index`, and t
 - **`tests/test_connector_index_921.py`: 2 passed.** Both fail on main.
   - conduit → power (`add_connector`) → power (`add_electrical_connector`) gets indices `[1, 2, 3]`;
   - the fan coil's `summary()["connectors"]` equals power + conduit.
-- **The wider set: 265 passed, 9 skipped.** It covers:
+- **The wider set: 265 passed, 9 skipped** before the nits below; with them, 13 modules (921, 863, standards, apply_safe, factory, fan coil, fan-powered, IFC standards, matrix 984 / 981, cap tags, plugin sync, scaffolding) give **417 passed, 6 skipped**. The first set covers:
   - `test_famgen_factory`, `test_fan_coil_893`, `test_fan_powered_895`, `test_famfrom_ifc_standards`;
   - matrix evidence 984 / 981, `test_plugin_sync`, scaffolding;
   - the connector and IFC family modules.
 - `tools/sync_plugin.py --check`: clean.
+
+## Also in this PR: #1038's review nits
+
+- **`standards.apply()`** reads a bare-string `skip=` as one name. Before, `p.name in "Voltage Rating"` was a substring test, so it also skipped a row named `Voltage`. #1038 normalised it only on the `apply_safe` path. Test: `test_apply_itself_reads_a_bare_string_skip_as_one_name`, which fails without the fix.
+- **The `solid_box_brep` docstring** now gives the whole GStep law #1037 measured:
+  - face tag 0 = key `[2]` (End), tag 1 = key `[1]` (Start);
+  - edge tag 3 = `[1,i,0]`, where `i` is the loop's first curve.
 
 ## BRANCH STATE
 
@@ -34,6 +41,7 @@ So a power connector added after a conduit connector reused its `m_index`, and t
   - `src/rvt/ifc/famfrom_ifc.py` (the summary count only);
   - their plugin mirrors;
   - `tests/test_connector_index_921.py` and the drop-in `tests/ci_shard.d/921-connector-index.txt`;
+  - #1038's nits: `src/rvt/famgen/{standards,geometry}.py` (and mirrors), `tests/test_standards_facts_863.py`;
   - this record.
 - The files are #913's territory. The program has been idle since 2026-10-03, and this was coordinated on #913.
 - Shipped on merge; nothing is staged. No Revit claim (hard rule 4).
