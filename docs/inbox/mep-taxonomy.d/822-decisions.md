@@ -15,7 +15,7 @@ By discipline, the 62 are: electrical 12, lighting 10, fire_alarm 6, technology 
 ## What changed
 
 - **`taxonomy.DECISIONS`** maps every gap row to `(outcome, reason)`, with outcome one of `archetype` / `catalog` / `not generated` (`DECISION_OUTCOMES`), the three honest outcomes #822 names. Supporting helpers are `gap_rows()` and `decision(row)`. `describe()` / `make_family.py taxonomy --json` carry the decision as a structured `decision` field.
-- **All 62 are `archetype`, and why.** Steer #591 (S-2026-08-10-e) says a product named with no dimensions is generated at its class's standard nominal sizes, never refused and never wearing a manufacturer's numbers. Every gap kind has a standard shape for its class, so the archetype lane closes each one. A held manufacturer record later adds catalog members beside it, as the troffer / downlight / receptacle lanes have. `catalog` as the *only* lane would have left lighting and device prompts refusing until a record exists, which is what #1043's first review caught.
+- **All 62 are `archetype`, and why.** Steer #591 (S-2026-08-10-e) says a product named with no dimensions is generated at its class's standard nominal sizes, never refused and never wearing a manufacturer's numbers. A held manufacturer record later adds catalog members beside each, as the troffer / downlight / receptacle lanes have. Not every row is one shape, though. **20 rows name several distinct products** under one kind. Examples: a split system (outdoor unit + indoor unit), "exhaust fan" (inline fan, roof exhauster, utility set), valves (ball / gate / butterfly / check), sinks, floor / trench drains, pumps. For those rows the decision is **one archetype per product, after the row is refined into its products as `luminaire` is**. One box under the row's name would be the near miss #822 forbids, the same failure as #821's "generator relay panel" built as a lighting control panel. The remaining 42 rows have one standard shape for their class. `catalog` as the *only* lane would have left lighting and device prompts refusing until a record exists, which is what #1043's first review caught.
 - **Busway.** Revit has no busway system family: busway is modelled with loadable families. The row's old note ("a busway RUN is drawn, not loaded") was wrong and is corrected. Busway is an archetype like the rest, not "not generated".
 - **`taxonomy.check()`** now fails on four things, so a new taxonomy row cannot add a silent refusal, and a decision cannot outlive the gap it explains:
   - a gap row without a decision;
@@ -27,7 +27,7 @@ By discipline, the 62 are: electrical 12, lighting 10, fire_alarm 6, technology 
   - "by decision it is not generated here: …".
 
   Previously it only said no lane builds the kind.
-- **No near-miss mapping.** The `vav_box` row (aliases include "fan powered box") is not pointed at the fan-powered terminal (#895). Its decision says a bare VAV box is never built as one.
+- **No near-miss mapping.** The `vav_box` row (aliases include "fan powered box") is not pointed at the fan-powered terminal (#895). Its decision is to refine it first: the fan-powered wording is split off for #895's constructor, and a single-duct VAV box gets its own archetype. A test checks that "vav box" resolves to its own, still-unbuilt row.
 - **Conflict rows.** A gap row whose category is in conflict (#516) still needs a decision. Its conflict line reaches the user first. No gap row is in conflict today.
 
 ## The decision table (DONE 1)
@@ -52,14 +52,14 @@ Generated from `taxonomy.DECISIONS`.
 | `automatic_transfer_switch` | electrical | archetype | an enclosure product class with a standard shape, as the lighting control panel |
 | `ups` | electrical | archetype | an enclosure product class with a standard shape, as the lighting control panel |
 | `generator` | electrical | archetype | a packaged generator set: skid, engine-generator and enclosure at nominal sizes |
-| `meter_center` | electrical | archetype | an enclosure product class with a standard shape, as the lighting control panel |
+| `meter_center` | electrical | archetype | archetype per product: this kind names several products with no single shape (meter stack / center, meter socket, CT cabinet), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `enclosed_circuit_breaker` | electrical | archetype | an enclosure product class with a standard shape, as the lighting control panel |
 | `busway` | electrical | archetype | straight sections and fittings at nominal ampacity sizes -- Revit models busway with loadable families, not a system family |
-| `cable_tray_fitting` | electrical | archetype | elbows / tees / reducers derived from the cable tray archetype's own sizes |
-| `conduit_fitting` | electrical | archetype | fittings derived from the conduit archetype's trade sizes |
-| `floor_box` | electrical | archetype | a recessed box at standard gang sizes |
+| `cable_tray_fitting` | electrical | archetype | archetype per product: this kind names several products with no single shape (elbow, tee, cross, reducer), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all; each sized from the cable tray archetype's own sizes |
+| `conduit_fitting` | electrical | archetype | archetype per product: this kind names several products with no single shape (elbow, conduit body, coupling), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all; each sized from the conduit archetype's trade sizes |
+| `floor_box` | electrical | archetype | archetype per product: this kind names several products with no single shape (floor box, poke-through), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `high_bay` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
-| `linear_luminaire` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
+| `linear_luminaire` | lighting | archetype | archetype per product: this kind names several products with no single shape (strip, linear pendant, wraparound), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `wall_pack` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
 | `wall_sconce` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
 | `exit_sign` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
@@ -76,49 +76,51 @@ Generated from `taxonomy.DECISIONS`.
 | `fire_alarm_control_panel` | fire_alarm | archetype | an enclosure product class with a standard shape, as the lighting control panel |
 | `data_outlet` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
 | `telephone_outlet` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
-| `speaker` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `speaker` | technology | archetype | archetype per product: this kind names several products with no single shape (ceiling / paging speaker, intercom station), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `card_reader` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
 | `security_camera` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
-| `intrusion_detector` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `intrusion_detector` | technology | archetype | archetype per product: this kind names several products with no single shape (PIR motion detector, glass-break detector, door contact), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `nurse_call_station` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
 | `air_handling_unit` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
 | `rooftop_unit` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
 | `fan_coil_unit` | mechanical | archetype | a fan coil constructor exists (#893); this kind and the prompt route do not reach it yet |
-| `vav_box` | mechanical | archetype | the fan-powered terminal (#895) will answer this kind's 'fan powered box' wording; a bare VAV box (single duct, no fan) is never built as one |
-| `exhaust_fan` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
-| `pump` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
+| `vav_box` | mechanical | archetype | archetype per product: this kind names several products with no single shape (single-duct VAV box, fan-powered terminal), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all; the fan-powered constructor (#895) answers only the 'fan powered box' wording, so that alias is split off first -- a single-duct VAV gets its own archetype |
+| `exhaust_fan` | mechanical | archetype | archetype per product: this kind names several products with no single shape (inline fan, roof exhauster, utility set), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
+| `pump` | mechanical | archetype | archetype per product: this kind names several products with no single shape (inline / circulator, end suction, base-mounted), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `boiler` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
-| `chiller` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
-| `cooling_tower` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
-| `unit_heater` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
-| `split_system` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
+| `chiller` | mechanical | archetype | archetype per product: this kind names several products with no single shape (air-cooled chiller, water-cooled chiller), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
+| `cooling_tower` | mechanical | archetype | archetype per product: this kind names several products with no single shape (open cooling tower, closed-circuit fluid cooler), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all; the 'evaporative cooler' wording also names an air-side unit and is split off |
+| `unit_heater` | mechanical | archetype | archetype per product: this kind names several products with no single shape (unit heater, cabinet unit heater), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
+| `split_system` | mechanical | archetype | archetype per product: this kind names several products with no single shape (outdoor condensing unit / heat pump, indoor unit), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all; a split system is two pieces of equipment, never one packaged box |
 | `energy_recovery_unit` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
 | `expansion_tank` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
 | `fire_damper` | mechanical | archetype | an in-line accessory sized by its duct / pipe, at nominal sizes |
 | `volume_damper` | mechanical | archetype | an in-line accessory sized by its duct / pipe, at nominal sizes |
-| `water_heater` | plumbing | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
+| `water_heater` | plumbing | archetype | archetype per product: this kind names several products with no single shape (tank water heater, tankless water heater), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `water_closet` | plumbing | archetype | a fixture with a standard shape for its class, at nominal sizes |
 | `urinal` | plumbing | archetype | a fixture with a standard shape for its class, at nominal sizes |
 | `lavatory` | plumbing | archetype | a fixture with a standard shape for its class, at nominal sizes |
-| `sink` | plumbing | archetype | a fixture with a standard shape for its class, at nominal sizes |
-| `drinking_fountain` | plumbing | archetype | a fixture with a standard shape for its class, at nominal sizes |
+| `sink` | plumbing | archetype | archetype per product: this kind names several products with no single shape (counter / kitchen sink, service / mop sink), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
+| `drinking_fountain` | plumbing | archetype | archetype per product: this kind names several products with no single shape (drinking fountain, bottle filler), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `shower` | plumbing | archetype | a fixture with a standard shape for its class, at nominal sizes |
-| `floor_drain` | plumbing | archetype | a fixture with a standard shape for its class, at nominal sizes |
+| `floor_drain` | plumbing | archetype | archetype per product: this kind names several products with no single shape (floor drain, floor sink, trench drain), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 | `backflow_preventer` | plumbing | archetype | an in-line accessory sized by its duct / pipe, at nominal sizes |
 | `pressure_reducing_valve` | plumbing | archetype | an in-line accessory sized by its duct / pipe, at nominal sizes |
-| `valve` | plumbing | archetype | an in-line accessory sized by its duct / pipe, at nominal sizes |
-| `fire_pump` | fire_protection | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
+| `valve` | plumbing | archetype | archetype per product: this kind names several products with no single shape (ball, gate, butterfly, check), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all; each sized by its pipe |
+| `fire_pump` | fire_protection | archetype | archetype per product: this kind names several products with no single shape (fire pump, jockey pump), so the row is refined into them first, as 'luminaire' is, and each gets its own archetype -- never one box for all |
 
 ## Evidence
 
-- **`tests/test_taxonomy_decisions_822.py`: 7 passed.** It covers:
+- **`tests/test_taxonomy_decisions_822.py`: 9 passed.** It covers:
   - every gap is decided and `check()` is clean;
   - the gap count is ≤ 62 (a deliberate ceiling: a later PR that adds a gap row *with* its decision must raise it, and say why in its record; it may never be raised to hide a refusal);
   - a missing, stale, bad-outcome or empty-reason decision each fails the check;
   - the refusal and `describe()` name the decision;
   - busway is a loadable (archetype) kind;
-  - the VAV-box near miss is ruled out.
-- **The 14 test modules that touch the taxonomy, plus `test_plugin_sync`, scaffolding, `test_router` and `test_doc_caveats_990`: 837 passed, 44 skipped.**
+  - rows naming several products are refined before any archetype;
+  - a "not generated" refusal promises no later lane;
+  - the VAV-box near miss is ruled out by routing, not by wording.
+- **839 passed, 44 skipped** for every module that mentions the taxonomy (`grep -l taxonomy tests/test_*.py`: 14 files), plus `test_plugin_sync`, `test_conftest_scaffolding`, `test_router` and `test_doc_caveats_990`. Rerun with `pytest $(grep -l taxonomy tests/test_*.py) tests/test_plugin_sync.py tests/test_conftest_scaffolding.py tests/test_router.py tests/test_doc_caveats_990.py`.
 - `tools/sync_plugin.py --check`: clean.
 
 ## BRANCH STATE

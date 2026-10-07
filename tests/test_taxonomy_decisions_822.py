@@ -61,5 +61,21 @@ def test_busway_is_a_loadable_family_kind():
 
 
 def test_no_near_miss_mapping_for_the_vav_box():
-    # the fan-powered terminal (#895) must never answer a bare "VAV box": the decision says so
-    assert "never" in T.decision("vav_box")[1]
+    # a bare "VAV box" resolves to its own row, which no lane builds yet -- never to the
+    # fan-powered terminal (#895); the decision says the alias is split off first
+    row = T.resolve("vav box")
+    assert row.key == "vav_box" and not T.builder_available(row)[0]
+    assert "split off first" in T.decision("vav_box")[1]
+
+
+def test_rows_naming_several_products_are_refined_before_any_archetype():
+    for key in ("split_system", "exhaust_fan", "valve", "sink", "floor_drain", "fire_pump",
+                "intrusion_detector", "cooling_tower", "pump", "chiller"):
+        assert "refined into them first" in T.decision(key)[1], key
+    assert "never one packaged box" in T.decision("split_system")[1]
+
+
+def test_a_not_generated_refusal_promises_no_later_lane(monkeypatch):
+    monkeypatch.setitem(T.DECISIONS, "busway", ("not generated", "a reason"))
+    why = T.builder_available(T.get("busway"))[1]
+    assert "no lane builds it:" in why and "yet" not in why

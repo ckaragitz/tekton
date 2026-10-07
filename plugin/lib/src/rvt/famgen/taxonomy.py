@@ -364,7 +364,8 @@ _BY_KEY: Dict[str, Kind] = {k.key: k for k in _ROWS}
 #: #822: every kind with a category and NO build mechanism carries a recorded DECISION -- which
 #: of the three honest outcomes closes its gap, and why -- so a refusal is a decision, never the
 #: side effect of a taxonomy row with no mechanism.  ``archetype``: real parts at standard nominal
-#: sizes for the product class (rvt.famgen.archetypes, steer #591) -- planned, not built yet;
+#: sizes for the product class (rvt.famgen.archetypes, steer #591) -- not reached by this row
+#: yet (planned, or a constructor that exists but is not wired);
 #: ``catalog``: a famspec constructor from sourced facts (a vendor record must be held first);
 #: ``not generated``: deliberately not a generated family, the reason given.  Never a near-miss
 #: mapping onto another product.  :func:`check` fails on a gap row without a decision and on a
@@ -382,6 +383,14 @@ _EQUIPMENT_ARCHETYPE = "an enclosure product class with a standard shape, as the
 _MECH_ARCHETYPE = "packaged equipment with a standard shape for its class, at nominal sizes"
 _FIXTURE_ARCHETYPE = "a fixture with a standard shape for its class, at nominal sizes"
 _INLINE_ARCHETYPE = "an in-line accessory sized by its duct / pipe, at nominal sizes"
+def _refine_first(*products: str) -> str:
+    """The reason for a row that names several products with no single shape (#1043 review):
+    one box under the row's name would be the near miss #822 forbids."""
+    return ("archetype per product: this kind names several products with no single shape ("
+            + ", ".join(products) + "), so the row is refined into them first, as 'luminaire' is, "
+            "and each gets its own archetype -- never one box for all")
+
+
 DECISIONS: Dict[str, Tuple[str, str]] = {
     # electrical
     "motor_control_center": ("archetype", "a lineup of vertical sections at standard section sizes"),
@@ -392,17 +401,18 @@ DECISIONS: Dict[str, Tuple[str, str]] = {
     "ups": ("archetype", _EQUIPMENT_ARCHETYPE),
     "generator": ("archetype", "a packaged generator set: skid, engine-generator and enclosure at "
                   "nominal sizes"),
-    "meter_center": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "meter_center": ("archetype", _refine_first("meter stack / center", "meter socket", "CT cabinet")),
     "enclosed_circuit_breaker": ("archetype", _EQUIPMENT_ARCHETYPE),
     "busway": ("archetype", "straight sections and fittings at nominal ampacity sizes -- Revit "
                "models busway with loadable families, not a system family"),
-    "cable_tray_fitting": ("archetype", "elbows / tees / reducers derived from the cable tray "
-                           "archetype's own sizes"),
-    "conduit_fitting": ("archetype", "fittings derived from the conduit archetype's trade sizes"),
-    "floor_box": ("archetype", "a recessed box at standard gang sizes"),
+    "cable_tray_fitting": ("archetype", _refine_first("elbow", "tee", "cross", "reducer") + "; "
+                           "each sized from the cable tray archetype's own sizes"),
+    "conduit_fitting": ("archetype", _refine_first("elbow", "conduit body", "coupling") + "; "
+                        "each sized from the conduit archetype's trade sizes"),
+    "floor_box": ("archetype", _refine_first("floor box", "poke-through")),
     # lighting
     "high_bay": ("archetype", _LUMINAIRE_NOMINAL),
-    "linear_luminaire": ("archetype", _LUMINAIRE_NOMINAL),
+    "linear_luminaire": ("archetype", _refine_first("strip", "linear pendant", "wraparound")),
     "wall_pack": ("archetype", _LUMINAIRE_NOMINAL),
     "wall_sconce": ("archetype", _LUMINAIRE_NOMINAL),
     "exit_sign": ("archetype", _LUMINAIRE_NOMINAL),
@@ -422,43 +432,44 @@ DECISIONS: Dict[str, Tuple[str, str]] = {
     # technology
     "data_outlet": ("archetype", _DEVICE_NOMINAL),
     "telephone_outlet": ("archetype", _DEVICE_NOMINAL),
-    "speaker": ("archetype", _DEVICE_NOMINAL),
+    "speaker": ("archetype", _refine_first("ceiling / paging speaker", "intercom station")),
     "card_reader": ("archetype", _DEVICE_NOMINAL),
     "security_camera": ("archetype", _DEVICE_NOMINAL),
-    "intrusion_detector": ("archetype", _DEVICE_NOMINAL),
+    "intrusion_detector": ("archetype", _refine_first("PIR motion detector", "glass-break detector", "door contact")),
     "nurse_call_station": ("archetype", _DEVICE_NOMINAL),
     # mechanical
     "air_handling_unit": ("archetype", _MECH_ARCHETYPE),
     "rooftop_unit": ("archetype", _MECH_ARCHETYPE),
     "fan_coil_unit": ("archetype", "a fan coil constructor exists (#893); this kind and the "
                       "prompt route do not reach it yet"),
-    "vav_box": ("archetype", "the fan-powered terminal (#895) will answer this kind's 'fan powered "
-                "box' wording; a bare VAV box (single duct, no fan) is never built as one"),
-    "exhaust_fan": ("archetype", _MECH_ARCHETYPE),
-    "pump": ("archetype", _MECH_ARCHETYPE),
+    "vav_box": ("archetype", _refine_first("single-duct VAV box", "fan-powered terminal") + "; "
+                "the fan-powered constructor (#895) answers only the 'fan powered box' wording, so "
+                "that alias is split off first -- a single-duct VAV gets its own archetype"),
+    "exhaust_fan": ("archetype", _refine_first("inline fan", "roof exhauster", "utility set")),
+    "pump": ("archetype", _refine_first("inline / circulator", "end suction", "base-mounted")),
     "boiler": ("archetype", _MECH_ARCHETYPE),
-    "chiller": ("archetype", _MECH_ARCHETYPE),
-    "cooling_tower": ("archetype", _MECH_ARCHETYPE),
-    "unit_heater": ("archetype", _MECH_ARCHETYPE),
-    "split_system": ("archetype", _MECH_ARCHETYPE),
+    "chiller": ("archetype", _refine_first("air-cooled chiller", "water-cooled chiller")),
+    "cooling_tower": ("archetype", _refine_first("open cooling tower", "closed-circuit fluid cooler") + "; the 'evaporative cooler' wording also names an air-side unit and is split off"),
+    "unit_heater": ("archetype", _refine_first("unit heater", "cabinet unit heater")),
+    "split_system": ("archetype", _refine_first("outdoor condensing unit / heat pump", "indoor unit") + "; a split system is two pieces of equipment, never one packaged box"),
     "energy_recovery_unit": ("archetype", _MECH_ARCHETYPE),
     "expansion_tank": ("archetype", _MECH_ARCHETYPE),
     "fire_damper": ("archetype", _INLINE_ARCHETYPE),
     "volume_damper": ("archetype", _INLINE_ARCHETYPE),
     # plumbing
-    "water_heater": ("archetype", _MECH_ARCHETYPE),
+    "water_heater": ("archetype", _refine_first("tank water heater", "tankless water heater")),
     "water_closet": ("archetype", _FIXTURE_ARCHETYPE),
     "urinal": ("archetype", _FIXTURE_ARCHETYPE),
     "lavatory": ("archetype", _FIXTURE_ARCHETYPE),
-    "sink": ("archetype", _FIXTURE_ARCHETYPE),
-    "drinking_fountain": ("archetype", _FIXTURE_ARCHETYPE),
+    "sink": ("archetype", _refine_first("counter / kitchen sink", "service / mop sink")),
+    "drinking_fountain": ("archetype", _refine_first("drinking fountain", "bottle filler")),
     "shower": ("archetype", _FIXTURE_ARCHETYPE),
-    "floor_drain": ("archetype", _FIXTURE_ARCHETYPE),
+    "floor_drain": ("archetype", _refine_first("floor drain", "floor sink", "trench drain")),
     "backflow_preventer": ("archetype", _INLINE_ARCHETYPE),
     "pressure_reducing_valve": ("archetype", _INLINE_ARCHETYPE),
-    "valve": ("archetype", _INLINE_ARCHETYPE),
+    "valve": ("archetype", _refine_first("ball", "gate", "butterfly", "check") + "; each sized by its pipe"),
     # fire protection
-    "fire_pump": ("archetype", _MECH_ARCHETYPE),
+    "fire_pump": ("archetype", _refine_first("fire pump", "jockey pump")),
 }
 
 
@@ -474,7 +485,6 @@ def decision(row: Any) -> Optional[Tuple[str, str]]:
     """``(outcome, reason)`` recorded for a gap row (#822), or None."""
     key = row.key if isinstance(row, Kind) else str(row)
     return DECISIONS.get(key)
-
 
 
 def _fold(text: Any) -> str:
@@ -847,8 +857,9 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
         planned = ("" if dec is None else
                    f"; by decision it is not generated here: {dec[1]}" if dec[0] == "not generated"
                    else f"; next for this kind (#822): the {dec[0]} lane -- {dec[1]}")
+        later = "" if dec is not None and dec[0] == "not generated" else " yet"
         return False, (f"{row.label} is placed under {row.revit_category}, but no lane builds "
-                       f"it yet: no catalog record is held and no archetype generates it{planned}")
+                       f"it{later}: no catalog record is held and no archetype generates it{planned}")
     whys = []
     for mech in row.via:
         ok, why = _mechanism_available(row, mech, strict)
