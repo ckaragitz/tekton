@@ -192,3 +192,60 @@ def test_the_prescribed_split_passes_and_the_shared_words_stay_unbuilt(monkeypat
 def test_a_not_generated_reason_is_user_safe(monkeypatch):
     monkeypatch.setitem(T.DECISIONS, "generator", ("not generated", "see #123 in rvt.x"))
     assert any("DECISIONS['generator'] is 'not generated'" in p for p in T.check())
+
+
+# -- the archetype lane never builds a near miss (#1043's seventh review) -----------------------
+
+def _prompt(word):
+    return f"create a {word} family"
+
+
+def test_no_unbuilt_kind_is_delivered_by_the_archetype_lane_under_its_name():
+    # the sweep the review ran: every name of every row no lane builds -- where the archetype
+    # lane's own patterns claim the prompt, it must defer ("conduit elbow" -> a straight run was
+    # delivered before this)
+    from rvt.famgen import archetypes as AR
+    claimed = []
+    for row in T.gap_rows():
+        for word in (row.label,) + row.aliases:
+            req = AR.resolve_prompt(_prompt(word))
+            if req is not None and T.archetype_defers_to(_prompt(word), req.arch.key) is None:
+                claimed.append((row.key, word, req.arch.key))
+    assert not claimed, claimed
+
+
+def test_every_built_archetype_kind_still_builds():
+    from rvt.famgen import archetypes as AR
+    for row in T.kinds():
+        arch = [m.split(":", 1)[1] for m in row.via if m.startswith("archetype:")]
+        for word in (row.label,) + row.aliases:
+            req = AR.resolve_prompt(_prompt(word))
+            if req is not None and req.arch.key in arch:
+                assert T.archetype_defers_to(_prompt(word), req.arch.key) is None, (row.key, word)
+
+
+def test_the_more_specific_phrase_decides():
+    assert T.archetype_defers_to("a cable tray elbow", "cable_tray").key == "cable_tray_fitting"
+    assert T.archetype_defers_to("a lighting control panel and a fan coil",
+                                 "lighting_control_panel") is None     # unrelated: no block
+
+
+def test_after_a_split_the_shared_words_defer_and_the_product_words_build(monkeypatch):
+    # the record's own DONE 3 shape, with an archetype standing in for the product's builder:
+    # "fcu" names the unbuilt multi-product row -> defer; "horizontal fan coil" names the built
+    # product row more specifically -> build
+    row = T._BY_KEY["fan_coil_unit"]
+    prod = T._k("fan_coil_horizontal", "Fan coil unit (horizontal concealed)", row.discipline,
+                row.category, ("archetype:wireway",), aliases=("horizontal fan coil",))
+    _replace_rows(monkeypatch, add=(prod,))
+    assert T.archetype_defers_to("create an fcu family", "wireway").key == "fan_coil_unit"
+    assert T.archetype_defers_to("create a fan coil unit family", "wireway").key == "fan_coil_unit"
+    assert T.archetype_defers_to("create a horizontal fan coil family", "wireway") is None
+
+
+def test_the_route_delivers_no_straight_run_for_a_fitting(tmp_path):
+    from rvt.frontdoor import router as R
+    res = R.route({"prompt": "create a conduit elbow family"}, "rfa", out=str(tmp_path / "o"),
+                  quiet=True)
+    assert not (res.files or {}).get("rfa"), res.status
+    assert any("does not build" in c for c in res.caveats)

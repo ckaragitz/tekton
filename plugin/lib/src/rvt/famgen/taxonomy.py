@@ -54,7 +54,7 @@ __all__ = ["Kind", "Mention", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LA
            "for_intent_kind", "by_discipline", "archetype_registry", "category_status",
            "member_model", "famspec_hint", "facts_tier", "builder_available", "caveat",
            "describe", "table", "check_row", "check", "DECISIONS", "DECISION_OUTCOMES",
-           "gap_rows", "decision", "REFINE_FIRST"]
+           "gap_rows", "decision", "REFINE_FIRST", "archetype_defers_to"]
 
 LANES = ("catalog", "archetype", "none")
 MECHANISMS = ("famspec", "archetype", "house")
@@ -699,6 +699,30 @@ def scan(text: Any) -> List[Mention]:
     prompt grammar decides what to DO with a mention (build it, shield it from the panel
     grammar, record it as not built); this table only says what kind the words are."""
     return _scan(text, _ALIAS, ambiguous=AMBIGUOUS_ALONE)
+
+
+def archetype_defers_to(text: Any, archetype_key: str) -> Optional[Kind]:
+    """The unbuilt row an ARCHETYPE lane must defer to before building ``archetype_key`` for
+    ``text`` (#822, #1043 review) -- or None to go ahead.  The archetype lane matches prompts
+    with its own patterns, so without this "create a conduit elbow family" built a straight
+    conduit run under the elbow's name.  It defers when the prompt names a kind no lane builds
+    (a :func:`gap_rows` row) and either no kind it names is built by this archetype, or that
+    unbuilt kind's phrase overlaps the built kind's phrase without being contained in it ("a
+    cable tray ELBOW": the more specific product is the unbuilt fitting).  An unbuilt kind
+    elsewhere in the prompt ("a lighting control panel and a fan coil") does not block, and a
+    product row named more specifically than its multi-product row ("a HORIZONTAL fan coil")
+    is not blocked by it."""
+    builds = f"archetype:{archetype_key}"
+    naming = [(m.start, m.end) for m in scan(text)
+              if m.key in _BY_KEY and builds in _BY_KEY[m.key].via]
+    gap_index, _clashes = _alias_index(gap_rows(), _names)
+    for g in _scan(text, gap_index, ambiguous=AMBIGUOUS_ALONE):
+        if not naming:
+            return _BY_KEY[g.key]
+        for start, end in naming:
+            if g.start < end and start < g.end and not (start <= g.start and g.end <= end):
+                return _BY_KEY[g.key]
+    return None
 
 
 def by_discipline(discipline: Optional[str] = None) -> Dict[str, Tuple[Kind, ...]]:

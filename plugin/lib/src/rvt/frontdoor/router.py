@@ -1127,6 +1127,16 @@ def _archetype_rfa(res: RouteResult, prompt: str, out_dir: str,
         return False
     if req is None:
         return False
+    # #822 / #1043: never a near miss -- when the prompt names a kind no lane builds that this
+    # archetype is not ("a conduit ELBOW", "a cable tray FITTING"), the archetype lane steps
+    # aside and the taxonomy's honest refusal stands, instead of a straight run under that name
+    from ..famgen import taxonomy as TX
+    blocked = TX.archetype_defers_to(prompt, req.arch.key)
+    if blocked is not None:
+        res.caveats.append(f"the archetype lane matched {req.name!r}, but the prompt names "
+                           f"{blocked.label!r}, which it does not build -- not delivered as a "
+                           f"{req.name!r} under that name")
+        return False
     # the catalog lane's refusal is no longer the answer -- keep it as context
     for e in (demote or []):
         res.caveats.append(f"the catalog lane did not apply here ({e}) -- fell "
