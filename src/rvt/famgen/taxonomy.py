@@ -387,14 +387,17 @@ def _refine_first(*products: str) -> str:
     """The reason for a row that names several products with no single shape (#1043 review):
     one box under the row's name would be the near miss #822 forbids."""
     return ("archetype per product: this kind names several products with no single shape ("
-            + ", ".join(products) + "), so the row is refined into them first, as 'luminaire' is, "
-            "and each gets its own archetype -- never one box for all")
+            + ", ".join(products) + "), so the row is first split into one row per product "
+            "(its aliases moved to the product they name) and the multi-product key retired; "
+            "each product row then gets its own archetype -- never one box for all")
 
 
-#: #1043 review: rows that name SEVERAL products with no single shape -> those products.  Their
-#: decision is one archetype per product AFTER the row becomes a refine umbrella (as 'luminaire'
-#: is); :func:`check` fails if such a row gains a build mechanism without being refined first,
-#: so "one box for all" can never ship under the row's name (the #821 near miss).
+#: #1043 review: rows that name SEVERAL products with no single shape -> those products.  This
+#: table is PERMANENT.  Such a row is either still a gap (its decision derived here: one archetype
+#: per product) or RETIRED -- split into one row per product, its aliases moved to the product
+#: they name, the key gone from ``_ROWS``.  :func:`check` fails if a key here is a row with a
+#: build mechanism or a generic (refine) row, so "one box for all" can never ship under the
+#: row's name (the #821 near miss).  (``refine`` is a CATEGORY-wide generic word, not this.)
 REFINE_FIRST: Dict[str, Tuple[str, ...]] = {
     "busway": ("straight section", "elbow / tee fitting", "plug-in unit", "end closure"),
     "meter_center": ("meter stack / center", "meter socket", "CT cabinet"),
@@ -412,8 +415,8 @@ REFINE_FIRST: Dict[str, Tuple[str, ...]] = {
     "air_handling_unit": ("air handling unit", "make-up air unit", "DOAS unit"),
     "fan_coil_unit": ("horizontal concealed", "vertical cabinet", "ceiling cassette"),
     "vav_box": ("single-duct VAV box", "fan-powered terminal"),
-    "exhaust_fan": ("inline fan", "roof exhauster", "utility set"),
-    "pump": ("inline / circulator", "end suction", "base-mounted"),
+    "exhaust_fan": ("inline fan", "roof exhauster", "utility set", "ceiling / cabinet exhaust fan"),
+    "pump": ("inline / circulator", "end suction", "base-mounted", "packaged booster set"),
     "boiler": ("wall-hung condensing boiler", "floor-standing hot water boiler", "steam boiler"),
     "chiller": ("air-cooled chiller", "water-cooled chiller"),
     "cooling_tower": ("open cooling tower", "closed-circuit fluid cooler"),
@@ -439,7 +442,8 @@ _REFINE_NOTES: Dict[str, str] = {
     "vav_box": ("; the fan-powered constructor (#895) answers only the 'fan powered box' "
                 "wording -- a single-duct VAV gets its own archetype"),
     "cooling_tower": "; the 'evaporative cooler' wording also names an air-side unit",
-    "split_system": "; a split system is two pieces of equipment, never one packaged box",
+    "split_system": ("; a split system is two pieces of equipment, never one packaged box, and "
+                     "its indoor unit splits again (wall-mount head, cassette, ducted)"),
 }
 
 
@@ -484,10 +488,8 @@ DECISIONS: Dict[str, Tuple[str, str]] = {
     "shower": ("archetype", _FIXTURE_ARCHETYPE),
     "backflow_preventer": ("archetype", _INLINE_ARCHETYPE),
     "pressure_reducing_valve": ("archetype", _INLINE_ARCHETYPE),
-    # rows naming several products: REFINE_FIRST, above
+    # rows naming several products: REFINE_FIRST, above (their decision is derived)
 }
-DECISIONS.update({k: ("archetype", _refine_first(*prods) + _REFINE_NOTES.get(k, ""))
-                  for k, prods in REFINE_FIRST.items()})
 
 
 def gap_rows() -> Tuple[Kind, ...]:
@@ -499,9 +501,16 @@ def gap_rows() -> Tuple[Kind, ...]:
 
 
 def decision(row: Any) -> Optional[Tuple[str, str]]:
-    """``(outcome, reason)`` recorded for a gap row (#822), or None."""
+    """``(outcome, reason)`` recorded for a gap row (#822), or None: the explicit
+    :data:`DECISIONS` entry of a one-shape row, or -- for a :data:`REFINE_FIRST` row that is
+    still a gap -- one archetype per product, derived."""
     key = row.key if isinstance(row, Kind) else str(row)
-    return DECISIONS.get(key)
+    if key in DECISIONS:
+        return DECISIONS[key]
+    r = _BY_KEY.get(key)
+    if key in REFINE_FIRST and r is not None and not r.via and not r.refine:
+        return ("archetype", _refine_first(*REFINE_FIRST[key]) + _REFINE_NOTES.get(key, ""))
+    return None
 
 
 def _fold(text: Any) -> str:
@@ -870,7 +879,7 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
         return False, "a generic word -- name the type: " + "; ".join(
             f"{', '.join(labels)} ({what})" for labels, what in groups if labels)
     if not row.via:
-        dec = DECISIONS.get(row.key)
+        dec = decision(row)
         if dec is None:
             planned = ""
         elif dec[0] == "not generated":
@@ -915,7 +924,7 @@ def describe(text: Any) -> Dict[str, Any]:
     ok, why = builder_available(row)
     n_std = len(_S.standard_params(row.category)) if row.category else 0
     d = asdict(row)
-    dec = DECISIONS.get(row.key)                      # #822: structured, not only prose
+    dec = decision(row)                               # #822: structured, not only prose
     if dec is not None:
         d["decision"] = {"outcome": dec[0], "reason": dec[1]}
     d.update({"known": True, "lane": row.lane, "revit_category": row.revit_category,
@@ -1107,8 +1116,8 @@ def check() -> List[str]:
     gaps = {r.key for r in gap_rows()}                  # #822: a refusal is a recorded decision
     problems.extend(f"taxonomy[{k}]: recognised, categorised and built by no lane, with no "
                     f"recorded decision -- add DECISIONS[{k!r}] (archetype / catalog / not "
-                    f"generated, with the reason) or a build mechanism"
-                    for k in sorted(gaps - set(DECISIONS)))
+                    f"generated, with the reason), a REFINE_FIRST entry, or a build mechanism"
+                    for k in sorted(gaps) if decision(k) is None)
     problems.extend(f"taxonomy: DECISIONS[{k!r}] names "
                     + ("no row" if k not in _BY_KEY else "a row that is no longer a gap (it has "
                        "a build mechanism, or is generic or pending): drop the decision")
@@ -1117,13 +1126,17 @@ def check() -> List[str]:
                     for k, (o, _why) in sorted(DECISIONS.items()) if o not in DECISION_OUTCOMES)
     problems.extend(f"taxonomy: DECISIONS[{k!r}] gives no reason"
                     for k, (_o, why) in sorted(DECISIONS.items()) if not str(why).strip())
-    problems.extend(f"taxonomy[{k}]: names several products ({', '.join(REFINE_FIRST[k])}) "
-                    f"yet declares a build mechanism without being refined first -- make it a "
-                    f"refine umbrella over one row per product (#1043)"
-                    for k in sorted(REFINE_FIRST) if k in _BY_KEY and _BY_KEY[k].via
-                    and not _BY_KEY[k].refine)
-    problems.extend(f"taxonomy: REFINE_FIRST names {k!r}, which is no row" for k in
-                    sorted(REFINE_FIRST) if k not in _BY_KEY)
+    problems.extend(f"taxonomy: {k!r} is in both DECISIONS and REFINE_FIRST -- a multi-product "
+                    f"row's decision is derived; drop the DECISIONS entry"
+                    for k in sorted(set(DECISIONS) & set(REFINE_FIRST)))
+    problems.extend(f"taxonomy[{k}]: names several products ({', '.join(REFINE_FIRST[k])}) and "
+                    f"must not be built as one row -- split it into one row per product (move "
+                    f"its aliases) and retire the key; never give it a mechanism or make it a "
+                    f"generic word (#1043)"
+                    for k in sorted(REFINE_FIRST) if k in _BY_KEY
+                    and (_BY_KEY[k].via or _BY_KEY[k].refine))
+    problems.extend(f"taxonomy: REFINE_FIRST[{k!r}] lists fewer than two products"
+                    for k in sorted(REFINE_FIRST) if len(REFINE_FIRST[k]) < 2)
     for row in _ROWS:
         problems.extend(check_row(row))
     return problems
