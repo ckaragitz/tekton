@@ -61,9 +61,17 @@ Pre-existing **aliases that name a different product** (e.g. "water source heat 
   Previously it only said no lane builds the kind.
 - **No near miss at the route (#1043's seventh review).** The archetype lane matches prompts with its own patterns, independent of the taxonomy. When the taxonomy refused, the router fell through to it.
   - **What shipped before this fix:** "create a conduit elbow family" delivered a straight conduit run (`OK … .rfa generated`), and so did "conduit body" and "conduit fitting". The cable-tray fittings ("tray elbow", "tray tee", "cable tray fitting") built a straight ladder section.
-  - **The fix, `taxonomy.archetype_defers_to(prompt, archetype)`:** the archetype lane (`router._archetype_rfa`) now steps aside when the prompt names a kind no lane builds, if either no kind the prompt names is built by that archetype, or the unbuilt kind's phrase overlaps the built one's without being contained in it ("a cable tray *elbow*").
-  - **What still builds:** an unrelated unbuilt kind elsewhere in the prompt ("a lighting control panel and a fan coil") does not block. A product row named more specifically than its multi-product row ("a *horizontal* fan coil") builds, while "fcu" defers.
-  - **Tests:** a sweep over every name of every unbuilt row finds no name the archetype lane still delivers; a sweep over every built archetype row's names finds none that now defers; the route itself delivers no `.rfa` for "create a conduit elbow family".
+  - **The fix, `taxonomy.archetype_defers_to(prompt, archetype)`.** The archetype lane (`router._archetype_rfa`) reads prompts with its *own* patterns, and this function uses those same match spans, on the prompt normalised for hyphens and possessives, with the same length so offsets hold. The lane steps aside only when **every** span its patterns matched is claimed by a kind no lane builds, meaning that kind's phrase overlaps the span or directly follows it. Examples: "conduit elbow", "EMT conduit elbow", "cable-tray tee", "cable tray's elbow". The exception is a row this archetype builds that names the phrase more specifically ("a *horizontal* fan coil" contains "fan coil").
+  - **What still builds:** one clean reading of the product is enough. This covers "a 12 in tray for the rooftop unit", "a square duct above the VFD" and "a lighting control panel and a fan coil". The first version used the taxonomy's names as a proxy and withheld exactly these, which #1043's eighth review caught (hard rule 1).
+  - **Tests:**
+    - the reviewer's eleven must-defer prompts;
+    - a sweep over every name of every unbuilt row: the archetype lane delivers none of them;
+    - a sweep over every built archetype name and the lane's own words ("12 in tray", "square duct", "metal framing channel"), beside every unbuilt kind, three ways ("for the", "next to the", "and a"): none is withheld where the lane still reads its own product;
+    - the future split, with the archetype's patterns simulated;
+    - the route delivers no `.rfa` for "create a conduit elbow family".
+
+    Mutations are caught: no deferral (5 tests fail), deferring on any claimed span (the withholding sweep fails), and no hyphen normalisation (fails).
+  - **Not closed here, granularity with no alias yet:** "EMT elbow", "conduit 90 elbow", "cable tray reducer" still read as a straight run or tray, because no taxonomy row names them (`REFINE_FIRST` lists "reducer" as a product, but no alias carries it). They belong with the alias work in #1044.
 - **No near-miss mapping.** The `vav_box` row (aliases include "fan powered box") is not pointed at the fan-powered terminal (#895). Its decision is to refine it first: the fan-powered wording is split off for #895's constructor, and a single-duct VAV box gets its own archetype. A test checks that "vav box" resolves to its own, still-unbuilt row.
 - **Conflict rows.** A gap row whose category is in conflict (#516) still needs a decision. Its conflict line reaches the user first. No gap row is in conflict today.
 
@@ -148,8 +156,8 @@ Generated from `taxonomy.decision()` over `DECISIONS` (one-shape rows) and `REFI
 
 ## Evidence
 
-- **`tests/test_taxonomy_decisions_822.py`: 18 passed.** These are mutation-checked:
-  - disabling `archetype_defers_to` fails 4 tests;
+- **`tests/test_taxonomy_decisions_822.py`: 20 passed.** These are mutation-checked:
+  - the three `archetype_defers_to` mutations above;
   - disabling either `REFINE_FIRST` rule makes its bypass test fail;
   - dropping a key from `REFINE_FIRST` makes the floor test fail;
   - moving a key into `DECISIONS` with a one-box reason makes the floor test fail (#1043's sixth review). It covers:
@@ -164,11 +172,13 @@ Generated from `taxonomy.decision()` over `DECISIONS` (one-shape rows) and `REFI
   - a "not generated" reason the user would read cannot carry an issue number, a module path or the word "generated";
   - a "not generated" refusal promises no later lane;
   - the VAV-box near miss is ruled out by routing, not by wording.
-- **1351 passed, 58 skipped, 5 xfailed** for:
+- **1353 passed, 58 skipped, 5 xfailed** for:
   - every module that mentions the taxonomy (`grep -l taxonomy tests/test_*.py`);
   - `test_plugin_sync`, `test_conftest_scaffolding`, `test_router`, `test_router_release` and `test_doc_caveats_990`;
-  - the archetype modules (`test_famgen_archetypes`, `test_archetype_alias_order_812`, `test_archetype_drives_913`);
-  - the prompt / cable-tray / conduit modules (`tests/test_*prompt*.py tests/test_*591*.py tests/test_*cable_tray*.py tests/test_*conduit*.py`).
+  - `test_famgen_archetypes`, `test_archetype_alias_order_812` and `test_archetype_drives_913`;
+  - the five prompt / conduit modules.
+
+  Rerun with `pytest $(grep -l taxonomy tests/test_*.py) tests/test_plugin_sync.py tests/test_conftest_scaffolding.py tests/test_router.py tests/test_router_release.py tests/test_doc_caveats_990.py tests/test_famgen_archetypes.py tests/test_archetype_alias_order_812.py tests/test_archetype_drives_913.py $(ls tests/test_*prompt*.py tests/test_*conduit*.py)`. Every path exists.
 - `tools/sync_plugin.py --check`: clean.
 
 ## BRANCH STATE

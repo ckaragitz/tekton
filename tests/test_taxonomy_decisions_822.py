@@ -224,6 +224,50 @@ def test_every_built_archetype_kind_still_builds():
                 assert T.archetype_defers_to(_prompt(word), req.arch.key) is None, (row.key, word)
 
 
+MUST_DEFER = (                       # an unbuilt kind named over or right after the archetype's words
+    "create a conduit elbow family", "create an EMT conduit elbow family",
+    "create a 2 in EMT conduit body family", "create an emt conduit fitting family",
+    "create a cable-tray elbow family", "create a ladder-tray elbow family",
+    "create a cable-tray tee family", "create a cable tray's elbow family", "a cable tray elbow",
+    "create a tray tee family", "create a cable tray fitting family")
+#: the archetype lane's OWN words the taxonomy does not carry (#1043's eighth review)
+ARCHETYPE_ONLY_WORDS = ("12 in tray", "tray", "square duct", "metal framing channel",
+                        "channel framing")
+
+
+def test_a_named_unbuilt_kind_over_the_archetypes_words_defers():
+    from rvt.famgen import archetypes as AR
+    for prompt in MUST_DEFER:
+        req = AR.resolve_prompt(prompt)
+        assert req is not None and T.archetype_defers_to(prompt, req.arch.key) is not None, prompt
+
+
+def test_an_unbuilt_kind_elsewhere_never_withholds_a_build():
+    # hard rule 1: "a 12 in tray for the rooftop unit" delivers the tray.  Every built archetype
+    # name (taxonomy's and the lane's own words) beside every unbuilt kind's label
+    from rvt.famgen import archetypes as AR
+    words = list(ARCHETYPE_ONLY_WORDS)
+    for row in T.kinds():
+        if any(m.startswith("archetype:") for m in row.via):
+            words += [row.label] + list(row.aliases)
+    withheld = []
+    for word in words:
+        own = AR.resolve_prompt(f"create a {word} family")
+        if own is None:
+            continue
+        for gap in T.gap_rows():
+            for joint in ("for the", "next to the", "and a"):
+                prompt = f"create a {word} family {joint} {gap.label}"
+                req = AR.resolve_prompt(prompt)
+                # only where the lane still reads the word's OWN product: when the unbuilt
+                # kind's words make it pick another archetype ("a tray for the conduit
+                # fitting" -> conduit), deferring is what stops that wrong product
+                if (req is not None and req.arch.key == own.arch.key
+                        and T.archetype_defers_to(prompt, req.arch.key) is not None):
+                    withheld.append(prompt)
+    assert not withheld, withheld[:10]
+
+
 def test_the_more_specific_phrase_decides():
     assert T.archetype_defers_to("a cable tray elbow", "cable_tray").key == "cable_tray_fitting"
     assert T.archetype_defers_to("a lighting control panel and a fan coil",
@@ -231,16 +275,19 @@ def test_the_more_specific_phrase_decides():
 
 
 def test_after_a_split_the_shared_words_defer_and_the_product_words_build(monkeypatch):
-    # the record's own DONE 3 shape, with an archetype standing in for the product's builder:
-    # "fcu" names the unbuilt multi-product row -> defer; "horizontal fan coil" names the built
-    # product row more specifically -> build
+    # the record's own DONE 3 shape: a product row beside the multi-product row, built by an
+    # archetype whose own patterns read "fan coil" / "fcu" / "horizontal fan coil" (simulated)
+    import re as _re
     row = T._BY_KEY["fan_coil_unit"]
     prod = T._k("fan_coil_horizontal", "Fan coil unit (horizontal concealed)", row.discipline,
-                row.category, ("archetype:wireway",), aliases=("horizontal fan coil",))
+                row.category, ("archetype:fcu_stand_in",), aliases=("horizontal fan coil",))
     _replace_rows(monkeypatch, add=(prod,))
-    assert T.archetype_defers_to("create an fcu family", "wireway").key == "fan_coil_unit"
-    assert T.archetype_defers_to("create a fan coil unit family", "wireway").key == "fan_coil_unit"
-    assert T.archetype_defers_to("create a horizontal fan coil family", "wireway") is None
+    monkeypatch.setattr(T, "_archetype_match_spans", lambda text, key: [
+        m.span() for m in _re.finditer(r"horizontal fan coil|fan coil|fcu", text)])
+    assert T.archetype_defers_to("create an fcu family", "fcu_stand_in").key == "fan_coil_unit"
+    assert T.archetype_defers_to("create a fan coil unit family",
+                                 "fcu_stand_in").key == "fan_coil_unit"
+    assert T.archetype_defers_to("create a horizontal fan coil family", "fcu_stand_in") is None
 
 
 def test_the_route_delivers_no_straight_run_for_a_fitting(tmp_path):
