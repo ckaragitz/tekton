@@ -608,8 +608,8 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
     and keeps tag 1.  The ExtrusionGStep history is the same either way: face
     tag 0 = key [2] (the End cap), tag 1 = key [1] (the Start cap), and edge
     tag 3 = the [1,i,0] rail of the loop's first curve i (on the cap at the
-    higher offset: the End cap here) -- measured on 745 born extrusions in
-    both directions (#1037).  ``element_id`` becomes the root tag /
+    higher offset: the End cap with ``end_on_top``, the Start cap without) --
+    measured on 745 born extrusions in both directions (#1037).  ``element_id`` becomes the root tag /
     ``m_elementId``; ``geometry_style_id`` = the ``Geometry`` graphics
     category (the family sub-category ``GStyleElem`` id).
 

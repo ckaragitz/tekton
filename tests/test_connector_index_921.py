@@ -62,3 +62,12 @@ def test_nesting_refuses_a_child_with_only_conduit_connectors(tmp_path):
     with pytest.raises(N.NestError, match="connectors"):
         N.nest_family(host, out, child, [(0.0, 0.0, 0.0)])
     assert not os.path.exists(out)
+
+
+def test_the_ifc_downlight_summary_counts_every_domain():
+    from rvt.ifc import famfrom_ifc as FI
+    prod = FI.make_downlight()
+    power = len(prod.doc.connectors)
+    assert prod.summary()["connectors"] == power
+    prod.doc.mep_connectors = [object()]            # its summary reads both lists (#921)
+    assert prod.summary()["connectors"] == power + 1

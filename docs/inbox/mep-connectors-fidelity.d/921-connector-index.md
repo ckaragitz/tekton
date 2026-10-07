@@ -21,7 +21,7 @@ So a power connector added after a conduit connector reused its `m_index`, and t
   - conduit → power (`add_connector`) → power (`add_electrical_connector`) gets indices `[1, 2, 3]`;
   - the fan coil's `summary()["connectors"]` equals power + conduit.
   - nesting refuses a child whose only connectors are conduit ones.
-- **The wider set: 265 passed, 9 skipped** before the nits below; with them, 13 modules (921, 863, standards, apply_safe, factory, fan coil, fan-powered, IFC standards, matrix 984 / 981, cap tags, plugin sync, scaffolding) give **417 passed, 6 skipped**. The first set covers:
+- **The wider set: 265 passed, 9 skipped** before the nits below; with them, 13 modules (921, 863, standards, apply_safe, factory, fan coil, fan-powered, IFC standards, matrix 984 / 981, cap tags, plugin sync, scaffolding) give **418 passed, 6 skipped** (417 before the nest test). The first set covers:
   - `test_famgen_factory`, `test_fan_coil_893`, `test_fan_powered_895`, `test_famfrom_ifc_standards`;
   - matrix evidence 984 / 981, `test_plugin_sync`, scaffolding;
   - the connector and IFC family modules.
