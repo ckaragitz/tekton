@@ -437,7 +437,7 @@ _REFINE_NOTES: Dict[str, str] = {
     "conduit_fitting": "; each sized from the conduit archetype's trade sizes",
     "valve": "; each sized by its pipe",
     "fan_coil_unit": ("; the fan coil constructor (#893) builds the horizontal concealed unit "
-                      "only, so it answers that product once the row is refined -- never a "
+                      "only, so it answers that product once the row is split -- never a "
                       "vertical or cassette request"),
     "vav_box": ("; the fan-powered constructor (#895) answers only the 'fan powered box' "
                 "wording -- a single-duct VAV gets its own archetype"),
