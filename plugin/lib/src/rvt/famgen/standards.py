@@ -1097,8 +1097,11 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
             # in the category's table that the document does not already carry
             authorable = {meaning_key(p.name) for p in standard_params(category) if p.authored}
             present = {meaning_key(n) for n in doc.params}
-            # a parameter the caller skips is not offered a fact (nor reported unwritten)
-            present |= {meaning_key(n) for n in (kw.get("skip") or ())}
+            # a parameter the caller skips is not offered a fact (nor reported unwritten);
+            # skip names a table row exactly, as apply() reads it
+            skip = set(kw.get("skip") or ())
+            present |= {meaning_key(p.name) for p in standard_params(category)
+                        if p.name in skip}
             from_facts = [p for p in from_facts if meaning_key(p["name"]) in authorable
                           and meaning_key(p["name"]) not in present]
             fv = {p["name"]: fv[p["name"]] for p in from_facts}
@@ -1117,8 +1120,9 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
                                  f"only some hold it), and a standard parameter is one value "
                                  f"per family")
         if from_facts:
-            filled = set(rep.get("filled") or ())
-            rep["filled_from_facts"] = [p for p in from_facts if p["name"] in filled]
+            filled = {meaning_key(n) for n in rep.get("filled") or ()}   # the table's spelling
+            rep["filled_from_facts"] = [p for p in from_facts
+                                        if meaning_key(p["name"]) in filled]
             if rep["filled_from_facts"]:
                 doc.notes.append(
                     "category standards: of those filled, "

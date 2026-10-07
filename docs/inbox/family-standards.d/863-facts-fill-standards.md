@@ -28,7 +28,7 @@ Which known facts map to a standards-table entry:
 
 | constructor | filled from facts | known facts with no standard to fill, or blanks with no fact |
 |---|---|---|
-| transformer (45 kVA) | **Frequency = 60 Hz** (`fact`) | Voltage and Wires stay blank by design (two sides; a single value would be a guess). Weight, enclosure, kVA, Temperature Rise, Phases and Primary/Secondary Voltage are the constructor's own parameters already. Impedance, Insulation Class, Taps, Sound Level, K-Factor, Mounting: no fact. |
+| transformer (45 kVA) | **Frequency = 60 Hz** (`fact`) | Voltage and Wires stay blank by design (two sides; a single value would be a guess). Weight, enclosure, kVA, Temperature Rise, Phases and Primary/Secondary Voltage are the constructor's own parameters already. No fact for Impedance, Insulation Class, Taps, Sound Level, K-Factor, Mounting, Apparent Load, Load Classification, Service Clearance or Warranty Duration. |
 | luminaire (2x4 troffer) | **Color Rendering Index = 82** (`fact`) | Efficacy could be *derived* from lumens ÷ watts (4600 / 38); not done, because a derived standard needs its own rule. Light Loss Factor, Driver Type, Dimming Protocol, IP Rating: no fact. |
 | downlight (`make_luminaire(kind="downlight")`) | none | no CRI or frequency fact in its record |
 | panelboard | none | Frequency and Enclosure Rating have no fact. Voltage, phases, wires and mains are the constructor's own parameters. |
@@ -99,6 +99,6 @@ The certified file is untouched. The entry stays uncertified, `certified: None`.
   - the review fixes to two more constructors: `src/rvt/ifc/intent.py` (the switchboard passes `facts=sheet`) and `src/rvt/ifc/famfrom_ifc.py` (the downlight passes `facts=fs`);
   - `src/rvt/famgen/equipment_clearance.py`: `apply_material` paints through `param_binding._paint`. It now raises `BindingError` for a material id ≤ 0 and drops the previous material from the deletion parents;
   - all of the above with their `plugin/lib` mirrors, where mirrored (`tools/profile_map_from_rfa.py` is not);
-  - the #984 guard update: `src/rvt/frontdoor/matrix.py`, `docs/product/PERMUTATION-MATRIX.md`, `plugin/docs/HONEST-STATUS.md`;
+  - the #984 guard update: `src/rvt/frontdoor/matrix.py` and its mirror `plugin/lib/src/rvt/frontdoor/matrix.py`, `docs/product/PERMUTATION-MATRIX.md`, `plugin/docs/HONEST-STATUS.md`;
   - this record.
 - Shipped on merge; nothing is staged. No Revit claim (hard rule 4).

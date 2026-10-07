@@ -195,3 +195,15 @@ def test_facts_given_as_a_mapping_of_types_are_read_as_its_sheets():
     b.set("cri", 82, kind="fact", source="b")
     assert ST.values_from_facts({"A": a, "B": b})[0] == {"Color Rendering Index": 82}
     assert ST.values_from_facts({"cri": 82}) == ({}, [], [])   # not a sheet: nothing
+
+
+def test_skip_names_a_table_row_exactly_as_apply_reads_it():
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_equipment", "Zz SkipAlias", work_plane_based=False)
+    doc.add_type("T", {})
+    a = F.FactSheet(subject="a")
+    a.set("frequency_hz", 60, kind="fact", source="a")
+    rep = ST.apply_safe(doc, "electrical_equipment", True, None, facts=a,
+                        skip=["Rated Frequency"])               # not the row's name
+    assert "Frequency" in rep["filled"]                          # so it is not skipped
+    assert [p["name"] for p in rep["filled_from_facts"]] == ["Frequency"]

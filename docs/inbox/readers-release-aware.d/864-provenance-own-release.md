@@ -36,10 +36,21 @@ A 45 kVA transformer was built for 2026, 2025 and 2024.
 - **Cost:** a panelboard write's median goes from 0.233 to 0.240 s (6 writes each, same machine). The own-release entry is about 7 ms, within noise.
 - `tools/sync_plugin.py --check`: clean.
 
+## Also in this PR: the 🟡 nits of #1031's final review (#863)
+
+- **`skip=` in `standards.apply_safe(facts=)`** names a table row exactly, as `apply()` reads it. A skip spelled by an alias (`"Rated Frequency"`) no longer withholds the fact while `apply` still authors the slot.
+- **`filled_from_facts`** matches the table's own spelling by meaning. A row named by an alias still reports its fact's provenance.
+- **Records:**
+  - #863's BRANCH STATE names the `matrix.py` mirror;
+  - #863's transformer row lists every no-fact blank;
+  - #877's retroactive BRANCH STATE says "where mirrored" and names `876-map-proposal.md`.
+- **Test:** `tests/test_standards_facts_863.py` gives **21 passed** (+1).
+
 ## BRANCH STATE
 
 - Files:
   - `src/rvt/famgen/famdoc_adoc.py`, `src/rvt/famgen/factory.py` (`provenance_scan` → wrapper + `_provenance_scan`) and their plugin mirrors;
   - `tests/test_provenance_releases_864.py` and the drop-in `tests/ci_shard.d/864-provenance-releases.txt`;
+  - the #1031 nits: `src/rvt/famgen/standards.py` (and its mirror), `tests/test_standards_facts_863.py`, the #863 and #877 records;
   - this record.
 - Shipped on merge; nothing is staged. No Revit claim (hard rule 4).
