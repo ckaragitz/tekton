@@ -966,7 +966,7 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
             gname, gv = given
             try:
                 val = coerce_value(p.spec, gv)
-            except (TypeError, ValueError) as e:   # the slot stays BLANK, the value is named
+            except (TypeError, ValueError, OverflowError) as e:   # the slot stays BLANK, the value is named
                 unusable.append({"name": gname, "why": f"{gv!r} cannot be written as {p.spec} ({e})"})
                 placed.add(mk)
                 given = None
@@ -1066,7 +1066,8 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
     standard parameters its own known facts establish (:data:`FACT_VALUES`,
     :func:`values_from_facts`) are filled from it, the caller's ``values``
     overriding any of them; the report's ``filled_from_facts`` names each with its
-    fact and tier.
+    fact and tier.  A caller's ``None`` is no value (as everywhere here), so it
+    does not suppress a fact: ``skip=`` does, or ``on=False`` for every standard.
 
     ``on`` False (the caller's ``standards=False``, the regression control):
     nothing is authored and ``None`` comes back -- but ``values`` the caller
@@ -1084,6 +1085,7 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
                              f"parameters are applied, so nothing carries them)")
         return None
     from_facts: List[Dict[str, Any]] = []
+    split: List[str] = []
     try:
         if facts is not None:
             fv, from_facts, split = values_from_facts(facts)
@@ -1095,16 +1097,20 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
             from_facts = [p for p in from_facts if meaning_key(p["name"]) in authorable
                           and meaning_key(p["name"]) not in present]
             fv = {p["name"]: fv[p["name"]] for p in from_facts}
-            for name in split:
-                if (meaning_key(name) not in given and meaning_key(name) in authorable
-                        and meaning_key(name) not in present):
-                    doc.notes.append(f"standard parameter {name!r} left blank: the family's types "
-                                     f"do not all hold one known value for it (they differ, or "
-                                     f"only some hold it), and a standard parameter is one value "
-                                     f"per family")
+            split = [n for n in split if meaning_key(n) not in given
+                     and meaning_key(n) in authorable and meaning_key(n) not in present]
             from_facts = [p for p in from_facts if meaning_key(p["name"]) not in given]
             values = {**{p["name"]: fv[p["name"]] for p in from_facts}, **_offered(values)}
         rep = apply(doc, category, values=values, **kw)
+        # a split fact is noted only where this step really authored the slot blank
+        authored_blank = {meaning_key(a["name"]) for a in rep.get("applied") or ()
+                          if a.get("value") == "blank"}
+        for name in split:
+            if meaning_key(name) in authored_blank:
+                doc.notes.append(f"standard parameter {name!r} left blank: the family's types "
+                                 f"do not all hold one known value for it (they differ, or "
+                                 f"only some hold it), and a standard parameter is one value "
+                                 f"per family")
         if from_facts:
             filled = set(rep.get("filled") or ())
             rep["filled_from_facts"] = [p for p in from_facts if p["name"] in filled]

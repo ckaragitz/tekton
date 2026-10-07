@@ -160,7 +160,20 @@ def test_a_pathological_fact_never_blocks_the_family():
     from rvt.famgen import skeleton as SK
     doc = SK.new_family_document("electrical_equipment", "Zz Huge", work_plane_based=False)
     doc.add_type("T", {})
-    a, b = F.FactSheet(subject="a"), F.FactSheet(subject="b")
+    a = F.FactSheet(subject="a")
     a.set("frequency_hz", 10 ** 400, kind="fact", source="a")
-    b.set("frequency_hz", 60, kind="fact", source="b")
-    ST.apply_safe(doc, "electrical_equipment", True, None, facts=[a, b])   # no raise
+    rep = ST.apply_safe(doc, "electrical_equipment", True, None, facts=a)   # no raise
+    assert rep is not None and len(rep["applied"]) > 1      # only Frequency goes blank
+    assert "Frequency" not in rep["filled"]
+
+
+def test_a_skipped_split_parameter_is_not_noted_as_left_blank():
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("lighting_fixture", "Zz Skip", work_plane_based=False)
+    doc.add_type("T", {})
+    a, b = F.FactSheet(subject="a"), F.FactSheet(subject="b")
+    a.set("cri", 80, kind="fact", source="a")
+    b.set("cri", 90, kind="fact", source="b")
+    ST.apply_safe(doc, "lighting_fixture", True, None, facts=[a, b],
+                  skip=["Color Rendering Index"])
+    assert not any("left blank" in n for n in doc.notes)

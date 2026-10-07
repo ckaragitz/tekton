@@ -8,7 +8,7 @@ Stream **family-standards** (tech-lead session, 2026-10-02). Closes #863.
   - The report's `filled_from_facts` names each one with its fact key, tier and source. They are also in `filled`.
   - The mapping is data: `standards.FACT_VALUES`, fact key → standard parameter. Today: `frequency_hz` → **Frequency** and `cri` → **Color Rendering Index**. Each fact is stored in its parameter's internal unit (Hz, a plain number).
   - **Only a known tier fills a standard (S-2026-08-11-a):** `fact`, `given` or `derived`. `assumed`, `nominal` and `ours` never do.
-  - **A standard parameter is one value per family.** When the family's types hold different values for a fact, it stays blank and a note says why. Before this, the first type's value would have been written on all.
+  - **A standard parameter is one value per family.** When the family's types hold different values for a fact, it stays blank and a note says why. An earlier head of this PR wrote the first type's value on all. Base main filled nothing from facts.
   - With `standards=False`, nothing is authored from facts and no note names them. The facts were never the caller's offer.
 - **These constructors pass their facts:**
   - the two generic-model paths (`sheet`);
@@ -20,7 +20,7 @@ Stream **family-standards** (tech-lead session, 2026-10-02). Closes #863.
 
   Every `apply_safe` caller now passes facts.
 
-  These are one-line call-site changes in `factory.py`; no other line of the #913 program's files changed.
+  These are call-site-only changes in `factory.py`, some wrapping onto two lines. No other line of the #913 program's files changed.
 
 ## DONE 3: the constructor sweep
 
@@ -40,7 +40,7 @@ Which known facts map to a standards-table entry:
 
 ## Evidence
 
-- `tests/test_standards_facts_863.py`: **17 passed** (9 plus 8 for the review fixes). It covers:
+- `tests/test_standards_facts_863.py`: **18 passed** (9 plus 9 for the review fixes). It covers:
   - 45 kVA transformer: Frequency 60 on every type row, `filled_from_facts` with tier `fact`, Voltage and Wires blank;
   - a caller's 50 Hz wins;
   - luminaire CRI;
@@ -49,7 +49,7 @@ Which known facts map to a standards-table entry:
   - `standards=False`.
 - **DONE 4**, at the final head:
   - `test_famgen_standards.py`, `test_famgen_factory.py`, `test_fan_coil_893.py`, `test_fan_powered_895.py` and `test_plugin_sync.py`: **249 passed, 5 skipped**.
-  - `test_standards_facts_863.py`, `test_matrix_evidence_984.py`, `test_param_binding_877.py`, `test_profile_map_876.py` and `test_profile_map_from_rfa_876.py`: **93 passed, 1 skipped**. The skip is #981's downlight rows.
+  - `test_standards_facts_863.py`, `test_matrix_evidence_984.py`, `test_param_binding_877.py`, `test_profile_map_876.py` and `test_profile_map_from_rfa_876.py`: **94 passed, 1 skipped**. The skip is #981's downlight rows.
   - `test_equipment_drives_913.py`, `test_ifc_intent.py`, `test_standards_apply_safe.py`, `test_famfrom_ifc_standards.py`, the three clearance suites (`test_equipment_clearance_882.py`, `test_lcp_clearance_820.py`, `test_nec_clearance_819.py`) and `test_conftest_scaffolding.py`: **246 passed, 1 skipped**.
 - `tools/sync_plugin.py --check`: clean.
 
@@ -58,7 +58,7 @@ Which known facts map to a standards-table entry:
 - **`param_binding.bind_material`** now paints the way `equipment_clearance.apply_material` does: `m_materialId`, every cached face's render style, and the material among the deletion parents. The material the solid wore before is dropped from those parents, so deleting it in Revit no longer deletes the solid. There is a test.
 - **The "provenance library (…)" line** now matches its profile source whole, as the "linked by" line does since #1029, so a profile name holding `"): "` cannot split it. There are two tests: a name holding the separator, and a library line whose parameters all lost their tags.
 - **The proposal tool's tie wording** is now "no axis holds a majority of its families ({…})". Before, it said "split evenly" even with three buckets.
-- **The #877 and #876 records** now give current test counts and list every file in BRANCH STATE.
+- **The #877 and #876 records:** the #877 record's BRANCH STATE now lists #1029's code and test files, and both records' test counts are current. Neither BRANCH STATE was otherwise re-audited.
 
 ## Also in this PR: fixes from #1031's own review
 
@@ -69,7 +69,8 @@ Which known facts map to a standards-table entry:
 - When only some types hold a fact, the parameter stays blank with the same note as a disagreement.
 - 60, 60.0 and "60" count as one value.
 - A multi-type provenance cites every source and every tier, e.g. `fact; derived`, never only the first type's.
-- The fact pre-processing runs inside `apply_safe`'s never-block `try`, so a pathological fact value (an `OverflowError`) leaves a note instead of aborting the family.
+- The fact pre-processing runs inside `apply_safe`'s never-block `try`. A value `coerce_value` cannot represent (an `OverflowError`) leaves only that parameter blank and named in `values_unusable`, never the whole standards step.
+- The "left blank" note for types that do not agree is written only where the step really authored that parameter blank: not under `skip=`, not when the step did not run.
 - `bind_material` / `apply_material` paint through one `_paint`, which drops the previous material from the deletion parents only when that material id is positive. A parent added for another reason that happens to share the id would also be dropped. No writer path does that today.
 
 ## The #984 evidence guard: a changed generator output, recorded
@@ -93,7 +94,7 @@ The certified file is untouched. The entry stays uncertified, `certified: None`.
   - the #1029 nits: `src/rvt/famgen/{param_binding,param_profile}.py`, `tools/profile_map_from_rfa.py`, `tests/test_{param_binding_877,profile_map_876,profile_map_from_rfa_876}.py`, and the 876/877 records;
   - the review fixes to two more constructors: `src/rvt/ifc/intent.py` (the switchboard passes `facts=sheet`) and `src/rvt/ifc/famfrom_ifc.py` (the downlight passes `facts=fs`);
   - `src/rvt/famgen/equipment_clearance.py`: `apply_material` paints through `param_binding._paint`. It now raises `BindingError` for a material id ≤ 0 and drops the previous material from the deletion parents;
-  - all of the above with their `plugin/lib` mirrors;
+  - all of the above with their `plugin/lib` mirrors, where mirrored (`tools/profile_map_from_rfa.py` is not);
   - the #984 guard update: `src/rvt/frontdoor/matrix.py`, `docs/product/PERMUTATION-MATRIX.md`, `plugin/docs/HONEST-STATUS.md`;
   - this record.
 - Shipped on merge; nothing is staged. No Revit claim (hard rule 4).
