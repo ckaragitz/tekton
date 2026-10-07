@@ -25,8 +25,8 @@ def test_every_gap_has_a_decision_and_the_table_is_clean():
 
 
 def test_the_gap_count_only_trends_down():
-    # #822 DONE 4: 62 leaf gaps when the decisions were recorded; each later PR that builds a
-    # kind removes its decision (check() enforces it), so this number may only fall
+    # #822 DONE 4: 62 leaf gaps when the decisions were recorded; the count trends down only
+    # by building kinds (each such PR drops its decision -- check() enforces it), never up
     assert len(T.gap_rows()) <= 62
 
 
@@ -47,11 +47,13 @@ def test_a_stale_or_malformed_decision_fails_the_check(monkeypatch):
 
 def test_the_refusal_and_describe_name_the_decision(monkeypatch):
     ok, why = T.builder_available(T.get("smoke_detector"))
-    assert not ok and "next for this kind (#822): the archetype lane" in why
+    assert not ok and "planned: built at standard nominal sizes" in why
+    ok, why = T.builder_available(T.get("split_system"))
+    assert not ok and "covers several products" in why and "#" not in why.split("planned:")[1]
     assert T.describe("smoke detector")["decision"]["outcome"] == "archetype"
     monkeypatch.setitem(T.DECISIONS, "busway", ("not generated", "a stated reason"))
     ok, why = T.builder_available(T.get("busway"))
-    assert not ok and "by decision it is not generated here: a stated reason" in why
+    assert not ok and "by decision it is not built here: a stated reason" in why
 
 
 def test_busway_is_a_loadable_family_kind():
@@ -65,14 +67,24 @@ def test_no_near_miss_mapping_for_the_vav_box():
     # fan-powered terminal (#895); the decision says the alias is split off first
     row = T.resolve("vav box")
     assert row.key == "vav_box" and not T.builder_available(row)[0]
-    assert "split off first" in T.decision("vav_box")[1]
+    assert "answers only the 'fan powered box' wording" in T.decision("vav_box")[1]
 
 
 def test_rows_naming_several_products_are_refined_before_any_archetype():
-    for key in ("split_system", "exhaust_fan", "valve", "sink", "floor_drain", "fire_pump",
-                "intrusion_detector", "cooling_tower", "pump", "chiller"):
+    assert T.REFINE_FIRST and set(T.REFINE_FIRST) <= set(T.DECISIONS)
+    for key, products in T.REFINE_FIRST.items():
+        assert len(products) >= 2, key
         assert "refined into them first" in T.decision(key)[1], key
     assert "never one packaged box" in T.decision("split_system")[1]
+    # the fan coil constructor (#893) is ONE of the row's products, never all of them
+    assert "horizontal concealed unit only" in T.decision("fan_coil_unit")[1]
+
+
+def test_a_multi_product_row_cannot_gain_a_mechanism_before_it_is_refined(monkeypatch):
+    import dataclasses
+    row = T._BY_KEY["exhaust_fan"]
+    monkeypatch.setitem(T._BY_KEY, "exhaust_fan", dataclasses.replace(row, via=("archetype:x",)))
+    assert any("taxonomy[exhaust_fan]: names several products" in p for p in T.check())
 
 
 def test_a_not_generated_refusal_promises_no_later_lane(monkeypatch):
