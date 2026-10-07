@@ -22,7 +22,7 @@ A 45 kVA transformer was built for 2026, 2025 and 2024.
 
 ## Evidence
 
-- **`tests/test_provenance_releases_864.py`, plus the #707 scaffolding check: 28 passed.** It covers:
+- **`tests/test_provenance_releases_864.py`, plus the #707 scaffolding check: 36 passed** (the scaffolding module grew on main). It covers:
   - the CLI on the 2026, 2025 and 2024 transformer: rc 0, `ok: true`, Formats/Latest constant true;
   - `provenance_scan_v2` on each: `ok` and the constant check true;
   - `is_release_schema_constant`: a 2025 schema in a 2025 file is true, a 2026 schema in a 2025 file is false, an empty one is false.
