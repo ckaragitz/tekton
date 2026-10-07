@@ -1138,9 +1138,9 @@ def check() -> List[str]:
                     f"row's decision is derived; drop the DECISIONS entry"
                     for k in sorted(set(DECISIONS) & set(REFINE_FIRST)))
     problems.extend(f"taxonomy[{k}]: names several products ({', '.join(REFINE_FIRST[k])}) and "
-                    f"must not be built as one row -- split it into one row per product (move "
-                    f"its aliases) and retire the key; never give it a mechanism or make it a "
-                    f"generic word (#1043)"
+                    f"must not be built as one row -- add one row per product beside it (with "
+                    f"the words that name only that product) and build those; this row stays "
+                    f"unbuilt, never with a mechanism and never a generic word (#1043)"
                     for k in sorted(REFINE_FIRST) if k in _BY_KEY
                     and (_BY_KEY[k].via or _BY_KEY[k].refine))
     problems.extend(f"taxonomy: REFINE_FIRST[{k!r}] is no row -- a multi-product row is never "
