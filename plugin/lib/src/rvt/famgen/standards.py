@@ -1031,12 +1031,15 @@ def values_from_facts(facts: Any) -> Tuple[Dict[str, Any], List[Dict[str, Any]],
     holds the same known value; one that differs between types, or that only some
     types hold, is named in ``disagreements`` and stays blank (never the first
     type's value on all)."""
+    if isinstance(facts, dict):                    # {type name: sheet}
+        facts = list(facts.values())
     sheets = list(facts) if isinstance(facts, (list, tuple)) else [facts]
     out: Dict[str, Any] = {}
     prov: List[Dict[str, Any]] = []
     split: List[str] = []
     for key, name in FACT_VALUES.items():
-        got = [(getattr(sh, "values", None) or {}).get(key) for sh in sheets]
+        got = [v.get(key) if isinstance(v := getattr(sh, "values", None), dict) else None
+               for sh in sheets]
         known = [f is not None and getattr(f, "kind", None) in KNOWN_TIERS
                  and f.value not in (None, "") for f in got]
         if not got or not any(known):
@@ -1094,6 +1097,8 @@ def apply_safe(doc: "SK.FamilyDoc", category: Any, on: bool = True,
             # in the category's table that the document does not already carry
             authorable = {meaning_key(p.name) for p in standard_params(category) if p.authored}
             present = {meaning_key(n) for n in doc.params}
+            # a parameter the caller skips is not offered a fact (nor reported unwritten)
+            present |= {meaning_key(n) for n in (kw.get("skip") or ())}
             from_facts = [p for p in from_facts if meaning_key(p["name"]) in authorable
                           and meaning_key(p["name"]) not in present]
             fv = {p["name"]: fv[p["name"]] for p in from_facts}

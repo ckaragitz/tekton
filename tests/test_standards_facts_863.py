@@ -177,3 +177,21 @@ def test_a_skipped_split_parameter_is_not_noted_as_left_blank():
     ST.apply_safe(doc, "lighting_fixture", True, None, facts=[a, b],
                   skip=["Color Rendering Index"])
     assert not any("left blank" in n for n in doc.notes)
+
+
+def test_a_skipped_fact_is_neither_written_nor_reported_unwritten():
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_equipment", "Zz SkipF", work_plane_based=False)
+    doc.add_type("T", {})
+    a = F.FactSheet(subject="a")
+    a.set("frequency_hz", 60, kind="fact", source="a")
+    rep = ST.apply_safe(doc, "electrical_equipment", True, None, facts=a, skip=["Frequency"])
+    assert "Frequency" not in rep["filled"] and "facts_not_written" not in rep
+
+
+def test_facts_given_as_a_mapping_of_types_are_read_as_its_sheets():
+    a, b = F.FactSheet(subject="a"), F.FactSheet(subject="b")
+    a.set("cri", 82, kind="fact", source="a")
+    b.set("cri", 82, kind="fact", source="b")
+    assert ST.values_from_facts({"A": a, "B": b})[0] == {"Color Rendering Index": 82}
+    assert ST.values_from_facts({"cri": 82}) == ({}, [], [])   # not a sheet: nothing

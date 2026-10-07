@@ -96,6 +96,8 @@ def bind_material(form: Any, param: Any, material_id: int, *, doc: Any = None) -
     from .skeleton import SPEC_MATERIAL
     if _kind(param) not in ("ParamDefMaterialBrowse", SPEC_MATERIAL):
         raise BindingError(f"a material is driven by a material parameter, not {_kind(param)!r}")
+    if int(material_id) <= 0:                     # refused before anything is bound
+        raise BindingError(f"a material is an element id, not {material_id!r}")
     solid = solid_of(form)
     bind(solid, param, ELEM_PROP_MATERIAL)
     _paint(form, solid, int(material_id))

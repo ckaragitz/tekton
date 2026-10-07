@@ -293,6 +293,8 @@ def test_a_link_whose_formula_was_replaced_leaves_the_linked_line(tmp_path, path
     assert line.endswith(": none written") and "provenance" not in pe.refs
 
 
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="the separator under test holds ':', not a Windows file name")
 def test_a_profile_name_holding_the_separator_keeps_its_library_line(tmp_path):
     p = tmp_path / "odd): profile.json"
     import shutil
@@ -310,6 +312,8 @@ def test_a_profile_name_holding_the_separator_keeps_its_library_line(tmp_path):
 
 
 
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="the separator under test holds ':', not a Windows file name")
 def test_a_library_line_whose_parameters_all_lost_their_tags_keeps_its_source(tmp_path):
     p = tmp_path / "odd): profile.json"
     prof = _profile()

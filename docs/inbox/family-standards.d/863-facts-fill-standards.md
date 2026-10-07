@@ -40,7 +40,7 @@ Which known facts map to a standards-table entry:
 
 ## Evidence
 
-- `tests/test_standards_facts_863.py`: **18 passed** (9 plus 9 for the review fixes). It covers:
+- `tests/test_standards_facts_863.py`: **20 passed** (9 plus 11 for the review fixes). It covers:
   - 45 kVA transformer: Frequency 60 on every type row, `filled_from_facts` with tier `fact`, Voltage and Wires blank;
   - a caller's 50 Hz wins;
   - luminaire CRI;
@@ -49,7 +49,7 @@ Which known facts map to a standards-table entry:
   - `standards=False`.
 - **DONE 4**, at the final head:
   - `test_famgen_standards.py`, `test_famgen_factory.py`, `test_fan_coil_893.py`, `test_fan_powered_895.py` and `test_plugin_sync.py`: **249 passed, 5 skipped**.
-  - `test_standards_facts_863.py`, `test_matrix_evidence_984.py`, `test_param_binding_877.py`, `test_profile_map_876.py` and `test_profile_map_from_rfa_876.py`: **94 passed, 1 skipped**. The skip is #981's downlight rows.
+  - `test_standards_facts_863.py`, `test_matrix_evidence_984.py`, `test_param_binding_877.py`, `test_profile_map_876.py` and `test_profile_map_from_rfa_876.py`: **96 passed, 1 skipped**. The skip is #981's downlight rows.
   - `test_equipment_drives_913.py`, `test_ifc_intent.py`, `test_standards_apply_safe.py`, `test_famfrom_ifc_standards.py`, the three clearance suites (`test_equipment_clearance_882.py`, `test_lcp_clearance_820.py`, `test_nec_clearance_819.py`) and `test_conftest_scaffolding.py`: **246 passed, 1 skipped**.
 - `tools/sync_plugin.py --check`: clean.
 
@@ -69,8 +69,12 @@ Which known facts map to a standards-table entry:
 - When only some types hold a fact, the parameter stays blank with the same note as a disagreement.
 - 60, 60.0 and "60" count as one value.
 - A multi-type provenance cites every source and every tier, e.g. `fact; derived`, never only the first type's.
-- The fact pre-processing runs inside `apply_safe`'s never-block `try`. A value `coerce_value` cannot represent (an `OverflowError`) leaves only that parameter blank and named in `values_unusable`, never the whole standards step.
+- The fact pre-processing runs inside `apply_safe`'s never-block `try`. A value `coerce_value` cannot represent (an `OverflowError`) leaves only that parameter blank, never the whole standards step. It is named in `values_unusable` when it is a caller's value, and in `facts_not_written` when it is a fact.
 - The "left blank" note for types that do not agree is written only where the step really authored that parameter blank: not under `skip=`, not when the step did not run.
+- A parameter the caller skips is not offered a fact, so it is never reported as `facts_not_written`.
+- `facts` given as a mapping of type → sheet is read as its sheets. Anything that is not a sheet fills nothing, instead of dropping the whole standards step.
+- `bind_material` refuses a material id ≤ 0 before it binds anything.
+- The two profile-name tests whose file name holds `:` skip on Windows (objective O2), where `:` is not a file-name character.
 - `bind_material` / `apply_material` paint through one `_paint`, which drops the previous material from the deletion parents only when that material id is positive. A parent added for another reason that happens to share the id would also be dropped. No writer path does that today.
 
 ## The #984 evidence guard: a changed generator output, recorded
