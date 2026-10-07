@@ -27,7 +27,8 @@
 # FRESH/STALE against the current one before a merge, #487), merge_with_main, portable_paths, plugin_drift, plugin_structure,
 # shard_rc, shard_summary, seconds, sandbox, shard_timeout (the cap the shard ran under, #934), and when the shard ran
 # shard_seconds / shard_budget (ok|near-limit|timeout) / shard_slowest [/ shard_progress] (#918), verdict: pass|fail}; exit 0 either way (read the verdict) —
-# except setup failures (no ref, no origin/main, another run holds the PR / global lock timeout, worktree, tree export):
+# except setup failures (no ref, no origin/main, another run holds the PR / global lock timeout, worktree, tree export,
+# could not confirm refs/pr/<pr> is the PR's current head -- tools/dev/pr_head.sh, #1034):
 # {"pr":N,"error":...} and exit 2.
 set -uo pipefail
 PR=${1:?usage: tools/dev/session_ci.sh <pr-number>  (fetch it first: git fetch origin "pull/<n>/head:refs/pr/<n>")}
@@ -58,6 +59,13 @@ exec 9>"$LOCK"; flock -n 9 || { echo "{\"pr\":$PR,\"error\":\"another session_ci
 exec 8>"$S/ci/global.lock"; flock -w 5400 8 || { echo "{\"pr\":$PR,\"error\":\"timed out waiting for the global session_ci lock\"}"; exit 2; }   # one run per MACHINE at a time (#329): held until exit
 rm -f "$LOG" "$OUT"; : > "$LOG"; rm -rf "$BOX" "$TMPBOX"; git worktree remove --force "$WT" >/dev/null 2>&1; rm -rf "$WT"; git worktree prune
 git fetch -q origin main 2>>"$LOG" || echo "(warning: could not refresh origin/main; merge test uses the local copy)" >> "$LOG"
+# test the PR's CURRENT head (#1034): refs/pr/<pr> is re-fetched when origin's PR head differs from it; an
+# unreadable origin is a refusal, never a run on a ref that may be stale (SESSION_CI_OFFLINE=1: the local ref as is)
+if [ "${SESSION_CI_OFFLINE:-0}" != 1 ]; then
+  bash "$REPO/tools/dev/pr_head.sh" "$PR" >/dev/null 2>>"$LOG" || { echo "{\"pr\":$PR,\"error\":\"could not confirm refs/pr/$PR is the PR's current head (see $LOG; SESSION_CI_OFFLINE=1 tests the local ref as is)\"}" > "$OUT"; cat "$OUT"; exit 2; }
+else
+  echo "(SESSION_CI_OFFLINE=1: refs/pr/$PR tested as is, not checked against origin)" >> "$LOG"
+fi
 HEAD=$(git rev-parse "refs/pr/$PR") || { echo "{\"pr\":$PR,\"error\":\"no ref refs/pr/$PR\"}" > "$OUT"; cat "$OUT"; exit 2; }
 # The trunk this verdict is valid against (#476/#487): recorded as "main" in the JSON, and the merge test below uses THIS
 # sha, never the ref name — so recorded == merged even if tools/dev/ci_fresh.sh (lock-free, same checkout) re-fetches
