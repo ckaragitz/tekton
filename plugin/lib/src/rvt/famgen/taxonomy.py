@@ -387,17 +387,20 @@ def _refine_first(*products: str) -> str:
     """The reason for a row that names several products with no single shape (#1043 review):
     one box under the row's name would be the near miss #822 forbids."""
     return ("archetype per product: this kind names several products with no single shape ("
-            + ", ".join(products) + "), so the row is first split into one row per product "
-            "(its aliases moved to the product they name) and the multi-product key retired; "
-            "each product row then gets its own archetype -- never one box for all")
+            + ", ".join(products) + "), so one row per product is added beside this one (each "
+            "with the words that name only it) and gets its own archetype; this row stays, "
+            "unbuilt, for the words that name them all -- never one box for all")
 
 
 #: #1043 review: rows that name SEVERAL products with no single shape -> those products.  This
-#: table is PERMANENT.  Such a row is either still a gap (its decision derived here: one archetype
-#: per product) or RETIRED -- split into one row per product, its aliases moved to the product
-#: they name, the key gone from ``_ROWS``.  :func:`check` fails if a key here is a row with a
-#: build mechanism or a generic (refine) row, so "one box for all" can never ship under the
-#: row's name (the #821 near miss).  (``refine`` is a CATEGORY-wide generic word, not this.)
+#: table is PERMANENT and so are its rows: each stays in ``_ROWS``, UNBUILT, holding the words
+#: that name all of its products ("fan coil unit", "fcu"), whose honest answer is "this name
+#: covers several products"; the products are added as rows BESIDE it, each with only the words
+#: that name it ("horizontal fan coil").  :func:`check` fails if a key here is missing from
+#: ``_ROWS``, has a build mechanism or is a generic (refine) word -- so the row's own name can
+#: never become one box for all (the #821 near miss).  Its limit: moving the row's generic WORDS
+#: onto a built row is a resolution question (#1044), not caught here.  (``refine`` is a
+#: CATEGORY-wide generic word, not this.)
 REFINE_FIRST: Dict[str, Tuple[str, ...]] = {
     "busway": ("straight section", "elbow / tee fitting", "plug-in unit", "end closure"),
     "meter_center": ("meter stack / center", "meter socket", "CT cabinet"),
@@ -421,7 +424,8 @@ REFINE_FIRST: Dict[str, Tuple[str, ...]] = {
     "chiller": ("air-cooled chiller", "water-cooled chiller"),
     "cooling_tower": ("open cooling tower", "closed-circuit fluid cooler"),
     "unit_heater": ("unit heater", "cabinet unit heater"),
-    "split_system": ("outdoor condensing unit / heat pump", "indoor unit"),
+    "split_system": ("outdoor condensing unit / heat pump", "wall-mount indoor head",
+                     "ceiling cassette indoor unit", "ducted indoor unit"),
     "water_heater": ("tank water heater", "tankless water heater"),
     "water_closet": ("floor-mount water closet", "wall-hung water closet"),
     "lavatory": ("wall-hung lavatory", "countertop lavatory"),
@@ -437,13 +441,12 @@ _REFINE_NOTES: Dict[str, str] = {
     "conduit_fitting": "; each sized from the conduit archetype's trade sizes",
     "valve": "; each sized by its pipe",
     "fan_coil_unit": ("; the fan coil constructor (#893) builds the horizontal concealed unit "
-                      "only, so it answers that product once the row is split -- never a "
-                      "vertical or cassette request"),
+                      "only, so it answers the horizontal concealed product row once one is "
+                      "added -- never this row, a vertical or a cassette request"),
     "vav_box": ("; the fan-powered constructor (#895) answers only the 'fan powered box' "
                 "wording -- a single-duct VAV gets its own archetype"),
     "cooling_tower": "; the 'evaporative cooler' wording also names an air-side unit",
-    "split_system": ("; a split system is two pieces of equipment, never one packaged box, and "
-                     "its indoor unit splits again (wall-mount head, cassette, ducted)"),
+    "split_system": "; a split system is two pieces of equipment, never one packaged box",
 }
 
 
@@ -492,12 +495,17 @@ DECISIONS: Dict[str, Tuple[str, str]] = {
 }
 
 
+def _is_gap(r: Kind) -> bool:
+    return bool(r.category) and not r.pending and not r.via and not r.refine
+
+
 def gap_rows() -> Tuple[Kind, ...]:
     """Rows a prompt recognises and no lane builds (#822): a category key (not pending), no
-    build mechanism and not a generic word.  Each must carry a :data:`DECISIONS` entry -- a row
-    whose category is in CONFLICT (#516) included: its conflict line reaches the user first,
-    and the decision still says what closes the gap once the category resolves."""
-    return tuple(r for r in _ROWS if r.category and not r.pending and not r.via and not r.refine)
+    build mechanism and not a generic word.  Each must carry a decision -- an explicit
+    :data:`DECISIONS` entry, or a derived one for a :data:`REFINE_FIRST` row -- a row whose
+    category is in CONFLICT (#516) included: its conflict line reaches the user first, and the
+    decision still says what closes the gap once the category resolves."""
+    return tuple(r for r in _ROWS if _is_gap(r))
 
 
 def decision(row: Any) -> Optional[Tuple[str, str]]:
@@ -508,7 +516,7 @@ def decision(row: Any) -> Optional[Tuple[str, str]]:
     if key in DECISIONS:
         return DECISIONS[key]
     r = _BY_KEY.get(key)
-    if key in REFINE_FIRST and r is not None and not r.via and not r.refine:
+    if key in REFINE_FIRST and r is not None and _is_gap(r):
         return ("archetype", _refine_first(*REFINE_FIRST[key]) + _REFINE_NOTES.get(key, ""))
     return None
 
@@ -1135,6 +1143,15 @@ def check() -> List[str]:
                     f"generic word (#1043)"
                     for k in sorted(REFINE_FIRST) if k in _BY_KEY
                     and (_BY_KEY[k].via or _BY_KEY[k].refine))
+    problems.extend(f"taxonomy: REFINE_FIRST[{k!r}] is no row -- a multi-product row is never "
+                    f"retired: it stays, unbuilt, for the words that name all its products"
+                    for k in sorted(REFINE_FIRST) if k not in _BY_KEY)
+    problems.extend(f"taxonomy: _REFINE_NOTES[{k!r}] is no REFINE_FIRST key"
+                    for k in sorted(_REFINE_NOTES) if k not in REFINE_FIRST)
+    problems.extend(f"taxonomy: DECISIONS[{k!r}] is 'not generated' and its reason, which the user "
+                    f"reads, carries an issue number, a module path or the word 'generated'"
+                    for k, (o, why) in sorted(DECISIONS.items()) if o == "not generated"
+                    and ("#" in why or "rvt." in why or "generated" in why))
     problems.extend(f"taxonomy: REFINE_FIRST[{k!r}] lists fewer than two products"
                     for k in sorted(REFINE_FIRST) if len(REFINE_FIRST[k]) < 2)
     for row in _ROWS:

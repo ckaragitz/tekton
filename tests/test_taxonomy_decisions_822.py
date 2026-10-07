@@ -21,10 +21,14 @@ from rvt.famgen import taxonomy as T  # noqa: E402
 
 
 def _replace_rows(monkeypatch, drop=(), add=()):
-    """Patch the table the way a real edit to ``_ROWS`` would: rows and index together."""
+    """Patch the table the way a real edit to ``_ROWS`` would: rows, key index and alias index
+    together (the alias index is what ``resolve`` / ``scan`` read)."""
     rows = tuple(r for r in T._ROWS if r.key not in drop) + tuple(add)
+    alias, clashes = T._alias_index(rows, T._names)
     monkeypatch.setattr(T, "_ROWS", rows)
     monkeypatch.setattr(T, "_BY_KEY", {r.key: r for r in rows})
+    monkeypatch.setattr(T, "_ALIAS", alias)
+    monkeypatch.setattr(T, "_ALIAS_CLASHES", clashes)
 
 
 def test_every_gap_has_a_decision_and_the_table_is_clean():
@@ -88,7 +92,7 @@ def test_no_near_miss_mapping_for_the_vav_box():
 def test_rows_naming_several_products_get_a_derived_split_first_decision():
     for key, products in T.REFINE_FIRST.items():
         assert len(products) >= 2, key
-        assert "split into one row per product" in T.decision(key)[1], key
+        assert "one row per product is added beside this one" in T.decision(key)[1], key
     assert "never one packaged box" in T.decision("split_system")[1]
     # the fan coil constructor (#893) is ONE of the row's products, never all of them
     assert "horizontal concealed unit only" in T.decision("fan_coil_unit")[1]
@@ -105,22 +109,42 @@ def test_a_multi_product_row_given_a_mechanism_fails_even_with_its_decision_gone
     assert not any("DECISIONS['fan_coil_unit']" in p for p in probs)
 
 
-def test_the_prescribed_split_passes_the_check(monkeypatch):
-    # the path every REFINE_FIRST decision prescribes, done in full for the fan coil: one row per
-    # product, aliases moved, the multi-product key retired; the built product carries the
-    # existing constructor, the others their own one-shape decisions
+def test_a_multi_product_row_cannot_be_renamed_away(monkeypatch):
+    # the rename bypass: the same label and words under a new key, with a builder.  The
+    # REFINE_FIRST key must stay a row, so the check fails
+    row = T._BY_KEY["fan_coil_unit"]
+    _replace_rows(monkeypatch, drop=("fan_coil_unit",),
+                  add=(dataclasses.replace(row, key="fan_coil",
+                                           via=("house:rvt.famgen.fan_coil:make_fan_coil_unit",)),))
+    assert any("REFINE_FIRST['fan_coil_unit'] is no row" in p for p in T.check())
+
+
+def test_the_prescribed_split_passes_and_the_shared_words_stay_unbuilt(monkeypatch):
+    # the path every REFINE_FIRST decision prescribes, done for the fan coil: the multi-product
+    # row STAYS (unbuilt, its shared words "fan coil unit" / "fcu" / "fan coil"); one row per
+    # product is added beside it with only the words that name that product, the horizontal
+    # one carrying the existing constructor (#893)
     row = T._BY_KEY["fan_coil_unit"]
     mk = lambda key, label, via=(), aliases=(): T._k(key, label, row.discipline, row.category,
                                                     via, aliases=aliases)
     products = (mk("fan_coil_horizontal", "Fan coil unit (horizontal concealed)",
                    via=("house:rvt.famgen.fan_coil:make_fan_coil_unit",),
-                   aliases=("fcu", "fan coil", "horizontal fan coil")),
+                   aliases=("horizontal fan coil", "concealed fan coil")),
                 mk("fan_coil_vertical", "Fan coil unit (vertical cabinet)",
                    aliases=("vertical fan coil",)),
                 mk("fan_coil_cassette", "Fan coil unit (ceiling cassette)",
                    aliases=("cassette fan coil",)))
-    _replace_rows(monkeypatch, drop=("fan_coil_unit",), add=products)
+    _replace_rows(monkeypatch, add=products)
     monkeypatch.setitem(T.DECISIONS, "fan_coil_vertical", ("archetype", "a vertical cabinet unit"))
     monkeypatch.setitem(T.DECISIONS, "fan_coil_cassette", ("archetype", "a ceiling cassette"))
-    assert "fan_coil_unit" in T.REFINE_FIRST                # the table is permanent; the key is retired
     assert T.check() == []
+    for shared in ("fan coil unit", "fan coil", "fcu"):          # never one box for all
+        r = T.resolve(shared)
+        assert r.key == "fan_coil_unit" and not T.builder_available(r)[0], shared
+    assert T.resolve("horizontal fan coil").key == "fan_coil_horizontal"
+    assert T.resolve("cassette fan coil").key == "fan_coil_cassette"
+
+
+def test_a_not_generated_reason_is_user_safe(monkeypatch):
+    monkeypatch.setitem(T.DECISIONS, "generator", ("not generated", "see #123 in rvt.x"))
+    assert any("DECISIONS['generator'] is 'not generated'" in p for p in T.check())
