@@ -5,8 +5,9 @@ the lighting control panel once did -- as the side effect of a taxonomy row with
 Now every such row names which of the three honest outcomes closes its gap (archetype / catalog /
 not generated) and why.  One-shape rows carry an explicit ``DECISIONS`` entry; rows that name
 SEVERAL products (``REFINE_FIRST``, #1043 review) get a derived one -- one archetype per product,
-after the row is split into one row per product and its key retired -- and ``check()`` fails if
-such a row ever gains a mechanism or becomes a generic word, so "one box for all" cannot ship.
+each product added as a row BESIDE the multi-product row, which stays permanently unbuilt for the
+words that name them all -- and ``check()`` fails if such a row is removed, renamed away, given a
+mechanism or made a generic word, so "one box for all" cannot ship under its name.
 """
 from __future__ import annotations
 
@@ -19,6 +20,32 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from rvt.famgen import taxonomy as T  # noqa: E402
 
+#: the multi-product rows as recorded by #1043: a FLOOR -- an entry may be added, never dropped
+#: (dropping one from REFINE_FIRST would lift its law and let the row be built as one box)
+MULTI_PRODUCT_ROWS = frozenset({
+    "air_handling_unit", "boiler", "busway", "cable_tray_fitting", "chiller", "conduit_fitting",
+    "cooling_tower", "daylight_sensor", "drinking_fountain", "exhaust_fan", "fan_coil_unit",
+    "fire_pump", "floor_box", "floor_drain", "high_bay", "horn_strobe", "intrusion_detector",
+    "lavatory", "linear_luminaire", "meter_center", "occupancy_sensor", "pump", "security_camera",
+    "sink", "speaker", "split_system", "unit_heater", "valve", "vav_box", "water_closet",
+    "water_heater"})
+#: the 62 kinds #822 counted as recognised, categorised and built by no lane (DONE 1): each
+#: stays a row -- built later or still a gap with its decision -- never silently removed to
+#: make the count fall (DONE 4: the count falls only by building kinds)
+GAPS_AT_822 = frozenset({
+    "air_handling_unit", "automatic_transfer_switch", "backflow_preventer", "boiler", "busway",
+    "cable_tray_fitting", "card_reader", "chiller", "conduit_fitting", "cooling_tower",
+    "data_outlet", "daylight_sensor", "dimmer_switch", "disconnect_switch", "drinking_fountain",
+    "duct_smoke_detector", "emergency_light", "enclosed_circuit_breaker", "energy_recovery_unit",
+    "exhaust_fan", "exit_sign", "expansion_tank", "fan_coil_unit", "fire_alarm_control_panel",
+    "fire_damper", "fire_pump", "floor_box", "floor_drain", "generator", "heat_detector",
+    "high_bay", "horn_strobe", "intrusion_detector", "lavatory", "linear_luminaire",
+    "meter_center", "motor_control_center", "nurse_call_station", "occupancy_sensor",
+    "pole_light", "pressure_reducing_valve", "pull_station", "pump", "rooftop_unit",
+    "security_camera", "shower", "sink", "smoke_detector", "speaker", "split_system",
+    "telephone_outlet", "unit_heater", "ups", "urinal", "valve", "variable_frequency_drive",
+    "vav_box", "volume_damper", "wall_pack", "wall_sconce", "water_closet", "water_heater"})
+
 
 def _replace_rows(monkeypatch, drop=(), add=()):
     """Patch the table the way a real edit to ``_ROWS`` would: rows, key index and alias index
@@ -29,6 +56,11 @@ def _replace_rows(monkeypatch, drop=(), add=()):
     monkeypatch.setattr(T, "_BY_KEY", {r.key: r for r in rows})
     monkeypatch.setattr(T, "_ALIAS", alias)
     monkeypatch.setattr(T, "_ALIAS_CLASHES", clashes)
+    by_intent = {}
+    for r in rows:
+        for ik in r.intent:
+            by_intent.setdefault(ik, r)
+    monkeypatch.setattr(T, "_BY_INTENT", by_intent)
 
 
 def test_every_gap_has_a_decision_and_the_table_is_clean():
@@ -40,10 +72,22 @@ def test_every_gap_has_a_decision_and_the_table_is_clean():
     assert all(T.decision(r)[0] in T.DECISION_OUTCOMES and T.decision(r)[1].strip() for r in gaps)
 
 
-def test_the_gap_count_only_trends_down():
-    # #822 DONE 4: 62 leaf gaps when the decisions were recorded; the count falls only by
-    # building kinds (each such PR drops or retires its decision -- check() enforces it)
-    assert len(T.gap_rows()) <= 62
+def test_the_822_gaps_are_never_removed_to_make_the_count_fall():
+    # #822 DONE 4: the count falls only by building kinds.  A split ADDS product rows (each with
+    # its own decision -- check() requires it), so the law is not a ceiling on the count: it is
+    # that none of the 62 recorded kinds disappears; each is a row, built or still decided
+    assert len(GAPS_AT_822) == 62
+    missing = GAPS_AT_822 - set(T._BY_KEY)
+    assert not missing, missing
+    undecided = [k for k in GAPS_AT_822 if T._BY_KEY[k] in T.gap_rows() and T.decision(k) is None]
+    assert not undecided
+
+
+def test_the_multi_product_rows_are_a_floor():
+    # dropping a key from REFINE_FIRST (or moving it to DECISIONS with a one-box reason) would
+    # lift its law -- the table may grow, never shrink
+    assert set(T.REFINE_FIRST) >= MULTI_PRODUCT_ROWS
+    assert not MULTI_PRODUCT_ROWS & set(T.DECISIONS)
 
 
 def test_a_gap_without_a_decision_fails_the_check(monkeypatch):
@@ -67,7 +111,7 @@ def test_the_refusal_and_describe_name_the_decision(monkeypatch):
     ok, why = T.builder_available(T.get("smoke_detector"))
     assert not ok and "planned: built at standard nominal sizes" in why
     ok, why = T.builder_available(T.get("split_system"))
-    assert not ok and "covers several products" in why and "#" not in why.split("planned:")[1]
+    assert not ok and "this kind covers several products" in why and "#" not in why.split("planned:")[1]
     assert T.describe("smoke detector")["decision"]["outcome"] == "archetype"
     monkeypatch.setitem(T.DECISIONS, "generator", ("not generated", "a stated reason"))
     ok, why = T.builder_available(T.get("generator"))

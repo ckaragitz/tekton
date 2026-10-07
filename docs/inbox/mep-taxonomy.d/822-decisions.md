@@ -14,7 +14,7 @@ By discipline, the 62 are: electrical 12, lighting 10, fire_alarm 6, technology 
 
 ## What changed
 
-- **`taxonomy.DECISIONS`** maps every gap row to `(outcome, reason)`, with outcome one of `archetype` / `catalog` / `not generated` (`DECISION_OUTCOMES`), the three honest outcomes #822 names. Supporting helpers are `gap_rows()` and `decision(row)`. `describe()` / `make_family.py taxonomy --json` carry the decision as a structured `decision` field.
+- **`taxonomy.DECISIONS`** maps every gap row to `(outcome, reason)`, with outcome one of `archetype` / `catalog` / `not generated` (`DECISION_OUTCOMES`), the three honest outcomes #822 names. Supporting helpers are `gap_rows()` and `decision(row)`. `describe()` / `make_family.py taxonomy --json` carry the decision as a structured `decision` field. Its `reason` is the internal rationale, which may cite issues; the user-facing words are the refusal line below.
 - **All 62 are `archetype`, and why.** Steer #591 (S-2026-08-10-e) says a product named with no dimensions is generated at its class's standard nominal sizes, never refused and never wearing a manufacturer's numbers. A held manufacturer record later adds catalog members beside each, as the troffer / downlight / receptacle lanes have. Not every row is one shape, though. **31 rows name several distinct products** under one kind, for example:
 - a split system (outdoor unit + indoor unit);
 - fan coils (horizontal concealed / vertical cabinet / ceiling cassette);
@@ -40,11 +40,17 @@ That #893 constructor builds the *horizontal concealed* unit only, so it answers
 
 Pre-existing **aliases that name a different product** (e.g. "water source heat pump" → split system, "packaged terminal unit" → VAV box) are a resolution bug of their own, filed as #1044. `catalog` as the *only* lane would have left lighting and device prompts refusing until a record exists, which is what #1043's first review caught.
 - **Busway.** Revit has no busway system family: busway is modelled with loadable families. The row's old note ("a busway RUN is drawn, not loaded") was wrong and is corrected. Busway is an archetype like the rest, not "not generated".
-- **`taxonomy.check()`** now fails on four things, so a new taxonomy row cannot add a silent refusal, and a decision cannot outlive the gap it explains:
-  - a gap row without a decision;
-  - a decision whose row is no longer a gap;
+- **`taxonomy.check()`** now fails on each of these, so a new taxonomy row cannot add a silent refusal and a decision cannot outlive the gap it explains:
+  - a gap row with no decision (explicit, or derived for a `REFINE_FIRST` row);
+  - a `DECISIONS` entry whose row is no longer a gap;
   - an unknown outcome;
-  - an empty reason.
+  - an empty reason;
+  - a key in both `DECISIONS` and `REFINE_FIRST`;
+  - a `REFINE_FIRST` row with a build mechanism or a generic (`refine`) word;
+  - a `REFINE_FIRST` key that is no row;
+  - a `REFINE_FIRST` entry with fewer than two products;
+  - a `_REFINE_NOTES` key that is no `REFINE_FIRST` key;
+  - a "not generated" reason (read by the user) carrying an issue number, a module path or the word "generated".
 - **The refusal line names the decision.** `builder_available()`, which the prompt route quotes, now ends with one of:
   - "planned: built at standard nominal sizes for its class";
   - "planned: this name covers several products (…), each to be built on its own at standard nominal sizes";
@@ -137,9 +143,13 @@ Generated from `taxonomy.decision()` over `DECISIONS` (one-shape rows) and `REFI
 
 ## Evidence
 
-- **`tests/test_taxonomy_decisions_822.py`: 12 passed.** Both `REFINE_FIRST` rules are mutation-checked: disabling either makes its bypass test fail. It covers:
+- **`tests/test_taxonomy_decisions_822.py`: 13 passed.** These are mutation-checked:
+  - disabling either `REFINE_FIRST` rule makes its bypass test fail;
+  - dropping a key from `REFINE_FIRST` makes the floor test fail;
+  - moving a key into `DECISIONS` with a one-box reason makes the floor test fail (#1043's sixth review). It covers:
   - every gap is decided and `check()` is clean;
-  - the gap count is ≤ 62 (#822 DONE 4: the count trends down only by building kinds, never up);
+  - **none of the 62 recorded kinds is ever removed**; each stays a row, built or still decided. This is #822 DONE 4: the count falls only by building kinds. It is not a numeric ceiling, because a split adds product rows, each with its own decision;
+  - `REFINE_FIRST`'s 31 keys are a floor: entries may be added, never dropped;
   - a missing, stale, bad-outcome or empty-reason decision each fails the check;
   - the refusal and `describe()` name the decision;
   - busway is a loadable (archetype) kind;
@@ -148,7 +158,7 @@ Generated from `taxonomy.decision()` over `DECISIONS` (one-shape rows) and `REFI
   - a "not generated" reason the user would read cannot carry an issue number, a module path or the word "generated";
   - a "not generated" refusal promises no later lane;
   - the VAV-box near miss is ruled out by routing, not by wording.
-- **842 passed, 44 skipped** for every module that mentions the taxonomy (`grep -l taxonomy tests/test_*.py`: 14 files), plus `test_plugin_sync`, `test_conftest_scaffolding`, `test_router` and `test_doc_caveats_990`. Rerun with `pytest $(grep -l taxonomy tests/test_*.py) tests/test_plugin_sync.py tests/test_conftest_scaffolding.py tests/test_router.py tests/test_doc_caveats_990.py`.
+- **843 passed, 44 skipped** for every module that mentions the taxonomy (`grep -l taxonomy tests/test_*.py`: 14 files), plus `test_plugin_sync`, `test_conftest_scaffolding`, `test_router` and `test_doc_caveats_990`. Rerun with `pytest $(grep -l taxonomy tests/test_*.py) tests/test_plugin_sync.py tests/test_conftest_scaffolding.py tests/test_router.py tests/test_doc_caveats_990.py`.
 - `tools/sync_plugin.py --check`: clean.
 
 ## BRANCH STATE

@@ -893,7 +893,7 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
         elif dec[0] == "not generated":
             planned = f"; by decision it is not built here: {dec[1]}"
         elif row.key in REFINE_FIRST:
-            planned = (f"; planned: this name covers several products "
+            planned = (f"; planned: this kind covers several products "
                        f"({', '.join(REFINE_FIRST[row.key])}), each to be built on its own "
                        f"at standard nominal sizes")
         elif dec[0] == "archetype":
