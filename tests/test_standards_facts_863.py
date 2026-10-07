@@ -233,3 +233,11 @@ def test_filled_from_facts_is_matched_by_meaning_not_spelling(monkeypatch):
     rep = ST.apply_safe(doc, "electrical_equipment", True, None, facts=a)
     assert [p["name"] for p in rep["filled_from_facts"]] == ["Rated Frequency"]
     assert "Frequency" in rep["filled"]
+
+
+def test_apply_itself_reads_a_bare_string_skip_as_one_name():
+    from rvt.famgen import skeleton as SK
+    doc = SK.new_family_document("electrical_equipment", "Zz SkipApply", work_plane_based=False)
+    doc.add_type("T", {})
+    rep = ST.apply(doc, "electrical_equipment", skip="Voltage Rating")   # not a row: skips nothing
+    assert not rep["skipped"] or all(s["why"] != "caller asked to skip it" for s in rep["skipped"])

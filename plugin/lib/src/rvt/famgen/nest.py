@@ -876,7 +876,7 @@ def _nest(host_rfa: str, out_rfa: str, child: ProductArg,
         L._require_ids_above(product, host.watermark)
     except L.LoaderError as exc:
         raise NestError(str(exc)) from exc
-    if product.doc.connectors:
+    if product.doc.connectors or getattr(product.doc, "mep_connectors", None):   # every domain (#921)
         raise NestError("nesting a family with connectors is not supported in this pass")
     cat = L.product_category(product)
     host = L.bind_category(host, cat)

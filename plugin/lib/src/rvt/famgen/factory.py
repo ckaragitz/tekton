@@ -2345,7 +2345,7 @@ def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
         power_factor=float(power_factor), description=str(description),
         primary=primary,
         edge_loop_tags=list(fx["edges"]), param_bindings=bindings,
-        index=len(doc.connectors) + 1)
+        index=len(doc.connectors) + len(getattr(doc, "mep_connectors", [])) + 1)
     con.notes.append(f"hosted on the enclosure's {face} face (tag {fx['tag']}, "
                      f"edge tags {fx['edges']})")
     doc.connectors.append(con)
@@ -2439,7 +2439,8 @@ class FamilyProduct:
                                                    "tessellation", "role", "center",
                                                    "source")}}
                       for f in self.forms],
-            "connectors": len(self.doc.connectors),
+            # every domain (#921): power in doc.connectors, conduit in doc.mep_connectors
+            "connectors": len(self.doc.connectors) + len(getattr(self.doc, "mep_connectors", [])),
             "assumed_fields": self.assumed(),
             "unverified_fields": self.unverified(),
             "type_facts": [t.as_json() for t in self.types],

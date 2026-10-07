@@ -942,6 +942,8 @@ def apply(doc: "SK.FamilyDoc", category: Any, *,
     if doc.finalized:
         raise ValueError("document is finalized; apply standards before finalize")
     present = {meaning_key(n): n for n in doc.params}    # meaning -> the spelling carrying it
+    if isinstance(skip, str):                            # one name, never a substring test
+        skip = (skip,)
     for p in rows:
         if not p.authored:
             continue

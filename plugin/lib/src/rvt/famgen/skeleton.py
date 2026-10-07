@@ -2106,7 +2106,8 @@ class FamilyDoc:
             voltage_v=voltage, poles=poles, load_class_id=lc.elem_id,
             apparent_load_va=apparent_load_va, power_factor=power_factor,
             description=description, param_bindings=bindings,
-            primary=primary, index=len(self.connectors) + 1)
+            primary=primary,
+            index=len(self.connectors) + len(getattr(self, "mep_connectors", [])) + 1)
         self.connectors.append(con)
         self.add(con)
         return con

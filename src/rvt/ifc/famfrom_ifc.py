@@ -301,7 +301,7 @@ class DownlightProduct:
                           if k in ("width_ft", "depth_ft", "height_ft", "radius_ft",
                                    "base_z_ft", "rep", "center")}}
                       for fb in self.forms],
-            "connectors": len(self.doc.connectors),
+            "connectors": len(self.doc.connectors) + len(getattr(self.doc, "mep_connectors", [])),
             "assumed_fields": self.facts.assumed(),
             "unverified_fields": self.facts.unverified(),
             "notes": list(self.notes),
