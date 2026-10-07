@@ -113,9 +113,13 @@ uses the traced [−len, 0] form exactly like the specimens.
 ## 3 · The six-face solid — topology template [V]
 
 `solid_box_brep(profile CCW V0..V3, start, end)` with `start > end`
-(**every box specimen extrudes DOWN**: the START cap is the top; rme
-786837 start 0 / end −1, 786867 start 0.4793 / end ≈ 0; the .rfa's
-non-box forms extrude up — different frame convention, not needed here).
+(the two box specimens this was first proven on extrude DOWN: the START cap
+is the top; rme 786837 start 0 / end −1, 786867 start 0.4793 / end ≈ 0).
+**#1030:** born boxes extrude up more often than down (118 of the 158 horizontal clean-history boxes
+read, End above Start). The solid is still traced from the higher cap, but
+its cap TAGS follow the element's own Start / End: tag 0 = the End cap. So
+`end_on_top=True` swaps the two cap tags and nothing else. `new_extrusion`
+passes it, because its Start / End are ordered by elevation.
 
 ### 3.1 Object graph and archive numbering (identical in both specimens)
 
@@ -286,8 +290,9 @@ GElement (pid 2)   root flags 0, GInfo 557060, bbox = TESSELLATION-NODE extents
 ```
 
 Serialization order rule generalising box + cylinder: **the TOP cap
-(higher z) is always face 0** — box (extrude-down): top = START cap
-(tag 1); cylinder (extrude-up): top = END cap (tag 0).
+(higher z) is always face 0** — box traced down with the parameters
+extrude-down: top = START cap (tag 1); a form whose End is on top (every
+`new_extrusion` form since #1030, and the cylinder): top = END cap (tag 0).
 
 Frames [V]:
 

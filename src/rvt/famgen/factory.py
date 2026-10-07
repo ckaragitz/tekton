@@ -2246,8 +2246,12 @@ def make_archetype(*, product: str,
 
 def box_face(face: str) -> Dict[str, Any]:
     """The geometry-history TAG + edge-loop tags of a named face of the box
-    template (rvt.famgen.geometry): 'top' = the start cap (z = base+height),
-    'bottom' = the end cap (z = base), '+y' / '-x' / '-y' / '+x' = the four
+    template (rvt.famgen.geometry): 'top' = the cap at z = base+height, the
+    form's END (tag 0, its rails the [1,i,0] rails the solid is traced from),
+    'bottom' = the cap at z = base, its START (tag 1) -- every form's own
+    Start / End are ordered by elevation, and a born extrusion's cap tags
+    follow them (tag 0 = the End cap; #1030, 117 / 118 born boxes); the
+    cylinder's caps are tagged the same way.  '+y' / '-x' / '-y' / '+x' = the four
     side faces (profile V0(+x,+y) -> V1(-x,+y) -> V2(-x,-y) -> V3(+x,-y):
     side_0 = the +y face, side_1 = -x, side_2 = -y, side_3 = +x).
 
@@ -2262,11 +2266,11 @@ def box_face(face: str) -> Dict[str, Any]:
     def lat_at_vertex(j: int) -> int:
         return t["lateral"][n - 1] if j == 0 else t["lateral"][j - 1]
 
-    if face in ("top", "start"):
-        return {"tag": t["start_face"], "edges": sorted(t["rail_start"]),
+    if face == "top":
+        return {"tag": t["end_face"], "edges": sorted(t["rail_start"]),
                 "normal": (0.0, 0.0, 1.0)}
-    if face in ("bottom", "end"):
-        return {"tag": t["end_face"], "edges": sorted(t["rail_end"]),
+    if face == "bottom":
+        return {"tag": t["start_face"], "edges": sorted(t["rail_end"]),
                 "normal": (0.0, 0.0, -1.0)}
     sides = {"+y": 0, "-x": 1, "-y": 2, "+x": 3}
     if face not in sides:
