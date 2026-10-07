@@ -172,8 +172,8 @@ _ROWS: Tuple[Kind, ...] = (
             "relays and the low-voltage section are not modelled"),
     _k("busway", "Busway / bus duct", "electrical", "electrical_equipment",
        aliases=("bus duct",),
-       note="a busway RUN is drawn, not loaded; plug-in units and end fittings are the "
-            "loadable parts and are not built yet"),
+       note="Revit has no busway system family: busway is modelled with loadable families "
+            "(straight sections, elbows, plug-in units, end fittings), none built yet"),
     _k("cable_tray", "Cable tray (ladder) section", "electrical", "cable_tray_fitting",
        ["archetype:cable_tray"],
        aliases=("ladder tray", "cable ladder", "ladder cable tray", "tray section"),
@@ -370,10 +370,14 @@ _BY_KEY: Dict[str, Kind] = {k.key: k for k in _ROWS}
 #: mapping onto another product.  :func:`check` fails on a gap row without a decision and on a
 #: decision whose row is no longer a gap (the row gained a mechanism: drop its decision).
 DECISION_OUTCOMES = ("archetype", "catalog", "not generated")
-_LUMINAIRE_CATALOG = ("luminaires are built from a manufacturer record, as the troffer and the "
-                      "downlight are; this type needs a held record")
-_DEVICE_CATALOG = ("a wall/ceiling device built by the device lane from a held catalog record, "
-                   "as the receptacle is")
+#: steer #591 (S-2026-08-10-e): a product named with no dimensions is generated at its class's
+#: standard NOMINAL sizes, never refused and never wearing a manufacturer's numbers -- so a kind
+#: with a standard shape is an archetype now, and a held manufacturer record later adds catalog
+#: members beside it (the troffer / downlight / receptacle lanes are catalog-backed)
+_LUMINAIRE_NOMINAL = ("a luminaire with a standard shape for its type, at nominal sizes; catalog "
+                      "members join when a manufacturer record is held")
+_DEVICE_NOMINAL = ("a wall / ceiling device with a standard shape, at nominal sizes; catalog "
+                   "members join when a manufacturer record is held")
 _EQUIPMENT_ARCHETYPE = "an enclosure product class with a standard shape, as the lighting control panel"
 _MECH_ARCHETYPE = "packaged equipment with a standard shape for its class, at nominal sizes"
 _FIXTURE_ARCHETYPE = "a fixture with a standard shape for its class, at nominal sizes"
@@ -390,46 +394,46 @@ DECISIONS: Dict[str, Tuple[str, str]] = {
                   "nominal sizes"),
     "meter_center": ("archetype", _EQUIPMENT_ARCHETYPE),
     "enclosed_circuit_breaker": ("archetype", _EQUIPMENT_ARCHETYPE),
-    "busway": ("not generated", "a busway RUN is drawn, not loaded as a family; its plug-in units "
-               "and end fittings may become families later"),
+    "busway": ("archetype", "straight sections and fittings at nominal ampacity sizes -- Revit "
+               "models busway with loadable families, not a system family"),
     "cable_tray_fitting": ("archetype", "elbows / tees / reducers derived from the cable tray "
                            "archetype's own sizes"),
     "conduit_fitting": ("archetype", "fittings derived from the conduit archetype's trade sizes"),
     "floor_box": ("archetype", "a recessed box at standard gang sizes"),
     # lighting
-    "high_bay": ("catalog", _LUMINAIRE_CATALOG),
-    "linear_luminaire": ("catalog", _LUMINAIRE_CATALOG),
-    "wall_pack": ("catalog", _LUMINAIRE_CATALOG),
-    "wall_sconce": ("catalog", _LUMINAIRE_CATALOG),
-    "exit_sign": ("catalog", _LUMINAIRE_CATALOG),
-    "emergency_light": ("catalog", _LUMINAIRE_CATALOG),
-    "pole_light": ("catalog", _LUMINAIRE_CATALOG),
-    "occupancy_sensor": ("catalog", _DEVICE_CATALOG),
-    "dimmer_switch": ("catalog", _DEVICE_CATALOG),
-    "daylight_sensor": ("catalog", _DEVICE_CATALOG),
+    "high_bay": ("archetype", _LUMINAIRE_NOMINAL),
+    "linear_luminaire": ("archetype", _LUMINAIRE_NOMINAL),
+    "wall_pack": ("archetype", _LUMINAIRE_NOMINAL),
+    "wall_sconce": ("archetype", _LUMINAIRE_NOMINAL),
+    "exit_sign": ("archetype", _LUMINAIRE_NOMINAL),
+    "emergency_light": ("archetype", _LUMINAIRE_NOMINAL),
+    "pole_light": ("archetype", _LUMINAIRE_NOMINAL),
+    "occupancy_sensor": ("archetype", _DEVICE_NOMINAL),
+    "dimmer_switch": ("archetype", _DEVICE_NOMINAL),
+    "daylight_sensor": ("archetype", _DEVICE_NOMINAL),
     # fire alarm
-    "smoke_detector": ("catalog", _DEVICE_CATALOG),
-    "heat_detector": ("catalog", _DEVICE_CATALOG),
-    "pull_station": ("catalog", _DEVICE_CATALOG),
-    "horn_strobe": ("catalog", _DEVICE_CATALOG),
-    "duct_smoke_detector": ("catalog", _DEVICE_CATALOG),
+    "smoke_detector": ("archetype", _DEVICE_NOMINAL),
+    "heat_detector": ("archetype", _DEVICE_NOMINAL),
+    "pull_station": ("archetype", _DEVICE_NOMINAL),
+    "horn_strobe": ("archetype", _DEVICE_NOMINAL),
+    "duct_smoke_detector": ("archetype", "a duct-mounted housing with its sampling tubes, at "
+                            "nominal sizes"),
     "fire_alarm_control_panel": ("archetype", _EQUIPMENT_ARCHETYPE),
     # technology
-    "data_outlet": ("catalog", _DEVICE_CATALOG),
-    "telephone_outlet": ("catalog", _DEVICE_CATALOG),
-    "speaker": ("catalog", _DEVICE_CATALOG),
-    "card_reader": ("catalog", _DEVICE_CATALOG),
-    "security_camera": ("catalog", _DEVICE_CATALOG),
-    "intrusion_detector": ("catalog", _DEVICE_CATALOG),
-    "nurse_call_station": ("catalog", _DEVICE_CATALOG),
+    "data_outlet": ("archetype", _DEVICE_NOMINAL),
+    "telephone_outlet": ("archetype", _DEVICE_NOMINAL),
+    "speaker": ("archetype", _DEVICE_NOMINAL),
+    "card_reader": ("archetype", _DEVICE_NOMINAL),
+    "security_camera": ("archetype", _DEVICE_NOMINAL),
+    "intrusion_detector": ("archetype", _DEVICE_NOMINAL),
+    "nurse_call_station": ("archetype", _DEVICE_NOMINAL),
     # mechanical
     "air_handling_unit": ("archetype", _MECH_ARCHETYPE),
     "rooftop_unit": ("archetype", _MECH_ARCHETYPE),
-    "fan_coil_unit": ("archetype", "a house model exists (rvt.famgen.fan_coil:make_fan_coil_unit, "
-                      "#893) but is not wired to this row or the prompt route yet"),
-    "vav_box": ("archetype", "the fan-powered terminal exists (rvt.famgen.fan_powered, #895) and "
-                "answers this row's 'fan powered box' alias once wired; a bare VAV box (single "
-                "duct, no fan) must never be built as one"),
+    "fan_coil_unit": ("archetype", "a fan coil constructor exists (#893); this kind and the "
+                      "prompt route do not reach it yet"),
+    "vav_box": ("archetype", "the fan-powered terminal (#895) will answer this kind's 'fan powered "
+                "box' wording; a bare VAV box (single duct, no fan) is never built as one"),
     "exhaust_fan": ("archetype", _MECH_ARCHETYPE),
     "pump": ("archetype", _MECH_ARCHETYPE),
     "boiler": ("archetype", _MECH_ARCHETYPE),
@@ -459,8 +463,10 @@ DECISIONS: Dict[str, Tuple[str, str]] = {
 
 
 def gap_rows() -> Tuple[Kind, ...]:
-    """Rows a prompt recognises and no lane builds (#822): a usable category key, no build
-    mechanism and not a generic word.  Each must carry a :data:`DECISIONS` entry."""
+    """Rows a prompt recognises and no lane builds (#822): a category key (not pending), no
+    build mechanism and not a generic word.  Each must carry a :data:`DECISIONS` entry -- a row
+    whose category is in CONFLICT (#516) included: its conflict line reaches the user first,
+    and the decision still says what closes the gap once the category resolves."""
     return tuple(r for r in _ROWS if r.category and not r.pending and not r.via and not r.refine)
 
 
@@ -839,8 +845,8 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
     if not row.via:
         dec = DECISIONS.get(row.key)
         planned = ("" if dec is None else
-                   f" -- not generated here, by decision: {dec[1]}" if dec[0] == "not generated"
-                   else f" -- planned lane ({dec[0]}, #822): {dec[1]}")
+                   f"; by decision it is not generated here: {dec[1]}" if dec[0] == "not generated"
+                   else f"; next for this kind (#822): the {dec[0]} lane -- {dec[1]}")
         return False, (f"{row.label} is placed under {row.revit_category}, but no lane builds "
                        f"it yet: no catalog record is held and no archetype generates it{planned}")
     whys = []
@@ -872,6 +878,9 @@ def describe(text: Any) -> Dict[str, Any]:
     ok, why = builder_available(row)
     n_std = len(_S.standard_params(row.category)) if row.category else 0
     d = asdict(row)
+    dec = DECISIONS.get(row.key)                      # #822: structured, not only prose
+    if dec is not None:
+        d["decision"] = {"outcome": dec[0], "reason": dec[1]}
     d.update({"known": True, "lane": row.lane, "revit_category": row.revit_category,
               "category_status": status, "category_detail": detail, "available": ok,
               "availability": why, "standards_count": n_std})

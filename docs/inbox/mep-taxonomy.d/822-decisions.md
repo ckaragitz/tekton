@@ -8,24 +8,27 @@ Stream **mep-taxonomy** (tech-lead session, 2026-10-07). Refs #822. This covers 
 - **79** with a category;
 - **63** with no build lane: **1** umbrella (`luminaire`, a generic word with `refine`) and **62** leaf kinds with no builder.
 
-By discipline, the 62 are: electrical 12, lighting 10, fire_alarm 6, technology 7, mechanical 15, plumbing 11, fire_protection 1. These match the numbers on #822.
+By discipline, the 62 are: electrical 12, lighting 10, fire_alarm 6, technology 7, mechanical 15, plumbing 11, fire_protection 1. They match #822's numbers. #822 counted 83 rows / 78 with a category because the `strut_trapeze` row, which has a lane, was added after it was filed. #822's "lighting 11" includes the `luminaire` umbrella.
 
 **Also measured: a real gap in a kind we can already build.** "create a fan coil unit family" through `tools/route.py run --prompt … --output rfa` delivers nothing. Yet `rvt.famgen.fan_coil:make_fan_coil_unit` (#893) builds and validates that family. The constructor exists; the taxonomy row and the prompt route do not reach it. It is the first kind DONE 3 wires.
 
 ## What changed
 
-- **`taxonomy.DECISIONS`** maps every gap row to `(outcome, reason)`, with outcome one of `archetype` / `catalog` / `not generated` (`DECISION_OUTCOMES`), the three honest outcomes #822 names. Supporting helpers are `gap_rows()` and `decision(row)`.
+- **`taxonomy.DECISIONS`** maps every gap row to `(outcome, reason)`, with outcome one of `archetype` / `catalog` / `not generated` (`DECISION_OUTCOMES`), the three honest outcomes #822 names. Supporting helpers are `gap_rows()` and `decision(row)`. `describe()` / `make_family.py taxonomy --json` carry the decision as a structured `decision` field.
+- **All 62 are `archetype`, and why.** Steer #591 (S-2026-08-10-e) says a product named with no dimensions is generated at its class's standard nominal sizes, never refused and never wearing a manufacturer's numbers. Every gap kind has a standard shape for its class, so the archetype lane closes each one. A held manufacturer record later adds catalog members beside it, as the troffer / downlight / receptacle lanes have. `catalog` as the *only* lane would have left lighting and device prompts refusing until a record exists, which is what #1043's first review caught.
+- **Busway.** Revit has no busway system family: busway is modelled with loadable families. The row's old note ("a busway RUN is drawn, not loaded") was wrong and is corrected. Busway is an archetype like the rest, not "not generated".
 - **`taxonomy.check()`** now fails on four things, so a new taxonomy row cannot add a silent refusal, and a decision cannot outlive the gap it explains:
   - a gap row without a decision;
   - a decision whose row is no longer a gap;
   - an unknown outcome;
   - an empty reason.
 - **The refusal line names the decision.** `builder_available()`, which the prompt route quotes, now ends with one of:
-  - "planned lane (archetype, #822): …";
-  - "not generated here, by decision: …".
+  - "next for this kind (#822): the archetype lane -- …";
+  - "by decision it is not generated here: …".
 
   Previously it only said no lane builds the kind.
-- **No near-miss mapping.** The `vav_box` row (aliases include "fan powered box") is not pointed at the fan-powered terminal (#895). Its decision says a bare VAV box must never be built as one.
+- **No near-miss mapping.** The `vav_box` row (aliases include "fan powered box") is not pointed at the fan-powered terminal (#895). Its decision says a bare VAV box is never built as one.
+- **Conflict rows.** A gap row whose category is in conflict (#516) still needs a decision. Its conflict line reaches the user first. No gap row is in conflict today.
 
 ## The decision table (DONE 1)
 
@@ -33,10 +36,10 @@ Generated from `taxonomy.DECISIONS`.
 
 | discipline | archetype | catalog | not generated |
 |---|---|---|---|
-| electrical | 11 | 0 | 1 |
-| lighting | 0 | 10 | 0 |
-| fire_alarm | 1 | 5 | 0 |
-| technology | 0 | 7 | 0 |
+| electrical | 12 | 0 | 0 |
+| lighting | 10 | 0 | 0 |
+| fire_alarm | 6 | 0 | 0 |
+| technology | 7 | 0 | 0 |
 | mechanical | 15 | 0 | 0 |
 | plumbing | 11 | 0 | 0 |
 | fire_protection | 1 | 0 | 0 |
@@ -51,37 +54,37 @@ Generated from `taxonomy.DECISIONS`.
 | `generator` | electrical | archetype | a packaged generator set: skid, engine-generator and enclosure at nominal sizes |
 | `meter_center` | electrical | archetype | an enclosure product class with a standard shape, as the lighting control panel |
 | `enclosed_circuit_breaker` | electrical | archetype | an enclosure product class with a standard shape, as the lighting control panel |
-| `busway` | electrical | not generated | a busway RUN is drawn, not loaded as a family; its plug-in units and end fittings may become families later |
+| `busway` | electrical | archetype | straight sections and fittings at nominal ampacity sizes -- Revit models busway with loadable families, not a system family |
 | `cable_tray_fitting` | electrical | archetype | elbows / tees / reducers derived from the cable tray archetype's own sizes |
 | `conduit_fitting` | electrical | archetype | fittings derived from the conduit archetype's trade sizes |
 | `floor_box` | electrical | archetype | a recessed box at standard gang sizes |
-| `high_bay` | lighting | catalog | luminaires are built from a manufacturer record, as the troffer and the downlight are; this type needs a held record |
-| `linear_luminaire` | lighting | catalog | luminaires are built from a manufacturer record, as the troffer and the downlight are; this type needs a held record |
-| `wall_pack` | lighting | catalog | luminaires are built from a manufacturer record, as the troffer and the downlight are; this type needs a held record |
-| `wall_sconce` | lighting | catalog | luminaires are built from a manufacturer record, as the troffer and the downlight are; this type needs a held record |
-| `exit_sign` | lighting | catalog | luminaires are built from a manufacturer record, as the troffer and the downlight are; this type needs a held record |
-| `emergency_light` | lighting | catalog | luminaires are built from a manufacturer record, as the troffer and the downlight are; this type needs a held record |
-| `pole_light` | lighting | catalog | luminaires are built from a manufacturer record, as the troffer and the downlight are; this type needs a held record |
-| `occupancy_sensor` | lighting | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `dimmer_switch` | lighting | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `daylight_sensor` | lighting | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `smoke_detector` | fire_alarm | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `heat_detector` | fire_alarm | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `pull_station` | fire_alarm | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `horn_strobe` | fire_alarm | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `duct_smoke_detector` | fire_alarm | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
+| `high_bay` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
+| `linear_luminaire` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
+| `wall_pack` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
+| `wall_sconce` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
+| `exit_sign` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
+| `emergency_light` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
+| `pole_light` | lighting | archetype | a luminaire with a standard shape for its type, at nominal sizes; catalog members join when a manufacturer record is held |
+| `occupancy_sensor` | lighting | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `dimmer_switch` | lighting | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `daylight_sensor` | lighting | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `smoke_detector` | fire_alarm | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `heat_detector` | fire_alarm | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `pull_station` | fire_alarm | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `horn_strobe` | fire_alarm | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `duct_smoke_detector` | fire_alarm | archetype | a duct-mounted housing with its sampling tubes, at nominal sizes |
 | `fire_alarm_control_panel` | fire_alarm | archetype | an enclosure product class with a standard shape, as the lighting control panel |
-| `data_outlet` | technology | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `telephone_outlet` | technology | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `speaker` | technology | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `card_reader` | technology | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `security_camera` | technology | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `intrusion_detector` | technology | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
-| `nurse_call_station` | technology | catalog | a wall/ceiling device built by the device lane from a held catalog record, as the receptacle is |
+| `data_outlet` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `telephone_outlet` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `speaker` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `card_reader` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `security_camera` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `intrusion_detector` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
+| `nurse_call_station` | technology | archetype | a wall / ceiling device with a standard shape, at nominal sizes; catalog members join when a manufacturer record is held |
 | `air_handling_unit` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
 | `rooftop_unit` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
-| `fan_coil_unit` | mechanical | archetype | a house model exists (rvt.famgen.fan_coil:make_fan_coil_unit, #893) but is not wired to this row or the prompt route yet |
-| `vav_box` | mechanical | archetype | the fan-powered terminal exists (rvt.famgen.fan_powered, #895) and answers this row's 'fan powered box' alias once wired; a bare VAV box (single duct, no fan) must never be built as one |
+| `fan_coil_unit` | mechanical | archetype | a fan coil constructor exists (#893); this kind and the prompt route do not reach it yet |
+| `vav_box` | mechanical | archetype | the fan-powered terminal (#895) will answer this kind's 'fan powered box' wording; a bare VAV box (single duct, no fan) is never built as one |
 | `exhaust_fan` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
 | `pump` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
 | `boiler` | mechanical | archetype | packaged equipment with a standard shape for its class, at nominal sizes |
@@ -108,13 +111,14 @@ Generated from `taxonomy.DECISIONS`.
 
 ## Evidence
 
-- **`tests/test_taxonomy_decisions_822.py`: 6 passed.** It covers:
+- **`tests/test_taxonomy_decisions_822.py`: 7 passed.** It covers:
   - every gap is decided and `check()` is clean;
-  - the gap count is ≤ 62;
+  - the gap count is ≤ 62 (a deliberate ceiling: a later PR that adds a gap row *with* its decision must raise it, and say why in its record; it may never be raised to hide a refusal);
   - a missing, stale, bad-outcome or empty-reason decision each fails the check;
-  - the refusal names the decision;
+  - the refusal and `describe()` name the decision;
+  - busway is a loadable (archetype) kind;
   - the VAV-box near miss is ruled out.
-- **The 14 test modules that touch the taxonomy, plus `test_plugin_sync`, scaffolding and `test_router`: 801 passed, 44 skipped.**
+- **The 14 test modules that touch the taxonomy, plus `test_plugin_sync`, scaffolding, `test_router` and `test_doc_caveats_990`: 837 passed, 44 skipped.**
 - `tools/sync_plugin.py --check`: clean.
 
 ## BRANCH STATE

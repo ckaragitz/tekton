@@ -45,11 +45,19 @@ def test_a_stale_or_malformed_decision_fails_the_check(monkeypatch):
     assert any("DECISIONS['boiler']" in p and "no reason" in p for p in probs)
 
 
-def test_the_refusal_names_the_decision():
+def test_the_refusal_and_describe_name_the_decision(monkeypatch):
     ok, why = T.builder_available(T.get("smoke_detector"))
-    assert not ok and "planned lane (catalog, #822)" in why
+    assert not ok and "next for this kind (#822): the archetype lane" in why
+    assert T.describe("smoke detector")["decision"]["outcome"] == "archetype"
+    monkeypatch.setitem(T.DECISIONS, "busway", ("not generated", "a stated reason"))
     ok, why = T.builder_available(T.get("busway"))
-    assert not ok and "not generated here, by decision" in why
+    assert not ok and "by decision it is not generated here: a stated reason" in why
+
+
+def test_busway_is_a_loadable_family_kind():
+    # Revit has no busway system family: busway is loadable, so it is generated, not refused
+    assert T.decision("busway")[0] == "archetype"
+    assert "drawn, not loaded" not in T.get("busway").note
 
 
 def test_no_near_miss_mapping_for_the_vav_box():
