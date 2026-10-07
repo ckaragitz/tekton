@@ -599,15 +599,19 @@ def solid_box_brep(profile: RectProfile | Sequence[Vec], start: float, end: floa
     OWN parameters name the top cap its END (Start = the lower offset, End =
     the higher -- every form :func:`new_extrusion` writes); the solid is still
     traced down from the top (the rails [1,i,0] and every side frame on the
-    top cap, side xVec down -- born, 583 / 583 end > start extrusions), but
-    the cap TAGS follow the parameters, as in every born extrusion: tag 0 =
-    the cap at the End offset, tag 1 = the cap at the Start offset (1,040
-    born extrusions, counts only).  Without it (the extrude-down specimens,
-    walls) the top cap is the START and keeps tag 1.  ``element_id`` becomes the root tag /
+    cap at the higher offset, side xVec down -- born, 369 / 369 classified
+    extrusions), but the cap TAGS follow the parameters, as born extrusions'
+    do: tag 0 = the cap at the End offset, tag 1 = the cap at the Start offset
+    (673 of the 689 classified born extrusions, 16 the other way, not yet
+    explained; counts only, docs/inbox/family-geometry.d/1030-cap-tags.md).
+    Without it (the extrude-down specimens, walls) the top cap is the START
+    and keeps tag 1.  The ExtrusionGStep face history is the same either way
+    (tag 1 = the Start cap); only the solid was compared with born specimens.  ``element_id`` becomes the root tag /
     ``m_elementId``; ``geometry_style_id`` = the ``Geometry`` graphics
     category (the family sub-category ``GStyleElem`` id).
 
-    Structure (identical archive numbering in both specimens) [V]::
+    Structure (identical archive numbering in both specimens; with
+    ``end_on_top`` the two cap tags swap, nothing else moves) [V]::
 
         GElement (pid 2) -> Geometry (3)
           m_pFaces = [start cap (4, tag 1), end cap (5, tag 0),
@@ -1446,7 +1450,7 @@ def new_extrusion(elem_id: int, ctx: FamilyDocContext, *, sketch_id: int,
     assign_pids(obj)
     if rep == REP_SOLID:
         # the element's own Start / End are ordered by elevation (above), so its
-        # END is the top cap: tag 0 there, as in every born extrusion (#1030)
+        # END is the top cap: tag 0 there, as in born extrusions (#1030)
         solid = solid_box_brep(prof, start, end, element_id=elem_id,
                                geometry_style_id=ctx.geometry_style_id,
                                control_command=ctx.solid_control_command,

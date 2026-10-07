@@ -75,14 +75,19 @@ def _builds():
 
 
 def test_every_height_lock_witnesses_the_cap_on_its_plane():
-    rows, built = [], 0
+    rows, built = [], set()
     for name, build in _builds():
         try:
             doc = build().doc
-        except Exception:                             # a kind that does not build is not this law's
+        except Exception:                             # an archetype that does not build is not this law's
+            if name in ("panelboard", "transformer"):
+                raise
             continue
-        built += 1
-        rows += [dict(r, family=name) for r in CL.lock_face_findings(doc)]
-    assert built >= 3 and len(rows) >= 50             # 179 locks at the time of writing
+        built.add(name)
+        got = CL.lock_face_findings(doc)
+        if name in ("panelboard", "transformer"):
+            assert got, f"{name} has no cap locks to judge"
+        rows += [dict(r, family=name) for r in got]
+    assert len(rows) >= 50                            # 179 locks at the time of writing
     off = [r for r in rows if not r["on_plane"]]
     assert not off, off[:5]

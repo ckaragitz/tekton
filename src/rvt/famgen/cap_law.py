@@ -1,9 +1,10 @@
 """Cap law (#1030): a face lock witnesses the cap that lies on its plane.
 
-An extrusion's cap TAGS follow its own Start / End parameters, in every born
-extrusion: tag 0 = the cap at the End offset, tag 1 = the cap at the Start
-offset (117 / 118 born boxes whose End is above their Start rebuild with
-every face and edge tag equal, counts only).  ``height_law`` locks "end"
+An extrusion's cap TAGS follow its own Start / End parameters, as born
+extrusions' do: tag 0 = the cap at the End offset, tag 1 = the cap at the
+Start offset (673 of 689 classified born extrusions; 117 / 118 born boxes
+whose End is above their Start rebuild with every face and edge tag equal;
+counts only).  ``height_law`` locks "end"
 (tag 0) to the higher plane and "start" (tag 1) to the lower one, as born
 files do.  So the cached solid must carry tag 0 on the cap at the higher
 plane, or every such lock names the opposite cap.
@@ -39,9 +40,10 @@ def horizontal_cap_z(rep: Optional[dict]) -> Dict[int, float]:
 
 def lock_face_findings(doc: Any) -> List[Dict[str, Any]]:
     """One row per ``Alignment`` witness on an ``ExtrusionElem`` cap:
-    ``{lock, extrusion, tag, witness_z, face_z, on_plane}``.  A witness whose
-    tag is not a horizontal cap of the cached solid (a side face, a curve) is
-    not judged."""
+    ``{lock, extrusion, tag, witness_z, face_z, on_plane}``.  HORIZONTAL caps
+    only (a form sketched on a level): a witness whose tag is not a horizontal
+    cap of the cached solid -- a side face, a curve, the cap of a form on a
+    vertical sketch plane (``run_law``'s runs) -- is not judged."""
     ext = {e.elem_id: e for e in doc.elements if e.class_name == "ExtrusionElem"}
     rows: List[Dict[str, Any]] = []
     for e in doc.elements:

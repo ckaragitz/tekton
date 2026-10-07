@@ -15,14 +15,14 @@ So our top cap carried the Start's tag while the element called the top its End.
 **Consequences found in our own files** (no Revit needed):
 - **Height locks.** `height_law`, built from a born census, locks "end" (geomTag 0) to the higher plane and "start" (tag 1) to the lower one. Across the panelboard, the 45 kVA transformer and every archetype, **175 of 179** cap-face locks witnessed the cached cap on the *other* plane. The 4 that did not were already correct for other reasons.
 - **Connectors.** A connector on a box top (`box_face('top')`) named tag 1, the Start cap.
-- **Cylinders.** The cylinder solid, built from a born extrude-up specimen, already puts tag 0 on its top. So `box_face('top')` sent a connector on a cylinder top to the cylinder's bottom.
+- **Cylinders.** The true cylinder solid (`solid_cylinder_brep`), built from a born extrude-up specimen, already put tag 0 on its top, so `box_face`'s convention disagreed with it. No connector was affected: connectors are refused on any host that is not a 4-curve prism (`add_connector`, `add_conduit_connector`). The polygon cylinders a connector can sit on go through `new_extrusion` like every box.
 
 ## The born law (private corpus, counts only)
 
 Read in `samples/reference-families/` (git-ignored), every second or third file, with the sketch plane's own normal:
 - **Cap tags.** Tag 0 is the cap at the End offset and tag 1 the cap at the Start offset, in both directions. This held in 673 extrusions. 16 went the other way, not yet explained, and 56 had cap offsets that matched neither parameter.
 - **Rails and side frames.** The `[1,i,0]` rails and every side face's frame sit on the cap at the *higher* offset along the sketch normal, with the side's x-axis pointing down. So the solid is always traced from the top: 369 of 369 checked.
-- **The proof.** Born horizontal 4-line boxes with a clean history were rebuilt from their own dimensions with `solid_box_brep` and compared tree by tree (`compare_object_trees`). The result for every face and edge tag:
+- **The proof** (the solid only: the ExtrusionGStep face history, tag 1 = the Start cap, is unchanged and was not compared with born specimens). Born horizontal 4-line boxes with a clean history were rebuilt from their own dimensions with `solid_box_brep` and compared tree by tree (`compare_object_trees`). The result for every face and edge tag:
 
 | specimens | current writer | fixed writer |
 |---|---|---|
@@ -70,7 +70,7 @@ No Revit claim (hard rule 4).
   - `src/rvt/famgen/cap_law.py` (new);
   - `src/rvt/frontdoor/matrix.py`;
   - all four with their plugin mirrors;
-  - `docs/product/PERMUTATION-MATRIX.md`, `plugin/docs/HONEST-STATUS.md`;
+  - `docs/product/PERMUTATION-MATRIX.md`, `plugin/docs/HONEST-STATUS.md`, `docs/writer/family-geometry.md` (§3, the box section, now says born boxes extrude both ways and what `end_on_top` changes);
   - tests: `tests/test_cap_tags_1030.py` with the drop-in `tests/ci_shard.d/1030-cap-tags.txt`, and `tests/test_{famgen_factory,fan_coil_893,transformer_detail_879}.py`;
   - this record.
 - Shipped on merge. The desktop probe is not staged yet.
