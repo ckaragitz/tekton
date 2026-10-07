@@ -13,13 +13,14 @@ So a power connector added after a conduit connector reused its `m_index`, and t
 
 **The fix.** All four now count `len(doc.connectors) + len(doc.mep_connectors)`.
 
-**Shipped output.** Nothing shipped changes byte for byte. The fan coil adds its power connector first (indices 1, 2, 3 before and after), and the other generated families carry no conduit connector. The #984 / #981 evidence fingerprints still pass.
+**Shipped output.** It is byte-identical. The fan coil and the fan-powered box each add their power connector before their conduit connector, so their indices are `[1, 2]` before and after. No other generated family carries a conduit connector. The #984 / #981 evidence fingerprints still pass, and #1039's reviewer rebuilt both families from main and from this head: the sha256 values match.
 
 ## Evidence
 
-- **`tests/test_connector_index_921.py`: 2 passed.** Both fail on main.
+- **`tests/test_connector_index_921.py`: 3 passed.** All three fail on main.
   - conduit → power (`add_connector`) → power (`add_electrical_connector`) gets indices `[1, 2, 3]`;
   - the fan coil's `summary()["connectors"]` equals power + conduit.
+  - nesting refuses a child whose only connectors are conduit ones.
 - **The wider set: 265 passed, 9 skipped** before the nits below; with them, 13 modules (921, 863, standards, apply_safe, factory, fan coil, fan-powered, IFC standards, matrix 984 / 981, cap tags, plugin sync, scaffolding) give **417 passed, 6 skipped**. The first set covers:
   - `test_famgen_factory`, `test_fan_coil_893`, `test_fan_powered_895`, `test_famfrom_ifc_standards`;
   - matrix evidence 984 / 981, `test_plugin_sync`, scaffolding;
@@ -33,6 +34,12 @@ So a power connector added after a conduit connector reused its `m_index`, and t
   - face tag 0 = key `[2]` (End), tag 1 = key `[1]` (Start);
   - edge tag 3 = `[1,i,0]`, where `i` is the loop's first curve.
 
+## Also fixed after #1039's review
+
+- **`nest.py`'s guard** ("nesting a family with connectors is not supported") read power connectors only. A conduit-only child would have got past it. It now reads every domain. There is a test.
+- **The `solid_box_brep` docstring** names the `[1,i,0]` rail as on the cap at the higher offset (the End cap there), not "the start rail".
+- **Not changed:** `tools/render_probes.py` still counts `len(prod.doc.connectors)` in four dev-probe summaries. Those are panel/box probes with no conduit connector, so no number they print is wrong today. They are named here so a future conduit probe counts both lists.
+
 ## BRANCH STATE
 
 - Files:
@@ -42,6 +49,7 @@ So a power connector added after a conduit connector reused its `m_index`, and t
   - their plugin mirrors;
   - `tests/test_connector_index_921.py` and the drop-in `tests/ci_shard.d/921-connector-index.txt`;
   - #1038's nits: `src/rvt/famgen/{standards,geometry}.py` (and mirrors), `tests/test_standards_facts_863.py`;
+  - `src/rvt/famgen/nest.py` (the connector guard line only, and its mirror);
   - this record.
 - The files are #913's territory. The program has been idle since 2026-10-03, and this was coordinated on #913.
 - Shipped on merge; nothing is staged. No Revit claim (hard rule 4).

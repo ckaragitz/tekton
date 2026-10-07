@@ -43,3 +43,22 @@ def test_the_summary_counts_every_domain():
     total = len(prod.doc.connectors) + len(getattr(prod.doc, "mep_connectors", []))
     assert len(getattr(prod.doc, "mep_connectors", [])) >= 1
     assert prod.summary()["connectors"] == total
+
+
+def test_nesting_refuses_a_child_with_only_conduit_connectors(tmp_path):
+    import pytest
+    from rvt.famgen import nest as N
+    host, out = str(tmp_path / "h.rfa"), str(tmp_path / "n.rfa")
+    F.make_generic_model(width_ft=2.0, depth_ft=0.5, height_ft=0.2, name="Nest Host").write(host)
+
+    def child(sid):
+        prod = F.make_generic_model(width_ft=0.5, depth_ft=0.5, height_ft=0.5, name="Zz Box",
+                                    start_id=sid)
+        # the guard reads the document's connector lists; a finalized generic model takes
+        # no new connector, so its conduit list is given one entry directly
+        prod.doc.mep_connectors = [object()]
+        assert not prod.doc.connectors
+        return prod
+    with pytest.raises(N.NestError, match="connectors"):
+        N.nest_family(host, out, child, [(0.0, 0.0, 0.0)])
+    assert not os.path.exists(out)
