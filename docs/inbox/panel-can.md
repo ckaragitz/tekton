@@ -5,4 +5,4 @@ library builds it -- an open-front back box at a mounting height, a surface or f
 NEC working and dedicated spaces with their switches, and the circuiting parameters a power
 connector reads -- measured against the owner's reference panelboard (privately, counts only).
 
-- 1047-back-box-and-cover.md -- the back-box-and-trim constructor, `make_family.py panel-can`, the anatomy gap 33 -> 28 (20 with the owner's profile)
+- 1047-back-box-and-cover.md -- the back-box-and-trim constructor, `make_family.py panel-can`, the anatomy gap 33 -> 27 (20 with the owner's profile)

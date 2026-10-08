@@ -74,6 +74,10 @@ MOUNT_TOP_IN = 78.0
 CONDUIT_IN = 2.0
 #: a length below this is zero (ft)
 EPS = 1e-6
+#: a mounting height (or a flush trim's bottom) closer to the floor than this is ON it:
+#: Revit draws nothing shorter than about 1/32 in, so a labelled length that small
+#: would be a dimension it cannot hold (in)
+FLOOR_SNAP_IN = 1.0 / 32.0
 
 #: connector properties a family parameter drives (the power connector's), as the
 #: owner's reference library binds them (private census, counts only: poles 21 /
@@ -210,6 +214,13 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
                             f"the floor")
     mh_in = (float(mounting_height_in) if mounting_height_in is not None
              else max(0.0, MOUNT_TOP_IN - dims["height_in"]))
+    snapped = []
+    if 0 < mh_in < FLOOR_SNAP_IN:
+        snapped.append(f"the box bottom {mh_in:g} in above the floor is ON it")
+        mh_in = 0.0
+    if not surface and 0 < abs(mh_in - lap_in) < FLOOR_SNAP_IN:
+        snapped.append(f"a box bottom {mh_in:g} in up puts the flush trim's bottom on the floor")
+        mh_in = lap_in
     MH = _in(mh_in)
     vll = float(facts.get("voltage_ll_v"))
     poles = 3 if int(facts.get("phases")) >= 3 else 1
@@ -220,6 +231,9 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
                                  work_plane_based=False, start_id=start_id,
                                  plane_length_ft=max(8.0, (MH + H) * 1.5),
                                  shared_params=shared_params)
+    for note in snapped:
+        doc.notes.append(f"{note} (closer than {FLOOR_SNAP_IN:g} in, which Revit cannot "
+                         f"dimension): built as on the floor")
     # the ONE type, first: every parameter added below registers its value on it
     # (a parameter added before any type row exists keeps no value at all)
     doc.add_type(F._clean_name(f"{int(mains_a)}A", facts.get("mains_type"), f"{int(spaces)}ckt"),
@@ -234,7 +248,7 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
     # authored per instance or by formula here, so never a row of a shared-parameter
     # file (the writer builds no instance / formula-driven shared parameter): such a
     # row is set aside -- the family is built, the parameter local, and said
-    _keep_local(doc, LOCAL_ONLY)
+    _keep_local(doc)
     _header(doc, H_DIMS)
     for cap, val in ((P_WIDTH, W), (P_HEIGHT, H), (P_DEPTH, D), (P_MOUNT, MH)):
         doc.add_family_parameter(cap, SK.SPEC_LENGTH, SK.PGROUP_CONSTRAINTS,
@@ -311,7 +325,7 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
                           f"floor when it is that tall)")))
     for fb in rep_c.pop("forms"):
         named.append((fb.params["role"], fb))
-    zone_ctl = _clearance_controls(doc, W, MH, H, rep_c)
+    zone_ctl = _clearance_controls(doc, W, MH, H, rep_c, standards=standards)
 
     for note in (zone_ctl.get("notes") or []):
         doc.notes.append(note)
@@ -460,8 +474,8 @@ def drive_specs(W: float, D: float, H: float, t: float, MH: float,
     return [width, trim_w, depth], heights
 
 
-def _clearance_controls(doc, W: float, MH: float, H: float,
-                        rep_c: Dict[str, Any]) -> Dict[str, Any]:
+def _clearance_controls(doc, W: float, MH: float, H: float, rep_c: Dict[str, Any], *,
+                        standards: bool = True) -> Dict[str, Any]:
     """The working space's and the dedicated space's size parameters, per instance:
 
     * ``Working Space Minimum Width`` (30 in, 110.26(A)(2)) and ``Working Space
@@ -480,8 +494,8 @@ def _clearance_controls(doc, W: float, MH: float, H: float,
     out: Dict[str, Any] = {"notes": []}
     front, top = rep_c.get("front"), rep_c.get("top")
     grp = SK.PGROUP_CONSTRAINTS
-    if front or (top and top.get("height_ft")):
-        _header(doc, H_CLEAR)
+    if front or (top and top.get("height_ft")) or standards:
+        _header(doc, H_CLEAR)       # (with no zones it heads the standards' Service Clearance)
     if front:
         mn = _in(MIN_WORKING_WIDTH_IN)
         doc.add_family_parameter(P_MIN_WS_W, SK.SPEC_LENGTH, grp, is_instance=True, default=mn)
@@ -538,26 +552,47 @@ def _clearance_controls(doc, W: float, MH: float, H: float,
     return out
 
 
-#: everything authored per instance or by formula -- never from a shared-parameter row
-LOCAL_ONLY = tuple(h for h, _g in HEADERS) + (
-    P_WIDTH, P_HEIGHT, P_DEPTH, P_MOUNT, P_THICK, P_SURFACE, P_FLUSH, P_SHOW_TRIM, P_TRIM_W,
-    P_TRIM_H, P_TRIM_Z, P_LOAD, P_MOTOR, P_LOAD_CLASS, P_MIN_WS_W, P_WS_W, P_WS_DEPTH, P_DED_H,
-    P_FROM_FLOOR, P_WS_H, P_CENTERED, P_WS_LEFT, P_SHIFT_L, P_SHIFT_R, P_SHIFT_L_ON,
-    P_SHIFT_R_ON, "Show Clearances", "Front Clearance Visible", "Top Clearance Visible")
+def _local_only() -> Tuple[str, ...]:
+    """Everything authored per instance, by formula, or as a storage the writer builds
+    only locally (the number-of-poles definition) -- never from a shared-parameter row."""
+    from . import equipment_clearance as EC
+    return tuple(h for h, _g in HEADERS) + (
+        P_WIDTH, P_HEIGHT, P_DEPTH, P_MOUNT, P_THICK, P_SURFACE, P_FLUSH, P_SHOW_TRIM, P_TRIM_W,
+        P_TRIM_H, P_TRIM_Z, P_LOAD, P_MOTOR, P_LOAD_CLASS, P_POLES, P_MIN_WS_W, P_WS_W,
+        P_WS_DEPTH, P_DED_H, P_FROM_FLOOR, P_WS_H, P_CENTERED, P_WS_LEFT, P_SHIFT_L, P_SHIFT_R,
+        P_SHIFT_L_ON, P_SHIFT_R_ON, EC.P_SHOW, EC.P_FRONT_ON, EC.P_TOP_ON)
 
 
-def _keep_local(doc, names) -> None:
-    """Set aside the shared-parameter file's rows for ``names`` (authored here per
-    instance or by formula, which the writer never builds shared): the parameter is
-    local, the family built, and a note says which -- never a refused job (hard
-    rule 1)."""
+def _authored_specs() -> Dict[str, str]:
+    """The spec this constructor authors each remaining caption it creates itself
+    under; a shared row of another datatype cannot be that parameter."""
+    from . import equipment_clearance as EC
+    return {P_VOLTAGE: SK.SPEC_VOLTAGE, P_PF: SK.SPEC_NUMBER,
+            EC.P_FRONT: SK.SPEC_YESNO, EC.P_TOP: SK.SPEC_YESNO}
+
+
+def _keep_local(doc) -> None:
+    """Set aside the shared-parameter file's rows this constructor cannot author shared:
+    a caption it authors per instance, by formula or as a local-only storage
+    (:func:`_local_only`), and one whose DATATYPE is not the spec it authors that
+    caption under (:func:`_authored_specs` -- e.g. a YESNO row, which the writer
+    reads no spec for).  The parameter is local, the family built, and a note names
+    each -- never a refused job (hard rule 1).  The table is the document's own copy."""
     table = getattr(doc, "shared_params", None)
-    hit = [n for n in names if table and n in table]
-    for n in hit:
+    if not table:
+        return
+    local = [n for n in _local_only() if n in table]
+    other = [n for n, spec in _authored_specs().items()
+             if n in table and not SK.shared_datatype_matches(table[n].datatype, spec)]
+    for n in local + other:
         table.pop(n)
-    if hit:
-        doc.notes.append(f"kept LOCAL, not shared: {', '.join(hit)} -- authored per instance or "
-                         f"by formula here, which a row of the shared-parameter file is not")
+    if local:
+        doc.notes.append(f"kept LOCAL, not shared: {', '.join(local)} -- authored per instance, "
+                         f"by formula or as a local-only storage here, which a row of the "
+                         f"shared-parameter file is not")
+    if other:
+        doc.notes.append(f"kept LOCAL, not shared: {', '.join(other)} -- the shared-parameter "
+                         f"file's datatype is not the one this family authors it as")
 
 
 def _header(doc, name: str) -> None:

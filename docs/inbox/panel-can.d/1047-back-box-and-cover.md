@@ -57,12 +57,17 @@ prefab / rough-in library models one: the back box and its trim (front cover).
     connector's own load class.
   - Two round conduit connectors sit on the box top and bottom, a quarter width off centre, so
     never on the feeder's point.
-- **A shared-parameter file never refuses the job.** A row named like a parameter `panel_can`
-  authors per instance or by formula (Width, Height, Depth, Mounting Height, the trim and
-  clearance controls …) is set aside, and that parameter stays local, with a note. The writer
-  builds no instance or formula-driven shared parameter. The owner's own library file collides
-  with 7 of our captions (counts only), and before this the job was refused with no file
-  (#1053 review round 2).
+- **A shared-parameter file never refuses the job.** Some rows are set aside, with a note, and
+  those parameters stay local:
+  - a row named like a parameter `panel_can` authors per instance, by formula, or in a local-only
+    storage: Width, Height, Depth, Mounting Height, the trim and clearance controls, Number of
+    Poles;
+  - a row whose DATATYPE is not the spec this family authors that caption under, e.g. a YESNO
+    row for a clearance switch, which the writer has no spec for (#1058).
+  
+  The writer builds no such shared parameter. The owner's own library file collides with 7 of our
+  captions (counts only). Before rounds 2-3 of #1053's review, 5 of those refused the job with no
+  file.
 - **Shift direction.** Right is +x and left is −x, as seen in the floor plan with the panel's
   front (+y) toward the top of the screen.
 - **Section headers.** Four text parameters whose formula is their own label. Each is authored
@@ -79,6 +84,8 @@ prefab / rough-in library models one: the back box and its trim (front cover).
   - **A flush trim lapping below the floor:** its bottom and height are said not to be driven.
   - **A flush trim whose bottom lands exactly on the floor:** `Trim Bottom` is said to label
     nothing.
+  - **Snapped to the floor:** a box bottom, or a flush trim's bottom, within 1/32 in of the floor
+    is built as on it and said. Revit draws nothing that short.
   - Every drive is all-or-nothing, and a refusal is a note.
 - **Type row and standards.** One type row, added before any parameter. The standards step
   (#601) is followed by the catalog facts as the tagging-contract values, as `make_panelboard`
@@ -102,7 +109,7 @@ panelboard. These are aggregate counts only; the reference stays in the git-igno
 
 | measure | reference | make_panelboard | panel_can | panel_can + owner's profile |
 |---|---|---|---|---|
-| shortfalls (measures where ours is short) | -- | 33 | 28 | 20 |
+| shortfalls (measures where ours is short) | -- | 33 | 27 | 20 |
 | parameters | 60 | 26 | 53 | 66 |
 | per instance | 34 | 4 | 32 | 32 |
 | formulas | 27 | 2 | 16 | 21 |
@@ -116,7 +123,7 @@ The "owner's profile" column is the #866 mechanism (`ProfileRequest`) reading th
 library profile. It is private and never committed; it adds the library's 13 shared parameters at
 their GUIDs.
 
-**Tests.** `tests/test_panel_can_1047.py`: 33 passed.
+**Tests.** `tests/test_panel_can_1047.py`: 36 passed.
 - Values and formulas are READ BACK from the written file (`FamilyIndex` under its own release).
   Every formula is evaluated against the written inputs and must equal the written value.
 - Every labelled dimension must hold its parameter's written value, in five variants (12 / 12 /
@@ -127,8 +134,10 @@ their GUIDs.
   - its left edge on the centre plane, and its width on the left edge;
   - Width and Trim Width symmetric.
 - The face locks are pinned per variant: 16 / 8, 14 / 7, 12 / 6.
-- So are the connectors' frames, the header order, and a one-row shared-parameter file through
-  the constructor and the CLI.
+- So are the connectors' frames, the header order, and a five-row shared-parameter file through
+  the constructor and the CLI. Its rows: a local-only caption, a Number of Poles row, a YESNO
+  switch, and a matching Voltage row that is authored shared.
+- Also pinned: the zone notes without drives, and the floor snapping.
 
 **Mutation check.** 12 single-line mutations each fail the file:
 - the flush complement;
@@ -153,6 +162,12 @@ Round 2 adds 11 more, each also failing the file:
 - the bottom conduit flipped;
 - the shared-row guard removed;
 - the headers bunched.
+
+Round 3 adds 5 more, each also failing the file:
+- the datatype check removed;
+- Number of Poles not local;
+- either floor snap removed;
+- zone notes only with drives.
 
 ## Findings
 - **A parameter added before any type row keeps no value.** `FamilyDoc._register_param` only

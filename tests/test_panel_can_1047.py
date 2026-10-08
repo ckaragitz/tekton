@@ -239,7 +239,7 @@ def test_the_parameters_read_in_sections_and_bind_per_instance(can):
         assert P[hdr].refs["formula"] == f'"{hdr}"' and rb[hdr]["str"] == hdr
     for cap in (PC.P_WIDTH, PC.P_HEIGHT, PC.P_DEPTH, PC.P_MOUNT, PC.P_SURFACE, PC.P_SHOW_TRIM,
                 PC.P_MIN_WS_W, PC.P_WS_W, PC.P_WS_DEPTH, PC.P_DED_H, PC.P_FROM_FLOOR, PC.P_WS_H,
-                PC.P_LOAD, PC.P_CENTERED, PC.P_SHIFT_L, PC.P_SHIFT_R, PC.P_WS_LEFT):
+                PC.P_LOAD, PC.P_CENTERED, PC.P_SHIFT_L, PC.P_SHIFT_R, PC.P_WS_LEFT, PC.P_MOTOR):
         assert rb[cap]["instance"] is True, cap
     for cap in (PC.P_THICK, PC.P_VOLTAGE, PC.P_POLES, PC.P_PF):
         assert rb[cap]["instance"] is False, cap
@@ -440,19 +440,48 @@ def test_a_flush_trim_on_the_floor_says_its_bottom_is_not_driven():
 
 
 def test_a_shared_parameter_file_never_refuses_the_job(tmp_path):
+    rows = (("Width", "LENGTH"), ("Show Clearances", "YESNO"), ("Number of Poles", "NUMBER_OF_POLES"),
+            ("Show Front Clearance", "YESNO"), ("Voltage", "ELECTRICAL_POTENTIAL"))
     sp = tmp_path / "sp.txt"
     sp.write_text("# synthetic\n*META\tVERSION\tMINVERSION\nMETA\t2\t1\n*GROUP\tID\tNAME\n"
                   "GROUP\t1\tDims\n*PARAM\tGUID\tNAME\tDATATYPE\tDATACATEGORY\tGROUP\tVISIBLE"
                   "\tDESCRIPTION\tUSERMODIFIABLE\n"
-                  "PARAM\t0000aaaa-1047-4000-8000-000000000001\tWidth\tLENGTH\t\t1\t1\t\t1\n"
-                  "PARAM\t0000aaaa-1047-4000-8000-000000000002\tShow Clearances\tYESNO\t\t1\t1\t\t1\n",
+                  + "".join(f"PARAM\t0000aaaa-1047-4000-8000-00000000000{i}\t{n}\t{dt}\t\t1\t1\t\t1\n"
+                            for i, (n, dt) in enumerate(rows, start=1)),
                   encoding="utf-8")
     prod = PC.make_panel_can(shared_params=str(sp))
     rep = prod.write(str(tmp_path / "sp.rfa"))
     assert rep["validate"]["family_mode"]["n_errors"] == 0
-    assert prod.doc.params[PC.P_WIDTH].class_name == "ParamElemFamily"
-    assert any(n.startswith("kept LOCAL, not shared: Width, Show Clearances") for n in prod.doc.notes)
+    P = prod.doc.params
+    for local in (PC.P_WIDTH, PC.P_POLES, "Show Front Clearance"):
+        assert P[local].class_name == "ParamElemFamily", local
+    assert P[PC.P_POLES].obj["m_pParamDef"]["ptr_class"] == "ParamDefNoOfPoles"
+    assert P[PC.P_VOLTAGE].class_name == "ParamElemExternal"        # it matches: authored shared
+    notes = "\n".join(prod.doc.notes)
+    assert "kept LOCAL, not shared: Width, Number of Poles, Show Clearances" in notes
+    assert "kept LOCAL, not shared: Show Front Clearance -- the shared-parameter file's " \
+           "datatype" in notes
     r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "make_family.py"), "panel-can",
                         "--shared-params", str(sp), "-o", str(tmp_path / "cli_sp.rfa")],
                        capture_output=True, text=True, timeout=600)
     assert r.returncode == 0 and "VALID (0 errors" in r.stdout, r.stdout[-1500:] + r.stderr[-1500:]
+
+
+def test_zone_notes_are_kept_without_drives():
+    prod = PC.make_panel_can(mounting_height_in=24, drive=False)
+    assert prod.drives == [] and any("the code minimum, not switchable" in n
+                                     for n in prod.doc.notes)
+
+
+@pytest.mark.parametrize("kw,said", [({"mounting_height_in": 0.01}, "the box bottom 0.01 in"),
+                                     ({"mounting_height_in": PC.FLUSH_LAP_IN + 0.0001,
+                                       "surface": False}, "flush trim's bottom on the floor")])
+def test_a_length_too_short_for_revit_is_built_on_the_floor(kw, said, tmp_path):
+    prod = PC.make_panel_can(**kw)
+    assert any(said in n and "built as on the floor" in n for n in prod.doc.notes)
+    assert prod.heights["refused"] == []
+    path = str(tmp_path / "f.rfa")
+    prod.write(path)
+    by_id = {r["id"]: r["value"] for r in readback(path).values()}
+    assert all(held >= PC.FLOOR_SNAP_IN / 12 for _pid, held in _labelled(prod))
+    assert all(by_id[pid] == pytest.approx(held) for pid, held in _labelled(prod))
