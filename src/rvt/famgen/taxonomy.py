@@ -53,7 +53,8 @@ __all__ = ["Kind", "Mention", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LA
            "AMBIGUOUS_ALONE", "kinds", "keys", "get", "resolve", "scan",
            "for_intent_kind", "by_discipline", "archetype_registry", "category_status",
            "member_model", "famspec_hint", "facts_tier", "builder_available", "caveat",
-           "describe", "table", "check_row", "check"]
+           "describe", "table", "check_row", "check", "DECISIONS", "DECISION_OUTCOMES",
+           "gap_rows", "decision", "REFINE_FIRST"]
 
 LANES = ("catalog", "archetype", "none")
 MECHANISMS = ("famspec", "archetype", "house")
@@ -171,8 +172,8 @@ _ROWS: Tuple[Kind, ...] = (
             "relays and the low-voltage section are not modelled"),
     _k("busway", "Busway / bus duct", "electrical", "electrical_equipment",
        aliases=("bus duct",),
-       note="a busway RUN is drawn, not loaded; plug-in units and end fittings are the "
-            "loadable parts and are not built yet"),
+       note="Revit has no busway system family: busway is modelled with loadable families "
+            "(straight sections, elbows, plug-in units, end fittings), none built yet"),
     _k("cable_tray", "Cable tray (ladder) section", "electrical", "cable_tray_fitting",
        ["archetype:cable_tray"],
        aliases=("ladder tray", "cable ladder", "ladder cable tray", "tray section"),
@@ -359,6 +360,165 @@ _ROWS: Tuple[Kind, ...] = (
 )
 
 _BY_KEY: Dict[str, Kind] = {k.key: k for k in _ROWS}
+
+#: #822: every kind with a category and NO build mechanism carries a recorded DECISION -- which
+#: of the three honest outcomes closes its gap, and why -- so a refusal is a decision, never the
+#: side effect of a taxonomy row with no mechanism.  ``archetype``: real parts at standard nominal
+#: sizes for the product class (rvt.famgen.archetypes, steer #591) -- not reached by this row
+#: yet (planned, or a constructor that exists but is not wired);
+#: ``catalog``: a famspec constructor from sourced facts (a vendor record must be held first);
+#: ``not generated``: deliberately not a generated family, the reason given.  Never a near-miss
+#: mapping onto another product.  :func:`check` fails on a gap row without a decision and on a
+#: decision whose row is no longer a gap (the row gained a mechanism: drop its decision).
+DECISION_OUTCOMES = ("archetype", "catalog", "not generated")
+#: steer #591 (S-2026-08-10-e): a product named with no dimensions is generated at its class's
+#: standard NOMINAL sizes, never refused and never wearing a manufacturer's numbers -- so a kind
+#: with a standard shape is an archetype now, and a held manufacturer record later adds catalog
+#: members beside it (the troffer / downlight / receptacle lanes are catalog-backed)
+_LUMINAIRE_NOMINAL = ("a luminaire with a standard shape for its type, at nominal sizes; catalog "
+                      "members join when a manufacturer record is held")
+_DEVICE_NOMINAL = ("a wall / ceiling device with a standard shape, at nominal sizes; catalog "
+                   "members join when a manufacturer record is held")
+_EQUIPMENT_ARCHETYPE = "an enclosure product class with a standard shape, as the lighting control panel"
+_MECH_ARCHETYPE = "packaged equipment with a standard shape for its class, at nominal sizes"
+_FIXTURE_ARCHETYPE = "a fixture with a standard shape for its class, at nominal sizes"
+_INLINE_ARCHETYPE = "an in-line accessory sized by its duct / pipe, at nominal sizes"
+def _refine_first(*products: str) -> str:
+    """The reason for a row that names several products with no single shape (#1043 review):
+    one box under the row's name would be the near miss #822 forbids."""
+    return ("archetype per product: this kind names several products with no single shape ("
+            + ", ".join(products) + "), so one row per product is added beside this one (each "
+            "with the words that name only it) and gets its own archetype; this row stays, "
+            "unbuilt, for the words that name them all -- never one box for all")
+
+
+#: #1043 review: rows that name SEVERAL products with no single shape -> those products.  This
+#: table is PERMANENT and so are its rows: each stays in ``_ROWS``, UNBUILT, holding the words
+#: that name all of its products ("fan coil unit", "fcu"), whose honest answer is "this name
+#: covers several products"; the products are added as rows BESIDE it, each with only the words
+#: that name it ("horizontal fan coil").  :func:`check` fails if a key here is missing from
+#: ``_ROWS``, has a build mechanism or is a generic (refine) word -- so the row's own name can
+#: never become one box for all (the #821 near miss).  Its limit: moving the row's generic WORDS
+#: onto a built row is a resolution question (#1044), not caught here.  (``refine`` is a
+#: CATEGORY-wide generic word, not this.)
+REFINE_FIRST: Dict[str, Tuple[str, ...]] = {
+    "busway": ("straight section", "elbow / tee fitting", "plug-in unit", "end closure"),
+    "meter_center": ("meter stack / center", "meter socket", "CT cabinet"),
+    "cable_tray_fitting": ("elbow", "tee", "cross", "reducer"),
+    "conduit_fitting": ("elbow", "conduit body", "coupling"),
+    "floor_box": ("floor box", "poke-through"),
+    "high_bay": ("round high bay", "linear high bay"),
+    "linear_luminaire": ("strip", "linear pendant", "wraparound"),
+    "occupancy_sensor": ("wall-switch sensor", "ceiling sensor"),
+    "daylight_sensor": ("interior daylight sensor", "exterior photocell"),
+    "horn_strobe": ("horn / strobe", "speaker / strobe", "strobe only"),
+    "speaker": ("ceiling / paging speaker", "intercom station"),
+    "security_camera": ("dome camera", "bullet camera", "PTZ camera"),
+    "intrusion_detector": ("PIR motion detector", "glass-break detector", "door contact"),
+    "air_handling_unit": ("air handling unit", "make-up air unit", "DOAS unit"),
+    "fan_coil_unit": ("horizontal concealed", "vertical cabinet", "ceiling cassette"),
+    "vav_box": ("single-duct VAV box", "fan-powered terminal"),
+    "exhaust_fan": ("inline fan", "roof exhauster", "utility set", "ceiling / cabinet exhaust fan"),
+    "pump": ("inline / circulator", "end suction", "base-mounted", "packaged booster set"),
+    "boiler": ("wall-hung condensing boiler", "floor-standing hot water boiler", "steam boiler"),
+    "chiller": ("air-cooled chiller", "water-cooled chiller"),
+    "cooling_tower": ("open cooling tower", "closed-circuit fluid cooler"),
+    "unit_heater": ("unit heater", "cabinet unit heater"),
+    "split_system": ("outdoor condensing unit / heat pump", "wall-mount indoor head",
+                     "ceiling cassette indoor unit", "ducted indoor unit"),
+    "water_heater": ("tank water heater", "tankless water heater"),
+    "water_closet": ("floor-mount water closet", "wall-hung water closet"),
+    "lavatory": ("wall-hung lavatory", "countertop lavatory"),
+    "sink": ("counter / kitchen sink", "service / mop sink"),
+    "drinking_fountain": ("drinking fountain", "bottle filler"),
+    "floor_drain": ("floor drain", "floor sink", "trench drain"),
+    "valve": ("ball", "gate", "butterfly", "check"),
+    "fire_pump": ("fire pump", "jockey pump"),
+}
+#: what a refined row must also not forget
+_REFINE_NOTES: Dict[str, str] = {
+    "cable_tray_fitting": "; each sized from the cable tray archetype's own sizes",
+    "conduit_fitting": "; each sized from the conduit archetype's trade sizes",
+    "valve": "; each sized by its pipe",
+    "fan_coil_unit": ("; the fan coil constructor (#893) builds the horizontal concealed unit "
+                      "only, so it answers the horizontal concealed product row once one is "
+                      "added -- never this row, a vertical or a cassette request"),
+    "vav_box": ("; the fan-powered constructor (#895) answers only the 'fan powered box' "
+                "wording -- a single-duct VAV gets its own archetype"),
+    "cooling_tower": "; the 'evaporative cooler' wording also names an air-side unit",
+    "split_system": "; a split system is two pieces of equipment, never one packaged box",
+}
+
+
+DECISIONS: Dict[str, Tuple[str, str]] = {
+    # electrical
+    "motor_control_center": ("archetype", "a lineup of vertical sections at standard section sizes"),
+    "disconnect_switch": ("archetype", _EQUIPMENT_ARCHETYPE + " (the fan coil already builds one "
+                          "as a part)"),
+    "variable_frequency_drive": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "automatic_transfer_switch": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "ups": ("archetype", _EQUIPMENT_ARCHETYPE),
+    "generator": ("archetype", "a packaged generator set: skid, engine-generator and enclosure at "
+                  "nominal sizes"),
+    "enclosed_circuit_breaker": ("archetype", _EQUIPMENT_ARCHETYPE),
+    # lighting
+    "wall_pack": ("archetype", _LUMINAIRE_NOMINAL),
+    "wall_sconce": ("archetype", _LUMINAIRE_NOMINAL),
+    "exit_sign": ("archetype", _LUMINAIRE_NOMINAL),
+    "emergency_light": ("archetype", _LUMINAIRE_NOMINAL),
+    "pole_light": ("archetype", _LUMINAIRE_NOMINAL),
+    "dimmer_switch": ("archetype", _DEVICE_NOMINAL),
+    # fire alarm
+    "smoke_detector": ("archetype", _DEVICE_NOMINAL),
+    "heat_detector": ("archetype", _DEVICE_NOMINAL),
+    "pull_station": ("archetype", _DEVICE_NOMINAL),
+    "duct_smoke_detector": ("archetype", "a duct-mounted housing with its sampling tubes, at "
+                            "nominal sizes"),
+    "fire_alarm_control_panel": ("archetype", _EQUIPMENT_ARCHETYPE),
+    # technology
+    "data_outlet": ("archetype", _DEVICE_NOMINAL),
+    "telephone_outlet": ("archetype", _DEVICE_NOMINAL),
+    "card_reader": ("archetype", _DEVICE_NOMINAL),
+    "nurse_call_station": ("archetype", _DEVICE_NOMINAL),
+    # mechanical
+    "rooftop_unit": ("archetype", _MECH_ARCHETYPE),
+    "energy_recovery_unit": ("archetype", _MECH_ARCHETYPE),
+    "expansion_tank": ("archetype", _MECH_ARCHETYPE),
+    "fire_damper": ("archetype", _INLINE_ARCHETYPE),
+    "volume_damper": ("archetype", _INLINE_ARCHETYPE),
+    # plumbing
+    "urinal": ("archetype", _FIXTURE_ARCHETYPE),
+    "shower": ("archetype", _FIXTURE_ARCHETYPE),
+    "backflow_preventer": ("archetype", _INLINE_ARCHETYPE),
+    "pressure_reducing_valve": ("archetype", _INLINE_ARCHETYPE),
+    # rows naming several products: REFINE_FIRST, above (their decision is derived)
+}
+
+
+def _is_gap(r: Kind) -> bool:
+    return bool(r.category) and not r.pending and not r.via and not r.refine
+
+
+def gap_rows() -> Tuple[Kind, ...]:
+    """Rows a prompt recognises and no lane builds (#822): a category key (not pending), no
+    build mechanism and not a generic word.  Each must carry a decision -- an explicit
+    :data:`DECISIONS` entry, or a derived one for a :data:`REFINE_FIRST` row -- a row whose
+    category is in CONFLICT (#516) included: its conflict line reaches the user first, and the
+    decision still says what closes the gap once the category resolves."""
+    return tuple(r for r in _ROWS if _is_gap(r))
+
+
+def decision(row: Any) -> Optional[Tuple[str, str]]:
+    """``(outcome, reason)`` recorded for a gap row (#822), or None: the explicit
+    :data:`DECISIONS` entry of a one-shape row, or -- for a :data:`REFINE_FIRST` row that is
+    still a gap -- one archetype per product, derived."""
+    key = row.key if isinstance(row, Kind) else str(row)
+    if key in DECISIONS:
+        return DECISIONS[key]
+    r = _BY_KEY.get(key)
+    if key in REFINE_FIRST and r is not None and _is_gap(r):
+        return ("archetype", _refine_first(*REFINE_FIRST[key]) + _REFINE_NOTES.get(key, ""))
+    return None
 
 
 def _fold(text: Any) -> str:
@@ -727,8 +887,22 @@ def builder_available(row: Kind, *, strict: bool = False) -> Tuple[bool, str]:
         return False, "a generic word -- name the type: " + "; ".join(
             f"{', '.join(labels)} ({what})" for labels, what in groups if labels)
     if not row.via:
+        dec = decision(row)
+        if dec is None:
+            planned = ""
+        elif dec[0] == "not generated":
+            planned = f"; by decision it is not built here: {dec[1]}"
+        elif row.key in REFINE_FIRST:
+            planned = (f"; planned: this kind covers several products "
+                       f"({', '.join(REFINE_FIRST[row.key])}), each to be built on its own "
+                       f"at standard nominal sizes")
+        elif dec[0] == "archetype":
+            planned = "; planned: built at standard nominal sizes for its class"
+        else:
+            planned = "; planned: built from a held manufacturer record"
+        later = "" if dec is not None and dec[0] == "not generated" else " yet"
         return False, (f"{row.label} is placed under {row.revit_category}, but no lane builds "
-                       f"it yet: no catalog record is held and no archetype generates it")
+                       f"it{later}: no catalog record is held and no archetype generates it{planned}")
     whys = []
     for mech in row.via:
         ok, why = _mechanism_available(row, mech, strict)
@@ -758,6 +932,9 @@ def describe(text: Any) -> Dict[str, Any]:
     ok, why = builder_available(row)
     n_std = len(_S.standard_params(row.category)) if row.category else 0
     d = asdict(row)
+    dec = decision(row)                               # #822: structured, not only prose
+    if dec is not None:
+        d["decision"] = {"outcome": dec[0], "reason": dec[1]}
     d.update({"known": True, "lane": row.lane, "revit_category": row.revit_category,
               "category_status": status, "category_detail": detail, "available": ok,
               "availability": why, "standards_count": n_std})
@@ -944,6 +1121,39 @@ def check() -> List[str]:
                             f"of that category are in no refine list: {missing}")
     problems.extend(f"taxonomy: AMBIGUOUS_ALONE word {w!r} is not a name any row carries"
                     for w in sorted(AMBIGUOUS_ALONE) if w not in _ALIAS)
+    gaps = {r.key for r in gap_rows()}                  # #822: a refusal is a recorded decision
+    problems.extend(f"taxonomy[{k}]: recognised, categorised and built by no lane, with no "
+                    f"recorded decision -- add DECISIONS[{k!r}] (archetype / catalog / not "
+                    f"generated, with the reason), a REFINE_FIRST entry, or a build mechanism"
+                    for k in sorted(gaps) if decision(k) is None)
+    problems.extend(f"taxonomy: DECISIONS[{k!r}] names "
+                    + ("no row" if k not in _BY_KEY else "a row that is no longer a gap (it has "
+                       "a build mechanism, or is generic or pending): drop the decision")
+                    for k in sorted(set(DECISIONS) - gaps))
+    problems.extend(f"taxonomy: DECISIONS[{k!r}] outcome {o!r} is not one of {DECISION_OUTCOMES}"
+                    for k, (o, _why) in sorted(DECISIONS.items()) if o not in DECISION_OUTCOMES)
+    problems.extend(f"taxonomy: DECISIONS[{k!r}] gives no reason"
+                    for k, (_o, why) in sorted(DECISIONS.items()) if not str(why).strip())
+    problems.extend(f"taxonomy: {k!r} is in both DECISIONS and REFINE_FIRST -- a multi-product "
+                    f"row's decision is derived; drop the DECISIONS entry"
+                    for k in sorted(set(DECISIONS) & set(REFINE_FIRST)))
+    problems.extend(f"taxonomy[{k}]: names several products ({', '.join(REFINE_FIRST[k])}) and "
+                    f"must not be built as one row -- add one row per product beside it (with "
+                    f"the words that name only that product) and build those; this row stays "
+                    f"unbuilt, never with a mechanism and never a generic word (#1043)"
+                    for k in sorted(REFINE_FIRST) if k in _BY_KEY
+                    and (_BY_KEY[k].via or _BY_KEY[k].refine))
+    problems.extend(f"taxonomy: REFINE_FIRST[{k!r}] is no row -- a multi-product row is never "
+                    f"retired: it stays, unbuilt, for the words that name all its products"
+                    for k in sorted(REFINE_FIRST) if k not in _BY_KEY)
+    problems.extend(f"taxonomy: _REFINE_NOTES[{k!r}] is no REFINE_FIRST key"
+                    for k in sorted(_REFINE_NOTES) if k not in REFINE_FIRST)
+    problems.extend(f"taxonomy: DECISIONS[{k!r}] is 'not generated' and its reason, which the user "
+                    f"reads, carries an issue number, a module path or the word 'generated'"
+                    for k, (o, why) in sorted(DECISIONS.items()) if o == "not generated"
+                    and ("#" in why or "rvt." in why or "generated" in why))
+    problems.extend(f"taxonomy: REFINE_FIRST[{k!r}] lists fewer than two products"
+                    for k in sorted(REFINE_FIRST) if len(REFINE_FIRST[k]) < 2)
     for row in _ROWS:
         problems.extend(check_row(row))
     return problems
