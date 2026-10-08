@@ -557,11 +557,14 @@ def test_document_shared_params_route_add_family_parameter():
     assert (pn.class_name, w.class_name) == ("ParamElemExternal", "ParamElemFamily")
     assert pn.obj["m_externalParamKey"]["m_guidValue"] == PANELNAME_GUID
     assert pn.obj["m_description"] == "Panel schedule name"
+    # a row the writer cannot author as that parameter is NOT used: local, said (#1058)
     clash = fs.new_family_document("electrical_equipment", "Clash", shared_params=rows)
-    with pytest.raises(ValueError, match="DATATYPE"):
-        clash.add_family_parameter("PanelName", fs.SPEC_VOLTAGE, fs.PGROUP_ELECTRICAL)
-    with pytest.raises(ValueError, match="instance"):
-        clash.add_family_parameter("PanelName", fs.SPEC_TEXT, fs.PGROUP_IDENTITY, is_instance=True)
+    v = clash.add_family_parameter("PanelName", fs.SPEC_VOLTAGE, fs.PGROUP_ELECTRICAL)
+    assert v.class_name == "ParamElemFamily" and "DATATYPE 'TEXT'" in clash.notes[-1]
+    clash2 = fs.new_family_document("electrical_equipment", "Clash2", shared_params=rows)
+    i = clash2.add_family_parameter("PanelName", fs.SPEC_TEXT, fs.PGROUP_IDENTITY,
+                                    is_instance=True)
+    assert i.class_name == "ParamElemFamily" and "per instance or by formula" in clash2.notes[-1]
     assert fs.shared_datatype_matches("INTEGER", "autodesk.spec:spec.int64-1.0.0")
     assert fs.shared_datatype_matches("number", "autodesk.spec.aec:number-1.0.1")   # version-agnostic
     assert not fs.shared_datatype_matches("TEXT", fs.SPEC_LENGTH)

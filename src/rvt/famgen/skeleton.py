@@ -1927,9 +1927,13 @@ class FamilyDoc:
         every type row and the current-type value set: a LOCAL
         ``ParamElemFamily`` -- or, when ``name`` is a row of the document's
         ``shared_params`` (OUR shared-parameter file), the SHARED
-        ``ParamElemExternal`` at that row's GUID (:meth:`add_shared_parameter`;
-        the row's DATATYPE must agree with ``spec_type_id`` -- a schedule
-        bound to the file's definition would reject any other -> ValueError).
+        ``ParamElemExternal`` at that row's GUID (:meth:`add_shared_parameter`).
+        A row the writer cannot author as that parameter -- its DATATYPE is not
+        ``spec_type_id`` (a schedule bound to the file's definition would reject
+        any other), or the parameter is per instance / formula-driven, which no
+        shared parameter here is -- is NOT used: the parameter is authored LOCAL
+        and a note says why.  Never a second GUID, never a refused job (#1058,
+        hard rule 1).
 
         ``spec_type_id`` = the measurable spec (:data:`SPEC_LENGTH`,
         :data:`SPEC_VOLTAGE`, ...); ``group_type_id`` = the palette group;
@@ -1943,16 +1947,18 @@ class FamilyDoc:
         """
         row = self.shared_params.get(name)
         if row is not None:
+            why = None
             if not shared_datatype_matches(row.datatype, spec_type_id):
-                raise ValueError(f"shared parameter {name!r}: OUR file declares DATATYPE "
-                                 f"{row.datatype!r} but the family authors it as "
-                                 f"{spec_type_id!r} -- fix the file row or the family's "
-                                 f"spec, never both GUIDs")
-            if is_instance or formula:
-                raise ValueError(f"shared parameter {name!r}: instance / formula-driven "
-                                 f"shared parameters are not built")
-            return self.add_shared_parameter(name, row.guid, spec_type_id, group_type_id,
-                                             description=row.description, default=default)
+                why = (f"the file declares DATATYPE {row.datatype!r} but the family authors it "
+                       f"as {spec_type_id!r} (fix the file row to share it)")
+            elif is_instance or formula:
+                why = ("it is authored per instance or by formula here, which no shared "
+                       "parameter of this writer is")
+            if why is None:
+                return self.add_shared_parameter(name, row.guid, spec_type_id, group_type_id,
+                                                 description=row.description, default=default)
+            self.notes.append(f"shared-parameter file row {name!r} NOT used -- {why}; "
+                              f"authored LOCAL, never at a second GUID")
         pe = new_family_parameter(_alloc(self.ids), self.self_family.elem_id, name,
                                   spec_type_id=spec_type_id, group_type_id=group_type_id,
                                   family_guid=self.family_guid, family_name=self.name,
