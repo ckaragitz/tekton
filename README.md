@@ -111,7 +111,7 @@ LOADS". The user's day-one target is met: **no base file required.**
 | Created walls + loaded family documents together | **OPEN BUG** | the combination fails while each alone passes; under bisection (`docs/inbox/render-instances.md`) |
 | Genesis residue | **~260 elements** still Autodesk-authored + 4 named stragglers | verdict #24; each = a constructor + an in-place rung |
 | The two shipped product corpora (`Formats/Latest` class schema + ESSchemaStorage unit schemas, byte-identical in EVERY Revit file) | **COUNSEL C4** | not element authorship; ship-verbatim vs regenerate is a counsel ruling |
-| **Deliverability of ANY output** | **PROOF-ONLY until the P0 gates clear** | every manifest stamps `PROOF-ONLY, NOT-DELIVERABLE`; counsel C1 (author string), C4, C5 (format-signature token) + trademark clearance for "tekton" are the gates (`TRACKER.md` P0, `docs/product/COUNSEL-BRIEF.md`) |
+| **Deliverability of ANY output** | **PROOF-ONLY until the P0 gates clear** | every manifest stamps `PROOF-ONLY, NOT-DELIVERABLE`; counsel C1 (author string), C4, C5 (format-signature token) + trademark clearance for "tekton" are the gates (P0 gate status: `docs/ORCHESTRATOR.md`; `docs/product/COUNSEL-BRIEF.md`) |
 
 The rule underneath the table: a claim is PROVEN only when Autodesk's own
 reader (the Viewer or Revit) accepted the exact file, and the file is in the
@@ -157,7 +157,9 @@ them). `tools/coverage.py report` re-renders without work.
 | `experiments/` | proof files and their manifests (the certification ledger's referents) |
 | `docs/coverage/` | the CRUD matrix + the viewer-certification ledger |
 | `docs/product/` | architecture, roadmap, MCP-PATH (future), COUNSEL-BRIEF, content strategy |
-| `TRACKER.md` / `KNOWLEDGE.md` | work queue / institutional memory (orchestrator-edited) |
+| `KNOWLEDGE.md` / `docs/ORCHESTRATOR.md` | the ledger (institutional memory) / current state: what is live, how to ship, what is running, P0 gates |
+| GitHub Issues | the work queue (protocol: `CLAUDE.md` §4). `TRACKER.md` is a retired pointer; the August tracker is `docs/archive/2026-10/TRACKER-2026-10.md` |
+| `docs/plans/` / `docs/inbox/` / `docs/archive/` | open plans and charters / stream records / superseded docs (history only) |
 | `RENAME.md` | the tekton rename plan (not executed; gated on trademark clearance) |
 
 ## Reproduce
@@ -169,5 +171,6 @@ uv venv .venv && uv pip install --python .venv/bin/python -e .   # installs `rvt
 ```
 
 Python: **always** `/Users/ck/dev/things/tekton/.venv/bin/python`, from
-the repo root. Read `AGENT_BRIEF.md`, `KNOWLEDGE.md`, `TRACKER.md` before
-touching anything.
+the repo root. Read `CLAUDE.md`, `KNOWLEDGE.md`, `docs/ORCHESTRATOR.md` and
+the open GitHub Issues (the work queue) before touching anything;
+`AGENT_BRIEF.md` is the brief for delegated analysis agents.

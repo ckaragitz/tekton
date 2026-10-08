@@ -69,7 +69,8 @@ iteration).
 1. Do the analysis with real code and hex dumps, not speculation. Show your
    evidence (offsets, hex, decoded values, statistics across all six files).
 2. Write your deliverables ONLY to the exact output paths named in your task.
-   Never edit `tools/`, `KNOWLEDGE.md`, `TRACKER.md`, `README.md`, or
+   You are a delegated session (`CLAUDE.md` §4): never edit `tools/`,
+   `KNOWLEDGE.md`, `docs/ORCHESTRATOR.md`, `README.md`, or
    `AGENT_BRIEF.md`. Never touch another agent's output files.
 3. Any code you write must run against the venv python above and print
    something useful (a table, a decoded dump). Include a `if __name__ ==

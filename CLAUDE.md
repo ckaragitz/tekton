@@ -5,7 +5,11 @@ creates, edits, validates, and converts Autodesk Revit `.rvt` / `.rfa`
 containers **without a Revit install, an Autodesk seat, or APS**. Revit is
 the last-mile *deliverable* format — a licensed engineer opens our output
 for QA. Read this file fully before touching anything; then read
-`KNOWLEDGE.md` (institutional memory) and `TRACKER.md` (the work queue).
+`KNOWLEDGE.md` (the ledger: institutional memory), `docs/ORCHESTRATOR.md`
+(state: what is live, how to ship, what is running, the P0 shipping gates)
+and the open GitHub Issues (the work queue, `now` first — §4). `TRACKER.md`
+is retired (2026-10-08) and `docs/archive/` is history: read it only when
+an issue, a ledger entry or a cited row key sends you there.
 
 ---
 
@@ -213,28 +217,108 @@ clarity, not a ban.
 Several people work here at once, each driving one or more coding
 sessions. Coordination is **GitHub Issues + trunk-based git**, with this
 repo's record conventions riding on top. A session never freelances on
-`main` and never "claims" work by editing a markdown file.
+`main` and never "claims" work by editing a markdown file. There is no
+tracker file: `TRACKER.md` was retired on 2026-10-08 (old body:
+`docs/archive/2026-10/TRACKER-2026-10.md`; the row keys that code,
+manifests and docs still cite — `G2`, `G4b`, `D4`, `F8`, `P1` … — resolve
+there, and the P0 shipping-gate status now lives in `docs/ORCHESTRATOR.md`).
 
-**The queue is GitHub Issues.** One issue per task/stream, labelled by area
-(`engine`, `frontdoor`, `famgen`, `plugin`, `genesis`, `docs`, …) and state
-(`ready`, `hot-file`, `needs-viewer`, `blocked`). **Claiming = assigning
-yourself** (`gh issue edit <n> --add-assignee @me`) — atomic and visible to
-everyone; never start work someone else is assigned to. If the work you
-want isn't an issue yet, open one first (title = the checkable DONE, body =
-territory + record path), then claim it.
+**Who you are decides what you may write — decide first, every session.**
+- **Direct session** — a person started you (terminal, desktop, web,
+  Slack / Claude Tag, a cloud session they opened) and gave you the task in
+  their own words. You own the externalized context for your task and
+  update it before you stop: the issue(s) you worked (claim → close with
+  evidence), the plan you worked under (`docs/plans/`), `KNOWLEDGE.md` (the
+  entries your work produced), `docs/ORCHESTRATOR.md` (if what is live /
+  how to ship / what is running / a P0 gate changed), and `README.md` /
+  `plugin/docs/**` when what the product does changed. `KNOWLEDGE.md` and
+  `docs/ORCHESTRATOR.md` are hot files, so that update is its own tiny
+  `hot-file` PR. A session that fans work out to other sessions is still
+  the direct session and owns all of this for everything it delegated.
+- **Delegated session** — another session started you (a subagent, a cloud
+  fan-out, a workflow step, a charter or `AGENT_BRIEF.md` handed to you as
+  your first message). You write code on your branch plus ONE record,
+  `docs/inbox/<stream>.md`, ending in the literal line
+  `READY for review — <branch> @ <sha>`, and you never touch
+  `KNOWLEDGE.md`, `docs/ORCHESTRATOR.md`, the viewer ledger, `main` or
+  another branch. Your parent folds the record in and archives it.
+- Can't tell → default to delegated and say so in your first message.
+- One direct session at a time edits the ledger files (that is what the
+  `hot-file` label serializes); if a pull shows someone else moved them,
+  rebase onto theirs first.
+
+**The queue is this repo's GitHub Issues** — never a file, and never a
+session-local task list or plan (nothing outside your session can see
+those). One issue per outcome.
+- **Kind, one label each:** `fr` (a user story written as the outcome, with
+  what done looks like and the files involved by repo path) · `stream` (a
+  broad directive — the parent: the direct session that picks it up writes
+  the charter `docs/plans/<issue>-<slug>.md` and splits it into child
+  issues that say "Part of #N"; the parent closes when its children do) ·
+  `bug` · `look` (a viewer / render / UX finding, frame attached) ·
+  `proposal` (a `KNOWLEDGE.md` entry to ratify, text verbatim) ·
+  `owner-decision` (only the owner can answer: counsel items C1 / C4 / C5,
+  trademark, pricing, the target Revit release) · `documentation`.
+- **Area and repo-state labels (unchanged):** `engine`, `frontdoor`,
+  `famgen`, `plugin`, `genesis`, `docs`, … · `ready` (doable from a fresh
+  clone — no `samples/`, no viewer login) · `hot-file` · `needs-viewer` ·
+  `good-first-pick` · `P0` / `P1` (shipping-gate severity).
+- **Workflow labels:** `claimed`, `blocked`, `ready-for-review`.
+- **Priority is the owner's:** `now` · `next` · `later`. Set them only on
+  the owner's explicit word, quoting it in a comment. Pick from `now`
+  first, then `next` (inside a band, `P0` before `P1`); `later` is parked —
+  ask before starting. No priority label = triage: work it only if it is
+  small and clearly in scope, otherwise ask.
+- **Lifecycle:**
+  1. **File** — search open issues first. Title = the checkable DONE,
+     body = territory + record path.
+  2. **Claim before you start** — assign yourself
+     (`gh issue edit <n> --add-assignee @me`; atomic, visible to everyone,
+     and automerge's duplicate rule leans on it), add `claimed`, and leave
+     one comment: `Claimed by <who> (<session id/name>) · branch <name> ·
+     <date>` plus a link to the plan. One claimant: never start work
+     someone else holds, except a claim older than 48 h with no commit on
+     its branch, which is free to take (say so on the issue). Release =
+     unassign + remove the label + one line.
+  3. **Work** on a branch named for the issue; anything new you discover
+     is a new issue, never a line in a file.
+  4. **Blocked** — label `blocked` + a comment naming exactly what you
+     need and from whom.
+  5. **Ready** — push, with the gate numbers verbatim in the PR. A
+     delegated session leaves the PR draft, adds `ready-for-review` to the
+     issue and stops. A direct session takes it to the merge gate, which
+     here is a machine: mark the PR ready and let CI + `claude-review` +
+     `automerge` land it (below).
+  6. **Close** — only with evidence, as a comment on the issue: the merge
+     sha on `main` AND the ship state (there is no deploy step here: say
+     "plugin zip not rebuilt", or what was rebuilt / re-certified and who
+     has it), the `KNOWLEDGE.md` entries ratified, records archived.
+     `Closes #N` closes the issue at merge; the evidence comment is still
+     owed. Never close an issue whose change is not on `main`.
+     `owner-decision` issues close quoting the owner.
+- **Views replace lists:** open `fr` = backlog · open `stream` = chartered ·
+  `claimed` = in flight · `now` = do first · `owner-decision` = waiting on
+  the owner · `proposal` = to ratify · `ready-for-review` = waiting on a
+  gate · `P0` = the shipping gates.
+- Cloud sessions: where `gh issue` porcelain is refused, use REST —
+  `gh api "repos/ckaragitz/tekton/issues?state=open&labels=now"`. If a
+  label above does not exist on the repo yet, create it.
 
 **Don't know what to work on? That's expected.** Read the pinned issue
 **"START HERE"** ([#25](https://github.com/ckaragitz/tekton/issues/25)):
-it explains the labels and how to choose. Rule of thumb: if you are not
-on the owner's machine, pick `ready` issues (doable from a fresh clone —
-no `samples/`, no viewer login), `P0` before `P1`, and `good-first-pick`
-for your first PR here.
+it explains the area labels and how to choose (it predates the kind /
+workflow / priority labels above; where they disagree, this file wins).
+Rule of thumb: `now` first, then `next`; if you are not on the owner's
+machine, pick `ready` issues (doable from a fresh clone — no `samples/`,
+no viewer login), `P0` before `P1`, and `good-first-pick` for your first
+PR here.
 
 **Session start protocol (every session, every time):**
 ```bash
 git switch main && git pull --ff-only          # start from current trunk
 gh issue list --assignee @me --state open      # resume yours, or:
-gh issue list --label ready --search "no:assignee"   # pick one, then self-assign it
+gh issue list --label now --search "no:assignee"     # the owner's do-first band, then `next`
+gh issue list --label ready --search "no:assignee"   # pick one, then claim it (assign + `claimed` + comment)
 git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR
 ```
 **Before picking new work, service your own open PRs** — this is how a
@@ -252,8 +336,8 @@ Cloud sessions (claude.ai/code) can instead turn on **Auto-fix** in the PR's CI
 bar (or run `/autofix-pr` in a terminal session) so the session itself watches
 CI failures and review comments and pushes fixes.
 
-Then read the issue, `KNOWLEDGE.md`, and any `docs/inbox/` records it cites
-before writing code.
+Then read the issue, its plan in `docs/plans/` if it has one,
+`KNOWLEDGE.md`, and any `docs/inbox/` records it cites before writing code.
 
 **Branch → PR → main (standard trunk-based flow):**
 - `main` is protected: no direct commits; merge only via PR with review +
@@ -355,30 +439,39 @@ you to do unless the bot asks for a human."
 
 **Hot files — serialize, don't stack.** `tools/frontdoor.py`,
 `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`,
-`TRACKER.md`, `KNOWLEDGE.md`, `docs/coverage/viewer-certified.json`: changes
-need an issue labelled `hot-file`, a tiny dedicated PR, and a merge the same
-day. Everything else: prefer **new modules in your territory** and deliver
+`KNOWLEDGE.md`, `docs/ORCHESTRATOR.md`, `docs/coverage/viewer-certified.json`:
+changes need an issue labelled `hot-file`, a tiny dedicated PR, and a merge
+the same day. Everything else: prefer **new modules in your territory** and deliver
 edits to shared files as a patch in your record if someone else holds them.
 `experiments/<stream>/**` is namespaced per stream, so probes never collide.
 
 **Roles.** The *orchestrator* is a rotating human role, not a bot: they
-triage issues, keep `TRACKER.md` current **via PR** (it is the curated
-roadmap/summary, not the live claim board), fold `docs/inbox/learned-*.md`
-notes into `KNOWLEDGE.md`, and run/record viewer certification rounds.
-Contributors STAGE viewer batches on their branch (`probe_batch.py stage`)
-and stop at READY; whoever uploads records verdicts in
-`docs/coverage/viewer-certified.json` + `docs/inbox/genesis-audit.md` via a
-`hot-file` PR.
+triage issues, set (or relay the owner's) `now · next · later`, and
+run/record viewer certification rounds. There is no roadmap file to keep
+current — the views over Issues are the roadmap, and standing state is
+`docs/ORCHESTRATOR.md`. Ledger entries are ratified by the **direct
+session** that lands the work (a `hot-file` PR to `KNOWLEDGE.md`), not
+batched for the orchestrator. Contributors STAGE viewer batches on their
+branch (`probe_batch.py stage`) and stop at READY; whoever uploads records
+verdicts in `docs/coverage/viewer-certified.json` +
+`docs/inbox/genesis-audit.md` via a `hot-file` PR.
 
 - **Streams.** Substantial work is still chartered as a stream with a
-  *territory* (files it may touch), a checkable *DONE*, and a *record* — the
-  issue is the charter. Streams propose follow-ups by opening issues (or in
-  the PR description), never by editing `TRACKER.md` themselves.
+  *territory* (files it may touch), a checkable *DONE*, and a *record*: a
+  `stream` issue plus its charter `docs/plans/<issue>-<slug>.md` (a small
+  task's issue is its own charter). Streams propose follow-ups by opening
+  issues; a delegated session that cannot reach GitHub lists them in its
+  record and its parent files them. Never a line in a file.
 - **Every stream writes `docs/inbox/<stream>.md`**: what was built, the
-  evidence (numbers, not adjectives), findings, open questions, and a
-  closing **`BRANCH STATE`** block (files written, gates, what's staged vs
-  shipped). Durable lessons go to `docs/inbox/learned-<slug>.md`; the
-  orchestrator merges them into `KNOWLEDGE.md`.
+  evidence old → new (numbers, not adjectives), gate numbers verbatim,
+  findings, open questions, a `## Proposed KNOWLEDGE entry` section for
+  durable lessons, and a closing **`BRANCH STATE`** block (files written,
+  gates, what's staged vs shipped, tip sha); a delegated session ends it
+  with the literal line `READY for review — <branch> @ <sha>`. Proposed
+  ledger entries ride inside that one record (no separate
+  `learned-<slug>.md`; the two in `docs/inbox/` predate this). The direct
+  session that lands the branch ratifies or declines them in
+  `KNOWLEDGE.md` and archives the record (`docs/inbox/README.md`).
 - **No cross-voice writes**: never write into another stream's record in
   its voice; additions elsewhere go under a header naming *your* stream.
 - **Territory discipline**: put new code in new modules; deliver edits to
@@ -396,6 +489,44 @@ and stop at READY; whoever uploads records verdicts in
   dirs, and never a presenter cheat sheet (`ANSWER_KEY.md`,
   `DEMO_RUNBOOK.md`, `demo-talk-track.md`). Never force-push `main` or a
   branch someone else has pulled.
+
+**Plans are charters — not the queue, not the ledger.**
+`.claude/settings.json` sets `"plansDirectory": "docs/plans"`, so plan mode
+writes into the repo instead of `~/.claude/plans`. Rename the plan
+`docs/plans/<issue>-<slug>.md`, commit it on the branch, link it from the
+issue's claim comment, keep it current, and `git mv` it to
+`docs/archive/<YYYY-MM>/plans/` in the PR that closes the issue. The issue
+says who is doing what; the plan says how; `KNOWLEDGE.md` says what was
+decided.
+
+**Keep the externalized context small and true (archive rule).**
+- **Live set:** this file, `KNOWLEDGE.md`, `docs/ORCHESTRATOR.md`,
+  `README.md`, `AGENT_BRIEF.md`, `RENAME.md`, `docs/product/`,
+  `docs/writer/`, `docs/streams/`, `docs/legal/`, `docs/acceptance-log.md`,
+  `plugin/docs/**`, open plans in `docs/plans/`, un-ingested records in
+  `docs/inbox/` plus its two live files (`genesis-audit.md`,
+  `SUITE-COORDINATION.md`).
+- **Archive when** a thing stops being true (record ingested, stream
+  merged or abandoned, a doc superseded, the state file rewritten) — in
+  the SAME PR that supersedes it. **How:** `git mv` to
+  `docs/archive/<YYYY-MM>/<same relative path>`; one line in
+  `docs/archive/README.md` (what · why · superseded by); grep the repo
+  and fix live references (code comments and docs cite records by path).
+- **Contracts are never archived:** anything a test, tool or CI step
+  reads — `docs/coverage/viewer-certified.json`, `docs/coverage/matrix.json`,
+  `tests/ci_shard.txt`, evidence paths `src/rvt/frontdoor/matrix.py`
+  verifies, manifests under `experiments/`. Delete outright (don't
+  archive): scratch captures, logs, duplicates.
+- Never read `docs/archive/` cold — only when an issue, a ledger entry or
+  a cited row key points there.
+- **Tripwire:** if `docs/ORCHESTRATOR.md`'s "as of" is more than 14 days
+  old, or `docs/inbox/` holds a record added after 2026-10-08 whose branch
+  is already on `main`, fix that before your own task. (The ~150 August
+  records are a known backlog — `docs/ORCHESTRATOR.md`, open fronts.)
+- **Shipping honesty:** end your summary with the ship state. Nothing
+  here deploys; say whether `tekton-plugin.zip` was rebuilt and, if a
+  step is owed (a viewer round, a rebuild on the owner's machine), the
+  exact command and the machine it must run from.
 
 ## 5. Where things stand (read `KNOWLEDGE.md` for the full arc)
 

@@ -6,7 +6,8 @@ Closes #
 
 ## Stream record
 - Record: `docs/inbox/<stream>.md` (ends with a `BRANCH STATE` block) — [ ] included / updated in this PR
-- Learnings for KNOWLEDGE.md (if any): `docs/inbox/learned-<slug>.md` — [ ] included  [ ] n/a
+- Learnings for KNOWLEDGE.md (if any): the record's `## Proposed KNOWLEDGE entry` section — [ ] included  [ ] n/a
+- Plan / charter (if the issue has one): `docs/plans/<issue>-<slug>.md` — [ ] current  [ ] archived in this PR (it closes the issue)  [ ] n/a
 
 ## After opening
 - [ ] Auto-fix turned on for this PR (cloud: CI bar → Auto-fix / "auto-fix this PR"; terminal: `/autofix-pr`)
@@ -27,4 +28,4 @@ Closes #
 - [ ] Output is always delivered (gates are labels, never refusals)
 - [ ] Nothing reads an Autodesk install directory
 - [ ] Zero donor bytes in anything shippable; sample-derived material only in git-ignored / PROOF-ONLY paths
-- [ ] Hot files touched? (`tools/frontdoor.py`, `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`, `TRACKER.md`, `KNOWLEDGE.md`, `viewer-certified.json`) → issue is labelled `hot-file` and this PR is tiny
+- [ ] Hot files touched? (`tools/frontdoor.py`, `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`, `KNOWLEDGE.md`, `docs/ORCHESTRATOR.md`, `viewer-certified.json`) → issue is labelled `hot-file` and this PR is tiny
