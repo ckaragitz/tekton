@@ -54,7 +54,7 @@ __all__ = ["Kind", "Mention", "LANES", "DISCIPLINES", "MECHANISMS", "INTENDED_LA
            "for_intent_kind", "by_discipline", "archetype_registry", "category_status",
            "member_model", "famspec_hint", "facts_tier", "builder_available", "caveat",
            "describe", "table", "check_row", "check", "DECISIONS", "DECISION_OUTCOMES",
-           "gap_rows", "decision", "REFINE_FIRST", "archetype_defers_to"]
+           "gap_rows", "decision", "REFINE_FIRST"]
 
 LANES = ("catalog", "archetype", "none")
 MECHANISMS = ("famspec", "archetype", "house")
@@ -699,63 +699,6 @@ def scan(text: Any) -> List[Mention]:
     prompt grammar decides what to DO with a mention (build it, shield it from the panel
     grammar, record it as not built); this table only says what kind the words are."""
     return _scan(text, _ALIAS, ambiguous=AMBIGUOUS_ALONE)
-
-
-def _normalise_for_spans(text: Any) -> str:
-    """Lower-case, with hyphens and a possessive 's blanked -- SAME LENGTH, so every offset
-    holds: "cable-tray elbow" and "cable tray's elbow" read as "cable tray elbow"."""
-    low = str(text or "").lower()
-    low = re.sub(r"(?<=\w)['\u2019]s\b", "  ", low)
-    return low.replace("-", " ")
-
-
-def _archetype_match_spans(text: str, archetype_key: str) -> List[Tuple[int, int]]:
-    """Every span the archetype's OWN product patterns match in ``text`` (the archetype lane
-    reads prompts with these, not with this table).  Read-only use of the registry's pattern
-    list; an archetype the registry does not hold matches nothing."""
-    from . import archetypes as _AR                      # lazy: the registry is heavy
-    arch = _AR.ARCHETYPES.get(archetype_key)
-    if arch is None:
-        return []
-    low = _AR._mask_orphan_fractions(text)              # same length: offsets hold
-    return [m.span() for pat in _AR._product_patterns(arch) for m in re.finditer(pat, low)]
-
-
-def archetype_defers_to(text: Any, archetype_key: str) -> Optional[Kind]:
-    """The unbuilt row an ARCHETYPE lane must defer to before building ``archetype_key`` for
-    ``text`` (#822, #1043 review) -- or None to go ahead.  The archetype lane matches prompts
-    with its own patterns, so without this "create a conduit elbow family" built a straight
-    conduit run under the elbow's name.
-
-    On the prompt normalised for hyphens and possessives, it defers when EVERY span the
-    archetype's own patterns matched is claimed by a kind no lane builds (a :func:`gap_rows`
-    row) whose phrase OVERLAPS it or directly FOLLOWS it ("EMT conduit elbow", "cable tray
-    elbow", "cable-tray tee") -- unless a row this archetype builds names that phrase more
-    specifically ("a HORIZONTAL fan coil" contains "fan coil").  One clean reading of the
-    product ("a 12 in TRAY for the cable tray fitting") is enough to build.  An unbuilt kind elsewhere in the prompt ("a 12 in
-    tray for the rooftop unit", "a lighting control panel and a fan coil") never blocks: the
-    built product is delivered (hard rule 1)."""
-    norm = _normalise_for_spans(text)
-    spans = _archetype_match_spans(norm, archetype_key)
-    if not spans:
-        return None
-    builds = f"archetype:{archetype_key}"
-    built = [(m.start, m.end) for m in scan(norm)
-             if m.key in _BY_KEY and builds in _BY_KEY[m.key].via]
-    gap_index, _clashes = _alias_index(gap_rows(), _names)
-    gaps = [g for g in _scan(norm, gap_index, ambiguous=AMBIGUOUS_ALONE)
-            if not any(s <= g.start and g.end <= e and (s, e) != (g.start, g.end)
-                       for s, e in built)]              # a built row names it more specifically
-
-    def claimed_by(s: int, e: int) -> Optional[Mention]:
-        for g in gaps:
-            if (g.start < e and s < g.end) or (e <= g.start and not norm[e:g.start].strip()):
-                return g
-        return None
-    claims = [claimed_by(s, e) for s, e in spans]
-    if any(c is None for c in claims):                  # one clean reading of the product: build
-        return None
-    return _BY_KEY[claims[0].key]
 
 
 def by_discipline(discipline: Optional[str] = None) -> Dict[str, Tuple[Kind, ...]]:

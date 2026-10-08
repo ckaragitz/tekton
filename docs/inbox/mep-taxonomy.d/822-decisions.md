@@ -32,9 +32,11 @@ Each such row stays in `_ROWS`, unbuilt, holding the words that name all of its 
 Tests pin this, patching `_ROWS`, its key index and its alias index together, the way a real edit would:
 - **The mechanism bypass fails:** the row given a builder.
 - **The rename bypass fails:** same label and words, new key, with a builder.
-- **The prescribed split passes:** fan coil horizontal / vertical / cassette rows beside the kept row. With it, "fan coil unit", "fan coil" and "fcu" still resolve to the unbuilt row (in `taxonomy.resolve` / `scan`), and "horizontal fan coil" resolves to the built one. The archetype lane obeys the same split through `archetype_defers_to` (tested with an archetype standing in for the product's builder).
+- **The prescribed split passes:** fan coil horizontal / vertical / cassette rows beside the kept row. With it, "fan coil unit", "fan coil" and "fcu" still resolve to the unbuilt row (in `taxonomy.resolve` / `scan`), and "horizontal fan coil" resolves to the built one. This holds for the taxonomy's resolver. The archetype lane reads prompts with its own patterns, and keeping it to the same split is part of #1045.
 
-**The guard's stated limit.** Moving the row's shared *words* onto a built row, so that "fcu" resolves to one product, is a resolution question. It is not caught here; it is added to #1044 as its DONE 4.
+**The guard's stated limits.**
+- Moving the row's shared *words* onto a built row, so that "fcu" resolves to one product, is a resolution question. It is not caught here; it is #1044's DONE 4.
+- Another resolver claiming those words (the archetype lane) is #1045.
 
 That #893 constructor builds the *horizontal concealed* unit only, so it answers that product's row once added, never the multi-product row or a vertical or cassette request. The remaining 31 rows have one standard shape for their class.
 
@@ -59,19 +61,7 @@ Pre-existing **aliases that name a different product** (e.g. "water source heat 
   The internal rationale stays in `DECISIONS`; the user line carries no issue numbers or module paths, and never the word "generated" on a kind no lane builds (`test_taxonomy_692` pins that).
 
   Previously it only said no lane builds the kind.
-- **No near miss at the route (#1043's seventh review).** The archetype lane matches prompts with its own patterns, independent of the taxonomy. When the taxonomy refused, the router fell through to it.
-  - **What shipped before this fix:** "create a conduit elbow family" delivered a straight conduit run (`OK … .rfa generated`), and so did "conduit body" and "conduit fitting". The cable-tray fittings ("tray elbow", "tray tee", "cable tray fitting") built a straight ladder section.
-  - **The fix, `taxonomy.archetype_defers_to(prompt, archetype)`.** The archetype lane (`router._archetype_rfa`) reads prompts with its *own* patterns, and this function uses those same match spans, on the prompt normalised for hyphens and possessives, with the same length so offsets hold. The lane steps aside only when **every** span its patterns matched is claimed by a kind no lane builds, meaning that kind's phrase overlaps the span or directly follows it. Examples: "conduit elbow", "EMT conduit elbow", "cable-tray tee", "cable tray's elbow". The exception is a row this archetype builds that names the phrase more specifically ("a *horizontal* fan coil" contains "fan coil").
-  - **What still builds:** one clean reading of the product is enough. This covers "a 12 in tray for the rooftop unit", "a square duct above the VFD" and "a lighting control panel and a fan coil". The first version used the taxonomy's names as a proxy and withheld exactly these, which #1043's eighth review caught (hard rule 1).
-  - **Tests:**
-    - the reviewer's eleven must-defer prompts;
-    - a sweep over every name of every unbuilt row: the archetype lane delivers none of them;
-    - a sweep over every built archetype name and the lane's own words ("12 in tray", "square duct", "metal framing channel"), beside every unbuilt kind, three ways ("for the", "next to the", "and a"): none is withheld where the lane still reads its own product;
-    - the future split, with the archetype's patterns simulated;
-    - the route delivers no `.rfa` for "create a conduit elbow family".
-
-    Mutations are caught: no deferral (5 tests fail), deferring on any claimed span (the withholding sweep fails), and no hyphen normalisation (fails).
-  - **Not closed here, granularity with no alias yet:** "EMT elbow", "conduit 90 elbow", "cable tray reducer" still read as a straight run or tray, because no taxonomy row names them (`REFINE_FIRST` lists "reducer" as a product, but no alias carries it). They belong with the alias work in #1044.
+- **Known and not fixed here: the archetype lane delivers near misses (#1045, P0).** The prompt route falls through to the archetype lane when the taxonomy refuses, and that lane matches prompts with its own patterns. So "create a conduit elbow family" ships a straight conduit run with status `OK`, and "tray tee" ships a straight ladder tray. This is a live, pre-existing defect. #1043's review rounds 7–9 tried three deferral rules in this PR; each either let near misses through or withheld legitimate builds (hard rule 1). The route work was therefore taken out of this PR. **This PR changes no routing.** #1045 carries every case those rounds found as its acceptance corpus, with must-defer and must-deliver lists and design notes.
 - **No near-miss mapping.** The `vav_box` row (aliases include "fan powered box") is not pointed at the fan-powered terminal (#895). Its decision is to refine it first: the fan-powered wording is split off for #895's constructor, and a single-duct VAV box gets its own archetype. A test checks that "vav box" resolves to its own, still-unbuilt row.
 - **Conflict rows.** A gap row whose category is in conflict (#516) still needs a decision. Its conflict line reaches the user first. No gap row is in conflict today.
 
@@ -156,23 +146,22 @@ Generated from `taxonomy.decision()` over `DECISIONS` (one-shape rows) and `REFI
 
 ## Evidence
 
-- **`tests/test_taxonomy_decisions_822.py`: 20 passed.** These are mutation-checked:
-  - the three `archetype_defers_to` mutations above;
+- **`tests/test_taxonomy_decisions_822.py`: 13 passed.** These are mutation-checked:
   - disabling either `REFINE_FIRST` rule makes its bypass test fail;
-  - dropping a key from `REFINE_FIRST` makes the floor test fail;
-  - moving a key into `DECISIONS` with a one-box reason makes the floor test fail (#1043's sixth review). It covers:
+  - dropping a key from `REFINE_FIRST`, or moving one into `DECISIONS`, makes the floor test fail.
+
+  Coverage:
   - every gap is decided and `check()` is clean;
-  - **none of the 62 recorded kinds is ever removed**; each stays a row, built or still decided. This is #822 DONE 4: the count falls only by building kinds. It is not a numeric ceiling, because a split adds product rows, each with its own decision;
-  - `REFINE_FIRST`'s 31 keys are a floor: entries may be added, never dropped;
-  - a missing, stale, bad-outcome or empty-reason decision each fails the check;
-  - the refusal and `describe()` name the decision;
-  - busway is a loadable (archetype) kind;
-  - every `REFINE_FIRST` row has at least two products and a derived split-first decision, and none is also in `DECISIONS`;
-  - such a row given a builder, or renamed away, fails `check()`; the prescribed split passes, and the shared words stay unbuilt;
-  - a "not generated" reason the user would read cannot carry an issue number, a module path or the word "generated";
-  - a "not generated" refusal promises no later lane;
-  - the VAV-box near miss is ruled out by routing, not by wording.
-- **1353 passed, 58 skipped, 5 xfailed** for:
+  - none of the 62 recorded kinds is ever removed;
+  - the 31 `REFINE_FIRST` keys are a floor;
+  - a missing, stale, overlapping, bad-outcome or empty-reason decision each fails;
+  - the refusal and `describe()` name the decision, and a "not generated" refusal promises no later lane;
+  - busway is a loadable kind;
+  - "vav box" resolves to its own unbuilt row;
+  - every `REFINE_FIRST` row has a derived split-first decision;
+  - the mechanism and rename bypasses fail, while the prescribed split passes with the shared words unbuilt;
+  - a "not generated" reason is user-safe.
+- **1346 passed, 58 skipped, 5 xfailed** for:
   - every module that mentions the taxonomy (`grep -l taxonomy tests/test_*.py`);
   - `test_plugin_sync`, `test_conftest_scaffolding`, `test_router`, `test_router_release` and `test_doc_caveats_990`;
   - `test_famgen_archetypes`, `test_archetype_alias_order_812` and `test_archetype_drives_913`;
@@ -185,10 +174,9 @@ Generated from `taxonomy.decision()` over `DECISIONS` (one-shape rows) and `REFI
 
 - Files:
   - `src/rvt/famgen/taxonomy.py` and its plugin mirror;
-  - `src/rvt/frontdoor/router.py` (`_archetype_rfa` defers) and its plugin mirror;
   - `tests/test_taxonomy_decisions_822.py` with the drop-in `tests/ci_shard.d/822-taxonomy-decisions.txt`;
   - this record.
 - Shipped on merge.
 - **Next (DONE 3):** add the fan coil's product rows beside `fan_coil_unit` (horizontal concealed / vertical cabinet / ceiling cassette) and wire the horizontal concealed row to the #893 constructor. Likewise add the VAV row's fan-powered terminal row for #895. Then the electrical archetypes, one PR each.
-- **Open:** `rvt.ifc.intent.plan_family_for` dispatches IFC equipment by `Equipment.kind`, a builder table outside this law. It only builds kinds with constructors today, but it should be brought under `archetype_defers_to`-style checking when IFC kinds grow; noted on #1044.
+- **Open:** the archetype lane's near misses are #1045 (P0). The IFC dispatcher `rvt.ifc.intent.plan_family_for`, a builder table outside this law, is noted on #1044.
 - No Revit claim (hard rule 4).
