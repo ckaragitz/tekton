@@ -218,6 +218,7 @@ def test_the_left_edge_keeps_the_working_space_over_the_box(can):
         got = FM.evaluate(edge, {P[PC.P_WS_W].elem_id: CLW, P[PC.P_SHIFT_L_ON].elem_id: l,
                                  P[PC.P_SHIFT_R_ON].elem_id: r})
         assert got >= W / 2 - 1e-9 and CLW - got >= W / 2 - 1e-9   # spans the box, never 0
+        assert got == pytest.approx(CLW / 2 - r + l)              # right = +x, left = -x
 
 
 def test_the_switches_are_bound_to_visibility(can):
@@ -355,3 +356,103 @@ def test_the_cli_builds_it(tmp_path):
     assert r.returncode == 0, r.stdout[-2000:] + r.stderr[-2000:]
     assert out.exists() and "VALID (0 errors" in r.stdout
     assert readback(str(out))[PC.P_MOUNT]["value"] == pytest.approx(18 * IN)
+
+
+# --- #1053 review round 2 ------------------------------------------------------------
+
+def _labelled(prod):
+    """[(param id, the value the labelled dimension holds)] of every labelled segment."""
+    out = []
+    for e in prod.doc.elements:
+        if e.class_name != "LinearDimString":
+            continue
+        for seg in e.obj.get("m_ArrSegInfo") or []:
+            pid = seg.get("m_paramId")
+            if isinstance(pid, int) and pid > 0:
+                out.append((pid, seg["m_values"][0]["m_value"]))
+    return out
+
+
+@pytest.mark.parametrize("kw,n", [({}, 12), ({"surface": False}, 12), ({"height_in": 80}, 9),
+                                  ({"height_in": 80, "surface": False}, 8),
+                                  ({"mounting_height_in": 24}, 11)])
+def test_every_labelled_dimension_holds_its_parameters_written_value(kw, n, tmp_path):
+    prod = PC.make_panel_can(**kw)
+    path = str(tmp_path / "x.rfa")
+    prod.write(path)
+    by_id = {r["id"]: r["value"] for r in readback(path).values()}
+    labelled = _labelled(prod)
+    assert len(labelled) == n
+    for pid, held in labelled:
+        assert held > 0 and by_id[pid] == pytest.approx(held), pid
+
+
+def test_the_chains_are_anchored_where_they_belong(can):
+    from rvt.famgen import drive_law as DL
+    prod = can[0]
+    by = {d["caption"]: d for d in prod.drives}
+    ox, oy = (DL.origin_centre_plane(prod.doc, a).elem_id for a in ("x", "y"))
+    assert by[PC.P_DEPTH]["anchored"] == ["lo"] and by[PC.P_DEPTH]["planes"][0] == oy
+    assert by[PC.P_WS_DEPTH]["anchored"] == ["lo"]
+    assert by[PC.P_WS_LEFT]["anchored"] == ["hi"] and by[PC.P_WS_LEFT]["planes"][1] == ox
+    assert by[PC.P_WS_W]["anchored"] == ["lo"]
+    assert by[PC.P_WS_W]["planes"][0] == by[PC.P_WS_LEFT]["planes"][0]
+    assert by[PC.P_WIDTH].get("symmetric") and by[PC.P_TRIM_W].get("symmetric")
+
+
+@pytest.mark.parametrize("kw,locks", [({}, (16, 8)), ({"height_in": 80}, (14, 7)),
+                                      ({"height_in": 80, "surface": False}, (12, 6))])
+def test_the_height_chain_locks_every_face_it_should(kw, locks):
+    h = PC.make_panel_can(**kw).heights
+    assert (h["face_locks"], h["extrusions_locked"]) == locks and h["refused"] == []
+
+
+def test_the_connectors_point_out_of_their_faces_apart_from_each_other(can):
+    prod = can[0]
+    W, D, H = 20 * IN, 5.75 * IN, prod.facts.get("height_in") * IN
+    MH = (PC.MOUNT_TOP_IN - prod.facts.get("height_in")) * IN
+
+    def frame(c):                                      # (origin, direction) on its face
+        surf = c.obj["m_pFaceU"]["value"]["m_pSurf"]["value"]
+        return tuple(surf["m_origin"]), tuple(surf["m_xVec"])
+    (power,) = prod.doc.connectors
+    assert frame(power) == (pytest.approx((0.0, D / 2, MH + H)), (0.0, 0.0, 1.0))
+    got = sorted(frame(c) for c in prod.doc.mep_connectors)
+    assert got[0][0] == pytest.approx((W / 4, D / 2, MH)) and got[0][1] == (0.0, 0.0, -1.0)
+    assert got[1][0] == pytest.approx((W / 4, D / 2, MH + H)) and got[1][1] == (0.0, 0.0, 1.0)
+
+
+def test_each_header_heads_its_section(can):
+    prod = can[0]
+    names = {pe.elem_id: n for n, pe in prod.doc.params.items()}
+    cells = prod.doc.self_family.obj["m_cellList"]["value"]["m_cells"]
+    order = next(c for c in cells if "FamilyParamsOrderCell" in c["ptr_class"])["value"]
+    seq = [names.get(i, i) for g in order["m_sortedParams"] for i in g["m_paramIds"]]
+    for hdr, first in ((PC.H_DIMS, PC.P_WIDTH), (PC.H_TRIM, PC.P_SURFACE),
+                       (PC.H_CLEAR, PC.P_MIN_WS_W), (PC.H_IDENTITY, "PanelName")):
+        assert seq[seq.index(hdr) + 1] == first, hdr
+
+
+def test_a_flush_trim_on_the_floor_says_its_bottom_is_not_driven():
+    prod = PC.make_panel_can(surface=False, mounting_height_in=PC.FLUSH_LAP_IN)
+    assert prod.heights["refused"] == [] and PC.P_TRIM_Z not in prod.heights["captions"]
+    assert any("trim's bottom is on the floor" in n for n in prod.doc.notes)
+
+
+def test_a_shared_parameter_file_never_refuses_the_job(tmp_path):
+    sp = tmp_path / "sp.txt"
+    sp.write_text("# synthetic\n*META\tVERSION\tMINVERSION\nMETA\t2\t1\n*GROUP\tID\tNAME\n"
+                  "GROUP\t1\tDims\n*PARAM\tGUID\tNAME\tDATATYPE\tDATACATEGORY\tGROUP\tVISIBLE"
+                  "\tDESCRIPTION\tUSERMODIFIABLE\n"
+                  "PARAM\t0000aaaa-1047-4000-8000-000000000001\tWidth\tLENGTH\t\t1\t1\t\t1\n"
+                  "PARAM\t0000aaaa-1047-4000-8000-000000000002\tShow Clearances\tYESNO\t\t1\t1\t\t1\n",
+                  encoding="utf-8")
+    prod = PC.make_panel_can(shared_params=str(sp))
+    rep = prod.write(str(tmp_path / "sp.rfa"))
+    assert rep["validate"]["family_mode"]["n_errors"] == 0
+    assert prod.doc.params[PC.P_WIDTH].class_name == "ParamElemFamily"
+    assert any(n.startswith("kept LOCAL, not shared: Width, Show Clearances") for n in prod.doc.notes)
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "make_family.py"), "panel-can",
+                        "--shared-params", str(sp), "-o", str(tmp_path / "cli_sp.rfa")],
+                       capture_output=True, text=True, timeout=600)
+    assert r.returncode == 0 and "VALID (0 errors" in r.stdout, r.stdout[-1500:] + r.stderr[-1500:]

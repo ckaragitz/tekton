@@ -31,15 +31,18 @@ build time (#1048).
   110.26(A) working space starting at the trim's face, measured from the floor, and
   the 110.26(E)(1) dedicated space above the box, with their Yes/No switches -- and
   their sizes as parameters labelling the zones' own dimensions: width (the greater
-  of the box and ``Working Space Minimum Width``) with a checked left / right shift,
-  depth, the dedicated space's height, and a from-the-floor switch.
+  of the box and ``Working Space Minimum Width``) with a checked left / right shift
+  (right = +x, left = -x: as seen in the floor plan with the panel's front, +y, toward
+  the top of the screen), depth, the dedicated space's height, and a from-the-floor
+  switch.
 * the electrical circuiting parameters a connector reads -- ``Voltage``,
   ``Number of Poles`` (Revit's number-of-poles storage), ``Power Factor``,
   ``Apparent Load``, ``Load Classification`` (a load-classification parameter,
   not text) and ``Motor`` -- the first five ASSOCIATED to the power connector on
   the box top; and two round conduit connectors, on the box top and bottom.
-* section-header rows (text parameters whose formula is their own label), so the
-  properties palette reads in sections.
+* section-header rows (text parameters whose formula is their own label), each
+  authored immediately before the members it heads in its palette group, so the
+  stored parameter order reads in sections.
 * ``Width`` / ``Height`` / ``Depth`` / ``Mounting Height`` (per instance) drive
   the box, the trim rides its front, the zones ride the box (drive / height laws,
   #914 / #787) -- every drive all-or-nothing, a refusal a note.
@@ -103,11 +106,12 @@ P_SHIFT_L_ON, P_SHIFT_R_ON = "Working Space Shift Left Applied", "Working Space 
 #: 30 in, whichever is greater (a code minimum, cited by article -- never NFPA text)
 MIN_WORKING_WIDTH_IN = 30.0
 #: section headers: (parameter, palette group) -- a text parameter whose formula
-#: is its own label
-HEADERS = (("--- Identity ---", SK.PGROUP_CONSTRAINTS),
-           ("--- Dimensions ---", SK.PGROUP_CONSTRAINTS),
-           ("--- Trim ---", SK.PGROUP_CONSTRAINTS),
-           ("--- Clearances ---", SK.PGROUP_CONSTRAINTS))
+#: is its own label, authored IMMEDIATELY before the members it heads in its group
+#: (the palette's stored order is the authoring order within a group)
+H_IDENTITY, H_DIMS, H_TRIM, H_CLEAR = ("--- Identity ---", "--- Dimensions ---",
+                                       "--- Trim ---", "--- Clearances ---")
+HEADERS = ((H_IDENTITY, SK.PGROUP_IDENTITY), (H_DIMS, SK.PGROUP_CONSTRAINTS),
+           (H_TRIM, SK.PGROUP_CONSTRAINTS), (H_CLEAR, SK.PGROUP_CONSTRAINTS))
 
 ZONE_FRONT = "clearance: front working space"
 ZONE_TOP = "clearance: top"
@@ -227,14 +231,17 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
                                   f"{dims['depth_in']:g} D in)")})
 
     # -- parameters ----------------------------------------------------------
-    for hdr, grp in HEADERS:
-        doc.add_family_parameter(hdr, SK.SPEC_TEXT, grp, is_instance=True,
-                                 formula=f'"{hdr}"', default=hdr)
+    # authored per instance or by formula here, so never a row of a shared-parameter
+    # file (the writer builds no instance / formula-driven shared parameter): such a
+    # row is set aside -- the family is built, the parameter local, and said
+    _keep_local(doc, LOCAL_ONLY)
+    _header(doc, H_DIMS)
     for cap, val in ((P_WIDTH, W), (P_HEIGHT, H), (P_DEPTH, D), (P_MOUNT, MH)):
         doc.add_family_parameter(cap, SK.SPEC_LENGTH, SK.PGROUP_CONSTRAINTS,
                                  is_instance=True, default=val)
     doc.add_family_parameter(P_THICK, SK.SPEC_LENGTH, SK.PGROUP_DIMENSIONS,
                              formula=_lit(dims["box_thickness_in"]), default=t)
+    _header(doc, H_TRIM)
     doc.add_family_parameter(P_SURFACE, SK.SPEC_YESNO, SK.PGROUP_CONSTRAINTS,
                              is_instance=True, default=1 if surface else 0)
     doc.add_family_parameter(P_FLUSH, SK.SPEC_YESNO, SK.PGROUP_CONSTRAINTS,
@@ -285,9 +292,10 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
     if lc_param is not None:
         PB.bind(con, lc_param, ELEM_PROP_LOAD_CLASS)
     from . import mep_connectors as MC
+    # the conduit entries a quarter width off centre: never on the feeder's point
     for face, z, dirz in (("top", MH + H, 1.0), ("bottom", MH, -1.0)):
         MC.add_conduit_connector(doc, host=plates[face], face=face,
-                                 location=(0.0, D / 2.0, z), direction=(0.0, 0.0, dirz),
+                                 location=(W / 4.0, D / 2.0, z), direction=(0.0, 0.0, dirz),
                                  u_axis=(1.0, 0.0, 0.0), diameter_ft=_in(CONDUIT_IN),
                                  description=f"Conduit {face}")
 
@@ -305,13 +313,16 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
         named.append((fb.params["role"], fb))
     zone_ctl = _clearance_controls(doc, W, MH, H, rep_c)
 
+    for note in (zone_ctl.get("notes") or []):
+        doc.notes.append(note)
+
     # -- drives -----------------------------------------------------------------
     drive_report: List[Dict[str, Any]] = []
     height_report: Dict[str, Any] = {}
     if drive:
+        from . import height_law as HL
         floor_plane = None
         if zone_ctl.get("height"):
-            from . import height_law as HL
             # the working space's floor is its OWN plane, coincident with the origin
             # plane: the from-the-floor switch moves it up to the box bottom
             floor_plane = HL._new_zplane(doc, 0.0)
@@ -326,18 +337,27 @@ def make_panel_can(*, vendor: str = "eaton", line: str = "pow-r-line",
             # its spec was refused: the plane holds nothing -- take it out again
             doc.refplanes.remove(floor_plane)
             doc.elements.remove(floor_plane)
-        for note in (zone_ctl.get("notes") or []):
-            doc.notes.append(note)
+            st = HL._state(doc)
+            st["planes"] = [p for p in st["planes"] if p != floor_plane.elem_id]
+            st["positioned"].discard(floor_plane.elem_id)
+            if height_report.get("planes"):
+                height_report["planes"] = len(st["planes"])
         _wire_working_depth(doc, named, drive_report, D, t, zone_ctl)
         _wire_working_width(doc, named, drive_report, zone_ctl)
         if MH <= EPS:
             doc.notes.append(f"the box stands on the floor: '{P_MOUNT}' is 0 and labels no "
                              f"dimension (the box bottom is the origin plane)")
+        elif -EPS <= TZ <= EPS:
+            doc.notes.append(f"the flush trim's bottom is on the floor: '{P_TRIM_Z}' labels no "
+                             f"dimension, so the trim's bottom stays on the floor if "
+                             f"'{P_MOUNT}' is changed")
         if TZ < -EPS:
             doc.notes.append(f"the flush trim laps {-TZ * 12:g} in below the floor: '{P_TRIM_Z}' "
                              f"and '{P_TRIM_H}' label no dimension (a length below the origin "
                              f"is not drawn as a drive)")
 
+    if standards:
+        _header(doc, H_IDENTITY)        # heads the identity rows the standards step adds
     std_report = ST.apply_safe(doc, "panelboard", standards, None, facts=[facts])
     _contract_values(doc, facts, int(spaces))
     doc.finalize()
@@ -460,6 +480,8 @@ def _clearance_controls(doc, W: float, MH: float, H: float,
     out: Dict[str, Any] = {"notes": []}
     front, top = rep_c.get("front"), rep_c.get("top")
     grp = SK.PGROUP_CONSTRAINTS
+    if front or (top and top.get("height_ft")):
+        _header(doc, H_CLEAR)
     if front:
         mn = _in(MIN_WORKING_WIDTH_IN)
         doc.add_family_parameter(P_MIN_WS_W, SK.SPEC_LENGTH, grp, is_instance=True, default=mn)
@@ -514,6 +536,34 @@ def _clearance_controls(doc, W: float, MH: float, H: float,
                                  default=float(top["height_ft"]))
         out["top"] = True
     return out
+
+
+#: everything authored per instance or by formula -- never from a shared-parameter row
+LOCAL_ONLY = tuple(h for h, _g in HEADERS) + (
+    P_WIDTH, P_HEIGHT, P_DEPTH, P_MOUNT, P_THICK, P_SURFACE, P_FLUSH, P_SHOW_TRIM, P_TRIM_W,
+    P_TRIM_H, P_TRIM_Z, P_LOAD, P_MOTOR, P_LOAD_CLASS, P_MIN_WS_W, P_WS_W, P_WS_DEPTH, P_DED_H,
+    P_FROM_FLOOR, P_WS_H, P_CENTERED, P_WS_LEFT, P_SHIFT_L, P_SHIFT_R, P_SHIFT_L_ON,
+    P_SHIFT_R_ON, "Show Clearances", "Front Clearance Visible", "Top Clearance Visible")
+
+
+def _keep_local(doc, names) -> None:
+    """Set aside the shared-parameter file's rows for ``names`` (authored here per
+    instance or by formula, which the writer never builds shared): the parameter is
+    local, the family built, and a note says which -- never a refused job (hard
+    rule 1)."""
+    table = getattr(doc, "shared_params", None)
+    hit = [n for n in names if table and n in table]
+    for n in hit:
+        table.pop(n)
+    if hit:
+        doc.notes.append(f"kept LOCAL, not shared: {', '.join(hit)} -- authored per instance or "
+                         f"by formula here, which a row of the shared-parameter file is not")
+
+
+def _header(doc, name: str) -> None:
+    grp = dict(HEADERS)[name]
+    doc.add_family_parameter(name, SK.SPEC_TEXT, grp, is_instance=True,
+                             formula=f'"{name}"', default=name)
 
 
 def _zone_sketch(named):
