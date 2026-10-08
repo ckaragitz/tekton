@@ -294,6 +294,16 @@ def cmd_fan_powered(ns) -> int:
     return 0 if _emit(prod, ns)["ok"] else 1
 
 
+def cmd_panel_can(ns) -> int:
+    from rvt.famgen import panel_can as PC
+    prod = PC.make_panel_can(vendor=ns.vendor, line=ns.line, mains_a=ns.mains,
+                             spaces=ns.spaces, voltage=ns.voltage, mcb=ns.mcb,
+                             panel_name=ns.name, width_in=ns.width, height_in=ns.height,
+                             depth_in=ns.depth, mounting_height_in=ns.mounting_height,
+                             surface=ns.cover == "surface", shared_params=_shared_arg(ns))
+    return 0 if _emit(prod, ns)["ok"] else 1
+
+
 def cmd_proofs(ns) -> int:
     return F.main([] if not ns.no_validate else ["--no-validate"])
 
@@ -662,6 +672,29 @@ def main(argv=None) -> int:
     p.add_argument("--json", action="store_true")
     p.add_argument("--no-validate", action="store_true")
     p.set_defaults(func=cmd_fan_powered, types=None, type_catalog=False)
+
+    p = sub.add_parser("panel-can", help="generate a panelboard as its back box and cover, "
+                                         "with switchable clearance zones (#1047)")
+    p.add_argument("--vendor", default="eaton")
+    p.add_argument("--line", default="pow-r-line")
+    p.add_argument("--mains", type=float, default=225, help="mains rating (A)")
+    p.add_argument("--spaces", type=int, default=42, help="branch circuit spaces")
+    p.add_argument("--voltage", default="208Y/120", help="system voltage, e.g. 480Y/277")
+    p.add_argument("--mcb", action="store_true", default=False,
+                   help="main circuit breaker (default main lugs only)")
+    p.add_argument("--name", default="PANEL", help="panel schedule name value")
+    p.add_argument("--width", type=float, default=None, help="box width (in); catalog if omitted")
+    p.add_argument("--height", type=float, default=None, help="box height (in); catalog if omitted")
+    p.add_argument("--depth", type=float, default=None, help="box depth (in); catalog if omitted")
+    p.add_argument("--mounting-height", type=float, default=None,
+                   help="box bottom above the floor (in); the box top at 78 in if omitted")
+    p.add_argument("--cover", default="surface", choices=["surface", "flush"])
+    p.add_argument("--shared-params", default=None, metavar="FILE")
+    _profile_flags(p)
+    p.add_argument("-o", "--output", default=None)
+    p.add_argument("--json", action="store_true")
+    p.add_argument("--no-validate", action="store_true")
+    p.set_defaults(func=cmd_panel_can, types=None, type_catalog=False)
 
     p = sub.add_parser("proofs", help="build the three proof families")
     p.add_argument("--no-validate", action="store_true")
